@@ -19,6 +19,14 @@ from setuptools import setup, find_packages
 with open('requirements.txt') as f:
     REQUIREMENTS = f.read().splitlines()
 
+
+version_path = os.path.abspath(
+        os.path.join(
+            os.path.join(os.path.dirname(__file__), 'qiskit_experiments'),
+        'VERSION.txt'))
+with open(version_path, 'r') as fd:
+    version = fd.read().rstrip()
+
 # Read long description from README.
 README_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                            'README.md')
@@ -27,7 +35,7 @@ with open(README_PATH) as readme_file:
 
 setup(
     name="qiskit-experiments",
-    version="0.17.0",
+    version=version,
     description="Software for developing quantum computing programs",
     long_description=README,
     long_description_content_type='text/markdown',
