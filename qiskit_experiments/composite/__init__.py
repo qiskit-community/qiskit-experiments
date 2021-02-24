@@ -10,12 +10,12 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Qiskit Experiments Root."""
+"""Composite Experiment Classes."""
 
-from .version import __version__
+# Base classes
+from .composite_experiment_data import CompositeExperimentData
+from .composite_analysis import CompositeAnalysis
 
-# Base result classes
-from .experiment_data import ExperimentData, AnalysisResult
-
-# Experiment modules
-from . import composite
+# Composite experiment classes
+from .parallel_experiment import ParallelExperiment
+from .batch_experiment import BatchExperiment
