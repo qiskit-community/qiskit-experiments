@@ -59,6 +59,12 @@ class BaseExperiment(ABC):
     # ExperimentData class for experiment
     __experiment_data__ = ExperimentData
 
+    # Custom default transpiler options for experiment subclasses
+    __transpile_defaults__ = {}
+
+    # Custom default run (assemble) options for experiment subclasses
+    __run_defaults__ = {}
+
     def __init__(self, qubits, experiment_type=None, circuit_options=None):
         """Initialize the analysis object.
 
@@ -66,8 +72,8 @@ class BaseExperiment(ABC):
             qubits (int or Iterable[int]): the number of qubits or list of
                                            physical qubits for the experiment.
             experiment_type (str): Optional, the experiment type string.
-            circuit_options (str): Optional, dictionary of allowed kwargs and
-                                   default values for the `circuit` method.
+            circuit_options (Interable): Optional, list of kwarg names for
+                                         the subclasses `circuit` method.
 
         Raises:
             QiskitError: if qubits is a list and contains duplicates.
@@ -109,10 +115,19 @@ class BaseExperiment(ABC):
         if experiment_data is None:
             experiment_data = self.__experiment_data__(self)
 
+        # Filter kwargs
+        run_options = self.__run_defaults__.copy()
+        circuit_options = {}
+        for key, value in kwargs.items():
+            if key in _TRANSPILE_OPTIONS or self._circuit_options:
+                circuit_options[key] = value
+            else:
+                run_options[key] = value
+
         # Generate and run circuits
-        circuits = self.transpiled_circuits(backend, **kwargs)
-        qobj = assemble(circuits)
-        job = backend.run(qobj, **kwargs)
+        circuits = self.transpiled_circuits(backend, **circuit_options)
+        qobj = assemble(circuits, **run_options)
+        job = backend.run(qobj)
 
         # Add Job to ExperimentData
         experiment_data.add_data(job)
@@ -161,7 +176,10 @@ class BaseExperiment(ABC):
             *N*-qubit experiment. The circuits mapped to physical qubits
             are obtained via the :meth:`transpiled_circuits` method.
         """
-        pass
+        # NOTE: Subclasses should override this method with explicit
+        # kwargs for any circuit options rather than use `**circuit_options`.
+        # This allows these options to have default values, and be
+        # documented in the methods docstring for the API docs.
 
     def transpiled_circuits(self, backend=None, **kwargs):
         """Return a list of experiment circuits.
@@ -188,12 +206,16 @@ class BaseExperiment(ABC):
         """
         # Filter kwargs to circuit and transpile options
         circuit_options = {}
-        transpile_options = {}
-        for key in kwargs:
+        transpile_options = self.__transpile_defaults__.copy()
+        for key, value in kwargs.items():
             if key in self._circuit_options:
-                circuit_options[key] = kwargs[key]
+                circuit_options[key] = value
             elif key in _TRANSPILE_OPTIONS:
-                transpile_options[key] = kwargs[key]
+                transpile_options[key] = value
+            else:
+                raise QiskitError(
+                    f"{key} is not a valid kwarg for" f" `{self.circuits}` or `{transpile}`"
+                )
 
         # Generate circuits
         circuits = self.circuits(backend=backend, **circuit_options)
