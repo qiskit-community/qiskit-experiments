@@ -126,7 +126,7 @@ class BaseExperiment(ABC):
 
         # Generate and run circuits
         circuits = self.transpiled_circuits(backend, **circuit_options)
-        qobj = assemble(circuits, **run_options)
+        qobj = assemble(circuits, backend, **run_options)
         job = backend.run(qobj)
 
         # Add Job to ExperimentData
