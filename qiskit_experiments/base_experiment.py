@@ -60,14 +60,14 @@ class BaseExperiment(ABC):
     __experiment_data__ = ExperimentData
 
     def __init__(self, qubits, experiment_type=None, circuit_options=None):
-        """Initialize the analysis object.
+        """Initialize the experiment object.
 
         Args:
             qubits (int or Iterable[int]): the number of qubits or list of
                                            physical qubits for the experiment.
             experiment_type (str): Optional, the experiment type string.
-            circuit_options (str): Optional, dictionary of allowed kwargs and
-                                   default values for the `circuit` method.
+            circuit_options (dict): Optional, dictionary of allowed kwargs and
+                                    default values for the `circuit` method.
 
         Raises:
             QiskitError: if qubits is a list and contains duplicates.
@@ -111,7 +111,7 @@ class BaseExperiment(ABC):
 
         # Generate and run circuits
         circuits = self.transpiled_circuits(backend, **kwargs)
-        qobj = assemble(circuits)
+        qobj = assemble(circuits, backend)
         job = backend.run(qobj, **kwargs)
 
         # Add Job to ExperimentData
@@ -190,7 +190,7 @@ class BaseExperiment(ABC):
         circuit_options = {}
         transpile_options = {}
         for key in kwargs:
-            if key in self._circuit_options:
+            if self._circuit_options is not None and key in self._circuit_options:
                 circuit_options[key] = kwargs[key]
             elif key in _TRANSPILE_OPTIONS:
                 transpile_options[key] = kwargs[key]
