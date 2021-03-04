@@ -34,7 +34,7 @@ class T1Analysis(BaseAnalysis):
         Calculate T1
 
         Args:
-            experiment_data: the experiment data to analyze
+            experiment_data (ExperimentData): the experiment data to analyze
             params: expected parameters therein are:
                    `fit_p0` and `fit_bounds` - to be passed to scipy.optimize.curve_fit
                                                as the `p0` and `bounds` parameters
@@ -110,7 +110,7 @@ class T1Experiment(BaseExperiment):
 
         circuits = []
 
-        for circ_index, delay in enumerate(self._delays):
+        for delay in self._delays:
             circ = QuantumCircuit(1, 1)
             circ.x(0)
             circ.delay(delay, 0, self._unit)
