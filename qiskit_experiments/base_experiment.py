@@ -208,13 +208,16 @@ class BaseExperiment(ABC):
         circuit_options = {}
         transpile_options = self.__transpile_defaults__.copy()
         for key, value in kwargs.items():
+            valid_key = False
             if key in self._circuit_options:
                 circuit_options[key] = value
-            elif key in _TRANSPILE_OPTIONS:
+                valid_key = True
+            if key in _TRANSPILE_OPTIONS:
                 transpile_options[key] = value
-            else:
+                valid_key = True
+            if not valid_key:
                 raise QiskitError(
-                    f"{key} is not a valid kwarg for" f" `{self.circuits}` or `{transpile}`"
+                    f"{key} is not a valid kwarg for" f" {self.circuits} or {transpile}"
                 )
 
         # Generate circuits
