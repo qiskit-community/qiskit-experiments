@@ -34,8 +34,8 @@ class T1Analysis(BaseAnalysis):
         Args:
             experiment_data (ExperimentData): the experiment data to analyze
             params: expected parameters therein are:
-                   `fit_p0` and `fit_bounds` - to be passed to scipy.optimize.curve_fit
-                                               as the `p0` and `bounds` parameters
+                   `p0` and `bounds` - to be passed to scipy.optimize.curve_fit
+                                       as the `p0` and `bounds` parameters
 
         Returns:
             The analysis result with the estimated T1
@@ -67,7 +67,7 @@ class T1Analysis(BaseAnalysis):
             return a * np.exp(-x / tau) + c
 
         fit_out, _ = curve_fit(
-            exp_fit_fun, delays, means, sigma=stds, p0=params["fit_p0"], bounds=params["fit_bounds"]
+            exp_fit_fun, delays, means, sigma=stds, p0=params["p0"], bounds=params["bounds"]
         )
 
         analysis_result = AnalysisResult({"value": fit_out[1]})

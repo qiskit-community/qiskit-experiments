@@ -56,8 +56,7 @@ class TestT1(unittest.TestCase):
         exp.run(
             BACKEND,
             noise_model=noise_model,
-            fit_p0=p0,
-            fit_bounds=bounds,
+            p0=p0, bounds=bounds,
             instruction_durations=INSTRUCTION_DURATIONS,
         )
 
