@@ -45,12 +45,12 @@ class T1Analysis(BaseAnalysis):
 
         prob1 = {}
         for circ in experiment_data._data:
-            delay = circ['metadata']['delay']
-            count0 = circ['counts'].get('0', 0)
-            count1 = circ['counts'].get('1', 0)
+            delay = circ["metadata"]["delay"]
+            count0 = circ["counts"].get("0", 0)
+            count1 = circ["counts"].get("1", 0)
             shots = count0 + count1
             mean = count1 / shots
-            std = np.sqrt(mean * (1-mean) / shots)
+            std = np.sqrt(mean * (1 - mean) / shots)
             # problem for the fitter if one of the std points is
             # exactly zero
             if std == 0:
@@ -68,11 +68,11 @@ class T1Analysis(BaseAnalysis):
         def exp_fit_fun(x, a, tau, c):
             return a * np.exp(-x / tau) + c
 
-        fit_out, _ = \
-            curve_fit(exp_fit_fun, delays, means, sigma=stds,
-                      p0=params['fit_p0'], bounds=params['fit_bounds'])
+        fit_out, _ = curve_fit(
+            exp_fit_fun, delays, means, sigma=stds, p0=params["fit_p0"], bounds=params["fit_bounds"]
+        )
 
-        analysis_result = AnalysisResult({'value': fit_out[1]})
+        analysis_result = AnalysisResult({"value": fit_out[1]})
         return analysis_result, None
 
 
@@ -81,10 +81,7 @@ class T1Experiment(BaseExperiment):
 
     __analysis_class__ = T1Analysis
 
-    def __init__(self,
-                 qubit: int,
-                 delays: Union[List[float], np.array],
-                 unit: str = 'dt'):
+    def __init__(self, qubit: int, delays: Union[List[float], np.array], unit: str = "dt"):
         """
         Initialize the T1 experiment class
 
@@ -97,8 +94,9 @@ class T1Experiment(BaseExperiment):
         self._unit = unit
         super().__init__([qubit], type(self).__name__)
 
-    def circuits(self, backend: Optional["Backend"] = None,
-                 **circuit_options) -> List[QuantumCircuit]:
+    def circuits(
+        self, backend: Optional["Backend"] = None, **circuit_options
+    ) -> List[QuantumCircuit]:
         """
         Return a list of experiment circuits
 
@@ -120,9 +118,10 @@ class T1Experiment(BaseExperiment):
 
             # pylint: disable = eval-used
             circ.metadata = {
-                'experiment_type': self._type,
-                'qubit': self.physical_qubits[0],
-                'delay': delay}
+                "experiment_type": self._type,
+                "qubit": self.physical_qubits[0],
+                "delay": delay,
+            }
 
             circuits.append(circ)
 

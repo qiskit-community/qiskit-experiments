@@ -27,13 +27,12 @@ from qiskit_experiments.composite import BatchExperiment, ParallelExperiment
 from qiskit_experiments.characterization import T1Experiment
 
 backend = QasmSimulator()
-instruction_durations = \
-                      [('measure', [0], 3, 'dt'),
-                       ('x', [0], 3, 'dt')]
+instruction_durations = [("measure", [0], 3, "dt"), ("x", [0], 3, "dt")]
 gate_time = 0.1
 
 # Fix seed for simulations
 SEED = 9000
+
 
 class TestT1(unittest.TestCase):
     """
@@ -50,19 +49,21 @@ class TestT1(unittest.TestCase):
         t1 = 25
 
         noise_model = NoiseModel()
-        noise_model.add_quantum_error(
-            thermal_relaxation_error(t1, 2*t1, gate_time),
-            'delay', [0])
+        noise_model.add_quantum_error(thermal_relaxation_error(t1, 2 * t1, gate_time), "delay", [0])
 
         delays = list(range(1, 33, 6))
         p0 = [1, t1, 0]
         bounds = ([0, 0, -1], [2, 40, 1])
 
         exp = T1Experiment(0, delays)
-        data = exp.run(backend, noise_model=noise_model,
-                       fit_p0=p0, fit_bounds=bounds,
-                       instruction_durations=instruction_durations)
+        data = exp.run(
+            backend,
+            noise_model=noise_model,
+            fit_p0=p0,
+            fit_bounds=bounds,
+            instruction_durations=instruction_durations,
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
