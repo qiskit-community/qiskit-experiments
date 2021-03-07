@@ -16,20 +16,82 @@ Test T1 experiment
 """
 
 import unittest
-
-from qiskit.providers.aer import QasmSimulator
-from qiskit.providers.aer.noise.errors.standard_errors import thermal_relaxation_error
-from qiskit.providers.aer.noise import NoiseModel
-
+import numpy as np
+from qiskit.providers import BaseBackend
+from qiskit.providers.models import BackendConfiguration
+from qiskit.result import Result
 from qiskit_experiments.characterization import T1Experiment
 
-BACKEND = QasmSimulator()
-INSTRUCTION_DURATIONS = [("measure", [0], 3, "dt"), ("x", [0], 3, "dt")]
-GATE_TIME = 0.1
 
-# Fix seed for simulations
-SEED = 9000
+class T1Backend(BaseBackend):
+    """
+    A simple and primitive backend, to be run by the T1 tests
+    """
 
+    def __init__(self, t1):
+        """
+        Initialize the T1 backend
+        """
+
+        configuration = BackendConfiguration(
+            't1_simulator', '0', int(1e6),
+            ['barrier', 'x', 'delay', 'measure'],
+            [], True, True, False, False, False,
+            int(1e6), None)
+
+        self._t1 = t1
+        super().__init__(configuration)
+
+    def run(self, qobj, **kwargs):
+        """
+        Run the T1 backend
+        """
+
+        shots = qobj.config.shots
+
+        result = {
+            'backend_name': 'T1 backend',
+            'backend_version': '0',
+            'qobj_id': 0,
+            'job_id': 0,
+            'success': True,
+            'results': []
+            }
+        
+        for circ in qobj.experiments:
+            counts = dict()
+
+            for _ in range(shots):
+                prob1 = np.zeros(circ.config.n_qubits)
+                clbits = np.zeros(circ.config.memory_slots, dtype=int)
+                           
+                for op in circ.instructions:
+                    qubit = op.qubits[0]
+                    if op.name == "x":
+                        prob1[qubit] = 1 - prob1[qubit]
+                    if op.name == "delay":
+                        prob1[qubit] = prob1[qubit] * np.exp(-op.params[0] / self._t1)
+                    if op.name == "measure":
+                        meas_res = np.random.binomial(1, prob1[qubit])
+                        clbits[op.memory[0]] = meas_res
+                        prob1[qubit] = meas_res
+
+                clstr = ''
+                for clbit in clbits[::-1]:
+                    clstr = clstr + str(clbit)
+
+                if clstr in counts:
+                    counts[clstr] += 1
+                else:
+                    counts[clstr] = 1
+                    
+            result['results'].append({'shots': shots,
+                                      'success': True,
+                                      'header': {'metadata': circ.header.metadata},
+                                      'data': {'counts': counts}})
+            
+        return Result.from_dict(result)        
+        
 
 class TestT1(unittest.TestCase):
     """
@@ -39,26 +101,23 @@ class TestT1(unittest.TestCase):
     def test_t1(self):
         """
         Test T1 experiment using a simulator.
-        Currently only verifies that there is no exception,
-        but does not verify accuracy of the estimate.
         """
 
         t1 = 25
 
-        noise_model = NoiseModel()
-        noise_model.add_quantum_error(thermal_relaxation_error(t1, 2 * t1, GATE_TIME), "delay", [0])
-
         delays = list(range(1, 33, 6))
         p0 = [1, t1, 0]
         bounds = ([0, 0, -1], [2, 40, 1])
+        instruction_durations = [("measure", [0], 3, "dt"), ("x", [0], 3, "dt")]
 
         exp = T1Experiment(0, delays)
-        exp.run(
-            BACKEND,
-            noise_model=noise_model,
+        res = exp.run(
+            T1Backend(t1),
             p0=p0, bounds=bounds,
-            instruction_durations=INSTRUCTION_DURATIONS,
+            instruction_durations=instruction_durations
         )
+
+        self.assertAlmostEqual(res.analysis_result(0)['value'], t1, delta=2)
 
 
 if __name__ == "__main__":

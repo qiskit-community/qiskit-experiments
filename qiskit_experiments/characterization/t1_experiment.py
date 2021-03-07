@@ -111,7 +111,9 @@ class T1Experiment(BaseExperiment):
         for delay in self._delays:
             circ = QuantumCircuit(1, 1)
             circ.x(0)
+            circ.barrier(0)
             circ.delay(delay, 0, self._unit)
+            circ.barrier(0)
             circ.measure(0, 0)
 
             # pylint: disable = eval-used
