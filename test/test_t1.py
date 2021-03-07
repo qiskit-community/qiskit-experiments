@@ -20,6 +20,7 @@ import numpy as np
 from qiskit.providers import BaseBackend
 from qiskit.providers.models import BackendConfiguration
 from qiskit.result import Result
+from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T1Experiment
 
 
@@ -70,7 +71,8 @@ class T1Backend(BaseBackend):
                     if op.name == "x":
                         prob1[qubit] = 1 - prob1[qubit]
                     if op.name == "delay":
-                        prob1[qubit] = prob1[qubit] * np.exp(-op.params[0] / self._t1)
+                        if self._t1[qubit] is not None:
+                            prob1[qubit] = prob1[qubit] * np.exp(-op.params[0] / self._t1[qubit])
                     if op.name == "measure":
                         meas_res = np.random.binomial(1, prob1[qubit])
                         clbits[op.memory[0]] = meas_res
@@ -108,16 +110,49 @@ class TestT1(unittest.TestCase):
         delays = list(range(1, 33, 6))
         p0 = [1, t1, 0]
         bounds = ([0, 0, -1], [2, 40, 1])
+
+        # dummy numbers to avoid exception triggerring
         instruction_durations = [("measure", [0], 3, "dt"), ("x", [0], 3, "dt")]
 
         exp = T1Experiment(0, delays)
         res = exp.run(
-            T1Backend(t1),
+            T1Backend([t1]),
             p0=p0, bounds=bounds,
-            instruction_durations=instruction_durations
-        )
+            instruction_durations=instruction_durations,
+            shots=10000
+            )
 
         self.assertAlmostEqual(res.analysis_result(0)['value'], t1, delta=2)
+
+    def test_t1_parallel(self):
+        """
+        Test parallel experiments of T1 using a simulator.
+        """
+
+        t1 = [25, 15]
+
+        delays = list(range(1, 33, 6))
+        p0 = [1, t1[0], 0]
+        bounds = ([0, 0, -1], [2, 40, 1])
+
+        # dummy numbers to avoid exception triggerring
+        instruction_durations = [("measure", [0], 3, "dt"), ("x", [0], 3, "dt")]
+
+        exp0 = T1Experiment(0, delays)
+        exp2 = T1Experiment(2, delays)
+        par_exp = ParallelExperiment([exp0, exp2])
+        res = par_exp.run(
+            T1Backend([t1[0], None, t1[1]]),
+            p0=p0, bounds=bounds,
+            instruction_durations=instruction_durations,
+            shots=10000
+            )
+
+        for i in range(2):
+            self.assertAlmostEqual(
+                res.component_experiment_data(i).analysis_result(0)['value'],
+                t1[i], delta=2
+                )
 
 
 if __name__ == "__main__":
