@@ -27,15 +27,14 @@ from qiskit_experiments import AnalysisResult
 class T1Analysis(BaseAnalysis):
     """T1 Experiment result analysis class."""
 
-    def _run_analysis(self, experiment_data, **params) -> Tuple[AnalysisResult, None]:
+    def _run_analysis(self, experiment_data, p0, bounds, **kwargs) -> Tuple[AnalysisResult, None]:
         """
         Calculate T1
 
         Args:
             experiment_data (ExperimentData): the experiment data to analyze
-            params: expected parameters therein are:
-                   `p0` and `bounds` - to be passed to scipy.optimize.curve_fit
-                                       as the `p0` and `bounds` parameters
+            p0 (list): to be passed to scipy.optimize.curve_fit, see documentation there
+            bounds (tuple): to be passed to scipy.optimize.curve_fit, see documentation there
 
         Returns:
             The analysis result with the estimated T1
@@ -67,7 +66,7 @@ class T1Analysis(BaseAnalysis):
             return a * np.exp(-x / tau) + c
 
         fit_out, _ = curve_fit(
-            exp_fit_fun, delays, means, sigma=stds, p0=params["p0"], bounds=params["bounds"]
+            exp_fit_fun, delays, means, sigma=stds, p0=p0, bounds=bounds
         )
 
         analysis_result = AnalysisResult({"value": fit_out[1]})
