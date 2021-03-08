@@ -65,9 +65,7 @@ class T1Analysis(BaseAnalysis):
         def exp_fit_fun(x, a, tau, c):
             return a * np.exp(-x / tau) + c
 
-        fit_out, _ = curve_fit(
-            exp_fit_fun, delays, means, sigma=stds, p0=p0, bounds=bounds
-        )
+        fit_out, _ = curve_fit(exp_fit_fun, delays, means, sigma=stds, p0=p0, bounds=bounds)
 
         analysis_result = AnalysisResult({"value": fit_out[1]})
         return analysis_result, None

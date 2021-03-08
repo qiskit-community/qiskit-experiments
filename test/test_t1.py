@@ -29,19 +29,25 @@ class T1Backend(BaseBackend):
     A simple and primitive backend, to be run by the T1 tests
     """
 
-    def __init__(self, t1,
-                 initial_prob1=None,
-                 readout0to1=None,
-                 readout1to0=None):
+    def __init__(self, t1, initial_prob1=None, readout0to1=None, readout1to0=None):
         """
         Initialize the T1 backend
         """
 
         configuration = BackendConfiguration(
-            't1_simulator', '0', int(1e6),
-            ['barrier', 'x', 'delay', 'measure'],
-            [], True, True, False, False, False,
-            int(1e6), None)
+            "t1_simulator",
+            "0",
+            int(1e6),
+            ["barrier", "x", "delay", "measure"],
+            [],
+            True,
+            True,
+            False,
+            False,
+            False,
+            int(1e6),
+            None,
+        )
 
         self._t1 = t1
         self._initial_prob1 = initial_prob1
@@ -57,14 +63,14 @@ class T1Backend(BaseBackend):
         shots = qobj.config.shots
 
         result = {
-            'backend_name': 'T1 backend',
-            'backend_version': '0',
-            'qobj_id': 0,
-            'job_id': 0,
-            'success': True,
-            'results': []
-            }
-        
+            "backend_name": "T1 backend",
+            "backend_version": "0",
+            "qobj_id": 0,
+            "job_id": 0,
+            "success": True,
+            "results": [],
+        }
+
         for circ in qobj.experiments:
             nqubits = circ.config.n_qubits
             counts = dict()
@@ -73,7 +79,7 @@ class T1Backend(BaseBackend):
                 ro01 = np.zeros(nqubits)
             else:
                 ro01 = self._readout0to1
-                
+
             if self._readout1to0 is None:
                 ro10 = np.zeros(nqubits)
             else:
@@ -86,7 +92,7 @@ class T1Backend(BaseBackend):
                     prob1 = self._initial_prob1.copy()
 
                 clbits = np.zeros(circ.config.memory_slots, dtype=int)
-                           
+
                 for op in circ.instructions:
                     qubit = op.qubits[0]
                     if op.name == "x":
@@ -95,11 +101,13 @@ class T1Backend(BaseBackend):
                         if self._t1[qubit] is not None:
                             prob1[qubit] = prob1[qubit] * np.exp(-op.params[0] / self._t1[qubit])
                     if op.name == "measure":
-                        meas_res = np.random.binomial(1, prob1[qubit] * (1 - ro10[qubit]) + (1 - prob1[qubit]) * ro01[qubit])
+                        meas_res = np.random.binomial(
+                            1, prob1[qubit] * (1 - ro10[qubit]) + (1 - prob1[qubit]) * ro01[qubit]
+                        )
                         clbits[op.memory[0]] = meas_res
                         prob1[qubit] = meas_res
 
-                clstr = ''
+                clstr = ""
                 for clbit in clbits[::-1]:
                     clstr = clstr + str(clbit)
 
@@ -108,13 +116,17 @@ class T1Backend(BaseBackend):
                 else:
                     counts[clstr] = 1
 
-            result['results'].append({'shots': shots,
-                                      'success': True,
-                                      'header': {'metadata': circ.header.metadata},
-                                      'data': {'counts': counts}})
-            
-        return Result.from_dict(result)        
-        
+            result["results"].append(
+                {
+                    "shots": shots,
+                    "success": True,
+                    "header": {"metadata": circ.header.metadata},
+                    "data": {"counts": counts},
+                }
+            )
+
+        return Result.from_dict(result)
+
 
 class TestT1(unittest.TestCase):
     """
@@ -137,15 +149,14 @@ class TestT1(unittest.TestCase):
 
         exp = T1Experiment(0, delays)
         res = exp.run(
-            T1Backend([t1], initial_prob1=[0.1],
-                      readout0to1=[0.1],
-                      readout1to0=[0.1]),
-            p0=p0, bounds=bounds,
+            T1Backend([t1], initial_prob1=[0.1], readout0to1=[0.1], readout1to0=[0.1]),
+            p0=p0,
+            bounds=bounds,
             instruction_durations=instruction_durations,
-            shots=10000
-            )
+            shots=10000,
+        )
 
-        self.assertAlmostEqual(res.analysis_result(0)['value'], t1, delta=3)
+        self.assertAlmostEqual(res.analysis_result(0)["value"], t1, delta=3)
 
     def test_t1_parallel(self):
         """
@@ -166,16 +177,16 @@ class TestT1(unittest.TestCase):
         par_exp = ParallelExperiment([exp0, exp2])
         res = par_exp.run(
             T1Backend([t1[0], None, t1[1]]),
-            p0=p0, bounds=bounds,
+            p0=p0,
+            bounds=bounds,
             instruction_durations=instruction_durations,
-            shots=10000
-            )
+            shots=10000,
+        )
 
         for i in range(2):
             self.assertAlmostEqual(
-                res.component_experiment_data(i).analysis_result(0)['value'],
-                t1[i], delta=3
-                )
+                res.component_experiment_data(i).analysis_result(0)["value"], t1[i], delta=3
+            )
 
 
 if __name__ == "__main__":
