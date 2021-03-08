@@ -60,7 +60,7 @@ class BaseExperiment(ABC):
     __experiment_data__ = ExperimentData
 
     # Custom default transpiler options for experiment subclasses
-    __transpile_defaults__ = {}
+    __transpile_defaults__ = {"optimization_level": 0}
 
     # Custom default run (assemble) options for experiment subclasses
     __run_defaults__ = {}
@@ -224,8 +224,6 @@ class BaseExperiment(ABC):
         circuits = self.circuits(backend=backend, **circuit_options)
 
         # Transpile circuits
-        if "optimization_level" not in transpile_options:
-            transpile_options["optimization_level"] = 0
         if "initial_layout" in transpile_options:
             raise QiskitError("Initial layout must be specified by the Experiement.")
         transpile_options["initial_layout"] = self.physical_qubits
