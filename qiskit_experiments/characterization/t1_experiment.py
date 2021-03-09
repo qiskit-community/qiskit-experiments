@@ -85,15 +85,12 @@ class T1Experiment(BaseExperiment):
         self._unit = unit
         super().__init__([qubit], type(self).__name__)
 
-    def circuits(
-        self, backend: Optional["Backend"] = None, **circuit_options
-    ) -> List[QuantumCircuit]:
+    def circuits(self, backend: Optional["Backend"] = None) -> List[QuantumCircuit]:
         """
         Return a list of experiment circuits
 
         Args:
             backend: a backend object
-            circuit_options: kwarg options for the function
 
         Returns:
             The experiment circuits
