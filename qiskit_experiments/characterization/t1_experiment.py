@@ -78,7 +78,8 @@ class T1Experiment(BaseExperiment):
         Args:
             qubit: the qubit whose T1 is to be estimated
             delays: delay times of the experiments
-            unit: time unit of `delays`
+            unit: unit of the duration. Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'.
+                Default is ``dt``, i.e. integer time unit depending on the target backend.
         """
         self._delays = delays
         self._unit = unit
