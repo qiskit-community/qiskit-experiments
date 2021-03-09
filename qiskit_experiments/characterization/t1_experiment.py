@@ -40,32 +40,27 @@ class T1Analysis(BaseAnalysis):
             The analysis result with the estimated T1
         """
 
-        prob1 = {}
-        for circ in experiment_data._data:
-            delay = circ["metadata"]["delay"]
+        size = len(experiment_data._data)
+        delays = np.zeros(size, dtype=float)
+        means = np.zeros(size, dtype=float)
+        stddevs = np.zeros(size, dtype=float)
+
+        for i, circ in enumerate(experiment_data._data):
+            delays[i] = circ["metadata"]["delay"]
             count0 = circ["counts"].get("0", 0)
             count1 = circ["counts"].get("1", 0)
             shots = count0 + count1
-            mean = count1 / shots
-            std = np.sqrt(mean * (1 - mean) / shots)
+            means[i] = count1 / shots
+            stddevs[i] = np.sqrt(means[i] * (1 - means[i]) / shots)
             # problem for the fitter if one of the std points is
             # exactly zero
-            if std == 0:
-                std = 1e-4
-            prob1[delay] = (mean, std)
-
-        delays = []
-        means = []
-        stds = []
-        for delay in sorted(prob1):
-            delays.append(delay)
-            means.append(prob1[delay][0])
-            stds.append(prob1[delay][1])
+            if stddevs[i] == 0:
+                stddevs[i] = 1e-4
 
         def exp_fit_fun(x, a, tau, c):
             return a * np.exp(-x / tau) + c
 
-        fit_out, _ = curve_fit(exp_fit_fun, delays, means, sigma=stds, p0=p0, bounds=bounds)
+        fit_out, _ = curve_fit(exp_fit_fun, delays, means, sigma=stddevs, p0=p0, bounds=bounds)
 
         analysis_result = AnalysisResult({"value": fit_out[1]})
         return analysis_result, None
