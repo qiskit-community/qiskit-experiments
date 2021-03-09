@@ -142,7 +142,7 @@ class TestT1(unittest.TestCase):
 
         delays = list(range(1, 33, 6))
         p0 = [1, t1, 0]
-        bounds = ([0, 0, -1], [2, 40, 1])
+        bounds = ([0, 0, 0], [1, 40, 1])
 
         # dummy numbers to avoid exception triggerring
         instruction_durations = [("measure", [0], 3, "dt"), ("x", [0], 3, "dt")]
@@ -166,8 +166,6 @@ class TestT1(unittest.TestCase):
         t1 = [25, 15]
 
         delays = list(range(1, 33, 6))
-        p0 = [1, t1[0], 0]
-        bounds = ([0, 0, -1], [2, 40, 1])
 
         # dummy numbers to avoid exception triggerring
         instruction_durations = [("measure", [0], 3, "dt"), ("x", [0], 3, "dt")]
@@ -177,8 +175,6 @@ class TestT1(unittest.TestCase):
         par_exp = ParallelExperiment([exp0, exp2])
         res = par_exp.run(
             T1Backend([t1[0], None, t1[1]]),
-            p0=p0,
-            bounds=bounds,
             instruction_durations=instruction_durations,
             shots=10000,
         )
