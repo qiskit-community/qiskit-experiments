@@ -90,7 +90,7 @@ class T1Experiment(BaseExperiment):
         Return a list of experiment circuits
 
         Args:
-            backend: a backend object
+            backend: Optional, a backend object
 
         Returns:
             The experiment circuits
