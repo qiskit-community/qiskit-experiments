@@ -141,8 +141,6 @@ class TestT1(unittest.TestCase):
         t1 = 25
 
         delays = list(range(1, 33, 6))
-        p0 = [1, t1, 0]
-        bounds = ([0, 0, 0], [1, 40, 1])
 
         # dummy numbers to avoid exception triggerring
         instruction_durations = [("measure", [0], 3, "dt"), ("x", [0], 3, "dt")]
@@ -150,8 +148,7 @@ class TestT1(unittest.TestCase):
         exp = T1Experiment(0, delays)
         res = exp.run(
             T1Backend([t1], initial_prob1=[0.1], readout0to1=[0.1], readout1to0=[0.1]),
-            p0=p0,
-            bounds=bounds,
+            amplitude_guess=1, t1_guess=t1, offset_guess=0,
             instruction_durations=instruction_durations,
             shots=10000,
         )
