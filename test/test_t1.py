@@ -148,7 +148,9 @@ class TestT1(unittest.TestCase):
         exp = T1Experiment(0, delays)
         res = exp.run(
             T1Backend([t1], initial_prob1=[0.1], readout0to1=[0.1], readout1to0=[0.1]),
-            amplitude_guess=1, t1_guess=t1, offset_guess=0,
+            amplitude_guess=1,
+            t1_guess=t1,
+            offset_guess=0,
             instruction_durations=instruction_durations,
             shots=10000,
         )

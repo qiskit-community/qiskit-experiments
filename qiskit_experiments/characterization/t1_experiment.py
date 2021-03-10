@@ -27,9 +27,9 @@ from qiskit_experiments import AnalysisResult
 class T1Analysis(BaseAnalysis):
     """T1 Experiment result analysis class."""
 
-    def _run_analysis(self, experiment_data,
-                      t1_guess=None, amplitude_guess=None, offset_guess=None,
-                      **kwargs) -> Tuple[AnalysisResult, None]:
+    def _run_analysis(
+        self, experiment_data, t1_guess=None, amplitude_guess=None, offset_guess=None, **kwargs
+    ) -> Tuple[AnalysisResult, None]:
         """
         Calculate T1
 
@@ -70,8 +70,9 @@ class T1Analysis(BaseAnalysis):
         if amplitude_guess is None:
             amplitude_guess = means[0] - offset_guess
 
-        fit_out, _ = curve_fit(exp_fit_fun, delays, means, sigma=stddevs,
-                               p0=[amplitude_guess, t1_guess, offset_guess])
+        fit_out, _ = curve_fit(
+            exp_fit_fun, delays, means, sigma=stddevs, p0=[amplitude_guess, t1_guess, offset_guess]
+        )
 
         analysis_result = AnalysisResult({"value": fit_out[1]})
         return analysis_result, None
