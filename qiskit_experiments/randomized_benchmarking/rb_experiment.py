@@ -16,10 +16,12 @@ Randomized benchmarking analysis classes
 
 from typing import List, Union, Optional, Tuple
 from numpy.random import RandomState
+import numpy as np
 from qiskit import QuantumCircuit
 from .base_rb_generator import RBGeneratorBase
 from .base_rb_analysis import RBAnalysisBase, RBAnalysisResultBase
 from .base_rb_experiment import RBExperimentBase
+from ..experiment_data import ExperimentData
 
 class RBGenerator(RBGeneratorBase):
     """Generator class for standard RB experiments"""
@@ -89,6 +91,31 @@ class RBAnalysisResult(RBAnalysisResultBase):
         """Plots the data series of the RB"""
         self.plot_data_series(ax, error_bar=True)
 
+class CNOTDihedralRBResult(RBAnalysisResultBase):
+    """Class for cnot-dihedral RB analysis results"""
+    def __init__(self, results):
+        z_fit_result, x_fit_result, cnotdihedral_result = results
+        self._z_fit_result = RBAnalysisResult(z_fit_result)
+        self._x_fit_result = RBAnalysisResult(x_fit_result)
+        super().__init__(cnotdihedral_result)
+
+    def num_qubits(self) -> int:
+        """Returns the number of qubits used in the RB experiment"""
+        return self._z_fit_result.num_qubits()
+
+    def plot_all_data_series(self, ax):
+        """Plots the Z and X basis data series"""
+        self._z_fit_result.plot_data_series(ax, color='blue', label='Measure state |0...0>')
+        self._x_fit_result.plot_data_series(ax, color='red', label='Measure state |+...+>')
+        ax.legend(loc='lower left')
+
+    def plot_label(self):
+        """Plots cnot-dihedral fit results"""
+        return "alpha: %.3f(%.1e) EPG_est: %.3e(%.1e)" % (self['alpha'],
+                                                          self['alpha_err'],
+                                                          self['epg_est'],
+                                                          self['epg_est_err'])
+
 class RBAnalysis(RBAnalysisBase):
     """Analysis class for standard RB experiments"""
     __analysis_result_class__ = RBAnalysisResult
@@ -125,6 +152,68 @@ class RBAnalysis(RBAnalysisBase):
             'group_type': group_type
         }
 
+class CNOTDihedralRBAnalysis(RBAnalysisBase):
+    """Analysis class for cnot-dihedral RB experiments"""
+    __analysis_result_class__ = CNOTDihedralRBResult
+
+    def split_experiment_data(self, experiment_data):
+        z_data = ExperimentData(experiment_data.experiment())
+        x_data = ExperimentData(experiment_data.experiment())
+        for d in experiment_data.data:
+            if d['metadata']['cnot_basis'] == 'Z':
+                z_data.data.append(d)
+            if d['metadata']['cnot_basis'] == 'X':
+                x_data.data.append(d)
+        return (z_data, x_data)
+
+    def fit(self, experiment_data) -> CNOTDihedralRBResult:
+        """Computes the cnot-dihedral fit from the results of the Z, X basis fits
+            Args:
+                z_fit_results: The results for the Z-basis fit
+                x_fit_results: The results for the X-basis fit
+            Returns:
+                The cnot-dihedral result (which contains the Z, X results)
+        """
+        # pylint: disable=invalid-name
+
+        (z_data, x_data) = self.split_experiment_data(experiment_data)
+        z_fit_results = RBAnalysis().fit(z_data)
+        x_fit_results = RBAnalysis().fit(x_data)
+        num_qubits, lengths, group_type = self.get_experiment_params(experiment_data)
+        # calculate nrb=d=2^n:
+        nrb = 2 ** num_qubits
+
+        # Calculate alpha_Z and alpha_R:
+        alpha_Z = z_fit_results['alpha']
+        alpha_R = x_fit_results['alpha']
+        # Calculate their errors:
+        alpha_Z_err = z_fit_results['alpha_err']
+        alpha_R_err = x_fit_results['alpha_err']
+
+        # Calculate alpha:
+        alpha = (alpha_Z + nrb * alpha_R) / (nrb + 1)
+
+        # Calculate alpha_err:
+        alpha_Z_err_sq = (alpha_Z_err / alpha_Z / (nrb + 1)) ** 2
+        alpha_R_err_sq = (nrb * alpha_R_err / alpha_R / (nrb + 1)) ** 2
+        alpha_err = np.sqrt(alpha_Z_err_sq + alpha_R_err_sq)
+
+        # Calculate epg_est:
+        epg_est = (nrb - 1) * (1 - alpha) / nrb
+
+        # Calculate epg_est_error
+        epg_est_err = (nrb - 1) / nrb * alpha_err / alpha
+
+        cnotdihedral_result = {'alpha': alpha,
+                               'alpha_err': alpha_err,
+                               'epg_est': epg_est,
+                               'epg_est_err': epg_est_err,
+                               'lengths': lengths,
+                               'num_qubits': num_qubits,
+                               'group_type': group_type}
+
+        return (z_fit_results, x_fit_results, cnotdihedral_result)
+
 class RBExperiment(RBExperimentBase):
     """Experiment class for standard RB experiment"""
     def __init__(self,
@@ -146,7 +235,6 @@ class RBExperiment(RBExperimentBase):
         if generator.rb_group_type() == 'clifford':
             self.__analysis_class__ = RBAnalysis
         if generator.rb_group_type() == 'cnot_dihedral':
-            #analysis = CNOTDihedralRBAnalysis(qubits, lengths)
-            analysis = None
+            self.__analysis_class__ = CNOTDihedralRBAnalysis
 
         super().__init__(generator=generator)

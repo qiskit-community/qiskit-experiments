@@ -62,7 +62,7 @@ class RBgroup():
         """Initialize an identity group element"""
         self._num_qubits = num_qubits
         if self._group_gates_type:
-            return CNOTDihedral(num_qubits)
+            return CNOTDihedral(num_qubits=num_qubits)
         else:
             return Clifford(np.eye(2 * num_qubits))
 
