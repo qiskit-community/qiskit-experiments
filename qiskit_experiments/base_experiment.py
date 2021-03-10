@@ -93,7 +93,7 @@ class BaseExperiment(ABC):
                 raise QiskitError("Duplicate qubits in physical qubits list.")
 
         # Store options and values
-        self._circuit_options = set(circuit_options) if circuit_options else None
+        self._circuit_options = set(circuit_options) if circuit_options else set()
 
     def run(self, backend, experiment_data=None, **kwargs):
         """Run an experiment and perform analysis.
@@ -119,7 +119,7 @@ class BaseExperiment(ABC):
         run_options = self.__run_defaults__.copy()
         circuit_options = {}
         for key, value in kwargs.items():
-            if key in _TRANSPILE_OPTIONS or self._circuit_options:
+            if key in _TRANSPILE_OPTIONS or key in self._circuit_options:
                 circuit_options[key] = value
             else:
                 run_options[key] = value
@@ -209,7 +209,7 @@ class BaseExperiment(ABC):
         transpile_options = self.__transpile_defaults__.copy()
         for key, value in kwargs.items():
             valid_key = False
-            if self._circuit_options is not None and key in self._circuit_options:
+            if key in self._circuit_options:
                 circuit_options[key] = value
                 valid_key = True
             if key in _TRANSPILE_OPTIONS:
