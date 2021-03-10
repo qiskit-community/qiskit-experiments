@@ -70,11 +70,40 @@ class T1Analysis(BaseAnalysis):
         if amplitude_guess is None:
             amplitude_guess = means[0] - offset_guess
 
-        fit_out, _ = curve_fit(
+        fit_out, fit_cov = curve_fit(
             exp_fit_fun, delays, means, sigma=stddevs, p0=[amplitude_guess, t1_guess, offset_guess]
         )
 
-        analysis_result = AnalysisResult({"value": fit_out[1]})
+        chisq = 0
+        for i in range(len(delays)):
+            chisq += (
+                exp_fit_fun(delays[i], fit_out[0], fit_out[1], fit_out[2]) - means[i]
+            ) ** 2 / stddevs[i] ** 2
+        chisq /= len(delays)
+
+        fit_err = np.sqrt(np.diag(fit_cov))
+
+        analysis_result = AnalysisResult(
+            {
+                "amplitude": fit_out[0],
+                "t1": fit_out[1],
+                "offset": fit_out[2],
+                "amplitude_err": fit_err[0],
+                "t1_err": fit_err[1],
+                "offset_err": fit_err[2],
+                "chisq": chisq,
+            }
+        )
+
+        analysis_result["is_good_fit"] = (
+            abs(analysis_result["amplitude"] - 1.0) < 0.1
+            and abs(analysis_result["offset"]) < 0.1
+            and analysis_result["chisq"] < 3
+            and analysis_result["amplitude_err"] < 0.1
+            and analysis_result["offset_err"] < 0.1
+            and analysis_result["t1_err"] < analysis_result["t1"]
+        )
+
         return analysis_result, None
 
 

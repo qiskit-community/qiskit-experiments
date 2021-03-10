@@ -140,14 +140,14 @@ class TestT1(unittest.TestCase):
 
         t1 = 25
 
-        delays = list(range(1, 33, 6))
+        delays = list(range(1, 40, 3))
 
         # dummy numbers to avoid exception triggerring
         instruction_durations = [("measure", [0], 3, "dt"), ("x", [0], 3, "dt")]
 
         exp = T1Experiment(0, delays)
         res = exp.run(
-            T1Backend([t1], initial_prob1=[0.1], readout0to1=[0.1], readout1to0=[0.1]),
+            T1Backend([t1], initial_prob1=[0.02], readout0to1=[0.02], readout1to0=[0.02]),
             amplitude_guess=1,
             t1_guess=t1,
             offset_guess=0,
@@ -155,7 +155,7 @@ class TestT1(unittest.TestCase):
             shots=10000,
         )
 
-        self.assertAlmostEqual(res.analysis_result(0)["value"], t1, delta=3)
+        self.assertTrue(res.analysis_result(0)["is_good_fit"])
 
     def test_t1_parallel(self):
         """
@@ -164,7 +164,7 @@ class TestT1(unittest.TestCase):
 
         t1 = [25, 15]
 
-        delays = list(range(1, 33, 6))
+        delays = list(range(1, 40, 3))
 
         # dummy numbers to avoid exception triggerring
         instruction_durations = [("measure", [0], 3, "dt"), ("x", [0], 3, "dt")]
@@ -179,9 +179,7 @@ class TestT1(unittest.TestCase):
         )
 
         for i in range(2):
-            self.assertAlmostEqual(
-                res.component_experiment_data(i).analysis_result(0)["value"], t1[i], delta=3
-            )
+            self.assertTrue(res.component_experiment_data(i).analysis_result(0)["is_good_fit"])
 
 
 if __name__ == "__main__":
