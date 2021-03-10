@@ -209,7 +209,7 @@ class BaseExperiment(ABC):
         transpile_options = self.__transpile_defaults__.copy()
         for key, value in kwargs.items():
             valid_key = False
-            if key in self._circuit_options:
+            if self._circuit_options is not None and key in self._circuit_options:
                 circuit_options[key] = value
                 valid_key = True
             if key in _TRANSPILE_OPTIONS:
