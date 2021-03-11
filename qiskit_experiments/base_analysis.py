@@ -14,6 +14,8 @@ Base analysis class.
 """
 
 from abc import ABC, abstractmethod
+import numpy as np
+from scipy.optimize import curve_fit
 
 from qiskit.exceptions import QiskitError
 from .experiment_data import ExperimentData, AnalysisResult
@@ -90,3 +92,34 @@ class BaseAnalysis(ABC):
                    None, a single figure, or a list of figures.
         """
         pass
+
+    @staticmethod
+    def exp_fit_fun(x, a, tau, c):
+        """
+        Exponential fit function
+        """
+        return a * np.exp(-x / tau) + c
+
+    # pylint: disable = invalid-name
+    @staticmethod
+    def curve_fit_wrapper(f, xdata, ydata, sigma, **kwargs):
+        """
+        A wrapper to curve_fit that calculates and returns fit_err
+        (square root of the diagonal of the covariance matrix) and chi square.
+
+        Arguments are identical to curve_fit arguments, with the following exceptions:
+        - The `sigma` parameter is mandatory.
+        - The order of arguments is slightly different.
+
+        Returns fit_out, fit_err, chisq
+        """
+        fit_out, fit_cov = curve_fit(f, xdata, ydata, sigma=sigma, **kwargs)
+
+        chisq = 0
+        for x, y, sig in zip(xdata, ydata, sigma):
+            chisq += (f(x, *fit_out) - y) ** 2 / sig ** 2
+        chisq /= len(xdata)
+
+        fit_err = np.sqrt(np.diag(fit_cov))
+
+        return fit_out, fit_err, chisq

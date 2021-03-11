@@ -15,7 +15,6 @@ T1 Experiment class.
 
 from typing import List, Optional, Union, Tuple
 import numpy as np
-from scipy.optimize import curve_fit
 
 from qiskit.circuit import QuantumCircuit
 
@@ -60,9 +59,6 @@ class T1Analysis(BaseAnalysis):
             if stddevs[i] == 0:
                 stddevs[i] = 1e-4
 
-        def exp_fit_fun(x, a, tau, c):
-            return a * np.exp(-x / tau) + c
-
         if t1_guess is None:
             t1_guess = np.mean(delays)
         if offset_guess is None:
@@ -70,18 +66,13 @@ class T1Analysis(BaseAnalysis):
         if amplitude_guess is None:
             amplitude_guess = means[0] - offset_guess
 
-        fit_out, fit_cov = curve_fit(
-            exp_fit_fun, delays, means, sigma=stddevs, p0=[amplitude_guess, t1_guess, offset_guess]
+        fit_out, fit_err, chisq = BaseAnalysis.curve_fit_wrapper(
+            BaseAnalysis.exp_fit_fun,
+            delays,
+            means,
+            stddevs,
+            p0=[amplitude_guess, t1_guess, offset_guess],
         )
-
-        chisq = 0
-        for delay, mean, stddev in zip(delays, means, stddevs):
-            chisq += (
-                exp_fit_fun(delay, fit_out[0], fit_out[1], fit_out[2]) - mean
-            ) ** 2 / stddev ** 2
-        chisq /= len(delays)
-
-        fit_err = np.sqrt(np.diag(fit_cov))
 
         analysis_result = AnalysisResult(
             {
