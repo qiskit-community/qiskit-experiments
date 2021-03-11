@@ -46,6 +46,9 @@ class RBgroup():
         else:
             raise QiskitError("Unknown group or set of gates.")
 
+    def group_class(self):
+        return self._rb_group
+
     def num_qubits(self):
         """Return the number of qubits."""
         return self._num_qubits

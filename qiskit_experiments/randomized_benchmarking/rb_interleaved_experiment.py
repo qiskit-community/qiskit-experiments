@@ -84,10 +84,7 @@ class InterleavedRBGenerator(RBGeneratorBase):
         group_gates_type = self._rb_group.group_gates_type()
         interleaved_group_element = interleaved_element
         if isinstance(interleaved_element, (QuantumCircuit, Instruction)):
-            num_qubits = interleaved_element.num_qubits
-            qc = interleaved_element
-            interleaved_group_element = self._rb_group.iden(num_qubits)
-            interleaved_group_element = interleaved_group_element(qc)
+            interleaved_group_element = self._rb_group.group_class()(interleaved_element)
         if (not isinstance(interleaved_group_element, Clifford) and
                 group_gates_type == 0) and not (isinstance(interleaved_group_element, CNOTDihedral)
                                                 and group_gates_type == 1):
@@ -122,20 +119,20 @@ class InterleavedRBGenerator(RBGeneratorBase):
         """
         element_list = self.generate_random_element_list(self._lengths[-1])
         element_lists = self.split_element_list(element_list, self._lengths)
-        circuits_and_meta = self.generate_circuits_from_elements(element_lists)
-        self.add_extra_meta(circuits_and_meta, {
+        circuits = self.generate_circuits_from_elements(element_lists)
+        self.add_extra_meta(circuits, {
             'experiment_type': InterleavedRBExperiment.__name__,
             'circuit_type': 'standard'
         })
 
         element_list = self.interleave(element_list)
         element_lists = self.split_element_list(element_list, [2*x for x in self._lengths])
-        interleaved_circuits_and_meta = self.generate_circuits_from_elements(element_lists)
-        self.add_extra_meta(interleaved_circuits_and_meta, {
+        interleaved_circuits = self.generate_circuits_from_elements(element_lists)
+        self.add_extra_meta(interleaved_circuits, {
             'experiment_type': InterleavedRBExperiment.__name__,
             'circuit_type': 'interleaved'
         })
-        return circuits_and_meta + interleaved_circuits_and_meta
+        return circuits + interleaved_circuits
 
     def interleave(self, element_list: List) -> List:
         """Interleaving the interleaved element inside the element list
@@ -258,19 +255,23 @@ class InterleavedRBAnalysis(RBAnalysisBase):
         if group_type == 'clifford':
             std_fit_results = RBAnalysis().fit(std_data)
             int_fit_results = RBAnalysis().fit(int_data)
+            std_fit_data = std_fit_results
+            int_fit_data = int_fit_results
         if group_type == 'cnot_dihedral':
-            std_fit_results = CNOTDihedralRBAnalysis.fit(std_data)
-            int_fit_results = CNOTDihedralRBAnalysis.fit(int_data)
+            std_fit_results = CNOTDihedralRBAnalysis().fit(std_data)
+            int_fit_results = CNOTDihedralRBAnalysis().fit(int_data)
+            std_fit_data = std_fit_results[2]
+            int_fit_data = int_fit_results[2]
 
         # calculate nrb=d=2^n:
         nrb = 2 ** num_qubits
 
         # Calculate alpha (=p) and alpha_c (=p_c):
-        alpha = std_fit_results['alpha']
-        alpha_c = int_fit_results['alpha']
+        alpha = std_fit_data['alpha']
+        alpha_c = int_fit_data['alpha']
         # Calculate their errors:
-        alpha_err = std_fit_results['alpha_err']
-        alpha_c_err = int_fit_results['alpha_err']
+        alpha_err = std_fit_data['alpha_err']
+        alpha_c_err = int_fit_data['alpha_err']
 
         # Calculate epc_est (=r_c^est) - Eq. (4):
         epc_est = (nrb - 1) * (1 - alpha_c / alpha) / nrb
