@@ -75,10 +75,10 @@ class T1Analysis(BaseAnalysis):
         )
 
         chisq = 0
-        for i in range(len(delays)):
+        for delay, mean, stddev in zip(delays, means, stddevs):
             chisq += (
-                exp_fit_fun(delays[i], fit_out[0], fit_out[1], fit_out[2]) - means[i]
-            ) ** 2 / stddevs[i] ** 2
+                exp_fit_fun(delay, fit_out[0], fit_out[1], fit_out[2]) - mean
+            ) ** 2 / stddev ** 2
         chisq /= len(delays)
 
         fit_err = np.sqrt(np.diag(fit_cov))
@@ -99,9 +99,12 @@ class T1Analysis(BaseAnalysis):
             abs(analysis_result["amplitude"] - 1.0) < 0.1
             and abs(analysis_result["offset"]) < 0.1
             and analysis_result["chisq"] < 3
-            and analysis_result["amplitude_err"] < 0.1
-            and analysis_result["offset_err"] < 0.1
-            and analysis_result["t1_err"] < analysis_result["t1"]
+            and (analysis_result["amplitude_err"] is None or analysis_result["amplitude_err"] < 0.1)
+            and (analysis_result["offset_err"] is None or analysis_result["offset_err"] < 0.1)
+            and (
+                analysis_result["t1_err"] is None
+                or analysis_result["t1_err"] < analysis_result["t1"]
+            )
         )
 
         return analysis_result, None
@@ -121,7 +124,13 @@ class T1Experiment(BaseExperiment):
             delays: delay times of the experiments
             unit: unit of the duration. Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'.
                 Default is ``dt``, i.e. integer time unit depending on the target backend.
+
+        Raises:
+            ValueError: if the number of delays is smaller than 3
         """
+        if len(delays) < 3:
+            raise ValueError("T1 experiment: number of delays must be at least 3")
+
         self._delays = delays
         self._unit = unit
         super().__init__([qubit], type(self).__name__)
