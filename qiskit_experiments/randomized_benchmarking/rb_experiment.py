@@ -169,17 +169,17 @@ class CNOTDihedralRBAnalysis(RBAnalysisBase):
     def fit(self, experiment_data) -> CNOTDihedralRBResult:
         """Computes the cnot-dihedral fit from the results of the Z, X basis fits
             Args:
-                z_fit_results: The results for the Z-basis fit
-                x_fit_results: The results for the X-basis fit
+                experiment_data: The data from the experiment
             Returns:
                 The cnot-dihedral result (which contains the Z, X results)
         """
         # pylint: disable=invalid-name
 
+        num_qubits, lengths, group_type = self.get_experiment_params(experiment_data)
         (z_data, x_data) = self.split_experiment_data(experiment_data)
         z_fit_results = RBAnalysis().fit(z_data)
         x_fit_results = RBAnalysis().fit(x_data)
-        num_qubits, lengths, group_type = self.get_experiment_params(experiment_data)
+
         # calculate nrb=d=2^n:
         nrb = 2 ** num_qubits
 
