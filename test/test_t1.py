@@ -153,9 +153,10 @@ class TestT1(unittest.TestCase):
             offset_guess=0,
             instruction_durations=instruction_durations,
             shots=10000,
-        )
+        ).analysis_result(0)
 
-        self.assertTrue(res.analysis_result(0)["is_good_fit"])
+        self.assertTrue(res["is_good_fit"])
+        self.assertAlmostEqual(res["t1"], t1, delta=3)
 
     def test_t1_parallel(self):
         """
@@ -179,7 +180,9 @@ class TestT1(unittest.TestCase):
         )
 
         for i in range(2):
-            self.assertTrue(res.component_experiment_data(i).analysis_result(0)["is_good_fit"])
+            sub_res = res.component_experiment_data(i).analysis_result(0)
+            self.assertTrue(sub_res["is_good_fit"])
+            self.assertAlmostEqual(sub_res["t1"], t1[i], delta=3)
 
 
 if __name__ == "__main__":
