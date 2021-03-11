@@ -200,7 +200,6 @@ class RBAnalysisBase(BaseAnalysis):
         """Converts the data to a list of probabilities for each seed
             Args:
                 data: The counts data
-                metadata: The corresponding metadata
             Returns:
                 a list [seed_0_probs, seed_1_probs...] where seed_i_prob is
                 a list of the probabilities for seed i for every length

@@ -123,7 +123,7 @@ class RBAnalysis(RBAnalysisBase):
     def fit(self, experiment_data):
         """Computes the RB fit for the given data"""
         num_qubits, lengths, group_type = self.get_experiment_params(experiment_data)
-        xdata = self.organize_data(experiment_data._data)
+        xdata = self.organize_data(experiment_data.data)
         ydata = self.calc_statistics(xdata)
         fit_guess = self.generate_fit_guess(ydata['mean'], num_qubits, lengths)
         params, params_err = self.run_curve_fit(ydata, fit_guess, lengths)
