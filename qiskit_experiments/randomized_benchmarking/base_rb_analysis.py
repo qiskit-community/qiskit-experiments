@@ -170,7 +170,7 @@ class RBAnalysisBase(BaseAnalysis):
 
     def get_experiment_params(self, experiment_data):
         """Extracts relevant parameters of the experiment from the data object"""
-        num_qubits = experiment_data._experiment.num_qubits()
+        num_qubits = experiment_data._experiment.num_qubits
         lengths = experiment_data._experiment.lengths()
         group_type = experiment_data._experiment.group_type()
         return (num_qubits, lengths, group_type)
