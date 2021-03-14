@@ -17,6 +17,7 @@ from typing import List, Optional
 from .base_rb_generator import RBGeneratorBase
 from ..base_experiment import BaseExperiment
 
+
 class RBExperimentBase(BaseExperiment):
     """Base experiment class for randomized benchmarking experiments"""
     def __init__(self, generator: Optional[RBGeneratorBase] = None):
@@ -30,13 +31,17 @@ class RBExperimentBase(BaseExperiment):
         circuits = [c for c in self._generator._circuits if c.metadata['seed'] in active_seeds]
         return circuits
 
+    @property
     def num_qubits(self):
+        """Returns the number of qubits involved in the experiment"""
         return self._generator.num_meas_qubits()
 
     def lengths(self):
+        """Returns the length of the RB-sequences for the experiment"""
         return self._generator.lengths()
 
     def group_type(self):
+        """Returns the group type for the experiment"""
         return self._generator.rb_group_type()
 
     def run(self, backend, experiment_data=None, **kwargs):
@@ -45,17 +50,19 @@ class RBExperimentBase(BaseExperiment):
         return super().run(backend, experiment_data, active_seeds=self._generator.seeds(), **kwargs)
 
     def run_on_new_seeds(self, backend, experiment_data, num_of_seeds, **kwargs):
+        """Adds new seeds and runs on them"""
         new_seeds = self._generator.add_seeds(num_of_seeds)
         return super().run(backend, experiment_data, active_seeds=new_seeds, **kwargs)
 
     def run_additional_shots(self, backend, experiment_data, **kwargs):
+        """Runs more shot on the existing seeds"""
         return super().run(backend, experiment_data, **kwargs)
 
     def default_basis_gates(self) -> List[str]:
         """The default gate basis used when transpiling the RB circuits"""
         return ['id', 'rz', 'x', 'sx', 'cx']
 
-    def gates_per_clifford(self, backend, basis_gates = None) -> float:
+    def gates_per_clifford(self, backend, basis_gates=None) -> float:
         """Computes the average number of gates per group element in the transpiled circuits"""
         if basis_gates is None:
             basis_gates = self.default_basis_gates()

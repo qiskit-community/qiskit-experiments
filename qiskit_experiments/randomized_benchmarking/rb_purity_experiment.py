@@ -26,7 +26,7 @@ from .base_rb_generator import RBGeneratorBase
 from .base_rb_analysis import RBAnalysisBase
 from .base_rb_experiment import RBExperimentBase
 from .rb_experiment import RBAnalysisResult
-from ..experiment_data import ExperimentData
+
 
 class PurityRBGenerator(RBGeneratorBase):
     """Generates circuits for purity RB
@@ -52,7 +52,6 @@ class PurityRBGenerator(RBGeneratorBase):
         super().__init__(nseeds,
                          qubits,
                          lengths,
-                         name="purity randomized benchmarking",
                          rand_seed=rand_seed)
         self.generate_circuits()
 
@@ -79,7 +78,6 @@ class PurityRBGenerator(RBGeneratorBase):
         """Add all combinations of purity measurement to the given circuit
         Args:
             circuit: The circuit to add purity measurement to
-            meta: The corresponding metadata of the circuit
         Returns:
             The list of new circuits with the purity measurements
         """
@@ -112,6 +110,7 @@ class PurityRBGenerator(RBGeneratorBase):
         """
         return "purity_{}".format(meta['purity_meas_ops'])
 
+
 class PurityRBAnalysisResult(RBAnalysisResult):
     """Class for purity RB analysis results"""
     def plot_all_data_series(self, ax):
@@ -129,9 +128,14 @@ class PurityRBAnalysisResult(RBAnalysisResult):
         """Plots the y label for purity rB results"""
         return "Trace of Rho Square"
 
+
 class PurityRBAnalysis(RBAnalysisBase):
     """Analysis class for purity RB experiments"""
     __analysis_result_class__ = PurityRBAnalysisResult
+
+    def __init__(self):
+        self.num_qubits = None
+        self._zdict_ops = None
 
     def add_zdict_ops(self):
         """Creating all Z-correlators
@@ -187,7 +191,7 @@ class PurityRBAnalysis(RBAnalysisBase):
         op_vals = {'Z': 0, 'X': 1, 'Y': 2}
         return sum([op_vals[o] * (3**k) for (k, o) in enumerate(op)])
 
-    def organize_data(self, data) -> np.array:
+    def organize_data(self, data: List) -> np.array:
         """Converts the data to a list of probabilities for each seed
             Args:
                 data: The counts data
@@ -197,7 +201,8 @@ class PurityRBAnalysis(RBAnalysisBase):
         """
         seeds = sorted(list({d['metadata']['seed'] for d in data}))
         length_indices = sorted(list({d['metadata']['length_index'] for d in data}))
-        purity_ops = sorted(list({d['metadata']['purity_meas_ops'] for d in data}), key=self.purity_op_key)
+        purity_ops = sorted(list({d['metadata']['purity_meas_ops'] for d in data}),
+                            key=self.purity_op_key)
         shots_dict = self.collect_data(data,
                                        key_fn=lambda m: (m['seed'],
                                                          m['length_index'],
@@ -241,7 +246,7 @@ class PurityRBAnalysis(RBAnalysisBase):
         purity = purity / (2 ** self.num_qubits)
         return purity
 
-    def fit(self, experiment_data):
+    def fit(self, experiment_data: List):
         """Computes the purity RB fit for the given data"""
         num_qubits, lengths, group_type = self.get_experiment_params(experiment_data)
         self.num_qubits = num_qubits
@@ -285,6 +290,7 @@ class PurityRBAnalysis(RBAnalysisBase):
             'fit_function': self._rb_fit_fun,
             'group_type': group_type
         }
+
 
 class PurityRBExperiment(RBExperimentBase):
     """Experiment class for purity RB experiment"""

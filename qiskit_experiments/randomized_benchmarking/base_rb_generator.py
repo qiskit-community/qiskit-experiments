@@ -20,6 +20,7 @@ from numpy.random import RandomState
 from qiskit import (QuantumCircuit, QuantumRegister, ClassicalRegister)
 from .rb_groups import RBgroup
 
+
 class RBGeneratorBase():
     """Base generator class for randomized benchmarking experiments"""
     def __init__(self,
@@ -28,7 +29,6 @@ class RBGeneratorBase():
                  lengths: List[int] = (1, 10, 20),
                  group_gates: Optional[str] = None,
                  rand_seed: Optional[Union[int, RandomState]] = None,
-                 name: str = "randomized benchmarking base"
                  ):
         """Initialize the circuit generator for a randomized banchmarking experiment.
 

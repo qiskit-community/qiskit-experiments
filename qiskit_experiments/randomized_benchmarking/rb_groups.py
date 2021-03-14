@@ -22,6 +22,7 @@ from qiskit.quantum_info.operators.dihedral import CNOTDihedral
 from qiskit.quantum_info.random import random_clifford
 from qiskit.quantum_info.random import random_cnotdihedral
 
+
 class RBgroup():
     """Class that handles the group operations needed for RB."""
 
@@ -47,6 +48,7 @@ class RBgroup():
             raise QiskitError("Unknown group or set of gates.")
 
     def group_class(self):
+        """Return the class of the RB group"""
         return self._rb_group
 
     def num_qubits(self):

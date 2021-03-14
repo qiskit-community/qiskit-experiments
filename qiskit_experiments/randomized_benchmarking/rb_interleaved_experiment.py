@@ -24,7 +24,10 @@ from qiskit.circuit import Instruction
 from .base_rb_generator import RBGeneratorBase
 from .base_rb_analysis import RBAnalysisBase, RBAnalysisResultBase
 from .base_rb_experiment import RBExperimentBase
-from .rb_experiment import RBAnalysis, CNOTDihedralRBAnalysis, RBAnalysisResult, CNOTDihedralRBResult
+from .rb_experiment import (RBAnalysis,
+                            CNOTDihedralRBAnalysis,
+                            RBAnalysisResult,
+                            CNOTDihedralRBResult)
 from ..experiment_data import ExperimentData
 
 
@@ -63,8 +66,7 @@ class InterleavedRBGenerator(RBGeneratorBase):
                          qubits,
                          lengths,
                          group_gates,
-                         rand_seed,
-                         name="interleaved randomized benchmarking")
+                         rand_seed)
 
         self._transform_interleaved_element = transform_interleaved_element
         self.set_interleaved_element(interleaved_element)
@@ -158,6 +160,7 @@ class InterleavedRBGenerator(RBGeneratorBase):
             return "interleaved"
         return None
 
+
 class InterleavedRBResult(RBAnalysisResultBase):
     """Class for interleaved randomized benchmarking analysis results"""
     def __init__(self, results):
@@ -165,10 +168,6 @@ class InterleavedRBResult(RBAnalysisResultBase):
         self._std_fit_result = RBAnalysisResult(std_fit_result)
         self._int_fit_result = RBAnalysisResult(int_fit_result)
         super().__init__(interleaved_result)
-
-    def num_qubits(self) -> int:
-        """Returns the number of qubits used in the RB experiment"""
-        return self._std_fit_result.num_qubits()
 
     def plot_all_data_series(self, ax):
         """Plots the standard and interleaved data series"""
@@ -186,6 +185,7 @@ class InterleavedRBResult(RBAnalysisResultBase):
                                                     self['epc_est'],
                                                     self['epc_est_err'])
 
+
 class InterleavedCNOTDihedralRBResult(RBAnalysisResultBase):
     """Class for interleaved cnot-dihedral RB analysis results"""
     def __init__(self, results):
@@ -193,10 +193,6 @@ class InterleavedCNOTDihedralRBResult(RBAnalysisResultBase):
         self._cnot_std_fit_result = CNOTDihedralRBResult(cnot_std_fit_result)
         self._cnot_int_fit_result = CNOTDihedralRBResult(cnot_int_fit_result)
         super().__init__(interleaved_result)
-
-    def num_qubits(self) -> int:
-        """Returns the number of qubits used in the RB experiment"""
-        return self._cnot_std_fit_result.num_qubits()
 
     def plot_all_data_series(self, ax):
         """Plots the Z and X basis data series for both standard and interleaved"""
@@ -219,11 +215,14 @@ class InterleavedCNOTDihedralRBResult(RBAnalysisResultBase):
                                                             self['epc_est'],
                                                             self['epc_est_err'])
 
+
 class InterleavedRBAnalysis(RBAnalysisBase):
     """Analysis class for interleaved RB experiments"""
     __analysis_result_class__ = InterleavedRBResult
 
     def split_experiment_data(self, experiment_data):
+        """Splits the experiment data between circuits for standard RB
+        and circuits containing the interleaved element"""
         std_data = ExperimentData(experiment_data.experiment())
         int_data = ExperimentData(experiment_data.experiment())
         for d in experiment_data.data:
@@ -235,16 +234,16 @@ class InterleavedRBAnalysis(RBAnalysisBase):
 
     @classmethod
     def set_result_class(cls, group_type):
+        """Sets the analysis result class returned by the analysis"""
         if group_type == 'clifford':
             cls.__analysis_result_class__ = InterleavedRBResult
         if group_type == 'cnot_dihedral':
             cls.__analysis_result_class__ = InterleavedCNOTDihedralRBResult
 
-    def fit(self, experiment_data) -> RBAnalysisResultBase:
+    def fit(self, experiment_data: List) -> RBAnalysisResultBase:
         """Computes the interleaved fit from the results of the two input fits
             Args:
-                std_fit_results: The results for the standard RB fit
-                int_fit_results: The results for the interleaved RB fit
+                experiment data: The results for the experiment
             Returns:
                 The interleaved result (which contains the input results)
         """
@@ -308,6 +307,7 @@ class InterleavedRBAnalysis(RBAnalysisBase):
                               'num_qubits': num_qubits,
                               'group_type': group_type}
         return (std_fit_results, int_fit_results, interleaved_result)
+
 
 class InterleavedRBExperiment(RBExperimentBase):
     """Experiment class for interleaved RB experiment"""

@@ -28,6 +28,7 @@ try:
 except ImportError:
     HAS_MATPLOTLIB = False
 
+
 def build_counts_dict_from_list(count_list):
     """
     Add dictionary counts together.
@@ -48,9 +49,9 @@ def build_counts_dict_from_list(count_list):
             new_count_dict[item] = countdict[item]+new_count_dict.get(item, 0)
     return new_count_dict
 
+
 class RBAnalysisResultBase(AnalysisResult):
-    def __init__(self, data):
-        super().__init__(data)
+    """Base class for results from RB experiments"""
 
     @abstractmethod
     def plot_all_data_series(self, ax):
@@ -111,10 +112,12 @@ class RBAnalysisResultBase(AnalysisResult):
         }
         return names_dict[self['group_type']]
 
+
 class RBAnalysisBase(BaseAnalysis):
     """Base analysis class for randomized benchmarking experiments"""
 
     __analysis_result_class__ = RBAnalysisResultBase
+
     def _run_analysis(self, experiment_data, **options):
         """Run analysis on circuit data.
 
@@ -131,6 +134,10 @@ class RBAnalysisBase(BaseAnalysis):
         fit_results = self.fit(experiment_data)
         results = self.__analysis_result_class__(fit_results)
         return (results, None)
+
+    @abstractmethod
+    def fit(self, experiment_data: List) -> Dict:
+        """Fits the experimental data and returns a dictionary of fit result data"""
 
     def compute_prob(self, counts: Counts) -> float:
         """Computes the probability of getting the ground result
@@ -162,13 +169,14 @@ class RBAnalysisBase(BaseAnalysis):
         return a * alpha ** x + b
 
     def get_experiment_params(self, experiment_data):
+        """Extracts relevant parameters of the experiment from the data object"""
         num_qubits = experiment_data._experiment.num_qubits()
         lengths = experiment_data._experiment.lengths()
         group_type = experiment_data._experiment.group_type()
         return (num_qubits, lengths, group_type)
 
     def collect_data(self,
-                     data,
+                     data: List,
                      key_fn: Callable[[Dict[str, any]], any],
                      conversion_fn: Optional[Callable[[Counts], any]] = None
                      ) -> Dict:
@@ -196,7 +204,7 @@ class RBAnalysisBase(BaseAnalysis):
 
         return result
 
-    def organize_data(self, data) -> np.array:
+    def organize_data(self, data: List) -> np.array:
         """Converts the data to a list of probabilities for each seed
             Args:
                 data: The counts data
@@ -228,10 +236,14 @@ class RBAnalysisBase(BaseAnalysis):
             ydata['std'] = np.std(xdata, 0)
         return ydata
 
-    def generate_fit_guess(self, mean: np.array, num_qubits, lengths) -> Tuple[float]:
+    def generate_fit_guess(self, mean: np.array,
+                           num_qubits: int,
+                           lengths: List[int]) -> Tuple[float]:
         """Generate initial guess for the fitter from the mean data
             Args:
                 mean: A list of mean probabilities for each length
+                num_qubits: The number of qubits in the RB experiment
+                lengths: The lengths of the RB sequences
             Returns:
                 The initial guess for the fit parameters (A, alpha, B)
         """
@@ -255,12 +267,13 @@ class RBAnalysisBase(BaseAnalysis):
     def run_curve_fit(self,
                       ydata: Dict[str, np.array],
                       fit_guess: Tuple[float],
-                      lengths
+                      lengths: List[int],
                       ) -> Tuple[Tuple[float], Tuple[float]]:
         """Runs the curve fir algorithm from the initial guess and based on the statistical data
             Args:
                 ydata: The statistical data
                 fit_guess: The initial guess
+                lengths: The lengths of the RB sequences
             Returns:
                 The resulting fit data
         """
