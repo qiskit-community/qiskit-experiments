@@ -83,14 +83,14 @@ class PurityRBGenerator(RBGeneratorBase):
         """
         meas_op_names = ['Z', 'X', 'Y']
         result = []
-        for meas_ops in product(meas_op_names, repeat=self.num_meas_qubits()):
+        for meas_ops in product(meas_op_names, repeat=self.num_physical_qubits()):
             new_meta = copy(circuit.metadata)
             new_meta['purity_meas_ops'] = "".join(meas_ops)
             new_circuit = QuantumCircuit(circuit.qregs[0], circuit.cregs[0])
             new_circuit.metadata = new_meta
             new_circuit += circuit
             for qubit_index, meas_op in enumerate(meas_ops):
-                qubit = self._meas_qubits[qubit_index]
+                qubit = self._physical_qubits[qubit_index]
                 if meas_op == 'Z':
                     pass  # do nothing
                 if meas_op == 'X':
@@ -308,5 +308,5 @@ class PurityRBExperiment(RBExperimentBase):
                 rand_seed: optional random number seed
         """
         generator = PurityRBGenerator(nseeds, qubits, lengths, rand_seed)
-        self.__analysis_class__ = PurityRBAnalysis
+        self.set_analysis_class(PurityRBAnalysis)
         super().__init__(generator=generator)

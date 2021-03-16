@@ -52,7 +52,7 @@ class RBGeneratorBase():
                 end.
             """
         self._nseeds = nseeds
-        self._meas_qubits = list(set(qubits))
+        self._physical_qubits = list(set(qubits))
         self._lengths = lengths
         self._rb_group = RBgroup(group_gates)
         if self._rb_group.group_gates_type() == 0:
@@ -62,17 +62,19 @@ class RBGeneratorBase():
         self._rand_seed = rand_seed
         self._circuits = []
 
-    def num_meas_qubits(self):
+    def num_physical_qubits(self):
         """Returns the number of qubits participating in the experiment"""
-        return len(self._meas_qubits)
+        return len(self._physical_qubits)
 
-    def meas_qubits(self):
+    def physical_qubits(self):
         """Returns the qubits participating in the experiment"""
-        return self._meas_qubits
+        return self._physical_qubits
 
-    def num_all_qubits(self):
-        """Returns the total number of qubits in the experiment's circuit"""
-        return max(self._meas_qubits) + 1
+    def num_qubits(self):
+        return self.num_physical_qubits()
+
+    def qubits(self):
+        return list(range(self.num_qubits()))
 
     def lengths(self):
         """Returns the lengths of the RB circuits (for each seed)"""
@@ -180,24 +182,24 @@ class RBGeneratorBase():
             With an additional inverting gate and measurement at the end of each circuit
         """
         result = []
-        qr = QuantumRegister(self.num_all_qubits(), 'qr')
-        cr = ClassicalRegister(self.num_meas_qubits(), 'cr')
+        qr = QuantumRegister(self.num_qubits(), 'qr')
+        cr = ClassicalRegister(self.num_qubits(), 'cr')
         circ = QuantumCircuit(qr, cr)
-        current_element = self._rb_group.iden(self.num_meas_qubits())
+        current_element = self._rb_group.iden(self.num_qubits())
         for length_index, element_list in enumerate(element_lists):
             for element in element_list:
                 current_element = self._rb_group.compose(current_element, element['group_element'])
                 circ += self.replace_q_indices(
                     element['circuit_element'],
-                    self._meas_qubits, qr)
+                    self.qubits(), qr)
                 # add a barrier
-                circ.barrier(*[qr[x] for x in self._meas_qubits])
+                circ.barrier(*[qr[x] for x in self.qubits()])
             # finished with the current list - output a circuit based on what we have
             output_circ = QuantumCircuit(qr, cr)
             output_meta = {'length_index': length_index}
             output_circ += circ
             inv_circuit = self._rb_group.inverse(current_element)
-            output_circ += self.replace_q_indices(inv_circuit, self._meas_qubits, qr)
+            output_circ += self.replace_q_indices(inv_circuit, self.qubits(), qr)
             if self._rb_group_type == 'cnot_dihedral':
                 output_meta['cnot_basis'] = 'Z'
                 cnot_circuit = self.generate_cnot_x_circuit(output_circ, output_meta)
@@ -224,11 +226,11 @@ class RBGeneratorBase():
         """
         cnot_circuit = QuantumCircuit(circuit.qregs[0], circuit.cregs[0])
         cnot_meta = copy.copy(meta)
-        for qubit in self._meas_qubits:
+        for qubit in self.qubits():
             cnot_circuit.h(qubit)
             cnot_circuit.barrier(qubit)
         cnot_circuit += circuit
-        for qubit in self._meas_qubits:
+        for qubit in self.qubits():
             cnot_circuit.barrier(qubit)
             cnot_circuit.h(qubit)
 
@@ -250,7 +252,7 @@ class RBGeneratorBase():
         for _ in range(length):
             if self._rand_seed is not None:
                 self._rand_seed += 1
-            element = self._rb_group.random(self.num_meas_qubits(), self._rand_seed)
+            element = self._rb_group.random(self.num_qubits(), self._rand_seed)
             element_list.append({'group_element': element,
                                  'circuit_element': self._rb_group.to_circuit(element)})
         return element_list
@@ -311,7 +313,7 @@ class RBGeneratorBase():
         Args:
             circuit: The circuit to add measurement gates to
         """
-        for clbit, qubit in enumerate(self._meas_qubits):
+        for clbit, qubit in enumerate(self.qubits()):
             circuit.measure(qubit, clbit)
 
     def add_extra_meta(self, circuits: List[QuantumCircuit],

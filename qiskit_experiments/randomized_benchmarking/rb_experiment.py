@@ -236,8 +236,8 @@ class RBExperiment(RBExperimentBase):
         """
         generator = RBGenerator(nseeds, qubits, lengths, group_gates, rand_seed)
         if generator.rb_group_type() == 'clifford':
-            self.__analysis_class__ = RBAnalysis
+            self.set_analysis_class(RBAnalysis)
         if generator.rb_group_type() == 'cnot_dihedral':
-            self.__analysis_class__ = CNOTDihedralRBAnalysis
+            self.set_analysis_class(CNOTDihedralRBAnalysis)
 
         super().__init__(generator=generator)

@@ -23,7 +23,7 @@ class RBExperimentBase(BaseExperiment):
     def __init__(self, generator: Optional[RBGeneratorBase] = None):
         self._generator = generator
         circuit_options = {"active_seeds": self._generator.seeds()}
-        super().__init__(max(generator.meas_qubits())+1, circuit_options=circuit_options)
+        super().__init__(generator.physical_qubits(), circuit_options=circuit_options)
 #        self.reset()
 
     def circuits(self, backend=None, **circuit_options):
@@ -34,7 +34,7 @@ class RBExperimentBase(BaseExperiment):
     @property
     def num_qubits(self):
         """Returns the number of qubits involved in the experiment"""
-        return self._generator.num_meas_qubits()
+        return self._generator.num_physical_qubits()
 
     def lengths(self):
         """Returns the length of the RB-sequences for the experiment"""
@@ -43,6 +43,10 @@ class RBExperimentBase(BaseExperiment):
     def group_type(self):
         """Returns the group type for the experiment"""
         return self._generator.rb_group_type()
+
+    @classmethod
+    def set_analysis_class(cls, analysis_class):
+        cls.__analysis_class__ = analysis_class
 
     def run(self, backend, experiment_data=None, **kwargs):
         if 'basis_gates' not in kwargs:
@@ -66,7 +70,7 @@ class RBExperimentBase(BaseExperiment):
         """Computes the average number of gates per group element in the transpiled circuits"""
         if basis_gates is None:
             basis_gates = self.default_basis_gates()
-        qubits = self._generator.meas_qubits()
+        qubits = self._generator.physical_qubits()
         ngates = {qubit: {base: 0 for base in basis_gates} for qubit in qubits}
         transpiled_circuits_list = self.transpiled_circuits(backend, basis_gates=basis_gates)
 

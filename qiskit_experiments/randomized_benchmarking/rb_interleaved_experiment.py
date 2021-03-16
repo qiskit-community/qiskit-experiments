@@ -337,5 +337,5 @@ class InterleavedRBExperiment(RBExperimentBase):
         generator = InterleavedRBGenerator(interleaved_element, nseeds, qubits, lengths,
                                            group_gates, rand_seed, transform_interleaved_element)
 
-        self.__analysis_class__ = InterleavedRBAnalysis
+        self.set_analysis_class(InterleavedRBAnalysis)
         super().__init__(generator=generator)
