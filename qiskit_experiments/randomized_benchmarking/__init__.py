@@ -10,14 +10,4 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Qiskit Experiments Root."""
-
-from .version import __version__
-
-# Base result classes
-from .experiment_data import ExperimentData, AnalysisResult
-
-# Experiment modules
-from . import analysis
-from . import composite
-from . import randomized_benchmarking
+from .rb_experiment import RBExperiment, RBAnalysis

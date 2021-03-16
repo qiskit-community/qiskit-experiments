@@ -68,9 +68,9 @@ class BaseAnalysis(ABC):
             else:
                 for res in analysis_results:
                     experiment_data.add_analysis_result(res)
-            if figures:
-                for fig in figures:
-                    experiment_data.add_figure(fig)
+            # if figures:
+            #     for fig in figures:
+            #         experiment_data.add_figure(fig)
         if return_figures:
             return analysis_results, figures
         return analysis_results
