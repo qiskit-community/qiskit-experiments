@@ -53,14 +53,8 @@ class RBExperimentBase(BaseExperiment):
             kwargs['basis_gates'] = self.default_basis_gates()
         return super().run(backend, experiment_data, active_seeds=self._generator.seeds(), **kwargs)
 
-    def run_on_new_seeds(self, backend, experiment_data, num_of_seeds, **kwargs):
-        """Adds new seeds and runs on them"""
-        new_seeds = self._generator.add_seeds(num_of_seeds)
-        return super().run(backend, experiment_data, active_seeds=new_seeds, **kwargs)
-
-    def run_additional_shots(self, backend, experiment_data, **kwargs):
-        """Runs more shot on the existing seeds"""
-        return super().run(backend, experiment_data, **kwargs)
+    def add_new_seeds(self, num_of_seeds):
+        return self._generator.add_seeds(num_of_seeds)
 
     def default_basis_gates(self) -> List[str]:
         """The default gate basis used when transpiling the RB circuits"""
