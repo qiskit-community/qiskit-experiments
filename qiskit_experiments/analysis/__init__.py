@@ -10,13 +10,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Qiskit Experiments Root."""
+"""
+Standalone analysis classes
 
-from .version import __version__
+These can be used when creating experiments
+"""
 
-# Base result classes
-from .experiment_data import ExperimentData, AnalysisResult
-
-# Experiment modules
-from . import analysis
-from . import composite
+from .curve_fit_analysis import CurveFitAnalysis
