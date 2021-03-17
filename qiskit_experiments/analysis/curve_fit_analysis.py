@@ -38,6 +38,7 @@ class CurveFitAnalysis(BaseAnalysis):
         p0: Optional[List[float]] = None,
         p0_func: Optional[Callable] = None,
         bounds: Optional[Tuple] = None,
+        fit_mean_data: bool = False,
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,
     ):
@@ -49,6 +50,7 @@ class CurveFitAnalysis(BaseAnalysis):
             p0: Optional, initial parameter values for curve_fit.
             p0_func: Optional, function for calculating initial p0.
             bounds: Optional, parameter bounds for curve_fit.
+            fit_mean_data: Optional, if True pass means of data points to curve_fit.
             plot: If True generate a plot of fitted data.
             ax: Optional, matplotlib axis to add plot to.
 
@@ -58,16 +60,20 @@ class CurveFitAnalysis(BaseAnalysis):
                    AnalysisResult objects, and ``figures`` may be
                    None, a single figure, or a list of figures.
         """
-        # Initial guess
-        xdata, ydata, ystderr = self._curve_fit_data(experiment_data.data)
+        # Compute curve fit data
+        xdata, ydata, ydata_sigma = self._curve_fit_data(experiment_data.data)
+        if fit_mean_data:
+            xvals, yvals, sigma = self._mean_data(xdata, ydata)
+        else:
+            xvals, yvals, sigma = xdata, ydata, ydata_sigma
 
         if p0_func is not None and p0 is None:
-            p0 = p0_func(xdata, ydata, sigma=ystderr)
+            p0 = p0_func(xdata, ydata, sigma=sigma)
 
-        # Fit ydata
-        popt, pcov = curve_fit(func, xdata, ydata, sigma=ystderr, p0=p0, bounds=bounds)
+        # Run curve fit
+        popt, pcov = curve_fit(func, xvals, yvals, sigma=sigma, p0=p0, bounds=bounds)
         popt_err = np.sqrt(np.diag(pcov))
-        chisq = self._chisq(xdata, ydata, ystderr, func, popt)
+        chisq = self._chisq(xvals, yvals, sigma, func, popt)
 
         result = AnalysisResult(
             {
@@ -79,7 +85,9 @@ class CurveFitAnalysis(BaseAnalysis):
         )
 
         if plot and HAS_MATPLOTLIB:
-            ax = self._curve_fit_plot(xdata, ydata, func, popt, popt_err, ax=ax)
+            mean_data = (xvals, yvals, sigma) if fit_mean_data else None
+            ax = self._curve_fit_plot(func, popt, popt_err, xdata,
+                                      ydata=ydata, mean_data=mean_data, ax=ax)
             # TODO: figure out what to do with plots
             return result, [ax]
 
@@ -95,11 +103,11 @@ class CurveFitAnalysis(BaseAnalysis):
 
     @staticmethod
     def _chisq(
-        xdata: np.ndarray, ydata: np.ndarray, ystderr: np.ndarray, func: Callable, popt: np.ndarray
+        xdata: np.ndarray, ydata: np.ndarray, sigma: np.ndarray, func: Callable, popt: np.ndarray
     ) -> float:
         """Return the chi-squared of fit"""
         yfits = func(xdata, *popt)
-        residuals = ((yfits - ydata) / ystderr) ** 2
+        residuals = ((yfits - ydata) / sigma) ** 2
         return np.sum(residuals)
 
     @classmethod
@@ -125,17 +133,34 @@ class CurveFitAnalysis(BaseAnalysis):
         return xdata, ydata, np.sqrt(ydata_var)
 
     @classmethod
+    def _mean_data(cls, xdata, ydata):
+        """Return mean data for data containing duplicate xdata values"""
+        # Note this assumes discrete X-data
+        x_means = np.unique(xdata)
+        y_means = np.zeros(x_means.size)
+        y_sigmas = np.zeros(x_means.size)
+        for i in range(x_means.size):
+            ys = ydata[xdata == x_means[i]]
+            num_samples = len(ys)
+            sample_mean =  np.mean(ys)
+            sample_var = np.sum((sample_mean - ys) ** 2) / (num_samples - 1)
+            y_means[i] = sample_mean
+            y_sigmas[i] = np.sqrt(sample_var)
+        return x_means, y_means, y_sigmas
+
+    @classmethod
     def _curve_fit_plot(
         cls,
-        xdata: np.ndarray,
-        ydata: np.ndarray,
         func: Callable,
         popt: np.ndarray,
         popt_err: np.ndarray,
+        xdata: np.ndarray,
+        ydata: Optional[np.ndarray] = None,
+        mean_data: Optional[Tuple[np.ndarray]] = None,
         num_fit_points: int = 100,
         ax: Optional["AxesSubplot"] = None,
     ):
-
+        """Generate plot of raw and fitted data"""
         if not HAS_MATPLOTLIB:
             raise ImportError(
                 "{} requires matplotlib to generate curve fit plot."
@@ -146,9 +171,6 @@ class CurveFitAnalysis(BaseAnalysis):
             plt.figure()
             ax = plt.gca()
 
-        # Plot raw data
-        ax.scatter(xdata, ydata, c="red", marker="x")
-
         # Plot fit data
         xs = np.linspace(np.min(xdata), np.max(xdata), num_fit_points)
         ys_fit = func(xs, *popt)
@@ -158,6 +180,15 @@ class CurveFitAnalysis(BaseAnalysis):
         ys_upper = func(xs, *(popt + popt_err))
         ys_lower = func(xs, *(popt - popt_err))
         ax.fill_between(xs, ys_lower, ys_upper, color="blue", alpha=0.1)
+
+        # Plot raw data
+        if ydata is not None:
+            ax.scatter(xdata, ydata, c="grey", marker="x")
+
+        # Error bar plot of mean data
+        if mean_data is not None:
+            ax.errorbar(mean_data[0], mean_data[1], mean_data[2],
+                        marker='.', markersize=9, linestyle='--', color='red')
 
         # Formatting
         ax.tick_params(labelsize=14)
