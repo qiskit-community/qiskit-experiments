@@ -35,8 +35,6 @@ class CurveFitAnalysis(BaseAnalysis):
         self,
         experiment_data: "ExperimentData",
         func: Callable,
-        outcome: Union[str, int] = 0,
-        plabels: Optional[List[str]] = None,
         p0: Optional[List[float]] = None,
         p0_func: Optional[Callable] = None,
         bounds: Optional[Tuple] = None,
@@ -48,8 +46,6 @@ class CurveFitAnalysis(BaseAnalysis):
         Args:
             experiment_data (ExperimentData): the experiment data to analyze.
             func: fit function `f(x, *params)`.
-            outcome: measurement outcome probability to extract from counts.
-            plabels: Optional, parameter names for fit function.
             p0: Optional, initial parameter values for curve_fit.
             p0_func: Optional, function for calculating initial p0.
             bounds: Optional, parameter bounds for curve_fit.
@@ -63,7 +59,7 @@ class CurveFitAnalysis(BaseAnalysis):
                    None, a single figure, or a list of figures.
         """
         # Initial guess
-        xdata, ydata, ystderr = self._curve_fit_data(experiment_data.data, outcome=outcome)
+        xdata, ydata, ystderr = self._curve_fit_data(experiment_data.data)
 
         if p0_func is not None and p0 is None:
             p0 = p0_func(xdata, ydata, sigma=ystderr)
@@ -78,12 +74,11 @@ class CurveFitAnalysis(BaseAnalysis):
                 "popt": popt,
                 "popt_err": popt_err,
                 "pcov": pcov,
-                "plabels": plabels,
                 "chisq": chisq,
             }
         )
 
-        if plot:
+        if plot and HAS_MATPLOTLIB:
             ax = self._curve_fit_plot(xdata, ydata, func, popt, popt_err, ax=ax)
             # TODO: figure out what to do with plots
             return result, [ax]
@@ -108,27 +103,27 @@ class CurveFitAnalysis(BaseAnalysis):
         return np.sum(residuals)
 
     @classmethod
-    def _curve_fit_data(
-        cls, data: List[Dict[str, any]], outcome: Union[str, int]
-    ) -> Tuple[np.ndarray]:
-        """Return input data for curve_fit function"""
+    def _curve_fit_data(cls, data: List[Dict[str, any]]) -> Tuple[np.ndarray]:
+        """Return input data for curve_fit function.
+
+        This requires count data and metadata with `"xdata"`, `"ylabel"`
+        keys containing the numeric x-value for fitting, and the outcome
+        bitstring for computing y-value probability from counts.
+        """
         size = len(data)
         xdata = np.zeros(size, dtype=int)
         ydata = np.zeros(size, dtype=float)
         ydata_var = np.zeros(size, dtype=float)
-        if isinstance(outcome, int):
-            num_clbits = data[0]["metadata"]["num_qubits"]
-            outcome = bin(outcome)[2:]
-            outcome = (num_clbits - len(outcome)) * "0" + outcome
+
         for i, datum in enumerate(data):
             metadata = datum["metadata"]
             xdata[i] = metadata["xdata"]
-            y_mean, y_var = cls._counts_probability(datum["counts"], outcome)
-            xdata[i] = metadata["xdata"]
+            y_mean, y_var = cls._counts_probability(
+                datum["counts"], metadata["ylabel"])
             ydata[i] = y_mean
             ydata_var[i] = y_var
-        ystderr = np.sqrt(ydata_var)
-        return xdata, ydata, ystderr
+
+        return xdata, ydata, np.sqrt(ydata_var)
 
     @classmethod
     def _curve_fit_plot(
