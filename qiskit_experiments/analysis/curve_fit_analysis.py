@@ -118,8 +118,7 @@ class CurveFitAnalysis(BaseAnalysis):
         for i, datum in enumerate(data):
             metadata = datum["metadata"]
             xdata[i] = metadata["xdata"]
-            y_mean, y_var = cls._counts_probability(
-                datum["counts"], metadata["ylabel"])
+            y_mean, y_var = cls._counts_probability(datum["counts"], metadata["ylabel"])
             ydata[i] = y_mean
             ydata_var[i] = y_var
 
@@ -139,7 +138,8 @@ class CurveFitAnalysis(BaseAnalysis):
 
         if not HAS_MATPLOTLIB:
             raise ImportError(
-                " requires matplotlib to generate curve fit " 'Run "pip install matplotlib" before.'
+                "{} requires matplotlib to generate curve fit plot."
+                ' Run "pip install matplotlib" before.'.format(cls.__name__)
             )
 
         if ax is None:
