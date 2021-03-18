@@ -14,44 +14,21 @@
 
 import numpy as np
 from abc import abstractmethod
-from typing import Iterator, List, Optional, Tuple
+from typing import Iterator, List, Tuple
 
+from .fit_result import FitResult
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.calibration import DataProcessor
+from qiskit_experiments.calibration.metadata import CalibrationMetadata
 from qiskit_experiments import ExperimentData
+from qiskit_experiments.calibration.data_processing.processed_data import ProcessedData
+from qiskit.qobj.utils import MeasReturnType
+from qiskit_experiments.experiment_data import AnalysisResult
+from scipy import optimize
 
 
 class BaseCalibrationAnalysis(BaseAnalysis):
     """Abstract base class for all calibration analysis classes."""
-
-    def __init__(self, experiment_data,
-                      data_processor: Optional[DataProcessor] = None,
-                      **options):
-        """Run analysis on circuit data.
-
-        Args:
-            experiment_data (ExperimentData): the experiment data to analyze.
-            data_processor: Specifies the actions to apply when processing the measured data.
-            options: kwarg options for analysis function.
-
-        Returns:
-            tuple: A pair ``(analysis_results, figures)`` where
-                   ``analysis_results`` may be a single or list of
-                   AnalysisResult objects, and ``figures`` may be
-                   None, a single figure, or a list of figures.
-        """
-
-        self._data_processor = data_processor
-
-    @property
-    def data_processor(self) -> DataProcessor:
-        """Return the data processor."""
-        return self._data_processor
-
-    @data_processor.setter
-    def data_processor(self, data_processor: DataProcessor):
-        """Set the data processor."""
-        self._data_processor = data_processor
 
     @abstractmethod
     def initial_guess(self, xvals: np.ndarray, yvals: np.ndarray) -> Iterator[np.ndarray]:
@@ -105,31 +82,42 @@ class BaseCalibrationAnalysis(BaseAnalysis):
 
         return chi_sq / dof
 
-    def _run_analysis(self, experiment_data: ExperimentData, **kwargs) -> any:
+    def _run_analysis(self, experiment_data: ExperimentData, qubit=0,
+                      data_processor=DataProcessor(), plot=False, **kwargs) -> any:
         """
-        TODO BIG TODO!!!!
 
         Analyze the given experiment data.
 
+        Notes: data is a List of Dict.
+
         Args:
-            qubit: Index of qubit to analyze the result.
+            experiment_data: The data to analyse.
 
         Returns:
             any: the output of the analysis,
         """
 
-        metadata = experiment_data.data.header.metadata
+        # 1) Format the data using the DataProcessor for the analysis.
+        for exp_idx, data in enumerate(experiment_data.data):
+            data_processor.format_data(data)
 
-        for idx, data in enumerate(experiment_data.data):
-        data = self.data_processor.format_data(data, data['metadata'])
+        # 2) Extract series information from the data
+        key = data_processor.output_key()
+        meas_return = data_processor.meas_return()
+        series = ProcessedData()
+        for exp_idx, data in enumerate(experiment_data.data):
+            metadata = CalibrationMetadata(**data['metadata'])
 
+            if meas_return == MeasReturnType.AVERAGE:
+                yval = data[key][qubit]
+            else:
+                yval = [data[key][_][qubit] for _ in range(len(data[key]))]
 
-        qubit_data = experiment_data.groupby('qubit').get_group(qubit)
-        temp_results = dict()
+            series.add_data_point(metadata.x_values, yval, metadata.series)
 
-        # fit for each initial guess
-        for xvals, yvals, series in self._get_target_data(qubit_data):
-            # fit for each series
+        # 3) Fit the data for each initial guess and series.
+        results = AnalysisResult()
+        for xvals, yvals, series in series.series():
             best_result = None
             for initial_guess in self.initial_guess(xvals, yvals):
                 # fit for each initial guess if there are many starting point
@@ -137,9 +125,9 @@ class BaseCalibrationAnalysis(BaseAnalysis):
                     fun=self.chi_squared,
                     x0=initial_guess,
                     args=(xvals, yvals),
-                    bounds=self.fit_boundary(xvals, yvals),
-                    **kwargs
+                    bounds=self.fit_boundary(xvals, yvals)
                 )
+
                 if fit_result.success:
                     if not best_result or best_result.chisq > fit_result.fun:
                         best_result = FitResult(
@@ -153,38 +141,62 @@ class BaseCalibrationAnalysis(BaseAnalysis):
                     pass
 
             # keep the best result
-            temp_results[series] = best_result
+            results[series] = best_result
 
-        # update analysis result
-        if self._result:
-            self._result[qubit] = temp_results
-        else:
-            self._result = {qubit: temp_results}
+        experiment_data.add_analysis_result(results)
 
-        return temp_results
+        figures = None
+        if plot:
+            figures = self._plot(qubit, results, **kwargs)
 
-    def _get_target_data(self, data: pd.DataFrame) -> Iterator[Tuple[np.ndarray, np.ndarray, str]]:
+        return results, figures
+
+    def _plot(self, qubit, results, **kwargs):
         """
-        Iterator to retrieve the series from the data.
-
-        The user can generate arbitrary data sets to fit to.
-        Each data (xvals, yvals) in the data set should be returned as iterator
-        with the tagged name. Analysis `.run` method receives this data and perform
-        fitting. User can overwrite this method with respect to the data structure
-        that generator defines.
+        Make plots of the results.
 
         Args:
-            data: Data source. The table has column of fit parameter names defined by
-                associated generator, series, experiment, and value.
-
-        Yield:
-            Set of x-values and y-values with a string identifying the series.
+            qubit: The qubit for which the analysis was done.
+            results: The results of the fit. Holds the fit function, xvals, and yvals.
+            kwargs: key word arguments supported are
+                - figsize: the size of the figure
+                - ax: the axis on which to plot the results
         """
-        if len(self.x_values) > 1:
-            raise CalExpError('Default method does not support multi dimensional scan.')
+        import matplotlib
+        import matplotlib.pyplot as plt
+        from matplotlib.pyplot import cm
 
-        for series in data['series'].unique():
-            xvals = np.array(data[data['series'] == series][self.x_values[0]])
-            yvals = np.array(data[data['series'] == series]['value'])
+        if 'ax' in kwargs:
+            figure = kwargs['ax'].figure
+        else:
+            figure = plt.figure(figsize=kwargs.get('figsize', (6, 4)))
+            ax = figure.add_subplot(111)
 
-            yield xvals, yvals, series
+        line_counts = 0
+        for series_name, result in results.items():
+
+            # plot fit line
+            xval_interp = np.linspace(result.xvals[0], result.xvals[-1], 100)
+            yval_fit = self.fit_function(xval_interp, *result.fitvals)
+
+            fit_line_color = cm.tab20.colors[(2*line_counts+1) % cm.tab20.N]
+            data_label = '{tag} (Q{qubit:d})'.format(tag=series_name, qubit=qubit)
+            ax.plot(xval_interp, yval_fit, '--', color=fit_line_color, label=data_label)
+
+            # plot data scatter
+            data_scatter_color = cm.tab20.colors[(2*line_counts) % cm.tab20.N]
+            ax.plot(result.xvals, result.yvals, 'o', color=data_scatter_color)
+
+            ax.set_xlim(result.xvals[0], result.xvals[-1])
+
+            line_counts += 1
+
+        ax.set_xlabel(kwargs.get('xlabel', kwargs.get('xlabel', 'Parameter')), fontsize=14)
+        ax.set_ylabel(kwargs.get('ylabel', kwargs.get('ylabel', 'Signal')), fontsize=14)
+        ax.grid()
+        ax.legend()
+
+        if matplotlib.get_backend() in ['module://ipykernel.pylab.backend_inline', 'nbAgg']:
+            plt.close(figure)
+
+        return [figure]
