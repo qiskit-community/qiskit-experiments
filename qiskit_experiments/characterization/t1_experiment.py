@@ -26,6 +26,7 @@ from qiskit_experiments import AnalysisResult
 class T1Analysis(BaseAnalysis):
     """T1 Experiment result analysis class."""
 
+    # pylint: disable=arguments-differ, unused-argument
     def _run_analysis(
         self, experiment_data, t1_guess=None, amplitude_guess=None, offset_guess=None, **kwargs
     ) -> Tuple[AnalysisResult, None]:
@@ -34,9 +35,10 @@ class T1Analysis(BaseAnalysis):
 
         Args:
             experiment_data (ExperimentData): the experiment data to analyze
-            t1_guess: Optional, an initial guess of T1
-            amplitude_guess: Optional, an initial guess of the coefficient of the exponent
-            offset_guess: Optional, an initial guess of the offset
+            t1_guess (float): Optional, an initial guess of T1
+            amplitude_guess (float): Optional, an initial guess of the coefficient of the exponent
+            offset_guess (float): Optional, an initial guess of the offset
+            kwargs: Trailing unused function parameters
 
         Returns:
             The analysis result with the estimated T1
@@ -71,7 +73,7 @@ class T1Analysis(BaseAnalysis):
             delays,
             means,
             stddevs,
-            p0=[amplitude_guess, t1_guess, offset_guess],
+            p0=[amplitude_guess, t1_guess, offset_guess]
         )
 
         analysis_result = AnalysisResult(
@@ -127,6 +129,7 @@ class T1Experiment(BaseExperiment):
         self._unit = unit
         super().__init__([qubit], type(self).__name__)
 
+    # pylint: disable=arguments-differ
     def circuits(self, backend: Optional["Backend"] = None) -> List[QuantumCircuit]:
         """
         Return a list of experiment circuits

@@ -73,7 +73,7 @@ class BaseExperiment(ABC):
                                            physical qubits for the experiment.
             experiment_type (str): Optional, the experiment type string.
             circuit_options (Iterable): Optional, list of kwarg names for
-                                        the subclasses `circuit` method.
+                                        the subclassed `circuit` method.
 
         Raises:
             QiskitError: if qubits is a list and contains duplicates.
