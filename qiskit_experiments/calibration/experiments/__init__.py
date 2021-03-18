@@ -11,3 +11,5 @@
 # that they have been altered from the originals.
 
 """All the experiments used to calibrate gates."""
+
+from .rough_amplitude import RoughAmplitude
