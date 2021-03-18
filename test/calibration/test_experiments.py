@@ -10,11 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from .base import DataAction
-from .nodes import SystemKernel
-from .nodes import SystemDiscriminator
-from .nodes import ToReal
-from .nodes import ToImag
-from .nodes import Population
-from .data_processor import DataProcessor
-from .processed_data import ProcessedData
+"""Test the rough amplitude experiment."""
+
+class TestRoughAmplitude:
+
+    

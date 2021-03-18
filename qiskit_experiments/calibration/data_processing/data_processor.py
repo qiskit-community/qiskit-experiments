@@ -10,17 +10,13 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Class that ties together data processing steps."""
+"""Class that ties together actions on the data."""
 
-import numpy as np
-from typing import Union
+from typing import Any, Dict, Union
 
 from .nodes import SystemKernel, SystemDiscriminator
 from .base import NodeType, DataAction
-from qiskit_experiments.calibration.metadata import CalibrationMetadata
-from qiskit_experiments.calibration.exceptions import CalibrationError
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
-from qiskit.result import Result
 
 
 class DataProcessor:
@@ -32,22 +28,13 @@ class DataProcessor:
     def __init__(self, average: bool = True):
         """Create an empty chain of data ProcessingSteps.
 
+        TODO self._average is not used.
+
         Args:
             average: Set `True` to average outcomes.
         """
         self._average = average
         self._root_node = None
-        self._shots = None
-
-    @property
-    def shots(self):
-        """Return the number of shots."""
-        return self._shots
-
-    @shots.setter
-    def shots(self, val: int):
-        """Set new shot value."""
-        self._shots = val
 
     def append(self, node: DataAction):
         """
@@ -75,8 +62,6 @@ class DataProcessor:
 
     def meas_level(self) -> MeasLevel:
         """
-        TODO What about starting from MeasLevel 1?
-
         Returns:
             measurement level: MeasLevel.CLASSIFIED is returned if the end data is discriminated,
                 MeasLevel.KERNELED is returned if a kernel is defined but no discriminator, and
@@ -96,7 +81,24 @@ class DataProcessor:
         # otherwise raw level is requested
         return MeasLevel.RAW
 
-    def format_data(self, result: Result, metadata: CalibrationMetadata, index: int):
+    def output_key(self) -> str:
+        """Return the key to look for in the data output by the processor."""
+        if self._root_node:
+            node = self._root_node
+            while node.child:
+                node = node.child
+
+            if node.node_type in [NodeType.KERNEL, NodeType.IQDATA]:
+                return 'memory'
+            if node.node_type == NodeType.DISCRIMINATOR:
+                return 'counts'
+            if node.node_type == NodeType.POPULATION:
+                return 'populations'
+
+        return 'counts'
+
+
+    def format_data(self, data: Dict[str, Any]):
         """
         Format Qiskit result data.
 
@@ -105,35 +107,13 @@ class DataProcessor:
         input data is converted into expected data format.
 
         Args:
-            result: Qiskit Result object.
-            metadata: Metadata for the target circuit.
-            index: Index of target circuit in the experiment.
-
-        Raises:
-            CalibrationError: if
+            data: The data, typically from an ExperimentData instance, that needs to
+                be processed. This dict also contains the metadata of each experiment.
         """
-        if not self._root_node:
-            return result
-
-        # extract outcome with marginalize. note that the pulse experiment data
-        # is not marginalized on the backend.
-
-        if self.meas_level() == MeasLevel.CLASSIFIED:
-            data = result.get_counts(experiment=index)
-
-        elif self.meas_level() == MeasLevel.KERNELED:
-            data = np.asarray(result.get_memory(index), dtype=complex)
-
-        elif self.meas_level() == MeasLevel.RAW:
-            raise CalibrationError('Raw data analysis is not supported.')
-
-        else:
-            raise CalibrationError('Invalid measurement level is specified.')
-
         if not self._root_node:
             return data
 
-        return self._root_node.format_data(data, metadata=metadata, shots=self.shots)
+        return self._root_node.format_data(data)
 
     @classmethod
     def check_kernel(cls, node: DataAction) -> Union[None, DataAction]:

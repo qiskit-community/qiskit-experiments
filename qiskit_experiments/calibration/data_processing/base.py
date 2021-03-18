@@ -14,9 +14,8 @@
 
 from abc import ABCMeta, abstractmethod
 from enum import Enum
-from typing import Any
+from typing import Any, Dict
 
-from qiskit_experiments.calibration.metadata import CalibrationMetadata
 from qiskit_experiments.calibration.exceptions import CalibrationError
 
 
@@ -62,33 +61,30 @@ class DataAction(metaclass=ABCMeta):
             self._child.append(component)
 
     @abstractmethod
-    def process(self, data: Any, **kwargs):
+    def process(self, data: Dict[str, Any]):
         """
-        TODO
-
         Applies the data processing step to the data.
 
         Args:
-            data:
-            kwargs:
+            data: the data to which the data processing step will be applied.
         """
 
-    def format_data(self, data: Any, metadata: CalibrationMetadata, shots: int) -> Any:
+    def format_data(self, data: Dict[str, Any]) -> Any:
         """
-        TODO
+        Apply the data action of this node and call the child node's format_data method.
 
         Args:
-            data:
-            metadata:
-            shots:
+            data: A dict containing the data. The action nodes in the data
+                processor will raise errors if the data does not contain the
+                appropriate data.
 
         Returns:
             processed_data:
         """
-        processed_data = self.process(data, metadata=metadata, shots=shots)
+        processed_data = self.process(data)
 
         if self._child:
-            return self._child.format_data(processed_data, metadata, shots)
+            return self._child.format_data(processed_data)
         else:
             return processed_data
 
@@ -99,6 +95,7 @@ class NodeType(Enum):
     DISCRIMINATOR = 2
     IQDATA = 3
     COUNTS = 4
+    POPULATION = 5
 
 
 def kernel(cls: DataAction):
@@ -122,6 +119,12 @@ def iq_data(cls: DataAction):
 def counts(cls: DataAction):
     """A decorator to give counts attribute to node."""
     cls.node_type = NodeType.COUNTS
+    return cls
+
+
+def population(cls: DataAction):
+    """A decorator to give population attribute to node."""
+    cls.node_type = NodeType.POPULATION
     return cls
 
 

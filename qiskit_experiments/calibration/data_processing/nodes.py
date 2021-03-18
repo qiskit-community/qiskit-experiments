@@ -12,12 +12,12 @@
 
 """Different data analysis steps."""
 
-from typing import Optional, Any, Union
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 from . import base
 from . import DataAction
-from qiskit.result.counts import Counts
+from qiskit_experiments.calibration.exceptions import CalibrationError
 
 
 @base.kernel
@@ -37,7 +37,7 @@ class SystemKernel(DataAction):
         Returns:
             data: The data after applying the integration kernel.
         """
-        raise NotImplementedError
+        return data
 
 
 @base.discriminator
@@ -55,14 +55,21 @@ class SystemDiscriminator(DataAction):
         self.name = name
         super().__init__()
 
-    def process(self, data: Union[float, np.ndarray], **kwargs) -> Counts:
+    def process(self, data: Dict[str, Any]):
         """
         Discriminate the data to transform it into counts.
 
         Args:
             data: The data in a format that can be understood by the discriminator.
+
+        Raises:
+            CalibrationError: if the data does not contain memory.
         """
-        return self.discriminator.discriminate(data)
+        if 'memory' not in data:
+            raise CalibrationError(f'Data does not have memory. '
+                                   f'Cannot apply {self.__class__.__name__}')
+
+        data['counts'] = self.discriminator.discriminate(np.array(data['memory']))
 
 
 @base.iq_data
@@ -70,74 +77,118 @@ class SystemDiscriminator(DataAction):
 class ToReal(DataAction):
     """IQ data post-processing. This returns real part of IQ data."""
 
-    def __init__(self, scale: Optional[float] = 1.0):
+    def __init__(self, scale: Optional[float] = 1.0, average: bool = False):
         """
         Args:
             scale: scale by which to multiply the real part of the data.
+            average: if True the single-shots are averaged.
         """
         self.scale = scale
+        self.average = average
         super().__init__()
 
-    def process(self, data: Union[float, np.ndarray], **kwargs):
+    def process(self, data: Dict[str, Any], **kwargs):
         """
-        Scales the real part of IQ data.
+        Modifies the data inplace by taking the real part of the memory and
+        scaling it by the given factor.
 
         Args:
-            data: IQ Data.
+            data: The data dict. IQ data is stored under memory.
 
-        Returns:
-             data: The scaled imaginary part of the data.
+        Raises:
+            CalibrationError: if the data does not contain memory.
         """
-        return self.scale * data.real
+        if 'memory' not in data:
+            raise CalibrationError(f'Data does not have memory. '
+                                   f'Cannot apply {self.__class__.__name__}')
 
+        # Single shot data
+        if isinstance(data['memory'][0][0], List):
+            new_mem = []
+            for shot_idx, shot in enumerate(data['memory']):
+                new_mem.append([self.scale*_[0] for _ in shot])
+
+            if self.average:
+                new_mem = list(np.mean(np.array(new_mem), axis=0))
+
+        # Averaged data
+        else:
+            new_mem = [self.scale*_[0] for _ in data['memory']]
+
+        data['memory'] = new_mem
 
 @base.iq_data
 @base.prev_node(SystemKernel)
 class ToImag(DataAction):
     """IQ data post-processing. This returns imaginary part of IQ data."""
 
-    def __init__(self, scale: Optional[float] = 1.0):
+    def __init__(self, scale: Optional[float] = 1.0, average: bool = False):
         """
         Args:
             scale: scale by which to multiply the imaginary part of the data.
         """
         self.scale = scale
+        self.average = average
         super().__init__()
 
-    def process(self, data: Union[float, np.ndarray], **kwargs) -> Union[float, np.ndarray]:
+    def process(self, data: Dict[str, Any], **kwargs):
         """
         Scales the imaginary part of IQ data.
 
         Args:
-            data: IQ Data
+            data: The data dict. IQ data is stored under memory.
 
-        Returns:
-             data: The scaled imaginary part of the data.
+        Raises:
+            CalibrationError: if the data does not contain memory.
         """
-        return self.scale * data.imag
+        if 'memory' not in data:
+            raise CalibrationError(f'Data does not have memory. '
+                                   f'Cannot apply {self.__class__.__name__}')
+
+        # Single shot data
+        if isinstance(data['memory'][0][0], List):
+            new_mem = []
+            for shot_idx, shot in enumerate(data['memory']):
+                new_mem.append([self.scale*_[1] for _ in shot])
+
+            if self.average:
+                new_mem = list(np.mean(np.array(new_mem), axis=0))
+
+        # Averaged data
+        else:
+            new_mem = [self.scale*_[0] for _ in data['memory']]
+
+        data['memory'] = new_mem
 
 
-@base.counts
+@base.population
 @base.prev_node(SystemDiscriminator)
 class Population(DataAction):
     """Count data post processing. This returns population."""
 
-    def process(self, data: Counts, **kwargs):
+    def process(self, data: Dict[str, Any]):
         """
         Args:
-            data: in Count format.
+            data: The data dictionary. This will modify the dict in place,
+                taking the data under counts and adding the corresponding
+                populations.
 
-        Returns:
-            populations: The counts divided by the number of shots.
+        Raises:
+            CalibrationError: if counts are not in the given data.
         """
+        if 'counts' not in data:
+            raise CalibrationError(f'Data does not have counts. '
+                                   f'Cannot apply {self.__class__.__name__}')
 
-        populations = np.zeros(len(list(data.keys())[0]))
+        counts = data.get('counts')
+
+        populations = np.zeros(len(list(counts.keys())[0]))
 
         shots = 0
-        for bit_str, count in data.items():
+        for bit_str, count in counts.items():
             shots += 1
             for ind, bit in enumerate(bit_str):
                 if bit == '1':
                     populations[ind] += count
 
-        return populations / shots
+        data['populations'] = populations / shots
