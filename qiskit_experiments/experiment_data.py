@@ -41,6 +41,9 @@ class ExperimentData:
         # Experiment Data
         self._data = []
 
+        # Figures
+        self._figures = []
+
         # Analysis
         self._analysis_results = []
 
@@ -93,6 +96,15 @@ class ExperimentData:
     def data(self):
         """Return stored experiment data"""
         return self._data
+
+    @property
+    def figures(self):
+        """Return the figures."""
+        return self._figures
+
+    def add_figure(self, figure):
+        """Add a figure to the experiment data."""
+        self._figures.append(figure)
 
     def add_data(self, data):
         """Add data to the experiment.
