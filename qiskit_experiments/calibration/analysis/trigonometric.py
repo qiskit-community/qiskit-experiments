@@ -19,7 +19,7 @@ from typing import Iterator, List, Tuple
 from .calibration_analysis import BaseCalibrationAnalysis
 
 
-def _freq_guess(xvals: np.ndarray, yvals: np.ndarray):
+def freq_guess(xvals: np.ndarray, yvals: np.ndarray):
     """Initial frequency guess for oscillating data.
 
     Args:
@@ -58,7 +58,7 @@ class CosineFit(BaseCalibrationAnalysis):
         """
         y_mean = np.mean(yvals)
         a0 = np.max(np.abs(yvals)) - np.abs(y_mean)
-        f0 = max(0, _freq_guess(xvals, yvals))
+        f0 = max(0, freq_guess(xvals, yvals))
 
         for phi in np.linspace(-np.pi, np.pi, 10):
             yield np.array([a0, f0, phi, y_mean])
