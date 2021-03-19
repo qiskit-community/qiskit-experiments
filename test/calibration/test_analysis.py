@@ -11,4 +11,3 @@
 # that they have been altered from the originals.
 
 """Test calibration analysis routines."""
-

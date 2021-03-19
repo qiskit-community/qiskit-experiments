@@ -12,15 +12,15 @@
 
 """Test the rough amplitude experiment."""
 
-from qiskit_experiments.calibration import CalibrationsDefinition
-from qiskit_experiments.calibration import ParameterValue
-from qiskit_experiments.calibration import RoughAmplitude
-from qiskit_experiments.calibration import DataProcessor
 import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
 from qiskit.pulse import Drag, DriveChannel
 from qiskit.test.mock import FakeAlmaden
 from qiskit.circuit import Parameter, Gate
+from qiskit_experiments.calibration import CalibrationsDefinition
+from qiskit_experiments.calibration import ParameterValue
+from qiskit_experiments.calibration import RoughAmplitude
+from qiskit_experiments.calibration import DataProcessor
 
 
 class TestCalibrationExperiments(QiskitTestCase):
@@ -31,7 +31,6 @@ class TestCalibrationExperiments(QiskitTestCase):
         self.backend = FakeAlmaden()
         self.cals = CalibrationsDefinition(self.backend)
 
-        sq_freq = Parameter('freq')
         sigma_xp = Parameter('σ_xp')
         d0 = Parameter('0')
         amp_xp = Parameter('amp_xp')

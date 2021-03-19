@@ -14,8 +14,8 @@
 
 import numpy as np
 
-from qiskit_experiments.calibration.analysis.trigonometric import freq_guess
 from qiskit.test import QiskitTestCase
+from qiskit_experiments.calibration.analysis.trigonometric import freq_guess
 
 
 class TestCalibrationFitting(QiskitTestCase):
