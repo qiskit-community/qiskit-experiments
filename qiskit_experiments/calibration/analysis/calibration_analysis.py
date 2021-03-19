@@ -120,15 +120,17 @@ class BaseCalibrationAnalysis(BaseAnalysis):
 
         # 2) Extract series information from the data
         key = data_processor.output_key()
-        meas_return = data_processor.meas_return()
         series = ProcessedData()
         for data in experiment_data.data:
             metadata = CalibrationMetadata(**data['metadata'])
 
-            if meas_return == MeasReturnType.AVERAGE:
-                yval = data[key][qubit]
-            else:
+            # Single-shot data.
+            if isinstance(data[key][0], list):
                 yval = [data[key][_][qubit] for _ in range(len(data[key]))]
+
+            # Averaged data.
+            else:
+                yval = data[key][qubit]
 
             series.add_data_point(metadata.x_values, yval, metadata.series)
 

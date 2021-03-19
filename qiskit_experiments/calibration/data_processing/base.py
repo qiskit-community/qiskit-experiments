@@ -69,7 +69,7 @@ class DataAction(metaclass=ABCMeta):
             data: the data to which the data processing step will be applied.
         """
 
-    def format_data(self, data: Dict[str, Any]) -> Any:
+    def format_data(self, data: Dict[str, Any]):
         """
         Apply the data action of this node and call the child node's format_data method.
 
@@ -77,16 +77,11 @@ class DataAction(metaclass=ABCMeta):
             data: A dict containing the data. The action nodes in the data
                 processor will raise errors if the data does not contain the
                 appropriate data.
-
-        Returns:
-            processed_data:
         """
         processed_data = self.process(data)
 
         if self._child:
-            return self._child.format_data(processed_data)
-        else:
-            return processed_data
+            self._child.format_data(processed_data)
 
 
 class NodeType(Enum):

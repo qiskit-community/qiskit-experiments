@@ -23,7 +23,7 @@ class ProcessedData:
         """Setup the empty data container."""
         self._data = {}
 
-    def add_data_point(self, xval, yval, series: str = None):
+    def add_data_point(self, xval: float, yval: float, series: str = None):
         """
         Args:
             xval: The value of the independent variable.
@@ -44,6 +44,9 @@ class ProcessedData:
         """
         Returns:
             iterator: where the return values are tuples of (xvals, yvals, series)
+
+        Yields:
+            The tuple (xvals, yvals, series_name) contained in self.
         """
-        for series, data in self._data.items():
-            yield np.array(data['xvals']), np.array(data['yvals']), series
+        for series_name, data in self._data.items():
+            yield np.array(data['xvals']), np.array(data['yvals']), series_name

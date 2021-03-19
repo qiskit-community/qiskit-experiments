@@ -14,9 +14,9 @@
 
 from typing import Any, Dict, Union
 
+from qiskit.qobj.utils import MeasLevel
 from .nodes import SystemKernel, SystemDiscriminator
 from .base import NodeType, DataAction
-from qiskit.qobj.utils import MeasLevel, MeasReturnType
 
 
 class DataProcessor:
@@ -25,15 +25,12 @@ class DataProcessor:
     by the calibration analysis classes.
     """
 
-    def __init__(self, average: bool = True):
+    def __init__(self):
         """Create an empty chain of data ProcessingSteps.
-
-        TODO self._average is not used.
 
         Args:
             average: Set `True` to average outcomes.
         """
-        self._average = average
         self._root_node = None
 
     def append(self, node: DataAction):
@@ -47,18 +44,6 @@ class DataProcessor:
             self._root_node.append(node)
         else:
             self._root_node = node
-
-    def meas_return(self) -> MeasReturnType:
-        """
-        Returns:
-            MeasReturnType: The appropriate measurement format to use this analysis chain.
-        """
-        if DataProcessor.check_discriminator(self._root_node):
-            # if discriminator is defined, return type should be single.
-            # quantum state cannot be discriminated with averaged IQ coordinate.
-            return MeasReturnType.SINGLE
-
-        return MeasReturnType.AVERAGE if self._average else MeasReturnType.SINGLE
 
     def meas_level(self) -> MeasLevel:
         """
@@ -97,7 +82,6 @@ class DataProcessor:
 
         return 'counts'
 
-
     def format_data(self, data: Dict[str, Any]):
         """
         Format Qiskit result data.
@@ -110,10 +94,8 @@ class DataProcessor:
             data: The data, typically from an ExperimentData instance, that needs to
                 be processed. This dict also contains the metadata of each experiment.
         """
-        if not self._root_node:
-            return data
-
-        return self._root_node.format_data(data)
+        if self._root_node:
+            self._root_node.format_data(data)
 
     @classmethod
     def check_kernel(cls, node: DataAction) -> Union[None, DataAction]:

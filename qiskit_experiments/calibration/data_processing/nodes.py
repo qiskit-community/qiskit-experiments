@@ -12,16 +12,15 @@
 
 """Different data analysis steps."""
 
-from typing import Any, Dict, List, Optional, Union
-
+from typing import Any, Dict, Optional
 import numpy as np
-from . import base
-from . import DataAction
+
 from qiskit_experiments.calibration.exceptions import CalibrationError
+from .base import DataAction, iq_data, kernel, discriminator, prev_node, population
 
 
-@base.kernel
-@base.prev_node()
+@kernel
+@prev_node()
 class SystemKernel(DataAction):
     """Backend system kernel."""
 
@@ -29,29 +28,25 @@ class SystemKernel(DataAction):
         self.name = name
         super().__init__()
 
-    def process(self, data: Any, **kwargs) -> Union[float, np.ndarray]:
+    def process(self, data: Dict[str, Any]):
         """
         Args:
-            data:
-
-        Returns:
-            data: The data after applying the integration kernel.
+            data: The data dictionary to process.
         """
-        return data
 
 
-@base.discriminator
-@base.prev_node(SystemKernel)
+@discriminator
+@prev_node(SystemKernel)
 class SystemDiscriminator(DataAction):
     """Backend system discriminator."""
 
-    def __init__(self, discriminator, name: Optional[str] = None):
+    def __init__(self, discriminator_, name: Optional[str] = None):
         """
         Args:
-            discriminator: The discriminator used to transform the data to counts.
+            discriminator_: The discriminator used to transform the data to counts.
                 For example, transform IQ data to counts.
         """
-        self.discriminator = discriminator
+        self.discriminator = discriminator_
         self.name = name
         super().__init__()
 
@@ -72,8 +67,8 @@ class SystemDiscriminator(DataAction):
         data['counts'] = self.discriminator.discriminate(np.array(data['memory']))
 
 
-@base.iq_data
-@base.prev_node(SystemKernel)
+@iq_data
+@prev_node(SystemKernel)
 class ToReal(DataAction):
     """IQ data post-processing. This returns real part of IQ data."""
 
@@ -87,7 +82,7 @@ class ToReal(DataAction):
         self.average = average
         super().__init__()
 
-    def process(self, data: Dict[str, Any], **kwargs):
+    def process(self, data: Dict[str, Any]):
         """
         Modifies the data inplace by taking the real part of the memory and
         scaling it by the given factor.
@@ -103,9 +98,9 @@ class ToReal(DataAction):
                                    f'Cannot apply {self.__class__.__name__}')
 
         # Single shot data
-        if isinstance(data['memory'][0][0], List):
+        if isinstance(data['memory'][0][0], list):
             new_mem = []
-            for shot_idx, shot in enumerate(data['memory']):
+            for shot in data['memory']:
                 new_mem.append([self.scale*_[0] for _ in shot])
 
             if self.average:
@@ -117,8 +112,8 @@ class ToReal(DataAction):
 
         data['memory'] = new_mem
 
-@base.iq_data
-@base.prev_node(SystemKernel)
+@iq_data
+@prev_node(SystemKernel)
 class ToImag(DataAction):
     """IQ data post-processing. This returns imaginary part of IQ data."""
 
@@ -131,7 +126,7 @@ class ToImag(DataAction):
         self.average = average
         super().__init__()
 
-    def process(self, data: Dict[str, Any], **kwargs):
+    def process(self, data: Dict[str, Any]):
         """
         Scales the imaginary part of IQ data.
 
@@ -146,9 +141,9 @@ class ToImag(DataAction):
                                    f'Cannot apply {self.__class__.__name__}')
 
         # Single shot data
-        if isinstance(data['memory'][0][0], List):
+        if isinstance(data['memory'][0][0], list):
             new_mem = []
-            for shot_idx, shot in enumerate(data['memory']):
+            for shot in data['memory']:
                 new_mem.append([self.scale*_[1] for _ in shot])
 
             if self.average:
@@ -161,8 +156,8 @@ class ToImag(DataAction):
         data['memory'] = new_mem
 
 
-@base.population
-@base.prev_node(SystemDiscriminator)
+@population
+@prev_node(SystemDiscriminator)
 class Population(DataAction):
     """Count data post processing. This returns population."""
 
