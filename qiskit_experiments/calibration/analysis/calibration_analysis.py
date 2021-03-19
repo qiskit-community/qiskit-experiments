@@ -26,6 +26,14 @@ from qiskit.qobj.utils import MeasReturnType
 from qiskit_experiments.experiment_data import AnalysisResult
 from scipy import optimize
 
+try:
+    import matplotlib
+    from matplotlib import pyplot as plt
+
+    HAS_MATPLOTLIB = True
+except ImportError:
+    HAS_MATPLOTLIB = False
+
 
 class BaseCalibrationAnalysis(BaseAnalysis):
     """Abstract base class for all calibration analysis classes."""
@@ -39,9 +47,9 @@ class BaseCalibrationAnalysis(BaseAnalysis):
             yvals: y values to fit.
 
         Yield:
-            Set of initial guess for parameters.
-            If multiple guesses are returned fit is performed for all parameter set.
-            Error is measured by Chi squared value and the best fit result is chosen.
+            A set of initial parameter guesses.
+            If multiple guesses are returned a fit is performed for each guess.
+            The error of the fit is measured by the Chi squared and the best fit result is chosen.
 
         Note:
             This should return values with yield rather than return.
@@ -49,7 +57,7 @@ class BaseCalibrationAnalysis(BaseAnalysis):
 
     @abstractmethod
     def fit_boundary(self, xvals: np.ndarray, yvals: np.ndarray) -> List[Tuple[float, float]]:
-        """Returns boundary of parameters to fit.
+        """Returns the boundary of the parameters to fit.
 
         Args:
             xvals: x values to fit.
@@ -62,18 +70,19 @@ class BaseCalibrationAnalysis(BaseAnalysis):
 
         Args:
             xvals: x values to fit.
+            args: The parameters of the fit function.
         """
 
     def chi_squared(self,
                     parameters: np.ndarray,
                     xvals: np.ndarray,
-                    yvals: np.ndarray):
-        """Calculate reduced Chi squared value.
+                    yvals: np.ndarray) -> float:
+        """Calculate the reduced Chi squared value.
 
         Args:
-            parameters: Parameters for fit function.
-            xvals: X values to fit.
-            yvals: Y values to fit.
+            parameters: Parameters for the fit function.
+            xvals: x values to fit.
+            yvals: y values to fit.
         """
         fit_yvals = self.fit_function(xvals, *parameters)
 
@@ -85,13 +94,16 @@ class BaseCalibrationAnalysis(BaseAnalysis):
     def _run_analysis(self, experiment_data: ExperimentData, qubit=0,
                       data_processor=DataProcessor(), plot=False, **kwargs) -> any:
         """
-
         Analyze the given experiment data.
 
         Notes: data is a List of Dict.
 
         Args:
             experiment_data: The data to analyse.
+            qubit: The qubit for which to analyse the data.
+            data_processor: The data processor which transforms the measured data to
+                a format that can be analyzed. For example, IQ data may be converted to
+                a signal by taking the real-part.
 
         Returns:
             any: the output of the analysis,
@@ -120,7 +132,7 @@ class BaseCalibrationAnalysis(BaseAnalysis):
         for xvals, yvals, series in series.series():
             best_result = None
             for initial_guess in self.initial_guess(xvals, yvals):
-                # fit for each initial guess if there are many starting point
+
                 fit_result = optimize.minimize(
                     fun=self.chi_squared,
                     x0=initial_guess,
@@ -140,20 +152,19 @@ class BaseCalibrationAnalysis(BaseAnalysis):
                     # fit failed, output log `fit_result.message`
                     pass
 
-            # keep the best result
             results[series] = best_result
 
         experiment_data.add_analysis_result(results)
 
         figures = None
-        if plot:
+        if plot and HAS_MATPLOTLIB:
             figures = self._plot(qubit, results, **kwargs)
 
         return results, figures
 
     def _plot(self, qubit, results, **kwargs):
         """
-        Make plots of the results.
+        Plot the result.
 
         Args:
             qubit: The qubit for which the analysis was done.
@@ -162,10 +173,6 @@ class BaseCalibrationAnalysis(BaseAnalysis):
                 - figsize: the size of the figure
                 - ax: the axis on which to plot the results
         """
-        import matplotlib
-        import matplotlib.pyplot as plt
-        from matplotlib.pyplot import cm
-
         if 'ax' in kwargs:
             figure = kwargs['ax'].figure
         else:
@@ -179,12 +186,12 @@ class BaseCalibrationAnalysis(BaseAnalysis):
             xval_interp = np.linspace(result.xvals[0], result.xvals[-1], 100)
             yval_fit = self.fit_function(xval_interp, *result.fitvals)
 
-            fit_line_color = cm.tab20.colors[(2*line_counts+1) % cm.tab20.N]
+            fit_line_color = plt.cm.tab20.colors[(2*line_counts+1) % plt.cm.tab20.N]
             data_label = '{tag} (Q{qubit:d})'.format(tag=series_name, qubit=qubit)
             ax.plot(xval_interp, yval_fit, '--', color=fit_line_color, label=data_label)
 
             # plot data scatter
-            data_scatter_color = cm.tab20.colors[(2*line_counts) % cm.tab20.N]
+            data_scatter_color = plt.cm.tab20.colors[(2*line_counts) % plt.cm.tab20.N]
             ax.plot(result.xvals, result.yvals, 'o', color=data_scatter_color)
 
             ax.set_xlim(result.xvals[0], result.xvals[-1])
