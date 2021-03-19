@@ -12,20 +12,21 @@
 
 """Rough amplitude calibration."""
 
-import numpy as np
-from datetime import datetime
-
-from typing import Dict, List, Optional
 from dataclasses import asdict
+from datetime import datetime
+from typing import Dict, List, Optional
+import numpy as np
 
-from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.calibration.analysis import CosineFit, utils
-from qiskit_experiments.calibration.metadata import CalibrationMetadata
-from qiskit_experiments.calibration import CalibrationsDefinition
-from qiskit_experiments.calibration import DataProcessor
-from qiskit_experiments.calibration import ParameterValue
-from qiskit_experiments import ExperimentData
 from qiskit.pulse import DriveChannel
+from qiskit import QuantumCircuit
+from qiskit_experiments.base_experiment import BaseExperiment
+from qiskit_experiments.calibration.analysis import CosineFit
+from qiskit_experiments.calibration.analysis.utils import get_period_fraction
+from qiskit_experiments.calibration.metadata import CalibrationMetadata
+from qiskit_experiments.calibration.calibration_definitions import CalibrationsDefinition
+from qiskit_experiments.calibration.data_processing.data_processor import DataProcessor
+from qiskit_experiments.calibration.parameter_value import ParameterValue
+from qiskit_experiments import ExperimentData
 
 
 class RoughAmplitude(BaseExperiment):
@@ -66,13 +67,17 @@ class RoughAmplitude(BaseExperiment):
         self._calibration_group = group
         self._gate_name = gate_name
 
-    def circuits(self, backend=None, **circuit_options):
+    def circuits(self, backend=None, **circuit_options) -> List[QuantumCircuit]:
         """
-        Create the circuits for a rough rabi amplitude calibration.
-        Args:
-            backend: Not used.
-            circuit_options:
+        Create the circuits for a rough rabi amplitude calibration and add the
+        required metadata.
 
+        Args:
+            backend (Backend): Not used.
+            circuit_options: Not used.
+
+        Returns:
+            A list of quantum circuits where a parameter is scanned.
         """
         circuits = []
         for amplitude in self.amplitudes:
@@ -117,7 +122,7 @@ class RoughAmplitude(BaseExperiment):
                                                 group=self._calibration_group)
 
             phase = np.exp(1.0j*np.angle(amp))
-            value = phase*utils.get_period_fraction(self.__analysis_class__, angle, fit_result)
+            value = phase*get_period_fraction(self.__analysis_class__, angle, fit_result)
 
             param_val = ParameterValue(value, datetime.now(), exp_id=experiment_data.experiment_id,
                                        group=self._calibration_group)

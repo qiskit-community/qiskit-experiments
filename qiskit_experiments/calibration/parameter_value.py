@@ -19,6 +19,7 @@ from typing import Union
 
 @dataclass
 class ParameterValue:
+    """A data class to store parameter values."""
 
     # Value assumed by the parameter
     value: Union[int, float] = None

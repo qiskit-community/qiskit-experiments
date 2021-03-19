@@ -13,18 +13,17 @@
 """Class to store the results of a calibration experiments."""
 
 import copy
-import pandas as pd
 from datetime import datetime
 import dataclasses
-
 from typing import Tuple, Union, List, Optional, Type
+import pandas as pd
 
 from qiskit.circuit import Gate
-from qiskit import QiskitError, QuantumCircuit
+from qiskit import QuantumCircuit
 from qiskit.pulse import Schedule, DriveChannel, ControlChannel, MeasureChannel
 from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter
-
+from .exceptions import CalibrationError
 from .parameter_value import ParameterValue
 
 
@@ -70,7 +69,7 @@ class CalibrationsDefinition:
         for name, schedule in self._schedules.items():
             data.append({'name': name,
                          'schedule': schedule,
-                         'parameters': [param for param in schedule.parameters]})
+                         'parameters': schedule.parameters})
 
         return pd.DataFrame(data)
 
@@ -117,6 +116,10 @@ class CalibrationsDefinition:
 
         Args:
             schedules: The schedule to add.
+
+        Raises:
+            CalibrationError: If the parameterized channel index is not formatted
+                following index1.index2...
         """
         if isinstance(schedules, Schedule):
             schedules = [schedules]
@@ -124,13 +127,14 @@ class CalibrationsDefinition:
         for schedule in schedules:
 
             # check that channels, if parameterized, have the proper name format.
+            #pylint: disable = raise-missing-from
             for ch in schedule.channels:
                 if isinstance(ch.index, Parameter):
                     try:
                         [int(_) for _ in ch.index.name.split('.')]
                     except ValueError:
-                        raise QiskitError('Parameterized channel must have a name '
-                                          'formatted following index1.index2...')
+                        raise CalibrationError('Parameterized channel must have a name '
+                                               'formatted following index1.index2...')
 
             self._schedules[schedule.name] = schedule
 
@@ -148,13 +152,18 @@ class CalibrationsDefinition:
         standard deviation. The parameters are stored and identified by name.
 
         Args:
-            param: The parameter for which to add the measured value.
+            param: The parameter or its name for which to add the measured value.
             value: The value of the parameter to add.
             chs: The channel(s) to which the parameter applies. If None is given
                 then the type of channels must by specified.
             ch_type: This parameter is only used if chs is None. In this case the
                 value of the parameter will be set for all channels of the
                 specified type.
+
+        Raises:
+            CalibrationError: if ch_type is not given when chs are None, if the
+                channel type is not a ControlChannel, DriveChannel, or MeasureChannel, or
+                if the parameter name is not already in self.
         """
         if isinstance(param, Parameter):
             name = param.name
@@ -163,28 +172,28 @@ class CalibrationsDefinition:
 
         if chs is None:
             if ch_type is None:
-                raise QiskitError('Channel type must be given when chs are None.')
+                raise CalibrationError('Channel type must be given when chs are None.')
 
             if issubclass(ch_type, ControlChannel):
                 chs = [ch_type(_) for _ in range(self._n_uchannels)]
             elif issubclass(ch_type, (DriveChannel, MeasureChannel)):
                 chs = [ch_type(_) for _ in range(self._n_qubits)]
             else:
-                raise QiskitError('Unrecognised channel type {}.'.format(ch_type))
+                raise CalibrationError('Unrecognised channel type {}.'.format(ch_type))
 
         if not isinstance(chs, list):
             chs = [chs]
 
         if name not in self._params:
-            raise QiskitError('Cannot add unknown parameter %s.' % name)
-        else:
-            for ch in chs:
-                if ch not in self._params[name]:
-                    self._params[name][ch] = [value]
-                else:
-                    self._params[name][ch].append(value)
+            raise CalibrationError('Cannot add unknown parameter %s.' % name)
 
-    def get_channel_index(self, qubits: Tuple, ch: PulseChannel) -> int:
+        for ch in chs:
+            if ch not in self._params[name]:
+                self._params[name][ch] = [value]
+            else:
+                self._params[name][ch].append(value)
+
+    def get_channel_index(self, qubits: Tuple, chan: PulseChannel) -> int:
         """
         Get the index of the parameterized channel based on the given qubits
         and the name of the parameter in the channel index. The name of this
@@ -193,51 +202,56 @@ class CalibrationsDefinition:
 
         Args:
             qubits: The qubits for which we want to obtain the channel index.
-            ch: The channel with a parameterized name.
+            chan: The channel with a parameterized name.
 
         Returns:
             index: The index of the channel. For example, if qubits=(int, int) and
                 the channel is a u channel with parameterized index name 'x.y'
                 where x and y the method returns the u_channel corresponding to
                 qubits (qubits[1], qubits[0]).
+
+        Raises:
+            CalibrationError: if the number of qubits is incorrect, if the
+                number of inferred ControlChannels is not correct, or if ch is not
+                a DriveChannel, MeasureChannel, or ControlChannel.
         """
 
-        if isinstance(ch.index, Parameter):
-            indices = [int(_) for _ in ch.index.name.split('.')]
-            ch_qubits = tuple([qubits[_] for _ in indices])
+        if isinstance(chan.index, Parameter):
+            indices = [int(_) for _ in chan.index.name.split('.')]
+            ch_qubits = tuple(qubits[_] for _ in indices)
 
-            if isinstance(ch, DriveChannel):
+            if isinstance(chan, DriveChannel):
                 if len(ch_qubits) != 1:
-                    raise QiskitError('Too many qubits for drive channel: '
+                    raise CalibrationError('Too many qubits for drive channel: '
                                       'got %i expecting 1.' % len(ch_qubits))
 
                 ch_ = self._config.drive(ch_qubits[0])
 
-            elif isinstance(ch, MeasureChannel):
+            elif isinstance(chan, MeasureChannel):
                 if len(ch_qubits) != 1:
-                    raise QiskitError('Too many qubits for drive channel: '
+                    raise CalibrationError('Too many qubits for drive channel: '
                                       'got %i expecting 1.' % len(ch_qubits))
 
                 ch_ = self._config.measure(ch_qubits[0])
 
-            elif isinstance(ch, ControlChannel):
+            elif isinstance(chan, ControlChannel):
                 chs_ = self._config.control(ch_qubits)
 
                 if len(chs_) != 1:
-                    raise QiskitError('Ambiguous number of control channels for '
-                                      'qubits {} and {}.'.format(qubits, ch.name))
+                    raise CalibrationError('Ambiguous number of control channels for '
+                                      'qubits {} and {}.'.format(qubits, chan.name))
 
                 ch_ = chs_[0]
 
             else:
                 chs = tuple(_.__name__ for _ in [DriveChannel, ControlChannel, MeasureChannel])
-                raise QiskitError('Channel must be of type {}.'.format(chs))
+                raise CalibrationError('Channel must be of type {}.'.format(chs))
 
             return ch_.index
         else:
-            return ch.index
+            return chan.index
 
-    def parameter_value(self, name: str, ch: PulseChannel, valid_only: bool = True,
+    def parameter_value(self, name: str, chan: PulseChannel, valid_only: bool = True,
                         group: str = 'default',
                         cutoff_date: datetime = None) -> Union[int, float, complex]:
         """
@@ -245,7 +259,7 @@ class CalibrationsDefinition:
 
         Args:
             name: The name of the parameter to get.
-            ch: The channel for which we want the value of the parameter.
+            chan: The channel for which we want the value of the parameter.
             valid_only: Use only parameters marked as valid.
             group: The calibration group from which to draw the
                 parameters. If not specifies this defaults to the 'default' group.
@@ -255,13 +269,17 @@ class CalibrationsDefinition:
 
         Returns:
             value: The value of the parameter.
-        """
 
+        Raises:
+            CalibrationError: if there is no parameter value for the given parameter name
+                and pulse channel.
+        """
+        #pylint: disable = raise-missing-from
         try:
             if valid_only:
-                candidates = [p for p in self._params[name][ch] if p.valid]
+                candidates = [p for p in self._params[name][chan] if p.valid]
             else:
-                candidates = self._params[name][ch]
+                candidates = self._params[name][chan]
 
             candidates = [_ for _ in candidates if _.group == group]
 
@@ -272,7 +290,7 @@ class CalibrationsDefinition:
 
             return candidates[-1].value
         except KeyError:
-            raise QiskitError('No parameter value for %s and channel %s' % (name, ch.name))
+            raise CalibrationError('No parameter value for %s and channel %s' % (name, chan.name))
 
     def get_schedule(self, name: str, qubits: Tuple[int, ...],
                      free_params: List[str] = None, group: Optional[str] = 'default') -> Schedule:
@@ -289,13 +307,13 @@ class CalibrationsDefinition:
                 except for those specified by free_params.
 
         Raises:
-            QiskitError: if the name of the schedule is not known.
+            CalibrationError: if the name of the schedule is not known.
         """
 
         # Get the schedule and deepcopy it to prevent binding from removing
         # the parametric nature of the schedule.
         if name not in self._schedules:
-            raise QiskitError('Schedule %s is not defined.' % name)
+            raise CalibrationError('Schedule %s is not defined.' % name)
 
         sched = copy.deepcopy(self._schedules[name])
 
@@ -336,6 +354,8 @@ class CalibrationsDefinition:
                 not going to be used.
 
         Returns:
+            A quantum circuit in which the parameter values have been assigned aside from
+            those explicitly specified in free_params.
         """
         if schedule is None:
             schedule = self.get_schedule(name, qubits, free_params, group)

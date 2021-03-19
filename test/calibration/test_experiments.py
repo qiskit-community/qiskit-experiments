@@ -15,6 +15,7 @@
 from qiskit_experiments.calibration import CalibrationsDefinition
 from qiskit_experiments.calibration import ParameterValue
 from qiskit_experiments.calibration import RoughAmplitude
+from qiskit_experiments.calibration import DataProcessor
 import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
 from qiskit.pulse import Drag, DriveChannel
@@ -63,7 +64,7 @@ class TestCalibrationExperiments(QiskitTestCase):
 
         qubit = 3
         amps = [-0.5, 0.5]
-        amp = RoughAmplitude(qubit, self.cals, 'xp', 'amp_xp', amps)
+        amp = RoughAmplitude(qubit, self.cals, 'xp', 'amp_xp', DataProcessor(), amps)
         circs = amp.transpiled_circuits(self.backend)
 
         # Check that there is a gate on qubit 3.
