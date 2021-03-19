@@ -12,19 +12,22 @@
 
 """Trigonometric analysis."""
 
+from typing import Iterator, List, Tuple
 import numpy as np
 from scipy import signal
-from typing import Iterator, List, Tuple
 
 from .calibration_analysis import BaseCalibrationAnalysis
 
 
-def freq_guess(xvals: np.ndarray, yvals: np.ndarray):
+def freq_guess(xvals: np.ndarray, yvals: np.ndarray) -> float:
     """Initial frequency guess for oscillating data.
 
     Args:
         xvals: The independent values.
         yvals: The dependent values.
+
+    Returns:
+        frequency: An estimation of the frequency based on a FFT.
     """
 
     # Subtract DC component
@@ -55,6 +58,9 @@ class CosineFit(BaseCalibrationAnalysis):
         Args:
             xvals: The independent values.
             yvals: The dependent values.
+
+        Yields:
+            guess: An array containing the values of the initial guess.
         """
         y_mean = np.mean(yvals)
         a0 = np.max(np.abs(yvals)) - np.abs(y_mean)
@@ -68,6 +74,10 @@ class CosineFit(BaseCalibrationAnalysis):
 
         Args:
             xvals: The values along the x-axis.
+            args: The parameters of the fit: as [a, f, phi, b], see class docstring.
+
+        Returns:
+             The value of the function with the given x value and parameters.
         """
         return args[0] * np.cos(2 * np.pi * args[1] * xvals + args[2]) + args[3]
 

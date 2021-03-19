@@ -12,19 +12,20 @@
 
 """Base analysis class for calibrations."""
 
-import numpy as np
 from abc import abstractmethod
 from typing import Iterator, List, Tuple
+import numpy as np
+from scipy import optimize
 
-from .fit_result import FitResult
+from qiskit.qobj.utils import MeasReturnType
+from qiskit_experiments.experiment_data import AnalysisResult
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.calibration import DataProcessor
 from qiskit_experiments.calibration.metadata import CalibrationMetadata
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.calibration.data_processing.processed_data import ProcessedData
-from qiskit.qobj.utils import MeasReturnType
-from qiskit_experiments.experiment_data import AnalysisResult
-from scipy import optimize
+from .fit_result import FitResult
+
 
 try:
     import matplotlib
@@ -83,6 +84,9 @@ class BaseCalibrationAnalysis(BaseAnalysis):
             parameters: Parameters for the fit function.
             xvals: x values to fit.
             yvals: y values to fit.
+
+        Returns:
+            The chi-squared value.
         """
         fit_yvals = self.fit_function(xvals, *parameters)
 
@@ -91,6 +95,7 @@ class BaseCalibrationAnalysis(BaseAnalysis):
 
         return chi_sq / dof
 
+    #pylint: disable = arguments-differ
     def _run_analysis(self, experiment_data: ExperimentData, qubit=0,
                       data_processor=DataProcessor(), plot=False, **kwargs) -> any:
         """
@@ -110,14 +115,14 @@ class BaseCalibrationAnalysis(BaseAnalysis):
         """
 
         # 1) Format the data using the DataProcessor for the analysis.
-        for exp_idx, data in enumerate(experiment_data.data):
+        for data in experiment_data.data:
             data_processor.format_data(data)
 
         # 2) Extract series information from the data
         key = data_processor.output_key()
         meas_return = data_processor.meas_return()
         series = ProcessedData()
-        for exp_idx, data in enumerate(experiment_data.data):
+        for data in experiment_data.data:
             metadata = CalibrationMetadata(**data['metadata'])
 
             if meas_return == MeasReturnType.AVERAGE:
@@ -162,7 +167,7 @@ class BaseCalibrationAnalysis(BaseAnalysis):
 
         return results, figures
 
-    def _plot(self, qubit, results, **kwargs):
+    def _plot(self, qubit, results, **kwargs) -> List:
         """
         Plot the result.
 
@@ -172,6 +177,9 @@ class BaseCalibrationAnalysis(BaseAnalysis):
             kwargs: key word arguments supported are
                 - figsize: the size of the figure
                 - ax: the axis on which to plot the results
+
+        Returns:
+            A matplotlib figure.
         """
         if 'ax' in kwargs:
             figure = kwargs['ax'].figure

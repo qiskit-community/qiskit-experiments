@@ -12,9 +12,10 @@
 
 """Helper methods to extract data from the fits."""
 
-import numpy as np
 from typing import Type
+import numpy as np
 
+from qiskit_experiments.calibration.exceptions import CalibrationError
 from .trigonometric import CosineFit
 from .fit_result import FitResult
 
@@ -29,22 +30,32 @@ def get_period_fraction(analysis: Type, angle: float, fit_result: FitResult) -> 
         analysis: The analysis routing from which to retrieve a periodicity.
         angle: The desired rotation angle.
         fit_result: the result of the fit with the fit values.
+
+    Returns:
+        period fraction: The x location corresponding to a given rotation angle.
+
+    Raises:
+        CalibrationError: if the fit function is not recognized.
     """
     if issubclass(analysis, CosineFit):
         return angle / (2 * np.pi * fit_result.fitvals[1])
 
-    raise NotImplementedError
+    raise CalibrationError(f'Analysis class {analysis} is not supported.')
 
 def get_min_location(analysis: Type, fit_result: FitResult) -> float:
     """
-    Returns the x location where the fit is minimum.
-
     Args:
         analysis: The analysis routing from which to retrieve the minimum location.
         fit_result: the result of the fit with the fit values.
+
+    Returns:
+        The location where the fit is minimum.
+
+    Raises:
+        CalibrationError: if the fit function is not recognized.
     """
     if isinstance(analysis, CosineFit):
         fit_params = fit_result.fitvals
         return (-np.pi - fit_params[2]) / (2*np.pi*fit_params[1])
 
-    raise NotImplementedError
+    raise CalibrationError(f'Analysis class {analysis} is not supported.')
