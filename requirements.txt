@@ -1,2 +1,3 @@
 numpy>=1.17
 qiskit-terra>=0.16.0
+pandas
