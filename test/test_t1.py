@@ -20,8 +20,9 @@ import numpy as np
 from qiskit.providers import BaseBackend
 from qiskit.providers.models import BackendConfiguration
 from qiskit.result import Result
+from qiskit_experiments import ExperimentData
 from qiskit_experiments.composite import ParallelExperiment
-from qiskit_experiments.characterization import T1Experiment
+from qiskit_experiments.characterization import T1Experiment, T1Analysis
 
 
 class T1Backend(BaseBackend):
@@ -133,7 +134,7 @@ class TestT1(unittest.TestCase):
     Test measurement of T1
     """
 
-    def test_t1(self):
+    def test_t1_end2end(self):
         """
         Test T1 experiment using a simulator.
         """
@@ -183,6 +184,31 @@ class TestT1(unittest.TestCase):
             sub_res = res.component_experiment_data(i).analysis_result(0)
             self.assertTrue(sub_res["is_good_fit"])
             self.assertAlmostEqual(sub_res["t1"], t1[i], delta=3)
+
+    def test_t1_analysis(self):
+        """
+        Test T1Analysis
+        """
+
+        data = ExperimentData(None)
+        numbers = [750, 1800, 2750, 3550, 4250, 4850, 5450, 5900, 6400, 6800, 7000, 7350, 7700]
+
+        for i, count0 in enumerate(numbers):
+            data._data.append(
+                {
+                    "counts": {"0": count0, "1": 10000 - count0},
+                    "metadata": {
+                        "delay": 3 * i + 1,
+                        "experiment_type": "T1Experiment",
+                        "qubit": 0,
+                        "unit": "dt",
+                    },
+                }
+            )
+
+        res = T1Analysis()._run_analysis(data)[0]
+        self.assertTrue(res["is_good_fit"])
+        self.assertAlmostEqual(res["t1"], 25, delta=3)
 
 
 if __name__ == "__main__":

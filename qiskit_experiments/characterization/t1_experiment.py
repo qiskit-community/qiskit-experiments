@@ -85,7 +85,7 @@ class T1Analysis(BaseAnalysis):
                 "t1_err": fit_err[1],
                 "offset_err": fit_err[2],
                 "chisq": chisq,
-                "unit": experiment_data._data[0]["metadata"]["unit"]
+                "unit": experiment_data._data[0]["metadata"]["unit"],
             }
         )
 
@@ -156,7 +156,7 @@ class T1Experiment(BaseExperiment):
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
                 "delay": delay,
-                "unit": self._unit
+                "unit": self._unit,
             }
 
             circuits.append(circ)
