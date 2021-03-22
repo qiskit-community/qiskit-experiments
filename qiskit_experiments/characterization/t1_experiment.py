@@ -68,38 +68,41 @@ class T1Analysis(BaseAnalysis):
         if amplitude_guess is None:
             amplitude_guess = means[0] - offset_guess
 
-        fit_out, fit_err, chisq = BaseAnalysis.curve_fit_wrapper(
+        fit_out, fit_err, fit_cov, chisq = BaseAnalysis.curve_fit_wrapper(
             BaseAnalysis.exp_fit_fun,
             delays,
             means,
             stddevs,
-            p0=[amplitude_guess, t1_guess, offset_guess]
+            p0=[amplitude_guess, t1_guess, offset_guess],
         )
 
         analysis_result = AnalysisResult(
             {
-                "amplitude": fit_out[0],
-                "t1": fit_out[1],
-                "offset": fit_out[2],
-                "amplitude_err": fit_err[0],
-                "t1_err": fit_err[1],
-                "offset_err": fit_err[2],
-                "chisq": chisq,
+                "value": fit_out[1],
+                "stderr": fit_err[1],
                 "unit": experiment_data._data[0]["metadata"]["unit"],
+                "label": "T1",
+                "fit": {
+                    "params": fit_out,
+                    "stderr": fit_err,
+                    "labels": ["amplitude", "T1", "offset"],
+                    "chisq": chisq,
+                    "cov": fit_cov,
+                },
             }
         )
 
-        analysis_result["is_good_fit"] = (
-            abs(analysis_result["amplitude"] - 1.0) < 0.1
-            and abs(analysis_result["offset"]) < 0.1
-            and analysis_result["chisq"] < 3
-            and (analysis_result["amplitude_err"] is None or analysis_result["amplitude_err"] < 0.1)
-            and (analysis_result["offset_err"] is None or analysis_result["offset_err"] < 0.1)
-            and (
-                analysis_result["t1_err"] is None
-                or analysis_result["t1_err"] < analysis_result["t1"]
-            )
-        )
+        if (
+            abs(fit_out[0] - 1.0) < 0.1
+            and abs(fit_out[2]) < 0.1
+            and chisq < 3
+            and (fit_err[0] is None or fit_err[0] < 0.1)
+            and (fit_err[1] is None or fit_err[1] < fit_out[1])
+            and (fit_err[2] is None or fit_err[2] < 0.1)
+        ):
+            analysis_result["quality"] = "computer_good"
+        else:
+            analysis_result["quality"] = "computer_bad"
 
         return analysis_result, None
 

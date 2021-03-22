@@ -156,8 +156,8 @@ class TestT1(unittest.TestCase):
             shots=10000,
         ).analysis_result(0)
 
-        self.assertTrue(res["is_good_fit"])
-        self.assertAlmostEqual(res["t1"], t1, delta=3)
+        self.assertEqual(res["quality"], "computer_good")
+        self.assertAlmostEqual(res["value"], t1, delta=3)
 
     def test_t1_parallel(self):
         """
@@ -182,8 +182,8 @@ class TestT1(unittest.TestCase):
 
         for i in range(2):
             sub_res = res.component_experiment_data(i).analysis_result(0)
-            self.assertTrue(sub_res["is_good_fit"])
-            self.assertAlmostEqual(sub_res["t1"], t1[i], delta=3)
+            self.assertTrue(sub_res["quality"], "computer_good")
+            self.assertAlmostEqual(sub_res["value"], t1[i], delta=3)
 
     def test_t1_analysis(self):
         """
@@ -207,8 +207,8 @@ class TestT1(unittest.TestCase):
             )
 
         res = T1Analysis()._run_analysis(data)[0]
-        self.assertTrue(res["is_good_fit"])
-        self.assertAlmostEqual(res["t1"], 25, delta=3)
+        self.assertEqual(res["quality"], "computer_good")
+        self.assertAlmostEqual(res["value"], 25, delta=3)
 
 
 if __name__ == "__main__":

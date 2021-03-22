@@ -122,4 +122,4 @@ class BaseAnalysis(ABC):
 
         fit_err = np.sqrt(np.diag(fit_cov))
 
-        return fit_out, fit_err, chisq
+        return fit_out, fit_err, fit_cov, chisq
