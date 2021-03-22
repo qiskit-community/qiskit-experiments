@@ -56,7 +56,8 @@ class T1Backend(BaseBackend):
         self._readout1to0 = readout1to0
         super().__init__(configuration)
 
-    def run(self, qobj, **kwargs):
+    #pylint: disable = arguments-differ
+    def run(self, qobj):
         """
         Run the T1 backend
         """

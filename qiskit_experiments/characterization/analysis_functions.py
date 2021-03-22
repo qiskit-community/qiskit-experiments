@@ -32,12 +32,17 @@ def curve_fit_wrapper(f, xdata, ydata, sigma, **kwargs):
 
     Args:
         f (callable): see documentation of curve_fit in scipy.optimize
-        xdata (array_like or object): see documentation of curve_fit in scipy.optimize
-        ydata (array_like): see documentation of curve_fit in scipy.optimize
-        sigma (None or 1-dimensional sequence or 2-dimensional array):
+        xdata (list): see documentation of curve_fit in scipy.optimize
+        ydata (list): see documentation of curve_fit in scipy.optimize
+        sigma (list): see documentation of curve_fit in scipy.optimize
         kwargs: additional paramters to be passed to curve_fit
 
-    Returns fit_out, fit_err, chisq
+    Returns:
+        list: fitted parameters
+        list: error on fitted parameters
+              (square root of the diagonal of the covariance matrix)
+        matrix: the covariance matrix
+        float: chi-square, which is the function that's minimized when fitting
     """
     fit_out, fit_cov = curve_fit(f, xdata, ydata, sigma=sigma, **kwargs)
 

@@ -93,6 +93,7 @@ class T1Analysis(BaseAnalysis):
             }
         )
 
+        #pylint: disable = too-many-boolean-expressions
         if (
             abs(fit_out[0] - 1.0) < 0.1
             and abs(fit_out[2]) < 0.1
