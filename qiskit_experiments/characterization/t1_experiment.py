@@ -21,6 +21,7 @@ from qiskit.circuit import QuantumCircuit
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments import AnalysisResult
+from .analysis_functions import exp_fit_fun, curve_fit_wrapper
 
 
 class T1Analysis(BaseAnalysis):
@@ -68,8 +69,8 @@ class T1Analysis(BaseAnalysis):
         if amplitude_guess is None:
             amplitude_guess = means[0] - offset_guess
 
-        fit_out, fit_err, fit_cov, chisq = BaseAnalysis.curve_fit_wrapper(
-            BaseAnalysis.exp_fit_fun,
+        fit_out, fit_err, fit_cov, chisq = curve_fit_wrapper(
+            exp_fit_fun,
             delays,
             means,
             stddevs,
