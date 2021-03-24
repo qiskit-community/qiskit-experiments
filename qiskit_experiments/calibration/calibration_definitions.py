@@ -46,14 +46,15 @@ class CalibrationsDefinition:
 
         self._n_qubits = backend.configuration().num_qubits
         self._n_uchannels = backend.configuration().n_uchannels
+        self._properties = backend.properties()
         self._config = backend.configuration()
         self._params = {'qubit_freq': {}}
         self._schedules = {}
 
         # Populate the qubit frequency estimates
-        now = datetime.now()
         for qubit, freq in enumerate(backend.defaults().qubit_freq_est):
-            val = ParameterValue(freq, now)
+            timestamp = backend.properties().qubit_property(qubit)['frequency'][1]
+            val = ParameterValue(freq, timestamp)
             self.add_parameter_value('qubit_freq', val, DriveChannel(qubit))
 
     def schedules(self) -> pd.DataFrame:
