@@ -17,14 +17,12 @@ from .nodes import (
     # data acquisition node
     SystemDiscriminator,
     SystemKernel,
+
     # value formatter node
     Population,
     ToImag,
     ToReal
 )
-from .nodes import SystemDiscriminator
-from .nodes import ToReal
-from .nodes import ToImag
-from .nodes import Population
+
 from .data_processor import DataProcessor
 from .processed_data import ProcessedData

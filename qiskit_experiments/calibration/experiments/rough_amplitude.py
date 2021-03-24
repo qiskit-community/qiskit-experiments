@@ -14,12 +14,11 @@
 
 from dataclasses import asdict
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import List, Optional
 import numpy as np
 
 from qiskit.pulse import DriveChannel
 from qiskit import QuantumCircuit
-from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.calibration.analysis import CosineFit
 from qiskit_experiments.calibration.analysis.utils import get_period_fraction
 from qiskit_experiments.calibration.metadata import CalibrationMetadata
@@ -27,13 +26,21 @@ from qiskit_experiments.calibration.calibration_definitions import CalibrationsD
 from qiskit_experiments.calibration.data_processing.data_processor import DataProcessor
 from qiskit_experiments.calibration.parameter_value import ParameterValue
 from qiskit_experiments import ExperimentData
+from . import BaseCalibrationExperiment
 
 
-class RoughAmplitude(BaseExperiment):
+class RoughAmplitude(BaseCalibrationExperiment):
     """Rough amplitude calibration that scans the amplitude."""
 
     # Analysis class for experiment
     __analysis_class__ = CosineFit
+
+    # Gates and pulse parameters to update
+    __calibration_objective__ = {
+        'gates': ['x90p', 'xp'],
+        'options': [np.pi/2, np.pi],
+        'parameter_name': 'amp'
+    }
 
     def __init__(self,
                  qubit: int,
@@ -98,25 +105,20 @@ class RoughAmplitude(BaseExperiment):
 
         return circuits
 
-    def update_calibrations(self, experiment_data: ExperimentData,
-                            update_pulses: Optional[Dict[str, float]] = None, index: int = -1):
+    def update_calibrations(self, experiment_data: ExperimentData, index: int = -1):
         """
         Updates the amplitude of the pulses. This will preserve the existing phase.
 
         Args:
             experiment_data: The experiment data to use to update the pulse amplitudes.
-            update_pulses: The pulse to update. The key is the name of the pulse parameter and
-                the value is the angle to extract from the cosine fit. For example, {'amp_xp':
-                np.pi, 'amp_x90p': np.pi/2} will update the amplitude ot the xp and x90p pulses.
             index: The index of analysis result to use in experiment_data. If this is not
                 specified then the latest added analysis result is used.
         """
-        if update_pulses is None:
-            update_pulses = {self._gate_name: np.pi/2}
-
         fit_result = experiment_data.analysis_result(index)['default']
 
-        for param_name, angle in update_pulses.items():
+        for idx, gate in enumerate(self.__calibration_objective__['gates']):
+            angle = self.__calibration_objective__['options'][idx]
+            param_name = self.__calibration_objective__['parameter_name']
             amp = self._cal_def.parameter_value(param_name,
                                                 DriveChannel(self._qubit),
                                                 group=self._calibration_group)
