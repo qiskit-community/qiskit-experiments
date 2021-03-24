@@ -131,7 +131,7 @@ class CalibrationsDefinition:
             for ch in schedule.channels:
                 if isinstance(ch.index, Parameter):
                     try:
-                        [int(_) for _ in ch.index.name.split('.')]
+                        [int(index) for index in ch.index.name.split('.')]
                     except ValueError:
                         raise CalibrationError('Parameterized channel must have a name '
                                                'formatted following index1.index2...')
