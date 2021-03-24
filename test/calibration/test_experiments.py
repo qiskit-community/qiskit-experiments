@@ -63,8 +63,8 @@ class TestCalibrationExperiments(QiskitTestCase):
 
         qubit = 3
         amps = [-0.5, 0.5]
-        amp = RoughAmplitude(qubit, self.cals, 'xp', 'amp_xp', DataProcessor(), amps)
-        circs = amp.transpiled_circuits(self.backend)
+        amp = RoughAmplitude(qubit, self.cals, 'xp', 'amp_xp', DataProcessor())
+        circs = amp.transpiled_circuits(self.backend, amplitudes=amps)
 
         # Check that there is a gate on qubit 3.
         self.assertEqual(circs[1].data[0][1][0].index, qubit)

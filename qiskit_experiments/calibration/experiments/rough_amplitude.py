@@ -61,7 +61,7 @@ class RoughAmplitude(BaseCalibrationExperiment):
             data_processor: The data processor used to process the measured data.
             group: The calibration group that will be updated which defaults to 'default'.
         """
-        circuit_options = ['initial_layout']
+        circuit_options = ['initial_layout', 'amplitudes']
         super().__init__([qubit], self.__class__.__name__, circuit_options)
 
         self._cal_def = cals
