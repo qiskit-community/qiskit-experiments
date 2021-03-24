@@ -21,10 +21,11 @@ from .base import DataAction, iq_data, kernel, discriminator, prev_node, populat
 
 @kernel
 @prev_node()
-class SystemKernel(DataAction):
-    """Backend system kernel."""
+class Kernel(DataAction):
+    """User provided kernel."""
 
-    def __init__(self, name: Optional[str] = None):
+    def __init__(self, kernel, name: Optional[str] = None):
+        self.kernel = kernel
         self.name = name
         super().__init__()
 
@@ -33,20 +34,25 @@ class SystemKernel(DataAction):
         Args:
             data: The data dictionary to process.
         """
+        if 'memory' not in data:
+            raise CalibrationError(f'Data does not have memory. '
+                                   f'Cannot apply {self.__class__.__name__}')
+
+        data['memory'] = self.kernel.kernel(np.array(data['memory']))
 
 
 @discriminator
-@prev_node(SystemKernel)
-class SystemDiscriminator(DataAction):
+@prev_node(Kernel)
+class Discriminator(DataAction):
     """Backend system discriminator."""
 
-    def __init__(self, discriminator_, name: Optional[str] = None):
+    def __init__(self, discriminator, name: Optional[str] = None):
         """
         Args:
-            discriminator_: The discriminator used to transform the data to counts.
+            discriminator: The discriminator used to transform the data to counts.
                 For example, transform IQ data to counts.
         """
-        self.discriminator = discriminator_
+        self.discriminator = discriminator
         self.name = name
         super().__init__()
 
@@ -68,7 +74,7 @@ class SystemDiscriminator(DataAction):
 
 
 @iq_data
-@prev_node(SystemKernel)
+@prev_node(Kernel)
 class ToReal(DataAction):
     """IQ data post-processing. This returns real part of IQ data."""
 
@@ -113,7 +119,7 @@ class ToReal(DataAction):
         data['memory'] = new_mem
 
 @iq_data
-@prev_node(SystemKernel)
+@prev_node(Kernel)
 class ToImag(DataAction):
     """IQ data post-processing. This returns imaginary part of IQ data."""
 
@@ -157,7 +163,7 @@ class ToImag(DataAction):
 
 
 @population
-@prev_node(SystemDiscriminator)
+@prev_node(Discriminator)
 class Population(DataAction):
     """Count data post processing. This returns population."""
 
