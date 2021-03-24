@@ -27,7 +27,7 @@ class ParameterValue:
     # Data time when the value of the parameter was generated
     date_time: datetime = datetime.fromtimestamp(0)
 
-    # An enum indicating if the parameter is valid
+    # A bool indicating if the parameter is valid
     valid: bool = True
 
     # The experiment from which the value of this parameter was generated.
