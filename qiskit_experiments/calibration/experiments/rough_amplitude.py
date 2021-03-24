@@ -26,7 +26,7 @@ from qiskit_experiments.calibration.calibration_definitions import CalibrationsD
 from qiskit_experiments.calibration.data_processing.data_processor import DataProcessor
 from qiskit_experiments.calibration.parameter_value import ParameterValue
 from qiskit_experiments import ExperimentData
-from . import BaseCalibrationExperiment
+from .base_calibration_experiment import BaseCalibrationExperiment
 
 
 class RoughAmplitude(BaseCalibrationExperiment):
@@ -48,7 +48,6 @@ class RoughAmplitude(BaseCalibrationExperiment):
                  gate_name: str,
                  parameter_name: str,
                  data_processor: DataProcessor,
-                 amplitudes = List[float],
                  group: Optional[str] = 'default'):
         """
         Args:
@@ -60,16 +59,13 @@ class RoughAmplitude(BaseCalibrationExperiment):
             parameter_name: The name of the parameter to sweep, typically this will
                 be the amplitude of the pulse.
             data_processor: The data processor used to process the measured data.
-            amplitudes: The amplitudes over which to sweep.
             group: The calibration group that will be updated which defaults to 'default'.
         """
         circuit_options = ['initial_layout']
         super().__init__([qubit], self.__class__.__name__, circuit_options)
 
         self._cal_def = cals
-        self.amplitudes = amplitudes
         self.parameter = parameter_name
-        self._qubit = qubit
         self._data_processor = data_processor
         self._calibration_group = group
         self._gate_name = gate_name
@@ -81,25 +77,27 @@ class RoughAmplitude(BaseCalibrationExperiment):
 
         Args:
             backend (Backend): Not used.
-            circuit_options: Not used.
+            circuit_options: Can contain 'amplitudes' a list of floats specifying
+                the amplitude values to scan. If amplitudes is not given the free
+                parameter will be scanned from -0.9 to 0.9 in 51 steps.
 
         Returns:
             A list of quantum circuits where a parameter is scanned.
         """
+        template = self._cal_def.get_circuit(self._gate_name, self._physical_qubits, [self.parameter])
+        template.measure(0, 0)
+        template.name = 'circuit'
+
         circuits = []
-        for amplitude in self.amplitudes:
+        for amplitude in circuit_options.get('amplitudes', np.linspace(-0.9, 0.9, 51)):
             meta = CalibrationMetadata(
                 experiment_type=self._type,
                 pulse_schedule_name=self.__class__.__name__,
                 x_values=amplitude,
-                qubits=self._qubit
+                qubits=self._physical_qubits
             )
 
-            template_qc = self._cal_def.get_circuit(self._gate_name, (self._qubit,), [self.parameter])
-            template_qc.measure(0, 0)
-            template_qc.name = 'circuit'
-
-            qc = template_qc.assign_parameters({template_qc.parameters[0]: amplitude})
+            qc = template.assign_parameters({template.parameters[0]: amplitude})
             qc.metadata = asdict(meta)
             circuits.append(qc)
 
