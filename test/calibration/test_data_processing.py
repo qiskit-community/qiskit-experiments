@@ -20,8 +20,8 @@ from qiskit.qobj.common import QobjExperimentHeader
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.calibration import DataProcessor
-from qiskit_experiments.calibration.data_processing import (SystemKernel, SystemDiscriminator,
-                                                            ToReal, ToImag, Population)
+from qiskit_experiments.data_processing import (SystemKernel, SystemDiscriminator,
+                                                ToReal, ToImag, Population)
 
 
 class FakeExperiment(BaseExperiment):

@@ -12,7 +12,6 @@
 
 """Qiskit calibration root."""
 
-from .data_processing.data_processor import DataProcessor
 from .calibration_definitions import CalibrationsDefinition
 from .parameter_value import ParameterValue
 from .experiments.rough_amplitude import RoughAmplitude

@@ -20,9 +20,9 @@ from scipy import optimize
 from qiskit_experiments.experiment_data import AnalysisResult
 from qiskit_experiments.experiment_data import ExperimentData
 from qiskit_experiments.base_analysis import BaseAnalysis
-from qiskit_experiments.calibration.data_processing.data_processor import DataProcessor
+from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.calibration.metadata import CalibrationMetadata
-from qiskit_experiments.calibration.data_processing.processed_data import ProcessedData
+from qiskit_experiments.data_processing.processed_data import ProcessedData
 from .fit_result import FitResult
 
 

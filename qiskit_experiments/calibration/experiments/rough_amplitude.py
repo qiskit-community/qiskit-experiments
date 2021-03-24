@@ -23,7 +23,7 @@ from qiskit_experiments.calibration.analysis import CosineFit
 from qiskit_experiments.calibration.analysis.utils import get_period_fraction
 from qiskit_experiments.calibration.metadata import CalibrationMetadata
 from qiskit_experiments.calibration.calibration_definitions import CalibrationsDefinition
-from qiskit_experiments.calibration.data_processing.data_processor import DataProcessor
+from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.calibration.parameter_value import ParameterValue
 from qiskit_experiments import ExperimentData
 from .base_calibration_experiment import BaseCalibrationExperiment
@@ -39,7 +39,7 @@ class RoughAmplitude(BaseCalibrationExperiment):
     __calibration_objective__ = {
         'gates': ['x90p', 'xp'],
         'options': [np.pi/2, np.pi],
-        'parameter_name': 'amp'
+        'parameter_name': ['amp_x90p', 'amp_xp']
     }
 
     def __init__(self,
@@ -116,7 +116,7 @@ class RoughAmplitude(BaseCalibrationExperiment):
 
         for idx, gate in enumerate(self.__calibration_objective__['gates']):
             angle = self.__calibration_objective__['options'][idx]
-            param_name = self.__calibration_objective__['parameter_name']
+            param_name = self.__calibration_objective__['parameter_name'][idx]
             amp = self._cal_def.parameter_value(param_name,
                                                 DriveChannel(self._physical_qubits[0]),
                                                 group=self._calibration_group)
