@@ -164,11 +164,11 @@ class BaseCalibrationAnalysis(BaseAnalysis):
 
         figures = None
         if plot and HAS_MATPLOTLIB:
-            figures = self._plot(qubit, results, **kwargs)
+            figures = self.plot(qubit, results, **kwargs)
 
         return results, figures
 
-    def _plot(self, qubit, results, **kwargs) -> List:
+    def plot(self, qubit, results, **kwargs) -> List:
         """
         Plot the result.
 
