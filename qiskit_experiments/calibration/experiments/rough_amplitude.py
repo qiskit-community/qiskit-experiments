@@ -118,7 +118,7 @@ class RoughAmplitude(BaseCalibrationExperiment):
             angle = self.__calibration_objective__['options'][idx]
             param_name = self.__calibration_objective__['parameter_name']
             amp = self._cal_def.parameter_value(param_name,
-                                                DriveChannel(self._qubit),
+                                                DriveChannel(self._physical_qubits[0]),
                                                 group=self._calibration_group)
 
             phase = np.exp(1.0j*np.angle(amp))
@@ -127,4 +127,5 @@ class RoughAmplitude(BaseCalibrationExperiment):
             param_val = ParameterValue(value, datetime.now(), exp_id=experiment_data.experiment_id,
                                        group=self._calibration_group)
 
-            self._cal_def.add_parameter_value(param_name, param_val, DriveChannel(self._qubit))
+            self._cal_def.add_parameter_value(param_name, param_val,
+                                              DriveChannel(self._physical_qubits[0]))
