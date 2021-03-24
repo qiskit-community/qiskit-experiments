@@ -181,7 +181,10 @@ class CalibrationsDefinition:
             else:
                 raise CalibrationError('Unrecognised channel type {}.'.format(ch_type))
 
-        if not isinstance(chs, list):
+    try:
+        chs = list(chs)
+    except TypeError:
+        chs = [chs] 
             chs = [chs]
 
         if name not in self._params:
