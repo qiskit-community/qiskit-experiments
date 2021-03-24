@@ -19,10 +19,17 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit.qobj.common import QobjExperimentHeader
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.calibration import DataProcessor
-from qiskit_experiments.data_processing import (SystemKernel, SystemDiscriminator,
-                                                ToReal, ToImag, Population)
+from qiskit_experiments.data_processing.data_processor import DataProcessor
+from qiskit_experiments.data_processing.nodes import (Kernel, Discriminator,
+                                                      ToReal, ToImag, Population)
 
+
+class FakeKernel:
+    """Fake kernel to test the data chain."""
+
+    def kernel(self, data):
+        """Fake kernel method"""
+        return data
 
 class FakeExperiment(BaseExperiment):
     """Fake experiment class for testing."""
@@ -96,10 +103,10 @@ class DataProcessorTest(QiskitTestCase):
         processor = DataProcessor()
         self.assertEqual(processor.meas_level(), MeasLevel.RAW)
 
-        processor.append(SystemKernel())
+        processor.append(Kernel(FakeKernel))
         self.assertEqual(processor.meas_level(), MeasLevel.KERNELED)
 
-        processor.append(SystemDiscriminator(None))
+        processor.append(Discriminator(None))
         self.assertEqual(processor.meas_level(), MeasLevel.CLASSIFIED)
 
     def test_output_key(self):
@@ -107,15 +114,15 @@ class DataProcessorTest(QiskitTestCase):
         processor = DataProcessor()
         self.assertEqual(processor.output_key(), 'counts')
 
-        processor.append(SystemKernel())
+        processor.append(Kernel(FakeKernel()))
         self.assertEqual(processor.output_key(), 'memory')
 
         processor.append(ToReal())
         self.assertEqual(processor.output_key(), 'memory')
 
         processor = DataProcessor()
-        processor.append(SystemKernel())
-        processor.append(SystemDiscriminator(None))
+        processor.append(Kernel(FakeKernel()))
+        processor.append(Discriminator(None))
         self.assertEqual(processor.output_key(), 'counts')
 
         processor = DataProcessor()

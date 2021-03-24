@@ -15,8 +15,9 @@
 from typing import Any, Dict, Optional
 import numpy as np
 
-from qiskit_experiments.calibration.exceptions import CalibrationError
-from .base import DataAction, iq_data, kernel, discriminator, prev_node, population
+from qiskit_experiments.data_processing.exceptions import DataProcessorError
+from qiskit_experiments.data_processing.base import (DataAction, iq_data, kernel,
+                                                     discriminator, prev_node, population)
 
 
 @kernel
@@ -24,8 +25,13 @@ from .base import DataAction, iq_data, kernel, discriminator, prev_node, populat
 class Kernel(DataAction):
     """User provided kernel."""
 
-    def __init__(self, kernel, name: Optional[str] = None):
-        self.kernel = kernel
+    def __init__(self, kernel_, name: Optional[str] = None):
+        """
+        Args:
+            kernel_: Kernel to kernel the data.
+            name: Optional name for the node.
+        """
+        self.kernel = kernel_
         self.name = name
         super().__init__()
 
@@ -33,10 +39,13 @@ class Kernel(DataAction):
         """
         Args:
             data: The data dictionary to process.
+
+        Raises:
+            DataProcessorError: if the data has no memory.
         """
         if 'memory' not in data:
-            raise CalibrationError(f'Data does not have memory. '
-                                   f'Cannot apply {self.__class__.__name__}')
+            raise DataProcessorError(f'Data does not have memory. '
+                                     f'Cannot apply {self.__class__.__name__}')
 
         data['memory'] = self.kernel.kernel(np.array(data['memory']))
 
@@ -46,13 +55,14 @@ class Kernel(DataAction):
 class Discriminator(DataAction):
     """Backend system discriminator."""
 
-    def __init__(self, discriminator, name: Optional[str] = None):
+    def __init__(self, discriminator_, name: Optional[str] = None):
         """
         Args:
-            discriminator: The discriminator used to transform the data to counts.
+            discriminator_: The discriminator used to transform the data to counts.
                 For example, transform IQ data to counts.
+            name: Optional name for the node.
         """
-        self.discriminator = discriminator
+        self.discriminator = discriminator_
         self.name = name
         super().__init__()
 
@@ -64,11 +74,11 @@ class Discriminator(DataAction):
             data: The data in a format that can be understood by the discriminator.
 
         Raises:
-            CalibrationError: if the data does not contain memory.
+            DataProcessorError: if the data does not contain memory.
         """
         if 'memory' not in data:
-            raise CalibrationError(f'Data does not have memory. '
-                                   f'Cannot apply {self.__class__.__name__}')
+            raise DataProcessorError(f'Data does not have memory. '
+                                     f'Cannot apply {self.__class__.__name__}')
 
         data['counts'] = self.discriminator.discriminate(np.array(data['memory']))
 
@@ -97,11 +107,11 @@ class ToReal(DataAction):
             data: The data dict. IQ data is stored under memory.
 
         Raises:
-            CalibrationError: if the data does not contain memory.
+            DataProcessorError: if the data does not contain memory.
         """
         if 'memory' not in data:
-            raise CalibrationError(f'Data does not have memory. '
-                                   f'Cannot apply {self.__class__.__name__}')
+            raise DataProcessorError(f'Data does not have memory. '
+                                     f'Cannot apply {self.__class__.__name__}')
 
         # Single shot data
         if isinstance(data['memory'][0][0], list):
@@ -140,11 +150,11 @@ class ToImag(DataAction):
             data: The data dict. IQ data is stored under memory.
 
         Raises:
-            CalibrationError: if the data does not contain memory.
+            DataProcessorError: if the data does not contain memory.
         """
         if 'memory' not in data:
-            raise CalibrationError(f'Data does not have memory. '
-                                   f'Cannot apply {self.__class__.__name__}')
+            raise DataProcessorError(f'Data does not have memory. '
+                                     f'Cannot apply {self.__class__.__name__}')
 
         # Single shot data
         if isinstance(data['memory'][0][0], list):
@@ -175,11 +185,11 @@ class Population(DataAction):
                 populations.
 
         Raises:
-            CalibrationError: if counts are not in the given data.
+            DataProcessorError: if counts are not in the given data.
         """
         if 'counts' not in data:
-            raise CalibrationError(f'Data does not have counts. '
-                                   f'Cannot apply {self.__class__.__name__}')
+            raise DataProcessorError(f'Data does not have counts. '
+                                     f'Cannot apply {self.__class__.__name__}')
 
         counts = data.get('counts')
 

@@ -19,6 +19,7 @@ from qiskit_experiments import ExperimentData
 
 
 class BaseCalibrationExperiment(BaseExperiment):
+    """Base class for all calibration experiments."""
 
     # Gates and pulse parameters to update
     __calibration_objective__ = {

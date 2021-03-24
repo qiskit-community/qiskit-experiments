@@ -23,7 +23,7 @@ from qiskit_experiments.calibration.analysis import CosineFit
 from qiskit_experiments.calibration.analysis.utils import get_period_fraction
 from qiskit_experiments.calibration.metadata import CalibrationMetadata
 from qiskit_experiments.calibration.calibration_definitions import CalibrationsDefinition
-from qiskit_experiments.data_processing import DataProcessor
+from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.calibration.parameter_value import ParameterValue
 from qiskit_experiments import ExperimentData
 from .base_calibration_experiment import BaseCalibrationExperiment

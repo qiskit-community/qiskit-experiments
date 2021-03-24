@@ -10,19 +10,19 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Qiskit experiments calibration data processing roots."""
+"""Exceptions for data processing."""
 
-from .base import DataAction
-from .nodes import (
-    # data acquisition node
-    Discriminator,
-    Kernel,
+from qiskit.exceptions import QiskitError
 
-    # value formatter node
-    Population,
-    ToImag,
-    ToReal
-)
 
-from .data_processor import DataProcessor
-from .processed_data import ProcessedData
+class DataProcessorError(QiskitError):
+    """Errors raised by the calibration module."""
+
+    def __init__(self, *message):
+        """Set the error message."""
+        super().__init__(*message)
+        self.message = ' '.join(message)
+
+    def __str__(self):
+        """Return the message."""
+        return repr(self.message)

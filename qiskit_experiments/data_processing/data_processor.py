@@ -15,8 +15,8 @@
 from typing import Any, Dict, Union
 
 from qiskit.qobj.utils import MeasLevel
-from .nodes import SystemKernel, SystemDiscriminator
-from .base import NodeType, DataAction
+from qiskit_experiments.data_processing.nodes import Kernel, Discriminator
+from qiskit_experiments.data_processing.base import NodeType, DataAction
 
 
 class DataProcessor:
@@ -26,11 +26,7 @@ class DataProcessor:
     """
 
     def __init__(self):
-        """Create an empty chain of data ProcessingSteps.
-
-        Args:
-            average: Set `True` to average outcomes.
-        """
+        """Create an empty chain of data ProcessingSteps."""
         self._root_node = None
 
     def append(self, node: DataAction):
@@ -53,9 +49,9 @@ class DataProcessor:
                 MeasLevel.RAW is returned is no kernel is defined.
         """
         kernel = DataProcessor.check_kernel(self._root_node)
-        if kernel and isinstance(kernel, SystemKernel):
+        if kernel and isinstance(kernel, Kernel):
             discriminator = DataProcessor.check_discriminator(self._root_node)
-            if discriminator and isinstance(discriminator, SystemDiscriminator):
+            if discriminator and isinstance(discriminator, Discriminator):
 
                 # classified level if both system kernel and discriminator are defined
                 return MeasLevel.CLASSIFIED

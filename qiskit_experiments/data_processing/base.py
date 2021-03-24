@@ -16,7 +16,7 @@ from abc import ABCMeta, abstractmethod
 from enum import Enum
 from typing import Any, Dict
 
-from qiskit_experiments.calibration.exceptions import CalibrationError
+from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
 
 class DataAction(metaclass=ABCMeta):
@@ -45,18 +45,18 @@ class DataAction(metaclass=ABCMeta):
             component: New data processing routine.
 
         Raises:
-            CalibrationError: If the previous node is None (i.e. a root node)
+            DataProcessorError: If the previous node is None (i.e. a root node)
         """
         if not component.prev_node:
-            raise CalibrationError(f'Analysis routine {component.__class__.__name__} is a root'
-                                   f'node. This routine cannot be appended to another node.')
+            raise DataProcessorError(f'Analysis routine {component.__class__.__name__} is a root'
+                                     f'node. This routine cannot be appended to another node.')
 
         if self._child is None:
             if isinstance(self, component.prev_node):
                 self._child = component
             else:
-                raise CalibrationError(f'Analysis routine {component.__class__.__name__} '
-                                       f'cannot be appended after {self.__class__.__name__}')
+                raise DataProcessorError(f'Analysis routine {component.__class__.__name__} '
+                                         f'cannot be appended after {self.__class__.__name__}')
         else:
             self._child.append(component)
 
