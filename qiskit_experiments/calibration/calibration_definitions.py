@@ -49,7 +49,6 @@ class CalibrationsDefinition:
         self._config = backend.configuration()
         self._params = {'qubit_freq': {}}
         self._schedules = {}
-        self.backend = backend
 
         # Populate the qubit frequency estimates
         now = datetime.now()
