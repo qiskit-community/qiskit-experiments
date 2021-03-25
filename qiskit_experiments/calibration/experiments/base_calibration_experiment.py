@@ -13,9 +13,11 @@
 """Base experiment class for calibration."""
 
 from abc import abstractmethod
+from typing import Dict, List
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments import ExperimentData
+from qiskit_experiments.calibration.exceptions import CalibrationError
 
 
 class BaseCalibrationExperiment(BaseExperiment):
@@ -25,8 +27,25 @@ class BaseCalibrationExperiment(BaseExperiment):
     __calibration_objective__ = {
         'gates': [],
         'options': [],
-        'parameter_name': None
+        'parameter_names': []
     }
+
+    @property
+    def calibration_objective(self):
+        """Return the calibration objective of the experiment."""
+        return self.__calibration_objective__
+
+    @calibration_objective.setter
+    def calibration_objective(self, objective_dict: Dict[str, List]):
+        """
+        Args:
+            objective_dict: The objective dictionary specifies the gates, parameter_names
+                and options of the calibration.
+        """
+        if 'parameter_names' not in objective_dict:
+            raise CalibrationError('The objective must specify the parameter_names.')
+
+        self.__calibration_objective__ = dict(objective_dict)
 
     @abstractmethod
     def update_calibrations(self, experiment_data: ExperimentData, index: int = -1):

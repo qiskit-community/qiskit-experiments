@@ -39,7 +39,7 @@ class RoughAmplitude(BaseCalibrationExperiment):
     __calibration_objective__ = {
         'gates': ['x90p', 'xp'],
         'options': [np.pi/2, np.pi],
-        'parameter_name': ['amp_x90p', 'amp_xp']
+        'parameter_names': ['amp_x90p', 'amp_xp']
     }
 
     def __init__(self,
@@ -114,9 +114,9 @@ class RoughAmplitude(BaseCalibrationExperiment):
         """
         fit_result = experiment_data.analysis_result(index)['default']
 
-        for idx, gate in enumerate(self.__calibration_objective__['gates']):
-            angle = self.__calibration_objective__['options'][idx]
-            param_name = self.__calibration_objective__['parameter_name'][idx]
+        for idx, gate in enumerate(self.calibration_objective['gates']):
+            angle = self.calibration_objective['options'][idx]
+            param_name = self.calibration_objective['parameter_names'][idx]
             amp = self._cal_def.parameter_value(param_name,
                                                 DriveChannel(self._physical_qubits[0]),
                                                 group=self._calibration_group)
