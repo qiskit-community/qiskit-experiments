@@ -42,7 +42,7 @@ def curve_fit_wrapper(f, xdata, ydata, sigma, **kwargs):
         list: error on fitted parameters
               (square root of the diagonal of the covariance matrix)
         matrix: the covariance matrix
-        float: chi-square, which is the function that's minimized when fitting
+        float: chi-square
     """
     fit_out, fit_cov = curve_fit(f, xdata, ydata, sigma=sigma, **kwargs)
 

@@ -36,18 +36,18 @@ class T1Backend(BaseBackend):
         """
 
         configuration = BackendConfiguration(
-            "t1_simulator",
-            "0",
-            int(1e6),
-            ["barrier", "x", "delay", "measure"],
-            [],
-            True,
-            True,
-            False,
-            False,
-            False,
-            int(1e6),
-            None,
+            backend_name="t1_simulator",
+            backend_version="0",
+            n_qubits=int(1e6),
+            basis_gates=["barrier", "x", "delay", "measure"],
+            gates=[],
+            local=True,
+            simulator=True,
+            conditional=False,
+            open_pulse=False,
+            memory=False,
+            max_shots=int(1e6),
+            coupling_map=None,
         )
 
         self._t1 = t1
