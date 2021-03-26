@@ -15,7 +15,6 @@
 from typing import Any, Dict, List, Optional
 import numpy as np
 
-from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.base import (
     DataAction,
     iq_data,
