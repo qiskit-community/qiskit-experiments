@@ -12,7 +12,7 @@
 
 """Different data analysis steps."""
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 import numpy as np
 
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
@@ -46,6 +46,11 @@ class Kernel(DataAction):
         """Key under which Kernel stores the data."""
         return "memory"
 
+    @property
+    def node_inputs(self) -> List[str]:
+        """Returns a list of input data that the node can process."""
+        return ["memory"]
+
     def process(self, data: Dict[str, Any]):
         """
         Args:
@@ -54,11 +59,6 @@ class Kernel(DataAction):
         Raises:
             DataProcessorError: if the data has no memory.
         """
-        if "memory" not in data:
-            raise DataProcessorError(
-                f"Data does not have memory. " f"Cannot apply {self.__class__.__name__}"
-            )
-
         data[self.node_output] = self.kernel.kernel(np.array(data["memory"]))
 
 
@@ -83,6 +83,11 @@ class Discriminator(DataAction):
         """Key under which Discriminator stores the data."""
         return "counts"
 
+    @property
+    def node_inputs(self) -> List[str]:
+        """Returns a list of input data that the node can process."""
+        return ["memory"]
+
     def process(self, data: Dict[str, Any]):
         """
         Discriminate the data to transform it into counts.
@@ -93,11 +98,6 @@ class Discriminator(DataAction):
         Raises:
             DataProcessorError: if the data does not contain memory.
         """
-        if "memory" not in data:
-            raise DataProcessorError(
-                f"Data does not have memory. " f"Cannot apply {self.__class__.__name__}"
-            )
-
         data[self.node_output] = self.discriminator.discriminate(np.array(data["memory"]))
 
 
@@ -121,6 +121,11 @@ class ToReal(DataAction):
         """Key under which ToReal stores the data."""
         return "memory_real"
 
+    @property
+    def node_inputs(self) -> List[str]:
+        """Returns a list of input data that the node can process."""
+        return ["memory"]
+
     def process(self, data: Dict[str, Any]):
         """
         Modifies the data inplace by taking the real part of the memory and
@@ -132,10 +137,6 @@ class ToReal(DataAction):
         Raises:
             DataProcessorError: if the data does not contain memory.
         """
-        if "memory" not in data:
-            raise DataProcessorError(
-                f"Data does not have memory. " f"Cannot apply {self.__class__.__name__}"
-            )
 
         # Single shot data
         if isinstance(data["memory"][0][0], list):
@@ -172,6 +173,11 @@ class ToImag(DataAction):
         """Key under which ToImag stores the data."""
         return "memory_imag"
 
+    @property
+    def node_inputs(self) -> List[str]:
+        """Returns a list of input data that the node can process."""
+        return ["memory"]
+
     def process(self, data: Dict[str, Any]):
         """
         Scales the imaginary part of IQ data.
@@ -182,10 +188,6 @@ class ToImag(DataAction):
         Raises:
             DataProcessorError: if the data does not contain memory.
         """
-        if "memory" not in data:
-            raise DataProcessorError(
-                f"Data does not have memory. " f"Cannot apply {self.__class__.__name__}"
-            )
 
         # Single shot data
         if isinstance(data["memory"][0][0], list):
@@ -213,6 +215,11 @@ class Population(DataAction):
         """Key under which Population stores the data."""
         return "populations"
 
+    @property
+    def node_inputs(self) -> List[str]:
+        """Returns a list of input data that the node can process."""
+        return ["counts"]
+
     def process(self, data: Dict[str, Any]):
         """
         Args:
@@ -223,10 +230,6 @@ class Population(DataAction):
         Raises:
             DataProcessorError: if counts are not in the given data.
         """
-        if "counts" not in data:
-            raise DataProcessorError(
-                f"Data does not have counts. " f"Cannot apply {self.__class__.__name__}"
-            )
 
         counts = data.get("counts")
 

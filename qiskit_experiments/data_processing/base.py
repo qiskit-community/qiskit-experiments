@@ -14,7 +14,7 @@
 
 from abc import ABCMeta, abstractmethod
 from enum import Enum
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
@@ -69,6 +69,11 @@ class DataAction(metaclass=ABCMeta):
     def node_output(self) -> str:
         """Returns the key in the data dict where the DataAction added the processed data."""
 
+    @property
+    @abstractmethod
+    def node_inputs(self) -> List[str]:
+        """Returns a list of input data that the node can process."""
+
     @abstractmethod
     def process(self, data: Dict[str, Any]):
         """
@@ -77,6 +82,21 @@ class DataAction(metaclass=ABCMeta):
         Args:
             data: the data to which the data processing step will be applied.
         """
+
+    def check_required(self, data: Dict[str, Any]):
+        """Checks that the given data contains the right key.
+
+        Args:
+            data: The data to check for the correct keys.
+
+        Raises:
+            DataProcessorError: if the key is not found.
+        """
+        for key in data.keys():
+            if key in self.node_inputs:
+                return
+
+        raise DataProcessorError(f"None of {self.node_inputs} are in the given data.")
 
     def format_data(self, data: Dict[str, Any]):
         """
@@ -87,6 +107,8 @@ class DataAction(metaclass=ABCMeta):
                 processor will raise errors if the data does not contain the
                 appropriate data.
         """
+        self.check_required(data)
+
         processed_data = self.process(data)
 
         if self._child:
