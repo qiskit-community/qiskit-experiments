@@ -35,6 +35,12 @@ class Kernel(DataAction):
         self.name = name
         super().__init__()
 
+
+    @property
+    def node_output(self) -> str:
+        """Key under which Kernel stores the data."""
+        return 'memory'
+
     def process(self, data: Dict[str, Any]):
         """
         Args:
@@ -47,7 +53,7 @@ class Kernel(DataAction):
             raise DataProcessorError(f'Data does not have memory. '
                                      f'Cannot apply {self.__class__.__name__}')
 
-        data['memory'] = self.kernel.kernel(np.array(data['memory']))
+        data[self.node_output] = self.kernel.kernel(np.array(data['memory']))
 
 
 @discriminator
@@ -66,6 +72,11 @@ class Discriminator(DataAction):
         self.name = name
         super().__init__()
 
+    @property
+    def node_output(self) -> str:
+        """Key under which Discriminator stores the data."""
+        return 'counts'
+
     def process(self, data: Dict[str, Any]):
         """
         Discriminate the data to transform it into counts.
@@ -80,7 +91,7 @@ class Discriminator(DataAction):
             raise DataProcessorError(f'Data does not have memory. '
                                      f'Cannot apply {self.__class__.__name__}')
 
-        data['counts'] = self.discriminator.discriminate(np.array(data['memory']))
+        data[self.node_output] = self.discriminator.discriminate(np.array(data['memory']))
 
 
 @iq_data
@@ -97,6 +108,11 @@ class ToReal(DataAction):
         self.scale = scale
         self.average = average
         super().__init__()
+
+    @property
+    def node_output(self) -> str:
+        """Key under which ToReal stores the data."""
+        return 'memory_real'
 
     def process(self, data: Dict[str, Any]):
         """
@@ -126,7 +142,7 @@ class ToReal(DataAction):
         else:
             new_mem = [self.scale*_[0] for _ in data['memory']]
 
-        data['memory'] = new_mem
+        data[self.node_output] = new_mem
 
 @iq_data
 @prev_node(Kernel)
@@ -141,6 +157,11 @@ class ToImag(DataAction):
         self.scale = scale
         self.average = average
         super().__init__()
+
+    @property
+    def node_output(self) -> str:
+        """Key under which ToImag stores the data."""
+        return 'memory_imag'
 
     def process(self, data: Dict[str, Any]):
         """
@@ -169,13 +190,18 @@ class ToImag(DataAction):
         else:
             new_mem = [self.scale*_[0] for _ in data['memory']]
 
-        data['memory'] = new_mem
+        data[self.node_output] = new_mem
 
 
 @population
 @prev_node(Discriminator)
 class Population(DataAction):
     """Count data post processing. This returns population."""
+
+    @property
+    def node_output(self) -> str:
+        """Key under which Population stores the data."""
+        return 'populations'
 
     def process(self, data: Dict[str, Any]):
         """
@@ -202,4 +228,4 @@ class Population(DataAction):
                 if bit == '1':
                     populations[ind] += count
 
-        data['populations'] = populations / shots
+        data[self.node_output] = populations / shots

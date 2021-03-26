@@ -69,12 +69,7 @@ class DataProcessor:
             while node.child:
                 node = node.child
 
-            if node.node_type in [NodeType.KERNEL, NodeType.IQDATA]:
-                return 'memory'
-            if node.node_type == NodeType.DISCRIMINATOR:
-                return 'counts'
-            if node.node_type == NodeType.POPULATION:
-                return 'populations'
+            return node.node_output
 
         return 'counts'
 

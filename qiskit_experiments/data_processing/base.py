@@ -60,6 +60,11 @@ class DataAction(metaclass=ABCMeta):
         else:
             self._child.append(component)
 
+    @property
+    @abstractmethod
+    def node_output(self) -> str:
+        """Returns the key in the data dict where the DataAction added the processed data."""
+
     @abstractmethod
     def process(self, data: Dict[str, Any]):
         """

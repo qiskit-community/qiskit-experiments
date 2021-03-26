@@ -118,7 +118,7 @@ class DataProcessorTest(QiskitTestCase):
         self.assertEqual(processor.output_key(), 'memory')
 
         processor.append(ToReal())
-        self.assertEqual(processor.output_key(), 'memory')
+        self.assertEqual(processor.output_key(), 'memory_real')
 
         processor = DataProcessor()
         processor.append(Kernel(FakeKernel()))
@@ -133,30 +133,39 @@ class DataProcessorTest(QiskitTestCase):
         """Test scaling and conversion to real part."""
         processor = DataProcessor()
         processor.append(ToReal(scale=1e-3))
-        self.assertEqual(processor.output_key(), 'memory')
+        self.assertEqual(processor.output_key(), 'memory_real')
 
         exp_data = ExperimentData(FakeExperiment())
         exp_data.add_data(self.result_lvl1)
 
         processor.format_data(exp_data.data[0])
 
-        expected = {'memory': [[1103.26, 2959.012], [442.17, -5279.41], [3016.514, -3404.7560]],
-                    'metadata': {'experiment_type': 'fake_test_experiment', 'x_values': 0.0}}
+        expected = {
+            'memory': [[[1103260.0, -11378508.0], [2959012.0, -16488753.0]],
+                       [[442170.0, -19283206.0], [-5279410.0, -15339630.0]],
+                       [[3016514.0, -14548009.0], [-3404756.0, -16743348.0]]],
+            'memory_real': [[1103.26, 2959.012], [442.17, -5279.41], [3016.514, -3404.7560]],
+            'metadata': {'experiment_type': 'fake_test_experiment', 'x_values': 0.0}}
 
         self.assertEqual(exp_data.data[0], expected)
 
         # Test that we can average single-shots
         processor = DataProcessor()
         processor.append(ToReal(scale=1e-3, average=True))
-        self.assertEqual(processor.output_key(), 'memory')
+        self.assertEqual(processor.output_key(), 'memory_real')
 
         exp_data = ExperimentData(FakeExperiment())
         exp_data.add_data(self.result_lvl1)
 
         processor.format_data(exp_data.data[0])
 
-        expected = {'memory': [1520.6480000000001, -1908.3846666666666],
-                    'metadata': {'experiment_type': 'fake_test_experiment', 'x_values': 0.0}}
+        expected = {
+            'memory': [[[1103260.0, -11378508.0], [2959012.0, -16488753.0]],
+                       [[442170.0, -19283206.0], [-5279410.0, -15339630.0]],
+                       [[3016514.0, -14548009.0], [-3404756.0, -16743348.0]]],
+            'memory_real': [1520.6480000000001, -1908.3846666666666],
+            'metadata': {'experiment_type': 'fake_test_experiment', 'x_values': 0.0}
+        }
 
         self.assertEqual(exp_data.data[0], expected)
 
@@ -164,31 +173,41 @@ class DataProcessorTest(QiskitTestCase):
         """Test that we can average the data."""
         processor = DataProcessor()
         processor.append(ToImag(scale=1e-3))
-        self.assertEqual(processor.output_key(), 'memory')
+        self.assertEqual(processor.output_key(), 'memory_imag')
 
         exp_data = ExperimentData(FakeExperiment())
         exp_data.add_data(self.result_lvl1)
 
         processor.format_data(exp_data.data[0])
 
-        expected = {'memory': [[-11378.508, -16488.753],
-                               [-19283.206000000002, -15339.630000000001],
-                               [-14548.009, -16743.348]],
-                    'metadata': {'experiment_type': 'fake_test_experiment', 'x_values': 0.0}}
+        expected = {
+            'memory': [[[1103260.0, -11378508.0], [2959012.0, -16488753.0]],
+                       [[442170.0, -19283206.0], [-5279410.0, -15339630.0]],
+                       [[3016514.0, -14548009.0], [-3404756.0, -16743348.0]]],
+            'memory_imag': [[-11378.508, -16488.753],
+                            [-19283.206000000002, -15339.630000000001],
+                            [-14548.009, -16743.348]],
+            'metadata': {'experiment_type': 'fake_test_experiment', 'x_values': 0.0}
+        }
 
         self.assertEqual(exp_data.data[0], expected)
 
         # Test that we can average single-shots
         processor = DataProcessor()
         processor.append(ToImag(scale=1e-3, average=True))
-        self.assertEqual(processor.output_key(), 'memory')
+        self.assertEqual(processor.output_key(), 'memory_imag')
 
         exp_data = ExperimentData(FakeExperiment())
         exp_data.add_data(self.result_lvl1)
 
         processor.format_data(exp_data.data[0])
 
-        expected = {'memory': [-15069.907666666666, -16190.577],
-                    'metadata': {'experiment_type': 'fake_test_experiment', 'x_values': 0.0}}
+        expected = {
+            'memory': [[[1103260.0, -11378508.0], [2959012.0, -16488753.0]],
+                       [[442170.0, -19283206.0], [-5279410.0, -15339630.0]],
+                       [[3016514.0, -14548009.0], [-3404756.0, -16743348.0]]],
+            'memory_imag': [-15069.907666666666, -16190.577],
+            'metadata': {'experiment_type': 'fake_test_experiment', 'x_values': 0.0}
+        }
 
         self.assertEqual(exp_data.data[0], expected)
