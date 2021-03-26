@@ -34,11 +34,11 @@ class DataAction(metaclass=ABCMeta):
         self._child = None
 
     @property
-    def child(self) -> 'DataAction':
+    def child(self) -> "DataAction":
         """Return the child of this data processing step."""
         return self._child
 
-    def append(self, component: 'DataAction'):
+    def append(self, component: "DataAction"):
         """Add new data processing routine.
 
         Args:
@@ -48,15 +48,19 @@ class DataAction(metaclass=ABCMeta):
             DataProcessorError: If the previous node is None (i.e. a root node)
         """
         if not component.prev_node:
-            raise DataProcessorError(f'Analysis routine {component.__class__.__name__} is a root'
-                                     f'node. This routine cannot be appended to another node.')
+            raise DataProcessorError(
+                f"Analysis routine {component.__class__.__name__} is a root"
+                f"node. This routine cannot be appended to another node."
+            )
 
         if self._child is None:
             if isinstance(self, component.prev_node):
                 self._child = component
             else:
-                raise DataProcessorError(f'Analysis routine {component.__class__.__name__} '
-                                         f'cannot be appended after {self.__class__.__name__}')
+                raise DataProcessorError(
+                    f"Analysis routine {component.__class__.__name__} "
+                    f"cannot be appended after {self.__class__.__name__}"
+                )
         else:
             self._child.append(component)
 
@@ -91,6 +95,7 @@ class DataAction(metaclass=ABCMeta):
 
 class NodeType(Enum):
     """Type of node that can be supported by the analysis steps."""
+
     KERNEL = 1
     DISCRIMINATOR = 2
     IQDATA = 3

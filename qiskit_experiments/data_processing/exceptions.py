@@ -21,7 +21,7 @@ class DataProcessorError(QiskitError):
     def __init__(self, *message):
         """Set the error message."""
         super().__init__(*message)
-        self.message = ' '.join(message)
+        self.message = " ".join(message)
 
     def __str__(self):
         """Return the message."""

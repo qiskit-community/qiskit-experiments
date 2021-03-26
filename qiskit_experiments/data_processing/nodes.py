@@ -16,8 +16,14 @@ from typing import Any, Dict, Optional
 import numpy as np
 
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
-from qiskit_experiments.data_processing.base import (DataAction, iq_data, kernel,
-                                                     discriminator, prev_node, population)
+from qiskit_experiments.data_processing.base import (
+    DataAction,
+    iq_data,
+    kernel,
+    discriminator,
+    prev_node,
+    population,
+)
 
 
 @kernel
@@ -35,11 +41,10 @@ class Kernel(DataAction):
         self.name = name
         super().__init__()
 
-
     @property
     def node_output(self) -> str:
         """Key under which Kernel stores the data."""
-        return 'memory'
+        return "memory"
 
     def process(self, data: Dict[str, Any]):
         """
@@ -49,11 +54,12 @@ class Kernel(DataAction):
         Raises:
             DataProcessorError: if the data has no memory.
         """
-        if 'memory' not in data:
-            raise DataProcessorError(f'Data does not have memory. '
-                                     f'Cannot apply {self.__class__.__name__}')
+        if "memory" not in data:
+            raise DataProcessorError(
+                f"Data does not have memory. " f"Cannot apply {self.__class__.__name__}"
+            )
 
-        data[self.node_output] = self.kernel.kernel(np.array(data['memory']))
+        data[self.node_output] = self.kernel.kernel(np.array(data["memory"]))
 
 
 @discriminator
@@ -75,7 +81,7 @@ class Discriminator(DataAction):
     @property
     def node_output(self) -> str:
         """Key under which Discriminator stores the data."""
-        return 'counts'
+        return "counts"
 
     def process(self, data: Dict[str, Any]):
         """
@@ -87,11 +93,12 @@ class Discriminator(DataAction):
         Raises:
             DataProcessorError: if the data does not contain memory.
         """
-        if 'memory' not in data:
-            raise DataProcessorError(f'Data does not have memory. '
-                                     f'Cannot apply {self.__class__.__name__}')
+        if "memory" not in data:
+            raise DataProcessorError(
+                f"Data does not have memory. " f"Cannot apply {self.__class__.__name__}"
+            )
 
-        data[self.node_output] = self.discriminator.discriminate(np.array(data['memory']))
+        data[self.node_output] = self.discriminator.discriminate(np.array(data["memory"]))
 
 
 @iq_data
@@ -112,7 +119,7 @@ class ToReal(DataAction):
     @property
     def node_output(self) -> str:
         """Key under which ToReal stores the data."""
-        return 'memory_real'
+        return "memory_real"
 
     def process(self, data: Dict[str, Any]):
         """
@@ -125,24 +132,26 @@ class ToReal(DataAction):
         Raises:
             DataProcessorError: if the data does not contain memory.
         """
-        if 'memory' not in data:
-            raise DataProcessorError(f'Data does not have memory. '
-                                     f'Cannot apply {self.__class__.__name__}')
+        if "memory" not in data:
+            raise DataProcessorError(
+                f"Data does not have memory. " f"Cannot apply {self.__class__.__name__}"
+            )
 
         # Single shot data
-        if isinstance(data['memory'][0][0], list):
+        if isinstance(data["memory"][0][0], list):
             new_mem = []
-            for shot in data['memory']:
-                new_mem.append([self.scale*_[0] for _ in shot])
+            for shot in data["memory"]:
+                new_mem.append([self.scale * _[0] for _ in shot])
 
             if self.average:
                 new_mem = list(np.mean(np.array(new_mem), axis=0))
 
         # Averaged data
         else:
-            new_mem = [self.scale*_[0] for _ in data['memory']]
+            new_mem = [self.scale * _[0] for _ in data["memory"]]
 
         data[self.node_output] = new_mem
+
 
 @iq_data
 @prev_node(Kernel)
@@ -161,7 +170,7 @@ class ToImag(DataAction):
     @property
     def node_output(self) -> str:
         """Key under which ToImag stores the data."""
-        return 'memory_imag'
+        return "memory_imag"
 
     def process(self, data: Dict[str, Any]):
         """
@@ -173,22 +182,23 @@ class ToImag(DataAction):
         Raises:
             DataProcessorError: if the data does not contain memory.
         """
-        if 'memory' not in data:
-            raise DataProcessorError(f'Data does not have memory. '
-                                     f'Cannot apply {self.__class__.__name__}')
+        if "memory" not in data:
+            raise DataProcessorError(
+                f"Data does not have memory. " f"Cannot apply {self.__class__.__name__}"
+            )
 
         # Single shot data
-        if isinstance(data['memory'][0][0], list):
+        if isinstance(data["memory"][0][0], list):
             new_mem = []
-            for shot in data['memory']:
-                new_mem.append([self.scale*_[1] for _ in shot])
+            for shot in data["memory"]:
+                new_mem.append([self.scale * _[1] for _ in shot])
 
             if self.average:
                 new_mem = list(np.mean(np.array(new_mem), axis=0))
 
         # Averaged data
         else:
-            new_mem = [self.scale*_[0] for _ in data['memory']]
+            new_mem = [self.scale * _[0] for _ in data["memory"]]
 
         data[self.node_output] = new_mem
 
@@ -201,7 +211,7 @@ class Population(DataAction):
     @property
     def node_output(self) -> str:
         """Key under which Population stores the data."""
-        return 'populations'
+        return "populations"
 
     def process(self, data: Dict[str, Any]):
         """
@@ -213,11 +223,12 @@ class Population(DataAction):
         Raises:
             DataProcessorError: if counts are not in the given data.
         """
-        if 'counts' not in data:
-            raise DataProcessorError(f'Data does not have counts. '
-                                     f'Cannot apply {self.__class__.__name__}')
+        if "counts" not in data:
+            raise DataProcessorError(
+                f"Data does not have counts. " f"Cannot apply {self.__class__.__name__}"
+            )
 
-        counts = data.get('counts')
+        counts = data.get("counts")
 
         populations = np.zeros(len(list(counts.keys())[0]))
 
@@ -225,7 +236,7 @@ class Population(DataAction):
         for bit_str, count in counts.items():
             shots += 1
             for ind, bit in enumerate(bit_str):
-                if bit == '1':
+                if bit == "1":
                     populations[ind] += count
 
         data[self.node_output] = populations / shots

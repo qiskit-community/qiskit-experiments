@@ -71,7 +71,7 @@ class DataProcessor:
 
             return node.node_output
 
-        return 'counts'
+        return "counts"
 
     def format_data(self, data: Dict[str, Any]):
         """

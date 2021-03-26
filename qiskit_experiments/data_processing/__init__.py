@@ -17,11 +17,10 @@ from .nodes import (
     # data acquisition node
     Discriminator,
     Kernel,
-
     # value formatter node
     Population,
     ToImag,
-    ToReal
+    ToReal,
 )
 
 from .data_processor import DataProcessor
