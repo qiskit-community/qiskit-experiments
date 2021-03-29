@@ -236,7 +236,7 @@ class Population(DataAction):
 
         shots = 0
         for bit_str, count in counts.items():
-            shots += 1
+            shots += count
             for ind, bit in enumerate(bit_str):
                 if bit == "1":
                     populations[ind] += count

@@ -100,25 +100,27 @@ class DataProcessorTest(QiskitTestCase):
 
         self.result_lvl1 = Result(results=[res1, res2], **self.base_result_args)
 
+        raw_counts = {"0x0": 4, "0x2": 6}
+        data = ExperimentResultData(counts=dict(**raw_counts))
+        header = QobjExperimentHeader(
+            metadata={"experiment_type": "fake_test_experiment"},
+            clbit_labels=[["c", 0], ["c", 1]],
+            creg_sizes=[["c", 2]],
+            n_qubits=2,
+            memory_slots=2,
+        )
+        res = ExperimentResult(shots=9, success=True, meas_level=2, data=data, header=header)
+        self.exp_data_lvl2 = ExperimentData(FakeExperiment())
+        self.exp_data_lvl2.add_data(Result(results=[res], **self.base_result_args))
+
         super().setUp()
 
     def test_empty_processor(self):
         """Check that a DataProcessor without steps does nothing."""
-
-        raw_counts = {"0x0": 4, "0x2": 5}
-        data = ExperimentResultData(counts=dict(**raw_counts))
-        header = QobjExperimentHeader(metadata={"experiment_type": "fake_test_experiment"})
-        result_ = ExperimentResult(shots=9, success=True, meas_level=2, data=data, header=header)
-
-        result = Result(results=[result_], **self.base_result_args)
-
-        exp_data = ExperimentData(FakeExperiment())
-        exp_data.add_data(result)
-
         data_processor = DataProcessor()
-        data_processor.format_data(exp_data.data)
-        self.assertEqual(exp_data.data[0]["counts"]["0"], 4)
-        self.assertEqual(exp_data.data[0]["counts"]["10"], 5)
+        data_processor.format_data(self.exp_data_lvl2.data)
+        self.assertEqual(self.exp_data_lvl2.data[0]["counts"]["00"], 4)
+        self.assertEqual(self.exp_data_lvl2.data[0]["counts"]["10"], 6)
 
     def test_append_kernel(self):
         """Tests that we can add a kernel and a discriminator."""
@@ -244,3 +246,13 @@ class DataProcessorTest(QiskitTestCase):
         }
 
         self.assertEqual(exp_data.data[0], expected)
+
+    def test_populations(self):
+        """Test that counts are properly converted to a population."""
+
+        processor = DataProcessor()
+        processor.append(Population())
+        processor.format_data(self.exp_data_lvl2.data[0])
+
+        self.assertEqual(self.exp_data_lvl2.data[0]["populations"][1], 0.0)
+        self.assertEqual(self.exp_data_lvl2.data[0]["populations"][0], 0.6)
