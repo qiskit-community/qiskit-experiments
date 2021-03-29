@@ -12,6 +12,7 @@
 
 """Different data analysis steps."""
 
+from abc import abstractmethod
 from typing import Any, Dict, List, Optional
 import numpy as np
 
@@ -102,8 +103,8 @@ class Discriminator(DataAction):
 
 @iq_data
 @prev_node(Kernel)
-class ToReal(DataAction):
-    """IQ data post-processing. This returns real part of IQ data."""
+class IQPart(DataAction):
+    """Abstract class for IQ data post-processing."""
 
     def __init__(self, scale: Optional[float] = 1.0, average: bool = False):
         """
@@ -116,14 +117,13 @@ class ToReal(DataAction):
         super().__init__()
 
     @property
-    def node_output(self) -> str:
-        """Key under which ToReal stores the data."""
-        return "memory_real"
-
-    @property
     def node_inputs(self) -> List[str]:
         """Returns a list of input data that the node can process."""
         return ["memory"]
+
+    @abstractmethod
+    def _index(self) -> int:
+        """Return 0 for real and 1 for imaginary part."""
 
     def process(self, data: Dict[str, Any]):
         """
@@ -141,67 +141,46 @@ class ToReal(DataAction):
         if isinstance(data["memory"][0][0], list):
             new_mem = []
             for shot in data["memory"]:
-                new_mem.append([self.scale * _[0] for _ in shot])
+                new_mem.append([self.scale * iq_qubit[self._index()] for iq_qubit in shot])
 
             if self.average:
                 new_mem = list(np.mean(np.array(new_mem), axis=0))
 
         # Averaged data
         else:
-            new_mem = [self.scale * _[0] for _ in data["memory"]]
+            new_mem = [self.scale * iq_qubit[self._index] for iq_qubit in data["memory"]]
 
         data[self.node_output] = new_mem
 
 
 @iq_data
 @prev_node(Kernel)
-class ToImag(DataAction):
-    """IQ data post-processing. This returns imaginary part of IQ data."""
+class ToReal(IQPart):
+    """IQ data post-processing. Isolate the real part of the IQ data."""
 
-    def __init__(self, scale: Optional[float] = 1.0, average: bool = False):
-        """
-        Args:
-            scale: scale by which to multiply the imaginary part of the data.
-        """
-        self.scale = scale
-        self.average = average
-        super().__init__()
+    @property
+    def node_output(self) -> str:
+        """Key under which ToReal stores the data."""
+        return "memory_real"
+
+    def _index(self) -> int:
+        """Return 0 for real part."""
+        return 0
+
+
+@iq_data
+@prev_node(Kernel)
+class ToImag(IQPart):
+    """IQ data post-processing. Isolate the imaginary part of the IQ data."""
 
     @property
     def node_output(self) -> str:
         """Key under which ToImag stores the data."""
         return "memory_imag"
 
-    @property
-    def node_inputs(self) -> List[str]:
-        """Returns a list of input data that the node can process."""
-        return ["memory"]
-
-    def process(self, data: Dict[str, Any]):
-        """
-        Scales the imaginary part of IQ data.
-
-        Args:
-            data: The data dict. IQ data is stored under memory.
-
-        Raises:
-            DataProcessorError: if the data does not contain memory.
-        """
-
-        # Single shot data
-        if isinstance(data["memory"][0][0], list):
-            new_mem = []
-            for shot in data["memory"]:
-                new_mem.append([self.scale * _[1] for _ in shot])
-
-            if self.average:
-                new_mem = list(np.mean(np.array(new_mem), axis=0))
-
-        # Averaged data
-        else:
-            new_mem = [self.scale * _[0] for _ in data["memory"]]
-
-        data[self.node_output] = new_mem
+    def _index(self) -> int:
+        """Return 0 for real part."""
+        return 1
 
 
 @population
