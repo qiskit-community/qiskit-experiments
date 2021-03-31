@@ -13,21 +13,12 @@
 """Different data analysis steps."""
 
 from abc import abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 import numpy as np
 
-from qiskit_experiments.data_processing.base import (
-    DataAction,
-    iq_data,
-    kernel,
-    discriminator,
-    prev_node,
-    population,
-)
+from qiskit_experiments.data_processing.base import DataAction
 
 
-@kernel
-@prev_node()
 class Kernel(DataAction):
     """User provided kernel."""
 
@@ -40,16 +31,12 @@ class Kernel(DataAction):
         self.kernel = kernel_
         self.name = name
         super().__init__()
+        self._accepted_inputs = ["memory"]
 
     @property
     def node_output(self) -> str:
         """Key under which Kernel stores the data."""
         return "memory"
-
-    @property
-    def node_inputs(self) -> List[str]:
-        """Returns a list of input data that the node can process."""
-        return ["memory"]
 
     def process(self, data: Dict[str, Any]):
         """
@@ -62,8 +49,6 @@ class Kernel(DataAction):
         data[self.node_output] = self.kernel.kernel(np.array(data["memory"]))
 
 
-@discriminator
-@prev_node(Kernel)
 class Discriminator(DataAction):
     """Backend system discriminator."""
 
@@ -77,16 +62,12 @@ class Discriminator(DataAction):
         self.discriminator = discriminator_
         self.name = name
         super().__init__()
+        self._accepted_inputs = ["memory", "memory_real", "memory_imag"]
 
     @property
     def node_output(self) -> str:
         """Key under which Discriminator stores the data."""
         return "counts"
-
-    @property
-    def node_inputs(self) -> List[str]:
-        """Returns a list of input data that the node can process."""
-        return ["memory"]
 
     def process(self, data: Dict[str, Any]):
         """
@@ -101,8 +82,6 @@ class Discriminator(DataAction):
         data[self.node_output] = self.discriminator.discriminate(np.array(data["memory"]))
 
 
-@iq_data
-@prev_node(Kernel)
 class IQPart(DataAction):
     """Abstract class for IQ data post-processing."""
 
@@ -115,11 +94,7 @@ class IQPart(DataAction):
         self.scale = scale
         self.average = average
         super().__init__()
-
-    @property
-    def node_inputs(self) -> List[str]:
-        """Returns a list of input data that the node can process."""
-        return ["memory"]
+        self._accepted_inputs = ["memory"]
 
     @abstractmethod
     def _index(self) -> int:
@@ -153,8 +128,6 @@ class IQPart(DataAction):
         data[self.node_output] = new_mem
 
 
-@iq_data
-@prev_node(Kernel)
 class ToReal(IQPart):
     """IQ data post-processing. Isolate the real part of the IQ data."""
 
@@ -168,8 +141,6 @@ class ToReal(IQPart):
         return 0
 
 
-@iq_data
-@prev_node(Kernel)
 class ToImag(IQPart):
     """IQ data post-processing. Isolate the imaginary part of the IQ data."""
 
@@ -183,20 +154,18 @@ class ToImag(IQPart):
         return 1
 
 
-@population
-@prev_node(Discriminator)
 class Population(DataAction):
     """Count data post processing. This returns population."""
+
+    def __init__(self):
+        """Initialize a counts to population data conversion."""
+        super().__init__()
+        self._accepted_inputs = ["counts"]
 
     @property
     def node_output(self) -> str:
         """Key under which Population stores the data."""
         return "populations"
-
-    @property
-    def node_inputs(self) -> List[str]:
-        """Returns a list of input data that the node can process."""
-        return ["counts"]
 
     def process(self, data: Dict[str, Any]):
         """

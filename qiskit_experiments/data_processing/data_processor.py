@@ -14,9 +14,8 @@
 
 from typing import Any, Dict, Union
 
-from qiskit.qobj.utils import MeasLevel
-from qiskit_experiments.data_processing.nodes import Kernel, Discriminator
-from qiskit_experiments.data_processing.base import NodeType, DataAction
+from qiskit_experiments.data_processing.base import DataAction
+from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
 
 class DataProcessor:
@@ -26,8 +25,8 @@ class DataProcessor:
     """
 
     def __init__(self):
-        """Create an empty chain of data ProcessingSteps."""
-        self._root_node = None
+        """Create an empty chain of data processing actions."""
+        self._nodes = []
 
     def append(self, node: DataAction):
         """
@@ -35,47 +34,32 @@ class DataProcessor:
 
         Args:
             node: A DataAction that will process the data.
+
+        Raises:
+            DataProcessorError: if the output of the last node does not match the input required
+                by the node to be appended.
         """
-        if self._root_node:
-            self._root_node.append(node)
+        if len(self._nodes) == 0:
+            self._nodes.append(node)
         else:
-            self._root_node = node
+            if self._nodes[-1].node_output not in node.node_inputs:
+                raise DataProcessorError(
+                    f"Output of node {self._nodes[-1]} is not an acceptable " f"input to {node}."
+                )
 
-    def meas_level(self) -> MeasLevel:
-        """
-        Returns:
-            measurement level: MeasLevel.CLASSIFIED is returned if the end data is discriminated,
-                MeasLevel.KERNELED is returned if a kernel is defined but no discriminator, and
-                MeasLevel.RAW is returned is no kernel is defined.
-        """
-        kernel = DataProcessor.check_kernel(self._root_node)
-        if kernel and isinstance(kernel, Kernel):
-            discriminator = DataProcessor.check_discriminator(self._root_node)
-            if discriminator and isinstance(discriminator, Discriminator):
+            self._nodes.append(node)
 
-                # classified level if both system kernel and discriminator are defined
-                return MeasLevel.CLASSIFIED
-
-            # kerneled level if only system kernel is defined
-            return MeasLevel.KERNELED
-
-        # otherwise raw level is requested
-        return MeasLevel.RAW
-
-    def output_key(self) -> str:
+    def output_key(self) -> Union[str, None]:
         """Return the key to look for in the data output by the processor."""
-        if self._root_node:
-            node = self._root_node
-            while node.child:
-                node = node.child
 
-            return node.node_output
+        if len(self._nodes) > 0:
+            return self._nodes[-1].node_output
 
-        return "counts"
+        return None
 
     def format_data(self, data: Dict[str, Any]):
         """
-        Format Qiskit result data.
+        Format the given data.
 
         This method sequentially calls stored child data processing nodes
         with its `format_data` methods. Once all child nodes have called,
@@ -85,31 +69,5 @@ class DataProcessor:
             data: The data, typically from an ExperimentData instance, that needs to
                 be processed. This dict also contains the metadata of each experiment.
         """
-        if self._root_node:
-            self._root_node.format_data(data)
-
-    @classmethod
-    def check_kernel(cls, node: DataAction) -> Union[None, DataAction]:
-        """Return the stored kernel in the workflow."""
-        if not node:
-            return None
-
-        if node.node_type == NodeType.KERNEL:
-            return node
-        else:
-            if not node.child:
-                return None
-            return cls.check_kernel(node.child)
-
-    @classmethod
-    def check_discriminator(cls, node: DataAction):
-        """Return stored discriminator in the workflow."""
-        if not node:
-            return None
-
-        if node.node_type == NodeType.DISCRIMINATOR:
-            return node
-        else:
-            if not node.child:
-                return None
-            return cls.check_discriminator(node.child)
+        for node in self._nodes:
+            node.format_data(data)

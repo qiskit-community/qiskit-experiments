@@ -15,11 +15,11 @@
 from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit.result import Result
 from qiskit.test import QiskitTestCase
-from qiskit.qobj.utils import MeasLevel
 from qiskit.qobj.common import QobjExperimentHeader
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.data_processing.data_processor import DataProcessor
+from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.nodes import (
     Kernel,
     Discriminator,
@@ -122,21 +122,20 @@ class DataProcessorTest(QiskitTestCase):
         self.assertEqual(self.exp_data_lvl2.data[0]["counts"]["00"], 4)
         self.assertEqual(self.exp_data_lvl2.data[0]["counts"]["10"], 6)
 
-    def test_append_kernel(self):
+    def test_append(self):
         """Tests that we can add a kernel and a discriminator."""
         processor = DataProcessor()
-        self.assertEqual(processor.meas_level(), MeasLevel.RAW)
-
-        processor.append(Kernel(FakeKernel))
-        self.assertEqual(processor.meas_level(), MeasLevel.KERNELED)
-
+        processor.append(Kernel(None))
+        processor.append(ToReal(1e-3))
         processor.append(Discriminator(None))
-        self.assertEqual(processor.meas_level(), MeasLevel.CLASSIFIED)
+
+        with self.assertRaises(DataProcessorError):
+            processor.append(Kernel(None))
 
     def test_output_key(self):
         """Test that we can properly get the output key from the node."""
         processor = DataProcessor()
-        self.assertEqual(processor.output_key(), "counts")
+        self.assertIsNone(processor.output_key())
 
         processor.append(Kernel(FakeKernel()))
         self.assertEqual(processor.output_key(), "memory")

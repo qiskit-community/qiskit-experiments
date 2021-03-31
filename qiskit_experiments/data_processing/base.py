@@ -13,7 +13,6 @@
 """Defines the steps that can be used to analyse data."""
 
 from abc import ABCMeta, abstractmethod
-from enum import Enum
 from typing import Any, Dict, List
 
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
@@ -26,43 +25,10 @@ class DataAction(metaclass=ABCMeta):
     using decorators.
     """
 
-    node_type = None
-    prev_node = ()
-
     def __init__(self):
         """Create new data analysis routine."""
         self._child = None
-
-    @property
-    def child(self) -> "DataAction":
-        """Return the child of this data processing step."""
-        return self._child
-
-    def append(self, component: "DataAction"):
-        """Add new data processing routine.
-
-        Args:
-            component: New data processing routine.
-
-        Raises:
-            DataProcessorError: If the previous node is None (i.e. a root node)
-        """
-        if not component.prev_node:
-            raise DataProcessorError(
-                f"Analysis routine {component.__class__.__name__} is a root"
-                f"node. This routine cannot be appended to another node."
-            )
-
-        if self._child is None:
-            if isinstance(self, component.prev_node):
-                self._child = component
-            else:
-                raise DataProcessorError(
-                    f"Analysis routine {component.__class__.__name__} "
-                    f"cannot be appended after {self.__class__.__name__}"
-                )
-        else:
-            self._child.append(component)
+        self._accepted_inputs = []
 
     @property
     @abstractmethod
@@ -70,9 +36,18 @@ class DataAction(metaclass=ABCMeta):
         """Returns the key in the data dict where the DataAction added the processed data."""
 
     @property
-    @abstractmethod
     def node_inputs(self) -> List[str]:
         """Returns a list of input data that the node can process."""
+        return self._accepted_inputs
+
+    def add_accepted_input(self, data_key: str):
+        """
+        Allows users to add an accepted input data format to this DataAction.
+
+        Args:
+            data_key: The key that the data action will require in the input data dict.
+        """
+        self._accepted_inputs.append(data_key)
 
     @abstractmethod
     def process(self, data: Dict[str, Any]):
@@ -108,63 +83,11 @@ class DataAction(metaclass=ABCMeta):
                 appropriate data.
         """
         self.check_required(data)
+        self.process(data)
 
-        processed_data = self.process(data)
-
-        if self._child:
-            self._child.format_data(processed_data)
-
-
-class NodeType(Enum):
-    """Type of node that can be supported by the analysis steps."""
-
-    KERNEL = 1
-    DISCRIMINATOR = 2
-    IQDATA = 3
-    COUNTS = 4
-    POPULATION = 5
-
-
-def kernel(cls: DataAction):
-    """A decorator to give kernel attribute to node."""
-    cls.node_type = NodeType.KERNEL
-    return cls
-
-
-def discriminator(cls: DataAction):
-    """A decorator to give discriminator attribute to node."""
-    cls.node_type = NodeType.DISCRIMINATOR
-    return cls
-
-
-def iq_data(cls: DataAction):
-    """A decorator to give iqdata attribute to node."""
-    cls.node_type = NodeType.IQDATA
-    return cls
-
-
-def counts(cls: DataAction):
-    """A decorator to give counts attribute to node."""
-    cls.node_type = NodeType.COUNTS
-    return cls
-
-
-def population(cls: DataAction):
-    """A decorator to give population attribute to node."""
-    cls.node_type = NodeType.POPULATION
-    return cls
-
-
-def prev_node(*nodes: DataAction):
-    """A decorator to specify the available previous nodes."""
-
-    try:
-        nodes = list(nodes)
-    except TypeError:
-        nodes = [nodes]
-
-    def add_nodes(cls: DataAction):
-        cls.prev_node = tuple(nodes)
-        return cls
-
-    return add_nodes
+    def __repr__(self):
+        """String representation of the node."""
+        return (
+            f"{self.__class__.__name__}(inputs: {self.node_inputs}, "
+            f"outputs: {self.node_output})"
+        )
