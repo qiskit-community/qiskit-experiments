@@ -38,15 +38,18 @@ class Kernel(DataAction):
         """Key under which Kernel stores the data."""
         return "memory"
 
-    def process(self, data: Dict[str, Any]):
+    def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Args:
             data: The data dictionary to process.
 
+        Returns:
+            processed data: A dict with the data stored under "memory".
+
         Raises:
             DataProcessorError: if the data has no memory.
         """
-        data[self.node_output] = self.kernel.kernel(np.array(data["memory"]))
+        return {self.node_output: self.kernel.kernel(np.array(data["memory"]))}
 
 
 class Discriminator(DataAction):
@@ -69,17 +72,20 @@ class Discriminator(DataAction):
         """Key under which Discriminator stores the data."""
         return "counts"
 
-    def process(self, data: Dict[str, Any]):
+    def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Discriminate the data to transform it into counts.
 
         Args:
             data: The data in a format that can be understood by the discriminator.
 
+        Returns:
+            processed data: A dict with the data stored under "counts".
+
         Raises:
             DataProcessorError: if the data does not contain memory.
         """
-        data[self.node_output] = self.discriminator.discriminate(np.array(data["memory"]))
+        return {self.node_output: self.discriminator.discriminate(np.array(data["memory"]))}
 
 
 class IQPart(DataAction):
@@ -100,13 +106,16 @@ class IQPart(DataAction):
     def _index(self) -> int:
         """Return 0 for real and 1 for imaginary part."""
 
-    def process(self, data: Dict[str, Any]):
+    def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Modifies the data inplace by taking the real part of the memory and
         scaling it by the given factor.
 
         Args:
             data: The data dict. IQ data is stored under memory.
+
+        Returns:
+            processed data: A dict with the data.
 
         Raises:
             DataProcessorError: if the data does not contain memory.
@@ -125,7 +134,7 @@ class IQPart(DataAction):
         else:
             new_mem = [self.scale * iq_qubit[self._index] for iq_qubit in data["memory"]]
 
-        data[self.node_output] = new_mem
+        return {self.node_output: new_mem}
 
 
 class ToReal(IQPart):
@@ -167,12 +176,15 @@ class Population(DataAction):
         """Key under which Population stores the data."""
         return "populations"
 
-    def process(self, data: Dict[str, Any]):
+    def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Args:
             data: The data dictionary. This will modify the dict in place,
                 taking the data under counts and adding the corresponding
                 populations.
+
+        Returns:
+            processed data: A dict with the populations.
 
         Raises:
             DataProcessorError: if counts are not in the given data.
@@ -189,4 +201,4 @@ class Population(DataAction):
                 if bit == "1":
                     populations[ind] += count
 
-        data[self.node_output] = populations / shots
+        return {self.node_output: populations / shots}

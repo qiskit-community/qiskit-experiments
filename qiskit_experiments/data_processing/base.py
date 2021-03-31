@@ -50,12 +50,15 @@ class DataAction(metaclass=ABCMeta):
         self._accepted_inputs.append(data_key)
 
     @abstractmethod
-    def process(self, data: Dict[str, Any]):
+    def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Applies the data processing step to the data.
 
         Args:
             data: the data to which the data processing step will be applied.
+
+        Returns:
+            processed data: The data that has been processed.
         """
 
     def check_required(self, data: Dict[str, Any]):
@@ -73,7 +76,7 @@ class DataAction(metaclass=ABCMeta):
 
         raise DataProcessorError(f"None of {self.node_inputs} are in the given data.")
 
-    def format_data(self, data: Dict[str, Any]):
+    def format_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Apply the data action of this node and call the child node's format_data method.
 
@@ -81,9 +84,12 @@ class DataAction(metaclass=ABCMeta):
             data: A dict containing the data. The action nodes in the data
                 processor will raise errors if the data does not contain the
                 appropriate data.
+
+        Returns:
+            processed data: The output data of the node contained in a dict.
         """
         self.check_required(data)
-        self.process(data)
+        return self.process(data)
 
     def __repr__(self):
         """String representation of the node."""

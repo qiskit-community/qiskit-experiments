@@ -12,7 +12,7 @@
 
 """Class that ties together actions on the data."""
 
-from typing import Any, Dict, Union
+from typing import Any, Dict, List, Union
 
 from qiskit_experiments.data_processing.base import DataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
@@ -57,7 +57,7 @@ class DataProcessor:
 
         return None
 
-    def format_data(self, data: Dict[str, Any]):
+    def format_data(self, data: Dict[str, Any], history: bool = False) -> List[Dict[str, Any]]:
         """
         Format the given data.
 
@@ -68,6 +68,21 @@ class DataProcessor:
         Args:
             data: The data, typically from an ExperimentData instance, that needs to
                 be processed. This dict also contains the metadata of each experiment.
+            history: If set to true a list of the formatted data at each step is returned.
+
+        Returns:
+            processed data: The last entry in the list is the end output of the data processor.
+                If the history of the data actions is required the returned data is a list of
+                length n+1 where n is the number of data actions in the data processor.
         """
+        data_steps = []
+
         for node in self._nodes:
-            node.format_data(data)
+            if history:
+                data_steps.append(dict(data))
+
+            data = node.format_data(data)
+
+        data_steps.append(data)
+
+        return data_steps
