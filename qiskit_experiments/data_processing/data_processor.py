@@ -24,9 +24,19 @@ class DataProcessor:
     by the calibration analysis classes.
     """
 
-    def __init__(self):
-        """Create an empty chain of data processing actions."""
+    def __init__(self, data_actions: List[DataAction] = None):
+        """Create a chain of data processing actions.
+
+        Args:
+            data_actions: A list of data processing actions to construct this data processor with.
+                If None is given an empty DataProcessor will be created.
+        """
         self._nodes = []
+
+        if data_actions:
+            for node in data_actions:
+                self.append(node)
+
         self._history = []
 
     @property

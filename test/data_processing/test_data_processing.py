@@ -181,8 +181,7 @@ class DataProcessorTest(QiskitTestCase):
         self.assertEqual(new_data, expected_new)
 
         # Test that we can average single-shots
-        processor = DataProcessor()
-        processor.append(ToReal(scale=1e-3, average=True))
+        processor = DataProcessor([ToReal(scale=1e-3, average=True)])
         self.assertEqual(processor.output_key(), "memory_real")
 
         exp_data = ExperimentData(FakeExperiment())
