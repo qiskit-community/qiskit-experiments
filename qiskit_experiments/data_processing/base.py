@@ -89,7 +89,9 @@ class DataAction(metaclass=ABCMeta):
             processed data: The output data of the node contained in a dict.
         """
         self.check_required(data)
-        return self.process(data)
+        processed_data = self.process(data)
+        processed_data["metadata"] = data.get("metadata", {})
+        return processed_data
 
     def __repr__(self):
         """String representation of the node."""

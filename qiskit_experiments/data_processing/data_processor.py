@@ -12,7 +12,7 @@
 
 """Class that ties together actions on the data."""
 
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Tuple, Union
 
 from qiskit_experiments.data_processing.base import DataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
@@ -27,6 +27,16 @@ class DataProcessor:
     def __init__(self):
         """Create an empty chain of data processing actions."""
         self._nodes = []
+        self._history = []
+
+    @property
+    def history(self) -> List[Tuple[str, Dict[str, Any]]]:
+        """
+        Returns:
+            The history of the data processor. The ith tuple in the history corresponds to the
+            output of the ith node. Each tuple corresponds to (node name, data dict).
+        """
+        return self._history
 
     def append(self, node: DataAction):
         """
@@ -57,7 +67,7 @@ class DataProcessor:
 
         return None
 
-    def format_data(self, data: Dict[str, Any], history: bool = False) -> List[Dict[str, Any]]:
+    def format_data(self, data: Dict[str, Any], save_history: bool = False) -> Dict[str, Any]:
         """
         Format the given data.
 
@@ -68,21 +78,19 @@ class DataProcessor:
         Args:
             data: The data, typically from an ExperimentData instance, that needs to
                 be processed. This dict also contains the metadata of each experiment.
-            history: If set to true a list of the formatted data at each step is returned.
+            save_history: If set to true a list of the formatted data at each step is returned.
 
         Returns:
             processed data: The last entry in the list is the end output of the data processor.
                 If the history of the data actions is required the returned data is a list of
                 length n+1 where n is the number of data actions in the data processor.
         """
-        data_steps = []
+        self._history = []
 
         for node in self._nodes:
-            if history:
-                data_steps.append(dict(data))
-
             data = node.format_data(data)
 
-        data_steps.append(data)
+            if save_history:
+                self._history.append((node.__class__.__name__, dict(data)))
 
-        return data_steps
+        return data

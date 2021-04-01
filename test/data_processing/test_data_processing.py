@@ -174,10 +174,11 @@ class DataProcessorTest(QiskitTestCase):
 
         expected_new = {
             "memory_real": [[1103.26, 2959.012], [442.17, -5279.41], [3016.514, -3404.7560]],
+            "metadata": {"experiment_type": "fake_test_experiment", "x_values": 0.0},
         }
 
         self.assertEqual(exp_data.data[0], expected_old)
-        self.assertEqual(new_data[-1], expected_new)
+        self.assertEqual(new_data, expected_new)
 
         # Test that we can average single-shots
         processor = DataProcessor()
@@ -187,7 +188,7 @@ class DataProcessorTest(QiskitTestCase):
         exp_data = ExperimentData(FakeExperiment())
         exp_data.add_data(self.result_lvl1)
 
-        new_data = processor.format_data(exp_data.data[0])
+        new_data = processor.format_data(exp_data.data[0], save_history=True)
 
         expected_old = {
             "memory": [
@@ -200,10 +201,16 @@ class DataProcessorTest(QiskitTestCase):
 
         expected_new = {
             "memory_real": [1520.6480000000001, -1908.3846666666666],
+            "metadata": {"experiment_type": "fake_test_experiment", "x_values": 0.0},
         }
 
         self.assertEqual(exp_data.data[0], expected_old)
-        self.assertEqual(new_data[-1], expected_new)
+        self.assertEqual(new_data, expected_new)
+
+        # Check the history
+        history = processor.history
+        self.assertEqual(history[0][0], "ToReal")
+        self.assertEqual(history[0][1], expected_new)
 
     def test_to_imag(self):
         """Test that we can average the data."""
@@ -231,10 +238,11 @@ class DataProcessorTest(QiskitTestCase):
                 [-19283.206000000002, -15339.630000000001],
                 [-14548.009, -16743.348],
             ],
+            "metadata": {"experiment_type": "fake_test_experiment", "x_values": 0.0},
         }
 
         self.assertEqual(exp_data.data[0], expected_old)
-        self.assertEqual(new_data[-1], expected_new)
+        self.assertEqual(new_data, expected_new)
 
         # Test that we can average single-shots
         processor = DataProcessor()
@@ -257,16 +265,18 @@ class DataProcessorTest(QiskitTestCase):
 
         expected_new = {
             "memory_imag": [-15069.907666666666, -16190.577],
+            "metadata": {"experiment_type": "fake_test_experiment", "x_values": 0.0},
         }
 
         self.assertEqual(exp_data.data[0], expected_old)
-        self.assertEqual(new_data[-1], expected_new)
+        self.assertEqual(new_data, expected_new)
+        self.assertEqual(processor.history, [])
 
         # Test the history
-        new_data = processor.format_data(exp_data.data[0], history=True)
+        new_data = processor.format_data(exp_data.data[0], save_history=True)
 
-        self.assertEqual(new_data[0], expected_old)
-        self.assertEqual(new_data[1], expected_new)
+        self.assertEqual(exp_data.data[0], expected_old)
+        self.assertEqual(new_data, expected_new)
 
     def test_populations(self):
         """Test that counts are properly converted to a population."""
@@ -275,5 +285,5 @@ class DataProcessorTest(QiskitTestCase):
         processor.append(Population())
         new_data = processor.format_data(self.exp_data_lvl2.data[0])
 
-        self.assertEqual(new_data[-1]["populations"][1], 0.0)
-        self.assertEqual(new_data[-1]["populations"][0], 0.6)
+        self.assertEqual(new_data["populations"][1], 0.0)
+        self.assertEqual(new_data["populations"][0], 0.6)
