@@ -13,7 +13,7 @@
 """Different data analysis steps."""
 
 from abc import abstractmethod
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 import numpy as np
 
 from qiskit_experiments.data_processing.base import DataAction
@@ -45,9 +45,6 @@ class Kernel(DataAction):
 
         Returns:
             processed data: A dict with the data stored under "memory".
-
-        Raises:
-            DataProcessorError: if the data has no memory.
         """
         return {self.node_output: self.kernel.kernel(np.array(data["memory"]))}
 
@@ -81,9 +78,6 @@ class Discriminator(DataAction):
 
         Returns:
             processed data: A dict with the data stored under "counts".
-
-        Raises:
-            DataProcessorError: if the data does not contain memory.
         """
         return {self.node_output: self.discriminator.discriminate(np.array(data["memory"]))}
 
@@ -103,8 +97,15 @@ class IQPart(DataAction):
         self._accepted_inputs = ["memory"]
 
     @abstractmethod
-    def _index(self) -> int:
-        """Return 0 for real and 1 for imaginary part."""
+    def _process(self, point: Tuple[float, float]) -> float:
+        """Defines how the IQ point will be processed.
+
+        Args:
+            point: An IQ point as a tuple of two float, i.e. (real, imaginary).
+
+        Returns:
+            Processed IQ point.
+        """
 
     def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -116,23 +117,20 @@ class IQPart(DataAction):
 
         Returns:
             processed data: A dict with the data.
-
-        Raises:
-            DataProcessorError: if the data does not contain memory.
         """
 
         # Single shot data
         if isinstance(data["memory"][0][0], list):
             new_mem = []
             for shot in data["memory"]:
-                new_mem.append([self.scale * iq_qubit[self._index()] for iq_qubit in shot])
+                new_mem.append([self.scale * self._process(iq_point) for iq_point in shot])
 
             if self.average:
                 new_mem = list(np.mean(np.array(new_mem), axis=0))
 
         # Averaged data
         else:
-            new_mem = [self.scale * iq_qubit[self._index] for iq_qubit in data["memory"]]
+            new_mem = [self.scale * self._process(iq_point) for iq_point in data["memory"]]
 
         return {self.node_output: new_mem}
 
@@ -145,9 +143,16 @@ class ToReal(IQPart):
         """Key under which ToReal stores the data."""
         return "memory_real"
 
-    def _index(self) -> int:
-        """Return 0 for real part."""
-        return 0
+    def _process(self, point: Tuple[float, float]) -> float:
+        """Defines how the IQ point will be processed.
+
+        Args:
+            point: An IQ point as a tuple of two float, i.e. (real, imaginary).
+
+        Returns:
+            The real part of the IQ point.
+        """
+        return point[0]
 
 
 class ToImag(IQPart):
@@ -158,9 +163,16 @@ class ToImag(IQPart):
         """Key under which ToImag stores the data."""
         return "memory_imag"
 
-    def _index(self) -> int:
-        """Return 0 for real part."""
-        return 1
+    def _process(self, point: Tuple[float, float]) -> float:
+        """Defines how the IQ point will be processed.
+
+        Args:
+            point: An IQ point as a tuple of two float, i.e. (real, imaginary).
+
+        Returns:
+            The imaginary part of the IQ point.
+        """
+        return point[1]
 
 
 class Population(DataAction):
@@ -185,9 +197,6 @@ class Population(DataAction):
 
         Returns:
             processed data: A dict with the populations.
-
-        Raises:
-            DataProcessorError: if counts are not in the given data.
         """
 
         counts = data.get("counts")
