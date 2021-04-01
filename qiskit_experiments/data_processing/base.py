@@ -25,15 +25,13 @@ class DataAction(metaclass=ABCMeta):
     using decorators.
     """
 
+    # Key under which the node will output the data.
+    __node_output__ = None
+
     def __init__(self):
         """Create new data analysis routine."""
         self._child = None
         self._accepted_inputs = []
-
-    @property
-    @abstractmethod
-    def node_output(self) -> str:
-        """Returns the key in the data dict where the DataAction added the processed data."""
 
     @property
     def node_inputs(self) -> List[str]:
@@ -97,5 +95,5 @@ class DataAction(metaclass=ABCMeta):
         """String representation of the node."""
         return (
             f"{self.__class__.__name__}(inputs: {self.node_inputs}, "
-            f"outputs: {self.node_output})"
+            f"outputs: {self.__node_output__})"
         )

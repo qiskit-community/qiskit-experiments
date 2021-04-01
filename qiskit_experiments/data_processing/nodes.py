@@ -22,6 +22,8 @@ from qiskit_experiments.data_processing.base import DataAction
 class Kernel(DataAction):
     """User provided kernel."""
 
+    __node_output__ = "memory"
+
     def __init__(self, kernel_, name: Optional[str] = None):
         """
         Args:
@@ -33,11 +35,6 @@ class Kernel(DataAction):
         super().__init__()
         self._accepted_inputs = ["memory"]
 
-    @property
-    def node_output(self) -> str:
-        """Key under which Kernel stores the data."""
-        return "memory"
-
     def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Args:
@@ -46,11 +43,13 @@ class Kernel(DataAction):
         Returns:
             processed data: A dict with the data stored under "memory".
         """
-        return {self.node_output: self.kernel.kernel(np.array(data["memory"]))}
+        return {self.__node_output__: self.kernel.kernel(np.array(data["memory"]))}
 
 
 class Discriminator(DataAction):
     """Backend system discriminator."""
+
+    __node_output__ = "counts"
 
     def __init__(self, discriminator_, name: Optional[str] = None):
         """
@@ -64,11 +63,6 @@ class Discriminator(DataAction):
         super().__init__()
         self._accepted_inputs = ["memory", "memory_real", "memory_imag"]
 
-    @property
-    def node_output(self) -> str:
-        """Key under which Discriminator stores the data."""
-        return "counts"
-
     def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Discriminate the data to transform it into counts.
@@ -79,7 +73,7 @@ class Discriminator(DataAction):
         Returns:
             processed data: A dict with the data stored under "counts".
         """
-        return {self.node_output: self.discriminator.discriminate(np.array(data["memory"]))}
+        return {self.__node_output__: self.discriminator.discriminate(np.array(data["memory"]))}
 
 
 class IQPart(DataAction):
@@ -132,16 +126,13 @@ class IQPart(DataAction):
         else:
             new_mem = [self.scale * self._process(iq_point) for iq_point in data["memory"]]
 
-        return {self.node_output: new_mem}
+        return {self.__node_output__: new_mem}
 
 
 class ToReal(IQPart):
     """IQ data post-processing. Isolate the real part of the IQ data."""
 
-    @property
-    def node_output(self) -> str:
-        """Key under which ToReal stores the data."""
-        return "memory_real"
+    __node_output__ = "memory_real"
 
     def _process(self, point: Tuple[float, float]) -> float:
         """Defines how the IQ point will be processed.
@@ -158,10 +149,7 @@ class ToReal(IQPart):
 class ToImag(IQPart):
     """IQ data post-processing. Isolate the imaginary part of the IQ data."""
 
-    @property
-    def node_output(self) -> str:
-        """Key under which ToImag stores the data."""
-        return "memory_imag"
+    __node_output__ = "memory_imag"
 
     def _process(self, point: Tuple[float, float]) -> float:
         """Defines how the IQ point will be processed.
@@ -178,15 +166,12 @@ class ToImag(IQPart):
 class Population(DataAction):
     """Count data post processing. This returns population."""
 
+    __node_output__ = "populations"
+
     def __init__(self):
         """Initialize a counts to population data conversion."""
         super().__init__()
         self._accepted_inputs = ["counts"]
-
-    @property
-    def node_output(self) -> str:
-        """Key under which Population stores the data."""
-        return "populations"
 
     def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -210,4 +195,4 @@ class Population(DataAction):
                 if bit == "1":
                     populations[ind] += count
 
-        return {self.node_output: populations / shots}
+        return {self.__node_output__: populations / shots}

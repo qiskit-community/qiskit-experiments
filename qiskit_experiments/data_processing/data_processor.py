@@ -52,7 +52,7 @@ class DataProcessor:
         if len(self._nodes) == 0:
             self._nodes.append(node)
         else:
-            if self._nodes[-1].node_output not in node.node_inputs:
+            if self._nodes[-1].__node_output__ not in node.node_inputs:
                 raise DataProcessorError(
                     f"Output of node {self._nodes[-1]} is not an acceptable " f"input to {node}."
                 )
@@ -63,7 +63,7 @@ class DataProcessor:
         """Return the key to look for in the data output by the processor."""
 
         if len(self._nodes) > 0:
-            return self._nodes[-1].node_output
+            return self._nodes[-1].__node_output__
 
         return None
 
