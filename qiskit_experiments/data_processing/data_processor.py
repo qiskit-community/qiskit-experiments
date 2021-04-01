@@ -78,12 +78,11 @@ class DataProcessor:
         Args:
             data: The data, typically from an ExperimentData instance, that needs to
                 be processed. This dict also contains the metadata of each experiment.
-            save_history: If set to true a list of the formatted data at each step is returned.
+            save_history: If set to true the history is saved under the history property.
+                If set to False the history will be empty.
 
         Returns:
-            processed data: The last entry in the list is the end output of the data processor.
-                If the history of the data actions is required the returned data is a list of
-                length n+1 where n is the number of data actions in the data processor.
+            processed data: The data processed by the data processor..
         """
         self._history = []
 
