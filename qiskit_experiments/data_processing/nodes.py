@@ -19,63 +19,6 @@ import numpy as np
 from qiskit_experiments.data_processing.base import DataAction
 
 
-class Kernel(DataAction):
-    """User provided kernel."""
-
-    __node_output__ = "memory"
-
-    def __init__(self, kernel_, name: Optional[str] = None):
-        """
-        Args:
-            kernel_: Kernel to kernel the data.
-            name: Optional name for the node.
-        """
-        self.kernel = kernel_
-        self.name = name
-        super().__init__()
-        self._accepted_inputs = ["memory"]
-
-    def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Args:
-            data: The data dictionary to process.
-
-        Returns:
-            processed data: A dict with the data stored under "memory".
-        """
-        return {self.__node_output__: self.kernel.kernel(np.array(data["memory"]))}
-
-
-class Discriminator(DataAction):
-    """Backend system discriminator."""
-
-    __node_output__ = "counts"
-
-    def __init__(self, discriminator_, name: Optional[str] = None):
-        """
-        Args:
-            discriminator_: The discriminator used to transform the data to counts.
-                For example, transform IQ data to counts.
-            name: Optional name for the node.
-        """
-        self.discriminator = discriminator_
-        self.name = name
-        super().__init__()
-        self._accepted_inputs = ["memory", "memory_real", "memory_imag"]
-
-    def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Discriminate the data to transform it into counts.
-
-        Args:
-            data: The data in a format that can be understood by the discriminator.
-
-        Returns:
-            processed data: A dict with the data stored under "counts".
-        """
-        return {self.__node_output__: self.discriminator.discriminate(np.array(data["memory"]))}
-
-
 class IQPart(DataAction):
     """Abstract class for IQ data post-processing."""
 

@@ -21,20 +21,10 @@ from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.nodes import (
-    Kernel,
-    Discriminator,
     ToReal,
     ToImag,
     Population,
 )
-
-
-class FakeKernel:
-    """Fake kernel to test the data chain."""
-
-    def kernel(self, data):
-        """Fake kernel method"""
-        return data
 
 
 class FakeExperiment(BaseExperiment):
@@ -123,30 +113,20 @@ class DataProcessorTest(QiskitTestCase):
         self.assertEqual(self.exp_data_lvl2.data[0]["counts"]["10"], 6)
 
     def test_append(self):
-        """Tests that we can add a kernel and a discriminator."""
+        """Tests that append catches inconsistent data processing chains."""
         processor = DataProcessor()
-        processor.append(Kernel(None))
-        processor.append(ToReal(1e-3))
-        processor.append(Discriminator(None))
+        processor.append(Population())
 
         with self.assertRaises(DataProcessorError):
-            processor.append(Kernel(None))
+            processor.append(ToReal(1e-3))
 
     def test_output_key(self):
         """Test that we can properly get the output key from the node."""
         processor = DataProcessor()
         self.assertIsNone(processor.output_key())
 
-        processor.append(Kernel(FakeKernel()))
-        self.assertEqual(processor.output_key(), "memory")
-
         processor.append(ToReal())
         self.assertEqual(processor.output_key(), "memory_real")
-
-        processor = DataProcessor()
-        processor.append(Kernel(FakeKernel()))
-        processor.append(Discriminator(None))
-        self.assertEqual(processor.output_key(), "counts")
 
         processor = DataProcessor()
         processor.append(Population())

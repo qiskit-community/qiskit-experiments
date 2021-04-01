@@ -14,10 +14,6 @@
 
 from .base import DataAction
 from .nodes import (
-    # data acquisition node
-    Discriminator,
-    Kernel,
-    # value formatter node
     Population,
     ToImag,
     ToReal,
