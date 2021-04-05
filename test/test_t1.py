@@ -18,7 +18,7 @@ Test T1 experiment
 import unittest
 import numpy as np
 from qiskit.providers import BaseBackend
-from qiskit.providers.models import BackendConfiguration
+from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.composite import ParallelExperiment
@@ -30,12 +30,12 @@ class T1Backend(BaseBackend):
     A simple and primitive backend, to be run by the T1 tests
     """
 
-    def __init__(self, t1, initial_prob1=None, readout0to1=None, readout1to0=None):
+    def __init__(self, t1, initial_prob1=None, readout0to1=None, readout1to0=None, dt_factor_in_microsec=1e6):
         """
         Initialize the T1 backend
         """
 
-        configuration = BackendConfiguration(
+        configuration = QasmBackendConfiguration(
             backend_name="t1_simulator",
             backend_version="0",
             n_qubits=int(1e6),
@@ -48,12 +48,14 @@ class T1Backend(BaseBackend):
             memory=False,
             max_shots=int(1e6),
             coupling_map=None,
+            dt=dt_factor_in_microsec * 1000
         )
 
         self._t1 = t1
         self._initial_prob1 = initial_prob1
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
+        self._dt_factor_in_microsec = dt_factor_in_microsec
         super().__init__(configuration)
 
     #pylint: disable = arguments-differ
@@ -100,8 +102,8 @@ class T1Backend(BaseBackend):
                     if op.name == "x":
                         prob1[qubit] = 1 - prob1[qubit]
                     if op.name == "delay":
-                        if self._t1[qubit] is not None:
-                            prob1[qubit] = prob1[qubit] * np.exp(-op.params[0] / self._t1[qubit])
+                        delay = op.params[0] * self._dt_factor_in_microsec
+                        prob1[qubit] = prob1[qubit] * np.exp(-delay / self._t1[qubit])
                     if op.name == "measure":
                         meas_res = np.random.binomial(
                             1, prob1[qubit] * (1 - ro10[qubit]) + (1 - prob1[qubit]) * ro01[qubit]
@@ -140,18 +142,21 @@ class TestT1(unittest.TestCase):
         Test T1 experiment using a simulator.
         """
 
-        t1 = 25
+        dt_factor_in_microsec = 0.0002
 
-        delays = list(range(1, 40, 3))
+        t1 = 25
+        backend = T1Backend([t1], initial_prob1=[0.02], readout0to1=[0.02], readout1to0=[0.02], dt_factor_in_microsec=dt_factor_in_microsec)
+
+        delays = list(range(int(1/dt_factor_in_microsec), int(40/dt_factor_in_microsec), int(3/dt_factor_in_microsec)))
 
         # dummy numbers to avoid exception triggerring
-        instruction_durations = [("measure", [0], 3, "dt"), ("x", [0], 3, "dt")]
+        instruction_durations = [("measure", [0], 3/dt_factor_in_microsec, "dt"), ("x", [0], 3/dt_factor_in_microsec, "dt")]
 
-        exp = T1Experiment(0, delays)
+        exp = T1Experiment(0, delays, unit="dt")
         res = exp.run(
-            T1Backend([t1], initial_prob1=[0.02], readout0to1=[0.02], readout1to0=[0.02]),
+            backend,
             amplitude_guess=1,
-            t1_guess=t1,
+            t1_guess=t1 / dt_factor_in_microsec,
             offset_guess=0,
             instruction_durations=instruction_durations,
             shots=10000,
@@ -166,18 +171,13 @@ class TestT1(unittest.TestCase):
         """
 
         t1 = [25, 15]
-
         delays = list(range(1, 40, 3))
-
-        # dummy numbers to avoid exception triggerring
-        instruction_durations = [("measure", [0], 3, "dt"), ("x", [0], 3, "dt")]
 
         exp0 = T1Experiment(0, delays)
         exp2 = T1Experiment(2, delays)
         par_exp = ParallelExperiment([exp0, exp2])
         res = par_exp.run(
             T1Backend([t1[0], None, t1[1]]),
-            instruction_durations=instruction_durations,
             shots=10000,
         )
 
@@ -202,7 +202,8 @@ class TestT1(unittest.TestCase):
                         "delay": 3 * i + 1,
                         "experiment_type": "T1Experiment",
                         "qubit": 0,
-                        "unit": "dt",
+                        "unit": "us",
+                        "dt_factor_in_sec": None,
                     },
                 }
             )

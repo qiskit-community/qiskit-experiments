@@ -45,13 +45,22 @@ class T1Analysis(BaseAnalysis):
             The analysis result with the estimated T1
         """
 
+        circuit_unit = experiment_data._data[0]["metadata"]["unit"]
+        dt_factor_in_sec = experiment_data._data[0]["metadata"]["dt_factor_in_sec"]
+        if dt_factor_in_sec is None:
+            dt_factor_in_microsec = 1
+            result_unit = circuit_unit
+        else:
+            dt_factor_in_microsec = dt_factor_in_sec * 1000000
+            result_unit = "us"
+
         size = len(experiment_data._data)
         delays = np.zeros(size, dtype=float)
         means = np.zeros(size, dtype=float)
         stddevs = np.zeros(size, dtype=float)
 
         for i, circ in enumerate(experiment_data._data):
-            delays[i] = circ["metadata"]["delay"]
+            delays[i] = circ["metadata"]["delay"] * dt_factor_in_microsec
             count0 = circ["counts"].get("0", 0)
             count1 = circ["counts"].get("1", 0)
             shots = count0 + count1
@@ -64,6 +73,8 @@ class T1Analysis(BaseAnalysis):
 
         if t1_guess is None:
             t1_guess = np.mean(delays)
+        else:
+            t1_guess = t1_guess * dt_factor_in_microsec
         if offset_guess is None:
             offset_guess = means[-1]
         if amplitude_guess is None:
@@ -81,7 +92,7 @@ class T1Analysis(BaseAnalysis):
             {
                 "value": fit_out[1],
                 "stderr": fit_err[1],
-                "unit": experiment_data._data[0]["metadata"]["unit"],
+                "unit": result_unit,
                 "label": "T1",
                 "fit": {
                     "params": fit_out,
@@ -114,7 +125,7 @@ class T1Experiment(BaseExperiment):
 
     __analysis_class__ = T1Analysis
 
-    def __init__(self, qubit: int, delays: Union[List[float], np.array], unit: str = "dt"):
+    def __init__(self, qubit: int, delays: Union[List[float], np.array], unit: str = "us"):
         """
         Initialize the T1 experiment class
 
@@ -146,6 +157,14 @@ class T1Experiment(BaseExperiment):
             The experiment circuits
         """
 
+        if self._unit == "dt":
+            try:
+                dt_factor_in_sec = getattr( backend.configuration(), "dt")
+            except AttributeError:
+                raise AttributeError("Dt parameter is missing in backend configuration")
+        else:
+            dt_factor_in_sec = None
+
         circuits = []
 
         for delay in self._delays:
@@ -162,6 +181,7 @@ class T1Experiment(BaseExperiment):
                 "qubit": self.physical_qubits[0],
                 "delay": delay,
                 "unit": self._unit,
+                "dt_factor_in_sec": dt_factor_in_sec
             }
 
             circuits.append(circ)
