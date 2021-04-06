@@ -97,17 +97,13 @@ class RBExperiment(BaseExperiment):
         circuits = []
         for length in (lengths if self._full_sampling else [lengths[-1]]):
             elements = [random_clifford(self.num_qubits, seed=seed) for _ in range(length)]
-            if self._full_sampling:
-                circuits += self._generate_circuit(elements)
-            else:
-                circuits += self._generate_circuit(elements, lengths)
+            element_lengths = [len(elements)] if self._full_sampling else lengths
+            circuits += self._generate_circuit(elements, element_lengths)
         return circuits
 
-    def _generate_circuit(self, elements, lengths=None):
+    def _generate_circuit(self, elements, lengths):
         qubits = list(range(self.num_qubits))
         circuits = []
-        if lengths is None:
-            lengths = [len(elements)]
 
         circ = QuantumCircuit(self.num_qubits)
         circ.barrier(qubits)
