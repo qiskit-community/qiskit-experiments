@@ -178,7 +178,6 @@ class T1Experiment(BaseExperiment):
             circ.barrier(0)
             circ.measure(0, 0)
 
-            # pylint: disable = eval-used
             circ.metadata = {
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
