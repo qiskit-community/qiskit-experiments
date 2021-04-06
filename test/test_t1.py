@@ -212,6 +212,28 @@ class TestT1(unittest.TestCase):
         self.assertEqual(res["quality"], "computer_good")
         self.assertAlmostEqual(res["value"], 25, delta=3)
 
+    def test_t1_metadata(self):
+        """
+        Test the circuits metadata
+        """
+
+        t1 = 25
+        delays = list(range(1, 40, 3))
+        exp = T1Experiment(0, delays, unit="ms")
+        circs = exp.circuits()
+
+        self.assertEqual(len(circs), len(delays))
+        
+        for delay, circ in zip(delays, circs):
+            self.assertEqual(circ.metadata,
+                             {
+                                 "experiment_type": "T1Experiment",
+                                 "qubit": 0,
+                                 "delay": delay,
+                                 "unit": "ms",
+                                 "dt_factor_in_sec": None
+                                 })
+        
 
 if __name__ == "__main__":
     unittest.main()
