@@ -128,15 +128,15 @@ class T1Experiment(BaseExperiment):
 
     __analysis_class__ = T1Analysis
 
-    def __init__(self, qubit: int, delays: Union[List[float], np.array], unit: str = "us"):
+    def __init__(self, qubit: int, delays: Union[List[float], np.array], unit: Optional[str] = "us", experiment_type: Optional[str] = None):
         """
         Initialize the T1 experiment class
 
         Args:
             qubit: the qubit whose T1 is to be estimated
             delays: delay times of the experiments
-            unit: unit of the duration. Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'.
-                Default is ``dt``, i.e. integer time unit depending on the target backend.
+            unit:Optional, unit of the duration. Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'.
+            experiment_type: Optional, the experiment type string.
 
         Raises:
             ValueError: if the number of delays is smaller than 3
@@ -146,7 +146,7 @@ class T1Experiment(BaseExperiment):
 
         self._delays = delays
         self._unit = unit
-        super().__init__([qubit], type(self).__name__)
+        super().__init__([qubit], experiment_type)
 
     # pylint: disable=arguments-differ
     def circuits(self, backend: Optional["Backend"] = None) -> List[QuantumCircuit]:
