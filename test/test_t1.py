@@ -233,6 +233,30 @@ class TestT1(unittest.TestCase):
                                  "unit": "ms",
                                  "dt_factor_in_sec": None
                                  })
+
+    def test_t1_low_quality(self):
+        """
+        A test where the fit's quality will be low
+        """
+
+        data = ExperimentData(None)
+
+        for i in range(3):
+            data._data.append(
+                {
+                    "counts": {"0": 10, "1": 10},
+                    "metadata": {
+                        "delay": i,
+                        "experiment_type": "T1Experiment",
+                        "qubit": 0,
+                        "unit": "ns",
+                        "dt_factor_in_sec": None,
+                    },
+                }
+            )
+
+        res = T1Analysis()._run_analysis(data)[0]
+        self.assertEqual(res["quality"], "computer_bad")
         
 
 if __name__ == "__main__":
