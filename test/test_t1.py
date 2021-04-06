@@ -30,7 +30,9 @@ class T1Backend(BaseBackend):
     A simple and primitive backend, to be run by the T1 tests
     """
 
-    def __init__(self, t1, initial_prob1=None, readout0to1=None, readout1to0=None, dt_factor_in_microsec=1e6):
+    def __init__(
+        self, t1, initial_prob1=None, readout0to1=None, readout1to0=None, dt_factor_in_microsec=1e6
+    ):
         """
         Initialize the T1 backend
         """
@@ -48,7 +50,7 @@ class T1Backend(BaseBackend):
             memory=False,
             max_shots=int(1e6),
             coupling_map=None,
-            dt=dt_factor_in_microsec * 1000
+            dt=dt_factor_in_microsec * 1000,
         )
 
         self._t1 = t1
@@ -58,7 +60,7 @@ class T1Backend(BaseBackend):
         self._dt_factor_in_microsec = dt_factor_in_microsec
         super().__init__(configuration)
 
-    #pylint: disable = arguments-differ
+    # pylint: disable = arguments-differ
     def run(self, qobj):
         """
         Run the T1 backend
@@ -145,12 +147,27 @@ class TestT1(unittest.TestCase):
         dt_factor_in_microsec = 0.0002
 
         t1 = 25
-        backend = T1Backend([t1], initial_prob1=[0.02], readout0to1=[0.02], readout1to0=[0.02], dt_factor_in_microsec=dt_factor_in_microsec)
+        backend = T1Backend(
+            [t1],
+            initial_prob1=[0.02],
+            readout0to1=[0.02],
+            readout1to0=[0.02],
+            dt_factor_in_microsec=dt_factor_in_microsec,
+        )
 
-        delays = list(range(int(1/dt_factor_in_microsec), int(40/dt_factor_in_microsec), int(3/dt_factor_in_microsec)))
+        delays = list(
+            range(
+                int(1 / dt_factor_in_microsec),
+                int(40 / dt_factor_in_microsec),
+                int(3 / dt_factor_in_microsec),
+            )
+        )
 
         # dummy numbers to avoid exception triggerring
-        instruction_durations = [("measure", [0], 3/dt_factor_in_microsec, "dt"), ("x", [0], 3/dt_factor_in_microsec, "dt")]
+        instruction_durations = [
+            ("measure", [0], 3 / dt_factor_in_microsec, "dt"),
+            ("x", [0], 3 / dt_factor_in_microsec, "dt"),
+        ]
 
         exp = T1Experiment(0, delays, unit="dt")
         res = exp.run(
@@ -217,22 +234,23 @@ class TestT1(unittest.TestCase):
         Test the circuits metadata
         """
 
-        t1 = 25
         delays = list(range(1, 40, 3))
         exp = T1Experiment(0, delays, unit="ms")
         circs = exp.circuits()
 
         self.assertEqual(len(circs), len(delays))
-        
+
         for delay, circ in zip(delays, circs):
-            self.assertEqual(circ.metadata,
-                             {
-                                 "experiment_type": "T1Experiment",
-                                 "qubit": 0,
-                                 "delay": delay,
-                                 "unit": "ms",
-                                 "dt_factor_in_sec": None
-                                 })
+            self.assertEqual(
+                circ.metadata,
+                {
+                    "experiment_type": "T1Experiment",
+                    "qubit": 0,
+                    "delay": delay,
+                    "unit": "ms",
+                    "dt_factor_in_sec": None,
+                },
+            )
 
     def test_t1_low_quality(self):
         """
@@ -257,7 +275,7 @@ class TestT1(unittest.TestCase):
 
         res = T1Analysis()._run_analysis(data)[0]
         self.assertEqual(res["quality"], "computer_bad")
-        
+
 
 if __name__ == "__main__":
     unittest.main()

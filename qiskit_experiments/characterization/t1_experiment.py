@@ -101,7 +101,7 @@ class T1Analysis(BaseAnalysis):
                     "chisq": chisq,
                     "cov": fit_cov,
                 },
-                "quality": self._fit_quality(fit_out, fit_err, chisq)
+                "quality": self._fit_quality(fit_out, fit_err, chisq),
             }
         )
 
@@ -109,7 +109,7 @@ class T1Analysis(BaseAnalysis):
 
     @staticmethod
     def _fit_quality(fit_out, fit_err, chisq):
-        #pylint: disable = too-many-boolean-expressions
+        # pylint: disable = too-many-boolean-expressions
         if (
             abs(fit_out[0] - 1.0) < 0.1
             and abs(fit_out[2]) < 0.1
@@ -128,7 +128,13 @@ class T1Experiment(BaseExperiment):
 
     __analysis_class__ = T1Analysis
 
-    def __init__(self, qubit: int, delays: Union[List[float], np.array], unit: Optional[str] = "us", experiment_type: Optional[str] = None):
+    def __init__(
+        self,
+        qubit: int,
+        delays: Union[List[float], np.array],
+        unit: Optional[str] = "us",
+        experiment_type: Optional[str] = None,
+    ):
         """
         Initialize the T1 experiment class
 
@@ -158,11 +164,14 @@ class T1Experiment(BaseExperiment):
 
         Returns:
             The experiment circuits
+
+        Raises:
+            AttributeError: if unit is dt but dt parameter is missing in the backend configuration
         """
 
         if self._unit == "dt":
             try:
-                dt_factor_in_sec = getattr( backend.configuration(), "dt")
+                dt_factor_in_sec = getattr(backend.configuration(), "dt")
             except AttributeError:
                 raise AttributeError("Dt parameter is missing in backend configuration")
         else:
@@ -183,7 +192,7 @@ class T1Experiment(BaseExperiment):
                 "qubit": self.physical_qubits[0],
                 "delay": delay,
                 "unit": self._unit,
-                "dt_factor_in_sec": dt_factor_in_sec
+                "dt_factor_in_sec": dt_factor_in_sec,
             }
 
             circuits.append(circ)
