@@ -202,7 +202,7 @@ class TestT1(unittest.TestCase):
                         "delay": 3 * i + 1,
                         "experiment_type": "T1Experiment",
                         "qubit": 0,
-                        "unit": "us",
+                        "unit": "ns",
                         "dt_factor_in_sec": None,
                     },
                 }
