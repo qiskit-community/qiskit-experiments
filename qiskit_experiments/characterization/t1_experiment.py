@@ -101,9 +101,14 @@ class T1Analysis(BaseAnalysis):
                     "chisq": chisq,
                     "cov": fit_cov,
                 },
+                "quality": self._fit_quality(fit_out, fit_err, chisq)
             }
         )
 
+        return analysis_result, None
+
+    @staticmethod
+    def _fit_quality(fit_out, fit_err, chisq):
         #pylint: disable = too-many-boolean-expressions
         if (
             abs(fit_out[0] - 1.0) < 0.1
@@ -113,11 +118,9 @@ class T1Analysis(BaseAnalysis):
             and (fit_err[1] is None or fit_err[1] < fit_out[1])
             and (fit_err[2] is None or fit_err[2] < 0.1)
         ):
-            analysis_result["quality"] = "computer_good"
+            return "computer_good"
         else:
-            analysis_result["quality"] = "computer_bad"
-
-        return analysis_result, None
+            return "computer_bad"
 
 
 class T1Experiment(BaseExperiment):
