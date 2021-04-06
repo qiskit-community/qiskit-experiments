@@ -70,12 +70,8 @@ class RBExperiment(BaseExperiment):
             List[QuantumCircuit]: A list of :class:`QuantumCircuit`s.
         """
         circuits = []
-        if self._full_sampling:
-            sample_fn = self._sample_circuits_full
-        else:
-            sample_fn = self._sample_circuits_reuse
         for _ in range(self._num_samples):
-            circuits += sample_fn(self._lengths, seed=self._rng)
+            circuits += self._sample_circuits(self._lengths, seed=self._rng)
         return circuits
 
     def transpiled_circuits(self, backend=None, **kwargs):
@@ -97,6 +93,16 @@ class RBExperiment(BaseExperiment):
         # on the transpiled circuit gates
         return circuits
 
+    def _sample_circuits(self, lengths, seed=None):
+        circuits = []
+        for length in (lengths if self._full_sampling else [lengths[-1]]):
+            elements = [random_clifford(self.num_qubits, seed=seed) for _ in range(length)]
+            if self._full_sampling:
+                circuits += self._generate_circuit(elements)
+            else:
+                circuits += self._generate_circuit(elements, lengths)
+        return circuits
+
     def _generate_circuit(self, elements, lengths=None):
         qubits = list(range(self.num_qubits))
         circuits = []
@@ -111,7 +117,7 @@ class RBExperiment(BaseExperiment):
             circ_op = circ_op.compose(group_elt)
             circ.append(group_elt, qubits)
             circ.barrier(qubits)
-            if current_length in lengths:
+            if current_length+1 in lengths:
                 # copy circuit and add inverse
                 inv = circ_op.adjoint()
                 rb_circ = circ.copy()
@@ -126,71 +132,4 @@ class RBExperiment(BaseExperiment):
                 }
                 rb_circ.measure_all()
                 circuits.append(rb_circ)
-
-
-    def _sample_circuits_full(self, lengths, seed=None):
-        """Sample a single RB circuits"""
-        qubits = list(range(self.num_qubits))
-        circuits = []
-        for length in lengths:
-            circ_op = Clifford(np.eye(2 * self.num_qubits))
-            circ = QuantumCircuit(self.num_qubits)
-            circ.metadata = {
-                "experiment_type": self._type,
-                "xdata": length,
-                "ylabel": self.num_qubits * "0",
-                "group": "Clifford",
-                "qubits": self.physical_qubits,
-            }
-            circ.barrier(qubits)
-
-            # Add random group elements
-            for _ in range(length):
-                group_elt = random_clifford(self.num_qubits, seed=seed)
-                circ_op = circ_op.compose(group_elt)
-                circ.append(group_elt, qubits)
-                circ.barrier(qubits)
-
-            # Add inverse
-            inv = circ_op.adjoint()
-            circ.append(inv, qubits)
-            circ.barrier(qubits)
-            circ.measure_all()
-            circuits.append(circ)
-        return circuits
-
-    def _sample_circuits_reuse(self, lengths, seed=None):
-        """Sample a single RB circuits"""
-        qubits = list(range(self.num_qubits))
-        circuits = []
-        circ_op = Clifford(np.eye(2 * self.num_qubits))
-        circ = QuantumCircuit(self.num_qubits)
-        circ.barrier(qubits)
-
-        # Add random group elements reusing shorter sequences
-        current_length = 0
-        for length in lengths:
-            # Add new samples
-            for _ in range(length - current_length):
-                group_elt = random_clifford(self.num_qubits, seed=seed)
-                circ_op = circ_op.compose(group_elt)
-                circ.append(group_elt, qubits)
-                circ.barrier(qubits)
-            current_length = length
-
-            # copy circuit and add inverse
-            inv = circ_op.adjoint()
-            rb_circ = circ.copy()
-            rb_circ.append(inv, qubits)
-            rb_circ.barrier(qubits)
-            rb_circ.metadata = {
-                "experiment_type": self._type,
-                "xdata": length,
-                "ylabel": self.num_qubits * "0",
-                "group": "Clifford",
-                "qubits": self.physical_qubits,
-            }
-            rb_circ.measure_all()
-            circuits.append(rb_circ)
-
         return circuits
