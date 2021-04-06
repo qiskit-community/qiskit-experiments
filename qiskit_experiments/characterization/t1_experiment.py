@@ -172,8 +172,8 @@ class T1Experiment(BaseExperiment):
         if self._unit == "dt":
             try:
                 dt_factor_in_sec = getattr(backend.configuration(), "dt")
-            except AttributeError:
-                raise AttributeError("Dt parameter is missing in backend configuration")
+            except AttributeError as no_dt:
+                raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
         else:
             dt_factor_in_sec = None
 

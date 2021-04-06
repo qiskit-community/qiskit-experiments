@@ -44,6 +44,7 @@ def curve_fit_wrapper(f, xdata, ydata, sigma, **kwargs):
         matrix: the covariance matrix
         float: chi-square
     """
+    # pylint: disable=unbalanced-tuple-unpacking
     fit_out, fit_cov = curve_fit(f, xdata, ydata, sigma=sigma, **kwargs)
 
     chisq = 0
