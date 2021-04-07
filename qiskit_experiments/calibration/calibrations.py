@@ -30,7 +30,7 @@ from qiskit_experiments.calibration.parameter_value import ParameterValue
 ParameterKey = namedtuple("ParameterKey", ["schedule", "parameter"])
 
 
-class CalibrationsDefinition:
+class Calibrations:
     """
     A class to manage schedules with calibrated parameter values.
     Schedules are stored in a dict and are intended to be fully parameterized,

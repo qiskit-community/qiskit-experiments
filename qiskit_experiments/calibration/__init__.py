@@ -12,6 +12,6 @@
 
 """Qiskit Experiments Calibration Root."""
 
-from .calibration_definitions import CalibrationsDefinition
+from .calibrations import Calibrations
 from .exceptions import CalibrationError
 from .parameter_value import ParameterValue
