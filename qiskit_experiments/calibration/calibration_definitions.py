@@ -13,19 +13,19 @@
 """Class to store the results of a calibration experiments."""
 
 import copy
-from datetime import datetime
 import dataclasses
+from collections import namedtuple
+from datetime import datetime
 from typing import Tuple, Union, List, Optional
 import pandas as pd
-from collections import namedtuple
 
 from qiskit.circuit import Gate
 from qiskit import QuantumCircuit
 from qiskit.pulse import Schedule, DriveChannel, ControlChannel, MeasureChannel
 from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter
-from .exceptions import CalibrationError
-from .parameter_value import ParameterValue
+from qiskit_experiments.calibration.exceptions import CalibrationError
+from qiskit_experiments.calibration.parameter_value import ParameterValue
 
 ParameterKey = namedtuple("ParameterKey", ["schedule", "parameter"])
 
@@ -149,11 +149,10 @@ class CalibrationsDefinition:
 
         # Convert inputs to lists of strings
         if parameters is not None:
-            parameters = [prm.name if isinstance(prm, Parameter) else prm for prm in parameters]
-            parameters = set(parameters)
+            parameters = {prm.name if isinstance(prm, Parameter) else prm for prm in parameters}
 
         if schedules is not None:
-            schedules = set([sdl.name if isinstance(sdl, Schedule) else sdl for sdl in schedules])
+            schedules = {sdl.name if isinstance(sdl, Schedule) else sdl for sdl in schedules}
 
         keys = []
         for key, param in self._parameter_map.items():
@@ -211,8 +210,8 @@ class CalibrationsDefinition:
         if (sched_name, param_name) not in self._parameter_map:
             if sched_name is not None:
                 raise CalibrationError(f"Unknown parameter {param_name}.")
-            else:
-                raise CalibrationError(f"Unknown parameter {param_name} in schedule {sched_name}.")
+
+            raise CalibrationError(f"Unknown parameter {param_name} in schedule {sched_name}.")
 
         param = self._parameter_map[(sched_name, param_name)]
 
@@ -316,25 +315,27 @@ class CalibrationsDefinition:
         param_name = param.name if isinstance(param, Parameter) else param
         sched_name = schedule.name if isinstance(schedule, Schedule) else schedule
 
-        try:
-            param = self._parameter_map[(sched_name, param_name)]
+        if (sched_name, param_name) not in self._parameter_map:
+            raise CalibrationError(f"No parameter for {param_name} and schedule {sched_name}.")
 
-            if valid_only:
-                candidates = [p for p in self._params[param][qubits] if p.valid]
-            else:
-                candidates = self._params[param][qubits]
+        param = self._parameter_map[(sched_name, param_name)]
 
-            candidates = [candidate for candidate in candidates if candidate.group == group]
+        if qubits not in self._params[param]:
+            raise CalibrationError(f"No parameter value for {param} and qubits {qubits}.")
 
-            if cutoff_date:
-                candidates = [_ for _ in candidates if _ <= cutoff_date]
+        if valid_only:
+            candidates = [p for p in self._params[param][qubits] if p.valid]
+        else:
+            candidates = self._params[param][qubits]
 
-            candidates.sort(key=lambda x: x.date_time)
+        candidates = [candidate for candidate in candidates if candidate.group == group]
 
-            return candidates[-1].value
+        if cutoff_date:
+            candidates = [_ for _ in candidates if _ <= cutoff_date]
 
-        except KeyError:
-            raise CalibrationError(f"No parameter value for {param_name} and qubits {qubits}.")
+        candidates.sort(key=lambda x: x.date_time)
+
+        return candidates[-1].value
 
     def get_schedule(
         self,
