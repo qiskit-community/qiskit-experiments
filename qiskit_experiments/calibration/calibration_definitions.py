@@ -88,9 +88,9 @@ class CalibrationsDefinition:
             self._schedules[schedule.name] = schedule
 
             for param in schedule.parameters:
-                self._parameter_map[ParameterKey(schedule.name, param.name)] = hash(param)
-                if hash(param) not in self._params:
-                    self._params[hash(param)] = {}
+                self._parameter_map[ParameterKey(schedule.name, param.name)] = param
+                if param not in self._params:
+                    self._params[param] = {}
 
     @property
     def parameters(self):
@@ -100,13 +100,13 @@ class CalibrationsDefinition:
         attached to a schedule will have None as a key.
         """
         parameters = {}
-        for key in self._parameter_map.keys():
-            schedule_name = key[0]
-            parameter_name = key[1]
-            if parameter_name not in parameters:
-                parameters[parameter_name] = [schedule_name]
+        for key, param in self._parameter_map.items():
+            schedule_name = key.schedule
+
+            if param not in parameters:
+                parameters[param] = [schedule_name]
             else:
-                parameters[parameter_name].append(schedule_name)
+                parameters[param].append(schedule_name)
 
         return parameters
 
@@ -137,7 +137,7 @@ class CalibrationsDefinition:
         Args:
             parameters: The parameter names that should be included in the returned
                 table. If None is given then all names are included.
-            schedules:
+            schedules: The schedules to which to restrict the output.
             qubit_list: The qubits that should be included in the returned table.
                 If None is given then all channels are returned.
 
@@ -155,17 +155,17 @@ class CalibrationsDefinition:
         if schedules is not None:
             schedules = set([sdl.name if isinstance(sdl, Schedule) else sdl for sdl in schedules])
 
-        hash_keys = []
-        for key, hash_ in self._parameter_map.items():
+        keys = []
+        for key, param in self._parameter_map.items():
             if parameters and key.parameter in parameters:
-                hash_keys.append((hash_, key))
+                keys.append((param, key))
             if schedules and key.schedule in schedules:
-                hash_keys.append((hash_, key))
+                keys.append((param, key))
             if parameters is None and schedules is None:
-                hash_keys.append((hash_, key))
+                keys.append((param, key))
 
-        for hash_key in hash_keys:
-            param_vals = self._params[hash_key[0]]
+        for key in keys:
+            param_vals = self._params[key[0]]
 
             for qubits, values in param_vals.items():
                 if qubit_list and qubits not in qubit_list:
@@ -174,8 +174,8 @@ class CalibrationsDefinition:
                 for value in values:
                     value_dict = dataclasses.asdict(value)
                     value_dict["qubits"] = qubits
-                    value_dict["parameter"] = hash_key[1].parameter
-                    value_dict["schedule"] = hash_key[1].schedule
+                    value_dict["parameter"] = key[1].parameter
+                    value_dict["schedule"] = key[1].schedule
 
                     data.append(value_dict)
 
@@ -214,12 +214,12 @@ class CalibrationsDefinition:
             else:
                 raise CalibrationError(f"Unknown parameter {param_name} in schedule {sched_name}.")
 
-        param_hash = self._parameter_map[(sched_name, param_name)]
+        param = self._parameter_map[(sched_name, param_name)]
 
-        if qubits not in self._params[param_hash]:
-            self._params[param_hash][qubits] = [value]
+        if qubits not in self._params[param]:
+            self._params[param][qubits] = [value]
         else:
-            self._params[param_hash][qubits].append(value)
+            self._params[param][qubits].append(value)
 
     def _get_channel_index(self, qubits: Tuple, chan: PulseChannel) -> int:
         """
@@ -317,12 +317,12 @@ class CalibrationsDefinition:
         sched_name = schedule.name if isinstance(schedule, Schedule) else schedule
 
         try:
-            hash_ = self._parameter_map[(sched_name, param_name)]
+            param = self._parameter_map[(sched_name, param_name)]
 
             if valid_only:
-                candidates = [p for p in self._params[hash_][qubits] if p.valid]
+                candidates = [p for p in self._params[param][qubits] if p.valid]
             else:
-                candidates = self._params[hash_][qubits]
+                candidates = self._params[param][qubits]
 
             candidates = [candidate for candidate in candidates if candidate.group == group]
 
