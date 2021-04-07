@@ -16,7 +16,7 @@ import copy
 import dataclasses
 from collections import namedtuple
 from datetime import datetime
-from typing import Tuple, Union, List, Optional
+from typing import Dict, Set, Tuple, Union, List, Optional
 import pandas as pd
 
 from qiskit.circuit import Gate
@@ -93,7 +93,7 @@ class Calibrations:
                     self._params[param] = {}
 
     @property
-    def parameters(self):
+    def parameters(self) -> Dict[Parameter, Set]:
         """
         Returns a dictionary of parameters managed by the calibrations definition. The value
         of the dict is the schedule in which the parameter appears. Parameters that are not
@@ -104,9 +104,9 @@ class Calibrations:
             schedule_name = key.schedule
 
             if param not in parameters:
-                parameters[param] = [schedule_name]
+                parameters[param] = {schedule_name}
             else:
-                parameters[param].append(schedule_name)
+                parameters[param].add(schedule_name)
 
         return parameters
 
@@ -380,13 +380,9 @@ class Calibrations:
             free_params = []
 
         binding_dict = {}
-        for inst in sched.instructions:
-            for param in inst[1].operands[0].parameters.values():
-                if isinstance(param, Parameter):
-                    if param.name not in free_params:
-                        binding_dict[param] = self.parameter_value(
-                            param.name, qubits, name, group=group
-                        )
+        for param in sched.parameters:
+            if param.name not in free_params:
+                binding_dict[param] = self.parameter_value(param.name, qubits, name, group=group)
 
         sched.assign_parameters(binding_dict)
 
