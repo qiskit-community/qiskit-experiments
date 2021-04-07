@@ -74,14 +74,16 @@ class CalibrationsDefinition:
         for schedule in schedules:
 
             # check that channels, if parameterized, have the proper name format.
-            #pylint: disable = raise-missing-from
+            # pylint: disable = raise-missing-from
             for ch in schedule.channels:
                 if isinstance(ch.index, Parameter):
                     try:
-                        [int(index) for index in ch.index.name.split('.')]
+                        [int(index) for index in ch.index.name.split(".")]
                     except ValueError:
-                        raise CalibrationError('Parameterized channel must have a name '
-                                               'formatted following index1.index2...')
+                        raise CalibrationError(
+                            "Parameterized channel must have a name "
+                            "formatted following index1.index2..."
+                        )
 
             self._schedules[schedule.name] = schedule
 
@@ -118,15 +120,16 @@ class CalibrationsDefinition:
         """
         data = []
         for name, schedule in self._schedules.items():
-            data.append({'name': name,
-                         'schedule': schedule,
-                         'parameters': schedule.parameters})
+            data.append({"name": name, "schedule": schedule, "parameters": schedule.parameters})
 
         return pd.DataFrame(data)
 
-    def parameters_table(self, parameters: List[str] = None,
-                         schedules: Union[Schedule, str] = None,
-                         qubit_list: Optional[Tuple[int, ...]] = None) -> pd.DataFrame:
+    def parameters_table(
+        self,
+        parameters: List[str] = None,
+        schedules: Union[Schedule, str] = None,
+        qubit_list: Optional[Tuple[int, ...]] = None,
+    ) -> pd.DataFrame:
         """
         Returns the parameters as a pandas data frame.
         This function is here to help users manage their parameters.
@@ -170,20 +173,21 @@ class CalibrationsDefinition:
 
                 for value in values:
                     value_dict = dataclasses.asdict(value)
-                    value_dict['qubits'] = qubits
-                    value_dict['parameter'] = hash_key[1].parameter
-                    value_dict['schedule'] = hash_key[1].schedule
+                    value_dict["qubits"] = qubits
+                    value_dict["parameter"] = hash_key[1].parameter
+                    value_dict["schedule"] = hash_key[1].schedule
 
                     data.append(value_dict)
 
         return pd.DataFrame(data)
 
-    def add_parameter_value(self,
-                            value: ParameterValue,
-                            param: Union[Parameter, str],
-                            qubits: Tuple[int, ...],
-                            schedule: Union[Schedule, str] = None,
-                            ):
+    def add_parameter_value(
+        self,
+        value: ParameterValue,
+        param: Union[Parameter, str],
+        qubits: Tuple[int, ...],
+        schedule: Union[Schedule, str] = None,
+    ):
         """
         Add a parameter value to the stored parameters. This parameter value may be
         applied to several channels, for instance, all DRAG pulses may have the same
@@ -206,9 +210,9 @@ class CalibrationsDefinition:
 
         if (sched_name, param_name) not in self._parameter_map:
             if sched_name is not None:
-                raise CalibrationError(f'Unknown parameter {param_name}.')
+                raise CalibrationError(f"Unknown parameter {param_name}.")
             else:
-                raise CalibrationError(f'Unknown parameter {param_name} in schedule {sched_name}.')
+                raise CalibrationError(f"Unknown parameter {param_name} in schedule {sched_name}.")
 
         param_hash = self._parameter_map[(sched_name, param_name)]
 
@@ -241,20 +245,22 @@ class CalibrationsDefinition:
         """
 
         if isinstance(chan.index, Parameter):
-            indices = [int(_) for _ in chan.index.name.split('.')]
+            indices = [int(_) for _ in chan.index.name.split(".")]
             ch_qubits = tuple(qubits[_] for _ in indices)
 
             if isinstance(chan, DriveChannel):
                 if len(ch_qubits) != 1:
-                    raise CalibrationError('Too many qubits for drive channel: '
-                                      'got %i expecting 1.' % len(ch_qubits))
+                    raise CalibrationError(
+                        f"Too many qubits for drive channel: got {len(ch_qubits)} expecting 1."
+                    )
 
                 ch_ = self._config.drive(ch_qubits[0])
 
             elif isinstance(chan, MeasureChannel):
                 if len(ch_qubits) != 1:
-                    raise CalibrationError('Too many qubits for drive channel: '
-                                      'got %i expecting 1.' % len(ch_qubits))
+                    raise CalibrationError(
+                        f"Too many qubits for measure channel: got {len(ch_qubits)} expecting 1."
+                    )
 
                 ch_ = self._config.measure(ch_qubits[0])
 
@@ -262,26 +268,30 @@ class CalibrationsDefinition:
                 chs_ = self._config.control(ch_qubits)
 
                 if len(chs_) != 1:
-                    raise CalibrationError('Ambiguous number of control channels for '
-                                      'qubits {} and {}.'.format(qubits, chan.name))
+                    raise CalibrationError(
+                        "Ambiguous number of control channels for "
+                        f"qubits {qubits} and {chan.name}."
+                    )
 
                 ch_ = chs_[0]
 
             else:
                 chs = tuple(_.__name__ for _ in [DriveChannel, ControlChannel, MeasureChannel])
-                raise CalibrationError('Channel must be of type {}.'.format(chs))
+                raise CalibrationError(f"Channel must be of type {chs}.")
 
             return ch_.index
         else:
             return chan.index
 
-    def parameter_value(self,
-                        param: Union[Parameter, str],
-                        qubits: Tuple[int, ...],
-                        schedule: Union[Schedule, str] = None,
-                        valid_only: bool = True,
-                        group: str = 'default',
-                        cutoff_date: datetime = None) -> Union[int, float, complex]:
+    def parameter_value(
+        self,
+        param: Union[Parameter, str],
+        qubits: Tuple[int, ...],
+        schedule: Union[Schedule, str] = None,
+        valid_only: bool = True,
+        group: str = "default",
+        cutoff_date: datetime = None,
+    ) -> Union[int, float, complex]:
         """
         Retrieve the value of a calibrated parameter from those stored.
 
@@ -324,10 +334,15 @@ class CalibrationsDefinition:
             return candidates[-1].value
 
         except KeyError:
-            raise CalibrationError(f'No parameter value for {param_name} and qubits {qubits}.')
+            raise CalibrationError(f"No parameter value for {param_name} and qubits {qubits}.")
 
-    def get_schedule(self, name: str, qubits: Tuple[int, ...],
-                     free_params: List[str] = None, group: Optional[str] = 'default') -> Schedule:
+    def get_schedule(
+        self,
+        name: str,
+        qubits: Tuple[int, ...],
+        free_params: List[str] = None,
+        group: Optional[str] = "default",
+    ) -> Schedule:
         """
         Args:
             name: The name of the schedule to get.
@@ -347,7 +362,7 @@ class CalibrationsDefinition:
         # Get the schedule and deepcopy it to prevent binding from removing
         # the parametric nature of the schedule.
         if name not in self._schedules:
-            raise CalibrationError('Schedule %s is not defined.' % name)
+            raise CalibrationError("Schedule %s is not defined." % name)
 
         sched = copy.deepcopy(self._schedules[name])
 
@@ -368,14 +383,22 @@ class CalibrationsDefinition:
             for param in inst[1].operands[0].parameters.values():
                 if isinstance(param, Parameter):
                     if param.name not in free_params:
-                        binding_dict[param] = self.parameter_value(param.name, qubits, name, group=group)
+                        binding_dict[param] = self.parameter_value(
+                            param.name, qubits, name, group=group
+                        )
 
         sched.assign_parameters(binding_dict)
 
         return sched
 
-    def get_circuit(self, name: str, qubits: Tuple, free_params: List[str] = None,
-                    group: Optional[str] = 'default', schedule: Schedule = None) -> QuantumCircuit:
+    def get_circuit(
+        self,
+        name: str,
+        qubits: Tuple,
+        free_params: List[str] = None,
+        group: Optional[str] = "default",
+        schedule: Schedule = None,
+    ) -> QuantumCircuit:
         """
         Args:
             name: The name of the gate to retrieve.

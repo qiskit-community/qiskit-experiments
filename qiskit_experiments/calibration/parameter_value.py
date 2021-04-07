@@ -34,4 +34,4 @@ class ParameterValue:
     exp_id: str = None
 
     # The group of calibrations to which this parameter belongs
-    group: str = 'default'
+    group: str = "default"
