@@ -95,7 +95,7 @@ class RBExperiment(BaseExperiment):
 
     def _sample_circuits(self, lengths, seed=None):
         circuits = []
-        for length in (lengths if self._full_sampling else [lengths[-1]]):
+        for length in lengths if self._full_sampling else [lengths[-1]]:
             elements = [random_clifford(self.num_qubits, seed=seed) for _ in range(length)]
             element_lengths = [len(elements)] if self._full_sampling else lengths
             circuits += self._generate_circuit(elements, element_lengths)
@@ -113,7 +113,7 @@ class RBExperiment(BaseExperiment):
             circ_op = circ_op.compose(group_elt)
             circ.append(group_elt, qubits)
             circ.barrier(qubits)
-            if current_length+1 in lengths:
+            if current_length + 1 in lengths:
                 # copy circuit and add inverse
                 inv = circ_op.adjoint()
                 rb_circ = circ.copy()
