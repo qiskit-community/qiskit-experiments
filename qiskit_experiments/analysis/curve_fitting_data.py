@@ -14,12 +14,12 @@ Curve fitting xydata for experiment analysis
 """
 # pylint: disable = invalid-name
 
-from typing import List, Dict, Tuple, Callable
+from typing import List, Dict, Tuple, Callable, Iterable
 import numpy as np
 
 
 def curve_fit_data(
-    data: List[Dict[str, any]], data_processor: Callable, x_key: str = "xval"
+    data: List[Dict[str, any]], data_processor: Callable, x_key: str = "xval", **filters
 ) -> Tuple[np.ndarray]:
     """Return array of (x, y, sigma) data for curve fitting.
 
@@ -27,6 +27,7 @@ def curve_fit_data(
         data: list of circuit data dictionaries containing counts.
         data_processor: callable for processing data to y, sigma
         x_key: key for extracting xdata value from metadata (Default: "xval").
+        filters: additional kwargs to filter metadata on.
 
     Returns:
         tuple: ``(x, y, sigma)`` tuple of arrays of x-values,
@@ -35,12 +36,14 @@ def curve_fit_data(
     Raises:
         QiskitError: if input data is not level-2 measurement.
     """
-    size = len(data)
+    indices = _filter_indices(data, **filters)
+    size = len(indices)
     xdata = np.zeros(size, dtype=int)
     ydata = np.zeros(size, dtype=float)
     ydata_var = np.zeros(size, dtype=float)
 
-    for i, datum in enumerate(data):
+    for i, idx in enumerate(indices):
+        datum = data[idx]
         metadata = datum["metadata"]
         xdata[i] = metadata[x_key]
         y_mean, y_var = data_processor(datum)
@@ -55,6 +58,7 @@ def multi_curve_fit_data(
     data_processor: Callable,
     x_key: str = "xval",
     series_key: str = "series",
+    **filters,
 ) -> Tuple[np.ndarray]:
     """Return array of (x, y, sigma) data for curve fitting.
 
@@ -63,6 +67,7 @@ def multi_curve_fit_data(
         data_processor: callable for processing data to y, sigma
         x_key: key for extracting xdata value from metadata (Default: "xval").
         series_key: key for extracting series value from metadata (Default: "series").
+        filters: additional kwargs to filter metadata on.
 
     Returns:
         tuple: ``(x, y, sigma)`` tuple of arrays of x-values,
@@ -71,12 +76,14 @@ def multi_curve_fit_data(
     Raises:
         QiskitError: if input data is not level-2 measurement.
     """
-    size = len(data)
+    indices = _filter_indices(data, **filters)
+    size = len(indices)
     xdata = np.zeros((size, 2), dtype=float)
     ydata = np.zeros(size, dtype=float)
     ydata_var = np.zeros(size, dtype=float)
 
-    for i, datum in enumerate(data):
+    for i, idx in enumerate(indices):
+        datum = data[idx]
         metadata = datum["metadata"]
         xdata[i, 0] = metadata[x_key]
         xdata[i, 1] = metadata[series_key]
@@ -115,6 +122,23 @@ def mean_xy_data(xdata: np.ndarray, ydata: np.ndarray) -> Tuple[np.ndarray]:
         y_means[i] = sample_mean
         y_sigmas[i] = np.sqrt(sample_var)
     return x_means, y_means, y_sigmas
+
+
+def _filter_indices(data: List[Dict[str, any]], **filters) -> Iterable[int]:
+    """Return the indices of filtered data"""
+    if not filters:
+        return range(len(data))
+    indices = []
+    for i, datum in enumerate(data):
+        include = True
+        metadata = datum["metadata"]
+        for key, val in filters.items():
+            if key not in metadata or metadata[key] != val:
+                include = False
+                break
+        if include:
+            indices.append(i)
+    return indices
 
 
 def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float]:
