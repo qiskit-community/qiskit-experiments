@@ -29,7 +29,7 @@ except ImportError:
 class RBAnalysis(CurveFitAnalysis):
     """RB Analysis class."""
 
-    # pylint: disable = arguments-differ
+    # pylint: disable = arguments-differ, invalid-name
     def _run_analysis(
         self,
         experiment_data,

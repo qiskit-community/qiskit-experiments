@@ -10,4 +10,6 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""Randomized Benchmarking Experiment Classes."""
+
 from .rb_experiment import RBExperiment, RBAnalysis
