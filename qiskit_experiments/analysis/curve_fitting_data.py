@@ -21,12 +21,14 @@ import numpy as np
 from qiskit.exceptions import QiskitError
 
 
-def curve_fit_data(data: List[Dict[str, any]], data_processor: Callable) -> Tuple[np.ndarray]:
+def curve_fit_data(data: List[Dict[str, any]], data_processor: Callable,
+                   x_key: str = "xval") -> Tuple[np.ndarray]:
     """Return array of (x, y, sigma) data for curve fitting.
 
     Args
         data: list of circuit data dictionaries containing counts.
         data_processor: callable for processing data to y, sigma
+        x_key: key for extracting xdata value from metadata (Default: "xval").
 
     Returns:
         tuple: ``(x, y, sigma)`` tuple of arrays of x-values,
@@ -34,16 +36,6 @@ def curve_fit_data(data: List[Dict[str, any]], data_processor: Callable) -> Tupl
 
     Raises:
         QiskitError: if input data is not level-2 measurement.
-
-    .. note::
-
-        This requires metadata to contain `"xdata"`, `"ylabel"`
-        keys containing the numeric x-value for fitting, and the outcome
-        bitstring for computing y-value probability from counts.
-
-    .. note::
-
-        Currently only level-2 (count) measurement data is supported.
     """
     size = len(data)
     xdata = np.zeros(size, dtype=int)
@@ -52,25 +44,25 @@ def curve_fit_data(data: List[Dict[str, any]], data_processor: Callable) -> Tupl
 
     for i, datum in enumerate(data):
         metadata = datum["metadata"]
-        meas_level = metadata.get("meas_level", 2)
-        xdata[i] = metadata["xval"]
-        if meas_level == 2:
-            y_mean, y_var = data_processor(datum)
-            ydata[i] = y_mean
-            ydata_var[i] = y_var
-        else:
-            # Adding support for level-1 measurment data is still todo.
-            raise QiskitError("Measurement level 1 is not supported.")
+        xdata[i] = metadata[x_key]
+        y_mean, y_var = data_processor(datum)
+        ydata[i] = y_mean
+        ydata_var[i] = y_var
 
     return xdata, ydata, np.sqrt(ydata_var)
 
 
-def multi_curve_fit_data(data: List[Dict[str, any]], data_processor: Callable) -> Tuple[np.ndarray]:
+def multi_curve_fit_data(data: List[Dict[str, any]],
+                         data_processor: Callable,
+                         x_key: str = "xval",
+                         series_key: str = "series") -> Tuple[np.ndarray]:
     """Return array of (x, y, sigma) data for curve fitting.
 
     Args
         data: list of circuit data dictionaries.
         data_processor: callable for processing data to y, sigma
+        x_key: key for extracting xdata value from metadata (Default: "xval").
+        series_key: key for extracting series value from metadata (Default: "series").
 
     Returns:
         tuple: ``(x, y, sigma)`` tuple of arrays of x-values,
@@ -78,16 +70,6 @@ def multi_curve_fit_data(data: List[Dict[str, any]], data_processor: Callable) -
 
     Raises:
         QiskitError: if input data is not level-2 measurement.
-
-    .. note::
-
-        This requires metadata to contain `"xdata"`, `"ylabel"`
-        keys containing the numeric x-value for fitting, and the outcome
-        bitstring for computing y-value probability from counts.
-
-    .. note::
-
-        Currently only level-2 (count) measurement data is supported.
     """
     size = len(data)
     xdata = np.zeros((size, 2), dtype=float)
@@ -96,16 +78,11 @@ def multi_curve_fit_data(data: List[Dict[str, any]], data_processor: Callable) -
 
     for i, datum in enumerate(data):
         metadata = datum["metadata"]
-        meas_level = metadata.get("meas_level", 2)
-        xdata[i, 0] = metadata["xval"]
-        xdata[i, 1] = metadata["series"]
-        if meas_level == 2:
-            y_mean, y_var = data_processor(datum)
-            ydata[i] = y_mean
-            ydata_var[i] = y_var
-        else:
-            # Adding support for level-1 measurment data is still todo.
-            raise QiskitError("Measurement level 1 is not supported.")
+        xdata[i, 0] = metadata[x_key]
+        xdata[i, 1] = metadata[series_key]
+        y_mean, y_var = data_processor(datum)
+        ydata[i] = y_mean
+        ydata_var[i] = y_var
 
     return xdata, ydata, np.sqrt(ydata_var)
 

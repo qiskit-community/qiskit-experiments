@@ -52,7 +52,7 @@ def curve_fit(
     """
 
     # Run curve fit
-    # pylint: disable unbackend-tuple-unpacking
+    # pylint: disable = unbalanced-tuple-unpacking
     popt, pcov = opt.curve_fit(func, xdata, ydata, sigma=sigma, p0=p0, **kwargs)
     popt_err = np.sqrt(np.diag(pcov))
 
