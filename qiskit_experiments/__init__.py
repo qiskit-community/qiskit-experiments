@@ -18,5 +18,4 @@ from .version import __version__
 from .experiment_data import ExperimentData, AnalysisResult
 
 # Experiment modules
-from . import analysis
 from . import composite
