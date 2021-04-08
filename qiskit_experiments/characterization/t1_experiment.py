@@ -91,7 +91,7 @@ class T1Analysis(BaseAnalysis):
         if amplitude_guess is None:
             amplitude_guess = means[0] - offset_guess
         if t1_bounds is None:
-            t1_bounds = [-np.inf, np.inf]
+            t1_bounds = [0, np.inf]
         if amplitude_bounds is None:
             amplitude_bounds = [0, 1]
         if offset_bounds is None:
