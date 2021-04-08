@@ -15,14 +15,12 @@ Curve fitting xydata for experiment analysis
 # pylint: disable = invalid-name
 
 from typing import List, Dict, Tuple, Callable
-
 import numpy as np
 
-from qiskit.exceptions import QiskitError
 
-
-def curve_fit_data(data: List[Dict[str, any]], data_processor: Callable,
-                   x_key: str = "xval") -> Tuple[np.ndarray]:
+def curve_fit_data(
+    data: List[Dict[str, any]], data_processor: Callable, x_key: str = "xval"
+) -> Tuple[np.ndarray]:
     """Return array of (x, y, sigma) data for curve fitting.
 
     Args
@@ -52,10 +50,12 @@ def curve_fit_data(data: List[Dict[str, any]], data_processor: Callable,
     return xdata, ydata, np.sqrt(ydata_var)
 
 
-def multi_curve_fit_data(data: List[Dict[str, any]],
-                         data_processor: Callable,
-                         x_key: str = "xval",
-                         series_key: str = "series") -> Tuple[np.ndarray]:
+def multi_curve_fit_data(
+    data: List[Dict[str, any]],
+    data_processor: Callable,
+    x_key: str = "xval",
+    series_key: str = "series",
+) -> Tuple[np.ndarray]:
     """Return array of (x, y, sigma) data for curve fitting.
 
     Args
