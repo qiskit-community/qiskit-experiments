@@ -11,9 +11,7 @@
 # that they have been altered from the originals.
 
 """
-Standalone analysis classes
-
-These can be used when creating experiments
+Analysis helper functions
 """
 
 from .curve_fit_analysis import CurveFitAnalysis
