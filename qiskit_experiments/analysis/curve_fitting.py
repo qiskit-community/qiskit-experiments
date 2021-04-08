@@ -14,13 +14,14 @@ Curve fitting functions for experiment analysis
 """
 # pylint: disable = invalid-name
 
-from typing import List, Callable, Optional
+from typing import List, Dict, Tuple, Callable, Optional
 
 import numpy as np
 import scipy.optimize as opt
 
 from qiskit.exceptions import QiskitError
 from qiskit_experiments.base_analysis import AnalysisResult
+from qiskit_experiments.analysis.data_processing import filter_data
 
 
 def curve_fit(
@@ -143,3 +144,77 @@ def multi_curve_fit(
     analysis_result = curve_fit(f, xdata1d, ydata, p0, sigma=wsigma, **kwargs)
 
     return analysis_result
+
+
+def curve_fit_data(
+    data: List[Dict[str, any]], data_processor: Callable, x_key: str = "xval", **filters
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Return array of (x, y, sigma) data for curve fitting.
+
+    Args
+        data: list of circuit data dictionaries containing counts.
+        data_processor: callable for processing data to y, sigma
+        x_key: key for extracting xdata value from metadata (Default: "xval").
+        filters: additional kwargs to filter metadata on.
+
+    Returns:
+        tuple: ``(x, y, sigma)`` tuple of arrays of x-values,
+               y-values, and standard deviations of y-values.
+
+    Raises:
+        QiskitError: if input data is not level-2 measurement.
+    """
+    filtered_data = filter_data(data, **filters)
+    size = len(filtered_data)
+    xdata = np.zeros(size, dtype=int)
+    ydata = np.zeros(size, dtype=float)
+    ydata_var = np.zeros(size, dtype=float)
+
+    for i, datum in enumerate(filter_data):
+        metadata = datum["metadata"]
+        xdata[i] = metadata[x_key]
+        y_mean, y_var = data_processor(datum)
+        ydata[i] = y_mean
+        ydata_var[i] = y_var
+
+    return xdata, ydata, np.sqrt(ydata_var)
+
+
+def multi_curve_fit_data(
+    data: List[Dict[str, any]],
+    data_processor: Callable,
+    x_key: str = "xval",
+    series_key: str = "series",
+    **filters,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Return array of (x, y, sigma) data for curve fitting.
+
+    Args
+        data: list of circuit data dictionaries.
+        data_processor: callable for processing data to y, sigma
+        x_key: key for extracting xdata value from metadata (Default: "xval").
+        series_key: key for extracting series value from metadata (Default: "series").
+        filters: additional kwargs to filter metadata on.
+
+    Returns:
+        tuple: ``(x, y, sigma)`` tuple of arrays of x-values,
+               y-values, and standard deviations of y-values.
+
+    Raises:
+        QiskitError: if input data is not level-2 measurement.
+    """
+    filtered_data = filter_data(data, **filters)
+    size = len(filtered_data)
+    xdata = np.zeros((size, 2), dtype=float)
+    ydata = np.zeros(size, dtype=float)
+    ydata_var = np.zeros(size, dtype=float)
+
+    for i, datum in enumerate(filter_data):
+        metadata = datum["metadata"]
+        xdata[i, 0] = metadata[x_key]
+        xdata[i, 1] = metadata[series_key]
+        y_mean, y_var = data_processor(datum)
+        ydata[i] = y_mean
+        ydata_var[i] = y_var
+
+    return xdata, ydata, np.sqrt(ydata_var)
