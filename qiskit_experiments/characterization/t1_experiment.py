@@ -29,7 +29,15 @@ class T1Analysis(BaseAnalysis):
 
     # pylint: disable=arguments-differ, unused-argument
     def _run_analysis(
-        self, experiment_data, t1_guess=None, amplitude_guess=None, offset_guess=None, **kwargs
+        self,
+        experiment_data,
+        t1_guess=None,
+        amplitude_guess=None,
+        offset_guess=None,
+        t1_bounds=None,
+        amplitude_bounds=None,
+        offset_bounds=None,
+        **kwargs,
     ) -> Tuple[AnalysisResult, None]:
         """
         Calculate T1
@@ -39,6 +47,9 @@ class T1Analysis(BaseAnalysis):
             t1_guess (float): Optional, an initial guess of T1
             amplitude_guess (float): Optional, an initial guess of the coefficient of the exponent
             offset_guess (float): Optional, an initial guess of the offset
+            t1_bounds (list of two floats): Optional, lower bound and uper bound to T1
+            amplitude_bounds (list of two floats): Optional, lower bound and uper bound to the amplitude
+            offset_bounds (list of two floats): Optional, lower bound and uper bound to the offset
             kwargs: Trailing unused function parameters
 
         Returns:
@@ -79,6 +90,12 @@ class T1Analysis(BaseAnalysis):
             offset_guess = means[-1]
         if amplitude_guess is None:
             amplitude_guess = means[0] - offset_guess
+        if t1_bounds is None:
+            t1_bounds = [-np.inf, np.inf]
+        if amplitude_bounds is None:
+            amplitude_bounds = [0, 1]
+        if offset_bounds is None:
+            offset_bounds = [0, 1]
 
         fit_out, fit_err, fit_cov, chisq = curve_fit_wrapper(
             exp_fit_fun,
