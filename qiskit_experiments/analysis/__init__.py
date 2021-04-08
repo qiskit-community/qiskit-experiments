@@ -13,5 +13,3 @@
 """
 Analysis helper functions
 """
-
-from .curve_fit_analysis import CurveFitAnalysis

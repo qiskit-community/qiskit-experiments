@@ -21,8 +21,7 @@ import numpy as np
 from qiskit.exceptions import QiskitError
 
 
-def curve_fit_data(data: List[Dict[str, any]],
-                   data_processor: Callable) -> Tuple[np.ndarray]:
+def curve_fit_data(data: List[Dict[str, any]], data_processor: Callable) -> Tuple[np.ndarray]:
     """Return array of (x, y, sigma) data for curve fitting.
 
     Args
@@ -66,8 +65,7 @@ def curve_fit_data(data: List[Dict[str, any]],
     return xdata, ydata, np.sqrt(ydata_var)
 
 
-def multi_curve_fit_data(data: List[Dict[str, any]],
-                         data_processor: Callable) -> Tuple[np.ndarray]:
+def multi_curve_fit_data(data: List[Dict[str, any]], data_processor: Callable) -> Tuple[np.ndarray]:
     """Return array of (x, y, sigma) data for curve fitting.
 
     Args
