@@ -19,7 +19,6 @@ from typing import List, Dict, Tuple, Callable, Optional
 import numpy as np
 import scipy.optimize as opt
 
-from qiskit.exceptions import QiskitError
 from qiskit_experiments.base_analysis import AnalysisResult
 from qiskit_experiments.analysis.data_processing import filter_data
 
@@ -44,8 +43,8 @@ def curve_fit(
 
     Args:
         func: a fit function `f(x *params)`.
-        xdata: a 1D float array of x-data
-        ydata: a 1D float array of y-data
+        xdata: a 1D float array of x-data.
+        ydata: a 1D float array of y-data.
         p0: initial guess for optimization parameters.
         sigma: Optional, a 1D array of standard deviations in ydata.
         kwargs: additional kwargs for scipy.optimize.curve_fit.
@@ -86,6 +85,7 @@ def curve_fit(
 
 def multi_curve_fit(
     funcs: List[Callable],
+    series: np.ndarray,
     xdata: np.ndarray,
     ydata: np.ndarray,
     p0: np.ndarray,
@@ -107,10 +107,13 @@ def multi_curve_fit(
     using ``scipy.optimize.curve_fit``.
 
     Args:
-        funcs: a list of objective functions with each with signature
-               :math`f_k`(x, *params)`.
-        xdata: a 2D float array of xdata and function indexes.
-        ydata: a 1D float array of ydata
+        funcs: a list of objective functions :math:`[f_0, f_1, ...]` where
+               each function has signature :math`f_k`(x, *params)`.
+        series: a 1D int array that specifies the component objective
+                function :math:`f_k` to evaluate corresponding x and y
+                data with.
+        xdata: a 1D float array of xdata.
+        ydata: a 1D float array of ydata.
         p0: initial guess for optimization parameters.
         sigma: Optional, a 1D array of standard deviations in ydata.
         weights: Optional, a 1D float list of weights :math:`w_k` for each
@@ -129,14 +132,9 @@ def multi_curve_fit(
     """
     num_funcs = len(funcs)
 
-    # Get 1D xdata and indices from 2D input xdata
-    xdata = np.asarray(xdata, dtype=float)
-    if xdata.ndim != 2:
-        raise QiskitError("multi_curve_fit requires 2D xdata.")
-    xdata1d, xindex = xdata.T
-
     # Get positions for indexes data sets
-    idxs = [xindex == i for i in range(num_funcs)]
+    series = np.asarray(series, dtype=int)
+    idxs = [series == i for i in range(num_funcs)]
 
     # Combine weights and sigma for transformation
     if weights is None:
@@ -160,15 +158,15 @@ def multi_curve_fit(
         return y
 
     # Run linearized curve_fit
-    analysis_result = curve_fit(f, xdata1d, ydata, p0, sigma=wsigma, **kwargs)
+    analysis_result = curve_fit(f, xdata, ydata, p0, sigma=wsigma, **kwargs)
 
     return analysis_result
 
 
-def curve_fit_data(
+def process_curve_data(
     data: List[Dict[str, any]], data_processor: Callable, x_key: str = "xval", **filters
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Return array of (x, y, sigma) data for curve fitting.
+    """Return tuple of arrays (x, y, sigma) data for curve fitting.
 
     Args
         data: list of circuit data dictionaries containing counts.
@@ -199,14 +197,14 @@ def curve_fit_data(
     return xdata, ydata, np.sqrt(ydata_var)
 
 
-def multi_curve_fit_data(
+def process_multi_curve_data(
     data: List[Dict[str, any]],
     data_processor: Callable,
     x_key: str = "xval",
     series_key: str = "series",
     **filters,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Return array of (x, y, sigma) data for curve fitting.
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Return tuple of arrays (series, x, y, sigma) data for multi curve fitting.
 
     Args
         data: list of circuit data dictionaries.
@@ -216,24 +214,25 @@ def multi_curve_fit_data(
         filters: additional kwargs to filter metadata on.
 
     Returns:
-        tuple: ``(x, y, sigma)`` tuple of arrays of x-values,
-               y-values, and standard deviations of y-values.
+        tuple: ``(series, x, y, sigma)`` tuple of arrays of series values,
+               x-values, y-values, and standard deviations of y-values.
 
     Raises:
         QiskitError: if input data is not level-2 measurement.
     """
     filtered_data = filter_data(data, **filters)
     size = len(filtered_data)
-    xdata = np.zeros((size, 2), dtype=float)
+    series = np.zeros(size, dtype=int)
+    xdata = np.zeros(size, dtype=float)
     ydata = np.zeros(size, dtype=float)
     ydata_var = np.zeros(size, dtype=float)
 
     for i, datum in enumerate(filter_data):
         metadata = datum["metadata"]
-        xdata[i, 0] = metadata[x_key]
-        xdata[i, 1] = metadata[series_key]
+        series[i] = metadata[series_key]
+        xdata[i] = metadata[x_key]
         y_mean, y_var = data_processor(datum)
         ydata[i] = y_mean
         ydata_var[i] = y_var
 
-    return xdata, ydata, np.sqrt(ydata_var)
+    return series, xdata, ydata, np.sqrt(ydata_var)
