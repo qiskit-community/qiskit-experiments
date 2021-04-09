@@ -14,7 +14,7 @@ Curve fitting functions for experiment analysis
 """
 # pylint: disable = invalid-name
 
-from typing import List, Dict, Tuple, Callable, Optional
+from typing import List, Dict, Tuple, Callable, Optional, Union
 
 import numpy as np
 import scipy.optimize as opt
@@ -27,8 +27,9 @@ def curve_fit(
     func: Callable,
     xdata: np.ndarray,
     ydata: np.ndarray,
-    p0: np.ndarray,
+    p0: Union[Dict[str, float], np.ndarray],
     sigma: Optional[np.ndarray] = None,
+    bounds: Optional[Union[Dict[str, Tuple[float, float]], Tuple[np.ndarray, np.ndarray]]] = None,
     **kwargs,
 ) -> AnalysisResult:
     r"""Perform a non-linear least squares to fit
@@ -42,11 +43,13 @@ def curve_fit(
     using ``scipy.optimize.curve_fit``.
 
     Args:
-        func: a fit function `f(x *params)`.
+        func: a fit function `f(x, *params)`.
         xdata: a 1D float array of x-data.
         ydata: a 1D float array of y-data.
         p0: initial guess for optimization parameters.
         sigma: Optional, a 1D array of standard deviations in ydata.
+        bounds: Optional, lower and upper bounds for optimization
+                parameters.
         kwargs: additional kwargs for scipy.optimize.curve_fit.
 
     Returns:
@@ -56,26 +59,55 @@ def curve_fit(
         `chisq` the chi-squared parameter of fit,
         `xrange` the range of xdata values used for fit.
     """
+    # Format p0 parameters if specified as dictionary
+    if isinstance(p0, dict):
+        param_keys = list(p0.keys())
+        param_p0 = list(p0.values())
+
+        # Convert bounds
+        if bounds:
+            lower = [bounds[key][0] for key in param_keys]
+            upper = [bounds[key][1] for key in param_keys]
+            param_bounds = (lower, upper)
+        else:
+            param_bounds = None
+
+        # Convert fit function
+        def fit_func(x, *params):
+            return func(x, **dict(zip(param_keys, params)))
+
+    else:
+        param_keys = None
+        param_p0 = p0
+        param_bounds = bounds
+        fit_func = func
 
     # Run curve fit
     # pylint: disable = unbalanced-tuple-unpacking
-    popt, pcov = opt.curve_fit(func, xdata, ydata, sigma=sigma, p0=p0, **kwargs)
+    popt, pcov = opt.curve_fit(
+        fit_func, xdata, ydata, sigma=sigma, p0=param_p0, bounds=param_bounds, **kwargs
+    )
     popt_err = np.sqrt(np.diag(pcov))
 
     # Compute chi-squared for fit
-    yfits = func(xdata, *popt)
-    chisq = np.mean(((yfits - ydata) / sigma) ** 2)
+    yfits = fit_func(xdata, *popt)
+    residues = (yfits - ydata) ** 2
+    if sigma is not None:
+        residues = residues / (sigma ** 2)
+    chisq = np.mean(residues)
 
     # Compute xdata range for fit
     xdata_range = [min(xdata), max(xdata)]
 
     result = {
         "popt": popt,
+        "popt_keys": param_keys,
         "popt_err": popt_err,
         "pcov": pcov,
         "chisq": chisq,
         "xrange": xdata_range,
     }
+
     # TODO:
     #  1. Add some basic validation of computer good / bad based on fit result.
     #  2. Add error handling so if fitting fails we can return an analysis
@@ -91,6 +123,7 @@ def multi_curve_fit(
     p0: np.ndarray,
     sigma: Optional[np.ndarray] = None,
     weights: Optional[np.ndarray] = None,
+    bounds: Optional[Union[Dict[str, Tuple[float, float]], Tuple[np.ndarray, np.ndarray]]] = None,
     **kwargs,
 ):
     r"""Perform a linearized multi-objective non-linear least squares fit.
@@ -118,6 +151,8 @@ def multi_curve_fit(
         sigma: Optional, a 1D array of standard deviations in ydata.
         weights: Optional, a 1D float list of weights :math:`w_k` for each
                  component function :math:`f_k`.
+        bounds: Optional, lower and upper bounds for optimization
+                parameters.
         kwargs: additional kwargs for scipy.optimize.curve_fit.
 
     Returns:
@@ -158,7 +193,7 @@ def multi_curve_fit(
         return y
 
     # Run linearized curve_fit
-    analysis_result = curve_fit(f, xdata, ydata, p0, sigma=wsigma, **kwargs)
+    analysis_result = curve_fit(f, xdata, ydata, p0, sigma=wsigma, bounds=bounds, **kwargs)
 
     return analysis_result
 
