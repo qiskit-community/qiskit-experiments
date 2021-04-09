@@ -10,7 +10,20 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Class that ties together actions on the data."""
+"""
+A DataProcessor defines a sequence of operations to perform on experimental data.
+The DataProcessor.format_data() method applies this sequence on its input argument.
+A DataProcessor is created with a list of DataAction objects. Each DataAction
+specifies a set of node_inputs that it accepts and a __node_output__ that it
+provides. The __node_output__ of each DataAction must be contained in the node_inputs
+of the following DataAction in the DataProcessor's list. DataProcessor.format_data()
+usually takes in one entry from the data property of an ExperimentData object
+(i.e. a dict containing metadata and memory keys and possibly counts, like the
+Result.data property) and produces a new dict containing the formatted data. The data
+passed to DataProcessor.format_data() is passed to the first DataAction and the
+output is passed on in turn to each DataAction. DataProcessor.format_data() returns
+the data produced by the last DataAction.
+"""
 
 from typing import Any, Dict, List, Tuple, Union
 
