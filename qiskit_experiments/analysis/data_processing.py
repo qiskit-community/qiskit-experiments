@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Curve fitting xydata for experiment analysis
+Data processing utility functions for curve fitting experiments
 """
 # pylint: disable = invalid-name
 
@@ -29,10 +29,6 @@ def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
     Returns:
         The list of filtered data. If no filters are provided this will be the
         input list.
-
-    .. note::
-        The filtered data list does not make a copy of the items in the input
-        data last.
     """
     if not filters:
         return data

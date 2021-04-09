@@ -32,24 +32,30 @@ def curve_fit(
     sigma: Optional[np.ndarray] = None,
     **kwargs,
 ) -> AnalysisResult:
-    """Use non-linear least squares to fit a function, f, to data
+    r"""Perform a non-linear least squares to fit
 
-    Wraps scipy.optimize.curve_fit
+    This solves the optimization problem
+
+    .. math::
+        \Theta_{\mbox{opt}} = \arg\min_\Theta \sum_i
+            \sigma_i^{-2} (f(x_i, \Theta) -  y_i)^2
+
+    using ``scipy.optimize.curve_fit``.
 
     Args:
         func: a fit function `f(x *params)`.
-        xdata: a 1D array of x-data
-        ydata: a 1D array of y-data
+        xdata: a 1D float array of x-data
+        ydata: a 1D float array of y-data
         p0: initial guess for optimization parameters.
         sigma: Optional, a 1D array of standard deviations in ydata.
         kwargs: additional kwargs for scipy.optimize.curve_fit.
 
     Returns:
-        AnalysisResult: result containing `popt` the optimal fit parameters,
-                        `popt_err` the standard error estimates popt,
-                        `pcov` the covariance matrix for the fit,
-                        `chisq` the chi-squared parameter of fit,
-                        `xrange` the range of xdata values used for fit.
+        result containing `popt` the optimal fit parameters,
+        `popt_err` the standard error estimates popt,
+        `pcov` the covariance matrix for the fit,
+        `chisq` the chi-squared parameter of fit,
+        `xrange` the range of xdata values used for fit.
     """
 
     # Run curve fit
@@ -87,15 +93,28 @@ def multi_curve_fit(
     weights: Optional[np.ndarray] = None,
     **kwargs,
 ):
-    """Use non-linear least squares to fit a list of functions, f_i, to data
+    r"""Perform a linearized multi-objective non-linear least squares fit.
+
+    This solves the optimization problem
+
+    .. math::
+        \Theta_{\mbox{opt}} = \arg\min_\Theta \sum_{k} w_k
+            \sum_{i} \sigma_{k, i}^{-2}
+            (f_k(x_{k, i}, \Theta) -  y_{k, i})^2
+
+    for multiple series of :math:`x_k, y_k, \sigma_k` data evaluated using
+    a list of objective functions :math:`[f_k]`
+    using ``scipy.optimize.curve_fit``.
 
     Args:
-        funcs: a list of objective functions with signatures `f_i(x, *params)`.
-        xdata: a 2D array of xdata and function function indexes.
-        ydata: a 1D array of ydata
+        funcs: a list of objective functions with each with signature
+               :math`f_k`(x, *params)`.
+        xdata: a 2D float array of xdata and function indexes.
+        ydata: a 1D float array of ydata
         p0: initial guess for optimization parameters.
         sigma: Optional, a 1D array of standard deviations in ydata.
-        weights: Optional, a 1D list of numeric weights for each function.
+        weights: Optional, a 1D float list of weights :math:`w_k` for each
+                 component function :math:`f_k`.
         kwargs: additional kwargs for scipy.optimize.curve_fit.
 
     Returns:
@@ -166,7 +185,7 @@ def curve_fit_data(
     """
     filtered_data = filter_data(data, **filters)
     size = len(filtered_data)
-    xdata = np.zeros(size, dtype=int)
+    xdata = np.zeros(size, dtype=float)
     ydata = np.zeros(size, dtype=float)
     ydata_var = np.zeros(size, dtype=float)
 
