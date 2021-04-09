@@ -14,7 +14,7 @@ Data processing utility functions for curve fitting experiments
 """
 # pylint: disable = invalid-name
 
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional
 import numpy as np
 
 
@@ -45,16 +45,21 @@ def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
     return filtered_data
 
 
-def mean_xy_data(xdata: np.ndarray, ydata: np.ndarray) -> Tuple[np.ndarray]:
+def mean_xy_data(
+    xdata: np.ndarray, ydata: np.ndarray, sigma: Optional[np.ndarray] = None
+) -> Tuple[np.ndarray]:
     """Return (x, y_mean, sigma) data.
 
     The mean is taken over all ydata values with the same xdata value.
+    If `sigma=None` the sample mean and biased sample variance is used,
+    otherwise the inverse-variance weighted mean and variance is used.
 
     Args
         xdata: 1D or 2D array of xdata from curve_fit_data or
                multi_curve_fit_data
         ydata: array of ydata returned from curve_fit_data or
                multi_curve_fit_data
+        sigma: Optional, array of standard deviations in ydata.
 
     Returns:
         tuple: ``(x, y_mean, sigma)`` if ``return_raw==False``, where
@@ -65,13 +70,25 @@ def mean_xy_data(xdata: np.ndarray, ydata: np.ndarray) -> Tuple[np.ndarray]:
     x_means = np.unique(xdata, axis=0)
     y_means = np.zeros(x_means.size)
     y_sigmas = np.zeros(x_means.size)
+    if sigma is None:
+        sigma = np.ones(xdata.size)
     for i in range(x_means.size):
-        ys = ydata[xdata == x_means[i]]
-        num_samples = len(ys)
-        sample_mean = np.mean(ys)
-        sample_var = np.sum((sample_mean - ys) ** 2) / (num_samples - 1)
-        y_means[i] = sample_mean
-        y_sigmas[i] = np.sqrt(sample_var)
+        # Get positions of y to average
+        idxs = xdata == x_means[i]
+        ys = ydata[idxs]
+
+        if sigma:
+            # Compute the inverse-variance weighted y mean and variance
+            weights = 1 / sigma[idxs] ** 2
+            y_var = 1 / np.sum(weights)
+            y_mean = y_var * np.sum(weights * ys)
+        else:
+            # Compute biased sample mean and variance
+            y_mean = np.mean(ys)
+            y_var = np.sum((y_mean - ys) ** 2) / len(ys)
+
+        y_means[i] = y_mean
+        y_sigmas[i] = np.sqrt(y_var)
     return x_means, y_means, y_sigmas
 
 
