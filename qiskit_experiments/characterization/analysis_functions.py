@@ -20,6 +20,15 @@ from scipy.optimize import curve_fit
 def exp_fit_fun(x, a, tau, c):
     """
     Exponential fit function
+
+    Args:
+        x (float or array): a function parameter
+        a (float or array): a function parameter (exponent amplitude)
+        tau (float or array): a function parameter (exponential decrease rate)
+        c (float or array): a function parameter (exponent offset)
+
+    Returns:
+         a * np.exp(-x / tau) + c
     """
     return a * np.exp(-x / tau) + c
 
