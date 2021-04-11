@@ -57,7 +57,7 @@ class T1Analysis(BaseAnalysis):
         """
 
         circuit_unit = experiment_data._data[0]["metadata"]["unit"]
-        dt_factor_in_sec = experiment_data._data[0]["metadata"]["dt_factor_in_sec"]
+        dt_factor_in_sec = experiment_data._data[0]["metadata"].get("dt_factor_in_sec", None)
         if dt_factor_in_sec is None:
             dt_factor_in_microsec = 1
             result_unit = circuit_unit
@@ -191,8 +191,6 @@ class T1Experiment(BaseExperiment):
                 dt_factor_in_sec = getattr(backend.configuration(), "dt")
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
-        else:
-            dt_factor_in_sec = None
 
         circuits = []
 
@@ -209,9 +207,11 @@ class T1Experiment(BaseExperiment):
                 "qubit": self.physical_qubits[0],
                 "delay": delay,
                 "unit": self._unit,
-                "dt_factor_in_sec": dt_factor_in_sec,
             }
-
+                
+            if self._unit == "dt":
+                circ.metadata["dt_factor_in_sec"] = dt_factor_in_sec
+            
             circuits.append(circ)
 
         return circuits

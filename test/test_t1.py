@@ -248,7 +248,6 @@ class TestT1(unittest.TestCase):
                     "qubit": 0,
                     "delay": delay,
                     "unit": "ms",
-                    "dt_factor_in_sec": None,
                 },
             )
 
