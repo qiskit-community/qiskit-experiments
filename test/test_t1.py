@@ -276,6 +276,9 @@ class TestT1(unittest.TestCase):
         self.assertEqual(res["quality"], "computer_bad")
 
     def test_generate_delays(self):
+        """
+        Test the static method T1Experiment.generate_delays
+        """
         delays = T1Experiment.generate_delays(25, 30)
         self.assertEqual(len(delays), 30)
         self.assertEqual(delays[0], 3)

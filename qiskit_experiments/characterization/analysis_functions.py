@@ -28,7 +28,7 @@ def exp_fit_fun(x, a, tau, c):
         c (float or array): a function parameter (exponent offset)
 
     Returns:
-         a * np.exp(-x / tau) + c
+        float or array: a * np.exp(-x / tau) + c
     """
     return a * np.exp(-x / tau) + c
 
