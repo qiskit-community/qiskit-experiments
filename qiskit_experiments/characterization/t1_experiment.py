@@ -215,3 +215,7 @@ class T1Experiment(BaseExperiment):
             circuits.append(circ)
 
         return circuits
+
+    @staticmethod
+    def generate_delays(t1_estimate, num_of_points):
+        return np.geomspace(3, 7*t1_estimate, num_of_points)
