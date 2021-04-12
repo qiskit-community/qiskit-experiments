@@ -49,15 +49,6 @@ class DataProcessor:
 
         self._history = []
 
-    @property
-    def history(self) -> List[Tuple[str, Dict[str, Any]]]:
-        """
-        Returns:
-            The history of the data processor. The ith tuple in the history corresponds to the
-            output of the ith node. Each tuple corresponds to (node name, data dict).
-        """
-        return self._history
-
     def append(self, node: DataAction):
         """
         Append new data action node to this data processor.
@@ -87,7 +78,7 @@ class DataProcessor:
 
         return None
 
-    def __call__(self, data: Dict[str, Any], save_history: bool = False) -> Dict[str, Any]:
+    def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Call self on the given data. This method sequentially calls the stored data actions
         on the data.
@@ -95,18 +86,30 @@ class DataProcessor:
         Args:
             data: The data, typically from an ExperimentData instance, that needs to
                 be processed. This dict also contains the metadata of each experiment.
-            save_history: If set to true the history is saved under the history property.
-                If set to False the history will be empty.
 
         Returns:
-            processed data: The data processed by the data processor..
+            processed data: The data processed by the data processor.
         """
-        self._history = []
-
         for node in self._nodes:
             data = node(data)
 
-            if save_history:
-                self._history.append((node.__class__.__name__, dict(data)))
-
         return data
+
+    def call_with_history(self, data: Dict[str, Any]) -> Tuple[Dict[str, Any], List]:
+        """
+        Process the given data but save each step in a list returned to the user.
+
+        Args:
+            data: The data, typically from an ExperimentData instance, that needs to
+                be processed. This dict also contains the metadata of each experiment.
+
+        Returns:
+            processed data: The data processed by the data processor.
+            history: The data processed at each node of the data processor.
+        """
+        history = []
+        for node in self._nodes:
+            data = node(data)
+            history.append((node.__class__.__name__, dict(data)))
+
+        return data, history

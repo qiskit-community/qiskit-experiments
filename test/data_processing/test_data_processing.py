@@ -167,7 +167,7 @@ class DataProcessorTest(QiskitTestCase):
         exp_data = ExperimentData(FakeExperiment())
         exp_data.add_data(self.result_lvl1)
 
-        new_data = processor(exp_data.data[0], save_history=True)
+        new_data, history = processor.call_with_history(exp_data.data[0])
 
         expected_old = {
             "memory": [
@@ -187,7 +187,6 @@ class DataProcessorTest(QiskitTestCase):
         self.assertEqual(new_data, expected_new)
 
         # Check the history
-        history = processor.history
         self.assertEqual(history[0][0], "ToReal")
         self.assertEqual(history[0][1], expected_new)
 
@@ -249,13 +248,14 @@ class DataProcessorTest(QiskitTestCase):
 
         self.assertEqual(exp_data.data[0], expected_old)
         self.assertEqual(new_data, expected_new)
-        self.assertEqual(processor.history, [])
 
         # Test the history
-        new_data = processor(exp_data.data[0], save_history=True)
+        new_data, history = processor.call_with_history(exp_data.data[0],)
 
         self.assertEqual(exp_data.data[0], expected_old)
         self.assertEqual(new_data, expected_new)
+        self.assertEqual(history[0][0], "ToImag")
+        self.assertEqual(history[0][1], expected_new)
 
     def test_populations(self):
         """Test that counts are properly converted to a population."""
