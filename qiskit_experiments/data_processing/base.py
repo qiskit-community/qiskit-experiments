@@ -48,7 +48,7 @@ class DataAction(metaclass=ABCMeta):
         self._accepted_inputs.append(data_key)
 
     @abstractmethod
-    def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def _process(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Applies the data processing step to the data.
 
