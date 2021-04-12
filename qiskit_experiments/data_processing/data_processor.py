@@ -89,11 +89,8 @@ class DataProcessor:
 
     def __call__(self, data: Dict[str, Any], save_history: bool = False) -> Dict[str, Any]:
         """
-        Call self on the given data.
-
-        This method sequentially calls stored child data processing nodes
-        with its `format_data` methods. Once all child nodes have called,
-        input data is converted into expected data format.
+        Call self on the given data. This method sequentially calls the stored data actions
+        on the data.
 
         Args:
             data: The data, typically from an ExperimentData instance, that needs to
@@ -107,7 +104,7 @@ class DataProcessor:
         self._history = []
 
         for node in self._nodes:
-            data = node.format_data(data)
+            data = node(data)
 
             if save_history:
                 self._history.append((node.__class__.__name__, dict(data)))

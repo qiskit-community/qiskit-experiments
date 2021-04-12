@@ -74,9 +74,9 @@ class DataAction(metaclass=ABCMeta):
 
         raise DataProcessorError(f"None of {self.node_inputs} are in the given data.")
 
-    def format_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Apply the data action of this node and call the child node's format_data method.
+        Call the data action of this node on the data.
 
         Args:
             data: A dict containing the data. The action nodes in the data
