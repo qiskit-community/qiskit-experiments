@@ -59,7 +59,7 @@ class DataAction(metaclass=ABCMeta):
             processed data: The data that has been processed.
         """
 
-    def check_required(self, data: Dict[str, Any]):
+    def _check_required(self, data: Dict[str, Any]):
         """Checks that the given data contains the right key.
 
         Args:
