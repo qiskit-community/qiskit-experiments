@@ -82,6 +82,11 @@ def curve_fit(
         param_bounds = bounds
         fit_func = func
 
+    # Override scipy.curve_fit default for absolute_sigma to True
+    # if not specified in kwargs and sigma is not None
+    if sigma is not None and 'absolute_sigma' not in kwargs:
+        kwargs['absolute_sigma'] = True
+
     # Run curve fit
     # pylint: disable = unbalanced-tuple-unpacking
     popt, pcov = opt.curve_fit(
