@@ -87,9 +87,9 @@ class DataProcessor:
 
         return None
 
-    def format_data(self, data: Dict[str, Any], save_history: bool = False) -> Dict[str, Any]:
+    def __call__(self, data: Dict[str, Any], save_history: bool = False) -> Dict[str, Any]:
         """
-        Format the given data.
+        Call self on the given data.
 
         This method sequentially calls stored child data processing nodes
         with its `format_data` methods. Once all child nodes have called,

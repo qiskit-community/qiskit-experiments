@@ -108,7 +108,7 @@ class DataProcessorTest(QiskitTestCase):
     def test_empty_processor(self):
         """Check that a DataProcessor without steps does nothing."""
         data_processor = DataProcessor()
-        data_processor.format_data(self.exp_data_lvl2.data)
+        data_processor(self.exp_data_lvl2.data)
         self.assertEqual(self.exp_data_lvl2.data[0]["counts"]["00"], 4)
         self.assertEqual(self.exp_data_lvl2.data[0]["counts"]["10"], 6)
 
@@ -141,7 +141,7 @@ class DataProcessorTest(QiskitTestCase):
         exp_data = ExperimentData(FakeExperiment())
         exp_data.add_data(self.result_lvl1)
 
-        new_data = processor.format_data(exp_data.data[0])
+        new_data = processor(exp_data.data[0])
 
         expected_old = {
             "memory": [
@@ -167,7 +167,7 @@ class DataProcessorTest(QiskitTestCase):
         exp_data = ExperimentData(FakeExperiment())
         exp_data.add_data(self.result_lvl1)
 
-        new_data = processor.format_data(exp_data.data[0], save_history=True)
+        new_data = processor(exp_data.data[0], save_history=True)
 
         expected_old = {
             "memory": [
@@ -200,7 +200,7 @@ class DataProcessorTest(QiskitTestCase):
         exp_data = ExperimentData(FakeExperiment())
         exp_data.add_data(self.result_lvl1)
 
-        new_data = processor.format_data(exp_data.data[0])
+        new_data = processor(exp_data.data[0])
 
         expected_old = {
             "memory": [
@@ -231,7 +231,7 @@ class DataProcessorTest(QiskitTestCase):
         exp_data = ExperimentData(FakeExperiment())
         exp_data.add_data(self.result_lvl1)
 
-        new_data = processor.format_data(exp_data.data[0])
+        new_data = processor(exp_data.data[0])
 
         expected_old = {
             "memory": [
@@ -252,7 +252,7 @@ class DataProcessorTest(QiskitTestCase):
         self.assertEqual(processor.history, [])
 
         # Test the history
-        new_data = processor.format_data(exp_data.data[0], save_history=True)
+        new_data = processor(exp_data.data[0], save_history=True)
 
         self.assertEqual(exp_data.data[0], expected_old)
         self.assertEqual(new_data, expected_new)
@@ -262,7 +262,7 @@ class DataProcessorTest(QiskitTestCase):
 
         processor = DataProcessor()
         processor.append(Population())
-        new_data = processor.format_data(self.exp_data_lvl2.data[0])
+        new_data = processor(self.exp_data_lvl2.data[0])
 
         self.assertEqual(new_data["populations"][1], 0.0)
         self.assertEqual(new_data["populations"][0], 0.6)
