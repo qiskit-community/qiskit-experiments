@@ -12,7 +12,7 @@
 
 """Qiskit experiments calibration data processing roots."""
 
-from .base import DataAction
+from .data_action import DataAction
 from .nodes import (
     Population,
     ToImag,

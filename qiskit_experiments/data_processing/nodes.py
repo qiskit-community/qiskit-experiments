@@ -16,7 +16,7 @@ from abc import abstractmethod
 from typing import Any, Dict, Optional, Tuple
 import numpy as np
 
-from qiskit_experiments.data_processing.base import DataAction
+from qiskit_experiments.data_processing.data_action import DataAction
 
 
 class IQPart(DataAction):

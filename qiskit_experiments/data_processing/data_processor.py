@@ -14,7 +14,7 @@
 
 from typing import Any, Dict, List, Tuple, Union
 
-from qiskit_experiments.data_processing.base import DataAction
+from qiskit_experiments.data_processing.data_action import DataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
 
