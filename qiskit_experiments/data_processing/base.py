@@ -86,8 +86,8 @@ class DataAction(metaclass=ABCMeta):
         Returns:
             processed data: The output data of the node contained in a dict.
         """
-        self.check_required(data)
-        processed_data = self.process(data)
+        self._check_required(data)
+        processed_data = self._process(data)
         processed_data["metadata"] = data.get("metadata", {})
         return processed_data
 

@@ -34,7 +34,7 @@ class IQPart(DataAction):
         self._accepted_inputs = ["memory"]
 
     @abstractmethod
-    def _process(self, point: Tuple[float, float]) -> float:
+    def _process_iq(self, point: Tuple[float, float]) -> float:
         """Defines how the IQ point will be processed.
 
         Args:
@@ -44,7 +44,7 @@ class IQPart(DataAction):
             Processed IQ point.
         """
 
-    def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def _process(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Modifies the data inplace by taking the real part of the memory and
         scaling it by the given factor.
@@ -60,14 +60,14 @@ class IQPart(DataAction):
         if isinstance(data["memory"][0][0], list):
             new_mem = []
             for shot in data["memory"]:
-                new_mem.append([self.scale * self._process(iq_point) for iq_point in shot])
+                new_mem.append([self.scale * self._process_iq(iq_point) for iq_point in shot])
 
             if self.average:
                 new_mem = list(np.mean(np.array(new_mem), axis=0))
 
         # Averaged data
         else:
-            new_mem = [self.scale * self._process(iq_point) for iq_point in data["memory"]]
+            new_mem = [self.scale * self._process_iq(iq_point) for iq_point in data["memory"]]
 
         return {self.__node_output__: new_mem}
 
@@ -77,7 +77,7 @@ class ToReal(IQPart):
 
     __node_output__ = "memory_real"
 
-    def _process(self, point: Tuple[float, float]) -> float:
+    def _process_iq(self, point: Tuple[float, float]) -> float:
         """Defines how the IQ point will be processed.
 
         Args:
@@ -94,7 +94,7 @@ class ToImag(IQPart):
 
     __node_output__ = "memory_imag"
 
-    def _process(self, point: Tuple[float, float]) -> float:
+    def _process_iq(self, point: Tuple[float, float]) -> float:
         """Defines how the IQ point will be processed.
 
         Args:
@@ -116,7 +116,7 @@ class Population(DataAction):
         super().__init__()
         self._accepted_inputs = ["counts"]
 
-    def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def _process(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Args:
             data: The data dictionary. This will modify the dict in place,
