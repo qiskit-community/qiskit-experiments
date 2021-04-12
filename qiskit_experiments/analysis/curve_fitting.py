@@ -18,7 +18,7 @@ from typing import List, Dict, Tuple, Callable, Optional, Union
 
 import numpy as np
 import scipy.optimize as opt
-
+from qiskit.exceptions import QiskitError
 from qiskit_experiments.base_analysis import AnalysisResult
 from qiskit_experiments.analysis.data_processing import filter_data
 
@@ -58,6 +58,11 @@ def curve_fit(
         `pcov` the covariance matrix for the fit,
         `chisq` the chi-squared parameter of fit,
         `xrange` the range of xdata values used for fit.
+
+    Raises:
+        QiskitError: if the number of y-values in the dataset is not
+                     greater than the number of parameters in the
+                     fit function.
     """
     # Format p0 parameters if specified as dictionary
     if isinstance(p0, dict):
@@ -82,24 +87,34 @@ def curve_fit(
         param_bounds = bounds
         fit_func = func
 
+    # Check data set has at least 1 more values than model parameters
+    num_params = len(param_p0)
+    if len(ydata) <= num_params:
+        raise QiskitError(
+            "The number of y-values in the dataset is not greater than"
+            " the number of parameters in the fit function."
+        )
+
     # Override scipy.curve_fit default for absolute_sigma to True
-    # if not specified in kwargs and sigma is not None
-    if sigma is not None and 'absolute_sigma' not in kwargs:
-        kwargs['absolute_sigma'] = True
+    # if not specified in kwargs
+    if sigma is not None and "absolute_sigma" not in kwargs:
+        kwargs["absolute_sigma"] = True
 
     # Run curve fit
+    # TODO: Add error handling so if fitting fails we can return an analysis
+    #       result containing this information
     # pylint: disable = unbalanced-tuple-unpacking
     popt, pcov = opt.curve_fit(
         fit_func, xdata, ydata, sigma=sigma, p0=param_p0, bounds=param_bounds, **kwargs
     )
     popt_err = np.sqrt(np.diag(pcov))
 
-    # Compute chi-squared for fit
+    # Calculate the reduced chi-squared for fit
     yfits = fit_func(xdata, *popt)
     residues = (yfits - ydata) ** 2
     if sigma is not None:
         residues = residues / (sigma ** 2)
-    chisq = np.mean(residues)
+    chisq = np.sum(residues) / (len(yfits) - num_params)
 
     # Compute xdata range for fit
     xdata_range = [min(xdata), max(xdata)]
@@ -113,10 +128,6 @@ def curve_fit(
         "xrange": xdata_range,
     }
 
-    # TODO:
-    #  1. Add some basic validation of computer good / bad based on fit result.
-    #  2. Add error handling so if fitting fails we can return an analysis
-    #     result containing this information
     return AnalysisResult(result)
 
 
@@ -168,7 +179,9 @@ def multi_curve_fit(
                         `xrange` the range of xdata values used for fit.
 
     Raises:
-        QiskitError: if input xdata is not 2D.
+        QiskitError: if the number of y-values in the dataset is not
+                     greater than the number of parameters in the
+                     fit function.
     """
     num_funcs = len(funcs)
 
