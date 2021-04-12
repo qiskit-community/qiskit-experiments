@@ -77,7 +77,7 @@ def mean_xy_data(
         idxs = xdata == x_means[i]
         ys = ydata[idxs]
 
-        if sigma:
+        if sigma is not None:
             # Compute the inverse-variance weighted y mean and variance
             weights = 1 / sigma[idxs] ** 2
             y_var = 1 / np.sum(weights)
