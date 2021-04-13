@@ -304,30 +304,34 @@ class Calibrations:
 
     def get_circuit(
         self,
-        name: str,
+        schedule_name: str,
         qubits: Tuple,
         free_params: List[str] = None,
         group: Optional[str] = "default",
         schedule: Schedule = None,
     ) -> QuantumCircuit:
         """
+        Queries a schedule by name for the given set of qubits. The parameters given
+        under the list free_params are left unassigned. The queried schedule is then
+        embedded in a gate with a calibration and returned as a quantum circuit.
+
         Args:
-            name: The name of the gate to retrieve.
-            qubits: The qubits for which to generate the Gate.
+            schedule_name: The name of the schedule to retrieve.
+            qubits: The qubits for which to generate the gate with the schedule in it.
             free_params: Names of the parameters that will remain unassigned.
             group: The calibration group from which to retrieve the calibrated values.
-                If unspecified this default to 'default'.
+                If unspecified this defaults to 'default'.
             schedule: The schedule to add to the gate if the internally stored one is
-                not going to be used.
+                not used.
 
         Returns:
             A quantum circuit in which the parameter values have been assigned aside from
             those explicitly specified in free_params.
         """
         if schedule is None:
-            schedule = self.get_schedule(name, qubits, free_params, group)
+            schedule = self.get_schedule(schedule_name, qubits, free_params, group)
 
-        gate = Gate(name=name, num_qubits=len(qubits), params=list(schedule.parameters))
+        gate = Gate(name=schedule_name, num_qubits=len(qubits), params=list(schedule.parameters))
         circ = QuantumCircuit(len(qubits), len(qubits))
         circ.append(gate, list(range(len(qubits))))
         circ.add_calibration(gate, qubits, schedule, params=schedule.parameters)
