@@ -246,7 +246,16 @@ class Calibrations:
         candidates = [candidate for candidate in candidates if candidate.group == group]
 
         if cutoff_date:
-            candidates = [_ for _ in candidates if _ <= cutoff_date]
+            candidates = [val for val in candidates if val.date_time <= cutoff_date]
+
+        if len(candidates) == 0:
+            msg = f"No candidate parameter values for {param_name} in calibration group " \
+                  f"{group} on qubits {qubits} in schedule {sched_name} "
+
+            if cutoff_date:
+                msg += f" Cutoff date: {cutoff_date}"
+
+            raise CalibrationError(msg)
 
         candidates.sort(key=lambda x: x.date_time)
 
