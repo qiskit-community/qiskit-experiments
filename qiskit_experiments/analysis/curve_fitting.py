@@ -230,9 +230,6 @@ def process_curve_data(
     Returns:
         tuple: ``(x, y, sigma)`` tuple of arrays of x-values,
                y-values, and standard deviations of y-values.
-
-    Raises:
-        QiskitError: if input data is not level-2 measurement.
     """
     filtered_data = filter_data(data, **filters)
     size = len(filtered_data)
@@ -240,7 +237,7 @@ def process_curve_data(
     ydata = np.zeros(size, dtype=float)
     ydata_var = np.zeros(size, dtype=float)
 
-    for i, datum in enumerate(filter_data):
+    for i, datum in enumerate(filtered_data):
         metadata = datum["metadata"]
         xdata[i] = metadata[x_key]
         y_mean, y_var = data_processor(datum)
@@ -269,9 +266,6 @@ def process_multi_curve_data(
     Returns:
         tuple: ``(series, x, y, sigma)`` tuple of arrays of series values,
                x-values, y-values, and standard deviations of y-values.
-
-    Raises:
-        QiskitError: if input data is not level-2 measurement.
     """
     filtered_data = filter_data(data, **filters)
     size = len(filtered_data)

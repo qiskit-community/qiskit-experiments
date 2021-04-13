@@ -16,6 +16,7 @@ Data processing utility functions for curve fitting experiments
 
 from typing import List, Dict, Tuple, Optional
 import numpy as np
+from qiskit.exceptions import QiskitError
 
 
 def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
@@ -46,13 +47,20 @@ def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
 
 
 def mean_xy_data(
-    xdata: np.ndarray, ydata: np.ndarray, sigma: Optional[np.ndarray] = None
+    xdata: np.ndarray, ydata: np.ndarray, sigma: Optional[np.ndarray] = None, method: str = "sample"
 ) -> Tuple[np.ndarray]:
-    """Return (x, y_mean, sigma) data.
+    r"""Return (x, y_mean, sigma) data.
 
-    The mean is taken over all ydata values with the same xdata value.
-    If `sigma=None` the sample mean and biased sample variance is used,
-    otherwise the inverse-variance weighted mean and variance is used.
+    The mean is taken over all ydata values with the same xdata value using
+    the specified method. For each x the mean :math:`\overline{y}` and variance
+    :math:`\sigma^2` are computed as
+
+    * ``"sample"`` (default) *Sample mean and variance*
+      :math:`\overline{y} = \sum_{i=1}^N y_i / N`,
+      :math:`\sigma^2 = \sum_{i=1}^N ((\overline{y} - y_i)^2) / N`
+    * ``"iwv"`` *Inverse-weighted variance*
+      :math:`\overline{y} = (\sum_{i=1}^N y_i / \sigma_i^2 ) \sigma^2`
+      :math:`\sigma^2 = 1 / (\sum_{i=1}^N 1 / \sigma_i^2)`
 
     Args
         xdata: 1D or 2D array of xdata from curve_fit_data or
@@ -60,36 +68,56 @@ def mean_xy_data(
         ydata: array of ydata returned from curve_fit_data or
                multi_curve_fit_data
         sigma: Optional, array of standard deviations in ydata.
+        method: The method to use for computing y means and
+                standard deviations sigma (default: "sample").
 
     Returns:
         tuple: ``(x, y_mean, sigma)`` if ``return_raw==False``, where
                ``x`` is an arrays of unique x-values, ``y`` is an array of
                sample mean y-values, and ``sigma`` is an array of sample standard
                deviation of y values.
+
+    Raises:
+        QiskitError: if "ivw" method is used without providing a sigma.
     """
     x_means = np.unique(xdata, axis=0)
     y_means = np.zeros(x_means.size)
     y_sigmas = np.zeros(x_means.size)
-    if sigma is None:
-        sigma = np.ones(xdata.size)
-    for i in range(x_means.size):
-        # Get positions of y to average
-        idxs = xdata == x_means[i]
-        ys = ydata[idxs]
 
-        if sigma is not None:
+    # Sample mean and variance method
+    if method == "sample":
+        for i in range(x_means.size):
+            # Get positions of y to average
+            idxs = xdata == x_means[i]
+            ys = ydata[idxs]
+
+            # Compute sample mean and biased sample variance
+            y_means[i] = np.mean(ys)
+            y_sigmas[i] = np.mean((y_means[i] - ys) ** 2)
+
+        return x_means, y_means, y_sigmas
+
+    # Inverse-weighted variance method
+    if method == "iwv":
+        if sigma is None:
+            raise QiskitError(
+                "The inverse-weighted variance method cannot be used with" " `sigma=None`"
+            )
+        for i in range(x_means.size):
+            # Get positions of y to average
+            idxs = xdata == x_means[i]
+            ys = ydata[idxs]
+
             # Compute the inverse-variance weighted y mean and variance
             weights = 1 / sigma[idxs] ** 2
             y_var = 1 / np.sum(weights)
-            y_mean = y_var * np.sum(weights * ys)
-        else:
-            # Compute biased sample mean and variance
-            y_mean = np.mean(ys)
-            y_var = np.sum((y_mean - ys) ** 2) / len(ys)
+            y_means[i] = y_var * np.sum(weights * ys)
+            y_sigmas[i] = np.sqrt(y_var)
 
-        y_means[i] = y_mean
-        y_sigmas[i] = np.sqrt(y_var)
-    return x_means, y_means, y_sigmas
+        return x_means, y_means, y_sigmas
+
+    # Invalid method
+    raise QiskitError(f"Unsupported method {method}")
 
 
 def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float]:
@@ -108,10 +136,10 @@ def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float]:
         This assumes a binomial distribution where :math:`K` counts
         of the desired outcome from :math:`N` shots the
         mean probability is :math:`p = K / N` and the variance is
-        :math:`\\sigma^2 = N p (1-p)`.
+        :math:`\\sigma^2 = p (1-p) / N`.
     """
     counts = data["counts"]
     shots = sum(counts.values())
     p_mean = counts.get(outcome, 0.0) / shots
-    p_var = shots * p_mean * (1 - p_mean)
+    p_var = p_mean * (1 - p_mean) / shots
     return p_mean, p_var
