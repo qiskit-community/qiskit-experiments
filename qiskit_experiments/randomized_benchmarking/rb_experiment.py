@@ -121,7 +121,7 @@ class RBExperiment(BaseExperiment):
                 rb_circ.barrier(qubits)
                 rb_circ.metadata = {
                     "experiment_type": self._type,
-                    "xdata": current_length,
+                    "xdata": current_length + 1,
                     "ylabel": self.num_qubits * "0",
                     "group": "Clifford",
                     "qubits": self.physical_qubits,

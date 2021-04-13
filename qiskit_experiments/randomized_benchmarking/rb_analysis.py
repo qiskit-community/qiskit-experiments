@@ -16,7 +16,9 @@ Standard RB analysis class.
 from typing import Optional, List
 
 import numpy as np
-from qiskit_experiments.analysis.curve_fit_analysis import CurveFitAnalysis
+from qiskit_experiments.base_analysis import BaseAnalysis
+from qiskit_experiments.analysis.curve_fitting import curve_fit
+from qiskit_experiments.analysis.data_processing import level2_probability, mean_xy_data, filter_data
 
 try:
     from matplotlib import pyplot as plt
@@ -26,7 +28,7 @@ except ImportError:
     HAS_MATPLOTLIB = False
 
 
-class RBAnalysis(CurveFitAnalysis):
+class RBAnalysis(BaseAnalysis):
     """RB Analysis class."""
 
     # pylint: disable = arguments-differ, invalid-name
@@ -49,59 +51,69 @@ class RBAnalysis(CurveFitAnalysis):
                    AnalysisResult objects, and ``figures`` may be
                    None, a single figure, or a list of figures.
         """
-        # TODO: Get from experiment level metadata
-        num_qubits = len(experiment_data.data[0]["metadata"]["qubits"])
+        self._num_qubits = len(experiment_data.data[0]["metadata"]["qubits"])
+        xdata, ydata, ydata_sigma = self._extract_data(experiment_data)
 
-        # Fit function
         def fit_fun(x, a, alpha, b):
             return a * alpha ** x + b
 
-        # Initial guess function
-        # NOTE: I don't think this is a good guess function
-        # its just inserted as a place holder for one
-        # pylint: disable = unused-argument
-        def p0_func(xdata, ydata, sigma=None):
-            xmin = np.min(xdata)
-            y_mean_min = np.mean(ydata[xdata == xmin])
+        p0 = self._p0(xdata, ydata)
 
-            xmax = np.max(xdata)
-            y_mean_max = np.mean(ydata[xdata == xmax])
-
-            b_guess = 1 / (2 ** num_qubits)
-            a_guess = 1 - b_guess
-            alpha_guess = np.exp(
-                np.log((y_mean_min - b_guess) / (y_mean_max - b_guess)) / (xmin - xmax)
-            )
-            # Make sure alpha guess is feasible
-            alpha_guess = max(min(alpha_guess, 1), 0)
-            return [a_guess, alpha_guess, b_guess]
-
-        # Run CurveFitAnalysis
-        analysis_result, figs = super()._run_analysis(
-            experiment_data,
-            fit_fun,
-            p0=p0,
-            p0_func=p0_func,
-            bounds=([0, 0, 0], [1, 1, 1]),
-            fit_mean_data=True,
-            plot=plot,
-            ax=ax,
-        )
+        analysis_result = curve_fit(fit_fun, xdata, ydata, p0, ydata_sigma, bounds=([0, 0, 0], [1, 1, 1]))
 
         # Add EPC data
         popt = analysis_result["popt"]
         popt_err = analysis_result["popt_err"]
-        scale = (2 ** num_qubits - 1) / (2 ** num_qubits)
+        scale = (2 ** self._num_qubits - 1) / (2 ** self._num_qubits)
         analysis_result["EPC"] = scale * (1 - popt[1])
         analysis_result["EPC_err"] = scale * popt_err[1] / popt[1]
         analysis_result["plabels"] = ["A", "alpha", "B"]
 
-        # Format figure
-        if figs is not None:
-            self._format_plot(figs[0], analysis_result)
-            # TODO: figure out what to do with plots
-            plt.show()
-        return analysis_result, figs
+        return analysis_result, None
+        # # Format figure
+        # if figs is not None:
+        #     self._format_plot(figs[0], analysis_result)
+        #     # TODO: figure out what to do with plots
+        #     plt.show()
+
+    def _p0(self, xdata, ydata):
+        fit_guess = [0.95, 0.99, 1 / 2 ** self._num_qubits]
+        # Use the first two points to guess the decay param
+        dcliff = (xdata[1] - xdata[0])
+        dy = ((ydata[1] - fit_guess[2]) / (ydata[0] - fit_guess[2]))
+        alpha_guess = dy ** (1 / dcliff)
+        if alpha_guess < 1.0:
+            fit_guess[1] = alpha_guess
+
+        if ydata[0] > fit_guess[2]:
+            fit_guess[0] = ((ydata[0] - fit_guess[2]) /
+                            fit_guess[1] ** xdata[0])
+
+        return fit_guess
+
+    def _extract_data(self, experiment_data, **filters):
+        """Extract the base data for the fitter from the experiment data.
+        Args:
+            data: the experiment data to analyze
+        Returns:
+            tuple: ``(xdata, ydata, ydata_sigma)`` , where
+               ``xdata`` is an array of unique x-values, ``ydata`` is an array of
+               sample mean y-values, and ``ydata_sigma`` is an array of sample standard
+               deviation of y values.
+        """
+        data = filter_data(experiment_data.data, **filters)
+        size = len(data)
+        xdata = np.zeros(size, dtype=int)
+        ydata = np.zeros(size, dtype=float)
+        ydata_var = np.zeros(size, dtype=float)
+        for i, datum in enumerate(data):
+            metadata = datum['metadata']
+            xdata[i] = metadata['xdata']
+            ydata[i], ydata_var[i] = level2_probability(datum, metadata['ylabel'])
+
+        ydata_sigma = np.sqrt(ydata_var)
+        xdata, ydata, ydata_sigma = mean_xy_data(xdata, ydata, ydata_sigma)
+        return (xdata, ydata, ydata_sigma)
 
     @classmethod
     def _format_plot(cls, ax, analysis_result, add_label=True):
