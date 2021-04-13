@@ -149,7 +149,7 @@ class Calibrations:
         else:
             self._params[param][qubits].append(value)
 
-    def _get_channel_index(self, qubits: Tuple, chan: PulseChannel) -> int:
+    def _get_channel_index(self, qubits: Tuple, chan: PulseChannel, control_index: int = 0) -> int:
         """
         Get the index of the parameterized channel based on the given qubits
         and the name of the parameter in the channel index. The name of this
@@ -159,6 +159,8 @@ class Calibrations:
         Args:
             qubits: The qubits for which we want to obtain the channel index.
             chan: The channel with a parameterized name.
+            control_index: An index used to specify which control channel to use if a given
+            pair of qubits has more than one control channel.
 
         Returns:
             index: The index of the channel. For example, if qubits=(10, 32) and
@@ -185,13 +187,12 @@ class Calibrations:
                 ch_qubits = tuple(qubits[index] for index in indices)
                 chs_ = self._config.control(ch_qubits)
 
-                if len(chs_) != 1:
+                if len(chs_) < control_index:
                     raise CalibrationError(
-                        "Ambiguous number of control channels for "
-                        f"qubits {qubits} and {chan.name}."
+                        f"Control channel index {control_index} not found for qubits {qubits}."
                     )
 
-                return chs_[0].index
+                return chs_[control_index].index
 
             raise CalibrationError(f"{chan} must be a sub-type of {PulseChannel}.")
 
@@ -249,8 +250,10 @@ class Calibrations:
             candidates = [val for val in candidates if val.date_time <= cutoff_date]
 
         if len(candidates) == 0:
-            msg = f"No candidate parameter values for {param_name} in calibration group " \
-                  f"{group} on qubits {qubits} in schedule {sched_name} "
+            msg = (
+                f"No candidate parameter values for {param_name} in calibration group "
+                f"{group} on qubits {qubits} in schedule {sched_name} "
+            )
 
             if cutoff_date:
                 msg += f" Cutoff date: {cutoff_date}"
@@ -306,7 +309,9 @@ class Calibrations:
         binding_dict = {}
         for param in sched.parameters:
             if param.name not in free_params:
-                binding_dict[param] = self.get_parameter_value(param.name, qubits, name, group=group)
+                binding_dict[param] = self.get_parameter_value(
+                    param.name, qubits, name, group=group
+                )
 
         sched.assign_parameters(binding_dict)
 
