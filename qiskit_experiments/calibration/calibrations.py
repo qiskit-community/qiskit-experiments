@@ -17,7 +17,6 @@ import dataclasses
 from collections import namedtuple
 from datetime import datetime
 from typing import Any, Dict, Set, Tuple, Union, List, Optional
-import pandas as pd
 
 from qiskit.circuit import Gate
 from qiskit import QuantumCircuit
