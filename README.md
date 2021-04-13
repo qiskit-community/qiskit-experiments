@@ -12,7 +12,7 @@ and analysis of experiments on noisy quantum computers.
 
 ## Contribution Guidelines
 
-If you'd like to contribute to Qiskit Terra, please take a look at our
+If you'd like to contribute to Qiskit Experiments, please take a look at our
 [contribution guidelines](CONTRIBUTING.md). This project adheres to Qiskit's
 [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to
 uphold this code.
@@ -27,7 +27,7 @@ For questions that are more suited for a forum we use the Qiskit tag in the
 
 ## Authors and Citation
 
-Qiskit Experiments is the work of [many people](https://github.com/Qiskit/qiskit-terra/graphs/contributors) who contribute
+Qiskit Experiments is the work of [many people](https://github.com/Qiskit/qiskit-experiments/graphs/contributors) who contribute
 to the project at different levels. If you use Qiskit, please cite as per the included [BibTeX file](https://github.com/Qiskit/qiskit/blob/master/Qiskit.bib).
 
 ## License
