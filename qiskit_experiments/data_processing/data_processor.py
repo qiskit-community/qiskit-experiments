@@ -12,7 +12,7 @@
 
 """Actions done on the data to bring it in a usable form."""
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Set, Tuple
 
 from qiskit_experiments.data_processing.data_action import DataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
@@ -86,7 +86,9 @@ class DataProcessor:
 
         return datum_
 
-    def call_with_history(self, datum: Dict[str, Any]) -> Tuple[Dict[str, Any], List]:
+    def call_with_history(
+        self, datum: Dict[str, Any], history_nodes: Set = None
+    ) -> Tuple[Dict[str, Any], List]:
         """
         Call self on the given datum. This method sequentially calls the stored data actions
         on the datum and also saves the history of the processed data.
@@ -94,6 +96,8 @@ class DataProcessor:
         Args:
             datum: A single item of data, typically from an ExperimentData instance, that
                 needs to be processed.
+            history_nodes: The nodes, specified by index in the data processing chain, to
+                include in the history.
 
         Returns:
             processed data: The datum processed by the data processor.
@@ -108,8 +112,10 @@ class DataProcessor:
         datum_ = datum[self._input_key]
 
         history = []
-        for node in self._nodes:
+        for index, node in enumerate(self._nodes):
             datum_ = node(datum_)
-            history.append((node.__class__.__name__, datum_))
+
+            if history_nodes is None or (history_nodes and index in history_nodes):
+                history.append((node.__class__.__name__, datum_, index))
 
         return datum_, history
