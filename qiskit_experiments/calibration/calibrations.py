@@ -18,6 +18,7 @@ from collections import namedtuple
 from datetime import datetime
 from typing import Any, Dict, Set, Tuple, Union, List, Optional
 
+from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Gate
 from qiskit import QuantumCircuit
 from qiskit.pulse import Schedule, DriveChannel, ControlChannel, MeasureChannel
@@ -37,7 +38,7 @@ class Calibrations:
     dict where parameters are keys.
     """
 
-    def __init__(self, backend):
+    def __init__(self, backend: Backend):
         """
         Initialize the instructions from a given backend.
 
