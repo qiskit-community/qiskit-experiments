@@ -22,7 +22,7 @@ class ParameterValue:
     """A data class to store parameter values."""
 
     # Value assumed by the parameter
-    value: Union[int, float] = None
+    value: Union[int, float, complex] = None
 
     # Data time when the value of the parameter was generated
     date_time: datetime = datetime.fromtimestamp(0)

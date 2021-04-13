@@ -153,18 +153,19 @@ class Calibrations:
         """
         Get the index of the parameterized channel based on the given qubits
         and the name of the parameter in the channel index. The name of this
-        parameter must be written as qubit_index1.qubit_index2... . For example,
-        the following parameter names are valid: '1', '1.0', '3.10.0'.
+        parameter for control channels must be written as qubit_index1.qubit_index2... .
+        For example, the following parameter names are valid: '1', '1.0', '30.12'.
 
         Args:
             qubits: The qubits for which we want to obtain the channel index.
             chan: The channel with a parameterized name.
 
         Returns:
-            index: The index of the channel. For example, if qubits=(int, int) and
-                the channel is a u channel with parameterized index name 'x.y'
-                where x and y the method returns the u_channel corresponding to
-                qubits (qubits[1], qubits[0]).
+            index: The index of the channel. For example, if qubits=(10, 32) and
+                chan is a control channel with parameterized index name '1.0'
+                the method returns the control channel corresponding to
+                qubits (qubits[1], qubits[0]) which is here the control channel of
+                qubits (32, 10).
 
         Raises:
             CalibrationError: if the number of qubits is incorrect, if the
@@ -173,26 +174,15 @@ class Calibrations:
         """
 
         if isinstance(chan.index, Parameter):
-            indices = [int(_) for _ in chan.index.name.split(".")]
-            ch_qubits = tuple(qubits[_] for _ in indices)
+            if isinstance(chan, (DriveChannel, MeasureChannel)):
+                if len(qubits) != 1:
+                    raise CalibrationError(f"Too many qubits given for {chan.__class__.__name__}.")
 
-            if isinstance(chan, DriveChannel):
-                if len(ch_qubits) != 1:
-                    raise CalibrationError(
-                        f"Too many qubits for drive channel: got {len(ch_qubits)} expecting 1."
-                    )
+                return qubits[0]
 
-                ch_ = self._config.drive(ch_qubits[0])
-
-            elif isinstance(chan, MeasureChannel):
-                if len(ch_qubits) != 1:
-                    raise CalibrationError(
-                        f"Too many qubits for measure channel: got {len(ch_qubits)} expecting 1."
-                    )
-
-                ch_ = self._config.measure(ch_qubits[0])
-
-            elif isinstance(chan, ControlChannel):
+            if isinstance(chan, ControlChannel):
+                indices = [int(sub_channel) for sub_channel in chan.index.name.split(".")]
+                ch_qubits = tuple(qubits[index] for index in indices)
                 chs_ = self._config.control(ch_qubits)
 
                 if len(chs_) != 1:
@@ -201,15 +191,11 @@ class Calibrations:
                         f"qubits {qubits} and {chan.name}."
                     )
 
-                ch_ = chs_[0]
+                return chs_[0].index
 
-            else:
-                chs = tuple(_.__name__ for _ in [DriveChannel, ControlChannel, MeasureChannel])
-                raise CalibrationError(f"Channel must be of type {chs}.")
+            raise CalibrationError(f"{chan} must be a sub-type of {PulseChannel}.")
 
-            return ch_.index
-        else:
-            return chan.index
+        return chan.index
 
     def get_parameter_value(
         self,
