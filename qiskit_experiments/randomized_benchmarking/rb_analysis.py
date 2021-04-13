@@ -19,6 +19,7 @@ import numpy as np
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import curve_fit
 from qiskit_experiments.analysis.data_processing import level2_probability, mean_xy_data, filter_data
+from qiskit_experiments.analysis.plotting import plot_curve_fit
 
 try:
     from matplotlib import pyplot as plt
@@ -58,8 +59,8 @@ class RBAnalysis(BaseAnalysis):
             return a * alpha ** x + b
 
         p0 = self._p0(xdata, ydata)
-
-        analysis_result = curve_fit(fit_fun, xdata, ydata, p0, ydata_sigma, bounds=([0, 0, 0], [1, 1, 1]))
+        analysis_result = curve_fit(fit_fun, xdata, ydata, p0, ydata_sigma,
+                                    bounds=([0, 0, 0], [1, 1, 1]), absolute_sigma=False)
 
         # Add EPC data
         popt = analysis_result["popt"]
@@ -69,12 +70,10 @@ class RBAnalysis(BaseAnalysis):
         analysis_result["EPC_err"] = scale * popt_err[1] / popt[1]
         analysis_result["plabels"] = ["A", "alpha", "B"]
 
+        fig = plot_curve_fit(fit_fun, analysis_result)
+        self._format_plot(fig, analysis_result)
+        analysis_result.plt = plt
         return analysis_result, None
-        # # Format figure
-        # if figs is not None:
-        #     self._format_plot(figs[0], analysis_result)
-        #     # TODO: figure out what to do with plots
-        #     plt.show()
 
     def _p0(self, xdata, ydata):
         fit_guess = [0.95, 0.99, 1 / 2 ** self._num_qubits]
