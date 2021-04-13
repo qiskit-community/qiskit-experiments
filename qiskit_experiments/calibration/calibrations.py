@@ -16,7 +16,7 @@ import copy
 import dataclasses
 from collections import namedtuple
 from datetime import datetime
-from typing import Dict, Set, Tuple, Union, List, Optional
+from typing import Any, Dict, Set, Tuple, Union, List, Optional
 import pandas as pd
 
 from qiskit.circuit import Gate
@@ -34,9 +34,8 @@ class Calibrations:
     """
     A class to manage schedules with calibrated parameter values.
     Schedules are stored in a dict and are intended to be fully parameterized,
-    including the index of the channels. The parameters are therefore stored in
-    the schedules. The names of the parameters must be unique. The calibrated
-    values of the parameters are stored in a dictionary.
+    including the index of the channels. The parameter values are stored in a
+    dict where parameters are keys.
     """
 
     def __init__(self, backend):
@@ -109,76 +108,6 @@ class Calibrations:
                 parameters[param].add(schedule_name)
 
         return parameters
-
-    def schedules(self) -> pd.DataFrame:
-        """
-        Return the schedules in self in a data frame to help
-        users manage their schedules.
-
-        Returns:
-            data: A pandas data frame with all the schedules in it.
-        """
-        data = []
-        for name, schedule in self._schedules.items():
-            data.append({"name": name, "schedule": schedule, "parameters": schedule.parameters})
-
-        return pd.DataFrame(data)
-
-    def parameters_table(
-        self,
-        parameters: List[str] = None,
-        schedules: Union[Schedule, str] = None,
-        qubit_list: Optional[Tuple[int, ...]] = None,
-    ) -> pd.DataFrame:
-        """
-        Returns the parameters as a pandas data frame.
-        This function is here to help users manage their parameters.
-
-        Args:
-            parameters: The parameter names that should be included in the returned
-                table. If None is given then all names are included.
-            schedules: The schedules to which to restrict the output.
-            qubit_list: The qubits that should be included in the returned table.
-                If None is given then all channels are returned.
-
-        Returns:
-            data: A data frame of parameter values.
-        """
-
-        data = []
-
-        # Convert inputs to lists of strings
-        if parameters is not None:
-            parameters = {prm.name if isinstance(prm, Parameter) else prm for prm in parameters}
-
-        if schedules is not None:
-            schedules = {sdl.name if isinstance(sdl, Schedule) else sdl for sdl in schedules}
-
-        keys = []
-        for key, param in self._parameter_map.items():
-            if parameters and key.parameter in parameters:
-                keys.append((param, key))
-            if schedules and key.schedule in schedules:
-                keys.append((param, key))
-            if parameters is None and schedules is None:
-                keys.append((param, key))
-
-        for key in keys:
-            param_vals = self._params[key[0]]
-
-            for qubits, values in param_vals.items():
-                if qubit_list and qubits not in qubit_list:
-                    continue
-
-                for value in values:
-                    value_dict = dataclasses.asdict(value)
-                    value_dict["qubits"] = qubits
-                    value_dict["parameter"] = key[1].parameter
-                    value_dict["schedule"] = key[1].schedule
-
-                    data.append(value_dict)
-
-        return pd.DataFrame(data)
 
     def add_parameter_value(
         self,
@@ -282,7 +211,7 @@ class Calibrations:
         else:
             return chan.index
 
-    def parameter_value(
+    def get_parameter_value(
         self,
         param: Union[Parameter, str],
         qubits: Tuple[int, ...],
@@ -382,7 +311,7 @@ class Calibrations:
         binding_dict = {}
         for param in sched.parameters:
             if param.name not in free_params:
-                binding_dict[param] = self.parameter_value(param.name, qubits, name, group=group)
+                binding_dict[param] = self.get_parameter_value(param.name, qubits, name, group=group)
 
         sched.assign_parameters(binding_dict)
 
@@ -419,6 +348,76 @@ class Calibrations:
         circ.add_calibration(gate, qubits, schedule, params=schedule.parameters)
 
         return circ
+
+    def schedules(self) -> List[Dict[str, Any]]:
+        """
+        Return the schedules in self in a data frame to help
+        users manage their schedules.
+
+        Returns:
+            data: A pandas data frame with all the schedules in it.
+        """
+        data = []
+        for name, schedule in self._schedules.items():
+            data.append({"name": name, "schedule": schedule, "parameters": schedule.parameters})
+
+        return data
+
+    def parameters_table(
+        self,
+        parameters: List[str] = None,
+        schedules: Union[Schedule, str] = None,
+        qubit_list: Optional[Tuple[int, ...]] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        Returns the parameters as a pandas data frame.
+        This function is here to help users manage their parameters.
+
+        Args:
+            parameters: The parameter names that should be included in the returned
+                table. If None is given then all names are included.
+            schedules: The schedules to which to restrict the output.
+            qubit_list: The qubits that should be included in the returned table.
+                If None is given then all channels are returned.
+
+        Returns:
+            data: A data frame of parameter values.
+        """
+
+        data = []
+
+        # Convert inputs to lists of strings
+        if parameters is not None:
+            parameters = {prm.name if isinstance(prm, Parameter) else prm for prm in parameters}
+
+        if schedules is not None:
+            schedules = {sdl.name if isinstance(sdl, Schedule) else sdl for sdl in schedules}
+
+        keys = []
+        for key, param in self._parameter_map.items():
+            if parameters and key.parameter in parameters:
+                keys.append((param, key))
+            if schedules and key.schedule in schedules:
+                keys.append((param, key))
+            if parameters is None and schedules is None:
+                keys.append((param, key))
+
+        for key in keys:
+            param_vals = self._params[key[0]]
+
+            for qubits, values in param_vals.items():
+                if qubit_list and qubits not in qubit_list:
+                    continue
+
+                for value in values:
+                    value_dict = dataclasses.asdict(value)
+                    value_dict["qubits"] = qubits
+                    value_dict["parameter"] = key[1].parameter
+                    value_dict["schedule"] = key[1].schedule
+
+                    data.append(value_dict)
+
+        return data
 
     def to_db(self):
         """

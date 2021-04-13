@@ -68,10 +68,10 @@ class TestCalibrationsBasic(QiskitTestCase):
         self.assertEqual(self.cals.parameters[self.beta], {"xp", "xm", "x90p", "y90p"})
         self.assertEqual(self.cals.parameters[self.sigma], {"xp", "xm", "x90p", "y90p"})
 
-        self.assertEqual(self.cals.parameter_value("amp", (3,), "xp"), 0.2)
-        self.assertEqual(self.cals.parameter_value("amp", (3,), "xm"), 0.2)
-        self.assertEqual(self.cals.parameter_value("amp", (3,), "x90p"), 0.1)
-        self.assertEqual(self.cals.parameter_value("amp", (3,), "y90p"), 0.08)
+        self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.2)
+        self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xm"), 0.2)
+        self.assertEqual(self.cals.get_parameter_value("amp", (3,), "x90p"), 0.1)
+        self.assertEqual(self.cals.get_parameter_value("amp", (3,), "y90p"), 0.08)
 
     def test_parameter_dependency(self):
         """Check that two schedules that share the same parameter are simultaneously updated."""
@@ -93,12 +93,12 @@ class TestCalibrationsBasic(QiskitTestCase):
     def test_get_value(self):
         """Test the retrieve of parameter values."""
 
-        self.assertEqual(self.cals.parameter_value("amp", (3,), "xp"), 0.2)
-        self.assertEqual(self.cals.parameter_value("amp", (3,), "x90p"), 0.1)
+        self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.2)
+        self.assertEqual(self.cals.get_parameter_value("amp", (3,), "x90p"), 0.1)
 
-        self.assertEqual(self.cals.parameter_value("σ", (3,), "x90p"), 40)
-        self.assertEqual(self.cals.parameter_value("σ", (3,), "xp"), 40)
+        self.assertEqual(self.cals.get_parameter_value("σ", (3,), "x90p"), 40)
+        self.assertEqual(self.cals.get_parameter_value("σ", (3,), "xp"), 40)
 
         self.cals.add_parameter_value(ParameterValue(50, datetime.now()), "σ", (3,), "xp")
-        self.assertEqual(self.cals.parameter_value("σ", (3,), "x90p"), 50)
-        self.assertEqual(self.cals.parameter_value("σ", (3,), "xp"), 50)
+        self.assertEqual(self.cals.get_parameter_value("σ", (3,), "x90p"), 50)
+        self.assertEqual(self.cals.get_parameter_value("σ", (3,), "xp"), 50)
