@@ -88,7 +88,10 @@ class DataAction(metaclass=ABCMeta):
         """
         self._check_required(data)
         processed_data = self._process(data)
-        processed_data["metadata"] = data.get("metadata", {})
+
+        if "metadata" in data:
+            processed_data["metadata"] = data["metadata"]
+            
         return processed_data
 
     def __repr__(self):
