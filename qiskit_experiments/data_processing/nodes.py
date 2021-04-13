@@ -106,22 +106,21 @@ class ToImag(IQPart):
         return point[1]
 
 
-class Population(DataAction):
-    """Count data post processing. This returns population."""
+class Probability(DataAction):
+    """Count data post processing. This returns qubit 1 state probabilities."""
 
     __node_output__ = "populations"
 
     def __init__(self):
-        """Initialize a counts to population data conversion."""
+        """Initialize a counts to probability data conversion."""
         super().__init__()
         self._accepted_inputs = ["counts"]
 
     def _process(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Args:
-            data: The data dictionary. This will modify the dict in place,
-                taking the data under counts and adding the corresponding
-                populations.
+            data: The data dictionary,taking the data under counts and
+                adding the corresponding probabilities.
 
         Returns:
             processed data: A dict with the populations.
@@ -129,13 +128,13 @@ class Population(DataAction):
 
         counts = data.get("counts")
 
-        populations = np.zeros(len(list(counts.keys())[0]))
+        probabilities = np.zeros(len(list(counts.keys())[0]))
 
         shots = 0
         for bit_str, count in counts.items():
             shots += count
             for ind, bit in enumerate(bit_str):
                 if bit == "1":
-                    populations[ind] += count
+                    probabilities[ind] += count
 
-        return {self.__node_output__: populations / shots}
+        return {self.__node_output__: probabilities / shots}

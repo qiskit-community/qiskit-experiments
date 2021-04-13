@@ -23,7 +23,7 @@ from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.nodes import (
     ToReal,
     ToImag,
-    Population,
+    Probability,
 )
 
 
@@ -115,7 +115,7 @@ class DataProcessorTest(QiskitTestCase):
     def test_append(self):
         """Tests that append catches inconsistent data processing chains."""
         processor = DataProcessor()
-        processor.append(Population())
+        processor.append(Probability())
 
         with self.assertRaises(DataProcessorError):
             processor.append(ToReal(1e-3))
@@ -129,7 +129,7 @@ class DataProcessorTest(QiskitTestCase):
         self.assertEqual(processor.output_key(), "memory_real")
 
         processor = DataProcessor()
-        processor.append(Population())
+        processor.append(Probability())
         self.assertEqual(processor.output_key(), "populations")
 
     def test_to_real(self):
@@ -261,7 +261,7 @@ class DataProcessorTest(QiskitTestCase):
         """Test that counts are properly converted to a population."""
 
         processor = DataProcessor()
-        processor.append(Population())
+        processor.append(Probability())
         new_data = processor(self.exp_data_lvl2.data[0])
 
         self.assertEqual(new_data["populations"][1], 0.0)

@@ -14,7 +14,7 @@
 
 from .data_action import DataAction
 from .nodes import (
-    Population,
+    Probability,
     ToImag,
     ToReal,
 )
