@@ -12,6 +12,8 @@
 
 """Data processor tests."""
 
+import numpy as np
+
 from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit.result import Result
 from qiskit.test import QiskitTestCase
@@ -107,36 +109,16 @@ class DataProcessorTest(QiskitTestCase):
 
     def test_empty_processor(self):
         """Check that a DataProcessor without steps does nothing."""
-        data_processor = DataProcessor()
-        data_processor(self.exp_data_lvl2.data)
-        self.assertEqual(self.exp_data_lvl2.data[0]["counts"]["00"], 4)
-        self.assertEqual(self.exp_data_lvl2.data[0]["counts"]["10"], 6)
-
-    def test_append(self):
-        """Tests that append catches inconsistent data processing chains."""
-        processor = DataProcessor()
-        processor.append(Probability())
+        data_processor = DataProcessor("counts")
+        with self.assertRaises(DataProcessorError):
+            data_processor(self.exp_data_lvl2.data)
 
         with self.assertRaises(DataProcessorError):
-            processor.append(ToReal(1e-3))
-
-    def test_output_key(self):
-        """Test that we can properly get the output key from the node."""
-        processor = DataProcessor()
-        self.assertIsNone(processor.output_key())
-
-        processor.append(ToReal())
-        self.assertEqual(processor.output_key(), "memory_real")
-
-        processor = DataProcessor()
-        processor.append(Probability())
-        self.assertEqual(processor.output_key(), "populations")
+            data_processor.call_with_history(self.exp_data_lvl2.data)
 
     def test_to_real(self):
         """Test scaling and conversion to real part."""
-        processor = DataProcessor()
-        processor.append(ToReal(scale=1e-3))
-        self.assertEqual(processor.output_key(), "memory_real")
+        processor = DataProcessor("memory", [ToReal(scale=1e-3)])
 
         exp_data = ExperimentData(FakeExperiment())
         exp_data.add_data(self.result_lvl1)
@@ -152,49 +134,24 @@ class DataProcessorTest(QiskitTestCase):
             "metadata": {"experiment_type": "fake_test_experiment", "x_values": 0.0},
         }
 
-        expected_new = {
-            "memory_real": [[1103.26, 2959.012], [442.17, -5279.41], [3016.514, -3404.7560]],
-            "metadata": {"experiment_type": "fake_test_experiment", "x_values": 0.0},
-        }
+        expected_new = np.array([[1103.26, 2959.012], [442.17, -5279.41], [3016.514, -3404.7560]])
 
         self.assertEqual(exp_data.data[0], expected_old)
-        self.assertEqual(new_data, expected_new)
+        self.assertTrue(np.allclose(new_data, expected_new))
 
-        # Test that we can average single-shots
-        processor = DataProcessor([ToReal(scale=1e-3, average=True)])
-        self.assertEqual(processor.output_key(), "memory_real")
-
-        exp_data = ExperimentData(FakeExperiment())
-        exp_data.add_data(self.result_lvl1)
-
+        # Test that we can call with history.
         new_data, history = processor.call_with_history(exp_data.data[0])
 
-        expected_old = {
-            "memory": [
-                [[1103260.0, -11378508.0], [2959012.0, -16488753.0]],
-                [[442170.0, -19283206.0], [-5279410.0, -15339630.0]],
-                [[3016514.0, -14548009.0], [-3404756.0, -16743348.0]],
-            ],
-            "metadata": {"experiment_type": "fake_test_experiment", "x_values": 0.0},
-        }
-
-        expected_new = {
-            "memory_real": [1520.6480000000001, -1908.3846666666666],
-            "metadata": {"experiment_type": "fake_test_experiment", "x_values": 0.0},
-        }
-
         self.assertEqual(exp_data.data[0], expected_old)
-        self.assertEqual(new_data, expected_new)
+        self.assertTrue(np.allclose(new_data, expected_new))
 
-        # Check the history
         self.assertEqual(history[0][0], "ToReal")
-        self.assertEqual(history[0][1], expected_new)
+        self.assertTrue(np.allclose(history[0][1], expected_new))
 
     def test_to_imag(self):
         """Test that we can average the data."""
-        processor = DataProcessor()
+        processor = DataProcessor("memory")
         processor.append(ToImag(scale=1e-3))
-        self.assertEqual(processor.output_key(), "memory_imag")
 
         exp_data = ExperimentData(FakeExperiment())
         exp_data.add_data(self.result_lvl1)
@@ -210,59 +167,32 @@ class DataProcessorTest(QiskitTestCase):
             "metadata": {"experiment_type": "fake_test_experiment", "x_values": 0.0},
         }
 
-        expected_new = {
-            "memory_imag": [
+        expected_new = np.array(
+            [
                 [-11378.508, -16488.753],
                 [-19283.206000000002, -15339.630000000001],
                 [-14548.009, -16743.348],
-            ],
-            "metadata": {"experiment_type": "fake_test_experiment", "x_values": 0.0},
-        }
+            ]
+        )
 
         self.assertEqual(exp_data.data[0], expected_old)
-        self.assertEqual(new_data, expected_new)
+        self.assertTrue(np.allclose(new_data, expected_new))
 
-        # Test that we can average single-shots
-        processor = DataProcessor()
-        processor.append(ToImag(scale=1e-3, average=True))
-        self.assertEqual(processor.output_key(), "memory_imag")
-
-        exp_data = ExperimentData(FakeExperiment())
-        exp_data.add_data(self.result_lvl1)
-
-        new_data = processor(exp_data.data[0])
-
-        expected_old = {
-            "memory": [
-                [[1103260.0, -11378508.0], [2959012.0, -16488753.0]],
-                [[442170.0, -19283206.0], [-5279410.0, -15339630.0]],
-                [[3016514.0, -14548009.0], [-3404756.0, -16743348.0]],
-            ],
-            "metadata": {"experiment_type": "fake_test_experiment", "x_values": 0.0},
-        }
-
-        expected_new = {
-            "memory_imag": [-15069.907666666666, -16190.577],
-            "metadata": {"experiment_type": "fake_test_experiment", "x_values": 0.0},
-        }
-
+        # Test that we can call with history.
+        new_data, history = processor.call_with_history(exp_data.data[0])
         self.assertEqual(exp_data.data[0], expected_old)
-        self.assertEqual(new_data, expected_new)
+        self.assertTrue(np.allclose(new_data, expected_new))
 
-        # Test the history
-        new_data, history = processor.call_with_history(exp_data.data[0],)
-
-        self.assertEqual(exp_data.data[0], expected_old)
-        self.assertEqual(new_data, expected_new)
         self.assertEqual(history[0][0], "ToImag")
-        self.assertEqual(history[0][1], expected_new)
+        self.assertTrue(np.allclose(history[0][1], expected_new))
 
     def test_populations(self):
         """Test that counts are properly converted to a population."""
 
-        processor = DataProcessor()
-        processor.append(Probability())
+        processor = DataProcessor("counts")
+        processor.append(Probability("00"))
+
         new_data = processor(self.exp_data_lvl2.data[0])
 
-        self.assertEqual(new_data["populations"][1], 0.0)
-        self.assertEqual(new_data["populations"][0], 0.6)
+        self.assertEqual(new_data[0], 0.4)
+        self.assertEqual(new_data[1], 10 * 0.4 * (1 - 0.4))

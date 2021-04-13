@@ -17,124 +17,165 @@ from typing import Any, Dict, Optional, Tuple
 import numpy as np
 
 from qiskit_experiments.data_processing.data_action import DataAction
+from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
 
 class IQPart(DataAction):
     """Abstract class for IQ data post-processing."""
 
-    def __init__(self, scale: Optional[float] = 1.0, average: bool = False):
+    def __init__(self, scale: Optional[float] = None):
         """
         Args:
-            scale: scale by which to multiply the real part of the data.
-            average: if True the single-shots are averaged.
+            scale: float with which to multiply the IQ data.
         """
         self.scale = scale
-        self.average = average
         super().__init__()
-        self._accepted_inputs = ["memory"]
 
     @abstractmethod
-    def _process_iq(self, point: Tuple[float, float]) -> float:
+    def _process_iq(self, datum: np.array) -> np.array:
         """Defines how the IQ point will be processed.
 
         Args:
-            point: An IQ point as a tuple of two float, i.e. (real, imaginary).
+            datum: a 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
 
         Returns:
             Processed IQ point.
         """
 
-    def _process(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Modifies the data inplace by taking the real part of the memory and
-        scaling it by the given factor.
+    def _check_data_format(self, datum: Any) -> Any:
+        """Check that the IQ data has the correct format.
 
         Args:
-            data: The data dict. IQ data is stored under memory.
+            datum: A single item of data which corresponds to single-shot IQ data. It should
+                have dimension three: shots, qubits, iq-point as [real, imaginary].
 
         Returns:
-            processed data: A dict with the data.
+            datum: as a numpy array.
+
+        Raises:
+            DataProcessorError: if the datum does not have the correct format.
         """
+        if not isinstance(datum, (list, np.ndarray)):
+            raise DataProcessorError(
+                f"The IQ data given to {self.__class__.__name__} " f"must be a list or ndarray."
+            )
 
-        # Single shot data
-        if isinstance(data["memory"][0][0], list):
-            new_mem = []
-            for shot in data["memory"]:
-                new_mem.append([self.scale * self._process_iq(iq_point) for iq_point in shot])
+        if isinstance(datum, list):
+            datum = np.asarray(datum)
 
-            if self.average:
-                new_mem = list(np.mean(np.array(new_mem), axis=0))
+        if len(datum.shape) != 3:
+            raise DataProcessorError(
+                f"Single-shot data given {self.__class__.__name__}"
+                f"must be a 3D array. Instead, a {len(datum.shape)}D "
+                f"array was given."
+            )
 
-        # Averaged data
-        else:
-            new_mem = [self.scale * self._process_iq(iq_point) for iq_point in data["memory"]]
+        return datum
 
-        return {self.__node_output__: new_mem}
+    def _process(self, datum: np.array) -> np.array:
+        """Wraps _process_iq.
+
+        Args:
+            datum: A single item of data.
+
+        Returns:
+            processed data
+        """
+        return self._process_iq(datum)
 
 
 class ToReal(IQPart):
     """IQ data post-processing. Isolate the real part of the IQ data."""
 
-    __node_output__ = "memory_real"
-
-    def _process_iq(self, point: Tuple[float, float]) -> float:
-        """Defines how the IQ point will be processed.
+    def _process_iq(self, datum: np.array) -> np.array:
+        """Take the real part of the IQ data.
 
         Args:
-            point: An IQ point as a tuple of two float, i.e. (real, imaginary).
+            datum: a 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
 
         Returns:
-            The real part of the IQ point.
+            A 2D array of shots, qubits. Each entry is the real part of the given IQ data.
         """
-        return point[0]
+        if self.scale is None:
+            return datum[:, :, 0]
+
+        return datum[:, :, 0] * self.scale
 
 
 class ToImag(IQPart):
     """IQ data post-processing. Isolate the imaginary part of the IQ data."""
 
-    __node_output__ = "memory_imag"
-
-    def _process_iq(self, point: Tuple[float, float]) -> float:
-        """Defines how the IQ point will be processed.
+    def _process_iq(self, datum: np.array) -> np.array:
+        """Take the imaginary part of the IQ data.
 
         Args:
-            point: An IQ point as a tuple of two float, i.e. (real, imaginary).
+            datum: a 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
 
         Returns:
-            The imaginary part of the IQ point.
+            A 2D array of shots, qubits. Each entry is the imaginary part of the given IQ data.
         """
-        return point[1]
+        if self.scale is None:
+            return datum[:, :, 1]
+
+        return datum[:, :, 1] * self.scale
 
 
 class Probability(DataAction):
     """Count data post processing. This returns qubit 1 state probabilities."""
 
-    __node_output__ = "populations"
+    def __init__(self, outcome: str):
+        """Initialize a counts to probability data conversion.
 
-    def __init__(self):
-        """Initialize a counts to probability data conversion."""
+        Args:
+            outcome: The bitstring for which to compute the probability.
+        """
         super().__init__()
-        self._accepted_inputs = ["counts"]
+        self._outcome = outcome
 
-    def _process(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def _check_data_format(self, datum: dict) -> dict:
+        """
+        Checks that the given data has a counts format.
+
+        Args:
+            datum: An instance of data the should be a dict with bit strings as keys
+                and counts as values.
+
+        Returns:
+            The datum as given.
+
+        Raises:
+            DataProcessorError: if the data is not a counts dict.
+        """
+        if not isinstance(datum, dict):
+            raise DataProcessorError(
+                f"Given counts datum {datum} to "
+                f"{self.__class__.__name__} is not a valid count format."
+            )
+
+        for bit_str, count in datum.items():
+            if not isinstance(bit_str, str):
+                raise DataProcessorError(
+                    f"Key {bit_str} is not a valid count key for " f"{self.__class__.__name__}."
+                )
+
+            if not isinstance(count, (int, float)):
+                raise DataProcessorError(
+                    f"Count {bit_str} is not a valid count key for" f"{self.__class__.__name__}."
+                )
+
+        return datum
+
+    def _process(self, datum: Dict[str, Any]) -> Tuple[float, float]:
         """
         Args:
-            data: The data dictionary,taking the data under counts and
+            datum: The data dictionary,taking the data under counts and
                 adding the corresponding probabilities.
 
         Returns:
             processed data: A dict with the populations.
         """
+        shots = sum(datum.values())
+        p_mean = datum.get(self._outcome, 0.0) / shots
+        p_var = shots * p_mean * (1 - p_mean)
 
-        counts = data.get("counts")
-
-        probabilities = np.zeros(len(list(counts.keys())[0]))
-
-        shots = 0
-        for bit_str, count in counts.items():
-            shots += count
-            for ind, bit in enumerate(bit_str):
-                if bit == "1":
-                    probabilities[ind] += count
-
-        return {self.__node_output__: probabilities / shots}
+        return p_mean, p_var

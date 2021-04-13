@@ -12,7 +12,7 @@
 
 """Actions done on the data to bring it in a usable form."""
 
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Tuple
 
 from qiskit_experiments.data_processing.data_action import DataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
@@ -34,13 +34,16 @@ class DataProcessor:
     the data produced by the last DataAction.
     """
 
-    def __init__(self, data_actions: List[DataAction] = None):
+    def __init__(self, input_key: str, data_actions: List[DataAction] = None):
         """Create a chain of data processing actions.
 
         Args:
+            input_key: The initial key in the datum Dict[str, Any] under which the data processor
+                will find the data to process.
             data_actions: A list of data processing actions to construct this data processor with.
                 If None is given an empty DataProcessor will be created.
         """
+        self._input_key = input_key
         self._nodes = []
 
         if data_actions:
@@ -55,61 +58,58 @@ class DataProcessor:
 
         Args:
             node: A DataAction that will process the data.
+        """
+        self._nodes.append(node)
+
+    def __call__(self, datum: Dict[str, Any]) -> Tuple[Any, Any]:
+        """
+        Call self on the given datum. This method sequentially calls the stored data actions
+        on the datum.
+
+        Args:
+            datum: A single item of data, typically from an ExperimentData instance, that needs
+                to be processed. This dict also contains the metadata of each experiment.
+
+        Returns:
+            processed data: The data processed by the data processor.
 
         Raises:
-            DataProcessorError: if the output of the last node does not match the input required
-                by the node to be appended.
+            DataProcessorError: if no nodes are present.
         """
         if len(self._nodes) == 0:
-            self._nodes.append(node)
-        else:
-            if self._nodes[-1].__node_output__ not in node.node_inputs:
-                raise DataProcessorError(
-                    f"Output of node {self._nodes[-1]} is not an acceptable " f"input to {node}."
-                )
+            raise DataProcessorError("Cannot call an empty data processor.")
 
-            self._nodes.append(node)
+        datum_ = datum[self._input_key]
 
-    def output_key(self) -> Union[str, None]:
-        """Return the key to look for in the data output by the processor."""
-
-        if len(self._nodes) > 0:
-            return self._nodes[-1].__node_output__
-
-        return None
-
-    def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Call self on the given data. This method sequentially calls the stored data actions
-        on the data.
-
-        Args:
-            data: The data, typically from an ExperimentData instance, that needs to
-                be processed. This dict also contains the metadata of each experiment.
-
-        Returns:
-            processed data: The data processed by the data processor.
-        """
         for node in self._nodes:
-            data = node(data)
+            datum_ = node(datum_)
 
-        return data
+        return datum_
 
-    def call_with_history(self, data: Dict[str, Any]) -> Tuple[Dict[str, Any], List]:
+    def call_with_history(self, datum: Dict[str, Any]) -> Tuple[Dict[str, Any], List]:
         """
-        Process the given data but save each step in a list returned to the user.
+        Call self on the given datum. This method sequentially calls the stored data actions
+        on the datum and also saves the history of the processed data.
 
         Args:
-            data: The data, typically from an ExperimentData instance, that needs to
-                be processed. This dict also contains the metadata of each experiment.
+            datum: A single item of data, typically from an ExperimentData instance, that
+                needs to be processed.
 
         Returns:
-            processed data: The data processed by the data processor.
-            history: The data processed at each node of the data processor.
+            processed data: The datum processed by the data processor.
+            history: The datum processed at each node of the data processor.
+
+        Raises:
+            DataProcessorError: if no nodes are present.
         """
+        if len(self._nodes) == 0:
+            raise DataProcessorError("Cannot call an empty data processor.")
+
+        datum_ = datum[self._input_key]
+
         history = []
         for node in self._nodes:
-            data = node(data)
-            history.append((node.__class__.__name__, dict(data)))
+            datum_ = node(datum_)
+            history.append((node.__class__.__name__, datum_))
 
-        return data, history
+        return datum_, history

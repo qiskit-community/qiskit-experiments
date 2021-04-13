@@ -13,9 +13,7 @@
 """Defines the steps that can be used to analyse data."""
 
 from abc import ABCMeta, abstractmethod
-from typing import Any, Dict, List
-
-from qiskit_experiments.data_processing.exceptions import DataProcessorError
+from typing import Any
 
 
 class DataAction(metaclass=ABCMeta):
@@ -25,78 +23,52 @@ class DataAction(metaclass=ABCMeta):
     using decorators.
     """
 
-    # Key under which the node will output the data.
-    __node_output__ = None
-
     def __init__(self):
         """Create new data analysis routine."""
         self._child = None
-        self._accepted_inputs = []
-
-    @property
-    def node_inputs(self) -> List[str]:
-        """Returns a list of input data that the node can process."""
-        return self._accepted_inputs
-
-    def add_accepted_input(self, data_key: str):
-        """
-        Allows users to add an accepted input data format to this DataAction.
-
-        Args:
-            data_key: The key that the data action will require in the input data dict.
-        """
-        self._accepted_inputs.append(data_key)
 
     @abstractmethod
-    def _process(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def _process(self, datum: Any) -> Any:
         """
         Applies the data processing step to the data.
 
         Args:
-            data: the data to which the data processing step will be applied.
+            datum: A single item of data data which will be processed.
 
         Returns:
             processed data: The data that has been processed.
         """
 
-    def _check_required(self, data: Dict[str, Any]):
-        """Checks that the given data contains the right key.
+    @abstractmethod
+    def _check_data_format(self, datum: Any) -> Any:
+        """
+        Check that the given data has the correct structure. This method may
+        additionally change the data type, e.g. converting a list to a numpy array.
 
         Args:
-            data: The data to check for the correct keys.
+            datum: The data instance to check.
+
+        Returns:
+            datum: The data that was check.
 
         Raises:
-            DataProcessorError: if the key is not found.
+            DataProcessorError: if the data does not have the proper format.
         """
-        for key in data.keys():
-            if key in self.node_inputs:
-                return
 
-        raise DataProcessorError(f"None of {self.node_inputs} are in the given data.")
-
-    def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def __call__(self, data: Any) -> Any:
         """
         Call the data action of this node on the data.
 
         Args:
-            data: A dict containing the data. The action nodes in the data
+            data: The data to process. The action nodes in the data
                 processor will raise errors if the data does not contain the
                 appropriate data.
 
         Returns:
             processed data: The output data of the node contained in a dict.
         """
-        self._check_required(data)
-        processed_data = self._process(data)
-
-        if "metadata" in data:
-            processed_data["metadata"] = data["metadata"]
-            
-        return processed_data
+        return self._process(self._check_data_format(data))
 
     def __repr__(self):
         """String representation of the node."""
-        return (
-            f"{self.__class__.__name__}(inputs: {self.node_inputs}, "
-            f"outputs: {self.__node_output__})"
-        )
+        return f"{self.__class__.__name__}"
