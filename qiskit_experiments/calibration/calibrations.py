@@ -395,11 +395,14 @@ class Calibrations:
 
         keys = []
         for key, param in self._parameter_map.items():
-            if parameters and key.parameter in parameters:
+            if parameters and schedules:
+                if key.parameter in parameters and key.schedule in schedules:
+                    keys.append((param, key))
+            elif schedules and key.schedule in schedules:
                 keys.append((param, key))
-            if schedules and key.schedule in schedules:
+            elif parameters and key.parameter in parameters:
                 keys.append((param, key))
-            if parameters is None and schedules is None:
+            else:
                 keys.append((param, key))
 
         for key in keys:
