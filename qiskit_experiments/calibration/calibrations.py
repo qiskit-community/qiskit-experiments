@@ -85,9 +85,30 @@ class Calibrations:
             self._schedules[schedule.name] = schedule
 
             for param in schedule.parameters:
-                self._parameter_map[ParameterKey(schedule.name, param.name)] = param
-                if param not in self._params:
-                    self._params[param] = {}
+                self.register_parameter(param, schedule)
+
+    def register_parameter(self, parameter: Parameter, schedule: Schedule = None):
+        """
+        Registers a parameter for the given schedule.
+
+        Args:
+            parameter: The parameter to register.
+            schedule: The Schedule to which this parameter belongs. The schedule can
+                be None which implies a global parameter.
+
+        Raises:
+            CalibrationError: if a parameter with the same name was already registered
+                for the given schedule.
+        """
+        sched_name = schedule.name if schedule else None
+        if (sched_name, parameter.name) in self._parameter_map:
+            raise CalibrationError(
+                f"Parameter with name {parameter.name} is not unique in schedule {sched_name}."
+            )
+
+        self._parameter_map[ParameterKey(sched_name, parameter.name)] = parameter
+        if parameter not in self._params:
+            self._params[parameter] = {}
 
     @property
     def parameters(self) -> Dict[Parameter, Set]:

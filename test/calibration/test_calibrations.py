@@ -125,3 +125,19 @@ class TestCalibrationsBasic(QiskitTestCase):
 
         with self.assertRaises(CalibrationError):
             self.cals.add_schedules(sched_bad)
+
+    def test_unique_parameter_names(self):
+        """Test that we cannot insert schedules in which parameter names are duplicates."""
+        with pulse.build() as sched:
+            pulse.play(Drag(160, Parameter('a'), Parameter('a'), Parameter('a')), DriveChannel(0))
+
+        with self.assertRaises(CalibrationError):
+            self.cals.add_schedules(sched)
+
+    def test_parameter_without_schedule(self):
+        """Test that we can manage parameters that are not bound to a schedule."""
+        self.cals.register_parameter(Parameter('a'))
+
+        # Check that we cannot register the same parameter twice.
+        with self.assertRaises(CalibrationError):
+            self.cals.register_parameter(Parameter('a'))
