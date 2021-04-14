@@ -151,10 +151,10 @@ class Calibrations:
         sched_name = schedule.name if isinstance(schedule, Schedule) else schedule
 
         if (sched_name, param_name) not in self._parameter_map:
-            if sched_name is not None:
-                raise CalibrationError(f"Unknown parameter {param_name}.")
+            if sched_name:
+                raise CalibrationError(f"Unknown parameter {param_name} in schedule {sched_name}.")
 
-            raise CalibrationError(f"Unknown parameter {param_name} in schedule {sched_name}.")
+            raise CalibrationError(f"Unknown parameter {param_name}.")
 
         param = self._parameter_map[(sched_name, param_name)]
 
