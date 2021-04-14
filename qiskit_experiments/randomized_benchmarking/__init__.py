@@ -12,4 +12,5 @@
 
 """Randomized Benchmarking Experiment Classes."""
 
-from .rb_experiment import RBExperiment, RBAnalysis
+from .rb_experiment import RBExperiment
+from .rb_analysis import RBAnalysis

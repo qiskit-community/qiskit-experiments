@@ -18,7 +18,11 @@ from typing import Optional, List
 import numpy as np
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import curve_fit
-from qiskit_experiments.analysis.data_processing import level2_probability, mean_xy_data, filter_data
+from qiskit_experiments.analysis.data_processing import (
+    level2_probability,
+    mean_xy_data,
+    filter_data,
+)
 from qiskit_experiments.analysis.plotting import plot_curve_fit
 
 try:
@@ -32,7 +36,7 @@ except ImportError:
 class RBAnalysis(BaseAnalysis):
     """RB Analysis class."""
 
-    # pylint: disable = arguments-differ, invalid-name
+    # pylint: disable = arguments-differ, invalid-name, attribute-defined-outside-init
     def _run_analysis(
         self,
         experiment_data,
@@ -59,8 +63,15 @@ class RBAnalysis(BaseAnalysis):
             return a * alpha ** x + b
 
         p0 = self._p0(xdata, ydata)
-        analysis_result = curve_fit(fit_fun, xdata, ydata, p0, ydata_sigma,
-                                    bounds=([0, 0, 0], [1, 1, 1]), absolute_sigma=False)
+        analysis_result = curve_fit(
+            fit_fun,
+            xdata,
+            ydata,
+            p0,
+            ydata_sigma,
+            bounds=([0, 0, 0], [1, 1, 1]),
+            absolute_sigma=False,
+        )
 
         # Add EPC data
         popt = analysis_result["popt"]
@@ -70,23 +81,23 @@ class RBAnalysis(BaseAnalysis):
         analysis_result["EPC_err"] = scale * popt_err[1] / popt[1]
         analysis_result["plabels"] = ["A", "alpha", "B"]
 
-        fig = plot_curve_fit(fit_fun, analysis_result)
-        self._format_plot(fig, analysis_result)
-        analysis_result.plt = plt
+        if plot:
+            fig = plot_curve_fit(fit_fun, analysis_result, ax=ax)
+            self._format_plot(fig, analysis_result)
+            analysis_result.plt = plt
         return analysis_result, None
 
     def _p0(self, xdata, ydata):
         fit_guess = [0.95, 0.99, 1 / 2 ** self._num_qubits]
         # Use the first two points to guess the decay param
-        dcliff = (xdata[1] - xdata[0])
-        dy = ((ydata[1] - fit_guess[2]) / (ydata[0] - fit_guess[2]))
+        dcliff = xdata[1] - xdata[0]
+        dy = (ydata[1] - fit_guess[2]) / (ydata[0] - fit_guess[2])
         alpha_guess = dy ** (1 / dcliff)
         if alpha_guess < 1.0:
             fit_guess[1] = alpha_guess
 
         if ydata[0] > fit_guess[2]:
-            fit_guess[0] = ((ydata[0] - fit_guess[2]) /
-                            fit_guess[1] ** xdata[0])
+            fit_guess[0] = (ydata[0] - fit_guess[2]) / fit_guess[1] ** xdata[0]
 
         return fit_guess
 
@@ -106,9 +117,9 @@ class RBAnalysis(BaseAnalysis):
         ydata = np.zeros(size, dtype=float)
         ydata_var = np.zeros(size, dtype=float)
         for i, datum in enumerate(data):
-            metadata = datum['metadata']
-            xdata[i] = metadata['xdata']
-            ydata[i], ydata_var[i] = level2_probability(datum, metadata['ylabel'])
+            metadata = datum["metadata"]
+            xdata[i] = metadata["xdata"]
+            ydata[i], ydata_var[i] = level2_probability(datum, metadata["ylabel"])
 
         ydata_sigma = np.sqrt(ydata_var)
         xdata, ydata, ydata_sigma = mean_xy_data(xdata, ydata, ydata_sigma)
