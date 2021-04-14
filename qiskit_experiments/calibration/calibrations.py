@@ -51,8 +51,6 @@ class Calibrations:
         self._properties = backend.properties()
         self._config = backend.configuration()
         self._params = {}
-
-        # Required because copying a template schedule creates new paramters with new IDs.
         self._parameter_map = {}
         self._schedules = {}
 
