@@ -14,7 +14,7 @@
 
 import copy
 import dataclasses
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from datetime import datetime
 from typing import Any, Dict, Set, Tuple, Union, List, Optional
 
@@ -49,7 +49,7 @@ class Calibrations:
         self._n_qubits = backend.configuration().num_qubits
         self._n_uchannels = backend.configuration().n_uchannels
         self._config = backend.configuration()
-        self._params = {}
+        self._params = defaultdict(dict)
         self._parameter_map = {}
         self._schedules = {}
 
@@ -103,8 +103,6 @@ class Calibrations:
         """
         sched_name = schedule.name if schedule else None
         self._parameter_map[ParameterKey(sched_name, parameter.name)] = parameter
-        if parameter not in self._params:
-            self._params[parameter] = {}
 
     @property
     def parameters(self) -> Dict[Parameter, Set]:
