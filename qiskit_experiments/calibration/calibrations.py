@@ -201,7 +201,7 @@ class Calibrations:
         self,
         param: Union[Parameter, str],
         qubits: Tuple[int, ...],
-        schedule: Union[Schedule, str] = None,
+        schedule: Union[Schedule, str, None] = None,
         valid_only: bool = True,
         group: str = "default",
         cutoff_date: datetime = None,
