@@ -298,15 +298,12 @@ class Calibrations:
             if ch.is_parameterized():
                 binding_dict[ch.index] = self._get_channel_index(qubits, ch)
 
-        sched.assign_parameters(binding_dict)
-
         # Loop through the remaining parameters in the schedule, get their values and bind.
         if free_params is None:
             free_params = []
 
-        binding_dict = {}
         for param in sched.parameters:
-            if param.name not in free_params:
+            if param.name not in free_params and param not in binding_dict:
                 binding_dict[param] = self.get_parameter_value(
                     param.name, qubits, name, group=group
                 )
