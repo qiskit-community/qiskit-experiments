@@ -48,7 +48,6 @@ class Calibrations:
 
         self._n_qubits = backend.configuration().num_qubits
         self._n_uchannels = backend.configuration().n_uchannels
-        self._properties = backend.properties()
         self._config = backend.configuration()
         self._params = {}
         self._parameter_map = {}
