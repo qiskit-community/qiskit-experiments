@@ -12,7 +12,6 @@
 
 """Class to store the results of a calibration experiments."""
 
-import copy
 import dataclasses
 from collections import namedtuple, defaultdict
 from datetime import datetime
@@ -287,6 +286,8 @@ class Calibrations:
         group: Optional[str] = "default",
     ) -> Schedule:
         """
+        Get the schedule with the non-free parameters assigned to their values.
+
         Args:
             name: The name of the schedule to get.
             qubits: The qubits for which to get the schedule.
@@ -295,23 +296,18 @@ class Calibrations:
                 parameters. If not specifies this defaults to the 'default' group.
 
         Returns:
-            schedule: A deep copy of the template schedule with all parameters assigned
+            schedule: A copy of the template schedule with all parameters assigned
                 except for those specified by free_params.
 
         Raises:
             CalibrationError: if the name of the schedule is not known.
         """
-
-        # Get the schedule and deepcopy it to prevent binding from removing
-        # the parametric nature of the schedule.
         if name not in self._schedules:
             raise CalibrationError("Schedule %s is not defined." % name)
 
-        sched = copy.deepcopy(self._schedules[name])
-
         # Retrieve the channel indices based on the qubits and bind them.
         binding_dict = {}
-        for ch in sched.channels:
+        for ch in self._schedules[name].channels:
             if ch.is_parameterized():
                 binding_dict[ch.index] = self._get_channel_index(qubits, ch)
 
@@ -319,15 +315,13 @@ class Calibrations:
         if free_params is None:
             free_params = []
 
-        for param in sched.parameters:
+        for param in self._schedules[name].parameters:
             if param.name not in free_params and param not in binding_dict:
                 binding_dict[param] = self.get_parameter_value(
                     param.name, qubits, name, group=group
                 )
 
-        sched.assign_parameters(binding_dict)
-
-        return sched
+        return self._schedules[name].assign_parameters(binding_dict, inplace=False)
 
     def get_circuit(
         self,
