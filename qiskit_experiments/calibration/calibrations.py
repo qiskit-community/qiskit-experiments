@@ -366,7 +366,7 @@ class Calibrations:
     def parameters_table(
         self,
         parameters: List[str] = None,
-        schedules: Union[Schedule, str] = None,
+        schedules: List[Union[Schedule, str]] = None,
         qubit_list: Optional[Tuple[int, ...]] = None,
     ) -> List[Dict[str, Any]]:
         """
