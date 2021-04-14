@@ -59,7 +59,7 @@ class Calibrations:
         Add a schedule and register the parameters.
 
         Args:
-            schedules: The schedule to add.
+            schedules: The schedule(s) to add.
 
         Raises:
             CalibrationError: If the parameterized channel index is not formatted
