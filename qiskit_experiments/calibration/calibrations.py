@@ -233,13 +233,14 @@ class Calibrations:
         Args:
             param: The parameter or the name of the parameter for which to get the parameter value.
             qubits: The qubits for which to get the value of the parameter.
-            schedule: The schedule or the name of the schedule for which to get the parameter value.
+            schedule: The schedule or its name for which to get the parameter value.
             valid_only: Use only parameters marked as valid.
             group: The calibration group from which to draw the
                 parameters. If not specifies this defaults to the 'default' group.
-            cutoff_date: Retrieve the most recent parameter up until the cutoff date.
-                Parameters generated after the cutoff date will be ignored. If the
-                cutoff_date is None then all parameters are considered.
+            cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
+                generated after the cutoff date will be ignored. If the cutoff_date is None then
+                all parameters are considered. This allows users to discard more recent values that
+                may be erroneous.
 
         Returns:
             value: The value of the parameter.
