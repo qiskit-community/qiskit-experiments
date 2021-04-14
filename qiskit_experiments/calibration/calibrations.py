@@ -92,9 +92,10 @@ class Calibrations:
     @property
     def parameters(self) -> Dict[Parameter, Set]:
         """
-        Returns a dictionary of parameters managed by the calibrations definition. The value
-        of the dict is the schedule in which the parameter appears. Parameters that are not
-        attached to a schedule will have None as a key.
+        Returns a dictionary mapping parameters managed by the calibrations definition to schedules
+        using the parameters. The values of the dict are sets containing the names of the schedules in
+        which the parameter appears. Parameters that are not attached to a schedule will have None
+        in place of a schedule name.
         """
         parameters = {}
         for key, param in self._parameter_map.items():
