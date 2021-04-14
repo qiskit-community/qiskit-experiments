@@ -137,7 +137,3 @@ class TestCalibrationsBasic(QiskitTestCase):
     def test_parameter_without_schedule(self):
         """Test that we can manage parameters that are not bound to a schedule."""
         self.cals.register_parameter(Parameter('a'))
-
-        # Check that we cannot register the same parameter twice.
-        with self.assertRaises(CalibrationError):
-            self.cals.register_parameter(Parameter('a'))

@@ -63,7 +63,8 @@ class Calibrations:
 
         Raises:
             CalibrationError: If the parameterized channel index is not formatted
-                following index1.index2...
+                following index1.index2... or if several parameters in the same schedule
+                have the same name.
         """
         if isinstance(schedules, Schedule):
             schedules = [schedules]
@@ -84,6 +85,11 @@ class Calibrations:
 
             self._schedules[schedule.name] = schedule
 
+            param_names = [param.name for param in schedule.parameters]
+
+            if len(param_names) != len(set(param_names)):
+                raise CalibrationError(f"Parameter names in {schedule.name} must be unique.")
+
             for param in schedule.parameters:
                 self.register_parameter(param, schedule)
 
@@ -95,17 +101,8 @@ class Calibrations:
             parameter: The parameter to register.
             schedule: The Schedule to which this parameter belongs. The schedule can
                 be None which implies a global parameter.
-
-        Raises:
-            CalibrationError: if a parameter with the same name was already registered
-                for the given schedule.
         """
         sched_name = schedule.name if schedule else None
-        if (sched_name, parameter.name) in self._parameter_map:
-            raise CalibrationError(
-                f"Parameter with name {parameter.name} is not unique in schedule {sched_name}."
-            )
-
         self._parameter_map[ParameterKey(sched_name, parameter.name)] = parameter
         if parameter not in self._params:
             self._params[parameter] = {}
