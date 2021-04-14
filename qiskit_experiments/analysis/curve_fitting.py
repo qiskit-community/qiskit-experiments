@@ -47,22 +47,31 @@ def curve_fit(
         xdata: a 1D float array of x-data.
         ydata: a 1D float array of y-data.
         p0: initial guess for optimization parameters.
-        sigma: Optional, a 1D array of standard deviations in ydata.
+        sigma: Optional, a 1D array of standard deviations in ydata
+               in absolute units.
         bounds: Optional, lower and upper bounds for optimization
                 parameters.
         kwargs: additional kwargs for scipy.optimize.curve_fit.
 
     Returns:
-        result containing `popt` the optimal fit parameters,
-        `popt_err` the standard error estimates popt,
-        `pcov` the covariance matrix for the fit,
-        `chisq` the chi-squared parameter of fit,
-        `xrange` the range of xdata values used for fit.
+        result containing ``popt`` the optimal fit parameters,
+        ``popt_err`` the standard error estimates popt,
+        ``pcov`` the covariance matrix for the fit,
+        ``reduced_chisq`` the reduced chi-squared parameter of fit,
+        ``dof`` the degrees of freedom of the fit,
+        ``xrange`` the range of xdata values used for fit.
 
     Raises:
-        QiskitError: if the number of y-values in the dataset is not
-                     greater than the number of parameters in the
-                     fit function.
+        QiskitError: if the number of degrees of freedom of the fit is
+                     less than 1.
+
+    .. note::
+        ``sigma`` is assumed to be specified in the same units as ``ydata``
+        (absolute units). If sigma is instead specified in relative units
+        the `absolute_sigma=False` kwarg of scipy curve_fit must be used.
+        This affects the returned covariance ``pcov`` and error ``popt_err``
+        parameters via ``pcov(absolute_sigma=False) = pcov * reduced_chisq``
+        ``popt_err(absolute_sigma=False) = popt_err * sqrt(reduced_chisq)``.
     """
     # Format p0 parameters if specified as dictionary
     if isinstance(p0, dict):
@@ -87,16 +96,16 @@ def curve_fit(
         param_bounds = bounds
         fit_func = func
 
-    # Check data set has at least 1 more values than model parameters
-    num_params = len(param_p0)
-    if len(ydata) <= num_params:
+    # Check the degrees of freedom is greater than 0
+    dof = len(ydata) - len(param_p0)
+    if dof < 1:
         raise QiskitError(
-            "The number of y-values in the dataset is not greater than"
-            " the number of parameters in the fit function."
+            "The number of degrees of freedom of the fit data and model "
+            " (len(ydata) - len(p0)) is less than 1"
         )
 
-    # Override scipy.curve_fit default for absolute_sigma to True
-    # if not specified in kwargs
+    # Override scipy.curve_fit default for absolute_sigma=True
+    # if sigma is specified.
     if sigma is not None and "absolute_sigma" not in kwargs:
         kwargs["absolute_sigma"] = True
 
@@ -114,7 +123,7 @@ def curve_fit(
     residues = (yfits - ydata) ** 2
     if sigma is not None:
         residues = residues / (sigma ** 2)
-    chisq = np.sum(residues) / (len(yfits) - num_params)
+    reduced_chisq = np.sum(residues) / dof
 
     # Compute xdata range for fit
     xdata_range = [min(xdata), max(xdata)]
@@ -124,7 +133,8 @@ def curve_fit(
         "popt_keys": param_keys,
         "popt_err": popt_err,
         "pcov": pcov,
-        "chisq": chisq,
+        "reduced_chisq": reduced_chisq,
+        "dof": dof,
         "xrange": xdata_range,
     }
 
@@ -141,7 +151,7 @@ def multi_curve_fit(
     weights: Optional[np.ndarray] = None,
     bounds: Optional[Union[Dict[str, Tuple[float, float]], Tuple[np.ndarray, np.ndarray]]] = None,
     **kwargs,
-):
+) -> AnalysisResult:
     r"""Perform a linearized multi-objective non-linear least squares fit.
 
     This solves the optimization problem
@@ -164,7 +174,8 @@ def multi_curve_fit(
         xdata: a 1D float array of xdata.
         ydata: a 1D float array of ydata.
         p0: initial guess for optimization parameters.
-        sigma: Optional, a 1D array of standard deviations in ydata.
+        sigma: Optional, a 1D array of standard deviations in ydata
+               in absolute units.
         weights: Optional, a 1D float list of weights :math:`w_k` for each
                  component function :math:`f_k`.
         bounds: Optional, lower and upper bounds for optimization
@@ -172,16 +183,24 @@ def multi_curve_fit(
         kwargs: additional kwargs for scipy.optimize.curve_fit.
 
     Returns:
-        AnalysisResult: result containing `popt` the optimal fit parameters,
-                        `popt_err` the standard error estimates popt,
-                        `pcov` the covariance matrix for the fit,
-                        `chisq` the chi-squared parameter of fit.
-                        `xrange` the range of xdata values used for fit.
+        result containing ``popt`` the optimal fit parameters,
+        ``popt_err`` the standard error estimates popt,
+        ``pcov`` the covariance matrix for the fit,
+        ``reduced_chisq`` the reduced chi-squared parameter of fit,
+        ``dof`` the degrees of freedom of the fit,
+        ``xrange`` the range of xdata values used for fit.
 
     Raises:
-        QiskitError: if the number of y-values in the dataset is not
-                     greater than the number of parameters in the
-                     fit function.
+        QiskitError: if the number of degrees of freedom of the fit is
+                     less than 1.
+
+    .. note::
+        ``sigma`` is assumed to be specified in the same units as ``ydata``
+        (absolute units). If sigma is instead specified in relative units
+        the `absolute_sigma=False` kwarg of scipy curve_fit must be used.
+        This affects the returned covariance ``pcov`` and error ``popt_err``
+        parameters via ``pcov(absolute_sigma=False) = pcov * reduced_chisq``
+        ``popt_err(absolute_sigma=False) = popt_err * sqrt(reduced_chisq)``.
     """
     num_funcs = len(funcs)
 

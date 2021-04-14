@@ -14,8 +14,8 @@
 
 import numpy as np
 from qiskit.test import QiskitTestCase
-from qiskit import QuantumCircuit
-from qiskit.providers.aer import AerSimulator
+from qiskit import QuantumCircuit, execute
+from qiskit.providers.basicaer import QasmSimulatorPy
 from qiskit_experiments.analysis.curve_fitting import curve_fit, multi_curve_fit, process_curve_data
 from qiskit_experiments.analysis.data_processing import level2_probability
 
@@ -32,8 +32,8 @@ class TestCurveFitting(QiskitTestCase):
             qc.measure_all()
             circuits.append(qc)
 
-        sim = AerSimulator(method="statevector")
-        result = sim.run(circuits, shots=shots, seed_simulator=10).result()
+        sim = QasmSimulatorPy()
+        result = execute(circuits, sim, shots=shots, seed_simulator=10).result()
         data = [
             {"counts": result.get_counts(i), "metadata": {"xval": theta}}
             for i, theta in enumerate(thetas)
