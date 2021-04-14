@@ -355,7 +355,7 @@ class Calibrations:
         users manage their schedules.
 
         Returns:
-            data: A pandas data frame with all the schedules in it.
+            data: A list of dictionaries with all the schedules in it.
         """
         data = []
         for name, schedule in self._schedules.items():
@@ -370,7 +370,7 @@ class Calibrations:
         qubit_list: Optional[Tuple[int, ...]] = None,
     ) -> List[Dict[str, Any]]:
         """
-        Returns the parameters as a pandas data frame.
+        Returns the parameters as a list of dictionaries.
         This function is here to help users manage their parameters.
 
         Args:
