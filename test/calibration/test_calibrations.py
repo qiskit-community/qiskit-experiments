@@ -14,12 +14,13 @@
 
 from datetime import datetime
 from qiskit.circuit import Parameter
-from qiskit.pulse import Drag, DriveChannel
+from qiskit.pulse import Drag, DriveChannel, ControlChannel
 from qiskit.test.mock import FakeAlmaden
 import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.calibration.calibrations import Calibrations
 from qiskit_experiments.calibration.parameter_value import ParameterValue
+from qiskit_experiments.calibration.exceptions import CalibrationError
 
 
 class TestCalibrationsBasic(QiskitTestCase):
@@ -102,3 +103,25 @@ class TestCalibrationsBasic(QiskitTestCase):
         self.cals.add_parameter_value(ParameterValue(50, datetime.now()), "σ", (3,), "xp")
         self.assertEqual(self.cals.get_parameter_value("σ", (3,), "x90p"), 50)
         self.assertEqual(self.cals.get_parameter_value("σ", (3,), "xp"), 50)
+
+    def test_channel_names(self):
+        """Check the naming of parametric control channels index1.index2.index3..."""
+        drive_0 = DriveChannel(Parameter('0'))
+        drive_1 = DriveChannel(Parameter('1'))
+        control_bad = ControlChannel(Parameter('u_chan'))
+        control_good = ControlChannel(Parameter('1.0'))
+
+        with pulse.build() as sched_good:
+            pulse.play(Drag(160, 0.1, 40, 2), drive_0)
+            pulse.play(Drag(160, 0.1, 40, 2), drive_1)
+            pulse.play(Drag(160, 0.1, 40, 2), control_good)
+
+        with pulse.build() as sched_bad:
+            pulse.play(Drag(160, 0.1, 40, 2), drive_0)
+            pulse.play(Drag(160, 0.1, 40, 2), drive_1)
+            pulse.play(Drag(160, 0.1, 40, 2), control_bad)
+
+        self.cals.add_schedules(sched_good)
+
+        with self.assertRaises(CalibrationError):
+            self.cals.add_schedules(sched_bad)
