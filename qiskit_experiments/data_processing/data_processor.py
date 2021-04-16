@@ -50,7 +50,6 @@ class DataProcessor:
             for node in data_actions:
                 self.append(node)
 
-        self._history = []
 
     def append(self, node: DataAction):
         """
