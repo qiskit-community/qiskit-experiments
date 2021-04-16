@@ -101,7 +101,7 @@ class ToReal(IQPart):
 class ToImag(IQPart):
     """IQ data post-processing. Isolate the imaginary part of the IQ data."""
 
-    def _process_iq(self, datum: np.array) -> np.array:
+    def _process(self, datum: np.array) -> np.array:
         """Take the imaginary part of the IQ data.
 
         Args:
