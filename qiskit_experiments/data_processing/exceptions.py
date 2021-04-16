@@ -16,13 +16,4 @@ from qiskit.exceptions import QiskitError
 
 
 class DataProcessorError(QiskitError):
-    """Errors raised by the calibration module."""
-
-    def __init__(self, *message):
-        """Set the error message."""
-        super().__init__(*message)
-        self.message = " ".join(message)
-
-    def __str__(self):
-        """Return the message."""
-        return repr(self.message)
+    """Errors raised by the data processing module."""
