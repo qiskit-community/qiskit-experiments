@@ -83,7 +83,7 @@ class IQPart(DataAction):
 class ToReal(IQPart):
     """IQ data post-processing. Isolate the real part of the IQ data."""
 
-    def _process_iq(self, datum: np.array) -> np.array:
+    def _process(self, datum: np.array) -> np.array:
         """Take the real part of the IQ data.
 
         Args:
