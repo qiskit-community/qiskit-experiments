@@ -57,7 +57,7 @@ class IQPart(DataAction):
         Raises:
             DataProcessorError: If the datum does not have the correct format.
         """
-        datum = np.asarray(datum, dtype=complex)
+        datum = np.asarray(datum, dtype=float)
 
         if validate and len(datum.shape) != 3:
             raise DataProcessorError(
