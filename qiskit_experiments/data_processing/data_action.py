@@ -23,6 +23,13 @@ class DataAction(metaclass=ABCMeta):
     using decorators.
     """
 
+    def __init__(self, validate: bool = True):
+        """
+        Args:
+            validate: If set to False the DataAction will not validate its input.
+        """
+        self._validate = validate
+
     @abstractmethod
     def _process(self, datum: Any) -> Any:
         """
@@ -36,13 +43,14 @@ class DataAction(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def _check_data_format(self, datum: Any) -> Any:
+    def _format_data(self, datum: Any, validate: bool = True) -> Any:
         """
         Check that the given data has the correct structure. This method may
         additionally change the data type, e.g. converting a list to a numpy array.
 
         Args:
             datum: The data instance to check.
+            validate: if True the DataAction checks that the format of the datum is valid.
 
         Returns:
             datum: The data that was check.
@@ -63,8 +71,8 @@ class DataAction(metaclass=ABCMeta):
         Returns:
             processed data: The output data of the node contained in a dict.
         """
-        return self._process(self._check_data_format(data))
+        return self._process(self._format_data(data, self._validate))
 
     def __repr__(self):
         """String representation of the node."""
-        return f"{self.__class__.__name__}"
+        return f"{self.__class__.__name__}(validate: {self._validate})"

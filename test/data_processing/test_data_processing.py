@@ -195,4 +195,14 @@ class DataProcessorTest(QiskitTestCase):
         new_data = processor(self.exp_data_lvl2.data[0])
 
         self.assertEqual(new_data[0], 0.4)
-        self.assertEqual(new_data[1], 10 * 0.4 * (1 - 0.4))
+        self.assertEqual(new_data[1], 0.4 * (1 - 0.4) / 10)
+
+    def test_validation(self):
+        """Test the validation mechanism."""
+
+        for validate, error in [(False, AttributeError), (True, DataProcessorError)]:
+            processor = DataProcessor("counts")
+            processor.append(Probability("00", validate=validate))
+
+            with self.assertRaises(error):
+                processor({"counts": [0, 1, 2]})

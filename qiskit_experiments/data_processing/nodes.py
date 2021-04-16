@@ -23,12 +23,14 @@ from qiskit_experiments.data_processing.exceptions import DataProcessorError
 class IQPart(DataAction):
     """Abstract class for IQ data post-processing."""
 
-    def __init__(self, scale: Optional[float] = None):
+    def __init__(self, scale: Optional[float] = None, validate: bool = True):
         """
         Args:
             scale: float with which to multiply the IQ data.
+            validate: If set to False the DataAction will not validate its input.
         """
         self.scale = scale
+        super().__init__(validate)
 
     @abstractmethod
     def _process_iq(self, datum: np.array) -> np.array:
@@ -41,12 +43,13 @@ class IQPart(DataAction):
             Processed IQ point.
         """
 
-    def _check_data_format(self, datum: Any) -> Any:
-        """Check that the IQ data has the correct format.
+    def _format_data(self, datum: Any, validate: bool = True) -> Any:
+        """Format to np array and check that the IQ data has the correct format.
 
         Args:
             datum: A single item of data which corresponds to single-shot IQ data. It should
                 have dimension three: shots, qubits, iq-point as [real, imaginary].
+            validate: if True the DataAction checks that the format of the datum is valid.
 
         Returns:
             datum: as a numpy array.
@@ -54,7 +57,7 @@ class IQPart(DataAction):
         Raises:
             DataProcessorError: if the datum does not have the correct format.
         """
-        if not isinstance(datum, (list, np.ndarray)):
+        if validate and not isinstance(datum, (list, np.ndarray)):
             raise DataProcessorError(
                 f"The IQ data given to {self.__class__.__name__} " f"must be a list or ndarray."
             )
@@ -62,7 +65,7 @@ class IQPart(DataAction):
         if isinstance(datum, list):
             datum = np.asarray(datum)
 
-        if len(datum.shape) != 3:
+        if validate and len(datum.shape) != 3:
             raise DataProcessorError(
                 f"Single-shot data given {self.__class__.__name__}"
                 f"must be a 3D array. Instead, a {len(datum.shape)}D "
@@ -122,21 +125,24 @@ class ToImag(IQPart):
 class Probability(DataAction):
     """Count data post processing. This returns qubit 1 state probabilities."""
 
-    def __init__(self, outcome: str):
+    def __init__(self, outcome: str, validate: bool = True):
         """Initialize a counts to probability data conversion.
 
         Args:
             outcome: The bitstring for which to compute the probability.
+            validate: If set to False the DataAction will not validate its input.
         """
         self._outcome = outcome
+        super().__init__(validate)
 
-    def _check_data_format(self, datum: dict) -> dict:
+    def _format_data(self, datum: dict, validate: bool = True) -> dict:
         """
         Checks that the given data has a counts format.
 
         Args:
             datum: An instance of data the should be a dict with bit strings as keys
                 and counts as values.
+            validate: if True the DataAction checks that the format of the datum is valid.
 
         Returns:
             The datum as given.
@@ -144,22 +150,23 @@ class Probability(DataAction):
         Raises:
             DataProcessorError: if the data is not a counts dict.
         """
-        if not isinstance(datum, dict):
-            raise DataProcessorError(
-                f"Given counts datum {datum} to "
-                f"{self.__class__.__name__} is not a valid count format."
-            )
-
-        for bit_str, count in datum.items():
-            if not isinstance(bit_str, str):
+        if validate:
+            if not isinstance(datum, dict):
                 raise DataProcessorError(
-                    f"Key {bit_str} is not a valid count key for " f"{self.__class__.__name__}."
+                    f"Given counts datum {datum} to "
+                    f"{self.__class__.__name__} is not a valid count format."
                 )
 
-            if not isinstance(count, (int, float)):
-                raise DataProcessorError(
-                    f"Count {bit_str} is not a valid count key for" f"{self.__class__.__name__}."
-                )
+            for bit_str, count in datum.items():
+                if not isinstance(bit_str, str):
+                    raise DataProcessorError(
+                        f"Key {bit_str} is not a valid count key in{self.__class__.__name__}."
+                    )
+
+                if not isinstance(count, (int, float)):
+                    raise DataProcessorError(
+                        f"Count {bit_str} is not a valid count value in {self.__class__.__name__}."
+                    )
 
         return datum
 
