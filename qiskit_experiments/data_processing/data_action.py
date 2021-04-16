@@ -73,4 +73,4 @@ class DataAction(metaclass=ABCMeta):
 
     def __repr__(self):
         """String representation of the node."""
-        return f"{self.__class__.__name__}(validate: {self._validate})"
+        return f"{self.__class__.__name__}(validate={self._validate})"
