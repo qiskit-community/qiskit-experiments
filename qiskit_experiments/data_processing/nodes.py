@@ -176,6 +176,6 @@ class Probability(DataAction):
         """
         shots = sum(datum.values())
         p_mean = datum.get(self._outcome, 0.0) / shots
-        p_var = shots * p_mean * (1 - p_mean)
+        p_var = p_mean * (1 - p_mean) / shots
 
         return p_mean, p_var
