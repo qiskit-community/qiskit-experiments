@@ -33,7 +33,7 @@ class IQPart(DataAction):
         super().__init__(validate)
 
     @abstractmethod
-    def _process_iq(self, datum: np.array) -> np.array:
+    def _process(self, datum: np.array) -> np.array:
         """Defines how the IQ point will be processed.
 
         Args:
@@ -67,17 +67,6 @@ class IQPart(DataAction):
             )
 
         return datum
-
-    def _process(self, datum: np.array) -> np.array:
-        """Wraps _process_iq.
-
-        Args:
-            datum: A single item of data.
-
-        Returns:
-            processed data
-        """
-        return self._process_iq(datum)
 
 
 class ToReal(IQPart):
