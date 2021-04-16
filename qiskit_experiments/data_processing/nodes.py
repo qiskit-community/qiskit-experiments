@@ -26,7 +26,7 @@ class IQPart(DataAction):
     def __init__(self, scale: Optional[float] = None, validate: bool = True):
         """
         Args:
-            scale: float with which to multiply the IQ data.
+            scale: Float with which to multiply the IQ data.
             validate: If set to False the DataAction will not validate its input.
         """
         self.scale = scale
@@ -37,25 +37,25 @@ class IQPart(DataAction):
         """Defines how the IQ point will be processed.
 
         Args:
-            datum: a 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
+            datum: A 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
 
         Returns:
             Processed IQ point.
         """
 
     def _format_data(self, datum: Any, validate: bool = True) -> Any:
-        """Format to np array and check that the IQ data has the correct format.
+        """Check that the IQ data has the correct format and convert to numpy array.
 
         Args:
             datum: A single item of data which corresponds to single-shot IQ data. It should
                 have dimension three: shots, qubits, iq-point as [real, imaginary].
-            validate: if True the DataAction checks that the format of the datum is valid.
+            validate: If True the DataAction checks that the format of the datum is valid.
 
         Returns:
-            datum: as a numpy array.
+            datum as a numpy array.
 
         Raises:
-            DataProcessorError: if the datum does not have the correct format.
+            DataProcessorError: If the datum does not have the correct format.
         """
         datum = np.asarray(datum, dtype=complex)
 
@@ -68,6 +68,10 @@ class IQPart(DataAction):
 
         return datum
 
+    def __repr__(self):
+        """String representation of the node."""
+        return f"{self.__class__.__name__}(validate: {self._validate}, scale: {self.scale})"
+
 
 class ToReal(IQPart):
     """IQ data post-processing. Isolate the real part of the IQ data."""
@@ -76,7 +80,7 @@ class ToReal(IQPart):
         """Take the real part of the IQ data.
 
         Args:
-            datum: a 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
+            datum: A 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
 
         Returns:
             A 2D array of shots, qubits. Each entry is the real part of the given IQ data.
@@ -94,7 +98,7 @@ class ToImag(IQPart):
         """Take the imaginary part of the IQ data.
 
         Args:
-            datum: a 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
+            datum: A 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
 
         Returns:
             A 2D array of shots, qubits. Each entry is the imaginary part of the given IQ data.
@@ -125,7 +129,7 @@ class Probability(DataAction):
         Args:
             datum: An instance of data the should be a dict with bit strings as keys
                 and counts as values.
-            validate: if True the DataAction checks that the format of the datum is valid.
+            validate: If True the DataAction checks that the format of the datum is valid.
 
         Returns:
             The datum as given.

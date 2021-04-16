@@ -50,7 +50,6 @@ class DataProcessor:
             for node in data_actions:
                 self.append(node)
 
-
     def append(self, node: DataAction):
         """
         Append new data action node to this data processor.
@@ -90,7 +89,7 @@ class DataProcessor:
     ) -> Tuple[Dict[str, Any], List]:
         """
         Call self on the given datum. This method sequentially calls the stored data actions
-        on the datum and also saves the history of the processed data.
+        on the datum and also returns the history of the processed data.
 
         Args:
             datum: A single item of data, typically from an ExperimentData instance, that
@@ -103,7 +102,7 @@ class DataProcessor:
             history: The datum processed at each node of the data processor.
 
         Raises:
-            DataProcessorError: if no nodes are present.
+            DataProcessorError: If no nodes are present.
         """
         if len(self._nodes) == 0:
             raise DataProcessorError("Cannot call an empty data processor.")

@@ -18,9 +18,8 @@ from typing import Any
 
 class DataAction(metaclass=ABCMeta):
     """
-    Abstract action which is a single action done on measured data to process it.
-    Each subclass of DataAction must define the type of data that it accepts as input
-    using decorators.
+    Abstract action done on measured data to process it. Each subclass of DataAction must
+    define the way it formats, validates and processes data.
     """
 
     def __init__(self, validate: bool = True):
@@ -36,7 +35,7 @@ class DataAction(metaclass=ABCMeta):
         Applies the data processing step to the data.
 
         Args:
-            datum: A single item of data data which will be processed.
+            datum: A single item of data which will be processed.
 
         Returns:
             processed data: The data that has been processed.
@@ -49,14 +48,14 @@ class DataAction(metaclass=ABCMeta):
         additionally change the data type, e.g. converting a list to a numpy array.
 
         Args:
-            datum: The data instance to check.
-            validate: if True the DataAction checks that the format of the datum is valid.
+            datum: The data instance to check and format.
+            validate: If True the DataAction checks that the format of the datum is valid.
 
         Returns:
-            datum: The data that was check.
+            datum: The data that was checked.
 
         Raises:
-            DataProcessorError: if the data does not have the proper format.
+            DataProcessorError: If the data does not have the proper format.
         """
 
     def __call__(self, data: Any) -> Any:
@@ -64,12 +63,11 @@ class DataAction(metaclass=ABCMeta):
         Call the data action of this node on the data.
 
         Args:
-            data: The data to process. The action nodes in the data
-                processor will raise errors if the data does not contain the
-                appropriate data.
+            data: The data to process. The action nodes in the data processor will
+                raise errors if the data does not have the appropriate format.
 
         Returns:
-            processed data: The output data of the node contained in a dict.
+            processed data: The data processed by self.
         """
         return self._process(self._format_data(data, self._validate))
 
