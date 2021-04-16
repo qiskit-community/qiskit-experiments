@@ -29,7 +29,6 @@ class IQPart(DataAction):
             scale: float with which to multiply the IQ data.
         """
         self.scale = scale
-        super().__init__()
 
     @abstractmethod
     def _process_iq(self, datum: np.array) -> np.array:
@@ -129,7 +128,6 @@ class Probability(DataAction):
         Args:
             outcome: The bitstring for which to compute the probability.
         """
-        super().__init__()
         self._outcome = outcome
 
     def _check_data_format(self, datum: dict) -> dict:

@@ -23,10 +23,6 @@ class DataAction(metaclass=ABCMeta):
     using decorators.
     """
 
-    def __init__(self):
-        """Create new data analysis routine."""
-        self._child = None
-
     @abstractmethod
     def _process(self, datum: Any) -> Any:
         """
