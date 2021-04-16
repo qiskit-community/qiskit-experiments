@@ -57,13 +57,7 @@ class IQPart(DataAction):
         Raises:
             DataProcessorError: if the datum does not have the correct format.
         """
-        if validate and not isinstance(datum, (list, np.ndarray)):
-            raise DataProcessorError(
-                f"The IQ data given to {self.__class__.__name__} " f"must be a list or ndarray."
-            )
-
-        if isinstance(datum, list):
-            datum = np.asarray(datum)
+        datum = np.asarray(datum, dtype=complex)
 
         if validate and len(datum.shape) != 3:
             raise DataProcessorError(
