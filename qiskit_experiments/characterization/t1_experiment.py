@@ -47,9 +47,9 @@ class T1Analysis(BaseAnalysis):
             t1_guess (float): Optional, an initial guess of T1
             amplitude_guess (float): Optional, an initial guess of the coefficient of the exponent
             offset_guess (float): Optional, an initial guess of the offset
-            t1_bounds (list of two floats): Optional, lower bound and uper bound to T1
-            amplitude_bounds (list of two floats): Optional, lower bound and uper bound to the amplitude
-            offset_bounds (list of two floats): Optional, lower bound and uper bound to the offset
+            t1_bounds (list of two floats): Optional, lower bound and upper bound to T1
+            amplitude_bounds (list of two floats): Optional, lower bound and upper bound to the amplitude
+            offset_bounds (list of two floats): Optional, lower bound and upper bound to the offset
             kwargs: Trailing unused function parameters
 
         Returns:
