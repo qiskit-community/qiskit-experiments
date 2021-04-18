@@ -51,11 +51,12 @@ class TestCalibrationsBasic(QiskitTestCase):
         with pulse.build(name="y90p") as y90p:
             pulse.play(Drag(160, self.amp_y90p, self.sigma, self.beta), drive)
 
-        self.cals.add_schedules([xp, x90p, y90p, xm])
+        for sched in [xp, x90p, y90p, xm]:
+            self.cals.add_schedules(sched)
 
         # Add some parameter values.
         now = datetime.now
-        self.cals.add_parameter_value(ParameterValue(40, now()), "σ", (3,), "xp")
+        self.cals.add_parameter_value(ParameterValue(40, now()), "σ", None, "xp")
         self.cals.add_parameter_value(ParameterValue(0.2, now()), "amp", (3,), "xp")
         self.cals.add_parameter_value(ParameterValue(0.1, now()), "amp", (3,), "x90p")
         self.cals.add_parameter_value(ParameterValue(0.08, now()), "amp", (3,), "y90p")

@@ -26,7 +26,7 @@ from qiskit.circuit import Parameter
 from qiskit_experiments.calibration.exceptions import CalibrationError
 from qiskit_experiments.calibration.parameter_value import ParameterValue
 
-ParameterKey = namedtuple("ParameterKey", ["schedule", "parameter"])
+ParameterKey = namedtuple("ParameterKey", ["schedule", "parameter", "qubits"])
 
 
 class Calibrations:
@@ -48,50 +48,47 @@ class Calibrations:
         self._n_qubits = backend.configuration().num_qubits
         self._n_uchannels = backend.configuration().n_uchannels
         self._config = backend.configuration()
-        self._params = defaultdict(dict)
+        self._params = defaultdict(list)
         self._parameter_map = {}
         self._schedules = {}
 
-    def add_schedules(self, schedules: Union[Schedule, List[Schedule]]):
+    def add_schedules(self, schedule: Schedule, qubits: Tuple = None):
         """
         Add a schedule and register the parameters.
 
         Args:
-            schedules: The schedule(s) to add.
+            schedule: The schedule(s) to add.
+            qubits: The qubits for which to add the schedules. If None is given then this
+                schedule is the default schedule for all qubits.
 
         Raises:
             CalibrationError: If the parameterized channel index is not formatted
                 following index1.index2... or if several parameters in the same schedule
                 have the same name.
         """
-        if isinstance(schedules, Schedule):
-            schedules = [schedules]
+        # check that channels, if parameterized, have the proper name format.
+        # pylint: disable = raise-missing-from
+        for ch in schedule.channels:
+            if isinstance(ch.index, Parameter):
+                try:
+                    [int(index) for index in ch.index.name.split(".")]
+                except ValueError:
+                    raise CalibrationError(
+                        "Parameterized channel must have a name "
+                        "formatted following index1.index2..."
+                    )
 
-        for schedule in schedules:
+        self._schedules[(schedule.name, qubits)] = schedule
 
-            # check that channels, if parameterized, have the proper name format.
-            # pylint: disable = raise-missing-from
-            for ch in schedule.channels:
-                if isinstance(ch.index, Parameter):
-                    try:
-                        [int(index) for index in ch.index.name.split(".")]
-                    except ValueError:
-                        raise CalibrationError(
-                            "Parameterized channel must have a name "
-                            "formatted following index1.index2..."
-                        )
+        param_names = [param.name for param in schedule.parameters]
 
-            self._schedules[schedule.name] = schedule
+        if len(param_names) != len(set(param_names)):
+            raise CalibrationError(f"Parameter names in {schedule.name} must be unique.")
 
-            param_names = [param.name for param in schedule.parameters]
+        for param in schedule.parameters:
+            self.register_parameter(param, schedule)
 
-            if len(param_names) != len(set(param_names)):
-                raise CalibrationError(f"Parameter names in {schedule.name} must be unique.")
-
-            for param in schedule.parameters:
-                self.register_parameter(param, schedule)
-
-    def register_parameter(self, parameter: Parameter, schedule: Schedule = None):
+    def register_parameter(self, parameter: Parameter, schedule: Schedule = None, qubits: Tuple = None):
         """
         Registers a parameter for the given schedule.
 
@@ -99,9 +96,10 @@ class Calibrations:
             parameter: The parameter to register.
             schedule: The Schedule to which this parameter belongs. The schedule can
                 be None which implies a global parameter.
+            qubits: The qubits for which to register the schedule.
         """
         sched_name = schedule.name if schedule else None
-        self._parameter_map[ParameterKey(sched_name, parameter.name)] = parameter
+        self._parameter_map[ParameterKey(sched_name, parameter.name, qubits)] = parameter
 
     @property
     def parameters(self) -> Dict[Parameter, Set]:
@@ -126,7 +124,7 @@ class Calibrations:
         self,
         value: ParameterValue,
         param: Union[Parameter, str],
-        qubits: Tuple[int, ...],
+        qubits: Tuple[int, ...] = None,
         schedule: Union[Schedule, str] = None,
     ):
         """
@@ -149,18 +147,26 @@ class Calibrations:
         param_name = param.name if isinstance(param, Parameter) else param
         sched_name = schedule.name if isinstance(schedule, Schedule) else schedule
 
-        if (sched_name, param_name) not in self._parameter_map:
-            if sched_name:
-                raise CalibrationError(f"Unknown parameter {param_name} in schedule {sched_name}.")
+        # First look for a parameter that matches the given qubits.
+        if (sched_name, param_name, qubits) in self._parameter_map:
+            param = self._parameter_map[(sched_name, param_name, qubits)]
 
-            raise CalibrationError(f"Unknown parameter {param_name}.")
-
-        param = self._parameter_map[(sched_name, param_name)]
-
-        if qubits not in self._params[param]:
-            self._params[param][qubits] = [value]
+        # If no parameter was found look for a default parameter
         else:
-            self._params[param][qubits].append(value)
+            param = self._parameter_map[(sched_name, param_name, None)]
+
+        if param is None:
+            raise CalibrationError(f"No parameter found for parameter {param_name} in "
+                                   f"schedule {sched_name} and qubits {qubits}.")
+
+        # Find all schedules that share this parameter
+        common_schedules = [(sched_name, param_name, qubits)]
+        for key in self._parameter_map.keys():
+            if self._parameter_map[key] == param:
+                common_schedules.append(key)
+
+        for key in common_schedules:
+            self._params[key].append(value)
 
     def _get_channel_index(self, qubits: Tuple, chan: PulseChannel, control_index: int = 0) -> int:
         """
@@ -221,7 +227,8 @@ class Calibrations:
         cutoff_date: datetime = None,
     ) -> Union[int, float, complex]:
         """
-        Retrieve the value of a calibrated parameter from those stored.
+        1) Check if the given qubits have their own Parameter.
+        2) If they do not check to see if a parameter global to all qubits exists.
 
         Args:
             param: The parameter or the name of the parameter for which to get the parameter value.
@@ -245,29 +252,31 @@ class Calibrations:
         param_name = param.name if isinstance(param, Parameter) else param
         sched_name = schedule.name if isinstance(schedule, Schedule) else schedule
 
-        if (sched_name, param_name) not in self._parameter_map:
-            raise CalibrationError(f"No parameter for {param_name} and schedule {sched_name}.")
-
-        param = self._parameter_map[(sched_name, param_name)]
-
-        if qubits not in self._params[param]:
-            raise CalibrationError(f"No parameter value for {param} and qubits {qubits}.")
+        if (sched_name, param_name, qubits) in self._params:
+            candidates = self._params[(sched_name, param_name, qubits)]
+        elif (sched_name, param_name, None) in self._params:
+            candidates = self._params[(sched_name, param_name, None)]
+        else:
+            raise CalibrationError(f"No parameter for {param_name} and schedule {sched_name} "
+                                   f"and qubits {qubits}. No default value exists.")
 
         if valid_only:
-            candidates = [p for p in self._params[param][qubits] if p.valid]
-        else:
-            candidates = self._params[param][qubits]
+            candidates = [val for val in candidates if val.valid]
 
-        candidates = [candidate for candidate in candidates if candidate.group == group]
+        candidates = [val for val in candidates if val.group == group]
 
         if cutoff_date:
             candidates = [val for val in candidates if val.date_time <= cutoff_date]
 
         if len(candidates) == 0:
             msg = (
-                f"No candidate parameter values for {param_name} in calibration group "
-                f"{group} on qubits {qubits} in schedule {sched_name} "
+                f"No candidate parameter values for {param_name} in calibration group {group} "
             )
+
+            if qubits:
+                msg += f"on qubits {qubits} "
+
+            msg += f"in schedule {sched_name}"
 
             if cutoff_date:
                 msg += f" Cutoff date: {cutoff_date}"
@@ -302,12 +311,18 @@ class Calibrations:
         Raises:
             CalibrationError: if the name of the schedule is not known.
         """
-        if name not in self._schedules:
-            raise CalibrationError("Schedule %s is not defined." % name)
+        print(self._schedules)
+
+        if (name, qubits) in self._schedules:
+            schedule = self._schedules[(name, qubits)]
+        elif (name, None) in self._schedules:
+            schedule = self._schedules[(name, None)]
+        else:
+            raise CalibrationError(f"Schedule {name} is not defined for qubits {qubits}.")
 
         # Retrieve the channel indices based on the qubits and bind them.
         binding_dict = {}
-        for ch in self._schedules[name].channels:
+        for ch in schedule.channels:
             if ch.is_parameterized():
                 binding_dict[ch.index] = self._get_channel_index(qubits, ch)
 
@@ -315,13 +330,13 @@ class Calibrations:
         if free_params is None:
             free_params = []
 
-        for param in self._schedules[name].parameters:
+        for param in schedule.parameters:
             if param.name not in free_params and param not in binding_dict:
                 binding_dict[param] = self.get_parameter_value(
                     param.name, qubits, name, group=group
                 )
 
-        return self._schedules[name].assign_parameters(binding_dict, inplace=False)
+        return schedule.assign_parameters(binding_dict, inplace=False)
 
     def get_circuit(
         self,
@@ -397,6 +412,7 @@ class Calibrations:
         data = []
 
         # Convert inputs to lists of strings
+        # TODO Align to param, sched, qubits
         if parameters is not None:
             parameters = {prm.name if isinstance(prm, Parameter) else prm for prm in parameters}
 
