@@ -215,17 +215,3 @@ class T1Experiment(BaseExperiment):
             circuits.append(circ)
 
         return circuits
-
-    @staticmethod
-    def generate_delays(t1_estimate, num_of_points):
-        """
-        Generate delays from an estimate of T1
-
-        Args:
-            t1_estimate (float): estimate of T1
-            num_of_points (float): number of delays to generate
-
-        Returns:
-            float: delays, distributed in a logarithmic scale
-        """
-        return np.geomspace(3, 7 * t1_estimate, num_of_points)

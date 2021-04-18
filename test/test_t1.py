@@ -275,15 +275,6 @@ class TestT1(unittest.TestCase):
         res = T1Analysis()._run_analysis(data)[0]
         self.assertEqual(res["quality"], "computer_bad")
 
-    def test_generate_delays(self):
-        """
-        Test the static method T1Experiment.generate_delays
-        """
-        delays = T1Experiment.generate_delays(25, 30)
-        self.assertEqual(len(delays), 30)
-        self.assertEqual(delays[0], 3)
-        self.assertEqual(delays[-1], 175)
-
 
 if __name__ == "__main__":
     unittest.main()
