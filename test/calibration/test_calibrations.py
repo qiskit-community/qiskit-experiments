@@ -65,11 +65,13 @@ class TestCalibrationsBasic(QiskitTestCase):
 
     def test_setup(self):
         """Test that the initial setup behaves as expected."""
-        self.assertEqual(self.cals.parameters[self.amp_xp], {"xp", "xm"})
-        self.assertEqual(self.cals.parameters[self.amp_x90p], {"x90p"})
-        self.assertEqual(self.cals.parameters[self.amp_y90p], {"y90p"})
-        self.assertEqual(self.cals.parameters[self.beta], {"xp", "xm", "x90p", "y90p"})
-        self.assertEqual(self.cals.parameters[self.sigma], {"xp", "xm", "x90p", "y90p"})
+        self.assertEqual(self.cals.parameters[self.amp_xp], {("xp",), ("xm",)})
+        self.assertEqual(self.cals.parameters[self.amp_x90p], {("x90p",)})
+        self.assertEqual(self.cals.parameters[self.amp_y90p], {("y90p",)})
+
+        expected = {("xp",), ("xm",), ("x90p",), ("y90p",)}
+        self.assertEqual(self.cals.parameters[self.beta], expected)
+        self.assertEqual(self.cals.parameters[self.sigma], expected)
 
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.2)
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xm"), 0.2)
@@ -156,20 +158,11 @@ class TestCalibrationDefaults(QiskitTestCase):
         self.drive = DriveChannel(Parameter("0"))
         self.date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
 
-    def test_default_schedules(self):
-        """
-        In this test we create two xp schedules. A default schedules with a
-        Gaussian pulse for all qubits and a Drag schedule for qubit three which
-        should override the default schedule. We also test to see that updating
-        a common parameter affects both schedules.
-        """
-
         # Template schedule for qubit 3
         with pulse.build(name="xp") as xp_drag:
             pulse.play(Drag(160, self.amp_xp, self.sigma, self.beta), self.drive)
 
         # Default template schedule for all qubits
-        amp = Parameter("amp")  # Same name as self.amp_xp
         with pulse.build(name="xp") as xp:
             pulse.play(Gaussian(160, self.amp, self.sigma), self.drive)
 
@@ -177,11 +170,55 @@ class TestCalibrationDefaults(QiskitTestCase):
         self.cals.add_schedules(xp)
         self.cals.add_schedules(xp_drag, (3,))
 
-        # Add the minimum number of parameter values
+    def test_parameter_value_adding_and_filtering(self):
+        """Test that adding parameter values behaves in the expected way."""
+
+        # Ensure that no parameter values are present when none have been added.
+        params = self.cals.parameters_table()
+        self.assertEqual(params, [])
+
+        # Add a default parameter common to all qubits.
+        self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", None, "xp")
+        self.assertEqual(len(self.cals.parameters_table()), 1)
+
+        # Check that we can get a default parameter in the parameter table
+        self.assertEqual(len(self.cals.parameters_table(parameters=["σ"])), 2)
+        self.assertEqual(len(self.cals.parameters_table(parameters=["σ"], schedules=["xp"])), 2)
+        self.assertEqual(len(self.cals.parameters_table(parameters=["σ"], schedules=["xm"])), 0)
+
+        # Test behaviour of qubit-specific parameter
+        self.cals.add_parameter_value(ParameterValue(0.25, self.date_time), "amp", (3,), "xp")
+        self.cals.add_parameter_value(ParameterValue(0.15, self.date_time), "amp", (0,), "xp")
+
+        # Check the value for qubit 0
+        params = self.cals.parameters_table(parameters=["amp"], qubit_list=[(0,)])
+        self.assertEqual(len(params), 1)
+        self.assertEqual(params[0]["value"], 0.15)
+        self.assertEqual(params[0]["qubits"], (0,))
+
+        # Check the value for qubit 3
+        params = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,)])
+        self.assertEqual(len(params), 1)
+        self.assertEqual(params[0]["value"], 0.25)
+        self.assertEqual(params[0]["qubits"], (3,))
+
+    def _add_parameters(self):
+        """Helper function."""
+
+        # Add the minimum number of parameter values. Sigma is shared across both schedules.
         self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", None, "xp")
         self.cals.add_parameter_value(ParameterValue(0.25, self.date_time), "amp", (3,), "xp")
         self.cals.add_parameter_value(ParameterValue(0.15, self.date_time), "amp", (0,), "xp")
         self.cals.add_parameter_value(ParameterValue(10, self.date_time), "β", (3,), "xp")
+
+    def test_default_schedules(self):
+        """
+        In this test we create two xp schedules. A default schedules with a
+        Gaussian pulse for all qubits and a Drag schedule for qubit three which
+        should override the default schedule. We also test to see that updating
+        a common parameter affects both schedules.
+        """
+        self._add_parameters()
 
         xp0 = self.cals.get_schedule("xp", (0,))
         xp3 = self.cals.get_schedule("xp", (3,))
@@ -201,6 +238,7 @@ class TestCalibrationDefaults(QiskitTestCase):
         self.assertEqual(xp3.instructions[0][1].pulse.duration, 160)
         self.assertEqual(xp3.instructions[0][1].pulse.beta, 10)
 
+        # Check that updating sigma updates both schedules.
         later_date_time = datetime.strptime("16/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
         self.cals.add_parameter_value(ParameterValue(50, later_date_time), "σ", None, "xp")
 
@@ -213,3 +251,27 @@ class TestCalibrationDefaults(QiskitTestCase):
         # Check that we have the expected parameters in the calibrations.
         expected = {self.amp_xp, self.amp, self.sigma, self.beta}
         self.assertEqual(len(set(self.cals.parameters.keys())), len(expected))
+
+    def test_parameter_filtering(self):
+        """Test that we can properly filter parameter values."""
+
+        self._add_parameters()
+
+        # Check that these values are split between the qubits.
+        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(0,)])
+        self.assertEqual(len(amp_values), 1)
+
+        # Check that we have one value for sigma.
+        sigma_values = self.cals.parameters_table(parameters=["σ"])
+        self.assertEqual(len(sigma_values), 1)
+
+        # Check that we have two values for amp.
+        amp_values = self.cals.parameters_table(parameters=["amp"])
+        self.assertEqual(len(amp_values), 2)
+
+        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,)])
+        self.assertEqual(len(amp_values), 1)
+
+        # Check to see if we get back the two qubits when explicitly specifying them.
+        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,), (0,)])
+        self.assertEqual(len(amp_values), 2)

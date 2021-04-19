@@ -48,8 +48,13 @@ class Calibrations:
         self._n_qubits = backend.configuration().num_qubits
         self._n_uchannels = backend.configuration().n_uchannels
         self._config = backend.configuration()
-        self._params = defaultdict(list)
+
+        # Dict of the form: (schedule.name, parameter.name, qubits): Parameter
         self._parameter_map = {}
+
+        # Default dict of the form: (schedule.name, parameter.name, qubits): [ParameterValue, ...]
+        self._params = defaultdict(list)
+
         self._schedules = {}
 
     def add_schedules(self, schedule: Schedule, qubits: Tuple = None):
@@ -68,8 +73,10 @@ class Calibrations:
         """
         # check that channels, if parameterized, have the proper name format.
         # pylint: disable = raise-missing-from
+        param_indices = set()
         for ch in schedule.channels:
             if isinstance(ch.index, Parameter):
+                param_indices.add(ch.index)
                 try:
                     [int(index) for index in ch.index.name.split(".")]
                 except ValueError:
@@ -85,8 +92,10 @@ class Calibrations:
         if len(param_names) != len(set(param_names)):
             raise CalibrationError(f"Parameter names in {schedule.name} must be unique.")
 
+        # Register parameters that are not indices.
         for param in schedule.parameters:
-            self.register_parameter(param, schedule)
+            if param not in param_indices:
+                self.register_parameter(param, schedule, qubits)
 
     def register_parameter(
         self, parameter: Parameter, schedule: Schedule = None, qubits: Tuple = None
@@ -111,14 +120,14 @@ class Calibrations:
         which the parameter appears. Parameters that are not attached to a schedule will have None
         in place of a schedule name.
         """
-        parameters = {}
+        parameters = defaultdict(set)
         for key, param in self._parameter_map.items():
             schedule_name = key.schedule
 
-            if param not in parameters:
-                parameters[param] = {schedule_name}
+            if key.qubits:
+                parameters[param].add((schedule_name, key.qubits))
             else:
-                parameters[param].add(schedule_name)
+                parameters[param].add((schedule_name,))
 
         return parameters
 
@@ -145,17 +154,16 @@ class Calibrations:
                 channel type is not a ControlChannel, DriveChannel, or MeasureChannel, or
                 if the parameter name is not already in self.
         """
-
         param_name = param.name if isinstance(param, Parameter) else param
         sched_name = schedule.name if isinstance(schedule, Schedule) else schedule
 
         # First look for a parameter that matches the given qubits.
         if (sched_name, param_name, qubits) in self._parameter_map:
-            param = self._parameter_map[(sched_name, param_name, qubits)]
+            param = self._parameter_map[ParameterKey(sched_name, param_name, qubits)]
 
         # If no parameter was found look for a default parameter
         else:
-            param = self._parameter_map[(sched_name, param_name, None)]
+            param = self._parameter_map[ParameterKey(sched_name, param_name, None)]
 
         if param is None:
             raise CalibrationError(
@@ -164,10 +172,10 @@ class Calibrations:
             )
 
         # Find all schedules that share this parameter
-        common_schedules = [(sched_name, param_name, qubits)]
+        common_schedules = {ParameterKey(sched_name, param_name, qubits)}
         for key in self._parameter_map.keys():
             if self._parameter_map[key] == param:
-                common_schedules.append(key)
+                common_schedules.add(key)
 
         for key in common_schedules:
             self._params[key].append(value)
@@ -394,11 +402,9 @@ class Calibrations:
         self,
         parameters: List[str] = None,
         schedules: List[Union[Schedule, str]] = None,
-        qubit_list: Optional[Tuple[int, ...]] = None,
+        qubit_list: List[Tuple[int, ...]] = None,
     ) -> List[Dict[str, Any]]:
         """
-        Returns the parameters as a list of dictionaries.
-        This function is here to help users manage their parameters.
 
         Args:
             parameters: The parameter names that should be included in the returned
@@ -408,45 +414,39 @@ class Calibrations:
                 If None is given then all channels are returned.
 
         Returns:
-            data: A data frame of parameter values.
+            data: A dictionary of parameter values which can easily be converted to a
+                data frame.
         """
 
         data = []
 
         # Convert inputs to lists of strings
-        # TODO Align to param, sched, qubits
         if parameters is not None:
             parameters = {prm.name if isinstance(prm, Parameter) else prm for prm in parameters}
 
         if schedules is not None:
             schedules = {sdl.name if isinstance(sdl, Schedule) else sdl for sdl in schedules}
 
-        keys = []
-        for key, param in self._parameter_map.items():
-            if parameters and schedules:
-                if key.parameter in parameters and key.schedule in schedules:
-                    keys.append((param, key))
-            elif schedules and key.schedule in schedules:
-                keys.append((param, key))
-            elif parameters and key.parameter in parameters:
-                keys.append((param, key))
-            else:
-                keys.append((param, key))
+        # Look for exact matches. Default values will be ignored.
+        keys = set()
+        for key, param in self._params.items():
+            if parameters and key.parameter not in parameters:
+                continue
+            if schedules and key.schedule not in schedules:
+                continue
+            if qubit_list and key.qubits not in qubit_list:
+                continue
+
+            keys.add(key)
 
         for key in keys:
-            param_vals = self._params[key[0]]
+            for value in self._params[key]:
+                value_dict = dataclasses.asdict(value)
+                value_dict["qubits"] = key.qubits
+                value_dict["parameter"] = key.parameter
+                value_dict["schedule"] = key.schedule
 
-            for qubits, values in param_vals.items():
-                if qubit_list and qubits not in qubit_list:
-                    continue
-
-                for value in values:
-                    value_dict = dataclasses.asdict(value)
-                    value_dict["qubits"] = qubits
-                    value_dict["parameter"] = key[1].parameter
-                    value_dict["schedule"] = key[1].schedule
-
-                    data.append(value_dict)
+                data.append(value_dict)
 
         return data
 
