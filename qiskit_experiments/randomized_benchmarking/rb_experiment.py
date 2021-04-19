@@ -89,8 +89,6 @@ class RBExperiment(BaseExperiment):
                          layout must be generated from the experiment.
         """
         circuits = super().transpiled_circuits(backend=backend, **kwargs)
-        # TODO: Add functionality for gates per clifford which depends
-        # on the transpiled circuit gates
         return circuits
 
     def _sample_circuits(
