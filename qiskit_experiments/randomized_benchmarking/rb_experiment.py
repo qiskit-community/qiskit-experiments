@@ -95,12 +95,12 @@ class RBExperiment(BaseExperiment):
         self, lengths: Iterable[int], seed: Optional[Union[int, Generator]] = None
     ):
         """Return a list RB circuits for the given lengths.
-                Args:
-                    lengths: A list of RB sequences lengths.
-                    seed: Seed or generator object for random number
-                          generation. If None default_rng will be used.
-                Returns:
-                    List[QuantumCircuit]: A list of :class:`QuantumCircuit`s.
+        Args:
+            lengths: A list of RB sequences lengths.
+            seed: Seed or generator object for random number
+                  generation. If None default_rng will be used.
+        Returns:
+            List[QuantumCircuit]: A list of :class:`QuantumCircuit`s.
         """
         circuits = []
         for length in lengths if self._full_sampling else [lengths[-1]]:
@@ -111,14 +111,14 @@ class RBExperiment(BaseExperiment):
 
     def _generate_circuit(self, elements: Iterable[Clifford], lengths: Iterable[int]):
         """Return the RB circuits constructed from the given element list.
-                Args:
-                    elements: A list of Clifford elements
-                    lengths: A list of RB sequences lengths.
-                Returns:
-                    List[QuantumCircuit]: A list of :class:`QuantumCircuit`s.
-                Additional information:
-                    The circuits are constructed iteratively; each circuit is obtained
-                    by extending the previous circuit (without the inversion and measurement gates)
+        Args:
+            elements: A list of Clifford elements
+            lengths: A list of RB sequences lengths.
+        Returns:
+            List[QuantumCircuit]: A list of :class:`QuantumCircuit`s.
+        Additional information:
+            The circuits are constructed iteratively; each circuit is obtained
+            by extending the previous circuit (without the inversion and measurement gates)
         """
         qubits = list(range(self.num_qubits))
         circuits = []
