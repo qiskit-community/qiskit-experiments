@@ -93,7 +93,16 @@ class RBExperiment(BaseExperiment):
         # on the transpiled circuit gates
         return circuits
 
-    def _sample_circuits(self, lengths, seed=None):
+    def _sample_circuits(self, lengths: Iterable[int],
+                         seed: Optional[Union[int, Generator]] = None):
+        """Return a list RB circuits for the given lengths.
+                Args:
+                    lengths: A list of RB sequences lengths.
+                    seed: Seed or generator object for random number
+                          generation. If None default_rng will be used.
+                Returns:
+                    List[QuantumCircuit]: A list of :class:`QuantumCircuit`s.
+        """
         circuits = []
         for length in lengths if self._full_sampling else [lengths[-1]]:
             elements = [random_clifford(self.num_qubits, seed=seed) for _ in range(length)]
@@ -101,7 +110,18 @@ class RBExperiment(BaseExperiment):
             circuits += self._generate_circuit(elements, element_lengths)
         return circuits
 
-    def _generate_circuit(self, elements, lengths):
+    def _generate_circuit(self, elements: Iterable[Clifford],
+                          lengths: Iterable[int]):
+        """Return the RB circuits constructed from the given element list.
+                Args:
+                    elements: A list of Clifford elements
+                    lengths: A list of RB sequences lengths.
+                Returns:
+                    List[QuantumCircuit]: A list of :class:`QuantumCircuit`s.
+                Additional information:
+                    The circuits are constructed iteratively; each circuit is obtained
+                    by extending the previous circuit (without the inversion and measurement gates)
+        """
         qubits = list(range(self.num_qubits))
         circuits = []
 

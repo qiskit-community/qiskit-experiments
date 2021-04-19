@@ -64,13 +64,7 @@ class RBAnalysis(BaseAnalysis):
 
         p0 = self._p0(xdata, ydata)
         analysis_result = curve_fit(
-            fit_fun,
-            xdata,
-            ydata,
-            p0,
-            ydata_sigma,
-            bounds=([0, 0, 0], [1, 1, 1]),
-            absolute_sigma=False,
+            fit_fun, xdata, ydata, p0, ydata_sigma, bounds=([0, 0, 0], [1, 1, 1])
         )
 
         # Add EPC data
@@ -90,6 +84,7 @@ class RBAnalysis(BaseAnalysis):
         return analysis_result, None
 
     def _p0(self, xdata, ydata):
+        """Initial guess for the fitting function"""
         fit_guess = [0.95, 0.99, 1 / 2 ** self._num_qubits]
         # Use the first two points to guess the decay param
         dcliff = xdata[1] - xdata[0]
