@@ -52,7 +52,7 @@ class TestCalibrationsBasic(QiskitTestCase):
             pulse.play(Drag(160, self.amp_y90p, self.sigma, self.beta), self.drive)
 
         for sched in [xp, x90p, y90p, xm]:
-            self.cals.add_schedules(sched)
+            self.cals.add_schedule(sched)
 
         # Add some parameter values.
         self.date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
@@ -125,10 +125,10 @@ class TestCalibrationsBasic(QiskitTestCase):
             pulse.play(Drag(160, 0.1, 40, 2), drive_1)
             pulse.play(Drag(160, 0.1, 40, 2), control_bad)
 
-        self.cals.add_schedules(sched_good)
+        self.cals.add_schedule(sched_good)
 
         with self.assertRaises(CalibrationError):
-            self.cals.add_schedules(sched_bad)
+            self.cals.add_schedule(sched_bad)
 
     def test_unique_parameter_names(self):
         """Test that we cannot insert schedules in which parameter names are duplicates."""
@@ -136,7 +136,7 @@ class TestCalibrationsBasic(QiskitTestCase):
             pulse.play(Drag(160, Parameter("a"), Parameter("a"), Parameter("a")), DriveChannel(0))
 
         with self.assertRaises(CalibrationError):
-            self.cals.add_schedules(sched)
+            self.cals.add_schedule(sched)
 
     def test_parameter_without_schedule(self):
         """Test that we can manage parameters that are not bound to a schedule."""
@@ -167,8 +167,8 @@ class TestCalibrationDefaults(QiskitTestCase):
             pulse.play(Gaussian(160, self.amp, self.sigma), self.drive)
 
         # Add the schedules
-        self.cals.add_schedules(xp)
-        self.cals.add_schedules(xp_drag, (3,))
+        self.cals.add_schedule(xp)
+        self.cals.add_schedule(xp_drag, (3,))
 
     def test_parameter_value_adding_and_filtering(self):
         """Test that adding parameter values behaves in the expected way."""

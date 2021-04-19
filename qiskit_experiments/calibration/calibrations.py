@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Class to store the results of a calibration experiments."""
+"""Class to store and manage the results of a calibration experiments."""
 
 import dataclasses
 from collections import namedtuple, defaultdict
@@ -34,7 +34,9 @@ class Calibrations:
     A class to manage schedules with calibrated parameter values.
     Schedules are stored in a dict and are intended to be fully parameterized,
     including the index of the channels. The parameter values are stored in a
-    dict where parameters are keys.
+    dict where parameters are keys. This class supports:
+    - having different schedules share parameters
+    - allows default schedules for qubits that can be overridden of specific qubits.
     """
 
     def __init__(self, backend: Backend):
@@ -57,12 +59,12 @@ class Calibrations:
 
         self._schedules = {}
 
-    def add_schedules(self, schedule: Schedule, qubits: Tuple = None):
+    def add_schedule(self, schedule: Schedule, qubits: Tuple = None):
         """
-        Add a schedule and register the parameters.
+        Add a schedule and register its parameters.
 
         Args:
-            schedule: The schedule(s) to add.
+            schedule: The schedule to add.
             qubits: The qubits for which to add the schedules. If None is given then this
                 schedule is the default schedule for all qubits.
 
@@ -101,13 +103,15 @@ class Calibrations:
         self, parameter: Parameter, schedule: Schedule = None, qubits: Tuple = None
     ):
         """
-        Registers a parameter for the given schedule.
+        Registers a parameter for the given schedule. This allows self to determine the
+        parameter instance that corresponds to the given schedule name, parameter name
+        and qubits.
 
         Args:
             parameter: The parameter to register.
             schedule: The Schedule to which this parameter belongs. The schedule can
-                be None which implies a global parameter.
-            qubits: The qubits for which to register the schedule.
+                be None which allows the calibration to accommodate, e.g. qubit frequencies.
+            qubits: The qubits for which to register the parameter.
         """
         sched_name = schedule.name if schedule else None
         self._parameter_map[ParameterKey(sched_name, parameter.name, qubits)] = parameter
@@ -115,10 +119,10 @@ class Calibrations:
     @property
     def parameters(self) -> Dict[Parameter, Set]:
         """
-        Returns a dictionary mapping parameters managed by the calibrations definition to schedules
-        using the parameters. The values of the dict are sets containing the names of the schedules in
-        which the parameter appears. Parameters that are not attached to a schedule will have None
-        in place of a schedule name.
+        Returns a dictionary mapping parameters managed by the calibrations to the schedules and
+        qubits using the parameters. The values of the dict are sets containing the names of the
+        schedules and qubits in which the parameter appears. Parameters that are not attached to
+        a schedule will have None in place of a schedule name.
         """
         parameters = defaultdict(set)
         for key, param in self._parameter_map.items():
@@ -141,7 +145,7 @@ class Calibrations:
         """
         Add a parameter value to the stored parameters. This parameter value may be
         applied to several channels, for instance, all DRAG pulses may have the same
-        standard deviation. The parameters are stored and identified by name.
+        standard deviation.
 
         Args:
             value: The value of the parameter to add.
@@ -241,6 +245,8 @@ class Calibrations:
         """
         1) Check if the given qubits have their own Parameter.
         2) If they do not check to see if a parameter global to all qubits exists.
+        3) Filter candidate parameter values.
+        4) Return the most recent parameter.
 
         Args:
             param: The parameter or the name of the parameter for which to get the parameter value.
@@ -264,8 +270,11 @@ class Calibrations:
         param_name = param.name if isinstance(param, Parameter) else param
         sched_name = schedule.name if isinstance(schedule, Schedule) else schedule
 
+        # 1) Check for qubit specific parameters.
         if (sched_name, param_name, qubits) in self._params:
             candidates = self._params[(sched_name, param_name, qubits)]
+
+        # 2) Check for default values.
         elif (sched_name, param_name, None) in self._params:
             candidates = self._params[(sched_name, param_name, None)]
         else:
@@ -274,6 +283,7 @@ class Calibrations:
                 f"and qubits {qubits}. No default value exists."
             )
 
+        # 3) Filter candidate parameter values.
         if valid_only:
             candidates = [val for val in candidates if val.valid]
 
@@ -295,6 +305,7 @@ class Calibrations:
 
             raise CalibrationError(msg)
 
+        # 4) Return the most recent parameter.
         candidates.sort(key=lambda x: x.date_time)
 
         return candidates[-1].value
@@ -386,15 +397,15 @@ class Calibrations:
 
     def schedules(self) -> List[Dict[str, Any]]:
         """
-        Return the schedules in self in a data frame to help
+        Return the schedules in self in a list of dictionaries to help
         users manage their schedules.
 
         Returns:
             data: A list of dictionaries with all the schedules in it.
         """
         data = []
-        for name, schedule in self._schedules.items():
-            data.append({"name": name, "schedule": schedule, "parameters": schedule.parameters})
+        for context, sched in self._schedules.items():
+            data.append({"context": context, "schedule": sched, "parameters": sched.parameters})
 
         return data
 
