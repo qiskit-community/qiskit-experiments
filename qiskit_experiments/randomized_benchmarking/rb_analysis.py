@@ -23,7 +23,7 @@ from qiskit_experiments.analysis.data_processing import (
     mean_xy_data,
     filter_data,
 )
-from qiskit_experiments.analysis.plotting import plot_curve_fit
+from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_scatter, plot_errorbar
 
 try:
     from matplotlib import pyplot as plt
@@ -82,8 +82,10 @@ class RBAnalysis(BaseAnalysis):
         analysis_result["plabels"] = ["A", "alpha", "B"]
 
         if plot:
-            fig = plot_curve_fit(fit_fun, analysis_result, ax=ax)
-            self._format_plot(fig, analysis_result)
+            ax = plot_curve_fit(fit_fun, analysis_result, ax=ax)
+            ax = plot_scatter(xdata, ydata, ax=ax)
+            ax = plot_errorbar(xdata, ydata, ydata_sigma, ax=ax)
+            self._format_plot(ax, analysis_result)
             analysis_result.plt = plt
         return analysis_result, None
 
