@@ -93,8 +93,9 @@ class RBExperiment(BaseExperiment):
         # on the transpiled circuit gates
         return circuits
 
-    def _sample_circuits(self, lengths: Iterable[int],
-                         seed: Optional[Union[int, Generator]] = None):
+    def _sample_circuits(
+        self, lengths: Iterable[int], seed: Optional[Union[int, Generator]] = None
+    ):
         """Return a list RB circuits for the given lengths.
                 Args:
                     lengths: A list of RB sequences lengths.
@@ -110,8 +111,7 @@ class RBExperiment(BaseExperiment):
             circuits += self._generate_circuit(elements, element_lengths)
         return circuits
 
-    def _generate_circuit(self, elements: Iterable[Clifford],
-                          lengths: Iterable[int]):
+    def _generate_circuit(self, elements: Iterable[Clifford], lengths: Iterable[int]):
         """Return the RB circuits constructed from the given element list.
                 Args:
                     elements: A list of Clifford elements
