@@ -88,7 +88,9 @@ class Calibrations:
         for param in schedule.parameters:
             self.register_parameter(param, schedule)
 
-    def register_parameter(self, parameter: Parameter, schedule: Schedule = None, qubits: Tuple = None):
+    def register_parameter(
+        self, parameter: Parameter, schedule: Schedule = None, qubits: Tuple = None
+    ):
         """
         Registers a parameter for the given schedule.
 
@@ -156,8 +158,10 @@ class Calibrations:
             param = self._parameter_map[(sched_name, param_name, None)]
 
         if param is None:
-            raise CalibrationError(f"No parameter found for parameter {param_name} in "
-                                   f"schedule {sched_name} and qubits {qubits}.")
+            raise CalibrationError(
+                f"No parameter found for parameter {param_name} in "
+                f"schedule {sched_name} and qubits {qubits}."
+            )
 
         # Find all schedules that share this parameter
         common_schedules = [(sched_name, param_name, qubits)]
@@ -257,8 +261,10 @@ class Calibrations:
         elif (sched_name, param_name, None) in self._params:
             candidates = self._params[(sched_name, param_name, None)]
         else:
-            raise CalibrationError(f"No parameter for {param_name} and schedule {sched_name} "
-                                   f"and qubits {qubits}. No default value exists.")
+            raise CalibrationError(
+                f"No parameter for {param_name} and schedule {sched_name} "
+                f"and qubits {qubits}. No default value exists."
+            )
 
         if valid_only:
             candidates = [val for val in candidates if val.valid]
@@ -269,9 +275,7 @@ class Calibrations:
             candidates = [val for val in candidates if val.date_time <= cutoff_date]
 
         if len(candidates) == 0:
-            msg = (
-                f"No candidate parameter values for {param_name} in calibration group {group} "
-            )
+            msg = f"No candidate parameter values for {param_name} in calibration group {group} "
 
             if qubits:
                 msg += f"on qubits {qubits} "
@@ -311,8 +315,6 @@ class Calibrations:
         Raises:
             CalibrationError: if the name of the schedule is not known.
         """
-        print(self._schedules)
-
         if (name, qubits) in self._schedules:
             schedule = self._schedules[(name, qubits)]
         elif (name, None) in self._schedules:
