@@ -43,11 +43,7 @@ class DataProcessor:
                 If None is given an empty DataProcessor will be created.
         """
         self._input_key = input_key
-        self._nodes = []
-
-        if data_actions:
-            for node in data_actions:
-                self.append(node)
+        self._nodes = data_actions if data_actions else []
 
     def append(self, node: DataAction):
         """
