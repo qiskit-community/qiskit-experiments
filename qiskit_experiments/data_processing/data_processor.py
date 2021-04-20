@@ -99,7 +99,8 @@ class DataProcessor:
             datum: A single item of data, typically from an ExperimentData instance, that
                 needs to be processed.
             history_nodes: The nodes, specified by index in the data processing chain, to
-                include in the history.
+                include in the history. If None is given then all nodes will be included
+                in the history.
 
         Returns:
             processed data: The datum processed by the data processor.
