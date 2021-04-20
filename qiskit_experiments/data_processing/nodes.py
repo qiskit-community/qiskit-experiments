@@ -43,13 +43,12 @@ class IQPart(DataAction):
             Processed IQ point.
         """
 
-    def _format_data(self, datum: Any, validate: bool = True) -> Any:
+    def _format_data(self, datum: Any) -> Any:
         """Check that the IQ data has the correct format and convert to numpy array.
 
         Args:
             datum: A single item of data which corresponds to single-shot IQ data. It should
                 have dimension three: shots, qubits, iq-point as [real, imaginary].
-            validate: If True the DataAction checks that the format of the datum is valid.
 
         Returns:
             datum as a numpy array.
@@ -59,7 +58,7 @@ class IQPart(DataAction):
         """
         datum = np.asarray(datum, dtype=float)
 
-        if validate and len(datum.shape) != 3:
+        if self._validate and len(datum.shape) != 3:
             raise DataProcessorError(
                 f"Single-shot data given {self.__class__.__name__}"
                 f"must be a 3D array. Instead, a {len(datum.shape)}D "
@@ -122,7 +121,7 @@ class Probability(DataAction):
         self._outcome = outcome
         super().__init__(validate)
 
-    def _format_data(self, datum: dict, validate: bool = True) -> dict:
+    def _format_data(self, datum: dict) -> dict:
         """
         Checks that the given data has a counts format.
 
@@ -137,7 +136,7 @@ class Probability(DataAction):
         Raises:
             DataProcessorError: if the data is not a counts dict.
         """
-        if validate:
+        if self._validate:
             if not isinstance(datum, dict):
                 raise DataProcessorError(
                     f"Given counts datum {datum} to "

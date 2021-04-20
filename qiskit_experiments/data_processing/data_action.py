@@ -42,14 +42,13 @@ class DataAction(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def _format_data(self, datum: Any, validate: bool = True) -> Any:
+    def _format_data(self, datum: Any) -> Any:
         """
         Check that the given data has the correct structure. This method may
         additionally change the data type, e.g. converting a list to a numpy array.
 
         Args:
             datum: The data instance to check and format.
-            validate: If True the DataAction checks that the format of the datum is valid.
 
         Returns:
             datum: The data that was checked.
@@ -69,7 +68,7 @@ class DataAction(metaclass=ABCMeta):
         Returns:
             processed data: The data processed by self.
         """
-        return self._process(self._format_data(data, self._validate))
+        return self._process(self._format_data(data))
 
     def __repr__(self):
         """String representation of the node."""
