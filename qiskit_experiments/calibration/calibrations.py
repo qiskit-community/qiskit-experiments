@@ -54,6 +54,9 @@ class Calibrations:
         # Dict of the form: (schedule.name, parameter.name, qubits): Parameter
         self._parameter_map = {}
 
+        # Reverse mapping of _parameter_map
+        self._parameter_map_r = defaultdict(set)
+
         # Default dict of the form: (schedule.name, parameter.name, qubits): [ParameterValue, ...]
         self._params = defaultdict(list)
 
@@ -114,7 +117,9 @@ class Calibrations:
             qubits: The qubits for which to register the parameter.
         """
         sched_name = schedule.name if schedule else None
-        self._parameter_map[ParameterKey(sched_name, parameter.name, qubits)] = parameter
+        key = ParameterKey(sched_name, parameter.name, qubits)
+        self._parameter_map[key] = parameter
+        self._parameter_map_r[parameter].add(key)
 
     @property
     def parameters(self) -> Dict[Parameter, Set]:
@@ -161,28 +166,7 @@ class Calibrations:
         param_name = param.name if isinstance(param, Parameter) else param
         sched_name = schedule.name if isinstance(schedule, Schedule) else schedule
 
-        # First look for a parameter that matches the given qubits.
-        if (sched_name, param_name, qubits) in self._parameter_map:
-            param = self._parameter_map[ParameterKey(sched_name, param_name, qubits)]
-
-        # If no parameter was found look for a default parameter
-        else:
-            param = self._parameter_map[ParameterKey(sched_name, param_name, None)]
-
-        if param is None:
-            raise CalibrationError(
-                f"No parameter found for parameter {param_name} in "
-                f"schedule {sched_name} and qubits {qubits}."
-            )
-
-        # Find all schedules that share this parameter
-        common_schedules = {ParameterKey(sched_name, param_name, qubits)}
-        for key in self._parameter_map.keys():
-            if self._parameter_map[key] == param:
-                common_schedules.add(key)
-
-        for key in common_schedules:
-            self._params[key].append(value)
+        self._params[ParameterKey(sched_name, param_name, qubits)].append(value)
 
     def _get_channel_index(self, qubits: Tuple, chan: PulseChannel, control_index: int = 0) -> int:
         """
@@ -271,19 +255,53 @@ class Calibrations:
         sched_name = schedule.name if isinstance(schedule, Schedule) else schedule
 
         # 1) Check for qubit specific parameters.
-        if (sched_name, param_name, qubits) in self._params:
-            candidates = self._params[(sched_name, param_name, qubits)]
+        if (sched_name, param_name, qubits) in self._parameter_map:
+            param = self._parameter_map[(sched_name, param_name, qubits)]
 
-        # 2) Check for default values.
-        elif (sched_name, param_name, None) in self._params:
-            candidates = self._params[(sched_name, param_name, None)]
+        # 2) Check for default parameters.
+        elif (sched_name, param_name, None) in self._parameter_map:
+            param = self._parameter_map[(sched_name, param_name, None)]
         else:
             raise CalibrationError(
                 f"No parameter for {param_name} and schedule {sched_name} "
                 f"and qubits {qubits}. No default value exists."
             )
 
-        # 3) Filter candidate parameter values.
+        # 3) Get a list of candidate keys restricted to the qubits of interest.
+        candidate_keys = []
+        for key in self._parameter_map_r[param]:
+            candidate_keys.append(ParameterKey(key.schedule, key.parameter, qubits))
+
+        # 4) Loop though the candidate keys
+        candidates = []
+        parameter_not_found = True
+        for key in candidate_keys:
+            if key in self._params:
+                if parameter_not_found:
+                    candidates = self._params[key]
+                    parameter_not_found = False
+                else:
+                    raise CalibrationError(f"Duplicate parameters.")
+
+        # 5) If not candidate parameter values were found look for default parameters
+        # i.e. parameters that do not specify a qubit.
+        if len(candidates) == 0:
+            candidate_default_keys = []
+
+            for key in candidate_keys:
+                candidate_default_keys.append(ParameterKey(key.schedule, key.parameter, None))
+
+            candidate_default_keys = set(candidate_default_keys)
+
+            for key in set(candidate_default_keys):
+                if key in self._params:
+                    if parameter_not_found:
+                        candidates = self._params[key]
+                        parameter_not_found = False
+                    else:
+                        raise CalibrationError(f"Duplicate parameters.")
+
+        # 6) Filter candidate parameter values.
         if valid_only:
             candidates = [val for val in candidates if val.valid]
 

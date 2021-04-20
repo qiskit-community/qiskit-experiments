@@ -182,8 +182,8 @@ class TestCalibrationDefaults(QiskitTestCase):
         self.assertEqual(len(self.cals.parameters_table()), 1)
 
         # Check that we can get a default parameter in the parameter table
-        self.assertEqual(len(self.cals.parameters_table(parameters=["σ"])), 2)
-        self.assertEqual(len(self.cals.parameters_table(parameters=["σ"], schedules=["xp"])), 2)
+        self.assertEqual(len(self.cals.parameters_table(parameters=["σ"])), 1)
+        self.assertEqual(len(self.cals.parameters_table(parameters=["σ"], schedules=["xp"])), 1)
         self.assertEqual(len(self.cals.parameters_table(parameters=["σ"], schedules=["xm"])), 0)
 
         # Test behaviour of qubit-specific parameter
