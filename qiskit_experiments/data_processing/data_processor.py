@@ -76,6 +76,11 @@ class DataProcessor:
         if len(self._nodes) == 0:
             raise DataProcessorError("Cannot call an empty data processor.")
 
+        if self._input_key not in datum:
+            raise DataProcessorError(
+                f"The input key {self._input_key} was not found in the input datum."
+            )
+
         datum_ = datum[self._input_key]
 
         for node in self._nodes:
@@ -105,6 +110,11 @@ class DataProcessor:
         """
         if len(self._nodes) == 0:
             raise DataProcessorError("Cannot call an empty data processor.")
+
+        if self._input_key not in datum:
+            raise DataProcessorError(
+                f"The input key {self._input_key} was not found in the input datum."
+            )
 
         datum_ = datum[self._input_key]
 
