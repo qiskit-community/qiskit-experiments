@@ -12,4 +12,4 @@
 
 """Qiskit Experiments Characterziation."""
 
-from .RamseyExperiment import RamseyExperiment, RamseyAnalysis
+from .t2star_experiment import T2StarExperiment
