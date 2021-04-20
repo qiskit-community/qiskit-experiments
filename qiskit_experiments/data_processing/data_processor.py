@@ -69,8 +69,6 @@ class DataProcessor:
         Raises:
             DataProcessorError: if no nodes are present.
         """
-        if len(self._nodes) == 0:
-            raise DataProcessorError("Cannot call an empty data processor.")
 
         if self._input_key not in datum:
             raise DataProcessorError(
@@ -105,8 +103,6 @@ class DataProcessor:
         Raises:
             DataProcessorError: If no nodes are present.
         """
-        if len(self._nodes) == 0:
-            raise DataProcessorError("Cannot call an empty data processor.")
 
         if self._input_key not in datum:
             raise DataProcessorError(

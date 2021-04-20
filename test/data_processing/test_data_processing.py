@@ -110,11 +110,12 @@ class DataProcessorTest(QiskitTestCase):
     def test_empty_processor(self):
         """Check that a DataProcessor without steps does nothing."""
         data_processor = DataProcessor("counts")
-        with self.assertRaises(DataProcessorError):
-            data_processor(self.exp_data_lvl2.data)
 
-        with self.assertRaises(DataProcessorError):
-            data_processor.call_with_history(self.exp_data_lvl2.data)
+        datum = data_processor(self.exp_data_lvl2.data[0])
+        self.assertEqual(datum, {'00': 4, '10': 6})
+
+        datum, history = data_processor.call_with_history(self.exp_data_lvl2.data[0])
+        self.assertEqual(datum, {'00': 4, '10': 6})
 
     def test_to_real(self):
         """Test scaling and conversion to real part."""
