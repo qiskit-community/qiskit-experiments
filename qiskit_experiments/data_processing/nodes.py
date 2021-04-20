@@ -109,7 +109,8 @@ class ToImag(IQPart):
 
 
 class Probability(DataAction):
-    """Count data post processing. This returns qubit 1 state probabilities."""
+    """Count data post processing. This returns the probabilities of the outcome string
+    used to initialize an instance of Probability."""
 
     def __init__(self, outcome: str, validate: bool = True):
         """Initialize a counts to probability data conversion.
