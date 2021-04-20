@@ -211,3 +211,4 @@ class TestT2Star(QiskitTestCase):
 
 if __name__ == '__main__':
     unittest.main()
+

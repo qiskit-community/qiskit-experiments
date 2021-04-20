@@ -17,7 +17,6 @@ T2Star Experiment class.
 
 from typing import List, Optional, Union, Tuple
 import numpy as np
-
 import qiskit
 from qiskit.circuit import QuantumCircuit
 
@@ -57,6 +56,7 @@ class T2StarAnalysis(BaseAnalysis):
                     For both params, the order is :math:`A, T_2^*, f, \phi, B`.
         Returns:
             The analysis result with the estimated :math:`T_2^*`
+
         """
         size = len(experiment_data._data)
         delays = np.zeros(size, dtype=float)
@@ -191,3 +191,7 @@ class T2StarExperiment(BaseExperiment):
         print(p0)
         print(bounds)
         return p0, bounds
+
+        return circuits
+
+
