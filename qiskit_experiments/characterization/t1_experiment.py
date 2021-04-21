@@ -20,8 +20,9 @@ from qiskit.circuit import QuantumCircuit
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis
+from qiskit_experiments.analysis.curve_fitting import process_curve_data, curve_fit
+from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments import AnalysisResult
-from .analysis_functions import exp_fit_fun, curve_fit_wrapper
 
 
 class T1Analysis(BaseAnalysis):
@@ -65,31 +66,17 @@ class T1Analysis(BaseAnalysis):
             dt_factor_in_microsec = dt_factor_in_sec * 1000000
             result_unit = "us"
 
-        size = len(experiment_data._data)
-        delays = np.zeros(size, dtype=float)
-        means = np.zeros(size, dtype=float)
-        stddevs = np.zeros(size, dtype=float)
-
-        for i, circ in enumerate(experiment_data._data):
-            delays[i] = circ["metadata"]["delay"] * dt_factor_in_microsec
-            count0 = circ["counts"].get("0", 0)
-            count1 = circ["counts"].get("1", 0)
-            shots = count0 + count1
-            means[i] = count1 / shots
-            stddevs[i] = np.sqrt(means[i] * (1 - means[i]) / shots)
-            # problem for the fitter if one of the std points is
-            # exactly zero
-            if stddevs[i] == 0:
-                stddevs[i] = 1e-4
+        xdata, ydata, sigma = process_curve_data(experiment_data._data, lambda datum: level2_probability(datum, '1'))
+        xdata *= dt_factor_in_microsec
 
         if t1_guess is None:
-            t1_guess = np.mean(delays)
+            t1_guess = np.mean(xdata)
         else:
             t1_guess = t1_guess * dt_factor_in_microsec
         if offset_guess is None:
-            offset_guess = means[-1]
+            offset_guess = ydata[-1]
         if amplitude_guess is None:
-            amplitude_guess = means[0] - offset_guess
+            amplitude_guess = ydata[0] - offset_guess
         if t1_bounds is None:
             t1_bounds = [0, np.inf]
         if amplitude_bounds is None:
@@ -97,40 +84,34 @@ class T1Analysis(BaseAnalysis):
         if offset_bounds is None:
             offset_bounds = [0, 1]
 
-        fit_out, fit_err, fit_cov, chisq = curve_fit_wrapper(
-            exp_fit_fun,
-            delays,
-            means,
-            stddevs,
-            p0=[amplitude_guess, t1_guess, offset_guess],
+        fit_result = curve_fit(
+            lambda x, a, tau, c: a * np.exp(-x / tau) + c,
+            xdata,
+            ydata,
+            [amplitude_guess, t1_guess, offset_guess],
+            sigma,
+            tuple([amp_bnd, t1_bnd, offset_bnd] for amp_bnd, t1_bnd, offset_bnd in zip(amplitude_bounds, t1_bounds, offset_bounds))
         )
 
         analysis_result = AnalysisResult(
             {
-                "value": fit_out[1],
-                "stderr": fit_err[1],
+                "value": fit_result["popt"][1],
+                "stderr": fit_result["popt_err"][1],
                 "unit": result_unit,
                 "label": "T1",
-                "fit": {
-                    "params": fit_out,
-                    "stderr": fit_err,
-                    "labels": ["amplitude", "T1", "offset"],
-                    "chisq": chisq,
-                    "cov": fit_cov,
-                },
-                "quality": self._fit_quality(fit_out, fit_err, chisq),
-            }
-        )
+                "fit": fit_result,
+                "quality": self._fit_quality(fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]),
+            })
 
         return analysis_result, None
 
     @staticmethod
-    def _fit_quality(fit_out, fit_err, chisq):
+    def _fit_quality(fit_out, fit_err, reduced_chisq):
         # pylint: disable = too-many-boolean-expressions
         if (
             abs(fit_out[0] - 1.0) < 0.1
             and abs(fit_out[2]) < 0.1
-            and chisq < 3
+            and reduced_chisq < 3
             and (fit_err[0] is None or fit_err[0] < 0.1)
             and (fit_err[1] is None or fit_err[1] < fit_out[1])
             and (fit_err[2] is None or fit_err[2] < 0.1)
@@ -205,7 +186,7 @@ class T1Experiment(BaseExperiment):
             circ.metadata = {
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
-                "delay": delay,
+                "xval": delay,
                 "unit": self._unit,
             }
 

@@ -216,7 +216,7 @@ class TestT1(unittest.TestCase):
                 {
                     "counts": {"0": count0, "1": 10000 - count0},
                     "metadata": {
-                        "delay": 3 * i + 1,
+                        "xval": 3 * i + 1,
                         "experiment_type": "T1Experiment",
                         "qubit": 0,
                         "unit": "ns",
@@ -246,7 +246,7 @@ class TestT1(unittest.TestCase):
                 {
                     "experiment_type": "T1Experiment",
                     "qubit": 0,
-                    "delay": delay,
+                    "xval": delay,
                     "unit": "ms",
                 },
             )
@@ -258,12 +258,12 @@ class TestT1(unittest.TestCase):
 
         data = ExperimentData(None)
 
-        for i in range(3):
+        for i in range(10):
             data._data.append(
                 {
                     "counts": {"0": 10, "1": 10},
                     "metadata": {
-                        "delay": i,
+                        "xval": i,
                         "experiment_type": "T1Experiment",
                         "qubit": 0,
                         "unit": "ns",
