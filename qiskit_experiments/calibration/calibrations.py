@@ -13,6 +13,7 @@
 """Class to store and manage the results of a calibration experiments."""
 
 import dataclasses
+import regex as re
 from collections import namedtuple, defaultdict
 from datetime import datetime
 from typing import Any, Dict, Set, Tuple, Union, List, Optional
@@ -36,9 +37,20 @@ class Calibrations:
     dict where parameters are keys. This class supports:
     - having different schedules share parameters
     - allows default schedules for qubits that can be overridden of specific qubits.
+
+    Parametric channel naming convention. Channels must be name according to a predefined
+    pattern so that self can resolve the channels and control channels when assigning
+    values to the parametric channel indices. This is pattern is "^ch\d[.\d]*\${0,1}[\d]*$",
+    examples of which include "ch0", "ch1", "ch0.1", "ch0$", "ch2$3", and "ch1.0.3$2".
+    The "." delimiter is used to specify the different qubits when looking for control
+    channels. The optional $ delimiter is used to specify which control channel to use
+    if several control channels work together on the same qubits. For example, if the
+    control channel configuration is {(3,2): [ControlChannel(3), ControlChannel(12)]}
+    then given qubits (2, 3) the name "ch1.0$1" will resolve to ControlChannel(12) while
+    "ch1.0$0" will resolve to ControlChannel(3).
     """
 
-    def __init__(self, control_config: Dict[Tuple[int], List[ControlChannel]] = None):
+    def __init__(self, control_config: Dict[Tuple[int, ...], List[ControlChannel]] = None):
         """
         Initialize the instructions from a given backend.
 
@@ -61,6 +73,8 @@ class Calibrations:
 
         self._schedules = {}
 
+        self._channel_pattern = "^ch\d[.\d]*\${0,1}[\d]*$"
+
     def add_schedule(self, schedule: Schedule, qubits: Tuple = None):
         """
         Add a schedule and register its parameters.
@@ -81,12 +95,9 @@ class Calibrations:
         for ch in schedule.channels:
             if isinstance(ch.index, Parameter):
                 param_indices.add(ch.index)
-                try:
-                    [int(index) for index in ch.index.name.split(".")]
-                except ValueError:
+                if re.compile(self._channel_pattern).match(ch.index.name) is None:
                     raise CalibrationError(
-                        "Parameterized channel must have a name "
-                        "formatted following index1.index2..."
+                        f"Parameterized channel must correspond to {self._channel_pattern}"
                     )
 
         self._schedules[(schedule.name, qubits)] = schedule
@@ -167,22 +178,21 @@ class Calibrations:
 
         self._params[ParameterKey(sched_name, param_name, qubits)].append(value)
 
-    def _get_channel_index(self, qubits: Tuple, chan: PulseChannel, control_index: int = 0) -> int:
+    def _get_channel_index(self, qubits: Tuple, chan: PulseChannel) -> int:
         """
         Get the index of the parameterized channel based on the given qubits
         and the name of the parameter in the channel index. The name of this
         parameter for control channels must be written as qubit_index1.qubit_index2... .
-        For example, the following parameter names are valid: '1', '1.0', '30.12'.
+        For example, the following parameter names are valid: 'ch1', 'ch1.0', 'ch30.12'.
 
         Args:
             qubits: The qubits for which we want to obtain the channel index.
             chan: The channel with a parameterized name.
-            control_index: An index used to specify which control channel to use if a given
             pair of qubits has more than one control channel.
 
         Returns:
             index: The index of the channel. For example, if qubits=(10, 32) and
-                chan is a control channel with parameterized index name '1.0'
+                chan is a control channel with parameterized index name 'ch1.0'
                 the method returns the control channel corresponding to
                 qubits (qubits[1], qubits[0]) which is here the control channel of
                 qubits (32, 10).
@@ -193,17 +203,30 @@ class Calibrations:
                 a DriveChannel, MeasureChannel, or ControlChannel.
         """
 
+        print(chan.index.name, qubits, chan)
+
         if isinstance(chan.index, Parameter):
             if isinstance(chan, (DriveChannel, MeasureChannel)):
-                if len(qubits) != 1:
-                    raise CalibrationError(f"Too many qubits given for {chan.__class__.__name__}.")
+                index = int(chan.index.name[2:].replace("ch", "").split("$")[0])
 
-                return qubits[0]
+                if len(qubits) < index:
+                    raise CalibrationError(f"Not enough qubits given for channel {chan}.")
 
+                return qubits[index]
+
+            # Control channels name example ch1.0$1
             if isinstance(chan, ControlChannel):
-                indices = [int(sub_channel) for sub_channel in chan.index.name.split(".")]
+
+                channel_index_parts = chan.index.name[2:].split("$")
+                qubit_channels = channel_index_parts[0]
+
+                indices = [int(sub_channel) for sub_channel in qubit_channels.split(".")]
                 ch_qubits = tuple(qubits[index] for index in indices)
                 chs_ = self._controls_config[ch_qubits]
+
+                control_index = 0
+                if len(channel_index_parts) == 2:
+                    control_index = int(channel_index_parts[1])
 
                 if len(chs_) < control_index:
                     raise CalibrationError(

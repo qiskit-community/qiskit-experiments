@@ -14,8 +14,7 @@
 
 from datetime import datetime
 from qiskit.circuit import Parameter
-from qiskit.pulse import Drag, DriveChannel, ControlChannel, Gaussian
-from qiskit.test.mock import FakeAlmaden
+from qiskit.pulse import Drag, DriveChannel, ControlChannel, Gaussian, GaussianSquare
 import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.calibration.calibrations import Calibrations
@@ -28,15 +27,14 @@ class TestCalibrationsBasic(QiskitTestCase):
 
     def setUp(self):
         """Setup a test environment."""
-        backend = FakeAlmaden()
-        self.cals = Calibrations(backend)
+        self.cals = Calibrations()
 
         self.sigma = Parameter("σ")
         self.amp_xp = Parameter("amp")
         self.amp_x90p = Parameter("amp")
         self.amp_y90p = Parameter("amp")
         self.beta = Parameter("β")
-        self.drive = DriveChannel(Parameter("0"))
+        self.drive = DriveChannel(Parameter("ch0"))
 
         # Define and add template schedules.
         with pulse.build(name="xp") as xp:
@@ -110,10 +108,10 @@ class TestCalibrationsBasic(QiskitTestCase):
 
     def test_channel_names(self):
         """Check the naming of parametric control channels index1.index2.index3..."""
-        drive_0 = DriveChannel(Parameter("0"))
-        drive_1 = DriveChannel(Parameter("1"))
+        drive_0 = DriveChannel(Parameter("ch0"))
+        drive_1 = DriveChannel(Parameter("ch1"))
         control_bad = ControlChannel(Parameter("u_chan"))
-        control_good = ControlChannel(Parameter("1.0"))
+        control_good = ControlChannel(Parameter("ch1.0"))
 
         with pulse.build() as sched_good:
             pulse.play(Drag(160, 0.1, 40, 2), drive_0)
@@ -148,14 +146,13 @@ class TestCalibrationDefaults(QiskitTestCase):
 
     def setUp(self):
         """Setup a few parameters."""
-        backend = FakeAlmaden()
-        self.cals = Calibrations(backend)
+        self.cals = Calibrations()
 
         self.sigma = Parameter("σ")
         self.amp_xp = Parameter("amp")
         self.amp = Parameter("amp")
         self.beta = Parameter("β")
-        self.drive = DriveChannel(Parameter("0"))
+        self.drive = DriveChannel(Parameter("ch0"))
         self.date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
 
         # Template schedule for qubit 3
@@ -275,3 +272,55 @@ class TestCalibrationDefaults(QiskitTestCase):
         # Check to see if we get back the two qubits when explicitly specifying them.
         amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,), (0,)])
         self.assertEqual(len(amp_values), 2)
+
+
+class TestControlChannels(QiskitTestCase):
+    """Test more complex schedules such as an echoed cross-resonance."""
+
+    def setUp(self):
+        """Create the setup we will deal with."""
+        controls = {(3, 2): [ControlChannel(10), ControlChannel(123)],
+                    (2, 3): [ControlChannel(15), ControlChannel(23)]}
+        self.cals = Calibrations(control_config=controls)
+
+        self.amp_cr = Parameter("amp_cr")
+        self.amp_rot = Parameter("amp_rot")
+        self.amp = Parameter("amp")
+        self.d0_ = DriveChannel(Parameter('ch0'))
+        self.d1_ = DriveChannel(Parameter('ch1'))
+        self.c1_ = ControlChannel(Parameter('ch1.0'))
+        self.sigma = Parameter("σ")
+        self.width = Parameter("w")
+
+        gaus_square = GaussianSquare(640, self.amp, self.sigma, self.width)
+
+        with pulse.build(name="xp") as xp:
+            pulse.play(Gaussian(160, self.amp, self.sigma), self.d0_)
+
+        with pulse.build(name="cr") as cr:
+            with pulse.align_sequential():
+                with pulse.align_left():
+                    pulse.play(gaus_square, self.d1_)  # Rotary tone
+                    pulse.play(gaus_square, self.c1_)  # CR tone.
+                with pulse.align_sequential():
+                    pulse.call(xp)
+                with pulse.align_left():
+                    pulse.play(gaus_square, self.d1_)
+                    pulse.play(gaus_square, self.c1_)
+                with pulse.align_sequential():
+                    pulse.call(xp)
+
+        self.cals.add_schedule(xp)
+        self.cals.add_schedule(cr)
+
+        self.date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
+
+        self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", None, "xp")
+        self.cals.add_parameter_value(ParameterValue(0.1, self.date_time), "amp", (3, ), "xp")
+        self.cals.add_parameter_value(ParameterValue(0.3, self.date_time), "amp_cr", (3, 2), "cr")
+        self.cals.add_parameter_value(ParameterValue(0.2, self.date_time), "amp_rot", (3, 2), "cr")
+
+    def test_get_schedule(self):
+        """Check that we can get a CR schedule."""
+
+        self.cals.get_schedule("cr", (3, 2))
