@@ -66,7 +66,9 @@ class T1Analysis(BaseAnalysis):
             dt_factor_in_microsec = dt_factor_in_sec * 1000000
             result_unit = "us"
 
-        xdata, ydata, sigma = process_curve_data(experiment_data._data, lambda datum: level2_probability(datum, '1'))
+        xdata, ydata, sigma = process_curve_data(
+            experiment_data._data, lambda datum: level2_probability(datum, "1")
+        )
         xdata *= dt_factor_in_microsec
 
         if t1_guess is None:
@@ -90,7 +92,10 @@ class T1Analysis(BaseAnalysis):
             ydata,
             [amplitude_guess, t1_guess, offset_guess],
             sigma,
-            tuple([amp_bnd, t1_bnd, offset_bnd] for amp_bnd, t1_bnd, offset_bnd in zip(amplitude_bounds, t1_bounds, offset_bounds))
+            tuple(
+                [amp_bnd, t1_bnd, offset_bnd]
+                for amp_bnd, t1_bnd, offset_bnd in zip(amplitude_bounds, t1_bounds, offset_bounds)
+            ),
         )
 
         analysis_result = AnalysisResult(
@@ -100,8 +105,11 @@ class T1Analysis(BaseAnalysis):
                 "unit": result_unit,
                 "label": "T1",
                 "fit": fit_result,
-                "quality": self._fit_quality(fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]),
-            })
+                "quality": self._fit_quality(
+                    fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
+                ),
+            }
+        )
 
         return analysis_result, None
 
