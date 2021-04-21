@@ -281,7 +281,7 @@ class Calibrations:
                     candidates = self._params[key]
                     parameter_not_found = False
                 else:
-                    raise CalibrationError(f"Duplicate parameters.")
+                    raise CalibrationError("Duplicate parameters.")
 
         # 5) If not candidate parameter values were found look for default parameters
         # i.e. parameters that do not specify a qubit.
@@ -299,7 +299,7 @@ class Calibrations:
                         candidates = self._params[key]
                         parameter_not_found = False
                     else:
-                        raise CalibrationError(f"Duplicate parameters.")
+                        raise CalibrationError("Duplicate parameters.")
 
         # 6) Filter candidate parameter values.
         if valid_only:
@@ -458,7 +458,7 @@ class Calibrations:
 
         # Look for exact matches. Default values will be ignored.
         keys = set()
-        for key, param in self._params.items():
+        for key in self._params.keys():
             if parameters and key.parameter not in parameters:
                 continue
             if schedules and key.schedule not in schedules:
