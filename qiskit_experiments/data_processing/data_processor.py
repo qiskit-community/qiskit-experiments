@@ -12,7 +12,7 @@
 
 """Actions done on the data to bring it in a usable form."""
 
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, Set, Tuple, Union
 
 from qiskit_experiments.data_processing.data_action import DataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
@@ -54,7 +54,7 @@ class DataProcessor:
         """
         self._nodes.append(node)
 
-    def __call__(self, datum: Dict[str, Any]) -> Tuple[Any, Any]:
+    def __call__(self, datum: Dict[str, Any]) -> Any:
         """
         Call self on the given datum. This method sequentially calls the stored data actions
         on the datum.
@@ -65,15 +65,12 @@ class DataProcessor:
 
         Returns:
             processed data: The data processed by the data processor.
-
-        Raises:
-            DataProcessorError: if no nodes are present.
         """
         return self._call_internal(datum, False)
 
     def call_with_history(
         self, datum: Dict[str, Any], history_nodes: Set = None
-    ) -> Tuple[Dict[str, Any], List]:
+    ) -> Tuple[Any, List]:
         """
         Call self on the given datum. This method sequentially calls the stored data actions
         on the datum and also returns the history of the processed data.
@@ -88,26 +85,28 @@ class DataProcessor:
         Returns:
             processed data: The datum processed by the data processor.
             history: The datum processed at each node of the data processor.
-
-        Raises:
-            DataProcessorError: If no nodes are present.
         """
         return self._call_internal(datum, True, history_nodes)
 
-    def _call_internal(self, datum: Dict[str, Any], with_history: bool, history_nodes=None):
+    def _call_internal(
+        self, datum: Dict[str, Any], with_history: bool, history_nodes=None
+    ) -> Union[Any, Tuple[Any, List]]:
         """
         Internal function to process the data with or with storing the history of the computation.
 
         Args:
             datum: A single item of data, typically from an ExperimentData instance, that
                 needs to be processed.
-            with_history: if True the history is returned otherwise the history is not stored.
+            with_history: if True the history is returned otherwise it is not.
             history_nodes: The nodes, specified by index in the data processing chain, to
                 include in the history. If None is given then all nodes will be included
                 in the history.
 
         Returns:
             datum_ and history if with_history is True or datum_ if with_history is False.
+
+        Raises:
+            DataProcessorError: If the input key of the data processor is not contained in datum.
         """
 
         if self._input_key not in datum:
@@ -121,7 +120,9 @@ class DataProcessor:
         for index, node in enumerate(self._nodes):
             datum_ = node(datum_)
 
-            if with_history and (history_nodes is None or (history_nodes and index in history_nodes)):
+            if with_history and (
+                history_nodes is None or (history_nodes and index in history_nodes)
+            ):
                 history.append((node.__class__.__name__, datum_, index))
 
         if with_history:

@@ -112,10 +112,11 @@ class DataProcessorTest(QiskitTestCase):
         data_processor = DataProcessor("counts")
 
         datum = data_processor(self.exp_data_lvl2.data[0])
-        self.assertEqual(datum, {'00': 4, '10': 6})
+        self.assertEqual(datum, {"00": 4, "10": 6})
 
         datum, history = data_processor.call_with_history(self.exp_data_lvl2.data[0])
-        self.assertEqual(datum, {'00': 4, '10': 6})
+        self.assertEqual(datum, {"00": 4, "10": 6})
+        self.assertEqual(history, [])
 
     def test_to_real(self):
         """Test scaling and conversion to real part."""
