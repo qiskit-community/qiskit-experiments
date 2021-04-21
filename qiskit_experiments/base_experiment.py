@@ -87,7 +87,7 @@ class BaseExperiment(ABC):
                 raise QiskitError("Duplicate qubits in physical qubits list.")
 
         # Store options and values
-        self._circuit_options = set(circuit_options) if circuit_options else None
+        self._circuit_options = set(circuit_options) if circuit_options else {}
 
     def run(self, backend, experiment_data=None, **kwargs):
         """Run an experiment and perform analysis.

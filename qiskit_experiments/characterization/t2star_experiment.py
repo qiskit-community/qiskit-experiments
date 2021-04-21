@@ -63,7 +63,7 @@ class T2StarAnalysis(BaseAnalysis):
         means = np.zeros(size, dtype=float)
         stddevs = np.zeros(size, dtype=float)
 
-        for i, circ in experiment_data._data:
+        for i, circ in enumerate(experiment_data._data):
             delays[i] = circ["metadata"]["delay"]
             count0 = circ["counts"].get("0", 0)
             count1 = circ["counts"].get("1", 0)
@@ -73,7 +73,7 @@ class T2StarAnalysis(BaseAnalysis):
             # problem for the fitter if one of the std points is
             # exactly zero
             if stddevs[i] == 0:
-                stddevs[i] = 1e-4
+                stddevs[i] = 1e-4 
 
         def osc_fit_fun(x, a, t2star, f, phi, c):
             """
