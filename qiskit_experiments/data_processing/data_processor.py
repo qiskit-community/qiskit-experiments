@@ -69,18 +69,7 @@ class DataProcessor:
         Raises:
             DataProcessorError: if no nodes are present.
         """
-
-        if self._input_key not in datum:
-            raise DataProcessorError(
-                f"The input key {self._input_key} was not found in the input datum."
-            )
-
-        datum_ = datum[self._input_key]
-
-        for node in self._nodes:
-            datum_ = node(datum_)
-
-        return datum_
+        return self._call_internal(datum, False)
 
     def call_with_history(
         self, datum: Dict[str, Any], history_nodes: Set = None
@@ -103,6 +92,23 @@ class DataProcessor:
         Raises:
             DataProcessorError: If no nodes are present.
         """
+        return self._call_internal(datum, True, history_nodes)
+
+    def _call_internal(self, datum: Dict[str, Any], with_history: bool, history_nodes=None):
+        """
+        Internal function to process the data with or with storing the history of the computation.
+
+        Args:
+            datum: A single item of data, typically from an ExperimentData instance, that
+                needs to be processed.
+            with_history: if True the history is returned otherwise the history is not stored.
+            history_nodes: The nodes, specified by index in the data processing chain, to
+                include in the history. If None is given then all nodes will be included
+                in the history.
+
+        Returns:
+            datum_ and history if with_history is True or datum_ if with_history is False.
+        """
 
         if self._input_key not in datum:
             raise DataProcessorError(
@@ -115,7 +121,10 @@ class DataProcessor:
         for index, node in enumerate(self._nodes):
             datum_ = node(datum_)
 
-            if history_nodes is None or (history_nodes and index in history_nodes):
+            if with_history and (history_nodes is None or (history_nodes and index in history_nodes)):
                 history.append((node.__class__.__name__, datum_, index))
 
-        return datum_, history
+        if with_history:
+            return datum_, history
+        else:
+            return datum_
