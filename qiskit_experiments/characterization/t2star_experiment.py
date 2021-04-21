@@ -101,7 +101,7 @@ class T2StarExperiment(BaseExperiment):
         delays: Union[List[float], np.array],
         unit: Optional[str] = "us",
         nosc: int = 0,
-        experiment_type: Optional[str] = "T2StarExperiment",
+        experiment_type: Optional[str] = None,
     ):
 
         """Initialize the T2Star experiment class.
@@ -121,8 +121,8 @@ class T2StarExperiment(BaseExperiment):
         self._delays = delays
         self._unit = unit
         self._nosc = nosc
-        experiment_type: str = "T2StarExperiment"
-        super().__init__([qubit], experiment_type="T2StarExperiment")
+        #: str = "T2StarExperiment"
+        super().__init__([qubit], experiment_type)
 
     def circuits(self, backend: Optional["Backend"] = None) -> List[QuantumCircuit]:
         """
@@ -134,7 +134,6 @@ class T2StarExperiment(BaseExperiment):
         Returns:
             The experiment circuits
         """
-
         xdata = self._delays
         osc_freq = self._nosc / xdata[-1]
 
@@ -159,7 +158,7 @@ class T2StarExperiment(BaseExperiment):
 
             circuits.append(circ)
 
-        return circuits, xdata, osc_freq
+        return circuits
 
     def T2Star_default_params(self, A=None, T2star=None, osc_freq=None, phi=None, B=None) -> Tuple[List[float], Tuple[List[float]]]:
         """
@@ -192,6 +191,5 @@ class T2StarExperiment(BaseExperiment):
         print(bounds)
         return p0, bounds
 
-        return circuits
 
 
