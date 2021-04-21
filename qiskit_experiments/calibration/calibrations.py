@@ -17,7 +17,6 @@ from collections import namedtuple, defaultdict
 from datetime import datetime
 from typing import Any, Dict, Set, Tuple, Union, List, Optional
 
-from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Gate
 from qiskit import QuantumCircuit
 from qiskit.pulse import Schedule, DriveChannel, ControlChannel, MeasureChannel
@@ -39,17 +38,17 @@ class Calibrations:
     - allows default schedules for qubits that can be overridden of specific qubits.
     """
 
-    def __init__(self, backend: Backend):
+    def __init__(self, control_config: Dict[Tuple[int], List[ControlChannel]] = None):
         """
         Initialize the instructions from a given backend.
 
         Args:
-            backend: The backend from which to get the configuration.
+            control_config: A configuration dictionary of any control channels. The
+                keys are tuples of qubits and the values are a list of ControlChannels
+                that correspond to the qubits in the keys.
         """
 
-        self._n_qubits = backend.configuration().num_qubits
-        self._n_uchannels = backend.configuration().n_uchannels
-        self._config = backend.configuration()
+        self._controls_config = control_config if control_config else {}
 
         # Dict of the form: (schedule.name, parameter.name, qubits): Parameter
         self._parameter_map = {}
@@ -204,7 +203,7 @@ class Calibrations:
             if isinstance(chan, ControlChannel):
                 indices = [int(sub_channel) for sub_channel in chan.index.name.split(".")]
                 ch_qubits = tuple(qubits[index] for index in indices)
-                chs_ = self._config.control(ch_qubits)
+                chs_ = self._controls_config[ch_qubits]
 
                 if len(chs_) < control_index:
                     raise CalibrationError(
