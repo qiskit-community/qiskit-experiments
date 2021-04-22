@@ -20,9 +20,21 @@ from typing import Any, Dict, Set, Tuple, Union, List, Optional
 
 from qiskit.circuit import Gate
 from qiskit import QuantumCircuit
-from qiskit.pulse import Schedule, DriveChannel, ControlChannel, MeasureChannel
+from qiskit.pulse import (
+    Schedule,
+    DriveChannel,
+    ControlChannel,
+    MeasureChannel,
+    Call,
+    Play,
+    ShiftPhase,
+    SetPhase,
+    ShiftFrequency,
+    SetFrequency,
+)
 from qiskit.pulse.channels import PulseChannel
-from qiskit.circuit import Parameter
+from qiskit.pulse.transforms import inline_subroutines
+from qiskit.circuit import Parameter, ParameterExpression
 from qiskit_experiments.calibration.exceptions import CalibrationError
 from qiskit_experiments.calibration.parameter_value import ParameterValue
 
@@ -202,9 +214,6 @@ class Calibrations:
                 number of inferred ControlChannels is not correct, or if ch is not
                 a DriveChannel, MeasureChannel, or ControlChannel.
         """
-
-        print(chan.index.name, qubits, chan)
-
         if isinstance(chan.index, Parameter):
             if isinstance(chan, (DriveChannel, MeasureChannel)):
                 index = int(chan.index.name[2:].replace("ch", "").split("$")[0])
@@ -372,7 +381,8 @@ class Calibrations:
                 except for those specified by free_params.
 
         Raises:
-            CalibrationError: if the name of the schedule is not known.
+            CalibrationError: if the name of the schedule is not known or if a parameter could
+                not be found.
         """
         if (name, qubits) in self._schedules:
             schedule = self._schedules[(name, qubits)]
@@ -387,17 +397,103 @@ class Calibrations:
             if ch.is_parameterized():
                 binding_dict[ch.index] = self._get_channel_index(qubits, ch)
 
-        # Loop through the remaining parameters in the schedule, get their values and bind.
-        if free_params is None:
-            free_params = []
+        # Binding the channel indices makes it easier to deal with parameters later on
+        schedule = schedule.assign_parameters(binding_dict, inplace=False)
 
-        for param in schedule.parameters:
-            if param.name not in free_params and param not in binding_dict:
-                binding_dict[param] = self.get_parameter_value(
-                    param.name, qubits, name, group=group
-                )
+        # The following code allows us to get the keys when the schedule has call instructions.
+        # We cannot inline the subroutines yet because we would lose the name of the subroutines.
+        parameter_keys = Calibrations.get_parameter_keys(schedule, set(), binding_dict, qubits)
+
+        # Now that we have the parameter keys we must inline all call subroutines.
+        schedule = inline_subroutines(schedule)
+
+        # Build the parameter binding dictionary.
+        free_params = free_params if free_params else []
+
+        for key in parameter_keys:
+            if key.parameter not in free_params:
+                # Get the parameter object. Since we are dealing with a schedule the name of
+                # the schedule is always defined. However, the parameter may be a default
+                # parameter for all qubits, i.e. qubits may be None.
+                if key in self._parameter_map:
+                    param = self._parameter_map[key]
+                elif (key.schedule, key.parameter, None) in self._parameter_map:
+                    param = self._parameter_map[(key.schedule, key.parameter, None)]
+                else:
+                    raise CalibrationError(
+                        f"Ill configured calibrations {key} is not present and has not default value."
+                    )
+
+                if param not in binding_dict:
+                    binding_dict[param] = self.get_parameter_value(
+                        key.parameter, key.qubits, key.schedule, group=group
+                    )
 
         return schedule.assign_parameters(binding_dict, inplace=False)
+
+    @staticmethod
+    def get_parameter_keys(schedule: Schedule, keys: Set, binding_dict: Dict[Parameter, int], qubits: Tuple[int, ...]):
+        """
+        Recursive function to extract parameter keys from a schedule. The recursive
+        behaviour is needed to handle Call instructions. Each time a Call is found
+        get_parameter_keys is call on the subroutine of the Call instruction and the
+        qubits that are in the subroutine. This also implies carefully extracting the
+        qubits from the subroutine and in the appropriate order.
+
+        Args:
+            schedule: A schedule from which to extract parameters.
+            keys: A set of keys that will be populated.
+            binding_dict: A binding dictionary intended only for channels. This is needed
+                because calling assign_parameters on a schedule with a Call instruction will
+                not assign the parameters in the subroutine of the Call instruction.
+            qubits: The qubits for which we want to have the schedule.
+
+        Returns:
+            keys: The set of keys populated with schedule name, parameter name, qubits.
+        """
+
+        # schedule.channels may give the qubits in any order. This order matters. For example,
+        # the parameter ('cr', 'amp', (2, 3)) is not the same as ('cr', 'amp', (3, 2)).
+        # Furthermore, as we call subroutines the list of qubits involved might shrink. For
+        # example, part of a cross-resonance schedule might involve.
+        #
+        # pulse.call(xp)
+        # ...
+        # pulse.play(GaussianSquare(...), ControlChannel(X))
+        #
+        # Here, the call instruction might, e.g., only involve qubit 2 while the play instruction
+        # will apply to qubits (2, 3).
+
+        qubit_set = set()
+        for chan in schedule.channels:
+            if isinstance(chan, DriveChannel):
+                qubit_set.add(chan.index)
+
+        qubits_ = tuple([qubit for qubit in qubits if qubit in qubit_set])
+
+        for _, inst in schedule.instructions:
+
+            if isinstance(inst, Play):
+                for params in inst.pulse.parameters.values():
+                    if isinstance(params, ParameterExpression):
+                        for param in params.parameters:
+                            keys.add(ParameterKey(schedule.name, param.name, qubits_))
+
+            if isinstance(inst, (ShiftPhase, SetPhase)):
+                if isinstance(inst.phase, ParameterExpression):
+                    for param in inst.phase.parameters:
+                        keys.add(ParameterKey(schedule.name, param.name, (inst.channel.index,)))
+
+            if isinstance(inst, (ShiftFrequency, SetFrequency)):
+                if isinstance(inst.frequency, ParameterExpression):
+                    for param in inst.frequency.parameters:
+                        keys.add(ParameterKey(schedule.name, param.name, (inst.channel.index,)))
+
+            if isinstance(inst, Call):
+                sched_ = inst.subroutine.assign_parameters(binding_dict, inplace=False)
+                keys = Calibrations.get_parameter_keys(sched_, keys, binding_dict, qubits_)
+
+        return keys
 
     def get_circuit(
         self,
