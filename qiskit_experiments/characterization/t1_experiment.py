@@ -17,6 +17,7 @@ from typing import List, Optional, Union, Tuple
 import numpy as np
 
 from qiskit.circuit import QuantumCircuit
+from qiskit.utils import apply_prefix
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis
@@ -57,24 +58,20 @@ class T1Analysis(BaseAnalysis):
             The analysis result with the estimated T1
         """
 
-        circuit_unit = experiment_data._data[0]["metadata"]["unit"]
-        dt_factor_in_sec = experiment_data._data[0]["metadata"].get("dt_factor_in_sec", None)
-        if dt_factor_in_sec is None:
-            dt_factor_in_microsec = 1
-            result_unit = circuit_unit
-        else:
-            dt_factor_in_microsec = dt_factor_in_sec * 1000000
-            result_unit = "us"
+        unit = experiment_data._data[0]["metadata"]["unit"]
+        conversion_factor = experiment_data._data[0]["metadata"].get("dt_factor", None)
+        if conversion_factor is None:
+            conversion_factor = 1 if unit == "s" else apply_prefix(1, unit)
 
         xdata, ydata, sigma = process_curve_data(
             experiment_data._data, lambda datum: level2_probability(datum, "1")
         )
-        xdata *= dt_factor_in_microsec
+        xdata *= conversion_factor
 
         if t1_guess is None:
             t1_guess = np.mean(xdata)
         else:
-            t1_guess = t1_guess * dt_factor_in_microsec
+            t1_guess = t1_guess * conversion_factor
         if offset_guess is None:
             offset_guess = ydata[-1]
         if amplitude_guess is None:
@@ -102,7 +99,7 @@ class T1Analysis(BaseAnalysis):
             {
                 "value": fit_result["popt"][1],
                 "stderr": fit_result["popt_err"][1],
-                "unit": result_unit,
+                "unit": "s",
                 "label": "T1",
                 "fit": fit_result,
                 "quality": self._fit_quality(
@@ -110,6 +107,10 @@ class T1Analysis(BaseAnalysis):
                 ),
             }
         )
+
+        if unit == "dt":
+            analysis_result["fit"]["dt"] = conversion_factor
+            analysis_result["fit"]["circuit_unit"] = unit
 
         return analysis_result, None
 
@@ -138,7 +139,7 @@ class T1Experiment(BaseExperiment):
         self,
         qubit: int,
         delays: Union[List[float], np.array],
-        unit: Optional[str] = "us",
+        unit: Optional[str] = "s",
         experiment_type: Optional[str] = None,
     ):
         """
@@ -177,7 +178,7 @@ class T1Experiment(BaseExperiment):
 
         if self._unit == "dt":
             try:
-                dt_factor_in_sec = getattr(backend.configuration(), "dt")
+                dt_factor = getattr(backend.configuration(), "dt")
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
 
@@ -199,7 +200,7 @@ class T1Experiment(BaseExperiment):
             }
 
             if self._unit == "dt":
-                circ.metadata["dt_factor_in_sec"] = dt_factor_in_sec
+                circ.metadata["dt_factor"] = dt_factor
 
             circuits.append(circ)
 

@@ -30,12 +30,12 @@ class T1Backend(BaseBackend):
     A simple and primitive backend, to be run by the T1 tests
     """
 
-    def __init__(
-        self, t1, initial_prob1=None, readout0to1=None, readout1to0=None, dt_factor_in_microsec=1e6
-    ):
+    def __init__(self, t1, initial_prob1=None, readout0to1=None, readout1to0=None, dt_factor=None):
         """
         Initialize the T1 backend
         """
+
+        dt_factor_in_ns = dt_factor * 1e9 if dt_factor is not None else None
 
         configuration = QasmBackendConfiguration(
             backend_name="t1_simulator",
@@ -50,14 +50,14 @@ class T1Backend(BaseBackend):
             memory=False,
             max_shots=int(1e6),
             coupling_map=None,
-            dt=dt_factor_in_microsec * 1000,
+            dt=dt_factor_in_ns,
         )
 
         self._t1 = t1
         self._initial_prob1 = initial_prob1
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
-        self._dt_factor_in_microsec = dt_factor_in_microsec
+        self._dt_factor = dt_factor
         super().__init__(configuration)
 
     # pylint: disable = arguments-differ
@@ -104,7 +104,7 @@ class T1Backend(BaseBackend):
                     if op.name == "x":
                         prob1[qubit] = 1 - prob1[qubit]
                     if op.name == "delay":
-                        delay = op.params[0] * self._dt_factor_in_microsec
+                        delay = op.params[0]
                         prob1[qubit] = prob1[qubit] * np.exp(-delay / self._t1[qubit])
                     if op.name == "measure":
                         meas_res = np.random.binomial(
@@ -144,36 +144,36 @@ class TestT1(unittest.TestCase):
         Test T1 experiment using a simulator.
         """
 
-        dt_factor_in_microsec = 0.0002
+        dt_factor = 2e-7
 
-        t1 = 25
+        t1 = 25e-6
         backend = T1Backend(
-            [t1],
+            [t1 / dt_factor],
             initial_prob1=[0.02],
             readout0to1=[0.02],
             readout1to0=[0.02],
-            dt_factor_in_microsec=dt_factor_in_microsec,
+            dt_factor=dt_factor,
         )
 
         delays = list(
             range(
-                int(1 / dt_factor_in_microsec),
-                int(40 / dt_factor_in_microsec),
-                int(3 / dt_factor_in_microsec),
+                int(1e-6 / dt_factor),
+                int(40e-6 / dt_factor),
+                int(3e-6 / dt_factor),
             )
         )
 
         # dummy numbers to avoid exception triggerring
         instruction_durations = [
-            ("measure", [0], 3 / dt_factor_in_microsec, "dt"),
-            ("x", [0], 3 / dt_factor_in_microsec, "dt"),
+            ("measure", [0], 3, "dt"),
+            ("x", [0], 3, "dt"),
         ]
 
         exp = T1Experiment(0, delays, unit="dt")
         res = exp.run(
             backend,
             amplitude_guess=1,
-            t1_guess=t1 / dt_factor_in_microsec,
+            t1_guess=t1 / dt_factor,
             offset_guess=0,
             instruction_durations=instruction_durations,
             shots=10000,
@@ -227,7 +227,7 @@ class TestT1(unittest.TestCase):
 
         res = T1Analysis()._run_analysis(data)[0]
         self.assertEqual(res["quality"], "computer_good")
-        self.assertAlmostEqual(res["value"], 25, delta=3)
+        self.assertAlmostEqual(res["value"], 25e-9, delta=3)
 
     def test_t1_metadata(self):
         """
