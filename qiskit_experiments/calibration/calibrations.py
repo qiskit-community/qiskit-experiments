@@ -12,6 +12,7 @@
 
 """Class to store and manage the results of a calibration experiments."""
 
+import csv
 import dataclasses
 import regex as re
 from collections import namedtuple, defaultdict
@@ -144,23 +145,14 @@ class Calibrations:
         self._parameter_map_r[parameter].add(key)
 
     @property
-    def parameters(self) -> Dict[Parameter, Set]:
+    def parameters(self) -> Dict[Parameter, Set[ParameterKey]]:
         """
         Returns a dictionary mapping parameters managed by the calibrations to the schedules and
-        qubits using the parameters. The values of the dict are sets containing the names of the
-        schedules and qubits in which the parameter appears. Parameters that are not attached to
-        a schedule will have None in place of a schedule name.
+        qubits and parameter names using the parameters. The values of the dict are sets containing
+        the parameter keys. Parameters that are not attached to a schedule will have None in place
+        of a schedule name.
         """
-        parameters = defaultdict(set)
-        for key, param in self._parameter_map.items():
-            schedule_name = key.schedule
-
-            if key.qubits:
-                parameters[param].add((schedule_name, key.qubits))
-            else:
-                parameters[param].add((schedule_name,))
-
-        return parameters
+        return self._parameter_map_r
 
     def add_parameter_value(
         self,
@@ -597,14 +589,57 @@ class Calibrations:
 
         return data
 
-    def to_db(self):
+    def to_csv(self):
         """
         Serializes the parameterized schedules and parameter values so
-        that they can be sent and stored in an external DB.
+        that they can be stored in csv file.
         """
-        raise NotImplementedError
 
-    def from_db(self):
+        # Write the parameter configuration.
+        header_keys = ["parameter.name", "hash(parameter)", "schedule", "qubits"]
+        body = []
+
+        for parameter, keys in self.parameters.items():
+            for key in keys:
+                body.append({
+                    "parameter.name": parameter.name,
+                    "hash(parameter)": hash(parameter),
+                    "schedule": key.schedule,
+                    "qubits": key.qubits
+                })
+
+        with open('parameter_config.csv', 'w', newline='')  as output_file:
+            dict_writer = csv.DictWriter(output_file, header_keys)
+            dict_writer.writeheader()
+            dict_writer.writerows(body)
+
+        # Write the values of the parameters.
+        values = self.parameters_table()
+        if len(values) > 0:
+            header_keys = values[0].keys()
+
+            with open('parameter_values.csv', 'w', newline='')  as output_file:
+                dict_writer = csv.DictWriter(output_file, header_keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(values)
+
+        # Serialize the schedules. For now we just print them.
+        schedules = []
+        header_keys = ["name", "qubits", "schedule"]
+        for key, sched in self._schedules.items():
+            schedules.append({
+                "name": key[0],
+                "qubits": key[1],
+                "schedule": str(sched)
+            })
+
+        with open('schedules.csv', 'w', newline='')  as output_file:
+            dict_writer = csv.DictWriter(output_file, header_keys)
+            dict_writer.writeheader()
+            dict_writer.writerows(schedules)
+
+    @classmethod
+    def from_csv(cls):
         """
         Retrieves the parameterized schedules and pulse parameters from an
         external DB.

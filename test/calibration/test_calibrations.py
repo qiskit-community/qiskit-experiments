@@ -17,7 +17,7 @@ from qiskit.circuit import Parameter
 from qiskit.pulse import Drag, DriveChannel, ControlChannel, Gaussian, GaussianSquare
 import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
-from qiskit_experiments.calibration.calibrations import Calibrations
+from qiskit_experiments.calibration.calibrations import Calibrations, ParameterKey
 from qiskit_experiments.calibration.parameter_value import ParameterValue
 from qiskit_experiments.calibration.exceptions import CalibrationError
 
@@ -63,12 +63,25 @@ class TestCalibrationsBasic(QiskitTestCase):
 
     def test_setup(self):
         """Test that the initial setup behaves as expected."""
-        self.assertEqual(self.cals.parameters[self.amp_xp], {("xp",), ("xm",)})
-        self.assertEqual(self.cals.parameters[self.amp_x90p], {("x90p",)})
-        self.assertEqual(self.cals.parameters[self.amp_y90p], {("y90p",)})
+        expected = {ParameterKey("xp", "amp", None), ParameterKey("xm", "amp", None)}
+        self.assertEqual(self.cals.parameters[self.amp_xp], expected)
 
-        expected = {("xp",), ("xm",), ("x90p",), ("y90p",)}
+        expected = {ParameterKey("x90p", "amp", None)}
+        self.assertEqual(self.cals.parameters[self.amp_x90p], expected)
+
+        expected = {ParameterKey("y90p", "amp", None)}
+        self.assertEqual(self.cals.parameters[self.amp_y90p], expected)
+
+        expected = {ParameterKey("xp", "β", None),
+                    ParameterKey("xm", "β", None),
+                    ParameterKey("x90p", "β", None),
+                    ParameterKey("y90p", "β", None)}
         self.assertEqual(self.cals.parameters[self.beta], expected)
+
+        expected = {ParameterKey("xp", "σ", None),
+                    ParameterKey("xm", "σ", None),
+                    ParameterKey("x90p", "σ", None),
+                    ParameterKey("y90p", "σ", None)}
         self.assertEqual(self.cals.parameters[self.sigma], expected)
 
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.2)
