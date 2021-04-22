@@ -32,7 +32,7 @@ class DataAction(metaclass=ABCMeta):
     @abstractmethod
     def _process(self, datum: Any) -> Any:
         """
-        Applies the data processing step to the data.
+        Applies the data processing step to the datum.
 
         Args:
             datum: A single item of data which will be processed.
