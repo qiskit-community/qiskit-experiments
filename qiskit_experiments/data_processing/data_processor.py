@@ -89,7 +89,7 @@ class DataProcessor:
         return self._call_internal(datum, True, history_nodes)
 
     def _call_internal(
-        self, datum: Dict[str, Any], with_history: bool, history_nodes=None
+        self, datum: Dict[str, Any], with_history: bool, history_nodes: Set = None
     ) -> Union[Any, Tuple[Any, List]]:
         """
         Internal function to process the data with or with storing the history of the computation.
