@@ -123,9 +123,9 @@ class Calibrations:
         # Register parameters that are not indices.
         for param in schedule.parameters:
             if param not in param_indices:
-                self.register_parameter(param, schedule, qubits)
+                self._register_parameter(param, schedule, qubits)
 
-    def register_parameter(
+    def _register_parameter(
         self, parameter: Parameter, schedule: Schedule = None, qubits: Tuple = None
     ):
         """

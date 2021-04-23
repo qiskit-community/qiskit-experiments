@@ -39,8 +39,8 @@ class BackendCalibrations(Calibrations):
         # Use the same naming convention as in backend.defaults()
         self.qubit_freq = Parameter("qubit_freq_est")
         self.meas_freq = Parameter("meas_freq_est")
-        self.register_parameter(self.qubit_freq)
-        self.register_parameter(self.meas_freq)
+        self._register_parameter(self.qubit_freq)
+        self._register_parameter(self.meas_freq)
 
         self._qubits = set(range(backend.configuration().n_qubits))
         self._backend = backend
