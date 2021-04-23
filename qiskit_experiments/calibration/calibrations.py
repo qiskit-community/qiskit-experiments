@@ -63,6 +63,9 @@ class Calibrations:
     "ch1.0$0" will resolve to ControlChannel(3).
     """
 
+    # The channel indices need to be parameterized following this regex.
+    __channel_pattern__ = r"^ch\d[.\d]*\${0,1}[\d]*$"
+
     def __init__(self, control_config: Dict[Tuple[int, ...], List[ControlChannel]] = None):
         """
         Initialize the instructions from a given backend.
@@ -86,8 +89,6 @@ class Calibrations:
 
         self._schedules = {}
 
-        self._channel_pattern = r"^ch\d[.\d]*\${0,1}[\d]*$"
-
     def add_schedule(self, schedule: Schedule, qubits: Tuple = None):
         """
         Add a schedule and register its parameters.
@@ -108,9 +109,9 @@ class Calibrations:
         for ch in schedule.channels:
             if isinstance(ch.index, Parameter):
                 param_indices.add(ch.index)
-                if re.compile(self._channel_pattern).match(ch.index.name) is None:
+                if re.compile(self.__channel_pattern__).match(ch.index.name) is None:
                     raise CalibrationError(
-                        f"Parameterized channel must correspond to {self._channel_pattern}"
+                        f"Parameterized channel must correspond to {self.__channel_pattern__}"
                     )
 
         self._schedules[(schedule.name, qubits)] = schedule
