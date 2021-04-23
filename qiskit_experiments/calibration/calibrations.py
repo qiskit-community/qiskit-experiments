@@ -173,12 +173,16 @@ class Calibrations:
             schedule: The schedule or its name for which to add the measured parameter value.
 
         Raises:
-            CalibrationError: if ch_type is not given when chs are None, if the
-                channel type is not a ControlChannel, DriveChannel, or MeasureChannel, or
-                if the parameter name is not already in self.
+            CalibrationError: If the schedule name is given but no schedule with that name
+                exists.
         """
         param_name = param.name if isinstance(param, Parameter) else param
         sched_name = schedule.name if isinstance(schedule, Schedule) else schedule
+
+        registered_schedules = set(key[0] for key in self._schedules.keys())
+
+        if sched_name and sched_name not in registered_schedules:
+            raise CalibrationError(f"Schedule named {sched_name} was never registered.")
 
         self._params[ParameterKey(sched_name, param_name, qubits)].append(value)
 
