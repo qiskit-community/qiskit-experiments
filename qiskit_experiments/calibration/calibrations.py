@@ -12,12 +12,12 @@
 
 """Class to store and manage the results of a calibration experiments."""
 
-import csv
-import dataclasses
-import regex as re
 from collections import namedtuple, defaultdict
 from datetime import datetime
 from typing import Any, Dict, Set, Tuple, Union, List, Optional
+import csv
+import dataclasses
+import regex as re
 
 from qiskit.circuit import Gate
 from qiskit import QuantumCircuit
@@ -43,7 +43,7 @@ ParameterKey = namedtuple("ParameterKey", ["schedule", "parameter", "qubits"])
 
 
 class Calibrations:
-    """
+    r"""
     A class to manage schedules with calibrated parameter values.
     Schedules are stored in a dict and are intended to be fully parameterized,
     including the index of the channels. The parameter values are stored in a
@@ -86,7 +86,7 @@ class Calibrations:
 
         self._schedules = {}
 
-        self._channel_pattern = "^ch\d[.\d]*\${0,1}[\d]*$"
+        self._channel_pattern = r"^ch\d[.\d]*\${0,1}[\d]*$"
 
     def add_schedule(self, schedule: Schedule, qubits: Tuple = None):
         """
@@ -424,7 +424,9 @@ class Calibrations:
         return schedule.assign_parameters(binding_dict, inplace=False)
 
     @staticmethod
-    def get_parameter_keys(schedule: Schedule, keys: Set, binding_dict: Dict[Parameter, int], qubits: Tuple[int, ...]):
+    def get_parameter_keys(
+        schedule: Schedule, keys: Set, binding_dict: Dict[Parameter, int], qubits: Tuple[int, ...]
+    ):
         """
         Recursive function to extract parameter keys from a schedule. The recursive
         behaviour is needed to handle Call instructions. Each time a Call is found
@@ -461,7 +463,7 @@ class Calibrations:
             if isinstance(chan, DriveChannel):
                 qubit_set.add(chan.index)
 
-        qubits_ = tuple([qubit for qubit in qubits if qubit in qubit_set])
+        qubits_ = tuple(qubit for qubit in qubits if qubit in qubit_set)
 
         for _, inst in schedule.instructions:
 
@@ -601,14 +603,16 @@ class Calibrations:
 
         for parameter, keys in self.parameters.items():
             for key in keys:
-                body.append({
-                    "parameter.name": parameter.name,
-                    "hash(parameter)": hash(parameter),
-                    "schedule": key.schedule,
-                    "qubits": key.qubits
-                })
+                body.append(
+                    {
+                        "parameter.name": parameter.name,
+                        "hash(parameter)": hash(parameter),
+                        "schedule": key.schedule,
+                        "qubits": key.qubits,
+                    }
+                )
 
-        with open('parameter_config.csv', 'w', newline='')  as output_file:
+        with open("parameter_config.csv", "w", newline="") as output_file:
             dict_writer = csv.DictWriter(output_file, header_keys)
             dict_writer.writeheader()
             dict_writer.writerows(body)
@@ -618,7 +622,7 @@ class Calibrations:
         if len(values) > 0:
             header_keys = values[0].keys()
 
-            with open('parameter_values.csv', 'w', newline='')  as output_file:
+            with open("parameter_values.csv", "w", newline="") as output_file:
                 dict_writer = csv.DictWriter(output_file, header_keys)
                 dict_writer.writeheader()
                 dict_writer.writerows(values)
@@ -627,13 +631,9 @@ class Calibrations:
         schedules = []
         header_keys = ["name", "qubits", "schedule"]
         for key, sched in self._schedules.items():
-            schedules.append({
-                "name": key[0],
-                "qubits": key[1],
-                "schedule": str(sched)
-            })
+            schedules.append({"name": key[0], "qubits": key[1], "schedule": str(sched)})
 
-        with open('schedules.csv', 'w', newline='')  as output_file:
+        with open("schedules.csv", "w", newline="") as output_file:
             dict_writer = csv.DictWriter(output_file, header_keys)
             dict_writer.writeheader()
             dict_writer.writerows(schedules)
