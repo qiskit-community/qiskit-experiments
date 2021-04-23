@@ -13,10 +13,11 @@
 """Store and manage the results of a calibration experiments in the context of a backend."""
 
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 import copy
 
 from qiskit.providers.ibmq.ibmqbackend import IBMQBackend as Backend
+from qiskit.providers import BaseBackend
 from qiskit.circuit import Parameter
 from qiskit_experiments.calibration.calibrations import Calibrations, ParameterKey
 
@@ -31,7 +32,7 @@ class BackendCalibrations(Calibrations):
     any schedule.
     """
 
-    def __init__(self, backend: Backend):
+    def __init__(self, backend: Union[Backend, BaseBackend]):
         """Setup an instance to manage the calibrations of a backend."""
         super().__init__(backend.configuration()._control_channels)
 
