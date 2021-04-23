@@ -196,9 +196,9 @@ class TestCalibrationDefaults(QiskitTestCase):
         self.assertEqual(len(self.cals.parameters_table(parameters=["σ"], schedules=["xp"])), 1)
         self.assertEqual(len(self.cals.parameters_table(parameters=["σ"], schedules=["xm"])), 0)
 
-        # Test behaviour of qubit-specific parameter
-        self.cals.add_parameter_value(ParameterValue(0.25, self.date_time), "amp", (3,), "xp")
-        self.cals.add_parameter_value(ParameterValue(0.15, self.date_time), "amp", (0,), "xp")
+        # Test behaviour of qubit-specific parameter and without ParameterValue.
+        self.cals.add_parameter_value(0.25, "amp", (3,), "xp")
+        self.cals.add_parameter_value(0.15, "amp", (0,), "xp")
 
         # Check the value for qubit 0
         params = self.cals.parameters_table(parameters=["amp"], qubit_list=[(0,)])

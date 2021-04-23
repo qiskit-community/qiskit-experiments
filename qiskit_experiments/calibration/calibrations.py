@@ -156,7 +156,7 @@ class Calibrations:
 
     def add_parameter_value(
         self,
-        value: ParameterValue,
+        value: Union[int, float, complex, ParameterValue],
         param: Union[Parameter, str],
         qubits: Tuple[int, ...] = None,
         schedule: Union[Schedule, str] = None,
@@ -167,7 +167,9 @@ class Calibrations:
         standard deviation.
 
         Args:
-            value: The value of the parameter to add.
+            value: The value of the parameter to add. If an int, float, or complex is given
+                then the timestamp of the parameter will automatically be generated to
+                correspond to the current time.
             param: The parameter or its name for which to add the measured value.
             qubits: The qubits to which this parameter applies.
             schedule: The schedule or its name for which to add the measured parameter value.
@@ -176,6 +178,9 @@ class Calibrations:
             CalibrationError: If the schedule name is given but no schedule with that name
                 exists.
         """
+        if isinstance(value, (int, float, complex)):
+            value = ParameterValue(value, datetime.now())
+
         param_name = param.name if isinstance(param, Parameter) else param
         sched_name = schedule.name if isinstance(schedule, Schedule) else schedule
 
