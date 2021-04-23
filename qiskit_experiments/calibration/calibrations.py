@@ -499,7 +499,7 @@ class Calibrations:
 
         return keys
 
-    def get_circuit(
+    def _get_circuit(
         self,
         schedule_name: str,
         qubits: Tuple,
