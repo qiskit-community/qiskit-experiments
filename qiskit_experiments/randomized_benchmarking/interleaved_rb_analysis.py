@@ -12,6 +12,7 @@
 """
 Interleaved RB analysis class.
 """
+import numpy as np
 from typing import Optional, List
 from qiskit_experiments.analysis.curve_fitting import (
     process_multi_curve_data,
@@ -44,19 +45,31 @@ class InterleavedRBAnalysis(RBAnalysis):
                                                        data_processor)
         xdata, ydata, ydata_sigma, series = mean_xy_data(x, y, sigma, series)
 
-        def fit_fun(x, a, alpha, b):
-            return a * alpha ** x + b
+        def fit_fun_standard(x, a, alpha_std, alpha_int, b):
+            return a * alpha_std ** x + b
 
-        p0 = self._p0(xdata, ydata)
+        def fit_fun_interleaved(x, a, alpha_std, alpha_int, b):
+            return a * alpha_int ** x + b
+
+        std_idx = (series == 0)
+        p0_std = self._p0(xdata[std_idx], ydata[std_idx])
+
+        int_idx = (series == 1)
+        p0_int = self._p0(xdata[int_idx], ydata[int_idx])
+
+        p0 = (np.mean([p0_std[0], p0_int[0]]),
+              p0_std[1], p0_int[1],
+              np.mean([p0_std[2], p0_int[2]]))
+
         analysis_result = multi_curve_fit(
-            [fit_fun, fit_fun],
+            [fit_fun_standard, fit_fun_interleaved],
             series,
             xdata,
             ydata,
             p0,
             ydata_sigma,
-            bounds=([0, 0, 0], [1, 1, 1])
+            bounds=([0, 0, 0, 0], [1, 1, 1, 1])
         )
-        return analysis_result
+        return analysis_result, None
 
 
