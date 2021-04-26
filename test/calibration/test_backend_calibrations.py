@@ -24,5 +24,5 @@ class TestBackendCalibrations(QiskitTestCase):
         """Test that we can get run options."""
         cals = BackendCalibrations(FakeArmonk())
 
-        expected = {'qubit_lo_freq': [4971852852.405576], 'meas_lo_freq': [6993370669.000001]}
+        expected = {"qubit_lo_freq": [4971852852.405576], "meas_lo_freq": [6993370669.000001]}
         self.assertEqual(cals.run_options(), expected)

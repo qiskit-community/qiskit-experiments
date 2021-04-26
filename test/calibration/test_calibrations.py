@@ -72,16 +72,20 @@ class TestCalibrationsBasic(QiskitTestCase):
         expected = {ParameterKey("y90p", "amp", None)}
         self.assertEqual(self.cals.parameters[(self.amp_y90p, hash(self.amp_y90p))], expected)
 
-        expected = {ParameterKey("xp", "β", None),
-                    ParameterKey("xm", "β", None),
-                    ParameterKey("x90p", "β", None),
-                    ParameterKey("y90p", "β", None)}
+        expected = {
+            ParameterKey("xp", "β", None),
+            ParameterKey("xm", "β", None),
+            ParameterKey("x90p", "β", None),
+            ParameterKey("y90p", "β", None),
+        }
         self.assertEqual(self.cals.parameters[(self.beta, hash(self.beta))], expected)
 
-        expected = {ParameterKey("xp", "σ", None),
-                    ParameterKey("xm", "σ", None),
-                    ParameterKey("x90p", "σ", None),
-                    ParameterKey("y90p", "σ", None)}
+        expected = {
+            ParameterKey("xp", "σ", None),
+            ParameterKey("xm", "σ", None),
+            ParameterKey("x90p", "σ", None),
+            ParameterKey("y90p", "σ", None),
+        }
         self.assertEqual(self.cals.parameters[(self.sigma, hash(self.sigma))], expected)
 
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.2)
@@ -292,16 +296,18 @@ class TestControlChannels(QiskitTestCase):
 
     def setUp(self):
         """Create the setup we will deal with."""
-        controls = {(3, 2): [ControlChannel(10), ControlChannel(123)],
-                    (2, 3): [ControlChannel(15), ControlChannel(23)]}
+        controls = {
+            (3, 2): [ControlChannel(10), ControlChannel(123)],
+            (2, 3): [ControlChannel(15), ControlChannel(23)],
+        }
         self.cals = Calibrations(control_config=controls)
 
         self.amp_cr = Parameter("amp_cr")
         self.amp_rot = Parameter("amp_rot")
         self.amp = Parameter("amp")
-        self.d0_ = DriveChannel(Parameter('ch0'))
-        self.d1_ = DriveChannel(Parameter('ch1'))
-        self.c1_ = ControlChannel(Parameter('ch0.1'))
+        self.d0_ = DriveChannel(Parameter("ch0"))
+        self.d1_ = DriveChannel(Parameter("ch1"))
+        self.c1_ = ControlChannel(Parameter("ch0.1"))
         self.sigma = Parameter("σ")
         self.width = Parameter("w")
         self.date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
@@ -329,7 +335,7 @@ class TestControlChannels(QiskitTestCase):
         self.cals.add_schedule(cr)
 
         self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", None, "xp")
-        self.cals.add_parameter_value(ParameterValue(0.1, self.date_time), "amp", (3, ), "xp")
+        self.cals.add_parameter_value(ParameterValue(0.1, self.date_time), "amp", (3,), "xp")
         self.cals.add_parameter_value(ParameterValue(0.3, self.date_time), "amp_cr", (3, 2), "cr")
         self.cals.add_parameter_value(ParameterValue(0.2, self.date_time), "amp_rot", (3, 2), "cr")
         self.cals.add_parameter_value(ParameterValue(20, self.date_time), "w", (3, 2), "cr")
