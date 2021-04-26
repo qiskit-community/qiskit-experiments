@@ -155,6 +155,39 @@ class Calibrations:
         """
         return self._parameter_map_r
 
+    def calibration_parameter(
+        self, parameter_name: str, qubits: Tuple[int, ...] = None, schedule_name: str = None
+    ) -> Parameter:
+        """
+        Returns a Parameter object given the triplet parameter_name, qubits and schedule_name
+        which uniquely determine the context of a parameter.
+
+        Args:
+            parameter_name: Name of the parameter to get.
+            qubits: The qubits to which this parameter belongs. If qubits is None then
+                the default scope is assumed.
+            schedule_name: The name of the schedule to which this parameter belongs. A
+                parameter may not belong to a schedule in which case None is accepted.
+
+        Returns:
+             calibration parameter: The parameter that corresponds to the given arguments.
+
+        Raises:
+            CalibrationError: If the desired parameter is not found.
+        """
+        # 1) Check for qubit specific parameters.
+        if (schedule_name, parameter_name, qubits) in self._parameter_map:
+            return self._parameter_map[(schedule_name, parameter_name, qubits)]
+
+        # 2) Check for default parameters.
+        elif (schedule_name, parameter_name, None) in self._parameter_map:
+            return self._parameter_map[(schedule_name, parameter_name, None)]
+        else:
+            raise CalibrationError(
+                f"No parameter for {parameter_name} and schedule {schedule_name} "
+                f"and qubits {qubits}. No default value exists."
+            )
+
     def add_parameter_value(
         self,
         value: Union[int, float, complex, ParameterValue],
@@ -185,7 +218,7 @@ class Calibrations:
         param_name = param.name if isinstance(param, Parameter) else param
         sched_name = schedule.name if isinstance(schedule, Schedule) else schedule
 
-        registered_schedules = set(key[0] for key in self._schedules.keys())
+        registered_schedules = set(key[0] for key in self._schedules)
 
         if sched_name and sched_name not in registered_schedules:
             raise CalibrationError(f"Schedule named {sched_name} was never registered.")
@@ -260,10 +293,16 @@ class Calibrations:
         cutoff_date: datetime = None,
     ) -> Union[int, float, complex]:
         """
-        1) Check if the given qubits have their own Parameter.
-        2) If they do not check to see if a parameter global to all qubits exists.
-        3) Filter candidate parameter values.
-        4) Return the most recent parameter.
+        Retrieves the value of a parameter. Parameters may be linked. get_parameter_value does the
+        following steps:
+        1) Retrieve the parameter object corresponding to (param, qubits, schedule)
+        2) The values of this parameter may be stored under another schedule since
+           schedules can share parameters. To deal we this a list of candidate keys
+           is created internally based on the current configuration.
+        3) Look for candidate parameter values under the candidate keys.
+        4) Filter the candidate parameter values according to their date (up until the
+           cutoff_date), validity and calibration group.
+        5) Return the most recent parameter.
 
         Args:
             param: The parameter or the name of the parameter for which to get the parameter value.
@@ -284,28 +323,19 @@ class Calibrations:
             CalibrationError: if there is no parameter value for the given parameter name
                 and pulse channel.
         """
+
+        # 1) Identify the parameter object.
         param_name = param.name if isinstance(param, Parameter) else param
         sched_name = schedule.name if isinstance(schedule, Schedule) else schedule
 
-        # 1) Check for qubit specific parameters.
-        if (sched_name, param_name, qubits) in self._parameter_map:
-            param = self._parameter_map[(sched_name, param_name, qubits)]
+        param = self.calibration_parameter(param_name, qubits, sched_name)
 
-        # 2) Check for default parameters.
-        elif (sched_name, param_name, None) in self._parameter_map:
-            param = self._parameter_map[(sched_name, param_name, None)]
-        else:
-            raise CalibrationError(
-                f"No parameter for {param_name} and schedule {sched_name} "
-                f"and qubits {qubits}. No default value exists."
-            )
-
-        # 3) Get a list of candidate keys restricted to the qubits of interest.
+        # 2) Get a list of candidate keys restricted to the qubits of interest.
         candidate_keys = []
         for key in self._parameter_map_r[param]:
             candidate_keys.append(ParameterKey(key.schedule, key.parameter, qubits))
 
-        # 4) Loop though the candidate keys
+        # 3) Loop though the candidate keys to candidate values
         candidates = []
         parameter_not_found = True
         for key in candidate_keys:
@@ -316,7 +346,7 @@ class Calibrations:
                 else:
                     raise CalibrationError("Duplicate parameters.")
 
-        # 5) If not candidate parameter values were found look for default parameters
+        # If no candidate parameter values were found look for default parameters
         # i.e. parameters that do not specify a qubit.
         if len(candidates) == 0:
             candidate_default_keys = []
@@ -334,7 +364,7 @@ class Calibrations:
                     else:
                         raise CalibrationError("Duplicate parameters.")
 
-        # 6) Filter candidate parameter values.
+        # 4) Filter candidate parameter values.
         if valid_only:
             candidates = [val for val in candidates if val.valid]
 
@@ -356,7 +386,7 @@ class Calibrations:
 
             raise CalibrationError(msg)
 
-        # 4) Return the most recent parameter.
+        # 5) Return the most recent parameter.
         candidates.sort(key=lambda x: x.date_time)
 
         return candidates[-1].value
