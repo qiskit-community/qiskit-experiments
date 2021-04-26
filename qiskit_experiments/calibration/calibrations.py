@@ -51,16 +51,23 @@ class Calibrations:
     - having different schedules share parameters
     - allows default schedules for qubits that can be overridden of specific qubits.
 
-    Parametric channel naming convention. Channels must be name according to a predefined
-    pattern so that self can resolve the channels and control channels when assigning
-    values to the parametric channel indices. This is pattern is "^ch\d[.\d]*\${0,1}[\d]*$",
-    examples of which include "ch0", "ch1", "ch0.1", "ch0$", "ch2$3", and "ch1.0.3$2".
-    The "." delimiter is used to specify the different qubits when looking for control
-    channels. The optional $ delimiter is used to specify which control channel to use
+    Parametric channel naming convention.
+    Channels must be name according to a predefined pattern so that self can resolve
+    the channels and control channels when assigning values to the parametric channel
+    indices. This pattern is "^ch\d[.\d]*\${0,1}[\d]*$", examples of which include "ch0",
+    "ch1", "ch0.1", "ch0$", "ch2$3", and "ch1.0.3$2". The "." delimiter is used to
+    specify the different qubits when looking for control channels.
+    The optional $ delimiter is used to specify which control channel to use
     if several control channels work together on the same qubits. For example, if the
     control channel configuration is {(3,2): [ControlChannel(3), ControlChannel(12)]}
     then given qubits (2, 3) the name "ch1.0$1" will resolve to ControlChannel(12) while
     "ch1.0$0" will resolve to ControlChannel(3).
+
+    Parameter naming restriction.
+    Each parameter must have a unique name within each schedule. For example, it is
+    acceptable to have a parameter named 'amp' in the schedule 'xp' and a different
+    parameter instance named 'amp' in the schedule named 'xm'. It is not acceptable
+    to have two parameters named 'amp' in the same schedule.
     """
 
     # The channel indices need to be parameterized following this regex.
@@ -68,7 +75,7 @@ class Calibrations:
 
     def __init__(self, control_config: Dict[Tuple[int, ...], List[ControlChannel]] = None):
         """
-        Initialize the instructions from a given backend.
+        Initialize the calibrations.
 
         Args:
             control_config: A configuration dictionary of any control channels. The
@@ -104,7 +111,6 @@ class Calibrations:
                 have the same name.
         """
         # check that channels, if parameterized, have the proper name format.
-        # pylint: disable = raise-missing-from
         param_indices = set()
         for ch in schedule.channels:
             if isinstance(ch.index, Parameter):
@@ -206,7 +212,7 @@ class Calibrations:
 
         Args:
             value: The value of the parameter to add. If an int, float, or complex is given
-                then the timestamp of the parameter will automatically be generated to
+                then the timestamp of the parameter values will automatically be generated to
                 correspond to the current time.
             param: The parameter or its name for which to add the measured value.
             qubits: The qubits to which this parameter applies.
@@ -325,7 +331,7 @@ class Calibrations:
 
         Raises:
             CalibrationError: if there is no parameter value for the given parameter name
-                and pulse channel.
+                and pulse channel or if there is an inconsistency in the stored parameters.
         """
 
         # 1) Identify the parameter object.
@@ -590,6 +596,7 @@ class Calibrations:
         qubit_list: List[Tuple[int, ...]] = None,
     ) -> List[Dict[str, Any]]:
         """
+        A convenience function to help users visualize the values of their parameter.
 
         Args:
             parameters: The parameter names that should be included in the returned
