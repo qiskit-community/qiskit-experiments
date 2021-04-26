@@ -47,7 +47,11 @@ def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
 
 
 def mean_xy_data(
-    xdata: np.ndarray, ydata: np.ndarray, sigma: Optional[np.ndarray] = None, method: str = "sample"
+        xdata: np.ndarray,
+        ydata: np.ndarray,
+        sigma: Optional[np.ndarray] = None,
+        series: Optional[np.ndarray] = None,
+        method: str = "sample"
 ) -> Tuple[np.ndarray]:
     r"""Return (x, y_mean, sigma) data.
 
@@ -63,10 +67,11 @@ def mean_xy_data(
       :math:`\sigma^2 = 1 / (\sum_{i=1}^N 1 / \sigma_i^2)`
 
     Args
-        xdata: 1D or 2D array of xdata from curve_fit_data or
+        xdata: 1D array of xdata from curve_fit_data or
                multi_curve_fit_data
         ydata: array of ydata returned from curve_fit_data or
                multi_curve_fit_data
+        series: 1D int array that specifies the data series
         sigma: Optional, array of standard deviations in ydata.
         method: The method to use for computing y means and
                 standard deviations sigma (default: "sample").
@@ -86,14 +91,18 @@ def mean_xy_data(
         )
     if not method in ["sample", "iwv"]:
         raise QiskitError(f"Unsupported method {method}")
+    xseries = series if series is not None else np.zeros(xdata.size)
+    x_keys = np.unique(np.column_stack((xdata, xseries)), axis=0)
+    x_means = np.zeros(x_keys.shape[0])
+    y_means = np.zeros(x_keys.shape[0])
+    y_sigmas = np.zeros(x_keys.shape[0])
+    series_mean = np.zeros(x_keys.shape[0])
 
-    x_means = np.unique(xdata, axis=0)
-    y_means = np.zeros(x_means.size)
-    y_sigmas = np.zeros(x_means.size)
-
-    for i in range(x_means.size):
+    for i, (x_val, xseries_val) in enumerate(x_keys):
+        x_means[i] = x_val
+        series_mean[i] = xseries_val
         # Get positions of y to average
-        idxs = xdata == x_means[i]
+        idxs = np.where((xdata == x_val) & (xseries == xseries_val))
         ys = ydata[idxs]
 
         # Sample mean and variance method
@@ -110,6 +119,8 @@ def mean_xy_data(
             y_means[i] = y_var * np.sum(weights * ys)
             y_sigmas[i] = np.sqrt(y_var)
 
+    if series is not None:
+        return x_means, y_means, y_sigmas, series_mean
     return x_means, y_means, y_sigmas
 
 

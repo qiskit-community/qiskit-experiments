@@ -128,3 +128,17 @@ class TestCurveFitting(QiskitTestCase):
         self.assertTrue(np.allclose(expected_x_mean, x_mean))
         self.assertTrue(np.allclose(expected_y_mean, y_mean))
         self.assertTrue(np.allclose(expected_y_sigma, y_sigma))
+
+        x = np.array([1,1,1,1,2,2,2,2])
+        y = np.array([2,6,100,200,17,50,60,70])
+        series = np.array([0,0,1,1,0,1,1,1])
+        x_mean, y_mean, y_sigma, series = mean_xy_data(x, y, method="sample", series=series)
+        expected_x_mean = np.array([1,1,2,2])
+        expected_y_mean = np.array([4, 150, 17, 60])
+        expected_y_sigma = np.array([4., 2500., 0., 66.66666667])
+        expected_series = np.array([0,1,0,1])
+        self.assertTrue(np.allclose(expected_x_mean, x_mean))
+        self.assertTrue(np.allclose(expected_y_mean, y_mean))
+        self.assertTrue(np.allclose(expected_y_sigma, y_sigma))
+        self.assertTrue(np.allclose(expected_series, series))
+
