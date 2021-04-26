@@ -153,7 +153,11 @@ class Calibrations:
         the parameter keys. Parameters that are not attached to a schedule will have None in place
         of a schedule name.
         """
-        return self._parameter_map_r
+        parameters = {}
+        for param, key in self._parameter_map_r.items():
+            parameters[(param, hash(param))] = key
+
+        return parameters
 
     def calibration_parameter(
         self, parameter_name: str, qubits: Tuple[int, ...] = None, schedule_name: str = None
@@ -645,8 +649,8 @@ class Calibrations:
             for key in keys:
                 body.append(
                     {
-                        "parameter.name": parameter.name,
-                        "hash(parameter)": hash(parameter),
+                        "parameter.name": parameter[0].name,
+                        "hash(parameter)": parameter[1],
                         "schedule": key.schedule,
                         "qubits": key.qubits,
                     }

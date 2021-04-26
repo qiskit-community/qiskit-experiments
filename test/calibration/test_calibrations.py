@@ -64,25 +64,25 @@ class TestCalibrationsBasic(QiskitTestCase):
     def test_setup(self):
         """Test that the initial setup behaves as expected."""
         expected = {ParameterKey("xp", "amp", None), ParameterKey("xm", "amp", None)}
-        self.assertEqual(self.cals.parameters[self.amp_xp], expected)
+        self.assertEqual(self.cals.parameters[(self.amp_xp, hash(self.amp_xp))], expected)
 
         expected = {ParameterKey("x90p", "amp", None)}
-        self.assertEqual(self.cals.parameters[self.amp_x90p], expected)
+        self.assertEqual(self.cals.parameters[(self.amp_x90p, hash(self.amp_x90p))], expected)
 
         expected = {ParameterKey("y90p", "amp", None)}
-        self.assertEqual(self.cals.parameters[self.amp_y90p], expected)
+        self.assertEqual(self.cals.parameters[(self.amp_y90p, hash(self.amp_y90p))], expected)
 
         expected = {ParameterKey("xp", "β", None),
                     ParameterKey("xm", "β", None),
                     ParameterKey("x90p", "β", None),
                     ParameterKey("y90p", "β", None)}
-        self.assertEqual(self.cals.parameters[self.beta], expected)
+        self.assertEqual(self.cals.parameters[(self.beta, hash(self.beta))], expected)
 
         expected = {ParameterKey("xp", "σ", None),
                     ParameterKey("xm", "σ", None),
                     ParameterKey("x90p", "σ", None),
                     ParameterKey("y90p", "σ", None)}
-        self.assertEqual(self.cals.parameters[self.sigma], expected)
+        self.assertEqual(self.cals.parameters[(self.sigma, hash(self.sigma))], expected)
 
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.2)
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xm"), 0.2)
