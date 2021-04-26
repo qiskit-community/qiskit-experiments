@@ -115,7 +115,7 @@ class RBAnalysis(BaseAnalysis):
         ydata_var = np.zeros(size, dtype=float)
         for i, datum in enumerate(data):
             metadata = datum["metadata"]
-            xdata[i] = metadata["xdata"]
+            xdata[i] = metadata["xval"]
             ydata[i], ydata_var[i] = level2_probability(datum, metadata["ylabel"])
 
         ydata_sigma = np.sqrt(ydata_var)
