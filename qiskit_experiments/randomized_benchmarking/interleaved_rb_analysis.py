@@ -13,7 +13,10 @@
 Interleaved RB analysis class.
 """
 from typing import Optional, List
-from qiskit_experiments.analysis.curve_fitting import process_multi_curve_data
+from qiskit_experiments.analysis.curve_fitting import (
+    process_multi_curve_data,
+    multi_curve_fit,
+)
 
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.data_processing import (
@@ -23,7 +26,7 @@ from qiskit_experiments.analysis.data_processing import (
 )
 from .rb_analysis import RBAnalysis
 
-class InterleavedRBAnalysis(BaseAnalysis):
+class InterleavedRBAnalysis(RBAnalysis):
     """Interleaved RB Analysis class."""
 
     def _run_analysis(
@@ -39,6 +42,21 @@ class InterleavedRBAnalysis(BaseAnalysis):
         self._num_qubits = len(experiment_data.data[0]["metadata"]["qubits"])
         series, x, y, sigma = process_multi_curve_data(experiment_data.data,
                                                        data_processor)
-        return
+        xdata, ydata, ydata_sigma, series = mean_xy_data(x, y, sigma, series)
+
+        def fit_fun(x, a, alpha, b):
+            return a * alpha ** x + b
+
+        p0 = self._p0(xdata, ydata)
+        analysis_result = multi_curve_fit(
+            [fit_fun, fit_fun],
+            series,
+            xdata,
+            ydata,
+            p0,
+            ydata_sigma,
+            bounds=([0, 0, 0], [1, 1, 1])
+        )
+        return analysis_result
 
 
