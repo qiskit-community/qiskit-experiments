@@ -80,44 +80,37 @@ def mean_xy_data(
     Raises:
         QiskitError: if "ivw" method is used without providing a sigma.
     """
+    if method == "iwv" and sigma is None:
+        raise QiskitError(
+            "The inverse-weighted variance method cannot be used with" " `sigma=None`"
+        )
+    if not method in ["sample", "iwv"]:
+        raise QiskitError(f"Unsupported method {method}")
+
     x_means = np.unique(xdata, axis=0)
     y_means = np.zeros(x_means.size)
     y_sigmas = np.zeros(x_means.size)
 
-    # Sample mean and variance method
-    if method == "sample":
-        for i in range(x_means.size):
-            # Get positions of y to average
-            idxs = xdata == x_means[i]
-            ys = ydata[idxs]
+    for i in range(x_means.size):
+        # Get positions of y to average
+        idxs = xdata == x_means[i]
+        ys = ydata[idxs]
 
+        # Sample mean and variance method
+        if method == "sample":
             # Compute sample mean and biased sample variance
             y_means[i] = np.mean(ys)
             y_sigmas[i] = np.mean((y_means[i] - ys) ** 2)
+            # Inverse-weighted variance method
 
-        return x_means, y_means, y_sigmas
-
-    # Inverse-weighted variance method
-    if method == "iwv":
-        if sigma is None:
-            raise QiskitError(
-                "The inverse-weighted variance method cannot be used with" " `sigma=None`"
-            )
-        for i in range(x_means.size):
-            # Get positions of y to average
-            idxs = xdata == x_means[i]
-            ys = ydata[idxs]
-
+        if method == "iwv":
             # Compute the inverse-variance weighted y mean and variance
             weights = 1 / sigma[idxs] ** 2
             y_var = 1 / np.sum(weights)
             y_means[i] = y_var * np.sum(weights * ys)
             y_sigmas[i] = np.sqrt(y_var)
 
-        return x_means, y_means, y_sigmas
-
-    # Invalid method
-    raise QiskitError(f"Unsupported method {method}")
+    return x_means, y_means, y_sigmas
 
 
 def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float]:
