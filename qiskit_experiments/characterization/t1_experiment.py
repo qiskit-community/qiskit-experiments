@@ -17,11 +17,13 @@ from typing import List, Optional, Union, Tuple
 import numpy as np
 
 from qiskit.circuit import QuantumCircuit
+from qiskit.utils import apply_prefix
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis
-from .analysis_functions import exp_fit_fun, curve_fit_wrapper
 from qiskit.providers.experiment import AnalysisResultV1
+from qiskit_experiments.analysis.curve_fitting import process_curve_data, curve_fit
+from qiskit_experiments.analysis.data_processing import level2_probability
 
 
 class T1Analysis(BaseAnalysis):
@@ -47,49 +49,33 @@ class T1Analysis(BaseAnalysis):
             t1_guess (float): Optional, an initial guess of T1
             amplitude_guess (float): Optional, an initial guess of the coefficient of the exponent
             offset_guess (float): Optional, an initial guess of the offset
-            t1_bounds (list of two floats): Optional, lower bound and uper bound to T1
-            amplitude_bounds (list of two floats): Optional, lower bound and uper bound to the amplitude
-            offset_bounds (list of two floats): Optional, lower bound and uper bound to the offset
+            t1_bounds (list of two floats): Optional, lower bound and upper bound to T1
+            amplitude_bounds (list of two floats): Optional, lower bound and upper bound to the amplitude
+            offset_bounds (list of two floats): Optional, lower bound and upper bound to the offset
             kwargs: Trailing unused function parameters
 
         Returns:
             The analysis result with the estimated T1
         """
 
-        circuit_unit = experiment_data.data(0)["metadata"]["unit"]
-        dt_factor_in_sec = experiment_data.data(0)["metadata"].get("dt_factor_in_sec", None)
-        if dt_factor_in_sec is None:
-            dt_factor_in_microsec = 1
-            result_unit = circuit_unit
-        else:
-            dt_factor_in_microsec = dt_factor_in_sec * 1000000
-            result_unit = "us"
+        unit = experiment_data.data(0)["metadata"]["unit"]
+        conversion_factor = experiment_data.data(0)["metadata"].get("dt_factor", None)
+        if conversion_factor is None:
+            conversion_factor = 1 if unit == "s" else apply_prefix(1, unit)
 
-        size = len(experiment_data._data)
-        delays = np.zeros(size, dtype=float)
-        means = np.zeros(size, dtype=float)
-        stddevs = np.zeros(size, dtype=float)
-
-        for i, circ in enumerate(experiment_data.data()):
-            delays[i] = circ["metadata"]["delay"] * dt_factor_in_microsec
-            count0 = circ["counts"].get("0", 0)
-            count1 = circ["counts"].get("1", 0)
-            shots = count0 + count1
-            means[i] = count1 / shots
-            stddevs[i] = np.sqrt(means[i] * (1 - means[i]) / shots)
-            # problem for the fitter if one of the std points is
-            # exactly zero
-            if stddevs[i] == 0:
-                stddevs[i] = 1e-4
+        xdata, ydata, sigma = process_curve_data(
+            experiment_data.data(), lambda datum: level2_probability(datum, "1")
+        )
+        xdata *= conversion_factor
 
         if t1_guess is None:
-            t1_guess = np.mean(delays)
+            t1_guess = np.mean(xdata)
         else:
-            t1_guess = t1_guess * dt_factor_in_microsec
+            t1_guess = t1_guess * conversion_factor
         if offset_guess is None:
-            offset_guess = means[-1]
+            offset_guess = ydata[-1]
         if amplitude_guess is None:
-            amplitude_guess = means[0] - offset_guess
+            amplitude_guess = ydata[0] - offset_guess
         if t1_bounds is None:
             t1_bounds = [0, np.inf]
         if amplitude_bounds is None:
@@ -97,40 +83,44 @@ class T1Analysis(BaseAnalysis):
         if offset_bounds is None:
             offset_bounds = [0, 1]
 
-        fit_out, fit_err, fit_cov, chisq = curve_fit_wrapper(
-            exp_fit_fun,
-            delays,
-            means,
-            stddevs,
-            p0=[amplitude_guess, t1_guess, offset_guess],
+        fit_result = curve_fit(
+            lambda x, a, tau, c: a * np.exp(-x / tau) + c,
+            xdata,
+            ydata,
+            [amplitude_guess, t1_guess, offset_guess],
+            sigma,
+            tuple(
+                [amp_bnd, t1_bnd, offset_bnd]
+                for amp_bnd, t1_bnd, offset_bnd in zip(amplitude_bounds, t1_bounds, offset_bounds)
+            ),
         )
 
         analysis_result = AnalysisResult(
             {
-                "value": fit_out[1],
-                "stderr": fit_err[1],
-                "unit": result_unit,
+                "value": fit_result["popt"][1],
+                "stderr": fit_result["popt_err"][1],
+                "unit": "s",
                 "label": "T1",
-                "fit": {
-                    "params": fit_out,
-                    "stderr": fit_err,
-                    "labels": ["amplitude", "T1", "offset"],
-                    "chisq": chisq,
-                    "cov": fit_cov,
-                },
-                "quality": self._fit_quality(fit_out, fit_err, chisq),
+                "fit": fit_result,
+                "quality": self._fit_quality(
+                    fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
+                ),
             }
         )
+
+        if unit == "dt":
+            analysis_result["fit"]["dt"] = conversion_factor
+            analysis_result["fit"]["circuit_unit"] = unit
 
         return analysis_result, None
 
     @staticmethod
-    def _fit_quality(fit_out, fit_err, chisq):
+    def _fit_quality(fit_out, fit_err, reduced_chisq):
         # pylint: disable = too-many-boolean-expressions
         if (
             abs(fit_out[0] - 1.0) < 0.1
             and abs(fit_out[2]) < 0.1
-            and chisq < 3
+            and reduced_chisq < 3
             and (fit_err[0] is None or fit_err[0] < 0.1)
             and (fit_err[1] is None or fit_err[1] < fit_out[1])
             and (fit_err[2] is None or fit_err[2] < 0.1)
@@ -149,7 +139,7 @@ class T1Experiment(BaseExperiment):
         self,
         qubit: int,
         delays: Union[List[float], np.array],
-        unit: Optional[str] = "us",
+        unit: Optional[str] = "s",
         experiment_type: Optional[str] = None,
     ):
         """
@@ -188,7 +178,7 @@ class T1Experiment(BaseExperiment):
 
         if self._unit == "dt":
             try:
-                dt_factor_in_sec = getattr(backend.configuration(), "dt")
+                dt_factor = getattr(backend.configuration(), "dt")
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
 
@@ -205,27 +195,13 @@ class T1Experiment(BaseExperiment):
             circ.metadata = {
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
-                "delay": delay,
+                "xval": delay,
                 "unit": self._unit,
             }
 
             if self._unit == "dt":
-                circ.metadata["dt_factor_in_sec"] = dt_factor_in_sec
+                circ.metadata["dt_factor"] = dt_factor
 
             circuits.append(circ)
 
         return circuits
-
-    @staticmethod
-    def generate_delays(t1_estimate, num_of_points):
-        """
-        Generate delays from an estimate of T1
-
-        Args:
-            t1_estimate (float): estimate of T1
-            num_of_points (float): number of delays to generate
-
-        Returns:
-            float: delays, distributed in a logarithmic scale
-        """
-        return np.geomspace(3, 7 * t1_estimate, num_of_points)
