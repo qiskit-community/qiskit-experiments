@@ -71,7 +71,7 @@ class Calibrations:
     """
 
     # The channel indices need to be parameterized following this regex.
-    __channel_pattern__ = r"^ch\d[.\d]*\${0,1}[\d]*$"
+    __channel_pattern__ = r"^ch\d[\.\d]*\${0,1}[\d]*$"
 
     def __init__(self, control_config: Dict[Tuple[int, ...], List[ControlChannel]] = None):
         """
