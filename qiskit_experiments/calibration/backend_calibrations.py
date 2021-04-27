@@ -48,7 +48,6 @@ class BackendCalibrations(Calibrations):
     def _get_frequencies(
         self,
         meas_freq: bool,
-        valid_only: bool = True,
         group: str = "default",
         cutoff_date: datetime = None,
     ) -> List[float]:
@@ -56,12 +55,11 @@ class BackendCalibrations(Calibrations):
         Get the most recent qubit or measurement frequencies. These frequencies can be
         passed to the run-time options of :class:`BaseExperiment`. If no calibrated value
         for the frequency of a qubit is found then the default value from the backend
-        defaults is used.
+        defaults is used. Only valid parameter values are returned.
 
         Args:
             meas_freq: If True return the measurement frequencies otherwise return the qubit
                 frequencies.
-            valid_only: Use only valid parameter values.
             group: The calibration group from which to draw the
                 parameters. If not specifies this defaults to the 'default' group.
             cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
@@ -78,9 +76,7 @@ class BackendCalibrations(Calibrations):
         freqs = []
         for qubit in self._qubits:
             if ParameterKey(None, param, (qubit,)) in self._params:
-                freq = self.get_parameter_value(
-                    param, (qubit,), None, valid_only, group, cutoff_date
-                )
+                freq = self.get_parameter_value(param, (qubit,), None, True, group, cutoff_date)
             else:
                 if meas_freq:
                     freq = self._backend.defaults().meas_freq_est[qubit]
@@ -91,19 +87,13 @@ class BackendCalibrations(Calibrations):
 
         return freqs
 
-    def run_options(
-        self,
-        valid_only: bool = True,
-        group: str = "default",
-        cutoff_date: datetime = None,
-    ) -> Dict[str, Any]:
+    def run_options(self, group: str = "default", cutoff_date: datetime = None) -> Dict[str, Any]:
         """
         Retrieve all run-options to be used as kwargs when calling
         :meth:`BaseExperiment.run`. This gives us the means to communicate the most recent
         measured values of the qubit and measurement frequencies of the backend.
 
         Args:
-            valid_only: Use only valid parameter values.
             group: The calibration group from which to draw the
                 parameters. If not specifies this defaults to the 'default' group.
             cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
@@ -117,8 +107,8 @@ class BackendCalibrations(Calibrations):
         """
 
         return {
-            "qubit_lo_freq": self._get_frequencies(False, valid_only, group, cutoff_date),
-            "meas_lo_freq": self._get_frequencies(True, valid_only, group, cutoff_date),
+            "qubit_lo_freq": self._get_frequencies(False, group, cutoff_date),
+            "meas_lo_freq": self._get_frequencies(True, group, cutoff_date),
         }
 
     def export_backend(self) -> Backend:
