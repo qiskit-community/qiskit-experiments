@@ -103,10 +103,10 @@ class T1Backend(BaseBackend):
                     qubit = op.qubits[0]
                     if op.name == "x":
                         prob1[qubit] = 1 - prob1[qubit]
-                    if op.name == "delay":
+                    elif op.name == "delay":
                         delay = op.params[0]
                         prob1[qubit] = prob1[qubit] * np.exp(-delay / self._t1[qubit])
-                    if op.name == "measure":
+                    elif op.name == "measure":
                         meas_res = np.random.binomial(
                             1, prob1[qubit] * (1 - ro10[qubit]) + (1 - prob1[qubit]) * ro01[qubit]
                         )
