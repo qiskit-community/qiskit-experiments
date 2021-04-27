@@ -22,17 +22,30 @@ from qiskit.circuit import QuantumCircuit
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis
+from qiskit_experiments.analysis.curve_fitting import curve_fit, multi_curve_fit
+from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_scatter, plot_errorbar
+from matplotlib import pyplot as plt
 
 # from qiskit_experiments.experiment_data import Analysis
-from .analysis_functions import exp_fit_fun, curve_fit_wrapper
+#from .analysis_functions import exp_fit_fun, curve_fit_wrapper
 
+def temp_plot(xdata, ydata):
+    plt.figure(1)
+    plt.plot(xdata, ydata,'o--', color='navy', label="my plot")
+
+    plt.xlabel('delay')
+    plt.ylabel('prob1')
+    plt.title("my graph")
+    plt.legend()
+    plt.grid(alpha=0.3)
+    plt.savefig('my graph')
+    plt.show()
 
 class T2StarAnalysis(BaseAnalysis):
     """T2Star Experiment result analysis class."""
 
     # pylint: disable=arguments-differ, unused-argument
-    def _run_analysis(self, experiment_data, A_guess=None, T2star_guess=None, osc_guess=None,
-                      phi_guess=None, B_guess=None, **kwargs):
+    def _run_analysis(self, experiment_data, p0, bounds, **kwargs):
         r"""
         Calculate T2Star experiment
         The probabilities of measuring 0 is assumed to be of the form
@@ -58,6 +71,7 @@ class T2StarAnalysis(BaseAnalysis):
             The analysis result with the estimated :math:`T_2^*`
 
         """
+
         size = len(experiment_data._data)
         delays = np.zeros(size, dtype=float)
         means = np.zeros(size, dtype=float)
@@ -81,14 +95,29 @@ class T2StarAnalysis(BaseAnalysis):
             """
             return a * np.exp(-x / t2star) * np.cos(2 * np.pi * f * x + phi) + c
 
-        fit_out, fit_err, fit_cov, chisq = curve_fit(
-            osc_fit_fun, delays, means, stddevs, p0=params["fit_p0"], bounds=params["fit_bounds"]
-        )
+        result = curve_fit(
+            osc_fit_fun, delays, means, p0=list(p0.values()), sigma=stddevs,
+            bounds=bounds)
 
-        analysis_result = T2StarAnalysis()
-        return analysis_result, None
+        xdata = delays
+        ydata = means
+        print("xdata = " + str(xdata))
+        print("ydata = " + str(ydata))
+        #ax = plot_curve_fit(osc_fit_fun, result)
+        #ax = plot_scatter(xdata, ydata, ax=ax)
+        #ax = plot_errorbar(xdata, ydata, stddevs, ax=ax)
+        #ax.legend("aaa")
+        #ax.plot()
+        #self._format_plot(ax, analysis_result)
+        #result.plt = plt
+        temp_plot(xdata,ydata)
+        #fig = plt.figure()
+        #fig.axes.append(ax)
+        #fig.legend('aaa')
 
-
+        #plt.show()
+        #analysis_result = T2StarAnalysis()
+        return result, None
 
 class T2StarExperiment(BaseExperiment):
     """T2Star experiment class"""
@@ -99,7 +128,7 @@ class T2StarExperiment(BaseExperiment):
         self,
         qubit: int,
         delays: Union[List[float], np.array],
-        unit: Optional[str] = "us",
+        unit: Optional[str] = "s",
         nosc: int = 0,
         experiment_type: Optional[str] = None,
     ):
@@ -180,15 +209,18 @@ class T2StarExperiment(BaseExperiment):
             phi = 0
         if B is None:
             B = 0.5
-        p0 = [A, T2star, f, phi, B]
+        p0 = {'amplitude':A, 't2star':T2star, 'f_guess':f, 'phi_guess':phi, 'B_guess':B}
         A_bounds = [-0.5, 1.5]
-        T2Star_bounds = [0, np.inf]
+        t2star_bounds = [0, np.inf]
         f_bounds = [0.5 * f, 1.5 * f]
         phi_bounds = [0, 2 * np.pi]
         B_bounds = [-0.5, 1.5]
-        bounds = (A_bounds, T2Star_bounds, f_bounds, phi_bounds, B_bounds)
-        print(p0)
-        print(bounds)
+        #bounds = {'amplitude':A_bounds, 't2star':t2star_bounds,
+        #'f_guess':f_bounds, 'phi_guess':phi_bounds, 'B_guess':B_bounds}
+        bounds=([A_bounds[0], t2star_bounds[0], f_bounds[0], phi_bounds[0], B_bounds[0]],
+                [A_bounds[1], t2star_bounds[1], f_bounds[1], phi_bounds[1], B_bounds[1]])
+        #print(p0)
+        #print(bounds)
         return p0, bounds
 
 
