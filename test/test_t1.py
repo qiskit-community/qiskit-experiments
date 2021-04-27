@@ -20,7 +20,7 @@ import numpy as np
 from qiskit.providers import BaseBackend
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
-from qiskit_experiments import ExperimentData
+from qiskit.providers.experiment import ExperimentDataV1
 from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T1Experiment, T1Analysis
 

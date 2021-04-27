@@ -16,7 +16,7 @@ Base analysis class.
 from abc import ABC, abstractmethod
 
 from qiskit.exceptions import QiskitError
-from .experiment_data import ExperimentData, AnalysisResult
+from qiskit.providers.experiment import AnalysisResult, ExperimentData
 
 
 class BaseAnalysis(ABC):

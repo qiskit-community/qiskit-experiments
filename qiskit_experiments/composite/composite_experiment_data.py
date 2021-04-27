@@ -14,7 +14,7 @@ Composite Experiment data class.
 """
 
 from qiskit.result import marginal_counts
-from qiskit_experiments.experiment_data import ExperimentData
+from qiskit.providers.experiment import ExperimentData
 
 
 class CompositeExperimentData(ExperimentData):

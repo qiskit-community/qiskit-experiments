@@ -20,8 +20,8 @@ from qiskit.circuit import QuantumCircuit
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis
-from qiskit_experiments import AnalysisResult
 from .analysis_functions import exp_fit_fun, curve_fit_wrapper
+from qiskit.providers.experiment import AnalysisResultV1
 
 
 class T1Analysis(BaseAnalysis):
@@ -38,7 +38,7 @@ class T1Analysis(BaseAnalysis):
         amplitude_bounds=None,
         offset_bounds=None,
         **kwargs,
-    ) -> Tuple[AnalysisResult, None]:
+    ) -> Tuple[AnalysisResultV1, None]:
         """
         Calculate T1
 
@@ -56,8 +56,8 @@ class T1Analysis(BaseAnalysis):
             The analysis result with the estimated T1
         """
 
-        circuit_unit = experiment_data._data[0]["metadata"]["unit"]
-        dt_factor_in_sec = experiment_data._data[0]["metadata"].get("dt_factor_in_sec", None)
+        circuit_unit = experiment_data.data(0)["metadata"]["unit"]
+        dt_factor_in_sec = experiment_data.data(0)["metadata"].get("dt_factor_in_sec", None)
         if dt_factor_in_sec is None:
             dt_factor_in_microsec = 1
             result_unit = circuit_unit
@@ -70,7 +70,7 @@ class T1Analysis(BaseAnalysis):
         means = np.zeros(size, dtype=float)
         stddevs = np.zeros(size, dtype=float)
 
-        for i, circ in enumerate(experiment_data._data):
+        for i, circ in enumerate(experiment_data.data()):
             delays[i] = circ["metadata"]["delay"] * dt_factor_in_microsec
             count0 = circ["counts"].get("0", 0)
             count1 = circ["counts"].get("1", 0)

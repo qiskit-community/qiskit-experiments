@@ -19,7 +19,7 @@ from numbers import Integral
 from qiskit import transpile, assemble
 from qiskit.exceptions import QiskitError
 
-from .experiment_data import ExperimentData
+from qiskit.providers.experiment import ExperimentDataV1
 
 
 _TRANSPILE_OPTIONS = {
@@ -57,7 +57,7 @@ class BaseExperiment(ABC):
     __analysis_class__ = None
 
     # ExperimentData class for experiment
-    __experiment_data__ = ExperimentData
+    __experiment_data__ = ExperimentDataV1
 
     # Custom default transpiler options for experiment subclasses
     __transpile_defaults__ = {"optimization_level": 0}
@@ -89,7 +89,6 @@ class BaseExperiment(ABC):
             self._num_qubits = len(qubits)
             self._physical_qubits = tuple(qubits)
             if self._num_qubits != len(set(self._physical_qubits)):
-                print(self._num_qubits, self._physical_qubits)
                 raise QiskitError("Duplicate qubits in physical qubits list.")
 
         # Store options and values
@@ -113,7 +112,7 @@ class BaseExperiment(ABC):
 
         # Create new experiment data
         if experiment_data is None:
-            experiment_data = self.__experiment_data__(self)
+            experiment_data = self.__experiment_data__(backend, self._type)
 
         # Filter kwargs
         run_options = self.__run_defaults__.copy()
@@ -230,3 +229,4 @@ class BaseExperiment(ABC):
         circuits = transpile(circuits, backend=backend, **transpile_options)
 
         return circuits
+

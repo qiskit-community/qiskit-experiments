@@ -14,9 +14,6 @@
 
 from .version import __version__
 
-# Base result classes
-from .experiment_data import ExperimentData, AnalysisResult
-
 # Experiment modules
 from . import composite
 from . import characterization
