@@ -44,12 +44,11 @@ ParameterKey = namedtuple("ParameterKey", ["schedule", "parameter", "qubits"])
 
 class Calibrations:
     r"""
-    A class to manage schedules with calibrated parameter values.
-    Schedules are stored in a dict and are intended to be fully parameterized,
-    including the index of the channels. The parameter values are stored in a
-    dict where parameters are keys. This class supports:
-    - having different schedules share parameters
-    - allows default schedules for qubits that can be overridden of specific qubits.
+    A class to manage schedules with calibrated parameter values. Schedules are
+    intended to be fully parameterized, including the index of the channels.
+    This class:
+    - supports having different schedules share parameters
+    - allows default schedules for qubits that can be overridden for specific qubits.
 
     Parametric channel naming convention.
     Channels must be name according to a predefined pattern so that self can resolve
