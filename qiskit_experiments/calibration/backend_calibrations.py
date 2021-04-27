@@ -37,8 +37,8 @@ class BackendCalibrations(Calibrations):
         super().__init__(backend.configuration()._control_channels)
 
         # Use the same naming convention as in backend.defaults()
-        self.qubit_freq = Parameter("qubit_freq_est")
-        self.meas_freq = Parameter("meas_freq_est")
+        self.qubit_freq = Parameter("qubit_lo_freq")
+        self.meas_freq = Parameter("meas_lo_freq")
         self._register_parameter(self.qubit_freq)
         self._register_parameter(self.meas_freq)
 
