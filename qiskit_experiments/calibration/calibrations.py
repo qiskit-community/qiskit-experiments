@@ -397,9 +397,7 @@ class Calibrations:
             raise CalibrationError(msg)
 
         # 5) Return the most recent parameter.
-        candidates.sort(key=lambda x: x.date_time)
-
-        return candidates[-1].value
+        return max(candidates, key=lambda x: x.date_time).value
 
     def get_schedule(
         self,
