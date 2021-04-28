@@ -111,6 +111,7 @@ class TestCurveFitting(QiskitTestCase):
 
     def test_mean_xy_data(self):
         """Test mean_xy_data function"""
+        # pylint: disable=unbalanced-tuple-unpacking
         x = np.array([1, 1, 1, 2, 2, 2, 2, 3, 3, 4, 5, 5, 5, 5])
         y = np.array([1, 2, 3, 8, 10, 50, 60, 10, 11, 17, 10, 10, 10, 10])
         x_mean, y_mean, y_sigma = mean_xy_data(x, y, method="sample")
