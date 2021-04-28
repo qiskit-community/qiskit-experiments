@@ -64,13 +64,13 @@ class TestCalibrationsBasic(QiskitTestCase):
     def test_setup(self):
         """Test that the initial setup behaves as expected."""
         expected = {ParameterKey("xp", "amp", None), ParameterKey("xm", "amp", None)}
-        self.assertEqual(self.cals.parameters[(self.amp_xp, hash(self.amp_xp))], expected)
+        self.assertEqual(self.cals.parameters[self.amp_xp], expected)
 
         expected = {ParameterKey("x90p", "amp", None)}
-        self.assertEqual(self.cals.parameters[(self.amp_x90p, hash(self.amp_x90p))], expected)
+        self.assertEqual(self.cals.parameters[self.amp_x90p], expected)
 
         expected = {ParameterKey("y90p", "amp", None)}
-        self.assertEqual(self.cals.parameters[(self.amp_y90p, hash(self.amp_y90p))], expected)
+        self.assertEqual(self.cals.parameters[self.amp_y90p], expected)
 
         expected = {
             ParameterKey("xp", "β", None),
@@ -78,7 +78,7 @@ class TestCalibrationsBasic(QiskitTestCase):
             ParameterKey("x90p", "β", None),
             ParameterKey("y90p", "β", None),
         }
-        self.assertEqual(self.cals.parameters[(self.beta, hash(self.beta))], expected)
+        self.assertEqual(self.cals.parameters[self.beta], expected)
 
         expected = {
             ParameterKey("xp", "σ", None),
@@ -86,7 +86,7 @@ class TestCalibrationsBasic(QiskitTestCase):
             ParameterKey("x90p", "σ", None),
             ParameterKey("y90p", "σ", None),
         }
-        self.assertEqual(self.cals.parameters[(self.sigma, hash(self.sigma))], expected)
+        self.assertEqual(self.cals.parameters[self.sigma], expected)
 
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.2)
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xm"), 0.2)
@@ -299,13 +299,13 @@ class TestCalibrationDefaults(QiskitTestCase):
             pulse.play(Gaussian(160, self.amp_xp/2, self.sigma), self.drive)
 
         # Check that beta is in the mapping
-        self.assertEqual(self.cals.parameters[(self.beta, hash(self.beta))],
+        self.assertEqual(self.cals.parameters[self.beta],
                          {ParameterKey(schedule='xp', parameter='β', qubits=(3,))})
 
         self.cals.add_schedule(sched2, (3,))
 
         # Check that beta no longer maps to a schedule
-        self.assertEqual(self.cals.parameters[(self.beta, hash(self.beta))], set())
+        self.assertEqual(self.cals.parameters[self.beta], set())
 
     def test_parameter_filtering(self):
         """Test that we can properly filter parameter values."""

@@ -97,6 +97,11 @@ class Calibrations:
 
         self._schedules = {}
 
+        # A variable to store all parameter hashes encountered and present them as ordered
+        # indices to the user.
+        self._hash_map = {}
+        self._parameter_counter = 0
+
     def add_schedule(self, schedule: Union[Schedule, ScheduleBlock], qubits: Tuple = None):
         """
         Add a schedule and register its parameters.
@@ -177,6 +182,10 @@ class Calibrations:
                 be None which allows the calibration to accommodate, e.g. qubit frequencies.
             qubits: The qubits for which to register the parameter.
         """
+        if parameter not in self._hash_map:
+            self._hash_map[parameter] = self._parameter_counter
+            self._parameter_counter += 1
+
         sched_name = schedule.name if schedule else None
         key = ParameterKey(sched_name, parameter.name, qubits)
         self._parameter_map[key] = parameter
@@ -190,11 +199,7 @@ class Calibrations:
         the parameter keys. Parameters that are not attached to a schedule will have None in place
         of a schedule name.
         """
-        parameters = {}
-        for param, key in self._parameter_map_r.items():
-            parameters[(param, hash(param))] = key
-
-        return parameters
+        return self._parameter_map_r
 
     def calibration_parameter(
         self, parameter_name: str, qubits: Tuple[int, ...] = None, schedule_name: str = None
@@ -680,15 +685,15 @@ class Calibrations:
         """
 
         # Write the parameter configuration.
-        header_keys = ["parameter.name", "hash(parameter)", "schedule", "qubits"]
+        header_keys = ["parameter.name", "parameter unique id", "schedule", "qubits"]
         body = []
 
         for parameter, keys in self.parameters.items():
             for key in keys:
                 body.append(
                     {
-                        "parameter.name": parameter[0].name,
-                        "hash(parameter)": parameter[1],
+                        "parameter.name": parameter.name,
+                        "parameter unique id": self._hash_map[parameter],
                         "schedule": key.schedule,
                         "qubits": key.qubits,
                     }
