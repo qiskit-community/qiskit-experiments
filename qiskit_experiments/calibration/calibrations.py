@@ -140,13 +140,21 @@ class Calibrations:
             if isinstance(inst, Call):
                 self.add_schedule(inst.subroutine, qubits)
 
-        if len(param_names) != len(set(param_names)):
+        # Register parameters that are not indices.
+        # Do not register parameters that are in call instructions. These parameters
+        # will have been registered above.
+        params_to_register = set()
+        for _, inst in schedule.instructions:
+            if not isinstance(inst, Call):
+                for param in inst.parameters:
+                    if param not in param_indices:
+                        params_to_register.add(param)
+
+        if len(params_to_register) != len(set([param.name for param in params_to_register])):
             raise CalibrationError(f"Parameter names in {schedule.name} must be unique.")
 
-        # Register parameters that are not indices.
-        for param in schedule.parameters:
-            if param not in param_indices:
-                self._register_parameter(param, schedule, qubits)
+        for param in params_to_register:
+            self._register_parameter(param, schedule, qubits)
 
     def _clean_parameter_map(self, schedule_name: str, qubits: Tuple[int, ...] = None):
         """Clean the parameter to schedule mapping for the given schedule, parameter and qubits.

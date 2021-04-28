@@ -387,7 +387,7 @@ class TestControlChannels(QiskitTestCase):
         }
         self.cals = Calibrations(control_config=controls)
 
-        self.amp_cr = Parameter("amp_cr")
+        self.amp_cr = Parameter("amp")
         self.amp_rot = Parameter("amp_rot")
         self.amp = Parameter("amp")
         self.d0_ = DriveChannel(Parameter("ch0"))
@@ -419,15 +419,15 @@ class TestControlChannels(QiskitTestCase):
         self.cals.add_schedule(xp)
         self.cals.add_schedule(cr)
 
-        self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", None, "xp")
+        self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", schedule="xp")
         self.cals.add_parameter_value(ParameterValue(0.1, self.date_time), "amp", (3,), "xp")
-        self.cals.add_parameter_value(ParameterValue(0.3, self.date_time), "amp_cr", (3, 2), "cr")
+        self.cals.add_parameter_value(ParameterValue(0.3, self.date_time), "amp", (3, 2), "cr")
         self.cals.add_parameter_value(ParameterValue(0.2, self.date_time), "amp_rot", (3, 2), "cr")
         self.cals.add_parameter_value(ParameterValue(20, self.date_time), "w", (3, 2), "cr")
 
         # Reverse gate parameters
         self.cals.add_parameter_value(ParameterValue(0.15, self.date_time), "amp", (2,), "xp")
-        self.cals.add_parameter_value(ParameterValue(0.5, self.date_time), "amp_cr", (2, 3), "cr")
+        self.cals.add_parameter_value(ParameterValue(0.5, self.date_time), "amp", (2, 3), "cr")
         self.cals.add_parameter_value(ParameterValue(0.4, self.date_time), "amp_rot", (2, 3), "cr")
         self.cals.add_parameter_value(ParameterValue(30, self.date_time), "w", (2, 3), "cr")
 
