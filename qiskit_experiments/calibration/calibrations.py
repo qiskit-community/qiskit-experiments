@@ -400,10 +400,9 @@ class Calibrations:
         cutoff_date: datetime = None,
     ) -> Union[int, float, complex]:
         """
-        Retrieves the value of a parameter. 
-        
-        Parameters may be linked. get_parameter_value does the
-        following steps:
+        Retrieves the value of a parameter.
+
+        Parameters may be linked. get_parameter_value does the following steps:
         1) Retrieve the parameter object corresponding to (param, qubits, schedule)
         2) The values of this parameter may be stored under another schedule since
            schedules can share parameters. To deal we this a list of candidate keys
@@ -504,6 +503,7 @@ class Calibrations:
         qubits: Tuple[int, ...],
         free_params: List[str] = None,
         group: Optional[str] = "default",
+        cutoff_date: datetime = None,
     ) -> Schedule:
         """
         Get the schedule with the non-free parameters assigned to their values.
@@ -514,6 +514,10 @@ class Calibrations:
             free_params: The parameters that should remain unassigned.
             group: The calibration group from which to draw the
                 parameters. If not specifies this defaults to the 'default' group.
+            cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
+                generated after the cutoff date will be ignored. If the cutoff_date is None then
+                all parameters are considered. This allows users to discard more recent values that
+                may be erroneous.
 
         Returns:
             schedule: A copy of the template schedule with all parameters assigned
@@ -560,12 +564,16 @@ class Calibrations:
                     param = self._parameter_map[(key.schedule, key.parameter, None)]
                 else:
                     raise CalibrationError(
-                        f"Ill configured calibrations {key} is not present and has not default value."
+                        f"Bad calibrations {key} is not present and has no default value."
                     )
 
                 if param not in binding_dict:
                     binding_dict[param] = self.get_parameter_value(
-                        key.parameter, key.qubits, key.schedule, group=group
+                        key.parameter,
+                        key.qubits,
+                        key.schedule,
+                        group=group,
+                        cutoff_date=cutoff_date,
                     )
 
         return schedule.assign_parameters(binding_dict, inplace=False)
