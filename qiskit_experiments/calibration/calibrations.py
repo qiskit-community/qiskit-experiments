@@ -53,12 +53,15 @@ class Calibrations:
     - allows default schedules for qubits that can be overridden for specific qubits.
 
     Parametric channel naming convention.
-    Channels must be name according to a predefined pattern so that self can resolve
-    the channels and control channels when assigning values to the parametric channel
-    indices. This pattern is "^ch\d[.\d]*\${0,1}[\d]*$", examples of which include "ch0",
-    "ch1", "ch0.1", "ch0$", "ch2$3", and "ch1.0.3$2". The "." delimiter is used to
-    specify the different qubits when looking for control channels.
-    The optional $ delimiter is used to specify which control channel to use
+    Parametrized channel indices must be named according to a predefined pattern so that
+    self can resolve the channels and control channels when assigning values to the parametric
+    channel indices. A channel must have a name that starts with `ch` followed by an integer.
+    For control channels this integer can be followed by a sequence `.integer`.
+    Optionally, the name can end with `$integer` to specify the index of a control
+    for the case when a set of qubits share multiple control channels. Example of
+    valid channel names includes "ch0", "ch1", "ch0.1", "ch0$", "ch2$3", and "ch1.0.3$2".
+    The "." delimiter is used to specify the different qubits when looking for control
+    channels. The optional $ delimiter is used to specify which control channel to use
     if several control channels work together on the same qubits. For example, if the
     control channel configuration is {(3,2): [ControlChannel(3), ControlChannel(12)]}
     then given qubits (2, 3) the name "ch1.0$1" will resolve to ControlChannel(12) while
