@@ -108,9 +108,9 @@ class T1Analysis(BaseAnalysis):
             }
         )
 
+        analysis_result["fit"]["circuit_unit"] = unit
         if unit == "dt":
             analysis_result["fit"]["dt"] = conversion_factor
-            analysis_result["fit"]["circuit_unit"] = unit
 
         return analysis_result, None
 
