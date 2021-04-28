@@ -47,11 +47,11 @@ def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
 
 
 def mean_xy_data(
-        xdata: np.ndarray,
-        ydata: np.ndarray,
-        sigma: Optional[np.ndarray] = None,
-        series: Optional[np.ndarray] = None,
-        method: str = "sample"
+    xdata: np.ndarray,
+    ydata: np.ndarray,
+    sigma: Optional[np.ndarray] = None,
+    series: Optional[np.ndarray] = None,
+    method: str = "sample",
 ) -> Tuple[np.ndarray]:
     r"""Return (x, y_mean, sigma) data.
 
@@ -89,7 +89,7 @@ def mean_xy_data(
         raise QiskitError(
             "The inverse-weighted variance method cannot be used with" " `sigma=None`"
         )
-    if not method in ["sample", "iwv"]:
+    if method not in ["sample", "iwv"]:
         raise QiskitError(f"Unsupported method {method}")
     xseries = series if series is not None else np.zeros(xdata.size)
     x_keys = np.unique(np.column_stack((xdata, xseries)), axis=0)
