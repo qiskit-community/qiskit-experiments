@@ -65,7 +65,7 @@ class Calibrations:
     if several control channels work together on the same qubits. For example, if the
     control channel configuration is {(3,2): [ControlChannel(3), ControlChannel(12)]}
     then given qubits (2, 3) the name "ch1.0$1" will resolve to ControlChannel(12) while
-    "ch1.0$0" will resolve to ControlChannel(3).
+    "ch1.0$0" will resolve to ControlChannel(3). A channel can only have one parameter.
 
     Parameter naming restriction.
     Each parameter must have a unique name within each schedule. For example, it is
