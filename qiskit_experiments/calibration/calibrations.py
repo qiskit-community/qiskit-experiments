@@ -40,6 +40,7 @@ from qiskit_experiments.calibration.exceptions import CalibrationError
 from qiskit_experiments.calibration.parameter_value import ParameterValue
 
 ParameterKey = namedtuple("ParameterKey", ["schedule", "parameter", "qubits"])
+ScheduleKey = namedtuple("ScheduleKey", ["schedule", "qubits"])
 
 
 class Calibrations:
@@ -119,7 +120,7 @@ class Calibrations:
                         f"Parameterized channel must correspond to {self.__channel_pattern__}"
                     )
 
-        self._schedules[(schedule.name, qubits)] = schedule
+        self._schedules[ScheduleKey(schedule.name, qubits)] = schedule
 
         param_names = [param.name for param in schedule.parameters]
 
@@ -227,7 +228,7 @@ class Calibrations:
         param_name = param.name if isinstance(param, Parameter) else param
         sched_name = schedule.name if isinstance(schedule, Schedule) else schedule
 
-        registered_schedules = set(key[0] for key in self._schedules)
+        registered_schedules = set(key.schedule for key in self._schedules)
 
         if sched_name and sched_name not in registered_schedules:
             raise CalibrationError(f"Schedule named {sched_name} was never registered.")
@@ -426,9 +427,9 @@ class Calibrations:
                 not be found.
         """
         if (name, qubits) in self._schedules:
-            schedule = self._schedules[(name, qubits)]
+            schedule = self._schedules[ScheduleKey(name, qubits)]
         elif (name, None) in self._schedules:
-            schedule = self._schedules[(name, None)]
+            schedule = self._schedules[ScheduleKey(name, None)]
         else:
             raise CalibrationError(f"Schedule {name} is not defined for qubits {qubits}.")
 
@@ -681,7 +682,7 @@ class Calibrations:
         schedules = []
         header_keys = ["name", "qubits", "schedule"]
         for key, sched in self._schedules.items():
-            schedules.append({"name": key[0], "qubits": key[1], "schedule": str(sched)})
+            schedules.append({"name": key.schedule, "qubits": key.qubits, "schedule": str(sched)})
 
         with open("schedules.csv", "w", newline="") as output_file:
             dict_writer = csv.DictWriter(output_file, header_keys)
