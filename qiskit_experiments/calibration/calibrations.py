@@ -545,7 +545,7 @@ class Calibrations:
 
         # The following code allows us to get the keys when the schedule has call instructions.
         # We cannot inline the subroutines yet because we would lose the name of the subroutines.
-        parameter_keys = Calibrations.get_parameter_keys(schedule, set(), binding_dict, qubits)
+        parameter_keys = Calibrations._get_parameter_keys(schedule, set(), binding_dict, qubits)
 
         # Now that we have the parameter keys we must inline all call subroutines.
         schedule = inline_subroutines(schedule)
@@ -579,7 +579,7 @@ class Calibrations:
         return schedule.assign_parameters(binding_dict, inplace=False)
 
     @staticmethod
-    def get_parameter_keys(
+    def _get_parameter_keys(
         schedule: Schedule, keys: Set, binding_dict: Dict[Parameter, int], qubits: Tuple[int, ...]
     ):
         """
@@ -634,7 +634,7 @@ class Calibrations:
 
             if isinstance(inst, Call):
                 sched_ = inst.subroutine.assign_parameters(binding_dict, inplace=False)
-                keys = Calibrations.get_parameter_keys(sched_, keys, binding_dict, qubits_)
+                keys = Calibrations._get_parameter_keys(sched_, keys, binding_dict, qubits_)
 
             else:
                 for param in inst.parameters:
