@@ -52,6 +52,8 @@ class TestCalibrationsBasic(QiskitTestCase):
         for sched in [xp, x90p, y90p, xm]:
             self.cals.add_schedule(sched)
 
+        self.xm = xm
+
         # Add some parameter values.
         self.date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
 
@@ -92,6 +94,34 @@ class TestCalibrationsBasic(QiskitTestCase):
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xm"), 0.2)
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "x90p"), 0.1)
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "y90p"), 0.08)
+
+    def test_remove_schedule(self):
+        """Test that we can easily remove a schedule."""
+
+        self.assertEqual(len(self.cals.schedules()), 4)
+
+        self.cals.remove_schedule(self.xm)
+
+        # Removing xm should remove the schedule but not the parameters as they are shared.
+        self.assertEqual(len(self.cals.schedules()), 3)
+        for param in [self.sigma, self.amp_xp, self.amp_x90p, self.amp_y90p, self.beta]:
+            self.assertTrue(param in self.cals.parameters)
+
+        # Add a schedule with a different parameter and then remove it
+        with pulse.build(name="error") as sched:
+            pulse.play(Gaussian(160, Parameter("xyz"), 40), DriveChannel(Parameter("ch0")))
+
+        self.cals.add_schedule(sched)
+
+        self.assertEqual(len(self.cals.schedules()), 4)
+        self.assertEqual(len(self.cals.parameters), 6)
+
+        self.cals.remove_schedule(sched)
+
+        self.assertEqual(len(self.cals.schedules()), 3)
+        self.assertEqual(len(self.cals.parameters), 5)
+        for param in [self.sigma, self.amp_xp, self.amp_x90p, self.amp_y90p, self.beta]:
+            self.assertTrue(param in self.cals.parameters)
 
     def test_parameter_dependency(self):
         """Check that two schedules that share the same parameter are simultaneously updated."""

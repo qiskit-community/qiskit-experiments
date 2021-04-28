@@ -183,6 +183,22 @@ class Calibrations:
         for param in params_to_register:
             self._register_parameter(param, schedule, qubits)
 
+    def remove_schedule(self, schedule: Union[Schedule, ScheduleBlock], qubits: Tuple = None):
+        """
+        Allows users to remove a schedule from the calibrations. The history of the parameters
+        will remain in the calibrations.
+
+        Args:
+            schedule: The schedule to remove.
+            qubits: The qubits for which to remove the schedules. If None is given then this
+                schedule is the default schedule for all qubits.
+        """
+        if ScheduleKey(schedule.name, qubits) in self._schedules:
+            del self._schedules[ScheduleKey(schedule.name, qubits)]
+
+        # Clean the parameter to schedule mapping.
+        self._clean_parameter_map(schedule.name, qubits)
+
     def _clean_parameter_map(self, schedule_name: str, qubits: Tuple[int, ...] = None):
         """Clean the parameter to schedule mapping for the given schedule, parameter and qubits.
 
@@ -191,7 +207,7 @@ class Calibrations:
             qubits: The qubits to which this schedule applies.
 
         """
-        keys_to_remove = []
+        keys_to_remove = []  # of the form (schedule.name, parameter.name, qubits)
         for key in self._parameter_map.keys():
             if key.schedule == schedule_name and key.qubits == qubits:
                 keys_to_remove.append(key)
@@ -199,9 +215,19 @@ class Calibrations:
         for key in keys_to_remove:
             del self._parameter_map[key]
 
+            # Key set is a set of tuples (schedule.name, parameter.name, qubits)
             for param, key_set in self._parameter_map_r.items():
                 if key in key_set:
                     key_set.remove(key)
+
+        # Remove entries that do not point to at least one (schedule.name, parameter.name, qubits)
+        keys_to_delete = []
+        for param, key_set in self._parameter_map_r.items():
+            if not key_set:
+                keys_to_delete.append(param)
+
+        for key in keys_to_delete:
+            del self._parameter_map_r[key]
 
     def _register_parameter(
         self, parameter: Parameter, schedule: Schedule = None, qubits: Tuple = None
