@@ -47,8 +47,8 @@ class DiscriminatorAnalysis(BaseAnalysis):
             
             if plot:
                 xx, yy = np.meshgrid(
-                    np.arange(min(_ydata[:,0]),max(_ydata[:,0]), 0.01),
-                    np.arange(min(_ydata[:,1]),max(_ydata[:,1]), 0.01)
+                    np.arange(min(_ydata[:,0]),max(_ydata[:,0]), (max(_ydata[:,0])-min(_ydata[:,0]))/500),
+                    np.arange(min(_ydata[:,1]),max(_ydata[:,1]), (max(_ydata[:,1])-min(_ydata[:,1]))/500)
                 )
                 ax[q].scatter(_ydata[:,0], _ydata[:,1], c=_xdata)
                 zz = discriminator[q].predict(np.c_[xx.ravel(), yy.ravel()])
@@ -56,7 +56,7 @@ class DiscriminatorAnalysis(BaseAnalysis):
                 ax[q].contourf(xx, yy, zz, alpha=0.2)
                 ax[q].set_xlabel("I data")
                 ax[q].set_ylabel("Q data")
-            score = discriminator[q].score(_ydata, _xdata)
+            score[q] = discriminator[q].score(_ydata, _xdata)
 
         if discriminator_type == "LDA":
             analysis_result = AnalysisResult(
