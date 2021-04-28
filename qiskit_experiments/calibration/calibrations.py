@@ -400,7 +400,9 @@ class Calibrations:
         cutoff_date: datetime = None,
     ) -> Union[int, float, complex]:
         """
-        Retrieves the value of a parameter. Parameters may be linked. get_parameter_value does the
+        Retrieves the value of a parameter. 
+        
+        Parameters may be linked. get_parameter_value does the
         following steps:
         1) Retrieve the parameter object corresponding to (param, qubits, schedule)
         2) The values of this parameter may be stored under another schedule since
