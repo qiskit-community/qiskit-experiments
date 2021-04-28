@@ -72,6 +72,30 @@ class Calibrations:
     acceptable to have a parameter named 'amp' in the schedule 'xp' and a different
     parameter instance named 'amp' in the schedule named 'xm'. It is not acceptable
     to have two parameters named 'amp' in the same schedule.
+
+    The code block below illustrates the creation of a template schedule for a cross-
+    resonance gate.
+
+    .. code-block:: python
+
+        amp_cr = Parameter("amp")
+        amp = Parameter("amp")
+        d0 = DriveChannel(Parameter("ch0"))
+        c1 = ControlChannel(Parameter("ch0.1"))
+        sigma = Parameter("σ")
+        width = Parameter("w")
+        dur1 = Parameter("duration")
+        dur2 = Parameter("duration")
+
+        with pulse.build(name="xp") as xp:
+            pulse.play(Gaussian(dur1, amp, sigma), d0)
+
+        with pulse.build(name="cr") as cr:
+            with pulse.align_sequential():
+                    pulse.play(GaussianSquare(dur2, amp_cr, sigma, width), c1)
+                    pulse.call(xp)
+                    pulse.play(GaussianSquare(dur2, amp_cr, sigma, width), c1)
+                    pulse.call(xp)
     """
 
     # The channel indices need to be parameterized following this regex.
@@ -134,9 +158,6 @@ class Calibrations:
 
         # Add the schedule.
         self._schedules[ScheduleKey(schedule.name, qubits)] = schedule
-
-        # Register the schedule
-        param_names = [param.name for param in schedule.parameters]
 
         # Register the subroutines in call instructions
         for _, inst in schedule.instructions:
