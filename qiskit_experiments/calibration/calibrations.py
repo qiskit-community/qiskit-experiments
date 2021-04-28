@@ -141,12 +141,15 @@ class Calibrations:
         Raises:
             CalibrationError: If the parameterized channel index is not formatted
                 following index1.index2... or if several parameters in the same schedule
-                have the same name.
+                have the same name or if a channel is parameterized by more than one parameter.
         """
         # check that channels, if parameterized, have the proper name format.
         param_indices = set()
         for ch in schedule.channels:
             if isinstance(ch.index, Parameter):
+                if len(ch.index.parameters) != 1:
+                    raise CalibrationError(f"Channel {ch} can only have one parameter.")
+
                 param_indices.add(ch.index)
                 if re.compile(self.__channel_pattern__).match(ch.index.name) is None:
                     raise CalibrationError(
