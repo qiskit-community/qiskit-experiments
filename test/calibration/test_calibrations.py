@@ -55,7 +55,7 @@ class TestCalibrationsBasic(QiskitTestCase):
         # Add some parameter values.
         self.date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
 
-        self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", None, "xp")
+        self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", schedule="xp")
         self.cals.add_parameter_value(ParameterValue(0.2, self.date_time), "amp", (3,), "xp")
         self.cals.add_parameter_value(ParameterValue(0.1, self.date_time), "amp", (3,), "x90p")
         self.cals.add_parameter_value(ParameterValue(0.08, self.date_time), "amp", (3,), "y90p")
@@ -254,7 +254,7 @@ class TestCalibrationDefaults(QiskitTestCase):
 
         # Check that updating sigma updates both schedules.
         later_date_time = datetime.strptime("16/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
-        self.cals.add_parameter_value(ParameterValue(50, later_date_time), "σ", None, "xp")
+        self.cals.add_parameter_value(ParameterValue(50, later_date_time), "σ", schedule="xp")
 
         xp0 = self.cals.get_schedule("xp", (0,))
         xp3 = self.cals.get_schedule("xp", (3,))
@@ -290,6 +290,50 @@ class TestCalibrationDefaults(QiskitTestCase):
         amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,), (0,)])
         self.assertEqual(len(amp_values), 2)
 
+
+class TestInstructions(QiskitTestCase):
+    """Class to test that instructions like Shift and Set Phase/Frequency are properly managed."""
+
+    def setUp(self):
+        """Create the setting to test."""
+        self.phase = Parameter("φ")
+        self.freq = Parameter("ν")
+        self.d0_ = DriveChannel(Parameter("ch0"))
+
+        with pulse.build(name="xp") as xp:
+            pulse.play(Gaussian(160, 0.5, 40), self.d0_)
+
+        with pulse.build(name="xp12") as xp12:
+            pulse.shift_phase(self.phase, self.d0_)
+            pulse.set_frequency(self.freq, self.d0_)
+            pulse.play(Gaussian(160, 0.5, 40), self.d0_)
+
+        # To make things more interesting we will use a call.
+        with pulse.build(name="xp02") as xp02:
+            pulse.call(xp)
+            pulse.call(xp12)
+
+        self.cals = Calibrations()
+        self.cals.add_schedule(xp02)
+
+        self.date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
+
+        self.cals.add_parameter_value(ParameterValue(1.57, self.date_time), "φ", (3,), "xp12")
+        self.cals.add_parameter_value(ParameterValue(200, self.date_time), "ν", (3,), "xp12")
+
+    def test_call_registration(self):
+        """Check that by registering the call we registered three schedules."""
+
+        self.assertEqual(len(self.cals.schedules()), 3)
+
+    def test_instructions(self):
+        """Check that we get a properly assigned schedule."""
+
+        sched = self.cals.get_schedule("xp02", (3, ))
+
+        self.assertTrue(isinstance(sched.instructions[0][1], pulse.Play))
+        self.assertEqual(sched.instructions[1][1].phase, 1.57)
+        self.assertEqual(sched.instructions[2][1].frequency, 200)
 
 class TestControlChannels(QiskitTestCase):
     """Test more complex schedules such as an echoed cross-resonance."""

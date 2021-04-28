@@ -23,6 +23,7 @@ from qiskit.circuit import Gate
 from qiskit import QuantumCircuit
 from qiskit.pulse import (
     Schedule,
+    ScheduleBlock,
     DriveChannel,
     ControlChannel,
     MeasureChannel,
@@ -96,7 +97,7 @@ class Calibrations:
 
         self._schedules = {}
 
-    def add_schedule(self, schedule: Schedule, qubits: Tuple = None):
+    def add_schedule(self, schedule: Union[Schedule, ScheduleBlock], qubits: Tuple = None):
         """
         Add a schedule and register its parameters.
 
@@ -122,7 +123,13 @@ class Calibrations:
 
         self._schedules[ScheduleKey(schedule.name, qubits)] = schedule
 
+        # Register the schedule
         param_names = [param.name for param in schedule.parameters]
+
+        # Register the subroutines in call instructions
+        for _, inst in schedule.instructions:
+            if isinstance(inst, Call):
+                self.add_schedule(inst.subroutine, qubits)
 
         if len(param_names) != len(set(param_names)):
             raise CalibrationError(f"Parameter names in {schedule.name} must be unique.")
@@ -525,25 +532,13 @@ class Calibrations:
 
         for _, inst in schedule.instructions:
 
-            if isinstance(inst, Play):
-                for params in inst.pulse.parameters.values():
-                    if isinstance(params, ParameterExpression):
-                        for param in params.parameters:
-                            keys.add(ParameterKey(schedule.name, param.name, qubits_))
-
-            if isinstance(inst, (ShiftPhase, SetPhase)):
-                if isinstance(inst.phase, ParameterExpression):
-                    for param in inst.phase.parameters:
-                        keys.add(ParameterKey(schedule.name, param.name, (inst.channel.index,)))
-
-            if isinstance(inst, (ShiftFrequency, SetFrequency)):
-                if isinstance(inst.frequency, ParameterExpression):
-                    for param in inst.frequency.parameters:
-                        keys.add(ParameterKey(schedule.name, param.name, (inst.channel.index,)))
-
             if isinstance(inst, Call):
                 sched_ = inst.subroutine.assign_parameters(binding_dict, inplace=False)
                 keys = Calibrations.get_parameter_keys(sched_, keys, binding_dict, qubits_)
+
+            else:
+                for param in inst.parameters:
+                    keys.add(ParameterKey(schedule.name, param.name, qubits_))
 
         return keys
 
