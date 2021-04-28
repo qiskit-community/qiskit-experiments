@@ -580,8 +580,11 @@ class Calibrations:
 
     @staticmethod
     def _get_parameter_keys(
-        schedule: Schedule, keys: Set, binding_dict: Dict[Parameter, int], qubits: Tuple[int, ...]
-    ):
+        schedule: Schedule,
+        keys: Set[ParameterKey],
+        binding_dict: Dict[Parameter, int],
+        qubits: Tuple[int, ...],
+    ) -> Set[ParameterKey]:
         """
         Recursive function to extract parameter keys from a schedule. The recursive
         behaviour is needed to handle Call instructions. Each time a Call is found
