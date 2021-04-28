@@ -50,12 +50,13 @@ class DiscriminatorAnalysis(BaseAnalysis):
                     np.arange(min(_ydata[:,0]),max(_ydata[:,0]), (max(_ydata[:,0])-min(_ydata[:,0]))/500),
                     np.arange(min(_ydata[:,1]),max(_ydata[:,1]), (max(_ydata[:,1])-min(_ydata[:,1]))/500)
                 )
-                ax[q].scatter(_ydata[:,0], _ydata[:,1], c=_xdata)
+                scatter=ax[q].scatter(_ydata[:,0], _ydata[:,1], c=_xdata)
                 zz = discriminator[q].predict(np.c_[xx.ravel(), yy.ravel()])
                 zz = np.array(zz).astype(float).reshape(xx.shape)
                 ax[q].contourf(xx, yy, zz, alpha=0.2)
                 ax[q].set_xlabel("I data")
                 ax[q].set_ylabel("Q data")
+                ax[q].legend(*scatter.legend_elements())
             score[q] = discriminator[q].score(_ydata, _xdata)
 
         if discriminator_type == "LDA":
