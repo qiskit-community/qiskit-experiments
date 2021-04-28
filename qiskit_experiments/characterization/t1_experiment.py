@@ -148,7 +148,7 @@ class T1Experiment(BaseExperiment):
         Args:
             qubit: the qubit whose T1 is to be estimated
             delays: delay times of the experiments
-            unit:Optional, unit of the duration. Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'.
+            unit: Optional, unit of the delay times. Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'.
             experiment_type: Optional, the experiment type string.
 
         Raises:
