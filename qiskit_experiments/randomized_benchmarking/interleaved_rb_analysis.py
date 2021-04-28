@@ -12,8 +12,8 @@
 """
 Interleaved RB analysis class.
 """
-import numpy as np
 from typing import Optional, List
+import numpy as np
 from qiskit_experiments.analysis.curve_fitting import (
     process_multi_curve_data,
     multi_curve_fit,
@@ -23,7 +23,6 @@ from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_scatter, p
 from qiskit_experiments.analysis.data_processing import (
     level2_probability,
     mean_xy_data,
-    filter_data,
 )
 from .rb_analysis import RBAnalysis
 
@@ -34,22 +33,23 @@ try:
 except ImportError:
     HAS_MATPLOTLIB = False
 
+
 class InterleavedRBAnalysis(RBAnalysis):
     """Interleaved RB Analysis class."""
 
+    # pylint: disable=invalid-name, unused-variable, unused-argument, attribute-defined-outside-init
     def _run_analysis(
-            self,
-            experiment_data,
-            p0: Optional[List[float]] = None,
-            plot: bool = True,
-            ax: Optional["AxesSubplot"] = None,
+        self,
+        experiment_data,
+        p0: Optional[List[float]] = None,
+        plot: bool = True,
+        ax: Optional["AxesSubplot"] = None,
     ):
         def data_processor(datum):
-            return level2_probability(datum, datum['metadata']['ylabel'])
+            return level2_probability(datum, datum["metadata"]["ylabel"])
 
         self._num_qubits = len(experiment_data.data[0]["metadata"]["qubits"])
-        series, x, y, sigma = process_multi_curve_data(experiment_data.data,
-                                                       data_processor)
+        series, x, y, sigma = process_multi_curve_data(experiment_data.data, data_processor)
         xdata, ydata, ydata_sigma, series = mean_xy_data(x, y, sigma, series)
 
         def fit_fun_standard(x, a, alpha_std, alpha_int, b):
@@ -58,21 +58,24 @@ class InterleavedRBAnalysis(RBAnalysis):
         def fit_fun_interleaved(x, a, alpha_std, alpha_int, b):
             return a * alpha_int ** x + b
 
-        std_idx = (series == 0)
+        std_idx = series == 0
         std_xdata = xdata[std_idx]
         std_ydata = ydata[std_idx]
         std_ydata_sigma = ydata_sigma[std_idx]
         p0_std = self._p0(std_xdata, std_ydata)
 
-        int_idx = (series == 1)
+        int_idx = series == 1
         int_xdata = xdata[int_idx]
         int_ydata = ydata[int_idx]
         int_ydata_sigma = ydata_sigma[int_idx]
         p0_int = self._p0(int_xdata, int_ydata)
 
-        p0 = (np.mean([p0_std[0], p0_int[0]]),
-              p0_std[1], p0_int[1],
-              np.mean([p0_std[2], p0_int[2]]))
+        p0 = (
+            np.mean([p0_std[0], p0_int[0]]),
+            p0_std[1],
+            p0_int[1],
+            np.mean([p0_std[2], p0_int[2]]),
+        )
 
         analysis_result = multi_curve_fit(
             [fit_fun_standard, fit_fun_interleaved],
@@ -81,7 +84,7 @@ class InterleavedRBAnalysis(RBAnalysis):
             ydata,
             p0,
             ydata_sigma,
-            bounds=([0, 0, 0, 0], [1, 1, 1, 1])
+            bounds=([0, 0, 0, 0], [1, 1, 1, 1]),
         )
 
         # Add EPC data
@@ -92,25 +95,27 @@ class InterleavedRBAnalysis(RBAnalysis):
 
         # Calculate epc_est (=r_c^est) - Eq. (4):
         epc_est = scale * (1 - alpha_c / alpha)
-         # Calculate the systematic error bounds - Eq. (5):
+        # Calculate the systematic error bounds - Eq. (5):
         systematic_err_1 = scale * (abs(alpha - alpha_c / alpha) + (1 - alpha))
-        systematic_err_2 = 2 * (nrb * nrb - 1) * (1 - alpha) / \
-                           (alpha * nrb * nrb) + 4 * (np.sqrt(1 - alpha)) * \
-                           (np.sqrt(nrb * nrb - 1)) / alpha
+        systematic_err_2 = (
+            2 * (nrb * nrb - 1) * (1 - alpha) / (alpha * nrb * nrb)
+            + 4 * (np.sqrt(1 - alpha)) * (np.sqrt(nrb * nrb - 1)) / alpha
+        )
         systematic_err = min(systematic_err_1, systematic_err_2)
         systematic_err_l = epc_est - systematic_err
         systematic_err_r = epc_est + systematic_err
 
         alpha_err_sq = (alpha_err / alpha) * (alpha_err / alpha)
         alpha_c_err_sq = (alpha_c_err / alpha_c) * (alpha_c_err / alpha_c)
-        epc_est_err = ((nrb - 1) / nrb) * (alpha_c / alpha) \
-                      * (np.sqrt(alpha_err_sq + alpha_c_err_sq))
+        epc_est_err = (
+            ((nrb - 1) / nrb) * (alpha_c / alpha) * (np.sqrt(alpha_err_sq + alpha_c_err_sq))
+        )
 
         analysis_result["EPC"] = epc_est
         analysis_result["EPC_err"] = epc_est_err
-        analysis_result['systematic_err'] = systematic_err
-        analysis_result['systematic_err_L'] = systematic_err_l
-        analysis_result['systematic_err_R'] = systematic_err_r
+        analysis_result["systematic_err"] = systematic_err
+        analysis_result["systematic_err_L"] = systematic_err_l
+        analysis_result["systematic_err_R"] = systematic_err_r
         analysis_result["plabels"] = ["A", "alpha", "alpha_c", "B"]
 
         if plot:
@@ -144,8 +149,7 @@ class InterleavedRBAnalysis(RBAnalysis):
             box_text = "\u03B1:{:.4f} \u00B1 {:.4f}".format(alpha, alpha_err)
             box_text += "\n\u03B1_c:{:.4f} \u00B1 {:.4f}".format(alpha_c, alpha_c_err)
             box_text += "\nEPC: {:.4f} \u00B1 {:.4f}".format(epc, epc_err)
-            bbox_props = dict(boxstyle="square,pad=0.3", fc="white", ec="black",
-                              lw=1)
+            bbox_props = dict(boxstyle="square,pad=0.3", fc="white", ec="black", lw=1)
             ax.text(
                 0.6,
                 0.9,

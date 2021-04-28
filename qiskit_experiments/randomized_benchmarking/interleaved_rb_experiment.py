@@ -14,7 +14,7 @@ Interleaved RB Experiment class.
 """
 from typing import Union, Iterable, Optional, List
 
-from numpy.random import Generator, default_rng
+from numpy.random import Generator
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
@@ -32,8 +32,7 @@ class InterleavedRBExperiment(RBExperiment):
 
     def __init__(
         self,
-        interleaved_element:
-        Union[QuantumCircuit, Instruction, Clifford],
+        interleaved_element: Union[QuantumCircuit, Instruction, Clifford],
         qubits: Union[int, Iterable[int]],
         lengths: Iterable[int],
         num_samples: int = 1,
@@ -42,7 +41,7 @@ class InterleavedRBExperiment(RBExperiment):
     ):
         """Interleaved randomized benchmarking experiment
         Args:
-            interleaved_element: the element to interleave, 
+            interleaved_element: the element to interleave,
                     given either as a group element or as an instruction/circuit
             qubits: the number of qubits or list of
                     physical qubits for the experiment.
@@ -61,22 +60,22 @@ class InterleavedRBExperiment(RBExperiment):
 
     def _sample_circuits(self, lengths, seed=None):
         circuits = []
-        for length in (lengths if self._full_sampling else [lengths[-1]]):
+        for length in lengths if self._full_sampling else [lengths[-1]]:
             elements = [random_clifford(self.num_qubits, seed=seed) for _ in range(length)]
             element_lengths = [len(elements)] if self._full_sampling else lengths
             std_circuits = self._generate_circuit(elements, element_lengths)
             for circuit in std_circuits:
-                circuit.metadata['series'] = 0
-                circuit.metadata['series_name'] = 'standard'
+                circuit.metadata["series"] = 0
+                circuit.metadata["series_name"] = "standard"
             circuits += std_circuits
 
             int_elements = self._interleave(elements)
             int_elements_lengths = [length * 2 for length in element_lengths]
             int_circuits = self._generate_circuit(int_elements, int_elements_lengths)
             for circuit in int_circuits:
-                circuit.metadata['series'] = 1
-                circuit.metadata['series_name'] = 'interleaved'
-                circuit.metadata['xval'] = circuit.metadata['xval'] // 2
+                circuit.metadata["series"] = 1
+                circuit.metadata["series_name"] = "interleaved"
+                circuit.metadata["xval"] = circuit.metadata["xval"] // 2
             circuits += int_circuits
         return circuits
 
@@ -86,7 +85,7 @@ class InterleavedRBExperiment(RBExperiment):
             element_list: The list of elements we add the interleaved element to
         Returns:
             The new list with the element interleaved
-            """
+        """
         new_element_list = []
         for element in element_list:
             new_element_list.append(element)
