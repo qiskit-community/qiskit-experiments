@@ -683,9 +683,6 @@ class Calibrations:
         data = []
 
         # Convert inputs to lists of strings
-        if parameters is not None:
-            parameters = {prm.name if isinstance(prm, Parameter) else prm for prm in parameters}
-
         if schedules is not None:
             schedules = {sdl.name if isinstance(sdl, Schedule) else sdl for sdl in schedules}
 
