@@ -261,7 +261,7 @@ class Calibrations:
         """
         if isinstance(chan.index, Parameter):
             if isinstance(chan, (DriveChannel, MeasureChannel)):
-                index = int(chan.index.name[2:].replace("ch", "").split("$")[0])
+                index = int(chan.index.name[2:].split("$")[0])
 
                 if len(qubits) < index:
                     raise CalibrationError(f"Not enough qubits given for channel {chan}.")
