@@ -282,7 +282,7 @@ class Calibrations:
                 if len(channel_index_parts) == 2:
                     control_index = int(channel_index_parts[1])
 
-                if len(chs_) < control_index:
+                if len(chs_) <= control_index:
                     raise CalibrationError(
                         f"Control channel index {control_index} not found for qubits {qubits}."
                     )
