@@ -587,8 +587,8 @@ class Calibrations:
             data: A list of dictionaries with all the schedules in it.
         """
         data = []
-        for context, sched in self._schedules.items():
-            data.append({"context": context, "schedule": sched, "parameters": sched.parameters})
+        for key, sched in self._schedules.items():
+            data.append({"qubits": key.qubits, "schedule": sched, "parameters": sched.parameters})
 
         return data
 
