@@ -8,6 +8,7 @@ from qiskit.circuit import QuantumCircuit
 from .discriminator_analysis import DiscriminatorAnalysis
 from typing import List, Optional, Union, Iterable
 
+
 class DiscriminatorExperiment(BaseExperiment):
     """Discriminator Experiment class"""
 
@@ -27,8 +28,7 @@ class DiscriminatorExperiment(BaseExperiment):
 
         super().__init__(qubits)
 
-    def circuits(self,
-            backend: Optional["Backend"] = None) -> List[QuantumCircuit]:
+    def circuits(self, backend: Optional["Backend"] = None) -> List[QuantumCircuit]:
         """Return a list of discriminator circuits.
         Args:
             backend (Backend): Optional, a backend object.
@@ -43,7 +43,7 @@ class DiscriminatorExperiment(BaseExperiment):
                 for qubit in range(self.num_qubits):
                     circ.x(qubit)
             circ.measure_all()
-            
+
             circ.metadata = {
                 "experiment_type": self._type,
                 "ylabel": self.num_qubits * str(label),

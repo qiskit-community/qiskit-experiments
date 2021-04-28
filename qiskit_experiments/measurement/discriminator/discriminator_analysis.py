@@ -9,12 +9,16 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticD
 
 try:
     from matplotlib import pyplot as plt
+
     HAS_MATPLOTLIB = True
 except ImportError:
     HAS_MATPLOTLIB = False
 
+
 class DiscriminatorAnalysis(BaseAnalysis):
-    def _run_analysis(self, experiment_data, discriminator_type="LDA", plot: bool = True, **options):
+    def _run_analysis(
+        self, experiment_data, discriminator_type="LDA", plot: bool = True, **options
+    ):
         """Run analysis on discriminator data.
         Args:
             experiment_data (ExperimentData): The experiment data to analyze.
@@ -26,10 +30,10 @@ class DiscriminatorAnalysis(BaseAnalysis):
                 AnalysisResult objects, and ``figures`` may be
                 None, a single figure, or a list of figures.
         """
-        
-        nqubits = len(experiment_data.data[0]['metadata']['ylabel'])
-        discriminator=[None] * nqubits
-        score=[None] * nqubits
+
+        nqubits = len(experiment_data.data[0]["metadata"]["ylabel"])
+        discriminator = [None] * nqubits
+        score = [None] * nqubits
         fig, ax = plt.subplots(nqubits)
         fig.tight_layout()
         if nqubits == 1:
@@ -37,20 +41,28 @@ class DiscriminatorAnalysis(BaseAnalysis):
 
         for q in range(nqubits):
             _xdata, _ydata = self._process_data(experiment_data, q)
-            
+
             if discriminator_type == "LDA":
                 discriminator[q] = LinearDiscriminantAnalysis()
             elif discriminator_type == "QDA":
                 discriminator[q] = QuadraticDiscriminantAnalysis()
-            
+
             discriminator[q].fit(_ydata, _xdata)
-            
+
             if plot:
                 xx, yy = np.meshgrid(
-                    np.arange(min(_ydata[:,0]),max(_ydata[:,0]), (max(_ydata[:,0])-min(_ydata[:,0]))/500),
-                    np.arange(min(_ydata[:,1]),max(_ydata[:,1]), (max(_ydata[:,1])-min(_ydata[:,1]))/500)
+                    np.arange(
+                        min(_ydata[:, 0]),
+                        max(_ydata[:, 0]),
+                        (max(_ydata[:, 0]) - min(_ydata[:, 0])) / 500,
+                    ),
+                    np.arange(
+                        min(_ydata[:, 1]),
+                        max(_ydata[:, 1]),
+                        (max(_ydata[:, 1]) - min(_ydata[:, 1])) / 500,
+                    ),
                 )
-                scatter=ax[q].scatter(_ydata[:,0], _ydata[:,1], c=_xdata)
+                scatter = ax[q].scatter(_ydata[:, 0], _ydata[:, 1], c=_xdata)
                 zz = discriminator[q].predict(np.c_[xx.ravel(), yy.ravel()])
                 zz = np.array(zz).astype(float).reshape(xx.shape)
                 ax[q].contourf(xx, yy, zz, alpha=0.2)
@@ -66,7 +78,7 @@ class DiscriminatorAnalysis(BaseAnalysis):
                     "coef": [d.coef_ for d in discriminator],
                     "intercept": [d.intercept_ for d in discriminator],
                     "score": score,
-                    "plt": ax
+                    "plt": ax,
                 }
             )
 
@@ -76,17 +88,25 @@ class DiscriminatorAnalysis(BaseAnalysis):
                     "discriminator": discriminator,
                     "rotations": [d.rotations_ for d in discriminator],
                     "score": score,
-                    "plt": ax
+                    "plt": ax,
                 }
             )
 
         return analysis_result, None
 
     def _process_data(self, experiment_data, qubit):
-        """Returns x and y data for discriminator on specific qubit.
-        """
-        xdata = np.array([int(experiment_data.data[0]['metadata']['ylabel'][qubit])] * len(experiment_data.data[0]['memory']))
-        ydata = experiment_data.data[0]['memory'][:,qubit,:]
-        xdata = np.concatenate((xdata, [int(experiment_data.data[1]['metadata']['ylabel'][qubit])] * len(experiment_data.data[1]['memory'])))
-        ydata = np.concatenate((ydata, experiment_data.data[1]['memory'][:,qubit,:]))
+        """Returns x and y data for discriminator on specific qubit."""
+        xdata = np.array(
+            [int(experiment_data.data[0]["metadata"]["ylabel"][qubit])]
+            * len(experiment_data.data[0]["memory"])
+        )
+        ydata = experiment_data.data[0]["memory"][:, qubit, :]
+        xdata = np.concatenate(
+            (
+                xdata,
+                [int(experiment_data.data[1]["metadata"]["ylabel"][qubit])]
+                * len(experiment_data.data[1]["memory"]),
+            )
+        )
+        ydata = np.concatenate((ydata, experiment_data.data[1]["memory"][:, qubit, :]))
         return xdata, ydata

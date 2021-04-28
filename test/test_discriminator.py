@@ -20,7 +20,11 @@ from qiskit_experiments import ExperimentData
 from qiskit.test import QiskitTestCase
 
 
-from qiskit_experiments.measurement.discriminator import DiscriminatorExperiment, DiscriminatorAnalysis
+from qiskit_experiments.measurement.discriminator import (
+    DiscriminatorExperiment,
+    DiscriminatorAnalysis,
+)
+
 
 class DiscriminatorBackend(BaseBackend):
     """
@@ -48,7 +52,9 @@ class DiscriminatorBackend(BaseBackend):
 
         super().__init__(configuration)
 
-    def sample_gaussian(self, centroid=np.array([0,0]), cov=np.array([[0.1,0],[0,0.1]]), size=1):
+    def sample_gaussian(
+        self, centroid=np.array([0, 0]), cov=np.array([[0.1, 0], [0, 0.1]]), size=1
+    ):
         """
         Draws random samples from a gaussian distribution.
         """
@@ -83,10 +89,12 @@ class DiscriminatorBackend(BaseBackend):
                 for op in circ.instructions:
                     qubit = op.qubits[0]
                     if op.name == "x":
-                        meas_res=1
+                        meas_res = 1
                     elif op.name == "measure":
                         # centroid is either (0,0) for |0> or (1,1) for |1>
-                        memory[i, op.memory[0]] = self.sample_gaussian(centroid=np.array([meas_res, meas_res]))
+                        memory[i, op.memory[0]] = self.sample_gaussian(
+                            centroid=np.array([meas_res, meas_res])
+                        )
                         clbits[op.memory[0]] = meas_res
 
                 clstr = ""
@@ -114,9 +122,4 @@ class TestDiscriminator(QiskitTestCase):
     def test_single_qubit(self):
         backend = DiscriminatorBackend()
         exp = DiscriminatorExperiment(1)
-        res = exp.run(
-            backend,
-            shots=10,
-            meas_level=1,
-            meas_return='single'
-        ).analysis_result(0)
+        res = exp.run(backend, shots=10, meas_level=1, meas_return="single").analysis_result(0)
