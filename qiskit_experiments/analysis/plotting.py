@@ -57,7 +57,7 @@ def plot_curve_fit(
     Wraps ``matplotlib.pyplot.plot``.
 
     Args:
-        func: the fit funcion for curve_fit.
+        func: the fit function for curve_fit.
         result: an AnalysisResult from curve_fit.
         confidence_interval: if True plot the confidence interval from popt_err.
         ax: Optional, a matplotlib axes to add the plot to.

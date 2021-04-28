@@ -106,15 +106,16 @@ class T2Backend(BaseBackend):
                     qubit = op.qubits[0]
 
                     if op.name == "delay":
-                        print("op.params[0] = " + str(op.params[0]))
+                        #print("op.params[0] = " + str(op.params[0]))
                         delay = op.params[0]
                         prob_plus[qubit] = \
                             self._amplitude[qubit] * np.exp(-delay / self._t2star[qubit]) * \
                             np.cos(2 * np.pi * self._f_guess[qubit] * delay + self._phi_guess[qubit]) + self._B_guess[qubit]
                         
                     if op.name == "measure":
-                        meas_res = np.random.binomial(1, prob_plus[qubit]
-                            #1, prob_plus * (1 - ro10[qubit]) + (1 - prob_plus) * ro01[qubit]
+                        # measure in |+> basis
+                        meas_res = np.random.binomial(
+                            1, prob_plus[qubit] * (1 - ro10[qubit]) + (1 - prob_plus[qubit]) * ro01[qubit]
                         )
                         clbits[op.memory[0]] = meas_res
 
@@ -139,65 +140,72 @@ class T2Backend(BaseBackend):
 
 class TestT2Star(QiskitTestCase):
     """ Test T2Star experiment"""
-    def atest_t2star_generate_circuits(self):
+    def test_t2star_generate_circuits(self):
         """
         Test T2Star experiment using a simulator.
         Currently only verifies that there is no exception,
         but does not verify accuracy of the estimate.
         """
         t2star = 10
+        estimated_freq = 5 / 45
 
         # Set up the circuits
         qubit = 0
         delays = np.append(
-            (np.linspace(0.0, 15.0, num=16)).astype(float),
+            (np.linspace(1.0, 15.0, num=15)).astype(float),
             (np.linspace(16.0, 45.0, num=59)).astype(float))
-        exp = T2StarExperiment(qubit, delays, nosc=1)
+
+        exp = T2StarExperiment(qubit, delays, osc_freq=estimated_freq, unit='us')
         circs = exp.circuits()
         self.assertEqual(len(circs), 74)
-        p0, bounds = exp.T2Star_default_params(T2star=t2star, osc_freq=exp._nosc)
-
-        #print(bounds)
-        #self.assertEqual(p0, [0.5, 25, 0.022222222222222223, 0, 0.5])
-        #self.assertEqual(bounds, ([-0.5, 1.5], [0, np.inf], [0.011111111111111112, 0.03333333333333333], [0, 2 * np.pi], [-0.5, 1.5]))
+        p0, bounds = exp.T2Star_default_params(T2star=t2star, osc_freq=exp._osc_freq)
+        print(p0)
+        print(bounds)
+        self.assertEqual(list(p0.values()), [0.5, t2star, estimated_freq, 0.0, 0.5])
+        self.assertEqual(bounds, ([-0.5, 0, 0.5 * estimated_freq, 0, -0.5], [1.5, np.inf, 1.5 * estimated_freq,  2 * np.pi, 1.5]))
 
     def test_t2star_run(self):
         #run backend
         dt_factor = 1
-        
+        estimated_t2star = 20
+        estimated_freq = 0.1
         # Set up the circuits
         qubit = 0
         delays = np.append(
-              (np.linspace(0.0, 15.0, num=16)).astype(float),
+              (np.linspace(1.0, 15.0, num=15)).astype(float),
               (np.linspace(16.0, 45.0, num=59)).astype(float))
-        exp = T2StarExperiment(qubit, delays, nosc=1)
+        exp = T2StarExperiment(qubit, delays)
         circs = exp.circuits()
         
         backend = T2Backend(
-            p0 = {'amplitude_guess':[0.5], 't2star':[10], 'f_guess':[0.1],
-                  'phi_guess':[0.0], 'B_guess':[0.5]},
+            p0 = {'amplitude_guess':[0.5], 't2star':[estimated_t2star], 'f_guess':[estimated_freq],
+                  'phi_guess':[-np.pi/20], 'B_guess':[0.5]},
             initial_prob_plus = [0.0],
-            #readout0to1=[0.02],
-            #readout1to0=[0.02],
-            readout0to1=[0.0],
-            readout1to0=[0.0],
+            readout0to1=[0.02],
+            readout1to0=[0.02],
             dt_factor=dt_factor,
         )
 
         exp.circuits(backend=backend)
         t2star = 10
-        p0, bounds = exp.T2Star_default_params(T2star=t2star, osc_freq=exp._nosc)
+        p0, bounds = exp.T2Star_default_params(t2star=t2star, osc_freq=5 / 45)
 
         #run circuit
-        res = exp.run(
+        result = exp.run(
                 backend = backend,
                 p0=p0,
                 bounds=bounds,
+                #plot=False,
                 shots=2000
             )
-        #data = exp.run(backend, noise_model=noise_model,
-         #              fit_p0=p0, fit_bounds=bounds,
-        #               instruction_durations=instruction_durations)
+        #self.assertEqual(result["quality"], "computer_good")
+        t2star_res = result._analysis_results[0]['popt'][1]
+        frequency_res = result._analysis_results[0]['popt'][2]
+        print("result t2star = " + str(t2star_res))
+        print("result freq = " + str(frequency_res))
+        self.assertAlmostEqual(t2star_res, estimated_t2star, delta=1)
+        self.assertAlmostEqual(frequency_res, estimated_freq, delta=0.01)
+
 
 
 if __name__ == '__main__':
