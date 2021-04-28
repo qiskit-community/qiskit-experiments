@@ -220,7 +220,7 @@ class TestCalibrationDefaults(QiskitTestCase):
         """Helper function."""
 
         # Add the minimum number of parameter values. Sigma is shared across both schedules.
-        self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", None, "xp")
+        self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", schedule="xp")
         self.cals.add_parameter_value(ParameterValue(0.25, self.date_time), "amp", (3,), "xp")
         self.cals.add_parameter_value(ParameterValue(0.15, self.date_time), "amp", (0,), "xp")
         self.cals.add_parameter_value(ParameterValue(10, self.date_time), "β", (3,), "xp")
@@ -265,6 +265,47 @@ class TestCalibrationDefaults(QiskitTestCase):
         # Check that we have the expected parameters in the calibrations.
         expected = {self.amp_xp, self.amp, self.sigma, self.beta}
         self.assertEqual(len(set(self.cals.parameters.keys())), len(expected))
+
+    def test_replace_schedule(self):
+        """Test that schedule replacement works as expected."""
+
+        self.cals.add_parameter_value(ParameterValue(0.25, self.date_time), "amp", (3,), "xp")
+        self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", schedule="xp")
+        self.cals.add_parameter_value(ParameterValue(10, self.date_time), "β", (3,), "xp")
+
+        # Let's replace the schedule for qubit 3 with a double Drag pulse.
+        with pulse.build(name="xp") as sched:
+            pulse.play(Drag(160, self.amp_xp/2, self.sigma, self.beta), self.drive)
+            pulse.play(Drag(160, self.amp_xp/2, self.sigma, self.beta), self.drive)
+
+        expected = self.cals.parameters
+
+        # Adding this new schedule should not change the parameter mapping
+        self.cals.add_schedule(sched, (3, ))
+
+        self.assertEqual(self.cals.parameters, expected)
+
+        # For completeness we check that schedule that comes out.
+        sched_cal = self.cals.get_schedule("xp", (3, ))
+
+        self.assertTrue(isinstance(sched_cal.instructions[0][1].pulse, Drag))
+        self.assertTrue(isinstance(sched_cal.instructions[1][1].pulse, Drag))
+        self.assertEqual(sched_cal.instructions[0][1].pulse.amp, 0.125)
+        self.assertEqual(sched_cal.instructions[1][1].pulse.amp, 0.125)
+
+        # Let's replace the schedule for qubit 3 with a Gaussian pulse.
+        # This should change the parameter mapping
+        with pulse.build(name="xp") as sched2:
+            pulse.play(Gaussian(160, self.amp_xp/2, self.sigma), self.drive)
+
+        # Check that beta is in the mapping
+        self.assertEqual(self.cals.parameters[(self.beta, hash(self.beta))],
+                         {ParameterKey(schedule='xp', parameter='β', qubits=(3,))})
+
+        self.cals.add_schedule(sched2, (3,))
+
+        # Check that beta no longer maps to a schedule
+        self.assertEqual(self.cals.parameters[(self.beta, hash(self.beta))], set())
 
     def test_parameter_filtering(self):
         """Test that we can properly filter parameter values."""

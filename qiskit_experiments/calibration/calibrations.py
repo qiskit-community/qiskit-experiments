@@ -121,6 +121,10 @@ class Calibrations:
                         f"Parameterized channel must correspond to {self.__channel_pattern__}"
                     )
 
+        # Clean the parameter to schedule mapping. This is needed if we overwrite a schedule.
+        self._clean_parameter_map(schedule.name, qubits)
+
+        # Add the schedule.
         self._schedules[ScheduleKey(schedule.name, qubits)] = schedule
 
         # Register the schedule
@@ -138,6 +142,26 @@ class Calibrations:
         for param in schedule.parameters:
             if param not in param_indices:
                 self._register_parameter(param, schedule, qubits)
+
+    def _clean_parameter_map(self, schedule_name: str, qubits: Tuple[int, ...] = None):
+        """Clean the parameter to schedule mapping for the given schedule, parameter and qubits.
+
+        Args:
+            schedule_name: The name of the schedule.
+            qubits: The qubits to which this schedule applies.
+
+        """
+        keys_to_remove = []
+        for key in self._parameter_map.keys():
+            if key.schedule == schedule_name and key.qubits == qubits:
+                keys_to_remove.append(key)
+
+        for key in keys_to_remove:
+            del self._parameter_map[key]
+
+            for param, key_set in self._parameter_map_r.items():
+                if key in key_set:
+                    key_set.remove(key)
 
     def _register_parameter(
         self, parameter: Parameter, schedule: Schedule = None, qubits: Tuple = None
