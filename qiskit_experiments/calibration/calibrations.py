@@ -492,6 +492,9 @@ class Calibrations:
 
         Returns:
             keys: The set of keys populated with schedule name, parameter name, qubits.
+
+        Raises:
+            CalibrationError: If a channel index is parameterized.
         """
 
         # schedule.channels may give the qubits in any order. This order matters. For example,
@@ -508,6 +511,13 @@ class Calibrations:
 
         qubit_set = set()
         for chan in schedule.channels:
+            if isinstance(chan.index, ParameterExpression):
+                raise (
+                    CalibrationError(
+                        f"All parametric channels must be assigned before searching for "
+                        f"non-channel parameters. {chan} is parametric."
+                    )
+                )
             if isinstance(chan, DriveChannel):
                 qubit_set.add(chan.index)
 
