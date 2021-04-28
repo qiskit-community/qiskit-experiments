@@ -648,7 +648,11 @@ class Calibrations:
     def to_csv(self):
         """
         Serializes the parameterized schedules and parameter values so
-        that they can be stored in csv file.
+        that they can be stored in csv files. This method will create three files:
+        - parameter_config.csv: This file stores a table of parameters which indicates
+          which parameters appear in which schedules.
+        - parameter_values.csv: This file stores the values of the calibrated parameters.
+        - schedules.csv: This file stores the parameterized schedules.
         """
 
         # Write the parameter configuration.
