@@ -13,7 +13,7 @@
 """Store and manage the results of a calibration experiments in the context of a backend."""
 
 from datetime import datetime
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List
 import copy
 
 from qiskit.providers.backend import BackendV1 as Backend
