@@ -19,20 +19,13 @@ import csv
 import dataclasses
 import regex as re
 
-from qiskit.circuit import Gate
-from qiskit import QuantumCircuit
 from qiskit.pulse import (
     Schedule,
     ScheduleBlock,
     DriveChannel,
     ControlChannel,
     MeasureChannel,
-    Call,
-    Play,
-    ShiftPhase,
-    SetPhase,
-    ShiftFrequency,
-    SetFrequency,
+    Call
 )
 from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter, ParameterExpression
@@ -176,7 +169,7 @@ class Calibrations:
                     if param not in param_indices:
                         params_to_register.add(param)
 
-        if len(params_to_register) != len(set([param.name for param in params_to_register])):
+        if len(params_to_register) != len(set(param.name for param in params_to_register)):
             raise CalibrationError(f"Parameter names in {schedule.name} must be unique.")
 
         for param in params_to_register:
@@ -207,7 +200,7 @@ class Calibrations:
 
         """
         keys_to_remove = []  # of the form (schedule.name, parameter.name, qubits)
-        for key in self._parameter_map.keys():
+        for key in self._parameter_map:
             if key.schedule == schedule_name and key.qubits == qubits:
                 keys_to_remove.append(key)
 
@@ -444,14 +437,9 @@ class Calibrations:
 
         # 3) Loop though the candidate keys to candidate values
         candidates = []
-        parameter_not_found = True
         for key in candidate_keys:
             if key in self._params:
-                if parameter_not_found:
-                    candidates = self._params[key]
-                    parameter_not_found = False
-                else:
-                    raise CalibrationError("Duplicate parameters.")
+                candidates += self._params[key]
 
         # If no candidate parameter values were found look for default parameters
         # i.e. parameters that do not specify a qubit.
@@ -465,11 +453,7 @@ class Calibrations:
 
             for key in set(candidate_default_keys):
                 if key in self._params:
-                    if parameter_not_found:
-                        candidates = self._params[key]
-                        parameter_not_found = False
-                    else:
-                        raise CalibrationError("Duplicate parameters.")
+                    candidates += self._params[key]
 
         # 4) Filter candidate parameter values.
         if valid_only:
