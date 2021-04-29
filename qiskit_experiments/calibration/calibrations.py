@@ -409,8 +409,8 @@ class Calibrations:
             qubits: The qubits for which to get the value of the parameter.
             schedule: The schedule or its name for which to get the parameter value.
             valid_only: Use only parameters marked as valid.
-            group: The calibration group from which to draw the
-                parameters. If not specifies this defaults to the 'default' group.
+            group: The calibration group from which to draw the parameters.
+                If not specifies this defaults to the 'default' group.
             cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
                 generated after the cutoff date will be ignored. If the cutoff_date is None then
                 all parameters are considered. This allows users to discard more recent values that
@@ -421,7 +421,7 @@ class Calibrations:
 
         Raises:
             CalibrationError: if there is no parameter value for the given parameter name
-                and pulse channel or if there is an inconsistency in the stored parameters.
+                and pulse channel.
         """
 
         # 1) Identify the parameter object.
