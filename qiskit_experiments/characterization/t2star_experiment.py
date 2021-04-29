@@ -15,7 +15,7 @@
 T2Star Experiment class.
 """
 
-from typing import List, Optional, Union, Tuple
+from typing import List, Optional, Union, Tuple, Dict
 import numpy as np
 import qiskit
 from qiskit.circuit import QuantumCircuit
@@ -29,18 +29,6 @@ from matplotlib import pyplot as plt
 
 # from qiskit_experiments.experiment_data import Analysis
 #from .analysis_functions import exp_fit_fun, curve_fit_wrapper
-
-def temp_plot(xdata, ydata):
-    plt.figure(1)
-    plt.plot(xdata, ydata,'o--', color='navy', label="my plot")
-
-    plt.xlabel('delay')
-    plt.ylabel('prob1')
-    plt.title("my graph")
-    plt.legend()
-    plt.grid(alpha=0.3)
-    plt.savefig('my graph')
-    plt.show()
 
 class T2StarAnalysis(BaseAnalysis):
     """T2Star Experiment result analysis class."""
@@ -64,15 +52,10 @@ class T2StarAnalysis(BaseAnalysis):
             experiment_data (ExperimentData): the experiment data to analyze
 
             params: Includes fit_p0 and fit_bounds.
-
                     fit_p0 are initial values for the fit parameters :math:`(A, T_2^*, f, \phi, B)`
-
                     fit_bounds: lower and upper bounds on the parameters in fit_p0.
-
                     The first tuple is the lower bounds,
-
                     The second tuple is the upper bounds.
-
                     For both params, the order is :math:`A, T_2^*, f, \phi, B`.
         Returns:
             The analysis result with the estimated :math:`T_2^*`
@@ -84,10 +67,72 @@ class T2StarAnalysis(BaseAnalysis):
             Decay cosine fit function
             """
             return a * np.exp(-x / t2star) * np.cos(2 * np.pi * f * x + phi) + c
+        
+
+        def _t2star_default_params(self,
+                                  t2star: float,
+                                  p0: Optional[Dict[str, float]] = None,
+                                  bounds:Optional[Tuple[List[float]]] = None,
+                                  ) -> Tuple[List[float], Tuple[List[float]]]:
+            """
+            Default fit parameters for oscillation data
+            Args:
+                t2star: default for t2star if p0==None
+                p0: initial estimates for the function parameters: :math:`(A, T_2^*, f, \phi, B)`, in the specified order
+                bounds: lower and upper bounds for the function parameters, in the same order as p0
+                
+            Returns:
+                Fit guessed parameters: either from the input (if given) or assign
+                default values.
+            """
+            if p0 is None:
+                A = 0.5
+                t2star = t2star
+                f = 0.1
+                phi = 0.0
+                B = 0.5
+            else:
+                A = p0['A']
+                t2star *= self._conversion_factor
+                f = p0['f']
+                phi = p0['phi']
+                B = p0['B']
+       
+            p0 = {'A_guess':A, 't2star':t2star, 'f_guess':f, 'phi_guess':phi, 'B_guess':B}
+            A_bounds = [-0.5, 1.5]
+            t2star_bounds = [0, np.inf]
+            f_bounds = [0.5 * f, 1.5 * f]
+            phi_bounds = [0, 2 * np.pi]
+            B_bounds = [-0.5, 1.5]
+            bounds=([A_bounds[0], t2star_bounds[0], f_bounds[0], phi_bounds[0], B_bounds[0]],
+                    [A_bounds[1], t2star_bounds[1], f_bounds[1], phi_bounds[1], B_bounds[1]])
+            return p0, bounds
+
+        def _format_plot(ax, unit):
+            """Format curve fit plot"""
+            # Formatting
+            ax.tick_params(labelsize=10)
+            ax.set_xlabel("Delay (" + str(unit) + ")", fontsize=12)
+            ax.set_ylabel("Probability to measure |0>", fontsize=12)
+
+
+        unit = experiment_data._data[0]["metadata"]["unit"]
+        self._conversion_factor = experiment_data._data[0]["metadata"].get("dt_factor", None)
+        if self._conversion_factor is None:
+            self._conversion_factor = 1 if unit == "s" else apply_prefix(1, unit)
 
         xdata, ydata, sigma = process_curve_data(
             experiment_data._data, lambda datum: level2_probability(datum, "1")
             )
+
+        xdata *= self._conversion_factor
+        t2star_estimate = np.mean(xdata)
+        print("t2star+estimate = " + str(t2star_estimate))
+        
+        p0, bounds = _t2star_default_params(self, t2star=t2star_estimate, p0=p0, bounds=bounds)
+        print("before curve_fit, p0 = " + str(p0))
+        print("before curve_fit, bounds = " + str(bounds))
+                
         result = curve_fit(
             osc_fit_fun, xdata, ydata, p0=list(p0.values()), sigma=sigma,
             bounds=bounds)
@@ -95,7 +140,8 @@ class T2StarAnalysis(BaseAnalysis):
         if plot:
             ax = plot_curve_fit(osc_fit_fun, result, ax=ax)
             ax = plot_scatter(xdata, ydata, ax=ax)
-            #ax = plot_errorbar(xdata, ydata, sigma, ax=ax)
+            ax = plot_errorbar(xdata, ydata, sigma, ax=ax)
+            _format_plot(ax, unit)
             result.plt = plt
             plt.show()
 
@@ -145,6 +191,12 @@ class T2StarExperiment(BaseExperiment):
         Returns:
             The experiment circuits
         """
+        if self._unit == "dt":
+            try:
+                dt_factor = getattr(backend.configuration(), "dt")
+            except AttributeError as no_dt:
+                raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
+
         xdata = self._delays
 
         circuits = []
@@ -164,42 +216,15 @@ class T2StarExperiment(BaseExperiment):
                 "qubit": self._qubit,
                 "osc_freq": self._osc_freq,
                 "xval": delay,
+                "unit": self._unit
             }
+            if self._unit == "dt":
+                circ.metadata["dt_factor"] = dt_factor
 
             circuits.append(circ)
 
         return circuits
 
-    def T2Star_default_params(self, A=None, t2star=None, osc_freq=None, phi=None, B=None) -> Tuple[List[float], Tuple[List[float]]]:
-        """
-        Default fit parameters for oscillation data
-        Args:
-            qubit: the qubit index
-        Returns:
-            Fit guessed parameters
-        """
-        if A is None:
-            A = 0.5
-        if t2star is None:
-            t2star = np.mean(self._delays)
-        if osc_freq is None:
-            f = self._osc_freq
-        else:
-            f = osc_freq
-        print(">>> osc_freq = " + str(osc_freq))
-        if phi is None:
-            phi = 0.0
-        if B is None:
-            B = 0.5
-        p0 = {'amplitude':A, 't2star':t2star, 'f_guess':f, 'phi_guess':phi, 'B_guess':B}
-        A_bounds = [-0.5, 1.5]
-        t2star_bounds = [0, np.inf]
-        f_bounds = [0.5 * f, 1.5 * f]
-        phi_bounds = [0, 2 * np.pi]
-        B_bounds = [-0.5, 1.5]
-        bounds=([A_bounds[0], t2star_bounds[0], f_bounds[0], phi_bounds[0], B_bounds[0]],
-                [A_bounds[1], t2star_bounds[1], f_bounds[1], phi_bounds[1], B_bounds[1]])
-        return p0, bounds
 
 
 
