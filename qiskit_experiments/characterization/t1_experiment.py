@@ -22,6 +22,7 @@ from qiskit.utils import apply_prefix
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit.providers.experiment import AnalysisResultV1
+from qiskit.providers.experiment.device_component import Qubit
 from qiskit_experiments.analysis.curve_fitting import process_curve_data, curve_fit
 from qiskit_experiments.analysis.data_processing import level2_probability
 
@@ -95,22 +96,28 @@ class T1Analysis(BaseAnalysis):
             ),
         )
 
-        analysis_result = AnalysisResult(
-            {
-                "value": fit_result["popt"][1],
-                "stderr": fit_result["popt_err"][1],
-                "unit": "s",
-                "label": "T1",
-                "fit": fit_result,
-                "quality": self._fit_quality(
-                    fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
+        result_data = {
+            "value": fit_result["popt"][1],
+            "stderr": fit_result["popt_err"][1],
+            "unit": "s",
+            "label": "T1",
+            "fit": fit_result,
+            "quality": self._fit_quality(
+                fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
                 ),
             }
-        )
 
         if unit == "dt":
-            analysis_result["fit"]["dt"] = conversion_factor
-            analysis_result["fit"]["circuit_unit"] = unit
+            result_data["fit"]["dt"] = conversion_factor
+            result_data["fit"]["circuit_unit"] = unit
+
+        analysis_result = AnalysisResultV1(
+            result_data,
+            'T1',
+            [Qubit()],
+            experiment_data.id,
+            quality=result_data['quality'],
+            verified=True)
 
         return analysis_result, None
 
@@ -125,9 +132,9 @@ class T1Analysis(BaseAnalysis):
             and (fit_err[1] is None or fit_err[1] < fit_out[1])
             and (fit_err[2] is None or fit_err[2] < 0.1)
         ):
-            return "computer_good"
+            return "good"
         else:
-            return "computer_bad"
+            return "bad"
 
 
 class T1Experiment(BaseExperiment):

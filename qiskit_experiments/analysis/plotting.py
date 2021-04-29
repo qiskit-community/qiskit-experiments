@@ -13,10 +13,8 @@
 Plotting functions for experiment analysis
 """
 import functools
-from typing import Callable, Optional
+from typing import Callable, Optional, Dict
 import numpy as np
-
-from qiskit_experiments.base_analysis import AnalysisResult
 
 try:
     from matplotlib import pyplot as plt
@@ -44,7 +42,7 @@ def requires_matplotlib(func):
 @requires_matplotlib
 def plot_curve_fit(
     func: Callable,
-    result: AnalysisResult,
+    result: Dict,
     confidence_interval: bool = True,
     ax: Optional["AxesSubplot"] = None,
     num_fit_points: int = 100,
@@ -52,13 +50,13 @@ def plot_curve_fit(
     grid: bool = True,
     **kwargs,
 ) -> "AxesSubplot":
-    """Generate plot of a curve fit analysis result.
+    """Generate plot of a curve fitresult.
 
     Wraps ``matplotlib.pyplot.plot``.
 
     Args:
         func: the fit funcion for curve_fit.
-        result: an AnalysisResult from curve_fit.
+        result: a result dictionary from curve_fit.
         confidence_interval: if True plot the confidence interval from popt_err.
         ax: Optional, a matplotlib axes to add the plot to.
         num_fit_points: the number of points to plot for xrange.

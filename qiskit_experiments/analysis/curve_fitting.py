@@ -19,7 +19,6 @@ from typing import List, Dict, Tuple, Callable, Optional, Union
 import numpy as np
 import scipy.optimize as opt
 from qiskit.exceptions import QiskitError
-from qiskit_experiments.base_analysis import AnalysisResult
 from qiskit_experiments.analysis.data_processing import filter_data
 
 
@@ -31,7 +30,7 @@ def curve_fit(
     sigma: Optional[np.ndarray] = None,
     bounds: Optional[Union[Dict[str, Tuple[float, float]], Tuple[np.ndarray, np.ndarray]]] = None,
     **kwargs,
-) -> AnalysisResult:
+) -> Dict:
     r"""Perform a non-linear least squares to fit
 
     This solves the optimization problem
@@ -110,8 +109,8 @@ def curve_fit(
         kwargs["absolute_sigma"] = True
 
     # Run curve fit
-    # TODO: Add error handling so if fitting fails we can return an analysis
-    #       result containing this information
+    # TODO: Add error handling so if fitting fails we can return a
+    #       dictionary containing this information
     # pylint: disable = unbalanced-tuple-unpacking
     popt, pcov = opt.curve_fit(
         fit_func, xdata, ydata, sigma=sigma, p0=param_p0, bounds=param_bounds, **kwargs
@@ -138,7 +137,7 @@ def curve_fit(
         "xrange": xdata_range,
     }
 
-    return AnalysisResult(result)
+    return result
 
 
 def multi_curve_fit(
@@ -151,7 +150,7 @@ def multi_curve_fit(
     weights: Optional[np.ndarray] = None,
     bounds: Optional[Union[Dict[str, Tuple[float, float]], Tuple[np.ndarray, np.ndarray]]] = None,
     **kwargs,
-) -> AnalysisResult:
+) -> Dict:
     r"""Perform a linearized multi-objective non-linear least squares fit.
 
     This solves the optimization problem
@@ -230,10 +229,7 @@ def multi_curve_fit(
         return y
 
     # Run linearized curve_fit
-    analysis_result = curve_fit(f, xdata, ydata, p0, sigma=wsigma, bounds=bounds, **kwargs)
-
-    return analysis_result
-
+    return curve_fit(f, xdata, ydata, p0, sigma=wsigma, bounds=bounds, **kwargs)
 
 def process_curve_data(
     data: List[Dict[str, any]], data_processor: Callable, x_key: str = "xval", **filters
