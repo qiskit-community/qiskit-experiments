@@ -15,6 +15,7 @@
 from datetime import datetime
 from qiskit.circuit import Parameter
 from qiskit.pulse import Drag, DriveChannel, ControlChannel, Gaussian, GaussianSquare
+from qiskit.pulse.transforms import inline_subroutines
 import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.calibration.calibrations import Calibrations, ParameterKey
@@ -402,9 +403,14 @@ class TestInstructions(QiskitTestCase):
 
         sched = self.cals.get_schedule("xp02", (3, ))
 
+        self.assertEqual(sched.parameters, set())
+
+        sched = inline_subroutines(sched)  # inline makes the check more transparent.
+
         self.assertTrue(isinstance(sched.instructions[0][1], pulse.Play))
         self.assertEqual(sched.instructions[1][1].phase, 1.57)
         self.assertEqual(sched.instructions[2][1].frequency, 200)
+
 
 class TestControlChannels(QiskitTestCase):
     """Test more complex schedules such as an echoed cross-resonance."""

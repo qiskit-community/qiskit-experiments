@@ -35,7 +35,6 @@ from qiskit.pulse import (
     SetFrequency,
 )
 from qiskit.pulse.channels import PulseChannel
-from qiskit.pulse.transforms import inline_subroutines
 from qiskit.circuit import Parameter, ParameterExpression
 from qiskit_experiments.calibration.exceptions import CalibrationError
 from qiskit_experiments.calibration.parameter_value import ParameterValue
@@ -543,12 +542,8 @@ class Calibrations:
         # Binding the channel indices makes it easier to deal with parameters later on
         schedule = schedule.assign_parameters(binding_dict, inplace=False)
 
-        # The following code allows us to get the keys when the schedule has call instructions.
-        # We cannot inline the subroutines yet because we would lose the name of the subroutines.
-        parameter_keys = Calibrations._get_parameter_keys(schedule, set(), binding_dict, qubits)
-
-        # Now that we have the parameter keys we must inline all call subroutines.
-        schedule = inline_subroutines(schedule)
+        # Get the parameter keys by descending into the call instructions.
+        parameter_keys = Calibrations._get_parameter_keys(schedule, set(), qubits)
 
         # Build the parameter binding dictionary.
         free_params = free_params if free_params else []
@@ -582,23 +577,19 @@ class Calibrations:
     def _get_parameter_keys(
         schedule: Schedule,
         keys: Set[ParameterKey],
-        binding_dict: Dict[Parameter, int],
         qubits: Tuple[int, ...],
     ) -> Set[ParameterKey]:
         """
         Recursive function to extract parameter keys from a schedule. The recursive
         behaviour is needed to handle Call instructions. Each time a Call is found
-        get_parameter_keys is call on the subroutine of the Call instruction and the
-        qubits that are in the subroutine. This also implies carefully extracting the
-        qubits from the subroutine and in the appropriate order.
+        get_parameter_keys is call on the assigned subroutine of the Call instruction
+        and the qubits that are in said subroutine. This requires carefully
+        extracting the qubits from the subroutine and in the appropriate order.
 
         Args:
             schedule: A schedule from which to extract parameters.
-            keys: A set of keys that will be populated.
-            binding_dict: A binding dictionary intended only for channels. This is needed
-                because calling assign_parameters on a schedule with a Call instruction will
-                not assign the parameters in the subroutine of the Call instruction.
-            qubits: The qubits for which we want to have the schedule.
+            keys: A set of keys recursively populated.
+            qubits: The qubits for which we want the schedule.
 
         Returns:
             keys: The set of keys populated with schedule name, parameter name, qubits.
@@ -609,8 +600,8 @@ class Calibrations:
 
         # schedule.channels may give the qubits in any order. This order matters. For example,
         # the parameter ('cr', 'amp', (2, 3)) is not the same as ('cr', 'amp', (3, 2)).
-        # Furthermore, as we call subroutines the list of qubits involved might shrink. For
-        # example, part of a cross-resonance schedule might involve.
+        # Furthermore, as we call subroutines the list of qubits involved shrinks. For
+        # example, a cross-resonance schedule could be
         #
         # pulse.call(xp)
         # ...
@@ -634,11 +625,8 @@ class Calibrations:
         qubits_ = tuple(qubit for qubit in qubits if qubit in qubit_set)
 
         for _, inst in schedule.instructions:
-
             if isinstance(inst, Call):
-                sched_ = inst.subroutine.assign_parameters(binding_dict, inplace=False)
-                keys = Calibrations._get_parameter_keys(sched_, keys, binding_dict, qubits_)
-
+                keys = Calibrations._get_parameter_keys(inst.assigned_subroutine(), keys, qubits_)
             else:
                 for param in inst.parameters:
                     keys.add(ParameterKey(schedule.name, param.name, qubits_))
