@@ -444,13 +444,11 @@ class TestControlChannels(QiskitTestCase):
                 with pulse.align_left():
                     pulse.play(rotary, self.d1_)  # Rotary tone
                     pulse.play(cr_tone, self.c1_)  # CR tone.
-                with pulse.align_sequential():
-                    pulse.call(xp)
+                pulse.call(xp)
                 with pulse.align_left():
                     pulse.play(rotary, self.d1_)
                     pulse.play(cr_tone, self.c1_)
-                with pulse.align_sequential():
-                    pulse.call(xp)
+                pulse.call(xp)
 
         self.cals.add_schedule(xp)
         self.cals.add_schedule(cr)
@@ -475,27 +473,23 @@ class TestControlChannels(QiskitTestCase):
                 with pulse.align_left():
                     pulse.play(GaussianSquare(640, 0.2, 40, 20), DriveChannel(2))  # Rotary tone
                     pulse.play(GaussianSquare(640, 0.3, 40, 20), ControlChannel(10))  # CR tone.
-                with pulse.align_sequential():
-                    pulse.play(Gaussian(160, 0.1, 40), DriveChannel(3))
+                pulse.play(Gaussian(160, 0.1, 40), DriveChannel(3))
                 with pulse.align_left():
                     pulse.play(GaussianSquare(640, 0.2, 40, 20), DriveChannel(2))  # Rotary tone
                     pulse.play(GaussianSquare(640, 0.3, 40, 20), ControlChannel(10))  # CR tone.
-                with pulse.align_sequential():
-                    pulse.play(Gaussian(160, 0.1, 40), DriveChannel(3))
+                pulse.play(Gaussian(160, 0.1, 40), DriveChannel(3))
 
-        self.assertTrue(self.cals.get_schedule("cr", (3, 2)) == cr_32)
+        self.assertTrue(inline_subroutines(self.cals.get_schedule("cr", (3, 2))) == cr_32)
 
         with pulse.build(name="cr") as cr_23:
             with pulse.align_sequential():
                 with pulse.align_left():
                     pulse.play(GaussianSquare(640, 0.4, 40, 30), DriveChannel(3))  # Rotary tone
                     pulse.play(GaussianSquare(640, 0.5, 40, 30), ControlChannel(15))  # CR tone.
-                with pulse.align_sequential():
-                    pulse.play(Gaussian(160, 0.15, 40), DriveChannel(2))
+                pulse.play(Gaussian(160, 0.15, 40), DriveChannel(2))
                 with pulse.align_left():
                     pulse.play(GaussianSquare(640, 0.4, 40, 30), DriveChannel(3))  # Rotary tone
                     pulse.play(GaussianSquare(640, 0.5, 40, 30), ControlChannel(15))  # CR tone.
-                with pulse.align_sequential():
-                    pulse.play(Gaussian(160, 0.15, 40), DriveChannel(2))
+                pulse.play(Gaussian(160, 0.15, 40), DriveChannel(2))
 
         self.assertTrue(self.cals.get_schedule("cr", (2, 3)) == cr_23)
