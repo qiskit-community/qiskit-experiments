@@ -16,8 +16,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Union
 import copy
 
-from qiskit.providers.ibmq.ibmqbackend import IBMQBackend as Backend
-from qiskit.providers import BaseBackend
+from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Parameter
 from qiskit_experiments.calibration.calibrations import Calibrations, ParameterKey
 
@@ -32,7 +31,7 @@ class BackendCalibrations(Calibrations):
     any schedule.
     """
 
-    def __init__(self, backend: Union[Backend, BaseBackend]):
+    def __init__(self, backend: Backend):
         """Setup an instance to manage the calibrations of a backend."""
         super().__init__(backend.configuration()._control_channels)
 
