@@ -17,6 +17,8 @@ T2Star Experiment class.
 
 from typing import List, Optional, Union, Tuple, Dict
 import numpy as np
+import copy
+
 import qiskit
 from qiskit.circuit import QuantumCircuit
 from qiskit.utils import apply_prefix
@@ -88,21 +90,22 @@ class T2StarAnalysis(BaseAnalysis):
             if p0 is None:
                 A = 0.5
                 t2star = t2star
-                f = 0.1
+                f = 0.1 
                 phi = 0.0
                 B = 0.5
             else:
                 A = p0['A']
+                t2star = p0['t2star']
                 t2star *= self._conversion_factor
                 f = p0['f']
                 phi = p0['phi']
                 B = p0['B']
-       
+            f /= self._conversion_factor
             p0 = {'A_guess':A, 't2star':t2star, 'f_guess':f, 'phi_guess':phi, 'B_guess':B}
             A_bounds = [-0.5, 1.5]
             t2star_bounds = [0, np.inf]
             f_bounds = [0.5 * f, 1.5 * f]
-            phi_bounds = [0, 2 * np.pi]
+            phi_bounds = [-np.pi, np.pi]
             B_bounds = [-0.5, 1.5]
             bounds=([A_bounds[0], t2star_bounds[0], f_bounds[0], phi_bounds[0], B_bounds[0]],
                     [A_bounds[1], t2star_bounds[1], f_bounds[1], phi_bounds[1], B_bounds[1]])
@@ -125,22 +128,18 @@ class T2StarAnalysis(BaseAnalysis):
             experiment_data._data, lambda datum: level2_probability(datum, "1")
             )
 
-        xdata *= self._conversion_factor
-        t2star_estimate = np.mean(xdata)
-        print("t2star+estimate = " + str(t2star_estimate))
+        si_xdata = xdata * self._conversion_factor
+        t2star_estimate = np.mean(si_xdata)
         
         p0, bounds = _t2star_default_params(self, t2star=t2star_estimate, p0=p0, bounds=bounds)
-        print("before curve_fit, p0 = " + str(p0))
-        print("before curve_fit, bounds = " + str(bounds))
-                
         result = curve_fit(
-            osc_fit_fun, xdata, ydata, p0=list(p0.values()), sigma=sigma,
+            osc_fit_fun, si_xdata, ydata, p0=list(p0.values()), sigma=sigma,
             bounds=bounds)
 
         if plot:
             ax = plot_curve_fit(osc_fit_fun, result, ax=ax)
-            ax = plot_scatter(xdata, ydata, ax=ax)
-            ax = plot_errorbar(xdata, ydata, sigma, ax=ax)
+            ax = plot_scatter(si_xdata, ydata, ax=ax)
+            ax = plot_errorbar(si_xdata, ydata, sigma, ax=ax)
             _format_plot(ax, unit)
             result.plt = plt
             plt.show()
@@ -196,8 +195,14 @@ class T2StarExperiment(BaseExperiment):
                 dt_factor = getattr(backend.configuration(), "dt")
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
+        conversion_factor = 1 if self._unit == "s" else apply_prefix(1, self._unit)
+        print('conversion_factor = ' +str(conversion_factor))
 
         xdata = self._delays
+        #self._osc_freq /= conversion_factor
+
+        print("xdata= " + str(xdata))
+        print("osc_freq = " + str(self._osc_freq))
 
         circuits = []
         for delay in self._delays:
@@ -224,6 +229,7 @@ class T2StarExperiment(BaseExperiment):
             circuits.append(circ)
 
         return circuits
+
 
 
 

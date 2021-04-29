@@ -14,6 +14,7 @@ import unittest
 import numpy as np
 import random
 from typing import Tuple
+from qiskit.utils import apply_prefix
 from qiskit.providers import BaseBackend
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
@@ -72,6 +73,7 @@ class T2Backend(BaseBackend):
         """
         Run the T2star backend
         """
+        print("self._t2star = " + str(self._t2star))
         shots = qobj.config.shots
         result = {
             "backend_name": "T2star backend",
@@ -106,11 +108,13 @@ class T2Backend(BaseBackend):
                     qubit = op.qubits[0]
 
                     if op.name == "delay":
-                        #print("op.params[0] = " + str(op.params[0]))
                         delay = op.params[0]
+                        t2star = self._t2star[qubit] * self._dt_factor
+                        freq = self._f_guess[qubit] / self._dt_factor
+
                         prob_plus[qubit] = \
-                            self._A_guess[qubit] * np.exp(-delay / self._t2star[qubit]) * \
-                            np.cos(2 * np.pi * self._f_guess[qubit] * delay + self._phi_guess[qubit]) + self._B_guess[qubit]
+                            self._A_guess[qubit] * np.exp(-delay / t2star) * \
+                            np.cos(2 * np.pi * freq * delay + self._phi_guess[qubit]) + self._B_guess[qubit]
                         
                     if op.name == "measure":
                         # measure in |+> basis
@@ -140,33 +144,11 @@ class T2Backend(BaseBackend):
 
 class TestT2Star(QiskitTestCase):
     """ Test T2Star experiment"""
-    def atest_t2star_generate_circuits(self):
-        """
-        Test T2Star experiment using a simulator.
-        Currently only verifies that there is no exception,
-        but does not verify accuracy of the estimate.
-        """
-        t2star = 10
-        estimated_freq = 5 / 45
-
-        # Set up the circuits
-        qubit = 0
-        delays = np.append(
-            (np.linspace(1.0, 15.0, num=15)).astype(float),
-            (np.linspace(16.0, 45.0, num=59)).astype(float))
-
-        exp = T2StarExperiment(qubit, delays, osc_freq=estimated_freq, unit='us')
-        circs = exp.circuits()
-        self.assertEqual(len(circs), 74)
-        #p0, bounds = exp.T2Star_default_params(T2star=t2star, osc_freq=exp._osc_freq)
-        print(p0)
-        print(bounds)
-        self.assertEqual(list(p0.values()), [0.5, t2star, estimated_freq, 0.0, 0.5])
-        self.assertEqual(bounds, ([-0.5, 0, 0.5 * estimated_freq, 0, -0.5], [1.5, np.inf, 1.5 * estimated_freq,  2 * np.pi, 1.5]))
 
     def test_t2star_run(self):
         #run backend
-        dt_factor = 1
+        unit = 'ms'
+        dt_factor = 1 if unit == "s" else apply_prefix(1, unit)
         estimated_t2star = 20
         estimated_freq = 0.1
         # Set up the circuits
@@ -174,7 +156,7 @@ class TestT2Star(QiskitTestCase):
         delays = np.append(
               (np.linspace(1.0, 15.0, num=15)).astype(float),
               (np.linspace(16.0, 45.0, num=59)).astype(float))
-        exp = T2StarExperiment(qubit, delays)
+        exp = T2StarExperiment(qubit, delays, unit=unit)
         circs = exp.circuits()
         
         backend = T2Backend(
@@ -193,7 +175,8 @@ class TestT2Star(QiskitTestCase):
         #run circuit
         result = exp.run(
                 backend = backend,
-                p0=None,
+                p0={'A':0.5, 't2star':estimated_t2star,
+                  'f':estimated_freq, 'phi':-np.pi/20, 'B':0.5},
                 bounds=None,
                 #plot=False,
                 shots=2000
@@ -203,8 +186,8 @@ class TestT2Star(QiskitTestCase):
         frequency_res = result._analysis_results[0]['popt'][2]
         print("result t2star = " + str(t2star_res))
         print("result freq = " + str(frequency_res))
-        self.assertAlmostEqual(t2star_res, estimated_t2star, delta=1)
-        self.assertAlmostEqual(frequency_res, estimated_freq, delta=0.01)
+        self.assertAlmostEqual(t2star_res, estimated_t2star*dt_factor, delta=1 * dt_factor)
+        self.assertAlmostEqual(frequency_res, estimated_freq, delta=1 / dt_factor)
 
 
 
