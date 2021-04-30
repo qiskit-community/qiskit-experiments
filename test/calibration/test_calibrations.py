@@ -53,7 +53,7 @@ class TestCalibrationsBasic(QiskitTestCase):
         for sched in [xp, x90p, y90p, xm]:
             self.cals.add_schedule(sched)
 
-        self.xm = xm
+        self.xm_pulse = xm
 
         # Add some parameter values.
         self.date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
@@ -101,7 +101,7 @@ class TestCalibrationsBasic(QiskitTestCase):
 
         self.assertEqual(len(self.cals.schedules()), 4)
 
-        self.cals.remove_schedule(self.xm)
+        self.cals.remove_schedule(self.xm_pulse)
 
         # Removing xm should remove the schedule but not the parameters as they are shared.
         self.assertEqual(len(self.cals.schedules()), 3)
