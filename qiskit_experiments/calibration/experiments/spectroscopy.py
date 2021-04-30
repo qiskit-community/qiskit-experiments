@@ -48,7 +48,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
             if meas_level == MeasLevel.CLASSIFIED:
                 data_processor = DataProcessor("counts", [Probability("1")])
             elif meas_level == MeasLevel.KERNELED:
-                data_processor = DataProcessor("counts", [Svd()])
+                data_processor = DataProcessor("memory", [Svd()])
             else:
                 raise ValueError("Unsupported measurement level.")
 
