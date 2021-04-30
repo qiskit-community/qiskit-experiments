@@ -306,18 +306,18 @@ class TestCalibrationDefaults(QiskitTestCase):
 
         # Let's replace the schedule for qubit 3 with a double Drag pulse.
         with pulse.build(name="xp") as sched:
-            pulse.play(Drag(160, self.amp_xp/2, self.sigma, self.beta), self.drive)
-            pulse.play(Drag(160, self.amp_xp/2, self.sigma, self.beta), self.drive)
+            pulse.play(Drag(160, self.amp_xp / 2, self.sigma, self.beta), self.drive)
+            pulse.play(Drag(160, self.amp_xp / 2, self.sigma, self.beta), self.drive)
 
         expected = self.cals.parameters
 
         # Adding this new schedule should not change the parameter mapping
-        self.cals.add_schedule(sched, (3, ))
+        self.cals.add_schedule(sched, (3,))
 
         self.assertEqual(self.cals.parameters, expected)
 
         # For completeness we check that schedule that comes out.
-        sched_cal = self.cals.get_schedule("xp", (3, ))
+        sched_cal = self.cals.get_schedule("xp", (3,))
 
         self.assertTrue(isinstance(sched_cal.instructions[0][1].pulse, Drag))
         self.assertTrue(isinstance(sched_cal.instructions[1][1].pulse, Drag))
@@ -327,11 +327,13 @@ class TestCalibrationDefaults(QiskitTestCase):
         # Let's replace the schedule for qubit 3 with a Gaussian pulse.
         # This should change the parameter mapping
         with pulse.build(name="xp") as sched2:
-            pulse.play(Gaussian(160, self.amp_xp/2, self.sigma), self.drive)
+            pulse.play(Gaussian(160, self.amp_xp / 2, self.sigma), self.drive)
 
         # Check that beta is in the mapping
-        self.assertEqual(self.cals.parameters[self.beta],
-                         {ParameterKey(schedule='xp', parameter='β', qubits=(3,))})
+        self.assertEqual(
+            self.cals.parameters[self.beta],
+            {ParameterKey(schedule="xp", parameter="β", qubits=(3,))},
+        )
 
         self.cals.add_schedule(sched2, (3,))
 
@@ -401,7 +403,7 @@ class TestInstructions(QiskitTestCase):
     def test_instructions(self):
         """Check that we get a properly assigned schedule."""
 
-        sched = self.cals.get_schedule("xp02", (3, ))
+        sched = self.cals.get_schedule("xp02", (3,))
 
         self.assertEqual(sched.parameters, set())
 
@@ -479,8 +481,15 @@ class TestControlChannels(QiskitTestCase):
                     pulse.play(GaussianSquare(640, 0.3, 40, 20), ControlChannel(10))  # CR tone.
                 pulse.play(Gaussian(160, 0.1, 40), DriveChannel(3))
 
-        self.assertTrue(inline_subroutines(self.cals.get_schedule("cr", (3, 2))) == cr_32)
+        # We inline to make the schedules comparable with the construction directly above.
+        schedule = self.cals.get_schedule("cr", (3, 2))
+        inline_schedule = inline_subroutines(schedule)
+        for idx, inst in enumerate(inline_schedule.instructions):
+            self.assertTrue(inst == cr_32.instructions[idx])
 
+        self.assertEqual(schedule.parameters, set())
+
+        # Do the CR in the other direction
         with pulse.build(name="cr") as cr_23:
             with pulse.align_sequential():
                 with pulse.align_left():
@@ -492,4 +501,9 @@ class TestControlChannels(QiskitTestCase):
                     pulse.play(GaussianSquare(640, 0.5, 40, 30), ControlChannel(15))  # CR tone.
                 pulse.play(Gaussian(160, 0.15, 40), DriveChannel(2))
 
-        self.assertTrue(self.cals.get_schedule("cr", (2, 3)) == cr_23)
+        schedule = self.cals.get_schedule("cr", (2, 3))
+        inline_schedule = inline_subroutines(schedule)
+        for idx, inst in enumerate(inline_schedule.instructions):
+            self.assertTrue(inst == cr_23.instructions[idx])
+
+        self.assertEqual(schedule.parameters, set())
