@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Store and manage the results of a calibration experiments in the context of a backend."""
+"""Store and manage the results of calibration experiments in the context of a backend."""
 
 from datetime import datetime
 from typing import List
