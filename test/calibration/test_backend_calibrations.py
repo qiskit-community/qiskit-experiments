@@ -10,11 +10,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Class to test the calibrations."""
+"""Class to test the backend calibrations."""
 
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeArmonk
-from qiskit_experiments.calibration.backend_calibrations import BackendCalibrations
+from qiskit_experiments.calibration.backend_calibrations import BackendCalibrationsManager
 
 
 class TestBackendCalibrations(QiskitTestCase):
@@ -22,7 +22,7 @@ class TestBackendCalibrations(QiskitTestCase):
 
     def test_run_options(self):
         """Test that we can get run options."""
-        cals = BackendCalibrations(FakeArmonk())
+        cals = BackendCalibrationsManager(FakeArmonk())
 
-        expected = {"qubit_lo_freq": [4971852852.405576], "meas_lo_freq": [6993370669.000001]}
-        self.assertEqual(cals.run_options(), expected)
+        self.assertEqual(cals.get_frequencies(False), [6993370669.000001])
+        self.assertEqual(cals.get_frequencies(True), [4971852852.405576])

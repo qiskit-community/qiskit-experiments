@@ -13,15 +13,15 @@
 """Store and manage the results of a calibration experiments in the context of a backend."""
 
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import List
 import copy
 
 from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Parameter
-from qiskit_experiments.calibration.calibrations import Calibrations, ParameterKey
+from qiskit_experiments.calibration.calibrationsmanager import CalibrationsManager, ParameterKey
 
 
-class BackendCalibrations(Calibrations):
+class BackendCalibrationsManager(CalibrationsManager):
     """
     A Calibrations class to enable a seamless interplay with backend objects.
     This class enables users to export their calibrations into a backend object.
@@ -33,7 +33,7 @@ class BackendCalibrations(Calibrations):
 
     def __init__(self, backend: Backend):
         """Setup an instance to manage the calibrations of a backend."""
-        super().__init__(backend.configuration()._control_channels)
+        super().__init__(backend.configuration().control_channels)
 
         # Use the same naming convention as in backend.defaults()
         self.qubit_freq = Parameter("qubit_lo_freq")
@@ -44,7 +44,7 @@ class BackendCalibrations(Calibrations):
         self._qubits = set(range(backend.configuration().n_qubits))
         self._backend = backend
 
-    def _get_frequencies(
+    def get_frequencies(
         self,
         meas_freq: bool,
         group: str = "default",
@@ -86,41 +86,17 @@ class BackendCalibrations(Calibrations):
 
         return freqs
 
-    def run_options(self, group: str = "default", cutoff_date: datetime = None) -> Dict[str, Any]:
-        """
-        Retrieve all run-options to be used as kwargs when calling
-        :meth:`BaseExperiment.run`. This gives us the means to communicate the most recent
-        measured values of the qubit and measurement frequencies of the backend.
-
-        Args:
-            group: The calibration group from which to draw the
-                parameters. If not specifies this defaults to the 'default' group.
-            cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
-                generated after the cutoff date will be ignored. If the cutoff_date is None then
-                all parameters are considered. This allows users to discard more recent values
-                that may be erroneous.
-
-        Returns:
-            key word arguments containing: `qubit_lo_freq` and `meas_lo_freq` intended to be
-            passed as arguments to assemble.
-        """
-
-        return {
-            "qubit_lo_freq": self._get_frequencies(False, group, cutoff_date),
-            "meas_lo_freq": self._get_frequencies(True, group, cutoff_date),
-        }
-
     def export_backend(self) -> Backend:
         """
-        Exports the calibrations in the backend object that can be used.
+        Exports the calibrations in a backend object that can be used.
 
         Returns:
             calibrated backend: A backend with the calibrations in it.
         """
         backend = copy.deepcopy(self._backend)
 
-        backend.defaults().qubit_freq_est = self._get_frequencies(False)
-        backend.defaults().meas_freq_est = self._get_frequencies(True)
+        backend.defaults().qubit_freq_est = self.get_frequencies(False)
+        backend.defaults().meas_freq_est = self.get_frequencies(True)
 
         # TODO: build the instruction schedule map using the stored calibrations
 

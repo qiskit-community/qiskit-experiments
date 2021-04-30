@@ -19,14 +19,7 @@ import csv
 import dataclasses
 import regex as re
 
-from qiskit.pulse import (
-    Schedule,
-    ScheduleBlock,
-    DriveChannel,
-    ControlChannel,
-    MeasureChannel,
-    Call
-)
+from qiskit.pulse import Schedule, ScheduleBlock, DriveChannel, ControlChannel, MeasureChannel, Call
 from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter, ParameterExpression
 from qiskit_experiments.calibration.exceptions import CalibrationError
@@ -36,7 +29,7 @@ ParameterKey = namedtuple("ParameterKey", ["schedule", "parameter", "qubits"])
 ScheduleKey = namedtuple("ScheduleKey", ["schedule", "qubits"])
 
 
-class Calibrations:
+class CalibrationsManager:
     r"""
     A class to manage schedules with calibrated parameter values. Schedules are
     intended to be fully parameterized, including the index of the channels.
@@ -45,13 +38,13 @@ class Calibrations:
     - allows default schedules for qubits that can be overridden for specific qubits.
 
     Parametric channel naming convention.
-    Parametrized channel indices must be named according to a predefined pattern so that
-    self can resolve the channels and control channels when assigning values to the parametric
+    Parametrized channel indices must be named according to a predefined pattern to properly
+    identify the channels and control channels when assigning values to the parametric
     channel indices. A channel must have a name that starts with `ch` followed by an integer.
     For control channels this integer can be followed by a sequence `.integer`.
-    Optionally, the name can end with `$integer` to specify the index of a control
-    for the case when a set of qubits share multiple control channels. Example of
-    valid channel names includes "ch0", "ch1", "ch0.1", "ch0$", "ch2$3", and "ch1.0.3$2".
+    Optionally, the name can end with `$integer` to specify the index of a control channel
+    for the case when a set of qubits share multiple control channels. For example,
+    valid channel names include "ch0", "ch1", "ch0.1", "ch0$", "ch2$3", and "ch1.0.3$2".
     The "." delimiter is used to specify the different qubits when looking for control
     channels. The optional $ delimiter is used to specify which control channel to use
     if several control channels work together on the same qubits. For example, if the
@@ -63,7 +56,9 @@ class Calibrations:
     Each parameter must have a unique name within each schedule. For example, it is
     acceptable to have a parameter named 'amp' in the schedule 'xp' and a different
     parameter instance named 'amp' in the schedule named 'xm'. It is not acceptable
-    to have two parameters named 'amp' in the same schedule.
+    to have two parameters named 'amp' in the same schedule. The Call instruction
+    allows parameters with the same name within the same schedule, see the example
+    below.
 
     The code block below illustrates the creation of a template schedule for a cross-
     resonance gate.
@@ -131,9 +126,10 @@ class Calibrations:
                 schedule is the default schedule for all qubits.
 
         Raises:
-            CalibrationError: If the parameterized channel index is not formatted
-                following index1.index2... or if several parameters in the same schedule
-                have the same name or if a channel is parameterized by more than one parameter.
+            CalibrationError:
+                - If the parameterized channel index is not formatted properly.
+                - If several parameters in the same schedule have the same name.
+                - If a channel is parameterized by more than one parameter.
         """
         # check that channels, if parameterized, have the proper name format.
         param_indices = set()
@@ -301,8 +297,8 @@ class Calibrations:
 
         Args:
             value: The value of the parameter to add. If an int, float, or complex is given
-                then the timestamp of the parameter values will automatically be generated to
-                correspond to the current time.
+                then the timestamp of the parameter values will automatically be generated
+                and set to the current time.
             param: The parameter or its name for which to add the measured value.
             qubits: The qubits to which this parameter applies.
             schedule: The schedule or its name for which to add the measured parameter value.
@@ -328,13 +324,14 @@ class Calibrations:
         """
         Get the index of the parameterized channel based on the given qubits
         and the name of the parameter in the channel index. The name of this
-        parameter for control channels must be written as qubit_index1.qubit_index2... .
-        For example, the following parameter names are valid: 'ch1', 'ch1.0', 'ch30.12'.
+        parameter for control channels must be written as chqubit_index1.qubit_index2...
+        followed by an optional $index.
+        For example, the following parameter names are valid: 'ch1', 'ch1.0', 'ch30.12',
+        and 'ch1.0$1'.
 
         Args:
             qubits: The qubits for which we want to obtain the channel index.
             chan: The channel with a parameterized name.
-            pair of qubits has more than one control channel.
 
         Returns:
             index: The index of the channel. For example, if qubits=(10, 32) and
@@ -344,9 +341,10 @@ class Calibrations:
                 qubits (32, 10).
 
         Raises:
-            CalibrationError: if the number of qubits is incorrect, if the
-                number of inferred ControlChannels is not correct, or if ch is not
-                a DriveChannel, MeasureChannel, or ControlChannel.
+            CalibrationError:
+                - If the number of qubits is incorrect.
+                - If the number of inferred ControlChannels is not correct.
+                - If ch is not a DriveChannel, MeasureChannel, or ControlChannel.
         """
         if isinstance(chan.index, Parameter):
             if isinstance(chan, (DriveChannel, MeasureChannel)):
@@ -410,7 +408,7 @@ class Calibrations:
             schedule: The schedule or its name for which to get the parameter value.
             valid_only: Use only parameters marked as valid.
             group: The calibration group from which to draw the parameters.
-                If not specifies this defaults to the 'default' group.
+                If not specified this defaults to the 'default' group.
             cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
                 generated after the cutoff date will be ignored. If the cutoff_date is None then
                 all parameters are considered. This allows users to discard more recent values that
@@ -420,8 +418,8 @@ class Calibrations:
             value: The value of the parameter.
 
         Raises:
-            CalibrationError: if there is no parameter value for the given parameter name
-                and pulse channel.
+            CalibrationError:
+                - If there is no parameter value for the given parameter name and pulse channel.
         """
 
         # 1) Identify the parameter object.
@@ -496,7 +494,7 @@ class Calibrations:
             qubits: The qubits for which to get the schedule.
             free_params: The parameters that should remain unassigned.
             group: The calibration group from which to draw the
-                parameters. If not specifies this defaults to the 'default' group.
+                parameters. If not specified this defaults to the 'default' group.
             cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
                 generated after the cutoff date will be ignored. If the cutoff_date is None then
                 all parameters are considered. This allows users to discard more recent values that
@@ -507,8 +505,9 @@ class Calibrations:
                 except for those specified by free_params.
 
         Raises:
-            CalibrationError: if the name of the schedule is not known or if a parameter could
-                not be found.
+            CalibrationError:
+                - If the name of the schedule is not known.
+                - If a parameter could not be found.
         """
         if (name, qubits) in self._schedules:
             schedule = self._schedules[ScheduleKey(name, qubits)]
@@ -527,7 +526,7 @@ class Calibrations:
         schedule = schedule.assign_parameters(binding_dict, inplace=False)
 
         # Get the parameter keys by descending into the call instructions.
-        parameter_keys = Calibrations._get_parameter_keys(schedule, set(), qubits)
+        parameter_keys = CalibrationsManager._get_parameter_keys(schedule, set(), qubits)
 
         # Build the parameter binding dictionary.
         free_params = free_params if free_params else []
@@ -566,7 +565,7 @@ class Calibrations:
         """
         Recursive function to extract parameter keys from a schedule. The recursive
         behaviour is needed to handle Call instructions. Each time a Call is found
-        get_parameter_keys is call on the assigned subroutine of the Call instruction
+        get_parameter_keys is called on the assigned subroutine of the Call instruction
         and the qubits that are in said subroutine. This requires carefully
         extracting the qubits from the subroutine and in the appropriate order.
 
@@ -610,7 +609,9 @@ class Calibrations:
 
         for _, inst in schedule.instructions:
             if isinstance(inst, Call):
-                keys = Calibrations._get_parameter_keys(inst.assigned_subroutine(), keys, qubits_)
+                keys = CalibrationsManager._get_parameter_keys(
+                    inst.assigned_subroutine(), keys, qubits_
+                )
             else:
                 for param in inst.parameters:
                     keys.add(ParameterKey(schedule.name, param.name, qubits_))
@@ -619,7 +620,7 @@ class Calibrations:
 
     def schedules(self) -> List[Dict[str, Any]]:
         """
-        Return the schedules in self in a list of dictionaries to help
+        Return the managed schedules in a list of dictionaries to help
         users manage their schedules.
 
         Returns:
