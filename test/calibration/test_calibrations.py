@@ -18,7 +18,7 @@ from qiskit.pulse import Drag, DriveChannel, ControlChannel, Gaussian, GaussianS
 from qiskit.pulse.transforms import inline_subroutines
 import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
-from qiskit_experiments.calibration.calibrationsmanager import CalibrationsManager, ParameterKey
+from qiskit_experiments.calibration.calibrations_manager import CalibrationsManager, ParameterKey
 from qiskit_experiments.calibration.parameter_value import ParameterValue
 from qiskit_experiments.calibration.exceptions import CalibrationError
 

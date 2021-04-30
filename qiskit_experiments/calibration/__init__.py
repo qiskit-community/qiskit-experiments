@@ -12,7 +12,7 @@
 
 """Qiskit Experiments Calibration Root."""
 
-from .calibrationsmanager import CalibrationsManager
+from .calibrations_manager import CalibrationsManager
 from .backend_calibrations import BackendCalibrationsManager
 from .exceptions import CalibrationError
 from .parameter_value import ParameterValue

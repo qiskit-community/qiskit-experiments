@@ -18,7 +18,7 @@ import copy
 
 from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Parameter
-from qiskit_experiments.calibration.calibrationsmanager import CalibrationsManager, ParameterKey
+from qiskit_experiments.calibration.calibrations_manager import CalibrationsManager, ParameterKey
 
 
 class BackendCalibrationsManager(CalibrationsManager):
