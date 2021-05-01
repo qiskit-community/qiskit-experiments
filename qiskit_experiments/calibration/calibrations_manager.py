@@ -650,7 +650,7 @@ class CalibrationsManager:
                 If None is given then all channels are returned.
 
         Returns:
-            data: A dictionary of parameter values which can easily be converted to a
+            data: A list of dictionaries with parameter values and metadata which can easily be converted to a
                 data frame.
         """
 
