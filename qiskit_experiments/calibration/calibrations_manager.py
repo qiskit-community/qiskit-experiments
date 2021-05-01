@@ -396,7 +396,7 @@ class CalibrationsManager:
         Parameters may be linked. get_parameter_value does the following steps:
         1) Retrieve the parameter object corresponding to (param, qubits, schedule)
         2) The values of this parameter may be stored under another schedule since
-           schedules can share parameters. To deal we this a list of candidate keys
+           schedules can share parameters. To deal with this, a list of candidate keys
            is created internally based on the current configuration.
         3) Look for candidate parameter values under the candidate keys.
         4) Filter the candidate parameter values according to their date (up until the
