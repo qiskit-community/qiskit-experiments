@@ -600,7 +600,7 @@ class Calibrations:
                         f"non-channel parameters. {chan} is parametric."
                     )
                 )
-            if isinstance(chan, DriveChannel):
+            if isinstance(chan, (DriveChannel, MeasureChannel)):
                 qubit_set.add(chan.index)
 
         qubits_ = tuple(qubit for qubit in qubits if qubit in qubit_set)
@@ -620,7 +620,12 @@ class Calibrations:
         users manage their schedules.
 
         Returns:
-            data: A list of dictionaries with all the schedules in it.
+            data: A list of dictionaries with all the schedules in it. The key-value pairs are
+                - 'qubits': the qubits to which this schedule applies. This may be None if the
+                    schedule is the default for all qubits.
+                - 'schedule': The schedule (either a Schedule or a ScheduleBlock).
+                - 'parameters': The parameters in the schedule exposed for convenience.
+                This list of dictionaries can easily be converted to a data frame.
         """
         data = []
         for key, sched in self._schedules.items():
