@@ -26,7 +26,7 @@ class BackendCalibrationsManager(CalibrationsManager):
     A Calibrations class to enable a seamless interplay with backend objects.
     This class enables users to export their calibrations into a backend object.
     Additionally, it creates frequency parameters for qubits and readout resonators.
-    The parameters are named `qubit_freq_est` and `meas_freq_est` to be consistent
+    The parameters are named `qubit_lo_freq` and `meas_lo_freq` to be consistent
     with the naming in backend.defaults(). These two parameters are not attached to
     any schedule.
     """
