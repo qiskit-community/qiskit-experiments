@@ -44,31 +44,13 @@ class BackendCalibrations(Calibrations):
         self._qubits = set(range(backend.configuration().n_qubits))
         self._backend = backend
 
-    def get_frequencies(
+    def _get_frequencies(
         self,
         meas_freq: bool,
         group: str = "default",
         cutoff_date: datetime = None,
     ) -> List[float]:
-        """
-        Get the most recent qubit or measurement frequencies. These frequencies can be
-        passed to the run-time options of :class:`BaseExperiment`. If no calibrated value
-        for the frequency of a qubit is found then the default value from the backend
-        defaults is used. Only valid parameter values are returned.
-
-        Args:
-            meas_freq: If True return the measurement frequencies otherwise return the qubit
-                frequencies.
-            group: The calibration group from which to draw the
-                parameters. If not specified, this defaults to the 'default' group.
-            cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
-                generated after the cutoff date will be ignored. If the cutoff_date is None then
-                all parameters are considered. This allows users to discard more recent values
-                that may be erroneous.
-
-        Returns:
-            A List of qubit or measurement frequencies for all qubits of the backend.
-        """
+        """Internal helper method."""
 
         param = self.meas_freq.name if meas_freq else self.qubit_freq.name
 
@@ -86,6 +68,54 @@ class BackendCalibrations(Calibrations):
 
         return freqs
 
+    def get_qubit_frequencies(
+        self,
+        group: str = "default",
+        cutoff_date: datetime = None,
+    ) -> List[float]:
+        """
+        Get the most recent qubit frequencies. They can be passed to the run-time
+        options of :class:`BaseExperiment`. If no calibrated frequency value of a
+        qubit is found then the default value from the backend defaults is used.
+        Only valid parameter values are returned.
+
+        Args:
+            group: The calibration group from which to draw the
+                parameters. If not specified, this defaults to the 'default' group.
+            cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
+                generated after the cutoff date will be ignored. If the cutoff_date is None then
+                all parameters are considered. This allows users to discard more recent values
+                that may be erroneous.
+
+        Returns:
+            A List of qubit frequencies for all qubits of the backend.
+        """
+        return self._get_frequencies(False, group, cutoff_date)
+
+    def get_meas_frequencies(
+        self,
+        group: str = "default",
+        cutoff_date: datetime = None,
+    ) -> List[float]:
+        """
+        Get the most recent measurement frequencies. They can be passed to the run-time
+        options of :class:`BaseExperiment`. If no calibrated frequency value of a
+        measurement is found then the default value from the backend defaults is used.
+        Only valid parameter values are returned.
+
+        Args:
+            group: The calibration group from which to draw the
+                parameters. If not specified, this defaults to the 'default' group.
+            cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
+                generated after the cutoff date will be ignored. If the cutoff_date is None then
+                all parameters are considered. This allows users to discard more recent values
+                that may be erroneous.
+
+        Returns:
+            A List of measurement frequencies for all qubits of the backend.
+        """
+        return self._get_frequencies(True, group, cutoff_date)
+
     def export_backend(self) -> Backend:
         """
         Exports the calibrations to a backend object that can be used.
@@ -95,8 +125,8 @@ class BackendCalibrations(Calibrations):
         """
         backend = copy.deepcopy(self._backend)
 
-        backend.defaults().qubit_freq_est = self.get_frequencies(False)
-        backend.defaults().meas_freq_est = self.get_frequencies(True)
+        backend.defaults().qubit_freq_est = self.get_qubit_frequencies()
+        backend.defaults().meas_freq_est = self.get_meas_frequencies()
 
         # TODO: build the instruction schedule map using the stored calibrations
 
