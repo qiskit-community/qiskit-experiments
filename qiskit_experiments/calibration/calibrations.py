@@ -465,10 +465,11 @@ class Calibrations:
             if qubits:
                 msg += f"on qubits {qubits} "
 
-            msg += f"in schedule {sched_name}"
+            if sched_name:
+                msg += f"in schedule {sched_name} "
 
             if cutoff_date:
-                msg += f" Cutoff date: {cutoff_date}"
+                msg += f"with cutoff date: {cutoff_date}"
 
             raise CalibrationError(msg)
 
