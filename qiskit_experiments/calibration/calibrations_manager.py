@@ -297,7 +297,7 @@ class CalibrationsManager:
 
         Args:
             value: The value of the parameter to add. If an int, float, or complex is given
-                then the timestamp of the parameter values will automatically be generated
+                then the timestamp of the parameter value will automatically be generated
                 and set to the current time.
             param: The parameter or its name for which to add the measured value.
             qubits: The qubits to which this parameter applies.
