@@ -446,16 +446,9 @@ class Calibrations:
         # If no candidate parameter values were found look for default parameters
         # i.e. parameters that do not specify a qubit.
         if len(candidates) == 0:
-            candidate_default_keys = []
-
             for key in candidate_keys:
-                candidate_default_keys.append(ParameterKey(key.schedule, key.parameter, None))
-
-            candidate_default_keys = set(candidate_default_keys)
-
-            for key in set(candidate_default_keys):
-                if key in self._params:
-                    candidates += self._params[key]
+                if ParameterKey(key.schedule, key.parameter, None) in self._params:
+                    candidates += self._params[ParameterKey(key.schedule, key.parameter, None)]
 
         # 4) Filter candidate parameter values.
         if valid_only:
