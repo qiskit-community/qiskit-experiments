@@ -291,9 +291,10 @@ class CalibrationsManager:
         schedule: Union[Schedule, str] = None,
     ):
         """
-        Add a parameter value to the stored parameters. This parameter value may be
-        applied to several channels, for instance, all DRAG pulses may have the same
-        standard deviation.
+        Add a parameter value to the stored parameters.
+        
+        This parameter value may be applied to several channels, for instance, all 
+        DRAG pulses may have the same standard deviation.
 
         Args:
             value: The value of the parameter to add. If an int, float, or complex is given
