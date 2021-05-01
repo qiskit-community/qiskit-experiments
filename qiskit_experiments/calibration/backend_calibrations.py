@@ -88,7 +88,7 @@ class BackendCalibrationsManager(CalibrationsManager):
 
     def export_backend(self) -> Backend:
         """
-        Exports the calibrations in a backend object that can be used.
+        Exports the calibrations to a backend object that can be used.
 
         Returns:
             calibrated backend: A backend with the calibrations in it.
