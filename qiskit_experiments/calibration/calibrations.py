@@ -218,7 +218,10 @@ class Calibrations:
             del self._parameter_map_r[key]
 
     def _register_parameter(
-        self, parameter: Parameter, schedule: Schedule = None, qubits: Tuple = None
+        self,
+        parameter: Parameter,
+        schedule: Union[Schedule, ScheduleBlock] = None,
+        qubits: Tuple = None,
     ):
         """
         Registers a parameter for the given schedule. This allows self to determine the
@@ -227,7 +230,7 @@ class Calibrations:
 
         Args:
             parameter: The parameter to register.
-            schedule: The Schedule to which this parameter belongs. The schedule can
+            schedule: The schedule to which this parameter belongs. The schedule can
                 be None which allows the calibration to accommodate, e.g. qubit frequencies.
             qubits: The qubits for which to register the parameter.
         """
@@ -288,12 +291,12 @@ class Calibrations:
         value: Union[int, float, complex, ParameterValue],
         param: Union[Parameter, str],
         qubits: Tuple[int, ...] = None,
-        schedule: Union[Schedule, str] = None,
+        schedule: Union[Schedule, ScheduleBlock, str] = None,
     ):
         """
         Add a parameter value to the stored parameters.
-        
-        This parameter value may be applied to several channels, for instance, all 
+
+        This parameter value may be applied to several channels, for instance, all
         DRAG pulses may have the same standard deviation.
 
         Args:
@@ -312,7 +315,7 @@ class Calibrations:
             value = ParameterValue(value, datetime.now())
 
         param_name = param.name if isinstance(param, Parameter) else param
-        sched_name = schedule.name if isinstance(schedule, Schedule) else schedule
+        sched_name = schedule.name if isinstance(schedule, (Schedule, ScheduleBlock)) else schedule
 
         registered_schedules = set(key.schedule for key in self._schedules)
 
@@ -385,7 +388,7 @@ class Calibrations:
         self,
         param: Union[Parameter, str],
         qubits: Tuple[int, ...],
-        schedule: Union[Schedule, str, None] = None,
+        schedule: Union[Schedule, ScheduleBlock, str, None] = None,
         valid_only: bool = True,
         group: str = "default",
         cutoff_date: datetime = None,
@@ -425,7 +428,7 @@ class Calibrations:
 
         # 1) Identify the parameter object.
         param_name = param.name if isinstance(param, Parameter) else param
-        sched_name = schedule.name if isinstance(schedule, Schedule) else schedule
+        sched_name = schedule.name if isinstance(schedule, (Schedule, ScheduleBlock)) else schedule
 
         param = self.calibration_parameter(param_name, qubits, sched_name)
 
@@ -486,7 +489,7 @@ class Calibrations:
         free_params: List[str] = None,
         group: Optional[str] = "default",
         cutoff_date: datetime = None,
-    ) -> Schedule:
+    ) -> Union[Schedule, ScheduleBlock]:
         """
         Get the schedule with the non-free parameters assigned to their values.
 
@@ -559,7 +562,7 @@ class Calibrations:
 
     @staticmethod
     def _get_parameter_keys(
-        schedule: Schedule,
+        schedule: Union[Schedule, ScheduleBlock],
         keys: Set[ParameterKey],
         qubits: Tuple[int, ...],
     ) -> Set[ParameterKey]:
@@ -610,9 +613,7 @@ class Calibrations:
 
         for _, inst in schedule.instructions:
             if isinstance(inst, Call):
-                keys = Calibrations._get_parameter_keys(
-                    inst.assigned_subroutine(), keys, qubits_
-                )
+                keys = Calibrations._get_parameter_keys(inst.assigned_subroutine(), keys, qubits_)
             else:
                 for param in inst.parameters:
                     keys.add(ParameterKey(schedule.name, param.name, qubits_))
@@ -636,7 +637,7 @@ class Calibrations:
     def parameters_table(
         self,
         parameters: List[str] = None,
-        schedules: List[Union[Schedule, str]] = None,
+        schedules: List[Union[Schedule, ScheduleBlock, str]] = None,
         qubit_list: List[Tuple[int, ...]] = None,
     ) -> List[Dict[str, Any]]:
         """
@@ -658,7 +659,9 @@ class Calibrations:
 
         # Convert inputs to lists of strings
         if schedules is not None:
-            schedules = {sdl.name if isinstance(sdl, Schedule) else sdl for sdl in schedules}
+            schedules = {
+                sdl.name if isinstance(sdl, (Schedule, ScheduleBlock)) else sdl for sdl in schedules
+            }
 
         # Look for exact matches. Default values will be ignored.
         keys = set()
