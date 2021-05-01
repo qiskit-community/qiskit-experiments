@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Class to store and manage the results of a calibration experiments."""
+"""Class to store and manage the results of calibration experiments."""
 
 from collections import namedtuple, defaultdict
 from datetime import datetime
