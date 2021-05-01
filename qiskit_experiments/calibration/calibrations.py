@@ -56,9 +56,9 @@ class Calibrations:
     Each parameter must have a unique name within each schedule. For example, it is
     acceptable to have a parameter named 'amp' in the schedule 'xp' and a different
     parameter instance named 'amp' in the schedule named 'xm'. It is not acceptable
-    to have two parameters named 'amp' in the same schedule. The Call instruction
-    allows parameters with the same name within the same schedule, see the example
-    below.
+    to have two parameters named 'amp' in the same schedule. The naming restriction
+    only applies to parameters used in the immediate scope of the schedule. Schedules
+    called by Call instructions have their own scope for Parameter names.
 
     The code block below illustrates the creation of a template schedule for a cross-
     resonance gate.
