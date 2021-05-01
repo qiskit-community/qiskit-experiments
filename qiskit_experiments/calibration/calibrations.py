@@ -29,7 +29,7 @@ ParameterKey = namedtuple("ParameterKey", ["schedule", "parameter", "qubits"])
 ScheduleKey = namedtuple("ScheduleKey", ["schedule", "qubits"])
 
 
-class CalibrationsManager:
+class Calibrations:
     r"""
     A class to manage schedules with calibrated parameter values. Schedules are
     intended to be fully parameterized, including the index of the channels.
@@ -527,7 +527,7 @@ class CalibrationsManager:
         schedule = schedule.assign_parameters(binding_dict, inplace=False)
 
         # Get the parameter keys by descending into the call instructions.
-        parameter_keys = CalibrationsManager._get_parameter_keys(schedule, set(), qubits)
+        parameter_keys = Calibrations._get_parameter_keys(schedule, set(), qubits)
 
         # Build the parameter binding dictionary.
         free_params = free_params if free_params else []
@@ -610,7 +610,7 @@ class CalibrationsManager:
 
         for _, inst in schedule.instructions:
             if isinstance(inst, Call):
-                keys = CalibrationsManager._get_parameter_keys(
+                keys = Calibrations._get_parameter_keys(
                     inst.assigned_subroutine(), keys, qubits_
                 )
             else:

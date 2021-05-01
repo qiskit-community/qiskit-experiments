@@ -18,10 +18,10 @@ import copy
 
 from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Parameter
-from qiskit_experiments.calibration.calibrations_manager import CalibrationsManager, ParameterKey
+from qiskit_experiments.calibration.calibrations import Calibrations, ParameterKey
 
 
-class BackendCalibrationsManager(CalibrationsManager):
+class BackendCalibrations(Calibrations):
     """
     A Calibrations class to enable a seamless interplay with backend objects.
     This class enables users to export their calibrations into a backend object.

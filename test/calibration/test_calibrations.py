@@ -18,7 +18,7 @@ from qiskit.pulse import Drag, DriveChannel, ControlChannel, Gaussian, GaussianS
 from qiskit.pulse.transforms import inline_subroutines
 import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
-from qiskit_experiments.calibration.calibrations_manager import CalibrationsManager, ParameterKey
+from qiskit_experiments.calibration.calibrations import Calibrations, ParameterKey
 from qiskit_experiments.calibration.parameter_value import ParameterValue
 from qiskit_experiments.calibration.exceptions import CalibrationError
 
@@ -28,7 +28,7 @@ class TestCalibrationsBasic(QiskitTestCase):
 
     def setUp(self):
         """Setup a test environment."""
-        self.cals = CalibrationsManager()
+        self.cals = Calibrations()
 
         self.sigma = Parameter("σ")
         self.amp_xp = Parameter("amp")
@@ -194,7 +194,7 @@ class TestCalibrationDefaults(QiskitTestCase):
 
     def setUp(self):
         """Setup a few parameters."""
-        self.cals = CalibrationsManager()
+        self.cals = Calibrations()
 
         self.sigma = Parameter("σ")
         self.amp_xp = Parameter("amp")
@@ -387,7 +387,7 @@ class TestInstructions(QiskitTestCase):
             pulse.call(xp)
             pulse.call(xp12)
 
-        self.cals = CalibrationsManager()
+        self.cals = Calibrations()
         self.cals.add_schedule(xp02)
 
         self.date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
@@ -427,7 +427,7 @@ class TestControlChannels(QiskitTestCase):
             (3, 2): [ControlChannel(10), ControlChannel(123)],
             (2, 3): [ControlChannel(15), ControlChannel(23)],
         }
-        self.cals = CalibrationsManager(control_config=controls)
+        self.cals = Calibrations(control_config=controls)
 
         self.amp_cr = Parameter("amp")
         self.amp_rot = Parameter("amp_rot")

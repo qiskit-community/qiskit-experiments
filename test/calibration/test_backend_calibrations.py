@@ -14,7 +14,7 @@
 
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeArmonk
-from qiskit_experiments.calibration.backend_calibrations import BackendCalibrationsManager
+from qiskit_experiments.calibration.backend_calibrations import BackendCalibrations
 
 
 class TestBackendCalibrations(QiskitTestCase):
@@ -22,7 +22,7 @@ class TestBackendCalibrations(QiskitTestCase):
 
     def test_run_options(self):
         """Test that we can get run options."""
-        cals = BackendCalibrationsManager(FakeArmonk())
+        cals = BackendCalibrations(FakeArmonk())
 
         self.assertEqual(cals.get_frequencies(False), [6993370669.000001])
         self.assertEqual(cals.get_frequencies(True), [4971852852.405576])
