@@ -60,7 +60,7 @@ class BackendCalibrationsManager(CalibrationsManager):
             meas_freq: If True return the measurement frequencies otherwise return the qubit
                 frequencies.
             group: The calibration group from which to draw the
-                parameters. If not specifies this defaults to the 'default' group.
+                parameters. If not specified, this defaults to the 'default' group.
             cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
                 generated after the cutoff date will be ignored. If the cutoff_date is None then
                 all parameters are considered. This allows users to discard more recent values
