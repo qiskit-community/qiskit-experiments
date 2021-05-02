@@ -378,19 +378,32 @@ class TestMeasurements(QiskitTestCase):
         self.duration = 8000
         self.duration_xp = 160
         ch0 = Parameter("ch0")
+        ch1 = Parameter("ch1")
         self.m0_ = MeasureChannel(ch0)
         self.d0_ = DriveChannel(ch0)
 
         with pulse.build(name="meas") as meas:
             pulse.play(GaussianSquare(self.duration, self.amp, self.sigma, self.width), self.m0_)
 
-        with pulse.build(name="xp_meas") as xp_meas:
+        with pulse.build(name="xp") as xp:
             pulse.play(Gaussian(self.duration_xp, self.amp_xp, self.sigma_xp), self.d0_)
+
+        with pulse.build(name="xp_meas") as xp_meas:
+            pulse.call(xp)
             pulse.call(meas)
+
+        with pulse.build(name="xt_meas") as xt_meas:
+            with pulse.align_sequential():
+                pulse.call(xp)
+                pulse.call(meas)
+            with pulse.align_sequential():
+                pulse.call(xp, value_dict={ch0: ch1})
+                pulse.call(meas, value_dict={ch0: ch1})
 
         self.cals = Calibrations()
         self.cals.add_schedule(meas)
         self.cals.add_schedule(xp_meas)
+        self.cals.add_schedule(xt_meas)
 
         #self.cals.add_parameter_value(8000, self.duration, schedule="meas")
         self.cals.add_parameter_value(0.5, self.amp, (0, ), "meas")
@@ -398,8 +411,9 @@ class TestMeasurements(QiskitTestCase):
         self.cals.add_parameter_value(160, self.sigma, schedule="meas")
         self.cals.add_parameter_value(7000, self.width, schedule="meas")
 
-        self.cals.add_parameter_value(0.9, self.amp_xp, (0, ), "xp_meas")
-        self.cals.add_parameter_value(40, self.sigma_xp, schedule="xp_meas")
+        self.cals.add_parameter_value(0.9, self.amp_xp, (0, ), "xp")
+        self.cals.add_parameter_value(0.7, self.amp_xp, (2,), "xp")
+        self.cals.add_parameter_value(40, self.sigma_xp, schedule="xp")
 
     def test_meas_schedule(self):
         """Test that we get a properly assigned measure schedule."""
@@ -419,6 +433,25 @@ class TestMeasurements(QiskitTestCase):
 
         self.assertTrue(sched.instructions[0][1], xp)
         self.assertTrue(sched.instructions[1][1], meas)
+
+    def test_xt_meas(self):
+        """Test that creating multi-qubit schedules out of calls works."""
+
+        sched = self.cals.get_schedule("xt_meas", (0, 2))
+
+        xp0 = Play(Gaussian(160, 0.9, 40), DriveChannel(0))
+        xp2 = Play(Gaussian(160, 0.7, 40), DriveChannel(2))
+
+        meas0 = Play(GaussianSquare(8000, 0.5, 160, 7000), MeasureChannel(0))
+        meas2 = Play(GaussianSquare(8000, 0.3, 160, 7000), MeasureChannel(2))
+
+        sched = inline_subroutines(sched)
+
+        self.assertEqual(sched.instructions[0][1], xp0)
+        self.assertEqual(sched.instructions[1][1], xp2)
+        self.assertEqual(sched.instructions[2][1], meas0)
+        self.assertEqual(sched.instructions[3][1], meas2)
+
 
 class TestInstructions(QiskitTestCase):
     """Class to test that instructions like Shift and Set Phase/Frequency are properly managed."""
