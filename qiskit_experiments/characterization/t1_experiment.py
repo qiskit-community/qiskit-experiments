@@ -46,7 +46,7 @@ class T1Analysis(BaseAnalysis):
         Calculate T1
 
         Args:
-            experiment_data (ExperimentData): the experiment data to analyze
+            experiment_data (ExperimentDataV1): the experiment data to analyze
             t1_guess (float): Optional, an initial guess of T1
             amplitude_guess (float): Optional, an initial guess of the coefficient of the exponent
             offset_guess (float): Optional, an initial guess of the offset

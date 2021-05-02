@@ -208,26 +208,39 @@ class TestT1(unittest.TestCase):
         Test T1Analysis
         """
 
-        data = ExperimentData(None)
-        numbers = [750, 1800, 2750, 3550, 4250, 4850, 5450, 5900, 6400, 6800, 7000, 7350, 7700]
+        backend_res = {
+            "backend_name": "T1 backend",
+            "backend_version": "0",
+            "qobj_id": 0,
+            "job_id": 0,
+            "success": True,
+            "results": [],
+        }
 
+        shots = 10000
+        numbers = [750, 1800, 2750, 3550, 4250, 4850, 5450, 5900, 6400, 6800, 7000, 7350, 7700]
         for i, count0 in enumerate(numbers):
-            data._data.append(
+            backend_res["results"].append(
                 {
-                    "counts": {"0": count0, "1": 10000 - count0},
-                    "metadata": {
+                    "success": True,
+                    "shots": shots,
+                    "data": {"counts": {"0": count0, "1": shots - count0}},
+                    "header": {"metadata": {
                         "xval": 3 * i + 1,
                         "experiment_type": "T1Experiment",
                         "qubit": 0,
                         "unit": "ns",
                         "dt_factor_in_sec": None,
-                    },
+                    }},
                 }
             )
 
+        data = ExperimentDataV1(None, "T1Experiment")
+        data.add_data(Result.from_dict(backend_res))
+
         res = T1Analysis()._run_analysis(data)[0]
-        self.assertEqual(res["quality"], "computer_good")
-        self.assertAlmostEqual(res["value"], 25e-9, delta=3)
+        self.assertEqual(res.quality, ResultQuality.GOOD)
+        self.assertAlmostEqual(res.data()["value"], 25e-9, delta=3)
 
     def test_t1_metadata(self):
         """
@@ -273,7 +286,7 @@ class TestT1(unittest.TestCase):
             )
 
         res = T1Analysis()._run_analysis(data)[0]
-        self.assertEqual(res["quality"], "computer_bad")
+        self.assertEqual(res.quality, ResultQuality.BAD)
 
 
 if __name__ == "__main__":
