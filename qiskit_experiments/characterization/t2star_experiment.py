@@ -23,7 +23,7 @@ import qiskit
 from qiskit.circuit import QuantumCircuit
 from qiskit.utils import apply_prefix
 from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.base_analysis import BaseAnalysis
+from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResult
 from qiskit_experiments.analysis.curve_fitting import curve_fit, multi_curve_fit, process_curve_data
 from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_scatter, plot_errorbar
 from qiskit_experiments.analysis.data_processing import level2_probability
@@ -132,19 +132,36 @@ class T2StarAnalysis(BaseAnalysis):
         t2star_estimate = np.mean(si_xdata)
         
         p0, bounds = _t2star_default_params(self, t2star=t2star_estimate, p0=p0, bounds=bounds)
-        result = curve_fit(
+        fit_result = curve_fit(
             osc_fit_fun, si_xdata, ydata, p0=list(p0.values()), sigma=sigma,
             bounds=bounds)
 
         if plot:
-            ax = plot_curve_fit(osc_fit_fun, result, ax=ax)
+            ax = plot_curve_fit(osc_fit_fun, fit_result, ax=ax)
             ax = plot_scatter(si_xdata, ydata, ax=ax)
             ax = plot_errorbar(si_xdata, ydata, sigma, ax=ax)
             _format_plot(ax, unit)
-            result.plt = plt
+            fit_result.plt = plt
             plt.show()
 
-        return result, None
+        analysis_result = AnalysisResult(
+            {
+                "T2star_value": fit_result["popt"][1],
+                "Frequency_value": fit_result["popt"][2],
+                "stderr": fit_result["popt_err"][1],
+                "unit": "s",
+                "label": "T2*",
+                "fit": fit_result
+                #"quality": self._fit_quality(
+               #     fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
+               # ),
+            }
+        )
+
+        analysis_result["fit"]["circuit_unit"] = unit
+        if unit == "dt":
+            analysis_result["fit"]["dt"] = conversion_factor
+        return analysis_result, None
 
 class T2StarExperiment(BaseExperiment):
     """T2Star experiment class"""
@@ -191,18 +208,19 @@ class T2StarExperiment(BaseExperiment):
             The experiment circuits
         """
         if self._unit == "dt":
+            print(backend.configuration())
             try:
                 dt_factor = getattr(backend.configuration(), "dt")
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
-        conversion_factor = 1 if self._unit == "s" else apply_prefix(1, self._unit)
+            conversion_factor = dt_factor
+#            self._unit = 'dt'
+        else:
+            conversion_factor = 1 if self._unit == "s" else apply_prefix(1, self._unit)
         print('conversion_factor = ' +str(conversion_factor))
 
         xdata = self._delays
         #self._osc_freq /= conversion_factor
-
-        print("xdata= " + str(xdata))
-        print("osc_freq = " + str(self._osc_freq))
 
         circuits = []
         for delay in self._delays:

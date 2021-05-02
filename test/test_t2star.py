@@ -146,48 +146,66 @@ class TestT2Star(QiskitTestCase):
     """ Test T2Star experiment"""
 
     def test_t2star_run(self):
-        #run backend
-        unit = 'ms'
-        dt_factor = 1 if unit == "s" else apply_prefix(1, unit)
-        estimated_t2star = 20
-        estimated_freq = 0.1
-        # Set up the circuits
-        qubit = 0
-        delays = np.append(
-              (np.linspace(1.0, 15.0, num=15)).astype(float),
-              (np.linspace(16.0, 45.0, num=59)).astype(float))
-        exp = T2StarExperiment(qubit, delays, unit=unit)
-        circs = exp.circuits()
-        
-        backend = T2Backend(
-            p0 = {'A_guess':[0.5], 't2star':[estimated_t2star],
-                  'f_guess':[estimated_freq], 'phi_guess':[-np.pi/20], 'B_guess':[0.5]},
-            initial_prob_plus = [0.0],
-            readout0to1=[0.02],
-            readout1to0=[0.02],
-            dt_factor=dt_factor,
-        )
+        #run backend for all different units
+        # For some reason, 'ps' was not precise enough - need to check this
+        # unit in ['ms', 's', 'ms', 'us', 'ns', 'dt']:
+        for unit in ['ms', 's', 'ms', 'us', 'ns']:
+            if unit == 's' or unit == 'dt':
+                dt_factor = 1
+            else:
+                dt_factor = apply_prefix(1, unit)
+            estimated_t2star = 20
+            estimated_freq = 0.1
+            # Set up the circuits
+            qubit = 0
+            if unit == 'dt':
+                delays = np.arange(1, 46)
+                #(np.linspace(1.0, 15.0, num=15)).astype(float),
+                #(np.linspace(16.0, 45.0, num=30)).astype(float)
+                 #   )
+                #delays = np.arange(1, 45)
+            else:
+                delays = np.append(
+                (np.linspace(1.0, 15.0, num=15)).astype(float),
+                (np.linspace(16.0, 45.0, num=59)).astype(float)
+                    )
+#            print("delays = "+ str(delays))
 
-        exp.circuits(backend=backend)
-        #t2star = 10
-        #p0, bounds = exp.T2Star_default_params(t2star=t2star, osc_freq=5 / 45)
-        #p0 = [A=None, t2star=10, osc_freq=None, phi=None, B=None]
-        #run circuit
-        result = exp.run(
+            # dummy numbers to avoid exception triggerring
+            instruction_durations = [
+                    ("measure", [0], 3, unit),
+                    ("h", [0], 3, unit),
+                    ("p", [0], 3, unit),
+                    ("delay", [0], 3,unit)
+                ]
+                
+            exp = T2StarExperiment(qubit, delays, unit=unit)
+        
+            backend = T2Backend(
+                p0 = {'A_guess':[0.5], 't2star':[estimated_t2star],
+                      'f_guess':[estimated_freq], 'phi_guess':[-np.pi/20], 'B_guess':[0.5]},
+                initial_prob_plus = [0.0],
+                readout0to1=[0.02],
+                readout1to0=[0.02],
+                dt_factor=dt_factor
+                )
+            circs = exp.circuits(backend)
+
+            #run circuits
+            result = exp.run(
                 backend = backend,
                 p0={'A':0.5, 't2star':estimated_t2star,
-                  'f':estimated_freq, 'phi':-np.pi/20, 'B':0.5},
+                    'f':estimated_freq, 'phi':-np.pi/20, 'B':0.5},
                 bounds=None,
-                #plot=False,
+#                plot=False,
+                instruction_durations=instruction_durations,
                 shots=2000
-            )
-        #self.assertEqual(result["quality"], "computer_good")
-        t2star_res = result._analysis_results[0]['popt'][1]
-        frequency_res = result._analysis_results[0]['popt'][2]
-        print("result t2star = " + str(t2star_res))
-        print("result freq = " + str(frequency_res))
-        self.assertAlmostEqual(t2star_res, estimated_t2star*dt_factor, delta=1 * dt_factor)
-        self.assertAlmostEqual(frequency_res, estimated_freq, delta=1 / dt_factor)
+                )
+            #self.assertEqual(result["quality"], "computer_good")
+            t2star_res = result._analysis_results[0]["T2star_value"]
+            frequency_res = result._analysis_results[0]["Frequency_value"]
+            self.assertAlmostEqual(t2star_res, estimated_t2star*dt_factor, delta=1 * dt_factor)
+            self.assertAlmostEqual(frequency_res, estimated_freq, delta=1 / dt_factor)
 
 
 
