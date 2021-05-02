@@ -114,7 +114,7 @@ class T1Analysis(BaseAnalysis):
         analysis_result = AnalysisResultV1(
             result_data,
             'T1',
-            [Qubit()],
+            [Qubit(experiment_data.data(0)["metadata"]["qubit"])],
             experiment_data.id,
             quality=result_data['quality'],
             verified=True)

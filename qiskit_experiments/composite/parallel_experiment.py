@@ -22,7 +22,7 @@ class ParallelExperiment(CompositeExperiment):
     """Parallel Experiment class"""
 
     def __init__(self, experiments):
-        """Initialize the analysis object.
+        """Initialize the parallel experiments object.
 
         Args:
             experiments (List[BaseExperiment]): a list of experiments.
