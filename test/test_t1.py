@@ -271,21 +271,36 @@ class TestT1(unittest.TestCase):
         A test where the fit's quality will be low
         """
 
-        data = ExperimentData(None)
+        backend_res = {
+            "backend_name": "T1 backend",
+            "backend_version": "0",
+            "qobj_id": 0,
+            "job_id": 0,
+            "success": True,
+            "results": [],
+        }
 
+        shots = 20
         for i in range(10):
-            data._data.append(
+            backend_res["results"].append(
                 {
-                    "counts": {"0": 10, "1": 10},
-                    "metadata": {
-                        "xval": i,
-                        "experiment_type": "T1Experiment",
-                        "qubit": 0,
-                        "unit": "ns",
-                        "dt_factor_in_sec": None,
+                    "success": True,
+                    "shots": shots,
+                    "data": {"counts": {"0": 10, "1": shots - 10}},
+                    "header": {
+                        "metadata": {
+                            "xval": i,
+                            "experiment_type": "T1Experiment",
+                            "qubit": 0,
+                            "unit": "ns",
+                            "dt_factor_in_sec": None,
+                        }
                     },
                 }
             )
+
+        data = ExperimentDataV1(None, "T1Experiment")
+        data.add_data(Result.from_dict(backend_res))
 
         res = T1Analysis()._run_analysis(data)[0]
         self.assertEqual(res.quality, ResultQuality.BAD)
