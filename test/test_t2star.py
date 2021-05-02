@@ -73,7 +73,6 @@ class T2Backend(BaseBackend):
         """
         Run the T2star backend
         """
-        print("self._t2star = " + str(self._t2star))
         shots = qobj.config.shots
         result = {
             "backend_name": "T2star backend",
@@ -149,7 +148,7 @@ class TestT2Star(QiskitTestCase):
         #run backend for all different units
         # For some reason, 'ps' was not precise enough - need to check this
         # unit in ['ms', 's', 'ms', 'us', 'ns', 'dt']:
-        for unit in ['ms', 's', 'ms', 'us', 'ns']:
+        for unit in ['s', 'ms', 'us', 'ns', 'dt']:
             if unit == 's' or unit == 'dt':
                 dt_factor = 1
             else:
@@ -159,24 +158,19 @@ class TestT2Star(QiskitTestCase):
             # Set up the circuits
             qubit = 0
             if unit == 'dt':
-                delays = np.arange(1, 46)
-                #(np.linspace(1.0, 15.0, num=15)).astype(float),
-                #(np.linspace(16.0, 45.0, num=30)).astype(float)
-                 #   )
-                #delays = np.arange(1, 45)
+                delays= list(range(1, 46))
             else:
                 delays = np.append(
                 (np.linspace(1.0, 15.0, num=15)).astype(float),
                 (np.linspace(16.0, 45.0, num=59)).astype(float)
                     )
-#            print("delays = "+ str(delays))
 
             # dummy numbers to avoid exception triggerring
             instruction_durations = [
                     ("measure", [0], 3, unit),
                     ("h", [0], 3, unit),
                     ("p", [0], 3, unit),
-                    ("delay", [0], 3,unit)
+                    ("delay", [0], 3, unit)
                 ]
                 
             exp = T2StarExperiment(qubit, delays, unit=unit)
@@ -189,15 +183,16 @@ class TestT2Star(QiskitTestCase):
                 readout1to0=[0.02],
                 dt_factor=dt_factor
                 )
+            if unit == 'dt':
+                dt_factor = getattr(backend._configuration, "dt")
             circs = exp.circuits(backend)
-
             #run circuits
             result = exp.run(
                 backend = backend,
                 p0={'A':0.5, 't2star':estimated_t2star,
                     'f':estimated_freq, 'phi':-np.pi/20, 'B':0.5},
                 bounds=None,
-#                plot=False,
+                plot=False,
                 instruction_durations=instruction_durations,
                 shots=2000
                 )

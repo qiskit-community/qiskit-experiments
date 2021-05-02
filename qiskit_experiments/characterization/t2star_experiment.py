@@ -123,7 +123,6 @@ class T2StarAnalysis(BaseAnalysis):
         self._conversion_factor = experiment_data._data[0]["metadata"].get("dt_factor", None)
         if self._conversion_factor is None:
             self._conversion_factor = 1 if unit == "s" else apply_prefix(1, unit)
-
         xdata, ydata, sigma = process_curve_data(
             experiment_data._data, lambda datum: level2_probability(datum, "1")
             )
@@ -160,7 +159,7 @@ class T2StarAnalysis(BaseAnalysis):
 
         analysis_result["fit"]["circuit_unit"] = unit
         if unit == "dt":
-            analysis_result["fit"]["dt"] = conversion_factor
+            analysis_result["fit"]["dt"] = self._conversion_factor
         return analysis_result, None
 
 class T2StarExperiment(BaseExperiment):
@@ -208,19 +207,15 @@ class T2StarExperiment(BaseExperiment):
             The experiment circuits
         """
         if self._unit == "dt":
-            print(backend.configuration())
             try:
-                dt_factor = getattr(backend.configuration(), "dt")
+                dt_factor = getattr(backend._configuration, "dt")
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
             conversion_factor = dt_factor
-#            self._unit = 'dt'
         else:
             conversion_factor = 1 if self._unit == "s" else apply_prefix(1, self._unit)
-        print('conversion_factor = ' +str(conversion_factor))
 
         xdata = self._delays
-        #self._osc_freq /= conversion_factor
 
         circuits = []
         for delay in self._delays:
