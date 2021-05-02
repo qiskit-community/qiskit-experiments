@@ -104,8 +104,8 @@ class T1Analysis(BaseAnalysis):
             "fit": fit_result,
             "quality": self._fit_quality(
                 fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
-                ),
-            }
+            ),
+        }
 
         result_data["fit"]["circuit_unit"] = unit
         if unit == "dt":
@@ -113,11 +113,12 @@ class T1Analysis(BaseAnalysis):
 
         analysis_result = AnalysisResultV1(
             result_data,
-            'T1',
+            "T1",
             [Qubit(experiment_data.data(0)["metadata"]["qubit"])],
             experiment_data.id,
-            quality=result_data['quality'],
-            verified=True)
+            quality=result_data["quality"],
+            verified=True,
+        )
 
         return analysis_result, None
 

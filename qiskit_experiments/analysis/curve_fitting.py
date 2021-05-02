@@ -231,6 +231,7 @@ def multi_curve_fit(
     # Run linearized curve_fit
     return curve_fit(f, xdata, ydata, p0, sigma=wsigma, bounds=bounds, **kwargs)
 
+
 def process_curve_data(
     data: List[Dict[str, any]], data_processor: Callable, x_key: str = "xval", **filters
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:

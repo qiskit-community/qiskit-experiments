@@ -225,13 +225,15 @@ class TestT1(unittest.TestCase):
                     "success": True,
                     "shots": shots,
                     "data": {"counts": {"0": count0, "1": shots - count0}},
-                    "header": {"metadata": {
-                        "xval": 3 * i + 1,
-                        "experiment_type": "T1Experiment",
-                        "qubit": 0,
-                        "unit": "ns",
-                        "dt_factor_in_sec": None,
-                    }},
+                    "header": {
+                        "metadata": {
+                            "xval": 3 * i + 1,
+                            "experiment_type": "T1Experiment",
+                            "qubit": 0,
+                            "unit": "ns",
+                            "dt_factor_in_sec": None,
+                        }
+                    },
                 }
             )
 
