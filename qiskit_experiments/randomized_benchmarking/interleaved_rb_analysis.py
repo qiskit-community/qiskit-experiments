@@ -22,7 +22,7 @@ from qiskit_experiments.analysis.curve_fitting import (
 from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_scatter, plot_errorbar
 from qiskit_experiments.analysis.data_processing import (
     level2_probability,
-    mean_xy_data,
+    multi_mean_xy_data,
 )
 from .rb_analysis import RBAnalysis
 
@@ -36,10 +36,10 @@ except ImportError:
 
 class InterleavedRBAnalysis(RBAnalysis):
     """Interleaved RB Analysis class.
-       According to the paper: "Efficient measurement of quantum gate
-       error by interleaved randomized benchmarking" (arXiv:1203.4550)
-       - Equations (4) and (5).
-        """
+    According to the paper: "Efficient measurement of quantum gate
+    error by interleaved randomized benchmarking" (arXiv:1203.4550)
+    - Equations (4) and (5).
+    """
 
     # pylint: disable=invalid-name, unused-variable, unused-argument, attribute-defined-outside-init
     def _run_analysis(
@@ -54,7 +54,7 @@ class InterleavedRBAnalysis(RBAnalysis):
 
         self._num_qubits = len(experiment_data.data[0]["metadata"]["qubits"])
         series, x, y, sigma = process_multi_curve_data(experiment_data.data, data_processor)
-        xdata, ydata, ydata_sigma, series = mean_xy_data(x, y, sigma, series)
+        xdata, ydata, ydata_sigma, series = multi_mean_xy_data(x, y, sigma, series)
 
         def fit_fun_standard(x, a, alpha_std, alpha_int, b):
             return a * alpha_std ** x + b

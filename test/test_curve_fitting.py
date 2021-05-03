@@ -17,7 +17,11 @@ from qiskit.test import QiskitTestCase
 from qiskit import QuantumCircuit, execute
 from qiskit.providers.basicaer import QasmSimulatorPy
 from qiskit_experiments.analysis.curve_fitting import curve_fit, multi_curve_fit, process_curve_data
-from qiskit_experiments.analysis.data_processing import level2_probability, mean_xy_data, multi_mean_xy_data
+from qiskit_experiments.analysis.data_processing import (
+    level2_probability,
+    mean_xy_data,
+    multi_mean_xy_data,
+)
 
 
 class TestCurveFitting(QiskitTestCase):

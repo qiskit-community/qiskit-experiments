@@ -45,6 +45,7 @@ def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
             filtered_data.append(datum)
     return filtered_data
 
+
 def mean_xy_data(
     xdata: np.ndarray,
     ydata: np.ndarray,
@@ -57,6 +58,7 @@ def mean_xy_data(
     series = np.zeros(xdata.size)
     x_means, y_means, y_sigmas, _ = multi_mean_xy_data(xdata, ydata, sigma, series, method)
     return x_means, y_means, y_sigmas
+
 
 def multi_mean_xy_data(
     xdata: np.ndarray,
