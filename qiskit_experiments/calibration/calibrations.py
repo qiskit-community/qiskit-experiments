@@ -523,13 +523,90 @@ class Calibrations:
         # Binding the channel indices makes it easier to deal with parameters later on
         schedule = schedule.assign_parameters(binding_dict, inplace=False)
 
-        # Get the parameter keys by descending into the call instructions.
-        parameter_keys = Calibrations._get_parameter_keys(schedule, set(), qubits)
+        return self._assign(schedule, qubits, free_params, group, cutoff_date)
 
-        # Build the parameter binding dictionary.
+    def _assign(
+        self,
+        schedule,
+        qubits: Tuple[int, ...],
+        free_params: List[str] = None,
+        group: Optional[str] = "default",
+        cutoff_date: datetime = None,
+    ) -> Union[Schedule, ScheduleBlock]:
+        """
+        Recursive function to extract and assign parameters from a schedule. The
+        recursive behaviour is needed to handle Call instructions as the name of
+        the called instruction defines the scope of the parameter. Each time a Call
+        is found _assign recurses on the channel-assigned subroutine of the Call
+        instruction and the qubits that are in said subroutine. This requires a
+        careful extraction of the qubits from the subroutine and in the appropriate
+        order. Next, the parameters are identified and assigned. This is needed to
+        handle situations where the same parameterized schedule is called but on
+        different channels. For example,
+
+        .. code-block:: python
+
+            ch0 = Parameter("ch0")
+            ch1 = Parameter("ch1")
+
+            with pulse.build(name="xp") as xp:
+                pulse.play(Gaussian(duration, amp, sigma), DriveChannel(ch0))
+
+            with pulse.build(name="xt_xp") as xt:
+                pulse.call(xp)
+                pulse.call(xp, value_dict={ch0: ch1})
+
+        Here, we define the xp schedule for all qubits as a Gaussian. Next, we define a
+        schedule where both xp schedules are called simultaneously on different channels.
+
+        Args:
+            schedule: The schedule with assigned channel indices for which we wish to
+                assign values to non-channel parameters.
+            qubits: The qubits for which to get the schedule.
+            free_params: The parameters that are to be left free.
+            group: The calibration group of the parameters.
+            cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
+                generated after the cutoff date will be ignored. If the cutoff_date is None then
+                all parameters are considered. This allows users to discard more recent values that
+                may be erroneous.
+        """
+
+        # 1) Restrict the given qubits to those in the given schedule.
+        qubit_set = set()
+        for chan in schedule.channels:
+            if isinstance(chan.index, ParameterExpression):
+                raise (
+                    CalibrationError(
+                        f"All parametric channels must be assigned before searching for "
+                        f"non-channel parameters. {chan} is parametric."
+                    )
+                )
+            if isinstance(chan, (DriveChannel, MeasureChannel)):
+                qubit_set.add(chan.index)
+
+        qubits_ = tuple(qubit for qubit in qubits if qubit in qubit_set)
+
+        # 2) Recursively assign the parameters in the called instructions.
+        ret_schedule = Schedule(name=schedule.name, metadata=schedule.metadata)
+        for t0, inst in schedule.instructions:
+            if isinstance(inst, Call):
+                inst = self._assign(
+                    inst.assigned_subroutine(), qubits_, free_params, group, cutoff_date
+                )
+
+            ret_schedule.insert(t0, inst, inplace=True)
+
+        # 3) Get the parameter keys of the remaining instructions.
+        keys = set()
+        for _, inst in ret_schedule.instructions:
+            for param in inst.parameters:
+                keys.add(ParameterKey(ret_schedule.name, param.name, qubits_))
+
+        # 4) Build the parameter binding dictionary.
         free_params = free_params if free_params else []
 
-        for key in parameter_keys:
+        binding_dict = {}
+        for key in keys:
             if key.parameter not in free_params:
                 # Get the parameter object. Since we are dealing with a schedule the name of
                 # the schedule is always defined. However, the parameter may be a default
@@ -552,67 +629,7 @@ class Calibrations:
                         cutoff_date=cutoff_date,
                     )
 
-        return schedule.assign_parameters(binding_dict, inplace=False)
-
-    @staticmethod
-    def _get_parameter_keys(
-        schedule: Union[Schedule, ScheduleBlock],
-        keys: Set[ParameterKey],
-        qubits: Tuple[int, ...],
-    ) -> Set[ParameterKey]:
-        """
-        Recursive function to extract parameter keys from a schedule. The recursive
-        behaviour is needed to handle Call instructions. Each time a Call is found
-        get_parameter_keys is called on the assigned subroutine of the Call instruction
-        and the qubits that are in said subroutine. This requires carefully
-        extracting the qubits from the subroutine and in the appropriate order.
-
-        Args:
-            schedule: A schedule from which to extract parameters.
-            keys: A set of keys recursively populated.
-            qubits: The qubits for which we want the schedule.
-
-        Returns:
-            keys: The set of keys populated with schedule name, parameter name, qubits.
-
-        Raises:
-            CalibrationError: If a channel index is parameterized.
-        """
-
-        # schedule.channels may give the qubits in any order. This order matters. For example,
-        # the parameter ('cr', 'amp', (2, 3)) is not the same as ('cr', 'amp', (3, 2)).
-        # Furthermore, as we call subroutines the list of qubits involved shrinks. For
-        # example, a cross-resonance schedule could be
-        #
-        # pulse.call(xp)
-        # ...
-        # pulse.play(GaussianSquare(...), ControlChannel(X))
-        #
-        # Here, the call instruction might, e.g., only involve qubit 2 while the play instruction
-        # will apply to qubits (2, 3).
-
-        qubit_set = set()
-        for chan in schedule.channels:
-            if isinstance(chan.index, ParameterExpression):
-                raise (
-                    CalibrationError(
-                        f"All parametric channels must be assigned before searching for "
-                        f"non-channel parameters. {chan} is parametric."
-                    )
-                )
-            if isinstance(chan, (DriveChannel, MeasureChannel)):
-                qubit_set.add(chan.index)
-
-        qubits_ = tuple(qubit for qubit in qubits if qubit in qubit_set)
-
-        for _, inst in schedule.instructions:
-            if isinstance(inst, Call):
-                keys = Calibrations._get_parameter_keys(inst.assigned_subroutine(), keys, qubits_)
-            else:
-                for param in inst.parameters:
-                    keys.add(ParameterKey(schedule.name, param.name, qubits_))
-
-        return keys
+        return ret_schedule.assign_parameters(binding_dict, inplace=False)
 
     def schedules(self) -> List[Dict[str, Any]]:
         """

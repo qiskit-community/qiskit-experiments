@@ -14,7 +14,15 @@
 
 from datetime import datetime
 from qiskit.circuit import Parameter
-from qiskit.pulse import Drag, DriveChannel, ControlChannel, Gaussian, GaussianSquare, MeasureChannel, Play
+from qiskit.pulse import (
+    Drag,
+    DriveChannel,
+    ControlChannel,
+    Gaussian,
+    GaussianSquare,
+    MeasureChannel,
+    Play,
+)
 from qiskit.pulse.transforms import inline_subroutines
 import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
@@ -405,29 +413,29 @@ class TestMeasurements(QiskitTestCase):
         self.cals.add_schedule(xp_meas)
         self.cals.add_schedule(xt_meas)
 
-        #self.cals.add_parameter_value(8000, self.duration, schedule="meas")
-        self.cals.add_parameter_value(0.5, self.amp, (0, ), "meas")
+        # self.cals.add_parameter_value(8000, self.duration, schedule="meas")
+        self.cals.add_parameter_value(0.5, self.amp, (0,), "meas")
         self.cals.add_parameter_value(0.3, self.amp, (2,), "meas")
         self.cals.add_parameter_value(160, self.sigma, schedule="meas")
         self.cals.add_parameter_value(7000, self.width, schedule="meas")
 
-        self.cals.add_parameter_value(0.9, self.amp_xp, (0, ), "xp")
+        self.cals.add_parameter_value(0.9, self.amp_xp, (0,), "xp")
         self.cals.add_parameter_value(0.7, self.amp_xp, (2,), "xp")
         self.cals.add_parameter_value(40, self.sigma_xp, schedule="xp")
 
     def test_meas_schedule(self):
         """Test that we get a properly assigned measure schedule."""
-        sched = self.cals.get_schedule("meas", (0, ))
+        sched = self.cals.get_schedule("meas", (0,))
         meas = Play(GaussianSquare(8000, 0.5, 160, 7000), MeasureChannel(0))
         self.assertTrue(sched.instructions[0][1], meas)
 
-        sched = self.cals.get_schedule("meas", (2, ))
+        sched = self.cals.get_schedule("meas", (2,))
         meas = Play(GaussianSquare(8000, 0.3, 160, 7000), MeasureChannel(0))
         self.assertTrue(sched.instructions[0][1], meas)
 
     def test_call_meas(self):
         """Test that we can call a measurement pulse."""
-        sched = self.cals.get_schedule("xp_meas", (0, ))
+        sched = self.cals.get_schedule("xp_meas", (0,))
         xp = Play(Gaussian(160, 0.9, 40), DriveChannel(0))
         meas = Play(GaussianSquare(8000, 0.5, 160, 7000), MeasureChannel(0))
 
@@ -444,8 +452,6 @@ class TestMeasurements(QiskitTestCase):
 
         meas0 = Play(GaussianSquare(8000, 0.5, 160, 7000), MeasureChannel(0))
         meas2 = Play(GaussianSquare(8000, 0.3, 160, 7000), MeasureChannel(2))
-
-        sched = inline_subroutines(sched)
 
         self.assertEqual(sched.instructions[0][1], xp0)
         self.assertEqual(sched.instructions[1][1], xp2)
@@ -527,8 +533,11 @@ class TestControlChannels(QiskitTestCase):
         self.width = Parameter("w")
         self.date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
 
-        cr_tone = GaussianSquare(640, self.amp_cr, self.sigma, self.width)
-        rotary = GaussianSquare(640, self.amp_rot, self.sigma, self.width)
+        cr_tone_p = GaussianSquare(640, self.amp_cr, self.sigma, self.width)
+        rotary_p = GaussianSquare(640, self.amp_rot, self.sigma, self.width)
+
+        cr_tone_m = GaussianSquare(640, -self.amp_cr, self.sigma, self.width)
+        rotary_m = GaussianSquare(640, -self.amp_rot, self.sigma, self.width)
 
         with pulse.build(name="xp") as xp:
             pulse.play(Gaussian(160, self.amp, self.sigma), self.d0_)
@@ -536,12 +545,12 @@ class TestControlChannels(QiskitTestCase):
         with pulse.build(name="cr") as cr:
             with pulse.align_sequential():
                 with pulse.align_left():
-                    pulse.play(rotary, self.d1_)  # Rotary tone
-                    pulse.play(cr_tone, self.c1_)  # CR tone.
+                    pulse.play(rotary_p, self.d1_)  # Rotary tone
+                    pulse.play(cr_tone_p, self.c1_)  # CR tone.
                 pulse.call(xp)
                 with pulse.align_left():
-                    pulse.play(rotary, self.d1_)
-                    pulse.play(cr_tone, self.c1_)
+                    pulse.play(rotary_m, self.d1_)
+                    pulse.play(cr_tone_m, self.c1_)
                 pulse.call(xp)
 
         self.cals.add_schedule(xp)
@@ -569,8 +578,8 @@ class TestControlChannels(QiskitTestCase):
                     pulse.play(GaussianSquare(640, 0.3, 40, 20), ControlChannel(10))  # CR tone.
                 pulse.play(Gaussian(160, 0.1, 40), DriveChannel(3))
                 with pulse.align_left():
-                    pulse.play(GaussianSquare(640, 0.2, 40, 20), DriveChannel(2))  # Rotary tone
-                    pulse.play(GaussianSquare(640, 0.3, 40, 20), ControlChannel(10))  # CR tone.
+                    pulse.play(GaussianSquare(640, -0.2, 40, 20), DriveChannel(2))  # Rotary tone
+                    pulse.play(GaussianSquare(640, -0.3, 40, 20), ControlChannel(10))  # CR tone.
                 pulse.play(Gaussian(160, 0.1, 40), DriveChannel(3))
 
         # We inline to make the schedules comparable with the construction directly above.
@@ -589,8 +598,8 @@ class TestControlChannels(QiskitTestCase):
                     pulse.play(GaussianSquare(640, 0.5, 40, 30), ControlChannel(15))  # CR tone.
                 pulse.play(Gaussian(160, 0.15, 40), DriveChannel(2))
                 with pulse.align_left():
-                    pulse.play(GaussianSquare(640, 0.4, 40, 30), DriveChannel(3))  # Rotary tone
-                    pulse.play(GaussianSquare(640, 0.5, 40, 30), ControlChannel(15))  # CR tone.
+                    pulse.play(GaussianSquare(640, -0.4, 40, 30), DriveChannel(3))  # Rotary tone
+                    pulse.play(GaussianSquare(640, -0.5, 40, 30), ControlChannel(15))  # CR tone.
                 pulse.play(Gaussian(160, 0.15, 40), DriveChannel(2))
 
         schedule = self.cals.get_schedule("cr", (2, 3))
