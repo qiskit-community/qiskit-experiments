@@ -17,7 +17,7 @@ from qiskit.test import QiskitTestCase
 from qiskit import QuantumCircuit, execute
 from qiskit.providers.basicaer import QasmSimulatorPy
 from qiskit_experiments.analysis.curve_fitting import curve_fit, multi_curve_fit, process_curve_data
-from qiskit_experiments.analysis.data_processing import level2_probability, mean_xy_data
+from qiskit_experiments.analysis.data_processing import level2_probability, mean_xy_data, multi_mean_xy_data
 
 
 class TestCurveFitting(QiskitTestCase):
@@ -134,7 +134,7 @@ class TestCurveFitting(QiskitTestCase):
         x = np.array([1, 1, 1, 1, 2, 2, 2, 2])
         y = np.array([2, 6, 100, 200, 17, 50, 60, 70])
         series = np.array([0, 0, 1, 1, 0, 1, 1, 1])
-        x_mean, y_mean, y_sigma, series = mean_xy_data(x, y, method="sample", series=series)
+        x_mean, y_mean, y_sigma, series = multi_mean_xy_data(x, y, method="sample", series=series)
         expected_x_mean = np.array([1, 1, 2, 2])
         expected_y_mean = np.array([4, 150, 17, 60])
         expected_y_sigma = np.array([4.0, 2500.0, 0.0, 66.66666667])

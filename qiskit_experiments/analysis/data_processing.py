@@ -45,15 +45,27 @@ def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
             filtered_data.append(datum)
     return filtered_data
 
-
 def mean_xy_data(
+    xdata: np.ndarray,
+    ydata: np.ndarray,
+    sigma: Optional[np.ndarray] = None,
+    method: str = "sample",
+) -> Tuple[np.ndarray]:
+    r"""Wrapper function for multi_mean_xy_data
+    in the case of one data series
+    """
+    series = np.zeros(xdata.size)
+    x_means, y_means, y_sigmas, _ = multi_mean_xy_data(xdata, ydata, sigma, series, method)
+    return x_means, y_means, y_sigmas
+
+def multi_mean_xy_data(
     xdata: np.ndarray,
     ydata: np.ndarray,
     sigma: Optional[np.ndarray] = None,
     series: Optional[np.ndarray] = None,
     method: str = "sample",
 ) -> Tuple[np.ndarray]:
-    r"""Return (x, y_mean, sigma) data.
+    r"""Return (x, y_mean, sigma, series) data.
 
     The mean is taken over all ydata values with the same xdata value using
     the specified method. For each x the mean :math:`\overline{y}` and variance
@@ -91,8 +103,7 @@ def mean_xy_data(
         )
     if method not in ["sample", "iwv"]:
         raise QiskitError(f"Unsupported method {method}")
-    xseries = series if series is not None else np.zeros(xdata.size)
-    x_keys = np.unique(np.column_stack((xdata, xseries)), axis=0)
+    x_keys = np.unique(np.column_stack((xdata, series)), axis=0)
     x_means = np.zeros(x_keys.shape[0])
     y_means = np.zeros(x_keys.shape[0])
     y_sigmas = np.zeros(x_keys.shape[0])
@@ -102,7 +113,7 @@ def mean_xy_data(
         x_means[i] = x_val
         series_mean[i] = xseries_val
         # Get positions of y to average
-        idxs = np.where((xdata == x_val) & (xseries == xseries_val))
+        idxs = np.where((xdata == x_val) & (series == xseries_val))
         ys = ydata[idxs]
 
         # Sample mean and variance method
@@ -110,8 +121,8 @@ def mean_xy_data(
             # Compute sample mean and biased sample variance
             y_means[i] = np.mean(ys)
             y_sigmas[i] = np.mean((y_means[i] - ys) ** 2)
-            # Inverse-weighted variance method
 
+        # Inverse-weighted variance method
         if method == "iwv":
             # Compute the inverse-variance weighted y mean and variance
             weights = 1 / sigma[idxs] ** 2
@@ -119,9 +130,7 @@ def mean_xy_data(
             y_means[i] = y_var * np.sum(weights * ys)
             y_sigmas[i] = np.sqrt(y_var)
 
-    if series is not None:
-        return x_means, y_means, y_sigmas, series_mean
-    return x_means, y_means, y_sigmas
+    return x_means, y_means, y_sigmas, series_mean
 
 
 def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float]:

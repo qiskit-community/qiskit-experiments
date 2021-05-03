@@ -35,7 +35,11 @@ except ImportError:
 
 
 class InterleavedRBAnalysis(RBAnalysis):
-    """Interleaved RB Analysis class."""
+    """Interleaved RB Analysis class.
+       According to the paper: "Efficient measurement of quantum gate
+       error by interleaved randomized benchmarking" (arXiv:1203.4550)
+       - Equations (4) and (5).
+        """
 
     # pylint: disable=invalid-name, unused-variable, unused-argument, attribute-defined-outside-init
     def _run_analysis(
@@ -105,8 +109,8 @@ class InterleavedRBAnalysis(RBAnalysis):
         systematic_err_l = epc_est - systematic_err
         systematic_err_r = epc_est + systematic_err
 
-        alpha_err_sq = (alpha_err / alpha) * (alpha_err / alpha)
-        alpha_c_err_sq = (alpha_c_err / alpha_c) * (alpha_c_err / alpha_c)
+        alpha_err_sq = (alpha_err / alpha) ** 2
+        alpha_c_err_sq = (alpha_c_err / alpha_c) ** 2
         epc_est_err = (
             ((nrb - 1) / nrb) * (alpha_c / alpha) * (np.sqrt(alpha_err_sq + alpha_c_err_sq))
         )
