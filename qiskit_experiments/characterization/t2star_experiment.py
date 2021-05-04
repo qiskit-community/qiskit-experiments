@@ -24,6 +24,7 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.utils import apply_prefix
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResult
+from ..experiment_data import ExperimentData
 from qiskit_experiments.analysis.curve_fitting import curve_fit, multi_curve_fit, process_curve_data
 from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_scatter, plot_errorbar
 from qiskit_experiments.analysis.data_processing import level2_probability
@@ -34,9 +35,9 @@ class T2StarAnalysis(BaseAnalysis):
 
     # pylint: disable=arguments-differ, unused-argument
     def _run_analysis(self,
-                      experiment_data,
-                      p0,
-                      bounds,
+                      experiment_data: ExperimentData,
+                      p0: List[float],
+                      bounds: Tuple[List[float], Tuple[List[float]]],
                       plot: bool = True,
                       ax: Optional["AxesSubplot"] = None,
                       **kwargs):
@@ -130,13 +131,10 @@ class T2StarAnalysis(BaseAnalysis):
         """
         Default fit parameters for oscillation data
         Args:
-        t2star: default for t2star if p0==None
-        p0: initial estimates for the function parameters: :math:`(A, T_2^*, f, \phi, B)`, in the specified order
-        bounds: lower and upper bounds for the function parameters, in the same order as p0
-        
+            t2star: default for t2star if p0==None
         Returns:
-        Fit guessed parameters: either from the input (if given) or
-        else assign default values.
+            Fit guessed parameters: either from the input (if given) or
+            else assign default values.
         """
         if self._p0 == None:
             A = 0.5
@@ -200,11 +198,8 @@ class T2StarExperiment(BaseExperiment):
             qubit: the qubit under test
             delays: delay times of the experiments
             unit: Optional, time unit of `delays`. Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'.
-            nosc: number of oscillations to induce using the phase gate
+            osc_freq: the oscillation frequency induced using by the user
             experiment_type: String indicating the experiment type. Can be 'RamseyExperiment' or 'T2StarExperiment'.
-
-        Raises:
-            QiskitError: ?
         """
 
         self._qubit = qubit
@@ -214,7 +209,9 @@ class T2StarExperiment(BaseExperiment):
         #: str = "T2StarExperiment"
         super().__init__([qubit], experiment_type)
 
-    def circuits(self, backend: Optional["Backend"] = None) -> List[QuantumCircuit]:
+    def circuits(self,
+                 backend: Optional["Backend"] = None
+                 ) -> List[QuantumCircuit]:
         """
         Return a list of experiment circuits
         Each circuit consists of a Hadamard gate, followed by a fixed delay, a phase gate (with a linear phase),
@@ -223,6 +220,8 @@ class T2StarExperiment(BaseExperiment):
             backend: Optional, a backend object
         Returns:
             The experiment circuits
+        Raises:
+            AttributeError: if unit is dt but dt parameter is missing in the backend configuration 
         """
         if self._unit == "dt":
             try:
