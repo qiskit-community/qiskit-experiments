@@ -19,6 +19,7 @@ import numpy as np
 from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
 from qiskit.utils import apply_prefix
+from qiskit.providers.options import Options
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis
@@ -29,9 +30,29 @@ from qiskit_experiments import AnalysisResult
 
 
 class T1Analysis(BaseAnalysis):
-    """T1 Experiment result analysis class."""
+    """T1 Experiment result analysis class.
 
-    # pylint: disable=arguments-differ, unused-argument
+    Analysis Options:
+        t1_guess (float): Optional, an initial guess of T1
+        amplitude_guess (float): Optional, an initial guess of the coefficient of the exponent
+        offset_guess (float): Optional, an initial guess of the offset
+        t1_bounds (list of two floats): Optional, lower bound and upper bound to T1
+        amplitude_bounds (list of two floats): Optional, lower bound and upper bound to the amplitude
+        offset_bounds (list of two floats): Optional, lower bound and upper bound to the offset
+    """
+
+    @classmethod
+    def _default_options(cls):
+        return Options(
+            t1_guess=None,
+            amplitude_guess=None,
+            offset_guess=None,
+            t1_bounds=None,
+            amplitude_bounds=None,
+            offset_bounds=None,
+        )
+
+    # pylint: disable=arguments-differ
     def _run_analysis(
         self,
         experiment_data,
@@ -54,23 +75,15 @@ class T1Analysis(BaseAnalysis):
             amplitude_guess (float): Optional, an initial guess of the coefficient
                 of the exponent
             offset_guess (float): Optional, an initial guess of the offset
-            t1_bounds (list of two floats): Optional, lower bound and upper
-                bound to T1
-            amplitude_bounds (list of two floats): Optional, lower bound and
-                upper bound to the amplitude
-            offset_bounds (list of two floats): Optional, lower bound and upper
-                bound to the offset
-            plot: If True generate a plot of fitted data.
-            ax: Optional, matplotlib axis to add plot to.
-            kwargs: Trailing unused function parameters
+            t1_bounds (list of two floats): Optional, lower bound and upper bound to T1
+            amplitude_bounds (list of two floats): Optional, lower bound and upper bound to the amplitude
+            offset_bounds (list of two floats): Optional, lower bound and upper bound to the offset
 
         Returns:
             The analysis result with the estimated T1
         """
-        data = experiment_data.data()
-        unit = data[0]["metadata"]["unit"]
-        conversion_factor = data[0]["metadata"].get("dt_factor", None)
-        qubit = data[0]["metadata"]["qubit"]
+        unit = experiment_data._data[0]["metadata"]["unit"]
+        conversion_factor = experiment_data._data[0]["metadata"].get("dt_factor", None)
         if conversion_factor is None:
             conversion_factor = 1 if unit == "s" else apply_prefix(1, unit)
 
@@ -190,6 +203,10 @@ class T1Experiment(BaseExperiment):
 
     __analysis_class__ = T1Analysis
 
+    @classmethod
+    def _default_options(cls) -> Options:
+        return Options(delays=None, unit="s")
+
     def __init__(
         self,
         qubit: int,
@@ -210,13 +227,9 @@ class T1Experiment(BaseExperiment):
         """
         if len(delays) < 3:
             raise ValueError("T1 experiment: number of delays must be at least 3")
+        super().__init__([qubit], delays=delays, unit=unit)
 
-        self._delays = delays
-        self._unit = unit
-        super().__init__([qubit])
-
-    # pylint: disable=arguments-differ
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def circuits(self, backend: Optional["Backend"] = None) -> List[QuantumCircuit]:
         """
         Return a list of experiment circuits
 
@@ -229,8 +242,7 @@ class T1Experiment(BaseExperiment):
         Raises:
             AttributeError: if unit is dt but dt parameter is missing in the backend configuration
         """
-
-        if self._unit == "dt":
+        if self.options.unit == "dt":
             try:
                 dt_factor = getattr(backend.configuration(), "dt")
             except AttributeError as no_dt:
@@ -238,11 +250,11 @@ class T1Experiment(BaseExperiment):
 
         circuits = []
 
-        for delay in self._delays:
+        for delay in self.options.delays:
             circ = QuantumCircuit(1, 1)
             circ.x(0)
             circ.barrier(0)
-            circ.delay(delay, 0, self._unit)
+            circ.delay(delay, 0, self.options.unit)
             circ.barrier(0)
             circ.measure(0, 0)
 
@@ -250,10 +262,10 @@ class T1Experiment(BaseExperiment):
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
                 "xval": delay,
-                "unit": self._unit,
+                "unit": self.options.unit,
             }
 
-            if self._unit == "dt":
+            if self.options.unit == "dt":
                 circ.metadata["dt_factor"] = dt_factor
 
             circuits.append(circ)
