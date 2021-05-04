@@ -19,7 +19,15 @@ import csv
 import dataclasses
 import regex as re
 
-from qiskit.pulse import Schedule, ScheduleBlock, DriveChannel, ControlChannel, MeasureChannel, Call
+from qiskit.pulse import (
+    Schedule,
+    ScheduleBlock,
+    DriveChannel,
+    ControlChannel,
+    MeasureChannel,
+    Call,
+    Instruction,
+)
 from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter, ParameterExpression
 from qiskit_experiments.calibration.exceptions import CalibrationError
@@ -120,6 +128,8 @@ class Calibrations:
         """
         Add a schedule and register its parameters.
 
+        Schedules that use Call instructions must register the called schedules separately.
+
         Args:
             schedule: The schedule to add.
             qubits: The qubits for which to add the schedules. If None is given then this
@@ -130,8 +140,15 @@ class Calibrations:
                 - If the parameterized channel index is not formatted properly.
                 - If several parameters in the same schedule have the same name.
                 - If a channel is parameterized by more than one parameter.
+                - If the schedule name starts with the prefix of ScheduleBlock.
         """
         # check that channels, if parameterized, have the proper name format.
+        if schedule.name.startswith(ScheduleBlock.prefix):
+            raise CalibrationError(
+                f"A registered schedule name cannot start with {ScheduleBlock.prefix} "
+                f"received {schedule.name}."
+            )
+
         param_indices = set()
         for ch in schedule.channels:
             if isinstance(ch.index, Parameter):
@@ -150,16 +167,10 @@ class Calibrations:
         # Add the schedule.
         self._schedules[ScheduleKey(schedule.name, qubits)] = schedule
 
-        # Register the subroutines in call instructions
-        for _, inst in schedule.instructions:
-            if isinstance(inst, Call):
-                self.add_schedule(inst.subroutine, qubits)
-
         # Register parameters that are not indices.
-        # Do not register parameters that are in call instructions. These parameters
-        # will have been registered above.
+        # Do not register parameters that are in call instructions.
         params_to_register = set()
-        for _, inst in schedule.instructions:
+        for inst in self._exclude_calls(schedule, []):
             if not isinstance(inst, Call):
                 for param in inst.parameters:
                     if param not in param_indices:
@@ -170,6 +181,37 @@ class Calibrations:
 
         for param in params_to_register:
             self._register_parameter(param, schedule, qubits)
+
+    def _exclude_calls(
+        self, schedule: Union[Schedule, ScheduleBlock], instructions: List[Instruction]
+    ) -> List[Instruction]:
+        """
+        Recursive function to get all non-Call instructions. This will flatten all blocks
+        in a ScheduleBlock and return the instructions of the ScheduleBlock leaving out
+        any Call instructions. For a Schedule this is done by a simple loop of the
+        instructions of the schedule.
+
+        Args:
+            schedule: A Schedule or ScheduleBlock from which to extract the instructions.
+            instructions: The list of instructions that is recursively populated.
+
+        Returns:
+            The list of instructions to which all non-Call instructions have been added.
+        """
+        if isinstance(schedule, Schedule):
+            for _, inst in schedule.instructions:
+                if not isinstance(inst, Call):
+                    instructions.append(inst)
+
+        if isinstance(schedule, ScheduleBlock):
+            for block in schedule.blocks:
+                if isinstance(block, ScheduleBlock):
+                    instructions = self._exclude_calls(block, instructions)
+                else:
+                    if not isinstance(block, Call):
+                        instructions.append(block)
+
+        return instructions
 
     def remove_schedule(self, schedule: Union[Schedule, ScheduleBlock], qubits: Tuple = None):
         """
@@ -480,7 +522,7 @@ class Calibrations:
         self,
         name: str,
         qubits: Tuple[int, ...],
-        free_params: List[str] = None,
+        free_params: List[Tuple[str, str, Tuple]] = None,
         group: Optional[str] = "default",
         cutoff_date: datetime = None,
     ) -> Union[Schedule, ScheduleBlock]:
@@ -527,7 +569,7 @@ class Calibrations:
 
     def _assign(
         self,
-        schedule,
+        schedule: Union[Schedule, ScheduleBlock],
         qubits: Tuple[int, ...],
         free_params: List[str] = None,
         group: Optional[str] = "default",
@@ -569,7 +611,18 @@ class Calibrations:
                 generated after the cutoff date will be ignored. If the cutoff_date is None then
                 all parameters are considered. This allows users to discard more recent values that
                 may be erroneous.
+
+        Returns:
+            ret_schedule: The schedule with assigned parameters.
+
+        Raises:
+            CalibrationError:
+                - If schedule is not a Schedule or ScheduleBlock.
+                - If a channel has not been assigned.
+                - If a parameter that is needed does not have a value.
         """
+        if not isinstance(schedule, (Schedule, ScheduleBlock)):
+            raise CalibrationError(f"{schedule.name} is not a Schedule or a ScheduleBlock.")
 
         # 1) Restrict the given qubits to those in the given schedule.
         qubit_set = set()
@@ -587,19 +640,41 @@ class Calibrations:
         qubits_ = tuple(qubit for qubit in qubits if qubit in qubit_set)
 
         # 2) Recursively assign the parameters in the called instructions.
-        ret_schedule = Schedule(name=schedule.name, metadata=schedule.metadata)
-        for t0, inst in schedule.instructions:
-            if isinstance(inst, Call):
-                inst = self._assign(
-                    inst.assigned_subroutine(), qubits_, free_params, group, cutoff_date
-                )
+        if isinstance(schedule, Schedule):
+            ret_schedule = Schedule(name=schedule.name, metadata=schedule.metadata)
 
-            ret_schedule.insert(t0, inst, inplace=True)
+            for t0, inst in schedule.instructions:
+                if isinstance(inst, Call):
+                    inst = self._assign(
+                        inst.assigned_subroutine(), qubits_, free_params, group, cutoff_date
+                    )
 
-        # 3) Get the parameter keys of the remaining instructions.
+                ret_schedule.insert(t0, inst, inplace=True)
+
+        else:
+            ret_schedule = ScheduleBlock(
+                alignment_context=schedule.alignment_context,
+                name=schedule.name,
+                metadata=schedule.metadata,
+            )
+
+            for inst in schedule.blocks:
+                if isinstance(inst, Call):
+                    inst = self._assign(
+                        inst.assigned_subroutine(), qubits_, free_params, group, cutoff_date
+                    )
+                elif isinstance(inst, ScheduleBlock):
+                    inst = self._assign(inst, qubits_, free_params, group, cutoff_date)
+
+                ret_schedule.append(inst, inplace=True)
+
+        # 3) Get the parameter keys of the remaining instructions. At this point in
+        #    _assign all parameters in Call instructions that are supposed to be
+        #     assigned have been assigned.
         keys = set()
-        for _, inst in ret_schedule.instructions:
-            for param in inst.parameters:
+
+        if ret_schedule.name in set(key.schedule for key in self._parameter_map):
+            for param in ret_schedule.parameters:
                 keys.add(ParameterKey(ret_schedule.name, param.name, qubits_))
 
         # 4) Build the parameter binding dictionary.
@@ -607,7 +682,7 @@ class Calibrations:
 
         binding_dict = {}
         for key in keys:
-            if key.parameter not in free_params:
+            if key not in free_params:
                 # Get the parameter object. Since we are dealing with a schedule the name of
                 # the schedule is always defined. However, the parameter may be a default
                 # parameter for all qubits, i.e. qubits may be None.
@@ -667,8 +742,8 @@ class Calibrations:
                 If None is given then all channels are returned.
 
         Returns:
-            data: A list of dictionaries with parameter values and metadata which can easily be converted to a
-                data frame.
+            data: A list of dictionaries with parameter values and metadata which can
+                easily be converted to a data frame.
         """
 
         data = []
