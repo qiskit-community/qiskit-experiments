@@ -29,9 +29,6 @@ from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_scatter, p
 from qiskit_experiments.analysis.data_processing import level2_probability
 from matplotlib import pyplot as plt
 
-# from qiskit_experiments.experiment_data import Analysis
-#from .analysis_functions import exp_fit_fun, curve_fit_wrapper
-
 class T2StarAnalysis(BaseAnalysis):
     """T2Star Experiment result analysis class."""
 
@@ -53,14 +50,13 @@ class T2StarAnalysis(BaseAnalysis):
         Args:
             experiment_data (ExperimentData): the experiment data to analyze
 
-            params: Includes fit_p0 and fit_bounds.
-                    fit_p0 are initial values for the fit parameters :math:`(A, T_2^*, f, \phi, B)`
-                    fit_bounds: lower and upper bounds on the parameters in fit_p0.
+            p0: contains initial values for the fit parameters :math:`(A, T_2^*, f, \phi, B)`
+            bounds: lower and upper bounds on the parameters in p0.
                     The first tuple is the lower bounds,
                     The second tuple is the upper bounds.
                     For both params, the order is :math:`A, T_2^*, f, \phi, B`.
         Returns:
-            The analysis result with the estimated :math:`T_2^*`
+            The analysis result with the estimated :math:`T_2^*` and 'f' (frequency)
 
         """
 
@@ -71,45 +67,6 @@ class T2StarAnalysis(BaseAnalysis):
             return a * np.exp(-x / t2star) * np.cos(2 * np.pi * f * x + phi) + c
         
 
-        def _t2star_default_params(self,
-                                  t2star: float,
-                                  p0: Optional[Dict[str, float]] = None,
-                                  bounds:Optional[Tuple[List[float]]] = None,
-                                  ) -> Tuple[List[float], Tuple[List[float]]]:
-            """
-            Default fit parameters for oscillation data
-            Args:
-                t2star: default for t2star if p0==None
-                p0: initial estimates for the function parameters: :math:`(A, T_2^*, f, \phi, B)`, in the specified order
-                bounds: lower and upper bounds for the function parameters, in the same order as p0
-                
-            Returns:
-                Fit guessed parameters: either from the input (if given) or assign
-                default values.
-            """
-            if p0 is None:
-                A = 0.5
-                t2star = t2star
-                f = 0.1 
-                phi = 0.0
-                B = 0.5
-            else:
-                A = p0['A']
-                t2star = p0['t2star']
-                t2star *= self._conversion_factor
-                f = p0['f']
-                phi = p0['phi']
-                B = p0['B']
-            f /= self._conversion_factor
-            p0 = {'A_guess':A, 't2star':t2star, 'f_guess':f, 'phi_guess':phi, 'B_guess':B}
-            A_bounds = [-0.5, 1.5]
-            t2star_bounds = [0, np.inf]
-            f_bounds = [0.5 * f, 1.5 * f]
-            phi_bounds = [-np.pi, np.pi]
-            B_bounds = [-0.5, 1.5]
-            bounds=([A_bounds[0], t2star_bounds[0], f_bounds[0], phi_bounds[0], B_bounds[0]],
-                    [A_bounds[1], t2star_bounds[1], f_bounds[1], phi_bounds[1], B_bounds[1]])
-            return p0, bounds
 
         def _format_plot(ax, unit):
             """Format curve fit plot"""
@@ -119,6 +76,9 @@ class T2StarAnalysis(BaseAnalysis):
             ax.set_ylabel("Probability to measure |0>", fontsize=12)
 
 
+        # implementation of  _run_analysis
+        self._p0 = p0
+        self._bounds = bounds
         unit = experiment_data._data[0]["metadata"]["unit"]
         self._conversion_factor = experiment_data._data[0]["metadata"].get("dt_factor", None)
         if self._conversion_factor is None:
@@ -130,7 +90,7 @@ class T2StarAnalysis(BaseAnalysis):
         si_xdata = xdata * self._conversion_factor
         t2star_estimate = np.mean(si_xdata)
         
-        p0, bounds = _t2star_default_params(self, t2star=t2star_estimate, p0=p0, bounds=bounds)
+        p0, bounds = self._t2star_default_params(t2star=t2star_estimate)
         fit_result = curve_fit(
             osc_fit_fun, si_xdata, ydata, p0=list(p0.values()), sigma=sigma,
             bounds=bounds)
@@ -143,6 +103,7 @@ class T2StarAnalysis(BaseAnalysis):
             fit_result.plt = plt
             plt.show()
 
+
         analysis_result = AnalysisResult(
             {
                 "T2star_value": fit_result["popt"][1],
@@ -150,10 +111,11 @@ class T2StarAnalysis(BaseAnalysis):
                 "stderr": fit_result["popt_err"][1],
                 "unit": "s",
                 "label": "T2*",
-                "fit": fit_result
-                #"quality": self._fit_quality(
-               #     fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
-               # ),
+                "fit": fit_result,
+                "quality": self._fit_quality(
+                    p0, fit_result["popt"], fit_result["popt_err"],
+                    fit_result["reduced_chisq"]
+                ),
             }
         )
 
@@ -161,6 +123,62 @@ class T2StarAnalysis(BaseAnalysis):
         if unit == "dt":
             analysis_result["fit"]["dt"] = self._conversion_factor
         return analysis_result, None
+
+    def _t2star_default_params(self,
+                               t2star: float,
+                               ) -> Tuple[List[float], Tuple[List[float]]]:
+        """
+        Default fit parameters for oscillation data
+        Args:
+        t2star: default for t2star if p0==None
+        p0: initial estimates for the function parameters: :math:`(A, T_2^*, f, \phi, B)`, in the specified order
+        bounds: lower and upper bounds for the function parameters, in the same order as p0
+        
+        Returns:
+        Fit guessed parameters: either from the input (if given) or
+        else assign default values.
+        """
+        if self._p0 == None:
+            A = 0.5
+            t2star = t2star
+            f = 0.1 
+            phi = 0.0
+            B = 0.5
+        else:
+            A = self._p0['A']
+            t2star = self._p0['t2star']
+            t2star *= self._conversion_factor
+            f = self._p0['f']
+            phi = self._p0['phi']
+            B = self._p0['B']
+        f /= self._conversion_factor
+        p0 = {'A_guess':A, 't2star':t2star, 'f_guess':f, 'phi_guess':phi, 'B_guess':B}
+        if self._bounds == None:
+            A_bounds = [-0.5, 1.5]
+            t2star_bounds = [0, np.inf]
+            f_bounds = [0.5 * f, 1.5 * f]
+            phi_bounds = [-np.pi, np.pi]
+            B_bounds = [-0.5, 1.5]
+            bounds=([A_bounds[0], t2star_bounds[0], f_bounds[0], phi_bounds[0], B_bounds[0]],
+                    [A_bounds[1], t2star_bounds[1], f_bounds[1], phi_bounds[1], B_bounds[1]])
+        return p0, bounds
+
+
+    @staticmethod
+    def _fit_quality(p0, fit_out, fit_err, reduced_chisq):
+        # pylint: disable = too-many-boolean-expressions
+        if (np.allclose(fit_out,
+                        [0.5, p0['t2star'], p0['f_guess'], 0, 0.5],
+                        rtol=0.3,
+                        atol=0.1)
+            and (reduced_chisq < 3)
+            and (fit_err[0] is None or fit_err[0] < 0.1 * fit_out[0])
+            and (fit_err[1] is None or fit_err[1] < 0.1 * fit_out[1])
+            and (fit_err[2] is None or fit_err[2] < 0.1 * fit_out[2])):
+            return "computer_good"
+        else:
+            return "computer_bad"
+
 
 class T2StarExperiment(BaseExperiment):
     """T2Star experiment class"""

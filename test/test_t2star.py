@@ -147,7 +147,6 @@ class TestT2Star(QiskitTestCase):
     def test_t2star_run(self):
         #run backend for all different units
         # For some reason, 'ps' was not precise enough - need to check this
-        # unit in ['ms', 's', 'ms', 'us', 'ns', 'dt']:
         for unit in ['s', 'ms', 'us', 'ns', 'dt']:
             if unit == 's' or unit == 'dt':
                 dt_factor = 1
@@ -177,7 +176,7 @@ class TestT2Star(QiskitTestCase):
         
             backend = T2Backend(
                 p0 = {'A_guess':[0.5], 't2star':[estimated_t2star],
-                      'f_guess':[estimated_freq], 'phi_guess':[-np.pi/20], 'B_guess':[0.5]},
+                      'f_guess':[estimated_freq], 'phi_guess':[0.0], 'B_guess':[0.5]},
                 initial_prob_plus = [0.0],
                 readout0to1=[0.02],
                 readout1to0=[0.02],
@@ -190,19 +189,48 @@ class TestT2Star(QiskitTestCase):
             result = exp.run(
                 backend = backend,
                 p0={'A':0.5, 't2star':estimated_t2star,
-                    'f':estimated_freq, 'phi':-np.pi/20, 'B':0.5},
+                    'f':estimated_freq, 'phi':0, 'B':0.5},
                 bounds=None,
                 plot=False,
                 instruction_durations=instruction_durations,
                 shots=2000
-                )
-            #self.assertEqual(result["quality"], "computer_good")
-            t2star_res = result._analysis_results[0]["T2star_value"]
-            frequency_res = result._analysis_results[0]["Frequency_value"]
-            self.assertAlmostEqual(t2star_res, estimated_t2star*dt_factor, delta=1 * dt_factor)
-            self.assertAlmostEqual(frequency_res, estimated_freq, delta=1 / dt_factor)
+                ).analysis_result(0)
+            self.assertEqual(result["quality"], "computer_good")
+            t2star_res = result["T2star_value"]
+            frequency_res = result["Frequency_value"]
+            self.assertAlmostEqual(t2star_res, estimated_t2star*dt_factor, delta=2 * dt_factor)
+            self.assertAlmostEqual(frequency_res, estimated_freq, delta=2 / dt_factor)
 
+    def test_t2star_parallel(self):
+        """
+        Test parallel experiments of T2* using a simulator.
+        """
 
+        t2star = [30, 25]
+        estimated_freq = [0.1, 0.12]
+        delays = [list(range(1, 60)), list(range(1, 50))]
+
+        exp0 = T2StarExperiment(0, delays[0])
+        exp2 = T2StarExperiment(2, delays[1])
+        par_exp = ParallelExperiment([exp0, exp2])
+        parallel_circuits = par_exp.circuits()
+        
+        p0 = {'A_guess':[0.5, None, 0.5], 't2star':[t2star[0], None, t2star[1]],
+                  'f_guess':[estimated_freq[0], None, estimated_freq[1]],
+                  'phi_guess':[0, None,  0], 'B_guess':[0.5, None, 0.5]}
+        backend = T2Backend(p0)
+        res = par_exp.run(
+            backend = backend,
+            p0 = None,
+            bounds=None,
+            #plot = False,
+            shots=1000,
+        )
+
+        for i in range(2):
+            sub_res = res.component_experiment_data(i).analysis_result(0)
+            self.assertEqual(sub_res["quality"], "computer_good")
+            self.assertAlmostEqual(sub_res["T2star_value"], t2star[i], delta=3)
 
 if __name__ == '__main__':
     unittest.main()
