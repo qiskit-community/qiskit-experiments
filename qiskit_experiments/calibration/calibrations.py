@@ -122,10 +122,9 @@ class Calibrations:
         # Do not register parameters that are in call instructions.
         params_to_register = set()
         for inst in self._exclude_calls(schedule, []):
-            if not isinstance(inst, Call):
-                for param in inst.parameters:
-                    if param not in param_indices:
-                        params_to_register.add(param)
+            for param in inst.parameters:
+                if param not in param_indices:
+                    params_to_register.add(param)
 
         if len(params_to_register) != len(set(param.name for param in params_to_register)):
             raise CalibrationError(f"Parameter names in {schedule.name} must be unique.")
