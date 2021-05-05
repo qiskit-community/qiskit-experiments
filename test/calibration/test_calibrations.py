@@ -36,6 +36,8 @@ class TestCalibrationsBasic(QiskitTestCase):
 
     def setUp(self):
         """Setup a test environment."""
+        super().setUp()
+
         self.cals = Calibrations()
 
         self.sigma = Parameter("σ")
@@ -211,6 +213,8 @@ class TestCalibrationDefaults(QiskitTestCase):
 
     def setUp(self):
         """Setup a few parameters."""
+        super().setUp()
+
         self.cals = Calibrations()
 
         self.sigma = Parameter("σ")
@@ -389,6 +393,8 @@ class TestMeasurements(QiskitTestCase):
 
     def setUp(self):
         """Create the setting to test."""
+        super().setUp()
+
         self.amp = Parameter("amp")
         self.amp_xp = Parameter("amp")
         self.sigma = Parameter("σ")
@@ -497,6 +503,8 @@ class TestInstructions(QiskitTestCase):
 
     def setUp(self):
         """Create the setting to test."""
+        super().setUp()
+
         self.phase = Parameter("φ")
         self.freq = Parameter("ν")
         self.d0_ = DriveChannel(Parameter("ch0"))
@@ -552,6 +560,8 @@ class TestControlChannels(QiskitTestCase):
 
     def setUp(self):
         """Create the setup we will deal with."""
+        super().setUp()
+
         controls = {
             (3, 2): [ControlChannel(10), ControlChannel(123)],
             (2, 3): [ControlChannel(15), ControlChannel(23)],
@@ -650,3 +660,51 @@ class TestControlChannels(QiskitTestCase):
         schedule = self.cals.get_schedule("cr", (3, 2), free_params=[("cr", "amp", (3, 2))])
 
         self.assertEqual(schedule.parameters, {self.amp_cr})
+
+
+class TestFiltering(QiskitTestCase):
+    """Test that the filtering works as expected."""
+
+    def setUp(self):
+        """Setup a calibration."""
+        super().setUp()
+
+        self.cals = Calibrations()
+
+        self.sigma = Parameter("σ")
+        self.amp = Parameter("amp")
+        self.drive = DriveChannel(Parameter("ch0"))
+
+        # Define and add template schedules.
+        with pulse.build(name="xp") as xp:
+            pulse.play(Gaussian(160, self.amp, self.sigma), self.drive)
+
+        self.cals.add_schedule(xp)
+
+        self.date_time1 = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
+        self.date_time2 = datetime.strptime("15/09/19 11:21:35", "%d/%m/%y %H:%M:%S")
+
+        self.cals.add_parameter_value(ParameterValue(40, self.date_time1), "σ", schedule="xp")
+        self.cals.add_parameter_value(ParameterValue(45, self.date_time2, False), "σ", schedule="xp")
+        self.cals.add_parameter_value(ParameterValue(0.1, self.date_time1), "amp", (0, ), "xp")
+        self.cals.add_parameter_value(ParameterValue(0.2, self.date_time2), "amp", (0, ),"xp")
+        self.cals.add_parameter_value(ParameterValue(0.4, self.date_time2, group="super_cal"), "amp", (0,), "xp")
+
+    def test_get_parameter_value(self):
+        """Test that getting parameter values funcions properly."""
+
+        amp = self.cals.get_parameter_value(self.amp, (0, ), "xp")
+        self.assertEqual(amp, 0.2)
+
+        amp = self.cals.get_parameter_value(self.amp, (0, ), "xp", group="super_cal")
+        self.assertEqual(amp, 0.4)
+
+        cutoff_date = datetime.strptime("15/09/19 11:21:34", "%d/%m/%y %H:%M:%S")
+        amp = self.cals.get_parameter_value(self.amp, (0, ), "xp", cutoff_date=cutoff_date)
+        self.assertEqual(amp, 0.1)
+
+        sigma = self.cals.get_parameter_value(self.sigma, (0, ), "xp")
+        self.assertEqual(sigma, 40)
+
+        sigma = self.cals.get_parameter_value(self.sigma, (0, ), "xp", valid_only=False)
+        self.assertEqual(sigma, 45)
