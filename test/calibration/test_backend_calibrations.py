@@ -24,5 +24,5 @@ class TestBackendCalibrations(QiskitTestCase):
         """Test that we can get run options."""
         cals = BackendCalibrations(FakeArmonk())
 
-        self.assertEqual(cals.get_frequencies(False), [6993370669.000001])
-        self.assertEqual(cals.get_frequencies(True), [4971852852.405576])
+        self.assertEqual(cals.get_meas_frequencies(False), [6993370669.000001])
+        self.assertEqual(cals.get_qubit_frequencies(True), [4971852852.405576])
