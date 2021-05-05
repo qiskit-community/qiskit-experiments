@@ -15,7 +15,6 @@ Standard RB analysis class.
 
 from typing import Optional, List
 
-import numpy as np
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import curve_fit, process_curve_data
 from qiskit_experiments.analysis.data_processing import (
