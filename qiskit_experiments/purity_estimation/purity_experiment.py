@@ -106,8 +106,13 @@ class PurityEstimation(BaseExperiment):
             prep_circuit.append(circuit, range(num_qubits))
         self._circuit = prep_circuit
 
+        # Number of samples
+        if num_samples is None:
+            self._num_samples = 6 ** len(self._meas_qubits)
+        else:
+            self._num_samples = num_samples
+
         # RNG
-        self._num_samples = num_samples
         if isinstance(seed, Generator):
             self._rng = seed
         else:
@@ -129,10 +134,7 @@ class PurityEstimation(BaseExperiment):
         max_size = 6 ** num_meas
         if num_samples is None:
             num_samples = self._num_samples
-        if num_samples is None or num_samples >= max_size:
-            index_lst = range(max_size)
-        else:
-            index_lst = self._rng.choice(max_size, size=num_samples, replace=False)
+        index_lst = self._sampler(num_samples, num_meas)
 
         # Build circuits
         circuits = []
@@ -142,8 +144,8 @@ class PurityEstimation(BaseExperiment):
             circ.append(self._circuit, circ_qubits, circ_clbits)
 
             # Add 1-qubit random Cliffords
-            for i, ci in enumerate(self._int2indices(index)):
-                circ.append(self._CLIFFORD1_INST[ci], [self._meas_qubits[i]])
+            for i in range(num_meas):
+                circ.append(self._CLIFFORD1_INST[index[i]], [self._meas_qubits[i]])
 
             # Measurement
             circ.measure(self._meas_qubits, meas_clbits)
@@ -153,10 +155,23 @@ class PurityEstimation(BaseExperiment):
                 "experiment_type": self._type,
                 "qubits": self.physical_qubits,
                 "clbits": meas_clbits,
-                "idx": i,
+                "index": list(index),
             }
             circuits.append(circ)
         return circuits
+
+    def _sampler(self, num_samples, num_meas):
+        max_size = 6 ** num_meas
+        if max_size <= 2 ** 63:
+            # We sample without replacement
+            samples = self._rng.choice(max_size, size=num_samples, replace=False)
+            return [self._int2indices(i) for i in samples]
+        else:
+            # We can't use numpy random choice without replacement since range
+            # is larger than 64-bit ints. Hence we sample with replacement and
+            # rely on the sample space being so large that we are extremely
+            # unlikely to sample the same index twice
+            return self._rng.choice(6, size=(num_samples, num_meas), replace=True)
 
     def _int2indices(self, i: int) -> List[int]:
         """Convert an integer to list of indices"""
