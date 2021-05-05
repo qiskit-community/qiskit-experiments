@@ -202,11 +202,14 @@ class TestCalibrationsBasic(QiskitTestCase):
 
     def test_free_parameters(self):
         """Test that we can get a schedule with a free parameter."""
-        xp = self.cals.get_schedule("xp", (3, ), free_params=[("xp","amp", (3,))])
+        xp = self.cals.get_schedule("xp", (3,), free_params=[("xp", "amp", (3,))])
         self.assertEqual(xp.parameters, {self.amp_xp})
 
-        xp = self.cals.get_schedule("xp", (3, ), free_params=[("xp", "amp", (3,)), ("xp", "σ", (3,))])
+        xp = self.cals.get_schedule(
+            "xp", (3,), free_params=[("xp", "amp", (3,)), ("xp", "σ", (3,))]
+        )
         self.assertEqual(xp.parameters, {self.amp_xp, self.sigma})
+
 
 class TestCalibrationDefaults(QiskitTestCase):
     """Test that we can override defaults."""
@@ -685,26 +688,30 @@ class TestFiltering(QiskitTestCase):
         self.date_time2 = datetime.strptime("15/09/19 11:21:35", "%d/%m/%y %H:%M:%S")
 
         self.cals.add_parameter_value(ParameterValue(40, self.date_time1), "σ", schedule="xp")
-        self.cals.add_parameter_value(ParameterValue(45, self.date_time2, False), "σ", schedule="xp")
-        self.cals.add_parameter_value(ParameterValue(0.1, self.date_time1), "amp", (0, ), "xp")
-        self.cals.add_parameter_value(ParameterValue(0.2, self.date_time2), "amp", (0, ),"xp")
-        self.cals.add_parameter_value(ParameterValue(0.4, self.date_time2, group="super_cal"), "amp", (0,), "xp")
+        self.cals.add_parameter_value(
+            ParameterValue(45, self.date_time2, False), "σ", schedule="xp"
+        )
+        self.cals.add_parameter_value(ParameterValue(0.1, self.date_time1), "amp", (0,), "xp")
+        self.cals.add_parameter_value(ParameterValue(0.2, self.date_time2), "amp", (0,), "xp")
+        self.cals.add_parameter_value(
+            ParameterValue(0.4, self.date_time2, group="super_cal"), "amp", (0,), "xp"
+        )
 
     def test_get_parameter_value(self):
         """Test that getting parameter values funcions properly."""
 
-        amp = self.cals.get_parameter_value(self.amp, (0, ), "xp")
+        amp = self.cals.get_parameter_value(self.amp, (0,), "xp")
         self.assertEqual(amp, 0.2)
 
-        amp = self.cals.get_parameter_value(self.amp, (0, ), "xp", group="super_cal")
+        amp = self.cals.get_parameter_value(self.amp, (0,), "xp", group="super_cal")
         self.assertEqual(amp, 0.4)
 
         cutoff_date = datetime.strptime("15/09/19 11:21:34", "%d/%m/%y %H:%M:%S")
-        amp = self.cals.get_parameter_value(self.amp, (0, ), "xp", cutoff_date=cutoff_date)
+        amp = self.cals.get_parameter_value(self.amp, (0,), "xp", cutoff_date=cutoff_date)
         self.assertEqual(amp, 0.1)
 
-        sigma = self.cals.get_parameter_value(self.sigma, (0, ), "xp")
+        sigma = self.cals.get_parameter_value(self.sigma, (0,), "xp")
         self.assertEqual(sigma, 40)
 
-        sigma = self.cals.get_parameter_value(self.sigma, (0, ), "xp", valid_only=False)
+        sigma = self.cals.get_parameter_value(self.sigma, (0,), "xp", valid_only=False)
         self.assertEqual(sigma, 45)
