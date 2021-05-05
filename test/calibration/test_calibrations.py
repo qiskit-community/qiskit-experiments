@@ -22,6 +22,7 @@ from qiskit.pulse import (
     GaussianSquare,
     MeasureChannel,
     Play,
+    Schedule,
 )
 from qiskit.pulse.transforms import inline_subroutines, block_to_schedule
 import qiskit.pulse as pulse
@@ -698,6 +699,44 @@ class TestControlChannels(QiskitTestCase):
             pulse.play(GaussianSquare(640, 0.8, 40, 20), ControlChannel(10))
 
         self.assertEqual(self.cals.get_schedule("tcp", (3, 2)), expected)
+
+
+class TestPureSchedules(QiskitTestCase):
+    """Test that parameter assignments works when dealing with Schedules."""
+
+    def setUp(self):
+        """Setup a calibration."""
+        super().setUp()
+
+        self.cals = Calibrations()
+
+        self.sigma = Parameter("σ")
+        self.amp = Parameter("amp")
+        self.chan = Parameter("ch0")
+        self.drive = DriveChannel(self.chan)
+        self.date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
+
+        # Define and add template schedules.
+        xp = Schedule(name="xp")
+        xp.insert(0, Play(Gaussian(160, self.amp, self.sigma), self.drive), inplace=True)
+
+        call_xp = Schedule(name="call_xp")
+        call_xp.insert(0, pulse.Call(xp), inplace=True)
+
+        self.cals.add_schedule(xp)
+        self.cals.add_schedule(call_xp)
+
+        self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", schedule="xp")
+        self.cals.add_parameter_value(ParameterValue(0.1, self.date_time), "amp", (3,), "xp")
+
+    def test_get_schedule(self):
+        """Test that getting schedules works with Schedule."""
+
+        expected = Schedule(name="xp")
+        expected.insert(0, Play(Gaussian(160, 0.1, 40), DriveChannel(3)), inplace=True)
+
+        self.assertEqual(self.cals.get_schedule("xp", (3,)), expected)
+        self.assertEqual(self.cals.get_schedule("call_xp", (3,)), expected)
 
 
 class TestFiltering(QiskitTestCase):
