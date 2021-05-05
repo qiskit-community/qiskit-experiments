@@ -141,7 +141,7 @@ class Calibrations:
             raise CalibrationError(f"Parameter names in {schedule.name} must be unique.")
 
         for param in params_to_register:
-            self._register_parameter(param, schedule, qubits)
+            self._register_parameter(param, qubits, schedule)
 
     def _exclude_calls(
         self, schedule: Union[Schedule, ScheduleBlock], instructions: List[Instruction]
@@ -223,8 +223,8 @@ class Calibrations:
     def _register_parameter(
         self,
         parameter: Parameter,
-        schedule: Union[Schedule, ScheduleBlock] = None,
         qubits: Tuple = None,
+        schedule: Union[Schedule, ScheduleBlock] = None,
     ):
         """
         Registers a parameter for the given schedule. This allows self to determine the
@@ -233,9 +233,9 @@ class Calibrations:
 
         Args:
             parameter: The parameter to register.
+            qubits: The qubits for which to register the parameter.
             schedule: The schedule to which this parameter belongs. The schedule can
                 be None which allows the calibration to accommodate, e.g. qubit frequencies.
-            qubits: The qubits for which to register the parameter.
         """
         if parameter not in self._hash_map:
             self._hash_map[parameter] = self._parameter_counter
@@ -704,8 +704,8 @@ class Calibrations:
     def parameters_table(
         self,
         parameters: List[str] = None,
-        schedules: List[Union[Schedule, ScheduleBlock, str]] = None,
         qubit_list: List[Tuple[int, ...]] = None,
+        schedules: List[Union[Schedule, ScheduleBlock, str]] = None,
     ) -> List[Dict[str, Any]]:
         """
         A convenience function to help users visualize the values of their parameter.
@@ -713,9 +713,9 @@ class Calibrations:
         Args:
             parameters: The parameter names that should be included in the returned
                 table. If None is given then all names are included.
-            schedules: The schedules to which to restrict the output.
             qubit_list: The qubits that should be included in the returned table.
                 If None is given then all channels are returned.
+            schedules: The schedules to which to restrict the output.
 
         Returns:
             data: A list of dictionaries with parameter values and metadata which can
