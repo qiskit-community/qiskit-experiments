@@ -61,6 +61,7 @@ class T1Analysis(BaseAnalysis):
 
         unit = experiment_data.data(0)["metadata"]["unit"]
         conversion_factor = experiment_data.data(0)["metadata"].get("dt_factor", None)
+
         if conversion_factor is None:
             conversion_factor = 1 if unit == "s" else apply_prefix(1, unit)
 
