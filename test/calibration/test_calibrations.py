@@ -45,7 +45,8 @@ class TestCalibrationsBasic(QiskitTestCase):
         self.amp_x90p = Parameter("amp")
         self.amp_y90p = Parameter("amp")
         self.beta = Parameter("β")
-        self.drive = DriveChannel(Parameter("ch0"))
+        self.chan = Parameter("ch0")
+        self.drive = DriveChannel(self.chan)
         self.duration = Parameter("dur")
 
         # Define and add template schedules.
@@ -107,6 +108,25 @@ class TestCalibrationsBasic(QiskitTestCase):
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xm"), 0.2)
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "x90p"), 0.1)
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "y90p"), 0.08)
+
+    def test_preserve_template(self):
+        """Test that the template schedule is still fully parametric after we get a schedule."""
+
+        # First get a schedule
+        xp = self.cals.get_schedule("xp", (3,))
+        self.assertEqual(xp.instructions[0][1].operands[0].amp, 0.2)
+
+        # Find the template schedule for xp and test it.
+        schedule = pulse.Schedule()
+        for sched_dict in self.cals.schedules():
+            if sched_dict["schedule"].name == "xp":
+                schedule = sched_dict["schedule"]
+
+        for param in {self.amp_xp, self.sigma, self.beta, self.duration, self.chan}:
+            self.assertTrue(param in schedule.parameters)
+
+        self.assertEqual(len(schedule.parameters), 5)
+        self.assertEqual(len(schedule.blocks), 1)
 
     def test_remove_schedule(self):
         """Test that we can easily remove a schedule."""
