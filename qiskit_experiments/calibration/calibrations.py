@@ -33,7 +33,7 @@ from qiskit.circuit import Parameter, ParameterExpression
 from qiskit_experiments.calibration.exceptions import CalibrationError
 from qiskit_experiments.calibration.parameter_value import ParameterValue
 
-ParameterKey = namedtuple("ParameterKey", ["schedule", "parameter", "qubits"])
+ParameterKey = namedtuple("ParameterKey", ["parameter", "qubits", "schedule"])
 ScheduleKey = namedtuple("ScheduleKey", ["schedule", "qubits"])
 
 
@@ -242,7 +242,7 @@ class Calibrations:
             self._parameter_counter += 1
 
         sched_name = schedule.name if schedule else None
-        key = ParameterKey(sched_name, parameter.name, qubits)
+        key = ParameterKey(parameter.name, qubits, sched_name)
         self._parameter_map[key] = parameter
         self._parameter_map_r[parameter].add(key)
 
@@ -277,12 +277,12 @@ class Calibrations:
             CalibrationError: If the desired parameter is not found.
         """
         # 1) Check for qubit specific parameters.
-        if (schedule_name, parameter_name, qubits) in self._parameter_map:
-            return self._parameter_map[(schedule_name, parameter_name, qubits)]
+        if ParameterKey(parameter_name, qubits, schedule_name) in self._parameter_map:
+            return self._parameter_map[ParameterKey(parameter_name, qubits, schedule_name)]
 
         # 2) Check for default parameters.
-        elif (schedule_name, parameter_name, None) in self._parameter_map:
-            return self._parameter_map[(schedule_name, parameter_name, None)]
+        elif ParameterKey(parameter_name, None, schedule_name) in self._parameter_map:
+            return self._parameter_map[ParameterKey(parameter_name, None, schedule_name)]
         else:
             raise CalibrationError(
                 f"No parameter for {parameter_name} and schedule {schedule_name} "
@@ -325,7 +325,7 @@ class Calibrations:
         if sched_name and sched_name not in registered_schedules:
             raise CalibrationError(f"Schedule named {sched_name} was never registered.")
 
-        self._params[ParameterKey(sched_name, param_name, qubits)].append(value)
+        self._params[ParameterKey(param_name, qubits, sched_name)].append(value)
 
     def _get_channel_index(self, qubits: Tuple, chan: PulseChannel) -> int:
         """
@@ -438,7 +438,7 @@ class Calibrations:
         # 2) Get a list of candidate keys restricted to the qubits of interest.
         candidate_keys = []
         for key in self._parameter_map_r[param]:
-            candidate_keys.append(ParameterKey(key.schedule, key.parameter, qubits))
+            candidate_keys.append(ParameterKey(key.parameter, qubits, key.schedule))
 
         # 3) Loop though the candidate keys to candidate values
         candidates = []
@@ -450,8 +450,8 @@ class Calibrations:
         # i.e. parameters that do not specify a qubit.
         if len(candidates) == 0:
             for key in candidate_keys:
-                if ParameterKey(key.schedule, key.parameter, None) in self._params:
-                    candidates += self._params[ParameterKey(key.schedule, key.parameter, None)]
+                if ParameterKey(key.parameter, None, key.schedule) in self._params:
+                    candidates += self._params[ParameterKey(key.parameter, None, key.schedule)]
 
         # 4) Filter candidate parameter values.
         if valid_only:
@@ -483,7 +483,7 @@ class Calibrations:
         self,
         name: str,
         qubits: Tuple[int, ...],
-        free_params: List[Tuple[str, str, Tuple]] = None,
+        free_params: List[Union[str, Tuple[str, Tuple, str]]] = None,
         group: Optional[str] = "default",
         cutoff_date: datetime = None,
     ) -> Union[Schedule, ScheduleBlock]:
@@ -510,6 +510,16 @@ class Calibrations:
                 - If the name of the schedule is not known.
                 - If a parameter could not be found.
         """
+        if free_params:
+            free_params_ = []
+            for free_param in free_params:
+                if isinstance(free_param, str):
+                    free_params_.append((free_param, qubits, name))
+                else:
+                    free_params_.append(free_param)
+
+            free_params = free_params_
+
         if (name, qubits) in self._schedules:
             schedule = self._schedules[ScheduleKey(name, qubits)]
         elif (name, None) in self._schedules:
@@ -636,7 +646,7 @@ class Calibrations:
 
         if ret_schedule.name in set(key.schedule for key in self._parameter_map):
             for param in ret_schedule.parameters:
-                keys.add(ParameterKey(ret_schedule.name, param.name, qubits_))
+                keys.add(ParameterKey(param.name, qubits_, ret_schedule.name))
 
         # 4) Build the parameter binding dictionary.
         free_params = free_params if free_params else []
@@ -649,8 +659,8 @@ class Calibrations:
                 # parameter for all qubits, i.e. qubits may be None.
                 if key in self._parameter_map:
                     param = self._parameter_map[key]
-                elif (key.schedule, key.parameter, None) in self._parameter_map:
-                    param = self._parameter_map[(key.schedule, key.parameter, None)]
+                elif ParameterKey(key.parameter, None, key.schedule) in self._parameter_map:
+                    param = self._parameter_map[ParameterKey(key.parameter, None, key.schedule)]
                 else:
                     raise CalibrationError(
                         f"Bad calibrations {key} is not present and has no default value."

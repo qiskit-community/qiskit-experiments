@@ -80,28 +80,28 @@ class TestCalibrationsBasic(QiskitTestCase):
 
     def test_setup(self):
         """Test that the initial setup behaves as expected."""
-        expected = {ParameterKey("xp", "amp", None), ParameterKey("xm", "amp", None)}
+        expected = {ParameterKey("amp", None, "xp"), ParameterKey("amp", None, "xm")}
         self.assertEqual(self.cals.parameters[self.amp_xp], expected)
 
-        expected = {ParameterKey("x90p", "amp", None)}
+        expected = {ParameterKey("amp", None, "x90p")}
         self.assertEqual(self.cals.parameters[self.amp_x90p], expected)
 
-        expected = {ParameterKey("y90p", "amp", None)}
+        expected = {ParameterKey("amp", None, "y90p")}
         self.assertEqual(self.cals.parameters[self.amp_y90p], expected)
 
         expected = {
-            ParameterKey("xp", "β", None),
-            ParameterKey("xm", "β", None),
-            ParameterKey("x90p", "β", None),
-            ParameterKey("y90p", "β", None),
+            ParameterKey("β", None, "xp"),
+            ParameterKey("β", None, "xm"),
+            ParameterKey("β", None, "x90p"),
+            ParameterKey("β", None, "y90p"),
         }
         self.assertEqual(self.cals.parameters[self.beta], expected)
 
         expected = {
-            ParameterKey("xp", "σ", None),
-            ParameterKey("xm", "σ", None),
-            ParameterKey("x90p", "σ", None),
-            ParameterKey("y90p", "σ", None),
+            ParameterKey("σ", None, "xp"),
+            ParameterKey("σ", None, "xm"),
+            ParameterKey("σ", None, "x90p"),
+            ParameterKey("σ", None, "y90p"),
         }
         self.assertEqual(self.cals.parameters[self.sigma], expected)
 
@@ -223,12 +223,10 @@ class TestCalibrationsBasic(QiskitTestCase):
 
     def test_free_parameters(self):
         """Test that we can get a schedule with a free parameter."""
-        xp = self.cals.get_schedule("xp", (3,), free_params=[("xp", "amp", (3,))])
+        xp = self.cals.get_schedule("xp", (3,), free_params=["amp"])
         self.assertEqual(xp.parameters, {self.amp_xp})
 
-        xp = self.cals.get_schedule(
-            "xp", (3,), free_params=[("xp", "amp", (3,)), ("xp", "σ", (3,))]
-        )
+        xp = self.cals.get_schedule("xp", (3,), free_params=["amp", "σ"])
         self.assertEqual(xp.parameters, {self.amp_xp, self.sigma})
 
 
@@ -379,7 +377,7 @@ class TestCalibrationDefaults(QiskitTestCase):
         # Check that beta is in the mapping
         self.assertEqual(
             self.cals.parameters[self.beta],
-            {ParameterKey(schedule="xp", parameter="β", qubits=(3,))},
+            {ParameterKey("β", (3,), "xp")},
         )
 
         self.cals.add_schedule(sched2, (3,))
@@ -505,7 +503,7 @@ class TestMeasurements(QiskitTestCase):
     def test_free_parameters(self):
         """Test that we can get a schedule with free parameters."""
 
-        schedule = self.cals.get_schedule("xt_meas", (0, 2), free_params=[("xp", "amp", (0,))])
+        schedule = self.cals.get_schedule("xt_meas", (0, 2), free_params=[("amp", (0,), "xp")])
         schedule = block_to_schedule(schedule)
 
         with pulse.build(name="xt_meas") as expected:
@@ -688,7 +686,7 @@ class TestControlChannels(QiskitTestCase):
     def test_free_parameters(self):
         """Test that we can get a schedule with free parameters."""
 
-        schedule = self.cals.get_schedule("cr", (3, 2), free_params=[("cr", "amp", (3, 2))])
+        schedule = self.cals.get_schedule("cr", (3, 2), free_params=["amp"])
 
         self.assertEqual(schedule.parameters, {self.amp_cr})
 
