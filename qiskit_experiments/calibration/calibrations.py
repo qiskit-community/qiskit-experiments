@@ -483,7 +483,7 @@ class Calibrations:
         self,
         name: str,
         qubits: Tuple[int, ...],
-        free_params: List[Union[str, Tuple[str, Tuple, str]]] = None,
+        free_params: List[Union[str, ParameterKey]] = None,
         group: Optional[str] = "default",
         cutoff_date: datetime = None,
     ) -> Union[Schedule, ScheduleBlock]:
@@ -493,7 +493,12 @@ class Calibrations:
         Args:
             name: The name of the schedule to get.
             qubits: The qubits for which to get the schedule.
-            free_params: The parameters that should remain unassigned.
+            free_params: The parameters that should remain unassigned. Each free parameter is
+                specified by a ParameterKey a named tuple of the form (parameter name, qubits,
+                schedule name). Each entry in free_params can also be a string corresponding
+                to the name of the parameter. In this case, the schedule name and qubits of the
+                corresponding ParameterKey will be the name and qubits given as arguments to
+                get_schedule.
             group: The calibration group from which to draw the
                 parameters. If not specified this defaults to the 'default' group.
             cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
@@ -514,7 +519,7 @@ class Calibrations:
             free_params_ = []
             for free_param in free_params:
                 if isinstance(free_param, str):
-                    free_params_.append((free_param, qubits, name))
+                    free_params_.append(ParameterKey(free_param, qubits, name))
                 else:
                     free_params_.append(free_param)
 
@@ -542,7 +547,7 @@ class Calibrations:
         self,
         schedule: Union[Schedule, ScheduleBlock],
         qubits: Tuple[int, ...],
-        free_params: List[str] = None,
+        free_params: List[ParameterKey] = None,
         group: Optional[str] = "default",
         cutoff_date: datetime = None,
     ) -> Union[Schedule, ScheduleBlock]:
@@ -576,7 +581,7 @@ class Calibrations:
             schedule: The schedule with assigned channel indices for which we wish to
                 assign values to non-channel parameters.
             qubits: The qubits for which to get the schedule.
-            free_params: The parameters that are to be left free.
+            free_params: The parameters that are to be left free. See get_schedules for details.
             group: The calibration group of the parameters.
             cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
                 generated after the cutoff date will be ignored. If the cutoff_date is None then
