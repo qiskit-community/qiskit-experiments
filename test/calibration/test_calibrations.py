@@ -594,6 +594,7 @@ class TestControlChannels(QiskitTestCase):
         self.amp_cr = Parameter("amp")
         self.amp_rot = Parameter("amp_rot")
         self.amp = Parameter("amp")
+        self.amp_tcp = Parameter("amp")
         self.d0_ = DriveChannel(Parameter("ch0"))
         self.d1_ = DriveChannel(Parameter("ch1"))
         self.c1_ = ControlChannel(Parameter("ch0.1"))
@@ -621,13 +622,19 @@ class TestControlChannels(QiskitTestCase):
                     pulse.play(cr_tone_m, self.c1_)
                 pulse.call(xp)
 
+        # Mimic a tunable coupler pulse that is just a pulse on a control channel.
+        with pulse.build(name="tcp") as tcp:
+            pulse.play(GaussianSquare(640, self.amp_tcp, self.sigma, self.width), self.c1_)
+
         self.cals.add_schedule(xp)
         self.cals.add_schedule(cr)
+        self.cals.add_schedule(tcp)
 
         self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", schedule="xp")
         self.cals.add_parameter_value(ParameterValue(0.1, self.date_time), "amp", (3,), "xp")
         self.cals.add_parameter_value(ParameterValue(0.3, self.date_time), "amp", (3, 2), "cr")
         self.cals.add_parameter_value(ParameterValue(0.2, self.date_time), "amp_rot", (3, 2), "cr")
+        self.cals.add_parameter_value(ParameterValue(0.8, self.date_time), "amp", (3, 2), "tcp")
         self.cals.add_parameter_value(ParameterValue(20, self.date_time), "w", (3, 2), "cr")
 
         # Reverse gate parameters
@@ -683,6 +690,14 @@ class TestControlChannels(QiskitTestCase):
         schedule = self.cals.get_schedule("cr", (3, 2), free_params=[("cr", "amp", (3, 2))])
 
         self.assertEqual(schedule.parameters, {self.amp_cr})
+
+    def test_single_control_channel(self):
+        """Test that getting a correct pulse on a control channel only works."""
+
+        with pulse.build(name="tcp") as expected:
+            pulse.play(GaussianSquare(640, 0.8, 40, 20), ControlChannel(10))
+
+        self.assertEqual(self.cals.get_schedule("tcp", (3, 2)), expected)
 
 
 class TestFiltering(QiskitTestCase):

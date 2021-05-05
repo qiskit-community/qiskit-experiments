@@ -57,7 +57,14 @@ class Calibrations:
                 that correspond to the qubits in the keys.
         """
 
+        # Mapping between qubits and their control channels.
         self._controls_config = control_config if control_config else {}
+
+        # Store the reverse mapping between control channels and qubits for ease of look-up.
+        self._controls_config_r = {}
+        for qubits, channels in self._controls_config.items():
+            for channel in channels:
+                self._controls_config_r[channel] = qubits
 
         # Dict of the form: (schedule.name, parameter.name, qubits): Parameter
         self._parameter_map = {}
@@ -586,6 +593,10 @@ class Calibrations:
                 )
             if isinstance(chan, (DriveChannel, MeasureChannel)):
                 qubit_set.add(chan.index)
+
+            if isinstance(chan, ControlChannel):
+                for qubit in self._controls_config_r[chan]:
+                    qubit_set.add(qubit)
 
         qubits_ = tuple(qubit for qubit in qubits if qubit in qubit_set)
 
