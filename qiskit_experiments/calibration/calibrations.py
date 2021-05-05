@@ -88,11 +88,15 @@ class Calibrations:
 
         Raises:
             CalibrationError:
+                - If schedule is not a Schedule or a ScheduleBlock.
                 - If the parameterized channel index is not formatted properly.
                 - If several parameters in the same schedule have the same name.
                 - If a channel is parameterized by more than one parameter.
                 - If the schedule name starts with the prefix of ScheduleBlock.
         """
+        if not isinstance(schedule, (Schedule, ScheduleBlock)):
+            raise CalibrationError(f"{schedule.name} is not a Schedule or a ScheduleBlock.")
+
         # check that channels, if parameterized, have the proper name format.
         if schedule.name.startswith(ScheduleBlock.prefix):
             raise CalibrationError(
@@ -567,13 +571,9 @@ class Calibrations:
 
         Raises:
             CalibrationError:
-                - If schedule is not a Schedule or ScheduleBlock.
                 - If a channel has not been assigned.
                 - If a parameter that is needed does not have a value.
         """
-        if not isinstance(schedule, (Schedule, ScheduleBlock)):
-            raise CalibrationError(f"{schedule.name} is not a Schedule or a ScheduleBlock.")
-
         # 1) Restrict the given qubits to those in the given schedule.
         qubit_set = set()
         for chan in schedule.channels:
