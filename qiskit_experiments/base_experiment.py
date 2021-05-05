@@ -66,14 +66,14 @@ class BaseExperiment(ABC):
     __run_defaults__ = {}
 
     def __init__(self, qubits, experiment_type=None, circuit_options=None):
-        """Initialize the analysis object.
+        """Initialize the experiment object.
 
         Args:
             qubits (int or Iterable[int]): the number of qubits or list of
                                            physical qubits for the experiment.
             experiment_type (str): Optional, the experiment type string.
             circuit_options (Iterable): Optional, list of kwarg names for
-                                        the subclasses `circuit` method.
+                                        the subclassed `circuit` method.
 
         Raises:
             QiskitError: if qubits is a list and contains duplicates.
