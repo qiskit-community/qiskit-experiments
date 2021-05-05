@@ -519,6 +519,16 @@ class TestMeasurements(QiskitTestCase):
         self.assertEqual(schedule.parameters, {self.amp_xp})
         self.assertEqual(schedule, expected)
 
+    def test_free_parameters_check(self):
+        """
+        Test that get_schedule raises an error if the number of parameters does not match.
+        This test ensures that we forbid ambiguity in free parameters in schedules with
+        calls that share parameters.
+        """
+
+        with self.assertRaises(CalibrationError):
+            self.cals.get_schedule("xt_meas", (0, 2), free_params=[("amp", (0,), "xp"),
+                                                                   ("amp", (2,), "xp")])
 
 class TestInstructions(QiskitTestCase):
     """Class to test that instructions like Shift and Set Phase/Frequency are properly managed."""

@@ -524,6 +524,8 @@ class Calibrations:
                     free_params_.append(free_param)
 
             free_params = free_params_
+        else:
+            free_params = []
 
         if (name, qubits) in self._schedules:
             schedule = self._schedules[ScheduleKey(name, qubits)]
@@ -541,7 +543,16 @@ class Calibrations:
         # Binding the channel indices makes it easier to deal with parameters later on
         schedule = schedule.assign_parameters(binding_dict, inplace=False)
 
-        return self._assign(schedule, qubits, free_params, group, cutoff_date)
+        assigned_schedule = self._assign(schedule, qubits, free_params, group, cutoff_date)
+
+        if len(assigned_schedule.parameters) != len(free_params):
+            raise CalibrationError(
+                f"The number of free parameters {len(assigned_schedule.parameters)} in "
+                f"the assigned schedule differs from the requested number of free "
+                f"parameters {len(free_params)}."
+            )
+
+        return assigned_schedule
 
     def _assign(
         self,
