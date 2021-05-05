@@ -527,8 +527,10 @@ class TestMeasurements(QiskitTestCase):
         """
 
         with self.assertRaises(CalibrationError):
-            self.cals.get_schedule("xt_meas", (0, 2), free_params=[("amp", (0,), "xp"),
-                                                                   ("amp", (2,), "xp")])
+            self.cals.get_schedule(
+                "xt_meas", (0, 2), free_params=[("amp", (0,), "xp"), ("amp", (2,), "xp")]
+            )
+
 
 class TestInstructions(QiskitTestCase):
     """Class to test that instructions like Shift and Set Phase/Frequency are properly managed."""
