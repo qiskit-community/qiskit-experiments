@@ -36,7 +36,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
         self,
         experiment_data,
         data_processor=None,
-        meas_level=MeasLevel.CLASSIFIED,
+        meas_level=MeasLevel.KERNELED,
         amp_guess: float = None,
         gamma_guesses: List[float] = None,
         freq_guess: float = None,
@@ -99,7 +99,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
         y_sigmas = np.array([data_processor(datum) for datum in experiment_data.data])
         sigmas = y_sigmas[:, 1]
         ydata = abs(y_sigmas[:, 0])
-        xdata = np.array(datum["metadata"]["xval"] for datum in experiment_data.data)
+        xdata = np.array([datum["metadata"]["xval"] for datum in experiment_data.data])
 
         if not offset_guess:
             offset_guess = np.average(ydata)
@@ -196,6 +196,9 @@ class Spectroscopy(BaseExperiment):
     # Supported units for spectroscopy.
     __units__ = {"Hz": 1.0, "kHz": 1.0e3, "MHz": 1.0e6, "GHz": 1.0e9}
 
+    # default run options
+    __run_defaults__ = {"meas_level": MeasLevel.KERNELED}
+
     def __init__(
         self, qubit: int, frequency_shifts: Union[List[float], np.array], unit: Optional[str] = "Hz"
     ):
@@ -249,7 +252,7 @@ class Spectroscopy(BaseExperiment):
         """
 
         amp = circuit_options.get("amp", 0.1)
-        duration = circuit_options.get("duration", 10240)
+        duration = circuit_options.get("duration", 1024)
         sigma = circuit_options.get("sigma", duration / 5)
         width = circuit_options.get("width", 0)
 
