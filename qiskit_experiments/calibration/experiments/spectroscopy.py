@@ -24,6 +24,7 @@ from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments import AnalysisResult
 from qiskit_experiments.data_processing.data_processor import DataProcessor
+from qiskit_experiments.data_processing.nodes import ToReal
 from qiskit_experiments.data_processing.nodes import Probability
 
 
@@ -40,6 +41,10 @@ class SpectroscopyAnalysis(BaseAnalysis):
         gamma_guesses: List[float] = None,
         freq_guess: float = None,
         offset_guess: float = None,
+        amplitude_bounds: List[float, float] = None,
+        width_bounds: List[float, float] = None,
+        freq_bounds: List[float, float] = None,
+        offset_bounds: List[float, float] = None,
     ) -> Tuple[AnalysisResult, None]:
         """
         Analyse a spectroscopy experiment by fitting the data to a Lorentz function.
@@ -65,7 +70,14 @@ class SpectroscopyAnalysis(BaseAnalysis):
                 this guess will default to the location of the highest absolute data point.
             offset_guess: A guess for the magnitude :math:`b` offset of the fit function.
                 If not provided, the initial guess defaults to the average of the ydata.
-        TODO Missing bounds.
+            amplitude_bounds: Bounds on the amplitude of the Lorentz function. The default
+                bounds are [0, 1.1*max(ydata)]
+            width_bounds: Bounds on the width of the Lorentz function. The default values
+                are [0, frequency range].
+            freq_bounds: Bounds on the center frequency. The default values are 90% of the
+                lower end of the frequency and 110% of the upper end of the frequency.
+            offset_bounds: Bounds on the offset of the Lorentz function. The default values
+                are the minimum and maximum of the ydata.
 
         Returns:
             The analysis result with the estimated peak frequency.
@@ -79,7 +91,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
             if meas_level == MeasLevel.CLASSIFIED:
                 data_processor = DataProcessor("counts", [Probability("1")])
             elif meas_level == MeasLevel.KERNELED:
-                data_processor = DataProcessor("memory", [Svd()])
+                data_processor = DataProcessor("memory", [ToReal()])
             else:
                 raise ValueError("Unsupported measurement level.")
 
@@ -97,8 +109,19 @@ class SpectroscopyAnalysis(BaseAnalysis):
             freq_guess = xdata[peak_idx]
         if not gamma_guesses:
             gamma_guesses = np.linspace(0, abs(xdata[-1] - xdata[0]), 10)
+        if amplitude_bounds is None:
+            amplitude_bounds = [0., 1.1*max(ydata)]
+        if width_bounds is None:
+            width_bounds = [0, abs(xdata[-1] - xdata[0])]
+        if freq_bounds is None:
+            freq_bounds = [0.9*xdata[0], 1.1*xdata[-1]]
+        if offset_bounds is None:
+            offset_bounds = [np.min(ydata), np.max(ydata)]
 
         best_fit = None
+
+        lower = np.array([amplitude_bounds[0], width_bounds[0], freq_bounds[0], offset_bounds[0]])
+        upper = np.array([amplitude_bounds[1], width_bounds[1], freq_bounds[1], offset_bounds[1]])
 
         for gamma_guess in gamma_guesses:
             fit_result = curve_fit(
@@ -107,6 +130,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
                 np.array(ydata),
                 np.array([amp_guess, gamma_guess, freq_guess, offset_guess]),
                 np.array(sigmas),
+                (lower, upper)
             )
 
             if not best_fit:
@@ -123,7 +147,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
                 "label": "Spectroscopy",
                 "fit": best_fit,
                 "quality": self._fit_quality(
-                    best_fit["popt"], best_fit["popt_err"], best_fit["reduced_chisq"]
+                    best_fit["popt"], best_fit["popt_err"], best_fit["reduced_chisq"], xdata[0], xdata[-1]
                 ),
             }
         )
@@ -131,9 +155,29 @@ class SpectroscopyAnalysis(BaseAnalysis):
         return analysis_result, None
 
     @staticmethod
-    def _fit_quality(fit_out, fit_err, reduced_chisq):
-        """TODO"""
-        return ""
+    def _fit_quality(fit_out, fit_err, reduced_chisq, min_freq, max_freq) -> str:
+        """
+        Algorithmic criteria for whether the fit is good or bad.
+        A good fit has a small reduced chi-squared and the peak must be
+        within the scanned frequency range.
+
+        Args:
+            fit_out: Value of the fit.
+            fit_err: Errors on the fit value.
+            reduced_chisq: Reduced chi-squared of the fit.
+            min_freq: Minimum frequency in the spectroscopy.
+            max_freq: Maximum frequency in the spectroscopy.
+        """
+
+        if (
+            min_freq <= fit_out[2] <= max_freq
+            and fit_out[1] < (max_freq - min_freq)
+            and reduced_chisq < 3
+            and (fit_err[2] is None or fit_err[2] < fit_out[2])
+        ):
+            return "computer_good"
+        else:
+            return "computer_bad"
 
 
 class Spectroscopy(BaseExperiment):
