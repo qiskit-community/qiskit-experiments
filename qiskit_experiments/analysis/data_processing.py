@@ -47,27 +47,9 @@ def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
 
 
 def mean_xy_data(
-    xdata: np.ndarray,
-    ydata: np.ndarray,
-    sigma: Optional[np.ndarray] = None,
-    method: str = "sample",
+    xdata: np.ndarray, ydata: np.ndarray, sigma: Optional[np.ndarray] = None, method: str = "sample"
 ) -> Tuple[np.ndarray]:
-    r"""Wrapper function for multi_mean_xy_data
-    in the case of one data series
-    """
-    series = np.zeros(xdata.size)
-    x_means, y_means, y_sigmas, _ = multi_mean_xy_data(xdata, ydata, sigma, series, method)
-    return x_means, y_means, y_sigmas
-
-
-def multi_mean_xy_data(
-    xdata: np.ndarray,
-    ydata: np.ndarray,
-    sigma: Optional[np.ndarray] = None,
-    series: Optional[np.ndarray] = None,
-    method: str = "sample",
-) -> Tuple[np.ndarray]:
-    r"""Return (x, y_mean, sigma, series) data.
+    r"""Return (x, y_mean, sigma) data.
 
     The mean is taken over all ydata values with the same xdata value using
     the specified method. For each x the mean :math:`\overline{y}` and variance
@@ -81,11 +63,10 @@ def multi_mean_xy_data(
       :math:`\sigma^2 = 1 / (\sum_{i=1}^N 1 / \sigma_i^2)`
 
     Args
-        xdata: 1D array of xdata from curve_fit_data or
+        xdata: 1D or 2D array of xdata from curve_fit_data or
                multi_curve_fit_data
         ydata: array of ydata returned from curve_fit_data or
                multi_curve_fit_data
-        series: 1D int array that specifies the data series
         sigma: Optional, array of standard deviations in ydata.
         method: The method to use for computing y means and
                 standard deviations sigma (default: "sample").
@@ -99,41 +80,73 @@ def multi_mean_xy_data(
     Raises:
         QiskitError: if "ivw" method is used without providing a sigma.
     """
-    if method == "iwv" and sigma is None:
-        raise QiskitError(
-            "The inverse-weighted variance method cannot be used with" " `sigma=None`"
-        )
-    if method not in ["sample", "iwv"]:
-        raise QiskitError(f"Unsupported method {method}")
-    x_keys = np.unique(np.column_stack((xdata, series)), axis=0)
-    x_means = np.zeros(x_keys.shape[0])
-    y_means = np.zeros(x_keys.shape[0])
-    y_sigmas = np.zeros(x_keys.shape[0])
-    series_mean = np.zeros(x_keys.shape[0])
+    x_means = np.unique(xdata, axis=0)
+    y_means = np.zeros(x_means.size)
+    y_sigmas = np.zeros(x_means.size)
 
-    for i, (x_val, xseries_val) in enumerate(x_keys):
-        x_means[i] = x_val
-        series_mean[i] = xseries_val
-        # Get positions of y to average
-        idxs = np.where((xdata == x_val) & (series == xseries_val))
-        ys = ydata[idxs]
+    # Sample mean and variance method
+    if method == "sample":
+        for i in range(x_means.size):
+            # Get positions of y to average
+            idxs = xdata == x_means[i]
+            ys = ydata[idxs]
 
-        # Sample mean and variance method
-        if method == "sample":
             # Compute sample mean and biased sample variance
             y_means[i] = np.mean(ys)
             y_sigmas[i] = np.mean((y_means[i] - ys) ** 2)
 
-        # Inverse-weighted variance method
-        if method == "iwv":
+        return x_means, y_means, y_sigmas
+
+    # Inverse-weighted variance method
+    if method == "iwv":
+        if sigma is None:
+            raise QiskitError(
+                "The inverse-weighted variance method cannot be used with" " `sigma=None`"
+            )
+        for i in range(x_means.size):
+            # Get positions of y to average
+            idxs = xdata == x_means[i]
+            ys = ydata[idxs]
+
             # Compute the inverse-variance weighted y mean and variance
             weights = 1 / sigma[idxs] ** 2
             y_var = 1 / np.sum(weights)
             y_means[i] = y_var * np.sum(weights * ys)
             y_sigmas[i] = np.sqrt(y_var)
 
-    return x_means, y_means, y_sigmas, series_mean
+        return x_means, y_means, y_sigmas
 
+    # Invalid method
+    raise QiskitError(f"Unsupported method {method}")
+
+
+def multi_mean_xy_data(
+        series: np.ndarray, xdata: np.ndarray, ydata: np.ndarray,
+        sigma: Optional[np.ndarray] = None, method: str = "sample"):
+    series_vals = np.unique(series)
+
+    series_means = []
+    xdata_means = []
+    ydata_means = []
+    sigma_means = []
+
+    # Get x, y, sigma data for series and process mean data
+    for i in series_vals:
+        idxs = series == series_vals[i]
+        sigma_i = sigma[idxs] if sigma is not None else None
+        x_mean, y_mean, sigma_mean = mean_xy_data(
+            xdata[idxs], ydata[idxs], sigma=sigma_i, method=method)
+        series_means.append(i * np.ones(x_mean.size, dtype=int))
+        xdata_means.append(x_mean)
+        ydata_means.append(y_mean)
+        sigma_means.append(sigma_mean)
+
+    # Concatenate lists
+    return (
+        np.concatenate(series_means),
+        np.concatenate(xdata_means),
+        np.concatenate(ydata_means),
+        np.concatenate(sigma_means))
 
 def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float]:
     """Return the outcome probability mean and variance.

@@ -54,7 +54,7 @@ class InterleavedRBAnalysis(RBAnalysis):
 
         self._num_qubits = len(experiment_data.data[0]["metadata"]["qubits"])
         series, x, y, sigma = process_multi_curve_data(experiment_data.data, data_processor)
-        xdata, ydata, ydata_sigma, series = multi_mean_xy_data(x, y, sigma, series)
+        series, xdata, ydata, ydata_sigma = multi_mean_xy_data(series, x, y, sigma)
 
         def fit_fun_standard(x, a, alpha_std, alpha_int, b):
             return a * alpha_std ** x + b
