@@ -41,7 +41,7 @@ class InterleavedRBAnalysis(RBAnalysis):
     - Equations (4) and (5).
     """
 
-    # pylint: disable=invalid-name, unused-variable, unused-argument, attribute-defined-outside-init
+    # pylint: disable=invalid-name
     def _run_analysis(
         self,
         experiment_data,
@@ -52,14 +52,14 @@ class InterleavedRBAnalysis(RBAnalysis):
         def data_processor(datum):
             return level2_probability(datum, datum["metadata"]["ylabel"])
 
-        self._num_qubits = len(experiment_data.data[0]["metadata"]["qubits"])
+        num_qubits = len(experiment_data.data[0]["metadata"]["qubits"])
         series, x, y, sigma = process_multi_curve_data(experiment_data.data, data_processor)
         series, xdata, ydata, ydata_sigma = multi_mean_xy_data(series, x, y, sigma)
 
-        def fit_fun_standard(x, a, alpha_std, alpha_int, b):
+        def fit_fun_standard(x, a, alpha_std, _, b):
             return a * alpha_std ** x + b
 
-        def fit_fun_interleaved(x, a, alpha_std, alpha_int, b):
+        def fit_fun_interleaved(x, a, _, alpha_int, b):
             return a * alpha_int ** x + b
 
         std_idx = series == 0
@@ -92,10 +92,10 @@ class InterleavedRBAnalysis(RBAnalysis):
         )
 
         # Add EPC data
-        nrb = 2 ** self._num_qubits
+        nrb = 2 ** num_qubits
         scale = (nrb - 1) / (2 ** nrb)
-        A, alpha, alpha_c, B = analysis_result["popt"]
-        A_err, alpha_err, alpha_c_err, B_err = analysis_result["popt_err"]
+        _, alpha, alpha_c, _ = analysis_result["popt"]
+        _, alpha_err, alpha_c_err, _ = analysis_result["popt_err"]
 
         # Calculate epc_est (=r_c^est) - Eq. (4):
         epc_est = scale * (1 - alpha_c / alpha)
