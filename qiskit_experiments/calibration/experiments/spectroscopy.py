@@ -110,11 +110,11 @@ class SpectroscopyAnalysis(BaseAnalysis):
         if not gamma_guesses:
             gamma_guesses = np.linspace(0, abs(xdata[-1] - xdata[0]), 10)
         if amplitude_bounds is None:
-            amplitude_bounds = [0., 1.1*max(ydata)]
+            amplitude_bounds = [0.0, 1.1 * max(ydata)]
         if width_bounds is None:
             width_bounds = [0, abs(xdata[-1] - xdata[0])]
         if freq_bounds is None:
-            freq_bounds = [0.9*xdata[0], 1.1*xdata[-1]]
+            freq_bounds = [0.9 * xdata[0], 1.1 * xdata[-1]]
         if offset_bounds is None:
             offset_bounds = [np.min(ydata), np.max(ydata)]
 
@@ -130,7 +130,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
                 np.array(ydata),
                 np.array([amp_guess, gamma_guess, freq_guess, offset_guess]),
                 np.array(sigmas),
-                (lower, upper)
+                (lower, upper),
             )
 
             if not best_fit:
@@ -147,7 +147,11 @@ class SpectroscopyAnalysis(BaseAnalysis):
                 "label": "Spectroscopy",
                 "fit": best_fit,
                 "quality": self._fit_quality(
-                    best_fit["popt"], best_fit["popt_err"], best_fit["reduced_chisq"], xdata[0], xdata[-1]
+                    best_fit["popt"],
+                    best_fit["popt_err"],
+                    best_fit["reduced_chisq"],
+                    xdata[0],
+                    xdata[-1],
                 ),
             }
         )
@@ -167,6 +171,9 @@ class SpectroscopyAnalysis(BaseAnalysis):
             reduced_chisq: Reduced chi-squared of the fit.
             min_freq: Minimum frequency in the spectroscopy.
             max_freq: Maximum frequency in the spectroscopy.
+
+        Returns:
+            computer_bad or computer_good if the fit passes or fails, respectively.
         """
 
         if (
@@ -207,6 +214,9 @@ class Spectroscopy(BaseExperiment):
                 of 'Hz', 'kHz', 'MHz', 'GHz'. Internally, all frequencies will be converted
                 to 'Hz'.
 
+        Raises:
+            ValueError: if there are less than three frequency shifts or if the unit is not known.
+
         """
         if len(frequency_shifts) < 3:
             raise ValueError("Spectroscopy requires at least three frequencies.")
@@ -218,7 +228,8 @@ class Spectroscopy(BaseExperiment):
 
         super().__init__([qubit], circuit_options=("amp", "duration", "sigma", "width"))
 
-    def circuits(self, backend=None, **circuit_options):
+    # pylint: disable=unused-argument
+    def circuits(self, backend: Optional["Backend"] = None, **circuit_options):
         """
         Create the circuit for the spectroscopy experiment. The circuits are based on a
         GaussianSquare pulse and a frequency_shift instruction encapsulated in a gate.
