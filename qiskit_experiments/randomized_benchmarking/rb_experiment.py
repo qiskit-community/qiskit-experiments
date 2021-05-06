@@ -123,18 +123,21 @@ class RBExperiment(BaseExperiment):
         qubits = list(range(self.num_qubits))
         circuits = []
 
-        circ = QuantumCircuit(self.num_qubits)
-        circ.barrier(qubits)
+        circs = [QuantumCircuit(self.num_qubits) for _ in range(len(lengths))]
+        for circ in circs:
+            circ.barrier(qubits)
         circ_op = Clifford(np.eye(2 * self.num_qubits))
 
         for current_length, group_elt in enumerate(elements):
             circ_op = circ_op.compose(group_elt)
-            circ.append(group_elt, qubits)
-            circ.barrier(qubits)
+            group_elt_instruction = group_elt.to_instruction()
+            for circ in circs:
+                circ.append(group_elt_instruction, qubits)
+                circ.barrier(qubits)
             if current_length + 1 in lengths:
                 # copy circuit and add inverse
                 inv = circ_op.adjoint()
-                rb_circ = circ.copy()
+                rb_circ = circs.pop()
                 rb_circ.append(inv, qubits)
                 rb_circ.barrier(qubits)
                 rb_circ.metadata = {
