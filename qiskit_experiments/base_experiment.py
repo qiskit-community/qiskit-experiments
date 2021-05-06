@@ -191,6 +191,10 @@ class BaseExperiment(ABC):
     @classmethod
     def _default_options(cls) -> Options:
         """Default kwarg options for experiment"""
+        # Experiment subclasses should override this method to return
+        # an `Options` object containing all the supported options for
+        # that experiment and their default values. Only options listed
+        # here can be modified later by the `set_options` method.
         return Options()
 
     @property
@@ -217,6 +221,9 @@ class BaseExperiment(ABC):
     @classmethod
     def _default_transpile_options(cls) -> Options:
         """Default transpiler options for transpilation of circuits"""
+        # Experiment subclasses can override this method if they need
+        # to set specific transpiler options defaults for running the
+        # experiment.
         return Options(optimization_level=0)
 
     @property
@@ -260,8 +267,10 @@ class BaseExperiment(ABC):
 
     @classmethod
     def _default_analysis_options(cls) -> Options:
-        """Default transpiler options for transpilation of circuits"""
-        # These should typically be set by the analysis class default options
+        """Default options for analysis of experiment results."""
+        # Experiment subclasses can override this method if they need
+        # to set specific analysis options defaults that are different
+        # from the Analysis subclass `_default_options` values.
         if cls.__analysis_class__:
             return cls.__analysis_class__._default_options()
         return None

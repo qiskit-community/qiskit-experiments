@@ -199,7 +199,13 @@ class T1Analysis(BaseAnalysis):
 
 
 class T1Experiment(BaseExperiment):
-    """T1 experiment class"""
+    """T1 experiment class.
+
+    Experiment Options:
+        delays: delay times of the experiments
+        unit: Optional, unit of the delay times. Supported units are
+              's', 'ms', 'us', 'ns', 'ps', 'dt'.
+    """
 
     __analysis_class__ = T1Analysis
 

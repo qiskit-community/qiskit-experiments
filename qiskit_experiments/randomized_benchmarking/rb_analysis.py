@@ -14,7 +14,6 @@ Standard RB analysis class.
 """
 
 from typing import Optional, List
-import numpy as np
 
 from qiskit.providers.options import Options
 from qiskit_experiments.base_analysis import BaseAnalysis, ExperimentData
