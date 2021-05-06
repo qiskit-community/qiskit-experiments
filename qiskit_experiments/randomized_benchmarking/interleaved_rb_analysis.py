@@ -35,12 +35,13 @@ except ImportError:
 
 
 class InterleavedRBAnalysis(RBAnalysis):
-    """Interleaved RB Analysis class.
+    r"""Interleaved RB Analysis class.
     According to the paper: "Efficient measurement of quantum gate
     error by interleaved randomized benchmarking" (arXiv:1203.4550)
 
     The epc estimate is obtained using the equation
-    :math:`r_{\mathcal{C}}^{\text{est}}=\frac{\left(d-1\right)\left(1-p_{\overline{\mathcal{C}}}/p\right)}{d}`
+    :math:`r_{\mathcal{C}}^{\text{est}}=
+    \frac{\left(d-1\right)\left(1-p_{\overline{\mathcal{C}}}/p\right)}{d}`
 
     The error bounds are given by
     :math:`E=\min\left\{ \begin{array}{c}
