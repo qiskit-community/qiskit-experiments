@@ -239,9 +239,9 @@ class Spectroscopy(BaseExperiment):
             backend: A backend object.
             circuit_options: Key word arguments to run the circuits. The circuit options are
                 - amp: The amplitude of the GaussianSquare pulse, defaults to 0.1.
-                - duration: The duration of the GaussianSquare pulse, defaults to 1000.
-                - sigma: The standard deviation of the GaussianSquare pulse, defaults to five
-                    times durations.
+                - duration: The duration of the GaussianSquare pulse, defaults to 10240.
+                - sigma: The standard deviation of the GaussianSquare pulse, defaults to one
+                    fith of the duration.
                 - width: The width of the flat top in the GaussianSquare pulse, defaults to 0.
 
         Returns:
@@ -249,8 +249,8 @@ class Spectroscopy(BaseExperiment):
         """
 
         amp = circuit_options.get("amp", 0.1)
-        sigma = circuit_options.get("sigma", 1000)
-        duration = circuit_options.get("duration", sigma * 5)
+        duration = circuit_options.get("duration", 10240)
+        sigma = circuit_options.get("sigma", duration / 5)
         width = circuit_options.get("width", 0)
 
         drive = pulse.DriveChannel(self._physical_qubits[0])
