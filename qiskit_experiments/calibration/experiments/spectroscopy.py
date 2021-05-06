@@ -30,16 +30,16 @@ from qiskit_experiments.data_processing.nodes import Probability
 class SpectroscopyAnalysis(BaseAnalysis):
     """Class to analysis a spectroscopy experiment."""
 
-    #pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ
     def _run_analysis(
-            self,
-            experiment_data,
-            data_processor=None,
-            meas_level=MeasLevel.CLASSIFIED,
-            amp_guess: float = None,
-            gamma_guesses: List[float] = None,
-            freq_guess: float = None,
-            offset_guess: float = None
+        self,
+        experiment_data,
+        data_processor=None,
+        meas_level=MeasLevel.CLASSIFIED,
+        amp_guess: float = None,
+        gamma_guesses: List[float] = None,
+        freq_guess: float = None,
+        offset_guess: float = None,
     ) -> Tuple[AnalysisResult, None]:
         """
         Analyse a spectroscopy experiment by fitting the data to a Lorentz function.
@@ -83,8 +83,6 @@ class SpectroscopyAnalysis(BaseAnalysis):
             else:
                 raise ValueError("Unsupported measurement level.")
 
-        unit = experiment_data.data[0]["metadata"].get("unit", "Hz")
-
         y_sigmas = np.array([data_processor(datum) for datum in experiment_data.data])
         sigmas = y_sigmas[:, 1]
         ydata = abs(y_sigmas[:, 0])
@@ -104,11 +102,11 @@ class SpectroscopyAnalysis(BaseAnalysis):
 
         for gamma_guess in gamma_guesses:
             fit_result = curve_fit(
-                lambda x, a, g, x0, b: a * ( g**2 / ((x-x0)**2 + g**2)) + b,
+                lambda x, a, g, x0, b: a * (g ** 2 / ((x - x0) ** 2 + g ** 2)) + b,
                 xdata,
                 np.array(ydata),
                 np.array([amp_guess, gamma_guess, freq_guess, offset_guess]),
-                np.array(sigmas)
+                np.array(sigmas),
             )
 
             if not best_fit:
@@ -121,7 +119,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
             {
                 "value": best_fit["popt"][2],
                 "stderr": best_fit["popt_err"][2],
-                "unit": unit,
+                "unit": experiment_data.data[0]["metadata"].get("unit", "Hz"),
                 "label": "Spectroscopy",
                 "fit": best_fit,
                 "quality": self._fit_quality(
@@ -144,9 +142,11 @@ class Spectroscopy(BaseExperiment):
     __analysis_class__ = SpectroscopyAnalysis
 
     # Supported units for spectroscopy.
-    __units__ = {"Hz": 1.0, "kHz": 1.e3, "MHz": 1.e6, "GHz": 1.e9}
+    __units__ = {"Hz": 1.0, "kHz": 1.0e3, "MHz": 1.0e6, "GHz": 1.0e9}
 
-    def __init__(self, qubit: int, frequency_shifts: Union[List[float], np.array], unit: Optional[str] = "Hz"):
+    def __init__(
+        self, qubit: int, frequency_shifts: Union[List[float], np.array], unit: Optional[str] = "Hz"
+    ):
         """
         A spectroscopy experiment run by shifting the frequency of the qubit.
         The parameters of the GaussianSquare spectroscopy pulse are specified at run-time.
@@ -159,31 +159,42 @@ class Spectroscopy(BaseExperiment):
         Args:
             qubit: The qubit on which to run spectroscopy.
             frequency_shifts: The frequencies to scan in the experiment.
-            unit: unit of the frequencies: 'Hz', 'kHz', 'MHz', 'GHz'.
+            unit: The unit in which the user specifies the frequencies. Can be one
+                of 'Hz', 'kHz', 'MHz', 'GHz'. Internally, all frequencies will be converted
+                to 'Hz'.
 
         """
         if len(frequency_shifts) < 3:
             raise ValueError("Spectroscopy requires at least three frequencies.")
 
-        self._frequency_shifts = frequency_shifts
-
         if unit not in self.__units__:
-            raise ValueError("Unsupported unit: {unit}.")
+            raise ValueError(f"Unsupported unit: {unit}.")
 
-        self._unit = unit
+        self._frequency_shifts = [freq * self.__units__[unit] for freq in frequency_shifts]
 
         super().__init__([qubit], circuit_options=("amp", "duration", "sigma", "width"))
 
     def circuits(self, backend=None, **circuit_options):
-        """Create the circuit for the spectroscopy experiment.
+        """
+        Create the circuit for the spectroscopy experiment. The circuits are based on a
+        GaussianSquare pulse and a frequency_shift instruction encapsulated in a gate.
 
         Args:
-            circuit_options: key word arguments to run the circuits.
+            backend: A backend object.
+            circuit_options: Key word arguments to run the circuits. The circuit options are
+                - amp: The amplitude of the GaussianSquare pulse, defaults to 0.1.
+                - duration: The duration of the GaussianSquare pulse, defaults to 1000.
+                - sigma: The standard deviation of the GaussianSquare pulse, defaults to five
+                    times durations.
+                - width: The width of the flat top in the GaussianSquare pulse, defaults to 0.
+
+        Returns:
+            circuits: The circuits that will run the spectroscopy experiment.
         """
 
         amp = circuit_options.get("amp", 0.1)
         sigma = circuit_options.get("sigma", 1000)
-        duration = circuit_options.get("duration", sigma*5)
+        duration = circuit_options.get("duration", sigma * 5)
         width = circuit_options.get("width", 0)
 
         drive = pulse.DriveChannel(self._physical_qubits[0])
@@ -192,21 +203,21 @@ class Spectroscopy(BaseExperiment):
 
         for freq_shift in self._frequency_shifts:
             with pulse.build(name=f"Frequency shift{freq_shift}") as sched:
-                pulse.shift_frequency(freq_shift * self.__units__[self._unit], drive)
+                pulse.shift_frequency(freq_shift, drive)
                 pulse.play(pulse.GaussianSquare(duration, amp, sigma, width), drive)
 
             gate = Gate(name="Spec", num_qubits=1, params=[])
 
             circuit = QuantumCircuit(1)
-            circuit.append(gate, (0, ))
-            circuit.add_calibration(gate, (self._physical_qubits[0], ), sched)
+            circuit.append(gate, (0,))
+            circuit.add_calibration(gate, (self._physical_qubits[0],), sched)
             circuit.measure_active()
 
             circuit.metadata = {
                 "experiment_type": self._type,
                 "qubit": self._physical_qubits[0],
                 "xval": freq_shift,
-                "unit": self._unit,
+                "unit": "Hz",
             }
 
             circs.append(circuit)
