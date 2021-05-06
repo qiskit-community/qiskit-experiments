@@ -94,11 +94,12 @@ class BaseExperiment(ABC):
         # Store options and values
         self._circuit_options = set(circuit_options) if circuit_options else set()
 
-    def run(self, backend, experiment_data=None, **kwargs):
+    def run(self, backend, analysis=True, experiment_data=None, **kwargs):
         """Run an experiment and perform analysis.
 
         Args:
             backend (Backend): The backend to run the experiment on.
+            analysis (bool): If True run analysis on experiment data.
             experiment_data (ExperimentData): Optional, add results to existing
                 experiment data. If None a new ExperimentData object will be
                 returned.
@@ -112,7 +113,7 @@ class BaseExperiment(ABC):
 
         # Create new experiment data
         if experiment_data is None:
-            experiment_data = self.__experiment_data__(self)
+            experiment_data = self.__experiment_data__(self, backend=backend)
 
         # Filter kwargs
         run_options = self.__run_defaults__.copy()
@@ -132,7 +133,7 @@ class BaseExperiment(ABC):
         experiment_data.add_data(job)
 
         # Queue analysis of data for when job is finished
-        if self.__analysis_class__ is not None:
+        if analysis and self.__analysis_class__ is not None:
             # pylint: disable = not-callable
             self.__analysis_class__().run(experiment_data, **kwargs)
 
