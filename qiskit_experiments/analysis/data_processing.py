@@ -128,8 +128,8 @@ def multi_mean_xy_data(
     method: str = "sample",
 ):
     r"""Return (series, x, y_mean, sigma) data.
-        Performs `mean_xy_data` for each series
-        and returns the concatenated results
+    Performs `mean_xy_data` for each series
+    and returns the concatenated results
     """
     series_vals = np.unique(series)
 
