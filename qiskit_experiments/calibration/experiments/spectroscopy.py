@@ -30,17 +30,48 @@ from qiskit_experiments.data_processing.nodes import Probability
 class SpectroscopyAnalysis(BaseAnalysis):
     """Class to analysis a spectroscopy experiment."""
 
-    #pylint: disable=arguments-differ, unused-argument
+    #pylint: disable=arguments-differ
     def _run_analysis(
             self,
             experiment_data,
             data_processor=None,
-            meas_level=MeasLevel.CLASSIFIED
+            meas_level=MeasLevel.CLASSIFIED,
+            amp_guess: float = None,
+            gamma_guesses: List[float] = None,
+            freq_guess: float = None,
+            offset_guess: float = None
     ) -> Tuple[AnalysisResult, None]:
-        """Analyse the spectroscopy experiment. The analysis will loop over the initial
-        guesses of the full width at half maximum.
+        """
+        Analyse a spectroscopy experiment by fitting the data to a Lorentz function.
+        The fit function is:
+
+        .. math::
+
+            a * ( g**2 / ((x-x0)**2 + g**2)) + b
+
+        Here, :math:`x` is the frequency. The analysis loops over the initial guesses
+        of the width parameter :math:`g`.
+
+        Args:
+            experiment_data: The experiment data to analyze.
+            data_processor: The data processor with which to process the data.
+            meas_level: The measurement level of the experiment data.
+            amp_guess: The amplitude of the Lorentz function, i.e. :math:`a`. If not
+                provided, this will default to the maximum absolute value of the ydata.
+            gamma_guesses: The guesses for the width parameter of the Lorentz distribution,
+                i.e. :math:`g`. If it is not given this will default to an array of ten
+                points linearly spaced between zero and the full width of the data.
+            freq_guess: A guess for the frequency of the peak :math:`x0`. If not provided
+                this guess will default to the location of the highest absolute data point.
+            offset_guess: A guess for the magnitude :math:`b` offset of the fit function.
+                If not provided, the initial guess defaults to the average of the ydata.
         TODO Missing bounds.
-        TODO Missing user-provided intial guess.
+
+        Returns:
+            The analysis result with the estimated peak frequency.
+
+        Raises:
+            ValueError: If the measurement level is not supported.
         """
 
         # Pick a data processor.
@@ -59,11 +90,15 @@ class SpectroscopyAnalysis(BaseAnalysis):
         ydata = abs(y_sigmas[:, 0])
         xdata = np.array(datum["metadata"]["xval"] for datum in experiment_data.data)
 
-        offset_guess = np.average(ydata)
-        amp_guess = np.max(ydata)
-        peak_idx = np.argmax(ydata)
-        x0_guess = xdata[peak_idx]
-        gamma_guesses = np.linspace(0, abs(xdata[-1] - xdata[0]), 10)
+        if not offset_guess:
+            offset_guess = np.average(ydata)
+        if not amp_guess:
+            amp_guess = np.max(ydata)
+        if not freq_guess:
+            peak_idx = np.argmax(ydata)
+            freq_guess = xdata[peak_idx]
+        if not gamma_guesses:
+            gamma_guesses = np.linspace(0, abs(xdata[-1] - xdata[0]), 10)
 
         best_fit = None
 
@@ -72,7 +107,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
                 lambda x, a, g, x0, b: a * ( g**2 / ((x-x0)**2 + g**2)) + b,
                 xdata,
                 np.array(ydata),
-                np.array([amp_guess, gamma_guess, x0_guess, offset_guess]),
+                np.array([amp_guess, gamma_guess, freq_guess, offset_guess]),
                 np.array(sigmas)
             )
 
