@@ -28,7 +28,13 @@ from ..experiment_data import ExperimentData
 from qiskit_experiments.analysis.curve_fitting import curve_fit, multi_curve_fit, process_curve_data
 from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_scatter, plot_errorbar
 from qiskit_experiments.analysis.data_processing import level2_probability
-from matplotlib import pyplot as plt
+
+try:
+    from matplotlib import pyplot as plt
+
+    HAS_MATPLOTLIB = True
+except ImportError:
+    HAS_MATPLOTLIB = False
 
 
 class T2StarAnalysis(BaseAnalysis):
