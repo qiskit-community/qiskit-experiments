@@ -38,7 +38,15 @@ class InterleavedRBAnalysis(RBAnalysis):
     """Interleaved RB Analysis class.
     According to the paper: "Efficient measurement of quantum gate
     error by interleaved randomized benchmarking" (arXiv:1203.4550)
-    - Equations (4) and (5).
+
+    The epc estimate is obtained using the equation
+    :math:`r_{\mathcal{C}}^{\text{est}}=\frac{\left(d-1\right)\left(1-p_{\overline{\mathcal{C}}}/p\right)}{d}`
+
+    The error bounds are given by
+    :math:`E=\min\left\{ \begin{array}{c}
+    \frac{\left(d-1\right)\left[\left|p-p_{\overline{\mathcal{C}}}/p\right|+\left(1-p\right)\right]}{d}\\
+    \frac{2\left(d^{2}-1\right)\left(1-p\right)}{pd^{2}}+\frac{4\sqrt{1-p}\sqrt{d^{2}-1}}{p}
+    \end{array}\right.`
     """
 
     # pylint: disable=invalid-name
