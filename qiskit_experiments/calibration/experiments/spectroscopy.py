@@ -136,7 +136,6 @@ class Spectroscopy(BaseExperiment):
             raise ValueError("Unsupported unit: {unit}.")
 
         self._unit = unit
-        self._qubit = qubit
 
         super().__init__([qubit], circuit_options=("amp", "duration", "sigma", "width"))
 
@@ -152,7 +151,7 @@ class Spectroscopy(BaseExperiment):
         duration = circuit_options.get("duration", sigma*5)
         width = circuit_options.get("width", 0)
 
-        drive = pulse.DriveChannel(self._qubit)
+        drive = pulse.DriveChannel(self._physical_qubits[0])
 
         circs = []
 
@@ -165,12 +164,12 @@ class Spectroscopy(BaseExperiment):
 
             circuit = QuantumCircuit(1)
             circuit.append(gate, (0, ))
-            circuit.add_calibration(gate, (self._qubit, ), sched)
+            circuit.add_calibration(gate, (self._physical_qubits[0], ), sched)
             circuit.measure_active()
 
             circuit.metadata = {
                 "experiment_type": self._type,
-                "qubit": self._qubit,
+                "qubit": self._physical_qubits[0],
                 "xval": freq_shift,
                 "unit": self._unit,
             }
