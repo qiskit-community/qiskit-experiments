@@ -41,10 +41,10 @@ class SpectroscopyAnalysis(BaseAnalysis):
         gamma_guesses: List[float] = None,
         freq_guess: float = None,
         offset_guess: float = None,
-        amplitude_bounds: List[float, float] = None,
-        width_bounds: List[float, float] = None,
-        freq_bounds: List[float, float] = None,
-        offset_bounds: List[float, float] = None,
+        amplitude_bounds: List[float] = None,
+        width_bounds: List[float] = None,
+        freq_bounds: List[float] = None,
+        offset_bounds: List[float] = None,
     ) -> Tuple[AnalysisResult, None]:
         """
         Analyse a spectroscopy experiment by fitting the data to a Lorentz function.
@@ -70,14 +70,15 @@ class SpectroscopyAnalysis(BaseAnalysis):
                 this guess will default to the location of the highest absolute data point.
             offset_guess: A guess for the magnitude :math:`b` offset of the fit function.
                 If not provided, the initial guess defaults to the average of the ydata.
-            amplitude_bounds: Bounds on the amplitude of the Lorentz function. The default
-                bounds are [0, 1.1*max(ydata)]
-            width_bounds: Bounds on the width of the Lorentz function. The default values
-                are [0, frequency range].
-            freq_bounds: Bounds on the center frequency. The default values are 90% of the
-                lower end of the frequency and 110% of the upper end of the frequency.
-            offset_bounds: Bounds on the offset of the Lorentz function. The default values
-                are the minimum and maximum of the ydata.
+            amplitude_bounds: Bounds on the amplitude of the Lorentz function as a list of
+                two floats. The default bounds are [0, 1.1*max(ydata)]
+            width_bounds: Bounds on the width of the Lorentz function as a list of two floats.
+                The default values are [0, frequency range].
+            freq_bounds: Bounds on the center frequency as a list of two floats. The default
+                values are 90% of the lower end of the frequency and 110% of the upper end of
+                the frequency.
+            offset_bounds: Bounds on the offset of the Lorentz function as a list of two floats.
+                The default values are the minimum and maximum of the ydata.
 
         Returns:
             The analysis result with the estimated peak frequency.
