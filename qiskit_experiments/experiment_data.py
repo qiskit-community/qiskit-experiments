@@ -36,7 +36,7 @@ class ExperimentData:
 
     def __init__(
         self,
-        experiment: "BaseExperiment",
+        experiment: Optional["BaseExperiment"] = None,
         backend: Optional[Union["Backend", "BaseBackend"]] = None,
         job_ids: Optional[List[str]] = None,
     ):
@@ -56,8 +56,10 @@ class ExperimentData:
         # Terra ExperimentDataV1 attributes
         self._backend = backend
         self._id = str(uuid.uuid4())
-        self._type = experiment._type
-
+        if experiment is not None:
+            self._type = experiment._type
+        else:
+            self._type = None
         job_ids = job_ids or []
         self._jobs = OrderedDict((k, None) for k in job_ids)
         self._data = []
