@@ -29,7 +29,7 @@ from .clifford_utils import CliffordUtils
 
 class RBExperiment(BaseExperiment):
     """RB Experiment class.
-    
+
     Experiment Options:
         lengths: A list of RB sequences lengths.
         num_samples: number of samples to generate for each sequence length.
@@ -60,13 +60,20 @@ class RBExperiment(BaseExperiment):
                            sequences are constructed by appending additional
                            Clifford samples to shorter sequences.
         """
+        # Initialize base experiment
+        super().__init__(qubits)
+
+        # Set configurable options
+        self.set_options(lengths=list(lengths), num_samples=num_samples)
+
+        # Set fixed options
+        self._full_sampling = full_sampling
+        self._clifford_utils = CliffordUtils()
+
         if not isinstance(seed, Generator):
             self._rng = default_rng(seed=seed)
         else:
             self._rng = seed
-        self._full_sampling = full_sampling
-        self._clifford_utils = CliffordUtils()
-        super().__init__(qubits, lengths=list(lengths), num_samples=num_samples)
 
     @classmethod
     def _default_options(cls):

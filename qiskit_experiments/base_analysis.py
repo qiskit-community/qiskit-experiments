@@ -24,56 +24,34 @@ from .experiment_data import ExperimentData, AnalysisResult
 
 
 class BaseAnalysis(ABC):
-    """Base Analysis class for analyzing Experiment data."""
+    """Base Analysis class for analyzing Experiment data.
+
+    When designing Analysis subclasses default values for any kwarg
+    analysis options of the `run` method should be set by overriding
+    the `_default_options` class method. When calling `run` these
+    default values will combined with all other option kwargs in the
+    run method and passed to the `_run_analysis` function.
+    """
 
     # Expected experiment data container for analysis
     __experiment_data__ = ExperimentData
-
-    def __init__(self, **options):
-        """Initialize a base analysis class
-
-        Args:
-            options: kwarg options for analysis.
-        """
-        self._options = self._default_options()
-        self.set_options(**options)
 
     @classmethod
     def _default_options(cls) -> Options:
         return Options()
 
-    def set_options(self, **fields):
-        """Set the analysis options.
+    def run(self, experiment_data, save=True, return_figures=False, **options):
+        """Run analysis and update ExperimentData with analysis result.
 
         Args:
-            fields: The fields to update the options
-        """
-        self._options.update_options(**fields)
-
-    @property
-    def options(self) -> Options:
-        """Return the analysis options.
-
-        The options of an analysis class are used to provide kwarg values for
-        the :meth:`run` method.
-        """
-        return self._options
-
-    def run(self,
-            experiment_data: ExperimentData,
-            save: bool = True,
-            return_figures: bool = False,
-            **options):
-        """Run analysis and update stored ExperimentData with analysis result.
-
-        Args:
-            experiment_data: the experiment data to analyze.
-            save: if True save analysis results and figures to the
-                  :class:`ExperimentData`.
-            return_figures: if true return a pair of ``(analysis_results, figures)``,
-                            otherwise return only analysis_results.
-            options: additional analysis options. Any values set here will
-                     override the value from :meth:`options` for the current run.
+            experiment_data (ExperimentData): the experiment data to analyze.
+            save (bool): if True save analysis results and figures to the
+                         :class:`ExperimentData`.
+            return_figures (bool): if true return a pair of
+                                   ``(analysis_results, figures)``,
+                                    otherwise return only analysis_results.
+            options: additional analysis options. See class documentation for
+                     supported options.
 
         Returns:
             AnalysisResult: the output of the analysis that produces a
@@ -93,9 +71,8 @@ class BaseAnalysis(ABC):
                 f"Invalid experiment data type, expected {self.__experiment_data__.__name__}"
                 f" but received {type(experiment_data).__name__}"
             )
-
-        # Get runtime analysis options
-        analysis_options = copy.copy(self.options)
+        # Get analysis options
+        analysis_options = self._default_options()
         analysis_options.update_options(**options)
         analysis_options = analysis_options.__dict__
 

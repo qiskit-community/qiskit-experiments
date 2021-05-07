@@ -233,7 +233,12 @@ class T1Experiment(BaseExperiment):
         """
         if len(delays) < 3:
             raise ValueError("T1 experiment: number of delays must be at least 3")
-        super().__init__([qubit], delays=delays, unit=unit)
+
+        # Initialize base experiment
+        super().__init__([qubit])
+
+        # Set experiment options
+        self.set_options(delays=delays, unit=unit)
 
     def circuits(self, backend: Optional["Backend"] = None) -> List[QuantumCircuit]:
         """

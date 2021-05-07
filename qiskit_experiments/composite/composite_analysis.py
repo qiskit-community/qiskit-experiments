@@ -47,7 +47,7 @@ class CompositeAnalysis(BaseAnalysis):
         for expr, expr_data in zip(
             experiment_data._experiment._experiments, experiment_data._composite_expdata
         ):
-            expr.analysis(**expr.analysis_options.__dict__).run(expr_data, **options)
+            expr.run_analysis(expr_data, **options)
 
         # Add sub-experiment metadata as result of batch experiment
         # Note: if Analysis results had ID's these should be included here

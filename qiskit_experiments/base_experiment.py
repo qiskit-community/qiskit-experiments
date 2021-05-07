@@ -48,14 +48,13 @@ class BaseExperiment(ABC):
     # ExperimentData class for experiment
     __experiment_data__ = ExperimentData
 
-    def __init__(self, qubits: Iterable[int], experiment_type: Optional[str] = None, **options):
+    def __init__(self, qubits: Iterable[int], experiment_type: Optional[str] = None):
         """Initialize the experiment object.
 
         Args:
             qubits: the number of qubits or list of physical qubits for
                     the experiment.
             experiment_type: Optional, the experiment type string.
-            options: kwarg options for experiment circuits.
 
         Raises:
             QiskitError: if qubits is a list and contains duplicates.
@@ -76,11 +75,8 @@ class BaseExperiment(ABC):
 
         # Experiment options
         self._options = self._default_options()
-        self.set_options(**options)
-
-        # Execution and analysis options
         self._transpile_options = self._default_transpile_options()
-        self._backend_options = self._default_backend_options()
+        self._run_options = self._default_run_options()
         self._analysis_options = self._default_analysis_options()
 
         # Set initial layout from qubits
@@ -91,7 +87,7 @@ class BaseExperiment(ABC):
         backend: Backend,
         analysis: bool = True,
         experiment_data: Optional[ExperimentData] = None,
-        **kwargs,
+        **run_options,
     ) -> ExperimentData:
         """Run an experiment and perform analysis.
 
@@ -101,7 +97,7 @@ class BaseExperiment(ABC):
             experiment_data: Optional, add results to existing
                 experiment data. If None a new ExperimentData object will be
                 returned.
-            kwargs: runtime keyword arguments for backend.run.
+            run_options: backend runtime options used for circuit execution.
 
         Returns:
             The experiment data object.
@@ -116,25 +112,59 @@ class BaseExperiment(ABC):
         )
 
         # Run circuits on backend
-        run_options = copy.copy(self.backend_options)
-        run_options.update_options(**kwargs)
-        run_options = run_options.__dict__
+        run_opts = copy.copy(self.run_options)
+        run_opts.update_options(**run_options)
+        run_opts = run_opts.__dict__
 
         if isinstance(backend, LegacyBackend):
-            qobj = assemble(circuits, backend=backend, **run_options)
+            qobj = assemble(circuits, backend=backend, **run_opts)
             job = backend.run(qobj)
         else:
-            job = backend.run(circuits, **run_options)
+            job = backend.run(circuits, **run_opts)
 
         # Add Job to ExperimentData
         experiment_data.add_data(job)
 
         # Queue analysis of data for when job is finished
         if analysis and self.__analysis_class__ is not None:
-            # pylint: disable = not-callable
-            self.analysis(**self.analysis_options.__dict__).run(experiment_data)
+            self.run_analysis(experiment_data)
 
         # Return the ExperimentData future
+        return experiment_data
+
+    def run_analysis(
+        self, experiment_data, save=True, return_figures=False, **options
+    ) -> ExperimentData:
+        """Run analysis and update ExperimentData with analysis result.
+
+        Args:
+            experiment_data (ExperimentData): the experiment data to analyze.
+            save (bool): if True save analysis results and figures to the
+                         :class:`ExperimentData`.
+            return_figures (bool): if true return a pair of
+                                   ``(analysis_results, figures)``,
+                                    otherwise return only analysis_results.
+            options: additional analysis options. Any values set here will
+                     override the value from :meth:`analysis_options`
+                     for the current run.
+
+        Returns:
+            The updated experiment data containing the analysis results and figures.
+
+        Raises:
+            QiskitError: if experiment_data container is not valid for analysis.
+        """
+        if self.__analysis_class__ is None:
+            raise QiskitError(f"Experiment {self._type} does not have a default Analysis class")
+
+        # Get analysis options
+        analysis_options = copy.copy(self.analysis_options)
+        analysis_options.update_options(**options)
+        analysis_options = analysis_options.__dict__
+
+        # Run analysis
+        analysis = self.__analysis_class__()
+        analysis.run(experiment_data, **analysis_options)
         return experiment_data
 
     @property
@@ -148,12 +178,12 @@ class BaseExperiment(ABC):
         return self._physical_qubits
 
     @classmethod
-    def analysis(cls, **analysis_options) -> "BaseAnalysis":
+    def analysis(cls, **kwargs) -> "BaseAnalysis":
         """Return the default Analysis class for the experiment."""
         if cls.__analysis_class__ is None:
             raise QiskitError(f"Experiment {cls.__name__} does not have a default Analysis class")
         # pylint: disable = not-callable
-        return cls.__analysis_class__(**analysis_options)
+        return cls.__analysis_class__(**kwargs)
 
     @abstractmethod
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
@@ -248,22 +278,22 @@ class BaseExperiment(ABC):
         self._transpile_options.update_options(**fields)
 
     @classmethod
-    def _default_backend_options(cls) -> Options:
-        """Default backend options for running experiment"""
+    def _default_run_options(cls) -> Options:
+        """Default options values for the experiment :meth:`run` method."""
         return Options()
 
     @property
-    def backend_options(self) -> Options:
-        """Return the backend options for the :meth:`run` method."""
-        return self._backend_options
+    def run_options(self) -> Options:
+        """Return options values for the experiment :meth:`run` method."""
+        return self._run_options
 
-    def set_backend_options(self, **fields):
-        """Set the backend options for the :meth:`run` method.
+    def set_run_options(self, **fields):
+        """Set options values for the experiment  :meth:`run` method.
 
         Args:
             fields: The fields to update the options
         """
-        self._backend_options.update_options(**fields)
+        self._run_options.update_options(**fields)
 
     @classmethod
     def _default_analysis_options(cls) -> Options:
@@ -273,7 +303,7 @@ class BaseExperiment(ABC):
         # from the Analysis subclass `_default_options` values.
         if cls.__analysis_class__:
             return cls.__analysis_class__._default_options()
-        return None
+        return Options()
 
     @property
     def analysis_options(self) -> Options:
