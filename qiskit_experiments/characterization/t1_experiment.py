@@ -23,8 +23,7 @@ from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import process_curve_data, curve_fit
 from qiskit_experiments.analysis.data_processing import level2_probability
-from qiskit_experiments.analysis.plotting import (
-    plot_curve_fit, plot_errorbar, HAS_MATPLOTLIB)
+from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_errorbar, HAS_MATPLOTLIB
 from qiskit_experiments import AnalysisResult
 
 
