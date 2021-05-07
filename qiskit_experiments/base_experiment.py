@@ -132,18 +132,11 @@ class BaseExperiment(ABC):
         # Return the ExperimentData future
         return experiment_data
 
-    def run_analysis(
-        self, experiment_data, save=True, return_figures=False, **options
-    ) -> ExperimentData:
+    def run_analysis(self, experiment_data, **options) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
         Args:
             experiment_data (ExperimentData): the experiment data to analyze.
-            save (bool): if True save analysis results and figures to the
-                         :class:`ExperimentData`.
-            return_figures (bool): if true return a pair of
-                                   ``(analysis_results, figures)``,
-                                    otherwise return only analysis_results.
             options: additional analysis options. Any values set here will
                      override the value from :meth:`analysis_options`
                      for the current run.
@@ -163,8 +156,9 @@ class BaseExperiment(ABC):
         analysis_options = analysis_options.__dict__
 
         # Run analysis
+        # pylint: disable = not-callable
         analysis = self.__analysis_class__()
-        analysis.run(experiment_data, **analysis_options)
+        analysis.run(experiment_data, save=True, return_figures=False, **analysis_options)
         return experiment_data
 
     @property
