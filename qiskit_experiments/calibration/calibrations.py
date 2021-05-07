@@ -82,7 +82,7 @@ class Calibrations:
 
         # A variable to store all parameter hashes encountered and present them as ordered
         # indices to the user.
-        self._hash_map = {}
+        self._hash_to_counter_map = {}
         self._parameter_counter = 0
 
     def add_schedule(
@@ -249,8 +249,8 @@ class Calibrations:
             schedule: The schedule to which this parameter belongs. The schedule can
                 be None which allows the calibration to accommodate, e.g. qubit frequencies.
         """
-        if parameter not in self._hash_map:
-            self._hash_map[parameter] = self._parameter_counter
+        if parameter not in self._hash_to_counter_map:
+            self._hash_to_counter_map[parameter] = self._parameter_counter
             self._parameter_counter += 1
 
         sched_name = schedule.name if schedule else None
@@ -812,7 +812,7 @@ class Calibrations:
                 body.append(
                     {
                         "parameter.name": parameter.name,
-                        "parameter unique id": self._hash_map[parameter],
+                        "parameter unique id": self._hash_to_counter_map[parameter],
                         "schedule": key.schedule,
                         "qubits": key.qubits,
                     }
