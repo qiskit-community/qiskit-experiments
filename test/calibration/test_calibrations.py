@@ -80,35 +80,35 @@ class TestCalibrationsBasic(QiskitTestCase):
 
     def test_setup(self):
         """Test that the initial setup behaves as expected."""
-        expected = {ParameterKey("amp", None, "xp"), ParameterKey("amp", None, "xm")}
+        expected = {ParameterKey("amp", (), "xp"), ParameterKey("amp", (), "xm")}
         self.assertEqual(self.cals.parameters[self.amp_xp], expected)
 
-        expected = {ParameterKey("amp", None, "x90p")}
+        expected = {ParameterKey("amp", (), "x90p")}
         self.assertEqual(self.cals.parameters[self.amp_x90p], expected)
 
-        expected = {ParameterKey("amp", None, "y90p")}
+        expected = {ParameterKey("amp", (), "y90p")}
         self.assertEqual(self.cals.parameters[self.amp_y90p], expected)
 
         expected = {
-            ParameterKey("β", None, "xp"),
-            ParameterKey("β", None, "xm"),
-            ParameterKey("β", None, "x90p"),
-            ParameterKey("β", None, "y90p"),
+            ParameterKey("β", (), "xp"),
+            ParameterKey("β", (), "xm"),
+            ParameterKey("β", (), "x90p"),
+            ParameterKey("β", (), "y90p"),
         }
         self.assertEqual(self.cals.parameters[self.beta], expected)
 
         expected = {
-            ParameterKey("σ", None, "xp"),
-            ParameterKey("σ", None, "xm"),
-            ParameterKey("σ", None, "x90p"),
-            ParameterKey("σ", None, "y90p"),
+            ParameterKey("σ", (), "xp"),
+            ParameterKey("σ", (), "xm"),
+            ParameterKey("σ", (), "x90p"),
+            ParameterKey("σ", (), "y90p"),
         }
         self.assertEqual(self.cals.parameters[self.sigma], expected)
 
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.2)
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xm"), 0.2)
-        self.assertEqual(self.cals.get_parameter_value("amp", (3,), "x90p"), 0.1)
-        self.assertEqual(self.cals.get_parameter_value("amp", (3,), "y90p"), 0.08)
+        self.assertEqual(self.cals.get_parameter_value("amp", 3, "x90p"), 0.1)
+        self.assertEqual(self.cals.get_parameter_value("amp", 3, "y90p"), 0.08)
 
     def test_preserve_template(self):
         """Test that the template schedule is still fully parametric after we get a schedule."""
@@ -219,15 +219,36 @@ class TestCalibrationsBasic(QiskitTestCase):
 
     def test_parameter_without_schedule(self):
         """Test that we can manage parameters that are not bound to a schedule."""
-        self.cals._register_parameter(Parameter("a"))
+        self.cals._register_parameter(Parameter("a"), ())
 
     def test_free_parameters(self):
         """Test that we can get a schedule with a free parameter."""
-        xp = self.cals.get_schedule("xp", (3,), free_params=["amp"])
+        xp = self.cals.get_schedule("xp", 3, free_params=["amp"])
         self.assertEqual(xp.parameters, {self.amp_xp})
 
-        xp = self.cals.get_schedule("xp", (3,), free_params=["amp", "σ"])
+        xp = self.cals.get_schedule("xp", 3, free_params=["amp", "σ"])
         self.assertEqual(xp.parameters, {self.amp_xp, self.sigma})
+
+    def test_qubit_input(self):
+        """Test the qubit input."""
+
+        xp = self.cals.get_schedule("xp", 3)
+        self.assertEqual(xp.instructions[0][1].operands[0].amp, 0.2)
+
+        val = self.cals.get_parameter_value("amp", 3, "xp")
+        self.assertEqual(val, 0.2)
+
+        val = self.cals.get_parameter_value("amp", (3,), "xp")
+        self.assertEqual(val, 0.2)
+
+        with self.assertRaises(CalibrationError):
+            self.cals.get_parameter_value("amp", ("3",), "xp")
+
+        with self.assertRaises(CalibrationError):
+            self.cals.get_parameter_value("amp", "3", "xp")
+
+        with self.assertRaises(CalibrationError):
+            self.cals.get_parameter_value("amp", [3], "xp")
 
 
 class TestCalibrationDefaults(QiskitTestCase):
@@ -267,7 +288,7 @@ class TestCalibrationDefaults(QiskitTestCase):
         self.assertEqual(params, [])
 
         # Add a default parameter common to all qubits.
-        self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", None, "xp")
+        self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", schedule="xp")
         self.assertEqual(len(self.cals.parameters_table()), 1)
 
         # Check that we can get a default parameter in the parameter table

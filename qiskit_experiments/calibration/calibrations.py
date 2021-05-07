@@ -82,7 +82,9 @@ class Calibrations:
         self._hash_map = {}
         self._parameter_counter = 0
 
-    def add_schedule(self, schedule: Union[Schedule, ScheduleBlock], qubits: Tuple = None):
+    def add_schedule(
+        self, schedule: Union[Schedule, ScheduleBlock], qubits: Union[int, Tuple[int, ...]] = None
+    ):
         """
         Add a schedule and register its parameters.
 
@@ -101,6 +103,8 @@ class Calibrations:
                 - If a channel is parameterized by more than one parameter.
                 - If the schedule name starts with the prefix of ScheduleBlock.
         """
+        qubits = self._to_tuple(qubits)
+
         if not isinstance(schedule, (Schedule, ScheduleBlock)):
             raise CalibrationError(f"{schedule.name} is not a Schedule or a ScheduleBlock.")
 
@@ -175,7 +179,9 @@ class Calibrations:
 
         return instructions
 
-    def remove_schedule(self, schedule: Union[Schedule, ScheduleBlock], qubits: Tuple = None):
+    def remove_schedule(
+        self, schedule: Union[Schedule, ScheduleBlock], qubits: Union[int, Tuple[int, ...]] = None
+    ):
         """
         Allows users to remove a schedule from the calibrations. The history of the parameters
         will remain in the calibrations.
@@ -185,13 +191,15 @@ class Calibrations:
             qubits: The qubits for which to remove the schedules. If None is given then this
                 schedule is the default schedule for all qubits.
         """
+        qubits = self._to_tuple(qubits)
+
         if ScheduleKey(schedule.name, qubits) in self._schedules:
             del self._schedules[ScheduleKey(schedule.name, qubits)]
 
         # Clean the parameter to schedule mapping.
         self._clean_parameter_map(schedule.name, qubits)
 
-    def _clean_parameter_map(self, schedule_name: str, qubits: Tuple[int, ...] = None):
+    def _clean_parameter_map(self, schedule_name: str, qubits: Tuple[int, ...]):
         """Clean the parameter to schedule mapping for the given schedule, parameter and qubits.
 
         Args:
@@ -224,7 +232,7 @@ class Calibrations:
     def _register_parameter(
         self,
         parameter: Parameter,
-        qubits: Tuple = None,
+        qubits: Tuple[int, ...],
         schedule: Union[Schedule, ScheduleBlock] = None,
     ):
         """
@@ -258,7 +266,10 @@ class Calibrations:
         return self._parameter_map_r
 
     def calibration_parameter(
-        self, parameter_name: str, qubits: Tuple[int, ...] = None, schedule_name: str = None
+        self,
+        parameter_name: str,
+        qubits: Union[int, Tuple[int, ...]] = None,
+        schedule_name: str = None,
     ) -> Parameter:
         """
         Returns a Parameter object given the triplet parameter_name, qubits and schedule_name
@@ -277,13 +288,15 @@ class Calibrations:
         Raises:
             CalibrationError: If the desired parameter is not found.
         """
+        qubits = self._to_tuple(qubits)
+
         # 1) Check for qubit specific parameters.
         if ParameterKey(parameter_name, qubits, schedule_name) in self._parameter_map:
             return self._parameter_map[ParameterKey(parameter_name, qubits, schedule_name)]
 
         # 2) Check for default parameters.
-        elif ParameterKey(parameter_name, None, schedule_name) in self._parameter_map:
-            return self._parameter_map[ParameterKey(parameter_name, None, schedule_name)]
+        elif ParameterKey(parameter_name, (), schedule_name) in self._parameter_map:
+            return self._parameter_map[ParameterKey(parameter_name, (), schedule_name)]
         else:
             raise CalibrationError(
                 f"No parameter for {parameter_name} and schedule {schedule_name} "
@@ -294,7 +307,7 @@ class Calibrations:
         self,
         value: Union[int, float, complex, ParameterValue],
         param: Union[Parameter, str],
-        qubits: Tuple[int, ...] = None,
+        qubits: Union[int, Tuple[int, ...]] = None,
         schedule: Union[Schedule, ScheduleBlock, str] = None,
     ):
         """
@@ -315,6 +328,8 @@ class Calibrations:
             CalibrationError: If the schedule name is given but no schedule with that name
                 exists.
         """
+        qubits = self._to_tuple(qubits)
+
         if isinstance(value, (int, float, complex)):
             value = ParameterValue(value, datetime.now())
 
@@ -328,7 +343,7 @@ class Calibrations:
 
         self._params[ParameterKey(param_name, qubits, sched_name)].append(value)
 
-    def _get_channel_index(self, qubits: Tuple, chan: PulseChannel) -> int:
+    def _get_channel_index(self, qubits: Tuple[int, ...], chan: PulseChannel) -> int:
         """
         Get the index of the parameterized channel based on the given qubits
         and the name of the parameter in the channel index. The name of this
@@ -391,7 +406,7 @@ class Calibrations:
     def get_parameter_value(
         self,
         param: Union[Parameter, str],
-        qubits: Tuple[int, ...],
+        qubits: Union[int, Tuple[int, ...]],
         schedule: Union[Schedule, ScheduleBlock, str, None] = None,
         valid_only: bool = True,
         group: str = "default",
@@ -429,6 +444,7 @@ class Calibrations:
             CalibrationError:
                 - If there is no parameter value for the given parameter name and pulse channel.
         """
+        qubits = self._to_tuple(qubits)
 
         # 1) Identify the parameter object.
         param_name = param.name if isinstance(param, Parameter) else param
@@ -451,8 +467,8 @@ class Calibrations:
         # i.e. parameters that do not specify a qubit.
         if len(candidates) == 0:
             for key in candidate_keys:
-                if ParameterKey(key.parameter, None, key.schedule) in self._params:
-                    candidates += self._params[ParameterKey(key.parameter, None, key.schedule)]
+                if ParameterKey(key.parameter, (), key.schedule) in self._params:
+                    candidates += self._params[ParameterKey(key.parameter, (), key.schedule)]
 
         # 4) Filter candidate parameter values.
         if valid_only:
@@ -483,7 +499,7 @@ class Calibrations:
     def get_schedule(
         self,
         name: str,
-        qubits: Tuple[int, ...],
+        qubits: Union[int, Tuple[int, ...]],
         free_params: List[Union[str, ParameterKey]] = None,
         group: Optional[str] = "default",
         cutoff_date: datetime = None,
@@ -516,6 +532,8 @@ class Calibrations:
                 - If the name of the schedule is not known.
                 - If a parameter could not be found.
         """
+        qubits = self._to_tuple(qubits)
+
         if free_params:
             free_params_ = []
             for free_param in free_params:
@@ -530,8 +548,8 @@ class Calibrations:
 
         if (name, qubits) in self._schedules:
             schedule = self._schedules[ScheduleKey(name, qubits)]
-        elif (name, None) in self._schedules:
-            schedule = self._schedules[ScheduleKey(name, None)]
+        elif (name, ()) in self._schedules:
+            schedule = self._schedules[ScheduleKey(name, ())]
         else:
             raise CalibrationError(f"Schedule {name} is not defined for qubits {qubits}.")
 
@@ -676,8 +694,8 @@ class Calibrations:
                 # parameter for all qubits, i.e. qubits may be None.
                 if key in self._parameter_map:
                     param = self._parameter_map[key]
-                elif ParameterKey(key.parameter, None, key.schedule) in self._parameter_map:
-                    param = self._parameter_map[ParameterKey(key.parameter, None, key.schedule)]
+                elif ParameterKey(key.parameter, (), key.schedule) in self._parameter_map:
+                    param = self._parameter_map[ParameterKey(key.parameter, (), key.schedule)]
                 else:
                     raise CalibrationError(
                         f"Bad calibrations {key} is not present and has no default value."
@@ -733,6 +751,8 @@ class Calibrations:
             data: A list of dictionaries with parameter values and metadata which can
                 easily be converted to a data frame.
         """
+        if qubit_list:
+            qubit_list = [self._to_tuple(qubits) for qubits in qubit_list]
 
         data = []
 
@@ -823,3 +843,30 @@ class Calibrations:
         external DB.
         """
         raise NotImplementedError
+
+    @staticmethod
+    def _to_tuple(qubits: Union[int, Tuple[int, ...]]) -> Tuple[int, ...]:
+        """
+        Ensure that qubits is a tuple of ints.
+
+        Args:
+            qubits: An int or a tuple of ints.
+
+        Returns:
+            qubits: A tuple of ints.
+
+        Raises:
+            CalibrationError: If the given input does not conform to an int or
+                tuple of ints.
+        """
+        if not qubits:
+            return tuple()
+
+        if isinstance(qubits, int):
+            return (qubits,)
+
+        if isinstance(qubits, tuple):
+            if all(isinstance(n, int) for n in qubits):
+                return qubits
+
+        raise CalibrationError(f"{qubits} must be int or tuple of ints.")
