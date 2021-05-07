@@ -35,7 +35,9 @@ control channel configuration is {(3,2): [ControlChannel(3), ControlChannel(12)]
 then given qubits (2, 3) the name "ch1.0$1" will resolve to ControlChannel(12) while
 "ch1.0$0" will resolve to ControlChannel(3). A channel can only have one parameter.
 
-Parameter naming restriction.
+Parameter naming restriction
+===================
+
 Each parameter must have a unique name within each schedule. For example, it is
 acceptable to have a parameter named 'amp' in the schedule 'xp' and a different
 parameter instance named 'amp' in the schedule named 'xm'. It is not acceptable
