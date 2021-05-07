@@ -60,13 +60,13 @@ resonance gate.
     dur_cr = Parameter("duration")
 
     with pulse.build(name="xp") as xp:
-        pulse.play(Gaussian(dur1, amp, sigma), d0)
+        pulse.play(Gaussian(dur_xp, amp, sigma), d0)
 
     with pulse.build(name="cr") as cr:
         with pulse.align_sequential():
-                pulse.play(GaussianSquare(dur2, amp_cr, sigma, width), c1)
+                pulse.play(GaussianSquare(dur_cr, amp_cr, sigma, width), c1)
                 pulse.call(xp)
-                pulse.play(GaussianSquare(dur2, -amp_cr, sigma, width), c1)
+                pulse.play(GaussianSquare(dur_cr, -amp_cr, sigma, width), c1)
                 pulse.call(xp)
 """
 
