@@ -18,7 +18,9 @@ intended to be fully parameterized, including the index of the channels. This cl
 - supports having different schedules share parameters
 - allows default schedules for qubits that can be overridden for specific qubits.
 
-Parametric channel naming convention.
+Parametric channel naming convention
+=========================
+
 Parametrized channel indices must be named according to a predefined pattern to properly
 identify the channels and control channels when assigning values to the parametric
 channel indices. A channel must have a name that starts with `ch` followed by an integer.
