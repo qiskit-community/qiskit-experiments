@@ -45,7 +45,7 @@ to have two parameters named 'amp' in the same schedule. The naming restriction
 only applies to parameters used in the immediate scope of the schedule. Schedules
 called by Call instructions have their own scope for Parameter names.
 
-The code block below illustrates the creation of a template schedule for a cross-
+The code block below illustrates the creation of a template schedule for a echoed cross-
 resonance gate.
 
 .. code-block:: python
