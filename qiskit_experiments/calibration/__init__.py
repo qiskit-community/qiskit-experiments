@@ -66,7 +66,7 @@ resonance gate.
         with pulse.align_sequential():
                 pulse.play(GaussianSquare(dur2, amp_cr, sigma, width), c1)
                 pulse.call(xp)
-                pulse.play(GaussianSquare(dur2, amp_cr, sigma, width), c1)
+                pulse.play(GaussianSquare(dur2, -amp_cr, sigma, width), c1)
                 pulse.call(xp)
 """
 
