@@ -15,6 +15,7 @@ Composite Experiment data class.
 
 from typing import Optional, Union, List
 from qiskit.result import marginal_counts
+from qiskit.exceptions import QiskitError
 from qiskit_experiments.experiment_data import ExperimentData
 
 
@@ -53,18 +54,17 @@ class CompositeExperimentData(ExperimentData):
         n_res = len(self._analysis_results)
         status = self.status()
         ret = line
-        ret += f"\nExperiment: {self.type}"
-        ret += f"\nExperiment ID: {self.id}"
+        ret += f"\nExperiment: {self.experiment_type}"
+        ret += f"\nExperiment ID: {self.experiment_id}"
         ret += f"\nStatus: {status}"
-        if status == "ERROR":
-            ret += "\n".join(self._errors)
         ret += f"\nComponent Experiments: {len(self._components)}"
         ret += f"\nCircuits: {len(self._data)}"
         ret += f"\nAnalysis Results: {n_res}"
         ret += "\n" + line
         if n_res:
             ret += "\nLast Analysis Result"
-            ret += f"\n{str(self._analysis_results[-1])}"
+            for key, value in self._analysis_results[-1].items():
+                ret += f"\n- {key}: {value}"
         return ret
 
     def component_experiment_data(

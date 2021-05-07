@@ -13,7 +13,7 @@
 Standard RB analysis class.
 """
 
-from typing import Optional, List, Dict
+from typing import Optional, List
 
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import curve_fit, process_curve_data
@@ -21,14 +21,12 @@ from qiskit_experiments.analysis.data_processing import (
     level2_probability,
     mean_xy_data,
 )
-from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_scatter, plot_errorbar
-
-try:
-    from matplotlib import pyplot as plt
-
-    HAS_MATPLOTLIB = True
-except ImportError:
-    HAS_MATPLOTLIB = False
+from qiskit_experiments.analysis.plotting import (
+    HAS_MATPLOTLIB,
+    plot_curve_fit,
+    plot_scatter,
+    plot_errorbar,
+)
 
 
 class RBAnalysis(BaseAnalysis):
@@ -82,7 +80,7 @@ class RBAnalysis(BaseAnalysis):
         analysis_result["EPC"] = scale * (1 - popt[1])
         analysis_result["EPC_err"] = scale * popt_err[1] / popt[1]
 
-        if plot:
+        if plot and HAS_MATPLOTLIB:
             ax = plot_curve_fit(fit_fun, analysis_result, ax=ax)
             ax = plot_scatter(x_raw, y_raw, ax=ax)
             ax = plot_errorbar(xdata, ydata, ydata_sigma, ax=ax)

@@ -13,7 +13,6 @@
 Composite Experiment Analysis class.
 """
 
-from qiskit.exceptions import QiskitError
 from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResult
 from .composite_experiment_data import CompositeExperimentData
 
@@ -23,6 +22,7 @@ class CompositeAnalysis(BaseAnalysis):
 
     __experiment_data__ = CompositeExperimentData
 
+    # pylint: disable = arguments-differ
     def _run_analysis(self, experiment_data: CompositeExperimentData, **options):
         """Run analysis on circuit data.
 

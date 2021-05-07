@@ -13,7 +13,6 @@
 Experiment Data class
 """
 import logging
-import queue
 from typing import Optional, Union, List, Dict, Callable, Tuple
 import uuid
 from collections import OrderedDict
@@ -100,7 +99,6 @@ class ExperimentData:
     def add_data(
         self,
         data: Union[Result, List[Result], Job, List[Job], Dict, List[Dict]],
-        post_processing_callback: Optional[Callable] = None,
     ):
         """Add experiment data.
         Args:
@@ -112,17 +110,19 @@ class ExperimentData:
                     * List[Job]: Add data from the job results.
                     * Dict: Add this data.
                     * List[Dict]: Add this list of data.
-            post_processing_callback: Callback function invoked when all pending
-                jobs finish. This ``ExperimentData`` object is the only argument
-                to be passed to the callback function.
+
+        Raises:
+            QiskitError: if data format is invalid.
         """
         # Set backend from the job, this could be added to base class
         if isinstance(data, (Job, BaseJob)):
             backend = data.backend()
             if self.backend is not None and str(self.backend) != str(backend):
                 LOG.warning(
-                    f"Adding a job from a backend {backend} that is different than"
-                    f" the current ExperimentData backend ({self.backend})."
+                    "Adding a job from a backend (%s) that is different than"
+                    " the current ExperimentData backend (%s).",
+                    backend,
+                    self.backend,
                 )
             self._backend = backend
             self._jobs[data.job_id()] = data
@@ -177,6 +177,7 @@ class ExperimentData:
 
     def data(self, index: Optional[Union[int, slice, str]] = None) -> Union[Dict, List[Dict]]:
         """Return the experiment data at the specified index.
+
         Args:
             index: Index of the data to be returned.
                 Several types are accepted for convenience:
@@ -184,8 +185,12 @@ class ExperimentData:
                     * int: Specific index of the data.
                     * slice: A list slice of data indexes.
                     * str: ID of the job that produced the data.
+
         Returns:
             Experiment data.
+
+        Raises:
+            QiskitError: if index is invalid.
         """
         if index is None:
             return self._data
@@ -216,7 +221,7 @@ class ExperimentData:
 
         Raises:
             QiskitError: If the figure with the same name already exists,
-                and `overwrite=True` is not specified.
+                         and `overwrite=True` is not specified.
         """
         if not figure_name:
             if isinstance(figure, str):
@@ -251,7 +256,7 @@ class ExperimentData:
             content of the figure in bytes.
 
         Raises:
-            ExperimentDataNotFound: If the figure cannot be found.
+            QiskitError: If the figure cannot be found.
         """
         if isinstance(figure_name, int):
             figure_name = self._figure_names[figure_name]
@@ -298,6 +303,9 @@ class ExperimentData:
 
         Returns:
             Analysis results for this experiment.
+
+        Raises:
+            QiskitError: if index is invalid.
         """
         if index is None:
             return self._analysis_results
@@ -322,7 +330,7 @@ class ExperimentData:
             return "EMPTY"
         return "DONE"
 
-    def __repr__(self):
+    def __str__(self):
         line = 51 * "-"
         n_res = len(self._analysis_results)
         ret = line

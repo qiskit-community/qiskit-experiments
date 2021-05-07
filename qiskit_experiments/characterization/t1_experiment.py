@@ -155,7 +155,6 @@ class T1Analysis(BaseAnalysis):
             # Convert T1 to time unit for pretty printing
             if t1 < 1e-7:
                 scale = 1e9
-                t1_err
                 unit = "ns"
             elif t1 < 1e-4:
                 scale = 1e6
