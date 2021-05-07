@@ -92,8 +92,8 @@ class Calibrations:
 
         Args:
             schedule: The schedule to add.
-            qubits: The qubits for which to add the schedules. If None is given then this
-                schedule is the default schedule for all qubits.
+            qubits: The qubits for which to add the schedules. If None or an empty tuple is
+                given then this schedule is the default schedule for all qubits.
 
         Raises:
             CalibrationError:
@@ -278,7 +278,7 @@ class Calibrations:
         Args:
             parameter_name: Name of the parameter to get.
             qubits: The qubits to which this parameter belongs. If qubits is None then
-                the default scope is assumed.
+                the default scope is assumed and the key will be an empty tuple.
             schedule_name: The name of the schedule to which this parameter belongs. A
                 parameter may not belong to a schedule in which case None is accepted.
 
@@ -691,7 +691,7 @@ class Calibrations:
             if key not in free_params:
                 # Get the parameter object. Since we are dealing with a schedule the name of
                 # the schedule is always defined. However, the parameter may be a default
-                # parameter for all qubits, i.e. qubits may be None.
+                # parameter for all qubits, i.e. qubits may be an empty tuple.
                 if key in self._parameter_map:
                     param = self._parameter_map[key]
                 elif ParameterKey(key.parameter, (), key.schedule) in self._parameter_map:
@@ -719,7 +719,7 @@ class Calibrations:
 
         Returns:
             data: A list of dictionaries with all the schedules in it. The key-value pairs are
-                - 'qubits': the qubits to which this schedule applies. This may be None if the
+                - 'qubits': the qubits to which this schedule applies. This may be () if the
                     schedule is the default for all qubits.
                 - 'schedule': The schedule (either a Schedule or a ScheduleBlock).
                 - 'parameters': The parameters in the schedule exposed for convenience.
