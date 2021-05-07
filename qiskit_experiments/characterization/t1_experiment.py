@@ -23,7 +23,8 @@ from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import process_curve_data, curve_fit
 from qiskit_experiments.analysis.data_processing import level2_probability
-from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_errorbar
+from qiskit_experiments.analysis.plotting import (
+    plot_curve_fit, plot_errorbar, HAS_MATPLOTLIB)
 from qiskit_experiments import AnalysisResult
 
 
@@ -113,7 +114,7 @@ class T1Analysis(BaseAnalysis):
             analysis_result["fit"]["dt"] = conversion_factor
 
         # Generate fit plot
-        if plot:
+        if plot and HAS_MATPLOTLIB:
             ax = plot_curve_fit(fit_fun, fit_result, ax=ax)
             ax = plot_errorbar(xdata, ydata, sigma, ax=ax)
             self._format_plot(ax, fit_result, qubit=qubit)
