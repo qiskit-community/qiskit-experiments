@@ -56,8 +56,8 @@ resonance gate.
     c1 = ControlChannel(Parameter("ch0.1"))
     sigma = Parameter("σ")
     width = Parameter("w")
-    dur1 = Parameter("duration")
-    dur2 = Parameter("duration")
+    dur_xp = Parameter("duration")
+    dur_cr = Parameter("duration")
 
     with pulse.build(name="xp") as xp:
         pulse.play(Gaussian(dur1, amp, sigma), d0)
