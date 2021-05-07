@@ -18,6 +18,7 @@ from numbers import Integral
 
 from qiskit import transpile, assemble
 from qiskit.exceptions import QiskitError
+from qiskit.providers.exceptions import JobError
 
 from .experiment_data import ExperimentData
 
@@ -129,8 +130,25 @@ class BaseExperiment(ABC):
         qobj = assemble(circuits, backend, **run_options)
         job = backend.run(qobj)
 
+        try:
+            result = job.result()
+
+        except JobError as ex:
+            if hasattr(job, "error_message"):
+                msg = job.error_message
+            else:
+                msg = "Please contact to administrator of your provider."
+
+            raise QiskitError(f"Execution of experiment failed. {msg}") from ex
+
+        except KeyboardInterrupt:
+            # remove job from queue list and return the empty result
+            job.cancel()
+
+            return experiment_data
+
         # Add Job to ExperimentData
-        experiment_data.add_data(job)
+        experiment_data.add_data(result)
 
         # Queue analysis of data for when job is finished
         if self.__analysis_class__ is not None:
