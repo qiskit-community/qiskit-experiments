@@ -27,6 +27,9 @@ from qiskit.pulse import (
     MeasureChannel,
     Call,
     Instruction,
+    AcquireChannel,
+    RegisterSlot,
+    MemorySlot,
 )
 from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter, ParameterExpression
@@ -370,7 +373,9 @@ class Calibrations:
                 - If ch is not a DriveChannel, MeasureChannel, or ControlChannel.
         """
         if isinstance(chan.index, Parameter):
-            if isinstance(chan, (DriveChannel, MeasureChannel)):
+            if isinstance(
+                chan, (DriveChannel, MeasureChannel, AcquireChannel, RegisterSlot, MemorySlot)
+            ):
                 index = int(chan.index.name[2:].split("$")[0])
 
                 if len(qubits) <= index:
@@ -399,7 +404,10 @@ class Calibrations:
 
                 return chs_[control_index].index
 
-            raise CalibrationError(f"{chan} must be a sub-type of {PulseChannel}.")
+            raise CalibrationError(
+                f"{chan} must be a sub-type of {PulseChannel} or an {AcquireChannel}, "
+                f"{RegisterSlot}, or a {MemorySlot}."
+            )
 
         return chan.index
 

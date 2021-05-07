@@ -18,9 +18,11 @@ from qiskit.pulse import (
     Drag,
     DriveChannel,
     ControlChannel,
+    AcquireChannel,
     Gaussian,
     GaussianSquare,
     MeasureChannel,
+    RegisterSlot,
     Play,
     Schedule,
 )
@@ -449,9 +451,15 @@ class TestMeasurements(QiskitTestCase):
         ch1 = Parameter("ch1")
         self.m0_ = MeasureChannel(ch0)
         self.d0_ = DriveChannel(ch0)
+        self.delay = Parameter("delay")
 
         with pulse.build(name="meas") as meas:
             pulse.play(GaussianSquare(self.duration, self.amp, self.sigma, self.width), self.m0_)
+
+        with pulse.build(name="meas_acquire") as meas_acq:
+            pulse.play(GaussianSquare(self.duration, self.amp, self.sigma, self.width), self.m0_)
+            pulse.delay(self.delay, pulse.AcquireChannel(ch0))
+            pulse.acquire(self.duration, pulse.AcquireChannel(ch0), pulse.RegisterSlot(ch0))
 
         with pulse.build(name="xp") as xp:
             pulse.play(Gaussian(self.duration_xp, self.amp_xp, self.sigma_xp), self.d0_)
@@ -473,13 +481,16 @@ class TestMeasurements(QiskitTestCase):
         self.cals.add_schedule(xp)
         self.cals.add_schedule(xp_meas)
         self.cals.add_schedule(xt_meas)
+        self.cals.add_schedule(meas_acq)
 
         # self.cals.add_parameter_value(8000, self.duration, schedule="meas")
         self.cals.add_parameter_value(0.5, self.amp, (0,), "meas")
+        self.cals.add_parameter_value(0.56, self.amp, (123,), "meas")
         self.cals.add_parameter_value(0.3, self.amp, (2,), "meas")
         self.cals.add_parameter_value(160, self.sigma, schedule="meas")
         self.cals.add_parameter_value(7000, self.width, schedule="meas")
         self.cals.add_parameter_value(8000, self.duration, schedule="meas")
+        self.cals.add_parameter_value(100, self.delay, schedule="meas_acquire")
 
         self.cals.add_parameter_value(0.9, self.amp_xp, (0,), "xp")
         self.cals.add_parameter_value(0.7, self.amp_xp, (2,), "xp")
@@ -551,6 +562,18 @@ class TestMeasurements(QiskitTestCase):
             self.cals.get_schedule(
                 "xt_meas", (0, 2), free_params=[("amp", (0,), "xp"), ("amp", (2,), "xp")]
             )
+
+    def test_measure_and_acquire(self):
+        """Test that we can get a measurement schedule with an acquire instruction."""
+
+        sched = self.cals.get_schedule("meas_acquire", (123,))
+
+        with pulse.build(name="meas_acquire") as expected:
+            pulse.play(GaussianSquare(8000, 0.56, 160, 7000), MeasureChannel(123))
+            pulse.delay(100, AcquireChannel(123))
+            pulse.acquire(8000, AcquireChannel(123), RegisterSlot(123))
+
+        self.assertEqual(sched, expected)
 
 
 class TestInstructions(QiskitTestCase):
