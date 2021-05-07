@@ -107,8 +107,9 @@ class Calibrations:
         # check that channels, if parameterized, have the proper name format.
         if schedule.name.startswith(ScheduleBlock.prefix):
             raise CalibrationError(
-                f"A registered schedule name cannot start with {ScheduleBlock.prefix} "
-                f"received {schedule.name}."
+                f"A registered schedule name cannot start with {ScheduleBlock.prefix}, "
+                f"received {schedule.name}. "
+                f"Use a name that does not start with {ScheduleBlock.prefix}."
             )
 
         param_indices = set()
