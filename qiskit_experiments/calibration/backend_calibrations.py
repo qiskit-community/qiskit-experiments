@@ -38,8 +38,8 @@ class BackendCalibrations(Calibrations):
         # Use the same naming convention as in backend.defaults()
         self.qubit_freq = Parameter("qubit_lo_freq")
         self.meas_freq = Parameter("meas_lo_freq")
-        self._register_parameter(self.qubit_freq)
-        self._register_parameter(self.meas_freq)
+        self._register_parameter(self.qubit_freq, ())
+        self._register_parameter(self.meas_freq, ())
 
         self._qubits = set(range(backend.configuration().n_qubits))
         self._backend = backend
@@ -131,8 +131,3 @@ class BackendCalibrations(Calibrations):
         # TODO: build the instruction schedule map using the stored calibrations
 
         return backend
-
-    @classmethod
-    def from_csv(cls):
-        """Create an instance from csv files"""
-        raise NotImplementedError

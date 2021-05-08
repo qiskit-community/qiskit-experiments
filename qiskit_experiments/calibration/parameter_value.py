@@ -16,6 +16,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Union
 
+from qiskit_experiments.calibration.exceptions import CalibrationError
+
 
 @dataclass
 class ParameterValue:
@@ -35,3 +37,67 @@ class ParameterValue:
 
     # The group of calibrations to which this parameter belongs
     group: str = "default"
+
+    def __post_init__(self):
+        """
+        Ensure that the variables in self have the proper types. This allows
+        us to give strings to self.__init__ as input which is useful when loading
+        serialized parameter values.
+        """
+        if isinstance(self.valid, str):
+            if self.valid == "True":
+                self.valid = True
+            else:
+                self.valid = False
+
+        if isinstance(self.value, str):
+            self.value = self._validated_value(self.value)
+
+        if isinstance(self.date_time, str):
+            self.date_time = datetime.strptime(self.date_time, "%Y-%m-%d %H:%M:%S")
+
+        if not isinstance(self.value, (int, float, complex)):
+            raise CalibrationError(f"Values {self.value} must be int, float or complex.")
+
+        if not isinstance(self.date_time, datetime):
+            raise CalibrationError(f"Datetime {self.date_time} must be a datetime.")
+
+        if not isinstance(self.valid, bool):
+            raise CalibrationError(f"Valid {self.valid} is not a boolean.")
+
+        if self.exp_id and not isinstance(self.exp_id, str):
+            raise CalibrationError(f"Experiment id {self.exp_id} is not a string.")
+
+        if not isinstance(self.group, str):
+            raise CalibrationError(f"Group {self.group} is not a string.")
+
+    @staticmethod
+    def _validated_value(value: str) -> Union[int, float, complex]:
+        """
+        Convert the string representation of value to the correct type.
+
+        Args:
+            value: The string to convert to either an int, float, or complex.
+
+        Returns:
+            value converted to either int, float, or complex.
+
+        Raises:
+            CalibrationError: If the conversion fails.
+        """
+        try:
+            return int(value)
+        except ValueError:
+            pass
+
+        try:
+            return float(value)
+        except ValueError:
+            pass
+
+        try:
+            return complex(value)
+        except ValueError as val_err:
+            raise CalibrationError(
+                f"Could not convert {value} to int, float, or complex."
+            ) from val_err

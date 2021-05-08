@@ -12,6 +12,7 @@
 
 """Class to store and manage the results of calibration experiments."""
 
+import os
 from collections import namedtuple, defaultdict
 from datetime import datetime
 from typing import Any, Dict, Set, Tuple, Union, List, Optional
@@ -84,9 +85,7 @@ class Calibrations:
         self._hash_to_counter_map = {}
         self._parameter_counter = 0
 
-    def add_schedule(
-        self, schedule: ScheduleBlock, qubits: Union[int, Tuple[int, ...]] = None
-    ):
+    def add_schedule(self, schedule: ScheduleBlock, qubits: Union[int, Tuple[int, ...]] = None):
         """
         Add a schedule and register its parameters.
 
@@ -744,9 +743,7 @@ class Calibrations:
 
         # Convert inputs to lists of strings
         if schedules is not None:
-            schedules = {
-                sdl.name if isinstance(sdl, ScheduleBlock) else sdl for sdl in schedules
-            }
+            schedules = {sdl.name if isinstance(sdl, ScheduleBlock) else sdl for sdl in schedules}
 
         # Look for exact matches. Default values will be ignored.
         keys = set()
@@ -771,15 +768,37 @@ class Calibrations:
 
         return data
 
-    def to_csv(self):
+    def save(self, file_type: str = "csv", folder: str = None, overwrite: bool = False):
         """
-        Serializes the parameterized schedules and parameter values so
+        Saves the parameterized schedules and parameter values so
         that they can be stored in csv files. This method will create three files:
         - parameter_config.csv: This file stores a table of parameters which indicates
           which parameters appear in which schedules.
         - parameter_values.csv: This file stores the values of the calibrated parameters.
         - schedules.csv: This file stores the parameterized schedules.
+
+        Args:
+            file_type: The type of file to which to save. By default this is a csv.
+                Other file types may be supported in the future.
+            folder: The folder in which to save the calibrations.
+            overwrite: If the files already exist then they will not be overwritten
+                unless overwrite is set to True.
+
+        Raises:
+            CalibrationError: if the files exist and overwrite is not set to True.
         """
+        cwd = os.getcwd()
+        if folder:
+            os.chdir(folder)
+
+        if os.path.isfile("parameter_config.csv") and not overwrite:
+            raise CalibrationError("parameter_config.csv already exists. Set overwrite to True.")
+
+        if os.path.isfile("parameter_values.csv") and not overwrite:
+            raise CalibrationError("parameter_values.csv already exists. Set overwrite to True.")
+
+        if os.path.isfile("parameter_values.csv") and not overwrite:
+            raise CalibrationError("schedules.csv already exists. Set overwrite to True.")
 
         # Write the parameter configuration.
         header_keys = ["parameter.name", "parameter unique id", "schedule", "qubits"]
@@ -796,47 +815,73 @@ class Calibrations:
                     }
                 )
 
-        with open("parameter_config.csv", "w", newline="") as output_file:
-            dict_writer = csv.DictWriter(output_file, header_keys)
-            dict_writer.writeheader()
-            dict_writer.writerows(body)
-
-        # Write the values of the parameters.
-        values = self.parameters_table()
-        if len(values) > 0:
-            header_keys = values[0].keys()
-
-            with open("parameter_values.csv", "w", newline="") as output_file:
+        if file_type == "csv":
+            with open("parameter_config.csv", "w", newline="") as output_file:
                 dict_writer = csv.DictWriter(output_file, header_keys)
                 dict_writer.writeheader()
-                dict_writer.writerows(values)
+                dict_writer.writerows(body)
 
-        # Serialize the schedules. For now we just print them.
-        schedules = []
-        header_keys = ["name", "qubits", "schedule"]
-        for key, sched in self._schedules.items():
-            schedules.append({"name": key.schedule, "qubits": key.qubits, "schedule": str(sched)})
+            # Write the values of the parameters.
+            values = self.parameters_table()
+            if len(values) > 0:
+                header_keys = values[0].keys()
 
-        with open("schedules.csv", "w", newline="") as output_file:
-            dict_writer = csv.DictWriter(output_file, header_keys)
-            dict_writer.writeheader()
-            dict_writer.writerows(schedules)
+                with open("parameter_values.csv", "w", newline="") as output_file:
+                    dict_writer = csv.DictWriter(output_file, header_keys)
+                    dict_writer.writeheader()
+                    dict_writer.writerows(values)
+
+            # Serialize the schedules. For now we just print them.
+            schedules = []
+            header_keys = ["name", "qubits", "schedule"]
+            for key, sched in self._schedules.items():
+                schedules.append(
+                    {"name": key.schedule, "qubits": key.qubits, "schedule": str(sched)}
+                )
+
+            with open("schedules.csv", "w", newline="") as output_file:
+                dict_writer = csv.DictWriter(output_file, header_keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(schedules)
+
+        else:
+            raise CalibrationError(f"Saving to .{file_type} is not yet supported.")
+
+        os.chdir(cwd)
+
+    def load_parameter_values(self, file_name: str = "parameter_values.csv"):
+        """
+        Load parameter values from a given file into self._params.
+
+        Args:
+            file_name: The name of the file that stores the parameters. Will default to
+                parameter_values.csv.
+        """
+        with open(file_name) as fp:
+            reader = csv.DictReader(fp, delimiter=",", quotechar='"')
+
+            for row in reader:
+                param_val = ParameterValue(
+                    row["value"], row["date_time"], row["valid"], row["exp_id"], row["group"]
+                )
+                key = ParameterKey(row["parameter"], self._to_tuple(row["qubits"]), row["schedule"])
+                self.add_parameter_value(param_val, *key)
 
     @classmethod
-    def from_csv(cls):
+    def load(cls, files: List[str]) -> "Calibrations":
         """
-        Retrieves the parameterized schedules and pulse parameters from an
-        external DB.
+        Retrieves the parameterized schedules and pulse parameters from the
+        given location.
         """
-        raise NotImplementedError
+        raise CalibrationError("Full calibration loading is not implemented yet.")
 
     @staticmethod
-    def _to_tuple(qubits: Union[int, Tuple[int, ...]]) -> Tuple[int, ...]:
+    def _to_tuple(qubits: Union[str, int, Tuple[int, ...]]) -> Tuple[int, ...]:
         """
         Ensure that qubits is a tuple of ints.
 
         Args:
-            qubits: An int or a tuple of ints.
+            qubits: An int, a tuple of ints, or a string representing a tuple of ints.
 
         Returns:
             qubits: A tuple of ints.
@@ -848,6 +893,12 @@ class Calibrations:
         if not qubits:
             return tuple()
 
+        if isinstance(qubits, str):
+            try:
+                return tuple(int(qubit) for qubit in qubits.strip("( )").split(",") if qubit != "")
+            except ValueError:
+                pass
+
         if isinstance(qubits, int):
             return (qubits,)
 
@@ -855,4 +906,7 @@ class Calibrations:
             if all(isinstance(n, int) for n in qubits):
                 return qubits
 
-        raise CalibrationError(f"{qubits} must be int or tuple of ints.")
+        raise CalibrationError(
+            f"{qubits} must be int, tuple of ints, or str  that can be parsed"
+            f"to a tuple if ints. Received {qubits}."
+        )

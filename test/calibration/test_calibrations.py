@@ -12,6 +12,8 @@
 
 """Class to test the calibrations."""
 
+import os
+from collections import defaultdict
 from datetime import datetime
 from qiskit.circuit import Parameter
 from qiskit.pulse import (
@@ -245,8 +247,11 @@ class TestCalibrationsBasic(QiskitTestCase):
         with self.assertRaises(CalibrationError):
             self.cals.get_parameter_value("amp", ("3",), "xp")
 
+        val = self.cals.get_parameter_value("amp", "3", "xp")
+        self.assertEqual(val, 0.2)
+
         with self.assertRaises(CalibrationError):
-            self.cals.get_parameter_value("amp", "3", "xp")
+            self.cals.get_parameter_value("amp", "(1, a)", "xp")
 
         with self.assertRaises(CalibrationError):
             self.cals.get_parameter_value("amp", [3], "xp")
@@ -628,12 +633,8 @@ class TestInstructions(QiskitTestCase):
         self.assertEqual(sched.instructions[2][1].frequency, 200)
 
 
-class TestControlChannels(QiskitTestCase):
-    """
-    Test the echoed cross-resonance schedule which is more complex than single-qubit
-    schedules. The example also shows that a schedule with call instructions can
-    support parameters with the same names.
-    """
+class CrossResonanceTest(QiskitTestCase):
+    """Setup class for an echoed cross-resonance calibration."""
 
     def setUp(self):
         """Create the setup we will deal with."""
@@ -685,7 +686,9 @@ class TestControlChannels(QiskitTestCase):
         self.cals.add_schedule(tcp)
 
         self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", schedule="xp")
-        self.cals.add_parameter_value(ParameterValue(0.1, self.date_time), "amp", (3,), "xp")
+        self.cals.add_parameter_value(
+            ParameterValue(0.1 + 0.01j, self.date_time), "amp", (3,), "xp"
+        )
         self.cals.add_parameter_value(ParameterValue(0.3, self.date_time), "amp", (3, 2), "cr")
         self.cals.add_parameter_value(ParameterValue(0.2, self.date_time), "amp_rot", (3, 2), "cr")
         self.cals.add_parameter_value(ParameterValue(0.8, self.date_time), "amp", (3, 2), "tcp")
@@ -697,6 +700,14 @@ class TestControlChannels(QiskitTestCase):
         self.cals.add_parameter_value(ParameterValue(0.4, self.date_time), "amp_rot", (2, 3), "cr")
         self.cals.add_parameter_value(ParameterValue(30, self.date_time), "w", (2, 3), "cr")
 
+
+class TestControlChannels(CrossResonanceTest):
+    """
+    Test the echoed cross-resonance schedule which is more complex than single-qubit
+    schedules. The example also shows that a schedule with call instructions can
+    support parameters with the same names.
+    """
+
     def test_get_schedule(self):
         """Check that we can get a CR schedule with a built in Call."""
 
@@ -705,11 +716,11 @@ class TestControlChannels(QiskitTestCase):
                 with pulse.align_left():
                     pulse.play(GaussianSquare(640, 0.2, 40, 20), DriveChannel(2))  # Rotary tone
                     pulse.play(GaussianSquare(640, 0.3, 40, 20), ControlChannel(10))  # CR tone.
-                pulse.play(Gaussian(160, 0.1, 40), DriveChannel(3))
+                pulse.play(Gaussian(160, 0.1 + 0.01j, 40), DriveChannel(3))
                 with pulse.align_left():
                     pulse.play(GaussianSquare(640, -0.2, 40, 20), DriveChannel(2))  # Rotary tone
                     pulse.play(GaussianSquare(640, -0.3, 40, 20), ControlChannel(10))  # CR tone.
-                pulse.play(Gaussian(160, 0.1, 40), DriveChannel(3))
+                pulse.play(Gaussian(160, 0.1 + 0.01j, 40), DriveChannel(3))
 
         # We inline to make the schedules comparable with the construction directly above.
         schedule = self.cals.get_schedule("cr", (3, 2))
@@ -804,3 +815,44 @@ class TestFiltering(QiskitTestCase):
 
         sigma = self.cals.get_parameter_value(self.sigma, (0,), "xp", valid_only=False)
         self.assertEqual(sigma, 45)
+
+
+class TestSavingAndLoading(CrossResonanceTest):
+    """Test that calibrations can be saved and loaded to and from files."""
+
+    def test_save_load_parameter_values(self):
+        """Test that we can save and load parameter values."""
+
+        self.cals.save("csv", overwrite=True)
+        self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.1 + 0.01j)
+
+        self.cals._params = defaultdict(list)
+
+        with self.assertRaises(CalibrationError):
+            self.cals.get_parameter_value("amp", (3,), "xp")
+
+        # Load the parameters, check value and type.
+        self.cals.load_parameter_values("parameter_values.csv")
+
+        val = self.cals.get_parameter_value("amp", (3,), "xp")
+        self.assertEqual(val, 0.1 + 0.01j)
+        self.assertTrue(isinstance(val, complex))
+
+        val = self.cals.get_parameter_value("σ", (3,), "xp")
+        self.assertEqual(val, 40)
+        self.assertTrue(isinstance(val, int))
+
+        val = self.cals.get_parameter_value("amp", (3, 2), "cr")
+        self.assertEqual(val, 0.3)
+        self.assertTrue(isinstance(val, float))
+
+        # Check that we cannot rewrite files as they already exist.
+        with self.assertRaises(CalibrationError):
+            self.cals.save("csv")
+
+        self.cals.save("csv", overwrite=True)
+
+        # Clean-up
+        os.remove("parameter_values.csv")
+        os.remove("parameter_config.csv")
+        os.remove("schedules.csv")
