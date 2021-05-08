@@ -111,6 +111,7 @@ class ExperimentData:
 
         Raises:
             QiskitError: if the data is not a valid format.
+            KeyboardInterrupt: when job is cancelled by users.
         """
         if isinstance(data, dict):
             self._add_single_data(data)

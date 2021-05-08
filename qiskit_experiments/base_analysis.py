@@ -61,6 +61,7 @@ class BaseAnalysis(ABC):
         # experiment_data.block_for_result()
 
         # Run analysis
+        # pylint: disable=broad-except
         try:
             analysis_results, figures = self._run_analysis(experiment_data, **options)
             analysis_results["success"] = True
