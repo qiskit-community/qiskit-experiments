@@ -17,6 +17,8 @@ import uuid
 
 from qiskit.result import Result
 from qiskit.exceptions import QiskitError
+from qiskit.providers import Job, BaseJob
+from qiskit.providers.exceptions import JobError
 
 
 class AnalysisResult(dict):
@@ -24,7 +26,13 @@ class AnalysisResult(dict):
 
 
 class ExperimentData:
-    """ExperimentData container class"""
+    """ExperimentData container class
+
+    .. warning::
+        This is a temporary data class until the data class is implemented in qiskit terra.
+        Once new data class is implemented, this class will be immediately deprecated.
+        See Qiskit/qiskit-terra#5449.
+    """
 
     def __init__(self, experiment):
         """Initialize the analysis object.
@@ -106,6 +114,20 @@ class ExperimentData:
         """
         if isinstance(data, dict):
             self._add_single_data(data)
+        elif isinstance(data, (Job, BaseJob)):
+            try:
+                result = data.result()
+            except JobError as ex:
+                if hasattr(data, "error_message"):
+                    msg = data.error_message
+                else:
+                    msg = "Please contact to administrator of your provider."
+                raise QiskitError(f"Execution of experiment failed. {msg}") from ex
+            except KeyboardInterrupt as ex:
+                # remove job from queue list and return the empty result
+                data.cancel()
+                raise KeyboardInterrupt(ex) from ex
+            self._add_result_data(result)
         elif isinstance(data, Result):
             self._add_result_data(data)
         elif isinstance(data, list):
