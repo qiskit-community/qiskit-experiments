@@ -18,10 +18,8 @@ from numbers import Integral
 
 from qiskit import transpile, assemble
 from qiskit.exceptions import QiskitError
-from qiskit.providers.exceptions import JobError
 
 from .experiment_data import ExperimentData
-
 
 _TRANSPILE_OPTIONS = {
     "basis_gates",

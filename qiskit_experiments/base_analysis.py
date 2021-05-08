@@ -14,7 +14,6 @@ Base analysis class.
 """
 
 from abc import ABC, abstractmethod
-from typing import Tuple
 
 from qiskit.exceptions import QiskitError
 
@@ -44,7 +43,7 @@ class BaseAnalysis(ABC):
                             single result.
             List[AnalysisResult]: the output for analysis that produces
                                   multiple results.
-            Tuple: If ``return_figures=True`` the output is a pair
+            tuple: If ``return_figures=True`` the output is a pair
                    ``(analysis_results, figures)`` where  ``analysis_results``
                    may be a single or list of :class:`AnalysisResult` objects, and
                    ``figures`` may be None, a single figure, or a list of figures.
@@ -91,7 +90,7 @@ class BaseAnalysis(ABC):
             options: kwarg options for analysis function.
 
         Returns:
-            Tuple: A pair ``(analysis_results, figures)`` where
+            tuple: A pair ``(analysis_results, figures)`` where
                    ``analysis_results`` may be a single or list of
                    AnalysisResult objects, and ``figures`` may be
                    None, a single figure, or a list of figures.
