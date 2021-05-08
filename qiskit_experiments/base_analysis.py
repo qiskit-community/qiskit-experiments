@@ -66,6 +66,7 @@ class BaseAnalysis(ABC):
             analysis_results["success"] = True
         except Exception:
             analysis_results = AnalysisResult(success=False)
+            figures = None
 
         # Save to experiment data
         if save:
