@@ -42,11 +42,10 @@ class T2StarAnalysis(BaseAnalysis):
 
     def __init__(
         self,
-        ):
+    ):
         self._p0 = None
         self._bounds = None
         self._conversion_factor = None
-
 
     # pylint: disable=arguments-differ, unused-argument
     def _run_analysis(
@@ -225,9 +224,9 @@ class T2StarExperiment(BaseExperiment):
         self._osc_freq = osc_freq
         super().__init__([qubit], experiment_type)
 
-    def circuits(self,
-                 backend: Optional["Backend"] = None,
-                 **circuit_options) -> List[QuantumCircuit]:
+    def circuits(
+        self, backend: Optional["Backend"] = None, **circuit_options
+    ) -> List[QuantumCircuit]:
         """
         Return a list of experiment circuits
         Each circuit consists of a Hadamard gate, followed by a fixed delay,

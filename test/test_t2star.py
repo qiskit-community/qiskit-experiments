@@ -152,7 +152,7 @@ class TestT2Star(QiskitTestCase):
         """
         # For some reason, 'ps' was not precise enough - need to check this
         for unit in ["s", "ms", "us", "ns", "dt"]:
-            if unit in ('s', 'dt'):
+            if unit in ("s", "dt"):
                 dt_factor = 1
             else:
                 dt_factor = apply_prefix(1, unit)
