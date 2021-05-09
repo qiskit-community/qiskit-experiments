@@ -12,17 +12,15 @@ Test T2Star experiment
 """
 import unittest
 import numpy as np
-import random
-from typing import Tuple
+
 from qiskit.utils import apply_prefix
 from qiskit.providers import BaseBackend
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
-from qiskit_experiments.experiment_data import ExperimentData
+from qiskit.test import QiskitTestCase
 from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T2StarExperiment
 
-from qiskit.test import QiskitTestCase
 
 # Fix seed for simulations
 SEED = 9000
@@ -57,10 +55,10 @@ class T2Backend(BaseBackend):
         )
 
         self._t2star = p0["t2star"]
-        self._A_guess = p0["A_guess"]
+        self._a_guess = p0["a_guess"]
         self._f_guess = p0["f_guess"]
         self._phi_guess = p0["phi_guess"]
-        self._B_guess = p0["B_guess"]
+        self._b_guess = p0["b_guess"]
         self._initial_prob_plus = initial_prob_plus
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
@@ -68,7 +66,7 @@ class T2Backend(BaseBackend):
         super().__init__(configuration)
 
     # pylint: disable = arguments-differ
-    def run(self, qobj, **kwargs):
+    def run(self, qobj):
         """
         Run the T2star backend
         """
@@ -111,10 +109,10 @@ class T2Backend(BaseBackend):
                         freq = self._f_guess[qubit] / self._dt_factor
 
                         prob_plus[qubit] = (
-                            self._A_guess[qubit]
+                            self._a_guess[qubit]
                             * np.exp(-delay / t2star)
                             * np.cos(2 * np.pi * freq * delay + self._phi_guess[qubit])
-                            + self._B_guess[qubit]
+                            + self._b_guess[qubit]
                         )
 
                     if op.name == "measure":
@@ -149,10 +147,12 @@ class TestT2Star(QiskitTestCase):
     """Test T2Star experiment"""
 
     def test_t2star_run_end2end(self):
-        # run backend for all different units
+        """
+        Run the T2 backend on all possible units
+        """
         # For some reason, 'ps' was not precise enough - need to check this
         for unit in ["s", "ms", "us", "ns", "dt"]:
-            if unit == "s" or unit == "dt":
+            if unit in ('s', 'dt'):
                 dt_factor = 1
             else:
                 dt_factor = apply_prefix(1, unit)
@@ -180,11 +180,11 @@ class TestT2Star(QiskitTestCase):
 
             backend = T2Backend(
                 p0={
-                    "A_guess": [0.5],
+                    "a_guess": [0.5],
                     "t2star": [estimated_t2star],
                     "f_guess": [estimated_freq],
                     "phi_guess": [0.0],
-                    "B_guess": [0.5],
+                    "b_guess": [0.5],
                 },
                 initial_prob_plus=[0.0],
                 readout0to1=[0.02],
@@ -193,7 +193,7 @@ class TestT2Star(QiskitTestCase):
             )
             if unit == "dt":
                 dt_factor = getattr(backend._configuration, "dt")
-            circs = exp.circuits(backend)
+            _ = exp.circuits(backend)
             # run circuits
             result = exp.run(
                 backend=backend,
@@ -219,14 +219,14 @@ class TestT2Star(QiskitTestCase):
         exp0 = T2StarExperiment(0, delays[0])
         exp2 = T2StarExperiment(2, delays[1])
         par_exp = ParallelExperiment([exp0, exp2])
-        parallel_circuits = par_exp.circuits()
+        _ = par_exp.circuits()
 
         p0 = {
-            "A_guess": [0.5, None, 0.5],
+            "a_guess": [0.5, None, 0.5],
             "t2star": [t2star[0], None, t2star[1]],
             "f_guess": [estimated_freq[0], None, estimated_freq[1]],
             "phi_guess": [0, None, 0],
-            "B_guess": [0.5, None, 0.5],
+            "b_guess": [0.5, None, 0.5],
         }
         backend = T2Backend(p0)
         res = par_exp.run(

@@ -14,20 +14,20 @@
 """
 T2Star Experiment class.
 """
+# pylint: disable = invalid-name
 
-from typing import List, Optional, Union, Tuple, Dict
+from typing import List, Optional, Union, Tuple
 import numpy as np
-import copy
 
 import qiskit
 from qiskit.circuit import QuantumCircuit
 from qiskit.utils import apply_prefix
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResult
-from ..experiment_data import ExperimentData
-from qiskit_experiments.analysis.curve_fitting import curve_fit, multi_curve_fit, process_curve_data
 from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_scatter, plot_errorbar
+from qiskit_experiments.analysis.curve_fitting import curve_fit, process_curve_data
 from qiskit_experiments.analysis.data_processing import level2_probability
+from ..experiment_data import ExperimentData
 
 try:
     from matplotlib import pyplot as plt
@@ -40,6 +40,14 @@ except ImportError:
 class T2StarAnalysis(BaseAnalysis):
     """T2Star Experiment result analysis class."""
 
+    def __init__(
+        self,
+        ):
+        self._p0 = None
+        self._bounds = None
+        self._conversion_factor = None
+
+
     # pylint: disable=arguments-differ, unused-argument
     def _run_analysis(
         self,
@@ -49,10 +57,10 @@ class T2StarAnalysis(BaseAnalysis):
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,
         **kwargs,
-    ):
+    ) -> Tuple[float, float]:
         r"""
             Calculate T2Star experiment
-            The probabilities of measuring 0 is assumed to be of the form
+            The probability of measuring 0 is assumed to be of the form
         .. math::
             f(t) = A\mathrm{e}^{-t / T_2^*}\cos(2\pi ft + \phi) + B
         for unknown parameters :math:`A, B, f, \phi, T_2^*`.
@@ -65,16 +73,19 @@ class T2StarAnalysis(BaseAnalysis):
                         The first tuple is the lower bounds,
                         The second tuple is the upper bounds.
                         For both params, the order is :math:`A, T_2^*, f, \phi, B`.
+                plot: if True, create the plot, otherwise, do not create the plot.
+                ax: the plot object
+                **kwargs: additional parameters
             Returns:
                 The analysis result with the estimated :math:`T_2^*` and 'f' (frequency)
 
         """
 
-        def osc_fit_fun(x, a, t2star, f, phi, c):
+        def osc_fit_fun(x, a, t2star, freq, phi, c):
             """
             Decay cosine fit function
             """
-            return a * np.exp(-x / t2star) * np.cos(2 * np.pi * f * x + phi) + c
+            return a * np.exp(-x / t2star) * np.cos(2 * np.pi * freq * x + phi) + c
 
         def _format_plot(ax, unit):
             """Format curve fit plot"""
@@ -97,7 +108,7 @@ class T2StarAnalysis(BaseAnalysis):
         si_xdata = xdata * self._conversion_factor
         t2star_estimate = np.mean(si_xdata)
 
-        p0, bounds = self._t2star_default_params(t2star=t2star_estimate)
+        p0, bounds = self._t2star_default_params(t2star_input=t2star_estimate)
         fit_result = curve_fit(
             osc_fit_fun, si_xdata, ydata, p0=list(p0.values()), sigma=sigma, bounds=bounds
         )
@@ -131,40 +142,40 @@ class T2StarAnalysis(BaseAnalysis):
 
     def _t2star_default_params(
         self,
-        t2star: float,
+        t2star_input: float,
     ) -> Tuple[List[float], Tuple[List[float]]]:
         """
         Default fit parameters for oscillation data
         Args:
-            t2star: default for t2star if p0==None
+            t2star_input: default for t2star if p0==None
         Returns:
             Fit guessed parameters: either from the input (if given) or
             else assign default values.
         """
-        if self._p0 == None:
-            A = 0.5
-            t2star = t2star
-            f = 0.1
+        if self._p0 is None:
+            a = 0.5
+            t2star = t2star_input
+            freq = 0.1
             phi = 0.0
-            B = 0.5
+            b = 0.5
         else:
-            A = self._p0["A"]
+            a = self._p0["A"]
             t2star = self._p0["t2star"]
             t2star *= self._conversion_factor
-            f = self._p0["f"]
+            freq = self._p0["f"]
             phi = self._p0["phi"]
-            B = self._p0["B"]
-        f /= self._conversion_factor
-        p0 = {"A_guess": A, "t2star": t2star, "f_guess": f, "phi_guess": phi, "B_guess": B}
-        if self._bounds == None:
-            A_bounds = [-0.5, 1.5]
+            b = self._p0["B"]
+        freq /= self._conversion_factor
+        p0 = {"a_guess": a, "t2star": t2star, "f_guess": freq, "phi_guess": phi, "b_guess": b}
+        if self._bounds is None:
+            a_bounds = [-0.5, 1.5]
             t2star_bounds = [0, np.inf]
-            f_bounds = [0.5 * f, 1.5 * f]
+            f_bounds = [0.5 * freq, 1.5 * freq]
             phi_bounds = [-np.pi, np.pi]
-            B_bounds = [-0.5, 1.5]
+            b_bounds = [-0.5, 1.5]
             bounds = (
-                [A_bounds[0], t2star_bounds[0], f_bounds[0], phi_bounds[0], B_bounds[0]],
-                [A_bounds[1], t2star_bounds[1], f_bounds[1], phi_bounds[1], B_bounds[1]],
+                [a_bounds[0], t2star_bounds[0], f_bounds[0], phi_bounds[0], b_bounds[0]],
+                [a_bounds[1], t2star_bounds[1], f_bounds[1], phi_bounds[1], b_bounds[1]],
             )
         return p0, bounds
 
@@ -204,7 +215,8 @@ class T2StarExperiment(BaseExperiment):
             delays: delay times of the experiments
             unit: Optional, time unit of `delays`. Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'.
             osc_freq: the oscillation frequency induced using by the user
-            experiment_type: String indicating the experiment type. Can be 'RamseyExperiment' or 'T2StarExperiment'.
+            experiment_type: String indicating the experiment type.
+            Can be 'RamseyExperiment' or 'T2StarExperiment'.
         """
 
         self._qubit = qubit
@@ -213,13 +225,16 @@ class T2StarExperiment(BaseExperiment):
         self._osc_freq = osc_freq
         super().__init__([qubit], experiment_type)
 
-    def circuits(self, backend: Optional["Backend"] = None) -> List[QuantumCircuit]:
+    def circuits(self,
+                 backend: Optional["Backend"] = None,
+                 **circuit_options) -> List[QuantumCircuit]:
         """
         Return a list of experiment circuits
-        Each circuit consists of a Hadamard gate, followed by a fixed delay, a phase gate (with a linear phase),
-        and an additional Hadamard gate.
+        Each circuit consists of a Hadamard gate, followed by a fixed delay,
+        a phase gate (with a linear phase), and an additional Hadamard gate.
         Args:
             backend: Optional, a backend object
+            circuit_options: from base class, empty here
         Returns:
             The experiment circuits
         Raises:
@@ -230,11 +245,6 @@ class T2StarExperiment(BaseExperiment):
                 dt_factor = getattr(backend._configuration, "dt")
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
-            conversion_factor = dt_factor
-        else:
-            conversion_factor = 1 if self._unit == "s" else apply_prefix(1, self._unit)
-
-        xdata = self._delays
 
         circuits = []
         for delay in self._delays:
