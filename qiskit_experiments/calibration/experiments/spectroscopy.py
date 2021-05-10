@@ -35,16 +35,16 @@ class SpectroscopyAnalysis(BaseAnalysis):
     def _run_analysis(
         self,
         experiment_data,
-        data_processor=None,
-        meas_level=MeasLevel.KERNELED,
-        amp_guess: float = None,
-        gamma_guesses: List[float] = None,
-        freq_guess: float = None,
-        offset_guess: float = None,
-        amplitude_bounds: List[float] = None,
-        width_bounds: List[float] = None,
-        freq_bounds: List[float] = None,
-        offset_bounds: List[float] = None,
+        data_processor: Optional[callable] = None,
+        meas_level: Optional[int] = MeasLevel.KERNELED,
+        amp_guess: Optional[float] = None,
+        gamma_guesses: Optional[List[float]] = None,
+        freq_guess: Optional[float] = None,
+        offset_guess: Optional[float] = None,
+        amplitude_bounds: Optional[List[float]] = None,
+        width_bounds: Optional[List[float]] = None,
+        freq_bounds: Optional[List[float]] = None,
+        offset_bounds: Optional[List[float]] = None,
     ) -> Tuple[AnalysisResult, None]:
         """
         Analyse a spectroscopy experiment by fitting the data to a Lorentz function.
