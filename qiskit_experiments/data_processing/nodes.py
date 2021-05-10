@@ -43,6 +43,10 @@ class IQPart(DataAction):
             Processed IQ point.
         """
 
+    @abstractmethod
+    def _required_dimension(self) -> int:
+        """Return the required dimension of the IQ Date."""
+
     def _format_data(self, datum: Any) -> Any:
         """Check that the IQ data has the correct format and convert to numpy array.
 
@@ -58,7 +62,7 @@ class IQPart(DataAction):
         """
         datum = np.asarray(datum, dtype=float)
 
-        if self._validate and len(datum.shape) != 3:
+        if self._validate and len(datum.shape) != self._required_dimension():
             raise DataProcessorError(
                 f"Single-shot data given {self.__class__.__name__}"
                 f"must be a 3D array. Instead, a {len(datum.shape)}D "
@@ -73,7 +77,11 @@ class IQPart(DataAction):
 
 
 class ToReal(IQPart):
-    """IQ data post-processing. Isolate the real part of the IQ data."""
+    """IQ data post-processing. Isolate the real part of single-shot IQ data."""
+
+    def _required_dimension(self) -> int:
+        """Require memory to be a 3D array."""
+        return 3
 
     def _process(self, datum: np.array) -> np.array:
         """Take the real part of the IQ data.
@@ -90,8 +98,34 @@ class ToReal(IQPart):
         return datum[:, :, 0] * self.scale
 
 
+class ToRealAvg(IQPart):
+    """IQ data post-processing. Isolate the real part of averaged IQ data."""
+
+    def _required_dimension(self) -> int:
+        """Require memory to be a 3D array."""
+        return 2
+
+    def _process(self, datum: np.array) -> np.array:
+        """Take the real part of the IQ data.
+
+        Args:
+            datum: A 2D array of qubits, and a complex average IQ point as [real, imaginary].
+
+        Returns:
+            A 1D array of shots, qubits. Each entry is the real part of the given IQ data.
+        """
+        if self.scale is None:
+            return datum[:, 0]
+
+        return datum[:, 0] * self.scale
+
+
 class ToImag(IQPart):
-    """IQ data post-processing. Isolate the imaginary part of the IQ data."""
+    """IQ data post-processing. Isolate the imaginary part of single-shot IQ data."""
+
+    def _required_dimension(self) -> int:
+        """Require memory to be a 3D array."""
+        return 3
 
     def _process(self, datum: np.array) -> np.array:
         """Take the imaginary part of the IQ data.
@@ -106,6 +140,28 @@ class ToImag(IQPart):
             return datum[:, :, 1]
 
         return datum[:, :, 1] * self.scale
+
+
+class ToImagAvg(IQPart):
+    """IQ data post-processing. Isolate the imaginary part of averaged IQ data."""
+
+    def _required_dimension(self) -> int:
+        """Require memory to be a 3D array."""
+        return 2
+
+    def _process(self, datum: np.array) -> np.array:
+        """Take the imaginary part of the IQ data.
+
+        Args:
+            datum: A 2D array of qubits, and a complex average IQ point as [real, imaginary].
+
+        Returns:
+            A 1D array of shots, qubits. Each entry is the imaginary part of the given IQ data.
+        """
+        if self.scale is None:
+            return datum[:, 1]
+
+        return datum[:, 1] * self.scale
 
 
 class Probability(DataAction):
