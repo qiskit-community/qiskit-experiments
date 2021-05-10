@@ -22,7 +22,7 @@ from qiskit.quantum_info import Clifford, random_clifford
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from .rb_analysis import RBAnalysis
-
+from .clifford_utils import CliffordUtils
 
 class RBExperiment(BaseExperiment):
     """RB Experiment class"""
@@ -59,6 +59,7 @@ class RBExperiment(BaseExperiment):
         self._lengths = list(lengths)
         self._num_samples = num_samples
         self._full_sampling = full_sampling
+        self._clifford_utils = CliffordUtils()
         super().__init__(qubits)
 
     # pylint: disable = arguments-differ
@@ -104,7 +105,8 @@ class RBExperiment(BaseExperiment):
         """
         circuits = []
         for length in lengths if self._full_sampling else [lengths[-1]]:
-            elements = [random_clifford(self.num_qubits, seed=seed) for _ in range(length)]
+            elements = [self._clifford_utils.random_clifford(self.num_qubits, seed=seed)
+                        for _ in range(length)]
             element_lengths = [len(elements)] if self._full_sampling else lengths
             circuits += self._generate_circuit(elements, element_lengths)
         return circuits
@@ -128,11 +130,10 @@ class RBExperiment(BaseExperiment):
             circ.barrier(qubits)
         circ_op = Clifford(np.eye(2 * self.num_qubits))
 
-        for current_length, group_elt in enumerate(elements):
+        for current_length, (group_elt, group_elt_circ) in enumerate(elements):
             circ_op = circ_op.compose(group_elt)
-            group_elt_instruction = group_elt.to_instruction()
             for circ in circs:
-                circ.append(group_elt_instruction, qubits)
+                circ.append(group_elt_circ, qubits)
                 circ.barrier(qubits)
             if current_length + 1 in lengths:
                 # copy circuit and add inverse
