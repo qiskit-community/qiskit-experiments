@@ -18,6 +18,36 @@ intended to be fully parameterized, including the index of the channels. This cl
 - supports having different schedules share parameters
 - allows default schedules for qubits that can be overridden for specific qubits.
 
+The following code illustrates how a user can create a parameterized schedule, add
+values to the parameters and query a schedule.
+
+.. code-block:: python
+
+    dur = Parameter("dur")
+    amp = Parameter("amp")
+    sigma = Parameter("σ")
+
+    with pulse.build(name="xp") as xp:
+        pulse.play(Gaussian(dur, amp, sigma), DriveChannel(Parameter("ch0")))
+
+    cals = Calibrations()
+    cals.add_schedule(xp)
+
+    # add duration and sigma parameter values for all qubits.
+    cals.add_parameter_value(160, "dur", schedule="xp")
+    cals.add_parameter_value(35.5, "σ", schedule="xp")
+
+    # Add an amplitude for qubit 3.
+    cals.add_parameter_value(0.2+0.05j, "amp", (3, ), "xp")
+
+    # Retrieve an xp pulse with all parameters assigned
+    cals.get_schedule("xp", (3, ))
+
+    # Retrieve an xp pulse with unassigned amplitude
+    cals.get_schedule("xp", (3, ), free_params=["amp"])
+
+The Calibrations make a couple of assumptions which are discussed below.
+
 Parametric channel naming convention
 =========================
 

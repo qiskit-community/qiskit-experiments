@@ -76,7 +76,7 @@ class TestCalibrationsBasic(QiskitTestCase):
 
         self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", schedule="xp")
         self.cals.add_parameter_value(ParameterValue(160, self.date_time), "dur", schedule="xp")
-        self.cals.add_parameter_value(ParameterValue(0.2, self.date_time), "amp", (3,), "xp")
+        self.cals.add_parameter_value(ParameterValue(0.2, self.date_time), "amp", 3, "xp")
         self.cals.add_parameter_value(ParameterValue(0.1, self.date_time), "amp", (3,), "x90p")
         self.cals.add_parameter_value(ParameterValue(0.08, self.date_time), "amp", (3,), "y90p")
         self.cals.add_parameter_value(ParameterValue(40, self.date_time), "β", (3,), "xp")
