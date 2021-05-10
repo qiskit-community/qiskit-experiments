@@ -93,7 +93,7 @@ def mean_xy_data(
 
             # Compute sample mean and biased sample variance
             y_means[i] = np.mean(ys)
-            y_sigmas[i] = np.mean((y_means[i] - ys) ** 2)
+            y_sigmas[i] = np.sqrt(np.mean((y_means[i] - ys) ** 2))
 
         return x_means, y_means, y_sigmas
 
