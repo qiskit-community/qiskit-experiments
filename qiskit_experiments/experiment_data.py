@@ -26,13 +26,7 @@ class AnalysisResult(dict):
 
 
 class ExperimentData:
-    """ExperimentData container class
-
-    .. warning::
-        This is a temporary data class until the data class is implemented in qiskit terra.
-        Once new data class is implemented, this class will be immediately deprecated.
-        See Qiskit/qiskit-terra#5449.
-    """
+    """ExperimentData container class"""
 
     def __init__(self, experiment):
         """Initialize the analysis object.
