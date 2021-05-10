@@ -20,17 +20,20 @@ import numpy as np
 import scipy.optimize as opt
 from qiskit.exceptions import QiskitError
 
+from collections import defaultdict
+import functools
+
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
 
 # Description of data properties for single curve entry
-Series = NamedTuple(
-    "Series",
+SeriesDef = NamedTuple(
+    "SeriesDef",
     [
         ("name", str),
         ("param_names", List[str]),
-        ("fit_func", int),
+        ("fit_func_index", int),
         ("filter_kwargs", Optional[Dict[str, Any]]),
     ],
 )
@@ -42,8 +45,9 @@ CurveEntry = NamedTuple(
         ("curve_name", str),
         ("x_values", np.ndarray),
         ("y_values", np.ndarray),
-        ("y_sigmas", np.ndarray)
-    ]
+        ("y_sigmas", np.ndarray),
+        ("metadata", dict),
+    ],
 )
 
 
@@ -52,7 +56,7 @@ class CurveAnalysis(BaseAnalysis):
     #: str: Metadata key representing a scanned value.
     __x_key__ = ""
 
-    #: List[Series]: List of mapping representing a data series
+    #: List[SeriesDef]: List of mapping representing a data series
     __series__ = None
 
     #: Callable: Data processor
@@ -68,6 +72,14 @@ class CurveAnalysis(BaseAnalysis):
     # For example, if it contains front end discriminator, it may be initialized with
     # some discrimination line parameters. These parameters cannot be hard-coded here.
 
+    @abstractmethod
+    def _run_fitting(self, curve_data: List[CurveEntry]):
+        pass
+
+    @abstractmethod
+    def _create_figure(self, curve_data: List[CurveEntry], fit_data: AnalysisResult):
+        pass
+
     def _run_analysis(self, experiment_data, **options):
         """Run analysis on circuit data.
 
@@ -82,7 +94,6 @@ class CurveAnalysis(BaseAnalysis):
                    None, a single figure, or a list of figures.
         """
         analysis_result = AnalysisResult()
-        figures = list()
 
         try:
             curve_data = self._data_processing(experiment_data)
@@ -90,7 +101,7 @@ class CurveAnalysis(BaseAnalysis):
             # however the raw data may be avoided to be saved in remote database
         except DataProcessorError:
             analysis_result["success"] = False
-            return analysis_result, figures
+            return analysis_result, list()
 
         try:
             fit_data = self._run_fitting(curve_data=curve_data)
@@ -99,12 +110,20 @@ class CurveAnalysis(BaseAnalysis):
         except Exception:
             analysis_result["success"] = False
 
+        analysis_result = self._post_processing(analysis_result)
         figures = self._create_figure(curve_data=curve_data, fit_data=analysis_result)
 
         return analysis_result, figures
 
     def _data_processing(self, experiment_data: ExperimentData) -> List[CurveEntry]:
         """Extract curve data from experiment data.
+
+        .. notes::
+            The target metadata properties to define each curve entry is described by
+            the class attribute __series__. This method returns the same numbers
+            of curve data entries as one defined in this attribute.
+            The returned CurveData entry contains circuit metadata fields that are
+            common to the entire curve scan, i.e. series-level metadata.
 
         Args:
             experiment_data: ExperimentData object to fit parameters.
@@ -116,10 +135,10 @@ class CurveAnalysis(BaseAnalysis):
             series = self.__series__
         else:
             series = [
-                Series(
+                SeriesDef(
                     name="",
                     param_names=self.__param_names__,
-                    fit_func=0,
+                    fit_func_index=0,
                     filter_kwargs=None,
                 )
             ]
@@ -131,13 +150,13 @@ class CurveAnalysis(BaseAnalysis):
                 return False
 
         curve_data = list()
-        for line_attributes in series:
-            if line_attributes.filter_kwargs:
+        for curve_properties in series:
+            if curve_properties.filter_kwargs:
                 # filter data
                 series_data = [
                     datum
                     for datum in experiment_data.data
-                    if _is_target_series(datum, **line_attributes.filter_kwargs)
+                    if _is_target_series(datum, **curve_properties.filter_kwargs)
                 ]
             else:
                 # use data as-is
@@ -147,30 +166,51 @@ class CurveAnalysis(BaseAnalysis):
             # If we use the level1 data, it may be necessary to calculate principal component
             # with entire scan data. Otherwise we need to use real or imaginary part.
 
+            # Get common metadata fields except for xval and filter args.
+            # These properties are obvious.
+            common_keys = list(
+                functools.reduce(
+                    lambda k1, k2: k1 & k2,
+                    map(lambda d: d.keys(), [datum["metadata"] for datum in series_data]),
+                )
+            )
+            common_keys.remove(self.__x_key__)
+            if curve_properties.filter_kwargs:
+                for key in curve_properties.filter_kwargs:
+                    common_keys.remove(key)
+
+            # Extract common metadata for the curve
+            curve_metadata = defaultdict(set)
+            for datum in series_data:
+                for key in common_keys:
+                    curve_metadata[key].add(datum["metadata"][key])
+
             curve_data.append(
                 CurveEntry(
-                    curve_name=line_attributes.name,
+                    curve_name=curve_properties.name,
                     x_values=xvals,
                     y_values=yvals,
                     y_sigmas=sigmas,
+                    metadata=curve_metadata,
                 )
             )
 
         return curve_data
 
-    @abstractstaticmethod
-    def _initial_guess(xdata: np.ndarray, ydata: np.ndarray, **kwargs) -> np.ndarray:
-        pass
+    @staticmethod
+    def _post_processing(analysis_result: AnalysisResult) -> AnalysisResult:
+        return analysis_result
 
-    @abstractmethod
-    def _run_fitting(self, curve_data: List[CurveEntry]):
-        pass
+    def _series_curve_fit(
+            self,
+            curve_data: List[CurveEntry],
+            p0: np.ndarray,
+            weights: Optional[np.ndarray] = None,
+            bounds: Optional[Tuple[np.ndarray, np.ndarray]] = None,
+            **kwargs
+    ):
 
-    @abstractmethod
-    def _create_figure(self, curve_data: List[CurveEntry], fit_data: AnalysisResult):
-        pass
-
-    def _series_fit(self, curve_data: List[CurveEntry], **kwargs):
+        # remap parameters
         pass
 
     @staticmethod
