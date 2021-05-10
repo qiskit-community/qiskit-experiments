@@ -131,9 +131,10 @@ class RBExperiment(BaseExperiment):
         circ_op = Clifford(np.eye(2 * self.num_qubits))
 
         for current_length, (group_elt, group_elt_circ) in enumerate(elements):
+            group_elt_gate = group_elt_circ.to_gate()
             circ_op = circ_op.compose(group_elt)
             for circ in circs:
-                circ.append(group_elt_circ, qubits)
+                circ.append(group_elt_gate, qubits)
                 circ.barrier(qubits)
             if current_length + 1 in lengths:
                 # copy circuit and add inverse

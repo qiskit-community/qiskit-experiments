@@ -1,8 +1,9 @@
 import random
 import json
 import os
-from qiskit import QuantumCircuit
+from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate
+from qiskit.circuit.library import SdgGate, HGate
 from qiskit.quantum_info import Clifford
 
 class VGate(Gate):
@@ -33,6 +34,7 @@ class CliffordUtils():
                              (2, 2, 3, 3, 4, 4)]
 
     def __init__(self):
+        self._cliffs_1_qubit_dict = None
         self._cliffs_2_qubit_dict = None
 
     def _load_cliffs_2_qubit_dict(self):
@@ -41,19 +43,20 @@ class CliffordUtils():
             self._cliffs_2_qubit_dict = json.load(f)
 
     def clifford_1_qubit(self, num):
-        cliffs_1_qubit_dict = [[["+Z"], ["+X"]], [["+X"], ["+Z"]],
-                               [["+X"], ["+Y"]], [["+Y"], ["+X"]],
-                               [["+Y"], ["+Z"]], [["+Z"], ["+Y"]],
-                               [["-Z"], ["+X"]], [["+X"], ["-Z"]],
-                               [["+X"], ["-Y"]], [["-Y"], ["+X"]],
-                               [["-Y"], ["-Z"]], [["-Z"], ["-Y"]],
-                               [["-Z"], ["-X"]], [["-X"], ["-Z"]],
-                               [["-X"], ["+Y"]], [["+Y"], ["-X"]],
-                               [["+Y"], ["-Z"]], [["-Z"], ["+Y"]],
-                               [["+Z"], ["-X"]], [["-X"], ["+Z"]],
-                               [["-X"], ["-Y"]], [["-Y"], ["-X"]],
-                               [["-Y"], ["+Z"]], [["+Z"], ["-Y"]]]
-        stabilizer, destabilizer = cliffs_1_qubit_dict[num]
+        if self._cliffs_1_qubit_dict is None:
+            self._cliffs_1_qubit_dict = [[["+Z"], ["+X"]], [["+X"], ["+Z"]],
+                                        [["+X"], ["+Y"]], [["+Y"], ["+X"]],
+                                        [["+Y"], ["+Z"]], [["+Z"], ["+Y"]],
+                                        [["-Z"], ["+X"]], [["+X"], ["-Z"]],
+                                        [["+X"], ["-Y"]], [["-Y"], ["+X"]],
+                                        [["-Y"], ["-Z"]], [["-Z"], ["-Y"]],
+                                        [["-Z"], ["-X"]], [["-X"], ["-Z"]],
+                                        [["-X"], ["+Y"]], [["+Y"], ["-X"]],
+                                        [["+Y"], ["-Z"]], [["-Z"], ["+Y"]],
+                                        [["+Z"], ["-X"]], [["-X"], ["+Z"]],
+                                        [["-X"], ["-Y"]], [["-Y"], ["-X"]],
+                                        [["-Y"], ["+Z"]], [["+Z"], ["-Y"]]]
+        stabilizer, destabilizer = self._cliffs_1_qubit_dict[num]
         return Clifford.from_dict({"stabilizer": stabilizer,
                                    "destabilizer": destabilizer})
 
