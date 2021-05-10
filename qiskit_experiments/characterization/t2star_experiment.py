@@ -12,7 +12,6 @@
 """
 T2Star Experiment class.
 """
-# pylint: disable = invalid-name
 
 from typing import List, Optional, Union, Tuple
 import numpy as np
@@ -35,6 +34,7 @@ except ImportError:
     HAS_MATPLOTLIB = False
 
 
+# pylint: disable = invalid-name
 class T2StarAnalysis(BaseAnalysis):
     """T2Star Experiment result analysis class."""
 
@@ -61,10 +61,8 @@ class T2StarAnalysis(BaseAnalysis):
         .. math::
             f(t) = A\mathrm{e}^{-t / T_2^*}\cos(2\pi ft + \phi) + B
         for unknown parameters :math:`A, B, f, \phi, T_2^*`.
-
             Args:
                 experiment_data (ExperimentData): the experiment data to analyze
-
                 p0: contains initial values for the fit parameters :math:`(A, T_2^*, f, \phi, B)`
                 bounds: lower and upper bounds on the parameters in p0.
                         The first tuple is the lower bounds,
