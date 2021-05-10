@@ -75,13 +75,13 @@ class InterleavedRBAnalysis(RBAnalysis):
         std_xdata = xdata[std_idx]
         std_ydata = ydata[std_idx]
         std_ydata_sigma = ydata_sigma[std_idx]
-        p0_std = self._p0(std_xdata, std_ydata)
+        p0_std = self._p0(std_xdata, std_ydata, num_qubits)
 
         int_idx = series == 1
         int_xdata = xdata[int_idx]
         int_ydata = ydata[int_idx]
         int_ydata_sigma = ydata_sigma[int_idx]
-        p0_int = self._p0(int_xdata, int_ydata)
+        p0_int = self._p0(int_xdata, int_ydata, num_qubits)
 
         p0 = (
             np.mean([p0_std[0], p0_int[0]]),

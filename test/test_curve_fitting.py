@@ -122,7 +122,7 @@ class TestCurveFitting(QiskitTestCase):
 
         expected_x_mean = np.array([1, 2, 3, 4, 5])
         expected_y_mean = np.array([2, 32, 10.5, 17, 10])
-        expected_y_sigma = np.array([2 / 3, 542, 1 / 4, 0, 0])
+        expected_y_sigma = np.sqrt(np.array([2 / 3, 542, 1 / 4, 0, 0]))
         self.assertTrue(np.allclose(expected_x_mean, x_mean))
         self.assertTrue(np.allclose(expected_y_mean, y_mean))
         self.assertTrue(np.allclose(expected_y_sigma, y_sigma))
@@ -141,7 +141,7 @@ class TestCurveFitting(QiskitTestCase):
         series, x_mean, y_mean, y_sigma = multi_mean_xy_data(series, x, y, method="sample")
         expected_x_mean = np.array([1, 2, 1, 2])
         expected_y_mean = np.array([4, 17, 150, 60])
-        expected_y_sigma = np.array([4.0, 0.0, 2500.0, 66.66666667])
+        expected_y_sigma = np.sqrt(np.array([4.0, 0.0, 2500.0, 66.66666667]))
         expected_series = np.array([0, 0, 1, 1])
         self.assertTrue(np.allclose(expected_x_mean, x_mean))
         self.assertTrue(np.allclose(expected_y_mean, y_mean))
