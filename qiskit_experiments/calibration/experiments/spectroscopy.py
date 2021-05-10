@@ -26,6 +26,14 @@ from qiskit_experiments import AnalysisResult
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import ToReal
 from qiskit_experiments.data_processing.nodes import Probability
+from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_scatter
+
+try:
+    from matplotlib import pyplot as plt
+
+    HAS_MATPLOTLIB = True
+except ImportError:
+    HAS_MATPLOTLIB = False
 
 
 class SpectroscopyAnalysis(BaseAnalysis):
@@ -36,49 +44,53 @@ class SpectroscopyAnalysis(BaseAnalysis):
         self,
         experiment_data,
         data_processor: Optional[callable] = None,
-        meas_level: Optional[int] = MeasLevel.KERNELED,
+        meas_level: Optional[int] = MeasLevel.CLASSIFIED,
         amp_guess: Optional[float] = None,
-        gamma_guesses: Optional[List[float]] = None,
+        sigma_guesses: Optional[List[float]] = None,
         freq_guess: Optional[float] = None,
         offset_guess: Optional[float] = None,
         amplitude_bounds: Optional[List[float]] = None,
-        width_bounds: Optional[List[float]] = None,
+        sigma_bounds: Optional[List[float]] = None,
         freq_bounds: Optional[List[float]] = None,
         offset_bounds: Optional[List[float]] = None,
+        plot: bool = True,
+        ax: Optional["AxesSubplot"] = None,
     ) -> Tuple[AnalysisResult, None]:
         """
-        Analyse a spectroscopy experiment by fitting the data to a Lorentz function.
+        Analyse a spectroscopy experiment by fitting the data to a Gaussian function.
         The fit function is:
 
         .. math::
 
-            a * ( g**2 / ((x-x0)**2 + g**2)) + b
+            a * exp(-(x-x0)**2/(2*sigma**2)) + b
 
         Here, :math:`x` is the frequency. The analysis loops over the initial guesses
-        of the width parameter :math:`g`.
+        of the width parameter :math:`sigma`.
 
         Args:
             experiment_data: The experiment data to analyze.
             data_processor: The data processor with which to process the data.
             meas_level: The measurement level of the experiment data.
-            amp_guess: The amplitude of the Lorentz function, i.e. :math:`a`. If not
+            amp_guess: The amplitude of the Gaussian function, i.e. :math:`a`. If not
                 provided, this will default to the maximum absolute value of the ydata.
-            gamma_guesses: The guesses for the width parameter of the Lorentz distribution,
-                i.e. :math:`g`. If it is not given this will default to an array of ten
+            sigma_guesses: The guesses for the standard deviation of the Gaussian distribution.
+                If it is not given this will default to an array of ten
                 points linearly spaced between zero and the full width of the data.
             freq_guess: A guess for the frequency of the peak :math:`x0`. If not provided
                 this guess will default to the location of the highest absolute data point.
             offset_guess: A guess for the magnitude :math:`b` offset of the fit function.
                 If not provided, the initial guess defaults to the average of the ydata.
-            amplitude_bounds: Bounds on the amplitude of the Lorentz function as a list of
+            amplitude_bounds: Bounds on the amplitude of the Gaussian function as a list of
                 two floats. The default bounds are [0, 1.1*max(ydata)]
-            width_bounds: Bounds on the width of the Lorentz function as a list of two floats.
-                The default values are [0, frequency range].
+            sigma_bounds: Bounds on the standard deviation of the Gaussian function as a list
+                of two floats. The default values are [0, frequency range].
             freq_bounds: Bounds on the center frequency as a list of two floats. The default
                 values are 90% of the lower end of the frequency and 110% of the upper end of
                 the frequency.
-            offset_bounds: Bounds on the offset of the Lorentz function as a list of two floats.
+            offset_bounds: Bounds on the offset of the Gaussian function as a list of two floats.
                 The default values are the minimum and maximum of the ydata.
+            plot: If True generate a plot of fitted data.
+            ax: Optional, matplotlib axis to add plot to.
 
         Returns:
             The analysis result with the estimated peak frequency.
@@ -101,19 +113,23 @@ class SpectroscopyAnalysis(BaseAnalysis):
         ydata = abs(y_sigmas[:, 0])
         xdata = np.array([datum["metadata"]["xval"] for datum in experiment_data.data])
 
+        # Fitting will not work if any sigmas are exactly 0.
+        if any(sigmas == 0.0):
+            sigmas = None
+
         if not offset_guess:
-            offset_guess = np.average(ydata)
+            offset_guess = 0
         if not amp_guess:
             amp_guess = np.max(ydata)
         if not freq_guess:
             peak_idx = np.argmax(ydata)
             freq_guess = xdata[peak_idx]
-        if not gamma_guesses:
-            gamma_guesses = np.linspace(0, abs(xdata[-1] - xdata[0]), 10)
+        if not sigma_guesses:
+            sigma_guesses = np.linspace(0, abs(xdata[-1] - xdata[0]), 20)
         if amplitude_bounds is None:
             amplitude_bounds = [0.0, 1.1 * max(ydata)]
-        if width_bounds is None:
-            width_bounds = [0, abs(xdata[-1] - xdata[0])]
+        if sigma_bounds is None:
+            sigma_bounds = [0, abs(xdata[-1] - xdata[0])]
         if freq_bounds is None:
             freq_bounds = [0.9 * xdata[0], 1.1 * xdata[-1]]
         if offset_bounds is None:
@@ -121,16 +137,21 @@ class SpectroscopyAnalysis(BaseAnalysis):
 
         best_fit = None
 
-        lower = np.array([amplitude_bounds[0], width_bounds[0], freq_bounds[0], offset_bounds[0]])
-        upper = np.array([amplitude_bounds[1], width_bounds[1], freq_bounds[1], offset_bounds[1]])
+        lower = np.array([amplitude_bounds[0], sigma_bounds[0], freq_bounds[0], offset_bounds[0]])
+        upper = np.array([amplitude_bounds[1], sigma_bounds[1], freq_bounds[1], offset_bounds[1]])
 
-        for gamma_guess in gamma_guesses:
+        # Perform fit
+        def fit_fun(x, a, sigma, x0_, b):
+            return a * np.exp(-((x - x0_) ** 2) / (2 * sigma ** 2)) + b
+
+        for sigma_guess in sigma_guesses:
+
             fit_result = curve_fit(
-                lambda x, a, g, x0, b: a * (g ** 2 / ((x - x0) ** 2 + g ** 2)) + b,
+                fit_fun,
                 xdata,
-                np.array(ydata),
-                np.array([amp_guess, gamma_guess, freq_guess, offset_guess]),
-                np.array(sigmas),
+                ydata,
+                np.array([amp_guess, sigma_guess, freq_guess, offset_guess]),
+                sigmas,
                 (lower, upper),
             )
 
@@ -140,24 +161,28 @@ class SpectroscopyAnalysis(BaseAnalysis):
                 if fit_result["reduced_chisq"] < best_fit["reduced_chisq"]:
                     best_fit = fit_result
 
-        analysis_result = AnalysisResult(
-            {
-                "value": best_fit["popt"][2],
-                "stderr": best_fit["popt_err"][2],
-                "unit": experiment_data.data[0]["metadata"].get("unit", "Hz"),
-                "label": "Spectroscopy",
-                "fit": best_fit,
-                "quality": self._fit_quality(
-                    best_fit["popt"],
-                    best_fit["popt_err"],
-                    best_fit["reduced_chisq"],
-                    xdata[0],
-                    xdata[-1],
-                ),
-            }
+        best_fit["value"] = best_fit["popt"][2]
+        best_fit["stderr"] = (best_fit["popt_err"][2],)
+        best_fit["unit"] = (experiment_data.data[0]["metadata"].get("unit", "Hz"),)
+        best_fit["label"] = "Spectroscopy"
+        best_fit["xdata"] = xdata
+        best_fit["ydata"] = ydata
+        best_fit["ydata_err"] = sigmas
+        best_fit["quality"] = self._fit_quality(
+            best_fit["popt"],
+            best_fit["popt_err"],
+            best_fit["reduced_chisq"],
+            xdata[0],
+            xdata[-1],
         )
 
-        return analysis_result, None
+        if plot:
+            ax = plot_curve_fit(fit_fun, best_fit, ax=ax)
+            ax = plot_scatter(xdata, ydata, ax=ax)
+            self._format_plot(ax, best_fit)
+            best_fit.plt = plt
+
+        return best_fit, None
 
     @staticmethod
     def _fit_quality(fit_out, fit_err, reduced_chisq, min_freq, max_freq) -> str:
@@ -187,6 +212,14 @@ class SpectroscopyAnalysis(BaseAnalysis):
         else:
             return "computer_bad"
 
+    @classmethod
+    def _format_plot(cls, ax, analysis_result):
+        """Format curve fit plot."""
+        ax.tick_params(labelsize=14)
+        ax.set_xlabel(f"Frequency shift {analysis_result['unit']}", fontsize=16)
+        ax.set_ylabel("Signal [arb. unit.]", fontsize=16)
+        ax.grid(True)
+
 
 class Spectroscopy(BaseExperiment):
     """Class the runs spectroscopy by sweeping the qubit frequency."""
@@ -197,7 +230,7 @@ class Spectroscopy(BaseExperiment):
     __units__ = {"Hz": 1.0, "kHz": 1.0e3, "MHz": 1.0e6, "GHz": 1.0e9}
 
     # default run options
-    __run_defaults__ = {"meas_level": MeasLevel.KERNELED}
+    __run_defaults__ = {"meas_level": MeasLevel.CLASSIFIED}
 
     def __init__(
         self, qubit: int, frequency_shifts: Union[List[float], np.array], unit: Optional[str] = "Hz"
