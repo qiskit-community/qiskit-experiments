@@ -38,7 +38,7 @@ _TRANSPILE_OPTIONS = {
     "pass_manager",
     "callback",
     "output_name",
-    "meas_level"
+    "meas_level",
 }
 
 
