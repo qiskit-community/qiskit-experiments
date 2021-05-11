@@ -47,15 +47,15 @@ class Calibrations:
     """
     A class to manage schedules with calibrated parameter values. Schedules are
     intended to be fully parameterized, including the index of the channels. See
-    the module-level documentation for extra details.
+    the module-level documentation for extra details. Note that only instances of
+    ScheduleBlock are supported.
     """
 
     # The channel indices need to be parameterized following this regex.
     __channel_pattern__ = r"^ch\d[\.\d]*\${0,1}[\d]*$"
 
     def __init__(self, control_config: Dict[Tuple[int, ...], List[ControlChannel]] = None):
-        """
-        Initialize the calibrations.
+        """Initialize the calibrations.
 
         Args:
             control_config: A configuration dictionary of any control channels. The
@@ -89,19 +89,18 @@ class Calibrations:
         self._parameter_counter = 0
 
     def add_schedule(self, schedule: ScheduleBlock, qubits: Union[int, Tuple[int, ...]] = None):
-        """
-        Add a schedule and register its parameters.
+        """Add a schedule block and register its parameters.
 
         Schedules that use Call instructions must register the called schedules separately.
 
         Args:
-            schedule: The schedule to add.
+            schedule: The :class:`ScheduleBlock` to add.
             qubits: The qubits for which to add the schedules. If None or an empty tuple is
                 given then this schedule is the default schedule for all qubits.
 
         Raises:
             CalibrationError:
-                - If schedule is not a ScheduleBlock.
+                - If schedule is not an instance of :class:`ScheduleBlock`.
                 - If the parameterized channel index is not formatted properly.
                 - If several parameters in the same schedule have the same name.
                 - If a channel is parameterized by more than one parameter.
@@ -139,7 +138,7 @@ class Calibrations:
             if isinstance(block, Call):
                 if isinstance(block.subroutine, Schedule):
                     raise CalibrationError(
-                        "Calling a Schedule if forbidden, call ScheduleBlock instead."
+                        "Calling a Schedule is forbidden, call ScheduleBlock instead."
                     )
 
                 if (block.subroutine.name, qubits) not in self._schedules:
@@ -171,13 +170,14 @@ class Calibrations:
     def _exclude_calls(
         self, schedule: ScheduleBlock, instructions: List[Instruction]
     ) -> List[Instruction]:
-        """
+        """Return the non-Call instructions.
+
         Recursive function to get all non-Call instructions. This will flatten all blocks
-        in a ScheduleBlock and return the instructions of the ScheduleBlock leaving out
-        any Call instructions.
+        in a :class:`ScheduleBlock` and return the instructions of the ScheduleBlock leaving
+        out any Call instructions.
 
         Args:
-            schedule: A ScheduleBlock from which to extract the instructions.
+            schedule: A :class:`ScheduleBlock` from which to extract the instructions.
             instructions: The list of instructions that is recursively populated.
 
         Returns:
@@ -223,7 +223,8 @@ class Calibrations:
         return self._schedules[ScheduleKey(schedule_name, qubits)]
 
     def remove_schedule(self, schedule: ScheduleBlock, qubits: Union[int, Tuple[int, ...]] = None):
-        """
+        """Remove a schedule that was previously registered.
+
         Allows users to remove a schedule from the calibrations. The history of the parameters
         will remain in the calibrations.
 
@@ -276,10 +277,10 @@ class Calibrations:
         qubits: Tuple[int, ...],
         schedule: ScheduleBlock = None,
     ):
-        """
-        Registers a parameter for the given schedule. This allows self to determine the
-        parameter instance that corresponds to the given schedule name, parameter name
-        and qubits.
+        """Registers a parameter for the given schedule.
+
+        This method allows self to determine the parameter instance that corresponds to the given
+        schedule name, parameter name and qubits.
 
         Args:
             parameter: The parameter to register.
@@ -298,7 +299,8 @@ class Calibrations:
 
     @property
     def parameters(self) -> Dict[Parameter, Set[ParameterKey]]:
-        """
+        """Return a mapping between parameters and parameter keys.
+
         Returns a dictionary mapping parameters managed by the calibrations to the schedules and
         qubits and parameter names using the parameters. The values of the dict are sets containing
         the parameter keys. Parameters that are not attached to a schedule will have None in place
@@ -312,7 +314,8 @@ class Calibrations:
         qubits: Union[int, Tuple[int, ...]] = None,
         schedule_name: str = None,
     ) -> Parameter:
-        """
+        """Return a parameter given its keys.
+
         Returns a Parameter object given the triplet parameter_name, qubits and schedule_name
         which uniquely determine the context of a parameter.
 
@@ -351,8 +354,7 @@ class Calibrations:
         qubits: Union[int, Tuple[int, ...]] = None,
         schedule: Union[ScheduleBlock, str] = None,
     ):
-        """
-        Add a parameter value to the stored parameters.
+        """Add a parameter value to the stored parameters.
 
         This parameter value may be applied to several channels, for instance, all
         DRAG pulses may have the same standard deviation.
@@ -385,13 +387,12 @@ class Calibrations:
         self._params[ParameterKey(param_name, qubits, sched_name)].append(value)
 
     def _get_channel_index(self, qubits: Tuple[int, ...], chan: PulseChannel) -> int:
-        """
-        Get the index of the parameterized channel based on the given qubits
-        and the name of the parameter in the channel index. The name of this
-        parameter for control channels must be written as chqubit_index1.qubit_index2...
-        followed by an optional $index.
-        For example, the following parameter names are valid: 'ch1', 'ch1.0', 'ch30.12',
-        and 'ch1.0$1'.
+        """Get the index of the parameterized channel.
+
+        The return index is determined from the given qubits and the name of the parameter
+        in the channel index. The name of this parameter for control channels must be written
+        as chqubit_index1.qubit_index2... followed by an optional $index. For example, the
+        following parameter names are valid: 'ch1', 'ch1.0', 'ch30.12', and 'ch1.0$1'.
 
         Args:
             qubits: The qubits for which we want to obtain the channel index.
@@ -458,8 +459,7 @@ class Calibrations:
         group: str = "default",
         cutoff_date: datetime = None,
     ) -> Union[int, float, complex]:
-        """
-        Retrieves the value of a parameter.
+        """Retrieves the value of a parameter.
 
         Parameters may be linked. get_parameter_value does the following steps:
         1) Retrieve the parameter object corresponding to (param, qubits, schedule)
@@ -636,9 +636,9 @@ class Calibrations:
         group: Optional[str] = "default",
         cutoff_date: datetime = None,
     ) -> ScheduleBlock:
-        """
-        Recursive function to extract and assign parameters from a schedule. The
-        recursive behaviour is needed to handle Call instructions as the name of
+        """Recursively assign parameters in a schedule.
+
+        The recursive behaviour is needed to handle Call instructions as the name of
         the called instruction defines the scope of the parameter. Each time a Call
         is found _assign recurses on the channel-assigned subroutine of the Call
         instruction and the qubits that are in said subroutine. This requires a
@@ -659,8 +659,8 @@ class Calibrations:
                 pulse.call(xp)
                 pulse.call(xp, value_dict={ch0: ch1})
 
-        Here, we define the xp schedule for all qubits as a Gaussian. Next, we define a
-        schedule where both xp schedules are called simultaneously on different channels.
+        Here, we define the xp :class:`ScheduleBlock` for all qubits as a Gaussian. Next, we define
+        a schedule where both xp schedules are called simultaneously on different channels.
 
         Args:
             schedule: The schedule with assigned channel indices for which we wish to
@@ -755,9 +755,7 @@ class Calibrations:
         return ret_schedule.assign_parameters(binding_dict, inplace=False)
 
     def schedules(self) -> List[Dict[str, Any]]:
-        """
-        Return the managed schedules in a list of dictionaries to help
-        users manage their schedules.
+        """Return the managed schedules in a list of dictionaries.
 
         Returns:
             data: A list of dictionaries with all the schedules in it. The key-value pairs are
@@ -779,8 +777,7 @@ class Calibrations:
         qubit_list: List[Tuple[int, ...]] = None,
         schedules: List[Union[ScheduleBlock, str]] = None,
     ) -> List[Dict[str, Any]]:
-        """
-        A convenience function to help users visualize the values of their parameter.
+        """A convenience function to help users visualize the values of their parameter.
 
         Args:
             parameters: The parameter names that should be included in the returned
@@ -826,9 +823,10 @@ class Calibrations:
         return data
 
     def save(self, file_type: str = "csv", folder: str = None, overwrite: bool = False):
-        """
-        Saves the parameterized schedules and parameter values so
-        that they can be stored in csv files. This method will create three files:
+        """Save the parameterized schedules and parameter value.
+
+        The schedules and parameter values can be stored in csv files. This method creates
+        three files:
         - parameter_config.csv: This file stores a table of parameters which indicates
           which parameters appear in which schedules.
         - parameter_values.csv: This file stores the values of the calibrated parameters.
@@ -940,8 +938,7 @@ class Calibrations:
 
     @staticmethod
     def _to_tuple(qubits: Union[str, int, Tuple[int, ...]]) -> Tuple[int, ...]:
-        """
-        Ensure that qubits is a tuple of ints.
+        """Ensure that qubits is a tuple of ints.
 
         Args:
             qubits: An int, a tuple of ints, or a string representing a tuple of ints.

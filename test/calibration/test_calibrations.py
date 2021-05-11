@@ -700,6 +700,22 @@ class TestRegistering(QiskitTestCase):
         with self.assertRaises(CalibrationError):
             self.cals.get_template("xp", (3,))
 
+    def test_register_schedule(self):
+        """Test that we cannot register a schedule in a call."""
+
+        xp = pulse.Schedule(name="xp")
+        xp.insert(0, pulse.Play(pulse.Gaussian(160, 0.5, 40), pulse.DriveChannel(0)), inplace=True)
+
+        with pulse.build(name="call_xp") as call_xp:
+            pulse.call(xp)
+
+        try:
+            self.cals.add_schedule(call_xp)
+        except CalibrationError as error:
+            self.assertEqual(
+                error.message, "Calling a Schedule is forbidden, call ScheduleBlock instead."
+            )
+
 
 class CrossResonanceTest(QiskitTestCase):
     """Setup class for an echoed cross-resonance calibration."""
