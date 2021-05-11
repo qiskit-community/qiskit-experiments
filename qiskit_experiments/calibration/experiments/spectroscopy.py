@@ -233,7 +233,11 @@ class Spectroscopy(BaseExperiment):
     __run_defaults__ = {"meas_level": MeasLevel.CLASSIFIED}
 
     def __init__(
-        self, qubit: int, frequency_shifts: Union[List[float], np.array], unit: Optional[str] = "Hz"
+        self,
+        qubit: int,
+        frequencies: Union[List[float], np.array],
+        unit: Optional[str] = "Hz",
+        absolute: bool = True
     ):
         """
         A spectroscopy experiment run by shifting the frequency of the qubit.
@@ -246,22 +250,25 @@ class Spectroscopy(BaseExperiment):
 
         Args:
             qubit: The qubit on which to run spectroscopy.
-            frequency_shifts: The frequencies to scan in the experiment.
+            frequencies: The frequencies to scan in the experiment.
             unit: The unit in which the user specifies the frequencies. Can be one
                 of 'Hz', 'kHz', 'MHz', 'GHz'. Internally, all frequencies will be converted
                 to 'Hz'.
+            absolute: Boolean to specify if the frequencies are absolute or relative to the
+                qubit frequency in the backend.
 
         Raises:
             ValueError: if there are less than three frequency shifts or if the unit is not known.
 
         """
-        if len(frequency_shifts) < 3:
+        if len(frequencies) < 3:
             raise ValueError("Spectroscopy requires at least three frequencies.")
 
         if unit not in self.__units__:
             raise ValueError(f"Unsupported unit: {unit}.")
 
-        self._frequency_shifts = [freq * self.__units__[unit] for freq in frequency_shifts]
+        self._frequencies = [freq * self.__units__[unit] for freq in frequencies]
+        self._absolute = absolute
 
         super().__init__([qubit], circuit_options=("amp", "duration", "sigma", "width"))
 
@@ -283,7 +290,6 @@ class Spectroscopy(BaseExperiment):
         Returns:
             circuits: The circuits that will run the spectroscopy experiment.
         """
-
         amp = circuit_options.get("amp", 0.1)
         duration = circuit_options.get("duration", 1024)
         sigma = circuit_options.get("sigma", duration / 4)
@@ -293,9 +299,12 @@ class Spectroscopy(BaseExperiment):
 
         circs = []
 
-        for freq_shift in self._frequency_shifts:
-            with pulse.build(name=f"Frequency shift{freq_shift}") as sched:
-                pulse.shift_frequency(freq_shift, drive)
+        for freq in self._frequencies:
+            if not self._absolute:
+                freq += backend.defaults().qubit_freq_est[self._physical_qubits[0]]
+
+            with pulse.build(name=f"Frequency {freq}") as sched:
+                pulse.set_frequency(freq, drive)
                 pulse.play(pulse.GaussianSquare(duration, amp, sigma, width), drive)
 
             gate = Gate(name="Spec", num_qubits=1, params=[])
@@ -308,8 +317,14 @@ class Spectroscopy(BaseExperiment):
             circuit.metadata = {
                 "experiment_type": self._type,
                 "qubit": self._physical_qubits[0],
-                "xval": freq_shift,
+                "xval": freq,
                 "unit": "Hz",
+                "amplitude": amp,
+                "duration": duration,
+                "sigma": sigma,
+                "width": width,
+                "absolute frequencies": self._absolute,
+                "schedule": str(sched),
             }
 
             circs.append(circuit)
