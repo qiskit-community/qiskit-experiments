@@ -647,7 +647,6 @@ class CurveAnalysis(BaseAnalysis):
         # Extract curve entries from experiment data
         try:
             curve_data = self._extract_curves(experiment_data)
-            analysis_result["raw_data"] = curve_data
         except DataProcessorError as ex:
             analysis_result["error_message"] = str(ex)
             analysis_result["success"] = False
