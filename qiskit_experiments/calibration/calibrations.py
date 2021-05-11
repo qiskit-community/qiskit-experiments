@@ -738,12 +738,9 @@ class Calibrations:
             elif ParameterKey(key.parameter, (), key.schedule) in self._parameter_map:
                 param = self._parameter_map[ParameterKey(key.parameter, (), key.schedule)]
             else:
-                raise CalibrationError(
-                    f"Bad calibrations {key} is not present and has no default value."
-                )
+                raise CalibrationError(f"Parameter key {key} has no parameter.")
 
             if key not in assign_params:
-
                 if param not in binding_dict:
                     binding_dict[param] = self.get_parameter_value(
                         key.parameter,
