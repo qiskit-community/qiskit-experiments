@@ -286,7 +286,7 @@ class Spectroscopy(BaseExperiment):
 
         amp = circuit_options.get("amp", 0.1)
         duration = circuit_options.get("duration", 1024)
-        sigma = circuit_options.get("sigma", duration / 5)
+        sigma = circuit_options.get("sigma", duration / 4)
         width = circuit_options.get("width", 0)
 
         drive = pulse.DriveChannel(self._physical_qubits[0])
