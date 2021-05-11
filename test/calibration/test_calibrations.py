@@ -39,7 +39,7 @@ class TestCalibrationsBasic(QiskitTestCase):
     """Class to test the management of schedules and parameters for calibrations."""
 
     def setUp(self):
-        """Setup a test environment."""
+        """Create the setting to test."""
         super().setUp()
 
         self.cals = Calibrations()
@@ -261,7 +261,7 @@ class TestCalibrationDefaults(QiskitTestCase):
     """Test that we can override defaults."""
 
     def setUp(self):
-        """Setup a few parameters."""
+        """Create the setting to test."""
         super().setUp()
 
         self.cals = Calibrations()
@@ -633,11 +633,38 @@ class TestInstructions(QiskitTestCase):
         self.assertEqual(sched.instructions[2][1].frequency, 200)
 
 
+class TestUnregisteredCall(QiskitTestCase):
+    """Class to test registering of subroutines with calls."""
+
+    def setUp(self):
+        """Create the setting to test."""
+        super().setUp()
+
+        self.cals = Calibrations()
+        self.d0_ = DriveChannel(Parameter("ch0"))
+
+    def test_call_registering(self):
+        """Test registering of schedules with call."""
+        with pulse.build(name="xp") as xp:
+            pulse.play(Gaussian(160, 0.5, 40), self.d0_)
+
+        with pulse.build(name="call_xp") as call_xp:
+            pulse.call(xp)
+
+        with self.assertRaises(CalibrationError):
+            self.cals.add_schedule(call_xp)
+
+        self.cals.add_schedule(xp)
+        self.cals.add_schedule(call_xp)
+
+        self.assertTrue(isinstance(self.cals.get_schedule("call_xp", 2), pulse.ScheduleBlock))
+
+
 class CrossResonanceTest(QiskitTestCase):
     """Setup class for an echoed cross-resonance calibration."""
 
     def setUp(self):
-        """Create the setup we will deal with."""
+        """Create the setting to test."""
         super().setUp()
 
         controls = {

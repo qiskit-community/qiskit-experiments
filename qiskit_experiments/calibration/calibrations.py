@@ -104,6 +104,7 @@ class Calibrations:
                 - If several parameters in the same schedule have the same name.
                 - If a channel is parameterized by more than one parameter.
                 - If the schedule name starts with the prefix of ScheduleBlock.
+                - If the schedule calls subroutines that have not been registered.
         """
         qubits = self._to_tuple(qubits)
 
@@ -128,6 +129,15 @@ class Calibrations:
                 if re.compile(self.__channel_pattern__).match(ch.index.name) is None:
                     raise CalibrationError(
                         f"Parameterized channel must correspond to {self.__channel_pattern__}"
+                    )
+
+        # Check that subroutines are present.
+        for block in schedule.blocks:
+            if isinstance(block, Call):
+                if (block.subroutine.name, qubits) not in self._schedules:
+                    raise CalibrationError(
+                        f"Cannot register schedule block {schedule.name} with unregistered "
+                        f"subroutine {block.subroutine.name}."
                     )
 
         # Clean the parameter to schedule mapping. This is needed if we overwrite a schedule.
