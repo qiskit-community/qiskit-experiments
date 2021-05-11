@@ -186,7 +186,6 @@ class Probability(DataAction):
         Args:
             datum: An instance of data the should be a dict with bit strings as keys
                 and counts as values.
-            validate: If True the DataAction checks that the format of the datum is valid.
 
         Returns:
             The datum as given.
