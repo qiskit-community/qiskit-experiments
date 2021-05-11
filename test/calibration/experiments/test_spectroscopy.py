@@ -77,11 +77,11 @@ class SpectroscopyBackend(BaseBackend):
         for circ in qobj.experiments:
             counts = {"1": 0, "0": 0}
 
-            if circ.config.calibrations.gates[0].instructions[0].name != "shiftf":
-                raise QiskitError("Spectroscopy does not have a shift frequency.")
+            if circ.config.calibrations.gates[0].instructions[0].name != "setf":
+                raise QiskitError("Spectroscopy does not have a set frequency.")
 
-            freq_shift = circ.config.calibrations.gates[0].instructions[0].frequency
-            delta_freq = freq_shift - self._freq_offset
+            set_freq = circ.config.calibrations.gates[0].instructions[0].frequency
+            delta_freq = set_freq - self._freq_offset
             prob = np.exp(-(delta_freq ** 2) / (2 * self._linewidth ** 2))
 
             for _ in range(shots):

@@ -16,7 +16,8 @@ from typing import List, Optional, Tuple, Union
 import numpy as np
 
 from qiskit import QuantumCircuit
-from qiskit.circuit import Gate
+from qiskit.circuit import Gate, Parameter
+from qiskit.exceptions import QiskitError
 import qiskit.pulse as pulse
 from qiskit.qobj.utils import MeasLevel
 from qiskit_experiments.analysis.curve_fitting import curve_fit
@@ -237,7 +238,7 @@ class Spectroscopy(BaseExperiment):
         qubit: int,
         frequencies: Union[List[float], np.array],
         unit: Optional[str] = "Hz",
-        absolute: bool = True
+        absolute: bool = True,
     ):
         """
         A spectroscopy experiment run by shifting the frequency of the qubit.
@@ -272,7 +273,6 @@ class Spectroscopy(BaseExperiment):
 
         super().__init__([qubit], circuit_options=("amp", "duration", "sigma", "width"))
 
-    # pylint: disable=unused-argument
     def circuits(self, backend: Optional["Backend"] = None, **circuit_options):
         """
         Create the circuit for the spectroscopy experiment. The circuits are based on a
@@ -289,7 +289,13 @@ class Spectroscopy(BaseExperiment):
 
         Returns:
             circuits: The circuits that will run the spectroscopy experiment.
+
+        Raises:
+            QiskitError: If relative frequencies are used but no backend was given.
         """
+        if not backend and not self._absolute:
+            raise QiskitError("Cannot run spectroscopy relative to qubit without a backend.")
+
         amp = circuit_options.get("amp", 0.1)
         duration = circuit_options.get("duration", 1024)
         sigma = circuit_options.get("sigma", duration / 4)
@@ -297,24 +303,27 @@ class Spectroscopy(BaseExperiment):
 
         drive = pulse.DriveChannel(self._physical_qubits[0])
 
-        circs = []
+        # Create a template circuit
+        freq_param = Parameter("frequency")
+        with pulse.build(name="spectroscopy") as sched:
+            pulse.set_frequency(freq_param, drive)
+            pulse.play(pulse.GaussianSquare(duration, amp, sigma, width), drive)
 
+        gate = Gate(name="Spec", num_qubits=1, params=[freq_param])
+
+        circuit = QuantumCircuit(1)
+        circuit.append(gate, (0,))
+        circuit.add_calibration(gate, (self._physical_qubits[0],), sched, params=[freq_param])
+        circuit.measure_active()
+
+        # Create the circuits to run
+        circs = []
         for freq in self._frequencies:
             if not self._absolute:
                 freq += backend.defaults().qubit_freq_est[self._physical_qubits[0]]
 
-            with pulse.build(name=f"Frequency {freq}") as sched:
-                pulse.set_frequency(freq, drive)
-                pulse.play(pulse.GaussianSquare(duration, amp, sigma, width), drive)
-
-            gate = Gate(name="Spec", num_qubits=1, params=[])
-
-            circuit = QuantumCircuit(1)
-            circuit.append(gate, (0,))
-            circuit.add_calibration(gate, (self._physical_qubits[0],), sched)
-            circuit.measure_active()
-
-            circuit.metadata = {
+            assigned_circ = circuit.assign_parameters({freq_param: freq}, inplace=False)
+            assigned_circ.metadata = {
                 "experiment_type": self._type,
                 "qubit": self._physical_qubits[0],
                 "xval": freq,
@@ -327,6 +336,6 @@ class Spectroscopy(BaseExperiment):
                 "schedule": str(sched),
             }
 
-            circs.append(circuit)
+            circs.append(assigned_circ)
 
         return circs
