@@ -40,6 +40,7 @@ from qiskit_experiments.calibration.parameter_value import ParameterValue
 
 ParameterKey = namedtuple("ParameterKey", ["parameter", "qubits", "schedule"])
 ScheduleKey = namedtuple("ScheduleKey", ["schedule", "qubits"])
+ParameterValueType = Union["ParameterExpression", float, int, complex]
 
 
 class Calibrations:
@@ -192,7 +193,7 @@ class Calibrations:
         return instructions
 
     def get_template(
-            self, schedule_name: str, qubits: Optional[Tuple[int, ...]] = None
+        self, schedule_name: str, qubits: Optional[Tuple[int, ...]] = None
     ) -> ScheduleBlock:
         """Get a template schedule.
 
@@ -206,7 +207,7 @@ class Calibrations:
             The registered template schedule.
 
         Raises:
-            CalibrationError if np template schedule for the given schedule name and qubits
+            CalibrationError: if np template schedule for the given schedule name and qubits
                 was registered.
         """
         qubits = self._to_tuple(qubits)
@@ -545,24 +546,28 @@ class Calibrations:
         self,
         name: str,
         qubits: Union[int, Tuple[int, ...]],
-        free_params: List[Union[str, ParameterKey]] = None,
+        assign_params: Dict[Union[str, ParameterKey], ParameterValueType] = None,
         group: Optional[str] = "default",
         cutoff_date: datetime = None,
     ) -> ScheduleBlock:
-        """
-        Get the schedule with the non-free parameters assigned to their values.
+        """Get the schedule and assign values to parameters.
+
+        The parameters in the template schedule block will be assigned to the values managed
+        by the calibrations unless they are specified in assign_params. In this case the value in
+        assign_params will override the value stored by the calibrations. A parameter value in
+        assign_params may also be a :class:`ParameterExpression`.
 
         Args:
             name: The name of the schedule to get.
             qubits: The qubits for which to get the schedule.
-            free_params: The parameters that should remain unassigned. Each free parameter is
-                specified by a ParameterKey a named tuple of the form (parameter name, qubits,
-                schedule name). Each entry in free_params can also be a string corresponding
+            assign_params: The parameters to assign manually. Each parameter is specified by a
+                ParameterKey which is a named tuple of the form (parameter name, qubits,
+                schedule name). Each entry in assign_params can also be a string corresponding
                 to the name of the parameter. In this case, the schedule name and qubits of the
                 corresponding ParameterKey will be the name and qubits given as arguments to
                 get_schedule.
-            group: The calibration group from which to draw the
-                parameters. If not specified this defaults to the 'default' group.
+            group: The calibration group from which to draw the parameters. If not specified
+                this defaults to the 'default' group.
             cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
                 generated after the cutoff date will be ignored. If the cutoff_date is None then
                 all parameters are considered. This allows users to discard more recent values that
@@ -570,7 +575,7 @@ class Calibrations:
 
         Returns:
             schedule: A copy of the template schedule with all parameters assigned
-                except for those specified by free_params.
+                except for those specified by assign_params.
 
         Raises:
             CalibrationError:
@@ -579,17 +584,17 @@ class Calibrations:
         """
         qubits = self._to_tuple(qubits)
 
-        if free_params:
-            free_params_ = []
-            for free_param in free_params:
-                if isinstance(free_param, str):
-                    free_params_.append(ParameterKey(free_param, qubits, name))
+        if assign_params:
+            assign_params_ = dict()
+            for assign_param, value in assign_params.items():
+                if isinstance(assign_param, str):
+                    assign_params_[ParameterKey(assign_param, qubits, name)] = value
                 else:
-                    free_params_.append(free_param)
+                    assign_params_[assign_param] = value
 
-            free_params = free_params_
+            assign_params = assign_params_
         else:
-            free_params = []
+            assign_params = dict()
 
         if (name, qubits) in self._schedules:
             schedule = self._schedules[ScheduleKey(name, qubits)]
@@ -607,7 +612,12 @@ class Calibrations:
         # Binding the channel indices makes it easier to deal with parameters later on
         schedule = schedule.assign_parameters(binding_dict, inplace=False)
 
-        assigned_schedule = self._assign(schedule, qubits, free_params, group, cutoff_date)
+        assigned_schedule = self._assign(schedule, qubits, assign_params, group, cutoff_date)
+
+        free_params = set()
+        for param in assign_params.values():
+            if isinstance(param, ParameterExpression):
+                free_params.add(param)
 
         if len(assigned_schedule.parameters) != len(free_params):
             raise CalibrationError(
@@ -622,7 +632,7 @@ class Calibrations:
         self,
         schedule: ScheduleBlock,
         qubits: Tuple[int, ...],
-        free_params: List[ParameterKey] = None,
+        assign_params: Dict[Union[str, ParameterKey], ParameterValueType] = None,
         group: Optional[str] = "default",
         cutoff_date: datetime = None,
     ) -> ScheduleBlock:
@@ -656,7 +666,7 @@ class Calibrations:
             schedule: The schedule with assigned channel indices for which we wish to
                 assign values to non-channel parameters.
             qubits: The qubits for which to get the schedule.
-            free_params: The parameters that are to be left free. See get_schedules for details.
+            assign_params: The parameters to manually assign. See get_schedules for details.
             group: The calibration group of the parameters.
             cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
                 generated after the cutoff date will be ignored. If the cutoff_date is None then
@@ -702,7 +712,7 @@ class Calibrations:
                 inst = inst.assigned_subroutine()
 
             if isinstance(inst, ScheduleBlock):
-                inst = self._assign(inst, qubits_, free_params, group, cutoff_date)
+                inst = self._assign(inst, qubits_, assign_params, group, cutoff_date)
 
             ret_schedule.append(inst, inplace=True)
 
@@ -716,22 +726,23 @@ class Calibrations:
                 keys.add(ParameterKey(param.name, qubits_, ret_schedule.name))
 
         # 4) Build the parameter binding dictionary.
-        free_params = free_params if free_params else []
+        assign_params = assign_params if assign_params else dict()
 
         binding_dict = {}
         for key in keys:
-            if key not in free_params:
-                # Get the parameter object. Since we are dealing with a schedule the name of
-                # the schedule is always defined. However, the parameter may be a default
-                # parameter for all qubits, i.e. qubits may be an empty tuple.
-                if key in self._parameter_map:
-                    param = self._parameter_map[key]
-                elif ParameterKey(key.parameter, (), key.schedule) in self._parameter_map:
-                    param = self._parameter_map[ParameterKey(key.parameter, (), key.schedule)]
-                else:
-                    raise CalibrationError(
-                        f"Bad calibrations {key} is not present and has no default value."
-                    )
+            # Get the parameter object. Since we are dealing with a schedule the name of
+            # the schedule is always defined. However, the parameter may be a default
+            # parameter for all qubits, i.e. qubits may be an empty tuple.
+            if key in self._parameter_map:
+                param = self._parameter_map[key]
+            elif ParameterKey(key.parameter, (), key.schedule) in self._parameter_map:
+                param = self._parameter_map[ParameterKey(key.parameter, (), key.schedule)]
+            else:
+                raise CalibrationError(
+                    f"Bad calibrations {key} is not present and has no default value."
+                )
+
+            if key not in assign_params:
 
                 if param not in binding_dict:
                     binding_dict[param] = self.get_parameter_value(
@@ -741,6 +752,8 @@ class Calibrations:
                         group=group,
                         cutoff_date=cutoff_date,
                     )
+            else:
+                binding_dict[param] = assign_params[key]
 
         return ret_schedule.assign_parameters(binding_dict, inplace=False)
 

@@ -226,10 +226,10 @@ class TestCalibrationsBasic(QiskitTestCase):
 
     def test_free_parameters(self):
         """Test that we can get a schedule with a free parameter."""
-        xp = self.cals.get_schedule("xp", 3, free_params=["amp"])
+        xp = self.cals.get_schedule("xp", 3, assign_params={"amp": self.amp_xp})
         self.assertEqual(xp.parameters, {self.amp_xp})
 
-        xp = self.cals.get_schedule("xp", 3, free_params=["amp", "σ"])
+        xp = self.cals.get_schedule("xp", 3, assign_params={"amp": self.amp_xp, "σ": self.sigma})
         self.assertEqual(xp.parameters, {self.amp_xp, self.sigma})
 
     def test_qubit_input(self):
@@ -539,12 +539,14 @@ class TestMeasurements(QiskitTestCase):
     def test_free_parameters(self):
         """Test that we can get a schedule with free parameters."""
 
-        schedule = self.cals.get_schedule("xt_meas", (0, 2), free_params=[("amp", (0,), "xp")])
+        my_amp = Parameter("my_amp")
+        assign_dict = {("amp", (0,), "xp"): my_amp}
+        schedule = self.cals.get_schedule("xt_meas", (0, 2), assign_params=assign_dict)
         schedule = block_to_schedule(schedule)
 
         with pulse.build(name="xt_meas") as expected:
             with pulse.align_sequential():
-                pulse.play(Gaussian(160, self.amp_xp, 40), DriveChannel(0))
+                pulse.play(Gaussian(160, my_amp, 40), DriveChannel(0))
                 pulse.play(GaussianSquare(8000, 0.5, 160, 7000), MeasureChannel(0))
             with pulse.align_sequential():
                 pulse.play(Gaussian(160, 0.7, 40), DriveChannel(2))
@@ -552,7 +554,7 @@ class TestMeasurements(QiskitTestCase):
 
         expected = block_to_schedule(expected)
 
-        self.assertEqual(schedule.parameters, {self.amp_xp})
+        self.assertEqual(schedule.parameters, {my_amp})
         self.assertEqual(schedule, expected)
 
     def test_free_parameters_check(self):
@@ -562,10 +564,18 @@ class TestMeasurements(QiskitTestCase):
         calls that share parameters.
         """
 
-        with self.assertRaises(CalibrationError):
-            self.cals.get_schedule(
-                "xt_meas", (0, 2), free_params=[("amp", (0,), "xp"), ("amp", (2,), "xp")]
-            )
+        amp1 = Parameter("amp1")
+        amp2 = Parameter("amp2")
+        assign_dict = {("amp", (0,), "xp"): amp1, ("amp", (2,), "xp"): amp2}
+
+        sched = self.cals.get_schedule("xt_meas", (0, 2), assign_params=assign_dict)
+
+        self.assertEqual(sched.parameters, {amp1, amp2})
+
+        sched = block_to_schedule(sched)
+
+        self.assertEqual(sched.instructions[0][1].parameters, {amp1})
+        self.assertEqual(sched.instructions[1][1].parameters, {amp2})
 
     def test_measure_and_acquire(self):
         """Test that we can get a measurement schedule with an acquire instruction."""
@@ -688,7 +698,7 @@ class TestRegistering(QiskitTestCase):
             self.cals.get_template("not registered")
 
         with self.assertRaises(CalibrationError):
-            self.cals.get_template("xp", (3, ))
+            self.cals.get_template("xp", (3,))
 
 
 class CrossResonanceTest(QiskitTestCase):
@@ -810,7 +820,7 @@ class TestControlChannels(CrossResonanceTest):
     def test_free_parameters(self):
         """Test that we can get a schedule with free parameters."""
 
-        schedule = self.cals.get_schedule("cr", (3, 2), free_params=["amp"])
+        schedule = self.cals.get_schedule("cr", (3, 2), assign_params={"amp": self.amp_cr})
 
         self.assertEqual(schedule.parameters, {self.amp_cr})
 
