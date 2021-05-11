@@ -184,6 +184,36 @@ class Calibrations:
 
         return instructions
 
+    def get_template(
+            self, schedule_name: str, qubits: Optional[Tuple[int, ...]] = None
+    ) -> ScheduleBlock:
+        """Get a template schedule.
+
+        Allows the user to get a template schedule that was previously registered.
+
+        Args:
+            schedule_name: The name of the template schedule.
+            qubits: The qubits under which the template schedule was registered.
+
+        Returns:
+            The registered template schedule.
+
+        Raises:
+            CalibrationError if np template schedule for the given schedule name and qubits
+                was registered.
+        """
+        qubits = self._to_tuple(qubits)
+
+        if ScheduleKey(schedule_name, qubits) not in self._schedules:
+            if qubits:
+                msg = f"Could not find schedule {schedule_name} on qubits {qubits}."
+            else:
+                msg = f"Could not find schedule {schedule_name}."
+
+            raise CalibrationError(msg)
+
+        return self._schedules[ScheduleKey(schedule_name, qubits)]
+
     def remove_schedule(self, schedule: ScheduleBlock, qubits: Union[int, Tuple[int, ...]] = None):
         """
         Allows users to remove a schedule from the calibrations. The history of the parameters

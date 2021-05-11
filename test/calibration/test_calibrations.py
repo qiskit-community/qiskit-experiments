@@ -633,7 +633,7 @@ class TestInstructions(QiskitTestCase):
         self.assertEqual(sched.instructions[2][1].frequency, 200)
 
 
-class TestUnregisteredCall(QiskitTestCase):
+class TestRegistering(QiskitTestCase):
     """Class to test registering of subroutines with calls."""
 
     def setUp(self):
@@ -658,6 +658,37 @@ class TestUnregisteredCall(QiskitTestCase):
         self.cals.add_schedule(call_xp)
 
         self.assertTrue(isinstance(self.cals.get_schedule("call_xp", 2), pulse.ScheduleBlock))
+
+    def test_get_template(self):
+        """Test that we can get a registered template and use it."""
+        amp = Parameter("amp")
+
+        with pulse.build(name="xp") as xp:
+            pulse.play(Gaussian(160, amp, 40), self.d0_)
+
+        self.cals.add_schedule(xp)
+
+        registered_xp = self.cals.get_template("xp")
+
+        self.assertEqual(registered_xp, xp)
+
+        with pulse.build(name="dxp") as dxp:
+            pulse.call(registered_xp)
+            pulse.play(Gaussian(160, amp, 40), self.d0_)
+
+        self.cals.add_schedule(dxp)
+        self.cals.add_parameter_value(0.5, "amp", 3, "xp")
+
+        sched = block_to_schedule(self.cals.get_schedule("dxp", 3))
+
+        self.assertEqual(sched.instructions[0][1], Play(Gaussian(160, 0.5, 40), DriveChannel(3)))
+        self.assertEqual(sched.instructions[1][1], Play(Gaussian(160, 0.5, 40), DriveChannel(3)))
+
+        with self.assertRaises(CalibrationError):
+            self.cals.get_template("not registered")
+
+        with self.assertRaises(CalibrationError):
+            self.cals.get_template("xp", (3, ))
 
 
 class CrossResonanceTest(QiskitTestCase):

@@ -103,6 +103,18 @@ resonance gate.
                 pulse.call(xp)
                 pulse.play(GaussianSquare(dur_cr, -amp_cr, sigma, width), c1)
                 pulse.call(xp)
+
+    cals = Calibrations()
+    cals.add_schedule(xp)
+    cals.add_schedule(cr)
+
+Note that a registered template schedule can be retrieve by doing
+
+.. code-block:: python
+
+    xp = cals.get_template("xp")
+
+which would return the default xp schedule block template for all qubits.
 """
 
 from .calibrations import Calibrations
