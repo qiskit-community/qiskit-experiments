@@ -699,10 +699,9 @@ class Calibrations:
 
         for inst in schedule.blocks:
             if isinstance(inst, Call):
-                inst = self._assign(
-                    inst.assigned_subroutine(), qubits_, free_params, group, cutoff_date
-                )
-            elif isinstance(inst, ScheduleBlock):
+                inst = inst.assigned_subroutine()
+
+            if isinstance(inst, ScheduleBlock):
                 inst = self._assign(inst, qubits_, free_params, group, cutoff_date)
 
             ret_schedule.append(inst, inplace=True)
