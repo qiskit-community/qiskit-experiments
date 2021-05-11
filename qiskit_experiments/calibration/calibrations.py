@@ -877,7 +877,7 @@ class Calibrations:
                 )
 
         if file_type == "csv":
-            with open("parameter_config.csv", "w", newline="") as output_file:
+            with open("parameter_config.csv", "w", newline="", encoding="utf-8") as output_file:
                 dict_writer = csv.DictWriter(output_file, header_keys)
                 dict_writer.writeheader()
                 dict_writer.writerows(body)
@@ -887,7 +887,7 @@ class Calibrations:
             if len(values) > 0:
                 header_keys = values[0].keys()
 
-                with open("parameter_values.csv", "w", newline="") as output_file:
+                with open("parameter_values.csv", "w", newline="", encoding="utf-8") as output_file:
                     dict_writer = csv.DictWriter(output_file, header_keys)
                     dict_writer.writeheader()
                     dict_writer.writerows(values)
@@ -900,7 +900,7 @@ class Calibrations:
                     {"name": key.schedule, "qubits": key.qubits, "schedule": str(sched)}
                 )
 
-            with open("schedules.csv", "w", newline="") as output_file:
+            with open("schedules.csv", "w", newline="", encoding="utf-8") as output_file:
                 dict_writer = csv.DictWriter(output_file, header_keys)
                 dict_writer.writeheader()
                 dict_writer.writerows(schedules)
