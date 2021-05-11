@@ -164,7 +164,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
 
         best_fit["value"] = best_fit["popt"][2]
         best_fit["stderr"] = (best_fit["popt_err"][2],)
-        best_fit["unit"] = (experiment_data.data[0]["metadata"].get("unit", "Hz"),)
+        best_fit["unit"] = experiment_data.data[0]["metadata"].get("unit", "Hz")
         best_fit["label"] = "Spectroscopy"
         best_fit["xdata"] = xdata
         best_fit["ydata"] = ydata
@@ -217,7 +217,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
     def _format_plot(cls, ax, analysis_result):
         """Format curve fit plot."""
         ax.tick_params(labelsize=14)
-        ax.set_xlabel(f"Frequency shift {analysis_result['unit']}", fontsize=16)
+        ax.set_xlabel(f"Frequency ({analysis_result['unit']})", fontsize=16)
         ax.set_ylabel("Signal [arb. unit.]", fontsize=16)
         ax.grid(True)
 
@@ -282,9 +282,9 @@ class Spectroscopy(BaseExperiment):
             backend: A backend object.
             circuit_options: Key word arguments to run the circuits. The circuit options are
                 - amp: The amplitude of the GaussianSquare pulse, defaults to 0.1.
-                - duration: The duration of the GaussianSquare pulse, defaults to 10240.
+                - duration: The duration of the GaussianSquare pulse, defaults to 1024 samples.
                 - sigma: The standard deviation of the GaussianSquare pulse, defaults to one
-                    fith of the duration.
+                    fifth of the duration.
                 - width: The width of the flat top in the GaussianSquare pulse, defaults to 0.
 
         Returns:
@@ -316,11 +316,14 @@ class Spectroscopy(BaseExperiment):
         circuit.add_calibration(gate, (self._physical_qubits[0],), sched, params=[freq_param])
         circuit.measure_active()
 
+        if not self._absolute:
+            center_freq = backend.defaults().qubit_freq_est[self._physical_qubits[0]]
+
         # Create the circuits to run
         circs = []
         for freq in self._frequencies:
             if not self._absolute:
-                freq += backend.defaults().qubit_freq_est[self._physical_qubits[0]]
+                freq += center_freq
 
             assigned_circ = circuit.assign_parameters({freq_param: freq}, inplace=False)
             assigned_circ.metadata = {
@@ -335,6 +338,12 @@ class Spectroscopy(BaseExperiment):
                 "absolute frequencies": self._absolute,
                 "schedule": str(sched),
             }
+
+            if not self._absolute:
+                assigned_circ.metadata["center frequency"] = center_freq
+
+            if backend:
+                assigned_circ.metadata["dt"] = getattr(backend.configuration(), "dt", "n.a.")
 
             circs.append(assigned_circ)
 
