@@ -120,7 +120,7 @@ def mean_xy_data(
     raise QiskitError(f"Unsupported method {method}")
 
 
-def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float]:
+def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float, float]:
     """Return the outcome probability mean and variance.
 
     Args:

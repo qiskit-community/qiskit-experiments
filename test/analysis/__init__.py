@@ -9,8 +9,3 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-
-"""
-Analysis helper functions
-"""
-from qiskit_experiments.analysis.curve_analysis import CurveAnalysis, SeriesDef

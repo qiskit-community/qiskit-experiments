@@ -15,7 +15,6 @@ Analysis class for curve fitting.
 # pylint: disable=invalid-name
 
 import functools
-from abc import abstractmethod
 from collections import defaultdict
 from typing import Any, NamedTuple, Dict, List, Optional, Tuple, Callable
 
@@ -23,10 +22,10 @@ import numpy as np
 import scipy.optimize as opt
 from qiskit.exceptions import QiskitError
 
+from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
-from qiskit_experiments.analysis.data_processing import level2_probability
 
 # Description of data properties for single curve entry
 SeriesDef = NamedTuple(
@@ -57,8 +56,8 @@ def scipy_curve_fit_wrapper(
     xdata: np.ndarray,
     ydata: np.ndarray,
     p0: np.ndarray,
-    sigma: Optional[np.ndarray] = None,
-    bounds: Optional[Tuple[np.ndarray, np.ndarray]] = None,
+    sigma: Optional[np.ndarray],
+    bounds: Optional[Tuple[np.ndarray, np.ndarray]],
     **kwargs,
 ) -> AnalysisResult:
     r"""A helper function to perform a non-linear least squares to fit
@@ -155,9 +154,6 @@ class CurveAnalysis(BaseAnalysis):
         __series__: List of curve property definitions. Each element should be
             defined as SeriesDef entry. This field can be left as None if the
             analysis is performed for only single line.
-        __data_processor__: A callable to define the data processing procedure
-            to extract curve series. This function should return x-values, y-values, and
-            y-errors in numpy array format.
         __fit_funcs__: List of callable to fit parameters. This is order sensitive.
             The list index corresponds to the function index specified by __series__ definition.
         __param_names__: Name of parameters to fit. This is order sensitive.
@@ -265,24 +261,19 @@ class CurveAnalysis(BaseAnalysis):
         - _create_figure: A method to create figures. Subclasses can override this method
             to create figures. Both raw data and fit analysis is provided.
 
+        - _data_processing: A method to format a list of circuit result into y and yerr values.
+            Subclasses can override this method depending on the expected circuit result format
+            and the output data representation.
+
         - _post_processing: A method to calculate new entity from fit result.
             This returns fit result as-is by default.
     """
 
     #: str: Metadata key representing a scanned value.
-    __x_key__ = ""
+    __x_key__ = "xval"
 
     #: List[SeriesDef]: List of mapping representing a data series
     __series__ = None
-
-    #: Callable: Data processor. This should return x-values, y-values, y-sigmas.
-    __data_processor__ = level2_probability
-
-    # TODO this should be replaced with preset DataProcessor node.
-
-    # TODO data processor may be initialized with some variables.
-    # For example, if it contains front end discriminator, it may be initialized with
-    # some discrimination line parameters. These parameters cannot be hard-coded here.
 
     #: List[Callable]: A callback function to define the expected curve
     __fit_funcs__ = None
@@ -308,7 +299,7 @@ class CurveAnalysis(BaseAnalysis):
         """
         return self._series_curve_fit(curve_data=curve_data, **options)
 
-    @abstractmethod
+    # pylint: disable = unused-argument, missing-return-type-doc
     def _create_figure(self, curve_data: List[CurveEntry], fit_data: AnalysisResult):
         """Create new figure with the fit result and raw data.
 
@@ -321,7 +312,51 @@ class CurveAnalysis(BaseAnalysis):
         Returns:
             List of figures (format TBD).
         """
-        pass
+        # TODO implement default figure. Will wait for Qiskit-terra #5499
+        return list()
+
+    @staticmethod
+    def _data_processing(data: List[Dict[str, Any]]) -> Tuple[np.ndarray, np.ndarray]:
+        """Format x-values, y-values and y-sigmas from list of circuit result entry.
+
+        .. notes::
+            This method receives full data list of a single curve.
+
+            This is sometime convenient for handling level1 (Kerneled) data.
+            The level1 scatter data may spread in the IQ plane, and it may require
+            full experimental results to calculate the principal component to
+            enhance the signal-to-noise ratio of following analysis.
+
+        Args:
+            data: List of circuit result entry.
+
+        Returns:
+            - y_values: Numpy array of formatted y data values.
+            - y_sigmas: Numpy array of formatted y error values.
+        """
+        try:
+            n_qubits = len(data[0]["metadata"]["qubits"])
+        except KeyError:
+            n_qubits = 1
+
+        # TODO data processor may be initialized with some variables.
+        # For example, if it contains front end discriminator, it may be initialized with
+        # some discrimination line parameters. These parameters cannot be hard-coded here.
+
+        y_values = np.zeros(len(data), dtype=float)
+        y_sigmas = np.zeros(len(data), dtype=float)
+        for idx, datum in enumerate(data):
+            # TODO this should be replaced with preset DataProcessor.
+
+            # TODO fix sigma definition
+            # When the count is 100% zero (i.e. simulator), this yields sigma=0.
+            # This crashes scipy fitter when it calculates covariance matrix (zero-div error).
+
+            y_val, y_err = level2_probability(datum, outcome="1" * n_qubits)
+            y_values[idx] = y_val
+            y_sigmas[idx] = y_err
+
+        return y_values, y_sigmas
 
     @staticmethod
     def _post_processing(analysis_result: AnalysisResult) -> AnalysisResult:
@@ -337,7 +372,7 @@ class CurveAnalysis(BaseAnalysis):
         """
         return analysis_result
 
-    def _data_processing(self, experiment_data: ExperimentData) -> List[CurveEntry]:
+    def _extract_curves(self, experiment_data: ExperimentData) -> List[CurveEntry]:
         """Extract curve data from experiment data.
 
         .. notes::
@@ -352,6 +387,10 @@ class CurveAnalysis(BaseAnalysis):
 
         Returns:
             List of ``CurveEntry`` containing x-values, y-values, and y values sigma.
+
+        Raises:
+            QiskitError:
+                - When __x_key__ is not defined in the circuit metadata.
         """
         if self.__series__:
             series = self.__series__
@@ -382,11 +421,19 @@ class CurveAnalysis(BaseAnalysis):
                 ]
             else:
                 # use data as-is
-                series_data = experiment_data
-            xvals, yvals, sigmas = self.__data_processor__(series_data)
-            # TODO data processor may need calibration.
-            # If we use the level1 data, it may be necessary to calculate principal component
-            # with entire scan data. Otherwise we need to use real or imaginary part.
+                series_data = experiment_data.data
+
+            # Format x, y, yerr data
+            try:
+                xvals = np.asarray(
+                    [datum["metadata"][self.__x_key__] for datum in series_data],
+                    dtype=float
+                )
+            except KeyError as ex:
+                raise QiskitError(
+                    f"X value key {self.__x_key__} is not defined in circuit metadata."
+                ) from ex
+            yvals, sigmas = self._data_processing(series_data)
 
             # Get common metadata fields except for xval and filter args.
             # These properties are obvious.
@@ -413,7 +460,7 @@ class CurveAnalysis(BaseAnalysis):
                     x_values=xvals,
                     y_values=yvals,
                     y_sigmas=sigmas,
-                    metadata=curve_metadata,
+                    metadata=dict(curve_metadata),
                 )
             )
 
@@ -461,7 +508,13 @@ class CurveAnalysis(BaseAnalysis):
                 - When number of weights are not identical to the curve_data entries.
         """
         num_curves = len(curve_data)
+        num_params = len(self.__param_names__)
 
+        # Set initial guess and bounds if they are not provided
+        p0 = p0 or np.zeros(num_params)
+        bounds = bounds or ([-np.inf] * num_params, [np.inf] * num_params)
+
+        # Validate weights
         if weights is None:
             sig_weights = np.ones(num_curves)
         else:
@@ -476,7 +529,8 @@ class CurveAnalysis(BaseAnalysis):
         flat_xvals = np.empty(0, dtype=float)
         flat_yvals = np.empty(0, dtype=float)
         flat_yerrs = np.empty(0, dtype=float)
-        separators = np.empty(num_curves - 1)
+        separators = np.empty(num_curves)
+
         for idx, (datum, weight) in enumerate(zip(curve_data, sig_weights)):
             flat_xvals = np.concatenate((flat_xvals, datum.x_values))
             flat_yvals = np.concatenate((flat_yvals, datum.y_values))
@@ -486,30 +540,26 @@ class CurveAnalysis(BaseAnalysis):
                 datum_yerrs = 1 / np.sqrt(weight)
             flat_yerrs = np.concatenate((flat_yerrs, datum_yerrs))
             separators[idx] = len(datum.x_values)
-        separators = np.cumsum(separators)[:-1]
+        separators = list(map(int, np.cumsum(separators)[:-1]))
 
         # Define multi-objective function
         def multi_objective_fit(x, *params):
-            y = []
-            xs = np.split(x, separators)
-            for i, xi in range(num_curves, xs):
+            y = np.empty(0, dtype=float)
+            xs = np.split(x, separators) if len(separators) > 0 else [x]
+            for i, xi in enumerate(xs):
                 yi = self._fit_curve(curve_data[i].curve_name, xi, *params)
-                y.append(yi)
-            return np.asarray(y, dtype=float)
+                y = np.concatenate((y, yi))
+            return y
 
-        # To make sure argument mapping for user defined fit module.
-        fitter_args = {
-            "func": multi_objective_fit,
-            "xdata": flat_xvals,
-            "ydata": flat_yvals,
-            "p0": p0,
-            "sigma": flat_yerrs,
-            "bounds": bounds
-        }
-        fitter_args.update(options)
-
-        # pylint: disable=redundant-keyword-arg
-        analysis_result = self.__base_fitter__(**fitter_args)
+        analysis_result = self.__base_fitter__.__func__(
+            func=multi_objective_fit,
+            xdata=flat_xvals,
+            ydata=flat_yvals,
+            p0=p0,
+            sigma=flat_yerrs,
+            bounds=bounds,
+            **options
+        )
         analysis_result["popt_keys"] = self.__param_names__
 
         return analysis_result
@@ -520,7 +570,7 @@ class CurveAnalysis(BaseAnalysis):
             xvals: np.ndarray,
             *params
     ) -> np.ndarray:
-        """A helper method to run fitting with series definition.
+        """A helper method to return fit curve for the specific series.
 
         Fit function is selected based on ``curve_name`` and the parameters list is truncated
         based on parameter matching between one defined in __series__ and self.__param_names__.
@@ -556,6 +606,10 @@ class CurveAnalysis(BaseAnalysis):
                 - When fit function index is out of range.
                 - When curve information is not defined in class attribute __series__.
         """
+        if self.__series__ is None:
+            # only single curve
+            return self.__fit_funcs__[0](xvals, *params)
+
         for curve_properties in self.__series__:
             if curve_properties.name == curve_name:
 
@@ -577,7 +631,9 @@ class CurveAnalysis(BaseAnalysis):
                 try:
                     return self.__fit_funcs__[f_index](xvals, *mapped_params)
                 except IndexError as ex:
-                    raise QiskitError(f"Fit function of index {f_index} is not defined.") from ex
+                    raise QiskitError(
+                        f"Fit function of index {f_index} is not defined."
+                    ) from ex
 
         raise QiskitError(f"A curve {curve_name} is not defined in this class.")
 
@@ -598,7 +654,7 @@ class CurveAnalysis(BaseAnalysis):
 
         # Extract curve entries from experiment data
         try:
-            curve_data = self._data_processing(experiment_data)
+            curve_data = self._extract_curves(experiment_data)
             analysis_result["raw_data"] = curve_data
         except DataProcessorError as ex:
             analysis_result["error_message"] = str(ex)
