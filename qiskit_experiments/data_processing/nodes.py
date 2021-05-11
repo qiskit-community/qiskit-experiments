@@ -45,7 +45,7 @@ class IQPart(DataAction):
 
     @abstractmethod
     def _required_dimension(self) -> int:
-        """Return the required dimension of the IQ Date."""
+        """Return the required dimension of the date."""
 
     def _format_data(self, datum: Any) -> Any:
         """Check that the IQ data has the correct format and convert to numpy array.
