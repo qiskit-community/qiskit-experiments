@@ -426,8 +426,7 @@ class CurveAnalysis(BaseAnalysis):
             # Format x, y, yerr data
             try:
                 xvals = np.asarray(
-                    [datum["metadata"][self.__x_key__] for datum in series_data],
-                    dtype=float
+                    [datum["metadata"][self.__x_key__] for datum in series_data], dtype=float
                 )
             except KeyError as ex:
                 raise QiskitError(
@@ -558,18 +557,13 @@ class CurveAnalysis(BaseAnalysis):
             p0=p0,
             sigma=flat_yerrs,
             bounds=bounds,
-            **options
+            **options,
         )
         analysis_result["popt_keys"] = self.__param_names__
 
         return analysis_result
 
-    def _fit_curve(
-            self,
-            curve_name: str,
-            xvals: np.ndarray,
-            *params
-    ) -> np.ndarray:
+    def _fit_curve(self, curve_name: str, xvals: np.ndarray, *params) -> np.ndarray:
         """A helper method to return fit curve for the specific series.
 
         Fit function is selected based on ``curve_name`` and the parameters list is truncated
@@ -631,9 +625,7 @@ class CurveAnalysis(BaseAnalysis):
                 try:
                     return self.__fit_funcs__[f_index](xvals, *mapped_params)
                 except IndexError as ex:
-                    raise QiskitError(
-                        f"Fit function of index {f_index} is not defined."
-                    ) from ex
+                    raise QiskitError(f"Fit function of index {f_index} is not defined.") from ex
 
         raise QiskitError(f"A curve {curve_name} is not defined in this class.")
 
