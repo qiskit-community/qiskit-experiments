@@ -13,6 +13,11 @@
 r"""
 Qiskit Experiments Calibration Root.
 
+.. warning::
+    The calibrations interface is still in active development. It may have
+    breaking API changes without deprecation warnings in future releases until
+    otherwise indicated.
+
 Calibrations are managed by the Calibrations class. This class stores schedules which are
 intended to be fully parameterized, including the index of the channels. This class:
 - supports having different schedules share parameters
