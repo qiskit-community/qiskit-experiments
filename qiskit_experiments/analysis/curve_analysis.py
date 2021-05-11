@@ -317,7 +317,7 @@ class CurveAnalysis(BaseAnalysis):
 
     @staticmethod
     def _data_processing(data: List[Dict[str, Any]]) -> Tuple[np.ndarray, np.ndarray]:
-        """Format x-values, y-values and y-sigmas from list of circuit result entry.
+        """Format y-values and y-sigmas from list of circuit result entry.
 
         .. notes::
             This method receives full data list of a single curve.
