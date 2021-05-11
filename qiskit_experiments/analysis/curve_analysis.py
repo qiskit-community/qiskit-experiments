@@ -287,7 +287,7 @@ class CurveAnalysis(BaseAnalysis):
     def _run_fitting(self, curve_data: List[CurveEntry], **options) -> AnalysisResult:
         """Fit series of curve data.
 
-        Subclass can override this method to return figures.
+        Subclass can override this method to provide initial guess or fit boundaries.
         For example, initial guess is not automatically provided by this base class.
 
         Args:
