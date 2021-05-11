@@ -31,6 +31,7 @@ from qiskit.pulse import (
     AcquireChannel,
     RegisterSlot,
     MemorySlot,
+    Schedule,
 )
 from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter, ParameterExpression
@@ -105,6 +106,7 @@ class Calibrations:
                 - If a channel is parameterized by more than one parameter.
                 - If the schedule name starts with the prefix of ScheduleBlock.
                 - If the schedule calls subroutines that have not been registered.
+                - If a Schedule is Called.
         """
         qubits = self._to_tuple(qubits)
 
@@ -134,6 +136,11 @@ class Calibrations:
         # Check that subroutines are present.
         for block in schedule.blocks:
             if isinstance(block, Call):
+                if isinstance(block.subroutine, Schedule):
+                    raise CalibrationError(
+                        "Calling a Schedule if forbidden, call ScheduleBlock instead."
+                    )
+
                 if (block.subroutine.name, qubits) not in self._schedules:
                     raise CalibrationError(
                         f"Cannot register schedule block {schedule.name} with unregistered "
