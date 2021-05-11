@@ -118,14 +118,14 @@ class SpectroscopyAnalysis(BaseAnalysis):
             sigmas = None
 
         if not offset_guess:
-            offset_guess = 0
+            offset_guess = np.average(ydata)
         if not amp_guess:
             amp_guess = np.max(ydata)
         if not freq_guess:
             peak_idx = np.argmax(ydata)
             freq_guess = xdata[peak_idx]
         if not sigma_guesses:
-            sigma_guesses = np.linspace(0, abs(xdata[-1] - xdata[0]), 20)
+            sigma_guesses = np.linspace(1e-6, abs(xdata[-1] - xdata[0]), 20)
         if amplitude_bounds is None:
             amplitude_bounds = [0.0, 1.1 * max(ydata)]
         if sigma_bounds is None:
