@@ -918,7 +918,7 @@ class Calibrations:
             file_name: The name of the file that stores the parameters. Will default to
                 parameter_values.csv.
         """
-        with open(file_name) as fp:
+        with open(file_name, encoding="utf-8") as fp:
             reader = csv.DictReader(fp, delimiter=",", quotechar='"')
 
             for row in reader:
