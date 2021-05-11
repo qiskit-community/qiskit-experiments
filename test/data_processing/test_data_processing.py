@@ -212,7 +212,7 @@ class DataProcessorTest(QiskitTestCase):
                 processor({"counts": [0, 1, 2]})
 
 
-class TextIQSingleAvg(QiskitTestCase):
+class TestIQSingleAvg(QiskitTestCase):
     """Test the IQ data processing nodes single and average."""
 
     def setUp(self):
