@@ -121,7 +121,7 @@ class TestCurveAnalysis(QiskitTestCase):
         self.assertFalse(results["success"])
 
         ref_result_keys = ["raw_data", "error_message", "success"]
-        self.assertListEqual(list(results.keys()), ref_result_keys)
+        self.assertSetEqual(set(results.keys()), set(ref_result_keys))
 
     def test_run_two_curves_with_same_fitfunc(self):
         """Test analysis for two curves. Curves shares fit model."""
