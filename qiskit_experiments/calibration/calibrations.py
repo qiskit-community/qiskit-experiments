@@ -18,6 +18,7 @@ from datetime import datetime
 from typing import Any, Dict, Set, Tuple, Union, List, Optional
 import csv
 import dataclasses
+import warnings
 import regex as re
 
 from qiskit.pulse import (
@@ -777,6 +778,10 @@ class Calibrations:
         - parameter_values.csv: This file stores the values of the calibrated parameters.
         - schedules.csv: This file stores the parameterized schedules.
 
+        Warning:
+            Schedule blocks will only be saved in string format and can therefore not be
+            reloaded and must instead be rebuilt.
+
         Args:
             file_type: The type of file to which to save. By default this is a csv.
                 Other file types may be supported in the future.
@@ -787,6 +792,8 @@ class Calibrations:
         Raises:
             CalibrationError: if the files exist and overwrite is not set to True.
         """
+        warnings.warn("Schedules are only saved in text format. They cannot be re-loaded.")
+
         cwd = os.getcwd()
         if folder:
             os.chdir(folder)
