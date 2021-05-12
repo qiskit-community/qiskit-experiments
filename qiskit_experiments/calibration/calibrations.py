@@ -198,6 +198,8 @@ class Calibrations:
         """Get a template schedule.
 
         Allows the user to get a template schedule that was previously registered.
+        A template schedule will typically be fully parametric, i.e. all pulse
+        parameters and channel indices are represented by :class:`Parameter`.
 
         Args:
             schedule_name: The name of the template schedule.
@@ -550,9 +552,9 @@ class Calibrations:
         group: Optional[str] = "default",
         cutoff_date: datetime = None,
     ) -> ScheduleBlock:
-        """Get the schedule and assign values to parameters.
+        """Get the template schedule with parameters assigned to values.
 
-        The parameters in the template schedule block will be assigned to the values managed
+        All the parameters in the template schedule block will be assigned to the values managed
         by the calibrations unless they are specified in assign_params. In this case the value in
         assign_params will override the value stored by the calibrations. A parameter value in
         assign_params may also be a :class:`ParameterExpression`.
