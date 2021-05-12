@@ -120,6 +120,45 @@ def mean_xy_data(
     raise QiskitError(f"Unsupported method {method}")
 
 
+def multi_mean_xy_data(
+    series: np.ndarray,
+    xdata: np.ndarray,
+    ydata: np.ndarray,
+    sigma: Optional[np.ndarray] = None,
+    method: str = "sample",
+):
+    r"""Return (series, x, y_mean, sigma) data.
+    Performs `mean_xy_data` for each series
+    and returns the concatenated results
+    """
+    series_vals = np.unique(series)
+
+    series_means = []
+    xdata_means = []
+    ydata_means = []
+    sigma_means = []
+
+    # Get x, y, sigma data for series and process mean data
+    for i in series_vals:
+        idxs = series == series_vals[i]
+        sigma_i = sigma[idxs] if sigma is not None else None
+        x_mean, y_mean, sigma_mean = mean_xy_data(
+            xdata[idxs], ydata[idxs], sigma=sigma_i, method=method
+        )
+        series_means.append(i * np.ones(x_mean.size, dtype=int))
+        xdata_means.append(x_mean)
+        ydata_means.append(y_mean)
+        sigma_means.append(sigma_mean)
+
+    # Concatenate lists
+    return (
+        np.concatenate(series_means),
+        np.concatenate(xdata_means),
+        np.concatenate(ydata_means),
+        np.concatenate(sigma_means),
+    )
+
+
 def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float]:
     """Return the outcome probability mean and variance.
 
