@@ -559,6 +559,16 @@ class Calibrations:
         assign_params will override the value stored by the calibrations. A parameter value in
         assign_params may also be a :class:`ParameterExpression`.
 
+        .. code-block:: python
+
+            # Get an xp schedule with a parametric amplitude
+            sched = cals.get_schedule("xp", 3, assign_params={"amp": Parameter("amp")})
+
+            # Get an echoed-cross-resonance schedule between qubits (0, 2) where the xp echo gates
+            # are Called schedules but leave their amplitudes as parameters.
+            assign_dict = {("amp", (0,), "xp"): Parameter("my_amp")}
+            sched = cals.get_schedule("cr", (0, 2), assign_params=assign_dict)
+
         Args:
             name: The name of the schedule to get.
             qubits: The qubits for which to get the schedule.
