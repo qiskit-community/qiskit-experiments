@@ -14,6 +14,8 @@ Experiment Data class
 """
 import logging
 from typing import Optional, Union, List, Dict, Tuple
+import io
+import os
 import uuid
 from collections import OrderedDict
 
@@ -21,6 +23,13 @@ from qiskit.result import Result
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Job, BaseJob
 from qiskit.providers.exceptions import JobError
+
+try:
+    from matplotlib import pyplot as plt
+
+    HAS_MATPLOTLIB = True
+except ImportError:
+    HAS_MATPLOTLIB = False
 
 
 LOG = logging.getLogger(__name__)
@@ -202,14 +211,14 @@ class ExperimentData:
 
     def add_figure(
         self,
-        figure: Union[str, bytes],
+        figure: Union[str, bytes, "Figure"],
         figure_name: Optional[str] = None,
         overwrite: bool = False,
     ) -> Tuple[str, int]:
         """Save the experiment figure.
 
         Args:
-            figure: Name of the figure file or figure data to upload.
+            figure: Name of the figure file or figure data to store.
             figure_name: Name of the figure. If ``None``, use the figure file name, if
                 given, or a generated name.
             overwrite: Whether to overwrite the figure if one already exists with
@@ -243,7 +252,7 @@ class ExperimentData:
 
     def figure(
         self, figure_name: Union[str, int], file_name: Optional[str] = None
-    ) -> Union[int, bytes]:
+    ) -> Union[int, bytes, "Figure"]:
         """Retrieve the specified experiment figure.
 
         Args:
@@ -268,7 +277,11 @@ class ExperimentData:
                     figure_data = file.read()
             if file_name:
                 with open(file_name, "wb") as output:
-                    num_bytes = output.write(figure_data)
+                    if HAS_MATPLOTLIB and isinstance(figure_data, plt.Figure):
+                        figure_data.savefig(output, format='svg')
+                        num_bytes = os.path.getsize(file_name)
+                    else:
+                        num_bytes = output.write(figure_data)
                     return num_bytes
             return figure_data
         raise QiskitError(f"Figure {figure_name} not found.")
