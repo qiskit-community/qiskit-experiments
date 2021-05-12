@@ -278,7 +278,7 @@ class ExperimentData:
             if file_name:
                 with open(file_name, "wb") as output:
                     if HAS_MATPLOTLIB and isinstance(figure_data, plt.Figure):
-                        figure_data.savefig(output, format='svg')
+                        figure_data.savefig(output, format="svg")
                         num_bytes = os.path.getsize(file_name)
                     else:
                         num_bytes = output.write(figure_data)
