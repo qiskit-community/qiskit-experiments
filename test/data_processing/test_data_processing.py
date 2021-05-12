@@ -16,12 +16,11 @@ import numpy as np
 
 from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit.result import Result
-from qiskit.test import QiskitTestCase
-from qiskit.qobj.common import QobjExperimentHeader
+
 from qiskit_experiments import ExperimentData
-from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
+from test.data_processing.fake_experiment import FakeExperiment, BaseDataProcessorTest
 from qiskit_experiments.data_processing.nodes import (
     ToReal,
     ToImag,
@@ -29,31 +28,12 @@ from qiskit_experiments.data_processing.nodes import (
 )
 
 
-class FakeExperiment(BaseExperiment):
-    """Fake experiment class for testing."""
-
-    def __init__(self):
-        """Initialise the fake experiment."""
-        self._type = None
-        super().__init__((0,), "fake_test_experiment")
-
-    def circuits(self, backend=None, **circuit_options):
-        """Fake circuits."""
-        return []
-
-
-class DataProcessorTest(QiskitTestCase):
+class DataProcessorTest(BaseDataProcessorTest):
     """Class to test DataProcessor."""
 
     def setUp(self):
         """Setup variables used for testing."""
-        self.base_result_args = dict(
-            backend_name="test_backend",
-            backend_version="1.0.0",
-            qobj_id="id-123",
-            job_id="job-123",
-            success=True,
-        )
+        super().setUp()
 
         mem1 = ExperimentResultData(
             memory=[
@@ -71,37 +51,14 @@ class DataProcessorTest(QiskitTestCase):
             ]
         )
 
-        header1 = QobjExperimentHeader(
-            clbit_labels=[["meas", 0], ["meas", 1]],
-            creg_sizes=[["meas", 2]],
-            global_phase=0.0,
-            memory_slots=2,
-            metadata={"experiment_type": "fake_test_experiment", "x_values": 0.0},
-        )
-
-        header2 = QobjExperimentHeader(
-            clbit_labels=[["meas", 0], ["meas", 1]],
-            creg_sizes=[["meas", 2]],
-            global_phase=0.0,
-            memory_slots=2,
-            metadata={"experiment_type": "fake_test_experiment", "x_values": 1.0},
-        )
-
-        res1 = ExperimentResult(shots=3, success=True, meas_level=1, data=mem1, header=header1)
-        res2 = ExperimentResult(shots=3, success=True, meas_level=1, data=mem2, header=header2)
+        res1 = ExperimentResult(shots=3, success=True, meas_level=1, data=mem1, header=self.header)
+        res2 = ExperimentResult(shots=3, success=True, meas_level=1, data=mem2, header=self.header)
 
         self.result_lvl1 = Result(results=[res1, res2], **self.base_result_args)
 
         raw_counts = {"0x0": 4, "0x2": 6}
         data = ExperimentResultData(counts=dict(**raw_counts))
-        header = QobjExperimentHeader(
-            metadata={"experiment_type": "fake_test_experiment"},
-            clbit_labels=[["c", 0], ["c", 1]],
-            creg_sizes=[["c", 2]],
-            n_qubits=2,
-            memory_slots=2,
-        )
-        res = ExperimentResult(shots=9, success=True, meas_level=2, data=data, header=header)
+        res = ExperimentResult(shots=9, success=True, meas_level=2, data=data, header=self.header)
         self.exp_data_lvl2 = ExperimentData(FakeExperiment())
         self.exp_data_lvl2.add_data(Result(results=[res], **self.base_result_args))
 
@@ -133,7 +90,7 @@ class DataProcessorTest(QiskitTestCase):
                 [[442170.0, -19283206.0], [-5279410.0, -15339630.0]],
                 [[3016514.0, -14548009.0], [-3404756.0, -16743348.0]],
             ],
-            "metadata": {"experiment_type": "fake_test_experiment", "x_values": 0.0},
+            "metadata": {"experiment_type": "fake_test_experiment"},
         }
 
         expected_new = np.array([[1103.26, 2959.012], [442.17, -5279.41], [3016.514, -3404.7560]])
@@ -166,7 +123,7 @@ class DataProcessorTest(QiskitTestCase):
                 [[442170.0, -19283206.0], [-5279410.0, -15339630.0]],
                 [[3016514.0, -14548009.0], [-3404756.0, -16743348.0]],
             ],
-            "metadata": {"experiment_type": "fake_test_experiment", "x_values": 0.0},
+            "metadata": {"experiment_type": "fake_test_experiment"},
         }
 
         expected_new = np.array(

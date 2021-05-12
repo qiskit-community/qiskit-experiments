@@ -13,7 +13,7 @@
 """Different data analysis steps."""
 
 from abc import abstractmethod
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 from qiskit_experiments.data_processing.data_action import DataAction
@@ -70,6 +70,103 @@ class IQPart(DataAction):
     def __repr__(self):
         """String representation of the node."""
         return f"{self.__class__.__name__}(validate: {self._validate}, scale: {self.scale})"
+
+
+class SVDAvg(IQPart):
+    """Singular Value Decomposition of averaged IQ data."""
+
+    def __init__(self, validate: bool = True):
+        """
+        Args:
+            validate: If set to False the DataAction will not validate its input.
+        """
+        super().__init__(validate=validate)
+        self._main_axes = None
+        self._means = None
+        self._scales = None
+
+    @property
+    def axis(self) -> List[np.array]:
+        """Return the axis of the trained SVD"""
+        if self._main_axes:
+            return self._main_axes
+
+        raise DataProcessorError("SVD is not trained.")
+
+    @property
+    def scales(self) -> List[float]:
+        """Return the scaling of the SVD."""
+        if self._scales:
+            return self._scales
+
+        raise DataProcessorError("SVD is not trained.")
+
+    def _process(self, datum: np.array) -> np.array:
+        """Project the IQ data onto the axis defined by an SVD and scale it.
+
+        Args:
+            datum: A 2D array of qubits, and an average complex IQ point as [real, imaginary].
+
+        Returns:
+            A 1D array. Each entry is the real part of the averaged IQ data of a qubit.
+
+        Raises:
+            DataProcessorError: If the SVD has not been previously trained on data.
+        """
+
+        if not self._main_axes:
+            raise DataProcessorError("SVD must be trained on data before it can be used.")
+
+        n_qubits = datum.shape[0]
+        processed_data = []
+
+        # process each averaged IQ point with its own axis.
+        for idx in range(n_qubits):
+
+            centered = np.array([datum[idx][iq] - self._means[idx][iq] for iq in [0, 1]])
+
+            processed_data.append((self._main_axes[idx] @ centered) / self._scales[idx])
+
+        return np.array(processed_data)
+
+    def train(self, data: List[Any]):
+        """Train the SVD on the given data.
+
+        Each element of the given data will be converted to a 2D array of dimension
+        n_qubits x 2. The number of qubits is inferred from the shape of the data.
+        For each qubit the data is collected into an array of shape 2 x n_data_points.
+        The mean of the in-phase a quadratures is subtracted before passing the data
+        to numpy's svd function. The dominant axis and the scale is saved for each
+        qubit so that future data points can be projected onto the axis.
+
+        Args:
+            data: A list of datums. Each datum will be converted to a 2D array.
+        """
+        if not data:
+            return
+
+        n_qubits = self._format_data(data[0]).shape[0]
+
+        self._main_axes = []
+        self._scales = []
+        self._means = []
+
+        for qubit_idx in range(n_qubits):
+            datums = np.vstack([self._format_data(datum)[qubit_idx] for datum in data]).T
+
+            # Calculate the mean of the data to recenter it in the IQ plane.
+            mean_i = np.average(datums[0, :])
+            mean_q = np.average(datums[1, :])
+
+            self._means.append((mean_i, mean_q))
+
+            datums[0, :] = datums[0, :] - mean_i
+            datums[1, :] = datums[1, :] - mean_q
+
+            u, s, vh = np.linalg.svd(datums)
+
+            self._main_axes.append(u[:, 0])
+            self._scales.append(s[0])
 
 
 class ToReal(IQPart):

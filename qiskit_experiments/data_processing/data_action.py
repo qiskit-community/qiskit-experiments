@@ -13,7 +13,7 @@
 """Defines the steps that can be used to analyse data."""
 
 from abc import ABCMeta, abstractmethod
-from typing import Any
+from typing import Any, List
 
 
 class DataAction(metaclass=ABCMeta):
@@ -73,3 +73,12 @@ class DataAction(metaclass=ABCMeta):
     def __repr__(self):
         """String representation of the node."""
         return f"{self.__class__.__name__}(validate={self._validate})"
+
+    def train(self, data: List[Any]):
+        """A method to train a DataAction.
+
+        Certain data processing nodes, such as a SVD, require data to first train.
+
+        Args:
+            data: A list of datum. Each datum is a point used to train the node.
+        """
