@@ -143,7 +143,7 @@ def scipy_curve_fit_wrapper(
 class CurveAnalysis(BaseAnalysis):
     """A base class for curve fit type analysis.
 
-    The subclass can override class attributes to define the behavior of
+    The subclasses can override class attributes to define the behavior of
     data extraction and fitting. This docstring describes how code developers can
     create a new curve fit analysis subclass inheriting from this base class.
 
@@ -154,7 +154,7 @@ class CurveAnalysis(BaseAnalysis):
         __series__: List of curve property definitions. Each element should be
             defined as SeriesDef entry. This field can be left as None if the
             analysis is performed for only single line.
-        __fit_funcs__: List of callable to fit parameters. This is order sensitive.
+        __fit_funcs__: List of callables to fit parameters. This is order sensitive.
             The list index corresponds to the function index specified by __series__ definition.
         __param_names__: Name of parameters to fit. This is order sensitive.
         __base_fitter__: A callable to perform single curve fitting.
@@ -165,8 +165,8 @@ class CurveAnalysis(BaseAnalysis):
         T1 experiment
         =============
 
-        In this type of experiment, the analysis deals with single curve.
-        Thus __series__ is not necessary be assigned.
+        In this type of experiment, the analysis deals with a single curve.
+        Thus __series__ is not necessarily assigned.
 
         .. code-block::
 
@@ -182,9 +182,9 @@ class CurveAnalysis(BaseAnalysis):
         ==============
 
         In this type of experiment, the analysis deals with two curves.
-        We need __series__ definition for each curve.
+        We need a __series__ definition for each curve.
         Both curves can be represented by the same exponential function,
-        but with different parameter set. Note that parameters will be partly shared.
+        but with a different parameter set. Note that parameters will be partly shared.
 
         .. code-block::
 
@@ -212,14 +212,14 @@ class CurveAnalysis(BaseAnalysis):
                 __param_names__ = ["a", "alpha_std", "alpha_int", "b"]
 
         Note that the subclass can optionally override :meth:``_post_processing``.
-        This method takes fit analysis result and calculate new entity with it.
+        This method takes the fit analysis result and calculates a new entity with it.
         EPC calculation can be performed here.
 
         Ramsey XY experiment
         ====================
 
         In this type of experiment, the analysis deals with two curves.
-        We need __series__ definition for each curve.
+        We need a __series__ definition for each curve.
         In contrast to the IRB example, this experiment may have two fit functions
         to represent cosinusoidal (real part) and sinusoidal (imaginary part) oscillation,
         however the parameters are shared with both functions.
@@ -253,20 +253,20 @@ class CurveAnalysis(BaseAnalysis):
         This class provides several private methods that subclasses can override.
 
         - _run_fitting: Central method to perform fitting with the provided list of curve data.
-            Subclasses can create initial guess of parameters and override
+            Subclasses can create initial guesses of parameters and override
             fitter analysis options here.
             Note that each curve data provides circuit metadata that may be useful to
-            calculate initial guess or apply some coefficient to values.
+            calculate initial guesses or apply some coefficients to values.
 
         - _create_figure: A method to create figures. Subclasses can override this method
-            to create figures. Both raw data and fit analysis is provided.
+            to create figures. Both raw data and fit analysis are provided.
 
-        - _data_processing: A method to format a list of circuit result into y and yerr values.
+        - _data_processing: A method to format a list of circuit results into y and yerr values.
             Subclasses can override this method depending on the expected circuit result format
             and the output data representation.
 
-        - _post_processing: A method to calculate new entity from fit result.
-            This returns fit result as-is by default.
+        - _post_processing: A method to calculate a new entity from a fit result.
+            This returns the fit result as-is by default.
     """
 
     #: str: Metadata key representing a scanned value.
@@ -300,8 +300,8 @@ class CurveAnalysis(BaseAnalysis):
         return self._series_curve_fit(curve_data=curve_data, **options)
 
     # pylint: disable = unused-argument, missing-return-type-doc
-    def _create_figure(self, curve_data: List[CurveEntry], fit_data: AnalysisResult):
-        """Create new figure with the fit result and raw data.
+    def _create_figures(self, curve_data: List[CurveEntry], fit_data: AnalysisResult):
+        """Create new figures with the fit result and raw data.
 
         Subclass can override this method to return figures.
 
@@ -322,7 +322,7 @@ class CurveAnalysis(BaseAnalysis):
         .. notes::
             This method receives full data list of a single curve.
 
-            This is sometime convenient for handling level1 (Kerneled) data.
+            This is sometimes convenient for handling level1 (Kerneled) data.
             The level1 scatter data may spread in the IQ plane, and it may require
             full experimental results to calculate the principal component to
             enhance the signal-to-noise ratio of following analysis.
@@ -362,7 +362,7 @@ class CurveAnalysis(BaseAnalysis):
     def _post_processing(analysis_result: AnalysisResult) -> AnalysisResult:
         """Calculate new quantity from the fit result.
 
-        Subclass can override this method to do post analysis.
+        Subclasses can override this method to do post analysis.
 
         Args:
             analysis_result: Analysis result containing fit result.
@@ -666,7 +666,7 @@ class CurveAnalysis(BaseAnalysis):
         analysis_result = self._post_processing(analysis_result)
 
         # Create figures
-        figures = self._create_figure(curve_data=curve_data, fit_data=analysis_result)
+        figures = self._create_figures(curve_data=curve_data, fit_data=analysis_result)
 
         # Store raw data
         raw_data = dict()
