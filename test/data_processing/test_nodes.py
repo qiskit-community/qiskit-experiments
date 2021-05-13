@@ -19,6 +19,7 @@ from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit.result import Result
 from qiskit_experiments.experiment_data import ExperimentData
 from qiskit_experiments.data_processing.nodes import SVDAvg
+from qiskit_experiments.data_processing.data_processor import DataProcessor
 from test.data_processing.fake_experiment import FakeExperiment, BaseDataProcessorTest
 
 
@@ -70,13 +71,13 @@ class TestSVD(BaseDataProcessorTest):
         iq_svd.train([datum["memory"] for datum in self.avg_iq_data.data])
 
         # qubit 0 IQ data is oriented along (1,1)
-        self.assertTrue(np.allclose(iq_svd._main_axes[0], np.array([1,1]) / np.sqrt(2)))
+        self.assertTrue(np.allclose(iq_svd._main_axes[0], np.array([-1,-1]) / np.sqrt(2)))
 
         # qubit 1 IQ data is oriented along (1, -1)
-        self.assertTrue(np.allclose(iq_svd._main_axes[1], np.array([1, -1]) / np.sqrt(2)))
+        self.assertTrue(np.allclose(iq_svd._main_axes[1], np.array([-1, 1]) / np.sqrt(2)))
 
         processed = iq_svd(np.array([[1,1], [1, -1]]))
-        expected = np.array([1,1])/np.sqrt(2)
+        expected = np.array([-1,-1])/np.sqrt(2)
         self.assertTrue(np.allclose(processed, expected))
 
         processed = iq_svd(np.array([[2,2], [2, -2]]))
@@ -111,5 +112,22 @@ class TestSVD(BaseDataProcessorTest):
         iq_svd = SVDAvg(validate=False)
         iq_svd.train([datum["memory"] for datum in self.avg_iq_data.data])
 
-        self.assertTrue(np.allclose(iq_svd._main_axes[0], np.array([0.99633018, 0.08559302])))
-        self.assertTrue(np.allclose(iq_svd._main_axes[1], np.array([0.99627747, 0.0862044])))
+        self.assertTrue(np.allclose(iq_svd._main_axes[0], np.array([-0.99633018, -0.08559302])))
+        self.assertTrue(np.allclose(iq_svd._main_axes[1], np.array([-0.99627747, -0.0862044])))
+
+    def test_train_svd_processor(self):
+        """Test that we can train a DataProcessor with an SVD."""
+
+        processor = DataProcessor("memory", [SVDAvg()])
+
+        self.assertFalse(processor.is_trained)
+
+        iq_data = [
+            [[0., 0.], [0., 0.]],
+            [[1., 1.], [-1., 1.]],
+            [[-1., -1.], [1., -1.]]
+        ]
+
+        self.create_experiment(iq_data)
+
+        processor.train(self.avg_iq_data.data)

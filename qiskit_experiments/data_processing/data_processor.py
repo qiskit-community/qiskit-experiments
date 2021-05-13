@@ -54,6 +54,15 @@ class DataProcessor:
         """
         self._nodes.append(node)
 
+    @property
+    def is_trained(self) -> bool:
+        """Return True if all nodes of the data processor have been trained."""
+        for node in self._nodes:
+            if not node.is_trained:
+                return False
+
+        return True
+
     def __call__(self, datum: Dict[str, Any]) -> Any:
         """
         Call self on the given datum. This method sequentially calls the stored data actions
@@ -66,7 +75,7 @@ class DataProcessor:
         Returns:
             processed data: The data processed by the data processor.
         """
-        return self._call_internal(datum, False)
+        return self._call_internal(datum)
 
     def call_with_history(
         self, datum: Dict[str, Any], history_nodes: Set = None
@@ -89,10 +98,13 @@ class DataProcessor:
         return self._call_internal(datum, True, history_nodes)
 
     def _call_internal(
-        self, datum: Dict[str, Any], with_history: bool, history_nodes: Set = None
+        self,
+        datum: Dict[str, Any],
+        with_history: bool = False,
+        history_nodes: Set = None,
+        call_up_to_node: int = None
     ) -> Union[Any, Tuple[Any, List]]:
-        """
-        Internal function to process the data with or with storing the history of the computation.
+        """Process the data with or without storing the history of the computation.
 
         Args:
             datum: A single item of data, typically from an ExperimentData instance, that
@@ -101,6 +113,9 @@ class DataProcessor:
             history_nodes: The nodes, specified by index in the data processing chain, to
                 include in the history. If None is given then all nodes will be included
                 in the history.
+            call_up_to_node: The data processor will use each node in the processing chain
+                up to the node indexed by call_up_to_node. If this variable is not specified
+                then all nodes in the data processing chain will be called.
 
         Returns:
             datum_ and history if with_history is True or datum_ if with_history is False.
@@ -108,6 +123,7 @@ class DataProcessor:
         Raises:
             DataProcessorError: If the input key of the data processor is not contained in datum.
         """
+        call_up_to_node = call_up_to_node or len(self._nodes)
 
         if self._input_key not in datum:
             raise DataProcessorError(
@@ -118,14 +134,30 @@ class DataProcessor:
 
         history = []
         for index, node in enumerate(self._nodes):
-            datum_ = node(datum_)
 
-            if with_history and (
-                history_nodes is None or (history_nodes and index in history_nodes)
-            ):
-                history.append((node.__class__.__name__, datum_, index))
+            if index < call_up_to_node:
+                datum_ = node(datum_)
+
+                if with_history and (
+                    history_nodes is None or (history_nodes and index in history_nodes)
+                ):
+                    history.append((node.__class__.__name__, datum_, index))
 
         if with_history:
             return datum_, history
         else:
             return datum_
+
+    def train(self, data: List[Dict[str, Any]]):
+        """Train the nodes of the data processor.
+
+        Args:
+            data: The data to use to train the data processor.
+        """
+
+        for index, node in enumerate(self._nodes):
+            if not node.is_trained:
+                # Process the data up to the untrained node.
+                train_data = [self._call_internal(datum, call_up_to_node=index) for datum in data]
+
+                node.train(train_data)

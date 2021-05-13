@@ -101,6 +101,15 @@ class SVDAvg(IQPart):
 
         raise DataProcessorError("SVD is not trained.")
 
+    @property
+    def is_trained(self) -> bool:
+        """Return True is the SVD has been trained.
+
+        Returns:
+            True if the SVD has been trained.
+        """
+        return True if self._main_axes else False
+
     def _process(self, datum: np.array) -> np.array:
         """Project the IQ data onto the axis defined by an SVD and scale it.
 
