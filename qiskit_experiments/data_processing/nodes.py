@@ -90,6 +90,10 @@ class SVDAvg(IQPart):
         self._means = None
         self._scales = None
 
+    def _required_dimension(self) -> int:
+        """Require memory to be a 2D array."""
+        return 2
+
     @property
     def axis(self) -> List[np.array]:
         """Return the axis of the trained SVD"""

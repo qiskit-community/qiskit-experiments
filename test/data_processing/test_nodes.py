@@ -65,10 +65,8 @@ class TestSVD(BaseDataProcessorTest):
 
         self.create_experiment(iq_data)
 
-        print([datum["memory"] for datum in self.avg_iq_data.data])
-
-        iq_svd = SVDAvg(validate=False)
-        iq_svd.train([datum["memory"] for datum in self.avg_iq_data.data])
+        iq_svd = SVDAvg()
+        iq_svd.train([datum["memory"] for datum in self.avg_iq_data.data()])
 
         # qubit 0 IQ data is oriented along (1,1)
         self.assertTrue(np.allclose(iq_svd._main_axes[0], np.array([-1,-1]) / np.sqrt(2)))
@@ -109,8 +107,8 @@ class TestSVD(BaseDataProcessorTest):
 
         self.create_experiment(iq_data)
 
-        iq_svd = SVDAvg(validate=False)
-        iq_svd.train([datum["memory"] for datum in self.avg_iq_data.data])
+        iq_svd = SVDAvg()
+        iq_svd.train([datum["memory"] for datum in self.avg_iq_data.data()])
 
         self.assertTrue(np.allclose(iq_svd._main_axes[0], np.array([-0.99633018, -0.08559302])))
         self.assertTrue(np.allclose(iq_svd._main_axes[1], np.array([-0.99627747, -0.0862044])))
@@ -127,7 +125,18 @@ class TestSVD(BaseDataProcessorTest):
             [[1., 1.], [-1., 1.]],
             [[-1., -1.], [1., -1.]]
         ]
-
         self.create_experiment(iq_data)
 
-        processor.train(self.avg_iq_data.data)
+        processor.train(self.avg_iq_data.data())
+
+        self.assertTrue(processor.is_trained)
+
+        # Check that we can use the SVD
+        iq_data = [
+            [[2, 2], [2, -2]]
+        ]
+        self.create_experiment(iq_data)
+
+        processed = processor(self.avg_iq_data.data(0))
+        expected = np.array([-2, -2]) / np.sqrt(2)
+        self.assertTrue(np.allclose(processed, expected))

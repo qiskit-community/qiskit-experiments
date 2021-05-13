@@ -123,7 +123,8 @@ class DataProcessor:
         Raises:
             DataProcessorError: If the input key of the data processor is not contained in datum.
         """
-        call_up_to_node = call_up_to_node or len(self._nodes)
+        if call_up_to_node is None:
+            call_up_to_node = len(self._nodes)
 
         if self._input_key not in datum:
             raise DataProcessorError(
