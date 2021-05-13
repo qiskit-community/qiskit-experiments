@@ -16,8 +16,9 @@ Experiment Data class
 import uuid
 
 from qiskit.result import Result
-from qiskit.providers import Job, BaseJob
 from qiskit.exceptions import QiskitError
+from qiskit.providers import Job, BaseJob
+from qiskit.providers.exceptions import JobError
 
 
 class AnalysisResult(dict):
@@ -98,19 +99,32 @@ class ExperimentData:
         """Add data to the experiment.
 
         Args:
-            data (Result or Job or dict or list): the circuit execution data
+            data (Result or dict or list): the circuit execution data
                 to add. This can be a Result, Job, or dict object, or a list
                 of Result, Job, or dict objects.
 
         Raises:
             QiskitError: if the data is not a valid format.
+            KeyboardInterrupt: when job is cancelled by users.
         """
         if isinstance(data, dict):
             self._add_single_data(data)
+        elif isinstance(data, (Job, BaseJob)):
+            try:
+                result = data.result()
+            except JobError as ex:
+                if hasattr(data, "error_message"):
+                    msg = data.error_message
+                else:
+                    msg = "Please contact to administrator of your provider."
+                raise QiskitError(f"Execution of experiment failed. {msg}") from ex
+            except KeyboardInterrupt as ex:
+                # remove job from queue list and return the empty result
+                data.cancel()
+                raise KeyboardInterrupt(ex) from ex
+            self._add_result_data(result)
         elif isinstance(data, Result):
             self._add_result_data(data)
-        elif isinstance(data, (Job, BaseJob)):
-            self._add_result_data(data.result())
         elif isinstance(data, list):
             for dat in data:
                 self.add_data(dat)
@@ -134,7 +148,7 @@ class ExperimentData:
         """Add a single data dictionary to the experiment.
 
         Args:
-            data (dict): a data dictionary for a single circuit exection.
+            data (dict): a data dictionary for a single circuit execution.
         """
         # This method is intended to be overriden by subclasses when necessary.
         if data.get("metadata", {}).get("experiment_type") == self._experiment._type:
