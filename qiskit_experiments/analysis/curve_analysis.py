@@ -515,12 +515,12 @@ class CurveAnalysis(BaseAnalysis):
                 # filter data
                 series_data = [
                     datum
-                    for datum in experiment_data.data
+                    for datum in experiment_data.data()
                     if _is_target_series(datum, **curve_properties.filter_kwargs)
                 ]
             else:
                 # use data as-is
-                series_data = experiment_data.data
+                series_data = experiment_data.data()
 
             # Format x, y, yerr data
             try:
@@ -755,19 +755,20 @@ class CurveAnalysis(BaseAnalysis):
 
         raise QiskitError(f"A curve {curve_name} is not defined in this class.")
 
-    def _run_analysis(self, experiment_data: ExperimentData, **options):
+    def _run_analysis(
+        self, data: ExperimentData, **options
+    ) -> Tuple[List[AnalysisResult], List["Figure"]]:
         """Run analysis on circuit data.
 
         Args:
-            experiment_data: The experiment data to analyze.
-            options: kwarg options for analysis function. This may contain `data_processor` key
-                as a special argument so that user can override default data processor.
+            experiment_data: the experiment data to analyze.
+            options: kwarg options for analysis function.
 
         Returns:
             tuple: A pair ``(analysis_results, figures)`` where
                    ``analysis_results`` may be a single or list of
-                   AnalysisResult objects, and ``figures`` may be
-                   None, a single figure, or a list of figures.
+                   AnalysisResult objects, and ``figures`` is a list of any
+                   figures for the experiment.
         """
         analysis_result = AnalysisResult()
 
@@ -780,23 +781,23 @@ class CurveAnalysis(BaseAnalysis):
             try:
                 data_processor = self._calibrate_data_processor(
                     data_processor=data_processor,
-                    experiment_data=experiment_data,
+                    experiment_data=data,
                 )
             except DataProcessorError as ex:
                 analysis_result["error_message"] = str(ex)
                 analysis_result["success"] = False
-                return analysis_result, list()
+                return [analysis_result], list()
         else:
             # Callback function
             data_processor = data_processor.__func__
 
         # Extract curve entries from experiment data
         try:
-            curve_data = self._extract_curves(experiment_data, data_processor)
+            curve_data = self._extract_curves(data, data_processor)
         except DataProcessorError as ex:
             analysis_result["error_message"] = str(ex)
             analysis_result["success"] = False
-            return analysis_result, list()
+            return [analysis_result], list()
 
         # Run fitting
         # pylint: disable=broad-except
@@ -824,4 +825,4 @@ class CurveAnalysis(BaseAnalysis):
             }
         analysis_result["raw_data"] = raw_data
 
-        return analysis_result, figures
+        return [analysis_result], figures
