@@ -98,7 +98,7 @@ def scipy_curve_fit_wrapper(
         parameters via ``pcov(absolute_sigma=False) = pcov * reduced_chisq``
         ``popt_err(absolute_sigma=False) = popt_err * sqrt(reduced_chisq)``.
     """
-    # Check the degrees of freedom is greater than 0
+    # Check that degrees of freedom is greater than 0
     dof = len(ydata) - len(p0)
     if dof < 1:
         raise QiskitError(
@@ -183,8 +183,8 @@ class CurveAnalysis(BaseAnalysis):
 
     Class Attributes:
 
-        __x_key__: String representation of horizontal axis.
-            This should be defined in the circuit metadata for data extraction.
+        __x_key__: Key in the circuit metadata under which to find the value for
+            the horizontal axis.
         __series__: A set of data points that will be fit to a the same parameters
             in the fit function. If this analysis contains multiple curves,
             the same number of series definitions should be listed.
