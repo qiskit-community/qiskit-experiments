@@ -53,7 +53,7 @@ from qiskit.test import QiskitTestCase
 import numpy as np
 
 """
-Test RB experiment
+A Tester for the RB experiment
 """
 class TestRB(QiskitTestCase):
     """
