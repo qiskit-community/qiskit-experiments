@@ -58,6 +58,7 @@ class TestRB(QiskitTestCase):
             # Checking if the matrix representation is the identity matrix
             self.assertEqual(
                 np.allclose(Clifford(qc).to_matrix(), np.identity(2 ** num_qubits)),
+                True,
                 "Clifford sequence doesn't result in the identity matrix.",
             )
 
