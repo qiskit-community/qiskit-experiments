@@ -646,8 +646,10 @@ class CurveAnalysis(BaseAnalysis):
         # Sort by fit error
         try:
             fit_results = sorted(fit_results, key=lambda r: r["reduced_chisq"])
-        except KeyError:
-            raise KeyError("Returned analysis result does not provide reduced Chi squared value.")
+        except KeyError as ex:
+            raise KeyError(
+                "Returned analysis result does not provide reduced Chi squared value."
+            ) from ex
 
         best_analysis_result = fit_results[0]
         best_analysis_result["popt_keys"] = self.__param_names__
