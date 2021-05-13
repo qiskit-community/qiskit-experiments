@@ -14,7 +14,6 @@ Experiment Data class
 """
 import logging
 from typing import Optional, Union, List, Dict, Tuple
-import io
 import os
 import uuid
 from collections import OrderedDict
