@@ -19,6 +19,8 @@ from numbers import Integral
 
 from qiskit import transpile, assemble
 from qiskit.exceptions import QiskitError
+from qiskit.providers.backend import Backend
+from qiskit.providers.basebackend import BaseBackend as LegacyBackend
 
 from .experiment_data import ExperimentData
 
@@ -136,8 +138,11 @@ class BaseExperiment(ABC):
 
         # Generate and run circuits
         circuits = self.transpiled_circuits(backend, **circuit_options)
-        qobj = assemble(circuits, backend, **run_options)
-        job = backend.run(qobj)
+        if isinstance(backend, LegacyBackend):
+            qobj = assemble(circuits, backend=backend, **run_options)
+            job = backend.run(qobj)
+        else:
+            job = backend.run(circuits, **run_options)
 
         # Add Job to ExperimentData
         experiment_data.add_data(job)
@@ -172,7 +177,7 @@ class BaseExperiment(ABC):
 
     @abstractmethod
     def circuits(
-        self, backend: Optional["Backend"] = None, **circuit_options
+        self, backend: Optional[Backend] = None, **circuit_options
     ) -> List["QuantumCircuit"]:
         """Return a list of experiment circuits.
 
@@ -194,7 +199,7 @@ class BaseExperiment(ABC):
         # documented in the methods docstring for the API docs.
 
     def transpiled_circuits(
-        self, backend: Optional["Backend"] = None, **kwargs
+        self, backend: Optional[Backend] = None, **kwargs
     ) -> List["QuantumCircuit"]:
         """Return a list of experiment circuits.
 
