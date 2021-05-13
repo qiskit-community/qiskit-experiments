@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 """Test curve fitting base class."""
+# pylint: disable=invalid-name
 
 from typing import List, Callable
 
@@ -84,7 +85,17 @@ class TestCurveAnalysis(QiskitTestCase):
     def test_run_single_curve_analysis(self):
         """Test analysis for single curve."""
         analysis = create_new_analysis(
-            fit_funcs=[fit_functions.exponential_decay], param_names=["p0", "p1", "p2", "p3"]
+            series=[
+                SeriesDef(
+                    name="curve1",
+                    param_names=["p0", "p1", "p2", "p3"],
+                    fit_func_index=0,
+                    filter_kwargs=None,
+                    data_option_keys=None,
+                )
+            ],
+            fit_funcs=[fit_functions.exponential_decay],
+            param_names=["p0", "p1", "p2", "p3"],
         )
         ref_p0 = 0.9
         ref_p1 = 2.5
@@ -109,7 +120,17 @@ class TestCurveAnalysis(QiskitTestCase):
     def test_run_single_curve_fail(self):
         """Test analysis returns status when it fails."""
         analysis = create_new_analysis(
-            fit_funcs=[fit_functions.exponential_decay], param_names=["p0", "p1", "p2", "p3"]
+            series=[
+                SeriesDef(
+                    name="curve1",
+                    param_names=["p0", "p1", "p2", "p3"],
+                    fit_func_index=0,
+                    filter_kwargs=None,
+                    data_option_keys=None,
+                )
+            ],
+            fit_funcs=[fit_functions.exponential_decay],
+            param_names=["p0", "p1", "p2", "p3"],
         )
         ref_p0 = 0.9
         ref_p1 = 2.5
@@ -141,12 +162,14 @@ class TestCurveAnalysis(QiskitTestCase):
                     param_names=["p0", "p1", "p3", "p4"],
                     fit_func_index=0,
                     filter_kwargs={"exp": 0},
+                    data_option_keys=None,
                 ),
                 SeriesDef(
                     name="curve2",
                     param_names=["p0", "p2", "p3", "p4"],
                     fit_func_index=0,
                     filter_kwargs={"exp": 1},
+                    data_option_keys=None,
                 ),
             ],
             fit_funcs=[fit_functions.exponential_decay],
@@ -186,12 +209,14 @@ class TestCurveAnalysis(QiskitTestCase):
                     param_names=["p0", "p1", "p2", "p3"],
                     fit_func_index=0,
                     filter_kwargs={"exp": 0},
+                    data_option_keys=None,
                 ),
                 SeriesDef(
                     name="curve2",
                     param_names=["p0", "p1", "p2", "p3"],
                     fit_func_index=1,
                     filter_kwargs={"exp": 1},
+                    data_option_keys=None,
                 ),
             ],
             fit_funcs=[fit_functions.cos, fit_functions.sin],
@@ -219,4 +244,48 @@ class TestCurveAnalysis(QiskitTestCase):
 
         # check result data
         self.assertTrue(results["success"])
+        np.testing.assert_array_almost_equal(results["popt"], ref_popt, decimal=1)
+
+    def test_fit_with_data_option(self):
+        """Test analysis by passing data processing option to the data processor."""
+
+        def inverted_decay(x, p0, p1, p2, p3):
+            # measure inverse of population
+            return 1 - fit_functions.exponential_decay(x, p0, p1, p2, p3)
+
+        analysis = create_new_analysis(
+            series=[
+                SeriesDef(
+                    name="curve1",
+                    param_names=["p0", "p1", "p2", "p3"],
+                    fit_func_index=0,
+                    filter_kwargs=None,
+                    data_option_keys=["outcome"],
+                )
+            ],
+            fit_funcs=[inverted_decay],
+            param_names=["p0", "p1", "p2", "p3"],
+        )
+        ref_p0 = 0.9
+        ref_p1 = 2.5
+        ref_p2 = 0.0
+        ref_p3 = 0.1
+
+        # tell metadata to count zero
+        test_data = simulate_output_data(
+            fit_functions.exponential_decay,
+            self.xvalues,
+            ref_p0,
+            ref_p1,
+            ref_p2,
+            ref_p3,
+            outcome="0",
+        )
+        results, _ = analysis._run_analysis(test_data, p0=[ref_p0, ref_p1, ref_p2, ref_p3])
+
+        ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
+
+        # check result data
+        self.assertTrue(results["success"])
+
         np.testing.assert_array_almost_equal(results["popt"], ref_popt, decimal=1)

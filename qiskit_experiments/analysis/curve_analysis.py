@@ -36,6 +36,7 @@ SeriesDef = NamedTuple(
         ("param_names", List[str]),
         ("fit_func_index", int),
         ("filter_kwargs", Optional[Dict[str, Any]]),
+        ("data_option_keys", Optional[List[str]]),
     ],
 )
 
@@ -189,10 +190,20 @@ class CurveAnalysis(BaseAnalysis):
         __series__: A set of data points that will be fit to a the same parameters
             in the fit function. If this analysis contains multiple curves,
             the same number of series definitions should be listed.
-            Each series definition is SeriesDef element, that may be initialized with
-            `name`, `param_names`, `fit_func_index`, `filter_kwargs`.
-            See the Examples below for details. This field can be left as None if the
-            analysis is performed for only single line.
+            Each series definition is SeriesDef element, that may be initialized with::
+
+                name: Name of the curve. This is arbitrary field.
+                param_names: Name of parameters. This is order sensitive. The parameter names
+                    should be involved in __param_names__.
+                fit_func_index: Index of fitting function associated with this curve.
+                    The fitting function should be listed in __fit_funcs__.
+                filter_kwargs: Circuit metadata key and value associated with this curve.
+                    The data points of the curve is extracted from ExperimentData based on
+                    this information.
+                data_option_keys: Circuit metadata keys that are passed to the data processor.
+                    The key should conform to the data processor API.
+
+            See the Examples below for more details.
         __fit_funcs__: List of callables to fit parameters. This is order sensitive.
             The list index corresponds to the function index specified by __series__ definition.
         __param_names__: Name of parameters to fit. This is order sensitive.
@@ -205,13 +216,23 @@ class CurveAnalysis(BaseAnalysis):
         =============
 
         In this type of experiment, the analysis deals with a single curve.
-        Thus __series__ is not necessarily assigned.
+        Thus filter_kwargs is not necessary defined.
 
         .. code-block::
 
             class AnalysisExample(CurveAnalysis):
 
                 __x_key__ = "delay"
+
+                __series__ = [
+                    SeriesDef(
+                        name="t1_decay",
+                        param_names=["a", "tau", "b"],
+                        fit_func_index=0,
+                        filter_kwargs=None,
+                        data_option_keys=["outcome"]
+                    )
+                ]
 
                 __fit_funcs__ = [library.exponential]
 
@@ -236,13 +257,15 @@ class CurveAnalysis(BaseAnalysis):
                         name="standard_rb",
                         param_names=["a", "alpha_std", "b"],
                         fit_func_index=0,
-                        filter_kwargs={"interleaved": False}
+                        filter_kwargs={"interleaved": False},
+                        data_option_keys=["outcome"]
                     ),
                     SeriesDef(
                         name="interleaved_rb",
                         param_names=["a", "alpha_int", "b"],
                         fit_func_index=0,
-                        filter_kwargs={"interleaved": True}
+                        filter_kwargs={"interleaved": True},
+                        data_option_keys=["outcome"]
                     )
                 ]
 
@@ -274,13 +297,15 @@ class CurveAnalysis(BaseAnalysis):
                         name="x",
                         param_names=["a", "freq", "phase", "b"],
                         fit_func_index=0,
-                        filter_kwargs={"pulse": "x"}
+                        filter_kwargs={"pulse": "x"},
+                        data_option_keys=["outcome"]
                     ),
                     SeriesDef(
                         name="y",
                         param_names=["a", "freq", "phase", "b"],
                         fit_func_index=1,
-                        filter_kwargs={"pulse": "y"}
+                        filter_kwargs={"pulse": "y"},
+                        data_option_keys=["outcome"]
                     )
                 ]
 
@@ -471,18 +496,12 @@ class CurveAnalysis(BaseAnalysis):
         Raises:
             QiskitError:
                 - When __x_key__ is not defined in the circuit metadata.
+                - When __series__ is not defined.
+            KeyError:
+                - When circuit metadata doesn't provide required data processor options.
         """
-        if self.__series__:
-            series = self.__series__
-        else:
-            series = [
-                SeriesDef(
-                    name="fit-curve-0",
-                    param_names=self.__param_names__,
-                    fit_func_index=0,
-                    filter_kwargs=None,
-                )
-            ]
+        if self.__series__ is None:
+            raise QiskitError("Curve __series__ is not provided for this analysis.")
 
         def _is_target_series(datum, **filters):
             try:
@@ -491,7 +510,7 @@ class CurveAnalysis(BaseAnalysis):
                 return False
 
         curve_data = list()
-        for curve_properties in series:
+        for curve_properties in self.__series__:
             if curve_properties.filter_kwargs:
                 # filter data
                 series_data = [
@@ -510,7 +529,21 @@ class CurveAnalysis(BaseAnalysis):
                 raise QiskitError(
                     f"X value key {self.__x_key__} is not defined in circuit metadata."
                 ) from ex
-            yvals, yerrs = zip(*map(data_processor, series_data))
+
+            option_keys = curve_properties.data_option_keys or dict()
+
+            def _data_processing(datum):
+                # A helper function to receive data processor runtime option from metadata
+                try:
+                    # Extract data processor options
+                    dp_options = {key: datum["metadata"][key] for key in option_keys}
+                except KeyError as ex:
+                    raise KeyError(
+                        "Required data processor options are not provided by circuit metadata."
+                    ) from ex
+                return data_processor(datum, **dp_options)
+
+            yvals, yerrs = zip(*map(_data_processing, series_data))
 
             # Apply data pre-processing
             prepared_xvals, prepared_yvals, prepared_yerrs = self._data_pre_processing(
