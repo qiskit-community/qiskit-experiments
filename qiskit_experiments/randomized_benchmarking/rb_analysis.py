@@ -21,14 +21,12 @@ from qiskit_experiments.analysis.data_processing import (
     level2_probability,
     mean_xy_data,
 )
-from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_scatter, plot_errorbar
-
-try:
-    from matplotlib import pyplot as plt
-
-    HAS_MATPLOTLIB = True
-except ImportError:
-    HAS_MATPLOTLIB = False
+from qiskit_experiments.analysis.plotting import (
+    HAS_MATPLOTLIB,
+    plot_curve_fit,
+    plot_scatter,
+    plot_errorbar,
+)
 
 
 class RBAnalysis(BaseAnalysis):
@@ -37,14 +35,14 @@ class RBAnalysis(BaseAnalysis):
     # pylint: disable = arguments-differ, invalid-name
     def _run_analysis(
         self,
-        experiment_data,
+        experiment_data: "ExperimentData",
         p0: Optional[List[float]] = None,
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,
     ):
         """Run analysis on circuit data.
         Args:
-            experiment_data (ExperimentData): the experiment data to analyze.
+            experiment_data: the experiment data to analyze.
             p0: Optional, initial parameter values for curve_fit.
             plot: If True generate a plot of fitted data.
             ax: Optional, matplotlib axis to add plot to.
@@ -54,16 +52,15 @@ class RBAnalysis(BaseAnalysis):
                    AnalysisResult objects, and ``figures`` may be
                    None, a single figure, or a list of figures.
         """
-        num_qubits = len(experiment_data.data[0]["metadata"]["qubits"])
+        data = experiment_data.data()
+        num_qubits = len(data[0]["metadata"]["qubits"])
 
         # Process data
         def data_processor(datum):
             return level2_probability(datum, num_qubits * "0")
 
         # Raw data for each sample
-        x_raw, y_raw, sigma_raw = process_curve_data(
-            experiment_data.data, data_processor, x_key="xdata"
-        )
+        x_raw, y_raw, sigma_raw = process_curve_data(data, data_processor, x_key="xdata")
 
         # Data averaged over samples
         xdata, ydata, ydata_sigma = mean_xy_data(x_raw, y_raw, sigma_raw, method="sample")
@@ -83,13 +80,15 @@ class RBAnalysis(BaseAnalysis):
         analysis_result["EPC"] = scale * (1 - popt[1])
         analysis_result["EPC_err"] = scale * popt_err[1] / popt[1]
 
-        if plot:
+        if plot and HAS_MATPLOTLIB:
             ax = plot_curve_fit(fit_fun, analysis_result, ax=ax)
             ax = plot_scatter(x_raw, y_raw, ax=ax)
             ax = plot_errorbar(xdata, ydata, ydata_sigma, ax=ax)
             self._format_plot(ax, analysis_result)
-            analysis_result.plt = plt
-        return analysis_result, None
+            figures = [ax.get_figure()]
+        else:
+            figures = None
+        return analysis_result, figures
 
     @staticmethod
     def _p0(xdata, ydata, num_qubits):

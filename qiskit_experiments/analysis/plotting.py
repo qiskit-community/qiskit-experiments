@@ -73,8 +73,8 @@ def plot_curve_fit(
         ImportError: if matplotlib is not installed.
     """
     if ax is None:
-        plt.figure()
-        ax = plt.gca()
+        figure = plt.figure()
+        ax = figure.subplots()
 
     # Result data
     popt = result["popt"]
@@ -132,8 +132,8 @@ def plot_scatter(
         AxesSubPlot: the matplotlib axes containing the plot.
     """
     if ax is None:
-        plt.figure()
-        ax = plt.gca()
+        figure = plt.figure()
+        ax = figure.subplots()
 
     # Default plot options
     plot_opts = kwargs.copy()
@@ -178,8 +178,8 @@ def plot_errorbar(
         AxesSubPlot: the matplotlib axes containing the plot.
     """
     if ax is None:
-        plt.figure()
-        ax = plt.gca()
+        figure = plt.figure()
+        ax = figure.subplots()
 
     # Default plot options
     plot_opts = kwargs.copy()

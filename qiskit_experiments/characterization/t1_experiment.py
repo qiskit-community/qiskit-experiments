@@ -23,6 +23,7 @@ from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import process_curve_data, curve_fit
 from qiskit_experiments.analysis.data_processing import level2_probability
+from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_errorbar, HAS_MATPLOTLIB
 from qiskit_experiments import AnalysisResult
 
 
@@ -39,8 +40,10 @@ class T1Analysis(BaseAnalysis):
         t1_bounds=None,
         amplitude_bounds=None,
         offset_bounds=None,
+        plot=True,
+        ax=None,
         **kwargs,
-    ) -> Tuple[AnalysisResult, None]:
+    ) -> Tuple[AnalysisResult, List["figure"]]:
         """
         Calculate T1
 
@@ -52,20 +55,21 @@ class T1Analysis(BaseAnalysis):
             t1_bounds (list of two floats): Optional, lower bound and upper bound to T1
             amplitude_bounds (list of two floats): Optional, lower bound and upper bound to the amplitude
             offset_bounds (list of two floats): Optional, lower bound and upper bound to the offset
+            plot: If True generate a plot of fitted data.
+            ax: Optional, matplotlib axis to add plot to.
             kwargs: Trailing unused function parameters
 
         Returns:
             The analysis result with the estimated T1
         """
-
-        unit = experiment_data._data[0]["metadata"]["unit"]
-        conversion_factor = experiment_data._data[0]["metadata"].get("dt_factor", None)
+        data = experiment_data.data()
+        unit = data[0]["metadata"]["unit"]
+        conversion_factor = data[0]["metadata"].get("dt_factor", None)
+        qubit = data[0]["metadata"]["qubit"]
         if conversion_factor is None:
             conversion_factor = 1 if unit == "s" else apply_prefix(1, unit)
 
-        xdata, ydata, sigma = process_curve_data(
-            experiment_data._data, lambda datum: level2_probability(datum, "1")
-        )
+        xdata, ydata, sigma = process_curve_data(data, lambda datum: level2_probability(datum, "1"))
         xdata *= conversion_factor
 
         if t1_guess is None:
@@ -83,17 +87,13 @@ class T1Analysis(BaseAnalysis):
         if offset_bounds is None:
             offset_bounds = [0, 1]
 
-        fit_result = curve_fit(
-            lambda x, a, tau, c: a * np.exp(-x / tau) + c,
-            xdata,
-            ydata,
-            [amplitude_guess, t1_guess, offset_guess],
-            sigma,
-            tuple(
-                [amp_bnd, t1_bnd, offset_bnd]
-                for amp_bnd, t1_bnd, offset_bnd in zip(amplitude_bounds, t1_bounds, offset_bounds)
-            ),
-        )
+        # Perform fit
+        def fit_fun(x, a, tau, c):
+            return a * np.exp(-x / tau) + c
+
+        init = {"a": amplitude_guess, "tau": t1_guess, "c": offset_guess}
+        bounds = {"a": amplitude_bounds, "tau": t1_bounds, "c": offset_bounds}
+        fit_result = curve_fit(fit_fun, xdata, ydata, init, sigma=sigma, bounds=bounds)
 
         analysis_result = AnalysisResult(
             {
@@ -112,7 +112,16 @@ class T1Analysis(BaseAnalysis):
         if unit == "dt":
             analysis_result["fit"]["dt"] = conversion_factor
 
-        return analysis_result, None
+        # Generate fit plot
+        if plot and HAS_MATPLOTLIB:
+            ax = plot_curve_fit(fit_fun, fit_result, ax=ax)
+            ax = plot_errorbar(xdata, ydata, sigma, ax=ax)
+            self._format_plot(ax, fit_result, qubit=qubit)
+            figures = [ax.get_figure()]
+        else:
+            figures = None
+
+        return analysis_result, figures
 
     @staticmethod
     def _fit_quality(fit_out, fit_err, reduced_chisq):
@@ -128,6 +137,47 @@ class T1Analysis(BaseAnalysis):
             return "computer_good"
         else:
             return "computer_bad"
+
+    @classmethod
+    def _format_plot(cls, ax, analysis_result, qubit=None, add_label=True):
+        """Format curve fit plot"""
+        # Formatting
+        ax.tick_params(labelsize=14)
+        if qubit is not None:
+            ax.set_title(f"Qubit {qubit}", fontsize=16)
+        ax.set_xlabel("Delay (s)", fontsize=16)
+        ax.set_ylabel("P(1)", fontsize=16)
+        ax.grid(True)
+
+        if add_label:
+            t1 = analysis_result["popt"][1]
+            t1_err = analysis_result["popt_err"][1]
+            # Convert T1 to time unit for pretty printing
+            if t1 < 1e-7:
+                scale = 1e9
+                unit = "ns"
+            elif t1 < 1e-4:
+                scale = 1e6
+                unit = "μs"
+            elif t1 < 0.1:
+                scale = 1e3
+                unit = "ms"
+            else:
+                scale = 1
+                unit = "s"
+            box_text = "$T_1$ = {:.2f} \u00B1 {:.2f} {}".format(t1 * scale, t1_err * scale, unit)
+            bbox_props = dict(boxstyle="square,pad=0.3", fc="white", ec="black", lw=1)
+            ax.text(
+                0.6,
+                0.9,
+                box_text,
+                ha="center",
+                va="center",
+                size=14,
+                bbox=bbox_props,
+                transform=ax.transAxes,
+            )
+        return ax
 
 
 class T1Experiment(BaseExperiment):
