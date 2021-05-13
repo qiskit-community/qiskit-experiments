@@ -9,6 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+
 """
 Analysis class for curve fitting.
 """
@@ -637,7 +638,7 @@ class CurveAnalysis(BaseAnalysis):
                 xdata=flat_xvals,
                 ydata=flat_yvals,
                 sigma=flat_yerrs,
-                **fit_option
+                **fit_option,
             )
             for fit_option in fit_options
         ]
@@ -646,9 +647,7 @@ class CurveAnalysis(BaseAnalysis):
         try:
             fit_results = sorted(fit_results, key=lambda r: r["reduced_chisq"])
         except KeyError:
-            raise KeyError(
-                "Returned analysis result does not provide reduced Chi squared value."
-            )
+            raise KeyError("Returned analysis result does not provide reduced Chi squared value.")
 
         best_analysis_result = fit_results[0]
         best_analysis_result["popt_keys"] = self.__param_names__

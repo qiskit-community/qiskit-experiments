@@ -19,6 +19,7 @@ from qiskit.test import QiskitTestCase
 
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.analysis import CurveAnalysis, SeriesDef
+from qiskit_experiments.analysis import fit_functions
 from qiskit_experiments.base_experiment import BaseExperiment
 
 
@@ -80,43 +81,50 @@ class TestCurveAnalysis(QiskitTestCase):
         super().setUp()
         self.xvalues = np.linspace(0.1, 1, 30)
 
-        # fit functions
-        self.exp_func = lambda x, p0, p1, p2: p0 * np.exp(p1 * x) + p2
-        self.cos_func = lambda x, p0, p1, p2, p3: p0 * np.cos(2 * np.pi * p1 * x + p2) + p3
-        self.sin_func = lambda x, p0, p1, p2, p3: p0 * np.sin(2 * np.pi * p1 * x + p2) + p3
-
     def test_run_single_curve_analysis(self):
         """Test analysis for single curve."""
-        analysis = create_new_analysis(fit_funcs=[self.exp_func], param_names=["p0", "p1", "p2"])
+        analysis = create_new_analysis(
+            fit_funcs=[fit_functions.exponential_decay], param_names=["p0", "p1", "p2", "p3"]
+        )
         ref_p0 = 0.9
-        ref_p1 = -2.5
-        ref_p2 = 0.1
+        ref_p1 = 2.5
+        ref_p2 = 0.0
+        ref_p3 = 0.1
 
-        test_data = simulate_output_data(self.exp_func, self.xvalues, ref_p0, ref_p1, ref_p2)
-        results, _ = analysis._run_analysis(test_data, p0=[ref_p0, ref_p1, ref_p2])
+        test_data = simulate_output_data(
+            fit_functions.exponential_decay, self.xvalues, ref_p0, ref_p1, ref_p2, ref_p3
+        )
+        results, _ = analysis._run_analysis(test_data, p0=[ref_p0, ref_p1, ref_p2, ref_p3])
 
-        ref_popt = np.asarray([ref_p0, ref_p1, ref_p2])
+        ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
 
         # check result data
         self.assertTrue(results["success"])
 
         np.testing.assert_array_almost_equal(results["popt"], ref_popt, decimal=1)
-        self.assertEqual(results["dof"], 27)
+        self.assertEqual(results["dof"], 26)
         self.assertListEqual(results["xrange"], [0.1, 1.0])
-        self.assertListEqual(results["popt_keys"], ["p0", "p1", "p2"])
+        self.assertListEqual(results["popt_keys"], ["p0", "p1", "p2", "p3"])
 
     def test_run_single_curve_fail(self):
         """Test analysis returns status when it fails."""
-        analysis = create_new_analysis(fit_funcs=[self.exp_func], param_names=["p0", "p1", "p2"])
+        analysis = create_new_analysis(
+            fit_funcs=[fit_functions.exponential_decay], param_names=["p0", "p1", "p2", "p3"]
+        )
         ref_p0 = 0.9
-        ref_p1 = -2.5
-        ref_p2 = 0.1
+        ref_p1 = 2.5
+        ref_p2 = 0.0
+        ref_p3 = 0.1
 
-        test_data = simulate_output_data(self.exp_func, self.xvalues, ref_p0, ref_p1, ref_p2)
+        test_data = simulate_output_data(
+            fit_functions.exponential_decay, self.xvalues, ref_p0, ref_p1, ref_p2, ref_p3
+        )
 
         # Try to fit with infeasible parameter boundary. This should fail.
         results, _ = analysis._run_analysis(
-            test_data, p0=[ref_p0, ref_p1, ref_p2], bounds=([-10, -10, -10], [0, 0, 0])
+            test_data,
+            p0=[ref_p0, ref_p1, ref_p2, ref_p3],
+            bounds=([-10, -10, -10, -10], [0, 0, 0, 0]),
         )
 
         self.assertFalse(results["success"])
@@ -130,39 +138,40 @@ class TestCurveAnalysis(QiskitTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    param_names=["p0", "p1", "p3"],
+                    param_names=["p0", "p1", "p3", "p4"],
                     fit_func_index=0,
                     filter_kwargs={"exp": 0},
                 ),
                 SeriesDef(
                     name="curve2",
-                    param_names=["p0", "p2", "p3"],
+                    param_names=["p0", "p2", "p3", "p4"],
                     fit_func_index=0,
                     filter_kwargs={"exp": 1},
                 ),
             ],
-            fit_funcs=[self.exp_func],
-            param_names=["p0", "p1", "p2", "p3"],
+            fit_funcs=[fit_functions.exponential_decay],
+            param_names=["p0", "p1", "p2", "p3", "p4"],
         )
         ref_p0 = 0.9
-        ref_p1 = -7.0
-        ref_p2 = -5.0
-        ref_p3 = 0.1
+        ref_p1 = 7.0
+        ref_p2 = 5.0
+        ref_p3 = 0.0
+        ref_p4 = 0.1
 
         test_data0 = simulate_output_data(
-            self.exp_func, self.xvalues, ref_p0, ref_p1, ref_p3, exp=0
+            fit_functions.exponential_decay, self.xvalues, ref_p0, ref_p1, ref_p3, ref_p4, exp=0
         )
         test_data1 = simulate_output_data(
-            self.exp_func, self.xvalues, ref_p0, ref_p2, ref_p3, exp=1
+            fit_functions.exponential_decay, self.xvalues, ref_p0, ref_p2, ref_p3, ref_p4, exp=1
         )
 
         # merge two experiment data
         for datum in test_data1.data:
             test_data0.add_data(datum)
 
-        results, _ = analysis._run_analysis(test_data0, p0=[ref_p0, ref_p1, ref_p2, ref_p3])
+        results, _ = analysis._run_analysis(test_data0, p0=[ref_p0, ref_p1, ref_p2, ref_p3, ref_p4])
 
-        ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
+        ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3, ref_p4])
 
         # check result data
         self.assertTrue(results["success"])
@@ -185,7 +194,7 @@ class TestCurveAnalysis(QiskitTestCase):
                     filter_kwargs={"exp": 1},
                 ),
             ],
-            fit_funcs=[self.cos_func, self.sin_func],
+            fit_funcs=[fit_functions.cos, fit_functions.sin],
             param_names=["p0", "p1", "p2", "p3"],
         )
         ref_p0 = 0.1
@@ -194,10 +203,10 @@ class TestCurveAnalysis(QiskitTestCase):
         ref_p3 = 0.5
 
         test_data0 = simulate_output_data(
-            self.cos_func, self.xvalues, ref_p0, ref_p1, ref_p2, ref_p3, exp=0
+            fit_functions.cos, self.xvalues, ref_p0, ref_p1, ref_p2, ref_p3, exp=0
         )
         test_data1 = simulate_output_data(
-            self.sin_func, self.xvalues, ref_p0, ref_p1, ref_p2, ref_p3, exp=1
+            fit_functions.sin, self.xvalues, ref_p0, ref_p1, ref_p2, ref_p3, exp=1
         )
 
         # merge two experiment data
