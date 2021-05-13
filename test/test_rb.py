@@ -71,7 +71,7 @@ class TestRB(QiskitTestCase):
         """
         for ind, qc in enumerate(circuits):
             self.assertEqual(
-                qc.metadata["xdata"],
+                qc.metadata["xval"],
                 exp_data["lengths"][ind],
                 "The length of the experiment doen't match to the one provided.",
             )
