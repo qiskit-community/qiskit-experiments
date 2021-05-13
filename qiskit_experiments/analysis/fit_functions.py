@@ -45,3 +45,12 @@ def exponential_decay(
         y = {\rm amp} \exp \left( - \lambda x + {\rm x0} \right) + {\rm baseline}
     """
     return amp * np.exp(-lamb * x + x0) + baseline
+
+
+def gaussian(x: np.ndarray, amp: float, sigma: float, x0: float, baseline: float) -> np.ndarray:
+    r"""Gaussian function
+
+    .. math::
+        y = {\rm amp} \exp \left( - (x - x0)^2 / \sigma^2 \right) + {\rm baseline}
+    """
+    return amp * np.exp(-((x - x0) ** 2) / sigma ** 2) + baseline

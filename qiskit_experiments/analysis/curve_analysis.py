@@ -739,25 +739,23 @@ class CurveAnalysis(BaseAnalysis):
         analysis_result = AnalysisResult()
 
         # Setup data processor
-        if "data_processor" in options:
-            # Use user provided processor
-            data_processor = options.pop("data_processor")
+        data_processor = options.pop("data_processor", self.__default_data_processor__)
+
+        # TODO add ` and not data_processor.trained:`
+        if isinstance(data_processor, DataProcessor):
+            # Qiskit DataProcessor instance. May need calibration.
+            try:
+                data_processor = self._calibrate_data_processor(
+                    data_processor=data_processor,
+                    experiment_data=experiment_data,
+                )
+            except DataProcessorError as ex:
+                analysis_result["error_message"] = str(ex)
+                analysis_result["success"] = False
+                return analysis_result, list()
         else:
-            # Use default processor
-            if isinstance(self.__default_data_processor__, DataProcessor):
-                # Calibrate default data processor instance
-                try:
-                    data_processor = self._calibrate_data_processor(
-                        data_processor=self.__default_data_processor__,
-                        experiment_data=experiment_data,
-                    )
-                except DataProcessorError as ex:
-                    analysis_result["error_message"] = str(ex)
-                    analysis_result["success"] = False
-                    return analysis_result, list()
-            else:
-                # Callback function
-                data_processor = self.__default_data_processor__.__func__
+            # Callback function
+            data_processor = data_processor.__func__
 
         # Extract curve entries from experiment data
         try:
