@@ -121,6 +121,7 @@ class ExperimentData:
 
         Raises:
             QiskitError: if data format is invalid.
+            KeyboardInterrupt: when job is cancelled by users.
         """
         # Set backend from the job, this could be added to base class
         if isinstance(data, (Job, BaseJob)):
