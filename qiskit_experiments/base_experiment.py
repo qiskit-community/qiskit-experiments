@@ -14,13 +14,15 @@ Base Experiment class.
 """
 
 from abc import ABC, abstractmethod
+from typing import Union, Iterable, Optional, Tuple, List
 from numbers import Integral
 
 from qiskit import transpile, assemble
 from qiskit.exceptions import QiskitError
+from qiskit.providers.backend import Backend
+from qiskit.providers.basebackend import BaseBackend as LegacyBackend
 
 from .experiment_data import ExperimentData
-
 
 _TRANSPILE_OPTIONS = {
     "basis_gates",
@@ -65,15 +67,20 @@ class BaseExperiment(ABC):
     # Custom default run (assemble) options for experiment subclasses
     __run_defaults__ = {}
 
-    def __init__(self, qubits, experiment_type=None, circuit_options=None):
+    def __init__(
+        self,
+        qubits: Union[int, Iterable[int]],
+        experiment_type: Optional[str] = None,
+        circuit_options: Optional[Iterable[str]] = None,
+    ):
         """Initialize the experiment object.
 
         Args:
-            qubits (int or Iterable[int]): the number of qubits or list of
-                                           physical qubits for the experiment.
-            experiment_type (str): Optional, the experiment type string.
-            circuit_options (Iterable): Optional, list of kwarg names for
-                                        the subclassed `circuit` method.
+            qubits: the number of qubits or list of physical qubits
+                    for the experiment.
+            experiment_type: Optional, the experiment type string.
+            circuit_options: Optional, list of kwarg names for
+                             the subclassed `circuit` method.
 
         Raises:
             QiskitError: if qubits is a list and contains duplicates.
@@ -95,16 +102,21 @@ class BaseExperiment(ABC):
         # Store options and values
         self._circuit_options = set(circuit_options) if circuit_options else set()
 
-    def run(self, backend, experiment_data=None, **kwargs):
+    def run(
+        self,
+        backend: "Backend",
+        analysis: bool = True,
+        experiment_data: Optional[ExperimentData] = None,
+        **kwargs,
+    ) -> ExperimentData:
         """Run an experiment and perform analysis.
 
         Args:
-            backend (Backend): The backend to run the experiment on.
-            experiment_data (ExperimentData): Optional, add results to existing
-                experiment data. If None a new ExperimentData object will be
-                returned.
-            kwargs: keyword arguments for self.circuit,
-                    qiskit.transpile, and backend.run.
+            backend: The backend to run the experiment on.
+            analysis: If True run analysis on experiment data.
+            experiment_data: Optional, add results to existing experiment data.
+                             If None a new ExperimentData object will be returned.
+            kwargs: keyword arguments for self.circuit, qiskit.transpile, and backend.run.
 
         Returns:
             ExperimentData: the experiment data object.
@@ -113,7 +125,7 @@ class BaseExperiment(ABC):
 
         # Create new experiment data
         if experiment_data is None:
-            experiment_data = self.__experiment_data__(self)
+            experiment_data = self.__experiment_data__(self, backend=backend)
 
         # Filter kwargs
         run_options = self.__run_defaults__.copy()
@@ -126,14 +138,17 @@ class BaseExperiment(ABC):
 
         # Generate and run circuits
         circuits = self.transpiled_circuits(backend, **circuit_options)
-        qobj = assemble(circuits, backend, **run_options)
-        job = backend.run(qobj)
+        if isinstance(backend, LegacyBackend):
+            qobj = assemble(circuits, backend=backend, **run_options)
+            job = backend.run(qobj)
+        else:
+            job = backend.run(circuits, **run_options)
 
         # Add Job to ExperimentData
         experiment_data.add_data(job)
 
         # Queue analysis of data for when job is finished
-        if self.__analysis_class__ is not None:
+        if analysis and self.__analysis_class__ is not None:
             # pylint: disable = not-callable
             self.__analysis_class__().run(experiment_data, **kwargs)
 
@@ -141,17 +156,17 @@ class BaseExperiment(ABC):
         return experiment_data
 
     @property
-    def num_qubits(self):
+    def num_qubits(self) -> int:
         """Return the number of qubits for this experiment."""
         return self._num_qubits
 
     @property
-    def physical_qubits(self):
+    def physical_qubits(self) -> Tuple[int]:
         """Return the physical qubits for this experiment."""
         return self._physical_qubits
 
     @classmethod
-    def analysis(cls, **kwargs):
+    def analysis(cls, **kwargs) -> "BaseAnalysis":
         """Return the default Analysis class for the experiment."""
         if cls.__analysis_class__ is None:
             raise QiskitError(
@@ -161,15 +176,17 @@ class BaseExperiment(ABC):
         return cls.__analysis_class__(**kwargs)
 
     @abstractmethod
-    def circuits(self, backend=None, **circuit_options):
+    def circuits(
+        self, backend: Optional[Backend] = None, **circuit_options
+    ) -> List["QuantumCircuit"]:
         """Return a list of experiment circuits.
 
         Args:
-            backend (Backend): Optional, a backend object.
+            backend: Optional, a backend object.
             circuit_options: kwarg options for the function.
 
         Returns:
-            List[QuantumCircuit]: A list of :class:`QuantumCircuit`s.
+            A list of :class:`QuantumCircuit`s.
 
         .. note:
             These circuits should be on qubits ``[0, .., N-1]`` for an
@@ -181,18 +198,20 @@ class BaseExperiment(ABC):
         # This allows these options to have default values, and be
         # documented in the methods docstring for the API docs.
 
-    def transpiled_circuits(self, backend=None, **kwargs):
+    def transpiled_circuits(
+        self, backend: Optional[Backend] = None, **kwargs
+    ) -> List["QuantumCircuit"]:
         """Return a list of experiment circuits.
 
         Args:
-            backend (Backend): Optional, a backend object to use as the
-                               argument for the :func:`qiskit.transpile`
-                               function.
+            backend: Optional, a backend object to use as the
+                     argument for the :func:`qiskit.transpile`
+                     function.
             kwargs: kwarg options for the :meth:`circuits` method, and
                     :func:`qiskit.transpile` function.
 
         Returns:
-            List[QuantumCircuit]: A list of :class:`QuantumCircuit`s.
+            A list of :class:`QuantumCircuit`s.
 
         Raises:
             QiskitError: if an initial layout is specified in the

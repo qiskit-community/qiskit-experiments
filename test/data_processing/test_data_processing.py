@@ -113,10 +113,10 @@ class DataProcessorTest(QiskitTestCase):
         """Check that a DataProcessor without steps does nothing."""
         data_processor = DataProcessor("counts")
 
-        datum = data_processor(self.exp_data_lvl2.data[0])
+        datum = data_processor(self.exp_data_lvl2.data(0))
         self.assertEqual(datum, {"00": 4, "10": 6})
 
-        datum, history = data_processor.call_with_history(self.exp_data_lvl2.data[0])
+        datum, history = data_processor.call_with_history(self.exp_data_lvl2.data(0))
         self.assertEqual(datum, {"00": 4, "10": 6})
         self.assertEqual(history, [])
 
@@ -127,7 +127,7 @@ class DataProcessorTest(QiskitTestCase):
         exp_data = ExperimentData(FakeExperiment())
         exp_data.add_data(self.result_lvl1)
 
-        new_data = processor(exp_data.data[0])
+        new_data = processor(exp_data.data(0))
 
         expected_old = {
             "memory": [
@@ -140,13 +140,13 @@ class DataProcessorTest(QiskitTestCase):
 
         expected_new = np.array([[1103.26, 2959.012], [442.17, -5279.41], [3016.514, -3404.7560]])
 
-        self.assertEqual(exp_data.data[0], expected_old)
+        self.assertEqual(exp_data.data(0), expected_old)
         self.assertTrue(np.allclose(new_data, expected_new))
 
         # Test that we can call with history.
-        new_data, history = processor.call_with_history(exp_data.data[0])
+        new_data, history = processor.call_with_history(exp_data.data(0))
 
-        self.assertEqual(exp_data.data[0], expected_old)
+        self.assertEqual(exp_data.data(0), expected_old)
         self.assertTrue(np.allclose(new_data, expected_new))
 
         self.assertEqual(history[0][0], "ToReal")
@@ -160,7 +160,7 @@ class DataProcessorTest(QiskitTestCase):
         exp_data = ExperimentData(FakeExperiment())
         exp_data.add_data(self.result_lvl1)
 
-        new_data = processor(exp_data.data[0])
+        new_data = processor(exp_data.data(0))
 
         expected_old = {
             "memory": [
@@ -179,12 +179,12 @@ class DataProcessorTest(QiskitTestCase):
             ]
         )
 
-        self.assertEqual(exp_data.data[0], expected_old)
+        self.assertEqual(exp_data.data(0), expected_old)
         self.assertTrue(np.allclose(new_data, expected_new))
 
         # Test that we can call with history.
-        new_data, history = processor.call_with_history(exp_data.data[0])
-        self.assertEqual(exp_data.data[0], expected_old)
+        new_data, history = processor.call_with_history(exp_data.data(0))
+        self.assertEqual(exp_data.data(0), expected_old)
         self.assertTrue(np.allclose(new_data, expected_new))
 
         self.assertEqual(history[0][0], "ToImag")
@@ -196,7 +196,7 @@ class DataProcessorTest(QiskitTestCase):
         processor = DataProcessor("counts")
         processor.append(Probability("00"))
 
-        new_data = processor(self.exp_data_lvl2.data[0])
+        new_data = processor(self.exp_data_lvl2.data(0))
 
         self.assertEqual(new_data[0], 0.4)
         self.assertEqual(new_data[1], 0.4 * (1 - 0.4) / 10)
@@ -278,7 +278,7 @@ class TestIQSingleAvg(QiskitTestCase):
         imag_avg = DataProcessor("memory", [ToImagAvg(scale=1)])
 
         # Test the real single shot node
-        new_data = real_single(self.exp_data_single.data[0])
+        new_data = real_single(self.exp_data_single.data(0))
         expected = np.array(
             [
                 [-56470872.0, -53407256.0],
@@ -292,10 +292,10 @@ class TestIQSingleAvg(QiskitTestCase):
         self.assertTrue(np.allclose(new_data, expected))
 
         with self.assertRaises(DataProcessorError):
-            real_single(self.exp_data_avg.data[0])
+            real_single(self.exp_data_avg.data(0))
 
         # Test the imaginary single shot node
-        new_data = imag_single(self.exp_data_single.data[0])
+        new_data = imag_single(self.exp_data_single.data(0))
         expected = np.array(
             [
                 [-136691568.0, -176278624.0],
@@ -309,12 +309,12 @@ class TestIQSingleAvg(QiskitTestCase):
         self.assertTrue(np.allclose(new_data, expected))
 
         # Test the real average node
-        new_data = real_avg(self.exp_data_avg.data[0])
+        new_data = real_avg(self.exp_data_avg.data(0))
         self.assertTrue(np.allclose(new_data, np.array([-539698.0, 5541283.0])))
 
         # Test the imaginary average node
-        new_data = imag_avg(self.exp_data_avg.data[0])
+        new_data = imag_avg(self.exp_data_avg.data(0))
         self.assertTrue(np.allclose(new_data, np.array([-153030784.0, -160369600.0])))
 
         with self.assertRaises(DataProcessorError):
-            real_avg(self.exp_data_single.data[0])
+            real_avg(self.exp_data_single.data(0))
