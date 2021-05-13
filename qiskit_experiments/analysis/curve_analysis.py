@@ -16,14 +16,14 @@ Analysis class for curve fitting.
 
 import functools
 from collections import defaultdict
-from typing import Any, NamedTuple, Dict, List, Optional, Tuple, Callable
+from typing import Any, NamedTuple, Dict, List, Optional, Tuple, Callable, Union
 
 import numpy as np
 import scipy.optimize as opt
 from qiskit.exceptions import QiskitError
 
-from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.base_analysis import BaseAnalysis
+from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
 
@@ -52,7 +52,7 @@ CurveEntry = NamedTuple(
 
 
 def scipy_curve_fit_wrapper(
-    func: Callable,
+    f: Callable,
     xdata: np.ndarray,
     ydata: np.ndarray,
     p0: np.ndarray,
@@ -70,7 +70,7 @@ def scipy_curve_fit_wrapper(
     using ``scipy.optimize.curve_fit``.
 
     Args:
-        func: a fit function `f(x, *params)`.
+        f: a fit function `f(x, *params)`.
         xdata: a 1D float array of x-data.
         ydata: a 1D float array of y-data.
         p0: initial guess for optimization parameters.
@@ -114,12 +114,12 @@ def scipy_curve_fit_wrapper(
     # Run curve fit
     # pylint: disable = unbalanced-tuple-unpacking
     popt, pcov = opt.curve_fit(
-        f=func, xdata=xdata, ydata=ydata, sigma=sigma, p0=p0, bounds=bounds, **kwargs
+        f=f, xdata=xdata, ydata=ydata, sigma=sigma, p0=p0, bounds=bounds, **kwargs
     )
     popt_err = np.sqrt(np.diag(pcov))
 
     # Calculate the reduced chi-squared for fit
-    yfits = func(xdata, *popt)
+    yfits = f(xdata, *popt)
     residues = (yfits - ydata) ** 2
     if sigma is not None:
         residues = residues / (sigma ** 2)
@@ -140,6 +140,40 @@ def scipy_curve_fit_wrapper(
     return AnalysisResult(result)
 
 
+def level2_probability(data: Dict[str, Any], outcome: Optional[str] = None) -> Tuple[float, float]:
+    """Return the outcome probability mean and variance.
+
+    Args:
+        data: A data dict containing count data.
+        outcome: bitstring for desired outcome probability.
+
+    Returns:
+        (p_mean, p_var) of the probability mean and variance estimated from the counts.
+
+    .. note::
+
+        This assumes a binomial distribution where :math:`K` counts
+        of the desired outcome from :math:`N` shots the
+        mean probability is :math:`p = K / N` and the variance is
+        :math:`\\sigma^2 = p (1-p) / N`.
+    """
+    # TODO fix sigma definition
+    # When the count is 100% zero (i.e. simulator), this yields sigma=0.
+    # This crashes scipy fitter when it calculates covariance matrix (zero-div error).
+
+    counts = data["counts"]
+    outcome = outcome or "1" * len(list(counts.keys())[0])
+
+    shots = sum(counts.values())
+    p_mean = counts.get(outcome, 0.0) / shots
+    p_var = p_mean * (1 - p_mean) / shots
+    return p_mean, p_var
+
+
+class FitOptions(dict):
+    """Fit options passed to the fitter function."""
+
+
 class CurveAnalysis(BaseAnalysis):
     """A base class for curve fit type analysis.
 
@@ -151,8 +185,12 @@ class CurveAnalysis(BaseAnalysis):
 
         __x_key__: String representation of horizontal axis.
             This should be defined in the circuit metadata for data extraction.
-        __series__: List of curve property definitions. Each element should be
-            defined as SeriesDef entry. This field can be left as None if the
+        __series__: A set of data points that will be fit to a the same parameters
+            in the fit function. If this analysis contains multiple curves,
+            the same number of series definitions should be listed.
+            Each series definition is SeriesDef element, that may be initialized with
+            `name`, `param_names`, `fit_func_index`, `filter_kwargs`.
+            See the Examples below for details. This field can be left as None if the
             analysis is performed for only single line.
         __fit_funcs__: List of callables to fit parameters. This is order sensitive.
             The list index corresponds to the function index specified by __series__ definition.
@@ -249,24 +287,37 @@ class CurveAnalysis(BaseAnalysis):
 
                 __param_names__ = ["a", "freq", "phase", "b"]
 
-    .. notes::
-        This class provides several private methods that subclasses can override.
+    Notes:
+        This CurveAnalysis class provides several private methods that subclasses can override.
 
-        - _run_fitting: Central method to perform fitting with the provided list of curve data.
-            Subclasses can create initial guesses of parameters and override
-            fitter analysis options here.
-            Note that each curve data provides circuit metadata that may be useful to
-            calculate initial guesses or apply some coefficients to values.
+        - Customize figure generation:
+            Override :meth:`~self._create_figures`. For example, here you can create
+            arbitrary number of new figures or upgrade the default figure appearance.
 
-        - _create_figure: A method to create figures. Subclasses can override this method
-            to create figures. Both raw data and fit analysis are provided.
+        - Customize pre-data processing:
+            Override :meth:`~self._data_pre_processing`. For example, here you can
+            take a mean over y values for the same x value, or apply smoothing to y values.
 
-        - _data_processing: A method to format a list of circuit results into y and yerr values.
-            Subclasses can override this method depending on the expected circuit result format
-            and the output data representation.
+        - Customize post-analysis data processing:
+            Override :meth:`~self._post_processing`. For example, here you can
+            calculate new entity from fit values. Such as EPC of RB experiment.
 
-        - _post_processing: A method to calculate a new entity from a fit result.
-            This returns the fit result as-is by default.
+        - Customize fitting options:
+            Override :meth:`~self._setup_fitting`. For example, here you can
+            calculate initial guess from experiment data and setup fitter options.
+
+        - Customize data processor calibration:
+            Override :meth:`~Self._calibrate_data_processor`. This is special subroutine
+            that is only called when a DataProcessor instance is used as the data processor.
+            You can take arbitrary data from experiment result and setup your processor.
+
+        Note that other private methods are not expected to be overridden.
+        If you forcibly override these methods, the behavior of analysis logic is not well tested
+        and we cannot guarantee it works as expected (you may suffer from bugs).
+        Instead, you can open an issue in qiskit-experiment github to upgrade this class
+        with proper unittest framework.
+
+        https://github.com/Qiskit/qiskit-experiments/issues
     """
 
     #: str: Metadata key representing a scanned value.
@@ -284,20 +335,8 @@ class CurveAnalysis(BaseAnalysis):
     # Callable: Default curve fitter. This can be overwritten.
     __base_fitter__ = scipy_curve_fit_wrapper
 
-    def _run_fitting(self, curve_data: List[CurveEntry], **options) -> AnalysisResult:
-        """Fit series of curve data.
-
-        Subclass can override this method to provide initial guess or fit boundaries.
-        For example, initial guess is not automatically provided by this base class.
-
-        Args:
-            curve_data: List of raw curve data points to fit.
-            **options: Fitting options.
-
-        Returns:
-            Analysis result populated by fit parameters.
-        """
-        return self._series_curve_fit(curve_data=curve_data, **options)
+    # Union[Callable, DataProcessor]: Data processor to format experiment data.
+    __default_data_processor__ = level2_probability
 
     # pylint: disable = unused-argument, missing-return-type-doc
     def _create_figures(self, curve_data: List[CurveEntry], fit_data: AnalysisResult):
@@ -315,48 +354,81 @@ class CurveAnalysis(BaseAnalysis):
         # TODO implement default figure. Will wait for Qiskit-terra #5499
         return list()
 
-    @staticmethod
-    def _data_processing(data: List[Dict[str, Any]]) -> Tuple[np.ndarray, np.ndarray]:
-        """Format y-values and y-sigmas from list of circuit result entry.
+    # pylint: disable = unused-argument
+    def _setup_fitting(self, curve_data: List[CurveEntry], **options) -> List[FitOptions]:
+        """Setup initial guesses, fit boundaries and other options passed to optimizer.
+
+        Subclass can override this method to provide proper optimization options.
 
         .. notes::
-            This method receives full data list of a single curve.
-
-            This is sometimes convenient for handling level1 (Kerneled) data.
-            The level1 scatter data may spread in the IQ plane, and it may require
-            full experimental results to calculate the principal component to
-            enhance the signal-to-noise ratio of following analysis.
+            This method returns list of FitOptions dictionary, and the options are
+            passed to the optimizer as a keyword arguments.
+            This should conform to the API which you specified in __base_fitter__.
+            This defaults to scipy curve_fit. If you create multiple FitOptions dictionaries,
+            fit is performed with each FitOptions and the fit result with the minimum
+            `reduced_chisq` will be returned as a final result.
 
         Args:
-            data: List of circuit result entry.
+            curve_data: List of raw curve data points to fit.
+            options: User provided fit options.
 
         Returns:
-            - y_values: Numpy array of formatted y data values.
-            - y_sigmas: Numpy array of formatted y error values.
+            List of FitOptions that are passed to fitter function.
         """
-        try:
-            n_qubits = len(data[0]["metadata"]["qubits"])
-        except KeyError:
-            n_qubits = 1
+        num_params = len(self.__param_names__)
 
-        # TODO data processor may be initialized with some variables.
-        # For example, if it contains front end discriminator, it may be initialized with
-        # some discrimination line parameters. These parameters cannot be hard-coded here.
+        # no initial guesses and no boundaries by default
+        fit_option = FitOptions(
+            p0=np.zeros(num_params, dtype=float),
+            bounds=([-np.inf] * num_params, [np.inf] * num_params),
+        )
+        fit_option.update(options)
 
-        y_values = np.zeros(len(data), dtype=float)
-        y_sigmas = np.zeros(len(data), dtype=float)
-        for idx, datum in enumerate(data):
-            # TODO this should be replaced with preset DataProcessor.
+        return [fit_option]
 
-            # TODO fix sigma definition
-            # When the count is 100% zero (i.e. simulator), this yields sigma=0.
-            # This crashes scipy fitter when it calculates covariance matrix (zero-div error).
+    # pylint: disable = unused-argument
+    @staticmethod
+    def _calibrate_data_processor(
+        data_processor: DataProcessor, experiment_data: ExperimentData
+    ) -> DataProcessor:
+        """An optional subroutine to perform data processor calibration.
 
-            y_val, y_err = level2_probability(datum, outcome="1" * n_qubits)
-            y_values[idx] = y_val
-            y_sigmas[idx] = y_err
+        Subclass can override this method to calibrate data processor instance.
+        This routine is called only when a DataProcessor instance is specified in the
+        class attribute __default_data_processor__.
 
-        return y_values, y_sigmas
+        Args:
+            data_processor: Data processor instance to calibrate.
+            experiment_data: Unfiltered experiment data set.
+
+        Returns:
+            Calibrated data processor instance.
+        """
+        return data_processor
+
+    @staticmethod
+    def _data_pre_processing(
+        x_values: np.ndarray, y_values: np.ndarray, y_sigmas: np.ndarray
+    ) -> Tuple[np.ndarray, ...]:
+        """An optional subroutine to perform data pre-processing.
+
+        Subclasses can override this method to apply pre-precessing to data values to fit.
+        Otherwise the analysis uses extracted data values as-is.
+
+        For example,
+
+        - Take mean over all y data values with the same x data value
+        - Apply smoothing to y values to deal with noisy observed values
+
+        Args:
+            x_values: Numpy float array to represent X values.
+            y_values: Numpy float array to represent Y values.
+            y_sigmas: Numpy float array to represent Y errors.
+
+        Returns:
+            Numpy array tuple of pre-processed (x_values, y_values, y_sigmas).
+        """
+        return x_values, y_values, y_sigmas
 
     @staticmethod
     def _post_processing(analysis_result: AnalysisResult) -> AnalysisResult:
@@ -372,7 +444,11 @@ class CurveAnalysis(BaseAnalysis):
         """
         return analysis_result
 
-    def _extract_curves(self, experiment_data: ExperimentData) -> List[CurveEntry]:
+    def _extract_curves(
+        self,
+        experiment_data: ExperimentData,
+        data_processor: Union[Callable, DataProcessor],
+    ) -> List[CurveEntry]:
         """Extract curve data from experiment data.
 
         .. notes::
@@ -384,6 +460,9 @@ class CurveAnalysis(BaseAnalysis):
 
         Args:
             experiment_data: ExperimentData object to fit parameters.
+            data_processor: A callable or DataProcessor instance to format data into numpy array.
+                This should take list of dictionary and returns two tuple of float values
+                that represent a y value and an error of it.
 
         Returns:
             List of ``CurveEntry`` containing x-values, y-values, and y values sigma.
@@ -425,14 +504,19 @@ class CurveAnalysis(BaseAnalysis):
 
             # Format x, y, yerr data
             try:
-                xvals = np.asarray(
-                    [datum["metadata"][self.__x_key__] for datum in series_data], dtype=float
-                )
+                xvals = [datum["metadata"][self.__x_key__] for datum in series_data]
             except KeyError as ex:
                 raise QiskitError(
                     f"X value key {self.__x_key__} is not defined in circuit metadata."
                 ) from ex
-            yvals, sigmas = self._data_processing(series_data)
+            yvals, yerrs = zip(*map(data_processor, series_data))
+
+            # Apply data pre-processing
+            prepared_xvals, prepared_yvals, prepared_yerrs = self._data_pre_processing(
+                x_values=np.asarray(xvals, dtype=float),
+                y_values=np.asarray(yvals, dtype=float),
+                y_sigmas=np.asarray(yerrs, dtype=float),
+            )
 
             # Get common metadata fields except for xval and filter args.
             # These properties are obvious.
@@ -456,21 +540,19 @@ class CurveAnalysis(BaseAnalysis):
             curve_data.append(
                 CurveEntry(
                     curve_name=curve_properties.name,
-                    x_values=xvals,
-                    y_values=yvals,
-                    y_sigmas=sigmas,
+                    x_values=prepared_xvals,
+                    y_values=prepared_yvals,
+                    y_sigmas=prepared_yerrs,
                     metadata=dict(curve_metadata),
                 )
             )
 
         return curve_data
 
-    def _series_curve_fit(
+    def _run_fitting(
         self,
         curve_data: List[CurveEntry],
-        p0: Optional[np.ndarray] = None,
         weights: Optional[np.ndarray] = None,
-        bounds: Optional[Tuple[np.ndarray, np.ndarray]] = None,
         **options,
     ) -> AnalysisResult:
         r"""Perform a linearized multi-objective non-linear least squares fit.
@@ -487,11 +569,9 @@ class CurveAnalysis(BaseAnalysis):
         using ``scipy.optimize.curve_fit``.
 
         Args:
-            p0: initial guess for optimization parameters.
+            curve_data: A list of curve data to fit.
             weights: Optional, a 1D float list of weights :math:`w_k` for each
                      component function :math:`f_k`.
-            bounds: Optional, lower and upper bounds for optimization
-                    parameters.
             options: additional kwargs for scipy.optimize.curve_fit.
 
         Returns:
@@ -505,13 +585,13 @@ class CurveAnalysis(BaseAnalysis):
         Raises:
             QiskitError:
                 - When number of weights are not identical to the curve_data entries.
+            KeyError:
+                - When fit function doesn't return Chi squared value.
         """
         num_curves = len(curve_data)
-        num_params = len(self.__param_names__)
 
-        # Set initial guess and bounds if they are not provided
-        p0 = p0 or np.zeros(num_params)
-        bounds = bounds or ([-np.inf] * num_params, [np.inf] * num_params)
+        # Setup fitting options
+        fit_options = self._setup_fitting(curve_data, **options)
 
         # Validate weights
         if weights is None:
@@ -550,18 +630,30 @@ class CurveAnalysis(BaseAnalysis):
                 y = np.concatenate((y, yi))
             return y
 
-        analysis_result = self.__base_fitter__.__func__(
-            func=multi_objective_fit,
-            xdata=flat_xvals,
-            ydata=flat_yvals,
-            p0=p0,
-            sigma=flat_yerrs,
-            bounds=bounds,
-            **options,
-        )
-        analysis_result["popt_keys"] = self.__param_names__
+        # Try fit with each fit option
+        fit_results = [
+            self.__base_fitter__.__func__(
+                f=multi_objective_fit,
+                xdata=flat_xvals,
+                ydata=flat_yvals,
+                sigma=flat_yerrs,
+                **fit_option
+            )
+            for fit_option in fit_options
+        ]
 
-        return analysis_result
+        # Sort by fit error
+        try:
+            fit_results = sorted(fit_results, key=lambda r: r["reduced_chisq"])
+        except KeyError:
+            raise KeyError(
+                "Returned analysis result does not provide reduced Chi squared value."
+            )
+
+        best_analysis_result = fit_results[0]
+        best_analysis_result["popt_keys"] = self.__param_names__
+
+        return best_analysis_result
 
     def _fit_curve(self, curve_name: str, xvals: np.ndarray, *params) -> np.ndarray:
         """A helper method to return fit curve for the specific series.
@@ -633,8 +725,9 @@ class CurveAnalysis(BaseAnalysis):
         """Run analysis on circuit data.
 
         Args:
-            experiment_data: the experiment data to analyze.
-            options: kwarg options for analysis function.
+            experiment_data: The experiment data to analyze.
+            options: kwarg options for analysis function. This may contain `data_processor` key
+                as a special argument so that user can override default data processor.
 
         Returns:
             tuple: A pair ``(analysis_results, figures)`` where
@@ -644,9 +737,30 @@ class CurveAnalysis(BaseAnalysis):
         """
         analysis_result = AnalysisResult()
 
+        # Setup data processor
+        if "data_processor" in options:
+            # Use user provided processor
+            data_processor = options.pop("data_processor")
+        else:
+            # Use default processor
+            if isinstance(self.__default_data_processor__, DataProcessor):
+                # Calibrate default data processor instance
+                try:
+                    data_processor = self._calibrate_data_processor(
+                        data_processor=self.__default_data_processor__,
+                        experiment_data=experiment_data,
+                    )
+                except DataProcessorError as ex:
+                    analysis_result["error_message"] = str(ex)
+                    analysis_result["success"] = False
+                    return analysis_result, list()
+            else:
+                # Callback function
+                data_processor = self.__default_data_processor__.__func__
+
         # Extract curve entries from experiment data
         try:
-            curve_data = self._extract_curves(experiment_data)
+            curve_data = self._extract_curves(experiment_data, data_processor)
         except DataProcessorError as ex:
             analysis_result["error_message"] = str(ex)
             analysis_result["success"] = False

@@ -98,11 +98,12 @@ class TestCurveAnalysis(QiskitTestCase):
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2])
 
         # check result data
+        self.assertTrue(results["success"])
+
         np.testing.assert_array_almost_equal(results["popt"], ref_popt, decimal=1)
         self.assertEqual(results["dof"], 27)
         self.assertListEqual(results["xrange"], [0.1, 1.0])
         self.assertListEqual(results["popt_keys"], ["p0", "p1", "p2"])
-        self.assertTrue(results["success"])
 
     def test_run_single_curve_fail(self):
         """Test analysis returns status when it fails."""
@@ -164,8 +165,8 @@ class TestCurveAnalysis(QiskitTestCase):
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
 
         # check result data
-        np.testing.assert_array_almost_equal(results["popt"], ref_popt, decimal=1)
         self.assertTrue(results["success"])
+        np.testing.assert_array_almost_equal(results["popt"], ref_popt, decimal=1)
 
     def test_run_two_curves_with_two_fitfuncs(self):
         """Test analysis for two curves. Curves shares fit parameters."""
@@ -208,5 +209,5 @@ class TestCurveAnalysis(QiskitTestCase):
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
 
         # check result data
-        np.testing.assert_array_almost_equal(results["popt"], ref_popt, decimal=1)
         self.assertTrue(results["success"])
+        np.testing.assert_array_almost_equal(results["popt"], ref_popt, decimal=1)

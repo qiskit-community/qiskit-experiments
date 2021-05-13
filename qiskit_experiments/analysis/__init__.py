@@ -13,4 +13,4 @@
 """
 Analysis helper functions
 """
-from qiskit_experiments.analysis.curve_analysis import CurveAnalysis, SeriesDef
+from qiskit_experiments.analysis.curve_analysis import CurveAnalysis, SeriesDef, FitOptions
