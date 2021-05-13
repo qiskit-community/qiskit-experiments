@@ -12,7 +12,6 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-<<<<<<< HEAD
 """
 A Tester for the RB experiment
 """
@@ -53,8 +52,6 @@ from qiskit.quantum_info import Clifford
 from qiskit.test import QiskitTestCase
 import numpy as np
 
-=======
->>>>>>> 72c413b (Update test_rb.py)
 """
 A Tester for the RB experiment
 """
@@ -92,27 +89,15 @@ class TestRB(QiskitTestCase):
         self.validate_circuit_data(exp_data, exp_attributes)
         self.is_identity(exp_circuits)
 
-<<<<<<< HEAD
     def is_identity(self, circuits: list):
         """Standard randomized benchmarking test - Identity check.
             (assuming all the operator are spanned by clifford group)
         Args:
             circuits (list): list of the circuits which we want to check
         """
-=======
-import numpy as np
-from ddt import ddt, data, unpack
-from qiskit.quantum_info.operators.predicates import matrix_equal
-from qiskit.quantum_info import Clifford
-from qiskit.test import QiskitTestCase
-from qiskit.test.mock import FakeParis
-from qiskit.circuit.library import XGate, CXGate
-import qiskit_experiments as qe
-
 
 @ddt
 class TestRB(QiskitTestCase):
->>>>>>> 72c413b (Update test_rb.py)
     """
     A test class for the RB Experiment to check that the RBExperiment class is working correctly.
     """
@@ -164,7 +149,6 @@ class TestRB(QiskitTestCase):
             )
 
     def validate_metadata(self, circuits: list, exp_attributes: dict):
-<<<<<<< HEAD
         """
         Validate the fields in "metadata" for the experiment.
         Args:
@@ -326,6 +310,11 @@ class TestRBUtilities(QiskitTestCase):
                 qc.metadata["xval"] in exp_attributes["lengths"],
                 "The number of gates in the experiment metadata doesn't match "
                 "any of the provided lengths",
+        for ind, qc in enumerate(circuits):
+            self.assertEqual(
+                qc.metadata["xval"],
+                exp_data["lengths"][ind],
+                "The length of the experiment doen't match to the one provided.",
             )
             self.assertTrue(
                 qc.metadata["qubits"] == tuple(exp_attributes["qubits"]),
