@@ -88,7 +88,7 @@ class InterleavedRBAnalysis(RBAnalysis):
         nrb = 2 ** num_qubits
         scale = (nrb - 1) / nrb
         _, alpha, alpha_c, _ = analysis_result["popt"]
-        _, alpha_err, alpha_c_err, _ = analysis_result["popt_err"]
+        _, _, alpha_c_err, _ = analysis_result["popt_err"]
 
         # Calculate epc_est (=r_c^est) - Eq. (4):
         epc_est = scale * (1 - alpha_c)
