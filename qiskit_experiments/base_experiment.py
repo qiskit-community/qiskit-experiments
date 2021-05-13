@@ -21,7 +21,6 @@ from qiskit.exceptions import QiskitError
 
 from .experiment_data import ExperimentData
 
-
 _TRANSPILE_OPTIONS = {
     "basis_gates",
     "coupling_map",
