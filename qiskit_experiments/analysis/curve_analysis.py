@@ -98,7 +98,7 @@ def scipy_curve_fit_wrapper(
         parameters via ``pcov(absolute_sigma=False) = pcov * reduced_chisq``
         ``popt_err(absolute_sigma=False) = popt_err * sqrt(reduced_chisq)``.
     """
-    # Check the degrees of freedom is greater than 0
+    # Check that degrees of freedom is greater than 0
     dof = len(ydata) - len(p0)
     if dof < 1:
         raise QiskitError(
