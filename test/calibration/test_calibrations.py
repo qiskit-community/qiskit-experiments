@@ -539,9 +539,15 @@ class TestMeasurements(QiskitTestCase):
     def test_free_parameters(self):
         """Test that we can get a schedule with free parameters."""
 
+        # Test coupling breaking
         my_amp = Parameter("my_amp")
-        assign_dict = {("amp", (0,), "xp"): my_amp}
-        schedule = self.cals.get_schedule("xt_meas", (0, 2), assign_params=assign_dict)
+        schedule = self.cals.get_schedule(
+            "xt_meas",
+            (0, 2),
+            assign_params={("amp", (0,), "xp"): my_amp},
+            break_parameter_coupling=True,
+        )
+
         schedule = block_to_schedule(schedule)
 
         with pulse.build(name="xt_meas") as expected:
@@ -550,6 +556,29 @@ class TestMeasurements(QiskitTestCase):
                 pulse.play(GaussianSquare(8000, 0.5, 160, 7000), MeasureChannel(0))
             with pulse.align_sequential():
                 pulse.play(Gaussian(160, 0.7, 40), DriveChannel(2))
+                pulse.play(GaussianSquare(8000, 0.3, 160, 7000), MeasureChannel(2))
+
+        expected = block_to_schedule(expected)
+
+        self.assertEqual(schedule.parameters, {my_amp})
+        self.assertEqual(schedule, expected)
+
+        # Test when coupling is preserved.
+        schedule = self.cals.get_schedule(
+            "xt_meas",
+            (0, 2),
+            assign_params={("amp", (0,), "xp"): my_amp},
+            break_parameter_coupling=False,
+        )
+
+        schedule = block_to_schedule(schedule)
+
+        with pulse.build(name="xt_meas") as expected:
+            with pulse.align_sequential():
+                pulse.play(Gaussian(160, my_amp, 40), DriveChannel(0))
+                pulse.play(GaussianSquare(8000, 0.5, 160, 7000), MeasureChannel(0))
+            with pulse.align_sequential():
+                pulse.play(Gaussian(160, my_amp, 40), DriveChannel(2))
                 pulse.play(GaussianSquare(8000, 0.3, 160, 7000), MeasureChannel(2))
 
         expected = block_to_schedule(expected)
@@ -847,6 +876,89 @@ class TestControlChannels(CrossResonanceTest):
             pulse.play(GaussianSquare(640, 0.8, 40, 20), ControlChannel(10))
 
         self.assertEqual(self.cals.get_schedule("tcp", (3, 2)), expected)
+
+
+class TestCoupledAssigning(QiskitTestCase):
+    """Test that assigning parameters works when they are coupled in calls."""
+
+    def setUp(self):
+        """Create the setting to test."""
+        super().setUp()
+
+        controls = {(3, 2): [ControlChannel(10)]}
+
+        self.cals = Calibrations(control_config=controls)
+
+        self.amp_cr = Parameter("amp")
+        self.amp_xp = Parameter("amp")
+        self.d0_ = DriveChannel(Parameter("ch0"))
+        self.c1_ = ControlChannel(Parameter("ch0.1"))
+        self.sigma = Parameter("σ")
+        self.width = Parameter("w")
+        self.dur = Parameter("duration")
+
+        with pulse.build(name="cr_p") as cr_p:
+            pulse.play(GaussianSquare(self.dur, self.amp_cr, self.sigma, self.width), self.c1_)
+
+        with pulse.build(name="cr_m") as cr_m:
+            pulse.play(GaussianSquare(self.dur, -self.amp_cr, self.sigma, self.width), self.c1_)
+
+        with pulse.build(name="xp") as xp:
+            pulse.play(Gaussian(160, self.amp_xp, self.sigma), self.d0_)
+
+        with pulse.build(name="ecr") as ecr:
+            with pulse.align_sequential():
+                pulse.call(cr_p)
+                pulse.call(xp)
+                pulse.call(cr_m)
+
+        self.cals.add_schedule(cr_p)
+        self.cals.add_schedule(cr_m)
+        self.cals.add_schedule(xp)
+        self.cals.add_schedule(ecr)
+
+        self.cals.add_parameter_value(0.3, "amp", (3, 2), "cr_p")
+        self.cals.add_parameter_value(0.2, "amp", (3,), "xp")
+        self.cals.add_parameter_value(40, "σ", (), "xp")
+        self.cals.add_parameter_value(640, "w", (3, 2), "cr_p")
+        self.cals.add_parameter_value(800, "duration", (3, 2), "cr_p")
+
+    def test_assign_coupled(self):
+        """Test that we get the proper schedules when they are coupled."""
+
+        # Test that we can preserve the coupling
+        my_amp = Parameter("my_amp")
+        assign_params = {("amp", (3, 2), "cr_p"): my_amp}
+        sched = self.cals.get_schedule("ecr", (3, 2), assign_params=assign_params)
+        sched = block_to_schedule(sched)
+
+        with pulse.build(name="ecr") as expected:
+            with pulse.align_sequential():
+                pulse.play(GaussianSquare(800, my_amp, 40, 640), ControlChannel(10))
+                pulse.play(Gaussian(160, 0.2, 40), DriveChannel(3))
+                pulse.play(GaussianSquare(800, -my_amp, 40, 640), ControlChannel(10))
+
+        expected = block_to_schedule(expected)
+
+        self.assertEqual(sched, expected)
+
+        # Test that we can break the coupling
+        my_amp = Parameter("my_amp")
+        assign_params = {("amp", (3, 2), "cr_p"): my_amp}
+        sched = self.cals.get_schedule(
+            "ecr", (3, 2), assign_params=assign_params, break_parameter_coupling=True
+        )
+        sched = block_to_schedule(sched)
+
+        with pulse.build(name="ecr") as expected:
+            with pulse.align_sequential():
+                pulse.play(GaussianSquare(800, my_amp, 40, 640), ControlChannel(10))
+                pulse.play(Gaussian(160, 0.2, 40), DriveChannel(3))
+                pulse.play(GaussianSquare(800, -0.3, 40, 640), ControlChannel(10))
+
+        expected = block_to_schedule(expected)
+
+        self.assertEqual(sched, expected)
 
 
 class TestFiltering(QiskitTestCase):

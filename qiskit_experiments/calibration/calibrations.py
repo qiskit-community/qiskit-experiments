@@ -551,6 +551,7 @@ class Calibrations:
         assign_params: Dict[Union[str, ParameterKey], ParameterValueType] = None,
         group: Optional[str] = "default",
         cutoff_date: datetime = None,
+        break_parameter_coupling: bool = False,
     ) -> ScheduleBlock:
         """Get the template schedule with parameters assigned to values.
 
@@ -584,6 +585,9 @@ class Calibrations:
                 generated after the cutoff date will be ignored. If the cutoff_date is None then
                 all parameters are considered. This allows users to discard more recent values that
                 may be erroneous.
+            break_parameter_coupling: Boolean which when True will cause parameter couplings to
+                be ignored when assigning values to parameters. This only applies to values given
+                in the assign_params dict.
 
         Returns:
             schedule: A copy of the template schedule with all parameters assigned
@@ -596,6 +600,7 @@ class Calibrations:
         """
         qubits = self._to_tuple(qubits)
 
+        # Standardize the input in the assignment dictionary
         if assign_params:
             assign_params_ = dict()
             for assign_param, value in assign_params.items():
@@ -608,6 +613,7 @@ class Calibrations:
         else:
             assign_params = dict()
 
+        # Get the template schedule
         if (name, qubits) in self._schedules:
             schedule = self._schedules[ScheduleKey(name, qubits)]
         elif (name, ()) in self._schedules:
@@ -624,7 +630,10 @@ class Calibrations:
         # Binding the channel indices makes it easier to deal with parameters later on
         schedule = schedule.assign_parameters(binding_dict, inplace=False)
 
-        assigned_schedule = self._assign(schedule, qubits, assign_params, group, cutoff_date)
+        # Now assign the other parameters
+        assigned_schedule = self._assign(
+            schedule, qubits, assign_params, group, cutoff_date, break_parameter_coupling
+        )
 
         free_params = set()
         for param in assign_params.values():
@@ -647,6 +656,7 @@ class Calibrations:
         assign_params: Dict[Union[str, ParameterKey], ParameterValueType] = None,
         group: Optional[str] = "default",
         cutoff_date: datetime = None,
+        break_parameter_coupling: bool = False,
     ) -> ScheduleBlock:
         """Recursively assign parameters in a schedule.
 
@@ -672,7 +682,33 @@ class Calibrations:
                 pulse.call(xp, value_dict={ch0: ch1})
 
         Here, we define the xp :class:`ScheduleBlock` for all qubits as a Gaussian. Next, we define
-        a schedule where both xp schedules are called simultaneously on different channels.
+        a schedule where both xp schedules are called simultaneously on different channels. We now
+        explain a subtlety related to manually assigning values in the case above. In the schedule
+        above, the parameters of the Gaussian pulses are coupled, e.g. the xp pulse on ch0 and ch1
+        share the same instance of :class:`ParameterExpression`. Suppose now that both pulses have
+        a duration and sigma of 160 and 40 samples, respectively, and that the amplitudes are 0.5
+        and 0.3 for qubits 0 and 2, respectively. These values are stored in self._params. When
+        retrieving a schedule without specifying assign_params, i.e.
+
+        .. code-block:: python
+
+            cals.get_schedule("xt_xp", (0, 2))
+
+        we will obtain the expected schedule with amplitudes 0.5 and 0.3. However, when specifying
+        the following :code:`assign_params = {("amp", (0,), "xp"): Parameter("my_new_amp")}` we
+        will obtain a schedule where the amplitudes of both xp pulse are set to
+        :code:`Parameter("my_new_amp")` due to the parameter coupling. To set the amplitude of
+        the xp pulse on qubit 2 to the value stored by the calibrations, i.e. 0.3, we need to break
+        the coupling
+
+        .. code-bloc:: python
+
+            cals.get_schedule(
+                "xt_xp",
+                (0, 2),
+                assign_params = {("amp", (0,), "xp"): Parameter("my_new_amp")},
+                break_parameter_coupling = True
+            )
 
         Args:
             schedule: The schedule with assigned channel indices for which we wish to
@@ -684,6 +720,9 @@ class Calibrations:
                 generated after the cutoff date will be ignored. If the cutoff_date is None then
                 all parameters are considered. This allows users to discard more recent values that
                 may be erroneous.
+            break_parameter_coupling: Boolean which when True will cause parameter couplings to
+                be ignored when assigning values to parameters. This only applies to values given
+                in the assign_params dict.
 
         Returns:
             ret_schedule: The schedule with assigned parameters.
@@ -712,6 +751,18 @@ class Calibrations:
 
         qubits_ = tuple(qubit for qubit in qubits if qubit in qubit_set)
 
+        # Complete the assignment dictionary with any missing parameter couplings
+        if not break_parameter_coupling:
+            assign_params_ = dict(assign_params)
+            for param_key, value in assign_params.items():
+                # Iterate over all keys that point to the parameter pointed to by the
+                # the key param_key.
+                for key in self._parameter_map_r[self.calibration_parameter(*param_key)]:
+                    if ParameterKey(key.parameter, qubits_, key.schedule) not in assign_params:
+                        assign_params_[ParameterKey(key.parameter, qubits_, key.schedule)] = value
+
+            assign_params = assign_params_
+
         # 2) Recursively assign the parameters in the called instructions.
         ret_schedule = ScheduleBlock(
             alignment_context=schedule.alignment_context,
@@ -724,7 +775,9 @@ class Calibrations:
                 inst = inst.assigned_subroutine()
 
             if isinstance(inst, ScheduleBlock):
-                inst = self._assign(inst, qubits_, assign_params, group, cutoff_date)
+                inst = self._assign(
+                    inst, qubits_, assign_params, group, cutoff_date, break_parameter_coupling
+                )
 
             ret_schedule.append(inst, inplace=True)
 
