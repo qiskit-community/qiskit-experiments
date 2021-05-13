@@ -149,8 +149,7 @@ class CurveAnalysis(BaseAnalysis):
 
     Class Attributes:
 
-        __x_key__: String representation of horizontal axis.
-            This should be defined in the circuit metadata for data extraction.
+        __x_key__: Key in the circuit metadata under which to find the value for the horizontal axis.
         __series__: List of curve property definitions. Each element should be
             defined as SeriesDef entry. This field can be left as None if the
             analysis is performed for only single line.
