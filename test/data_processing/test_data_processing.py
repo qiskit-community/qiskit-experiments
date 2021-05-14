@@ -314,6 +314,10 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 [[-1.0, -1.0], [1.0, -1.0]],
                 [[-1.0, -1.0], [1.0, -1.0]],
                 [[1.0, 1.0], [-1.0, 1.0]],
+                [[-1.0, -1.0], [1.0, -1.0]],
+                [[-1.0, -1.0], [1.0, -1.0]],
+                [[-1.0, -1.0], [1.0, -1.0]],
+                [[1.0, 1.0], [-1.0, 1.0]],
             ]
         )
 
@@ -345,7 +349,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
         )
 
         res_x45p = ExperimentResult(
-            shots=4,
+            shots=8,
             success=True,
             meas_level=1,
             meas_return="single",
@@ -366,14 +370,14 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
         # Test that we get the expected outcome for the excited state
         processed, error = processor(self.data.data(0))
         expected_avg = np.array([[1.0, 1.0], [-1.0, 1.0]])
-        expected_std = np.array([[0.15811388300841894, 0.1], [0.15811388300841894, 0.0]])
+        expected_std = np.array([[0.15811388300841894, 0.1], [0.15811388300841894, 0.0]]) / 2.0
         self.assertTrue(np.allclose(processed, expected_avg))
         self.assertTrue(np.allclose(error, expected_std))
 
         # Test that we get the expected outcome for the ground state
         processed, error = processor(self.data.data(1))
         expected_avg = np.array([[-1.0, -1.0], [1.0, -1.0]])
-        expected_std = np.array([[0.15811388300841894, 0.1], [0.15811388300841894, 0.0]])
+        expected_std = np.array([[0.15811388300841894, 0.1], [0.15811388300841894, 0.0]]) / 2.0
         self.assertTrue(np.allclose(processed, expected_avg))
         self.assertTrue(np.allclose(error, expected_std))
 
@@ -390,8 +394,10 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
         # Test the x90p rotation
         processed, error = processor(self.data.data(2))
         self.assertTrue(np.allclose(processed, np.array([0, 0])))
-        self.assertIsNone(error)
+        self.assertTrue(np.allclose(error, np.array([0.5, 0.5])))
 
         # Test the x45p rotation
         processed, error = processor(self.data.data(3))
-        self.assertTrue(np.allclose(processed, np.array([0.5, -0.5])/np.sqrt(2.)))
+        expected_std = np.array([np.std([1, 1, 1, -1, 1, 1, 1, -1]) / np.sqrt(8.0)] * 2)
+        self.assertTrue(np.allclose(processed, np.array([0.5, -0.5]) / np.sqrt(2.0)))
+        self.assertTrue(np.allclose(error, expected_std))

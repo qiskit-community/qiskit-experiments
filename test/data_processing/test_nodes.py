@@ -29,11 +29,6 @@ from qiskit_experiments.data_processing.data_processor import DataProcessor
 class TestSVD(BaseDataProcessorTest):
     """Test the SVD nodes."""
 
-    def __init__(self):
-        """Init"""
-        self.iq_experiment = None
-        super().__init__()
-
     def create_experiment(self, iq_data: List[Any], single_shot: bool = False):
         """Populate avg_iq_data to use it for testing.
 
@@ -50,7 +45,7 @@ class TestSVD(BaseDataProcessorTest):
                     meas_return="avg",
                     data=ExperimentResultData(memory=circ_data),
                     header=self.header,
-                    shots=1024
+                    shots=1024,
                 )
                 results.append(res)
         else:
@@ -60,10 +55,11 @@ class TestSVD(BaseDataProcessorTest):
                 meas_return="single",
                 data=ExperimentResultData(memory=iq_data),
                 header=self.header,
-                shots=1024
+                shots=1024,
             )
             results.append(res)
 
+        # pylint: disable=attribute-defined-outside-init
         self.iq_experiment = ExperimentData(FakeExperiment())
         self.iq_experiment.add_data(Result(results=results, **self.base_result_args))
 
@@ -73,11 +69,7 @@ class TestSVD(BaseDataProcessorTest):
         the IQ data of qubit 1 is oriented along (1,-1).
         """
 
-        iq_data = [
-            [[0., 0.], [0., 0.]],
-            [[1., 1.], [-1., 1.]],
-            [[-1., -1.], [1., -1.]]
-        ]
+        iq_data = [[[0.0, 0.0], [0.0, 0.0]], [[1.0, 1.0], [-1.0, 1.0]], [[-1.0, -1.0], [1.0, -1.0]]]
 
         self.create_experiment(iq_data)
 
@@ -85,21 +77,21 @@ class TestSVD(BaseDataProcessorTest):
         iq_svd.train([datum["memory"] for datum in self.iq_experiment.data()])
 
         # qubit 0 IQ data is oriented along (1,1)
-        self.assertTrue(np.allclose(iq_svd._main_axes[0], np.array([-1,-1]) / np.sqrt(2)))
+        self.assertTrue(np.allclose(iq_svd._main_axes[0], np.array([-1, -1]) / np.sqrt(2)))
 
         # qubit 1 IQ data is oriented along (1, -1)
         self.assertTrue(np.allclose(iq_svd._main_axes[1], np.array([-1, 1]) / np.sqrt(2)))
 
-        processed, _ = iq_svd(np.array([[1,1], [1, -1]]))
-        expected = np.array([-1,-1])/np.sqrt(2)
+        processed, _ = iq_svd(np.array([[1, 1], [1, -1]]))
+        expected = np.array([-1, -1]) / np.sqrt(2)
         self.assertTrue(np.allclose(processed, expected))
 
-        processed, _ = iq_svd(np.array([[2,2], [2, -2]]))
-        self.assertTrue(np.allclose(processed, expected*2))
+        processed, _ = iq_svd(np.array([[2, 2], [2, -2]]))
+        self.assertTrue(np.allclose(processed, expected * 2))
 
         # Check that orthogonal data gives 0.
         processed, _ = iq_svd(np.array([[1, -1], [1, 1]]))
-        expected = np.array([0,0])
+        expected = np.array([0, 0])
         self.assertTrue(np.allclose(processed, expected))
 
     def test_svd(self):
@@ -109,16 +101,16 @@ class TestSVD(BaseDataProcessorTest):
         # The is a large offset in the imaginary dimension when comparing qubits
         # 0 and 1.
         iq_data = [
-            [[-6.20601501e+14, -1.33257051e+15], [-1.70921324e+15, -4.05881657e+15]],
-            [[-5.80546502e+14, -1.33492509e+15], [-1.65094637e+15, -4.05926942e+15]],
-            [[-4.04649069e+14, -1.33191056e+15], [-1.29680377e+15, -4.03604815e+15]],
-            [[-2.22203874e+14, -1.30291309e+15], [-8.57663429e+14, -3.97784973e+15]],
-            [[-2.92074029e+13, -1.28578530e+15], [-9.78824053e+13, -3.92071056e+15]],
-            [[1.98056981e+14, -1.26883024e+15], [3.77157017e+14, -3.87460328e+15]],
-            [[4.29955888e+14, -1.25022995e+15], [1.02340118e+15, -3.79508679e+15]],
-            [[6.38981344e+14, -1.25084614e+15], [1.68918514e+15, -3.78961044e+15]],
-            [[7.09988897e+14, -1.21906634e+15], [1.91914171e+15, -3.73670664e+15]],
-            [[7.63169115e+14, -1.20797552e+15], [2.03772603e+15, -3.74653863e+15]]
+            [[-6.20601501e14, -1.33257051e15], [-1.70921324e15, -4.05881657e15]],
+            [[-5.80546502e14, -1.33492509e15], [-1.65094637e15, -4.05926942e15]],
+            [[-4.04649069e14, -1.33191056e15], [-1.29680377e15, -4.03604815e15]],
+            [[-2.22203874e14, -1.30291309e15], [-8.57663429e14, -3.97784973e15]],
+            [[-2.92074029e13, -1.28578530e15], [-9.78824053e13, -3.92071056e15]],
+            [[1.98056981e14, -1.26883024e15], [3.77157017e14, -3.87460328e15]],
+            [[4.29955888e14, -1.25022995e15], [1.02340118e15, -3.79508679e15]],
+            [[6.38981344e14, -1.25084614e15], [1.68918514e15, -3.78961044e15]],
+            [[7.09988897e14, -1.21906634e15], [1.91914171e15, -3.73670664e15]],
+            [[7.63169115e14, -1.20797552e15], [2.03772603e15, -3.74653863e15]],
         ]
 
         self.create_experiment(iq_data)
@@ -129,6 +121,33 @@ class TestSVD(BaseDataProcessorTest):
         self.assertTrue(np.allclose(iq_svd._main_axes[0], np.array([-0.99633018, -0.08559302])))
         self.assertTrue(np.allclose(iq_svd._main_axes[1], np.array([-0.99627747, -0.0862044])))
 
+    def test_svd_error(self):
+        """Test the error formula of the SVD."""
+
+        iq_svd = SVDAvg()
+        iq_svd._main_axes = np.array([[1.0, 0.0]])
+        iq_svd._scales = [1.0]
+        iq_svd._means = [[0.0, 0.0]]
+
+        # Since the axis is along the real part the imaginary error is irrelevant.
+        processed, error = iq_svd([[1.0, 0.2]], [[0.2, 0.1]])
+        self.assertEqual(processed, np.array([1.0]))
+        self.assertEqual(error, np.array([0.2]))
+
+        # Since the axis is along the real part the imaginary error is irrelevant.
+        processed, error = iq_svd([[1.0, 0.2]], [[0.2, 0.3]])
+        self.assertEqual(processed, np.array([1.0]))
+        self.assertEqual(error, np.array([0.2]))
+
+        # Title the axis to an angle of 36.9... degrees
+        iq_svd._main_axes = np.array([[0.8, 0.6]])
+        processed, error = iq_svd([[1.0, 0.0]], [[0.2, 0.3]])
+        cos_ = np.cos(np.arctan(0.6 / 0.8))
+        sin_ = np.sin(np.arctan(0.6 / 0.8))
+        self.assertEqual(processed, np.array([cos_]))
+        expected_error = np.sqrt((0.2 * cos_) ** 2 + (0.3 * sin_) ** 2)
+        self.assertEqual(error, np.array([expected_error]))
+
     def test_train_svd_processor(self):
         """Test that we can train a DataProcessor with an SVD."""
 
@@ -136,11 +155,7 @@ class TestSVD(BaseDataProcessorTest):
 
         self.assertFalse(processor.is_trained)
 
-        iq_data = [
-            [[0., 0.], [0., 0.]],
-            [[1., 1.], [-1., 1.]],
-            [[-1., -1.], [1., -1.]]
-        ]
+        iq_data = [[[0.0, 0.0], [0.0, 0.0]], [[1.0, 1.0], [-1.0, 1.0]], [[-1.0, -1.0], [1.0, -1.0]]]
         self.create_experiment(iq_data)
 
         processor.train(self.iq_experiment.data())
@@ -148,9 +163,7 @@ class TestSVD(BaseDataProcessorTest):
         self.assertTrue(processor.is_trained)
 
         # Check that we can use the SVD
-        iq_data = [
-            [[2, 2], [2, -2]]
-        ]
+        iq_data = [[[2, 2], [2, -2]]]
         self.create_experiment(iq_data)
 
         processed, _ = processor(self.iq_experiment.data(0))
@@ -161,16 +174,16 @@ class TestSVD(BaseDataProcessorTest):
         """Test averaging of IQ-data."""
 
         iq_data = [
-            [[-6.20601501e+14, -1.33257051e+15], [-1.70921324e+15, -4.05881657e+15]],
-            [[-5.80546502e+14, -1.33492509e+15], [-1.65094637e+15, -4.05926942e+15]],
-            [[-4.04649069e+14, -1.33191056e+15], [-1.29680377e+15, -4.03604815e+15]],
-            [[-2.22203874e+14, -1.30291309e+15], [-8.57663429e+14, -3.97784973e+15]],
-            [[-2.92074029e+13, -1.28578530e+15], [-9.78824053e+13, -3.92071056e+15]],
-            [[1.98056981e+14, -1.26883024e+15], [3.77157017e+14, -3.87460328e+15]],
-            [[4.29955888e+14, -1.25022995e+15], [1.02340118e+15, -3.79508679e+15]],
-            [[6.38981344e+14, -1.25084614e+15], [1.68918514e+15, -3.78961044e+15]],
-            [[7.09988897e+14, -1.21906634e+15], [1.91914171e+15, -3.73670664e+15]],
-            [[7.63169115e+14, -1.20797552e+15], [2.03772603e+15, -3.74653863e+15]]
+            [[-6.20601501e14, -1.33257051e15], [-1.70921324e15, -4.05881657e15]],
+            [[-5.80546502e14, -1.33492509e15], [-1.65094637e15, -4.05926942e15]],
+            [[-4.04649069e14, -1.33191056e15], [-1.29680377e15, -4.03604815e15]],
+            [[-2.22203874e14, -1.30291309e15], [-8.57663429e14, -3.97784973e15]],
+            [[-2.92074029e13, -1.28578530e15], [-9.78824053e13, -3.92071056e15]],
+            [[1.98056981e14, -1.26883024e15], [3.77157017e14, -3.87460328e15]],
+            [[4.29955888e14, -1.25022995e15], [1.02340118e15, -3.79508679e15]],
+            [[6.38981344e14, -1.25084614e15], [1.68918514e15, -3.78961044e15]],
+            [[7.09988897e14, -1.21906634e15], [1.91914171e15, -3.73670664e15]],
+            [[7.63169115e14, -1.20797552e15], [2.03772603e15, -3.74653863e15]],
         ]
 
         self.create_experiment(iq_data, single_shot=True)
@@ -179,8 +192,11 @@ class TestSVD(BaseDataProcessorTest):
 
         avg_datum, error = avg_iq(self.iq_experiment.data(0)["memory"])
 
-        expected_avg = np.array([[8.82943876e+13, -1.27850527e+15], [ 1.43410186e+14, -3.89952402e+15]])
-        expected_std = np.array([[5.07650185e+14, 4.44664719e+13], [1.40522641e+15, 1.22326831e+14]])
+        expected_avg = np.array([[8.82943876e13, -1.27850527e15], [1.43410186e14, -3.89952402e15]])
+
+        expected_std = np.array(
+            [[5.07650185e14, 4.44664719e13], [1.40522641e15, 1.22326831e14]]
+        ) / np.sqrt(10)
 
         self.assertTrue(np.allclose(avg_datum, expected_avg))
         self.assertTrue(np.allclose(error, expected_std))

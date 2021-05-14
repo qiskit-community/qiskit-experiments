@@ -107,7 +107,7 @@ class AverageIQData(IQPart):
         Returns:
             A 2D array of qubits and complex averaged IQ points as [real, imaginary].
         """
-        return np.average(datum, axis=0), np.std(datum, axis=0)
+        return np.average(datum, axis=0), np.std(datum, axis=0) / np.sqrt(datum.shape[0])
 
 
 class SVDAvg(IQPart):
@@ -170,7 +170,7 @@ class SVDAvg(IQPart):
             DataProcessorError: If the SVD has not been previously trained on data.
         """
 
-        if not self._main_axes:
+        if not self.is_trained:
             raise DataProcessorError("SVD must be trained on data before it can be used.")
 
         n_qubits = datum.shape[0]
@@ -178,6 +178,8 @@ class SVDAvg(IQPart):
 
         if error is not None:
             processed_error = []
+        else:
+            processed_error = None
 
         # process each averaged IQ point with its own axis.
         for idx in range(n_qubits):
@@ -186,8 +188,14 @@ class SVDAvg(IQPart):
 
             processed_data.append((self._main_axes[idx] @ centered) / self._scales[idx])
 
-        # TODO need to propagate errors
-        return np.array(processed_data), None
+            if error is not None:
+                angle = np.arctan(self._main_axes[idx][1] / self._main_axes[idx][0])
+                error_value = np.sqrt(
+                    (error[idx][0] * np.cos(angle)) ** 2 + (error[idx][1] * np.sin(angle)) ** 2
+                )
+                processed_error.append(error_value)
+
+        return np.array(processed_data), processed_error
 
     def train(self, data: List[Any]):
         """Train the SVD on the given data.
