@@ -33,7 +33,7 @@ SeriesDef = NamedTuple(
     "SeriesDef",
     [
         ("name", str),
-        ("param_names", List[str]),
+        ("p0_signature", Dict[str, str]),
         ("fit_func_index", int),
         ("filter_kwargs", Optional[Dict[str, Any]]),
         ("data_option_keys", Optional[List[str]]),
@@ -193,8 +193,9 @@ class CurveAnalysis(BaseAnalysis):
             Each series definition is SeriesDef element, that may be initialized with::
 
                 name: Name of the curve. This is arbitrary field.
-                param_names: Name of parameters. This is order sensitive. The parameter names
-                    should be involved in __param_names__.
+                p0_signature: Mapping of parameter name to argument of the fit function
+                    specified by fit_func_index. The parameter names (dict values)
+                    should be defined in __param_names__.
                 fit_func_index: Index of fitting function associated with this curve.
                     The fitting function should be listed in __fit_funcs__.
                 filter_kwargs: Circuit metadata key and value associated with this curve.
@@ -212,8 +213,8 @@ class CurveAnalysis(BaseAnalysis):
 
     Examples:
 
-        T1 experiment
-        =============
+        A fitting for single exponential decay curve
+        ============================================
 
         In this type of experiment, the analysis deals with a single curve.
         Thus filter_kwargs is not necessary defined.
@@ -222,96 +223,132 @@ class CurveAnalysis(BaseAnalysis):
 
             class AnalysisExample(CurveAnalysis):
 
-                __x_key__ = "delay"
+                __x_key__ = "scan_val"
 
                 __series__ = [
                     SeriesDef(
-                        name="t1_decay",
-                        param_names=["a", "tau", "b"],
+                        name="my_experiment1",
+                        p0_signature={"amp": "p0", "lamb": "p1", "baseline": "p2"},
                         fit_func_index=0,
                         filter_kwargs=None,
                         data_option_keys=["outcome"]
-                    )
+                    ),
                 ]
 
-                __fit_funcs__ = [library.exponential]
+                __fit_funcs__ = [fit_functions.exponential_decay]
 
-                __param_names__ = ["a", "tau", "b"]
+                __param_names__ = ["p0", "p1", "p2"]
 
-        IRB experiment
-        ==============
+        The signature of fit_functions.exponential may be::
+
+        .. code-block::
+
+            def exponential_decay(x, amp, lamb, base, x0, baseline) -> np.ndarray:
+
+        The p0_signature key represents a mapping of the fit parameters given by the analysis to
+        the arguments of the fit function. In this example, fit parameter "p0" is substituted
+        in "amp" of the exponential_decay function. Note that the fit function defines a
+        default value for each parameter, thus the default values are used for
+        unspecified parameters here, i.e. "base" and "x0".
+
+
+        A fitting for two exponential decay curve with partly shared parameter
+        ======================================================================
 
         In this type of experiment, the analysis deals with two curves.
-        We need a __series__ definition for each curve.
-        Both curves can be represented by the same exponential function,
-        but with a different parameter set. Note that parameters will be partly shared.
+        We need a __series__ definition for each curve, and filter_kwargs should be
+        properly defined to extract each curve data from the entire experiment data.
 
         .. code-block::
 
             class AnalysisExample(CurveAnalysis):
 
-                __x_key__ = "ncliffs"
+                __x_key__ = "scan_val"
 
                 __series__ = [
                     SeriesDef(
-                        name="standard_rb",
-                        param_names=["a", "alpha_std", "b"],
+                        name="my_experiment1",
+                        p0_signature={"amp": "p0", "lamb": "p1", "baseline": "p3"},
                         fit_func_index=0,
-                        filter_kwargs={"interleaved": False},
+                        filter_kwargs={"my_option1": True},
                         data_option_keys=["outcome"]
                     ),
                     SeriesDef(
-                        name="interleaved_rb",
-                        param_names=["a", "alpha_int", "b"],
+                        name="my_experiment2",
+                        p0_signature={"amp": "p0", "lamb": "p2", "baseline": "p3"},
                         fit_func_index=0,
-                        filter_kwargs={"interleaved": True},
+                        filter_kwargs={"my_option1": False},
                         data_option_keys=["outcome"]
-                    )
+                    ),
                 ]
 
-                __fit_funcs__ = [library.exponential]
+                __fit_funcs__ = [fit_functions.exponential_decay]
 
-                __param_names__ = ["a", "alpha_std", "alpha_int", "b"]
+                __param_names__ = ["p0", "p1", "p2", "p3"]
 
-        Note that the subclass can optionally override :meth:``_post_processing``.
-        This method takes the fit analysis result and calculates a new entity with it.
-        EPC calculation can be performed here.
+        Note that two series share the fit function exponential_decay.
+        However, these series fit two curves with different "lamb" parameters.
+        In total, there are 4 parameters defined in __param_names__.
 
-        Ramsey XY experiment
-        ====================
+        The series 1 (my_experiment1) performs::
 
-        In this type of experiment, the analysis deals with two curves.
-        We need a __series__ definition for each curve.
-        In contrast to the IRB example, this experiment may have two fit functions
-        to represent cosinusoidal (real part) and sinusoidal (imaginary part) oscillation,
-        however the parameters are shared with both functions.
+        .. code-block::
+
+            def exponential_decay(x, amp=p0, lamb=p1, baseline=p3) -> np.ndarray:
+
+        The series 2 (my_experiment1) performs::
+
+        .. code-block::
+
+            def exponential_decay(x, amp=p0, lamb=p2, baseline=p3) -> np.ndarray:
+
+        Thus both curves assume the same "amp" and "baseline".
+        This parameter remapping is managed by the base analysis class behind the scene.
+
+
+        A fitting for two trigonometric curves with the same parameter
+        =============================================================
+
+        In this type of experiment, the analysis deals with two different curves.
+        However the parameters are shared with both functions.
 
         .. code-block::
 
             class AnalysisExample(CurveAnalysis):
 
-                __x_key__ = "delays"
+                __x_key__ = "scan_val"
 
                 __series__ = [
                     SeriesDef(
-                        name="x",
-                        param_names=["a", "freq", "phase", "b"],
+                        name="my_experiment1",
+                        param_names={"amp": "p0", "freq": "p1", "phase": "p3", "baseline": "p4"},
                         fit_func_index=0,
-                        filter_kwargs={"pulse": "x"},
+                        filter_kwargs={"my_option1": "X"},
                         data_option_keys=["outcome"]
                     ),
                     SeriesDef(
-                        name="y",
-                        param_names=["a", "freq", "phase", "b"],
+                        name="my_experiment2",
+                        param_names={"amp": "p0", "freq": "p1", "phase": "p3", "baseline": "p4"},
                         fit_func_index=1,
-                        filter_kwargs={"pulse": "y"},
+                        filter_kwargs={"my_option1": "Y"},
                         data_option_keys=["outcome"]
                     )
                 ]
 
-                __fit_funcs__ = [library.cos, library.sin]
+                __fit_funcs__ = [fit_functions.cos, fit_functions.sin]
 
-                __param_names__ = ["a", "freq", "phase", "b"]
+                __param_names__ = ["p0", "p1", "p3", "p4"]
+
+        The signature of each fit function may be::
+
+        .. code-block::
+
+            def cos(x, amp, freq, phase, baseline) -> np.ndarray:
+
+            def sin(x, amp, freq, phase, baseline) -> np.ndarray:
+
+        Note that series 1 (2) is linked to fit_functions.cos (sin) by the fit_func_index.
+        The parameters are totally shared with two curves.
 
     Notes:
         This CurveAnalysis class provides several private methods that subclasses can override.

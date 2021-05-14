@@ -18,7 +18,13 @@ A library of fit functions.
 import numpy as np
 
 
-def cos(x: np.ndarray, amp: float, freq: float, phase: float, baseline: float) -> np.ndarray:
+def cos(
+    x: np.ndarray,
+    amp: float = 1.0,
+    freq: float = 1 / (2 * np.pi),
+    phase: float = 0.0,
+    baseline: float = 0.0,
+) -> np.ndarray:
     r"""Cosine function.
 
     .. math::
@@ -27,7 +33,13 @@ def cos(x: np.ndarray, amp: float, freq: float, phase: float, baseline: float) -
     return amp * np.cos(2 * np.pi * freq * x + phase) + baseline
 
 
-def sin(x: np.ndarray, amp: float, freq: float, phase: float, baseline: float) -> np.ndarray:
+def sin(
+    x: np.ndarray,
+    amp: float = 1.0,
+    freq: float = 1 / (2 * np.pi),
+    phase: float = 0.0,
+    baseline: float = 0.0,
+) -> np.ndarray:
     r"""Sine function.
 
     .. math::
@@ -37,17 +49,24 @@ def sin(x: np.ndarray, amp: float, freq: float, phase: float, baseline: float) -
 
 
 def exponential_decay(
-    x: np.ndarray, amp: float, lamb: float, x0: float, baseline: float
+    x: np.ndarray,
+    amp: float = 1.0,
+    lamb: float = 1.0,
+    base: float = np.e,
+    x0: float = 0.0,
+    baseline: float = 0.0,
 ) -> np.ndarray:
     r"""Exponential function
 
     .. math::
-        y = {\rm amp} \exp \left( - \lambda x + {\rm x0} \right) + {\rm baseline}
+        y = {\rm amp} {\rm base}^{\left( - \lambda x + {\rm x0} \right)} + {\rm baseline}
     """
-    return amp * np.exp(-lamb * x + x0) + baseline
+    return amp * base ** (-lamb * x + x0) + baseline
 
 
-def gaussian(x: np.ndarray, amp: float, sigma: float, x0: float, baseline: float) -> np.ndarray:
+def gaussian(
+    x: np.ndarray, amp: float = 1.0, sigma: float = 1.0, x0: float = 0.0, baseline: float = 0.0
+) -> np.ndarray:
     r"""Gaussian function
 
     .. math::
