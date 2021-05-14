@@ -15,213 +15,32 @@ Analysis class for curve fitting.
 """
 # pylint: disable=invalid-name
 
-import functools
-from collections import defaultdict
-from typing import Any, NamedTuple, Dict, List, Optional, Tuple, Callable, Union
+import dataclasses
+import inspect
+from typing import Any, Dict, List, Tuple, Callable, Union
 
 import numpy as np
-import scipy.optimize as opt
 from qiskit.exceptions import QiskitError
 
+from qiskit_experiments.analysis.curve_fitting import multi_curve_fit
+from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
 
-# Description of data properties for single curve entry
-SeriesDef = NamedTuple(
-    "SeriesDef",
-    [
-        ("name", str),
-        ("p0_signature", Dict[str, str]),
-        ("fit_func_index", int),
-        ("filter_kwargs", Optional[Dict[str, Any]]),
-        ("data_option_keys", Optional[List[str]]),
-    ],
-)
 
-# Human readable data set for single curve entry
-CurveEntry = NamedTuple(
-    "CurveEntry",
-    [
-        ("curve_name", str),
-        ("x_values", np.ndarray),
-        ("y_values", np.ndarray),
-        ("y_sigmas", np.ndarray),
-        ("metadata", dict),
-    ],
-)
+@dataclasses.dataclass
+class SeriesDef:
+    """Description of curve."""
 
-
-def scipy_curve_fit_wrapper(
-    f: Callable,
-    xdata: np.ndarray,
-    ydata: np.ndarray,
-    p0: Dict[str, float],
-    sigma: np.ndarray,
-    bounds: Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray]],
-    **kwargs,
-) -> AnalysisResult:
-    r"""A helper function to perform a non-linear least squares to fit
-
-    This solves the optimization problem
-
-    .. math::
-        \Theta_{\mbox{opt}} = \arg\min_\Theta \sum_i \sigma_i^{-2} (f(x_i, \Theta) -  y_i)^2
-
-    using ``scipy.optimize.curve_fit``.
-
-    Args:
-        f: a fit function `f(x, *params)`.
-        xdata: a 1D float array of x-data.
-        ydata: a 1D float array of y-data.
-        p0: initial guess for optimization parameters.
-        sigma: a 1D array of standard deviations in ydata in absolute units.
-        bounds: lower and upper bounds for optimization parameters.
-        kwargs: additional kwargs for scipy.optimize.curve_fit.
-
-    Returns:
-        result containing ``popt`` the optimal fit parameters,
-        ``popt_err`` the standard error estimates popt,
-        ``pcov`` the covariance matrix for the fit,
-        ``reduced_chisq`` the reduced chi-squared parameter of fit,
-        ``dof`` the degrees of freedom of the fit,
-        ``xrange`` the range of xdata values used for fit.
-
-    Raises:
-        QiskitError: if the number of degrees of freedom of the fit is
-                     less than 1.
-
-    .. note::
-        ``sigma`` is assumed to be specified in the same units as ``ydata``
-        (absolute units). If sigma is instead specified in relative units
-        the `absolute_sigma=False` kwarg of scipy curve_fit must be used.
-        This affects the returned covariance ``pcov`` and error ``popt_err``
-        parameters via ``pcov(absolute_sigma=False) = pcov * reduced_chisq``
-        ``popt_err(absolute_sigma=False) = popt_err * sqrt(reduced_chisq)``.
-    """
-    # Format p0 parameters
-    param_keys = list(p0.keys())
-    param_p0 = list(p0.values())
-
-    lower = [bounds[0][key] for key in param_keys]
-    upper = [bounds[1][key] for key in param_keys]
-    param_bounds = (lower, upper)
-
-    # Check that degrees of freedom is greater than 0
-    dof = len(ydata) - len(p0)
-    if dof < 1:
-        raise QiskitError(
-            "The number of degrees of freedom of the fit data and model "
-            " (len(ydata) - len(p0)) is less than 1"
-        )
-
-    # Override scipy.curve_fit default for absolute_sigma=True
-    # if sigma is specified.
-    if sigma is not None and "absolute_sigma" not in kwargs:
-        kwargs["absolute_sigma"] = True
-
-    # Run curve fit
-    # pylint: disable = unbalanced-tuple-unpacking
-    popt, pcov = opt.curve_fit(
-        f=f, xdata=xdata, ydata=ydata, sigma=sigma, p0=param_p0, bounds=param_bounds, **kwargs
-    )
-    popt_err = np.sqrt(np.diag(pcov))
-
-    # Calculate the reduced chi-squared for fit
-    yfits = f(xdata, *popt)
-    residues = (yfits - ydata) ** 2
-    if sigma is not None:
-        residues = residues / (sigma ** 2)
-    reduced_chisq = np.sum(residues) / dof
-
-    # Compute xdata range for fit
-    xdata_range = [min(xdata), max(xdata)]
-
-    result = {
-        "popt": popt,
-        "popt_keys": param_keys,
-        "popt_err": popt_err,
-        "pcov": pcov,
-        "reduced_chisq": reduced_chisq,
-        "dof": dof,
-        "xrange": xdata_range,
-    }
-
-    return AnalysisResult(result)
-
-
-def level2_probability(data: Dict[str, Any], outcome: Optional[str] = None) -> Tuple[float, float]:
-    """Return the outcome probability mean and variance.
-
-    Args:
-        data: A data dict containing count data.
-        outcome: bitstring for desired outcome probability.
-
-    Returns:
-        (p_mean, p_var) of the probability mean and variance estimated from the counts.
-
-    .. note::
-
-        This assumes a binomial distribution where :math:`K` counts
-        of the desired outcome from :math:`N` shots the
-        mean probability is :math:`p = K / N` and the variance is
-        :math:`\\sigma^2 = p (1-p) / N`.
-    """
-    # TODO fix sigma definition
-    # When the count is 100% zero (i.e. simulator), this yields sigma=0.
-    # This crashes scipy fitter when it calculates covariance matrix (zero-div error).
-
-    counts = data["counts"]
-    outcome = outcome or "1" * len(list(counts.keys())[0])
-
-    shots = sum(counts.values())
-    p_mean = counts.get(outcome, 0.0) / shots
-    p_var = p_mean * (1 - p_mean) / shots
-    return p_mean, p_var
+    name: str
+    fit_func: Callable
+    filter_kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
 
 
 class FitOptions(dict):
     """Fit options passed to the fitter function."""
-
-    def validate(self):
-        """Validate format of fitting options.
-
-        Raises:
-            TypeError:
-                - When parameter is not given by dictionary. Need mapping to parameter name.
-            KeyError:
-                - When necessary options are not fully defined.
-        """
-
-        # Initial guess
-        try:
-            p0 = self["p0"]
-            if not isinstance(p0, dict):
-                raise TypeError(
-                    "Initial guess is not a dictionary. Need parameter name "
-                    "associated with each parameter as a key."
-                )
-        except KeyError as ex:
-            raise KeyError("Initial parameters are not set.") from ex
-
-        # Boundaries
-        try:
-            lb, ub = self["bounds"]
-            if not isinstance(lb, dict) or not isinstance(ub, dict):
-                raise TypeError(
-                    "Parameter boundaries are not a dictionary. Need parameter name "
-                    "associated with each parameter as a key."
-                )
-
-        except KeyError as ex:
-            raise KeyError("Parameter boundaries are not set.") from ex
-
-        except TypeError as ex:
-            raise TypeError(
-                "Parameter boundaries are invalid format. Boundaries should be "
-                "lower and upper values as a tuple of two dictionary."
-            ) from ex
 
 
 class CurveAnalysis(BaseAnalysis):
@@ -235,29 +54,22 @@ class CurveAnalysis(BaseAnalysis):
 
         __x_key__: Key in the circuit metadata under which to find the value for
             the horizontal axis.
+        __processing_options__: Circuit metadata keys that are passed to the data processor.
+            The key should conform to the data processor API.
         __series__: A set of data points that will be fit to a the same parameters
             in the fit function. If this analysis contains multiple curves,
             the same number of series definitions should be listed.
             Each series definition is SeriesDef element, that may be initialized with::
 
-                name: Name of the curve. This is arbitrary field.
-                p0_signature: Mapping of parameter name to argument of the fit function
-                    specified by fit_func_index. The parameter names (dict values)
-                    should be defined in __param_names__.
-                fit_func_index: Index of fitting function associated with this curve.
-                    The fitting function should be listed in __fit_funcs__.
+                name: Name of the curve. This is arbitrary data field, but should be unique.
+                fit_func: Callback function to perform fit.
                 filter_kwargs: Circuit metadata key and value associated with this curve.
                     The data points of the curve is extracted from ExperimentData based on
                     this information.
-                data_option_keys: Circuit metadata keys that are passed to the data processor.
-                    The key should conform to the data processor API.
 
             See the Examples below for more details.
-        __fit_funcs__: List of callables to fit parameters. This is order sensitive.
-            The list index corresponds to the function index specified by __series__ definition.
-        __param_names__: Name of parameters to fit. This is order sensitive.
-        __base_fitter__: A callable to perform single curve fitting.
-            The function API should conform to the scipy curve fit module.
+        __base_fitter__: A callable to perform curve fitting.
+        __default_data_processor__: A callable to format y, y error data.
 
     Examples:
 
@@ -276,28 +88,10 @@ class CurveAnalysis(BaseAnalysis):
                 __series__ = [
                     SeriesDef(
                         name="my_experiment1",
-                        p0_signature={"amp": "p0", "lamb": "p1", "baseline": "p2"},
-                        fit_func_index=0,
-                        filter_kwargs=None,
-                        data_option_keys=["outcome"]
+                        fit_func=lambda x, p0, p1, p2:
+                            exponential_decay(x, amp=p0, lamb=p1, baseline=p2),
                     ),
                 ]
-
-                __fit_funcs__ = [fit_functions.exponential_decay]
-
-                __param_names__ = ["p0", "p1", "p2"]
-
-        The signature of fit_functions.exponential may be::
-
-        .. code-block::
-
-            def exponential_decay(x, amp, lamb, base, x0, baseline) -> np.ndarray:
-
-        The p0_signature key represents a mapping of the fit parameters given by the analysis to
-        the arguments of the fit function. In this example, fit parameter "p0" is substituted
-        in "amp" of the exponential_decay function. Note that the fit function defines a
-        default value for each parameter, thus the default values are used for
-        unspecified parameters here, i.e. "base" and "x0".
 
 
         A fitting for two exponential decay curve with partly shared parameter
@@ -305,7 +99,7 @@ class CurveAnalysis(BaseAnalysis):
 
         In this type of experiment, the analysis deals with two curves.
         We need a __series__ definition for each curve, and filter_kwargs should be
-        properly defined to extract each curve data from the entire experiment data.
+        properly defined to separate each curve series.
 
         .. code-block::
 
@@ -316,42 +110,17 @@ class CurveAnalysis(BaseAnalysis):
                 __series__ = [
                     SeriesDef(
                         name="my_experiment1",
-                        p0_signature={"amp": "p0", "lamb": "p1", "baseline": "p3"},
-                        fit_func_index=0,
-                        filter_kwargs={"my_option1": True},
-                        data_option_keys=["outcome"]
+                        fit_func=lambda x, p0, p1, p2, p3:
+                            exponential_decay(x, amp=p0, lamb=p1, baseline=p3),
+                        filter_kwargs={"experiment": 1},
                     ),
                     SeriesDef(
                         name="my_experiment2",
-                        p0_signature={"amp": "p0", "lamb": "p2", "baseline": "p3"},
-                        fit_func_index=0,
-                        filter_kwargs={"my_option1": False},
-                        data_option_keys=["outcome"]
+                        fit_func=lambda x, p0, p1, p2, p3:
+                            exponential_decay(x, amp=p0, lamb=p2, baseline=p3),
+                        filter_kwargs={"experiment": 2},
                     ),
                 ]
-
-                __fit_funcs__ = [fit_functions.exponential_decay]
-
-                __param_names__ = ["p0", "p1", "p2", "p3"]
-
-        Note that two series share the fit function exponential_decay.
-        However, these series fit two curves with different "lamb" parameters.
-        In total, there are 4 parameters defined in __param_names__.
-
-        The series 1 (my_experiment1) performs::
-
-        .. code-block::
-
-            def exponential_decay(x, amp=p0, lamb=p1, baseline=p3) -> np.ndarray:
-
-        The series 2 (my_experiment1) performs::
-
-        .. code-block::
-
-            def exponential_decay(x, amp=p0, lamb=p2, baseline=p3) -> np.ndarray:
-
-        Thus both curves assume the same "amp" and "baseline".
-        This parameter remapping is managed by the base analysis class behind the scene.
 
 
         A fitting for two trigonometric curves with the same parameter
@@ -369,34 +138,18 @@ class CurveAnalysis(BaseAnalysis):
                 __series__ = [
                     SeriesDef(
                         name="my_experiment1",
-                        param_names={"amp": "p0", "freq": "p1", "phase": "p3", "baseline": "p4"},
-                        fit_func_index=0,
-                        filter_kwargs={"my_option1": "X"},
-                        data_option_keys=["outcome"]
+                        fit_func=lambda x, p0, p1, p2, p3:
+                            cos(x, amp=p0, freq=p1, phase=p2, baseline=p3),
+                        filter_kwargs={"experiment": 1},
                     ),
                     SeriesDef(
                         name="my_experiment2",
-                        param_names={"amp": "p0", "freq": "p1", "phase": "p3", "baseline": "p4"},
-                        fit_func_index=1,
-                        filter_kwargs={"my_option1": "Y"},
-                        data_option_keys=["outcome"]
+                        fit_func=lambda x, p0, p1, p2, p3:
+                            sin(x, amp=p0, freq=p1, phase=p2, baseline=p3),
+                        filter_kwargs={"experiment": 2},
                     )
                 ]
 
-                __fit_funcs__ = [fit_functions.cos, fit_functions.sin]
-
-                __param_names__ = ["p0", "p1", "p3", "p4"]
-
-        The signature of each fit function may be::
-
-        .. code-block::
-
-            def cos(x, amp, freq, phase, baseline) -> np.ndarray:
-
-            def sin(x, amp, freq, phase, baseline) -> np.ndarray:
-
-        Note that series 1 (2) is linked to fit_functions.cos (sin) by the fit_func_index.
-        The parameters are totally shared with two curves.
 
     Notes:
         This CurveAnalysis class provides several private methods that subclasses can override.
@@ -434,29 +187,36 @@ class CurveAnalysis(BaseAnalysis):
     #: str: Metadata key representing a scanned value.
     __x_key__ = "xval"
 
+    #: str: Metadata keys specifying data processing options.
+    __processing_options__ = ["outcome"]
+
     #: List[SeriesDef]: List of mapping representing a data series
     __series__ = None
 
-    #: List[Callable]: A callback function to define the expected curve
-    __fit_funcs__ = None
-
-    #: List[str]: Parameter name list
-    __param_names__ = list()
-
     # Callable: Default curve fitter. This can be overwritten.
-    __base_fitter__ = scipy_curve_fit_wrapper
+    __base_fitter__ = multi_curve_fit
 
     # Union[Callable, DataProcessor]: Data processor to format experiment data.
     __default_data_processor__ = level2_probability
 
     # pylint: disable = unused-argument, missing-return-type-doc
-    def _create_figures(self, curve_data: List[CurveEntry], fit_data: AnalysisResult):
+    def _create_figures(
+        self,
+        x_values: np.ndarray,
+        y_values: np.ndarray,
+        y_sigmas: np.ndarray,
+        series: np.ndarray,
+        fit_data: AnalysisResult,
+    ):
         """Create new figures with the fit result and raw data.
 
         Subclass can override this method to return figures.
 
         Args:
-            curve_data: List of raw curve data points with metadata.
+            x_values: Full data set of x values.
+            y_values: Full data set of y values.
+            y_sigmas: Full data set of y sigmas.
+            series: An integer array representing a mapping of data location to series index.
             fit_data: Analysis result containing fit parameters.
 
         Returns:
@@ -466,49 +226,37 @@ class CurveAnalysis(BaseAnalysis):
         return list()
 
     # pylint: disable = unused-argument
-    def _setup_fitting(self, curve_data: List[CurveEntry], **options) -> List[FitOptions]:
-        """Setup initial guesses, fit boundaries and other options passed to optimizer.
+    def _setup_fitting(
+        self,
+        x_values: np.ndarray,
+        y_values: np.ndarray,
+        y_sigmas: np.ndarray,
+        series: np.ndarray,
+        **options,
+    ) -> List[FitOptions]:
+        """An analysis subroutine that is called to set fitter options.
 
-        Subclass can override this method to provide proper optimization options.
+        This subroutine takes full data array and user-input fit options.
+        Subclasses can override this method to provide own fitter options
+        such as initial guesses.
 
-        .. notes::
-            This method returns list of FitOptions dictionary, and the options are
-            passed to the optimizer as a keyword arguments.
-            This should conform to the API which you specified in __base_fitter__.
-            This defaults to scipy curve_fit. If you create multiple FitOptions dictionaries,
-            fit is performed with each FitOptions and the fit result with the minimum
-            `reduced_chisq` will be returned as a final result.
+        Note that this subroutine can generate multiple fit options.
+        If multiple options are provided, fitter runs multiple times for each fit option,
+        and find the best result measured by the reduced chi-squared value.
 
         Args:
-            curve_data: List of raw curve data points to fit.
+            x_values: Full data set of x values.
+            y_values: Full data set of y values.
+            y_sigmas: Full data set of y sigmas.
+            series: An integer array representing a mapping of data location to series index.
             options: User provided fit options.
 
         Returns:
             List of FitOptions that are passed to fitter function.
         """
+        fit_options = FitOptions(**options)
 
-        def _dictionarize(argvar, default_val):
-            if argvar is not None:
-                try:
-                    argvar = list(argvar)
-                    return dict(zip(self.__param_names__, argvar))
-                except TypeError:
-                    return argvar
-            else:
-                return {pname: default_val for pname in self.__param_names__}
-
-        # Set initial guess
-        usr_p0 = options.pop("p0", None)
-        p0 = _dictionarize(usr_p0, default_val=0.0)
-
-        # Set boundaries
-        usr_lb, usr_ub = options.pop("bounds", (None, None))
-        lb = _dictionarize(usr_lb, default_val=-np.inf)
-        ub = _dictionarize(usr_ub, default_val=np.inf)
-
-        fit_option = FitOptions(p0=p0, bounds=(lb, ub), **options)
-
-        return [fit_option]
+        return [fit_options]
 
     # pylint: disable = unused-argument
     @staticmethod
@@ -572,7 +320,7 @@ class CurveAnalysis(BaseAnalysis):
         self,
         experiment_data: ExperimentData,
         data_processor: Union[Callable, DataProcessor],
-    ) -> List[CurveEntry]:
+    ) -> Tuple[np.ndarray, ...]:
         """Extract curve data from experiment data.
 
         .. notes::
@@ -594,12 +342,9 @@ class CurveAnalysis(BaseAnalysis):
         Raises:
             QiskitError:
                 - When __x_key__ is not defined in the circuit metadata.
-                - When __series__ is not defined.
             KeyError:
                 - When circuit metadata doesn't provide required data processor options.
         """
-        if self.__series__ is None:
-            raise QiskitError("Curve __series__ is not provided for this analysis.")
 
         def _is_target_series(datum, **filters):
             try:
@@ -607,256 +352,143 @@ class CurveAnalysis(BaseAnalysis):
             except KeyError:
                 return False
 
-        curve_data = list()
-        for curve_properties in self.__series__:
-            if curve_properties.filter_kwargs:
-                # filter data
-                series_data = [
-                    datum
-                    for datum in experiment_data.data()
-                    if _is_target_series(datum, **curve_properties.filter_kwargs)
-                ]
-            else:
-                # use data as-is
-                series_data = experiment_data.data()
+        # Extract X, Y, Y_sigma data
+        data = experiment_data.data()
 
-            if len(series_data) == 0:
-                # no data found
-                curve_data.append(
-                    CurveEntry(
-                        curve_name=curve_properties.name,
-                        x_values=np.empty(0, dtype=float),
-                        y_values=np.empty(0, dtype=float),
-                        y_sigmas=np.empty(0, dtype=float),
-                        metadata=dict(),
-                    )
-                )
-                continue
-
-            # Format x, y, yerr data
-            try:
-                xvals = [datum["metadata"][self.__x_key__] for datum in series_data]
-            except KeyError as ex:
-                raise QiskitError(
-                    f"X value key {self.__x_key__} is not defined in circuit metadata."
-                ) from ex
-
-            option_keys = curve_properties.data_option_keys or dict()
-
-            def _data_processing(datum):
-                # A helper function to receive data processor runtime option from metadata
-                try:
-                    # Extract data processor options
-                    dp_options = {key: datum["metadata"][key] for key in option_keys}
-                except KeyError as ex:
-                    raise KeyError(
-                        "Required data processor options are not provided by circuit metadata."
-                    ) from ex
-                return data_processor(datum, **dp_options)
-
-            yvals, yerrs = zip(*map(_data_processing, series_data))
-
-            # Apply data pre-processing
-            prepared_xvals, prepared_yvals, prepared_yerrs = self._data_pre_processing(
-                x_values=np.asarray(xvals, dtype=float),
-                y_values=np.asarray(yvals, dtype=float),
-                y_sigmas=np.asarray(yerrs, dtype=float),
-            )
-
-            # Get common metadata fields except for xval, filter args, data processor args.
-            # These properties are obvious.
-            common_keys = list(
-                functools.reduce(
-                    lambda k1, k2: k1 & k2,
-                    map(lambda d: d.keys(), [datum["metadata"] for datum in series_data]),
-                )
-            )
-            common_keys.remove(self.__x_key__)
-            if curve_properties.filter_kwargs:
-                for key in curve_properties.filter_kwargs:
-                    common_keys.remove(key)
-            if curve_properties.data_option_keys:
-                for key in curve_properties.data_option_keys:
-                    common_keys.remove(key)
-
-            # Extract common metadata for the curve
-            curve_metadata = defaultdict(set)
-            for datum in series_data:
-                for key in common_keys:
-                    curve_metadata[key].add(datum["metadata"][key])
-
-            curve_data.append(
-                CurveEntry(
-                    curve_name=curve_properties.name,
-                    x_values=prepared_xvals,
-                    y_values=prepared_yvals,
-                    y_sigmas=prepared_yerrs,
-                    metadata=dict(curve_metadata),
-                )
-            )
-
-        return curve_data
-
-    def _run_fitting(
-        self,
-        curve_data: List[CurveEntry],
-        weights: Optional[np.ndarray] = None,
-        **options,
-    ) -> AnalysisResult:
-        r"""Perform a linearized multi-objective non-linear least squares fit.
-
-        This solves the optimization problem
-
-        .. math::
-            \Theta_{\mbox{opt}} = \arg\min_\Theta \sum_{k} w_k
-                \sum_{i} \sigma_{k, i}^{-2}
-                (f_k(x_{k, i}, \Theta) -  y_{k, i})^2
-
-        for multiple series of :math:`x_k, y_k, \sigma_k` data evaluated using
-        a list of objective functions :math:`[f_k]`
-        using ``scipy.optimize.curve_fit``.
-
-        Args:
-            curve_data: A list of curve data to fit.
-            weights: Optional, a 1D float list of weights :math:`w_k` for each
-                     component function :math:`f_k`.
-            options: additional kwargs for scipy.optimize.curve_fit.
-
-        Returns:
-            result containing ``popt`` the optimal fit parameters,
-            ``popt_err`` the standard error estimates popt,
-            ``pcov`` the covariance matrix for the fit,
-            ``reduced_chisq`` the reduced chi-squared parameter of fit,
-            ``dof`` the degrees of freedom of the fit,
-            ``xrange`` the range of xdata values used for fit.
-
-        Raises:
-            QiskitError:
-                - When number of weights are not identical to the curve_data entries.
-            KeyError:
-                - When fit function doesn't return Chi squared value.
-        """
-        num_curves = len(curve_data)
-
-        # Setup fitting options
-        fit_options = self._setup_fitting(curve_data, **options)
-        for fit_option in fit_options:
-            if isinstance(fit_option, FitOptions):
-                fit_option.validate()
-
-        # Validate weights
-        if weights is None:
-            sig_weights = np.ones(num_curves)
-        else:
-            if len(weights) != num_curves:
-                raise QiskitError(
-                    "weights should be the same length as the curve_data. "
-                    f"{len(weights)} != {num_curves}"
-                )
-            sig_weights = weights
-
-        # Concatenate all curve data
-        flat_xvals = np.empty(0, dtype=float)
-        flat_yvals = np.empty(0, dtype=float)
-        flat_yerrs = np.empty(0, dtype=float)
-        separators = np.empty(num_curves)
-
-        for idx, (datum, weight) in enumerate(zip(curve_data, sig_weights)):
-            flat_xvals = np.concatenate((flat_xvals, datum.x_values))
-            flat_yvals = np.concatenate((flat_yvals, datum.y_values))
-            if datum.y_sigmas is not None:
-                datum_yerrs = datum.y_sigmas / np.sqrt(weight)
-            else:
-                datum_yerrs = 1 / np.sqrt(weight)
-            flat_yerrs = np.concatenate((flat_yerrs, datum_yerrs))
-            separators[idx] = len(datum.x_values)
-        separators = list(map(int, np.cumsum(separators)[:-1]))
-
-        # Define multi-objective function
-        def multi_objective_fit(x, *params):
-            y = np.empty(0, dtype=float)
-            xs = np.split(x, separators) if len(separators) > 0 else [x]
-            for i, xi in enumerate(xs):
-                yi = self._calculate_curve(curve_data[i].curve_name, xi, *params)
-                y = np.concatenate((y, yi))
-            return y
-
-        # Try fit with each fit option
-        fit_results = [
-            self.__base_fitter__.__func__(
-                f=multi_objective_fit,
-                xdata=flat_xvals,
-                ydata=flat_yvals,
-                sigma=flat_yerrs,
-                **fit_option,
-            )
-            for fit_option in fit_options
-        ]
-
-        # Sort by fit error
         try:
-            fit_results = sorted(fit_results, key=lambda r: r["reduced_chisq"])
+            x_values = [datum["metadata"][self.__x_key__] for datum in data]
         except KeyError as ex:
-            raise KeyError(
-                "Returned analysis result does not provide reduced Chi squared value."
+            raise QiskitError(
+                f"X value key {self.__x_key__} is not defined in circuit metadata."
             ) from ex
 
-        best_analysis_result = fit_results[0]
-        best_analysis_result["popt_keys"] = self.__param_names__
+        def _data_processing(datum):
+            # A helper function to receive data processor runtime option from metadata
+            try:
+                # Extract data processor options
+                dp_options = {key: datum["metadata"][key] for key in self.__processing_options__}
+            except KeyError as ex:
+                raise KeyError(
+                    "Required data processor options are not provided by circuit metadata."
+                ) from ex
+            return data_processor(datum, **dp_options)
 
-        return best_analysis_result
+        y_values, y_sigmas = zip(*map(_data_processing, data))
 
-    def _calculate_curve(self, curve_name: str, xvals: np.ndarray, *params: float) -> np.ndarray:
-        """A helper method to manage parameter remapping for each series.
+        # Format data
+        x_values, y_values, y_sigmas = self._data_pre_processing(
+            x_values=np.asarray(x_values, dtype=float),
+            y_values=np.asarray(y_values, dtype=float),
+            y_sigmas=np.asarray(y_sigmas, dtype=float),
+        )
 
-        This method calculate curve based on the fit function specified by the
-        fit_func_index in each series definition.
+        # Find series (invalid data is labeled as -1)
+        series = -1 * np.ones(x_values.size, dtype=int)
+        for idx, series_def in enumerate(self.__series__):
+            data_index = np.asarray(
+                [_is_target_series(datum, **series_def.filter_kwargs) for datum in data], dtype=bool
+            )
+            series[data_index] = idx
+
+        return x_values, y_values, y_sigmas, series
+
+    def _format_fit_options(self, options: FitOptions) -> FitOptions:
+        """Format fitting option args to dictionary of parameter names.
 
         Args:
-            curve_name: A name of curve. This should be defined in __series__ attribute.
-            xvals: Array of x values.
-            params: Full fit parameters specified in __param_names__.
+            options: Generated fit options without tested.
 
         Returns:
-            Fit y values.
+            Formatted fit options.
 
         Raises:
             QiskitError:
-                - When prameter name and paramater value length don't match.
-                - When function parameter is not defined in the class parameter list.
-                - When fit function index is out of range.
-                - When curve information is not defined in class attribute __series__.
-                - When series parameter is not defined in __param_names__.
+                - When fit functions have different signature.
+            KeyError:
+                - When fit option is dictionary but key doesn't match with parameter names.
+                - When initial guesses are not provided.
+            ValueError:
+                - When fit option is array but length doesn't match with parameter number.
         """
-        if len(self.__param_names__) != len(params):
+        # check fit function signatures
+        fsigs = set()
+        for series_def in self.__series__:
+            fsigs.add(inspect.signature(series_def.fit_func))
+        if len(fsigs) > 1:
             raise QiskitError(
-                "Length of defined parameter names does not match with "
-                f"supplied parameter values. {', '.join(self.__param_names__)} != {params}."
+                "Fit functions specified in the series definition have "
+                "different function signature. They should receive "
+                "the same parameter set for multi-objective function fit."
             )
+        fit_params = list(list(fsigs)[0].parameters.keys())[1:]
 
-        named_params = dict(zip(self.__param_names__, params))
+        # Validate dictionaly keys
+        def _check_keys(parameter_name):
+            named_values = options[parameter_name]
+            if not named_values.keys() == set(fit_params):
+                raise KeyError(
+                    f"Fitting option {parameter_name} doesn't have the "
+                    f"expected parameter names {','.join(fit_params)}."
+                )
 
-        for curve_properties in self.__series__:
-            if curve_properties.name == curve_name:
-                # remap parameters
-                kw_params = {}
-                for key, pname in curve_properties.p0_signature.items():
-                    try:
-                        kw_params[key] = named_params[pname]
-                    except KeyError as ex:
-                        raise QiskitError(
-                            f"Series parameter {pname} is not found in the fit parameter. "
-                            f"{pname} not in {', '.join(named_params.keys())}. "
-                        ) from ex
+        # Convert array into dictionary
+        def _dictionarize(parameter_name):
+            parameter_array = options[parameter_name]
+            if len(parameter_array) != len(fit_params):
+                raise ValueError(
+                    f"Value length of fitting option {parameter_name} doesn't "
+                    "match with the length of expected parameters. "
+                    f"{len(parameter_array)} != {len(fit_params)}."
+                )
+            return dict(zip(fit_params, parameter_array))
 
-                # find fit function
-                f_index = curve_properties.fit_func_index
-                try:
-                    return self.__fit_funcs__[f_index](xvals, **kw_params)
-                except IndexError as ex:
-                    raise QiskitError(f"Fit function of index {f_index} is not defined.") from ex
+        if "p0" in options:
+            if isinstance(options["p0"], dict):
+                _check_keys("p0")
+            else:
+                options["p0"] = _dictionarize("p0")
+        else:
+            raise KeyError("Initial guess p0 is not provided to the fitting options.")
 
-        raise QiskitError(f"A curve {curve_name} is not defined in this class.")
+        if "bounds" in options:
+            if isinstance(options["bounds"], dict):
+                _check_keys("bounds")
+            else:
+                options["bounds"] = _dictionarize("bounds")
+        else:
+            options["bounds"] = dict(zip(fit_params, [(-np.inf, np.inf)] * len(fit_params)))
+
+        return options
+
+    def _subset_data(
+        self,
+        name: str,
+        x_values: np.ndarray,
+        y_values: np.ndarray,
+        y_sigmas: np.ndarray,
+        series: np.ndarray,
+    ) -> Tuple[np.ndarray, ...]:
+        """A helper method to extract reduced set of data.
+
+        Args:
+            name: Series name to search for.
+            x_values: Full data set of x values.
+            y_values: Full data set of y values.
+            y_sigmas: Full data set of y sigmas.
+            series: An integer array representing a mapping of data location to series index.
+
+        Returns:
+            Tuple of x values, y values, y sigmas for the specific series.
+
+        Raises:
+            QiskitError:
+                - When name is not defined in the __series__ definition.
+        """
+        for idx, series_def in enumerate(self.__series__):
+            if series_def.name == name:
+                data_index = series == idx
+                return x_values[data_index], y_values[data_index], y_sigmas[data_index]
+        raise QiskitError(f"Specified series {name} is not defined in this analysis.")
 
     def _run_analysis(
         self, data: ExperimentData, **options
@@ -872,10 +504,15 @@ class CurveAnalysis(BaseAnalysis):
                    ``analysis_results`` may be a single or list of
                    AnalysisResult objects, and ``figures`` is a list of any
                    figures for the experiment.
+
+        Raises:
+
         """
         analysis_result = AnalysisResult()
 
-        # Setup data processor
+        #
+        # 1. Setup data processor
+        #
         data_processor = options.pop("data_processor", self.__default_data_processor__)
 
         # TODO add ` and not data_processor.trained:`
@@ -894,38 +531,73 @@ class CurveAnalysis(BaseAnalysis):
             # Callback function
             data_processor = data_processor.__func__
 
-        # Extract curve entries from experiment data
+        #
+        # 2. Extract curve entries from experiment data
+        #
+        # pylint: disable=broad-except
         try:
-            curve_data = self._extract_curves(data, data_processor)
-        except DataProcessorError as ex:
+            xdata, ydata, sigma, series = self._extract_curves(data, data_processor)
+        except Exception as ex:
             analysis_result["error_message"] = str(ex)
             analysis_result["success"] = False
             return [analysis_result], list()
 
-        # Run fitting
+        #
+        # 3. Run fitting
+        #
         # pylint: disable=broad-except
         try:
-            fit_data = self._run_fitting(curve_data=curve_data, **options)
-            analysis_result.update(fit_data)
+            # Generate fit options
+            fit_options_set = [
+                self._format_fit_options(fit_options)
+                for fit_options in self._setup_fitting(xdata, ydata, sigma, series, **options)
+            ]
+            fit_results = [
+                self.__base_fitter__.__func__(
+                    funcs=[series_def.fit_func for series_def in self.__series__],
+                    series=series,
+                    xdata=xdata,
+                    ydata=ydata,
+                    sigma=sigma,
+                    **fit_options,
+                )
+                for fit_options in fit_options_set
+            ]
+            # Sort by chi squared value
+            fit_results = sorted(fit_results, key=lambda r: r["reduced_chisq"])
+
+            # Returns best fit result
+            analysis_result = fit_results[0]
             analysis_result["success"] = True
         except Exception as ex:
             analysis_result["error_message"] = str(ex)
             analysis_result["success"] = False
 
-        # Post-process analysis data
+        #
+        # 4. Post-process analysis data
+        #
         analysis_result = self._post_processing(analysis_result)
 
-        # Create figures
-        figures = self._create_figures(curve_data=curve_data, fit_data=analysis_result)
+        #
+        # 5. Create figures
+        #
+        figures = self._create_figures(
+            x_values=xdata, y_values=ydata, y_sigmas=sigma, series=series, fit_data=analysis_result
+        )
 
-        # Store raw data
-        raw_data = dict()
-        for datum in curve_data:
-            raw_data[datum.curve_name] = {
-                "x_values": datum.x_values,
-                "y_values": datum.y_values,
-                "y_sigmas": datum.y_sigmas,
+        #
+        # 6. Save raw data
+        #
+        raw_data_dict = dict()
+        for series_def in self.__series__:
+            sub_xdata, sub_ydata, sub_sigma = self._subset_data(
+                name=series_def.name, x_values=xdata, y_values=ydata, y_sigmas=sigma, series=series
+            )
+            raw_data_dict[series_def.name] = {
+                "xdata": sub_xdata,
+                "ydata": sub_ydata,
+                "sigma": sub_sigma,
             }
-        analysis_result["raw_data"] = raw_data
+        analysis_result["raw_data"] = raw_data_dict
 
         return [analysis_result], figures

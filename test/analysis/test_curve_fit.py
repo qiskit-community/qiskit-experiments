@@ -13,13 +13,13 @@
 """Test curve fitting base class."""
 # pylint: disable=invalid-name
 
-from typing import List, Callable
+from typing import List
 
 import numpy as np
 from qiskit.test import QiskitTestCase
 
 from qiskit_experiments import ExperimentData
-from qiskit_experiments.analysis import CurveAnalysis, SeriesDef, fit_functions
+from qiskit_experiments.analysis import CurveAnalysis, SeriesDef, fit_functions, FitOptions
 from qiskit_experiments.base_experiment import BaseExperiment
 
 
@@ -58,8 +58,6 @@ def simulate_output_data(func, xvals, param_dict, **metadata):
 def create_new_analysis(
     x_key: str = "xval",
     series: List[SeriesDef] = None,
-    fit_funcs: List[Callable] = None,
-    param_names: List[str] = None,
 ) -> CurveAnalysis:
     """A helper function to create a mock analysis class instance."""
 
@@ -68,8 +66,6 @@ def create_new_analysis(
 
         __x_key__ = x_key
         __series__ = series
-        __fit_funcs__ = fit_funcs
-        __param_names__ = param_names
 
     return TestAnalysis()
 
@@ -87,34 +83,32 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         # - Each curve can be represented by the same function
         # - Parameter amp and baseline are shared among all curves
         # - Each curve has unique lamb
-        # - In total 4 parameters in the fit, namely, p0, p1, p2, p3
+        # - In total 5 parameters in the fit, namely, p0, p1, p2, p3
         #
         self.analysis = create_new_analysis(
             series=[
                 SeriesDef(
                     name="curve1",
-                    p0_signature={"amp": "p0", "lamb": "p1", "baseline": "p4"},
-                    fit_func_index=0,
+                    fit_func=lambda x, p0, p1, p2, p3, p4: fit_functions.exponential_decay(
+                        x, amp=p0, lamb=p1, baseline=p4
+                    ),
                     filter_kwargs={"type": 1, "valid": True},
-                    data_option_keys=["outcome"],
                 ),
                 SeriesDef(
                     name="curve2",
-                    p0_signature={"amp": "p0", "lamb": "p2", "baseline": "p4"},
-                    fit_func_index=0,
+                    fit_func=lambda x, p0, p1, p2, p3, p4: fit_functions.exponential_decay(
+                        x, amp=p0, lamb=p2, baseline=p4
+                    ),
                     filter_kwargs={"type": 2, "valid": True},
-                    data_option_keys=["outcome"],
                 ),
                 SeriesDef(
                     name="curve3",
-                    p0_signature={"amp": "p0", "lamb": "p3", "baseline": "p4"},
-                    fit_func_index=0,
+                    fit_func=lambda x, p0, p1, p2, p3, p4: fit_functions.exponential_decay(
+                        x, amp=p0, lamb=p3, baseline=p4
+                    ),
                     filter_kwargs={"type": 3, "valid": True},
-                    data_option_keys=["outcome"],
                 ),
             ],
-            fit_funcs=[fit_functions.exponential_decay],
-            param_names=["p0", "p1", "p2", "p3", "p4"],
         )
         self.err_decimal = 3
 
@@ -139,7 +133,6 @@ class TestCurveAnalysisUnit(QiskitTestCase):
             param_dict={"amp": 1.0},
             type=1,
             valid=True,
-            dummy_val="test_val1",
             outcome="1",
         )
 
@@ -147,98 +140,76 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         test_data1 = simulate_output_data(
             func=fit_functions.exponential_decay,
             xvals=self.xvalues,
-            param_dict={"amp": 1.0},
+            param_dict={"amp": 0.5},
             type=2,
             valid=False,
-            dummy_val="test_val2",
             outcome="1",
         )
         # merge two experiment data
         for datum in test_data1.data():
             test_data0.add_data(datum)
 
-        curve_entries = self.analysis._extract_curves(test_data0, self.data_processor)
+        xdata, ydata, sigma, series = self.analysis._extract_curves(test_data0, self.data_processor)
 
         # check if the module filter off data: valid=False
-        self.assertEqual(len(curve_entries), 3)
-
-        # check name is passed
-        self.assertEqual(curve_entries[0].curve_name, "curve1")
+        self.assertEqual(len(xdata), 20)
 
         # check x values
-        np.testing.assert_array_almost_equal(curve_entries[0].x_values, self.xvalues)
+        ref_x = np.concatenate((self.xvalues, self.xvalues))
+        np.testing.assert_array_almost_equal(xdata, ref_x)
 
         # check y values
-        ref_y = fit_functions.exponential_decay(self.xvalues, amp=1.0)
-        np.testing.assert_array_almost_equal(
-            curve_entries[0].y_values, ref_y, decimal=self.err_decimal
+        ref_y = np.concatenate(
+            (
+                fit_functions.exponential_decay(self.xvalues, amp=1.0),
+                fit_functions.exponential_decay(self.xvalues, amp=0.5),
+            )
         )
+        np.testing.assert_array_almost_equal(ydata, ref_y, decimal=self.err_decimal)
+
+        # check series
+        ref_series = np.concatenate((np.zeros(10, dtype=int), -1 * np.ones(10, dtype=int)))
+        self.assertListEqual(list(series), list(ref_series))
 
         # check y errors
-        ref_yerr = ref_y * (1 - ref_y) / 1024
-        np.testing.assert_array_almost_equal(
-            curve_entries[0].y_sigmas, ref_yerr, decimal=self.err_decimal
+        ref_yerr = ref_y * (1 - ref_y) / 100000
+        np.testing.assert_array_almost_equal(sigma, ref_yerr, decimal=self.err_decimal)
+
+    def test_get_subset(self):
+        """Test that get subset data from full data array."""
+
+        xdata = np.asarray([1, 2, 3, 4, 5, 6], dtype=float)
+        ydata = np.asarray([1, 2, 3, 4, 5, 6], dtype=float)
+        sigma = np.asarray([1, 2, 3, 4, 5, 6], dtype=float)
+        series = np.asarray([0, 1, 0, 2, 2, -1], dtype=int)
+
+        subx, suby, subs = self.analysis._subset_data("curve1", xdata, ydata, sigma, series)
+        np.testing.assert_array_almost_equal(subx, np.asarray([1, 3], dtype=float))
+        np.testing.assert_array_almost_equal(suby, np.asarray([1, 3], dtype=float))
+        np.testing.assert_array_almost_equal(subs, np.asarray([1, 3], dtype=float))
+
+        subx, suby, subs = self.analysis._subset_data("curve2", xdata, ydata, sigma, series)
+        np.testing.assert_array_almost_equal(subx, np.asarray([2], dtype=float))
+        np.testing.assert_array_almost_equal(suby, np.asarray([2], dtype=float))
+        np.testing.assert_array_almost_equal(subs, np.asarray([2], dtype=float))
+
+        subx, suby, subs = self.analysis._subset_data("curve3", xdata, ydata, sigma, series)
+        np.testing.assert_array_almost_equal(subx, np.asarray([4, 5], dtype=float))
+        np.testing.assert_array_almost_equal(suby, np.asarray([4, 5], dtype=float))
+        np.testing.assert_array_almost_equal(subs, np.asarray([4, 5], dtype=float))
+
+    def test_formatting_options(self):
+        """Test option formatter."""
+        test_options = FitOptions(
+            p0=[0, 1, 2, 3, 4], bounds=[(-1, 1), (-2, 2), (-3, 3), (-4, 4), (-5, 5)]
         )
+        formatted_options = self.analysis._format_fit_options(test_options)
 
-        # check metadata
-        ref_meta = {
-            "experiment_type": {"fake_experiment"},
-            "qubits": {(0,)},
-            "dummy_val": {"test_val1"},
-        }
-        self.assertDictEqual(curve_entries[0].metadata, ref_meta)
+        ref_p0 = {"p0": 0, "p1": 1, "p2": 2, "p3": 3, "p4": 4}
+        self.assertDictEqual(formatted_options["p0"], ref_p0)
 
-    def test_curve_calculation(self):
-        """Test series curve calculation."""
-        params = [1.0, 0.7, 0.9, 1.1, 0.1]
-
-        y1 = self.analysis._calculate_curve("curve1", self.xvalues, *params)
-        ref_y1 = fit_functions.exponential_decay(self.xvalues, amp=1.0, lamb=0.7, baseline=0.1)
-        np.testing.assert_array_almost_equal(y1, ref_y1, decimal=self.err_decimal)
-
-        y2 = self.analysis._calculate_curve("curve2", self.xvalues, *params)
-        ref_y2 = fit_functions.exponential_decay(self.xvalues, amp=1.0, lamb=0.9, baseline=0.1)
-        np.testing.assert_array_almost_equal(y2, ref_y2, decimal=self.err_decimal)
-
-        y3 = self.analysis._calculate_curve("curve3", self.xvalues, *params)
-        ref_y3 = fit_functions.exponential_decay(self.xvalues, amp=1.0, lamb=1.1, baseline=0.1)
-        np.testing.assert_array_almost_equal(y3, ref_y3, decimal=self.err_decimal)
-
-    def test_default_setup_fitting(self):
-        """Test default behavior of fitter setup."""
-        curve_data = []
-
-        options = self.analysis._setup_fitting(curve_data)
-
-        ref_p0 = {"p0": 0.0, "p1": 0.0, "p2": 0.0, "p3": 0.0, "p4": 0.0}
-        self.assertDictEqual(options[0]["p0"], ref_p0)
-
-        ref_lb = {"p0": -np.inf, "p1": -np.inf, "p2": -np.inf, "p3": -np.inf, "p4": -np.inf}
-        ref_ub = {"p0": np.inf, "p1": np.inf, "p2": np.inf, "p3": np.inf, "p4": np.inf}
-
-        lb, ub = options[0]["bounds"]
-        self.assertDictEqual(lb, ref_lb)
-        self.assertDictEqual(ub, ref_ub)
-
-    def test_default_setup_fitting_with_parameter(self):
-        """Test default behavior of fitter setup when user parameter is provided."""
-        curve_data = []
-
-        options = self.analysis._setup_fitting(
-            curve_data,
-            p0=[1.0, 2.0, 3.0, 4.0, 5.0],
-            bounds=([-1.0, -2.0, -3.0, -4.0, -5.0], [1.0, 2.0, 3.0, 4.0, 5.0]),
-        )
-
-        ref_p0 = {"p0": 1.0, "p1": 2.0, "p2": 3.0, "p3": 4.0, "p4": 5.0}
-        self.assertDictEqual(options[0]["p0"], ref_p0)
-
-        ref_lb = {"p0": -1.0, "p1": -2.0, "p2": -3.0, "p3": -4.0, "p4": -5.0}
-        ref_ub = {"p0": 1.0, "p1": 2.0, "p2": 3.0, "p3": 4.0, "p4": 5.0}
-
-        lb, ub = options[0]["bounds"]
-        self.assertDictEqual(lb, ref_lb)
-        self.assertDictEqual(ub, ref_ub)
+        ref_bounds = {"p0": (-1, 1), "p1": (-2, 2), "p2": (-3, 3), "p3": (-4, 4), "p4": (-5, 5)}
+        self.assertDictEqual(formatted_options["bounds"], ref_bounds)
 
 
 class TestCurveAnalysisIntegration(QiskitTestCase):
@@ -255,14 +226,11 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    p0_signature={"amp": "p0", "lamb": "p1", "x0": "p2", "baseline": "p3"},
-                    fit_func_index=0,
-                    filter_kwargs=None,
-                    data_option_keys=None,
+                    fit_func=lambda x, p0, p1, p2, p3: fit_functions.exponential_decay(
+                        x, amp=p0, lamb=p1, x0=p2, baseline=p3
+                    ),
                 )
             ],
-            fit_funcs=[fit_functions.exponential_decay],
-            param_names=["p0", "p1", "p2", "p3"],
         )
         ref_p0 = 0.9
         ref_p1 = 2.5
@@ -273,6 +241,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             func=fit_functions.exponential_decay,
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "lamb": ref_p1, "x0": ref_p2, "baseline": ref_p3},
+            outcome="1",
         )
         results, _ = analysis._run_analysis(test_data, p0=[ref_p0, ref_p1, ref_p2, ref_p3])
         result = results[0]
@@ -293,14 +262,11 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    p0_signature={"amp": "p0", "lamb": "p1", "x0": "p2", "baseline": "p3"},
-                    fit_func_index=0,
-                    filter_kwargs=None,
-                    data_option_keys=None,
+                    fit_func=lambda x, p0, p1, p2, p3: fit_functions.exponential_decay(
+                        x, amp=p0, lamb=p1, x0=p2, baseline=p3
+                    ),
                 )
             ],
-            fit_funcs=[fit_functions.exponential_decay],
-            param_names=["p0", "p1", "p2", "p3"],
         )
         ref_p0 = 0.9
         ref_p1 = 2.5
@@ -311,6 +277,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             func=fit_functions.exponential_decay,
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "lamb": ref_p1, "x0": ref_p2, "baseline": ref_p3},
+            outcome="1",
         )
 
         # Try to fit with infeasible parameter boundary. This should fail.
@@ -332,21 +299,19 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    p0_signature={"amp": "p0", "lamb": "p1", "x0": "p3", "baseline": "p4"},
-                    fit_func_index=0,
+                    fit_func=lambda x, p0, p1, p2, p3, p4: fit_functions.exponential_decay(
+                        x, amp=p0, lamb=p1, x0=p3, baseline=p4
+                    ),
                     filter_kwargs={"exp": 0},
-                    data_option_keys=None,
                 ),
                 SeriesDef(
-                    name="curve2",
-                    p0_signature={"amp": "p0", "lamb": "p2", "x0": "p3", "baseline": "p4"},
-                    fit_func_index=0,
+                    name="curve1",
+                    fit_func=lambda x, p0, p1, p2, p3, p4: fit_functions.exponential_decay(
+                        x, amp=p0, lamb=p2, x0=p3, baseline=p4
+                    ),
                     filter_kwargs={"exp": 1},
-                    data_option_keys=None,
                 ),
             ],
-            fit_funcs=[fit_functions.exponential_decay],
-            param_names=["p0", "p1", "p2", "p3", "p4"],
         )
         ref_p0 = 0.9
         ref_p1 = 7.0
@@ -359,6 +324,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "lamb": ref_p1, "x0": ref_p3, "baseline": ref_p4},
             exp=0,
+            outcome="1",
         )
 
         test_data1 = simulate_output_data(
@@ -366,6 +332,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "lamb": ref_p2, "x0": ref_p3, "baseline": ref_p4},
             exp=1,
+            outcome="1",
         )
 
         # merge two experiment data
@@ -387,21 +354,19 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    p0_signature={"amp": "p0", "freq": "p1", "phase": "p2", "baseline": "p3"},
-                    fit_func_index=0,
+                    fit_func=lambda x, p0, p1, p2, p3: fit_functions.cos(
+                        x, amp=p0, freq=p1, phase=p2, baseline=p3
+                    ),
                     filter_kwargs={"exp": 0},
-                    data_option_keys=None,
                 ),
                 SeriesDef(
                     name="curve2",
-                    p0_signature={"amp": "p0", "freq": "p1", "phase": "p2", "baseline": "p3"},
-                    fit_func_index=1,
+                    fit_func=lambda x, p0, p1, p2, p3: fit_functions.sin(
+                        x, amp=p0, freq=p1, phase=p2, baseline=p3
+                    ),
                     filter_kwargs={"exp": 1},
-                    data_option_keys=None,
                 ),
             ],
-            fit_funcs=[fit_functions.cos, fit_functions.sin],
-            param_names=["p0", "p1", "p2", "p3"],
         )
         ref_p0 = 0.1
         ref_p1 = 2
@@ -413,6 +378,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "freq": ref_p1, "phase": ref_p2, "baseline": ref_p3},
             exp=0,
+            outcome="1",
         )
 
         test_data1 = simulate_output_data(
@@ -420,6 +386,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "freq": ref_p1, "phase": ref_p2, "baseline": ref_p3},
             exp=1,
+            outcome="1",
         )
 
         # merge two experiment data
@@ -434,110 +401,3 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         # check result data
         self.assertTrue(result["success"])
         np.testing.assert_array_almost_equal(result["popt"], ref_popt, decimal=self.err_decimal)
-
-    def test_fit_with_data_option(self):
-        """Test analysis by passing data processing option to the data processor."""
-
-        def inverted_decay(x, amp, lamb, x0, baseline):
-            # measure inverse of population
-            return 1 - fit_functions.exponential_decay(
-                x, amp=amp, lamb=lamb, x0=x0, baseline=baseline
-            )
-
-        analysis = create_new_analysis(
-            series=[
-                SeriesDef(
-                    name="curve1",
-                    p0_signature={"amp": "p0", "lamb": "p1", "x0": "p2", "baseline": "p3"},
-                    fit_func_index=0,
-                    filter_kwargs=None,
-                    data_option_keys=["outcome"],
-                )
-            ],
-            fit_funcs=[inverted_decay],
-            param_names=["p0", "p1", "p2", "p3"],
-        )
-        ref_p0 = 0.9
-        ref_p1 = 2.5
-        ref_p2 = 0.0
-        ref_p3 = 0.1
-
-        # tell metadata to count zero
-        test_data = simulate_output_data(
-            func=fit_functions.exponential_decay,
-            xvals=self.xvalues,
-            param_dict={"amp": ref_p0, "lamb": ref_p1, "x0": ref_p2, "baseline": ref_p3},
-            outcome="0",  # metadata, label to count
-        )
-
-        results, _ = analysis._run_analysis(test_data, p0=[ref_p0, ref_p1, ref_p2, ref_p3])
-        result = results[0]
-
-        ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
-
-        # check result data
-        self.assertTrue(result["success"])
-
-        np.testing.assert_array_almost_equal(result["popt"], ref_popt, decimal=self.err_decimal)
-
-    def test_fit_failure_with_wrong_signature(self):
-        """Test if fitting fails when wrong signature is defined."""
-        analysis = create_new_analysis(
-            series=[
-                SeriesDef(
-                    name="curve1",
-                    p0_signature={"not_defined_parameter": "p0"},  # invalid mapping
-                    fit_func_index=0,
-                    filter_kwargs=None,
-                    data_option_keys=None,
-                )
-            ],
-            fit_funcs=[fit_functions.exponential_decay],
-            param_names=["p0"],
-        )
-        ref_p0 = 0.9
-
-        test_data = simulate_output_data(
-            func=fit_functions.cos,
-            xvals=self.xvalues,
-            param_dict={"amp": ref_p0},
-        )
-
-        results, _ = analysis._run_analysis(test_data, p0=[ref_p0])
-        result = results[0]
-
-        self.assertFalse(result["success"])
-
-        ref_result_keys = ["raw_data", "error_message", "success"]
-        self.assertSetEqual(set(result.keys()), set(ref_result_keys))
-
-    def test_fit_failure_with_unclear_parameter(self):
-        """Test if fitting fails when parameter not defined in fit is used.."""
-        analysis = create_new_analysis(
-            series=[
-                SeriesDef(
-                    name="curve1",
-                    p0_signature={"amp": "not_defined_parameter"},  # this parameter is not defined
-                    fit_func_index=0,
-                    filter_kwargs=None,
-                    data_option_keys=None,
-                )
-            ],
-            fit_funcs=[fit_functions.exponential_decay],
-            param_names=["p0"],
-        )
-        ref_p0 = 0.9
-
-        test_data = simulate_output_data(
-            func=fit_functions.cos,
-            xvals=self.xvalues,
-            param_dict={"amp": ref_p0},
-        )
-
-        results, _ = analysis._run_analysis(test_data, p0=[ref_p0])
-        result = results[0]
-
-        self.assertFalse(result["success"])
-
-        ref_result_keys = ["raw_data", "error_message", "success"]
-        self.assertSetEqual(set(result.keys()), set(ref_result_keys))
