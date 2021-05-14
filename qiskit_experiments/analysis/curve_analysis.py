@@ -548,7 +548,7 @@ class CurveAnalysis(BaseAnalysis):
         # pylint: disable=broad-except
         try:
             # Generate fit options
-            fit_options_set = [
+            fit_options_candidates = [
                 self._format_fit_options(fit_options)
                 for fit_options in self._setup_fitting(xdata, ydata, sigma, series, **options)
             ]
@@ -561,13 +561,13 @@ class CurveAnalysis(BaseAnalysis):
                     sigma=sigma,
                     **fit_options,
                 )
-                for fit_options in fit_options_set
+                for fit_options in fit_options_candidates
             ]
             # Sort by chi squared value
             fit_results = sorted(fit_results, key=lambda r: r["reduced_chisq"])
 
             # Returns best fit result
-            analysis_result = fit_results[0]
+            analysis_result.update(**fit_results[0])
             analysis_result["success"] = True
         except Exception as ex:
             analysis_result["error_message"] = str(ex)
