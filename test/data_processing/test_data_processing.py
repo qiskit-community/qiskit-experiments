@@ -67,8 +67,6 @@ class DataProcessorTest(BaseDataProcessorTest):
         self.exp_data_lvl2 = ExperimentData(FakeExperiment())
         self.exp_data_lvl2.add_data(Result(results=[res], **self.base_result_args))
 
-        super().setUp()
-
     def test_empty_processor(self):
         """Check that a DataProcessor without steps does nothing."""
         data_processor = DataProcessor("counts")
