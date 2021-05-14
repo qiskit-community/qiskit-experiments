@@ -724,6 +724,9 @@ class CurveAnalysis(BaseAnalysis):
 
         # Setup fitting options
         fit_options = self._setup_fitting(curve_data, **options)
+        for fit_option in fit_options:
+            if isinstance(fit_option, FitOptions):
+                fit_option.validate()
 
         # Validate weights
         if weights is None:
