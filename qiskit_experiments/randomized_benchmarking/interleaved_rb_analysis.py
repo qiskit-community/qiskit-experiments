@@ -170,7 +170,7 @@ class InterleavedRBAnalysis(RBAnalysis):
         return {
             "a": np.mean([p0_std["a"], p0_int["a"]]),
             "alpha": p0_std["alpha"],
-            "alpha_c": p0_std["alpha"] * p0_int["alpha"],
+            "alpha_c": p0_int["alpha"] / p0_std["alpha"],
             "b": np.mean([p0_std["b"], p0_int["b"]]),
         }
 
