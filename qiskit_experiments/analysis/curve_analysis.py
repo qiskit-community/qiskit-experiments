@@ -57,9 +57,9 @@ def scipy_curve_fit_wrapper(
     f: Callable,
     xdata: np.ndarray,
     ydata: np.ndarray,
-    p0: np.ndarray,
-    sigma: Optional[np.ndarray],
-    bounds: Optional[Tuple[np.ndarray, np.ndarray]],
+    p0: Dict[str, float],
+    sigma: np.ndarray,
+    bounds: Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray]],
     **kwargs,
 ) -> AnalysisResult:
     r"""A helper function to perform a non-linear least squares to fit
@@ -76,8 +76,8 @@ def scipy_curve_fit_wrapper(
         xdata: a 1D float array of x-data.
         ydata: a 1D float array of y-data.
         p0: initial guess for optimization parameters.
-        sigma: Optional, a 1D array of standard deviations in ydata in absolute units.
-        bounds: Optional, lower and upper bounds for optimization parameters.
+        sigma: a 1D array of standard deviations in ydata in absolute units.
+        bounds: lower and upper bounds for optimization parameters.
         kwargs: additional kwargs for scipy.optimize.curve_fit.
 
     Returns:
@@ -100,6 +100,14 @@ def scipy_curve_fit_wrapper(
         parameters via ``pcov(absolute_sigma=False) = pcov * reduced_chisq``
         ``popt_err(absolute_sigma=False) = popt_err * sqrt(reduced_chisq)``.
     """
+    # Format p0 parameters
+    param_keys = list(p0.keys())
+    param_p0 = list(p0.values())
+
+    lower = [bounds[0][key] for key in param_keys]
+    upper = [bounds[1][key] for key in param_keys]
+    param_bounds = (lower, upper)
+
     # Check that degrees of freedom is greater than 0
     dof = len(ydata) - len(p0)
     if dof < 1:
@@ -116,7 +124,7 @@ def scipy_curve_fit_wrapper(
     # Run curve fit
     # pylint: disable = unbalanced-tuple-unpacking
     popt, pcov = opt.curve_fit(
-        f=f, xdata=xdata, ydata=ydata, sigma=sigma, p0=p0, bounds=bounds, **kwargs
+        f=f, xdata=xdata, ydata=ydata, sigma=sigma, p0=param_p0, bounds=param_bounds, **kwargs
     )
     popt_err = np.sqrt(np.diag(pcov))
 
@@ -132,6 +140,7 @@ def scipy_curve_fit_wrapper(
 
     result = {
         "popt": popt,
+        "popt_keys": param_keys,
         "popt_err": popt_err,
         "pcov": pcov,
         "reduced_chisq": reduced_chisq,
@@ -174,6 +183,45 @@ def level2_probability(data: Dict[str, Any], outcome: Optional[str] = None) -> T
 
 class FitOptions(dict):
     """Fit options passed to the fitter function."""
+
+    def validate(self):
+        """Validate format of fitting options.
+
+        Raises:
+            TypeError:
+                - When parameter is not given by dictionary. Need mapping to parameter name.
+            KeyError:
+                - When necessary options are not fully defined.
+        """
+
+        # Initial guess
+        try:
+            p0 = self["p0"]
+            if not isinstance(p0, dict):
+                raise TypeError(
+                    "Initial guess is not a dictionary. Need parameter name "
+                    "associated with each parameter as a key."
+                )
+        except KeyError as ex:
+            raise KeyError("Initial parameters are not set.") from ex
+
+        # Boundaries
+        try:
+            lb, ub = self["bounds"]
+            if not isinstance(lb, dict) or not isinstance(ub, dict):
+                raise TypeError(
+                    "Parameter boundaries are not a dictionary. Need parameter name "
+                    "associated with each parameter as a key."
+                )
+
+        except KeyError as ex:
+            raise KeyError("Parameter boundaries are not set.") from ex
+
+        except TypeError as ex:
+            raise TypeError(
+                "Parameter boundaries are invalid format. Boundaries should be "
+                "lower and upper values as a tuple of two dictionary."
+            ) from ex
 
 
 class CurveAnalysis(BaseAnalysis):
@@ -438,14 +486,27 @@ class CurveAnalysis(BaseAnalysis):
         Returns:
             List of FitOptions that are passed to fitter function.
         """
-        num_params = len(self.__param_names__)
 
-        # no initial guesses and no boundaries by default
-        fit_option = FitOptions(
-            p0=np.zeros(num_params, dtype=float),
-            bounds=([-np.inf] * num_params, [np.inf] * num_params),
-        )
-        fit_option.update(options)
+        def _dictionarize(argvar, default_val):
+            if argvar is not None:
+                try:
+                    argvar = list(argvar)
+                    return {name: val for name, val in zip(self.__param_names__, argvar)}
+                except TypeError:
+                    return argvar
+            else:
+                return {pname: default_val for pname in self.__param_names__}
+
+        # Set initial guess
+        usr_p0 = options.pop("p0", None)
+        p0 = _dictionarize(usr_p0, default_val=0.0)
+
+        # Set boundaries
+        usr_lb, usr_ub = options.pop("bounds", (None, None))
+        lb = _dictionarize(usr_lb, default_val=-np.inf)
+        ub = _dictionarize(usr_ub, default_val=np.inf)
+
+        fit_option = FitOptions(p0=p0, bounds=(lb, ub), **options)
 
         return [fit_option]
 
@@ -697,7 +758,7 @@ class CurveAnalysis(BaseAnalysis):
             y = np.empty(0, dtype=float)
             xs = np.split(x, separators) if len(separators) > 0 else [x]
             for i, xi in enumerate(xs):
-                yi = self._fit_curve(curve_data[i].curve_name, xi, *params)
+                yi = self._calculate_curve(curve_data[i].curve_name, xi, *params)
                 y = np.concatenate((y, yi))
             return y
 
@@ -726,33 +787,16 @@ class CurveAnalysis(BaseAnalysis):
 
         return best_analysis_result
 
-    def _fit_curve(self, curve_name: str, xvals: np.ndarray, *params) -> np.ndarray:
-        """A helper method to return fit curve for the specific series.
+    def _calculate_curve(self, curve_name: str, xvals: np.ndarray, *params: float) -> np.ndarray:
+        """A helper method to manage parameter remapping for each series.
 
-        Fit function is selected based on ``curve_name`` and the parameters list is truncated
-        based on parameter matching between one defined in __series__ and self.__param_names__.
-
-        Examples:
-            Assuming the class has following definition:
-
-            .. code-block::
-
-                self.__series__ = [
-                    Series(name="curve1", param_names=["p1", "p2", "p4"], fit_func_index=0),
-                    Series(name="curve2", param_names=["p1", "p2", "p3"], fit_func_index=1)
-                ]
-
-                self.__fit_funcs__ = [func1, func2]
-
-                self.__param_names__ = ["p1", "p2", "p3", "p4"]
-
-            When we call this method with ``curve_name="curve1", params = [0, 1, 2, 3]``,
-            the ``func1`` is called with parameters ``[0, 1, 3]``.
+        This method calculate curve based on the fit function specified by the
+        fit_func_index in each series definition.
 
         Args:
             curve_name: A name of curve. This should be defined in __series__ attribute.
             xvals: Array of x values.
-            *params: Full fit parameters.
+            params: Full fit parameters specified in __param_names__.
 
         Returns:
             Fit y values.
@@ -763,30 +807,25 @@ class CurveAnalysis(BaseAnalysis):
                 - When fit function index is out of range.
                 - When curve information is not defined in class attribute __series__.
         """
-        if self.__series__ is None:
-            # only single curve
-            return self.__fit_funcs__[0](xvals, *params)
+        named_params = {name: val for name, val in zip(self.__param_names__, params)}
 
         for curve_properties in self.__series__:
             if curve_properties.name == curve_name:
-
                 # remap parameters
-                series_params = curve_properties.param_names
-                mapped_params = []
-                for series_param in series_params:
+                kw_params = {}
+                for key, pname in curve_properties.p0_signature.items():
                     try:
-                        param_idx = self.__param_names__.index(series_param)
-                    except ValueError as ex:
-                        raise QiskitError(
-                            f"Local function parameter {series_param} is not defined in "
-                            f"this class. {series_param} not in {self.__param_names__}."
+                        kw_params[key] = named_params[pname]
+                    except KeyError as ex:
+                        raise KeyError(
+                            f"Series parameter {key} is not found in the fit parameter. "
+                            f"{key} not in {', '.join(named_params.keys())}."
                         ) from ex
-                    mapped_params.append(params[param_idx])
 
                 # find fit function
                 f_index = curve_properties.fit_func_index
                 try:
-                    return self.__fit_funcs__[f_index](xvals, *mapped_params)
+                    return self.__fit_funcs__[f_index](xvals, **kw_params)
                 except IndexError as ex:
                     raise QiskitError(f"Fit function of index {f_index} is not defined.") from ex
 

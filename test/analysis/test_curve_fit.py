@@ -88,7 +88,7 @@ class TestCurveAnalysis(QiskitTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    param_names=["p0", "p1", "p2", "p3"],
+                    p0_signature={"amp": "p0", "lamb": "p1", "x0": "p2", "baseline": "p3"},
                     fit_func_index=0,
                     filter_kwargs=None,
                     data_option_keys=None,
@@ -124,7 +124,7 @@ class TestCurveAnalysis(QiskitTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    param_names=["p0", "p1", "p2", "p3"],
+                    p0_signature={"amp": "p0", "lamb": "p1", "x0": "p2", "baseline": "p3"},
                     fit_func_index=0,
                     filter_kwargs=None,
                     data_option_keys=None,
@@ -161,14 +161,14 @@ class TestCurveAnalysis(QiskitTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    param_names=["p0", "p1", "p3", "p4"],
+                    p0_signature={"amp": "p0", "lamb": "p1", "x0": "p3", "baseline": "p4"},
                     fit_func_index=0,
                     filter_kwargs={"exp": 0},
                     data_option_keys=None,
                 ),
                 SeriesDef(
                     name="curve2",
-                    param_names=["p0", "p2", "p3", "p4"],
+                    p0_signature={"amp": "p0", "lamb": "p2", "x0": "p3", "baseline": "p4"},
                     fit_func_index=0,
                     filter_kwargs={"exp": 1},
                     data_option_keys=None,
@@ -209,14 +209,14 @@ class TestCurveAnalysis(QiskitTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    param_names=["p0", "p1", "p2", "p3"],
+                    p0_signature={"amp": "p0", "freq": "p1", "phase": "p2", "baseline": "p3"},
                     fit_func_index=0,
                     filter_kwargs={"exp": 0},
                     data_option_keys=None,
                 ),
                 SeriesDef(
                     name="curve2",
-                    param_names=["p0", "p1", "p2", "p3"],
+                    p0_signature={"amp": "p0", "freq": "p1", "phase": "p2", "baseline": "p3"},
                     fit_func_index=1,
                     filter_kwargs={"exp": 1},
                     data_option_keys=None,
@@ -253,15 +253,17 @@ class TestCurveAnalysis(QiskitTestCase):
     def test_fit_with_data_option(self):
         """Test analysis by passing data processing option to the data processor."""
 
-        def inverted_decay(x, p0, p1, p2, p3):
+        def inverted_decay(x, amp, lamb, x0, baseline):
             # measure inverse of population
-            return 1 - fit_functions.exponential_decay(x, p0, p1, p2, p3)
+            return 1 - fit_functions.exponential_decay(
+                x, amp=amp, lamb=lamb, x0=x0, baseline=baseline
+            )
 
         analysis = create_new_analysis(
             series=[
                 SeriesDef(
                     name="curve1",
-                    param_names=["p0", "p1", "p2", "p3"],
+                    p0_signature={"amp": "p0", "lamb": "p1", "x0": "p2", "baseline": "p3"},
                     fit_func_index=0,
                     filter_kwargs=None,
                     data_option_keys=["outcome"],
@@ -294,3 +296,57 @@ class TestCurveAnalysis(QiskitTestCase):
         self.assertTrue(result["success"])
 
         np.testing.assert_array_almost_equal(result["popt"], ref_popt, decimal=1)
+
+    def test_fit_failure_with_wrong_signature(self):
+        """Test if fitting fails when wrong signature is defined."""
+        analysis = create_new_analysis(
+            series=[
+                SeriesDef(
+                    name="curve1",
+                    p0_signature={"not_defined_parameter": "p0"},  # invalid mapping
+                    fit_func_index=0,
+                    filter_kwargs=None,
+                    data_option_keys=None,
+                )
+            ],
+            fit_funcs=[fit_functions.exponential_decay],
+            param_names=["p0"],
+        )
+        ref_p0 = 0.9
+
+        test_data = simulate_output_data(fit_functions.exponential_decay, self.xvalues, ref_p0)
+
+        results, _ = analysis._run_analysis(test_data, p0=[ref_p0])
+        result = results[0]
+
+        self.assertFalse(result["success"])
+
+        ref_result_keys = ["raw_data", "error_message", "success"]
+        self.assertSetEqual(set(result.keys()), set(ref_result_keys))
+
+    def test_fit_failure_with_unclear_parameter(self):
+        """Test if fitting fails when parameter not defined in fit is used.."""
+        analysis = create_new_analysis(
+            series=[
+                SeriesDef(
+                    name="curve1",
+                    p0_signature={"amp": "not_defined_parameter"},  # this parameter is not defined
+                    fit_func_index=0,
+                    filter_kwargs=None,
+                    data_option_keys=None,
+                )
+            ],
+            fit_funcs=[fit_functions.exponential_decay],
+            param_names=["p0"],
+        )
+        ref_p0 = 0.9
+
+        test_data = simulate_output_data(fit_functions.exponential_decay, self.xvalues, ref_p0)
+
+        results, _ = analysis._run_analysis(test_data, p0=[ref_p0])
+        result = results[0]
+
+        self.assertFalse(result["success"])
+
+        ref_result_keys = ["raw_data", "error_message", "success"]
+        self.assertSetEqual(set(result.keys()), set(ref_result_keys))
