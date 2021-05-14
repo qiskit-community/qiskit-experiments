@@ -13,7 +13,7 @@
 """Defines the steps that can be used to analyse data."""
 
 from abc import ABCMeta, abstractmethod
-from typing import Any, List
+from typing import Any, List, Optional, Tuple
 
 
 class DataAction(metaclass=ABCMeta):
@@ -30,45 +30,51 @@ class DataAction(metaclass=ABCMeta):
         self._validate = validate
 
     @abstractmethod
-    def _process(self, datum: Any) -> Any:
+    def _process(self, datum: Any, error: Optional[Any] = None, **options) -> Tuple[Any, Any]:
         """
         Applies the data processing step to the datum.
 
         Args:
             datum: A single item of data which will be processed.
+            error: An optional error estimation on the datum that can be further propagated.
+            options: Keyword arguments passed through the data processor at run-time.
 
         Returns:
-            processed data: The data that has been processed.
+            processed data: The data that has been processed along with the propagated error.
         """
 
     @abstractmethod
-    def _format_data(self, datum: Any) -> Any:
-        """
-        Check that the given data has the correct structure. This method may
+    def _format_data(self, datum: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
+        """Format and validate the input.
+
+        Check that the given data and error has the correct structure. This method may
         additionally change the data type, e.g. converting a list to a numpy array.
 
         Args:
             datum: The data instance to check and format.
+            error: An optional error estimation on the datum to check and format.
 
         Returns:
-            datum: The data that was checked.
+            datum, error: The formatted datum and its optional error.
 
         Raises:
-            DataProcessorError: If the data does not have the proper format.
+            DataProcessorError: If either the data or the error do not have the proper format.
         """
 
-    def __call__(self, data: Any) -> Any:
-        """
-        Call the data action of this node on the data.
+    def __call__(self, data: Any, error: Optional[Any] = None, **options) -> Tuple[Any, Any]:
+        """Call the data action of this node on the data and propagate the error.
 
         Args:
             data: The data to process. The action nodes in the data processor will
                 raise errors if the data does not have the appropriate format.
+            error: An optional error estimation on the datum that can be further processed.
+            options: Keyword arguments passed through the data processor at run-time.
 
         Returns:
-            processed data: The data processed by self.
+            processed data: The data processed by self as a tuple of processed datum and
+                optionally the propagated error estimate.
         """
-        return self._process(self._format_data(data))
+        return self._process(*self._format_data(data, error), **options)
 
     def __repr__(self):
         """String representation of the node."""
@@ -88,7 +94,7 @@ class DataAction(metaclass=ABCMeta):
         return True
 
     def train(self, data: List[Any]):
-        """A method to train a DataAction.
+        """Train a DataAction.
 
         Certain data processing nodes, such as a SVD, require data to first train.
 

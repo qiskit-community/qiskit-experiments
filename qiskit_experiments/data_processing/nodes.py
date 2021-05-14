@@ -33,21 +33,23 @@ class IQPart(DataAction):
         super().__init__(validate)
 
     @abstractmethod
-    def _process(self, datum: np.array) -> np.array:
+    def _process(self, datum: np.array, error: Optional[np.array] = None, **options) -> np.array:
         """Defines how the IQ point will be processed.
 
         Args:
             datum: A 2D or a 3D array of complex IQ points as [real, imaginary].
+            error: A 2D or a 3D array of errors on complex IQ points as [real, imaginary].
+            options: Keyword arguments passed through the data processor at run-time.
 
         Returns:
-            Processed IQ point.
+            Processed IQ point and its associated error estimate.
         """
 
     @abstractmethod
     def _required_dimension(self) -> int:
         """Return the required dimension of the data."""
 
-    def _format_data(self, datum: Any) -> Any:
+    def _format_data(self, datum: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
         """Check that the IQ data has the correct format and convert to numpy array.
 
         Args:
@@ -56,25 +58,56 @@ class IQPart(DataAction):
                 or averaged IQ date (two-dimensional).
 
         Returns:
-            datum as a numpy array.
+            datum and any error estimate as a numpy array.
 
         Raises:
             DataProcessorError: If the datum does not have the correct format.
         """
         datum = np.asarray(datum, dtype=float)
 
+        if error is not None:
+            error = np.asarray(error, dtype=float)
+
         if self._validate and len(datum.shape) != self._required_dimension():
             raise DataProcessorError(
-                f"Single-shot data given {self.__class__.__name__}"
+                f"Single-shot data given to {self.__class__.__name__}"
                 f"must be a {self._required_dimension()}D array. Instead, a {len(datum.shape)}D "
                 f"array was given."
             )
 
-        return datum
+        if error is not None and self._validate and len(error.shape) != self._required_dimension():
+            raise DataProcessorError(
+                f"Erorr on single-shot data given to {self.__class__.__name__}"
+                f"must be a {self._required_dimension()}D array. Instead, a {len(error.shape)}D "
+                f"array was given."
+            )
+
+        return datum, error
 
     def __repr__(self):
         """String representation of the node."""
         return f"{self.__class__.__name__}(validate: {self._validate}, scale: {self.scale})"
+
+
+class AverageIQData(IQPart):
+    """A node that averages single-shot data to create averaged IQ data."""
+
+    def _required_dimension(self) -> int:
+        """Require memory to be a 2D array."""
+        return 3
+
+    def _process(
+        self, datum: np.array, error: Optional[np.array] = None, **options
+    ) -> Tuple[np.array, np.array]:
+        """Average the single-shot IQ data.
+
+        Args:
+            datum: A 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
+
+        Returns:
+            A 2D array of qubits and complex averaged IQ points as [real, imaginary].
+        """
+        return np.average(datum, axis=0), np.std(datum, axis=0)
 
 
 class SVDAvg(IQPart):
@@ -117,16 +150,21 @@ class SVDAvg(IQPart):
         Returns:
             True if the SVD has been trained.
         """
-        return True if self._main_axes else False
+        return self._main_axes is not None
 
-    def _process(self, datum: np.array) -> np.array:
+    def _process(
+        self, datum: np.array, error: Optional[np.array] = None, **options
+    ) -> Tuple[np.array, np.array]:
         """Project the IQ data onto the axis defined by an SVD and scale it.
 
         Args:
             datum: A 2D array of qubits, and an average complex IQ point as [real, imaginary].
+            error: An optional 2D array of qubits, and an error on an average complex IQ
+                point as [real, imaginary].
 
         Returns:
-            A 1D array. Each entry is the real part of the averaged IQ data of a qubit.
+            A Tuple of 1D arrays of the result of the SVD and the associated error. Each entry
+            is the real part of the averaged IQ data of a qubit.
 
         Raises:
             DataProcessorError: If the SVD has not been previously trained on data.
@@ -138,6 +176,9 @@ class SVDAvg(IQPart):
         n_qubits = datum.shape[0]
         processed_data = []
 
+        if error is not None:
+            processed_error = []
+
         # process each averaged IQ point with its own axis.
         for idx in range(n_qubits):
 
@@ -145,7 +186,8 @@ class SVDAvg(IQPart):
 
             processed_data.append((self._main_axes[idx] @ centered) / self._scales[idx])
 
-        return np.array(processed_data)
+        # TODO need to propagate errors
+        return np.array(processed_data), None
 
     def train(self, data: List[Any]):
         """Train the SVD on the given data.
@@ -163,14 +205,14 @@ class SVDAvg(IQPart):
         if not data:
             return
 
-        n_qubits = self._format_data(data[0]).shape[0]
+        n_qubits = self._format_data(data[0])[0].shape[0]
 
         self._main_axes = []
         self._scales = []
         self._means = []
 
         for qubit_idx in range(n_qubits):
-            datums = np.vstack([self._format_data(datum)[qubit_idx] for datum in data]).T
+            datums = np.vstack([self._format_data(datum)[0][qubit_idx] for datum in data]).T
 
             # Calculate the mean of the data to recenter it in the IQ plane.
             mean_i = np.average(datums[0, :])
@@ -181,10 +223,10 @@ class SVDAvg(IQPart):
             datums[0, :] = datums[0, :] - mean_i
             datums[1, :] = datums[1, :] - mean_q
 
-            u, s, vh = np.linalg.svd(datums)
+            mat_u, mat_s, _ = np.linalg.svd(datums)
 
-            self._main_axes.append(u[:, 0])
-            self._scales.append(s[0])
+            self._main_axes.append(mat_u[:, 0])
+            self._scales.append(mat_s[0])
 
 
 class ToReal(IQPart):
@@ -194,19 +236,30 @@ class ToReal(IQPart):
         """Require memory to be a 3D array."""
         return 3
 
-    def _process(self, datum: np.array) -> np.array:
+    def _process(
+        self, datum: np.array, error: Optional[np.array] = None, **options
+    ) -> Tuple[np.array, np.array]:
         """Take the real part of the IQ data.
 
         Args:
             datum: A 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
+            error: An optional 3D array of shots, qubits, and an error on a complex IQ point
+                as [real, imaginary].
 
         Returns:
-            A 2D array of shots, qubits. Each entry is the real part of the given IQ data.
+            A 2D array of shots, qubits with the associated error if given. Each entry is the
+            real part of the given IQ data.
         """
         if self.scale is None:
-            return datum[:, :, 0]
+            if error is not None:
+                return datum[:, :, 0], error[:, :, 0]
+            else:
+                return datum[:, :, 0], None
 
-        return datum[:, :, 0] * self.scale
+        if error is not None:
+            return datum[:, :, 0] * self.scale, error[:, :, 0] * self.scale
+        else:
+            return datum[:, :, 0] * self.scale, None
 
 
 class ToRealAvg(IQPart):
@@ -216,19 +269,30 @@ class ToRealAvg(IQPart):
         """Require memory to be a 2D array."""
         return 2
 
-    def _process(self, datum: np.array) -> np.array:
+    def _process(
+        self, datum: np.array, error: Optional[np.array] = None, **options
+    ) -> Tuple[np.array, np.array]:
         """Take the real part of the IQ data.
 
         Args:
             datum: A 2D array of qubits, and a complex averaged IQ point as [real, imaginary].
+            error: An optional 2D array of qubits, and an error on a complex averaged IQ
+                point as [real, imaginary].
 
         Returns:
-            A 1D array. Each entry is the real part of the averaged IQ data of a qubit.
+            A 1D array of qubit IQ points with the associated error if given. Each entry is the
+            real part of the averaged IQ data of a qubit.
         """
         if self.scale is None:
-            return datum[:, 0]
+            if error is not None:
+                return datum[:, 0], error[:, 0]
+            else:
+                return datum[:, 0], None
 
-        return datum[:, 0] * self.scale
+        if error is not None:
+            return datum[:, 0] * self.scale, error[:, 0] * self.scale
+        else:
+            return datum[:, 0] * self.scale, None
 
 
 class ToImag(IQPart):
@@ -238,19 +302,27 @@ class ToImag(IQPart):
         """Require memory to be a 3D array."""
         return 3
 
-    def _process(self, datum: np.array) -> np.array:
+    def _process(self, datum: np.array, error: Optional[np.array] = None, **options) -> np.array:
         """Take the imaginary part of the IQ data.
 
         Args:
             datum: A 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
+            error: An optional 3D array of shots, qubits, and an error on a complex IQ point
+                as [real, imaginary].
 
         Returns:
             A 2D array of shots, qubits. Each entry is the imaginary part of the given IQ data.
         """
         if self.scale is None:
-            return datum[:, :, 1]
+            if error is not None:
+                return datum[:, :, 1], error[:, :, 1]
+            else:
+                return datum[:, :, 1], None
 
-        return datum[:, :, 1] * self.scale
+        if error is not None:
+            return datum[:, :, 1] * self.scale, error[:, :, 1] * self.scale
+        else:
+            return datum[:, :, 1] * self.scale, None
 
 
 class ToImagAvg(IQPart):
@@ -260,36 +332,47 @@ class ToImagAvg(IQPart):
         """Require memory to be a 2D array."""
         return 2
 
-    def _process(self, datum: np.array) -> np.array:
+    def _process(
+        self, datum: np.array, error: Optional[np.array] = None, **options
+    ) -> Tuple[np.array, np.array]:
         """Take the imaginary part of the IQ data.
 
         Args:
             datum: A 2D array of qubits, and a complex averaged IQ point as [real, imaginary].
+            error: An optional 3D array of shots, qubits, and an error on a complex IQ point
+                as [real, imaginary].
 
         Returns:
-            A 1D array. Each entry is the imaginary part of the averaged IQ data of a qubit.
+            A 2D array of shots, qubits with the associated error if given. Each entry is the
+            imaginary part of the given IQ data.
         """
         if self.scale is None:
-            return datum[:, 1]
+            if error is not None:
+                return datum[:, 1], error[:, 1]
+            else:
+                return datum[:, 1], None
 
-        return datum[:, 1] * self.scale
+        if error is not None:
+            return datum[:, 1] * self.scale, error[:, 1] * self.scale
+        else:
+            return datum[:, 1] * self.scale, None
 
 
 class Probability(DataAction):
     """Count data post processing. This returns the probabilities of the outcome string
     used to initialize an instance of Probability."""
 
-    def __init__(self, outcome: str, validate: bool = True):
+    def __init__(self, outcome: str = "1", validate: bool = True):
         """Initialize a counts to probability data conversion.
 
         Args:
-            outcome: The bitstring for which to compute the probability.
+            outcome: The bitstring for which to compute the probability which defaults to "1".
             validate: If set to False the DataAction will not validate its input.
         """
         self._outcome = outcome
         super().__init__(validate)
 
-    def _format_data(self, datum: dict) -> dict:
+    def _format_data(self, datum: dict, error: Optional[Any] = None) -> Tuple[dict, Any]:
         """
         Checks that the given data has a counts format.
 
@@ -321,9 +404,11 @@ class Probability(DataAction):
                         f"Count {bit_str} is not a valid count value in {self.__class__.__name__}."
                     )
 
-        return datum
+        return datum, None
 
-    def _process(self, datum: Dict[str, Any]) -> Tuple[float, float]:
+    def _process(
+        self, datum: Dict[str, Any], error: Optional[Dict] = None, **options
+    ) -> Tuple[float, float]:
         """
         Args:
             datum: The data dictionary,taking the data under counts and
@@ -332,8 +417,10 @@ class Probability(DataAction):
         Returns:
             processed data: A dict with the populations.
         """
+        outcome = options.get("outcome", self._outcome)
+
         shots = sum(datum.values())
-        p_mean = datum.get(self._outcome, 0.0) / shots
+        p_mean = datum.get(outcome, 0.0) / shots
         p_var = p_mean * (1 - p_mean) / shots
 
         return p_mean, p_var
