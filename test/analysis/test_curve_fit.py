@@ -20,7 +20,6 @@ from qiskit.test import QiskitTestCase
 
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.analysis import CurveAnalysis, SeriesDef, fit_functions
-from qiskit_experiments.analysis.curve_analysis import CurveEntry
 from qiskit_experiments.base_experiment import BaseExperiment
 
 
@@ -80,7 +79,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
 
     def setUp(self):
         super().setUp()
-        self.xvalues = np.linspace(1., 5., 10)
+        self.xvalues = np.linspace(1.0, 5.0, 10)
 
         # Description of test setting
         #
@@ -112,7 +111,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
                     fit_func_index=0,
                     filter_kwargs={"type": 3, "valid": True},
                     data_option_keys=["outcome"],
-                )
+                ),
             ],
             fit_funcs=[fit_functions.exponential_decay],
             param_names=["p0", "p1", "p2", "p3", "p4"],
@@ -137,7 +136,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         test_data0 = simulate_output_data(
             func=fit_functions.exponential_decay,
             xvals=self.xvalues,
-            param_dict={"amp": 1.},
+            param_dict={"amp": 1.0},
             type=1,
             valid=True,
             dummy_val="test_val1",
@@ -148,7 +147,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         test_data1 = simulate_output_data(
             func=fit_functions.exponential_decay,
             xvals=self.xvalues,
-            param_dict={"amp": 1.},
+            param_dict={"amp": 1.0},
             type=2,
             valid=False,
             dummy_val="test_val2",
@@ -170,7 +169,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         np.testing.assert_array_almost_equal(curve_entries[0].x_values, self.xvalues)
 
         # check y values
-        ref_y = fit_functions.exponential_decay(self.xvalues, amp=1.)
+        ref_y = fit_functions.exponential_decay(self.xvalues, amp=1.0)
         np.testing.assert_array_almost_equal(
             curve_entries[0].y_values, ref_y, decimal=self.err_decimal
         )
@@ -184,8 +183,8 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         # check metadata
         ref_meta = {
             "experiment_type": {"fake_experiment"},
-            "qubits": {(0, )},
-            "dummy_val": {"test_val1"}
+            "qubits": {(0,)},
+            "dummy_val": {"test_val1"},
         }
         self.assertDictEqual(curve_entries[0].metadata, ref_meta)
 
@@ -211,7 +210,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
 
         options = self.analysis._setup_fitting(curve_data)
 
-        ref_p0 = {"p0": 0., "p1": 0., "p2": 0., "p3": 0., "p4": 0.}
+        ref_p0 = {"p0": 0.0, "p1": 0.0, "p2": 0.0, "p3": 0.0, "p4": 0.0}
         self.assertDictEqual(options[0]["p0"], ref_p0)
 
         ref_lb = {"p0": -np.inf, "p1": -np.inf, "p2": -np.inf, "p3": -np.inf, "p4": -np.inf}
@@ -227,15 +226,15 @@ class TestCurveAnalysisUnit(QiskitTestCase):
 
         options = self.analysis._setup_fitting(
             curve_data,
-            p0=[1., 2., 3., 4., 5.],
-            bounds=([-1., -2., -3., -4., -5.], [1., 2., 3., 4., 5.])
+            p0=[1.0, 2.0, 3.0, 4.0, 5.0],
+            bounds=([-1.0, -2.0, -3.0, -4.0, -5.0], [1.0, 2.0, 3.0, 4.0, 5.0]),
         )
 
-        ref_p0 = {"p0": 1., "p1": 2., "p2": 3., "p3": 4., "p4": 5.}
+        ref_p0 = {"p0": 1.0, "p1": 2.0, "p2": 3.0, "p3": 4.0, "p4": 5.0}
         self.assertDictEqual(options[0]["p0"], ref_p0)
 
-        ref_lb = {"p0": -1., "p1": -2., "p2": -3., "p3": -4., "p4": -5.}
-        ref_ub = {"p0": 1., "p1": 2., "p2": 3., "p3": 4., "p4": 5.}
+        ref_lb = {"p0": -1.0, "p1": -2.0, "p2": -3.0, "p3": -4.0, "p4": -5.0}
+        ref_ub = {"p0": 1.0, "p1": 2.0, "p2": 3.0, "p3": 4.0, "p4": 5.0}
 
         lb, ub = options[0]["bounds"]
         self.assertDictEqual(lb, ref_lb)
@@ -273,7 +272,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         test_data = simulate_output_data(
             func=fit_functions.exponential_decay,
             xvals=self.xvalues,
-            param_dict={"amp": ref_p0, "lamb": ref_p1, "x0": ref_p2, "baseline": ref_p3}
+            param_dict={"amp": ref_p0, "lamb": ref_p1, "x0": ref_p2, "baseline": ref_p3},
         )
         results, _ = analysis._run_analysis(test_data, p0=[ref_p0, ref_p1, ref_p2, ref_p3])
         result = results[0]
@@ -311,7 +310,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         test_data = simulate_output_data(
             func=fit_functions.exponential_decay,
             xvals=self.xvalues,
-            param_dict={"amp": ref_p0, "lamb": ref_p1, "x0": ref_p2, "baseline": ref_p3}
+            param_dict={"amp": ref_p0, "lamb": ref_p1, "x0": ref_p2, "baseline": ref_p3},
         )
 
         # Try to fit with infeasible parameter boundary. This should fail.
