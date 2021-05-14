@@ -17,7 +17,7 @@ from abc import ABC, abstractmethod
 from typing import Union, Iterable, Optional, Tuple, List
 from numbers import Integral
 
-from qiskit import transpile, assemble
+from qiskit import transpile, assemble, QuantumCircuit
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 from qiskit.providers.basebackend import BaseBackend as LegacyBackend
@@ -166,8 +166,16 @@ class BaseExperiment(ABC):
         return self._physical_qubits
 
     @classmethod
-    def analysis(cls, **kwargs) -> "BaseAnalysis":
-        """Return the default Analysis class for the experiment."""
+    def analysis(cls, **kwargs):
+        """Return the default Analysis class for the experiment.
+
+        Returns:
+            BaseAnalysis: the analysis object.
+
+        Raises:
+            QiskitError: if the experiment does not have a defaul
+                         analysis class.
+        """
         if cls.__analysis_class__ is None:
             raise QiskitError(
                 f"Experiment {cls.__name__} does not define" " a default Analysis class"
@@ -178,7 +186,7 @@ class BaseExperiment(ABC):
     @abstractmethod
     def circuits(
         self, backend: Optional[Backend] = None, **circuit_options
-    ) -> List["QuantumCircuit"]:
+    ) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
 
         Args:
@@ -186,9 +194,9 @@ class BaseExperiment(ABC):
             circuit_options: kwarg options for the function.
 
         Returns:
-            A list of :class:`QuantumCircuit`s.
+            A list of :class:`QuantumCircuit`.
 
-        .. note:
+        .. note::
             These circuits should be on qubits ``[0, .., N-1]`` for an
             *N*-qubit experiment. The circuits mapped to physical qubits
             are obtained via the :meth:`transpiled_circuits` method.
@@ -200,7 +208,7 @@ class BaseExperiment(ABC):
 
     def transpiled_circuits(
         self, backend: Optional[Backend] = None, **kwargs
-    ) -> List["QuantumCircuit"]:
+    ) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
 
         Args:
@@ -211,14 +219,14 @@ class BaseExperiment(ABC):
                     :func:`qiskit.transpile` function.
 
         Returns:
-            A list of :class:`QuantumCircuit`s.
+            A list of :class:`QuantumCircuit`.
 
         Raises:
             QiskitError: if an initial layout is specified in the
                          kwarg options for transpilation. The initial
                          layout must be generated from the experiment.
 
-        .. note:
+        .. note::
             These circuits should be on qubits ``[0, .., N-1]`` for an
             *N*-qubit experiment. The circuits mapped to physical qubits
             are obtained via the :meth:`transpiled_circuits` method.
