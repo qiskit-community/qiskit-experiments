@@ -35,6 +35,7 @@ class BaseDataProcessorTest(QiskitTestCase):
 
     def setUp(self):
         """Define variables needed for most tests."""
+        super().setUp()
 
         self.base_result_args = dict(
             backend_name="test_backend",
