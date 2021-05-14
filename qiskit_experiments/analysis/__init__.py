@@ -13,10 +13,10 @@
 """
 Analysis helper functions
 """
-from qiskit_experiments.analysis.curve_analysis import CurveAnalysis, SeriesDef, FitOptions
+from .curve_analysis import CurveAnalysis, SeriesDef, FitOptions
 
 # fit functions (alphabetical import ordering)
-from qiskit_experiments.analysis.fit_functions import (
+from .fit_functions import (
     cos,
     exponential_decay,
     gaussian,
