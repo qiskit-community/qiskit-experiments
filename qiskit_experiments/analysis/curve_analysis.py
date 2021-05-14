@@ -620,6 +620,19 @@ class CurveAnalysis(BaseAnalysis):
                 # use data as-is
                 series_data = experiment_data.data()
 
+            if len(series_data) == 0:
+                # no data found
+                curve_data.append(
+                    CurveEntry(
+                        curve_name=curve_properties.name,
+                        x_values=np.empty(0, dtype=float),
+                        y_values=np.empty(0, dtype=float),
+                        y_sigmas=np.empty(0, dtype=float),
+                        metadata=dict(),
+                    )
+                )
+                continue
+
             # Format x, y, yerr data
             try:
                 xvals = [datum["metadata"][self.__x_key__] for datum in series_data]
@@ -650,7 +663,7 @@ class CurveAnalysis(BaseAnalysis):
                 y_sigmas=np.asarray(yerrs, dtype=float),
             )
 
-            # Get common metadata fields except for xval and filter args.
+            # Get common metadata fields except for xval, filter args, data processor args.
             # These properties are obvious.
             common_keys = list(
                 functools.reduce(
@@ -661,6 +674,9 @@ class CurveAnalysis(BaseAnalysis):
             common_keys.remove(self.__x_key__)
             if curve_properties.filter_kwargs:
                 for key in curve_properties.filter_kwargs:
+                    common_keys.remove(key)
+            if curve_properties.data_option_keys:
+                for key in curve_properties.data_option_keys:
                     common_keys.remove(key)
 
             # Extract common metadata for the curve
@@ -806,11 +822,18 @@ class CurveAnalysis(BaseAnalysis):
 
         Raises:
             QiskitError:
+                - When prameter name and paramater value length don't match.
                 - When function parameter is not defined in the class parameter list.
                 - When fit function index is out of range.
                 - When curve information is not defined in class attribute __series__.
                 - When series parameter is not defined in __param_names__.
         """
+        if len(self.__param_names__) != len(params):
+            raise QiskitError(
+                "Length of defined parameter names does not match with "
+                f"supplied parameter values. {', '.join(self.__param_names__)} != {params}."
+            )
+
         named_params = dict(zip(self.__param_names__, params))
 
         for curve_properties in self.__series__:
@@ -822,8 +845,8 @@ class CurveAnalysis(BaseAnalysis):
                         kw_params[key] = named_params[pname]
                     except KeyError as ex:
                         raise QiskitError(
-                            f"Series parameter {key} is not found in the fit parameter. "
-                            f"{key} not in {', '.join(named_params.keys())}."
+                            f"Series parameter {pname} is not found in the fit parameter. "
+                            f"{pname} not in {', '.join(named_params.keys())}. "
                         ) from ex
 
                 # find fit function
