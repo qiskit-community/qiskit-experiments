@@ -491,7 +491,7 @@ class CurveAnalysis(BaseAnalysis):
             if argvar is not None:
                 try:
                     argvar = list(argvar)
-                    return {name: val for name, val in zip(self.__param_names__, argvar)}
+                    return dict(zip(self.__param_names__, argvar))
                 except TypeError:
                     return argvar
             else:
@@ -806,8 +806,9 @@ class CurveAnalysis(BaseAnalysis):
                 - When function parameter is not defined in the class parameter list.
                 - When fit function index is out of range.
                 - When curve information is not defined in class attribute __series__.
+                - When series parameter is not defined in __param_names__.
         """
-        named_params = {name: val for name, val in zip(self.__param_names__, params)}
+        named_params = dict(zip(self.__param_names__, params))
 
         for curve_properties in self.__series__:
             if curve_properties.name == curve_name:
@@ -817,7 +818,7 @@ class CurveAnalysis(BaseAnalysis):
                     try:
                         kw_params[key] = named_params[pname]
                     except KeyError as ex:
-                        raise KeyError(
+                        raise QiskitError(
                             f"Series parameter {key} is not found in the fit parameter. "
                             f"{key} not in {', '.join(named_params.keys())}."
                         ) from ex
