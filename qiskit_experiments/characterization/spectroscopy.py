@@ -229,7 +229,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
         # pylint: disable=too-many-boolean-expressions
         if (
             min_freq <= fit_freq <= max_freq
-            and 1.5*freq_increment < fit_sigma
+            and 1.5 * freq_increment < fit_sigma
             and fit_width_ratio < 0.25
             and reduced_chisq < 5
             and (fit_sigma_err is None or fit_sigma_err < fit_freq)
