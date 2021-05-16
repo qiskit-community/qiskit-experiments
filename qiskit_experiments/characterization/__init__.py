@@ -13,3 +13,4 @@
 """Qiskit Experiments Characterziation."""
 
 from .t1_experiment import T1Experiment, T1Analysis
+from .spectroscopy import Spectroscopy, SpectroscopyAnalysis

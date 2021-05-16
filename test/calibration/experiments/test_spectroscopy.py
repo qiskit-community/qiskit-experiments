@@ -21,7 +21,7 @@ from qiskit.result import Result
 from qiskit.test import QiskitTestCase
 from qiskit.exceptions import QiskitError
 
-from qiskit_experiments.calibration.experiments.spectroscopy import Spectroscopy
+from qiskit_experiments.characterization.spectroscopy import Spectroscopy
 
 
 class SpectroscopyBackend(BaseBackend):
