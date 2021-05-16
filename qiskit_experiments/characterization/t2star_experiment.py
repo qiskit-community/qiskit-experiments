@@ -13,7 +13,7 @@
 T2Star Experiment class.
 """
 
-from typing import List, Optional, Union, Tuple
+from typing import List, Optional, Union, Tuple, Dict
 import numpy as np
 
 import qiskit
@@ -49,8 +49,8 @@ class T2StarAnalysis(BaseAnalysis):
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
-        p0: List[float],
-        bounds: Tuple[List[float], Tuple[List[float]]],
+        p0: Dict[str, float],
+        bounds: Tuple[List[float], List[float]],
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,
         **kwargs,
@@ -118,8 +118,8 @@ class T2StarAnalysis(BaseAnalysis):
 
         analysis_result = AnalysisResult(
             {
-                "T2star_value": fit_result["popt"][1],
-                "Frequency_value": fit_result["popt"][2],
+                "t2star_value": fit_result["popt"][1],
+                "frequency_value": fit_result["popt"][2],
                 "stderr": fit_result["popt_err"][1],
                 "unit": "s",
                 "label": "T2*",
