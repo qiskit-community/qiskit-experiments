@@ -15,28 +15,23 @@ Quantum Volume analysis class.
 
 import math
 import warnings
-import numpy as np
 from typing import Optional
+import numpy as np
 
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.base_analysis import AnalysisResult
-from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_scatter, plot_errorbar
+from qiskit_experiments.analysis.plotting import (
+    HAS_MATPLOTLIB,
+    plot_scatter,
+    plot_errorbar,
+)
 
-try:
-    from matplotlib import pyplot as plt
-    HAS_MATPLOTLIB = True
-except ImportError:
-    HAS_MATPLOTLIB = False
 
 class QVAnalysis(BaseAnalysis):
     """RB Analysis class."""
 
     # pylint: disable = arguments-differ
-    def _run_analysis(self,
-                      experiment_data,
-                      plot: bool = True,
-                      ax: Optional["AxesSubplot"] = None
-                      ):
+    def _run_analysis(self, experiment_data, plot: bool = True, ax: Optional["AxesSubplot"] = None):
         """Run analysis on circuit data.
         Args:
             experiment_data (ExperimentData): the experiment data to analyze.
@@ -48,40 +43,44 @@ class QVAnalysis(BaseAnalysis):
                    AnalysisResult objects, and ``figures`` may be
                    None, a single figure, or a list of figures.
         """
-        depth = experiment_data.experiment().num_qubits
-        num_trials = experiment_data.experiment().trials
+        depth = experiment_data.experiment.num_qubits
+        num_trials = experiment_data.experiment.trials
+        data = experiment_data.data()
 
         heavy_outputs = np.zeros(num_trials, dtype=list)
         heavy_output_prob_exp = np.zeros(num_trials, dtype=list)
 
         # analyse ideal data to calculate all heavy outputs
         # must calculate first the ideal data, because the non-ideal calculation uses it
-        for ideal_data in experiment_data.data:
+        for ideal_data in data:
             if not ideal_data["metadata"].get("is_simulation", None):
                 continue
             trial = ideal_data["metadata"]["trial"]
-            trial_index = trial - 1 # trials starts from 1, so as index use trials - 1
+            trial_index = trial - 1  # trials starts from 1, so as index use trials - 1
 
             heavy_outputs[trial_index] = self._calc_ideal_heavy_output(ideal_data)
 
         # analyse non-ideal data
-        for data in experiment_data.data:
-            if data["metadata"].get("is_simulation", None):
+        for non_ideal_data in data:
+            if non_ideal_data["metadata"].get("is_simulation", None):
                 continue
-            trial = data["metadata"]["trial"]
+            trial = non_ideal_data["metadata"]["trial"]
             trial_index = trial - 1  # trials starts from 1, so as index use trials - 1
 
-            heavy_output_prob_exp[trial_index] = \
-                self._calc_exp_heavy_output_probability(data, heavy_outputs[trial_index])
+            heavy_output_prob_exp[trial_index] = self._calc_exp_heavy_output_probability(
+                non_ideal_data, heavy_outputs[trial_index]
+            )
 
         analysis_result = AnalysisResult(
-            self._calc_quantum_volume(heavy_output_prob_exp, depth, num_trials))
+            self._calc_quantum_volume(heavy_output_prob_exp, depth, num_trials)
+        )
 
-        if plot:
+        if plot and HAS_MATPLOTLIB:
             ax = self._format_plot(ax, analysis_result)
-            if HAS_MATPLOTLIB:
-                analysis_result.plt = plt
-        return analysis_result, None
+            figures = [ax.get_figure()]
+        else:
+            figures = None
+        return analysis_result, figures
 
     @staticmethod
     def _calc_ideal_heavy_output(ideal_data):
@@ -93,17 +92,22 @@ class QVAnalysis(BaseAnalysis):
              list: the bit strings of the heavy output
         """
         depth = ideal_data["metadata"]["depth"]
-        probabilities_vector = ideal_data.get('probabilities')
+        probabilities_vector = ideal_data.get("probabilities")
 
         format_spec = "{0:0%db}" % depth
         # keys are bit strings and values are probabilities of observing those strings
-        all_output_prob_ideal = \
-            {format_spec.format(b):
-                 float(np.real(probabilities_vector[b])) for b in range(2 ** depth)}
+        all_output_prob_ideal = {
+            format_spec.format(b): float(np.real(probabilities_vector[b]))
+            for b in range(2 ** depth)
+        }
 
         median_probabilities = float(np.real(np.median(probabilities_vector)))
-        heavy_strings = list(filter(lambda x: all_output_prob_ideal[x] > median_probabilities,
-                                    list(all_output_prob_ideal.keys())))
+        heavy_strings = list(
+            filter(
+                lambda x: all_output_prob_ideal[x] > median_probabilities,
+                list(all_output_prob_ideal.keys()),
+            )
+        )
         return heavy_strings
 
     @staticmethod
@@ -139,7 +143,7 @@ class QVAnalysis(BaseAnalysis):
         if sigma == 0:
             # assign a small value for sigma if sigma = 0
             sigma = 1e-10
-            warnings.warn('Standard deviation sigma should not be zero.')
+            warnings.warn("Standard deviation sigma should not be zero.")
 
         z_value = (mean - 2 / 3) / sigma
 
@@ -205,7 +209,7 @@ class QVAnalysis(BaseAnalysis):
             "mean hop": mean_hop,
             "sigma": sigma_hop,
             "depth": depth,
-            "trials": trials
+            "trials": trials,
         }
         return result
 
@@ -225,26 +229,44 @@ class QVAnalysis(BaseAnalysis):
         two_sigma = 2 * (hop_accumulative * (1 - hop_accumulative) / trial_list) ** 0.5
 
         # plot inidivual HOP as scatter
-        ax = plot_scatter(trial_list, analysis_result["heavy output probability"], ax=ax,
-                          s=3, zorder=3, label='Individual HOP')
+        ax = plot_scatter(
+            trial_list,
+            analysis_result["heavy output probability"],
+            ax=ax,
+            s=3,
+            zorder=3,
+            label="Individual HOP",
+        )
         # plot accumulative HOP
-        ax.plot(trial_list, hop_accumulative, color='r', label='Cumulative HOP')
+        ax.plot(trial_list, hop_accumulative, color="r", label="Cumulative HOP")
         # plot two-sigma shaded area
-        ax = plot_errorbar(trial_list, hop_accumulative, two_sigma, ax=ax,
-                           fmt="none", ecolor='lightgray', elinewidth=20, capsize=0,
-                           alpha=0.5, label='2$\\sigma$')
+        ax = plot_errorbar(
+            trial_list,
+            hop_accumulative,
+            two_sigma,
+            ax=ax,
+            fmt="none",
+            ecolor="lightgray",
+            elinewidth=20,
+            capsize=0,
+            alpha=0.5,
+            label="2$\\sigma$",
+        )
         # plot 2/3 success threshold
-        ax.axhline(2 / 3, color='k', linestyle='dashed', linewidth=1, label='Threshold')
+        ax.axhline(2 / 3, color="k", linestyle="dashed", linewidth=1, label="Threshold")
 
-        ax.set_xlim(1, analysis_result["trials"] + 1)
-        ax.set_ylim(hop_accumulative[-1] - 4 * two_sigma[-1],
-                    hop_accumulative[-1] + 4 * two_sigma[-1])
+        ax.set_ylim(
+            max(hop_accumulative[-1] - 4 * two_sigma[-1], 0),
+            min(hop_accumulative[-1] + 4 * two_sigma[-1], 1),
+        )
 
-        ax.set_xlabel('Number of Trials', fontsize=14)
-        ax.set_ylabel('Heavy Output Probability', fontsize=14)
+        ax.set_xlabel("Number of Trials", fontsize=14)
+        ax.set_ylabel("Heavy Output Probability", fontsize=14)
 
-        ax.set_title('Quantum Volume ' + str(2 ** analysis_result["depth"]) +
-                     ' - accumulative hop', fontsize = 14)
+        ax.set_title(
+            "Quantum Volume " + str(2 ** analysis_result["depth"]) + " - accumulative hop",
+            fontsize=14,
+        )
 
         # re-arrange legend order
         handles, labels = ax.get_legend_handles_labels()
