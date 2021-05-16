@@ -21,7 +21,7 @@ from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
 
 class AverageData(DataAction):
-    """A node to average data which can be represented as numpy arrays."""
+    """A node to average data representable as numpy arrays."""
 
     def __init__(self, axis: int = 0):
         """Initialize a data averaging node.
