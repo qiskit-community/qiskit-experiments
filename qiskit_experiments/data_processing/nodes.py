@@ -53,9 +53,9 @@ class AverageData(DataAction):
                  will be used to override the default axis set at construction time.
 
          Returns:
-            Two arrays with one less dimension than the given datum and error. The error
-            is the standard error of the mean, i.e. the standard deviation of the datum
-            divided by :math:`sqrt{N}` where :math:`N` is the number of data points.
+             Two arrays with one less dimension than the given datum and error. The error
+             is the standard error of the mean, i.e. the standard deviation of the datum
+             divided by :math:`sqrt{N}` where :math:`N` is the number of data points.
 
         Raises:
             DataProcessorError: If the axis is not an int.
