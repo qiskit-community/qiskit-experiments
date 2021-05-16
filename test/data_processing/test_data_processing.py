@@ -23,7 +23,7 @@ from qiskit_experiments import ExperimentData
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.nodes import (
-    AverageIQData,
+    AverageData,
     SVDAvg,
     ToReal,
     ToRealAvg,
@@ -363,7 +363,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
     def test_averaging(self):
         """Test that averaging of the datums produces the expected IQ points."""
 
-        processor = DataProcessor("memory", [AverageIQData()])
+        processor = DataProcessor("memory", [AverageData()])
 
         # Test that we get the expected outcome for the excited state
         processed, error = processor(self.data.data(0))
@@ -382,7 +382,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
     def test_averaging_and_svd(self):
         """Test averaging followed by a SVD."""
 
-        processor = DataProcessor("memory", [AverageIQData(), SVDAvg()])
+        processor = DataProcessor("memory", [AverageData(), SVDAvg()])
 
         # Test training using the calibration points
         self.assertFalse(processor.is_trained)

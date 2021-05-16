@@ -20,6 +20,51 @@ from qiskit_experiments.data_processing.data_action import DataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
 
+class AverageData(DataAction):
+    """A node to average data which can be represented as numpy arrays."""
+
+    def __init__(self, axis: int = 0):
+        """Initialize a data averaging node.
+
+        Args:
+            axis: The axis along which to average the data. If not given 0 is the
+                default axis.
+        """
+        super().__init__()
+        self._axis = axis
+
+    def _format_data(self, datum: Any, error: Optional[Any] = None):
+        """Format the data into numpy arrays."""
+        datum = np.asarray(datum, dtype=float)
+
+        if error is not None:
+            error = np.asarray(error, dtype=float)
+
+        return datum, error
+
+    def _process(
+        self, datum: np.array, error: Optional[np.array] = None, **options
+    ) -> Tuple[np.array, np.array]:
+        """Average the data.
+
+        Args:
+            datum: an array of data.
+            options: keyword arguments which, if they contain "axis" then this axis
+                will be used to override the default axis set at construction time.
+
+        Returns:
+           Two arrays with one less dimension than the given datum and error. The error
+           is the standard error of the mean, i.e. the standard deviation of the datum
+           divided by :math:`\sqrt{N}` where :math:`N` is the number of data points.
+        """
+        axis = options.get("axis", self._axis)
+
+        if not isinstance(axis, int):
+            raise DataProcessorError(f"Axis must be int, received {axis}.")
+
+        return np.average(datum, axis=axis), np.std(datum, axis=axis) / np.sqrt(datum.shape[0])
+
+
 class IQPart(DataAction):
     """Abstract class for IQ data post-processing."""
 
@@ -87,27 +132,6 @@ class IQPart(DataAction):
     def __repr__(self):
         """String representation of the node."""
         return f"{self.__class__.__name__}(validate: {self._validate}, scale: {self.scale})"
-
-
-class AverageIQData(IQPart):
-    """A node that averages single-shot data to create averaged IQ data."""
-
-    def _required_dimension(self) -> int:
-        """Require memory to be a 2D array."""
-        return 3
-
-    def _process(
-        self, datum: np.array, error: Optional[np.array] = None, **options
-    ) -> Tuple[np.array, np.array]:
-        """Average the single-shot IQ data.
-
-        Args:
-            datum: A 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
-
-        Returns:
-            A 2D array of qubits and complex averaged IQ points as [real, imaginary].
-        """
-        return np.average(datum, axis=0), np.std(datum, axis=0) / np.sqrt(datum.shape[0])
 
 
 class SVDAvg(IQPart):

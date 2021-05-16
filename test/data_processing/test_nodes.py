@@ -21,9 +21,27 @@ import numpy as np
 
 from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit.result import Result
+from qiskit.test import QiskitTestCase
 from qiskit_experiments.experiment_data import ExperimentData
-from qiskit_experiments.data_processing.nodes import SVDAvg, AverageIQData
+from qiskit_experiments.data_processing.nodes import SVDAvg, AverageData
 from qiskit_experiments.data_processing.data_processor import DataProcessor
+
+
+class TestAveraging(QiskitTestCase):
+    """Test the averaging nodes."""
+
+    def test_simple(self):
+        """Simple test of averaging."""
+
+        datum = np.array([[1,2], [3, 4]])
+
+        node = AverageData(axis=1)
+        self.assertTrue(np.allclose(node(datum)[0], np.array([1.5, 3.5])))
+        self.assertTrue(np.allclose(node(datum)[1], np.array([0.5, 0.5])/np.sqrt(2)))
+
+        node = AverageData(axis=0)
+        self.assertTrue(np.allclose(node(datum)[0], np.array([2.0, 3.0])))
+        self.assertTrue(np.allclose(node(datum)[1], np.array([1.0, 1.0])/np.sqrt(2)))
 
 
 class TestSVD(BaseDataProcessorTest):
@@ -188,7 +206,7 @@ class TestSVD(BaseDataProcessorTest):
 
         self.create_experiment(iq_data, single_shot=True)
 
-        avg_iq = AverageIQData()
+        avg_iq = AverageData()
 
         avg_datum, error = avg_iq(self.iq_experiment.data(0)["memory"])
 
