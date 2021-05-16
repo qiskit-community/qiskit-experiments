@@ -13,35 +13,51 @@
 Composite Experiment data class.
 """
 
+from typing import Optional, Union, List
 from qiskit.result import marginal_counts
+from qiskit.exceptions import QiskitError
 from qiskit_experiments.experiment_data import ExperimentData
 
 
 class CompositeExperimentData(ExperimentData):
     """Composite experiment data class"""
 
-    def __init__(self, experiment):
-        """Initialize the experiment data.
+    def __init__(
+        self,
+        experiment: "CompositeExperiment",
+        backend: Optional[Union["Backend", "BaseBackend"]] = None,
+        job_ids: Optional[List[str]] = None,
+    ):
+        """Initialize experiment data.
 
         Args:
-            experiment (CompositeExperiment): experiment object that
-                                              generated the data.
+            experiment: experiment object that generated the data.
+            backend: Backend the experiment runs on. It can either be a
+                :class:`~qiskit.providers.Backend` instance or just backend name.
+            job_ids: IDs of jobs submitted for the experiment.
+
+        Raises:
+            ExperimentError: If an input argument is invalid.
         """
-        super().__init__(experiment)
+
+        super().__init__(
+            experiment,
+            backend=backend,
+            job_ids=job_ids,
+        )
 
         # Initialize sub experiments
-        self._composite_expdata = [
-            expr.__experiment_data__(expr) for expr in self._experiment._experiments
-        ]
+        self._components = [expr.__experiment_data__(expr) for expr in experiment._experiments]
 
-    def __repr__(self):
+    def __str__(self):
         line = 51 * "-"
         n_res = len(self._analysis_results)
+        status = self.status()
         ret = line
-        ret += f"\nExperiment: {self._experiment._type}"
+        ret += f"\nExperiment: {self.experiment_type}"
         ret += f"\nExperiment ID: {self.experiment_id}"
-        ret += "\nStatus: COMPLETE"
-        ret += f"\nComponent Experiments: {len(self._composite_expdata)}"
+        ret += f"\nStatus: {status}"
+        ret += f"\nComponent Experiments: {len(self._components)}"
         ret += f"\nCircuits: {len(self._data)}"
         ret += f"\nAnalysis Results: {n_res}"
         ret += "\n" + line
@@ -51,15 +67,21 @@ class CompositeExperimentData(ExperimentData):
                 ret += f"\n- {key}: {value}"
         return ret
 
-    def component_experiment_data(self, index):
+    def component_experiment_data(
+        self, index: Optional[Union[int, slice]] = None
+    ) -> Union[ExperimentData, List[ExperimentData]]:
         """Return component experiment data"""
-        return self._composite_expdata[index]
+        if index is None:
+            return self._components
+        if isinstance(index, (int, slice)):
+            return self._components[index]
+        raise QiskitError(f"Invalid index type {type(index)}.")
 
     def _add_single_data(self, data):
         """Add data to the experiment"""
         # TODO: Handle optional marginalizing IQ data
         metadata = data.get("metadata", {})
-        if metadata.get("experiment_type") == self._experiment._type:
+        if metadata.get("experiment_type") == self._type:
 
             # Add parallel data
             self._data.append(data)
@@ -76,4 +98,4 @@ class CompositeExperimentData(ExperimentData):
                         sub_data["counts"] = marginal_counts(data["counts"], composite_clbits[i])
                     else:
                         sub_data["counts"] = data["counts"]
-                self._composite_expdata[index].add_data(sub_data)
+                self._components[index].add_data(sub_data)

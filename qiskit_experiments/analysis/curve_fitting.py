@@ -293,7 +293,7 @@ def process_multi_curve_data(
     ydata = np.zeros(size, dtype=float)
     ydata_var = np.zeros(size, dtype=float)
 
-    for i, datum in enumerate(filter_data):
+    for i, datum in enumerate(filtered_data):
         metadata = datum["metadata"]
         series[i] = metadata[series_key]
         xdata[i] = metadata[x_key]
