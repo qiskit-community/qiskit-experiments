@@ -19,6 +19,7 @@ from qiskit.providers import BaseBackend
 
 try:
     from qiskit import Aer
+
     HAS_SIMULATION_BACKEND = True
 except ImportError:
     HAS_SIMULATION_BACKEND = False
@@ -26,6 +27,7 @@ except ImportError:
 from qiskit.circuit.library import QuantumVolume
 from qiskit import transpile, assemble
 from qiskit import execute
+from qiskit.exceptions import QiskitError
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_experiment import _TRANSPILE_OPTIONS
@@ -70,15 +72,22 @@ class QVExperiment(BaseExperiment):
         self._trials = trials
         self._previous_trials = 0
         if not simulation_backend and HAS_SIMULATION_BACKEND:
-            self._simulation_backend = Aer.get_backend('aer_simulator')
+            self._simulation_backend = Aer.get_backend("aer_simulator")
         else:
             self._simulation_backend = simulation_backend
         super().__init__(qubits)
 
-    def run(self, backend, experiment_data=None, **kwargs):
+    def run(
+        self,
+        backend: "Backend",
+        analysis: bool = True,
+        experiment_data: Optional[ExperimentData] = None,
+        **kwargs,
+    ):
         """Run an experiment and perform analysis.
         Args:
             backend (Backend): The backend to run the experiment on.
+            analysis: If True run analysis on experiment data.
             experiment_data (ExperimentData): Optional, add results to existing
                 experiment data. If None a new ExperimentData object will be
                 returned.
@@ -86,15 +95,17 @@ class QVExperiment(BaseExperiment):
                     qiskit.transpile, and backend.run.
         Returns:
             ExperimentData: the experiment data object.
+            tuple: If ``return_figures=True`` the output is a pair
+                   ``(ExperimentData, figures)`` where ``figures`` is a list of figures.
         """
         # Create new experiment data
         if experiment_data is None:
             experiment_data = self.__experiment_data__(self)
         else:
-            # count the number of previous trails. assuming that all the data in experiment data is QV data.
-            # divide by the depth (num_qubits) and by 2 (because for each trial there is also simulation data)
-            self._previous_trials = (len(experiment_data.data) / self._num_qubits) / 2
-            self._trials += self._previous_trials
+            # count the number of previous trails.
+            # assuming that all the data in experiment data is QV data.
+            # divide by 2 (because for each trial there is also simulation data)
+            self._previous_trials = int(len(experiment_data.data()) / 2)
 
         # Filter kwargs
         run_options = self.__run_defaults__.copy()
@@ -117,13 +128,28 @@ class QVExperiment(BaseExperiment):
         # Add Jobs to ExperimentData
         experiment_data.add_data([job, sim_data])
 
+        # use 'return_figures' parameter if given
+        return_figures = kwargs.get("return_figures", False)
         # Queue analysis of data for when job is finished
         if self.__analysis_class__ is not None:
-            # pylint: disable = not-callable
-            self.__analysis_class__().run(experiment_data, **kwargs)
+            if return_figures:
+                # pylint: disable = not-callable
+                _, figures = self.__analysis_class__().run(experiment_data, **kwargs)
+            else:
+                self.__analysis_class__().run(experiment_data, **kwargs)
 
         # Return the ExperimentData future
+        if return_figures:
+            return experiment_data, figures
         return experiment_data
+
+    def add_trials(self, additional_trials):
+        """
+        Add more trials to the experiment
+        Args:
+            additional_trials (int): The amount of trials to add
+        """
+        self._trials += additional_trials
 
     @property
     def trials(self):
@@ -147,13 +173,13 @@ class QVExperiment(BaseExperiment):
         else:
             from qiskit.quantum_info import Statevector
             import numpy as np
+
             sim_obj = []
             for circuit in circuits:
                 circuit.metadata["is_simulation"] = True
                 state_vector = Statevector(circuit)
                 prob_vector = np.multiply(state_vector, state_vector.conjugate())
-                sim_data = {'probabilities': prob_vector,
-                            'metadata': circuit.metadata}
+                sim_data = {"probabilities": prob_vector, "metadata": circuit.metadata}
                 sim_obj.append(sim_data)
             return sim_obj
 
@@ -175,7 +201,7 @@ class QVExperiment(BaseExperiment):
                 "experiment_type": self._type,
                 "depth": depth,
                 "trial": trial,
-                "qubits": self.physical_qubits
+                "qubits": self.physical_qubits,
             }
             circuits.append(qv_circ)
 
@@ -218,7 +244,7 @@ class QVExperiment(BaseExperiment):
                 valid_key = True
             if not valid_key:
                 raise QiskitError(
-                    f"{key} is not a valid kwarg for"f" {self.circuits} or {transpile}"
+                    f"{key} is not a valid kwarg for" f" {self.circuits} or {transpile}"
                 )
         # Generate circuits
         circuits = self.circuits(backend=backend, **circuit_options)
