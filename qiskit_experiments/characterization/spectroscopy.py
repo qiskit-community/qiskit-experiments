@@ -224,12 +224,14 @@ class SpectroscopyAnalysis(BaseAnalysis):
         freq_increment = xdata[1] - xdata[0]
 
         snr = fit_amp / np.sqrt(np.median(ydata))
+        fit_width_ratio = fit_sigma / (max_freq - min_freq)
 
         # pylint: disable=too-many-boolean-expressions
         if (
             min_freq <= fit_freq <= max_freq
-            and freq_increment < fit_sigma < (max_freq - min_freq)
-            and reduced_chisq < 3
+            and 1.5*freq_increment < fit_sigma
+            and fit_width_ratio < 0.25
+            and reduced_chisq < 5
             and (fit_sigma_err is None or fit_sigma_err < fit_freq)
             and snr > 2
         ):
