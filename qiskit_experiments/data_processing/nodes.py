@@ -47,18 +47,18 @@ class AverageData(DataAction):
     ) -> Tuple[np.array, np.array]:
         """Average the data.
 
-        Args:
-            datum: an array of data.
-            options: keyword arguments which, if they contain "axis" then this axis
-                will be used to override the default axis set at construction time.
+         Args:
+             datum: an array of data.
+             options: keyword arguments which, if they contain "axis" then this axis
+                 will be used to override the default axis set at construction time.
 
-        Returns:
-           Two arrays with one less dimension than the given datum and error. The error
-           is the standard error of the mean, i.e. the standard deviation of the datum
-           divided by :math:`sqrt{N}` where :math:`N` is the number of data points.
+         Returns:
+            Two arrays with one less dimension than the given datum and error. The error
+            is the standard error of the mean, i.e. the standard deviation of the datum
+            divided by :math:`sqrt{N}` where :math:`N` is the number of data points.
 
-       Raises:
-           DataProcessorError: If the axis is not an int.
+        Raises:
+            DataProcessorError: If the axis is not an int.
         """
         axis = options.get("axis", self._axis)
 
