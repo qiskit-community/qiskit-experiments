@@ -170,11 +170,12 @@ class SpectroscopyAnalysis(BaseAnalysis):
         best_fit["ydata"] = ydata
         best_fit["ydata_err"] = sigmas
         best_fit["quality"] = self._fit_quality(
-            best_fit["popt"],
-            best_fit["popt_err"],
+            best_fit["popt"][0],
+            best_fit["popt"][2],
+            best_fit["popt"][1],
             best_fit["reduced_chisq"],
-            xdata[0],
-            xdata[-1],
+            xdata,
+            best_fit["popt_err"][1],
         )
 
         if plot:
@@ -186,28 +187,51 @@ class SpectroscopyAnalysis(BaseAnalysis):
         return best_fit, None
 
     @staticmethod
-    def _fit_quality(fit_out, fit_err, reduced_chisq, min_freq, max_freq) -> str:
+    def _fit_quality(
+        fit_amp: float,
+        fit_freq: float,
+        fit_sigma: float,
+        reduced_chisq: float,
+        xdata: np.array,
+        ydata: np.array,
+        fit_sigma_err: Optional[float] = None,
+    ) -> str:
         """
         Algorithmic criteria for whether the fit is good or bad.
-        A good fit has a small reduced chi-squared and the peak must be
-        within the scanned frequency range.
+        A good fit has:
+            - a small reduced chi-squared,
+            - the peak must be within the scanned frequency range,
+            - a standard deviation that is not larger than the scanned frequency range and
+              that is wider than the smallest frequency increment,
+            - a signal-to-noise ratio, defined as the amplitude of the peak divided by the
+              square root of the median y-value, greater than a threshold of two, and
+            - a standard error on the sigma of the Gaussian that is smaller than the sigma.
 
         Args:
-            fit_out: Value of the fit.
-            fit_err: Errors on the fit value.
+            fit_amp: Amplitude of the fitted peak.
+            fit_freq: Frequency of the fit.
+            fit_sigma: Standard deviation of the fitted Gaussian.
             reduced_chisq: Reduced chi-squared of the fit.
-            min_freq: Minimum frequency in the spectroscopy.
-            max_freq: Maximum frequency in the spectroscopy.
+            xdata: x-values, i.e. the frequencies.
+            ydata: y-values, i.e. the measured signal.
+            fit_sigma_err: Errors on the standard deviation of the fit.
 
         Returns:
             computer_bad or computer_good if the fit passes or fails, respectively.
         """
+        min_freq = xdata[0]
+        max_freq = xdata[-1]
+        freq_increment = xdata[1] - xdata[0]
 
+        snr = fit_amp / np.sqrt(np.median(ydata))
+
+        # pylint: disable=too-many-boolean-expressions
         if (
-            min_freq <= fit_out[2] <= max_freq
-            and fit_out[1] < (max_freq - min_freq)
+            min_freq <= fit_freq <= max_freq
+            and freq_increment < fit_sigma < (max_freq - min_freq)
             and reduced_chisq < 3
-            and (fit_err[2] is None or fit_err[2] < fit_out[2])
+            and (fit_sigma_err is None or fit_sigma_err < fit_freq)
+            and snr > 2
         ):
             return "computer_good"
         else:
