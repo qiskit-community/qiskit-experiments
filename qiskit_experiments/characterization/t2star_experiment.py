@@ -59,20 +59,20 @@ class T2StarAnalysis(BaseAnalysis):
             Calculate T2Star experiment
             The probability of measuring 0 is assumed to be of the form
         .. math::
-            f(t) = A\mathrm{e}^{-t / T_2^*}\cos(2\pi ft + \phi) + B
-        for unknown parameters :math:`A, B, f, \phi, T_2^*`.
+            f(t) = a\mathrm{e}^{-t / T_2^*}\cos(2\pi freq t + \phi) + b
+        for unknown parameters :math:`a, b, freq, \phi, T_2^*`.
             Args:
                 experiment_data (ExperimentData): the experiment data to analyze
-                p0: contains initial values for the fit parameters :math:`(A, T_2^*, f, \phi, B)`
+                p0: contains initial values for the fit parameters :math:`(a, T_2^*, freq, \phi, b)`
                 bounds: lower and upper bounds on the parameters in p0.
                         The first tuple is the lower bounds,
                         The second tuple is the upper bounds.
-                        For both params, the order is :math:`A, T_2^*, f, \phi, B`.
+                        For both params, the order is :math:`a, T_2^*, freq, \phi, b`.
                 plot: if True, create the plot, otherwise, do not create the plot.
                 ax: the plot object
                 **kwargs: additional parameters
             Returns:
-                The analysis result with the estimated :math:`T_2^*` and 'f' (frequency)
+                The analysis result with the estimated :math:`T_2^*` and 'freq' (frequency)
 
         """
 
@@ -116,6 +116,7 @@ class T2StarAnalysis(BaseAnalysis):
             fit_result.plt = plt
             plt.show()
 
+        # Output unit is 'sec', regardless of the unit used in the input
         analysis_result = AnalysisResult(
             {
                 "t2star_value": fit_result["popt"][1],
@@ -141,6 +142,8 @@ class T2StarAnalysis(BaseAnalysis):
     ) -> Tuple[List[float], Tuple[List[float]]]:
         """
         Default fit parameters for oscillation data
+        Note that :math:`T_2^*` and 'freq' units are converted to 'sec' and
+        will be output in 'sec'.
         Args:
             t2star_input: default for t2star if p0==None
         Returns:
@@ -149,7 +152,7 @@ class T2StarAnalysis(BaseAnalysis):
         """
         if self._p0 is None:
             a = 0.5
-            t2star = t2star_input
+            t2star = t2star_input * self._conversion_factor
             freq = 0.1
             phi = 0.0
             b = 0.5
@@ -168,10 +171,7 @@ class T2StarAnalysis(BaseAnalysis):
             f_bounds = [0.5 * freq, 1.5 * freq]
             phi_bounds = [-np.pi, np.pi]
             b_bounds = [-0.5, 1.5]
-            bounds = (
-                [a_bounds[0], t2star_bounds[0], f_bounds[0], phi_bounds[0], b_bounds[0]],
-                [a_bounds[1], t2star_bounds[1], f_bounds[1], phi_bounds[1], b_bounds[1]],
-            )
+            bounds = [[a_bounds[i], t2star_bounds[i], f_bounds[i], phi_bounds[i], b_bounds[i]] for i in range(2)]
         return p0, bounds
 
     @staticmethod
@@ -208,7 +208,9 @@ class T2StarExperiment(BaseExperiment):
         Args:
             qubit: the qubit under test
             delays: delay times of the experiments
-            unit: Optional, time unit of `delays`. Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'.
+            unit: Optional, time unit of `delays`.
+            Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'.
+            The unit is used for both T2* and the frequency
             osc_freq: the oscillation frequency induced using by the user
             experiment_type: String indicating the experiment type.
             Can be 'RamseyExperiment' or 'T2StarExperiment'.
