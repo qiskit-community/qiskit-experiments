@@ -41,16 +41,14 @@ class T2StarAnalysis(BaseAnalysis):
     def __init__(
         self,
     ):
-        self._p0 = None
-        self._bounds = None
         self._conversion_factor = None
 
     # pylint: disable=arguments-differ, unused-argument
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
-        p0: Dict[str, float],
-        bounds: Tuple[List[float], List[float]],
+        user_p0: Dict[str, float],
+        user_bounds: Tuple[List[float], List[float]],
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,
         **kwargs,
@@ -63,8 +61,10 @@ class T2StarAnalysis(BaseAnalysis):
         for unknown parameters :math:`a, b, freq, \phi, T_2^*`.
             Args:
                 experiment_data (ExperimentData): the experiment data to analyze
-                p0: contains initial values for the fit parameters :math:`(a, T_2^*, freq, \phi, b)`
-                bounds: lower and upper bounds on the parameters in p0.
+                user_p0: contains initial values given by the user, for the
+                fit parameters :math:`(a, T_2^*, freq, \phi, b)`
+                User_bounds: lower and upper bounds on the parameters in p0,
+                        given by the user.
                         The first tuple is the lower bounds,
                         The second tuple is the upper bounds.
                         For both params, the order is :math:`a, T_2^*, freq, \phi, b`.
@@ -90,8 +90,6 @@ class T2StarAnalysis(BaseAnalysis):
             ax.set_ylabel("Probability to measure |0>", fontsize=12)
 
         # implementation of  _run_analysis
-        self._p0 = p0
-        self._bounds = bounds
         unit = experiment_data._data[0]["metadata"]["unit"]
         self._conversion_factor = experiment_data._data[0]["metadata"].get("dt_factor", None)
         if self._conversion_factor is None:
@@ -103,7 +101,7 @@ class T2StarAnalysis(BaseAnalysis):
         si_xdata = xdata * self._conversion_factor
         t2star_estimate = np.mean(si_xdata)
 
-        p0, bounds = self._t2star_default_params(t2star_input=t2star_estimate)
+        p0, bounds = self._t2star_default_params(user_p0, user_bounds, t2star_input=t2star_estimate)
         fit_result = curve_fit(
             osc_fit_fun, si_xdata, ydata, p0=list(p0.values()), sigma=sigma, bounds=bounds
         )
@@ -138,6 +136,8 @@ class T2StarAnalysis(BaseAnalysis):
 
     def _t2star_default_params(
         self,
+        user_p0,
+        user_bounds,
         t2star_input: float,
     ) -> Tuple[List[float], Tuple[List[float]]]:
         """
@@ -150,28 +150,30 @@ class T2StarAnalysis(BaseAnalysis):
             Fit guessed parameters: either from the input (if given) or
             else assign default values.
         """
-        if self._p0 is None:
+        if user_p0 is None:
             a = 0.5
             t2star = t2star_input * self._conversion_factor
             freq = 0.1
             phi = 0.0
             b = 0.5
         else:
-            a = self._p0["A"]
-            t2star = self._p0["t2star"]
+            a = user_p0["A"]
+            t2star = user_p0["t2star"]
             t2star *= self._conversion_factor
-            freq = self._p0["f"]
-            phi = self._p0["phi"]
-            b = self._p0["B"]
+            freq = user_p0["f"]
+            phi = user_p0["phi"]
+            b = user_p0["B"]
         freq /= self._conversion_factor
         p0 = {"a_guess": a, "t2star": t2star, "f_guess": freq, "phi_guess": phi, "b_guess": b}
-        if self._bounds is None:
+        if user_bounds is None:
             a_bounds = [-0.5, 1.5]
             t2star_bounds = [0, np.inf]
             f_bounds = [0.5 * freq, 1.5 * freq]
             phi_bounds = [-np.pi, np.pi]
             b_bounds = [-0.5, 1.5]
             bounds = [[a_bounds[i], t2star_bounds[i], f_bounds[i], phi_bounds[i], b_bounds[i]] for i in range(2)]
+        else:
+            bounds = user_bounds
         return p0, bounds
 
     @staticmethod
@@ -198,7 +200,7 @@ class T2StarExperiment(BaseExperiment):
         self,
         qubit: int,
         delays: Union[List[float], np.array],
-        unit: Optional[str] = "s",
+        unit: str = "s",
         osc_freq: float = 0.0,
         experiment_type: Optional[str] = None,
     ):
