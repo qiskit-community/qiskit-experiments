@@ -66,6 +66,7 @@ extensions = [
     'sphinx_autodoc_typehints',
     'reno.sphinxext',
     'sphinx_panels',
+    'sphinx.ext.intersphinx',
 ]
 html_static_path = ['_static']
 templates_path = ['_templates']
@@ -144,3 +145,4 @@ html_theme_options = {
 }
 
 autoclass_content = 'both'
+intersphinx_mapping = {'matplotlib': ('https://matplotlib.org/stable/', None)}

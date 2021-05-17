@@ -215,14 +215,16 @@ class ExperimentData:
 
     def add_figure(
         self,
-        figure: Union[str, bytes, "pyplot.Figure"],
+        figure,
         figure_name: Optional[str] = None,
         overwrite: bool = False,
     ) -> Tuple[str, int]:
         """Save the experiment figure.
 
         Args:
-            figure: Name of the figure file or figure data to store.
+            figure: Name of the figure file or figure data to store. This can either be
+                a ``str`` (for a filename to load), ``bytes`` (for the raw image data), or a
+                :class:`~matplotlib.figure.Figure` object.
             figure_name: Name of the figure. If ``None``, use the figure file name, if
                 given, or a generated name.
             overwrite: Whether to overwrite the figure if one already exists with
@@ -254,9 +256,7 @@ class ExperimentData:
         self._figure_names.append(figure_name)
         return out
 
-    def figure(
-        self, figure_name: Union[str, int], file_name: Optional[str] = None
-    ) -> Union[int, bytes, "pyplot.Figure"]:
+    def figure(self, figure_name: Union[str, int], file_name: Optional[str] = None):
         """Retrieve the specified experiment figure.
 
         Args:
@@ -265,8 +265,9 @@ class ExperimentData:
                 the content of the figure is returned instead.
 
         Returns:
-            The size of the figure if `file_name` is specified. Otherwise the
-            content of the figure in bytes.
+            The size of the figure as an ``int`` if ``file_name`` is specified. Otherwise the
+            content of the figure as ``bytes`` object or a :class:`~matplotlib.figure.Figure`
+            depending on how the image was loaded.
 
         Raises:
             QiskitError: If the figure cannot be found.
