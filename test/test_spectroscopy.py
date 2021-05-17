@@ -116,6 +116,7 @@ class TestSpectroscopy(QiskitTestCase):
         result = spec.run(backend)
 
         self.assertTrue(abs(result.analysis_result(0)["value"]) < 1e6)
+        self.assertTrue(result.analysis_result(0)["success"])
 
         # Test if we find still find the peak when it is shifted by 5 MHz.
         backend = SpectroscopyBackend(line_width=2.0e-3, freq_offset=5.0e-3)
