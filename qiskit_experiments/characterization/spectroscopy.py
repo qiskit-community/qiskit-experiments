@@ -24,6 +24,7 @@ from qiskit_experiments.analysis.curve_fitting import curve_fit
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments import AnalysisResult
+from qiskit_experiments import ExperimentData
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import ToReal
 from qiskit_experiments.data_processing.nodes import Probability
@@ -43,7 +44,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
     # pylint: disable=arguments-differ
     def _run_analysis(
         self,
-        experiment_data,
+        experiment_data: ExperimentData,
         data_processor: Optional[callable] = None,
         meas_level: Optional[int] = MeasLevel.CLASSIFIED,
         amp_guess: Optional[float] = None,
@@ -109,10 +110,10 @@ class SpectroscopyAnalysis(BaseAnalysis):
             else:
                 raise ValueError("Unsupported measurement level.")
 
-        y_sigmas = np.array([data_processor(datum) for datum in experiment_data.data])
+        y_sigmas = np.array([data_processor(datum) for datum in experiment_data.data()])
         sigmas = y_sigmas[:, 1]
         ydata = abs(y_sigmas[:, 0])
-        xdata = np.array([datum["metadata"]["xval"] for datum in experiment_data.data])
+        xdata = np.array([datum["metadata"]["xval"] for datum in experiment_data.data()])
 
         # Fitting will not work if any sigmas are exactly 0.
         if any(sigmas == 0.0):
@@ -164,7 +165,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
 
         best_fit["value"] = best_fit["popt"][2]
         best_fit["stderr"] = (best_fit["popt_err"][2],)
-        best_fit["unit"] = experiment_data.data[0]["metadata"].get("unit", "Hz")
+        best_fit["unit"] = experiment_data.data(0)["metadata"].get("unit", "Hz")
         best_fit["label"] = "Spectroscopy"
         best_fit["xdata"] = xdata
         best_fit["ydata"] = ydata
