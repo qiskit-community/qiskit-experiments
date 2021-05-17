@@ -75,7 +75,9 @@ jobs:
             ${{ runner.os }}-pip-
             ${{ runner.os }}-
       - name: Install Deps
-        run: python -m pip install -U tox
+        run: |
+          python -m pip install -U tox
+          sudo apt-get install -y pandoc graphviz
       - name: Build Docs
         run: tox -edocs
       - uses: actions/upload-artifact@v2
