@@ -24,17 +24,17 @@ class CompositeExperimentData(ExperimentData):
 
     def __init__(
         self,
-        experiment: "CompositeExperiment",
-        backend: Optional[Union["Backend", "BaseBackend"]] = None,
-        job_ids: Optional[List[str]] = None,
+        experiment,
+        backend=None,
+        job_ids=None,
     ):
         """Initialize experiment data.
 
         Args:
-            experiment: experiment object that generated the data.
-            backend: Backend the experiment runs on. It can either be a
+            experiment (CompositeExperiment): experiment object that generated the data.
+            backend (Backend): Optional, Backend the experiment runs on. It can either be a
                 :class:`~qiskit.providers.Backend` instance or just backend name.
-            job_ids: IDs of jobs submitted for the experiment.
+            job_ids (list[str]): Optional, IDs of jobs submitted for the experiment.
 
         Raises:
             ExperimentError: If an input argument is invalid.
