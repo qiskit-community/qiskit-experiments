@@ -38,7 +38,7 @@ class InterleavedRBAnalysis(RBAnalysis):
 
     The error bounds are given by
     :math:`E=\min\left\{ \begin{array}{c}
-    \frac{\left(d-1\right)\left[\left|p-p_{\overline{\mathcal{C}}}/p\right|+\left(1-p\right)\right]}{d}\\
+    \frac{\left(d-1\right)\left[\left|p-p_{\overline{\mathcal{C}}}\right|+\left(1-p\right)\right]}{d}\\
     \frac{2\left(d^{2}-1\right)\left(1-p\right)}{pd^{2}}+\frac{4\sqrt{1-p}\sqrt{d^{2}-1}}{p}
     \end{array}\right.`
     """
