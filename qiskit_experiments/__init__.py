@@ -10,12 +10,48 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Qiskit Experiments Root."""
+"""
+==============================================
+Qiskit Experiments (:mod:`qiskit_experiments`)
+==============================================
+
+.. currentmodule:: qiskit_experiments
+
+*Note: This package is still under active development, there will be breaking
+API changes, and re-organization of the package layout.*
+
+
+Experiment Data Classes
+=======================
+
+These container classes store the data and results from running experiments
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    ExperimentData
+    AnalysisResult
+
+
+Experiment Base Classes
+=======================
+
+Construction of custom experiments should be done by making subclasses of the following
+base classes
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    BaseExperiment
+    BaseAnalysis
+"""
 
 from .version import __version__
 
-# Base result classes
+# Base Classes
 from .experiment_data import ExperimentData, AnalysisResult
+from .base_analysis import BaseAnalysis
+from .base_experiment import BaseExperiment
 
 # Experiment modules
 from . import composite

@@ -167,7 +167,7 @@ def multi_curve_fit(
 
     Args:
         funcs: a list of objective functions :math:`[f_0, f_1, ...]` where
-               each function has signature :math`f_k`(x, *params)`.
+               each function has signature :math`f_k(x, \Theta)`.
         series: a 1D int array that specifies the component objective
                 function :math:`f_k` to evaluate corresponding x and y
                 data with.
