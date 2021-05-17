@@ -68,8 +68,7 @@ class BaseAnalysis(ABC):
         try:
             analysis_results, figures = self._run_analysis(experiment_data, **options)
             analysis_results["success"] = True
-        except Exception as ex:
-            print(ex)
+        except Exception:
             analysis_results = AnalysisResult(success=False)
             figures = None
 
