@@ -41,7 +41,7 @@ except ImportError:
 class SpectroscopyAnalysis(BaseAnalysis):
     """Class to analysis a spectroscopy experiment."""
 
-    # pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ, unused-argument
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
