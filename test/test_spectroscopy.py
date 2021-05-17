@@ -12,16 +12,38 @@
 
 """Spectroscopy tests."""
 
-from typing import Optional
+from typing import Dict, Optional
 
 import numpy as np
-from qiskit.providers import BaseBackend
+from qiskit.providers import BaseBackend, JobV1
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
 from qiskit.test import QiskitTestCase
 from qiskit.exceptions import QiskitError
 
 from qiskit_experiments.characterization.spectroscopy import Spectroscopy
+
+
+class TestJob(JobV1):
+    """Job for testing."""
+
+    def __init__(self, backend: BaseBackend, result: Dict):
+        """Setup a job for testing."""
+        super().__init__(backend, "test-id")
+        self._result = result
+
+    def result(self) -> Result:
+        """Return a result."""
+        return Result.from_dict(self._result)
+
+    def submit(self):
+        pass
+
+    def status(self):
+        pass
+
+    def cancel(self):
+        pass
 
 
 class SpectroscopyBackend(BaseBackend):
@@ -96,7 +118,7 @@ class SpectroscopyBackend(BaseBackend):
 
             result["results"].append(run_result)
 
-        return Result.from_dict(result)
+        return TestJob(self, result)
 
 
 class TestSpectroscopy(QiskitTestCase):
