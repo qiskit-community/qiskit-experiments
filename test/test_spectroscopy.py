@@ -113,7 +113,7 @@ class TestSpectroscopy(QiskitTestCase):
         backend = SpectroscopyBackend(line_width=2e-3)
 
         spec = Spectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
-        result = spec.run(backend)
+        result = spec.run(backend, amp=0.05)
 
         self.assertTrue(abs(result.analysis_result(0)["value"]) < 1e6)
         self.assertTrue(result.analysis_result(0)["success"])

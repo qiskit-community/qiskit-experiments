@@ -57,6 +57,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
         offset_bounds: Optional[List[float]] = None,
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,
+        **kwargs,
     ) -> Tuple[AnalysisResult, None]:
         """
         Analyse a spectroscopy experiment by fitting the data to a Gaussian function.
@@ -93,6 +94,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
                 The default values are the minimum and maximum of the ydata.
             plot: If True generate a plot of fitted data.
             ax: Optional, matplotlib axis to add plot to.
+            kwargs: Trailing unused function parameters.
 
         Returns:
             The analysis result with the estimated peak frequency.
