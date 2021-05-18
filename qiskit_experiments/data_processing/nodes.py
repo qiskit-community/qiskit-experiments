@@ -162,6 +162,22 @@ class SVDAvg(IQPart):
 
         raise DataProcessorError("SVD is not trained.")
 
+    def means(self, qubit: int, iq_index: int) -> float:
+        """Return the mean by which to correct the IQ data.
+
+        Before training the SVD the mean of the training data is subtracted from the
+        training data to avoid large offsets in the data. These means can be retrieved
+        with this function.
+
+        Args:
+            qubit: Index of the qubit.
+            iq_index: Index of either the in-phase (i.e. 0) or the quadrature (i.e. 1).
+
+        Returns:
+            The mean that was determined during training for the given qubit and IQ index.
+        """
+        return self._means[qubit][iq_index]
+
     @property
     def scales(self) -> List[float]:
         """Return the scaling of the SVD."""
@@ -211,7 +227,9 @@ class SVDAvg(IQPart):
         # process each averaged IQ point with its own axis.
         for idx in range(n_qubits):
 
-            centered = np.array([datum[idx][iq] - self._means[idx][iq] for iq in [0, 1]])
+            centered = np.array(
+                [datum[idx][iq] - self.means(qubit=idx, iq_index=iq) for iq in [0, 1]]
+            )
 
             processed_data.append((self._main_axes[idx] @ centered) / self._scales[idx])
 
