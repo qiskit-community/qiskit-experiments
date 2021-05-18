@@ -23,7 +23,7 @@ from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit.result import Result
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.experiment_data import ExperimentData
-from qiskit_experiments.data_processing.nodes import SVDAvg, AverageData
+from qiskit_experiments.data_processing.nodes import SVD, AverageData
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 
 
@@ -91,7 +91,7 @@ class TestSVD(BaseDataProcessorTest):
 
         self.create_experiment(iq_data)
 
-        iq_svd = SVDAvg()
+        iq_svd = SVD()
         iq_svd.train([datum["memory"] for datum in self.iq_experiment.data()])
 
         # qubit 0 IQ data is oriented along (1,1)
@@ -133,7 +133,7 @@ class TestSVD(BaseDataProcessorTest):
 
         self.create_experiment(iq_data)
 
-        iq_svd = SVDAvg()
+        iq_svd = SVD()
         iq_svd.train([datum["memory"] for datum in self.iq_experiment.data()])
 
         self.assertTrue(np.allclose(iq_svd._main_axes[0], np.array([-0.99633018, -0.08559302])))
@@ -142,7 +142,7 @@ class TestSVD(BaseDataProcessorTest):
     def test_svd_error(self):
         """Test the error formula of the SVD."""
 
-        iq_svd = SVDAvg()
+        iq_svd = SVD()
         iq_svd._main_axes = np.array([[1.0, 0.0]])
         iq_svd._scales = [1.0]
         iq_svd._means = [[0.0, 0.0]]
@@ -169,7 +169,7 @@ class TestSVD(BaseDataProcessorTest):
     def test_train_svd_processor(self):
         """Test that we can train a DataProcessor with an SVD."""
 
-        processor = DataProcessor("memory", [SVDAvg()])
+        processor = DataProcessor("memory", [SVD()])
 
         self.assertFalse(processor.is_trained)
 

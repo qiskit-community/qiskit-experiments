@@ -24,11 +24,9 @@ from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.nodes import (
     AverageData,
-    SVDAvg,
+    SVD,
     ToReal,
-    ToRealAvg,
     ToImag,
-    ToImagAvg,
     Probability,
 )
 
@@ -223,13 +221,11 @@ class TestIQSingleAvg(BaseDataProcessorTest):
     def test_avg_and_single(self):
         """Test that the different nodes process the data correctly."""
 
-        real_single = DataProcessor("memory", [ToReal(scale=1)])
-        imag_single = DataProcessor("memory", [ToImag(scale=1)])
-        real_avg = DataProcessor("memory", [ToRealAvg(scale=1)])
-        imag_avg = DataProcessor("memory", [ToImagAvg(scale=1)])
+        to_real = DataProcessor("memory", [ToReal(scale=1)])
+        to_imag = DataProcessor("memory", [ToImag(scale=1)])
 
         # Test the real single shot node
-        new_data, error = real_single(self.exp_data_single.data(0))
+        new_data, error = to_real(self.exp_data_single.data(0))
         expected = np.array(
             [
                 [-56470872.0, -53407256.0],
@@ -243,11 +239,8 @@ class TestIQSingleAvg(BaseDataProcessorTest):
         self.assertTrue(np.allclose(new_data, expected))
         self.assertIsNone(error)
 
-        with self.assertRaises(DataProcessorError):
-            real_single(self.exp_data_avg.data(0))
-
         # Test the imaginary single shot node
-        new_data, error = imag_single(self.exp_data_single.data(0))
+        new_data, error = to_imag(self.exp_data_single.data(0))
         expected = np.array(
             [
                 [-136691568.0, -176278624.0],
@@ -261,15 +254,12 @@ class TestIQSingleAvg(BaseDataProcessorTest):
         self.assertTrue(np.allclose(new_data, expected))
 
         # Test the real average node
-        new_data, error = real_avg(self.exp_data_avg.data(0))
+        new_data, error = to_real(self.exp_data_avg.data(0))
         self.assertTrue(np.allclose(new_data, np.array([-539698.0, 5541283.0])))
 
         # Test the imaginary average node
-        new_data, error = imag_avg(self.exp_data_avg.data(0))
+        new_data, error = to_imag(self.exp_data_avg.data(0))
         self.assertTrue(np.allclose(new_data, np.array([-153030784.0, -160369600.0])))
-
-        with self.assertRaises(DataProcessorError):
-            real_avg(self.exp_data_single.data(0))
 
 
 class TestAveragingAndSVD(BaseDataProcessorTest):
@@ -382,7 +372,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
     def test_averaging_and_svd(self):
         """Test averaging followed by a SVD."""
 
-        processor = DataProcessor("memory", [AverageData(), SVDAvg()])
+        processor = DataProcessor("memory", [AverageData(), SVD()])
 
         # Test training using the calibration points
         self.assertFalse(processor.is_trained)

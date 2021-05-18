@@ -13,7 +13,7 @@
 """Different data analysis steps."""
 
 from abc import abstractmethod
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Set
 import numpy as np
 
 from qiskit_experiments.data_processing.data_action import DataAction
@@ -82,7 +82,7 @@ class IQPart(DataAction):
 
     @abstractmethod
     def _process(self, datum: np.array, error: Optional[np.array] = None, **options) -> np.array:
-        """Defines how the IQ point will be processed.
+        """Defines how the IQ point is processed.
 
         Args:
             datum: A 2D or a 3D array of complex IQ points as [real, imaginary].
@@ -94,7 +94,7 @@ class IQPart(DataAction):
         """
 
     @abstractmethod
-    def _required_dimension(self) -> int:
+    def _required_dimension(self) -> Set[int]:
         """Return the required dimension of the data."""
 
     def _format_data(self, datum: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
@@ -116,19 +116,26 @@ class IQPart(DataAction):
         if error is not None:
             error = np.asarray(error, dtype=float)
 
-        if self._validate and len(datum.shape) != self._required_dimension():
-            raise DataProcessorError(
-                f"Single-shot data given to {self.__class__.__name__}"
-                f"must be a {self._required_dimension()}D array. Instead, a {len(datum.shape)}D "
-                f"array was given."
-            )
+        if self._validate:
+            if len(datum.shape) not in self._required_dimension():
+                raise DataProcessorError(
+                    f"IQ data given to {self.__class__.__name__} must be an N dimensional"
+                    f"array with N in {self._required_dimension()}. Instead, a {len(datum.shape)}D "
+                    f"array was given."
+                )
 
-        if error is not None and self._validate and len(error.shape) != self._required_dimension():
-            raise DataProcessorError(
-                f"Erorr on single-shot data given to {self.__class__.__name__}"
-                f"must be a {self._required_dimension()}D array. Instead, a {len(error.shape)}D "
-                f"array was given."
-            )
+            if error is not None and len(error.shape) not in self._required_dimension():
+                raise DataProcessorError(
+                    f"IQ data error given to {self.__class__.__name__} must be an N dimensional"
+                    f"array with N in {self._required_dimension()}. Instead, a {len(error.shape)}D"
+                    f" array was given."
+                )
+
+            if error is not None and len(error.shape) != len(datum.shape):
+                raise DataProcessorError(
+                    "Datum and error do not have the same shape: "
+                    f"{len(datum.shape)} != {len(error.shape)}."
+                )
 
         return datum, error
 
@@ -137,7 +144,7 @@ class IQPart(DataAction):
         return f"{self.__class__.__name__}(validate: {self._validate}, scale: {self.scale})"
 
 
-class SVDAvg(IQPart):
+class SVD(IQPart):
     """Singular Value Decomposition of averaged IQ data."""
 
     def __init__(self, validate: bool = True):
@@ -150,9 +157,9 @@ class SVDAvg(IQPart):
         self._means = None
         self._scales = None
 
-    def _required_dimension(self) -> int:
+    def _required_dimension(self) -> Set[int]:
         """Require memory to be a 2D array."""
-        return 2
+        return {2}
 
     @property
     def axis(self) -> List[np.array]:
@@ -285,9 +292,9 @@ class SVDAvg(IQPart):
 class ToReal(IQPart):
     """IQ data post-processing. Isolate the real part of single-shot IQ data."""
 
-    def _required_dimension(self) -> int:
-        """Require memory to be a 3D array."""
-        return 3
+    def _required_dimension(self) -> Set[int]:
+        """Require memory to be a 2D or a 3D array."""
+        return {2, 3}
 
     def _process(
         self, datum: np.array, error: Optional[np.array] = None, **options
@@ -295,120 +302,53 @@ class ToReal(IQPart):
         """Take the real part of the IQ data.
 
         Args:
-            datum: A 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
-            error: An optional 3D array of shots, qubits, and an error on a complex IQ point
+            datum: A 2D or 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
+            error: An optional 2D or 3D array of shots, qubits, and an error on a complex IQ point
                 as [real, imaginary].
 
         Returns:
-            A 2D array of shots, qubits with the associated error if given. Each entry is the
-            real part of the given IQ data.
+            A 1D or 2D array, each entry is the real part of the given IQ data and error.
         """
         if self.scale is None:
             if error is not None:
-                return datum[:, :, 0], error[:, :, 0]
+                return datum[..., 0], error[..., 0]
             else:
-                return datum[:, :, 0], None
+                return datum[..., 0], None
 
         if error is not None:
-            return datum[:, :, 0] * self.scale, error[:, :, 0] * self.scale
+            return datum[..., 0] * self.scale, error[..., 0] * self.scale
         else:
-            return datum[:, :, 0] * self.scale, None
-
-
-class ToRealAvg(IQPart):
-    """IQ data post-processing. Isolate the real part of averaged IQ data."""
-
-    def _required_dimension(self) -> int:
-        """Require memory to be a 2D array."""
-        return 2
-
-    def _process(
-        self, datum: np.array, error: Optional[np.array] = None, **options
-    ) -> Tuple[np.array, np.array]:
-        """Take the real part of the IQ data.
-
-        Args:
-            datum: A 2D array of qubits, and a complex averaged IQ point as [real, imaginary].
-            error: An optional 2D array of qubits, and an error on a complex averaged IQ
-                point as [real, imaginary].
-
-        Returns:
-            A 1D array of qubit IQ points with the associated error if given. Each entry is the
-            real part of the averaged IQ data of a qubit.
-        """
-        if self.scale is None:
-            if error is not None:
-                return datum[:, 0], error[:, 0]
-            else:
-                return datum[:, 0], None
-
-        if error is not None:
-            return datum[:, 0] * self.scale, error[:, 0] * self.scale
-        else:
-            return datum[:, 0] * self.scale, None
+            return datum[..., 0] * self.scale, None
 
 
 class ToImag(IQPart):
     """IQ data post-processing. Isolate the imaginary part of single-shot IQ data."""
 
-    def _required_dimension(self) -> int:
-        """Require memory to be a 3D array."""
-        return 3
+    def _required_dimension(self) -> Set[int]:
+        """Require memory to be a 2D or a 3D array."""
+        return {2, 3}
 
     def _process(self, datum: np.array, error: Optional[np.array] = None, **options) -> np.array:
         """Take the imaginary part of the IQ data.
 
         Args:
-            datum: A 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
-            error: An optional 3D array of shots, qubits, and an error on a complex IQ point
+            datum: A 2D or 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
+            error: An optional 2D or 3D array of shots, qubits, and an error on a complex IQ point
                 as [real, imaginary].
 
         Returns:
-            A 2D array of shots, qubits. Each entry is the imaginary part of the given IQ data.
+            A 1D or 2D array, each entry is the imaginary part of the given IQ data and error.
         """
         if self.scale is None:
             if error is not None:
-                return datum[:, :, 1], error[:, :, 1]
+                return datum[..., 1], error[..., 1]
             else:
-                return datum[:, :, 1], None
+                return datum[..., 1], None
 
         if error is not None:
-            return datum[:, :, 1] * self.scale, error[:, :, 1] * self.scale
+            return datum[..., 1] * self.scale, error[..., 1] * self.scale
         else:
-            return datum[:, :, 1] * self.scale, None
-
-
-class ToImagAvg(IQPart):
-    """IQ data post-processing. Isolate the imaginary part of averaged IQ data."""
-
-    def _required_dimension(self) -> int:
-        """Require memory to be a 2D array."""
-        return 2
-
-    def _process(
-        self, datum: np.array, error: Optional[np.array] = None, **options
-    ) -> Tuple[np.array, np.array]:
-        """Take the imaginary part of the IQ data.
-
-        Args:
-            datum: A 2D array of qubits, and a complex averaged IQ point as [real, imaginary].
-            error: An optional 3D array of shots, qubits, and an error on a complex IQ point
-                as [real, imaginary].
-
-        Returns:
-            A 2D array of shots, qubits with the associated error if given. Each entry is the
-            imaginary part of the given IQ data.
-        """
-        if self.scale is None:
-            if error is not None:
-                return datum[:, 1], error[:, 1]
-            else:
-                return datum[:, 1], None
-
-        if error is not None:
-            return datum[:, 1] * self.scale, error[:, 1] * self.scale
-        else:
-            return datum[:, 1] * self.scale, None
+            return datum[..., 1] * self.scale, None
 
 
 class Probability(DataAction):
