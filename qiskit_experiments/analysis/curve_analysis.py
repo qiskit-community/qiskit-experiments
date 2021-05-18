@@ -573,11 +573,13 @@ class CurveAnalysis(BaseAnalysis):
         """
         analysis_result = AnalysisResult()
 
+        # pop arguments that are not given to fitter
+        data_processor = options.pop("data_processor", self.__default_data_processor__)
+        axis = options.pop("ax", None)
+
         #
         # 1. Setup data processor
         #
-        data_processor = options.pop("data_processor", self.__default_data_processor__)
-
         # TODO add ` and not data_processor.trained:`
         if isinstance(data_processor, DataProcessor):
             # Qiskit DataProcessor instance. May need calibration.
@@ -645,7 +647,12 @@ class CurveAnalysis(BaseAnalysis):
         # 5. Create figures
         #
         figures = self._create_figures(
-            x_values=xdata, y_values=ydata, y_sigmas=sigma, series=series, analysis_results=analysis_result
+            x_values=xdata,
+            y_values=ydata,
+            y_sigmas=sigma,
+            series=series,
+            analysis_results=analysis_result,
+            axis=axis,
         )
 
         #
