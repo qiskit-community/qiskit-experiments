@@ -80,7 +80,7 @@ class DataProcessor:
         return self._call_internal(datum, **options)
 
     def call_with_history(
-        self, datum: Dict[str, Any], history_nodes: Set = None, **options
+        self, datum: Dict[str, Any], history_nodes: Set = None
     ) -> Tuple[Any, Any, List]:
         """
         Call self on the given datum. This method sequentially calls the stored data actions
@@ -92,13 +92,12 @@ class DataProcessor:
             history_nodes: The nodes, specified by index in the data processing chain, to
                 include in the history. If None is given then all nodes will be included
                 in the history.
-            options: Run-time options given as key word arguments that will be passed to the nodes.
 
         Returns:
             processed data: The datum processed by the data processor.
             history: The datum processed at each node of the data processor.
         """
-        return self._call_internal(datum, True, history_nodes, **options)
+        return self._call_internal(datum, True, history_nodes)
 
     def _call_internal(
         self,
@@ -106,7 +105,6 @@ class DataProcessor:
         with_history: bool = False,
         history_nodes: Set = None,
         call_up_to_node: int = None,
-        **options,
     ) -> Union[Tuple[Any, Any], Tuple[Any, Any, List]]:
         """Process the data with or without storing the history of the computation.
 
@@ -120,7 +118,6 @@ class DataProcessor:
             call_up_to_node: The data processor will use each node in the processing chain
                 up to the node indexed by call_up_to_node. If this variable is not specified
                 then all nodes in the data processing chain will be called.
-            options: Run-time options given as keyword arguments that will be passed to the nodes.
 
         Returns:
             datum_ and history if with_history is True or datum_ if with_history is False.
@@ -143,7 +140,7 @@ class DataProcessor:
         for index, node in enumerate(self._nodes):
 
             if index < call_up_to_node:
-                datum_, error_ = node(datum_, error_, **options)
+                datum_, error_ = node(datum_, error_)
 
                 if with_history and (
                     history_nodes is None or (history_nodes and index in history_nodes)

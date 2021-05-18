@@ -30,14 +30,13 @@ class DataAction(metaclass=ABCMeta):
         self._validate = validate
 
     @abstractmethod
-    def _process(self, datum: Any, error: Optional[Any] = None, **options) -> Tuple[Any, Any]:
+    def _process(self, datum: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
         """
         Applies the data processing step to the datum.
 
         Args:
             datum: A single item of data which will be processed.
             error: An optional error estimation on the datum that can be further propagated.
-            options: Keyword arguments passed through the data processor at run-time.
 
         Returns:
             processed data: The data that has been processed along with the propagated error.
@@ -61,20 +60,19 @@ class DataAction(metaclass=ABCMeta):
             DataProcessorError: If either the data or the error do not have the proper format.
         """
 
-    def __call__(self, data: Any, error: Optional[Any] = None, **options) -> Tuple[Any, Any]:
+    def __call__(self, data: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
         """Call the data action of this node on the data and propagate the error.
 
         Args:
             data: The data to process. The action nodes in the data processor will
                 raise errors if the data does not have the appropriate format.
             error: An optional error estimation on the datum that can be further processed.
-            options: Keyword arguments passed through the data processor at run-time.
 
         Returns:
             processed data: The data processed by self as a tuple of processed datum and
                 optionally the propagated error estimate.
         """
-        return self._process(*self._format_data(data, error), **options)
+        return self._process(*self._format_data(data, error))
 
     def __repr__(self):
         """String representation of the node."""

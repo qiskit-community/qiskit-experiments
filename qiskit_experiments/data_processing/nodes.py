@@ -13,7 +13,7 @@
 """Different data analysis steps."""
 
 from abc import abstractmethod
-from typing import Any, Dict, List, Optional, Tuple, Set
+from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
@@ -43,14 +43,12 @@ class AverageData(DataAction):
         return datum, error
 
     def _process(
-        self, datum: np.array, error: Optional[np.array] = None, **options
+        self, datum: np.array, error: Optional[np.array] = None
     ) -> Tuple[np.array, np.array]:
         """Average the data.
 
          Args:
              datum: an array of data.
-             options: keyword arguments which, if they contain "axis" then this axis
-                 will be used to override the default axis set at construction time.
 
          Returns:
              Two arrays with one less dimension than the given datum and error. The error
@@ -60,12 +58,9 @@ class AverageData(DataAction):
         Raises:
             DataProcessorError: If the axis is not an int.
         """
-        axis = options.get("axis", self._axis)
+        standard_error = np.std(datum, axis=self._axis) / np.sqrt(datum.shape[0])
 
-        if not isinstance(axis, int):
-            raise DataProcessorError(f"Axis must be int, received {axis}.")
-
-        return np.average(datum, axis=axis), np.std(datum, axis=axis) / np.sqrt(datum.shape[0])
+        return np.average(datum, axis=self._axis), standard_error
 
 
 class SVD(TrainableDataAction):
@@ -155,7 +150,7 @@ class SVD(TrainableDataAction):
         return self._main_axes is not None
 
     def _process(
-        self, datum: np.array, error: Optional[np.array] = None, **options
+        self, datum: np.array, error: Optional[np.array] = None
     ) -> Tuple[np.array, np.array]:
         """Project the IQ data onto the axis defined by an SVD and scale it.
 
@@ -254,13 +249,12 @@ class IQPart(DataAction):
         super().__init__(validate)
 
     @abstractmethod
-    def _process(self, datum: np.array, error: Optional[np.array] = None, **options) -> np.array:
+    def _process(self, datum: np.array, error: Optional[np.array] = None) -> np.array:
         """Defines how the IQ point is processed.
 
         Args:
             datum: A 2D or a 3D array of complex IQ points as [real, imaginary].
             error: A 2D or a 3D array of errors on complex IQ points as [real, imaginary].
-            options: Keyword arguments passed through the data processor at run-time.
 
         Returns:
             Processed IQ point and its associated error estimate.
@@ -315,7 +309,7 @@ class ToReal(IQPart):
     """IQ data post-processing. Isolate the real part of single-shot IQ data."""
 
     def _process(
-        self, datum: np.array, error: Optional[np.array] = None, **options
+        self, datum: np.array, error: Optional[np.array] = None
     ) -> Tuple[np.array, np.array]:
         """Take the real part of the IQ data.
 
@@ -342,7 +336,7 @@ class ToReal(IQPart):
 class ToImag(IQPart):
     """IQ data post-processing. Isolate the imaginary part of single-shot IQ data."""
 
-    def _process(self, datum: np.array, error: Optional[np.array] = None, **options) -> np.array:
+    def _process(self, datum: np.array, error: Optional[np.array] = None) -> np.array:
         """Take the imaginary part of the IQ data.
 
         Args:
@@ -413,9 +407,7 @@ class Probability(DataAction):
 
         return datum, None
 
-    def _process(
-        self, datum: Dict[str, Any], error: Optional[Dict] = None, **options
-    ) -> Tuple[float, float]:
+    def _process(self, datum: Dict[str, Any], error: Optional[Dict] = None) -> Tuple[float, float]:
         """
         Args:
             datum: The data dictionary,taking the data under counts and
@@ -424,10 +416,9 @@ class Probability(DataAction):
         Returns:
             processed data: A dict with the populations.
         """
-        outcome = options.get("outcome", self._outcome)
 
         shots = sum(datum.values())
-        p_mean = datum.get(outcome, 0.0) / shots
+        p_mean = datum.get(self._outcome, 0.0) / shots
         p_var = p_mean * (1 - p_mean) / shots
 
         return p_mean, p_var

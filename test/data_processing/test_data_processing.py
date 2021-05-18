@@ -160,11 +160,6 @@ class DataProcessorTest(BaseDataProcessorTest):
         self.assertEqual(new_data, 0.4)
         self.assertEqual(error, 0.4 * (1 - 0.4) / 10)
 
-        new_data, error = processor(self.exp_data_lvl2.data(0), outcome="10")
-
-        self.assertEqual(new_data, 0.6)
-        self.assertEqual(error, 0.6 * (1 - 0.6) / 10)
-
     def test_validation(self):
         """Test the validation mechanism."""
 
