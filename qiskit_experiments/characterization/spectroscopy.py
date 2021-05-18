@@ -51,10 +51,10 @@ class SpectroscopyAnalysis(BaseAnalysis):
         sigma_guesses: Optional[List[float]] = None,
         freq_guess: Optional[float] = None,
         offset_guess: Optional[float] = None,
-        amplitude_bounds: Optional[List[float]] = None,
-        sigma_bounds: Optional[List[float]] = None,
-        freq_bounds: Optional[List[float]] = None,
-        offset_bounds: Optional[List[float]] = None,
+        amplitude_bounds: Optional[Tuple[float, float]] = None,
+        sigma_bounds: Optional[Tuple[float, float]] = None,
+        freq_bounds: Optional[Tuple[float, float]] = None,
+        offset_bounds: Optional[Tuple[float, float]] = None,
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,
         **kwargs,
@@ -83,14 +83,14 @@ class SpectroscopyAnalysis(BaseAnalysis):
                 this guess will default to the location of the highest absolute data point.
             offset_guess: A guess for the magnitude :math:`b` offset of the fit function.
                 If not provided, the initial guess defaults to the average of the ydata.
-            amplitude_bounds: Bounds on the amplitude of the Gaussian function as a list of
+            amplitude_bounds: Bounds on the amplitude of the Gaussian function as a tuple of
                 two floats. The default bounds are [0, 1.1*max(ydata)]
-            sigma_bounds: Bounds on the standard deviation of the Gaussian function as a list
+            sigma_bounds: Bounds on the standard deviation of the Gaussian function as a tuple
                 of two floats. The default values are [0, frequency range].
-            freq_bounds: Bounds on the center frequency as a list of two floats. The default
+            freq_bounds: Bounds on the center frequency as a tuple of two floats. The default
                 values are 90% of the lower end of the frequency and 110% of the upper end of
                 the frequency.
-            offset_bounds: Bounds on the offset of the Gaussian function as a list of two floats.
+            offset_bounds: Bounds on the offset of the Gaussian function as a tuple of two floats.
                 The default values are the minimum and maximum of the ydata.
             plot: If True generate a plot of fitted data.
             ax: Optional, matplotlib axis to add plot to.
