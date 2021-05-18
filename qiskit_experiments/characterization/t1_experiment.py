@@ -44,7 +44,7 @@ class T1Analysis(BaseAnalysis):
         plot=True,
         ax=None,
         **kwargs,
-    ) -> Tuple[AnalysisResult, List["plotting.pyplot.Figure"]]:
+    ) -> Tuple[AnalysisResult, List["matplotlib.figure.Figure"]]:
         """
         Calculate T1
 

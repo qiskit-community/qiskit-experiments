@@ -89,7 +89,7 @@ class BaseAnalysis(ABC):
     @abstractmethod
     def _run_analysis(
         self, data: ExperimentData, **options
-    ) -> Tuple[List[AnalysisResult], List["Figure"]]:
+    ) -> Tuple[List[AnalysisResult], List["matplotlib.figure.Figure"]]:
         """Run analysis on circuit data.
 
         Args:
