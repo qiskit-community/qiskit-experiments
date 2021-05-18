@@ -185,7 +185,7 @@ class SVD(TrainableDataAction):
                 [datum[idx][iq] - self.means(qubit=idx, iq_index=iq) for iq in [0, 1]]
             )
 
-            processed_data.append((self._main_axes[idx] @ centered) / self._scales[idx])
+            processed_data.append((self._main_axes[idx] @ centered) / self.scales[idx])
 
             if error is not None:
                 angle = np.arctan(self._main_axes[idx][1] / self._main_axes[idx][0])
