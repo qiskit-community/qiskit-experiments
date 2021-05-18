@@ -266,10 +266,6 @@ class IQPart(DataAction):
             Processed IQ point and its associated error estimate.
         """
 
-    @abstractmethod
-    def _required_dimension(self) -> Set[int]:
-        """Return the required dimension of the data."""
-
     def _format_data(self, datum: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
         """Check that the IQ data has the correct format and convert to numpy array.
 
@@ -290,18 +286,16 @@ class IQPart(DataAction):
             error = np.asarray(error, dtype=float)
 
         if self._validate:
-            if len(datum.shape) not in self._required_dimension():
+            if len(datum.shape) not in {2, 3}:
                 raise DataProcessorError(
                     f"IQ data given to {self.__class__.__name__} must be an N dimensional"
-                    f"array with N in {self._required_dimension()}. Instead, a {len(datum.shape)}D "
-                    f"array was given."
+                    f"array with N in (2, 3). Instead, a {len(datum.shape)}D array was given."
                 )
 
-            if error is not None and len(error.shape) not in self._required_dimension():
+            if error is not None and len(error.shape) not in {2, 3}:
                 raise DataProcessorError(
                     f"IQ data error given to {self.__class__.__name__} must be an N dimensional"
-                    f"array with N in {self._required_dimension()}. Instead, a {len(error.shape)}D"
-                    f" array was given."
+                    f"array with N in (2, 3). Instead, a {len(error.shape)}D array was given."
                 )
 
             if error is not None and len(error.shape) != len(datum.shape):
@@ -319,10 +313,6 @@ class IQPart(DataAction):
 
 class ToReal(IQPart):
     """IQ data post-processing. Isolate the real part of single-shot IQ data."""
-
-    def _required_dimension(self) -> Set[int]:
-        """Require memory to be a 2D or a 3D array."""
-        return {2, 3}
 
     def _process(
         self, datum: np.array, error: Optional[np.array] = None, **options
@@ -351,10 +341,6 @@ class ToReal(IQPart):
 
 class ToImag(IQPart):
     """IQ data post-processing. Isolate the imaginary part of single-shot IQ data."""
-
-    def _required_dimension(self) -> Set[int]:
-        """Require memory to be a 2D or a 3D array."""
-        return {2, 3}
 
     def _process(self, datum: np.array, error: Optional[np.array] = None, **options) -> np.array:
         """Take the imaginary part of the IQ data.
