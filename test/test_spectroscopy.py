@@ -15,7 +15,8 @@
 from typing import Dict, Optional
 
 import numpy as np
-from qiskit.providers import BaseBackend, JobV1
+from qiskit.providers.basebackend import BaseBackend
+from qiskit.providers import JobV1
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
 from qiskit.test import QiskitTestCase
