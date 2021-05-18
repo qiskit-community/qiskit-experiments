@@ -14,7 +14,7 @@
 
 from typing import Any, Dict, List, Set, Tuple, Union
 
-from qiskit_experiments.data_processing.data_action import DataAction
+from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
 
@@ -57,7 +57,12 @@ class DataProcessor:
     @property
     def is_trained(self) -> bool:
         """Return True if all nodes of the data processor have been trained."""
-        return all(node.is_trained for node in self._nodes)
+        for node in self._nodes:
+            if isinstance(node, TrainableDataAction):
+                if not node.is_trained:
+                    return False
+
+        return True
 
     def __call__(self, datum: Dict[str, Any], **options) -> Tuple[Any, Any]:
         """
@@ -158,10 +163,11 @@ class DataProcessor:
         """
 
         for index, node in enumerate(self._nodes):
-            if not node.is_trained:
-                # Process the data up to the untrained node.
-                train_data = []
-                for datum in data:
-                    train_data.append(self._call_internal(datum, call_up_to_node=index)[0])
+            if isinstance(node, TrainableDataAction):
+                if not node.is_trained:
+                    # Process the data up to the untrained node.
+                    train_data = []
+                    for datum in data:
+                        train_data.append(self._call_internal(datum, call_up_to_node=index)[0])
 
-                node.train(train_data)
+                    node.train(train_data)

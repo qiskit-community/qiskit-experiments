@@ -80,19 +80,22 @@ class DataAction(metaclass=ABCMeta):
         """String representation of the node."""
         return f"{self.__class__.__name__}(validate={self._validate})"
 
+
+class TrainableDataAction(DataAction):
+    """A base class for data actions that need training."""
+
     @property
+    @abstractmethod
     def is_trained(self) -> bool:
         """Return False if the DataAction needs to be trained.
 
-        Subclasses can override this property to communicate if they have been trained.
-        By default all data actions are trained. DataActions that have a training
-        mechanism will have to override this property.
+        Subclasses must implement this property to communicate if they have been trained.
 
         Return:
             True if the data action has been trained.
         """
-        return True
 
+    @abstractmethod
     def train(self, data: List[Any]):
         """Train a DataAction.
 

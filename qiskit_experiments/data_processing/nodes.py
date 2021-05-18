@@ -16,7 +16,7 @@ from abc import abstractmethod
 from typing import Any, Dict, List, Optional, Tuple, Set
 import numpy as np
 
-from qiskit_experiments.data_processing.data_action import DataAction
+from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
 
@@ -68,42 +68,24 @@ class AverageData(DataAction):
         return np.average(datum, axis=axis), np.std(datum, axis=axis) / np.sqrt(datum.shape[0])
 
 
-class IQPart(DataAction):
-    """Abstract class for IQ data post-processing."""
+class SVD(TrainableDataAction):
+    """Singular Value Decomposition of averaged IQ data."""
 
-    def __init__(self, scale: Optional[float] = None, validate: bool = True):
+    def __init__(self, validate: bool = True):
         """
         Args:
-            scale: Float with which to multiply the IQ data.
             validate: If set to False the DataAction will not validate its input.
         """
-        self.scale = scale
-        super().__init__(validate)
-
-    @abstractmethod
-    def _process(self, datum: np.array, error: Optional[np.array] = None, **options) -> np.array:
-        """Defines how the IQ point is processed.
-
-        Args:
-            datum: A 2D or a 3D array of complex IQ points as [real, imaginary].
-            error: A 2D or a 3D array of errors on complex IQ points as [real, imaginary].
-            options: Keyword arguments passed through the data processor at run-time.
-
-        Returns:
-            Processed IQ point and its associated error estimate.
-        """
-
-    @abstractmethod
-    def _required_dimension(self) -> Set[int]:
-        """Return the required dimension of the data."""
+        super().__init__(validate=validate)
+        self._main_axes = None
+        self._means = None
+        self._scales = None
 
     def _format_data(self, datum: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
-        """Check that the IQ data has the correct format and convert to numpy array.
+        """Check that the IQ data is 2D and convert it to a numpy array.
 
         Args:
-            datum: A single item of data which corresponds to single-shot IQ data. It's
-                dimension will depend on whether it is single-shot IQ data (three-dimensional)
-                or averaged IQ date (two-dimensional).
+            datum: A single item of data which corresponds to single-shot IQ data.
 
         Returns:
             datum and any error estimate as a numpy array.
@@ -117,49 +99,19 @@ class IQPart(DataAction):
             error = np.asarray(error, dtype=float)
 
         if self._validate:
-            if len(datum.shape) not in self._required_dimension():
+            if len(datum.shape) != 2:
                 raise DataProcessorError(
-                    f"IQ data given to {self.__class__.__name__} must be an N dimensional"
-                    f"array with N in {self._required_dimension()}. Instead, a {len(datum.shape)}D "
-                    f"array was given."
+                    f"IQ data given to {self.__class__.__name__} must be an 2D array. "
+                    f"Instead, a {len(datum.shape)}D array was given."
                 )
 
-            if error is not None and len(error.shape) not in self._required_dimension():
+            if error is not None and len(error.shape) != 2:
                 raise DataProcessorError(
-                    f"IQ data error given to {self.__class__.__name__} must be an N dimensional"
-                    f"array with N in {self._required_dimension()}. Instead, a {len(error.shape)}D"
-                    f" array was given."
-                )
-
-            if error is not None and len(error.shape) != len(datum.shape):
-                raise DataProcessorError(
-                    "Datum and error do not have the same shape: "
-                    f"{len(datum.shape)} != {len(error.shape)}."
+                    f"IQ data error given to {self.__class__.__name__} must be an 2D array."
+                    f"Instead, a {len(error.shape)}D array was given."
                 )
 
         return datum, error
-
-    def __repr__(self):
-        """String representation of the node."""
-        return f"{self.__class__.__name__}(validate: {self._validate}, scale: {self.scale})"
-
-
-class SVD(IQPart):
-    """Singular Value Decomposition of averaged IQ data."""
-
-    def __init__(self, validate: bool = True):
-        """
-        Args:
-            validate: If set to False the DataAction will not validate its input.
-        """
-        super().__init__(validate=validate)
-        self._main_axes = None
-        self._means = None
-        self._scales = None
-
-    def _required_dimension(self) -> Set[int]:
-        """Require memory to be a 2D array."""
-        return {2}
 
     @property
     def axis(self) -> List[np.array]:
@@ -287,6 +239,82 @@ class SVD(IQPart):
 
             self._main_axes.append(mat_u[:, 0])
             self._scales.append(mat_s[0])
+
+
+class IQPart(DataAction):
+    """Abstract class for IQ data post-processing."""
+
+    def __init__(self, scale: Optional[float] = None, validate: bool = True):
+        """
+        Args:
+            scale: Float with which to multiply the IQ data.
+            validate: If set to False the DataAction will not validate its input.
+        """
+        self.scale = scale
+        super().__init__(validate)
+
+    @abstractmethod
+    def _process(self, datum: np.array, error: Optional[np.array] = None, **options) -> np.array:
+        """Defines how the IQ point is processed.
+
+        Args:
+            datum: A 2D or a 3D array of complex IQ points as [real, imaginary].
+            error: A 2D or a 3D array of errors on complex IQ points as [real, imaginary].
+            options: Keyword arguments passed through the data processor at run-time.
+
+        Returns:
+            Processed IQ point and its associated error estimate.
+        """
+
+    @abstractmethod
+    def _required_dimension(self) -> Set[int]:
+        """Return the required dimension of the data."""
+
+    def _format_data(self, datum: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
+        """Check that the IQ data has the correct format and convert to numpy array.
+
+        Args:
+            datum: A single item of data which corresponds to single-shot IQ data. It's
+                dimension will depend on whether it is single-shot IQ data (three-dimensional)
+                or averaged IQ date (two-dimensional).
+
+        Returns:
+            datum and any error estimate as a numpy array.
+
+        Raises:
+            DataProcessorError: If the datum does not have the correct format.
+        """
+        datum = np.asarray(datum, dtype=float)
+
+        if error is not None:
+            error = np.asarray(error, dtype=float)
+
+        if self._validate:
+            if len(datum.shape) not in self._required_dimension():
+                raise DataProcessorError(
+                    f"IQ data given to {self.__class__.__name__} must be an N dimensional"
+                    f"array with N in {self._required_dimension()}. Instead, a {len(datum.shape)}D "
+                    f"array was given."
+                )
+
+            if error is not None and len(error.shape) not in self._required_dimension():
+                raise DataProcessorError(
+                    f"IQ data error given to {self.__class__.__name__} must be an N dimensional"
+                    f"array with N in {self._required_dimension()}. Instead, a {len(error.shape)}D"
+                    f" array was given."
+                )
+
+            if error is not None and len(error.shape) != len(datum.shape):
+                raise DataProcessorError(
+                    "Datum and error do not have the same shape: "
+                    f"{len(datum.shape)} != {len(error.shape)}."
+                )
+
+        return datum, error
+
+    def __repr__(self):
+        """String representation of the node."""
+        return f"{self.__class__.__name__}(validate: {self._validate}, scale: {self.scale})"
 
 
 class ToReal(IQPart):
