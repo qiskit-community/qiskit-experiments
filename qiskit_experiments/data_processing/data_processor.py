@@ -57,11 +57,7 @@ class DataProcessor:
     @property
     def is_trained(self) -> bool:
         """Return True if all nodes of the data processor have been trained."""
-        for node in self._nodes:
-            if not node.is_trained:
-                return False
-
-        return True
+        return all(node.is_trained for node in self._nodes)
 
     def __call__(self, datum: Dict[str, Any], **options) -> Tuple[Any, Any]:
         """
