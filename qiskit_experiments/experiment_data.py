@@ -19,16 +19,12 @@ import uuid
 from collections import OrderedDict
 
 from qiskit.result import Result
+from qiskit.providers import Backend
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Job, BaseJob
 from qiskit.providers.exceptions import JobError
 
-try:
-    from matplotlib import pyplot as plt
-
-    HAS_MATPLOTLIB = True
-except ImportError:
-    HAS_MATPLOTLIB = False
+from qiskit_experiments.matplotlib import pyplot, HAS_MATPLOTLIB
 
 
 LOG = logging.getLogger(__name__)
@@ -43,16 +39,16 @@ class ExperimentData:
 
     def __init__(
         self,
-        experiment: Optional["BaseExperiment"] = None,
-        backend: Optional[Union["Backend", "BaseBackend"]] = None,
-        job_ids: Optional[List[str]] = None,
+        experiment=None,
+        backend=None,
+        job_ids=None,
     ):
         """Initialize experiment data.
 
         Args:
-            experiment: experiment object that generated the data.
-            backend: Backend the experiment runs on.
-            job_ids: IDs of jobs submitted for the experiment.
+            experiment (BaseExperiment): Optional, experiment object that generated the data.
+            backend (Backend): Optional, Backend the experiment runs on.
+            job_ids (list[str]): Optional, IDs of jobs submitted for the experiment.
 
         Raises:
             ExperimentError: If an input argument is invalid.
@@ -75,30 +71,37 @@ class ExperimentData:
         self._analysis_results = []
 
     @property
-    def experiment(self) -> "BaseExperiment":
-        """Return Experiment object"""
+    def experiment(self):
+        """Return Experiment object.
+
+        Returns:
+            BaseExperiment: the experiment object.
+        """
         return self._experiment
 
     @property
     def experiment_type(self) -> str:
-        """Return the experiment type"""
+        """Return the experiment type."""
         return self._type
 
     @property
     def experiment_id(self) -> str:
-        """Return the experiment id"""
+        """Return the experiment id."""
         return self._id
 
     @property
     def job_ids(self) -> List[str]:
         """Return experiment job IDs.
-        Returns: IDs of jobs submitted for this experiment.
+
+        Returns:
+            IDs of jobs submitted for this experiment.
         """
         return list(self._jobs.keys())
 
     @property
-    def backend(self) -> Union["BaseBackend", "Backend"]:
+    def backend(self) -> Backend:
         """Return backend.
+
         Returns:
             Backend this experiment is for.
         """
@@ -110,14 +113,14 @@ class ExperimentData:
     ):
         """Add experiment data.
         Args:
-            data: Experiment data to add.
-                Several types are accepted for convenience:
-                    * Result: Add data from this ``Result`` object.
-                    * List[Result]: Add data from the ``Result`` objects.
-                    * Job: Add data from the job result.
-                    * List[Job]: Add data from the job results.
-                    * Dict: Add this data.
-                    * List[Dict]: Add this list of data.
+            data: Experiment data to add. Several types are accepted for convenience:
+
+                * Result: Add data from this ``Result`` object.
+                * List[Result]: Add data from the ``Result`` objects.
+                * Job: Add data from the job result.
+                * List[Job]: Add data from the job results.
+                * Dict: Add this data.
+                * List[Dict]: Add this list of data.
 
         Raises:
             QiskitError: if data format is invalid.
@@ -190,6 +193,7 @@ class ExperimentData:
         Args:
             index: Index of the data to be returned.
                 Several types are accepted for convenience:
+
                     * None: Return all experiment data.
                     * int: Specific index of the data.
                     * slice: A list slice of data indexes.
@@ -211,7 +215,7 @@ class ExperimentData:
 
     def add_figure(
         self,
-        figure: Union[str, bytes, "Figure"],
+        figure: Union[str, bytes, "pyplot.Figure"],
         figure_name: Optional[str] = None,
         overwrite: bool = False,
     ) -> Tuple[str, int]:
@@ -252,7 +256,7 @@ class ExperimentData:
 
     def figure(
         self, figure_name: Union[str, int], file_name: Optional[str] = None
-    ) -> Union[int, bytes, "Figure"]:
+    ) -> Union[int, bytes, "pyplot.Figure"]:
         """Retrieve the specified experiment figure.
 
         Args:
@@ -277,7 +281,7 @@ class ExperimentData:
                     figure_data = file.read()
             if file_name:
                 with open(file_name, "wb") as output:
-                    if HAS_MATPLOTLIB and isinstance(figure_data, plt.Figure):
+                    if HAS_MATPLOTLIB and isinstance(figure_data, pyplot.Figure):
                         figure_data.savefig(output, format="svg")
                         num_bytes = os.path.getsize(file_name)
                     else:
@@ -309,6 +313,7 @@ class ExperimentData:
         Args:
             index: Index of the analysis result to be returned.
                 Several types are accepted for convenience:
+
                     * None: Return all analysis results.
                     * int: Specific index of the analysis results.
                     * slice: A list slice of indexes.
