@@ -111,10 +111,7 @@ class SVD(TrainableDataAction):
     @property
     def axis(self) -> List[np.array]:
         """Return the axis of the trained SVD"""
-        if self._main_axes:
-            return self._main_axes
-
-        raise DataProcessorError("SVD is not trained.")
+        return self._main_axes
 
     def means(self, qubit: int, iq_index: int) -> float:
         """Return the mean by which to correct the IQ data.
@@ -135,10 +132,7 @@ class SVD(TrainableDataAction):
     @property
     def scales(self) -> List[float]:
         """Return the scaling of the SVD."""
-        if self._scales:
-            return self._scales
-
-        raise DataProcessorError("SVD is not trained.")
+        return self._scales
 
     @property
     def is_trained(self) -> bool:
