@@ -330,7 +330,7 @@ class Spectroscopy(BaseExperiment):
         sigma = circuit_options.get("sigma", duration / 4)
         width = circuit_options.get("width", 0)
 
-        drive = pulse.DriveChannel(self._physical_qubits[0])
+        drive = pulse.DriveChannel(self.physical_qubits[0])
 
         # Create a template circuit
         freq_param = Parameter("frequency")
@@ -342,11 +342,11 @@ class Spectroscopy(BaseExperiment):
 
         circuit = QuantumCircuit(1)
         circuit.append(gate, (0,))
-        circuit.add_calibration(gate, (self._physical_qubits[0],), sched, params=[freq_param])
+        circuit.add_calibration(gate, (self.physical_qubits[0],), sched, params=[freq_param])
         circuit.measure_active()
 
         if not self._absolute:
-            center_freq = backend.defaults().qubit_freq_est[self._physical_qubits[0]]
+            center_freq = backend.defaults().qubit_freq_est[self.physical_qubits[0]]
 
         # Create the circuits to run
         circs = []
@@ -357,7 +357,7 @@ class Spectroscopy(BaseExperiment):
             assigned_circ = circuit.assign_parameters({freq_param: freq}, inplace=False)
             assigned_circ.metadata = {
                 "experiment_type": self._type,
-                "qubit": self._physical_qubits[0],
+                "qubit": self.physical_qubits[0],
                 "xval": freq,
                 "unit": "Hz",
                 "amplitude": amp,
