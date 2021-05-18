@@ -37,6 +37,7 @@ class RBExperiment(BaseExperiment):
         num_samples: int = 1,
         seed: Optional[Union[int, Generator]] = None,
         full_sampling: bool = False,
+        sample_func = 1
     ):
         """Standard randomized benchmarking experiment
         Args:
@@ -60,6 +61,7 @@ class RBExperiment(BaseExperiment):
         self._num_samples = num_samples
         self._full_sampling = full_sampling
         self._clifford_utils = CliffordUtils()
+        self.sample_func = sample_func
         super().__init__(qubits)
 
     # pylint: disable = arguments-differ
@@ -71,8 +73,9 @@ class RBExperiment(BaseExperiment):
             List[QuantumCircuit]: A list of :class:`QuantumCircuit`s.
         """
         circuits = []
+        sample_functions = {1: self._sample_circuits, 2:self._sample_circuits_2}
         for _ in range(self._num_samples):
-            circuits += self._sample_circuits(self._lengths, seed=self._rng)
+            circuits += sample_functions[self.sample_func](self._lengths, seed=self._rng)
         return circuits
 
     def transpiled_circuits(self, backend=None, **kwargs):
@@ -140,6 +143,82 @@ class RBExperiment(BaseExperiment):
                 # copy circuit and add inverse
                 inv = circ_op.adjoint()
                 rb_circ = circs.pop()
+                rb_circ.append(inv, qubits)
+                rb_circ.barrier(qubits)
+                rb_circ.metadata = {
+                    "experiment_type": self._type,
+                    "xdata": current_length + 1,
+                    "ylabel": self.num_qubits * "0",
+                    "group": "Clifford",
+                    "qubits": self.physical_qubits,
+                }
+                rb_circ.measure_all()
+                circuits.append(rb_circ)
+        return circuits
+
+# optimization alternatives test
+    def _random_clifford_circuits(self, num_qubits: int, size: int = 1, rng: Optional[Generator] = None):
+        """Generate a list of random clifford circuits"""
+        if num_qubits > 2:
+            return random_clifford(num_qubits, seed=rng).to_circuit()
+
+        if rng is None:
+            rng = default_rng()
+
+        if num_qubits == 1:
+            samples = rng.integers(24, size=size)
+            return [self._clifford_utils.clifford_1_qubit_circuit(i) for i in samples]
+        else:
+            samples = rng.integers(11520, size=size)
+            return [self._clifford_utils.clifford_2_qubit_circuit(i) for i in samples]
+
+    def _sample_circuits_2(
+        self, lengths: Iterable[int], seed: Optional[Union[int, Generator]] = None
+    ):
+        """Return a list RB circuits for the given lengths.
+        Args:
+            lengths: A list of RB sequences lengths.
+            seed: Seed or generator object for random number
+                  generation. If None default_rng will be used.
+        Returns:
+            List[QuantumCircuit]: A list of :class:`QuantumCircuit`s.
+        """
+        circuits = []
+        for length in lengths if self._full_sampling else [lengths[-1]]:
+            elements = self._random_clifford_circuits(self.num_qubits, length)
+            element_lengths = [len(elements)] if self._full_sampling else lengths
+            circuits += self._generate_circuit_2(elements, element_lengths)
+        return circuits
+
+    def _generate_circuit_2(self, elements: Iterable[Clifford], lengths: Iterable[int]):
+        """Return the RB circuits constructed from the given element list.
+        Args:
+            elements: A list of Clifford elements
+            lengths: A list of RB sequences lengths.
+        Returns:
+            List[QuantumCircuit]: A list of :class:`QuantumCircuit`s.
+        Additional information:
+            The circuits are constructed iteratively; each circuit is obtained
+            by extending the previous circuit (without the inversion and measurement gates)
+        """
+        qubits = list(range(self.num_qubits))
+        circuits = []
+
+        circs = [QuantumCircuit(self.num_qubits) for _ in range(len(lengths))]
+        for circ in circs:
+            circ.barrier(qubits)
+
+        for current_length, group_elt_circ in enumerate(elements):
+            group_elt_gate = group_elt_circ.to_gate()
+            for circ in circs:
+                circ.append(group_elt_gate, qubits)
+                circ.barrier(qubits)
+            if current_length + 1 in lengths:
+                # copy circuit and add inverse
+                rb_circ = circs.pop()
+                # the commented-out approach seems to work slower
+                #inv = Clifford(rb_circ.inverse()).to_circuit()
+                inv = Clifford(rb_circ).adjoint().to_circuit()
                 rb_circ.append(inv, qubits)
                 rb_circ.barrier(qubits)
                 rb_circ.metadata = {
