@@ -132,7 +132,7 @@ class InterleavedRBAnalysis(RBAnalysis):
         idx0 = series == 0
         idx1 = series == 1
         ax = plotting.plot_scatter(xdata[idx0], ydata[idx0], ax=ax)
-        ax = plotting.plot_scatter(xdata[idx1], ydata[idx1], ax=ax)
+        ax = plotting.plot_scatter(xdata[idx1], ydata[idx1], ax=ax, marker="+", c="darkslategrey")
         return ax
 
     @staticmethod
