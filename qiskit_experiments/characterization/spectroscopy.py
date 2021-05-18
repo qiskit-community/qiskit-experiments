@@ -364,7 +364,6 @@ class Spectroscopy(BaseExperiment):
                 "duration": duration,
                 "sigma": sigma,
                 "width": width,
-                "absolute frequencies": self._absolute,
                 "schedule": str(sched),
             }
 
