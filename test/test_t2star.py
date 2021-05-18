@@ -25,10 +25,10 @@ from qiskit_experiments.characterization import T2StarExperiment
 # Fix seed for simulations
 SEED = 9000
 
-# from Yael
-class T2Backend(BaseBackend):
+
+class T2starBackend(BaseBackend):
     """
-    A simple and primitive backend, to be run by the T1 tests
+    A simple and primitive backend, to be run by the T2Star tests
     """
 
     def __init__(
@@ -79,20 +79,18 @@ class T2Backend(BaseBackend):
             "success": True,
             "results": [],
         }
+
         for circ in qobj.experiments:
             nqubits = circ.config.n_qubits
             counts = dict()
-
             if self._readout0to1 is None:
                 ro01 = np.zeros(nqubits)
             else:
                 ro01 = self._readout0to1
-
             if self._readout1to0 is None:
                 ro10 = np.zeros(nqubits)
             else:
                 ro10 = self._readout1to0
-
             for _ in range(shots):
                 if self._initial_prob_plus is None:
                     prob_plus = np.ones(nqubits)
@@ -119,8 +117,8 @@ class T2Backend(BaseBackend):
                         # measure in |+> basis
                         meas_res = np.random.binomial(
                             1,
-                            prob_plus[qubit] * (1 - ro10[qubit])
-                            + (1 - prob_plus[qubit]) * ro01[qubit],
+                            prob_plus[qubit] * (1 - ro01[qubit])
+                            + (1 - prob_plus[qubit]) * ro10[qubit],
                         )
                         clbits[op.memory[0]] = meas_res
 
@@ -178,7 +176,7 @@ class TestT2Star(QiskitTestCase):
 
             exp = T2StarExperiment(qubit, delays, unit=unit)
 
-            backend = T2Backend(
+            backend = T2starBackend(
                 p0={
                     "a_guess": [0.5],
                     "t2star": [estimated_t2star],
@@ -197,8 +195,14 @@ class TestT2Star(QiskitTestCase):
             # run circuits
             result = exp.run(
                 backend=backend,
-                p0={"A": 0.5, "t2star": estimated_t2star, "f": estimated_freq, "phi": 0, "B": 0.5},
-                bounds=None,
+                user_p0={
+                    "A": 0.5,
+                    "t2star": estimated_t2star,
+                    "f": estimated_freq,
+                    "phi": 0,
+                    "B": 0.5,
+                },
+                user_bounds=None,
                 plot=False,
                 instruction_durations=instruction_durations,
                 shots=2000,
@@ -228,11 +232,11 @@ class TestT2Star(QiskitTestCase):
             "phi_guess": [0, None, 0],
             "b_guess": [0.5, None, 0.5],
         }
-        backend = T2Backend(p0)
+        backend = T2starBackend(p0)
         res = par_exp.run(
             backend=backend,
-            p0=None,
-            bounds=None,
+            user_p0=None,
+            user_bounds=None,
             plot=False,
             shots=1000,
         )

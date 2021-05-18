@@ -55,7 +55,7 @@ class T2StarAnalysis(BaseAnalysis):
     ) -> Tuple[float, float]:
         r"""
             Calculate T2Star experiment
-            The probability of measuring 0 is assumed to be of the form
+            The probability of measuring `+` is assumed to be of the form
         .. math::
             f(t) = a\mathrm{e}^{-t / T_2^*}\cos(2\pi freq t + \phi) + b
         for unknown parameters :math:`a, b, freq, \phi, T_2^*`.
@@ -171,7 +171,10 @@ class T2StarAnalysis(BaseAnalysis):
             f_bounds = [0.5 * freq, 1.5 * freq]
             phi_bounds = [-np.pi, np.pi]
             b_bounds = [-0.5, 1.5]
-            bounds = [[a_bounds[i], t2star_bounds[i], f_bounds[i], phi_bounds[i], b_bounds[i]] for i in range(2)]
+            bounds = [
+                [a_bounds[i], t2star_bounds[i], f_bounds[i], phi_bounds[i], b_bounds[i]]
+                for i in range(2)
+            ]
         else:
             bounds = user_bounds
         return p0, bounds
@@ -248,7 +251,6 @@ class T2StarExperiment(BaseExperiment):
         circuits = []
         for delay in self._delays:
             circ = qiskit.QuantumCircuit(1, 1)
-            circ.name = "T2Starcircuit_" + str(delay)
             circ.h(0)
             circ.delay(delay, 0, self._unit)
             circ.p(2 * np.pi * self._osc_freq, 0)
