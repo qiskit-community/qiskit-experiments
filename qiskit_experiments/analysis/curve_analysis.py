@@ -220,7 +220,7 @@ class CurveAnalysis(BaseAnalysis):
         y_sigmas: np.ndarray,
         series: np.ndarray,
         analysis_results: AnalysisResult,
-        axis: Optional["AxisSubplot"],
+        axis: Optional["AxisSubplot"] = None,
     ) -> List["Figure"]:
         """Create new figures with the fit result and raw data.
 
