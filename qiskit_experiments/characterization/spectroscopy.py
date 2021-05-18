@@ -181,7 +181,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
             best_fit["popt_err"][1],
         )
 
-        if plot:
+        if plot and HAS_MATPLOTLIB:
             ax = plot_curve_fit(fit_fun, best_fit, ax=ax)
             ax = plot_scatter(xdata, ydata, ax=ax)
             self._format_plot(ax, best_fit)
