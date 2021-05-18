@@ -141,6 +141,8 @@ def plot_scatter(
         plot_opts["c"] = "grey"
     if "marker" not in plot_opts:
         plot_opts["marker"] = "x"
+    if "alpha" not in plot_opts:
+        plot_opts["alpha"] = 0.8
 
     # Plot data
     ax.scatter(xdata, ydata, **plot_opts)

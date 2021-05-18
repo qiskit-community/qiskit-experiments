@@ -17,7 +17,7 @@ Analysis class for curve fitting.
 
 import dataclasses
 import inspect
-from typing import Any, Dict, List, Tuple, Callable, Union
+from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
 import numpy as np
 from qiskit.exceptions import QiskitError
@@ -28,6 +28,7 @@ from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
+from qiskit_experiments.analysis import plotting
 
 
 @dataclasses.dataclass
@@ -37,6 +38,8 @@ class SeriesDef:
     name: str
     fit_func: Callable
     filter_kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
+    plot_color: str = "black"
+    plot_symbol: str = "o"
 
 
 class FitOptions(dict):
@@ -66,10 +69,13 @@ class CurveAnalysis(BaseAnalysis):
                 filter_kwargs: Circuit metadata key and value associated with this curve.
                     The data points of the curve is extracted from ExperimentData based on
                     this information.
+                plot_color: String color representation of this series in the plot.
+                plot_symbol: String formatter of the scatter of this series in the plot.
 
             See the Examples below for more details.
         __base_fitter__: A callable to perform curve fitting.
         __default_data_processor__: A callable to format y, y error data.
+
 
     Examples:
 
@@ -113,12 +119,16 @@ class CurveAnalysis(BaseAnalysis):
                         fit_func=lambda x, p0, p1, p2, p3:
                             exponential_decay(x, amp=p0, lamb=p1, baseline=p3),
                         filter_kwargs={"experiment": 1},
+                        plot_color="red",
+                        plot_symbpl="^",
                     ),
                     SeriesDef(
                         name="my_experiment2",
                         fit_func=lambda x, p0, p1, p2, p3:
                             exponential_decay(x, amp=p0, lamb=p2, baseline=p3),
                         filter_kwargs={"experiment": 2},
+                        plot_color="blue",
+                        plot_symbpl="o",
                     ),
                 ]
 
@@ -141,12 +151,16 @@ class CurveAnalysis(BaseAnalysis):
                         fit_func=lambda x, p0, p1, p2, p3:
                             cos(x, amp=p0, freq=p1, phase=p2, baseline=p3),
                         filter_kwargs={"experiment": 1},
+                        plot_color="red",
+                        plot_symbpl="^",
                     ),
                     SeriesDef(
                         name="my_experiment2",
                         fit_func=lambda x, p0, p1, p2, p3:
                             sin(x, amp=p0, freq=p1, phase=p2, baseline=p3),
                         filter_kwargs={"experiment": 2},
+                        plot_color="blue",
+                        plot_symbpl="o",
                     )
                 ]
 
@@ -193,37 +207,86 @@ class CurveAnalysis(BaseAnalysis):
     #: List[SeriesDef]: List of mapping representing a data series
     __series__ = None
 
-    # Callable: Default curve fitter. This can be overwritten.
+    #: Callable: Default curve fitter. This can be overwritten.
     __base_fitter__ = multi_curve_fit
 
-    # Union[Callable, DataProcessor]: Data processor to format experiment data.
+    #: Union[Callable, DataProcessor]: Data processor to format experiment data.
     __default_data_processor__ = level2_probability
 
-    # pylint: disable = unused-argument, missing-return-type-doc
     def _create_figures(
         self,
         x_values: np.ndarray,
         y_values: np.ndarray,
         y_sigmas: np.ndarray,
         series: np.ndarray,
-        fit_data: AnalysisResult,
-    ):
+        analysis_results: AnalysisResult,
+        axis: Optional["AxisSubplot"],
+    ) -> List["Figure"]:
         """Create new figures with the fit result and raw data.
 
-        Subclass can override this method to return figures.
+        Subclass can override this method to create different type of figures.
 
         Args:
             x_values: Full data set of x values.
             y_values: Full data set of y values.
             y_sigmas: Full data set of y sigmas.
             series: An integer array representing a mapping of data location to series index.
-            fit_data: Analysis result containing fit parameters.
+            analysis_results: Analysis result containing fit parameters.
+            axis: User provided axis to draw result.
 
         Returns:
             List of figures (format TBD).
         """
-        # TODO implement default figure. Will wait for Qiskit-terra #5499
-        return list()
+        if plotting and plotting.HAS_MATPLOTLIB:
+
+            if axis is None:
+                figure = plotting.plt.figure()
+                axis = figure.subplots(nrows=1, ncols=1)
+            else:
+                figure = axis.get_figure()
+
+            for series_def in self.__series__:
+                # filter subset data
+                xdata, ydata, sigma = self._subset_data(
+                    name=series_def.name,
+                    x_values=x_values,
+                    y_values=y_values,
+                    y_sigmas=y_sigmas,
+                    series=series,
+                )
+
+                # add fit line
+                plotting.plot_curve_fit(
+                    func=series_def.fit_func,
+                    result=analysis_results,
+                    ax=axis,
+                    color=series_def.plot_color,
+                    zorder=2,
+                )
+
+                # add error bars
+                plotting.plot_errorbar(
+                    xdata=xdata,
+                    ydata=ydata,
+                    sigma=sigma,
+                    ax=axis,
+                    label=series_def.name,
+                    marker=series_def.plot_symbol,
+                    color=series_def.plot_color,
+                    zorder=1,
+                )
+
+                # add raw scatter data points
+                plotting.plot_scatter(xdata=xdata, ydata=ydata, ax=axis, zorder=0)
+
+                # format axis
+                axis.legend()
+                axis.tick_params(labelsize=14)
+                axis.grid(True)
+
+            return [figure]
+        else:
+            return list()
 
     # pylint: disable = unused-argument
     def _setup_fitting(
@@ -582,7 +645,7 @@ class CurveAnalysis(BaseAnalysis):
         # 5. Create figures
         #
         figures = self._create_figures(
-            x_values=xdata, y_values=ydata, y_sigmas=sigma, series=series, fit_data=analysis_result
+            x_values=xdata, y_values=ydata, y_sigmas=sigma, series=series, analysis_results=analysis_result
         )
 
         #
