@@ -24,6 +24,7 @@ from qiskit_experiments.base_experiment import BaseExperiment
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
 
+
 class RBExperiment(BaseExperiment):
     """RB Experiment class"""
 
@@ -37,7 +38,6 @@ class RBExperiment(BaseExperiment):
         num_samples: int = 1,
         seed: Optional[Union[int, Generator]] = None,
         full_sampling: bool = False,
-        sample_func = 1
     ):
         """Standard randomized benchmarking experiment
         Args:
@@ -61,7 +61,6 @@ class RBExperiment(BaseExperiment):
         self._num_samples = num_samples
         self._full_sampling = full_sampling
         self._clifford_utils = CliffordUtils()
-        self.sample_func = sample_func
         super().__init__(qubits)
 
     # pylint: disable = arguments-differ
@@ -107,7 +106,7 @@ class RBExperiment(BaseExperiment):
         """
         circuits = []
         for length in lengths if self._full_sampling else [lengths[-1]]:
-            elements = self._clifford_utils.random_clifford_circuits(self.num_qubits, length)
+            elements = self._clifford_utils.random_clifford_circuits(self.num_qubits, length, seed)
             element_lengths = [len(elements)] if self._full_sampling else lengths
             circuits += self._generate_circuit(elements, element_lengths)
         return circuits

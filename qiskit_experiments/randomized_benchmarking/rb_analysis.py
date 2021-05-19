@@ -16,7 +16,7 @@ Standard RB analysis class.
 from typing import Optional, List
 
 import numpy as np
-from qiskit_experiments.base_analysis import BaseAnalysis
+from qiskit_experiments.base_analysis import BaseAnalysis, ExperimentData
 from qiskit_experiments.analysis.curve_fitting import curve_fit
 from qiskit_experiments.analysis.data_processing import (
     level2_probability,
@@ -39,14 +39,14 @@ class RBAnalysis(BaseAnalysis):
     # pylint: disable = arguments-differ, invalid-name, attribute-defined-outside-init
     def _run_analysis(
         self,
-        experiment_data,
+        experiment_data: ExperimentData,
         p0: Optional[List[float]] = None,
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,
     ):
         """Run analysis on circuit data.
         Args:
-            experiment_data (ExperimentData): the experiment data to analyze.
+            experiment_data: the experiment data to analyze.
             p0: Optional, initial parameter values for curve_fit.
             plot: If True generate a plot of fitted data.
             ax: Optional, matplotlib axis to add plot to.
@@ -98,10 +98,11 @@ class RBAnalysis(BaseAnalysis):
 
         return fit_guess
 
-    def _extract_data(self, experiment_data, **filters):
+    def _extract_data(self, experiment_data: ExperimentData, **filters):
         """Extract the base data for the fitter from the experiment data.
         Args:
-            data: the experiment data to analyze
+            experiment_data: the experiment data to analyze
+            filters: keywords to filter the data by
         Returns:
             tuple: ``(xdata, ydata, ydata_sigma)`` , where
                ``xdata`` is an array of unique x-values, ``ydata`` is an array of
