@@ -120,7 +120,7 @@ class CurveAnalysis(BaseAnalysis):
                             exponential_decay(x, amp=p0, lamb=p1, baseline=p3),
                         filter_kwargs={"experiment": 1},
                         plot_color="red",
-                        plot_symbpl="^",
+                        plot_symbol="^",
                     ),
                     SeriesDef(
                         name="my_experiment2",
@@ -128,7 +128,7 @@ class CurveAnalysis(BaseAnalysis):
                             exponential_decay(x, amp=p0, lamb=p2, baseline=p3),
                         filter_kwargs={"experiment": 2},
                         plot_color="blue",
-                        plot_symbpl="o",
+                        plot_symbol="o",
                     ),
                 ]
 
@@ -160,7 +160,7 @@ class CurveAnalysis(BaseAnalysis):
                             sin(x, amp=p0, freq=p1, phase=p2, baseline=p3),
                         filter_kwargs={"experiment": 2},
                         plot_color="blue",
-                        plot_symbpl="o",
+                        plot_symbol="o",
                     )
                 ]
 
