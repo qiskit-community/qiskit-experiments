@@ -233,10 +233,10 @@ class SVD(TrainableDataAction):
 class IQPart(DataAction):
     """Abstract class for IQ data post-processing."""
 
-    def __init__(self, scale: Optional[float] = None, validate: bool = True):
+    def __init__(self, scale: float = 1.0, validate: bool = True):
         """
         Args:
-            scale: Float with which to multiply the IQ data.
+            scale: Float with which to multiply the IQ data. Defaults to 1.0.
             validate: If set to False the DataAction will not validate its input.
         """
         self.scale = scale
@@ -315,12 +315,6 @@ class ToReal(IQPart):
         Returns:
             A 1D or 2D array, each entry is the real part of the given IQ data and error.
         """
-        if self.scale is None:
-            if error is not None:
-                return datum[..., 0], error[..., 0]
-            else:
-                return datum[..., 0], None
-
         if error is not None:
             return datum[..., 0] * self.scale, error[..., 0] * self.scale
         else:
@@ -341,12 +335,6 @@ class ToImag(IQPart):
         Returns:
             A 1D or 2D array, each entry is the imaginary part of the given IQ data and error.
         """
-        if self.scale is None:
-            if error is not None:
-                return datum[..., 1], error[..., 1]
-            else:
-                return datum[..., 1], None
-
         if error is not None:
             return datum[..., 1] * self.scale, error[..., 1] * self.scale
         else:
