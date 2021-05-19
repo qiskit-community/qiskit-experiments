@@ -19,7 +19,7 @@ import numpy as np
 from qiskit_experiments.experiment_data import ExperimentData
 from qiskit_experiments.data_processing.data_action import DataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
-
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
 
 class IQPart(DataAction):
     """Abstract class for IQ data post-processing."""
@@ -225,6 +225,8 @@ class LDADiscriminator(BaseDiscriminator):
 
         list_data = []
         for i in range(np.shape(datum)[1]):
+            if isinstance(self._handle.analysis_result(0)["discriminator"][i], LinearDiscriminantAnalysis) is False:
+                raise DataProcessorError("Input not an LDA discriminator.")
             lda = self._handle.analysis_result(0)["discriminator"][i]
             list_data.append(lda.predict(datum[:,i,:]))
         return self._to_dict(list_data)
@@ -242,6 +244,8 @@ class QDADiscriminator(BaseDiscriminator):
 
         list_data = []
         for i in range(np.shape(datum)[1]):
+            if isinstance(self._handle.analysis_result(0)["discriminator"][i], QuadraticDiscriminantAnalysis) is False:
+                raise DataProcessorError("Input not a QDA discriminator.")
             qda = self._handle.analysis_result(0)["discriminator"][i]
             list_data.append(qda.predict(datum[:,i,:]))
         return self._to_dict(list_data)
