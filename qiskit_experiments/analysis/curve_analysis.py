@@ -240,7 +240,7 @@ class CurveAnalysis(BaseAnalysis):
         if plotting and plotting.HAS_MATPLOTLIB:
 
             if axis is None:
-                figure = plotting.plt.figure()
+                figure = plotting.pyplot.figure()
                 axis = figure.subplots(nrows=1, ncols=1)
             else:
                 figure = axis.get_figure()

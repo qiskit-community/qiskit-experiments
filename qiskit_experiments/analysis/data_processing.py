@@ -184,7 +184,7 @@ def level2_probability(data: Dict[str, any], outcome: str = None) -> Tuple[float
     counts = data["counts"]
 
     if outcome is None:
-        outcome = '1' * len(list(counts.keys())[0])
+        outcome = "1" * len(list(counts.keys())[0])
 
     shots = sum(counts.values())
     p_mean = counts.get(outcome, 0.0) / shots
