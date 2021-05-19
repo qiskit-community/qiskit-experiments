@@ -580,8 +580,7 @@ class CurveAnalysis(BaseAnalysis):
         #
         # 1. Setup data processor
         #
-        # TODO add ` and not data_processor.trained:`
-        if isinstance(data_processor, DataProcessor):
+        if isinstance(data_processor, DataProcessor) and not data_processor.is_trained:
             # Qiskit DataProcessor instance. May need calibration.
             try:
                 data_processor = self._calibrate_data_processor(
