@@ -27,6 +27,14 @@ from qiskit_experiments import BaseAnalysis, BaseExperiment, ExperimentData, Ana
 from qiskit_experiments.analysis.curve_fitting import curve_fit
 from qiskit_experiments.data_processing.nodes import Probability, SVD
 from qiskit_experiments.data_processing.data_processor import DataProcessor
+from qiskit_experiments.analysis import plotting
+
+try:
+    from matplotlib import pyplot as plt
+
+    HAS_MATPLOTLIB = True
+except ImportError:
+    HAS_MATPLOTLIB = False
 
 
 class RabiAnalysis(BaseAnalysis):
@@ -42,7 +50,7 @@ class RabiAnalysis(BaseAnalysis):
 
     def _run_analysis(
         self,
-            experiment_data: ExperimentData,
+        experiment_data: ExperimentData,
         data_processor: Optional[Callable] = None,
         meas_level: Optional[int] = MeasLevel.KERNELED,
         amp_guess: float = 0.5,
@@ -51,18 +59,30 @@ class RabiAnalysis(BaseAnalysis):
         amp_bounds: Tuple[float, float] = (-1, 1),
         freq_bounds: Tuple[float, float] = (0, np.inf),
         offset_bounds: Tuple[float, float] = (0, 1),
+        plot: bool = True,
+        ax: Optional["AxesSubplot"] = None,
         **options
     ) -> Tuple[AnalysisResult, List["plotting.pyplot.Figure"]]:
-        """
+        """Fit the data to an oscillating function.
+
         Args:
-            experiment_data:
+            experiment_data: The experiment data to fit.
             data_processor: A data processor with which to analyse the data. If None is given
                 a SVD-based data processor will be used for kerneled data while a conversion
                 from counts to probabilities will be used for discriminated data.
-            options:
+            meas_level: The measurement level used.
+            amp_guess: The amplitude guess for the fit which will default to 0.5.
+            freq_guess: The frequency guess for the fit which defaults to pi.
+            offset_guess: The y-axis offset which defaults to 0.5.
+            amp_bounds: Bounds on the amplitude which default to (-1, 1).
+            freq_bounds: Bounds on the frequency which default to (0, inf).
+            offset_bounds: Bounds on the offset which default to (0,1).
+            plot: If True generate a plot of fitted data.
+            ax: Optional, matplotlib axis to add plot to.
+            kwargs: Trailing unused function parameters.
 
         Returns:
-
+            The analysis result with the fit and optional plots.
         """
 
         # Pick a data processor.
@@ -96,6 +116,44 @@ class RabiAnalysis(BaseAnalysis):
             sigmas,
             (lower, upper),
         )
+
+        fit_result["value"] = fit_result["popt"][2]
+        fit_result["stderr"] = (fit_result["popt_err"][2],)
+        fit_result["label"] = "Spectroscopy"
+        fit_result["xdata"] = xdata
+        fit_result["ydata"] = ydata
+        fit_result["ydata_err"] = sigmas
+        fit_result["quality"] = self._fit_quality(
+            fit_result["popt"][1],
+            fit_result["reduced_chisq"]
+        )
+
+        if plot and HAS_MATPLOTLIB:
+            ax = plotting.plot_curve_fit(fit_fun, fit_result, ax=ax)
+            ax = plotting.plot_scatter(xdata, ydata, ax=ax)
+            self._format_plot(ax)
+            figures = [ax.get_figure()]
+        else:
+            figures = None
+
+        return fit_result, figures
+
+    @staticmethod
+    def _fit_quality(fit_freq: float, reduced_chisq: float):
+        """Method to check the quality of the fit."""
+
+        if reduced_chisq < 5 and fit_freq > np.pi:
+            return "computer_good"
+
+        return "computer_bad"
+
+    @classmethod
+    def _format_plot(cls, ax):
+        """Format curve fit plot."""
+        ax.tick_params(labelsize=14)
+        ax.set_xlabel(f"Amplitude [arb. unit]", fontsize=16)
+        ax.set_ylabel("Signal [arb. unit.]", fontsize=16)
+        ax.grid(True)
 
 class Rabi(BaseExperiment):
     """A calibration experiment that scans the amplitude of a pulse."""
