@@ -603,7 +603,7 @@ class Calibrations:
                 if isinstance(assign_param, str):
                     assign_params_[ParameterKey(assign_param, qubits, name)] = value
                 else:
-                    assign_params_[assign_param] = value
+                    assign_params_[ParameterKey(*assign_param)] = value
 
             assign_params = assign_params_
         else:
@@ -647,7 +647,7 @@ class Calibrations:
         self,
         schedule: ScheduleBlock,
         qubits: Tuple[int, ...],
-        assign_params: Dict[Union[str, ParameterKey], ParameterValueType] = None,
+        assign_params: Dict[Union[str, ParameterKey], ParameterValueType],
         group: Optional[str] = "default",
         cutoff_date: datetime = None,
     ) -> ScheduleBlock:
@@ -739,20 +739,6 @@ class Calibrations:
 
         qubits_ = tuple(qubit for qubit in qubits if qubit in qubit_set)
 
-        # Complete the assignment dictionary with any missing parameter couplings
-        assign_params_ = dict(assign_params)
-        for param_key, value in assign_params.items():
-            # Iterate over all keys that point to the parameter pointed to by the
-            # the key param_key.
-            for key in self._parameter_map_r[self.calibration_parameter(*param_key)]:
-                if (
-                    ParameterKey(key.parameter, qubits_, key.schedule) not in assign_params
-                    and key.qubits == qubits_
-                ):
-                    assign_params_[ParameterKey(key.parameter, qubits_, key.schedule)] = value
-
-        assign_params = assign_params_
-
         # 2) Recursively assign the parameters in the called instructions.
         ret_schedule = ScheduleBlock(
             alignment_context=schedule.alignment_context,
@@ -779,9 +765,35 @@ class Calibrations:
                 keys.add(ParameterKey(param.name, qubits_, ret_schedule.name))
 
         # 4) Build the parameter binding dictionary.
-        assign_params = assign_params if assign_params else dict()
-
         binding_dict = {}
+        assignment_table = {}
+        for key, value in assign_params.items():
+            key_orig = key
+            if key.qubits == ():
+                key = ParameterKey(key.parameter, qubits_, key.schedule)
+            elif key.qubits != qubits_:
+                continue
+            param = self.calibration_parameter(*key)
+            if param in ret_schedule.parameters:
+                assign_okay = (
+                    param not in binding_dict or
+                    key.schedule == ret_schedule.name and
+                    assignment_table[param].schedule != ret_schedule.name
+                )
+                if assign_okay:
+                    binding_dict[param] = value
+                    assignment_table[param] = key_orig
+                else:
+                    if (
+                        key.schedule == ret_schedule.name or
+                        assignment_table[param].schedule != ret_schedule.name
+                    ):
+                        raise CalibrationError(
+                            "Ambiguous assignment: assign_params keys "
+                            f"{key_orig} and {assignment_table[param]} "
+                            "resolve to the same parameter."
+                        )
+
         for key in keys:
             # Get the parameter object. Since we are dealing with a schedule the name of
             # the schedule is always defined. However, the parameter may be a default
@@ -793,17 +805,14 @@ class Calibrations:
             else:
                 raise CalibrationError(f"Parameter key {key} has no parameter.")
 
-            if key not in assign_params:
-                if param not in binding_dict:
-                    binding_dict[param] = self.get_parameter_value(
-                        key.parameter,
-                        key.qubits,
-                        key.schedule,
-                        group=group,
-                        cutoff_date=cutoff_date,
-                    )
-            else:
-                binding_dict[param] = assign_params[key]
+            if param not in binding_dict:
+                binding_dict[param] = self.get_parameter_value(
+                    key.parameter,
+                    key.qubits,
+                    key.schedule,
+                    group=group,
+                    cutoff_date=cutoff_date,
+                )
 
         return ret_schedule.assign_parameters(binding_dict, inplace=False)
 

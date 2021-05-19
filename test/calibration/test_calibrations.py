@@ -13,6 +13,7 @@
 """Class to test the calibrations."""
 
 import os
+import unittest
 from collections import defaultdict
 from datetime import datetime
 from qiskit.circuit import Parameter
@@ -854,6 +855,91 @@ class TestControlChannels(CrossResonanceTest):
         self.assertEqual(self.cals.get_schedule("tcp", (3, 2)), expected)
 
 
+class TestAssignment(QiskitTestCase):
+    """Test simple assignment"""
+    def setUp(self):
+        """Create the setting to test."""
+        super().setUp()
+
+        controls = {(3, 2): [ControlChannel(10)]}
+
+        self.cals = Calibrations(control_config=controls)
+
+        self.amp_xp = Parameter("amp")
+        self.ch0 = Parameter("ch0")
+        self.d0_ = DriveChannel(self.ch0)
+        self.ch1 = Parameter("ch1")
+        self.d1_ = DriveChannel(self.ch1)
+        self.sigma = Parameter("σ")
+        self.width = Parameter("w")
+        self.dur = Parameter("duration")
+
+        with pulse.build(name="xp") as xp:
+            pulse.play(Gaussian(160, self.amp_xp, self.sigma), self.d0_)
+
+        with pulse.build(name="xpxp") as xpxp:
+            with pulse.align_left():
+                pulse.call(xp)
+                pulse.call(xp, value_dict={self.ch0: self.ch1})
+
+        self.cals.add_schedule(xp)
+        self.cals.add_schedule(xpxp)
+
+        self.cals.add_parameter_value(0.2, "amp", (2,), "xp")
+        self.cals.add_parameter_value(0.3, "amp", (3,), "xp")
+        self.cals.add_parameter_value(40, "σ", (), "xp")
+
+    def test_short_key(self):
+        """Test simple value assignment"""
+        sched = self.cals.get_schedule("xp", (2,), assign_params={"amp": 0.1})
+
+        with pulse.build(name="xp") as expected:
+            pulse.play(Gaussian(160, 0.1, 40), DriveChannel(2))
+
+        self.assertEqual(sched, expected)
+
+    def test_assign_parameter(self):
+        """Test assigning to a Parameter instance"""
+        my_amp = Parameter("my_amp")
+        sched = self.cals.get_schedule("xp", (2,), assign_params={"amp": my_amp})
+
+        with pulse.build(name="xp") as expected:
+            pulse.play(Gaussian(160, my_amp, 40), DriveChannel(2))
+
+        self.assertEqual(sched, expected)
+
+    def test_full_key(self):
+        """Test value assignment with full key"""
+        sched = self.cals.get_schedule("xp", (2,), assign_params={("amp", (2,), "xp"): 0.1})
+
+        with pulse.build(name="xp") as expected:
+            pulse.play(Gaussian(160, 0.1, 40), DriveChannel(2))
+
+        self.assertEqual(sched, expected)
+
+    def test_default_qubit(self):
+        """Test value assignment with default qubit"""
+        sched = self.cals.get_schedule("xp", (2,), assign_params={("amp", (), "xp"): 0.1})
+
+        with pulse.build(name="xp") as expected:
+            pulse.play(Gaussian(160, 0.1, 40), DriveChannel(2))
+
+        self.assertEqual(sched, expected)
+
+    def test_default_across_qubits(self):
+        """Test assigning to multiple schedules through default parameter"""
+        sched = self.cals.get_schedule("xpxp", (2, 3), assign_params={("amp", (), "xp"): 0.4})
+        sched = block_to_schedule(sched)
+
+        with pulse.build(name="xpxp") as expected:
+            with pulse.align_left():
+                pulse.play(Gaussian(160, 0.4, 40), DriveChannel(2))
+                pulse.play(Gaussian(160, 0.4, 40), DriveChannel(3))
+
+        expected = block_to_schedule(expected)
+
+        self.assertEqual(sched, expected)
+
 class TestCoupledAssigning(QiskitTestCase):
     """Test that assigning parameters works when they are coupled in calls."""
 
@@ -867,7 +953,10 @@ class TestCoupledAssigning(QiskitTestCase):
 
         self.amp_cr = Parameter("amp")
         self.amp_xp = Parameter("amp")
-        self.d0_ = DriveChannel(Parameter("ch0"))
+        self.ch0 = Parameter("ch0")
+        self.d0_ = DriveChannel(self.ch0)
+        self.ch1 = Parameter("ch1")
+        self.d1_ = DriveChannel(self.ch1)
         self.c1_ = ControlChannel(Parameter("ch0.1"))
         self.sigma = Parameter("σ")
         self.width = Parameter("w")
@@ -888,18 +977,28 @@ class TestCoupledAssigning(QiskitTestCase):
                 pulse.call(xp)
                 pulse.call(cr_m)
 
+        with pulse.build(name="cr_echo_both") as cr_echo_both:
+            with pulse.align_sequential():
+                pulse.call(cr_p)
+                with pulse.align_left():
+                    pulse.call(xp)
+                    pulse.call(xp, value_dict={self.ch0: self.ch1})
+                pulse.call(cr_m)
+
         self.cals.add_schedule(cr_p)
         self.cals.add_schedule(cr_m)
         self.cals.add_schedule(xp)
         self.cals.add_schedule(ecr)
+        self.cals.add_schedule(cr_echo_both)
 
         self.cals.add_parameter_value(0.3, "amp", (3, 2), "cr_p")
         self.cals.add_parameter_value(0.2, "amp", (3,), "xp")
+        self.cals.add_parameter_value(0.4, "amp", (2,), "xp")
         self.cals.add_parameter_value(40, "σ", (), "xp")
         self.cals.add_parameter_value(640, "w", (3, 2), "cr_p")
         self.cals.add_parameter_value(800, "duration", (3, 2), "cr_p")
 
-    def test_assign_coupled(self):
+    def test_assign_coupled_explicitly(self):
         """Test that we get the proper schedules when they are coupled."""
 
         # Test that we can preserve the coupling
@@ -918,9 +1017,11 @@ class TestCoupledAssigning(QiskitTestCase):
 
         self.assertEqual(sched, expected)
 
-        # Test that we can break the coupling
+    def test_assign_coupled_implicitly(self):
+        """Test that we get the proper schedules when they are coupled."""
         my_amp = Parameter("my_amp")
-        assign_params = {("amp", (3, 2), "cr_p"): my_amp}
+        my_amp2 = Parameter("my_amp2")
+        assign_params = {("amp", (3, 2), "cr_p"): my_amp, ("amp", (3, 2), "cr_m"): my_amp2}
         sched = self.cals.get_schedule("ecr", (3, 2), assign_params=assign_params)
         sched = block_to_schedule(sched)
 
@@ -928,6 +1029,46 @@ class TestCoupledAssigning(QiskitTestCase):
             with pulse.align_sequential():
                 pulse.play(GaussianSquare(800, my_amp, 40, 640), ControlChannel(10))
                 pulse.play(Gaussian(160, 0.2, 40), DriveChannel(3))
+                pulse.play(GaussianSquare(800, -my_amp2, 40, 640), ControlChannel(10))
+
+        expected = block_to_schedule(expected)
+
+        self.assertEqual(sched, expected)
+
+    def test_break_coupled(self):
+        """Test that we get the proper schedules when they are coupled."""
+        my_amp = Parameter("my_amp")
+        my_amp2 = Parameter("my_amp2")
+        assign_params = {("amp", (3, 2), "cr_p"): my_amp, ("amp", (3, 2), "cr_m"): my_amp2}
+        sched = self.cals.get_schedule("ecr", (3, 2), assign_params=assign_params)
+        sched = block_to_schedule(sched)
+
+        with pulse.build(name="ecr") as expected:
+            with pulse.align_sequential():
+                pulse.play(GaussianSquare(800, my_amp, 40, 640), ControlChannel(10))
+                pulse.play(Gaussian(160, 0.2, 40), DriveChannel(3))
+                pulse.play(GaussianSquare(800, -my_amp2, 40, 640), ControlChannel(10))
+
+        expected = block_to_schedule(expected)
+
+        self.assertEqual(sched, expected)
+
+    def test_assign_coupled_explicitly_two_channel(self):
+        """Test that we get the proper schedules when they are coupled."""
+
+        # Test that we can preserve the coupling
+        my_amp = Parameter("my_amp")
+        my_amp2 = Parameter("my_amp2")
+        assign_params = {("amp", (3,), "xp"): my_amp, ("amp", (2,), "xp"): my_amp2}
+        sched = self.cals.get_schedule("cr_echo_both", (3, 2), assign_params=assign_params)
+        sched = block_to_schedule(sched)
+
+        with pulse.build(name="cr_echo_both") as expected:
+            with pulse.align_sequential():
+                pulse.play(GaussianSquare(800, 0.3, 40, 640), ControlChannel(10))
+                with pulse.align_left():
+                    pulse.play(Gaussian(160, my_amp, 40), DriveChannel(3))
+                    pulse.play(Gaussian(160, my_amp2, 40), DriveChannel(2))
                 pulse.play(GaussianSquare(800, -0.3, 40, 640), ControlChannel(10))
 
         expected = block_to_schedule(expected)
