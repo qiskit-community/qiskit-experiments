@@ -113,7 +113,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
                 raise ValueError("Unsupported measurement level.")
 
         y_sigmas = np.array([data_processor(datum) for datum in experiment_data.data()])
-        sigmas = y_sigmas[:, 1]
+        sigmas = np.sqrt(y_sigmas[:, 1])
         ydata = abs(y_sigmas[:, 0])
         xdata = np.array([datum["metadata"]["xval"] for datum in experiment_data.data()])
 
@@ -178,6 +178,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
             best_fit["popt"][1],
             best_fit["reduced_chisq"],
             xdata,
+            ydata,
             best_fit["popt_err"][1],
         )
 
