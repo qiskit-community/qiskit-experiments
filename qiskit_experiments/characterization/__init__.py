@@ -11,19 +11,18 @@
 # that they have been altered from the originals.
 
 """
-=======================================================================================
-Randomized Benchmarking Experiments (:mod:`qiskit_experiments.randomized_benchmarking`)
-=======================================================================================
+=========================================================================
+Characterization Experiments (:mod:`qiskit_experiments.characterization`)
+=========================================================================
 
-.. currentmodule:: qiskit_experiments.randomized_benchmarking
+.. currentmodule:: qiskit_experiments.characterization
 
 Experiments
 ===========
 .. autosummary::
     :toctree: ../stubs/
 
-    RBExperiment
-    InterleavedRBExperiment
+    T1Experiment
 
 
 Analysis
@@ -32,10 +31,6 @@ Analysis
 .. autosummary::
     :toctree: ../stubs/
 
-    RBAnalysis
-    InterleavedRBAnalysis
+    T1Analysis
 """
-from .rb_experiment import RBExperiment
-from .interleaved_rb_experiment import InterleavedRBExperiment
-from .rb_analysis import RBAnalysis
-from .interleaved_rb_analysis import InterleavedRBAnalysis
+from .t1_experiment import T1Experiment, T1Analysis
