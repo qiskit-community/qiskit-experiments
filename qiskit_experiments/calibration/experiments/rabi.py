@@ -25,7 +25,7 @@ import qiskit.pulse as pulse
 from qiskit import QuantumCircuit
 from qiskit_experiments import BaseAnalysis, BaseExperiment, ExperimentData, AnalysisResult
 from qiskit_experiments.analysis.curve_fitting import curve_fit
-from qiskit_experiments.data_processing.nodes import Probability#, SVD
+from qiskit_experiments.data_processing.nodes import Probability, ToReal#, SVD
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.analysis import plotting
 
@@ -90,8 +90,8 @@ class RabiAnalysis(BaseAnalysis):
             if meas_level == MeasLevel.CLASSIFIED:
                 data_processor = DataProcessor("counts", [Probability("1")])
             elif meas_level == MeasLevel.KERNELED:
-                raise NotImplementedError
                 #data_processor = DataProcessor("memory", [SVD()])
+                data_processor = DataProcessor("memory", [ToReal()])
                 data_processor.train(experiment_data.data())
             else:
                 raise ValueError("Unsupported measurement level.")
@@ -102,21 +102,13 @@ class RabiAnalysis(BaseAnalysis):
         ydata = (y_sigmas[:, 0] - y_min) / (y_max - y_min)
         xdata = np.array([datum["metadata"]["xval"] for datum in experiment_data.data()])
 
-        lower = np.array([amp_bounds[0], freq_bounds[0], offset_bounds[0]])
-        upper = np.array([amp_bounds[1], freq_bounds[1], offset_bounds[1]])
-
         # Perform fit
         def fit_fun(x, a, b, c):
             return a * np.cos(b*x) + c
 
-        fit_result = curve_fit(
-            fit_fun,
-            xdata,
-            ydata,
-            np.array([amp_guess, freq_guess, offset_guess]),
-            sigmas,
-            (lower, upper),
-        )
+        init = {"a": amp_guess, "b": freq_guess, "c": offset_guess}
+        bounds = {"a": amp_bounds, "b": freq_bounds, "c": offset_bounds}
+        fit_result = curve_fit(fit_fun, xdata, ydata, init, sigmas=sigmas, bounds=bounds)
 
         fit_result["value"] = fit_result["popt"][2]
         fit_result["stderr"] = (fit_result["popt_err"][2],)
@@ -172,7 +164,7 @@ class Rabi(BaseExperiment):
         """
         super().__init__([qubit])
 
-        if amplitudes:
+        if amplitudes is not None:
             self._amplitudes = amplitudes
         else:
             self._amplitudes = np.linspace(-0.95, 0.95, 51)
