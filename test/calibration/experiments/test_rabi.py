@@ -59,13 +59,14 @@ class TestRabiAnalysis(QiskitTestCase):
         thetas = np.linspace(-1.5*np.pi, 1.5*np.pi, 51)
         amplitudes = np.linspace(-0.95, 0.95, 51)
 
-        data = self.simulate_experiment_data(thetas, amplitudes)
-        experiment_data.add_data(data)
+        for shots in [10, 1024]:
+            data = self.simulate_experiment_data(thetas, amplitudes, shots=shots)
+            experiment_data.add_data(data)
 
-        rabi_analysis = RabiAnalysis()
+            rabi_analysis = RabiAnalysis()
 
-        data_processor = DataProcessor("counts", [Probability(outcome="1")])
+            data_processor = DataProcessor("counts", [Probability(outcome="1")])
 
-        result = rabi_analysis.run(experiment_data, data_processor=data_processor, plot=False)
+            result = rabi_analysis.run(experiment_data, data_processor=data_processor, plot=False)
 
-        print(result)
+            self.assertEqual(result["quality"], "computer_good")

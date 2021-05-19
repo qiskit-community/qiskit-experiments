@@ -97,9 +97,8 @@ class RabiAnalysis(BaseAnalysis):
                 raise ValueError("Unsupported measurement level.")
 
         y_sigmas = np.array([data_processor(datum) for datum in experiment_data.data()])
-        print(y_sigmas)
         y_max, y_min = max(y_sigmas[:, 0]), min(y_sigmas[:, 0])
-        sigmas = y_sigmas[:, 1] / (y_max - y_min)
+        sigmas = np.sqrt(y_sigmas[:, 1]) / (y_max - y_min)
         ydata = (y_sigmas[:, 0] - y_min) / (y_max - y_min)
         xdata = np.array([datum["metadata"]["xval"] for datum in experiment_data.data()])
 
