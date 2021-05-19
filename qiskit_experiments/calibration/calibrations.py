@@ -687,11 +687,11 @@ class Calibrations:
 
             cals.get_schedule("xt_xp", (0, 2))
 
-        we will obtain the expected schedule with amplitudes 0.5 and 0.3. However, when specifying
-        the following :code:`assign_params = {("amp", (0,), "xp"): Parameter("my_new_amp")}` we
-        will obtain a schedule where the amplitudes of both xp pulse are set to
-        :code:`Parameter("my_new_amp")` due to the parameter coupling. To set the amplitude of
-        the xp pulse on qubit 2 to the value stored by the calibrations, i.e. 0.3, we do
+        we will obtain the expected schedule with amplitudes 0.5 and 0.3. When specifying the
+        following :code:`assign_params = {("amp", (0,), "xp"): Parameter("my_new_amp")}` we
+        will obtain a schedule where the amplitudes of the xp pulse on qubit 0 is set to
+        :code:`Parameter("my_new_amp")`. The amplitude of the xp pulse on qubit 2 is set to
+        the value stored by the calibrations, i.e. 0.3.
 
         .. code-bloc:: python
 
