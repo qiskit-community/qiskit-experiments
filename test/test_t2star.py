@@ -207,6 +207,16 @@ class TestT2Star(QiskitTestCase):
                 instruction_durations=instruction_durations,
                 shots=2000,
             ).analysis_result(0)
+            self.assertAlmostEqual(
+                result["t2star_value"],
+                estimated_t2star * dt_factor,
+                delta=0.05 * result["t2star_value"],
+            )
+            self.assertAlmostEqual(
+                result["frequency_value"],
+                estimated_freq / dt_factor,
+                delta=0.05 * result["frequency_value"],
+            )
             self.assertEqual(
                 result["quality"], "computer_good", "Result quality bad for unit " + str(unit)
             )
@@ -243,6 +253,14 @@ class TestT2Star(QiskitTestCase):
 
         for i in range(2):
             sub_res = res.component_experiment_data(i).analysis_result(0)
+            self.assertAlmostEqual(
+                sub_res["t2star_value"], t2star[i], delta=0.05 * sub_res["t2star_value"]
+            )
+            self.assertAlmostEqual(
+                sub_res["frequency_value"],
+                estimated_freq[i],
+                delta=0.05 * sub_res["frequency_value"],
+            )
             self.assertEqual(
                 sub_res["quality"],
                 "computer_good",

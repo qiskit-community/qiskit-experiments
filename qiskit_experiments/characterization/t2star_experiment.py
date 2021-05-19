@@ -124,7 +124,7 @@ class T2StarAnalysis(BaseAnalysis):
                 "label": "T2*",
                 "fit": fit_result,
                 "quality": self._fit_quality(
-                    p0, fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
+                    fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
                 ),
             }
         )
@@ -180,11 +180,10 @@ class T2StarAnalysis(BaseAnalysis):
         return p0, bounds
 
     @staticmethod
-    def _fit_quality(p0, fit_out, fit_err, reduced_chisq):
+    def _fit_quality(fit_out, fit_err, reduced_chisq):
         # pylint: disable = too-many-boolean-expressions
         if (
-            np.allclose(fit_out, [0.5, p0["t2star"], p0["f_guess"], 0, 0.5], rtol=0.3, atol=0.1)
-            and (reduced_chisq < 3)
+            (reduced_chisq < 3)
             and (fit_err[0] is None or fit_err[0] < 0.1 * fit_out[0])
             and (fit_err[1] is None or fit_err[1] < 0.1 * fit_out[1])
             and (fit_err[2] is None or fit_err[2] < 0.1 * fit_out[2])
