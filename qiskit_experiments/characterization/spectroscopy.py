@@ -51,7 +51,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
         sigma_guesses: Optional[List[float]] = None,
         freq_guess: Optional[float] = None,
         offset_guess: Optional[float] = None,
-        amplitude_bounds: Optional[Tuple[float, float]] = None,
+        amp_bounds: Optional[Tuple[float, float]] = None,
         sigma_bounds: Optional[Tuple[float, float]] = None,
         freq_bounds: Optional[Tuple[float, float]] = None,
         offset_bounds: Optional[Tuple[float, float]] = None,
@@ -83,7 +83,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
                 this guess will default to the location of the highest absolute data point.
             offset_guess: A guess for the magnitude :math:`b` offset of the fit function.
                 If not provided, the initial guess defaults to the average of the ydata.
-            amplitude_bounds: Bounds on the amplitude of the Gaussian function as a tuple of
+            amp_bounds: Bounds on the amplitude of the Gaussian function as a tuple of
                 two floats. The default bounds are [0, 1.1*max(ydata)]
             sigma_bounds: Bounds on the standard deviation of the Gaussian function as a tuple
                 of two floats. The default values are [0, frequency range].
@@ -130,8 +130,8 @@ class SpectroscopyAnalysis(BaseAnalysis):
             freq_guess = xdata[peak_idx]
         if not sigma_guesses:
             sigma_guesses = np.linspace(1e-6, abs(xdata[-1] - xdata[0]), 20)
-        if amplitude_bounds is None:
-            amplitude_bounds = [0.0, 1.1 * max(ydata)]
+        if amp_bounds is None:
+            amp_bounds = [0.0, 1.1 * max(ydata)]
         if sigma_bounds is None:
             sigma_bounds = [0, abs(xdata[-1] - xdata[0])]
         if freq_bounds is None:
@@ -139,25 +139,16 @@ class SpectroscopyAnalysis(BaseAnalysis):
         if offset_bounds is None:
             offset_bounds = [np.min(ydata), np.max(ydata)]
 
-        best_fit = None
-
-        lower = np.array([amplitude_bounds[0], sigma_bounds[0], freq_bounds[0], offset_bounds[0]])
-        upper = np.array([amplitude_bounds[1], sigma_bounds[1], freq_bounds[1], offset_bounds[1]])
-
         # Perform fit
-        def fit_fun(x, a, sigma, x0_, b):
-            return a * np.exp(-((x - x0_) ** 2) / (2 * sigma ** 2)) + b
+        best_fit = None
+        bounds = {"a": amp_bounds, "sigma": sigma_bounds, "freq": freq_bounds, "b": offset_bounds}
+
+        def fit_fun(x, a, sigma, freq, b):
+            return a * np.exp(-((x - freq) ** 2) / (2 * sigma ** 2)) + b
 
         for sigma_guess in sigma_guesses:
-
-            fit_result = curve_fit(
-                fit_fun,
-                xdata,
-                ydata,
-                np.array([amp_guess, sigma_guess, freq_guess, offset_guess]),
-                sigmas,
-                (lower, upper),
-            )
+            init = {"a": amp_guess, "sigma": sigma_guess, "freq": freq_guess, "b": offset_guess}
+            fit_result = curve_fit(fit_fun, xdata, ydata, init, sigmas, bounds)
 
             if not best_fit:
                 best_fit = fit_result
