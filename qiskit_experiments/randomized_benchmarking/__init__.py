@@ -10,8 +10,31 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Randomized Benchmarking Experiment Classes."""
+"""
+=======================================================================================
+Randomized Benchmarking Experiments (:mod:`qiskit_experiments.randomized_benchmarking`)
+=======================================================================================
 
+.. currentmodule:: qiskit_experiments.randomized_benchmarking
+
+Experiments
+===========
+.. autosummary::
+    :toctree: ../stubs/
+
+    RBExperiment
+    InterleavedRBExperiment
+
+
+Analysis
+========
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    RBAnalysis
+    InterleavedRBAnalysis
+"""
 from .rb_experiment import RBExperiment
 from .interleaved_rb_experiment import InterleavedRBExperiment
 from .rb_analysis import RBAnalysis

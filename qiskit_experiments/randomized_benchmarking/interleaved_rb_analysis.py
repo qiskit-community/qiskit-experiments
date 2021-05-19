@@ -18,20 +18,12 @@ from qiskit_experiments.analysis.curve_fitting import (
     process_multi_curve_data,
     multi_curve_fit,
 )
-
-from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_scatter, plot_errorbar
+from qiskit_experiments.analysis import plotting
 from qiskit_experiments.analysis.data_processing import (
     level2_probability,
     multi_mean_xy_data,
 )
 from .rb_analysis import RBAnalysis
-
-try:
-    from matplotlib import pyplot as plt
-
-    HAS_MATPLOTLIB = True
-except ImportError:
-    HAS_MATPLOTLIB = False
 
 
 class InterleavedRBAnalysis(RBAnalysis):
@@ -56,7 +48,7 @@ class InterleavedRBAnalysis(RBAnalysis):
         experiment_data,
         p0: Optional[List[float]] = None,
         plot: bool = True,
-        ax: Optional["AxesSubplot"] = None,
+        ax: Optional["matplotlib.axes.Axes"] = None,
     ):
         def data_processor(datum):
             return level2_probability(datum, datum["metadata"]["ylabel"])
@@ -132,14 +124,14 @@ class InterleavedRBAnalysis(RBAnalysis):
         analysis_result["plabels"] = ["A", "alpha", "alpha_c", "B"]
 
         if plot:
-            ax = plot_curve_fit(fit_fun_standard, analysis_result, ax=ax)
-            ax = plot_curve_fit(fit_fun_interleaved, analysis_result, ax=ax)
-            ax = plot_scatter(std_xdata, std_ydata, ax=ax)
-            ax = plot_scatter(int_xdata, int_ydata, ax=ax)
-            ax = plot_errorbar(std_xdata, std_ydata, std_ydata_sigma, ax=ax)
-            ax = plot_errorbar(int_xdata, int_ydata, int_ydata_sigma, ax=ax)
+            ax = plotting.plot_curve_fit(fit_fun_standard, analysis_result, ax=ax)
+            ax = plotting.plot_curve_fit(fit_fun_interleaved, analysis_result, ax=ax)
+            ax = plotting.plot_scatter(std_xdata, std_ydata, ax=ax)
+            ax = plotting.plot_scatter(int_xdata, int_ydata, ax=ax)
+            ax = plotting.plot_errorbar(std_xdata, std_ydata, std_ydata_sigma, ax=ax)
+            ax = plotting.plot_errorbar(int_xdata, int_ydata, int_ydata_sigma, ax=ax)
             self._format_plot(ax, analysis_result)
-            analysis_result.plt = plt
+            analysis_result.plt = plotting.pyplot
 
         return analysis_result, None
 

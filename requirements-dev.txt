@@ -9,3 +9,4 @@ jupyter-sphinx
 pygments>=2.4
 reno>=3.2.0
 sphinx-panels
+nbsphinx

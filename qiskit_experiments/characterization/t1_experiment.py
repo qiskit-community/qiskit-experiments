@@ -16,6 +16,7 @@ T1 Experiment class.
 from typing import List, Optional, Union, Tuple
 import numpy as np
 
+from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
 from qiskit.utils import apply_prefix
 
@@ -23,7 +24,7 @@ from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import process_curve_data, curve_fit
 from qiskit_experiments.analysis.data_processing import level2_probability
-from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_errorbar, HAS_MATPLOTLIB
+from qiskit_experiments.analysis import plotting
 from qiskit_experiments import AnalysisResult
 
 
@@ -43,18 +44,22 @@ class T1Analysis(BaseAnalysis):
         plot=True,
         ax=None,
         **kwargs,
-    ) -> Tuple[AnalysisResult, List["figure"]]:
+    ) -> Tuple[AnalysisResult, List["matplotlib.figure.Figure"]]:
         """
         Calculate T1
 
         Args:
             experiment_data (ExperimentData): the experiment data to analyze
             t1_guess (float): Optional, an initial guess of T1
-            amplitude_guess (float): Optional, an initial guess of the coefficient of the exponent
+            amplitude_guess (float): Optional, an initial guess of the coefficient
+                of the exponent
             offset_guess (float): Optional, an initial guess of the offset
-            t1_bounds (list of two floats): Optional, lower bound and upper bound to T1
-            amplitude_bounds (list of two floats): Optional, lower bound and upper bound to the amplitude
-            offset_bounds (list of two floats): Optional, lower bound and upper bound to the offset
+            t1_bounds (list of two floats): Optional, lower bound and upper
+                bound to T1
+            amplitude_bounds (list of two floats): Optional, lower bound and
+                upper bound to the amplitude
+            offset_bounds (list of two floats): Optional, lower bound and upper
+                bound to the offset
             plot: If True generate a plot of fitted data.
             ax: Optional, matplotlib axis to add plot to.
             kwargs: Trailing unused function parameters
@@ -113,9 +118,9 @@ class T1Analysis(BaseAnalysis):
             analysis_result["fit"]["dt"] = conversion_factor
 
         # Generate fit plot
-        if plot and HAS_MATPLOTLIB:
-            ax = plot_curve_fit(fit_fun, fit_result, ax=ax)
-            ax = plot_errorbar(xdata, ydata, sigma, ax=ax)
+        if plot and plotting.HAS_MATPLOTLIB:
+            ax = plotting.plot_curve_fit(fit_fun, fit_result, ax=ax)
+            ax = plotting.plot_errorbar(xdata, ydata, sigma, ax=ax)
             self._format_plot(ax, fit_result, qubit=qubit)
             figures = [ax.get_figure()]
         else:
@@ -197,7 +202,8 @@ class T1Experiment(BaseExperiment):
         Args:
             qubit: the qubit whose T1 is to be estimated
             delays: delay times of the experiments
-            unit: Optional, unit of the delay times. Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'.
+            unit: Optional, unit of the delay times. Supported units:
+                  's', 'ms', 'us', 'ns', 'ps', 'dt'.
 
         Raises:
             ValueError: if the number of delays is smaller than 3
@@ -210,7 +216,7 @@ class T1Experiment(BaseExperiment):
         super().__init__([qubit])
 
     # pylint: disable=arguments-differ
-    def circuits(self, backend: Optional["Backend"] = None) -> List[QuantumCircuit]:
+    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """
         Return a list of experiment circuits
 
