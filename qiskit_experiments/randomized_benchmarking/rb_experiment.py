@@ -19,7 +19,7 @@ from numpy.random import Generator, default_rng
 
 from qiskit import QuantumCircuit
 from qiskit.providers import Backend
-from qiskit.quantum_info import Clifford, random_clifford
+from qiskit.quantum_info import Clifford
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from .rb_analysis import RBAnalysis
