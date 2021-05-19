@@ -13,9 +13,10 @@
 """Different data analysis steps."""
 
 from abc import abstractmethod
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, List
 import numpy as np
 
+from qiskit_experiments.experiment_data import ExperimentData
 from qiskit_experiments.data_processing.data_action import DataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
@@ -37,18 +38,23 @@ class IQPart(DataAction):
         """Defines how the IQ point will be processed.
 
         Args:
-            datum: A 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
+            datum: A 2D or a 3D array of complex IQ points as [real, imaginary].
 
         Returns:
             Processed IQ point.
         """
 
+    @abstractmethod
+    def _required_dimension(self) -> int:
+        """Return the required dimension of the data."""
+
     def _format_data(self, datum: Any) -> Any:
         """Check that the IQ data has the correct format and convert to numpy array.
 
         Args:
-            datum: A single item of data which corresponds to single-shot IQ data. It should
-                have dimension three: shots, qubits, iq-point as [real, imaginary].
+            datum: A single item of data which corresponds to single-shot IQ data. It's
+                dimension will depend on whether it is single-shot IQ data (three-dimensional)
+                or averaged IQ date (two-dimensional).
 
         Returns:
             datum as a numpy array.
@@ -58,10 +64,10 @@ class IQPart(DataAction):
         """
         datum = np.asarray(datum, dtype=float)
 
-        if self._validate and len(datum.shape) != 3:
+        if self._validate and len(datum.shape) != self._required_dimension():
             raise DataProcessorError(
                 f"Single-shot data given {self.__class__.__name__}"
-                f"must be a 3D array. Instead, a {len(datum.shape)}D "
+                f"must be a {self._required_dimension()}D array. Instead, a {len(datum.shape)}D "
                 f"array was given."
             )
 
@@ -73,7 +79,11 @@ class IQPart(DataAction):
 
 
 class ToReal(IQPart):
-    """IQ data post-processing. Isolate the real part of the IQ data."""
+    """IQ data post-processing. Isolate the real part of single-shot IQ data."""
+
+    def _required_dimension(self) -> int:
+        """Require memory to be a 3D array."""
+        return 3
 
     def _process(self, datum: np.array) -> np.array:
         """Take the real part of the IQ data.
@@ -90,8 +100,34 @@ class ToReal(IQPart):
         return datum[:, :, 0] * self.scale
 
 
+class ToRealAvg(IQPart):
+    """IQ data post-processing. Isolate the real part of averaged IQ data."""
+
+    def _required_dimension(self) -> int:
+        """Require memory to be a 2D array."""
+        return 2
+
+    def _process(self, datum: np.array) -> np.array:
+        """Take the real part of the IQ data.
+
+        Args:
+            datum: A 2D array of qubits, and a complex averaged IQ point as [real, imaginary].
+
+        Returns:
+            A 1D array. Each entry is the real part of the averaged IQ data of a qubit.
+        """
+        if self.scale is None:
+            return datum[:, 0]
+
+        return datum[:, 0] * self.scale
+
+
 class ToImag(IQPart):
-    """IQ data post-processing. Isolate the imaginary part of the IQ data."""
+    """IQ data post-processing. Isolate the imaginary part of single-shot IQ data."""
+
+    def _required_dimension(self) -> int:
+        """Require memory to be a 3D array."""
+        return 3
 
     def _process(self, datum: np.array) -> np.array:
         """Take the imaginary part of the IQ data.
@@ -106,6 +142,109 @@ class ToImag(IQPart):
             return datum[:, :, 1]
 
         return datum[:, :, 1] * self.scale
+
+
+class ToImagAvg(IQPart):
+    """IQ data post-processing. Isolate the imaginary part of averaged IQ data."""
+
+    def _required_dimension(self) -> int:
+        """Require memory to be a 2D array."""
+        return 2
+
+    def _process(self, datum: np.array) -> np.array:
+        """Take the imaginary part of the IQ data.
+
+        Args:
+            datum: A 2D array of qubits, and a complex averaged IQ point as [real, imaginary].
+
+        Returns:
+            A 1D array. Each entry is the imaginary part of the averaged IQ data of a qubit.
+        """
+        if self.scale is None:
+            return datum[:, 1]
+
+        return datum[:, 1] * self.scale
+
+
+class BaseDiscriminator(IQPart):
+    """Base class for discriminator processor. Takes IQ data and calibrated discriminator as input,
+    outputs counts."""
+
+    def __init__(
+        self, handle: ExperimentData, scale: Optional[float] = None, validate: bool = True
+    ):
+        """Initialize a counts to probability data conversion.
+
+        Args:
+            outcome: The bitstring for which to compute the probability.
+            validate: If set to False the DataAction will not validate its input.
+        """
+        self._handle = handle
+        self._scale = scale
+        super().__init__(validate)
+
+    def _required_dimension(self):
+        """Require memory to be a 3D array."""
+        return 3
+
+    def _to_dict(self, list_data: List[int]) -> Dict[str, Any]:
+        """Converts discriminated data in lists to dictionary of counts.
+        Args:
+            list_data: Data in list form at the output of a discriminator.
+
+        Returns:
+            processed data: A dict with the populations.
+        """
+        datum = {}
+        for shot in zip(*list_data):
+            bitstring = "".join(map(str, shot))
+            if bitstring in datum:
+                datum[bitstring] += 1
+            else:
+                datum[bitstring] = 1
+        return datum
+
+    def _process(self, datum: np.array) -> np.array:
+        # Check that number of qubits are the same between data and discriminator
+        if len(self._handle.analysis_result(0)["discriminator"]) != np.shape(datum)[1]:
+            raise DataProcessorError(
+                "The number of qubits of data and discriminator must be the same."
+            )
+
+
+class LDADiscriminator(BaseDiscriminator):
+    def _process(self, datum: np.array) -> np.array:
+        """Applies LDA discriminator to IQ data to return counts.
+        Args:
+            datum: Input IQ data to be discriminated.
+
+        Returns:
+            processed data: Counts dictionary.
+        """
+        super()._process(datum)
+
+        list_data = []
+        for i in range(np.shape(datum)[1]):
+            lda = self._handle.analysis_result(0)["discriminator"][i]
+            list_data.append(lda.predict(datum[:,i,:]))
+        return self._to_dict(list_data)
+
+class QDADiscriminator(BaseDiscriminator):
+    def _process(self, datum: np.array) -> np.array:
+        """Applies QDA discriminator to IQ data to return counts.
+        Args:
+            datum: Input IQ data to be discriminated.
+
+        Returns:
+            processed data: Counts dictionary.
+        """
+        super()._process(datum)
+
+        list_data = []
+        for i in range(np.shape(datum)[1]):
+            qda = self._handle.analysis_result(0)["discriminator"][i]
+            list_data.append(qda.predict(datum[:,i,:]))
+        return self._to_dict(list_data)
 
 
 class Probability(DataAction):
@@ -129,7 +268,6 @@ class Probability(DataAction):
         Args:
             datum: An instance of data the should be a dict with bit strings as keys
                 and counts as values.
-            validate: If True the DataAction checks that the format of the datum is valid.
 
         Returns:
             The datum as given.
