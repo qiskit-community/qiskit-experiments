@@ -159,7 +159,7 @@ def multi_mean_xy_data(
     )
 
 
-def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float, float]:
+def level2_probability(data: Dict[str, any], outcome: str = None) -> Tuple[float, float]:
     """Return the outcome probability mean and variance.
 
     Args:
@@ -182,6 +182,10 @@ def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float, float
     # This crashes scipy fitter when it calculates covariance matrix (zero-div error).
 
     counts = data["counts"]
+
+    if outcome is None:
+        outcome = '1' * len(list(counts.keys())[0])
+
     shots = sum(counts.values())
     p_mean = counts.get(outcome, 0.0) / shots
     p_var = p_mean * (1 - p_mean) / shots

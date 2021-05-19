@@ -152,7 +152,7 @@ class CurveAnalysis(BaseAnalysis):
                             cos(x, amp=p0, freq=p1, phase=p2, baseline=p3),
                         filter_kwargs={"experiment": 1},
                         plot_color="red",
-                        plot_symbpl="^",
+                        plot_symbol="^",
                     ),
                     SeriesDef(
                         name="my_experiment2",
@@ -202,7 +202,7 @@ class CurveAnalysis(BaseAnalysis):
     __x_key__ = "xval"
 
     #: str: Metadata keys specifying data processing options.
-    __processing_options__ = ["outcome"]
+    __processing_options__ = []
 
     #: List[SeriesDef]: List of mapping representing a data series
     __series__ = None

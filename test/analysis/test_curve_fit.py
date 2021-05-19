@@ -66,6 +66,7 @@ def create_new_analysis(
 
         __x_key__ = x_key
         __series__ = series
+        __processing_options__ = ["outcome"]
 
     return TestAnalysis()
 
