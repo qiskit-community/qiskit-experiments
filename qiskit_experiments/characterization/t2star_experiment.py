@@ -95,7 +95,7 @@ class T2StarAnalysis(BaseAnalysis):
         if self._conversion_factor is None:
             self._conversion_factor = 1 if unit == "s" else apply_prefix(1, unit)
         xdata, ydata, sigma = process_curve_data(
-            experiment_data._data, lambda datum: level2_probability(datum, "1")
+            experiment_data._data, lambda datum: level2_probability(datum, "0")
         )
 
         si_xdata = xdata * self._conversion_factor

@@ -82,6 +82,7 @@ class T2starBackend(BaseBackend):
 
         for circ in qobj.experiments:
             nqubits = circ.config.n_qubits
+            prob1 = np.zeros(nqubits)
             counts = dict()
             if self._readout0to1 is None:
                 ro01 = np.zeros(nqubits)
@@ -114,11 +115,13 @@ class T2starBackend(BaseBackend):
                         )
 
                     if op.name == "measure":
-                        # measure in |+> basis
+                        # theoretically we measure in |+> basis
+                        # in practice we translate our measurement to 0/1 basis
+                        prob1[qubit] = 1.0 - prob_plus[qubit]
                         meas_res = np.random.binomial(
                             1,
-                            prob_plus[qubit] * (1 - ro01[qubit])
-                            + (1 - prob_plus[qubit]) * ro10[qubit],
+                            prob1[qubit] * (1 - ro10[qubit])
+                            + (1 - prob1[qubit]) * ro01[qubit],
                         )
                         clbits[op.memory[0]] = meas_res
 
@@ -191,7 +194,7 @@ class TestT2Star(QiskitTestCase):
             )
             if unit == "dt":
                 dt_factor = getattr(backend._configuration, "dt")
-            _ = exp.circuits(backend)
+
             # run circuits
             result = exp.run(
                 backend=backend,
@@ -215,7 +218,7 @@ class TestT2Star(QiskitTestCase):
             self.assertAlmostEqual(
                 result["frequency_value"],
                 estimated_freq / dt_factor,
-                delta=0.05 * result["frequency_value"],
+                delta=0.08 * result["frequency_value"],
             )
             self.assertEqual(
                 result["quality"], "computer_good", "Result quality bad for unit " + str(unit)
@@ -233,7 +236,6 @@ class TestT2Star(QiskitTestCase):
         exp0 = T2StarExperiment(0, delays[0])
         exp2 = T2StarExperiment(2, delays[1])
         par_exp = ParallelExperiment([exp0, exp2])
-        _ = par_exp.circuits()
 
         p0 = {
             "a_guess": [0.5, None, 0.5],
@@ -254,7 +256,7 @@ class TestT2Star(QiskitTestCase):
         for i in range(2):
             sub_res = res.component_experiment_data(i).analysis_result(0)
             self.assertAlmostEqual(
-                sub_res["t2star_value"], t2star[i], delta=0.05 * sub_res["t2star_value"]
+                sub_res["t2star_value"], t2star[i], delta=0.08 * sub_res["t2star_value"]
             )
             self.assertAlmostEqual(
                 sub_res["frequency_value"],
