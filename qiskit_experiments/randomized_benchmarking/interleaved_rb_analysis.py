@@ -105,9 +105,8 @@ class InterleavedRBAnalysis(RBAnalysis):
         systematic_err = min(systematic_err_1, systematic_err_2)
         systematic_err_l = epc_est - systematic_err
         systematic_err_r = epc_est + systematic_err
-        analysis_result["systematic_err"] = systematic_err
-        analysis_result["systematic_err_L"] = systematic_err_l
-        analysis_result["systematic_err_R"] = systematic_err_r
+        analysis_result["EPC_systematic_err"] = systematic_err
+        analysis_result["EPC_systematic_bounds"] = [max(systematic_err_l, 0), systematic_err_r]
 
         if plot and plotting.HAS_MATPLOTLIB:
             ax = plotting.plot_curve_fit(fit_fun_standard, analysis_result, ax=ax, color="blue")
@@ -170,7 +169,7 @@ class InterleavedRBAnalysis(RBAnalysis):
         return {
             "a": np.mean([p0_std["a"], p0_int["a"]]),
             "alpha": p0_std["alpha"],
-            "alpha_c": p0_int["alpha"] / p0_std["alpha"],
+            "alpha_c": min(p0_int["alpha"] / p0_std["alpha"], 1),
             "b": np.mean([p0_std["b"], p0_int["b"]]),
         }
 
