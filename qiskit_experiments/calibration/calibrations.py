@@ -773,8 +773,9 @@ class Calibrations:
                 key = ParameterKey(key.parameter, qubits_, key.schedule)
                 if key in assign_params:
                     # if (param, (1,), sched) and (param, (), sched) are both
-                    # in assign_params, don't trigger an ambiguous assignment
-                    # error for qubit 1.
+                    # in assign_params, skip the default value instead of
+                    # possibly triggering an error about conflicting
+                    # parameters.
                     continue
             elif key.qubits != qubits_:
                 continue
