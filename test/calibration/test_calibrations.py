@@ -899,7 +899,7 @@ class TestAssignment(QiskitTestCase):
 
         self.assertEqual(sched, expected)
 
-    def test_assign_parameter(self):
+    def test_assign_to_parameter(self):
         """Test assigning to a Parameter instance"""
         my_amp = Parameter("my_amp")
         sched = self.cals.get_schedule("xp", (2,), assign_params={"amp": my_amp})
@@ -909,7 +909,7 @@ class TestAssignment(QiskitTestCase):
 
         self.assertEqual(sched, expected)
 
-    def test_assign_parameter_in_call(self):
+    def test_assign_to_parameter_in_call(self):
         """Test assigning to a Parameter instance in a call"""
         with pulse.build(name="call_xp") as call_xp:
             pulse.call(self.xp)
@@ -921,6 +921,31 @@ class TestAssignment(QiskitTestCase):
 
         with pulse.build(name="xp") as expected:
             pulse.play(Gaussian(160, my_amp, 40), DriveChannel(2))
+        expected = block_to_schedule(expected)
+
+        self.assertEqual(sched, expected)
+
+    def test_assign_to_parameter_in_call_and_caller(self):
+        """Test assigning to a Parameter instance in a call"""
+        with pulse.build(name="call_xp_xp") as call_xp_xp:
+            pulse.call(self.xp)
+            pulse.play(Gaussian(160, self.amp_xp, self.sigma), self.d0_)
+        self.cals.add_schedule(call_xp_xp)
+
+        my_amp = Parameter("amp")
+        sched = self.cals.get_schedule(
+            "call_xp_xp",
+            (2,),
+            assign_params={
+                ("amp", (2,), "xp"): my_amp,
+                ("amp", (2,), "call_xp_xp"): 0.2,
+            },
+        )
+        sched = block_to_schedule(sched)
+
+        with pulse.build(name="xp") as expected:
+            pulse.play(Gaussian(160, my_amp, 40), DriveChannel(2))
+            pulse.play(Gaussian(160, 0.2, 40), DriveChannel(2))
         expected = block_to_schedule(expected)
 
         self.assertEqual(sched, expected)
