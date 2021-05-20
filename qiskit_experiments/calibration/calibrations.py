@@ -789,8 +789,10 @@ class Calibrations:
                     binding_dict[param] = value
                     assignment_table[param] = key_orig
                 elif (
-                    key.schedule == ret_schedule.name or
-                    assignment_table[param].schedule != ret_schedule.name
+                    (
+                        key.schedule == ret_schedule.name or
+                        assignment_table[param].schedule != ret_schedule.name
+                    ) and binding_dict[param] != value
                 ):
                     raise CalibrationError(
                         "Ambiguous assignment: assign_params keys "
