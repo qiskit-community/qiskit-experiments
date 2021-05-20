@@ -788,16 +788,15 @@ class Calibrations:
                 if assign_okay:
                     binding_dict[param] = value
                     assignment_table[param] = key_orig
-                else:
-                    if (
-                        key.schedule == ret_schedule.name or
-                        assignment_table[param].schedule != ret_schedule.name
-                    ):
-                        raise CalibrationError(
-                            "Ambiguous assignment: assign_params keys "
-                            f"{key_orig} and {assignment_table[param]} "
-                            "resolve to the same parameter."
-                        )
+                elif (
+                    key.schedule == ret_schedule.name or
+                    assignment_table[param].schedule != ret_schedule.name
+                ):
+                    raise CalibrationError(
+                        "Ambiguous assignment: assign_params keys "
+                        f"{key_orig} and {assignment_table[param]} "
+                        "resolve to the same parameter."
+                    )
 
         for key in keys:
             # Get the parameter object. Since we are dealing with a schedule the name of
