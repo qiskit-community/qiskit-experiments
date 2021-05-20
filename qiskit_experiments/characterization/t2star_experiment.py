@@ -21,7 +21,6 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.utils import apply_prefix
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResult
-from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_scatter, plot_errorbar
 from qiskit_experiments.analysis.curve_fitting import curve_fit, process_curve_data
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
