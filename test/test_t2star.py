@@ -115,13 +115,11 @@ class T2starBackend(BaseBackend):
                         )
 
                     if op.name == "measure":
-                        # theoretically we measure in |+> basis
-                        # in practice we translate our measurement to 0/1 basis
-                        prob1[qubit] = 1.0 - prob_plus[qubit]
+                        # we measure in |+> basis which is the same as measuring |0>
                         meas_res = np.random.binomial(
                             1,
-                            prob1[qubit] * (1 - ro10[qubit])
-                            + (1 - prob1[qubit]) * ro01[qubit],
+                            (1 - prob_plus[qubit]) * (1 - ro10[qubit])
+                            + prob_plus[qubit] * ro01[qubit],
                         )
                         clbits[op.memory[0]] = meas_res
 
