@@ -12,12 +12,13 @@
 """
 Standard RB Experiment class.
 """
-from typing import Union, Iterable, Optional
+from typing import Union, Iterable, Optional, List
 
 import numpy as np
 from numpy.random import Generator, default_rng
 
 from qiskit import QuantumCircuit
+from qiskit.providers import Backend
 from qiskit.quantum_info import Clifford, random_clifford
 
 from qiskit_experiments.base_experiment import BaseExperiment
@@ -38,7 +39,8 @@ class RBExperiment(BaseExperiment):
         seed: Optional[Union[int, Generator]] = None,
         full_sampling: bool = False,
     ):
-        """Standard randomized benchmarking experiment
+        """Standard randomized benchmarking experiment.
+
         Args:
             qubits: the number of qubits or list of
                     physical qubits for the experiment.
@@ -62,27 +64,31 @@ class RBExperiment(BaseExperiment):
         super().__init__(qubits)
 
     # pylint: disable = arguments-differ
-    def circuits(self, backend=None):
+    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Return a list of RB circuits.
         Args:
             backend (Backend): Optional, a backend object.
         Returns:
-            List[QuantumCircuit]: A list of :class:`QuantumCircuit`s.
+            A list of :class:`QuantumCircuit`.
         """
         circuits = []
         for _ in range(self._num_samples):
             circuits += self._sample_circuits(self._lengths, seed=self._rng)
         return circuits
 
-    def transpiled_circuits(self, backend=None, **kwargs):
+    def transpiled_circuits(
+        self, backend: Optional[Backend] = None, **kwargs
+    ) -> List[QuantumCircuit]:
         """Return a list of transpiled RB circuits.
+
         Args:
-            backend (Backend): Optional, a backend object to use as the
-                               argument for the :func:`qiskit.transpile`
-                               function.
+            backend: Optional, a backend object to use as the
+                     argument for the :func:`qiskit.transpile` function.
             kwargs: kwarg options for the :func:`qiskit.transpile` function.
+
         Returns:
-            List[QuantumCircuit]: A list of :class:`QuantumCircuit`s.
+            A list of :class:`QuantumCircuit`.
+
         Raises:
             QiskitError: if an initial layout is specified in the
                          kwarg options for transpilation. The initial
@@ -93,14 +99,16 @@ class RBExperiment(BaseExperiment):
 
     def _sample_circuits(
         self, lengths: Iterable[int], seed: Optional[Union[int, Generator]] = None
-    ):
+    ) -> List[QuantumCircuit]:
         """Return a list RB circuits for the given lengths.
+
         Args:
             lengths: A list of RB sequences lengths.
             seed: Seed or generator object for random number
                   generation. If None default_rng will be used.
+
         Returns:
-            List[QuantumCircuit]: A list of :class:`QuantumCircuit`s.
+            A list of :class:`QuantumCircuit`.
         """
         circuits = []
         for length in lengths if self._full_sampling else [lengths[-1]]:
@@ -109,13 +117,18 @@ class RBExperiment(BaseExperiment):
             circuits += self._generate_circuit(elements, element_lengths)
         return circuits
 
-    def _generate_circuit(self, elements: Iterable[Clifford], lengths: Iterable[int]):
+    def _generate_circuit(
+        self, elements: Iterable[Clifford], lengths: Iterable[int]
+    ) -> List[QuantumCircuit]:
         """Return the RB circuits constructed from the given element list.
+
         Args:
             elements: A list of Clifford elements
             lengths: A list of RB sequences lengths.
+
         Returns:
-            List[QuantumCircuit]: A list of :class:`QuantumCircuit`s.
+            A list of :class:`QuantumCircuit`s.
+
         Additional information:
             The circuits are constructed iteratively; each circuit is obtained
             by extending the previous circuit (without the inversion and measurement gates)

@@ -12,33 +12,14 @@
 """
 Plotting functions for experiment analysis
 """
-import functools
 from typing import Callable, Optional
 import numpy as np
 
 from qiskit_experiments.base_analysis import AnalysisResult
+from qiskit_experiments.matplotlib import pyplot, requires_matplotlib
 
-try:
-    from matplotlib import pyplot as plt
-
-    HAS_MATPLOTLIB = True
-except ImportError:
-    HAS_MATPLOTLIB = False
-
-
-def requires_matplotlib(func):
-    """Decorator for functions requiring matplotlib"""
-
-    @functools.wraps(func)
-    def wrapped(*args, **kwargs):
-        if not HAS_MATPLOTLIB:
-            raise ImportError(
-                f"{func} requires matplotlib to generate curve fit plot."
-                ' Run "pip install matplotlib" before.'
-            )
-        return func(*args, **kwargs)
-
-    return wrapped
+# pylint: disable = unused-import
+from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
 
 
 @requires_matplotlib
@@ -46,12 +27,12 @@ def plot_curve_fit(
     func: Callable,
     result: AnalysisResult,
     confidence_interval: bool = True,
-    ax: Optional["AxesSubplot"] = None,
+    ax=None,
     num_fit_points: int = 100,
     labelsize: int = 14,
     grid: bool = True,
     **kwargs,
-) -> "AxesSubplot":
+):
     """Generate plot of a curve fit analysis result.
 
     Wraps ``matplotlib.pyplot.plot``.
@@ -60,21 +41,21 @@ def plot_curve_fit(
         func: the fit funcion for curve_fit.
         result: an AnalysisResult from curve_fit.
         confidence_interval: if True plot the confidence interval from popt_err.
-        ax: Optional, a matplotlib axes to add the plot to.
+        ax (matplotlib.axes.Axes): Optional, a matplotlib axes to add the plot to.
         num_fit_points: the number of points to plot for xrange.
         labelsize: label size for plot
         grid: Show grid on plot.
         **kwargs: Additional options for matplotlib.pyplot.plot
 
     Returns:
-        AxesSubPlot: the matplotlib axes containing the plot.
+        matplotlib.axes.Axes: the matplotlib axes containing the plot.
 
     Raises:
         ImportError: if matplotlib is not installed.
     """
     if ax is None:
-        plt.figure()
-        ax = plt.gca()
+        figure = pyplot.figure()
+        ax = figure.subplots()
 
     # Result data
     popt = result["popt"]
@@ -111,29 +92,29 @@ def plot_curve_fit(
 def plot_scatter(
     xdata: np.ndarray,
     ydata: np.ndarray,
-    ax: Optional["AxesSubplot"] = None,
+    ax=None,
     labelsize: int = 14,
     grid: bool = True,
     **kwargs,
-) -> "AxesSubplot":
+):
     """Generate a scatter plot of xy data.
 
-    Wraps ``matplotlib.pyplot.scatter``.
+    Wraps :func:`matplotlib.pyplot.scatter`.
 
     Args:
         xdata: xdata used for fitting
         ydata: ydata used for fitting
-        ax: Optional, a matplotlib axes to add the plot to.
+        ax (matplotlib.axes.Axes): Optional, a matplotlib axes to add the plot to.
         labelsize: label size for plot
         grid: Show grid on plot.
-        **kwargs: Additional options for matplotlib.pyplot.scatter
+        **kwargs: Additional options for :func:`matplotlib.pyplot.scatter`
 
     Returns:
-        AxesSubPlot: the matplotlib axes containing the plot.
+        matplotlib.axes.Axes: the matplotlib axes containing the plot.
     """
     if ax is None:
-        plt.figure()
-        ax = plt.gca()
+        figure = pyplot.figure()
+        ax = figure.subplots()
 
     # Default plot options
     plot_opts = kwargs.copy()
@@ -156,30 +137,30 @@ def plot_errorbar(
     xdata: np.ndarray,
     ydata: np.ndarray,
     sigma: Optional[np.ndarray] = None,
-    ax: Optional["AxesSubplot"] = None,
+    ax=None,
     labelsize: int = 14,
     grid: bool = True,
     **kwargs,
-) -> "AxesSubplot":
+):
     """Generate an errorbar plot of xy data.
 
-    Wraps ``matplotlib.pyplot.errorbar``
+    Wraps :func:`matplotlib.pyplot.errorbar`
 
     Args:
         xdata: xdata used for fitting
         ydata: ydata used for fitting
         sigma: Optional, standard deviation of ydata
-        ax: Optional, a matplotlib axes to add the plot to.
+        ax (matplotlib.axes.Axes): Optional, a matplotlib axes to add the plot to.
         labelsize: label size for plot
         grid: Show grid on plot.
-        **kwargs: Additional options for matplotlib.pyplot.scatter
+        **kwargs: Additional options for :func:`matplotlib.pyplot.errorbar`
 
     Returns:
-        AxesSubPlot: the matplotlib axes containing the plot.
+        matplotlib.axes.Axes: the matplotlib axes containing the plot.
     """
     if ax is None:
-        plt.figure()
-        ax = plt.gca()
+        figure = pyplot.figure()
+        ax = figure.subplots()
 
     # Default plot options
     plot_opts = kwargs.copy()
