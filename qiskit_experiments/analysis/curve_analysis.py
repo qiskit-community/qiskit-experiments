@@ -246,25 +246,19 @@ class CurveAnalysis(BaseAnalysis):
                 figure = axis.get_figure()
 
             for series_def in self.__series__:
-                # filter subset data
+
+                # plot raw data
+
+                xdata, ydata, _ = self._subset_data(
+                    series_def.name, x_values, y_values, y_sigmas, series
+                )
+                plotting.plot_scatter(xdata=xdata, ydata=ydata, ax=axis, zorder=0)
+
+                # plot formatted data
+
                 xdata, ydata, sigma = self._subset_data(
-                    name=series_def.name,
-                    x_values=x_values,
-                    y_values=y_values,
-                    y_sigmas=y_sigmas,
-                    series=series,
+                    series_def.name, *self._pre_processing(x_values, y_values, y_sigmas, series)
                 )
-
-                # add fit line
-                plotting.plot_curve_fit(
-                    func=series_def.fit_func,
-                    result=analysis_results,
-                    ax=axis,
-                    color=series_def.plot_color,
-                    zorder=2,
-                )
-
-                # add error bars
                 plotting.plot_errorbar(
                     xdata=xdata,
                     ydata=ydata,
@@ -276,10 +270,18 @@ class CurveAnalysis(BaseAnalysis):
                     zorder=1,
                 )
 
-                # add raw scatter data points
-                plotting.plot_scatter(xdata=xdata, ydata=ydata, ax=axis, zorder=0)
+                # plot fit curve
+
+                plotting.plot_curve_fit(
+                    func=series_def.fit_func,
+                    result=analysis_results,
+                    ax=axis,
+                    color=series_def.plot_color,
+                    zorder=2,
+                )
 
                 # format axis
+
                 axis.legend()
                 axis.tick_params(labelsize=14)
                 axis.grid(True)
@@ -342,8 +344,8 @@ class CurveAnalysis(BaseAnalysis):
         return data_processor
 
     @staticmethod
-    def _data_pre_processing(
-        x_values: np.ndarray, y_values: np.ndarray, y_sigmas: np.ndarray
+    def _pre_processing(
+        x_values: np.ndarray, y_values: np.ndarray, y_sigmas: np.ndarray, series: np.ndarray
     ) -> Tuple[np.ndarray, ...]:
         """An optional subroutine to perform data pre-processing.
 
@@ -359,11 +361,12 @@ class CurveAnalysis(BaseAnalysis):
             x_values: Numpy float array to represent X values.
             y_values: Numpy float array to represent Y values.
             y_sigmas: Numpy float array to represent Y errors.
+            series: Numpy integer array to represent mapping of data to series.
 
         Returns:
-            Numpy array tuple of pre-processed (x_values, y_values, y_sigmas).
+            Numpy array tuple of pre-processed (x_values, y_values, y_sigmas, series).
         """
-        return x_values, y_values, y_sigmas
+        return x_values, y_values, y_sigmas, series
 
     @staticmethod
     def _post_processing(analysis_result: AnalysisResult) -> AnalysisResult:
@@ -439,11 +442,9 @@ class CurveAnalysis(BaseAnalysis):
         y_values, y_sigmas = zip(*map(_data_processing, data))
 
         # Format data
-        x_values, y_values, y_sigmas = self._data_pre_processing(
-            x_values=np.asarray(x_values, dtype=float),
-            y_values=np.asarray(y_values, dtype=float),
-            y_sigmas=np.asarray(y_sigmas, dtype=float),
-        )
+        x_values = np.asarray(x_values, dtype=float)
+        y_values = np.asarray(y_values, dtype=float)
+        y_sigmas = np.asarray(y_sigmas, dtype=float)
 
         # Find series (invalid data is labeled as -1)
         series = -1 * np.ones(x_values.size, dtype=int)
@@ -611,18 +612,21 @@ class CurveAnalysis(BaseAnalysis):
         #
         # pylint: disable=broad-except
         try:
+            # format fit data
+            _xdata, _ydata, _sigma, _series = self._pre_processing(xdata, ydata, sigma, series)
+
             # Generate fit options
             fit_options_candidates = [
                 self._format_fit_options(fit_options)
-                for fit_options in self._setup_fitting(xdata, ydata, sigma, series, **options)
+                for fit_options in self._setup_fitting(_xdata, _ydata, _sigma, _series, **options)
             ]
             fit_results = [
                 self.__base_fitter__.__func__(
                     funcs=[series_def.fit_func for series_def in self.__series__],
-                    series=series,
-                    xdata=xdata,
-                    ydata=ydata,
-                    sigma=sigma,
+                    series=_series,
+                    xdata=_xdata,
+                    ydata=_ydata,
+                    sigma=_sigma,
                     **fit_options,
                 )
                 for fit_options in fit_options_candidates
