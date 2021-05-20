@@ -215,7 +215,7 @@ class T1Experiment(BaseExperiment):
         )
 
         print(res.analysis_result(0))
-        res.figure(0).show()
+        res.figure(0)
     """
 
     __analysis_class__ = T1Analysis
