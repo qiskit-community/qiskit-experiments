@@ -82,7 +82,6 @@ class T2starBackend(BaseBackend):
 
         for circ in qobj.experiments:
             nqubits = circ.config.n_qubits
-            prob1 = np.zeros(nqubits)
             counts = dict()
             if self._readout0to1 is None:
                 ro01 = np.zeros(nqubits)
