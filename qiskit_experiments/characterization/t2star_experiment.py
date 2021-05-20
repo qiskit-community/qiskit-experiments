@@ -24,15 +24,8 @@ from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResult
 from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_scatter, plot_errorbar
 from qiskit_experiments.analysis.curve_fitting import curve_fit, process_curve_data
 from qiskit_experiments.analysis.data_processing import level2_probability
+from qiskit_experiments.analysis import plotting
 from ..experiment_data import ExperimentData
-
-try:
-    from matplotlib import pyplot as plt
-
-    HAS_MATPLOTLIB = True
-except ImportError:
-    HAS_MATPLOTLIB = False
-
 
 # pylint: disable = invalid-name
 class T2StarAnalysis(BaseAnalysis):
@@ -52,7 +45,7 @@ class T2StarAnalysis(BaseAnalysis):
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,
         **kwargs,
-    ) -> Tuple[float, float]:
+    ) -> Tuple[AnalysisResult, List["matplotlib.figure.Figure"]]:
         r"""
             Calculate T2Star experiment
             The probability of measuring `+` is assumed to be of the form
@@ -73,6 +66,7 @@ class T2StarAnalysis(BaseAnalysis):
                 **kwargs: additional parameters
             Returns:
                 The analysis result with the estimated :math:`T_2^*` and 'freq' (frequency)
+                The graph of the function.
 
         """
 
@@ -106,13 +100,14 @@ class T2StarAnalysis(BaseAnalysis):
             osc_fit_fun, si_xdata, ydata, p0=list(p0.values()), sigma=sigma, bounds=bounds
         )
 
-        if plot:
-            ax = plot_curve_fit(osc_fit_fun, fit_result, ax=ax)
-            ax = plot_scatter(si_xdata, ydata, ax=ax)
-            ax = plot_errorbar(si_xdata, ydata, sigma, ax=ax)
+        if plot and plotting.HAS_MATPLOTLIB:
+            ax = plotting.plot_curve_fit(osc_fit_fun, fit_result, ax=ax)
+            ax = plotting.plot_scatter(si_xdata, ydata, ax=ax)
+            ax = plotting.plot_errorbar(si_xdata, ydata, sigma, ax=ax)
             _format_plot(ax, unit)
-            fit_result.plt = plt
-            plt.show()
+            figures = [ax.get_figure()]
+        else:
+            figures = None
 
         # Output unit is 'sec', regardless of the unit used in the input
         analysis_result = AnalysisResult(
@@ -132,7 +127,7 @@ class T2StarAnalysis(BaseAnalysis):
         analysis_result["fit"]["circuit_unit"] = unit
         if unit == "dt":
             analysis_result["fit"]["dt"] = self._conversion_factor
-        return analysis_result, None
+        return analysis_result, figures
 
     def _t2star_default_params(
         self,

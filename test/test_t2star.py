@@ -203,7 +203,7 @@ class TestT2Star(QiskitTestCase):
                     "B": 0.5,
                 },
                 user_bounds=None,
-                plot=False,
+                #plot=False,
                 instruction_durations=instruction_durations,
                 shots=2000,
             ).analysis_result(0)
@@ -246,7 +246,7 @@ class TestT2Star(QiskitTestCase):
             backend=backend,
             user_p0=None,
             user_bounds=None,
-            plot=False,
+            #plot=False,
             shots=1000,
         )
 
