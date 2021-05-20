@@ -210,7 +210,7 @@ class TestT2Star(QiskitTestCase):
             self.assertAlmostEqual(
                 result["t2star_value"],
                 estimated_t2star * dt_factor,
-                delta=0.05 * result["t2star_value"],
+                delta=0.08 * result["t2star_value"],
             )
             self.assertAlmostEqual(
                 result["frequency_value"],
@@ -258,7 +258,7 @@ class TestT2Star(QiskitTestCase):
             self.assertAlmostEqual(
                 sub_res["frequency_value"],
                 estimated_freq[i],
-                delta=0.05 * sub_res["frequency_value"],
+                delta=0.08 * sub_res["frequency_value"],
             )
             self.assertEqual(
                 sub_res["quality"],
