@@ -137,10 +137,12 @@ class TestSpectroscopy(QiskitTestCase):
     def test_spectroscopy_end2end_classified(self):
         """End to end test of the spectroscopy experiment."""
 
-        backend = SpectroscopyBackend(line_width=2e-3)
+        backend = SpectroscopyBackend(line_width=2e6)
 
         spec = Spectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
         result = spec.run(backend, amp=0.05, meas_level=MeasLevel.CLASSIFIED).analysis_result(0)
+
+        print(result)
 
         self.assertTrue(abs(result["value"]) < 1e6)
         self.assertTrue(result["success"])

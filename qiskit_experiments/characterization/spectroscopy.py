@@ -125,8 +125,6 @@ class SpectroscopyAnalysis(BaseAnalysis):
         ydata = abs(y_sigmas[:, 0])
         xdata = np.array([datum["metadata"]["xval"] for datum in experiment_data.data()])
 
-        print("x-y data set")
-
         # Fitting will not work if any sigmas are exactly 0.
         if any(sigmas == 0.0):
             sigmas = None
@@ -182,8 +180,8 @@ class SpectroscopyAnalysis(BaseAnalysis):
         best_fit["ydata_err"] = sigmas
         best_fit["quality"] = self._fit_quality(
             best_fit["popt"][0],
-            best_fit["popt"][2],
             best_fit["popt"][1],
+            best_fit["popt"][2],
             best_fit["reduced_chisq"],
             xdata,
             ydata,
@@ -201,8 +199,8 @@ class SpectroscopyAnalysis(BaseAnalysis):
     @staticmethod
     def _fit_quality(
         fit_amp: float,
-        fit_freq: float,
         fit_sigma: float,
+        fit_freq: float,
         reduced_chisq: float,
         xdata: np.array,
         ydata: np.array,
