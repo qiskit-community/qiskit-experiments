@@ -188,7 +188,10 @@ class SVD(TrainableDataAction):
                 )
                 processed_error.append(error_value)
 
-        return np.array(processed_data), processed_error
+        if len(processed_data) == 1:
+            return processed_data[0], processed_error[0]
+
+        return np.array(processed_data), np.array(processed_error)
 
     def train(self, data: List[Any]):
         """Train the SVD on the given data.

@@ -103,7 +103,9 @@ class SpectroscopyAnalysis(BaseAnalysis):
             The analysis result with the estimated peak frequency.
 
         Raises:
-            ValueError: If the measurement level is not supported.
+            QiskitError:
+                - If the measurement level is not supported.
+                - If the fit fails.
         """
 
         # Pick a data processor.
@@ -118,11 +120,12 @@ class SpectroscopyAnalysis(BaseAnalysis):
 
                 data_processor.train(experiment_data.data())
             else:
-                raise ValueError("Unsupported measurement level.")
+                raise QiskitError("Unsupported measurement level.")
 
         y_sigmas = np.array([data_processor(datum) for datum in experiment_data.data()])
-        sigmas = np.sqrt(y_sigmas[:, 1])
-        ydata = abs(y_sigmas[:, 0])
+        min_y, max_y = min(y_sigmas[:, 0]), max(y_sigmas[:, 0])
+        ydata = (y_sigmas[:, 0] - min_y) / (max_y - min_y)
+        sigmas = np.sqrt(y_sigmas[:, 1]) / (max_y - min_y)
         xdata = np.array([datum["metadata"]["xval"] for datum in experiment_data.data()])
 
         # Fitting will not work if any sigmas are exactly 0.
@@ -130,22 +133,23 @@ class SpectroscopyAnalysis(BaseAnalysis):
             sigmas = None
 
         if not offset_guess:
-            offset_guess = np.average(ydata)
+            offset_guess = np.median(ydata)
         if not amp_guess:
-            amp_guess = np.max(ydata)
+            amp_guess = -1 if offset_guess > 0.5 else 1
         if not freq_guess:
-            peak_idx = np.argmax(ydata)
+            peak_idx = np.argmin(ydata) if offset_guess > 0.5 else np.argmax(ydata)
             freq_guess = xdata[peak_idx]
         if not sigma_guesses:
             sigma_guesses = np.linspace(1e-6, abs(xdata[-1] - xdata[0]), 20)
         if amp_bounds is None:
-            amp_bounds = [0.0, 1.1 * max(ydata)]
+            amp_bounds = (-1, 1)
         if sigma_bounds is None:
-            sigma_bounds = [0, abs(xdata[-1] - xdata[0])]
+            sigma_bounds = (0, abs(xdata[-1] - xdata[0]))
         if freq_bounds is None:
-            freq_bounds = [0.9 * xdata[0], 1.1 * xdata[-1]]
+            dx = xdata[1] - xdata[0]
+            freq_bounds = (xdata[0] - dx, xdata[-1] + dx)
         if offset_bounds is None:
-            offset_bounds = [np.min(ydata), np.max(ydata)]
+            offset_bounds = (-2, 2)
 
         # Perform fit
         best_fit = None
@@ -182,6 +186,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
             best_fit["popt"][0],
             best_fit["popt"][1],
             best_fit["popt"][2],
+            best_fit["popt"][3],
             best_fit["reduced_chisq"],
             xdata,
             ydata,
@@ -201,6 +206,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
         fit_amp: float,
         fit_sigma: float,
         fit_freq: float,
+        fit_offset: float,
         reduced_chisq: float,
         xdata: np.array,
         ydata: np.array,
@@ -221,6 +227,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
             fit_amp: Amplitude of the fitted peak.
             fit_freq: Frequency of the fit.
             fit_sigma: Standard deviation of the fitted Gaussian.
+            fit_offset: Offset of the fit.
             reduced_chisq: Reduced chi-squared of the fit.
             xdata: x-values, i.e. the frequencies.
             ydata: y-values, i.e. the measured signal.
@@ -233,7 +240,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
         max_freq = xdata[-1]
         freq_increment = xdata[1] - xdata[0]
 
-        snr = fit_amp / np.sqrt(np.median(ydata))
+        snr = abs(fit_amp) / np.sqrt(abs(np.median(ydata) - fit_offset))
         fit_width_ratio = fit_sigma / (max_freq - min_freq)
 
         # pylint: disable=too-many-boolean-expressions
@@ -242,7 +249,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
             and 1.5 * freq_increment < fit_sigma
             and fit_width_ratio < 0.25
             and reduced_chisq < 5
-            and (fit_sigma_err is None or fit_sigma_err < fit_freq)
+            and (fit_sigma_err is None or (fit_sigma_err < fit_sigma))
             and snr > 2
         ):
             return "computer_good"
@@ -259,7 +266,23 @@ class SpectroscopyAnalysis(BaseAnalysis):
 
 
 class Spectroscopy(BaseExperiment):
-    """Class the runs spectroscopy by sweeping the qubit frequency."""
+    """Class the runs spectroscopy by sweeping the qubit frequency.
+
+    The circuits produced by spectroscopy correspond to a spectroscopy pulse-schedule
+    embedded in a spectroscopy gate.
+
+    .. parsed-literal::
+
+                   ┌────────────┐ ░ ┌─┐
+              q_0: ┤ Spec(freq) ├─░─┤M├
+                   └────────────┘ ░ └╥┘
+        measure: 1/══════════════════╩═
+                                     0
+
+    The pulse-schedule consists of a set frequency instruction followed by a GaussianSquare
+    pulse. A list of circuits is generated, each with a different frequency "freq".
+
+    """
 
     __analysis_class__ = SpectroscopyAnalysis
 
