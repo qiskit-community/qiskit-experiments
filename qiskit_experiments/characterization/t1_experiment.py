@@ -186,7 +186,37 @@ class T1Analysis(BaseAnalysis):
 
 
 class T1Experiment(BaseExperiment):
-    """T1 experiment class"""
+    """
+    T1 experiment class
+    
+    Design and analyze experiments for estimating T\ :sub:`1` of the device.
+
+    Each experiment consists of the following steps:
+    1. Circuits generation: the circuits set the qubit in the excited state,
+    wait different time intervals, then measure the qubit.
+    2. Backend execution: actually running the circuits on the device
+    (or simulator).
+    3. Analysis of results: deduction of T\ :sub:`1`\ , based on the outcomes,
+    by fitting to en exponential curve.
+
+    .. jupyter-execute::
+    
+        from qiskit_experiments.characterization import T1Experiment
+        from artificial_backends.t1_backend import T1Backend
+
+        t1 = 25
+        delays = list(range(1, 40, 3))
+
+        exp = T1Experiment(0, delays)
+        res = exp.run(
+            T1Backend([t1]),
+            shots=10000,
+            return_figures=True
+        )
+
+        print(res.analysis_result(0))
+        res.figure(0).show()
+    """
 
     __analysis_class__ = T1Analysis
 
