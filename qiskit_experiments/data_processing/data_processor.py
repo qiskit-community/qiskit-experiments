@@ -14,7 +14,7 @@
 
 from typing import Any, Dict, List, Set, Tuple, Union
 
-from qiskit_experiments.data_processing.data_action import DataAction
+from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
 
@@ -54,7 +54,17 @@ class DataProcessor:
         """
         self._nodes.append(node)
 
-    def __call__(self, datum: Dict[str, Any]) -> Any:
+    @property
+    def is_trained(self) -> bool:
+        """Return True if all nodes of the data processor have been trained."""
+        for node in self._nodes:
+            if isinstance(node, TrainableDataAction):
+                if not node.is_trained:
+                    return False
+
+        return True
+
+    def __call__(self, datum: Dict[str, Any], **options) -> Tuple[Any, Any]:
         """
         Call self on the given datum. This method sequentially calls the stored data actions
         on the datum.
@@ -62,15 +72,16 @@ class DataProcessor:
         Args:
             datum: A single item of data, typically from an ExperimentData instance, that needs
                 to be processed. This dict also contains the metadata of each experiment.
+            options: Run-time options given as keyword arguments that will be passed to the nodes.
 
         Returns:
             processed data: The data processed by the data processor.
         """
-        return self._call_internal(datum, False)
+        return self._call_internal(datum, **options)
 
     def call_with_history(
         self, datum: Dict[str, Any], history_nodes: Set = None
-    ) -> Tuple[Any, List]:
+    ) -> Tuple[Any, Any, List]:
         """
         Call self on the given datum. This method sequentially calls the stored data actions
         on the datum and also returns the history of the processed data.
@@ -89,10 +100,13 @@ class DataProcessor:
         return self._call_internal(datum, True, history_nodes)
 
     def _call_internal(
-        self, datum: Dict[str, Any], with_history: bool, history_nodes: Set = None
-    ) -> Union[Any, Tuple[Any, List]]:
-        """
-        Internal function to process the data with or with storing the history of the computation.
+        self,
+        datum: Dict[str, Any],
+        with_history: bool = False,
+        history_nodes: Set = None,
+        call_up_to_node: int = None,
+    ) -> Union[Tuple[Any, Any], Tuple[Any, Any, List]]:
+        """Process the data with or without storing the history of the computation.
 
         Args:
             datum: A single item of data, typically from an ExperimentData instance, that
@@ -101,6 +115,9 @@ class DataProcessor:
             history_nodes: The nodes, specified by index in the data processing chain, to
                 include in the history. If None is given then all nodes will be included
                 in the history.
+            call_up_to_node: The data processor will use each node in the processing chain
+                up to the node indexed by call_up_to_node. If this variable is not specified
+                then all nodes in the data processing chain will be called.
 
         Returns:
             datum_ and history if with_history is True or datum_ if with_history is False.
@@ -108,6 +125,8 @@ class DataProcessor:
         Raises:
             DataProcessorError: If the input key of the data processor is not contained in datum.
         """
+        if call_up_to_node is None:
+            call_up_to_node = len(self._nodes)
 
         if self._input_key not in datum:
             raise DataProcessorError(
@@ -115,17 +134,37 @@ class DataProcessor:
             )
 
         datum_ = datum[self._input_key]
+        error_ = None
 
         history = []
         for index, node in enumerate(self._nodes):
-            datum_ = node(datum_)
 
-            if with_history and (
-                history_nodes is None or (history_nodes and index in history_nodes)
-            ):
-                history.append((node.__class__.__name__, datum_, index))
+            if index < call_up_to_node:
+                datum_, error_ = node(datum_, error_)
+
+                if with_history and (
+                    history_nodes is None or (history_nodes and index in history_nodes)
+                ):
+                    history.append((node.__class__.__name__, datum_, error_, index))
 
         if with_history:
-            return datum_, history
+            return datum_, error_, history
         else:
-            return datum_
+            return datum_, error_
+
+    def train(self, data: List[Dict[str, Any]]):
+        """Train the nodes of the data processor.
+
+        Args:
+            data: The data to use to train the data processor.
+        """
+
+        for index, node in enumerate(self._nodes):
+            if isinstance(node, TrainableDataAction):
+                if not node.is_trained:
+                    # Process the data up to the untrained node.
+                    train_data = []
+                    for datum in data:
+                        train_data.append(self._call_internal(datum, call_up_to_node=index)[0])
+
+                    node.train(train_data)
