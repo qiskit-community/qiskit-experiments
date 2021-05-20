@@ -33,12 +33,17 @@ class T1Analysis(BaseAnalysis):
     """T1 Experiment result analysis class.
 
     Analysis Options:
-        t1_guess (float): Optional, an initial guess of T1
-        amplitude_guess (float): Optional, an initial guess of the coefficient of the exponent
-        offset_guess (float): Optional, an initial guess of the offset
-        t1_bounds (list of two floats): Optional, lower bound and upper bound to T1
-        amplitude_bounds (list of two floats): Optional, lower bound and upper bound to the amplitude
-        offset_bounds (list of two floats): Optional, lower bound and upper bound to the offset
+
+        * t1_guess (float): Optional, an initial guess of T1.
+        * amplitude_guess (float): Optional, an initial guess of the
+                                   coefficient of the exponent.
+        * offset_guess (float): Optional, an initial guess of the offset.
+        * t1_bounds (list of two floats): Optional, lower bound and upper
+                                          bound to T1.
+        * amplitude_bounds (list of two floats): Optional, lower bound and upper
+                                                 bound to the amplitude.
+        * offset_bounds (list of two floats): Optional, lower bound and
+                                              upper bound to the offset.
     """
 
     @classmethod
@@ -64,7 +69,6 @@ class T1Analysis(BaseAnalysis):
         offset_bounds=None,
         plot=True,
         ax=None,
-        **kwargs,
     ) -> Tuple[AnalysisResult, List["matplotlib.figure.Figure"]]:
         """
         Calculate T1
@@ -73,17 +77,24 @@ class T1Analysis(BaseAnalysis):
             experiment_data (ExperimentData): the experiment data to analyze
             t1_guess (float): Optional, an initial guess of T1
             amplitude_guess (float): Optional, an initial guess of the coefficient
-                of the exponent
+                                     of the exponent
             offset_guess (float): Optional, an initial guess of the offset
             t1_bounds (list of two floats): Optional, lower bound and upper bound to T1
-            amplitude_bounds (list of two floats): Optional, lower bound and upper bound to the amplitude
-            offset_bounds (list of two floats): Optional, lower bound and upper bound to the offset
+            amplitude_bounds (list of two floats): Optional, lower bound and upper
+                                                   bound to the amplitude
+            offset_bounds (list of two floats): Optional, lower bound and upper
+                                                bound to the offset
+            plot (bool): Generator plot of exponential fit.
+            ax (AxesSubplot): Optional, axes to add figure to.
 
         Returns:
             The analysis result with the estimated T1
         """
-        unit = experiment_data._data[0]["metadata"]["unit"]
-        conversion_factor = experiment_data._data[0]["metadata"].get("dt_factor", None)
+        data = experiment_data.data()
+        unit = data[0]["metadata"]["unit"]
+        conversion_factor = data[0]["metadata"].get("dt_factor", None)
+        qubit = data[0]["metadata"]["qubit"]
+
         if conversion_factor is None:
             conversion_factor = 1 if unit == "s" else apply_prefix(1, unit)
 
@@ -202,9 +213,9 @@ class T1Experiment(BaseExperiment):
     """T1 experiment class.
 
     Experiment Options:
-        delays: delay times of the experiments
-        unit: Optional, unit of the delay times. Supported units are
-              's', 'ms', 'us', 'ns', 'ps', 'dt'.
+        * delays: delay times of the experiments
+        * unit: Optional, unit of the delay times. Supported units are
+                's', 'ms', 'us', 'ns', 'ps', 'dt'.
     """
 
     __analysis_class__ = T1Analysis
@@ -240,7 +251,7 @@ class T1Experiment(BaseExperiment):
         # Set experiment options
         self.set_options(delays=delays, unit=unit)
 
-    def circuits(self, backend: Optional["Backend"] = None) -> List[QuantumCircuit]:
+    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """
         Return a list of experiment circuits
 

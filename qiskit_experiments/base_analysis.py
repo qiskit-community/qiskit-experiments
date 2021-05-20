@@ -15,12 +15,14 @@ Base analysis class.
 
 from abc import ABC, abstractmethod
 from typing import List, Tuple
-import copy
 
 from qiskit.providers.options import Options
 from qiskit.exceptions import QiskitError
 
-from .experiment_data import ExperimentData, AnalysisResult
+from qiskit_experiments.experiment_data import ExperimentData, AnalysisResult
+
+# pylint: disable = unused-import
+from qiskit_experiments.matplotlib import pyplot
 
 
 class BaseAnalysis(ABC):
@@ -40,25 +42,29 @@ class BaseAnalysis(ABC):
     def _default_options(cls) -> Options:
         return Options()
 
-    def run(self, experiment_data, save=True, return_figures=False, **options):
+    def run(
+        self,
+        experiment_data: ExperimentData,
+        save: bool = True,
+        return_figures: bool = False,
+        **options,
+    ):
         """Run analysis and update ExperimentData with analysis result.
 
         Args:
-            experiment_data (ExperimentData): the experiment data to analyze.
-            save (bool): if True save analysis results and figures to the
-                         :class:`ExperimentData`.
-            return_figures (bool): if true return a pair of
-                                   ``(analysis_results, figures)``,
-                                    otherwise return only analysis_results.
+            experiment_data: the experiment data to analyze.
+            save: if True save analysis results and figures to the
+                  :class:`ExperimentData`.
+            return_figures: if true return a pair of
+                            ``(analysis_results, figures)``,
+                            otherwise return only analysis_results.
             options: additional analysis options. See class documentation for
                      supported options.
 
         Returns:
-            AnalysisResult: the output of the analysis that produces a
-                            single result.
             List[AnalysisResult]: the output for analysis that produces
                                   multiple results.
-            tuple: If ``return_figures=True`` the output is a pair
+            Tuple: If ``return_figures=True`` the output is a pair
                    ``(analysis_results, figures)`` where  ``analysis_results``
                    may be a single or list of :class:`AnalysisResult` objects, and
                    ``figures`` may be None, a single figure, or a list of figures.
@@ -101,8 +107,8 @@ class BaseAnalysis(ABC):
 
     @abstractmethod
     def _run_analysis(
-        self, data: ExperimentData, **options
-    ) -> Tuple[List[AnalysisResult], List["matplotlib.figure.Figure"]]:
+        self, experiment_data: ExperimentData, **options
+    ) -> Tuple[List[AnalysisResult], List["pyplot.Figure"]]:
         """Run analysis on circuit data.
 
         Args:

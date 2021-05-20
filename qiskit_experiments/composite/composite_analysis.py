@@ -13,6 +13,7 @@
 Composite Experiment Analysis class.
 """
 
+from qiskit.exceptions import QiskitError
 from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResult
 from .composite_experiment_data import CompositeExperimentData
 
@@ -45,7 +46,7 @@ class CompositeAnalysis(BaseAnalysis):
 
         # Run analysis for sub-experiments
         for expr, expr_data in zip(
-            experiment_data._experiment._experiments, experiment_data._composite_expdata
+            experiment_data._experiment._experiments, experiment_data._components
         ):
             expr.run_analysis(expr_data, **options)
 
