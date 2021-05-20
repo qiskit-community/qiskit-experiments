@@ -16,9 +16,11 @@ from typing import Dict, Optional
 
 import numpy as np
 from qiskit.providers.basebackend import BaseBackend
+from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.providers import JobV1
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
+from qiskit.qobj.utils import MeasLevel
 from qiskit.test import QiskitTestCase
 from qiskit.exceptions import QiskitError
 
@@ -28,7 +30,7 @@ from qiskit_experiments.characterization.spectroscopy import Spectroscopy
 class TestJob(JobV1):
     """Job for testing."""
 
-    def __init__(self, backend: BaseBackend, result: Dict):
+    def __init__(self, backend: Backend, result: Dict):
         """Setup a job for testing."""
         super().__init__(backend, "test-id")
         self._result = result
@@ -47,7 +49,7 @@ class TestJob(JobV1):
         pass
 
 
-class SpectroscopyBackend(BaseBackend):
+class SpectroscopyBackend(Backend):
     """
     A simple and primitive backend, to be run by the T1 tests
     """
@@ -82,11 +84,12 @@ class SpectroscopyBackend(BaseBackend):
 
         super().__init__(configuration)
 
-    # pylint: disable = arguments-differ
-    def run(self, qobj):
-        """Run the spectroscopy backend."""
+    def _default_options(self):
+        """Default options of the test backend."""
 
-        shots = qobj.config.shots
+    # pylint: disable = arguments-differ
+    def run(self, circuits, shots=1024, meas_level=MeasLevel.KERNELED, **options):
+        """Run the spectroscopy backend."""
 
         result = {
             "backend_name": "spectroscopy backend",
@@ -97,27 +100,28 @@ class SpectroscopyBackend(BaseBackend):
             "results": [],
         }
 
-        for circ in qobj.experiments:
-            counts = {"1": 0, "0": 0}
+        for circ in circuits:
+            print(circ.data[0][0].params)
+            if meas_level == MeasLevel.CLASSIFIED:
+                counts = {"1": 0, "0": 0}
 
-            if circ.config.calibrations.gates[0].instructions[0].name != "setf":
-                raise QiskitError("Spectroscopy does not have a set frequency.")
+                set_freq = float(circ.data[0][0].params[0])
+                delta_freq = set_freq - self._freq_offset
+                prob = np.exp(-(delta_freq ** 2) / (2 * self._linewidth ** 2))
 
-            set_freq = circ.config.calibrations.gates[0].instructions[0].frequency
-            delta_freq = set_freq - self._freq_offset
-            prob = np.exp(-(delta_freq ** 2) / (2 * self._linewidth ** 2))
+                for _ in range(shots):
+                    counts[str(np.random.binomial(1, prob))] += 1
 
-            for _ in range(shots):
-                counts[str(np.random.binomial(1, prob))] += 1
+                run_result = {
+                    "shots": shots,
+                    "success": True,
+                    "header": {"metadata": circ.metadata},
+                    "data": {"counts": counts},
+                }
 
-            run_result = {
-                "shots": shots,
-                "success": True,
-                "header": {"metadata": circ.header.metadata},
-                "data": {"counts": counts},
-            }
-
-            result["results"].append(run_result)
+                result["results"].append(run_result)
+            else:
+                raise NotImplementedError
 
         return TestJob(self, result)
 
@@ -130,13 +134,13 @@ class TestSpectroscopy(QiskitTestCase):
         super().setUp()
         np.random.seed(seed=10)
 
-    def test_spectroscopy_end2end(self):
+    def test_spectroscopy_end2end_classified(self):
         """End to end test of the spectroscopy experiment."""
 
         backend = SpectroscopyBackend(line_width=2e-3)
 
         spec = Spectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
-        result = spec.run(backend, amp=0.05).analysis_result(0)
+        result = spec.run(backend, amp=0.05, meas_level=MeasLevel.CLASSIFIED).analysis_result(0)
 
         self.assertTrue(abs(result["value"]) < 1e6)
         self.assertTrue(result["success"])

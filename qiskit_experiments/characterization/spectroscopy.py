@@ -26,7 +26,7 @@ from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments import AnalysisResult
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.data_processing.data_processor import DataProcessor
-from qiskit_experiments.data_processing.nodes import ToReal
+from qiskit_experiments.data_processing.nodes import SVD, AverageData
 from qiskit_experiments.data_processing.nodes import Probability
 from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_scatter
 
@@ -46,7 +46,8 @@ class SpectroscopyAnalysis(BaseAnalysis):
         self,
         experiment_data: ExperimentData,
         data_processor: Optional[callable] = None,
-        meas_level: Optional[int] = MeasLevel.CLASSIFIED,
+        meas_level: int = MeasLevel.KERNELED,
+        meas_return: int = "single",
         amp_guess: Optional[float] = None,
         sigma_guesses: Optional[List[float]] = None,
         freq_guess: Optional[float] = None,
@@ -74,6 +75,8 @@ class SpectroscopyAnalysis(BaseAnalysis):
             experiment_data: The experiment data to analyze.
             data_processor: The data processor with which to process the data.
             meas_level: The measurement level of the experiment data.
+            meas_return: Whether single-shot (the default) or average data is returned by the
+                experiment.
             amp_guess: The amplitude of the Gaussian function, i.e. :math:`a`. If not
                 provided, this will default to the maximum absolute value of the ydata.
             sigma_guesses: The guesses for the standard deviation of the Gaussian distribution.
@@ -108,7 +111,12 @@ class SpectroscopyAnalysis(BaseAnalysis):
             if meas_level == MeasLevel.CLASSIFIED:
                 data_processor = DataProcessor("counts", [Probability("1")])
             elif meas_level == MeasLevel.KERNELED:
-                data_processor = DataProcessor("memory", [ToReal()])
+                if meas_return == "single":
+                    data_processor = DataProcessor("memory", [AverageData(), SVD()])
+                else:
+                    data_processor = DataProcessor("memory", [SVD()])
+
+                data_processor.train(experiment_data.data())
             else:
                 raise ValueError("Unsupported measurement level.")
 
@@ -116,6 +124,8 @@ class SpectroscopyAnalysis(BaseAnalysis):
         sigmas = np.sqrt(y_sigmas[:, 1])
         ydata = abs(y_sigmas[:, 0])
         xdata = np.array([datum["metadata"]["xval"] for datum in experiment_data.data()])
+
+        print("x-y data set")
 
         # Fitting will not work if any sigmas are exactly 0.
         if any(sigmas == 0.0):
@@ -148,13 +158,20 @@ class SpectroscopyAnalysis(BaseAnalysis):
 
         for sigma_guess in sigma_guesses:
             init = {"a": amp_guess, "sigma": sigma_guess, "freq": freq_guess, "b": offset_guess}
-            fit_result = curve_fit(fit_fun, xdata, ydata, init, sigmas, bounds)
+            try:
+                fit_result = curve_fit(fit_fun, xdata, ydata, init, sigmas, bounds)
 
-            if not best_fit:
-                best_fit = fit_result
-            else:
-                if fit_result["reduced_chisq"] < best_fit["reduced_chisq"]:
+                if not best_fit:
                     best_fit = fit_result
+                else:
+                    if fit_result["reduced_chisq"] < best_fit["reduced_chisq"]:
+                        best_fit = fit_result
+
+            except RuntimeError:
+                pass
+
+        if best_fit is None:
+            raise QiskitError("Could not find a fit to the spectroscopy data.")
 
         best_fit["value"] = best_fit["popt"][2]
         best_fit["stderr"] = (best_fit["popt_err"][2],)
@@ -252,7 +269,7 @@ class Spectroscopy(BaseExperiment):
     __units__ = {"Hz": 1.0, "kHz": 1.0e3, "MHz": 1.0e6, "GHz": 1.0e9}
 
     # default run options
-    __run_defaults__ = {"meas_level": MeasLevel.CLASSIFIED}
+    __run_defaults__ = {"meas_level": MeasLevel.KERNELED, "meas_return": "single"}
 
     def __init__(
         self,
