@@ -12,6 +12,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""
+A Tester for the RB experiment
+"""
 
 import qiskit_experiments as qe
 from qiskit.quantum_info import Clifford
@@ -20,27 +23,27 @@ from qiskit.test.mock import FakeParis
 import numpy as np
 
 
-"""
-A Tester for the RB experiment
-"""
-
-
 class TestRB(QiskitTestCase):
     """
     A simple and primitive backend, to be run by the RB tests
     """
 
     @staticmethod
-    def rb_parameters_2_qubit():
+    def rb_parameters_two_qubit():
         """
         Initialize data for a RB experiment with specific parameters
         Returns:
-            exp_attributes (Dictionary): A dictionary with the experiment setup attributes.
-            rb_exp (RBExperiment): The instance for the experiment object.
-            exp_data (RBExperiment): The experiment data and results after it had run.
+            dict: A dictionary with the experiment setup attributes.
+            RBExperiment: The instance for the experiment object.
+            ExperimentData: The experiment data and results after it had run.
         """
         backend = FakeParis()
-        exp_attributes = {"qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": 1, "seed": 100}
+        exp_attributes = {
+            "qubits": [0, 1],
+            "lengths": [1, 3, 5, 7, 9],
+            "num_samples": 1,
+            "seed": 100,
+        }
         rb = qe.randomized_benchmarking
         rb_exp = rb.RBExperiment(
             exp_attributes["qubits"],
@@ -55,7 +58,7 @@ class TestRB(QiskitTestCase):
         """Standard randomized benchmarking test - Identity check
             (assuming all the operator are spanned by clifford group)
         Args:
-            circuits: list of the circuits which we want to check
+            circuits (list): list of the circuits which we want to check
         """
         for qc in circuits:
             num_qubits = qc.num_qubits
@@ -86,20 +89,18 @@ class TestRB(QiskitTestCase):
                 "The qubits indices in the experiment metadata doesn't match to the one provided.",
             )
 
-    def validate_circuit_data(self, experiment: qe.experiment_data.ExperimentData,
-                              exp_attributes: dict):
+    def validate_circuit_data(
+        self, experiment: qe.experiment_data.ExperimentData, exp_attributes: dict
+    ):
         """
         Validate that the metadata of the experiment after it had run matches the one provided.
         Args:
-            experiment(qiskit_experiments.experiment_data.ExperimentData): The experiment 
+            experiment(qiskit_experiments.experiment_data.ExperimentData): The experiment
             data and results after it run.
             exp_attributes (dict): A dictionary with the experiment variable ands values
-
-        Returns:
-
         """
         for ind, data in enumerate(experiment.data):
-            experiment_information = data['metadata']
+            experiment_information = data["metadata"]
             self.assertEqual(
                 experiment_information["xdata"],
                 exp_attributes["lengths"][ind],
@@ -116,9 +117,12 @@ class TestRB(QiskitTestCase):
         Run the RB test for the circuits (checking the metadata, parameters and functionallity
         of the experiment.
         """
-        exp_2_qubit_metadata_attributes_dict, exp_2_qubit_exp, exp_2_quibit_exp_data = self.rb_parameters_2_qubit()
-        exp_2_qubit_circuit = exp_2_qubit_exp.circuits()
-        self.is_identity(exp_2_qubit_circuit)
-        self.validate_metadata(exp_2_qubit_circuit, exp_2_qubit_metadata_attributes_dict)
-        self.validate_circuit_data(exp_2_quibit_exp_data, exp_2_qubit_metadata_attributes_dict)
-
+        (
+            exp_two_qubit_att_metadata,
+            exp_two_qubit_exp,
+            exp_two_quibit_exp_data,
+        ) = self.rb_parameters_two_qubit()
+        exp_two_qubit_circuit = exp_two_qubit_exp.circuits()
+        self.is_identity(exp_two_qubit_circuit)
+        self.validate_metadata(exp_two_qubit_circuit, exp_two_qubit_att_metadata)
+        self.validate_circuit_data(exp_two_quibit_exp_data, exp_two_qubit_att_metadata)
