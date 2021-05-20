@@ -1017,11 +1017,26 @@ class TestCoupledAssigning(QiskitTestCase):
 
         self.assertEqual(sched, expected)
 
+    def test_assign_coupled_implicitly_float(self):
+        """Test that we get the proper schedules when they are coupled."""
+        assign_params = {("amp", (3, 2), "cr_m"): 0.8}
+        sched = self.cals.get_schedule("ecr", (3, 2), assign_params=assign_params)
+        sched = block_to_schedule(sched)
+
+        with pulse.build(name="ecr") as expected:
+            with pulse.align_sequential():
+                pulse.play(GaussianSquare(800, 0.8, 40, 640), ControlChannel(10))
+                pulse.play(Gaussian(160, 0.2, 40), DriveChannel(3))
+                pulse.play(GaussianSquare(800, -0.8, 40, 640), ControlChannel(10))
+
+        expected = block_to_schedule(expected)
+
+        self.assertEqual(sched, expected)
+
     def test_assign_coupled_implicitly(self):
         """Test that we get the proper schedules when they are coupled."""
         my_amp = Parameter("my_amp")
-        my_amp2 = Parameter("my_amp2")
-        assign_params = {("amp", (3, 2), "cr_p"): my_amp, ("amp", (3, 2), "cr_m"): my_amp2}
+        assign_params = {("amp", (3, 2), "cr_p"): my_amp}
         sched = self.cals.get_schedule("ecr", (3, 2), assign_params=assign_params)
         sched = block_to_schedule(sched)
 
@@ -1029,7 +1044,7 @@ class TestCoupledAssigning(QiskitTestCase):
             with pulse.align_sequential():
                 pulse.play(GaussianSquare(800, my_amp, 40, 640), ControlChannel(10))
                 pulse.play(Gaussian(160, 0.2, 40), DriveChannel(3))
-                pulse.play(GaussianSquare(800, -my_amp2, 40, 640), ControlChannel(10))
+                pulse.play(GaussianSquare(800, -my_amp, 40, 640), ControlChannel(10))
 
         expected = block_to_schedule(expected)
 
