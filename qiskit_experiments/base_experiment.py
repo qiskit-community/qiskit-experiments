@@ -14,18 +14,15 @@ Base Experiment class.
 """
 
 from abc import ABC, abstractmethod
-from typing import Union, Iterable, Optional, Tuple, List
+from typing import Iterable, Optional, Tuple, List
 import copy
 from numbers import Integral
-from typing import List, Optional, Iterable, Tuple, Union
 
 from qiskit import transpile, assemble, QuantumCircuit
 from qiskit.providers.options import Options
 from qiskit.providers.backend import Backend
 from qiskit.providers.basebackend import BaseBackend as LegacyBackend
 from qiskit.exceptions import QiskitError
-from qiskit.providers.backend import Backend
-from qiskit.providers.basebackend import BaseBackend as LegacyBackend
 
 from .experiment_data import ExperimentData
 
@@ -107,9 +104,7 @@ class BaseExperiment(ABC):
             experiment_data = self.__experiment_data__(self, backend=backend)
 
         # Generate and transpile circuits
-        circuits = self._transpile(
-            self.circuits(backend), backend, **self.transpile_options.__dict__
-        )
+        circuits = transpile(self.circuits(backend), backend, **self.transpile_options.__dict__)
 
         # Run circuits on backend
         run_opts = copy.copy(self.run_options)
@@ -172,7 +167,7 @@ class BaseExperiment(ABC):
         return self._physical_qubits
 
     @classmethod
-    def analysis(cls, **kwargs) -> "BaseAnalysis":
+    def analysis(cls, **kwargs):
         """Return the default Analysis class for the experiment."""
         if cls.__analysis_class__ is None:
             raise QiskitError(f"Experiment {cls.__name__} does not have a default Analysis class")
@@ -187,7 +182,7 @@ class BaseExperiment(ABC):
             backend: Optional, a backend object.
 
         Returns:
-            A list of :class:`QuantumCircuit`s.
+            A list of :class:`QuantumCircuit`.
 
         .. note::
             These circuits should be on qubits ``[0, .., N-1]`` for an
@@ -197,20 +192,6 @@ class BaseExperiment(ABC):
         # NOTE: Subclasses should override this method using the `options`
         # values for any explicit experiment options that effect circuit
         # generation
-
-    def _transpile(
-        self,
-        circuits: Union[QuantumCircuit, List[QuantumCircuit]],
-        backend: Optional[Backend] = None,
-        **transpile_options,
-    ) -> List[QuantumCircuit]:
-        """Custom transpilation of circuits for running on backend.
-
-        Subclasses may modify this method if they need to customize how
-        transpilation is done, for example to update metadata in the
-        transpiled circuits.
-        """
-        return transpile(circuits, backend=backend, **transpile_options)
 
     @classmethod
     def _default_options(cls) -> Options:
