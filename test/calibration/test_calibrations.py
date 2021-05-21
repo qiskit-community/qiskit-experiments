@@ -924,7 +924,7 @@ class TestAssignment(QiskitTestCase):
 
         self.assertEqual(sched, expected)
 
-    def test_assign_to_parameter_in_call_and_caller(self):
+    def test_assign_to_parameter_in_call_and_to_value_in_caller(self):
         """Test assigning to a Parameter instances in a call and caller"""
         with pulse.build(name="call_xp_xp") as call_xp_xp:
             pulse.call(self.xp)
@@ -949,7 +949,7 @@ class TestAssignment(QiskitTestCase):
 
         self.assertEqual(sched, expected)
 
-    def test_assign_to_parameter_in_call_and_to_value_in_caller(self):
+    def test_assign_to_same_parameter_in_call_and_caller(self):
         """
         Test assigning to a Parameter in a call and reassigning in caller raises
 
