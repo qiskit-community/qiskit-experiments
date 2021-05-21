@@ -257,8 +257,12 @@ class TestCalibrationsBasic(QiskitTestCase):
             self.cals.get_parameter_value("amp", [3], "xp")
 
 
-class TestCalibrationDefaults(QiskitTestCase):
-    """Test that we can override defaults."""
+class TestOverrideDefaults(QiskitTestCase):
+    """
+    Test that we can override defaults. For example, this means that all qubits may have a
+    Gaussian as xp pulse but a specific qubit may have a Drag pulse which overrides the
+    default Gaussian.
+    """
 
     def setUp(self):
         """Create the setting to test."""
