@@ -64,7 +64,7 @@ class RBExperiment(BaseExperiment):
         super().__init__(qubits)
 
         # Set configurable options
-        self.set_options(lengths=list(lengths), num_samples=num_samples)
+        self.set_experiment_options(lengths=list(lengths), num_samples=num_samples)
 
         # Set fixed options
         self._full_sampling = full_sampling
@@ -88,8 +88,8 @@ class RBExperiment(BaseExperiment):
             A list of :class:`QuantumCircuit`.
         """
         circuits = []
-        for _ in range(self.options.num_samples):
-            circuits += self._sample_circuits(self.options.lengths, seed=self._rng)
+        for _ in range(self.experiment_options.num_samples):
+            circuits += self._sample_circuits(self.experiment_options.lengths, seed=self._rng)
         return circuits
 
     def _sample_circuits(

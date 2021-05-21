@@ -221,7 +221,7 @@ class T1Experiment(BaseExperiment):
     __analysis_class__ = T1Analysis
 
     @classmethod
-    def _default_options(cls) -> Options:
+    def _default_experiment_options(cls) -> Options:
         return Options(delays=None, unit="s")
 
     def __init__(
@@ -249,7 +249,7 @@ class T1Experiment(BaseExperiment):
         super().__init__([qubit])
 
         # Set experiment options
-        self.set_options(delays=delays, unit=unit)
+        self.set_experiment_options(delays=delays, unit=unit)
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """
@@ -264,7 +264,7 @@ class T1Experiment(BaseExperiment):
         Raises:
             AttributeError: if unit is dt but dt parameter is missing in the backend configuration
         """
-        if self.options.unit == "dt":
+        if self.experiment_options.unit == "dt":
             try:
                 dt_factor = getattr(backend.configuration(), "dt")
             except AttributeError as no_dt:
@@ -272,11 +272,11 @@ class T1Experiment(BaseExperiment):
 
         circuits = []
 
-        for delay in self.options.delays:
+        for delay in self.experiment_options.delays:
             circ = QuantumCircuit(1, 1)
             circ.x(0)
             circ.barrier(0)
-            circ.delay(delay, 0, self.options.unit)
+            circ.delay(delay, 0, self.experiment_options.unit)
             circ.barrier(0)
             circ.measure(0, 0)
 
@@ -284,10 +284,10 @@ class T1Experiment(BaseExperiment):
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
                 "xval": delay,
-                "unit": self.options.unit,
+                "unit": self.experiment_options.unit,
             }
 
-            if self.options.unit == "dt":
+            if self.experiment_options.unit == "dt":
                 circ.metadata["dt_factor"] = dt_factor
 
             circuits.append(circ)

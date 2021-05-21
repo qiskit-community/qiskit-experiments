@@ -71,7 +71,7 @@ class BaseExperiment(ABC):
                 raise QiskitError("Duplicate qubits in physical qubits list.")
 
         # Experiment options
-        self._options = self._default_options()
+        self._experiment_options = self._default_experiment_options()
         self._transpile_options = self._default_transpile_options()
         self._run_options = self._default_run_options()
         self._analysis_options = self._default_analysis_options()
@@ -194,7 +194,7 @@ class BaseExperiment(ABC):
         # generation
 
     @classmethod
-    def _default_options(cls) -> Options:
+    def _default_experiment_options(cls) -> Options:
         """Default kwarg options for experiment"""
         # Experiment subclasses should override this method to return
         # an `Options` object containing all the supported options for
@@ -203,11 +203,11 @@ class BaseExperiment(ABC):
         return Options()
 
     @property
-    def options(self) -> Options:
+    def experiment_options(self) -> Options:
         """Return the options for the experiment."""
-        return self._options
+        return self._experiment_options
 
-    def set_options(self, **fields):
+    def set_experiment_options(self, **fields):
         """Set the experiment options.
 
         Args:
@@ -217,18 +217,18 @@ class BaseExperiment(ABC):
             AttributeError: If the field passed in is not a supported options
         """
         for field in fields:
-            if not hasattr(self._options, field):
+            if not hasattr(self._experiment_options, field):
                 raise AttributeError(
                     f"Options field {field} is not valid for {type(self).__name__}"
                 )
-        self._options.update_options(**fields)
+        self._experiment_options.update_options(**fields)
 
     @classmethod
     def _default_transpile_options(cls) -> Options:
         """Default transpiler options for transpilation of circuits"""
         # Experiment subclasses can override this method if they need
-        # to set specific transpiler options defaults for running the
-        # experiment.
+        # to set specific default transpiler options to transpile the
+        # experiment circuits.
         return Options(optimization_level=0)
 
     @property

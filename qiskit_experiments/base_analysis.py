@@ -28,10 +28,16 @@ from qiskit_experiments.matplotlib import pyplot
 class BaseAnalysis(ABC):
     """Base Analysis class for analyzing Experiment data.
 
+    The data produced by experiments (i.e. subclasses of BaseExperiment)
+    are analyzed with subclasses of BaseExperiment. The analysis is
+    typically run after the data has been gathered by the experiment.
+    For example, an analysis may perform some data processing of the
+    measured data and a fit to a function to extract a parameter.
+
     When designing Analysis subclasses default values for any kwarg
     analysis options of the `run` method should be set by overriding
     the `_default_options` class method. When calling `run` these
-    default values will combined with all other option kwargs in the
+    default values will be combined with all other option kwargs in the
     run method and passed to the `_run_analysis` function.
     """
 
