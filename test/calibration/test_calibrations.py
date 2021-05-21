@@ -13,7 +13,6 @@
 """Class to test the calibrations."""
 
 import os
-import unittest
 from collections import defaultdict
 from datetime import datetime
 from qiskit.circuit import Parameter
