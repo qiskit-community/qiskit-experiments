@@ -859,6 +859,7 @@ class TestControlChannels(CrossResonanceTest):
 
 class TestAssignment(QiskitTestCase):
     """Test simple assignment"""
+
     def setUp(self):
         """Create the setting to test."""
         super().setUp()
@@ -884,7 +885,7 @@ class TestAssignment(QiskitTestCase):
                 pulse.call(xp)
                 pulse.call(xp, value_dict={self.ch0: self.ch1})
 
-        self.xp = xp
+        self.xp_ = xp
         self.cals.add_schedule(xp)
         self.cals.add_schedule(xpxp)
 
@@ -914,7 +915,7 @@ class TestAssignment(QiskitTestCase):
     def test_assign_to_parameter_in_call(self):
         """Test assigning to a Parameter instance in a call"""
         with pulse.build(name="call_xp") as call_xp:
-            pulse.call(self.xp)
+            pulse.call(self.xp_)
         self.cals.add_schedule(call_xp)
 
         my_amp = Parameter("my_amp")
@@ -930,7 +931,7 @@ class TestAssignment(QiskitTestCase):
     def test_assign_to_parameter_in_call_and_to_value_in_caller(self):
         """Test assigning to a Parameter instances in a call and caller"""
         with pulse.build(name="call_xp_xp") as call_xp_xp:
-            pulse.call(self.xp)
+            pulse.call(self.xp_)
             pulse.play(Gaussian(160, self.amp_xp, self.sigma), self.d0_)
         self.cals.add_schedule(call_xp_xp)
 
@@ -961,7 +962,7 @@ class TestAssignment(QiskitTestCase):
         schedule as that will re-bind the Parameter in the subschedule as well.
         """
         with pulse.build(name="call_xp_xp") as call_xp_xp:
-            pulse.call(self.xp)
+            pulse.call(self.xp_)
             pulse.play(Gaussian(160, self.amp_xp, self.sigma), self.d0_)
         self.cals.add_schedule(call_xp_xp)
 
@@ -1007,6 +1008,7 @@ class TestAssignment(QiskitTestCase):
         expected = block_to_schedule(expected)
 
         self.assertEqual(sched, expected)
+
 
 class TestCoupledAssigning(QiskitTestCase):
     """Test that assigning parameters works when they are coupled in calls."""

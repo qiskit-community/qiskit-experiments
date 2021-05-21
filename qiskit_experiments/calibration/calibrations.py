@@ -795,19 +795,17 @@ class Calibrations:
             param = self.calibration_parameter(*key)
             if param in ret_schedule.parameters:
                 assign_okay = (
-                    param not in binding_dict or
-                    key.schedule == ret_schedule.name and
-                    assignment_table[param].schedule != ret_schedule.name
+                    param not in binding_dict
+                    or key.schedule == ret_schedule.name
+                    and assignment_table[param].schedule != ret_schedule.name
                 )
                 if assign_okay:
                     binding_dict[param] = value
                     assignment_table[param] = key_orig
                 elif (
-                    (
-                        key.schedule == ret_schedule.name or
-                        assignment_table[param].schedule != ret_schedule.name
-                    ) and binding_dict[param] != value
-                ):
+                    key.schedule == ret_schedule.name
+                    or assignment_table[param].schedule != ret_schedule.name
+                ) and binding_dict[param] != value:
                     raise CalibrationError(
                         "Ambiguous assignment: assign_params keys "
                         f"{key_orig} and {assignment_table[param]} "
