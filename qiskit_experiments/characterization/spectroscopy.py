@@ -39,7 +39,19 @@ except ImportError:
 
 
 class SpectroscopyAnalysis(BaseAnalysis):
-    """Class to analysis a spectroscopy experiment."""
+    """A class to analyze a spectroscopy experiment.
+
+    Analyze a spectroscopy experiment by fitting the data to a Gaussian function.
+    The fit function is:
+
+    .. math::
+
+        a * exp(-(x-x0)**2/(2*sigma**2)) + b
+
+    Here, :math:`x` is the frequency. The analysis loops over the initial guesses
+    of the width parameter :math:`sigma`. The measured y-data will be rescaled to
+    the interval (0,1).
+    """
 
     # pylint: disable=arguments-differ, unused-argument
     def _run_analysis(
@@ -52,55 +64,50 @@ class SpectroscopyAnalysis(BaseAnalysis):
         sigma_guesses: Optional[List[float]] = None,
         freq_guess: Optional[float] = None,
         offset_guess: Optional[float] = None,
-        amp_bounds: Optional[Tuple[float, float]] = None,
+        amp_bounds: Tuple[float, float] = (-1, 1),
         sigma_bounds: Optional[Tuple[float, float]] = None,
         freq_bounds: Optional[Tuple[float, float]] = None,
-        offset_bounds: Optional[Tuple[float, float]] = None,
+        offset_bounds: Tuple[float, float] = (-2, 2),
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,
         **kwargs,
     ) -> Tuple[AnalysisResult, None]:
-        """
-        Analyse a spectroscopy experiment by fitting the data to a Gaussian function.
-        The fit function is:
-
-        .. math::
-
-            a * exp(-(x-x0)**2/(2*sigma**2)) + b
-
-        Here, :math:`x` is the frequency. The analysis loops over the initial guesses
-        of the width parameter :math:`sigma`.
+        """Analyze the given data by fitting it to a Gaussian.
 
         Args:
             experiment_data: The experiment data to analyze.
-            data_processor: The data processor with which to process the data.
+            data_processor: The data processor with which to process the data. If no data
+                processor is given a singular value decomposition of the IQ data will be
+                used for Kerneled data and a conversion from counts to probabilities will
+                be done if Discriminated data was measured.
             meas_level: The measurement level of the experiment data.
             meas_return: Whether single-shot (the default) or average data is returned by the
                 experiment.
             amp_guess: The amplitude of the Gaussian function, i.e. :math:`a`. If not
-                provided, this will default to the maximum absolute value of the ydata.
+                provided, this will default to -1 or 1 depending on the measured values.
             sigma_guesses: The guesses for the standard deviation of the Gaussian distribution.
                 If it is not given this will default to an array of ten
-                points linearly spaced between zero and the full width of the data.
+                points linearly spaced between zero and width of the x-data.
             freq_guess: A guess for the frequency of the peak :math:`x0`. If not provided
-                this guess will default to the location of the highest absolute data point.
+                this guess will default to the location of the highest or lowest point of
+                the y-data depending on the y-data.
             offset_guess: A guess for the magnitude :math:`b` offset of the fit function.
-                If not provided, the initial guess defaults to the average of the ydata.
+                If not provided, the initial guess defaults to the median of the y-data.
             amp_bounds: Bounds on the amplitude of the Gaussian function as a tuple of
-                two floats. The default bounds are [0, 1.1*max(ydata)]
+                two floats. The default bounds are (-1, 1).
             sigma_bounds: Bounds on the standard deviation of the Gaussian function as a tuple
-                of two floats. The default values are [0, frequency range].
+                of two floats. The default values are (0, frequency range).
             freq_bounds: Bounds on the center frequency as a tuple of two floats. The default
-                values are 90% of the lower end of the frequency and 110% of the upper end of
-                the frequency.
+                values are (min(frequencies) - df, max(frequencies) - df).
             offset_bounds: Bounds on the offset of the Gaussian function as a tuple of two floats.
-                The default values are the minimum and maximum of the ydata.
+                The default values are (-2, 2).
             plot: If True generate a plot of fitted data.
-            ax: Optional, matplotlib axis to add plot to.
+            ax: Optional, matplotlib axis to add the plot to.
             kwargs: Trailing unused function parameters.
 
         Returns:
-            The analysis result with the estimated peak frequency.
+            The analysis result with the estimated peak frequency and the plots if a plot was
+            generated.
 
         Raises:
             QiskitError:
@@ -132,6 +139,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
         if any(sigmas == 0.0):
             sigmas = None
 
+        # Set the default options that depend on the y-data.
         if not offset_guess:
             offset_guess = np.median(ydata)
         if not amp_guess:
@@ -141,15 +149,11 @@ class SpectroscopyAnalysis(BaseAnalysis):
             freq_guess = xdata[peak_idx]
         if not sigma_guesses:
             sigma_guesses = np.linspace(1e-6, abs(xdata[-1] - xdata[0]), 20)
-        if amp_bounds is None:
-            amp_bounds = (-1, 1)
         if sigma_bounds is None:
             sigma_bounds = (0, abs(xdata[-1] - xdata[0]))
         if freq_bounds is None:
             dx = xdata[1] - xdata[0]
             freq_bounds = (xdata[0] - dx, xdata[-1] + dx)
-        if offset_bounds is None:
-            offset_bounds = (-2, 2)
 
         # Perform fit
         best_fit = None
@@ -197,9 +201,11 @@ class SpectroscopyAnalysis(BaseAnalysis):
             ax = plot_curve_fit(fit_fun, best_fit, ax=ax)
             ax = plot_scatter(xdata, ydata, ax=ax)
             self._format_plot(ax, best_fit)
-            best_fit.plt = plt
+            figures = [ax.get_figure()]
+        else:
+            figures = None
 
-        return best_fit, None
+        return best_fit, figures
 
     @staticmethod
     def _fit_quality(
@@ -212,21 +218,22 @@ class SpectroscopyAnalysis(BaseAnalysis):
         ydata: np.array,
         fit_sigma_err: Optional[float] = None,
     ) -> str:
-        """
-        Algorithmic criteria for whether the fit is good or bad.
+        """Algorithmic criteria for whether the fit is good or bad.
+
         A good fit has:
-            - a small reduced chi-squared,
-            - the peak must be within the scanned frequency range,
-            - a standard deviation that is not larger than the scanned frequency range and
-              that is wider than the smallest frequency increment,
+            - a reduced chi-squared less than 3,
+            - a peak within the scanned frequency range,
+            - a standard deviation that is not larger than the scanned frequency range,
+            - a standard deviation that is wider than the smallest frequency increment,
             - a signal-to-noise ratio, defined as the amplitude of the peak divided by the
-              square root of the median y-value, greater than a threshold of two, and
+              square root of the median y-value less the fit offset, greater than a
+              threshold of two, and
             - a standard error on the sigma of the Gaussian that is smaller than the sigma.
 
         Args:
             fit_amp: Amplitude of the fitted peak.
-            fit_freq: Frequency of the fit.
             fit_sigma: Standard deviation of the fitted Gaussian.
+            fit_freq: Frequency of the fitted peak.
             fit_offset: Offset of the fit.
             reduced_chisq: Reduced chi-squared of the fit.
             xdata: x-values, i.e. the frequencies.
@@ -234,7 +241,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
             fit_sigma_err: Errors on the standard deviation of the fit.
 
         Returns:
-            computer_bad or computer_good if the fit passes or fails, respectively.
+            computer_bad or computer_good if the fit passes or fails the criteria, respectively.
         """
         min_freq = xdata[0]
         max_freq = xdata[-1]
@@ -248,7 +255,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
             min_freq <= fit_freq <= max_freq
             and 1.5 * freq_increment < fit_sigma
             and fit_width_ratio < 0.25
-            and reduced_chisq < 5
+            and reduced_chisq < 3
             and (fit_sigma_err is None or (fit_sigma_err < fit_sigma))
             and snr > 2
         ):
@@ -266,10 +273,9 @@ class SpectroscopyAnalysis(BaseAnalysis):
 
 
 class Spectroscopy(BaseExperiment):
-    """Class the runs spectroscopy by sweeping the qubit frequency.
+    """Class that runs spectroscopy by sweeping the qubit frequency.
 
-    The circuits produced by spectroscopy correspond to a spectroscopy pulse-schedule
-    embedded in a spectroscopy gate.
+    The circuits produced by spectroscopy, i.e.
 
     .. parsed-literal::
 
@@ -279,9 +285,9 @@ class Spectroscopy(BaseExperiment):
         measure: 1/══════════════════╩═
                                      0
 
-    The pulse-schedule consists of a set frequency instruction followed by a GaussianSquare
+    have a spectroscopy pulse-schedule embedded in a spectroscopy gate. The
+    pulse-schedule consists of a set frequency instruction followed by a GaussianSquare
     pulse. A list of circuits is generated, each with a different frequency "freq".
-
     """
 
     __analysis_class__ = SpectroscopyAnalysis
@@ -300,12 +306,12 @@ class Spectroscopy(BaseExperiment):
         absolute: bool = True,
     ):
         """
-        A spectroscopy experiment run by shifting the frequency of the qubit.
-        The parameters of the GaussianSquare spectroscopy pulse are specified at run-time.
+        A spectroscopy experiment run by setting the frequency of the qubit drive.
+        The parameters of the GaussianSquare spectroscopy pulse can be specified at run-time.
         The spectroscopy pulse has the following parameters:
         - amp: The amplitude of the pulse must be between 0 and 1, the default is 0.1.
         - duration: The duration of the spectroscopy pulse in samples, the default is 1000 samples.
-        - sigma: The standard deviation of the pulse, the default is 5 x duration.
+        - sigma: The standard deviation of the pulse, the default is duration / 4.
         - width: The width of the flat-top in the pulse, the default is 0, i.e. a Gaussian.
 
         Args:
@@ -318,7 +324,7 @@ class Spectroscopy(BaseExperiment):
                 qubit frequency in the backend.
 
         Raises:
-            ValueError: if there are less than three frequency shifts or if the unit is not known.
+            QiskitError: if there are less than three frequency shifts or if the unit is not known.
 
         """
         if len(frequencies) < 3:
@@ -333,9 +339,10 @@ class Spectroscopy(BaseExperiment):
         super().__init__([qubit], circuit_options=("amp", "duration", "sigma", "width"))
 
     def circuits(self, backend: Optional["Backend"] = None, **circuit_options):
-        """
-        Create the circuit for the spectroscopy experiment. The circuits are based on a
-        GaussianSquare pulse and a frequency_shift instruction encapsulated in a gate.
+        """Create the circuit for the spectroscopy experiment.
+
+        The circuits are based on a GaussianSquare pulse and a frequency_shift instruction
+        encapsulated in a gate.
 
         Args:
             backend: A backend object.
