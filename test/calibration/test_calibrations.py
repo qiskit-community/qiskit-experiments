@@ -926,7 +926,7 @@ class TestAssignment(QiskitTestCase):
         self.assertEqual(sched, expected)
 
     def test_assign_to_parameter_in_call_and_caller(self):
-        """Test assigning to a Parameter instance in a call"""
+        """Test assigning to a Parameter instances in a call and caller"""
         with pulse.build(name="call_xp_xp") as call_xp_xp:
             pulse.call(self.xp)
             pulse.play(Gaussian(160, self.amp_xp, self.sigma), self.d0_)
@@ -949,6 +949,30 @@ class TestAssignment(QiskitTestCase):
         expected = block_to_schedule(expected)
 
         self.assertEqual(sched, expected)
+
+    def test_assign_to_parameter_in_call_and_to_value_in_caller(self):
+        """
+        Test assigning to a Parameter in a call and reassigning in caller raises
+
+        Check that it is not allowed to leave a parameter in a subschedule free
+        by assigning it to a Parameter that is also used in the calling
+        schedule as that will re-bind the Parameter in the subschedule as well.
+        """
+        with pulse.build(name="call_xp_xp") as call_xp_xp:
+            pulse.call(self.xp)
+            pulse.play(Gaussian(160, self.amp_xp, self.sigma), self.d0_)
+        self.cals.add_schedule(call_xp_xp)
+
+        my_amp = Parameter("amp")
+        with self.assertRaises(CalibrationError):
+            self.cals.get_schedule(
+                "call_xp_xp",
+                (2,),
+                assign_params={
+                    ("amp", (2,), "xp"): self.amp_xp,
+                    ("amp", (2,), "call_xp_xp"): my_amp,
+                },
+            )
 
     def test_full_key(self):
         """Test value assignment with full key"""
