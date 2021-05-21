@@ -1010,6 +1010,59 @@ class TestAssignment(QiskitTestCase):
         self.assertEqual(sched, expected)
 
 
+class TestReplaceScheduleAndCall(QiskitTestCase):
+    """A test to ensure that inconsistencies are picked up when a schedule is reassigned."""
+
+    def setUp(self):
+        """Create the setting to test."""
+        super().setUp()
+
+        self.cals = Calibrations()
+
+        self.amp = Parameter("amp")
+        self.dur = Parameter("duration")
+        self.sigma = Parameter("σ")
+        self.beta = Parameter("β")
+        self.ch0 = Parameter("ch0")
+
+        with pulse.build(name="xp") as xp:
+            pulse.play(Gaussian(self.dur, self.amp, self.sigma), DriveChannel(self.ch0))
+
+        with pulse.build(name="call_xp") as call_xp:
+            pulse.call(xp)
+
+        self.cals.add_schedule(xp)
+        self.cals.add_schedule(call_xp)
+
+        self.cals.add_parameter_value(0.2, "amp", (4,), "xp")
+        self.cals.add_parameter_value(160, "duration", (4,), "xp")
+        self.cals.add_parameter_value(40, "σ", (), "xp")
+
+    def test_call_replaced(self):
+        """Test that we get an error when there is an inconsistency in subroutines."""
+
+        sched = self.cals.get_schedule("call_xp", (4,))
+        sched = block_to_schedule(sched)
+
+        with pulse.build(name="xp") as expected:
+            pulse.play(Gaussian(160, 0.2, 40), DriveChannel(4))
+
+        expected = block_to_schedule(expected)
+
+        self.assertEqual(sched, expected)
+
+        # Now update the xp pulse without updating the call_xp schedule and ensure that
+        # an error is raised.
+        with pulse.build(name="xp") as drag:
+            pulse.play(Drag(self.dur, self.amp, self.sigma, self.beta), DriveChannel(self.ch0))
+
+        self.cals.add_schedule(drag)
+        self.cals.add_parameter_value(10.0, "β", (4,), "xp")
+
+        with self.assertRaises(CalibrationError):
+            self.cals.get_schedule("call_xp", (4,))
+
+
 class TestCoupledAssigning(QiskitTestCase):
     """Test that assigning parameters works when they are coupled in calls."""
 

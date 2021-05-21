@@ -761,6 +761,12 @@ class Calibrations:
                             f"{template_subroutine.name} with the same name."
                         )
 
+                if inst.subroutine != template_subroutine:
+                    raise CalibrationError(
+                        f"The subroutine {inst.subroutine.name} called by {inst.name} does not "
+                        f"match the template schedule stored under {template_subroutine.name}."
+                    )
+
                 inst = inst.assigned_subroutine()
 
             if isinstance(inst, ScheduleBlock):
