@@ -125,7 +125,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
         y_sigmas = np.array([data_processor(datum) for datum in experiment_data.data()])
         min_y, max_y = min(y_sigmas[:, 0]), max(y_sigmas[:, 0])
         ydata = (y_sigmas[:, 0] - min_y) / (max_y - min_y)
-        sigmas = np.sqrt(y_sigmas[:, 1]) / (max_y - min_y)
+        sigmas = y_sigmas[:, 1] / (max_y - min_y)
         xdata = np.array([datum["metadata"]["xval"] for datum in experiment_data.data()])
 
         # Fitting will not work if any sigmas are exactly 0.
