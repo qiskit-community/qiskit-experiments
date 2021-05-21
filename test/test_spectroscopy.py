@@ -99,7 +99,7 @@ class IQTestBackend(Backend):
 
 class SpectroscopyBackend(IQTestBackend):
     """
-    A simple and primitive backend, to be run by the T1 tests
+    A simple and primitive backend to test spectroscopy experiments.
     """
 
     def __init__(
