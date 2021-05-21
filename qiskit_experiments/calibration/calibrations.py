@@ -786,12 +786,7 @@ class Calibrations:
             # Get the parameter object. Since we are dealing with a schedule the name of
             # the schedule is always defined. However, the parameter may be a default
             # parameter for all qubits, i.e. qubits may be an empty tuple.
-            if key in self._parameter_map:
-                param = self._parameter_map[key]
-            elif ParameterKey(key.parameter, (), key.schedule) in self._parameter_map:
-                param = self._parameter_map[ParameterKey(key.parameter, (), key.schedule)]
-            else:
-                raise CalibrationError(f"Parameter key {key} has no parameter.")
+            param = self.calibration_parameter(*key)
 
             if key not in assign_params:
                 if param not in binding_dict:
