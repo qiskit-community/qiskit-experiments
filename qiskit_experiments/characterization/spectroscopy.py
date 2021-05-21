@@ -28,14 +28,7 @@ from qiskit_experiments import ExperimentData
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import SVD, AverageData
 from qiskit_experiments.data_processing.nodes import Probability
-from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_scatter
-
-try:
-    from matplotlib import pyplot as plt
-
-    HAS_MATPLOTLIB = True
-except ImportError:
-    HAS_MATPLOTLIB = False
+from qiskit_experiments.analysis import plotting
 
 
 class SpectroscopyAnalysis(BaseAnalysis):
@@ -197,9 +190,9 @@ class SpectroscopyAnalysis(BaseAnalysis):
             best_fit["popt_err"][1],
         )
 
-        if plot and HAS_MATPLOTLIB:
-            ax = plot_curve_fit(fit_fun, best_fit, ax=ax)
-            ax = plot_scatter(xdata, ydata, ax=ax)
+        if plot and plotting.HAS_MATPLOTLIB:
+            ax = plotting.plot_curve_fit(fit_fun, best_fit, ax=ax)
+            ax = plotting.plot_scatter(xdata, ydata, ax=ax)
             self._format_plot(ax, best_fit)
             figures = [ax.get_figure()]
         else:
@@ -328,10 +321,10 @@ class Spectroscopy(BaseExperiment):
 
         """
         if len(frequencies) < 3:
-            raise ValueError("Spectroscopy requires at least three frequencies.")
+            raise QiskitError("Spectroscopy requires at least three frequencies.")
 
         if unit not in self.__units__:
-            raise ValueError(f"Unsupported unit: {unit}.")
+            raise QiskitError(f"Unsupported unit: {unit}.")
 
         self._frequencies = [freq * self.__units__[unit] for freq in frequencies]
         self._absolute = absolute
