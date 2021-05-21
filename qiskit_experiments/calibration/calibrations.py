@@ -106,7 +106,7 @@ class Calibrations:
                 - If a channel is parameterized by more than one parameter.
                 - If the schedule name starts with the prefix of ScheduleBlock.
                 - If the schedule calls subroutines that have not been registered.
-                - If a Schedule is Called.
+                - If a :class:`Schedule` is Called instead of a :class:`ScheduleBlock`.
         """
         qubits = self._to_tuple(qubits)
 
