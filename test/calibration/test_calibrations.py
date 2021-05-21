@@ -702,8 +702,7 @@ class TestRegistering(QiskitTestCase):
         with self.assertRaises(CalibrationError):
             self.cals.get_template("not registered")
 
-        with self.assertRaises(CalibrationError):
-            self.cals.get_template("xp", (3,))
+        self.cals.get_template("xp", (3,))
 
     def test_register_schedule(self):
         """Test that we cannot register a schedule in a call."""

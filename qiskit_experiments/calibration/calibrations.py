@@ -209,20 +209,23 @@ class Calibrations:
             The registered template schedule.
 
         Raises:
-            CalibrationError: if np template schedule for the given schedule name and qubits
+            CalibrationError: if no template schedule for the given schedule name and qubits
                 was registered.
         """
-        qubits = self._to_tuple(qubits)
+        key = ScheduleKey(schedule_name, self._to_tuple(qubits))
 
-        if ScheduleKey(schedule_name, qubits) not in self._schedules:
-            if qubits:
-                msg = f"Could not find schedule {schedule_name} on qubits {qubits}."
-            else:
-                msg = f"Could not find schedule {schedule_name}."
+        if key in self._schedules:
+            return self._schedules[key]
 
-            raise CalibrationError(msg)
+        if ScheduleKey(schedule_name, ()) in self._schedules:
+            return self._schedules[ScheduleKey(schedule_name, ())]
 
-        return self._schedules[ScheduleKey(schedule_name, qubits)]
+        if qubits:
+            msg = f"Could not find schedule {schedule_name} on qubits {qubits}."
+        else:
+            msg = f"Could not find schedule {schedule_name}."
+
+        raise CalibrationError(msg)
 
     def remove_schedule(self, schedule: ScheduleBlock, qubits: Union[int, Tuple[int, ...]] = None):
         """Remove a schedule that was previously registered.
@@ -762,6 +765,16 @@ class Calibrations:
 
         for inst in schedule.blocks:
             if isinstance(inst, Call):
+                # Check that there are no parameter inconsistencies.
+                template_subroutine = self.get_template(inst.subroutine.name, qubits_)
+                for param_ in inst.subroutine.parameters:
+                    if param_ not in template_subroutine.parameters:
+                        raise CalibrationError(
+                            f"The parameters in the called sub-routine {inst.subroutine.name} "
+                            "do not match those in the registered ScheduleBlock "
+                            f"{template_subroutine.name} with the same name."
+                        )
+
                 inst = inst.assigned_subroutine()
 
             if isinstance(inst, ScheduleBlock):
