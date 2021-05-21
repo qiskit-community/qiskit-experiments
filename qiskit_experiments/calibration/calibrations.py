@@ -721,7 +721,9 @@ class Calibrations:
         Raises:
             CalibrationError:
                 - If a channel has not been assigned.
-                - If a parameter that is needed does not have a value.
+                - If there is an ambiguous parameter assignment.
+                - If there are inconsistencies between a called schedule and the template
+                  schedule registered under the name of the called schedule.
         """
         # 1) Restrict the given qubits to those in the given schedule.
         qubit_set = set()
@@ -751,16 +753,8 @@ class Calibrations:
 
         for inst in schedule.blocks:
             if isinstance(inst, Call):
-                # Check that there are no parameter inconsistencies.
+                # Check that there are no inconsistencies with the called subroutines.
                 template_subroutine = self.get_template(inst.subroutine.name, qubits_)
-                for param_ in inst.subroutine.parameters:
-                    if param_ not in template_subroutine.parameters:
-                        raise CalibrationError(
-                            f"The parameters in the called sub-routine {inst.subroutine.name} "
-                            "do not match those in the registered ScheduleBlock "
-                            f"{template_subroutine.name} with the same name."
-                        )
-
                 if inst.subroutine != template_subroutine:
                     raise CalibrationError(
                         f"The subroutine {inst.subroutine.name} called by {inst.name} does not "
