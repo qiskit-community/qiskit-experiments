@@ -40,7 +40,7 @@ from qiskit_experiments.calibration.parameter_value import ParameterValue
 
 ParameterKey = namedtuple("ParameterKey", ["parameter", "qubits", "schedule"])
 ScheduleKey = namedtuple("ScheduleKey", ["schedule", "qubits"])
-ParameterValueType = Union["ParameterExpression", float, int, complex]
+ParameterValueType = Union[ParameterExpression, float, int, complex]
 
 
 class Calibrations:
