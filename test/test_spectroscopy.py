@@ -12,89 +12,14 @@
 
 """Spectroscopy tests."""
 
-from typing import Dict, List, Tuple
+from typing import Tuple
 
 import numpy as np
-from qiskit.providers.backend import BackendV1 as Backend
-from qiskit.providers import JobV1
-from qiskit.providers.models import QasmBackendConfiguration
-from qiskit.result import Result
 from qiskit.qobj.utils import MeasLevel
 from qiskit.test import QiskitTestCase
 
 from qiskit_experiments.characterization.spectroscopy import Spectroscopy
-
-
-class TestJob(JobV1):
-    """Job for testing."""
-
-    def __init__(self, backend: Backend, result: Dict):
-        """Setup a job for testing."""
-        super().__init__(backend, "test-id")
-        self._result = result
-
-    def result(self) -> Result:
-        """Return a result."""
-        return Result.from_dict(self._result)
-
-    def submit(self):
-        pass
-
-    def status(self):
-        pass
-
-    def cancel(self):
-        pass
-
-
-class IQTestBackend(Backend):
-    """An abstract backend for testing that can mock IQ data."""
-
-    __configuration__ = {
-        "backend_name": "simulator",
-        "backend_version": "0",
-        "n_qubits": int(1),
-        "basis_gates": [],
-        "gates": [],
-        "local": True,
-        "simulator": True,
-        "conditional": False,
-        "open_pulse": False,
-        "memory": True,
-        "max_shots": int(1e6),
-        "coupling_map": [],
-        "dt": 0.1,
-    }
-
-    def __init__(
-        self,
-        iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
-        iq_cluster_width: float = 1.0,
-    ):
-        """
-        Initialize the backend.
-        """
-        self._iq_cluster_centers = iq_cluster_centers
-        self._iq_cluster_width = iq_cluster_width
-
-        super().__init__(QasmBackendConfiguration(**self.__configuration__))
-
-    def _default_options(self):
-        """Default options of the test backend."""
-
-    def _draw_iq_shot(self, prob) -> List[List[float]]:
-        """Produce an IQ shot."""
-
-        rand_i = np.random.normal(0, self._iq_cluster_width)
-        rand_q = np.random.normal(0, self._iq_cluster_width)
-
-        if np.random.binomial(1, prob) > 0.5:
-            return [[self._iq_cluster_centers[0] + rand_i, self._iq_cluster_centers[1] + rand_q]]
-        else:
-            return [[self._iq_cluster_centers[2] + rand_i, self._iq_cluster_centers[3] + rand_q]]
-
-    def run(self, run_input, **options):
-        """Subclasses will need to override this."""
+from qiskit_experiments.test.mock_iq_backend import TestJob, IQTestBackend
 
 
 class SpectroscopyBackend(IQTestBackend):
