@@ -48,7 +48,7 @@ def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
 
 def mean_xy_data(
     xdata: np.ndarray, ydata: np.ndarray, sigma: Optional[np.ndarray] = None, method: str = "sample"
-) -> Tuple[np.ndarray]:
+) -> Tuple[np.ndarray, ...]:
     r"""Return (x, y_mean, sigma) data.
 
     The mean is taken over all ydata values with the same xdata value using

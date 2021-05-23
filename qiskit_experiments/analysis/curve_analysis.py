@@ -22,13 +22,13 @@ from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 import numpy as np
 from qiskit.exceptions import QiskitError
 
+from qiskit_experiments.analysis import plotting
 from qiskit_experiments.analysis.curve_fitting import multi_curve_fit
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
-from qiskit_experiments.analysis import plotting
 
 
 @dataclasses.dataclass
@@ -75,6 +75,8 @@ class CurveAnalysis(BaseAnalysis):
             See the Examples below for more details.
         __base_fitter__: A callable to perform curve fitting.
         __default_data_processor__: A callable to format y, y error data.
+        __plot_labels__: Dict of parameter names and its representation shows in the
+            result figure as an analysis report.
 
 
     Examples:
@@ -84,6 +86,8 @@ class CurveAnalysis(BaseAnalysis):
 
         In this type of experiment, the analysis deals with a single curve.
         Thus filter_kwargs is not necessary defined.
+        In this example, fit value and error of the parameter ``lamb`` labeled by
+        a Greek lambda symbol are written  in the figure.
 
         .. code-block::
 
@@ -98,6 +102,8 @@ class CurveAnalysis(BaseAnalysis):
                             exponential_decay(x, amp=p0, lamb=p1, baseline=p2),
                     ),
                 ]
+
+                __plot_labels__ = {"lamb": "\u03BB"}
 
 
         A fitting for two exponential decay curve with partly shared parameter
@@ -132,6 +138,8 @@ class CurveAnalysis(BaseAnalysis):
                     ),
                 ]
 
+                __plot_labels__ = {"lamb": "\u03BB"}
+
 
         A fitting for two trigonometric curves with the same parameter
         =============================================================
@@ -163,6 +171,8 @@ class CurveAnalysis(BaseAnalysis):
                         plot_symbol="o",
                     )
                 ]
+
+                __plot_labels__ = {"lamb": "\u03BB"}
 
 
     Notes:
@@ -213,6 +223,13 @@ class CurveAnalysis(BaseAnalysis):
     #: Union[Callable, DataProcessor]: Data processor to format experiment data.
     __default_data_processor__ = level2_probability
 
+    #: Dict[str, str]: Mapping of fit parameters and representation in the figure label.
+    __plot_labels__ = None
+
+    def __init__(self):
+        """Provide the fields that are commonly used by the experiment analysis."""
+        self.num_qubits = None
+
     def _create_figures(
         self,
         x_values: np.ndarray,
@@ -221,6 +238,7 @@ class CurveAnalysis(BaseAnalysis):
         series: np.ndarray,
         analysis_results: AnalysisResult,
         axis: Optional["AxisSubplot"] = None,
+        add_label: bool = True,
     ) -> List["Figure"]:
         """Create new figures with the fit result and raw data.
 
@@ -233,9 +251,10 @@ class CurveAnalysis(BaseAnalysis):
             series: An integer array representing a mapping of data location to series index.
             analysis_results: Analysis result containing fit parameters.
             axis: User provided axis to draw result.
+            add_label: Set ``True`` to add analysis result label.
 
         Returns:
-            List of figures (format TBD).
+            List of figures.
         """
         if plotting and plotting.HAS_MATPLOTLIB:
 
@@ -282,9 +301,38 @@ class CurveAnalysis(BaseAnalysis):
 
                 # format axis
 
-                axis.legend()
+                if len(self.__series__) > 1:
+                    axis.legend()
                 axis.tick_params(labelsize=14)
                 axis.grid(True)
+
+            # write analysis report
+
+            if add_label:
+                # write fit status in the plot
+                analysis_description = "Analysis Reports:\n"
+                for par_name, label in self.__plot_labels__.items():
+                    try:
+                        # fit value
+                        pind = analysis_results["popt_keys"].index(par_name)
+                        pval = analysis_results["popt"][pind]
+                        perr = analysis_results["popt_err"][pind]
+                    except ValueError:
+                        # maybe post processed value
+                        pval = analysis_results[par_name]
+                        perr = analysis_results[f"{par_name}_err"]
+                    analysis_description += f"  \u25B7 {label} = {pval: .4f} \u00B1 {perr: .4f}\n"
+                chisq = analysis_results["reduced_chisq"]
+                analysis_description += f"Fit \u03C7-squared = {chisq}"
+
+                axis.text(
+                    axis.get_xlim()[0],
+                    axis.get_ylim()[1],
+                    text=analysis_description,
+                    ha="left",
+                    va="bottom",
+                    size=12,
+                )
 
             return [figure]
         else:
@@ -343,9 +391,8 @@ class CurveAnalysis(BaseAnalysis):
         """
         return data_processor
 
-    @staticmethod
     def _pre_processing(
-        x_values: np.ndarray, y_values: np.ndarray, y_sigmas: np.ndarray, series: np.ndarray
+        self, x_values: np.ndarray, y_values: np.ndarray, y_sigmas: np.ndarray, series: np.ndarray
     ) -> Tuple[np.ndarray, ...]:
         """An optional subroutine to perform data pre-processing.
 
@@ -368,8 +415,7 @@ class CurveAnalysis(BaseAnalysis):
         """
         return x_values, y_values, y_sigmas, series
 
-    @staticmethod
-    def _post_processing(analysis_result: AnalysisResult) -> AnalysisResult:
+    def _post_processing(self, analysis_result: AnalysisResult) -> AnalysisResult:
         """Calculate new quantity from the fit result.
 
         Subclasses can override this method to do post analysis.
@@ -577,6 +623,11 @@ class CurveAnalysis(BaseAnalysis):
         # pop arguments that are not given to fitter
         data_processor = options.pop("data_processor", self.__default_data_processor__)
         axis = options.pop("ax", None)
+        add_label = options.pop("add_label", True)
+
+        # Get common fields
+        # TODO use experiment level metadata once implemented
+        self.num_qubits = len(data.data(0)["metadata"]["qubits"])
 
         #
         # 1. Setup data processor
@@ -656,6 +707,7 @@ class CurveAnalysis(BaseAnalysis):
             series=series,
             analysis_results=analysis_result,
             axis=axis,
+            add_label=add_label,
         )
 
         #
