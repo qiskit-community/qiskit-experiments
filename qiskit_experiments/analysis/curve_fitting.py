@@ -40,7 +40,7 @@ def curve_fit(
         \Theta_{\mbox{opt}} = \arg\min_\Theta \sum_i
             \sigma_i^{-2} (f(x_i, \Theta) -  y_i)^2
 
-    using ``scipy.optimize.curve_fit``.
+    using :func:`scipy.optimize.curve_fit`.
 
     Args:
         func: a fit function `f(x, *params)`.
@@ -51,7 +51,7 @@ def curve_fit(
                in absolute units.
         bounds: Optional, lower and upper bounds for optimization
                 parameters.
-        kwargs: additional kwargs for scipy.optimize.curve_fit.
+        kwargs: additional kwargs for :func:`scipy.optimize.curve_fit`.
 
     Returns:
         result containing ``popt`` the optimal fit parameters,
@@ -68,9 +68,10 @@ def curve_fit(
     .. note::
         ``sigma`` is assumed to be specified in the same units as ``ydata``
         (absolute units). If sigma is instead specified in relative units
-        the `absolute_sigma=False` kwarg of scipy curve_fit must be used.
-        This affects the returned covariance ``pcov`` and error ``popt_err``
-        parameters via ``pcov(absolute_sigma=False) = pcov * reduced_chisq``
+        the `absolute_sigma=False` kwarg of scipy
+        :func:`~scipy.optimize.curve_fit` must be used. This affects the
+        returned covariance ``pcov`` and error ``popt_err`` parameters via
+        ``pcov(absolute_sigma=False) = pcov * reduced_chisq``
         ``popt_err(absolute_sigma=False) = popt_err * sqrt(reduced_chisq)``.
     """
     # Format p0 parameters if specified as dictionary
@@ -163,11 +164,11 @@ def multi_curve_fit(
 
     for multiple series of :math:`x_k, y_k, \sigma_k` data evaluated using
     a list of objective functions :math:`[f_k]`
-    using ``scipy.optimize.curve_fit``.
+    using :func:`scipy.optimize.curve_fit`.
 
     Args:
         funcs: a list of objective functions :math:`[f_0, f_1, ...]` where
-               each function has signature :math`f_k`(x, *params)`.
+               each function has signature :math`f_k(x, \Theta)`.
         series: a 1D int array that specifies the component objective
                 function :math:`f_k` to evaluate corresponding x and y
                 data with.
@@ -180,7 +181,7 @@ def multi_curve_fit(
                  component function :math:`f_k`.
         bounds: Optional, lower and upper bounds for optimization
                 parameters.
-        kwargs: additional kwargs for scipy.optimize.curve_fit.
+        kwargs: additional kwargs for :func:`scipy.optimize.curve_fit`.
 
     Returns:
         result containing ``popt`` the optimal fit parameters,
@@ -197,9 +198,10 @@ def multi_curve_fit(
     .. note::
         ``sigma`` is assumed to be specified in the same units as ``ydata``
         (absolute units). If sigma is instead specified in relative units
-        the `absolute_sigma=False` kwarg of scipy curve_fit must be used.
-        This affects the returned covariance ``pcov`` and error ``popt_err``
-        parameters via ``pcov(absolute_sigma=False) = pcov * reduced_chisq``
+        the `absolute_sigma=False` kwarg of scipy
+        :func:`~scipy.optimize.curve_fit` must be used. This affects the
+        returned covariance ``pcov`` and error ``popt_err`` parameters via
+        ``pcov(absolute_sigma=False) = pcov * reduced_chisq``
         ``popt_err(absolute_sigma=False) = popt_err * sqrt(reduced_chisq)``.
     """
     num_funcs = len(funcs)

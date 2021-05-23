@@ -9,14 +9,42 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""
+======================================================================
+Experiment Data Processing (:mod:`qiskit_experiments.data_processing`)
+======================================================================
 
-"""Qiskit experiments calibration data processing roots."""
+.. currentmodule:: qiskit_experiments.data_processing
 
-from .data_action import DataAction
+Classes
+=======
+.. autosummary::
+    :toctree: ../stubs/
+
+    DataProcessor
+    DataAction
+    TrainableDataAction
+
+
+Data Processing Nodes
+=====================
+.. autosummary::
+    :toctree: ../stubs/
+
+    Probability
+    ToImag
+    ToReal
+    SVD
+    AverageData
+"""
+
+from .data_action import DataAction, TrainableDataAction
 from .nodes import (
     Probability,
     ToImag,
     ToReal,
+    SVD,
+    AverageData,
 )
 
 from .data_processor import DataProcessor

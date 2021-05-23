@@ -39,7 +39,8 @@ class InterleavedRBExperiment(RBExperiment):
         seed: Optional[Union[int, Generator]] = None,
         full_sampling: bool = False,
     ):
-        """Interleaved randomized benchmarking experiment
+        """Interleaved randomized benchmarking experiment.
+
         Args:
             interleaved_element: the element to interleave,
                     given either as a group element or as an instruction/circuit
@@ -80,11 +81,13 @@ class InterleavedRBExperiment(RBExperiment):
         return circuits
 
     def _interleave(self, element_list: List) -> List:
-        """Interleaving the interleaved element inside the element list
+        """Interleaving the interleaved element inside the element list.
+
         Args:
-            element_list: The list of elements we add the interleaved element to
+            element_list: The list of elements we add the interleaved element to.
+
         Returns:
-            The new list with the element interleaved
+            The new list with the element interleaved.
         """
         new_element_list = []
         for element in element_list:
