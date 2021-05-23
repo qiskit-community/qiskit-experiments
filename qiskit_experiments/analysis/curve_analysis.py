@@ -75,6 +75,8 @@ class CurveAnalysis(BaseAnalysis):
         __default_data_processor__: A callable to format y, y error data.
         __plot_labels__: Dict of parameter names and its representation shows in the
             result figure as an analysis report.
+        __plot_xlabel__: Label of x axis of result plot.
+        __plot_ylabel__: Label of y axis of result plot.
 
 
     Examples:
@@ -221,6 +223,12 @@ class CurveAnalysis(BaseAnalysis):
     #: Dict[str, str]: Mapping of fit parameters and representation in the figure label.
     __plot_labels__ = None
 
+    #: str: X axis label
+    __plot_xlabel__ = "x value"
+
+    #: str: Y axis label
+    __plot_ylabel__ = "y value"
+
     def __init__(self):
         """Provide the fields that are commonly used by the experiment analysis."""
         self.num_qubits = None
@@ -259,6 +267,9 @@ class CurveAnalysis(BaseAnalysis):
             else:
                 figure = axis.get_figure()
 
+            axis.set_xlabel(self.__plot_xlabel__, fontsize=16)
+            axis.set_ylabel(self.__plot_ylabel__, fontsize=16)
+
             for series_def in self.__series__:
 
                 # plot raw data
@@ -266,7 +277,12 @@ class CurveAnalysis(BaseAnalysis):
                 xdata, ydata, _ = self._subset_data(
                     series_def.name, x_values, y_values, y_sigmas, series
                 )
-                plotting.plot_scatter(xdata=xdata, ydata=ydata, ax=axis, zorder=0)
+                plotting.plot_scatter(
+                    xdata=xdata,
+                    ydata=ydata,
+                    ax=axis,
+                    zorder=0
+                )
 
                 # plot formatted data
 

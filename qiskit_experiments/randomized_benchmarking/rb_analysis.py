@@ -13,7 +13,7 @@
 Standard RB analysis class.
 """
 
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple, Dict, Any, Optional
 
 import numpy as np
 
@@ -37,6 +37,10 @@ class RBAnalysis(CurveAnalysis):
     ]
 
     __plot_labels__ = {"alpha": "\u03B1", "EPC": "EPC"}
+
+    __plot_xlabel__ = "Clifford Length"
+
+    __plot_ylabel__ = "P(0)"
 
     def _setup_fitting(
         self,
