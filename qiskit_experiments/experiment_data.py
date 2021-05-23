@@ -364,5 +364,7 @@ class ExperimentData:
         if n_res:
             ret += "\nLast Analysis Result"
             for key, value in self._analysis_results[-1].items():
+                if key in ("raw_data", "pcov"):
+                    continue
                 ret += f"\n- {key}: {value}"
         return ret

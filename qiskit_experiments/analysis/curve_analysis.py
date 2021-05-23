@@ -57,8 +57,6 @@ class CurveAnalysis(BaseAnalysis):
 
         __x_key__: Key in the circuit metadata under which to find the value for
             the horizontal axis.
-        __processing_options__: Circuit metadata keys that are passed to the data processor.
-            The key should conform to the data processor API.
         __series__: A set of data points that will be fit to a the same parameters
             in the fit function. If this analysis contains multiple curves,
             the same number of series definitions should be listed.
@@ -211,9 +209,6 @@ class CurveAnalysis(BaseAnalysis):
     #: str: Metadata key representing a scanned value.
     __x_key__ = "xval"
 
-    #: str: Metadata keys specifying data processing options.
-    __processing_options__ = []
-
     #: List[SeriesDef]: List of mapping representing a data series
     __series__ = None
 
@@ -291,13 +286,14 @@ class CurveAnalysis(BaseAnalysis):
 
                 # plot fit curve
 
-                plotting.plot_curve_fit(
-                    func=series_def.fit_func,
-                    result=analysis_results,
-                    ax=axis,
-                    color=series_def.plot_color,
-                    zorder=2,
-                )
+                if analysis_results["success"]:
+                    plotting.plot_curve_fit(
+                        func=series_def.fit_func,
+                        result=analysis_results,
+                        ax=axis,
+                        color=series_def.plot_color,
+                        zorder=2,
+                    )
 
                 # format axis
 
@@ -308,7 +304,7 @@ class CurveAnalysis(BaseAnalysis):
 
             # write analysis report
 
-            if add_label:
+            if add_label and analysis_results["success"]:
                 # write fit status in the plot
                 analysis_description = "Analysis Reports:\n"
                 for par_name, label in self.__plot_labels__.items():
@@ -323,12 +319,12 @@ class CurveAnalysis(BaseAnalysis):
                         perr = analysis_results[f"{par_name}_err"]
                     analysis_description += f"  \u25B7 {label} = {pval: .4f} \u00B1 {perr: .4f}\n"
                 chisq = analysis_results["reduced_chisq"]
-                analysis_description += f"Fit \u03C7-squared = {chisq}"
+                analysis_description += f"Fit \u03C7-squared = {chisq: .4f}"
 
                 axis.text(
                     axis.get_xlim()[0],
                     axis.get_ylim()[1],
-                    text=analysis_description,
+                    analysis_description,
                     ha="left",
                     va="bottom",
                     size=12,
@@ -390,6 +386,18 @@ class CurveAnalysis(BaseAnalysis):
             Calibrated data processor instance.
         """
         return data_processor
+
+    # pylint: disable = unused-argument
+    def _data_processor_options(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
+        """Create callback options passed to the data processor.
+
+        Args:
+            metadata: Metadata attached to the circuit result to process.
+
+        Returns:
+            Options passed to the processor callback. This should conform to the API.
+        """
+        return dict()
 
     def _pre_processing(
         self, x_values: np.ndarray, y_values: np.ndarray, y_sigmas: np.ndarray, series: np.ndarray
@@ -454,8 +462,6 @@ class CurveAnalysis(BaseAnalysis):
         Raises:
             QiskitError:
                 - When __x_key__ is not defined in the circuit metadata.
-            KeyError:
-                - When circuit metadata doesn't provide required data processor options.
         """
 
         def _is_target_series(datum, **filters):
@@ -474,18 +480,11 @@ class CurveAnalysis(BaseAnalysis):
                 f"X value key {self.__x_key__} is not defined in circuit metadata."
             ) from ex
 
-        def _data_processing(datum):
-            # A helper function to receive data processor runtime option from metadata
-            try:
-                # Extract data processor options
-                dp_options = {key: datum["metadata"][key] for key in self.__processing_options__}
-            except KeyError as ex:
-                raise KeyError(
-                    "Required data processor options are not provided by circuit metadata."
-                ) from ex
-            return data_processor(datum, **dp_options)
+        def configured_data_processor(datum):
+            options = self._data_processor_options(datum["metadata"])
+            return data_processor(datum, **options)
 
-        y_values, y_sigmas = zip(*map(_data_processing, data))
+        y_values, y_sigmas = zip(*map(configured_data_processor, data))
 
         # Format data
         x_values = np.asarray(x_values, dtype=float)
@@ -695,7 +694,8 @@ class CurveAnalysis(BaseAnalysis):
         #
         # 4. Post-process analysis data
         #
-        analysis_result = self._post_processing(analysis_result)
+        if analysis_result["success"]:
+            analysis_result = self._post_processing(analysis_result)
 
         #
         # 5. Create figures

@@ -13,7 +13,7 @@
 Standard RB analysis class.
 """
 
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any
 
 import numpy as np
 
@@ -26,9 +26,6 @@ from qiskit_experiments.experiment_data import AnalysisResult
 
 class RBAnalysis(CurveAnalysis):
     """RB Analysis class."""
-
-    __x_key__ = "xdata"
-
     __series__ = [
         SeriesDef(
             name="RB curve",
@@ -68,12 +65,16 @@ class RBAnalysis(CurveAnalysis):
         ]
         return fit_options
 
+    def _data_processor_options(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
+        """Set outcome label."""
+        return {"outcome": "0" * len(metadata["qubits"])}
+
     def _pre_processing(
         self, x_values: np.ndarray, y_values: np.ndarray, y_sigmas: np.ndarray, series: np.ndarray
     ) -> Tuple[np.ndarray, ...]:
         """Average over the same x values."""
         xdata, ydata, sigma = mean_xy_data(x_values, y_values, y_sigmas, method="sample")
-        return xdata, ydata, sigma, series
+        return xdata, ydata, sigma, np.zeros(len(xdata))
 
     def _post_processing(self, analysis_result: AnalysisResult) -> AnalysisResult:
         """Calculate EPC."""
