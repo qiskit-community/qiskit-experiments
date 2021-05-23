@@ -15,7 +15,7 @@ Plotting functions for experiment analysis
 from typing import Callable, Optional
 import numpy as np
 
-from qiskit_experiments.base_analysis import AnalysisResult
+from qiskit_experiments.experiment_data import AnalysisResult
 from qiskit_experiments.matplotlib import pyplot, requires_matplotlib
 
 # pylint: disable = unused-import

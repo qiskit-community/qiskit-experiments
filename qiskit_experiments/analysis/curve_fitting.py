@@ -19,7 +19,7 @@ from typing import List, Dict, Tuple, Callable, Optional, Union
 import numpy as np
 import scipy.optimize as opt
 from qiskit.exceptions import QiskitError
-from qiskit_experiments.base_analysis import AnalysisResult
+from qiskit_experiments.experiment_data import AnalysisResult
 from qiskit_experiments.analysis.data_processing import filter_data
 
 

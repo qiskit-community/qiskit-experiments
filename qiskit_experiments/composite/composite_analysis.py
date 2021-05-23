@@ -13,7 +13,7 @@
 Composite Experiment Analysis class.
 """
 
-from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResult
+from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResultV1
 from .composite_experiment_data import CompositeExperimentData
 
 

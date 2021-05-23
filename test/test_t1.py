@@ -19,6 +19,7 @@ import unittest
 import numpy as np
 from qiskit.providers import BaseBackend
 from qiskit.providers.models import QasmBackendConfiguration
+from qiskit.providers.experiment import ResultQuality
 from qiskit.result import Result
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.composite import ParallelExperiment
@@ -179,8 +180,8 @@ class TestT1(unittest.TestCase):
             shots=10000,
         ).analysis_result(0)
 
-        self.assertEqual(res["quality"], "computer_good")
-        self.assertAlmostEqual(res["value"], t1, delta=3)
+        self.assertEqual(res.quality, ResultQuality.GOOD)
+        self.assertAlmostEqual(res.data()["value"], t1, delta=3)
 
     def test_t1_parallel(self):
         """
@@ -226,8 +227,8 @@ class TestT1(unittest.TestCase):
             )
 
         res = T1Analysis()._run_analysis(data)[0]
-        self.assertEqual(res["quality"], "computer_good")
-        self.assertAlmostEqual(res["value"], 25e-9, delta=3)
+        self.assertEqual(res.quality, ResultQuality.GOOD)
+        self.assertAlmostEqual(res.data()["value"], 25e-9, delta=3)        
 
     def test_t1_metadata(self):
         """
@@ -273,7 +274,7 @@ class TestT1(unittest.TestCase):
             )
 
         res = T1Analysis()._run_analysis(data)[0]
-        self.assertEqual(res["quality"], "computer_bad")
+        self.assertEqual(res.quality, ResultQuality.BAD)
 
 
 if __name__ == "__main__":

@@ -20,6 +20,9 @@ from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
 from qiskit.utils import apply_prefix
 
+from qiskit.providers.experiment import AnalysisResultV1
+from qiskit.providers.experiment.device_component import Qubit
+
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import process_curve_data, curve_fit
@@ -44,7 +47,7 @@ class T1Analysis(BaseAnalysis):
         plot=True,
         ax=None,
         **kwargs,
-    ) -> Tuple[AnalysisResult, List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[AnalysisResultV1, List["matplotlib.figure.Figure"]]:
         """
         Calculate T1
 
@@ -126,7 +129,16 @@ class T1Analysis(BaseAnalysis):
         else:
             figures = None
 
-        return analysis_result, figures
+        res_v1 = AnalysisResultV1(
+            analysis_result,
+            "T1",
+            [Qubit(data[0]["metadata"]["qubit"])],
+            experiment_data.experiment_id,
+            quality=analysis_result["quality"],
+            verified=True,
+        )
+
+        return res_v1, figures
 
     @staticmethod
     def _fit_quality(fit_out, fit_err, reduced_chisq):
@@ -139,9 +151,9 @@ class T1Analysis(BaseAnalysis):
             and (fit_err[1] is None or fit_err[1] < fit_out[1])
             and (fit_err[2] is None or fit_err[2] < 0.1)
         ):
-            return "computer_good"
+            return "good"
         else:
-            return "computer_bad"
+            return "bad"
 
     @classmethod
     def _format_plot(cls, ax, analysis_result, qubit=None, add_label=True):
