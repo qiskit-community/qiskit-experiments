@@ -333,7 +333,7 @@ class CurveAnalysis(BaseAnalysis):
                         # maybe post processed value
                         pval = analysis_results[par_name]
                         perr = analysis_results[f"{par_name}_err"]
-                    analysis_description += f"  \u25B7 {label} = {pval: .4f} \u00B1 {perr: .4f}\n"
+                    analysis_description += f"  \u25B7 {label} = {pval: .3e} \u00B1 {perr: .3e}\n"
                 chisq = analysis_results["reduced_chisq"]
                 analysis_description += f"Fit \u03C7-squared = {chisq: .4f}"
 
