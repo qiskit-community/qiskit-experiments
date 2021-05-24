@@ -16,14 +16,15 @@
 A Tester for the RB experiment
 """
 
-import qiskit_experiments as qe
 from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.quantum_info import Clifford
+from qiskit.quantum_info.operators.measures import process_fidelity
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeParis
 from qiskit.exceptions import QiskitError
-from qiskit.quantum_info.operators.measures import process_fidelity
 import numpy as np
+import qiskit_experiments as qe
+
 
 
 class TestRB(QiskitTestCase):
