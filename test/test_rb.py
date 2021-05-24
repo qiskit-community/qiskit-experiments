@@ -26,7 +26,6 @@ import numpy as np
 import qiskit_experiments as qe
 
 
-
 class TestRB(QiskitTestCase):
     """
     A simple and primitive backend, to be run by the RB tests
