@@ -17,6 +17,7 @@ Test T1 experiment
 
 import unittest
 import numpy as np
+from qiskit.test import QiskitTestCase
 from qiskit.providers import BaseBackend
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
@@ -134,7 +135,7 @@ class T1Backend(BaseBackend):
         return Result.from_dict(result)
 
 
-class TestT1(unittest.TestCase):
+class TestT1(QiskitTestCase):
     """
     Test measurement of T1
     """
