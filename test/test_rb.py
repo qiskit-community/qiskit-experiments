@@ -241,10 +241,7 @@ class TestRB(QiskitTestCase):
         self.validate_metadata(exp_two_qubit_circuit, exp_two_qubit_att_metadata)
         self.validate_circuit_data(exp_two_quibit_exp_data, exp_two_qubit_att_metadata)
         self._test_input()
+        # self._test_input()
         self.rb_parameters_one_qubit()
         self.rb_parameters_two_qubit()
         self.rb_parameters_three_qubit()
-
-
-tmp = TestRB()
-tmp.test_RB_circuits()
