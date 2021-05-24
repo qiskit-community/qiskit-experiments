@@ -34,3 +34,4 @@ Analysis
     T1Analysis
 """
 from .t1_experiment import T1Experiment, T1Analysis
+from .t2star_experiment import T2StarExperiment

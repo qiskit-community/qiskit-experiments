@@ -27,28 +27,28 @@ def plot_curve_fit(
     func: Callable,
     result: AnalysisResult,
     confidence_interval: bool = True,
-    ax: Optional["pyplot.AxesSubplot"] = None,
+    ax=None,
     num_fit_points: int = 100,
     labelsize: int = 14,
     grid: bool = True,
     **kwargs,
-) -> "pyplot.AxesSubplot":
+):
     """Generate plot of a curve fit analysis result.
 
     Wraps ``matplotlib.pyplot.plot``.
 
     Args:
-        func: the fit funcion for curve_fit.
+        func: the fit function for curve_fit.
         result: an AnalysisResult from curve_fit.
         confidence_interval: if True plot the confidence interval from popt_err.
-        ax: Optional, a matplotlib axes to add the plot to.
+        ax (matplotlib.axes.Axes): Optional, a matplotlib axes to add the plot to.
         num_fit_points: the number of points to plot for xrange.
         labelsize: label size for plot
         grid: Show grid on plot.
         **kwargs: Additional options for matplotlib.pyplot.plot
 
     Returns:
-        AxesSubPlot: the matplotlib axes containing the plot.
+        matplotlib.axes.Axes: the matplotlib axes containing the plot.
 
     Raises:
         ImportError: if matplotlib is not installed.
@@ -92,25 +92,25 @@ def plot_curve_fit(
 def plot_scatter(
     xdata: np.ndarray,
     ydata: np.ndarray,
-    ax: Optional["pyplot.AxesSubplot"] = None,
+    ax=None,
     labelsize: int = 14,
     grid: bool = True,
     **kwargs,
-) -> "pyplot.AxesSubplot":
+):
     """Generate a scatter plot of xy data.
 
-    Wraps ``matplotlib.pyplot.scatter``.
+    Wraps :func:`matplotlib.pyplot.scatter`.
 
     Args:
         xdata: xdata used for fitting
         ydata: ydata used for fitting
-        ax: Optional, a matplotlib axes to add the plot to.
+        ax (matplotlib.axes.Axes): Optional, a matplotlib axes to add the plot to.
         labelsize: label size for plot
         grid: Show grid on plot.
-        **kwargs: Additional options for matplotlib.pyplot.scatter
+        **kwargs: Additional options for :func:`matplotlib.pyplot.scatter`
 
     Returns:
-        AxesSubPlot: the matplotlib axes containing the plot.
+        matplotlib.axes.Axes: the matplotlib axes containing the plot.
     """
     if ax is None:
         figure = pyplot.figure()
@@ -137,26 +137,26 @@ def plot_errorbar(
     xdata: np.ndarray,
     ydata: np.ndarray,
     sigma: Optional[np.ndarray] = None,
-    ax: Optional["pyplot.AxesSubplot"] = None,
+    ax=None,
     labelsize: int = 14,
     grid: bool = True,
     **kwargs,
-) -> "pyplot.AxesSubplot":
+):
     """Generate an errorbar plot of xy data.
 
-    Wraps ``matplotlib.pyplot.errorbar``
+    Wraps :func:`matplotlib.pyplot.errorbar`
 
     Args:
         xdata: xdata used for fitting
         ydata: ydata used for fitting
         sigma: Optional, standard deviation of ydata
-        ax: Optional, a matplotlib axes to add the plot to.
+        ax (matplotlib.axes.Axes): Optional, a matplotlib axes to add the plot to.
         labelsize: label size for plot
         grid: Show grid on plot.
-        **kwargs: Additional options for matplotlib.pyplot.scatter
+        **kwargs: Additional options for :func:`matplotlib.pyplot.errorbar`
 
     Returns:
-        AxesSubPlot: the matplotlib axes containing the plot.
+        matplotlib.axes.Axes: the matplotlib axes containing the plot.
     """
     if ax is None:
         figure = pyplot.figure()

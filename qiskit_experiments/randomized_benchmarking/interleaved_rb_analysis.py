@@ -48,7 +48,7 @@ class InterleavedRBAnalysis(RBAnalysis):
         experiment_data,
         p0: Optional[List[float]] = None,
         plot: bool = True,
-        ax: Optional["plotting.pyplot.AxesSubplot"] = None,
+        ax: Optional["matplotlib.axes.Axes"] = None,
     ):
 
         data = experiment_data.data()
