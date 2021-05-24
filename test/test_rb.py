@@ -231,7 +231,7 @@ class TestRB(QiskitTestCase):
         Run the RB test for the circuits (checking the metadata, parameters and functionallity
         of the experiment.
         """
-        # self._test_input()
+        self._test_input()
         self.rb_parameters_one_qubit()
         self.rb_parameters_two_qubit()
         self.rb_parameters_three_qubit()
