@@ -52,20 +52,6 @@ class WGate(Gate):
         self.definition = qc
 
 
-def v(self, q):
-    """Apply V to q."""
-    return self.append(VGate(), [q], [])
-
-
-def w(self, q):
-    """Apply W to q."""
-    return self.append(WGate(), [q], [])
-
-
-QuantumCircuit.v = v
-QuantumCircuit.v = w
-
-
 class CliffordUtils:
     """Utilities for generating 1 and 2 qubit clifford circuits and elements"""
 
@@ -143,9 +129,9 @@ class CliffordUtils:
         if i == 1:
             qc.h(0)
         if j == 1:
-            qc.v(0)
+            qc.append(VGate(), [0])
         if j == 2:
-            qc.w(0)
+            qc.append(WGate(), [0])
         if p == 1:
             qc.x(0)
         if p == 2:
@@ -170,13 +156,13 @@ class CliffordUtils:
         if i1 == 1:
             qc.h(1)
         if j0 == 1:
-            qc.v(0)
+            qc.append(VGate(), [0])
         if j0 == 2:
-            qc.w(0)
+            qc.append(WGate(), [0])
         if j1 == 1:
-            qc.v(1)
+            qc.append(VGate(), [1])
         if j1 == 2:
-            qc.w(1)
+            qc.append(WGate(), [1])
         if form in (1, 2, 3):
             qc.cx(0, 1)
         if form in (2, 3):
@@ -185,14 +171,14 @@ class CliffordUtils:
             qc.cx(0, 1)
         if form in (1, 2):
             if k0 == 1:
-                qc.v(0)
+                qc.append(VGate(), [0])
             if k0 == 2:
-                qc.w(0)
+                qc.append(WGate(), [0])
             if k1 == 1:
-                qc.v(1)
+                qc.append(VGate(), [1])
             if k1 == 2:
-                qc.v(1)
-                qc.v(1)
+                qc.append(VGate(), [1])
+                qc.append(VGate(), [1])
         if p0 == 1:
             qc.x(0)
         if p0 == 2:
