@@ -65,6 +65,7 @@ class ExperimentData:
         """
         # Experiment class object
         self._experiment = experiment
+        self._metadata = experiment.metadata() if experiment else {}
 
         # Terra ExperimentDataV1 attributes
         self._backend = backend
@@ -98,6 +99,13 @@ class ExperimentData:
     def experiment_id(self) -> str:
         """Return the experiment id."""
         return self._id
+
+    def metadata(self) -> Dict:
+        """Return experiment metadata.
+        Returns:
+            Experiment metadata.
+        """
+        return self._metadata
 
     @property
     def job_ids(self) -> List[str]:

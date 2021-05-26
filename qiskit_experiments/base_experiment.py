@@ -77,7 +77,20 @@ class BaseExperiment(ABC):
         self._analysis_options = self._default_analysis_options()
 
         # Set initial layout from qubits
-        self._transpile_options.initial_layout = self._physical_qubits
+        self._transpile_options.initial_layout = list(self._physical_qubits)
+
+    def metadata(self):
+        """Return experiment metadata."""
+        metadata = {
+            "experiment_type": self._type,
+            "num_qubits": self.num_qubits,
+            "physical_qubits": list(self.physical_qubits),
+            "experiment_options": copy.copy(self.experiment_options.__dict__),
+            "transpile_options": copy.copy(self.transpile_options.__dict__),
+            "analysis_options": copy.copy(self.analysis_options.__dict__),
+            "run_options": copy.copy(self.run_options.__dict__),
+        }
+        return metadata
 
     def run(
         self,
@@ -99,17 +112,22 @@ class BaseExperiment(ABC):
         Returns:
             The experiment data object.
         """
-        # Create new experiment data
         if experiment_data is None:
-            experiment_data = self.__experiment_data__(self, backend=backend)
+            # Create new experiment data
+            experiment_data = self.__experiment_data__(experiment=self, backend=backend)
+        else:
+            # Override experiment metadata
+            for key, val in self.metadata().items():
+                experiment_data._metadata[key] = val
 
-        # Generate and transpile circuits
-        circuits = transpile(self.circuits(backend), backend, **self.transpile_options.__dict__)
-
-        # Run circuits on backend
+        # Run options
         run_opts = copy.copy(self.run_options)
         run_opts.update_options(**run_options)
         run_opts = run_opts.__dict__
+        experiment_data._metadata["run_options"] = run_opts
+
+        # Generate and transpile circuits
+        circuits = transpile(self.circuits(backend), backend, **self.transpile_options.__dict__)
 
         if isinstance(backend, LegacyBackend):
             qobj = assemble(circuits, backend=backend, **run_opts)
