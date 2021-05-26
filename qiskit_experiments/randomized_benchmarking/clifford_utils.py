@@ -18,7 +18,7 @@ from functools import lru_cache
 from numpy.random import Generator, default_rng
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate
-from qiskit.circuit.library import SdgGate, HGate
+from qiskit.circuit.library import SdgGate, HGate, SGate
 from qiskit.quantum_info import Clifford, random_clifford
 
 
@@ -37,12 +37,33 @@ class VGate(Gate):
         self.definition = qc
 
 
+class WGate(Gate):
+    """W Gate used in Clifford synthesis."""
+
+    def __init__(self):
+        """Create new W Gate."""
+        super().__init__("w", 1, [])
+
+    def _define(self):
+        """W Gate definition."""
+        q = QuantumRegister(1, "q")
+        qc = QuantumCircuit(q)
+        qc.data = [(HGate(), [q[0]], []), (SGate(), [q[0]], [])]
+        self.definition = qc
+
+
 def v(self, q):
     """Apply V to q."""
     return self.append(VGate(), [q], [])
 
 
+def w(self, q):
+    """Apply W to q."""
+    return self.append(WGate(), [q], [])
+
+
 QuantumCircuit.v = v
+QuantumCircuit.v = w
 
 
 class CliffordUtils:
@@ -124,8 +145,7 @@ class CliffordUtils:
         if j == 1:
             qc.v(0)
         if j == 2:
-            qc.v(0)
-            qc.v(0)
+            qc.w(0)
         if p == 1:
             qc.x(0)
         if p == 2:
@@ -152,13 +172,11 @@ class CliffordUtils:
         if j0 == 1:
             qc.v(0)
         if j0 == 2:
-            qc.v(0)
-            qc.v(0)
+            qc.w(0)
         if j1 == 1:
             qc.v(1)
         if j1 == 2:
-            qc.v(1)
-            qc.v(1)
+            qc.w(1)
         if form in (1, 2, 3):
             qc.cx(0, 1)
         if form in (2, 3):
@@ -169,8 +187,7 @@ class CliffordUtils:
             if k0 == 1:
                 qc.v(0)
             if k0 == 2:
-                qc.v(0)
-                qc.v(0)
+                qc.w(0)
             if k1 == 1:
                 qc.v(1)
             if k1 == 2:
