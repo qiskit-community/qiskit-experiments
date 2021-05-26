@@ -18,7 +18,7 @@ from typing import List, Dict, Tuple, Callable, Optional, Union
 
 import numpy as np
 import scipy.optimize as opt
-from qiskit.exceptions import QiskitError
+from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.base_analysis import AnalysisResult
 from qiskit_experiments.analysis.data_processing import filter_data
 
@@ -62,8 +62,8 @@ def curve_fit(
         ``xrange`` the range of xdata values used for fit.
 
     Raises:
-        QiskitError: if the number of degrees of freedom of the fit is
-                     less than 1.
+        AnalysisError: if the number of degrees of freedom of the fit is
+                       less than 1, or the curve fitting fails.
 
     .. note::
         ``sigma`` is assumed to be specified in the same units as ``ydata``
@@ -100,7 +100,7 @@ def curve_fit(
     # Check the degrees of freedom is greater than 0
     dof = len(ydata) - len(param_p0)
     if dof < 1:
-        raise QiskitError(
+        raise AnalysisError(
             "The number of degrees of freedom of the fit data and model "
             " (len(ydata) - len(p0)) is less than 1"
         )
@@ -111,12 +111,14 @@ def curve_fit(
         kwargs["absolute_sigma"] = True
 
     # Run curve fit
-    # TODO: Add error handling so if fitting fails we can return an analysis
-    #       result containing this information
-    # pylint: disable = unbalanced-tuple-unpacking
-    popt, pcov = opt.curve_fit(
-        fit_func, xdata, ydata, sigma=sigma, p0=param_p0, bounds=param_bounds, **kwargs
-    )
+    try:
+        # pylint: disable = unbalanced-tuple-unpacking
+        popt, pcov = opt.curve_fit(
+            fit_func, xdata, ydata, sigma=sigma, p0=param_p0, bounds=param_bounds, **kwargs
+        )
+    except Exception as ex:
+        raise AnalysisError("scipy.optimize.curve_fit failed") from ex
+
     popt_err = np.sqrt(np.diag(pcov))
 
     # Calculate the reduced chi-squared for fit
@@ -192,8 +194,8 @@ def multi_curve_fit(
         ``xrange`` the range of xdata values used for fit.
 
     Raises:
-        QiskitError: if the number of degrees of freedom of the fit is
-                     less than 1.
+        AnalysisError: if the number of degrees of freedom of the fit is
+                       less than 1, or the curve fitting fails.
 
     .. note::
         ``sigma`` is assumed to be specified in the same units as ``ydata``
