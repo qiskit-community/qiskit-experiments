@@ -17,8 +17,10 @@ from typing import List, Optional, Union, Tuple, Dict
 import numpy as np
 
 import qiskit
+from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
 from qiskit.utils import apply_prefix
+from qiskit.providers.options import Options
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResult
 from qiskit_experiments.analysis.curve_fitting import curve_fit, process_curve_data
@@ -30,49 +32,46 @@ from ..experiment_data import ExperimentData
 class T2StarAnalysis(BaseAnalysis):
     """T2Star Experiment result analysis class."""
 
-    def __init__(
-        self,
-    ):
-        self._conversion_factor = None
+    @classmethod
+    def _default_options(cls):
+        return Options(user_p0=None, user_bounds=None)
 
     # pylint: disable=arguments-differ, unused-argument
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
-        user_p0: Dict[str, float],
-        user_bounds: Tuple[List[float], List[float]],
+        user_p0: Optional[Dict[str, float]] = None,
+        user_bounds: Optional[Tuple[List[float], List[float]]] = None,
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,
         **kwargs,
     ) -> Tuple[AnalysisResult, List["matplotlib.figure.Figure"]]:
-        r"""
-            Calculate T2Star experiment
-            The probability of measuring `+` is assumed to be of the form
-        .. math::
-            f(t) = a\mathrm{e}^{-t / T_2^*}\cos(2\pi freq t + \phi) + b
-        for unknown parameters :math:`a, b, freq, \phi, T_2^*`.
-            Args:
-                experiment_data (ExperimentData): the experiment data to analyze
-                user_p0: contains initial values given by the user, for the
-                fit parameters :math:`(a, T_2^*, freq, \phi, b)`
-                User_bounds: lower and upper bounds on the parameters in p0,
-                        given by the user.
-                        The first tuple is the lower bounds,
-                        The second tuple is the upper bounds.
-                        For both params, the order is :math:`a, T_2^*, freq, \phi, b`.
-                plot: if True, create the plot, otherwise, do not create the plot.
-                ax: the plot object
-                **kwargs: additional parameters
-            Returns:
-                The analysis result with the estimated :math:`T_2^*` and 'freq' (frequency)
-                The graph of the function.
+        r"""Calculate T2Star experiment.
 
+        The probability of measuring `+` is assumed to be of the form
+        :math:`f(t) = a\mathrm{e}^{-t / T_2^*}\cos(2\pi freq t + \phi) + b`
+        for unknown parameters :math:`a, b, freq, \phi, T_2^*`.
+
+        Args:
+            experiment_data (ExperimentData): the experiment data to analyze
+            user_p0: contains initial values given by the user, for the
+            fit parameters :math:`(a, T_2^*, freq, \phi, b)`
+            User_bounds: lower and upper bounds on the parameters in p0,
+                         given by the user.
+                         The first tuple is the lower bounds,
+                         The second tuple is the upper bounds.
+                         For both params, the order is :math:`a, T_2^*, freq, \phi, b`.
+            plot: if True, create the plot, otherwise, do not create the plot.
+            ax: the plot object
+            **kwargs: additional parameters for curve fit.
+
+        Returns:
+            The analysis result with the estimated :math:`T_2^*` and 'freq' (frequency)
+            The graph of the function.
         """
 
         def osc_fit_fun(x, a, t2star, freq, phi, c):
-            """
-            Decay cosine fit function
-            """
+            """Decay cosine fit function"""
             return a * np.exp(-x / t2star) * np.cos(2 * np.pi * freq * x + phi) + c
 
         def _format_plot(ax, unit):
@@ -84,17 +83,19 @@ class T2StarAnalysis(BaseAnalysis):
 
         # implementation of  _run_analysis
         unit = experiment_data._data[0]["metadata"]["unit"]
-        self._conversion_factor = experiment_data._data[0]["metadata"].get("dt_factor", None)
-        if self._conversion_factor is None:
-            self._conversion_factor = 1 if unit == "s" else apply_prefix(1, unit)
+        conversion_factor = experiment_data._data[0]["metadata"].get("dt_factor", None)
+        if conversion_factor is None:
+            conversion_factor = 1 if unit == "s" else apply_prefix(1, unit)
         xdata, ydata, sigma = process_curve_data(
             experiment_data._data, lambda datum: level2_probability(datum, "0")
         )
 
-        si_xdata = xdata * self._conversion_factor
+        si_xdata = xdata * conversion_factor
         t2star_estimate = np.mean(si_xdata)
 
-        p0, bounds = self._t2star_default_params(user_p0, user_bounds, t2star_input=t2star_estimate)
+        p0, bounds = self._t2star_default_params(
+            conversion_factor, user_p0, user_bounds, t2star_estimate
+        )
         fit_result = curve_fit(
             osc_fit_fun, si_xdata, ydata, p0=list(p0.values()), sigma=sigma, bounds=bounds
         )
@@ -125,39 +126,35 @@ class T2StarAnalysis(BaseAnalysis):
 
         analysis_result["fit"]["circuit_unit"] = unit
         if unit == "dt":
-            analysis_result["fit"]["dt"] = self._conversion_factor
+            analysis_result["fit"]["dt"] = conversion_factor
         return analysis_result, figures
 
     def _t2star_default_params(
         self,
-        user_p0,
-        user_bounds,
-        t2star_input: float,
+        conversion_factor,
+        user_p0=None,
+        user_bounds=None,
+        t2star_input=None,
     ) -> Tuple[List[float], Tuple[List[float]]]:
-        """
-        Default fit parameters for oscillation data
+        """Default fit parameters for oscillation data.
+
         Note that :math:`T_2^*` and 'freq' units are converted to 'sec' and
         will be output in 'sec'.
-        Args:
-            t2star_input: default for t2star if p0==None
-        Returns:
-            Fit guessed parameters: either from the input (if given) or
-            else assign default values.
         """
         if user_p0 is None:
             a = 0.5
-            t2star = t2star_input * self._conversion_factor
+            t2star = t2star_input * conversion_factor
             freq = 0.1
             phi = 0.0
             b = 0.5
         else:
             a = user_p0["A"]
             t2star = user_p0["t2star"]
-            t2star *= self._conversion_factor
+            t2star *= conversion_factor
             freq = user_p0["f"]
             phi = user_p0["phi"]
             b = user_p0["B"]
-        freq /= self._conversion_factor
+        freq /= conversion_factor
         p0 = {"a_guess": a, "t2star": t2star, "f_guess": freq, "phi_guess": phi, "b_guess": b}
         if user_bounds is None:
             a_bounds = [-0.5, 1.5]
@@ -200,7 +197,6 @@ class T2StarExperiment(BaseExperiment):
         osc_freq: float = 0.0,
         experiment_type: Optional[str] = None,
     ):
-
         """Initialize the T2Star experiment class.
 
         Args:
@@ -220,18 +216,18 @@ class T2StarExperiment(BaseExperiment):
         self._osc_freq = osc_freq
         super().__init__([qubit], experiment_type)
 
-    def circuits(
-        self, backend: Optional["Backend"] = None, **circuit_options
-    ) -> List[QuantumCircuit]:
-        """
-        Return a list of experiment circuits
+    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+        """Return a list of experiment circuits.
+
         Each circuit consists of a Hadamard gate, followed by a fixed delay,
         a phase gate (with a linear phase), and an additional Hadamard gate.
+
         Args:
             backend: Optional, a backend object
-            circuit_options: from base class, empty here
+
         Returns:
             The experiment circuits
+
         Raises:
             AttributeError: if unit is dt but dt parameter is missing in the backend configuration
         """

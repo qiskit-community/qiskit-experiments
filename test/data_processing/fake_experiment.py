@@ -25,7 +25,7 @@ class FakeExperiment(BaseExperiment):
         self._type = None
         super().__init__((0,), "fake_test_experiment")
 
-    def circuits(self, backend=None, **circuit_options):
+    def circuits(self, backend=None):
         """Fake circuits."""
         return []
 

@@ -35,7 +35,7 @@ def plot_curve_fit(
 ):
     """Generate plot of a curve fit analysis result.
 
-    Wraps ``matplotlib.pyplot.plot``.
+    Wraps :func:`matplotlib.pyplot.plot`.
 
     Args:
         func: the fit function for curve_fit.
