@@ -15,7 +15,7 @@ Standard RB analysis class.
 
 from typing import Optional, List
 
-from qiskit_experiments.base_analysis import BaseAnalysis
+from qiskit_experiments.base_analysis import BaseAnalysis, ExperimentData
 from qiskit_experiments.analysis.curve_fitting import curve_fit, process_curve_data
 from qiskit_experiments.analysis.data_processing import (
     level2_probability,
@@ -35,7 +35,7 @@ class RBAnalysis(BaseAnalysis):
     # pylint: disable = arguments-differ, invalid-name
     def _run_analysis(
         self,
-        experiment_data: "ExperimentData",
+        experiment_data: ExperimentData,
         p0: Optional[List[float]] = None,
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,

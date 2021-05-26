@@ -19,10 +19,11 @@ from numpy.random import Generator, default_rng
 
 from qiskit import QuantumCircuit
 from qiskit.providers import Backend
-from qiskit.quantum_info import Clifford, random_clifford
+from qiskit.quantum_info import Clifford
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from .rb_analysis import RBAnalysis
+from .clifford_utils import CliffordUtils
 
 
 class RBExperiment(BaseExperiment):
@@ -61,6 +62,7 @@ class RBExperiment(BaseExperiment):
         self._lengths = list(lengths)
         self._num_samples = num_samples
         self._full_sampling = full_sampling
+        self._clifford_utils = CliffordUtils()
         super().__init__(qubits)
 
     # pylint: disable = arguments-differ
@@ -112,7 +114,7 @@ class RBExperiment(BaseExperiment):
         """
         circuits = []
         for length in lengths if self._full_sampling else [lengths[-1]]:
-            elements = [random_clifford(self.num_qubits, seed=seed) for _ in range(length)]
+            elements = self._clifford_utils.random_clifford_circuits(self.num_qubits, length, seed)
             element_lengths = [len(elements)] if self._full_sampling else lengths
             circuits += self._generate_circuit(elements, element_lengths)
         return circuits
@@ -136,18 +138,21 @@ class RBExperiment(BaseExperiment):
         qubits = list(range(self.num_qubits))
         circuits = []
 
-        circ = QuantumCircuit(self.num_qubits)
-        circ.barrier(qubits)
+        circs = [QuantumCircuit(self.num_qubits) for _ in range(len(lengths))]
+        for circ in circs:
+            circ.barrier(qubits)
         circ_op = Clifford(np.eye(2 * self.num_qubits))
 
-        for current_length, group_elt in enumerate(elements):
-            circ_op = circ_op.compose(group_elt)
-            circ.append(group_elt, qubits)
-            circ.barrier(qubits)
+        for current_length, group_elt_circ in enumerate(elements):
+            group_elt_gate = group_elt_circ.to_gate()
+            circ_op = circ_op.compose(Clifford(group_elt_circ))
+            for circ in circs:
+                circ.append(group_elt_gate, qubits)
+                circ.barrier(qubits)
             if current_length + 1 in lengths:
                 # copy circuit and add inverse
                 inv = circ_op.adjoint()
-                rb_circ = circ.copy()
+                rb_circ = circs.pop()
                 rb_circ.append(inv, qubits)
                 rb_circ.barrier(qubits)
                 rb_circ.metadata = {
