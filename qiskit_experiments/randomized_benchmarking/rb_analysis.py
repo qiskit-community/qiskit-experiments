@@ -60,7 +60,7 @@ class RBAnalysis(BaseAnalysis):
             return level2_probability(datum, num_qubits * "0")
 
         # Raw data for each sample
-        x_raw, y_raw, sigma_raw = process_curve_data(data, data_processor, x_key="xdata")
+        x_raw, y_raw, sigma_raw = process_curve_data(data, data_processor)
 
         # Data averaged over samples
         xdata, ydata, ydata_sigma = mean_xy_data(x_raw, y_raw, sigma_raw, method="sample")

@@ -223,11 +223,11 @@ def multi_curve_fit(
                 wsigma[idxs[i]] = sigma[idxs[i]] / np.sqrt(weights[i])
 
     # Define multi-objective function
-    def f(x, *params):
+    def f(x, *args, **kwargs):
         y = np.zeros(x.size)
         for i in range(num_funcs):
             xi = x[idxs[i]]
-            yi = funcs[i](xi, *params)
+            yi = funcs[i](xi, *args, **kwargs)
             y[idxs[i]] = yi
         return y
 
