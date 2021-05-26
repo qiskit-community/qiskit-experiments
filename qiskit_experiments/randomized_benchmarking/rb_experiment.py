@@ -76,7 +76,7 @@ class RBExperiment(BaseExperiment):
             self._rng = seed
 
     @classmethod
-    def _default_options(cls):
+    def _default_experiment_options(cls):
         return Options(lengths=None, num_samples=None)
 
     # pylint: disable = arguments-differ
