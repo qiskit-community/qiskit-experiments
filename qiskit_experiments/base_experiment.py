@@ -142,17 +142,13 @@ class BaseExperiment(ABC):
         Raises:
             QiskitError: if experiment_data container is not valid for analysis.
         """
-        if self.__analysis_class__ is None:
-            raise QiskitError(f"Experiment {self._type} does not have a default Analysis class")
-
         # Get analysis options
         analysis_options = copy.copy(self.analysis_options)
         analysis_options.update_options(**options)
         analysis_options = analysis_options.__dict__
 
         # Run analysis
-        # pylint: disable = not-callable
-        analysis = self.__analysis_class__()
+        analysis = self.analysis()
         analysis.run(experiment_data, save=True, return_figures=False, **analysis_options)
         return experiment_data
 
@@ -167,12 +163,12 @@ class BaseExperiment(ABC):
         return self._physical_qubits
 
     @classmethod
-    def analysis(cls, **kwargs):
+    def analysis(cls):
         """Return the default Analysis class for the experiment."""
         if cls.__analysis_class__ is None:
             raise QiskitError(f"Experiment {cls.__name__} does not have a default Analysis class")
         # pylint: disable = not-callable
-        return cls.__analysis_class__(**kwargs)
+        return cls.__analysis_class__()
 
     @abstractmethod
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
