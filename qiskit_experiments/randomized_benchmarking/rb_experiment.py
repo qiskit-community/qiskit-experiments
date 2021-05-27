@@ -65,6 +65,7 @@ class RBExperiment(BaseExperiment):
 
         # Set configurable options
         self.set_experiment_options(lengths=list(lengths), num_samples=num_samples)
+        self.set_analysis_options(outcome="0" * self.num_qubits, num_qubits=self.num_qubits)
 
         # Set fixed options
         self._full_sampling = full_sampling

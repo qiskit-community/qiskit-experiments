@@ -16,11 +16,13 @@ Analysis class for curve fitting.
 # pylint: disable=invalid-name
 
 import dataclasses
+import functools
 import inspect
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
 import numpy as np
 from qiskit.exceptions import QiskitError
+from qiskit.providers.options import Options
 
 from qiskit_experiments.analysis import plotting
 from qiskit_experiments.analysis.curve_fitting import multi_curve_fit
@@ -31,7 +33,7 @@ from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class SeriesDef:
     """Description of curve."""
 
@@ -40,10 +42,6 @@ class SeriesDef:
     filter_kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
     plot_color: str = "black"
     plot_symbol: str = "o"
-
-
-class FitOptions(dict):
-    """Fit options passed to the fitter function."""
 
 
 class CurveAnalysis(BaseAnalysis):
@@ -71,9 +69,7 @@ class CurveAnalysis(BaseAnalysis):
                 plot_symbol: String formatter of the scatter of this series in the plot.
 
             See the Examples below for more details.
-        __base_fitter__: A callable to perform curve fitting.
-        __default_data_processor__: A callable to format y, y error data.
-        __plot_labels__: Dict of parameter names and its representation shows in the
+        __fit_label_desc__: Dict of parameter names and its representation shows in the
             result figure as an analysis report.
         __plot_xlabel__: Label of x axis of result plot.
         __plot_ylabel__: Label of y axis of result plot.
@@ -214,14 +210,8 @@ class CurveAnalysis(BaseAnalysis):
     #: List[SeriesDef]: List of mapping representing a data series
     __series__ = None
 
-    #: Callable: Default curve fitter. This can be overwritten.
-    __base_fitter__ = multi_curve_fit
-
-    #: Union[Callable, DataProcessor]: Data processor to format experiment data.
-    __default_data_processor__ = level2_probability
-
     #: Dict[str, str]: Mapping of fit parameters and representation in the figure label.
-    __plot_labels__ = None
+    __fit_label_desc__ = None
 
     #: str: X axis label
     __plot_xlabel__ = "x value"
@@ -229,9 +219,24 @@ class CurveAnalysis(BaseAnalysis):
     #: str: Y axis label
     __plot_ylabel__ = "y value"
 
-    def __init__(self):
-        """Provide the fields that are commonly used by the experiment analysis."""
-        self.num_qubits = None
+    @classmethod
+    def _default_options(cls):
+        """Return default data processing options.
+
+        Options:
+            plot: Set ``True`` to create figure for fit result.
+            add_label: Set ``True`` to write fit report in the figure.
+            ax: Optional. A matplotlib axis object to draw.
+            base_fitter: A callback function to perform fitting with formatted data.
+            data_processor: A callback function to format experiment data.
+        """
+        return Options(
+            plot=True,
+            add_label=True,
+            ax=None,
+            base_fitter=multi_curve_fit,
+            data_processor=level2_probability,
+        )
 
     def _create_figures(
         self,
@@ -259,7 +264,7 @@ class CurveAnalysis(BaseAnalysis):
         Returns:
             List of figures.
         """
-        if plotting and plotting.HAS_MATPLOTLIB:
+        if plotting.HAS_MATPLOTLIB:
 
             if axis is None:
                 figure = plotting.pyplot.figure()
@@ -277,12 +282,7 @@ class CurveAnalysis(BaseAnalysis):
                 xdata, ydata, _ = self._subset_data(
                     series_def.name, x_values, y_values, y_sigmas, series
                 )
-                plotting.plot_scatter(
-                    xdata=xdata,
-                    ydata=ydata,
-                    ax=axis,
-                    zorder=0
-                )
+                plotting.plot_scatter(xdata=xdata, ydata=ydata, ax=axis, zorder=0)
 
                 # plot formatted data
 
@@ -323,7 +323,7 @@ class CurveAnalysis(BaseAnalysis):
             if add_label and analysis_results["success"]:
                 # write fit status in the plot
                 analysis_description = "Analysis Reports:\n"
-                for par_name, label in self.__plot_labels__.items():
+                for par_name, label in self.__fit_label_desc__.items():
                     try:
                         # fit value
                         pind = analysis_results["popt_keys"].index(par_name)
@@ -358,7 +358,7 @@ class CurveAnalysis(BaseAnalysis):
         y_sigmas: np.ndarray,
         series: np.ndarray,
         **options,
-    ) -> List[FitOptions]:
+    ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """An analysis subroutine that is called to set fitter options.
 
         This subroutine takes full data array and user-input fit options.
@@ -379,44 +379,15 @@ class CurveAnalysis(BaseAnalysis):
         Returns:
             List of FitOptions that are passed to fitter function.
         """
-        fit_options = FitOptions(**options)
-
-        return [fit_options]
-
-    # pylint: disable = unused-argument
-    @staticmethod
-    def _calibrate_data_processor(
-        data_processor: DataProcessor, experiment_data: ExperimentData
-    ) -> DataProcessor:
-        """An optional subroutine to perform data processor calibration.
-
-        Subclass can override this method to calibrate data processor instance.
-        This routine is called only when a DataProcessor instance is specified in the
-        class attribute __default_data_processor__.
-
-        Args:
-            data_processor: Data processor instance to calibrate.
-            experiment_data: Unfiltered experiment data set.
-
-        Returns:
-            Calibrated data processor instance.
-        """
-        return data_processor
-
-    # pylint: disable = unused-argument
-    def _data_processor_options(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
-        """Create callback options passed to the data processor.
-
-        Args:
-            metadata: Metadata attached to the circuit result to process.
-
-        Returns:
-            Options passed to the processor callback. This should conform to the API.
-        """
-        return dict()
+        return options
 
     def _pre_processing(
-        self, x_values: np.ndarray, y_values: np.ndarray, y_sigmas: np.ndarray, series: np.ndarray
+        self,
+        x_values: np.ndarray,
+        y_values: np.ndarray,
+        y_sigmas: np.ndarray,
+        series: np.ndarray,
+        **options,
     ) -> Tuple[np.ndarray, ...]:
         """An optional subroutine to perform data pre-processing.
 
@@ -433,19 +404,21 @@ class CurveAnalysis(BaseAnalysis):
             y_values: Numpy float array to represent Y values.
             y_sigmas: Numpy float array to represent Y errors.
             series: Numpy integer array to represent mapping of data to series.
+            options: Analysis options.
 
         Returns:
             Numpy array tuple of pre-processed (x_values, y_values, y_sigmas, series).
         """
         return x_values, y_values, y_sigmas, series
 
-    def _post_processing(self, analysis_result: AnalysisResult) -> AnalysisResult:
+    def _post_processing(self, analysis_result: AnalysisResult, **options) -> AnalysisResult:
         """Calculate new quantity from the fit result.
 
         Subclasses can override this method to do post analysis.
 
         Args:
             analysis_result: Analysis result containing fit result.
+            options: Analysis options.
 
         Returns:
             New AnalysisResult instance containing the result of post analysis.
@@ -496,11 +469,7 @@ class CurveAnalysis(BaseAnalysis):
                 f"X value key {self.__x_key__} is not defined in circuit metadata."
             ) from ex
 
-        def configured_data_processor(datum):
-            options = self._data_processor_options(datum["metadata"])
-            return data_processor(datum, **options)
-
-        y_values, y_sigmas = zip(*map(configured_data_processor, data))
+        y_values, y_sigmas = zip(*map(data_processor, data))
 
         # Format data
         x_values = np.asarray(x_values, dtype=float)
@@ -517,11 +486,11 @@ class CurveAnalysis(BaseAnalysis):
 
         return x_values, y_values, y_sigmas, series
 
-    def _format_fit_options(self, options: FitOptions) -> FitOptions:
+    def _format_fit_options(self, **fitter_options) -> Dict[str, Any]:
         """Format fitting option args to dictionary of parameter names.
 
         Args:
-            options: Generated fit options without tested.
+            fitter_options: Fit options generated by `self._setup_fitting`.
 
         Returns:
             Formatted fit options.
@@ -549,7 +518,7 @@ class CurveAnalysis(BaseAnalysis):
 
         # Validate dictionaly keys
         def _check_keys(parameter_name):
-            named_values = options[parameter_name]
+            named_values = fitter_options[parameter_name]
             if not named_values.keys() == set(fit_params):
                 raise KeyError(
                     f"Fitting option {parameter_name} doesn't have the "
@@ -558,7 +527,7 @@ class CurveAnalysis(BaseAnalysis):
 
         # Convert array into dictionary
         def _dictionarize(parameter_name):
-            parameter_array = options[parameter_name]
+            parameter_array = fitter_options[parameter_name]
             if len(parameter_array) != len(fit_params):
                 raise ValueError(
                     f"Value length of fitting option {parameter_name} doesn't "
@@ -567,23 +536,23 @@ class CurveAnalysis(BaseAnalysis):
                 )
             return dict(zip(fit_params, parameter_array))
 
-        if "p0" in options:
-            if isinstance(options["p0"], dict):
+        if "p0" in fitter_options:
+            if isinstance(fitter_options["p0"], dict):
                 _check_keys("p0")
             else:
-                options["p0"] = _dictionarize("p0")
+                fitter_options["p0"] = _dictionarize("p0")
         else:
             raise KeyError("Initial guess p0 is not provided to the fitting options.")
 
-        if "bounds" in options:
-            if isinstance(options["bounds"], dict):
+        if "bounds" in fitter_options:
+            if isinstance(fitter_options["bounds"], dict):
                 _check_keys("bounds")
             else:
-                options["bounds"] = _dictionarize("bounds")
+                fitter_options["bounds"] = _dictionarize("bounds")
         else:
-            options["bounds"] = dict(zip(fit_params, [(-np.inf, np.inf)] * len(fit_params)))
+            fitter_options["bounds"] = dict(zip(fit_params, [(-np.inf, np.inf)] * len(fit_params)))
 
-        return options
+        return fitter_options
 
     def _subset_data(
         self,
@@ -616,8 +585,8 @@ class CurveAnalysis(BaseAnalysis):
         raise QiskitError(f"Specified series {name} is not defined in this analysis.")
 
     def _run_analysis(
-        self, data: ExperimentData, **options
-    ) -> Tuple[List[AnalysisResult], List["Figure"]]:
+        self, experiment_data: ExperimentData, **options
+    ) -> Tuple[List[AnalysisResult], List["pyplot.Figure"]]:
         """Run analysis on circuit data.
 
         Args:
@@ -629,20 +598,15 @@ class CurveAnalysis(BaseAnalysis):
                    ``analysis_results`` may be a single or list of
                    AnalysisResult objects, and ``figures`` is a list of any
                    figures for the experiment.
-
-        Raises:
-
         """
         analysis_result = AnalysisResult()
 
         # pop arguments that are not given to fitter
-        data_processor = options.pop("data_processor", self.__default_data_processor__)
-        axis = options.pop("ax", None)
-        add_label = options.pop("add_label", True)
-
-        # Get common fields
-        # TODO use experiment level metadata once implemented
-        self.num_qubits = len(data.data(0)["metadata"]["qubits"])
+        plot = options.pop("plot")
+        add_label = options.pop("add_label")
+        axis = options.pop("ax")
+        data_processor = options.pop("data_processor")
+        base_fitter = options.pop("base_fitter")
 
         #
         # 1. Setup data processor
@@ -650,24 +614,28 @@ class CurveAnalysis(BaseAnalysis):
         if isinstance(data_processor, DataProcessor) and not data_processor.is_trained:
             # Qiskit DataProcessor instance. May need calibration.
             try:
-                data_processor = self._calibrate_data_processor(
-                    data_processor=data_processor,
-                    experiment_data=data,
-                )
+                data_processor.train(data=experiment_data.data())
             except DataProcessorError as ex:
                 analysis_result["error_message"] = str(ex)
                 analysis_result["success"] = False
                 return [analysis_result], list()
-        else:
-            # Callback function
-            data_processor = data_processor.__func__
+
+        # get data processor options from analysis options
+        processor_options = {
+            key: options[key]
+            for key in inspect.signature(data_processor).parameters.keys()
+            if key in options
+        }
+        configured_data_processor = functools.partial(data_processor, **processor_options)
 
         #
         # 2. Extract curve entries from experiment data
         #
         # pylint: disable=broad-except
         try:
-            xdata, ydata, sigma, series = self._extract_curves(data, data_processor)
+            xdata, ydata, sigma, series = self._extract_curves(
+                experiment_data=experiment_data, data_processor=configured_data_processor
+            )
         except Exception as ex:
             analysis_result["error_message"] = str(ex)
             analysis_result["success"] = False
@@ -679,15 +647,16 @@ class CurveAnalysis(BaseAnalysis):
         # pylint: disable=broad-except
         try:
             # format fit data
-            _xdata, _ydata, _sigma, _series = self._pre_processing(xdata, ydata, sigma, series)
+            _xdata, _ydata, _sigma, _series = self._pre_processing(
+                x_values=xdata, y_values=ydata, y_sigmas=sigma, series=series, **options
+            )
 
             # Generate fit options
-            fit_options_candidates = [
-                self._format_fit_options(fit_options)
-                for fit_options in self._setup_fitting(_xdata, _ydata, _sigma, _series, **options)
-            ]
-            fit_results = [
-                self.__base_fitter__.__func__(
+            fit_candidates = self._setup_fitting(_xdata, _ydata, _sigma, _series, **options)
+            if isinstance(fit_candidates, dict):
+                # only single initial guess
+                fit_options = self._format_fit_options(**fit_candidates)
+                fit_result = base_fitter(
                     funcs=[series_def.fit_func for series_def in self.__series__],
                     series=_series,
                     xdata=_xdata,
@@ -695,13 +664,26 @@ class CurveAnalysis(BaseAnalysis):
                     sigma=_sigma,
                     **fit_options,
                 )
-                for fit_options in fit_options_candidates
-            ]
-            # Sort by chi squared value
-            fit_results = sorted(fit_results, key=lambda r: r["reduced_chisq"])
-
-            # Returns best fit result
-            analysis_result.update(**fit_results[0])
+                analysis_result.update(**fit_result)
+            else:
+                # multiple initial guesses
+                fit_options_candidates = [
+                    self._format_fit_options(**fit_options) for fit_options in fit_candidates
+                ]
+                fit_results = [
+                    base_fitter(
+                        funcs=[series_def.fit_func for series_def in self.__series__],
+                        series=_series,
+                        xdata=_xdata,
+                        ydata=_ydata,
+                        sigma=_sigma,
+                        **fit_options,
+                    )
+                    for fit_options in fit_options_candidates
+                ]
+                # Sort by chi squared value
+                fit_results = sorted(fit_results, key=lambda r: r["reduced_chisq"])
+                analysis_result.update(**fit_results[0])
             analysis_result["success"] = True
         except Exception as ex:
             analysis_result["error_message"] = str(ex)
@@ -711,20 +693,23 @@ class CurveAnalysis(BaseAnalysis):
         # 4. Post-process analysis data
         #
         if analysis_result["success"]:
-            analysis_result = self._post_processing(analysis_result)
+            analysis_result = self._post_processing(analysis_result=analysis_result, **options)
 
         #
         # 5. Create figures
         #
-        figures = self._create_figures(
-            x_values=xdata,
-            y_values=ydata,
-            y_sigmas=sigma,
-            series=series,
-            analysis_results=analysis_result,
-            axis=axis,
-            add_label=add_label,
-        )
+        if plot:
+            figures = self._create_figures(
+                x_values=xdata,
+                y_values=ydata,
+                y_sigmas=sigma,
+                series=series,
+                analysis_results=analysis_result,
+                axis=axis,
+                add_label=add_label,
+            )
+        else:
+            figures = list()
 
         #
         # 6. Save raw data

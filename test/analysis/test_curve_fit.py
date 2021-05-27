@@ -19,8 +19,10 @@ import numpy as np
 from qiskit.test import QiskitTestCase
 
 from qiskit_experiments import ExperimentData
-from qiskit_experiments.analysis import CurveAnalysis, SeriesDef, fit_functions, FitOptions
+from qiskit_experiments.analysis import CurveAnalysis, SeriesDef, fit_functions
+from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.base_experiment import BaseExperiment
+from qiskit_experiments.analysis.curve_fitting import multi_curve_fit
 
 
 class FakeExperiment(BaseExperiment):
@@ -29,7 +31,7 @@ class FakeExperiment(BaseExperiment):
     def __init__(self):
         super().__init__(qubits=(0,), experiment_type="fake_experiment")
 
-    def circuits(self, backend=None, **circuit_options):
+    def circuits(self, backend=None):
         return []
 
 
@@ -113,18 +115,6 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         )
         self.err_decimal = 3
 
-    @staticmethod
-    def data_processor(data, outcome):
-        """A helper method to format input data."""
-        counts = data["counts"]
-        outcome = outcome or "1" * len(list(counts.keys())[0])
-
-        shots = sum(counts.values())
-        p_mean = counts.get(outcome, 0.0) / shots
-        p_var = p_mean * (1 - p_mean) / shots
-
-        return p_mean, p_var
-
     def test_data_extraction(self):
         """Test data extraction method."""
         # data to analyze
@@ -134,7 +124,6 @@ class TestCurveAnalysisUnit(QiskitTestCase):
             param_dict={"amp": 1.0},
             type=1,
             valid=True,
-            outcome="1",
         )
 
         # fake data
@@ -144,13 +133,12 @@ class TestCurveAnalysisUnit(QiskitTestCase):
             param_dict={"amp": 0.5},
             type=2,
             valid=False,
-            outcome="1",
         )
         # merge two experiment data
         for datum in test_data1.data():
             test_data0.add_data(datum)
 
-        xdata, ydata, sigma, series = self.analysis._extract_curves(test_data0, self.data_processor)
+        xdata, ydata, sigma, series = self.analysis._extract_curves(test_data0, level2_probability)
 
         # check if the module filter off data: valid=False
         self.assertEqual(len(xdata), 20)
@@ -201,16 +189,19 @@ class TestCurveAnalysisUnit(QiskitTestCase):
 
     def test_formatting_options(self):
         """Test option formatter."""
-        test_options = FitOptions(
-            p0=[0, 1, 2, 3, 4], bounds=[(-1, 1), (-2, 2), (-3, 3), (-4, 4), (-5, 5)]
-        )
-        formatted_options = self.analysis._format_fit_options(test_options)
+        test_options = {
+            "p0": [0, 1, 2, 3, 4],
+            "bounds": [(-1, 1), (-2, 2), (-3, 3), (-4, 4), (-5, 5)],
+            "other_value": "test",
+        }
+        formatted_options = self.analysis._format_fit_options(**test_options)
 
-        ref_p0 = {"p0": 0, "p1": 1, "p2": 2, "p3": 3, "p4": 4}
-        self.assertDictEqual(formatted_options["p0"], ref_p0)
-
-        ref_bounds = {"p0": (-1, 1), "p1": (-2, 2), "p2": (-3, 3), "p3": (-4, 4), "p4": (-5, 5)}
-        self.assertDictEqual(formatted_options["bounds"], ref_bounds)
+        ref_options = {
+            "p0": {"p0": 0, "p1": 1, "p2": 2, "p3": 3, "p4": 4},
+            "bounds": {"p0": (-1, 1), "p1": (-2, 2), "p2": (-3, 3), "p3": (-4, 4), "p4": (-5, 5)},
+            "other_value": "test",
+        }
+        self.assertDictEqual(formatted_options, ref_options)
 
 
 class TestCurveAnalysisIntegration(QiskitTestCase):
@@ -242,9 +233,16 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             func=fit_functions.exponential_decay,
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "lamb": ref_p1, "x0": ref_p2, "baseline": ref_p3},
-            outcome="1",
         )
-        results, _ = analysis._run_analysis(test_data, p0=[ref_p0, ref_p1, ref_p2, ref_p3])
+        results, _ = analysis._run_analysis(
+            test_data,
+            p0=[ref_p0, ref_p1, ref_p2, ref_p3],
+            plot=False,
+            add_label=True,
+            ax=None,
+            data_processor=level2_probability,
+            base_fitter=multi_curve_fit,
+        )
         result = results[0]
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
@@ -278,7 +276,6 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             func=fit_functions.exponential_decay,
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "lamb": ref_p1, "x0": ref_p2, "baseline": ref_p3},
-            outcome="1",
         )
 
         # Try to fit with infeasible parameter boundary. This should fail.
@@ -286,6 +283,11 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             test_data,
             p0=[ref_p0, ref_p1, ref_p2, ref_p3],
             bounds=([-10, -10, -10, -10], [0, 0, 0, 0]),
+            plot=False,
+            add_label=True,
+            ax=None,
+            data_processor=level2_probability,
+            base_fitter=multi_curve_fit,
         )
         result = results[0]
 
@@ -325,7 +327,6 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "lamb": ref_p1, "x0": ref_p3, "baseline": ref_p4},
             exp=0,
-            outcome="1",
         )
 
         test_data1 = simulate_output_data(
@@ -333,14 +334,21 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "lamb": ref_p2, "x0": ref_p3, "baseline": ref_p4},
             exp=1,
-            outcome="1",
         )
 
         # merge two experiment data
         for datum in test_data1.data():
             test_data0.add_data(datum)
 
-        results, _ = analysis._run_analysis(test_data0, p0=[ref_p0, ref_p1, ref_p2, ref_p3, ref_p4])
+        results, _ = analysis._run_analysis(
+            test_data0,
+            p0=[ref_p0, ref_p1, ref_p2, ref_p3, ref_p4],
+            plot=False,
+            add_label=True,
+            ax=None,
+            data_processor=level2_probability,
+            base_fitter=multi_curve_fit,
+        )
         result = results[0]
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3, ref_p4])
@@ -379,7 +387,6 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "freq": ref_p1, "phase": ref_p2, "baseline": ref_p3},
             exp=0,
-            outcome="1",
         )
 
         test_data1 = simulate_output_data(
@@ -387,14 +394,21 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "freq": ref_p1, "phase": ref_p2, "baseline": ref_p3},
             exp=1,
-            outcome="1",
         )
 
         # merge two experiment data
         for datum in test_data1.data():
             test_data0.add_data(datum)
 
-        results, _ = analysis._run_analysis(test_data0, p0=[ref_p0, ref_p1, ref_p2, ref_p3])
+        results, _ = analysis._run_analysis(
+            test_data0,
+            p0=[ref_p0, ref_p1, ref_p2, ref_p3],
+            plot=False,
+            add_label=True,
+            ax=None,
+            data_processor=level2_probability,
+            base_fitter=multi_curve_fit,
+        )
         result = results[0]
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])

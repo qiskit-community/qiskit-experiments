@@ -50,7 +50,7 @@ Fit Functions
     sin
 
 """
-from .curve_analysis import CurveAnalysis, SeriesDef, FitOptions
+from .curve_analysis import CurveAnalysis, SeriesDef
 
 # fit functions (alphabetical import ordering)
 from .fit_functions import (
