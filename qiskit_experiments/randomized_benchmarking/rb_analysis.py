@@ -15,12 +15,15 @@ Standard RB analysis class.
 
 from typing import List, Tuple, Dict, Any, Optional
 
+from qiskit.providers.options import Options
+from qiskit_experiments.experiment_data import ExperimentData
+from qiskit_experiments.base_analysis import BaseAnalysis
+from qiskit_experiments.analysis.curve_fitting import curve_fit, process_curve_data
 import numpy as np
 
 from qiskit_experiments.analysis import CurveAnalysis, SeriesDef, FitOptions, exponential_decay
-from qiskit_experiments.analysis.data_processing import (
-    mean_xy_data,
-)
+from qiskit_experiments.analysis.data_processing import mean_xy_data,
+from qiskit_experiments.analysis import plotting
 from qiskit_experiments.experiment_data import AnalysisResult
 
 
@@ -41,6 +44,15 @@ class RBAnalysis(CurveAnalysis):
     __plot_xlabel__ = "Clifford Length"
 
     __plot_ylabel__ = "P(0)"
+
+
+    @classmethod
+    def _default_options(cls):
+        return Options(
+            p0=None,
+            plot=True,
+            ax=None,
+        )
 
     def _setup_fitting(
         self,
