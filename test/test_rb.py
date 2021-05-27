@@ -32,7 +32,7 @@ class TestRB(QiskitTestCase):
     A test class for the RB Experiment to check that the RBExperiment class is working correctly.
     """
 
-    @data(qubits=([3], [4, 7], [0, 5, 3]))
+    @data([3], [4, 7], [0, 5, 3])
     def test_rb_experiment(self, qubits: list):
         """
         Initializes data and executes an RB experiment with specific parameters.
@@ -104,8 +104,8 @@ class TestRB(QiskitTestCase):
             data and results after it run.
             exp_attributes (dict): A dictionary with the experiment variable and values
         """
-        for ind, data in enumerate(experiment.data):
-            experiment_information = data["metadata"]
+        for ind, exp_data in enumerate(experiment.data):
+            experiment_information = exp_data["metadata"]
             self.assertEqual(
                 experiment_information["xval"],
                 exp_attributes["lengths"][ind],
