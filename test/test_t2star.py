@@ -175,6 +175,15 @@ class TestT2Star(QiskitTestCase):
             ]
 
             exp = T2StarExperiment(qubit, delays, unit=unit)
+            exp.set_analysis_options(
+                user_p0={
+                    "A": 0.5,
+                    "t2star": estimated_t2star,
+                    "f": estimated_freq,
+                    "phi": 0,
+                    "B": 0.5,
+                }
+            )
 
             backend = T2starBackend(
                 p0={
@@ -193,20 +202,14 @@ class TestT2Star(QiskitTestCase):
                 dt_factor = getattr(backend._configuration, "dt")
 
             # run circuits
-            result = exp.run(
+
+            expdata = exp.run(
                 backend=backend,
-                user_p0={
-                    "A": 0.5,
-                    "t2star": estimated_t2star,
-                    "f": estimated_freq,
-                    "phi": 0,
-                    "B": 0.5,
-                },
-                user_bounds=None,
                 # plot=False,
                 instruction_durations=instruction_durations,
                 shots=2000,
-            ).analysis_result(0)
+            )
+            result = expdata.analysis_result(0)
             self.assertAlmostEqual(
                 result["t2star_value"],
                 estimated_t2star * dt_factor,
@@ -244,8 +247,6 @@ class TestT2Star(QiskitTestCase):
         backend = T2starBackend(p0)
         res = par_exp.run(
             backend=backend,
-            user_p0=None,
-            user_bounds=None,
             # plot=False,
             shots=1000,
         )
