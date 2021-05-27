@@ -23,74 +23,26 @@ import qiskit.quantum_info.operators as op
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeParis
 from qiskit.exceptions import QiskitError
+from ddt import ddt, data
+from qiskit.test import utils
 import numpy as np
 import qiskit_experiments as qe
 
-
+@ddt
 class TestRB(QiskitTestCase):
     """
-   A test class for the RB Experiment to check that the RBExperiment class is working correctly.
+    A test class for the RB Experiment to check that the RBExperiment class is working correctly.
     """
 
-    def rb_parameters_one_qubit(self):
+    @data(qubits=([3], [4, 7], [0, 5, 3]))
+    def test_rb_experiment(self, qubits):
         """
-        Initializes data and executes an RB experiment on one qubit with specific parameters
-        """
-        backend = FakeParis()
-        exp_attributes = {
-            "qubits": [3],
-            "lengths": [1, 4, 6, 9, 13, 16],
-            "num_samples": 1,
-            "seed": 100,
-        }
-        rb = qe.randomized_benchmarking
-        rb_exp = rb.RBExperiment(
-            exp_attributes["qubits"],
-            exp_attributes["lengths"],
-            num_samples=exp_attributes["num_samples"],
-            seed=exp_attributes["seed"],
-        )
-        exp_data = rb_exp.run(backend)
-        exp_circuits = rb_exp.circuits()
-        exp_transpiled_circuit = rb_exp.transpiled_circuits()
-        self.validate_metadata(exp_circuits, exp_attributes)
-        self.validate_circuit_data(exp_data, exp_attributes)
-        self.is_identity_transpiled(exp_transpiled_circuit)
-        self.is_identity(exp_circuits)
-
-    def rb_parameters_two_qubit(self):
-        """
-        Initializes data and executes an RB experiment on two qubits with specific parameters
+        Run the RB test for circuits (checking the metadata, parameters and functionallity
+        of the experiment) for different number of qubits.
         """
         backend = FakeParis()
         exp_attributes = {
-            "qubits": [4, 7],
-            "lengths": [1, 4, 6, 9, 13, 16],
-            "num_samples": 1,
-            "seed": 100,
-        }
-        rb = qe.randomized_benchmarking
-        rb_exp = rb.RBExperiment(
-            exp_attributes["qubits"],
-            exp_attributes["lengths"],
-            num_samples=exp_attributes["num_samples"],
-            seed=exp_attributes["seed"],
-        )
-        exp_data = rb_exp.run(backend)
-        exp_circuits = rb_exp.circuits()
-        exp_transpiled_circuit = rb_exp.transpiled_circuits()
-        self.validate_metadata(exp_circuits, exp_attributes)
-        self.validate_circuit_data(exp_data, exp_attributes)
-        self.is_identity_transpiled(exp_transpiled_circuit)
-        self.is_identity(exp_circuits)
-
-    def rb_parameters_three_qubit(self):
-        """
-        Initializes data and executes an RB experiment on three qubits with specific parameters
-        """
-        backend = FakeParis()
-        exp_attributes = {
-            "qubits": [0, 5, 3],
+            "qubits": qubits,
             "lengths": [1, 4, 6, 9, 13, 16],
             "num_samples": 1,
             "seed": 100,
@@ -205,7 +157,7 @@ class TestRB(QiskitTestCase):
         ]
         return exp_data_list
 
-    def _test_input(self):
+    def test_input(self):
         """
         Check that errors emerge when invalid input is given to the RB experiment.
         """
@@ -220,14 +172,3 @@ class TestRB(QiskitTestCase):
                 num_samples=exp_data["num_samples"],
                 seed=exp_data["seed"],
             )
-
-    def test_RB_circuits(self):
-        """
-        Run the RB test for the circuits (checking the metadata, parameters and functionallity
-        of the experiment.
-        """
-        self._test_input()
-        self.rb_parameters_one_qubit()
-        self.rb_parameters_two_qubit()
-        self.rb_parameters_three_qubit()
-
