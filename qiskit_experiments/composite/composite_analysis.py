@@ -13,6 +13,8 @@
 Composite Experiment Analysis class.
 """
 
+from qiskit.exceptions import QiskitError
+from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResultV1
 from qiskit.providers.experiment import AnalysisResultV1
 from qiskit.providers.experiment.device_component import Qubit
 
@@ -43,8 +45,16 @@ class CompositeAnalysis(BaseAnalysis):
             QiskitError: if analysis is attempted on non-composite
                          experiment data.
         """
-        # Run analysis for sub-experiments and add sub-experiment metadata
-        # as result of batch experiment
+        if not isinstance(experiment_data, CompositeExperimentData):
+            raise QiskitError("CompositeAnalysis must be run on CompositeExperimentData.")
+
+        # Run analysis for sub-experiments
+        for expr, expr_data in zip(
+            experiment_data._experiment._experiments, experiment_data._components
+        ):
+            expr.run_analysis(expr_data, **options)
+
+        # Add sub-experiment metadata as result of batch experiment
         # Note: if Analysis results had ID's these should be included here
         # rather than just the sub-experiment IDs
         sub_types = []

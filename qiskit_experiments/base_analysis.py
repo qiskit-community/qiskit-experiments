@@ -16,18 +16,39 @@ Base analysis class.
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 
+from qiskit.providers.options import Options
 from qiskit.exceptions import QiskitError
 
 from qiskit.providers.experiment import AnalysisResultV1
 
 from .experiment_data import ExperimentData
 
+# pylint: disable = unused-import
+from qiskit_experiments.matplotlib import pyplot
+
 
 class BaseAnalysis(ABC):
-    """Base Analysis class for analyzing Experiment data."""
+    """Base Analysis class for analyzing Experiment data.
+
+    The data produced by experiments (i.e. subclasses of BaseExperiment)
+    are analyzed with subclasses of BaseExperiment. The analysis is
+    typically run after the data has been gathered by the experiment.
+    For example, an analysis may perform some data processing of the
+    measured data and a fit to a function to extract a parameter.
+
+    When designing Analysis subclasses default values for any kwarg
+    analysis options of the `run` method should be set by overriding
+    the `_default_options` class method. When calling `run` these
+    default values will be combined with all other option kwargs in the
+    run method and passed to the `_run_analysis` function.
+    """
 
     # Expected experiment data container for analysis
     __experiment_data__ = ExperimentData
+
+    @classmethod
+    def _default_options(cls) -> Options:
+        return Options()
 
     def run(
         self,
@@ -36,7 +57,7 @@ class BaseAnalysis(ABC):
         return_figures: bool = False,
         **options,
     ):
-        """Run analysis and update stored ExperimentData with analysis result.
+        """Run analysis and update ExperimentData with analysis result.
 
         Args:
             experiment_data: the experiment data to analyze.
@@ -45,14 +66,13 @@ class BaseAnalysis(ABC):
             return_figures: if true return a pair of
                             ``(analysis_results, figures)``,
                             otherwise return only analysis_results.
-            options: kwarg options for analysis function.
+            options: additional analysis options. See class documentation for
+                     supported options.
 
         Returns:
-            AnalysisResultV1: the output of the analysis that produces a
-                              single result.
             List[AnalysisResultV1]: the output for analysis that produces
                                     multiple results.
-            tuple: If ``return_figures=True`` the output is a pair
+            Tuple: If ``return_figures=True`` the output is a pair
                    ``(analysis_results, figures)`` where  ``analysis_results``
                    may be a single or list of :class:`AnalysisResultV1` objects, and
                    ``figures`` may be None, a single figure, or a list of figures.
@@ -66,7 +86,19 @@ class BaseAnalysis(ABC):
                 f" but received {type(experiment_data).__name__}"
             )
 
-        analysis_results, figures = self._run_analysis(experiment_data, **options)
+        # Get analysis options
+        analysis_options = self._default_options()
+        analysis_options.update_options(**options)
+        analysis_options = analysis_options.__dict__
+
+        # Run analysis
+        # pylint: disable=broad-except
+        try:
+            analysis_results, figures = self._run_analysis(experiment_data, **analysis_options)
+            analysis_results["success"] = True
+        except Exception as ex:
+            analysis_results = AnalysisResult(success=False, error_message=ex)
+            figures = None
 
         # Save to experiment data
         if save:
@@ -80,18 +112,19 @@ class BaseAnalysis(ABC):
 
     @abstractmethod
     def _run_analysis(
-        self, data: ExperimentData, **options
-    ) -> Tuple[List[AnalysisResultV1], List["matplotlib.figure.Figure"]]:
+        self, experiment_data: ExperimentData, **options
+    ) -> Tuple[List[AnalysisResultV1], List["pyplot.Figure"]]:
         """Run analysis on circuit data.
 
         Args:
             experiment_data: the experiment data to analyze.
-            options: kwarg options for analysis function.
+            options: additional options for analysis. By default the fields and
+                     values in :meth:`options` are used and any provided values
+                     can override these.
 
         Returns:
-            tuple: A pair ``(analysis_results, figures)`` where
-                   ``analysis_results`` may be a single or list of
-                   AnalysisResultV1 objects, and ``figures`` is a list of any
-                   figures for the experiment.
+            A pair ``(analysis_results, figures)`` where ``analysis_results``
+            may be a single or list of AnalysisResultV1 objects, and ``figures``
+            is a list of any figures for the experiment.
         """
         pass
