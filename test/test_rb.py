@@ -85,18 +85,18 @@ class TestRB(QiskitTestCase):
         """
         for ind, qc in enumerate(circuits):
             self.assertTrue(
-                qc.metadata["xval"] ==
-                exp_attributes["lengths"][ind],
+                qc.metadata["xval"] == exp_attributes["lengths"][ind],
                 "The number of gates in the experiment metadata doesn't match to the one provided.",
             )
             self.assertTrue(
-                qc.metadata["qubits"] ==
-                tuple(exp_attributes["qubits"]),
+                qc.metadata["qubits"] == tuple(exp_attributes["qubits"]),
                 "The qubits indices in the experiment metadata doesn't match to the one provided.",
             )
 
     def validate_circuit_data(
-        self, experiment: qe.randomized_benchmarking.rb_experiment.RBExperiment, exp_attributes: dict
+        self,
+        experiment: qe.randomized_benchmarking.rb_experiment.RBExperiment,
+        exp_attributes: dict,
     ):
         """
         Validate that the metadata of the experiment after it had run matches the one provided.
@@ -106,18 +106,15 @@ class TestRB(QiskitTestCase):
             exp_attributes (dict): A dictionary with the experiment variable and values
         """
         self.assertTrue(
-            exp_attributes["lengths"] ==
-            experiment.experiment_options.lengths,
+            exp_attributes["lengths"] == experiment.experiment_options.lengths,
             "The number of gates in the experiment doesn't match to the one in the metadata.",
         )
         self.assertTrue(
-            exp_attributes["num_samples"] ==
-            experiment.experiment_options.num_samples,
+            exp_attributes["num_samples"] == experiment.experiment_options.num_samples,
             "The number of samples in the experiment doesn't match to the one in the metadata.",
         )
         self.assertTrue(
-            tuple(exp_attributes["qubits"]) ==
-            experiment.physical_qubits,
+            tuple(exp_attributes["qubits"]) == experiment.physical_qubits,
             "The qubits indices in the experiment doesn't match to the one in the metadata.",
         )
 
