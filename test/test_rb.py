@@ -18,15 +18,13 @@ A Tester for the RB experiment
 
 from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.quantum_info import Clifford
-from qiskit.quantum_info.operators.measures import process_fidelity
-import qiskit.quantum_info.operators as op
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeParis
 from qiskit.exceptions import QiskitError
 from ddt import ddt, data
-from qiskit.test import utils
 import numpy as np
 import qiskit_experiments as qe
+
 
 @ddt
 class TestRB(QiskitTestCase):
@@ -35,10 +33,11 @@ class TestRB(QiskitTestCase):
     """
 
     @data(qubits=([3], [4, 7], [0, 5, 3]))
-    def test_rb_experiment(self, qubits):
+    def test_rb_experiment(self, qubits: list):
         """
-        Run the RB test for circuits (checking the metadata, parameters and functionallity
-        of the experiment) for different number of qubits.
+        Initializes data and executes an RB experiment with specific parameters.
+        Args:
+            qubits (list): A list containing qubit indices for the experiment
         """
         backend = FakeParis()
         exp_attributes = {
@@ -120,14 +119,16 @@ class TestRB(QiskitTestCase):
 
     def _exp_data_properties(self):
         """
-        Return a list of dictionaries that contains invalid experiment propeties to check errors.
-        The dict have invalid data in them as the following:
+        Creates a list of dictionaries that contains invalid experiment properties to check errors.
+        The dict invalid data is as following:
             exp_data_list[1]: same index of qubit.
             exp_data_list[2]: qubit index is negative.
             exp_data_list[3]: the length of the sequence has negative number.
             exp_data_list[4]: num of samples is negative.
             exp_data_list[5]: num of samples is 0.
             exp_data_list[6]: the length of the sequence list has duplicates.
+        Returns:
+            list[dict]: list of dictionaries with experiment properties.
         """
         exp_data_list = [
             {"qubits": [3, 3], "lengths": [1, 3, 5, 7, 9], "num_samples": 1, "seed": 100},
