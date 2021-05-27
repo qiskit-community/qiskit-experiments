@@ -56,10 +56,8 @@ class TestRB(QiskitTestCase):
         )
         exp_data = rb_exp.run(backend)
         exp_circuits = rb_exp.circuits()
-        exp_transpiled_circuit = rb_exp.transpiled_circuits()
         self.validate_metadata(exp_circuits, exp_attributes)
         self.validate_circuit_data(exp_data, exp_attributes)
-        self.is_identity_transpiled(exp_transpiled_circuit)
         self.is_identity(exp_circuits)
 
     def is_identity(self, circuits: list):
@@ -76,22 +74,6 @@ class TestRB(QiskitTestCase):
                 matrix_equal(Clifford(qc).to_matrix(), np.identity(2 ** num_qubits)),
                 True,
                 "Clifford sequence doesn't result in the identity matrix.",
-            )
-
-    def is_identity_transpiled(self, transpiled_circuits: list):
-        """Standard randomized benchmarking test - Identity check for the transpiled circuits.
-            Using
-        Args:
-            transpiled_circuits (list): list of the circuits which we want to check
-        """
-        for qc in transpiled_circuits:
-            num_qubits = qc.num_qubits
-            qc.remove_final_measurements()
-            # Checking if the matrix representation is the identity matrix
-            self.assertAlmostEqual(
-                process_fidelity(op.Operator(qc).data, np.identity(2 ** num_qubits)),
-                1,
-                "Transpiled circuit doesn't result in the identity operator.",
             )
 
     def validate_metadata(self, circuits: list, exp_attributes: dict):
