@@ -22,11 +22,11 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.utils import apply_prefix
 from qiskit.providers.options import Options
 from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResult
+from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import curve_fit, process_curve_data
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
-from ..experiment_data import ExperimentData
+from ..experiment_data import ExperimentData, AnalysisResult
 
 # pylint: disable = invalid-name
 class T2StarAnalysis(BaseAnalysis):
