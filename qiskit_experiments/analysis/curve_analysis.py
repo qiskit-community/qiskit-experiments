@@ -37,9 +37,9 @@ from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
 class SeriesDef:
     """Description of curve."""
 
-    name: str
     fit_func: Callable
     filter_kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
+    name: str = "Series-0"
     plot_color: str = "black"
     plot_symbol: str = "o"
 
@@ -53,26 +53,20 @@ class CurveAnalysis(BaseAnalysis):
 
     Class Attributes:
 
-        __x_key__: Key in the circuit metadata under which to find the value for
-            the horizontal axis.
         __series__: A set of data points that will be fit to a the same parameters
             in the fit function. If this analysis contains multiple curves,
             the same number of series definitions should be listed.
             Each series definition is SeriesDef element, that may be initialized with::
 
-                name: Name of the curve. This is arbitrary data field, but should be unique.
                 fit_func: Callback function to perform fit.
                 filter_kwargs: Circuit metadata key and value associated with this curve.
                     The data points of the curve is extracted from ExperimentData based on
                     this information.
+                name: Name of the curve. This is arbitrary data field, but should be unique.
                 plot_color: String color representation of this series in the plot.
                 plot_symbol: String formatter of the scatter of this series in the plot.
 
             See the Examples below for more details.
-        __fit_label_desc__: Dict of parameter names and its representation shows in the
-            result figure as an analysis report.
-        __plot_xlabel__: Label of x axis of result plot.
-        __plot_ylabel__: Label of y axis of result plot.
 
 
     Examples:
@@ -81,25 +75,18 @@ class CurveAnalysis(BaseAnalysis):
         ============================================
 
         In this type of experiment, the analysis deals with a single curve.
-        Thus filter_kwargs is not necessary defined.
-        In this example, fit value and error of the parameter ``lamb`` labeled by
-        a Greek lambda symbol are written  in the figure.
+        Thus filter_kwargs and series name are not necessary defined.
 
         .. code-block::
 
             class AnalysisExample(CurveAnalysis):
 
-                __x_key__ = "scan_val"
-
                 __series__ = [
                     SeriesDef(
-                        name="my_experiment1",
                         fit_func=lambda x, p0, p1, p2:
                             exponential_decay(x, amp=p0, lamb=p1, baseline=p2),
                     ),
                 ]
-
-                __plot_labels__ = {"lamb": "\u03BB"}
 
 
         A fitting for two exponential decay curve with partly shared parameter
@@ -112,8 +99,6 @@ class CurveAnalysis(BaseAnalysis):
         .. code-block::
 
             class AnalysisExample(CurveAnalysis):
-
-                __x_key__ = "scan_val"
 
                 __series__ = [
                     SeriesDef(
@@ -134,8 +119,6 @@ class CurveAnalysis(BaseAnalysis):
                     ),
                 ]
 
-                __plot_labels__ = {"lamb": "\u03BB"}
-
 
         A fitting for two trigonometric curves with the same parameter
         =============================================================
@@ -146,8 +129,6 @@ class CurveAnalysis(BaseAnalysis):
         .. code-block::
 
             class AnalysisExample(CurveAnalysis):
-
-                __x_key__ = "scan_val"
 
                 __series__ = [
                     SeriesDef(
@@ -165,10 +146,8 @@ class CurveAnalysis(BaseAnalysis):
                         filter_kwargs={"experiment": 2},
                         plot_color="blue",
                         plot_symbol="o",
-                    )
+                    ),
                 ]
-
-                __plot_labels__ = {"lamb": "\u03BB"}
 
 
     Notes:
@@ -190,11 +169,6 @@ class CurveAnalysis(BaseAnalysis):
             Override :meth:`~self._setup_fitting`. For example, here you can
             calculate initial guess from experiment data and setup fitter options.
 
-        - Customize data processor calibration:
-            Override :meth:`~Self._calibrate_data_processor`. This is special subroutine
-            that is only called when a DataProcessor instance is used as the data processor.
-            You can take arbitrary data from experiment result and setup your processor.
-
         Note that other private methods are not expected to be overridden.
         If you forcibly override these methods, the behavior of analysis logic is not well tested
         and we cannot guarantee it works as expected (you may suffer from bugs).
@@ -204,38 +178,32 @@ class CurveAnalysis(BaseAnalysis):
         https://github.com/Qiskit/qiskit-experiments/issues
     """
 
-    #: str: Metadata key representing a scanned value.
-    __x_key__ = "xval"
-
     #: List[SeriesDef]: List of mapping representing a data series
     __series__ = None
-
-    #: Dict[str, str]: Mapping of fit parameters and representation in the figure label.
-    __fit_label_desc__ = None
-
-    #: str: X axis label
-    __plot_xlabel__ = "x value"
-
-    #: str: Y axis label
-    __plot_ylabel__ = "y value"
 
     @classmethod
     def _default_options(cls):
         """Return default data processing options.
 
         Options:
-            plot: Set ``True`` to create figure for fit result.
-            add_label: Set ``True`` to write fit report in the figure.
-            ax: Optional. A matplotlib axis object to draw.
             base_fitter: A callback function to perform fitting with formatted data.
             data_processor: A callback function to format experiment data.
+            x_key: Circuit metadata key representing a scanned value.
+            plot: Set ``True`` to create figure for fit result.
+            ax: Optional. A matplotlib axis object to draw.
+            xlabel: X label of fit result figure.
+            ylabel: Y label of fit result figure.
+            fit_reports: Mapping of fit parameters and representation in the fit report.
         """
         return Options(
-            plot=True,
-            add_label=True,
-            ax=None,
             base_fitter=multi_curve_fit,
             data_processor=level2_probability,
+            x_key="xval",
+            plot=True,
+            ax=None,
+            xlabel="x value",
+            ylabel="y value",
+            fit_reports=None,
         )
 
     def _create_figures(
@@ -246,7 +214,9 @@ class CurveAnalysis(BaseAnalysis):
         series: np.ndarray,
         analysis_results: AnalysisResult,
         axis: Optional["AxisSubplot"] = None,
-        add_label: bool = True,
+        xlabel: str = "x value",
+        ylabel: str = "y value",
+        fit_reports: Optional[Dict[str, str]] = None,
     ) -> List["Figure"]:
         """Create new figures with the fit result and raw data.
 
@@ -259,7 +229,9 @@ class CurveAnalysis(BaseAnalysis):
             series: An integer array representing a mapping of data location to series index.
             analysis_results: Analysis result containing fit parameters.
             axis: User provided axis to draw result.
-            add_label: Set ``True`` to add analysis result label.
+            xlabel: String shown in figure x axis label.
+            ylabel: String shown in figure y axis label.
+            fit_reports: Mapping of fit parameters and representation in the fit report.
 
         Returns:
             List of figures.
@@ -267,13 +239,13 @@ class CurveAnalysis(BaseAnalysis):
         if plotting.HAS_MATPLOTLIB:
 
             if axis is None:
-                figure = plotting.pyplot.figure()
+                figure = plotting.pyplot.figure(figsize=(8, 5))
                 axis = figure.subplots(nrows=1, ncols=1)
             else:
                 figure = axis.get_figure()
 
-            axis.set_xlabel(self.__plot_xlabel__, fontsize=16)
-            axis.set_ylabel(self.__plot_ylabel__, fontsize=16)
+            axis.set_xlabel(xlabel, fontsize=16)
+            axis.set_ylabel(ylabel, fontsize=16)
 
             for series_def in self.__series__:
 
@@ -320,10 +292,10 @@ class CurveAnalysis(BaseAnalysis):
 
             # write analysis report
 
-            if add_label and analysis_results["success"]:
+            if fit_reports and analysis_results["success"]:
                 # write fit status in the plot
                 analysis_description = "Analysis Reports:\n"
-                for par_name, label in self.__fit_label_desc__.items():
+                for par_name, label in fit_reports.items():
                     try:
                         # fit value
                         pind = analysis_results["popt_keys"].index(par_name)
@@ -427,6 +399,7 @@ class CurveAnalysis(BaseAnalysis):
 
     def _extract_curves(
         self,
+        x_key: str,
         experiment_data: ExperimentData,
         data_processor: Union[Callable, DataProcessor],
     ) -> Tuple[np.ndarray, ...]:
@@ -440,6 +413,7 @@ class CurveAnalysis(BaseAnalysis):
             common to the entire curve scan, i.e. series-level metadata.
 
         Args:
+            x_key: A circuit metadata key to represent scanned value.
             experiment_data: ExperimentData object to fit parameters.
             data_processor: A callable or DataProcessor instance to format data into numpy array.
                 This should take list of dictionary and returns two tuple of float values
@@ -463,11 +437,9 @@ class CurveAnalysis(BaseAnalysis):
         data = experiment_data.data()
 
         try:
-            x_values = [datum["metadata"][self.__x_key__] for datum in data]
+            x_values = [datum["metadata"][x_key] for datum in data]
         except KeyError as ex:
-            raise QiskitError(
-                f"X value key {self.__x_key__} is not defined in circuit metadata."
-            ) from ex
+            raise QiskitError(f"X value key {x_key} is not defined in circuit metadata.") from ex
 
         y_values, y_sigmas = zip(*map(data_processor, data))
 
@@ -602,11 +574,14 @@ class CurveAnalysis(BaseAnalysis):
         analysis_result = AnalysisResult()
 
         # pop arguments that are not given to fitter
-        plot = options.pop("plot")
-        add_label = options.pop("add_label")
-        axis = options.pop("ax")
-        data_processor = options.pop("data_processor")
         base_fitter = options.pop("base_fitter")
+        data_processor = options.pop("data_processor")
+        x_key = options.pop("x_key")
+        plot = options.pop("plot")
+        axis = options.pop("ax")
+        xlabel = options.pop("xlabel")
+        ylabel = options.pop("ylabel")
+        fit_reports = options.pop("fit_reports")
 
         #
         # 1. Setup data processor
@@ -634,7 +609,9 @@ class CurveAnalysis(BaseAnalysis):
         # pylint: disable=broad-except
         try:
             xdata, ydata, sigma, series = self._extract_curves(
-                experiment_data=experiment_data, data_processor=configured_data_processor
+                x_key=x_key,
+                experiment_data=experiment_data,
+                data_processor=configured_data_processor,
             )
         except Exception as ex:
             analysis_result["error_message"] = str(ex)
@@ -706,7 +683,9 @@ class CurveAnalysis(BaseAnalysis):
                 series=series,
                 analysis_results=analysis_result,
                 axis=axis,
-                add_label=add_label,
+                xlabel=xlabel,
+                ylabel=ylabel,
+                fit_reports=fit_reports,
             )
         else:
             figures = list()

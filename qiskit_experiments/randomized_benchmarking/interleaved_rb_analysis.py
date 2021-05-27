@@ -40,7 +40,7 @@ class InterleavedRBAnalysis(RBAnalysis):
     \end{array}\right.`
     """
 
-    __series__ = {
+    __series__ = [
         SeriesDef(
             name="Standard",
             fit_func=lambda x, a, alpha, alpha_c, b: exponential_decay(
@@ -57,9 +57,14 @@ class InterleavedRBAnalysis(RBAnalysis):
             plot_color="orange",
             plot_symbol="^",
         ),
-    }
+    ]
 
-    __fit_label_desc__ = {"alpha": "\u03B1", "alpha_c": "\u03B1_c", "EPC": "EPC"}
+    @classmethod
+    def _default_options(cls):
+        default_options = super()._default_options()
+        default_options.fit_reports = {"alpha": "\u03B1", "alpha_c": "\u03B1_c", "EPC": "EPC"}
+
+        return default_options
 
     def _setup_fitting(
         self,

@@ -27,7 +27,6 @@ class RBAnalysis(CurveAnalysis):
 
     __series__ = [
         SeriesDef(
-            name="RB curve",
             fit_func=lambda x, a, alpha, b: exponential_decay(
                 x, amp=a, lamb=-1.0, base=alpha, baseline=b
             ),
@@ -35,16 +34,13 @@ class RBAnalysis(CurveAnalysis):
         )
     ]
 
-    __fit_label_desc__ = {"alpha": "\u03B1", "EPC": "EPC"}
-
-    __plot_xlabel__ = "Clifford Length"
-
-    __plot_ylabel__ = "P(0)"
-
     @classmethod
     def _default_options(cls):
         default_options = super()._default_options()
         default_options.p0 = None
+        default_options.xlabel = "Clifford Length"
+        default_options.ylabel = "P(0)"
+        default_options.fit_reports = {"alpha": "\u03B1", "EPC": "EPC"}
 
         return default_options
 

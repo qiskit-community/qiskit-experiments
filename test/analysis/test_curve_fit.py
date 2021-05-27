@@ -138,7 +138,9 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         for datum in test_data1.data():
             test_data0.add_data(datum)
 
-        xdata, ydata, sigma, series = self.analysis._extract_curves(test_data0, level2_probability)
+        xdata, ydata, sigma, series = self.analysis._extract_curves(
+            x_key="xval", experiment_data=test_data0, data_processor=level2_probability
+        )
 
         # check if the module filter off data: valid=False
         self.assertEqual(len(xdata), 20)
@@ -237,11 +239,14 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         results, _ = analysis._run_analysis(
             test_data,
             p0=[ref_p0, ref_p1, ref_p2, ref_p3],
-            plot=False,
-            add_label=True,
-            ax=None,
-            data_processor=level2_probability,
             base_fitter=multi_curve_fit,
+            data_processor=level2_probability,
+            x_key="xval",
+            plot=False,
+            ax=None,
+            xlabel="x value",
+            ylabel="y value",
+            fit_reports=None,
         )
         result = results[0]
 
@@ -283,11 +288,14 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             test_data,
             p0=[ref_p0, ref_p1, ref_p2, ref_p3],
             bounds=([-10, -10, -10, -10], [0, 0, 0, 0]),
-            plot=False,
-            add_label=True,
-            ax=None,
-            data_processor=level2_probability,
             base_fitter=multi_curve_fit,
+            data_processor=level2_probability,
+            x_key="xval",
+            plot=False,
+            ax=None,
+            xlabel="x value",
+            ylabel="y value",
+            fit_reports=None,
         )
         result = results[0]
 
@@ -343,11 +351,14 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         results, _ = analysis._run_analysis(
             test_data0,
             p0=[ref_p0, ref_p1, ref_p2, ref_p3, ref_p4],
-            plot=False,
-            add_label=True,
-            ax=None,
-            data_processor=level2_probability,
             base_fitter=multi_curve_fit,
+            data_processor=level2_probability,
+            x_key="xval",
+            plot=False,
+            ax=None,
+            xlabel="x value",
+            ylabel="y value",
+            fit_reports=None,
         )
         result = results[0]
 
@@ -403,11 +414,14 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         results, _ = analysis._run_analysis(
             test_data0,
             p0=[ref_p0, ref_p1, ref_p2, ref_p3],
-            plot=False,
-            add_label=True,
-            ax=None,
-            data_processor=level2_probability,
             base_fitter=multi_curve_fit,
+            data_processor=level2_probability,
+            x_key="xval",
+            plot=False,
+            ax=None,
+            xlabel="x value",
+            ylabel="y value",
+            fit_reports=None,
         )
         result = results[0]
 
