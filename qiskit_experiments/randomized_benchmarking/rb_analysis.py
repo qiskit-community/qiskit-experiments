@@ -15,30 +15,41 @@ Standard RB analysis class.
 
 from typing import Optional, List
 
+from qiskit.providers.options import Options
+from qiskit_experiments.experiment_data import ExperimentData
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import curve_fit, process_curve_data
 from qiskit_experiments.analysis.data_processing import (
     level2_probability,
     mean_xy_data,
 )
-from qiskit_experiments.analysis.plotting import (
-    HAS_MATPLOTLIB,
-    plot_curve_fit,
-    plot_scatter,
-    plot_errorbar,
-)
+from qiskit_experiments.analysis import plotting
 
 
 class RBAnalysis(BaseAnalysis):
-    """RB Analysis class."""
+    """RB Analysis class.
+
+    Analysis Options:
+        p0: Optional, initial parameter values for curve_fit.
+        plot: If True generate a plot of fitted data.
+        ax: Optional, matplotlib axis to add plot to.
+    """
+
+    @classmethod
+    def _default_options(cls):
+        return Options(
+            p0=None,
+            plot=True,
+            ax=None,
+        )
 
     # pylint: disable = arguments-differ, invalid-name
     def _run_analysis(
         self,
-        experiment_data: "ExperimentData",
+        experiment_data: ExperimentData,
         p0: Optional[List[float]] = None,
         plot: bool = True,
-        ax: Optional["AxesSubplot"] = None,
+        ax: Optional["plotting.pyplot.AxesSubplot"] = None,
     ):
         """Run analysis on circuit data.
         Args:
@@ -60,7 +71,7 @@ class RBAnalysis(BaseAnalysis):
             return level2_probability(datum, num_qubits * "0")
 
         # Raw data for each sample
-        x_raw, y_raw, sigma_raw = process_curve_data(data, data_processor, x_key="xdata")
+        x_raw, y_raw, sigma_raw = process_curve_data(data, data_processor)
 
         # Data averaged over samples
         xdata, ydata, ydata_sigma = mean_xy_data(x_raw, y_raw, sigma_raw, method="sample")
@@ -80,10 +91,10 @@ class RBAnalysis(BaseAnalysis):
         analysis_result["EPC"] = scale * (1 - popt[1])
         analysis_result["EPC_err"] = scale * popt_err[1] / popt[1]
 
-        if plot and HAS_MATPLOTLIB:
-            ax = plot_curve_fit(fit_fun, analysis_result, ax=ax)
-            ax = plot_scatter(x_raw, y_raw, ax=ax)
-            ax = plot_errorbar(xdata, ydata, ydata_sigma, ax=ax)
+        if plot and plotting.HAS_MATPLOTLIB:
+            ax = plotting.plot_curve_fit(fit_fun, analysis_result, ax=ax)
+            ax = plotting.plot_scatter(x_raw, y_raw, ax=ax)
+            ax = plotting.plot_errorbar(xdata, ydata, ydata_sigma, ax=ax)
             self._format_plot(ax, analysis_result)
             figures = [ax.get_figure()]
         else:

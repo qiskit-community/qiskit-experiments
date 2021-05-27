@@ -19,14 +19,21 @@ from numpy.random import Generator, default_rng
 
 from qiskit import QuantumCircuit
 from qiskit.providers import Backend
-from qiskit.quantum_info import Clifford, random_clifford
+from qiskit.quantum_info import Clifford
+from qiskit.providers.options import Options
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from .rb_analysis import RBAnalysis
+from .clifford_utils import CliffordUtils
 
 
 class RBExperiment(BaseExperiment):
-    """RB Experiment class"""
+    """RB Experiment class.
+
+    Experiment Options:
+        lengths: A list of RB sequences lengths.
+        num_samples: number of samples to generate for each sequence length.
+    """
 
     # Analysis class for experiment
     __analysis_class__ = RBAnalysis
@@ -45,8 +52,7 @@ class RBExperiment(BaseExperiment):
             qubits: the number of qubits or list of
                     physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
-            num_samples: number of samples to generate for each
-                         sequence length
+            num_samples: number of samples to generate for each sequence length.
             seed: Seed or generator object for random number
                   generation. If None default_rng will be used.
             full_sampling: If True all Cliffords are independently sampled for
@@ -54,14 +60,24 @@ class RBExperiment(BaseExperiment):
                            sequences are constructed by appending additional
                            Clifford samples to shorter sequences.
         """
+        # Initialize base experiment
+        super().__init__(qubits)
+
+        # Set configurable options
+        self.set_experiment_options(lengths=list(lengths), num_samples=num_samples)
+
+        # Set fixed options
+        self._full_sampling = full_sampling
+        self._clifford_utils = CliffordUtils()
+
         if not isinstance(seed, Generator):
             self._rng = default_rng(seed=seed)
         else:
             self._rng = seed
-        self._lengths = list(lengths)
-        self._num_samples = num_samples
-        self._full_sampling = full_sampling
-        super().__init__(qubits)
+
+    @classmethod
+    def _default_experiment_options(cls):
+        return Options(lengths=None, num_samples=None)
 
     # pylint: disable = arguments-differ
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
@@ -72,29 +88,8 @@ class RBExperiment(BaseExperiment):
             A list of :class:`QuantumCircuit`.
         """
         circuits = []
-        for _ in range(self._num_samples):
-            circuits += self._sample_circuits(self._lengths, seed=self._rng)
-        return circuits
-
-    def transpiled_circuits(
-        self, backend: Optional[Backend] = None, **kwargs
-    ) -> List[QuantumCircuit]:
-        """Return a list of transpiled RB circuits.
-
-        Args:
-            backend: Optional, a backend object to use as the
-                     argument for the :func:`qiskit.transpile` function.
-            kwargs: kwarg options for the :func:`qiskit.transpile` function.
-
-        Returns:
-            A list of :class:`QuantumCircuit`.
-
-        Raises:
-            QiskitError: if an initial layout is specified in the
-                         kwarg options for transpilation. The initial
-                         layout must be generated from the experiment.
-        """
-        circuits = super().transpiled_circuits(backend=backend, **kwargs)
+        for _ in range(self.experiment_options.num_samples):
+            circuits += self._sample_circuits(self.experiment_options.lengths, seed=self._rng)
         return circuits
 
     def _sample_circuits(
@@ -112,7 +107,7 @@ class RBExperiment(BaseExperiment):
         """
         circuits = []
         for length in lengths if self._full_sampling else [lengths[-1]]:
-            elements = [random_clifford(self.num_qubits, seed=seed) for _ in range(length)]
+            elements = self._clifford_utils.random_clifford_circuits(self.num_qubits, length, seed)
             element_lengths = [len(elements)] if self._full_sampling else lengths
             circuits += self._generate_circuit(elements, element_lengths)
         return circuits
@@ -136,18 +131,21 @@ class RBExperiment(BaseExperiment):
         qubits = list(range(self.num_qubits))
         circuits = []
 
-        circ = QuantumCircuit(self.num_qubits)
-        circ.barrier(qubits)
+        circs = [QuantumCircuit(self.num_qubits) for _ in range(len(lengths))]
+        for circ in circs:
+            circ.barrier(qubits)
         circ_op = Clifford(np.eye(2 * self.num_qubits))
 
-        for current_length, group_elt in enumerate(elements):
-            circ_op = circ_op.compose(group_elt)
-            circ.append(group_elt, qubits)
-            circ.barrier(qubits)
+        for current_length, group_elt_circ in enumerate(elements):
+            group_elt_gate = group_elt_circ.to_gate()
+            circ_op = circ_op.compose(Clifford(group_elt_circ))
+            for circ in circs:
+                circ.append(group_elt_gate, qubits)
+                circ.barrier(qubits)
             if current_length + 1 in lengths:
                 # copy circuit and add inverse
                 inv = circ_op.adjoint()
-                rb_circ = circ.copy()
+                rb_circ = circs.pop()
                 rb_circ.append(inv, qubits)
                 rb_circ.barrier(qubits)
                 rb_circ.metadata = {
