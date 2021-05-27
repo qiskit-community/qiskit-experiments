@@ -57,7 +57,17 @@ class RBAnalysis(CurveAnalysis):
         **options,
     ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
-        fit_guess = {"a": 0.95, "alpha": 0.99, "b": 1 / 2 ** options["num_qubits"]}
+        return {
+            "p0": self._initial_guess(x_values, y_values, options["num_qubits"]),
+            "bounds": {"a": [0.0, 1.0], "alpha": [0.0, 1.0], "b": [0.0, 1.0]},
+        }
+
+    @staticmethod
+    def _initial_guess(
+        x_values: np.ndarray, y_values: np.ndarray, num_qubits: int
+    ) -> Dict[str, float]:
+        """Create initial guess with experiment data."""
+        fit_guess = {"a": 0.95, "alpha": 0.99, "b": 1 / 2 ** num_qubits}
 
         # Use the first two points to guess the decay param
         dcliff = x_values[1] - x_values[0]
@@ -70,7 +80,7 @@ class RBAnalysis(CurveAnalysis):
         if y_values[0] > fit_guess["b"]:
             fit_guess["a"] = (y_values[0] - fit_guess["b"]) / fit_guess["alpha"] ** x_values[0]
 
-        return {"p0": fit_guess, "bounds": {"a": [0.0, 1.0], "alpha": [0.0, 1.0], "b": [0.0, 1.0]}}
+        return fit_guess
 
     def _pre_processing(
         self,
