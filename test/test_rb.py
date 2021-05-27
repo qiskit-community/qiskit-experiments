@@ -21,7 +21,7 @@ from qiskit.quantum_info import Clifford
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeParis
 from qiskit.exceptions import QiskitError
-from ddt import ddt, data
+from ddt import ddt, data, unpack
 import numpy as np
 import qiskit_experiments as qe
 
@@ -32,7 +32,8 @@ class TestRB(QiskitTestCase):
     A test class for the RB Experiment to check that the RBExperiment class is working correctly.
     """
 
-    @data([3], [4, 7], [0, 5, 3])
+    @data([[3]], [[4, 7]], [[0, 5, 3]])
+    @unpack
     def test_rb_experiment(self, qubits: list):
         """
         Initializes data and executes an RB experiment with specific parameters.
@@ -53,7 +54,8 @@ class TestRB(QiskitTestCase):
             num_samples=exp_attributes["num_samples"],
             seed=exp_attributes["seed"],
         )
-        exp_data = rb_exp.run(backend)
+        experiment_obj = rb_exp.run(backend)
+        exp_data = experiment_obj.experiment
         exp_circuits = rb_exp.circuits()
         self.validate_metadata(exp_circuits, exp_attributes)
         self.validate_circuit_data(exp_data, exp_attributes)
@@ -69,9 +71,8 @@ class TestRB(QiskitTestCase):
             num_qubits = qc.num_qubits
             qc.remove_final_measurements()
             # Checking if the matrix representation is the identity matrix
-            self.assertEqual(
+            self.assertTrue(
                 matrix_equal(Clifford(qc).to_matrix(), np.identity(2 ** num_qubits)),
-                True,
                 "Clifford sequence doesn't result in the identity matrix.",
             )
 
@@ -83,39 +84,42 @@ class TestRB(QiskitTestCase):
             exp_attributes (dict): A dictionary with the experiment variable and values
         """
         for ind, qc in enumerate(circuits):
-            self.assertEqual(
-                qc.metadata["xval"],
+            self.assertTrue(
+                qc.metadata["xval"] ==
                 exp_attributes["lengths"][ind],
                 "The number of gates in the experiment metadata doesn't match to the one provided.",
             )
-            self.assertEqual(
-                qc.metadata["qubits"],
+            self.assertTrue(
+                qc.metadata["qubits"] ==
                 tuple(exp_attributes["qubits"]),
                 "The qubits indices in the experiment metadata doesn't match to the one provided.",
             )
 
     def validate_circuit_data(
-        self, experiment: qe.experiment_data.ExperimentData, exp_attributes: dict
+        self, experiment: qe.randomized_benchmarking.rb_experiment.RBExperiment, exp_attributes: dict
     ):
         """
         Validate that the metadata of the experiment after it had run matches the one provided.
         Args:
-            experiment(qiskit_experiments.experiment_data.ExperimentData): The experiment
+            experiment(qiskit_experiments..randomized_benchmarking.rb_experiment.RBExperiment): The experiment
             data and results after it run.
             exp_attributes (dict): A dictionary with the experiment variable and values
         """
-        for ind, exp_data in enumerate(experiment.data):
-            experiment_information = exp_data["metadata"]
-            self.assertEqual(
-                experiment_information["xval"],
-                exp_attributes["lengths"][ind],
-                "The number of gates in the experiment doesn't match to the one in the metadata.",
-            )
-            self.assertEqual(
-                experiment_information["qubits"],
-                exp_attributes["qubits"],
-                "The qubits indices in the experiment doesn't match to the one in the metadata.",
-            )
+        self.assertTrue(
+            exp_attributes["lengths"] ==
+            experiment.experiment_options.lengths,
+            "The number of gates in the experiment doesn't match to the one in the metadata.",
+        )
+        self.assertTrue(
+            exp_attributes["num_samples"] ==
+            experiment.experiment_options.num_samples,
+            "The number of samples in the experiment doesn't match to the one in the metadata.",
+        )
+        self.assertTrue(
+            tuple(exp_attributes["qubits"]) ==
+            experiment.physical_qubits,
+            "The qubits indices in the experiment doesn't match to the one in the metadata.",
+        )
 
     def _exp_data_properties(self):
         """
