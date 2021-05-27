@@ -101,8 +101,7 @@ class TestRB(QiskitTestCase):
         """
         Validate that the metadata of the experiment after it had run matches the one provided.
         Args:
-            experiment(qiskit_experiments..randomized_benchmarking.rb_experiment.RBExperiment): The experiment
-            data and results after it run.
+            experiment: The experiment data and results after it run
             exp_attributes (dict): A dictionary with the experiment variable and values
         """
         self.assertTrue(
