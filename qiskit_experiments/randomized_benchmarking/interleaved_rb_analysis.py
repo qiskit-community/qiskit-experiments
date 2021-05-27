@@ -14,6 +14,10 @@ Interleaved RB analysis class.
 """
 from typing import Optional, List
 import numpy as np
+
+from qiskit.providers.experiment import AnalysisResultV1
+from qiskit.providers.experiment.device_component import Qubit
+
 from qiskit_experiments.analysis.curve_fitting import (
     process_multi_curve_data,
     multi_curve_fit,
@@ -53,7 +57,8 @@ class InterleavedRBAnalysis(RBAnalysis):
         def data_processor(datum):
             return level2_probability(datum, datum["metadata"]["ylabel"])
 
-        num_qubits = len(experiment_data.data[0]["metadata"]["qubits"])
+        data = experiment_data.data()
+        num_qubits = len(data[0]["metadata"]["qubits"])
         series, x, y, sigma = process_multi_curve_data(experiment_data.data, data_processor)
         series, xdata, ydata, ydata_sigma = multi_mean_xy_data(series, x, y, sigma)
 
@@ -82,7 +87,7 @@ class InterleavedRBAnalysis(RBAnalysis):
             np.mean([p0_std[2], p0_int[2]]),
         )
 
-        analysis_result = multi_curve_fit(
+        result_data = multi_curve_fit(
             [fit_fun_standard, fit_fun_interleaved],
             series,
             xdata,
@@ -95,8 +100,8 @@ class InterleavedRBAnalysis(RBAnalysis):
         # Add EPC data
         nrb = 2 ** num_qubits
         scale = (nrb - 1) / (2 ** nrb)
-        _, alpha, alpha_c, _ = analysis_result["popt"]
-        _, alpha_err, alpha_c_err, _ = analysis_result["popt_err"]
+        _, alpha, alpha_c, _ = result_data["popt"]
+        _, alpha_err, alpha_c_err, _ = result_data["popt_err"]
 
         # Calculate epc_est (=r_c^est) - Eq. (4):
         epc_est = scale * (1 - alpha_c / alpha)
@@ -116,24 +121,31 @@ class InterleavedRBAnalysis(RBAnalysis):
             ((nrb - 1) / nrb) * (alpha_c / alpha) * (np.sqrt(alpha_err_sq + alpha_c_err_sq))
         )
 
-        analysis_result["EPC"] = epc_est
-        analysis_result["EPC_err"] = epc_est_err
-        analysis_result["systematic_err"] = systematic_err
-        analysis_result["systematic_err_L"] = systematic_err_l
-        analysis_result["systematic_err_R"] = systematic_err_r
-        analysis_result["plabels"] = ["A", "alpha", "alpha_c", "B"]
+        result_data["EPC"] = epc_est
+        result_data["EPC_err"] = epc_est_err
+        result_data["systematic_err"] = systematic_err
+        result_data["systematic_err_L"] = systematic_err_l
+        result_data["systematic_err_R"] = systematic_err_r
+        result_data["plabels"] = ["A", "alpha", "alpha_c", "B"]
+
+        result_data = AnalysisResultV1(
+            result_data=result_data,
+            result_type="IRB",
+            device_components=[Qubit(data[0]["metadata"]["qubit"])],
+            experiment_id=experiment_data.experiment_id,
+        )
 
         if plot:
-            ax = plotting.plot_curve_fit(fit_fun_standard, analysis_result, ax=ax)
-            ax = plotting.plot_curve_fit(fit_fun_interleaved, analysis_result, ax=ax)
+            ax = plotting.plot_curve_fit(fit_fun_standard, result_data, ax=ax)
+            ax = plotting.plot_curve_fit(fit_fun_interleaved, result_data, ax=ax)
             ax = plotting.plot_scatter(std_xdata, std_ydata, ax=ax)
             ax = plotting.plot_scatter(int_xdata, int_ydata, ax=ax)
             ax = plotting.plot_errorbar(std_xdata, std_ydata, std_ydata_sigma, ax=ax)
             ax = plotting.plot_errorbar(int_xdata, int_ydata, int_ydata_sigma, ax=ax)
-            self._format_plot(ax, analysis_result)
-            analysis_result.plt = plotting.pyplot
+            self._format_plot(ax, result_data)
+            result_data.plt = plotting.pyplot
 
-        return analysis_result, None
+        return result_data, None
 
     @classmethod
     def _format_plot(cls, ax, analysis_result, add_label=True):

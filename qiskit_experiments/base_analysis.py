@@ -70,15 +70,10 @@ class BaseAnalysis(ABC):
 
         # Save to experiment data
         if save:
-            if isinstance(analysis_results, AnalysisResultV1):
-                experiment_data.add_analysis_result(analysis_results)
-            else:
-                for res in analysis_results:
-                    experiment_data.add_analysis_result(res)
+            experiment_data.add_analysis_results(analysis_results)
             if figures:
-                for fig in figures:
-                    experiment_data.add_figure(fig)
-                    
+                experiment_data.add_figures(figures)
+
         if return_figures:
             return analysis_results, figures
         return analysis_results

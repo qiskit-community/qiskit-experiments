@@ -17,13 +17,16 @@ Test T1 experiment
 
 import unittest
 import numpy as np
+
 from qiskit.providers import BaseBackend
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.providers.experiment import ResultQuality
 from qiskit.result import Result
-from qiskit_experiments import ExperimentData
+from qiskit.providers.experiment import ExperimentDataV1
 from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T1Experiment, T1Analysis
+
+from .utils import FakeJob
 
 
 class T1Backend(BaseBackend):
@@ -132,7 +135,7 @@ class T1Backend(BaseBackend):
                 }
             )
 
-        return Result.from_dict(result)
+        return FakeJob(self, result=Result.from_dict(result))
 
 
 class TestT1(unittest.TestCase):
@@ -171,14 +174,16 @@ class TestT1(unittest.TestCase):
         ]
 
         exp = T1Experiment(0, delays, unit="dt")
-        res = exp.run(
+        exp_data = exp.run(
             backend,
             amplitude_guess=1,
             t1_guess=t1 / dt_factor,
             offset_guess=0,
             instruction_durations=instruction_durations,
             shots=10000,
-        ).analysis_result(0)
+        )
+        exp_data.block_for_results()  # Wait for analysis to finish.
+        res = exp_data.analysis_result(0)
 
         self.assertEqual(res.quality, ResultQuality.GOOD)
         self.assertAlmostEqual(res.data()["value"], t1, delta=3)
@@ -194,26 +199,27 @@ class TestT1(unittest.TestCase):
         exp0 = T1Experiment(0, delays)
         exp2 = T1Experiment(2, delays)
         par_exp = ParallelExperiment([exp0, exp2])
-        res = par_exp.run(
-            T1Backend([t1[0], None, t1[1]]),
+        exp_data = par_exp.run(
+            backend=T1Backend([t1[0], None, t1[1]]),
             shots=10000,
         )
+        exp_data.block_for_results()
 
         for i in range(2):
-            sub_res = res.component_experiment_data(i).analysis_result(0)
-            self.assertTrue(sub_res["quality"], "computer_good")
-            self.assertAlmostEqual(sub_res["value"], t1[i], delta=3)
+            sub_res = exp_data.component_experiment_data(i).analysis_result(0)
+            self.assertTrue(sub_res.quality, ResultQuality.GOOD)
+            self.assertAlmostEqual(sub_res.data()["value"], t1[i], delta=3)
 
     def test_t1_analysis(self):
         """
         Test T1Analysis
         """
 
-        data = ExperimentData(None)
+        data = ExperimentDataV1("test")
         numbers = [750, 1800, 2750, 3550, 4250, 4850, 5450, 5900, 6400, 6800, 7000, 7350, 7700]
 
         for i, count0 in enumerate(numbers):
-            data._data.append(
+            data.add_data(
                 {
                     "counts": {"0": count0, "1": 10000 - count0},
                     "metadata": {
@@ -257,10 +263,10 @@ class TestT1(unittest.TestCase):
         A test where the fit's quality will be low
         """
 
-        data = ExperimentData(None)
+        data = ExperimentDataV1("test")
 
         for i in range(10):
-            data._data.append(
+            data.add_data(
                 {
                     "counts": {"0": 10, "1": 10},
                     "metadata": {

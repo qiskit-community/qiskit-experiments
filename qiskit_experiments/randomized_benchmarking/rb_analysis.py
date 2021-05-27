@@ -15,6 +15,9 @@ Standard RB analysis class.
 
 from typing import Optional, List
 
+from qiskit.providers.experiment import AnalysisResultV1
+from qiskit.providers.experiment.device_component import Qubit
+
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import curve_fit, process_curve_data
 from qiskit_experiments.analysis.data_processing import (
@@ -71,20 +74,27 @@ class RBAnalysis(BaseAnalysis):
 
         p0 = self._p0(xdata, ydata, num_qubits)
         bounds = {"a": [0, 1], "alpha": [0, 1], "b": [0, 1]}
-        analysis_result = curve_fit(fit_fun, xdata, ydata, p0, ydata_sigma, bounds=bounds)
+        result_data = curve_fit(fit_fun, xdata, ydata, p0, ydata_sigma, bounds=bounds)
 
         # Add EPC data
-        popt = analysis_result["popt"]
-        popt_err = analysis_result["popt_err"]
+        popt = result_data["popt"]
+        popt_err = result_data["popt_err"]
         scale = (2 ** num_qubits - 1) / (2 ** num_qubits)
-        analysis_result["EPC"] = scale * (1 - popt[1])
-        analysis_result["EPC_err"] = scale * popt_err[1] / popt[1]
+        result_data["EPC"] = scale * (1 - popt[1])
+        result_data["EPC_err"] = scale * popt_err[1] / popt[1]
+
+        analysis_result = AnalysisResultV1(
+            result_data=result_data,
+            result_type="RB",
+            device_components=[Qubit(data[0]["metadata"]["qubit"])],
+            experiment_id=experiment_data.experiment_id,
+        )
 
         if plot and HAS_MATPLOTLIB:
-            ax = plot_curve_fit(fit_fun, analysis_result, ax=ax)
+            ax = plot_curve_fit(fit_fun, result_data, ax=ax)
             ax = plot_scatter(x_raw, y_raw, ax=ax)
             ax = plot_errorbar(xdata, ydata, ydata_sigma, ax=ax)
-            self._format_plot(ax, analysis_result)
+            self._format_plot(ax, result_data)
             figures = [ax.get_figure()]
         else:
             figures = None

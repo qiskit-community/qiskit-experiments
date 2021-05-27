@@ -26,7 +26,6 @@ class CompositeExperimentData(ExperimentData):
         self,
         experiment,
         backend=None,
-        job_ids=None,
     ):
         """Initialize experiment data.
 
@@ -34,7 +33,6 @@ class CompositeExperimentData(ExperimentData):
             experiment (CompositeExperiment): experiment object that generated the data.
             backend (Backend): Optional, Backend the experiment runs on. It can either be a
                 :class:`~qiskit.providers.Backend` instance or just backend name.
-            job_ids (list[str]): Optional, IDs of jobs submitted for the experiment.
 
         Raises:
             ExperimentError: If an input argument is invalid.
@@ -43,11 +41,11 @@ class CompositeExperimentData(ExperimentData):
         super().__init__(
             experiment,
             backend=backend,
-            job_ids=job_ids,
         )
 
         # Initialize sub experiments
-        self._components = [expr.__experiment_data__(expr) for expr in experiment._experiments]
+        self._components = [expr.__experiment_data__(expr)
+                            for expr in experiment.component_experiment()]
 
     def __str__(self):
         line = 51 * "-"
