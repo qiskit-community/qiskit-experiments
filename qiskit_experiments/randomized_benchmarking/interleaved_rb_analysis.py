@@ -132,7 +132,7 @@ class InterleavedRBAnalysis(RBAnalysis):
         analysis_result = AnalysisResultV1(
             result_data=result_data,
             result_type="IRB",
-            device_components=[Qubit(data[0]["metadata"]["qubit"])],
+            device_components=[Qubit(qubit) for qubit in data[0]["metadata"]["qubits"]],
             experiment_id=experiment_data.experiment_id,
         )
         return analysis_result, figures

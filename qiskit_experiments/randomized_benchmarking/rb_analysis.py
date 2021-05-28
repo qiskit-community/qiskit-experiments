@@ -94,21 +94,22 @@ class RBAnalysis(BaseAnalysis):
         result_data["EPC"] = scale * (1 - popt[1])
         result_data["EPC_err"] = scale * popt_err[1] / popt[1]
 
-        analysis_result = AnalysisResultV1(
-            result_data=result_data,
-            result_type="RB",
-            device_components=[Qubit(data[0]["metadata"]["qubit"])],
-            experiment_id=experiment_data.experiment_id,
-        )
-
         if plot and plotting.HAS_MATPLOTLIB:
             ax = plotting.plot_curve_fit(fit_fun, result_data, ax=ax)
             ax = plotting.plot_scatter(x_raw, y_raw, ax=ax)
             ax = plotting.plot_errorbar(xdata, ydata, ydata_sigma, ax=ax)
-            self._format_plot(ax, analysis_result)
+            self._format_plot(ax, result_data)
             figures = [ax.get_figure()]
         else:
             figures = None
+
+        analysis_result = AnalysisResultV1(
+            result_data=result_data,
+            result_type="RB",
+            device_components=[Qubit(qubit) for qubit in data[0]["metadata"]["qubits"]],
+            experiment_id=experiment_data.experiment_id,
+        )
+
         return analysis_result, figures
 
     @staticmethod

@@ -167,7 +167,7 @@ class TestT1(QiskitTestCase):
             )
         )
 
-        # dummy numbers to avoid exception triggerring
+        # dummy numbers to avoid exception triggering
         instruction_durations = [
             ("measure", [0], 3, "dt"),
             ("x", [0], 3, "dt"),

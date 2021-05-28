@@ -16,10 +16,13 @@ import numpy as np
 from qiskit.utils import apply_prefix
 from qiskit.providers import BaseBackend
 from qiskit.providers.models import QasmBackendConfiguration
+from qiskit.providers.experiment import ResultQuality
 from qiskit.result import Result
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T2StarExperiment
+
+from .utils import FakeJob
 
 
 # Fix seed for simulations
@@ -138,7 +141,7 @@ class T2starBackend(BaseBackend):
                     "data": {"counts": counts},
                 }
             )
-        return Result.from_dict(result)
+        return FakeJob(self, result=Result.from_dict(result))
 
 
 class TestT2Star(QiskitTestCase):
@@ -209,19 +212,21 @@ class TestT2Star(QiskitTestCase):
                 instruction_durations=instruction_durations,
                 shots=2000,
             )
+            expdata.block_for_results()  # Wait for job/analysis to finish.
             result = expdata.analysis_result(0)
+            result_data = result.data()
             self.assertAlmostEqual(
-                result["t2star_value"],
+                result_data["t2star_value"],
                 estimated_t2star * dt_factor,
-                delta=0.08 * result["t2star_value"],
+                delta=0.08 * result_data["t2star_value"],
             )
             self.assertAlmostEqual(
-                result["frequency_value"],
+                result_data["frequency_value"],
                 estimated_freq / dt_factor,
-                delta=0.08 * result["frequency_value"],
+                delta=0.08 * result_data["frequency_value"],
             )
             self.assertEqual(
-                result["quality"], "computer_good", "Result quality bad for unit " + str(unit)
+                result.quality, ResultQuality.GOOD, "Result quality bad for unit " + str(unit)
             )
 
     def test_t2star_parallel(self):
@@ -245,25 +250,28 @@ class TestT2Star(QiskitTestCase):
             "b_guess": [0.5, None, 0.5],
         }
         backend = T2starBackend(p0)
-        res = par_exp.run(
+        expdata = par_exp.run(
             backend=backend,
             # plot=False,
             shots=1000,
         )
+        expdata.block_for_results()
 
         for i in range(2):
-            sub_res = res.component_experiment_data(i).analysis_result(0)
+            sub_res = expdata.component_experiment_data(i).analysis_result(0)
+            sub_rest_data = sub_res.data()
             self.assertAlmostEqual(
-                sub_res["t2star_value"], t2star[i], delta=0.08 * sub_res["t2star_value"]
+                sub_rest_data["t2star_value"], t2star[i],
+                delta=0.08 * sub_rest_data["t2star_value"]
             )
             self.assertAlmostEqual(
-                sub_res["frequency_value"],
+                sub_rest_data["frequency_value"],
                 estimated_freq[i],
-                delta=0.08 * sub_res["frequency_value"],
+                delta=0.08 * sub_rest_data["frequency_value"],
             )
             self.assertEqual(
-                sub_res["quality"],
-                "computer_good",
+                sub_res.quality,
+                ResultQuality.GOOD,
                 "Result quality bad for experiment on qubit " + str(i),
             )
 

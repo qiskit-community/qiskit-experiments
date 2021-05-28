@@ -92,16 +92,7 @@ class BaseAnalysis(ABC):
 
         # Run analysis
         # pylint: disable=broad-except
-        try:
-            analysis_results, figures = self._run_analysis(experiment_data, **analysis_options)
-        except Exception as ex:
-            analysis_results = AnalysisResultV1(
-                result_data={"success": False, "error_message": ex},
-                result_type=type(self).__name__,
-                device_components=[],
-                experiment_id=experiment_data.experiment_id
-            )
-            figures = None
+        analysis_results, figures = self._run_analysis(experiment_data, **analysis_options)
 
         # Save to experiment data
         if save:
