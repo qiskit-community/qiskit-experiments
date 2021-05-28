@@ -35,8 +35,6 @@ from ..experiment_data import ExperimentData
 class T2StarAnalysis(BaseAnalysis):
     """T2Star Experiment result analysis class."""
 
-    _type = "T2Star"
-
     @classmethod
     def _default_options(cls):
         return Options(user_p0=None, user_bounds=None)
