@@ -122,7 +122,7 @@ class BaseExperiment(ABC):
         if analysis and self.__analysis_class__ is not None:
             run_analysis = self.__analysis_class__().run
 
-        experiment_data.add_data(job, post_processing_callback=run_analysis, **kwargs)
+        experiment_data.add_data(job, post_processing_callback=run_analysis)
 
         # Return the ExperimentData future
         return experiment_data

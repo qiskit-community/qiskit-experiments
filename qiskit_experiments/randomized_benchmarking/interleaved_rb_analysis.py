@@ -92,14 +92,14 @@ class InterleavedRBAnalysis(RBAnalysis):
         # Add EPC data
         nrb = 2 ** num_qubits
         scale = (nrb - 1) / nrb
-        _, alpha, alpha_c, _ = analysis_result["popt"]
-        _, _, alpha_c_err, _ = analysis_result["popt_err"]
+        _, alpha, alpha_c, _ = result_data["popt"]
+        _, _, alpha_c_err, _ = result_data["popt_err"]
 
         # Calculate epc_est (=r_c^est) - Eq. (4):
         epc_est = scale * (1 - alpha_c)
         epc_est_err = scale * alpha_c_err
-        analysis_result["EPC"] = epc_est
-        analysis_result["EPC_err"] = epc_est_err
+        result_data["EPC"] = epc_est
+        result_data["EPC_err"] = epc_est_err
 
         # Calculate the systematic error bounds - Eq. (5):
         systematic_err_1 = scale * (abs(alpha - alpha_c) + (1 - alpha))
@@ -110,24 +110,31 @@ class InterleavedRBAnalysis(RBAnalysis):
         systematic_err = min(systematic_err_1, systematic_err_2)
         systematic_err_l = epc_est - systematic_err
         systematic_err_r = epc_est + systematic_err
-        analysis_result["EPC_systematic_err"] = systematic_err
-        analysis_result["EPC_systematic_bounds"] = [max(systematic_err_l, 0), systematic_err_r]
+        result_data["EPC_systematic_err"] = systematic_err
+        result_data["EPC_systematic_bounds"] = [max(systematic_err_l, 0), systematic_err_r]
 
         if plot and plotting.HAS_MATPLOTLIB:
-            ax = plotting.plot_curve_fit(fit_fun_standard, analysis_result, ax=ax, color="blue")
+            ax = plotting.plot_curve_fit(fit_fun_standard, result_data, ax=ax, color="blue")
             ax = plotting.plot_curve_fit(
                 fit_fun_interleaved,
-                analysis_result,
+                result_data,
                 ax=ax,
                 color="green",
             )
             ax = self._generate_multi_scatter_plot(series_raw, x_raw, y_raw, ax=ax)
             ax = self._generate_multi_errorbar_plot(series, xdata, ydata, ydata_sigma, ax=ax)
-            self._format_plot(ax, analysis_result)
+            self._format_plot(ax, result_data)
             ax.legend(loc="center right")
             figures = [ax.get_figure()]
         else:
             figures = None
+
+        analysis_result = AnalysisResultV1(
+            result_data=result_data,
+            result_type="IRB",
+            device_components=[Qubit(data[0]["metadata"]["qubit"])],
+            experiment_id=experiment_data.experiment_id,
+        )
         return analysis_result, figures
 
     @staticmethod

@@ -102,7 +102,7 @@ class RBAnalysis(BaseAnalysis):
         )
 
         if plot and plotting.HAS_MATPLOTLIB:
-            ax = plotting.plot_curve_fit(fit_fun, analysis_result, ax=ax)
+            ax = plotting.plot_curve_fit(fit_fun, result_data, ax=ax)
             ax = plotting.plot_scatter(x_raw, y_raw, ax=ax)
             ax = plotting.plot_errorbar(xdata, ydata, ydata_sigma, ax=ax)
             self._format_plot(ax, analysis_result)

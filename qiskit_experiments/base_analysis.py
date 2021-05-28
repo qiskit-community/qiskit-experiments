@@ -18,7 +18,6 @@ from typing import List, Tuple
 
 from qiskit.providers.options import Options
 from qiskit.exceptions import QiskitError
-
 from qiskit.providers.experiment import AnalysisResultV1
 
 from .experiment_data import ExperimentData
@@ -95,9 +94,13 @@ class BaseAnalysis(ABC):
         # pylint: disable=broad-except
         try:
             analysis_results, figures = self._run_analysis(experiment_data, **analysis_options)
-            analysis_results["success"] = True
         except Exception as ex:
-            analysis_results = AnalysisResult(success=False, error_message=ex)
+            analysis_results = AnalysisResultV1(
+                result_data={"success": False, "error_message": ex},
+                result_type=type(self).__name__,
+                device_components=[],
+                experiment_id=experiment_data.experiment_id
+            )
             figures = None
 
         # Save to experiment data
