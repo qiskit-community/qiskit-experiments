@@ -360,14 +360,13 @@ class Spectroscopy(BaseExperiment):
         sigma = circuit_options.get("sigma", duration / 4)
         width = circuit_options.get("width", 0)
 
-        drive = pulse.DriveChannel(self.physical_qubits[0])
-
         # Create a template circuit
         freq_param = Parameter("frequency")
         with pulse.build(name="spectroscopy") as sched:
-            pulse.set_frequency(freq_param, drive)
+            pulse.set_frequency(freq_param, pulse.drive_channel(self.physical_qubits[0]))
             pulse.play(
-                pulse.GaussianSquare(duration=duration, amp=amp, sigma=sigma, width=width), drive
+                pulse.GaussianSquare(duration=duration, amp=amp, sigma=sigma, width=width),
+                pulse.drive_channel(self.physical_qubits[0])
             )
 
         gate = Gate(name="Spec", num_qubits=1, params=[freq_param])
