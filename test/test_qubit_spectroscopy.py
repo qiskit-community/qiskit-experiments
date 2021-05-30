@@ -18,7 +18,7 @@ import numpy as np
 from qiskit.qobj.utils import MeasLevel
 from qiskit.test import QiskitTestCase
 
-from qiskit_experiments.characterization.qubitspectroscopy import QubitSpectroscopy
+from qiskit_experiments.characterization.qubit_spectroscopy import QubitSpectroscopy
 from qiskit_experiments.test.mock_iq_backend import TestJob, IQTestBackend
 
 
@@ -98,7 +98,8 @@ class TestQubitSpectroscopy(QiskitTestCase):
         backend = SpectroscopyBackend(line_width=2e6)
 
         spec = QubitSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
-        result = spec.run(backend, amp=0.05, meas_level=MeasLevel.CLASSIFIED).analysis_result(0)
+        spec.set_run_options(amp=0.05, meas_level=MeasLevel.CLASSIFIED)
+        result = spec.run(backend).analysis_result(0)
 
         self.assertTrue(abs(result["value"]) < 1e6)
         self.assertTrue(result["success"])
@@ -108,7 +109,8 @@ class TestQubitSpectroscopy(QiskitTestCase):
         backend = SpectroscopyBackend(line_width=2e6, freq_offset=5.0e6)
 
         spec = QubitSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
-        result = spec.run(backend, meas_level=MeasLevel.CLASSIFIED).analysis_result(0)
+        spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
+        result = spec.run(backend).analysis_result(0)
 
         self.assertTrue(result["value"] < 5.1e6)
         self.assertTrue(result["value"] > 4.9e6)

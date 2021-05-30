@@ -14,8 +14,11 @@
 
 from typing import Any, Dict, List, Set, Tuple, Union
 
+from qiskit.qobj.utils import MeasLevel
+
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
+from qiskit_experiments.data_processing.nodes import AverageData, Probability, SVD
 
 
 class DataProcessor:
@@ -168,3 +171,29 @@ class DataProcessor:
                         train_data.append(self._call_internal(datum, call_up_to_node=index)[0])
 
                     node.train(train_data)
+
+    @classmethod
+    def get_processor(
+        cls, meas_level: MeasLevel = MeasLevel.CLASSIFIED, meas_return: str = "avg"
+    ) -> "DataProcessor":
+        """Get a standard DataProcessor given the options.
+
+        Args:
+            meas_level: The measurement level of the data to process.
+            meas_return: The measurement return (single or avg) of the data to process.
+
+        Returns:
+            An instance of DataProcessor capable of dealing with the given options.
+
+        Raises:
+            DataProcessorError: if the measurement level is not supported.
+        """
+        if meas_level == MeasLevel.CLASSIFIED:
+            return DataProcessor("counts", [Probability("1")])
+        if meas_level == MeasLevel.KERNELED:
+            if meas_return == "single":
+                return DataProcessor("memory", [AverageData(), SVD()])
+            else:
+                return DataProcessor("memory", [SVD()])
+
+        raise DataProcessorError(f"Unsupported measurement level {meas_level}.")

@@ -20,14 +20,14 @@ from qiskit.circuit import Gate, Parameter
 from qiskit.exceptions import QiskitError
 import qiskit.pulse as pulse
 from qiskit.qobj.utils import MeasLevel
+from qiskit.providers.options import Options
+
 from qiskit_experiments.analysis.curve_fitting import curve_fit
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments import AnalysisResult
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.data_processing.data_processor import DataProcessor
-from qiskit_experiments.data_processing.nodes import SVD, AverageData
-from qiskit_experiments.data_processing.nodes import Probability
 from qiskit_experiments.analysis import plotting
 
 
@@ -44,15 +44,49 @@ class SpectroscopyAnalysis(BaseAnalysis):
     Here, :math:`x` is the frequency. The analysis loops over the initial guesses
     of the width parameter :math:`sigma`. The measured y-data will be rescaled to
     the interval (0,1).
+
+    Analysis options:
+
+        * amp_guess (float): The amplitude of the Gaussian function, i.e. :math:`a`. If not
+            provided, this will default to -1 or 1 depending on the measured values.
+        * sigma_guesses (list of float): The guesses for the standard deviation of the Gaussian
+            distribution. If it is not given this will default to an array of ten  points linearly
+            spaced between zero and width of the x-data.
+        * freq_guess (float): A guess for the frequency of the peak :math:`x0`. If not provided
+            this guess will default to the location of the highest or lowest point of the y-data
+            depending on the y-data.
+        * offset_guess (float): A guess for the magnitude :math:`b` offset of the fit function. If
+            not provided, the initial guess defaults to the median of the y-data.
+        * amp_bounds (tuple of two floats): Bounds on the amplitude of the Gaussian function as a
+            tuple of two floats. The default bounds are (-1, 1).
+        * sigma_bounds (tuple of two floats): Bounds on the standard deviation of the Gaussian
+            function as a tuple of two floats. The default values are (0, frequency range).
+        * freq_bounds (tuple of two floats): Bounds on the center frequency as a tuple of two
+            floats. The default values are (min(frequencies) - df, max(frequencies) - df).
+        * offset_bounds (tuple of two floats): Bounds on the offset of the Gaussian function as a
+            tuple of two floats. The default values are (-2, 2).
     """
+
+    @classmethod
+    def _default_options(cls):
+        return Options(
+            meas_level=MeasLevel.KERNELED,
+            meas_return="single",
+            amp_guess=None,
+            sigma_guesses=None,
+            freq_guess=None,
+            offset_guess=None,
+            amp_bounds=(-1, 1),
+            sigma_bounds=None,
+            freq_bounds=None,
+            offset_bounds=(-2, 2),
+        )
 
     # pylint: disable=arguments-differ, unused-argument
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
         data_processor: Optional[callable] = None,
-        meas_level: int = MeasLevel.KERNELED,
-        meas_return: int = "single",
         amp_guess: Optional[float] = None,
         sigma_guesses: Optional[List[float]] = None,
         freq_guess: Optional[float] = None,
@@ -73,9 +107,6 @@ class SpectroscopyAnalysis(BaseAnalysis):
                 processor is given a singular value decomposition of the IQ data will be
                 used for Kerneled data and a conversion from counts to probabilities will
                 be done if Discriminated data was measured.
-            meas_level: The measurement level of the experiment data.
-            meas_return: Whether single-shot (the default) or average data is returned by the
-                experiment.
             amp_guess: The amplitude of the Gaussian function, i.e. :math:`a`. If not
                 provided, this will default to -1 or 1 depending on the measured values.
             sigma_guesses: The guesses for the standard deviation of the Gaussian distribution.
@@ -108,19 +139,16 @@ class SpectroscopyAnalysis(BaseAnalysis):
                 - If the fit fails.
         """
 
+        meas_level = experiment_data.data(0)["metadata"]["meas_level"]
+        meas_return = experiment_data.data(0)["metadata"]["meas_return"]
+
         # Pick a data processor.
         if data_processor is None:
-            if meas_level == MeasLevel.CLASSIFIED:
-                data_processor = DataProcessor("counts", [Probability("1")])
-            elif meas_level == MeasLevel.KERNELED:
-                if meas_return == "single":
-                    data_processor = DataProcessor("memory", [AverageData(), SVD()])
-                else:
-                    data_processor = DataProcessor("memory", [SVD()])
+            data_processor = DataProcessor.get_processor(
+                meas_level=meas_level, meas_return=meas_return
+            )
 
-                data_processor.train(experiment_data.data())
-            else:
-                raise QiskitError("Unsupported measurement level.")
+            data_processor.train(experiment_data.data())
 
         y_sigmas = np.array([data_processor(datum) for datum in experiment_data.data()])
         min_y, max_y = min(y_sigmas[:, 0]), max(y_sigmas[:, 0])
@@ -288,8 +316,17 @@ class QubitSpectroscopy(BaseExperiment):
     # Supported units for spectroscopy.
     __units__ = {"Hz": 1.0, "kHz": 1.0e3, "MHz": 1.0e6, "GHz": 1.0e9}
 
-    # default run options
-    __run_defaults__ = {"meas_level": MeasLevel.KERNELED, "meas_return": "single"}
+    @classmethod
+    def _default_run_options(cls) -> Options:
+        """Default options values for the experiment :meth:`run` method."""
+        return Options(
+            meas_level=MeasLevel.KERNELED,
+            meas_return="single",
+            amp=0.1,
+            duration=1024,
+            sigma=256,
+            width=0,
+        )
 
     def __init__(
         self,
@@ -329,9 +366,9 @@ class QubitSpectroscopy(BaseExperiment):
         self._frequencies = [freq * self.__units__[unit] for freq in frequencies]
         self._absolute = absolute
 
-        super().__init__([qubit], circuit_options=("amp", "duration", "sigma", "width"))
+        super().__init__([qubit])
 
-    def circuits(self, backend: Optional["Backend"] = None, **circuit_options):
+    def circuits(self, backend: Optional["Backend"] = None):
         """Create the circuit for the spectroscopy experiment.
 
         The circuits are based on a GaussianSquare pulse and a frequency_shift instruction
@@ -339,12 +376,6 @@ class QubitSpectroscopy(BaseExperiment):
 
         Args:
             backend: A backend object.
-            circuit_options: Key word arguments to run the circuits. The circuit options are
-                - amp: The amplitude of the GaussianSquare pulse, defaults to 0.1.
-                - duration: The duration of the GaussianSquare pulse, defaults to 1024 samples.
-                - sigma: The standard deviation of the GaussianSquare pulse, defaults to one
-                    fifth of the duration.
-                - width: The width of the flat top in the GaussianSquare pulse, defaults to 0.
 
         Returns:
             circuits: The circuits that will run the spectroscopy experiment.
@@ -355,18 +386,18 @@ class QubitSpectroscopy(BaseExperiment):
         if not backend and not self._absolute:
             raise QiskitError("Cannot run spectroscopy relative to qubit without a backend.")
 
-        amp = circuit_options.get("amp", 0.1)
-        duration = circuit_options.get("duration", 1024)
-        sigma = circuit_options.get("sigma", duration / 4)
-        width = circuit_options.get("width", 0)
-
         # Create a template circuit
         freq_param = Parameter("frequency")
-        with pulse.build(name="spectroscopy") as sched:
-            pulse.set_frequency(freq_param, pulse.drive_channel(self.physical_qubits[0]))
+        with pulse.build(backend=backend, name="spectroscopy") as sched:
+            pulse.set_frequency(freq_param, pulse.DriveChannel(self.physical_qubits[0]))
             pulse.play(
-                pulse.GaussianSquare(duration=duration, amp=amp, sigma=sigma, width=width),
-                pulse.drive_channel(self.physical_qubits[0])
+                pulse.GaussianSquare(
+                    duration=self.run_options.duration,
+                    amp=self.run_options.amp,
+                    sigma=self.run_options.sigma,
+                    width=self.run_options.width,
+                ),
+                pulse.DriveChannel(self.physical_qubits[0]),
             )
 
         gate = Gate(name="Spec", num_qubits=1, params=[freq_param])
@@ -391,11 +422,13 @@ class QubitSpectroscopy(BaseExperiment):
                 "qubit": self.physical_qubits[0],
                 "xval": freq,
                 "unit": "Hz",
-                "amplitude": amp,
-                "duration": duration,
-                "sigma": sigma,
-                "width": width,
+                "amplitude": self.run_options.amp,
+                "duration": self.run_options.duration,
+                "sigma": self.run_options.sigma,
+                "width": self.run_options.width,
                 "schedule": str(sched),
+                "meas_level": self.run_options.meas_level,
+                "meas_return": self.run_options.meas_return,
             }
 
             if not self._absolute:
