@@ -265,7 +265,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
         ax.grid(True)
 
 
-class Spectroscopy(BaseExperiment):
+class QubitSpectroscopy(BaseExperiment):
     """Class that runs spectroscopy by sweeping the qubit frequency.
 
     The circuits produced by spectroscopy, i.e.
