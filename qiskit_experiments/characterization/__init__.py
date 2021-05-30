@@ -24,7 +24,7 @@ Experiments
 
     T1Experiment
     T2StarExperiment
-    Spectroscopy
+    QubitSpectroscopy
 
 
 Analysis
