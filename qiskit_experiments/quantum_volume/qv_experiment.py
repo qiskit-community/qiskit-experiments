@@ -13,9 +13,11 @@
 Quantum Volume Experiment class.
 """
 
-from typing import Union, Iterable, Optional
+import copy
+from typing import Union, Iterable, Optional, List
 from numpy.random import Generator, default_rng
-from qiskit.providers import BaseBackend
+from qiskit.providers.backend import Backend
+from qiskit.providers.options import Options
 
 try:
     from qiskit import Aer
@@ -24,19 +26,24 @@ try:
 except ImportError:
     HAS_SIMULATION_BACKEND = False
 
+from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume
 from qiskit import transpile, assemble
 from qiskit import execute
 from qiskit.exceptions import QiskitError
-
+from qiskit.providers.basebackend import BaseBackend as LegacyBackend
 from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.base_experiment import _TRANSPILE_OPTIONS
 from qiskit_experiments.experiment_data import ExperimentData
 from .qv_analysis import QVAnalysis
 
 
 class QVExperiment(BaseExperiment):
-    """Quantum Volume Experiment class"""
+    """Quantum Volume Experiment class
+
+    Experiment Options:
+        trials: number of times to generate new Quantum Volume circuits and calculate their heavy
+        output.
+    """
 
     # Analysis class for experiment
     __analysis_class__ = QVAnalysis
@@ -51,7 +58,7 @@ class QVExperiment(BaseExperiment):
         qubits: Union[int, Iterable[int]],
         trials: Optional[int] = 1,
         seed: Optional[Union[int, Generator]] = None,
-        simulation_backend: Optional[BaseBackend] = None,
+        simulation_backend: Optional[Backend] = None,
     ):
         """Standard randomized benchmarking experiment
         Args:
@@ -65,17 +72,28 @@ class QVExperiment(BaseExperiment):
                 if None Aer simulator will be used (in case Aer is not installed -
                 qiskit.quantum_info will be used).
         """
+        super().__init__(qubits)
+
+        # Set configurable options
+        self.set_experiment_options(trials=trials)
+
+        # Set fixed options
+        self._previous_trials = 0
+        self._simulation_data = None
+
         if not isinstance(seed, Generator):
             self._rng = default_rng(seed=seed)
         else:
             self._rng = seed
-        self._trials = trials
-        self._previous_trials = 0
+
         if not simulation_backend and HAS_SIMULATION_BACKEND:
             self._simulation_backend = Aer.get_backend("aer_simulator")
         else:
             self._simulation_backend = simulation_backend
-        super().__init__(qubits)
+
+    @classmethod
+    def _default_experiment_options(cls):
+        return Options(trials=1)
 
     # pylint: disable = arguments-differ
     def run(
@@ -84,7 +102,7 @@ class QVExperiment(BaseExperiment):
         analysis: bool = True,
         experiment_data: Optional[ExperimentData] = None,
         simulation_data: Optional[ExperimentData] = None,
-        **kwargs,
+        **run_options,
     ) -> ExperimentData:
         """Run an experiment and perform analysis.
         Args:
@@ -96,8 +114,8 @@ class QVExperiment(BaseExperiment):
             simulation_data (ExperimentData): Optional, add results to existing
                 simulation data. must be used when adding results to existing experiment data.
                 If None a new ExperimentData object will be created.
-            kwargs: keyword arguments for self.circuit,
-                    qiskit.transpile, and backend.run.
+            run_options: backend runtime options used for circuit execution.
+
         Returns:
             ExperimentData: the experiment data object.
 
@@ -105,7 +123,7 @@ class QVExperiment(BaseExperiment):
             QiskitError: if experiment data is given but simulation data is not given, or vise versa.
             QiskitError: if experiment data and simulation data does not have the same data length.
         """
-        if experiment_data or simulation_data and not (experiment_data and simulation_data):
+        if (experiment_data or simulation_data) and not (experiment_data and simulation_data):
             raise QiskitError(
                 "Quantum Volume experiment must have none or both experiment data"
                 " and simulation data"
@@ -125,34 +143,41 @@ class QVExperiment(BaseExperiment):
         # assuming that all the data in experiment data is QV data.
         self._previous_trials = len(experiment_data.data())
 
-        # Filter kwargs
-        run_options = self.__run_defaults__.copy()
-        circuit_options = {}
-        for key, value in kwargs.items():
-            if key in _TRANSPILE_OPTIONS or key in self._circuit_options:
-                circuit_options[key] = value
-            else:
-                run_options[key] = value
-
-        # Generate and run circuits
-        transpiled_circuits, circuits = self.transpiled_circuits(backend, **circuit_options)
-        for circ in transpiled_circuits:
+        # ideal circuits are used for getting the ideal state using the simulator, without the
+        # changes that the transpiler might add to the circuit in order to improve it's performance
+        circuits = self.circuits(backend)
+        ideal_circuits = []
+        for circ in circuits:
             circ.metadata["is_simulation"] = False
-        qobj = assemble(transpiled_circuits, backend, **run_options)
-        job = backend.run(qobj)
+            # return new circuit without the measurements
+            ideal_circuits.append(circ.remove_final_measurements(inplace=False))
+            ideal_circuits[-1].metadata["is_simulation"] = True
+        # transpile circuits
+        circuits = transpile(circuits, backend, **self.transpile_options.__dict__)
+
+        # Run circuits on backend
+        run_opts = copy.copy(self.run_options)
+        run_opts.update_options(**run_options)
+        run_opts = run_opts.__dict__
+
+        if isinstance(backend, LegacyBackend):
+            qobj = assemble(circuits, backend=backend, **run_opts)
+            job = backend.run(qobj)
+        else:
+            job = backend.run(circuits, **run_opts)
+
         # Add Jobs to ExperimentData
         experiment_data.add_data(job)
 
-        sim_data = self._get_ideal_data(circuits, run_options)
+        sim_data = self._get_ideal_data(ideal_circuits, **run_opts)
         # Add Jobs to the simulation data
         simulation_data.add_data(sim_data)
 
         # Queue analysis of data for when job is finished
-        if self.__analysis_class__ is not None:
-            self.__analysis_class__().run(
-                experiment_data, simulation_data=simulation_data, **kwargs
-            )
+        if analysis and self.__analysis_class__ is not None:
+            self.run_analysis(experiment_data, simulation_data=simulation_data)
 
+        self._simulation_data = simulation_data
         # Return the ExperimentData future
         return experiment_data
 
@@ -162,19 +187,19 @@ class QVExperiment(BaseExperiment):
         Args:
             additional_trials (int): The amount of trials to add
         """
-        self._trials += additional_trials
+        self.experiment_options.trials += additional_trials
 
     @property
     def trials(self):
         """Return number of trials in the experiment"""
-        return self._trials
+        return self.experiment_options.trials
 
     @property
     def simulation_data(self):
         """Return the ideal data of the experiment"""
-        return self.__simulation_data__
+        return self._simulation_data
 
-    def _get_ideal_data(self, circuits, run_options):
+    def _get_ideal_data(self, circuits, **run_options):
         """
         in case the user does not have aer installed - use Terra to calculate the ideal state
         Args:
@@ -200,8 +225,7 @@ class QVExperiment(BaseExperiment):
                 sim_obj.append(sim_data)
             return sim_obj
 
-    # pylint: disable = arguments-differ
-    def circuits(self, backend=None):
+    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Return a list of QV circuits, without the measurement instruction
         Args:
             backend (Backend): Optional, a backend object.
@@ -212,7 +236,7 @@ class QVExperiment(BaseExperiment):
         depth = self._num_qubits
 
         # continue the trials numbers from previous experiments runs
-        for trial in range(self._previous_trials + 1, self._trials + 1):
+        for trial in range(self._previous_trials + 1, self.experiment_options.trials + 1):
             qv_circ = QuantumVolume(depth, depth, seed=self._rng)
             qv_circ.measure_active()
             qv_circ.metadata = {
@@ -224,63 +248,3 @@ class QVExperiment(BaseExperiment):
             circuits.append(qv_circ)
 
         return circuits
-
-    def transpiled_circuits(self, backend=None, **kwargs):
-        """Return a list of experiment circuits, before and after transpilation.
-        The circuits before transpilation are needed in order to get the ideal result from
-        the simulation, without the changes that the transpiler might add to the circuit in order
-        to improve it's performance.
-
-        Args:
-            backend (Backend): Optional, a backend object to use as the
-                               argument for the :func:`qiskit.transpile`
-                               function.
-            kwargs: kwarg options for the :meth:`circuits` method, and
-                    :func:`qiskit.transpile` function.
-
-        Returns:
-            List[QuantumCircuit]: A list of :class:`QuantumCircuit`s after transpile.
-            List[QuantumCircuit]: A list of :class:`QuantumCircuit`s before transpile.
-
-        Raises:
-            QiskitError: if an initial layout is specified in the
-                         kwarg options for transpilation. The initial
-                         layout must be generated from the experiment.
-
-        .. note:
-            These circuits should be on qubits ``[0, .., N-1]`` for an
-            *N*-qubit experiment. The circuits mapped to physical qubits
-            are obtained via the :meth:`transpiled_circuits` method.
-        """
-        # Filter kwargs to circuit and transpile options
-        circuit_options = {}
-        transpile_options = self.__transpile_defaults__.copy()
-        for key, value in kwargs.items():
-            valid_key = False
-            if key in self._circuit_options:
-                circuit_options[key] = value
-                valid_key = True
-            if key in _TRANSPILE_OPTIONS:
-                transpile_options[key] = value
-                valid_key = True
-            if not valid_key:
-                raise QiskitError(
-                    f"{key} is not a valid kwarg for" f" {self.circuits} or {transpile}"
-                )
-        # Generate circuits
-        circuits = self.circuits(backend=backend, **circuit_options)
-        # original circuits are used for getting the ideal state for the simulator
-        orig_circuits = []
-        for circ in circuits:
-            circ.metadata["is_simulation"] = False
-            # return new circuit without the measurements
-            orig_circuits.append(circ.remove_final_measurements(inplace=False))
-            orig_circuits[-1].metadata["is_simulation"] = True
-
-        # Transpile circuits
-        if "initial_layout" in transpile_options:
-            raise QiskitError("Initial layout must be specified by the Experiement.")
-        transpile_options["initial_layout"] = self.physical_qubits
-        transpiled_circuits = transpile(circuits, backend=backend, **transpile_options)
-
-        return transpiled_circuits, orig_circuits
