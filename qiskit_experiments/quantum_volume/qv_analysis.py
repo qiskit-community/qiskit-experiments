@@ -31,10 +31,17 @@ class QVAnalysis(BaseAnalysis):
     """RB Analysis class."""
 
     # pylint: disable = arguments-differ
-    def _run_analysis(self, experiment_data, plot: bool = True, ax: Optional["AxesSubplot"] = None):
+    def _run_analysis(
+        self,
+        experiment_data,
+        simulation_data,
+        plot: bool = True,
+        ax: Optional["AxesSubplot"] = None,
+    ):
         """Run analysis on circuit data.
         Args:
             experiment_data (ExperimentData): the experiment data to analyze.
+            simulation_data (ExperimentData): the ideal experiment data to analyze.
             plot: If True generate a plot of fitted data.
             ax: Optional, matplotlib axis to add plot to.
         Returns:
@@ -46,29 +53,30 @@ class QVAnalysis(BaseAnalysis):
         depth = experiment_data.experiment.num_qubits
         num_trials = experiment_data.experiment.trials
         data = experiment_data.data()
+        ideal_data = simulation_data.data()
 
         heavy_outputs = np.zeros(num_trials, dtype=list)
         heavy_output_prob_exp = np.zeros(num_trials, dtype=list)
 
         # analyse ideal data to calculate all heavy outputs
         # must calculate first the ideal data, because the non-ideal calculation uses it
-        for ideal_data in data:
-            if not ideal_data["metadata"].get("is_simulation", None):
+        for ideal_data_trial in ideal_data:
+            if not ideal_data_trial["metadata"].get("is_simulation", None):
                 continue
-            trial = ideal_data["metadata"]["trial"]
+            trial = ideal_data_trial["metadata"]["trial"]
             trial_index = trial - 1  # trials starts from 1, so as index use trials - 1
 
-            heavy_outputs[trial_index] = self._calc_ideal_heavy_output(ideal_data)
+            heavy_outputs[trial_index] = self._calc_ideal_heavy_output(ideal_data_trial)
 
         # analyse non-ideal data
-        for non_ideal_data in data:
-            if non_ideal_data["metadata"].get("is_simulation", None):
+        for data_trial in data:
+            if data_trial["metadata"].get("is_simulation", None):
                 continue
-            trial = non_ideal_data["metadata"]["trial"]
+            trial = data_trial["metadata"]["trial"]
             trial_index = trial - 1  # trials starts from 1, so as index use trials - 1
 
             heavy_output_prob_exp[trial_index] = self._calc_exp_heavy_output_probability(
-                non_ideal_data, heavy_outputs[trial_index]
+                data_trial, heavy_outputs[trial_index]
             )
 
         analysis_result = AnalysisResult(
@@ -264,7 +272,9 @@ class QVAnalysis(BaseAnalysis):
         ax.set_ylabel("Heavy Output Probability", fontsize=14)
 
         ax.set_title(
-            "Quantum Volume " + str(2 ** analysis_result["depth"]) + " - accumulative hop",
+            "Quantum Volume experiment for depth "
+            + str(analysis_result["depth"])
+            + " - accumulative hop",
             fontsize=14,
         )
 
