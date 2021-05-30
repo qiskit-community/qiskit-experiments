@@ -15,7 +15,7 @@
 from typing import Dict, Tuple
 import numpy as np
 
-from qiskit import QuantumCircuit, execute, QiskitError
+from qiskit import QuantumCircuit, execute
 from qiskit.providers.basebackend import BaseBackend
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.providers.basicaer import QasmSimulatorPy
@@ -29,6 +29,7 @@ from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
 
 
+# TODO Reuse functionality from spectroscopy.
 class TestJob(JobV1):
     """Job for testing."""
 
