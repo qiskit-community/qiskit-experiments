@@ -20,7 +20,6 @@ from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.quantum_info import Clifford
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeParis
-from qiskit.exceptions import QiskitError
 from ddt import ddt, data, unpack
 import numpy as np
 import qiskit_experiments as qe
@@ -175,4 +174,3 @@ class TestRB(QiskitTestCase):
         self.rb_parameters_one_qubit()
         self.rb_parameters_two_qubit()
         self.rb_parameters_three_qubit()
-
