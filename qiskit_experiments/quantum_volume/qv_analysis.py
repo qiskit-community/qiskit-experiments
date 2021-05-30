@@ -24,7 +24,7 @@ from qiskit_experiments.analysis import plotting
 
 
 class QVAnalysis(BaseAnalysis):
-    """RB Analysis class."""
+    """Quantum Volume Analysis class."""
 
     # pylint: disable = arguments-differ
     def _run_analysis(

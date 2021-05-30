@@ -58,7 +58,7 @@ class QVExperiment(BaseExperiment):
         seed: Optional[Union[int, Generator]] = None,
         simulation_backend: Optional[Backend] = None,
     ):
-        """Standard randomized benchmarking experiment
+        """Quantum Volume experiment
         Args:
             qubits: the number of qubits or list of
                     physical qubits for the experiment.
