@@ -147,3 +147,4 @@ docs/stubs/*
 test/ipynb/mpl/*.png
 test/ipynb/mpl/*.zip
 test/ipynb/mpl/result_test.json
+test/Debug_RB.py
