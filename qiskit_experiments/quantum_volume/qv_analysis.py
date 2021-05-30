@@ -20,11 +20,7 @@ import numpy as np
 
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.base_analysis import AnalysisResult
-from qiskit_experiments.analysis.plotting import (
-    HAS_MATPLOTLIB,
-    plot_scatter,
-    plot_errorbar,
-)
+from qiskit_experiments.analysis import plotting
 
 
 class QVAnalysis(BaseAnalysis):
@@ -36,7 +32,7 @@ class QVAnalysis(BaseAnalysis):
         experiment_data,
         simulation_data,
         plot: bool = True,
-        ax: Optional["AxesSubplot"] = None,
+        ax: Optional["plotting.pyplot.AxesSubplot"] = None,
     ):
         """Run analysis on circuit data.
         Args:
@@ -83,7 +79,7 @@ class QVAnalysis(BaseAnalysis):
             self._calc_quantum_volume(heavy_output_prob_exp, depth, num_trials)
         )
 
-        if plot and HAS_MATPLOTLIB:
+        if plot and plotting.HAS_MATPLOTLIB:
             ax = self._format_plot(ax, analysis_result)
             figures = [ax.get_figure()]
         else:
@@ -237,7 +233,7 @@ class QVAnalysis(BaseAnalysis):
         two_sigma = 2 * (hop_accumulative * (1 - hop_accumulative) / trial_list) ** 0.5
 
         # plot inidivual HOP as scatter
-        ax = plot_scatter(
+        ax = plotting.plot_scatter(
             trial_list,
             analysis_result["heavy output probability"],
             ax=ax,
@@ -248,7 +244,7 @@ class QVAnalysis(BaseAnalysis):
         # plot accumulative HOP
         ax.plot(trial_list, hop_accumulative, color="r", label="Cumulative HOP")
         # plot two-sigma shaded area
-        ax = plot_errorbar(
+        ax = plotting.plot_errorbar(
             trial_list,
             hop_accumulative,
             two_sigma,
