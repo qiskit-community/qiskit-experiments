@@ -20,7 +20,6 @@ from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.quantum_info import Clifford
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeParis
-from qiskit.exceptions import QiskitError
 from ddt import ddt, data, unpack
 import numpy as np
 import qiskit_experiments as qe
@@ -116,42 +115,3 @@ class TestRB(QiskitTestCase):
             tuple(exp_attributes["qubits"]) == experiment.physical_qubits,
             "The qubits indices in the experiment doesn't match to the one in the metadata.",
         )
-
-    def _exp_data_properties(self):
-        """
-        Creates a list of dictionaries that contains invalid experiment properties to check errors.
-        The dict invalid data is as following:
-            exp_data_list[1]: same index of qubit.
-            exp_data_list[2]: qubit index is negative.
-            exp_data_list[3]: the length of the sequence has negative number.
-            exp_data_list[4]: num of samples is negative.
-            exp_data_list[5]: num of samples is 0.
-            exp_data_list[6]: the length of the sequence list has duplicates.
-        Returns:
-            list[dict]: list of dictionaries with experiment properties.
-        """
-        exp_data_list = [
-            {"qubits": [3, 3], "lengths": [1, 3, 5, 7, 9], "num_samples": 1, "seed": 100},
-            {"qubits": [-1], "lengths": [1, 3, 5, 7, 9], "num_samples": 1, "seed": 100},
-            {"qubits": [0, 1], "lengths": [1, 3, 5, -7, 9], "num_samples": 1, "seed": 100},
-            {"qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": -4, "seed": 100},
-            {"qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": 0, "seed": 100},
-            {"qubits": [0, 1], "lengths": [1, 5, 5, 5, 9], "num_samples": 0, "seed": 100},
-        ]
-        return exp_data_list
-
-    def test_input(self):
-        """
-        Check that errors emerge when invalid input is given to the RB experiment.
-        """
-        exp_data_list = self._exp_data_properties()
-        rb = qe.randomized_benchmarking
-        for exp_data in exp_data_list:
-            self.assertRaises(
-                QiskitError,
-                rb.RBExperiment,
-                exp_data["qubits"],
-                exp_data["lengths"],
-                num_samples=exp_data["num_samples"],
-                seed=exp_data["seed"],
-            )
