@@ -51,8 +51,6 @@ class QVExperiment(BaseExperiment):
     # ExperimentData class for the simulations
     __simulation_data__ = ExperimentData
 
-    _trials = 0
-
     def __init__(
         self,
         qubits: Union[int, Iterable[int]],
@@ -187,7 +185,8 @@ class QVExperiment(BaseExperiment):
         Args:
             additional_trials (int): The amount of trials to add
         """
-        self.experiment_options.trials += additional_trials
+        new_trials = self.experiment_options.trials + additional_trials
+        self.set_experiment_options(trials=new_trials)
 
     @property
     def trials(self):
