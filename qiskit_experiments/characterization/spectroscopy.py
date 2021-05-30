@@ -366,7 +366,9 @@ class Spectroscopy(BaseExperiment):
         freq_param = Parameter("frequency")
         with pulse.build(name="spectroscopy") as sched:
             pulse.set_frequency(freq_param, drive)
-            pulse.play(pulse.GaussianSquare(duration, amp, sigma, width), drive)
+            pulse.play(
+                pulse.GaussianSquare(duration=duration, amp=amp, sigma=sigma, width=width), drive
+            )
 
         gate = Gate(name="Spec", num_qubits=1, params=[freq_param])
 
