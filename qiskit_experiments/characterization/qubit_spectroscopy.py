@@ -18,6 +18,7 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate, Parameter
 from qiskit.exceptions import QiskitError
+from qiskit.providers import Backend
 import qiskit.pulse as pulse
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
@@ -368,7 +369,7 @@ class QubitSpectroscopy(BaseExperiment):
 
         super().__init__([qubit])
 
-    def circuits(self, backend: Optional["Backend"] = None):
+    def circuits(self, backend: Optional[Backend] = None):
         """Create the circuit for the spectroscopy experiment.
 
         The circuits are based on a GaussianSquare pulse and a frequency_shift instruction
@@ -381,7 +382,9 @@ class QubitSpectroscopy(BaseExperiment):
             circuits: The circuits that will run the spectroscopy experiment.
 
         Raises:
-            QiskitError: If relative frequencies are used but no backend was given.
+            QiskitError:
+                - If relative frequencies are used but no backend was given.
+                - If the backend configuration does not define dt.
         """
         if not backend and not self._absolute:
             raise QiskitError("Cannot run spectroscopy relative to qubit without a backend.")
@@ -434,8 +437,10 @@ class QubitSpectroscopy(BaseExperiment):
             if not self._absolute:
                 assigned_circ.metadata["center frequency"] = center_freq
 
-            if backend:
-                assigned_circ.metadata["dt"] = getattr(backend.configuration(), "dt", "n.a.")
+            try:
+                assigned_circ.metadata["dt"] = getattr(backend.configuration(), "dt")
+            except AttributeError as no_dt:
+                raise QiskitError("Dt parameter is missing in backend configuration") from no_dt
 
             circs.append(assigned_circ)
 
