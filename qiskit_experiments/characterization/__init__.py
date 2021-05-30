@@ -23,6 +23,8 @@ Experiments
     :toctree: ../stubs/
 
     T1Experiment
+    T2StarExperiment
+    Spectroscopy
 
 
 Analysis
@@ -32,6 +34,9 @@ Analysis
     :toctree: ../stubs/
 
     T1Analysis
+    T2StarAnalysis
+    SpectroscopyAnalysis
 """
 from .t1_experiment import T1Experiment, T1Analysis
 from .spectroscopy import Spectroscopy, SpectroscopyAnalysis
+from .t2star_experiment import T2StarExperiment, T2StarAnalysis
