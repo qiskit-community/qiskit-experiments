@@ -41,8 +41,8 @@ class QVExperiment(BaseExperiment):
     """Quantum Volume Experiment class
 
     Experiment Options:
-        trials: number of times to generate new Quantum Volume circuits and calculate their heavy
-        output.
+        trials (int): Optional, number of times to generate new Quantum Volume circuits and
+                    calculate their heavy output.
     """
 
     # Analysis class for experiment
