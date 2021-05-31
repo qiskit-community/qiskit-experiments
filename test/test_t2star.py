@@ -22,10 +22,6 @@ from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T2StarExperiment
 
 
-# Fix seed for simulations
-SEED = 9000
-
-
 class T2starBackend(BaseBackend):
     """
     A simple and primitive backend, to be run by the T2Star tests
@@ -149,6 +145,8 @@ class TestT2Star(QiskitTestCase):
         Run the T2 backend on all possible units
         """
         # For some reason, 'ps' was not precise enough - need to check this
+        np.random.seed(0)
+
         for unit in ["s", "ms", "us", "ns", "dt"]:
             if unit in ("s", "dt"):
                 dt_factor = 1
@@ -228,6 +226,8 @@ class TestT2Star(QiskitTestCase):
         """
         Test parallel experiments of T2* using a simulator.
         """
+
+        np.random.seed(0)
 
         t2star = [30, 25]
         estimated_freq = [0.1, 0.12]
