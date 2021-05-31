@@ -22,7 +22,7 @@ from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.quantum_info import Clifford
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeParis
-from qiskit.circuit.library import XGate, CXGate, C3XGate
+from qiskit.circuit.library import XGate, CXGate
 import qiskit_experiments as qe
 
 
@@ -83,7 +83,7 @@ class TestRB(QiskitTestCase):
             circuits (list): A list containing quantum circuits
             exp_attributes (dict): A dictionary with the experiment variable and values
         """
-        for ind, qc in enumerate(circuits):
+        for qc in circuits:
             self.assertTrue(
                 qc.metadata["xval"] in exp_attributes["lengths"],
                 "The number of gates in the experiment metadata doesn't match "
@@ -118,14 +118,23 @@ class TestRB(QiskitTestCase):
             "The qubits indices in the experiment doesn't match to the one in the metadata.",
         )
 
+
 @ddt
 class TestInterleavedRB(TestRB):
     """
-    A test class for the interleaved RB Experiment to check that the InterleavedRBExperiment class is working correctly.
+    A test class for the interleaved RB Experiment to check that the
+    InterleavedRBExperiment class is working correctly.
     """
+
     @data([XGate(), [3]], [CXGate(), [4, 7]])
     @unpack
-    def test_interleaved_rb_experiment(self, interleaved_element, qubits: list):
+    def test_interleaved_rb_experiment(self, interleaved_element: "Gate", qubits: list):
+        """
+        Initializes data and executes an interleaved RB experiment with specific parameters.
+        Args:
+            interleaved_element: The Clifford element to interleave
+            qubits (list): A list containing qubit indices for the experiment
+        """
         backend = FakeParis()
         exp_attributes = {
             "interleaved_element": interleaved_element,
