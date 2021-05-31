@@ -22,10 +22,6 @@ from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T2StarExperiment
 
 
-# Fix seed for simulations
-SEED = 9000
-
-
 class T2starBackend(BaseBackend):
     """
     A simple and primitive backend, to be run by the T2Star tests
@@ -63,6 +59,7 @@ class T2starBackend(BaseBackend):
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
         self._dt_factor = dt_factor
+        self._rng = np.random.default_rng(0)
         super().__init__(configuration)
 
     # pylint: disable = arguments-differ
@@ -115,7 +112,7 @@ class T2starBackend(BaseBackend):
 
                     if op.name == "measure":
                         # we measure in |+> basis which is the same as measuring |0>
-                        meas_res = np.random.binomial(
+                        meas_res = self._rng.binomial(
                             1,
                             (1 - prob_plus[qubit]) * (1 - ro10[qubit])
                             + prob_plus[qubit] * ro01[qubit],
@@ -149,6 +146,7 @@ class TestT2Star(QiskitTestCase):
         Run the T2 backend on all possible units
         """
         # For some reason, 'ps' was not precise enough - need to check this
+
         for unit in ["s", "ms", "us", "ns", "dt"]:
             if unit in ("s", "dt"):
                 dt_factor = 1
