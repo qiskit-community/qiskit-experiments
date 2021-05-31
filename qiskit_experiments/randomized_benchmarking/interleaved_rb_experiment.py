@@ -18,7 +18,7 @@ from numpy.random import Generator
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
-from qiskit.quantum_info import Clifford, random_clifford
+from qiskit.quantum_info import Clifford
 
 from .rb_experiment import RBExperiment
 from .interleaved_rb_analysis import InterleavedRBAnalysis
