@@ -12,10 +12,9 @@
 """
 Plotting functions for experiment analysis
 """
-from typing import Callable, Optional
+from typing import Callable, Optional, Dict
 import numpy as np
 
-from qiskit_experiments.experiment_data import AnalysisResult
 from qiskit_experiments.matplotlib import pyplot, requires_matplotlib
 
 # pylint: disable = unused-import
@@ -25,7 +24,7 @@ from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
 @requires_matplotlib
 def plot_curve_fit(
     func: Callable,
-    result: AnalysisResult,
+    result: Dict,
     confidence_interval: bool = True,
     ax=None,
     num_fit_points: int = 100,
@@ -39,7 +38,7 @@ def plot_curve_fit(
 
     Args:
         func: the fit function for curve_fit.
-        result: an AnalysisResult from curve_fit.
+        result: a dictionary from curve_fit.
         confidence_interval: if True plot the confidence interval from popt_err.
         ax (matplotlib.axes.Axes): Optional, a matplotlib axes to add the plot to.
         num_fit_points: the number of points to plot for xrange.

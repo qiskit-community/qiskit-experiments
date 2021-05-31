@@ -21,12 +21,15 @@ from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
 from qiskit.utils import apply_prefix
 from qiskit.providers.options import Options
+from qiskit.providers.experiment import AnalysisResultV1, ResultQuality
+from qiskit.providers.experiment.device_component import Qubit
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import curve_fit, process_curve_data
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
-from ..experiment_data import ExperimentData, AnalysisResult
+from ..experiment_data import ExperimentData
+
 
 # pylint: disable = invalid-name
 class T2StarAnalysis(BaseAnalysis):
@@ -45,7 +48,7 @@ class T2StarAnalysis(BaseAnalysis):
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,
         **kwargs,
-    ) -> Tuple[AnalysisResult, List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[AnalysisResultV1, List["matplotlib.figure.Figure"]]:
         r"""Calculate T2Star experiment.
 
         The probability of measuring `+` is assumed to be of the form
@@ -82,12 +85,13 @@ class T2StarAnalysis(BaseAnalysis):
             ax.set_ylabel("Probability to measure |0>", fontsize=12)
 
         # implementation of  _run_analysis
-        unit = experiment_data._data[0]["metadata"]["unit"]
-        conversion_factor = experiment_data._data[0]["metadata"].get("dt_factor", None)
+        data = experiment_data.data()
+        unit = data[0]["metadata"]["unit"]
+        conversion_factor = data[0]["metadata"].get("dt_factor", None)
         if conversion_factor is None:
             conversion_factor = 1 if unit == "s" else apply_prefix(1, unit)
         xdata, ydata, sigma = process_curve_data(
-            experiment_data._data, lambda datum: level2_probability(datum, "0")
+            data, lambda datum: level2_probability(datum, "0")
         )
 
         si_xdata = xdata * conversion_factor
@@ -110,8 +114,7 @@ class T2StarAnalysis(BaseAnalysis):
             figures = None
 
         # Output unit is 'sec', regardless of the unit used in the input
-        analysis_result = AnalysisResult(
-            {
+        result_data = {
                 "t2star_value": fit_result["popt"][1],
                 "frequency_value": fit_result["popt"][2],
                 "stderr": fit_result["popt_err"][1],
@@ -122,11 +125,19 @@ class T2StarAnalysis(BaseAnalysis):
                     fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
                 ),
             }
+
+        result_data["fit"]["circuit_unit"] = unit
+        if unit == "dt":
+            result_data["fit"]["dt"] = conversion_factor
+
+        analysis_result = AnalysisResultV1(
+            result_data=result_data,
+            result_type="T2Star",
+            device_components=[Qubit(data[0]["metadata"]["qubit"])],
+            experiment_id=experiment_data.experiment_id,
+            quality=result_data["quality"],
         )
 
-        analysis_result["fit"]["circuit_unit"] = unit
-        if unit == "dt":
-            analysis_result["fit"]["dt"] = conversion_factor
         return analysis_result, figures
 
     def _t2star_default_params(
@@ -179,9 +190,9 @@ class T2StarAnalysis(BaseAnalysis):
             and (fit_err[1] is None or fit_err[1] < 0.1 * fit_out[1])
             and (fit_err[2] is None or fit_err[2] < 0.1 * fit_out[2])
         ):
-            return "computer_good"
+            return ResultQuality.GOOD
         else:
-            return "computer_bad"
+            return ResultQuality.BAD
 
 
 class T2StarExperiment(BaseExperiment):
@@ -233,7 +244,7 @@ class T2StarExperiment(BaseExperiment):
         """
         if self._unit == "dt":
             try:
-                dt_factor = getattr(backend._configuration, "dt")
+                dt_factor = getattr(backend.configuration(), "dt")
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
 

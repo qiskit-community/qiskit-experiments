@@ -29,7 +29,6 @@ from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import process_curve_data, curve_fit
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
-from qiskit_experiments import AnalysisResult
 
 
 class T1Analysis(BaseAnalysis):
@@ -127,8 +126,7 @@ class T1Analysis(BaseAnalysis):
         bounds = {"a": amplitude_bounds, "tau": t1_bounds, "c": offset_bounds}
         fit_result = curve_fit(fit_fun, xdata, ydata, init, sigma=sigma, bounds=bounds)
 
-        analysis_result = AnalysisResult(
-            {
+        result_data = {
                 "value": fit_result["popt"][1],
                 "stderr": fit_result["popt_err"][1],
                 "unit": "s",
@@ -138,11 +136,10 @@ class T1Analysis(BaseAnalysis):
                     fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
                 ),
             }
-        )
 
-        analysis_result["fit"]["circuit_unit"] = unit
+        result_data["fit"]["circuit_unit"] = unit
         if unit == "dt":
-            analysis_result["fit"]["dt"] = conversion_factor
+            result_data["fit"]["dt"] = conversion_factor
 
         # Generate fit plot
         if plot and plotting.HAS_MATPLOTLIB:
@@ -154,11 +151,11 @@ class T1Analysis(BaseAnalysis):
             figures = None
 
         res_v1 = AnalysisResultV1(
-            analysis_result,
-            "T1",
-            [Qubit(data[0]["metadata"]["qubit"])],
-            experiment_data.experiment_id,
-            quality=analysis_result["quality"],
+            result_data=result_data,
+            result_type="T1",
+            device_components=[Qubit(data[0]["metadata"]["qubit"])],
+            experiment_id=experiment_data.experiment_id,
+            quality=result_data["quality"],
             verified=True,
         )
 
