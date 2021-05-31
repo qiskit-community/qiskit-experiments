@@ -44,7 +44,7 @@ class TestRB(QiskitTestCase):
         exp_attributes = {
             "qubits": qubits,
             "lengths": [1, 4, 6, 9, 13, 16],
-            "num_samples": 1,
+            "num_samples": 2,
             "seed": 100,
         }
         rb = qe.randomized_benchmarking
@@ -85,8 +85,9 @@ class TestRB(QiskitTestCase):
         """
         for ind, qc in enumerate(circuits):
             self.assertTrue(
-                qc.metadata["xval"] == exp_attributes["lengths"][ind],
-                "The number of gates in the experiment metadata doesn't match to the one provided.",
+                qc.metadata["xval"] in exp_attributes["lengths"],
+                "The number of gates in the experiment metadata doesn't match "
+                "any of the provided lengths",
             )
             self.assertTrue(
                 qc.metadata["qubits"] == tuple(exp_attributes["qubits"]),
@@ -130,7 +131,7 @@ class TestInterleavedRB(TestRB):
             "interleaved_element": interleaved_element,
             "qubits": qubits,
             "lengths": [1, 4, 6, 9, 13, 16],
-            "num_samples": 1,
+            "num_samples": 2,
             "seed": 100,
         }
         rb = qe.randomized_benchmarking
