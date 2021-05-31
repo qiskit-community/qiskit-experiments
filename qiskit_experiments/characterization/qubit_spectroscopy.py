@@ -323,6 +323,12 @@ class QubitSpectroscopy(BaseExperiment):
         return Options(
             meas_level=MeasLevel.KERNELED,
             meas_return="single",
+        )
+
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        """Default options values for the experiment :meth:`run` method."""
+        return Options(
             amp=0.1,
             duration=1024,
             sigma=256,
@@ -395,10 +401,10 @@ class QubitSpectroscopy(BaseExperiment):
             pulse.set_frequency(freq_param, pulse.DriveChannel(self.physical_qubits[0]))
             pulse.play(
                 pulse.GaussianSquare(
-                    duration=self.run_options.duration,
-                    amp=self.run_options.amp,
-                    sigma=self.run_options.sigma,
-                    width=self.run_options.width,
+                    duration=self.experiment_options.duration,
+                    amp=self.experiment_options.amp,
+                    sigma=self.experiment_options.sigma,
+                    width=self.experiment_options.width,
                 ),
                 pulse.DriveChannel(self.physical_qubits[0]),
             )
@@ -425,10 +431,10 @@ class QubitSpectroscopy(BaseExperiment):
                 "qubit": self.physical_qubits[0],
                 "xval": freq,
                 "unit": "Hz",
-                "amplitude": self.run_options.amp,
-                "duration": self.run_options.duration,
-                "sigma": self.run_options.sigma,
-                "width": self.run_options.width,
+                "amplitude": self.experiment_options.amp,
+                "duration": self.experiment_options.duration,
+                "sigma": self.experiment_options.sigma,
+                "width": self.experiment_options.width,
                 "schedule": str(sched),
                 "meas_level": self.run_options.meas_level,
                 "meas_return": self.run_options.meas_return,
