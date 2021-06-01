@@ -85,7 +85,6 @@ class BaseAnalysis(ABC):
         analysis_options = self._default_options()
         analysis_options.update_options(**options)
         analysis_options = analysis_options.__dict__
-        experiment_data._metadata["analysis_options"] = analysis_options
 
         # Run analysis
         try:

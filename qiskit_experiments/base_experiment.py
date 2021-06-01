@@ -85,10 +85,7 @@ class BaseExperiment(ABC):
             "experiment_type": self._type,
             "num_qubits": self.num_qubits,
             "physical_qubits": list(self.physical_qubits),
-            "experiment_options": copy.copy(self.experiment_options.__dict__),
-            "transpile_options": copy.copy(self.transpile_options.__dict__),
-            "analysis_options": copy.copy(self.analysis_options.__dict__),
-            "run_options": copy.copy(self.run_options.__dict__),
+            "job_options": {},
         }
         return metadata
 
@@ -124,7 +121,6 @@ class BaseExperiment(ABC):
         run_opts = copy.copy(self.run_options)
         run_opts.update_options(**run_options)
         run_opts = run_opts.__dict__
-        experiment_data._metadata["run_options"] = run_opts
 
         # Generate and transpile circuits
         circuits = transpile(self.circuits(backend), backend, **self.transpile_options.__dict__)
@@ -137,6 +133,14 @@ class BaseExperiment(ABC):
 
         # Add Job to ExperimentData
         experiment_data.add_data(job)
+
+        # Add experiment option metadata
+        experiment_data._metadata["job_options"][job.job_id()] = {
+            "experiment_options": copy.copy(self.experiment_options.__dict__),
+            "transpile_options": copy.copy(self.transpile_options.__dict__),
+            "analysis_options": copy.copy(self.analysis_options.__dict__),
+            "run_options": copy.copy(run_opts),
+        }
 
         # Queue analysis of data for when job is finished
         if analysis and self.__analysis_class__ is not None:
