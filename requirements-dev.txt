@@ -12,3 +12,4 @@ sphinx-panels
 nbsphinx
 
 ddt~=1.4.2
+aer>=0.8.0
