@@ -117,7 +117,9 @@ def curve_fit(
             fit_func, xdata, ydata, sigma=sigma, p0=param_p0, bounds=param_bounds, **kwargs
         )
     except Exception as ex:
-        raise AnalysisError("scipy.optimize.curve_fit failed") from ex
+        raise AnalysisError(
+            "scipy.optimize.curve_fit failed with error: {}".format(str(ex))
+        ) from ex
 
     popt_err = np.sqrt(np.diag(pcov))
 
