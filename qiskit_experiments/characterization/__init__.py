@@ -23,6 +23,7 @@ Experiments
     :toctree: ../stubs/
 
     T1Experiment
+    T2StarExperiment
 
 
 Analysis
@@ -32,5 +33,7 @@ Analysis
     :toctree: ../stubs/
 
     T1Analysis
+    T2StarAnalysis
 """
 from .t1_experiment import T1Experiment, T1Analysis
+from .t2star_experiment import T2StarExperiment, T2StarAnalysis

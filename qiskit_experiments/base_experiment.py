@@ -14,33 +14,17 @@ Base Experiment class.
 """
 
 from abc import ABC, abstractmethod
-from typing import Union, Iterable, Optional, Tuple, List
+from typing import Iterable, Optional, Tuple, List
+import copy
 from numbers import Integral
 
 from qiskit import transpile, assemble, QuantumCircuit
-from qiskit.exceptions import QiskitError
+from qiskit.providers.options import Options
 from qiskit.providers.backend import Backend
 from qiskit.providers.basebackend import BaseBackend as LegacyBackend
+from qiskit.exceptions import QiskitError
 
 from .experiment_data import ExperimentData
-
-_TRANSPILE_OPTIONS = {
-    "basis_gates",
-    "coupling_map",
-    "backend_properties",
-    "initial_layout",
-    "layout_method",
-    "routing_method",
-    "translation_method",
-    "scheduling_method",
-    "instruction_durations",
-    "dt",
-    "seed_transpiler",
-    "optimization_level",
-    "pass_manager",
-    "callback",
-    "output_name",
-}
 
 
 class BaseExperiment(ABC):
@@ -61,26 +45,13 @@ class BaseExperiment(ABC):
     # ExperimentData class for experiment
     __experiment_data__ = ExperimentData
 
-    # Custom default transpiler options for experiment subclasses
-    __transpile_defaults__ = {"optimization_level": 0}
-
-    # Custom default run (assemble) options for experiment subclasses
-    __run_defaults__ = {}
-
-    def __init__(
-        self,
-        qubits: Union[int, Iterable[int]],
-        experiment_type: Optional[str] = None,
-        circuit_options: Optional[Iterable[str]] = None,
-    ):
+    def __init__(self, qubits: Iterable[int], experiment_type: Optional[str] = None):
         """Initialize the experiment object.
 
         Args:
-            qubits: the number of qubits or list of physical qubits
-                    for the experiment.
+            qubits: the number of qubits or list of physical qubits for
+                    the experiment.
             experiment_type: Optional, the experiment type string.
-            circuit_options: Optional, list of kwarg names for
-                             the subclassed `circuit` method.
 
         Raises:
             QiskitError: if qubits is a list and contains duplicates.
@@ -99,60 +70,86 @@ class BaseExperiment(ABC):
                 print(self._num_qubits, self._physical_qubits)
                 raise QiskitError("Duplicate qubits in physical qubits list.")
 
-        # Store options and values
-        self._circuit_options = set(circuit_options) if circuit_options else set()
+        # Experiment options
+        self._experiment_options = self._default_experiment_options()
+        self._transpile_options = self._default_transpile_options()
+        self._run_options = self._default_run_options()
+        self._analysis_options = self._default_analysis_options()
+
+        # Set initial layout from qubits
+        self._transpile_options.initial_layout = self._physical_qubits
 
     def run(
         self,
-        backend: "Backend",
+        backend: Backend,
         analysis: bool = True,
         experiment_data: Optional[ExperimentData] = None,
-        **kwargs,
+        **run_options,
     ) -> ExperimentData:
         """Run an experiment and perform analysis.
 
         Args:
             backend: The backend to run the experiment on.
-            analysis: If True run analysis on experiment data.
-            experiment_data: Optional, add results to existing experiment data.
-                             If None a new ExperimentData object will be returned.
-            kwargs: keyword arguments for self.circuit, qiskit.transpile, and backend.run.
+            analysis: If True run analysis on the experiment data.
+            experiment_data: Optional, add results to existing
+                experiment data. If None a new ExperimentData object will be
+                returned.
+            run_options: backend runtime options used for circuit execution.
 
         Returns:
-            ExperimentData: the experiment data object.
+            The experiment data object.
         """
-        # NOTE: This method is intended to be overriden by subclasses if required.
-
         # Create new experiment data
         if experiment_data is None:
             experiment_data = self.__experiment_data__(self, backend=backend)
 
-        # Filter kwargs
-        run_options = self.__run_defaults__.copy()
-        circuit_options = {}
-        for key, value in kwargs.items():
-            if key in _TRANSPILE_OPTIONS or key in self._circuit_options:
-                circuit_options[key] = value
-            else:
-                run_options[key] = value
+        # Generate and transpile circuits
+        circuits = transpile(self.circuits(backend), backend, **self.transpile_options.__dict__)
 
-        # Generate and run circuits
-        circuits = self.transpiled_circuits(backend, **circuit_options)
+        # Run circuits on backend
+        run_opts = copy.copy(self.run_options)
+        run_opts.update_options(**run_options)
+        run_opts = run_opts.__dict__
+
         if isinstance(backend, LegacyBackend):
-            qobj = assemble(circuits, backend=backend, **run_options)
+            qobj = assemble(circuits, backend=backend, **run_opts)
             job = backend.run(qobj)
         else:
-            job = backend.run(circuits, **run_options)
+            job = backend.run(circuits, **run_opts)
 
         # Add Job to ExperimentData
         experiment_data.add_data(job)
 
         # Queue analysis of data for when job is finished
         if analysis and self.__analysis_class__ is not None:
-            # pylint: disable = not-callable
-            self.__analysis_class__().run(experiment_data, **kwargs)
+            self.run_analysis(experiment_data)
 
         # Return the ExperimentData future
+        return experiment_data
+
+    def run_analysis(self, experiment_data, **options) -> ExperimentData:
+        """Run analysis and update ExperimentData with analysis result.
+
+        Args:
+            experiment_data (ExperimentData): the experiment data to analyze.
+            options: additional analysis options. Any values set here will
+                     override the value from :meth:`analysis_options`
+                     for the current run.
+
+        Returns:
+            The updated experiment data containing the analysis results and figures.
+
+        Raises:
+            QiskitError: if experiment_data container is not valid for analysis.
+        """
+        # Get analysis options
+        analysis_options = copy.copy(self.analysis_options)
+        analysis_options.update_options(**options)
+        analysis_options = analysis_options.__dict__
+
+        # Run analysis
+        analysis = self.analysis()
+        analysis.run(experiment_data, save=True, return_figures=False, **analysis_options)
         return experiment_data
 
     @property
@@ -166,32 +163,19 @@ class BaseExperiment(ABC):
         return self._physical_qubits
 
     @classmethod
-    def analysis(cls, **kwargs):
-        """Return the default Analysis class for the experiment.
-
-        Returns:
-            BaseAnalysis: the analysis object.
-
-        Raises:
-            QiskitError: if the experiment does not have a defaul
-                         analysis class.
-        """
+    def analysis(cls):
+        """Return the default Analysis class for the experiment."""
         if cls.__analysis_class__ is None:
-            raise QiskitError(
-                f"Experiment {cls.__name__} does not define" " a default Analysis class"
-            )
+            raise QiskitError(f"Experiment {cls.__name__} does not have a default Analysis class")
         # pylint: disable = not-callable
-        return cls.__analysis_class__(**kwargs)
+        return cls.__analysis_class__()
 
     @abstractmethod
-    def circuits(
-        self, backend: Optional[Backend] = None, **circuit_options
-    ) -> List[QuantumCircuit]:
+    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
 
         Args:
             backend: Optional, a backend object.
-            circuit_options: kwarg options for the function.
 
         Returns:
             A list of :class:`QuantumCircuit`.
@@ -201,59 +185,106 @@ class BaseExperiment(ABC):
             *N*-qubit experiment. The circuits mapped to physical qubits
             are obtained via the :meth:`transpiled_circuits` method.
         """
-        # NOTE: Subclasses should override this method with explicit
-        # kwargs for any circuit options rather than use `**circuit_options`.
-        # This allows these options to have default values, and be
-        # documented in the methods docstring for the API docs.
+        # NOTE: Subclasses should override this method using the `options`
+        # values for any explicit experiment options that effect circuit
+        # generation
 
-    def transpiled_circuits(
-        self, backend: Optional[Backend] = None, **kwargs
-    ) -> List[QuantumCircuit]:
-        """Return a list of experiment circuits.
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        """Default kwarg options for experiment"""
+        # Experiment subclasses should override this method to return
+        # an `Options` object containing all the supported options for
+        # that experiment and their default values. Only options listed
+        # here can be modified later by the `set_options` method.
+        return Options()
+
+    @property
+    def experiment_options(self) -> Options:
+        """Return the options for the experiment."""
+        return self._experiment_options
+
+    def set_experiment_options(self, **fields):
+        """Set the experiment options.
 
         Args:
-            backend: Optional, a backend object to use as the
-                     argument for the :func:`qiskit.transpile`
-                     function.
-            kwargs: kwarg options for the :meth:`circuits` method, and
-                    :func:`qiskit.transpile` function.
-
-        Returns:
-            A list of :class:`QuantumCircuit`.
+            fields: The fields to update the options
 
         Raises:
-            QiskitError: if an initial layout is specified in the
-                         kwarg options for transpilation. The initial
-                         layout must be generated from the experiment.
-
-        .. note::
-            These circuits should be on qubits ``[0, .., N-1]`` for an
-            *N*-qubit experiment. The circuits mapped to physical qubits
-            are obtained via the :meth:`transpiled_circuits` method.
+            AttributeError: If the field passed in is not a supported options
         """
-        # Filter kwargs to circuit and transpile options
-        circuit_options = {}
-        transpile_options = self.__transpile_defaults__.copy()
-        for key, value in kwargs.items():
-            valid_key = False
-            if key in self._circuit_options:
-                circuit_options[key] = value
-                valid_key = True
-            if key in _TRANSPILE_OPTIONS:
-                transpile_options[key] = value
-                valid_key = True
-            if not valid_key:
-                raise QiskitError(
-                    f"{key} is not a valid kwarg for" f" {self.circuits} or {transpile}"
+        for field in fields:
+            if not hasattr(self._experiment_options, field):
+                raise AttributeError(
+                    f"Options field {field} is not valid for {type(self).__name__}"
                 )
+        self._experiment_options.update_options(**fields)
 
-        # Generate circuits
-        circuits = self.circuits(backend=backend, **circuit_options)
+    @classmethod
+    def _default_transpile_options(cls) -> Options:
+        """Default transpiler options for transpilation of circuits"""
+        # Experiment subclasses can override this method if they need
+        # to set specific default transpiler options to transpile the
+        # experiment circuits.
+        return Options(optimization_level=0)
 
-        # Transpile circuits
-        if "initial_layout" in transpile_options:
-            raise QiskitError("Initial layout must be specified by the Experiement.")
-        transpile_options["initial_layout"] = self.physical_qubits
-        circuits = transpile(circuits, backend=backend, **transpile_options)
+    @property
+    def transpile_options(self) -> Options:
+        """Return the transpiler options for the :meth:`run` method."""
+        return self._transpile_options
 
-        return circuits
+    def set_transpile_options(self, **fields):
+        """Set the transpiler options for :meth:`run` method.
+
+        Args:
+            fields: The fields to update the options
+
+        Raises:
+            QiskitError: if `initial_layout` is one of the fields.
+        """
+        if "initial_layout" in fields:
+            raise QiskitError(
+                "Initial layout cannot be specified as a transpile option"
+                " as it is determined by the experiment physical qubits."
+            )
+        self._transpile_options.update_options(**fields)
+
+    @classmethod
+    def _default_run_options(cls) -> Options:
+        """Default options values for the experiment :meth:`run` method."""
+        return Options()
+
+    @property
+    def run_options(self) -> Options:
+        """Return options values for the experiment :meth:`run` method."""
+        return self._run_options
+
+    def set_run_options(self, **fields):
+        """Set options values for the experiment  :meth:`run` method.
+
+        Args:
+            fields: The fields to update the options
+        """
+        self._run_options.update_options(**fields)
+
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default options for analysis of experiment results."""
+        # Experiment subclasses can override this method if they need
+        # to set specific analysis options defaults that are different
+        # from the Analysis subclass `_default_options` values.
+        if cls.__analysis_class__:
+            return cls.__analysis_class__._default_options()
+        return Options()
+
+    @property
+    def analysis_options(self) -> Options:
+        """Return the analysis options for :meth:`run` analysis."""
+        return self._analysis_options
+
+    def set_analysis_options(self, **fields):
+        """Set the analysis options for :meth:`run` method.
+
+        Args:
+            fields: The fields to update the options
+        """
+        self._analysis_options.update_options(**fields)

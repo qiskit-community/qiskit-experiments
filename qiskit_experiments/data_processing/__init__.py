@@ -23,6 +23,7 @@ Classes
 
     DataProcessor
     DataAction
+    TrainableDataAction
 
 
 Data Processing Nodes
@@ -33,13 +34,17 @@ Data Processing Nodes
     Probability
     ToImag
     ToReal
+    SVD
+    AverageData
 """
 
-from .data_action import DataAction
+from .data_action import DataAction, TrainableDataAction
 from .nodes import (
     Probability,
     ToImag,
     ToReal,
+    SVD,
+    AverageData,
 )
 
 from .data_processor import DataProcessor
