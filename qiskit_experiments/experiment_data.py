@@ -65,7 +65,7 @@ class ExperimentData:
         """
         # Experiment class object
         self._experiment = experiment
-        self._metadata = experiment.metadata() if experiment else {}
+        self._metadata = experiment._metadata() if experiment else {}
 
         # Terra ExperimentDataV1 attributes
         self._backend = backend

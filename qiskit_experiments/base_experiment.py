@@ -14,7 +14,7 @@ Base Experiment class.
 """
 
 from abc import ABC, abstractmethod
-from typing import Iterable, Optional, Tuple, List
+from typing import Iterable, Optional, Tuple, List, Dict
 import copy
 from numbers import Integral
 
@@ -79,8 +79,16 @@ class BaseExperiment(ABC):
         # Set initial layout from qubits
         self._transpile_options.initial_layout = list(self._physical_qubits)
 
-    def metadata(self):
-        """Return experiment metadata."""
+    def _metadata(self) -> Dict[str, any]:
+        """Return experiment metadata for ExperimentData.
+
+        The current values of ``experiment_options``, ``transpile_options``,
+        ``run_options``, and ``analysis_options`` will be added to
+        the `"job_options"` dict when ``run`` is called. The job_id string
+        is used as the key in the job options dict.
+        """
+        # Subclasses can override this method if it is necessary to store
+        # additional experiment metadata in ExperimentData.
         metadata = {
             "experiment_type": self._type,
             "num_qubits": self.num_qubits,
@@ -112,10 +120,6 @@ class BaseExperiment(ABC):
         if experiment_data is None:
             # Create new experiment data
             experiment_data = self.__experiment_data__(experiment=self, backend=backend)
-        else:
-            # Override experiment metadata
-            for key, val in self.metadata().items():
-                experiment_data._metadata[key] = val
 
         # Run options
         run_opts = copy.copy(self.run_options)
