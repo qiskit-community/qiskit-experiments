@@ -31,9 +31,12 @@ class DiscriminatorBackend(BaseBackend):
     A simple backend that generates gaussian data for discriminator tests
     """
 
-    def __init__(self):
+    def __init__(self, seed=None):
         """
         Initialize the discriminator backend
+
+        Args:
+            seed: the random seed to generate data with.
         """
         configuration = QasmBackendConfiguration(
             backend_name="discriminator_simulator",
@@ -51,6 +54,7 @@ class DiscriminatorBackend(BaseBackend):
         )
 
         super().__init__(configuration)
+        self._rng = np.random.default_rng(seed)
 
     def sample_gaussian(
         self, centroid=np.array([0, 0]), cov=np.array([[0.1, 0], [0, 0.1]]), size=1
@@ -58,7 +62,7 @@ class DiscriminatorBackend(BaseBackend):
         """
         Draws random samples from a gaussian distribution.
         """
-        return np.random.multivariate_normal(centroid, cov, size)
+        return self._rng.multivariate_normal(centroid, cov, size)
 
     # pylint: disable = arguments-differ
     def run(self, qobj):

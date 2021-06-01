@@ -22,6 +22,7 @@ from qiskit_experiments.data_processing.data_action import DataAction, Trainable
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
 
+
 class AverageData(DataAction):
     """A node to average data representable as numpy arrays."""
 
@@ -384,7 +385,7 @@ class ToImagAvg(IQPart):
         if self.scale is None:
             return datum[:, 1]
 
-        return datum[:, 1] * self.scale
+        return datum[:, 1] * self.scale, None
 
 
 class BaseDiscriminator(IQPart):
@@ -425,7 +426,7 @@ class BaseDiscriminator(IQPart):
                 datum[bitstring] = 1
         return datum
 
-    def _process(self, datum: np.array) -> np.array:
+    def _process(self, datum: np.array, error: Optional[np.array] = None) -> np.array:
         # Check that number of qubits are the same between data and discriminator
         if len(self._handle.analysis_result(0)["discriminator"]) != np.shape(datum)[1]:
             raise DataProcessorError(
@@ -434,7 +435,7 @@ class BaseDiscriminator(IQPart):
 
 
 class LDADiscriminator(BaseDiscriminator):
-    def _process(self, datum: np.array) -> np.array:
+    def _process(self, datum: np.array, error: Optional[np.array] = None) -> np.array:
         """Applies LDA discriminator to IQ data to return counts.
         Args:
             datum: Input IQ data to be discriminated.
@@ -446,14 +447,20 @@ class LDADiscriminator(BaseDiscriminator):
 
         list_data = []
         for i in range(np.shape(datum)[1]):
-            if isinstance(self._handle.analysis_result(0)["discriminator"][i], LinearDiscriminantAnalysis) is False:
+            if (
+                isinstance(
+                    self._handle.analysis_result(0)["discriminator"][i], LinearDiscriminantAnalysis
+                )
+                is False
+            ):
                 raise DataProcessorError("Input not an LDA discriminator.")
             lda = self._handle.analysis_result(0)["discriminator"][i]
-            list_data.append(lda.predict(datum[:,i,:]))
-        return self._to_dict(list_data)
+            list_data.append(lda.predict(datum[:, i, :]))
+        return self._to_dict(list_data), None
+
 
 class QDADiscriminator(BaseDiscriminator):
-    def _process(self, datum: np.array) -> np.array:
+    def _process(self, datum: np.array, error: Optional[np.array] = None) -> np.array:
         """Applies QDA discriminator to IQ data to return counts.
         Args:
             datum: Input IQ data to be discriminated.
@@ -465,11 +472,17 @@ class QDADiscriminator(BaseDiscriminator):
 
         list_data = []
         for i in range(np.shape(datum)[1]):
-            if isinstance(self._handle.analysis_result(0)["discriminator"][i], QuadraticDiscriminantAnalysis) is False:
+            if (
+                isinstance(
+                    self._handle.analysis_result(0)["discriminator"][i],
+                    QuadraticDiscriminantAnalysis,
+                )
+                is False
+            ):
                 raise DataProcessorError("Input not a QDA discriminator.")
             qda = self._handle.analysis_result(0)["discriminator"][i]
-            list_data.append(qda.predict(datum[:,i,:]))
-        return self._to_dict(list_data)
+            list_data.append(qda.predict(datum[:, i, :]))
+        return self._to_dict(list_data), None
 
 
 class Probability(DataAction):

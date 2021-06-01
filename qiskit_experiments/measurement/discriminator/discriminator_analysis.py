@@ -30,15 +30,13 @@ class DiscriminatorAnalysis(BaseAnalysis):
                 AnalysisResult objects, and ``figures`` may be
                 None, a single figure, or a list of figures.
         """
-
-        nqubits = len(experiment_data.data[0]["metadata"]["ylabel"])
+        nqubits = len(experiment_data.data()[0]["metadata"]["ylabel"])
         discriminator = [None] * nqubits
         score = [None] * nqubits
         fig, ax = plt.subplots(nqubits)
         fig.tight_layout()
         if nqubits == 1:
             ax = [ax]
-
         for q in range(nqubits):
             _xdata, _ydata = self._process_data(experiment_data, q)
 
@@ -96,17 +94,14 @@ class DiscriminatorAnalysis(BaseAnalysis):
 
     def _process_data(self, experiment_data, qubit):
         """Returns x and y data for discriminator on specific qubit."""
-        xdata = np.array(
-            [int(experiment_data.data[0]["metadata"]["ylabel"][qubit])]
-            * len(experiment_data.data[0]["memory"])
-        )
-        ydata = experiment_data.data[0]["memory"][:, qubit, :]
+        data = experiment_data.data()
+        xdata = np.array([int(data[0]["metadata"]["ylabel"][qubit])] * len(data[0]["memory"]))
+        ydata = data[0]["memory"][:, qubit, :]
         xdata = np.concatenate(
             (
                 xdata,
-                [int(experiment_data.data[1]["metadata"]["ylabel"][qubit])]
-                * len(experiment_data.data[1]["memory"]),
+                [int(data[1]["metadata"]["ylabel"][qubit])] * len(data[1]["memory"]),
             )
         )
-        ydata = np.concatenate((ydata, experiment_data.data[1]["memory"][:, qubit, :]))
+        ydata = np.concatenate((ydata, data[1]["memory"][:, qubit, :]))
         return xdata, ydata
