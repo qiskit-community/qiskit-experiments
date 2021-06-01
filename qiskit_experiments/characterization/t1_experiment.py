@@ -226,7 +226,7 @@ class T1Experiment(BaseExperiment):
     2. Backend execution: actually running the circuits on the device
     (or simulator).
     3. Analysis of results: deduction of T\ :sub:`1`\ , based on the outcomes,
-    by fitting to en exponential curve.
+    by fitting to an exponential curve.
 
     .. jupyter-execute::
     
