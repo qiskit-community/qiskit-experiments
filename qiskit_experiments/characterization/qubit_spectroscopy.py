@@ -151,12 +151,17 @@ class SpectroscopyAnalysis(BaseAnalysis):
         y_sigmas = np.array([data_processor(datum) for datum in experiment_data.data()])
         min_y, max_y = min(y_sigmas[:, 0]), max(y_sigmas[:, 0])
         ydata = (y_sigmas[:, 0] - min_y) / (max_y - min_y)
-        sigmas = y_sigmas[:, 1] / (max_y - min_y)
-        xdata = np.array([datum["metadata"]["xval"] for datum in experiment_data.data()])
 
-        # Fitting will not work if any sigmas are exactly 0.
-        if any(sigmas == 0.0):
+        # Sigmas may be None and fitting will not work if any sigmas are exactly 0.
+        try:
+            sigmas = y_sigmas[:, 1] / (max_y - min_y)
+            if any(sigmas == 0.0):
+                sigmas = None
+
+        except TypeError:
             sigmas = None
+
+        xdata = np.array([datum["metadata"]["xval"] for datum in experiment_data.data()])
 
         # Set the default options that depend on the y-data.
         if not offset_guess:

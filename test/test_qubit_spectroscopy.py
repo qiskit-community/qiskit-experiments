@@ -44,7 +44,9 @@ class SpectroscopyBackend(IQTestBackend):
         super().__init__(iq_cluster_centers, iq_cluster_width)
 
     # pylint: disable = arguments-differ
-    def run(self, circuits, shots=1024, meas_level=MeasLevel.KERNELED, **options):
+    def run(
+        self, circuits, shots=1024, meas_level=MeasLevel.KERNELED, meas_return="single", **options
+    ):
         """Run the spectroscopy backend."""
 
         result = {
@@ -77,6 +79,10 @@ class SpectroscopyBackend(IQTestBackend):
                 run_result["data"] = {"counts": counts}
             else:
                 memory = [self._draw_iq_shot(prob) for _ in range(shots)]
+
+                if meas_return == "avg":
+                    memory = np.average(np.array(memory), axis=0).tolist()
+
                 run_result["data"] = {"memory": memory}
 
             result["results"].append(run_result)
@@ -137,3 +143,12 @@ class TestQubitSpectroscopy(QiskitTestCase):
         self.assertTrue(result["value"] < 5.1e6)
         self.assertTrue(result["value"] > 4.9e6)
         self.assertEqual(result["quality"], "computer_good")
+        self.assertTrue(result["ydata_err"] is not None)
+
+        spec.set_run_options(meas_return="avg")
+        result = spec.run(backend).analysis_result(0)
+
+        self.assertTrue(result["value"] < 5.1e6)
+        self.assertTrue(result["value"] > 4.9e6)
+        self.assertEqual(result["quality"], "computer_good")
+        self.assertTrue(result["ydata_err"] is None)
