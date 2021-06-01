@@ -21,6 +21,7 @@ from qiskit import QuantumCircuit
 from qiskit.providers import Backend
 from qiskit.quantum_info import Clifford
 from qiskit.providers.options import Options
+from qiskit.circuit import Gate
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from .rb_analysis import RBAnalysis
@@ -137,7 +138,9 @@ class RBExperiment(BaseExperiment):
         circ_op = Clifford(np.eye(2 * self.num_qubits))
 
         for current_length, group_elt_circ in enumerate(elements):
-            group_elt_gate = group_elt_circ.to_gate()
+            group_elt_gate = group_elt_circ
+            if not isinstance(group_elt_gate, Gate):
+                group_elt_gate = group_elt_gate.to_gate()
             circ_op = circ_op.compose(Clifford(group_elt_circ))
             for circ in circs:
                 circ.append(group_elt_gate, qubits)
