@@ -21,12 +21,12 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
 from qiskit.pulse import ScheduleBlock
 import qiskit.pulse as pulse
+from qiskit.providers.options import Options
 
 from qiskit import QuantumCircuit
 from qiskit_experiments import BaseAnalysis, BaseExperiment, ExperimentData, AnalysisResult
 from qiskit_experiments.analysis.curve_fitting import curve_fit
-from qiskit_experiments.data_processing.nodes import Probability, ToReal#, SVD
-from qiskit_experiments.data_processing.data_processor import DataProcessor
+from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
 from qiskit_experiments.analysis import plotting
 
 try:
@@ -48,11 +48,21 @@ class RabiAnalysis(BaseAnalysis):
     The y-values will be normalized to the range 0-1.
     """
 
+    @classmethod
+    def _default_options(cls):
+        return Options(
+            amp_guess=0.5,
+            freq_guess=np.pi,
+            offset_guess=0.5,
+            amp_bounds=(-1, 1),
+            freq_bounds=(0, np.inf),
+            offset_bounds=(0, 1),
+        )
+
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
         data_processor: Optional[Callable] = None,
-        meas_level: Optional[int] = MeasLevel.KERNELED,
         amp_guess: float = 0.5,
         freq_guess: float = np.pi,
         offset_guess: float = 0.5,
@@ -85,16 +95,13 @@ class RabiAnalysis(BaseAnalysis):
             The analysis result with the fit and optional plots.
         """
 
+        meas_level = experiment_data.data(0)["metadata"]["meas_level"]
+        meas_return = experiment_data.data(0)["metadata"]["meas_return"]
+
         # Pick a data processor.
         if data_processor is None:
-            if meas_level == MeasLevel.CLASSIFIED:
-                data_processor = DataProcessor("counts", [Probability("1")])
-            elif meas_level == MeasLevel.KERNELED:
-                #data_processor = DataProcessor("memory", [SVD()])
-                data_processor = DataProcessor("memory", [ToReal()])
-                data_processor.train(experiment_data.data())
-            else:
-                raise ValueError("Unsupported measurement level.")
+            data_processor = get_to_signal_processor(meas_level=meas_level, meas_return=meas_return)
+            data_processor.train(experiment_data.data())
 
         y_sigmas = np.array([data_processor(datum) for datum in experiment_data.data()])
         y_max, y_min = max(y_sigmas[:, 0]), min(y_sigmas[:, 0])
@@ -153,7 +160,13 @@ class Rabi(BaseExperiment):
 
     __analysis_class__ = RabiAnalysis
 
-    __run_defaults__ = {"meas_level": MeasLevel.KERNELED}
+    @classmethod
+    def _default_run_options(cls) -> Options:
+        """Default options values for the experiment :meth:`run` method."""
+        return Options(
+            meas_level=MeasLevel.KERNELED,
+            meas_return="single",
+        )
 
     def __init__(self, qubit: int, amplitudes: Optional[Union[List[float], np.array]] = None):
         """Setup a Rabi experiment on the given qubit.
@@ -214,6 +227,8 @@ class Rabi(BaseExperiment):
                 "unit": "Hz",
                 "amplitude": amp,
                 "schedule": str(schedule),
+                "meas_level": self.run_options.meas_level,
+                "meas_return": self.run_options.meas_return,
             }
 
             if backend:
