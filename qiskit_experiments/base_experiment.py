@@ -79,24 +79,6 @@ class BaseExperiment(ABC):
         # Set initial layout from qubits
         self._transpile_options.initial_layout = list(self._physical_qubits)
 
-    def _metadata(self) -> Dict[str, any]:
-        """Return experiment metadata for ExperimentData.
-
-        The current values of ``experiment_options``, ``transpile_options``,
-        ``run_options``, and ``analysis_options`` will be added to
-        the `"job_options"` dict when ``run`` is called. The job_id string
-        is used as the key in the job options dict.
-        """
-        # Subclasses can override this method if it is necessary to store
-        # additional experiment metadata in ExperimentData.
-        metadata = {
-            "experiment_type": self._type,
-            "num_qubits": self.num_qubits,
-            "physical_qubits": list(self.physical_qubits),
-            "job_options": {},
-        }
-        return metadata
-
     def run(
         self,
         backend: Backend,
@@ -139,12 +121,7 @@ class BaseExperiment(ABC):
         experiment_data.add_data(job)
 
         # Add experiment option metadata
-        experiment_data._metadata["job_options"][job.job_id()] = {
-            "experiment_options": copy.copy(self.experiment_options.__dict__),
-            "transpile_options": copy.copy(self.transpile_options.__dict__),
-            "analysis_options": copy.copy(self.analysis_options.__dict__),
-            "run_options": copy.copy(run_opts),
-        }
+        self._add_job_metadata(experiment_data, job.job_id(), **run_opts)
 
         # Queue analysis of data for when job is finished
         if analysis and self.__analysis_class__ is not None:
@@ -314,3 +291,30 @@ class BaseExperiment(ABC):
             fields: The fields to update the options
         """
         self._analysis_options.update_options(**fields)
+
+    def _metadata(self) -> Dict[str, any]:
+        """Return experiment metadata for ExperimentData.
+
+        The current values of ``experiment_options``, ``transpile_options``,
+        ``run_options``, and ``analysis_options`` will be added to
+        the `"job_options"` dict when ``run`` is called. The job_id string
+        is used as the key in the job options dict.
+        """
+        # Subclasses can override this method if it is necessary to store
+        # additional experiment metadata in ExperimentData.
+        metadata = {
+            "experiment_type": self._type,
+            "num_qubits": self.num_qubits,
+            "physical_qubits": list(self.physical_qubits),
+            "job_metadata": {},
+        }
+        return metadata
+
+    def _add_job_metadata(self, experiment_data, job_id, **run_options):
+        """Add runtime job metadata to ExperimentData"""
+        experiment_data._metadata["job_metadata"][job_id] = {
+            "experiment_options": copy.copy(self.experiment_options.__dict__),
+            "transpile_options": copy.copy(self.transpile_options.__dict__),
+            "analysis_options": copy.copy(self.analysis_options.__dict__),
+            "run_options": copy.copy(run_options),
+        }
