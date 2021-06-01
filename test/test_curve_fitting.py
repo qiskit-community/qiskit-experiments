@@ -17,7 +17,11 @@ from qiskit.test import QiskitTestCase
 from qiskit import QuantumCircuit, execute
 from qiskit.providers.basicaer import QasmSimulatorPy
 from qiskit_experiments.analysis.curve_fitting import curve_fit, multi_curve_fit, process_curve_data
-from qiskit_experiments.analysis.data_processing import level2_probability
+from qiskit_experiments.analysis.data_processing import (
+    level2_probability,
+    mean_xy_data,
+    multi_mean_xy_data,
+)
 
 
 class TestCurveFitting(QiskitTestCase):
@@ -108,3 +112,38 @@ class TestCurveFitting(QiskitTestCase):
             [self.objective0, self.objective1], series, xdata, ydata, p0, sigma=sigma, bounds=bounds
         )
         self.assertTrue(abs(sol["popt"][0] - 0.5) < 0.05)
+
+    def test_mean_xy_data(self):
+        """Test mean_xy_data function"""
+        # pylint: disable=unbalanced-tuple-unpacking
+        x = np.array([1, 1, 1, 2, 2, 2, 2, 3, 3, 4, 5, 5, 5, 5])
+        y = np.array([1, 2, 3, 8, 10, 50, 60, 10, 11, 17, 10, 10, 10, 10])
+        x_mean, y_mean, y_sigma = mean_xy_data(x, y, method="sample")
+
+        expected_x_mean = np.array([1, 2, 3, 4, 5])
+        expected_y_mean = np.array([2, 32, 10.5, 17, 10])
+        expected_y_sigma = np.sqrt(np.array([2 / 3, 542, 1 / 4, 0, 0]))
+        self.assertTrue(np.allclose(expected_x_mean, x_mean))
+        self.assertTrue(np.allclose(expected_y_mean, y_mean))
+        self.assertTrue(np.allclose(expected_y_sigma, y_sigma))
+
+        sigma = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
+        x_mean, y_mean, y_sigma = mean_xy_data(x, y, sigma, method="iwv")
+        expected_y_mean = np.array([1.34693878, 23.31590234, 10.44137931, 17.0, 10.0])
+        expected_y_sigma = np.array([0.85714286, 2.57610543, 5.97927455, 10.0, 6.17470935])
+        self.assertTrue(np.allclose(expected_x_mean, x_mean))
+        self.assertTrue(np.allclose(expected_y_mean, y_mean))
+        self.assertTrue(np.allclose(expected_y_sigma, y_sigma))
+
+        x = np.array([1, 1, 1, 1, 2, 2, 2, 2])
+        y = np.array([2, 6, 100, 200, 17, 50, 60, 70])
+        series = np.array([0, 0, 1, 1, 0, 1, 1, 1])
+        series, x_mean, y_mean, y_sigma = multi_mean_xy_data(series, x, y, method="sample")
+        expected_x_mean = np.array([1, 2, 1, 2])
+        expected_y_mean = np.array([4, 17, 150, 60])
+        expected_y_sigma = np.sqrt(np.array([4.0, 0.0, 2500.0, 66.66666667]))
+        expected_series = np.array([0, 0, 1, 1])
+        self.assertTrue(np.allclose(expected_x_mean, x_mean))
+        self.assertTrue(np.allclose(expected_y_mean, y_mean))
+        self.assertTrue(np.allclose(expected_y_sigma, y_sigma))
+        self.assertTrue(np.allclose(expected_series, series))

@@ -11,5 +11,34 @@
 # that they have been altered from the originals.
 
 """
-Analysis helper functions
+=====================================================
+Analysis Library (:mod:`qiskit_experiments.analysis`)
+=====================================================
+
+.. currentmodule:: qiskit_experiments.analysis
+
+Helper functions for experiment data analysis
+
+
+Curve Fitting
+=============
+.. autosummary::
+    :toctree: ../stubs/
+
+    curve_fit
+    multi_curve_fit
+    process_curve_data
+    process_multi_curve_data
+
+Plotting
+========
+.. autosummary::
+    :toctree: ../stubs/
+
+    plot_curve_fit
+    plot_errorbar
+    plot_scatter
 """
+
+from .curve_fitting import curve_fit, multi_curve_fit, process_curve_data, process_multi_curve_data
+from .plotting import plot_curve_fit, plot_errorbar, plot_scatter
