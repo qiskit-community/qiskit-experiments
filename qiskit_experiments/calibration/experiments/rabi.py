@@ -156,7 +156,20 @@ class RabiAnalysis(BaseAnalysis):
         ax.grid(True)
 
 class Rabi(BaseExperiment):
-    """A calibration experiment that scans the amplitude of a pulse."""
+    """An experiment that scans the amplitude of a pulse to calibrate rotations between 0 and 1.
+
+    The circuits that are run have an RXGate with the pulse schedule attached to it through
+    the calibrations. The circuits are of the form:
+
+    .. parsed-literal::
+
+                   ┌─────────┐ ░ ┌─┐
+              q_0: ┤ RX(amp) ├─░─┤M├
+                   └─────────┘ ░ └╥┘
+        measure: 1/═══════════════╩═
+                                  0
+
+    """
 
     __analysis_class__ = RabiAnalysis
 
@@ -166,6 +179,14 @@ class Rabi(BaseExperiment):
         return Options(
             meas_level=MeasLevel.KERNELED,
             meas_return="single",
+        )
+
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        """Default options values for the experiment :meth:`run` method."""
+        return Options(
+            duration=160,
+            sigma=40,
         )
 
     def __init__(self, qubit: int, amplitudes: Optional[Union[List[float], np.array]] = None):
@@ -204,7 +225,11 @@ class Rabi(BaseExperiment):
             amp = Parameter("amp")
             with pulse.build() as schedule:
                 pulse.play(
-                    pulse.Gaussian(duration=160, amp=amp, sigma=40),
+                    pulse.Gaussian(
+                        duration=self.experiment_options.duration,
+                        amp=amp,
+                        sigma=self.experiment_options.sigma
+                    ),
                     pulse.DriveChannel(self.physical_qubits[0])
                 )
 
@@ -224,7 +249,7 @@ class Rabi(BaseExperiment):
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
                 "xval": amp,
-                "unit": "Hz",
+                "unit": "arb. unit",
                 "amplitude": amp,
                 "schedule": str(schedule),
                 "meas_level": self.run_options.meas_level,
