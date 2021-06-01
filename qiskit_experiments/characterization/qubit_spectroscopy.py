@@ -329,7 +329,7 @@ class QubitSpectroscopy(BaseExperiment):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default options values for the experiment :meth:`run` method."""
+        """Default option values used for the spectroscopy pulse."""
         return Options(
             amp=0.1,
             duration=1024,
