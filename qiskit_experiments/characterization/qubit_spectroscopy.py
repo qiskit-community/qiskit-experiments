@@ -28,7 +28,7 @@ from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments import AnalysisResult
 from qiskit_experiments import ExperimentData
-from qiskit_experiments.data_processing.data_processor import DataProcessor
+from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
 from qiskit_experiments.analysis import plotting
 
 
@@ -145,10 +145,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
 
         # Pick a data processor.
         if data_processor is None:
-            data_processor = DataProcessor.get_processor(
-                meas_level=meas_level, meas_return=meas_return
-            )
-
+            data_processor = get_to_signal_processor(meas_level=meas_level, meas_return=meas_return)
             data_processor.train(experiment_data.data())
 
         y_sigmas = np.array([data_processor(datum) for datum in experiment_data.data()])
