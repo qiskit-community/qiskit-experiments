@@ -20,9 +20,7 @@ from qiskit.providers.options import Options
 from qiskit.exceptions import QiskitError
 
 from qiskit_experiments.experiment_data import ExperimentData, AnalysisResult
-
-# pylint: disable = unused-import
-from qiskit_experiments.matplotlib import pyplot
+from qiskit_experiments.exceptions import AnalysisError
 
 
 class BaseAnalysis(ABC):
@@ -92,7 +90,7 @@ class BaseAnalysis(ABC):
         # pylint: disable=broad-except
         try:
             analysis_results, figures = self._run_analysis(experiment_data, **analysis_options)
-        except Exception as ex:
+        except AnalysisError as ex:
             analysis_results = [AnalysisResult(success=False, error_message=ex)]
             figures = None
 
@@ -113,7 +111,7 @@ class BaseAnalysis(ABC):
     @abstractmethod
     def _run_analysis(
         self, experiment_data: ExperimentData, **options
-    ) -> Tuple[List[AnalysisResult], List["pyplot.Figure"]]:
+    ) -> Tuple[List[AnalysisResult], List["matplotlib.figure.Figure"]]:
         """Run analysis on circuit data.
 
         Args:
@@ -126,5 +124,8 @@ class BaseAnalysis(ABC):
             A pair ``(analysis_results, figures)`` where ``analysis_results``
             may be a single or list of AnalysisResult objects, and ``figures``
             is a list of any figures for the experiment.
+
+        Raises:
+            AnalysisError: if the analysis fails.
         """
         pass
