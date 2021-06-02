@@ -17,7 +17,7 @@ from typing import List, Tuple, Dict, Any, Union
 
 import numpy as np
 
-from qiskit_experiments.analysis import CurveAnalysis, SeriesDef, exponential_decay
+from qiskit_experiments.analysis import CurveAnalysis, SeriesDef, fit_function
 from qiskit_experiments.analysis.data_processing import mean_xy_data
 from qiskit_experiments.experiment_data import AnalysisResult
 
@@ -27,7 +27,7 @@ class RBAnalysis(CurveAnalysis):
 
     __series__ = [
         SeriesDef(
-            fit_func=lambda x, a, alpha, b: exponential_decay(
+            fit_func=lambda x, a, alpha, b: fit_function.exponential_decay(
                 x, amp=a, lamb=-1.0, base=alpha, baseline=b
             ),
             plot_color="blue",

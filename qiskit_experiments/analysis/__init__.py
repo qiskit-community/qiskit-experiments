@@ -44,21 +44,13 @@ Fit Functions
 .. autosummary::
     :toctree: ../stubs/
 
-    cos
-    exponential_decay
-    gaussian
-    sin
+    fit_function.cos
+    fit_function.exponential_decay
+    fit_function.gaussian
+    fit_function.sin
 
 """
 from .curve_analysis import CurveAnalysis, SeriesDef
-
-# fit functions (alphabetical import ordering)
-from .fit_functions import (
-    cos,
-    exponential_decay,
-    gaussian,
-    sin,
-)
 
 from .curve_fitting import curve_fit, multi_curve_fit, process_curve_data, process_multi_curve_data
 from .plotting import plot_curve_fit, plot_errorbar, plot_scatter

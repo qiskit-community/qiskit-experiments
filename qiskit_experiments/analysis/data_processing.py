@@ -14,7 +14,7 @@ Data processing utility functions for curve fitting experiments
 """
 # pylint: disable = invalid-name
 
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Callable
 import numpy as np
 from qiskit.exceptions import QiskitError
 
@@ -159,7 +159,7 @@ def multi_mean_xy_data(
     )
 
 
-def level2_probability(data: Dict[str, any], outcome: str = None) -> Tuple[float, float]:
+def level2_probability(data: Dict[str, any], outcome) -> Tuple[float, float]:
     """Return the outcome probability mean and variance.
 
     Args:
@@ -180,13 +180,17 @@ def level2_probability(data: Dict[str, any], outcome: str = None) -> Tuple[float
     # TODO fix sigma definition
     # When the count is 100% zero (i.e. simulator), this yields sigma=0.
     # This crashes scipy fitter when it calculates covariance matrix (zero-div error).
-
     counts = data["counts"]
-
-    if outcome is None:
-        outcome = "1" * len(list(counts.keys())[0])
 
     shots = sum(counts.values())
     p_mean = counts.get(outcome, 0.0) / shots
     p_var = p_mean * (1 - p_mean) / shots
     return p_mean, p_var
+
+
+def probability(outcome: str) -> Callable:
+    """Return probability data processor callback used by the analysis classes."""
+    def data_processor(data):
+        return level2_probability(data, outcome)
+
+    return data_processor

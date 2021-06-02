@@ -16,7 +16,6 @@ Analysis class for curve fitting.
 # pylint: disable=invalid-name
 
 import dataclasses
-import functools
 import inspect
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
@@ -26,7 +25,7 @@ from qiskit.providers.options import Options
 
 from qiskit_experiments.analysis import plotting
 from qiskit_experiments.analysis.curve_fitting import multi_curve_fit
-from qiskit_experiments.analysis.data_processing import level2_probability
+from qiskit_experiments.analysis.data_processing import probability
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
@@ -186,24 +185,56 @@ class CurveAnalysis(BaseAnalysis):
         """Return default data processing options.
 
         Options:
-            base_fitter: A callback function to perform fitting with formatted data.
+            curve_fitter: A callback function to perform fitting with formatted data.
+                This function should have signature:
+
+                .. code-block::
+
+                    def curve_fitter(
+                        funcs: List[Callable],
+                        series: ndarray,
+                        xdata: ndarray,
+                        ydata: ndarray,
+                        p0: ndarray,
+                        sigma: Optional[ndarray],
+                        weights: Optional[ndarray],
+                        bounds: Optional[
+                            Union[Dict[str, Tuple[float, float]], Tuple[ndarray, ndarray]]
+                        ],
+                    ) -> AnalysisResult:
+
+                See :func:`~qiskit_experiment.analysis.multi_curve_fit` for example.
             data_processor: A callback function to format experiment data.
+                This function should have signature:
+
+                .. code-block::
+
+                    def data_processor(data: Dict[str, Any]) -> Tuple[float, float]
+
+                This can be a :class:`~qiskit_experiment.data_processing.DataProcessor`
+                instance that defines the `self.__call__` method.
+            p0: Array-like or dictionary of initial parameters.
+            bounds: Array-like or dictionary of (min, max) tuple of fit parameter boundaries.
             x_key: Circuit metadata key representing a scanned value.
             plot: Set ``True`` to create figure for fit result.
             ax: Optional. A matplotlib axis object to draw.
             xlabel: X label of fit result figure.
             ylabel: Y label of fit result figure.
             fit_reports: Mapping of fit parameters and representation in the fit report.
+            return_data_points: Set ``True`` to return formatted XY data.
         """
         return Options(
-            base_fitter=multi_curve_fit,
-            data_processor=level2_probability,
+            curve_fitter=multi_curve_fit,
+            data_processor=probability(outcome="1"),
+            p0=None,
+            bounds=None,
             x_key="xval",
             plot=True,
             ax=None,
             xlabel="x value",
             ylabel="y value",
             fit_reports=None,
+            return_data_points=False,
         )
 
     def _create_figures(
@@ -270,6 +301,7 @@ class CurveAnalysis(BaseAnalysis):
                     marker=series_def.plot_symbol,
                     color=series_def.plot_color,
                     zorder=1,
+                    linestyle="",
                 )
 
                 # plot fit curve
@@ -582,6 +614,7 @@ class CurveAnalysis(BaseAnalysis):
         xlabel = options.pop("xlabel")
         ylabel = options.pop("ylabel")
         fit_reports = options.pop("fit_reports")
+        return_data_points = options.pop("return_data_points")
 
         #
         # 1. Setup data processor
@@ -595,14 +628,6 @@ class CurveAnalysis(BaseAnalysis):
                 analysis_result["success"] = False
                 return [analysis_result], list()
 
-        # get data processor options from analysis options
-        processor_options = {
-            key: options[key]
-            for key in inspect.signature(data_processor).parameters.keys()
-            if key in options
-        }
-        configured_data_processor = functools.partial(data_processor, **processor_options)
-
         #
         # 2. Extract curve entries from experiment data
         #
@@ -611,7 +636,7 @@ class CurveAnalysis(BaseAnalysis):
             xdata, ydata, sigma, series = self._extract_curves(
                 x_key=x_key,
                 experiment_data=experiment_data,
-                data_processor=configured_data_processor,
+                data_processor=data_processor,
             )
         except Exception as ex:
             analysis_result["error_message"] = str(ex)
@@ -693,16 +718,21 @@ class CurveAnalysis(BaseAnalysis):
         #
         # 6. Save raw data
         #
-        raw_data_dict = dict()
-        for series_def in self.__series__:
-            sub_xdata, sub_ydata, sub_sigma = self._subset_data(
-                name=series_def.name, x_values=xdata, y_values=ydata, y_sigmas=sigma, series=series
-            )
-            raw_data_dict[series_def.name] = {
-                "xdata": sub_xdata,
-                "ydata": sub_ydata,
-                "sigma": sub_sigma,
-            }
-        analysis_result["raw_data"] = raw_data_dict
+        if return_data_points:
+            raw_data_dict = dict()
+            for series_def in self.__series__:
+                sub_xdata, sub_ydata, sub_sigma = self._subset_data(
+                    name=series_def.name,
+                    x_values=xdata,
+                    y_values=ydata,
+                    y_sigmas=sigma,
+                    series=series
+                )
+                raw_data_dict[series_def.name] = {
+                    "xdata": sub_xdata,
+                    "ydata": sub_ydata,
+                    "sigma": sub_sigma,
+                }
+            analysis_result["raw_data"] = raw_data_dict
 
         return [analysis_result], figures

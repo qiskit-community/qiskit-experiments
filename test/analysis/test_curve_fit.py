@@ -19,7 +19,7 @@ import numpy as np
 from qiskit.test import QiskitTestCase
 
 from qiskit_experiments import ExperimentData
-from qiskit_experiments.analysis import CurveAnalysis, SeriesDef, fit_functions
+from qiskit_experiments.analysis import CurveAnalysis, SeriesDef, fit_function
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.analysis.curve_fitting import multi_curve_fit
@@ -92,21 +92,21 @@ class TestCurveAnalysisUnit(QiskitTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    fit_func=lambda x, p0, p1, p2, p3, p4: fit_functions.exponential_decay(
+                    fit_func=lambda x, p0, p1, p2, p3, p4: fit_function.exponential_decay(
                         x, amp=p0, lamb=p1, baseline=p4
                     ),
                     filter_kwargs={"type": 1, "valid": True},
                 ),
                 SeriesDef(
                     name="curve2",
-                    fit_func=lambda x, p0, p1, p2, p3, p4: fit_functions.exponential_decay(
+                    fit_func=lambda x, p0, p1, p2, p3, p4: fit_function.exponential_decay(
                         x, amp=p0, lamb=p2, baseline=p4
                     ),
                     filter_kwargs={"type": 2, "valid": True},
                 ),
                 SeriesDef(
                     name="curve3",
-                    fit_func=lambda x, p0, p1, p2, p3, p4: fit_functions.exponential_decay(
+                    fit_func=lambda x, p0, p1, p2, p3, p4: fit_function.exponential_decay(
                         x, amp=p0, lamb=p3, baseline=p4
                     ),
                     filter_kwargs={"type": 3, "valid": True},
@@ -119,7 +119,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         """Test data extraction method."""
         # data to analyze
         test_data0 = simulate_output_data(
-            func=fit_functions.exponential_decay,
+            func=fit_function.exponential_decay,
             xvals=self.xvalues,
             param_dict={"amp": 1.0},
             type=1,
@@ -128,7 +128,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
 
         # fake data
         test_data1 = simulate_output_data(
-            func=fit_functions.exponential_decay,
+            func=fit_function.exponential_decay,
             xvals=self.xvalues,
             param_dict={"amp": 0.5},
             type=2,
@@ -152,8 +152,8 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         # check y values
         ref_y = np.concatenate(
             (
-                fit_functions.exponential_decay(self.xvalues, amp=1.0),
-                fit_functions.exponential_decay(self.xvalues, amp=0.5),
+                fit_function.exponential_decay(self.xvalues, amp=1.0),
+                fit_function.exponential_decay(self.xvalues, amp=0.5),
             )
         )
         np.testing.assert_array_almost_equal(ydata, ref_y, decimal=self.err_decimal)
@@ -220,7 +220,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    fit_func=lambda x, p0, p1, p2, p3: fit_functions.exponential_decay(
+                    fit_func=lambda x, p0, p1, p2, p3: fit_function.exponential_decay(
                         x, amp=p0, lamb=p1, x0=p2, baseline=p3
                     ),
                 )
@@ -232,7 +232,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         ref_p3 = 0.1
 
         test_data = simulate_output_data(
-            func=fit_functions.exponential_decay,
+            func=fit_function.exponential_decay,
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "lamb": ref_p1, "x0": ref_p2, "baseline": ref_p3},
         )
@@ -266,7 +266,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    fit_func=lambda x, p0, p1, p2, p3: fit_functions.exponential_decay(
+                    fit_func=lambda x, p0, p1, p2, p3: fit_function.exponential_decay(
                         x, amp=p0, lamb=p1, x0=p2, baseline=p3
                     ),
                 )
@@ -278,7 +278,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         ref_p3 = 0.1
 
         test_data = simulate_output_data(
-            func=fit_functions.exponential_decay,
+            func=fit_function.exponential_decay,
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "lamb": ref_p1, "x0": ref_p2, "baseline": ref_p3},
         )
@@ -310,14 +310,14 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    fit_func=lambda x, p0, p1, p2, p3, p4: fit_functions.exponential_decay(
+                    fit_func=lambda x, p0, p1, p2, p3, p4: fit_function.exponential_decay(
                         x, amp=p0, lamb=p1, x0=p3, baseline=p4
                     ),
                     filter_kwargs={"exp": 0},
                 ),
                 SeriesDef(
                     name="curve1",
-                    fit_func=lambda x, p0, p1, p2, p3, p4: fit_functions.exponential_decay(
+                    fit_func=lambda x, p0, p1, p2, p3, p4: fit_function.exponential_decay(
                         x, amp=p0, lamb=p2, x0=p3, baseline=p4
                     ),
                     filter_kwargs={"exp": 1},
@@ -331,14 +331,14 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         ref_p4 = 0.1
 
         test_data0 = simulate_output_data(
-            func=fit_functions.exponential_decay,
+            func=fit_function.exponential_decay,
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "lamb": ref_p1, "x0": ref_p3, "baseline": ref_p4},
             exp=0,
         )
 
         test_data1 = simulate_output_data(
-            func=fit_functions.exponential_decay,
+            func=fit_function.exponential_decay,
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "lamb": ref_p2, "x0": ref_p3, "baseline": ref_p4},
             exp=1,
@@ -374,14 +374,14 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             series=[
                 SeriesDef(
                     name="curve1",
-                    fit_func=lambda x, p0, p1, p2, p3: fit_functions.cos(
+                    fit_func=lambda x, p0, p1, p2, p3: fit_function.cos(
                         x, amp=p0, freq=p1, phase=p2, baseline=p3
                     ),
                     filter_kwargs={"exp": 0},
                 ),
                 SeriesDef(
                     name="curve2",
-                    fit_func=lambda x, p0, p1, p2, p3: fit_functions.sin(
+                    fit_func=lambda x, p0, p1, p2, p3: fit_function.sin(
                         x, amp=p0, freq=p1, phase=p2, baseline=p3
                     ),
                     filter_kwargs={"exp": 1},
@@ -394,14 +394,14 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         ref_p3 = 0.5
 
         test_data0 = simulate_output_data(
-            func=fit_functions.cos,
+            func=fit_function.cos,
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "freq": ref_p1, "phase": ref_p2, "baseline": ref_p3},
             exp=0,
         )
 
         test_data1 = simulate_output_data(
-            func=fit_functions.sin,
+            func=fit_function.sin,
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "freq": ref_p1, "phase": ref_p2, "baseline": ref_p3},
             exp=1,

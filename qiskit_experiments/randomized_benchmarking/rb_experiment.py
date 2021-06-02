@@ -23,6 +23,7 @@ from qiskit.quantum_info import Clifford
 from qiskit.providers.options import Options
 
 from qiskit_experiments.base_experiment import BaseExperiment
+from qiskit_experiments.analysis.data_processing import probability
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
 
@@ -65,7 +66,10 @@ class RBExperiment(BaseExperiment):
 
         # Set configurable options
         self.set_experiment_options(lengths=list(lengths), num_samples=num_samples)
-        self.set_analysis_options(outcome="0" * self.num_qubits, num_qubits=self.num_qubits)
+        self.set_analysis_options(
+            data_processor=probability(outcome="0" * self.num_qubits),
+            num_qubits=self.num_qubits,
+        )
 
         # Set fixed options
         self._full_sampling = full_sampling

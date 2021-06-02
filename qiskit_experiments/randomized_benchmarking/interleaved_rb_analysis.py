@@ -16,7 +16,7 @@ from typing import List, Tuple, Dict, Any, Union
 
 import numpy as np
 
-from qiskit_experiments.analysis import SeriesDef, exponential_decay
+from qiskit_experiments.analysis import SeriesDef, fit_function
 from qiskit_experiments.analysis.data_processing import (
     multi_mean_xy_data,
 )
@@ -43,7 +43,7 @@ class InterleavedRBAnalysis(RBAnalysis):
     __series__ = [
         SeriesDef(
             name="Standard",
-            fit_func=lambda x, a, alpha, alpha_c, b: exponential_decay(
+            fit_func=lambda x, a, alpha, alpha_c, b: fit_function.exponential_decay(
                 x, amp=a, lamb=-1.0, base=alpha, baseline=b
             ),
             plot_color="red",
@@ -51,7 +51,7 @@ class InterleavedRBAnalysis(RBAnalysis):
         ),
         SeriesDef(
             name="Interleaved",
-            fit_func=lambda x, a, alpha, alpha_c, b: exponential_decay(
+            fit_func=lambda x, a, alpha, alpha_c, b: fit_function.exponential_decay(
                 x, amp=a, lamb=-1.0, base=alpha * alpha_c, baseline=b
             ),
             plot_color="orange",

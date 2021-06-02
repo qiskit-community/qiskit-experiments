@@ -32,6 +32,15 @@ LOG = logging.getLogger(__name__)
 
 class AnalysisResult(dict):
     """Placeholder class"""
+    __keys_not_shown__ = "pcov", "raw_data"
+
+    def __str__(self):
+        out = ""
+        for key, value in self.items():
+            if key in self.__keys_not_shown__:
+                continue
+            out += f"\n- {key}: {value}"
+        return out
 
 
 class ExperimentData:
@@ -363,8 +372,5 @@ class ExperimentData:
         ret += "\n" + line
         if n_res:
             ret += "\nLast Analysis Result"
-            for key, value in self._analysis_results[-1].items():
-                if key in ("raw_data", "pcov"):
-                    continue
-                ret += f"\n- {key}: {value}"
+            ret += str(self._analysis_results[-1])
         return ret
