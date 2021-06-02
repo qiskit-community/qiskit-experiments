@@ -26,7 +26,7 @@ from qiskit.providers.experiment import ExperimentDataV1
 from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T1Experiment, T1Analysis
 
-from .utils import FakeJob
+from test.utils import FakeJob
 
 
 class T1Backend(BaseBackend):
