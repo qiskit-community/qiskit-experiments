@@ -74,7 +74,7 @@ class SpectroscopyBackend(IQTestBackend):
                 counts = {"1": 0, "0": 0}
 
                 for _ in range(shots):
-                    counts[str(np.random.binomial(1, prob))] += 1
+                    counts[str(self._rng.binomial(1, prob))] += 1
 
                 run_result["data"] = {"counts": counts}
             else:
@@ -92,11 +92,6 @@ class SpectroscopyBackend(IQTestBackend):
 
 class TestQubitSpectroscopy(QiskitTestCase):
     """Test spectroscopy experiment."""
-
-    def setUp(self):
-        """Setup."""
-        super().setUp()
-        np.random.seed(seed=10)
 
     def test_spectroscopy_end2end_classified(self):
         """End to end test of the spectroscopy experiment."""

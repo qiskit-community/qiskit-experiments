@@ -73,6 +73,8 @@ class IQTestBackend(Backend):
         self._iq_cluster_centers = iq_cluster_centers
         self._iq_cluster_width = iq_cluster_width
 
+        self._rng = np.random.default_rng(0)
+
         super().__init__(QasmBackendConfiguration(**self.__configuration__))
 
     def _default_options(self):
@@ -81,10 +83,10 @@ class IQTestBackend(Backend):
     def _draw_iq_shot(self, prob) -> List[List[float]]:
         """Produce an IQ shot."""
 
-        rand_i = np.random.normal(0, self._iq_cluster_width)
-        rand_q = np.random.normal(0, self._iq_cluster_width)
+        rand_i = self._rng.normal(0, self._iq_cluster_width)
+        rand_q = self._rng.normal(0, self._iq_cluster_width)
 
-        if np.random.binomial(1, prob) > 0.5:
+        if self._rng.binomial(1, prob) > 0.5:
             return [[self._iq_cluster_centers[0] + rand_i, self._iq_cluster_centers[1] + rand_q]]
         else:
             return [[self._iq_cluster_centers[2] + rand_i, self._iq_cluster_centers[3] + rand_q]]
