@@ -153,8 +153,8 @@ class TestRabiEndToEnd(QiskitTestCase):
 
         backend = RabiBackend()
 
-        spec = Rabi(3, np.linspace(-0.95, 0.95, 21))
-        result = spec.run(backend, amp=0.05, shots=10).analysis_result(0)
+        rabi = Rabi(3, np.linspace(-0.95, 0.95, 21))
+        result = rabi.run(backend).analysis_result(0)
 
         self.assertEqual(result["quality"], "computer_good")
 
@@ -186,7 +186,8 @@ class TestRabiAnalysis(QiskitTestCase):
         ]
         return data
 
-    def _add_uncertainty(self, counts):
+    @staticmethod
+    def _add_uncertainty(counts):
         """Ensure that we always have a non-zero sigma in the test."""
         for label in ["0", "1"]:
             if label not in counts:
@@ -198,30 +199,26 @@ class TestRabiAnalysis(QiskitTestCase):
         """Test the Rabi analysis."""
         experiment_data = ExperimentData()
 
-        thetas = np.linspace(-1.5 * np.pi, 1.5 * np.pi, 51)
-        amplitudes = np.linspace(-0.95, 0.95, 51)
+        thetas = np.linspace(-np.pi, np.pi, 31)
+        amplitudes = np.linspace(-np.pi/4, np.pi/4, 31)
 
-        for shots in [10, 1024]:
-            data = self.simulate_experiment_data(thetas, amplitudes, shots=shots)
-            experiment_data.add_data(data)
+        experiment_data.add_data(self.simulate_experiment_data(thetas, amplitudes, shots=400))
 
-            rabi_analysis = RabiAnalysis()
+        data_processor = DataProcessor("counts", [Probability(outcome="1")])
 
-            data_processor = DataProcessor("counts", [Probability(outcome="1")])
+        result = RabiAnalysis().run(experiment_data, data_processor=data_processor, plot=False)
 
-            result = rabi_analysis.run(experiment_data, data_processor=data_processor, plot=False)
-
-            self.assertEqual(result["quality"], "computer_good")
+        self.assertEqual(result["quality"], "computer_good")
+        self.assertTrue(3.9 < result["value"] < 4.1)
 
     def test_bad_analysis(self):
         """Test the Rabi analysis."""
         experiment_data = ExperimentData()
 
-        thetas = np.linspace(0.0, 0.2, 51)
-        amplitudes = np.linspace(0.0, 0.2, 51)
+        thetas = np.linspace(0.0, np.pi/4, 31)
+        amplitudes = np.linspace(0.0, 0.95, 31)
 
-        shots = 200
-        experiment_data.add_data(self.simulate_experiment_data(thetas, amplitudes, shots=shots))
+        experiment_data.add_data(self.simulate_experiment_data(thetas, amplitudes, shots=200))
 
         data_processor = DataProcessor("counts", [Probability(outcome="1")])
 

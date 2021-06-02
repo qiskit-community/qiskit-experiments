@@ -122,17 +122,18 @@ class RabiAnalysis(BaseAnalysis):
 
         init = {"a": amp_guess, "b": freq_guess, "c": offset_guess}
         bounds = {"a": amp_bounds, "b": freq_bounds, "c": offset_bounds}
-        fit_result = curve_fit(fit_fun, xdata, ydata, init, sigmas=sigmas, bounds=bounds)
+        fit_result = curve_fit(fit_fun, xdata, ydata, init, sigma=sigmas, bounds=bounds)
 
-        fit_result["value"] = fit_result["popt"][2]
-        fit_result["stderr"] = (fit_result["popt_err"][2],)
+        fit_result["value"] = fit_result["popt"][1]
+        fit_result["stderr"] = (fit_result["popt_err"][1],)
         fit_result["label"] = "Spectroscopy"
         fit_result["xdata"] = xdata
         fit_result["ydata"] = ydata
         fit_result["ydata_err"] = sigmas
         fit_result["quality"] = self._fit_quality(
             fit_result["popt"][1],
-            fit_result["reduced_chisq"]
+            fit_result["reduced_chisq"],
+            fit_result["popt_err"][1]
         )
 
         if plot and HAS_MATPLOTLIB:
@@ -146,10 +147,21 @@ class RabiAnalysis(BaseAnalysis):
         return fit_result, figures
 
     @staticmethod
-    def _fit_quality(fit_freq: float, reduced_chisq: float):
-        """Method to check the quality of the fit."""
+    def _fit_quality(fit_freq: float, reduced_chisq: float, fit_freq_err: float):
+        """Method to check the quality of the fit.
 
-        if reduced_chisq < 5 and fit_freq > np.pi:
+        A good fit has:
+            - Have a reduced chi-squared lower than three.
+            - More than a quarter of a full period.
+            - Less than 10 full periods.
+            - An error on the fit frequency lower than the fit frequency.
+        """
+
+        if (
+            reduced_chisq < 3
+            and np.pi/2 < fit_freq < 10*2*np.pi
+            and (fit_freq_err is None or (fit_freq_err < fit_freq))
+        ):
             return "computer_good"
 
         return "computer_bad"
