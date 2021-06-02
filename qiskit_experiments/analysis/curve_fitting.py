@@ -19,8 +19,25 @@ from typing import List, Dict, Tuple, Callable, Optional, Union
 import numpy as np
 import scipy.optimize as opt
 from qiskit.exceptions import QiskitError
-from qiskit_experiments.base_analysis import AnalysisResult
+from qiskit_experiments import AnalysisResult
 from qiskit_experiments.analysis.data_processing import filter_data
+
+
+class CurveAnalysisResult(AnalysisResult):
+    __keys_not_shown__ = "pcov", "raw_data", "popt", "popt_keys", "popt_err"
+
+    def __str__(self):
+        out = ""
+
+        popt_keys = self.get("popt_keys")
+        popt = self.get("popt")
+        popt_err = self.get("popt_err")
+
+        for key, value, error in zip(popt_keys, popt, popt_err):
+            out += f"\n- {key}: {value} \u00B1 {error}"
+        out += super().__str__()
+
+        return out
 
 
 def curve_fit(
@@ -31,7 +48,7 @@ def curve_fit(
     sigma: Optional[np.ndarray] = None,
     bounds: Optional[Union[Dict[str, Tuple[float, float]], Tuple[np.ndarray, np.ndarray]]] = None,
     **kwargs,
-) -> AnalysisResult:
+) -> CurveAnalysisResult:
     r"""Perform a non-linear least squares to fit
 
     This solves the optimization problem
@@ -139,7 +156,7 @@ def curve_fit(
         "xrange": xdata_range,
     }
 
-    return AnalysisResult(result)
+    return CurveAnalysisResult(result)
 
 
 def multi_curve_fit(
@@ -152,7 +169,7 @@ def multi_curve_fit(
     weights: Optional[np.ndarray] = None,
     bounds: Optional[Union[Dict[str, Tuple[float, float]], Tuple[np.ndarray, np.ndarray]]] = None,
     **kwargs,
-) -> AnalysisResult:
+) -> CurveAnalysisResult:
     r"""Perform a linearized multi-objective non-linear least squares fit.
 
     This solves the optimization problem

@@ -37,7 +37,6 @@ class RBAnalysis(CurveAnalysis):
     @classmethod
     def _default_options(cls):
         default_options = super()._default_options()
-        default_options.p0 = None
         default_options.xlabel = "Clifford Length"
         default_options.ylabel = "P(0)"
         default_options.fit_reports = {"alpha": "\u03B1", "EPC": "EPC"}

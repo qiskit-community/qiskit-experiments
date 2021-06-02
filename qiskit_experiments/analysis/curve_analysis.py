@@ -24,7 +24,7 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers.options import Options
 
 from qiskit_experiments.analysis import plotting
-from qiskit_experiments.analysis.curve_fitting import multi_curve_fit
+from qiskit_experiments.analysis.curve_fitting import multi_curve_fit, CurveAnalysisResult
 from qiskit_experiments.analysis.data_processing import probability
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.data_processing import DataProcessor
@@ -201,7 +201,7 @@ class CurveAnalysis(BaseAnalysis):
                         bounds: Optional[
                             Union[Dict[str, Tuple[float, float]], Tuple[ndarray, ndarray]]
                         ],
-                    ) -> AnalysisResult:
+                    ) -> CurveAnalysisResult:
 
                 See :func:`~qiskit_experiment.analysis.multi_curve_fit` for example.
             data_processor: A callback function to format experiment data.
@@ -243,7 +243,7 @@ class CurveAnalysis(BaseAnalysis):
         y_values: np.ndarray,
         y_sigmas: np.ndarray,
         series: np.ndarray,
-        analysis_results: AnalysisResult,
+        analysis_results: CurveAnalysisResult,
         axis: Optional["AxisSubplot"] = None,
         xlabel: str = "x value",
         ylabel: str = "y value",
@@ -415,7 +415,9 @@ class CurveAnalysis(BaseAnalysis):
         """
         return x_values, y_values, y_sigmas, series
 
-    def _post_processing(self, analysis_result: AnalysisResult, **options) -> AnalysisResult:
+    def _post_processing(
+            self, analysis_result: CurveAnalysisResult, **options
+    ) -> CurveAnalysisResult:
         """Calculate new quantity from the fit result.
 
         Subclasses can override this method to do post analysis.
@@ -425,7 +427,7 @@ class CurveAnalysis(BaseAnalysis):
             options: Analysis options.
 
         Returns:
-            New AnalysisResult instance containing the result of post analysis.
+            New CurveAnalysisResult instance containing the result of post analysis.
         """
         return analysis_result
 
@@ -603,10 +605,10 @@ class CurveAnalysis(BaseAnalysis):
                    AnalysisResult objects, and ``figures`` is a list of any
                    figures for the experiment.
         """
-        analysis_result = AnalysisResult()
+        analysis_result = CurveAnalysisResult()
 
         # pop arguments that are not given to fitter
-        base_fitter = options.pop("base_fitter")
+        curve_fitter = options.pop("curve_fitter")
         data_processor = options.pop("data_processor")
         x_key = options.pop("x_key")
         plot = options.pop("plot")
@@ -652,13 +654,12 @@ class CurveAnalysis(BaseAnalysis):
             _xdata, _ydata, _sigma, _series = self._pre_processing(
                 x_values=xdata, y_values=ydata, y_sigmas=sigma, series=series, **options
             )
-
             # Generate fit options
             fit_candidates = self._setup_fitting(_xdata, _ydata, _sigma, _series, **options)
             if isinstance(fit_candidates, dict):
                 # only single initial guess
                 fit_options = self._format_fit_options(**fit_candidates)
-                fit_result = base_fitter(
+                fit_result = curve_fitter(
                     funcs=[series_def.fit_func for series_def in self.__series__],
                     series=_series,
                     xdata=_xdata,
@@ -673,7 +674,7 @@ class CurveAnalysis(BaseAnalysis):
                     self._format_fit_options(**fit_options) for fit_options in fit_candidates
                 ]
                 fit_results = [
-                    base_fitter(
+                    curve_fitter(
                         funcs=[series_def.fit_func for series_def in self.__series__],
                         series=_series,
                         xdata=_xdata,
