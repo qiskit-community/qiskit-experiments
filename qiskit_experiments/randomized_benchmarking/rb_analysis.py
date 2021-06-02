@@ -52,16 +52,21 @@ class RBAnalysis(BaseAnalysis):
         ax: Optional["plotting.pyplot.AxesSubplot"] = None,
     ):
         """Run analysis on circuit data.
+
         Args:
             experiment_data: the experiment data to analyze.
             p0: Optional, initial parameter values for curve_fit.
             plot: If True generate a plot of fitted data.
             ax: Optional, matplotlib axis to add plot to.
+
         Returns:
             tuple: A pair ``(analysis_result, figures)`` where
                    ``analysis_results`` may be a single or list of
                    AnalysisResult objects, and ``figures`` may be
                    None, a single figure, or a list of figures.
+
+        Raises:
+            AnalysisError: if the analysis fails.
         """
         data = experiment_data.data()
         num_qubits = len(data[0]["metadata"]["qubits"])
