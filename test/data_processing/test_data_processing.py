@@ -16,6 +16,7 @@
 
 from test.data_processing.fake_experiment import FakeExperiment, BaseDataProcessorTest
 import numpy as np
+import unittest
 from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit.result import Result
 
@@ -93,6 +94,7 @@ class DataProcessorTest(BaseDataProcessorTest):
                 [[3016514.0, -14548009.0], [-3404756.0, -16743348.0]],
             ],
             "metadata": {"experiment_type": "fake_test_experiment"},
+            "job_id": "job-123",
         }
 
         expected_new = np.array([[1103.26, 2959.012], [442.17, -5279.41], [3016.514, -3404.7560]])
@@ -127,6 +129,7 @@ class DataProcessorTest(BaseDataProcessorTest):
                 [[3016514.0, -14548009.0], [-3404756.0, -16743348.0]],
             ],
             "metadata": {"experiment_type": "fake_test_experiment"},
+            "job_id": "job-123",
         }
 
         expected_new = np.array(
@@ -384,3 +387,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
         expected_std = np.array([np.std([1, 1, 1, -1, 1, 1, 1, -1]) / np.sqrt(8.0)] * 2)
         self.assertTrue(np.allclose(processed, np.array([0.5, -0.5]) / np.sqrt(2.0)))
         self.assertTrue(np.allclose(error, expected_std))
+
+
+if __name__ == "__main__":
+    unittest.main()
