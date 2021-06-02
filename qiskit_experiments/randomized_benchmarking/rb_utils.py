@@ -18,15 +18,27 @@ RB Helper functions
 
 from typing import List, Union, Dict, Optional
 from warnings import warn
-
+from collections import OrderedDict
 import numpy as np
 from qiskit import QuantumCircuit, QiskitError
 from qiskit.qobj import QasmQobj
 
 class RBUtils():
     @staticmethod
+    def count_ops(circuit, qubits=None):
+        if qubits is None:
+            qubits = range(len(circuit.qubits))
+        count_ops_per_qubit = {qubit: {} for qubit in circuit.qubits}
+        for instr, qargs, _ in circuit._data:
+            for qubit in qargs:
+                count_ops_per_qubit[qubit][instr.name] = count_ops_per_qubit[qubit].get(instr.name, 0) + 1
+        result = {circuit.qubits.index(qubit): OrderedDict(sorted(count_ops.items(), key=lambda kv: kv[1], reverse=True))
+                for qubit, count_ops in count_ops_per_qubit.items() if circuit.qubits.index(qubit) in qubits}
+        return result
+
+    @staticmethod
     def gates_per_clifford(
-            transpiled_circuits_list: Union[List[List[QuantumCircuit]], List[QasmQobj]],
+            ops_count,
             clifford_lengths: Union[np.ndarray, List[int]],
             basis: List[str],
             qubits: List[int]) -> Dict[int, Dict[str, float]]:

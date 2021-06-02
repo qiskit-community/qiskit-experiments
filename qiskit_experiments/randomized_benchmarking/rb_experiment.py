@@ -26,7 +26,7 @@ from qiskit.circuit import Gate
 from qiskit_experiments.base_experiment import BaseExperiment
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
-
+from .rb_utils import RBUtils
 
 class RBExperiment(BaseExperiment):
     """RB Experiment class.
@@ -164,4 +164,4 @@ class RBExperiment(BaseExperiment):
 
     def _postprocess_transpiled_circuits(self, circuits):
         for c in circuits:
-            c.metadata['ops_count'] = c.count_ops()
+            c.metadata['ops_count'] = RBUtils.count_ops(c,self.physical_qubits)
