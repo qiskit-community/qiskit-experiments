@@ -91,6 +91,9 @@ class T1Analysis(BaseAnalysis):
 
         Returns:
             The analysis result with the estimated T1
+
+        Raises:
+            AnalysisError: if the analysis fails.
         """
         data = experiment_data.data()
         unit = data[0]["metadata"]["unit"]

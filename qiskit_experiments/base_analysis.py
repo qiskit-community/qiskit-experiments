@@ -17,7 +17,6 @@ from abc import ABC, abstractmethod
 from typing import List, Tuple
 
 from qiskit.providers.options import Options
-from qiskit.exceptions import QiskitError
 from qiskit.providers.experiment import AnalysisResultV1
 
 from .experiment_data import ExperimentData
@@ -120,5 +119,8 @@ class BaseAnalysis(ABC):
             A pair ``(analysis_results, figures)`` where ``analysis_results``
             may be a single or list of AnalysisResultV1 objects, and ``figures``
             is a list of any figures for the experiment.
+
+        Raises:
+            AnalysisError: if the analysis fails.
         """
         pass
