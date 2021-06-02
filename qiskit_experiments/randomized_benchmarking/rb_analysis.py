@@ -18,7 +18,7 @@ from typing import List, Tuple, Dict, Any, Union
 import numpy as np
 
 from qiskit_experiments.analysis import CurveAnalysis, SeriesDef, fit_function
-from qiskit_experiments.analysis.data_processing import mean_xy_data
+from qiskit_experiments.analysis.data_processing import multi_mean_xy_data
 from qiskit_experiments.experiment_data import AnalysisResult
 
 
@@ -45,10 +45,10 @@ class RBAnalysis(CurveAnalysis):
 
     def _setup_fitting(
         self,
+        series: np.ndarray,
         x_values: np.ndarray,
         y_values: np.ndarray,
         y_sigmas: np.ndarray,
-        series: np.ndarray,
         **options,
     ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
@@ -79,15 +79,16 @@ class RBAnalysis(CurveAnalysis):
 
     def _pre_processing(
         self,
+        series: np.ndarray,
         x_values: np.ndarray,
         y_values: np.ndarray,
         y_sigmas: np.ndarray,
-        series: np.ndarray,
         **options,
     ) -> Tuple[np.ndarray, ...]:
         """Average over the same x values."""
-        xdata, ydata, sigma = mean_xy_data(x_values, y_values, y_sigmas, method="sample")
-        return xdata, ydata, sigma, np.zeros(len(xdata))
+        return multi_mean_xy_data(
+            series=series, xdata=x_values, ydata=y_values, sigma=y_sigmas, method="sample"
+        )
 
     def _post_processing(self, analysis_result: AnalysisResult, **options) -> AnalysisResult:
         """Calculate EPC."""

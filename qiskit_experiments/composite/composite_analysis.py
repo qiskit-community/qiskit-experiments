@@ -77,4 +77,4 @@ class CompositeAnalysis(BaseAnalysis):
                 "experiment_qubits": sub_qubits,
             }
         )
-        return analysis_result, None
+        return [analysis_result], None

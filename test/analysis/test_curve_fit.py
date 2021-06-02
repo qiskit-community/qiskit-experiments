@@ -21,7 +21,7 @@ from qiskit.test import QiskitTestCase
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.analysis import CurveAnalysis, SeriesDef, fit_function
 from qiskit_experiments.analysis.curve_fitting import multi_curve_fit
-from qiskit_experiments.analysis.data_processing import level2_probability
+from qiskit_experiments.analysis.data_processing import probability
 from qiskit_experiments.base_experiment import BaseExperiment
 
 
@@ -138,8 +138,8 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         for datum in test_data1.data():
             test_data0.add_data(datum)
 
-        xdata, ydata, sigma, series = self.analysis._extract_curves(
-            x_key="xval", experiment_data=test_data0, data_processor=level2_probability
+        series, xdata, ydata, sigma = self.analysis._extract_curves(
+            x_key="xval", experiment_data=test_data0, data_processor=probability(outcome="1")
         )
 
         # check if the module filter off data: valid=False
@@ -169,22 +169,22 @@ class TestCurveAnalysisUnit(QiskitTestCase):
     def test_get_subset(self):
         """Test that get subset data from full data array."""
 
+        series = np.asarray([0, 1, 0, 2, 2, -1], dtype=int)
         xdata = np.asarray([1, 2, 3, 4, 5, 6], dtype=float)
         ydata = np.asarray([1, 2, 3, 4, 5, 6], dtype=float)
         sigma = np.asarray([1, 2, 3, 4, 5, 6], dtype=float)
-        series = np.asarray([0, 1, 0, 2, 2, -1], dtype=int)
 
-        subx, suby, subs = self.analysis._subset_data("curve1", xdata, ydata, sigma, series)
+        subx, suby, subs = self.analysis._subset_data("curve1", series, xdata, ydata, sigma)
         np.testing.assert_array_almost_equal(subx, np.asarray([1, 3], dtype=float))
         np.testing.assert_array_almost_equal(suby, np.asarray([1, 3], dtype=float))
         np.testing.assert_array_almost_equal(subs, np.asarray([1, 3], dtype=float))
 
-        subx, suby, subs = self.analysis._subset_data("curve2", xdata, ydata, sigma, series)
+        subx, suby, subs = self.analysis._subset_data("curve2", series, xdata, ydata, sigma)
         np.testing.assert_array_almost_equal(subx, np.asarray([2], dtype=float))
         np.testing.assert_array_almost_equal(suby, np.asarray([2], dtype=float))
         np.testing.assert_array_almost_equal(subs, np.asarray([2], dtype=float))
 
-        subx, suby, subs = self.analysis._subset_data("curve3", xdata, ydata, sigma, series)
+        subx, suby, subs = self.analysis._subset_data("curve3", series, xdata, ydata, sigma)
         np.testing.assert_array_almost_equal(subx, np.asarray([4, 5], dtype=float))
         np.testing.assert_array_almost_equal(suby, np.asarray([4, 5], dtype=float))
         np.testing.assert_array_almost_equal(subs, np.asarray([4, 5], dtype=float))
@@ -239,22 +239,21 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         results, _ = analysis._run_analysis(
             test_data,
             p0=[ref_p0, ref_p1, ref_p2, ref_p3],
-            base_fitter=multi_curve_fit,
-            data_processor=level2_probability,
+            curve_fitter=multi_curve_fit,
+            data_processor=probability(outcome="1"),
             x_key="xval",
             plot=False,
             ax=None,
             xlabel="x value",
             ylabel="y value",
             fit_reports=None,
+            return_data_points=False,
         )
         result = results[0]
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
 
         # check result data
-        self.assertTrue(result["success"])
-
         np.testing.assert_array_almost_equal(result["popt"], ref_popt, decimal=self.err_decimal)
         self.assertEqual(result["dof"], 46)
         self.assertListEqual(result["xrange"], [0.1, 1.0])
@@ -287,15 +286,16 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         results, _ = analysis._run_analysis(
             test_data,
             p0=[ref_p0, ref_p1, ref_p2, ref_p3],
-            bounds=([-10, -10, -10, -10], [0, 0, 0, 0]),
-            base_fitter=multi_curve_fit,
-            data_processor=level2_probability,
+            bounds=([-10, 0], [-10, 0], [-10, 0], [-10, 0]),
+            curve_fitter=multi_curve_fit,
+            data_processor=probability(outcome="1"),
             x_key="xval",
             plot=False,
             ax=None,
             xlabel="x value",
             ylabel="y value",
             fit_reports=None,
+            return_data_points=False,
         )
         result = results[0]
 
@@ -351,21 +351,21 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         results, _ = analysis._run_analysis(
             test_data0,
             p0=[ref_p0, ref_p1, ref_p2, ref_p3, ref_p4],
-            base_fitter=multi_curve_fit,
-            data_processor=level2_probability,
+            curve_fitter=multi_curve_fit,
+            data_processor=probability(outcome="1"),
             x_key="xval",
             plot=False,
             ax=None,
             xlabel="x value",
             ylabel="y value",
             fit_reports=None,
+            return_data_points=False,
         )
         result = results[0]
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3, ref_p4])
 
         # check result data
-        self.assertTrue(result["success"])
         np.testing.assert_array_almost_equal(result["popt"], ref_popt, decimal=self.err_decimal)
 
     def test_run_two_curves_with_two_fitfuncs(self):
@@ -414,19 +414,19 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         results, _ = analysis._run_analysis(
             test_data0,
             p0=[ref_p0, ref_p1, ref_p2, ref_p3],
-            base_fitter=multi_curve_fit,
-            data_processor=level2_probability,
+            curve_fitter=multi_curve_fit,
+            data_processor=probability(outcome="1"),
             x_key="xval",
             plot=False,
             ax=None,
             xlabel="x value",
             ylabel="y value",
             fit_reports=None,
+            return_data_points=False,
         )
         result = results[0]
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
 
         # check result data
-        self.assertTrue(result["success"])
         np.testing.assert_array_almost_equal(result["popt"], ref_popt, decimal=self.err_decimal)

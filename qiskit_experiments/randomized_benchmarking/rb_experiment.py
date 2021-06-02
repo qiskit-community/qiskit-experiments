@@ -159,7 +159,6 @@ class RBExperiment(BaseExperiment):
                 rb_circ.metadata = {
                     "experiment_type": self._type,
                     "xval": current_length + 1,
-                    "ylabel": self.num_qubits * "0",
                     "group": "Clifford",
                     "qubits": self.physical_qubits,
                 }

@@ -12,14 +12,11 @@
 """
 Interleaved RB analysis class.
 """
-from typing import List, Tuple, Dict, Any, Union
+from typing import List, Dict, Any, Union
 
 import numpy as np
 
 from qiskit_experiments.analysis import SeriesDef, fit_function
-from qiskit_experiments.analysis.data_processing import (
-    multi_mean_xy_data,
-)
 from qiskit_experiments.experiment_data import AnalysisResult
 from .rb_analysis import RBAnalysis
 
@@ -46,6 +43,7 @@ class InterleavedRBAnalysis(RBAnalysis):
             fit_func=lambda x, a, alpha, alpha_c, b: fit_function.exponential_decay(
                 x, amp=a, lamb=-1.0, base=alpha, baseline=b
             ),
+            filter_kwargs={"interleaved": False},
             plot_color="red",
             plot_symbol=".",
         ),
@@ -54,6 +52,7 @@ class InterleavedRBAnalysis(RBAnalysis):
             fit_func=lambda x, a, alpha, alpha_c, b: fit_function.exponential_decay(
                 x, amp=a, lamb=-1.0, base=alpha * alpha_c, baseline=b
             ),
+            filter_kwargs={"interleaved": True},
             plot_color="orange",
             plot_symbol="^",
         ),
@@ -68,20 +67,28 @@ class InterleavedRBAnalysis(RBAnalysis):
 
     def _setup_fitting(
         self,
+        series: np.ndarray,
         x_values: np.ndarray,
         y_values: np.ndarray,
         y_sigmas: np.ndarray,
-        series: np.ndarray,
         **options,
     ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
         std_xdata, std_ydata, _ = self._subset_data(
-            "Standard", x_values, y_sigmas, y_sigmas, series
+            name="Standard",
+            series=series,
+            x_values=x_values,
+            y_values=y_values,
+            y_sigmas=y_sigmas,
         )
         p0_std = self._initial_guess(std_xdata, std_ydata, options["num_qubits"])
 
         int_xdata, int_ydata, _ = self._subset_data(
-            "Interleaved", x_values, y_sigmas, y_sigmas, series
+            name="Interleaved",
+            series=series,
+            x_values=x_values,
+            y_values=y_values,
+            y_sigmas=y_sigmas,
         )
         p0_int = self._initial_guess(int_xdata, int_ydata, options["num_qubits"])
 
@@ -94,19 +101,6 @@ class InterleavedRBAnalysis(RBAnalysis):
         irb_bounds = {"a": [0, 1], "alpha": [0, 1], "alpha_c": [0, 1], "b": [0, 1]}
 
         return {"p0": irb_p0, "bounds": irb_bounds}
-
-    def _pre_processing(
-        self,
-        x_values: np.ndarray,
-        y_values: np.ndarray,
-        y_sigmas: np.ndarray,
-        series: np.ndarray,
-        **options,
-    ) -> Tuple[np.ndarray, ...]:
-        """Average over the same x values."""
-        return multi_mean_xy_data(
-            series=series, xdata=x_values, ydata=y_values, sigma=y_sigmas, method="sample"
-        )
 
     def _post_processing(self, analysis_result: AnalysisResult, **options) -> AnalysisResult:
         """Calculate EPC."""
