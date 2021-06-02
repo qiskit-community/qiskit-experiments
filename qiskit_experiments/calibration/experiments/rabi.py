@@ -105,9 +105,16 @@ class RabiAnalysis(BaseAnalysis):
 
         y_sigmas = np.array([data_processor(datum) for datum in experiment_data.data()])
         y_max, y_min = max(y_sigmas[:, 0]), min(y_sigmas[:, 0])
-        sigmas = np.sqrt(y_sigmas[:, 1]) / (y_max - y_min)
+
         ydata = (y_sigmas[:, 0] - y_min) / (y_max - y_min)
         xdata = np.array([datum["metadata"]["xval"] for datum in experiment_data.data()])
+
+        try:
+            sigmas = np.sqrt(y_sigmas[:, 1]) / (y_max - y_min)
+            if any(sigmas == 0.0):
+                sigmas = None
+        except TypeError:
+            sigmas = None
 
         # Perform fit
         def fit_fun(x, a, b, c):

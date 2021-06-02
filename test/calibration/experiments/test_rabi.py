@@ -22,6 +22,7 @@ from qiskit.providers.basicaer import QasmSimulatorPy
 from qiskit.test import QiskitTestCase
 from qiskit.result import Result
 from qiskit.providers import JobV1
+from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.calibration.experiments.rabi import RabiAnalysis, Rabi
@@ -61,7 +62,7 @@ class RabiBackend(BaseBackend):
         self,
         iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
         iq_cluster_width: float = 1.0,
-        amplitude_to_angle = np.pi,
+        amplitude_to_angle=np.pi,
     ):
         """
         Initialize the spectroscopy backend.
@@ -119,9 +120,9 @@ class RabiBackend(BaseBackend):
             memory = []
 
             # Convert the amplitude to a rotation angle.
-            angle = float(circ.instructions[0].params[0])*self._amplitude_to_angle
+            angle = float(circ.instructions[0].params[0]) * self._amplitude_to_angle
 
-            es_prob = np.sin(angle)**2
+            es_prob = np.sin(angle) ** 2
 
             for _ in range(shots):
                 memory.append(self._draw_iq_shot(es_prob))
@@ -131,7 +132,7 @@ class RabiBackend(BaseBackend):
                 "success": True,
                 "header": {"metadata": circ.header.metadata},
                 "data": {"memory": memory},
-                "meas_level": 1
+                "meas_level": 1,
             }
 
             result["results"].append(run_result)
@@ -173,8 +174,15 @@ class TestRabiAnalysis(QiskitTestCase):
         sim = QasmSimulatorPy()
         result = execute(circuits, sim, shots=shots, seed_simulator=10).result()
         data = [
-            {"counts": self._add_uncertainty(result.get_counts(i)),
-             "metadata": {"xval": amplitudes[i]}} for i, theta in enumerate(thetas)
+            {
+                "counts": self._add_uncertainty(result.get_counts(i)),
+                "metadata": {
+                    "xval": amplitudes[i],
+                    "meas_level": MeasLevel.CLASSIFIED,
+                    "meas_return": "avg"
+                },
+            }
+            for i, theta in enumerate(thetas)
         ]
         return data
 
@@ -186,11 +194,11 @@ class TestRabiAnalysis(QiskitTestCase):
 
         return counts
 
-    def test_analysis(self):
+    def test_good_analysis(self):
         """Test the Rabi analysis."""
         experiment_data = ExperimentData()
 
-        thetas = np.linspace(-1.5*np.pi, 1.5*np.pi, 51)
+        thetas = np.linspace(-1.5 * np.pi, 1.5 * np.pi, 51)
         amplitudes = np.linspace(-0.95, 0.95, 51)
 
         for shots in [10, 1024]:
@@ -204,3 +212,19 @@ class TestRabiAnalysis(QiskitTestCase):
             result = rabi_analysis.run(experiment_data, data_processor=data_processor, plot=False)
 
             self.assertEqual(result["quality"], "computer_good")
+
+    def test_bad_analysis(self):
+        """Test the Rabi analysis."""
+        experiment_data = ExperimentData()
+
+        thetas = np.linspace(0.0, 0.2, 51)
+        amplitudes = np.linspace(0.0, 0.2, 51)
+
+        shots = 200
+        experiment_data.add_data(self.simulate_experiment_data(thetas, amplitudes, shots=shots))
+
+        data_processor = DataProcessor("counts", [Probability(outcome="1")])
+
+        result = RabiAnalysis().run(experiment_data, data_processor=data_processor, plot=False)
+
+        self.assertEqual(result["quality"], "computer_bad")
