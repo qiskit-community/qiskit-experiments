@@ -604,6 +604,9 @@ class CurveAnalysis(BaseAnalysis):
                    ``analysis_results`` may be a single or list of
                    AnalysisResult objects, and ``figures`` is a list of any
                    figures for the experiment.
+
+        Raises:
+            AnalysisError: if the analysis fails.
         """
         analysis_result = CurveAnalysisResult()
 
