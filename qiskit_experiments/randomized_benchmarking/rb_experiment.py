@@ -164,4 +164,9 @@ class RBExperiment(BaseExperiment):
 
     def _postprocess_transpiled_circuits(self, circuits):
         for c in circuits:
-            c.metadata['ops_count'] = RBUtils.count_ops(c,self.physical_qubits)
+            ops_count = RBUtils.count_ops(c, self.physical_qubits)
+            circuit_length = c.metadata['xval']
+            for ops_count_for_qubit in ops_count.values():
+                for key in ops_count_for_qubit.keys():
+                    ops_count_for_qubit[key] /= circuit_length
+            c.metadata['ops_count'] = ops_count
