@@ -161,3 +161,7 @@ class RBExperiment(BaseExperiment):
                 rb_circ.measure_all()
                 circuits.append(rb_circ)
         return circuits
+
+    def _postprocess_transpiled_circuits(self, circuits):
+        for c in circuits:
+            c.metadata['ops_count'] = c.count_ops()

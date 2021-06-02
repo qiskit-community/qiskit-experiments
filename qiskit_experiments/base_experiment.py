@@ -105,6 +105,7 @@ class BaseExperiment(ABC):
 
         # Generate and transpile circuits
         circuits = transpile(self.circuits(backend), backend, **self.transpile_options.__dict__)
+        self._postprocess_transpiled_circuits(circuits)
 
         # Run circuits on backend
         run_opts = copy.copy(self.run_options)
@@ -288,3 +289,7 @@ class BaseExperiment(ABC):
             fields: The fields to update the options
         """
         self._analysis_options.update_options(**fields)
+
+    def _postprocess_transpiled_circuits(self, circuits: List[QuantumCircuit]):
+        """Computes additional metadata for the transpiled circuits, if needed"""
+        pass
