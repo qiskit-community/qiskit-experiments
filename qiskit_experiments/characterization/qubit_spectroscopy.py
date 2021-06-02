@@ -229,7 +229,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
         else:
             figures = None
 
-        return best_fit, figures
+        return [best_fit], figures
 
     @staticmethod
     def _fit_quality(
