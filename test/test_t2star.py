@@ -22,7 +22,7 @@ from qiskit.test import QiskitTestCase
 from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T2StarExperiment
 
-from .utils import FakeJob
+from test.utils import FakeJob
 
 
 class T2starBackend(BaseBackend):

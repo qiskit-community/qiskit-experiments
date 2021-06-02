@@ -120,7 +120,7 @@ class BaseExperiment(ABC):
         # Add Job to ExperimentData and add analysis for post processing.
         run_analysis = None
         if analysis and self.__analysis_class__ is not None:
-            run_analysis = self.__analysis_class__().run
+            run_analysis = self.run_analysis
 
         experiment_data.add_data(job, post_processing_callback=run_analysis)
 
