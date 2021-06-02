@@ -30,6 +30,7 @@ from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
+from qiskit_experiments.exceptions import AnalysisError
 
 
 @dataclasses.dataclass(frozen=True)
@@ -267,6 +268,8 @@ class CurveAnalysis(BaseAnalysis):
         Returns:
             List of figures.
         """
+        fit_available = all(key in analysis_results for key in ("popt", "popt_err", "xrange"))
+
         if plotting.HAS_MATPLOTLIB:
 
             if axis is None:
@@ -306,7 +309,7 @@ class CurveAnalysis(BaseAnalysis):
 
                 # plot fit curve
 
-                if analysis_results["success"]:
+                if fit_available:
                     plotting.plot_curve_fit(
                         func=series_def.fit_func,
                         result=analysis_results,
@@ -324,7 +327,7 @@ class CurveAnalysis(BaseAnalysis):
 
             # write analysis report
 
-            if fit_reports and analysis_results["success"]:
+            if fit_reports and fit_available:
                 # write fit status in the plot
                 analysis_description = "Analysis Reports:\n"
                 for par_name, label in fit_reports.items():
@@ -416,7 +419,7 @@ class CurveAnalysis(BaseAnalysis):
         return x_values, y_values, y_sigmas, series
 
     def _post_processing(
-            self, analysis_result: CurveAnalysisResult, **options
+        self, analysis_result: CurveAnalysisResult, **options
     ) -> CurveAnalysisResult:
         """Calculate new quantity from the fit result.
 
@@ -609,6 +612,7 @@ class CurveAnalysis(BaseAnalysis):
             AnalysisError: if the analysis fails.
         """
         analysis_result = CurveAnalysisResult()
+        figures = list()
 
         # pop arguments that are not given to fitter
         curve_fitter = options.pop("curve_fitter")
@@ -629,29 +633,27 @@ class CurveAnalysis(BaseAnalysis):
             try:
                 data_processor.train(data=experiment_data.data())
             except DataProcessorError as ex:
-                analysis_result["error_message"] = str(ex)
-                analysis_result["success"] = False
-                return [analysis_result], list()
+                raise AnalysisError(
+                    f"DataProcessor calibration failed with error message: {str(ex)}."
+                ) from ex
 
         #
         # 2. Extract curve entries from experiment data
         #
-        # pylint: disable=broad-except
         try:
             xdata, ydata, sigma, series = self._extract_curves(
                 x_key=x_key,
                 experiment_data=experiment_data,
                 data_processor=data_processor,
             )
-        except Exception as ex:
-            analysis_result["error_message"] = str(ex)
-            analysis_result["success"] = False
-            return [analysis_result], list()
+        except DataProcessorError as ex:
+            raise AnalysisError(
+                f"Data extraction and formatting failed with error message: {str(ex)}."
+            ) from ex
 
         #
         # 3. Run fitting
         #
-        # pylint: disable=broad-except
         try:
             # format fit data
             _xdata, _ydata, _sigma, _series = self._pre_processing(
@@ -690,53 +692,54 @@ class CurveAnalysis(BaseAnalysis):
                 # Sort by chi squared value
                 fit_results = sorted(fit_results, key=lambda r: r["reduced_chisq"])
                 analysis_result.update(**fit_results[0])
-            analysis_result["success"] = True
-        except Exception as ex:
+
+        except AnalysisError as ex:
             analysis_result["error_message"] = str(ex)
             analysis_result["success"] = False
 
-        #
-        # 4. Post-process analysis data
-        #
-        if analysis_result["success"]:
+        else:
+            #
+            # 4. Post-process analysis data
+            #
             analysis_result = self._post_processing(analysis_result=analysis_result, **options)
 
-        #
-        # 5. Create figures
-        #
-        if plot:
-            figures = self._create_figures(
-                x_values=xdata,
-                y_values=ydata,
-                y_sigmas=sigma,
-                series=series,
-                analysis_results=analysis_result,
-                axis=axis,
-                xlabel=xlabel,
-                ylabel=ylabel,
-                fit_reports=fit_reports,
-            )
-        else:
-            figures = list()
-
-        #
-        # 6. Save raw data
-        #
-        if return_data_points:
-            raw_data_dict = dict()
-            for series_def in self.__series__:
-                sub_xdata, sub_ydata, sub_sigma = self._subset_data(
-                    name=series_def.name,
-                    x_values=xdata,
-                    y_values=ydata,
-                    y_sigmas=sigma,
-                    series=series
+        finally:
+            #
+            # 5. Create figures
+            #
+            if plot:
+                figures.extend(
+                    self._create_figures(
+                        x_values=xdata,
+                        y_values=ydata,
+                        y_sigmas=sigma,
+                        series=series,
+                        analysis_results=analysis_result,
+                        axis=axis,
+                        xlabel=xlabel,
+                        ylabel=ylabel,
+                        fit_reports=fit_reports,
+                    )
                 )
-                raw_data_dict[series_def.name] = {
-                    "xdata": sub_xdata,
-                    "ydata": sub_ydata,
-                    "sigma": sub_sigma,
-                }
-            analysis_result["raw_data"] = raw_data_dict
+
+            #
+            # 6. Optionally store raw data points
+            #
+            if return_data_points:
+                raw_data_dict = dict()
+                for series_def in self.__series__:
+                    sub_xdata, sub_ydata, sub_sigma = self._subset_data(
+                        name=series_def.name,
+                        x_values=xdata,
+                        y_values=ydata,
+                        y_sigmas=sigma,
+                        series=series,
+                    )
+                    raw_data_dict[series_def.name] = {
+                        "xdata": sub_xdata,
+                        "ydata": sub_ydata,
+                        "sigma": sub_sigma,
+                    }
+                analysis_result["raw_data"] = raw_data_dict
 
         return [analysis_result], figures

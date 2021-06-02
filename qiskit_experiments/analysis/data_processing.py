@@ -159,7 +159,7 @@ def multi_mean_xy_data(
     )
 
 
-def level2_probability(data: Dict[str, any], outcome) -> Tuple[float, float]:
+def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float, float]:
     """Return the outcome probability mean and variance.
 
     Args:
@@ -190,6 +190,7 @@ def level2_probability(data: Dict[str, any], outcome) -> Tuple[float, float]:
 
 def probability(outcome: str) -> Callable:
     """Return probability data processor callback used by the analysis classes."""
+
     def data_processor(data):
         return level2_probability(data, outcome)
 

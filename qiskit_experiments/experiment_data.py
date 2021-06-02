@@ -32,6 +32,7 @@ LOG = logging.getLogger(__name__)
 
 class AnalysisResult(dict):
     """Placeholder class"""
+
     __keys_not_shown__ = tuple()
 
     def __str__(self):

@@ -24,6 +24,8 @@ from qiskit_experiments.analysis.data_processing import filter_data
 
 
 class CurveAnalysisResult(AnalysisResult):
+    """Analysis data container for curve fit analysis."""
+
     __keys_not_shown__ = "pcov", "raw_data", "popt", "popt_keys", "popt_err"
 
     def __str__(self):

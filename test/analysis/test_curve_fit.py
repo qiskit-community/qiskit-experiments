@@ -20,9 +20,9 @@ from qiskit.test import QiskitTestCase
 
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.analysis import CurveAnalysis, SeriesDef, fit_function
+from qiskit_experiments.analysis.curve_fitting import multi_curve_fit
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.analysis.curve_fitting import multi_curve_fit
 
 
 class FakeExperiment(BaseExperiment):
@@ -301,7 +301,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
 
         self.assertFalse(result["success"])
 
-        ref_result_keys = ["raw_data", "error_message", "success"]
+        ref_result_keys = ["error_message", "success"]
         self.assertSetEqual(set(result.keys()), set(ref_result_keys))
 
     def test_run_two_curves_with_same_fitfunc(self):
