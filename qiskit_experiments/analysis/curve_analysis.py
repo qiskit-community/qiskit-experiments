@@ -20,7 +20,6 @@ import inspect
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
 import numpy as np
-from qiskit.exceptions import QiskitError
 from qiskit.providers.options import Options
 
 from qiskit_experiments.analysis import plotting
@@ -29,8 +28,8 @@ from qiskit_experiments.analysis.data_processing import probability
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
-from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
 from qiskit_experiments.exceptions import AnalysisError
+from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
 
 
 @dataclasses.dataclass(frozen=True)
