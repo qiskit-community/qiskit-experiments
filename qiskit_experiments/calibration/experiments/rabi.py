@@ -15,7 +15,7 @@
 from typing import Callable, List, Optional, Tuple, Union
 import numpy as np
 
-from qiskit import QiskitError
+from qiskit import QiskitError, QuantumCircuit
 from qiskit.circuit import Parameter
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
@@ -23,22 +23,15 @@ from qiskit.pulse import ScheduleBlock
 import qiskit.pulse as pulse
 from qiskit.providers.options import Options
 
-from qiskit import QuantumCircuit
-from qiskit_experiments import BaseAnalysis, BaseExperiment, ExperimentData, AnalysisResult
+from qiskit_experiments.base_analysis import BaseAnalysis, ExperimentData, AnalysisResult
+from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.analysis.curve_fitting import curve_fit
 from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
 from qiskit_experiments.analysis import plotting
 
-try:
-    from matplotlib import pyplot as plt
-
-    HAS_MATPLOTLIB = True
-except ImportError:
-    HAS_MATPLOTLIB = False
-
 
 class RabiAnalysis(BaseAnalysis):
-    """Rabi analysis class based on a fit to a cosine function.
+    r"""Rabi analysis class based on a fit to a cosine function.
 
     Analyse a Rabi experiment by fitting it to a cosine function
 
@@ -71,7 +64,6 @@ class RabiAnalysis(BaseAnalysis):
         offset_bounds: Tuple[float, float] = (0, 1),
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,
-        **options
     ) -> Tuple[AnalysisResult, List["plotting.pyplot.Figure"]]:
         """Fit the data to an oscillating function.
 
@@ -118,7 +110,7 @@ class RabiAnalysis(BaseAnalysis):
 
         # Perform fit
         def fit_fun(x, a, b, c):
-            return a * np.cos(b*x) + c
+            return a * np.cos(b * x) + c
 
         init = {"a": amp_guess, "b": freq_guess, "c": offset_guess}
         bounds = {"a": amp_bounds, "b": freq_bounds, "c": offset_bounds}
@@ -131,12 +123,10 @@ class RabiAnalysis(BaseAnalysis):
         fit_result["ydata"] = ydata
         fit_result["ydata_err"] = sigmas
         fit_result["quality"] = self._fit_quality(
-            fit_result["popt"][1],
-            fit_result["reduced_chisq"],
-            fit_result["popt_err"][1]
+            fit_result["popt"][1], fit_result["reduced_chisq"], fit_result["popt_err"][1]
         )
 
-        if plot and HAS_MATPLOTLIB:
+        if plot and plotting.HAS_MATPLOTLIB:
             ax = plotting.plot_curve_fit(fit_fun, fit_result, ax=ax)
             ax = plotting.plot_scatter(xdata, ydata, ax=ax)
             self._format_plot(ax)
@@ -159,7 +149,7 @@ class RabiAnalysis(BaseAnalysis):
 
         if (
             reduced_chisq < 3
-            and np.pi/2 < fit_freq < 10*2*np.pi
+            and np.pi / 2 < fit_freq < 10 * 2 * np.pi
             and (fit_freq_err is None or (fit_freq_err < fit_freq))
         ):
             return "computer_good"
@@ -170,9 +160,10 @@ class RabiAnalysis(BaseAnalysis):
     def _format_plot(cls, ax):
         """Format curve fit plot."""
         ax.tick_params(labelsize=14)
-        ax.set_xlabel(f"Amplitude [arb. unit]", fontsize=16)
+        ax.set_xlabel("Amplitude [arb. unit]", fontsize=16)
         ax.set_ylabel("Signal [arb. unit.]", fontsize=16)
         ax.grid(True)
+
 
 class Rabi(BaseExperiment):
     """An experiment that scans the amplitude of a pulse to calibrate rotations between 0 and 1.
@@ -202,7 +193,7 @@ class Rabi(BaseExperiment):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default options values for the experiment :meth:`run` method."""
+        """Default values for the pulse if no schedule is given."""
         return Options(
             duration=160,
             sigma=40,
@@ -226,7 +217,7 @@ class Rabi(BaseExperiment):
         self,
         backend: Optional[Backend] = None,
         schedule: Optional[ScheduleBlock] = None,
-        **circuit_options
+        **circuit_options,
     ) -> List[QuantumCircuit]:
         """Create the circuits for the Rabi experiment.
 
@@ -239,18 +230,23 @@ class Rabi(BaseExperiment):
 
         Returns:
             A ist of circuits with a rx rotation with a calibration whose amplitude is scanned.
+
+        Raises:
+            QiskitError: If the user provided schedule has more than one free parameter.
         """
         if schedule is None:
             amp = Parameter("amp")
-            with pulse.build() as schedule:
+            with pulse.build() as default_schedule:
                 pulse.play(
                     pulse.Gaussian(
                         duration=self.experiment_options.duration,
                         amp=amp,
-                        sigma=self.experiment_options.sigma
+                        sigma=self.experiment_options.sigma,
                     ),
-                    pulse.DriveChannel(self.physical_qubits[0])
+                    pulse.DriveChannel(self.physical_qubits[0]),
                 )
+
+            schedule = default_schedule
 
         if len(schedule.parameters) != 1:
             raise QiskitError("Schedule in Rabi must have exactly one free parameter.")

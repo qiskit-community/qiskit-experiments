@@ -12,16 +12,12 @@
 
 """Test Rabi amplitude Experiment class."""
 
-from typing import Dict, Tuple
+from typing import Tuple
 import numpy as np
 
 from qiskit import QuantumCircuit, execute
-from qiskit.providers.basebackend import BaseBackend
-from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.providers.basicaer import QasmSimulatorPy
 from qiskit.test import QiskitTestCase
-from qiskit.result import Result
-from qiskit.providers import JobV1
 from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments import ExperimentData
@@ -29,31 +25,10 @@ from qiskit_experiments.calibration.experiments.rabi import RabiAnalysis, Rabi
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
 
-
-# TODO Reuse functionality from spectroscopy.
-class TestJob(JobV1):
-    """Job for testing."""
-
-    def __init__(self, backend: BaseBackend, result: Dict):
-        """Setup a job for testing."""
-        super().__init__(backend, "test-id")
-        self._result = result
-
-    def result(self) -> Result:
-        """Return a result."""
-        return Result.from_dict(self._result)
-
-    def submit(self):
-        pass
-
-    def status(self):
-        pass
-
-    def cancel(self):
-        pass
+from qiskit_experiments.test.mock_iq_backend import TestJob, IQTestBackend
 
 
-class RabiBackend(BaseBackend):
+class RabiBackend(IQTestBackend):
     """
     A simple and primitive backend, to be run by the T1 tests
     """
@@ -64,48 +39,17 @@ class RabiBackend(BaseBackend):
         iq_cluster_width: float = 1.0,
         amplitude_to_angle=np.pi,
     ):
-        """
-        Initialize the spectroscopy backend.
-        """
-
-        configuration = QasmBackendConfiguration(
-            backend_name="rabi_simulator",
-            backend_version="0",
-            n_qubits=int(1),
-            basis_gates=["rx"],
-            gates=[],
-            local=True,
-            simulator=True,
-            conditional=False,
-            open_pulse=False,
-            memory=True,
-            max_shots=int(1e6),
-            coupling_map=[],
-            dt=0.1,
-        )
-
-        self._iq_cluster_centers = iq_cluster_centers
-        self._iq_cluster_width = iq_cluster_width
+        """Initialize the rabi backend."""
+        self.__configuration__["basis_gates"] = ["rx"]
         self._amplitude_to_angle = amplitude_to_angle
 
-        super().__init__(configuration)
-
-    def _draw_iq_shot(self, prob):
-        """Produce an IQ shot."""
-
-        rand_i = np.random.normal(0, self._iq_cluster_width)
-        rand_q = np.random.normal(0, self._iq_cluster_width)
-
-        if np.random.binomial(1, prob) > 0.5:
-            return [[self._iq_cluster_centers[0] + rand_i, self._iq_cluster_centers[1] + rand_q]]
-        else:
-            return [[self._iq_cluster_centers[2] + rand_i, self._iq_cluster_centers[3] + rand_q]]
+        super().__init__(iq_cluster_centers, iq_cluster_width)
 
     # pylint: disable = arguments-differ
-    def run(self, qobj):
+    def run(
+        self, circuits, shots=1024, meas_level=MeasLevel.KERNELED, meas_return="single", **options
+    ):
         """Run the spectroscopy backend."""
-
-        shots = qobj.config.shots
 
         result = {
             "backend_name": "spectroscopy backend",
@@ -116,24 +60,31 @@ class RabiBackend(BaseBackend):
             "results": [],
         }
 
-        for circ in qobj.experiments:
-            memory = []
-
-            # Convert the amplitude to a rotation angle.
-            angle = float(circ.instructions[0].params[0]) * self._amplitude_to_angle
-
-            es_prob = np.sin(angle) ** 2
-
-            for _ in range(shots):
-                memory.append(self._draw_iq_shot(es_prob))
+        for circ in circuits:
 
             run_result = {
                 "shots": shots,
                 "success": True,
-                "header": {"metadata": circ.header.metadata},
-                "data": {"memory": memory},
-                "meas_level": 1,
+                "header": {"metadata": circ.metadata},
             }
+
+            amp = float(circ.data[0][0].params[0])
+            prob = np.sin(self._amplitude_to_angle * amp) ** 2
+
+            if meas_level == MeasLevel.CLASSIFIED:
+                counts = {"1": 0, "0": 0}
+
+                for _ in range(shots):
+                    counts[str(self._rng.binomial(1, prob))] += 1
+
+                run_result["data"] = {"counts": counts}
+            else:
+                memory = [self._draw_iq_shot(prob) for _ in range(shots)]
+
+                if meas_return == "avg":
+                    memory = np.average(np.array(memory), axis=0).tolist()
+
+                run_result["data"] = {"memory": memory}
 
             result["results"].append(run_result)
 
@@ -142,11 +93,6 @@ class RabiBackend(BaseBackend):
 
 class TestRabiEndToEnd(QiskitTestCase):
     """Test the rabi experiment."""
-
-    def setUp(self):
-        """Setup."""
-        super().setUp()
-        np.random.seed(seed=10)
 
     def test_rabi_end_to_end(self):
         """Test the Rabi experiment end to end."""
@@ -179,7 +125,7 @@ class TestRabiAnalysis(QiskitTestCase):
                 "metadata": {
                     "xval": amplitudes[i],
                     "meas_level": MeasLevel.CLASSIFIED,
-                    "meas_return": "avg"
+                    "meas_return": "avg",
                 },
             }
             for i, theta in enumerate(thetas)
@@ -200,7 +146,7 @@ class TestRabiAnalysis(QiskitTestCase):
         experiment_data = ExperimentData()
 
         thetas = np.linspace(-np.pi, np.pi, 31)
-        amplitudes = np.linspace(-np.pi/4, np.pi/4, 31)
+        amplitudes = np.linspace(-np.pi / 4, np.pi / 4, 31)
 
         experiment_data.add_data(self.simulate_experiment_data(thetas, amplitudes, shots=400))
 
@@ -215,7 +161,7 @@ class TestRabiAnalysis(QiskitTestCase):
         """Test the Rabi analysis."""
         experiment_data = ExperimentData()
 
-        thetas = np.linspace(0.0, np.pi/4, 31)
+        thetas = np.linspace(0.0, np.pi / 4, 31)
         amplitudes = np.linspace(0.0, 0.95, 31)
 
         experiment_data.add_data(self.simulate_experiment_data(thetas, amplitudes, shots=200))
