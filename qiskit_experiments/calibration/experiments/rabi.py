@@ -56,9 +56,9 @@ class RabiAnalysis(BaseAnalysis):
         self,
         experiment_data: ExperimentData,
         data_processor: Optional[Callable] = None,
-        amp_guess: float = 0.5,
+        amp_guess: float = 1.0,
         freq_guess: float = np.pi,
-        offset_guess: float = 0.5,
+        offset_guess: float = 0.0,
         amp_bounds: Tuple[float, float] = (-1, 1),
         freq_bounds: Tuple[float, float] = (0, np.inf),
         offset_bounds: Tuple[float, float] = (0, 1),
@@ -96,24 +96,46 @@ class RabiAnalysis(BaseAnalysis):
             data_processor.train(experiment_data.data())
 
         y_sigmas = np.array([data_processor(datum) for datum in experiment_data.data()])
-        y_max, y_min = max(y_sigmas[:, 0]), min(y_sigmas[:, 0])
+        min_y, max_y = min(y_sigmas[:, 0]), max(y_sigmas[:, 0])
+        ydata = (y_sigmas[:, 0] - min_y) / (max_y - min_y)
 
-        ydata = (y_sigmas[:, 0] - y_min) / (y_max - y_min)
-        xdata = np.array([datum["metadata"]["xval"] for datum in experiment_data.data()])
-
+        # Sigmas may be None and fitting will not work if any sigmas are exactly 0.
         try:
-            sigmas = np.sqrt(y_sigmas[:, 1]) / (y_max - y_min)
+            sigmas = y_sigmas[:, 1] / (max_y - min_y)
             if any(sigmas == 0.0):
                 sigmas = None
+
         except TypeError:
             sigmas = None
 
+        xdata = np.array([datum["metadata"]["xval"] for datum in experiment_data.data()])
+
         # Perform fit
+        best_fit = None
+
         def fit_fun(x, a, b, c):
             return a * np.cos(b * x) + c
 
-        init = {"a": amp_guess, "b": freq_guess, "c": offset_guess}
         bounds = {"a": amp_bounds, "b": freq_bounds, "c": offset_bounds}
+
+        for guess in [(amp_guess, offset_guess), (1, 0), (-1, 1)]:
+            amp_, offset_ = guess[0], guess[1]
+            init = {"a": amp_, "b": freq_guess, "c": offset_}
+            try:
+                fit_result = curve_fit(fit_fun, xdata, ydata, init, sigmas, bounds)
+
+                if not best_fit:
+                    best_fit = fit_result
+                else:
+                    if fit_result["reduced_chisq"] < best_fit["reduced_chisq"]:
+                        best_fit = fit_result
+
+            except RuntimeError:
+                pass
+
+        if best_fit is None:
+            raise QiskitError("Could not find a fit to the spectroscopy data.")
+
         fit_result = curve_fit(fit_fun, xdata, ydata, init, sigma=sigmas, bounds=bounds)
 
         fit_result["value"] = fit_result["popt"][1]
@@ -232,7 +254,10 @@ class Rabi(BaseExperiment):
             A ist of circuits with a rx rotation with a calibration whose amplitude is scanned.
 
         Raises:
-            QiskitError: If the user provided schedule has more than one free parameter.
+            QiskitError:
+                - If the user-provided schedule does not contain a channel with an index
+                  that matches the qubit on which to run the Rabi experiment.
+                - If the user provided schedule has more than one free parameter.
         """
         if schedule is None:
             amp = Parameter("amp")
@@ -247,6 +272,12 @@ class Rabi(BaseExperiment):
                 )
 
             schedule = default_schedule
+        else:
+            if self.physical_qubits[0] not in set(ch.index for ch in schedule.channels):
+                raise QiskitError(
+                    f"User provided schedule {schedule.name} does not contain a channel "
+                    "for the qubit on which to run Rabi."
+                )
 
         if len(schedule.parameters) != 1:
             raise QiskitError("Schedule in Rabi must have exactly one free parameter.")
@@ -256,6 +287,7 @@ class Rabi(BaseExperiment):
         circuit = QuantumCircuit(1)
         circuit.rx(param, 0)
         circuit.measure_active()
+        circuit.add_calibration("rx", (self.physical_qubits[0],), schedule, params=[param])
 
         circs = []
         for amp in circuit_options.get("amplitudes", self._amplitudes):

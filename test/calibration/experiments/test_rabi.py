@@ -68,7 +68,7 @@ class RabiBackend(IQTestBackend):
                 "header": {"metadata": circ.metadata},
             }
 
-            amp = float(circ.data[0][0].params[0])
+            amp = next(iter(circ.calibrations['rx'].keys()))[1][0]
             prob = np.sin(self._amplitude_to_angle * amp) ** 2
 
             if meas_level == MeasLevel.CLASSIFIED:
