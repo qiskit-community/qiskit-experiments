@@ -116,9 +116,9 @@ class Calibrations:
         # check that channels, if parameterized, have the proper name format.
         if schedule.name.startswith(ScheduleBlock.prefix):
             raise CalibrationError(
-                f"{self.__class__.__name__} uses `name` property of the schedule as a part of database key. "
-                f"Using automatically generated name {schedule.name} may hurt handiness of calibration. "
-                "Please define meaningful and unique name to represent this schedule. "
+                f"{self.__class__.__name__} uses the `name` property of the schedule as part of a "
+                f"database key. Using the automatically generated name {schedule.name} may have "
+                f"unintended consequences. Please define a meaningful and unique schedule name."
             )
 
         param_indices = set()

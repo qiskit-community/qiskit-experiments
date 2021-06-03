@@ -13,12 +13,21 @@
 """Store and manage the results of calibration experiments in the context of a backend."""
 
 from datetime import datetime
+from enum import Enum
 from typing import List
 import copy
 
 from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Parameter
 from qiskit_experiments.calibration.calibrations import Calibrations, ParameterKey
+from qiskit_experiments.calibration.exceptions import CalibrationError
+
+
+class FrequencyElement(Enum):
+    """An extendable enum for components that have a frequency."""
+
+    QUBIT = "Qubit"
+    READOUT = "Readout"
 
 
 class BackendCalibrations(Calibrations):
@@ -46,23 +55,30 @@ class BackendCalibrations(Calibrations):
 
     def _get_frequencies(
         self,
-        meas_freq: bool,
+        element: FrequencyElement,
         group: str = "default",
         cutoff_date: datetime = None,
     ) -> List[float]:
         """Internal helper method."""
 
-        param = self.meas_freq.name if meas_freq else self.qubit_freq.name
+        if element == FrequencyElement.READOUT:
+            param = self.meas_freq.name
+        elif element == FrequencyElement.QUBIT:
+            param = self.qubit_freq.name
+        else:
+            raise CalibrationError(f"Frequency element {element} is not supported.")
 
         freqs = []
         for qubit in self._qubits:
             if ParameterKey(None, param, (qubit,)) in self._params:
                 freq = self.get_parameter_value(param, (qubit,), None, True, group, cutoff_date)
             else:
-                if meas_freq:
+                if element == FrequencyElement.READOUT:
                     freq = self._backend.defaults().meas_freq_est[qubit]
-                else:
+                elif element == FrequencyElement.QUBIT:
                     freq = self._backend.defaults().qubit_freq_est[qubit]
+                else:
+                    raise CalibrationError(f"Frequency element {element} is not supported.")
 
             freqs.append(freq)
 
@@ -90,7 +106,7 @@ class BackendCalibrations(Calibrations):
         Returns:
             A List of qubit frequencies for all qubits of the backend.
         """
-        return self._get_frequencies(False, group, cutoff_date)
+        return self._get_frequencies(FrequencyElement.QUBIT, group, cutoff_date)
 
     def get_meas_frequencies(
         self,
@@ -114,7 +130,7 @@ class BackendCalibrations(Calibrations):
         Returns:
             A List of measurement frequencies for all qubits of the backend.
         """
-        return self._get_frequencies(True, group, cutoff_date)
+        return self._get_frequencies(FrequencyElement.READOUT, group, cutoff_date)
 
     def export_backend(self) -> Backend:
         """
