@@ -21,6 +21,7 @@ from numbers import Integral
 from qiskit import transpile, assemble, QuantumCircuit
 from qiskit.providers.options import Options
 from qiskit.providers.backend import Backend
+from qiskit.providers import BaseJob
 from qiskit.providers.basebackend import BaseBackend as LegacyBackend
 from qiskit.exceptions import QiskitError
 
@@ -98,10 +99,25 @@ class BaseExperiment(ABC):
 
         Returns:
             The experiment data object.
+
+        Raises:
+            QiskitError: if experiment is run with an incompatible existing
+                         ExperimentData container.
         """
         if experiment_data is None:
             # Create new experiment data
             experiment_data = self.__experiment_data__(experiment=self, backend=backend)
+        else:
+            # Validate experiment is compatible with existing data container
+            metadata = experiment_data.metadata()
+            if metadata.get("experiment_data") != self._type:
+                raise QiskitError(
+                    "Existing ExperimentData contains data from a different experiment."
+                )
+            if metadata.get("physical_qubits") != list(self.physical_qubits):
+                raise QiskitError(
+                    "Existing ExperimentData contains data for a different set of physical qubits."
+                )
 
         # Run options
         run_opts = copy.copy(self.run_options)
@@ -121,7 +137,7 @@ class BaseExperiment(ABC):
         experiment_data.add_data(job)
 
         # Add experiment option metadata
-        self._add_job_metadata(experiment_data, job.job_id(), **run_opts)
+        self._add_job_metadata(experiment_data, job, **run_opts)
 
         # Queue analysis of data for when job is finished
         if analysis and self.__analysis_class__ is not None:
@@ -295,26 +311,36 @@ class BaseExperiment(ABC):
     def _metadata(self) -> Dict[str, any]:
         """Return experiment metadata for ExperimentData.
 
-        The current values of ``experiment_options``, ``transpile_options``,
-        ``run_options``, and ``analysis_options`` will be added to
-        the `"job_options"` dict when ``run`` is called. The job_id string
-        is used as the key in the job options dict.
+        The :meth:`_add_job_metadata` method will be called for each
+        experiment execution to append job metadata, including current
+        option values, to the ``job_metadata`` list.
         """
         # Subclasses can override this method if it is necessary to store
         # additional experiment metadata in ExperimentData.
+        # The `experiment_type` and `physical_qubits` field should remain
+        # unchanged as they are used for validation when appending data to
+        # an existing experiment data contianer.
         metadata = {
             "experiment_type": self._type,
             "num_qubits": self.num_qubits,
             "physical_qubits": list(self.physical_qubits),
-            "job_metadata": {},
+            "job_metadata": [],
         }
         return metadata
 
-    def _add_job_metadata(self, experiment_data, job_id, **run_options):
-        """Add runtime job metadata to ExperimentData"""
-        experiment_data._metadata["job_metadata"][job_id] = {
+    def _add_job_metadata(self, experiment_data: ExperimentData, job: BaseJob, **run_options):
+        """Add runtime job metadata to ExperimentData.
+
+        Args:
+            experiment_data: the experiment data container.
+            job: the job object.
+            run_options: backend run options for the job.
+        """
+        metadata = {
+            "job_id": job.job_id(),
             "experiment_options": copy.copy(self.experiment_options.__dict__),
             "transpile_options": copy.copy(self.transpile_options.__dict__),
             "analysis_options": copy.copy(self.analysis_options.__dict__),
             "run_options": copy.copy(run_options),
         }
+        experiment_data._metadata["job_metadata"].append(metadata)
