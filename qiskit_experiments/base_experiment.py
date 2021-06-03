@@ -195,7 +195,8 @@ class BaseExperiment(ABC):
         # Experiment subclasses should override this method to return
         # an `Options` object containing all the supported options for
         # that experiment and their default values. Only options listed
-        # here can be modified later by the `set_options` method.
+        # here can be modified later by the different methods for
+        # setting options.
         return Options()
 
     @property
