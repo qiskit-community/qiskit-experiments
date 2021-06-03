@@ -31,12 +31,13 @@ class CurveAnalysisResult(AnalysisResult):
     def __str__(self):
         out = ""
 
-        popt_keys = self.get("popt_keys")
-        popt = self.get("popt")
-        popt_err = self.get("popt_err")
+        if self.get("success"):
+            popt_keys = self.get("popt_keys")
+            popt = self.get("popt")
+            popt_err = self.get("popt_err")
 
-        for key, value, error in zip(popt_keys, popt, popt_err):
-            out += f"\n- {key}: {value} \u00B1 {error}"
+            for key, value, error in zip(popt_keys, popt, popt_err):
+                out += f"\n- {key}: {value} \u00B1 {error}"
         out += super().__str__()
 
         return out

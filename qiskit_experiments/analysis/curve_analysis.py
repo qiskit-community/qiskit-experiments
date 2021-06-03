@@ -233,6 +233,7 @@ class CurveAnalysis(BaseAnalysis):
             ax=None,
             xlabel="x value",
             ylabel="y value",
+            ylim=None,
             fit_reports=None,
             return_data_points=False,
         )
@@ -277,9 +278,7 @@ class CurveAnalysis(BaseAnalysis):
             else:
                 figure = axis.get_figure()
 
-            axis.set_xlabel(xlabel, fontsize=16)
-            axis.set_ylabel(ylabel, fontsize=16)
-
+            ymin, ymax = np.inf, -np.inf
             for series_def in self.__series__:
 
                 # plot raw data
@@ -291,6 +290,8 @@ class CurveAnalysis(BaseAnalysis):
                     y_values=y_values,
                     y_sigmas=y_sigmas,
                 )
+                ymin = min(ymin, *ydata)
+                ymax = max(ymax, *ydata)
                 plotting.plot_scatter(xdata=xdata, ydata=ydata, ax=axis, zorder=0)
 
                 # plot formatted data
@@ -321,18 +322,27 @@ class CurveAnalysis(BaseAnalysis):
                         zorder=2,
                     )
 
-                # format axis
+            # format axis
 
-                if len(self.__series__) > 1:
-                    axis.legend()
-                axis.tick_params(labelsize=14)
-                axis.grid(True)
+            if len(self.__series__) > 1:
+                axis.legend(loc="center right")
+            axis.set_xlabel(xlabel, fontsize=16)
+            axis.set_ylabel(ylabel, fontsize=16)
+            axis.tick_params(labelsize=14)
+            axis.grid(True)
+
+            # automatic scaling y axis by actual data point.
+            # note that y axis will be scaled by confidence interval by default.
+            # sometimes we cannot see any data point if variance of parameters is too large.
+
+            height = ymax - ymin
+            axis.set_ylim(ymin - 0.1 * height, ymax + 0.1 * height)
 
             # write analysis report
 
             if fit_reports and fit_available:
                 # write fit status in the plot
-                analysis_description = "Analysis Reports:\n"
+                analysis_description = ""
                 for par_name, label in fit_reports.items():
                     try:
                         # fit value
@@ -343,18 +353,24 @@ class CurveAnalysis(BaseAnalysis):
                         # maybe post processed value
                         pval = analysis_results[par_name]
                         perr = analysis_results[f"{par_name}_err"]
-                    analysis_description += f"  \u25B7 {label} = {pval: .3e} \u00B1 {perr: .3e}\n"
+                    analysis_description += f"{label} = {pval: .3e} \u00B1 {perr: .3e}\n"
                 chisq = analysis_results["reduced_chisq"]
                 analysis_description += f"Fit \u03C7-squared = {chisq: .4f}"
 
-                axis.text(
-                    axis.get_xlim()[0],
-                    axis.get_ylim()[1],
+                report_handler = axis.text(
+                    0.60,
+                    0.95,
                     analysis_description,
-                    ha="left",
-                    va="bottom",
-                    size=12,
+                    ha="center",
+                    va="top",
+                    size=14,
+                    transform=axis.transAxes,
                 )
+                
+                bbox_props = dict(
+                    boxstyle="square, pad=0.3", fc="white", ec="black", lw=1, alpha=0.8
+                )
+                report_handler.set_bbox(bbox_props)
 
             return [figure]
         else:

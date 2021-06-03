@@ -61,7 +61,7 @@ class InterleavedRBAnalysis(RBAnalysis):
     @classmethod
     def _default_options(cls):
         default_options = super()._default_options()
-        default_options.fit_reports = {"alpha": "\u03B1", "alpha_c": "\u03B1_c", "EPC": "EPC"}
+        default_options.fit_reports = {"alpha": "\u03B1", "alpha_c": "\u03B1$_c$", "EPC": "EPC"}
 
         return default_options
 
