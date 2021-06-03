@@ -366,7 +366,7 @@ class CurveAnalysis(BaseAnalysis):
                     size=14,
                     transform=axis.transAxes,
                 )
-                
+
                 bbox_props = dict(
                     boxstyle="square, pad=0.3", fc="white", ec="black", lw=1, alpha=0.8
                 )
