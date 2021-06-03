@@ -12,13 +12,16 @@
 
 """An mock IQ backend for testing."""
 
+from abc import abstractmethod
 from typing import Dict, List, Tuple
 import numpy as np
 
+from qiskit import QuantumCircuit
 from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.providers import JobV1
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
+from qiskit.qobj.utils import MeasLevel
 
 
 class TestJob(JobV1):
@@ -91,5 +94,57 @@ class IQTestBackend(Backend):
         else:
             return [[self._iq_cluster_centers[2] + rand_i, self._iq_cluster_centers[3] + rand_q]]
 
-    def run(self, run_input, **options) -> TestJob:
-        """Subclasses will need to override this."""
+    @abstractmethod
+    def _compute_probability(self, circuit: QuantumCircuit) -> float:
+        """Compute the probability used in the binomial distribution creating the IQ shot.
+
+        An abstract method that subclasses will implement to create a probability of
+        being in the excited state based on the received quantum circuit.
+
+        Args:
+            circuit: The circuit from which to compute the probability.
+
+        Returns:
+             The probability that the binaomial distribution will use to generate an IQ shot.
+        """
+
+    # pylint: disable=arguments-differ
+    def run(self, circuits, shots=1024, meas_level=MeasLevel.KERNELED, meas_return="single"):
+        """Run the spectroscopy backend."""
+
+        result = {
+            "backend_name": f"{self.__class__.__name__}",
+            "backend_version": "0",
+            "qobj_id": 0,
+            "job_id": 0,
+            "success": True,
+            "results": [],
+        }
+
+        for circ in circuits:
+            run_result = {
+                "shots": shots,
+                "success": True,
+                "header": {"metadata": circ.metadata},
+            }
+
+            prob = self._compute_probability(circ)
+
+            if meas_level == MeasLevel.CLASSIFIED:
+                counts = {"1": 0, "0": 0}
+
+                for _ in range(shots):
+                    counts[str(self._rng.binomial(1, prob))] += 1
+
+                run_result["data"] = {"counts": counts}
+            else:
+                memory = [self._draw_iq_shot(prob) for _ in range(shots)]
+
+                if meas_return == "avg":
+                    memory = np.average(np.array(memory), axis=0).tolist()
+
+                run_result["data"] = {"memory": memory}
+
+            result["results"].append(run_result)
+
+        return TestJob(self, result)

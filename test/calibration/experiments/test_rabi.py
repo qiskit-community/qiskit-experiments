@@ -24,14 +24,11 @@ from qiskit_experiments import ExperimentData
 from qiskit_experiments.calibration.experiments.rabi import RabiAnalysis, Rabi
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
-
-from qiskit_experiments.test.mock_iq_backend import TestJob, IQTestBackend
+from qiskit_experiments.test.mock_iq_backend import IQTestBackend
 
 
 class RabiBackend(IQTestBackend):
-    """
-    A simple and primitive backend, to be run by the T1 tests
-    """
+    """A simple and primitive backend, to be run by the T1 tests."""
 
     def __init__(
         self,
@@ -40,53 +37,14 @@ class RabiBackend(IQTestBackend):
         amplitude_to_angle=np.pi,
     ):
         """Initialize the rabi backend."""
-        self.__configuration__["basis_gates"] = ["rx"]
         self._amplitude_to_angle = amplitude_to_angle
 
         super().__init__(iq_cluster_centers, iq_cluster_width)
 
-    # pylint: disable = arguments-differ
-    def run(self, circuits, shots=1024, meas_level=MeasLevel.KERNELED, meas_return="single"):
-        """Run the spectroscopy backend."""
-
-        result = {
-            "backend_name": "spectroscopy backend",
-            "backend_version": "0",
-            "qobj_id": 0,
-            "job_id": 0,
-            "success": True,
-            "results": [],
-        }
-
-        for circ in circuits:
-
-            run_result = {
-                "shots": shots,
-                "success": True,
-                "header": {"metadata": circ.metadata},
-            }
-
-            amp = next(iter(circ.calibrations["rx"].keys()))[1][0]
-            prob = np.sin(self._amplitude_to_angle * amp) ** 2
-
-            if meas_level == MeasLevel.CLASSIFIED:
-                counts = {"1": 0, "0": 0}
-
-                for _ in range(shots):
-                    counts[str(self._rng.binomial(1, prob))] += 1
-
-                run_result["data"] = {"counts": counts}
-            else:
-                memory = [self._draw_iq_shot(prob) for _ in range(shots)]
-
-                if meas_return == "avg":
-                    memory = np.average(np.array(memory), axis=0).tolist()
-
-                run_result["data"] = {"memory": memory}
-
-            result["results"].append(run_result)
-
-        return TestJob(self, result)
+    def _compute_probability(self, circuit: QuantumCircuit) -> float:
+        """Returns the probability based on the rotation angle and amplitude_to_angle."""
+        amp = next(iter(circuit.calibrations["rx"].keys()))[1][0]
+        return np.sin(self._amplitude_to_angle * amp) ** 2
 
 
 class TestRabiEndToEnd(QiskitTestCase):
