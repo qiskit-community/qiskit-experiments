@@ -16,12 +16,14 @@
 A Tester for the RB experiment
 """
 
+
+import numpy as np
+from ddt import ddt, data, unpack
 from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.quantum_info import Clifford
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeParis
-from ddt import ddt, data, unpack
-import numpy as np
+from qiskit.circuit.library import XGate, CXGate
 import qiskit_experiments as qe
 
 
@@ -43,7 +45,7 @@ class TestRB(QiskitTestCase):
         exp_attributes = {
             "qubits": qubits,
             "lengths": [1, 4, 6, 9, 13, 16],
-            "num_samples": 1,
+            "num_samples": 2,
             "seed": 100,
         }
         rb = qe.randomized_benchmarking
@@ -82,10 +84,11 @@ class TestRB(QiskitTestCase):
             circuits (list): A list containing quantum circuits
             exp_attributes (dict): A dictionary with the experiment variable and values
         """
-        for ind, qc in enumerate(circuits):
+        for qc in circuits:
             self.assertTrue(
-                qc.metadata["xval"] == exp_attributes["lengths"][ind],
-                "The number of gates in the experiment metadata doesn't match to the one provided.",
+                qc.metadata["xval"] in exp_attributes["lengths"],
+                "The number of gates in the experiment metadata doesn't match "
+                "any of the provided lengths",
             )
             self.assertTrue(
                 qc.metadata["qubits"] == tuple(exp_attributes["qubits"]),
@@ -115,3 +118,43 @@ class TestRB(QiskitTestCase):
             tuple(exp_attributes["qubits"]) == experiment.physical_qubits,
             "The qubits indices in the experiment doesn't match to the one in the metadata.",
         )
+
+
+@ddt
+class TestInterleavedRB(TestRB):
+    """
+    A test class for the interleaved RB Experiment to check that the
+    InterleavedRBExperiment class is working correctly.
+    """
+
+    @data([XGate(), [3]], [CXGate(), [4, 7]])
+    @unpack
+    def test_interleaved_rb_experiment(self, interleaved_element: "Gate", qubits: list):
+        """
+        Initializes data and executes an interleaved RB experiment with specific parameters.
+        Args:
+            interleaved_element: The Clifford element to interleave
+            qubits (list): A list containing qubit indices for the experiment
+        """
+        backend = FakeParis()
+        exp_attributes = {
+            "interleaved_element": interleaved_element,
+            "qubits": qubits,
+            "lengths": [1, 4, 6, 9, 13, 16],
+            "num_samples": 2,
+            "seed": 100,
+        }
+        rb = qe.randomized_benchmarking
+        rb_exp = rb.InterleavedRBExperiment(
+            exp_attributes["interleaved_element"],
+            exp_attributes["qubits"],
+            exp_attributes["lengths"],
+            num_samples=exp_attributes["num_samples"],
+            seed=exp_attributes["seed"],
+        )
+        experiment_obj = rb_exp.run(backend)
+        exp_data = experiment_obj.experiment
+        exp_circuits = rb_exp.circuits()
+        self.validate_metadata(exp_circuits, exp_attributes)
+        self.validate_circuit_data(exp_data, exp_attributes)
+        self.is_identity(exp_circuits)
