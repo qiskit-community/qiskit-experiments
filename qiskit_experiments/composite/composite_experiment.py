@@ -52,6 +52,6 @@ class CompositeExperiment(BaseExperiment):
         """Return the component Experiment object"""
         return self._experiments[index]
 
-    def component_analysis(self, index, **analysis_options):
+    def component_analysis(self, index):
         """Return the component experiment Analysis object"""
-        return self.component_experiment(index).analysis(**analysis_options)
+        return self.component_experiment(index).analysis()
