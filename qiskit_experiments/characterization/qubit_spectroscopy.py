@@ -135,9 +135,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
             generated.
 
         Raises:
-            QiskitError:
-                - If the measurement level is not supported.
-                - If the fit fails.
+            QiskitError: If the fit fails.
         """
 
         meas_level = experiment_data.data(0)["metadata"]["meas_level"]

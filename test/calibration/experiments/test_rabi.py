@@ -47,7 +47,7 @@ class RabiBackend(IQTestBackend):
 
     # pylint: disable = arguments-differ
     def run(
-        self, circuits, shots=1024, meas_level=MeasLevel.KERNELED, meas_return="single", **options
+        self, circuits, shots=1024, meas_level=MeasLevel.KERNELED, meas_return="single"
     ):
         """Run the spectroscopy backend."""
 
@@ -68,7 +68,7 @@ class RabiBackend(IQTestBackend):
                 "header": {"metadata": circ.metadata},
             }
 
-            amp = next(iter(circ.calibrations['rx'].keys()))[1][0]
+            amp = next(iter(circ.calibrations["rx"].keys()))[1][0]
             prob = np.sin(self._amplitude_to_angle * amp) ** 2
 
             if meas_level == MeasLevel.CLASSIFIED:

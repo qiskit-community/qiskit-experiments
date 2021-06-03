@@ -45,11 +45,13 @@ class RabiAnalysis(BaseAnalysis):
     def _default_options(cls):
         return Options(
             amp_guess=0.5,
-            freq_guess=np.pi,
+            freq_guesses=np.linspace(0, 5 * np.pi, 10),
             offset_guess=0.5,
+            phase_guess=None,
             amp_bounds=(-1, 1),
             freq_bounds=(0, np.inf),
             offset_bounds=(0, 1),
+            phase_bounds=(-np.pi, np.pi),
         )
 
     def _run_analysis(
@@ -57,11 +59,13 @@ class RabiAnalysis(BaseAnalysis):
         experiment_data: ExperimentData,
         data_processor: Optional[Callable] = None,
         amp_guess: float = 1.0,
-        freq_guess: float = np.pi,
+        freq_guesses: List[float] = np.linspace(0, 5 * np.pi, 10),
         offset_guess: float = 0.0,
+        phase_guess: Optional[float] = None,
         amp_bounds: Tuple[float, float] = (-1, 1),
         freq_bounds: Tuple[float, float] = (0, np.inf),
-        offset_bounds: Tuple[float, float] = (0, 1),
+        offset_bounds: Tuple[float, float] = (-1, 1),
+        phase_bounds: Tuple[float, float] = (-np.pi, np.pi),
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,
     ) -> Tuple[AnalysisResult, List["plotting.pyplot.Figure"]]:
@@ -72,19 +76,23 @@ class RabiAnalysis(BaseAnalysis):
             data_processor: A data processor with which to analyse the data. If None is given
                 a SVD-based data processor will be used for kerneled data while a conversion
                 from counts to probabilities will be used for discriminated data.
-            meas_level: The measurement level used.
             amp_guess: The amplitude guess for the fit which will default to 0.5.
-            freq_guess: The frequency guess for the fit which defaults to pi.
+            freq_guesses: The frequency guesses for the fit which defaults to a list of 20 points
+                linearly spaced between 0 and 2pi.
             offset_guess: The y-axis offset which defaults to 0.5.
+            phase_guess: Phase of the oscillation which defaults to both 0 and pi.
             amp_bounds: Bounds on the amplitude which default to (-1, 1).
             freq_bounds: Bounds on the frequency which default to (0, inf).
             offset_bounds: Bounds on the offset which default to (0,1).
+            phase_bounds: Bounds on the phase of the cosine which default to (-pi, pi).
             plot: If True generate a plot of fitted data.
             ax: Optional, matplotlib axis to add plot to.
-            kwargs: Trailing unused function parameters.
 
         Returns:
             The analysis result with the fit and optional plots.
+
+        Raises:
+            QiskitError: If the fit fails.
         """
 
         meas_level = experiment_data.data(0)["metadata"]["meas_level"]
@@ -113,14 +121,34 @@ class RabiAnalysis(BaseAnalysis):
         # Perform fit
         best_fit = None
 
-        def fit_fun(x, a, b, c):
-            return a * np.cos(b * x) + c
+        def fit_fun(x, amplitude, frequency, phase, offset):
+            return amplitude * np.cos(frequency * x + phase) + offset
 
-        bounds = {"a": amp_bounds, "b": freq_bounds, "c": offset_bounds}
+        bounds = {
+            "amplitude": amp_bounds,
+            "frequency": freq_bounds,
+            "phase": phase_bounds,
+            "offset": offset_bounds,
+        }
 
-        for guess in [(amp_guess, offset_guess), (1, 0), (-1, 1)]:
-            amp_, offset_ = guess[0], guess[1]
-            init = {"a": amp_, "b": freq_guess, "c": offset_}
+        # Guesses have two phases to catch signals that start at 1 or 0 at zero-amplitude.
+        guesses = []
+        for freq in freq_guesses:
+            if phase_guess is None:
+                guesses.append((freq, 0))
+                guesses.append((freq, np.pi))
+            else:
+                guesses.append((freq, phase_guess))
+
+        for guess in guesses:
+            freq_guess, phase_guess = guess[0], guess[1]
+            init = {
+                "amplitude": amp_guess,
+                "frequency": freq_guess,
+                "phase": phase_guess,
+                "offset": offset_guess,
+            }
+
             try:
                 fit_result = curve_fit(fit_fun, xdata, ydata, init, sigmas, bounds)
 
@@ -136,16 +164,14 @@ class RabiAnalysis(BaseAnalysis):
         if best_fit is None:
             raise QiskitError("Could not find a fit to the spectroscopy data.")
 
-        fit_result = curve_fit(fit_fun, xdata, ydata, init, sigma=sigmas, bounds=bounds)
-
-        fit_result["value"] = fit_result["popt"][1]
-        fit_result["stderr"] = (fit_result["popt_err"][1],)
-        fit_result["label"] = "Spectroscopy"
-        fit_result["xdata"] = xdata
-        fit_result["ydata"] = ydata
-        fit_result["ydata_err"] = sigmas
-        fit_result["quality"] = self._fit_quality(
-            fit_result["popt"][1], fit_result["reduced_chisq"], fit_result["popt_err"][1]
+        best_fit["value"] = best_fit["popt"][1]
+        best_fit["stderr"] = (fit_result["popt_err"][1],)
+        best_fit["label"] = "Spectroscopy"
+        best_fit["xdata"] = xdata
+        best_fit["ydata"] = ydata
+        best_fit["ydata_err"] = sigmas
+        best_fit["quality"] = self._fit_quality(
+            best_fit["popt"][1], best_fit["reduced_chisq"], best_fit["popt_err"][1]
         )
 
         if plot and plotting.HAS_MATPLOTLIB:
@@ -156,7 +182,7 @@ class RabiAnalysis(BaseAnalysis):
         else:
             figures = None
 
-        return fit_result, figures
+        return best_fit, figures
 
     @staticmethod
     def _fit_quality(fit_freq: float, reduced_chisq: float, fit_freq_err: float):
