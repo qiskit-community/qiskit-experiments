@@ -68,7 +68,6 @@ class BaseExperiment(ABC):
             self._num_qubits = len(qubits)
             self._physical_qubits = tuple(qubits)
             if self._num_qubits != len(set(self._physical_qubits)):
-                print(self._num_qubits, self._physical_qubits)
                 raise QiskitError("Duplicate qubits in physical qubits list.")
 
         # Experiment options
