@@ -46,9 +46,7 @@ class RabiBackend(IQTestBackend):
         super().__init__(iq_cluster_centers, iq_cluster_width)
 
     # pylint: disable = arguments-differ
-    def run(
-        self, circuits, shots=1024, meas_level=MeasLevel.KERNELED, meas_return="single"
-    ):
+    def run(self, circuits, shots=1024, meas_level=MeasLevel.KERNELED, meas_return="single"):
         """Run the spectroscopy backend."""
 
         result = {
