@@ -63,6 +63,7 @@ def create_new_analysis(series: List[SeriesDef]) -> CurveAnalysis:
 
     class TestAnalysis(CurveAnalysis):
         """A mock analysis class to test."""
+
         __series__ = series
 
     return TestAnalysis()

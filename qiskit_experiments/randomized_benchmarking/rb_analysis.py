@@ -44,7 +44,7 @@ class RBAnalysis(CurveAnalysis):
     def _default_options(cls):
         default_options = super()._default_options()
         default_options.p0 = {"a": None, "alpha": None, "b": None}
-        default_options.bounds = {"a": (0., 1.), "alpha": (0., 1.), "b": (0., 1.)}
+        default_options.bounds = {"a": (0.0, 1.0), "alpha": (0.0, 1.0), "b": (0.0, 1.0)}
         default_options.xlabel = "Clifford Length"
         default_options.ylabel = "P(0)"
         default_options.fit_reports = {"alpha": "\u03B1", "EPC": "EPC"}
@@ -56,21 +56,17 @@ class RBAnalysis(CurveAnalysis):
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
 
-        initial_guess = self._initial_guess(
-            self._x_values,
-            self._y_values,
-            self._num_qubits
-        )
+        initial_guess = self._initial_guess(self._x_values, self._y_values, self._num_qubits)
         fit_option = {
             "p0": {
                 "a": user_p0["a"] or initial_guess["a"],
                 "alpha": user_p0["alpha"] or initial_guess["alpha"],
-                "b": user_p0["b"] or initial_guess["b"]
+                "b": user_p0["b"] or initial_guess["b"],
             },
             "bounds": {
-                "a": user_bounds["a"] or (0., 1.),
-                "alpha": user_bounds["alpha"] or (0., 1.),
-                "b": user_bounds["b"] or (0., 1.)
+                "a": user_bounds["a"] or (0.0, 1.0),
+                "alpha": user_bounds["alpha"] or (0.0, 1.0),
+                "b": user_bounds["b"] or (0.0, 1.0),
             },
         }
         fit_option.update(options)
@@ -104,7 +100,7 @@ class RBAnalysis(CurveAnalysis):
             xdata=self._x_values,
             ydata=self._y_values,
             sigma=self._y_sigmas,
-            method="sample"
+            method="sample",
         )
 
     def _post_processing(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:

@@ -12,7 +12,7 @@
 
 """Spectroscopy experiment class."""
 
-from typing import List, Dict, Any, Tuple, Union, Optional
+from typing import List, Dict, Any, Union, Optional
 
 import numpy as np
 import qiskit.pulse as pulse
@@ -94,7 +94,7 @@ class SpectroscopyAnalysis(CurveAnalysis):
             },
             "bounds": {
                 "a": user_bounds["a"] or (-2 * max_abs_y, 2 * max_abs_y),
-                "sigma": user_bounds["sigma"] or (0., max(self._x_values) - min(self._x_values)),
+                "sigma": user_bounds["sigma"] or (0.0, max(self._x_values) - min(self._x_values)),
                 "freq": user_bounds["freq"] or (min(self._x_values), max(self._x_values)),
                 "b": user_bounds["b"] or (-max_abs_y, max_abs_y),
             },
@@ -135,7 +135,7 @@ class SpectroscopyAnalysis(CurveAnalysis):
             fit_width_ratio < 0.25,
             analysis_result["reduced_chisq"] < 3,
             (fit_sigma_err is None or fit_sigma_err < fit_sigma),
-            snr > 2
+            snr > 2,
         ]
 
         if all(criteria):
@@ -226,9 +226,7 @@ class QubitSpectroscopy(BaseExperiment):
 
         self._frequencies = [freq * self.__units__[unit] for freq in frequencies]
         self._absolute = absolute
-        self.set_analysis_options(
-            xlabel=f"Frequency [{unit}]", ylabel="Signal [arb. unit]"
-        )
+        self.set_analysis_options(xlabel=f"Frequency [{unit}]", ylabel="Signal [arb. unit]")
 
     def circuits(self, backend: Optional[Backend] = None):
         """Create the circuit for the spectroscopy experiment.

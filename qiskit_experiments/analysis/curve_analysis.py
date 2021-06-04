@@ -181,12 +181,15 @@ class CurveAnalysis(BaseAnalysis):
     #: List[SeriesDef]: List of mapping representing a data series
     __series__ = None
 
-    def __new__(cls):
+    def __new__(cls) -> "CurveAnalysis":
         """Parse series data if all fit functions have the same argument.
 
         Raises:
             AnalysisError:
                 - When fit functions have different argument.
+
+        Returns:
+            CurveAnalysis instance with validated series definitions.
         """
         obj = object.__new__(cls)
 
@@ -222,7 +225,7 @@ class CurveAnalysis(BaseAnalysis):
         self._num_qubits = None
 
         # Add expected options to instance variable so that every method can access to.
-        for key in self._default_options().__dict__.keys():
+        for key in self._default_options().__dict__:
             setattr(self, f"_{key}", None)
 
     @classmethod
@@ -459,7 +462,7 @@ class CurveAnalysis(BaseAnalysis):
         return analysis_result
 
     def _extract_curves(
-            self, experiment_data: ExperimentData, data_processor: Union[Callable, DataProcessor]
+        self, experiment_data: ExperimentData, data_processor: Union[Callable, DataProcessor]
     ):
         """Extract curve data from experiment data.
 
@@ -482,6 +485,7 @@ class CurveAnalysis(BaseAnalysis):
             DataProcessorError:
                 - When __x_key__ is not defined in the circuit metadata.
         """
+
         def _is_target_series(datum, **filters):
             try:
                 return all(datum["metadata"][key] == val for key, val in filters.items())
@@ -571,12 +575,12 @@ class CurveAnalysis(BaseAnalysis):
         return fitter_options
 
     def _subset_data(
-            self,
-            name: str,
-            data_index: np.ndarray,
-            x_values: np.ndarray,
-            y_values: np.ndarray,
-            y_sigmas: np.ndarray,
+        self,
+        name: str,
+        data_index: np.ndarray,
+        x_values: np.ndarray,
+        y_values: np.ndarray,
+        y_sigmas: np.ndarray,
     ) -> Tuple[np.ndarray, ...]:
         """A helper method to extract reduced set of data.
 
@@ -631,14 +635,18 @@ class CurveAnalysis(BaseAnalysis):
 
         Return:
             Arbitrary object specified by the option name.
+
+        Raises:
+            AnalysisError:
+                - When `arg_name` is not found in the analysis options.
         """
         try:
             return getattr(self, f"_{arg_name}")
-        except AttributeError:
+        except AttributeError as ex:
             raise AnalysisError(
                 f"The argument {arg_name} is selected but not defined. "
                 "This key-value pair should be defined in the analysis option."
-            )
+            ) from ex
 
     def _run_analysis(
         self, experiment_data: ExperimentData, **options

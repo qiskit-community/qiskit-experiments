@@ -35,13 +35,13 @@ def get_opt_value(analysis_result: AnalysisResult, param_name: str) -> float:
     try:
         index = analysis_result["popt_keys"].index(param_name)
         return analysis_result["popt"][index]
-    except KeyError:
+    except KeyError as ex:
         raise KeyError(
             "Input analysis result has not fit parameter information. "
             "Please confirm if the fit is successfully completed."
-        )
-    except ValueError:
-        raise ValueError(f"Parameter {param_name} is not defined.")
+        ) from ex
+    except ValueError as ex:
+        raise ValueError(f"Parameter {param_name} is not defined.") from ex
 
 
 def get_opt_error(analysis_result: AnalysisResult, param_name: str) -> float:
@@ -63,10 +63,10 @@ def get_opt_error(analysis_result: AnalysisResult, param_name: str) -> float:
     try:
         index = analysis_result["popt_keys"].index(param_name)
         return analysis_result["popt_err"][index]
-    except KeyError:
+    except KeyError as ex:
         raise KeyError(
             "Input analysis result has not fit parameter information. "
             "Please confirm if the fit is successfully completed."
-        )
-    except ValueError:
-        raise ValueError(f"Parameter {param_name} is not defined.")
+        ) from ex
+    except ValueError as ex:
+        raise ValueError(f"Parameter {param_name} is not defined.") from ex

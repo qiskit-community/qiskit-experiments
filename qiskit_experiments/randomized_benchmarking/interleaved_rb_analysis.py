@@ -68,7 +68,10 @@ class InterleavedRBAnalysis(RBAnalysis):
         default_options = super()._default_options()
         default_options.p0 = {"a": None, "alpha": None, "alpha_c": None, "b": None}
         default_options.bounds = {
-            "a": (0., 1.), "alpha": (0., 1.), "alpha_c": (0., 1.), "b": (0., 1.)
+            "a": (0.0, 1.0),
+            "alpha": (0.0, 1.0),
+            "alpha_c": (0.0, 1.0),
+            "b": (0.0, 1.0),
         }
         default_options.fit_reports = {"alpha": "\u03B1", "alpha_c": "\u03B1$_c$", "EPC": "EPC"}
 
@@ -105,11 +108,11 @@ class InterleavedRBAnalysis(RBAnalysis):
                 "b": user_p0["b"] or np.mean([p0_std["b"], p0_int["b"]]),
             },
             "bounds": {
-                "a": user_bounds["a"] or (0., 1.),
-                "alpha": user_bounds["alpha"] or (0., 1.),
-                "alpha_c": user_bounds["alpha_c"] or (0., 1.),
-                "b": user_bounds["b"] or (0., 1.),
-            }
+                "a": user_bounds["a"] or (0.0, 1.0),
+                "alpha": user_bounds["alpha"] or (0.0, 1.0),
+                "alpha_c": user_bounds["alpha_c"] or (0.0, 1.0),
+                "b": user_bounds["b"] or (0.0, 1.0),
+            },
         }
         fit_option.update(options)
 
