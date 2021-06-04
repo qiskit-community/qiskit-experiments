@@ -17,7 +17,14 @@ from typing import List, Tuple, Dict, Any, Union
 
 import numpy as np
 
-from qiskit_experiments.analysis import CurveAnalysis, CurveAnalysisResult, SeriesDef, fit_function
+from qiskit_experiments.analysis import (
+    CurveAnalysis,
+    CurveAnalysisResult,
+    SeriesDef,
+    fit_function,
+    get_opt_value,
+    get_opt_error,
+)
 from qiskit_experiments.analysis.data_processing import multi_mean_xy_data
 
 
@@ -50,11 +57,11 @@ class RBAnalysis(CurveAnalysis):
         user_bounds = self._get_option("bounds")
 
         initial_guess = self._initial_guess(
-            self.__x_values,
-            self.__y_values,
-            self.__num_qubits
+            self._x_values,
+            self._y_values,
+            self._num_qubits
         )
-        return {
+        fit_option = {
             "p0": {
                 "a": user_p0["a"] or initial_guess["a"],
                 "alpha": user_p0["alpha"] or initial_guess["alpha"],
@@ -66,6 +73,9 @@ class RBAnalysis(CurveAnalysis):
                 "b": user_bounds["b"] or (0., 1.)
             },
         }
+        fit_option.update(options)
+
+        return fit_option
 
     @staticmethod
     def _initial_guess(
@@ -90,19 +100,19 @@ class RBAnalysis(CurveAnalysis):
     def _pre_processing(self) -> Tuple[np.ndarray, ...]:
         """Average over the same x values."""
         return multi_mean_xy_data(
-            series=self.__data_index,
-            xdata=self.__x_values,
-            ydata=self.__y_values,
-            sigma=self.__y_sigmas,
+            series=self._data_index,
+            xdata=self._x_values,
+            ydata=self._y_values,
+            sigma=self._y_sigmas,
             method="sample"
         )
 
     def _post_processing(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
         """Calculate EPC."""
-        alpha = analysis_result["popt"][1]
-        alpha_err = analysis_result["popt_err"][1]
+        alpha = get_opt_value(analysis_result, "alpha")
+        alpha_err = get_opt_error(analysis_result, "alpha")
 
-        scale = (2 ** self.__num_qubits - 1) / (2 ** self.__num_qubits)
+        scale = (2 ** self._num_qubits - 1) / (2 ** self._num_qubits)
         analysis_result["EPC"] = scale * (1 - alpha)
         analysis_result["EPC_err"] = scale * alpha_err / alpha
 

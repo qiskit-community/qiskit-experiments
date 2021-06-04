@@ -177,9 +177,6 @@ def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float, float
         mean probability is :math:`p = K / N` and the variance is
         :math:`\\sigma^2 = p (1-p) / N`.
     """
-    # TODO fix sigma definition
-    # When the count is 100% zero (i.e. simulator), this yields sigma=0.
-    # This crashes scipy fitter when it calculates covariance matrix (zero-div error).
     counts = data["counts"]
 
     shots = sum(counts.values())

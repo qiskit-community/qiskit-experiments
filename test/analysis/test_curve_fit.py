@@ -23,6 +23,7 @@ from qiskit_experiments.analysis import CurveAnalysis, SeriesDef, fit_function
 from qiskit_experiments.analysis.curve_fitting import multi_curve_fit
 from qiskit_experiments.analysis.data_processing import probability
 from qiskit_experiments.base_experiment import BaseExperiment
+from qiskit_experiments.exceptions import AnalysisError
 
 
 class FakeExperiment(BaseExperiment):
@@ -57,18 +58,12 @@ def simulate_output_data(func, xvals, param_dict, **metadata):
     return expdata
 
 
-def create_new_analysis(
-    x_key: str = "xval",
-    series: List[SeriesDef] = None,
-) -> CurveAnalysis:
+def create_new_analysis(series: List[SeriesDef]) -> CurveAnalysis:
     """A helper function to create a mock analysis class instance."""
 
     class TestAnalysis(CurveAnalysis):
         """A mock analysis class to test."""
-
-        __x_key__ = x_key
         __series__ = series
-        __processing_options__ = ["outcome"]
 
     return TestAnalysis()
 
@@ -115,8 +110,37 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         )
         self.err_decimal = 3
 
+    def test_cannot_create_invalid_series_fit(self):
+        """Test we cannot create invalid analysis instance."""
+        invalid_series = [
+            SeriesDef(
+                name="fit1",
+                fit_func=lambda x, p0: fit_function.exponential_decay(x, amp=p0),
+            ),
+            SeriesDef(
+                name="fit2",
+                fit_func=lambda x, p1: fit_function.exponential_decay(x, amp=p1),
+            ),
+        ]
+        with self.assertRaises(AnalysisError):
+            create_new_analysis(series=invalid_series)  # fit1 has param p0 while fit2 has p1
+
+    def test_arg_parse_and_get_option(self):
+        """Test if option parsing works correctly."""
+        user_option = {"x_key": "test_value", "test_key1": "value1", "test_key2": "value2"}
+
+        # argument not defined in default option should be returned as extra option
+        extra_option = self.analysis._arg_parse(**user_option)
+        ref_option = {"test_key1": "value1", "test_key2": "value2"}
+        self.assertDictEqual(extra_option, ref_option)
+
+        # default option value is stored as class variable
+        self.assertEqual(self.analysis._get_option("x_key"), "test_value")
+
     def test_data_extraction(self):
         """Test data extraction method."""
+        self.analysis._arg_parse(x_key="xval")
+
         # data to analyze
         test_data0 = simulate_output_data(
             func=fit_function.exponential_decay,
@@ -138,9 +162,13 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         for datum in test_data1.data():
             test_data0.add_data(datum)
 
-        series, xdata, ydata, sigma = self.analysis._extract_curves(
-            x_key="xval", experiment_data=test_data0, data_processor=probability(outcome="1")
+        self.analysis._extract_curves(
+            experiment_data=test_data0, data_processor=probability(outcome="1")
         )
+        xdata = self.analysis._x_values
+        ydata = self.analysis._y_values
+        sigma = self.analysis._y_sigmas
+        d_index = self.analysis._data_index
 
         # check if the module filter off data: valid=False
         self.assertEqual(len(xdata), 20)
@@ -160,7 +188,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
 
         # check series
         ref_series = np.concatenate((np.zeros(10, dtype=int), -1 * np.ones(10, dtype=int)))
-        self.assertListEqual(list(series), list(ref_series))
+        self.assertListEqual(list(d_index), list(ref_series))
 
         # check y errors
         ref_yerr = ref_y * (1 - ref_y) / 100000
@@ -169,22 +197,22 @@ class TestCurveAnalysisUnit(QiskitTestCase):
     def test_get_subset(self):
         """Test that get subset data from full data array."""
 
-        series = np.asarray([0, 1, 0, 2, 2, -1], dtype=int)
+        d_index = np.asarray([0, 1, 0, 2, 2, -1], dtype=int)
         xdata = np.asarray([1, 2, 3, 4, 5, 6], dtype=float)
         ydata = np.asarray([1, 2, 3, 4, 5, 6], dtype=float)
         sigma = np.asarray([1, 2, 3, 4, 5, 6], dtype=float)
 
-        subx, suby, subs = self.analysis._subset_data("curve1", series, xdata, ydata, sigma)
+        subx, suby, subs = self.analysis._subset_data("curve1", d_index, xdata, ydata, sigma)
         np.testing.assert_array_almost_equal(subx, np.asarray([1, 3], dtype=float))
         np.testing.assert_array_almost_equal(suby, np.asarray([1, 3], dtype=float))
         np.testing.assert_array_almost_equal(subs, np.asarray([1, 3], dtype=float))
 
-        subx, suby, subs = self.analysis._subset_data("curve2", series, xdata, ydata, sigma)
+        subx, suby, subs = self.analysis._subset_data("curve2", d_index, xdata, ydata, sigma)
         np.testing.assert_array_almost_equal(subx, np.asarray([2], dtype=float))
         np.testing.assert_array_almost_equal(suby, np.asarray([2], dtype=float))
         np.testing.assert_array_almost_equal(subs, np.asarray([2], dtype=float))
 
-        subx, suby, subs = self.analysis._subset_data("curve3", series, xdata, ydata, sigma)
+        subx, suby, subs = self.analysis._subset_data("curve3", d_index, xdata, ydata, sigma)
         np.testing.assert_array_almost_equal(subx, np.asarray([4, 5], dtype=float))
         np.testing.assert_array_almost_equal(suby, np.asarray([4, 5], dtype=float))
         np.testing.assert_array_almost_equal(subs, np.asarray([4, 5], dtype=float))
@@ -204,6 +232,12 @@ class TestCurveAnalysisUnit(QiskitTestCase):
             "other_value": "test",
         }
         self.assertDictEqual(formatted_options, ref_options)
+
+        test_invalid_options = {
+            "p0": {"invalid_key1": 0, "invalid_key2": 2, "invalid_key3": 3, "invalid:_key4": 4}
+        }
+        with self.assertRaises(AnalysisError):
+            self.analysis._format_fit_options(**test_invalid_options)
 
 
 class TestCurveAnalysisIntegration(QiskitTestCase):
@@ -238,12 +272,12 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         )
         results, _ = analysis._run_analysis(
             test_data,
-            p0=[ref_p0, ref_p1, ref_p2, ref_p3],
+            p0={"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3},
             curve_fitter=multi_curve_fit,
             data_processor=probability(outcome="1"),
             x_key="xval",
             plot=False,
-            ax=None,
+            axis=None,
             xlabel="x value",
             ylabel="y value",
             fit_reports=None,
@@ -285,23 +319,23 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         # Try to fit with infeasible parameter boundary. This should fail.
         results, _ = analysis._run_analysis(
             test_data,
-            p0=[ref_p0, ref_p1, ref_p2, ref_p3],
-            bounds=([-10, 0], [-10, 0], [-10, 0], [-10, 0]),
+            p0={"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3},
+            bounds={"p0": [-10, 0], "p1": [-10, 0], "p2": [-10, 0], "p3": [-10, 0]},
             curve_fitter=multi_curve_fit,
             data_processor=probability(outcome="1"),
             x_key="xval",
             plot=False,
-            ax=None,
+            axis=None,
             xlabel="x value",
             ylabel="y value",
             fit_reports=None,
-            return_data_points=False,
+            return_data_points=True,
         )
         result = results[0]
 
         self.assertFalse(result["success"])
 
-        ref_result_keys = ["error_message", "success"]
+        ref_result_keys = ["error_message", "success", "raw_data"]
         self.assertSetEqual(set(result.keys()), set(ref_result_keys))
 
     def test_run_two_curves_with_same_fitfunc(self):
@@ -350,12 +384,12 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
 
         results, _ = analysis._run_analysis(
             test_data0,
-            p0=[ref_p0, ref_p1, ref_p2, ref_p3, ref_p4],
+            p0={"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3, "p4": ref_p4},
             curve_fitter=multi_curve_fit,
             data_processor=probability(outcome="1"),
             x_key="xval",
             plot=False,
-            ax=None,
+            axis=None,
             xlabel="x value",
             ylabel="y value",
             fit_reports=None,
@@ -413,12 +447,12 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
 
         results, _ = analysis._run_analysis(
             test_data0,
-            p0=[ref_p0, ref_p1, ref_p2, ref_p3],
+            p0={"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3},
             curve_fitter=multi_curve_fit,
             data_processor=probability(outcome="1"),
             x_key="xval",
             plot=False,
-            ax=None,
+            axis=None,
             xlabel="x value",
             ylabel="y value",
             fit_reports=None,

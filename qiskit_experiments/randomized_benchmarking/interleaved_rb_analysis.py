@@ -16,7 +16,13 @@ from typing import List, Dict, Any, Union
 
 import numpy as np
 
-from qiskit_experiments.analysis import CurveAnalysisResult, SeriesDef, fit_function
+from qiskit_experiments.analysis import (
+    CurveAnalysisResult,
+    SeriesDef,
+    fit_function,
+    get_opt_value,
+    get_opt_error,
+)
 from .rb_analysis import RBAnalysis
 
 
@@ -75,23 +81,23 @@ class InterleavedRBAnalysis(RBAnalysis):
 
         std_xdata, std_ydata, _ = self._subset_data(
             name="Standard",
-            data_index=self.__data_index,
-            x_values=self.__x_values,
-            y_values=self.__y_values,
-            y_sigmas=self.__y_sigmas,
+            data_index=self._data_index,
+            x_values=self._x_values,
+            y_values=self._y_values,
+            y_sigmas=self._y_sigmas,
         )
-        p0_std = self._initial_guess(std_xdata, std_ydata, self.__num_qubits)
+        p0_std = self._initial_guess(std_xdata, std_ydata, self._num_qubits)
 
         int_xdata, int_ydata, _ = self._subset_data(
             name="Interleaved",
-            data_index=self.__data_index,
-            x_values=self.__x_values,
-            y_values=self.__y_values,
-            y_sigmas=self.__y_sigmas,
+            data_index=self._data_index,
+            x_values=self._x_values,
+            y_values=self._y_values,
+            y_sigmas=self._y_sigmas,
         )
-        p0_int = self._initial_guess(int_xdata, int_ydata, self.__num_qubits)
+        p0_int = self._initial_guess(int_xdata, int_ydata, self._num_qubits)
 
-        return {
+        fit_option = {
             "p0": {
                 "a": user_p0["a"] or np.mean([p0_std["a"], p0_int["a"]]),
                 "alpha": user_p0["alpha"] or p0_std["alpha"],
@@ -105,14 +111,18 @@ class InterleavedRBAnalysis(RBAnalysis):
                 "b": user_bounds["b"] or (0., 1.),
             }
         }
+        fit_option.update(options)
+
+        return fit_option
 
     def _post_processing(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
         """Calculate EPC."""
         # Add EPC data
-        nrb = 2 ** self.__num_qubits
+        nrb = 2 ** self._num_qubits
         scale = (nrb - 1) / nrb
-        _, alpha, alpha_c, _ = analysis_result["popt"]
-        _, _, alpha_c_err, _ = analysis_result["popt_err"]
+        alpha = get_opt_value(analysis_result, "alpha")
+        alpha_c = get_opt_value(analysis_result, "alpha_c")
+        alpha_c_err = get_opt_error(analysis_result, "alpha_c")
 
         # Calculate epc_est (=r_c^est) - Eq. (4):
         epc_est = scale * (1 - alpha_c)

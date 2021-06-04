@@ -125,6 +125,15 @@ def curve_fit(
             " (len(ydata) - len(p0)) is less than 1"
         )
 
+    # Format non-number sigma values
+    if np.all(np.isnan(sigma)):
+        sigma = None
+    else:
+        sigma = np.nan_to_num(sigma)
+        if np.count_nonzero(sigma) != len(sigma):
+            # Sigma = 0 causes zero division error
+            sigma = None
+
     # Override scipy.curve_fit default for absolute_sigma=True
     # if sigma is specified.
     if sigma is not None and "absolute_sigma" not in kwargs:
