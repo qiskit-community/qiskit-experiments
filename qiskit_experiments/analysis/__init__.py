@@ -52,5 +52,11 @@ Fit Functions
 """
 from .curve_analysis import CurveAnalysis, SeriesDef
 
-from .curve_fitting import curve_fit, multi_curve_fit, process_curve_data, process_multi_curve_data
+from .curve_fitting import (
+    CurveAnalysisResult,
+    curve_fit,
+    multi_curve_fit,
+    process_curve_data,
+    process_multi_curve_data,
+)
 from .plotting import plot_curve_fit, plot_errorbar, plot_scatter

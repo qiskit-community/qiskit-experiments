@@ -16,8 +16,7 @@ from typing import List, Dict, Any, Union
 
 import numpy as np
 
-from qiskit_experiments.analysis import SeriesDef, fit_function
-from qiskit_experiments.experiment_data import AnalysisResult
+from qiskit_experiments.analysis import CurveAnalysisResult, SeriesDef, fit_function
 from .rb_analysis import RBAnalysis
 
 
@@ -61,51 +60,56 @@ class InterleavedRBAnalysis(RBAnalysis):
     @classmethod
     def _default_options(cls):
         default_options = super()._default_options()
+        default_options.p0 = {"a": None, "alpha": None, "alpha_c": None, "b": None}
+        default_options.bounds = {
+            "a": (0., 1.), "alpha": (0., 1.), "alpha_c": (0., 1.), "b": (0., 1.)
+        }
         default_options.fit_reports = {"alpha": "\u03B1", "alpha_c": "\u03B1$_c$", "EPC": "EPC"}
 
         return default_options
 
-    def _setup_fitting(
-        self,
-        series: np.ndarray,
-        x_values: np.ndarray,
-        y_values: np.ndarray,
-        y_sigmas: np.ndarray,
-        **options,
-    ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
+        user_p0 = self._get_option("p0")
+        user_bounds = self._get_option("bounds")
+
         std_xdata, std_ydata, _ = self._subset_data(
             name="Standard",
-            series=series,
-            x_values=x_values,
-            y_values=y_values,
-            y_sigmas=y_sigmas,
+            data_index=self.__data_index,
+            x_values=self.__x_values,
+            y_values=self.__y_values,
+            y_sigmas=self.__y_sigmas,
         )
-        p0_std = self._initial_guess(std_xdata, std_ydata, options["num_qubits"])
+        p0_std = self._initial_guess(std_xdata, std_ydata, self.__num_qubits)
 
         int_xdata, int_ydata, _ = self._subset_data(
             name="Interleaved",
-            series=series,
-            x_values=x_values,
-            y_values=y_values,
-            y_sigmas=y_sigmas,
+            data_index=self.__data_index,
+            x_values=self.__x_values,
+            y_values=self.__y_values,
+            y_sigmas=self.__y_sigmas,
         )
-        p0_int = self._initial_guess(int_xdata, int_ydata, options["num_qubits"])
+        p0_int = self._initial_guess(int_xdata, int_ydata, self.__num_qubits)
 
-        irb_p0 = {
-            "a": np.mean([p0_std["a"], p0_int["a"]]),
-            "alpha": p0_std["alpha"],
-            "alpha_c": min(p0_int["alpha"] / p0_std["alpha"], 1),
-            "b": np.mean([p0_std["b"], p0_int["b"]]),
+        return {
+            "p0": {
+                "a": user_p0["a"] or np.mean([p0_std["a"], p0_int["a"]]),
+                "alpha": user_p0["alpha"] or p0_std["alpha"],
+                "alpha_c": user_p0["alpha_c"] or min(p0_int["alpha"] / p0_std["alpha"], 1),
+                "b": user_p0["b"] or np.mean([p0_std["b"], p0_int["b"]]),
+            },
+            "bounds": {
+                "a": user_bounds["a"] or (0., 1.),
+                "alpha": user_bounds["alpha"] or (0., 1.),
+                "alpha_c": user_bounds["alpha_c"] or (0., 1.),
+                "b": user_bounds["b"] or (0., 1.),
+            }
         }
-        irb_bounds = {"a": [0, 1], "alpha": [0, 1], "alpha_c": [0, 1], "b": [0, 1]}
 
-        return {"p0": irb_p0, "bounds": irb_bounds}
-
-    def _post_processing(self, analysis_result: AnalysisResult, **options) -> AnalysisResult:
+    def _post_processing(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
         """Calculate EPC."""
         # Add EPC data
-        nrb = 2 ** options["num_qubits"]
+        nrb = 2 ** self.__num_qubits
         scale = (nrb - 1) / nrb
         _, alpha, alpha_c, _ = analysis_result["popt"]
         _, _, alpha_c_err, _ = analysis_result["popt_err"]

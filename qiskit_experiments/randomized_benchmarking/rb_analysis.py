@@ -17,9 +17,8 @@ from typing import List, Tuple, Dict, Any, Union
 
 import numpy as np
 
-from qiskit_experiments.analysis import CurveAnalysis, SeriesDef, fit_function
+from qiskit_experiments.analysis import CurveAnalysis, CurveAnalysisResult, SeriesDef, fit_function
 from qiskit_experiments.analysis.data_processing import multi_mean_xy_data
-from qiskit_experiments.experiment_data import AnalysisResult
 
 
 class RBAnalysis(CurveAnalysis):
@@ -37,24 +36,35 @@ class RBAnalysis(CurveAnalysis):
     @classmethod
     def _default_options(cls):
         default_options = super()._default_options()
+        default_options.p0 = {"a": None, "alpha": None, "b": None}
+        default_options.bounds = {"a": (0., 1.), "alpha": (0., 1.), "b": (0., 1.)}
         default_options.xlabel = "Clifford Length"
         default_options.ylabel = "P(0)"
         default_options.fit_reports = {"alpha": "\u03B1", "EPC": "EPC"}
 
         return default_options
 
-    def _setup_fitting(
-        self,
-        series: np.ndarray,
-        x_values: np.ndarray,
-        y_values: np.ndarray,
-        y_sigmas: np.ndarray,
-        **options,
-    ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
+        user_p0 = self._get_option("p0")
+        user_bounds = self._get_option("bounds")
+
+        initial_guess = self._initial_guess(
+            self.__x_values,
+            self.__y_values,
+            self.__num_qubits
+        )
         return {
-            "p0": self._initial_guess(x_values, y_values, options["num_qubits"]),
-            "bounds": {"a": [0.0, 1.0], "alpha": [0.0, 1.0], "b": [0.0, 1.0]},
+            "p0": {
+                "a": user_p0["a"] or initial_guess["a"],
+                "alpha": user_p0["alpha"] or initial_guess["alpha"],
+                "b": user_p0["b"] or initial_guess["b"]
+            },
+            "bounds": {
+                "a": user_bounds["a"] or (0., 1.),
+                "alpha": user_bounds["alpha"] or (0., 1.),
+                "b": user_bounds["b"] or (0., 1.)
+            },
         }
 
     @staticmethod
@@ -77,25 +87,22 @@ class RBAnalysis(CurveAnalysis):
 
         return fit_guess
 
-    def _pre_processing(
-        self,
-        series: np.ndarray,
-        x_values: np.ndarray,
-        y_values: np.ndarray,
-        y_sigmas: np.ndarray,
-        **options,
-    ) -> Tuple[np.ndarray, ...]:
+    def _pre_processing(self) -> Tuple[np.ndarray, ...]:
         """Average over the same x values."""
         return multi_mean_xy_data(
-            series=series, xdata=x_values, ydata=y_values, sigma=y_sigmas, method="sample"
+            series=self.__data_index,
+            xdata=self.__x_values,
+            ydata=self.__y_values,
+            sigma=self.__y_sigmas,
+            method="sample"
         )
 
-    def _post_processing(self, analysis_result: AnalysisResult, **options) -> AnalysisResult:
+    def _post_processing(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
         """Calculate EPC."""
         alpha = analysis_result["popt"][1]
         alpha_err = analysis_result["popt_err"][1]
 
-        scale = (2 ** options["num_qubits"] - 1) / (2 ** options["num_qubits"])
+        scale = (2 ** self.__num_qubits - 1) / (2 ** self.__num_qubits)
         analysis_result["EPC"] = scale * (1 - alpha)
         analysis_result["EPC_err"] = scale * alpha_err / alpha
 

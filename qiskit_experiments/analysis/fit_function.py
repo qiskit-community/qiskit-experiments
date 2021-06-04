@@ -70,6 +70,6 @@ def gaussian(
     r"""Gaussian function
 
     .. math::
-        y = {\rm amp} \exp \left( - (x - x0)^2 / \sigma^2 \right) + {\rm baseline}
+        y = {\rm amp} \exp \left( - (x - x0)^2 / 2 \sigma^2 \right) + {\rm baseline}
     """
-    return amp * np.exp(-((x - x0) ** 2) / sigma ** 2) + baseline
+    return amp * np.exp(-((x - x0) ** 2) / (2 * sigma ** 2)) + baseline
