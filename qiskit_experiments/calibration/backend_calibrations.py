@@ -22,6 +22,7 @@ from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Parameter
 from qiskit_experiments.calibration.calibrations import Calibrations, ParameterKey
 from qiskit_experiments.calibration.exceptions import CalibrationError
+from qiskit_experiments.calibration.parameter_value import ParameterValue
 from qiskit_experiments.characterization.qubit_spectroscopy import QubitSpectroscopy
 
 
@@ -155,6 +156,7 @@ class BackendCalibrations(Calibrations):
             qubit: int,
             freq_range: Optional[np.array] = None,
             force_updated: bool = False,
+            group: str = "default",
             run_options: Optional[Dict[str, Any]] = None,
             experiment_options: Optional[Dict[str, Any]] = None,
             analysis_options: Optional[Dict[str, Any]] = None,
@@ -165,6 +167,7 @@ class BackendCalibrations(Calibrations):
             qubit:
             freq_range:
             force_updated:
+            group:
             run_options:
             experiment_options:
             analysis_options:
@@ -180,7 +183,17 @@ class BackendCalibrations(Calibrations):
         if analysis_options is not None:
             spec.set_analysis_options(**analysis_options)
 
-        result = spec.run(self._backend).analysis_result(0)
+        data = spec.run(self._backend)
+        result = data.analysis_result(0)
 
         if result["quality"] == "computer_good" or force_updated:
             self._backend.defaults().qubit_freq_est[qubit] = result["value"]
+
+            value = ParameterValue(
+                result["value"],
+                valide=True,
+                exp_id=data.experiment_id,
+                group=group
+            )
+
+            self.add_parameter_value(value, param=self.qubit_freq, qubits=qubit)
