@@ -53,6 +53,11 @@ class BackendCalibrations(Calibrations):
         self._qubits = set(range(backend.configuration().n_qubits))
         self._backend = backend
 
+    @property
+    def backend(self) -> Backend:
+        """Return the backend instance."""
+        return self._backend
+
     def _get_frequencies(
         self,
         element: FrequencyElement,

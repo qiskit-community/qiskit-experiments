@@ -30,6 +30,8 @@ from qiskit_experiments import AnalysisResult
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
 from qiskit_experiments.analysis import plotting
+from qiskit_experiments.calibration.backend_calibrations import BackendCalibrations
+from qiskit_experiments.calibration.parameter_value import ParameterValue
 
 
 class SpectroscopyAnalysis(BaseAnalysis):
@@ -81,6 +83,9 @@ class SpectroscopyAnalysis(BaseAnalysis):
             sigma_bounds=None,
             freq_bounds=None,
             offset_bounds=(-2, 2),
+            calibrations=None,
+            force_update=False,
+            calibration_group = "default",
         )
 
     # pylint: disable=arguments-differ, unused-argument
@@ -98,6 +103,9 @@ class SpectroscopyAnalysis(BaseAnalysis):
         offset_bounds: Tuple[float, float] = (-2, 2),
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,
+        calibrations: Optional[BackendCalibrations] = None,
+        force_update: bool = False,
+        calibration_group: str = "default",
         **kwargs,
     ) -> Tuple[AnalysisResult, None]:
         """Analyze the given data by fitting it to a Gaussian.
@@ -128,6 +136,9 @@ class SpectroscopyAnalysis(BaseAnalysis):
                 The default values are (-2, 2).
             plot: If True generate a plot of fitted data.
             ax: Optional, matplotlib axis to add the plot to.
+            calibrations:
+            force_update:
+            calibration_group:
             kwargs: Trailing unused function parameters.
 
         Returns:
@@ -228,6 +239,21 @@ class SpectroscopyAnalysis(BaseAnalysis):
             figures = [ax.get_figure()]
         else:
             figures = None
+
+        # Update the calibrations if any were given.
+        if calibrations is not None:
+            qubit = experiment_data.data(0)["metadata"]["qubit"]
+            if best_fit["quality"] == "computer_good" or force_update:
+                calibrations.backend.defaults().qubit_freq_est[qubit] = best_fit["value"]
+
+                value = ParameterValue(
+                    best_fit["value"],
+                    valide=True,
+                    exp_id=experiment_data.experiment_id,
+                    group=calibration_group,
+                )
+
+                calibrations.add_parameter_value(value, param="qubit_lo_freq", qubits=qubit)
 
         return best_fit, figures
 
