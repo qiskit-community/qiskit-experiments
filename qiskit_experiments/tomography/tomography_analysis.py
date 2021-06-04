@@ -15,28 +15,83 @@ Quantum process tomography analysis
 
 
 from typing import List, Dict, Tuple, Union
+import time
 import numpy as np
 
 from qiskit.result import marginal_counts
+from qiskit.quantum_info import state_fidelity, process_fidelity
+from qiskit.quantum_info.states.quantum_state import QuantumState
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResult, Options
 from .basis import TomographyBasis, FitterBasis
 from .fitters import (
-    scipy_guassian_lstsq,
     linear_inversion,
-    cvxpy_guassian_lstsq,
+    scipy_linear_lstsq,
+    scipy_gaussian_lstsq,
+    cvxpy_linear_lstsq,
+    cvxpy_gaussian_lstsq,
 )
 
 
 class TomographyAnalysis(BaseAnalysis):
-    """Quantum state and process tomography experiment analysis."""
+    """Quantum state and process tomography experiment analysis.
+
+    **Analysis Options**
+
+    The tomography analysis class supports the following options
+
+    * ``measurement_basis``: The measurement
+      :class:`~qiskit_experiments.tomography.basis.FitterBasis` to use for
+      tomographic reconstruction when running a
+      :class:`~qiskit_experiments.tomography.StateTomographyExperiment` or
+      :class:`~qiskit_experiments.tomography.ProcessTomographyExperiment`.
+    * ``preparation_basis``: the preparation
+      :class:`~qiskit_experiments.tomography.basis.FitterBasis` to
+      use for tomographic reconstruction for
+      :class:`~qiskit_experiments.tomography.ProcessTomographyExperiment`.
+    * ``fitter``: The fitter function to use for reconstruction. This can
+      be a string to select one of the built-in fitters, or a callable to
+      supply a custom fitter function.
+    * Additional kwargs will be supplied to the fitter function,
+      for documentation of available args refer to the fitter function
+      documentation.
+
+    **Fitter Functions**
+
+    Built-in fitter functions may be selected using the following string
+    labels, refer to the corresponding functions documentation for additional
+    details on the fitters.
+
+    * ``"lininv"``: :func:`~qiskit_experiments.tomography.fitters.linear_inversion` (Default)
+    * ``"scipy_lstsq"``: :func:`~qiskit_experiments.tomography.fitters.scipy_linear_lstsq`
+    * ``"scipy_glstsq"``: :func:`~qiskit_experiments.tomography.fitters.scipy_gaussian_lstsq`
+    * ``"cvxpy_lstsq"``: :func:`~qiskit_experiments.tomography.fitters.cvxpy_linear_lstsq`
+    * ``"cvxpy_glstsq"``: :func:`~qiskit_experiments.tomography.fitters.cvxpy_gaussian_lstsq`
+
+    .. note::
+
+        Fitters starting with ``"cvxpy_*"`` require the optional CVXPY Python
+        package to be installed.
+
+    A custom fitter function must have signature
+
+    .. code::
+
+        fitter(measurement_data: np.ndarray,
+               preparation_data: np.ndarray,
+               frequency_data: np.ndarray,
+               shot_data: np.ndarray,
+               measurement_basis: Optional[FitterBasis] = None,
+               preparation_basis: Optional[FitterBasis] = None,
+               **kwargs) -> Dict[str, any]
+    """
 
     @classmethod
     def _default_options(cls) -> Options:
         return Options(
             measurement_basis=None,
             preparation_basis=None,
-            fitter="scipy_lstsq",
+            fitter="lininv"
         )
 
     @staticmethod
@@ -48,12 +103,16 @@ class TomographyAnalysis(BaseAnalysis):
             return fitter
 
         # Lookup built-in fitters
-        if fitter == "scipy_lstsq":
-            return scipy_guassian_lstsq
         if fitter == "lininv":
             return linear_inversion
+        if fitter == "scipy_lstsq":
+            return scipy_linear_lstsq
+        if fitter == "scipy_glstsq":
+            return scipy_gaussian_lstsq
         if fitter == "cvxpy_lstsq":
-            return cvxpy_guassian_lstsq
+            return cvxpy_linear_lstsq
+        if fitter == "cvxpy_glstsq":
+            return cvxpy_gaussian_lstsq
         raise AnalysisError(f"Unrecognized tomography fitter {fitter}")
 
     @staticmethod
@@ -78,6 +137,7 @@ class TomographyAnalysis(BaseAnalysis):
         # Get tomography fitter function
         fitter = self._get_fitter(options.pop("fitter", None))
         try:
+            t_start = time.time()
             result = fitter(
                 mbasis_data,
                 pbasis_data,
@@ -87,7 +147,9 @@ class TomographyAnalysis(BaseAnalysis):
                 preparation_basis=preparation_basis,
                 **options,
             )
+            t_stop = time.time()
             result["fitter"] = fitter.__name__
+            result["fitter_time"] = t_stop - t_start
 
         except AnalysisError as ex:
             raise AnalysisError(f"Tomography fitter failed with error: {str(ex)}") from ex
