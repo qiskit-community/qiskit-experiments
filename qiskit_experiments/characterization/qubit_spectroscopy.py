@@ -454,6 +454,9 @@ class QubitSpectroscopy(BaseExperiment):
             if not self._absolute:
                 assigned_circ.metadata["center frequency"] = center_freq
 
+            if self._pre_circuit is not None:
+                assigned_circ.metadata["preparation circuit name"] = self._pre_circuit.name
+
             try:
                 assigned_circ.metadata["dt"] = getattr(backend.configuration(), "dt")
             except AttributeError as no_dt:
