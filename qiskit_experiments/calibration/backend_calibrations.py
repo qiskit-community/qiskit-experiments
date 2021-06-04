@@ -14,13 +14,15 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import List
+from typing import Any, Dict, List, Optional
 import copy
+import numpy as np
 
 from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Parameter
 from qiskit_experiments.calibration.calibrations import Calibrations, ParameterKey
 from qiskit_experiments.calibration.exceptions import CalibrationError
+from qiskit_experiments.characterization.qubit_spectroscopy import QubitSpectroscopy
 
 
 class FrequencyElement(Enum):
@@ -147,3 +149,38 @@ class BackendCalibrations(Calibrations):
         # TODO: build the instruction schedule map using the stored calibrations
 
         return backend
+
+    def qubit_spectroscopy(
+            self,
+            qubit: int,
+            freq_range: Optional[np.array] = None,
+            force_updated: bool = False,
+            run_options: Optional[Dict[str, Any]] = None,
+            experiment_options: Optional[Dict[str, Any]] = None,
+            analysis_options: Optional[Dict[str, Any]] = None,
+    ):
+        """Spectroscopy experiment wrapper.
+
+        Args:
+            qubit:
+            freq_range:
+            force_updated:
+            run_options:
+            experiment_options:
+            analysis_options:
+        """
+        spec = QubitSpectroscopy(qubit, freq_range, unit="Hz")
+
+        if experiment_options is not None:
+            spec.set_experiment_options(**experiment_options)
+
+        if run_options is not None:
+            spec.set_run_options(**run_options)
+
+        if analysis_options is not None:
+            spec.set_analysis_options(**analysis_options)
+
+        result = spec.run(self._backend).analysis_result(0)
+
+        if result["quality"] == "computer_good" or force_updated:
+            self._backend.defaults().qubit_freq_est[qubit] = result["value"]
