@@ -189,9 +189,18 @@ class SVD(TrainableDataAction):
                 error_value = np.sqrt(
                     (error[idx][0] * np.cos(angle)) ** 2 + (error[idx][1] * np.sin(angle)) ** 2
                 )
-                processed_error.append(error_value)
+                processed_error.append(error_value / self.scales[idx])
 
-        return np.array(processed_data), processed_error
+        if len(processed_data) == 1:
+            if error is None:
+                return processed_data[0], None
+            else:
+                return processed_data[0], processed_error[0]
+
+        if error is None:
+            return np.array(processed_data), None
+        else:
+            return np.array(processed_data), np.array(processed_error)
 
     def train(self, data: List[Any]):
         """Train the SVD on the given data.
@@ -492,11 +501,11 @@ class Probability(DataAction):
                 adding the corresponding probabilities.
 
         Returns:
-            processed data: A dict with the populations.
+            processed data: A dict with the populations and standard deviation.
         """
 
         shots = sum(datum.values())
         p_mean = datum.get(self._outcome, 0.0) / shots
         p_var = p_mean * (1 - p_mean) / shots
 
-        return p_mean, p_var
+        return p_mean, np.sqrt(p_var)

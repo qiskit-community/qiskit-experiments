@@ -22,10 +22,6 @@ from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T2StarExperiment
 
 
-# Fix seed for simulations
-SEED = 9000
-
-
 class T2starBackend(BaseBackend):
     """
     A simple and primitive backend, to be run by the T2Star tests
@@ -63,6 +59,7 @@ class T2starBackend(BaseBackend):
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
         self._dt_factor = dt_factor
+        self._rng = np.random.default_rng(0)
         super().__init__(configuration)
 
     # pylint: disable = arguments-differ
@@ -115,7 +112,7 @@ class T2starBackend(BaseBackend):
 
                     if op.name == "measure":
                         # we measure in |+> basis which is the same as measuring |0>
-                        meas_res = np.random.binomial(
+                        meas_res = self._rng.binomial(
                             1,
                             (1 - prob_plus[qubit]) * (1 - ro10[qubit])
                             + prob_plus[qubit] * ro01[qubit],
@@ -149,6 +146,7 @@ class TestT2Star(QiskitTestCase):
         Run the T2 backend on all possible units
         """
         # For some reason, 'ps' was not precise enough - need to check this
+
         for unit in ["s", "ms", "us", "ns", "dt"]:
             if unit in ("s", "dt"):
                 dt_factor = 1
@@ -175,6 +173,15 @@ class TestT2Star(QiskitTestCase):
             ]
 
             exp = T2StarExperiment(qubit, delays, unit=unit)
+            exp.set_analysis_options(
+                user_p0={
+                    "A": 0.5,
+                    "t2star": estimated_t2star,
+                    "f": estimated_freq,
+                    "phi": 0,
+                    "B": 0.5,
+                }
+            )
 
             backend = T2starBackend(
                 p0={
@@ -193,20 +200,14 @@ class TestT2Star(QiskitTestCase):
                 dt_factor = getattr(backend._configuration, "dt")
 
             # run circuits
-            result = exp.run(
+
+            expdata = exp.run(
                 backend=backend,
-                user_p0={
-                    "A": 0.5,
-                    "t2star": estimated_t2star,
-                    "f": estimated_freq,
-                    "phi": 0,
-                    "B": 0.5,
-                },
-                user_bounds=None,
                 # plot=False,
                 instruction_durations=instruction_durations,
                 shots=2000,
-            ).analysis_result(0)
+            )
+            result = expdata.analysis_result(0)
             self.assertAlmostEqual(
                 result["t2star_value"],
                 estimated_t2star * dt_factor,
@@ -244,8 +245,6 @@ class TestT2Star(QiskitTestCase):
         backend = T2starBackend(p0)
         res = par_exp.run(
             backend=backend,
-            user_p0=None,
-            user_bounds=None,
             # plot=False,
             shots=1000,
         )
