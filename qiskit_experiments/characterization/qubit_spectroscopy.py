@@ -343,6 +343,7 @@ class QubitSpectroscopy(BaseExperiment):
         frequencies: Union[List[float], np.array],
         unit: Optional[str] = "Hz",
         absolute: bool = True,
+        pre_circuit: Optional[QuantumCircuit] = None,
     ):
         """
         A spectroscopy experiment run by setting the frequency of the qubit drive.
@@ -361,6 +362,9 @@ class QubitSpectroscopy(BaseExperiment):
                 to 'Hz'.
             absolute: Boolean to specify if the frequencies are absolute or relative to the
                 qubit frequency in the backend.
+            pre_circuit: An optional quantum circuit done before the spectroscopy pulse. This
+                circuit allows, for instance, to prepare the first excited sate and perform
+                spectroscopy on the 1 <-> 2 transition of a transmon.
 
         Raises:
             QiskitError: if there are less than three frequency shifts or if the unit is not known.
@@ -374,6 +378,7 @@ class QubitSpectroscopy(BaseExperiment):
 
         self._frequencies = [freq * self.__units__[unit] for freq in frequencies]
         self._absolute = absolute
+        self._pre_circuit = pre_circuit
 
         super().__init__([qubit])
 
@@ -416,6 +421,10 @@ class QubitSpectroscopy(BaseExperiment):
         circuit = QuantumCircuit(1)
         circuit.append(gate, (0,))
         circuit.add_calibration(gate, (self.physical_qubits[0],), sched, params=[freq_param])
+
+        if self._pre_circuit is not None:
+            circuit = self._pre_circuit.compose(circuit)
+
         circuit.measure_active()
 
         if not self._absolute:

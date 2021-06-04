@@ -17,6 +17,7 @@ from typing import Tuple
 import numpy as np
 from qiskit.qobj.utils import MeasLevel
 from qiskit.test import QiskitTestCase
+from qiskit import QiskitError, QuantumCircuit
 
 from qiskit_experiments.characterization.qubit_spectroscopy import QubitSpectroscopy
 from qiskit_experiments.test.mock_iq_backend import TestJob, IQTestBackend
@@ -36,7 +37,7 @@ class SpectroscopyBackend(IQTestBackend):
     ):
         """Initialize the spectroscopy backend."""
 
-        self.__configuration__["basis_gates"] = ["spec"]
+        self.__configuration__["basis_gates"] = ["spec", "x"]
 
         self._linewidth = line_width
         self._freq_offset = freq_offset
@@ -66,7 +67,14 @@ class SpectroscopyBackend(IQTestBackend):
                 "header": {"metadata": circ.metadata},
             }
 
-            set_freq = float(circ.data[0][0].params[0])
+            set_freq = None
+            for inst in circ.data:
+                if inst[0].name == "Spec":
+                    set_freq = float(inst[0].params[0])
+
+            if set_freq is None:
+                raise QiskitError("Spectroscopy does not have a Spec instruction.")
+
             delta_freq = set_freq - self._freq_offset
             prob = np.exp(-(delta_freq ** 2) / (2 * self._linewidth ** 2))
 
@@ -147,3 +155,19 @@ class TestQubitSpectroscopy(QiskitTestCase):
         self.assertTrue(result["value"] > 4.9e6)
         self.assertEqual(result["quality"], "computer_good")
         self.assertTrue(result["ydata_err"] is None)
+
+    def test_spectroscopy12_end2end_classified(self):
+        """End to end test of the spectroscopy experiment with an x pulse."""
+
+        backend = SpectroscopyBackend(line_width=2e6)
+
+        prep = QuantumCircuit(1)
+        prep.x(0)
+
+        spec = QubitSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz", pre_circuit=prep)
+        spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
+        result = spec.run(backend).analysis_result(0)
+
+        self.assertTrue(abs(result["value"]) < 1e6)
+        self.assertTrue(result["success"])
+        self.assertEqual(result["quality"], "computer_good")
