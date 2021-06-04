@@ -31,13 +31,14 @@ from qiskit_experiments.data_processing.nodes import (
     ToImagAvg,
     Probability,
     LDADiscriminator,
-    QDADiscriminator
+    QDADiscriminator,
 )
 from qiskit_experiments.measurement.discriminator import (
     DiscriminatorExperiment,
     DiscriminatorAnalysis,
 )
 from ..test_discriminator import DiscriminatorBackend
+
 
 class DataProcessorTest(BaseDataProcessorTest):
     """Class to test DataProcessor."""
@@ -264,6 +265,7 @@ class TestIQSingleAvg(BaseDataProcessorTest):
         new_data, error = to_imag(self.exp_data_avg.data(0))
         self.assertTrue(np.allclose(new_data, np.array([-153030784.0, -160369600.0])))
 
+
 class TestDiscriminator(BaseDataProcessorTest):
     def setUp(self):
         """Generate discriminator data."""
@@ -271,19 +273,12 @@ class TestDiscriminator(BaseDataProcessorTest):
         backend = DiscriminatorBackend(0)
         exp = DiscriminatorExperiment(2)
         self.res_lda = exp.run(
-            backend,
-            shots=100,
-            meas_level=1,
-            meas_return='single',
-            discriminator_type="LDA"
+            backend, shots=100, meas_level=1, meas_return="single", discriminator_type="LDA"
         )
         self.res_qda = exp.run(
-            backend,
-            shots=100,
-            meas_level=1,
-            meas_return='single',
-            discriminator_type="QDA"
+            backend, shots=100, meas_level=1, meas_return="single", discriminator_type="QDA"
         )
+
     def test_lda_discriminator(self):
         """Test that the LDA discriminator outputs correct counts."""
         processor = DataProcessor("memory", [LDADiscriminator(self.res_lda), Probability("00")])
@@ -295,6 +290,8 @@ class TestDiscriminator(BaseDataProcessorTest):
         processor = DataProcessor("memory", [QDADiscriminator(self.res_qda), Probability("00")])
         datum = processor(self.res_qda.data(0))
         self.assertTrue(datum[0] == 0.97)
+
+
 class TestAveragingAndSVD(BaseDataProcessorTest):
     """Test the averaging of single-shot IQ data followed by a SVD."""
 

@@ -13,7 +13,7 @@
 """Different data analysis steps."""
 
 from abc import abstractmethod
-from typing import Any, Dict, Optional, Tuple, List
+from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 from qiskit_experiments.experiment_data import ExperimentData
@@ -323,29 +323,6 @@ class ToReal(IQPart):
         else:
             return datum[..., 0] * self.scale, None
 
-
-class ToRealAvg(IQPart):
-    """IQ data post-processing. Isolate the real part of averaged IQ data."""
-
-    def _required_dimension(self) -> int:
-        """Require memory to be a 2D array."""
-        return 2
-
-    def _process(self, datum: np.array) -> np.array:
-        """Take the real part of the IQ data.
-
-        Args:
-            datum: A 2D array of qubits, and a complex averaged IQ point as [real, imaginary].
-
-        Returns:
-            A 1D array. Each entry is the real part of the averaged IQ data of a qubit.
-        """
-        if self.scale is None:
-            return datum[:, 0]
-
-        return datum[:, 0] * self.scale
-
-
 class ToImag(IQPart):
     """IQ data post-processing. Isolate the imaginary part of single-shot IQ data."""
 
@@ -365,44 +342,19 @@ class ToImag(IQPart):
         else:
             return datum[..., 1] * self.scale, None
 
-
-class ToImagAvg(IQPart):
-    """IQ data post-processing. Isolate the imaginary part of averaged IQ data."""
-
-    def _required_dimension(self) -> int:
-        """Require memory to be a 2D array."""
-        return 2
-
-    def _process(self, datum: np.array) -> np.array:
-        """Take the imaginary part of the IQ data.
-
-        Args:
-            datum: A 2D array of qubits, and a complex averaged IQ point as [real, imaginary].
-
-        Returns:
-            A 1D array. Each entry is the imaginary part of the averaged IQ data of a qubit.
-        """
-        if self.scale is None:
-            return datum[:, 1]
-
-        return datum[:, 1] * self.scale, None
-
-
 class BaseDiscriminator(IQPart):
     """Base class for discriminator processor. Takes IQ data and calibrated discriminator as input,
     outputs counts."""
 
     def __init__(
-        self, handle: ExperimentData, scale: Optional[float] = None, validate: bool = True
+        self, handle: ExperimentData, validate: bool = True
     ):
         """Initialize a counts to probability data conversion.
 
         Args:
-            outcome: The bitstring for which to compute the probability.
             validate: If set to False the DataAction will not validate its input.
         """
         self._handle = handle
-        self._scale = scale
         super().__init__(validate)
 
     def _required_dimension(self):
@@ -415,7 +367,7 @@ class BaseDiscriminator(IQPart):
             list_data: Data in list form at the output of a discriminator.
 
         Returns:
-            processed data: A dict with the populations.
+            processed data: A dict with the counts.
         """
         datum = {}
         for shot in zip(*list_data):

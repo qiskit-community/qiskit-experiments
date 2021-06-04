@@ -8,6 +8,8 @@ from qiskit.circuit import QuantumCircuit
 from .discriminator_analysis import DiscriminatorAnalysis
 from typing import List, Optional, Union, Iterable
 from qiskit.qobj.utils import MeasLevel
+from qiskit.providers.options import Options
+
 
 
 class DiscriminatorExperiment(BaseExperiment):
@@ -16,9 +18,13 @@ class DiscriminatorExperiment(BaseExperiment):
     # Analysis class for experiment
     __analysis_class__ = DiscriminatorAnalysis
 
-    # default run options
-    __run_defaults__ = {"meas_level": MeasLevel.KERNELED, "meas_return": "single"}
-
+    @classmethod
+    def _default_run_options(cls) -> Options:
+        """Default options values for the experiment :meth:`run` method."""
+        return Options(
+            meas_level=MeasLevel.KERNELED,
+            meas_return="single",
+        )
 
     def __init__(
         self,
@@ -27,7 +33,7 @@ class DiscriminatorExperiment(BaseExperiment):
         """Standard discriminator experiment
 
         Args:
-            qubits: the number of qubits or list of
+            qubits: The number of qubits or list of
                     physical qubits for the experiment.
         """
 
