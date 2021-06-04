@@ -70,90 +70,72 @@ def make_positive_semidefinite(mat: np.array, epsilon: float = 0) -> np.array:
     return mat_psd
 
 
+def single_basis_matrix(
+    measurement_element: np.ndarray,
+    preparation_element: np.ndarray,
+    measurement_basis: FitterBasis,
+    preparation_basis: Optional[FitterBasis] = None,
+) -> np.ndarray:
+    """Return a single element basis matrix."""
+    op = measurement_basis(measurement_element)
+    if preparation_basis:
+        op = np.kron(preparation_basis(preparation_element).T, op)
+    return op
+
+
 def stacked_basis_matrix(
-    meas_basis_data: np.ndarray,
-    prep_basis_data: np.ndarray,
-    meas_matrix_basis: FitterBasis,
-    prep_matrix_basis: FitterBasis,
+    measurement_data: np.ndarray,
+    preparation_data: np.ndarray,
+    measurement_basis: FitterBasis,
+    preparation_basis: FitterBasis,
 ) -> np.ndarray:
     """Return stacked vectorized basis matrix A for least squares."""
-    size, msize1 = meas_basis_data.shape
-    mdim = meas_matrix_basis([0]).size ** msize1
-    if prep_matrix_basis:
-        _, psize1 = prep_basis_data.shape
-        pdim = prep_matrix_basis([0]).size ** psize1
+    size, msize1 = measurement_data.shape
+    mdim = measurement_basis([0]).size ** msize1
+    if preparation_basis:
+        _, psize1 = preparation_data.shape
+        pdim = preparation_basis([0]).size ** psize1
     else:
         psize1 = 0
         pdim = 1
     ret = np.zeros((size, mdim * pdim), dtype=complex)
     for i in range(size):
-        op = meas_matrix_basis(meas_basis_data[i])
-        if psize1:
-            op = np.kron(prep_matrix_basis(prep_basis_data[i]).T, op)
+        op = np.conj(single_basis_matrix(
+            measurement_data[i], preparation_data[i], measurement_basis, preparation_basis
+        ))
         ret[i] = np.ravel(op, order="F")
     return ret
 
 
-def guassian_lstsq_data(
-    measurement_data: np.ndarray,
-    preparation_data: np.ndarray,
-    frequency_data: np.ndarray,
-    shot_data: np.ndarray,
-    measurement_basis: Optional[FitterBasis] = None,
-    preparation_basis: Optional[FitterBasis] = None,
-    hedging_beta: float = 0.5,
-    binomial_weights: bool = True,
-    custom_weights: Optional[np.ndarray] = None,
-) -> Tuple[np.ndarray, np.ndarray]:
-    r"""Return the matrix and vector for Gaussian least-squares fitting.
+def binomial_weights(
+    frequency_data: np.ndarray, shot_data: np.ndarray, num_outcomes: int = 2, beta: float = 0
+) -> np.ndarray:
+    r"""Compute weights vector from the binomial distribution.
+
+    The returned weights are given by :math:`w_i 1 / \sigma_i` where
+    the standard deviation :math:`\sigma_i` is estimated as
+    :math:`\sigma_i = \sqrt{p_i(1-p_i) / n_i}`. To avoid dividing
+    by zero the probabilities are hedged using the *add-beta* rule
+
+    .. math:
+        p_i = \frac{f_i + \beta}{n_i + K \beta}
+
+    where :math:`f_i` is the observed frequency, :math:`n_i` is the
+    number of shots, and :math:`K` is the number of possible measurement
+    outcomes.
 
     Args:
-        measurement_data: measurement basis indice data.
-        preparation_data: preparation basis indice data.
         frequency_data: basis measurement frequency data.
         shot_data: basis measurement total shot data.
-        measurement_basis: measurement matrix basis.
-        preparation_basis: preparation matrix basis.
-        hedging_beta: Hedging parameter for converting frequencies to
-                      probabilities. If 0 hedging is disabled.
-        binomial_weights: Compute binomial weights from frequency data.
-        custom_weights: Optional, custom weights for fitter. If specified
-                        binomial weights will be disabled.
-
-    Raises:
-        AnalysisError: If the fitted vector is not a square matrix
+        num_outcomes: the number of measuremement outcomes.
+        beta: Hedging parameter for converting frequencies to
+              probabilities. If 0 hedging is disabled.
 
     Returns:
-        The pair (A, y) where :math:`A` is the basis matrix, and :math:`y`
-        is the data vector, for solving the linear least squares problem
-        :math:`\argmin_x ||Ax - y||_2`.
+        The weight vector.
     """
-    # Construct probability vector
-    if hedging_beta > 0:
-        if hedging_beta < 0:
-            raise AnalysisError("beta = {} must be non-negative.".format(hedging_beta))
-        basis_outcomes = measurement_basis.num_outcomes
-        num_outcomes = len(measurement_data[0]) ** basis_outcomes
-        probability_data = (frequency_data + hedging_beta) / (
-            shot_data + num_outcomes * hedging_beta
-        )
-    else:
-        probability_data = frequency_data / shot_data
-
-    # Construct basis A matrix
-    basis_matrix = stacked_basis_matrix(
-        measurement_data, preparation_data, measurement_basis, preparation_basis
-    )
-
-    # Optionally apply a weights vector to the data and projectors
-    if custom_weights is not None:
-        weights = custom_weights
-    elif binomial_weights:
-        weights = np.sqrt(shot_data / (probability_data * (1 - probability_data)))
-    else:
-        weights = None
-    if weights is not None:
-        basis_matrix = weights[:, None] * basis_matrix
-        probability_data = weights * probability_data
-
-    return basis_matrix, probability_data
+    # Compute hedged probabilities where the "add-beta" rule ensures
+    # there are no zero or 1 values so we don't have any zero variance
+    probs = (frequency_data + beta) / (shot_data + num_outcomes * beta)
+    variance = probs * (1 - probs)
+    return np.sqrt(shot_data / variance)

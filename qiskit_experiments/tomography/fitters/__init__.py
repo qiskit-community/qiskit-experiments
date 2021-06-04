@@ -13,5 +13,7 @@
 """Tomography fitter functions"""
 
 from .lininv import linear_inversion
-from .scipy_lstsq import scipy_guassian_lstsq
-from .cvxpy_lstsq import cvxpy_guassian_lstsq
+from .scipy_lstsq import scipy_linear_lstsq
+from .scipy_lstsq import scipy_gaussian_lstsq
+from .cvxpy_lstsq import cvxpy_linear_lstsq
+from .cvxpy_lstsq import cvxpy_gaussian_lstsq

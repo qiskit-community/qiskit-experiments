@@ -20,11 +20,11 @@ from scipy import sparse as sps
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.tomography.basis import FitterBasis
 from .cvxpy_utils import requires_cvxpy, cvxpy
-from .fitter_utils import guassian_lstsq_data
+from . import fitter_utils
 
 
 @requires_cvxpy
-def cvxpy_guassian_lstsq(
+def cvxpy_linear_lstsq(
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
     frequency_data: np.ndarray,
@@ -34,27 +34,30 @@ def cvxpy_guassian_lstsq(
     psd: bool = True,
     trace_preserving: bool = False,
     trace: Optional[float] = None,
-    hedging_beta: float = 0.5,
-    binomial_weights: bool = True,
-    custom_weights: Optional[np.ndarray] = None,
+    weights: Optional[np.ndarray] = None,
     **kwargs,
 ) -> Dict:
-    r"""
-    Reconstruct a quantum state using CVXPY convex optimization.
+    r"""Constrained weighted linear least-squares tomography fitter.
 
-    **Objective function**
+    This fitter reconstructs the maximum-likelihood estimate by using
+    ``cvxpy`` to minimize the constrained least-squares negative log
+    likelihood function
 
-    This fitter solves the least-squares minimization problem
-
-        .. math::
-
-            x = \mbox{argmin} ||A \cdot x - y ||_2
+    .. math::
+        \hat{\rho}
+            &= -\mbox{argmin }\log\mathcal{L}{\rho} \\
+            &= \mbox{argmin }\sum_i w_i^2(\mbox{Tr}[E_j\rho] - \hat{p}_i)^2 \\
+            &= \mbox{argmin }\|W(Ax - y) \|_2^2
 
     subject to
 
-    * :math:`x >> 0` (PSD, optional)
-    * :math:`\text{trace}(x) = t` (trace, optional)
-    * :math:`\text{partial_trace}(x)` = identity (trace_preserving, optional)
+    - *Positive-semidefinite* (``psd=True``): :math:`\rho \gg 0` is constrained
+      to be a postive-semidefinite matrix.
+    - *Trace* (``trace=t``): :math:`\mbox{Tr}(\rho) = t` is constained to have
+      the specified trace.
+    - *Trace preserving* (``trace_preserving=True``): When performing process
+      tomography the Choi-state :math:`\rho` represents is contstained to be
+      trace preserving.
 
     where
 
@@ -65,35 +68,25 @@ def cvxpy_guassian_lstsq(
     * :math:`x` is the vectorized density matrix (or Choi-matrix) to be fitted
       :math:`x = |\rho\rangle\\!\rangle`.
 
-    **PSD constraint**
+    .. note:
 
-    The PSD keyword constrains the fitted matrix to be
-    postive-semidefinite, which makes the optimization problem a SDP. If
-    PSD=False the fitted matrix will still be constrained to be Hermitian,
-    but not PSD. In this case the optimization problem becomes a SOCP.
+        Various solvers can be called in CVXPY using the `solver` keyword
+        argument. When ``psd=True`` the optimization problem is a case of a
+        *semidefinite program* (SDP) and requires a SDP compatible solver
+        for CVXPY. CVXPY includes an SDP compatible solver `SCS`` but it
+        is recommended to install the the open-source ``CVXOPT`` solver
+        or one of the supported commercial solvers. See the `CVXPY
+        documentation
+        <https://www.cvxpy.org/tutorial/advanced/index.html#solve-method-options>`_
+        for more information on solvers.
 
-    **Trace constraint**
+    .. note::
 
-    The trace keyword constrains the trace of the fitted matrix. If
-    trace=None there will be no trace constraint on the fitted matrix.
-    This constraint should not be used for process tomography and the
-    trace preserving constraint should be used instead.
-
-    **Trace preserving (TP) constraint**
-
-    The trace_preserving keyword constrains the fitted matrix to be TP.
-    This should only be used for process tomography, not state tomography.
-    Note that the TP constraint implicitly enforces the trace of the fitted
-    matrix to be equal to the square-root of the matrix dimension. If a
-    trace constraint is also specified that differs from this value the fit
-    will likely fail.
-
-    **CVXPY Solvers**
-
-    Various solvers can be called in CVXPY using the `solver` keyword
-    argument. See the `CVXPY documentation
-    <https://www.cvxpy.org/tutorial/advanced/index.html#solve-method-options>`_
-    for more information on solvers.
+        Linear least-squares constructs the full basis matrix :math:`A` as a dense
+        numpy array so should not be used for than 5 or 6 qubits. For larger number
+        of qubits try the
+        :func:`~qiskit_experiments.tomography.fitters.linear_inversion`
+        fitter function.
 
     Args:
         measurement_data: measurement basis indice data.
@@ -108,11 +101,7 @@ def cvxpy_guassian_lstsq(
             trace preserving when fitting a Choi-matrix in quantum process
             tomography (default: False).
         trace: trace constraint for the fitted matrix (default: None).
-        hedging_beta: Hedging parameter for converting frequencies to
-                      probabilities. If 0 hedging is disabled.
-        binomial_weights: Compute binomial weights from frequency data.
-        custom_weights: Optional, custom weights for fitter. If specified
-                        binomial weights will be disabled.
+        weights: Optional array of weights for least squares objective.
         kwargs: kwargs for cvxpy solver.
 
     Raises:
@@ -120,20 +109,19 @@ def cvxpy_guassian_lstsq(
         AnalysisError: If analysis fails.
 
     Returns:
-        The fitted matrix rho that minimizes :math:`||basis_matrix * vec(rho) - data||_2`.
+        The fitted matrix rho that maximizes the least-squares likelihood function.
     """
-    # Linear least squares data
-    basis_matrix, probability_data = guassian_lstsq_data(
-        measurement_data,
-        preparation_data,
-        frequency_data,
-        shot_data,
-        measurement_basis,
-        preparation_basis,
-        hedging_beta=hedging_beta,
-        binomial_weights=binomial_weights,
-        custom_weights=custom_weights,
+    # Probability vector y
+    probability_data = frequency_data / shot_data
+
+    # Basis matrix A
+    basis_matrix = fitter_utils.stacked_basis_matrix(
+        measurement_data, preparation_data, measurement_basis, preparation_basis
     )
+
+    if weights is not None:
+        basis_matrix = weights[:, None] * basis_matrix
+        probability_data = weights * probability_data
 
     # SDP VARIABLES
 
@@ -230,6 +218,88 @@ def cvxpy_guassian_lstsq(
 
     analysis_result = {"value": rho_fit}
     return analysis_result
+
+
+@requires_cvxpy
+def cvxpy_gaussian_lstsq(
+    measurement_data: np.ndarray,
+    preparation_data: np.ndarray,
+    frequency_data: np.ndarray,
+    shot_data: np.ndarray,
+    measurement_basis: Optional[FitterBasis] = None,
+    preparation_basis: Optional[FitterBasis] = None,
+    psd: bool = True,
+    trace_preserving: bool = False,
+    trace: Optional[float] = None,
+    **kwargs,
+) -> Dict:
+    r"""Constrained Gaussian linear least-squares tomography fitter.
+
+    .. note::
+
+        This function calls :func:`cvxpy_linear_lstsq` with a Gaussian weights
+        vector. Refer to its documentation for additional details.
+
+    This fitter reconstructs the maximum-likelihood estimate by using
+    ``cvxpy`` to minimize the constrained least-squares negative log
+    likelihood function
+
+    .. math::
+        \hat{rho} &= \mbox{argmin} -\log\mathcal{L}{\rho} \\
+        -\log\mathcal{L}(\rho)
+            &= \sum_i \frac{1}{\sigma_i^2}(\mbox{Tr}[E_j\rho] - \hat{p}_i)^2
+             = \|W(Ax -y) \|_2^2}[E_j\rho] - \hat{p}_i)^2 \\
+            &= \mbox{argmin }\|W(Ax - y) \|_2^2
+
+    The Gaussian weights are estimated from the observed frequency and shot data
+    using
+
+    .. math::
+
+        \sigma_i &= \sqrt{\frac{q_i(1 - q_i)}{n_i}} \\
+        q_i &= \frac{f_i + \beta}{n_i + K \beta}
+
+    where :math:`q_i` are hedged probabilities which are rescaled to avoid
+    0 and 1 values using the "add-beta" rule, with :math:`\beta=0.5`, and
+    :math:`K=2^m` the number of measurement outcomes for each basis measurement.
+
+    Args:
+        measurement_data: measurement basis indice data.
+        preparation_data: preparation basis indice data.
+        frequency_data: basis measurement frequency data.
+        shot_data: basis measurement total shot data.
+        measurement_basis: measurement matrix basis.
+        preparation_basis: preparation matrix basis.
+        psd: If True rescale the eigenvalues of fitted matrix to be positive
+             semidefinite (default: True)
+        trace_preserving: Enforce the fitted matrix to be
+            trace preserving when fitting a Choi-matrix in quantum process
+            tomography (default: False).
+        trace: trace constraint for the fitted matrix (default: None).
+        weights: Optional array of weights for least squares objective.
+        kwargs: kwargs for cvxpy solver.
+
+    Raises:
+        QiskitError: If CVXPY is not installed on the current system.
+        AnalysisError: If analysis fails.
+
+    Returns:
+        The fitted matrix rho that maximizes the least-squares likelihood function.
+    """
+    num_outcomes = measurement_basis.num_outcomes ** len(measurement_data[0])
+    weights = fitter_utils.binomial_weights(frequency_data, shot_data, num_outcomes, beta=0.5)
+    return cvxpy_linear_lstsq(
+        measurement_data,
+        preparation_data,
+        frequency_data,
+        shot_data,
+        measurement_basis=measurement_basis,
+        preparation_basis=preparation_basis,
+        psd=psd,
+        trace=trace,
+        weights=weights,
+        **kwargs,
+    )
 
 
 def partial_trace_super(dim1: int, dim2: int) -> np.array:

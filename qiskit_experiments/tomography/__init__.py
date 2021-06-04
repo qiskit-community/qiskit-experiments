@@ -41,9 +41,10 @@ Fitter Functions
 .. autosummary::
     :toctree: ../stubs/
 
-    fitters.scipy_guassian_lstsq
-    fitters.cvxpy_guassian_lstsq
     fitters.linear_inversion
+    fitters.scipy_gaussian_lstsq
+    fitters.scipy_linear_lstsq
+    fitters.cvxpy_gaussian_lstsq
 
 Bases Classes
 =============
