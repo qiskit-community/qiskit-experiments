@@ -201,7 +201,7 @@ class TestT2Star(QiskitTestCase):
                 # run circuits
                 expdata = exp.run(
                         backend=backend,
-                        # plot=False,
+                        plot=False,
                         instruction_durations=instruction_durations,
                         shots=2000,
                         )
@@ -233,7 +233,7 @@ class TestT2Star(QiskitTestCase):
         backend = T2starBackend(p0)
         res = par_exp.run(
             backend=backend,
-            # plot=False,
+            plot=False,
             shots=1000,
         )
 
