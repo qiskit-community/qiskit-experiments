@@ -12,7 +12,7 @@ assignees: ''
 
 ### Informations
 
-- **Qiskit Ignis version**:
+- **Qiskit Experiments version**:
 - **Python version**:
 - **Operating system**:
 
