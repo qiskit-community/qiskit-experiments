@@ -82,20 +82,23 @@ class T2StarAnalysis(BaseAnalysis):
             ax.set_ylabel("Probability to measure |0>", fontsize=12)
 
         # implementation of  _run_analysis
-        unit = experiment_data._data[0]["metadata"]["unit"]
-        conversion_factor = experiment_data._data[0]["metadata"].get("dt_factor", None)
+        data = experiment_data.data()
+        unit = data[0]["metadata"]["unit"]
+        conversion_factor = data[0]["metadata"].get("dt_factor", None)
+        qubit = data[0]["metadata"]["qubit"]
         if conversion_factor is None:
-            conversion_factor = 1 if unit == "s" else apply_prefix(1, unit)
+            conversion_factor = 1 if unit in ("s", "dt") else apply_prefix(1, unit)
+
         xdata, ydata, sigma = process_curve_data(
             experiment_data._data, lambda datum: level2_probability(datum, "0")
         )
 
-        si_xdata = xdata * conversion_factor
+        si_xdata = xdata
         t2star_estimate = np.mean(si_xdata)
-
         p0, bounds = self._t2star_default_params(
             conversion_factor, user_p0, user_bounds, t2star_estimate
         )
+        si_xdata *= conversion_factor
         fit_result = curve_fit(
             osc_fit_fun, si_xdata, ydata, p0=list(p0.values()), sigma=sigma, bounds=bounds
         )
@@ -156,6 +159,7 @@ class T2StarAnalysis(BaseAnalysis):
             b = user_p0["B"]
         freq /= conversion_factor
         p0 = {"a_guess": a, "t2star": t2star, "f_guess": freq, "phi_guess": phi, "b_guess": b}
+        
         if user_bounds is None:
             a_bounds = [-0.5, 1.5]
             t2star_bounds = [0, np.inf]
@@ -236,7 +240,6 @@ class T2StarExperiment(BaseExperiment):
                 dt_factor = getattr(backend._configuration, "dt")
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
-
         circuits = []
         for delay in self._delays:
             circ = qiskit.QuantumCircuit(1, 1)
