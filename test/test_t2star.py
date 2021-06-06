@@ -156,7 +156,7 @@ class TestT2Star(QiskitTestCase):
             estimated_freq = 0.1
             # Set up the circuits
             qubit = 0
-            if unit == "dt":   # dt requires integer values for delay
+            if unit == "dt":  # dt requires integer values for delay
                 delays = list(range(1, 46))
             else:
                 delays = np.append(
@@ -174,16 +174,14 @@ class TestT2Star(QiskitTestCase):
 
             exp = T2StarExperiment(qubit, delays, unit=unit)
             default_p0 = {
-                    "A": 0.5,
-                    "t2star": estimated_t2star,
-                    "f": estimated_freq,
-                    "phi": 0,
-                    "B": 0.5,
-                }
+                "A": 0.5,
+                "t2star": estimated_t2star,
+                "f": estimated_freq,
+                "phi": 0,
+                "B": 0.5,
+            }
             for user_p0 in [default_p0, None]:
-                exp.set_analysis_options(
-                    user_p0 = user_p0   
-                    )
+                exp.set_analysis_options(user_p0=user_p0)
                 backend = T2starBackend(
                     p0={
                         "a_guess": [0.5],
@@ -191,24 +189,24 @@ class TestT2Star(QiskitTestCase):
                         "f_guess": [estimated_freq],
                         "phi_guess": [0.0],
                         "b_guess": [0.5],
-                        },
+                    },
                     initial_prob_plus=[0.0],
                     readout0to1=[0.02],
                     readout1to0=[0.02],
-                    dt_factor=dt_factor
-                    )
+                    dt_factor=dt_factor,
+                )
 
                 # run circuits
                 expdata = exp.run(
-                        backend=backend,
-                        plot=False,
-                        instruction_durations=instruction_durations,
-                        shots=2000,
-                        )
+                    backend=backend,
+                    plot=False,
+                    instruction_durations=instruction_durations,
+                    shots=2000,
+                )
                 result = expdata.analysis_result(0)
                 self.assertEqual(
                     result["quality"], "computer_good", "Result quality bad for unit " + str(unit)
-                    )
+                )
 
     def test_t2star_parallel(self):
         """
