@@ -221,7 +221,7 @@ class CurveAnalysis(BaseAnalysis):
         #: Iterable[float]: Concatenated y sigmas of all series
         self._y_sigmas = None
 
-        #: int: Number of qubit
+        #: int: Number of qubits
         self._num_qubits = None
 
         # Add expected options to instance variable so that every method can access to.
