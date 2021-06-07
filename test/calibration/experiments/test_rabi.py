@@ -36,7 +36,7 @@ class RabiBackend(IQTestBackend):
         self,
         iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
         iq_cluster_width: float = 1.0,
-        amplitude_to_angle=np.pi,
+        amplitude_to_angle: float = np.pi,
     ):
         """Initialize the rabi backend."""
         self._amplitude_to_angle = amplitude_to_angle
@@ -62,6 +62,16 @@ class TestRabiEndToEnd(QiskitTestCase):
         result = rabi.run(backend).analysis_result(0)
 
         self.assertEqual(result["quality"], "computer_good")
+        self.assertTrue(0.9 * 2 * np.pi < result["popt"][1] < 1.1 * 2 * np.pi)
+
+        backend = RabiBackend(amplitude_to_angle=np.pi / 2)
+
+        rabi = Rabi(3)
+        rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
+        result = rabi.run(backend).analysis_result(0)
+
+        self.assertEqual(result["quality"], "computer_good")
+        self.assertTrue(0.9 * np.pi < result["popt"][1] < 1.1 * np.pi)
 
 
 class TestRabiCircuits(QiskitTestCase):
