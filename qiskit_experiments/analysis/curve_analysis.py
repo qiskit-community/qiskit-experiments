@@ -425,14 +425,14 @@ class CurveAnalysis(BaseAnalysis):
     def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """An analysis subroutine that is called to set fitter options.
 
-        Subclasses can override this method to provide own fitter options
+        Subclasses can override this method to provide their own fitter options
         such as initial guesses.
 
-        To provide initial guesses from raw data, you can access to these data by
+        To create initial guesses from the raw data, you can access these data by
         `self._x_values` and `self._y_values`. If your analysis contains multiple series,
-        you can extract specific x or y values with `self._subset_data` method with
-        the name of series of interest.
-        You can also access to the defined analysis options with `self._get_option` method:
+        you can extract specific x or y values with the `self._subset_data` method using
+        the name of the series of interest.
+        You can also access the defined analysis options with the `self._get_option` method:
 
         .. code-block::
 
