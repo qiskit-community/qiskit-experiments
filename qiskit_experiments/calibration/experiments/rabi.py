@@ -12,14 +12,13 @@
 
 """Rabi amplitude Experiment class."""
 
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Callable, List, Optional, Tuple
 import numpy as np
 
 from qiskit import QiskitError, QuantumCircuit
-from qiskit.circuit import Parameter
+from qiskit.circuit import Gate, Parameter
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
-from qiskit.pulse import ScheduleBlock
 import qiskit.pulse as pulse
 from qiskit.providers.options import Options
 
@@ -245,36 +244,23 @@ class Rabi(BaseExperiment):
         return Options(
             duration=160,
             sigma=40,
+            amplitudes=np.linspace(-0.95, 0.95, 51),
+            schedule=None,
         )
 
-    def __init__(self, qubit: int, amplitudes: Optional[Union[List[float], np.array]] = None):
+    def __init__(self, qubit: int):
         """Setup a Rabi experiment on the given qubit.
 
         Args:
             qubit: The qubit on which to run the Rabi experiment.
-            amplitudes: The amplitudes that will be scanned.
         """
         super().__init__([qubit])
 
-        if amplitudes is not None:
-            self._amplitudes = amplitudes
-        else:
-            self._amplitudes = np.linspace(-0.95, 0.95, 51)
-
-    def circuits(
-        self,
-        backend: Optional[Backend] = None,
-        schedule: Optional[ScheduleBlock] = None,
-        **circuit_options,
-    ) -> List[QuantumCircuit]:
+    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Create the circuits for the Rabi experiment.
 
         Args:
             backend: A backend object.
-            schedule: The schedule for which to scan the amplitude. This schedule must have
-                one parameter that will be scanned.
-            circuit_options: Circuit options that may include "amplitudes", i.e. the run-time
-                given amplitudes that will override those given be the init method.
 
         Returns:
             A list of circuits with a rx rotation with a calibration whose amplitude is scanned.
@@ -285,6 +271,8 @@ class Rabi(BaseExperiment):
                   that matches the qubit on which to run the Rabi experiment.
                 - If the user provided schedule has more than one free parameter.
         """
+        schedule = self.experiment_options.get("schedule", None)
+
         if schedule is None:
             amp = Parameter("amp")
             with pulse.build() as default_schedule:
@@ -310,13 +298,15 @@ class Rabi(BaseExperiment):
 
         param = next(iter(schedule.parameters))
 
+        gate = Gate(name="Rabi", num_qubits=1, params=[param])
+
         circuit = QuantumCircuit(1)
-        circuit.rx(param, 0)
+        circuit.append(gate, (0,))
         circuit.measure_active()
-        circuit.add_calibration("rx", (self.physical_qubits[0],), schedule, params=[param])
+        circuit.add_calibration(gate, (self.physical_qubits[0],), schedule, params=[param])
 
         circs = []
-        for amp in circuit_options.get("amplitudes", self._amplitudes):
+        for amp in self.experiment_options.amplitudes:
             assigned_circ = circuit.assign_parameters({param: amp}, inplace=False)
             assigned_circ.metadata = {
                 "experiment_type": self._type,
