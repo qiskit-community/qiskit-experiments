@@ -277,7 +277,7 @@ class Rabi(BaseExperiment):
                 given amplitudes that will override those given be the init method.
 
         Returns:
-            A ist of circuits with a rx rotation with a calibration whose amplitude is scanned.
+            A list of circuits with a rx rotation with a calibration whose amplitude is scanned.
 
         Raises:
             QiskitError:
