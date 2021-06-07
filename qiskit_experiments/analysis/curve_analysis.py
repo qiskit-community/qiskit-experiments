@@ -56,7 +56,7 @@ class CurveAnalysis(BaseAnalysis):
         __series__: A set of data points that will be fit to the same parameters
             in the fit function. If this analysis contains multiple curves,
             the same number of series definitions should be listed.
-            Each series definition is SeriesDef element, that may be initialized with::
+            Each series definition is SeriesDef element, that may be initialized with:
 
                 fit_func: Callback function to perform fit.
                 filter_kwargs: Circuit metadata key and value associated with this curve.
