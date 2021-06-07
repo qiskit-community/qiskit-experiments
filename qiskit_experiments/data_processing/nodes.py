@@ -391,7 +391,7 @@ class Probability(DataAction):
                         f"Key {bit_str} is not a valid count key in{self.__class__.__name__}."
                     )
 
-                if not isinstance(count, (int, float)):
+                if not isinstance(count, (int, float, np.integer)):
                     raise DataProcessorError(
                         f"Count {bit_str} is not a valid count value in {self.__class__.__name__}."
                     )
