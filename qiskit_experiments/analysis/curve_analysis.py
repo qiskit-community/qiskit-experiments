@@ -53,7 +53,7 @@ class CurveAnalysis(BaseAnalysis):
 
     Class Attributes:
 
-        __series__: A set of data points that will be fit to a the same parameters
+        __series__: A set of data points that will be fit to the same parameters
             in the fit function. If this analysis contains multiple curves,
             the same number of series definitions should be listed.
             Each series definition is SeriesDef element, that may be initialized with::
