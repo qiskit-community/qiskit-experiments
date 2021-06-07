@@ -729,6 +729,7 @@ class CurveAnalysis(BaseAnalysis):
             AnalysisError: if the analysis fails.
         """
         analysis_result = CurveAnalysisResult()
+        analysis_result["analysis_type"] = self.__class__.__name__
         figures = list()
 
         # pop arguments that are not given to fitter
