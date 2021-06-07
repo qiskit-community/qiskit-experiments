@@ -30,7 +30,7 @@ from qiskit_experiments.test.mock_iq_backend import IQTestBackend
 
 
 class RabiBackend(IQTestBackend):
-    """A simple and primitive backend, to be run by the T1 tests."""
+    """A simple and primitive backend, to be run by the Rabi tests."""
 
     def __init__(
         self,
