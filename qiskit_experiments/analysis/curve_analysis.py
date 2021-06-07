@@ -557,6 +557,10 @@ class CurveAnalysis(BaseAnalysis):
 
         y_values, y_sigmas = zip(*map(data_processor, data))
 
+        # TODO this should be handled in data processor.
+        # Future data processor may take full sequence of data rather than datum.
+        # The CurveAnalysis can pass series filter_kwargs to the processor
+        # so that it can filter data to extract.
         if self._get_option("normalization"):
             y_min, y_max = min(y_values), max(y_values)
             scale = 1 / (y_max - y_min)
