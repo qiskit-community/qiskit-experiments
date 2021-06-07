@@ -960,7 +960,15 @@ class Calibrations:
 
         else:
             for value, param, qubits, schedule in calibration_extraction(result):
-                self.add_parameter_value(value, param, qubits, schedule)
+
+                param_value = ParameterValue(
+                    value=value,
+                    date_time=datetime.now(),
+                    group=group,
+                    exp_id=exp_data.experiment_id
+                )
+                
+                self.add_parameter_value(param_value, param, qubits, schedule)
 
     def save(self, file_type: str = "csv", folder: str = None, overwrite: bool = False):
         """Save the parameterized schedules and parameter value.
