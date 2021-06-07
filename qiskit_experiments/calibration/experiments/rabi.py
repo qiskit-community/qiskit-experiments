@@ -161,7 +161,7 @@ class RabiAnalysis(BaseAnalysis):
                 pass
 
         if best_fit is None:
-            raise QiskitError("Could not find a fit to the spectroscopy data.")
+            raise QiskitError("Could not find a fit to the Rabi data.")
 
         best_fit["value"] = best_fit["popt"][1]
         best_fit["stderr"] = (fit_result["popt_err"][1],)
