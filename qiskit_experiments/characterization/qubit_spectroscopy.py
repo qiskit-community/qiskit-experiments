@@ -343,7 +343,6 @@ class QubitSpectroscopy(BaseExperiment):
         frequencies: Union[List[float], np.array],
         unit: Optional[str] = "Hz",
         absolute: bool = True,
-        pre_circuit: Optional[QuantumCircuit] = None,
     ):
         """
         A spectroscopy experiment run by setting the frequency of the qubit drive.
@@ -378,9 +377,34 @@ class QubitSpectroscopy(BaseExperiment):
 
         self._frequencies = [freq * self.__units__[unit] for freq in frequencies]
         self._absolute = absolute
-        self._pre_circuit = pre_circuit
 
         super().__init__([qubit])
+
+    def _schedule(self) -> Tuple[pulse.ScheduleBlock, Parameter]:
+        """Create the spectroscopy schedule."""
+        freq_param = Parameter("frequency")
+        with pulse.build(name="spectroscopy") as schedule:
+            pulse.set_frequency(freq_param, pulse.DriveChannel(self.physical_qubits[0]))
+            pulse.play(
+                pulse.GaussianSquare(
+                    duration=self.experiment_options.duration,
+                    amp=self.experiment_options.amp,
+                    sigma=self.experiment_options.sigma,
+                    width=self.experiment_options.width,
+                ),
+                pulse.DriveChannel(self.physical_qubits[0]),
+            )
+
+        return schedule, freq_param
+
+    @staticmethod
+    def _template_circuit(freq_param) -> QuantumCircuit:
+        """Return the template quantum circuit."""
+        circuit = QuantumCircuit(1)
+        circuit.append(Gate(name="Spec", num_qubits=1, params=[freq_param]), (0,))
+        circuit.measure_active()
+
+        return circuit
 
     def circuits(self, backend: Optional[Backend] = None):
         """Create the circuit for the spectroscopy experiment.
@@ -403,29 +427,9 @@ class QubitSpectroscopy(BaseExperiment):
             raise QiskitError("Cannot run spectroscopy relative to qubit without a backend.")
 
         # Create a template circuit
-        freq_param = Parameter("frequency")
-        with pulse.build(backend=backend, name="spectroscopy") as sched:
-            pulse.set_frequency(freq_param, pulse.DriveChannel(self.physical_qubits[0]))
-            pulse.play(
-                pulse.GaussianSquare(
-                    duration=self.experiment_options.duration,
-                    amp=self.experiment_options.amp,
-                    sigma=self.experiment_options.sigma,
-                    width=self.experiment_options.width,
-                ),
-                pulse.DriveChannel(self.physical_qubits[0]),
-            )
-
-        gate = Gate(name="Spec", num_qubits=1, params=[freq_param])
-
-        circuit = QuantumCircuit(1)
-        circuit.append(gate, (0,))
-        circuit.add_calibration(gate, (self.physical_qubits[0],), sched, params=[freq_param])
-
-        if self._pre_circuit is not None:
-            circuit = self._pre_circuit.compose(circuit)
-
-        circuit.measure_active()
+        sched, freq_param = self._schedule()
+        circuit = self._template_circuit(freq_param)
+        circuit.add_calibration("Spec", (self.physical_qubits[0],), sched, params=[freq_param])
 
         if not self._absolute:
             center_freq = backend.defaults().qubit_freq_est[self.physical_qubits[0]]
@@ -453,9 +457,6 @@ class QubitSpectroscopy(BaseExperiment):
 
             if not self._absolute:
                 assigned_circ.metadata["center frequency"] = center_freq
-
-            if self._pre_circuit is not None:
-                assigned_circ.metadata["preparation circuit name"] = self._pre_circuit.name
 
             try:
                 assigned_circ.metadata["dt"] = getattr(backend.configuration(), "dt")
