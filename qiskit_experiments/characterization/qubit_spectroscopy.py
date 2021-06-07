@@ -38,16 +38,34 @@ from qiskit_experiments.data_processing.processor_library import get_to_signal_p
 class SpectroscopyAnalysis(CurveAnalysis):
     """A class to analyze a spectroscopy experiment.
 
-    Analyze a spectroscopy experiment by fitting the data to a Gaussian function.
-    The fit function is:
+    Overview:
+        This analysis takes only single series. This series is fit by the Gaussian function.
 
-    .. math::
+    Fit Model:
+        The fit is based on the following Gaussian function.
 
-        a * exp(-(x-x0)**2/(2*sigma**2)) + b
+        .. math::
 
-    Here, :math:`x` is the frequency. The analysis loops over the initial guesses
-    of the width parameter :math:`sigma`. The measured y-data will be rescaled to
-    the interval (0,1).
+            a * exp(-(x-freq)**2/(2*sigma**2)) + b
+
+    Fit Parameters:
+        a: Peak height.
+        b: Base line.
+        freq: Center frequency. This is the fit parameter of main interest.
+        sigma: Standard deviation of Gaussian function.
+
+    Initial Guesses:
+        a: The maximum signal value with removed baseline.
+        b: A median value of the signal.
+        freq: A frequency value at the peak (maximum signal).
+        sigma: Calculated from FWHM of peak :math:`w` such that :math:`w / sqrt(8) ln{2}`.
+
+    Bounds:
+        a: [-2, 2] scaled with maximum signal value.
+        b: [-1, 1] scaled with maximum signal value.
+        freq: [min(freq), max(freq)] of frequency scan range.
+        sigma: [0, delta f] where delta f represents frequency scan range.
+
     """
 
     __series__ = [
