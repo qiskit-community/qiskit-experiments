@@ -58,7 +58,7 @@ class CurveAnalysis(BaseAnalysis):
             the same number of series definitions should be listed.
             Each series definition is SeriesDef element, that may be initialized with:
 
-                fit_func: Callback function to perform fit.
+                fit_func: The function to which the data will be fit.
                 filter_kwargs: Circuit metadata key and value associated with this curve.
                     The data points of the curve is extracted from ExperimentData based on
                     this information.
