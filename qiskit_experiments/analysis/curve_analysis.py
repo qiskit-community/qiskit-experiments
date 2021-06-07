@@ -60,7 +60,7 @@ class CurveAnalysis(BaseAnalysis):
 
                 fit_func: The function to which the data will be fit.
                 filter_kwargs: Circuit metadata key and value associated with this curve.
-                    The data points of the curve is extracted from ExperimentData based on
+                    The data points of the curve are extracted from ExperimentData based on
                     this information.
                 name: Name of the curve. This is arbitrary data field, but should be unique.
                 plot_color: String color representation of this series in the plot.
