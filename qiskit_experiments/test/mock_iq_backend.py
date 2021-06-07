@@ -110,7 +110,7 @@ class IQTestBackend(Backend):
 
     # pylint: disable=arguments-differ
     def run(self, circuits, shots=1024, meas_level=MeasLevel.KERNELED, meas_return="single"):
-        """Run the spectroscopy backend."""
+        """Run the IQ backend."""
 
         result = {
             "backend_name": f"{self.__class__.__name__}",
