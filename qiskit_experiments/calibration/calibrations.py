@@ -13,9 +13,9 @@
 """Class to store and manage the results of calibration experiments."""
 
 import os
-from collections import namedtuple, defaultdict
+from collections import defaultdict
 from datetime import datetime
-from typing import Any, Dict, Set, Tuple, Union, List, Optional
+from typing import Any, Callable, Dict, Set, Tuple, Union, List, Optional
 import csv
 import dataclasses
 import warnings
@@ -37,10 +37,13 @@ from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter, ParameterExpression
 from qiskit_experiments.calibration.exceptions import CalibrationError
 from qiskit_experiments.calibration.parameter_value import ParameterValue
-
-ParameterKey = namedtuple("ParameterKey", ["parameter", "qubits", "schedule"])
-ScheduleKey = namedtuple("ScheduleKey", ["schedule", "qubits"])
-ParameterValueType = Union[ParameterExpression, float, int, complex]
+from qiskit_experiments.experiment_data import ExperimentData
+from qiskit_experiments.calibration.calibration_extraction import CalibrationExtraction
+from qiskit_experiments.calibration.calibration_types import (
+    ParameterKey,
+    ParameterValueType,
+    ScheduleKey
+)
 
 
 class Calibrations:
@@ -897,6 +900,68 @@ class Calibrations:
 
         return data
 
+    def update(
+        self,
+        exp_data: ExperimentData,
+        calibration_extraction: Optional[Union[Callable, CalibrationExtraction]] = None,
+        result_index: int = 0,
+        force_update: bool = False,
+        group: str = "default",
+    ):
+        """Update the calibrations form a result in the given experiment data.
+
+        This function allows users to update their calibrations from experiment data. Typically,
+        the value of the parameter to update is directly stored as the result of the fit. However,
+        for more complex cases, such as Rabi, the value of the parameter is extracted from the
+        fit result using the calibration extraction callable.
+
+        Args:
+            exp_data: An analysis result which contains either the value to update under the
+                key value or the information required by the calibration_extraction function
+                which will build the values to update.
+            calibration_extraction: A callable that must return
+                List[Tuple[ParameterValueType, str, Tuple[int, ...], str]] where each tuple
+                is a parameter value, the name of the parameter to update, the qubits to update,
+                and the name of the schedule to which the parameter belongs.
+            result_index: The index of the result which defaults to 0.
+            force_update: If set to True then the calibrations will be updated even if the
+                quality of the result is "computer_bad".
+            group: The calibration group from which to draw the parameters.
+                If not specified this defaults to the 'default' group.
+
+        Raises:
+            CalibrationError: If the result does not have the required calibration keys. These
+                keys are "calibration_parameter", "qubits", "calibration_schedule", and "value".
+        """
+        result = exp_data.analysis_result(result_index)
+
+        if result["quality"] == "computer_bad" and not force_update:
+            return
+
+        if calibration_extraction is None:
+            for key in ["calibration_parameter", "qubits", "calibration_schedule", "value"]:
+                if key not in result:
+                    raise CalibrationError(
+                        f"Cannot update calibrations from a result without a {key} key."
+                    )
+
+            value = ParameterValue(
+                value=result["value"],
+                date_time=datetime.now(),
+                group=group,
+                exp_id=exp_data.experiment_id
+            )
+
+            schedule = result["calibration_schedule"]
+            param = result["calibration_parameter"]
+            qubits = self._to_tuple(result["qubits"])
+
+            self.add_parameter_value(value, param, qubits, schedule)
+
+        else:
+            for value, param, qubits, schedule in calibration_extraction(result):
+                self.add_parameter_value(value, param, qubits, schedule)
+
     def save(self, file_type: str = "csv", folder: str = None, overwrite: bool = False):
         """Save the parameterized schedules and parameter value.
 
@@ -1025,7 +1090,7 @@ class Calibrations:
             CalibrationError: If the given input does not conform to an int or
                 tuple of ints.
         """
-        if not qubits:
+        if qubits is None:
             return tuple()
 
         if isinstance(qubits, str):

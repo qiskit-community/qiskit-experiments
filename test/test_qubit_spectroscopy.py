@@ -17,9 +17,11 @@ from typing import Tuple
 import numpy as np
 from qiskit.qobj.utils import MeasLevel
 from qiskit.test import QiskitTestCase
+from qiskit.test.mock import FakeAthens
 
 from qiskit_experiments.characterization.qubit_spectroscopy import QubitSpectroscopy
 from qiskit_experiments.test.mock_iq_backend import TestJob, IQTestBackend
+from qiskit_experiments.calibration.backend_calibrations import BackendCalibrations
 
 
 class SpectroscopyBackend(IQTestBackend):
@@ -93,6 +95,12 @@ class SpectroscopyBackend(IQTestBackend):
 class TestQubitSpectroscopy(QiskitTestCase):
     """Test spectroscopy experiment."""
 
+    def setUp(self):
+        """Setup the test."""
+        super().setUp()
+
+        self._cals = BackendCalibrations(FakeAthens())
+
     def test_spectroscopy_end2end_classified(self):
         """End to end test of the spectroscopy experiment."""
 
@@ -111,11 +119,17 @@ class TestQubitSpectroscopy(QiskitTestCase):
 
         spec = QubitSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
-        result = spec.run(backend).analysis_result(0)
+        exp_data = spec.run(backend)
+        result = exp_data.analysis_result(0)
 
         self.assertTrue(result["value"] < 5.1e6)
         self.assertTrue(result["value"] > 4.9e6)
         self.assertEqual(result["quality"], "computer_good")
+
+        # Test the integration with the BackendCalibrations
+        self.assertNotEqual(self._cals.get_qubit_frequencies()[3], result["value"])
+        self._cals.update(exp_data)
+        self.assertEqual(self._cals.get_qubit_frequencies()[3], result["value"])
 
     def test_spectroscopy_end2end_kerneled(self):
         """End to end test of the spectroscopy experiment on IQ data."""

@@ -30,6 +30,7 @@ from qiskit_experiments import AnalysisResult
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
 from qiskit_experiments.analysis import plotting
+from qiskit_experiments.calibration.backend_calibrations import BackendCalibrations
 
 
 class SpectroscopyAnalysis(BaseAnalysis):
@@ -81,6 +82,8 @@ class SpectroscopyAnalysis(BaseAnalysis):
             sigma_bounds=None,
             freq_bounds=None,
             offset_bounds=(-2, 2),
+            calibration_parameter=BackendCalibrations.__qubit_freq_parameter__,
+            calibration_schedule=None,
         )
 
     # pylint: disable=arguments-differ, unused-argument
@@ -98,6 +101,8 @@ class SpectroscopyAnalysis(BaseAnalysis):
         offset_bounds: Tuple[float, float] = (-2, 2),
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,
+        calibration_parameter: str = None,
+        calibration_schedule = None,
         **kwargs,
     ) -> Tuple[AnalysisResult, None]:
         """Analyze the given data by fitting it to a Gaussian.
@@ -210,6 +215,9 @@ class SpectroscopyAnalysis(BaseAnalysis):
         best_fit["xdata"] = xdata
         best_fit["ydata"] = ydata
         best_fit["ydata_err"] = sigmas
+        best_fit["qubits"] = (experiment_data.data(0)["metadata"]["qubit"], )
+        best_fit["calibration_parameter"] = calibration_parameter
+        best_fit["calibration_schedule"] = calibration_schedule
         best_fit["quality"] = self._fit_quality(
             best_fit["popt"][0],
             best_fit["popt"][1],
@@ -376,6 +384,11 @@ class QubitSpectroscopy(BaseExperiment):
         self._absolute = absolute
 
         super().__init__([qubit])
+
+        self.set_analysis_options(
+            calibration_parameter=BackendCalibrations.__qubit_freq_parameter__,
+            calibration_schedule=None,
+        )
 
     def circuits(self, backend: Optional[Backend] = None):
         """Create the circuit for the spectroscopy experiment.
