@@ -336,7 +336,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
 
         self.assertFalse(result["success"])
 
-        ref_result_keys = ["error_message", "success", "raw_data"]
+        ref_result_keys = ["analysis_type", "error_message", "success", "raw_data"]
         self.assertSetEqual(set(result.keys()), set(ref_result_keys))
 
     def test_run_two_curves_with_same_fitfunc(self):
