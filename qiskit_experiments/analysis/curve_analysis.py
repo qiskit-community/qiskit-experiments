@@ -119,6 +119,10 @@ class CurveAnalysis(BaseAnalysis):
                     ),
                 ]
 
+        In this fit model, we have 4 parameters `p0, p1, p2, p3` and both series share
+        `p0` and `p3` as `amp` and `baseline` of the `exponential_decay` fit function.
+        Parameter `p1` (`p2`) is only used by `my_experiment1` (`my_experiment2`).
+        Both series have same fit function in this example.
 
         A fitting for two trigonometric curves with the same parameter
         =============================================================
@@ -149,6 +153,10 @@ class CurveAnalysis(BaseAnalysis):
                     ),
                 ]
 
+        In this fit model, we have 4 parameters `p0, p1, p2, p3` and both series share
+        all parameters. However, these series have different fit curves, i.e.
+        `my_experiment1` (`my_experiment2`) uses the `cos` (`sin`) fit function.
+
 
     Notes:
         This CurveAnalysis class provides several private methods that subclasses can override.
@@ -158,7 +166,7 @@ class CurveAnalysis(BaseAnalysis):
             arbitrary number of new figures or upgrade the default figure appearance.
 
         - Customize pre-data processing:
-            Override :meth:`~self._data_pre_processing`. For example, here you can
+            Override :meth:`~self._pre_processing`. For example, here you can
             take a mean over y values for the same x value, or apply smoothing to y values.
 
         - Customize post-analysis data processing:
@@ -168,6 +176,8 @@ class CurveAnalysis(BaseAnalysis):
         - Customize fitting options:
             Override :meth:`~self._setup_fitting`. For example, here you can
             calculate initial guess from experiment data and setup fitter options.
+
+        See docstring of each method for more details.
 
         Note that other private methods are not expected to be overridden.
         If you forcibly override these methods, the behavior of analysis logic is not well tested
@@ -261,6 +271,7 @@ class CurveAnalysis(BaseAnalysis):
 
                 This can be a :class:`~qiskit_experiment.data_processing.DataProcessor`
                 instance that defines the `self.__call__` method.
+            normalization: Set ``True`` to normalize y values within range [-1, 1].
             p0: Array-like or dictionary of initial parameters.
             bounds: Array-like or dictionary of (min, max) tuple of fit parameter boundaries.
             x_key: Circuit metadata key representing a scanned value.
@@ -274,6 +285,7 @@ class CurveAnalysis(BaseAnalysis):
         return Options(
             curve_fitter=multi_curve_fit,
             data_processor=probability(outcome="1"),
+            normalization=False,
             p0=None,
             bounds=None,
             x_key="xval",
@@ -413,13 +425,49 @@ class CurveAnalysis(BaseAnalysis):
     def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """An analysis subroutine that is called to set fitter options.
 
-        This subroutine takes full data array and user-input fit options.
         Subclasses can override this method to provide own fitter options
         such as initial guesses.
+
+        To provide initial guesses from raw data, you can access to these data by
+        `self._x_values` and `self._y_values`. If your analysis contains multiple series,
+        you can extract specific x or y values with `self._subset_data` method with
+        the name of series of interest.
+        You can also access to the defined analysis options with `self._get_option` method:
+
+        .. code-block::
+
+            sub_x_vals, sub_y_vals = self._subset_data(
+                name="my_experiment1",
+                data_index: self._data_index,
+                x_values: self._x_values,
+                y_values: self._y_values,
+                y_sigmas: self._y_sigmas,
+            )
+
+            if self._get_option("my_option1") == "abc":
+                p0 = ...
+                bounds = ...
+            else:
+                p0 = ...
+                bounds = ...
+
+            return {"p0": p0, "bounds": bounds}
 
         Note that this subroutine can generate multiple fit options.
         If multiple options are provided, fitter runs multiple times for each fit option,
         and find the best result measured by the reduced chi-squared value.
+
+        .. code-block::
+
+            fit_1 = {"p0": p0_1, "bounds": bounds, "extra_fit_parameter": "option1"}
+            fit_2 = {"p0": p0_2, "bounds": bounds, "extra_fit_parameter": "option2"}
+
+            return [fit_1, fit_2]
+
+        Note that you can also change fitter options (not only initial guesses) in each
+        fit condition. This might be convenient to fit parameter with multiple fit algorithms
+        or different fitting options. By default, this class uses `scipy.curve_fit`
+        as the fitter function. See Scipy API docs for more fitting option details.
 
         Args:
             options: User provided extra options that are not defined in default options.
@@ -466,15 +514,18 @@ class CurveAnalysis(BaseAnalysis):
     ):
         """Extract curve data from experiment data.
 
-        This method internally populate `self.__x_values`, `self.__y_values`, `self.__y_sigmas`
-        and `self.__data_index` with given `experiment_data`.
+        This method internally populate `self._x_values`, `self._y_values`, `self._y_sigmas`
+        and `self._data_index` with given `experiment_data`.
 
         .. notes::
             The target metadata properties to define each curve entry is described by
-            the class attribute __series__. This method returns the same numbers
-            of curve data entries as one defined in this attribute.
-            The returned CurveData entry contains circuit metadata fields that are
-            common to the entire curve scan, i.e. series-level metadata.
+            the class attribute __series__ (see `filter_kwargs`).
+            This function returns concatenated x, y, and sigma values with data index array
+            with the same length as other extracted data.
+            The i-th `self._data_index` value represent the series index of i-th
+            `self._x_values`, `self._y_values`, and `self._y_sigmas`.
+            The helper function `self._subset_data` is available to extract
+            (x values, y values, y sigmas) set of the specific series distinguished by `name`.
 
         Args:
             experiment_data: ExperimentData object to fit parameters.
@@ -483,7 +534,8 @@ class CurveAnalysis(BaseAnalysis):
                 that represent a y value and an error of it.
         Raises:
             DataProcessorError:
-                - When __x_key__ is not defined in the circuit metadata.
+                - When `x_key` specified in the analysis option is not
+                    defined in the circuit metadata.
         """
 
         def _is_target_series(datum, **filters):
@@ -505,10 +557,16 @@ class CurveAnalysis(BaseAnalysis):
 
         y_values, y_sigmas = zip(*map(data_processor, data))
 
+        if self._get_option("normalization"):
+            y_min, y_max = min(y_values), max(y_values)
+            scale = 1 / (y_max - y_min)
+        else:
+            scale = 1.
+
         # Format data
         self._x_values = np.asarray(x_values, dtype=float)
-        self._y_values = np.asarray(y_values, dtype=float)
-        self._y_sigmas = np.asarray(y_sigmas, dtype=float)
+        self._y_values = np.asarray(y_values, dtype=float) * scale
+        self._y_sigmas = np.asarray(y_sigmas, dtype=float) * scale
 
         # Find series (invalid data is labeled as -1)
         self._data_index = -1 * np.ones(self._x_values.size, dtype=int)

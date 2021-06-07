@@ -42,6 +42,11 @@ class RBAnalysis(CurveAnalysis):
 
     @classmethod
     def _default_options(cls):
+        """Return default data processing options.
+
+        See :meth:`~qiskit_experiment.analysis.CurveAnalysis._default_options` for
+        descriptions of analysis options.
+        """
         default_options = super()._default_options()
         default_options.p0 = {"a": None, "alpha": None, "b": None}
         default_options.bounds = {"a": (0.0, 1.0), "alpha": (0.0, 1.0), "b": (0.0, 1.0)}
