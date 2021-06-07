@@ -162,11 +162,11 @@ class RabiAnalysis(BaseAnalysis):
                 pass
 
         if best_fit is None:
-            raise QiskitError("Could not find a fit to the Rabi data.")
+            raise QiskitError("Could not find a fit to the data.")
 
         best_fit["value"] = best_fit["popt"][1]
         best_fit["stderr"] = (fit_result["popt_err"][1],)
-        best_fit["label"] = "Spectroscopy"
+        best_fit["label"] = self.__class__.__name__
         best_fit["xdata"] = xdata
         best_fit["ydata"] = ydata
         best_fit["ydata_err"] = sigmas
@@ -221,11 +221,11 @@ class Rabi(BaseExperiment):
 
     .. parsed-literal::
 
-                   ┌─────────┐ ░ ┌─┐
-              q_0: ┤ RX(amp) ├─░─┤M├
-                   └─────────┘ ░ └╥┘
-        measure: 1/═══════════════╩═
-                                  0
+                   ┌───────────┐ ░ ┌─┐
+              q_0: ┤ Rabi(amp) ├─░─┤M├
+                   └───────────┘ ░ └╥┘
+        measure: 1/═════════════════╩═
+                                    0
 
     """
 
