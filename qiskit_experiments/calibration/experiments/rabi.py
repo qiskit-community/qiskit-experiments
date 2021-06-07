@@ -53,6 +53,7 @@ class RabiAnalysis(BaseAnalysis):
             phase_bounds=(-np.pi, np.pi),
         )
 
+    # pylint: disable=arguments-differ
     def _run_analysis(
         self,
         experiment_data: ExperimentData,

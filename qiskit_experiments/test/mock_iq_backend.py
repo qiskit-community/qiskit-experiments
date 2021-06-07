@@ -83,16 +83,25 @@ class IQTestBackend(Backend):
     def _default_options(self):
         """Default options of the test backend."""
 
-    def _draw_iq_shot(self, prob) -> List[List[float]]:
+    def _draw_iq_shots(self, prob, shots) -> List[List[List[float]]]:
         """Produce an IQ shot."""
 
-        rand_i = self._rng.normal(0, self._iq_cluster_width)
-        rand_q = self._rng.normal(0, self._iq_cluster_width)
+        rand_i = self._rng.normal(0, self._iq_cluster_width, size=shots)
+        rand_q = self._rng.normal(0, self._iq_cluster_width, size=shots)
 
-        if self._rng.binomial(1, prob) > 0.5:
-            return [[self._iq_cluster_centers[0] + rand_i, self._iq_cluster_centers[1] + rand_q]]
-        else:
-            return [[self._iq_cluster_centers[2] + rand_i, self._iq_cluster_centers[3] + rand_q]]
+        memory = []
+        for idx, state in enumerate(self._rng.binomial(1, prob, size=shots)):
+
+            if state > 0.5:
+                point_i = self._iq_cluster_centers[0] + rand_i[idx]
+                point_q = self._iq_cluster_centers[1] + rand_q[idx]
+            else:
+                point_i = self._iq_cluster_centers[2] + rand_i[idx]
+                point_q = self._iq_cluster_centers[3] + rand_q[idx]
+
+            memory.append([[point_i, point_q]])
+
+        return memory
 
     @abstractmethod
     def _compute_probability(self, circuit: QuantumCircuit) -> float:
@@ -131,14 +140,10 @@ class IQTestBackend(Backend):
             prob = self._compute_probability(circ)
 
             if meas_level == MeasLevel.CLASSIFIED:
-                counts = {"1": 0, "0": 0}
-
-                for _ in range(shots):
-                    counts[str(self._rng.binomial(1, prob))] += 1
-
-                run_result["data"] = {"counts": counts}
+                ones = np.sum(self._rng.binomial(1, prob, size=shots))
+                run_result["data"] = {"counts": {"1": ones, "0": shots - ones}}
             else:
-                memory = [self._draw_iq_shot(prob) for _ in range(shots)]
+                memory = self._draw_iq_shots(prob, shots)
 
                 if meas_return == "avg":
                     memory = np.average(np.array(memory), axis=0).tolist()
