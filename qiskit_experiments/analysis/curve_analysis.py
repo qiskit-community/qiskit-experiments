@@ -561,7 +561,7 @@ class CurveAnalysis(BaseAnalysis):
             y_min, y_max = min(y_values), max(y_values)
             scale = 1 / (y_max - y_min)
         else:
-            scale = 1.
+            scale = 1.0
 
         # Format data
         self._x_values = np.asarray(x_values, dtype=float)
