@@ -240,7 +240,7 @@ class CurveAnalysis(BaseAnalysis):
 
     @classmethod
     def _default_options(cls):
-        """Return default data processing options.
+        """Return default analysis options.
 
         Options:
             curve_fitter: A callback function to perform fitting with formatted data.
