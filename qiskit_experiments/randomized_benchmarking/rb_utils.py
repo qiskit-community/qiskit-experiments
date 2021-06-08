@@ -34,7 +34,7 @@ class RBUtils():
                 if gate_qubit in qubits:
                     for p in g['parameters']:
                         if p['name'] == 'gate_error':
-                            error_dict[gate_qubit][gate['name']] = p['value']
+                            error_dict[gate_qubit][g['gate']] = p['value']
         return error_dict
 
     @staticmethod
@@ -49,6 +49,25 @@ class RBUtils():
                   for qubit, count_ops in count_ops_per_qubit.items()
                   if circuit.qubits.index(qubit) in qubits}
         return result
+
+    @staticmethod
+    def gates_per_clifford(ops_count, gates, qubits):
+        result = {}
+        for qubit in qubits:
+            result[qubit] = {}
+            for gate in gates:
+                result[qubit][gate] = []
+        for c in ops_count:
+            for qubit, counts in c.items():
+                for gate, value in counts.items():
+                    if qubit in qubits and gate in gates:
+                        result[qubit][gate].append(value)
+        for qubit in qubits:
+            result[qubit] = {}
+            for gate in gates:
+                result[qubit][gate] = np.mean(result[qubit][gate])
+        return result
+
 
     @staticmethod
     def coherence_limit(nQ=2, T1_list=None, T2_list=None,

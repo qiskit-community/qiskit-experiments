@@ -64,11 +64,6 @@ class RBAnalysis(BaseAnalysis):
                    None, a single figure, or a list of figures.
         """
         data = experiment_data.data()
-        print("gate error data:")
-        print(experiment_data.backend)
-        error_dict = RBUtils.get_1_qubit_error_dict_from_backend(experiment_data.backend,
-                                                                 experiment_data.experiment.physical_qubits)
-        print(error_dict)
         num_qubits = len(data[0]["metadata"]["qubits"])
 
         # Process data
@@ -96,6 +91,17 @@ class RBAnalysis(BaseAnalysis):
         analysis_result["EPC"] = scale * (1 - popt[1])
         analysis_result["EPC_err"] = scale * popt_err[1] / popt[1]
 
+        # Add EPG data
+        error_dict = RBUtils.get_1_qubit_error_dict_from_backend(
+            experiment_data.backend,
+            experiment_data.experiment.physical_qubits)
+        print("error dict:", error_dict)
+        count_ops = [dict(datum['metadata']['ops_count'])
+                     for datum in experiment_data.data()]
+        gates_per_clifford = RBUtils.gates_per_clifford(count_ops,
+                                  experiment_data.backend._basis_gates(),
+                                  experiment_data.experiment.physical_qubits)
+        print(gates_per_clifford)
         if plot and plotting.HAS_MATPLOTLIB:
             ax = plotting.plot_curve_fit(fit_fun, analysis_result, ax=ax)
             ax = plotting.plot_scatter(x_raw, y_raw, ax=ax)
