@@ -145,8 +145,6 @@ class TestT2Star(QiskitTestCase):
         """
         Run the T2 backend on all possible units
         """
-        # For some reason, 'ps' was not precise enough - need to check this
-
         for unit in ["s", "ms", "us", "ns", "dt"]:
             if unit in ("s", "dt"):
                 dt_factor = 1
@@ -237,14 +235,6 @@ class TestT2Star(QiskitTestCase):
 
         for i in range(2):
             sub_res = res.component_experiment_data(i).analysis_result(0)
-            self.assertAlmostEqual(
-                sub_res["t2star_value"], t2star[i], delta=0.08 * sub_res["t2star_value"]
-            )
-            self.assertAlmostEqual(
-                sub_res["frequency_value"],
-                estimated_freq[i],
-                delta=0.08 * sub_res["frequency_value"],
-            )
             self.assertEqual(
                 sub_res["quality"],
                 "computer_good",

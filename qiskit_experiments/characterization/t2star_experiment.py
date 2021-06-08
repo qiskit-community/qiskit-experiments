@@ -160,7 +160,7 @@ class T2StarAnalysis(BaseAnalysis):
         if user_bounds is None:
             a_bounds = [-0.5, 1.5]
             t2star_bounds = [0, np.inf]
-            f_bounds = [0.5 * freq, 1.5 * freq]
+            f_bounds = [0.1 * freq, 10 * freq]
             phi_bounds = [-np.pi, np.pi]
             b_bounds = [-0.5, 1.5]
             bounds = [
@@ -237,6 +237,7 @@ class T2StarExperiment(BaseExperiment):
                 dt_factor = getattr(backend._configuration, "dt")
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
+            
         circuits = []
         for delay in self._delays:
             circ = qiskit.QuantumCircuit(1, 1)
