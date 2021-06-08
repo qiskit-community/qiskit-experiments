@@ -143,7 +143,7 @@ class TestT2Star(QiskitTestCase):
 
     def test_t2star_run_end2end(self):
         """
-        Run the T2 backend on all possible units
+        Run the T2* backend on all possible units
         """
         for unit in ["s", "ms", "us", "ns", "dt"]:
             if unit in ("s", "dt"):
