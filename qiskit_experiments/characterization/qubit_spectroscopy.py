@@ -370,7 +370,11 @@ class QubitSpectroscopy(BaseExperiment):
         if len(frequencies) < 3:
             raise QiskitError("Spectroscopy requires at least three frequencies.")
 
-        self._frequencies = [apply_prefix(freq, unit) for freq in frequencies]
+        if unit == "Hz":
+            self._frequencies = frequencies
+        else:
+            self._frequencies = [apply_prefix(freq, unit) for freq in frequencies]
+
         self._absolute = absolute
 
         super().__init__([qubit])
