@@ -20,6 +20,7 @@ from qiskit.circuit import Gate, Parameter
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
 import qiskit.pulse as pulse
+from qiskit.utils import apply_prefix
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
 
@@ -316,9 +317,6 @@ class QubitSpectroscopy(BaseExperiment):
 
     __analysis_class__ = SpectroscopyAnalysis
 
-    # Supported units for spectroscopy.
-    __units__ = {"Hz": 1.0, "kHz": 1.0e3, "MHz": 1.0e6, "GHz": 1.0e9}
-
     @classmethod
     def _default_run_options(cls) -> Options:
         """Default options values for the experiment :meth:`run` method."""
@@ -372,10 +370,7 @@ class QubitSpectroscopy(BaseExperiment):
         if len(frequencies) < 3:
             raise QiskitError("Spectroscopy requires at least three frequencies.")
 
-        if unit not in self.__units__:
-            raise QiskitError(f"Unsupported unit: {unit}.")
-
-        self._frequencies = [freq * self.__units__[unit] for freq in frequencies]
+        self._frequencies = [apply_prefix(freq, unit) for freq in frequencies]
         self._absolute = absolute
 
         super().__init__([qubit])
