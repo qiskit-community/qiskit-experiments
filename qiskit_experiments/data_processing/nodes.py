@@ -350,6 +350,37 @@ class ToImag(IQPart):
             return datum[..., 1] * self.scale, None
 
 
+class ToAbs(IQPart):
+    """IQ data post-processing. Take the absolute of the IQ point."""
+
+    def _process(self, datum: np.array, error: Optional[np.array] = None) -> np.array:
+        """Take the imaginary part of the IQ data.
+
+        Args:
+            datum: A 2D or 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
+            error: An optional 2D or 3D array of shots, qubits, and an error on a complex IQ point
+                as [real, imaginary].
+
+        Returns:
+            A 1D or 2D array, each entry is the absolute value of the given IQ data and error.
+        """
+        if error is not None:
+            data = np.sqrt(datum[..., 0] ** 2 + datum[..., 1] ** 2) * self.scale
+            error = np.sqrt(error[..., 0] ** 2 + error[..., 1] ** 2) * self.scale
+
+            if len(data) == 1:
+                data, error = data[0], error[0]
+
+            return data, error
+        else:
+            data = np.sqrt(datum[..., 0] ** 2 + datum[..., 1] ** 2) * self.scale
+
+            if len(data) == 1:
+                data = data[0]
+
+            return data, None
+
+
 class Probability(DataAction):
     """Count data post processing. This returns the probabilities of the outcome string
     used to initialize an instance of Probability."""

@@ -16,17 +16,20 @@ from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.data_processor import DataProcessor
-from qiskit_experiments.data_processing.nodes import AverageData, Probability, SVD
+from qiskit_experiments.data_processing.nodes import AverageData, Probability, SVD, ToAbs
 
 
 def get_to_signal_processor(
-    meas_level: MeasLevel = MeasLevel.CLASSIFIED, meas_return: str = "avg"
+    meas_level: MeasLevel = MeasLevel.CLASSIFIED,
+    meas_return: str = "avg",
+    dimensionality_reduction = "SVD",
 ) -> DataProcessor:
     """Get a DataProcessor that produces a continuous signal given the options.
 
     Args:
         meas_level: The measurement level of the data to process.
         meas_return: The measurement return (single or avg) of the data to process.
+        dimensionality_reduction: The method to use to reduce the dimensionality of the data.
 
     Returns:
         An instance of DataProcessor capable of dealing with the given options.
@@ -34,13 +37,21 @@ def get_to_signal_processor(
     Raises:
         DataProcessorError: if the measurement level is not supported.
     """
+    projectors = {
+        "SVD": SVD,
+        "ToAbs": ToAbs,
+    }
+
     if meas_level == MeasLevel.CLASSIFIED:
         return DataProcessor("counts", [Probability("1")])
 
     if meas_level == MeasLevel.KERNELED:
+
+        projector = projectors[dimensionality_reduction]
+
         if meas_return == "single":
-            return DataProcessor("memory", [AverageData(), SVD()])
+            return DataProcessor("memory", [AverageData(), projector()])
         else:
-            return DataProcessor("memory", [SVD()])
+            return DataProcessor("memory", [projector()])
 
     raise DataProcessorError(f"Unsupported measurement level {meas_level}.")

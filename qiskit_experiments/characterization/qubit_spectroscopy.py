@@ -81,6 +81,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
             sigma_bounds=None,
             freq_bounds=None,
             offset_bounds=(-2, 2),
+            dimensionality_reduction="SVD",
         )
 
     # pylint: disable=arguments-differ, unused-argument
@@ -98,6 +99,7 @@ class SpectroscopyAnalysis(BaseAnalysis):
         offset_bounds: Tuple[float, float] = (-2, 2),
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,
+        dimensionality_reduction: str = "SVD",
         **kwargs,
     ) -> Tuple[AnalysisResult, None]:
         """Analyze the given data by fitting it to a Gaussian.
@@ -145,7 +147,11 @@ class SpectroscopyAnalysis(BaseAnalysis):
 
         # Pick a data processor.
         if data_processor is None:
-            data_processor = get_to_signal_processor(meas_level=meas_level, meas_return=meas_return)
+            data_processor = get_to_signal_processor(
+                meas_level=meas_level,
+                meas_return=meas_return,
+                dimensionality_reduction=dimensionality_reduction
+            )
             data_processor.train(experiment_data.data())
 
         y_sigmas = np.array([data_processor(datum) for datum in experiment_data.data()])
