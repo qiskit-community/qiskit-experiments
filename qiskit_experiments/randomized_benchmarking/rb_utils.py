@@ -25,6 +25,19 @@ from qiskit.qobj import QasmQobj
 
 class RBUtils():
     @staticmethod
+    def get_1_qubit_error_dict_from_backend(backend, qubits):
+        error_dict = {qubit: {} for qubit in qubits}
+        for g in backend.properties().gates:
+            g = g.to_dict()
+            if len(g['qubits']) == 1:
+                gate_qubit = g['qubits'][0]
+                if gate_qubit in qubits:
+                    for p in g['parameters']:
+                        if p['name'] == 'gate_error':
+                            error_dict[gate_qubit][gate['name']] = p['value']
+        return error_dict
+
+    @staticmethod
     def count_ops(circuit, qubits=None):
         if qubits is None:
             qubits = range(len(circuit.qubits))
@@ -32,8 +45,9 @@ class RBUtils():
         for instr, qargs, _ in circuit._data:
             for qubit in qargs:
                 count_ops_per_qubit[qubit][instr.name] = count_ops_per_qubit[qubit].get(instr.name, 0) + 1
-        result = {circuit.qubits.index(qubit): OrderedDict(sorted(count_ops.items(), key=lambda kv: kv[1], reverse=True))
-                for qubit, count_ops in count_ops_per_qubit.items() if circuit.qubits.index(qubit) in qubits}
+        result = {circuit.qubits.index(qubit): count_ops
+                  for qubit, count_ops in count_ops_per_qubit.items()
+                  if circuit.qubits.index(qubit) in qubits}
         return result
 
     @staticmethod
@@ -93,7 +107,8 @@ class RBUtils():
     @staticmethod
     def calculate_1q_epg(gate_per_cliff: Dict[int, Dict[str, float]],
                          epc_1q: float,
-                         qubit: int) -> Dict[str, float]:
+                         qubit: int,
+                         noise_relations = None) -> Dict[str, float]:
         r"""
         Convert error per Clifford (EPC) into error per gates (EPGs) of single qubit basis gates.
         Given that a standard 1Q RB sequences consist of ``rz``, ``x``, and ``sx`` gates,
@@ -144,6 +159,9 @@ class RBUtils():
             QiskitError: when ``x`` or ``sx`` is not found, ``cx`` gate count is nonzero,
                 or specified qubit is not included in the gate count dictionary.
         """
+        if noise_relations is None:
+            noise_relations = {'rz': 0, 'x': 1, 'sx': 1}
+
         if qubit not in gate_per_cliff:
             raise QiskitError('Qubit %d is not included in the `gate_per_cliff`' % qubit)
 
@@ -152,8 +170,7 @@ class RBUtils():
         if 'x' not in gpc_per_qubit or 'sx' not in gpc_per_qubit:
             raise QiskitError('Invalid basis set is given. Use `rz`, `x`, `sx` for basis gates.')
 
-        n_x = gpc_per_qubit['x']
-        n_sx = gpc_per_qubit['sx']
+        noise_sum = sum([noise_relations.values()])
 
         if gpc_per_qubit.get('cx', 0) > 0:
             raise QiskitError('Two qubit gate is included in the RB sequence.')

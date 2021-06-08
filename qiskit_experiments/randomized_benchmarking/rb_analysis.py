@@ -24,7 +24,7 @@ from qiskit_experiments.analysis.data_processing import (
     mean_xy_data,
 )
 from qiskit_experiments.analysis import plotting
-
+from .rb_utils import RBUtils
 
 class RBAnalysis(BaseAnalysis):
     """RB Analysis class.
@@ -64,6 +64,11 @@ class RBAnalysis(BaseAnalysis):
                    None, a single figure, or a list of figures.
         """
         data = experiment_data.data()
+        print("gate error data:")
+        print(experiment_data.backend)
+        error_dict = RBUtils.get_1_qubit_error_dict_from_backend(experiment_data.backend,
+                                                                 experiment_data.experiment.physical_qubits)
+        print(error_dict)
         num_qubits = len(data[0]["metadata"]["qubits"])
 
         # Process data
