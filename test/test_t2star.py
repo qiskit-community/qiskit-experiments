@@ -241,6 +241,72 @@ class TestT2Star(QiskitTestCase):
                 "Result quality bad for experiment on qubit " + str(i),
             )
 
+    def test_t2star_concat_2_experiments(self):
+        """
+        Concatenate the data from 2 separate experiments
+        """
+        unit = "s"
+        estimated_t2star = 30
+        estimated_freq = 0.7
+        # First experiment
+        qubit = 0
+        delays1 = list(range(1, 60, 2))
+
+        exp1 = T2StarExperiment(qubit, delays1, unit=unit)
+        default_p0 = {
+            "A": 0.5,
+            "t2star": estimated_t2star,
+            "f": estimated_freq,
+            "phi": 0,
+            "B": 0.5,
+            }
+        exp1.set_analysis_options(user_p0=default_p0)
+        backend = T2starBackend(
+            p0={
+                "a_guess": [0.5],
+                "t2star": [estimated_t2star],
+                "f_guess": [estimated_freq],
+                "phi_guess": [0.0],
+                "b_guess": [0.5],
+                },
+            initial_prob_plus=[0.0],
+            readout0to1=[0.02],
+            readout1to0=[0.02],
+            dt_factor=1,
+            )
+        # dummy numbers to avoid exception triggerring
+        instruction_durations = [
+            ("measure", [0], 3, unit),
+            ("h", [0], 3, unit),
+            ("p", [0], 3, unit),
+            ("delay", [0], 3, unit),
+            ]
+
+        # run circuits
+        expdata1 = exp1.run(
+            backend=backend,
+            plot=False,
+           instruction_durations=instruction_durations,
+            shots=2000,
+            )
+        result1 = expdata1.analysis_result(0)
+        
+        #second experiment
+        delays2 = list(range(2, 65, 2))
+        exp2 = T2StarExperiment(qubit, delays2, unit=unit)
+        expdata2 = exp2.run(
+            backend=backend,
+            experiment_data=expdata1,
+            plot=False,
+            instruction_durations=instruction_durations,
+            shots=2000,
+            )
+        result = expdata2.analysis_result(0)
+        self.assertEqual(
+            result["quality"], "computer_good", "Result quality bad for unit " + str(unit)
+            )
+        self.assertEqual(len(expdata2.data()), len(delays1) + len(delays2))
+
 
 if __name__ == "__main__":
     unittest.main()
