@@ -42,7 +42,7 @@ class T2StarAnalysis(BaseAnalysis):
         experiment_data: ExperimentData,
         user_p0: Optional[Dict[str, float]] = None,
         user_bounds: Optional[Tuple[List[float], List[float]]] = None,
-        plot: bool = True,
+        plot: bool = False,
         ax: Optional["AxesSubplot"] = None,
         **kwargs,
     ) -> Tuple[AnalysisResult, List["matplotlib.figure.Figure"]]:
@@ -89,9 +89,7 @@ class T2StarAnalysis(BaseAnalysis):
         if conversion_factor is None:
             conversion_factor = 1 if unit in ("s", "dt") else apply_prefix(1, unit)
 
-        xdata, ydata, sigma = process_curve_data(
-            data, lambda datum: level2_probability(datum, "0")
-        )
+        xdata, ydata, sigma = process_curve_data(data, lambda datum: level2_probability(datum, "0"))
 
         t2star_estimate = np.mean(xdata)
         p0, bounds = self._t2star_default_params(
@@ -237,7 +235,7 @@ class T2StarExperiment(BaseExperiment):
                 dt_factor = getattr(backend._configuration, "dt")
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
-            
+
         circuits = []
         for delay in self._delays:
             circ = qiskit.QuantumCircuit(1, 1)
