@@ -27,8 +27,7 @@ from qiskit.providers.options import Options
 from qiskit_experiments.analysis.curve_fitting import curve_fit
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments import AnalysisResult
-from qiskit_experiments import ExperimentData
+from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
 from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
 from qiskit_experiments.analysis import plotting
 
@@ -379,11 +378,11 @@ class QubitSpectroscopy(BaseExperiment):
 
         super().__init__([qubit])
 
-    def _schedule(self) -> Tuple[pulse.ScheduleBlock, Parameter]:
+    def _schedule(self, backend: Optional[Backend] = None) -> Tuple[pulse.ScheduleBlock, Parameter]:
         """Create the spectroscopy schedule."""
         freq_param = Parameter("frequency")
-        with pulse.build(name="spectroscopy") as schedule:
-            pulse.set_frequency(freq_param, pulse.DriveChannel(self.physical_qubits[0]))
+        with pulse.build(backend=backend, name="spectroscopy") as schedule:
+            pulse.set_frequency(freq_param, pulse.drive_channel(self.physical_qubits[0]))
             pulse.play(
                 pulse.GaussianSquare(
                     duration=self.experiment_options.duration,
@@ -391,7 +390,7 @@ class QubitSpectroscopy(BaseExperiment):
                     sigma=self.experiment_options.sigma,
                     width=self.experiment_options.width,
                 ),
-                pulse.DriveChannel(self.physical_qubits[0]),
+                pulse.drive_channel(self.physical_qubits[0]),
             )
 
         return schedule, freq_param
@@ -426,7 +425,7 @@ class QubitSpectroscopy(BaseExperiment):
             raise QiskitError("Cannot run spectroscopy relative to qubit without a backend.")
 
         # Create a template circuit
-        sched, freq_param = self._schedule()
+        sched, freq_param = self._schedule(backend)
         circuit = self._template_circuit(freq_param)
         circuit.add_calibration("Spec", (self.physical_qubits[0],), sched, params=[freq_param])
 

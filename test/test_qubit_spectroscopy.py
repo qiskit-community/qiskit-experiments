@@ -38,12 +38,12 @@ class SpectroscopyBackend(IQTestBackend):
     ):
         """Initialize the spectroscopy backend."""
 
-        self.__configuration__["basis_gates"] = ["spec", "x"]
+        super().__init__(iq_cluster_centers, iq_cluster_width)
+
+        self.configuration().basis_gates = ["spec", "x"]
 
         self._linewidth = line_width
         self._freq_offset = freq_offset
-
-        super().__init__(iq_cluster_centers, iq_cluster_width)
 
     # pylint: disable = arguments-differ
     def run(
@@ -107,7 +107,7 @@ class TestQubitSpectroscopy(QiskitTestCase):
 
         backend = SpectroscopyBackend(line_width=2e6)
 
-        spec = QubitSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
+        spec = QubitSpectroscopy(1, np.linspace(-10.0, 10.0, 21), unit="MHz")
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         result = spec.run(backend).analysis_result(0)
 
@@ -118,7 +118,7 @@ class TestQubitSpectroscopy(QiskitTestCase):
         # Test if we find still find the peak when it is shifted by 5 MHz.
         backend = SpectroscopyBackend(line_width=2e6, freq_offset=5.0e6)
 
-        spec = QubitSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
+        spec = QubitSpectroscopy(1, np.linspace(-10.0, 10.0, 21), unit="MHz")
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         result = spec.run(backend).analysis_result(0)
 
@@ -131,7 +131,7 @@ class TestQubitSpectroscopy(QiskitTestCase):
 
         backend = SpectroscopyBackend(line_width=2e6)
 
-        spec = QubitSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
+        spec = QubitSpectroscopy(1, np.linspace(-10.0, 10.0, 21), unit="MHz")
         result = spec.run(backend).analysis_result(0)
 
         self.assertTrue(abs(result["value"]) < 1e6)
@@ -141,7 +141,7 @@ class TestQubitSpectroscopy(QiskitTestCase):
         # Test if we find still find the peak when it is shifted by 5 MHz.
         backend = SpectroscopyBackend(line_width=2e6, freq_offset=5.0e6)
 
-        spec = QubitSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
+        spec = QubitSpectroscopy(1, np.linspace(-10.0, 10.0, 21), unit="MHz")
         result = spec.run(backend).analysis_result(0)
 
         self.assertTrue(result["value"] < 5.1e6)
@@ -162,7 +162,7 @@ class TestQubitSpectroscopy(QiskitTestCase):
 
         backend = SpectroscopyBackend(line_width=2e6)
 
-        spec = EFSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
+        spec = EFSpectroscopy(1, np.linspace(-10.0, 10.0, 21), unit="MHz")
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         result = spec.run(backend).analysis_result(0)
 

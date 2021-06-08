@@ -26,7 +26,7 @@ from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import process_curve_data, curve_fit
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
-from qiskit_experiments import AnalysisResult
+from qiskit_experiments.experiment_data import AnalysisResult
 
 
 class T1Analysis(BaseAnalysis):

@@ -16,8 +16,8 @@ from typing import Dict, List, Tuple
 import numpy as np
 
 from qiskit.providers.backend import BackendV1 as Backend
+from qiskit.test.mock import FakeOpenPulse2Q
 from qiskit.providers import JobV1
-from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
 
 
@@ -43,24 +43,8 @@ class TestJob(JobV1):
         pass
 
 
-class IQTestBackend(Backend):
+class IQTestBackend(FakeOpenPulse2Q):
     """An abstract backend for testing that can mock IQ data."""
-
-    __configuration__ = {
-        "backend_name": "simulator",
-        "backend_version": "0",
-        "n_qubits": int(1),
-        "basis_gates": [],
-        "gates": [],
-        "local": True,
-        "simulator": True,
-        "conditional": False,
-        "open_pulse": False,
-        "memory": True,
-        "max_shots": int(1e6),
-        "coupling_map": [],
-        "dt": 0.1,
-    }
 
     def __init__(
         self,
@@ -72,10 +56,9 @@ class IQTestBackend(Backend):
         """
         self._iq_cluster_centers = iq_cluster_centers
         self._iq_cluster_width = iq_cluster_width
-
         self._rng = np.random.default_rng(0)
 
-        super().__init__(QasmBackendConfiguration(**self.__configuration__))
+        super().__init__()
 
     def _default_options(self):
         """Default options of the test backend."""
