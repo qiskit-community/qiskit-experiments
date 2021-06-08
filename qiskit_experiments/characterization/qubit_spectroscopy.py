@@ -36,7 +36,7 @@ from qiskit_experiments.data_processing.processor_library import get_to_signal_p
 
 
 class SpectroscopyAnalysis(CurveAnalysis):
-    """A class to analyze a spectroscopy experiment.
+    """A class to analyze spectroscopy experiment.
 
     Overview:
         This analysis takes only single series. This series is fit by the Gaussian function.
@@ -46,7 +46,7 @@ class SpectroscopyAnalysis(CurveAnalysis):
 
         .. math::
 
-            a * exp(-(x-freq)**2/(2*sigma**2)) + b
+            F(x) = a * exp(-(x-freq)**2/(2*sigma**2)) + b
 
     Fit Parameters:
         a: Peak height.
