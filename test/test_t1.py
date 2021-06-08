@@ -228,8 +228,8 @@ class TestT1(QiskitTestCase):
             )
 
         res = T1Analysis()._run_analysis(data)[0]
-        self.assertEqual(res["quality"], "computer_good")
-        self.assertAlmostEqual(res["value"], 25e-9, delta=3)
+        self.assertEqual(res[0]["quality"], "computer_good")
+        self.assertAlmostEqual(res[0]["value"], 25e-9, delta=3)
 
     def test_t1_metadata(self):
         """
@@ -275,7 +275,7 @@ class TestT1(QiskitTestCase):
             )
 
         res = T1Analysis()._run_analysis(data)[0]
-        self.assertEqual(res["quality"], "computer_bad")
+        self.assertEqual(res[0]["quality"], "computer_bad")
 
 
 if __name__ == "__main__":

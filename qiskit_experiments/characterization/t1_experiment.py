@@ -69,7 +69,7 @@ class T1Analysis(BaseAnalysis):
         offset_bounds=None,
         plot=True,
         ax=None,
-    ) -> Tuple[AnalysisResult, List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[AnalysisResult], List["matplotlib.figure.Figure"]]:
         """
         Calculate T1
 
@@ -153,7 +153,7 @@ class T1Analysis(BaseAnalysis):
         else:
             figures = None
 
-        return analysis_result, figures
+        return [analysis_result], figures
 
     @staticmethod
     def _fit_quality(fit_out, fit_err, reduced_chisq):
