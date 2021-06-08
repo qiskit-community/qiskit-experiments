@@ -358,9 +358,6 @@ class QubitSpectroscopy(BaseExperiment):
                 to 'Hz'.
             absolute: Boolean to specify if the frequencies are absolute or relative to the
                 qubit frequency in the backend.
-            pre_circuit: An optional quantum circuit done before the spectroscopy pulse. This
-                circuit allows, for instance, to prepare the first excited sate and perform
-                spectroscopy on the 1 <-> 2 transition of a transmon.
 
         Raises:
             QiskitError: if there are less than three frequency shifts or if the unit is not known.
