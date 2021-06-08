@@ -29,36 +29,36 @@ from qiskit_experiments.analysis.data_processing import multi_mean_xy_data
 
 
 class RBAnalysis(CurveAnalysis):
-    """A class to analyze randomized benchmarking experiment.
+    r"""A class to analyze randomized benchmarking experiment.
 
-    Overview:
+    Overview
         This analysis takes only single series.
         This series is fit by the exponential decay function.
-        From the fit :math:`alpha` value this analysis estimates the error per Clifford (EPC).
+        From the fit :math:`\alpha` value this analysis estimates the error per Clifford (EPC).
 
-    Fit Model:
+    Fit Model
         The fit is based on the following decay function.
 
         .. math::
 
-            F(x) = a * alpha**x + b
+            F(x) = a \alpha^x + b
 
-    Fit Parameters:
-        a: Height of decay curve.
-        b: Base line.
-        alpha: Depolarizing parameter. This is the fit parameter of main interest.
+    Fit Parameters
+        - :math:`a`: Height of decay curve.
+        - :math:`b`:  Base line.
+        - :math:`\alpha`: Depolarizing parameter. This is the fit parameter of main interest.
 
-    Initial Guesses:
-        a: Determined by :math:`(F(x[0]) - b) / alpha**x[0]` where :math:`b` and :math:`alpha`
-            are the initial guesses.
-        b: :math:`(1/2)**n` where :math:`n` is number of qubit.
-        alpha: Determined by the slope of :math:`(F(x) - b)**(1/x)` of the first and the
-            second data point. :math:`a` is assumed to be close to 1.
+    Initial Guesses
+        - :math:`a`: Determined by :math:`(y_0 - b) / \alpha^x_0`
+          where :math:`b` and :math:`\alpha` are initial guesses.
+        - :math:`b`: Determined by :math:`(1/2)^n` where :math:`n` is the number of qubit.
+        - :math:`\alpha`: Determined by the slope of :math:`(y - b)^{-x}` of the first and the
+          second data point.
 
-    Bounds:
-        a: [0, 1]
-        b: [0, 1]
-        alpha: [0, 1]
+    Bounds
+        - :math:`a`: [0, 1]
+        - :math:`b`: [0, 1]
+        - :math:`\alpha`: [0, 1]
 
     """
 

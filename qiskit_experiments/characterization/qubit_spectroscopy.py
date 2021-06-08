@@ -36,35 +36,37 @@ from qiskit_experiments.data_processing.processor_library import get_to_signal_p
 
 
 class SpectroscopyAnalysis(CurveAnalysis):
-    """A class to analyze spectroscopy experiment.
+    r"""A class to analyze spectroscopy experiment.
 
-    Overview:
+    Overview
         This analysis takes only single series. This series is fit by the Gaussian function.
 
-    Fit Model:
+    Fit Model
         The fit is based on the following Gaussian function.
 
         .. math::
 
-            F(x) = a * exp(-(x-freq)**2/(2*sigma**2)) + b
+            F(x) = a \exp(-(x-f)^2/(2\sigma^2)) + b
 
-    Fit Parameters:
-        a: Peak height.
-        b: Base line.
-        freq: Center frequency. This is the fit parameter of main interest.
-        sigma: Standard deviation of Gaussian function.
+    Fit Parameters
+        - :math:`a`: Peak height.
+        - :math:`b`: Base line.
+        - :math:`f`: Center frequency. This is the fit parameter of main interest.
+        - :math:`\sigma`: Standard deviation of Gaussian function.
 
-    Initial Guesses:
-        a: The maximum signal value with removed baseline.
-        b: A median value of the signal.
-        freq: A frequency value at the peak (maximum signal).
-        sigma: Calculated from FWHM of peak :math:`w` such that :math:`w / sqrt(8) ln{2}`.
+    Initial Guesses
+        - :math:`a`: The maximum signal value with removed baseline.
+        - :math:`b`: A median value of the signal.
+        - :math:`f`: A frequency value at the peak (maximum signal).
+        - :math:`\sigma`: Calculated from FWHM of peak :math:`w`
+          such that :math:`w / \sqrt{8} \ln{2}`.
 
-    Bounds:
-        a: [-2, 2] scaled with maximum signal value.
-        b: [-1, 1] scaled with maximum signal value.
-        freq: [min(freq), max(freq)] of frequency scan range.
-        sigma: [0, delta f] where delta f represents frequency scan range.
+    Bounds
+        - :math:`a`: [-2, 2] scaled with maximum signal value.
+        - :math:`b`: [-1, 1] scaled with maximum signal value.
+        - :math:`f`: [min(x), max(x)] of frequency scan range.
+        - :math:`\sigma`: [0, :math:`\Delta x`] where :math:`\Delta x`
+          represents frequency scan range.
 
     """
 

@@ -29,17 +29,18 @@ from .rb_analysis import RBAnalysis
 class InterleavedRBAnalysis(RBAnalysis):
     r"""A class to analyze interleaved randomized benchmarking experiment.
 
-    Overview:
+    Overview
         This analysis takes only two series for standard and interleaved RB curve fitting.
-        From the fit :math:`alpha` and :math:`alpha_c` value this analysis estimates
+        From the fit :math:`\alpha` and :math:`\alpha_c` value this analysis estimates
         the error per Clifford (EPC) of interleaved gate.
 
         The EPC estimate is obtained using the equation
 
+
         .. math::
 
             r_{\mathcal{C}}^{\text{est}} =
-                \frac{\left(d-1\right)\left(1-p_{\overline{\mathcal{C}}}/p\right)}{d}
+                \frac{\left(d-1\right)\left(1-\alpha_{\overline{\mathcal{C}}}/\alpha\right)}{d}
 
         The error bounds are given by
 
@@ -47,49 +48,50 @@ class InterleavedRBAnalysis(RBAnalysis):
 
             E = \min\left\{
                 \begin{array}{c}
-                    \frac{\left(d-1\right)\left[
-                        \left|p-p_{\overline{\mathcal{C}}}\right|+\left(1-p\right)
-                    \right]}{d}\\
-                    \frac{2\left(d^{2}-1\right)\left(1-p\right)}{pd^{2}}
-                        +\frac{4\sqrt{1-p}\sqrt{d^{2}-1}}{p}
+                    \frac{\left(d-1\right)\left[\left|\alpha-\alpha_{\overline{\mathcal{C}}}\right|
+                    +\left(1-\alpha\right)\right]}{d} \\
+                    \frac{2\left(d^{2}-1\right)\left(1-\alpha\right)}
+                    {\alpha d^{2}}+\frac{4\sqrt{1-\alpha}\sqrt{d^{2}-1}}{\alpha}
                 \end{array}
             \right.
 
         See the reference[1] for more details.
 
-    Fit Model:
-        The fit is based on the following decay function.
+
+
+    Fit Model
+        The fit is based on the following decay functions.
 
         .. math::
 
-            F1(x) = a * alpha**x + b  (standard RB)
-            F2(x) = a * (alpha_c * alpha)**x + b  (interleaved RB)
+            F_1(x_1) &= a \alpha^{x_1} + b  ... {\rm standard RB} \\
+            F_2(x_2) &= a (\alpha_c \alpha)^{x_2} + b ... {\rm interleaved RB}
 
-    Fit Parameters:
-        a: Height of decay curve.
-        b: Base line.
-        alpha: Depolarizing parameter.
-        alpha_c: Ratio of the depolarizing parameter of interleaved RB to standard RB curve.
+    Fit Parameters
+        - :math:`a`: Height of decay curve.
+        - :math:`b`: Base line.
+        - :math:`\alpha`: Depolarizing parameter.
+        - :math:`\alpha_c`: Ratio of the depolarizing parameter of
+          interleaved RB to standard RB curve.
 
-    Initial Guesses:
-        a: Determined by the average :math:`a` of the standard and interleaved RB.
-        b: Determined by the average :math:`b` of the standard and interleaved RB.
-            Usually equivalent to :math:`(1/2)**n` where :math:`n` is number of qubit.
-        alpha: Determined by the slope of :math:`(F1(x) - b)**(1/x)` of the first and the
-            second data point of the standard RB.
-        alpha_c: Estimate :math:`alpha' = alpha_c * alpha` from the interleaved RB curve,
-            then divide this by the initial guess of :math:`alpha`.
+    Initial Guesses
+        - :math:`a`: Determined by the average :math:`a` of the standard and interleaved RB.
+        - :math:`b`: Determined by the average :math:`b` of the standard and interleaved RB.
+          Usually equivalent to :math:`(1/2)**n` where :math:`n` is number of qubit.
+        - :math:`\alpha`: Determined by the slope of :math:`(y_1 - b)**(-x_1)` of the first and the
+          second data point of the standard RB.
+        - :math:`\alpha_c`: Estimate :math:`\alpha' = \alpha_c * \alpha` from the
+          interleaved RB curve, then divide this by the initial guess of :math:`\alpha`.
 
-    Bounds:
-        a: [0, 1]
-        b: [0, 1]
-        alpha: [0, 1]
-        alpha_c: [0, 1]
+    Bounds
+        - :math:`a`: [0, 1]
+        - :math:`b`: [0, 1]
+        - :math:`\alpha`: [0, 1]
+        - :math:`\alpha_c`: [0, 1]
 
-    References:
+    References
         [1] "Efficient measurement of quantum gate error by interleaved randomized benchmarking"
             (arXiv:1203.4550).
-
     """
 
     __series__ = [
