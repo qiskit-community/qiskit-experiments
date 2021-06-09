@@ -555,22 +555,17 @@ class CurveAnalysis(BaseAnalysis):
                 f"X value key {x_key} is not defined in circuit metadata."
             ) from ex
 
-        y_values, y_sigmas = zip(*map(data_processor, data))
-
-        # TODO this should be handled in data processor.
-        # Future data processor may take full sequence of data rather than datum.
-        # The CurveAnalysis can pass series filter_kwargs to the processor
-        # so that it can filter data to extract.
-        if self._get_option("normalization"):
-            y_min, y_max = min(y_values), max(y_values)
-            scale = 1 / (y_max - y_min)
+        if isinstance(data_processor, DataProcessor) and data_processor.requires_all_data():
+            y_values, y_sigmas = data_processor(data)
+            if y_sigmas is None:
+                y_sigmas = np.full(y_values.shape, None)
         else:
-            scale = 1.0
+            y_values, y_sigmas = zip(*map(data_processor, data))
 
         # Format data
         self._x_values = np.asarray(x_values, dtype=float)
-        self._y_values = np.asarray(y_values, dtype=float) * scale
-        self._y_sigmas = np.asarray(y_sigmas, dtype=float) * scale
+        self._y_values = np.asarray(y_values, dtype=float)
+        self._y_sigmas = np.asarray(y_sigmas, dtype=float)
 
         # Find series (invalid data is labeled as -1)
         self._data_index = -1 * np.ones(self._x_values.size, dtype=int)

@@ -29,6 +29,16 @@ class DataAction(metaclass=ABCMeta):
         """
         self._validate = validate
 
+    @property
+    @abstractmethod
+    def requires_all_data(self) -> bool:
+        """Whether or not the node can process one datum at a time.
+
+        Returns:
+            True if the node must see all the data at once to process it (e.g. normalization)
+            and False if the node can process one datum of the data at the time.
+        """
+
     @abstractmethod
     def _process(self, datum: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
         """
