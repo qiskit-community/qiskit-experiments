@@ -182,7 +182,7 @@ class DataProcessor:
 
                     node.train(train_data)
 
-    def _data_extraction(self, datum: Union[Dict, List[Dict]], call_up_to_node: int = None):
+    def _data_extraction(self, datum: Union[Dict, List[Dict]], call_up_to_node: int = None) -> Any:
         """Extracts the data on which to run the nodes.
 
         If the datum is a list of dicts then the data under self._input_key is extracted
@@ -198,7 +198,7 @@ class DataProcessor:
             data formatted in such a way that it is ready to be processed by the nodes.
 
         Raises:
-            DataProcessingError:
+            DataProcessorError:
                 - If the input datum is not a list or a dict.
                 - If the data processor received a single datum but requires all the data to
                   process it properly.
@@ -206,7 +206,7 @@ class DataProcessor:
         """
         data = None
 
-        if isinstance(datum, List):
+        if isinstance(datum, list):
             for datum_ in datum:
 
                 if self._input_key not in datum_:
@@ -219,7 +219,7 @@ class DataProcessor:
                 else:
                     data.append(datum_[self._input_key])
 
-        elif isinstance(datum, Dict):
+        elif isinstance(datum, dict):
             if self.requires_all_data(call_up_to_node):
                 msg = f"{str(self)} cannot process the datums individually"
                 if call_up_to_node is not None:
@@ -248,5 +248,6 @@ class DataProcessor:
     def __repr__(self):
         """String representation of data processors."""
         names = ", ".join(node.__class__.__name__ for node in self._nodes)
+        instances = f"(input_key={self._input_key}, to_array={self._to_array}, nodes=[{names}])"
 
-        return f"{self.__class__.__name__}(input_key={self._input_key}, to_array={self._to_array}, nodes=[{names}])"
+        return f"{self.__class__.__name__}"+instances

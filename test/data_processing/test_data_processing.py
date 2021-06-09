@@ -172,7 +172,7 @@ class DataProcessorTest(BaseDataProcessorTest):
         expected_new = np.array(
             [
                 [[-11378.508, -16488.753], [-19283.206, -15339.630], [-14548.009, -16743.348]],
-                [[-16630.257, -13752.518], [-16031.913, -15840.465], [-14955.998, -14538.923]]
+                [[-16630.257, -13752.518], [-16031.913, -15840.465], [-14955.998, -14538.923]],
             ]
         )
 
@@ -440,11 +440,13 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
         processor.train([self.data.data(idx) for idx in [0, 1]])
         self.assertTrue(processor.is_trained)
 
-        all_expected = np.vstack((
-            self._sig_es.reshape(1, 2),
-            self._sig_gs.reshape(1, 2),
-            self._sig_x90.reshape(1, 2),
-            self._sig_x45.reshape(1, 2))
+        all_expected = np.vstack(
+            (
+                self._sig_es.reshape(1, 2),
+                self._sig_gs.reshape(1, 2),
+                self._sig_x90.reshape(1, 2),
+                self._sig_x45.reshape(1, 2),
+            )
         ).T
 
         # Test processing of all data
@@ -467,10 +469,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
         processor.train([self.data.data(idx) for idx in [0, 1]])
         self.assertTrue(processor.is_trained)
 
-        all_expected = np.array([
-            [0.0, 1.0, 0.5, 0.75],
-            [1.0, 0.0, 0.5, 0.25]]
-        )
+        all_expected = np.array([[0.0, 1.0, 0.5, 0.75], [1.0, 0.0, 0.5, 0.25]])
 
         # Test processing of all data
         processed = processor(self.data.data())[0]
@@ -551,10 +550,7 @@ class TestAvgDataAndSVD(BaseDataProcessorTest):
         processor.train([self.data.data(idx) for idx in [0, 1]])
         self.assertTrue(processor.is_trained)
 
-        all_expected = np.array([
-            [0.0, 1.0, 0.5, 0.75],
-            [1.0, 0.0, 0.5, 0.25]]
-        )
+        all_expected = np.array([[0.0, 1.0, 0.5, 0.75], [1.0, 0.0, 0.5, 0.25]])
 
         # Test processing of all data
         processed = processor(self.data.data())[0]

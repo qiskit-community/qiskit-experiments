@@ -236,7 +236,8 @@ class SVD(TrainableDataAction):
             if error is not None:
                 angle = np.arctan(self._main_axes[idx][1] / self._main_axes[idx][0])
                 error_value = np.sqrt(
-                    (error[..., idx, 0] * np.cos(angle)) ** 2 + (error[..., idx, 1] * np.sin(angle)) ** 2
+                    (error[..., idx, 0] * np.cos(angle)) ** 2
+                    + (error[..., idx, 1] * np.sin(angle)) ** 2
                 )
                 processed_error.append(error_value / self.scales[idx])
 
@@ -480,7 +481,7 @@ class Probability(DataAction):
     def _process(
         self,
         datum: Union[Dict[str, Any], List[Dict[str, Any]]],
-        error: Optional[Union[Dict, List]] = None
+        error: Optional[Union[Dict, List]] = None,
     ) -> Union[Tuple[float, float], Tuple[np.array, np.array]]:
         """
         Args:

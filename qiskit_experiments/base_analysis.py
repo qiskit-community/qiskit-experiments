@@ -92,7 +92,7 @@ class BaseAnalysis(ABC):
             for res in analysis_results:
                 if "success" not in res:
                     res["success"] = True
-        except ValueError as ex:
+        except AnalysisError as ex:
             analysis_results = [AnalysisResult(success=False, error_message=ex)]
             figures = None
 
