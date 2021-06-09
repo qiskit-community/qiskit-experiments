@@ -108,7 +108,7 @@ class QVExperiment(BaseExperiment):
             analysis: If True run analysis on experiment data.
             experiment_data (ExperimentData): Optional, add results to existing
                 experiment data. If None a new ExperimentData object will be
-                returned. if given, must proved also simulation_data.
+                returned. if given, must provide also simulation_data.
             simulation_data (ExperimentData): Optional, add results to existing
                 simulation data. must be used when adding results to existing experiment data.
                 If None a new ExperimentData object will be created.
@@ -137,20 +137,20 @@ class QVExperiment(BaseExperiment):
                 "Quantum Volume experiment must have experiment data and simulation data "
                 "with the same length"
             )
-        # count the number of previous trials.
-        # assuming that all the data in experiment data is QV data.
+        # Count the number of previous trials.
+        # Assuming that all the data in experiment data is QV data.
         self._previous_trials = len(experiment_data.data())
 
-        # ideal circuits are used for getting the ideal state using the simulator, without the
-        # changes that the transpiler might add to the circuit in order to improve it's performance
+        # Ideal circuits are used for getting the ideal state using the simulator, without the
+        # Changes that the transpiler might add to the circuit in order to improve it's performance
         circuits = self.circuits(backend)
         ideal_circuits = []
         for circ in circuits:
             circ.metadata["is_simulation"] = False
-            # return new circuit without the measurements
+            # Return new circuit without the measurements
             ideal_circuits.append(circ.remove_final_measurements(inplace=False))
             ideal_circuits[-1].metadata["is_simulation"] = True
-        # transpile circuits
+        # Transpile circuits
         circuits = transpile(circuits, backend, **self.transpile_options.__dict__)
 
         # Run circuits on backend
@@ -200,7 +200,7 @@ class QVExperiment(BaseExperiment):
 
     def _get_ideal_data(self, circuits, **run_options):
         """
-        in case the user does not have aer installed - use Terra to calculate the ideal state
+        In case the user does not have Aer installed - use Terra to calculate the ideal state
         Args:
             circuits: the circuits to extract the ideal data from
         Returns:
@@ -234,7 +234,7 @@ class QVExperiment(BaseExperiment):
         circuits = []
         depth = self._num_qubits
 
-        # continue the trials numbers from previous experiments runs
+        # Continue the trials numbers from previous experiments runs
         for trial in range(self._previous_trials + 1, self.experiment_options.trials + 1):
             qv_circ = QuantumVolume(depth, depth, seed=self._rng)
             qv_circ.measure_active()
