@@ -17,52 +17,26 @@ RB Helper functions
 """
 
 from typing import List, Union, Dict, Optional
-from warnings import warn
-from collections import OrderedDict
 import numpy as np
 from qiskit import QuantumCircuit, QiskitError
-from qiskit.qobj import QasmQobj
 
 class RBUtils():
     @staticmethod
-    def get_1_qubit_error_dict_from_backend(backend, qubits):
-        error_dict = {qubit: {} for qubit in qubits}
-        gates_list = []
-        for g in backend.properties().gates:
-            g = g.to_dict()
-            if len(g['qubits']) == 1:
-                gate_qubit = g['qubits'][0]
-                if gate_qubit in qubits:
-                    for p in g['parameters']:
-                        if p['name'] == 'gate_error':
-                            error_dict[gate_qubit][g['gate']] = p['value']
-                            if g['gate'] not in gates_list:
-                                gates_list.append(g['gate'])
-        return error_dict, gates_list
-
-    @staticmethod
-    def get_2_qubit_error_dict_from_backend(backend, qubits):
+    def get_error_dict_from_backend(backend, qubits):
         error_dict = {}
-        gates_list = []
         for g in backend.properties().gates:
             g = g.to_dict()
-            if len(g['qubits']) == 2:
-                gate_qubits = tuple(g['qubits'])
-                if gate_qubits[0] in qubits and gate_qubits[1] in qubits:
-                    if gate_qubits not in error_dict:
-                        error_dict[gate_qubits] = {}
-                    for p in g['parameters']:
-                        if p['name'] == 'gate_error':
-                            error_dict[gate_qubits][g['gate']] = p['value']
-                            if g['gate'] not in gates_list:
-                                gates_list.append(g['gate'])
-        return error_dict, gates_list
+            gate_qubits = tuple(g['qubits'])
+            if all([gate_qubit in qubits for gate_qubit in gate_qubits]):
+                for p in g['parameters']:
+                    if p['name'] == 'gate_error':
+                        error_dict[(gate_qubits, g['gate'])] = p['value']
+        return error_dict
 
     @staticmethod
     def count_ops(circuit, qubits=None):
         if qubits is None:
             qubits = range(len(circuit.qubits))
-        #count_ops_per_qubit = {qubit: {} for qubit in circuit.qubits}
         count_ops_result = {}
         for instr, qargs, _ in circuit._data:
             instr_qubits = []
@@ -74,9 +48,7 @@ class RBUtils():
                 instr_qubits.append(qubit_index)
             if not skip_instr:
                 instr_qubits = tuple(instr_qubits)
-                if not instr_qubits in count_ops_result:
-                    count_ops_result[instr_qubits] = {}
-                count_ops_result[instr_qubits][instr.name] = count_ops_result[instr_qubits].get(instr.name, 0) + 1
+                count_ops_result[(instr_qubits, instr.name)] = count_ops_result.get((instr_qubits, instr.name), 0) + 1
         return count_ops_result
 
     @staticmethod
@@ -88,19 +60,14 @@ class RBUtils():
 
     @staticmethod
     def gates_per_clifford(ops_count):
+        # ops_count is of the form [[qubits, gate_name], value]
         result = {}
-        for c in ops_count:
-            for gate_qubits, counts in c.items():
-                if gate_qubits not in result:
-                    result[gate_qubits] = {}
-                for gate, value in counts.items():
-                    if gate not in result[gate_qubits]:
-                        result[gate_qubits][gate] = []
-                    result[gate_qubits][gate].append(value)
-        for gate_counts in result.values():
-            for gate, vals in gate_counts.items():
-                gate_counts[gate] = np.mean(vals)
-        return result
+        for ((qubits, gate_name), value) in ops_count:
+            qubits = tuple(qubits) # so we can hash
+            if (qubits, gate_name) not in result:
+                result[(qubits, gate_name)] = []
+            result[(qubits, gate_name)].append(value)
+        return {key: np.mean(value) for (key, value) in result.items()}
 
 
     @staticmethod
@@ -167,26 +134,21 @@ class RBUtils():
         Convert error per Clifford (EPC) into error per gates (EPGs) of single qubit basis gates.
         """
 
-        error_dict, gates_1_qubit = RBUtils.get_1_qubit_error_dict_from_backend(
-            backend,
-            qubits)
+        error_dict = RBUtils.get_error_dict_from_backend(backend, qubits)
         print("error dict",error_dict)
         gates_per_clifford = RBUtils.gates_per_clifford(count_ops)
-        print(gates_per_clifford)
+        print("gates_per_clifford", gates_per_clifford)
         epg = {qubit: {} for qubit in qubits}
-        found_gates = {}
-        found_qubits = []
-        for qubits, gate_dict in gates_per_clifford.items():
-            found_gates[qubits] = []
-            for g in gate_dict.keys():
-                if g not in found_gates[qubits] and g in gates_1_qubit:
-                    found_gates[qubits].append(g)
         for qubit in qubits:
-            qubit = (qubit,) # the key is the list of qubits for the gate
-            error_sum = sum([gates_per_clifford[qubit][gate] * error_dict[qubit][gate]
-                             for gate in found_gates[qubit]])
-            for gate in found_gates[qubit]:
-                epg[qubit][gate] = (error_dict[qubit][gate] * epc_1_qubit) / error_sum
+            error_sum = 0
+            found_gates = []
+            for (key, value) in error_dict.items():
+                qubits, gate = key
+                if len(qubits) == 1 and qubits[0] == qubit and key in gates_per_clifford:
+                    found_gates.append(gate)
+                    error_sum += gates_per_clifford[key] * value
+            for gate in found_gates:
+                epg[qubit][gate] = (error_dict[((qubit,), gate)] * epc_1_qubit) / error_sum
         return epg
 
     @staticmethod

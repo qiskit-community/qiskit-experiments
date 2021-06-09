@@ -166,8 +166,5 @@ class RBExperiment(BaseExperiment):
         for c in circuits:
             ops_count = RBUtils.count_ops(c, self.physical_qubits)
             circuit_length = c.metadata['xval']
-            for ops_count_for_qubit in ops_count.values():
-                for key in ops_count_for_qubit.keys():
-                    ops_count_for_qubit[key] /= circuit_length
-            # we convert to list since Aer has trouble saving complex dicts
-            c.metadata['ops_count'] = list(ops_count.items())
+            c.metadata['ops_count'] = [(key, value / circuit_length)
+                                       for key, value in ops_count.items()]

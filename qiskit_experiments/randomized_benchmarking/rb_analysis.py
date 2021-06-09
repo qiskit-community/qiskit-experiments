@@ -94,11 +94,8 @@ class RBAnalysis(BaseAnalysis):
         # Add EPG data
         count_ops = []
         for datum in experiment_data.data():
-            count_dict = {}
-            for (key, value) in datum['metadata']['ops_count']:
-                count_dict[tuple(key)] = value
-            count_ops.append(count_dict)
-        print("count ops",count_ops)
+            count_ops += datum['metadata']['ops_count']
+        print("count_ops",count_ops)
         epg = RBUtils.calculate_1q_epg(analysis_result["EPC"],
                          experiment_data.experiment.physical_qubits,
                          experiment_data.backend,
