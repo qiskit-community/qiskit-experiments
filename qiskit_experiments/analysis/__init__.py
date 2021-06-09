@@ -30,6 +30,7 @@ Curve Fitting
     process_curve_data
     process_multi_curve_data
 
+
 Plotting
 ========
 .. autosummary::
@@ -38,7 +39,35 @@ Plotting
     plot_curve_fit
     plot_errorbar
     plot_scatter
-"""
 
-from .curve_fitting import curve_fit, multi_curve_fit, process_curve_data, process_multi_curve_data
+
+Fit Functions
+=============
+.. autosummary::
+    :toctree: ../stubs/
+
+    fit_function.cos
+    fit_function.exponential_decay
+    fit_function.gaussian
+    fit_function.sin
+
+
+Utility
+=======
+.. autosummary::
+    :toctree: ../stubs/
+
+    get_opt_error
+    get_opt_value
+"""
+from .curve_analysis import CurveAnalysis, SeriesDef
+
+from .curve_fitting import (
+    CurveAnalysisResult,
+    curve_fit,
+    multi_curve_fit,
+    process_curve_data,
+    process_multi_curve_data,
+)
 from .plotting import plot_curve_fit, plot_errorbar, plot_scatter
+from .utils import get_opt_error, get_opt_value

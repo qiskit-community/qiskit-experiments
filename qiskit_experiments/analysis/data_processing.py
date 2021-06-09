@@ -14,7 +14,7 @@ Data processing utility functions for curve fitting experiments
 """
 # pylint: disable = invalid-name
 
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Callable
 import numpy as np
 from qiskit.exceptions import QiskitError
 
@@ -48,7 +48,7 @@ def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
 
 def mean_xy_data(
     xdata: np.ndarray, ydata: np.ndarray, sigma: Optional[np.ndarray] = None, method: str = "sample"
-) -> Tuple[np.ndarray]:
+) -> Tuple[np.ndarray, ...]:
     r"""Return (x, y_mean, sigma) data.
 
     The mean is taken over all ydata values with the same xdata value using
@@ -159,7 +159,7 @@ def multi_mean_xy_data(
     )
 
 
-def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float]:
+def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float, float]:
     """Return the outcome probability mean and variance.
 
     Args:
@@ -178,7 +178,17 @@ def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float]:
         :math:`\\sigma^2 = p (1-p) / N`.
     """
     counts = data["counts"]
+
     shots = sum(counts.values())
     p_mean = counts.get(outcome, 0.0) / shots
     p_var = p_mean * (1 - p_mean) / shots
     return p_mean, p_var
+
+
+def probability(outcome: str) -> Callable:
+    """Return probability data processor callback used by the analysis classes."""
+
+    def data_processor(data):
+        return level2_probability(data, outcome)
+
+    return data_processor

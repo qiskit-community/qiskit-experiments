@@ -45,7 +45,7 @@ class T2StarAnalysis(BaseAnalysis):
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,
         **kwargs,
-    ) -> Tuple[AnalysisResult, List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[AnalysisResult], List["matplotlib.figure.Figure"]]:
         r"""Calculate T2Star experiment.
 
         The probability of measuring `+` is assumed to be of the form
@@ -129,7 +129,7 @@ class T2StarAnalysis(BaseAnalysis):
         analysis_result["fit"]["circuit_unit"] = unit
         if unit == "dt":
             analysis_result["fit"]["dt"] = conversion_factor
-        return analysis_result, figures
+        return [analysis_result], figures
 
     def _t2star_default_params(
         self,
