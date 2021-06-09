@@ -34,7 +34,10 @@ class DiscriminatorAnalysis(BaseAnalysis):
         """Run analysis on discriminator data.
         Args:
             experiment_data (ExperimentData): The experiment data to analyze.
-            discriminator_type (str): Type of discriminator to use in analysis. Default is LDA.
+            discriminator_type (str): Type of discriminator to use in analysis. Default is
+                Linear Discriminant Analysis, which fits a Gaussian density to each class
+                with the assumption that all classes have the same covariance, generating
+                a linear decision boundary.
             options: kwarg options for analysis function.
         Returns:
             tuple: A pair ``(analysis_results, figures)`` where
@@ -51,6 +54,8 @@ class DiscriminatorAnalysis(BaseAnalysis):
             discriminator = LinearDiscriminantAnalysis()
         elif discriminator_type == "QDA":
             discriminator = QuadraticDiscriminantAnalysis()
+        else:
+            raise AttributeError("Unsupported discriminator type")
         discriminator.fit(_ydata, _xdata)
         score = discriminator.score(_ydata, _xdata)
 
@@ -103,16 +108,6 @@ class DiscriminatorAnalysis(BaseAnalysis):
 
     def _process_data(self, data, qubit):
         """Returns x and y data for discriminator on specific qubit."""
-        # xdata = np.array([int(data[0]["metadata"]["ylabel"][qubit])] * len(data[0]["memory"]))
-        # ydata = data[0]["memory"][:, qubit, :]
-        # xdata = np.concatenate(
-        #     (
-        #         xdata,
-        #         [int(data[1]["metadata"]["ylabel"][qubit])] * len(data[1]["memory"]),
-        #     )
-        # )
-        # ydata = np.concatenate((ydata, data[1]["memory"][:, qubit, :]))
-        # return xdata, ydata
         xdata = np.array([int(data[0]["metadata"]["ylabel"])] * len(data[0]["memory"]))
         ydata = data[0]["memory"][:,0,:]
         xdata = np.concatenate(
