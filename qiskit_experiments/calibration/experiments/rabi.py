@@ -12,7 +12,7 @@
 
 """Rabi amplitude Experiment class."""
 
-from typing import Callable, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Union
 import numpy as np
 
 from qiskit import QiskitError, QuantumCircuit
@@ -22,171 +22,106 @@ from qiskit.providers import Backend
 import qiskit.pulse as pulse
 from qiskit.providers.options import Options
 
-from qiskit_experiments.base_analysis import BaseAnalysis, ExperimentData, AnalysisResult
+from qiskit_experiments.analysis import (
+    CurveAnalysis,
+    CurveAnalysisResult,
+    SeriesDef,
+    fit_function,
+    get_opt_value,
+    get_opt_error,
+)
 from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.analysis.curve_fitting import curve_fit
 from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
-from qiskit_experiments.analysis import plotting
 
 
-class RabiAnalysis(BaseAnalysis):
+class RabiAnalysis(CurveAnalysis):
     r"""Rabi analysis class based on a fit to a cosine function.
 
     Analyse a Rabi experiment by fitting it to a cosine function
 
     .. math::
-        a * \cos(b*x) + c
+        y = a \cos\left(2 \pi {\rm freq} x + {\rm phase}\right) + b
 
-    The y-values will be normalized to the range 0-1.
+    Fit Parameters
+        - :math:`a`: Amplitude of the oscillation.
+        - :math:`b`: Base line.
+        - :math:`{\rm freq}`: Frequency of the oscillation. This is the fit parameter of interest.
+        - :math:`{\rm phase}`: Phase of the oscillation.
+
+    Initial Guesses
+        - :math:`a`: TODO
+        - :math:`b`: TODO
+        - :math:`{\rm freq}`: TODO.
+        - :math:`{\rm phase}`: TODO.
+
+    Bounds
+        - :math:`a`: [-2, 2] scaled with maximum signal value.
+        - :math:`b`: [-1, 1] scaled with maximum signal value.
+        - :math:`{\rm freq}`: [0, inf].
+        - :math:`{\rm phase}`: [-pi, pi].
     """
+
+    __series__ = [
+        SeriesDef(
+            fit_func=lambda x, a, freq, phase, b: fit_function.cos(
+                x, amp=a, freq=freq, phase=phase, baseline=b
+            ),
+            plot_color="blue",
+        )
+    ]
 
     @classmethod
     def _default_options(cls):
-        return Options(
-            amp_guess=0.5,
-            freq_guesses=np.linspace(0, 5 * np.pi, 10),
-            offset_guess=0.5,
-            phase_guess=None,
-            amp_bounds=(-1, 1),
-            freq_bounds=(0, np.inf),
-            offset_bounds=(0, 1),
-            phase_bounds=(-np.pi, np.pi),
-        )
+        """Return default data processing options.
 
-    # pylint: disable=arguments-differ
-    def _run_analysis(
-        self,
-        experiment_data: ExperimentData,
-        data_processor: Optional[Callable] = None,
-        amp_guess: float = 1.0,
-        freq_guesses: List[float] = np.linspace(0, 5 * np.pi, 10),
-        offset_guess: float = 0.0,
-        phase_guess: Optional[float] = None,
-        amp_bounds: Tuple[float, float] = (-1, 1),
-        freq_bounds: Tuple[float, float] = (0, np.inf),
-        offset_bounds: Tuple[float, float] = (-1, 1),
-        phase_bounds: Tuple[float, float] = (-np.pi, np.pi),
-        plot: bool = True,
-        ax: Optional["AxesSubplot"] = None,
-    ) -> Tuple[AnalysisResult, List["plotting.pyplot.Figure"]]:
-        """Fit the data to an oscillating function.
-
-        Args:
-            experiment_data: The experiment data to fit.
-            data_processor: A data processor with which to analyse the data. If None is given
-                a SVD-based data processor will be used for kerneled data while a conversion
-                from counts to probabilities will be used for discriminated data.
-            amp_guess: The amplitude guess for the fit which will default to 0.5.
-            freq_guesses: The frequency guesses for the fit which defaults to a list of 20 points
-                linearly spaced between 0 and 2pi.
-            offset_guess: The y-axis offset which defaults to 0.5.
-            phase_guess: Phase of the oscillation which defaults to both 0 and pi.
-            amp_bounds: Bounds on the amplitude which default to (-1, 1).
-            freq_bounds: Bounds on the frequency which default to (0, inf).
-            offset_bounds: Bounds on the offset which default to (0,1).
-            phase_bounds: Bounds on the phase of the cosine which default to (-pi, pi).
-            plot: If True generate a plot of fitted data.
-            ax: Optional, matplotlib axis to add plot to.
-
-        Returns:
-            The analysis result with the fit and optional plots.
-
-        Raises:
-            QiskitError: If the fit fails.
+        See :meth:`~qiskit_experiment.analysis.CurveAnalysis._default_options` for
+        descriptions of analysis options.
         """
+        default_options = super()._default_options()
+        default_options.p0 = {"a": None, "freq": None, "phase": None, "b": None}
+        default_options.bounds = {"a": None, "freq": None, "phase": None, "b": None}
+        default_options.fit_reports = {"freq": "frequency"}
+        default_options.normalization = True
 
-        meas_level = experiment_data.data(0)["metadata"]["meas_level"]
-        meas_return = experiment_data.data(0)["metadata"]["meas_return"]
+        return default_options
 
-        # Pick a data processor.
-        if data_processor is None:
-            data_processor = get_to_signal_processor(meas_level=meas_level, meas_return=meas_return)
-            data_processor.train(experiment_data.data())
+    def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+        """Fitter options."""
+        user_p0 = self._get_option("p0")
+        user_bounds = self._get_option("bounds")
 
-        y_sigmas = np.array([data_processor(datum) for datum in experiment_data.data()])
-        min_y, max_y = min(y_sigmas[:, 0]), max(y_sigmas[:, 0])
-        ydata = (y_sigmas[:, 0] - min_y) / (max_y - min_y)
+        max_abs_y = np.max(np.abs(self._y_values))
 
-        # Sigmas may be None and fitting will not work if any sigmas are exactly 0.
-        try:
-            sigmas = y_sigmas[:, 1] / (max_y - min_y)
-            if any(sigmas == 0.0):
-                sigmas = None
+        # Use a fast Fourier transform to guess the frequency.
+        fft = np.abs(np.fft.fft(self._y_values))
+        damp = self._x_values[1] - self._x_values[0]
+        freqs = np.linspace(0.0, 1.0 / (2.0 * damp), len(fft//2))
 
-        except TypeError:
-            sigmas = None
+        a_guess = np.max(self._y_values) - np.min(self._y_values)
+        f_guess = freqs[np.argmax(fft)]
+        p_guess = 0
+        b_guess = np.average(self._y_values)
 
-        xdata = np.array([datum["metadata"]["xval"] for datum in experiment_data.data()])
-
-        # Perform fit
-        best_fit = None
-
-        def fit_fun(x, amplitude, frequency, phase, offset):
-            return amplitude * np.cos(frequency * x + phase) + offset
-
-        bounds = {
-            "amplitude": amp_bounds,
-            "frequency": freq_bounds,
-            "phase": phase_bounds,
-            "offset": offset_bounds,
+        fit_option = {
+            "p0": {
+                "a": user_p0["a"] or a_guess,
+                "freq": user_p0["freq"] or f_guess,
+                "phase": user_p0["phase"] or p_guess,
+                "b": user_p0["b"] or b_guess,
+            },
+            "bounds": {
+                "a": user_bounds["a"] or (-2 * max_abs_y, 2 * max_abs_y),
+                "freq": user_bounds["freq"] or (0, np.inf),
+                "phase": user_bounds["phase"] or (-np.pi, np.pi),
+                "b": user_bounds["b"] or (-1 * max_abs_y, 1 * max_abs_y),
+            },
         }
+        fit_option.update(options)
 
-        # Guesses have two phases to catch signals that start at 1 or 0 at zero-amplitude.
-        guesses = []
-        for freq in freq_guesses:
-            if phase_guess is None:
-                guesses.append((freq, 0))
-                guesses.append((freq, np.pi))
-            else:
-                guesses.append((freq, phase_guess))
+        return fit_option
 
-        for guess in guesses:
-            freq_guess, phase_guess = guess[0], guess[1]
-            init = {
-                "amplitude": amp_guess,
-                "frequency": freq_guess,
-                "phase": phase_guess,
-                "offset": offset_guess,
-            }
-
-            try:
-                fit_result = curve_fit(fit_fun, xdata, ydata, init, sigmas, bounds)
-
-                if not best_fit:
-                    best_fit = fit_result
-                else:
-                    if fit_result["reduced_chisq"] < best_fit["reduced_chisq"]:
-                        best_fit = fit_result
-
-            except RuntimeError:
-                pass
-
-        if best_fit is None:
-            raise QiskitError("Could not find a fit to the data.")
-
-        best_fit["value"] = best_fit["popt"][1]
-        best_fit["stderr"] = (fit_result["popt_err"][1],)
-        best_fit["label"] = self.__class__.__name__
-        best_fit["xdata"] = xdata
-        best_fit["ydata"] = ydata
-        best_fit["ydata_err"] = sigmas
-        best_fit["quality"] = self._fit_quality(
-            best_fit["popt"][1], best_fit["reduced_chisq"], best_fit["popt_err"][1]
-        )
-
-        if plot and plotting.HAS_MATPLOTLIB:
-            ax = plotting.plot_curve_fit(fit_fun, fit_result, ax=ax)
-            ax = plotting.plot_scatter(xdata, ydata, ax=ax)
-            self._format_plot(ax)
-            figures = [ax.get_figure()]
-        else:
-            figures = None
-
-        return best_fit, figures
-
-    @staticmethod
-    def _fit_quality(fit_freq: float, reduced_chisq: float, fit_freq_err: float):
-        """Method to check the quality of the fit.
+    def _post_processing(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
+        """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
             - Have a reduced chi-squared lower than three.
@@ -194,23 +129,21 @@ class RabiAnalysis(BaseAnalysis):
             - Less than 10 full periods.
             - An error on the fit frequency lower than the fit frequency.
         """
+        fit_freq = get_opt_value(analysis_result, "freq")
+        fit_freq_err = get_opt_error(analysis_result, "freq")
 
-        if (
-            reduced_chisq < 3
-            and np.pi / 2 < fit_freq < 10 * 2 * np.pi
-            and (fit_freq_err is None or (fit_freq_err < fit_freq))
-        ):
-            return "computer_good"
+        criteria = [
+            analysis_result["reduced_chisq"] < 3,
+            np.pi / 2 < fit_freq < 10 * 2 * np.pi,
+            (fit_freq_err is None or (fit_freq_err < fit_freq)),
+        ]
 
-        return "computer_bad"
+        if all(criteria):
+            analysis_result["quality"] = "computer_good"
+        else:
+            analysis_result["quality"] = "computer_bad"
 
-    @classmethod
-    def _format_plot(cls, ax):
-        """Format curve fit plot."""
-        ax.tick_params(labelsize=14)
-        ax.set_xlabel("Amplitude [arb. unit]", fontsize=16)
-        ax.set_ylabel("Signal [arb. unit.]", fontsize=16)
-        ax.grid(True)
+        return analysis_result
 
 
 class Rabi(BaseExperiment):
@@ -272,6 +205,14 @@ class Rabi(BaseExperiment):
                   that matches the qubit on which to run the Rabi experiment.
                 - If the user provided schedule has more than one free parameter.
         """
+        # TODO this is temporarily logic. Need update of circuit data and processor logic.
+        self.set_analysis_options(
+            data_processor=get_to_signal_processor(
+                meas_level=self.run_options.meas_level,
+                meas_return=self.run_options.meas_return,
+            )
+        )
+
         schedule = self.experiment_options.get("schedule", None)
 
         if schedule is None:
