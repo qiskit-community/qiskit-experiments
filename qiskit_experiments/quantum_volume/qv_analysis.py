@@ -54,8 +54,8 @@ class QVAnalysis(BaseAnalysis):
         heavy_outputs = np.zeros(num_trials, dtype=list)
         heavy_output_prob_exp = np.zeros(num_trials, dtype=list)
 
-        # analyse ideal data to calculate all heavy outputs
-        # must calculate first the ideal data, because the non-ideal calculation uses it
+        # Analyse ideal data to calculate all heavy outputs
+        # Must calculate first the ideal data, because the non-ideal calculation uses it
         for ideal_data_trial in ideal_data:
             if not ideal_data_trial["metadata"].get("is_simulation", None):
                 continue
@@ -64,12 +64,12 @@ class QVAnalysis(BaseAnalysis):
 
             heavy_outputs[trial_index] = self._calc_ideal_heavy_output(ideal_data_trial)
 
-        # analyse non-ideal data
+        # Analyse non-ideal data
         for data_trial in data:
             if data_trial["metadata"].get("is_simulation", None):
                 continue
             trial = data_trial["metadata"]["trial"]
-            trial_index = trial - 1  # trials starts from 1, so as index use trials - 1
+            trial_index = trial - 1  # Trials starts from 1, so as index use trials - 1
 
             heavy_output_prob_exp[trial_index] = self._calc_exp_heavy_output_probability(
                 data_trial, heavy_outputs[trial_index]
@@ -89,7 +89,7 @@ class QVAnalysis(BaseAnalysis):
     @staticmethod
     def _calc_ideal_heavy_output(ideal_data):
         """
-        calculate the bit strings of the heavy output for the ideal simulation
+        Calculate the bit strings of the heavy output for the ideal simulation
         Args:
             ideal_data (dict): the simulation result of the ideal circuit
         Returns:
@@ -99,7 +99,7 @@ class QVAnalysis(BaseAnalysis):
         probabilities_vector = ideal_data.get("probabilities")
 
         format_spec = "{0:0%db}" % depth
-        # keys are bit strings and values are probabilities of observing those strings
+        # Keys are bit strings and values are probabilities of observing those strings
         all_output_prob_ideal = {
             format_spec.format(b): float(np.real(probabilities_vector[b]))
             for b in range(2 ** depth)
@@ -117,7 +117,7 @@ class QVAnalysis(BaseAnalysis):
     @staticmethod
     def _calc_exp_heavy_output_probability(data, heavy_outputs):
         """
-        calculate the probability of measuring heavy output string in the data
+        Calculate the probability of measuring heavy output string in the data
         Args:
             data (dict): the result of the circuit exectution
             heavy_outputs (list): the bit strings of the heavy output from the ideal simulation
@@ -126,10 +126,10 @@ class QVAnalysis(BaseAnalysis):
         """
         circ_shots = sum(data["counts"].values())
 
-        # calculate the number of heavy output counts in the experiment
+        # Calculate the number of heavy output counts in the experiment
         heavy_output_counts = sum([data["counts"].get(value, 0) for value in heavy_outputs])
 
-        # calculate the experimental heavy output probability
+        # Calculate the experimental heavy output probability
         return heavy_output_counts / circ_shots
 
     @staticmethod
@@ -145,7 +145,7 @@ class QVAnalysis(BaseAnalysis):
         """
 
         if sigma == 0:
-            # assign a small value for sigma if sigma = 0
+            # Assign a small value for sigma if sigma = 0
             sigma = 1e-10
             warnings.warn("Standard deviation sigma should not be zero.")
 
@@ -174,10 +174,10 @@ class QVAnalysis(BaseAnalysis):
 
     def _calc_quantum_volume(self, heavy_output_prob_exp, depth, trials):
         """
-        calc the quantum volume of the analysed system.
+        Calc the quantum volume of the analysed system.
         quantum volume is determined by the largest successful depth.
         A depth is successful if it has 'mean heavy-output probability' > 2/3 with confidence
-        level > 0.977 (corresponding to z_value = 2).
+        level > 0.977 (corresponding to z_value = 2), and at least 100 trials have been ran.
         we assume the error (standard deviation) of the heavy output probability is due to a
         binomial distribution. standard deviation for binomial distribution is sqrt(np(1-p)),
         where n is the number of trials and p is the success probability.
@@ -186,14 +186,14 @@ class QVAnalysis(BaseAnalysis):
             dict: quantum volume calculations -
             the quantum volume,
             whether the results passed the threshold,
-            the confidence fof the result,
+            the confidence of the result,
             the heavy output probability for each trial,
             the mean heavy output probability,
             the error of the heavy output probability,
             the depth of the circuit,
             the number of trials ran
         """
-        quantum_volume = 0
+        quantum_volume = 1
         success = False
         confidence_level_threshold = self._calc_confidence_level(z_value=2)
         mean_hop = np.mean(heavy_output_prob_exp)
@@ -201,14 +201,17 @@ class QVAnalysis(BaseAnalysis):
 
         z_value = self._calc_z_value(mean_hop, sigma_hop)
         confidence_level = self._calc_confidence_level(z_value)
-        if mean_hop > 2 / 3 and confidence_level > confidence_level_threshold:
+        # Must have at least 100 trials
+        if trials < 100:
+            warnings.warn("Must use at least 100 trials to consider Quantum Volume as successful.")
+        if mean_hop > 2 / 3 and confidence_level > confidence_level_threshold and trials >= 100:
             quantum_volume = 2 ** depth
             success = True
 
         result = {
             "quantum volume": quantum_volume,
-            "success": success,
-            "confidence list": confidence_level,
+            "qv success": success,
+            "confidence": confidence_level,
             "heavy output probability": heavy_output_prob_exp,
             "mean hop": mean_hop,
             "sigma": sigma_hop,
@@ -220,7 +223,7 @@ class QVAnalysis(BaseAnalysis):
     @staticmethod
     def _format_plot(ax, analysis_result):
         """
-        format the QV plot
+        Format the QV plot
         Args:
             ax: matplotlib axis to add plot to.
             analysis_result: the results of the experimnt
@@ -232,7 +235,7 @@ class QVAnalysis(BaseAnalysis):
         hop_accumulative = np.cumsum(analysis_result["heavy output probability"]) / trial_list
         two_sigma = 2 * (hop_accumulative * (1 - hop_accumulative) / trial_list) ** 0.5
 
-        # plot inidivual HOP as scatter
+        # Plot inidivual HOP as scatter
         ax = plotting.plot_scatter(
             trial_list,
             analysis_result["heavy output probability"],
@@ -241,9 +244,9 @@ class QVAnalysis(BaseAnalysis):
             zorder=3,
             label="Individual HOP",
         )
-        # plot accumulative HOP
+        # Plot accumulative HOP
         ax.plot(trial_list, hop_accumulative, color="r", label="Cumulative HOP")
-        # plot two-sigma shaded area
+        # Plot two-sigma shaded area
         ax = plotting.plot_errorbar(
             trial_list,
             hop_accumulative,
@@ -256,7 +259,7 @@ class QVAnalysis(BaseAnalysis):
             alpha=0.5,
             label="2$\\sigma$",
         )
-        # plot 2/3 success threshold
+        # Plot 2/3 success threshold
         ax.axhline(2 / 3, color="k", linestyle="dashed", linewidth=1, label="Threshold")
 
         ax.set_ylim(
@@ -274,7 +277,7 @@ class QVAnalysis(BaseAnalysis):
             fontsize=14,
         )
 
-        # re-arrange legend order
+        # Re-arrange legend order
         handles, labels = ax.get_legend_handles_labels()
         handles = [handles[1], handles[2], handles[0], handles[3]]
         labels = [labels[1], labels[2], labels[0], labels[3]]
