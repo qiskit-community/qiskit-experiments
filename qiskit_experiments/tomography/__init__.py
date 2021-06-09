@@ -46,18 +46,31 @@ Fitter Functions
     fitters.scipy_linear_lstsq
     fitters.cvxpy_gaussian_lstsq
 
-Bases Classes
+Basis Classes
 =============
+
+Tensor product basis classes
 
 .. autosummary::
     :toctree: ../stubs/
 
-    basis.TomographyBasis
-    basis.CircuitBasis
-    basis.FitterBasis
+    basis.TomographyMeasurementBasis
+    basis.TomographyPreparationBasis
+    basis.FitterMeasurementBasis
+    basis.FitterPreparationBasis
     basis.PauliPreparationBasis
     basis.Pauli6PreparationBasis
     basis.PauliMeasurementBasis
+
+Basis abstract base classes
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    basis.BaseTomographyMeasurementBasis
+    basis.BaseTomographyPreparationBasis
+    basis.BaseFitterMeasurementBasis
+    basis.BaseFitterPreparationBasis
 """
 
 # Experiment Classes
