@@ -96,17 +96,20 @@ class RBAnalysis(BaseAnalysis):
         for datum in experiment_data.data():
             count_ops += datum['metadata']['ops_count']
         print("count_ops",count_ops)
+        gates_per_clifford = RBUtils.gates_per_clifford(count_ops)
         epg = RBUtils.calculate_1q_epg(analysis_result["EPC"],
                          experiment_data.experiment.physical_qubits,
                          experiment_data.backend,
-                         count_ops)
-        print("epg", epg)
-        analysis_result["EPG"] = epg
+                         gates_per_clifford)
+        print("epg after 1-qubit", epg)
 
-        epg_2_qubit = RBUtils.calculate_2q_epg(analysis_result["EPC"],
+        epg = epg_2_qubit = RBUtils.calculate_2q_epg(analysis_result["EPC"],
                                        experiment_data.experiment.physical_qubits,
                                        experiment_data.backend,
-                                       count_ops)
+                                       gates_per_clifford, epg)
+        print("epg after 2-qubit", epg)
+        analysis_result["EPG"] = epg
+
 
         if plot and plotting.HAS_MATPLOTLIB:
             ax = plotting.plot_curve_fit(fit_fun, analysis_result, ax=ax)
