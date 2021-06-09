@@ -18,13 +18,14 @@ from itertools import product
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.exceptions import QiskitError
 from qiskit.quantum_info.operators.base_operator import BaseOperator
+import qiskit.quantum_info as qi
 from qiskit_experiments.base_experiment import BaseExperiment, Options
-from .basis import TomographyBasis, CircuitBasis
+from .basis import BaseTomographyMeasurementBasis, BaseTomographyPreparationBasis
 from .tomography_analysis import TomographyAnalysis
 
 
 class TomographyExperiment(BaseExperiment):
-    """Quantum process tomography experiment"""
+    """Base experiment for quantum state and process tomography"""
 
     __analysis_class__ = TomographyAnalysis
 
@@ -32,28 +33,12 @@ class TomographyExperiment(BaseExperiment):
     def _default_experiment_options(cls):
         return Options(basis_elements=None)
 
-    @staticmethod
-    def _get_circuit_basis(basis: Union[TomographyBasis, CircuitBasis]) -> CircuitBasis:
-        """Validate an input circuit basis."""
-        if basis is None or isinstance(basis, CircuitBasis):
-            return basis
-        if isinstance(basis, TomographyBasis):
-            return basis.circuit
-        raise QiskitError("Invalid tomography circuit basis")
-
-    def set_analysis_options(self, **fields):
-        super().set_analysis_options(**fields)
-        for key in ["measurement_basis", "preparation_basis"]:
-            if key in fields:
-                basis = TomographyAnalysis._get_matrix_basis(fields[key])
-                self._analysis_options.update_options(**{key: basis})
-
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator],
-        measurement_basis: Optional[TomographyBasis] = None,
+        measurement_basis: Optional[BaseTomographyMeasurementBasis] = None,
         measurement_qubits: Optional[Iterable[int]] = None,
-        preparation_basis: Optional[TomographyBasis] = None,
+        preparation_basis: Optional[BaseTomographyPreparationBasis] = None,
         preparation_qubits: Optional[Iterable[int]] = None,
         basis_elements: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
         qubits: Optional[Iterable[int]] = None,
@@ -89,14 +74,14 @@ class TomographyExperiment(BaseExperiment):
         self._circuit = target_circuit
 
         # Measurement basis and qubits
-        self._meas_circ_basis = self._get_circuit_basis(measurement_basis)
+        self._meas_circ_basis = measurement_basis
         if measurement_qubits:
             self._meas_qubits = tuple(measurement_qubits)
         else:
             self._meas_qubits = None
 
         # Preparation basis and qubits
-        self._prep_circ_basis = self._get_circuit_basis(preparation_basis)
+        self._prep_circ_basis = preparation_basis
         if preparation_qubits:
             self._prep_qubits = tuple(preparation_qubits)
         else:
@@ -106,13 +91,32 @@ class TomographyExperiment(BaseExperiment):
         if basis_elements:
             self.set_experiment_options(basis_elements=basis_elements)
 
+        # Compute target state
+        # NOTE: this is only implemented if measurement_qubits and
+        # preparation_qubits init kwargs are not used.
+        if not self._prep_qubits and not self._meas_qubits:
+            if self._prep_circ_basis:
+                try:
+                    self._target_state = qi.Clifford(self._circuit)
+                except QiskitError:
+                    self._target_state = qi.Operator(self._circuit)
+            else:
+                # TODO: add support for StabilizerState for Clifford
+                # circuits once state_fidelity works with that class
+                self._target_state = qi.Statevector(self._circuit)
+
         # Configure analysis basis options
         analysis_options = {}
-        if measurement_basis and isinstance(measurement_basis, TomographyBasis):
+        if measurement_basis:
             analysis_options["measurement_basis"] = measurement_basis
-        if preparation_basis and isinstance(measurement_basis, TomographyBasis):
+        if preparation_basis:
             analysis_options["preparation_basis"] = preparation_basis
         self.set_analysis_options(**analysis_options)
+
+    def _metadata(self):
+        metadata = super()._metadata()
+        metadata["target_state"] = self._target_state.copy()
+        return metadata
 
     def circuits(self, backend=None):
 
@@ -122,7 +126,6 @@ class TomographyExperiment(BaseExperiment):
         circ_qubits = list(range(self._circuit.num_qubits))
         circ_clbits = list(range(self._circuit.num_clbits))
         meas_clbits = list(range(self._circuit.num_clbits, total_clbits))
-        num_outcomes = self._meas_circ_basis.num_outcomes
 
         # Build circuits
         circuits = []
@@ -131,6 +134,7 @@ class TomographyExperiment(BaseExperiment):
             metadata = {
                 "experiment_type": self._type,
                 "clbits": meas_clbits,
+                "m_idx": list(meas_element),
             }
             if prep_element:
                 name += f"_{prep_element}"
@@ -141,20 +145,19 @@ class TomographyExperiment(BaseExperiment):
             if prep_element:
                 # Add tomography preparation
                 prep_qubits = self._prep_qubits or range(self.num_qubits)
+                prep_circ = self._prep_circ_basis.circuit(prep_element)
                 circ.reset(prep_qubits)
-                circ.append(self._prep_circ_basis(prep_element), prep_qubits)
+                circ.append(prep_circ, prep_qubits)
                 circ.barrier(prep_qubits)
 
             # Add target circuit
             circ.append(self._circuit, circ_qubits, circ_clbits)
 
             # Add tomography measurement
+            meas_circ = self._meas_circ_basis.circuit(meas_element)
             circ.barrier(meas_qubits)
-            circ.append(self._meas_circ_basis(meas_element), meas_qubits)
+            circ.append(meas_circ, meas_qubits)
             circ.measure(meas_qubits, meas_clbits)
-
-            # Shifted element for including different measurement outcomes
-            metadata["m_idx"] = [num_outcomes * i for i in meas_element]
 
             # Add metadata
             circ.metadata = metadata

@@ -16,21 +16,62 @@ Quantum State Tomography experiment
 from typing import Union, Optional, Iterable, List, Tuple
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.quantum_info.operators.base_operator import BaseOperator
-from .basis import TomographyBasis, CircuitBasis, PauliMeasurementBasis
+from qiskit.quantum_info import Statevector
 from .tomography_experiment import TomographyExperiment, Options
+from . import basis
 
 
 class StateTomographyExperiment(TomographyExperiment):
-    """Quantum state tomography experiment"""
+    """Quantum state tomography experiment.
+
+    Overview
+        Quantum state tomography (QST) is a method for experimentally
+        reconstructing the quantum state from measurement data.
+
+        A QST experiment measures the state prepared by quantum
+        circuit in different measurement bases and post-processes the
+        measurement data to reconstruct the state.
+
+        See :class:`TomographyAnalysis` documentation for additional
+        information on tomography experiment analysis.
+
+        .. note::
+            Performing full state tomography on an `N`-qubit state requires
+            running :math:`3^N` measurement circuits when using the default
+            measurement basis.
+
+    Analysis Class
+        :class:`~qiskit.experiments.tomography.TomographyAnalysis`
+
+    Experiment Options
+        - **measurement_basis** (:class:`~basis.BaseTomographyMeasurementBasis`):
+          The Tomography measurement basis to use for the experiment.
+          The default basis is the :class:`~basis.PauliMeasurementBasis` which
+          performs measurements in the Pauli Z, X, Y bases for each qubit
+          measurement.
+
+    Analysis Options
+        - **measurement_basis**
+          (:class`~basis.BaseFitterMeasurementBasis`):
+          A custom measurement basis for analysis. By default the
+          :meth:`experiment_options` measurement basis will be used.
+        - **fitter** (``str`` or ``Callable``): The fitter function to use for
+          reconstruction.
+        - **rescale_psd** (``bool``): If True rescale the fitted state to be
+          positive-semidefinite (Default: True).
+        - **rescale_trace** (``bool``): If True rescale the state returned by the fitter
+          have either trace 1 (Default: True).
+        - **kwargs**: Additional kwargs will be supplied to the fitter function.
+    """
 
     @classmethod
     def _default_analysis_options(cls):
-        return Options(measurement_basis=PauliMeasurementBasis().matrix)
+        return Options(measurement_basis=basis.PauliMeasurementBasis().matrix)
 
     def __init__(
         self,
-        circuit: Union[QuantumCircuit, Instruction, BaseOperator],
-        measurement_basis: Union[TomographyBasis, CircuitBasis] = PauliMeasurementBasis(),
+        circuit: Union[QuantumCircuit, Instruction, BaseOperator, Statevector],
+        measurement_basis: basis.BaseTomographyMeasurementBasis = basis.PauliMeasurementBasis(),
         measurement_qubits: Optional[Iterable[int]] = None,
         basis_elements: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
         qubits: Optional[Iterable[int]] = None,
@@ -41,7 +82,7 @@ class StateTomographyExperiment(TomographyExperiment):
             circuit: the quantum process circuit. If not a quantum circuit
                 it must be a class that can be appended to a quantum circuit.
             measurement_basis: Tomography basis for measurements. If not specified the
-                default basis is the :class:`PauliMeasurementBasis`.
+                default basis is the :class:`~basis.PauliMeasurementBasis`.
             measurement_qubits: Optional, the qubits to be measured. These should refer
                 to the logical qubits in the state circuit. If None all qubits
                 in the state circuit will be measured.
@@ -51,6 +92,12 @@ class StateTomographyExperiment(TomographyExperiment):
                 measurement basis indices for qubit-i.
             qubits: Optional, the physical qubits for the initial state circuit.
         """
+        if isinstance(circuit, Statevector):
+            # Convert to circuit using initialize instruction
+            circ = QuantumCircuit(circuit.num_qubits)
+            circ.initialize(circuit)
+            circuit = circ
+
         super().__init__(
             circuit,
             measurement_basis=measurement_basis,
