@@ -42,6 +42,7 @@ class SeriesDef:
     name: str = "Series-0"
     plot_color: str = "black"
     plot_symbol: str = "o"
+    canvas: int = 0
 
 
 class CurveAnalysis(BaseAnalysis):
@@ -319,6 +320,9 @@ class CurveAnalysis(BaseAnalysis):
                 axis = figure.subplots(nrows=1, ncols=1)
             else:
                 figure = axis.get_figure()
+
+            # we may need multiple inner plots
+            n_subplots = max(series_def.canvas for series_def in self.__series__) + 1
 
             ymin, ymax = np.inf, -np.inf
             for series_def in self.__series__:

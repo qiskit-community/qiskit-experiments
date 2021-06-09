@@ -13,7 +13,10 @@
 """Analysis utility functions."""
 
 
+import numpy as np
+import scipy
 from qiskit_experiments.experiment_data import AnalysisResult
+from qiskit_experiments.exceptions import AnalysisError
 
 
 def get_opt_value(analysis_result: AnalysisResult, param_name: str) -> float:
@@ -70,3 +73,18 @@ def get_opt_error(analysis_result: AnalysisResult, param_name: str) -> float:
         ) from ex
     except ValueError as ex:
         raise ValueError(f"Parameter {param_name} is not defined.") from ex
+
+
+def frequency_guess(x_values: np.ndarray, y_values: np.ndarray, method="auto_corr"):
+
+    if method == "auto_corr":
+        corr = np.correlate(y_values, y_values, mode="full")
+        corr = corr[corr.size//2:]
+
+
+    if method == "fft":
+        pass
+
+    raise AnalysisError(
+        f"The specified method {method} is not available in frequency guess function."
+    )
