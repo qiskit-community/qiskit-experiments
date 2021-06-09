@@ -92,14 +92,24 @@ class RBAnalysis(BaseAnalysis):
         analysis_result["EPC_err"] = scale * popt_err[1] / popt[1]
 
         # Add EPG data
-        count_ops = [dict(datum['metadata']['ops_count'])
-                     for datum in experiment_data.data()]
-        if len(experiment_data.experiment.physical_qubits) == 1:
-            epg = RBUtils.calculate_1q_epg(analysis_result["EPC"],
-                             experiment_data.experiment.physical_qubits,
-                             experiment_data.backend,
-                             count_ops)
-            analysis_result["EPG"] = epg
+        count_ops = []
+        for datum in experiment_data.data():
+            count_dict = {}
+            for (key, value) in datum['metadata']['ops_count']:
+                count_dict[tuple(key)] = value
+            count_ops.append(count_dict)
+        print("count ops",count_ops)
+        epg = RBUtils.calculate_1q_epg(analysis_result["EPC"],
+                         experiment_data.experiment.physical_qubits,
+                         experiment_data.backend,
+                         count_ops)
+        print("epg", epg)
+        analysis_result["EPG"] = epg
+
+        epg_2_qubit = RBUtils.calculate_2q_epg(analysis_result["EPC"],
+                                       experiment_data.experiment.physical_qubits,
+                                       experiment_data.backend,
+                                       count_ops)
 
         if plot and plotting.HAS_MATPLOTLIB:
             ax = plotting.plot_curve_fit(fit_fun, analysis_result, ax=ax)
