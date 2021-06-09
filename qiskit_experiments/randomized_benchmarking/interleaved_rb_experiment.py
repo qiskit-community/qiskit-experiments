@@ -18,7 +18,7 @@ from numpy.random import Generator
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
-from qiskit.quantum_info import Clifford, random_clifford
+from qiskit.quantum_info import Clifford
 
 from .rb_experiment import RBExperiment
 from .interleaved_rb_analysis import InterleavedRBAnalysis
@@ -62,20 +62,18 @@ class InterleavedRBExperiment(RBExperiment):
     def _sample_circuits(self, lengths, seed=None):
         circuits = []
         for length in lengths if self._full_sampling else [lengths[-1]]:
-            elements = [random_clifford(self.num_qubits, seed=seed) for _ in range(length)]
+            elements = self._clifford_utils.random_clifford_circuits(self.num_qubits, length, seed)
             element_lengths = [len(elements)] if self._full_sampling else lengths
             std_circuits = self._generate_circuit(elements, element_lengths)
             for circuit in std_circuits:
-                circuit.metadata["series"] = 0
-                circuit.metadata["series_name"] = "standard"
+                circuit.metadata["interleaved"] = False
             circuits += std_circuits
 
             int_elements = self._interleave(elements)
             int_elements_lengths = [length * 2 for length in element_lengths]
             int_circuits = self._generate_circuit(int_elements, int_elements_lengths)
             for circuit in int_circuits:
-                circuit.metadata["series"] = 1
-                circuit.metadata["series_name"] = "interleaved"
+                circuit.metadata["interleaved"] = True
                 circuit.metadata["xval"] = circuit.metadata["xval"] // 2
             circuits += int_circuits
         return circuits

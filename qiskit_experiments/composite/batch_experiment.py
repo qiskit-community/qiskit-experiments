@@ -41,7 +41,7 @@ class BatchExperiment(CompositeExperiment):
         qubits = tuple(self._qubit_map.keys())
         super().__init__(experiments, qubits)
 
-    def circuits(self, backend=None, **circuit_options):
+    def circuits(self, backend=None):
 
         batch_circuits = []
 
@@ -51,7 +51,7 @@ class BatchExperiment(CompositeExperiment):
                 qubit_mapping = None
             else:
                 qubit_mapping = [self._qubit_map[qubit] for qubit in expr.physical_qubits]
-            for circuit in expr.circuits(**circuit_options):
+            for circuit in expr.circuits(backend):
                 # Update metadata
                 circuit.metadata = {
                     "experiment_type": self._type,

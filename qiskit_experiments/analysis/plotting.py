@@ -35,10 +35,10 @@ def plot_curve_fit(
 ):
     """Generate plot of a curve fit analysis result.
 
-    Wraps ``matplotlib.pyplot.plot``.
+    Wraps :func:`matplotlib.pyplot.plot`.
 
     Args:
-        func: the fit funcion for curve_fit.
+        func: the fit function for curve_fit.
         result: an AnalysisResult from curve_fit.
         confidence_interval: if True plot the confidence interval from popt_err.
         ax (matplotlib.axes.Axes): Optional, a matplotlib axes to add the plot to.
@@ -122,6 +122,8 @@ def plot_scatter(
         plot_opts["c"] = "grey"
     if "marker" not in plot_opts:
         plot_opts["marker"] = "x"
+    if "alpha" not in plot_opts:
+        plot_opts["alpha"] = 0.8
 
     # Plot data
     ax.scatter(xdata, ydata, **plot_opts)

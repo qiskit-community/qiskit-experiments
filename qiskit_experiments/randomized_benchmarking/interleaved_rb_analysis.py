@@ -12,96 +12,186 @@
 """
 Interleaved RB analysis class.
 """
-from typing import Optional, List
+from typing import List, Dict, Any, Union
+
 import numpy as np
-from qiskit_experiments.analysis.curve_fitting import (
-    process_multi_curve_data,
-    multi_curve_fit,
-)
-from qiskit_experiments.analysis import plotting
-from qiskit_experiments.analysis.data_processing import (
-    level2_probability,
-    multi_mean_xy_data,
+
+from qiskit_experiments.analysis import (
+    CurveAnalysisResult,
+    SeriesDef,
+    fit_function,
+    get_opt_value,
+    get_opt_error,
 )
 from .rb_analysis import RBAnalysis
 
 
 class InterleavedRBAnalysis(RBAnalysis):
-    r"""Interleaved RB Analysis class.
-    According to the paper: "Efficient measurement of quantum gate
-    error by interleaved randomized benchmarking" (arXiv:1203.4550)
+    r"""A class to analyze interleaved randomized benchmarking experiment.
 
-    The epc estimate is obtained using the equation
-    :math:`r_{\mathcal{C}}^{\text{est}}=
-    \frac{\left(d-1\right)\left(1-p_{\overline{\mathcal{C}}}/p\right)}{d}`
+    Overview
+        This analysis takes only two series for standard and interleaved RB curve fitting.
+        From the fit :math:`\alpha` and :math:`\alpha_c` value this analysis estimates
+        the error per Clifford (EPC) of interleaved gate.
 
-    The error bounds are given by
-    :math:`E=\min\left\{ \begin{array}{c}
-    \frac{\left(d-1\right)\left[\left|p-p_{\overline{\mathcal{C}}}/p\right|+\left(1-p\right)\right]}{d}\\
-    \frac{2\left(d^{2}-1\right)\left(1-p\right)}{pd^{2}}+\frac{4\sqrt{1-p}\sqrt{d^{2}-1}}{p}
-    \end{array}\right.`
+        The EPC estimate is obtained using the equation
+
+
+        .. math::
+
+            r_{\mathcal{C}}^{\text{est}} =
+                \frac{\left(d-1\right)\left(1-\alpha_{\overline{\mathcal{C}}}/\alpha\right)}{d}
+
+        The error bounds are given by
+
+        .. math::
+
+            E = \min\left\{
+                \begin{array}{c}
+                    \frac{\left(d-1\right)\left[\left|\alpha-\alpha_{\overline{\mathcal{C}}}\right|
+                    +\left(1-\alpha\right)\right]}{d} \\
+                    \frac{2\left(d^{2}-1\right)\left(1-\alpha\right)}
+                    {\alpha d^{2}}+\frac{4\sqrt{1-\alpha}\sqrt{d^{2}-1}}{\alpha}
+                \end{array}
+            \right.
+
+        See the reference[1] for more details.
+
+
+
+    Fit Model
+        The fit is based on the following decay functions.
+
+        .. math::
+
+            F_1(x_1) &= a \alpha^{x_1} + b  ... {\rm standard RB} \\
+            F_2(x_2) &= a (\alpha_c \alpha)^{x_2} + b ... {\rm interleaved RB}
+
+    Fit Parameters
+        - :math:`a`: Height of decay curve.
+        - :math:`b`: Base line.
+        - :math:`\alpha`: Depolarizing parameter.
+        - :math:`\alpha_c`: Ratio of the depolarizing parameter of
+          interleaved RB to standard RB curve.
+
+    Initial Guesses
+        - :math:`a`: Determined by the average :math:`a` of the standard and interleaved RB.
+        - :math:`b`: Determined by the average :math:`b` of the standard and interleaved RB.
+          Usually equivalent to :math:`(1/2)**n` where :math:`n` is number of qubit.
+        - :math:`\alpha`: Determined by the slope of :math:`(y_1 - b)**(-x_1)` of the first and the
+          second data point of the standard RB.
+        - :math:`\alpha_c`: Estimate :math:`\alpha' = \alpha_c * \alpha` from the
+          interleaved RB curve, then divide this by the initial guess of :math:`\alpha`.
+
+    Bounds
+        - :math:`a`: [0, 1]
+        - :math:`b`: [0, 1]
+        - :math:`\alpha`: [0, 1]
+        - :math:`\alpha_c`: [0, 1]
+
+    References
+        [1] "Efficient measurement of quantum gate error by interleaved randomized benchmarking"
+            (arXiv:1203.4550).
     """
 
-    # pylint: disable=invalid-name
-    def _run_analysis(
-        self,
-        experiment_data,
-        p0: Optional[List[float]] = None,
-        plot: bool = True,
-        ax: Optional["matplotlib.axes.Axes"] = None,
-    ):
-        def data_processor(datum):
-            return level2_probability(datum, datum["metadata"]["ylabel"])
+    __series__ = [
+        SeriesDef(
+            name="Standard",
+            fit_func=lambda x, a, alpha, alpha_c, b: fit_function.exponential_decay(
+                x, amp=a, lamb=-1.0, base=alpha, baseline=b
+            ),
+            filter_kwargs={"interleaved": False},
+            plot_color="red",
+            plot_symbol=".",
+        ),
+        SeriesDef(
+            name="Interleaved",
+            fit_func=lambda x, a, alpha, alpha_c, b: fit_function.exponential_decay(
+                x, amp=a, lamb=-1.0, base=alpha * alpha_c, baseline=b
+            ),
+            filter_kwargs={"interleaved": True},
+            plot_color="orange",
+            plot_symbol="^",
+        ),
+    ]
 
-        num_qubits = len(experiment_data.data[0]["metadata"]["qubits"])
-        series, x, y, sigma = process_multi_curve_data(experiment_data.data, data_processor)
-        series, xdata, ydata, ydata_sigma = multi_mean_xy_data(series, x, y, sigma)
+    @classmethod
+    def _default_options(cls):
+        """Return default data processing options.
 
-        def fit_fun_standard(x, a, alpha_std, _, b):
-            return a * alpha_std ** x + b
+        See :meth:`~qiskit_experiment.analysis.CurveAnalysis._default_options` for
+        descriptions of analysis options.
+        """
+        default_options = super()._default_options()
+        default_options.p0 = {"a": None, "alpha": None, "alpha_c": None, "b": None}
+        default_options.bounds = {
+            "a": (0.0, 1.0),
+            "alpha": (0.0, 1.0),
+            "alpha_c": (0.0, 1.0),
+            "b": (0.0, 1.0),
+        }
+        default_options.fit_reports = {"alpha": "\u03B1", "alpha_c": "\u03B1$_c$", "EPC": "EPC"}
 
-        def fit_fun_interleaved(x, a, _, alpha_int, b):
-            return a * alpha_int ** x + b
+        return default_options
 
-        std_idx = series == 0
-        std_xdata = xdata[std_idx]
-        std_ydata = ydata[std_idx]
-        std_ydata_sigma = ydata_sigma[std_idx]
-        p0_std = self._p0(std_xdata, std_ydata, num_qubits)
+    def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+        """Fitter options."""
+        user_p0 = self._get_option("p0")
+        user_bounds = self._get_option("bounds")
 
-        int_idx = series == 1
-        int_xdata = xdata[int_idx]
-        int_ydata = ydata[int_idx]
-        int_ydata_sigma = ydata_sigma[int_idx]
-        p0_int = self._p0(int_xdata, int_ydata, num_qubits)
-
-        p0 = (
-            np.mean([p0_std[0], p0_int[0]]),
-            p0_std[1],
-            p0_int[1],
-            np.mean([p0_std[2], p0_int[2]]),
+        std_xdata, std_ydata, _ = self._subset_data(
+            name="Standard",
+            data_index=self._data_index,
+            x_values=self._x_values,
+            y_values=self._y_values,
+            y_sigmas=self._y_sigmas,
         )
+        p0_std = self._initial_guess(std_xdata, std_ydata, self._num_qubits)
 
-        analysis_result = multi_curve_fit(
-            [fit_fun_standard, fit_fun_interleaved],
-            series,
-            xdata,
-            ydata,
-            p0,
-            ydata_sigma,
-            bounds=([0, 0, 0, 0], [1, 1, 1, 1]),
+        int_xdata, int_ydata, _ = self._subset_data(
+            name="Interleaved",
+            data_index=self._data_index,
+            x_values=self._x_values,
+            y_values=self._y_values,
+            y_sigmas=self._y_sigmas,
         )
+        p0_int = self._initial_guess(int_xdata, int_ydata, self._num_qubits)
 
+        fit_option = {
+            "p0": {
+                "a": user_p0["a"] or np.mean([p0_std["a"], p0_int["a"]]),
+                "alpha": user_p0["alpha"] or p0_std["alpha"],
+                "alpha_c": user_p0["alpha_c"] or min(p0_int["alpha"] / p0_std["alpha"], 1),
+                "b": user_p0["b"] or np.mean([p0_std["b"], p0_int["b"]]),
+            },
+            "bounds": {
+                "a": user_bounds["a"] or (0.0, 1.0),
+                "alpha": user_bounds["alpha"] or (0.0, 1.0),
+                "alpha_c": user_bounds["alpha_c"] or (0.0, 1.0),
+                "b": user_bounds["b"] or (0.0, 1.0),
+            },
+        }
+        fit_option.update(options)
+
+        return fit_option
+
+    def _post_processing(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
+        """Calculate EPC."""
         # Add EPC data
-        nrb = 2 ** num_qubits
-        scale = (nrb - 1) / (2 ** nrb)
-        _, alpha, alpha_c, _ = analysis_result["popt"]
-        _, alpha_err, alpha_c_err, _ = analysis_result["popt_err"]
+        nrb = 2 ** self._num_qubits
+        scale = (nrb - 1) / nrb
+        alpha = get_opt_value(analysis_result, "alpha")
+        alpha_c = get_opt_value(analysis_result, "alpha_c")
+        alpha_c_err = get_opt_error(analysis_result, "alpha_c")
 
         # Calculate epc_est (=r_c^est) - Eq. (4):
-        epc_est = scale * (1 - alpha_c / alpha)
+        epc_est = scale * (1 - alpha_c)
+        epc_est_err = scale * alpha_c_err
+        analysis_result["EPC"] = epc_est
+        analysis_result["EPC_err"] = epc_est_err
+
         # Calculate the systematic error bounds - Eq. (5):
-        systematic_err_1 = scale * (abs(alpha - alpha_c / alpha) + (1 - alpha))
+        systematic_err_1 = scale * (abs(alpha - alpha_c) + (1 - alpha))
         systematic_err_2 = (
             2 * (nrb * nrb - 1) * (1 - alpha) / (alpha * nrb * nrb)
             + 4 * (np.sqrt(1 - alpha)) * (np.sqrt(nrb * nrb - 1)) / alpha
@@ -109,60 +199,7 @@ class InterleavedRBAnalysis(RBAnalysis):
         systematic_err = min(systematic_err_1, systematic_err_2)
         systematic_err_l = epc_est - systematic_err
         systematic_err_r = epc_est + systematic_err
+        analysis_result["EPC_systematic_err"] = systematic_err
+        analysis_result["EPC_systematic_bounds"] = [max(systematic_err_l, 0), systematic_err_r]
 
-        alpha_err_sq = (alpha_err / alpha) ** 2
-        alpha_c_err_sq = (alpha_c_err / alpha_c) ** 2
-        epc_est_err = (
-            ((nrb - 1) / nrb) * (alpha_c / alpha) * (np.sqrt(alpha_err_sq + alpha_c_err_sq))
-        )
-
-        analysis_result["EPC"] = epc_est
-        analysis_result["EPC_err"] = epc_est_err
-        analysis_result["systematic_err"] = systematic_err
-        analysis_result["systematic_err_L"] = systematic_err_l
-        analysis_result["systematic_err_R"] = systematic_err_r
-        analysis_result["plabels"] = ["A", "alpha", "alpha_c", "B"]
-
-        if plot:
-            ax = plotting.plot_curve_fit(fit_fun_standard, analysis_result, ax=ax)
-            ax = plotting.plot_curve_fit(fit_fun_interleaved, analysis_result, ax=ax)
-            ax = plotting.plot_scatter(std_xdata, std_ydata, ax=ax)
-            ax = plotting.plot_scatter(int_xdata, int_ydata, ax=ax)
-            ax = plotting.plot_errorbar(std_xdata, std_ydata, std_ydata_sigma, ax=ax)
-            ax = plotting.plot_errorbar(int_xdata, int_ydata, int_ydata_sigma, ax=ax)
-            self._format_plot(ax, analysis_result)
-            analysis_result.plt = plotting.pyplot
-
-        return analysis_result, None
-
-    @classmethod
-    def _format_plot(cls, ax, analysis_result, add_label=True):
-        """Format curve fit plot"""
-        # Formatting
-        ax.tick_params(labelsize=14)
-        ax.set_xlabel("Clifford Length", fontsize=16)
-        ax.set_ylabel("Ground State Population", fontsize=16)
-        ax.grid(True)
-
-        if add_label:
-            alpha = analysis_result["popt"][1]
-            alpha_c = analysis_result["popt"][2]
-            alpha_err = analysis_result["popt_err"][1]
-            alpha_c_err = analysis_result["popt_err"][2]
-            epc = analysis_result["EPC"]
-            epc_err = analysis_result["EPC_err"]
-            box_text = "\u03B1:{:.4f} \u00B1 {:.4f}".format(alpha, alpha_err)
-            box_text += "\n\u03B1_c:{:.4f} \u00B1 {:.4f}".format(alpha_c, alpha_c_err)
-            box_text += "\nEPC: {:.4f} \u00B1 {:.4f}".format(epc, epc_err)
-            bbox_props = dict(boxstyle="square,pad=0.3", fc="white", ec="black", lw=1)
-            ax.text(
-                0.6,
-                0.9,
-                box_text,
-                ha="center",
-                va="center",
-                size=14,
-                bbox=bbox_props,
-                transform=ax.transAxes,
-            )
-        return ax
+        return analysis_result
