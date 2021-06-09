@@ -259,7 +259,7 @@ class TestT2Star(QiskitTestCase):
             "f": estimated_freq,
             "phi": 0,
             "B": 0.5,
-            }
+        }
         exp1.set_analysis_options(user_p0=default_p0)
         backend = T2starBackend(
             p0={
@@ -268,30 +268,29 @@ class TestT2Star(QiskitTestCase):
                 "f_guess": [estimated_freq],
                 "phi_guess": [0.0],
                 "b_guess": [0.5],
-                },
+            },
             initial_prob_plus=[0.0],
             readout0to1=[0.02],
             readout1to0=[0.02],
             dt_factor=1,
-            )
+        )
         # dummy numbers to avoid exception triggerring
         instruction_durations = [
             ("measure", [0], 3, unit),
             ("h", [0], 3, unit),
             ("p", [0], 3, unit),
             ("delay", [0], 3, unit),
-            ]
+        ]
 
         # run circuits
         expdata1 = exp1.run(
             backend=backend,
             plot=False,
-           instruction_durations=instruction_durations,
+            instruction_durations=instruction_durations,
             shots=2000,
-            )
-        result1 = expdata1.analysis_result(0)
-        
-        #second experiment
+        )
+
+        # second experiment
         delays2 = list(range(2, 65, 2))
         exp2 = T2StarExperiment(qubit, delays2, unit=unit)
         expdata2 = exp2.run(
@@ -300,11 +299,11 @@ class TestT2Star(QiskitTestCase):
             plot=False,
             instruction_durations=instruction_durations,
             shots=2000,
-            )
+        )
         result = expdata2.analysis_result(0)
         self.assertEqual(
             result["quality"], "computer_good", "Result quality bad for unit " + str(unit)
-            )
+        )
         self.assertEqual(len(expdata2.data()), len(delays1) + len(delays2))
 
 
