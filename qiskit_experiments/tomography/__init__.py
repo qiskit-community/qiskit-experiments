@@ -45,6 +45,7 @@ Fitter Functions
     fitters.scipy_gaussian_lstsq
     fitters.scipy_linear_lstsq
     fitters.cvxpy_gaussian_lstsq
+    fitters.cvxpy_linear_lstsq
 
 Basis Classes
 =============

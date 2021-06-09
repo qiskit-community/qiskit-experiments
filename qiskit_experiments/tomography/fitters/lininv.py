@@ -13,101 +13,64 @@
 Linear inversion MLEtomography fitter.
 """
 
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 from functools import lru_cache
 import numpy as np
-
-from qiskit_experiments.tomography.basis import FitterBasis
-from .fitter_utils import make_positive_semidefinite, single_basis_matrix
-
-# LRU cache size of 2 is used to allow caching 1 measurement and
-# 1 preparation basis when calling the linear_inversion fitter function
-
-
-@lru_cache(2)
-def construct_dual_basis(matrix_basis: FitterBasis):
-    """Construct a dual matrix basis for linear inversion"""
-    mat_basis = matrix_basis._elements
-    size, dim1, dim2 = np.shape(mat_basis)
-    vec_basis = np.reshape(mat_basis, (size, dim1 * dim2))
-    basis_mat = np.sum([np.outer(i, np.conj(i)) for i in vec_basis], axis=0)
-
-    try:
-        inv_mat = np.linalg.inv(basis_mat)
-    except np.linalg.LinAlgError as ex:
-        raise ValueError(
-            "Cannot construct dual FitterBasis. Input FitterBasis"
-            f" {matrix_basis.name} is not tomographically complete"
-        ) from ex
-
-    vec_dual = np.tensordot(inv_mat, vec_basis, axes=([1], [1])).T
-    dual_elements = np.reshape(vec_dual, (size, dim1, dim2))
-    # Copy basis
-    return FitterBasis(
-        dual_elements, num_indices=matrix_basis.num_indices, name=f"Dual_{matrix_basis.name}"
-    )
+from qiskit.quantum_info import Choi, DensityMatrix
+from qiskit_experiments.tomography.basis.fitter_basis import (
+    FitterMeasurementBasis,
+    FitterPreparationBasis,
+)
+from . import fitter_utils
 
 
 def linear_inversion(
+    outcome_data: List[np.ndarray],
+    shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
-    frequency_data: np.ndarray,
-    shot_data: np.ndarray,
-    measurement_basis: Optional[FitterBasis] = None,
-    preparation_basis: Optional[FitterBasis] = None,
-    psd: bool = True,
-    trace: Optional[float] = None,
+    measurement_basis: FitterMeasurementBasis,
+    preparation_basis: Optional[FitterPreparationBasis] = None,
 ) -> Dict:
     r"""Linear inversion tomography fitter.
 
-    This fitter uses linear inversion to reconstructs the maximum-likelihood
-    estimate of the least-squares log-likelihood function
+    Overview
+        This fitter uses linear inversion to reconstructs the maximum-likelihood
+        estimate of the least-squares log-likelihood function
 
-    .. math::
-        \hat{\rho}
-            &= -\mbox{argmin }\log\mathcal{L}{\rho} \\
-            &= \mbox{argmin }\sum_i (\mbox{Tr}[E_j\rho] - \hat{p}_i)^2 \\
-            &= \mbox{argmin }\|Ax - y \|_2^2
+        .. math::
+            \hat{\rho}
+                &= -\mbox{argmin }\log\mathcal{L}{\rho} \\
+                &= \mbox{argmin }\sum_i (\mbox{Tr}[E_j\rho] - \hat{p}_i)^2 \\
+                &= \mbox{argmin }\|Ax - y \|_2^2
 
-    where
+        where
 
-    * :math:`A = \sum_j |j \rangle\!\langle\!\langle E_j|` is the matrix of measured
-      basis elements.
-    * :math:`y = \sum_j \hat{p}_j |j\rangle` is the vector of estimated measurement
-      outcome probabilites for each basis element.
-    * :math:`x = |\rho\rangle\!\rangle` is the vectorized density matrix.
+        * :math:`A = \sum_j |j \rangle\!\langle\!\langle E_j|` is the matrix of measured
+          basis elements.
+        * :math:`y = \sum_j \hat{p}_j |j\rangle` is the vector of estimated measurement
+          outcome probabilites for each basis element.
+        * :math:`x = |\rho\rangle\!\rangle` is the vectorized density matrix.
 
-    The linear inversion solution is given by
+    Additional Details
+        The linear inversion solution is given by
 
-    .. math::
-        \hat{\rho} = \sum_i \hat{p}_i D_i
+        .. math::
+            \hat{\rho} = \sum_i \hat{p}_i D_i
 
-    where measurement probabilities :math:`\hat{p}_i = f_i / n_i` are estimated
-    from the observed count frequencies :math:`f_i` in :math:`n_i` shots for each
-    basis element :math:`i`, and :math:`D_i` is the *dual basis* element constructed
-    from basis :math:`\{E_i\}` via:
+        where measurement probabilities :math:`\hat{p}_i = f_i / n_i` are estimated
+        from the observed count frequencies :math:`f_i` in :math:`n_i` shots for each
+        basis element :math:`i`, and :math:`D_i` is the *dual basis* element constructed
+        from basis :math:`\{E_i\}` via:
 
-    .. math:
+        .. math:
 
-        |D_i\rangle\!\rangle = M^{-1}|E_i \rangle\!\rangle \\
-        M = \sum_j |E_j\rangle\!\rangle\!\langle\!\langle E_j|
-
-    .. note::
-
-        Linear inversion does not support constraints directly, but the following
-        constraints can be applied to the fitted matrix
-
-        - *Positive-semidefinite* (``psd=True``): The eigenvalues of the fitted matrix
-          are  rescaled using the method from [1] to remove any negative eigenvalues.
-        - *Trace* (``trace=float``): If the trace constraint is applied , the fitted
-          matrix is rescaled to have the specified trace.
-
-        1. J Smolin, JM Gambetta, G Smith, Phys. Rev. Lett. 108, 070502 (2012).
-           Open access: https://arxiv.org/abs/arXiv:1106.5458
+            |D_i\rangle\!\rangle = M^{-1}|E_i \rangle\!\rangle \\
+            M = \sum_j |E_j\rangle\!\rangle\!\langle\!\langle E_j|
 
     .. note::
 
-        Linear inversion is only possible if the input bases are a spaning set
+        Linear inversion is only possible if the input bases are a spanning set
         for the vector space of the reconstructed matrix
         (*tomographically complete*). If the basis is not tomographically complete
         the :func:`~qiskit_experiments.tomography.fitters.scipy_linear_lstsq`
@@ -115,15 +78,12 @@ def linear_inversion(
         least-squares optimization.
 
     Args:
+        outcome_data: list of outcome frequency data.
+        shot_data: basis measurement total shot data.
         measurement_data: measurement basis indice data.
         preparation_data: preparation basis indice data.
-        frequency_data: basis measurement frequency data.
-        shot_data: basis measurement total shot data.
         measurement_basis: measurement matrix basis.
-        preparation_basis: preparation matrix basis.
-        psd: If True rescale the eigenvalues of fitted matrix to be positive
-             semidefinite (default: True)
-        trace: trace constraint for the fitted matrix (default: None).
+        preparation_basis: Optional, preparation matrix basis.
 
     Raises:
         AnalysisError: If the fitted vector is not a square matrix
@@ -131,28 +91,67 @@ def linear_inversion(
     Returns:
         The fitted matrix rho.
     """
-    probability_data = frequency_data / shot_data
-
-    meas_dual_basis = construct_dual_basis(measurement_basis)
+    # Construct dual bases
+    meas_dual_basis = dual_measurement_basis(measurement_basis)
     if preparation_basis:
-        prep_dual_basis = construct_dual_basis(preparation_basis)
+        prep_dual_basis = dual_preparation_basis(preparation_basis)
     else:
         prep_dual_basis = None
 
+    if shot_data is None:
+        shot_data = np.ones(len(outcome_data))
+
     # Construct linear inversion matrix
     rho_fit = 0.0
-    for i in range(probability_data.size):
-        dual_op = single_basis_matrix(
-            measurement_data[i], preparation_data[i], meas_dual_basis, prep_dual_basis
-        )
-        rho_fit = rho_fit + probability_data[i] * dual_op
+    for i, outcomes in enumerate(outcome_data):
+        shots = shot_data[i]
+        midx = measurement_data[i]
+        pidx = preparation_data[i]
+        for outcome, freq in outcomes:
+            prob = freq / shots
+            dual_op = fitter_utils.single_basis_matrix(
+                midx,
+                outcome,
+                preparation_index=pidx,
+                measurement_basis=meas_dual_basis,
+                preparation_basis=prep_dual_basis,
+            )
+            rho_fit = rho_fit + prob * dual_op
 
-    # Rescale fitted density matrix be positive-semidefinite
-    if psd is True:
-        rho_fit = make_positive_semidefinite(rho_fit)
+    # Format returned state
+    if preparation_basis:
+        rho_fit = Choi(rho_fit)
+    else:
+        rho_fit = DensityMatrix(rho_fit)
+    return {"state": rho_fit}
 
-    # Rescale trace
-    if trace is not None:
-        rho_fit *= trace / np.trace(rho_fit)
 
-    return {"value": rho_fit}
+@lru_cache(2)
+def dual_preparation_basis(basis: FitterPreparationBasis):
+    """Construct a dual preparation basis for linear inversion"""
+    return FitterPreparationBasis(fitter_utils.dual_states(basis._mats), name=f"Dual_{basis.name}")
+
+
+@lru_cache(2)
+def dual_measurement_basis(basis: FitterMeasurementBasis):
+    """Construct a dual preparation basis for linear inversion"""
+    # Vectorize basis and basis matrix of outcome projectors
+    states = []
+    extra = []
+    num_basis = len(basis._basis)
+    for i in range(num_basis):
+        for outcome, povm in basis._basis[i].items():
+            states.append(povm)
+            extra.append([i, outcome])
+        dpovm = basis._outcome_default[i]
+        if dpovm is not None:
+            states.append(dpovm)
+            extra.append([i, None])
+
+    # Compute dual states and convert back to dicts
+    dbasis = fitter_utils.dual_states(states)
+    dual_basis = [{} for i in range(num_basis)]
+    for povm, (idx, outcome) in zip(dbasis, extra):
+        dual_basis[idx][outcome] = povm
+
+    return FitterMeasurementBasis(dual_basis, name=f"Dual_{basis.name}")

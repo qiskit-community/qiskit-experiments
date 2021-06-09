@@ -13,12 +13,12 @@
 Common utility functions for tomography fitters.
 """
 
-from typing import Optional, Tuple
+from typing import Optional, List, Tuple, Iterable
 import numpy as np
 import scipy.linalg as la
 
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.tomography.basis import FitterBasis
+from qiskit_experiments.tomography.basis import FitterMeasurementBasis, FitterPreparationBasis
 
 
 def make_positive_semidefinite(mat: np.array, epsilon: float = 0) -> np.array:
@@ -71,44 +71,86 @@ def make_positive_semidefinite(mat: np.array, epsilon: float = 0) -> np.array:
 
 
 def single_basis_matrix(
-    measurement_element: np.ndarray,
-    preparation_element: np.ndarray,
-    measurement_basis: FitterBasis,
-    preparation_basis: Optional[FitterBasis] = None,
+    measurement_index: np.ndarray,
+    outcome: int,
+    measurement_basis: FitterMeasurementBasis,
+    preparation_index: Optional[np.ndarray] = None,
+    preparation_basis: Optional[FitterPreparationBasis] = None,
 ) -> np.ndarray:
-    """Return a single element basis matrix."""
-    op = measurement_basis(measurement_element)
+    """Return a single element basis matrix.
+
+    Args:
+        measurement_index: measurement basis indices for each
+            subsystem
+        outcome: measurement outcome in the specified basis.
+        measurement_basis: fitter measurement basis object.
+        preparation_index: Optional, preparation basis indices
+            for each subsystem.
+        preparation_basis: fitter preparation basis object.
+
+    Returns:
+        The corresponding basis matrix for tomography fitter.
+    """
+    op = measurement_basis.matrix(measurement_index, outcome)
     if preparation_basis:
-        op = np.kron(preparation_basis(preparation_element).T, op)
+        pmat = preparation_basis.matrix(preparation_index)
+        op = np.kron(pmat.T, op)
     return op
 
 
-def stacked_basis_matrix(
+def lstsq_data(
+    outcome_data: List[np.ndarray],
+    shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
-    measurement_basis: FitterBasis,
-    preparation_basis: FitterBasis,
-) -> np.ndarray:
+    measurement_basis: FitterMeasurementBasis,
+    preparation_basis: Optional[FitterPreparationBasis] = None,
+) -> Tuple[np.ndarray, np.ndarray]:
     """Return stacked vectorized basis matrix A for least squares."""
-    size, msize1 = measurement_data.shape
-    mdim = measurement_basis([0]).size ** msize1
+    # Get leading dimension of returned matrix
+    size = 0
+    for outcome in outcome_data:
+        size += len(outcome)
+
+    # Get measurement basis dimensions
+    bsize, msize = measurement_data.shape
+    mdim = measurement_basis.matrix([0], 0).size ** msize
     if preparation_basis:
-        _, psize1 = preparation_data.shape
-        pdim = preparation_basis([0]).size ** psize1
+        # Get preparation basis dimensions
+        _, psize = preparation_data.shape
+        pdim = preparation_basis.matrix([0]).size ** psize
     else:
-        psize1 = 0
+        psize = 0
         pdim = 1
-    ret = np.zeros((size, mdim * pdim), dtype=complex)
-    for i in range(size):
-        op = np.conj(single_basis_matrix(
-            measurement_data[i], preparation_data[i], measurement_basis, preparation_basis
-        ))
-        ret[i] = np.ravel(op, order="F")
-    return ret
+
+    # Construct basis matrix
+    basis_mat = np.zeros((size, mdim * pdim), dtype=complex)
+    probs = np.zeros(size, dtype=float)
+    idx = 0
+    for i in range(bsize):
+        midx = measurement_data[i]
+        pidx = preparation_data[i]
+        shots = shot_data[i]
+        odata = outcome_data[i]
+        for outcome, freq in odata:
+            op = single_basis_matrix(
+                midx,
+                outcome,
+                measurement_basis=measurement_basis,
+                preparation_index=pidx,
+                preparation_basis=preparation_basis,
+            )
+            basis_mat[idx] = np.conj(np.ravel(op, order="F"))
+            probs[idx] = freq / shots
+            idx += 1
+    return basis_mat, probs
 
 
 def binomial_weights(
-    frequency_data: np.ndarray, shot_data: np.ndarray, num_outcomes: int = 2, beta: float = 0
+    outcome_data: List[np.ndarray],
+    shot_data: np.ndarray,
+    num_outcomes: Optional[np.ndarray] = None,
+    beta: float = 0,
 ) -> np.ndarray:
     r"""Compute weights vector from the binomial distribution.
 
@@ -125,17 +167,55 @@ def binomial_weights(
     outcomes.
 
     Args:
-        frequency_data: basis measurement frequency data.
+        outcome_data: list of outcome frequency data.
         shot_data: basis measurement total shot data.
-        num_outcomes: the number of measuremement outcomes.
+        num_outcomes: the number of measurement outcomes for
+                      each outcome data set.
         beta: Hedging parameter for converting frequencies to
               probabilities. If 0 hedging is disabled.
 
     Returns:
         The weight vector.
     """
+    num_data = len(outcome_data)
+    if num_outcomes is None:
+        num_outcomes = 2 * np.ones(num_data, dtype=int)
+    # Get leading dimension of returned matrix
+    size = 0
+    for outcome in outcome_data:
+        size += len(outcome)
+
     # Compute hedged probabilities where the "add-beta" rule ensures
     # there are no zero or 1 values so we don't have any zero variance
-    probs = (frequency_data + beta) / (shot_data + num_outcomes * beta)
+    probs = np.zeros(size, dtype=float)
+    prob_shots = np.zeros(size, dtype=int)
+    idx = 0
+    for i in range(num_data):
+        shots = shot_data[i]
+        denom = shots + num_outcomes[i] * beta
+        odata = outcome_data[i]
+        for outcome, freq in odata:
+            probs[idx] = (freq + beta) / denom
+            prob_shots[idx] = shots
+            idx += 1
     variance = probs * (1 - probs)
-    return np.sqrt(shot_data / variance)
+    return np.sqrt(prob_shots / variance)
+
+
+def dual_states(states: Iterable[np.ndarray]):
+    """Construct a dual preparation basis for linear inversion"""
+    mats = np.asarray(states)
+    size, dim1, dim2 = np.shape(mats)
+    vec_basis = np.reshape(mats, (size, dim1 * dim2))
+    basis_mat = np.sum([np.outer(i, np.conj(i)) for i in vec_basis], axis=0)
+
+    try:
+        inv_mat = np.linalg.inv(basis_mat)
+    except np.linalg.LinAlgError as ex:
+        raise ValueError(
+            "Cannot construct dual basis states. Input states" " are not tomographically complete"
+        ) from ex
+
+    vec_dual = np.tensordot(inv_mat, vec_basis, axes=([1], [1])).T
+    dual_mats = np.reshape(vec_dual, (size, dim1, dim2))
+    return dual_mats

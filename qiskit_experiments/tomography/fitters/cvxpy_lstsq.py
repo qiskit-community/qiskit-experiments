@@ -13,24 +13,28 @@
 Contrained convex least-squares tomography fitter.
 """
 
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 import numpy as np
 from scipy import sparse as sps
 
+from qiskit.quantum_info import Choi, DensityMatrix
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.tomography.basis import FitterBasis
+from qiskit_experiments.tomography.basis import (
+    BaseFitterMeasurementBasis,
+    BaseFitterPreparationBasis,
+)
 from .cvxpy_utils import requires_cvxpy, cvxpy
 from . import fitter_utils
 
 
 @requires_cvxpy
 def cvxpy_linear_lstsq(
+    outcome_data: List[np.ndarray],
+    shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
-    frequency_data: np.ndarray,
-    shot_data: np.ndarray,
-    measurement_basis: Optional[FitterBasis] = None,
-    preparation_basis: Optional[FitterBasis] = None,
+    measurement_basis: BaseFitterMeasurementBasis,
+    preparation_basis: Optional[BaseFitterPreparationBasis] = None,
     psd: bool = True,
     trace_preserving: bool = False,
     trace: Optional[float] = None,
@@ -39,34 +43,35 @@ def cvxpy_linear_lstsq(
 ) -> Dict:
     r"""Constrained weighted linear least-squares tomography fitter.
 
-    This fitter reconstructs the maximum-likelihood estimate by using
-    ``cvxpy`` to minimize the constrained least-squares negative log
-    likelihood function
+    Overview
+        This fitter reconstructs the maximum-likelihood estimate by using
+        ``cvxpy`` to minimize the constrained least-squares negative log
+        likelihood function
 
-    .. math::
-        \hat{\rho}
-            &= -\mbox{argmin }\log\mathcal{L}{\rho} \\
-            &= \mbox{argmin }\sum_i w_i^2(\mbox{Tr}[E_j\rho] - \hat{p}_i)^2 \\
-            &= \mbox{argmin }\|W(Ax - y) \|_2^2
+        .. math::
+            \hat{\rho}
+                &= -\mbox{argmin }\log\mathcal{L}{\rho} \\
+                &= \mbox{argmin }\sum_i w_i^2(\mbox{Tr}[E_j\rho] - \hat{p}_i)^2 \\
+                &= \mbox{argmin }\|W(Ax - y) \|_2^2
 
-    subject to
+        subject to
 
-    - *Positive-semidefinite* (``psd=True``): :math:`\rho \gg 0` is constrained
-      to be a postive-semidefinite matrix.
-    - *Trace* (``trace=t``): :math:`\mbox{Tr}(\rho) = t` is constained to have
-      the specified trace.
-    - *Trace preserving* (``trace_preserving=True``): When performing process
-      tomography the Choi-state :math:`\rho` represents is contstained to be
-      trace preserving.
+        - *Positive-semidefinite* (``psd=True``): :math:`\rho \gg 0` is constrained
+          to be a postive-semidefinite matrix.
+        - *Trace* (``trace=t``): :math:`\mbox{Tr}(\rho) = t` is constained to have
+          the specified trace.
+        - *Trace preserving* (``trace_preserving=True``): When performing process
+          tomography the Choi-state :math:`\rho` represents is contstained to be
+          trace preserving.
 
-    where
+        where
 
-    * :math:`A` is the matrix of measurement operators
-      :math:`A = \sum_i |i\rangle\!\langle\!\langl M_i|`
-    * :math:`y` is the vector of expectation value data for each projector
-      corresponding to estimates of :math:`b_i = Tr[M_i \cdot x]`.
-    * :math:`x` is the vectorized density matrix (or Choi-matrix) to be fitted
-      :math:`x = |\rho\rangle\\!\rangle`.
+        - :math:`A` is the matrix of measurement operators
+          :math:`A = \sum_i |i\rangle\!\langle\!\langle M_i|`
+        - :math:`y` is the vector of expectation value data for each projector
+          corresponding to estimates of :math:`b_i = Tr[M_i \cdot x]`.
+        - :math:`x` is the vectorized density matrix (or Choi-matrix) to be fitted
+          :math:`x = |\rho\rangle\\!\rangle`.
 
     .. note:
 
@@ -89,12 +94,12 @@ def cvxpy_linear_lstsq(
         fitter function.
 
     Args:
+        outcome_data: list of outcome frequency data.
+        shot_data: basis measurement total shot data.
         measurement_data: measurement basis indice data.
         preparation_data: preparation basis indice data.
-        frequency_data: basis measurement frequency data.
-        shot_data: basis measurement total shot data.
         measurement_basis: measurement matrix basis.
-        preparation_basis: preparation matrix basis.
+        preparation_basis: Optional, preparation matrix basis.
         psd: If True rescale the eigenvalues of fitted matrix to be positive
              semidefinite (default: True)
         trace_preserving: Enforce the fitted matrix to be
@@ -111,12 +116,13 @@ def cvxpy_linear_lstsq(
     Returns:
         The fitted matrix rho that maximizes the least-squares likelihood function.
     """
-    # Probability vector y
-    probability_data = frequency_data / shot_data
-
-    # Basis matrix A
-    basis_matrix = fitter_utils.stacked_basis_matrix(
-        measurement_data, preparation_data, measurement_basis, preparation_basis
+    basis_matrix, probability_data = fitter_utils.lstsq_data(
+        outcome_data,
+        shot_data,
+        measurement_data,
+        preparation_data,
+        measurement_basis,
+        preparation_basis=preparation_basis,
     )
 
     if weights is not None:
@@ -214,20 +220,28 @@ def cvxpy_linear_lstsq(
             )
         else:
             raise AnalysisError("CVXPY fit failed, reason unknown")
+    # Format returned state
     rho_fit = rho_r.value + 1j * rho_i.value
-
-    analysis_result = {"value": rho_fit}
+    if preparation_basis:
+        rho_fit = Choi(rho_fit)
+    else:
+        rho_fit = DensityMatrix(rho_fit)
+    analysis_result = {
+        "state": rho_fit,
+        "cvxpy_solver": prob.solver_stats.solver_name,
+        "cvxpy_status": prob.status,
+    }
     return analysis_result
 
 
 @requires_cvxpy
 def cvxpy_gaussian_lstsq(
+    outcome_data: List[np.ndarray],
+    shot_data: np.ndarray,
     measurement_data: np.ndarray,
     preparation_data: np.ndarray,
-    frequency_data: np.ndarray,
-    shot_data: np.ndarray,
-    measurement_basis: Optional[FitterBasis] = None,
-    preparation_basis: Optional[FitterBasis] = None,
+    measurement_basis: BaseFitterMeasurementBasis,
+    preparation_basis: Optional[BaseFitterPreparationBasis] = None,
     psd: bool = True,
     trace_preserving: bool = False,
     trace: Optional[float] = None,
@@ -240,43 +254,45 @@ def cvxpy_gaussian_lstsq(
         This function calls :func:`cvxpy_linear_lstsq` with a Gaussian weights
         vector. Refer to its documentation for additional details.
 
-    This fitter reconstructs the maximum-likelihood estimate by using
-    ``cvxpy`` to minimize the constrained least-squares negative log
-    likelihood function
+    Overview
+        This fitter reconstructs the maximum-likelihood estimate by using
+        ``cvxpy`` to minimize the constrained least-squares negative log
+        likelihood function
 
-    .. math::
-        \hat{rho} &= \mbox{argmin} -\log\mathcal{L}{\rho} \\
-        -\log\mathcal{L}(\rho)
-            &= \sum_i \frac{1}{\sigma_i^2}(\mbox{Tr}[E_j\rho] - \hat{p}_i)^2
-             = \|W(Ax -y) \|_2^2}[E_j\rho] - \hat{p}_i)^2 \\
-            &= \mbox{argmin }\|W(Ax - y) \|_2^2
+        .. math::
+            \hat{\rho}
+                &= \mbox{argmin} (-\log\mathcal{L}{\rho}) \\
+                &= \mbox{argmin }\|W(Ax - y) \|_2^2 \\
+            -\log\mathcal{L}(\rho)
+                &= |W(Ax -y) \|_2^2 \\
+                &= \sum_i \frac{1}{\sigma_i^2}(\mbox{Tr}[E_j\rho] - \hat{p}_i)^2
 
-    The Gaussian weights are estimated from the observed frequency and shot data
-    using
+    Additional Details
+        The Gaussian weights are estimated from the observed frequency and shot data
+        using
 
-    .. math::
+        .. math::
 
-        \sigma_i &= \sqrt{\frac{q_i(1 - q_i)}{n_i}} \\
-        q_i &= \frac{f_i + \beta}{n_i + K \beta}
+            \sigma_i &= \sqrt{\frac{q_i(1 - q_i)}{n_i}} \\
+            q_i &= \frac{f_i + \beta}{n_i + K \beta}
 
-    where :math:`q_i` are hedged probabilities which are rescaled to avoid
-    0 and 1 values using the "add-beta" rule, with :math:`\beta=0.5`, and
-    :math:`K=2^m` the number of measurement outcomes for each basis measurement.
+        where :math:`q_i` are hedged probabilities which are rescaled to avoid
+        0 and 1 values using the "add-beta" rule, with :math:`\beta=0.5`, and
+        :math:`K=2^m` the number of measurement outcomes for each basis measurement.
 
     Args:
+        outcome_data: list of outcome frequency data.
+        shot_data: basis measurement total shot data.
         measurement_data: measurement basis indice data.
         preparation_data: preparation basis indice data.
-        frequency_data: basis measurement frequency data.
-        shot_data: basis measurement total shot data.
         measurement_basis: measurement matrix basis.
-        preparation_basis: preparation matrix basis.
+        preparation_basis: Optional, preparation matrix basis.
         psd: If True rescale the eigenvalues of fitted matrix to be positive
              semidefinite (default: True)
         trace_preserving: Enforce the fitted matrix to be
             trace preserving when fitting a Choi-matrix in quantum process
             tomography (default: False).
         trace: trace constraint for the fitted matrix (default: None).
-        weights: Optional array of weights for least squares objective.
         kwargs: kwargs for cvxpy solver.
 
     Raises:
@@ -286,17 +302,18 @@ def cvxpy_gaussian_lstsq(
     Returns:
         The fitted matrix rho that maximizes the least-squares likelihood function.
     """
-    num_outcomes = measurement_basis.num_outcomes ** len(measurement_data[0])
-    weights = fitter_utils.binomial_weights(frequency_data, shot_data, num_outcomes, beta=0.5)
+    num_outcomes = num_outcomes = [measurement_basis.num_outcomes(i) for i in measurement_data]
+    weights = fitter_utils.binomial_weights(outcome_data, shot_data, num_outcomes, beta=0.5)
     return cvxpy_linear_lstsq(
+        outcome_data,
+        shot_data,
         measurement_data,
         preparation_data,
-        frequency_data,
-        shot_data,
-        measurement_basis=measurement_basis,
+        measurement_basis,
         preparation_basis=preparation_basis,
         psd=psd,
         trace=trace,
+        trace_preserving=trace_preserving,
         weights=weights,
         **kwargs,
     )
