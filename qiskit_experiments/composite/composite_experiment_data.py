@@ -98,4 +98,6 @@ class CompositeExperimentData(ExperimentData):
                         sub_data["counts"] = marginal_counts(data["counts"], composite_clbits[i])
                     else:
                         sub_data["counts"] = data["counts"]
+                if "memory" in data:
+                    sub_data["memory"] = data["memory"] 
                 self._components[index].add_data(sub_data)

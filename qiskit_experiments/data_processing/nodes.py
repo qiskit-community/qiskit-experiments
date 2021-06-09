@@ -17,6 +17,8 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 from qiskit_experiments.experiment_data import ExperimentData
+from qiskit_experiments.composite import CompositeExperimentData
+
 
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
@@ -351,7 +353,7 @@ class ToImag(IQPart):
         else:
             return datum[..., 1] * self.scale, None
 
-class BaseDiscriminator(IQPart):
+class Discriminator(IQPart):
     """Base class for discriminator processor. Takes IQ data and calibrated discriminator as input,
     outputs counts."""
 
@@ -388,16 +390,7 @@ class BaseDiscriminator(IQPart):
         return datum
 
     def _process(self, datum: np.array, error: Optional[np.array] = None) -> np.array:
-        # Check that number of qubits are the same between data and discriminator
-        if len(self._handle.analysis_result(0)["discriminator"]) != np.shape(datum)[1]:
-            raise DataProcessorError(
-                "The number of qubits of data and discriminator must be the same."
-            )
-
-
-class LDADiscriminator(BaseDiscriminator):
-    def _process(self, datum: np.array, error: Optional[np.array] = None) -> np.array:
-        """Applies LDA discriminator to IQ data to return counts.
+        """Applies discriminator to IQ data to return counts.
         Args:
             datum: Input IQ data to be discriminated.
 
@@ -405,44 +398,20 @@ class LDADiscriminator(BaseDiscriminator):
             processed data: Counts dictionary.
         """
         super()._process(datum)
-
         list_data = []
+
+        if isinstance(self._handle, CompositeExperimentData) is True:
+            analysis = lambda q: self._handle.component_experiment_data(q).analysis_result(0)
+        elif isinstance(self._handle, ExperimentData) is True:
+            analysis = self._handle.analysis_result
+        else:
+            raise DataProcessorError("Invalid input type")
+
         for i in range(np.shape(datum)[1]):
-            if (
-                isinstance(
-                    self._handle.analysis_result(0)["discriminator"][i], LinearDiscriminantAnalysis
-                )
-                is False
-            ):
-                raise DataProcessorError("Input not an LDA discriminator.")
-            lda = self._handle.analysis_result(0)["discriminator"][i]
-            list_data.append(lda.predict(datum[:, i, :]))
-        return self._to_dict(list_data), None
-
-
-class QDADiscriminator(BaseDiscriminator):
-    def _process(self, datum: np.array, error: Optional[np.array] = None) -> np.array:
-        """Applies QDA discriminator to IQ data to return counts.
-        Args:
-            datum: Input IQ data to be discriminated.
-
-        Returns:
-            processed data: Counts dictionary.
-        """
-        super()._process(datum)
-
-        list_data = []
-        for i in range(np.shape(datum)[1]):
-            if (
-                isinstance(
-                    self._handle.analysis_result(0)["discriminator"][i],
-                    QuadraticDiscriminantAnalysis,
-                )
-                is False
-            ):
-                raise DataProcessorError("Input not a QDA discriminator.")
-            qda = self._handle.analysis_result(0)["discriminator"][i]
-            list_data.append(qda.predict(datum[:, i, :]))
+            if "discriminator" not in analysis(i):
+                raise DataProcessorError("Input not a discriminator.")
+            discriminator = analysis(i)["discriminator"]
+            list_data.append(discriminator.predict(datum[:, i, :]))
         return self._to_dict(list_data), None
 
 
