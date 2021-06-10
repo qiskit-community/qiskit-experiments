@@ -903,7 +903,6 @@ class Calibrations:
     def update(
         self,
         exp_data: ExperimentData,
-        calibration_extraction: Optional[Union[Callable, CalibrationExtraction]] = None,
         result_index: int = -1,
         force_update: bool = False,
         group: str = "default",
@@ -928,10 +927,6 @@ class Calibrations:
             exp_data: An analysis result which contains either the value to update under the
                 key value or the information required by the calibration_extraction function
                 which will build the values to update.
-            calibration_extraction: A callable that must return
-                List[Tuple[ParameterValueType, str, Tuple[int, ...], str]] where each tuple
-                is a parameter value, the name of the parameter to update, the qubits to update,
-                and the name of the schedule to which the parameter belongs.
             result_index: The index of the result which defaults to 0.
             force_update: If set to True then the calibrations will be updated even if the
                 quality of the result is "computer_bad".
@@ -949,46 +944,33 @@ class Calibrations:
             return
 
         required_keys = ["cal_parameter", "cal_schedule", "cal_value"]
-        if calibration_extraction is None:
-            if not all(key in result for key in required_keys):
-                raise CalibrationError(
-                    f"Cannot update calibrations from result. One of {required_keys} is missing."
-                )
-
-            timestamp = None
-            all_times = exp_data.completion_times.values()
-            if all_times:
-                timestamp = max(all_times)
-
-            value = ParameterValue(
-                value=result["cal_value"],
-                date_time=timestamp,
-                group=group,
-                exp_id=exp_data.experiment_id
+        if not all(key in result for key in required_keys):
+            raise CalibrationError(
+                f"Cannot update calibrations from result. One of {required_keys} is missing."
             )
 
-            schedule = result["cal_schedule"]
-            param = result["cal_parameter"]
+        timestamp = None
+        all_times = exp_data.completion_times.values()
+        if all_times:
+            timestamp = max(all_times)
 
-            # TODO update this with experiment metadata PR #67
-            try:
-                qubits = exp_data.data(0)["metadata"]["qubits"]
-            except KeyError as error:
-                raise CalibrationError("Cannot find qubit information in metadata.") from error
+        value = ParameterValue(
+            value=result["cal_value"],
+            date_time=timestamp,
+            group=group,
+            exp_id=exp_data.experiment_id
+        )
 
-            self.add_parameter_value(value, param, qubits, schedule)
+        schedule = result["cal_schedule"]
+        param = result["cal_parameter"]
 
-        else:
-            for value, param, qubits, schedule in calibration_extraction(result):
+        # TODO update this with experiment metadata PR #67
+        try:
+            qubits = exp_data.data(0)["metadata"]["qubits"]
+        except KeyError as error:
+            raise CalibrationError("Cannot find qubit information in metadata.") from error
 
-                param_value = ParameterValue(
-                    value=value,
-                    date_time=datetime.now(),
-                    group=group,
-                    exp_id=exp_data.experiment_id
-                )
-                
-                self.add_parameter_value(param_value, param, qubits, schedule)
+        self.add_parameter_value(value, param, qubits, schedule)
 
     def save(self, file_type: str = "csv", folder: str = None, overwrite: bool = False):
         """Save the parameterized schedules and parameter value.
