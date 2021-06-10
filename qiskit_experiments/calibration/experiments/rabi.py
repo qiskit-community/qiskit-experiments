@@ -49,10 +49,10 @@ class RabiAnalysis(CurveAnalysis):
         - :math:`{\rm phase}`: Phase of the oscillation.
 
     Initial Guesses
-        - :math:`a`: TODO
-        - :math:`b`: TODO
-        - :math:`{\rm freq}`: TODO.
-        - :math:`{\rm phase}`: TODO.
+        - :math:`a`: The maximum of y value less the minimum y value.
+        - :math:`b`: The average of the data.
+        - :math:`{\rm freq}`: The frequency with the highest power spectral density.
+        - :math:`{\rm phase}`: Zero.
 
     Bounds
         - :math:`a`: [-2, 2] scaled with maximum signal value.

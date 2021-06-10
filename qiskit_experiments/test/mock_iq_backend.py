@@ -22,6 +22,7 @@ from qiskit.providers import JobV1
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
 from qiskit.qobj.utils import MeasLevel
+from qiskit.providers.options import Options
 
 
 class TestJob(JobV1):
@@ -82,6 +83,11 @@ class IQTestBackend(Backend):
 
     def _default_options(self):
         """Default options of the test backend."""
+        return Options(
+            shots=1024,
+            meas_level=MeasLevel.KERNELED,
+            meas_return="single",
+        )
 
     def _draw_iq_shots(self, prob, shots) -> List[List[List[float]]]:
         """Produce an IQ shot."""
@@ -117,9 +123,13 @@ class IQTestBackend(Backend):
              The probability that the binaomial distribution will use to generate an IQ shot.
         """
 
-    # pylint: disable=arguments-differ
-    def run(self, circuits, shots=1024, meas_level=MeasLevel.KERNELED, meas_return="single"):
+    def run(self, run_input, **options):
         """Run the IQ backend."""
+
+        self.options.update_options(**options)
+        shots = self.options.get("shots")
+        meas_level = self.options.get("meas_level")
+        meas_return = self.options.get("meas_return")
 
         result = {
             "backend_name": f"{self.__class__.__name__}",
@@ -130,7 +140,7 @@ class IQTestBackend(Backend):
             "results": [],
         }
 
-        for circ in circuits:
+        for circ in run_input:
             run_result = {
                 "shots": shots,
                 "success": True,
