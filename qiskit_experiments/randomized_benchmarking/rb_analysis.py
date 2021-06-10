@@ -26,6 +26,7 @@ from qiskit_experiments.analysis.data_processing import (
 from qiskit_experiments.analysis import plotting
 from .rb_utils import RBUtils
 
+
 class RBAnalysis(BaseAnalysis):
     """RB Analysis class.
 
@@ -93,23 +94,26 @@ class RBAnalysis(BaseAnalysis):
 
         # Add EPG data
         num_qubits = len(experiment_data.experiment.physical_qubits)
-        if num_qubits in [1,2]:
+        if num_qubits in [1, 2]:
             count_ops = []
             for datum in experiment_data.data():
-                count_ops += datum['metadata']['ops_count']
+                count_ops += datum["metadata"]["ops_count"]
             gates_per_clifford = RBUtils.gates_per_clifford(count_ops)
             if num_qubits == 1:
-                epg = RBUtils.calculate_1q_epg(analysis_result["EPC"],
-                                 experiment_data.experiment.physical_qubits,
-                                 experiment_data.backend,
-                                 gates_per_clifford)
+                epg = RBUtils.calculate_1q_epg(
+                    analysis_result["EPC"],
+                    experiment_data.experiment.physical_qubits,
+                    experiment_data.backend,
+                    gates_per_clifford,
+                )
             elif num_qubits == 2:
-                epg = RBUtils.calculate_2q_epg(analysis_result["EPC"],
-                                               experiment_data.experiment.physical_qubits,
-                                               experiment_data.backend,
-                                               gates_per_clifford)
+                epg = RBUtils.calculate_2q_epg(
+                    analysis_result["EPC"],
+                    experiment_data.experiment.physical_qubits,
+                    experiment_data.backend,
+                    gates_per_clifford,
+                )
             analysis_result["EPG"] = epg
-
 
         if plot and plotting.HAS_MATPLOTLIB:
             ax = plotting.plot_curve_fit(fit_fun, analysis_result, ax=ax)

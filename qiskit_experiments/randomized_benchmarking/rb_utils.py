@@ -16,25 +16,56 @@
 RB Helper functions
 """
 
-from typing import List, Union, Dict, Optional
+from typing import Tuple, Dict, Optional, Iterable, List
 import numpy as np
-from qiskit import QuantumCircuit, QiskitError
+from qiskit import QiskitError, QuantumCircuit
+from qiskit.providers.backend import Backend
 
-class RBUtils():
+class RBUtils:
+    """A collection of utility functions for computing additional data
+    from randomized benchmarking experiments"""
     @staticmethod
-    def get_error_dict_from_backend(backend, qubits):
+    def get_error_dict_from_backend(backend: Backend,
+                                    qubits: Iterable[int]
+                                    ) -> Dict[Tuple[Iterable[int], str], float]:
+        """Attempts to extract error estimates for gates from the backend
+        properties.
+        Those estimates are used to assign weights for different gate types
+        when computing error per gate.
+
+        Args:
+            backend: The backend from which the properties are taken
+            qubits: The qubits participating in the experiment, used
+            to filter irrelevant gates from the result.
+
+        Returns:
+            A dictionary of the form (qubits, gate) -> value that for each
+            gate on the given qubits gives its recorded error estimate.
+        """
         error_dict = {}
-        for g in backend.properties().gates:
-            g = g.to_dict()
-            gate_qubits = tuple(g['qubits'])
+        for backend_gate in backend.properties().gates:
+            backend_gate = backend_gate.to_dict()
+            gate_qubits = tuple(backend_gate["qubits"])
             if all([gate_qubit in qubits for gate_qubit in gate_qubits]):
-                for p in g['parameters']:
-                    if p['name'] == 'gate_error':
-                        error_dict[(gate_qubits, g['gate'])] = p['value']
+                for p in backend_gate["parameters"]:
+                    if p["name"] == "gate_error":
+                        error_dict[(gate_qubits, backend_gate["gate"])] = p["value"]
         return error_dict
 
     @staticmethod
-    def count_ops(circuit, qubits=None):
+    def count_ops(circuit: QuantumCircuit,
+                  qubits:Optional[Iterable[int]]=None
+                  ) -> Dict[Tuple[Iterable[int], str], int]:
+        """Counts occurances of each gate in the given circuit
+
+        Args:
+            circuit: The quantum circuit whose gates are counted
+            qubits: A list of qubits to filter irrelevant gates
+
+        Returns:
+            A dictionary of the form (qubits, gate) -> value where value
+            is the number of occurrences of the gate on the given qubits
+        """
         if qubits is None:
             qubits = range(len(circuit.qubits))
         count_ops_result = {}
@@ -48,31 +79,37 @@ class RBUtils():
                 instr_qubits.append(qubit_index)
             if not skip_instr:
                 instr_qubits = tuple(instr_qubits)
-                count_ops_result[(instr_qubits, instr.name)] = count_ops_result.get((instr_qubits, instr.name), 0) + 1
+                count_ops_result[(instr_qubits, instr.name)] = (
+                    count_ops_result.get((instr_qubits, instr.name), 0) + 1
+                )
         return count_ops_result
 
     @staticmethod
-    def is_qubit_subset(qubit_subset, qubits):
-        for q in qubit_subset:
-            if not q in qubits:
-                return False
-        return True
+    def gates_per_clifford(ops_count: List[List[List[int], str], float]
+                           ) -> Dict[Tuple[Iterable[int], str], float]:
+        """
+        Computes the average number of gates per clifford for each gate type
+        in the input from raw count data coming from multiple circuits.
+        Args:
+            ops_count: A List of [key, value] pairs where
+            key is [qubits, gate_name] and value is the average
+            number of gates per clifford of the type for the given key
 
-    @staticmethod
-    def gates_per_clifford(ops_count):
-        # ops_count is of the form [[qubits, gate_name], value]
+        Returns:
+            A dictionary with the mean value of values corresponding
+            to key for each key.
+
+        """
         result = {}
         for ((qubits, gate_name), value) in ops_count:
-            qubits = tuple(qubits) # so we can hash
+            qubits = tuple(qubits)  # so we can hash
             if (qubits, gate_name) not in result:
                 result[(qubits, gate_name)] = []
             result[(qubits, gate_name)].append(value)
         return {key: np.mean(value) for (key, value) in result.items()}
 
-
     @staticmethod
-    def coherence_limit(nQ=2, T1_list=None, T2_list=None,
-                        gatelen=0.1):
+    def coherence_limit(nQ=2, T1_list=None, T2_list=None, gatelen=0.1):
         """
         The error per gate (1-average_gate_fidelity) given by the T1,T2 limit.
         Args:
@@ -86,11 +123,12 @@ class RBUtils():
         Raises:
             ValueError: if there are invalid inputs
         """
+        # pylint: disable = invalid-name
 
         T1 = np.array(T1_list)
 
         if T2_list is None:
-            T2 = 2*T1
+            T2 = 2 * T1
         else:
             T2 = np.array(T2_list)
 
@@ -101,8 +139,9 @@ class RBUtils():
 
         if nQ == 1:
 
-            coherence_limit_err = 0.5*(1.-2./3.*np.exp(-gatelen/T2[0]) -
-                                       1./3.*np.exp(-gatelen/T1[0]))
+            coherence_limit_err = 0.5 * (
+                1.0 - 2.0 / 3.0 * np.exp(-gatelen / T2[0]) - 1.0 / 3.0 * np.exp(-gatelen / T1[0])
+            )
 
         elif nQ == 2:
 
@@ -110,28 +149,43 @@ class RBUtils():
             T2factor = 0
 
             for i in range(2):
-                T1factor += 1./15.*np.exp(-gatelen/T1[i])
-                T2factor += 2./15.*(np.exp(-gatelen/T2[i]) +
-                                    np.exp(-gatelen*(1./T2[i]+1./T1[1-i])))
+                T1factor += 1.0 / 15.0 * np.exp(-gatelen / T1[i])
+                T2factor += (
+                    2.0
+                    / 15.0
+                    * (
+                        np.exp(-gatelen / T2[i])
+                        + np.exp(-gatelen * (1.0 / T2[i] + 1.0 / T1[1 - i]))
+                    )
+                )
 
-            T1factor += 1./15.*np.exp(-gatelen*np.sum(1/T1))
-            T2factor += 4./15.*np.exp(-gatelen*np.sum(1/T2))
+            T1factor += 1.0 / 15.0 * np.exp(-gatelen * np.sum(1 / T1))
+            T2factor += 4.0 / 15.0 * np.exp(-gatelen * np.sum(1 / T2))
 
-            coherence_limit_err = 0.75*(1.-T1factor-T2factor)
+            coherence_limit_err = 0.75 * (1.0 - T1factor - T2factor)
 
         else:
-            raise ValueError('Not a valid number of qubits')
+            raise ValueError("Not a valid number of qubits")
 
         return coherence_limit_err
 
     @staticmethod
-    def calculate_1q_epg(epc_1_qubit,
-                         qubits,
-                         backend,
-                         gates_per_clifford
-                         ) -> Dict[int, Dict[str, float]]:
+    def calculate_1q_epg(
+            epc_1_qubit: float,
+            qubits: Iterable[int],
+            backend: Backend,
+            gates_per_clifford: Dict[Tuple[Iterable[int], str], float]
+    ) -> Dict[int, Dict[str, float]]:
         r"""
         Convert error per Clifford (EPC) into error per gates (EPGs) of single qubit basis gates.
+        Args:
+            epc_1_qubit: The error per clifford rate obtained via experiment
+            qubits: The qubits for which to compute epg
+            backend: The backend on which the experiment was ran
+            gates_per_clifford: The computed gates per clifford data
+        Returns:
+            A dictionary of the form (qubits, gate) -> value where value
+            is the epg for the given gate on the specified qubits
         """
         error_dict = RBUtils.get_error_dict_from_backend(backend, qubits)
         epg = {qubit: {} for qubit in qubits}
@@ -148,27 +202,45 @@ class RBUtils():
         return epg
 
     @staticmethod
-    def calculate_2q_epg(epc_2_qubit,
-                         qubits,
-                         backend,
-                         gates_per_clifford,
-                         epg_1_qubit = None,
-                         gate_2_qubit_type='cx',
-                         ) -> Dict[int, Dict[str, float]]:
+    def calculate_2q_epg(
+        epc_2_qubit: float,
+        qubits: Iterable[int],
+        backend: Backend,
+        gates_per_clifford: Dict[Tuple[Iterable[int], str], float],
+        epg_1_qubit: Optional[Dict[int, Dict[str, float]]]=None,
+        gate_2_qubit_type:Optional[str]="cx",
+    ) -> Dict[int, Dict[str, float]]:
         r"""
         Convert error per Clifford (EPC) into error per gates (EPGs) of two-qubit basis gates.
-        Assumed a single two-qubit gate type is used in transpilation
+        Assumes a single two-qubit gate type is used in transpilation
+        Args:
+            epc_2_qubit: The error per clifford rate obtained via experiment
+            qubits: The qubits for which to compute epg
+            backend: The backend on which the experiment was ran
+            gates_per_clifford: The computed gates per clifford data
+            epg_1_qubit: epg data for the 1-qubits gate involved, assumed to
+            have been obtained from previous experiments
+            gate_2_qubit_type: The name of the 2-qubit gate to be analyzed
+        Returns:
+            The epg value for the specified gate on the specified qubits
+            given in a dictionary form as in calculate_1q_epg
+        Raises:
+            QiskitError: if a non 2-qubit gate was given
         """
         epg_2_qubit = {}
-        error_dict = error_dict = RBUtils.get_error_dict_from_backend(backend, qubits)
+        error_dict = RBUtils.get_error_dict_from_backend(backend, qubits)
         qubit_pairs = []
-        for key in error_dict.keys():
+        for key in error_dict:
             qubits, gate = key
             if gate == gate_2_qubit_type and key in gates_per_clifford:
                 if len(qubits) != 2:
-                    raise QiskitError("The gate {} is a {}-qubit gate (should be 2-qubit)".format(gate, len(qubits)))
+                    raise QiskitError(
+                        "The gate {} is a {}-qubit gate (should be 2-qubit)".format(
+                            gate, len(qubits)
+                        )
+                    )
                 qubit_pair = tuple(sorted(qubits))
-                if not qubit_pair in qubit_pairs:
+                if qubit_pair not in qubit_pairs:
                     qubit_pairs.append(qubit_pair)
         for qubit_pair in qubit_pairs:
             alpha_1q = [1.0, 1.0]
@@ -176,11 +248,11 @@ class RBUtils():
                 list_epgs_1q = [epg_1_qubit[qubit_pair[i]] for i in range(2)]
                 for ind, (qubit, epg_1q) in enumerate(zip(qubit_pair, list_epgs_1q)):
                     for gate_name, epg in epg_1q.items():
-                        n_gate = gates_per_clifford.get(((qubit,),gate_name), 0)
+                        n_gate = gates_per_clifford.get(((qubit,), gate_name), 0)
                         alpha_1q[ind] *= (1 - 2 * epg) ** n_gate
             alpha_c_1q = 1 / 5 * (alpha_1q[0] + alpha_1q[1] + 3 * alpha_1q[0] * alpha_1q[1])
             alpha_c_2q = (1 - 4 / 3 * epc_2_qubit) / alpha_c_1q
-            n_gate_2q = gates_per_clifford[(qubit_pair,gate_2_qubit_type)]
+            n_gate_2q = gates_per_clifford[(qubit_pair, gate_2_qubit_type)]
             epg = 3 / 4 * (1 - alpha_c_2q) / n_gate_2q
             epg_2_qubit[qubit_pair] = {gate_2_qubit_type: epg}
         return epg_2_qubit
