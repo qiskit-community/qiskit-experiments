@@ -28,7 +28,7 @@ from qiskit_experiments.analysis import (
 
 from .rb_utils import RBUtils
 from qiskit_experiments.analysis.data_processing import multi_mean_xy_data
-
+from qiskit_experiments.experiment_data import ExperimentData
 
 class RBAnalysis(CurveAnalysis):
     r"""A class to analyze randomized benchmarking experiment.
@@ -142,7 +142,10 @@ class RBAnalysis(CurveAnalysis):
             method="sample",
         )
 
-    def _post_processing(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_processing(self,
+                         analysis_result: CurveAnalysisResult,
+                         experiment_data: ExperimentData
+                         ) -> CurveAnalysisResult:
         """Calculate EPC."""
         alpha = get_opt_value(analysis_result, "alpha")
         alpha_err = get_opt_error(analysis_result, "alpha")
