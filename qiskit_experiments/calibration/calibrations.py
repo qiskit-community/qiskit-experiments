@@ -944,7 +944,8 @@ class Calibrations:
         """
         result = exp_data.analysis_result(result_index)
 
-        if result["quality"] == "computer_bad" and not force_update:
+        quality = result.get("quality", "computer_good")
+        if quality == "computer_bad" and not force_update:
             return
 
         if calibration_extraction is None:
