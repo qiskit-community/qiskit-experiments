@@ -21,13 +21,15 @@ import numpy as np
 from qiskit import QiskitError, QuantumCircuit
 from qiskit.providers.backend import Backend
 
+
 class RBUtils:
     """A collection of utility functions for computing additional data
     from randomized benchmarking experiments"""
+
     @staticmethod
-    def get_error_dict_from_backend(backend: Backend,
-                                    qubits: Iterable[int]
-                                    ) -> Dict[Tuple[Iterable[int], str], float]:
+    def get_error_dict_from_backend(
+        backend: Backend, qubits: Iterable[int]
+    ) -> Dict[Tuple[Iterable[int], str], float]:
         """Attempts to extract error estimates for gates from the backend
         properties.
         Those estimates are used to assign weights for different gate types
@@ -53,9 +55,9 @@ class RBUtils:
         return error_dict
 
     @staticmethod
-    def count_ops(circuit: QuantumCircuit,
-                  qubits:Optional[Iterable[int]]=None
-                  ) -> Dict[Tuple[Iterable[int], str], int]:
+    def count_ops(
+        circuit: QuantumCircuit, qubits: Optional[Iterable[int]] = None
+    ) -> Dict[Tuple[Iterable[int], str], int]:
         """Counts occurances of each gate in the given circuit
 
         Args:
@@ -85,8 +87,9 @@ class RBUtils:
         return count_ops_result
 
     @staticmethod
-    def gates_per_clifford(ops_count: List[List[List[int], str], float]
-                           ) -> Dict[Tuple[Iterable[int], str], float]:
+    def gates_per_clifford(
+        ops_count: List[List[List[int], str], float]
+    ) -> Dict[Tuple[Iterable[int], str], float]:
         """
         Computes the average number of gates per clifford for each gate type
         in the input from raw count data coming from multiple circuits.
@@ -171,10 +174,10 @@ class RBUtils:
 
     @staticmethod
     def calculate_1q_epg(
-            epc_1_qubit: float,
-            qubits: Iterable[int],
-            backend: Backend,
-            gates_per_clifford: Dict[Tuple[Iterable[int], str], float]
+        epc_1_qubit: float,
+        qubits: Iterable[int],
+        backend: Backend,
+        gates_per_clifford: Dict[Tuple[Iterable[int], str], float],
     ) -> Dict[int, Dict[str, float]]:
         r"""
         Convert error per Clifford (EPC) into error per gates (EPGs) of single qubit basis gates.
@@ -207,8 +210,8 @@ class RBUtils:
         qubits: Iterable[int],
         backend: Backend,
         gates_per_clifford: Dict[Tuple[Iterable[int], str], float],
-        epg_1_qubit: Optional[Dict[int, Dict[str, float]]]=None,
-        gate_2_qubit_type:Optional[str]="cx",
+        epg_1_qubit: Optional[Dict[int, Dict[str, float]]] = None,
+        gate_2_qubit_type: Optional[str] = "cx",
     ) -> Dict[int, Dict[str, float]]:
         r"""
         Convert error per Clifford (EPC) into error per gates (EPGs) of two-qubit basis gates.
