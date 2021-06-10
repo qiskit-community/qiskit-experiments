@@ -913,7 +913,16 @@ class Calibrations:
         This function allows users to update their calibrations from experiment data. Typically,
         the value of the parameter to update is directly stored as the result of the fit. However,
         for more complex cases, such as Rabi, the value of the parameter is extracted from the
-        fit result using the calibration extraction callable.
+        fit result using the calibration extraction callable. Importantly, this method requires
+        the following keys to be present in the analysis result if no custom calibration extraction
+        function is given
+        - calibration_parameter: The name of the calibration parameter to update.
+        - qubits: The qubits to which the parameter belongs.
+        - calibration_schedule: The name of the schedule which is updated, this can be None (e.g.
+            for qubit frequencies).
+        - value: The value of the parameter which will enter the calibrations.
+        The ParameterKey formed by the values under (calibration_parameter, qubits,
+        calibration_schedule) must therefore be valid.
 
         Args:
             exp_data: An analysis result which contains either the value to update under the
