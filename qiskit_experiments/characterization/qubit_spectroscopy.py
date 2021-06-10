@@ -321,7 +321,7 @@ class QubitSpectroscopy(BaseExperiment):
             assigned_circ = circuit.assign_parameters({freq_param: freq}, inplace=False)
             assigned_circ.metadata = {
                 "experiment_type": self._type,
-                "qubits": (self.physical_qubits[0], ),
+                "qubits": (self.physical_qubits[0],),
                 "xval": freq,
                 "unit": "Hz",
                 "amplitude": self.experiment_options.amp,

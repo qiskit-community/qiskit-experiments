@@ -15,7 +15,7 @@
 import os
 from collections import defaultdict
 from datetime import datetime
-from typing import Any, Callable, Dict, Set, Tuple, Union, List, Optional
+from typing import Any, Dict, Set, Tuple, Union, List, Optional
 import csv
 import dataclasses
 import warnings
@@ -38,11 +38,10 @@ from qiskit.circuit import Parameter, ParameterExpression
 from qiskit_experiments.calibration.exceptions import CalibrationError
 from qiskit_experiments.calibration.parameter_value import ParameterValue
 from qiskit_experiments.experiment_data import ExperimentData
-from qiskit_experiments.calibration.calibration_extraction import CalibrationExtraction
 from qiskit_experiments.calibration.calibration_key_types import (
     ParameterKey,
     ParameterValueType,
-    ScheduleKey
+    ScheduleKey,
 )
 
 
@@ -958,7 +957,7 @@ class Calibrations:
             value=result["cal_value"],
             date_time=timestamp,
             group=group,
-            exp_id=exp_data.experiment_id
+            exp_id=exp_data.experiment_id,
         )
 
         schedule = result["cal_schedule"]
