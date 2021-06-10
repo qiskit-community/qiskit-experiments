@@ -904,7 +904,7 @@ class Calibrations:
         self,
         exp_data: ExperimentData,
         calibration_extraction: Optional[Union[Callable, CalibrationExtraction]] = None,
-        result_index: int = 0,
+        result_index: int = -1,
         force_update: bool = False,
         group: str = "default",
     ):
@@ -948,8 +948,9 @@ class Calibrations:
         if quality == "computer_bad" and not force_update:
             return
 
+        required_keys = ["calibration_parameter", "qubits", "calibration_schedule", "value"]
         if calibration_extraction is None:
-            if not all(key in result for key in ["calibration_parameter", "qubits", "calibration_schedule", "value"]):
+            if not all(key in result for key in required_keys):
                     raise CalibrationError(
                         f"Cannot update calibrations from a result without a {key} key."
                     )
