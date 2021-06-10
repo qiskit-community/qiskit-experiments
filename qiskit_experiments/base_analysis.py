@@ -16,11 +16,11 @@ Base analysis class.
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 
-from qiskit.providers.options import Options
 from qiskit.exceptions import QiskitError
+from qiskit.providers.options import Options
 
-from qiskit_experiments.experiment_data import ExperimentData, AnalysisResult
 from qiskit_experiments.exceptions import AnalysisError
+from qiskit_experiments.experiment_data import ExperimentData, AnalysisResult
 
 
 class BaseAnalysis(ABC):
@@ -87,12 +87,13 @@ class BaseAnalysis(ABC):
         analysis_options = analysis_options.__dict__
 
         # Run analysis
-        # pylint: disable=broad-except
         try:
             analysis_results, figures = self._run_analysis(experiment_data, **analysis_options)
-            analysis_results["success"] = True
+            for res in analysis_results:
+                if "success" not in res:
+                    res["success"] = True
         except AnalysisError as ex:
-            analysis_results = AnalysisResult(success=False, error_message=ex)
+            analysis_results = [AnalysisResult(success=False, error_message=ex)]
             figures = None
 
         # Save to experiment data
