@@ -144,7 +144,6 @@ class RBAnalysis(CurveAnalysis):
 
     def _post_processing(self,
                          analysis_result: CurveAnalysisResult,
-                         experiment_data: ExperimentData
                          ) -> CurveAnalysisResult:
         """Calculate EPC."""
         alpha = get_opt_value(analysis_result, "alpha")
@@ -153,29 +152,27 @@ class RBAnalysis(CurveAnalysis):
         scale = (2 ** self._num_qubits - 1) / (2 ** self._num_qubits)
         analysis_result["EPC"] = scale * (1 - alpha)
         analysis_result["EPC_err"] = scale * alpha_err / alpha
-        
+
         # Add EPG data
-        num_qubits = len(experiment_data.experiment.physical_qubits)
+        num_qubits = len(self._experiment_data.experiment.physical_qubits)
         if num_qubits in [1, 2]:
             count_ops = []
-            for datum in experiment_data.data():
+            for datum in self._experiment_data.data():
                 count_ops += datum["metadata"]["ops_count"]
             gates_per_clifford = RBUtils.gates_per_clifford(count_ops)
             if num_qubits == 1:
                 epg = RBUtils.calculate_1q_epg(
                     analysis_result["EPC"],
-                    experiment_data.experiment.physical_qubits,
-                    experiment_data.backend,
+                    self._experiment_data.experiment.physical_qubits,
+                    self._experiment_data.backend,
                     gates_per_clifford,
                 )
             elif num_qubits == 2:
                 epg = RBUtils.calculate_2q_epg(
                     analysis_result["EPC"],
-                    experiment_data.experiment.physical_qubits,
-                    experiment_data.backend,
+                    self._experiment_data.experiment.physical_qubits,
+                    self._experiment_data.backend,
                     gates_per_clifford,
                 )
             analysis_result["EPG"] = epg
-
-
         return analysis_result

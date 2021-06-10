@@ -496,17 +496,13 @@ class CurveAnalysis(BaseAnalysis):
         """
         return self._data_index, self._x_values, self._y_values, self._y_sigmas
 
-    def _post_processing(self,
-                         analysis_result: CurveAnalysisResult,
-                         experiment_data: ExperimentData,
-                         ) -> CurveAnalysisResult:
+    def _post_processing(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
         """Calculate new quantity from the fit result.
 
         Subclasses can override this method to do post analysis.
 
         Args:
             analysis_result: Analysis result containing fit result.
-            experiment_data: The original experiment data
 
         Returns:
             New CurveAnalysisResult instance containing the result of post analysis.
@@ -732,6 +728,7 @@ class CurveAnalysis(BaseAnalysis):
         Raises:
             AnalysisError: if the analysis fails.
         """
+        self._experiment_data = experiment_data
         analysis_result = CurveAnalysisResult()
         analysis_result["analysis_type"] = self.__class__.__name__
         figures = list()
@@ -821,8 +818,7 @@ class CurveAnalysis(BaseAnalysis):
             #
             # 4. Post-process analysis data
             #
-            analysis_result = self._post_processing(analysis_result=analysis_result,
-                                                    experiment_data=experiment_data)
+            analysis_result = self._post_processing(analysis_result=analysis_result)
 
         finally:
             #

@@ -24,7 +24,7 @@ from qiskit_experiments.analysis import (
     get_opt_error,
 )
 from .rb_analysis import RBAnalysis
-
+from qiskit_experiments.experiment_data import ExperimentData
 
 class InterleavedRBAnalysis(RBAnalysis):
     r"""A class to analyze interleaved randomized benchmarking experiment.
@@ -175,7 +175,9 @@ class InterleavedRBAnalysis(RBAnalysis):
 
         return fit_option
 
-    def _post_processing(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_processing(self,
+                         analysis_result: CurveAnalysisResult,
+                         ) -> CurveAnalysisResult:
         """Calculate EPC."""
         # Add EPC data
         nrb = 2 ** self._num_qubits

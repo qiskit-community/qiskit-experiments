@@ -23,6 +23,7 @@ from qiskit.quantum_info import Clifford
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeParis
 from qiskit.circuit.library import XGate, CXGate
+from qiskit.providers.aer import AerSimulator
 import qiskit_experiments as qe
 
 
@@ -40,7 +41,7 @@ class TestRB(QiskitTestCase):
         Args:
             qubits (list): A list containing qubit indices for the experiment
         """
-        backend = FakeParis()
+        backend = AerSimulator.from_backend(FakeParis())
         exp_attributes = {
             "qubits": qubits,
             "lengths": [1, 4, 6, 9, 13, 16],
@@ -135,7 +136,7 @@ class TestInterleavedRB(TestRB):
             interleaved_element: The Clifford element to interleave
             qubits (list): A list containing qubit indices for the experiment
         """
-        backend = FakeParis()
+        backend = AerSimulator.from_backend(FakeParis())
         exp_attributes = {
             "interleaved_element": interleaved_element,
             "qubits": qubits,
@@ -157,3 +158,26 @@ class TestInterleavedRB(TestRB):
         self.validate_metadata(exp_circuits, exp_attributes)
         self.validate_circuit_data(exp_data, exp_attributes)
         self.is_identity(exp_circuits)
+
+@ddt
+class TestRBUtilities(QiskitTestCase):
+    """
+    A test class for additional functionality provided by the RBExperiment
+    class.
+    """
+    def test_epg_computation(self):
+        """Tests the error per gate computation"""
+        backend = AerSimulator.from_backend(FakeParis())
+        rb = qe.randomized_benchmarking
+        error_dict = rb.RBUtils.get_error_dict_from_backend(backend, [0])
+        lengths = [10, 100, 200, 300, 400, 500]
+        num_samples = 10
+        seed = 1010
+        exp1 = rb.RBExperiment([0], lengths, num_samples=num_samples, seed=seed)
+        result = exp1.run(backend)
+        epg = result.analysis_result(0)['EPG']
+        for gate in ['x', 'sx', 'rz']:
+            expected_epg = error_dict[((0,), gate)]
+            actual_epg = epg[0][gate]
+            print(actual_epg)
+            self.assertTrue(np.allclose(expected_epg, actual_epg, rtol=1.e-2))
