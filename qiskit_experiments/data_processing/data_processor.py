@@ -250,4 +250,4 @@ class DataProcessor:
         names = ", ".join(node.__class__.__name__ for node in self._nodes)
         instances = f"(input_key={self._input_key}, to_array={self._to_array}, nodes=[{names}])"
 
-        return f"{self.__class__.__name__}"+instances
+        return f"{self.__class__.__name__}" + instances

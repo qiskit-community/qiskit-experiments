@@ -23,7 +23,7 @@ from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit.result import Result
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.experiment_data import ExperimentData
-from qiskit_experiments.data_processing.nodes import SVD, AverageData
+from qiskit_experiments.data_processing.nodes import SVD, AverageData, Normalize
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 
 
@@ -42,6 +42,25 @@ class TestAveraging(QiskitTestCase):
         node = AverageData(axis_dict={2: 0})
         self.assertTrue(np.allclose(node(datum)[0], np.array([2.0, 3.0])))
         self.assertTrue(np.allclose(node(datum)[1], np.array([1.0, 1.0]) / np.sqrt(2)))
+
+
+class TestNormalize(QiskitTestCase):
+    """Test the normalization node."""
+
+    def test_simple(self):
+        """Simple test of normalization node."""
+
+        data = np.array([1.0, 2.0, 3.0, 3.0])
+        error = np.array([0.1, 0.2, 0.3, 0.3])
+
+        expected_data = np.array([0.0, 0.5, 1.0, 1.0])
+        expected_error = np.array([0.05, 0.1, 0.15, 0.15])
+
+        node = Normalize()
+
+        self.assertTrue(np.allclose(node(data)[0], expected_data))
+        self.assertTrue(np.allclose(node(data, error)[0], expected_data))
+        self.assertTrue(np.allclose(node(data, error)[1], expected_error))
 
 
 class TestSVD(BaseDataProcessorTest):

@@ -105,7 +105,7 @@ class Normalize(DataAction):
         min_y, max_y = np.min(datum), np.max(datum)
 
         if error is not None:
-            return (datum - min_y) / (max_y - min_y), (error - min_y) / (max_y - min_y)
+            return (datum - min_y) / (max_y - min_y), error / (max_y - min_y)
         else:
             return (datum - min_y) / (max_y - min_y), None
 
