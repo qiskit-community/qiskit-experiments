@@ -18,7 +18,7 @@ from typing import List, Tuple, Union
 from qiskit.circuit import Parameter
 
 from qiskit_experiments.base_analysis import AnalysisResult
-from qiskit_experiments.calibration.calibration_types import ParameterValueType
+from qiskit_experiments.calibration.calibration_key_types import ParameterValueType
 
 
 class CalibrationExtraction:
