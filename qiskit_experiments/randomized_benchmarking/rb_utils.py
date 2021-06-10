@@ -88,7 +88,7 @@ class RBUtils:
 
     @staticmethod
     def gates_per_clifford(
-        ops_count: List[List[List[int], str], float]
+        ops_count: List,
     ) -> Dict[Tuple[Iterable[int], str], float]:
         """
         Computes the average number of gates per clifford for each gate type
