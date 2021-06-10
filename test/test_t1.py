@@ -32,9 +32,7 @@ class T1Backend(BackendV1):
     A simple and primitive backend, to be run by the T1 tests
     """
 
-    def __init__(
-        self, t1, initial_prob1=None, readout0to1=None, readout1to0=None, dt_factor=None
-    ):
+    def __init__(self, t1, initial_prob1=None, readout0to1=None, readout1to0=None, dt_factor=None):
         """
         Initialize the T1 backend
         """
@@ -75,7 +73,7 @@ class T1Backend(BackendV1):
         Run the T1 backend
         """
         self.options.update_options(**options)
-        shots = self.options.get('shots')
+        shots = self.options.get("shots")
 
         result = {
             "backend_name": "T1 backend",

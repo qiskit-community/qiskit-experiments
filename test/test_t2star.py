@@ -78,7 +78,7 @@ class T2starBackend(BackendV1):
         Run the T2star backend
         """
         self.options.update_options(**options)
-        shots = self.options.get('shots')
+        shots = self.options.get("shots")
 
         result = {
             "backend_name": "T2star backend",
@@ -209,7 +209,8 @@ class TestT2Star(QiskitTestCase):
             # run circuits
 
             expdata = exp.run(
-                backend=backend, shots=2000,
+                backend=backend,
+                shots=2000,
             )
             result = expdata.analysis_result(0)
             self.assertAlmostEqual(
@@ -247,9 +248,7 @@ class TestT2Star(QiskitTestCase):
             "b_guess": [0.5, None, 0.5],
         }
         backend = T2starBackend(p0)
-        res = par_exp.run(
-            backend=backend, shots=1000
-        )
+        res = par_exp.run(backend=backend, shots=1000)
 
         for i in range(2):
             sub_res = res.component_experiment_data(i).analysis_result(0)
