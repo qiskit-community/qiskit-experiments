@@ -133,10 +133,7 @@ class RBUtils():
         r"""
         Convert error per Clifford (EPC) into error per gates (EPGs) of single qubit basis gates.
         """
-
         error_dict = RBUtils.get_error_dict_from_backend(backend, qubits)
-        print("error dict",error_dict)
-        print("gates_per_clifford", gates_per_clifford)
         epg = {qubit: {} for qubit in qubits}
         for qubit in qubits:
             error_sum = 0
@@ -162,9 +159,8 @@ class RBUtils():
         Convert error per Clifford (EPC) into error per gates (EPGs) of two-qubit basis gates.
         Assumed a single two-qubit gate type is used in transpilation
         """
-
+        epg_2_qubit = {}
         error_dict = error_dict = RBUtils.get_error_dict_from_backend(backend, qubits)
-        print("error dict", error_dict)
         qubit_pairs = []
         for key in error_dict.keys():
             qubits, gate = key
@@ -174,7 +170,6 @@ class RBUtils():
                 qubit_pair = tuple(sorted(qubits))
                 if not qubit_pair in qubit_pairs:
                     qubit_pairs.append(qubit_pair)
-        print("qubit_pairs",qubit_pairs)
         for qubit_pair in qubit_pairs:
             alpha_1q = [1.0, 1.0]
             if epg_1_qubit is not None:
@@ -182,144 +177,10 @@ class RBUtils():
                 for ind, (qubit, epg_1q) in enumerate(zip(qubit_pair, list_epgs_1q)):
                     for gate_name, epg in epg_1q.items():
                         n_gate = gates_per_clifford.get(((qubit,),gate_name), 0)
-                        # print("gate", gate_name, "qubit",qubit, "n_gate", n_gate)
                         alpha_1q[ind] *= (1 - 2 * epg) ** n_gate
-            print("alpha_1q",alpha_1q)
             alpha_c_1q = 1 / 5 * (alpha_1q[0] + alpha_1q[1] + 3 * alpha_1q[0] * alpha_1q[1])
             alpha_c_2q = (1 - 4 / 3 * epc_2_qubit) / alpha_c_1q
-            print("epc_2_qubit",epc_2_qubit)
-            print("alpha_c_1q",alpha_c_1q)
-            print("alpha_c_2q",alpha_c_2q)
             n_gate_2q = gates_per_clifford[(qubit_pair,gate_2_qubit_type)]
             epg = 3 / 4 * (1 - alpha_c_2q) / n_gate_2q
-            epg_1_qubit[qubit_pair]= {gate_2_qubit_type: epg}
-        return epg_1_qubit
-
-    @staticmethod
-    def calculate_1q_epc(gate_per_cliff: Dict[int, Dict[str, float]],
-                         epg_1q: Dict[str, float],
-                         qubit: int) -> float:
-        r"""
-        Convert error per gate (EPG) into error per Clifford (EPC) of single qubit basis gates.
-        Given that we know the number of gates per Clifford :math:`N_i` and those EPGs,
-        we can predict EPC of that RB sequence:
-        .. math::
-            EPC = 1 - \prod_i \left( 1 - EPG_i \right)^{N_i}
-        To run this function, you need to know EPG of every single qubit basis gates.
-        For example, when you prepare 1Q RB experiment with appropriate error model,
-        you can define EPG of those basis gate set. Then you can estimate the EPC of
-        prepared RB sequence without running experiment.
-        .. jupyter-execute::
-            import qiskit.ignis.verification.randomized_benchmarking as rb
-            # gate counts of your 1Q RB experiment
-            gpc = {0: {'cx': 0, 'rZ': 0.13, 'x': 0.31, 'sx': 0.51}}
-            # EPGs from error model
-            epgs_q0 = {'rz': 0, 'x': 0.001, 'sx': 0.001}
-            # calculate 1Q EPC
-            epc = rb.rb_utils.calculate_1q_epc(
-                gate_per_cliff=gpc,
-                epg_1q=epgs_q0,
-                qubit=0)
-            print(epc)
-        Args:
-            gate_per_cliff: dictionary of gate per Clifford. see :func:`gates_per_clifford`.
-            epg_1q: EPG of single qubit gates estimated by error model.
-            qubit: index of qubit to calculate EPC.
-        Returns:
-            EPG of 2Q gate.
-        Raises:
-            QiskitError: when specified ``qubit`` is not included in the gate count dictionary
-        """
-        if qubit not in gate_per_cliff:
-            raise QiskitError('Qubit %d is not included in the `gate_per_cliff`' % qubit)
-
-        fid = 1
-        gpc_per_qubit = gate_per_cliff[qubit]
-
-        for gate_name, epg in epg_1q.items():
-            n_gate = gpc_per_qubit.get(gate_name, 0)
-            fid *= (1 - epg) ** n_gate
-
-        return 1 - fid
-
-    @staticmethod
-    def calculate_2q_epc(gate_per_cliff: Dict[int, Dict[str, float]],
-                         epg_2q: float,
-                         qubit_pair: List[int],
-                         list_epgs_1q: List[Dict[str, float]],
-                         two_qubit_name: Optional[str] = 'cx') -> float:
-        r"""
-        Convert error per gate (EPG) into error per Clifford (EPC) of two qubit ``cx`` gates.
-        Given that we know the number of gates per Clifford :math:`N_i` and those EPGs,
-        we can predict EPC of that RB sequence:
-        .. math::
-            EPC = 1 - \prod_i \left( 1 - EPG_i \right)^{N_i}
-        This function isolates the contribution of two qubit gate to the EPC [1].
-        This will give you more accurate estimation of EPC, especially when the ``cx``
-        gate fidelity is close to that of single qubit gate.
-        To run this function, you need to know EPG of both single and two qubit gates.
-        For example, when you prepare 2Q RB experiment with appropriate error model,
-        you can define EPG of those basis gate set. Then you can estimate the EPC of
-        prepared RB sequence without running experiment.
-        .. jupyter-execute::
-            import qiskit.ignis.verification.randomized_benchmarking as rb
-            # gate counts of your 2Q RB experiment
-            gpc = {0: {'cx': 1.49, 'rz': 0.25, 'x': 0.95, 'sx': 0.56},
-                   1: {'cx': 1.49, 'rz': 0.24, 'x': 0.98, 'sx': 0.49}}
-            # EPGs from error model
-            epgs_q0 = {'rz': 0, 'x': 0.001, 'sx': 0.001}
-            epgs_q1 = {'rz': 0, 'x': 0.002, 'sx': 0.002}
-            epg_q01 = 0.03 TODO not accutrate for new gateset
-            # calculate 2Q EPC
-            epc_2q = rb.rb_utils.calculate_2q_epc(
-                gate_per_cliff=gpc,
-                epg_2q=epg_q01,
-                qubit_pair=[0, 1],
-                list_epgs_1q=[epgs_q0, epgs_q1])
-            # calculate EPC according to the definition
-            fid = 1
-            for qubit in (0, 1):
-                for epgs in (epgs_q0, epgs_q1):
-                    for gate, val in epgs.items():
-                        fid *= (1 - val) ** gpc[qubit][gate]
-            fid *= (1 - epg_q01) ** 1.49
-            epc = 1 - fid
-            print('Total sequence EPC: %f, 2Q gate contribution: %f' % (epc, epc_2q))
-        As you can see two qubit gate contribution is dominant in this RB sequence.
-        References:
-            [1] D. C. McKay, S. Sheldon, J. A. Smolin, J. M. Chow,
-            and J. M. Gambetta, “Three-Qubit Randomized Benchmarking,”
-            Phys. Rev. Lett., vol. 122, no. 20, 2019 (arxiv:1712.06550).
-        Args:
-            gate_per_cliff: dictionary of gate per Clifford. see :func:`gates_per_clifford`.
-            epg_2q: EPG estimated by error model.
-            qubit_pair: index of two qubits to calculate EPC.
-            list_epgs_1q: list of single qubit EPGs of qubit listed in ``qubit_pair``.
-            two_qubit_name: name of two qubit gate in ``basis gates``.
-        Returns:
-            EPG of 2Q gate.
-        Raises:
-            QiskitError: when ``cx`` is not found, specified ``qubit_pair`` is not included
-                in the gate count dictionary, or length of ``qubit_pair`` is not 2.
-        """
-        if len(qubit_pair) != 2:
-            raise QiskitError('Number of qubit is not 2.')
-
-        n_gate_2q = gate_per_cliff[qubit_pair[0]].get(two_qubit_name, 0)
-        if n_gate_2q == 0:
-            raise QiskitError('Two qubit gate %s is not included in the `gate_per_cliff`. '
-                              'Set correct `two_qubit_name` or use 2Q RB gate count.' % two_qubit_name)
-
-        # estimate single qubit gate error contribution
-        alpha_1q = [1.0, 1.0]
-        alpha_2q = (1 - 4 / 3 * epg_2q) ** n_gate_2q
-        for ind, (qubit, epg_1q) in enumerate(zip(qubit_pair, list_epgs_1q)):
-            if qubit not in gate_per_cliff:
-                raise QiskitError('Qubit %d is not included in the `gate_per_cliff`' % qubit)
-            gpc_per_qubit = gate_per_cliff[qubit]
-            for gate_name, epg in epg_1q.items():
-                n_gate = gpc_per_qubit.get(gate_name, 0)
-                alpha_1q[ind] *= (1 - 2 * epg) ** n_gate
-        alpha_c_2q = 1 / 5 * (alpha_1q[0] + alpha_1q[1] + 3 * alpha_1q[0] * alpha_1q[1]) * alpha_2q
-
-        return 3 / 4 * (1 - alpha_c_2q)
+            epg_2_qubit[qubit_pair] = {gate_2_qubit_type: epg}
+        return epg_2_qubit

@@ -92,23 +92,23 @@ class RBAnalysis(BaseAnalysis):
         analysis_result["EPC_err"] = scale * popt_err[1] / popt[1]
 
         # Add EPG data
-        count_ops = []
-        for datum in experiment_data.data():
-            count_ops += datum['metadata']['ops_count']
-        print("count_ops",count_ops)
-        gates_per_clifford = RBUtils.gates_per_clifford(count_ops)
-        epg = RBUtils.calculate_1q_epg(analysis_result["EPC"],
-                         experiment_data.experiment.physical_qubits,
-                         experiment_data.backend,
-                         gates_per_clifford)
-        print("epg after 1-qubit", epg)
-
-        epg = epg_2_qubit = RBUtils.calculate_2q_epg(analysis_result["EPC"],
-                                       experiment_data.experiment.physical_qubits,
-                                       experiment_data.backend,
-                                       gates_per_clifford, epg)
-        print("epg after 2-qubit", epg)
-        analysis_result["EPG"] = epg
+        num_qubits = len(experiment_data.experiment.physical_qubits)
+        if num_qubits in [1,2]:
+            count_ops = []
+            for datum in experiment_data.data():
+                count_ops += datum['metadata']['ops_count']
+            gates_per_clifford = RBUtils.gates_per_clifford(count_ops)
+            if num_qubits == 1:
+                epg = RBUtils.calculate_1q_epg(analysis_result["EPC"],
+                                 experiment_data.experiment.physical_qubits,
+                                 experiment_data.backend,
+                                 gates_per_clifford)
+            elif num_qubits == 2:
+                epg = RBUtils.calculate_2q_epg(analysis_result["EPC"],
+                                               experiment_data.experiment.physical_qubits,
+                                               experiment_data.backend,
+                                               gates_per_clifford)
+            analysis_result["EPG"] = epg
 
 
         if plot and plotting.HAS_MATPLOTLIB:
