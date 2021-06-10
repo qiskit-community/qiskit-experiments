@@ -59,6 +59,7 @@ class T1Backend(BaseBackend):
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
         self._dt_factor = dt_factor
+        self._rng = np.random.default_rng(0)
         super().__init__(configuration)
 
     # pylint: disable = arguments-differ
@@ -108,7 +109,7 @@ class T1Backend(BaseBackend):
                         delay = op.params[0]
                         prob1[qubit] = prob1[qubit] * np.exp(-delay / self._t1[qubit])
                     elif op.name == "measure":
-                        meas_res = np.random.binomial(
+                        meas_res = self._rng.binomial(
                             1, prob1[qubit] * (1 - ro10[qubit]) + (1 - prob1[qubit]) * ro01[qubit]
                         )
                         clbits[op.memory[0]] = meas_res
@@ -227,8 +228,8 @@ class TestT1(QiskitTestCase):
             )
 
         res = T1Analysis()._run_analysis(data)[0]
-        self.assertEqual(res["quality"], "computer_good")
-        self.assertAlmostEqual(res["value"], 25e-9, delta=3)
+        self.assertEqual(res[0]["quality"], "computer_good")
+        self.assertAlmostEqual(res[0]["value"], 25e-9, delta=3)
 
     def test_t1_metadata(self):
         """
@@ -274,7 +275,7 @@ class TestT1(QiskitTestCase):
             )
 
         res = T1Analysis()._run_analysis(data)[0]
-        self.assertEqual(res["quality"], "computer_bad")
+        self.assertEqual(res[0]["quality"], "computer_bad")
 
 
 if __name__ == "__main__":

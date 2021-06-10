@@ -24,6 +24,7 @@ from qiskit.providers.options import Options
 from qiskit.circuit import Gate
 
 from qiskit_experiments.base_experiment import BaseExperiment
+from qiskit_experiments.analysis.data_processing import probability
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
 from .rb_utils import RBUtils
@@ -67,6 +68,7 @@ class RBExperiment(BaseExperiment):
 
         # Set configurable options
         self.set_experiment_options(lengths=list(lengths), num_samples=num_samples)
+        self.set_analysis_options(data_processor=probability(outcome="0" * self.num_qubits))
 
         # Set fixed options
         self._full_sampling = full_sampling
@@ -155,7 +157,6 @@ class RBExperiment(BaseExperiment):
                 rb_circ.metadata = {
                     "experiment_type": self._type,
                     "xval": current_length + 1,
-                    "ylabel": self.num_qubits * "0",
                     "group": "Clifford",
                     "qubits": self.physical_qubits,
                 }
