@@ -939,8 +939,7 @@ class Calibrations:
             return
 
         if calibration_extraction is None:
-            for key in ["calibration_parameter", "qubits", "calibration_schedule", "value"]:
-                if key not in result:
+            if not all(key in result for key in ["calibration_parameter", "qubits", "calibration_schedule", "value"]):
                     raise CalibrationError(
                         f"Cannot update calibrations from a result without a {key} key."
                     )
