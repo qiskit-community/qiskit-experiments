@@ -76,7 +76,7 @@ class AverageData(DataAction):
         """
         axis = self._axis[len(datum.shape)]
 
-        standard_error = np.std(datum, axis=axis) / np.sqrt(datum.shape[0])
+        standard_error = np.std(datum, axis=axis) / np.sqrt(datum.shape[axis])
 
         return np.average(datum, axis=axis), standard_error
 

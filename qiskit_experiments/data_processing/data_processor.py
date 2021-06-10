@@ -75,6 +75,11 @@ class DataProcessor:
     def requires_all_data(self, call_up_to_node: Optional[int] = None) -> bool:
         """Whether or not a node needs to see all the data at once.
 
+        Args:
+            call_up_to_node: An optional int that specifies up to how many nodes need to be
+                considered when determining if all the data must be passed at once. If not
+                specified all nodes will be considered.
+
         Returns:
             True if at least one node must see all the data at once to process it (e.g.
             normalization) and False if the node can process one datum of the data at the time.
@@ -186,7 +191,9 @@ class DataProcessor:
         """Extracts the data on which to run the nodes.
 
         If the datum is a list of dicts then the data under self._input_key is extracted
-        from each dict and appended to a list which therefore contains all the data.
+        from each dict and appended to a list which therefore contains all the data. If the
+        data processor has to_array set to True then the list will be converted to a numpy
+        array.
 
         Args:
             datum: Either a dict with the data under self._input_key or a list of such dicts.
@@ -195,7 +202,7 @@ class DataProcessor:
                 then all nodes in the data processing chain are considered.
 
         Returns:
-            data formatted in such a way that it is ready to be processed by the nodes.
+            The data formatted in such a way that it is ready to be processed by the nodes.
 
         Raises:
             DataProcessorError:
@@ -225,7 +232,7 @@ class DataProcessor:
                 if call_up_to_node is not None:
                     msg += f" up to node {call_up_to_node}"
 
-                raise DataProcessorError(msg + " and must have all data.")
+                raise DataProcessorError(msg + " and must have all the data.")
 
             if self._input_key not in datum:
                 raise DataProcessorError(
@@ -236,8 +243,8 @@ class DataProcessor:
 
         else:
             raise DataProcessorError(
-                f"{self.__class__.__name__} only aggregates lists or dicts, "
-                f"received {type(datum)}."
+                f"{self.__class__.__name__} only extracts data from "
+                f"lists or dicts, received {type(datum)}."
             )
 
         if self._to_array:

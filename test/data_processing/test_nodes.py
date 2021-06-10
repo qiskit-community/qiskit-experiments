@@ -33,15 +33,16 @@ class TestAveraging(QiskitTestCase):
     def test_simple(self):
         """Simple test of averaging."""
 
-        datum = np.array([[1, 2], [3, 4]])
+        datum = np.array([[1, 2], [3, 4], [5, 6]])
 
         node = AverageData(axis_dict={2: 1})
-        self.assertTrue(np.allclose(node(datum)[0], np.array([1.5, 3.5])))
-        self.assertTrue(np.allclose(node(datum)[1], np.array([0.5, 0.5]) / np.sqrt(2)))
+        self.assertTrue(np.allclose(node(datum)[0], np.array([1.5, 3.5, 5.5])))
+        self.assertTrue(np.allclose(node(datum)[1], np.array([0.5, 0.5, 0.5]) / np.sqrt(2)))
 
         node = AverageData(axis_dict={2: 0})
-        self.assertTrue(np.allclose(node(datum)[0], np.array([2.0, 3.0])))
-        self.assertTrue(np.allclose(node(datum)[1], np.array([1.0, 1.0]) / np.sqrt(2)))
+        self.assertTrue(np.allclose(node(datum)[0], np.array([3.0, 4.0])))
+        std = np.std([1, 3, 5])
+        self.assertTrue(np.allclose(node(datum)[1], np.array([std, std]) / np.sqrt(3)))
 
 
 class TestNormalize(QiskitTestCase):
