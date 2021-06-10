@@ -953,9 +953,14 @@ class Calibrations:
                         f"Cannot update calibrations from a result without a {key} key."
                     )
 
+            timestamp = None
+            all_times = exp_data.completion_times.values()
+            if all_times:
+                timestamp = max(all_times)
+
             value = ParameterValue(
                 value=result["value"],
-                date_time=datetime.now(),
+                date_time=timestamp,
                 group=group,
                 exp_id=exp_data.experiment_id
             )
