@@ -13,6 +13,7 @@
 """An mock IQ backend for testing."""
 
 from typing import Dict, List, Tuple
+from datetime import datetime
 import numpy as np
 
 from qiskit.providers.backend import BackendV1 as Backend
@@ -32,6 +33,11 @@ class TestJob(JobV1):
     def result(self) -> Result:
         """Return a result."""
         return Result.from_dict(self._result)
+
+    @staticmethod
+    def time_per_step() -> Dict[str, datetime]:
+        """Return the completion time."""
+        return {"COMPLETED": datetime.now()}
 
     def submit(self):
         pass

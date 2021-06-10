@@ -940,7 +940,7 @@ class Calibrations:
 
         Raises:
             CalibrationError: If the result does not have the required calibration keys. These
-                keys are "calibration_parameter", "qubits", "calibration_schedule", and "value".
+                keys are "cal_parameter", "qubits", "cal_schedule", and "cal_value".
         """
         result = exp_data.analysis_result(result_index)
 
@@ -948,12 +948,12 @@ class Calibrations:
         if quality == "computer_bad" and not force_update:
             return
 
-        required_keys = ["calibration_parameter", "qubits", "calibration_schedule", "value"]
+        required_keys = ["cal_parameter", "cal_schedule", "cal_value"]
         if calibration_extraction is None:
             if not all(key in result for key in required_keys):
-                    raise CalibrationError(
-                        f"Cannot update calibrations from a result without a {key} key."
-                    )
+                raise CalibrationError(
+                    f"Cannot update calibrations from result. One of {required_keys} is missing."
+                )
 
             timestamp = None
             all_times = exp_data.completion_times.values()
@@ -961,15 +961,20 @@ class Calibrations:
                 timestamp = max(all_times)
 
             value = ParameterValue(
-                value=result["value"],
+                value=result["cal_value"],
                 date_time=timestamp,
                 group=group,
                 exp_id=exp_data.experiment_id
             )
 
-            schedule = result["calibration_schedule"]
-            param = result["calibration_parameter"]
-            qubits = self._to_tuple(result["qubits"])
+            schedule = result["cal_schedule"]
+            param = result["cal_parameter"]
+
+            # TODO update this with experiment metadata PR #67
+            try:
+                qubits = exp_data.data(0)["metadata"]["qubits"]
+            except KeyError as error:
+                raise CalibrationError("Cannot find qubit information in metadata.") from error
 
             self.add_parameter_value(value, param, qubits, schedule)
 

@@ -33,6 +33,7 @@ from qiskit_experiments.analysis import (
 )
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
+from qiskit_experiments.calibration.backend_calibrations import BackendCalibrations
 
 
 class SpectroscopyAnalysis(CurveAnalysis):
@@ -169,6 +170,11 @@ class SpectroscopyAnalysis(CurveAnalysis):
         else:
             analysis_result["quality"] = "computer_bad"
 
+        # Add calibration information
+        analysis_result["cal_parameter"] = BackendCalibrations.__qubit_freq_parameter__
+        analysis_result["cal_schedule"] = None
+        analysis_result["cal_value"] = fit_freq
+
         return analysis_result
 
 
@@ -254,11 +260,6 @@ class QubitSpectroscopy(BaseExperiment):
         self._absolute = absolute
         self.set_analysis_options(xlabel=f"Frequency [{unit}]", ylabel="Signal [arb. unit]")
 
-        self.set_analysis_options(
-            calibration_parameter=BackendCalibrations.__qubit_freq_parameter__,
-            calibration_schedule=None,
-        )
-
     def circuits(self, backend: Optional[Backend] = None):
         """Create the circuit for the spectroscopy experiment.
 
@@ -320,7 +321,7 @@ class QubitSpectroscopy(BaseExperiment):
             assigned_circ = circuit.assign_parameters({freq_param: freq}, inplace=False)
             assigned_circ.metadata = {
                 "experiment_type": self._type,
-                "qubit": self.physical_qubits[0],
+                "qubits": (self.physical_qubits[0], ),
                 "xval": freq,
                 "unit": "Hz",
                 "amplitude": self.experiment_options.amp,

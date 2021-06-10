@@ -45,7 +45,12 @@ class BackendCalibrations(Calibrations):
 
     def __init__(self, backend: Backend):
         """Setup an instance to manage the calibrations of a backend."""
-        super().__init__(backend.configuration().control_channels)
+        if hasattr(backend.configuration(), "control_channels"):
+            control_channels = backend.configuration().control_channels
+        else:
+            control_channels = None
+
+        super().__init__(control_channels)
 
         # Use the same naming convention as in backend.defaults()
         self.qubit_freq = Parameter(self.__qubit_freq_parameter__)
