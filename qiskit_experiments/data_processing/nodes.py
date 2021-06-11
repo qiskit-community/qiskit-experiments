@@ -65,7 +65,6 @@ class AverageData(DataAction):
         Raises:
             DataProcessorError: If the axis is not an int.
         """
-
         standard_error = np.std(datum, axis=self._axis) / np.sqrt(datum.shape[self._axis])
 
         return np.average(datum, axis=self._axis), standard_error
