@@ -139,23 +139,13 @@ class InterleavedRBAnalysis(RBAnalysis):
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
 
-        std_xdata, std_ydata, _ = self._subset_data(
-            name="Standard",
-            data_index=self._data_index,
-            x_values=self._x_values,
-            y_values=self._y_values,
-            y_sigmas=self._y_sigmas,
-        )
-        p0_std = self._initial_guess(std_xdata, std_ydata, self._num_qubits)
+        # for standard RB curve
+        std_curve = self._prepared_data(name="Standard")
+        p0_std = self._initial_guess(std_curve.x, std_curve.y, self._num_qubits)
 
-        int_xdata, int_ydata, _ = self._subset_data(
-            name="Interleaved",
-            data_index=self._data_index,
-            x_values=self._x_values,
-            y_values=self._y_values,
-            y_sigmas=self._y_sigmas,
-        )
-        p0_int = self._initial_guess(int_xdata, int_ydata, self._num_qubits)
+        # for interleaved RB curve
+        int_curve = self._prepared_data(name="Interleaved")
+        p0_int = self._initial_guess(int_curve.x, int_curve.y, self._num_qubits)
 
         fit_option = {
             "p0": {

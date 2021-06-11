@@ -166,10 +166,10 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         self.analysis._extract_curves(
             experiment_data=test_data0, data_processor=probability(outcome="1")
         )
-        xdata = self.analysis._x_values
-        ydata = self.analysis._y_values
-        sigma = self.analysis._y_sigmas
-        d_index = self.analysis._data_index
+        xdata = self.analysis.__x_values
+        ydata = self.analysis.__y_values
+        sigma = self.analysis.__y_sigmas
+        d_index = self.analysis.__data_index
 
         # check if the module filter off data: valid=False
         self.assertEqual(len(xdata), 20)
@@ -203,17 +203,17 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         ydata = np.asarray([1, 2, 3, 4, 5, 6], dtype=float)
         sigma = np.asarray([1, 2, 3, 4, 5, 6], dtype=float)
 
-        subx, suby, subs = self.analysis._subset_data("curve1", d_index, xdata, ydata, sigma)
+        subx, suby, subs = self.analysis._subset_data(d_index, xdata, ydata, sigma, "curve1")
         np.testing.assert_array_almost_equal(subx, np.asarray([1, 3], dtype=float))
         np.testing.assert_array_almost_equal(suby, np.asarray([1, 3], dtype=float))
         np.testing.assert_array_almost_equal(subs, np.asarray([1, 3], dtype=float))
 
-        subx, suby, subs = self.analysis._subset_data("curve2", d_index, xdata, ydata, sigma)
+        subx, suby, subs = self.analysis._subset_data(d_index, xdata, ydata, sigma, "curve2")
         np.testing.assert_array_almost_equal(subx, np.asarray([2], dtype=float))
         np.testing.assert_array_almost_equal(suby, np.asarray([2], dtype=float))
         np.testing.assert_array_almost_equal(subs, np.asarray([2], dtype=float))
 
-        subx, suby, subs = self.analysis._subset_data("curve3", d_index, xdata, ydata, sigma)
+        subx, suby, subs = self.analysis._subset_data(d_index, xdata, ydata, sigma, "curve3")
         np.testing.assert_array_almost_equal(subx, np.asarray([4, 5], dtype=float))
         np.testing.assert_array_almost_equal(suby, np.asarray([4, 5], dtype=float))
         np.testing.assert_array_almost_equal(subs, np.asarray([4, 5], dtype=float))

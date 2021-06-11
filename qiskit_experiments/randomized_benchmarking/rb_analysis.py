@@ -92,7 +92,8 @@ class RBAnalysis(CurveAnalysis):
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
 
-        initial_guess = self._initial_guess(self._x_values, self._y_values, self._num_qubits)
+        curve_data = self._prepared_data()
+        initial_guess = self._initial_guess(curve_data.x, curve_data.y, self._num_qubits)
         fit_option = {
             "p0": {
                 "a": user_p0["a"] or initial_guess["a"],
@@ -128,16 +129,6 @@ class RBAnalysis(CurveAnalysis):
             fit_guess["a"] = (y_values[0] - fit_guess["b"]) / fit_guess["alpha"] ** x_values[0]
 
         return fit_guess
-
-    def _pre_processing(self) -> Tuple[np.ndarray, ...]:
-        """Average over the same x values."""
-        return multi_mean_xy_data(
-            series=self._data_index,
-            xdata=self._x_values,
-            ydata=self._y_values,
-            sigma=self._y_sigmas,
-            method="sample",
-        )
 
     def _post_processing(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
         """Calculate EPC."""
