@@ -461,9 +461,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
     def test_normalize(self):
         """Test that by adding a normalization node we get a signal between 1 and 1."""
 
-        processor = DataProcessor(
-            "memory", [AverageData(axis=1), SVD(), Normalize()]
-        )
+        processor = DataProcessor("memory", [AverageData(axis=1), SVD(), Normalize()])
 
         self.assertFalse(processor.is_trained)
         processor.train([self.data.data(idx) for idx in [0, 1]])
@@ -473,20 +471,6 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
 
         # Test processing of all data
         processed = processor(self.data.data())[0]
-        self.assertTrue(np.allclose(processed, all_expected))
-
-    def test_implicit_train(self):
-        """Test that by adding a normalization node we get a signal between 1 and 1."""
-
-        processor = DataProcessor(
-            "memory", [AverageData(axis=1), SVD(), Normalize()]
-        )
-
-        all_expected = np.array([[0.0, 1.0, 0.5, 0.75], [1.0, 0.0, 0.5, 0.25]])
-
-        # Test processing of all data
-        processed = processor(self.data.data())[0]
-        print(processed)
         self.assertTrue(np.allclose(processed, all_expected))
 
 

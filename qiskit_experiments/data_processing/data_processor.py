@@ -13,7 +13,6 @@
 """Actions done on the data to bring it in a usable form."""
 
 from typing import Any, Dict, List, Set, Tuple, Union
-import numpy as np
 
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
@@ -196,9 +195,9 @@ class DataProcessor:
             try:
                 data_ = [_datum[self._input_key] for _datum in data]
             except KeyError as error:
-                    raise DataProcessorError(
-                        f"The input key {self._input_key} was not found in the input datum."
-                    ) from error
+                raise DataProcessorError(
+                    f"The input key {self._input_key} was not found in the input datum."
+                ) from error
 
         else:
             raise DataProcessorError(
