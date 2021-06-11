@@ -427,20 +427,21 @@ class CurveAnalysis(BaseAnalysis):
         Subclasses can override this method to provide their own fitter options
         such as initial guesses.
 
-        To create initial guesses from the raw data, you can access these data by the methods
-        `self._x_values()` and `self._y_values()`. If your analysis contains multiple series,
-        you can extract specific x or y values with by specifying the `name` of series.
+        To create initial guesses from the experimental data. This is provided by
+        `self._prepared_data()` method. If there are multiple series, you can get
+        specific data of interest by specifying `name` of it.
+        This function returns ``CurveData`` instance, which is the `dataclass`
+        containing x values `.x`, y values `.y`, sigma values `.sigma`.
 
         You can also access the defined analysis options with the `self._get_option`.
         For example:
 
         .. code-block::
 
-            sub_x_vals = self._x_values("my_experiment1")
-            sub_y_vals = self._y_values("my_experiment1")
+            curve_data = self._prepared_data("my_experiment1")
 
             if self._get_option("my_option1") == "abc":
-                p0 = ...
+                p0 = my_guess_function(curve_data.x, curve_data.y, ...)
                 bounds = ...
             else:
                 p0 = ...
