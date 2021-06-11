@@ -18,6 +18,7 @@ Analysis class for curve fitting.
 import dataclasses
 import inspect
 from typing import Any, Dict, List, Tuple, Callable, Union
+from collections import defaultdict
 
 import numpy as np
 from qiskit.providers.options import Options
@@ -66,6 +67,10 @@ class CurveAnalysis(BaseAnalysis):
                 name: Name of the curve. This is arbitrary data field, but should be unique.
                 plot_color: String color representation of this series in the plot.
                 plot_symbol: String formatter of the scatter of this series in the plot.
+                canvas: Integer starting from 0. This represents index of canvas to
+                    draw the data belonging to this series. Defaults to 0.
+                    Series entries having the same canvas index are drawn on
+                    the same canvas (i.e. overlaid).
 
             See the Examples below for more details.
 
@@ -277,6 +282,7 @@ class CurveAnalysis(BaseAnalysis):
             bounds: Array-like or dictionary of (min, max) tuple of fit parameter boundaries.
             x_key: Circuit metadata key representing a scanned value.
             plot: Set ``True`` to create figure for fit result.
+            fig_zie: Tuple of (figure width, figure height).
             axis: Optional. A matplotlib axis object to draw.
             xlabel: X label of fit result figure.
             ylabel: Y label of fit result figure.
@@ -291,6 +297,7 @@ class CurveAnalysis(BaseAnalysis):
             bounds=None,
             x_key="xval",
             plot=True,
+            fig_size=(8, 6),
             axis=None,
             xlabel=None,
             ylabel=None,
@@ -316,80 +323,73 @@ class CurveAnalysis(BaseAnalysis):
 
             axis = self._get_option("axis")
             if axis is None:
-                figure = plotting.pyplot.figure(figsize=(8, 5))
+                figure = plotting.pyplot.figure(figsize=self._get_option("fig_size"))
                 axis = figure.subplots(nrows=1, ncols=1)
             else:
                 figure = axis.get_figure()
 
-            # we may need multiple inner plots
+            # create subplot canvas
             n_subplots = max(series_def.canvas for series_def in self.__series__) + 1
 
-            ymin, ymax = np.inf, -np.inf
-            for series_def in self.__series__:
-
-                # plot raw data
-
-                xdata, ydata, _ = self._subset_data(
-                    name=series_def.name,
-                    data_index=self._data_index,
-                    x_values=self._x_values,
-                    y_values=self._y_values,
-                    y_sigmas=self._y_sigmas,
-                )
-                ymin = min(ymin, *ydata)
-                ymax = max(ymax, *ydata)
-                plotting.plot_scatter(xdata=xdata, ydata=ydata, ax=axis, zorder=0)
-
-                # plot formatted data
-
-                xdata, ydata, sigma = self._subset_data(series_def.name, *self._pre_processing())
-
-                if np.all(np.isnan(sigma)):
-                    sigma = None
-                else:
-                    sigma = np.nan_to_num(sigma)
-
-                plotting.plot_errorbar(
-                    xdata=xdata,
-                    ydata=ydata,
-                    sigma=sigma,
-                    ax=axis,
-                    label=series_def.name,
-                    marker=series_def.plot_symbol,
-                    color=series_def.plot_color,
-                    zorder=1,
-                    linestyle="",
-                )
-
-                # plot fit curve
-
-                if fit_available:
-                    plotting.plot_curve_fit(
-                        func=series_def.fit_func,
-                        result=analysis_results,
-                        ax=axis,
-                        color=series_def.plot_color,
-                        zorder=2,
+            if n_subplots > 1:
+                # multi axis plot, use inset axis
+                # this allows us to draw multiple canvases on a given single axis object
+                sub_ax_h = (1 - (0.05 * (n_subplots - 1))) / n_subplots
+                sub_axes = [
+                    axis.inset_axes(
+                        [0, 1 - (sub_ax_h + 0.05) * n_axis - sub_ax_h, 1, sub_ax_h],
+                        transform=axis.transAxes,
+                        zorder=1,
                     )
+                    for n_axis in range(n_subplots)
+                ]
+                for sub_axis in sub_axes[:-1]:
+                    sub_axis.set_xticklabels([])
 
-            # format axis
+                sub_axes[-1].get_shared_x_axes().join(*sub_axes)
+                axis.spines.right.set_visible(False)
+                axis.spines.left.set_visible(False)
+                axis.spines.top.set_visible(False)
+                axis.spines.bottom.set_visible(False)
+                axis.set_xticks([])
+                axis.set_yticks([])
+            else:
+                sub_axes = [axis]
 
-            if len(self.__series__) > 1:
-                axis.legend(loc="center right")
-            axis.set_xlabel(self._get_option("xlabel"), fontsize=16)
-            axis.set_ylabel(self._get_option("ylabel"), fontsize=16)
-            axis.tick_params(labelsize=14)
-            axis.grid(True)
+            # map axis to series definition
+            plot_map = defaultdict(list)
+            for series_def in self.__series__:
+                plot_map[series_def.canvas].append(series_def)
 
-            # automatic scaling y axis by actual data point.
-            # note that y axis will be scaled by confidence interval by default.
-            # sometimes we cannot see any data point if variance of parameters is too large.
+            # plot lines in each subplot
+            for axis_idx, series in plot_map.items():
+                self._create_subplots(
+                    axis=sub_axes[axis_idx],
+                    series=series,
+                    analysis_results=analysis_results,
+                    fit_available=fit_available,
+                )
 
-            height = ymax - ymin
-            axis.set_ylim(ymin - 0.1 * height, ymax + 0.1 * height)
+            # adjust x and y label positions
+            axis.get_tightbbox(renderer=figure.canvas.get_renderer())
+            h_anchor = min(ax.get_yaxis().label.get_position()[0] for ax in sub_axes)
+            v_anchor = min(ax.get_xaxis().label.get_position()[1] for ax in sub_axes)
+
+            h0 = axis.get_yaxis().label.get_position()[0]
+            v0 = axis.get_xaxis().label.get_position()[1]
+
+            axis.set_xlabel(
+                self._get_option("xlabel"),
+                fontsize=16,
+                labelpad=abs(v_anchor - v0) + 4,
+            )
+            axis.set_ylabel(
+                self._get_option("ylabel"),
+                fontsize=16,
+                labelpad=abs(h_anchor - h0) + 4,
+            )
 
             # write analysis report
-
             fit_reports = self._get_option("fit_reports")
             if fit_reports and fit_available:
                 # write fit status in the plot
@@ -415,6 +415,7 @@ class CurveAnalysis(BaseAnalysis):
                     va="top",
                     size=14,
                     transform=axis.transAxes,
+                    zorder=2,
                 )
 
                 bbox_props = dict(
@@ -425,6 +426,70 @@ class CurveAnalysis(BaseAnalysis):
             return [figure]
         else:
             return list()
+
+    def _create_subplots(self, axis, series, analysis_results, fit_available):
+        ymin, ymax = np.inf, -np.inf
+
+        for series_def in series:
+
+            # plot raw data
+
+            xdata, ydata, _ = self._subset_data(
+                name=series_def.name,
+                data_index=self._data_index,
+                x_values=self._x_values,
+                y_values=self._y_values,
+                y_sigmas=self._y_sigmas,
+            )
+            ymin = min(ymin, *ydata)
+            ymax = max(ymax, *ydata)
+            plotting.plot_scatter(xdata=xdata, ydata=ydata, ax=axis, zorder=0)
+
+            # plot formatted data
+
+            xdata, ydata, sigma = self._subset_data(series_def.name, *self._pre_processing())
+
+            if np.all(np.isnan(sigma)):
+                sigma = None
+            else:
+                sigma = np.nan_to_num(sigma)
+
+            plotting.plot_errorbar(
+                xdata=xdata,
+                ydata=ydata,
+                sigma=sigma,
+                ax=axis,
+                label=series_def.name,
+                marker=series_def.plot_symbol,
+                color=series_def.plot_color,
+                zorder=1,
+                linestyle="",
+            )
+
+            # plot fit curve
+
+            if fit_available:
+                plotting.plot_curve_fit(
+                    func=series_def.fit_func,
+                    result=analysis_results,
+                    ax=axis,
+                    color=series_def.plot_color,
+                    zorder=2,
+                )
+
+        # format axis
+
+        if len(series) > 1:
+            axis.legend(loc="center right")
+        axis.tick_params(labelsize=14)
+        axis.grid(True)
+
+        # automatic scaling y axis by actual data point.
+        # note that y axis will be scaled by confidence interval by default.
+        # sometimes we cannot see any data point if variance of parameters is too large.
+
+        height = ymax - ymin
+        axis.set_ylim(ymin - 0.1 * height, ymax + 0.1 * height)
 
     def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """An analysis subroutine that is called to set fitter options.

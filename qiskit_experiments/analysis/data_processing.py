@@ -192,3 +192,13 @@ def probability(outcome: str) -> Callable:
         return level2_probability(data, outcome)
 
     return data_processor
+
+
+def expectation_value() -> Callable:
+    """Return probability data processor callback used by the analysis classes."""
+
+    def data_processor(data):
+        val, err = level2_probability(data, "1")
+        return 2 * (.5 - val), 2 * err
+
+    return data_processor

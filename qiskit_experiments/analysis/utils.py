@@ -14,7 +14,7 @@
 
 
 import numpy as np
-import scipy
+from scipy import signal
 from qiskit_experiments.experiment_data import AnalysisResult
 from qiskit_experiments.exceptions import AnalysisError
 
@@ -75,15 +75,39 @@ def get_opt_error(analysis_result: AnalysisResult, param_name: str) -> float:
         raise ValueError(f"Parameter {param_name} is not defined.") from ex
 
 
-def frequency_guess(x_values: np.ndarray, y_values: np.ndarray, method="auto_corr"):
+def frequency_guess(
+        x_values: np.ndarray,
+        y_values: np.ndarray,
+        method: str = "FFT",
+) -> float:
+    """Provide initial frequency guess.
 
-    if method == "auto_corr":
+    Args:
+        x_values: Array of x values.
+        y_values: Array of y values.
+        method: A method to find signal frequency. See below for details.
+
+    Methods
+        - ``ACF``: Calculate autocorrelation function with numpy and run scipy peak search.
+          Frequency is calculated based on x coordinate of the first peak.
+        - ``FFT``: Use numpy fast Fourier transform to find signal frequency.
+
+    """
+    if method == "ACF":
         corr = np.correlate(y_values, y_values, mode="full")
         corr = corr[corr.size//2:]
+        peak_inds, _ = signal.find_peaks(corr)
+        if len(peak_inds) == 0:
+            return 0
+        return 1 / x_values[peak_inds[0]]
 
-
-    if method == "fft":
-        pass
+    if method == "FFT":
+        y_values = y_values - np.mean(y_values)
+        fft_data = np.fft.fft(y_values)
+        fft_freqs = np.fft.fftfreq(len(x_values), float(np.mean(np.diff(x_values))))
+        main_freq_arg = np.argmax(np.abs(fft_data))
+        f_guess = np.abs(fft_freqs[main_freq_arg])
+        return f_guess
 
     raise AnalysisError(
         f"The specified method {method} is not available in frequency guess function."

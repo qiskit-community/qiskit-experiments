@@ -24,25 +24,26 @@ from qiskit.utils import apply_prefix
 
 from qiskit_experiments import BaseExperiment
 from qiskit_experiments.analysis import CurveAnalysis, SeriesDef, CurveAnalysisResult
-from qiskit_experiments.analysis.utils import get_opt_value, get_opt_error
+from qiskit_experiments.analysis.utils import get_opt_value, get_opt_error, frequency_guess
+from qiskit_experiments.analysis.data_processing import expectation_value
 
 
-def oscillation_x(x: np.ndarray, px: float, py: float, pz: float):
+def oscillation_x(x: np.ndarray, px: float, py: float, pz: float, b: float):
     """Fit function for x basis oscillation."""
     omega = np.sqrt(px**2 + py**2 + pz**2)
-    return (-pz * px + pz * px * np.cos(omega * x) + omega * py * np.sin(omega * x)) / omega**2
+    return (-pz * px + pz * px * np.cos(omega * x) + omega * py * np.sin(omega * x)) / omega**2 + b
 
 
-def oscillation_y(x: np.ndarray, px: float, py: float, pz: float):
+def oscillation_y(x: np.ndarray, px: float, py: float, pz: float, b: float):
     """Fit function for y basis oscillation."""
     omega = np.sqrt(px**2 + py**2 + pz**2)
-    return (pz * py - pz * py * np.cos(omega * x) - omega * px * np.sin(omega * x)) / omega**2
+    return (pz * py - pz * py * np.cos(omega * x) - omega * px * np.sin(omega * x)) / omega**2 + b
 
 
-def oscillation_z(x: np.ndarray, px: float, py: float, pz: float):
+def oscillation_z(x: np.ndarray, px: float, py: float, pz: float, b: float):
     """Fit function for z basis oscillation."""
     omega = np.sqrt(px**2 + py**2 + pz**2)
-    return (omega**2 + (px**2 + py**2) * np.cos(omega * x)) / omega**2
+    return (pz**2 + (px**2 + py**2) * np.cos(omega * x)) / omega**2 + b
 
 
 class CRHamiltonianAnalysis(CurveAnalysis):
@@ -50,57 +51,63 @@ class CRHamiltonianAnalysis(CurveAnalysis):
     __series__ = [
         SeriesDef(
             name="x|c=0",
-            fit_func=lambda x, px0, px1, py0, py1, pz0, pz1: oscillation_x(
-                x, px=px0, py=py0, pz=pz0
+            fit_func=lambda x, px0, px1, py0, py1, pz0, pz1, b: oscillation_x(
+                x, px=px0, py=py0, pz=pz0, b=b
             ),
             filter_kwargs={"control_state": 0, "meas_basis": "x"},
             plot_color="blue",
             plot_symbol="o",
+            canvas=0,
         ),
         SeriesDef(
             name="y|c=0",
-            fit_func=lambda x, px0, px1, py0, py1, pz0, pz1: oscillation_y(
-                x, px=px0, py=py0, pz=pz0
+            fit_func=lambda x, px0, px1, py0, py1, pz0, pz1, b: oscillation_y(
+                x, px=px0, py=py0, pz=pz0, b=b
             ),
             filter_kwargs={"control_state": 0, "meas_basis": "y"},
             plot_color="blue",
             plot_symbol="o",
+            canvas=1,
         ),
         SeriesDef(
             name="z|c=0",
-            fit_func=lambda x, px0, px1, py0, py1, pz0, pz1: oscillation_z(
-                x, px=px0, py=py0, pz=pz0
+            fit_func=lambda x, px0, px1, py0, py1, pz0, pz1, b: oscillation_z(
+                x, px=px0, py=py0, pz=pz0, b=b
             ),
             filter_kwargs={"control_state": 0, "meas_basis": "z"},
             plot_color="blue",
             plot_symbol="o",
+            canvas=2,
         ),
         SeriesDef(
             name="x|c=1",
-            fit_func=lambda x, px0, px1, py0, py1, pz0, pz1: oscillation_x(
-                x, px=px1, py=py1, pz=pz1
+            fit_func=lambda x, px0, px1, py0, py1, pz0, pz1, b: oscillation_x(
+                x, px=px1, py=py1, pz=pz1, b=b
             ),
             filter_kwargs={"control_state": 1, "meas_basis": "x"},
             plot_color="red",
-            plot_symbol="x",
+            plot_symbol="^",
+            canvas=0,
         ),
         SeriesDef(
             name="y|c=1",
-            fit_func=lambda x, px0, px1, py0, py1, pz0, pz1: oscillation_y(
-                x, px=px1, py=py1, pz=pz1
+            fit_func=lambda x, px0, px1, py0, py1, pz0, pz1, b: oscillation_y(
+                x, px=px1, py=py1, pz=pz1, b=b
             ),
             filter_kwargs={"control_state": 1, "meas_basis": "y"},
             plot_color="red",
-            plot_symbol="x",
+            plot_symbol="^",
+            canvas=1,
         ),
         SeriesDef(
             name="z|c=1",
-            fit_func=lambda x, px0, px1, py0, py1, pz0, pz1: oscillation_z(
-                x, px=px1, py=py1, pz=pz1
+            fit_func=lambda x, px0, px1, py0, py1, pz0, pz1, b: oscillation_z(
+                x, px=px1, py=py1, pz=pz1, b=b
             ),
             filter_kwargs={"control_state": 1, "meas_basis": "z"},
             plot_color="red",
-            plot_symbol="x",
+            plot_symbol="^",
+            canvas=2,
         ),
     ]
 
@@ -112,28 +119,99 @@ class CRHamiltonianAnalysis(CurveAnalysis):
         descriptions of analysis options.
         """
         default_options = super()._default_options()
+        default_options.data_processor = expectation_value()
+        default_options.fig_size = (8, 10)
+        default_options.xlabel = "CR duration (sec)"
+        default_options.ylabel = r"$\langle\sigma_{X, Y, Z}\rangle$"
         default_options.p0 = {
-            "px0": None, "px1": None, "py0": None, "py1": None, "pz0": None, "pz1": None
+            "px0": None, "px1": None, "py0": None, "py1": None, "pz0": None, "pz1": None, "b": None
         }
         default_options.bounds = {
-            "px0": None, "px1": None, "py0": None, "py1": None, "pz0": None, "pz1": None
+            "px0": None, "px1": None, "py0": None, "py1": None, "pz0": None, "pz1": None, "b": None
+        }
+        default_options.fit_reports = {
+            "IX": r"$\omega_{IX}$",
+            "IY": r"$\omega_{IY}$",
+            "IZ": r"$\omega_{IZ}$",
+            "ZX": r"$\omega_{ZX}$",
+            "ZY": r"$\omega_{ZY}$",
+            "ZZ": r"$\omega_{ZZ}$",
         }
 
         return default_options
 
-    # def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
-    #     """Fitter options."""
-    #
+    def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+        """Fitter options."""
+        user_p0 = self._get_option("p0")
+        user_bounds = self._get_option("bounds")
+
+        init_guess = dict()
+        for control in (0, 1):
+            # initial guess of pz
+            ts, exp_z, _ = self._subset_data(
+                name=f"z|c={control}",
+                data_index=self._data_index,
+                x_values=self._x_values,
+                y_values=self._y_values,
+                y_sigmas=self._y_sigmas,
+            )
+            zrange_mean = np.mean(np.percentile(exp_z, [10, 90]))
+            if zrange_mean < 0:
+                pz_guess = 0.
+            else:
+                omega = 2 * np.pi * frequency_guess(ts, exp_z, method="FFT")
+                pz_guess = omega * np.sqrt(zrange_mean)
+
+            # initial guess of py
+            ts, exp_x, _ = self._subset_data(
+                name=f"x|c={control}",
+                data_index=self._data_index,
+                x_values=self._x_values,
+                y_values=self._y_values,
+                y_sigmas=self._y_sigmas,
+            )
+            py_guess = (exp_x[1] - exp_x[0]) / (ts[1] - ts[0])
+
+            # initial guess of px
+            ts, exp_y, _ = self._subset_data(
+                name=f"y|c={control}",
+                data_index=self._data_index,
+                x_values=self._x_values,
+                y_values=self._y_values,
+                y_sigmas=self._y_sigmas,
+            )
+            px_guess = - (exp_y[1] - exp_y[0]) / (ts[1] - ts[0])
+
+            init_guess[f"px{control}"] = user_p0[f"px{control}"] or px_guess
+            init_guess[f"py{control}"] = user_p0[f"py{control}"] or py_guess
+            init_guess[f"pz{control}"] = user_p0[f"pz{control}"] or pz_guess
+        init_guess["b"] = user_p0["b"] or 0.
+
+        fit_option = {
+            "p0": init_guess,
+            "bounds": {
+                "px0": user_bounds["px0"] or (-np.inf, np.inf),
+                "py0": user_bounds["py0"] or (-np.inf, np.inf),
+                "pz0": user_bounds["pz0"] or (-np.inf, np.inf),
+                "px1": user_bounds["px1"] or (-np.inf, np.inf),
+                "py1": user_bounds["py1"] or (-np.inf, np.inf),
+                "pz1": user_bounds["pz1"] or (-np.inf, np.inf),
+                "b": user_bounds["b"] or (-0.1, 0.1),
+            },
+        }
+        fit_option.update(options)
+
+        return fit_option
 
     def _post_processing(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
         """Calculate Hamiltonian coefficients."""
 
         for control in ("Z", "I"):
             for target in ("X", "Y", "Z"):
-                p0_val = get_opt_value(analysis_result, f"p{target.lower()}0")
-                p1_val = get_opt_value(analysis_result, f"p{target.lower()}1")
-                p0_err = get_opt_error(analysis_result, f"p{target.lower()}0")
-                p1_err = get_opt_error(analysis_result, f"p{target.lower()}1")
+                p0_val = get_opt_value(analysis_result, f"p{target.lower()}0") / (2 * np.pi)
+                p1_val = get_opt_value(analysis_result, f"p{target.lower()}1") / (2 * np.pi)
+                p0_err = get_opt_error(analysis_result, f"p{target.lower()}0") / (2 * np.pi)
+                p1_err = get_opt_error(analysis_result, f"p{target.lower()}1") / (2 * np.pi)
                 if control == "Z":
                     coef = 0.5 * (p0_val - p1_val)
                 else:
@@ -308,7 +386,7 @@ class CRHamiltonianTomography(BaseExperiment):
         temp_circs = list()
         for control_state in (0, 1):
             for meas_basis in ("x", "y", "z"):
-                tomo_circ = circuit.QuantumCircuit(2)
+                tomo_circ = circuit.QuantumCircuit(2, 1)
                 if control_state:
                     tomo_circ.x(0)
                 tomo_circ.append(cr_gate, [0, 1])
@@ -319,7 +397,7 @@ class CRHamiltonianTomography(BaseExperiment):
                     tomo_circ.h(1)
                 elif meas_basis == "z":
                     tomo_circ.id(1)
-                tomo_circ.measure_active()
+                tomo_circ.measure(1, 0)
 
                 # add pulse gate schedule
                 tomo_circ.add_calibration(
