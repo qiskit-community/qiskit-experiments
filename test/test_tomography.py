@@ -84,9 +84,7 @@ class TestProcessTomographyExperiment(QiskitTestCase):
 
         # Check state is density matrix
         state = result.get("state")
-        self.assertTrue(
-            isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix"
-        )
+        self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
 
         # Check fit state fidelity
         self.assertGreater(result.get("value", 0), f_threshold, msg="fit fidelity is low")

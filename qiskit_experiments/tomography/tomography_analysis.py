@@ -197,26 +197,37 @@ class TomographyAnalysis(BaseAnalysis):
         state = analysis_result["state"]
         evals, evecs = cls._state_eigensystem(state)
 
-        # Rescale eigenvalues to be PSD and specified trace
-        rescaled = False
+        # Rescale eigenvalues to be PSD
+        rescaled_psd = False
         if rescale_psd and np.any(evals < 0):
             scaled_evals = cls._make_positive(evals)
-            rescaled = True
+            rescaled_psd = True
+            analysis_result["rescaled_psd"] = True
         else:
             scaled_evals = evals
-        if rescale_trace:
-            trace = np.sqrt(len(scaled_evals)) if qpt else 1
-            scaled_evals = trace * scaled_evals / np.sum(scaled_evals)
-            rescaled = True
+
+        # Rescale trace
+        trace = np.sqrt(len(scaled_evals)) if qpt else 1
+        sum_evals = np.sum(scaled_evals)
+        rescaled_trace = False
+        if rescale_trace and not np.isclose(sum_evals - trace, 0, atol=1e-12):
+            scaled_evals = trace * scaled_evals / sum_evals
+            rescaled_trace = True
+            analysis_result["rescaled_trace"] = True
 
         # Compute state with rescaled eigenvalues
-        if rescaled:
+        if rescaled_psd or rescaled_trace:
             scaled_state = evecs @ (scaled_evals * evecs).T.conj()
             analysis_result["state"] = type(state)(scaled_state)
             analysis_result["state_eigvals"] = scaled_evals
             analysis_result["raw_eigvals"] = evals
         else:
             analysis_result["state_eigvals"] = evals
+        if rescaled_trace:
+            analysis_result["state_trace"] = np.sum(scaled_evals)
+            analysis_result["raw_trace"] = sum_evals
+        else:
+            analysis_result["state_trace"] = sum_evals
 
         # Compute fidelity with target
         if target_state is None:
