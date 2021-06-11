@@ -431,7 +431,7 @@ class CurveAnalysis(BaseAnalysis):
         `self._prepared_data()` method. If there are multiple series, you can get
         specific data of interest by specifying `name` of it.
         This function returns ``CurveData`` instance, which is the `dataclass`
-        containing x values `.x`, y values `.y`, sigma values `.sigma`.
+        containing x values `.x`, y values `.y`, and  sigma values `.e`.
 
         You can also access the defined analysis options with the `self._get_option`.
         For example:
