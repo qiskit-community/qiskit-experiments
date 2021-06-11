@@ -13,7 +13,7 @@
 Standard RB analysis class.
 """
 
-from typing import List, Tuple, Dict, Any, Union
+from typing import List, Dict, Any, Union
 
 import numpy as np
 
@@ -25,7 +25,6 @@ from qiskit_experiments.analysis import (
     get_opt_value,
     get_opt_error,
 )
-from qiskit_experiments.analysis.data_processing import multi_mean_xy_data
 
 
 class RBAnalysis(CurveAnalysis):

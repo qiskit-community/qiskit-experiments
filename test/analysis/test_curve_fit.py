@@ -20,6 +20,7 @@ from qiskit.test import QiskitTestCase
 
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.analysis import CurveAnalysis, SeriesDef, fit_function
+from qiskit_experiments.analysis.curve_analysis import CurveData
 from qiskit_experiments.analysis.curve_fitting import multi_curve_fit
 from qiskit_experiments.analysis.data_processing import probability
 from qiskit_experiments.base_experiment import BaseExperiment
@@ -166,10 +167,12 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         self.analysis._extract_curves(
             experiment_data=test_data0, data_processor=probability(outcome="1")
         )
-        xdata = self.analysis.__x_values
-        ydata = self.analysis.__y_values
-        sigma = self.analysis.__y_sigmas
-        d_index = self.analysis.__data_index
+        raw_data = self.analysis._raw_data()
+
+        xdata = raw_data.x
+        ydata = raw_data.y
+        sigma = raw_data.e
+        d_index = raw_data.data_index
 
         # check if the module filter off data: valid=False
         self.assertEqual(len(xdata), 20)
@@ -203,20 +206,22 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         ydata = np.asarray([1, 2, 3, 4, 5, 6], dtype=float)
         sigma = np.asarray([1, 2, 3, 4, 5, 6], dtype=float)
 
-        subx, suby, subs = self.analysis._subset_data(d_index, xdata, ydata, sigma, "curve1")
-        np.testing.assert_array_almost_equal(subx, np.asarray([1, 3], dtype=float))
-        np.testing.assert_array_almost_equal(suby, np.asarray([1, 3], dtype=float))
-        np.testing.assert_array_almost_equal(subs, np.asarray([1, 3], dtype=float))
+        curve_data = CurveData(x=xdata, y=ydata, e=sigma, data_index=d_index)
 
-        subx, suby, subs = self.analysis._subset_data(d_index, xdata, ydata, sigma, "curve2")
-        np.testing.assert_array_almost_equal(subx, np.asarray([2], dtype=float))
-        np.testing.assert_array_almost_equal(suby, np.asarray([2], dtype=float))
-        np.testing.assert_array_almost_equal(subs, np.asarray([2], dtype=float))
+        filt_data = self.analysis._filter_subset(curve_data, "curve1")
+        np.testing.assert_array_almost_equal(filt_data.x, np.asarray([1, 3], dtype=float))
+        np.testing.assert_array_almost_equal(filt_data.y, np.asarray([1, 3], dtype=float))
+        np.testing.assert_array_almost_equal(filt_data.e, np.asarray([1, 3], dtype=float))
 
-        subx, suby, subs = self.analysis._subset_data(d_index, xdata, ydata, sigma, "curve3")
-        np.testing.assert_array_almost_equal(subx, np.asarray([4, 5], dtype=float))
-        np.testing.assert_array_almost_equal(suby, np.asarray([4, 5], dtype=float))
-        np.testing.assert_array_almost_equal(subs, np.asarray([4, 5], dtype=float))
+        filt_data = self.analysis._filter_subset(curve_data, "curve2")
+        np.testing.assert_array_almost_equal(filt_data.x, np.asarray([2], dtype=float))
+        np.testing.assert_array_almost_equal(filt_data.y, np.asarray([2], dtype=float))
+        np.testing.assert_array_almost_equal(filt_data.e, np.asarray([2], dtype=float))
+
+        filt_data = self.analysis._filter_subset(curve_data, "curve3")
+        np.testing.assert_array_almost_equal(filt_data.x, np.asarray([4, 5], dtype=float))
+        np.testing.assert_array_almost_equal(filt_data.y, np.asarray([4, 5], dtype=float))
+        np.testing.assert_array_almost_equal(filt_data.e, np.asarray([4, 5], dtype=float))
 
     def test_formatting_options(self):
         """Test option formatter."""

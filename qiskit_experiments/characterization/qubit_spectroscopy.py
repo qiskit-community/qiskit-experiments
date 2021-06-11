@@ -122,8 +122,8 @@ class SpectroscopyAnalysis(CurveAnalysis):
             },
             "bounds": {
                 "a": user_bounds["a"] or (-2 * max_abs_y, 2 * max_abs_y),
-                "sigma": user_bounds["sigma"] or (0.0, max(self.__x_values) - min(self.__x_values)),
-                "freq": user_bounds["freq"] or (min(self.__x_values), max(self.__x_values)),
+                "sigma": user_bounds["sigma"] or (0.0, max(curve_data.x) - min(curve_data.x)),
+                "freq": user_bounds["freq"] or (min(curve_data.x), max(curve_data.x)),
                 "b": user_bounds["b"] or (-max_abs_y, max_abs_y),
             },
         }
