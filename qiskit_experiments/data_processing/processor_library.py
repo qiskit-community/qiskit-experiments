@@ -42,7 +42,7 @@ def get_to_signal_processor(
 
     if meas_level == MeasLevel.KERNELED:
         if meas_return == "single":
-            processor = DataProcessor("memory", [AverageData(axis_dict={4: 1, 3: 0}), SVD()])
+            processor = DataProcessor("memory", [AverageData(axis=1), SVD()])
         else:
             processor = DataProcessor("memory", [SVD()])
 

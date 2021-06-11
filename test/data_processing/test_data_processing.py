@@ -74,11 +74,11 @@ class DataProcessorTest(BaseDataProcessorTest):
         data_processor = DataProcessor("counts")
 
         datum, error = data_processor(self.exp_data_lvl2.data(0))
-        self.assertEqual(datum, {"00": 4, "10": 6})
+        self.assertEqual(datum, [{"00": 4, "10": 6}])
         self.assertIsNone(error)
 
         datum, error, history = data_processor.call_with_history(self.exp_data_lvl2.data(0))
-        self.assertEqual(datum, {"00": 4, "10": 6})
+        self.assertEqual(datum, [{"00": 4, "10": 6}])
         self.assertEqual(history, [])
 
     def test_to_real(self):
@@ -309,7 +309,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 [[0.9, 0.9], [-1.1, 1.0]],
             ]
         )
-        self._sig_gs = np.array([1.0, -1.0]) / np.sqrt(2.0)
+        self._sig_gs = np.array([[1.0], [-1.0]]) / np.sqrt(2.0)
 
         circ_gs = ExperimentResultData(
             memory=[
@@ -319,7 +319,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 [[-0.9, -0.9], [1.1, -1.0]],
             ]
         )
-        self._sig_es = np.array([-1.0, 1.0]) / np.sqrt(2.0)
+        self._sig_es = np.array([[-1.0], [1.0]]) / np.sqrt(2.0)
 
         circ_x90p = ExperimentResultData(
             memory=[
@@ -329,7 +329,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 [[1.0, 1.0], [-1.0, 1.0]],
             ]
         )
-        self._sig_x90 = np.array([0, 0])
+        self._sig_x90 = np.array([[0], [0]])
 
         circ_x45p = ExperimentResultData(
             memory=[
@@ -339,7 +339,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 [[1.0, 1.0], [-1.0, 1.0]],
             ]
         )
-        self._sig_x45 = np.array([0.5, -0.5]) / np.sqrt(2.0)
+        self._sig_x45 = np.array([[0.5], [-0.5]]) / np.sqrt(2.0)
 
         res_es = ExperimentResult(
             shots=4,
@@ -385,7 +385,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
     def test_averaging(self):
         """Test that averaging of the datums produces the expected IQ points."""
 
-        processor = DataProcessor("memory", [AverageData(axis_dict={3: 0})])
+        processor = DataProcessor("memory", [AverageData(axis=1)])
 
         # Test that we get the expected outcome for the excited state
         processed, error = processor(self.data.data(0))
@@ -404,7 +404,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
     def test_averaging_and_svd(self):
         """Test averaging followed by a SVD."""
 
-        processor = DataProcessor("memory", [AverageData(axis_dict={3: 0}), SVD()])
+        processor = DataProcessor("memory", [AverageData(axis=1), SVD()])
 
         # Test training using the calibration points
         self.assertFalse(processor.is_trained)
@@ -433,7 +433,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
     def test_process_all_data(self):
         """Test that we can process all data at once."""
 
-        processor = DataProcessor("memory", [AverageData(axis_dict={4: 1, 3: 0}), SVD()])
+        processor = DataProcessor("memory", [AverageData(axis=1), SVD()])
 
         # Test training using the calibration points
         self.assertFalse(processor.is_trained)
@@ -462,7 +462,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
         """Test that by adding a normalization node we get a signal between 1 and 1."""
 
         processor = DataProcessor(
-            "memory", [AverageData(axis_dict={4: 1, 3: 0}), SVD(), Normalize()]
+            "memory", [AverageData(axis=1), SVD(), Normalize()]
         )
 
         self.assertFalse(processor.is_trained)
@@ -473,6 +473,20 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
 
         # Test processing of all data
         processed = processor(self.data.data())[0]
+        self.assertTrue(np.allclose(processed, all_expected))
+
+    def test_implicit_train(self):
+        """Test that by adding a normalization node we get a signal between 1 and 1."""
+
+        processor = DataProcessor(
+            "memory", [AverageData(axis=1), SVD(), Normalize()]
+        )
+
+        all_expected = np.array([[0.0, 1.0, 0.5, 0.75], [1.0, 0.0, 0.5, 0.25]])
+
+        # Test processing of all data
+        processed = processor(self.data.data())[0]
+        print(processed)
         self.assertTrue(np.allclose(processed, all_expected))
 
 
@@ -543,8 +557,6 @@ class TestAvgDataAndSVD(BaseDataProcessorTest):
         """Test that by adding a normalization node we get a signal between 1 and 1."""
 
         processor = DataProcessor("memory", [SVD(), Normalize()])
-
-        print("Here")
 
         self.assertFalse(processor.is_trained)
         processor.train([self.data.data(idx) for idx in [0, 1]])

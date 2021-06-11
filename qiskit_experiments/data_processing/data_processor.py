@@ -12,7 +12,7 @@
 
 """Actions done on the data to bring it in a usable form."""
 
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Set, Tuple, Union
 import numpy as np
 
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
@@ -38,7 +38,6 @@ class DataProcessor:
         self,
         input_key: str,
         data_actions: List[DataAction] = None,
-        to_array: bool = False,
     ):
         """Create a chain of data processing actions.
 
@@ -50,7 +49,6 @@ class DataProcessor:
             to_array: Boolean indicating if the input data will be converted to a numpy array.
         """
         self._input_key = input_key
-        self._to_array = to_array
         self._nodes = data_actions if data_actions else []
 
     def append(self, node: DataAction):
@@ -72,50 +70,34 @@ class DataProcessor:
 
         return True
 
-    def requires_all_data(self, call_up_to_node: Optional[int] = None) -> bool:
-        """Whether or not a node needs to see all the data at once.
-
-        Args:
-            call_up_to_node: An optional int that specifies up to how many nodes need to be
-                considered when determining if all the data must be passed at once. If not
-                specified all nodes will be considered.
-
-        Returns:
-            True if at least one node must see all the data at once to process it (e.g.
-            normalization) and False if the node can process one datum of the data at the time.
-        """
-        if call_up_to_node is None:
-            call_up_to_node = len(self._nodes)
-
-        return any(node.requires_all_data for node in self._nodes[:call_up_to_node])
-
-    def __call__(
-        self, datum: Union[Dict[str, Any], List[Dict[str, Any]]], **options
-    ) -> Tuple[Any, Any]:
+    def __call__(self, data: Union[Dict, List[Dict]], **options) -> Tuple[Any, Any]:
         """
         Call self on the given datum. This method sequentially calls the stored data actions
         on the datum.
 
         Args:
-            datum: A single item of data, typically from an ExperimentData instance, that needs
-                to be processed. This dict also contains the metadata of each experiment.
+            data: The data, typically from ExperimentData.data(...), that needs to be processed.
+            This dict or list of dicts also contains the metadata of each experiment.
             options: Run-time options given as keyword arguments that will be passed to the nodes.
 
         Returns:
             processed data: The data processed by the data processor.
         """
-        return self._call_internal(datum, **options)
+        if not self.is_trained:
+            self.train(data)
+
+        return self._call_internal(data, **options)
 
     def call_with_history(
-        self, datum: Union[Dict[str, Any], List[Dict[str, Any]]], history_nodes: Set = None
+        self, data: Union[Dict, List[Dict]], history_nodes: Set = None
     ) -> Tuple[Any, Any, List]:
         """
         Call self on the given datum. This method sequentially calls the stored data actions
         on the datum and also returns the history of the processed data.
 
         Args:
-            datum: A single item of data, typically from an ExperimentData instance, that
-                needs to be processed.
+            data: The data, typically from ExperimentData.data(...), that needs to be processed.
+            This dict or list of dicts also contains the metadata of each experiment.
             history_nodes: The nodes, specified by index in the data processing chain, to
                 include in the history. If None is given then all nodes will be included
                 in the history.
@@ -124,11 +106,14 @@ class DataProcessor:
             processed data: The datum processed by the data processor.
             history: The datum processed at each node of the data processor.
         """
-        return self._call_internal(datum, True, history_nodes)
+        if not self.is_trained:
+            self.train(data)
+
+        return self._call_internal(data, True, history_nodes)
 
     def _call_internal(
         self,
-        datum: Union[Dict[str, Any], List[Dict[str, Any]]],
+        data: Union[Dict, List[Dict]],
         with_history: bool = False,
         history_nodes: Set = None,
         call_up_to_node: int = None,
@@ -136,8 +121,8 @@ class DataProcessor:
         """Process the data with or without storing the history of the computation.
 
         Args:
-            datum: A single item of data, typically from an ExperimentData instance, that
-                needs to be processed.
+            data: The data, typically from ExperimentData.data(...), that needs to be processed.
+            This dict or list of dicts also contains the metadata of each experiment.
             with_history: if True the history is returned otherwise it is not.
             history_nodes: The nodes, specified by index in the data processing chain, to
                 include in the history. If None is given then all nodes will be included
@@ -152,7 +137,7 @@ class DataProcessor:
         if call_up_to_node is None:
             call_up_to_node = len(self._nodes)
 
-        datum_, error_ = self._data_extraction(datum, call_up_to_node), None
+        datum_, error_ = self._data_extraction(data), None
 
         history = []
         for index, node in enumerate(self._nodes):
@@ -181,13 +166,9 @@ class DataProcessor:
             if isinstance(node, TrainableDataAction):
                 if not node.is_trained:
                     # Process the data up to the untrained node.
-                    train_data = []
-                    for datum in data:
-                        train_data.append(self._call_internal(datum, call_up_to_node=index)[0])
+                    node.train(self._call_internal(data, call_up_to_node=index)[0])
 
-                    node.train(train_data)
-
-    def _data_extraction(self, datum: Union[Dict, List[Dict]], call_up_to_node: int = None) -> Any:
+    def _data_extraction(self, data: Union[Dict, List[Dict]]) -> List:
         """Extracts the data on which to run the nodes.
 
         If the datum is a list of dicts then the data under self._input_key is extracted
@@ -196,10 +177,7 @@ class DataProcessor:
         array.
 
         Args:
-            datum: Either a dict with the data under self._input_key or a list of such dicts.
-            call_up_to_node: The data processor will use each node in the processing chain
-                up to the node indexed by call_up_to_node. If this variable is not specified
-                then all nodes in the data processing chain are considered.
+            data: A list of such dicts where the data is contained under the key self._input_key.
 
         Returns:
             The data formatted in such a way that it is ready to be processed by the nodes.
@@ -211,50 +189,27 @@ class DataProcessor:
                   process it properly.
                 - If the input key of the data processor is not contained in the data.
         """
-        data = None
+        if isinstance(data, dict):
+            data = [data]
 
-        if isinstance(datum, list):
-            for datum_ in datum:
-
-                if self._input_key not in datum_:
+        if isinstance(data, list):
+            try:
+                data_ = [_datum[self._input_key] for _datum in data]
+            except KeyError as error:
                     raise DataProcessorError(
                         f"The input key {self._input_key} was not found in the input datum."
-                    )
-
-                if data is None:
-                    data = [datum_[self._input_key]]
-                else:
-                    data.append(datum_[self._input_key])
-
-        elif isinstance(datum, dict):
-            if self.requires_all_data(call_up_to_node):
-                msg = f"{str(self)} cannot process the datums individually"
-                if call_up_to_node is not None:
-                    msg += f" up to node {call_up_to_node}"
-
-                raise DataProcessorError(msg + " and must have all the data.")
-
-            if self._input_key not in datum:
-                raise DataProcessorError(
-                    f"The input key {self._input_key} was not found in the input datum."
-                )
-
-            data = datum[self._input_key]
+                    ) from error
 
         else:
             raise DataProcessorError(
                 f"{self.__class__.__name__} only extracts data from "
-                f"lists or dicts, received {type(datum)}."
+                f"lists or dicts, received {type(data)}."
             )
 
-        if self._to_array:
-            data = np.array(data)
-
-        return data
+        return data_
 
     def __repr__(self):
         """String representation of data processors."""
         names = ", ".join(node.__class__.__name__ for node in self._nodes)
-        instances = f"(input_key={self._input_key}, to_array={self._to_array}, nodes=[{names}])"
 
-        return f"{self.__class__.__name__}" + instances
+        return f"{self.__class__.__name__}(input_key={self._input_key}, nodes=[{names}])"

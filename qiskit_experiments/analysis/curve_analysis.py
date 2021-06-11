@@ -555,7 +555,7 @@ class CurveAnalysis(BaseAnalysis):
                 f"X value key {x_key} is not defined in circuit metadata."
             ) from ex
 
-        if isinstance(data_processor, DataProcessor) and data_processor.requires_all_data():
+        if isinstance(data_processor, DataProcessor):
             y_values, y_sigmas = data_processor(data)
             if y_sigmas is None:
                 y_sigmas = np.full(y_values.shape, None)

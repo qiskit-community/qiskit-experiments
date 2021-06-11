@@ -35,11 +35,11 @@ class TestAveraging(QiskitTestCase):
 
         datum = np.array([[1, 2], [3, 4], [5, 6]])
 
-        node = AverageData(axis_dict={2: 1})
+        node = AverageData(axis=1)
         self.assertTrue(np.allclose(node(datum)[0], np.array([1.5, 3.5, 5.5])))
         self.assertTrue(np.allclose(node(datum)[1], np.array([0.5, 0.5, 0.5]) / np.sqrt(2)))
 
-        node = AverageData(axis_dict={2: 0})
+        node = AverageData(axis=0)
         self.assertTrue(np.allclose(node(datum)[0], np.array([3.0, 4.0])))
         std = np.std([1, 3, 5])
         self.assertTrue(np.allclose(node(datum)[1], np.array([std, std]) / np.sqrt(3)))
@@ -226,7 +226,7 @@ class TestSVD(BaseDataProcessorTest):
 
         self.create_experiment(iq_data, single_shot=True)
 
-        avg_iq = AverageData(axis_dict={3: 0})
+        avg_iq = AverageData(axis=0)
 
         avg_datum, error = avg_iq(self.iq_experiment.data(0)["memory"])
 

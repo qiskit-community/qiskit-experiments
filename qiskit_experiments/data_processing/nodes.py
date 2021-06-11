@@ -23,34 +23,25 @@ from qiskit_experiments.data_processing.exceptions import DataProcessorError
 class AverageData(DataAction):
     """A node to average data representable as numpy arrays."""
 
-    def __init__(self, axis_dict: Dict[int, int], validate: bool = True):
+    def __init__(self, axis: int, validate: bool = True):
         """Initialize a data averaging node.
 
         Args:
-            axis: The axis along which to average. The keys are the length of the shape
-                of the datum and the values are the corresponding axis along which to
-                average. This is needed to process both a single experiment (i.e. a datum
-                with dimension N) and all experiments simultaneously (i.e. a datum with
-                dimension N+1) while maintaining a proper averaging axis.
+            axis: The axis along which to average.
             validate: If set to False the DataAction will not validate its input.
         """
         super().__init__(validate)
-        self._axis = axis_dict
-
-    @property
-    def requires_all_data(self) -> bool:
-        """This node can process one datum at the time."""
-        return False
+        self._axis = axis
 
     def _format_data(self, datum: Any, error: Optional[Any] = None):
         """Format the data into numpy arrays."""
         datum = np.asarray(datum, dtype=float)
 
         if self._validate:
-            if len(datum.shape) not in self._axis:
+            if len(datum.shape) <= self._axis:
                 raise DataProcessorError(
-                    f"Cannot average the {len(datum.shape)} dimensional array without knowing "
-                    "which axis to average."
+                    f"Cannot average the {len(datum.shape)} dimensional "
+                    f"array along axis {self._axis}."
                 )
 
         if error is not None:
@@ -74,20 +65,14 @@ class AverageData(DataAction):
         Raises:
             DataProcessorError: If the axis is not an int.
         """
-        axis = self._axis[len(datum.shape)]
 
-        standard_error = np.std(datum, axis=axis) / np.sqrt(datum.shape[axis])
+        standard_error = np.std(datum, axis=self._axis) / np.sqrt(datum.shape[self._axis])
 
-        return np.average(datum, axis=axis), standard_error
+        return np.average(datum, axis=self._axis), standard_error
 
 
 class Normalize(DataAction):
     """Normalizes the data."""
-
-    @property
-    def requires_all_data(self) -> bool:
-        """Normalization can only be done one all the data."""
-        return True
 
     def _format_data(self, datum: Any, error: Optional[Any] = None):
         """Format the data into numpy arrays."""
@@ -122,11 +107,6 @@ class SVD(TrainableDataAction):
         self._main_axes = None
         self._means = None
         self._scales = None
-
-    @property
-    def requires_all_data(self) -> bool:
-        """This node can process one datum at the time."""
-        return False
 
     def _format_data(self, datum: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
         """Check that the IQ data is 2D and convert it to a numpy array.
@@ -304,11 +284,6 @@ class IQPart(DataAction):
         self.scale = scale
         super().__init__(validate)
 
-    @property
-    def requires_all_data(self) -> bool:
-        """This node can process one datum at the time."""
-        return False
-
     @abstractmethod
     def _process(self, datum: np.array, error: Optional[np.array] = None) -> np.array:
         """Defines how the IQ point is processed.
@@ -429,11 +404,6 @@ class Probability(DataAction):
         """
         self._outcome = outcome
         super().__init__(validate)
-
-    @property
-    def requires_all_data(self) -> bool:
-        """This node can process one datum at the time."""
-        return False
 
     def _format_data(self, datum: dict, error: Optional[Any] = None) -> Tuple[dict, Any]:
         """
