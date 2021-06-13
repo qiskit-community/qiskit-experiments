@@ -191,15 +191,13 @@ class DataProcessor:
         if isinstance(data, dict):
             data = [data]
 
-        if isinstance(data, list):
-            try:
-                data_ = [_datum[self._input_key] for _datum in data]
-            except KeyError as error:
-                raise DataProcessorError(
-                    f"The input key {self._input_key} was not found in the input datum."
-                ) from error
-
-        else:
+        try:
+            data_ = [_datum[self._input_key] for _datum in iter(data)]
+        except KeyError as error:
+            raise DataProcessorError(
+                f"The input key {self._input_key} was not found in the input datum."
+            ) from error
+        except TypeError:
             raise DataProcessorError(
                 f"{self.__class__.__name__} only extracts data from "
                 f"lists or dicts, received {type(data)}."
