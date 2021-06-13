@@ -20,6 +20,7 @@ from qiskit.test import QiskitTestCase
 
 from qiskit_experiments.characterization.qubit_spectroscopy import QubitSpectroscopy
 from qiskit_experiments.test.mock_iq_backend import TestJob, IQTestBackend
+from qiskit_experiments.analysis import get_opt_value
 
 
 class SpectroscopyBackend(IQTestBackend):
@@ -102,7 +103,9 @@ class TestQubitSpectroscopy(QiskitTestCase):
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         result = spec.run(backend).analysis_result(0)
 
-        self.assertTrue(abs(result["value"]) < 1e6)
+        value = get_opt_value(result, "freq")
+
+        self.assertTrue(abs(value) < 1e6)
         self.assertTrue(result["success"])
         self.assertEqual(result["quality"], "computer_good")
 
@@ -113,8 +116,10 @@ class TestQubitSpectroscopy(QiskitTestCase):
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         result = spec.run(backend).analysis_result(0)
 
-        self.assertTrue(result["value"] < 5.1e6)
-        self.assertTrue(result["value"] > 4.9e6)
+        value = get_opt_value(result, "freq")
+
+        self.assertTrue(value < 5.1e6)
+        self.assertTrue(value > 4.9e6)
         self.assertEqual(result["quality"], "computer_good")
 
     def test_spectroscopy_end2end_kerneled(self):
@@ -125,7 +130,9 @@ class TestQubitSpectroscopy(QiskitTestCase):
         spec = QubitSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
         result = spec.run(backend).analysis_result(0)
 
-        self.assertTrue(abs(result["value"]) < 1e6)
+        value = get_opt_value(result, "freq")
+
+        self.assertTrue(abs(value) < 1e6)
         self.assertTrue(result["success"])
         self.assertEqual(result["quality"], "computer_good")
 
@@ -135,15 +142,17 @@ class TestQubitSpectroscopy(QiskitTestCase):
         spec = QubitSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
         result = spec.run(backend).analysis_result(0)
 
-        self.assertTrue(result["value"] < 5.1e6)
-        self.assertTrue(result["value"] > 4.9e6)
+        value = get_opt_value(result, "freq")
+
+        self.assertTrue(value < 5.1e6)
+        self.assertTrue(value > 4.9e6)
         self.assertEqual(result["quality"], "computer_good")
-        self.assertTrue(result["ydata_err"] is not None)
 
         spec.set_run_options(meas_return="avg")
         result = spec.run(backend).analysis_result(0)
 
-        self.assertTrue(result["value"] < 5.1e6)
-        self.assertTrue(result["value"] > 4.9e6)
+        value = get_opt_value(result, "freq")
+
+        self.assertTrue(value < 5.1e6)
+        self.assertTrue(value > 4.9e6)
         self.assertEqual(result["quality"], "computer_good")
-        self.assertTrue(result["ydata_err"] is None)
