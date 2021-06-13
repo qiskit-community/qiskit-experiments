@@ -82,9 +82,6 @@ class DataProcessor:
         Returns:
             processed data: The data processed by the data processor.
         """
-        if not self.is_trained:
-            self.train(data)
-
         return self._call_internal(data, **options)
 
     def call_with_history(
@@ -105,9 +102,6 @@ class DataProcessor:
             processed data: The datum processed by the data processor.
             history: The datum processed at each node of the data processor.
         """
-        if not self.is_trained:
-            self.train(data)
-
         return self._call_internal(data, True, history_nodes)
 
     def _call_internal(
@@ -197,11 +191,11 @@ class DataProcessor:
             raise DataProcessorError(
                 f"The input key {self._input_key} was not found in the input datum."
             ) from error
-        except TypeError:
+        except TypeError as error:
             raise DataProcessorError(
                 f"{self.__class__.__name__} only extracts data from "
                 f"lists or dicts, received {type(data)}."
-            )
+            ) from error
 
         return data_
 
