@@ -28,7 +28,7 @@ from qiskit_experiments.data_processing.nodes import (
     ToReal,
     ToImag,
     Probability,
-    Normalize,
+    MinMaxNormalize,
 )
 
 
@@ -461,7 +461,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
     def test_normalize(self):
         """Test that by adding a normalization node we get a signal between 1 and 1."""
 
-        processor = DataProcessor("memory", [AverageData(axis=1), SVD(), Normalize()])
+        processor = DataProcessor("memory", [AverageData(axis=1), SVD(), MinMaxNormalize()])
 
         self.assertFalse(processor.is_trained)
         processor.train([self.data.data(idx) for idx in [0, 1]])
@@ -540,7 +540,7 @@ class TestAvgDataAndSVD(BaseDataProcessorTest):
     def test_normalize(self):
         """Test that by adding a normalization node we get a signal between 1 and 1."""
 
-        processor = DataProcessor("memory", [SVD(), Normalize()])
+        processor = DataProcessor("memory", [SVD(), MinMaxNormalize()])
 
         self.assertFalse(processor.is_trained)
         processor.train([self.data.data(idx) for idx in [0, 1]])

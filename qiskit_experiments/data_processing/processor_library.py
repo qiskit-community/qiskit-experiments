@@ -16,7 +16,7 @@ from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.data_processor import DataProcessor
-from qiskit_experiments.data_processing.nodes import AverageData, Probability, SVD, Normalize
+from qiskit_experiments.data_processing.nodes import AverageData, Probability, SVD, MinMaxNormalize
 
 
 def get_to_signal_processor(
@@ -47,7 +47,7 @@ def get_to_signal_processor(
             processor = DataProcessor("memory", [SVD()])
 
         if normalize:
-            processor.append(Normalize())
+            processor.append(MinMaxNormalize())
 
         return processor
 

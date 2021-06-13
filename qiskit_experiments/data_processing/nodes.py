@@ -70,7 +70,7 @@ class AverageData(DataAction):
         return np.average(datum, axis=self._axis), standard_error
 
 
-class Normalize(DataAction):
+class MinMaxNormalize(DataAction):
     """Normalizes the data."""
 
     def _format_data(self, datum: Any, error: Optional[Any] = None):
