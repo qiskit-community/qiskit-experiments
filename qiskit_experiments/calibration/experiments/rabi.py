@@ -249,6 +249,7 @@ class Rabi(BaseExperiment):
 
         circs = []
         for amp in self.experiment_options.amplitudes:
+            amp = np.round(amp, decimals=6)
             assigned_circ = circuit.assign_parameters({param: amp}, inplace=False)
             assigned_circ.metadata = {
                 "experiment_type": self._type,
