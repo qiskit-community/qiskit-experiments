@@ -47,6 +47,8 @@ def generate_rb_fitter_data_1(results_file_path: str):
     Args:
         results_file_path(str): The json file path that the program write the data to.
     """
+    results_file_path = os.path.join(DIRNAME, "rb_output_data1.json")
+    analysis_file_path = os.path.join(DIRNAME, "rb_output_analysis1.json")
     exp_attributes = {
         "qubits": [0, 1],
         "lengths": list(range(1, 200, 20)),
@@ -63,16 +65,36 @@ def generate_rb_fitter_data_1(results_file_path: str):
         seed=exp_attributes["seed"],
     )
     experiment_obj = rb_exp.run(backend, noise_model=noise_model)
-    exp_results = experiment_obj._data
+    exp_results = experiment_obj.data()
     with open(results_file_path, "w") as json_file:
         joined_list_data = [exp_attributes]
         joined_list_data.append(exp_results)
         json_file.write(json.dumps(joined_list_data))
+    _analysis_save(experiment_obj._analysis_results, analysis_file_path)
+
+
+def _analysis_save(analysis_data: list, analysis_file_path: str):
+    """
+    The function is creating a json file from the data of the RB experiment analysis.
+    Args:
+        analysis_data (list): The data from the analysis of the experiment.
+        analysis_file_path (str): The path to save the json file.
+    """
+    samples_analysis_list = []
+    for sample_analysis in analysis_data:
+        sample_analysis["popt"] = list(sample_analysis["popt"])
+        sample_analysis["popt_err"] = list(sample_analysis["popt_err"])
+        sample_analysis["pcov"] = list(sample_analysis["pcov"])
+        for idx, item in enumerate(sample_analysis["pcov"]):
+            sample_analysis["pcov"][idx] = list(item)
+        samples_analysis_list.append(sample_analysis)
+    with open(analysis_file_path, "w") as json_file:
+        json_file.write(json.dumps(samples_analysis_list))
 
 
 DIRNAME = os.path.dirname(os.path.abspath(__file__))
 for rb_type in sys.argv[1:]:
     if rb_type == "standard":
-        generate_rb_fitter_data_1(os.path.join(DIRNAME, "rb_output_data1.json"))
+        generate_rb_fitter_data_1(DIRNAME)
     else:
         print("Skipping unknown argument " + rb_type)
