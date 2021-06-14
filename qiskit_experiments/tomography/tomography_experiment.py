@@ -31,7 +31,7 @@ class TomographyExperiment(BaseExperiment):
 
     @classmethod
     def _default_experiment_options(cls):
-        return Options(basis_elements=None)
+        return Options(basis_indices=None)
 
     def __init__(
         self,
@@ -40,7 +40,7 @@ class TomographyExperiment(BaseExperiment):
         measurement_qubits: Optional[Iterable[int]] = None,
         preparation_basis: Optional[BaseTomographyPreparationBasis] = None,
         preparation_qubits: Optional[Iterable[int]] = None,
-        basis_elements: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
+        basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
         qubits: Optional[Iterable[int]] = None,
     ):
         """Initialize a state tomography experiment.
@@ -54,7 +54,7 @@ class TomographyExperiment(BaseExperiment):
             preparation_basis: Tomography basis for measurements.
             preparation_qubits: Optional, the qubits to be prepared. These should refer
                 to the logical qubits in the process circuit.
-            basis_elements: Optional, the basis elements to be measured. If None
+            basis_indices: Optional, the basis elements to be measured. If None
                 All basis elements will be measured.
             qubits: Optional, the physical qubits for the initial state circuit.
         """
@@ -88,12 +88,13 @@ class TomographyExperiment(BaseExperiment):
             self._prep_qubits = None
 
         # Configure experiment options
-        if basis_elements:
-            self.set_experiment_options(basis_elements=basis_elements)
+        if basis_indices:
+            self.set_experiment_options(basis_indices=basis_indices)
 
         # Compute target state
         # NOTE: this is only implemented if measurement_qubits and
         # preparation_qubits init kwargs are not used.
+        self._target_state = None
         if not self._prep_qubits and not self._meas_qubits:
             if self._prep_circ_basis:
                 try:
@@ -115,7 +116,8 @@ class TomographyExperiment(BaseExperiment):
 
     def _metadata(self):
         metadata = super()._metadata()
-        metadata["target_state"] = self._target_state.copy()
+        if self._target_state:
+            metadata["target_state"] = self._target_state.copy()
         return metadata
 
     def circuits(self, backend=None):
@@ -129,7 +131,7 @@ class TomographyExperiment(BaseExperiment):
 
         # Build circuits
         circuits = []
-        for meas_element, prep_element in self._basis_elements():
+        for meas_element, prep_element in self._basis_indices():
             name = f"{self._type}_{meas_element}"
             metadata = {
                 "experiment_type": self._type,
@@ -164,11 +166,11 @@ class TomographyExperiment(BaseExperiment):
             circuits.append(circ)
         return circuits
 
-    def _basis_elements(self):
+    def _basis_indices(self):
         """Return list of basis element indices"""
-        basis_elements = self.experiment_options.basis_elements
-        if basis_elements is not None:
-            return basis_elements
+        basis_indices = self.experiment_options.basis_indices
+        if basis_indices is not None:
+            return basis_indices
 
         meas_size = len(self._meas_circ_basis)
         num_meas = len(self._meas_qubits) if self._meas_qubits else self.num_qubits

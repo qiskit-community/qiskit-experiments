@@ -18,6 +18,7 @@ from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info import Statevector
 from .tomography_experiment import TomographyExperiment, Options
+from .qst_analysis import StateTomographyAnalysis
 from . import basis
 
 
@@ -64,6 +65,8 @@ class StateTomographyExperiment(TomographyExperiment):
         - **kwargs**: Additional kwargs will be supplied to the fitter function.
     """
 
+    __analysis_class__ = StateTomographyAnalysis
+
     @classmethod
     def _default_analysis_options(cls):
         return Options(measurement_basis=basis.PauliMeasurementBasis().matrix)
@@ -73,7 +76,7 @@ class StateTomographyExperiment(TomographyExperiment):
         circuit: Union[QuantumCircuit, Instruction, BaseOperator, Statevector],
         measurement_basis: basis.BaseTomographyMeasurementBasis = basis.PauliMeasurementBasis(),
         measurement_qubits: Optional[Iterable[int]] = None,
-        basis_elements: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
+        basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
         qubits: Optional[Iterable[int]] = None,
     ):
         """Initialize a quantum process tomography experiment.
@@ -86,7 +89,7 @@ class StateTomographyExperiment(TomographyExperiment):
             measurement_qubits: Optional, the qubits to be measured. These should refer
                 to the logical qubits in the state circuit. If None all qubits
                 in the state circuit will be measured.
-            basis_elements: Optional, the basis elements to be measured. If None
+            basis_indices: Optional, the basis elements to be measured. If None
                 All basis elements will be measured. If specified each element
                 is given by a list ``[m[0], m[1], ...]`` where ``m[i]`` are the
                 measurement basis indices for qubit-i.
@@ -102,6 +105,6 @@ class StateTomographyExperiment(TomographyExperiment):
             circuit,
             measurement_basis=measurement_basis,
             measurement_qubits=measurement_qubits,
-            basis_elements=basis_elements,
+            basis_indices=basis_indices,
             qubits=qubits,
         )

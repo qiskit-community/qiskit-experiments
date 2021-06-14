@@ -36,82 +36,7 @@ from .fitters import (
 
 
 class TomographyAnalysis(BaseAnalysis):
-    """Quantum state and process tomography experiment analysis.
-
-    Analysis Options
-        - **measurement_basis**
-          (:class:`~qiskit_experiments.tomography.basis.BaseFitterMeasurementBasis`):
-          The measurement
-          :class:`~qiskit_experiments.tomography.basis.BaseFitterMeasurementBasis`
-          to use for tomographic reconstruction when running a
-          :class:`~qiskit_experiments.tomography.StateTomographyExperiment` or
-          :class:`~qiskit_experiments.tomography.ProcessTomographyExperiment`.
-        - **preparation_basis**
-          (:class:`~qiskit_experiments.tomography.basis.BaseFitterPreparationBasis`):
-          The preparation
-          :class:`~qiskit_experiments.tomography.basis.BaseFitterPreparationBasis`
-          to use for tomographic reconstruction for
-          :class:`~qiskit_experiments.tomography.ProcessTomographyExperiment`.
-        - **fitter** (``str`` or ``Callable``): The fitter function to use for reconstruction.
-          This can  be a string to select one of the built-in fitters, or a callable to
-          supply a custom fitter function. See the `Fitter Functions` section
-          for additional information.
-        - **rescale_psd** (``bool``): If True rescale the state returned by the fitter to be
-          positive-semidefinite. See the `PSD Rescaling` section for
-          additional information (Default: True).
-        - **rescale_trace** (``bool``): If True rescale the state returned by the fitter
-          have either trace 1 for :class:`~qiskit.quantum_info.DensityMatrix`,
-          or trace dim for :class:`~qiskit.quantum_info.Choi`.
-          matrices (Default: True).
-        - **kwargs**: will be supplied to the fitter function,
-          for documentation of available args refer to the fitter function
-          documentation.
-
-    Fitter Functions
-        Built-in fitter functions may be selected using the following string
-        labels, refer to the corresponding functions documentation for additional
-        details on the fitters.
-
-        * ``"linear_inversion"``:
-          :func:`~qiskit_experiments.tomography.fitters.linear_inversion` (Default)
-        * ``"scipy_linear_lstsq"``:
-          :func:`~qiskit_experiments.tomography.fitters.scipy_linear_lstsq`
-        * ``"cvxpy_linear_lstsq"``:
-          :func:`~qiskit_experiments.tomography.fitters.cvxpy_linear_lstsq`
-        * ``"scipy_gaussian_lstsq"``:
-          :func:`~qiskit_experiments.tomography.fitters.scipy_gaussian_lstsq`
-        * ``"cvxpy_gaussian_lstsq"``:
-          :func:`~qiskit_experiments.tomography.fitters.cvxpy_gaussian_lstsq`
-
-        .. note::
-
-            Fitters starting with ``"cvxpy_*"`` require the optional CVXPY Python
-            package to be installed.
-
-        A custom fitter function must have signature
-
-        .. code:: python
-
-            fitter(outcome_data: List[np.ndarray],
-                shot_data: np.ndarray,
-                measurement_data: np.ndarray,
-                preparation_data: np.ndarray,
-                measurement_basis: BaseFitterMeasurementBasis,
-                preparation_basis: Optional[BaseFitterPreparationBasis] = None,
-                **kwargs) -> Dict[str, any]
-
-    PSD Rescaling
-        For fitters that do not constrain the reconstructed state to be
-        `positive-semidefinite` (PSD) we construct the maximum-likelihood
-        nearest PSD state under the assumption of Gaussian measurement noise
-        using the rescaling method in Reference [1]. For fitters that already
-        support PSD constraints this option can be disabled by setting
-        ``rescale_psd=False``.
-
-    References
-        1. J Smolin, JM Gambetta, G Smith, Phys. Rev. Lett. 108, 070502 (2012).
-           Open access: https://arxiv.org/abs/arXiv:1106.5458
-    """
+    """Base analysis for state and process tomography experiments."""
 
     _builtin_fitters = {
         "linear_inversion": linear_inversion,
@@ -150,7 +75,7 @@ class TomographyAnalysis(BaseAnalysis):
 
         # Get tomography options
         measurement_basis = options.pop("measurement_basis")
-        preparation_basis = options.pop("preparation_basis")
+        preparation_basis = options.pop("preparation_basis", None)
         rescale_psd = options.pop("rescale_psd")
         rescale_trace = options.pop("rescale_trace")
 
