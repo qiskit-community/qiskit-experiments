@@ -13,7 +13,7 @@
 """Different data analysis steps."""
 
 from abc import abstractmethod
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 import numpy as np
 
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
@@ -23,19 +23,26 @@ from qiskit_experiments.data_processing.exceptions import DataProcessorError
 class AverageData(DataAction):
     """A node to average data representable as numpy arrays."""
 
-    def __init__(self, axis: int = 0):
+    def __init__(self, axis: int, validate: bool = True):
         """Initialize a data averaging node.
 
         Args:
-            axis: The axis along which to average the data. If not given 0 is the
-                default axis.
+            axis: The axis along which to average.
+            validate: If set to False the DataAction will not validate its input.
         """
-        super().__init__()
+        super().__init__(validate)
         self._axis = axis
 
     def _format_data(self, datum: Any, error: Optional[Any] = None):
         """Format the data into numpy arrays."""
         datum = np.asarray(datum, dtype=float)
+
+        if self._validate:
+            if len(datum.shape) <= self._axis:
+                raise DataProcessorError(
+                    f"Cannot average the {len(datum.shape)} dimensional "
+                    f"array along axis {self._axis}."
+                )
 
         if error is not None:
             error = np.asarray(error, dtype=float)
@@ -58,9 +65,33 @@ class AverageData(DataAction):
         Raises:
             DataProcessorError: If the axis is not an int.
         """
-        standard_error = np.std(datum, axis=self._axis) / np.sqrt(datum.shape[0])
+        standard_error = np.std(datum, axis=self._axis) / np.sqrt(datum.shape[self._axis])
 
         return np.average(datum, axis=self._axis), standard_error
+
+
+class MinMaxNormalize(DataAction):
+    """Normalizes the data."""
+
+    def _format_data(self, datum: Any, error: Optional[Any] = None):
+        """Format the data into numpy arrays."""
+        datum = np.asarray(datum, dtype=float)
+
+        if error is not None:
+            error = np.asarray(error, dtype=float)
+
+        return datum, error
+
+    def _process(
+        self, datum: np.array, error: Optional[np.array] = None
+    ) -> Tuple[np.array, np.array]:
+        """Normalize the data to the interval [0, 1]."""
+        min_y, max_y = np.min(datum), np.max(datum)
+
+        if error is not None:
+            return (datum - min_y) / (max_y - min_y), error / (max_y - min_y)
+        else:
+            return (datum - min_y) / (max_y - min_y), None
 
 
 class SVD(TrainableDataAction):
@@ -94,13 +125,13 @@ class SVD(TrainableDataAction):
             error = np.asarray(error, dtype=float)
 
         if self._validate:
-            if len(datum.shape) != 2:
+            if len(datum.shape) not in {2, 3}:
                 raise DataProcessorError(
                     f"IQ data given to {self.__class__.__name__} must be an 2D array. "
                     f"Instead, a {len(datum.shape)}D array was given."
                 )
 
-            if error is not None and len(error.shape) != 2:
+            if error is not None and len(error.shape) not in {2, 3}:
                 raise DataProcessorError(
                     f"IQ data error given to {self.__class__.__name__} must be an 2D array."
                     f"Instead, a {len(error.shape)}D array was given."
@@ -164,7 +195,7 @@ class SVD(TrainableDataAction):
         if not self.is_trained:
             raise DataProcessorError("SVD must be trained on data before it can be used.")
 
-        n_qubits = datum.shape[0]
+        n_qubits = datum.shape[0] if len(datum.shape) == 2 else datum.shape[1]
         processed_data = []
 
         if error is not None:
@@ -176,7 +207,7 @@ class SVD(TrainableDataAction):
         for idx in range(n_qubits):
 
             centered = np.array(
-                [datum[idx][iq] - self.means(qubit=idx, iq_index=iq) for iq in [0, 1]]
+                [datum[..., idx, iq] - self.means(qubit=idx, iq_index=iq) for iq in [0, 1]]
             )
 
             processed_data.append((self._main_axes[idx] @ centered) / self.scales[idx])
@@ -184,7 +215,8 @@ class SVD(TrainableDataAction):
             if error is not None:
                 angle = np.arctan(self._main_axes[idx][1] / self._main_axes[idx][0])
                 error_value = np.sqrt(
-                    (error[idx][0] * np.cos(angle)) ** 2 + (error[idx][1] * np.sin(angle)) ** 2
+                    (error[..., idx, 0] * np.cos(angle)) ** 2
+                    + (error[..., idx, 1] * np.sin(angle)) ** 2
                 )
                 processed_error.append(error_value / self.scales[idx])
 
@@ -212,7 +244,7 @@ class SVD(TrainableDataAction):
         Args:
             data: A list of datums. Each datum will be converted to a 2D array.
         """
-        if not data:
+        if data is None:
             return
 
         n_qubits = self._format_data(data[0])[0].shape[0]
@@ -255,9 +287,14 @@ class IQPart(DataAction):
     def _process(self, datum: np.array, error: Optional[np.array] = None) -> np.array:
         """Defines how the IQ point is processed.
 
+        The dimension of the input datum corresponds to different types of data:
+        - 2D represents average IQ Data.
+        - 3D represents either a single-shot datum or all data of averaged data.
+        - 4D represents all data of single-shot data.
+
         Args:
-            datum: A 2D or a 3D array of complex IQ points as [real, imaginary].
-            error: A 2D or a 3D array of errors on complex IQ points as [real, imaginary].
+            datum: A N dimensional array of complex IQ points as [real, imaginary].
+            error: A N dimensional array of errors on complex IQ points as [real, imaginary].
 
         Returns:
             Processed IQ point and its associated error estimate.
@@ -283,16 +320,16 @@ class IQPart(DataAction):
             error = np.asarray(error, dtype=float)
 
         if self._validate:
-            if len(datum.shape) not in {2, 3}:
+            if len(datum.shape) not in {2, 3, 4}:
                 raise DataProcessorError(
                     f"IQ data given to {self.__class__.__name__} must be an N dimensional"
-                    f"array with N in (2, 3). Instead, a {len(datum.shape)}D array was given."
+                    f"array with N in (2, 3, 4). Instead, a {len(datum.shape)}D array was given."
                 )
 
-            if error is not None and len(error.shape) not in {2, 3}:
+            if error is not None and len(error.shape) not in {2, 3, 4}:
                 raise DataProcessorError(
                     f"IQ data error given to {self.__class__.__name__} must be an N dimensional"
-                    f"array with N in (2, 3). Instead, a {len(error.shape)}D array was given."
+                    f"array with N in (2, 3, 4). Instead, a {len(error.shape)}D array was given."
                 )
 
             if error is not None and len(error.shape) != len(datum.shape):
@@ -317,12 +354,13 @@ class ToReal(IQPart):
         """Take the real part of the IQ data.
 
         Args:
-            datum: A 2D or 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
-            error: An optional 2D or 3D array of shots, qubits, and an error on a complex IQ point
-                as [real, imaginary].
+            datum: An N dimensional array of shots, qubits, and a complex IQ point as
+                [real, imaginary].
+            error: An N dimensional optional array of shots, qubits, and an error on a
+                complex IQ point as [real, imaginary].
 
         Returns:
-            A 1D or 2D array, each entry is the real part of the given IQ data and error.
+            A N-1 dimensional array, each entry is the real part of the given IQ data and error.
         """
         if error is not None:
             return datum[..., 0] * self.scale, error[..., 0] * self.scale
@@ -337,12 +375,14 @@ class ToImag(IQPart):
         """Take the imaginary part of the IQ data.
 
         Args:
-            datum: A 2D or 3D array of shots, qubits, and a complex IQ point as [real, imaginary].
-            error: An optional 2D or 3D array of shots, qubits, and an error on a complex IQ point
-                as [real, imaginary].
+            datum: An N dimensional array of shots, qubits, and a complex IQ point as
+                [real, imaginary].
+            error: An N dimensional optional array of shots, qubits, and an error on a
+                complex IQ point as [real, imaginary].
 
         Returns:
-            A 1D or 2D array, each entry is the imaginary part of the given IQ data and error.
+            A N-1 dimensional array, each entry is the imaginary part of the given IQ data
+            and error.
         """
         if error is not None:
             return datum[..., 1] * self.scale, error[..., 1] * self.scale
@@ -376,29 +416,42 @@ class Probability(DataAction):
             The datum as given.
 
         Raises:
-            DataProcessorError: if the data is not a counts dict.
+            DataProcessorError: if the data is not a counts dict or a list of counts dicts.
         """
         if self._validate:
-            if not isinstance(datum, dict):
-                raise DataProcessorError(
-                    f"Given counts datum {datum} to "
-                    f"{self.__class__.__name__} is not a valid count format."
-                )
 
-            for bit_str, count in datum.items():
-                if not isinstance(bit_str, str):
+            if isinstance(datum, dict):
+                data = [datum]
+            elif isinstance(datum, list):
+                data = datum
+            else:
+                raise DataProcessorError(f"Datum must be dict or list, received {type(datum)}.")
+
+            for datum_ in data:
+                if not isinstance(datum_, dict):
                     raise DataProcessorError(
-                        f"Key {bit_str} is not a valid count key in{self.__class__.__name__}."
+                        f"Given counts datum {datum_} to "
+                        f"{self.__class__.__name__} is not a valid count format."
                     )
 
-                if not isinstance(count, (int, float, np.integer)):
-                    raise DataProcessorError(
-                        f"Count {bit_str} is not a valid count value in {self.__class__.__name__}."
-                    )
+                for bit_str, count in datum_.items():
+                    if not isinstance(bit_str, str):
+                        raise DataProcessorError(
+                            f"Key {bit_str} is not a valid count key in{self.__class__.__name__}."
+                        )
+
+                    if not isinstance(count, (int, float, np.integer)):
+                        raise DataProcessorError(
+                            f"Count {bit_str} is not a valid count value in {self.__class__.__name__}."
+                        )
 
         return datum, None
 
-    def _process(self, datum: Dict[str, Any], error: Optional[Dict] = None) -> Tuple[float, float]:
+    def _process(
+        self,
+        datum: Union[Dict[str, Any], List[Dict[str, Any]]],
+        error: Optional[Union[Dict, List]] = None,
+    ) -> Union[Tuple[float, float], Tuple[np.array, np.array]]:
         """
         Args:
             datum: The data dictionary,taking the data under counts and
@@ -407,9 +460,22 @@ class Probability(DataAction):
         Returns:
             processed data: A dict with the populations and standard deviation.
         """
+        if isinstance(datum, dict):
+            return self._population_error(datum)
+        else:
+            populations, errors = [], []
 
-        shots = sum(datum.values())
-        p_mean = datum.get(self._outcome, 0.0) / shots
+            for datum_ in datum:
+                pop, error = self._population_error(datum_)
+                populations.append(pop)
+                errors.append(error)
+
+            return np.array(populations), np.array(errors)
+
+    def _population_error(self, counts_dict) -> Tuple[float, float]:
+        """Helper method"""
+        shots = sum(counts_dict.values())
+        p_mean = counts_dict.get(self._outcome, 0.0) / shots
         p_var = p_mean * (1 - p_mean) / shots
 
         return p_mean, np.sqrt(p_var)
