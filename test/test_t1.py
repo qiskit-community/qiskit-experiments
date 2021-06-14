@@ -18,7 +18,8 @@ Test T1 experiment
 import unittest
 import numpy as np
 from qiskit.test import QiskitTestCase
-from qiskit.providers import BaseBackend
+from qiskit.providers import BackendV1
+from qiskit.providers.options import Options
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
 from qiskit_experiments import ExperimentData
@@ -26,7 +27,7 @@ from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T1Experiment, T1Analysis
 
 
-class T1Backend(BaseBackend):
+class T1Backend(BackendV1):
     """
     A simple and primitive backend, to be run by the T1 tests
     """
@@ -62,13 +63,17 @@ class T1Backend(BaseBackend):
         self._rng = np.random.default_rng(0)
         super().__init__(configuration)
 
-    # pylint: disable = arguments-differ
-    def run(self, qobj):
+    @classmethod
+    def _default_options(cls):
+        """Default options of the test backend."""
+        return Options(shots=1024)
+
+    def run(self, run_input, **options):
         """
         Run the T1 backend
         """
-
-        shots = qobj.config.shots
+        self.options.update_options(**options)
+        shots = self.options.get("shots")
 
         result = {
             "backend_name": "T1 backend",
@@ -79,8 +84,10 @@ class T1Backend(BaseBackend):
             "results": [],
         }
 
-        for circ in qobj.experiments:
-            nqubits = circ.config.n_qubits
+        for circ in run_input:
+            nqubits = circ.num_qubits
+            qubit_indices = {bit: idx for idx, bit in enumerate(circ.qubits)}
+            clbit_indices = {bit: idx for idx, bit in enumerate(circ.clbits)}
             counts = dict()
 
             if self._readout0to1 is None:
@@ -99,10 +106,10 @@ class T1Backend(BaseBackend):
                 else:
                     prob1 = self._initial_prob1.copy()
 
-                clbits = np.zeros(circ.config.memory_slots, dtype=int)
+                clbits = np.zeros(circ.num_clbits, dtype=int)
 
-                for op in circ.instructions:
-                    qubit = op.qubits[0]
+                for op, qargs, cargs in circ.data:
+                    qubit = qubit_indices[qargs[0]]
                     if op.name == "x":
                         prob1[qubit] = 1 - prob1[qubit]
                     elif op.name == "delay":
@@ -112,7 +119,8 @@ class T1Backend(BaseBackend):
                         meas_res = self._rng.binomial(
                             1, prob1[qubit] * (1 - ro10[qubit]) + (1 - prob1[qubit]) * ro01[qubit]
                         )
-                        clbits[op.memory[0]] = meas_res
+                        clbit = clbit_indices[cargs[0]]
+                        clbits[clbit] = meas_res
                         prob1[qubit] = meas_res
 
                 clstr = ""
@@ -128,7 +136,7 @@ class T1Backend(BaseBackend):
                 {
                     "shots": shots,
                     "success": True,
-                    "header": {"metadata": circ.header.metadata},
+                    "header": {"metadata": circ.metadata},
                     "data": {"counts": counts},
                 }
             )
@@ -165,21 +173,9 @@ class TestT1(QiskitTestCase):
             )
         )
 
-        # dummy numbers to avoid exception triggerring
-        instruction_durations = [
-            ("measure", [0], 3, "dt"),
-            ("x", [0], 3, "dt"),
-        ]
-
         exp = T1Experiment(0, delays, unit="dt")
-        res = exp.run(
-            backend,
-            amplitude_guess=1,
-            t1_guess=t1 / dt_factor,
-            offset_guess=0,
-            instruction_durations=instruction_durations,
-            shots=10000,
-        ).analysis_result(0)
+        exp.set_analysis_options(amplitude_guess=1, t1_guess=t1 / dt_factor, offset_guess=0)
+        res = exp.run(backend, shots=10000).analysis_result(0)
 
         self.assertEqual(res["quality"], "computer_good")
         self.assertAlmostEqual(res["value"], t1, delta=3)
@@ -195,10 +191,7 @@ class TestT1(QiskitTestCase):
         exp0 = T1Experiment(0, delays)
         exp2 = T1Experiment(2, delays)
         par_exp = ParallelExperiment([exp0, exp2])
-        res = par_exp.run(
-            T1Backend([t1[0], None, t1[1]]),
-            shots=10000,
-        )
+        res = par_exp.run(T1Backend([t1[0], None, t1[1]]))
 
         for i in range(2):
             sub_res = res.component_experiment_data(i).analysis_result(0)
