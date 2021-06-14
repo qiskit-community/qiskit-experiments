@@ -13,10 +13,12 @@
 Quantum Tomography experiment
 """
 
+import copy
 from typing import Union, Optional, Iterable, List, Tuple
 from itertools import product
+import numpy as np
 from qiskit.circuit import QuantumCircuit, Instruction
-from qiskit.exceptions import QiskitError
+from qiskit.circuit.library import Permutation
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 import qiskit.quantum_info as qi
 from qiskit_experiments.base_experiment import BaseExperiment, Options
@@ -92,19 +94,17 @@ class TomographyExperiment(BaseExperiment):
             self.set_experiment_options(basis_indices=basis_indices)
 
         # Compute target state
-        # NOTE: this is only implemented if measurement_qubits and
-        # preparation_qubits init kwargs are not used.
         self._target_state = None
-        if not self._prep_qubits and not self._meas_qubits:
-            if self._prep_circ_basis:
-                try:
-                    self._target_state = qi.Clifford(self._circuit)
-                except QiskitError:
-                    self._target_state = qi.Operator(self._circuit)
-            else:
-                # TODO: add support for StabilizerState for Clifford
-                # circuits once state_fidelity works with that class
-                self._target_state = qi.Statevector(self._circuit)
+        if self._prep_circ_basis:
+            self._target_state = self._target_quantum_channel(
+                self._circuit,
+                measurement_qubits=self._meas_qubits,
+                preparation_qubits=self._prep_qubits,
+            )
+        else:
+            self._target_state = self._target_quantum_state(
+                self._circuit, measurement_qubits=self._meas_qubits
+            )
 
         # Configure analysis basis options
         analysis_options = {}
@@ -117,7 +117,7 @@ class TomographyExperiment(BaseExperiment):
     def _metadata(self):
         metadata = super()._metadata()
         if self._target_state:
-            metadata["target_state"] = self._target_state.copy()
+            metadata["target_state"] = copy.copy(self._target_state)
         return metadata
 
     def circuits(self, backend=None):
@@ -183,3 +183,123 @@ class TomographyExperiment(BaseExperiment):
             prep_elements = [None]
 
         return product(meas_elements, prep_elements)
+
+    @staticmethod
+    def _permute_circuit(
+        circuit: QuantumCircuit,
+        measurement_qubits: Optional[Iterable[int]] = None,
+        preparation_qubits: Optional[Iterable[int]] = None,
+    ):
+        """Permute circuit qubits.
+
+        This permutes the circuit so that the specified preparation and measurement
+        qubits correspond to input and output qubits [0, ..., N-1] respectively
+        for the returned circuit.
+        """
+        if measurement_qubits is None and preparation_qubits is None:
+            return circuit
+
+        total_qubits = circuit.num_qubits
+        total_clbits = circuit.num_clbits
+        if total_clbits:
+            perm_circ = QuantumCircuit(total_qubits, total_clbits)
+        else:
+            perm_circ = QuantumCircuit(total_qubits)
+
+        # Apply permutation to put prep qubits as [0, ..., M-1]
+        if preparation_qubits:
+            prep_qargs = list(preparation_qubits)
+            if len(preparation_qubits) != total_qubits:
+                prep_qargs += [i for i in range(total_qubits) if i not in preparation_qubits]
+            perm_circ.append(Permutation(total_qubits, prep_qargs).inverse(), range(total_qubits))
+
+        # Apply original circuit
+        if total_clbits:
+            perm_circ = perm_circ.compose(circuit, range(total_qubits), range(total_clbits))
+        else:
+            perm_circ = perm_circ.compose(circuit, range(total_qubits))
+
+        # Apply permutation to put meas qubits as [0, ..., M-1]
+        if measurement_qubits:
+            meas_qargs = list(measurement_qubits)
+            if len(measurement_qubits) != total_qubits:
+                meas_qargs += [i for i in range(total_qubits) if i not in measurement_qubits]
+            perm_circ.append(Permutation(total_qubits, meas_qargs), range(total_qubits))
+
+        return perm_circ
+
+    @classmethod
+    def _target_quantum_state(
+        cls, circuit: QuantumCircuit, measurement_qubits: Optional[Iterable[int]] = None
+    ):
+        """Return the state tomography target"""
+        # Check if circuit contains measure instructions
+        # If so we cannot return target state
+        circuit_ops = circuit.count_ops()
+        if "measure" in circuit_ops:
+            return None
+
+        perm_circ = cls._permute_circuit(circuit, measurement_qubits=measurement_qubits)
+        if "reset" in circuit_ops or "kraus" in circuit_ops or "superop" in circuit_ops:
+            state = qi.DensityMatrix(perm_circ)
+        else:
+            state = qi.Statevector(perm_circ)
+
+        total_qubits = circuit.num_qubits
+        if measurement_qubits:
+            num_meas = len(measurement_qubits)
+        else:
+            num_meas = total_qubits
+        if num_meas == total_qubits:
+            return state
+
+        # Trace out non-measurement qubits
+        tr_qargs = range(num_meas, total_qubits)
+        return qi.partial_trace(state, tr_qargs)
+
+    @classmethod
+    def _target_quantum_channel(
+        cls,
+        circuit: QuantumCircuit,
+        measurement_qubits: Optional[Iterable[int]] = None,
+        preparation_qubits: Optional[Iterable[int]] = None,
+    ):
+        """Return the process tomography target"""
+        # Check if circuit contains measure instructions
+        # If so we cannot return target state
+        circuit_ops = circuit.count_ops()
+        if "measure" in circuit_ops:
+            return None
+
+        perm_circ = cls._permute_circuit(
+            circuit, measurement_qubits=measurement_qubits, preparation_qubits=preparation_qubits
+        )
+        if "reset" in circuit_ops or "kraus" in circuit_ops or "superop" in circuit_ops:
+            channel = qi.Choi(perm_circ)
+        else:
+            channel = qi.Operator(perm_circ)
+
+        total_qubits = circuit.num_qubits
+        if measurement_qubits:
+            num_meas = len(measurement_qubits)
+        else:
+            num_meas = total_qubits
+        if preparation_qubits:
+            num_prep = len(preparation_qubits)
+        else:
+            num_prep = total_qubits
+
+        if num_prep == total_qubits and num_meas == total_qubits:
+            return channel
+
+        # Trace out non-measurement subsystems
+        tr_qargs = []
+        if preparation_qubits:
+            tr_qargs += list(range(num_prep, total_qubits))
+        if measurement_qubits:
+            tr_qargs += list(range(total_qubits + num_meas, 2 * total_qubits))
+
+        chan_state = qi.Statevector(np.ravel(channel, order="F"))
+        chan_state = qi.partial_trace(chan_state, tr_qargs) / 2 ** (total_qubits - num_meas)
+        channel = qi.Choi(chan_state.data, input_dims=[2] * num_prep, output_dims=[2] * num_meas)
+        return channel
