@@ -11,6 +11,6 @@ Qiskit Experiments API Reference
     characterization
     composite
     randomized_benchmarking
+    hamiltonian_tomography
     analysis
     data_processing
-   

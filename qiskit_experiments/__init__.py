@@ -58,3 +58,4 @@ from . import composite
 from . import characterization
 from . import analysis
 from . import randomized_benchmarking
+from . import hamiltonian_tomography
