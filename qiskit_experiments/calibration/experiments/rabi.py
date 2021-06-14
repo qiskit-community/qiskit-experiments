@@ -95,7 +95,7 @@ class RabiAnalysis(CurveAnalysis):
         # Use a fast Fourier transform to guess the frequency.
         fft = np.abs(np.fft.fft(self._y_values))
         damp = self._x_values[1] - self._x_values[0]
-        freqs = np.linspace(0.0, 1.0 / (2.0 * damp), len(fft//2))
+        freqs = np.linspace(0.0, 1.0 / (2.0 * damp), len(fft // 2))
 
         a_guess = np.max(self._y_values) - np.min(self._y_values)
         f_guess = freqs[np.argmax(fft)]
