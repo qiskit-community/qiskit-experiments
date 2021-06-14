@@ -558,7 +558,7 @@ class CurveAnalysis(BaseAnalysis):
         if isinstance(data_processor, DataProcessor):
             y_values, y_sigmas = data_processor(data)
             if y_sigmas is None:
-                y_sigmas = np.full(y_values.shape, None)
+                y_sigmas = np.full(y_values.shape, np.nan)
         else:
             y_values, y_sigmas = zip(*map(data_processor, data))
 
