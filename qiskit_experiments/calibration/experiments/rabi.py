@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Rabi amplitude Experiment class."""
+"""Rabi amplitude experiment."""
 
 from typing import Any, Dict, List, Optional, Union
 import numpy as np
@@ -49,14 +49,14 @@ class RabiAnalysis(CurveAnalysis):
         - :math:`{\rm phase}`: Phase of the oscillation.
 
     Initial Guesses
-        - :math:`a`: The maximum of y value less the minimum y value.
+        - :math:`a`: The maximum y value less the minimum y value.
         - :math:`b`: The average of the data.
         - :math:`{\rm freq}`: The frequency with the highest power spectral density.
         - :math:`{\rm phase}`: Zero.
 
     Bounds
-        - :math:`a`: [-2, 2] scaled with maximum signal value.
-        - :math:`b`: [-1, 1] scaled with maximum signal value.
+        - :math:`a`: [-2, 2] scaled to the maximum signal value.
+        - :math:`b`: [-1, 1] scaled to the maximum signal value.
         - :math:`{\rm freq}`: [0, inf].
         - :math:`{\rm phase}`: [-pi, pi].
     """
@@ -72,7 +72,7 @@ class RabiAnalysis(CurveAnalysis):
 
     @classmethod
     def _default_options(cls):
-        """Return default data processing options.
+        """Return the default analysis options.
 
         See :meth:`~qiskit_experiment.analysis.CurveAnalysis._default_options` for
         descriptions of analysis options.
@@ -126,10 +126,10 @@ class RabiAnalysis(CurveAnalysis):
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
-            - Have a reduced chi-squared lower than three.
-            - More than a quarter of a full period.
-            - Less than 10 full periods.
-            - An error on the fit frequency lower than the fit frequency.
+            - a reduced chi-squared lower than three,
+            - more than a quarter of a full period,
+            - less than 10 full periods, and
+            - an error on the fit frequency lower than the fit frequency.
         """
         fit_freq = get_opt_value(analysis_result, "freq")
         fit_freq_err = get_opt_error(analysis_result, "freq")
@@ -151,8 +151,8 @@ class RabiAnalysis(CurveAnalysis):
 class Rabi(BaseExperiment):
     """An experiment that scans the amplitude of a pulse to calibrate rotations between 0 and 1.
 
-    The circuits that are run have an RXGate with the pulse schedule attached to it through
-    the calibrations. The circuits are of the form:
+    The circuits that are run have a custom rabi gate with the pulse schedule attached to it
+    through the calibrations. The circuits are of the form:
 
     .. parsed-literal::
 
@@ -168,7 +168,7 @@ class Rabi(BaseExperiment):
 
     @classmethod
     def _default_run_options(cls) -> Options:
-        """Default options values for the experiment :meth:`run` method."""
+        """Default option values for the experiment :meth:`run` method."""
         return Options(
             meas_level=MeasLevel.KERNELED,
             meas_return="single",
@@ -176,7 +176,15 @@ class Rabi(BaseExperiment):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default values for the pulse if no schedule is given."""
+        """Default values for the pulse if no schedule is given.
+
+        Users can set a schedule by doing
+
+        .. code-block::
+
+            rabi.set_experiment_options(schedule=rabi_schedule)
+
+        """
         return Options(
             duration=160,
             sigma=40,
@@ -199,7 +207,8 @@ class Rabi(BaseExperiment):
             backend: A backend object.
 
         Returns:
-            A list of circuits with a rx rotation with a calibration whose amplitude is scanned.
+            A list of circuits with a rabi gate with an attached schedule. Each schedule
+            will have a different value of the scanned amplitude.
 
         Raises:
             QiskitError:
@@ -207,7 +216,7 @@ class Rabi(BaseExperiment):
                   that matches the qubit on which to run the Rabi experiment.
                 - If the user provided schedule has more than one free parameter.
         """
-        # TODO this is temporarily logic. Need update of circuit data and processor logic.
+        # TODO this is temporary logic. Need update of circuit data and processor logic.
         self.set_analysis_options(
             data_processor=get_to_signal_processor(
                 meas_level=self.run_options.meas_level,
@@ -260,8 +269,6 @@ class Rabi(BaseExperiment):
                 "unit": "arb. unit",
                 "amplitude": amp,
                 "schedule": str(schedule),
-                "meas_level": self.run_options.meas_level,
-                "meas_return": self.run_options.meas_return,
             }
 
             if backend:
