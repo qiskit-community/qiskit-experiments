@@ -40,7 +40,7 @@ def get_opt_value(analysis_result: AnalysisResult, param_name: str) -> float:
         return analysis_result["popt"][index]
     except KeyError as ex:
         raise KeyError(
-            "Input analysis result has not fit parameter information. "
+            "Input analysis result has no valid fit parameter information. "
             "Please confirm if the fit is successfully completed."
         ) from ex
     except ValueError as ex:
@@ -68,7 +68,7 @@ def get_opt_error(analysis_result: AnalysisResult, param_name: str) -> float:
         return analysis_result["popt_err"][index]
     except KeyError as ex:
         raise KeyError(
-            "Input analysis result has not fit parameter information. "
+            "Input analysis result has no valid fit parameter information. "
             "Please confirm if the fit is successfully completed."
         ) from ex
     except ValueError as ex:

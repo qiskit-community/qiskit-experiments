@@ -35,7 +35,7 @@ class CRHamiltonianTomography(BaseExperiment):
 
         H = \frac{I \otimes A}{2} + \frac{Z \otimes B}{2}
 
-    where :math:`A` and :math:`B` are Pauli :math:`\in {X, Y, Z}`.
+    where :math:`A` and :math:`B` are Pauli operator :math:`\in {X, Y, Z}`.
 
     This experiment is performed by stretching a pulse duration of the cross resonance
     and measuring the target qubit by projecting onto x, y, and z basis.
@@ -159,8 +159,18 @@ class CRHamiltonianTomography(BaseExperiment):
 
         Returns:
             circuits: The circuits that will run the spectroscopy experiment.
+
+        Raises:
+            QiskitError: When `dt` information is not provided.
         """
-        self.set_experiment_options(dt=backend.configuration().dt)
+        if self.experiment_options.dt is None:
+            try:
+                self.set_experiment_options(dt=backend.configuration().dt)
+            except AttributeError as ex:
+                raise QiskitError(
+                    "Duration is not set and the backend doesn't provide dt. "
+                    "Set time resolution of the system to proceed."
+                ) from ex
 
         durations_dt = np.asarray(
             [self._to_samples(dur) for dur in self.experiment_options.durations], dtype=int
@@ -170,7 +180,7 @@ class CRHamiltonianTomography(BaseExperiment):
             # defaults to the CR1 sequence
             par_duration = circuit.Parameter("duration")
             amp = self.experiment_options.amp
-            sigma_dt = self._to_samples(self.experiment_options.sigma)
+            sigma_dt = self._to_samples(self.experiment_options.sigma, require_integer=False)
             risefall = self.experiment_options.risefall
 
             with pulse.build(backend=backend) as cr_sched:
@@ -266,17 +276,24 @@ class CRHamiltonianTomography(BaseExperiment):
 
         return experiment_circs
 
-    def _to_samples(self, value):
+    def _to_samples(self, value, require_integer: bool = True):
         """A helper function to convert SI pulse length to samples.
 
         Args:
             value: A value to convert.
+            require_integer: Set ``True`` to return integer value.
 
         Returns:
             Given value in samples.
         """
         unit = self.experiment_options.unit
         if unit != "dt":
-            return int(np.round(apply_prefix(value, unit) / self.experiment_options.dt))
+            if unit != "s":
+                value = apply_prefix(value, unit) / self.experiment_options.dt
+            else:
+                value = value / self.experiment_options.dt
+
+        if require_integer:
+            return int(np.round(value))
         else:
-            return int(value)
+            return value

@@ -41,6 +41,11 @@ def oscillation_z(x: np.ndarray, px: float, py: float, pz: float, b: float):
     return (pz**2 + (px**2 + py**2) * np.cos(omega * x)) / omega**2 + b
 
 
+class ContinueOuterLoop(Exception):
+    """A fake exception to continue outer loop."""
+    pass
+
+
 class CRHamiltonianAnalysis(CurveAnalysis):
     r"""A class to analyze spectroscopy experiment.
 
@@ -99,7 +104,8 @@ class CRHamiltonianAnalysis(CurveAnalysis):
         :math:`\langle \sigma_{z} (t) \rangle` oscillation.
         These points are estimated as 90 and 10 percentile of measured value to avoid outliers.
         With evaluated min and max values,
-        :math:`p_z = \Omega \sqrt{\frac{F_{z, 0} + F_{z, \pi}}{2}}`.
+        :math:`p_z = \Omega \sqrt{\frac{F_{z, 0} + F_{z, \pi}}{2}}`, or
+        :math:`p_z = 0` when :math:`F_{z, 0} + F_{z, \pi} < 0`.
         Here :math:`\Omega` is directly estimated from :math:`\langle \sigma_{z} (t) \rangle`
         by using the fast Fourier analysis.
 
@@ -120,7 +126,7 @@ class CRHamiltonianAnalysis(CurveAnalysis):
             v_- &= \frac{\Omega^2}{\Omega - p_z} (F_{x} - F_{y}) = p_y + p_x.
 
         This yields :math:`p_x = \frac{v_- - v_+}{2}` and :math:`p_y = \frac{v_- + v_+}{2}`.
-        Here `p_z` is the estimated initial value.
+        Here :math;`p_z` is the estimated initial value.
         $b = 0$ is assumed regardless of measured data.
 
     Bounds
@@ -238,61 +244,64 @@ class CRHamiltonianAnalysis(CurveAnalysis):
             # slightly offset data points to find tOmega = pi/2 in discrete data.
 
             init_guess = dict()
-            for control in (0, 1):
-                # initial guess of pz
-                ts, exp_z, _ = self._subset_data(
-                    name=f"z|c={control}",
-                    data_index=self._data_index,
-                    x_values=self._x_values,
-                    y_values=self._y_values,
-                    y_sigmas=self._y_sigmas,
-                )
-                omega = 2 * np.pi * frequency_guess(ts, exp_z, method="FFT")
-
-                if omega == 0:
-                    raise AnalysisError(
-                        "Gate time scan range seems to be shorter than one cycle. "
-                        "Need more longer gate time to complete the analysis."
+            try:
+                for control in (0, 1):
+                    # initial guess of pz
+                    ts, exp_z, _ = self._subset_data(
+                        name=f"z|c={control}",
+                        data_index=self._data_index,
+                        x_values=self._x_values,
+                        y_values=self._y_values,
+                        y_sigmas=self._y_sigmas,
                     )
+                    omega = 2 * np.pi * frequency_guess(ts, exp_z, method="ACF")
 
-                zrange_mid = np.mean(np.percentile(exp_z, [10, 90]))
-                # take percentile to remove outlier, rather than taking min max
+                    if omega == 0:
+                        raise AnalysisError(
+                            "Gate time scan range seems to be shorter than one cycle. "
+                            "Need more longer gate time to complete the analysis."
+                        )
 
-                if zrange_mid < 0:
-                    pz_guess = 0.
-                else:
-                    pz_guess = omega * np.sqrt(zrange_mid)
+                    zrange_mid = np.mean(np.percentile(exp_z, [10, 90]))
+                    # take percentile to remove outlier, rather than taking min max
 
-                # initial guess of px and py
-                pi2_time = np.pi / 2 / omega
-                pi2_ind = np.argmin(np.abs(ts - pi2_time)) + tshift
+                    if zrange_mid < 0:
+                        pz_guess = 0.
+                    else:
+                        pz_guess = omega * np.sqrt(zrange_mid)
 
-                if pi2_ind < 0:
-                    continue
+                    # initial guess of px and py
+                    pi2_time = np.pi / 2 / omega
+                    pi2_ind = np.argmin(np.abs(ts - pi2_time)) + tshift
 
-                _, exp_x, _ = self._subset_data(
-                    name=f"x|c={control}",
-                    data_index=self._data_index,
-                    x_values=self._x_values,
-                    y_values=self._y_values,
-                    y_sigmas=self._y_sigmas,
-                )
-                _, exp_y, _ = self._subset_data(
-                    name=f"y|c={control}",
-                    data_index=self._data_index,
-                    x_values=self._x_values,
-                    y_values=self._y_values,
-                    y_sigmas=self._y_sigmas,
-                )
-                v1 = omega ** 2 / (omega + pz_guess) * (exp_x[pi2_ind] + exp_y[pi2_ind])
-                v2 = omega ** 2 / (omega - pz_guess) * (exp_x[pi2_ind] - exp_y[pi2_ind])
+                    if pi2_ind < 0:
+                        raise ContinueOuterLoop()
 
-                px_guess = (v2 - v1) / 2
-                py_guess = (v2 + v1) / 2
+                    _, exp_x, _ = self._subset_data(
+                        name=f"x|c={control}",
+                        data_index=self._data_index,
+                        x_values=self._x_values,
+                        y_values=self._y_values,
+                        y_sigmas=self._y_sigmas,
+                    )
+                    _, exp_y, _ = self._subset_data(
+                        name=f"y|c={control}",
+                        data_index=self._data_index,
+                        x_values=self._x_values,
+                        y_values=self._y_values,
+                        y_sigmas=self._y_sigmas,
+                    )
+                    v1 = omega ** 2 / (omega + pz_guess) * (exp_x[pi2_ind] + exp_y[pi2_ind])
+                    v2 = omega ** 2 / (omega - pz_guess) * (exp_x[pi2_ind] - exp_y[pi2_ind])
 
-                init_guess[f"px{control}"] = user_p0[f"px{control}"] or px_guess
-                init_guess[f"py{control}"] = user_p0[f"py{control}"] or py_guess
-                init_guess[f"pz{control}"] = user_p0[f"pz{control}"] or pz_guess
+                    px_guess = (v2 - v1) / 2
+                    py_guess = (v2 + v1) / 2
+
+                    init_guess[f"px{control}"] = user_p0[f"px{control}"] or px_guess
+                    init_guess[f"py{control}"] = user_p0[f"py{control}"] or py_guess
+                    init_guess[f"pz{control}"] = user_p0[f"pz{control}"] or pz_guess
+            except ContinueOuterLoop:
+                continue
             init_guess["b"] = user_p0["b"] or 0.
             init_guesses.append(init_guess)
 
@@ -329,6 +338,6 @@ class CRHamiltonianAnalysis(CurveAnalysis):
                 else:
                     coef = 0.5 * (p0_val + p1_val)
                 analysis_result[f"{control}{target}"] = coef
-                analysis_result[f"{control}{target}_err"] = np.sqrt(p0_err**2 + p1_err**2)
+                analysis_result[f"{control}{target}_err"] = 0.5 * np.sqrt(p0_err**2 + p1_err**2)
 
         return analysis_result
