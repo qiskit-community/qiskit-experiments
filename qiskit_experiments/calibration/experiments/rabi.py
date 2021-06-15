@@ -178,7 +178,6 @@ class Rabi(BaseExperiment):
         return Options(
             meas_level=MeasLevel.KERNELED,
             meas_return="single",
-            normalization=True,
         )
 
     @classmethod
@@ -197,6 +196,7 @@ class Rabi(BaseExperiment):
             sigma=40,
             amplitudes=np.linspace(-0.95, 0.95, 51),
             schedule=None,
+            normalization=True,
         )
 
     def __init__(self, qubit: int):
@@ -228,7 +228,7 @@ class Rabi(BaseExperiment):
             data_processor=get_to_signal_processor(
                 meas_level=self.run_options.meas_level,
                 meas_return=self.run_options.meas_return,
-                normalize=self.run_options.normalization,
+                normalize=self.experiment_options.normalization,
             )
         )
 
