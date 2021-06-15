@@ -20,7 +20,7 @@ import itertools as it
 import ddt
 
 from qiskit.test import QiskitTestCase
-from qiskit import QuantumCircuit, ClassicalRegister, QuantumRegister
+from qiskit import QuantumCircuit
 import qiskit.quantum_info as qi
 from qiskit.providers.aer import AerSimulator
 from qiskit_experiments.composite import BatchExperiment, ParallelExperiment
@@ -40,7 +40,7 @@ class TestStateTomographyExperiment(QiskitTestCase):
         """Test 1-qubit QST experiment"""
         backend = AerSimulator()
         seed = 1234
-        f_threshold = 0.97
+        f_threshold = 0.95
         target = qi.random_statevector(2 ** num_qubits, seed=seed)
         qstexp = tomo.StateTomographyExperiment(target)
         if fitter:
@@ -63,19 +63,19 @@ class TestStateTomographyExperiment(QiskitTestCase):
         fid = qi.state_fidelity(state, target, validate=False)
         self.assertGreater(fid, f_threshold, msg="fitted state fidelity is low")
 
-    def skip_test_qst_teleport(self):
+    def test_qst_teleport(self):
         """Test subset state tomography generation"""
         # NOTE: This test breaks transpiler. I think it is a bug with
         # conditionals in Terra.
 
-        # Teleport qubit 1 -> 2
+        # Teleport qubit 0 -> 2
         backend = AerSimulator()
-        exp = tomo.StateTomographyExperiment(teleport_circuit(1, 2), measurement_qubits=[2])
+        exp = tomo.StateTomographyExperiment(teleport_circuit(), measurement_qubits=[2])
         expdata = exp.run(backend)
         result = expdata.analysis_result(-1)
 
         # Check result
-        f_threshold = 0.98
+        f_threshold = 0.95
         self.assertTrue(result.get("success", False), msg="analysis failed")
 
         # Check state is density matrix
@@ -166,7 +166,7 @@ class TestStateTomographyExperiment(QiskitTestCase):
         result = expdata.analysis_result(-1)
 
         # Check result
-        f_threshold = 0.97
+        f_threshold = 0.95
         self.assertTrue(result.get("success", False), msg="analysis failed")
 
         # Check state is density matrix
@@ -209,7 +209,7 @@ class TestStateTomographyExperiment(QiskitTestCase):
         self.assertTrue(batch_result.get("success"), msg="BatchExperiment failed")
 
         # Check target fidelity of component experiments
-        f_threshold = 0.97
+        f_threshold = 0.95
         for i in range(batch_exp.num_experiments):
             result = batch_data.component_experiment_data(i).analysis_result(-1)
             self.assertTrue(result.get("success", False), msg="component analysis failed")
@@ -249,7 +249,7 @@ class TestStateTomographyExperiment(QiskitTestCase):
         self.assertTrue(par_result.get("success"), msg="ParallelExperiment failed")
 
         # Check target fidelity of component experiments
-        f_threshold = 0.97
+        f_threshold = 0.95
         for i in range(par_exp.num_experiments):
             result = par_data.component_experiment_data(i).analysis_result(-1)
             self.assertTrue(result.get("success", False), msg="component analysis failed")
@@ -366,7 +366,7 @@ class TestProcessTomographyExperiment(QiskitTestCase):
         result = expdata.analysis_result(-1)
 
         # Check result
-        f_threshold = 0.97
+        f_threshold = 0.95
         self.assertTrue(result.get("success", False), msg="analysis failed")
 
         # Check state is density matrix
@@ -380,21 +380,21 @@ class TestProcessTomographyExperiment(QiskitTestCase):
         fid = qi.process_fidelity(state, target, require_tp=False, require_cp=False)
         self.assertGreater(fid, f_threshold, msg="fitted state fidelity is low")
 
-    def skip_test_qpt_teleport(self):
+    def test_qpt_teleport(self):
         """Test subset state tomography generation"""
         # NOTE: This test breaks transpiler. I think it is a bug with
         # conditionals in Terra.
 
-        # Teleport qubit 1 -> 2
+        # Teleport qubit 0 -> 2
         backend = AerSimulator()
         exp = tomo.ProcessTomographyExperiment(
-            teleport_circuit(1, 2), measurement_qubits=[2], preparation_qubits=[1]
+            teleport_circuit(), measurement_qubits=[2], preparation_qubits=[0]
         )
-        expdata = exp.run(backend)
+        expdata = exp.run(backend, shots=10000)
         result = expdata.analysis_result(-1)
 
         # Check result
-        f_threshold = 0.98
+        f_threshold = 0.95
         self.assertTrue(result.get("success", False), msg="analysis failed")
 
         # Check state is density matrix
@@ -490,28 +490,17 @@ class TestProcessTomographyExperiment(QiskitTestCase):
             self.assertGreater(fid, f_threshold, msg="fitted state fidelity is low")
 
 
-def teleport_circuit(qubit_in, qubit_out):
-    """Teleport qubit_in to qubit_out"""
-    # It would be nice to be able to do this without using
-    # register objects
-
-    # Teleport qubit 0 -> 2
-    qr = QuantumRegister(3)
-    c0 = ClassicalRegister(1)
-    c1 = ClassicalRegister(1)
-    teleport = QuantumCircuit(qr, c0, c1)
-    teleport.h(qr[1])
-    teleport.cx(qr[1], qr[2])
-    teleport.cx(qr[0], qr[1])
-    teleport.h(qr[0])
-    teleport.measure(qr[0], c0[0])
-    teleport.measure(qr[1], c1[0])
-    teleport.z(qr[2]).c_if(c0, 1)
-    teleport.x(qr[2]).c_if(c1, 1)
-
-    # Return mapped circuit
-    num_qubits = max(3, qubit_in + 1, qubit_out + 1)
-    qubit_anc = [i for i in range(3) if i not in [qubit_in, qubit_out]][0]
-    circ = QuantumCircuit(num_qubits, 2)
-    circ = circ.compose(teleport, [qubit_in, qubit_anc, qubit_out], [0, 1])
-    return circ
+def teleport_circuit():
+    """Teleport qubit 0 to qubit 2"""
+    teleport = QuantumCircuit(3, 2)
+    teleport.h(1)
+    teleport.cx(1, 2)
+    teleport.cx(0, 1)
+    teleport.h(0)
+    teleport.measure(0, 0)
+    teleport.measure(1, 1)
+    # Conditionals
+    creg = teleport.cregs[0]
+    teleport.z(2).c_if(creg[0], 1)
+    teleport.x(2).c_if(creg[1], 1)
+    return teleport

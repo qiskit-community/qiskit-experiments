@@ -153,7 +153,9 @@ class TomographyExperiment(BaseExperiment):
                 circ.barrier(prep_qubits)
 
             # Add target circuit
-            circ.append(self._circuit, circ_qubits, circ_clbits)
+            # Have to use compose since circuit.to_instruction has a bug
+            # when circuit contains classical registers and conditionals
+            circ = circ.compose(self._circuit, circ_qubits, circ_clbits)
 
             # Add tomography measurement
             meas_circ = self._meas_circ_basis.circuit(meas_element)
