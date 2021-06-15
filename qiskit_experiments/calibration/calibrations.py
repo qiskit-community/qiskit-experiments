@@ -935,8 +935,7 @@ class Calibrations:
         """
         result = exp_data.analysis_result(result_index)
 
-        quality = result.get("quality", "computer_good")
-        if quality == "computer_bad" and not force_update:
+        if "quality" in result and result["quality"] == "computer_bad" and not force_update:
             return
 
         required_keys = ["cal_parameter", "cal_schedule", "cal_value"]
