@@ -253,10 +253,10 @@ class TestCRHamiltonianTomography(QiskitTestCase):
         result = exp_data.analysis_result(0)
         self.assertTrue(result["success"])
 
-        # check expected value in 1 percent precision or absolute error of 10 Hz
-        self.assertLess(np.abs(result["IX"] - ix), max(10, 0.01 * np.abs(ix)))
-        self.assertLess(np.abs(result["IY"] - iy), max(10, 0.01 * np.abs(iy)))
-        self.assertLess(np.abs(result["IZ"] - iz), max(10, 0.01 * np.abs(iz)))
-        self.assertLess(np.abs(result["ZX"] - zx), max(10, 0.01 * np.abs(zx)))
-        self.assertLess(np.abs(result["ZY"] - zy), max(10, 0.01 * np.abs(zy)))
-        self.assertLess(np.abs(result["ZZ"] - zz), max(10, 0.01 * np.abs(zz)))
+        # check expected value in 1 percent precision or absolute error of 100 Hz
+        self.assertLess(np.abs(result["IX"] - ix), max(100, 0.01 * np.abs(ix)))
+        self.assertLess(np.abs(result["IY"] - iy), max(100, 0.01 * np.abs(iy)))
+        self.assertLess(np.abs(result["IZ"] - iz), max(100, 0.01 * np.abs(iz)))
+        self.assertLess(np.abs(result["ZX"] - zx), max(100, 0.01 * np.abs(zx)))
+        self.assertLess(np.abs(result["ZY"] - zy), max(100, 0.01 * np.abs(zy)))
+        self.assertLess(np.abs(result["ZZ"] - zz), max(100, 0.01 * np.abs(zz)))
