@@ -84,8 +84,9 @@ class BackendCalibrations(Calibrations):
 
         freqs = []
         for qubit in self._qubits:
-            if ParameterKey(param, (qubit,), None) in self._params:
-                freq = self.get_parameter_value(param, (qubit,), None, True, group, cutoff_date)
+            schedule = None  # A qubit frequency is not attached to a schedule.
+            if ParameterKey(param, (qubit,), schedule) in self._params:
+                freq = self.get_parameter_value(param, (qubit,), schedule, True, group, cutoff_date)
             else:
                 if element == FrequencyElement.READOUT:
                     freq = self._backend.defaults().meas_freq_est[qubit]
