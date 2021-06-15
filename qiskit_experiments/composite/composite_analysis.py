@@ -80,6 +80,6 @@ class CompositeAnalysis(BaseAnalysis):
             },
             result_type="composite",
             device_components=[Qubit(qidx) for qidx in sub_qubits],
-            experiment_id=experiment_data.experiment_id
+            experiment_id=experiment_data.experiment_id,
         )
         return [analysis_result], None

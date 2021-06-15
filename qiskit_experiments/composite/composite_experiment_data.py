@@ -44,8 +44,9 @@ class CompositeExperimentData(ExperimentData):
         )
 
         # Initialize sub experiments
-        self._components = [expr.__experiment_data__(expr)
-                            for expr in experiment.component_experiment()]
+        self._components = [
+            expr.__experiment_data__(expr) for expr in experiment.component_experiment()
+        ]
 
     def __str__(self):
         line = 51 * "-"

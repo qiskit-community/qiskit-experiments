@@ -40,8 +40,9 @@ def requires_matplotlib(func):
         # plot. An alternative is to run this in a separate process, but then
         # we'd need to deal with pickling issues.
         from matplotlib import pyplot
+
         saved_backend = pyplot.get_backend()
-        pyplot.switch_backend('Agg')
+        pyplot.switch_backend("Agg")
         try:
             ret_val = func(*args, **kwargs)
         finally:

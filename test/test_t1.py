@@ -228,7 +228,7 @@ class TestT1(QiskitTestCase):
 
         res = T1Analysis()._run_analysis(data)[0]
         self.assertEqual(res.quality, ResultQuality.GOOD)
-        self.assertAlmostEqual(res.data()["value"], 25e-9, delta=3)        
+        self.assertAlmostEqual(res.data()["value"], 25e-9, delta=3)
 
     def test_t1_metadata(self):
         """

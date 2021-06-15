@@ -90,9 +90,7 @@ class T2StarAnalysis(BaseAnalysis):
         conversion_factor = data[0]["metadata"].get("dt_factor", None)
         if conversion_factor is None:
             conversion_factor = 1 if unit == "s" else apply_prefix(1, unit)
-        xdata, ydata, sigma = process_curve_data(
-            data, lambda datum: level2_probability(datum, "0")
-        )
+        xdata, ydata, sigma = process_curve_data(data, lambda datum: level2_probability(datum, "0"))
 
         si_xdata = xdata * conversion_factor
         t2star_estimate = np.mean(si_xdata)
@@ -115,16 +113,16 @@ class T2StarAnalysis(BaseAnalysis):
 
         # Output unit is 'sec', regardless of the unit used in the input
         result_data = {
-                "t2star_value": fit_result["popt"][1],
-                "frequency_value": fit_result["popt"][2],
-                "stderr": fit_result["popt_err"][1],
-                "unit": "s",
-                "label": "T2*",
-                "fit": fit_result,
-                "quality": self._fit_quality(
-                    fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
-                ),
-            }
+            "t2star_value": fit_result["popt"][1],
+            "frequency_value": fit_result["popt"][2],
+            "stderr": fit_result["popt_err"][1],
+            "unit": "s",
+            "label": "T2*",
+            "fit": fit_result,
+            "quality": self._fit_quality(
+                fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
+            ),
+        }
 
         result_data["fit"]["circuit_unit"] = unit
         if unit == "dt":

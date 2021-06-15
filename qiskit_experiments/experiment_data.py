@@ -53,8 +53,9 @@ class ExperimentData(ExperimentDataV1):
         """
         self._experiment = experiment
 
-        super().__init__(experiment_type=experiment.experiment_type if experiment else "unknown",
-                         backend=backend)
+        super().__init__(
+            experiment_type=experiment.experiment_type if experiment else "unknown", backend=backend
+        )
 
     @property
     def experiment(self):

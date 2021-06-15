@@ -851,7 +851,9 @@ class CurveAnalysis(BaseAnalysis):
         analysis_result = AnalysisResultV1(
             result_data=result_data,
             result_type="RB",
-            device_components=[Qubit(qubit) for qubit in experiment_data.data(0)["metadata"]["qubits"]],
+            device_components=[
+                Qubit(qubit) for qubit in experiment_data.data(0)["metadata"]["qubits"]
+            ],
             experiment_id=experiment_data.experiment_id,
         )
 

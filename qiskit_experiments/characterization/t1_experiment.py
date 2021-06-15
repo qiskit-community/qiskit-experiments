@@ -130,15 +130,15 @@ class T1Analysis(BaseAnalysis):
         fit_result = curve_fit(fit_fun, xdata, ydata, init, sigma=sigma, bounds=bounds)
 
         result_data = {
-                "value": fit_result["popt"][1],
-                "stderr": fit_result["popt_err"][1],
-                "unit": "s",
-                "label": "T1",
-                "fit": fit_result,
-                "quality": self._fit_quality(
-                    fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
-                ),
-            }
+            "value": fit_result["popt"][1],
+            "stderr": fit_result["popt_err"][1],
+            "unit": "s",
+            "label": "T1",
+            "fit": fit_result,
+            "quality": self._fit_quality(
+                fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
+            ),
+        }
 
         result_data["fit"]["circuit_unit"] = unit
         if unit == "dt":

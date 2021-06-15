@@ -260,8 +260,7 @@ class TestT2Star(QiskitTestCase):
             sub_res = expdata.component_experiment_data(i).analysis_result(0)
             sub_rest_data = sub_res.data()
             self.assertAlmostEqual(
-                sub_rest_data["t2star_value"], t2star[i],
-                delta=0.08 * sub_rest_data["t2star_value"]
+                sub_rest_data["t2star_value"], t2star[i], delta=0.08 * sub_rest_data["t2star_value"]
             )
             self.assertAlmostEqual(
                 sub_rest_data["frequency_value"],
