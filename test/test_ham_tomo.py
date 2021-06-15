@@ -9,6 +9,7 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""Test for Hamiltonian tomography experiments."""
 
 import numpy as np
 from ddt import ddt, data, unpack
@@ -27,8 +28,9 @@ from qiskit_experiments.hamiltonian_tomography import (
 class CRHamiltonianTomographyBackend(FakeAthens):
     """Mock backend for CR Hamiltonian tomography testing."""
 
+    # pylint: disable = invalid-name
     def __init__(
-            self, ix: float, iy: float, iz: float, zx: float, zy: float, zz: float, b: float = 0
+        self, ix: float, iy: float, iz: float, zx: float, zy: float, zz: float, b: float = 0
     ):
         self.fit_func_args = {
             "px0": 2 * np.pi * (ix + zx),
@@ -37,7 +39,7 @@ class CRHamiltonianTomographyBackend(FakeAthens):
             "py1": 2 * np.pi * (iy - zy),
             "pz0": 2 * np.pi * (iz + zz),
             "pz1": 2 * np.pi * (iz - zz),
-            "b": b
+            "b": b,
         }
         super().__init__()
 
@@ -100,7 +102,7 @@ class TestCRHamiltonianTomography(QiskitTestCase):
         """Test generated circuits."""
         durations = np.asarray([20], dtype=int)
         exp = CRHamiltonianTomography(qubits=(0, 1), durations=durations)
-        exp.set_experiment_options(amp=0.1, sigma=2., risefall=2., alignment=1, unit="s", dt=0.1)
+        exp.set_experiment_options(amp=0.1, sigma=2.0, risefall=2.0, alignment=1, unit="s", dt=0.1)
 
         circs = exp.circuits(backend=FakeAthens())
 
@@ -113,21 +115,21 @@ class TestCRHamiltonianTomography(QiskitTestCase):
             "control_state": 0,
             "meas_basis": "x",
             "amplitude": 0.1,
-            "sigma": 20.,
-            "risefall": 2.,
+            "sigma": 20.0,
+            "risefall": 2.0,
         }
         self.assertDictEqual(circs[0].metadata, ref_circ0_meta)
 
         with pulse.build() as ref_sched:
             with pulse.align_left():
                 pulse.play(
-                    pulse.GaussianSquare(duration=200, amp=0.1, sigma=20., width=120.),
+                    pulse.GaussianSquare(duration=200, amp=0.1, sigma=20.0, width=120.0),
                     pulse.ControlChannel(0),
                 )
                 pulse.delay(duration=200, channel=pulse.DriveChannel(0))
                 pulse.delay(duration=200, channel=pulse.DriveChannel(1))
 
-        self.assertEqual(circs[0].calibrations["cr_gate"][((0, 1), (200., ))], ref_sched)
+        self.assertEqual(circs[0].calibrations["cr_gate"][((0, 1), (200.0,))], ref_sched)
 
     def test_tomo_circs_custom_sched(self):
         """Test generated circuits with custom pulse schedule."""
@@ -139,8 +141,8 @@ class TestCRHamiltonianTomography(QiskitTestCase):
                     pulse.GaussianSquare(
                         duration=ecr_dur,
                         amp=0.1,
-                        sigma=20.,
-                        width=ecr_dur - 4 * 20.,
+                        sigma=20.0,
+                        width=ecr_dur - 4 * 20.0,
                     ),
                     pulse.ControlChannel(0),
                 )
@@ -149,12 +151,12 @@ class TestCRHamiltonianTomography(QiskitTestCase):
                     pulse.GaussianSquare(
                         duration=ecr_dur,
                         amp=-0.1,
-                        sigma=20.,
-                        width=ecr_dur - 4 * 20.,
+                        sigma=20.0,
+                        width=ecr_dur - 4 * 20.0,
                     ),
                     pulse.ControlChannel(0),
                 )
-        xvalues = np.asarray([321.], dtype=float)
+        xvalues = np.asarray([321.0], dtype=float)
 
         durations = np.asarray([20], dtype=int)
         exp = CRHamiltonianTomography(
@@ -163,14 +165,14 @@ class TestCRHamiltonianTomography(QiskitTestCase):
             cr_gate_schedule=ecr_sched,
             x_values=xvalues,
         )
-        exp.set_experiment_options(amp=0.1, sigma=2., risefall=2., alignment=1, unit="s", dt=0.1)
+        exp.set_experiment_options(amp=0.1, sigma=2.0, risefall=2.0, alignment=1, unit="s", dt=0.1)
 
         circs = exp.circuits(backend=FakeAthens())
 
         ref_circ0_meta = {
             "experiment_type": "CRHamiltonianTomography",
             "qubits": (0, 1),
-            "xval": 321.,
+            "xval": 321.0,
             "dt": 0.1,
             "duration": 200,
             "control_state": 0,
@@ -190,7 +192,7 @@ class TestCRHamiltonianTomography(QiskitTestCase):
                     pulse.ControlChannel(0),
                 )
 
-        self.assertEqual(circs[0].calibrations["cr_gate"][((0, 1), (200., ))], ref_sched)
+        self.assertEqual(circs[0].calibrations["cr_gate"][((0, 1), (200.0,))], ref_sched)
 
     def test_hamiltonian_coefficients(self):
         """Test that calculates Hamiltonian coefficients from fit parameters."""
@@ -198,12 +200,12 @@ class TestCRHamiltonianTomography(QiskitTestCase):
         fit_params_ref = {
             "popt_keys": ["px0", "py0", "pz0", "px1", "py1", "pz1"],
             "popt": [
-                2 * np.pi * 1.,
-                2 * np.pi * 2.,
-                2 * np.pi * 3.,
-                2 * np.pi * 4.,
-                2 * np.pi * 5.,
-                2 * np.pi * 6.,
+                2 * np.pi * 1.0,
+                2 * np.pi * 2.0,
+                2 * np.pi * 3.0,
+                2 * np.pi * 4.0,
+                2 * np.pi * 5.0,
+                2 * np.pi * 6.0,
             ],
             "popt_err": [
                 2 * np.pi * 0.01,
@@ -212,7 +214,7 @@ class TestCRHamiltonianTomography(QiskitTestCase):
                 2 * np.pi * 0.04,
                 2 * np.pi * 0.05,
                 2 * np.pi * 0.06,
-            ]
+            ],
         }
         test_result = CurveAnalysisResult(**fit_params_ref)
 
@@ -226,18 +228,19 @@ class TestCRHamiltonianTomography(QiskitTestCase):
         self.assertEqual(processed_result["ZY"], -1.5)
         self.assertEqual(processed_result["ZZ"], -1.5)
 
-        self.assertEqual(processed_result["IX_err"], 0.5 * np.sqrt(0.01**2 + 0.04**2))
-        self.assertEqual(processed_result["IY_err"], 0.5 * np.sqrt(0.02**2 + 0.05**2))
-        self.assertEqual(processed_result["IZ_err"], 0.5 * np.sqrt(0.03**2 + 0.06**2))
-        self.assertEqual(processed_result["ZX_err"], 0.5 * np.sqrt(0.01**2 + 0.04**2))
-        self.assertEqual(processed_result["ZY_err"], 0.5 * np.sqrt(0.02**2 + 0.05**2))
-        self.assertEqual(processed_result["ZZ_err"], 0.5 * np.sqrt(0.03**2 + 0.06**2))
+        self.assertEqual(processed_result["IX_err"], 0.5 * np.sqrt(0.01 ** 2 + 0.04 ** 2))
+        self.assertEqual(processed_result["IY_err"], 0.5 * np.sqrt(0.02 ** 2 + 0.05 ** 2))
+        self.assertEqual(processed_result["IZ_err"], 0.5 * np.sqrt(0.03 ** 2 + 0.06 ** 2))
+        self.assertEqual(processed_result["ZX_err"], 0.5 * np.sqrt(0.01 ** 2 + 0.04 ** 2))
+        self.assertEqual(processed_result["ZY_err"], 0.5 * np.sqrt(0.02 ** 2 + 0.05 ** 2))
+        self.assertEqual(processed_result["ZZ_err"], 0.5 * np.sqrt(0.03 ** 2 + 0.06 ** 2))
 
+    # pylint: disable = invalid-name
     @data(
         [1e6, 2e6, 1e3, -3e6, -2e6, 1e4],
         [-1e6, -2e6, 1e3, 3e6, 2e6, 1e4],
         [1e4, 2e4, 1e3, 5e6, 1e6, 2e3],
-        [0., 0., 0., 3e6, 0., 0.],
+        [0.0, 0.0, 0.0, 3e6, 0.0, 0.0],
     )
     @unpack
     def test_integration_test(self, ix, iy, iz, zx, zy, zz):

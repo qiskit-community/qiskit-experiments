@@ -23,26 +23,32 @@ from qiskit_experiments.analysis.utils import get_opt_value, get_opt_error, freq
 from qiskit_experiments.exceptions import AnalysisError
 
 
+# pylint: disable = invalid-name
 def oscillation_x(x: np.ndarray, px: float, py: float, pz: float, b: float):
     """Fit function for x basis oscillation."""
-    omega = np.sqrt(px**2 + py**2 + pz**2)
-    return (-pz * px + pz * px * np.cos(omega * x) + omega * py * np.sin(omega * x)) / omega**2 + b
+    omega = np.sqrt(px ** 2 + py ** 2 + pz ** 2)
+    return (
+        -pz * px + pz * px * np.cos(omega * x) + omega * py * np.sin(omega * x)
+    ) / omega ** 2 + b
 
 
+# pylint: disable = invalid-name
 def oscillation_y(x: np.ndarray, px: float, py: float, pz: float, b: float):
     """Fit function for y basis oscillation."""
-    omega = np.sqrt(px**2 + py**2 + pz**2)
-    return (pz * py - pz * py * np.cos(omega * x) - omega * px * np.sin(omega * x)) / omega**2 + b
+    omega = np.sqrt(px ** 2 + py ** 2 + pz ** 2)
+    return (pz * py - pz * py * np.cos(omega * x) - omega * px * np.sin(omega * x)) / omega ** 2 + b
 
 
+# pylint: disable = invalid-name
 def oscillation_z(x: np.ndarray, px: float, py: float, pz: float, b: float):
     """Fit function for z basis oscillation."""
-    omega = np.sqrt(px**2 + py**2 + pz**2)
-    return (pz**2 + (px**2 + py**2) * np.cos(omega * x)) / omega**2 + b
+    omega = np.sqrt(px ** 2 + py ** 2 + pz ** 2)
+    return (pz ** 2 + (px ** 2 + py ** 2) * np.cos(omega * x)) / omega ** 2 + b
 
 
 class ContinueOuterLoop(Exception):
     """A fake exception to continue outer loop."""
+
     pass
 
 
@@ -211,10 +217,22 @@ class CRHamiltonianAnalysis(CurveAnalysis):
         default_options.xlabel = "CR duration (sec)"
         default_options.ylabel = r"$\langle\sigma_{X, Y, Z}\rangle$"
         default_options.p0 = {
-            "px0": None, "px1": None, "py0": None, "py1": None, "pz0": None, "pz1": None, "b": None
+            "px0": None,
+            "px1": None,
+            "py0": None,
+            "py1": None,
+            "pz0": None,
+            "pz1": None,
+            "b": None,
         }
         default_options.bounds = {
-            "px0": None, "px1": None, "py0": None, "py1": None, "pz0": None, "pz1": None, "b": None
+            "px0": None,
+            "px1": None,
+            "py0": None,
+            "py1": None,
+            "pz0": None,
+            "pz1": None,
+            "b": None,
         }
         default_options.fit_reports = {
             "IX": r"$\omega_{IX}$",
@@ -228,14 +246,7 @@ class CRHamiltonianAnalysis(CurveAnalysis):
         return default_options
 
     def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
-        """Fitter options.
-
-        See class docstring for
-
-        Raises:
-            AnalysisError
-                - When time range is shorter than one cycle.
-        """
+        """Fitter options."""
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
 
@@ -266,7 +277,7 @@ class CRHamiltonianAnalysis(CurveAnalysis):
                     # take percentile to remove outlier, rather than taking min max
 
                     if zrange_mid < 0:
-                        pz_guess = 0.
+                        pz_guess = 0.0
                     else:
                         pz_guess = omega * np.sqrt(zrange_mid)
 
@@ -302,7 +313,7 @@ class CRHamiltonianAnalysis(CurveAnalysis):
                     init_guess[f"pz{control}"] = user_p0[f"pz{control}"] or pz_guess
             except ContinueOuterLoop:
                 continue
-            init_guess["b"] = user_p0["b"] or 0.
+            init_guess["b"] = user_p0["b"] or 0.0
             init_guesses.append(init_guess)
 
         fit_options = []
@@ -338,6 +349,6 @@ class CRHamiltonianAnalysis(CurveAnalysis):
                 else:
                     coef = 0.5 * (p0_val + p1_val)
                 analysis_result[f"{control}{target}"] = coef
-                analysis_result[f"{control}{target}_err"] = 0.5 * np.sqrt(p0_err**2 + p1_err**2)
+                analysis_result[f"{control}{target}_err"] = 0.5 * np.sqrt(p0_err ** 2 + p1_err ** 2)
 
         return analysis_result

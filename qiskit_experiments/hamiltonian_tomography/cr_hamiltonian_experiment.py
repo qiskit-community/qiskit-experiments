@@ -79,11 +79,11 @@ class CRHamiltonianTomography(BaseExperiment):
     __analysis_class__ = CRHamiltonianAnalysis
 
     def __init__(
-            self,
-            qubits: Tuple[int, int],
-            durations: np.ndarray,
-            cr_gate_schedule: Optional[Union[pulse.Schedule, pulse.ScheduleBlock]] = None,
-            x_values: Optional[np.ndarray] = None
+        self,
+        qubits: Tuple[int, int],
+        durations: np.ndarray,
+        cr_gate_schedule: Optional[Union[pulse.Schedule, pulse.ScheduleBlock]] = None,
+        x_values: Optional[np.ndarray] = None,
     ):
         r"""Create new CR Hamiltonian tomography experiment.
 
@@ -192,7 +192,7 @@ class CRHamiltonianTomography(BaseExperiment):
                             sigma=sigma_dt,
                             width=par_duration - 2 * risefall * sigma_dt,
                         ),
-                        pulse.control_channels(*self.physical_qubits)[0]
+                        pulse.control_channels(*self.physical_qubits)[0],
                     )
                     pulse.delay(par_duration, pulse.drive_channel(self.physical_qubits[0]))
                     pulse.delay(par_duration, pulse.drive_channel(self.physical_qubits[1]))
@@ -276,7 +276,7 @@ class CRHamiltonianTomography(BaseExperiment):
 
         return experiment_circs
 
-    def _to_samples(self, value, require_integer: bool = True):
+    def _to_samples(self, value, require_integer: bool = True) -> Union[int, float]:
         """A helper function to convert SI pulse length to samples.
 
         Args:

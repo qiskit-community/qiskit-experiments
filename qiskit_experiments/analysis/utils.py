@@ -76,9 +76,9 @@ def get_opt_error(analysis_result: AnalysisResult, param_name: str) -> float:
 
 
 def frequency_guess(
-        x_values: np.ndarray,
-        y_values: np.ndarray,
-        method: str = "FFT",
+    x_values: np.ndarray,
+    y_values: np.ndarray,
+    method: str = "FFT",
 ) -> float:
     """Provide initial frequency guess.
 
@@ -86,6 +86,12 @@ def frequency_guess(
         x_values: Array of x values.
         y_values: Array of y values.
         method: A method to find signal frequency. See below for details.
+
+    Returns:
+        Frequency estimation of oscillation signal.
+
+    Raises:
+        AnalysisError: When invalid method is specified.
 
     Methods
         - ``ACF``: Calculate autocorrelation function with numpy and run scipy peak search.
@@ -95,7 +101,7 @@ def frequency_guess(
     """
     if method == "ACF":
         corr = np.correlate(y_values, y_values, mode="full")
-        corr = corr[corr.size//2:]
+        corr = corr[corr.size // 2 :]
         peak_inds, _ = signal.find_peaks(corr)
         if len(peak_inds) == 0:
             return 0
