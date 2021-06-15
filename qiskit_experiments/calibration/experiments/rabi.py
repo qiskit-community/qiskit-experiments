@@ -100,26 +100,33 @@ class RabiAnalysis(CurveAnalysis):
 
         a_guess = np.max(self._y_values) - np.min(self._y_values)
         f_guess = freqs[np.argmax(fft)]
-        p_guess = 0
         b_guess = np.average(self._y_values)
 
-        fit_option = {
-            "p0": {
-                "a": user_p0["a"] or a_guess,
-                "freq": user_p0["freq"] or f_guess,
-                "phase": user_p0["phase"] or p_guess,
-                "b": user_p0["b"] or b_guess,
-            },
-            "bounds": {
-                "a": user_bounds["a"] or (-2 * max_abs_y, 2 * max_abs_y),
-                "freq": user_bounds["freq"] or (0, np.inf),
-                "phase": user_bounds["phase"] or (-np.pi, np.pi),
-                "b": user_bounds["b"] or (-1 * max_abs_y, 1 * max_abs_y),
-            },
-        }
-        fit_option.update(options)
+        if user_p0["phase"] is not None:
+            p_guesses = [user_p0["phase"]]
+        else:
+            p_guesses = [0, np.pi / 4, np.pi / 2, 3 * np.pi / 4, np.pi]
 
-        return fit_option
+        fit_options = []
+        for p_guess in p_guesses:
+            fit_option = {
+                "p0": {
+                    "a": user_p0["a"] or a_guess,
+                    "freq": user_p0["freq"] or f_guess,
+                    "phase": p_guess,
+                    "b": user_p0["b"] or b_guess,
+                },
+                "bounds": {
+                    "a": user_bounds["a"] or (-2 * max_abs_y, 2 * max_abs_y),
+                    "freq": user_bounds["freq"] or (0, np.inf),
+                    "phase": user_bounds["phase"] or (-np.pi, np.pi),
+                    "b": user_bounds["b"] or (-1 * max_abs_y, 1 * max_abs_y),
+                },
+            }
+            fit_option.update(options)
+            fit_options.append(fit_option)
+
+        return fit_options
 
     def _post_processing(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
         """Algorithmic criteria for whether the fit is good or bad.
