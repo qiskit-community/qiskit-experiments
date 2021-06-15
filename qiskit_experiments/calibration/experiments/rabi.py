@@ -80,7 +80,7 @@ class RabiAnalysis(CurveAnalysis):
         default_options = super()._default_options()
         default_options.p0 = {"a": None, "freq": None, "phase": None, "b": None}
         default_options.bounds = {"a": None, "freq": None, "phase": None, "b": None}
-        default_options.fit_reports = {"freq": "frequency"}
+        default_options.fit_reports = {"freq": "rate"}
         default_options.normalization = True
         default_options.xlabel = "Amplitude"
         default_options.ylabel = "Signal (arb. units)"
