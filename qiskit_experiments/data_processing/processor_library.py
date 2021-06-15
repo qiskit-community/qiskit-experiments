@@ -16,17 +16,20 @@ from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.data_processor import DataProcessor
-from qiskit_experiments.data_processing.nodes import AverageData, Probability, SVD
+from qiskit_experiments.data_processing.nodes import AverageData, Probability, SVD, MinMaxNormalize
 
 
 def get_to_signal_processor(
-    meas_level: MeasLevel = MeasLevel.CLASSIFIED, meas_return: str = "avg"
+    meas_level: MeasLevel = MeasLevel.CLASSIFIED,
+    meas_return: str = "avg",
+    normalize: bool = True,
 ) -> DataProcessor:
     """Get a DataProcessor that produces a continuous signal given the options.
 
     Args:
         meas_level: The measurement level of the data to process.
         meas_return: The measurement return (single or avg) of the data to process.
+        normalize: Add a data normalization node to the Kerneled data processor.
 
     Returns:
         An instance of DataProcessor capable of dealing with the given options.
@@ -39,8 +42,13 @@ def get_to_signal_processor(
 
     if meas_level == MeasLevel.KERNELED:
         if meas_return == "single":
-            return DataProcessor("memory", [AverageData(), SVD()])
+            processor = DataProcessor("memory", [AverageData(axis=1), SVD()])
         else:
-            return DataProcessor("memory", [SVD()])
+            processor = DataProcessor("memory", [SVD()])
+
+        if normalize:
+            processor.append(MinMaxNormalize())
+
+        return processor
 
     raise DataProcessorError(f"Unsupported measurement level {meas_level}.")

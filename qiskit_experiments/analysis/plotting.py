@@ -58,8 +58,8 @@ def plot_curve_fit(
         ax = figure.subplots()
 
     # Result data
-    popt = result["popt"]
-    popt_err = result["popt_err"]
+    fit_params = dict(zip(result["popt_keys"], result["popt"]))
+    fit_errors = dict(zip(result["popt_keys"], result["popt_err"]))
     xmin, xmax = result["xrange"]
 
     # Default plot options
@@ -73,13 +73,15 @@ def plot_curve_fit(
 
     # Plot fit data
     xs = np.linspace(xmin, xmax, num_fit_points)
-    ys_fit = func(xs, *popt)
+    ys_fit = func(xs, **fit_params)
     ax.plot(xs, ys_fit, **plot_opts)
 
     # Plot standard error interval
     if confidence_interval:
-        ys_upper = func(xs, *(popt + popt_err))
-        ys_lower = func(xs, *(popt - popt_err))
+        params_upper = {key: fit_params[key] + fit_errors[key] for key in result["popt_keys"]}
+        params_lower = {key: fit_params[key] - fit_errors[key] for key in result["popt_keys"]}
+        ys_upper = func(xs, **params_upper)
+        ys_lower = func(xs, **params_lower)
         ax.fill_between(xs, ys_lower, ys_upper, alpha=0.1, color=plot_opts["color"])
 
     # Formatting
@@ -122,6 +124,8 @@ def plot_scatter(
         plot_opts["c"] = "grey"
     if "marker" not in plot_opts:
         plot_opts["marker"] = "x"
+    if "alpha" not in plot_opts:
+        plot_opts["alpha"] = 0.8
 
     # Plot data
     ax.scatter(xdata, ydata, **plot_opts)
