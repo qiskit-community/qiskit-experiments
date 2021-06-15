@@ -256,7 +256,7 @@ class QubitSpectroscopy(BaseExperiment):
         self._absolute = absolute
         self.set_analysis_options(xlabel=f"Frequency [{unit}]", ylabel="Signal [arb. unit]")
 
-    def _schedule(self, backend: Optional[Backend] = None) -> Tuple[pulse.ScheduleBlock, Parameter]:
+    def _spect_gate_schedule(self, backend: Optional[Backend] = None) -> Tuple[pulse.ScheduleBlock, Parameter]:
         """Create the spectroscopy schedule."""
         freq_param = Parameter("frequency")
         with pulse.build(backend=backend, name="spectroscopy") as schedule:
