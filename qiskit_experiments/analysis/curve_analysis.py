@@ -805,8 +805,8 @@ class CurveAnalysis(BaseAnalysis):
                         pass
                 if len(fit_results) == 0:
                     raise AnalysisError(
-                        "Curve fit with all fit conditions failed. Please provide better "
-                        "initial guesses or fit parameter boundaries."
+                        "All initial guesses and parameter boundaries failed to fit the data. "
+                        "Please provide better initial guesses or fit parameter boundaries."
                     )
                 # Sort by chi squared value
                 fit_results = sorted(fit_results, key=lambda r: r["reduced_chisq"])
