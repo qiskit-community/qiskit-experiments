@@ -944,7 +944,7 @@ class Calibrations:
                 f"Cannot update calibrations from result. One of {required_keys} is missing."
             )
 
-        timestamp = None
+        timestamp = datetime.now()
         all_times = exp_data.completion_times.values()
         if all_times:
             timestamp = max(all_times)
