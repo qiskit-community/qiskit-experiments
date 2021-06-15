@@ -14,7 +14,8 @@ import unittest
 import numpy as np
 
 from qiskit.utils import apply_prefix
-from qiskit.providers import BaseBackend
+from qiskit.providers import BackendV1
+from qiskit.providers.options import Options
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.providers.experiment import ResultQuality
 from qiskit.result import Result
@@ -25,13 +26,18 @@ from qiskit_experiments.characterization import T2StarExperiment
 from test.utils import FakeJob
 
 
-class T2starBackend(BaseBackend):
+class T2starBackend(BackendV1):
     """
     A simple and primitive backend, to be run by the T2Star tests
     """
 
     def __init__(
-        self, p0=None, initial_prob_plus=None, readout0to1=None, readout1to0=None, dt_factor=1
+        self,
+        p0=None,
+        initial_prob_plus=None,
+        readout0to1=None,
+        readout1to0=None,
+        dt_factor=1,
     ):
         """
         Initialize the T2star backend
@@ -65,12 +71,18 @@ class T2starBackend(BaseBackend):
         self._rng = np.random.default_rng(0)
         super().__init__(configuration)
 
-    # pylint: disable = arguments-differ
-    def run(self, qobj):
+    @classmethod
+    def _default_options(cls):
+        """Default options of the test backend."""
+        return Options(shots=1024)
+
+    def run(self, run_input, **options):
         """
         Run the T2star backend
         """
-        shots = qobj.config.shots
+        self.options.update_options(**options)
+        shots = self.options.get("shots")
+
         result = {
             "backend_name": "T2star backend",
             "backend_version": "0",
@@ -80,8 +92,10 @@ class T2starBackend(BaseBackend):
             "results": [],
         }
 
-        for circ in qobj.experiments:
-            nqubits = circ.config.n_qubits
+        for circ in run_input:
+            nqubits = circ.num_qubits
+            qubit_indices = {bit: idx for idx, bit in enumerate(circ.qubits)}
+            clbit_indices = {bit: idx for idx, bit in enumerate(circ.clbits)}
             counts = dict()
             if self._readout0to1 is None:
                 ro01 = np.zeros(nqubits)
@@ -97,9 +111,9 @@ class T2starBackend(BaseBackend):
                 else:
                     prob_plus = self._initial_prob_plus.copy()
 
-                clbits = np.zeros(circ.config.memory_slots, dtype=int)
-                for op in circ.instructions:
-                    qubit = op.qubits[0]
+                clbits = np.zeros(circ.num_clbits, dtype=int)
+                for op, qargs, cargs in circ.data:
+                    qubit = qubit_indices[qargs[0]]
 
                     if op.name == "delay":
                         delay = op.params[0]
@@ -120,7 +134,8 @@ class T2starBackend(BaseBackend):
                             (1 - prob_plus[qubit]) * (1 - ro10[qubit])
                             + prob_plus[qubit] * ro01[qubit],
                         )
-                        clbits[op.memory[0]] = meas_res
+                        clbit = clbit_indices[cargs[0]]
+                        clbits[clbit] = meas_res
 
                 clstr = ""
                 for clbit in clbits[::-1]:
@@ -134,7 +149,7 @@ class T2starBackend(BaseBackend):
                 {
                     "shots": shots,
                     "success": True,
-                    "header": {"metadata": circ.header.metadata},
+                    "header": {"metadata": circ.metadata},
                     "data": {"counts": counts},
                 }
             )
@@ -167,14 +182,6 @@ class TestT2Star(QiskitTestCase):
                     (np.linspace(16.0, 45.0, num=59)).astype(float),
                 )
 
-            # dummy numbers to avoid exception triggerring
-            instruction_durations = [
-                ("measure", [0], 3, unit),
-                ("h", [0], 3, unit),
-                ("p", [0], 3, unit),
-                ("delay", [0], 3, unit),
-            ]
-
             exp = T2StarExperiment(qubit, delays, unit=unit)
             exp.set_analysis_options(
                 user_p0={
@@ -206,8 +213,6 @@ class TestT2Star(QiskitTestCase):
 
             expdata = exp.run(
                 backend=backend,
-                # plot=False,
-                instruction_durations=instruction_durations,
                 shots=2000,
             )
             expdata.block_for_results()  # Wait for job/analysis to finish.
@@ -248,12 +253,8 @@ class TestT2Star(QiskitTestCase):
             "b_guess": [0.5, None, 0.5],
         }
         backend = T2starBackend(p0)
-        expdata = par_exp.run(
-            backend=backend,
-            # plot=False,
-            shots=1000,
-        )
-        expdata.block_for_results()
+        res = par_exp.run(backend=backend, shots=1000)
+        res.block_for_results()
 
         for i in range(2):
             sub_res = expdata.component_experiment_data(i).analysis_result(0)

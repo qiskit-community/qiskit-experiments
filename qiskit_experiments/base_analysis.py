@@ -16,13 +16,12 @@ Base analysis class.
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 
+from qiskit.exceptions import QiskitError
 from qiskit.providers.options import Options
 from qiskit.providers.experiment import AnalysisResultV1
 
-from .experiment_data import ExperimentData
-
-# pylint: disable = unused-import
-from qiskit_experiments.matplotlib import pyplot
+from qiskit_experiments.exceptions import AnalysisError
+from qiskit_experiments.experiment_data import ExperimentData, ResultDict
 
 
 class BaseAnalysis(ABC):

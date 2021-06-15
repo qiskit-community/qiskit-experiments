@@ -19,7 +19,56 @@ from typing import List, Dict, Tuple, Callable, Optional, Union
 import numpy as np
 import scipy.optimize as opt
 from qiskit_experiments.exceptions import AnalysisError
+from qiskit_experiments.base_analysis import ResultDict
 from qiskit_experiments.analysis.data_processing import filter_data
+
+
+class CurveAnalysisResult(ResultDict):
+    """Analysis data container for curve fit analysis.
+
+    Class Attributes:
+        __keys_not_shown__: Data keys of analysis result which are not directly shown
+            in `__str__` method. By default, `pcov` (covariance matrix),
+            `raw_data` (raw x, y, sigma data points), `popt`, `popt_keys`, and `popt_err`
+            are not displayed. Fit parameters (popt) are formatted to
+
+            .. code-block::
+
+                p0 = 1.2 ± 0.34
+                p1 = 5.6 ± 0.78
+
+            rather showing raw key-value pairs
+
+            .. code-block::
+
+                popt_keys = ["p0", "p1"]
+                popt = [1.2, 5.6]
+                popt_err = [0.34, 0.78]
+
+            The covariance matrix and raw data points are not shown because they output
+            very long string usually doesn't fit in with the summary of the analysis object,
+            i.e. user wants to quickly get the over view of fit values and goodness of fit,
+            such as the chi-squared value and computer evaluated quality.
+
+            However these non-displayed values are still kept and user can access to
+            these values with `result["raw_data"]` and `result["pcov"]` if necessary.
+    """
+
+    __keys_not_shown__ = "pcov", "raw_data", "popt", "popt_keys", "popt_err"
+
+    def __str__(self):
+        out = ""
+
+        if self.get("success"):
+            popt_keys = self.get("popt_keys")
+            popt = self.get("popt")
+            popt_err = self.get("popt_err")
+
+            for key, value, error in zip(popt_keys, popt, popt_err):
+                out += f"\n- {key}: {value} \u00B1 {error}"
+        out += super().__str__()
+
+        return out
 
 
 def curve_fit(
@@ -30,7 +79,7 @@ def curve_fit(
     sigma: Optional[np.ndarray] = None,
     bounds: Optional[Union[Dict[str, Tuple[float, float]], Tuple[np.ndarray, np.ndarray]]] = None,
     **kwargs,
-) -> Dict:
+) -> CurveAnalysisResult:
     r"""Perform a non-linear least squares to fit
 
     This solves the optimization problem
@@ -104,6 +153,15 @@ def curve_fit(
             " (len(ydata) - len(p0)) is less than 1"
         )
 
+    # Format non-number sigma values
+    if np.all(np.isnan(sigma)):
+        sigma = None
+    else:
+        sigma = np.nan_to_num(sigma)
+        if np.count_nonzero(sigma) != len(sigma):
+            # Sigma = 0 causes zero division error
+            sigma = None
+
     # Override scipy.curve_fit default for absolute_sigma=True
     # if sigma is specified.
     if sigma is not None and "absolute_sigma" not in kwargs:
@@ -142,7 +200,7 @@ def curve_fit(
         "xrange": xdata_range,
     }
 
-    return result
+    return CurveAnalysisResult(result)
 
 
 def multi_curve_fit(
@@ -155,7 +213,7 @@ def multi_curve_fit(
     weights: Optional[np.ndarray] = None,
     bounds: Optional[Union[Dict[str, Tuple[float, float]], Tuple[np.ndarray, np.ndarray]]] = None,
     **kwargs,
-) -> Dict:
+) -> CurveAnalysisResult:
     r"""Perform a linearized multi-objective non-linear least squares fit.
 
     This solves the optimization problem

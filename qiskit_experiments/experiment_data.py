@@ -20,6 +20,20 @@ from qiskit.providers.experiment import ExperimentDataV1
 LOG = logging.getLogger(__name__)
 
 
+class ResultDict(dict):
+    """Placeholder class"""
+
+    __keys_not_shown__ = tuple()
+
+    def __str__(self):
+        out = ""
+        for key, value in self.items():
+            if key in self.__keys_not_shown__:
+                continue
+            out += f"\n- {key}: {value}"
+        return out
+
+
 class ExperimentData(ExperimentDataV1):
     """Qiskit Experiments Data container class"""
 
@@ -50,4 +64,3 @@ class ExperimentData(ExperimentDataV1):
             BaseExperiment: the experiment object.
         """
         return self._experiment
-

@@ -47,12 +47,6 @@ class CompositeAnalysis(BaseAnalysis):
         if not isinstance(experiment_data, CompositeExperimentData):
             raise QiskitError("CompositeAnalysis must be run on CompositeExperimentData.")
 
-        # Run analysis for sub-experiments
-        for expr, expr_data in zip(
-            experiment_data._experiment._experiments, experiment_data._components
-        ):
-            expr.run_analysis(expr_data, **options)
-
         # Add sub-experiment metadata as result of batch experiment
         # Note: if Analysis results had ID's these should be included here
         # rather than just the sub-experiment IDs
@@ -64,7 +58,12 @@ class CompositeAnalysis(BaseAnalysis):
         for i in range(comp_exp.num_experiments):
             # Run analysis for sub-experiments and add sub-experiment metadata
             expdata = experiment_data.component_experiment_data(i)
-            comp_exp.component_analysis(i).run(expdata, **options)
+            sub_expriment = comp_exp.component_experiment(i)
+
+            # Reflect sub instance's analysis option
+            analysis_options = sub_expriment.analysis_options.__dict__.copy()
+            analysis_options.update(**options)
+            comp_exp.component_analysis(i).run(expdata, **analysis_options)
 
             # Add sub-experiment metadata as result of batch experiment
             # Note: if Analysis results had ID's these should be included here
@@ -83,4 +82,4 @@ class CompositeAnalysis(BaseAnalysis):
             device_components=[Qubit(qidx) for qidx in sub_qubits],
             experiment_id=experiment_data.experiment_id
         )
-        return analysis_result, None
+        return [analysis_result], None

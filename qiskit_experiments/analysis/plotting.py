@@ -15,6 +15,7 @@ Plotting functions for experiment analysis
 from typing import Callable, Optional, Dict
 import numpy as np
 
+from qiskit_experiments.base_analysis import ResultDict
 from qiskit_experiments.matplotlib import pyplot, requires_matplotlib
 
 # pylint: disable = unused-import
@@ -24,7 +25,7 @@ from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
 @requires_matplotlib
 def plot_curve_fit(
     func: Callable,
-    result: Dict,
+    result: ResultDict,
     confidence_interval: bool = True,
     ax=None,
     num_fit_points: int = 100,
@@ -121,6 +122,8 @@ def plot_scatter(
         plot_opts["c"] = "grey"
     if "marker" not in plot_opts:
         plot_opts["marker"] = "x"
+    if "alpha" not in plot_opts:
+        plot_opts["alpha"] = 0.8
 
     # Plot data
     ax.scatter(xdata, ydata, **plot_opts)

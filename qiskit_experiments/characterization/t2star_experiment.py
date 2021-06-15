@@ -48,7 +48,7 @@ class T2StarAnalysis(BaseAnalysis):
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,
         **kwargs,
-    ) -> Tuple[AnalysisResultV1, List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[AnalysisResultV1], List["matplotlib.figure.Figure"]]:
         r"""Calculate T2Star experiment.
 
         The probability of measuring `+` is assumed to be of the form
@@ -138,7 +138,7 @@ class T2StarAnalysis(BaseAnalysis):
             quality=result_data["quality"],
         )
 
-        return analysis_result, figures
+        return [analysis_result], figures
 
     def _t2star_default_params(
         self,

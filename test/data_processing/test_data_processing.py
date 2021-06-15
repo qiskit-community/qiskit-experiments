@@ -161,7 +161,7 @@ class DataProcessorTest(BaseDataProcessorTest):
         new_data, error = processor(self.exp_data_lvl2.data(0))
 
         self.assertEqual(new_data, 0.4)
-        self.assertEqual(error, 0.4 * (1 - 0.4) / 10)
+        self.assertEqual(error, np.sqrt(0.4 * (1 - 0.4) / 10))
 
     def test_validation(self):
         """Test the validation mechanism."""
@@ -380,14 +380,10 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
         # Test the x90p rotation
         processed, error = processor(self.data.data(2))
         self.assertTrue(np.allclose(processed, np.array([0, 0])))
-        self.assertTrue(np.allclose(error, np.array([0.5, 0.5])))
+        self.assertTrue(np.allclose(error, np.array([0.25, 0.25])))
 
         # Test the x45p rotation
         processed, error = processor(self.data.data(3))
-        expected_std = np.array([np.std([1, 1, 1, -1, 1, 1, 1, -1]) / np.sqrt(8.0)] * 2)
+        expected_std = np.array([np.std([1, 1, 1, -1, 1, 1, 1, -1]) / np.sqrt(8.0) / 2] * 2)
         self.assertTrue(np.allclose(processed, np.array([0.5, -0.5]) / np.sqrt(2.0)))
         self.assertTrue(np.allclose(error, expected_std))
-
-
-if __name__ == "__main__":
-    unittest.main()
