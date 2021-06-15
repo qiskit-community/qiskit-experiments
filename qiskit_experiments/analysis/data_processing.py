@@ -199,6 +199,6 @@ def expectation_value() -> Callable:
 
     def data_processor(data):
         val, err = level2_probability(data, "1")
-        return 2 * (.5 - val), 2 * err
+        return 2 * (0.5 - val), 2 * err
 
     return data_processor
