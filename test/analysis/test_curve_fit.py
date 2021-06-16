@@ -159,6 +159,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
             type=2,
             valid=False,
         )
+
         # merge two experiment data
         for datum in test_data1.data():
             test_data0.add_data(datum)
@@ -166,10 +167,13 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         self.analysis._extract_curves(
             experiment_data=test_data0, data_processor=probability(outcome="1")
         )
-        xdata = self.analysis._x_values
-        ydata = self.analysis._y_values
-        sigma = self.analysis._y_sigmas
-        d_index = self.analysis._data_index
+
+        raw_data = self.analysis._data(label="raw_data")
+
+        xdata = raw_data.x
+        ydata = raw_data.y
+        sigma = raw_data.y_err
+        d_index = raw_data.data_index
 
         # check if the module filter off data: valid=False
         self.assertEqual(len(xdata), 20)
@@ -197,26 +201,39 @@ class TestCurveAnalysisUnit(QiskitTestCase):
 
     def test_get_subset(self):
         """Test that get subset data from full data array."""
+        # data to analyze
+        fake_data = [
+            {"data": 1, "metadata": {"xval": 1, "type": 1, "valid": True}},
+            {"data": 2, "metadata": {"xval": 2, "type": 2, "valid": True}},
+            {"data": 3, "metadata": {"xval": 3, "type": 1, "valid": True}},
+            {"data": 4, "metadata": {"xval": 4, "type": 3, "valid": True}},
+            {"data": 5, "metadata": {"xval": 5, "type": 3, "valid": True}},
+            {"data": 6, "metadata": {"xval": 6, "type": 4, "valid": True}},  # this if fake
+        ]
+        expdata = ExperimentData(experiment=FakeExperiment())
+        for datum in fake_data:
+            expdata.add_data(datum)
 
-        d_index = np.asarray([0, 1, 0, 2, 2, -1], dtype=int)
-        xdata = np.asarray([1, 2, 3, 4, 5, 6], dtype=float)
-        ydata = np.asarray([1, 2, 3, 4, 5, 6], dtype=float)
-        sigma = np.asarray([1, 2, 3, 4, 5, 6], dtype=float)
+        def _processor(datum):
+            return datum["data"], datum["data"] * 2
 
-        subx, suby, subs = self.analysis._subset_data("curve1", d_index, xdata, ydata, sigma)
-        np.testing.assert_array_almost_equal(subx, np.asarray([1, 3], dtype=float))
-        np.testing.assert_array_almost_equal(suby, np.asarray([1, 3], dtype=float))
-        np.testing.assert_array_almost_equal(subs, np.asarray([1, 3], dtype=float))
+        self.analysis._arg_parse(x_key="xval")
+        self.analysis._extract_curves(expdata, data_processor=_processor)
 
-        subx, suby, subs = self.analysis._subset_data("curve2", d_index, xdata, ydata, sigma)
-        np.testing.assert_array_almost_equal(subx, np.asarray([2], dtype=float))
-        np.testing.assert_array_almost_equal(suby, np.asarray([2], dtype=float))
-        np.testing.assert_array_almost_equal(subs, np.asarray([2], dtype=float))
+        filt_data = self.analysis._data(series_name="curve1")
+        np.testing.assert_array_equal(filt_data.x, np.asarray([1, 3], dtype=float))
+        np.testing.assert_array_equal(filt_data.y, np.asarray([1, 3], dtype=float))
+        np.testing.assert_array_equal(filt_data.y_err, np.asarray([2, 6], dtype=float))
 
-        subx, suby, subs = self.analysis._subset_data("curve3", d_index, xdata, ydata, sigma)
-        np.testing.assert_array_almost_equal(subx, np.asarray([4, 5], dtype=float))
-        np.testing.assert_array_almost_equal(suby, np.asarray([4, 5], dtype=float))
-        np.testing.assert_array_almost_equal(subs, np.asarray([4, 5], dtype=float))
+        filt_data = self.analysis._data(series_name="curve2")
+        np.testing.assert_array_equal(filt_data.x, np.asarray([2], dtype=float))
+        np.testing.assert_array_equal(filt_data.y, np.asarray([2], dtype=float))
+        np.testing.assert_array_equal(filt_data.y_err, np.asarray([4], dtype=float))
+
+        filt_data = self.analysis._data(series_name="curve3")
+        np.testing.assert_array_equal(filt_data.x, np.asarray([4, 5], dtype=float))
+        np.testing.assert_array_equal(filt_data.y, np.asarray([4, 5], dtype=float))
+        np.testing.assert_array_equal(filt_data.y_err, np.asarray([8, 10], dtype=float))
 
     def test_formatting_options(self):
         """Test option formatter."""
