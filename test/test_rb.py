@@ -172,7 +172,7 @@ class TestRBUtilities(QiskitTestCase):
         backend = AerSimulator.from_backend(FakeParis())
         rb = qe.randomized_benchmarking
         error_dict = rb.RBUtils.get_error_dict_from_backend(backend, [0])
-        lengths = [10, 100, 200, 300, 400, 500]
+        lengths = np.arange(1,1000,50)
         num_samples = 10
         seed = 1010
         exp1 = rb.RBExperiment([0], lengths, num_samples=num_samples, seed=seed)
@@ -181,7 +181,6 @@ class TestRBUtilities(QiskitTestCase):
         for gate in ["x", "sx", "rz"]:
             expected_epg = error_dict[((0,), gate)]
             actual_epg = epg[0][gate]
-            print(actual_epg)
             self.assertTrue(
                 np.allclose(expected_epg, actual_epg, rtol=1.0e-1),
                 "The expected EGP {} is not close enough to the real EPG {}".format(
