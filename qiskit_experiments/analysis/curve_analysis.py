@@ -777,7 +777,6 @@ class CurveAnalysis(BaseAnalysis):
         Raises:
             AnalysisError: if the analysis fails.
         """
-        self._experiment_data = experiment_data
         analysis_result = CurveAnalysisResult()
         analysis_result["analysis_type"] = self.__class__.__name__
         figures = list()

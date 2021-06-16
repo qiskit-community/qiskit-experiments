@@ -25,6 +25,7 @@ from qiskit.circuit import Gate
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.analysis.data_processing import probability
+from qiskit_experiments.experiment_data import ExperimentData
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
 from .rb_utils import RBUtils
@@ -164,10 +165,39 @@ class RBExperiment(BaseExperiment):
                 circuits.append(rb_circ)
         return circuits
 
+    def run(
+        self,
+        backend: Backend,
+        analysis: bool = True,
+        experiment_data: Optional[ExperimentData] = None,
+        **run_options,
+    ) -> ExperimentData:
+        """Run an experiment and perform analysis.
+
+        Args:
+            backend: The backend to run the experiment on.
+            analysis: If True run analysis on the experiment data.
+            experiment_data: Optional, add results to existing
+                experiment data. If None a new ExperimentData object will be
+                returned.
+            run_options: backend runtime options used for circuit execution.
+
+        Returns:
+            The experiment data object.
+        """
+        self.set_analysis_options(backend=backend)
+        return super().run(backend, analysis, experiment_data, **run_options)
+
     def _postprocess_transpiled_circuits(self, circuits):
+        count_ops = []
         for c in circuits:
-            ops_count = RBUtils.count_ops(c, self.physical_qubits)
+            c_count_ops = RBUtils.count_ops(c, self.physical_qubits)
             circuit_length = c.metadata["xval"]
             c.metadata["ops_count"] = [
-                (key, value / circuit_length) for key, value in ops_count.items()
+                (key, value / circuit_length) for key, value in c_count_ops.items()
             ]
+            count_ops += [
+                (key, value / circuit_length) for key, value in c_count_ops.items()
+            ]
+        gates_per_clifford = RBUtils.gates_per_clifford(count_ops)
+        self.set_analysis_options(gates_per_clifford=gates_per_clifford)
