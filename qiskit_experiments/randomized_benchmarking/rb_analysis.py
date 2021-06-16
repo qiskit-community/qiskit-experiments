@@ -28,7 +28,7 @@ from qiskit_experiments.analysis import (
 
 
 class RBAnalysis(CurveAnalysis):
-    r"""A class to analyze randomized benchmarking experiment.
+    r"""A class to analyze randomized benchmarking experiments.
 
     Overview
         This analysis takes only single series.
@@ -44,7 +44,7 @@ class RBAnalysis(CurveAnalysis):
 
     Fit Parameters
         - :math:`a`: Height of decay curve.
-        - :math:`b`:  Base line.
+        - :math:`b`: Base line.
         - :math:`\alpha`: Depolarizing parameter. This is the fit parameter of main interest.
 
     Initial Guesses
@@ -72,7 +72,7 @@ class RBAnalysis(CurveAnalysis):
 
     @classmethod
     def _default_options(cls):
-        """Return default data processing options.
+        """Return default options.
 
         See :meth:`~qiskit_experiment.analysis.CurveAnalysis._default_options` for
         descriptions of analysis options.

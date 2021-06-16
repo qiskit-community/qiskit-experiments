@@ -566,25 +566,20 @@ class CurveAnalysis(BaseAnalysis):
                 f"X value key {x_key} is not defined in circuit metadata."
             ) from ex
 
-        y_values, y_sigmas = zip(*map(data_processor, data))
-
-        # TODO this should be handled in data processor.
-        # Future data processor may take full sequence of data rather than datum.
-        # The CurveAnalysis can pass series filter_kwargs to the processor
-        # so that it can filter data to extract.
-        if self._get_option("normalization"):
-            y_min, y_max = min(y_values), max(y_values)
-            scale = 1 / (y_max - y_min)
+        if isinstance(data_processor, DataProcessor):
+            y_values, y_sigmas = data_processor(data)
+            if y_sigmas is None:
+                y_sigmas = np.full(y_values.shape, np.nan)
         else:
-            scale = 1.0
+            y_values, y_sigmas = zip(*map(data_processor, data))
 
         # Store metadata
         metadata = np.asarray([datum["metadata"] for datum in data], dtype=object)
 
         # Format data
         x_values = np.asarray(x_values, dtype=float)
-        y_values = np.asarray(y_values, dtype=float) * scale
-        y_sigmas = np.asarray(y_sigmas, dtype=float) * scale
+        y_values = np.asarray(y_values, dtype=float)
+        y_sigmas = np.asarray(y_sigmas, dtype=float)
 
         # Find series (invalid data is labeled as -1)
         data_index = -1 * np.ones(x_values.size, dtype=int)
@@ -865,17 +860,25 @@ class CurveAnalysis(BaseAnalysis):
                 fit_options_candidates = [
                     self._format_fit_options(**fit_options) for fit_options in fit_candidates
                 ]
-                fit_results = [
-                    curve_fitter(
-                        funcs=[series_def.fit_func for series_def in self.__series__],
-                        series=formatted_data.data_index,
-                        xdata=formatted_data.x,
-                        ydata=formatted_data.y,
-                        sigma=formatted_data.e,
-                        **fit_options,
+                fit_results = []
+                for fit_options in fit_options_candidates:
+                    try:
+                        fit_result = curve_fitter(
+                            funcs=[series_def.fit_func for series_def in self.__series__],
+                            series=formatted_data.data_index,
+                            xdata=formatted_data.x,
+                            ydata=formatted_data.y,
+                            sigma=formatted_data.e,
+                            **fit_options,
+                        )
+                        fit_results.append(fit_result)
+                    except AnalysisError:
+                        pass
+                if len(fit_results) == 0:
+                    raise AnalysisError(
+                        "All initial guesses and parameter boundaries failed to fit the data. "
+                        "Please provide better initial guesses or fit parameter boundaries."
                     )
-                    for fit_options in fit_options_candidates
-                ]
                 # Sort by chi squared value
                 fit_results = sorted(fit_results, key=lambda r: r["reduced_chisq"])
                 analysis_result.update(**fit_results[0])
