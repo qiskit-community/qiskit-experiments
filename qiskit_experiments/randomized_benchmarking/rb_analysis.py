@@ -13,7 +13,7 @@
 Standard RB analysis class.
 """
 
-from typing import List, Tuple, Dict, Any, Union
+from typing import List, Dict, Any, Union
 
 import numpy as np
 
@@ -21,6 +21,7 @@ from qiskit_experiments.analysis import (
     CurveAnalysis,
     CurveAnalysisResult,
     SeriesDef,
+    CurveData,
     fit_function,
     get_opt_value,
     get_opt_error,
@@ -29,7 +30,7 @@ from qiskit_experiments.analysis.data_processing import multi_mean_xy_data
 
 
 class RBAnalysis(CurveAnalysis):
-    r"""A class to analyze randomized benchmarking experiment.
+    r"""A class to analyze randomized benchmarking experiments.
 
     Overview
         This analysis takes only single series.
@@ -45,7 +46,7 @@ class RBAnalysis(CurveAnalysis):
 
     Fit Parameters
         - :math:`a`: Height of decay curve.
-        - :math:`b`:  Base line.
+        - :math:`b`: Base line.
         - :math:`\alpha`: Depolarizing parameter. This is the fit parameter of main interest.
 
     Initial Guesses
@@ -73,7 +74,7 @@ class RBAnalysis(CurveAnalysis):
 
     @classmethod
     def _default_options(cls):
-        """Return default data processing options.
+        """Return default options.
 
         See :meth:`~qiskit_experiment.analysis.CurveAnalysis._default_options` for
         descriptions of analysis options.
@@ -92,7 +93,8 @@ class RBAnalysis(CurveAnalysis):
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
 
-        initial_guess = self._initial_guess(self._x_values, self._y_values, self._num_qubits)
+        curve_data = self._data()
+        initial_guess = self._initial_guess(curve_data.x, curve_data.y, self._num_qubits)
         fit_option = {
             "p0": {
                 "a": user_p0["a"] or initial_guess["a"],
@@ -129,17 +131,24 @@ class RBAnalysis(CurveAnalysis):
 
         return fit_guess
 
-    def _pre_processing(self) -> Tuple[np.ndarray, ...]:
-        """Average over the same x values."""
-        return multi_mean_xy_data(
-            series=self._data_index,
-            xdata=self._x_values,
-            ydata=self._y_values,
-            sigma=self._y_sigmas,
+    def _format_data(self, data: CurveData) -> CurveData:
+        """Take average over the same x values."""
+        mean_data_index, mean_x, mean_y, mean_e = multi_mean_xy_data(
+            series=data.data_index,
+            xdata=data.x,
+            ydata=data.y,
+            sigma=data.y_err,
             method="sample",
         )
+        return CurveData(
+            label="fit_ready",
+            x=mean_x,
+            y=mean_y,
+            y_err=mean_e,
+            data_index=mean_data_index,
+        )
 
-    def _post_processing(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_analysis(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
         """Calculate EPC."""
         alpha = get_opt_value(analysis_result, "alpha")
         alpha_err = get_opt_error(analysis_result, "alpha")

@@ -100,17 +100,19 @@ class SpectroscopyAnalysis(CurveAnalysis):
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
 
-        b_guess = np.median(self._y_values)
-        peak_idx = np.argmax(np.abs(self._y_values - b_guess))
-        f_guess = self._x_values[peak_idx]
-        a_guess = self._y_values[peak_idx] - b_guess
+        curve_data = self._data()
+
+        b_guess = np.median(curve_data.y)
+        peak_idx = np.argmax(np.abs(curve_data.y - b_guess))
+        f_guess = curve_data.x[peak_idx]
+        a_guess = curve_data.y[peak_idx] - b_guess
 
         # calculate sigma from FWHM
-        halfmax = self._x_values[np.abs(self._y_values - b_guess) > np.abs(a_guess / 2)]
+        halfmax = curve_data.x[np.abs(curve_data.y - b_guess) > np.abs(a_guess / 2)]
         fullwidth = max(halfmax) - min(halfmax)
         s_guess = fullwidth / np.sqrt(8 * np.log(2))
 
-        max_abs_y = np.max(np.abs(self._y_values))
+        max_abs_y = np.max(np.abs(curve_data.y))
 
         fit_option = {
             "p0": {
@@ -121,8 +123,8 @@ class SpectroscopyAnalysis(CurveAnalysis):
             },
             "bounds": {
                 "a": user_bounds["a"] or (-2 * max_abs_y, 2 * max_abs_y),
-                "sigma": user_bounds["sigma"] or (0.0, max(self._x_values) - min(self._x_values)),
-                "freq": user_bounds["freq"] or (min(self._x_values), max(self._x_values)),
+                "sigma": user_bounds["sigma"] or (0.0, max(curve_data.x) - min(curve_data.x)),
+                "freq": user_bounds["freq"] or (min(curve_data.x), max(curve_data.x)),
                 "b": user_bounds["b"] or (-max_abs_y, max_abs_y),
             },
         }
@@ -130,7 +132,7 @@ class SpectroscopyAnalysis(CurveAnalysis):
 
         return fit_option
 
-    def _post_processing(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_analysis(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -143,9 +145,11 @@ class SpectroscopyAnalysis(CurveAnalysis):
               threshold of two, and
             - a standard error on the sigma of the Gaussian that is smaller than the sigma.
         """
-        max_freq = np.max(self._x_values)
-        min_freq = np.min(self._x_values)
-        freq_increment = np.mean(np.diff(self._x_values))
+        curve_data = self._data()
+
+        max_freq = np.max(curve_data.x)
+        min_freq = np.min(curve_data.x)
+        freq_increment = np.mean(np.diff(curve_data.x))
 
         fit_a = get_opt_value(analysis_result, "a")
         fit_b = get_opt_value(analysis_result, "b")
@@ -153,7 +157,7 @@ class SpectroscopyAnalysis(CurveAnalysis):
         fit_sigma = get_opt_value(analysis_result, "sigma")
         fit_sigma_err = get_opt_error(analysis_result, "sigma")
 
-        snr = abs(fit_a) / np.sqrt(abs(np.median(self._y_values) - fit_b))
+        snr = abs(fit_a) / np.sqrt(abs(np.median(curve_data.y) - fit_b))
         fit_width_ratio = fit_sigma / (max_freq - min_freq)
 
         criteria = [
