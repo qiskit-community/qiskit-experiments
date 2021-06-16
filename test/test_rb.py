@@ -172,7 +172,7 @@ class TestRBUtilities(QiskitTestCase):
         backend = AerSimulator.from_backend(FakeParis())
         rb = qe.randomized_benchmarking
         error_dict = rb.RBUtils.get_error_dict_from_backend(backend, [0])
-        lengths = np.arange(1,1000,50)
+        lengths = np.arange(1, 1000, 50)
         num_samples = 10
         seed = 1010
         exp1 = rb.RBExperiment([0], lengths, num_samples=num_samples, seed=seed)
