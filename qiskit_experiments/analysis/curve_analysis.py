@@ -492,6 +492,10 @@ class CurveAnalysis(BaseAnalysis):
 
         etc...
 
+        .. note::
+
+            The data returned by this method should have the label "fit_ready".
+
         Returns:
             Formatted CurveData instance.
         """
@@ -524,19 +528,19 @@ class CurveAnalysis(BaseAnalysis):
 
         This method internally populate two type of curve data.
 
-        - `self.__raw_data`
-            This is the data directly obtained from the experiment data.
-            You can access to this data with `self._raw_data()`.
-            If multiple series exists, you can optionally specify `name` to filter
-            target series.
+        - raw_data:
 
-        - `self.__prepared_data`
-            This is the formatted data created by averaging y and y sigma values
-            over the same x values followed by pre-processing defined by
-            `self._pre_processing()` method. This can be controlled by subclasses.
-            You can access to this data with `self._prepared_data()`.
-            If multiple series exists, you can optionally specify `name` to filter
-            target series.
+            This is the data directly obtained from the experiment data.
+            You can access to this data with ``self._data(label="raw_data")``.
+
+        - fit_ready:
+
+            This is the formatted data created  pre-processing defined by
+            `self._format_data()` method. This method is implemented by subclasses.
+            You can access to this data with ``self._data(label="fit_ready")``.
+
+        If multiple series exists, you can optionally specify ``series_name`` in
+        ``self._data`` method to filter data in the target series.
 
         .. notes::
             The target metadata properties to define each curve entry is described by
@@ -605,6 +609,7 @@ class CurveAnalysis(BaseAnalysis):
         )
         self.__processed_data_set.append(raw_data)
 
+        # Format raw data
         formatted_data = self._format_data(raw_data)
         if formatted_data.label != "fit_ready":
             raise AnalysisError(f"Not expected data label {formatted_data.label} != fit_ready.")
@@ -885,7 +890,7 @@ class CurveAnalysis(BaseAnalysis):
             if self._get_option("return_data_points"):
                 raw_data_dict = dict()
                 for series_def in self.__series__:
-                    series_data = self._data(series_name=series_def.name)
+                    series_data = self._data(series_name=series_def.name, label="raw_data")
                     raw_data_dict[series_def.name] = {
                         "xdata": series_data.x,
                         "ydata": series_data.y,
