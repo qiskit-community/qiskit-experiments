@@ -789,17 +789,25 @@ class CurveAnalysis(BaseAnalysis):
                 fit_options_candidates = [
                     self._format_fit_options(**fit_options) for fit_options in fit_candidates
                 ]
-                fit_results = [
-                    curve_fitter(
-                        funcs=[series_def.fit_func for series_def in self.__series__],
-                        series=_data_index,
-                        xdata=_xdata,
-                        ydata=_ydata,
-                        sigma=_sigma,
-                        **fit_options,
+                fit_results = []
+                for fit_options in fit_options_candidates:
+                    try:
+                        fit_result = curve_fitter(
+                            funcs=[series_def.fit_func for series_def in self.__series__],
+                            series=_data_index,
+                            xdata=_xdata,
+                            ydata=_ydata,
+                            sigma=_sigma,
+                            **fit_options,
+                        )
+                        fit_results.append(fit_result)
+                    except AnalysisError:
+                        pass
+                if len(fit_results) == 0:
+                    raise AnalysisError(
+                        "All initial guesses and parameter boundaries failed to fit the data. "
+                        "Please provide better initial guesses or fit parameter boundaries."
                     )
-                    for fit_options in fit_options_candidates
-                ]
                 # Sort by chi squared value
                 fit_results = sorted(fit_results, key=lambda r: r["reduced_chisq"])
                 analysis_result.update(**fit_results[0])
