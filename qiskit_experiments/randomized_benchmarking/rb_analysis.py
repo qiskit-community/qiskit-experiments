@@ -27,8 +27,8 @@ from qiskit_experiments.analysis import (
     get_opt_error,
 )
 
-from .rb_utils import RBUtils
 from qiskit_experiments.analysis.data_processing import multi_mean_xy_data
+from .rb_utils import RBUtils
 
 
 class RBAnalysis(CurveAnalysis):

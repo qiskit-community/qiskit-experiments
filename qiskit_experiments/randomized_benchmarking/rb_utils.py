@@ -48,7 +48,7 @@ class RBUtils:
         for backend_gate in backend.properties().gates:
             backend_gate = backend_gate.to_dict()
             gate_qubits = tuple(backend_gate["qubits"])
-            if all([gate_qubit in qubits for gate_qubit in gate_qubits]):
+            if all(gate_qubit in qubits for gate_qubit in gate_qubits):
                 for p in backend_gate["parameters"]:
                     if p["name"] == "gate_error":
                         error_dict[(gate_qubits, backend_gate["gate"])] = p["value"]
