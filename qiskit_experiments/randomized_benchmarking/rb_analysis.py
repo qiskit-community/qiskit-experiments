@@ -21,10 +21,12 @@ from qiskit_experiments.analysis import (
     CurveAnalysis,
     CurveAnalysisResult,
     SeriesDef,
+    CurveData,
     fit_function,
     get_opt_value,
     get_opt_error,
 )
+from qiskit_experiments.analysis.data_processing import multi_mean_xy_data
 
 
 class RBAnalysis(CurveAnalysis):
@@ -128,6 +130,23 @@ class RBAnalysis(CurveAnalysis):
             fit_guess["a"] = (y_values[0] - fit_guess["b"]) / fit_guess["alpha"] ** x_values[0]
 
         return fit_guess
+
+    def _format_data(self, data: CurveData) -> CurveData:
+        """Take average over the same x values."""
+        mean_data_index, mean_x, mean_y, mean_e = multi_mean_xy_data(
+            series=data.data_index,
+            xdata=data.x,
+            ydata=data.y,
+            sigma=data.y_err,
+            method="sample",
+        )
+        return CurveData(
+            label="fit_ready",
+            x=mean_x,
+            y=mean_y,
+            y_err=mean_e,
+            data_index=mean_data_index,
+        )
 
     def _post_analysis(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
         """Calculate EPC."""

@@ -24,7 +24,6 @@ from qiskit.providers.options import Options
 
 from qiskit_experiments.analysis import plotting
 from qiskit_experiments.analysis.curve_fitting import multi_curve_fit, CurveAnalysisResult
-from qiskit_experiments.analysis.data_processing import multi_mean_xy_data
 from qiskit_experiments.analysis.data_processing import probability
 from qiskit_experiments.analysis.utils import get_opt_value, get_opt_error
 from qiskit_experiments.base_analysis import BaseAnalysis
@@ -479,19 +478,11 @@ class CurveAnalysis(BaseAnalysis):
 
         return fit_options
 
-    def _format_data(
-        self,
-        x_values: np.ndarray,
-        y_values: np.ndarray,
-        y_sigmas: np.ndarray,
-    ) -> Tuple[np.ndarray, ...]:
+    def _format_data(self, data: CurveData) -> CurveData:
         """An optional subroutine to perform data pre-processing.
 
         Subclasses can override this method to apply pre-precessing to data values to fit.
         Otherwise the analysis uses extracted data values as-is.
-
-        .. note::
-            This process cannot change the data size.
 
         For example,
 
@@ -502,9 +493,16 @@ class CurveAnalysis(BaseAnalysis):
         etc...
 
         Returns:
-            Numpy array tuple of pre-processed (x_values, y_values, y_sigmas).
+            Formatted CurveData instance.
         """
-        return x_values, y_values, y_sigmas
+        return CurveData(
+            label="fit_ready",
+            x=data.x,
+            y=data.y,
+            y_err=data.y_err,
+            data_index=data.data_index,
+            metadata=data.metadata,
+        )
 
     def _post_analysis(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
         """Calculate new quantity from the fit result.
@@ -597,42 +595,20 @@ class CurveAnalysis(BaseAnalysis):
             data_index[data_matched] = idx
 
         # Store raw data
-        self.__processed_data_set.append(
-            CurveData(
-                label="raw_data",
-                x=x_values,
-                y=y_values,
-                y_err=y_sigmas,
-                data_index=data_index,
-                metadata=metadata,
-            )
+        raw_data = CurveData(
+            label="raw_data",
+            x=x_values,
+            y=y_values,
+            y_err=y_sigmas,
+            data_index=data_index,
+            metadata=metadata,
         )
+        self.__processed_data_set.append(raw_data)
 
-        # Perform data pre processing
-        mean_data_index, mean_x, mean_y, mean_e = multi_mean_xy_data(
-            data_index, x_values, y_values, y_sigmas, method="sample"
-        )
-
-        prep_x = np.empty(mean_x.size, dtype=float)
-        prep_y = np.empty(mean_x.size, dtype=float)
-        prep_e = np.empty(mean_x.size, dtype=float)
-        for idx in range(len(self.__series__)):
-            locs = mean_data_index == idx
-            _prep_x, _prep_y, _prep_e = self._format_data(mean_x[locs], mean_y[locs], mean_e[locs])
-            prep_x[locs] = _prep_x
-            prep_y[locs] = _prep_y
-            prep_e[locs] = _prep_e
-
-        # Store prepared data
-        self.__processed_data_set.append(
-            CurveData(
-                label="fit_ready",
-                x=prep_x,
-                y=prep_y,
-                y_err=prep_e,
-                data_index=mean_data_index,
-            )
-        )
+        formatted_data = self._format_data(raw_data)
+        if formatted_data.label != "fit_ready":
+            raise AnalysisError(f"Not expected data label {formatted_data.label} != fit_ready.")
+        self.__processed_data_set.append(formatted_data)
 
     def _format_fit_options(self, **fitter_options) -> Dict[str, Any]:
         """Format fitting option args to dictionary of parameter names.
@@ -736,7 +712,7 @@ class CurveAnalysis(BaseAnalysis):
                     y=data.y[locs],
                     y_err=data.y_err[locs],
                     data_index=idx,
-                    metadata=data.metadata[locs] if data.metadata else None,
+                    metadata=data.metadata[locs] if data.metadata is not None else None,
                 )
 
         raise AnalysisError(f"Specified series {series_name} is not defined in this analysis.")
@@ -840,7 +816,7 @@ class CurveAnalysis(BaseAnalysis):
         #
         try:
             curve_fitter = self._get_option("curve_fitter")
-            formatted_data = self._data()
+            formatted_data = self._data(label="fit_ready")
 
             # Generate fit options
             fit_candidates = self._setup_fitting(**extra_options)
