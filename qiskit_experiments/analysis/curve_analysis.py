@@ -426,13 +426,13 @@ class CurveAnalysis(BaseAnalysis):
         Subclasses can override this method to provide their own fitter options
         such as initial guesses.
 
-        To create initial guesses from the experimental data, you can use `self._data()` method.
-        If there are multiple series, you can filter the specific data of interest by
-        specifying `series_name` of it.
-        This function returns ``CurveData`` instance, which is the `dataclass`
+        Create initial guesses from the experimental data provided by the ``self._data()`` method.
+        If there are multiple series, you can get a specific series
+        by specifying its ``series_name``.
+        This function returns a ``CurveData`` instance, which is the `dataclass`
         containing x values `.x`, y values `.y`, and  sigma values `.y_err`.
 
-        You can also access the defined analysis options with the `self._get_option`.
+        You can also access the defined analysis options with the ``self._get_option``.
         For example:
 
         .. code-block::
