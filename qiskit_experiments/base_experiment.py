@@ -13,18 +13,19 @@
 Base Experiment class.
 """
 
-from abc import ABC, abstractmethod
-from typing import Iterable, Optional, Tuple, List
 import copy
+from abc import ABC, abstractmethod
 from numbers import Integral
+from typing import Iterable, Optional, Tuple, List
 
 from qiskit import transpile, assemble, QuantumCircuit
-from qiskit.providers.options import Options
+from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 from qiskit.providers.basebackend import BaseBackend as LegacyBackend
-from qiskit.exceptions import QiskitError
+from qiskit.providers.options import Options
 
 from .experiment_data import ExperimentData
+from .options_field import _compile_docstring, _compile_annotations
 
 
 class BaseExperiment(ABC):
@@ -44,6 +45,22 @@ class BaseExperiment(ABC):
 
     # ExperimentData class for experiment
     __experiment_data__ = ExperimentData
+
+    # pylint: disable=unused-argument
+    def __new__(cls, qubits: Iterable[int], experiment_type: Optional[str] = None):
+        """Override help of options setter based on information provided by subclasses."""
+        obj = object.__new__(cls)
+
+        # Override set analysis option method help.
+        obj.set_analysis_options.__doc__ = _compile_docstring(
+            header="Return the analysis options for :meth:`run` analysis.",
+            fields=cls.__analysis_class__._default_options(),
+        )
+        obj.set_analysis_options.__annotations__ = _compile_annotations(
+            fields=cls.__analysis_class__._default_options()
+        )
+
+        return obj
 
     def __init__(self, qubits: Iterable[int], experiment_type: Optional[str] = None):
         """Initialize the experiment object.

@@ -14,13 +14,13 @@ Base analysis class.
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 from qiskit.exceptions import QiskitError
-from qiskit.providers.options import Options
 
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.experiment_data import ExperimentData, AnalysisResult
+from qiskit_experiments.options_field import OptionsField, _to_options
 
 
 class BaseAnalysis(ABC):
@@ -43,8 +43,8 @@ class BaseAnalysis(ABC):
     __experiment_data__ = ExperimentData
 
     @classmethod
-    def _default_options(cls) -> Options:
-        return Options()
+    def _default_options(cls) -> Dict[str, OptionsField]:
+        return dict()
 
     def run(
         self,
@@ -82,7 +82,7 @@ class BaseAnalysis(ABC):
                 f" but received {type(experiment_data).__name__}"
             )
         # Get analysis options
-        analysis_options = self._default_options()
+        analysis_options = _to_options(self._default_options())
         analysis_options.update_options(**options)
         analysis_options = analysis_options.__dict__
 

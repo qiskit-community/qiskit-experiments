@@ -26,6 +26,7 @@ from qiskit_experiments.analysis import plotting
 from qiskit_experiments.analysis.curve_fitting import multi_curve_fit, CurveAnalysisResult
 from qiskit_experiments.analysis.data_processing import probability
 from qiskit_experiments.analysis.utils import get_opt_value, get_opt_error
+from qiskit_experiments.options_field import OptionsField
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
@@ -242,64 +243,104 @@ class CurveAnalysis(BaseAnalysis):
             setattr(self, f"__{key}", None)
 
     @classmethod
-    def _default_options(cls):
-        """Return default analysis options.
+    def _default_options(cls) -> Dict[str, OptionsField]:
+        """Return default analysis options."""
+        options = {
+            "curve_fitter": OptionsField(
+                default=multi_curve_fit,
+                annotation=Callable,
+                description="""
+A callback function to perform fitting with formatted data.
+This function should have signature:
 
-        Options:
-            curve_fitter: A callback function to perform fitting with formatted data.
-                This function should have signature:
+.. code-block::
 
-                .. code-block::
+    def curve_fitter(
+        funcs: List[Callable],
+        series: ndarray,
+        xdata: ndarray,
+        ydata: ndarray,
+        p0: ndarray,
+        sigma: Optional[ndarray],
+        weights: Optional[ndarray],
+        bounds: Optional[
+            Union[Dict[str, Tuple[float, float]], Tuple[ndarray, ndarray]]
+        ],
+    ) -> CurveAnalysisResult:
 
-                    def curve_fitter(
-                        funcs: List[Callable],
-                        series: ndarray,
-                        xdata: ndarray,
-                        ydata: ndarray,
-                        p0: ndarray,
-                        sigma: Optional[ndarray],
-                        weights: Optional[ndarray],
-                        bounds: Optional[
-                            Union[Dict[str, Tuple[float, float]], Tuple[ndarray, ndarray]]
-                        ],
-                    ) -> CurveAnalysisResult:
+See :func:`~qiskit_experiment.analysis.multi_curve_fit` for example.
+                """,
+            ),
+            "data_processor": OptionsField(
+                default=probability(outcome="1"),
+                annotation=Union[Callable, DataProcessor],
+                description="""
+A callback function to format experiment data.
+This function should have signature:
 
-                See :func:`~qiskit_experiment.analysis.multi_curve_fit` for example.
-            data_processor: A callback function to format experiment data.
-                This function should have signature:
+.. code-block::
 
-                .. code-block::
+    def data_processor(data: Dict[str, Any]) -> Tuple[float, float]
 
-                    def data_processor(data: Dict[str, Any]) -> Tuple[float, float]
+This can be a :class:`~qiskit_experiment.data_processing.DataProcessor`
+instance that defines the `self.__call__` method.
+                """,
+            ),
+            "p0": OptionsField(
+                default=None,
+                annotation=Dict[str, float],
+                description="Dictionary of initial parameters. Keys are parameter names.",
+            ),
+            "bounds": OptionsField(
+                default=None,
+                annotation=Dict[str, Tuple[float, float]],
+                description="Dictionary of (min, max) tuple of fit parameter boundaries. \
+                Keys are parameter names.",
+            ),
+            "x_key": OptionsField(
+                default="xval",
+                annotation=str,
+                description="Circuit metadata key representing a scanned value.",
+            ),
+            "plot": OptionsField(
+                default=True,
+                annotation=bool,
+                description="Set ``True`` to create figure for fit result.",
+            ),
+            "axis": OptionsField(
+                default=None,
+                annotation="matplotlib.axes._subplots.AxesSubplot",
+                description="Optional. A matplotlib axis object to draw.",
+            ),
+            "xlabel": OptionsField(
+                default=None,
+                annotation=str,
+                description="X label of the fit result figure.",
+            ),
+            "ylabel": OptionsField(
+                default=None,
+                annotation=str,
+                description="Y label of the fit result figure.",
+            ),
+            "ylim": OptionsField(
+                default=None,
+                annotation=Tuple[float, float],
+                description="Y axis limit of the fit result figure.",
+            ),
+            "fit_reports": OptionsField(
+                default=None,
+                annotation=Dict[str, str],
+                description="Mapping of fit parameters and representation in the fit report. \
+                If nothing specified, fit report will not be shown.",
+            ),
+            "return_data_points": OptionsField(
+                default=False,
+                annotation=bool,
+                description="Set ``True`` to return arrays of measured data points."
+            ),
+        }
 
-                This can be a :class:`~qiskit_experiment.data_processing.DataProcessor`
-                instance that defines the `self.__call__` method.
-            normalization: Set ``True`` to normalize y values within range [-1, 1].
-            p0: Array-like or dictionary of initial parameters.
-            bounds: Array-like or dictionary of (min, max) tuple of fit parameter boundaries.
-            x_key: Circuit metadata key representing a scanned value.
-            plot: Set ``True`` to create figure for fit result.
-            axis: Optional. A matplotlib axis object to draw.
-            xlabel: X label of fit result figure.
-            ylabel: Y label of fit result figure.
-            fit_reports: Mapping of fit parameters and representation in the fit report.
-            return_data_points: Set ``True`` to return formatted XY data.
-        """
-        return Options(
-            curve_fitter=multi_curve_fit,
-            data_processor=probability(outcome="1"),
-            normalization=False,
-            p0=None,
-            bounds=None,
-            x_key="xval",
-            plot=True,
-            axis=None,
-            xlabel=None,
-            ylabel=None,
-            ylim=None,
-            fit_reports=None,
-            return_data_points=False,
-        )
+        return options
 
     def _create_figures(self, analysis_results: CurveAnalysisResult) -> List["Figure"]:
         """Create new figures with the fit result and raw data.
