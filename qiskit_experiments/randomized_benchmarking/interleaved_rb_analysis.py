@@ -140,11 +140,11 @@ class InterleavedRBAnalysis(RBAnalysis):
         user_bounds = self._get_option("bounds")
 
         # for standard RB curve
-        std_curve = self._prepared_data(name="Standard")
+        std_curve = self._data(series_name="Standard")
         p0_std = self._initial_guess(std_curve.x, std_curve.y, self._num_qubits)
 
         # for interleaved RB curve
-        int_curve = self._prepared_data(name="Interleaved")
+        int_curve = self._data(series_name="Interleaved")
         p0_int = self._initial_guess(int_curve.x, int_curve.y, self._num_qubits)
 
         fit_option = {
@@ -165,7 +165,7 @@ class InterleavedRBAnalysis(RBAnalysis):
 
         return fit_option
 
-    def _post_processing(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_analysis(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
         """Calculate EPC."""
         # Add EPC data
         nrb = 2 ** self._num_qubits

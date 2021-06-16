@@ -99,7 +99,7 @@ class SpectroscopyAnalysis(CurveAnalysis):
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
 
-        curve_data = self._prepared_data()
+        curve_data = self._data()
 
         b_guess = np.median(curve_data.y)
         peak_idx = np.argmax(np.abs(curve_data.y - b_guess))
@@ -131,7 +131,7 @@ class SpectroscopyAnalysis(CurveAnalysis):
 
         return fit_option
 
-    def _post_processing(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_analysis(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -144,7 +144,7 @@ class SpectroscopyAnalysis(CurveAnalysis):
               threshold of two, and
             - a standard error on the sigma of the Gaussian that is smaller than the sigma.
         """
-        curve_data = self._prepared_data()
+        curve_data = self._data()
 
         max_freq = np.max(curve_data.x)
         min_freq = np.min(curve_data.x)

@@ -91,7 +91,7 @@ class RBAnalysis(CurveAnalysis):
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
 
-        curve_data = self._prepared_data()
+        curve_data = self._data()
         initial_guess = self._initial_guess(curve_data.x, curve_data.y, self._num_qubits)
         fit_option = {
             "p0": {
@@ -129,7 +129,7 @@ class RBAnalysis(CurveAnalysis):
 
         return fit_guess
 
-    def _post_processing(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_analysis(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
         """Calculate EPC."""
         alpha = get_opt_value(analysis_result, "alpha")
         alpha_err = get_opt_error(analysis_result, "alpha")

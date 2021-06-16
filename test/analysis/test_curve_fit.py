@@ -20,7 +20,6 @@ from qiskit.test import QiskitTestCase
 
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.analysis import CurveAnalysis, SeriesDef, fit_function
-from qiskit_experiments.analysis.curve_analysis import CurveData
 from qiskit_experiments.analysis.curve_fitting import multi_curve_fit
 from qiskit_experiments.analysis.data_processing import probability
 from qiskit_experiments.base_experiment import BaseExperiment
@@ -160,6 +159,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
             type=2,
             valid=False,
         )
+
         # merge two experiment data
         for datum in test_data1.data():
             test_data0.add_data(datum)
@@ -167,11 +167,12 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         self.analysis._extract_curves(
             experiment_data=test_data0, data_processor=probability(outcome="1")
         )
-        raw_data = self.analysis._raw_data()
+
+        raw_data = self.analysis._data(label="raw_data")
 
         xdata = raw_data.x
         ydata = raw_data.y
-        sigma = raw_data.e
+        sigma = raw_data.y_err
         d_index = raw_data.data_index
 
         # check if the module filter off data: valid=False
@@ -200,28 +201,39 @@ class TestCurveAnalysisUnit(QiskitTestCase):
 
     def test_get_subset(self):
         """Test that get subset data from full data array."""
+        # data to analyze
+        fake_data = [
+            {"data": 1, "metadata": {"xval": 1, "type": 0, "valid": True}},
+            {"data": 2, "metadata": {"xval": 2, "type": 1, "valid": True}},
+            {"data": 3, "metadata": {"xval": 3, "type": 0, "valid": True}},
+            {"data": 4, "metadata": {"xval": 4, "type": 2, "valid": True}},
+            {"data": 5, "metadata": {"xval": 5, "type": 2, "valid": True}},
+            {"data": 6, "metadata": {"xval": 6, "type": 4, "valid": True}},
+        ]
+        expdata = ExperimentData(experiment=FakeExperiment())
+        for datum in fake_data:
+            expdata.add_data(datum)
 
-        d_index = np.asarray([0, 1, 0, 2, 2, -1], dtype=int)
-        xdata = np.asarray([1, 2, 3, 4, 5, 6], dtype=float)
-        ydata = np.asarray([1, 2, 3, 4, 5, 6], dtype=float)
-        sigma = np.asarray([1, 2, 3, 4, 5, 6], dtype=float)
+        def _processor(datum):
+            return datum["data"], datum["data"] * 2
 
-        curve_data = CurveData(x=xdata, y=ydata, e=sigma, data_index=d_index)
+        self.analysis._arg_parse(x_key="xval")
+        self.analysis._extract_curves(expdata, data_processor=_processor)
 
-        filt_data = self.analysis._filter_subset(curve_data, "curve1")
+        filt_data = self.analysis._data(series_name="curve1")
         np.testing.assert_array_almost_equal(filt_data.x, np.asarray([1, 3], dtype=float))
         np.testing.assert_array_almost_equal(filt_data.y, np.asarray([1, 3], dtype=float))
-        np.testing.assert_array_almost_equal(filt_data.e, np.asarray([1, 3], dtype=float))
+        np.testing.assert_array_almost_equal(filt_data.y_err, np.asarray([2, 6], dtype=float))
 
-        filt_data = self.analysis._filter_subset(curve_data, "curve2")
+        filt_data = self.analysis._data(series_name="curve2")
         np.testing.assert_array_almost_equal(filt_data.x, np.asarray([2], dtype=float))
         np.testing.assert_array_almost_equal(filt_data.y, np.asarray([2], dtype=float))
-        np.testing.assert_array_almost_equal(filt_data.e, np.asarray([2], dtype=float))
+        np.testing.assert_array_almost_equal(filt_data.y_err, np.asarray([4], dtype=float))
 
-        filt_data = self.analysis._filter_subset(curve_data, "curve3")
+        filt_data = self.analysis._data(series_name="curve3")
         np.testing.assert_array_almost_equal(filt_data.x, np.asarray([4, 5], dtype=float))
         np.testing.assert_array_almost_equal(filt_data.y, np.asarray([4, 5], dtype=float))
-        np.testing.assert_array_almost_equal(filt_data.e, np.asarray([4, 5], dtype=float))
+        np.testing.assert_array_almost_equal(filt_data.y_err, np.asarray([8, 10], dtype=float))
 
     def test_formatting_options(self):
         """Test option formatter."""
