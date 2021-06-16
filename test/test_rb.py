@@ -183,7 +183,7 @@ class TestRBUtilities(QiskitTestCase):
             actual_epg = epg[0][gate]
             print(actual_epg)
             self.assertTrue(
-                np.allclose(expected_epg, actual_epg, rtol=1.0e-2),
+                np.allclose(expected_epg, actual_epg, rtol=1.0e-1),
                 "The expected EGP {} is not close enough to the real EPG {}".format(
                     expected_epg, actual_epg
                 ),
