@@ -906,7 +906,7 @@ class Calibrations:
         force_update: bool = False,
         group: str = "default",
     ):
-        """Update the calibrations form a result in the given experiment data.
+        """Update the calibrations from a result in the given experiment data.
 
         This function allows users to update their calibrations from experiment data. Typically,
         the value of the parameter to update is directly stored as the result of the fit.
