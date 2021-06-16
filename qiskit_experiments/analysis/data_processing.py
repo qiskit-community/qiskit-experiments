@@ -139,13 +139,13 @@ def multi_mean_xy_data(
     sigma_means = []
 
     # Get x, y, sigma data for series and process mean data
-    for i in series_vals:
-        idxs = series == series_vals[i]
+    for series_val in series_vals:
+        idxs = series == series_val
         sigma_i = sigma[idxs] if sigma is not None else None
         x_mean, y_mean, sigma_mean = mean_xy_data(
             xdata[idxs], ydata[idxs], sigma=sigma_i, method=method
         )
-        series_means.append(i * np.ones(x_mean.size, dtype=int))
+        series_means.append(np.full(x_mean.size, series_val, dtype=int))
         xdata_means.append(x_mean)
         ydata_means.append(y_mean)
         sigma_means.append(sigma_mean)
