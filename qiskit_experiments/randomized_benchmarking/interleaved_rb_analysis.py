@@ -24,7 +24,7 @@ from qiskit_experiments.analysis import (
     get_opt_error,
 )
 from .rb_analysis import RBAnalysis
-from qiskit_experiments.experiment_data import ExperimentData
+
 
 class InterleavedRBAnalysis(RBAnalysis):
     r"""A class to analyze interleaved randomized benchmarking experiment.

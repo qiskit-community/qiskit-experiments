@@ -159,12 +159,14 @@ class TestInterleavedRB(TestRB):
         self.validate_circuit_data(exp_data, exp_attributes)
         self.is_identity(exp_circuits)
 
+
 @ddt
 class TestRBUtilities(QiskitTestCase):
     """
     A test class for additional functionality provided by the RBExperiment
     class.
     """
+
     def test_epg_computation(self):
         """Tests the error per gate computation"""
         backend = AerSimulator.from_backend(FakeParis())
@@ -175,9 +177,14 @@ class TestRBUtilities(QiskitTestCase):
         seed = 1010
         exp1 = rb.RBExperiment([0], lengths, num_samples=num_samples, seed=seed)
         result = exp1.run(backend)
-        epg = result.analysis_result(0)['EPG']
-        for gate in ['x', 'sx', 'rz']:
+        epg = result.analysis_result(0)["EPG"]
+        for gate in ["x", "sx", "rz"]:
             expected_epg = error_dict[((0,), gate)]
             actual_epg = epg[0][gate]
             print(actual_epg)
-            self.assertTrue(np.allclose(expected_epg, actual_epg, rtol=1.e-2))
+            self.assertTrue(
+                np.allclose(expected_epg, actual_epg, rtol=1.0e-2),
+                "The expected EGP {} is not close enough to the real EPG {}".format(
+                    expected_epg, actual_epg
+                ),
+            )

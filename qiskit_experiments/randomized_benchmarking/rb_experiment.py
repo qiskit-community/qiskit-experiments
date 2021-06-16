@@ -117,6 +117,10 @@ class RBExperiment(BaseExperiment):
             circuits += self._generate_circuit(elements, element_lengths)
         return circuits
 
+    def set_epg_1_qubit(self, epg_1_qubit):
+        """Set EPG data from previous experiments on the same backend"""
+        self.set_analysis_options(epg_1_qubit=epg_1_qubit)
+
     def _generate_circuit(
         self, elements: Iterable[Clifford], lengths: Iterable[int]
     ) -> List[QuantumCircuit]:
@@ -193,11 +197,6 @@ class RBExperiment(BaseExperiment):
         for c in circuits:
             c_count_ops = RBUtils.count_ops(c, self.physical_qubits)
             circuit_length = c.metadata["xval"]
-            c.metadata["ops_count"] = [
-                (key, value / circuit_length) for key, value in c_count_ops.items()
-            ]
-            count_ops += [
-                (key, value / circuit_length) for key, value in c_count_ops.items()
-            ]
+            count_ops += [(key, value / circuit_length) for key, value in c_count_ops.items()]
         gates_per_clifford = RBUtils.gates_per_clifford(count_ops)
         self.set_analysis_options(gates_per_clifford=gates_per_clifford)

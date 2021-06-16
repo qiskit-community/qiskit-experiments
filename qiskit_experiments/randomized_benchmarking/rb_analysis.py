@@ -29,7 +29,7 @@ from qiskit_experiments.analysis import (
 
 from .rb_utils import RBUtils
 from qiskit_experiments.analysis.data_processing import multi_mean_xy_data
-from qiskit_experiments.experiment_data import ExperimentData
+
 
 class RBAnalysis(CurveAnalysis):
     r"""A class to analyze randomized benchmarking experiments.
@@ -90,6 +90,7 @@ class RBAnalysis(CurveAnalysis):
         default_options.fit_reports = {"alpha": "\u03B1", "EPC": "EPC"}
         default_options.gates_per_clifford = None
         default_options.backend = None
+        default_options.epg_1_qubit = None
 
         return default_options
 
@@ -175,11 +176,13 @@ class RBAnalysis(CurveAnalysis):
                     gates_per_clifford,
                 )
             elif num_qubits == 2:
+                epg_1_qubit = self._get_option("epg_1_qubit")
                 epg = RBUtils.calculate_2q_epg(
                     analysis_result["EPC"],
                     self._physical_qubits,
                     backend,
                     gates_per_clifford,
+                    epg_1_qubit=epg_1_qubit,
                 )
             analysis_result["EPG"] = epg
         return analysis_result
