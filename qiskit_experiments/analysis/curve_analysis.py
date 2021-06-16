@@ -332,10 +332,7 @@ class CurveAnalysis(BaseAnalysis):
                 ymin = min(ymin, *curve_data_raw.y)
                 ymax = max(ymax, *curve_data_raw.y)
                 plotting.plot_scatter(
-                    xdata=curve_data_raw.x,
-                    ydata=curve_data_raw.y,
-                    ax=axis,
-                    zorder=0
+                    xdata=curve_data_raw.x, ydata=curve_data_raw.y, ax=axis, zorder=0
                 )
 
                 # plot formatted data
@@ -552,9 +549,9 @@ class CurveAnalysis(BaseAnalysis):
                 This should take list of dictionary and returns two tuple of float values
                 that represent a y value and an error of it.
         Raises:
-            DataProcessorError:
-                - When `x_key` specified in the analysis option is not
-                    defined in the circuit metadata.
+            DataProcessorError: When `x_key` specified in the analysis option is not
+                defined in the circuit metadata.
+            AnalysisError: When formatted data has the label other than fit_ready.
         """
         self.__processed_data_set = list()
 
