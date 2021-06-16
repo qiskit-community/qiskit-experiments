@@ -91,16 +91,16 @@ class RabiAnalysis(CurveAnalysis):
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
 
-        max_abs_y = np.max(np.abs(self._y_values))
+        max_abs_y = np.max(np.abs(self._data().y))
 
         # Use a fast Fourier transform to guess the frequency.
-        fft = np.abs(np.fft.fft(self._y_values))
-        damp = self._x_values[1] - self._x_values[0]
-        freqs = np.linspace(0.0, 1.0 / (2.0 * damp), len(fft // 2))
+        fft = np.abs(np.fft.fft(self._data().y - np.average(self._data().y)))
+        damp = self._data().x[1] - self._data().x[0]
+        freqs = np.linspace(0.0, 1.0 / (2.0 * damp), len(fft))
 
-        a_guess = np.max(self._y_values) - np.min(self._y_values)
-        f_guess = freqs[np.argmax(fft)]
-        b_guess = np.average(self._y_values)
+        b_guess = np.average(self._data().y)
+        a_guess = np.max(self._data().y) - np.min(self._data().y) - b_guess
+        f_guess = freqs[np.argmax(fft[0 : len(fft) // 2])]
 
         if user_p0["phase"] is not None:
             p_guesses = [user_p0["phase"]]
@@ -128,7 +128,7 @@ class RabiAnalysis(CurveAnalysis):
 
         return fit_options
 
-    def _post_processing(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_analysis(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -142,7 +142,7 @@ class RabiAnalysis(CurveAnalysis):
 
         criteria = [
             analysis_result["reduced_chisq"] < 3,
-            np.pi / 2 < fit_freq < 10 * 2 * np.pi,
+            1.0 / 4.0 < fit_freq < 10.0,
             (fit_freq_err is None or (fit_freq_err < fit_freq)),
         ]
 
