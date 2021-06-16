@@ -255,7 +255,8 @@ class RBUtils:
                         alpha_1q[ind] *= (1 - 2 * epg) ** n_gate
             alpha_c_1q = 1 / 5 * (alpha_1q[0] + alpha_1q[1] + 3 * alpha_1q[0] * alpha_1q[1])
             alpha_c_2q = (1 - 4 / 3 * epc_2_qubit) / alpha_c_1q
-            n_gate_2q = gates_per_clifford[(qubit_pair, gate_2_qubit_type)]
+            inverse_qubit_pair = (qubit_pair[1], qubit_pair[0])
+            n_gate_2q = gates_per_clifford.get((qubit_pair, gate_2_qubit_type),0) + gates_per_clifford.get((inverse_qubit_pair, gate_2_qubit_type),0)
             epg = 3 / 4 * (1 - alpha_c_2q) / n_gate_2q
             epg_2_qubit[qubit_pair] = {gate_2_qubit_type: epg}
         return epg_2_qubit
