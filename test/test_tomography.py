@@ -31,8 +31,8 @@ FITTERS = [None, "linear_inversion", "scipy_linear_lstsq", "scipy_gaussian_lstsq
 
 
 @ddt.ddt
-class TestStateTomographyExperiment(QiskitTestCase):
-    """Test StateTomographyExperiment"""
+class TestStateTomography(QiskitTestCase):
+    """Test StateTomography"""
 
     @ddt.data(*list(it.product([1, 2], FITTERS)))
     @ddt.unpack
@@ -42,7 +42,7 @@ class TestStateTomographyExperiment(QiskitTestCase):
         seed = 1234
         f_threshold = 0.95
         target = qi.random_statevector(2 ** num_qubits, seed=seed)
-        qstexp = tomo.StateTomographyExperiment(target)
+        qstexp = tomo.StateTomography(target)
         if fitter:
             qstexp.set_analysis_options(fitter=fitter)
         expdata = qstexp.run(backend)
@@ -70,7 +70,7 @@ class TestStateTomographyExperiment(QiskitTestCase):
 
         # Teleport qubit 0 -> 2
         backend = AerSimulator()
-        exp = tomo.StateTomographyExperiment(teleport_circuit(), measurement_qubits=[2])
+        exp = tomo.StateTomography(teleport_circuit(), measurement_qubits=[2])
         expdata = exp.run(backend)
         result = expdata.analysis_result(-1)
 
@@ -118,7 +118,7 @@ class TestStateTomographyExperiment(QiskitTestCase):
             circ.append(op, [i])
 
         num_meas = len(meas_qubits)
-        exp = tomo.StateTomographyExperiment(circ, measurement_qubits=meas_qubits)
+        exp = tomo.StateTomography(circ, measurement_qubits=meas_qubits)
         tomo_circuits = exp.circuits()
 
         # Check correct number of circuits are generated
@@ -161,7 +161,7 @@ class TestStateTomographyExperiment(QiskitTestCase):
 
         # Run
         backend = AerSimulator()
-        exp = tomo.StateTomographyExperiment(circ, measurement_qubits=meas_qubits)
+        exp = tomo.StateTomography(circ, measurement_qubits=meas_qubits)
         expdata = exp.run(backend)
         result = expdata.analysis_result(-1)
 
@@ -199,7 +199,7 @@ class TestStateTomographyExperiment(QiskitTestCase):
         targets = []
         for i in range(nq):
             targets.append(qi.Statevector(ops[i].to_instruction()))
-            exps.append(tomo.StateTomographyExperiment(circuit, measurement_qubits=[i]))
+            exps.append(tomo.StateTomography(circuit, measurement_qubits=[i]))
 
         # Run batch experiments
         backend = AerSimulator()
@@ -238,7 +238,7 @@ class TestStateTomographyExperiment(QiskitTestCase):
         exps = []
         targets = []
         for i in range(nq):
-            exps.append(tomo.StateTomographyExperiment(ops[i], qubits=[i]))
+            exps.append(tomo.StateTomography(ops[i], qubits=[i]))
             targets.append(qi.Statevector(ops[i].to_instruction()))
 
         # Run batch experiments
@@ -269,7 +269,7 @@ class TestStateTomographyExperiment(QiskitTestCase):
 
 
 @ddt.ddt
-class TestProcessTomographyExperiment(QiskitTestCase):
+class TestProcessTomography(QiskitTestCase):
     """Test QuantumProcessTomography"""
 
     @ddt.data(*list(it.product([1, 2], FITTERS)))
@@ -280,7 +280,7 @@ class TestProcessTomographyExperiment(QiskitTestCase):
         seed = 1234
         f_threshold = 0.95
         target = qi.random_unitary(2 ** num_qubits, seed=seed)
-        qstexp = tomo.ProcessTomographyExperiment(target)
+        qstexp = tomo.ProcessTomography(target)
         if fitter:
             qstexp.set_analysis_options(fitter=fitter)
         expdata = qstexp.run(backend)
@@ -313,7 +313,7 @@ class TestProcessTomographyExperiment(QiskitTestCase):
             circ.append(op, [i])
 
         num_meas = len(qubits)
-        exp = tomo.ProcessTomographyExperiment(
+        exp = tomo.ProcessTomography(
             circ, measurement_qubits=qubits, preparation_qubits=qubits
         )
         tomo_circuits = exp.circuits()
@@ -359,7 +359,7 @@ class TestProcessTomographyExperiment(QiskitTestCase):
 
         # Run
         backend = AerSimulator()
-        exp = tomo.ProcessTomographyExperiment(
+        exp = tomo.ProcessTomography(
             circ, measurement_qubits=qubits, preparation_qubits=qubits
         )
         expdata = exp.run(backend)
@@ -387,7 +387,7 @@ class TestProcessTomographyExperiment(QiskitTestCase):
 
         # Teleport qubit 0 -> 2
         backend = AerSimulator()
-        exp = tomo.ProcessTomographyExperiment(
+        exp = tomo.ProcessTomography(
             teleport_circuit(), measurement_qubits=[2], preparation_qubits=[0]
         )
         expdata = exp.run(backend, shots=10000)
@@ -422,7 +422,7 @@ class TestProcessTomographyExperiment(QiskitTestCase):
         for i in range(nq):
             targets.append(ops[i])
             exps.append(
-                tomo.ProcessTomographyExperiment(
+                tomo.ProcessTomography(
                     circuit, measurement_qubits=[i], preparation_qubits=[i]
                 )
             )
@@ -462,7 +462,7 @@ class TestProcessTomographyExperiment(QiskitTestCase):
         exps = []
         targets = []
         for i in range(nq):
-            exps.append(tomo.ProcessTomographyExperiment(ops[i], qubits=[i]))
+            exps.append(tomo.ProcessTomography(ops[i], qubits=[i]))
             targets.append(ops[i])
 
         # Run batch experiments

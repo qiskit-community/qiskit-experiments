@@ -22,7 +22,7 @@ from .qst_analysis import StateTomographyAnalysis
 from . import basis
 
 
-class StateTomographyExperiment(TomographyExperiment):
+class StateTomography(TomographyExperiment):
     """Quantum state tomography experiment.
 
     Overview

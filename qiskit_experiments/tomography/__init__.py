@@ -23,8 +23,8 @@ Experiments
 .. autosummary::
     :toctree: ../stubs/
 
-    StateTomographyExperiment
-    ProcessTomographyExperiment
+    StateTomography
+    ProcessTomography
 
 
 Analysis
@@ -84,8 +84,8 @@ Abstract base classes
 """
 
 # Experiment Classes
-from .qst_experiment import StateTomographyExperiment, StateTomographyAnalysis
-from .qpt_experiment import ProcessTomographyExperiment, ProcessTomographyAnalysis
+from .qst_experiment import StateTomography, StateTomographyAnalysis
+from .qpt_experiment import ProcessTomography, ProcessTomographyAnalysis
 
 # Basis Classes
 from . import basis

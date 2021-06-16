@@ -26,14 +26,14 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
           The measurement
           :class:`~qiskit_experiments.tomography.basis.BaseFitterMeasurementBasis`
           to use for tomographic reconstruction when running a
-          :class:`~qiskit_experiments.tomography.StateTomographyExperiment` or
-          :class:`~qiskit_experiments.tomography.ProcessTomographyExperiment`.
+          :class:`~qiskit_experiments.tomography.StateTomography` or
+          :class:`~qiskit_experiments.tomography.ProcessTomography`.
         - **preparation_basis**
           (:class:`~qiskit_experiments.tomography.basis.BaseFitterPreparationBasis`):
           The preparation
           :class:`~qiskit_experiments.tomography.basis.BaseFitterPreparationBasis`
           to use for tomographic reconstruction for
-          :class:`~qiskit_experiments.tomography.ProcessTomographyExperiment`.
+          :class:`~qiskit_experiments.tomography.ProcessTomography`.
         - **fitter** (``str`` or ``Callable``): The fitter function to use for reconstruction.
           This can  be a string to select one of the built-in fitters, or a callable to
           supply a custom fitter function. See the `Fitter Functions` section

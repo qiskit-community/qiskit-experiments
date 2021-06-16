@@ -21,7 +21,7 @@ from .qpt_analysis import ProcessTomographyAnalysis
 from . import basis
 
 
-class ProcessTomographyExperiment(TomographyExperiment):
+class ProcessTomography(TomographyExperiment):
     """Quantum process tomography experiment.
 
     Overview
