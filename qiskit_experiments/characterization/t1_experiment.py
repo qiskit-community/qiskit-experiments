@@ -28,7 +28,7 @@ from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
 from qiskit_experiments.experiment_data import ResultDict
 from qiskit_experiments.store_data import AnalysisResultV1
-from qiskit_experiment.store_data.device_component import Qubit
+from qiskit_experiments.store_data.device_component import Qubit
 
 
 class T1Analysis(BaseAnalysis):

@@ -22,13 +22,13 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.utils import apply_prefix
 from qiskit.providers.options import Options
 from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResult
+from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import curve_fit, process_curve_data
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
 from qiskit_experiments.experiment_data import ExperimentData, ResultDict
 from qiskit_experiments.store_data import AnalysisResultV1
-from qiskit_experiment.store_data.device_component import Qubit
+from qiskit_experiments.store_data.device_component import Qubit
 
 
 # pylint: disable = invalid-name

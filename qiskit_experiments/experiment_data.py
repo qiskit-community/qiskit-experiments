@@ -15,13 +15,13 @@ Experiment Data class
 import logging
 
 from qiskit.providers import Backend
-from qiskit_experiments.store_data import StoreDataV1
+from qiskit_experiments.store_data import StoredDataV1
 
 
 LOG = logging.getLogger(__name__)
 
 
-class ResiltDict(dict):
+class ResultDict(dict):
     """Placeholder class"""
 
     __keys_not_shown__ = tuple()
@@ -35,7 +35,7 @@ class ResiltDict(dict):
         return out
 
 
-class ExperimentData(StoreDataV1):
+class ExperimentData(StoredDataV1):
     """Qiskit Experiments Data container class"""
 
     def __init__(
