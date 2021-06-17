@@ -204,7 +204,7 @@ class StoredDataV1(StoredData):
                 The following positional arguments are provided to the callback function:
 
                     * This ``StoredData`` object.
-                    * Index of the data added.
+                    * Index of the last data added.
                     * Additional keyword arguments passed to this method.
 
             **kwargs: Keyword arguments to be passed to the callback function.
@@ -276,8 +276,13 @@ class StoredDataV1(StoredData):
         except JobError as err:
             LOG.warning("Job %s failed: %s", job.job_id(), str(err))
             return
-        if job_done_callback:
-            job_done_callback(self, data_index, **kwargs)
+
+        try:
+            if job_done_callback:
+                job_done_callback(self, data_index, **kwargs)
+        except Exception:  # pylint: disable=broad-except
+            LOG.warning("Post processing function failed:\n%s", traceback.format_exc())
+            raise
 
     def _add_result_data(self, result: Result) -> None:
         """Add data from a Result object
