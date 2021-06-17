@@ -20,10 +20,10 @@ import json
 import numpy as np
 
 from qiskit.test import QiskitTestCase
-from qiskit_experiments.store_data import AnalysisResultV1 as AnalysisResult
-from qiskit_experiments.store_data.device_component import Qubit, Resonator, to_component
-from qiskit_experiments.store_data.experiment_service import ExperimentServiceV1
-from qiskit_experiments.store_data.exceptions import ExperimentError
+from qiskit_experiments.stored_data import AnalysisResultV1 as AnalysisResult
+from qiskit_experiments.stored_data.device_component import Qubit, Resonator, to_component
+from qiskit_experiments.stored_data.experiment_service import ExperimentServiceV1
+from qiskit_experiments.stored_data.exceptions import ExperimentError
 
 
 class TestAnalysisResult(QiskitTestCase):

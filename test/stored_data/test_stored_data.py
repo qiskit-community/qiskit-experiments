@@ -32,19 +32,16 @@ from qiskit.result import Result
 from qiskit.providers import JobV1 as Job
 from qiskit.providers import JobStatus
 from qiskit.tools.visualization import HAS_MATPLOTLIB
-from qiskit_experiments.store_data import StoredDataV1 as StoredData
-from qiskit_experiments.store_data import ExperimentServiceV1
-from qiskit_experiments.store_data.exceptions import (
+from qiskit_experiments.stored_data import StoredDataV1 as StoredData
+from qiskit_experiments.stored_data import ExperimentServiceV1
+from qiskit_experiments.stored_data.exceptions import (
     ExperimentError,
     ExperimentEntryNotFound,
     ExperimentEntryExists,
 )
 
 
-import unittest
-
-
-class TestExperimentData(unittest.TestCase):
+class TestStoredData(QiskitTestCase):
     """Test the ExperimentData class."""
 
     def setUp(self):
@@ -666,9 +663,8 @@ class TestExperimentData(unittest.TestCase):
     def test_source(self):
         """Test getting experiment source."""
         exp_data = StoredData(experiment_type="qiskit_test")
-        source_vals = "\n".join([str(val) for val in exp_data.source.values()])
-        self.assertIn("StoredDataV1", source_vals)
-        self.assertIn("qiskit-terra", source_vals)
+        self.assertIn("StoredDataV1", exp_data.source["class"])
+        self.assertTrue(exp_data.source["qiskit_version"])
 
     def test_block_for_jobs(self):
         """Test blocking for jobs."""
