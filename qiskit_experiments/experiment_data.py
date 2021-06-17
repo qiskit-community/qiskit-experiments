@@ -15,7 +15,7 @@ Experiment Data class
 import logging
 
 from qiskit.providers import Backend
-from qiskit_experiments.store_data import StoredDataV1
+from qiskit_experiments.stored_data import StoredDataV1
 
 
 LOG = logging.getLogger(__name__)

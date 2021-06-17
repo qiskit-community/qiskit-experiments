@@ -31,8 +31,8 @@ from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.experiment_data import ResultDict, ExperimentData
-from qiskit_experiments.store_data import AnalysisResultV1
-from qiskit_experiments.store_data.device_component import Qubit
+from qiskit_experiments.stored_data import AnalysisResultV1
+from qiskit_experiments.stored_data.device_component import Qubit
 
 
 @dataclasses.dataclass(frozen=True)

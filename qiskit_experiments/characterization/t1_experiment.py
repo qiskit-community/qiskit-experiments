@@ -27,8 +27,8 @@ from qiskit_experiments.analysis.curve_fitting import process_curve_data, curve_
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
 from qiskit_experiments.experiment_data import ResultDict
-from qiskit_experiments.store_data import AnalysisResultV1
-from qiskit_experiments.store_data.device_component import Qubit
+from qiskit_experiments.stored_data import AnalysisResultV1
+from qiskit_experiments.stored_data.device_component import Qubit
 
 
 class T1Analysis(BaseAnalysis):
