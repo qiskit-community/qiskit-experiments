@@ -20,7 +20,7 @@ from qiskit.exceptions import QiskitError
 
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.experiment_data import ExperimentData, AnalysisResult
-from qiskit_experiments.options_field import OptionsField, _to_options
+from qiskit_experiments.options_field import OptionsField, to_options
 
 
 class BaseAnalysis(ABC):
@@ -82,7 +82,7 @@ class BaseAnalysis(ABC):
                 f" but received {type(experiment_data).__name__}"
             )
         # Get analysis options
-        analysis_options = _to_options(self._default_options())
+        analysis_options = to_options(self._default_options())
         analysis_options.update_options(**options)
         analysis_options = analysis_options.__dict__
 

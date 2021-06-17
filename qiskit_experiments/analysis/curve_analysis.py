@@ -20,7 +20,6 @@ import inspect
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
 import numpy as np
-from qiskit.providers.options import Options
 
 from qiskit_experiments.analysis import plotting
 from qiskit_experiments.analysis.curve_fitting import multi_curve_fit, CurveAnalysisResult
@@ -249,94 +248,64 @@ class CurveAnalysis(BaseAnalysis):
             "curve_fitter": OptionsField(
                 default=multi_curve_fit,
                 annotation=Callable,
-                description="""
-A callback function to perform fitting with formatted data.
-This function should have signature:
-
-.. code-block::
-
-    def curve_fitter(
-        funcs: List[Callable],
-        series: ndarray,
-        xdata: ndarray,
-        ydata: ndarray,
-        p0: ndarray,
-        sigma: Optional[ndarray],
-        weights: Optional[ndarray],
-        bounds: Optional[
-            Union[Dict[str, Tuple[float, float]], Tuple[ndarray, ndarray]]
-        ],
-    ) -> CurveAnalysisResult:
-
-See :func:`~qiskit_experiment.analysis.multi_curve_fit` for example.
-                """,
+                description="test",
             ),
             "data_processor": OptionsField(
                 default=probability(outcome="1"),
                 annotation=Union[Callable, DataProcessor],
-                description="""
-A callback function to format experiment data.
-This function should have signature:
-
-.. code-block::
-
-    def data_processor(data: Dict[str, Any]) -> Tuple[float, float]
-
-This can be a :class:`~qiskit_experiment.data_processing.DataProcessor`
-instance that defines the `self.__call__` method.
-                """,
+                description="test",
             ),
             "p0": OptionsField(
                 default=None,
                 annotation=Dict[str, float],
-                description="Dictionary of initial parameters. Keys are parameter names.",
+                description="Dictionary of initial parameters. Keys are parameter names",
             ),
             "bounds": OptionsField(
                 default=None,
                 annotation=Dict[str, Tuple[float, float]],
                 description="Dictionary of (min, max) tuple of fit parameter boundaries. \
-                Keys are parameter names.",
+Keys are parameter names",
             ),
             "x_key": OptionsField(
                 default="xval",
                 annotation=str,
-                description="Circuit metadata key representing a scanned value.",
+                description="Circuit metadata key representing a scanned value",
             ),
             "plot": OptionsField(
                 default=True,
                 annotation=bool,
-                description="Set ``True`` to create figure for fit result.",
+                description="Set ``True`` to create figure for fit result",
             ),
             "axis": OptionsField(
                 default=None,
                 annotation="matplotlib.axes._subplots.AxesSubplot",
-                description="Optional. A matplotlib axis object to draw.",
+                description="Optional. A matplotlib axis object to draw",
             ),
             "xlabel": OptionsField(
                 default=None,
                 annotation=str,
-                description="X label of the fit result figure.",
+                description="X label of the fit result figure",
             ),
             "ylabel": OptionsField(
                 default=None,
                 annotation=str,
-                description="Y label of the fit result figure.",
+                description="Y label of the fit result figure",
             ),
             "ylim": OptionsField(
                 default=None,
                 annotation=Tuple[float, float],
-                description="Y axis limit of the fit result figure.",
+                description="Y axis limit of the fit result figure",
             ),
             "fit_reports": OptionsField(
                 default=None,
                 annotation=Dict[str, str],
                 description="Mapping of fit parameters and representation in the fit report. \
-                If nothing specified, fit report will not be shown.",
+If nothing specified, fit report will not be shown",
             ),
             "return_data_points": OptionsField(
                 default=False,
                 annotation=bool,
-                description="Set ``True`` to return arrays of measured data points."
+                description="Set ``True`` to return arrays of measured data points"
             ),
         }
 

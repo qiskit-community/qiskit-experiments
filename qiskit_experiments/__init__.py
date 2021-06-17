@@ -51,7 +51,7 @@ from .version import __version__
 # Base Classes
 from .experiment_data import ExperimentData, AnalysisResult
 from .base_analysis import BaseAnalysis
-from .base_experiment import BaseExperiment, OptionsField
+from .base_experiment import BaseExperiment
 
 # Experiment modules
 from . import composite

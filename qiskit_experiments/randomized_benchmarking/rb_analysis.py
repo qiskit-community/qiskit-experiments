@@ -80,11 +80,13 @@ class RBAnalysis(CurveAnalysis):
         descriptions of analysis options.
         """
         default_options = super()._default_options()
-        default_options.p0 = {"a": None, "alpha": None, "b": None}
-        default_options.bounds = {"a": (0.0, 1.0), "alpha": (0.0, 1.0), "b": (0.0, 1.0)}
-        default_options.xlabel = "Clifford Length"
-        default_options.ylabel = "P(0)"
-        default_options.fit_reports = {"alpha": "\u03B1", "EPC": "EPC"}
+
+        # update default values
+        default_options["p0"].default = {"a": None, "alpha": None, "b": None}
+        default_options["bounds"].default = {"a": (0.0, 1.0), "alpha": (0.0, 1.0), "b": (0.0, 1.0)}
+        default_options["xlabel"].default = "Clifford Length"
+        default_options["ylabel"].default = "P(0)"
+        default_options["fit_reports"].default = {"alpha": "\u03B1", "EPC": "EPC"}
 
         return default_options
 

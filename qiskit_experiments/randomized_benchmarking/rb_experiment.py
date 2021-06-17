@@ -25,10 +25,12 @@ from qiskit.circuit import Gate
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.analysis.data_processing import probability
+from qiskit_experiments.options_field import create_options_docs
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
 
 
+@create_options_docs
 class RBExperiment(BaseExperiment):
     """RB Experiment class.
 

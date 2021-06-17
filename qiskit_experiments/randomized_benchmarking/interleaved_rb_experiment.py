@@ -22,8 +22,10 @@ from qiskit.quantum_info import Clifford
 
 from .rb_experiment import RBExperiment
 from .interleaved_rb_analysis import InterleavedRBAnalysis
+from qiskit_experiments.options_field import create_options_docs
 
 
+@create_options_docs
 class InterleavedRBExperiment(RBExperiment):
     """Interleaved RB Experiment class"""
 
