@@ -204,7 +204,6 @@ class StoredDataV1(StoredData):
                 The following positional arguments are provided to the callback function:
 
                     * This ``StoredData`` object.
-                    * Index of the last data added.
                     * Additional keyword arguments passed to this method.
 
             **kwargs: Keyword arguments to be passed to the callback function.
@@ -212,6 +211,13 @@ class StoredDataV1(StoredData):
         Raises:
             TypeError: If the input data type is invalid.
         """
+        with self._job_futures.lock:
+            if any(not fut.done() for _, fut in self._job_futures):
+                LOG.warning(
+                    "Not all post-processing has finished. Adding new data "
+                    "may create unexpected analysis results."
+                )
+
         if isinstance(data, (Job, BaseJob)):
             if self.backend and self.backend.name() != data.backend().name():
                 LOG.warning(
@@ -251,7 +257,7 @@ class StoredDataV1(StoredData):
             raise TypeError(f"Invalid data type {type(data)}.")
 
         if post_processing_callback is not None:
-            post_processing_callback(self, len(self._data) - 1, **kwargs)
+            post_processing_callback(self, **kwargs)
 
     def _wait_for_job(
         self,
@@ -265,6 +271,9 @@ class StoredDataV1(StoredData):
             job: Job to wait for.
             job_done_callback: Callback function to invoke when job finishes.
             **kwargs: Keyword arguments to be passed to the callback function.
+
+        Raises:
+            Exception: If post processing failed.
         """
         LOG.debug("Waiting for job %s to finish.", job.job_id())
         try:
@@ -272,14 +281,13 @@ class StoredDataV1(StoredData):
             with self._data.lock:
                 # Hold the lock so we add the block of results together.
                 self._add_result_data(job_result)
-                data_index = len(self._data) - 1
         except JobError as err:
             LOG.warning("Job %s failed: %s", job.job_id(), str(err))
             return
 
         try:
             if job_done_callback:
-                job_done_callback(self, data_index, **kwargs)
+                job_done_callback(self, **kwargs)
         except Exception:  # pylint: disable=broad-except
             LOG.warning("Post processing function failed:\n%s", traceback.format_exc())
             raise
