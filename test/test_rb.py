@@ -12,81 +12,149 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-
-import qiskit_experiments as qe
-from qiskit.quantum_info import Clifford
-from qiskit.test import QiskitTestCase
-import numpy as np
-
 """
 A Tester for the RB experiment
 """
 
 
+import numpy as np
+from ddt import ddt, data, unpack
+from qiskit.quantum_info.operators.predicates import matrix_equal
+from qiskit.quantum_info import Clifford
+from qiskit.test import QiskitTestCase
+from qiskit.test.mock import FakeParis
+from qiskit.circuit.library import XGate, CXGate
+import qiskit_experiments as qe
+
+
+@ddt
 class TestRB(QiskitTestCase):
     """
-    A simple and primitive backend, to be run by the RB tests
+    A test class for the RB Experiment to check that the RBExperiment class is working correctly.
     """
 
-    @staticmethod
-    def rb_parameters_2_qubit():
+    @data([[3]], [[4, 7]], [[0, 5, 3]])
+    @unpack
+    def test_rb_experiment(self, qubits: list):
         """
-        Initialize data for a RB experiment with specific parameters
-        Returns:
-            exp_data (Dictionary): A dictionary with the experiment setup.
-            rb_exp (RBExperiment): The instance for the experiment object.
+        Initializes data and executes an RB experiment with specific parameters.
+        Args:
+            qubits (list): A list containing qubit indices for the experiment
         """
-        exp_data = {"qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": 1, "seed": 100}
+        backend = FakeParis()
+        exp_attributes = {
+            "qubits": qubits,
+            "lengths": [1, 4, 6, 9, 13, 16],
+            "num_samples": 2,
+            "seed": 100,
+        }
         rb = qe.randomized_benchmarking
         rb_exp = rb.RBExperiment(
-            exp_data["qubits"],
-            exp_data["lengths"],
-            num_samples=exp_data["num_samples"],
-            seed=exp_data["seed"],
+            exp_attributes["qubits"],
+            exp_attributes["lengths"],
+            num_samples=exp_attributes["num_samples"],
+            seed=exp_attributes["seed"],
         )
-        return exp_data, rb_exp
+        experiment_obj = rb_exp.run(backend)
+        exp_data = experiment_obj.experiment
+        exp_circuits = rb_exp.circuits()
+        self.validate_metadata(exp_circuits, exp_attributes)
+        self.validate_circuit_data(exp_data, exp_attributes)
+        self.is_identity(exp_circuits)
 
     def is_identity(self, circuits: list):
-        """Standard randomized benchmarking test - Identity check
+        """Standard randomized benchmarking test - Identity check.
             (assuming all the operator are spanned by clifford group)
         Args:
-            circuits: list of the circuits which we want to check
+            circuits (list): list of the circuits which we want to check
         """
         for qc in circuits:
             num_qubits = qc.num_qubits
             qc.remove_final_measurements()
             # Checking if the matrix representation is the identity matrix
-            self.assertEqual(
-                np.allclose(Clifford(qc).to_matrix(), np.identity(2 ** num_qubits)),
-                True,
+            self.assertTrue(
+                matrix_equal(Clifford(qc).to_matrix(), np.identity(2 ** num_qubits)),
                 "Clifford sequence doesn't result in the identity matrix.",
             )
 
-    def validate_metadata(self, circuits: list, exp_data: dict):
+    def validate_metadata(self, circuits: list, exp_attributes: dict):
         """
         Validate the fields in "metadata" for the experiment.
         Args:
             circuits (list): A list containing quantum circuits
-            exp_data (dict): A dictionary with the experiment variable ands values
+            exp_attributes (dict): A dictionary with the experiment variable and values
         """
-        for ind, qc in enumerate(circuits):
-            self.assertEqual(
-                qc.metadata["xdata"],
-                exp_data["lengths"][ind],
-                "The length of the experiment doen't match to the one provided.",
+        for qc in circuits:
+            self.assertTrue(
+                qc.metadata["xval"] in exp_attributes["lengths"],
+                "The number of gates in the experiment metadata doesn't match "
+                "any of the provided lengths",
             )
-            self.assertEqual(
-                qc.metadata["qubits"],
-                tuple(exp_data["qubits"]),
-                "The qubits indices doesn't match the ran qubit indices.",
+            self.assertTrue(
+                qc.metadata["qubits"] == tuple(exp_attributes["qubits"]),
+                "The qubits indices in the experiment metadata doesn't match to the one provided.",
             )
 
-    def test_RB_circuits(self):
+    def validate_circuit_data(
+        self,
+        experiment: qe.randomized_benchmarking.rb_experiment.RBExperiment,
+        exp_attributes: dict,
+    ):
         """
-        Run the RB test for the circuits (checking the metadata, parameters and functionallity
-        of the experiment.
+        Validate that the metadata of the experiment after it had run matches the one provided.
+        Args:
+            experiment: The experiment data and results after it run
+            exp_attributes (dict): A dictionary with the experiment variable and values
         """
-        exp_2_qubit_data_dict, exp_2_qubit_exp = self.rb_parameters_2_qubit()
-        exp_2_qubit_circ = exp_2_qubit_exp.circuits()
-        self.is_identity(exp_2_qubit_circ)
-        self.validate_metadata(exp_2_qubit_circ, exp_2_qubit_data_dict)
+        self.assertTrue(
+            exp_attributes["lengths"] == experiment.experiment_options.lengths,
+            "The number of gates in the experiment doesn't match to the one in the metadata.",
+        )
+        self.assertTrue(
+            exp_attributes["num_samples"] == experiment.experiment_options.num_samples,
+            "The number of samples in the experiment doesn't match to the one in the metadata.",
+        )
+        self.assertTrue(
+            tuple(exp_attributes["qubits"]) == experiment.physical_qubits,
+            "The qubits indices in the experiment doesn't match to the one in the metadata.",
+        )
+
+
+@ddt
+class TestInterleavedRB(TestRB):
+    """
+    A test class for the interleaved RB Experiment to check that the
+    InterleavedRBExperiment class is working correctly.
+    """
+
+    @data([XGate(), [3]], [CXGate(), [4, 7]])
+    @unpack
+    def test_interleaved_rb_experiment(self, interleaved_element: "Gate", qubits: list):
+        """
+        Initializes data and executes an interleaved RB experiment with specific parameters.
+        Args:
+            interleaved_element: The Clifford element to interleave
+            qubits (list): A list containing qubit indices for the experiment
+        """
+        backend = FakeParis()
+        exp_attributes = {
+            "interleaved_element": interleaved_element,
+            "qubits": qubits,
+            "lengths": [1, 4, 6, 9, 13, 16],
+            "num_samples": 2,
+            "seed": 100,
+        }
+        rb = qe.randomized_benchmarking
+        rb_exp = rb.InterleavedRBExperiment(
+            exp_attributes["interleaved_element"],
+            exp_attributes["qubits"],
+            exp_attributes["lengths"],
+            num_samples=exp_attributes["num_samples"],
+            seed=exp_attributes["seed"],
+        )
+        experiment_obj = rb_exp.run(backend)
+        exp_data = experiment_obj.experiment
+        exp_circuits = rb_exp.circuits()
+        self.validate_metadata(exp_circuits, exp_attributes)
+        self.validate_circuit_data(exp_data, exp_attributes)
+        self.is_identity(exp_circuits)
