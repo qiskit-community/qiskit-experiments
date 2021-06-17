@@ -85,8 +85,9 @@ class T2StarAnalysis(BaseAnalysis):
             ax.set_ylabel("Probability to measure |0>", fontsize=12)
 
         # implementation of  _run_analysis
-        unit = experiment_data._data[0]["metadata"]["unit"]
-        conversion_factor = experiment_data._data[0]["metadata"].get("dt_factor", None)
+        circ_metadata = experiment_data.data(0)["metadata"]
+        unit = circ_metadata["unit"]
+        conversion_factor = circ_metadata.get("dt_factor", None)
         if conversion_factor is None:
             conversion_factor = 1 if unit == "s" else apply_prefix(1, unit)
         xdata, ydata, sigma = process_curve_data(
@@ -134,7 +135,7 @@ class T2StarAnalysis(BaseAnalysis):
         analysis_result = AnalysisResultV1(
             result_data=result_data,
             result_type="T2Star",
-            device_components=[Qubit(data[0]["metadata"]["qubit"])],
+            device_components=[Qubit(circ_metadata["qubit"])],
             experiment_id=experiment_data.experiment_id,
             quality=result_data["quality"],
         )

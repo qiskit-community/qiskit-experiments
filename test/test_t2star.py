@@ -229,7 +229,7 @@ class TestT2Star(QiskitTestCase):
                 delta=0.08 * result_data["frequency_value"],
             )
             self.assertEqual(
-                result["quality"], "computer_good", "Result quality bad for unit " + str(unit)
+                result.quality, "good", "Result quality bad for unit " + str(unit)
             )
 
     def test_t2star_parallel(self):
@@ -253,11 +253,10 @@ class TestT2Star(QiskitTestCase):
             "b_guess": [0.5, None, 0.5],
         }
         backend = T2starBackend(p0)
-        res = par_exp.run(backend=backend, shots=1000)
-        res.block_for_results()
+        expdata = par_exp.run(backend=backend, shots=1000)
+        expdata.block_for_results()
 
         for i in range(2):
-            sub_res = res.component_experiment_data(i).analysis_result(0)
             sub_res = expdata.component_experiment_data(i).analysis_result(0)
             sub_res_data = sub_res.data()
             self.assertAlmostEqual(
@@ -269,8 +268,8 @@ class TestT2Star(QiskitTestCase):
                 delta=0.08 * sub_res_data["frequency_value"],
             )
             self.assertEqual(
-                sub_res["quality"],
-                "computer_good",
+                sub_res.quality,
+                "good",
                 "Result quality bad for experiment on qubit " + str(i),
             )
 

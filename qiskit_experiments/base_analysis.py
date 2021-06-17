@@ -14,7 +14,7 @@ Base analysis class.
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 from qiskit.exceptions import QiskitError
 from qiskit.providers.options import Options
@@ -102,8 +102,10 @@ class BaseAnalysis(ABC):
 
     @abstractmethod
     def _run_analysis(
-        self, experiment_data: ExperimentData, **options
-    ) -> Tuple[List[AnalysisResultV1], List["matplotlib.figure.Figure"]]:
+        self,
+        experiment_data: ExperimentData,
+        **options
+    ) -> Tuple[Union[AnalysisResultV1, List[AnalysisResultV1]], List["matplotlib.figure.Figure"]]:
         """Run analysis on circuit data.
 
         Args:
