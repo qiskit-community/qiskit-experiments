@@ -93,7 +93,7 @@ def plot_to_svg_bytes(figure: "pyplot.Figure") -> bytes:
 
 
 def save_data(
-        is_new: bool, new_func: Callable, update_func: Callable, new_data: Dict, update_data: Dict
+    is_new: bool, new_func: Callable, update_func: Callable, new_data: Dict, update_data: Dict
 ) -> Tuple[bool, Any]:
     """Save data in the database.
 

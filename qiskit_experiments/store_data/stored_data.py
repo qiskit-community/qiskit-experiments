@@ -87,17 +87,17 @@ class StoredDataV1(StoredData):
     _json_decoder = NumpyDecoder
 
     def __init__(
-            self,
-            experiment_type: str,
-            backend: Optional[Union[Backend, BaseBackend]] = None,
-            experiment_id: Optional[str] = None,
-            tags: Optional[List[str]] = None,
-            job_ids: Optional[List[str]] = None,
-            share_level: Optional[str] = None,
-            metadata: Optional[Dict] = None,
-            figure_names: Optional[List[str]] = None,
-            notes: Optional[str] = None,
-            **kwargs,
+        self,
+        experiment_type: str,
+        backend: Optional[Union[Backend, BaseBackend]] = None,
+        experiment_id: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        job_ids: Optional[List[str]] = None,
+        share_level: Optional[str] = None,
+        metadata: Optional[Dict] = None,
+        figure_names: Optional[List[str]] = None,
+        notes: Optional[str] = None,
+        **kwargs,
     ):
         """Initializes the StoredDataV1 instance.
 
@@ -166,10 +166,10 @@ class StoredDataV1(StoredData):
             self.auto_save = self._service.option("auto_save")
 
     def add_data(
-            self,
-            data: Union[Result, List[Result], Job, List[Job], Dict, List[Dict]],
-            post_processing_callback: Optional[Callable] = None,
-            **kwargs: Any,
+        self,
+        data: Union[Result, List[Result], Job, List[Job], Dict, List[Dict]],
+        post_processing_callback: Optional[Callable] = None,
+        **kwargs: Any,
     ) -> None:
         """Add experiment data.
 
@@ -245,13 +245,13 @@ class StoredDataV1(StoredData):
             raise TypeError(f"Invalid data type {type(data)}.")
 
         if post_processing_callback is not None:
-            post_processing_callback(self, len(self._data)-1, **kwargs)
+            post_processing_callback(self, len(self._data) - 1, **kwargs)
 
     def _wait_for_job(
-            self,
-            job: Union[Job, BaseJob],
-            job_done_callback: Optional[Callable] = None,
-            **kwargs: Any,
+        self,
+        job: Union[Job, BaseJob],
+        job_done_callback: Optional[Callable] = None,
+        **kwargs: Any,
     ) -> None:
         """Wait for a job to finish.
 
@@ -266,7 +266,7 @@ class StoredDataV1(StoredData):
             with self._data.lock:
                 # Hold the lock so we add the block of results together.
                 self._add_result_data(job_result)
-                data_index = len(self._data)-1
+                data_index = len(self._data) - 1
         except JobError as err:
             LOG.warning("Job %s failed: %s", job.job_id(), str(err))
             return
@@ -340,12 +340,12 @@ class StoredDataV1(StoredData):
 
     @auto_save
     def add_figures(
-            self,
-            figures: Union[List[Union[str, bytes, "pyplot.Figure"]], str, bytes, "pyplot.Figure"],
-            figure_names: Optional[Union[List[str], str]] = None,
-            overwrite: bool = False,
-            save_figure: Optional[bool] = None,
-            service: Optional["ExperimentServiceV1"] = None,
+        self,
+        figures: Union[List[Union[str, bytes, "pyplot.Figure"]], str, bytes, "pyplot.Figure"],
+        figure_names: Optional[Union[List[str], str]] = None,
+        overwrite: bool = False,
+        save_figure: Optional[bool] = None,
+        service: Optional["ExperimentServiceV1"] = None,
     ) -> Union[str, List[str]]:
         """Add the experiment figure.
 
@@ -370,9 +370,9 @@ class StoredDataV1(StoredData):
             ValueError: If an input parameter has an invalid value.
         """
         if (
-                isinstance(figures, list)
-                and figure_names is not None
-                and (not isinstance(figure_names, list) or len(figures) != len(figure_names))
+            isinstance(figures, list)
+            and figure_names is not None
+            and (not isinstance(figure_names, list) or len(figures) != len(figure_names))
         ):
             raise ValueError(
                 "The parameter figure_names must be None or a list of "
@@ -436,9 +436,9 @@ class StoredDataV1(StoredData):
 
     @auto_save
     def delete_figure(
-            self,
-            figure_key: Union[str, int],
-            service: Optional["ExperimentServiceV1"] = None,
+        self,
+        figure_key: Union[str, int],
+        service: Optional["ExperimentServiceV1"] = None,
     ) -> str:
         """Add the experiment figure.
 
@@ -470,7 +470,7 @@ class StoredDataV1(StoredData):
         return figure_key
 
     def figure(
-            self, figure_key: Union[str, int], file_name: Optional[str] = None
+        self, figure_key: Union[str, int], file_name: Optional[str] = None
     ) -> Union[int, bytes]:
         """Retrieve the specified experiment figure.
 
@@ -507,9 +507,9 @@ class StoredDataV1(StoredData):
 
     @auto_save
     def add_analysis_results(
-            self,
-            results: Union[AnalysisResult, List[AnalysisResult]],
-            service: "ExperimentServiceV1" = None,
+        self,
+        results: Union[AnalysisResult, List[AnalysisResult]],
+        service: "ExperimentServiceV1" = None,
     ) -> None:
         """Save the analysis result.
 
@@ -534,7 +534,7 @@ class StoredDataV1(StoredData):
 
     @auto_save
     def delete_analysis_result(
-            self, result_key: Union[int, str], service: "ExperimentServiceV1" = None
+        self, result_key: Union[int, str], service: "ExperimentServiceV1" = None
     ) -> str:
         """Delete the analysis result.
 
@@ -566,7 +566,7 @@ class StoredDataV1(StoredData):
         return result_key
 
     def analysis_result(
-            self, index: Optional[Union[int, slice, str]] = None, refresh: bool = False
+        self, index: Optional[Union[int, slice, str]] = None, refresh: bool = False
     ) -> Union[AnalysisResult, List[AnalysisResult]]:
         """Return analysis results associated with this experiment.
 
@@ -731,11 +731,11 @@ class StoredDataV1(StoredData):
 
     @classmethod
     def from_data(
-            cls,
-            experiment_type: str,
-            experiment_id: str,
-            metadata: Optional[Dict] = None,
-            **kwargs,
+        cls,
+        experiment_type: str,
+        experiment_id: str,
+        metadata: Optional[Dict] = None,
+        **kwargs,
     ) -> "StoredDataV1":
         """Reconstruct a StoredData using the input data.
 
@@ -792,8 +792,8 @@ class StoredDataV1(StoredData):
             Data processing status.
         """
         if all(
-                len(container) == 0
-                for container in [self._data, self._jobs, self._figures, self._analysis_results]
+            len(container) == 0
+            for container in [self._data, self._jobs, self._figures, self._analysis_results]
         ):
             return "INITIALIZING"
 

@@ -64,17 +64,17 @@ class AnalysisResultV1(AnalysisResult):
     _extra_data = {}
 
     def __init__(
-            self,
-            result_data: Dict,
-            result_type: str,
-            device_components: List[Union[DeviceComponent, str]],
-            experiment_id: str,
-            result_id: Optional[str] = None,
-            quality: Optional[str] = None,
-            verified: bool = False,
-            tags: Optional[List[str]] = None,
-            service: Optional["ExperimentServiceV1"] = None,
-            **kwargs,
+        self,
+        result_data: Dict,
+        result_type: str,
+        device_components: List[Union[DeviceComponent, str]],
+        experiment_id: str,
+        result_id: Optional[str] = None,
+        quality: Optional[str] = None,
+        verified: bool = False,
+        tags: Optional[List[str]] = None,
+        service: Optional["ExperimentServiceV1"] = None,
+        **kwargs,
     ):
         """AnalysisResult constructor.
 
@@ -149,12 +149,12 @@ class AnalysisResultV1(AnalysisResult):
 
     @classmethod
     def from_data(
-            cls,
-            result_data: Dict,
-            result_type: str,
-            device_components: List[Union[DeviceComponent, str]],
-            experiment_id: str,
-            **kwargs,
+        cls,
+        result_data: Dict,
+        result_type: str,
+        device_components: List[Union[DeviceComponent, str]],
+        experiment_id: str,
+        **kwargs,
     ) -> "AnalysisResultV1":
         """Reconstruct the analysis result from input data.
 

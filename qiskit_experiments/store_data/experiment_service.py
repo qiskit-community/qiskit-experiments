@@ -17,7 +17,7 @@ from typing import Optional, Dict, List, Any, Union, Tuple, Type, TypeVar
 
 from .device_component import DeviceComponent
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class ExperimentService:
@@ -61,15 +61,15 @@ class ExperimentServiceV1(ExperimentService, ABC):
 
     @abstractmethod
     def create_experiment(
-            self,
-            experiment_type: str,
-            backend_name: str,
-            metadata: Optional[Dict] = None,
-            experiment_id: Optional[str] = None,
-            job_ids: Optional[List[str]] = None,
-            tags: Optional[List[str]] = None,
-            notes: Optional[str] = None,
-            **kwargs: Any,
+        self,
+        experiment_type: str,
+        backend_name: str,
+        metadata: Optional[Dict] = None,
+        experiment_id: Optional[str] = None,
+        job_ids: Optional[List[str]] = None,
+        tags: Optional[List[str]] = None,
+        notes: Optional[str] = None,
+        **kwargs: Any,
     ) -> str:
         """Create a new experiment in the database.
 
@@ -94,13 +94,13 @@ class ExperimentServiceV1(ExperimentService, ABC):
 
     @abstractmethod
     def update_experiment(
-            self,
-            experiment_id: str,
-            metadata: Optional[Dict] = None,
-            job_ids: Optional[List[str]] = None,
-            notes: Optional[str] = None,
-            tags: Optional[List[str]] = None,
-            **kwargs: Any,
+        self,
+        experiment_id: str,
+        metadata: Optional[Dict] = None,
+        job_ids: Optional[List[str]] = None,
+        notes: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        **kwargs: Any,
     ) -> None:
         """Update an existing experiment.
 
@@ -119,9 +119,7 @@ class ExperimentServiceV1(ExperimentService, ABC):
 
     @abstractmethod
     def experiment(
-            self,
-            experiment_id: str,
-            experiment_class: Optional[Type[T]] = None
+        self, experiment_id: str, experiment_class: Optional[Type[T]] = None
     ) -> Union[Dict, T]:
         """Retrieve a previously stored experiment.
 
@@ -142,15 +140,15 @@ class ExperimentServiceV1(ExperimentService, ABC):
 
     @abstractmethod
     def experiments(
-            self,
-            limit: Optional[int] = 10,
-            experiment_class: Optional[Type[T]] = None,
-            device_components: Optional[Union[str, DeviceComponent]] = None,
-            experiment_type: Optional[str] = None,
-            backend_name: Optional[str] = None,
-            tags: Optional[List[str]] = None,
-            tags_operator: Optional[str] = "OR",
-            **filters: Any,
+        self,
+        limit: Optional[int] = 10,
+        experiment_class: Optional[Type[T]] = None,
+        device_components: Optional[Union[str, DeviceComponent]] = None,
+        experiment_type: Optional[str] = None,
+        backend_name: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        tags_operator: Optional[str] = "OR",
+        **filters: Any,
     ) -> List[Union[Dict, T]]:
         """Retrieve all experiment data, with optional filtering.
 
@@ -193,16 +191,16 @@ class ExperimentServiceV1(ExperimentService, ABC):
 
     @abstractmethod
     def create_analysis_result(
-            self,
-            experiment_id: str,
-            data: Dict,
-            result_type: str,
-            device_components: Optional[Union[str, DeviceComponent]] = None,
-            tags: Optional[List[str]] = None,
-            quality: Optional[str] = None,
-            verified: bool = False,
-            result_id: Optional[str] = None,
-            **kwargs: Any,
+        self,
+        experiment_id: str,
+        data: Dict,
+        result_type: str,
+        device_components: Optional[Union[str, DeviceComponent]] = None,
+        tags: Optional[List[str]] = None,
+        quality: Optional[str] = None,
+        verified: bool = False,
+        result_id: Optional[str] = None,
+        **kwargs: Any,
     ) -> str:
         """Create a new analysis result in the database.
 
@@ -228,13 +226,13 @@ class ExperimentServiceV1(ExperimentService, ABC):
 
     @abstractmethod
     def update_analysis_result(
-            self,
-            result_id: str,
-            data: Optional[Dict] = None,
-            tags: Optional[List[str]] = None,
-            quality: Optional[str] = None,
-            verified: bool = None,
-            **kwargs: Any,
+        self,
+        result_id: str,
+        data: Optional[Dict] = None,
+        tags: Optional[List[str]] = None,
+        quality: Optional[str] = None,
+        verified: bool = None,
+        **kwargs: Any,
     ) -> None:
         """Update an existing analysis result.
 
@@ -253,9 +251,7 @@ class ExperimentServiceV1(ExperimentService, ABC):
 
     @abstractmethod
     def analysis_result(
-            self,
-            result_id: str,
-            result_class: Optional[Type[T]] = None
+        self, result_id: str, result_class: Optional[Type[T]] = None
     ) -> Union[Dict, T]:
         """Retrieve a previously stored experiment.
 
@@ -275,18 +271,18 @@ class ExperimentServiceV1(ExperimentService, ABC):
 
     @abstractmethod
     def analysis_results(
-            self,
-            limit: Optional[int] = 10,
-            result_class: Optional[Type[T]] = None,
-            device_components: Optional[Union[str, DeviceComponent]] = None,
-            experiment_id: Optional[str] = None,
-            result_type: Optional[str] = None,
-            backend_name: Optional[str] = None,
-            quality: Optional[str] = None,
-            verified: Optional[bool] = None,
-            tags: Optional[List[str]] = None,
-            tags_operator: Optional[str] = "OR",
-            **filters: Any,
+        self,
+        limit: Optional[int] = 10,
+        result_class: Optional[Type[T]] = None,
+        device_components: Optional[Union[str, DeviceComponent]] = None,
+        experiment_id: Optional[str] = None,
+        result_type: Optional[str] = None,
+        backend_name: Optional[str] = None,
+        quality: Optional[str] = None,
+        verified: Optional[bool] = None,
+        tags: Optional[List[str]] = None,
+        tags_operator: Optional[str] = "OR",
+        **filters: Any,
     ) -> List[Union[Dict, T]]:
         """Retrieve all analysis results, with optional filtering.
 
@@ -332,7 +328,7 @@ class ExperimentServiceV1(ExperimentService, ABC):
 
     @abstractmethod
     def create_figure(
-            self, experiment_id: str, figure: Union[str, bytes], figure_name: Optional[str]
+        self, experiment_id: str, figure: Union[str, bytes], figure_name: Optional[str]
     ) -> Tuple[str, int]:
         """Store a new figure in the database.
 
@@ -352,7 +348,7 @@ class ExperimentServiceV1(ExperimentService, ABC):
 
     @abstractmethod
     def update_figure(
-            self, experiment_id: str, figure: Union[str, bytes], figure_name: str
+        self, experiment_id: str, figure: Union[str, bytes], figure_name: str
     ) -> Tuple[str, int]:
         """Update an existing figure.
 
@@ -371,7 +367,7 @@ class ExperimentServiceV1(ExperimentService, ABC):
 
     @abstractmethod
     def figure(
-            self, experiment_id: str, figure_name: str, file_name: Optional[str] = None
+        self, experiment_id: str, figure_name: str, file_name: Optional[str] = None
     ) -> Union[int, bytes]:
         """Retrieve an existing figure.
 
@@ -392,9 +388,9 @@ class ExperimentServiceV1(ExperimentService, ABC):
 
     @abstractmethod
     def delete_figure(
-            self,
-            experiment_id: str,
-            figure_name: str,
+        self,
+        experiment_id: str,
+        figure_name: str,
     ) -> None:
         """Delete an existing figure.
 

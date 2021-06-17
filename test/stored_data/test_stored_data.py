@@ -22,6 +22,7 @@ import time
 import threading
 import json
 import re
+import uuid
 
 import numpy as np
 
@@ -33,8 +34,11 @@ from qiskit.providers import JobStatus
 from qiskit.tools.visualization import HAS_MATPLOTLIB
 from qiskit_experiments.store_data import StoredDataV1 as StoredData
 from qiskit_experiments.store_data import ExperimentServiceV1
-from qiskit_experiments.store_data.exceptions import (ExperimentError, ExperimentEntryNotFound,
-                                                      ExperimentEntryExists)
+from qiskit_experiments.store_data.exceptions import (
+    ExperimentError,
+    ExperimentEntryNotFound,
+    ExperimentEntryExists,
+)
 
 
 class TestExperimentData(QiskitTestCase):
@@ -133,7 +137,7 @@ class TestExperimentData(QiskitTestCase):
             self.assertEqual(
                 [dat["counts"] for dat in _exp_data.data()], a_job.result().get_counts()
             )
-            self.assertEqual(len(a_job.result().results)-1, data_index)
+            self.assertEqual(len(a_job.result().results) - 1, data_index)
             exp_data.add_figures(str.encode("hello world"))
             exp_data.add_analysis_results(mock.MagicMock())
             nonlocal called_back
@@ -156,7 +160,7 @@ class TestExperimentData(QiskitTestCase):
             nonlocal called_back_count, expected_data, subtests
             expected_data.extend(subtests[called_back_count][1])
             self.assertEqual([dat["counts"] for dat in _exp_data.data()], expected_data)
-            self.assertEqual(len(_exp_data.data())-1, data_index)
+            self.assertEqual(len(_exp_data.data()) - 1, data_index)
             called_back_count += 1
 
         a_result = self._get_job_result(1)
@@ -186,7 +190,7 @@ class TestExperimentData(QiskitTestCase):
 
         def _callback(_exp_data, data_index, **kwargs):
             self.assertIsInstance(_exp_data, StoredData)
-            self.assertEqual(len(_exp_data.data())-1, data_index)
+            self.assertEqual(len(_exp_data.data()) - 1, data_index)
             self.assertEqual({"foo": callback_kwargs}, kwargs)
             nonlocal called_back
             called_back = True
@@ -220,7 +224,7 @@ class TestExperimentData(QiskitTestCase):
     def test_add_figure(self):
         """Test adding a new figure."""
         hello_bytes = str.encode("hello world")
-        file_name = "hello_world.svg"
+        file_name = uuid.uuid4().hex
         self.addCleanup(os.remove, file_name)
         with open(file_name, "wb") as file:
             file.write(hello_bytes)
@@ -256,7 +260,7 @@ class TestExperimentData(QiskitTestCase):
     def test_add_figures(self):
         """Test adding multiple new figures."""
         hello_bytes = [str.encode("hello world"), str.encode("hello friend")]
-        file_names = ["hello_world.svg", "hello_friend.svg"]
+        file_names = [uuid.uuid4().hex, uuid.uuid4().hex]
         for idx, fn in enumerate(file_names):
             self.addCleanup(os.remove, fn)
             with open(fn, "wb") as file:
@@ -318,7 +322,7 @@ class TestExperimentData(QiskitTestCase):
         self.assertEqual(expected_figure, exp_data.figure(name_template.format(idx)))
         self.assertEqual(expected_figure, exp_data.figure(idx))
 
-        file_name = "hello_world.svg"
+        file_name = uuid.uuid4().hex
         self.addCleanup(os.remove, file_name)
         exp_data.figure(idx, file_name)
         with open(file_name, "rb") as file:
