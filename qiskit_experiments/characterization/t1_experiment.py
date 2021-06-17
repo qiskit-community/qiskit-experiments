@@ -26,7 +26,9 @@ from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import process_curve_data, curve_fit
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
-from qiskit_experiments.experiment_data import AnalysisResult
+from qiskit_experiments.experiment_data import ResultDict
+from qiskit_experiments.store_data import AnalysisResultV1
+from qiskit_experiment.store_data.device_component import Qubit
 
 
 class T1Analysis(BaseAnalysis):
@@ -69,7 +71,7 @@ class T1Analysis(BaseAnalysis):
         offset_bounds=None,
         plot=True,
         ax=None,
-    ) -> Tuple[List[AnalysisResult], List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[AnalysisResultV1], List["matplotlib.figure.Figure"]]:
         """
         Calculate T1
 
@@ -127,7 +129,7 @@ class T1Analysis(BaseAnalysis):
         bounds = {"a": amplitude_bounds, "tau": t1_bounds, "c": offset_bounds}
         fit_result = curve_fit(fit_fun, xdata, ydata, init, sigma=sigma, bounds=bounds)
 
-        analysis_result = AnalysisResult(
+        result_data = ResultDict(
             {
                 "value": fit_result["popt"][1],
                 "stderr": fit_result["popt_err"][1],
@@ -140,9 +142,9 @@ class T1Analysis(BaseAnalysis):
             }
         )
 
-        analysis_result["fit"]["circuit_unit"] = unit
+        result_data["fit"]["circuit_unit"] = unit
         if unit == "dt":
-            analysis_result["fit"]["dt"] = conversion_factor
+            result_data["fit"]["dt"] = conversion_factor
 
         # Generate fit plot
         if plot and plotting.HAS_MATPLOTLIB:
@@ -153,7 +155,16 @@ class T1Analysis(BaseAnalysis):
         else:
             figures = None
 
-        return [analysis_result], figures
+        res_v1 = AnalysisResultV1(
+            result_data=result_data,
+            result_type="T1",
+            device_components=[Qubit(data[0]["metadata"]["qubit"])],
+            experiment_id=experiment_data.experiment_id,
+            quality=result_data["quality"],
+            verified=True,
+        )
+
+        return [res_v1], figures
 
     @staticmethod
     def _fit_quality(fit_out, fit_err, reduced_chisq):
@@ -166,9 +177,9 @@ class T1Analysis(BaseAnalysis):
             and (fit_err[1] is None or fit_err[1] < fit_out[1])
             and (fit_err[2] is None or fit_err[2] < 0.1)
         ):
-            return "computer_good"
+            return "good"
         else:
-            return "computer_bad"
+            return "bad"
 
     @classmethod
     def _format_plot(cls, ax, analysis_result, qubit=None, add_label=True):

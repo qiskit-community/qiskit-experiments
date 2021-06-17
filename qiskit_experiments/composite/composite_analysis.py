@@ -14,8 +14,10 @@ Composite Experiment Analysis class.
 """
 
 from qiskit.exceptions import QiskitError
-from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResult
+from qiskit_experiments.base_analysis import BaseAnalysis
 from .composite_experiment_data import CompositeExperimentData
+from qiskit_experiments.store_data import AnalysisResultV1
+from qiskit_experiment.store_data.device_component import Qubit
 
 
 class CompositeAnalysis(BaseAnalysis):
@@ -69,11 +71,16 @@ class CompositeAnalysis(BaseAnalysis):
             sub_ids.append(expdata.experiment_id)
             sub_qubits.append(expdata.experiment.physical_qubits)
 
-        analysis_result = AnalysisResult(
+        analysis_result = AnalysisResultV1(
             {
-                "experiment_types": sub_types,
-                "experiment_ids": sub_ids,
-                "experiment_qubits": sub_qubits,
+                result_data={
+                    "experiment_types": sub_types,
+                    "experiment_ids": sub_ids,
+                    "experiment_qubits": sub_qubits,
+                    },
+                result_type="composite",
+                device_components=[Qubit(qidx) for qidx in sub_qubits],
+                experiment_id=experiment_data.experiment_id,
             }
         )
         return [analysis_result], None

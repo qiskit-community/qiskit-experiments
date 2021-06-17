@@ -22,6 +22,8 @@ from qiskit.test import QiskitTestCase
 from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T2StarExperiment
 
+from test.utils import FakeJob
+
 
 class T2starBackend(BackendV1):
     """
@@ -150,7 +152,8 @@ class T2starBackend(BackendV1):
                     "data": {"counts": counts},
                 }
             )
-        return Result.from_dict(result)
+
+        return FakeJob(self, result=Result.from_dict(result))
 
 
 class TestT2Star(QiskitTestCase):
@@ -212,16 +215,18 @@ class TestT2Star(QiskitTestCase):
                 backend=backend,
                 shots=2000,
             )
+            expdata.block_for_results()  # Wait for job/analysis to finish.
             result = expdata.analysis_result(0)
+            result_data = result.data()
             self.assertAlmostEqual(
-                result["t2star_value"],
+                result_data["t2star_value"],
                 estimated_t2star * dt_factor,
-                delta=0.08 * result["t2star_value"],
+                delta=0.08 * result_data["t2star_value"],
             )
             self.assertAlmostEqual(
-                result["frequency_value"],
+                result_data["frequency_value"],
                 estimated_freq / dt_factor,
-                delta=0.08 * result["frequency_value"],
+                delta=0.08 * result_data["frequency_value"],
             )
             self.assertEqual(
                 result["quality"], "computer_good", "Result quality bad for unit " + str(unit)
@@ -249,16 +254,19 @@ class TestT2Star(QiskitTestCase):
         }
         backend = T2starBackend(p0)
         res = par_exp.run(backend=backend, shots=1000)
+        res.block_for_results()
 
         for i in range(2):
             sub_res = res.component_experiment_data(i).analysis_result(0)
+            sub_res = expdata.component_experiment_data(i).analysis_result(0)
+            sub_res_data = sub_res.data()
             self.assertAlmostEqual(
-                sub_res["t2star_value"], t2star[i], delta=0.08 * sub_res["t2star_value"]
+                sub_res_data["t2star_value"], t2star[i], delta=0.08 * sub_res_data["t2star_value"]
             )
             self.assertAlmostEqual(
-                sub_res["frequency_value"],
+                sub_res_data["frequency_value"],
                 estimated_freq[i],
-                delta=0.08 * sub_res["frequency_value"],
+                delta=0.08 * sub_res_data["frequency_value"],
             )
             self.assertEqual(
                 sub_res["quality"],

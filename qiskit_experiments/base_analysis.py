@@ -20,7 +20,8 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers.options import Options
 
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.experiment_data import ExperimentData, AnalysisResult
+from qiskit_experiments.experiment_data import ExperimentData, ResultDict
+from qiskit_experiments.store_data import AnalysisResultV1
 
 
 class BaseAnalysis(ABC):
@@ -66,11 +67,11 @@ class BaseAnalysis(ABC):
                      supported options.
 
         Returns:
-            List[AnalysisResult]: the output for analysis that produces
-                                  multiple results.
+            List[AnalysisResultV1]: the output for analysis that produces
+                                    multiple results.
             Tuple: If ``return_figures=True`` the output is a pair
                    ``(analysis_results, figures)`` where  ``analysis_results``
-                   may be a single or list of :class:`AnalysisResult` objects, and
+                   may be a single or list of :class:`AnalysisResultV1` objects, and
                    ``figures`` may be None, a single figure, or a list of figures.
 
         Raises:
@@ -87,25 +88,14 @@ class BaseAnalysis(ABC):
         analysis_options = analysis_options.__dict__
 
         # Run analysis
-        try:
-            analysis_results, figures = self._run_analysis(experiment_data, **analysis_options)
-            for res in analysis_results:
-                if "success" not in res:
-                    res["success"] = True
-        except AnalysisError as ex:
-            analysis_results = [AnalysisResult(success=False, error_message=ex)]
-            figures = None
+        analysis_results, figures = self._run_analysis(experiment_data, **analysis_options)
 
         # Save to experiment data
         if save:
-            if isinstance(analysis_results, AnalysisResult):
-                experiment_data.add_analysis_result(analysis_results)
-            else:
-                for res in analysis_results:
-                    experiment_data.add_analysis_result(res)
+            experiment_data.add_analysis_results(analysis_results)
             if figures:
-                for fig in figures:
-                    experiment_data.add_figure(fig)
+                experiment_data.add_figures(figures)
+
         if return_figures:
             return analysis_results, figures
         return analysis_results
@@ -113,7 +103,7 @@ class BaseAnalysis(ABC):
     @abstractmethod
     def _run_analysis(
         self, experiment_data: ExperimentData, **options
-    ) -> Tuple[List[AnalysisResult], List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[AnalysisResultV1], List["matplotlib.figure.Figure"]]:
         """Run analysis on circuit data.
 
         Args:
@@ -124,7 +114,7 @@ class BaseAnalysis(ABC):
 
         Returns:
             A pair ``(analysis_results, figures)`` where ``analysis_results``
-            may be a single or list of AnalysisResult objects, and ``figures``
+            may be a single or list of AnalysisResultV1 objects, and ``figures``
             is a list of any figures for the experiment.
 
         Raises:

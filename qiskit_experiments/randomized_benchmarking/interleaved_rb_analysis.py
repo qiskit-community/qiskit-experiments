@@ -165,20 +165,20 @@ class InterleavedRBAnalysis(RBAnalysis):
 
         return fit_option
 
-    def _post_analysis(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_analysis(self, result_data: CurveAnalysisResult) -> CurveAnalysisResult:
         """Calculate EPC."""
         # Add EPC data
         nrb = 2 ** self._num_qubits
         scale = (nrb - 1) / nrb
-        alpha = get_opt_value(analysis_result, "alpha")
-        alpha_c = get_opt_value(analysis_result, "alpha_c")
-        alpha_c_err = get_opt_error(analysis_result, "alpha_c")
+        alpha = get_opt_value(result_data, "alpha")
+        alpha_c = get_opt_value(result_data, "alpha_c")
+        alpha_c_err = get_opt_error(result_data, "alpha_c")
 
         # Calculate epc_est (=r_c^est) - Eq. (4):
         epc_est = scale * (1 - alpha_c)
         epc_est_err = scale * alpha_c_err
-        analysis_result["EPC"] = epc_est
-        analysis_result["EPC_err"] = epc_est_err
+        result_data["EPC"] = epc_est
+        result_data["EPC_err"] = epc_est_err
 
         # Calculate the systematic error bounds - Eq. (5):
         systematic_err_1 = scale * (abs(alpha - alpha_c) + (1 - alpha))
@@ -189,7 +189,7 @@ class InterleavedRBAnalysis(RBAnalysis):
         systematic_err = min(systematic_err_1, systematic_err_2)
         systematic_err_l = epc_est - systematic_err
         systematic_err_r = epc_est + systematic_err
-        analysis_result["EPC_systematic_err"] = systematic_err
-        analysis_result["EPC_systematic_bounds"] = [max(systematic_err_l, 0), systematic_err_r]
+        result_data["EPC_systematic_err"] = systematic_err
+        result_data["EPC_systematic_bounds"] = [max(systematic_err_l, 0), systematic_err_r]
 
-        return analysis_result
+        return result_data

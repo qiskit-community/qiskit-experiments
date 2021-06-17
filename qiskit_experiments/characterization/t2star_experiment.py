@@ -26,7 +26,10 @@ from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResult
 from qiskit_experiments.analysis.curve_fitting import curve_fit, process_curve_data
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
-from ..experiment_data import ExperimentData
+from qiskit_experiments.experiment_data import ExperimentData, ResultDict
+from qiskit_experiments.store_data import AnalysisResultV1
+from qiskit_experiment.store_data.device_component import Qubit
+
 
 # pylint: disable = invalid-name
 class T2StarAnalysis(BaseAnalysis):
@@ -45,7 +48,7 @@ class T2StarAnalysis(BaseAnalysis):
         plot: bool = True,
         ax: Optional["AxesSubplot"] = None,
         **kwargs,
-    ) -> Tuple[List[AnalysisResult], List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[AnalysisResultV1], List["matplotlib.figure.Figure"]]:
         r"""Calculate T2Star experiment.
 
         The probability of measuring `+` is assumed to be of the form
@@ -110,7 +113,7 @@ class T2StarAnalysis(BaseAnalysis):
             figures = None
 
         # Output unit is 'sec', regardless of the unit used in the input
-        analysis_result = AnalysisResult(
+        result_data = ResultDict(
             {
                 "t2star_value": fit_result["popt"][1],
                 "frequency_value": fit_result["popt"][2],
@@ -124,9 +127,18 @@ class T2StarAnalysis(BaseAnalysis):
             }
         )
 
-        analysis_result["fit"]["circuit_unit"] = unit
+        result_data["fit"]["circuit_unit"] = unit
         if unit == "dt":
-            analysis_result["fit"]["dt"] = conversion_factor
+            result_data["fit"]["dt"] = conversion_factor
+
+        analysis_result = AnalysisResultV1(
+            result_data=result_data,
+            result_type="T2Star",
+            device_components=[Qubit(data[0]["metadata"]["qubit"])],
+            experiment_id=experiment_data.experiment_id,
+            quality=result_data["quality"],
+        )
+        
         return [analysis_result], figures
 
     def _t2star_default_params(
@@ -179,9 +191,9 @@ class T2StarAnalysis(BaseAnalysis):
             and (fit_err[1] is None or fit_err[1] < 0.1 * fit_out[1])
             and (fit_err[2] is None or fit_err[2] < 0.1 * fit_out[2])
         ):
-            return "computer_good"
+            return "good"
         else:
-            return "computer_bad"
+            return "bad"
 
 
 class T2StarExperiment(BaseExperiment):

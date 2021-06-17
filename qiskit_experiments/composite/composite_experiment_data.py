@@ -26,7 +26,6 @@ class CompositeExperimentData(ExperimentData):
         self,
         experiment,
         backend=None,
-        job_ids=None,
     ):
         """Initialize experiment data.
 
@@ -34,7 +33,6 @@ class CompositeExperimentData(ExperimentData):
             experiment (CompositeExperiment): experiment object that generated the data.
             backend (Backend): Optional, Backend the experiment runs on. It can either be a
                 :class:`~qiskit.providers.Backend` instance or just backend name.
-            job_ids (list[str]): Optional, IDs of jobs submitted for the experiment.
 
         Raises:
             ExperimentError: If an input argument is invalid.
@@ -43,11 +41,12 @@ class CompositeExperimentData(ExperimentData):
         super().__init__(
             experiment,
             backend=backend,
-            job_ids=job_ids,
         )
 
         # Initialize sub experiments
-        self._components = [expr.__experiment_data__(expr) for expr in experiment._experiments]
+        self._components = [
+            expr.__experiment_data__(expr) for expr in experiment.component_experiment()
+        ]
 
     def __str__(self):
         line = 51 * "-"
@@ -57,14 +56,16 @@ class CompositeExperimentData(ExperimentData):
         ret += f"\nExperiment: {self.experiment_type}"
         ret += f"\nExperiment ID: {self.experiment_id}"
         ret += f"\nStatus: {status}"
+        if status == "ERROR":
+            ret += "\n  "
+            ret += "\n  ".join(self._errors)
         ret += f"\nComponent Experiments: {len(self._components)}"
         ret += f"\nCircuits: {len(self._data)}"
         ret += f"\nAnalysis Results: {n_res}"
         ret += "\n" + line
         if n_res:
-            ret += "\nLast Analysis Result"
-            for key, value in self._analysis_results[-1].items():
-                ret += f"\n- {key}: {value}"
+            ret += "\nLast Analysis Result:"
+            ret += f"\n{str(self._analysis_results.values()[-1])}"
         return ret
 
     def component_experiment_data(

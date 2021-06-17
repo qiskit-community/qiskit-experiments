@@ -19,11 +19,11 @@ from typing import List, Dict, Tuple, Callable, Optional, Union
 import numpy as np
 import scipy.optimize as opt
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.base_analysis import AnalysisResult
+from qiskit_experiments.experiment_data import ResultDict
 from qiskit_experiments.analysis.data_processing import filter_data
 
 
-class CurveAnalysisResult(AnalysisResult):
+class CurveAnalysisResult(ResultDict):
     """Analysis data container for curve fit analysis.
 
     Class Attributes:

@@ -30,7 +30,9 @@ from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
+from qiskit_experiments.experiment_data import ResultDict, ExperimentData
+from qiskit_experiments.store_data import AnalysisResultV1
+from qiskit_experiments.store_data.device_component import Qubit
 
 
 @dataclasses.dataclass(frozen=True)
@@ -301,18 +303,18 @@ class CurveAnalysis(BaseAnalysis):
             return_data_points=False,
         )
 
-    def _create_figures(self, analysis_results: CurveAnalysisResult) -> List["Figure"]:
+    def _create_figures(self, result_data: CurveAnalysisResult) -> List["Figure"]:
         """Create new figures with the fit result and raw data.
 
         Subclass can override this method to create different type of figures.
 
         Args:
-            analysis_results: Analysis result containing fit parameters.
+            result_data: Result containing fit parameters.
 
         Returns:
             List of figures.
         """
-        fit_available = all(key in analysis_results for key in ("popt", "popt_err", "xrange"))
+        fit_available = all(key in result_data for key in ("popt", "popt_err", "xrange"))
 
         if plotting.HAS_MATPLOTLIB:
 
@@ -360,7 +362,7 @@ class CurveAnalysis(BaseAnalysis):
                 if fit_available:
                     plotting.plot_curve_fit(
                         func=series_def.fit_func,
-                        result=analysis_results,
+                        result=result_data,
                         ax=axis,
                         color=series_def.plot_color,
                         zorder=2,
@@ -391,14 +393,14 @@ class CurveAnalysis(BaseAnalysis):
                 for par_name, label in fit_reports.items():
                     try:
                         # fit value
-                        pval = get_opt_value(analysis_results, par_name)
-                        perr = get_opt_error(analysis_results, par_name)
+                        pval = get_opt_value(result_data, par_name)
+                        perr = get_opt_error(result_data, par_name)
                     except ValueError:
                         # maybe post processed value
-                        pval = analysis_results[par_name]
-                        perr = analysis_results[f"{par_name}_err"]
+                        pval = result_data[par_name]
+                        perr = result_data[f"{par_name}_err"]
                     analysis_description += f"{label} = {pval: .3e}\u00B1{perr: .3e}\n"
-                chisq = analysis_results["reduced_chisq"]
+                chisq = result_data["reduced_chisq"]
                 analysis_description += f"Fit \u03C7-squared = {chisq: .4f}"
 
                 report_handler = axis.text(
@@ -505,18 +507,18 @@ class CurveAnalysis(BaseAnalysis):
             metadata=data.metadata,
         )
 
-    def _post_analysis(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_analysis(self, result_data: CurveAnalysisResult) -> CurveAnalysisResult:
         """Calculate new quantity from the fit result.
 
         Subclasses can override this method to do post analysis.
 
         Args:
-            analysis_result: Analysis result containing fit result.
+            result_data: Result containing fit result.
 
         Returns:
             New CurveAnalysisResult instance containing the result of post analysis.
         """
-        return analysis_result
+        return result_data
 
     def _extract_curves(
         self, experiment_data: ExperimentData, data_processor: Union[Callable, DataProcessor]
@@ -761,7 +763,7 @@ class CurveAnalysis(BaseAnalysis):
 
     def _run_analysis(
         self, experiment_data: ExperimentData, **options
-    ) -> Tuple[List[AnalysisResult], List["pyplot.Figure"]]:
+    ) -> Tuple[List[AnalysisResultV1], List["pyplot.Figure"]]:
         """Run analysis on circuit data.
 
         Args:
@@ -771,14 +773,14 @@ class CurveAnalysis(BaseAnalysis):
         Returns:
             tuple: A pair ``(analysis_results, figures)`` where
                    ``analysis_results`` may be a single or list of
-                   AnalysisResult objects, and ``figures`` is a list of any
+                   AnalysisResultV1 objects, and ``figures`` is a list of any
                    figures for the experiment.
 
         Raises:
             AnalysisError: if the analysis fails.
         """
-        analysis_result = CurveAnalysisResult()
-        analysis_result["analysis_type"] = self.__class__.__name__
+        result_data = CurveAnalysisResult()
+        result_data["analysis_type"] = self.__class__.__name__
         figures = list()
 
         # pop arguments that are not given to fitter
@@ -835,7 +837,7 @@ class CurveAnalysis(BaseAnalysis):
                     sigma=formatted_data.y_err,
                     **fit_options,
                 )
-                analysis_result.update(**fit_result)
+                result_data.update(**fit_result)
             else:
                 # Multiple initial guesses
                 fit_options_candidates = [
@@ -862,24 +864,24 @@ class CurveAnalysis(BaseAnalysis):
                     )
                 # Sort by chi squared value
                 fit_results = sorted(fit_results, key=lambda r: r["reduced_chisq"])
-                analysis_result.update(**fit_results[0])
+                result_data.update(**fit_results[0])
 
         except AnalysisError as ex:
-            analysis_result["error_message"] = str(ex)
-            analysis_result["success"] = False
+            result_data["error_message"] = str(ex)
+            result_data["success"] = False
 
         else:
             #
             # 4. Post-process analysis data
             #
-            analysis_result = self._post_analysis(analysis_result=analysis_result)
+            result_data = self._post_analysis(result_data=result_data)
 
         finally:
             #
             # 5. Create figures
             #
             if self._get_option("plot"):
-                figures.extend(self._create_figures(analysis_results=analysis_result))
+                figures.extend(self._create_figures(result_data=result_data))
 
             #
             # 6. Optionally store raw data points
@@ -893,6 +895,15 @@ class CurveAnalysis(BaseAnalysis):
                         "ydata": series_data.y,
                         "sigma": series_data.y_err,
                     }
-                analysis_result["raw_data"] = raw_data_dict
+                result_data["raw_data"] = raw_data_dict
+
+        analysis_result = AnalysisResultV1(
+            result_data=result_data,
+            result_type=result_data["analysis_type"],
+            device_components=[
+                Qubit(qubit) for qubit in experiment_data.data(0)["metadata"]["qubits"]
+            ],
+            experiment_id=experiment_data.experiment_id,
+        )
 
         return [analysis_result], figures
