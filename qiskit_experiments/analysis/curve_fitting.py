@@ -18,9 +18,57 @@ from typing import List, Dict, Tuple, Callable, Optional, Union
 
 import numpy as np
 import scipy.optimize as opt
-from qiskit.exceptions import QiskitError
+from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.base_analysis import AnalysisResult
 from qiskit_experiments.analysis.data_processing import filter_data
+
+
+class CurveAnalysisResult(AnalysisResult):
+    """Analysis data container for curve fit analysis.
+
+    Class Attributes:
+        __keys_not_shown__: Data keys of analysis result which are not directly shown
+            in `__str__` method. By default, `pcov` (covariance matrix),
+            `raw_data` (raw x, y, sigma data points), `popt`, `popt_keys`, and `popt_err`
+            are not displayed. Fit parameters (popt) are formatted to
+
+            .. code-block::
+
+                p0 = 1.2 ± 0.34
+                p1 = 5.6 ± 0.78
+
+            rather showing raw key-value pairs
+
+            .. code-block::
+
+                popt_keys = ["p0", "p1"]
+                popt = [1.2, 5.6]
+                popt_err = [0.34, 0.78]
+
+            The covariance matrix and raw data points are not shown because they output
+            very long string usually doesn't fit in with the summary of the analysis object,
+            i.e. user wants to quickly get the over view of fit values and goodness of fit,
+            such as the chi-squared value and computer evaluated quality.
+
+            However these non-displayed values are still kept and user can access to
+            these values with `result["raw_data"]` and `result["pcov"]` if necessary.
+    """
+
+    __keys_not_shown__ = "pcov", "raw_data", "popt", "popt_keys", "popt_err"
+
+    def __str__(self):
+        out = ""
+
+        if self.get("success"):
+            popt_keys = self.get("popt_keys")
+            popt = self.get("popt")
+            popt_err = self.get("popt_err")
+
+            for key, value, error in zip(popt_keys, popt, popt_err):
+                out += f"\n- {key}: {value} \u00B1 {error}"
+        out += super().__str__()
+
+        return out
 
 
 def curve_fit(
@@ -31,7 +79,7 @@ def curve_fit(
     sigma: Optional[np.ndarray] = None,
     bounds: Optional[Union[Dict[str, Tuple[float, float]], Tuple[np.ndarray, np.ndarray]]] = None,
     **kwargs,
-) -> AnalysisResult:
+) -> CurveAnalysisResult:
     r"""Perform a non-linear least squares to fit
 
     This solves the optimization problem
@@ -40,7 +88,7 @@ def curve_fit(
         \Theta_{\mbox{opt}} = \arg\min_\Theta \sum_i
             \sigma_i^{-2} (f(x_i, \Theta) -  y_i)^2
 
-    using ``scipy.optimize.curve_fit``.
+    using :func:`scipy.optimize.curve_fit`.
 
     Args:
         func: a fit function `f(x, *params)`.
@@ -51,7 +99,7 @@ def curve_fit(
                in absolute units.
         bounds: Optional, lower and upper bounds for optimization
                 parameters.
-        kwargs: additional kwargs for scipy.optimize.curve_fit.
+        kwargs: additional kwargs for :func:`scipy.optimize.curve_fit`.
 
     Returns:
         result containing ``popt`` the optimal fit parameters,
@@ -62,15 +110,16 @@ def curve_fit(
         ``xrange`` the range of xdata values used for fit.
 
     Raises:
-        QiskitError: if the number of degrees of freedom of the fit is
-                     less than 1.
+        AnalysisError: if the number of degrees of freedom of the fit is
+                       less than 1, or the curve fitting fails.
 
     .. note::
         ``sigma`` is assumed to be specified in the same units as ``ydata``
         (absolute units). If sigma is instead specified in relative units
-        the `absolute_sigma=False` kwarg of scipy curve_fit must be used.
-        This affects the returned covariance ``pcov`` and error ``popt_err``
-        parameters via ``pcov(absolute_sigma=False) = pcov * reduced_chisq``
+        the `absolute_sigma=False` kwarg of scipy
+        :func:`~scipy.optimize.curve_fit` must be used. This affects the
+        returned covariance ``pcov`` and error ``popt_err`` parameters via
+        ``pcov(absolute_sigma=False) = pcov * reduced_chisq``
         ``popt_err(absolute_sigma=False) = popt_err * sqrt(reduced_chisq)``.
     """
     # Format p0 parameters if specified as dictionary
@@ -99,10 +148,19 @@ def curve_fit(
     # Check the degrees of freedom is greater than 0
     dof = len(ydata) - len(param_p0)
     if dof < 1:
-        raise QiskitError(
+        raise AnalysisError(
             "The number of degrees of freedom of the fit data and model "
             " (len(ydata) - len(p0)) is less than 1"
         )
+
+    # Format non-number sigma values
+    if np.all(np.isnan(sigma)):
+        sigma = None
+    else:
+        sigma = np.nan_to_num(sigma)
+        if np.count_nonzero(sigma) != len(sigma):
+            # Sigma = 0 causes zero division error
+            sigma = None
 
     # Override scipy.curve_fit default for absolute_sigma=True
     # if sigma is specified.
@@ -110,12 +168,16 @@ def curve_fit(
         kwargs["absolute_sigma"] = True
 
     # Run curve fit
-    # TODO: Add error handling so if fitting fails we can return an analysis
-    #       result containing this information
-    # pylint: disable = unbalanced-tuple-unpacking
-    popt, pcov = opt.curve_fit(
-        fit_func, xdata, ydata, sigma=sigma, p0=param_p0, bounds=param_bounds, **kwargs
-    )
+    try:
+        # pylint: disable = unbalanced-tuple-unpacking
+        popt, pcov = opt.curve_fit(
+            fit_func, xdata, ydata, sigma=sigma, p0=param_p0, bounds=param_bounds, **kwargs
+        )
+    except Exception as ex:
+        raise AnalysisError(
+            "scipy.optimize.curve_fit failed with error: {}".format(str(ex))
+        ) from ex
+
     popt_err = np.sqrt(np.diag(pcov))
 
     # Calculate the reduced chi-squared for fit
@@ -138,7 +200,7 @@ def curve_fit(
         "xrange": xdata_range,
     }
 
-    return AnalysisResult(result)
+    return CurveAnalysisResult(result)
 
 
 def multi_curve_fit(
@@ -151,7 +213,7 @@ def multi_curve_fit(
     weights: Optional[np.ndarray] = None,
     bounds: Optional[Union[Dict[str, Tuple[float, float]], Tuple[np.ndarray, np.ndarray]]] = None,
     **kwargs,
-) -> AnalysisResult:
+) -> CurveAnalysisResult:
     r"""Perform a linearized multi-objective non-linear least squares fit.
 
     This solves the optimization problem
@@ -163,11 +225,11 @@ def multi_curve_fit(
 
     for multiple series of :math:`x_k, y_k, \sigma_k` data evaluated using
     a list of objective functions :math:`[f_k]`
-    using ``scipy.optimize.curve_fit``.
+    using :func:`scipy.optimize.curve_fit`.
 
     Args:
         funcs: a list of objective functions :math:`[f_0, f_1, ...]` where
-               each function has signature :math`f_k`(x, *params)`.
+               each function has signature :math`f_k(x, \Theta)`.
         series: a 1D int array that specifies the component objective
                 function :math:`f_k` to evaluate corresponding x and y
                 data with.
@@ -180,7 +242,7 @@ def multi_curve_fit(
                  component function :math:`f_k`.
         bounds: Optional, lower and upper bounds for optimization
                 parameters.
-        kwargs: additional kwargs for scipy.optimize.curve_fit.
+        kwargs: additional kwargs for :func:`scipy.optimize.curve_fit`.
 
     Returns:
         result containing ``popt`` the optimal fit parameters,
@@ -191,15 +253,16 @@ def multi_curve_fit(
         ``xrange`` the range of xdata values used for fit.
 
     Raises:
-        QiskitError: if the number of degrees of freedom of the fit is
-                     less than 1.
+        AnalysisError: if the number of degrees of freedom of the fit is
+                       less than 1, or the curve fitting fails.
 
     .. note::
         ``sigma`` is assumed to be specified in the same units as ``ydata``
         (absolute units). If sigma is instead specified in relative units
-        the `absolute_sigma=False` kwarg of scipy curve_fit must be used.
-        This affects the returned covariance ``pcov`` and error ``popt_err``
-        parameters via ``pcov(absolute_sigma=False) = pcov * reduced_chisq``
+        the `absolute_sigma=False` kwarg of scipy
+        :func:`~scipy.optimize.curve_fit` must be used. This affects the
+        returned covariance ``pcov`` and error ``popt_err`` parameters via
+        ``pcov(absolute_sigma=False) = pcov * reduced_chisq``
         ``popt_err(absolute_sigma=False) = popt_err * sqrt(reduced_chisq)``.
     """
     num_funcs = len(funcs)
@@ -221,11 +284,11 @@ def multi_curve_fit(
                 wsigma[idxs[i]] = sigma[idxs[i]] / np.sqrt(weights[i])
 
     # Define multi-objective function
-    def f(x, *params):
+    def f(x, *args, **kwargs):
         y = np.zeros(x.size)
         for i in range(num_funcs):
             xi = x[idxs[i]]
-            yi = funcs[i](xi, *params)
+            yi = funcs[i](xi, *args, **kwargs)
             y[idxs[i]] = yi
         return y
 

@@ -23,12 +23,12 @@ class CompositeAnalysis(BaseAnalysis):
 
     __experiment_data__ = CompositeExperimentData
 
-    def _run_analysis(self, experiment_data, **options):
+    # pylint: disable = arguments-differ
+    def _run_analysis(self, experiment_data: CompositeExperimentData, **options):
         """Run analysis on circuit data.
 
         Args:
-            experiment_data (CompositeExperimentData): the experiment data
-                                                       to analyze.
+            experiment_data: the experiment data to analyze.
             options: kwarg options for analysis function.
 
         Returns:
@@ -44,22 +44,30 @@ class CompositeAnalysis(BaseAnalysis):
         if not isinstance(experiment_data, CompositeExperimentData):
             raise QiskitError("CompositeAnalysis must be run on CompositeExperimentData.")
 
-        # Run analysis for sub-experiments
-        for expr, expr_data in zip(
-            experiment_data._experiment._experiments, experiment_data._composite_expdata
-        ):
-            expr.analysis().run(expr_data, **options)
-
         # Add sub-experiment metadata as result of batch experiment
         # Note: if Analysis results had ID's these should be included here
         # rather than just the sub-experiment IDs
         sub_types = []
         sub_ids = []
         sub_qubits = []
-        for expr in experiment_data._composite_expdata:
-            sub_types.append(expr._experiment._type)
-            sub_ids.append(expr.experiment_id)
-            sub_qubits.append(expr.experiment().physical_qubits)
+
+        comp_exp = experiment_data.experiment
+        for i in range(comp_exp.num_experiments):
+            # Run analysis for sub-experiments and add sub-experiment metadata
+            expdata = experiment_data.component_experiment_data(i)
+            sub_expriment = comp_exp.component_experiment(i)
+
+            # Reflect sub instance's analysis option
+            analysis_options = sub_expriment.analysis_options.__dict__.copy()
+            analysis_options.update(**options)
+            comp_exp.component_analysis(i).run(expdata, **analysis_options)
+
+            # Add sub-experiment metadata as result of batch experiment
+            # Note: if Analysis results had ID's these should be included here
+            # rather than just the sub-experiment IDs
+            sub_types.append(expdata.experiment_type)
+            sub_ids.append(expdata.experiment_id)
+            sub_qubits.append(expdata.experiment.physical_qubits)
 
         analysis_result = AnalysisResult(
             {
@@ -68,4 +76,4 @@ class CompositeAnalysis(BaseAnalysis):
                 "experiment_qubits": sub_qubits,
             }
         )
-        return analysis_result, None
+        return [analysis_result], None

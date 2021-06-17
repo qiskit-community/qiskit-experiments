@@ -46,6 +46,30 @@ version = ''
 # The full version, including alpha/beta/rc tags
 release = '0.0.1b1'
 
+rst_prolog = """
+.. raw:: html
+
+    <br><br><br>
+
+.. |version| replace:: {0}
+""".format(release)
+
+nbsphinx_prolog = """
+{% set docname = env.doc2path(env.docname, base=None) %}
+.. only:: html
+
+    .. role:: raw-html(raw)
+        :format: html
+
+    .. raw:: html
+
+        <br><br><br>
+
+    .. note::
+        Run interactively in jupyter notebook.
+"""
+
+
 # -- General configuration ---------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -66,10 +90,20 @@ extensions = [
     'sphinx_autodoc_typehints',
     'reno.sphinxext',
     'sphinx_panels',
+    'sphinx.ext.intersphinx',
+    'nbsphinx',
 ]
 html_static_path = ['_static']
 templates_path = ['_templates']
-html_css_files = []
+html_css_files = ['style.css', 'custom.css', 'gallery.css']
+
+nbsphinx_timeout = 360
+nbsphinx_execute = os.getenv('QISKIT_DOCS_BUILD_TUTORIALS', 'never')
+nbsphinx_widgets_path = ''
+exclude_patterns = ['_build', '**.ipynb_checkpoints']
+nbsphinx_thumbnails = {
+}
+
 
 # -----------------------------------------------------------------------------
 # Autosummary
@@ -144,3 +178,5 @@ html_theme_options = {
 }
 
 autoclass_content = 'both'
+intersphinx_mapping = {'matplotlib': ('https://matplotlib.org/stable/', None),
+                       'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None)}

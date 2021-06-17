@@ -13,125 +13,148 @@
 Standard RB analysis class.
 """
 
-from typing import Optional, List
+from typing import List, Dict, Any, Union
 
-from qiskit_experiments.base_analysis import BaseAnalysis
-from qiskit_experiments.analysis.curve_fitting import curve_fit, process_curve_data
-from qiskit_experiments.analysis.data_processing import (
-    level2_probability,
-    mean_xy_data,
+import numpy as np
+
+from qiskit_experiments.analysis import (
+    CurveAnalysis,
+    CurveAnalysisResult,
+    SeriesDef,
+    CurveData,
+    fit_function,
+    get_opt_value,
+    get_opt_error,
 )
-from qiskit_experiments.analysis.plotting import plot_curve_fit, plot_scatter, plot_errorbar
-
-try:
-    from matplotlib import pyplot as plt
-
-    HAS_MATPLOTLIB = True
-except ImportError:
-    HAS_MATPLOTLIB = False
+from qiskit_experiments.analysis.data_processing import multi_mean_xy_data
 
 
-class RBAnalysis(BaseAnalysis):
-    """RB Analysis class."""
+class RBAnalysis(CurveAnalysis):
+    r"""A class to analyze randomized benchmarking experiments.
 
-    # pylint: disable = arguments-differ, invalid-name
-    def _run_analysis(
-        self,
-        experiment_data,
-        p0: Optional[List[float]] = None,
-        plot: bool = True,
-        ax: Optional["AxesSubplot"] = None,
-    ):
-        """Run analysis on circuit data.
-        Args:
-            experiment_data (ExperimentData): the experiment data to analyze.
-            p0: Optional, initial parameter values for curve_fit.
-            plot: If True generate a plot of fitted data.
-            ax: Optional, matplotlib axis to add plot to.
-        Returns:
-            tuple: A pair ``(analysis_result, figures)`` where
-                   ``analysis_results`` may be a single or list of
-                   AnalysisResult objects, and ``figures`` may be
-                   None, a single figure, or a list of figures.
-        """
-        num_qubits = len(experiment_data.data[0]["metadata"]["qubits"])
+    Overview
+        This analysis takes only single series.
+        This series is fit by the exponential decay function.
+        From the fit :math:`\alpha` value this analysis estimates the error per Clifford (EPC).
 
-        # Process data
-        def data_processor(datum):
-            return level2_probability(datum, num_qubits * "0")
+    Fit Model
+        The fit is based on the following decay function.
 
-        # Raw data for each sample
-        x_raw, y_raw, sigma_raw = process_curve_data(
-            experiment_data.data, data_processor, x_key="xdata"
+        .. math::
+
+            F(x) = a \alpha^x + b
+
+    Fit Parameters
+        - :math:`a`: Height of decay curve.
+        - :math:`b`: Base line.
+        - :math:`\alpha`: Depolarizing parameter. This is the fit parameter of main interest.
+
+    Initial Guesses
+        - :math:`a`: Determined by :math:`(y_0 - b) / \alpha^x_0`
+          where :math:`b` and :math:`\alpha` are initial guesses.
+        - :math:`b`: Determined by :math:`(1/2)^n` where :math:`n` is the number of qubit.
+        - :math:`\alpha`: Determined by the slope of :math:`(y - b)^{-x}` of the first and the
+          second data point.
+
+    Bounds
+        - :math:`a`: [0, 1]
+        - :math:`b`: [0, 1]
+        - :math:`\alpha`: [0, 1]
+
+    """
+
+    __series__ = [
+        SeriesDef(
+            fit_func=lambda x, a, alpha, b: fit_function.exponential_decay(
+                x, amp=a, lamb=-1.0, base=alpha, baseline=b
+            ),
+            plot_color="blue",
         )
+    ]
 
-        # Data averaged over samples
-        xdata, ydata, ydata_sigma = mean_xy_data(x_raw, y_raw, sigma_raw, method="sample")
+    @classmethod
+    def _default_options(cls):
+        """Return default options.
 
-        # Perform fit
-        def fit_fun(x, a, alpha, b):
-            return a * alpha ** x + b
+        See :meth:`~qiskit_experiment.analysis.CurveAnalysis._default_options` for
+        descriptions of analysis options.
+        """
+        default_options = super()._default_options()
+        default_options.p0 = {"a": None, "alpha": None, "b": None}
+        default_options.bounds = {"a": (0.0, 1.0), "alpha": (0.0, 1.0), "b": (0.0, 1.0)}
+        default_options.xlabel = "Clifford Length"
+        default_options.ylabel = "P(0)"
+        default_options.fit_reports = {"alpha": "\u03B1", "EPC": "EPC"}
 
-        p0 = self._p0(xdata, ydata, num_qubits)
-        bounds = {"a": [0, 1], "alpha": [0, 1], "b": [0, 1]}
-        analysis_result = curve_fit(fit_fun, xdata, ydata, p0, ydata_sigma, bounds=bounds)
+        return default_options
 
-        # Add EPC data
-        popt = analysis_result["popt"]
-        popt_err = analysis_result["popt_err"]
-        scale = (2 ** num_qubits - 1) / (2 ** num_qubits)
-        analysis_result["EPC"] = scale * (1 - popt[1])
-        analysis_result["EPC_err"] = scale * popt_err[1] / popt[1]
+    def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+        """Fitter options."""
+        user_p0 = self._get_option("p0")
+        user_bounds = self._get_option("bounds")
 
-        if plot:
-            ax = plot_curve_fit(fit_fun, analysis_result, ax=ax)
-            ax = plot_scatter(x_raw, y_raw, ax=ax)
-            ax = plot_errorbar(xdata, ydata, ydata_sigma, ax=ax)
-            self._format_plot(ax, analysis_result)
-            analysis_result.plt = plt
-        return analysis_result, None
+        curve_data = self._data()
+        initial_guess = self._initial_guess(curve_data.x, curve_data.y, self._num_qubits)
+        fit_option = {
+            "p0": {
+                "a": user_p0["a"] or initial_guess["a"],
+                "alpha": user_p0["alpha"] or initial_guess["alpha"],
+                "b": user_p0["b"] or initial_guess["b"],
+            },
+            "bounds": {
+                "a": user_bounds["a"] or (0.0, 1.0),
+                "alpha": user_bounds["alpha"] or (0.0, 1.0),
+                "b": user_bounds["b"] or (0.0, 1.0),
+            },
+        }
+        fit_option.update(options)
+
+        return fit_option
 
     @staticmethod
-    def _p0(xdata, ydata, num_qubits):
-        """Initial guess for the fitting function"""
+    def _initial_guess(
+        x_values: np.ndarray, y_values: np.ndarray, num_qubits: int
+    ) -> Dict[str, float]:
+        """Create initial guess with experiment data."""
         fit_guess = {"a": 0.95, "alpha": 0.99, "b": 1 / 2 ** num_qubits}
+
         # Use the first two points to guess the decay param
-        dcliff = xdata[1] - xdata[0]
-        dy = (ydata[1] - fit_guess["b"]) / (ydata[0] - fit_guess["b"])
+        dcliff = x_values[1] - x_values[0]
+        dy = (y_values[1] - fit_guess["b"]) / (y_values[0] - fit_guess["b"])
         alpha_guess = dy ** (1 / dcliff)
+
         if alpha_guess < 1.0:
             fit_guess["alpha"] = alpha_guess
 
-        if ydata[0] > fit_guess["b"]:
-            fit_guess["a"] = (ydata[0] - fit_guess["b"]) / fit_guess["alpha"] ** xdata[0]
+        if y_values[0] > fit_guess["b"]:
+            fit_guess["a"] = (y_values[0] - fit_guess["b"]) / fit_guess["alpha"] ** x_values[0]
 
         return fit_guess
 
-    @classmethod
-    def _format_plot(cls, ax, analysis_result, add_label=True):
-        """Format curve fit plot"""
-        # Formatting
-        ax.tick_params(labelsize=14)
-        ax.set_xlabel("Clifford Length", fontsize=16)
-        ax.set_ylabel("Ground State Population", fontsize=16)
-        ax.grid(True)
+    def _format_data(self, data: CurveData) -> CurveData:
+        """Take average over the same x values."""
+        mean_data_index, mean_x, mean_y, mean_e = multi_mean_xy_data(
+            series=data.data_index,
+            xdata=data.x,
+            ydata=data.y,
+            sigma=data.y_err,
+            method="sample",
+        )
+        return CurveData(
+            label="fit_ready",
+            x=mean_x,
+            y=mean_y,
+            y_err=mean_e,
+            data_index=mean_data_index,
+        )
 
-        if add_label:
-            alpha = analysis_result["popt"][1]
-            alpha_err = analysis_result["popt_err"][1]
-            epc = analysis_result["EPC"]
-            epc_err = analysis_result["EPC_err"]
-            box_text = "\u03B1:{:.4f} \u00B1 {:.4f}".format(alpha, alpha_err)
-            box_text += "\nEPC: {:.4f} \u00B1 {:.4f}".format(epc, epc_err)
-            bbox_props = dict(boxstyle="square,pad=0.3", fc="white", ec="black", lw=1)
-            ax.text(
-                0.6,
-                0.9,
-                box_text,
-                ha="center",
-                va="center",
-                size=14,
-                bbox=bbox_props,
-                transform=ax.transAxes,
-            )
-        return ax
+    def _post_analysis(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
+        """Calculate EPC."""
+        alpha = get_opt_value(analysis_result, "alpha")
+        alpha_err = get_opt_error(analysis_result, "alpha")
+
+        scale = (2 ** self._num_qubits - 1) / (2 ** self._num_qubits)
+        analysis_result["EPC"] = scale * (1 - alpha)
+        analysis_result["EPC_err"] = scale * alpha_err / alpha
+
+        return analysis_result

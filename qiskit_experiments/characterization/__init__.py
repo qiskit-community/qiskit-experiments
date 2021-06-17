@@ -10,6 +10,33 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Qiskit Experiments Characterziation."""
+"""
+=========================================================================
+Characterization Experiments (:mod:`qiskit_experiments.characterization`)
+=========================================================================
 
+.. currentmodule:: qiskit_experiments.characterization
+
+Experiments
+===========
+.. autosummary::
+    :toctree: ../stubs/
+
+    T1Experiment
+    T2StarExperiment
+    QubitSpectroscopy
+
+
+Analysis
+========
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    T1Analysis
+    T2StarAnalysis
+    SpectroscopyAnalysis
+"""
 from .t1_experiment import T1Experiment, T1Analysis
+from .qubit_spectroscopy import QubitSpectroscopy, SpectroscopyAnalysis
+from .t2star_experiment import T2StarExperiment, T2StarAnalysis
