@@ -41,7 +41,10 @@ from qiskit_experiments.store_data.exceptions import (
 )
 
 
-class TestExperimentData(QiskitTestCase):
+import unittest
+
+
+class TestExperimentData(unittest.TestCase):
     """Test the ExperimentData class."""
 
     def setUp(self):
@@ -132,12 +135,11 @@ class TestExperimentData(QiskitTestCase):
     def test_add_data_job_callback(self):
         """Test add job data with callback."""
 
-        def _callback(_exp_data, data_index):
+        def _callback(_exp_data):
             self.assertIsInstance(_exp_data, StoredData)
             self.assertEqual(
                 [dat["counts"] for dat in _exp_data.data()], a_job.result().get_counts()
             )
-            self.assertEqual(len(a_job.result().results) - 1, data_index)
             exp_data.add_figures(str.encode("hello world"))
             exp_data.add_analysis_results(mock.MagicMock())
             nonlocal called_back
@@ -155,12 +157,11 @@ class TestExperimentData(QiskitTestCase):
     def test_add_data_callback(self):
         """Test add data with callback."""
 
-        def _callback(_exp_data, data_index):
+        def _callback(_exp_data):
             self.assertIsInstance(_exp_data, StoredData)
             nonlocal called_back_count, expected_data, subtests
             expected_data.extend(subtests[called_back_count][1])
             self.assertEqual([dat["counts"] for dat in _exp_data.data()], expected_data)
-            self.assertEqual(len(_exp_data.data()) - 1, data_index)
             called_back_count += 1
 
         a_result = self._get_job_result(1)
@@ -188,9 +189,8 @@ class TestExperimentData(QiskitTestCase):
     def test_add_data_job_callback_kwargs(self):
         """Test add job data with callback and additional arguments."""
 
-        def _callback(_exp_data, data_index, **kwargs):
+        def _callback(_exp_data, **kwargs):
             self.assertIsInstance(_exp_data, StoredData)
-            self.assertEqual(len(_exp_data.data()) - 1, data_index)
             self.assertEqual({"foo": callback_kwargs}, kwargs)
             nonlocal called_back
             called_back = True
@@ -204,6 +204,23 @@ class TestExperimentData(QiskitTestCase):
         exp_data.add_data(a_job, _callback, foo=callback_kwargs)
         exp_data.block_for_results()
         self.assertTrue(called_back)
+
+    def test_add_data_pending_post_processing(self):
+        """Test add job data while post processing is still running."""
+
+        def _callback(_exp_data, **kwargs):
+            kwargs["event"].wait(timeout=3)
+
+        a_job = mock.create_autospec(Job, instance=True)
+        a_job.result.return_value = self._get_job_result(2)
+
+        event = threading.Event()
+        self.addCleanup(event.set)
+
+        exp_data = StoredData(experiment_type="qiskit_test")
+        exp_data.add_data(a_job, _callback, event=event)
+        with self.assertLogs("qiskit_experiments", "WARNING"):
+            exp_data.add_data({"foo": "bar"})
 
     def test_get_data(self):
         """Test getting data."""
