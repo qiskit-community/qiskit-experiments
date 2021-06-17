@@ -157,4 +157,3 @@ class TestInterleavedRB(TestRB):
         self.validate_metadata(exp_circuits, exp_attributes)
         self.validate_circuit_data(exp_data, exp_attributes)
         self.is_identity(exp_circuits)
-
