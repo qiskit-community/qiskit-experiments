@@ -13,11 +13,10 @@
 Contrained convex least-squares tomography fitter.
 """
 
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Tuple
 import numpy as np
 from scipy import sparse as sps
 
-from qiskit.quantum_info import Choi, DensityMatrix
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.tomography.basis import (
     BaseFitterMeasurementBasis,
@@ -40,7 +39,7 @@ def cvxpy_linear_lstsq(
     trace: Optional[float] = None,
     weights: Optional[np.ndarray] = None,
     **kwargs,
-) -> Dict:
+) -> Tuple[np.ndarray, Dict]:
     r"""Constrained weighted linear least-squares tomography fitter.
 
     Overview
@@ -220,18 +219,13 @@ def cvxpy_linear_lstsq(
             )
         else:
             raise AnalysisError("CVXPY fit failed, reason unknown")
-    # Format returned state
+
     rho_fit = rho_r.value + 1j * rho_i.value
-    if preparation_basis:
-        rho_fit = Choi(rho_fit)
-    else:
-        rho_fit = DensityMatrix(rho_fit)
-    analysis_result = {
-        "state": rho_fit,
+    metadata = {
         "cvxpy_solver": prob.solver_stats.solver_name,
         "cvxpy_status": prob.status,
     }
-    return analysis_result
+    return rho_fit, metadata
 
 
 @requires_cvxpy

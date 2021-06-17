@@ -20,7 +20,7 @@ import numpy as np
 import scipy.linalg as la
 
 from qiskit.result import marginal_counts, Counts
-from qiskit.quantum_info import Choi, Operator
+from qiskit.quantum_info import DensityMatrix, Choi, Operator
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
 
@@ -52,7 +52,7 @@ class TomographyAnalysis(BaseAnalysis):
             measurement_basis=None,
             preparation_basis=None,
             fitter="linear_inversion",
-            rescale_psd=True,
+            rescale_positive=True,
             rescale_trace=True,
         )
 
@@ -76,7 +76,7 @@ class TomographyAnalysis(BaseAnalysis):
         # Get tomography options
         measurement_basis = options.pop("measurement_basis")
         preparation_basis = options.pop("preparation_basis", None)
-        rescale_psd = options.pop("rescale_psd")
+        rescale_positive = options.pop("rescale_positive")
         rescale_trace = options.pop("rescale_trace")
 
         # Get target state
@@ -86,8 +86,8 @@ class TomographyAnalysis(BaseAnalysis):
         # Get tomography fitter function
         fitter = self._get_fitter(options.pop("fitter", None))
         try:
-            t_start = time.time()
-            result = fitter(
+            t_ftter_start = time.time()
+            state, fitter_metadata = fitter(
                 outcome_data,
                 shot_data,
                 measurement_data,
@@ -96,14 +96,24 @@ class TomographyAnalysis(BaseAnalysis):
                 preparation_basis=preparation_basis,
                 **options,
             )
-            t_stop = time.time()
-            result["fitter"] = fitter.__name__
-            result["fitter_time"] = t_stop - t_start
+            t_ftter_stop = time.time()
+            if fitter_metadata is None:
+                fitter_metadata = {}
+
+            fitter_metadata["fitter"] = fitter.__name__
+            fitter_metadata["fitter_time"] = t_ftter_stop - t_ftter_start
+
+            result = AnalysisResult(
+                {
+                    "state": Choi(state) if preparation_basis else DensityMatrix(state),
+                    "fitter_metadata": fitter_metadata,
+                }
+            )
 
             self._postprocess_fit(
                 result,
                 target_state=target_state,
-                rescale_psd=rescale_psd,
+                rescale_positive=rescale_positive,
                 rescale_trace=rescale_trace,
                 qpt=bool(preparation_basis),
             )
@@ -115,19 +125,25 @@ class TomographyAnalysis(BaseAnalysis):
 
     @classmethod
     def _postprocess_fit(
-        cls, analysis_result, target_state=None, rescale_psd=False, rescale_trace=False, qpt=False
+        cls,
+        analysis_result,
+        target_state=None,
+        rescale_positive=False,
+        rescale_trace=False,
+        qpt=False,
     ):
         """Post-process fitter data"""
         # Get eigensystem of state
         state = analysis_result["state"]
+        state_cls = type(state)
         evals, evecs = cls._state_eigensystem(state)
 
         # Rescale eigenvalues to be PSD
         rescaled_psd = False
-        if rescale_psd and np.any(evals < 0):
+        psd_label = "completely_positive" if qpt else "positive"
+        if rescale_positive and np.any(evals < 0):
             scaled_evals = cls._make_positive(evals)
             rescaled_psd = True
-            analysis_result["rescaled_psd"] = True
         else:
             scaled_evals = evals
 
@@ -138,32 +154,43 @@ class TomographyAnalysis(BaseAnalysis):
         if rescale_trace and not np.isclose(sum_evals - trace, 0, atol=1e-12):
             scaled_evals = trace * scaled_evals / sum_evals
             rescaled_trace = True
-            analysis_result["rescaled_trace"] = True
 
         # Compute state with rescaled eigenvalues
+        state_metadata = {}
         if rescaled_psd or rescaled_trace:
-            scaled_state = evecs @ (scaled_evals * evecs).T.conj()
-            analysis_result["state"] = type(state)(scaled_state)
-            analysis_result["state_eigvals"] = scaled_evals
-            analysis_result["raw_eigvals"] = evals
+            state = state_cls(evecs @ (scaled_evals * evecs).T.conj())
+            analysis_result["state"] = state
+            state_metadata["eigvals"] = scaled_evals
+            state_metadata["raw_eigvals"] = evals
         else:
-            analysis_result["state_eigvals"] = evals
+            state_metadata["eigvals"] = evals
+
         if rescaled_trace:
-            analysis_result["state_trace"] = np.sum(scaled_evals)
-            analysis_result["raw_trace"] = sum_evals
+            state_metadata["trace"] = np.sum(scaled_evals)
+            state_metadata["raw_trace"] = sum_evals
         else:
-            analysis_result["state_trace"] = sum_evals
+            state_metadata["trace"] = sum_evals
+
+        # Check positive
+        is_pos, cond_pos = cls._check_positive(scaled_evals)
+        state_metadata[psd_label] = is_pos
+        state_metadata[f"{psd_label}_delta"] = cond_pos
+
+        # Check trace preserving
+        if qpt:
+            is_tp, cond_tp = cls._check_tp(scaled_evals, evecs)
+            state_metadata["trace_preserving"] = is_tp
+            state_metadata["trace_preserving_delta"] = cond_tp
+
+        # Add state metadata
+        analysis_result["state_metadata"] = state_metadata
 
         # Compute fidelity with target
+        fid_label = "process_fidelity" if qpt else "state_fidelity"
         if target_state is None:
-            analysis_result["value"] = None
-            analysis_result["value_label"] = None
+            analysis_result[fid_label] = None
         else:
-            analysis_result["value"] = cls._state_fidelity(scaled_evals, evecs, target_state)
-            if isinstance(target_state, QuantumChannel):
-                analysis_result["value_label"] = "process_fidelity"
-            else:
-                analysis_result["value_label"] = "state_fidelity"
+            analysis_result[fid_label] = cls._state_fidelity(scaled_evals, evecs, target_state)
 
         return analysis_result
 
@@ -195,6 +222,24 @@ class TomographyAnalysis(BaseAnalysis):
                     ret[j] = evals[j] + shift
                 break
         return ret
+
+    @staticmethod
+    def _check_positive(evals):
+        """Check if eigenvalues are positive"""
+        cond = np.sum(np.abs(evals[evals < 0]))
+        is_pos = np.isclose(cond, 0)
+        return is_pos, cond
+
+    @staticmethod
+    def _check_tp(evals, evecs):
+        """Check if QPT channel is trace preserving"""
+        size = len(evals)
+        dim = int(np.sqrt(size))
+        mats = np.reshape(evecs.T, (size, dim, dim), order="F")
+        kraus_cond = np.einsum("i,ija,ijb->ab", evals, mats.conj(), mats)
+        cond = np.sum(np.abs(la.eigvalsh(kraus_cond - np.eye(dim))))
+        is_tp = np.isclose(cond, 0)
+        return is_tp, cond
 
     @staticmethod
     def _state_fidelity(evals, evecs, target, qpt=False):

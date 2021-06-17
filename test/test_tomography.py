@@ -57,7 +57,8 @@ class TestStateTomography(QiskitTestCase):
         )
 
         # Check fit state fidelity
-        self.assertGreater(result.get("value", 0), f_threshold, msg="fit fidelity is low")
+        fid = result.get("state_fidelity", 0)
+        self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
         # Manually check fidelity
         fid = qi.state_fidelity(state, target, validate=False)
@@ -176,7 +177,8 @@ class TestStateTomography(QiskitTestCase):
         )
 
         # Check fit state fidelity
-        self.assertGreater(result.get("value", 0), f_threshold, msg="fit fidelity is low")
+        fid = result.get("state_fidelity", 0)
+        self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
         # Manually check fidelity
         fid = qi.state_fidelity(state, target, validate=False)
@@ -221,7 +223,8 @@ class TestStateTomography(QiskitTestCase):
             )
 
             # Check fit state fidelity
-            self.assertGreater(result.get("value", 0), f_threshold, msg="fit fidelity is low")
+            fid = result.get("state_fidelity", 0)
+            self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
             # Manually check fidelity
             fid = qi.state_fidelity(state, targets[i], validate=False)
@@ -261,7 +264,8 @@ class TestStateTomography(QiskitTestCase):
             )
 
             # Check fit state fidelity
-            self.assertGreater(result.get("value", 0), f_threshold, msg="fit fidelity is low")
+            fid = result.get("state_fidelity", 0)
+            self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
             # Manually check fidelity
             fid = qi.state_fidelity(state, targets[i], validate=False)
@@ -293,7 +297,8 @@ class TestProcessTomography(QiskitTestCase):
         self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
 
         # Check fit state fidelity
-        self.assertGreater(result.get("value", 0), f_threshold, msg="fit fidelity is low")
+        fid = result.get("process_fidelity", 0)
+        self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
         # Manually check fidelity
         fid = qi.process_fidelity(state, target, require_tp=False, require_cp=False)
@@ -313,9 +318,7 @@ class TestProcessTomography(QiskitTestCase):
             circ.append(op, [i])
 
         num_meas = len(qubits)
-        exp = tomo.ProcessTomography(
-            circ, measurement_qubits=qubits, preparation_qubits=qubits
-        )
+        exp = tomo.ProcessTomography(circ, measurement_qubits=qubits, preparation_qubits=qubits)
         tomo_circuits = exp.circuits()
 
         # Check correct number of circuits are generated
@@ -359,9 +362,7 @@ class TestProcessTomography(QiskitTestCase):
 
         # Run
         backend = AerSimulator()
-        exp = tomo.ProcessTomography(
-            circ, measurement_qubits=qubits, preparation_qubits=qubits
-        )
+        exp = tomo.ProcessTomography(circ, measurement_qubits=qubits, preparation_qubits=qubits)
         expdata = exp.run(backend)
         result = expdata.analysis_result(-1)
 
@@ -374,7 +375,8 @@ class TestProcessTomography(QiskitTestCase):
         self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
 
         # Check fit state fidelity
-        self.assertGreater(result.get("value", 0), f_threshold, msg="fit fidelity is low")
+        fid = result.get("process_fidelity", 0)
+        self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
         # Manually check fidelity
         fid = qi.process_fidelity(state, target, require_tp=False, require_cp=False)
@@ -422,9 +424,7 @@ class TestProcessTomography(QiskitTestCase):
         for i in range(nq):
             targets.append(ops[i])
             exps.append(
-                tomo.ProcessTomography(
-                    circuit, measurement_qubits=[i], preparation_qubits=[i]
-                )
+                tomo.ProcessTomography(circuit, measurement_qubits=[i], preparation_qubits=[i])
             )
 
         # Run batch experiments
@@ -445,7 +445,8 @@ class TestProcessTomography(QiskitTestCase):
             self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
 
             # Check fit state fidelity
-            self.assertGreater(result.get("value", 0), f_threshold, msg="fit fidelity is low")
+            fid = result.get("process_fidelity", 0)
+            self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
             # Manually check fidelity
             fid = qi.process_fidelity(state, targets[i], require_tp=False, require_cp=False)
@@ -483,7 +484,8 @@ class TestProcessTomography(QiskitTestCase):
             self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
 
             # Check fit state fidelity
-            self.assertGreater(result.get("value", 0), f_threshold, msg="fit fidelity is low")
+            fid = result.get("process_fidelity", 0)
+            self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
             # Manually check fidelity
             fid = qi.process_fidelity(state, targets[i], require_tp=False, require_cp=False)

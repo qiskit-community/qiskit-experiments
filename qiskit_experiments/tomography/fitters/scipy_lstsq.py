@@ -13,11 +13,10 @@
 Linear least-square MLE tomography fitter.
 """
 
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Tuple
 import numpy as np
 import scipy.linalg as la
 
-from qiskit.quantum_info import Choi, DensityMatrix
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.tomography.basis import (
     BaseFitterMeasurementBasis,
@@ -35,7 +34,7 @@ def scipy_linear_lstsq(
     preparation_basis: Optional[BaseFitterPreparationBasis] = None,
     weights: Optional[np.ndarray] = None,
     **kwargs,
-) -> Dict:
+) -> Tuple[np.ndarray, Dict]:
     r"""Weighted linear least-squares tomography fitter.
 
     Overview
@@ -109,12 +108,7 @@ def scipy_linear_lstsq(
         raise AnalysisError("Least-squares fitter: invalid result shape.")
     rho_fit = np.reshape(sol, (dim, dim), order="F")
 
-    # Format returned state
-    if preparation_basis:
-        rho_fit = Choi(rho_fit)
-    else:
-        rho_fit = DensityMatrix(rho_fit)
-    return {"state": rho_fit}
+    return rho_fit, {}
 
 
 def scipy_gaussian_lstsq(

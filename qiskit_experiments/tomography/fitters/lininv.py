@@ -13,10 +13,9 @@
 Linear inversion MLEtomography fitter.
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Tuple, Optional
 from functools import lru_cache
 import numpy as np
-from qiskit.quantum_info import Choi, DensityMatrix
 from qiskit_experiments.tomography.basis.fitter_basis import (
     FitterMeasurementBasis,
     FitterPreparationBasis,
@@ -31,7 +30,7 @@ def linear_inversion(
     preparation_data: np.ndarray,
     measurement_basis: FitterMeasurementBasis,
     preparation_basis: Optional[FitterPreparationBasis] = None,
-) -> Dict:
+) -> Tuple[np.ndarray, Dict]:
     r"""Linear inversion tomography fitter.
 
     Overview
@@ -118,12 +117,7 @@ def linear_inversion(
             )
             rho_fit = rho_fit + prob * dual_op
 
-    # Format returned state
-    if preparation_basis:
-        rho_fit = Choi(rho_fit)
-    else:
-        rho_fit = DensityMatrix(rho_fit)
-    return {"state": rho_fit}
+    return rho_fit, {}
 
 
 @lru_cache(2)

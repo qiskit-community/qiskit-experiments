@@ -38,8 +38,8 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
           This can  be a string to select one of the built-in fitters, or a callable to
           supply a custom fitter function. See the `Fitter Functions` section
           for additional information.
-        - **rescale_psd** (``bool``): If True rescale the state returned by the fitter to be
-          positive-semidefinite. See the `PSD Rescaling` section for
+        - **rescale_positive** (``bool``): If True rescale the state returned by the fitter
+          to be positive-semidefinite. See the `PSD Rescaling` section for
           additional information (Default: True).
         - **rescale_trace** (``bool``): If True rescale the state returned by the fitter
           have either trace 1 for :class:`~qiskit.quantum_info.DensityMatrix`,
@@ -80,7 +80,7 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
         nearest PSD state under the assumption of Gaussian measurement noise
         using the rescaling method in Reference [1]. For fitters that already
         support PSD constraints this option can be disabled by setting
-        ``rescale_psd=False``.
+        ``rescale_positive=False``.
 
     References
         1. J Smolin, JM Gambetta, G Smith, Phys. Rev. Lett. 108, 070502 (2012).
@@ -93,6 +93,6 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
             measurement_basis=PauliMeasurementBasis(),
             preparation_basis=PauliPreparationBasis(),
             fitter="linear_inversion",
-            rescale_psd=True,
+            rescale_positive=True,
             rescale_trace=True,
         )
