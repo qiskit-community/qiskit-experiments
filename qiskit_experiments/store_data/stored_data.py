@@ -57,6 +57,15 @@ def auto_save(func: Callable):
     return _wrapped
 
 
+@contextlib.contextmanager
+def service_exception_to_warning():
+    """Convert an exception raised by experiment service to a warning."""
+    try:
+        yield
+    except Exception:  # pylint: disable=broad-except
+        LOG.warning("Experiment service operation failed: %s", traceback.format_exc())
+
+
 class StoredData:
     """Base common type for all versioned StoredData classes.
 
@@ -114,9 +123,6 @@ class StoredDataV1(StoredData):
             figure_names: Name of figures associated with this experiment.
             notes: Freeform notes about the experiment.
             **kwargs: Additional experiment attributes.
-
-        Raises:
-            ExperimentError: If an input argument is invalid.
         """
         metadata = metadata or {}
         self._metadata = copy.deepcopy(metadata)
@@ -463,7 +469,7 @@ class StoredDataV1(StoredData):
 
         service = service or self._service
         if service and self.auto_save:
-            with contextlib.suppress(ExperimentEntryNotFound):
+            with service_exception_to_warning():
                 self.service.delete_figure(experiment_id=self.experiment_id, figure_name=figure_key)
             self._deleted_figures.remove(figure_key)
 
@@ -559,7 +565,7 @@ class StoredDataV1(StoredData):
 
         service = service or self._service
         if service and self.auto_save:
-            with contextlib.suppress(ExperimentEntryNotFound):
+            with service_exception_to_warning():
                 self.service.delete_analysis_result(result_id=result_key)
             self._deleted_analysis_results.remove(result_key)
 
@@ -621,9 +627,6 @@ class StoredDataV1(StoredData):
         Args:
             service: Experiment service to be used to save the data.
                 If ``None``, the provider used to submit jobs will be used.
-
-        Raises:
-            ExperimentError: If the experiment contains invalid data.
         """
         service = service or self._service
         if not service:
@@ -665,9 +668,6 @@ class StoredDataV1(StoredData):
         Args:
             service: Experiment service to be used to save the data.
                 If ``None``, the provider used to submit jobs will be used.
-
-        Raises:
-            ExperimentError: If the experiment contains invalid data.
         """
         # TODO - track changes
         use_service = service or self._service
@@ -680,10 +680,8 @@ class StoredDataV1(StoredData):
             result.save(service)
 
         for result in self._deleted_analysis_results.copy():
-            try:
+            with service_exception_to_warning():
                 use_service.delete_analysis_result(result_id=result)
-            except ExperimentEntryNotFound:
-                pass
             self._deleted_analysis_results.remove(result)
 
         with self._figures.lock:
@@ -703,10 +701,8 @@ class StoredDataV1(StoredData):
                 )
 
         for name in self._deleted_figures.copy():
-            try:
+            with service_exception_to_warning():
                 use_service.delete_figure(experiment_id=self.experiment_id, figure_name=name)
-            except ExperimentEntryNotFound:
-                pass
             self._deleted_figures.remove(name)
 
     def serialize_metadata(self) -> str:
@@ -989,13 +985,13 @@ class StoredDataV1(StoredData):
 
     @service.setter
     def service(self, service: "ExperimentServiceV1") -> None:
-        """Set the service to be used for storing experiment data remotely.
+        """Set the service to be used for storing experiment data.
 
         Args:
             service: Service to be used.
 
         Raises:
-            ExperimentError: If a remote experiment service is already being used.
+            ExperimentError: If an experiment service is already being used.
         """
         if self._service:
             raise ExperimentError("An experiment service is already being used.")
