@@ -244,6 +244,7 @@ class TestExperimentData(QiskitTestCase):
     @skipIf(not HAS_MATPLOTLIB, "matplotlib not available.")
     def test_add_figure_plot(self):
         """Test adding a matplotlib figure."""
+        # pylint: disable=import-error
         import matplotlib.pyplot as plt
 
         figure, ax = plt.subplots()

@@ -420,6 +420,7 @@ class StoredDataV1(StoredData):
             save = save_figure if save_figure is not None else self.auto_save
             if save and service:
                 if HAS_MATPLOTLIB:
+                    # pylint: disable=import-error
                     from matplotlib import pyplot
 
                     if isinstance(figure, pyplot.Figure):
@@ -687,6 +688,7 @@ class StoredDataV1(StoredData):
         with self._figures.lock:
             for name, figure in self._figures.items():
                 if HAS_MATPLOTLIB:
+                    # pylint: disable=import-error
                     from matplotlib import pyplot
 
                     if isinstance(figure, pyplot.Figure):

@@ -17,7 +17,7 @@ from typing import Optional, Dict, List, Any, Union, Tuple, Type, TypeVar
 
 from .device_component import DeviceComponent
 
-T = TypeVar("T")
+ExperimentClass = TypeVar("ExperimentClass")
 
 
 class ExperimentService:
@@ -119,8 +119,8 @@ class ExperimentServiceV1(ExperimentService, ABC):
 
     @abstractmethod
     def experiment(
-        self, experiment_id: str, experiment_class: Optional[Type[T]] = None
-    ) -> Union[Dict, T]:
+        self, experiment_id: str, experiment_class: Optional[Type[ExperimentClass]] = None
+    ) -> Union[Dict, ExperimentClass]:
         """Retrieve a previously stored experiment.
 
         Args:
@@ -142,14 +142,14 @@ class ExperimentServiceV1(ExperimentService, ABC):
     def experiments(
         self,
         limit: Optional[int] = 10,
-        experiment_class: Optional[Type[T]] = None,
+        experiment_class: Optional[Type[ExperimentClass]] = None,
         device_components: Optional[Union[str, DeviceComponent]] = None,
         experiment_type: Optional[str] = None,
         backend_name: Optional[str] = None,
         tags: Optional[List[str]] = None,
         tags_operator: Optional[str] = "OR",
         **filters: Any,
-    ) -> List[Union[Dict, T]]:
+    ) -> List[Union[Dict, ExperimentClass]]:
         """Retrieve all experiment data, with optional filtering.
 
         Args:
@@ -251,8 +251,8 @@ class ExperimentServiceV1(ExperimentService, ABC):
 
     @abstractmethod
     def analysis_result(
-        self, result_id: str, result_class: Optional[Type[T]] = None
-    ) -> Union[Dict, T]:
+        self, result_id: str, result_class: Optional[Type[ExperimentClass]] = None
+    ) -> Union[Dict, ExperimentClass]:
         """Retrieve a previously stored experiment.
 
         Args:
@@ -273,7 +273,7 @@ class ExperimentServiceV1(ExperimentService, ABC):
     def analysis_results(
         self,
         limit: Optional[int] = 10,
-        result_class: Optional[Type[T]] = None,
+        result_class: Optional[Type[ExperimentClass]] = None,
         device_components: Optional[Union[str, DeviceComponent]] = None,
         experiment_id: Optional[str] = None,
         result_type: Optional[str] = None,
@@ -283,7 +283,7 @@ class ExperimentServiceV1(ExperimentService, ABC):
         tags: Optional[List[str]] = None,
         tags_operator: Optional[str] = "OR",
         **filters: Any,
-    ) -> List[Union[Dict, T]]:
+    ) -> List[Union[Dict, ExperimentClass]]:
         """Retrieve all analysis results, with optional filtering.
 
         Args:
