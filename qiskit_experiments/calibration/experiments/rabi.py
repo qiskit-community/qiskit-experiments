@@ -40,31 +40,31 @@ class RabiAnalysis(CurveAnalysis):
     Analyse a Rabi experiment by fitting it to a cosine function
 
     .. math::
-        y = a \cos\left(2 \pi {\rm freq} x + {\rm phase}\right) + b
+        y = amp \cos\left(2 \pi {\rm freq} x + {\rm phase}\right) + baseline
 
     Fit Parameters
-        - :math:`a`: Amplitude of the oscillation.
-        - :math:`b`: Base line.
+        - :math:`amp`: Amplitude of the oscillation.
+        - :math:`baseline`: Base line.
         - :math:`{\rm freq}`: Frequency of the oscillation. This is the fit parameter of interest.
         - :math:`{\rm phase}`: Phase of the oscillation.
 
     Initial Guesses
-        - :math:`a`: The maximum y value less the minimum y value.
-        - :math:`b`: The average of the data.
+        - :math:`amp`: The maximum y value less the minimum y value.
+        - :math:`baseline`: The average of the data.
         - :math:`{\rm freq}`: The frequency with the highest power spectral density.
         - :math:`{\rm phase}`: Zero.
 
     Bounds
-        - :math:`a`: [-2, 2] scaled to the maximum signal value.
-        - :math:`b`: [-1, 1] scaled to the maximum signal value.
+        - :math:`amp`: [-2, 2] scaled to the maximum signal value.
+        - :math:`baseline`: [-1, 1] scaled to the maximum signal value.
         - :math:`{\rm freq}`: [0, inf].
         - :math:`{\rm phase}`: [-pi, pi].
     """
 
     __series__ = [
         SeriesDef(
-            fit_func=lambda x, a, freq, phase, b: fit_function.cos(
-                x, amp=a, freq=freq, phase=phase, baseline=b
+            fit_func=lambda x, amp, freq, phase, baseline: fit_function.cos(
+                x, amp=amp, freq=freq, phase=phase, baseline=baseline
             ),
             plot_color="blue",
         )
@@ -78,8 +78,8 @@ class RabiAnalysis(CurveAnalysis):
         descriptions of analysis options.
         """
         default_options = super()._default_options()
-        default_options.p0 = {"a": None, "freq": None, "phase": None, "b": None}
-        default_options.bounds = {"a": None, "freq": None, "phase": None, "b": None}
+        default_options.p0 = {"amp": None, "freq": None, "phase": None, "baseline": None}
+        default_options.bounds = {"amp": None, "freq": None, "phase": None, "baseline": None}
         default_options.fit_reports = {"freq": "rate"}
         default_options.xlabel = "Amplitude"
         default_options.ylabel = "Signal (arb. units)"
@@ -111,16 +111,16 @@ class RabiAnalysis(CurveAnalysis):
         for p_guess in p_guesses:
             fit_option = {
                 "p0": {
-                    "a": user_p0["a"] or a_guess,
+                    "amp": user_p0["amp"] or a_guess,
                     "freq": user_p0["freq"] or f_guess,
                     "phase": p_guess,
-                    "b": user_p0["b"] or b_guess,
+                    "baseline": user_p0["baseline"] or b_guess,
                 },
                 "bounds": {
-                    "a": user_bounds["a"] or (-2 * max_abs_y, 2 * max_abs_y),
+                    "amp": user_bounds["amp"] or (-2 * max_abs_y, 2 * max_abs_y),
                     "freq": user_bounds["freq"] or (0, np.inf),
                     "phase": user_bounds["phase"] or (-np.pi, np.pi),
-                    "b": user_bounds["b"] or (-1 * max_abs_y, 1 * max_abs_y),
+                    "baseline": user_bounds["baseline"] or (-1 * max_abs_y, 1 * max_abs_y),
                 },
             }
             fit_option.update(options)
