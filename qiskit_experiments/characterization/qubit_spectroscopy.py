@@ -322,6 +322,8 @@ class QubitSpectroscopy(BaseExperiment):
             if not self._absolute:
                 freq += center_freq
 
+            freq = np.round(freq, decimals=3)
+
             assigned_circ = circuit.assign_parameters({freq_param: freq}, inplace=False)
             assigned_circ.metadata = {
                 "experiment_type": self._type,
