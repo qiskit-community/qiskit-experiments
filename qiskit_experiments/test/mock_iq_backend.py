@@ -163,3 +163,28 @@ class IQTestBackend(Backend):
             result["results"].append(run_result)
 
         return TestJob(self, result)
+
+
+class DragBackend(IQTestBackend):
+    """A simple and primitive backend, to be run by the rough drag tests."""
+
+    def __init__(
+        self,
+        iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
+        iq_cluster_width: float = 1.0,
+        leakage: float = 0.03,
+        ideal_beta = 2.0,
+    ):
+        """Initialize the rabi backend."""
+        self._leakage = leakage
+        self.ideal_beta = ideal_beta
+
+        super().__init__(iq_cluster_centers, iq_cluster_width)
+
+    def _compute_probability(self, circuit: QuantumCircuit) -> float:
+        """Returns the probability based on the beta, number of gates, and leakage."""
+        n_gates = sum(circuit.count_ops().values())
+
+        beta = next(iter(circuit.calibrations['xp'].keys()))[1][0]
+
+        return np.sin(n_gates * self._leakage * (beta - self.ideal_beta)) ** 2

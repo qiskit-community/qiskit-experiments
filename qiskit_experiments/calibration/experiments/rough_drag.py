@@ -38,16 +38,19 @@ from qiskit_experiments.calibration.exceptions import CalibrationError
 class RoughDragAnalysis(CurveAnalysis):
     r"""Rough Drag calibration analysis class based on a fit to a cosine function.
 
-    Analyse a Drag clibration experiment by fitting it to a cosine function
+    Analyse a Drag calibration experiment by fitting three series each to a cosine function.
+    The three functions share the phase and baseline parameters but each have their own
+    frequency (which depends on the number of repetitions of xp-xm) and amplitude
+    parameter.
 
     .. math::
-        y = a \cos\left(2 \pi {\rm freq} x + {\rm phase}\right) + b
+        y = amp_i \cos\left(2 \pi {\rm freq_i} x - 2 \pi {\rm phase}\right) + baseline
 
     Fit Parameters TODO
-        - :math:`a`: Amplitude of the oscillation.
-        - :math:`b`: Base line.
-        - :math:`{\rm freq}`: Frequency of the oscillation. This is the fit parameter of interest.
-        - :math:`{\rm phase}`: Phase of the oscillation.
+        - :math:`amp_i`: Amplitude of series :math:`i`.
+        - :math:`baseline`: Base line.
+        - :math:`{\rm freq}_i`: Frequency of the :math:`i`th oscillation.
+        - :math:`{\rm phase}`: Common phase offset. This is the parameter of interest.
 
     Initial Guesses
         - :math:`a`: The maximum y value less the minimum y value.
@@ -63,26 +66,31 @@ class RoughDragAnalysis(CurveAnalysis):
 
     """
 
-    # TODO this depends on reps.
     __series__ = [
         SeriesDef(
-            fit_func=lambda x, a, freq, phase, b: fit_function.cos(
-                x, amp=a, freq=freq, phase=phase, baseline=b
+            fit_func=lambda x, amp0, amp1, amp2, freq0, freq1, freq2, phase, b: fit_function.cos(
+                x, amp=amp0, freq=freq0, phase=-2*np.pi*freq0*phase, baseline=b
             ),
             plot_color="blue",
+            name="series-0",
+            filter_kwargs={"series": 0},
         ),
         SeriesDef(
-            fit_func=lambda x, a, freq, phase, b: fit_function.cos(
-                x, amp=a, freq=freq, phase=phase, baseline=b
+            fit_func=lambda x, amp0, amp1, amp2, freq0, freq1, freq2, phase, b: fit_function.cos(
+                x, amp=amp1, freq=freq1, phase=-2*np.pi*freq1*phase, baseline=b
             ),
             plot_color="green",
+            name="series-1",
+            filter_kwargs={"series": 1},
         )
         ,
         SeriesDef(
-            fit_func=lambda x, a, freq, phase, b: fit_function.cos(
-                x, amp=a, freq=freq, phase=phase, baseline=b
+            fit_func=lambda x, amp0, amp1, amp2, freq0, freq1, freq2, phase, b: fit_function.cos(
+                x, amp=amp2, freq=freq2, phase=-2*np.pi*freq2*phase, baseline=b
             ),
             plot_color="red",
+            name="series-2",
+            filter_kwargs={"series": 2},
         )
     ]
 
@@ -96,9 +104,10 @@ class RoughDragAnalysis(CurveAnalysis):
         TODO
         """
         default_options = super()._default_options()
-        default_options.p0 = {"a": None, "freq": None, "phase": None, "b": None}
-        default_options.bounds = {"a": None, "freq": None, "phase": None, "b": None}
-        default_options.fit_reports = {"freq": "rate"}
+        default_options.p0 = {
+            "amp0": None, "amp1": None, "amp2": None, "freq0": None, "freq1": None, "freq2": None, "phase": None, "b": None}
+        default_options.bounds = {"amp0": None, "amp1": None, "amp2": None, "freq0": None, "freq1": None, "freq2": None, "phase": None, "b": None}
+        default_options.fit_reports = {"phase": "phase"}
         default_options.xlabel = "Beta"
         default_options.ylabel = "Signal (arb. units)"
 
@@ -110,16 +119,6 @@ class RoughDragAnalysis(CurveAnalysis):
         :param options:
         :return:
         """
-        self.__series__ = []
-        for index, rep in enumerate(reps):
-            self.__series__.append(
-                SeriesDef(
-                    fit_func=lambda x, a, freq, phase, b: fit_function.cos(
-                        x, amp=a, freq=freq, phase=phase, baseline=b
-                    ),
-                    plot_color=self.__colors__[index % len(self.__colors__)],
-                )
-            )
 
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
@@ -127,13 +126,18 @@ class RoughDragAnalysis(CurveAnalysis):
         max_abs_y = np.max(np.abs(self._data().y))
 
         # Use a fast Fourier transform to guess the frequency.
-        fft = np.abs(np.fft.fft(self._data().y - np.average(self._data().y)))
-        damp = self._data().x[1] - self._data().x[0]
-        freqs = np.linspace(0.0, 1.0 / (2.0 * damp), len(fft))
+        delta_beta = self._data("series-0").x[1] - self._data("series-0").x[0]
 
-        b_guess = np.average(self._data().y)
-        a_guess = np.max(self._data().y) - np.min(self._data().y) - b_guess
-        f_guess = freqs[np.argmax(fft[0 : len(fft) // 2])]
+        b_guess = np.average(self._data("series-0").y)
+
+        freq_guess = []
+        amp_guess = []
+        for series in ["series-0", "series-1", "series-2"]:
+            y_data = self._data(series).y
+            fft = np.abs(np.fft.fft(y_data - np.average(y_data)))
+            freqs = np.linspace(0.0, 1.0 / (2.0 * delta_beta), len(fft))
+            freq_guess.append(freqs[np.argmax(fft[0 : len(fft) // 2])])
+            amp_guess.append(np.max(y_data) - np.min(y_data) - b_guess)
 
         if user_p0["phase"] is not None:
             p_guesses = [user_p0["phase"]]
@@ -144,14 +148,22 @@ class RoughDragAnalysis(CurveAnalysis):
         for p_guess in p_guesses:
             fit_option = {
                 "p0": {
-                    "a": user_p0["a"] or a_guess,
-                    "freq": user_p0["freq"] or f_guess,
+                    "amp0": user_p0["amp0"] or amp_guess[0],
+                    "amp1": user_p0["amp1"] or amp_guess[1],
+                    "amp2": user_p0["amp2"] or amp_guess[2],
+                    "freq0": user_p0["freq0"] or freq_guess[0],
+                    "freq1": user_p0["freq1"] or freq_guess[1],
+                    "freq2": user_p0["freq2"] or freq_guess[2],
                     "phase": p_guess,
                     "b": user_p0["b"] or b_guess,
                 },
                 "bounds": {
-                    "a": user_bounds["a"] or (-2 * max_abs_y, 2 * max_abs_y),
-                    "freq": user_bounds["freq"] or (0, np.inf),
+                    "amp0": user_bounds["amp0"] or (-2 * max_abs_y, 2 * max_abs_y),
+                    "amp1": user_bounds["amp1"] or (-2 * max_abs_y, 2 * max_abs_y),
+                    "amp2": user_bounds["amp2"] or (-2 * max_abs_y, 2 * max_abs_y),
+                    "freq0": user_bounds["freq0"] or (0, np.inf),
+                    "freq1": user_bounds["freq1"] or (0, np.inf),
+                    "freq2": user_bounds["freq2"] or (0, np.inf),
                     "phase": user_bounds["phase"] or (-np.pi, np.pi),
                     "b": user_bounds["b"] or (-1 * max_abs_y, 1 * max_abs_y),
                 },
@@ -241,6 +253,7 @@ class RoughDrag(BaseExperiment):
             CalibrationError:
                 - If the beta parameters in the xp and xm pulses are not the same.
                 - If either the xp or xm pulse do not have at least one Drag pulse.
+                - If the number of different repetition series is not three.
         """
         # TODO this is temporarily logic. Need update of circuit data and processor logic.
         self.set_analysis_options(
@@ -298,12 +311,20 @@ class RoughDrag(BaseExperiment):
         xp_gate = Gate(name="xp", num_qubits=1, params=[beta_xp])
         xm_gate = Gate(name="xm", num_qubits=1, params=[beta_xp])
 
+        reps = self.experiment_options.reps
+        if len(reps) != 3:
+            raise CalibrationError(
+                f"The number of repetitions for {self.__class__.__name__} must be three. "
+                "This constraint can be removed once CurveFitting supports a dynamic number "
+                "of series."
+            )
+
         circuits = []
         for beta in self.experiment_options.betas:
 
             beta = np.round(beta, decimals=6)
 
-            for rep in self.experiment_options.reps:
+            for idx, rep in enumerate(reps):
                 circuit = QuantumCircuit(1)
                 for index in range(rep):
                     circuit.append(xp_gate, (0,))
@@ -325,7 +346,7 @@ class RoughDrag(BaseExperiment):
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
                 "xval": beta,
-                "series": str(rep)
+                "series": idx
                 }
 
                 circuits.append(circuit)
