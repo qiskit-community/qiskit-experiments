@@ -315,18 +315,24 @@ class BaseExperiment(ABC):
         experiment execution to append job metadata, including current
         option values, to the ``job_metadata`` list.
         """
-        # Subclasses can override this method if it is necessary to store
-        # additional experiment metadata in ExperimentData.
-        # The `experiment_type` and `physical_qubits` field should remain
-        # unchanged as they are used for validation when appending data to
-        # an existing experiment data contianer.
         metadata = {
             "experiment_type": self._type,
             "num_qubits": self.num_qubits,
             "physical_qubits": list(self.physical_qubits),
             "job_metadata": [],
         }
+        # Add additional metadata if subclasses specify it
+        for key, val in self._additional_metadata():
+            metadata[key] = val
         return metadata
+
+    def _additional_metadata(self) -> Dict[str, any]:
+        """Add additional subclass experiment metadata.
+
+        Subclasses can override this method if it is necessary to store
+        additional experiment metadata in ExperimentData.
+        """
+        return {}
 
     def _add_job_metadata(self, experiment_data: ExperimentData, job: BaseJob, **run_options):
         """Add runtime job metadata to ExperimentData.
