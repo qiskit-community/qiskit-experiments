@@ -207,6 +207,10 @@ class BaseExperiment(ABC):
     def set_experiment_options(self, **fields):
         """Set the experiment options.
 
+        .. note::
+
+            This docstring is automatically overridden by subclasses.
+
         Args:
             fields: The fields to update the options
 
@@ -284,6 +288,10 @@ class BaseExperiment(ABC):
 
     def set_analysis_options(self, **fields):
         """Set the analysis options for :meth:`run` method.
+        
+        .. note::
+
+            This docstring is automatically overridden by subclasses.
 
         Args:
             fields: The fields to update the options
