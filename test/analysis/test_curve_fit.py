@@ -301,7 +301,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             fit_reports=None,
             return_data_points=False,
         )
-        result = results[0]
+        result = results[0].data()
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
 
@@ -413,7 +413,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             fit_reports=None,
             return_data_points=False,
         )
-        result = results[0]
+        result = results[0].data()
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3, ref_p4])
 
@@ -476,7 +476,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             fit_reports=None,
             return_data_points=False,
         )
-        result = results[0]
+        result = results[0].data()
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
 

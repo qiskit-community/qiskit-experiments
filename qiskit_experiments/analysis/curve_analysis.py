@@ -909,7 +909,7 @@ class CurveAnalysis(BaseAnalysis):
                 Qubit(qubit) for qubit in self.__qubits
             ],
             experiment_id=experiment_data.experiment_id,
-            quality=result_data["quality"],
+            quality=result_data.get("quality", None),
         )
 
         return [analysis_result], figures
