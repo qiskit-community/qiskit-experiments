@@ -907,7 +907,7 @@ class CurveAnalysis(BaseAnalysis):
             result_type=result_data["analysis_type"],
             device_components=[
                 Qubit(qubit) for qubit in self.__qubits
-            ],
+            ] if self.__qubits else [],
             experiment_id=experiment_data.experiment_id,
             quality=result_data.get("quality", None),
         )

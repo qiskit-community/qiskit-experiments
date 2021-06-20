@@ -65,27 +65,35 @@ class TestRabiEndToEnd(QiskitTestCase):
 
         rabi = Rabi(3)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
-        result = rabi.run(backend).analysis_result(0)
+        expdata = rabi.run(backend)
+        expdata.block_for_results()
+        result = expdata.analysis_result(0)
+        result_data = result.data()
 
-        self.assertEqual(result["quality"], "computer_good")
-        self.assertTrue(abs(result["popt"][1] - backend.rabi_rate) < test_tol)
-
+        self.assertEqual(result.quality, "computer_good")
+        self.assertTrue(abs(result_data["popt"][1] - backend.rabi_rate) < test_tol)
+        
         backend = RabiBackend(amplitude_to_angle=np.pi / 2)
-
+        
         rabi = Rabi(3)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
-        result = rabi.run(backend).analysis_result(0)
-        self.assertEqual(result["quality"], "computer_good")
-        self.assertTrue(abs(result["popt"][1] - backend.rabi_rate) < test_tol)
+        expdata = rabi.run(backend)
+        expdata.block_for_results()
+        result = expdata.analysis_result(0)
+        result_data = result.data()
+        self.assertEqual(result.quality, "computer_good")
+        self.assertTrue(abs(result_data["popt"][1] - backend.rabi_rate) < test_tol)
 
         backend = RabiBackend(amplitude_to_angle=2.5 * np.pi)
 
         rabi = Rabi(3)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 101))
-        result = rabi.run(backend).analysis_result(0)
-
-        self.assertEqual(result["quality"], "computer_good")
-        self.assertTrue(abs(result["popt"][1] - backend.rabi_rate) < test_tol)
+        expdata = rabi.run(backend)
+        expdata.block_for_results()
+        result = expdata.analysis_result(0)
+        result_data = result.data()
+        self.assertEqual(result.quality, "computer_good")
+        self.assertTrue(abs(result_data["popt"][1] - backend.rabi_rate) < test_tol)
 
 
 class TestRabiCircuits(QiskitTestCase):
@@ -170,8 +178,8 @@ class TestRabiAnalysis(QiskitTestCase):
 
         result = RabiAnalysis().run(experiment_data, data_processor=data_processor, plot=False)
 
-        self.assertEqual(result[0]["quality"], "computer_good")
-        self.assertTrue(abs(result[0]["popt"][1] - expected_rate) < test_tol)
+        self.assertEqual(result[0].quality, "computer_good")
+        self.assertTrue(abs(result[0].data()["popt"][1] - expected_rate) < test_tol)
 
     def test_bad_analysis(self):
         """Test the Rabi analysis."""
@@ -186,4 +194,4 @@ class TestRabiAnalysis(QiskitTestCase):
 
         result = RabiAnalysis().run(experiment_data, data_processor=data_processor, plot=False)
 
-        self.assertEqual(result[0]["quality"], "computer_bad")
+        self.assertEqual(result[0].quality, "computer_bad")
