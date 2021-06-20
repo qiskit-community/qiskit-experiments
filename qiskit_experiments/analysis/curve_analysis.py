@@ -329,7 +329,7 @@ If nothing specified, fit report will not be shown.",
             "return_data_points": OptionsField(
                 default=False,
                 annotation=bool,
-                description="Set ``True`` to return arrays of measured data points."
+                description="Set ``True`` to return arrays of measured data points.",
             ),
         }
 

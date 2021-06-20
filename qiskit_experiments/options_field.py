@@ -41,13 +41,14 @@ class OptionsField:
 
 class _OptionMethodDocstringMaker:
     """Facade of method docstring writer."""
+
     @classmethod
     def make_docstring(
-            cls,
-            header: str,
-            fields: Dict[str, OptionsField],
-            notes: Optional[str] = None,
-            raises: Optional[Dict[str, str]] = None
+        cls,
+        header: str,
+        fields: Dict[str, OptionsField],
+        notes: Optional[str] = None,
+        raises: Optional[Dict[str, str]] = None,
     ) -> str:
         """Create method docstring.
 
@@ -75,14 +76,13 @@ class _OptionMethodDocstringMaker:
             if notes:
                 writer.note(notes)
         except Exception as ex:
-            raise QiskitError(
-                f"Auto docstring failed due to following error: {ex}"
-            ) from ex
+            raise QiskitError(f"Auto docstring failed due to following error: {ex}") from ex
         return writer.docstring
 
 
 class _OptionMethodDocstringWriter:
     """Actual docstring writer."""
+
     __indent__ = "    "
 
     def __init__(self):
@@ -93,16 +93,17 @@ class _OptionMethodDocstringWriter:
         self.docstring += f"{header}\n\n"
 
     def args(
-            self,
-            argnames: List[str],
-            annotations: List[Any],
-            descriptions: List[str],
-            defaults: List[str]
+        self,
+        argnames: List[str],
+        annotations: List[Any],
+        descriptions: List[str],
+        defaults: List[str],
     ):
         """Output argument section."""
         self.docstring += "Args:\n"
-        for argname, annotation, description, default in \
-                zip(argnames, annotations, descriptions, defaults):
+        for argname, annotation, description, default in zip(
+            argnames, annotations, descriptions, defaults
+        ):
             self.docstring += self.__indent__
 
             # write argument name
@@ -250,11 +251,5 @@ If your ``curve_fitter`` API does not support the keyword, you may fail in analy
 
     # experiment.set_experiment_options directly calls base class method.
     # Thus we cannot directly override __doc__ attribute.
-
-
-
-
-
-
 
     return experiment
