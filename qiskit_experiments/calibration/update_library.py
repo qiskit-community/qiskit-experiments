@@ -110,7 +110,7 @@ class Frequency(BaseUpdater):
 class Amplitude(BaseUpdater):
     """Update pulse amplitudes."""
 
-    #pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ
     def update(
         self,
         exp_data: ExperimentData,
