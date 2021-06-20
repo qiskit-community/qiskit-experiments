@@ -53,21 +53,9 @@ class TestT1(QiskitTestCase):
             )
         )
 
-        # dummy numbers to avoid exception triggerring
-        instruction_durations = [
-            ("measure", [0], 3, "dt"),
-            ("x", [0], 3, "dt"),
-        ]
-
         exp = T1Experiment(0, delays, unit="dt")
-        res = exp.run(
-            backend,
-            amplitude_guess=1,
-            t1_guess=t1 / dt_factor,
-            offset_guess=0,
-            instruction_durations=instruction_durations,
-            shots=10000,
-        ).analysis_result(0)
+        exp.set_analysis_options(amplitude_guess=1, t1_guess=t1 / dt_factor, offset_guess=0)
+        res = exp.run(backend, shots=10000).analysis_result(0)
 
         self.assertEqual(res["quality"], "computer_good")
         self.assertAlmostEqual(res["value"], t1, delta=3)
@@ -83,10 +71,7 @@ class TestT1(QiskitTestCase):
         exp0 = T1Experiment(0, delays)
         exp2 = T1Experiment(2, delays)
         par_exp = ParallelExperiment([exp0, exp2])
-        res = par_exp.run(
-            T1Backend([t1[0], None, t1[1]]),
-            shots=10000,
-        )
+        res = par_exp.run(T1Backend([t1[0], None, t1[1]]))
 
         for i in range(2):
             sub_res = res.component_experiment_data(i).analysis_result(0)
@@ -116,8 +101,8 @@ class TestT1(QiskitTestCase):
             )
 
         res = T1Analysis()._run_analysis(data)[0]
-        self.assertEqual(res["quality"], "computer_good")
-        self.assertAlmostEqual(res["value"], 25e-9, delta=3)
+        self.assertEqual(res[0]["quality"], "computer_good")
+        self.assertAlmostEqual(res[0]["value"], 25e-9, delta=3)
 
     def test_t1_metadata(self):
         """
@@ -163,7 +148,7 @@ class TestT1(QiskitTestCase):
             )
 
         res = T1Analysis()._run_analysis(data)[0]
-        self.assertEqual(res["quality"], "computer_bad")
+        self.assertEqual(res[0]["quality"], "computer_bad")
 
 
 if __name__ == "__main__":

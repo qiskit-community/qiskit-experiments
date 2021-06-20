@@ -17,11 +17,12 @@ A simulator for T1 experiment for testing and documentation
 
 import numpy as np
 from qiskit.providers import BaseBackend
+from qiskit.providers.options import Options
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
 
 
-class T1Backend(BaseBackend):
+class T1Backend(BackendV1):
     """
     A simple and primitive backend, to be run by the T1 tests
     """
@@ -54,15 +55,20 @@ class T1Backend(BaseBackend):
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
         self._dt_factor = dt_factor
+        self._rng = np.random.default_rng(0)
         super().__init__(configuration)
 
-    # pylint: disable = arguments-differ
-    def run(self, qobj):
+    @classmethod
+    def _default_options(cls):
+        """Default options of the test backend."""
+        return Options(shots=1024)
+
+    def run(self, run_input, **options):
         """
         Run the T1 backend
         """
-
-        shots = qobj.config.shots
+        self.options.update_options(**options)
+        shots = self.options.get("shots")
 
         result = {
             "backend_name": "T1 backend",
@@ -73,8 +79,10 @@ class T1Backend(BaseBackend):
             "results": [],
         }
 
-        for circ in qobj.experiments:
-            nqubits = circ.config.n_qubits
+        for circ in run_input:
+            nqubits = circ.num_qubits
+            qubit_indices = {bit: idx for idx, bit in enumerate(circ.qubits)}
+            clbit_indices = {bit: idx for idx, bit in enumerate(circ.clbits)}
             counts = dict()
 
             if self._readout0to1 is None:
@@ -93,20 +101,21 @@ class T1Backend(BaseBackend):
                 else:
                     prob1 = self._initial_prob1.copy()
 
-                clbits = np.zeros(circ.config.memory_slots, dtype=int)
+                clbits = np.zeros(circ.num_clbits, dtype=int)
 
-                for op in circ.instructions:
-                    qubit = op.qubits[0]
+                for op, qargs, cargs in circ.data:
+                    qubit = qubit_indices[qargs[0]]
                     if op.name == "x":
                         prob1[qubit] = 1 - prob1[qubit]
                     elif op.name == "delay":
                         delay = op.params[0]
                         prob1[qubit] = prob1[qubit] * np.exp(-delay / self._t1[qubit])
                     elif op.name == "measure":
-                        meas_res = np.random.binomial(
+                        meas_res = self._rng.binomial(
                             1, prob1[qubit] * (1 - ro10[qubit]) + (1 - prob1[qubit]) * ro01[qubit]
                         )
-                        clbits[op.memory[0]] = meas_res
+                        clbit = clbit_indices[cargs[0]]
+                        clbits[clbit] = meas_res
                         prob1[qubit] = meas_res
 
                 clstr = ""
@@ -122,7 +131,7 @@ class T1Backend(BaseBackend):
                 {
                     "shots": shots,
                     "success": True,
-                    "header": {"metadata": circ.header.metadata},
+                    "header": {"metadata": circ.metadata},
                     "data": {"counts": counts},
                 }
             )
