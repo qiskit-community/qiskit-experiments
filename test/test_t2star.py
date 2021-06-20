@@ -260,7 +260,6 @@ class TestT2Star(QiskitTestCase):
                 estimated_freq[i],
                 delta=3,
             )
-            sub_res = res.component_experiment_data(i).analysis_result(0)
             self.assertEqual(
                 sub_res.quality,
                 "good",

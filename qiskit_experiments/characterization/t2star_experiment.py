@@ -86,7 +86,8 @@ class T2StarAnalysis(BaseAnalysis):
 
         # implementation of  _run_analysis
 
-        circ_metadata = experiment_data.data(0)["metadata"]
+        data = experiment_data.data()
+        circ_metadata = data[0]["metadata"]
         unit = circ_metadata["unit"]
         conversion_factor = circ_metadata.get("dt_factor", None)
         if conversion_factor is None:
