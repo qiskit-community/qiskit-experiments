@@ -24,6 +24,7 @@ from qiskit_experiments.characterization.qubit_spectroscopy import QubitSpectros
 from qiskit_experiments.test.mock_iq_backend import IQTestBackend
 from qiskit_experiments.analysis import get_opt_value
 from qiskit_experiments.calibration.backend_calibrations import BackendCalibrations
+from qiskit_experiments.calibration.update_library import Frequency
 
 
 class SpectroscopyBackend(IQTestBackend):
@@ -91,9 +92,9 @@ class TestQubitSpectroscopy(QiskitTestCase):
         self.assertEqual(result["quality"], "computer_good")
 
         # Test the integration with the BackendCalibrations
-        self.assertNotEqual(self._cals.get_qubit_frequencies()[3], result["cal_value"])
-        self._cals.update(exp_data)
-        self.assertEqual(self._cals.get_qubit_frequencies()[3], result["cal_value"])
+        self.assertNotEqual(self._cals.get_qubit_frequencies()[3], result["popt"][2])
+        Frequency().update(exp_data, self._cals)
+        self.assertEqual(self._cals.get_qubit_frequencies()[3], result["popt"][2])
 
     def test_spectroscopy_end2end_kerneled(self):
         """End to end test of the spectroscopy experiment on IQ data."""

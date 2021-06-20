@@ -57,12 +57,7 @@ class BaseUpdater(ABC):
         cal.add_parameter_value(value, self.param, self.qubits, self.schedule)
 
     @abstractmethod
-    def update(
-        self,
-        exp_data: ExperimentData,
-        calibrations: BackendCalibrations,
-        **options
-    ):
+    def update(self, exp_data: ExperimentData, calibrations: BackendCalibrations, **options):
         """Update the calibrations based on the data.
 
         Child update classes must implement this function.
@@ -72,12 +67,14 @@ class BaseUpdater(ABC):
 class Frequency(BaseUpdater):
     """Update frequencies."""
 
+    # pylint: disable=arguments-differ
     def update(
         self,
         exp_data: ExperimentData,
         calibrations: BackendCalibrations,
         result_index: int = -1,
         group: str = "default",
+        parameter: str = BackendCalibrations.__qubit_freq_parameter__,
     ):
         """Update a qubit frequency from QubitSpectroscopy.
 
@@ -86,31 +83,38 @@ class Frequency(BaseUpdater):
             calibrations: The calibrations to update.
             result_index: The result index to use, defaults to -1.
             group: The calibrations group to update. Defaults to "default."
+            parameter: The name of the parameter to update. If it is not specified
+                this will default to the qubit frequency.
 
         Raises:
-            CalibrationError: If the experiment is not of the supported type.
+            CalibrationError: If the analysis result does not contain a frequency variable.
         """
 
-        from qiskit_experiments.characterization.qubit_spectroscopy import QubitSpectroscopy
+        from qiskit_experiments.characterization.qubit_spectroscopy import SpectroscopyAnalysis
 
-        if isinstance(exp_data.experiment, QubitSpectroscopy):
-            self.qubits = exp_data.data(0)["metadata"]["qubits"]
-            self.param = BackendCalibrations.__qubit_freq_parameter__
-            self.value = exp_data.analysis_result(result_index)["popt"][2]
-        else:
+        result = exp_data.analysis_result(result_index)
+
+        if "freq" not in result["popt_keys"]:
             raise CalibrationError(
-                f"{self.__class__.__name__} updates from {type(QubitSpectroscopy.__name__)}."
+                f"{self.__class__.__name__} updates from analysis classes such as "
+                f'{type(SpectroscopyAnalysis.__name__)} which report "freq" in popt.'
             )
+
+        self.qubits = exp_data.data(0)["metadata"]["qubits"]
+        self.param = parameter
+        self.value = result["popt"][result["popt_keys"].index("freq")]
 
         self._update(exp_data, calibrations, group)
 
 
 class Amplitude(BaseUpdater):
+    """Update pulse amplitudes."""
 
+    #pylint: disable=arguments-differ
     def update(
         self,
         exp_data: ExperimentData,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         result_index: int = -1,
         group: str = "default",
         angles_schedules: List[Tuple[float, str, Union[str, ScheduleBlock]]] = None,
@@ -138,9 +142,13 @@ class Amplitude(BaseUpdater):
         self.qubits = exp_data.data(0)["metadata"]["qubits"]
 
         if isinstance(exp_data.experiment, Rabi):
-            rate = 2*np.pi*exp_data.analysis_result(result_index)["popt"][1]
+            result = exp_data.analysis_result(result_index)
+
+            freq = result["popt"][result["popt_keys"].index("freq")]
+
+            rate = 2 * np.pi * freq
             for angle, param, schedule in angles_schedules:
-                self.value = angle / rate
+                self.value = np.round(angle / rate, decimals=8)
                 self.schedule = schedule
                 self.param = param
 

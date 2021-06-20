@@ -33,7 +33,6 @@ from qiskit_experiments.analysis import (
 )
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
-from qiskit_experiments.calibration.backend_calibrations import BackendCalibrations
 
 
 class SpectroscopyAnalysis(CurveAnalysis):
@@ -173,11 +172,6 @@ class SpectroscopyAnalysis(CurveAnalysis):
             analysis_result["quality"] = "computer_good"
         else:
             analysis_result["quality"] = "computer_bad"
-
-        # Add calibration information
-        analysis_result["cal_parameter"] = BackendCalibrations.__qubit_freq_parameter__
-        analysis_result["cal_schedule"] = None
-        analysis_result["cal_value"] = fit_freq
 
         return analysis_result
 
