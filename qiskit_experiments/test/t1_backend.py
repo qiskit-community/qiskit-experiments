@@ -16,7 +16,7 @@ A simulator for T1 experiment for testing and documentation
 """
 
 import numpy as np
-from qiskit.providers import BaseBackend
+from qiskit.providers.backend import BackendV1
 from qiskit.providers.options import Options
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
