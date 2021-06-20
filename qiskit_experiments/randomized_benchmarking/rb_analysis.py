@@ -182,7 +182,7 @@ class RBAnalysis(CurveAnalysis):
                     gate_error_ratio,
                     gates_per_clifford,
                 )
-            elif num_qubits == 2:
+            elif self._num_qubits == 2:
                 epg_1_qubit = self._get_option("epg_1_qubit")
                 epg = RBUtils.calculate_2q_epg(
                     analysis_result["EPC"],
