@@ -93,31 +93,40 @@ class TestQubitSpectroscopy(QiskitTestCase):
         backend = SpectroscopyBackend(line_width=2e6)
 
         spec = QubitSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
-        result = spec.run(backend).analysis_result(0)
+        expdata = spec.run(backend)
+        expdata.block_for_results()
+        result = expdata.analysis_result(0)
+        result_data = result.data()
 
-        value = get_opt_value(result, "freq")
+        value = get_opt_value(result_data, "freq")
 
         self.assertTrue(abs(value) < 1e6)
-        self.assertTrue(result["success"])
-        self.assertEqual(result["quality"], "computer_good")
+        self.assertTrue(result_data["success"])
+        self.assertEqual(result.quality, "computer_good")
 
         # Test if we find still find the peak when it is shifted by 5 MHz.
         backend = SpectroscopyBackend(line_width=2e6, freq_offset=5.0e6)
 
         spec = QubitSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
-        result = spec.run(backend).analysis_result(0)
+        expdata = spec.run(backend)
+        expdata.block_for_results()
+        result = expdata.analysis_result(0)
+        result_data = result.data()
 
-        value = get_opt_value(result, "freq")
+        value = get_opt_value(result_data, "freq")
 
         self.assertTrue(value < 5.1e6)
         self.assertTrue(value > 4.9e6)
-        self.assertEqual(result["quality"], "computer_good")
+        self.assertEqual(result.quality, "computer_good")
 
         spec.set_run_options(meas_return="avg")
-        result = spec.run(backend).analysis_result(0)
+        expdata = spec.run(backend)
+        expdata.block_for_results()
+        result = expdata.analysis_result(0)
+        result_data = result.data()
 
-        value = get_opt_value(result, "freq")
+        value = get_opt_value(result_data, "freq")
 
         self.assertTrue(value < 5.1e6)
         self.assertTrue(value > 4.9e6)
-        self.assertEqual(result["quality"], "computer_good")
+        self.assertEqual(result.quality, "computer_good")
