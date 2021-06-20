@@ -200,7 +200,6 @@ class QVAnalysis(BaseAnalysis):
         sigma_hop = (mean_hop * ((1.0 - mean_hop) / trials)) ** 0.5
         z = 2
         threshold = 2 / 3 + z * sigma_hop
-        # confidence_level_threshold = self._calc_confidence_level(z_value=2)
         z_value = self._calc_z_value(mean_hop, sigma_hop)
         confidence_level = self._calc_confidence_level(z_value)
         # Must have at least 100 trials
