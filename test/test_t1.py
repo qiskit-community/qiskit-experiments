@@ -16,6 +16,7 @@ Test T1 experiment
 """
 
 import unittest
+from test.utils import FakeJob
 import numpy as np
 from qiskit.test import QiskitTestCase
 from qiskit.providers import BackendV1
@@ -25,8 +26,6 @@ from qiskit.result import Result
 from qiskit_experiments.experiment_data import ExperimentData
 from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T1Experiment, T1Analysis
-
-from test.utils import FakeJob
 
 
 class T1Backend(BackendV1):

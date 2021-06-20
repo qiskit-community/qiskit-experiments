@@ -40,7 +40,6 @@ def requires_matplotlib(func):
         # The code below switches to a non-GUI backend "Agg" when creating the
         # plot. An alternative is to run this in a separate process, but then
         # we'd need to deal with pickling issues.
-        from matplotlib import pyplot
 
         saved_backend = pyplot.get_backend()
         pyplot.switch_backend("Agg")

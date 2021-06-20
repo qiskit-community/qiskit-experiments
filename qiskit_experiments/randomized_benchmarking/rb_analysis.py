@@ -148,13 +148,13 @@ class RBAnalysis(CurveAnalysis):
             data_index=mean_data_index,
         )
 
-    def _post_analysis(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_analysis(self, result_data: CurveAnalysisResult) -> CurveAnalysisResult:
         """Calculate EPC."""
-        alpha = get_opt_value(analysis_result, "alpha")
-        alpha_err = get_opt_error(analysis_result, "alpha")
+        alpha = get_opt_value(result_data, "alpha")
+        alpha_err = get_opt_error(result_data, "alpha")
 
         scale = (2 ** self._num_qubits - 1) / (2 ** self._num_qubits)
-        analysis_result["EPC"] = scale * (1 - alpha)
-        analysis_result["EPC_err"] = scale * alpha_err / alpha
+        result_data["EPC"] = scale * (1 - alpha)
+        result_data["EPC_err"] = scale * alpha_err / alpha
 
-        return analysis_result
+        return result_data

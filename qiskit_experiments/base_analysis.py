@@ -19,8 +19,7 @@ from typing import List, Tuple, Union
 from qiskit.exceptions import QiskitError
 from qiskit.providers.options import Options
 
-from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.experiment_data import ExperimentData, ResultDict
+from qiskit_experiments.experiment_data import ExperimentData
 from qiskit_experiments.stored_data import AnalysisResultV1
 
 

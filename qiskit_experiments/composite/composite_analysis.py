@@ -15,7 +15,7 @@ Composite Experiment Analysis class.
 
 from qiskit.exceptions import QiskitError
 from qiskit_experiments.base_analysis import BaseAnalysis
-from .composite_experiment_data import CompositeExperimentData
+from qiskit_experiments.composite.composite_experiment_data import CompositeExperimentData
 from qiskit_experiments.stored_data import AnalysisResultV1
 from qiskit_experiments.stored_data.device_component import Qubit
 

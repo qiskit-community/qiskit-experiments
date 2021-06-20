@@ -14,7 +14,6 @@ Experiment Data class
 """
 import logging
 
-from qiskit.providers import Backend
 from qiskit_experiments.stored_data import StoredDataV1
 
 
