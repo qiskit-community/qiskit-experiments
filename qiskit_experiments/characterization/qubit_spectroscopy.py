@@ -131,7 +131,7 @@ class SpectroscopyAnalysis(CurveAnalysis):
 
         return fit_option
 
-    def _post_analysis(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_analysis(self, result_data: CurveAnalysisResult) -> CurveAnalysisResult:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -150,11 +150,11 @@ class SpectroscopyAnalysis(CurveAnalysis):
         min_freq = np.min(curve_data.x)
         freq_increment = np.mean(np.diff(curve_data.x))
 
-        fit_a = get_opt_value(analysis_result, "a")
-        fit_b = get_opt_value(analysis_result, "b")
-        fit_freq = get_opt_value(analysis_result, "freq")
-        fit_sigma = get_opt_value(analysis_result, "sigma")
-        fit_sigma_err = get_opt_error(analysis_result, "sigma")
+        fit_a = get_opt_value(result_data, "a")
+        fit_b = get_opt_value(result_data, "b")
+        fit_freq = get_opt_value(result_data, "freq")
+        fit_sigma = get_opt_value(result_data, "sigma")
+        fit_sigma_err = get_opt_error(result_data, "sigma")
 
         snr = abs(fit_a) / np.sqrt(abs(np.median(curve_data.y) - fit_b))
         fit_width_ratio = fit_sigma / (max_freq - min_freq)
@@ -163,17 +163,17 @@ class SpectroscopyAnalysis(CurveAnalysis):
             min_freq <= fit_freq <= max_freq,
             1.5 * freq_increment < fit_sigma,
             fit_width_ratio < 0.25,
-            analysis_result["reduced_chisq"] < 3,
+            result_data["reduced_chisq"] < 3,
             (fit_sigma_err is None or fit_sigma_err < fit_sigma),
             snr > 2,
         ]
 
         if all(criteria):
-            analysis_result["quality"] = "computer_good"
+            result_data["quality"] = "computer_good"
         else:
-            analysis_result["quality"] = "computer_bad"
+            result_data["quality"] = "computer_bad"
 
-        return analysis_result
+        return result_data
 
 
 class QubitSpectroscopy(BaseExperiment):

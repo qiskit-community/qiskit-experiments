@@ -790,7 +790,10 @@ class CurveAnalysis(BaseAnalysis):
         try:
             self.__qubits = experiment_data.data(0)["metadata"]["qubits"]
         except KeyError:
-            pass
+            try:
+                self.__qubits = [experiment_data.data(0)["metadata"]["qubit"]]
+            except KeyError:
+                pass
 
         #
         # 1. Setup data processor
@@ -866,6 +869,8 @@ class CurveAnalysis(BaseAnalysis):
                 fit_results = sorted(fit_results, key=lambda r: r["reduced_chisq"])
                 result_data.update(**fit_results[0])
 
+            result_data["success"] = True
+
         except AnalysisError as ex:
             result_data["error_message"] = str(ex)
             result_data["success"] = False
@@ -901,9 +906,10 @@ class CurveAnalysis(BaseAnalysis):
             result_data=result_data,
             result_type=result_data["analysis_type"],
             device_components=[
-                Qubit(qubit) for qubit in experiment_data.data(0)["metadata"]["qubits"]
+                Qubit(qubit) for qubit in self.__qubits
             ],
             experiment_id=experiment_data.experiment_id,
+            quality=result_data["quality"],
         )
 
         return [analysis_result], figures
