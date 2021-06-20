@@ -139,7 +139,7 @@ class TestAnalysisResult(QiskitTestCase):
         result = self._new_analysis_result()
         source_vals = "\n".join([str(val) for val in result.source.values()])
         self.assertIn("AnalysisResultV1", source_vals)
-        self.assertIn("qiskit-terra", source_vals)
+        self.assertTrue(result.source["qiskit_version"])
 
     def _new_analysis_result(self, **kwargs):
         """Return a new analysis result."""
