@@ -36,12 +36,12 @@ from qiskit_experiments.analysis.fit_function import cos
 
 
 class DragCalAnalysis(CurveAnalysis):
-    r"""Rough Drag calibration analysis based on a fit to a cosine function.
+    r"""Drag calibration analysis based on a fit to a cosine function.
 
     Analyse a Drag calibration experiment by fitting three series each to a cosine function.
-    The three functions share the phase and baseline parameters but each have their own
-    frequency (which depends on the number of repetitions of xp-xm) and amplitude
-    parameter. Several initial guesses are tried if the user does not provide one.
+    The three functions share the phase parameter but each have their own amplitude, baseline,
+    and frequency parameters (which therefore depend on the number of repetitions of xp-xm).
+    Several initial guesses are tried if the user does not provide one.
 
     .. math::
         y = amp_i \cos\left(2 \pi {\rm freq_i} x - 2 \pi {\rm phase}\right) + {\rm base}_i
@@ -56,13 +56,13 @@ class DragCalAnalysis(CurveAnalysis):
         - :math:`{\rm amp}_i`: The maximum y value less the minimum y value. 0.5 is also tried.
         - :math:`{\rm base}_i`: The average of the data. 0.5 is also tried.
         - :math:`{\rm freq}_i`: The frequency with the highest power spectral density.
-        - :math:`{\rm phase}`: Zero.
+        - :math:`{\rm phase}`: Linearly spaced between the maximum and minimum scanned phase.
 
     Bounds
         - :math:`{\rm amp}_i`: [-2, 2] scaled to the maximum signal value.
         - :math:`{\rm base}_i`: [-1, 1] scaled to the maximum signal value.
         - :math:`{\rm freq}_i`: [0, inf].
-        - :math:`{\rm phase}`: [-pi, pi].
+        - :math:`{\rm phase}`: [-min scan range, max scan range].
 
     """
 
@@ -163,8 +163,6 @@ class DragCalAnalysis(CurveAnalysis):
         else:
             p_guesses = np.linspace(min_beta, max_beta, 20)
 
-        # Drag curves can sometimes be very flat, i.e. averages of y-data
-        # and min-max do not always make good initial guesses.
         user_amps = None
         if all(user_p0["amp" + idx] is not None for idx in ["0", "1", "2"]):
             user_amps = list(user_p0["amp" + idx] for idx in ["0", "1", "2"])
@@ -173,6 +171,9 @@ class DragCalAnalysis(CurveAnalysis):
         if all(user_p0["base" + idx] is not None for idx in ["0", "1", "2"]):
             user_base = list(user_p0["base" + idx] for idx in ["0", "1", "2"])
 
+        # Drag curves can sometimes be very flat, i.e. averages of y-data
+        # and min-max do not always make good initial guesses. We therefore add
+        # 0.5 to the initial guesses.
         guesses = [([0.5] * 3, [0.5] * 3), (amp_guesses, base_guesses)]
 
         if user_amps is not None and user_base is not None:
@@ -203,7 +204,7 @@ class DragCalAnalysis(CurveAnalysis):
                         "freq0": user_bounds["freq0"] or (0, np.inf),
                         "freq1": user_bounds["freq1"] or (0, np.inf),
                         "freq2": user_bounds["freq2"] or (0, np.inf),
-                        "phase": user_bounds["phase"] or (-np.pi, np.pi),
+                        "phase": user_bounds["phase"] or (min_beta, max_beta),
                         "base0": user_bounds["base0"] or (-1 * max_abs_y, 1 * max_abs_y),
                         "base1": user_bounds["base1"] or (-1 * max_abs_y, 1 * max_abs_y),
                         "base2": user_bounds["base2"] or (-1 * max_abs_y, 1 * max_abs_y),
@@ -247,7 +248,7 @@ class DragCalAnalysis(CurveAnalysis):
 class DragCal(BaseExperiment):
     """An experiment that scans the drag parameter to find the optimal value.
 
-    The rough Drag calibration will run several series of circuits. In a given circuit
+    The Drag calibration will run several series of circuits. In a given circuit
     a xp(β) - xm(β) block is repeated :math:`N` times. As example the circuit of a single
     repetition, i.e. :math:`N=1`, is shown below.
 
@@ -261,7 +262,8 @@ class DragCal(BaseExperiment):
 
     Here, the xp gate and the xm gate are intended to be pi and -pi rotations about the
     x-axis of the Bloch sphere. The parameter β is scanned to find the value that minimizes
-    the leakage to the second excited state.
+    the leakage to the second excited state. Note that the analysis class requires this
+    experiment to run with three repetition numbers.
     """
 
     __analysis_class__ = DragCalAnalysis
@@ -277,7 +279,7 @@ class DragCal(BaseExperiment):
     @classmethod
     def _default_experiment_options(cls) -> Options:
         """Default values for the pulse if no schedule is given.
-        Users can set the xm and xp schedules by doing
+        Users can set the xm and xp schedules with
 
         .. code-block::
 
@@ -318,7 +320,7 @@ class DragCal(BaseExperiment):
     def __init__(self, qubit: int):
         """
         Args:
-            qubit: The qubit for which to run the rough Drag calibration.
+            qubit: The qubit for which to run the Drag calibration.
         """
 
         super().__init__([qubit])
