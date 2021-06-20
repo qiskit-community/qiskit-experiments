@@ -349,7 +349,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             fit_reports=None,
             return_data_points=True,
         )
-        result = results[0]
+        result = results[0].data()
 
         self.assertFalse(result["success"])
 
