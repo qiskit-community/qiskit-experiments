@@ -44,24 +44,24 @@ class DragCalAnalysis(CurveAnalysis):
     parameter. Several initial guesses are tried if the user does not provide one.
 
     .. math::
-        y = amp_i \cos\left(2 \pi {\rm freq_i} x - 2 \pi {\rm phase}\right) + {\rm baseline}_i
+        y = amp_i \cos\left(2 \pi {\rm freq_i} x - 2 \pi {\rm phase}\right) + {\rm base}_i
 
     Fit Parameters
-        - :math:`amp_i`: Amplitude of series :math:`i`.
-        - :math:`baseline_i`: Base line of series :math:`i`.
+        - :math:`{\rm amp}_i`: Amplitude of series :math:`i`.
+        - :math:`{\rm base}_i`: Base line of series :math:`i`.
         - :math:`{\rm freq}_i`: Frequency of the :math:`i`th oscillation.
         - :math:`{\rm phase}`: Common phase offset. This is the parameter of interest.
 
     Initial Guesses
-        - :math:`amp_i`: The maximum y value less the minimum y value. 0.5 is also tried.
-        - :math:`baseline_i`: The average of the data. 0.5 is also tried.
+        - :math:`{\rm amp}_i`: The maximum y value less the minimum y value. 0.5 is also tried.
+        - :math:`{\rm base}_i`: The average of the data. 0.5 is also tried.
         - :math:`{\rm freq}_i`: The frequency with the highest power spectral density.
         - :math:`{\rm phase}`: Zero.
 
     Bounds
-        - :math:`a`: [-2, 2] scaled to the maximum signal value.
-        - :math:`b`: [-1, 1] scaled to the maximum signal value.
-        - :math:`{\rm freq}`: [0, inf].
+        - :math:`{\rm amp}_i`: [-2, 2] scaled to the maximum signal value.
+        - :math:`{\rm base}_i`: [-1, 1] scaled to the maximum signal value.
+        - :math:`{\rm freq}_i`: [0, inf].
         - :math:`{\rm phase}`: [-pi, pi].
 
     """
