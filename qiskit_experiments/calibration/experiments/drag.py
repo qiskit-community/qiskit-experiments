@@ -15,7 +15,7 @@
 from typing import Any, Dict, List, Optional, Union
 import numpy as np
 
-from qiskit import QiskitError, QuantumCircuit
+from qiskit import QuantumCircuit
 from qiskit.circuit import Gate, Parameter
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
@@ -26,36 +26,36 @@ from qiskit_experiments.analysis import (
     CurveAnalysis,
     CurveAnalysisResult,
     SeriesDef,
-    fit_function,
     get_opt_value,
     get_opt_error,
 )
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
 from qiskit_experiments.calibration.exceptions import CalibrationError
+from qiskit_experiments.analysis.fit_function import cos
 
 
-class RoughDragAnalysis(CurveAnalysis):
-    r"""Rough Drag calibration analysis class based on a fit to a cosine function.
+class DragCalAnalysis(CurveAnalysis):
+    r"""Rough Drag calibration analysis based on a fit to a cosine function.
 
     Analyse a Drag calibration experiment by fitting three series each to a cosine function.
     The three functions share the phase and baseline parameters but each have their own
     frequency (which depends on the number of repetitions of xp-xm) and amplitude
-    parameter.
+    parameter. Several initial guesses are tried if the user does not provide one.
 
     .. math::
-        y = amp_i \cos\left(2 \pi {\rm freq_i} x - 2 \pi {\rm phase}\right) + baseline
+        y = amp_i \cos\left(2 \pi {\rm freq_i} x - 2 \pi {\rm phase}\right) + {\rm baseline}_i
 
-    Fit Parameters TODO
+    Fit Parameters
         - :math:`amp_i`: Amplitude of series :math:`i`.
-        - :math:`baseline`: Base line.
+        - :math:`baseline_i`: Base line of series :math:`i`.
         - :math:`{\rm freq}_i`: Frequency of the :math:`i`th oscillation.
         - :math:`{\rm phase}`: Common phase offset. This is the parameter of interest.
 
     Initial Guesses
-        - :math:`a`: The maximum y value less the minimum y value.
-        - :math:`b`: The average of the data.
-        - :math:`{\rm freq}`: The frequency with the highest power spectral density.
+        - :math:`amp_i`: The maximum y value less the minimum y value. 0.5 is also tried.
+        - :math:`baseline_i`: The average of the data. 0.5 is also tried.
+        - :math:`{\rm freq}_i`: The frequency with the highest power spectral density.
         - :math:`{\rm phase}`: Zero.
 
     Bounds
@@ -68,108 +68,150 @@ class RoughDragAnalysis(CurveAnalysis):
 
     __series__ = [
         SeriesDef(
-            fit_func=lambda x, amp0, amp1, amp2, freq0, freq1, freq2, phase, b: fit_function.cos(
-                x, amp=amp0, freq=freq0, phase=-2*np.pi*freq0*phase, baseline=b
+            fit_func=lambda x, amp0, amp1, amp2, freq0, freq1, freq2, phase, base0, base1, base2: cos(
+                x, amp=amp0, freq=freq0, phase=-2 * np.pi * freq0 * phase, baseline=base0
             ),
             plot_color="blue",
             name="series-0",
             filter_kwargs={"series": 0},
+            plot_symbol="o",
         ),
         SeriesDef(
-            fit_func=lambda x, amp0, amp1, amp2, freq0, freq1, freq2, phase, b: fit_function.cos(
-                x, amp=amp1, freq=freq1, phase=-2*np.pi*freq1*phase, baseline=b
+            fit_func=lambda x, amp0, amp1, amp2, freq0, freq1, freq2, phase, base0, base1, base2: cos(
+                x, amp=amp1, freq=freq1, phase=-2 * np.pi * freq1 * phase, baseline=base1
             ),
             plot_color="green",
             name="series-1",
             filter_kwargs={"series": 1},
-        )
-        ,
+            plot_symbol="^",
+        ),
         SeriesDef(
-            fit_func=lambda x, amp0, amp1, amp2, freq0, freq1, freq2, phase, b: fit_function.cos(
-                x, amp=amp2, freq=freq2, phase=-2*np.pi*freq2*phase, baseline=b
+            fit_func=lambda x, amp0, amp1, amp2, freq0, freq1, freq2, phase, base0, base1, base2: cos(
+                x, amp=amp2, freq=freq2, phase=-2 * np.pi * freq2 * phase, baseline=base2
             ),
             plot_color="red",
             name="series-2",
             filter_kwargs={"series": 2},
-        )
+            plot_symbol="v",
+        ),
     ]
-
-    __colors__ = ["blue", "green", "red", "purple", "black"]
 
     @classmethod
     def _default_options(cls):
         """Return the default analysis options.
+
         See :meth:`~qiskit_experiment.analysis.CurveAnalysis._default_options` for
         descriptions of analysis options.
-        TODO
         """
         default_options = super()._default_options()
         default_options.p0 = {
-            "amp0": None, "amp1": None, "amp2": None, "freq0": None, "freq1": None, "freq2": None, "phase": None, "b": None}
-        default_options.bounds = {"amp0": None, "amp1": None, "amp2": None, "freq0": None, "freq1": None, "freq2": None, "phase": None, "b": None}
+            "amp0": None,
+            "amp1": None,
+            "amp2": None,
+            "freq0": None,
+            "freq1": None,
+            "freq2": None,
+            "phase": None,
+            "base0": None,
+            "base1": None,
+            "base2": None,
+        }
+        default_options.bounds = {
+            "amp0": None,
+            "amp1": None,
+            "amp2": None,
+            "freq0": None,
+            "freq1": None,
+            "freq2": None,
+            "phase": None,
+            "base0": None,
+            "base1": None,
+            "base2": None,
+        }
         default_options.fit_reports = {"phase": "phase"}
         default_options.xlabel = "Beta"
         default_options.ylabel = "Signal (arb. units)"
 
         return default_options
 
-    def _setup_fitting(self, reps: list, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
-        """
-
-        :param options:
-        :return:
-        """
-
+    def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+        """Compute the initial guesses."""
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
 
-        max_abs_y = np.max(np.abs(self._data().y))
-
         # Use a fast Fourier transform to guess the frequency.
-        delta_beta = self._data("series-0").x[1] - self._data("series-0").x[0]
+        x_data = self._data("series-0").x
+        delta_beta = x_data[1] - x_data[0]
 
-        b_guess = np.average(self._data("series-0").y)
+        min_beta, max_beta = min(x_data), max(x_data)
 
         freq_guess = []
-        amp_guess = []
+        amp_guesses = []
+        base_guesses = []
         for series in ["series-0", "series-1", "series-2"]:
             y_data = self._data(series).y
             fft = np.abs(np.fft.fft(y_data - np.average(y_data)))
             freqs = np.linspace(0.0, 1.0 / (2.0 * delta_beta), len(fft))
             freq_guess.append(freqs[np.argmax(fft[0 : len(fft) // 2])])
-            amp_guess.append(np.max(y_data) - np.min(y_data) - b_guess)
+
+            b_guess = np.average(y_data)
+            amp_guesses.append(np.max(y_data) - np.min(y_data) - b_guess)
+            base_guesses.append(b_guess)
 
         if user_p0["phase"] is not None:
             p_guesses = [user_p0["phase"]]
         else:
-            p_guesses = [0, np.pi / 4, np.pi / 2, 3 * np.pi / 4, np.pi]
+            p_guesses = np.linspace(min_beta, max_beta, 20)
+
+        # Drag curves can sometimes be very flat, i.e. averages of y-data
+        # and min-max do not always make good initial guesses.
+        user_amps = None
+        if all(user_p0["amp" + idx] is not None for idx in ["0", "1", "2"]):
+            user_amps = list(user_p0["amp" + idx] for idx in ["0", "1", "2"])
+
+        user_base = None
+        if all(user_p0["base" + idx] is not None for idx in ["0", "1", "2"]):
+            user_base = list(user_p0["base" + idx] for idx in ["0", "1", "2"])
+
+        guesses = [([0.5] * 3, [0.5] * 3), (amp_guesses, base_guesses)]
+
+        if user_amps is not None and user_base is not None:
+            guesses.append((user_amps, user_base))
+
+        max_abs_y = np.max(np.abs(self._data().y))
 
         fit_options = []
-        for p_guess in p_guesses:
-            fit_option = {
-                "p0": {
-                    "amp0": user_p0["amp0"] or amp_guess[0],
-                    "amp1": user_p0["amp1"] or amp_guess[1],
-                    "amp2": user_p0["amp2"] or amp_guess[2],
-                    "freq0": user_p0["freq0"] or freq_guess[0],
-                    "freq1": user_p0["freq1"] or freq_guess[1],
-                    "freq2": user_p0["freq2"] or freq_guess[2],
-                    "phase": p_guess,
-                    "b": user_p0["b"] or b_guess,
-                },
-                "bounds": {
-                    "amp0": user_bounds["amp0"] or (-2 * max_abs_y, 2 * max_abs_y),
-                    "amp1": user_bounds["amp1"] or (-2 * max_abs_y, 2 * max_abs_y),
-                    "amp2": user_bounds["amp2"] or (-2 * max_abs_y, 2 * max_abs_y),
-                    "freq0": user_bounds["freq0"] or (0, np.inf),
-                    "freq1": user_bounds["freq1"] or (0, np.inf),
-                    "freq2": user_bounds["freq2"] or (0, np.inf),
-                    "phase": user_bounds["phase"] or (-np.pi, np.pi),
-                    "b": user_bounds["b"] or (-1 * max_abs_y, 1 * max_abs_y),
-                },
-            }
-            fit_option.update(options)
-            fit_options.append(fit_option)
+        for amp_guess, b_guess in guesses:
+            for p_guess in p_guesses:
+                fit_option = {
+                    "p0": {
+                        "amp0": amp_guess[0],
+                        "amp1": amp_guess[1],
+                        "amp2": amp_guess[2],
+                        "freq0": user_p0["freq0"] or freq_guess[0],
+                        "freq1": user_p0["freq1"] or freq_guess[1],
+                        "freq2": user_p0["freq2"] or freq_guess[2],
+                        "phase": p_guess,
+                        "base0": b_guess[0],
+                        "base1": b_guess[1],
+                        "base2": b_guess[2],
+                    },
+                    "bounds": {
+                        "amp0": user_bounds["amp0"] or (-2 * max_abs_y, 2 * max_abs_y),
+                        "amp1": user_bounds["amp1"] or (-2 * max_abs_y, 2 * max_abs_y),
+                        "amp2": user_bounds["amp2"] or (-2 * max_abs_y, 2 * max_abs_y),
+                        "freq0": user_bounds["freq0"] or (0, np.inf),
+                        "freq1": user_bounds["freq1"] or (0, np.inf),
+                        "freq2": user_bounds["freq2"] or (0, np.inf),
+                        "phase": user_bounds["phase"] or (-np.pi, np.pi),
+                        "base0": user_bounds["base0"] or (-1 * max_abs_y, 1 * max_abs_y),
+                        "base1": user_bounds["base1"] or (-1 * max_abs_y, 1 * max_abs_y),
+                        "base2": user_bounds["base2"] or (-1 * max_abs_y, 1 * max_abs_y),
+                    },
+                }
+
+                fit_option.update(options)
+                fit_options.append(fit_option)
 
         return fit_options
 
@@ -177,13 +219,32 @@ class RoughDragAnalysis(CurveAnalysis):
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
-            - TODO
+            - a reduced chi-squared lower than three,
+            - a drag parameter value contained in the range of x-values, and
+            - an error on the drag beta smaller than the beta.
         """
-        analysis_result["quality"] = "computer_bad"
+
+        fit_beta = get_opt_value(analysis_result, "phase")
+        fit_beta_err = get_opt_error(analysis_result, "phase")
+
+        x_data = self._data("series-0").x
+        min_x, max_x = min(x_data), max(x_data)
+
+        criteria = [
+            analysis_result["reduced_chisq"] < 3,
+            min_x <= fit_beta <= max_x,
+            fit_beta_err < abs(fit_beta),
+        ]
+
+        if all(criteria):
+            analysis_result["quality"] = "computer_good"
+        else:
+            analysis_result["quality"] = "computer_bad"
 
         return analysis_result
 
-class RoughDrag(BaseExperiment):
+
+class DragCal(BaseExperiment):
     """An experiment that scans the drag parameter to find the optimal value.
 
     The rough Drag calibration will run several series of circuits. In a given circuit
@@ -203,7 +264,7 @@ class RoughDrag(BaseExperiment):
     the leakage to the second excited state.
     """
 
-    __analysis_class__ = RoughDragAnalysis
+    __analysis_class__ = DragCalAnalysis
 
     @classmethod
     def _default_run_options(cls) -> Options:
@@ -216,9 +277,11 @@ class RoughDrag(BaseExperiment):
     @classmethod
     def _default_experiment_options(cls) -> Options:
         """Default values for the pulse if no schedule is given.
-        Users can set a schedule by doing
+        Users can set the xm and xp schedules by doing
+
         .. code-block::
-            rabi.set_experiment_options(schedule=rabi_schedule)
+
+            drag.set_experiment_options(xp=xp_schedule, xm=xm_schedule)
         """
         options = super()._default_experiment_options()
 
@@ -228,9 +291,29 @@ class RoughDrag(BaseExperiment):
         options.duration = 160
         options.sigma = 40
         options.reps = [1, 3, 5]
-        options.betas = np.linspace(0, 10, 51)
+        options.betas = np.linspace(-5, 5, 51)
 
         return options
+
+    # pylint: disable=arguments-differ
+    def set_experiment_options(self, reps: Optional[List] = None, **fields):
+        """Raise if reps has a length different from three.
+
+        Raises:
+            CalibrationError: if the number of repetitions is different from three.
+        """
+
+        if reps is None:
+            reps = [1, 3, 5]
+
+        if len(reps) != 3:
+            raise CalibrationError(
+                "As longs as analysis series cannot be dynamically updated "
+                f"{self.__class__.__name__} must use exactly three repetition numbers. "
+                f"Received {reps} with length {len(reps)} != 3."
+            )
+
+        super().set_experiment_options(reps=reps, **fields)
 
     def __init__(self, qubit: int):
         """
@@ -241,13 +324,13 @@ class RoughDrag(BaseExperiment):
         super().__init__([qubit])
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
-        """Create the circuits for the rough Drag calibration.
+        """Create the circuits for the Drag calibration.
 
         Args:
             backend: A backend object.
 
         Returns:
-            circuits: The circuits that will run the rough Drag calibration.
+            circuits: The circuits that will run the Drag calibration.
 
         Raises:
             CalibrationError:
@@ -255,13 +338,12 @@ class RoughDrag(BaseExperiment):
                 - If either the xp or xm pulse do not have at least one Drag pulse.
                 - If the number of different repetition series is not three.
         """
-        # TODO this is temporarily logic. Need update of circuit data and processor logic.
+        # TODO this is temporarily logic.
         self.set_analysis_options(
             data_processor=get_to_signal_processor(
                 meas_level=self.run_options.meas_level,
                 meas_return=self.run_options.meas_return,
             ),
-            reps=self.experiment_options.reps
         )
 
         xm = self.experiment_options.xm
@@ -277,7 +359,7 @@ class RoughDrag(BaseExperiment):
                         sigma=self.experiment_options.sigma,
                         beta=beta,
                     ),
-                    pulse.drive_channel(self._physical_qubits[0])
+                    pulse.DriveChannel(self._physical_qubits[0]),
                 )
 
             with pulse.build(backend=backend, name="xm") as xm:
@@ -288,7 +370,7 @@ class RoughDrag(BaseExperiment):
                         sigma=self.experiment_options.sigma,
                         beta=beta,
                     ),
-                    pulse.drive_channel(self._physical_qubits[0])
+                    pulse.DriveChannel(self._physical_qubits[0]),
                 )
 
         # Now check that we are dealing with Drag pulses.
@@ -343,10 +425,10 @@ class RoughDrag(BaseExperiment):
                 circuit.add_calibration("xm", (self.physical_qubits[0],), xm_, params=[beta])
 
                 circuit.metadata = {
-                "experiment_type": self._type,
-                "qubit": self.physical_qubits[0],
-                "xval": beta,
-                "series": idx
+                    "experiment_type": self._type,
+                    "qubit": self.physical_qubits[0],
+                    "xval": beta,
+                    "series": idx,
                 }
 
                 circuits.append(circuit)

@@ -1,0 +1,102 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright IBM 2021.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+
+"""Test drag calibration experiment."""
+
+from qiskit.test import QiskitTestCase
+from qiskit.circuit import Parameter
+from qiskit.pulse import DriveChannel, Drag
+import qiskit.pulse as pulse
+
+from qiskit_experiments.calibration.exceptions import CalibrationError
+from qiskit_experiments.calibration.experiments.drag import DragCal
+from qiskit_experiments.test.mock_iq_backend import DragBackend
+
+
+class TestDragEndToEnd(QiskitTestCase):
+    """Test the drag experiment."""
+
+    def setUp(self):
+        """Setup some schedules."""
+        super().setUp()
+
+        beta = Parameter("β")
+
+        with pulse.build(name="xp") as xp:
+            pulse.play(Drag(duration=160, amp=0.208519, sigma=40, beta=beta), DriveChannel(0))
+
+        with pulse.build(name="xm") as xm:
+            pulse.play(Drag(duration=160, amp=-0.208519, sigma=40, beta=beta), DriveChannel(0))
+
+        self.x_minus = xm
+        self.x_plus = xp
+
+    def test_end_to_end(self):
+        """Test the drag experiment end to end."""
+
+        test_tol = 0.02
+        backend = DragBackend()
+
+        drag = DragCal(3)
+
+        drag.set_experiment_options(xp=self.x_plus, xm=self.x_minus)
+        result = drag.run(backend).analysis_result(0)
+
+        self.assertTrue(abs(result["popt"][6] - backend.ideal_beta) < test_tol)
+        self.assertEqual(result["quality"], "computer_good")
+
+        # Small leakage will make the curves very flat.
+        backend = DragBackend(leakage=0.005)
+
+        drag = DragCal(3)
+        drag.set_experiment_options(xp=self.x_plus, xm=self.x_minus)
+        result = drag.run(backend).analysis_result(0)
+
+        self.assertTrue(abs(result["popt"][6] - backend.ideal_beta) < test_tol)
+        self.assertEqual(result["quality"], "computer_good")
+
+        # Large leakage will make the curves oscillate quickly.
+        backend = DragBackend(leakage=0.05)
+
+        drag = DragCal(3)
+        drag.set_experiment_options(xp=self.x_plus, xm=self.x_minus)
+        result = drag.run(backend).analysis_result(0)
+
+        self.assertTrue(abs(result["popt"][6] - backend.ideal_beta) < test_tol)
+        self.assertEqual(result["quality"], "computer_good")
+
+
+class TestDragCircuits(QiskitTestCase):
+    """Test the circuits of the drag calibration."""
+
+    def test_default_circuits(self):
+        """Test the default circuit."""
+
+        drag = DragCal(2)
+        drag.set_experiment_options(reps=[2, 4, 8])
+        circuits = drag.circuits(DragBackend())
+
+        for idx, expected in enumerate([4, 8, 16]):
+            ops = circuits[idx].count_ops()
+            self.assertEqual(ops["xp"] + ops["xm"], expected)
+
+
+class TestDragOptions(QiskitTestCase):
+    """Test non-trivial options."""
+
+    def test_reps(self):
+        """Test that setting reps raises and error if reps is not of length three."""
+
+        drag = DragCal(2)
+
+        with self.assertRaises(CalibrationError):
+            drag.set_experiment_options(reps=[1, 2, 3, 4])

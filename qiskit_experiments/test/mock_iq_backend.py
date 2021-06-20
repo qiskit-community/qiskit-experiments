@@ -173,7 +173,7 @@ class DragBackend(IQTestBackend):
         iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
         iq_cluster_width: float = 1.0,
         leakage: float = 0.03,
-        ideal_beta = 2.0,
+        ideal_beta=2.0,
     ):
         """Initialize the rabi backend."""
         self._leakage = leakage
@@ -185,6 +185,6 @@ class DragBackend(IQTestBackend):
         """Returns the probability based on the beta, number of gates, and leakage."""
         n_gates = sum(circuit.count_ops().values())
 
-        beta = next(iter(circuit.calibrations['xp'].keys()))[1][0]
+        beta = next(iter(circuit.calibrations["xp"].keys()))[1][0]
 
         return np.sin(n_gates * self._leakage * (beta - self.ideal_beta)) ** 2
