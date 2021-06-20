@@ -195,16 +195,18 @@ class QVAnalysis(BaseAnalysis):
         """
         quantum_volume = 1
         success = False
-        confidence_level_threshold = self._calc_confidence_level(z_value=2)
-        mean_hop = np.mean(heavy_output_prob_exp)
-        sigma_hop = mean_hop * ((1.0 - mean_hop) / trials) ** 0.5
 
+        mean_hop = np.mean(heavy_output_prob_exp)
+        sigma_hop = (mean_hop * ((1.0 - mean_hop) / trials)) ** 0.5
+        z = 2
+        threshold = 2 / 3 + z * sigma_hop
+        # confidence_level_threshold = self._calc_confidence_level(z_value=2)
         z_value = self._calc_z_value(mean_hop, sigma_hop)
         confidence_level = self._calc_confidence_level(z_value)
         # Must have at least 100 trials
         if trials < 100:
             warnings.warn("Must use at least 100 trials to consider Quantum Volume as successful.")
-        if mean_hop > 2 / 3 and confidence_level > confidence_level_threshold and trials >= 100:
+        if mean_hop > threshold and trials >= 100:
             quantum_volume = 2 ** depth
             success = True
 
