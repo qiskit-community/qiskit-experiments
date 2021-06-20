@@ -139,7 +139,7 @@ class T2StarAnalysis(BaseAnalysis):
             experiment_id=experiment_data.experiment_id,
             quality=result_data["quality"],
         )
-        
+
         return [analysis_result], figures
 
     def _t2star_default_params(

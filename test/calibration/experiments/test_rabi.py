@@ -72,9 +72,9 @@ class TestRabiEndToEnd(QiskitTestCase):
 
         self.assertEqual(result.quality, "computer_good")
         self.assertTrue(abs(result_data["popt"][1] - backend.rabi_rate) < test_tol)
-        
+
         backend = RabiBackend(amplitude_to_angle=np.pi / 2)
-        
+
         rabi = Rabi(3)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         expdata = rabi.run(backend)

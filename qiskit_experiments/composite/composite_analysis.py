@@ -72,14 +72,14 @@ class CompositeAnalysis(BaseAnalysis):
             sub_qubits.append(expdata.experiment.physical_qubits)
 
         analysis_result = AnalysisResultV1(
-                result_data={
-                    "experiment_types": sub_types,
-                    "experiment_ids": sub_ids,
-                    "experiment_qubits": sub_qubits,
-                    },
-                result_type="composite",
-                device_components=[Qubit(qidx) for qidx in sub_qubits],
-                experiment_id=experiment_data.experiment_id,
-            )
-        
+            result_data={
+                "experiment_types": sub_types,
+                "experiment_ids": sub_ids,
+                "experiment_qubits": sub_qubits,
+            },
+            result_type="composite",
+            device_components=[Qubit(qidx) for qidx in sub_qubits],
+            experiment_id=experiment_data.experiment_id,
+        )
+
         return [analysis_result], None
