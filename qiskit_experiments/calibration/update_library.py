@@ -48,7 +48,7 @@ class BaseUpdater(ABC):
         value: ParameterValueType,
         param: Union[Parameter, str],
         schedule: Union[ScheduleBlock, str] = None,
-        group: str = "default"
+        group: str = "default",
     ):
         """Update the calibrations with the given value.
 
@@ -123,7 +123,7 @@ class Frequency(BaseUpdater):
         param = parameter
         value = result["popt"][result["popt_keys"].index("freq")]
 
-        BaseUpdater._update(exp_data, calibrations, value, param, group)
+        BaseUpdater._update(exp_data, calibrations, value, param, schedule=None, group=group)
 
 
 class Amplitude(BaseUpdater):
@@ -169,6 +169,6 @@ class Amplitude(BaseUpdater):
             for angle, param, schedule in angles_schedules:
                 value = np.round(angle / rate, decimals=8)
 
-                BaseUpdater._update(exp_data, calibrations, value, param, group)
+                BaseUpdater._update(exp_data, calibrations, value, param, schedule, group)
         else:
             raise CalibrationError(f"{cls.__name__} updates from {type(Rabi.__name__)}.")
