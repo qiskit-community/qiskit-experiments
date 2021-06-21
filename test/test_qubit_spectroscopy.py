@@ -13,6 +13,7 @@
 """Spectroscopy tests."""
 
 from typing import Tuple
+from test.mock_iq_backend import MockIQBackend
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -21,7 +22,6 @@ from qiskit.test import QiskitTestCase
 
 from qiskit_experiments.characterization.qubit_spectroscopy import QubitSpectroscopy
 from qiskit_experiments.analysis import get_opt_value
-from test.mock_iq_backend import MockIQBackend
 
 
 class SpectroscopyBackend(MockIQBackend):
