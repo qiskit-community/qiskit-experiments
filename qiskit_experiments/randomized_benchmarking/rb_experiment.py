@@ -193,10 +193,8 @@ class RBExperiment(BaseExperiment):
         return super().run(backend, analysis, experiment_data, **run_options)
 
     def _postprocess_transpiled_circuits(self, circuits):
-        count_ops = []
         for c in circuits:
             c_count_ops = RBUtils.count_ops(c, self.physical_qubits)
             circuit_length = c.metadata["xval"]
-            count_ops += [(key, value / circuit_length) for key, value in c_count_ops.items()]
-        gates_per_clifford = RBUtils.gates_per_clifford(count_ops)
-        self.set_analysis_options(gates_per_clifford=gates_per_clifford)
+            average_count_ops = [(key, value / circuit_length) for key, value in c_count_ops.items()]
+            c.metadata.update({"count_ops": average_count_ops})

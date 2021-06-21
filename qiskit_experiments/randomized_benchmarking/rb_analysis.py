@@ -88,7 +88,6 @@ class RBAnalysis(CurveAnalysis):
         default_options.xlabel = "Clifford Length"
         default_options.ylabel = "P(0)"
         default_options.fit_reports = {"alpha": "\u03B1", "EPC": "EPC"}
-        default_options.gates_per_clifford = None
         default_options.backend = None
         default_options.epg_1_qubit = None
 
@@ -164,10 +163,14 @@ class RBAnalysis(CurveAnalysis):
         analysis_result["EPC_err"] = scale * alpha_err / alpha
 
         # Add EPG data
+        count_ops = []
+        for meta in self._data(label="raw_data").metadata:
+            count_ops += meta['count_ops']
+        gates_per_clifford = RBUtils.gates_per_clifford(count_ops)
+
         num_qubits = len(self._physical_qubits)
         backend = self._get_option("backend")
         if num_qubits in [1, 2]:
-            gates_per_clifford = self._get_option("gates_per_clifford")
             if num_qubits == 1:
                 epg = RBUtils.calculate_1q_epg(
                     analysis_result["EPC"],
