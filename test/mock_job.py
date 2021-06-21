@@ -15,14 +15,19 @@
 Mock Job class for test backends
 """
 import uuid
-from qiskit.providers import BaseJob, JobStatus
+from qiskit.providers import JobV1 as Job
+from qiskit.providers import JobStatus
+from qiskit.result import Result
 
 
-class MockJob(BaseJob):
+class MockJob(Job):
     """Mock Job class for tests"""
 
     def __init__(self, backend, result):
-        self._result = result
+        if isinstance(result, dict):
+            self._result = Result.from_dict(result)
+        else:
+            self._result = result
         super().__init__(backend, str(uuid.uuid4()))
 
     def submit(self):

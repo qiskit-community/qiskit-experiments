@@ -26,10 +26,10 @@ from qiskit_experiments import ExperimentData
 from qiskit_experiments.calibration.experiments.rabi import RabiAnalysis, Rabi
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
-from qiskit_experiments.test.mock_iq_backend import IQTestBackend
+from test.mock_iq_backend import MockIQBackend
 
 
-class RabiBackend(IQTestBackend):
+class RabiBackend(MockIQBackend):
     """A simple and primitive backend, to be run by the Rabi tests."""
 
     def __init__(
