@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-A test for RB analysis. Using pre-Generated data from the code rb_generate_data.py
+A test for RB analysis. Using pre-Generated data from rb_generate_data.py.
 """
 import unittest
 import os
@@ -25,6 +25,7 @@ class TestRBAnalysis(QiskitTestCase):
     """
     A test for the analysis of the RB experiment
     """
+
     def _load_rb_data(self):
         """
         loader for the experiment data and configuration setup.
