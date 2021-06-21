@@ -205,21 +205,19 @@ class TestT2Star(QiskitTestCase):
                 exp.set_analysis_options(shots=2000)
                 expdata = exp.run(backend=backend)
                 result = expdata.analysis_result(0)
-                
-                result = expdata.analysis_result(0)
                 self.assertAlmostEqual(
                     result["t2star_value"],
                     estimated_t2star * dt_factor,
                     delta=3 * dt_factor,
-                    )
+                )
                 self.assertAlmostEqual(
                     result["frequency_value"],
                     estimated_freq / dt_factor,
                     delta=3 / dt_factor,
-                    )
+                )
                 self.assertEqual(
                     result["quality"], "computer_good", "Result quality bad for unit " + str(unit)
-                    )
+                )
 
     def test_t2star_parallel(self):
         """
@@ -294,9 +292,7 @@ class TestT2Star(QiskitTestCase):
         )
 
         # run circuits
-        expdata1 = exp1.run(
-            backend=backend
-        )
+        expdata1 = exp1.run(backend=backend)
 
         # second experiment
         delays2 = list(range(2, 65, 2))
