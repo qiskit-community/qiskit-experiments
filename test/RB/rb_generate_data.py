@@ -28,33 +28,55 @@ def create_depolarizing_noise_model():
     Returns:
         NoiseModel: depolarizing error noise model
     """
+    # the error parameters were took from ibmq_manila on 17 june 2021
+    p1q = 0.002257
+    p2q = 0.006827
     noise_model = NoiseModel()
-    p1q = 0.002
-    p2q = 0.01
     noise_model.add_all_qubit_quantum_error(depolarizing_error(p1q, 1), "x")
     noise_model.add_all_qubit_quantum_error(depolarizing_error(p1q, 1), "sx")
-    noise_model.add_all_qubit_quantum_error(depolarizing_error(p1q, 1), "rz ")
     noise_model.add_all_qubit_quantum_error(depolarizing_error(p2q, 2), "cx")
     return noise_model
 
 
-def generate_rb_fitter_data_1(results_file_path: str):
+def standard_rb_exp_data_gen(dir_name: str):
+    """
+    Encapsulation for different experiments attributes which in turn execute.
+    The data and analysis is saved to json file via "_generate_rb_fitter_data" function.
+    Args:
+        dir_name(str): The directory which the program will save the data and anaysis.
+    """
+    rb_exp_name = ["rb_standard_1qubit", "rb_standard_2qubits"]
+    experiments_attributes = [
+        {
+            "qubits": [0],
+            "lengths": list(range(1, 200, 20)),
+            "num_samples": 2,
+            "seed": 100,
+        },
+        {
+            "qubits": [0, 1],
+            "lengths": list(range(1, 200, 20)),
+            "num_samples": 2,
+            "seed": 100,
+        },
+    ]
+    for idx, experiment_attributes in enumerate(experiments_attributes):
+        _generate_rb_fitter_data(dir_name, rb_exp_name[idx], experiment_attributes)
+
+
+def _generate_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes: dict):
     """
     Executing standard RB experiment and storing its data in json format.
     The json is composed of a list that the first element is a dictionary containing
     the experiment attributes and the second element is a list with all the experiment
     data.
     Args:
-        results_file_path(str): The json file path that the program write the data to.
+        dir_name: The json file name that the program write the data to.
+        rb_exp_name: The experiment name for naming the output files.
+        exp_attributes: attributes to config the RB experiment.
     """
-    results_file_path = os.path.join(DIRNAME, "rb_output_data1.json")
-    analysis_file_path = os.path.join(DIRNAME, "rb_output_analysis1.json")
-    exp_attributes = {
-        "qubits": [0, 1],
-        "lengths": list(range(1, 200, 20)),
-        "num_samples": 2,
-        "seed": 100,
-    }
+    results_file_path = os.path.join(dir_name, str(rb_exp_name + "_output_data.json"))
+    analysis_file_path = os.path.join(dir_name, str(rb_exp_name + "_output_analysis.json"))
     noise_model = create_depolarizing_noise_model()
     backend = QasmSimulator()
     rb = qe.randomized_benchmarking
@@ -67,8 +89,7 @@ def generate_rb_fitter_data_1(results_file_path: str):
     experiment_obj = rb_exp.run(backend, noise_model=noise_model)
     exp_results = experiment_obj.data()
     with open(results_file_path, "w") as json_file:
-        joined_list_data = [exp_attributes]
-        joined_list_data.append(exp_results)
+        joined_list_data = [exp_attributes, exp_results]
         json_file.write(json.dumps(joined_list_data))
     _analysis_save(experiment_obj._analysis_results, analysis_file_path)
 
@@ -95,6 +116,6 @@ def _analysis_save(analysis_data: list, analysis_file_path: str):
 DIRNAME = os.path.dirname(os.path.abspath(__file__))
 for rb_type in sys.argv[1:]:
     if rb_type == "standard":
-        generate_rb_fitter_data_1(DIRNAME)
+        standard_rb_exp_data_gen(DIRNAME)
     else:
         print("Skipping unknown argument " + rb_type)
