@@ -39,7 +39,7 @@ class T2starBackend(BackendV1):
         """
         Initialize the T2star backend
         """
-
+        dt_factor_in_ns = dt_factor * 1e9 if dt_factor is not None else None
         configuration = QasmBackendConfiguration(
             backend_name="t2star_simulator",
             backend_version="0",
@@ -53,7 +53,7 @@ class T2starBackend(BackendV1):
             memory=False,
             max_shots=int(1e6),
             coupling_map=None,
-            dt=dt_factor,
+            dt=dt_factor_in_ns,
         )
 
         self._t2star = p0["t2star"]
@@ -205,9 +205,21 @@ class TestT2Star(QiskitTestCase):
                 exp.set_analysis_options(shots=2000)
                 expdata = exp.run(backend=backend)
                 result = expdata.analysis_result(0)
+                
+                result = expdata.analysis_result(0)
+                self.assertAlmostEqual(
+                    result["t2star_value"],
+                    estimated_t2star * dt_factor,
+                    delta=3 * dt_factor,
+                    )
+                self.assertAlmostEqual(
+                    result["frequency_value"],
+                    estimated_freq / dt_factor,
+                    delta=3 / dt_factor,
+                    )
                 self.assertEqual(
                     result["quality"], "computer_good", "Result quality bad for unit " + str(unit)
-                )
+                    )
 
     def test_t2star_parallel(self):
         """
@@ -233,6 +245,13 @@ class TestT2Star(QiskitTestCase):
         res = par_exp.run(backend=backend, shots=1000)
 
         for i in range(2):
+            sub_res = res.component_experiment_data(i).analysis_result(0)
+            self.assertAlmostEqual(sub_res["t2star_value"], t2star[i], delta=3)
+            self.assertAlmostEqual(
+                sub_res["frequency_value"],
+                estimated_freq[i],
+                delta=3,
+            )
             sub_res = res.component_experiment_data(i).analysis_result(0)
             self.assertEqual(
                 sub_res["quality"],
