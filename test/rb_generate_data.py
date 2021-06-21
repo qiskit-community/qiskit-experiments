@@ -16,10 +16,10 @@ Code for generating data for the RB experiment for testing data analysis.
 import os
 import sys
 import json
-import qiskit_experiments as qe
 from qiskit.providers.aer import QasmSimulator
 from qiskit.providers.aer.noise import NoiseModel
 from qiskit.providers.aer.noise.errors.standard_errors import depolarizing_error
+import qiskit_experiments as qe
 
 
 def create_depolarizing_noise_model():
