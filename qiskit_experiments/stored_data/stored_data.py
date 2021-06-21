@@ -40,6 +40,7 @@ from .utils import (
     ThreadSafeOrderedDict,
     ThreadSafeList,
 )
+from .experiment_service import ExperimentServiceV1
 
 LOG = logging.getLogger(__name__)
 
@@ -360,28 +361,29 @@ class StoredDataV1(StoredData):
     @auto_save
     def add_figures(
         self,
-        figures: Union[List[Union[str, bytes, "pyplot.Figure"]], str, bytes, "pyplot.Figure"],
-        figure_names: Optional[Union[List[str], str]] = None,
-        overwrite: bool = False,
-        save_figure: Optional[bool] = None,
-        service: Optional["ExperimentServiceV1"] = None,
-    ) -> Union[str, List[str]]:
+        figures,
+        figure_names=None,
+        overwrite=False,
+        save_figure=None,
+        service=None,
+    ):
         """Add the experiment figure.
 
         Args:
-            figures: Names of the figure files or figure data.
-            figure_names: Names of the figures. If ``None``, use the figure file
+            figures (str or bytes or matplotlib.pyplot.Figure): Names of the
+                figure files or figure data.
+            figure_names (list or str): Names of the figures. If ``None``, use the figure file
                 names, if given, or a generated name. If `figures` is a list, then
                 `figure_names` must also be a list of the same length or ``None``.
-            overwrite: Whether to overwrite the figure if one already exists with
+            overwrite (bool): Whether to overwrite the figure if one already exists with
                 the same name.
-            save_figure: Whether to save the figure in the database. If ``None``,
+            save_figure (bool): Whether to save the figure in the database. If ``None``,
                 the ``auto-save`` attribute is used.
-            service: Experiment service to be used to update the database, if
-                the figure is to be uploaded. If ``None``, the default service is used.
+            service (ExperimentServiceV1): Experiment service to be used to update the database,
+                if the figure is to be uploaded. If ``None``, the default service is used.
 
         Returns:
-            Figure names.
+            list or str: Figure names.
 
         Raises:
             ExperimentEntryExists: If the figure with the same name already exists,
@@ -458,7 +460,7 @@ class StoredDataV1(StoredData):
     def delete_figure(
         self,
         figure_key: Union[str, int],
-        service: Optional["ExperimentServiceV1"] = None,
+        service: Optional[ExperimentServiceV1] = None,
     ) -> str:
         """Add the experiment figure.
 
@@ -529,7 +531,7 @@ class StoredDataV1(StoredData):
     def add_analysis_results(
         self,
         results: Union[AnalysisResult, List[AnalysisResult]],
-        service: "ExperimentServiceV1" = None,
+        service: ExperimentServiceV1 = None,
     ) -> None:
         """Save the analysis result.
 
@@ -554,7 +556,7 @@ class StoredDataV1(StoredData):
 
     @auto_save
     def delete_analysis_result(
-        self, result_key: Union[int, str], service: "ExperimentServiceV1" = None
+        self, result_key: Union[int, str], service: ExperimentServiceV1 = None
     ) -> str:
         """Delete the analysis result.
 
@@ -626,12 +628,12 @@ class StoredDataV1(StoredData):
 
         raise TypeError(f"Invalid index type {type(index)}.")
 
-    def save(self, service: Optional["ExperimentServiceV1"] = None) -> None:
+    def save(self, service: Optional[ExperimentServiceV1] = None) -> None:
         """Save this experiment in the database.
 
         Note:
             Not all experiment properties are saved.
-            See :meth:`qiskit.providers.experiment.ExperimentServiceV1.create_experiment`
+            See :meth:`qiskit_experiments.stored_data.ExperimentServiceV1.create_experiment`
             for fields that are saved.
 
         Note:
@@ -673,7 +675,7 @@ class StoredDataV1(StoredData):
             update_data=update_data,
         )
 
-    def save_all(self, service: Optional["ExperimentServiceV1"] = None) -> None:
+    def save_all(self, service: Optional[ExperimentServiceV1] = None) -> None:
         """Save this experiment and its analysis results and figures in the database.
 
         Note:
@@ -990,7 +992,7 @@ class StoredDataV1(StoredData):
             self.save()
 
     @property
-    def service(self) -> Optional["ExperimentServiceV1"]:
+    def service(self) -> Optional[ExperimentServiceV1]:
         """Return the database service.
 
         Returns:
@@ -999,7 +1001,7 @@ class StoredDataV1(StoredData):
         return self._service
 
     @service.setter
-    def service(self, service: "ExperimentServiceV1") -> None:
+    def service(self, service: ExperimentServiceV1) -> None:
         """Set the service to be used for storing experiment data.
 
         Args:
