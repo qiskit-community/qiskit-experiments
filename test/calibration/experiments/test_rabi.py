@@ -121,7 +121,7 @@ class TestRabiEndToEnd(QiskitTestCase):
 
         self.assertEqual(len(cals.parameters_table()), 0)
 
-        Amplitude().update(exp_data, cals, angles_schedules=to_update)
+        Amplitude.update(exp_data, cals, angles_schedules=to_update)
 
         with self.assertRaises(CalibrationError):
             cals.get_schedule("xp", qubits=0)

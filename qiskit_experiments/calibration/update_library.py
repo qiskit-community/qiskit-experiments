@@ -17,6 +17,7 @@ from datetime import datetime
 from typing import List, Tuple, Union
 import numpy as np
 
+from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.experiment_data import ExperimentData
@@ -24,17 +25,11 @@ from qiskit_experiments.calibration.backend_calibrations import BackendCalibrati
 from qiskit_experiments.calibration.calibrations import Calibrations
 from qiskit_experiments.calibration.parameter_value import ParameterValue
 from qiskit_experiments.calibration.exceptions import CalibrationError
+from qiskit_experiments.calibration.calibration_key_types import ParameterValueType
 
 
 class BaseUpdater(ABC):
     """A base class to update calibrations."""
-
-    def __init__(self):
-        """Initialize the class."""
-        self.qubits = None
-        self.param = None
-        self.value = None
-        self.schedule = None
 
     @staticmethod
     def _time_stamp(exp_data: ExperimentData) -> datetime:
@@ -45,19 +40,43 @@ class BaseUpdater(ABC):
 
         return datetime.now()
 
-    def _update(self, exp_data: ExperimentData, cal: Calibrations, group: str = "default"):
-        """Update the calibrations with the values."""
-        value = ParameterValue(
-            value=self.value,
+    @classmethod
+    def _update(
+        cls,
+        exp_data: ExperimentData,
+        cal: Calibrations,
+        value: ParameterValueType,
+        param: Union[Parameter, str],
+        schedule: Union[ScheduleBlock, str] = None,
+        group: str = "default"
+    ):
+        """Update the calibrations with the given value.
+
+        Args:
+            exp_data: The ExperimentData instance that contains the result and the experiment data.
+            cal: The Calibrations instance to update.
+            value: The value extracted by the subclasses in the :meth:`update` method.
+            param: The name of the parameter, or the parameter instance, which will receive an
+                updated value.
+            schedule: The ScheduleBlock instance or the name of the instance to which the parameter
+                is attached.
+            group: The calibrations group to update.
+        """
+
+        qubits = exp_data.data(0)["metadata"]["qubits"]
+
+        param_value = ParameterValue(
+            value=value,
             date_time=BaseUpdater._time_stamp(exp_data),
             group=group,
             exp_id=exp_data.experiment_id,
         )
 
-        cal.add_parameter_value(value, self.param, self.qubits, self.schedule)
+        cal.add_parameter_value(param_value, param, qubits, schedule)
 
+    @classmethod
     @abstractmethod
-    def update(self, exp_data: ExperimentData, calibrations: BackendCalibrations, **options):
+    def update(cls, exp_data: ExperimentData, calibrations: BackendCalibrations, **options):
         """Update the calibrations based on the data.
 
         Child update classes must implement this function.
@@ -68,8 +87,9 @@ class Frequency(BaseUpdater):
     """Update frequencies."""
 
     # pylint: disable=arguments-differ
+    @classmethod
     def update(
-        self,
+        cls,
         exp_data: ExperimentData,
         calibrations: BackendCalibrations,
         result_index: int = -1,
@@ -96,30 +116,31 @@ class Frequency(BaseUpdater):
 
         if "freq" not in result["popt_keys"]:
             raise CalibrationError(
-                f"{self.__class__.__name__} updates from analysis classes such as "
+                f"{cls.__name__} updates from analysis classes such as "
                 f'{type(SpectroscopyAnalysis.__name__)} which report "freq" in popt.'
             )
 
-        self.qubits = exp_data.data(0)["metadata"]["qubits"]
-        self.param = parameter
-        self.value = result["popt"][result["popt_keys"].index("freq")]
+        param = parameter
+        value = result["popt"][result["popt_keys"].index("freq")]
 
-        self._update(exp_data, calibrations, group)
+        BaseUpdater._update(exp_data, calibrations, value, param, group)
 
 
 class Amplitude(BaseUpdater):
     """Update pulse amplitudes."""
 
     # pylint: disable=arguments-differ
+    @classmethod
     def update(
-        self,
+        cls,
         exp_data: ExperimentData,
         calibrations: Calibrations,
         result_index: int = -1,
         group: str = "default",
         angles_schedules: List[Tuple[float, str, Union[str, ScheduleBlock]]] = None,
     ):
-        """
+        """Update the amplitude of pulses.
+
         Args:
             exp_data: The experiment data from which to update.
             calibrations: The calibrations to update.
@@ -139,19 +160,15 @@ class Amplitude(BaseUpdater):
         if angles_schedules is None:
             angles_schedules = [(np.pi, "amp", "xp")]
 
-        self.qubits = exp_data.data(0)["metadata"]["qubits"]
-
         if isinstance(exp_data.experiment, Rabi):
             result = exp_data.analysis_result(result_index)
 
             freq = result["popt"][result["popt_keys"].index("freq")]
-
             rate = 2 * np.pi * freq
-            for angle, param, schedule in angles_schedules:
-                self.value = np.round(angle / rate, decimals=8)
-                self.schedule = schedule
-                self.param = param
 
-                self._update(exp_data, calibrations, group)
+            for angle, param, schedule in angles_schedules:
+                value = np.round(angle / rate, decimals=8)
+
+                BaseUpdater._update(exp_data, calibrations, value, param, group)
         else:
-            raise CalibrationError(f"{self.__class__.__name__} updates from {type(Rabi.__name__)}.")
+            raise CalibrationError(f"{cls.__name__} updates from {type(Rabi.__name__)}.")

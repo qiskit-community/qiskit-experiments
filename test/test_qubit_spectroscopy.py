@@ -93,7 +93,7 @@ class TestQubitSpectroscopy(QiskitTestCase):
 
         # Test the integration with the BackendCalibrations
         self.assertNotEqual(self._cals.get_qubit_frequencies()[3], result["popt"][2])
-        Frequency().update(exp_data, self._cals)
+        Frequency.update(exp_data, self._cals)
         self.assertEqual(self._cals.get_qubit_frequencies()[3], result["popt"][2])
 
     def test_spectroscopy_end2end_kerneled(self):
