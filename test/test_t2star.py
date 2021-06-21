@@ -21,6 +21,7 @@ from qiskit.result import Result
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T2StarExperiment
+from .mock_job import MockJob
 
 
 class T2starBackend(BackendV1):
@@ -150,7 +151,7 @@ class T2starBackend(BackendV1):
                     "data": {"counts": counts},
                 }
             )
-        return Result.from_dict(result)
+        return MockJob(self, Result.from_dict(result))
 
 
 class TestT2Star(QiskitTestCase):
