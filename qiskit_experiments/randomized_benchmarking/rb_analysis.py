@@ -166,7 +166,7 @@ class RBAnalysis(CurveAnalysis):
         # Add EPG data
         count_ops = []
         for meta in self._data(label="raw_data").metadata:
-            count_ops += meta['count_ops']
+            count_ops += meta["count_ops"]
         gates_per_clifford = RBUtils.gates_per_clifford(count_ops)
 
         num_qubits = len(self._physical_qubits)
