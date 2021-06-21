@@ -174,7 +174,7 @@ class RBUtils:
     def calculate_1q_epg(
         epc_1_qubit: float,
         qubits: Iterable[int],
-        backend: Backend,
+        gate_error_ratio: Dict[str, float],
         gates_per_clifford: Dict[Tuple[Iterable[int], str], float],
     ) -> Dict[int, Dict[str, float]]:
         r"""
@@ -182,31 +182,30 @@ class RBUtils:
         Args:
             epc_1_qubit: The error per clifford rate obtained via experiment
             qubits: The qubits for which to compute epg
-            backend: The backend on which the experiment was ran
+            gate_error_ratio: Estiamte for the ratios between errors on different gates
             gates_per_clifford: The computed gates per clifford data
         Returns:
             A dictionary of the form (qubits, gate) -> value where value
             is the epg for the given gate on the specified qubits
         """
-        error_dict = RBUtils.get_error_dict_from_backend(backend, qubits)
         epg = {qubit: {} for qubit in qubits}
         for qubit in qubits:
             error_sum = 0
             found_gates = []
-            for (key, value) in error_dict.items():
+            for (key, value) in gate_error_ratio.items():
                 qubits, gate = key
                 if len(qubits) == 1 and qubits[0] == qubit and key in gates_per_clifford:
                     found_gates.append(gate)
                     error_sum += gates_per_clifford[key] * value
             for gate in found_gates:
-                epg[qubit][gate] = (error_dict[((qubit,), gate)] * epc_1_qubit) / error_sum
+                epg[qubit][gate] = (gate_error_ratio[((qubit,), gate)] * epc_1_qubit) / error_sum
         return epg
 
     @staticmethod
     def calculate_2q_epg(
         epc_2_qubit: float,
         qubits: Iterable[int],
-        backend: Backend,
+        gate_error_ratio: Dict[str, float],
         gates_per_clifford: Dict[Tuple[Iterable[int], str], float],
         epg_1_qubit: Optional[Dict[int, Dict[str, float]]] = None,
         gate_2_qubit_type: Optional[str] = "cx",
@@ -217,7 +216,7 @@ class RBUtils:
         Args:
             epc_2_qubit: The error per clifford rate obtained via experiment
             qubits: The qubits for which to compute epg
-            backend: The backend on which the experiment was ran
+            gate_error_ratio: Estiamte for the ratios between errors on different gates
             gates_per_clifford: The computed gates per clifford data
             epg_1_qubit: epg data for the 1-qubits gate involved, assumed to
             have been obtained from previous experiments
@@ -229,9 +228,8 @@ class RBUtils:
             QiskitError: if a non 2-qubit gate was given
         """
         epg_2_qubit = {}
-        error_dict = RBUtils.get_error_dict_from_backend(backend, qubits)
         qubit_pairs = []
-        for key in error_dict:
+        for key in gate_error_ratio:
             qubits, gate = key
             if gate == gate_2_qubit_type and key in gates_per_clifford:
                 if len(qubits) != 2:

@@ -48,7 +48,7 @@ class RBExperiment(BaseExperiment):
         lengths: Iterable[int],
         num_samples: int = 1,
         seed: Optional[Union[int, Generator]] = None,
-        full_sampling: bool = False,
+        full_sampling: Optional[bool] = False,
     ):
         """Standard randomized benchmarking experiment.
 
@@ -189,7 +189,8 @@ class RBExperiment(BaseExperiment):
         Returns:
             The experiment data object.
         """
-        self.set_analysis_options(backend=backend)
+        error_dict = RBUtils.get_error_dict_from_backend(backend, self.physical_qubits)
+        self.set_analysis_options(error_dict=error_dict)
         return super().run(backend, analysis, experiment_data, **run_options)
 
     def _postprocess_transpiled_circuits(self, circuits):
