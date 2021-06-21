@@ -13,8 +13,9 @@
 """Spectroscopy tests."""
 
 from typing import Tuple
-
 import numpy as np
+
+from qiskit import QuantumCircuit
 from qiskit.qobj.utils import MeasLevel
 from qiskit.test import QiskitTestCase
 from qiskit import QiskitError
@@ -26,9 +27,7 @@ from qiskit_experiments.analysis import get_opt_value
 
 
 class SpectroscopyBackend(IQTestBackend):
-    """
-    A simple and primitive backend to test spectroscopy experiments.
-    """
+    """A simple and primitive backend to test spectroscopy experiments."""
 
     def __init__(
         self,
@@ -46,59 +45,13 @@ class SpectroscopyBackend(IQTestBackend):
         self._linewidth = line_width
         self._freq_offset = freq_offset
 
-    # pylint: disable = arguments-differ
-    def run(
-        self, circuits, shots=1024, meas_level=MeasLevel.KERNELED, meas_return="single", **options
-    ):
-        """Run the spectroscopy backend."""
+        super().__init__(iq_cluster_centers, iq_cluster_width)
 
-        result = {
-            "backend_name": "spectroscopy backend",
-            "backend_version": "0",
-            "qobj_id": 0,
-            "job_id": 0,
-            "success": True,
-            "results": [],
-        }
-
-        for circ in circuits:
-
-            run_result = {
-                "shots": shots,
-                "success": True,
-                "header": {"metadata": circ.metadata},
-            }
-
-            shift_freq = None
-            for inst in circ.data:
-                if inst[0].name == "Spec":
-                    shift_freq = float(inst[0].params[0])
-
-            if shift_freq is None:
-                raise QiskitError("Spectroscopy does not have a Spec instruction.")
-
-            delta_freq = shift_freq - self._freq_offset
-
-            prob = np.exp(-(delta_freq ** 2) / (2 * self._linewidth ** 2))
-
-            if meas_level == MeasLevel.CLASSIFIED:
-                counts = {"1": 0, "0": 0}
-
-                for _ in range(shots):
-                    counts[str(self._rng.binomial(1, prob))] += 1
-
-                run_result["data"] = {"counts": counts}
-            else:
-                memory = [self._draw_iq_shot(prob) for _ in range(shots)]
-
-                if meas_return == "avg":
-                    memory = np.average(np.array(memory), axis=0).tolist()
-
-                run_result["data"] = {"memory": memory}
-
-            result["results"].append(run_result)
-
-        return TestJob(self, result)
+    def _compute_probability(self, circuit: QuantumCircuit) -> float:
+        """Returns the probability based on the frequency."""
+        set_freq = float(circuit.data[0][0].params[0])
+        delta_freq = set_freq - self._freq_offset
+        return np.exp(-(delta_freq ** 2) / (2 * self._linewidth ** 2))
 
 
 class TestQubitSpectroscopy(QiskitTestCase):
