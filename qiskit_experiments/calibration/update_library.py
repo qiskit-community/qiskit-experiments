@@ -41,7 +41,7 @@ class BaseUpdater(ABC):
         return datetime.now()
 
     @classmethod
-    def _update(
+    def _add_parameter_value(
         cls,
         exp_data: ExperimentData,
         cal: Calibrations,
@@ -76,10 +76,12 @@ class BaseUpdater(ABC):
 
     @classmethod
     @abstractmethod
-    def update(cls, exp_data: ExperimentData, calibrations: BackendCalibrations, **options):
+    def update(cls, calibrations: BackendCalibrations, exp_data: ExperimentData, **options):
         """Update the calibrations based on the data.
 
-        Child update classes must implement this function.
+        Child update classes must implement this function. This function defines how the data
+        is extracted from an experiment and then used to update the values of one or more
+        parameters in the calibrations.
         """
 
 
@@ -90,17 +92,17 @@ class Frequency(BaseUpdater):
     @classmethod
     def update(
         cls,
-        exp_data: ExperimentData,
         calibrations: BackendCalibrations,
+        exp_data: ExperimentData,
         result_index: int = -1,
         group: str = "default",
         parameter: str = BackendCalibrations.__qubit_freq_parameter__,
     ):
-        """Update a qubit frequency from QubitSpectroscopy.
+        """Update a qubit frequency from, e.g., QubitSpectroscopy.
 
         Args:
-            exp_data: The experiment data from which to update.
             calibrations: The calibrations to update.
+            exp_data: The experiment data from which to update.
             result_index: The result index to use, defaults to -1.
             group: The calibrations group to update. Defaults to "default."
             parameter: The name of the parameter to update. If it is not specified
@@ -123,7 +125,7 @@ class Frequency(BaseUpdater):
         param = parameter
         value = result["popt"][result["popt_keys"].index("freq")]
 
-        cls._update(exp_data, calibrations, value, param, schedule=None, group=group)
+        cls._add_parameter_value(exp_data, calibrations, value, param, schedule=None, group=group)
 
 
 class Amplitude(BaseUpdater):
@@ -133,8 +135,8 @@ class Amplitude(BaseUpdater):
     @classmethod
     def update(
         cls,
-        exp_data: ExperimentData,
         calibrations: Calibrations,
+        exp_data: ExperimentData,
         result_index: int = -1,
         group: str = "default",
         angles_schedules: List[Tuple[float, str, Union[str, ScheduleBlock]]] = None,
@@ -142,8 +144,8 @@ class Amplitude(BaseUpdater):
         """Update the amplitude of pulses.
 
         Args:
-            exp_data: The experiment data from which to update.
             calibrations: The calibrations to update.
+            exp_data: The experiment data from which to update.
             result_index: The result index to use, defaults to -1.
             group: The calibrations group to update. Defaults to "default."
             angles_schedules: A list of tuples specifying which angle to update for which
@@ -169,6 +171,6 @@ class Amplitude(BaseUpdater):
             for angle, param, schedule in angles_schedules:
                 value = np.round(angle / rate, decimals=8)
 
-                BaseUpdater._update(exp_data, calibrations, value, param, schedule, group)
+                cls._add_parameter_value(exp_data, calibrations, value, param, schedule, group)
         else:
             raise CalibrationError(f"{cls.__name__} updates from {type(Rabi.__name__)}.")
