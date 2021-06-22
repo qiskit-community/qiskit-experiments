@@ -25,6 +25,7 @@ from qiskit.result import Result
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T1Experiment, T1Analysis
+from .mock_job import MockJob
 
 
 class T1Backend(BackendV1):
@@ -141,7 +142,7 @@ class T1Backend(BackendV1):
                 }
             )
 
-        return Result.from_dict(result)
+        return MockJob(self, Result.from_dict(result))
 
 
 class TestT1(QiskitTestCase):
