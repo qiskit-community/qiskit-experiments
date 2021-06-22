@@ -123,7 +123,7 @@ class Frequency(BaseUpdater):
         param = parameter
         value = result["popt"][result["popt_keys"].index("freq")]
 
-        BaseUpdater._update(exp_data, calibrations, value, param, schedule=None, group=group)
+        cls._update(exp_data, calibrations, value, param, schedule=None, group=group)
 
 
 class Amplitude(BaseUpdater):
