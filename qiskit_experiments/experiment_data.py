@@ -33,6 +33,16 @@ LOG = logging.getLogger(__name__)
 class AnalysisResult(dict):
     """Placeholder class"""
 
+    __keys_not_shown__ = tuple()
+
+    def __str__(self):
+        out = ""
+        for key, value in self.items():
+            if key in self.__keys_not_shown__:
+                continue
+            out += f"\n- {key}: {value}"
+        return out
+
 
 class ExperimentData:
     """Qiskit Experiments Data container class"""
@@ -55,6 +65,7 @@ class ExperimentData:
         """
         # Experiment class object
         self._experiment = experiment
+        self._metadata = experiment._metadata() if experiment else {}
 
         # Terra ExperimentDataV1 attributes
         self._backend = backend
@@ -88,6 +99,13 @@ class ExperimentData:
     def experiment_id(self) -> str:
         """Return the experiment id."""
         return self._id
+
+    def metadata(self) -> Dict:
+        """Return experiment metadata.
+        Returns:
+            Experiment metadata.
+        """
+        return self._metadata
 
     @property
     def job_ids(self) -> List[str]:
@@ -363,6 +381,5 @@ class ExperimentData:
         ret += "\n" + line
         if n_res:
             ret += "\nLast Analysis Result"
-            for key, value in self._analysis_results[-1].items():
-                ret += f"\n- {key}: {value}"
+            ret += str(self._analysis_results[-1])
         return ret
