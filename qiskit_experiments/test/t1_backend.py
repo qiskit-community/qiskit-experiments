@@ -20,6 +20,7 @@ from qiskit.providers.backend import BackendV1
 from qiskit.providers.options import Options
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
+from .mock_job import MockJob
 
 
 class T1Backend(BackendV1):
@@ -136,4 +137,4 @@ class T1Backend(BackendV1):
                 }
             )
 
-        return Result.from_dict(result)
+        return MockJob(backend=backend, Result.from_dict(result))

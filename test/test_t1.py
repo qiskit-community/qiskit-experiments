@@ -21,7 +21,7 @@ from qiskit.test import QiskitTestCase
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T1Experiment, T1Analysis
-from artificial_backends.t1_backend import T1Backend
+from qiskit_experiments.t1_backend import T1backend
 
 
 class TestT1(QiskitTestCase):
