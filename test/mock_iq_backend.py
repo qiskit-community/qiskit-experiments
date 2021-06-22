@@ -21,7 +21,7 @@ from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
-from .mock_job import MockJob
+from qiskit_experiments.test.mock_job import MockJob
 
 
 class MockIQBackend(Backend):
