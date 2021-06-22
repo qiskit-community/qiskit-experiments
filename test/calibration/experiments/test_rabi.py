@@ -25,11 +25,8 @@ import qiskit.pulse as pulse
 
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.calibration.experiments.rabi import RabiAnalysis, Rabi
-from qiskit_experiments.calibration.calibrations import Calibrations
-from qiskit_experiments.calibration.exceptions import CalibrationError
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
-from qiskit_experiments.calibration.update_library import Amplitude
 
 
 class RabiBackend(MockIQBackend):
@@ -89,59 +86,6 @@ class TestRabiEndToEnd(QiskitTestCase):
 
         self.assertEqual(result["quality"], "computer_good")
         self.assertTrue(abs(result["popt"][1] - backend.rabi_rate) < test_tol)
-
-    def test_calibrations_integration(self):
-        """Test that we can update the value in calibrations."""
-
-        cals = Calibrations()
-
-        amp = Parameter("amp")
-        chan = Parameter("ch0")
-        with pulse.build(name="xp") as xp:
-            pulse.play(pulse.Gaussian(duration=160, amp=amp, sigma=40), pulse.DriveChannel(chan))
-
-        amp = Parameter("amp")
-        with pulse.build(name="x90p") as x90p:
-            pulse.play(pulse.Gaussian(duration=160, amp=amp, sigma=40), pulse.DriveChannel(chan))
-
-        cals.add_schedule(xp)
-        cals.add_schedule(x90p)
-
-        backend = RabiBackend()
-
-        rabi = Rabi(3)
-        rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
-        exp_data = rabi.run(backend)
-
-        for qubit in [0, 3]:
-            with self.assertRaises(CalibrationError):
-                cals.get_schedule("xp", qubits=qubit)
-
-        to_update = [(np.pi, "amp", "xp"), (np.pi / 2, "amp", x90p)]
-
-        self.assertEqual(len(cals.parameters_table()), 0)
-
-        Amplitude.update(cals, exp_data, angles_schedules=to_update)
-
-        with self.assertRaises(CalibrationError):
-            cals.get_schedule("xp", qubits=0)
-
-        self.assertEqual(len(cals.parameters_table()), 2)
-
-        # Now check the corresponding schedules
-        result = exp_data.analysis_result(-1)
-        rate = 2 * np.pi * result["popt"][1]
-        amp = np.round(np.pi / rate, decimals=8)
-        with pulse.build(name="xp") as expected:
-            pulse.play(pulse.Gaussian(160, amp, 40), pulse.DriveChannel(3))
-
-        self.assertEqual(cals.get_schedule("xp", qubits=3), expected)
-
-        amp = np.round(0.5 * np.pi / rate, decimals=8)
-        with pulse.build(name="xp") as expected:
-            pulse.play(pulse.Gaussian(160, amp, 40), pulse.DriveChannel(3))
-
-        self.assertEqual(cals.get_schedule("x90p", qubits=3), expected)
 
 
 class TestRabiCircuits(QiskitTestCase):
