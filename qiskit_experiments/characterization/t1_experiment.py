@@ -30,20 +30,29 @@ from qiskit_experiments.experiment_data import AnalysisResult
 
 
 class T1Analysis(BaseAnalysis):
-    """T1 Experiment result analysis class.
+    r"""A class to analyze T1 experiments.
 
-    Analysis Options:
+    Fit Model
+        The fit is based on the following decay function.
 
-        * t1_guess (float): Optional, an initial guess of T1.
-        * amplitude_guess (float): Optional, an initial guess of the
-                                   coefficient of the exponent.
-        * offset_guess (float): Optional, an initial guess of the offset.
-        * t1_bounds (list of two floats): Optional, lower bound and upper
-                                          bound to T1.
-        * amplitude_bounds (list of two floats): Optional, lower bound and upper
-                                                 bound to the amplitude.
-        * offset_bounds (list of two floats): Optional, lower bound and
-                                              upper bound to the offset.
+        .. math::
+
+            F(x) = a \e^{-x/t1} + b
+
+    Fit Parameters
+        - :math:`amplitude`: Height of decay curve
+        - :math:`offset`: Base line
+        - :math:`t1`: This is the fit parameter of main interest
+
+    Initial Guesses
+        - :math:`amplitude_guess`: Determined by :math:`(y_0 - offset_guess)
+        - :math:`offset_guess`: Determined by the last :math:`y`
+        - :math:`t1_guess`: Determined by the mean of the data points
+
+    Bounds
+        - :math:`amplitude_bounds`: [0, 1]
+        - :math:`offset_bounds`: [0, 1]
+        - :math:`t1_bounds`: [0, infinity]
     """
 
     @classmethod
@@ -220,7 +229,7 @@ class T1Experiment(BaseExperiment):
         * delays: delay times of the experiments
         * unit: Optional, unit of the delay times. Supported units are
                 's', 'ms', 'us', 'ns', 'ps', 'dt'.
-    
+
     Design and analyze experiments for estimating T\ :sub:`1` of the device.
 
     Each experiment consists of the following steps:
@@ -232,7 +241,7 @@ class T1Experiment(BaseExperiment):
     by fitting to an exponential curve.
 
     .. jupyter-execute::
-    
+
         from qiskit_experiments.characterization import T1Experiment
         from artificial_backends.t1_backend import T1Backend
 
