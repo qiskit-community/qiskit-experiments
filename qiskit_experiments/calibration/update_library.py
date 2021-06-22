@@ -31,6 +31,13 @@ from qiskit_experiments.calibration.calibration_key_types import ParameterValueT
 class BaseUpdater(ABC):
     """A base class to update calibrations."""
 
+    def __init__(self):
+        """Updaters are not meant to be instantiated."""
+        raise CalibrationError(
+            "Calibration updaters are not meant to be instantiated. The intended usage"
+            "is Updater.update(calibrations, exp_data, ...)."
+        )
+
     @staticmethod
     def _time_stamp(exp_data: ExperimentData) -> datetime:
         """Helper method to extract the datetime."""
