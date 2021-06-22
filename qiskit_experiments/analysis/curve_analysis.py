@@ -33,6 +33,7 @@ from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.experiment_data import ExperimentData
 from qiskit_experiments.stored_data import AnalysisResultV1
 from qiskit_experiments.stored_data.device_component import Qubit
+from qiskit_experiments.matplotlib import requires_matplotlib
 
 
 @dataclasses.dataclass(frozen=True)
@@ -303,10 +304,15 @@ class CurveAnalysis(BaseAnalysis):
             return_data_points=False,
         )
 
+    @requires_matplotlib
     def _create_figures(self, result_data: CurveAnalysisResult) -> List["Figure"]:
         """Create new figures with the fit result and raw data.
 
         Subclass can override this method to create different type of figures.
+
+        Note:
+            The ``requires_matplotlib`` decorator is needed to ensure this method
+            works with ``StoredData``.
 
         Args:
             result_data: Result containing fit parameters.
@@ -316,111 +322,107 @@ class CurveAnalysis(BaseAnalysis):
         """
         fit_available = all(key in result_data for key in ("popt", "popt_err", "xrange"))
 
-        if plotting.HAS_MATPLOTLIB:
-
-            axis = self._get_option("axis")
-            if axis is None:
-                figure = plotting.pyplot.figure(figsize=(8, 5))
-                axis = figure.subplots(nrows=1, ncols=1)
-            else:
-                figure = axis.get_figure()
-
-            ymin, ymax = np.inf, -np.inf
-            for series_def in self.__series__:
-
-                # plot raw data
-
-                curve_data_raw = self._data(series_name=series_def.name, label="raw_data")
-                ymin = min(ymin, *curve_data_raw.y)
-                ymax = max(ymax, *curve_data_raw.y)
-                plotting.plot_scatter(
-                    xdata=curve_data_raw.x, ydata=curve_data_raw.y, ax=axis, zorder=0
-                )
-
-                # plot formatted data
-
-                curve_data_fit = self._data(series_name=series_def.name, label="fit_ready")
-                if np.all(np.isnan(curve_data_fit.y_err)):
-                    sigma = None
-                else:
-                    sigma = np.nan_to_num(curve_data_fit.y_err)
-
-                plotting.plot_errorbar(
-                    xdata=curve_data_fit.x,
-                    ydata=curve_data_fit.y,
-                    sigma=sigma,
-                    ax=axis,
-                    label=series_def.name,
-                    marker=series_def.plot_symbol,
-                    color=series_def.plot_color,
-                    zorder=1,
-                    linestyle="",
-                )
-
-                # plot fit curve
-
-                if fit_available:
-                    plotting.plot_curve_fit(
-                        func=series_def.fit_func,
-                        result=result_data,
-                        ax=axis,
-                        color=series_def.plot_color,
-                        zorder=2,
-                    )
-
-            # format axis
-
-            if len(self.__series__) > 1:
-                axis.legend(loc="center right")
-            axis.set_xlabel(self._get_option("xlabel"), fontsize=16)
-            axis.set_ylabel(self._get_option("ylabel"), fontsize=16)
-            axis.tick_params(labelsize=14)
-            axis.grid(True)
-
-            # automatic scaling y axis by actual data point.
-            # note that y axis will be scaled by confidence interval by default.
-            # sometimes we cannot see any data point if variance of parameters is too large.
-
-            height = ymax - ymin
-            axis.set_ylim(ymin - 0.1 * height, ymax + 0.1 * height)
-
-            # write analysis report
-
-            fit_reports = self._get_option("fit_reports")
-            if fit_reports and fit_available:
-                # write fit status in the plot
-                analysis_description = ""
-                for par_name, label in fit_reports.items():
-                    try:
-                        # fit value
-                        pval = get_opt_value(result_data, par_name)
-                        perr = get_opt_error(result_data, par_name)
-                    except ValueError:
-                        # maybe post processed value
-                        pval = result_data[par_name]
-                        perr = result_data[f"{par_name}_err"]
-                    analysis_description += f"{label} = {pval: .3e}\u00B1{perr: .3e}\n"
-                chisq = result_data["reduced_chisq"]
-                analysis_description += f"Fit \u03C7-squared = {chisq: .4f}"
-
-                report_handler = axis.text(
-                    0.60,
-                    0.95,
-                    analysis_description,
-                    ha="center",
-                    va="top",
-                    size=14,
-                    transform=axis.transAxes,
-                )
-
-                bbox_props = dict(
-                    boxstyle="square, pad=0.3", fc="white", ec="black", lw=1, alpha=0.8
-                )
-                report_handler.set_bbox(bbox_props)
-
-            return [figure]
+        axis = self._get_option("axis")
+        if axis is None:
+            figure = plotting.pyplot.figure(figsize=(8, 5))
+            axis = figure.subplots(nrows=1, ncols=1)
         else:
-            return list()
+            figure = axis.get_figure()
+
+        ymin, ymax = np.inf, -np.inf
+        for series_def in self.__series__:
+
+            # plot raw data
+
+            curve_data_raw = self._data(series_name=series_def.name, label="raw_data")
+            ymin = min(ymin, *curve_data_raw.y)
+            ymax = max(ymax, *curve_data_raw.y)
+            plotting.plot_scatter(
+                xdata=curve_data_raw.x, ydata=curve_data_raw.y, ax=axis, zorder=0
+            )
+
+            # plot formatted data
+
+            curve_data_fit = self._data(series_name=series_def.name, label="fit_ready")
+            if np.all(np.isnan(curve_data_fit.y_err)):
+                sigma = None
+            else:
+                sigma = np.nan_to_num(curve_data_fit.y_err)
+
+            plotting.plot_errorbar(
+                xdata=curve_data_fit.x,
+                ydata=curve_data_fit.y,
+                sigma=sigma,
+                ax=axis,
+                label=series_def.name,
+                marker=series_def.plot_symbol,
+                color=series_def.plot_color,
+                zorder=1,
+                linestyle="",
+            )
+
+            # plot fit curve
+
+            if fit_available:
+                plotting.plot_curve_fit(
+                    func=series_def.fit_func,
+                    result=result_data,
+                    ax=axis,
+                    color=series_def.plot_color,
+                    zorder=2,
+                )
+
+        # format axis
+
+        if len(self.__series__) > 1:
+            axis.legend(loc="center right")
+        axis.set_xlabel(self._get_option("xlabel"), fontsize=16)
+        axis.set_ylabel(self._get_option("ylabel"), fontsize=16)
+        axis.tick_params(labelsize=14)
+        axis.grid(True)
+
+        # automatic scaling y axis by actual data point.
+        # note that y axis will be scaled by confidence interval by default.
+        # sometimes we cannot see any data point if variance of parameters is too large.
+
+        height = ymax - ymin
+        axis.set_ylim(ymin - 0.1 * height, ymax + 0.1 * height)
+
+        # write analysis report
+
+        fit_reports = self._get_option("fit_reports")
+        if fit_reports and fit_available:
+            # write fit status in the plot
+            analysis_description = ""
+            for par_name, label in fit_reports.items():
+                try:
+                    # fit value
+                    pval = get_opt_value(result_data, par_name)
+                    perr = get_opt_error(result_data, par_name)
+                except ValueError:
+                    # maybe post processed value
+                    pval = result_data[par_name]
+                    perr = result_data[f"{par_name}_err"]
+                analysis_description += f"{label} = {pval: .3e}\u00B1{perr: .3e}\n"
+            chisq = result_data["reduced_chisq"]
+            analysis_description += f"Fit \u03C7-squared = {chisq: .4f}"
+
+            report_handler = axis.text(
+                0.60,
+                0.95,
+                analysis_description,
+                ha="center",
+                va="top",
+                size=14,
+                transform=axis.transAxes,
+            )
+
+            bbox_props = dict(
+                boxstyle="square, pad=0.3", fc="white", ec="black", lw=1, alpha=0.8
+            )
+            report_handler.set_bbox(bbox_props)
+
+        return [figure]
 
     def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """An analysis subroutine that is called to set fitter options.
@@ -885,7 +887,7 @@ class CurveAnalysis(BaseAnalysis):
             #
             # 5. Create figures
             #
-            if self._get_option("plot"):
+            if self._get_option("plot") and plotting.HAS_MATPLOTLIB:
                 figures.extend(self._create_figures(result_data=result_data))
 
             #
