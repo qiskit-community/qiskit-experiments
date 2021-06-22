@@ -62,3 +62,13 @@ class CompositeExperiment(BaseExperiment):
     def component_analysis(self, index):
         """Return the component experiment Analysis object"""
         return self.component_experiment(index).analysis()
+
+    def _add_job_metadata(self, experiment_data, job, **run_options):
+        # Add composite metadata
+        super()._add_job_metadata(experiment_data, job, **run_options)
+
+        # Add sub-experiment options
+        for i in range(self.num_experiments):
+            sub_exp = self.component_experiment(i)
+            sub_data = experiment_data.component_experiment_data(i)
+            sub_exp._add_job_metadata(sub_data, job, **run_options)
