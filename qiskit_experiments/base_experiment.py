@@ -16,7 +16,7 @@ Base Experiment class.
 import copy
 from abc import ABC, abstractmethod
 from numbers import Integral
-from typing import Iterable, Optional, Tuple, List
+from typing import Iterable, Optional, Tuple, List, Dict
 
 from qiskit import transpile, assemble, QuantumCircuit
 from qiskit.exceptions import QiskitError
@@ -25,7 +25,7 @@ from qiskit.providers.basebackend import BaseBackend as LegacyBackend
 from qiskit.providers.options import Options
 
 from .experiment_data import ExperimentData
-from .options_field import to_options
+from .options_autodoc import to_options, OptionsField
 
 
 class BaseExperiment(ABC):
@@ -72,10 +72,10 @@ class BaseExperiment(ABC):
                 raise QiskitError("Duplicate qubits in physical qubits list.")
 
         # Experiment options
-        self._experiment_options = self._default_experiment_options()
+        self._experiment_options = to_options(self._default_experiment_options())
         self._transpile_options = self._default_transpile_options()
         self._run_options = self._default_run_options()
-        self._analysis_options = self._default_analysis_options()
+        self._analysis_options = to_options(self._default_analysis_options())
 
         # Set initial layout from qubits
         self._transpile_options.initial_layout = self._physical_qubits
@@ -191,13 +191,13 @@ class BaseExperiment(ABC):
         # generation
 
     @classmethod
-    def _default_experiment_options(cls) -> Options:
+    def _default_experiment_options(cls) -> Dict[str, OptionsField]:
         """Default kwarg options for experiment"""
         # Experiment subclasses should override this method to return
-        # an `Options` object containing all the supported options for
+        # an dictionary of OptionsField object containing all the supported options for
         # that experiment and their default values. Only options listed
         # here can be modified later by the `set_options` method.
-        return Options()
+        return dict()
 
     @property
     def experiment_options(self) -> Options:
@@ -272,14 +272,14 @@ class BaseExperiment(ABC):
         self._run_options.update_options(**fields)
 
     @classmethod
-    def _default_analysis_options(cls) -> Options:
+    def _default_analysis_options(cls) -> Dict[str, OptionsField]:
         """Default options for analysis of experiment results."""
         # Experiment subclasses can override this method if they need
         # to set specific analysis options defaults that are different
         # from the Analysis subclass `_default_options` values.
         if cls.__analysis_class__:
-            return to_options(cls.__analysis_class__._default_options())
-        return Options()
+            return cls.__analysis_class__._default_options()
+        return dict()
 
     @property
     def analysis_options(self) -> Options:

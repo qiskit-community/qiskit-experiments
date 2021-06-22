@@ -16,21 +16,19 @@ from typing import Union, Iterable, Optional, List
 
 import numpy as np
 from numpy.random import Generator, default_rng
-
 from qiskit import QuantumCircuit
+from qiskit.circuit import Gate
 from qiskit.providers import Backend
 from qiskit.quantum_info import Clifford
-from qiskit.providers.options import Options
-from qiskit.circuit import Gate
 
-from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.analysis.data_processing import probability
-from qiskit_experiments.options_field import create_options_docs
-from .rb_analysis import RBAnalysis
+from qiskit_experiments.base_experiment import BaseExperiment
+from qiskit_experiments.options_autodoc import OptionsField, create_experiment_docs
 from .clifford_utils import CliffordUtils
+from .rb_analysis import RBAnalysis
 
 
-@create_options_docs
+@create_experiment_docs
 class RBExperiment(BaseExperiment):
     """RB Experiment class.
 
@@ -82,7 +80,21 @@ class RBExperiment(BaseExperiment):
 
     @classmethod
     def _default_experiment_options(cls):
-        return Options(lengths=None, num_samples=None)
+        return {
+            "lengths": OptionsField(
+                default=None,
+                annotation=Iterable[int],
+                description="Array of integer values representing a number of Clifford gate N per \
+RB sequence. This value should be chosen based on expected decay curve. If the maximum length is \
+too short, confidence interval of fit will become poor.",
+            ),
+            "num_samples": OptionsField(
+                default=None,
+                annotation=int,
+                description="Number of RB sequence per Clifford length. M random sequences are \
+generated for a length N.",
+            ),
+        }
 
     # pylint: disable = arguments-differ
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:

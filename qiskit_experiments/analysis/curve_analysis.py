@@ -17,6 +17,7 @@ Analysis class for curve fitting.
 
 import dataclasses
 import inspect
+from abc import ABC
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
 import numpy as np
@@ -25,12 +26,12 @@ from qiskit_experiments.analysis import plotting
 from qiskit_experiments.analysis.curve_fitting import multi_curve_fit, CurveAnalysisResult
 from qiskit_experiments.analysis.data_processing import probability
 from qiskit_experiments.analysis.utils import get_opt_value, get_opt_error
-from qiskit_experiments.options_field import OptionsField
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
+from qiskit_experiments.options_autodoc import OptionsField
 
 
 @dataclasses.dataclass(frozen=True)
@@ -56,7 +57,7 @@ class CurveData:
     metadata: np.ndarray = None
 
 
-class CurveAnalysis(BaseAnalysis):
+class CurveAnalysis(BaseAnalysis, ABC):
     """A base class for curve fit type analysis.
 
     The subclasses can override class attributes to define the behavior of

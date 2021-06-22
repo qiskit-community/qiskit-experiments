@@ -20,7 +20,7 @@ from qiskit.exceptions import QiskitError
 
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.experiment_data import ExperimentData, AnalysisResult
-from qiskit_experiments.options_field import OptionsField, to_options
+from qiskit_experiments.options_autodoc import OptionsField, to_options
 
 
 class BaseAnalysis(ABC):
