@@ -13,41 +13,18 @@
 """An mock IQ backend for testing."""
 
 from abc import abstractmethod
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 import numpy as np
 
 from qiskit import QuantumCircuit
-from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.test.mock import FakeOpenPulse2Q
-from qiskit.providers import JobV1
-from qiskit.result import Result
+
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
+from .mock_job import MockJob
 
 
-class TestJob(JobV1):
-    """Job for testing."""
-
-    def __init__(self, backend: Backend, result: Dict):
-        """Setup a job for testing."""
-        super().__init__(backend, "test-id")
-        self._result = result
-
-    def result(self) -> Result:
-        """Return a result."""
-        return Result.from_dict(self._result)
-
-    def submit(self):
-        pass
-
-    def status(self):
-        pass
-
-    def cancel(self):
-        pass
-
-
-class IQTestBackend(FakeOpenPulse2Q):
+class MockIQBackend(FakeOpenPulse2Q):
     """An abstract backend for testing that can mock IQ data."""
 
     def __init__(
@@ -145,4 +122,4 @@ class IQTestBackend(FakeOpenPulse2Q):
 
             result["results"].append(run_result)
 
-        return TestJob(self, result)
+        return MockJob(self, result)

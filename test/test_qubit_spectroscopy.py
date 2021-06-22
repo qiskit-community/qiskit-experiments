@@ -13,20 +13,19 @@
 """Spectroscopy tests."""
 
 from typing import Tuple
+from test.mock_iq_backend import MockIQBackend
 import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.qobj.utils import MeasLevel
 from qiskit.test import QiskitTestCase
-from qiskit import QiskitError
 
 from qiskit_experiments.characterization.qubit_spectroscopy import QubitSpectroscopy
 from qiskit_experiments.characterization.ef_spectroscopy import EFSpectroscopy
-from qiskit_experiments.test.mock_iq_backend import TestJob, IQTestBackend
 from qiskit_experiments.analysis import get_opt_value
 
 
-class SpectroscopyBackend(IQTestBackend):
+class SpectroscopyBackend(MockIQBackend):
     """A simple and primitive backend to test spectroscopy experiments."""
 
     def __init__(
@@ -40,7 +39,7 @@ class SpectroscopyBackend(IQTestBackend):
 
         super().__init__(iq_cluster_centers, iq_cluster_width)
 
-        self.configuration().basis_gates = ["spec", "x"]
+        self.configuration().basis_gates = ["x"]
 
         self._linewidth = line_width
         self._freq_offset = freq_offset
@@ -49,8 +48,8 @@ class SpectroscopyBackend(IQTestBackend):
 
     def _compute_probability(self, circuit: QuantumCircuit) -> float:
         """Returns the probability based on the frequency."""
-        set_freq = float(circuit.data[0][0].params[0])
-        delta_freq = set_freq - self._freq_offset
+        freq_shift = next(iter(circuit.calibrations["Spec"]))[1][0]
+        delta_freq = freq_shift - self._freq_offset
         return np.exp(-(delta_freq ** 2) / (2 * self._linewidth ** 2))
 
 
