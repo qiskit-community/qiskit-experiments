@@ -16,7 +16,6 @@ Test T1 experiment
 """
 
 import unittest
-import numpy as np
 from qiskit.test import QiskitTestCase
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.composite import ParallelExperiment

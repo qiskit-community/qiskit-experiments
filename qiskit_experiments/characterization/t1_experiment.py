@@ -79,7 +79,7 @@ class T1Analysis(BaseAnalysis):
         plot=True,
         ax=None,
     ) -> Tuple[List[AnalysisResult], List["matplotlib.figure.Figure"]]:
-        """
+        r"""
         Calculate T1
 
         Args:
@@ -222,7 +222,7 @@ class T1Analysis(BaseAnalysis):
 
 
 class T1Experiment(BaseExperiment):
-    """
+    r"""
     T1 experiment class
 
     Experiment Options:
