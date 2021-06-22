@@ -85,7 +85,7 @@ class TestCalibrationsUpdate(QiskitTestCase):
 
         self.assertEqual(cals.get_schedule("x90p", qubits=3), expected)
 
-    def test_spectroscopy_end2end_classified(self):
+    def test_frequency(self):
         """Test calibrations update from spectroscopy."""
 
         backend = SpectroscopyBackend(line_width=2e6, freq_offset=5.0e6)
