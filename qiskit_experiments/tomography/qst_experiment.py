@@ -76,7 +76,7 @@ class StateTomography(TomographyExperiment):
         circuit: Union[QuantumCircuit, Instruction, BaseOperator, Statevector],
         measurement_basis: basis.BaseTomographyMeasurementBasis = basis.PauliMeasurementBasis(),
         measurement_qubits: Optional[Iterable[int]] = None,
-        basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
+        basis_indices: Optional[Iterable[List[int]]] = None,
         qubits: Optional[Iterable[int]] = None,
     ):
         """Initialize a quantum process tomography experiment.
@@ -89,10 +89,11 @@ class StateTomography(TomographyExperiment):
             measurement_qubits: Optional, the qubits to be measured. These should refer
                 to the logical qubits in the state circuit. If None all qubits
                 in the state circuit will be measured.
-            basis_indices: Optional, the basis elements to be measured. If None
-                All basis elements will be measured. If specified each element
-                is given by a list ``[m[0], m[1], ...]`` where ``m[i]`` are the
-                measurement basis indices for qubit-i.
+            basis_indices: Optional, a list of basis indices for generating partial
+                tomography measurement data. Each item should be given as a list of
+                measurement basis configurations ``[m[0], m[1], ...]`` where ``m[i]``
+                is the measurement basis index for qubit-i. If not specified full
+                tomography for all indices of the measurement basis will be performed.
             qubits: Optional, the physical qubits for the initial state circuit.
         """
         if isinstance(circuit, Statevector):
@@ -100,6 +101,10 @@ class StateTomography(TomographyExperiment):
             circ = QuantumCircuit(circuit.num_qubits)
             circ.initialize(circuit)
             circuit = circ
+
+        if basis_indices is not None:
+            # Add trivial preparation indices for base class
+            basis_indices = [([], i) for i in basis_indices]
 
         super().__init__(
             circuit,

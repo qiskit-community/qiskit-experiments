@@ -131,7 +131,7 @@ class TomographyExperiment(BaseExperiment):
 
         # Build circuits
         circuits = []
-        for meas_element, prep_element in self._basis_indices():
+        for prep_element, meas_element in self._basis_indices():
             name = f"{self._type}_{meas_element}"
             metadata = {
                 "experiment_type": self._type,
@@ -184,7 +184,7 @@ class TomographyExperiment(BaseExperiment):
         else:
             prep_elements = [None]
 
-        return product(meas_elements, prep_elements)
+        return product(prep_elements, meas_elements)
 
     @staticmethod
     def _permute_circuit(

@@ -108,12 +108,13 @@ class ProcessTomography(TomographyExperiment):
             preparation_qubits: Optional, the qubits to be prepared. These should refer
                 to the logical qubits in the process circuit. If None all qubits
                 in the process circuit will be prepared.
-            basis_indices: Optional, the basis elements to be measured. If None
-                All basis elements will be measured. If specified each element
-                is given by a a pair of lists
-                ``([m[0], m[1], ...], [p[0], p[1], ..])`` where ``m[i]`` and
-                ``p[i]`` are the measurement basis and preparation basis indices
-                respectively for qubit-i.
+            basis_indices: Optional, a list of basis indices for generating partial
+                tomography measurement data. Each item should be given as a pair of
+                lists of preparation and measurement basis configurations
+                ``([p[0], p[1], ..], m[0], m[1], ...])``, where ``p[i]`` is the
+                preparation basis index, and ``m[i]`` is the measurement basis index
+                for qubit-i. If not specified full tomography for all indices of the
+                preparation and measurement bases will be performed.
             qubits: Optional, the physical qubits for the initial state circuit.
         """
         super().__init__(
