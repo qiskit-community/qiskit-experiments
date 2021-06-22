@@ -45,7 +45,7 @@ class T1Analysis(BaseAnalysis):
         - :math:`t1`: This is the fit parameter of main interest
 
     Initial Guesses
-        - :math:`amplitude_guess`: Determined by :math:`(y_0 - offset_guess)
+        - :math:`amplitude_guess`: Determined by :math:`(y_0 - offset_guess)`
         - :math:`offset_guess`: Determined by the last :math:`y`
         - :math:`t1_guess`: Determined by the mean of the data points
 
@@ -243,7 +243,7 @@ class T1Experiment(BaseExperiment):
     .. jupyter-execute::
 
         from qiskit_experiments.characterization import T1Experiment
-        from artificial_backends.t1_backend import T1Backend
+        from qiskit_experiments.test.t1_backend import T1Backend
 
         t1 = 25
         delays = list(range(1, 40, 3))
