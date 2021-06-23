@@ -15,6 +15,9 @@
 Mock Job class for test backends
 """
 import uuid
+from datetime import datetime
+from typing import Dict
+
 from qiskit.providers import JobV1 as Job
 from qiskit.providers import JobStatus
 from qiskit.result import Result
@@ -41,6 +44,11 @@ class MockJob(Job):
     def cancel(self):
         """Attempt to cancel the job."""
         pass
+
+    @staticmethod
+    def time_per_step() -> Dict[str, datetime]:
+        """Return the completion time."""
+        return {"COMPLETED": datetime.now()}
 
     def status(self):
         """Return the status of the job, among the values of ``JobStatus``."""
