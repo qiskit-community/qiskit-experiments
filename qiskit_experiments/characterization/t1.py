@@ -221,7 +221,7 @@ class T1Analysis(BaseAnalysis):
         return ax
 
 
-class T1Experiment(BaseExperiment):
+class T1(BaseExperiment):
     r"""
     T1 experiment class
 
@@ -242,13 +242,13 @@ class T1Experiment(BaseExperiment):
 
     .. jupyter-execute::
 
-        from qiskit_experiments.characterization import T1Experiment
+        from qiskit_experiments.characterization import T1
         from qiskit_experiments.test.t1_backend import T1Backend
 
         t1 = 25
         delays = list(range(1, 40, 3))
 
-        exp = T1Experiment(0, delays)
+        exp = T1(0, delays)
         res = exp.run(
             T1Backend([t1]),
             shots=10000,
