@@ -385,10 +385,10 @@ class Discriminator(TrainableDataAction):
 
     @property
     def is_trained(self) -> bool:
-        """Return True is the SVD has been trained.
+        """Return True if the discriminator has been trained.
 
         Returns:
-            True if the SVD has been trained.
+            True if the discriminator has been trained.
         """
         return self._analysis is not None
 
