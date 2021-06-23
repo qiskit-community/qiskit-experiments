@@ -31,7 +31,7 @@ class MockIQBackend(Backend):
         "backend_name": "simulator",
         "backend_version": "0",
         "n_qubits": int(1),
-        "basis_gates": [],
+        "basis_gates": ["x", "measure"],
         "gates": [],
         "local": True,
         "simulator": True,
