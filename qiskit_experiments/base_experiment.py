@@ -14,13 +14,14 @@ Base Experiment class.
 """
 
 from abc import ABC, abstractmethod
-from typing import Iterable, Optional, Tuple, List
+from typing import Iterable, Optional, Tuple, List, Dict
 import copy
 from numbers import Integral
 
 from qiskit import transpile, assemble, QuantumCircuit
 from qiskit.providers.options import Options
 from qiskit.providers.backend import Backend
+from qiskit.providers import BaseJob
 from qiskit.providers.basebackend import BaseBackend as LegacyBackend
 from qiskit.exceptions import QiskitError
 
@@ -77,7 +78,7 @@ class BaseExperiment(ABC):
         self._analysis_options = self._default_analysis_options()
 
         # Set initial layout from qubits
-        self._transpile_options.initial_layout = self._physical_qubits
+        self._transpile_options.initial_layout = list(self._physical_qubits)
 
     def run(
         self,
@@ -98,20 +99,35 @@ class BaseExperiment(ABC):
 
         Returns:
             The experiment data object.
+
+        Raises:
+            QiskitError: if experiment is run with an incompatible existing
+                         ExperimentData container.
         """
-        # Create new experiment data
         if experiment_data is None:
-            experiment_data = self.__experiment_data__(self, backend=backend)
+            # Create new experiment data
+            experiment_data = self.__experiment_data__(experiment=self, backend=backend)
+        else:
+            # Validate experiment is compatible with existing data container
+            metadata = experiment_data.metadata()
+            if metadata.get("experiment_data") != self._type:
+                raise QiskitError(
+                    "Existing ExperimentData contains data from a different experiment."
+                )
+            if metadata.get("physical_qubits") != list(self.physical_qubits):
+                raise QiskitError(
+                    "Existing ExperimentData contains data for a different set of physical qubits."
+                )
 
-        # Generate and transpile circuits
-        circuits = transpile(self.circuits(backend), backend, **self.transpile_options.__dict__)
-        self._postprocess_transpiled_circuits(circuits)
-
-        # Run circuits on backend
+        # Run options
         run_opts = copy.copy(self.run_options)
         run_opts.update_options(**run_options)
         run_opts = run_opts.__dict__
 
+        # Generate and transpile circuits
+        circuits = transpile(self.circuits(backend), backend, **self.transpile_options.__dict__)
+        self._postprocess_transpiled_circuits(circuits)
+        
         if isinstance(backend, LegacyBackend):
             qobj = assemble(circuits, backend=backend, **run_opts)
             job = backend.run(qobj)
@@ -120,6 +136,9 @@ class BaseExperiment(ABC):
 
         # Add Job to ExperimentData
         experiment_data.add_data(job)
+
+        # Add experiment option metadata
+        self._add_job_metadata(experiment_data, job, **run_opts)
 
         # Queue analysis of data for when job is finished
         if analysis and self.__analysis_class__ is not None:
@@ -290,6 +309,50 @@ class BaseExperiment(ABC):
         """
         self._analysis_options.update_options(**fields)
 
+
     def _postprocess_transpiled_circuits(self, circuits: List[QuantumCircuit]):
         """Computes additional metadata for the transpiled circuits, if needed"""
         pass
+
+    def _metadata(self) -> Dict[str, any]:
+        """Return experiment metadata for ExperimentData.
+
+        The :meth:`_add_job_metadata` method will be called for each
+        experiment execution to append job metadata, including current
+        option values, to the ``job_metadata`` list.
+        """
+        metadata = {
+            "experiment_type": self._type,
+            "num_qubits": self.num_qubits,
+            "physical_qubits": list(self.physical_qubits),
+            "job_metadata": [],
+        }
+        # Add additional metadata if subclasses specify it
+        for key, val in self._additional_metadata():
+            metadata[key] = val
+        return metadata
+
+    def _additional_metadata(self) -> Dict[str, any]:
+        """Add additional subclass experiment metadata.
+
+        Subclasses can override this method if it is necessary to store
+        additional experiment metadata in ExperimentData.
+        """
+        return {}
+
+    def _add_job_metadata(self, experiment_data: ExperimentData, job: BaseJob, **run_options):
+        """Add runtime job metadata to ExperimentData.
+
+        Args:
+            experiment_data: the experiment data container.
+            job: the job object.
+            run_options: backend run options for the job.
+        """
+        metadata = {
+            "job_id": job.job_id(),
+            "experiment_options": copy.copy(self.experiment_options.__dict__),
+            "transpile_options": copy.copy(self.transpile_options.__dict__),
+            "analysis_options": copy.copy(self.analysis_options.__dict__),
+            "run_options": copy.copy(run_options),
+        }
+        experiment_data._metadata["job_metadata"].append(metadata)

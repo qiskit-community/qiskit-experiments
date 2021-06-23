@@ -24,7 +24,8 @@ from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.composite import ParallelExperiment
-from qiskit_experiments.characterization import T1Experiment, T1Analysis
+from qiskit_experiments.characterization import T1, T1Analysis
+from .mock_job import MockJob
 
 
 class T1Backend(BackendV1):
@@ -141,7 +142,7 @@ class T1Backend(BackendV1):
                 }
             )
 
-        return Result.from_dict(result)
+        return MockJob(self, Result.from_dict(result))
 
 
 class TestT1(QiskitTestCase):
@@ -173,7 +174,7 @@ class TestT1(QiskitTestCase):
             )
         )
 
-        exp = T1Experiment(0, delays, unit="dt")
+        exp = T1(0, delays, unit="dt")
         exp.set_analysis_options(amplitude_guess=1, t1_guess=t1 / dt_factor, offset_guess=0)
         res = exp.run(backend, shots=10000).analysis_result(0)
 
@@ -188,8 +189,8 @@ class TestT1(QiskitTestCase):
         t1 = [25, 15]
         delays = list(range(1, 40, 3))
 
-        exp0 = T1Experiment(0, delays)
-        exp2 = T1Experiment(2, delays)
+        exp0 = T1(0, delays)
+        exp2 = T1(2, delays)
         par_exp = ParallelExperiment([exp0, exp2])
         res = par_exp.run(T1Backend([t1[0], None, t1[1]]))
 
@@ -212,7 +213,7 @@ class TestT1(QiskitTestCase):
                     "counts": {"0": count0, "1": 10000 - count0},
                     "metadata": {
                         "xval": 3 * i + 1,
-                        "experiment_type": "T1Experiment",
+                        "experiment_type": "T1",
                         "qubit": 0,
                         "unit": "ns",
                         "dt_factor_in_sec": None,
@@ -230,7 +231,7 @@ class TestT1(QiskitTestCase):
         """
 
         delays = list(range(1, 40, 3))
-        exp = T1Experiment(0, delays, unit="ms")
+        exp = T1(0, delays, unit="ms")
         circs = exp.circuits()
 
         self.assertEqual(len(circs), len(delays))
@@ -239,7 +240,7 @@ class TestT1(QiskitTestCase):
             self.assertEqual(
                 circ.metadata,
                 {
-                    "experiment_type": "T1Experiment",
+                    "experiment_type": "T1",
                     "qubit": 0,
                     "xval": delay,
                     "unit": "ms",
@@ -259,7 +260,7 @@ class TestT1(QiskitTestCase):
                     "counts": {"0": 10, "1": 10},
                     "metadata": {
                         "xval": i,
-                        "experiment_type": "T1Experiment",
+                        "experiment_type": "T1",
                         "qubit": 0,
                         "unit": "ns",
                         "dt_factor_in_sec": None,
