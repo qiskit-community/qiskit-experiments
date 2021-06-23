@@ -23,19 +23,42 @@ from qiskit.quantum_info import Clifford
 
 from qiskit_experiments.analysis.data_processing import probability
 from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.options_autodoc import OptionsField, create_experiment_docs
+from qiskit_experiments.autodocs import (
+    OptionsField,
+    Reference,
+    auto_experiment_documentation,
+    auto_options_method_documentation,
+)
 from .clifford_utils import CliffordUtils
 from .rb_analysis import RBAnalysis
 
 
-@create_experiment_docs
+@auto_experiment_documentation()
+@auto_options_method_documentation()
 class RBExperiment(BaseExperiment):
-    """RB Experiment class.
+    """Randomized benchmarking."""
 
-    Experiment Options:
-        lengths: A list of RB sequences lengths.
-        num_samples: number of samples to generate for each sequence length.
-    """
+    __doc_overview__ = """A randomized benchmarking (RB) is a scalable and robust algorithm 
+for benchmarking the full set of Clifford gates by a single parameter using the
+randomization technique [1].
+
+The RB sequences consist of random Clifford elements chosen uniformly from the Clifford group on
+n-qubits, including a computed reversal element, that should return the qubits to the
+initial state.
+
+Averaging over K random realizations of the sequence, we can find the averaged sequence fidelity,
+or error per Clifford (EPC)."""
+
+    __doc_tutorial__ = "https://github.com/Qiskit/qiskit-experiments/blob/main/docs/tutorials/\
+rb_example.ipynb"
+
+    __doc_references__ = [
+        Reference(
+            title="Robust randomized benchmarking of quantum processes",
+            authors="Easwar Magesan, J. M. Gambetta, and Joseph Emerson",
+            open_access_link="https://arxiv.org/abs/1009.3639",
+        )
+    ]
 
     # Analysis class for experiment
     __analysis_class__ = RBAnalysis

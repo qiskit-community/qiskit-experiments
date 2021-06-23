@@ -22,12 +22,20 @@ from qiskit.quantum_info import Clifford
 
 from .rb_experiment import RBExperiment
 from .interleaved_rb_analysis import InterleavedRBAnalysis
-from qiskit_experiments.options_autodoc import create_experiment_docs
+from qiskit_experiments.autodocs import (
+    auto_experiment_documentation,
+    auto_options_method_documentation,
+)
 
 
-@create_experiment_docs
+@auto_experiment_documentation()
+@auto_options_method_documentation()
 class InterleavedRBExperiment(RBExperiment):
     """Interleaved RB Experiment class"""
+
+    __doc_overview__ = """
+    
+    """
 
     # Analysis class for experiment
     __analysis_class__ = InterleavedRBAnalysis
@@ -41,7 +49,7 @@ class InterleavedRBExperiment(RBExperiment):
         seed: Optional[Union[int, Generator]] = None,
         full_sampling: bool = False,
     ):
-        """Interleaved randomized benchmarking experiment.
+        """Create new experiment.
 
         Args:
             interleaved_element: the element to interleave,

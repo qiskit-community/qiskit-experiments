@@ -31,7 +31,11 @@ from qiskit_experiments.analysis import (
     get_opt_value,
     get_opt_error,
 )
-from qiskit_experiments.options_autodoc import OptionsField, create_experiment_docs
+from qiskit_experiments.autodocs import (
+    OptionsField,
+    auto_experiment_documentation,
+    auto_options_method_documentation,
+)
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
 
@@ -179,28 +183,27 @@ Kerneled (level1) measurement data.",
         return analysis_result
 
 
-@create_experiment_docs
+@auto_experiment_documentation()
+@auto_options_method_documentation()
 class QubitSpectroscopy(BaseExperiment):
-    """Class that runs spectroscopy by sweeping the qubit frequency.
+    """Class that runs spectroscopy by sweeping the qubit frequency."""
 
-    Overview
-        The circuits produced by spectroscopy, i.e.
+    __doc_overview__ = """The circuits produced by spectroscopy, i.e.
+    
+.. parsed-literal::
 
-        .. parsed-literal::
+               ┌────────────┐ ░ ┌─┐
+          q_0: ┤ Spec(freq) ├─░─┤M├
+               └────────────┘ ░ └╥┘
+    measure: 1/══════════════════╩═
+                                 0
 
-                       ┌────────────┐ ░ ┌─┐
-                  q_0: ┤ Spec(freq) ├─░─┤M├
-                       └────────────┘ ░ └╥┘
-            measure: 1/══════════════════╩═
-                                         0
+have a spectroscopy pulse-schedule embedded in a spectroscopy gate. The
+pulse-schedule consists of a set frequency instruction followed by a GaussianSquare
+pulse. A list of circuits is generated, each with a different frequency "freq".
 
-        have a spectroscopy pulse-schedule embedded in a spectroscopy gate. The
-        pulse-schedule consists of a set frequency instruction followed by a GaussianSquare
-        pulse. A list of circuits is generated, each with a different frequency "freq".
-
-        A spectroscopy experiment run by setting the frequency of the qubit drive.
-        The parameters of the GaussianSquare spectroscopy pulse can be specified at run-time.
-    """
+A spectroscopy experiment run by setting the frequency of the qubit drive.
+The parameters of the GaussianSquare spectroscopy pulse can be specified at run-time."""
 
     __analysis_class__ = SpectroscopyAnalysis
 

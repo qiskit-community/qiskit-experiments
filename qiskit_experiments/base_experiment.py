@@ -25,7 +25,7 @@ from qiskit.providers.basebackend import BaseBackend as LegacyBackend
 from qiskit.providers.options import Options
 
 from .experiment_data import ExperimentData
-from .options_autodoc import to_options, OptionsField
+from .autodocs import to_options, OptionsField
 
 
 class BaseExperiment(ABC):
@@ -39,6 +39,14 @@ class BaseExperiment(ABC):
         __experiment_data__: ExperimentData class that is produced by the
                              experiment (Default: ExperimentData).
     """
+
+    # Documentation sections
+    __doc_overview__ = None
+    __doc_example__ = None
+    __doc_references__ = None
+    __doc_note__ = None
+    __doc_warning__ = None
+    __doc_tutorial__ = None
 
     # Analysis class for experiment
     __analysis_class__ = None

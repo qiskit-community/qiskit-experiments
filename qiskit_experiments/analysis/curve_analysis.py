@@ -31,7 +31,7 @@ from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
-from qiskit_experiments.options_autodoc import OptionsField
+from qiskit_experiments.autodocs import OptionsField
 
 
 @dataclasses.dataclass(frozen=True)
