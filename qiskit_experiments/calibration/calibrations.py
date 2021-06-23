@@ -556,7 +556,7 @@ class Calibrations:
             raise CalibrationError(msg)
 
         # 5) Return the most recent parameter.
-        return max(candidates, key=lambda x: x.date_time).value
+        return max(enumerate(candidates), key=lambda x: (x[1].date_time, x[0]))[1].value
 
     def get_schedule(
         self,
@@ -1047,6 +1047,9 @@ class Calibrations:
 
         if isinstance(qubits, int):
             return (qubits,)
+
+        if isinstance(qubits, list):
+            return tuple(qubits)
 
         if isinstance(qubits, tuple):
             if all(isinstance(n, int) for n in qubits):

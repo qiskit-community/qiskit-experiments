@@ -253,9 +253,6 @@ class TestCalibrationsBasic(QiskitTestCase):
         with self.assertRaises(CalibrationError):
             self.cals.get_parameter_value("amp", "(1, a)", "xp")
 
-        with self.assertRaises(CalibrationError):
-            self.cals.get_parameter_value("amp", [3], "xp")
-
 
 class TestOverrideDefaults(QiskitTestCase):
     """
