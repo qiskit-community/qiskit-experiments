@@ -34,7 +34,7 @@ from qiskit_experiments.data_processing.nodes import (
     QDADiscriminator,
 )
 from qiskit_experiments.measurement.discriminator import (
-    DiscriminatorExperiment,
+    Discriminator,
     DiscriminatorAnalysis,
 )
 from ..test_discriminator import DiscriminatorBackend
@@ -271,7 +271,7 @@ class TestDiscriminator(BaseDataProcessorTest):
         """Generate discriminator data."""
         super().setUp()
         backend = DiscriminatorBackend(0)
-        exp = DiscriminatorExperiment(2)
+        exp = Discriminator(2)
         self.res_lda = exp.run(
             backend, shots=100, meas_level=1, meas_return="single", discriminator_type="LDA"
         )

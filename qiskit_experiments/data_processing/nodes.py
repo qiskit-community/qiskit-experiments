@@ -353,7 +353,7 @@ class ToImag(IQPart):
         else:
             return datum[..., 1] * self.scale, None
 
-class Discriminator(IQPart):
+class Discriminator(TrainableDataAction):
     """Base class for discriminator processor. Takes IQ data and calibrated discriminator as input,
     outputs counts."""
 
@@ -366,11 +366,31 @@ class Discriminator(IQPart):
             validate: If set to False the DataAction will not validate its input.
         """
         self._handle = handle
+        self._analysis = None
         super().__init__(validate)
 
-    def _required_dimension(self):
-        """Require memory to be a 3D array."""
-        return 3
+    def _format_data(self, datum, error):
+        return datum
+
+    def train(self, data: List[Any]):
+        if not data:
+            return
+        if isinstance(data, CompositeExperimentData) is True:
+            self._analysis = lambda q: data.component_experiment_data(q).analysis_result(0)
+        elif isinstance(data, ExperimentData) is True:
+            self._analysis = data.analysis_result
+        else:
+            raise DataProcessorError("Invalid training data input type")
+
+
+    @property
+    def is_trained(self) -> bool:
+        """Return True is the SVD has been trained.
+
+        Returns:
+            True if the SVD has been trained.
+        """
+        return self._analysis is not None
 
     def _to_dict(self, list_data: List[int]) -> Dict[str, Any]:
         """Converts discriminated data in lists to dictionary of counts.
@@ -397,20 +417,17 @@ class Discriminator(IQPart):
         Returns:
             processed data: Counts dictionary.
         """
-        super()._process(datum)
+        if not self.is_trained:
+            raise DataProcessorError("SVD must be trained on data before it can be used.")
+
+        #super()._process(datum)
         list_data = []
 
-        if isinstance(self._handle, CompositeExperimentData) is True:
-            analysis = lambda q: self._handle.component_experiment_data(q).analysis_result(0)
-        elif isinstance(self._handle, ExperimentData) is True:
-            analysis = self._handle.analysis_result
-        else:
-            raise DataProcessorError("Invalid input type")
 
         for i in range(np.shape(datum)[1]):
-            if "discriminator" not in analysis(i):
+            if "discriminator" not in self._analysis(i):
                 raise DataProcessorError("Input not a discriminator.")
-            discriminator = analysis(i)["discriminator"]
+            discriminator = self._analysis(i)["discriminator"]
             list_data.append(discriminator.predict(datum[:, i, :]))
         return self._to_dict(list_data), None
 

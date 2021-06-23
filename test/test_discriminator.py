@@ -21,7 +21,7 @@ from qiskit.test import QiskitTestCase
 
 
 from qiskit_experiments.measurement.discriminator import (
-    DiscriminatorExperiment,
+    Discriminator,
     DiscriminatorAnalysis,
 )
 
@@ -125,5 +125,5 @@ class DiscriminatorBackend(BaseBackend):
 class TestDiscriminator(QiskitTestCase):
     def test_single_qubit(self):
         backend = DiscriminatorBackend()
-        exp = DiscriminatorExperiment(1)
+        exp = Discriminator(1)
         res = exp.run(backend, shots=10, meas_level=1, meas_return="single").analysis_result(0)
