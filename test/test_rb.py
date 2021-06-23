@@ -199,3 +199,25 @@ class TestRBUtilities(QiskitTestCase):
             circuit.append(self.instructions[gate], qubits)
         counts = qe.randomized_benchmarking.RBUtils.count_ops(circuit)
         self.assertDictEqual(expected_counts, counts)
+
+    def test_calculate_1q_epg(self):
+        epc_1_qubit = 0.0037
+        qubits = [0]
+        gate_error_ratio = {((0,), 'id'): 1, ((0,), 'rz'): 0, ((0,), 'sx'): 1, ((0,), 'x'): 1}
+        gates_per_clifford = {((0,), 'rz'): 10.5, ((0,), 'sx'): 8.15, ((0,), 'x'): 0.25}
+        epg = qe.randomized_benchmarking.RBUtils.calculate_1q_epg(
+            epc_1_qubit,
+            qubits,
+            gate_error_ratio,
+            gates_per_clifford
+        )
+        error_dict = {((0,), 'rz'): 0,
+         ((0,), 'sx'): 0.0004432101747785104,
+         ((0,), 'x'): 0.0004432101747785104}
+
+        for gate in ['x', 'sx', 'rz']:
+            print(error_dict[((0,), gate)])
+            print(epg[0][gate])
+            expected_epg = error_dict[((0,), gate)]
+            actual_epg = epg[0][gate]
+            self.assertTrue(np.allclose(expected_epg, actual_epg, rtol=1.e-2))
