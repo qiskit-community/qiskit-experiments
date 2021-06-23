@@ -13,7 +13,7 @@
 """Class to store and manage the results of calibration experiments."""
 
 import os
-from collections import namedtuple, defaultdict
+from collections import defaultdict
 from datetime import datetime
 from typing import Any, Dict, Set, Tuple, Union, List, Optional
 import csv
@@ -37,10 +37,11 @@ from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter, ParameterExpression
 from qiskit_experiments.calibration.exceptions import CalibrationError
 from qiskit_experiments.calibration.parameter_value import ParameterValue
-
-ParameterKey = namedtuple("ParameterKey", ["parameter", "qubits", "schedule"])
-ScheduleKey = namedtuple("ScheduleKey", ["schedule", "qubits"])
-ParameterValueType = Union[ParameterExpression, float, int, complex]
+from qiskit_experiments.calibration.calibration_key_types import (
+    ParameterKey,
+    ParameterValueType,
+    ScheduleKey,
+)
 
 
 class Calibrations:
@@ -545,7 +546,7 @@ class Calibrations:
             raise CalibrationError(msg)
 
         # 5) Return the most recent parameter.
-        return max(candidates, key=lambda x: x.date_time).value
+        return max(enumerate(candidates), key=lambda x: (x[1].date_time, x[0]))[1].value
 
     def get_schedule(
         self,
@@ -1025,7 +1026,7 @@ class Calibrations:
             CalibrationError: If the given input does not conform to an int or
                 tuple of ints.
         """
-        if not qubits:
+        if qubits is None:
             return tuple()
 
         if isinstance(qubits, str):
@@ -1036,6 +1037,9 @@ class Calibrations:
 
         if isinstance(qubits, int):
             return (qubits,)
+
+        if isinstance(qubits, list):
+            return tuple(qubits)
 
         if isinstance(qubits, tuple):
             if all(isinstance(n, int) for n in qubits):

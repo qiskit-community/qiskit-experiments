@@ -16,7 +16,8 @@ from typing import Tuple
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 import numpy as np
 
-from qiskit import QuantumCircuit, execute
+from qiskit import QuantumCircuit, execute, transpile
+from qiskit.exceptions import QiskitError
 from qiskit.circuit import Parameter
 from qiskit.providers.basicaer import QasmSimulatorPy
 from qiskit.test import QiskitTestCase
@@ -27,6 +28,7 @@ from qiskit_experiments import ExperimentData
 from qiskit_experiments.calibration.experiments.rabi import RabiAnalysis, Rabi
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
+from qiskit_experiments.composite.parallel_experiment import ParallelExperiment
 
 
 class RabiBackend(MockIQBackend):
@@ -187,3 +189,33 @@ class TestRabiAnalysis(QiskitTestCase):
         result = RabiAnalysis().run(experiment_data, data_processor=data_processor, plot=False)
 
         self.assertEqual(result[0]["quality"], "computer_bad")
+
+
+class TestCompositeExperiment(QiskitTestCase):
+    """Test composite Rabi experiment."""
+
+    def test_calibrations(self):
+        """Test that the calibrations are preserved and that the circuit transpiles."""
+
+        experiments = []
+        for qubit in range(3):
+            rabi = Rabi(qubit)
+            rabi.set_experiment_options(amplitudes=[0.5])
+            experiments.append(rabi)
+
+        par_exp = ParallelExperiment(experiments)
+        par_circ = par_exp.circuits()[0]
+
+        # If the calibrations are not there we will not be able to transpile
+        try:
+            transpile(par_circ, basis_gates=["rz", "sx", "x", "cx"])
+        except QiskitError as error:
+            self.fail("Failed to transpile with error: " + str(error))
+
+        # Assert that the calibration keys are in the calibrations of the composite circuit.
+        for qubit in range(3):
+            rabi_circuit = experiments[qubit].circuits()[0]
+            cal_key = next(iter(rabi_circuit.calibrations["Rabi"].keys()))
+
+            self.assertEqual(cal_key[0], (qubit,))
+            self.assertTrue(cal_key in par_circ.calibrations["Rabi"])
