@@ -27,6 +27,7 @@ from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T1, T1Analysis
 from qiskit_experiments.test.mock_job import MockJob
 
+
 class T1Backend(BackendV1):
     """
     A simple and primitive backend, to be run by the T1 tests
