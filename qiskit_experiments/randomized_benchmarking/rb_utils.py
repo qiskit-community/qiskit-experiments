@@ -188,6 +188,10 @@ class RBUtils:
             A dictionary of the form (qubits, gate) -> value where value
             is the epg for the given gate on the specified qubits
         """
+        print("epc_1_qubit", epc_1_qubit)
+        print("qubits", qubits)
+        print("gate_error_ratio", gate_error_ratio)
+        print("gates_per_clifford", gates_per_clifford)
         epg = {qubit: {} for qubit in qubits}
         for qubit in qubits:
             error_sum = 0
