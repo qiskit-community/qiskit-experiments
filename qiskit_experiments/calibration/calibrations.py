@@ -14,7 +14,7 @@
 
 import os
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Dict, Set, Tuple, Union, List, Optional
 import csv
 import dataclasses
@@ -390,7 +390,17 @@ class Calibrations:
         if sched_name and sched_name not in registered_schedules:
             raise CalibrationError(f"Schedule named {sched_name} was never registered.")
 
-        self._params[ParameterKey(param_name, qubits, sched_name)].append(value)
+        # Edge case handling if the new value has the exact same time as the existing ones
+        # for the same key.
+        key = ParameterKey(param_name, qubits, sched_name)
+
+        if self._params[key]:
+            max_datetime = max(self._params[key], key=lambda x: x.date_time).date_time
+
+            if value.date_time == max_datetime:
+                value.date_time = value.date_time + timedelta(microseconds=1)
+
+        self._params[key].append(value)
 
     def _get_channel_index(self, qubits: Tuple[int, ...], chan: PulseChannel) -> int:
         """Get the index of the parameterized channel.

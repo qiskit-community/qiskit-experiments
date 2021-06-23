@@ -441,6 +441,29 @@ class TestOverrideDefaults(QiskitTestCase):
         self.assertEqual(len(amp_values), 2)
 
 
+class TestConcurrentParameters(QiskitTestCase):
+    """Test a particular edge case with the time in the parameter values."""
+
+    def test_concurrent_values(self):
+        """Ensure that parameter values have a unique maximum time."""
+
+        cals = Calibrations()
+
+        amp = Parameter("amp")
+        ch0 = Parameter("ch0")
+        with pulse.build(name="xp") as xp:
+            pulse.play(Gaussian(160, amp, 40), DriveChannel(ch0))
+
+        cals.add_schedule(xp)
+
+        date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
+
+        cals.add_parameter_value(ParameterValue(0.25, date_time), "amp", (3,), "xp")
+        cals.add_parameter_value(ParameterValue(0.35, date_time), "amp", (3,), "xp")
+
+        self.assertEqual(cals.get_parameter_value("amp", 3, "xp"), 0.35)
+
+
 class TestMeasurements(QiskitTestCase):
     """Test that schedules on measure channels are handled properly."""
 

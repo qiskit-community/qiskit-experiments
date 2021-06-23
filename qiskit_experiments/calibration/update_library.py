@@ -47,8 +47,9 @@ class BaseUpdater(ABC):
 
         return datetime.now()
 
-    @staticmethod
+    @classmethod
     def _add_parameter_value(
+        cls,
         cal: Calibrations,
         exp_data: ExperimentData,
         value: ParameterValueType,
@@ -73,7 +74,7 @@ class BaseUpdater(ABC):
 
         param_value = ParameterValue(
             value=value,
-            date_time=BaseUpdater._time_stamp(exp_data),
+            date_time=cls._time_stamp(exp_data),
             group=group,
             exp_id=exp_data.experiment_id,
         )
