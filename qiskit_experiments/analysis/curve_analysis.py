@@ -337,9 +337,7 @@ class CurveAnalysis(BaseAnalysis):
             curve_data_raw = self._data(series_name=series_def.name, label="raw_data")
             ymin = min(ymin, *curve_data_raw.y)
             ymax = max(ymax, *curve_data_raw.y)
-            plotting.plot_scatter(
-                xdata=curve_data_raw.x, ydata=curve_data_raw.y, ax=axis, zorder=0
-            )
+            plotting.plot_scatter(xdata=curve_data_raw.x, ydata=curve_data_raw.y, ax=axis, zorder=0)
 
             # plot formatted data
 
@@ -417,9 +415,7 @@ class CurveAnalysis(BaseAnalysis):
                 transform=axis.transAxes,
             )
 
-            bbox_props = dict(
-                boxstyle="square, pad=0.3", fc="white", ec="black", lw=1, alpha=0.8
-            )
+            bbox_props = dict(boxstyle="square, pad=0.3", fc="white", ec="black", lw=1, alpha=0.8)
             report_handler.set_bbox(bbox_props)
 
         return [figure]
