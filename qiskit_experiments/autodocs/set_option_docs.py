@@ -14,7 +14,7 @@ Documentation for set option methods.
 """
 import functools
 from types import FunctionType
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Type
 
 from qiskit.exceptions import QiskitError
 
@@ -90,7 +90,7 @@ def _compile_annotations(fields: Dict[str, OptionsField]) -> Dict[str, Any]:
     return annotations
 
 
-def auto_options_method_documentation(style: _DocstringMaker = StandardSetOptionsDocstring):
+def base_options_method_documentation(style: Type[_DocstringMaker]):
     """A class decorator that overrides set options method docstring."""
     def decorator(experiment: "BaseExperiment"):
         analysis_options = experiment.__analysis_class__._default_options()
@@ -102,9 +102,10 @@ def auto_options_method_documentation(style: _DocstringMaker = StandardSetOption
         analysis_setter.__doc__ = style.make_docstring(
             description="Set the analysis options for :py:meth:`run_analysis` method.",
             options=analysis_options,
-            note="Here you can set arbitrary parameter, even if it is not listed. \
-Such option is passed as a keyword argument to the analysis fitter functions (if exist). \
-The execution may fail if the function API doesn't support extra keyword arguments.",
+            note="Here you can set arbitrary parameter, even if it is not listed. "
+                 "Such option is passed as a keyword argument to the analysis fitter functions "
+                 "(if exist). The execution may fail if the function API doesn't support "
+                 "extra keyword arguments.",
         )
         setattr(experiment, "set_analysis_options", analysis_setter)
 

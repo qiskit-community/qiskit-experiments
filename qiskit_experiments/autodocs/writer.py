@@ -83,13 +83,25 @@ class _DocstringWriter:
                 _write_field(arg_name, field)
             self.docstring += "\n"
 
-    def write_options_as_sections(self, fields: typing.Dict[str, OptionsField], section: str):
+    def write_options_as_sections(
+            self,
+            fields: typing.Dict[str, OptionsField],
+            section: str,
+            text_block: typing.Optional[str] = None,
+    ):
         """Write option descriptions as a custom section.
 
         This writes only the first line of description, if multiple lines exist.
         This style is mainly used for the short summary (options are itemized).
+        This section will be shown as a drop down box.
         """
-        self.docstring += f"{section}\n"
+        self.docstring += f".. dropdown:: {section}\n"
+        self.docstring += self.__indent__
+        self.docstring += ":animate: fade-in-slide-down\n\n"
+
+        if text_block:
+            self.docstring += self._write_multi_line(text_block, self.__indent__)
+            self.docstring += "\n"
 
         for arg_name, field in fields.items():
             if field.is_extra:
@@ -138,6 +150,12 @@ class _DocstringWriter:
         self.docstring += self._write_multi_line(text_block, self.__indent__)
         self.docstring += "\n"
 
+    def write_returns(self, text_block: str):
+        """Write returns."""
+        self.docstring += "Returns:\n"
+        self.docstring += self._write_multi_line(text_block, self.__indent__)
+        self.docstring += "\n"
+
     def write_references(self, refs: typing.List[Reference]):
         """Write references."""
         self.docstring += "References:\n"
@@ -180,7 +198,7 @@ class _CurveFitDocstringWriter(_DocstringWriter):
 
         for fit_param in fit_params:
             self.docstring += self.__indent__
-            self.docstring += f":math:`{fit_param.name}`: {fit_param.description}\n"
+            self.docstring += f"- :math:`{fit_param.name}`: {fit_param.description}\n"
         self.docstring += "\n"
 
     def write_initial_guess(self, fit_params: typing.List[CurveFitParameter]):
@@ -189,7 +207,7 @@ class _CurveFitDocstringWriter(_DocstringWriter):
 
         for fit_param in fit_params:
             self.docstring += self.__indent__
-            self.docstring += f":math`{fit_param.name}`: {fit_param.initial_guess}\n"
+            self.docstring += f"- :math:`{fit_param.name}`: {fit_param.initial_guess}\n"
         self.docstring += "\n"
 
     def write_bounds(self, fit_params: typing.List[CurveFitParameter]):
@@ -198,22 +216,25 @@ class _CurveFitDocstringWriter(_DocstringWriter):
 
         for fit_param in fit_params:
             self.docstring += self.__indent__
-            self.docstring += f":math`{fit_param.name}`: {fit_param.bounds}\n"
+            self.docstring += f"- :math:`{fit_param.name}`: {fit_param.bounds}\n"
         self.docstring += "\n"
 
     def write_fit_models(self, equations: typing.List[str]):
         """Write fitting models."""
-        self.docstring += "Fit Model\n\n"
+        self.docstring += "Fit Model\n"
+        self.docstring += self.__indent__
         self.docstring += ".. math::\n\n"
 
         if len(equations) > 1:
+            eqs = []
             for equation in equations:
-                self.docstring += self.__indent__ * 2
                 try:
                     lh, rh = equation.split("=")
                 except ValueError:
                     raise QiskitError(f"Equation {equation} is not a valid form.")
-                self.docstring += f"{lh} &= {rh}\n"
+                eqs.append(f"{self.__indent__ * 2}{lh} &= {rh}")
+            self.docstring += " \\\\\n".join(eqs)
+            self.docstring += "\n"
         else:
             self.docstring += self.__indent__ * 2
             self.docstring += f"{equations[0]}\n"

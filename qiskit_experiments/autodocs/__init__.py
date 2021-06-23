@@ -20,7 +20,27 @@ also appears in all subclasses. This drastically reduces the overhead of docstri
 while providing users with the standardized and high quality documentation.
 """
 
-from .experiment_docs import auto_experiment_documentation
-from .set_option_docs import auto_options_method_documentation
-from .analysis_docs import auto_analysis_documentation
-from .descriptions import OptionsField, Reference, to_options
+import qiskit_experiments.autodocs.analysis_docs
+import qiskit_experiments.autodocs.experiment_docs
+import qiskit_experiments.autodocs.set_option_docs
+from .descriptions import OptionsField, Reference, CurveFitParameter, to_options
+
+
+standard_experiment_documentation = experiment_docs.base_experiment_documentation(
+    style=experiment_docs.StandardExperimentDocstring
+)
+
+
+standard_analysis_documentation = analysis_docs.base_analysis_documentation(
+    style=analysis_docs.StandardAnalysisDocstring
+)
+
+
+curve_analysis_documentation = analysis_docs.base_analysis_documentation(
+    style=analysis_docs.CurveAnalysisDocstring
+)
+
+
+standard_option_documentation = set_option_docs.base_options_method_documentation(
+    style=set_option_docs.StandardSetOptionsDocstring
+)

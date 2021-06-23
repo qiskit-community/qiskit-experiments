@@ -26,15 +26,15 @@ from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.autodocs import (
     OptionsField,
     Reference,
-    auto_experiment_documentation,
-    auto_options_method_documentation,
+    standard_experiment_documentation,
+    standard_option_documentation,
 )
 from .clifford_utils import CliffordUtils
 from .rb_analysis import RBAnalysis
 
 
-@auto_experiment_documentation()
-@auto_options_method_documentation()
+@standard_experiment_documentation
+@standard_option_documentation
 class RBExperiment(BaseExperiment):
     """Randomized benchmarking."""
 
@@ -107,15 +107,16 @@ rb_example.ipynb"
             "lengths": OptionsField(
                 default=None,
                 annotation=Iterable[int],
-                description="Array of integer values representing a number of Clifford gate N per \
-RB sequence. This value should be chosen based on expected decay curve. If the maximum length is \
-too short, confidence interval of fit will become poor.",
+                description="Array of integer values representing a number of Clifford gate N "
+                            "per RB sequence. This value should be chosen based on "
+                            "expected decay curve. If the maximum length is "
+                            "too short, confidence interval of fit will become poor.",
             ),
             "num_samples": OptionsField(
                 default=None,
                 annotation=int,
-                description="Number of RB sequence per Clifford length. M random sequences are \
-generated for a length N.",
+                description="Number of RB sequence per Clifford length. M random sequences are "
+                            "generated for a length N.",
             ),
         }
 

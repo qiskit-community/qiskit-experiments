@@ -23,13 +23,13 @@ from qiskit.quantum_info import Clifford
 from .rb_experiment import RBExperiment
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 from qiskit_experiments.autodocs import (
-    auto_experiment_documentation,
-    auto_options_method_documentation,
+    standard_experiment_documentation,
+    standard_option_documentation,
 )
 
 
-@auto_experiment_documentation()
-@auto_options_method_documentation()
+@standard_experiment_documentation
+@standard_option_documentation
 class InterleavedRBExperiment(RBExperiment):
     """Interleaved RB Experiment class"""
 

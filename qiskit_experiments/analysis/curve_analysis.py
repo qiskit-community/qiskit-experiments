@@ -201,6 +201,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
         https://github.com/Qiskit/qiskit-experiments/issues
     """
 
+    # extra documentations
+    __doc_equations__ = None
+    __doc_fit_params__ = None
+
     #: List[SeriesDef]: List of mapping representing a data series
     __series__ = None
 
@@ -288,8 +292,8 @@ or any class instance that defines the ``__call__`` method to be a callable.""",
             "bounds": OptionsField(
                 default=None,
                 annotation=Dict[str, Tuple[float, float]],
-                description="Dictionary of (min, max) tuple of fit parameter boundaries. \
-Keys are parameter names.",
+                description="Dictionary of (min, max) tuple of fit parameter boundaries. "
+                            "Keys are parameter names.",
             ),
             "x_key": OptionsField(
                 default="xval",
@@ -324,8 +328,8 @@ Keys are parameter names.",
             "fit_reports": OptionsField(
                 default=None,
                 annotation=Dict[str, str],
-                description="Mapping of fit parameters and representation in the fit report. \
-If nothing specified, fit report will not be shown.",
+                description="Mapping of fit parameters and representation in the fit report. "
+                            "If nothing specified, fit report will not be shown.",
             ),
             "return_data_points": OptionsField(
                 default=False,

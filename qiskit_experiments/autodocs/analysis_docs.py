@@ -13,7 +13,7 @@
 Documentation for analysis class.
 """
 import re
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Type
 
 from qiskit.exceptions import QiskitError
 
@@ -43,8 +43,10 @@ class StandardAnalysisDocstring(_DocstringMaker):
                 writer.write_section(overview, "Overview")
             if example:
                 writer.write_example(example)
-            writer.write_lines("Default class options. These options are automatically set \
-when :py:meth:`run` method is called.")
+            writer.write_lines(
+                "Default class options. These options are automatically set "
+                "when :py:meth:`run` method is called."
+            )
             writer.write_options_as_sections(default_options, "Default Options")
             if references:
                 writer.write_references(references)
@@ -82,15 +84,31 @@ class CurveAnalysisDocstring(_DocstringMaker):
             if equations:
                 if isinstance(equations, str):
                     equations = [equations]
+                writer.write_lines("This analysis assumes following fit function(s).")
                 writer.write_fit_models(equations)
             if fit_params:
+                writer.write_lines(
+                    "The fit model takes following fit parameters."
+                    "These parameters are fit by the ``curve_fitter`` function specified in "
+                    "the analysis options."
+                )
                 writer.write_fit_parameter(fit_params)
+                writer.write_lines(
+                    "The parameter initial guess are generated as follows. "
+                    "If you want to override, you can provide ``p0`` of the analysis options."
+                )
                 writer.write_initial_guess(fit_params)
+                writer.write_lines(
+                    "The parameter boundaries are generated as follows. "
+                    "If you want to override, you can provide ``bounds`` of the analysis options."
+                )
                 writer.write_bounds(fit_params)
             if example:
                 writer.write_example(example)
-            writer.write_lines("Default class options. These options are automatically set \
-when :py:meth:`run` method is called.")
+            writer.write_lines(
+                "Default class options. These options are automatically set "
+                "when :py:meth:`run` method is called."
+            )
             writer.write_options_as_sections(default_options, "Default Options")
             if references:
                 writer.write_references(references)
@@ -103,7 +121,7 @@ when :py:meth:`run` method is called.")
         return writer.docstring
 
 
-def auto_analysis_documentation(style: _DocstringMaker = StandardAnalysisDocstring):
+def base_analysis_documentation(style: Type[_DocstringMaker]):
     """A class decorator that overrides analysis class docstring."""
     def decorator(analysis: "BaseAnalysis"):
         regex = r"__doc_(?P<kwarg>\S+)__"
@@ -113,11 +131,10 @@ def auto_analysis_documentation(style: _DocstringMaker = StandardAnalysisDocstri
             match = re.match(regex, attribute)
             if match:
                 arg = match["kwarg"]
-                kwargs[arg] = getattr(analysis, arg)
+                kwargs[arg] = getattr(analysis, attribute)
 
         exp_docs = style.make_docstring(
             default_options=analysis._default_options(),
-            analysis=f"{analysis.__module__}.{analysis.__name__}",
             **kwargs
         )
         analysis.__doc__ += f"\n\n{exp_docs}"

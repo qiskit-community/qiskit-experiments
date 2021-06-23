@@ -33,47 +33,52 @@ from qiskit_experiments.analysis import (
 )
 from qiskit_experiments.autodocs import (
     OptionsField,
-    auto_experiment_documentation,
-    auto_options_method_documentation,
+    CurveFitParameter,
+    standard_experiment_documentation,
+    standard_option_documentation,
+    curve_analysis_documentation,
 )
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
 
 
+@curve_analysis_documentation
 class SpectroscopyAnalysis(CurveAnalysis):
-    r"""A class to analyze spectroscopy experiment.
+    """Spectroscopy analysis."""
 
-    Overview
-        This analysis takes only single series. This series is fit by the Gaussian function.
+    __doc_overview__ = """This analysis uses Gaussian function to find a peak.
+Note that this analysis assumes only single peak.
+If multiple peaks exist, you'll get a poor chi squared value."""
 
-    Fit Model
-        The fit is based on the following Gaussian function.
+    __doc_equations__ = [r"F(x) = a \exp(-(x-f)^2/(2\sigma^2)) + b"]
 
-        .. math::
-
-            F(x) = a \exp(-(x-f)^2/(2\sigma^2)) + b
-
-    Fit Parameters
-        - :math:`a`: Peak height.
-        - :math:`b`: Base line.
-        - :math:`f`: Center frequency. This is the fit parameter of main interest.
-        - :math:`\sigma`: Standard deviation of Gaussian function.
-
-    Initial Guesses
-        - :math:`a`: The maximum signal value with removed baseline.
-        - :math:`b`: A median value of the signal.
-        - :math:`f`: A frequency value at the peak (maximum signal).
-        - :math:`\sigma`: Calculated from FWHM of peak :math:`w`
-          such that :math:`w / \sqrt{8} \ln{2}`.
-
-    Bounds
-        - :math:`a`: [-2, 2] scaled with maximum signal value.
-        - :math:`b`: [-1, 1] scaled with maximum signal value.
-        - :math:`f`: [min(x), max(x)] of frequency scan range.
-        - :math:`\sigma`: [0, :math:`\Delta x`] where :math:`\Delta x`
-          represents frequency scan range.
-
-    """
+    __doc_fit_params__ = [
+        CurveFitParameter(
+            name="a",
+            description="Base line.",
+            initial_guess="The maximum signal value with removed baseline.",
+            bounds="[-2, 2] scaled with maximum signal value.",
+        ),
+        CurveFitParameter(
+            name="b",
+            description="Peak height.",
+            initial_guess="A median value of the signal.",
+            bounds="[-1, 1] scaled with maximum signal value.",
+        ),
+        CurveFitParameter(
+            name="f",
+            description="Center frequency. This is the fit parameter of main interest.",
+            initial_guess="A frequency value at the peak (maximum signal).",
+            bounds="[min(x), max(x)] of frequency scan range.",
+        ),
+        CurveFitParameter(
+            name=r"\sigma",
+            description="Standard deviation of Gaussian function.",
+            initial_guess=r"Calculated from FWHM of peak :math:`w` such that "
+                          r":math:`w / \sqrt{8} \ln{2}`.",
+            bounds=r"[0, :math:`\Delta x`] where :math:`\Delta x` represents frequency scan range.",
+        ),
+    ]
 
     __series__ = [
         SeriesDef(
@@ -95,8 +100,8 @@ class SpectroscopyAnalysis(CurveAnalysis):
         default_options["normalization"] = OptionsField(
             default=True,
             annotation=bool,
-            description="Set ``True`` to normalize measurement data. Usually applied to \
-Kerneled (level1) measurement data.",
+            description="Set ``True`` to normalize measurement data. Usually applied to "
+                        "Kerneled (level1) measurement data.",
         )
 
         return default_options
@@ -183,8 +188,8 @@ Kerneled (level1) measurement data.",
         return analysis_result
 
 
-@auto_experiment_documentation()
-@auto_options_method_documentation()
+@standard_experiment_documentation
+@standard_option_documentation
 class QubitSpectroscopy(BaseExperiment):
     """Class that runs spectroscopy by sweeping the qubit frequency."""
 
@@ -225,27 +230,29 @@ The parameters of the GaussianSquare spectroscopy pulse can be specified at run-
             "amp": OptionsField(
                 default=0.1,
                 annotation=float,
-                description="Amplitude of spectroscopy pulse. Usually weak power pulse is used to \
-suppress broadening of observed peaks.",
+                description="Amplitude of spectroscopy pulse. Usually weak power pulse is used to "
+                            "suppress broadening of observed peaks.",
             ),
             "duration": OptionsField(
                 default=1024,
                 annotation=int,
-                description="Duration of spectroscopy pulse. This may need to satisfy the \
-hardware waveform memory constraint. The default value is represented in units of dt.",
+                description="Duration of spectroscopy pulse. This may need to satisfy the "
+                            "hardware waveform memory constraint. "
+                            "The default value is represented in units of dt.",
             ),
             "sigma": OptionsField(
                 default=256,
                 annotation=Union[int, float],
-                description="Sigma of Gaussian rising and falling edges. This value should be \
-sufficiently smaller than the duration, otherwise waveform is distorted. \
-The default value is represented in units of dt."
+                description="Sigma of Gaussian rising and falling edges. This value should be "
+                            "sufficiently smaller than the duration, "
+                            "otherwise waveform is distorted. "
+                            "The default value is represented in units of dt."
             ),
             "width": OptionsField(
                 default=0,
                 annotation=Union[int, float],
-                description="Width of the flat-top part of the Gaussian square envelope of \
-spectroscopy pulse. Set width=0 to use Gaussian pulse.",
+                description="Width of the flat-top part of the Gaussian square envelope of "
+                            "spectroscopy pulse. Set width=0 to use Gaussian pulse.",
             ),
         }
 

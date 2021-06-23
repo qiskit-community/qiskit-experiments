@@ -27,41 +27,41 @@ from qiskit_experiments.analysis import (
     get_opt_error,
 )
 from qiskit_experiments.analysis.data_processing import multi_mean_xy_data
+from qiskit_experiments.autodocs import CurveFitParameter, curve_analysis_documentation
 
 
+@curve_analysis_documentation
 class RBAnalysis(CurveAnalysis):
-    r"""A class to analyze randomized benchmarking experiments.
+    """Randomized benchmarking analysis."""
 
-    Overview
-        This analysis takes only single series.
-        This series is fit by the exponential decay function.
-        From the fit :math:`\alpha` value this analysis estimates the error per Clifford (EPC).
+    __doc_overview__ = r"""This analysis takes only single series.
+This curve is fit by the exponential decay function.
+From the fit :math:`\alpha` value this analysis estimates the error per Clifford (EPC)."""
 
-    Fit Model
-        The fit is based on the following decay function.
+    __doc_equations__ = [r"F(x) = a \alpha^x + b"]
 
-        .. math::
-
-            F(x) = a \alpha^x + b
-
-    Fit Parameters
-        - :math:`a`: Height of decay curve.
-        - :math:`b`: Base line.
-        - :math:`\alpha`: Depolarizing parameter. This is the fit parameter of main interest.
-
-    Initial Guesses
-        - :math:`a`: Determined by :math:`(y_0 - b) / \alpha^x_0`
-          where :math:`b` and :math:`\alpha` are initial guesses.
-        - :math:`b`: Determined by :math:`(1/2)^n` where :math:`n` is the number of qubit.
-        - :math:`\alpha`: Determined by the slope of :math:`(y - b)^{-x}` of the first and the
-          second data point.
-
-    Bounds
-        - :math:`a`: [0, 1]
-        - :math:`b`: [0, 1]
-        - :math:`\alpha`: [0, 1]
-
-    """
+    __doc_fit_params__ = [
+        CurveFitParameter(
+            name="a",
+            description="Height of decay curve.",
+            initial_guess=r"Determined by :math:`(y_0 - b) / \alpha^{x_0}`, "
+                          r"where :math:`b` and :math:`\alpha` are initial guesses.",
+            bounds="[0, 1]",
+        ),
+        CurveFitParameter(
+            name="b",
+            description="Base line.",
+            initial_guess=r"Determined by :math:`(1/2)^n` where :math:`n` is the number of qubit.",
+            bounds="[0, 1]",
+        ),
+        CurveFitParameter(
+            name=r"\alpha",
+            description="Depolarizing parameter. This is the fit parameter of main interest.",
+            initial_guess=r"Determined by the slope of :math:`(y - b)^{-x}` of the first and "
+                          "the second data point.",
+            bounds="[0, 1]",
+        ),
+    ]
 
     __series__ = [
         SeriesDef(

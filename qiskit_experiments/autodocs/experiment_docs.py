@@ -13,7 +13,7 @@
 Documentation for experiment.
 """
 import re
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Type
 
 from qiskit.exceptions import QiskitError
 
@@ -47,14 +47,23 @@ class StandardExperimentDocstring(_DocstringMaker):
                 writer.write_example(example)
             writer.write_lines("This experiment uses following analysis class.")
             writer.write_section(f":py:class:`~{analysis}`", "Analysis Class Reference")
-            writer.write_lines("Experiment options to generate circuits. \
-Options can be updated with :py:meth:`set_experiment_options`. \
-See method documentation for details.")
-            writer.write_options_as_sections(experiment_options, "Experiment Options")
-            writer.write_lines("Analysis options to run the analysis class. \
-Options can be updated with :py:meth:`set_analysis_options`. \
-See method documentation for details.")
-            writer.write_options_as_sections(analysis_options, "Analysis Options")
+            writer.write_lines(
+                "See below configurable experiment options to customize your execution."
+            )
+            writer.write_options_as_sections(
+                fields=experiment_options,
+                section="Experiment Options",
+                text_block="Experiment options to generate circuits. "
+                           "Options can be updated with :py:meth:`set_experiment_options`. "
+                           "See method documentation for details."
+            )
+            writer.write_options_as_sections(
+                fields=analysis_options,
+                section="Analysis Options",
+                text_block="Analysis options to run the analysis class. "
+                           "Options can be updated with :py:meth:`set_analysis_options`. "
+                           "See method documentation for details."
+            )
             if references:
                 writer.write_references(references)
             if note:
@@ -66,7 +75,7 @@ See method documentation for details.")
         return writer.docstring
 
 
-def auto_experiment_documentation(style: _DocstringMaker = StandardExperimentDocstring):
+def base_experiment_documentation(style: Type[_DocstringMaker]):
     """A class decorator that overrides experiment class docstring."""
     def decorator(experiment: "BaseExperiment"):
         regex = r"__doc_(?P<kwarg>\S+)__"
