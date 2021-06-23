@@ -457,8 +457,9 @@ class TestConcurrentParameters(QiskitTestCase):
 
         cals.add_parameter_value(ParameterValue(0.25, date_time), "amp", (3,), "xp")
         cals.add_parameter_value(ParameterValue(0.35, date_time), "amp", (3,), "xp")
+        cals.add_parameter_value(ParameterValue(0.45, date_time), "amp", (3,), "xp")
 
-        self.assertEqual(cals.get_parameter_value("amp", 3, "xp"), 0.35)
+        self.assertEqual(cals.get_parameter_value("amp", 3, "xp"), 0.45)
 
 
 class TestMeasurements(QiskitTestCase):
