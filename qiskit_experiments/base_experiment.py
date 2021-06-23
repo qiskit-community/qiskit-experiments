@@ -127,7 +127,7 @@ class BaseExperiment(ABC):
         # Generate and transpile circuits
         circuits = transpile(self.circuits(backend), backend, **self.transpile_options.__dict__)
         self._postprocess_transpiled_circuits(circuits)
-        
+
         if isinstance(backend, LegacyBackend):
             qobj = assemble(circuits, backend=backend, **run_opts)
             job = backend.run(qobj)
@@ -308,7 +308,6 @@ class BaseExperiment(ABC):
             fields: The fields to update the options
         """
         self._analysis_options.update_options(**fields)
-
 
     def _postprocess_transpiled_circuits(self, circuits: List[QuantumCircuit]):
         """Computes additional metadata for the transpiled circuits, if needed"""
