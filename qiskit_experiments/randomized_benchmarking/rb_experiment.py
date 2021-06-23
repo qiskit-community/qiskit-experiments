@@ -117,10 +117,6 @@ class RBExperiment(BaseExperiment):
             circuits += self._generate_circuit(elements, element_lengths)
         return circuits
 
-    def set_epg_1_qubit(self, epg_1_qubit):
-        """Set EPG data from previous experiments on the same backend"""
-        self.set_analysis_options(epg_1_qubit=epg_1_qubit)
-
     def _generate_circuit(
         self, elements: Iterable[Clifford], lengths: Iterable[int]
     ) -> List[QuantumCircuit]:
@@ -189,8 +185,9 @@ class RBExperiment(BaseExperiment):
         Returns:
             The experiment data object.
         """
-        error_dict = RBUtils.get_error_dict_from_backend(backend, self.physical_qubits)
-        self.set_analysis_options(error_dict=error_dict)
+        if not self.analysis_options.error_dict:
+            error_dict = RBUtils.get_error_dict_from_backend(backend, self.physical_qubits)
+            self.set_analysis_options(error_dict=error_dict)
         return super().run(backend, analysis, experiment_data, **run_options)
 
     def _postprocess_transpiled_circuits(self, circuits):
