@@ -224,7 +224,7 @@ class T1Analysis(BaseAnalysis):
         return ax
 
 
-class T1Experiment(BaseExperiment):
+class T1(BaseExperiment):
     """T1 experiment class.
 
     Experiment Options:
