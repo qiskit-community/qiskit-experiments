@@ -207,12 +207,10 @@ class TestT2Star(QiskitTestCase):
                     result["t2star_value"],
                     estimated_t2star * dt_factor,
                     delta=3 * dt_factor,
-                    )
+                )
                 self.assertAlmostEqual(
-                    result["frequency_value"],
-                    estimated_freq / dt_factor,
-                    delta=3 / dt_factor
-                    )
+                    result["frequency_value"], estimated_freq / dt_factor, delta=3 / dt_factor
+                )
                 self.assertEqual(
                     result["quality"], "computer_good", "Result quality bad for unit " + str(unit)
                 )
@@ -243,15 +241,11 @@ class TestT2Star(QiskitTestCase):
         for i in range(2):
             sub_res = res.component_experiment_data(i).analysis_result(0)
             self.assertAlmostEqual(
-                sub_res["t2star_value"],
-                t2star[i] * dt_factor,
-                delta=3 * dt_factor
-                )
+                sub_res["t2star_value"], t2star[i] * dt_factor, delta=3 * dt_factor
+            )
             self.assertAlmostEqual(
-                sub_res["frequency_value"],
-                estimated_freq[i] / dt_factor,
-                delta=3 / dt_factor
-                )
+                sub_res["frequency_value"], estimated_freq[i] / dt_factor, delta=3 / dt_factor
+            )
             self.assertEqual(
                 sub_res["quality"],
                 "computer_good",
@@ -300,23 +294,17 @@ class TestT2Star(QiskitTestCase):
         delays2 = list(range(2, 65, 2))
         exp2 = T2StarExperiment(qubit, delays2, unit=unit)
         exp2.set_analysis_options(user_p0=default_p0)
-        expdata2 = exp2.run(
-            backend=backend,
-            experiment_data=expdata1,
-            shots=1000
-        )
+        expdata2 = exp2.run(backend=backend, experiment_data=expdata1, shots=1000)
         result0 = expdata2.analysis_result(0)
         result1 = expdata2.analysis_result(1)
         self.assertAlmostEqual(
             result1["t2star_value"],
             estimated_t2star * dt_factor,
             delta=3 * dt_factor,
-            )
+        )
         self.assertAlmostEqual(
-            result1["frequency_value"],
-            estimated_freq / dt_factor,
-            delta=3 / dt_factor
-            )
+            result1["frequency_value"], estimated_freq / dt_factor, delta=3 / dt_factor
+        )
         self.assertEqual(
             result1["quality"], "computer_good", "Result quality bad for unit " + str(unit)
         )
