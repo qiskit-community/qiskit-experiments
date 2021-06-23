@@ -73,7 +73,8 @@ class TestQubitSpectroscopy(QiskitTestCase):
 
         spec = QubitSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
-        result = spec.run(backend).analysis_result(0)
+        exp_data = spec.run(backend)
+        result = exp_data.analysis_result(0)
 
         value = get_opt_value(result, "freq")
 
