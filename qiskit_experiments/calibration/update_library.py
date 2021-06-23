@@ -49,8 +49,8 @@ class BaseUpdater(ABC):
 
     @staticmethod
     def _add_parameter_value(
-        exp_data: ExperimentData,
         cal: Calibrations,
+        exp_data: ExperimentData,
         value: ParameterValueType,
         param: Union[Parameter, str],
         schedule: Union[ScheduleBlock, str] = None,
@@ -59,8 +59,8 @@ class BaseUpdater(ABC):
         """Update the calibrations with the given value.
 
         Args:
-            exp_data: The ExperimentData instance that contains the result and the experiment data.
             cal: The Calibrations instance to update.
+            exp_data: The ExperimentData instance that contains the result and the experiment data.
             value: The value extracted by the subclasses in the :meth:`update` method.
             param: The name of the parameter, or the parameter instance, which will receive an
                 updated value.
@@ -131,7 +131,7 @@ class Frequency(BaseUpdater):
         param = parameter
         value = result["popt"][result["popt_keys"].index("freq")]
 
-        cls._add_parameter_value(exp_data, calibrations, value, param, schedule=None, group=group)
+        cls._add_parameter_value(calibrations, exp_data, value, param, schedule=None, group=group)
 
 
 class Amplitude(BaseUpdater):
@@ -177,6 +177,6 @@ class Amplitude(BaseUpdater):
             for angle, param, schedule in angles_schedules:
                 value = np.round(angle / rate, decimals=8)
 
-                cls._add_parameter_value(exp_data, calibrations, value, param, schedule, group)
+                cls._add_parameter_value(calibrations, exp_data, value, param, schedule, group)
         else:
             raise CalibrationError(f"{cls.__name__} updates from {type(Rabi.__name__)}.")
