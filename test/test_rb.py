@@ -209,7 +209,6 @@ class TestRBUtilities(QiskitTestCase):
         rng = np.random.default_rng(self.seed)
         rng.shuffle(gates_to_add)
         for qubits, gate in gates_to_add:
-            print(gate, qubits)
             circuit.append(self.instructions[gate], qubits)
         counts = qe.randomized_benchmarking.RBUtils.count_ops(circuit)
         self.assertDictEqual(expected_counts, counts)
@@ -234,8 +233,6 @@ class TestRBUtilities(QiskitTestCase):
         }
 
         for gate in ["x", "sx", "rz"]:
-            print(error_dict[((0,), gate)])
-            print(epg[0][gate])
             expected_epg = error_dict[((0,), gate)]
             actual_epg = epg[0][gate]
             self.assertTrue(np.allclose(expected_epg, actual_epg, rtol=1.0e-2))

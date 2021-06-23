@@ -81,7 +81,6 @@ class RBAnalysis(CurveAnalysis):
         See :meth:`~qiskit_experiment.analysis.CurveAnalysis._default_options` for
         descriptions of analysis options.
         """
-
         default_options = super()._default_options()
         default_options.p0 = {"a": None, "alpha": None, "b": None}
         default_options.bounds = {"a": (0.0, 1.0), "alpha": (0.0, 1.0), "b": (0.0, 1.0)}
@@ -153,6 +152,16 @@ class RBAnalysis(CurveAnalysis):
             y_err=mean_e,
             data_index=mean_data_index,
         )
+
+    def _run_analysis(self, experiment_data, **options):
+        """Run analysis on circuit data."""
+        error_dict = options["error_dict"]
+        qubits = experiment_data.metadata()["physical_qubits"]
+        if not error_dict:
+            options["error_dict"] = RBUtils.get_error_dict_from_backend(
+                experiment_data.backend, qubits
+            )
+        return super()._run_analysis(experiment_data, **options)
 
     def _post_analysis(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
         """Calculate EPC."""

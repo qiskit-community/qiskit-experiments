@@ -25,7 +25,6 @@ from qiskit.circuit import Gate
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.analysis.data_processing import probability
-from qiskit_experiments.experiment_data import ExperimentData
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
 from .rb_utils import RBUtils
@@ -165,32 +164,8 @@ class RBExperiment(BaseExperiment):
                 circuits.append(rb_circ)
         return circuits
 
-    def run(
-        self,
-        backend: Backend,
-        analysis: bool = True,
-        experiment_data: Optional[ExperimentData] = None,
-        **run_options,
-    ) -> ExperimentData:
-        """Run an experiment and perform analysis.
-
-        Args:
-            backend: The backend to run the experiment on.
-            analysis: If True run analysis on the experiment data.
-            experiment_data: Optional, add results to existing
-                experiment data. If None a new ExperimentData object will be
-                returned.
-            run_options: backend runtime options used for circuit execution.
-
-        Returns:
-            The experiment data object.
-        """
-        if not self.analysis_options.error_dict:
-            error_dict = RBUtils.get_error_dict_from_backend(backend, self.physical_qubits)
-            self.set_analysis_options(error_dict=error_dict)
-        return super().run(backend, analysis, experiment_data, **run_options)
-
-    def _postprocess_transpiled_circuits(self, circuits):
+    def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
+        """Additional post-processing of transpiled circuits before running on backend"""
         for c in circuits:
             c_count_ops = RBUtils.count_ops(c, self.physical_qubits)
             circuit_length = c.metadata["xval"]

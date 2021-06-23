@@ -43,13 +43,17 @@ class RBUtils:
             gate on the given qubits gives its recorded error estimate.
         """
         error_dict = {}
-        for backend_gate in backend.properties().gates:
-            backend_gate = backend_gate.to_dict()
-            gate_qubits = tuple(backend_gate["qubits"])
-            if all(gate_qubit in qubits for gate_qubit in gate_qubits):
-                for p in backend_gate["parameters"]:
-                    if p["name"] == "gate_error":
-                        error_dict[(gate_qubits, backend_gate["gate"])] = p["value"]
+        try:
+            for backend_gate in backend.properties().gates:
+                backend_gate = backend_gate.to_dict()
+                gate_qubits = tuple(backend_gate["qubits"])
+                if all(gate_qubit in qubits for gate_qubit in gate_qubits):
+                    for p in backend_gate["parameters"]:
+                        if p["name"] == "gate_error":
+                            error_dict[(gate_qubits, backend_gate["gate"])] = p["value"]
+        except AttributeError:
+            # might happen if the backend has no properties (e.g. qasm simulator)
+            return None
         return error_dict
 
     @staticmethod
@@ -188,10 +192,6 @@ class RBUtils:
             A dictionary of the form (qubits, gate) -> value where value
             is the epg for the given gate on the specified qubits
         """
-        print("epc_1_qubit", epc_1_qubit)
-        print("qubits", qubits)
-        print("gate_error_ratio", gate_error_ratio)
-        print("gates_per_clifford", gates_per_clifford)
         epg = {qubit: {} for qubit in qubits}
         for qubit in qubits:
             error_sum = 0
