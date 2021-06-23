@@ -54,7 +54,10 @@ class ParameterValue:
             self.value = self._validated_value(self.value)
 
         if isinstance(self.date_time, str):
-            self.date_time = datetime.strptime(self.date_time, "%Y-%m-%d %H:%M:%S")
+            try:
+                self.date_time = datetime.strptime(self.date_time, "%Y-%m-%d %H:%M:%S.%f%z")
+            except ValueError:
+                self.date_time = datetime.strptime(self.date_time, "%Y-%m-%d %H:%M:%S.%f")
 
         if not isinstance(self.value, (int, float, complex)):
             raise CalibrationError(f"Values {self.value} must be int, float or complex.")

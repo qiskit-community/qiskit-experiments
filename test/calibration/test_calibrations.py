@@ -1292,6 +1292,15 @@ class TestFiltering(QiskitTestCase):
 class TestSavingAndLoading(CrossResonanceTest):
     """Test that calibrations can be saved and loaded to and from files."""
 
+    def tearDown(self):
+        """Clean-up"""
+        super().tearDown()
+
+        # Clean-up
+        os.remove("parameter_values.csv")
+        os.remove("parameter_config.csv")
+        os.remove("schedules.csv")
+
     def test_save_load_parameter_values(self):
         """Test that we can save and load parameter values."""
 
@@ -1324,7 +1333,13 @@ class TestSavingAndLoading(CrossResonanceTest):
 
         self.cals.save("csv", overwrite=True)
 
-        # Clean-up
-        os.remove("parameter_values.csv")
-        os.remove("parameter_config.csv")
-        os.remove("schedules.csv")
+    def test_alternate_date_formats(self):
+        """Test that we can reload dates with or without time-zone."""
+
+        new_date = datetime.strptime("16/09/20 10:21:35.012+02:00", "%d/%m/%y %H:%M:%S.%f%z")
+        value = ParameterValue(0.222, date_time=new_date)
+        self.cals.add_parameter_value(value, "amp", (3,), "xp")
+
+        self.cals.save("csv", overwrite=True)
+        self.cals._params = defaultdict(list)
+        self.cals.load_parameter_values("parameter_values.csv")
