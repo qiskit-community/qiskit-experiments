@@ -442,7 +442,9 @@ class TestConcurrentParameters(QiskitTestCase):
     """Test a particular edge case with the time in the parameter values."""
 
     def test_concurrent_values(self):
-        """Ensure that parameter values have a unique maximum time."""
+        """
+        Ensure that if the max time has multiple entries we take the most recent appended one.
+        """
 
         cals = Calibrations()
 
