@@ -15,21 +15,20 @@ Interleaved RB Experiment class.
 from typing import Union, Iterable, Optional, List
 
 from numpy.random import Generator
-
 from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
 from qiskit.quantum_info import Clifford
 
-from .rb_experiment import RBExperiment
-from .interleaved_rb_analysis import InterleavedRBAnalysis
 from qiskit_experiments.autodocs import (
     standard_experiment_documentation,
-    standard_option_documentation,
+    standard_options_documentation,
 )
+from .interleaved_rb_analysis import InterleavedRBAnalysis
+from .rb_experiment import RBExperiment
 
 
 @standard_experiment_documentation
-@standard_option_documentation
+@standard_options_documentation
 class InterleavedRBExperiment(RBExperiment):
     """Interleaved RB Experiment class"""
 

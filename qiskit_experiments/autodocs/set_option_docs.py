@@ -25,6 +25,7 @@ from .writer import _DocstringWriter, _DocstringMaker
 class StandardSetOptionsDocstring(_DocstringMaker):
     """A facade class to write standard set options docstring."""
 
+    # pylint: disable=arguments-differ
     @classmethod
     def make_docstring(
         cls,
@@ -42,7 +43,7 @@ class StandardSetOptionsDocstring(_DocstringMaker):
             if raises:
                 writer.write_raises(*list(zip(*raises.items())))
         except Exception as ex:
-            raise QiskitError(f"Auto docstring generation failed with the error: {ex}")
+            raise QiskitError(f"Auto docstring generation failed with the error: {ex}") from ex
         return writer.docstring
 
 
@@ -90,7 +91,7 @@ def _compile_annotations(fields: Dict[str, OptionsField]) -> Dict[str, Any]:
     return annotations
 
 
-def base_options_method_documentation(style: Type[_DocstringMaker]):
+def base_options_documentation(style: Type[_DocstringMaker]):
     """A class decorator that overrides set options method docstring."""
 
     def decorator(experiment: "BaseExperiment"):

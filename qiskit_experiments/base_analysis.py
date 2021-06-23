@@ -53,7 +53,7 @@ class BaseAnalysis(ABC):
 
     @classmethod
     def _default_options(cls) -> Union[Options, Dict[str, OptionsField]]:
-        return dict()
+        return Options()
 
     def run(
         self,

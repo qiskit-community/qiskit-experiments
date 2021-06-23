@@ -244,7 +244,12 @@ class CurveAnalysis(BaseAnalysis, ABC):
         self.__processed_data_set = list()
 
         # Add expected options to instance variable so that every method can access to.
-        for key in self._default_options().__dict__:
+        default_options = self._default_options()
+
+        if not isinstance(default_options, dict):
+            default_options = default_options.__dict__
+
+        for key in default_options:
             setattr(self, f"__{key}", None)
 
     @classmethod

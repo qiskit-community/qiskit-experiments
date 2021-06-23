@@ -34,7 +34,7 @@ from qiskit_experiments.autodocs import (
     OptionsField,
     CurveFitParameter,
     standard_experiment_documentation,
-    standard_option_documentation,
+    standard_options_documentation,
     curve_analysis_documentation,
 )
 from qiskit_experiments.base_experiment import BaseExperiment
@@ -188,7 +188,7 @@ If multiple peaks exist, you'll get a poor chi squared value."""
 
 
 @standard_experiment_documentation
-@standard_option_documentation
+@standard_options_documentation
 class QubitSpectroscopy(BaseExperiment):
     """Class that runs spectroscopy by sweeping the qubit frequency."""
 

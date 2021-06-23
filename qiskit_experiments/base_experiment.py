@@ -205,7 +205,7 @@ class BaseExperiment(ABC):
         # an dictionary of OptionsField object containing all the supported options for
         # that experiment and their default values. Only options listed
         # here can be modified later by the `set_options` method.
-        return dict()
+        return Options()
 
     @property
     def experiment_options(self) -> Options:

@@ -27,14 +27,14 @@ from qiskit_experiments.autodocs import (
     OptionsField,
     Reference,
     standard_experiment_documentation,
-    standard_option_documentation,
+    standard_options_documentation,
 )
 from .clifford_utils import CliffordUtils
 from .rb_analysis import RBAnalysis
 
 
 @standard_experiment_documentation
-@standard_option_documentation
+@standard_options_documentation
 class RBExperiment(BaseExperiment):
     """Randomized benchmarking."""
 

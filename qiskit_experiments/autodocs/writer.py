@@ -13,17 +13,19 @@
 Docstring writer. This module takes facade pattern to implement the functionality.
 """
 import typing
+from abc import ABC, abstractmethod
 from types import FunctionType
 
-from .descriptions import OptionsField, Reference, CurveFitParameter, _parse_annotation
-from abc import abstractclassmethod
 from qiskit.exceptions import QiskitError
 
+from .descriptions import OptionsField, Reference, CurveFitParameter, _parse_annotation
 
-class _DocstringMaker:
+
+class _DocstringMaker(ABC):
     """A base facade class to write docstring."""
 
-    @abstractclassmethod
+    @classmethod
+    @abstractmethod
     def make_docstring(cls, *args, **kwargs) -> str:
         """Write a docstring."""
         pass
@@ -138,7 +140,7 @@ class _DocstringWriter:
         """Write new user defined section."""
         self.docstring += f"{section}\n"
         self.docstring += self._write_multi_line(text_block, self.__indent__)
-        self.docstring += "\n\n"
+        self.docstring += "\n"
 
     def write_note(self, text_block: str):
         """Write note."""
@@ -176,6 +178,7 @@ class _DocstringWriter:
         self.docstring += "\n"
 
     def write_tutorial_link(self, link: str):
+        """Write link to tutorial website."""
         self.docstring += "See Also:\n"
         self.docstring += self.__indent__
         self.docstring += f"- `Qiskit Experiment Tutorial <{link}>`_\n"
@@ -186,13 +189,15 @@ class _DocstringWriter:
         """A util method to write multi line text with indentation."""
         indented_text = ""
         for line in text_block.split("\n"):
-            if indent is not None:
+            if len(line) > 0 and indent is not None:
                 indented_text += indent
             indented_text += f"{line}\n"
         return indented_text
 
 
 class _CurveFitDocstringWriter(_DocstringWriter):
+    """A docstring writer supporting fit model descriptions."""
+
     def write_fit_parameter(self, fit_params: typing.List[CurveFitParameter]):
         """Write fit parameters."""
         self.docstring += "Fit Parameters\n"
@@ -231,8 +236,8 @@ class _CurveFitDocstringWriter(_DocstringWriter):
             for equation in equations:
                 try:
                     lh, rh = equation.split("=")
-                except ValueError:
-                    raise QiskitError(f"Equation {equation} is not a valid form.")
+                except ValueError as ex:
+                    raise QiskitError(f"Equation {equation} is not a valid form.") from ex
                 eqs.append(f"{self.__indent__ * 2}{lh} &= {rh}")
             self.docstring += " \\\\\n".join(eqs)
             self.docstring += "\n"

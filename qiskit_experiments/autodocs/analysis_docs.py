@@ -24,6 +24,7 @@ from .writer import _DocstringWriter, _CurveFitDocstringWriter, _DocstringMaker
 class StandardAnalysisDocstring(_DocstringMaker):
     """A facade class to write standard analysis docstring."""
 
+    # pylint: disable=arguments-differ
     @classmethod
     def make_docstring(
         cls,
@@ -55,13 +56,14 @@ class StandardAnalysisDocstring(_DocstringMaker):
             if tutorial:
                 writer.write_tutorial_link(tutorial)
         except Exception as ex:
-            raise QiskitError(f"Auto docstring generation failed with the error: {ex}")
+            raise QiskitError(f"Auto docstring generation failed with the error: {ex}") from ex
         return writer.docstring
 
 
 class CurveAnalysisDocstring(_DocstringMaker):
     """A facade class to write curve analysis docstring."""
 
+    # pylint: disable=arguments-differ
     @classmethod
     def make_docstring(
         cls,
@@ -117,7 +119,7 @@ class CurveAnalysisDocstring(_DocstringMaker):
             if tutorial:
                 writer.write_tutorial_link(tutorial)
         except Exception as ex:
-            raise QiskitError(f"Auto docstring generation failed with the error: {ex}")
+            raise QiskitError(f"Auto docstring generation failed with the error: {ex}") from ex
         return writer.docstring
 
 

@@ -24,6 +24,7 @@ from .writer import _DocstringWriter, _DocstringMaker
 class StandardExperimentDocstring(_DocstringMaker):
     """A facade class to write standard experiment docstring."""
 
+    # pylint: disable=arguments-differ
     @classmethod
     def make_docstring(
         cls,
@@ -71,7 +72,7 @@ class StandardExperimentDocstring(_DocstringMaker):
             if tutorial:
                 writer.write_tutorial_link(tutorial)
         except Exception as ex:
-            raise QiskitError(f"Auto docstring generation failed with the error: {ex}")
+            raise QiskitError(f"Auto docstring generation failed with the error: {ex}") from ex
         return writer.docstring
 
 
