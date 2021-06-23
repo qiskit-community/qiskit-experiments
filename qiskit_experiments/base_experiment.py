@@ -16,7 +16,7 @@ Base Experiment class.
 import copy
 from abc import ABC, abstractmethod
 from numbers import Integral
-from typing import Iterable, Optional, Tuple, List, Dict
+from typing import Iterable, Optional, Tuple, List, Dict, Union
 
 from qiskit import transpile, assemble, QuantumCircuit
 from qiskit.exceptions import QiskitError
@@ -199,7 +199,7 @@ class BaseExperiment(ABC):
         # generation
 
     @classmethod
-    def _default_experiment_options(cls) -> Dict[str, OptionsField]:
+    def _default_experiment_options(cls) -> Union[Options, Dict[str, OptionsField]]:
         """Default kwarg options for experiment"""
         # Experiment subclasses should override this method to return
         # an dictionary of OptionsField object containing all the supported options for

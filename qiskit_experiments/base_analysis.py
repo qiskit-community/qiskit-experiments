@@ -14,13 +14,14 @@ Base analysis class.
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Union
 
 from qiskit.exceptions import QiskitError
+from qiskit.providers import Options
 
+from qiskit_experiments.autodocs import OptionsField, to_options
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.experiment_data import ExperimentData, AnalysisResult
-from qiskit_experiments.autodocs import OptionsField, to_options
 
 
 class BaseAnalysis(ABC):
@@ -51,7 +52,7 @@ class BaseAnalysis(ABC):
     __experiment_data__ = ExperimentData
 
     @classmethod
-    def _default_options(cls) -> Dict[str, OptionsField]:
+    def _default_options(cls) -> Union[Options, Dict[str, OptionsField]]:
         return dict()
 
     def run(

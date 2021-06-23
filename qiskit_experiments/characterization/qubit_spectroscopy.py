@@ -19,8 +19,7 @@ import qiskit.pulse as pulse
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate, Parameter
 from qiskit.exceptions import QiskitError
-from qiskit.providers import Backend
-from qiskit.providers.options import Options
+from qiskit.providers import Backend, Options
 from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.analysis import (
@@ -75,7 +74,7 @@ If multiple peaks exist, you'll get a poor chi squared value."""
             name=r"\sigma",
             description="Standard deviation of Gaussian function.",
             initial_guess=r"Calculated from FWHM of peak :math:`w` such that "
-                          r":math:`w / \sqrt{8} \ln{2}`.",
+            r":math:`w / \sqrt{8} \ln{2}`.",
             bounds=r"[0, :math:`\Delta x`] where :math:`\Delta x` represents frequency scan range.",
         ),
     ]
@@ -90,7 +89,7 @@ If multiple peaks exist, you'll get a poor chi squared value."""
     ]
 
     @classmethod
-    def _default_options(cls) -> Dict[str, OptionsField]:
+    def _default_options(cls) -> Union[Options, Dict[str, OptionsField]]:
         """Return default options."""
         default_options = super()._default_options()
         default_options["p0"].default = {"a": None, "sigma": None, "freq": None, "b": None}
@@ -101,7 +100,7 @@ If multiple peaks exist, you'll get a poor chi squared value."""
             default=True,
             annotation=bool,
             description="Set ``True`` to normalize measurement data. Usually applied to "
-                        "Kerneled (level1) measurement data.",
+            "Kerneled (level1) measurement data.",
         )
 
         return default_options
@@ -224,35 +223,35 @@ The parameters of the GaussianSquare spectroscopy pulse can be specified at run-
         )
 
     @classmethod
-    def _default_experiment_options(cls) -> Dict[str, OptionsField]:
+    def _default_experiment_options(cls) -> Union[Options, Dict[str, OptionsField]]:
         """Default option values used for the spectroscopy pulse."""
         return {
             "amp": OptionsField(
                 default=0.1,
                 annotation=float,
                 description="Amplitude of spectroscopy pulse. Usually weak power pulse is used to "
-                            "suppress broadening of observed peaks.",
+                "suppress broadening of observed peaks.",
             ),
             "duration": OptionsField(
                 default=1024,
                 annotation=int,
                 description="Duration of spectroscopy pulse. This may need to satisfy the "
-                            "hardware waveform memory constraint. "
-                            "The default value is represented in units of dt.",
+                "hardware waveform memory constraint. "
+                "The default value is represented in units of dt.",
             ),
             "sigma": OptionsField(
                 default=256,
                 annotation=Union[int, float],
                 description="Sigma of Gaussian rising and falling edges. This value should be "
-                            "sufficiently smaller than the duration, "
-                            "otherwise waveform is distorted. "
-                            "The default value is represented in units of dt."
+                "sufficiently smaller than the duration, "
+                "otherwise waveform is distorted. "
+                "The default value is represented in units of dt.",
             ),
             "width": OptionsField(
                 default=0,
                 annotation=Union[int, float],
                 description="Width of the flat-top part of the Gaussian square envelope of "
-                            "spectroscopy pulse. Set width=0 to use Gaussian pulse.",
+                "spectroscopy pulse. Set width=0 to use Gaussian pulse.",
             ),
         }
 

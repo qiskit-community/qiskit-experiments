@@ -100,7 +100,7 @@ def _parse_annotation(_type: typing.Any) -> str:
         return f":py:class:`~{module}.{_type.__name__}`"
 
 
-def to_options(fields: typing.Dict[str, OptionsField]) -> Options:
+def to_options(fields: typing.Union[Options, typing.Dict[str, OptionsField]]) -> Options:
     """Converts a dictionary of ``OptionsField`` into ``Options`` object.
 
     Args:

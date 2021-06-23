@@ -12,13 +12,13 @@
 """
 Standard RB Experiment class.
 """
-from typing import Union, Iterable, Optional, List
+from typing import Union, Iterable, Optional, List, Dict
 
 import numpy as np
 from numpy.random import Generator, default_rng
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
-from qiskit.providers import Backend
+from qiskit.providers import Backend, Options
 from qiskit.quantum_info import Clifford
 
 from qiskit_experiments.analysis.data_processing import probability
@@ -102,21 +102,21 @@ rb_example.ipynb"
             self._rng = seed
 
     @classmethod
-    def _default_experiment_options(cls):
+    def _default_experiment_options(cls) -> Union[Options, Dict[str, OptionsField]]:
         return {
             "lengths": OptionsField(
                 default=None,
                 annotation=Iterable[int],
                 description="Array of integer values representing a number of Clifford gate N "
-                            "per RB sequence. This value should be chosen based on "
-                            "expected decay curve. If the maximum length is "
-                            "too short, confidence interval of fit will become poor.",
+                "per RB sequence. This value should be chosen based on "
+                "expected decay curve. If the maximum length is "
+                "too short, confidence interval of fit will become poor.",
             ),
             "num_samples": OptionsField(
                 default=None,
                 annotation=int,
                 description="Number of RB sequence per Clifford length. M random sequences are "
-                            "generated for a length N.",
+                "generated for a length N.",
             ),
         }
 

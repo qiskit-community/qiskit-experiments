@@ -26,14 +26,14 @@ class StandardAnalysisDocstring(_DocstringMaker):
 
     @classmethod
     def make_docstring(
-            cls,
-            default_options: Dict[str, OptionsField],
-            overview: Optional[str] = None,
-            example: Optional[str] = None,
-            references: Optional[List[Reference]] = None,
-            note: Optional[str] = None,
-            warning: Optional[str] = None,
-            tutorial: Optional[str] = None,
+        cls,
+        default_options: Dict[str, OptionsField],
+        overview: Optional[str] = None,
+        example: Optional[str] = None,
+        references: Optional[List[Reference]] = None,
+        note: Optional[str] = None,
+        warning: Optional[str] = None,
+        tutorial: Optional[str] = None,
     ) -> str:
         try:
             writer = _DocstringWriter()
@@ -64,16 +64,16 @@ class CurveAnalysisDocstring(_DocstringMaker):
 
     @classmethod
     def make_docstring(
-            cls,
-            default_options: Dict[str, OptionsField],
-            overview: Optional[str] = None,
-            equations: Optional[List[str]] = None,
-            fit_params: Optional[List[CurveFitParameter]] = None,
-            example: Optional[str] = None,
-            references: Optional[List[Reference]] = None,
-            note: Optional[str] = None,
-            warning: Optional[str] = None,
-            tutorial: Optional[str] = None,
+        cls,
+        default_options: Dict[str, OptionsField],
+        overview: Optional[str] = None,
+        equations: Optional[List[str]] = None,
+        fit_params: Optional[List[CurveFitParameter]] = None,
+        example: Optional[str] = None,
+        references: Optional[List[Reference]] = None,
+        note: Optional[str] = None,
+        warning: Optional[str] = None,
+        tutorial: Optional[str] = None,
     ) -> str:
         try:
             writer = _CurveFitDocstringWriter()
@@ -123,6 +123,7 @@ class CurveAnalysisDocstring(_DocstringMaker):
 
 def base_analysis_documentation(style: Type[_DocstringMaker]):
     """A class decorator that overrides analysis class docstring."""
+
     def decorator(analysis: "BaseAnalysis"):
         regex = r"__doc_(?P<kwarg>\S+)__"
 
@@ -133,11 +134,9 @@ def base_analysis_documentation(style: Type[_DocstringMaker]):
                 arg = match["kwarg"]
                 kwargs[arg] = getattr(analysis, attribute)
 
-        exp_docs = style.make_docstring(
-            default_options=analysis._default_options(),
-            **kwargs
-        )
+        exp_docs = style.make_docstring(default_options=analysis._default_options(), **kwargs)
         analysis.__doc__ += f"\n\n{exp_docs}"
 
         return analysis
+
     return decorator

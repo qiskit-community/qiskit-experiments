@@ -16,6 +16,7 @@ Standard RB analysis class.
 from typing import List, Dict, Any, Union
 
 import numpy as np
+from qiskit.providers import Options
 
 from qiskit_experiments.analysis import (
     CurveAnalysis,
@@ -27,7 +28,11 @@ from qiskit_experiments.analysis import (
     get_opt_error,
 )
 from qiskit_experiments.analysis.data_processing import multi_mean_xy_data
-from qiskit_experiments.autodocs import CurveFitParameter, curve_analysis_documentation
+from qiskit_experiments.autodocs import (
+    OptionsField,
+    CurveFitParameter,
+    curve_analysis_documentation,
+)
 
 
 @curve_analysis_documentation
@@ -45,7 +50,7 @@ From the fit :math:`\alpha` value this analysis estimates the error per Clifford
             name="a",
             description="Height of decay curve.",
             initial_guess=r"Determined by :math:`(y_0 - b) / \alpha^{x_0}`, "
-                          r"where :math:`b` and :math:`\alpha` are initial guesses.",
+            r"where :math:`b` and :math:`\alpha` are initial guesses.",
             bounds="[0, 1]",
         ),
         CurveFitParameter(
@@ -58,7 +63,7 @@ From the fit :math:`\alpha` value this analysis estimates the error per Clifford
             name=r"\alpha",
             description="Depolarizing parameter. This is the fit parameter of main interest.",
             initial_guess=r"Determined by the slope of :math:`(y - b)^{-x}` of the first and "
-                          "the second data point.",
+            "the second data point.",
             bounds="[0, 1]",
         ),
     ]
@@ -73,7 +78,7 @@ From the fit :math:`\alpha` value this analysis estimates the error per Clifford
     ]
 
     @classmethod
-    def _default_options(cls):
+    def _default_options(cls) -> Union[Options, Dict[str, OptionsField]]:
         """Return default options."""
         default_options = super()._default_options()
 

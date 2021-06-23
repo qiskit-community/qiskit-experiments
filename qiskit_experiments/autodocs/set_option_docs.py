@@ -27,11 +27,11 @@ class StandardSetOptionsDocstring(_DocstringMaker):
 
     @classmethod
     def make_docstring(
-            cls,
-            description: str,
-            options: Dict[str, OptionsField],
-            note: Optional[str] = None,
-            raises: Optional[Dict[str, str]] = None,
+        cls,
+        description: str,
+        options: Dict[str, OptionsField],
+        note: Optional[str] = None,
+        raises: Optional[Dict[str, str]] = None,
     ) -> str:
         try:
             writer = _DocstringWriter()
@@ -92,6 +92,7 @@ def _compile_annotations(fields: Dict[str, OptionsField]) -> Dict[str, Any]:
 
 def base_options_method_documentation(style: Type[_DocstringMaker]):
     """A class decorator that overrides set options method docstring."""
+
     def decorator(experiment: "BaseExperiment"):
         analysis_options = experiment.__analysis_class__._default_options()
         experiment_options = experiment._default_experiment_options()
@@ -103,9 +104,9 @@ def base_options_method_documentation(style: Type[_DocstringMaker]):
             description="Set the analysis options for :py:meth:`run_analysis` method.",
             options=analysis_options,
             note="Here you can set arbitrary parameter, even if it is not listed. "
-                 "Such option is passed as a keyword argument to the analysis fitter functions "
-                 "(if exist). The execution may fail if the function API doesn't support "
-                 "extra keyword arguments.",
+            "Such option is passed as a keyword argument to the analysis fitter functions "
+            "(if exist). The execution may fail if the function API doesn't support "
+            "extra keyword arguments.",
         )
         setattr(experiment, "set_analysis_options", analysis_setter)
 
@@ -115,9 +116,10 @@ def base_options_method_documentation(style: Type[_DocstringMaker]):
         experiment_setter.__doc__ = style.make_docstring(
             description="Set the analysis options for :py:meth:`run` method.",
             options=experiment_options,
-            raises={"AttributeError": "If the field passed in is not a supported options."}
+            raises={"AttributeError": "If the field passed in is not a supported options."},
         )
         setattr(experiment, "set_experiment_options", experiment_setter)
 
         return experiment
+
     return decorator

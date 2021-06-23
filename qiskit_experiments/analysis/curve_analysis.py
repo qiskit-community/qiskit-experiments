@@ -21,17 +21,18 @@ from abc import ABC
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
 import numpy as np
+from qiskit.providers import Options
 
 from qiskit_experiments.analysis import plotting
 from qiskit_experiments.analysis.curve_fitting import multi_curve_fit, CurveAnalysisResult
 from qiskit_experiments.analysis.data_processing import probability
 from qiskit_experiments.analysis.utils import get_opt_value, get_opt_error
+from qiskit_experiments.autodocs import OptionsField
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
-from qiskit_experiments.autodocs import OptionsField
 
 
 @dataclasses.dataclass(frozen=True)
@@ -247,7 +248,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             setattr(self, f"__{key}", None)
 
     @classmethod
-    def _default_options(cls) -> Dict[str, OptionsField]:
+    def _default_options(cls) -> Union[Options, Dict[str, OptionsField]]:
         """Return default analysis options."""
         options = {
             "curve_fitter": OptionsField(
@@ -293,7 +294,7 @@ or any class instance that defines the ``__call__`` method to be a callable.""",
                 default=None,
                 annotation=Dict[str, Tuple[float, float]],
                 description="Dictionary of (min, max) tuple of fit parameter boundaries. "
-                            "Keys are parameter names.",
+                "Keys are parameter names.",
             ),
             "x_key": OptionsField(
                 default="xval",
@@ -329,7 +330,7 @@ or any class instance that defines the ``__call__`` method to be a callable.""",
                 default=None,
                 annotation=Dict[str, str],
                 description="Mapping of fit parameters and representation in the fit report. "
-                            "If nothing specified, fit report will not be shown.",
+                "If nothing specified, fit report will not be shown.",
             ),
             "return_data_points": OptionsField(
                 default=False,

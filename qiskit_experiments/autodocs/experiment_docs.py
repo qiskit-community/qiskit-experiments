@@ -26,16 +26,16 @@ class StandardExperimentDocstring(_DocstringMaker):
 
     @classmethod
     def make_docstring(
-            cls,
-            analysis_options: Dict[str, OptionsField],
-            experiment_options: Dict[str, OptionsField],
-            analysis: str,
-            overview: Optional[str] = None,
-            example: Optional[str] = None,
-            references: Optional[List[Reference]] = None,
-            note: Optional[str] = None,
-            warning: Optional[str] = None,
-            tutorial: Optional[str] = None,
+        cls,
+        analysis_options: Dict[str, OptionsField],
+        experiment_options: Dict[str, OptionsField],
+        analysis: str,
+        overview: Optional[str] = None,
+        example: Optional[str] = None,
+        references: Optional[List[Reference]] = None,
+        note: Optional[str] = None,
+        warning: Optional[str] = None,
+        tutorial: Optional[str] = None,
     ) -> str:
         try:
             writer = _DocstringWriter()
@@ -54,15 +54,15 @@ class StandardExperimentDocstring(_DocstringMaker):
                 fields=experiment_options,
                 section="Experiment Options",
                 text_block="Experiment options to generate circuits. "
-                           "Options can be updated with :py:meth:`set_experiment_options`. "
-                           "See method documentation for details."
+                "Options can be updated with :py:meth:`set_experiment_options`. "
+                "See method documentation for details.",
             )
             writer.write_options_as_sections(
                 fields=analysis_options,
                 section="Analysis Options",
                 text_block="Analysis options to run the analysis class. "
-                           "Options can be updated with :py:meth:`set_analysis_options`. "
-                           "See method documentation for details."
+                "Options can be updated with :py:meth:`set_analysis_options`. "
+                "See method documentation for details.",
             )
             if references:
                 writer.write_references(references)
@@ -77,6 +77,7 @@ class StandardExperimentDocstring(_DocstringMaker):
 
 def base_experiment_documentation(style: Type[_DocstringMaker]):
     """A class decorator that overrides experiment class docstring."""
+
     def decorator(experiment: "BaseExperiment"):
         regex = r"__doc_(?P<kwarg>\S+)__"
 
@@ -93,9 +94,10 @@ def base_experiment_documentation(style: Type[_DocstringMaker]):
             analysis_options=experiment.__analysis_class__._default_options(),
             experiment_options=experiment._default_experiment_options(),
             analysis=f"{analysis.__module__}.{analysis.__name__}",
-            **kwargs
+            **kwargs,
         )
         experiment.__doc__ += f"\n\n{exp_docs}"
 
         return experiment
+
     return decorator

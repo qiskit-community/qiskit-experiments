@@ -31,6 +31,7 @@ class _DocstringMaker:
 
 class _DocstringWriter:
     """A docstring writer."""
+
     __indent__ = "    "
 
     def __init__(self):
@@ -47,6 +48,7 @@ class _DocstringWriter:
         This style is used for detailed summary for the set method docstring.
         Extra fields (non-default options) are also shown.
         """
+
         def _write_field(_arg_name, _field):
 
             # parse type
@@ -84,10 +86,10 @@ class _DocstringWriter:
             self.docstring += "\n"
 
     def write_options_as_sections(
-            self,
-            fields: typing.Dict[str, OptionsField],
-            section: str,
-            text_block: typing.Optional[str] = None,
+        self,
+        fields: typing.Dict[str, OptionsField],
+        section: str,
+        text_block: typing.Optional[str] = None,
     ):
         """Write option descriptions as a custom section.
 
@@ -107,7 +109,7 @@ class _DocstringWriter:
             if field.is_extra:
                 continue
             arg_str_type = f":py:obj:`{_parse_annotation(field.annotation)}`"
-            arg_description = field.description.split('\n')[0]
+            arg_description = field.description.split("\n")[0]
             # write multi line description
             self.docstring += self.__indent__
             self.docstring += f"- **{arg_name}** ({arg_str_type}): {arg_description}\n"
@@ -191,7 +193,6 @@ class _DocstringWriter:
 
 
 class _CurveFitDocstringWriter(_DocstringWriter):
-
     def write_fit_parameter(self, fit_params: typing.List[CurveFitParameter]):
         """Write fit parameters."""
         self.docstring += "Fit Parameters\n"

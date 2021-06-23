@@ -15,6 +15,7 @@ Interleaved RB analysis class.
 from typing import List, Dict, Any, Union
 
 import numpy as np
+from qiskit.providers import Options
 
 from qiskit_experiments.analysis import (
     CurveAnalysisResult,
@@ -25,6 +26,7 @@ from qiskit_experiments.analysis import (
 )
 from qiskit_experiments.autodocs import (
     Reference,
+    OptionsField,
     CurveFitParameter,
     curve_analysis_documentation,
 )
@@ -79,24 +81,24 @@ See [1] for more details."""
             name="b",
             description="Base line.",
             initial_guess=r"Average :math:`b` of the standard and interleaved RB. "
-                          r"Usually equivalent to :math:`(1/2)^n` where :math:`n` is number "
-                          "of qubit.",
+            r"Usually equivalent to :math:`(1/2)^n` where :math:`n` is number "
+            "of qubit.",
             bounds="[0, 1]",
         ),
         CurveFitParameter(
             name=r"\alpha",
             description="Depolarizing parameter.",
             initial_guess=r"The slope of :math:`(y_1 - b)^{-x_1}` of the first and the "
-                          "second data point of the standard RB.",
+            "second data point of the standard RB.",
             bounds="[0, 1]",
         ),
         CurveFitParameter(
             name=r"\alpha_c",
             description="Ratio of the depolarizing parameter of "
-                        "interleaved RB to standard RB curve.",
+            "interleaved RB to standard RB curve.",
             initial_guess=r"Estimate :math:`\alpha' = \alpha_c \alpha` from the "
-                          "interleaved RB curve, then divide this by "
-                          r"the initial guess of :math:`\alpha`.",
+            "interleaved RB curve, then divide this by "
+            r"the initial guess of :math:`\alpha`.",
             bounds="[0, 1]",
         ),
     ]
@@ -104,7 +106,7 @@ See [1] for more details."""
     __doc_references__ = [
         Reference(
             title="Efficient measurement of quantum gate error by "
-                  "interleaved randomized benchmarking",
+            "interleaved randomized benchmarking",
             authors="Easwar Magesan, et. al.",
             open_access_link="https://arxiv.org/abs/1203.4550",
         ),
@@ -132,7 +134,7 @@ See [1] for more details."""
     ]
 
     @classmethod
-    def _default_options(cls):
+    def _default_options(cls) -> Union[Options, Dict[str, OptionsField]]:
         """Return default options."""
         default_options = super()._default_options()
 
