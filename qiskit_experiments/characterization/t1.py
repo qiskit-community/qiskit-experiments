@@ -24,7 +24,7 @@ from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.characterization.t1_analysis import T1Analysis
 
 
-class T1Experiment(BaseExperiment):
+class T1(BaseExperiment):
     """T1 experiment class.
 
     Experiment Options:
