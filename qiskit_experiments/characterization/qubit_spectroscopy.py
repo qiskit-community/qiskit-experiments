@@ -25,7 +25,6 @@ from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.analysis import (
     CurveAnalysis,
-    CurveAnalysisResult,
     SeriesDef,
     fit_function,
     get_opt_value,
@@ -131,7 +130,7 @@ class SpectroscopyAnalysis(CurveAnalysis):
 
         return fit_option
 
-    def _post_analysis(self, result_data: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_analysis(self, result_data: Dict) -> Dict:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:

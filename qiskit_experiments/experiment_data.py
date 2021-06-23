@@ -20,20 +20,6 @@ from qiskit_experiments.stored_data import StoredDataV1
 LOG = logging.getLogger(__name__)
 
 
-class ResultDict(dict):
-    """Placeholder class"""
-
-    __keys_not_shown__ = tuple()
-
-    def __str__(self):
-        out = ""
-        for key, value in self.items():
-            if key in self.__keys_not_shown__:
-                continue
-            out += f"\n- {key}: {value}"
-        return out
-
-
 class ExperimentData(StoredDataV1):
     """Qiskit Experiments Data container class"""
 
@@ -47,7 +33,6 @@ class ExperimentData(StoredDataV1):
         Args:
             experiment (BaseExperiment): Optional, experiment object that generated the data.
             backend (Backend): Optional, Backend the experiment runs on.
-            job_ids (list[str]): Optional, IDs of jobs submitted for the experiment.
 
         Raises:
             ExperimentError: If an input argument is invalid.

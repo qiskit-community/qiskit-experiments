@@ -12,15 +12,14 @@
 
 """Analysis utility functions."""
 
+from typing import Dict
 
-from qiskit_experiments.experiment_data import ResultDict
 
-
-def get_opt_value(result_data: ResultDict, param_name: str) -> float:
+def get_opt_value(result_data: Dict, param_name: str) -> float:
     """A helper function to get parameter value from a result dictionary.
 
     Args:
-        result_data: Result object.
+        result_data: Result data.
         param_name: Name of parameter to extract.
 
     Returns:
@@ -44,11 +43,11 @@ def get_opt_value(result_data: ResultDict, param_name: str) -> float:
         raise ValueError(f"Parameter {param_name} is not defined.") from ex
 
 
-def get_opt_error(result_data: ResultDict, param_name: str) -> float:
+def get_opt_error(result_data: Dict, param_name: str) -> float:
     """A helper function to get error value from analysis result.
 
     Args:
-        result_data: Result object.
+        result_data: Result data.
         param_name: Name of parameter to extract.
 
     Returns:

@@ -23,10 +23,14 @@ from qiskit.utils import apply_prefix
 from qiskit.providers.options import Options
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis
-from qiskit_experiments.analysis.curve_fitting import curve_fit, process_curve_data
+from qiskit_experiments.analysis.curve_fitting import (
+    curve_fit,
+    process_curve_data,
+    CurveAnalysisResult,
+)
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
-from qiskit_experiments.experiment_data import ExperimentData, ResultDict
+from qiskit_experiments.experiment_data import ExperimentData
 from qiskit_experiments.stored_data import AnalysisResultV1
 from qiskit_experiments.stored_data.device_component import Qubit
 
@@ -114,25 +118,23 @@ class T2StarAnalysis(BaseAnalysis):
             figures = None
 
         # Output unit is 'sec', regardless of the unit used in the input
-        result_data = ResultDict(
-            {
-                "t2star_value": fit_result["popt"][1],
-                "frequency_value": fit_result["popt"][2],
-                "stderr": fit_result["popt_err"][1],
-                "unit": "s",
-                "label": "T2*",
-                "fit": fit_result,
-                "quality": self._fit_quality(
-                    fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
-                ),
-            }
-        )
+        result_data = {
+            "t2star_value": fit_result["popt"][1],
+            "frequency_value": fit_result["popt"][2],
+            "stderr": fit_result["popt_err"][1],
+            "unit": "s",
+            "label": "T2*",
+            "fit": fit_result,
+            "quality": self._fit_quality(
+                fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
+            ),
+        }
 
         result_data["fit"]["circuit_unit"] = unit
         if unit == "dt":
             result_data["fit"]["dt"] = conversion_factor
 
-        analysis_result = AnalysisResultV1(
+        analysis_result = CurveAnalysisResult(
             result_data=result_data,
             result_type="T2Star",
             device_components=[Qubit(circ_metadata["qubit"])],

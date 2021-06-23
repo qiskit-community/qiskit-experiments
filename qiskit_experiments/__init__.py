@@ -30,7 +30,6 @@ These container classes store the data and results from running experiments
     :toctree: ../stubs/
 
     ExperimentData
-    ResultDict
 
 
 Experiment Base Classes
@@ -49,7 +48,7 @@ base classes
 from .version import __version__
 
 # Base Classes
-from .experiment_data import ExperimentData, ResultDict
+from .experiment_data import ExperimentData
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
 

@@ -17,7 +17,6 @@ from typing import List, Dict, Any, Union
 import numpy as np
 
 from qiskit_experiments.analysis import (
-    CurveAnalysisResult,
     SeriesDef,
     fit_function,
     get_opt_value,
@@ -165,7 +164,7 @@ class InterleavedRBAnalysis(RBAnalysis):
 
         return fit_option
 
-    def _post_analysis(self, result_data: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_analysis(self, result_data: Dict) -> Dict:
         """Calculate EPC."""
         # Add EPC data
         nrb = 2 ** self._num_qubits

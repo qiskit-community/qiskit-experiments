@@ -305,7 +305,7 @@ class CurveAnalysis(BaseAnalysis):
         )
 
     @requires_matplotlib
-    def _create_figures(self, result_data: CurveAnalysisResult) -> List["Figure"]:
+    def _create_figures(self, result_data: Dict) -> List["Figure"]:
         """Create new figures with the fit result and raw data.
 
         Subclass can override this method to create different type of figures.
@@ -505,7 +505,7 @@ class CurveAnalysis(BaseAnalysis):
             metadata=data.metadata,
         )
 
-    def _post_analysis(self, result_data: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_analysis(self, result_data: Dict) -> Dict:
         """Calculate new quantity from the fit result.
 
         Subclasses can override this method to do post analysis.
@@ -777,8 +777,7 @@ class CurveAnalysis(BaseAnalysis):
         Raises:
             AnalysisError: if the analysis fails.
         """
-        result_data = CurveAnalysisResult()
-        result_data["analysis_type"] = self.__class__.__name__
+        result_data = {"analysis_type": self.__class__.__name__}
         figures = list()
 
         # pop arguments that are not given to fitter
@@ -900,7 +899,7 @@ class CurveAnalysis(BaseAnalysis):
                     }
                 result_data["raw_data"] = raw_data_dict
 
-        analysis_result = AnalysisResultV1(
+        analysis_result = CurveAnalysisResult(
             result_data=result_data,
             result_type=result_data["analysis_type"],
             device_components=[Qubit(qubit) for qubit in self.__qubits] if self.__qubits else [],
