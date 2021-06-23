@@ -22,7 +22,10 @@ from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.quantum_info import Clifford
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeParis
-from qiskit.circuit.library import XGate, CXGate
+from qiskit import QuantumCircuit
+from qiskit.circuit.library import (IGate, XGate, YGate, ZGate, HGate,
+                                    SGate, SdgGate, CXGate, CZGate,
+                                    SwapGate)
 from qiskit.providers.aer import AerSimulator
 import qiskit_experiments as qe
 
@@ -160,30 +163,39 @@ class TestInterleavedRB(TestRB):
         self.is_identity(exp_circuits)
 
 
-# @ddt
-# class TestRBUtilities(QiskitTestCase):
-#     """
-#     A test class for additional functionality provided by the RBExperiment
-#     class.
-#     """
-#
-#     def test_epg_computation(self):
-#         """Tests the error per gate computation"""
-#         backend = AerSimulator.from_backend(FakeParis())
-#         rb = qe.randomized_benchmarking
-#         error_dict = rb.RBUtils.get_error_dict_from_backend(backend, [0])
-#         lengths = np.arange(1, 1000, 50)
-#         num_samples = 10
-#         seed = 1010
-#         exp1 = rb.RBExperiment([0], lengths, num_samples=num_samples, seed=seed)
-#         result = exp1.run(backend)
-#         epg = result.analysis_result(0)["EPG"]
-#         for gate in ["x", "sx", "rz"]:
-#             expected_epg = error_dict[((0,), gate)]
-#             actual_epg = epg[0][gate]
-#             self.assertTrue(
-#                 np.allclose(expected_epg, actual_epg, rtol=1.0e-2),
-#                 "The expected EGP {} is not close enough to the computed EPG {}".format(
-#                     expected_epg, actual_epg
-#                 ),
-#             )
+@ddt
+class TestRBUtilities(QiskitTestCase):
+    """
+    A test class for additional functionality provided by the RBExperiment
+    class.
+    """
+    instructions = {
+        'i': IGate(),
+        'x': XGate(),
+        'y': YGate(),
+        'z': ZGate(),
+        'h': HGate(),
+        's': SGate(),
+        'sdg': SdgGate(),
+        'cx': CXGate(),
+        'cz': CZGate(),
+        'swap': SwapGate(),
+    }
+    seed = 42
+
+    @data([1,{((0,), 'x'): 3, ((0,), 'y'): 2, ((0,), 'h'): 1}],
+          [5, {((1,), 'x'): 3, ((4,), 'y'): 2, ((1,), 'h'): 1, ((1,4),'cx'): 7}]
+          )
+    @unpack
+    def test_count_ops(self, num_qubits, expected_counts):
+        circuit = QuantumCircuit(num_qubits)
+        gates_to_add = []
+        for gate, count in expected_counts.items():
+            gates_to_add += [gate for _ in range(count)]
+        rng = np.random.default_rng(self.seed)
+        rng.shuffle(gates_to_add)
+        for qubits, gate in gates_to_add:
+            print(gate, qubits)
+            circuit.append(self.instructions[gate], qubits)
+        counts = qe.randomized_benchmarking.RBUtils.count_ops(circuit)
+        self.assertDictEqual(expected_counts, counts)
