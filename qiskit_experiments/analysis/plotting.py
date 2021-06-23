@@ -57,11 +57,6 @@ def plot_curve_fit(
         figure = pyplot.figure()
         ax = figure.subplots()
 
-    # Result data
-    popt = result["popt"]
-    popt_err = result["popt_err"]
-    xmin, xmax = result["xrange"]
-
     # Default plot options
     plot_opts = kwargs.copy()
     if "color" not in plot_opts:
@@ -71,15 +66,35 @@ def plot_curve_fit(
     if "linewidth" not in plot_opts:
         plot_opts["linewidth"] = 2
 
+    # Result data
+    fit_params = result["popt"]
+    param_keys = result.get("popt_keys")
+    fit_errors = result.get("popt_err")
+    xmin, xmax = result["xrange"]
+
     # Plot fit data
     xs = np.linspace(xmin, xmax, num_fit_points)
-    ys_fit = func(xs, *popt)
+    if param_keys:
+        ys_fit = func(xs, **dict(zip(param_keys, fit_params)))
+    else:
+        ys_fit = func(xs, *fit_params)
     ax.plot(xs, ys_fit, **plot_opts)
 
     # Plot standard error interval
-    if confidence_interval:
-        ys_upper = func(xs, *(popt + popt_err))
-        ys_lower = func(xs, *(popt - popt_err))
+    if confidence_interval and fit_errors is not None:
+        if param_keys:
+            params_upper = {}
+            params_lower = {}
+            for key, param, error in zip(param_keys, fit_params, fit_errors):
+                params_upper[key] = param + error
+                params_lower[key] = param - error
+            ys_upper = func(xs, **params_upper)
+            ys_lower = func(xs, **params_lower)
+        else:
+            params_upper = [param + error for param, error in zip(fit_params, fit_errors)]
+            params_lower = [param - error for param, error in zip(fit_params, fit_errors)]
+            ys_upper = func(xs, *params_upper)
+            ys_lower = func(xs, *params_lower)
         ax.fill_between(xs, ys_lower, ys_upper, alpha=0.1, color=plot_opts["color"])
 
     # Formatting
@@ -122,6 +137,8 @@ def plot_scatter(
         plot_opts["c"] = "grey"
     if "marker" not in plot_opts:
         plot_opts["marker"] = "x"
+    if "alpha" not in plot_opts:
+        plot_opts["alpha"] = 0.8
 
     # Plot data
     ax.scatter(xdata, ydata, **plot_opts)
