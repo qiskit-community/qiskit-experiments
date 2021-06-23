@@ -37,6 +37,7 @@ Analysis
     T2StarAnalysis
     SpectroscopyAnalysis
 """
-from .t1_experiment import T1Experiment, T1Analysis
+from .t1_experiment import T1Experiment
+from .t1_analysis import T1Analysis
 from .qubit_spectroscopy import QubitSpectroscopy, SpectroscopyAnalysis
 from .t2star_experiment import T2StarExperiment, T2StarAnalysis
