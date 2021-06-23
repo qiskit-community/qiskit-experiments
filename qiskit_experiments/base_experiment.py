@@ -59,7 +59,6 @@ class BaseExperiment(ABC):
         """
         # Experiment identification metadata
         self._type = experiment_type if experiment_type else type(self).__name__
-
         # Circuit parameters
         if isinstance(qubits, Integral):
             self._num_qubits = qubits
@@ -107,6 +106,8 @@ class BaseExperiment(ABC):
         if experiment_data is None:
             # Create new experiment data
             experiment_data = self.__experiment_data__(experiment=self, backend=backend)
+            experiment_data.metadata()["experiment_data"] = self._type
+
         else:
             # Validate experiment is compatible with existing data container
             metadata = experiment_data.metadata()
@@ -343,7 +344,7 @@ class BaseExperiment(ABC):
             run_options: backend run options for the job.
         """
         metadata = {
-            "job_id": job.job_id(),
+            "job_id": job.job_id,
             "experiment_options": copy.copy(self.experiment_options.__dict__),
             "transpile_options": copy.copy(self.transpile_options.__dict__),
             "analysis_options": copy.copy(self.analysis_options.__dict__),
