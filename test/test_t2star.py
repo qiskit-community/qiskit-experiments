@@ -79,7 +79,6 @@ class T2starBackend(BackendV1):
         """
         self.options.update_options(**options)
         shots = self.options.get("shots")
-
         result = {
             "backend_name": "T2star backend",
             "backend_version": "0",
@@ -202,8 +201,7 @@ class TestT2Star(QiskitTestCase):
                 )
 
                 # run circuits
-                exp.set_analysis_options(shots=2000)
-                expdata = exp.run(backend=backend)
+                expdata = exp.run(backend=backend, shots=2000)
                 result = expdata.analysis_result(0)
                 self.assertAlmostEqual(
                     result["t2star_value"],
@@ -280,7 +278,7 @@ class TestT2Star(QiskitTestCase):
             "phi": 0,
             "B": 0.5,
         }
-        exp1.set_analysis_options(user_p0=default_p0, shots=2000)
+        exp1.set_analysis_options(user_p0=default_p0)
         backend = T2starBackend(
             p0={
                 "a_guess": [0.5],
@@ -296,17 +294,16 @@ class TestT2Star(QiskitTestCase):
         )
 
         # run circuits
-        expdata1 = exp1.run(
-            backend=backend
-        )
+        expdata1 = exp1.run(backend=backend, shots=1000)
 
         # second experiment
         delays2 = list(range(2, 65, 2))
         exp2 = T2StarExperiment(qubit, delays2, unit=unit)
-        exp2.set_analysis_options(user_p0=default_p0, shots=2000)
+        exp2.set_analysis_options(user_p0=default_p0)
         expdata2 = exp2.run(
             backend=backend,
             experiment_data=expdata1,
+            shots=1000
         )
         result = expdata2.analysis_result(0)
         self.assertAlmostEqual(
