@@ -13,11 +13,10 @@
 """Experiment service abstract interface."""
 
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, List, Any, Union, Tuple, Type, TypeVar
+from typing import Optional, Dict, List, Any, Union, Tuple
+from types import SimpleNamespace
 
 from .device_component import DeviceComponent
-
-ExperimentClass = TypeVar("ExperimentClass")
 
 
 class ExperimentService:
@@ -33,9 +32,12 @@ class ExperimentService:
 
 
 class ExperimentServiceV1(ExperimentService, ABC):
-    """Class to provide experiment service.
+    """Interface for providing experiment service.
 
-    The experiment service allows you to store experiment data and metadata
+    This class defines the interface ``qiskit_experiments`` expects from an
+    experiment service.
+
+    An experiment service allows you to store experiment data and metadata
     in a database. An experiment can have one or more jobs, analysis results,
     and figures.
 
@@ -119,15 +121,12 @@ class ExperimentServiceV1(ExperimentService, ABC):
 
     @abstractmethod
     def experiment(
-        self, experiment_id: str, experiment_class: Optional[Type[ExperimentClass]] = None
-    ) -> Union[Dict, ExperimentClass]:
+        self, experiment_id: str
+    ) -> SimpleNamespace:
         """Retrieve a previously stored experiment.
 
         Args:
             experiment_id: Experiment ID.
-            experiment_class: Class used to instantiate the returned data object.
-                If a class is provided, its ``from_data()`` method is called
-                with the retrieved data, and its return value is returned.
 
         Returns:
             A dictionary containing the retrieved experiment data if `experiment_class`
@@ -142,21 +141,17 @@ class ExperimentServiceV1(ExperimentService, ABC):
     def experiments(
         self,
         limit: Optional[int] = 10,
-        experiment_class: Optional[Type[ExperimentClass]] = None,
         device_components: Optional[Union[str, DeviceComponent]] = None,
         experiment_type: Optional[str] = None,
         backend_name: Optional[str] = None,
         tags: Optional[List[str]] = None,
         tags_operator: Optional[str] = "OR",
         **filters: Any,
-    ) -> List[Union[Dict, ExperimentClass]]:
+    ) -> List[SimpleNamespace]:
         """Retrieve all experiment data, with optional filtering.
 
         Args:
             limit: Number of experiments to retrieve. ``None`` means no limit.
-            experiment_class: Class used to instantiate the returned data object.
-                If a class is provided, its ``from_data()`` method is called
-                with the retrieved data, and its return value is returned.
             device_components: Filter by device components. An experiment must have analysis
                 results with device components matching the given list exactly to be included.
             experiment_type: Experiment type used for filtering.
@@ -251,15 +246,12 @@ class ExperimentServiceV1(ExperimentService, ABC):
 
     @abstractmethod
     def analysis_result(
-        self, result_id: str, result_class: Optional[Type[ExperimentClass]] = None
-    ) -> Union[Dict, ExperimentClass]:
+        self, result_id: str
+    ) -> SimpleNamespace:
         """Retrieve a previously stored experiment.
 
         Args:
             result_id: Analysis result ID.
-            result_class: Class used to instantiate the returned data object.
-                If a class is provided, its ``from_data()`` method is called
-                with the retrieved data, and its return value is returned.
 
         Returns:
             Retrieved analysis result.
@@ -273,7 +265,6 @@ class ExperimentServiceV1(ExperimentService, ABC):
     def analysis_results(
         self,
         limit: Optional[int] = 10,
-        result_class: Optional[Type[ExperimentClass]] = None,
         device_components: Optional[Union[str, DeviceComponent]] = None,
         experiment_id: Optional[str] = None,
         result_type: Optional[str] = None,
@@ -283,14 +274,11 @@ class ExperimentServiceV1(ExperimentService, ABC):
         tags: Optional[List[str]] = None,
         tags_operator: Optional[str] = "OR",
         **filters: Any,
-    ) -> List[Union[Dict, ExperimentClass]]:
+    ) -> List[SimpleNamespace]:
         """Retrieve all analysis results, with optional filtering.
 
         Args:
             limit: Number of analysis results to retrieve. ``None`` means no limit.
-            result_class: Class used to instantiate the returned data object.
-                If a class is provided, its ``from_data()`` method is called
-                with the retrieved data, and its return value is returned.
             device_components: Target device components, such as qubits.
             experiment_id: Experiment ID used for filtering.
             result_type: Analysis result type used for filtering.
