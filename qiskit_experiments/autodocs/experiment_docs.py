@@ -12,11 +12,11 @@
 """
 Documentation for experiment.
 """
+import re
 from typing import Optional, Dict, List
 
 from qiskit.exceptions import QiskitError
 
-from qiskit_experiments.base_experiment import BaseExperiment
 from .descriptions import OptionsField, Reference
 from .writer import _DocstringWriter, _DocstringMaker
 
@@ -68,19 +68,23 @@ See method documentation for details.")
 
 def auto_experiment_documentation(style: _DocstringMaker = StandardExperimentDocstring):
     """A class decorator that overrides experiment class docstring."""
-    def decorator(experiment: BaseExperiment):
+    def decorator(experiment: "BaseExperiment"):
+        regex = r"__doc_(?P<kwarg>\S+)__"
+
+        kwargs = {}
+        for attribute in dir(experiment):
+            match = re.match(regex, attribute)
+            if match:
+                arg = match["kwarg"]
+                kwargs[arg] = getattr(experiment, attribute, None)
+
         analysis = experiment.__analysis_class__
 
         exp_docs = style.make_docstring(
             analysis_options=experiment.__analysis_class__._default_options(),
             experiment_options=experiment._default_experiment_options(),
             analysis=f"{analysis.__module__}.{analysis.__name__}",
-            overview=getattr(experiment, "__doc_overview__", None),
-            example=getattr(experiment, "__doc_example__", None),
-            references=getattr(experiment, "__doc_references__", None),
-            note=getattr(experiment, "__doc_note__", None),
-            warning=getattr(experiment, "__doc_warning__", None),
-            tutorial=getattr(experiment, "__doc_tutorial__", None),
+            **kwargs
         )
         experiment.__doc__ += f"\n\n{exp_docs}"
 

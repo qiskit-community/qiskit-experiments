@@ -15,8 +15,9 @@ Docstring writer. This module takes facade pattern to implement the functionalit
 import typing
 from types import FunctionType
 
-from .descriptions import OptionsField, Reference, _parse_annotation
+from .descriptions import OptionsField, Reference, CurveFitParameter, _parse_annotation
 from abc import abstractclassmethod
+from qiskit.exceptions import QiskitError
 
 
 class _DocstringMaker:
@@ -169,3 +170,51 @@ class _DocstringWriter:
                 indented_text += indent
             indented_text += f"{line}\n"
         return indented_text
+
+
+class _CurveFitDocstringWriter(_DocstringWriter):
+
+    def write_fit_parameter(self, fit_params: typing.List[CurveFitParameter]):
+        """Write fit parameters."""
+        self.docstring += "Fit Parameters\n"
+
+        for fit_param in fit_params:
+            self.docstring += self.__indent__
+            self.docstring += f":math:`{fit_param.name}`: {fit_param.description}\n"
+        self.docstring += "\n"
+
+    def write_initial_guess(self, fit_params: typing.List[CurveFitParameter]):
+        """Write initial guess estimation method."""
+        self.docstring += "Initial Guess\n"
+
+        for fit_param in fit_params:
+            self.docstring += self.__indent__
+            self.docstring += f":math`{fit_param.name}`: {fit_param.initial_guess}\n"
+        self.docstring += "\n"
+
+    def write_bounds(self, fit_params: typing.List[CurveFitParameter]):
+        """Write fit parameter bound."""
+        self.docstring += "Parameter Boundaries\n"
+
+        for fit_param in fit_params:
+            self.docstring += self.__indent__
+            self.docstring += f":math`{fit_param.name}`: {fit_param.bounds}\n"
+        self.docstring += "\n"
+
+    def write_fit_models(self, equations: typing.List[str]):
+        """Write fitting models."""
+        self.docstring += "Fit Model\n\n"
+        self.docstring += ".. math::\n\n"
+
+        if len(equations) > 1:
+            for equation in equations:
+                self.docstring += self.__indent__ * 2
+                try:
+                    lh, rh = equation.split("=")
+                except ValueError:
+                    raise QiskitError(f"Equation {equation} is not a valid form.")
+                self.docstring += f"{lh} &= {rh}\n"
+        else:
+            self.docstring += self.__indent__ * 2
+            self.docstring += f"{equations[0]}\n"
+        self.docstring += "\n"

@@ -22,4 +22,5 @@ while providing users with the standardized and high quality documentation.
 
 from .experiment_docs import auto_experiment_documentation
 from .set_option_docs import auto_options_method_documentation
+from .analysis_docs import auto_analysis_documentation
 from .descriptions import OptionsField, Reference, to_options

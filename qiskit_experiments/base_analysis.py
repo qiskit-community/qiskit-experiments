@@ -39,6 +39,14 @@ class BaseAnalysis(ABC):
     run method and passed to the `_run_analysis` function.
     """
 
+    # Documentation sections
+    __doc_overview__ = None
+    __doc_example__ = None
+    __doc_references__ = None
+    __doc_note__ = None
+    __doc_warning__ = None
+    __doc_tutorial__ = None
+
     # Expected experiment data container for analysis
     __experiment_data__ = ExperimentData
 

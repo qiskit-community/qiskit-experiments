@@ -33,10 +33,6 @@ from qiskit_experiments.autodocs import (
 class InterleavedRBExperiment(RBExperiment):
     """Interleaved RB Experiment class"""
 
-    __doc_overview__ = """
-    
-    """
-
     # Analysis class for experiment
     __analysis_class__ = InterleavedRBAnalysis
 

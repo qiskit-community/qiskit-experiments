@@ -18,7 +18,6 @@ from typing import Optional, Dict, Any
 
 from qiskit.exceptions import QiskitError
 
-from qiskit_experiments.base_experiment import BaseExperiment
 from .descriptions import OptionsField
 from .writer import _DocstringWriter, _DocstringMaker
 
@@ -47,7 +46,7 @@ class StandardSetOptionsDocstring(_DocstringMaker):
         return writer.docstring
 
 
-def _copy_method(experiment: BaseExperiment, method_name: str) -> FunctionType:
+def _copy_method(experiment: "BaseExperiment", method_name: str) -> FunctionType:
     """A helper function to duplicate base class method.
 
     Note that calling set options method will access to the base class method.
@@ -93,7 +92,7 @@ def _compile_annotations(fields: Dict[str, OptionsField]) -> Dict[str, Any]:
 
 def auto_options_method_documentation(style: _DocstringMaker = StandardSetOptionsDocstring):
     """A class decorator that overrides set options method docstring."""
-    def decorator(experiment: BaseExperiment):
+    def decorator(experiment: "BaseExperiment"):
         analysis_options = experiment.__analysis_class__._default_options()
         experiment_options = experiment._default_experiment_options()
 

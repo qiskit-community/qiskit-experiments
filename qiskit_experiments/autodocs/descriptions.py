@@ -52,6 +52,23 @@ class Reference:
     open_access_link: typing.Optional[str] = None
 
 
+@dataclasses.dataclass
+class CurveFitParameter:
+    """A data class to describe fit parameter."""
+
+    # Name of fit parameter
+    name: str
+
+    # Description about the parameter
+    description: str
+
+    # How initial guess is calculated
+    initial_guess: str
+
+    # How bounds are calculated
+    bounds: str
+
+
 def _parse_annotation(_type: typing.Any) -> str:
     """A helper function to convert type object into string."""
 
