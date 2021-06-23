@@ -305,20 +305,22 @@ class TestT2Star(QiskitTestCase):
             experiment_data=expdata1,
             shots=1000
         )
-        result = expdata2.analysis_result(0)
+        result0 = expdata2.analysis_result(0)
+        result1 = expdata2.analysis_result(1)
         self.assertAlmostEqual(
-            result["t2star_value"],
+            result1["t2star_value"],
             estimated_t2star * dt_factor,
             delta=3 * dt_factor,
             )
         self.assertAlmostEqual(
-            result["frequency_value"],
+            result1["frequency_value"],
             estimated_freq / dt_factor,
             delta=3 / dt_factor
             )
         self.assertEqual(
-            result["quality"], "computer_good", "Result quality bad for unit " + str(unit)
+            result1["quality"], "computer_good", "Result quality bad for unit " + str(unit)
         )
+        self.assertLessEqual(result1["stderr"], result0["stderr"])
         self.assertEqual(len(expdata2.data()), len(delays1) + len(delays2))
 
 
