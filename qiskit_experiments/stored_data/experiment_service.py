@@ -120,9 +120,7 @@ class ExperimentServiceV1(ExperimentService, ABC):
         pass
 
     @abstractmethod
-    def experiment(
-        self, experiment_id: str
-    ) -> SimpleNamespace:
+    def experiment(self, experiment_id: str) -> SimpleNamespace:
         """Retrieve a previously stored experiment.
 
         Args:
@@ -245,9 +243,7 @@ class ExperimentServiceV1(ExperimentService, ABC):
         pass
 
     @abstractmethod
-    def analysis_result(
-        self, result_id: str
-    ) -> SimpleNamespace:
+    def analysis_result(self, result_id: str) -> SimpleNamespace:
         """Retrieve a previously stored experiment.
 
         Args:
