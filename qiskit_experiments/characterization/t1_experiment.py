@@ -37,22 +37,22 @@ class T1Analysis(BaseAnalysis):
 
         .. math::
 
-            F(x) = a \e^{-x/t1} + b
+            F(x) = a e^{-x/t1} + b
 
     Fit Parameters
-        - :math:`amplitude`: Height of decay curve
-        - :math:`offset`: Base line
+        - :math:`amplitude`: Height of the decay curve
+        - :math:`offset`: Base line of the decay curve
         - :math:`t1`: This is the fit parameter of main interest
 
     Initial Guesses
-        - :math:`amplitude_guess`: Determined by :math:`(y_0 - offset_guess)`
-        - :math:`offset_guess`: Determined by the last :math:`y`
-        - :math:`t1_guess`: Determined by the mean of the data points
+        - :math:`amplitude\_guess`: Determined by :math:`(y_0 - offset\_guess)`
+        - :math:`offset\_guess`: Determined by the last :math:`y`
+        - :math:`t1\_guess`: Determined by the mean of the data points
 
     Bounds
-        - :math:`amplitude_bounds`: [0, 1]
-        - :math:`offset_bounds`: [0, 1]
-        - :math:`t1_bounds`: [0, infinity]
+        - :math:`amplitude\_bounds`: [0, 1]
+        - :math:`offset\_bounds`: [0, 1]
+        - :math:`t1\_bounds`: [0, infinity]
     """
 
     @classmethod
@@ -256,7 +256,6 @@ class T1Experiment(BaseExperiment):
         )
 
         print(res.analysis_result(0))
-        res.figure(0)
     """
 
     __analysis_class__ = T1Analysis
