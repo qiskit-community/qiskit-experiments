@@ -60,7 +60,7 @@ Utility
     get_opt_error
     get_opt_value
 """
-from .curve_analysis import CurveAnalysis, SeriesDef
+from .curve_analysis import CurveAnalysis, SeriesDef, CurveData
 
 from .curve_fitting import (
     CurveAnalysisResult,
