@@ -45,6 +45,11 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
           have either trace 1 for :class:`~qiskit.quantum_info.DensityMatrix`,
           or trace dim for :class:`~qiskit.quantum_info.Choi`.
           matrices (Default: True).
+        - **target** (``QuantumChannel`` or ``Operator``) Set a custom target quantum
+          channel for computing the :func:~qiskit.quantum_info.process_fidelity` of the
+          fitted process against. If ``"default"`` the ideal process corresponding for
+          the input circuit will be used. If ``None`` no fidelity will be computed
+          (Default: "default").
         - **kwargs**: will be supplied to the fitter function,
           for documentation of available args refer to the fitter function
           documentation.
@@ -95,4 +100,5 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
             fitter="linear_inversion",
             rescale_positive=True,
             rescale_trace=True,
+            target="default",
         )

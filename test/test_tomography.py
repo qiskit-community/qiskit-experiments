@@ -133,7 +133,7 @@ class TestStateTomography(QiskitTestCase):
 
         # Check experiment target metadata is correct
         exp_meta = exp._metadata()
-        target_state = exp_meta.get("target_state")
+        target_state = exp_meta.get("target")
 
         target_circ = QuantumCircuit(num_meas)
         for i, qubit in enumerate(meas_qubits):
@@ -282,7 +282,7 @@ class TestProcessTomography(QiskitTestCase):
         """Test QPT experiment"""
         backend = AerSimulator()
         seed = 1234
-        f_threshold = 0.95
+        f_threshold = 0.94
         target = qi.random_unitary(2 ** num_qubits, seed=seed)
         qstexp = tomo.ProcessTomography(target)
         if fitter:
@@ -333,7 +333,7 @@ class TestProcessTomography(QiskitTestCase):
 
         # Check experiment target metadata is correct
         exp_meta = exp._metadata()
-        target_state = exp_meta.get("target_state")
+        target_state = exp_meta.get("target")
 
         target_circ = QuantumCircuit(num_meas)
         for i, qubit in enumerate(qubits):

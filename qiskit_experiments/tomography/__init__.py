@@ -40,7 +40,7 @@ Analysis
 Tomography Fitters
 ==================
 
-Fitter methods for tomography analysis
+Fitter functions for state reconstruction in tomography analysis
 
 .. autosummary::
     :toctree: ../stubs/
@@ -51,15 +51,20 @@ Fitter methods for tomography analysis
     fitters.cvxpy_gaussian_lstsq
     fitters.cvxpy_linear_lstsq
 
-.. warning::
-    The API for tomography fitters is still under development so may change
-    in a future release.
-
 
 Basis Classes
 =============
 
-Tensor product basis classes
+Build in tomography basis classes
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    basis.PauliMeasurementBasis
+    basis.PauliPreparationBasis
+    basis.Pauli6PreparationBasis
+
+Custom tensor product basis classes
 
 .. autosummary::
     :toctree: ../stubs/
@@ -68,9 +73,6 @@ Tensor product basis classes
     basis.TomographyPreparationBasis
     basis.FitterMeasurementBasis
     basis.FitterPreparationBasis
-    basis.PauliPreparationBasis
-    basis.Pauli6PreparationBasis
-    basis.PauliMeasurementBasis
 
 Abstract base classes
 
@@ -81,6 +83,10 @@ Abstract base classes
     basis.BaseTomographyPreparationBasis
     basis.BaseFitterMeasurementBasis
     basis.BaseFitterPreparationBasis
+
+.. warning::
+    The API for tomography fitters and bases is still under development so may
+    change in a future release.
 """
 
 # Experiment Classes

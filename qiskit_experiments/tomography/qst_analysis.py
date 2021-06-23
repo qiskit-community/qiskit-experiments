@@ -39,6 +39,10 @@ class StateTomographyAnalysis(TomographyAnalysis):
           have either trace 1 for :class:`~qiskit.quantum_info.DensityMatrix`,
           or trace dim for :class:`~qiskit.quantum_info.Choi`.
           matrices (Default: True).
+        - **target** (``Statevector`` or ``DensityMatrix``) Set a custom target state
+          for computing the :func:`~qiskit.quantum_info.state_fidelity` of the fitted
+          state against. If ``"default"``  the ideal state prepared by the input circuit
+          will be used. If ``None`` no fidelity will be computed (Default: "default").
         - **kwargs**: will be supplied to the fitter function,
           for documentation of available args refer to the fitter function
           documentation.
@@ -88,4 +92,5 @@ class StateTomographyAnalysis(TomographyAnalysis):
             fitter="linear_inversion",
             rescale_positive=True,
             rescale_trace=True,
+            target="default",
         )

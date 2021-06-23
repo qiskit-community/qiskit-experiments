@@ -21,6 +21,7 @@ from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.circuit.library import Permutation
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 import qiskit.quantum_info as qi
+from qiskit_experiments.exceptions import QiskitError
 from qiskit_experiments.base_experiment import BaseExperiment, Options
 from .basis import BaseTomographyMeasurementBasis, BaseTomographyPreparationBasis
 from .tomography_analysis import TomographyAnalysis
@@ -45,7 +46,7 @@ class TomographyExperiment(BaseExperiment):
         basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
         qubits: Optional[Iterable[int]] = None,
     ):
-        """Initialize a state tomography experiment.
+        """Initialize a tomography experiment.
 
         Args:
             circuit: the quantum process circuit. If not a quantum circuit
@@ -59,6 +60,9 @@ class TomographyExperiment(BaseExperiment):
             basis_indices: Optional, the basis elements to be measured. If None
                 All basis elements will be measured.
             qubits: Optional, the physical qubits for the initial state circuit.
+
+        Raises:
+            QiskitError: if input params are invalid.
         """
         # Initialize BaseExperiment
         if qubits is None:
@@ -79,6 +83,12 @@ class TomographyExperiment(BaseExperiment):
         self._meas_circ_basis = measurement_basis
         if measurement_qubits:
             self._meas_qubits = tuple(measurement_qubits)
+            for qubit in self._meas_qubits:
+                if qubit not in range(self.num_qubits):
+                    raise QiskitError(
+                        f"measurement qubit ({qubit}) is outside the range"
+                        f" of circuit qubits [0, {self.num_qubits})."
+                    )
         else:
             self._meas_qubits = None
 
@@ -86,6 +96,12 @@ class TomographyExperiment(BaseExperiment):
         self._prep_circ_basis = preparation_basis
         if preparation_qubits:
             self._prep_qubits = tuple(preparation_qubits)
+            for qubit in self._prep_qubits:
+                if qubit not in range(self.num_qubits):
+                    raise QiskitError(
+                        f"preparation qubit ({qubit}) is outside the range"
+                        f" of circuit qubits [0, {self.num_qubits})."
+                    )
         else:
             self._prep_qubits = None
 
@@ -94,15 +110,15 @@ class TomographyExperiment(BaseExperiment):
             self.set_experiment_options(basis_indices=basis_indices)
 
         # Compute target state
-        self._target_state = None
+        self._target = None
         if self._prep_circ_basis:
-            self._target_state = self._target_quantum_channel(
+            self._target = self._target_quantum_channel(
                 self._circuit,
                 measurement_qubits=self._meas_qubits,
                 preparation_qubits=self._prep_qubits,
             )
         else:
-            self._target_state = self._target_quantum_state(
+            self._target = self._target_quantum_state(
                 self._circuit, measurement_qubits=self._meas_qubits
             )
 
@@ -116,8 +132,8 @@ class TomographyExperiment(BaseExperiment):
 
     def _metadata(self):
         metadata = super()._metadata()
-        if self._target_state:
-            metadata["target_state"] = copy.copy(self._target_state)
+        if self._target:
+            metadata["target"] = copy.copy(self._target)
         return metadata
 
     def circuits(self, backend=None):
@@ -242,10 +258,15 @@ class TomographyExperiment(BaseExperiment):
             return None
 
         perm_circ = cls._permute_circuit(circuit, measurement_qubits=measurement_qubits)
-        if "reset" in circuit_ops or "kraus" in circuit_ops or "superop" in circuit_ops:
-            state = qi.DensityMatrix(perm_circ)
-        else:
-            state = qi.Statevector(perm_circ)
+
+        try:
+            if "reset" in circuit_ops or "kraus" in circuit_ops or "superop" in circuit_ops:
+                state = qi.DensityMatrix(perm_circ)
+            else:
+                state = qi.Statevector(perm_circ)
+        except QiskitError:
+            # Circuit couldn't be simulated
+            return None
 
         total_qubits = circuit.num_qubits
         if measurement_qubits:
@@ -276,10 +297,14 @@ class TomographyExperiment(BaseExperiment):
         perm_circ = cls._permute_circuit(
             circuit, measurement_qubits=measurement_qubits, preparation_qubits=preparation_qubits
         )
-        if "reset" in circuit_ops or "kraus" in circuit_ops or "superop" in circuit_ops:
-            channel = qi.Choi(perm_circ)
-        else:
-            channel = qi.Operator(perm_circ)
+        try:
+            if "reset" in circuit_ops or "kraus" in circuit_ops or "superop" in circuit_ops:
+                channel = qi.Choi(perm_circ)
+            else:
+                channel = qi.Operator(perm_circ)
+        except QiskitError:
+            # Circuit couldn't be simulated
+            return None
 
         total_qubits = circuit.num_qubits
         if measurement_qubits:

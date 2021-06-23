@@ -54,6 +54,7 @@ class TomographyAnalysis(BaseAnalysis):
             fitter="linear_inversion",
             rescale_positive=True,
             rescale_trace=True,
+            target="default",
         )
 
     @classmethod
@@ -78,30 +79,32 @@ class TomographyAnalysis(BaseAnalysis):
         preparation_basis = options.pop("preparation_basis", None)
         rescale_positive = options.pop("rescale_positive")
         rescale_trace = options.pop("rescale_trace")
+        target_state = options.pop("target")
 
-        # Get target state
-        metadata = experiment_data.metadata()
-        target_state = metadata.get("target_state", None)
+        # Get target state from circuit metadata
+        if target_state == "default":
+            metadata = experiment_data.metadata()
+            target_state = metadata.get("target", None)
 
         # Get tomography fitter function
         fitter = self._get_fitter(options.pop("fitter", None))
         try:
-            t_ftter_start = time.time()
+            t_fitter_start = time.time()
             state, fitter_metadata = fitter(
                 outcome_data,
                 shot_data,
                 measurement_data,
                 preparation_data,
                 measurement_basis,
-                preparation_basis=preparation_basis,
+                preparation_basis,
                 **options,
             )
-            t_ftter_stop = time.time()
+            t_fitter_stop = time.time()
             if fitter_metadata is None:
                 fitter_metadata = {}
 
             fitter_metadata["fitter"] = fitter.__name__
-            fitter_metadata["fitter_time"] = t_ftter_stop - t_ftter_start
+            fitter_metadata["fitter_time"] = t_fitter_stop - t_fitter_start
 
             result = AnalysisResult(
                 {

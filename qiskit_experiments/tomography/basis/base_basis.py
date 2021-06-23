@@ -19,7 +19,12 @@ from qiskit import QuantumCircuit
 
 
 class BaseFitterMeasurementBasis(ABC):
-    """Abstract base class for fitter measurement bases."""
+    """Abstract base class for fitter measurement bases.
+
+    This class defines the POVM element matrix for each measurement
+    outcome of a basis index. It is used by tomography fitters during
+    tomography analysis.
+    """
 
     def __init__(self, name: Optional[str] = None):
         """Initialize a fitter measurement basis.
@@ -60,7 +65,13 @@ class BaseFitterMeasurementBasis(ABC):
 
 
 class BaseTomographyMeasurementBasis(BaseFitterMeasurementBasis):
-    """Abstract base class for tomography measurement bases."""
+    """Abstract base class for tomography experiment measurement bases.
+
+    This class extends BaseFitterMeasurementBasis to include a
+    circuit definition of each basis index. It can be used to construct
+    tomography circuits for execution, as well as for tomography analysis
+    of measurement data.
+    """
 
     @abstractmethod
     def circuit(self, index: Iterable[int]) -> QuantumCircuit:
@@ -75,7 +86,11 @@ class BaseTomographyMeasurementBasis(BaseFitterMeasurementBasis):
 
 
 class BaseFitterPreparationBasis(ABC):
-    """Abstract base class for fitter preparation bases."""
+    """Abstract base class for fitter preparation bases.
+
+    This class defines the density matrix for each preparation basis
+    index. It is used by tomography fitters during tomography analysis.
+    """
 
     def __init__(self, name: Optional[str] = None):
         """Initialize a fitter preparation basis.
@@ -111,7 +126,13 @@ class BaseFitterPreparationBasis(ABC):
 
 
 class BaseTomographyPreparationBasis(BaseFitterPreparationBasis):
-    """Abstract base class for tomography preparation bases."""
+    """Abstract base class for tomography experiment basispreparation bases.
+
+    This class extends BaseFitterPreparationBasis to include a
+    circuit definition of each basis index. It can be used to construct
+    tomography circuits for execution, as well as for tomography analysis
+    of measurement data.
+    """
 
     @abstractmethod
     def circuit(self, index: Iterable[int]) -> QuantumCircuit:
