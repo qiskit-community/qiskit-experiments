@@ -17,32 +17,15 @@ from typing import List, Tuple
 import numpy as np
 
 from qiskit import QuantumCircuit
-from qiskit.providers.backend import BackendV1 as Backend
-from qiskit.providers.models import QasmBackendConfiguration
+from qiskit.test.mock import FakeOpenPulse2Q
+
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
-from .mock_job import MockJob
+from qiskit_experiments.test.mock_job import MockJob
 
 
-class MockIQBackend(Backend):
+class MockIQBackend(FakeOpenPulse2Q):
     """An abstract backend for testing that can mock IQ data."""
-
-    __configuration__ = {
-        "backend_name": "simulator",
-        "backend_version": "0",
-        "n_qubits": int(1),
-        "basis_gates": ["x", "measure"],
-        "gates": [],
-        "local": True,
-        "simulator": True,
-        "conditional": False,
-        "open_pulse": False,
-        "memory": True,
-        "max_shots": int(1e6),
-        "coupling_map": [],
-        "dt": 0.1,
-    }
-
     def __init__(
         self,
         iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
@@ -56,7 +39,7 @@ class MockIQBackend(Backend):
 
         self._rng = np.random.default_rng(0)
 
-        super().__init__(QasmBackendConfiguration(**self.__configuration__))
+        super().__init__()
 
     def _default_options(self):
         """Default options of the test backend."""
