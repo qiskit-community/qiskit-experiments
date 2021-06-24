@@ -22,8 +22,8 @@ Experiments
 .. autosummary::
     :toctree: ../stubs/
 
-    RBExperiment
-    InterleavedRBExperiment
+    StandardRB
+    InterleavedRB
 
 
 Analysis

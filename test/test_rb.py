@@ -136,7 +136,7 @@ class TestRB(QiskitTestCase):
 class TestInterleavedRB(TestRB):
     """
     A test class for the interleaved RB Experiment to check that the
-    InterleavedRBExperiment class is working correctly.
+    InterleavedRB class is working correctly.
     """
 
     @data([XGate(), [3]], [CXGate(), [4, 7]])
