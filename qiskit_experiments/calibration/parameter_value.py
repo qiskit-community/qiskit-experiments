@@ -54,7 +54,20 @@ class ParameterValue:
             self.value = self._validated_value(self.value)
 
         if isinstance(self.date_time, str):
-            self.date_time = datetime.strptime(self.date_time, "%Y-%m-%d %H:%M:%S")
+            base_fmt = "%Y-%m-%d %H:%M:%S.%f"
+            zone_fmts = ["%z", "", "Z"]
+            for time_zone in zone_fmts:
+                date_format = base_fmt + time_zone
+                try:
+                    self.date_time = datetime.strptime(self.date_time, date_format)
+                    break
+                except ValueError:
+                    pass
+            else:
+                formats = list(base_fmt + zone for zone in zone_fmts)
+                raise CalibrationError(
+                    f"Cannot parse {self.date_time} in either of {formats} formats."
+                )
 
         if not isinstance(self.value, (int, float, complex)):
             raise CalibrationError(f"Values {self.value} must be int, float or complex.")
