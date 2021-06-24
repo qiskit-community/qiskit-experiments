@@ -39,4 +39,5 @@ Analysis
 """
 from .t1 import T1, T1Analysis
 from .qubit_spectroscopy import QubitSpectroscopy, SpectroscopyAnalysis
+from .ef_spectroscopy import EFSpectroscopy
 from .t2star_experiment import T2StarExperiment, T2StarAnalysis

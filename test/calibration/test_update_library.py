@@ -51,13 +51,14 @@ class TestCalibrationsUpdate(QiskitTestCase):
         cals.add_schedule(xp)
         cals.add_schedule(x90p)
 
-        rabi = Rabi(3)
+        qubit = 1
+        rabi = Rabi(qubit)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         exp_data = rabi.run(RabiBackend())
 
-        for qubit in [0, 3]:
+        for qubit_ in [0, 1]:
             with self.assertRaises(CalibrationError):
-                cals.get_schedule("xp", qubits=qubit)
+                cals.get_schedule("xp", qubits=qubit_)
 
         to_update = [(np.pi, "amp", "xp"), (np.pi / 2, "amp", x90p)]
 
@@ -75,34 +76,37 @@ class TestCalibrationsUpdate(QiskitTestCase):
         rate = 2 * np.pi * result["popt"][1]
         amp = np.round(np.pi / rate, decimals=8)
         with pulse.build(name="xp") as expected:
-            pulse.play(pulse.Gaussian(160, amp, 40), pulse.DriveChannel(3))
+            pulse.play(pulse.Gaussian(160, amp, 40), pulse.DriveChannel(qubit))
 
-        self.assertEqual(cals.get_schedule("xp", qubits=3), expected)
+        self.assertEqual(cals.get_schedule("xp", qubits=qubit), expected)
 
         amp = np.round(0.5 * np.pi / rate, decimals=8)
         with pulse.build(name="xp") as expected:
-            pulse.play(pulse.Gaussian(160, amp, 40), pulse.DriveChannel(3))
+            pulse.play(pulse.Gaussian(160, amp, 40), pulse.DriveChannel(qubit))
 
-        self.assertEqual(cals.get_schedule("x90p", qubits=3), expected)
+        self.assertEqual(cals.get_schedule("x90p", qubits=qubit), expected)
 
     def test_frequency(self):
         """Test calibrations update from spectroscopy."""
 
-        backend = SpectroscopyBackend(line_width=2e6, freq_offset=5.0e6)
+        qubit = 1
+        peak_offset = 5.0e6
+        backend = SpectroscopyBackend(line_width=2e6, freq_offset=peak_offset)
+        freq01 = backend.defaults().qubit_freq_est[qubit]
+        frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21) / 1e6
 
-        spec = QubitSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
+        spec = QubitSpectroscopy(qubit, frequencies, unit="MHz")
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         exp_data = spec.run(backend)
         result = exp_data.analysis_result(0)
 
         value = get_opt_value(result, "freq")
 
-        self.assertTrue(value < 5.1e6)
-        self.assertTrue(value > 4.9e6)
+        self.assertTrue(freq01 + peak_offset - 2e6 < value < freq01 + peak_offset + 2e6)
         self.assertEqual(result["quality"], "computer_good")
 
         # Test the integration with the BackendCalibrations
         cals = BackendCalibrations(FakeAthens())
-        self.assertNotEqual(cals.get_qubit_frequencies()[3], result["popt"][2])
+        self.assertNotEqual(cals.get_qubit_frequencies()[qubit], result["popt"][2])
         Frequency.update(cals, exp_data)
-        self.assertEqual(cals.get_qubit_frequencies()[3], result["popt"][2])
+        self.assertEqual(cals.get_qubit_frequencies()[qubit], result["popt"][2])
