@@ -24,7 +24,7 @@ from qiskit.result import Result
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T1, T1Analysis
-from .mock_job import MockJob
+from qiskit_experiments.test.mock_job import MockJob
 
 
 class T1Backend(BackendV1):
