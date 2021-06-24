@@ -20,11 +20,11 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
 from qiskit.quantum_info import Clifford
 
-from .rb_experiment import RBExperiment
+from .rb_experiment import StandardRB
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 
 
-class InterleavedRBExperiment(RBExperiment):
+class InterleavedRB(StandardRB):
     """Interleaved RB Experiment class"""
 
     # Analysis class for experiment
