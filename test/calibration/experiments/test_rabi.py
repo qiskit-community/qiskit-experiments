@@ -65,7 +65,7 @@ class TestRabiEndToEnd(QiskitTestCase):
         test_tol = 0.01
         backend = RabiBackend()
 
-        rabi = Rabi(3)
+        rabi = Rabi(1)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         result = rabi.run(backend).analysis_result(0)
 
@@ -74,7 +74,7 @@ class TestRabiEndToEnd(QiskitTestCase):
 
         backend = RabiBackend(amplitude_to_angle=np.pi / 2)
 
-        rabi = Rabi(3)
+        rabi = Rabi(1)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         result = rabi.run(backend).analysis_result(0)
         self.assertEqual(result["quality"], "computer_good")
@@ -82,7 +82,7 @@ class TestRabiEndToEnd(QiskitTestCase):
 
         backend = RabiBackend(amplitude_to_angle=2.5 * np.pi)
 
-        rabi = Rabi(3)
+        rabi = Rabi(1)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 101))
         result = rabi.run(backend).analysis_result(0)
 
