@@ -17,6 +17,7 @@ from typing import Optional, Union, List, Dict, Tuple
 import os
 import uuid
 from collections import OrderedDict
+from datetime import datetime
 
 from qiskit.result import Result
 from qiskit.providers import Backend
@@ -115,6 +116,16 @@ class ExperimentData:
             IDs of jobs submitted for this experiment.
         """
         return list(self._jobs.keys())
+
+    @property
+    def completion_times(self) -> Dict[str, datetime]:
+        """Returns the completion times of the jobs."""
+        job_times = {}
+        for job_id, job in self._jobs.items():
+            if job is not None and "COMPLETED" in job.time_per_step():
+                job_times[job_id] = job.time_per_step().get("COMPLETED")
+
+        return job_times
 
     @property
     def backend(self) -> Backend:
