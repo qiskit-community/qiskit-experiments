@@ -21,8 +21,7 @@ from qiskit.result import Result
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization.t2ramsey import T2Ramsey
-from .mock_job import MockJob
-
+from qiskit_experiments.test.mock_job import MockJob
 
 class T2RamseyBackend(BackendV1):
     """
