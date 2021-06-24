@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-T2Star Experiment class.
+T2Ramsey Experiment class.
 """
 
 from typing import List, Optional, Union, Tuple, Dict
@@ -29,8 +29,8 @@ from qiskit_experiments.analysis import plotting
 from ..experiment_data import ExperimentData
 
 # pylint: disable = invalid-name
-class T2StarAnalysis(BaseAnalysis):
-    """T2Star Experiment result analysis class."""
+class T2RamseyAnalysis(BaseAnalysis):
+    """T2Ramsey Experiment result analysis class."""
 
     @classmethod
     def _default_options(cls):
@@ -46,7 +46,7 @@ class T2StarAnalysis(BaseAnalysis):
         ax: Optional["AxesSubplot"] = None,
         **kwargs,
     ) -> Tuple[List[AnalysisResult], List["matplotlib.figure.Figure"]]:
-        r"""Calculate T2Star experiment.
+        r"""Calculate T2Ramsey experiment.
 
         The probability of measuring `+` is assumed to be of the form
         :math:`f(t) = a\mathrm{e}^{-t / T_2^*}\cos(2\pi freq t + \phi) + b`
@@ -66,13 +66,13 @@ class T2StarAnalysis(BaseAnalysis):
             **kwargs: additional parameters for curve fit.
 
         Returns:
-            The analysis result with the estimated :math:`T_2^*` and 'freq' (frequency)
+            The analysis result with the estimated :math:`T_2Ramsey` and 'freq' (frequency)
             The graph of the function.
         """
 
-        def osc_fit_fun(x, a, t2star, freq, phi, c):
+        def osc_fit_fun(x, a, t2Ramsey, freq, phi, c):
             """Decay cosine fit function"""
-            return a * np.exp(-x / t2star) * np.cos(2 * np.pi * freq * x + phi) + c
+            return a * np.exp(-x / t2Ramsey) * np.cos(2 * np.pi * freq * x + phi) + c
 
         def _format_plot(ax, unit):
             """Format curve fit plot"""
@@ -91,9 +91,9 @@ class T2StarAnalysis(BaseAnalysis):
 
         xdata, ydata, sigma = process_curve_data(data, lambda datum: level2_probability(datum, "0"))
 
-        t2star_estimate = np.mean(xdata)
-        p0, bounds = self._t2star_default_params(
-            conversion_factor, user_p0, user_bounds, t2star_estimate
+        t2Ramsey_estimate = np.mean(xdata)
+        p0, bounds = self._t2Ramsey_default_params(
+            conversion_factor, user_p0, user_bounds, t2Ramsey_estimate
         )
         si_xdata = xdata * conversion_factor
         fit_result = curve_fit(
@@ -112,11 +112,11 @@ class T2StarAnalysis(BaseAnalysis):
         # Output unit is 'sec', regardless of the unit used in the input
         analysis_result = AnalysisResult(
             {
-                "t2star_value": fit_result["popt"][1],
+                "t2Ramsey_value": fit_result["popt"][1],
                 "frequency_value": fit_result["popt"][2],
                 "stderr": fit_result["popt_err"][1],
                 "unit": "s",
-                "label": "T2*",
+                "label": "T2Ramsey",
                 "fit": fit_result,
                 "quality": self._fit_quality(
                     fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
@@ -129,12 +129,12 @@ class T2StarAnalysis(BaseAnalysis):
             analysis_result["fit"]["dt"] = conversion_factor
         return [analysis_result], figures
 
-    def _t2star_default_params(
+    def _t2Ramsey_default_params(
         self,
         conversion_factor,
         user_p0=None,
         user_bounds=None,
-        t2star_input=None,
+        t2Ramsey_input=None,
     ) -> Tuple[List[float], Tuple[List[float]]]:
         """Default fit parameters for oscillation data.
 
@@ -143,26 +143,26 @@ class T2StarAnalysis(BaseAnalysis):
         """
         if user_p0 is None:
             a = 0.5
-            t2star = t2star_input * conversion_factor
+            t2Ramsey = t2Ramsey_input * conversion_factor
             freq = 0.1 / conversion_factor
             phi = 0.0
             b = 0.5
         else:
             a = user_p0["A"]
-            t2star = user_p0["t2star"] * conversion_factor
+            t2Ramsey = user_p0["t2Ramsey"] * conversion_factor
             freq = user_p0["f"] / conversion_factor
             phi = user_p0["phi"]
             b = user_p0["B"]
-        p0 = {"a_guess": a, "t2star": t2star, "f_guess": freq, "phi_guess": phi, "b_guess": b}
+        p0 = {"a_guess": a, "t2Ramsey": t2Ramsey, "f_guess": freq, "phi_guess": phi, "b_guess": b}
 
         if user_bounds is None:
             a_bounds = [-0.5, 1.5]
-            t2star_bounds = [0, np.inf]
+            t2Ramsey_bounds = [0, np.inf]
             f_bounds = [0.1 * freq, 10 * freq]
             phi_bounds = [-np.pi, np.pi]
             b_bounds = [-0.5, 1.5]
             bounds = [
-                [a_bounds[i], t2star_bounds[i], f_bounds[i], phi_bounds[i], b_bounds[i]]
+                [a_bounds[i], t2Ramsey_bounds[i], f_bounds[i], phi_bounds[i], b_bounds[i]]
                 for i in range(2)
             ]
         else:
@@ -183,10 +183,10 @@ class T2StarAnalysis(BaseAnalysis):
             return "computer_bad"
 
 
-class T2StarExperiment(BaseExperiment):
-    """T2Star experiment class"""
+class T2Ramsey(BaseExperiment):
+    """T2Ramsey class"""
 
-    __analysis_class__ = T2StarAnalysis
+    __analysis_class__ = T2RamseyAnalysis
 
     def __init__(
         self,
@@ -196,17 +196,16 @@ class T2StarExperiment(BaseExperiment):
         osc_freq: float = 0.0,
         experiment_type: Optional[str] = None,
     ):
-        """Initialize the T2Star experiment class.
+        """Initialize the T2Ramsey class.
 
         Args:
             qubit: the qubit under test
             delays: delay times of the experiments
             unit: Optional, time unit of `delays`.
             Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'.
-            The unit is used for both T2* and the frequency
+            The unit is used for both T2Ramsey and the frequency
             osc_freq: the oscillation frequency induced using by the user
             experiment_type: String indicating the experiment type.
-            Can be 'RamseyExperiment' or 'T2StarExperiment'.
         """
 
         self._qubit = qubit

@@ -23,7 +23,7 @@ Experiments
     :toctree: ../stubs/
 
     T1
-    T2StarExperiment
+    T2Ramsey
     QubitSpectroscopy
 
 
@@ -34,9 +34,9 @@ Analysis
     :toctree: ../stubs/
 
     T1Analysis
-    T2StarAnalysis
+    T2RamseyAnalysis
     SpectroscopyAnalysis
 """
 from .t1 import T1, T1Analysis
 from .qubit_spectroscopy import QubitSpectroscopy, SpectroscopyAnalysis
-from .t2star_experiment import T2StarExperiment, T2StarAnalysis
+from .t2Ramsey import T2Ramsey, T2RamseyAnalysis
