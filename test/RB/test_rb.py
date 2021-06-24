@@ -16,12 +16,22 @@
 A Tester for the RB experiment
 """
 
+<<<<<<< HEAD
+=======
+
+import numpy as np
+from ddt import ddt, data, unpack
+>>>>>>> d316e2e (Changed variables name according to their types)
 from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.quantum_info import Clifford
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeParis
+<<<<<<< HEAD
 from ddt import ddt, data, unpack
 import numpy as np
+=======
+from qiskit.circuit.library import XGate, CXGate
+>>>>>>> d316e2e (Changed variables name according to their types)
 import qiskit_experiments as qe
 
 
@@ -53,11 +63,11 @@ class TestRB(QiskitTestCase):
             num_samples=exp_attributes["num_samples"],
             seed=exp_attributes["seed"],
         )
-        experiment_obj = rb_exp.run(backend)
-        exp_data = experiment_obj.experiment
+        exp_data = rb_exp.run(backend)
+        exp = exp_data.experiment
         exp_circuits = rb_exp.circuits()
         self.validate_metadata(exp_circuits, exp_attributes)
-        self.validate_circuit_data(exp_data, exp_attributes)
+        self.validate_circuit_data(exp, exp_attributes)
         self.is_identity(exp_circuits)
 
     def is_identity(self, circuits: list):
@@ -174,3 +184,25 @@ class TestRB(QiskitTestCase):
         self.rb_parameters_one_qubit()
         self.rb_parameters_two_qubit()
         self.rb_parameters_three_qubit()
+        backend = FakeParis()
+        exp_attributes = {
+            "interleaved_element": interleaved_element,
+            "qubits": qubits,
+            "lengths": [1, 4, 6, 9, 13, 16],
+            "num_samples": 2,
+            "seed": 100,
+        }
+        rb = qe.randomized_benchmarking
+        rb_exp = rb.InterleavedRBExperiment(
+            exp_attributes["interleaved_element"],
+            exp_attributes["qubits"],
+            exp_attributes["lengths"],
+            num_samples=exp_attributes["num_samples"],
+            seed=exp_attributes["seed"],
+        )
+        experiment_obj = rb_exp.run(backend)
+        exp_data = experiment_obj.experiment
+        exp_circuits = rb_exp.circuits()
+        self.validate_metadata(exp_circuits, exp_attributes)
+        self.validate_circuit_data(exp_data, exp_attributes)
+        self.is_identity(exp_circuits)
