@@ -20,8 +20,9 @@ from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.composite import ParallelExperiment
-from qiskit_experiments.characterization import T2Ramsey
-from .mock_job import MockJob
+from qiskit_experiments.characterization.t2ramsey import T2Ramsey
+from qiskit_experiments.characterization.t2ramsey_analysis import T2RamseyAnalysis
+#from .mock_job import MockJob
 
 
 class T2RamseyBackend(BackendV1):
@@ -151,7 +152,8 @@ class T2RamseyBackend(BackendV1):
                     "data": {"counts": counts},
                 }
             )
-        return MockJob(self, Result.from_dict(result))
+        #return MockJob(self, Result.from_dict(result))
+        return Result.from_dict(result)
 
 
 class TestT2Ramsey(QiskitTestCase):
