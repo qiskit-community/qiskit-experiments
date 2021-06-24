@@ -263,9 +263,9 @@ class TestT2Star(QiskitTestCase):
         estimated_freq = 0.7
         # First experiment
         qubit = 0
-        delays1 = list(range(1, 60, 2))
+        delays0 = list(range(1, 60, 2))
 
-        exp1 = T2StarExperiment(qubit, delays1, unit=unit)
+        exp0 = T2StarExperiment(qubit, delays0, unit=unit)
         default_p0 = {
             "A": 0.5,
             "t2star": estimated_t2star,
@@ -273,7 +273,7 @@ class TestT2Star(QiskitTestCase):
             "phi": 0,
             "B": 0.5,
         }
-        exp1.set_analysis_options(user_p0=default_p0)
+        exp0.set_analysis_options(user_p0=default_p0)
         backend = T2starBackend(
             p0={
                 "a_guess": [0.5],
@@ -289,15 +289,15 @@ class TestT2Star(QiskitTestCase):
         )
 
         # run circuits
-        expdata1 = exp1.run(backend=backend, shots=1000)
+        expdata0 = exp0.run(backend=backend, shots=1000)
 
         # second experiment
-        delays2 = list(range(2, 65, 2))
-        exp2 = T2StarExperiment(qubit, delays2, unit=unit)
-        exp2.set_analysis_options(user_p0=default_p0)
-        expdata2 = exp2.run(backend=backend, experiment_data=expdata1, shots=1000)
-        result0 = expdata2.analysis_result(0)
-        result1 = expdata2.analysis_result(1)
+        delays1 = list(range(2, 65, 2))
+        exp1 = T2StarExperiment(qubit, delays1, unit=unit)
+        exp1.set_analysis_options(user_p0=default_p0)
+        expdata1 = exp1.run(backend=backend, experiment_data=expdata0, shots=1000)
+        result0 = expdata1.analysis_result(0)
+        result1 = expdata1.analysis_result(1)
         self.assertAlmostEqual(
             result1["t2star_value"],
             estimated_t2star * dt_factor,
@@ -310,7 +310,7 @@ class TestT2Star(QiskitTestCase):
             result1["quality"], "computer_good", "Result quality bad for unit " + str(unit)
         )
         self.assertLessEqual(result1["stderr"], result0["stderr"])
-        self.assertEqual(len(expdata2.data()), len(delays1) + len(delays2))
+        self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))
 
 
 if __name__ == "__main__":

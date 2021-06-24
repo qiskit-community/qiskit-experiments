@@ -59,6 +59,7 @@ class BaseExperiment(ABC):
         """
         # Experiment identification metadata
         self._type = experiment_type if experiment_type else type(self).__name__
+
         # Circuit parameters
         if isinstance(qubits, Integral):
             self._num_qubits = qubits
