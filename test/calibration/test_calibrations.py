@@ -253,9 +253,6 @@ class TestCalibrationsBasic(QiskitTestCase):
         with self.assertRaises(CalibrationError):
             self.cals.get_parameter_value("amp", "(1, a)", "xp")
 
-        with self.assertRaises(CalibrationError):
-            self.cals.get_parameter_value("amp", [3], "xp")
-
 
 class TestOverrideDefaults(QiskitTestCase):
     """
@@ -439,6 +436,32 @@ class TestOverrideDefaults(QiskitTestCase):
         # Check to see if we get back the two qubits when explicitly specifying them.
         amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,), (0,)])
         self.assertEqual(len(amp_values), 2)
+
+
+class TestConcurrentParameters(QiskitTestCase):
+    """Test a particular edge case with the time in the parameter values."""
+
+    def test_concurrent_values(self):
+        """
+        Ensure that if the max time has multiple entries we take the most recent appended one.
+        """
+
+        cals = Calibrations()
+
+        amp = Parameter("amp")
+        ch0 = Parameter("ch0")
+        with pulse.build(name="xp") as xp:
+            pulse.play(Gaussian(160, amp, 40), DriveChannel(ch0))
+
+        cals.add_schedule(xp)
+
+        date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
+
+        cals.add_parameter_value(ParameterValue(0.25, date_time), "amp", (3,), "xp")
+        cals.add_parameter_value(ParameterValue(0.35, date_time), "amp", (3,), "xp")
+        cals.add_parameter_value(ParameterValue(0.45, date_time), "amp", (3,), "xp")
+
+        self.assertEqual(cals.get_parameter_value("amp", 3, "xp"), 0.45)
 
 
 class TestMeasurements(QiskitTestCase):
