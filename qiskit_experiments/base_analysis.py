@@ -97,6 +97,7 @@ class BaseAnalysis(ABC):
 
         if return_figures:
             return analysis_results, figures
+
         return analysis_results
 
     @abstractmethod

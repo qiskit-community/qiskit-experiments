@@ -121,7 +121,7 @@ class Frequency(BaseUpdater):
 
         from qiskit_experiments.characterization.qubit_spectroscopy import SpectroscopyAnalysis
 
-        result = exp_data.analysis_result(result_index)
+        result = exp_data.analysis_result(result_index).data()
 
         if "freq" not in result["popt_keys"]:
             raise CalibrationError(
@@ -170,7 +170,7 @@ class Amplitude(BaseUpdater):
             angles_schedules = [(np.pi, "amp", "xp")]
 
         if isinstance(exp_data.experiment, Rabi):
-            result = exp_data.analysis_result(result_index)
+            result = exp_data.analysis_result(result_index).data()
 
             freq = result["popt"][result["popt_keys"].index("freq")]
             rate = 2 * np.pi * freq

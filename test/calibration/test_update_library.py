@@ -54,6 +54,7 @@ class TestCalibrationsUpdate(QiskitTestCase):
         rabi = Rabi(3)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         exp_data = rabi.run(RabiBackend())
+        exp_data.block_for_results()
 
         for qubit in [0, 3]:
             with self.assertRaises(CalibrationError):
@@ -71,7 +72,7 @@ class TestCalibrationsUpdate(QiskitTestCase):
         self.assertEqual(len(cals.parameters_table()), 2)
 
         # Now check the corresponding schedules
-        result = exp_data.analysis_result(-1)
+        result = exp_data.analysis_result(-1).data()
         rate = 2 * np.pi * result["popt"][1]
         amp = np.round(np.pi / rate, decimals=8)
         with pulse.build(name="xp") as expected:
@@ -93,16 +94,18 @@ class TestCalibrationsUpdate(QiskitTestCase):
         spec = QubitSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         exp_data = spec.run(backend)
+        exp_data.block_for_results()
         result = exp_data.analysis_result(0)
+        result_data = result.data()
 
-        value = get_opt_value(result, "freq")
+        value = get_opt_value(result_data, "freq")
 
         self.assertTrue(value < 5.1e6)
         self.assertTrue(value > 4.9e6)
-        self.assertEqual(result["quality"], "computer_good")
+        self.assertEqual(result.quality, "computer_good")
 
         # Test the integration with the BackendCalibrations
         cals = BackendCalibrations(FakeAthens())
-        self.assertNotEqual(cals.get_qubit_frequencies()[3], result["popt"][2])
+        self.assertNotEqual(cals.get_qubit_frequencies()[3], result_data["popt"][2])
         Frequency.update(cals, exp_data)
-        self.assertEqual(cals.get_qubit_frequencies()[3], result["popt"][2])
+        self.assertEqual(cals.get_qubit_frequencies()[3], result_data["popt"][2])

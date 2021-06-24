@@ -65,3 +65,5 @@ class ExperimentData(StoredDataV1):
         for job_id, job in self._jobs.items():
             if job is not None and "COMPLETED" in job.time_per_step():
                 job_times[job_id] = job.time_per_step().get("COMPLETED")
+
+        return job_times
