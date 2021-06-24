@@ -32,6 +32,12 @@ from .rb_experiment import RBExperiment
 class InterleavedRBExperiment(RBExperiment):
     """Interleaved RB Experiment class"""
 
+    __doc_overview__ = None
+
+    __doc_references__ = None
+
+    __doc_tutorial__ = None
+
     # Analysis class for experiment
     __analysis_class__ = InterleavedRBAnalysis
 
