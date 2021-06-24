@@ -246,7 +246,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # Add expected options to instance variable so that every method can access to.
         default_options = self._default_options()
 
-        if not isinstance(default_options, dict):
+        if isinstance(default_options, Options):
+            # pylint: disable=no-member
             default_options = default_options.__dict__
 
         for key in default_options:
