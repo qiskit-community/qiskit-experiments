@@ -15,7 +15,8 @@
 """Test utility functions."""
 
 import uuid
-from typing import Optional, Union
+from typing import Optional, Union, Dict
+from datetime import datetime
 import time
 
 from qiskit.providers.job import JobV1 as Job
@@ -42,6 +43,11 @@ class FakeJob(Job):
     def submit(self):
         """Submit the job to the backend for execution."""
         pass
+
+    @staticmethod
+    def time_per_step() -> Dict[str, datetime]:
+        """Return the completion time."""
+        return {"COMPLETED": datetime.now()}
 
     def status(self) -> JobStatus:
         """Return the status of the job, among the values of ``JobStatus``."""
