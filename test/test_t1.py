@@ -208,9 +208,9 @@ class TestT1(QiskitTestCase):
         t1 = 25
         delays = list(range(1, 40, 3))
 
-        exp0 = T1Experiment(0, delays)
+        exp0 = T1(0, delays)
         exp0.set_analysis_options(t1_bounds=[10, 30])
-        exp1 = T1Experiment(1, delays)
+        exp1 = T1(1, delays)
         exp1.set_analysis_options(t1_bounds=[100, 200])
 
         par_exp = ParallelExperiment([exp0, exp1])
