@@ -39,10 +39,12 @@ from qiskit_experiments.autodocs import (
 class RBAnalysis(CurveAnalysis):
     """Randomized benchmarking analysis."""
 
-    __doc_overview__ = r"""This analysis takes only single series.
+    __doc_overview__ = r"""
+This analysis takes only single series.
 
 This curve is fit by the exponential decay function.
-From the fit :math:`\alpha` value this analysis estimates the error per Clifford (EPC)."""
+From the fit :math:`\alpha` value this analysis estimates the error per Clifford (EPC).
+"""
 
     __doc_equations__ = [r"F(x) = a \alpha^x + b"]
 

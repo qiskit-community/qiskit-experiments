@@ -37,8 +37,8 @@ from .rb_analysis import RBAnalysis
 class InterleavedRBAnalysis(RBAnalysis):
     """Interleaved randomized benchmarking analysis."""
 
-    __doc_overview__ = r"""This analysis takes two series for standard and 
-interleaved RB curve fitting.
+    __doc_overview__ = r"""
+This analysis takes two series for standard and interleaved RB curve fitting.
 
 From the fit :math:`\alpha` and :math:`\alpha_c` value this analysis estimates
 the error per Clifford (EPC) of interleaved gate.
@@ -63,7 +63,8 @@ The error bounds are given by
         \end{array}
     \right.
 
-See [1] for more details."""
+See [1] for more details.
+"""
 
     __doc_equations__ = [
         r"F_1(x_1) = a \alpha^{x_1} + b",

@@ -38,7 +38,8 @@ from .rb_analysis import RBAnalysis
 class RBExperiment(BaseExperiment):
     """Randomized benchmarking."""
 
-    __doc_overview__ = """A randomized benchmarking (RB) is a scalable and robust algorithm 
+    __doc_overview__ = """
+A randomized benchmarking (RB) is a scalable and robust algorithm
 for benchmarking the full set of Clifford gates by a single parameter using the
 randomization technique [1].
 
@@ -47,7 +48,8 @@ n-qubits, including a computed reversal element, that should return the qubits t
 initial state.
 
 Averaging over K random realizations of the sequence, we can find the averaged sequence fidelity,
-or error per Clifford (EPC)."""
+or error per Clifford (EPC).
+"""
 
     __doc_tutorial__ = "https://github.com/Qiskit/qiskit-experiments/blob/main/docs/tutorials/\
 rb_example.ipynb"

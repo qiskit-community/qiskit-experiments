@@ -54,13 +54,12 @@ class _DocstringWriter:
         """
 
         def _write_field(_arg_name, _field):
-
             arg_str_type = f":py:obj:`{_parse_annotation(_field.annotation)}`"
+            self.docstring += self.__indent__
             self._write_line(f"{_arg_name} ({arg_str_type}):")
             self._write_multi_line(_field.description, self.__indent__ * 2)
             default = _field.default
             if default is not None:
-                # format representation
                 if isinstance(_field.default, FunctionType):
                     default_str = f":py:func:`~{default.__module__}.{default.__name__}`"
                 else:
@@ -102,6 +101,7 @@ class _DocstringWriter:
 
         if text_block:
             self._write_multi_line(text_block, self.__indent__)
+            self.docstring += os.linesep
 
         for arg_name, field in fields.items():
             if field.is_extra:
@@ -182,14 +182,21 @@ class _DocstringWriter:
 
     def _write_multi_line(self, text_block: str, indent: typing.Optional[str] = None):
         """A util method to write multi line text with indentation."""
-        indented_text = ""
+        text_block = text_block.strip(os.linesep)
+
         for line in text_block.split(os.linesep):
+            indented_text = ""
             if len(line) > 0 and indent is not None:
                 indented_text += indent
-            self._write_line(line.rstrip())
+            # for C0303 trailing whitespace
+            indented_text += line.rstrip()
+
+            self._write_line(indented_text)
 
     def _write_line(self, text: str):
         """A helper function to write single line."""
+        text = text.strip(os.linesep)
+
         self.docstring += text.rstrip() + os.linesep
 
 

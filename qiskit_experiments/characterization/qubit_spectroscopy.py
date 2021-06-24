@@ -45,9 +45,12 @@ from qiskit_experiments.data_processing.processor_library import get_to_signal_p
 class SpectroscopyAnalysis(CurveAnalysis):
     """Spectroscopy analysis."""
 
-    __doc_overview__ = """This analysis uses Gaussian function to find a peak.
+    __doc_overview__ = """
+This analysis uses Gaussian function to find a peak.
+
 Note that this analysis assumes only single peak.
-If multiple peaks exist, you'll get a poor chi squared value."""
+If multiple peaks exist, you'll get a poor chi squared value.
+"""
 
     __doc_equations__ = [r"F(x) = a \exp(-(x-f)^2/(2\sigma^2)) + b"]
 
@@ -192,7 +195,8 @@ If multiple peaks exist, you'll get a poor chi squared value."""
 class QubitSpectroscopy(BaseExperiment):
     """Class that runs spectroscopy by sweeping the qubit frequency."""
 
-    __doc_overview__ = """The circuits produced by spectroscopy, i.e.
+    __doc_overview__ = """
+The circuits produced by spectroscopy, i.e.
     
 .. parsed-literal::
 
@@ -207,7 +211,8 @@ pulse-schedule consists of a set frequency instruction followed by a GaussianSqu
 pulse. A list of circuits is generated, each with a different frequency "freq".
 
 A spectroscopy experiment run by setting the frequency of the qubit drive.
-The parameters of the GaussianSquare spectroscopy pulse can be specified at run-time."""
+The parameters of the GaussianSquare spectroscopy pulse can be specified at run-time.
+"""
 
     __analysis_class__ = SpectroscopyAnalysis
 
