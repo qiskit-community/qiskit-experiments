@@ -10,6 +10,14 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""
-Test tools for experiment.
-"""
+"""Types used by the calibration module."""
+
+from typing import Union
+from collections import namedtuple
+
+from qiskit.circuit import ParameterExpression
+
+
+ParameterKey = namedtuple("ParameterKey", ["parameter", "qubits", "schedule"])
+ScheduleKey = namedtuple("ScheduleKey", ["schedule", "qubits"])
+ParameterValueType = Union[ParameterExpression, float, int, complex]

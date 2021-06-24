@@ -22,7 +22,7 @@ Experiments
 .. autosummary::
     :toctree: ../stubs/
 
-    T1Experiment
+    T1
     T2StarExperiment
     QubitSpectroscopy
 
@@ -37,6 +37,7 @@ Analysis
     T2StarAnalysis
     SpectroscopyAnalysis
 """
-from .t1_experiment import T1Experiment, T1Analysis
+from .t1 import T1, T1Analysis
 from .qubit_spectroscopy import QubitSpectroscopy, SpectroscopyAnalysis
+from .ef_spectroscopy import EFSpectroscopy
 from .t2star_experiment import T2StarExperiment, T2StarAnalysis
