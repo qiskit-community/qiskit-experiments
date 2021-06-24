@@ -12,7 +12,6 @@
 """
 A test for RB analysis. Using pre-Generated data from rb_generate_data.py.
 """
-import unittest
 import os
 import json
 import numpy as np
@@ -26,16 +25,23 @@ class TestRBAnalysis(QiskitTestCase):
     A test for the analysis of the RB experiment
     """
 
-    def _load_rb_data(self):
+    def _load_rb_data(self, rb_exp_data_file_name: str):
         """
         loader for the experiment data and configuration setup.
+        Args:
+            rb_exp_data_file_name(str): The file name that contain the experiment data.
         Returns:
             list: containing dict of the experiment setup configuration and list of dictionaries
                 containing the experiment results.
             ExperimentData:  ExperimentData object that was creates by the analysis function.
         """
         expdata1 = qe.ExperimentData()
-        with open("rb_output_data1.json", "r") as json_file:
+        self.assertTrue(
+            os.path.isfile(rb_exp_data_file_name),
+            "The file containing the experiment data doesn't exist."
+            " Please run the data generator.",
+        )
+        with open(rb_exp_data_file_name, "r") as json_file:
             data = json.load(json_file)
             # The experiment attributes added
             exp_attributes = data[0]
@@ -103,6 +109,11 @@ class TestRBAnalysis(QiskitTestCase):
         Returns:
             list(dict): A list of dicts which contains the analysis results.
         """
+        self.assertTrue(
+            os.path.isfile(analysis_file_path),
+            "The file containing the experiment analysis data doesn't exist."
+            " Please run the data generator.",
+        )
         samples_analysis_list = []
         with open(analysis_file_path, "r") as expected_results_file:
             analysis_data_experiments = json.load(expected_results_file)
@@ -129,16 +140,15 @@ class TestRBAnalysis(QiskitTestCase):
         keys_for_string_data = ["popt_keys", "analysis_type"]
         for idx, calculated_analysis_sample_data in enumerate(calculated_analysis_samples_data):
             for key in calculated_analysis_sample_data:
-                print("The key is:" + key)
                 if key in keys_for_array_data:
                     self.assertTrue(
                         matrix_equal(
                             calculated_analysis_sample_data[key],
                             expected_analysis_samples_data[idx][key],
                         ),
-                        "The calculated value for key "
+                        "The calculated value for the key '"
                         + key
-                        + ", doesn't match the expected value.",
+                        + "', doesn't match the expected value.",
                     )
                 else:
                     if key in keys_for_string_data:
@@ -148,18 +158,6 @@ class TestRBAnalysis(QiskitTestCase):
                             "The analysis_type doesn't match to the one expected.",
                         )
                     else:
-                        print(
-                            "The value for key: "
-                            + key
-                            + " is: "
-                            + str(calculated_analysis_sample_data[key])
-                        )
-                        print(
-                            "The value for key: "
-                            + key
-                            + " is: "
-                            + str(expected_analysis_samples_data[idx][key])
-                        )
                         self.assertAlmostEqual(
                             np.float64(calculated_analysis_sample_data[key]),
                             np.float64(expected_analysis_samples_data[idx][key]),
@@ -168,19 +166,32 @@ class TestRBAnalysis(QiskitTestCase):
                             + "', doesn't match the expected value.",
                         )
 
-    def test_analysis(self):
+    def test_standard_rb_analysis_test(self):
         """
-        A function the initiate the analysis test.
+        A function to validate the data that is stored and the jsons and
+        check that the analysis is correct.
         """
-        json_data, analysis_obj = self._load_rb_data()
-        experiment_setup, experiment_data = json_data[0], json_data[1]
-        self._validate_metadata(analysis_obj._data, experiment_setup)
-        self._validate_counts(analysis_obj._data, experiment_data)
-        analysis_data_expected = self._analysis_load(
-            os.path.join(os.path.dirname(os.path.abspath(__file__)), "rb_output_analysis1.json")
-        )
-        self._validate_fitting_parameters(analysis_obj._analysis_results, analysis_data_expected)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        dir_name = os.path.dirname(os.path.abspath(__file__))
+        rb_exp_data_file_names = [
+            "rb_standard_1qubit_output_data.json",
+            "rb_standard_2qubits_output_data.json",
+        ]
+        rb_exp_analysis_file_names = [
+            "rb_standard_1qubit_output_analysis.json",
+            "rb_standard_2qubits_output_analysis.json",
+        ]
+        for idx, rb_exp_data_file_name in enumerate(rb_exp_data_file_names):
+            json_data, analysis_obj = self._load_rb_data(
+                os.path.join(dir_name, rb_exp_data_file_name)
+            )
+            # experiment_setup is the attributes passed to the experiment while
+            # experiment_data is the data of the experiment that was simulated
+            experiment_setup, experiment_data = json_data[0], json_data[1]
+            self._validate_metadata(analysis_obj.data(), experiment_setup)
+            self._validate_counts(analysis_obj.data(), experiment_data)
+            analysis_data_expected = self._analysis_load(
+                os.path.join(dir_name, rb_exp_analysis_file_names[idx])
+            )
+            self._validate_fitting_parameters(
+                analysis_obj.analysis_result(None), analysis_data_expected
+            )
