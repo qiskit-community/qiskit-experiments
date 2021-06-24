@@ -56,7 +56,7 @@ class T2RamseyAnalysis(BaseAnalysis):
             experiment_data (ExperimentData): the experiment data to analyze
             user_p0: contains initial values given by the user, for the
             fit parameters :math:`(a, T_2^*, freq, \phi, b)`
-            User_bounds: lower and upper bounds on the parameters in p0,
+            user_bounds: lower and upper bounds on the parameters in p0,
                          given by the user.
                          The first tuple is the lower bounds,
                          The second tuple is the upper bounds.

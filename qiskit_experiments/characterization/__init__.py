@@ -40,4 +40,4 @@ Analysis
 from .t1 import T1, T1Analysis
 from .qubit_spectroscopy import QubitSpectroscopy, SpectroscopyAnalysis
 from .ef_spectroscopy import EFSpectroscopy
-from .t2Ramsey import T2Ramsey, T2RamseyAnalysis
+from .t2ramsey import T2Ramsey, T2RamseyAnalysis
