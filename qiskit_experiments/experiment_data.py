@@ -57,3 +57,11 @@ class ExperimentData(StoredDataV1):
             BaseExperiment: the experiment object.
         """
         return self._experiment
+
+    @property
+    def completion_times(self) -> Dict[str, datetime]:
+        """Returns the completion times of the jobs."""
+        job_times = {}
+        for job_id, job in self._jobs.items():
+            if job is not None and "COMPLETED" in job.time_per_step():
+                job_times[job_id] = job.time_per_step().get("COMPLETED")
