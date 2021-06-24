@@ -13,6 +13,7 @@
 """Spectroscopy tests."""
 
 from typing import Tuple
+from test.mock_iq_backend import MockIQBackend
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -20,11 +21,10 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit.test import QiskitTestCase
 
 from qiskit_experiments.characterization.qubit_spectroscopy import QubitSpectroscopy
-from qiskit_experiments.test.mock_iq_backend import IQTestBackend
 from qiskit_experiments.analysis import get_opt_value
 
 
-class SpectroscopyBackend(IQTestBackend):
+class SpectroscopyBackend(MockIQBackend):
     """A simple and primitive backend to test spectroscopy experiments."""
 
     def __init__(
@@ -73,7 +73,8 @@ class TestQubitSpectroscopy(QiskitTestCase):
 
         spec = QubitSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
-        result = spec.run(backend).analysis_result(0)
+        exp_data = spec.run(backend)
+        result = exp_data.analysis_result(0)
 
         value = get_opt_value(result, "freq")
 
