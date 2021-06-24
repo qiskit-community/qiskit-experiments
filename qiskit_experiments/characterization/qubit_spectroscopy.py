@@ -269,7 +269,7 @@ class QubitSpectroscopy(BaseExperiment):
         """Create the spectroscopy schedule."""
         freq_param = Parameter("frequency")
         with pulse.build(backend=backend, name="spectroscopy") as schedule:
-            pulse.shift_frequency(freq_param, pulse.drive_channel(self.physical_qubits[0]))
+            pulse.shift_frequency(freq_param, pulse.DriveChannel(self.physical_qubits[0]))
             pulse.play(
                 pulse.GaussianSquare(
                     duration=self.experiment_options.duration,
@@ -277,9 +277,9 @@ class QubitSpectroscopy(BaseExperiment):
                     sigma=self.experiment_options.sigma,
                     width=self.experiment_options.width,
                 ),
-                pulse.drive_channel(self.physical_qubits[0]),
+                pulse.DriveChannel(self.physical_qubits[0]),
             )
-            pulse.shift_frequency(-freq_param, pulse.drive_channel(self.physical_qubits[0]))
+            pulse.shift_frequency(-freq_param, pulse.DriveChannel(self.physical_qubits[0]))
 
         return schedule, freq_param
 
