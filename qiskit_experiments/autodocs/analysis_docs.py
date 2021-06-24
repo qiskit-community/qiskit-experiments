@@ -12,6 +12,7 @@
 """
 Documentation for analysis class.
 """
+import os
 import re
 from typing import Optional, Dict, List, Type
 
@@ -137,7 +138,9 @@ def base_analysis_documentation(style: Type[_DocstringMaker]):
                 kwargs[arg] = getattr(analysis, attribute)
 
         exp_docs = style.make_docstring(default_options=analysis._default_options(), **kwargs)
-        analysis.__doc__ += f"\n\n{exp_docs}"
+        analysis.__doc__ += os.linesep
+        analysis.__doc__ += os.linesep
+        analysis.__doc__ += exp_docs
 
         return analysis
 

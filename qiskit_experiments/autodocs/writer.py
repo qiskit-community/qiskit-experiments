@@ -12,6 +12,7 @@
 """
 Docstring writer. This module takes facade pattern to implement the functionality.
 """
+import os
 import typing
 from abc import ABC, abstractmethod
 from types import FunctionType
@@ -41,7 +42,8 @@ class _DocstringWriter:
 
     def write_header(self, header: str):
         """Write header."""
-        self.docstring += f"{header}\n\n"
+        self._write_line(header)
+        self.docstring += os.linesep
 
     def write_options_as_args(self, fields: typing.Dict[str, OptionsField]):
         """Write option descriptions as an argument section.
@@ -53,13 +55,9 @@ class _DocstringWriter:
 
         def _write_field(_arg_name, _field):
 
-            # parse type
             arg_str_type = f":py:obj:`{_parse_annotation(_field.annotation)}`"
-
-            # write multi line description
-            arg_description = self._write_multi_line(_field.description, self.__indent__ * 2)
-
-            # write default value
+            self._write_line(f"{_arg_name} ({arg_str_type}):")
+            self._write_multi_line(_field.description, self.__indent__ * 2)
             default = _field.default
             if default is not None:
                 # format representation
@@ -67,25 +65,23 @@ class _DocstringWriter:
                     default_str = f":py:func:`~{default.__module__}.{default.__name__}`"
                 else:
                     default_str = f":py:obj:`{default}`"
-                arg_description += self.__indent__ * 2
-                arg_description += f"(Default: {default_str})"
-            self.docstring += self.__indent__
-            self.docstring += f"{_arg_name} ({arg_str_type}):\n{arg_description}\n"
+                self.docstring += self.__indent__ * 2
+                self._write_line(f"(Default: {default_str})")
 
-        self.docstring += "Parameters:\n"
+        self._write_line("Parameters:")
         extra_fields = dict()
         for arg_name, field in fields.items():
             if field.is_extra:
                 extra_fields[arg_name] = field
                 continue
             _write_field(arg_name, field)
-        self.docstring += "\n"
+        self.docstring += os.linesep
 
         if extra_fields:
-            self.docstring += "Other Parameters:\n"
+            self._write_line("Other Parameters:")
             for arg_name, field in extra_fields.items():
                 _write_field(arg_name, field)
-            self.docstring += "\n"
+            self.docstring += os.linesep
 
     def write_options_as_sections(
         self,
@@ -99,70 +95,70 @@ class _DocstringWriter:
         This style is mainly used for the short summary (options are itemized).
         This section will be shown as a drop down box.
         """
-        self.docstring += f".. dropdown:: {section}\n"
+        self._write_line(f".. dropdown:: {section}")
         self.docstring += self.__indent__
-        self.docstring += ":animate: fade-in-slide-down\n\n"
+        self._write_line(":animate: fade-in-slide-down")
+        self.docstring += os.linesep
 
         if text_block:
-            self.docstring += self._write_multi_line(text_block, self.__indent__)
-            self.docstring += "\n"
+            self._write_multi_line(text_block, self.__indent__)
 
         for arg_name, field in fields.items():
             if field.is_extra:
                 continue
             arg_str_type = f":py:obj:`{_parse_annotation(field.annotation)}`"
-            arg_description = field.description.split("\n")[0]
+            arg_description = field.description.split(os.linesep)[0]
             # write multi line description
             self.docstring += self.__indent__
-            self.docstring += f"- **{arg_name}** ({arg_str_type}): {arg_description}\n"
-        self.docstring += "\n"
+            self._write_line(f"- **{arg_name}** ({arg_str_type}): {arg_description}")
+        self.docstring += os.linesep
 
     def write_lines(self, text_block: str):
         """Write text without section."""
-        self.docstring += self._write_multi_line(text_block)
-        self.docstring += "\n"
+        self._write_multi_line(text_block)
+        self.docstring += os.linesep
 
     def write_example(self, text_block: str):
         """Write error descriptions."""
-        self.docstring += "Example:\n"
-        self.docstring += self._write_multi_line(text_block, self.__indent__)
-        self.docstring += "\n"
+        self._write_line("Example:")
+        self._write_multi_line(text_block, self.__indent__)
+        self.docstring += os.linesep
 
     def write_raises(self, error_kinds: typing.List[str], descriptions: typing.List[str]):
         """Write error descriptions."""
-        self.docstring += "Raises:\n"
+        self._write_line("Raises:")
         for error_kind, description in zip(error_kinds, descriptions):
             self.docstring += self.__indent__
-            self.docstring += f"{error_kind}: {description}\n"
-        self.docstring += "\n"
+            self._write_line(f"{error_kind}: {description}")
+        self.docstring += os.linesep
 
     def write_section(self, text_block: str, section: str):
         """Write new user defined section."""
-        self.docstring += f"{section}\n"
-        self.docstring += self._write_multi_line(text_block, self.__indent__)
-        self.docstring += "\n"
+        self._write_line(f"{section}")
+        self._write_multi_line(text_block, self.__indent__)
+        self.docstring += os.linesep
 
     def write_note(self, text_block: str):
         """Write note."""
-        self.docstring += "Note:\n"
-        self.docstring += self._write_multi_line(text_block, self.__indent__)
-        self.docstring += "\n"
+        self._write_line("Note:")
+        self._write_multi_line(text_block, self.__indent__)
+        self.docstring += os.linesep
 
     def write_warning(self, text_block: str):
         """Write warning."""
-        self.docstring += "Warning:\n"
-        self.docstring += self._write_multi_line(text_block, self.__indent__)
-        self.docstring += "\n"
+        self._write_line("Warning:")
+        self._write_multi_line(text_block, self.__indent__)
+        self.docstring += os.linesep
 
     def write_returns(self, text_block: str):
         """Write returns."""
-        self.docstring += "Returns:\n"
-        self.docstring += self._write_multi_line(text_block, self.__indent__)
-        self.docstring += "\n"
+        self._write_line("Returns:")
+        self._write_multi_line(text_block, self.__indent__)
+        self.docstring += os.linesep
 
     def write_references(self, refs: typing.List[Reference]):
         """Write references."""
-        self.docstring += "References:\n"
+        self._write_line("References:")
         for idx, ref in enumerate(refs):
             ref_repr = []
             if ref.authors:
@@ -174,25 +170,27 @@ class _DocstringWriter:
             if ref.open_access_link:
                 ref_repr.append(f"`open access <{ref.open_access_link}>`_")
             self.docstring += self.__indent__
-            self.docstring += f"- [{idx + 1}] {', '.join(ref_repr)}\n"
-        self.docstring += "\n"
+            self._write_line(f"- [{idx + 1}] {', '.join(ref_repr)}")
+        self.docstring += os.linesep
 
     def write_tutorial_link(self, link: str):
         """Write link to tutorial website."""
-        self.docstring += "See Also:\n"
+        self._write_line("See Also:")
         self.docstring += self.__indent__
-        self.docstring += f"- `Qiskit Experiment Tutorial <{link}>`_\n"
-        self.docstring += "\n"
+        self._write_line(f"- `Qiskit Experiment Tutorial <{link}>`_")
+        self.docstring += os.linesep
 
-    @staticmethod
-    def _write_multi_line(text_block: str, indent: typing.Optional[str] = None) -> str:
+    def _write_multi_line(self, text_block: str, indent: typing.Optional[str] = None):
         """A util method to write multi line text with indentation."""
         indented_text = ""
-        for line in text_block.split("\n"):
+        for line in text_block.split(os.linesep):
             if len(line) > 0 and indent is not None:
                 indented_text += indent
-            indented_text += f"{line}\n"
-        return indented_text
+            self._write_line(line.rstrip())
+
+    def _write_line(self, text: str):
+        """A helper function to write single line."""
+        self.docstring += text.rstrip() + os.linesep
 
 
 class _CurveFitDocstringWriter(_DocstringWriter):
@@ -200,36 +198,35 @@ class _CurveFitDocstringWriter(_DocstringWriter):
 
     def write_fit_parameter(self, fit_params: typing.List[CurveFitParameter]):
         """Write fit parameters."""
-        self.docstring += "Fit Parameters\n"
-
+        self._write_line("Fit Parameters")
         for fit_param in fit_params:
             self.docstring += self.__indent__
-            self.docstring += f"- :math:`{fit_param.name}`: {fit_param.description}\n"
-        self.docstring += "\n"
+            self._write_line(f"- :math:`{fit_param.name}`: {fit_param.description}")
+        self.docstring += os.linesep
 
     def write_initial_guess(self, fit_params: typing.List[CurveFitParameter]):
         """Write initial guess estimation method."""
-        self.docstring += "Initial Guess\n"
-
+        self._write_line("Initial Guess")
         for fit_param in fit_params:
             self.docstring += self.__indent__
-            self.docstring += f"- :math:`{fit_param.name}`: {fit_param.initial_guess}\n"
-        self.docstring += "\n"
+            self._write_line(f"- :math:`{fit_param.name}`: {fit_param.initial_guess}")
+        self.docstring += os.linesep
 
     def write_bounds(self, fit_params: typing.List[CurveFitParameter]):
         """Write fit parameter bound."""
-        self.docstring += "Parameter Boundaries\n"
+        self._write_line("Parameter Boundaries")
 
         for fit_param in fit_params:
             self.docstring += self.__indent__
-            self.docstring += f"- :math:`{fit_param.name}`: {fit_param.bounds}\n"
-        self.docstring += "\n"
+            self._write_line(f"- :math:`{fit_param.name}`: {fit_param.bounds}")
+        self.docstring += os.linesep
 
     def write_fit_models(self, equations: typing.List[str]):
         """Write fitting models."""
-        self.docstring += "Fit Model\n"
+        self._write_line("Fit Model")
         self.docstring += self.__indent__
-        self.docstring += ".. math::\n\n"
+        self._write_line(".. math::")
+        self.docstring += os.linesep
 
         if len(equations) > 1:
             eqs = []
@@ -239,9 +236,9 @@ class _CurveFitDocstringWriter(_DocstringWriter):
                 except ValueError as ex:
                     raise QiskitError(f"Equation {equation} is not a valid form.") from ex
                 eqs.append(f"{self.__indent__ * 2}{lh} &= {rh}")
-            self.docstring += " \\\\\n".join(eqs)
-            self.docstring += "\n"
+            self.docstring += f" \\\\{os.linesep}".join(eqs)
+            self.docstring += os.linesep
         else:
             self.docstring += self.__indent__ * 2
-            self.docstring += f"{equations[0]}\n"
-        self.docstring += "\n"
+            self._write_line(equations[0])
+        self.docstring += os.linesep

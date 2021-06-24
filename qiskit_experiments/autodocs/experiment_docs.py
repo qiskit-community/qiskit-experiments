@@ -12,6 +12,7 @@
 """
 Documentation for experiment.
 """
+import os
 import re
 from typing import Optional, Dict, List, Type
 
@@ -97,7 +98,9 @@ def base_experiment_documentation(style: Type[_DocstringMaker]):
             analysis=f"{analysis.__module__}.{analysis.__name__}",
             **kwargs,
         )
-        experiment.__doc__ += f"\n\n{exp_docs}"
+        experiment.__doc__ += os.linesep
+        experiment.__doc__ += os.linesep
+        experiment.__doc__ += exp_docs
 
         return experiment
 
