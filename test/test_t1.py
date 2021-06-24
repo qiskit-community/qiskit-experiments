@@ -15,7 +15,6 @@
 Test T1 experiment
 """
 
-import unittest
 import numpy as np
 from qiskit.test import QiskitTestCase
 from qiskit.providers import BackendV1
@@ -270,7 +269,3 @@ class TestT1(QiskitTestCase):
 
         res = T1Analysis()._run_analysis(data)[0]
         self.assertEqual(res[0]["quality"], "computer_bad")
-
-
-if __name__ == "__main__":
-    unittest.main()
