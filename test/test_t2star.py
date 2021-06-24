@@ -150,7 +150,6 @@ class T2starBackend(BackendV1):
                     "data": {"counts": counts},
                 }
             )
-        return Result.from_dict(result)
         return MockJob(self, Result.from_dict(result))
 
 
