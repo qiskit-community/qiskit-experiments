@@ -138,6 +138,15 @@ class _DocstringWriter:
         self._write_multi_line(text_block, self.__indent__)
         self.docstring += os.linesep
 
+    def write_dropdown_section(self, text_block: str, section: str):
+        """Write new user defined section as drop down box."""
+        self._write_line(f".. dropdown:: {section}")
+        self.docstring += self.__indent__
+        self._write_line(":animate: fade-in-slide-down")
+        self.docstring += os.linesep
+        self._write_multi_line(text_block, self.__indent__)
+        self.docstring += os.linesep
+
     def write_note(self, text_block: str):
         """Write note."""
         self._write_line("Note:")

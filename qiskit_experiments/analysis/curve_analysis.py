@@ -260,7 +260,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
             "curve_fitter": OptionsField(
                 default=multi_curve_fit,
                 annotation=Callable,
-                description="""A callback function to perform fitting with formatted data.
+                description="""\
+A callback function to perform fitting with formatted data.
+
 This function should have signature:
 
 .. code-block::
@@ -281,7 +283,8 @@ See :py:func:`~qiskit_experiment.analysis.multi_curve_fit` for example.""",
             "data_processor": OptionsField(
                 default=probability(outcome="1"),
                 annotation=Callable,
-                description="""A callback function to format experiment data.
+                description="""\
+A callback function to format experiment data.
 This function should have signature:
 
 .. code-block::

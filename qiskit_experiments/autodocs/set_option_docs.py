@@ -17,6 +17,7 @@ from types import FunctionType
 from typing import Optional, Dict, Any, Type
 
 from qiskit.exceptions import QiskitError
+from qiskit.providers import Options
 
 from .descriptions import OptionsField
 from .writer import _DocstringWriter, _DocstringMaker
@@ -99,27 +100,29 @@ def base_options_documentation(style: Type[_DocstringMaker]):
         experiment_options = experiment._default_experiment_options()
 
         # update analysis options setter
-        analysis_setter = _copy_method(experiment, "set_analysis_options")
-        analysis_setter.__annotations__ = _compile_annotations(analysis_options)
-        analysis_setter.__doc__ = style.make_docstring(
-            description="Set the analysis options for :py:meth:`run_analysis` method.",
-            options=analysis_options,
-            note="Here you can set arbitrary parameter, even if it is not listed. "
-            "Such option is passed as a keyword argument to the analysis fitter functions "
-            "(if exist). The execution may fail if the function API doesn't support "
-            "extra keyword arguments.",
-        )
-        setattr(experiment, "set_analysis_options", analysis_setter)
+        if not isinstance(analysis_options, Options):
+            analysis_setter = _copy_method(experiment, "set_analysis_options")
+            analysis_setter.__annotations__ = _compile_annotations(analysis_options)
+            analysis_setter.__doc__ = style.make_docstring(
+                description="Set the analysis options for :py:meth:`run_analysis` method.",
+                options=analysis_options,
+                note="Here you can set arbitrary parameter, even if it is not listed. "
+                "Such option is passed as a keyword argument to the analysis fitter functions "
+                "(if exist). The execution may fail if the function API doesn't support "
+                "extra keyword arguments.",
+            )
+            setattr(experiment, "set_analysis_options", analysis_setter)
 
         # update experiment options setter
-        experiment_setter = _copy_method(experiment, "set_experiment_options")
-        experiment_setter.__annotations__ = _compile_annotations(experiment_options)
-        experiment_setter.__doc__ = style.make_docstring(
-            description="Set the analysis options for :py:meth:`run` method.",
-            options=experiment_options,
-            raises={"AttributeError": "If the field passed in is not a supported options."},
-        )
-        setattr(experiment, "set_experiment_options", experiment_setter)
+        if not isinstance(experiment_options, Options):
+            experiment_setter = _copy_method(experiment, "set_experiment_options")
+            experiment_setter.__annotations__ = _compile_annotations(experiment_options)
+            experiment_setter.__doc__ = style.make_docstring(
+                description="Set the analysis options for :py:meth:`run` method.",
+                options=experiment_options,
+                raises={"AttributeError": "If the field passed in is not a supported options."},
+            )
+            setattr(experiment, "set_experiment_options", experiment_setter)
 
         return experiment
 

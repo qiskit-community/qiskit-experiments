@@ -17,6 +17,7 @@ import re
 from typing import Optional, Dict, List, Type
 
 from qiskit.exceptions import QiskitError
+from qiskit.providers import Options
 
 from .descriptions import OptionsField, Reference
 from .writer import _DocstringWriter, _DocstringMaker
@@ -52,20 +53,32 @@ class StandardExperimentDocstring(_DocstringMaker):
             writer.write_lines(
                 "See below configurable experiment options to customize your execution."
             )
-            writer.write_options_as_sections(
-                fields=experiment_options,
-                section="Experiment Options",
-                text_block="Experiment options to generate circuits. "
-                "Options can be updated with :py:meth:`set_experiment_options`. "
-                "See method documentation for details.",
-            )
-            writer.write_options_as_sections(
-                fields=analysis_options,
-                section="Analysis Options",
-                text_block="Analysis options to run the analysis class. "
-                "Options can be updated with :py:meth:`set_analysis_options`. "
-                "See method documentation for details.",
-            )
+            if not isinstance(experiment_options, Options):
+                writer.write_options_as_sections(
+                    fields=experiment_options,
+                    section="Experiment Options",
+                    text_block="Experiment options to generate circuits. "
+                    "Options can be updated with :py:meth:`set_experiment_options`. "
+                    "See method documentation for details.",
+                )
+            else:
+                writer.write_dropdown_section(
+                    text_block="Documentation for experiment options are not provided.",
+                    section="Experiment Options",
+                )
+            if not isinstance(analysis_options, Options):
+                writer.write_options_as_sections(
+                    fields=analysis_options,
+                    section="Analysis Options",
+                    text_block="Analysis options to run the analysis class. "
+                    "Options can be updated with :py:meth:`set_analysis_options`. "
+                    "See method documentation for details.",
+                )
+            else:
+                writer.write_dropdown_section(
+                    text_block="Documentation for analysis options are not provided.",
+                    section="Analysis Options",
+                )
             if references:
                 writer.write_references(references)
             if note:

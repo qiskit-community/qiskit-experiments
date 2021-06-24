@@ -17,6 +17,7 @@ import re
 from typing import Optional, Dict, List, Type
 
 from qiskit.exceptions import QiskitError
+from qiskit.providers import Options
 
 from .descriptions import OptionsField, Reference, CurveFitParameter
 from .writer import _DocstringWriter, _CurveFitDocstringWriter, _DocstringMaker
@@ -45,11 +46,16 @@ class StandardAnalysisDocstring(_DocstringMaker):
                 writer.write_section(overview, "Overview")
             if example:
                 writer.write_example(example)
-            writer.write_lines(
-                "Default class options. These options are automatically set "
-                "when :py:meth:`run` method is called."
-            )
-            writer.write_options_as_sections(default_options, "Default Options")
+            if not isinstance(default_options, Options):
+                writer.write_lines(
+                    "Default class options. These options are automatically set "
+                    "when :py:meth:`run` method is called."
+                )
+                writer.write_options_as_sections(default_options, "Default Options")
+            else:
+                writer.write_lines(
+                    "Documentation for default options are not provided for this class."
+                )
             if references:
                 writer.write_references(references)
             if note:
@@ -108,11 +114,16 @@ class CurveAnalysisDocstring(_DocstringMaker):
                 writer.write_bounds(fit_params)
             if example:
                 writer.write_example(example)
-            writer.write_lines(
-                "Default class options. These options are automatically set "
-                "when :py:meth:`run` method is called."
-            )
-            writer.write_options_as_sections(default_options, "Default Options")
+            if not isinstance(default_options, Options):
+                writer.write_lines(
+                    "Default class options. These options are automatically set "
+                    "when :py:meth:`run` method is called."
+                )
+                writer.write_options_as_sections(default_options, "Default Options")
+            else:
+                writer.write_lines(
+                    "Documentation for default options are not provided for this class."
+                )
             if references:
                 writer.write_references(references)
             if note:
