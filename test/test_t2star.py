@@ -80,7 +80,6 @@ class T2starBackend(BackendV1):
         """
         self.options.update_options(**options)
         shots = self.options.get("shots")
-
         result = {
             "backend_name": "T2star backend",
             "backend_version": "0",
@@ -203,8 +202,7 @@ class TestT2Star(QiskitTestCase):
                 )
 
                 # run circuits
-                exp.set_analysis_options(shots=2000)
-                expdata = exp.run(backend=backend)
+                expdata = exp.run(backend=backend, shots=2000)
                 result = expdata.analysis_result(0)
                 self.assertAlmostEqual(
                     result["t2star_value"],
@@ -212,9 +210,7 @@ class TestT2Star(QiskitTestCase):
                     delta=3 * dt_factor,
                 )
                 self.assertAlmostEqual(
-                    result["frequency_value"],
-                    estimated_freq / dt_factor,
-                    delta=3 / dt_factor,
+                    result["frequency_value"], estimated_freq / dt_factor, delta=3 / dt_factor
                 )
                 self.assertEqual(
                     result["quality"], "computer_good", "Result quality bad for unit " + str(unit)
@@ -224,10 +220,10 @@ class TestT2Star(QiskitTestCase):
         """
         Test parallel experiments of T2* using a simulator.
         """
-
         t2star = [30, 25]
         estimated_freq = [0.1, 0.12]
         delays = [list(range(1, 60)), list(range(1, 50))]
+        dt_factor = 1
 
         exp0 = T2StarExperiment(0, delays[0])
         exp2 = T2StarExperiment(2, delays[1])
@@ -245,13 +241,12 @@ class TestT2Star(QiskitTestCase):
 
         for i in range(2):
             sub_res = res.component_experiment_data(i).analysis_result(0)
-            self.assertAlmostEqual(sub_res["t2star_value"], t2star[i], delta=3)
             self.assertAlmostEqual(
-                sub_res["frequency_value"],
-                estimated_freq[i],
-                delta=3,
+                sub_res["t2star_value"], t2star[i] * dt_factor, delta=3 * dt_factor
             )
-            sub_res = res.component_experiment_data(i).analysis_result(0)
+            self.assertAlmostEqual(
+                sub_res["frequency_value"], estimated_freq[i] / dt_factor, delta=3 / dt_factor
+            )
             self.assertEqual(
                 sub_res["quality"],
                 "computer_good",
@@ -263,6 +258,7 @@ class TestT2Star(QiskitTestCase):
         Concatenate the data from 2 separate experiments
         """
         unit = "s"
+        dt_factor = 1
         estimated_t2star = 30
         estimated_freq = 0.7
         # First experiment
@@ -277,7 +273,7 @@ class TestT2Star(QiskitTestCase):
             "phi": 0,
             "B": 0.5,
         }
-        exp1.set_analysis_options(user_p0=default_p0, shots=2000)
+        exp1.set_analysis_options(user_p0=default_p0)
         backend = T2starBackend(
             p0={
                 "a_guess": [0.5],
@@ -293,20 +289,27 @@ class TestT2Star(QiskitTestCase):
         )
 
         # run circuits
-        expdata1 = exp1.run(backend=backend)
+        expdata1 = exp1.run(backend=backend, shots=1000)
 
         # second experiment
         delays2 = list(range(2, 65, 2))
         exp2 = T2StarExperiment(qubit, delays2, unit=unit)
-        exp2.set_analysis_options(user_p0=default_p0, shots=2000)
-        expdata2 = exp2.run(
-            backend=backend,
-            experiment_data=expdata1,
+        exp2.set_analysis_options(user_p0=default_p0)
+        expdata2 = exp2.run(backend=backend, experiment_data=expdata1, shots=1000)
+        result0 = expdata2.analysis_result(0)
+        result1 = expdata2.analysis_result(1)
+        self.assertAlmostEqual(
+            result1["t2star_value"],
+            estimated_t2star * dt_factor,
+            delta=3 * dt_factor,
         )
-        result = expdata2.analysis_result(0)
+        self.assertAlmostEqual(
+            result1["frequency_value"], estimated_freq / dt_factor, delta=3 / dt_factor
+        )
         self.assertEqual(
-            result["quality"], "computer_good", "Result quality bad for unit " + str(unit)
+            result1["quality"], "computer_good", "Result quality bad for unit " + str(unit)
         )
+        self.assertLessEqual(result1["stderr"], result0["stderr"])
         self.assertEqual(len(expdata2.data()), len(delays1) + len(delays2))
 
 
