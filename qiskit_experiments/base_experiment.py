@@ -107,12 +107,10 @@ class BaseExperiment(ABC):
         if experiment_data is None:
             # Create new experiment data
             experiment_data = self.__experiment_data__(experiment=self, backend=backend)
-            experiment_data.metadata()["experiment_data"] = self._type
-
         else:
             # Validate experiment is compatible with existing data container
             metadata = experiment_data.metadata()
-            if metadata.get("experiment_data") != self._type:
+            if metadata.get("experiment_type") != self._type:
                 raise QiskitError(
                     "Existing ExperimentData contains data from a different experiment."
                 )
@@ -350,7 +348,7 @@ class BaseExperiment(ABC):
             run_options: backend run options for the job.
         """
         metadata = {
-            "job_id": job.job_id,
+            "job_id": job.job_id(),
             "experiment_options": copy.copy(self.experiment_options.__dict__),
             "transpile_options": copy.copy(self.transpile_options.__dict__),
             "analysis_options": copy.copy(self.analysis_options.__dict__),
