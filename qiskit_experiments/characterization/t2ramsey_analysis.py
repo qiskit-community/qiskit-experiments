@@ -16,10 +16,8 @@ T2Ramsey Experiment class.
 from typing import List, Optional, Tuple, Dict
 import numpy as np
 
-import qiskit
 from qiskit.utils import apply_prefix
 from qiskit.providers.options import Options
-from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResult
 from qiskit_experiments.analysis.curve_fitting import curve_fit, process_curve_data
 from qiskit_experiments.analysis.data_processing import level2_probability
