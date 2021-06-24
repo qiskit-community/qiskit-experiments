@@ -1336,7 +1336,7 @@ class TestSavingAndLoading(CrossResonanceTest):
     def test_alternate_date_formats(self):
         """Test that we can reload dates with or without time-zone."""
 
-        new_date = datetime.strptime("16/09/20 10:21:35.012+02:00", "%d/%m/%y %H:%M:%S.%f%z")
+        new_date = datetime.strptime("16/09/20 10:21:35.012+0200", "%d/%m/%y %H:%M:%S.%f%z")
         value = ParameterValue(0.222, date_time=new_date)
         self.cals.add_parameter_value(value, "amp", (3,), "xp")
 

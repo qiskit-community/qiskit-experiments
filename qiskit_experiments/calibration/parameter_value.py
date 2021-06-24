@@ -55,7 +55,8 @@ class ParameterValue:
 
         if isinstance(self.date_time, str):
             base_fmt = "%Y-%m-%d %H:%M:%S.%f"
-            for time_zone in ["%z", "", "Z"]:
+            zone_fmts = ["%z", "", "Z"]
+            for time_zone in zone_fmts:
                 date_format = base_fmt + time_zone
                 try:
                     self.date_time = datetime.strptime(self.date_time, date_format)
@@ -63,7 +64,7 @@ class ParameterValue:
                 except ValueError:
                     pass
             else:
-                formats = list(base_fmt + zone for zone in ["%z", "", "Z"])
+                formats = list(base_fmt + zone for zone in zone_fmts)
                 raise CalibrationError(
                     f"Cannot parse {self.date_time} in either of {formats} formats."
                 )
