@@ -13,10 +13,7 @@
 Experiment Data class
 """
 import logging
-from typing import Optional, Union, List, Dict, Tuple
-import os
-import uuid
-from collections import OrderedDict
+from typing import Dict
 from datetime import datetime
 
 from qiskit_experiments.stored_data import StoredDataV1
