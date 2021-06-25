@@ -904,7 +904,7 @@ class Calibrations:
         file_type: str = "csv",
         folder: str = None,
         overwrite: bool = False,
-        file_prefix: str = ""
+        file_prefix: str = "",
     ):
         """Save the parameterized schedules and parameter value.
 
@@ -942,7 +942,9 @@ class Calibrations:
         schedule_file = file_prefix + "schedules.csv"
 
         if os.path.isfile(parameter_config_file) and not overwrite:
-            raise CalibrationError(f"{parameter_config_file} already exists. Set overwrite to True.")
+            raise CalibrationError(
+                f"{parameter_config_file} already exists. Set overwrite to True."
+            )
 
         if os.path.isfile(parameter_value_file) and not overwrite:
             raise CalibrationError(f"{parameter_value_file} already exists. Set overwrite to True.")

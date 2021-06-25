@@ -1313,7 +1313,7 @@ class TestSavingAndLoading(CrossResonanceTest):
             self.cals.get_parameter_value("amp", (3,), "xp")
 
         # Load the parameters, check value and type.
-        self.cals.load_parameter_values(prefix+"parameter_values.csv")
+        self.cals.load_parameter_values(prefix + "parameter_values.csv")
 
         val = self.cals.get_parameter_value("amp", (3,), "xp")
         self.assertEqual(val, 0.1 + 0.01j)
