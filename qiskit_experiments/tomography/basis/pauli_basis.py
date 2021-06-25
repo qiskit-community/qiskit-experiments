@@ -21,56 +21,27 @@ from .tomography_basis import TomographyMeasurementBasis, TomographyPreparationB
 class PauliMeasurementBasis(TomographyMeasurementBasis):
     r"""Standard Pauli measurement basis.
 
-    This basis has 3 indices with corresponding measurement configurations
+    This basis has 3 indices each with with 2 measurement outcomes. The
+    corresponding single-qubit measurement circuits and outcome POVM
+    matrices are:
 
-    .. list-table:: Single-qubit measurement basis circuits
+    .. table:: Single-qubit measurement circuits and POVM matrices
 
-        * - Index
-          - Measurement Basis
-          - Circuit
-        * - 0
-          - Pauli-Z
-          - ``-[I]-``
-        * - 1
-          - Pauli-X
-          - ``-[H]-``
-        * - 2
-          - Pauli-Y
-          - ``-[SDG]-[H]-``
-
-    The POVM matrices for each index and outcome are
-
-    .. list-table:: Single-qubit basis outcome elements
-        :header-rows: 1
-
-        * - Index
-          - Outcome
-          - Element
-          - Matrix
-        * - 0
-          - 0
-          - :math:`| 0 \rangle\!\langle 0 |`
-          - :math:`\begin{pmatrix} 1 & 0 \\ 0 & 0 \end{pmatrix}`
-        * -
-          - 1
-          - :math:`| 1 \rangle\!\langle 1 |`
-          - :math:`\begin{pmatrix} 0 & 0 \\ 0 & 1 \end{pmatrix}`
-        * - 1
-          - 0
-          - :math:`| + \rangle\!\langle + |`
-          - :math:`\begin{pmatrix} 0.5 & 0.5 \\ 0.5 & 0.5 \end{pmatrix}`
-        * -
-          - 1
-          - :math:`| - \rangle\!\langle - |`
-          - :math:`\begin{pmatrix} 0.5 & -0.5 \\ -0.5 & 0.5 \end{pmatrix}`
-        * - 2
-          - 0
-          - :math:`| +i \rangle\!\langle +i |`
-          - :math:`\begin{pmatrix} 0.5 & -0.5i \\ 0.5i & 0.5 \end{pmatrix}`
-        * -
-          - 1
-          - :math:`| -i \rangle\!\langle -i |`
-          - :math:`\begin{pmatrix} 0.5 & 0.5i \\ -0.5i & 0.5 \end{pmatrix}`
+        +-------+-------+---------------+---------+-------------------------------+
+        | Index | Basis | Circuit       | Outcome | POVM Matrix                   |
+        +=======+=======+===============+=========+===============================+
+        | 0     | Z     |``-[I]-``      | 0       |``[[1, 0], [0, 0]]``           |
+        +-------+-------+---------------+---------+-------------------------------+
+        |       |       |               | 1       |``[[0, 0], [0, 1]]``           |
+        +-------+-------+---------------+---------+-------------------------------+
+        | 1     | X     | ``-[H]-``     | 0       |``[[0.5, 0.5], [0.5, 0.5]]``   |
+        +-------+-------+---------------+---------+-------------------------------+
+        |       |       |               | 1       |``[[0.5, -0.5], [-0.5, 0.5]]`` |
+        +-------+-------+---------------+---------+-------------------------------+
+        | 2     | Y     |``-[SDG]-[H]-``| 0       |``[[0.5, -0.5j], [0.5j, 0.5]]``|
+        +-------+-------+---------------+---------+-------------------------------+
+        |       |       |               | 1       |``[[0.5, 0.5j], [-0.5j, 0.5]]``|
+        +-------+-------+---------------+---------+-------------------------------+
 
     """
 
@@ -89,34 +60,26 @@ class PauliMeasurementBasis(TomographyMeasurementBasis):
 
 
 class PauliPreparationBasis(TomographyPreparationBasis):
-    r"""Minimal 4-element Pauli measurement basis.
+    """Minimal 4-element Pauli measurement basis.
 
     This is a minimal size 4 preparation basis where each qubit
-    index corresponds to the following initial state density matrices
+    index corresponds to the following initial state preparation
+    circuits and density matrices:
 
-    .. list-table:: Single-qubit basis elements
-        :header-rows: 1
+    .. table:: Single-qubit preparation circuits and states
 
-        * - Index
-          - State
-          - Matrix
-          - Circuit
-        * - 0
-          - :math:`| 0 \rangle\!\langle 0 |`
-          - :math:`\begin{pmatrix} 1 & 0 \\ 0 & 0 \end{pmatrix}`
-          - ``-[I]-``
-        * - 1
-          - :math:`| 1 \rangle\!\langle 1 |`
-          - :math:`\begin{pmatrix} 0 & 0 \\ 0 & 1 \end{pmatrix}`
-          - ``-[X]-``
-        * - 2
-          - :math:`| + \rangle\!\langle + |`
-          - :math:`\begin{pmatrix} 0.5 & 0.5 \\ 0.5 & 0.5 \end{pmatrix}`
-          - ``-[H]-``
-        * - 3
-          - :math:`| +i \rangle\!\langle +i |`
-          - :math:`\begin{pmatrix} 0.5 & -0.5i \\ 0.5i & 0.5 \end{pmatrix}`
-          - ``-[H]-[S]-``
+        +-------+-------+---------------------+---------------------------------+
+        | Index | State | Preparation Circuit | Density Matrix                  |
+        +=======+=======+=====================+=================================+
+        | 0     | Zp    | ``-[I]-``           | ``[[1, 0], [0, 0]]``            |
+        +-------+-------+---------------------+---------------------------------+
+        | 1     | Zm    | ``-[X]-``           | ``[[0, 0], [0, 1]]``            |
+        +-------+-------+---------------------+---------------------------------+
+        | 2     | Xp    | ``-[H]-``           | ``[[0.5, 0.5], [0.5, 0.5]]``    |
+        +-------+-------+---------------------+---------------------------------+
+        | 3     | Yp    | ``-[H]-[S]-``       | ``[[0.5, -0.5j], [0.5j, 0.5]]`` |
+        +-------+-------+---------------------+---------------------------------+
+
     """
 
     def __init__(self):
@@ -137,42 +100,29 @@ class PauliPreparationBasis(TomographyPreparationBasis):
 
 
 class Pauli6PreparationBasis(TomographyPreparationBasis):
-    r"""Over-complete 6-element Pauli preparation basis.
+    """Over-complete 6-element Pauli preparation basis.
 
     This is an over-complete size 6 preparation basis where each qubit
-    index corresponds to the following initial state density matrices
+    index corresponds to the following initial state density matrices:
 
-    .. list-table:: Single-qubit basis elements
-        :header-rows: 1
+    .. table:: Single-qubit preparation circuits and states
 
-        * - Index
-          - State
-          - Matrix
-          - Circuit
-        * - 0
-          - :math:`| 0 \rangle\!\langle 0 |`
-          - :math:`\begin{pmatrix} 1 & 0 \\ 0 & 0 \end{pmatrix}`
-          - ``-[I]-``
-        * - 1
-          - :math:`| 1 \rangle\!\langle 1 |`
-          - :math:`\begin{pmatrix} 0 & 0 \\ 0 & 1 \end{pmatrix}`
-          - ``-[X]-``
-        * - 2
-          - :math:`| + \rangle\!\langle + |`
-          - :math:`\begin{pmatrix} 0.5 & 0.5 \\ 0.5 & 0.5 \end{pmatrix}`
-          - ``-[H]-``
-        * - 3
-          - :math:`| - \rangle\!\langle - |`
-          - :math:`\begin{pmatrix} 0.5 & -0.5 \\ -0.5 & 0.5 \end{pmatrix}`
-          - ``-[H]-[Z]-``
-        * - 4
-          - :math:`| +i \rangle\!\langle +i |`
-          - :math:`\begin{pmatrix} 0.5 & -0.5i \\ 0.5i & 0.5 \end{pmatrix}`
-          - ``-[H]-[S]-``
-        * - 5
-          - :math:`| -i \rangle\!\langle -i |`
-          - :math:`\begin{pmatrix} 0.5 & 0.5i \\ -0.5i & 0.5 \end{pmatrix}`
-          - ``-[H]-[SDG]-``
+        +-------+-------+---------------------+---------------------------------+
+        | Index | State | Preparation Circuit | Density Matrix                  |
+        +=======+=======+=====================+=================================+
+        | 0     | Zp    | ``-[I]-``           | ``[[1, 0], [0, 0]]``            |
+        +-------+-------+---------------------+---------------------------------+
+        | 1     | Zm    | ``-[X]-``           | ``[[0, 0], [0, 1]]``            |
+        +-------+-------+---------------------+---------------------------------+
+        | 2     | Xp    | ``-[H]-``           | ``[[0.5, 0.5], [0.5, 0.5]]``    |
+        +-------+-------+---------------------+---------------------------------+
+        | 3     | Xm    | ``-[H]-[Z]-``       | ``[[0.5, -0.5], [-0.5, 0.5]]``  |
+        +-------+-------+---------------------+---------------------------------+
+        | 2     | Yp    | ``-[H]-[S]-``       | ``[[0.5, -0.5j], [0.5j, 0.5]]`` |
+        +-------+-------+---------------------+---------------------------------+
+        | 3     | Ym    | ``-[H]-[Sdg]-``     | ``[[0.5, 0.5j], [-0.5j, 0.5]]`` |
+        +-------+-------+---------------------+---------------------------------+
+
     """
 
     def __init__(self):
@@ -184,14 +134,14 @@ class Pauli6PreparationBasis(TomographyPreparationBasis):
         # |+> Xp rotation
         prep_xp = QuantumCircuit(1, name="PauliPrepXp")
         prep_xp.append(HGate(), [0])
-        # |+i> Yp rotation
-        prep_yp = QuantumCircuit(1, name="PauliPrepYp")
-        prep_yp.append(HGate(), [0])
-        prep_yp.append(SGate(), [0])
         # |-> Xm rotation
         prep_xm = QuantumCircuit(1, name="PauliPrepXm")
         prep_xm.append(HGate(), [0])
         prep_xm.append(ZGate(), [0])
+        # |+i> Yp rotation
+        prep_yp = QuantumCircuit(1, name="PauliPrepYp")
+        prep_yp.append(HGate(), [0])
+        prep_yp.append(SGate(), [0])
         # |-i> Ym rotation
         prep_ym = QuantumCircuit(1, name="PauliPrepYm")
         prep_ym.append(HGate(), [0])

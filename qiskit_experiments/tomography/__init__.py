@@ -55,7 +55,7 @@ Fitter functions for state reconstruction in tomography analysis
 Basis Classes
 =============
 
-Build in tomography basis classes
+Built in tomography basis classes
 
 .. autosummary::
     :toctree: ../stubs/
