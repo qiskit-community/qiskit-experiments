@@ -13,7 +13,7 @@
 """Test Rabi amplitude Experiment class."""
 
 from typing import Tuple
-from test.mock_iq_backend import MockIQBackend
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 import numpy as np
 
 from qiskit import QuantumCircuit, execute, transpile
@@ -65,7 +65,7 @@ class TestRabiEndToEnd(QiskitTestCase):
         test_tol = 0.01
         backend = RabiBackend()
 
-        rabi = Rabi(3)
+        rabi = Rabi(1)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         expdata = rabi.run(backend)
         expdata.block_for_results()
@@ -77,7 +77,7 @@ class TestRabiEndToEnd(QiskitTestCase):
 
         backend = RabiBackend(amplitude_to_angle=np.pi / 2)
 
-        rabi = Rabi(3)
+        rabi = Rabi(1)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         expdata = rabi.run(backend)
         expdata.block_for_results()
@@ -88,7 +88,7 @@ class TestRabiEndToEnd(QiskitTestCase):
 
         backend = RabiBackend(amplitude_to_angle=2.5 * np.pi)
 
-        rabi = Rabi(3)
+        rabi = Rabi(1)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 101))
         expdata = rabi.run(backend)
         expdata.block_for_results()

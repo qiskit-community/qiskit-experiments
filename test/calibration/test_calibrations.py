@@ -13,6 +13,7 @@
 """Class to test the calibrations."""
 
 import os
+import uuid
 from collections import defaultdict
 from datetime import datetime
 from qiskit.circuit import Parameter
@@ -1292,10 +1293,22 @@ class TestFiltering(QiskitTestCase):
 class TestSavingAndLoading(CrossResonanceTest):
     """Test that calibrations can be saved and loaded to and from files."""
 
+    def setUp(self):
+        """Setup the test."""
+        self._prefix = str(uuid.uuid4())
+        super().setUp()
+
+    def _remove_files(self, prefix: str):
+        """Delete the files."""
+        os.remove(prefix + "parameter_values.csv")
+        os.remove(prefix + "parameter_config.csv")
+        os.remove(prefix + "schedules.csv")
+
     def test_save_load_parameter_values(self):
         """Test that we can save and load parameter values."""
 
-        self.cals.save("csv", overwrite=True)
+        self.cals.save("csv", overwrite=True, file_prefix=self._prefix)
+        self.addCleanup(self._remove_files, self._prefix)
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.1 + 0.01j)
 
         self.cals._params = defaultdict(list)
@@ -1304,7 +1317,7 @@ class TestSavingAndLoading(CrossResonanceTest):
             self.cals.get_parameter_value("amp", (3,), "xp")
 
         # Load the parameters, check value and type.
-        self.cals.load_parameter_values("parameter_values.csv")
+        self.cals.load_parameter_values(self._prefix + "parameter_values.csv")
 
         val = self.cals.get_parameter_value("amp", (3,), "xp")
         self.assertEqual(val, 0.1 + 0.01j)
@@ -1320,11 +1333,18 @@ class TestSavingAndLoading(CrossResonanceTest):
 
         # Check that we cannot rewrite files as they already exist.
         with self.assertRaises(CalibrationError):
-            self.cals.save("csv")
+            self.cals.save("csv", file_prefix=self._prefix)
 
-        self.cals.save("csv", overwrite=True)
+        self.cals.save("csv", overwrite=True, file_prefix=self._prefix)
 
-        # Clean-up
-        os.remove("parameter_values.csv")
-        os.remove("parameter_config.csv")
-        os.remove("schedules.csv")
+    def test_alternate_date_formats(self):
+        """Test that we can reload dates with or without time-zone."""
+
+        new_date = datetime.strptime("16/09/20 10:21:35.012+0200", "%d/%m/%y %H:%M:%S.%f%z")
+        value = ParameterValue(0.222, date_time=new_date)
+        self.cals.add_parameter_value(value, "amp", (3,), "xp")
+
+        self.cals.save("csv", overwrite=True, file_prefix=self._prefix)
+        self.addCleanup(self._remove_files, self._prefix)
+        self.cals._params = defaultdict(list)
+        self.cals.load_parameter_values(self._prefix + "parameter_values.csv")

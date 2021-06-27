@@ -15,8 +15,6 @@
 Test T1 experiment
 """
 
-import unittest
-from test.utils import FakeJob
 import numpy as np
 from qiskit.test import QiskitTestCase
 from qiskit.providers import BackendV1
@@ -26,6 +24,7 @@ from qiskit.result import Result
 from qiskit_experiments.experiment_data import ExperimentData
 from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T1, T1Analysis
+from qiskit_experiments.test.utils import FakeJob
 
 
 class T1Backend(BackendV1):
@@ -273,7 +272,3 @@ class TestT1(QiskitTestCase):
 
         res = T1Analysis()._run_analysis(data)[0]
         self.assertEqual(res.quality, "bad")
-
-
-if __name__ == "__main__":
-    unittest.main()
