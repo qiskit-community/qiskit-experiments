@@ -10,7 +10,6 @@
 """
 Test T2Ramsey experiment
 """
-import unittest
 import numpy as np
 
 from qiskit.utils import apply_prefix
@@ -257,7 +256,3 @@ class TestT2Ramsey(QiskitTestCase):
                 "computer_good",
                 "Result quality bad for experiment on qubit " + str(i),
             )
-
-
-if __name__ == "__main__":
-    unittest.main()
