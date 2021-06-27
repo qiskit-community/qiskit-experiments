@@ -113,4 +113,3 @@ class TestCalibrationsUpdate(QiskitTestCase):
         self.assertNotEqual(cals.get_qubit_frequencies()[qubit], result_data["popt"][2])
         Frequency.update(cals, exp_data)
         self.assertEqual(cals.get_qubit_frequencies()[qubit], result_data["popt"][2])
-

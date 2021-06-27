@@ -22,7 +22,11 @@ from qiskit.utils import apply_prefix
 from qiskit_experiments.stored_data import AnalysisResultV1
 from qiskit_experiments.stored_data.device_component import Qubit
 from qiskit_experiments.base_analysis import BaseAnalysis
-from qiskit_experiments.analysis.curve_fitting import process_curve_data, curve_fit, CurveAnalysisResult
+from qiskit_experiments.analysis.curve_fitting import (
+    process_curve_data,
+    curve_fit,
+    CurveAnalysisResult,
+)
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
 
@@ -126,15 +130,15 @@ class T1Analysis(BaseAnalysis):
         fit_result = curve_fit(fit_fun, xdata, ydata, init, sigma=sigma, bounds=bounds)
 
         result_data = {
-                "value": fit_result["popt"][1],
-                "stderr": fit_result["popt_err"][1],
-                "unit": "s",
-                "label": "T1",
-                "fit": fit_result,
-                "quality": self._fit_quality(
-                    fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
-                ),
-            }
+            "value": fit_result["popt"][1],
+            "stderr": fit_result["popt_err"][1],
+            "unit": "s",
+            "label": "T1",
+            "fit": fit_result,
+            "quality": self._fit_quality(
+                fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
+            ),
+        }
 
         result_data["fit"]["circuit_unit"] = unit
         if unit == "dt":
