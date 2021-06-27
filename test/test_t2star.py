@@ -310,8 +310,3 @@ class TestT2Star(QiskitTestCase):
         )
         self.assertLessEqual(result1["stderr"], result0["stderr"])
         self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))
-
-
-if __name__ == "__main__":
-    unittest.main()
-
