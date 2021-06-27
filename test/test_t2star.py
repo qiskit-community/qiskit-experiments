@@ -10,7 +10,6 @@
 """
 Test T2Star experiment
 """
-import unittest
 import numpy as np
 
 from qiskit.utils import apply_prefix
@@ -21,7 +20,7 @@ from qiskit.result import Result
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T2StarExperiment
-from .mock_job import MockJob
+from qiskit_experiments.test.mock_job import MockJob
 
 
 class T2starBackend(BackendV1):
@@ -258,7 +257,3 @@ class TestT2Star(QiskitTestCase):
                 "computer_good",
                 "Result quality bad for experiment on qubit " + str(i),
             )
-
-
-if __name__ == "__main__":
-    unittest.main()
