@@ -7,15 +7,15 @@ from qiskit.result import Result
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization import T2StarExperiment
-
+from qiskit_experiments.test.mock_job import MockJob
 
 # Fix seed for simulations
 SEED = 9000
 
 
-class T2starBackend(BaseBackend):
+class T2RamseyBackend(BaseBackend):
     """
-    A simple and primitive backend, to be run by the T2Star tests
+    A simple and primitive backend, to be run by the T2Ramsey tests
     """
 
     def __init__(
@@ -24,7 +24,7 @@ class T2starBackend(BaseBackend):
         """
         Initialize the T2star backend
         """
-
+        dt_factor_in_ns = dt_factor * 1e9 if dt_factor is not None else None
         configuration = QasmBackendConfiguration(
             backend_name="t2star_simulator",
             backend_version="0",
@@ -38,7 +38,7 @@ class T2starBackend(BaseBackend):
             memory=False,
             max_shots=int(1e6),
             coupling_map=None,
-            dt=dt_factor,
+            dt=dt_factor_in_ns,
         )
 
         self._t2star = p0["t2star"]
@@ -125,4 +125,4 @@ class T2starBackend(BaseBackend):
                     "data": {"counts": counts},
                 }
             )
-        return Result.from_dict(result)
+        return MockJob(self, Result.from_dict(result))
