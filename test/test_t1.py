@@ -13,7 +13,6 @@
 Test T1 experiment
 """
 
-import unittest
 from qiskit.test import QiskitTestCase
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.composite import ParallelExperiment
@@ -146,7 +145,3 @@ class TestT1(QiskitTestCase):
 
         res = T1Analysis()._run_analysis(data)[0]
         self.assertEqual(res[0]["quality"], "computer_bad")
-
-
-if __name__ == "__main__":
-    unittest.main()

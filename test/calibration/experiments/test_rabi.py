@@ -13,7 +13,7 @@
 """Test Rabi amplitude Experiment class."""
 
 from typing import Tuple
-from test.mock_iq_backend import MockIQBackend
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 import numpy as np
 
 from qiskit import QuantumCircuit, execute, transpile
