@@ -1,7 +1,8 @@
 import numpy as np
 
 from qiskit.utils import apply_prefix
-from qiskit.providers import BaseBackend
+from qiskit.providers import BackendV1
+from qiskit.providers.options import Options
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
 from qiskit.test import QiskitTestCase
@@ -13,7 +14,7 @@ from qiskit_experiments.test.mock_job import MockJob
 SEED = 9000
 
 
-class T2RamseyBackend(BaseBackend):
+class T2StarBackend(BackendV1):
     """
     A simple and primitive backend, to be run by the T2Ramsey tests
     """
@@ -50,14 +51,21 @@ class T2RamseyBackend(BaseBackend):
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
         self._dt_factor = dt_factor
+        self._rng = np.random.default_rng(0)
         super().__init__(configuration)
 
+    @classmethod
+    def _default_options(cls):
+        """Default options of the test backend."""
+        return Options(shots=1024)
+    
     # pylint: disable = arguments-differ
-    def run(self, qobj):
+    def run(self, run_input, **options):
         """
         Run the T2star backend
         """
-        shots = qobj.config.shots
+        self.options.update_options(**options)
+        shots = self.options.get("shots")
         result = {
             "backend_name": "T2star backend",
             "backend_version": "0",
@@ -67,8 +75,10 @@ class T2RamseyBackend(BaseBackend):
             "results": [],
         }
 
-        for circ in qobj.experiments:
-            nqubits = circ.config.n_qubits
+        for circ in run_input:
+            nqubits = circ.num_qubits
+            qubit_indices = {bit: idx for idx, bit in enumerate(circ.qubits)}
+            clbit_indices = {bit: idx for idx, bit in enumerate(circ.clbits)}
             counts = dict()
             if self._readout0to1 is None:
                 ro01 = np.zeros(nqubits)
@@ -84,9 +94,9 @@ class T2RamseyBackend(BaseBackend):
                 else:
                     prob_plus = self._initial_prob_plus.copy()
 
-                clbits = np.zeros(circ.config.memory_slots, dtype=int)
-                for op in circ.instructions:
-                    qubit = op.qubits[0]
+                clbits = np.zeros(circ.num_clbits, dtype=int)
+                for op, qargs, cargs in circ.data:
+                    qubit = qubit_indices[qargs[0]]
 
                     if op.name == "delay":
                         delay = op.params[0]
@@ -102,12 +112,13 @@ class T2RamseyBackend(BaseBackend):
 
                     if op.name == "measure":
                         # we measure in |+> basis which is the same as measuring |0>
-                        meas_res = np.random.binomial(
+                        meas_res = self._rng.binomial(
                             1,
                             (1 - prob_plus[qubit]) * (1 - ro10[qubit])
                             + prob_plus[qubit] * ro01[qubit],
                         )
-                        clbits[op.memory[0]] = meas_res
+                        clbit = clbit_indices[cargs[0]]
+                        clbits[clbit] = meas_res
 
                 clstr = ""
                 for clbit in clbits[::-1]:
@@ -121,7 +132,7 @@ class T2RamseyBackend(BaseBackend):
                 {
                     "shots": shots,
                     "success": True,
-                    "header": {"metadata": circ.header.metadata},
+                    "header": {"metadata": circ.metadata},
                     "data": {"counts": counts},
                 }
             )
