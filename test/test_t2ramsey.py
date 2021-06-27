@@ -22,6 +22,7 @@ from qiskit_experiments.composite import ParallelExperiment
 from qiskit_experiments.characterization.t2ramsey import T2Ramsey
 from qiskit_experiments.test.mock_job import MockJob
 
+
 class T2RamseyBackend(BackendV1):
     """
     A simple and primitive backend, to be run by the T2Ramsey tests
