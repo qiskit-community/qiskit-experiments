@@ -1,3 +1,21 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright IBM 2021.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+"""
+T2Star Backend class.
+Temporary backend to be used for t2ramsey experiment
+"""
+
+# pylint: disable = unused-import
+
 import numpy as np
 
 from qiskit.utils import apply_prefix
@@ -58,7 +76,7 @@ class T2StarBackend(BackendV1):
     def _default_options(cls):
         """Default options of the test backend."""
         return Options(shots=1024)
-    
+
     # pylint: disable = arguments-differ
     def run(self, run_input, **options):
         """
