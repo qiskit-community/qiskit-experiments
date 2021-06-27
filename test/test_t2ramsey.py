@@ -220,7 +220,7 @@ class TestT2Ramsey(QiskitTestCase):
                 result["quality"], "computer_good", "Result quality bad for unit " + str(unit)
             )
 
-    def test_t2Ramsey_parallel(self):
+    def test_t2ramsey_parallel(self):
         """
         Test parallel experiments of T2Ramsey using a simulator.
         """
