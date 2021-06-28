@@ -16,6 +16,7 @@
 A Tester for the RB experiment
 """
 
+
 import numpy as np
 from ddt import ddt, data, unpack
 from qiskit.quantum_info.operators.predicates import matrix_equal
@@ -188,7 +189,7 @@ class TestInterleavedRB(TestRB):
             interleaved_element: The Clifford element to interleave
             qubits (list): A list containing qubit indices for the experiment
         """
-        backend = AerSimulator.from_backend(FakeParis())
+        backend = FakeParis()
         exp_attributes = {
             "interleaved_element": interleaved_element,
             "qubits": qubits,
