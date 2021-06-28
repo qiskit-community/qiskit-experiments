@@ -193,7 +193,9 @@ class TomographyAnalysis(BaseAnalysis):
         if target_state is None:
             analysis_result[fid_label] = None
         else:
-            analysis_result[fid_label] = cls._state_fidelity(scaled_evals, evecs, target_state)
+            analysis_result[fid_label] = cls._state_fidelity(
+                scaled_evals, evecs, target_state, qpt=qpt
+            )
 
         return analysis_result
 

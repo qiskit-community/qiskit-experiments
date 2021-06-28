@@ -61,8 +61,8 @@ class TestStateTomography(QiskitTestCase):
         self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
         # Manually check fidelity
-        fid = qi.state_fidelity(state, target, validate=False)
-        self.assertGreater(fid, f_threshold, msg="fitted state fidelity is low")
+        target_fid = qi.state_fidelity(state, target, validate=False)
+        self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
 
     def test_qst_teleport(self):
         """Test subset state tomography generation"""
@@ -181,8 +181,8 @@ class TestStateTomography(QiskitTestCase):
         self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
         # Manually check fidelity
-        fid = qi.state_fidelity(state, target, validate=False)
-        self.assertGreater(fid, f_threshold, msg="fitted state fidelity is low")
+        target_fid = qi.state_fidelity(state, target, validate=False)
+        self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
 
     def test_batch_exp(self):
         """Test batch state tomography experiment with measurement_qubits kwarg"""
@@ -227,8 +227,8 @@ class TestStateTomography(QiskitTestCase):
             self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
             # Manually check fidelity
-            fid = qi.state_fidelity(state, targets[i], validate=False)
-            self.assertGreater(fid, f_threshold, msg="fitted state fidelity is low")
+            target_fid = qi.state_fidelity(state, targets[i], validate=False)
+            self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
 
     def test_parallel_exp(self):
         """Test parallel state tomography experiment"""
@@ -268,8 +268,8 @@ class TestStateTomography(QiskitTestCase):
             self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
             # Manually check fidelity
-            fid = qi.state_fidelity(state, targets[i], validate=False)
-            self.assertGreater(fid, f_threshold, msg="fitted state fidelity is low")
+            target_fid = qi.state_fidelity(state, targets[i], validate=False)
+            self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
 
 
 @ddt.ddt
@@ -299,10 +299,9 @@ class TestProcessTomography(QiskitTestCase):
         # Check fit state fidelity
         fid = result.get("process_fidelity", 0)
         self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
-
         # Manually check fidelity
-        fid = qi.process_fidelity(state, target, require_tp=False, require_cp=False)
-        self.assertGreater(fid, f_threshold, msg="fitted process fidelity is low")
+        target_fid = qi.process_fidelity(state, target, require_tp=False, require_cp=False)
+        self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
 
     @ddt.data([0], [1], [2], [0, 1], [1, 0], [0, 2], [2, 0], [1, 2], [2, 1])
     def test_exp_measurement_preparation_qubits(self, qubits):
@@ -379,8 +378,8 @@ class TestProcessTomography(QiskitTestCase):
         self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
         # Manually check fidelity
-        fid = qi.process_fidelity(state, target, require_tp=False, require_cp=False)
-        self.assertGreater(fid, f_threshold, msg="fitted state fidelity is low")
+        target_fid = qi.process_fidelity(state, target, require_tp=False, require_cp=False)
+        self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
 
     def test_qpt_teleport(self):
         """Test subset state tomography generation"""
@@ -449,8 +448,8 @@ class TestProcessTomography(QiskitTestCase):
             self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
             # Manually check fidelity
-            fid = qi.process_fidelity(state, targets[i], require_tp=False, require_cp=False)
-            self.assertGreater(fid, f_threshold, msg="fitted state fidelity is low")
+            target_fid = qi.process_fidelity(state, targets[i], require_tp=False, require_cp=False)
+            self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
 
     def test_parallel_exp(self):
         """Test parallel process tomography experiment"""
@@ -488,8 +487,8 @@ class TestProcessTomography(QiskitTestCase):
             self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
             # Manually check fidelity
-            fid = qi.process_fidelity(state, targets[i], require_tp=False, require_cp=False)
-            self.assertGreater(fid, f_threshold, msg="fitted state fidelity is low")
+            target_fid = qi.process_fidelity(state, targets[i], require_tp=False, require_cp=False)
+            self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
 
 
 def teleport_circuit():
