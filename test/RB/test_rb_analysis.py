@@ -20,7 +20,7 @@ from qiskit.test import QiskitTestCase
 import qiskit_experiments as qe
 
 
-class TestRBAnalysis(QiskitTestCase):
+class TestStandardRBAnalysis(QiskitTestCase):
     """
     A test for the analysis of the RB experiment
     """
@@ -41,19 +41,22 @@ class TestRBAnalysis(QiskitTestCase):
             "The file containing the experiment data doesn't exist."
             " Please run the data generator.",
         )
+        gate_error_ratio = {((0,), "id"): 1, ((0,), "rz"): 0, ((0,), "sx"): 1, ((0,), "x"): 1}
         with open(rb_exp_data_file_name, "r") as json_file:
             data = json.load(json_file)
             # The experiment attributes added
             exp_attributes = data[0]
+            expdata1._metadata = data[0]
             # The experiment data located in index [1] as it is a list of dicts
             expdata1.add_data(data[1])
         rb = qe.randomized_benchmarking
-        rb_exp = rb.RBExperiment(
+        rb_exp = rb.StandardRB(
             exp_attributes["qubits"],
             exp_attributes["lengths"],
             num_samples=exp_attributes["num_samples"],
             seed=exp_attributes["seed"],
         )
+        rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
         analysis_results = rb_exp.run_analysis(expdata1)
         return data, analysis_results
 

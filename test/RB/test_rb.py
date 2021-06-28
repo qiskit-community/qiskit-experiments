@@ -16,29 +16,34 @@
 A Tester for the RB experiment
 """
 
-<<<<<<< HEAD
-=======
-
 import numpy as np
 from ddt import ddt, data, unpack
->>>>>>> d316e2e (Changed variables name according to their types)
 from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.quantum_info import Clifford
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeParis
-<<<<<<< HEAD
-from ddt import ddt, data, unpack
-import numpy as np
-=======
-from qiskit.circuit.library import XGate, CXGate
->>>>>>> d316e2e (Changed variables name according to their types)
+from qiskit import QuantumCircuit
+from qiskit.exceptions import QiskitError
+from qiskit.circuit.library import (
+    IGate,
+    XGate,
+    YGate,
+    ZGate,
+    HGate,
+    SGate,
+    SdgGate,
+    CXGate,
+    CZGate,
+    SwapGate,
+)
+from qiskit.providers.aer import AerSimulator
 import qiskit_experiments as qe
 
 
 @ddt
 class TestRB(QiskitTestCase):
     """
-    A test class for the RB Experiment to check that the RBExperiment class is working correctly.
+    A test class for the RB Experiment to check that the StandardRB class is working correctly.
     """
 
     @data([[3]], [[4, 7]], [[0, 5, 3]])
@@ -57,7 +62,7 @@ class TestRB(QiskitTestCase):
             "seed": 100,
         }
         rb = qe.randomized_benchmarking
-        rb_exp = rb.RBExperiment(
+        rb_exp = rb.StandardRB(
             exp_attributes["qubits"],
             exp_attributes["lengths"],
             num_samples=exp_attributes["num_samples"],
@@ -104,7 +109,7 @@ class TestRB(QiskitTestCase):
 
     def validate_circuit_data(
         self,
-        experiment: qe.randomized_benchmarking.rb_experiment.RBExperiment,
+        experiment: qe.randomized_benchmarking.rb_experiment.StandardRB,
         exp_attributes: dict,
     ):
         """
@@ -126,7 +131,8 @@ class TestRB(QiskitTestCase):
             "The qubits indices in the experiment doesn't match to the one in the metadata.",
         )
 
-    def _exp_data_properties(self):
+    @staticmethod
+    def _exp_data_properties():
         """
         Creates a list of dictionaries that contains invalid experiment properties to check errors.
         The dict invalid data is as following:
@@ -158,33 +164,31 @@ class TestRB(QiskitTestCase):
         for exp_data in exp_data_list:
             self.assertRaises(
                 QiskitError,
-                rb.RBExperiment,
+                rb.StandardRB,
                 exp_data["qubits"],
                 exp_data["lengths"],
                 num_samples=exp_data["num_samples"],
                 seed=exp_data["seed"],
             )
-    def test_RB_circuits(self):
+
+
+@ddt
+class TestInterleavedRB(TestRB):
+    """
+    A test class for the interleaved RB Experiment to check that the
+    InterleavedRB class is working correctly.
+    """
+
+    @data([XGate(), [3]], [CXGate(), [4, 7]])
+    @unpack
+    def test_interleaved_rb_experiment(self, interleaved_element: "Gate", qubits: list):
         """
-        Run the RB test for the circuits (checking the metadata, parameters and functionallity
-        of the experiment.
+        Initializes data and executes an interleaved RB experiment with specific parameters.
+        Args:
+            interleaved_element: The Clifford element to interleave
+            qubits (list): A list containing qubit indices for the experiment
         """
-        (
-            exp_two_qubit_att_metadata,
-            exp_two_qubit_exp,
-            exp_two_quibit_exp_data,
-        ) = self.rb_parameters_two_qubit()
-        exp_two_qubit_circuit = exp_two_qubit_exp.circuits()
-        self.is_identity(exp_two_qubit_circuit)
-        self.validate_metadata(exp_two_qubit_circuit, exp_two_qubit_att_metadata)
-        self.validate_circuit_data(exp_two_quibit_exp_data, exp_two_qubit_att_metadata)
-        self._test_input()
-        # self._test_input()
-        self._test_input()
-        self.rb_parameters_one_qubit()
-        self.rb_parameters_two_qubit()
-        self.rb_parameters_three_qubit()
-        backend = FakeParis()
+        backend = AerSimulator.from_backend(FakeParis())
         exp_attributes = {
             "interleaved_element": interleaved_element,
             "qubits": qubits,
@@ -193,7 +197,7 @@ class TestRB(QiskitTestCase):
             "seed": 100,
         }
         rb = qe.randomized_benchmarking
-        rb_exp = rb.InterleavedRBExperiment(
+        rb_exp = rb.InterleavedRB(
             exp_attributes["interleaved_element"],
             exp_attributes["qubits"],
             exp_attributes["lengths"],
@@ -206,3 +210,69 @@ class TestRB(QiskitTestCase):
         self.validate_metadata(exp_circuits, exp_attributes)
         self.validate_circuit_data(exp_data, exp_attributes)
         self.is_identity(exp_circuits)
+
+
+@ddt
+class TestRBUtilities(QiskitTestCase):
+    """
+    A test class for additional functionality provided by the StandardRB
+    class.
+    """
+
+    instructions = {
+        "i": IGate(),
+        "x": XGate(),
+        "y": YGate(),
+        "z": ZGate(),
+        "h": HGate(),
+        "s": SGate(),
+        "sdg": SdgGate(),
+        "cx": CXGate(),
+        "cz": CZGate(),
+        "swap": SwapGate(),
+    }
+    seed = 42
+
+    @data(
+        [1, {((0,), "x"): 3, ((0,), "y"): 2, ((0,), "h"): 1}],
+        [5, {((1,), "x"): 3, ((4,), "y"): 2, ((1,), "h"): 1, ((1, 4), "cx"): 7}],
+    )
+    @unpack
+    def test_count_ops(self, num_qubits, expected_counts):
+        """Testing the count_ops utility function
+        this function receives a circuit and counts the number of gates
+        in it, counting gates for different qubits separately"""
+        circuit = QuantumCircuit(num_qubits)
+        gates_to_add = []
+        for gate, count in expected_counts.items():
+            gates_to_add += [gate for _ in range(count)]
+        rng = np.random.default_rng(self.seed)
+        rng.shuffle(gates_to_add)
+        for qubits, gate in gates_to_add:
+            circuit.append(self.instructions[gate], qubits)
+        counts = qe.randomized_benchmarking.RBUtils.count_ops(circuit)
+        self.assertDictEqual(expected_counts, counts)
+
+    def test_calculate_1q_epg(self):
+        """Testing the calculation of 1 qubit error per gate
+        The EPG is computed based on the error per clifford determined
+        in the RB experiment, the gate counts, and an estimate about the
+        relations between the errors of different gate types
+        """
+        epc_1_qubit = 0.0037
+        qubits = [0]
+        gate_error_ratio = {((0,), "id"): 1, ((0,), "rz"): 0, ((0,), "sx"): 1, ((0,), "x"): 1}
+        gates_per_clifford = {((0,), "rz"): 10.5, ((0,), "sx"): 8.15, ((0,), "x"): 0.25}
+        epg = qe.randomized_benchmarking.RBUtils.calculate_1q_epg(
+            epc_1_qubit, qubits, gate_error_ratio, gates_per_clifford
+        )
+        error_dict = {
+            ((0,), "rz"): 0,
+            ((0,), "sx"): 0.0004432101747785104,
+            ((0,), "x"): 0.0004432101747785104,
+        }
+
+        for gate in ["x", "sx", "rz"]:
+            expected_epg = error_dict[((0,), gate)]
+            actual_epg = epg[0][gate]
+            self.assertTrue(np.allclose(expected_epg, actual_epg, rtol=1.0e-2))
