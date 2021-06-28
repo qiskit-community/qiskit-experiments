@@ -40,18 +40,32 @@ class BackendCalibrations(Calibrations):
     any schedule.
     """
 
+    __qubit_freq_parameter__ = "qubit_lo_freq"
+    __readout_freq_parameter__ = "meas_lo_freq"
+
     def __init__(self, backend: Backend):
         """Setup an instance to manage the calibrations of a backend."""
-        super().__init__(backend.configuration().control_channels)
+        if hasattr(backend.configuration(), "control_channels"):
+            control_channels = backend.configuration().control_channels
+        else:
+            control_channels = None
+
+        super().__init__(control_channels)
 
         # Use the same naming convention as in backend.defaults()
-        self.qubit_freq = Parameter("qubit_lo_freq")
-        self.meas_freq = Parameter("meas_lo_freq")
+        self.qubit_freq = Parameter(self.__qubit_freq_parameter__)
+        self.meas_freq = Parameter(self.__readout_freq_parameter__)
         self._register_parameter(self.qubit_freq, ())
         self._register_parameter(self.meas_freq, ())
 
         self._qubits = set(range(backend.configuration().n_qubits))
         self._backend = backend
+
+        for qubit, freq in enumerate(backend.defaults().qubit_freq_est):
+            self.add_parameter_value(freq, self.qubit_freq, qubit)
+
+        for meas, freq in enumerate(backend.defaults().meas_freq_est):
+            self.add_parameter_value(freq, self.meas_freq, meas)
 
     def _get_frequencies(
         self,
@@ -70,8 +84,9 @@ class BackendCalibrations(Calibrations):
 
         freqs = []
         for qubit in self._qubits:
-            if ParameterKey(None, param, (qubit,)) in self._params:
-                freq = self.get_parameter_value(param, (qubit,), None, True, group, cutoff_date)
+            schedule = None  # A qubit frequency is not attached to a schedule.
+            if ParameterKey(param, (qubit,), schedule) in self._params:
+                freq = self.get_parameter_value(param, (qubit,), schedule, True, group, cutoff_date)
             else:
                 if element == FrequencyElement.READOUT:
                     freq = self._backend.defaults().meas_freq_est[qubit]
