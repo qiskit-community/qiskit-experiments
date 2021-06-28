@@ -66,9 +66,9 @@ class T2RamseyAnalysis(BaseAnalysis):
             The graph of the function.
         """
 
-        def osc_fit_fun(x, a, t2Ramsey, freq, phi, c):
+        def osc_fit_fun(x, a, t2ramsey, freq, phi, c):
             """Decay cosine fit function"""
-            return a * np.exp(-x / t2Ramsey) * np.cos(2 * np.pi * freq * x + phi) + c
+            return a * np.exp(-x / t2ramsey) * np.cos(2 * np.pi * freq * x + phi) + c
 
         def _format_plot(ax, unit):
             """Format curve fit plot"""
@@ -87,9 +87,9 @@ class T2RamseyAnalysis(BaseAnalysis):
 
         xdata, ydata, sigma = process_curve_data(data, lambda datum: level2_probability(datum, "0"))
 
-        t2Ramsey_estimate = np.mean(xdata)
-        p0, bounds = self._t2Ramsey_default_params(
-            conversion_factor, user_p0, user_bounds, t2Ramsey_estimate
+        t2ramsey_estimate = np.mean(xdata)
+        p0, bounds = self._t2ramsey_default_params(
+            conversion_factor, user_p0, user_bounds, t2ramsey_estimate
         )
         si_xdata = xdata * conversion_factor
         fit_result = curve_fit(
@@ -125,12 +125,12 @@ class T2RamseyAnalysis(BaseAnalysis):
             analysis_result["fit"]["dt"] = conversion_factor
         return [analysis_result], figures
 
-    def _t2Ramsey_default_params(
+    def _t2ramsey_default_params(
         self,
         conversion_factor,
         user_p0=None,
         user_bounds=None,
-        t2Ramsey_input=None,
+        t2ramsey_input=None,
     ) -> Tuple[List[float], Tuple[List[float]]]:
         """Default fit parameters for oscillation data.
 
@@ -139,26 +139,26 @@ class T2RamseyAnalysis(BaseAnalysis):
         """
         if user_p0 is None:
             a = 0.5
-            t2Ramsey = t2Ramsey_input * conversion_factor
+            t2ramsey = t2ramsey_input * conversion_factor
             freq = 0.1 / conversion_factor
             phi = 0.0
             b = 0.5
         else:
             a = user_p0["A"]
-            t2Ramsey = user_p0["t2Ramsey"] * conversion_factor
+            t2ramsey = user_p0["t2Ramsey"] * conversion_factor
             freq = user_p0["f"] / conversion_factor
             phi = user_p0["phi"]
             b = user_p0["B"]
-        p0 = {"a_guess": a, "t2Ramsey": t2Ramsey, "f_guess": freq, "phi_guess": phi, "b_guess": b}
+        p0 = {"a_guess": a, "t2Ramsey": t2ramsey, "f_guess": freq, "phi_guess": phi, "b_guess": b}
 
         if user_bounds is None:
             a_bounds = [-0.5, 1.5]
-            t2Ramsey_bounds = [0, np.inf]
+            t2ramsey_bounds = [0, np.inf]
             f_bounds = [0.1 * freq, 10 * freq]
             phi_bounds = [-np.pi, np.pi]
             b_bounds = [-0.5, 1.5]
             bounds = [
-                [a_bounds[i], t2Ramsey_bounds[i], f_bounds[i], phi_bounds[i], b_bounds[i]]
+                [a_bounds[i], t2ramsey_bounds[i], f_bounds[i], phi_bounds[i], b_bounds[i]]
                 for i in range(2)
             ]
         else:

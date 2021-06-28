@@ -156,7 +156,7 @@ class T2RamseyBackend(BackendV1):
 class TestT2Ramsey(QiskitTestCase):
     """Test T2Ramsey experiment"""
 
-    def test_t2Ramsey_run_end2end(self):
+    def test_t2ramsey_run_end2end(self):
         """
         Run the T2Ramsey backend on all possible units
         """
