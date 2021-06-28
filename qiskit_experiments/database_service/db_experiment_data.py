@@ -394,7 +394,7 @@ class DbExperimentDataV1(DbExperimentData):
             Figure names.
 
         Raises:
-            ExperimentEntryExists: If the figure with the same name already exists,
+            DbExperimentEntryNotFound: If the figure with the same name already exists,
                 and `overwrite=True` is not specified.
             ValueError: If an input parameter has an invalid value.
         """
@@ -481,7 +481,7 @@ class DbExperimentDataV1(DbExperimentData):
             Figure name.
 
         Raises:
-            ExperimentEntryNotFound: If the figure is not found.
+            DbExperimentEntryNotFound: If the figure is not found.
         """
         if isinstance(figure_key, int):
             figure_key = self._figures.keys()[figure_key]
@@ -514,7 +514,7 @@ class DbExperimentDataV1(DbExperimentData):
             content of the figure in bytes.
 
         Raises:
-            ExperimentEntryNotFound: If the figure cannot be found.
+            DbExperimentEntryNotFound: If the figure cannot be found.
         """
         if isinstance(figure_key, int):
             figure_key = self._figures.keys()[figure_key]
@@ -577,7 +577,7 @@ class DbExperimentDataV1(DbExperimentData):
             Analysis result ID.
 
         Raises:
-            ExperimentEntryNotFound: If analysis result not found.
+            DbExperimentEntryNotFound: If analysis result not found.
         """
         if isinstance(result_key, int):
             result_key = self._analysis_results.keys()[result_key]
@@ -616,7 +616,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         Raises:
             TypeError: If the input `index` has an invalid type.
-            ExperimentEntryNotFound: If the entry cannot be found.
+            DbExperimentEntryNotFound: If the entry cannot be found.
         """
         if self.service and (not self._analysis_results or refresh):
             retrieved_results = self.service.analysis_results(
@@ -1020,7 +1020,7 @@ class DbExperimentDataV1(DbExperimentData):
             service: Service to be used.
 
         Raises:
-            ExperimentError: If an experiment service is already being used.
+            DbExperimentDataError: If an experiment service is already being used.
         """
         if self._service:
             raise DbExperimentDataError("An experiment service is already being used.")

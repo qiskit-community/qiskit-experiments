@@ -189,7 +189,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 If ``None``, the default, if any, is used.
 
         Raises:
-            ExperimentError: If the analysis result contains invalid data.
+            DbExperimentDataError: If the analysis result contains invalid data.
         """
         service = service or self._service
         if not service:
@@ -345,7 +345,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             service: Service to be used.
 
         Raises:
-            ExperimentError: If an experiment service is already being used.
+            DbExperimentDataError: If an experiment service is already being used.
         """
         if self._service:
             raise DbExperimentDataError("An experiment service is already being used.")

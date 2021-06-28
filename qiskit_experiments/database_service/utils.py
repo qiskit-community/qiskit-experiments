@@ -110,7 +110,7 @@ def save_data(
         A tuple of whether the data was saved and the function return value.
 
     Raises:
-        ExperimentError: If unable to determine whether the entry exists.
+        DbExperimentDataError: If unable to determine whether the entry exists.
     """
     attempts = 0
     try:
