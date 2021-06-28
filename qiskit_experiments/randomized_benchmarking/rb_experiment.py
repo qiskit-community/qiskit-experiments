@@ -168,8 +168,9 @@ class StandardRB(BaseExperiment):
         """Additional post-processing of transpiled circuits before running on backend"""
         for c in circuits:
             c_count_ops = RBUtils.count_ops(c, self.physical_qubits)
-            circuit_length = c.metadata["xval"]
-            average_count_ops = [
-                (key, value / circuit_length) for key, value in c_count_ops.items()
-            ]
-            c.metadata.update({"count_ops": average_count_ops})
+            c.metadata.update({"count_ops": c_count_ops.items()})
+            # circuit_length = c.metadata["xval"]
+            # average_count_ops = [
+            #     (key, value / circuit_length) for key, value in c_count_ops.items()
+            # ]
+            # c.metadata.update({"count_ops": average_count_ops})

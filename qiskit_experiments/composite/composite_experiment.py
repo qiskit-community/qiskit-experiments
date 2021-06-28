@@ -65,3 +65,9 @@ class CompositeExperiment(BaseExperiment):
             sub_exp = self.component_experiment(i)
             sub_data = experiment_data.component_experiment_data(i)
             sub_exp._add_job_metadata(sub_data, job, **run_options)
+
+    def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
+        for expr in self._experiments:
+            if not isinstance(expr, CompositeExperiment):
+                expr._postprocess_transpiled_circuits(circuits, backend, **run_options)
+
