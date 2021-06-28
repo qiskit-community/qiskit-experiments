@@ -51,7 +51,7 @@ class TestStandardRBAnalysis(QiskitTestCase):
             expdata1.add_data(data[1])
         rb = qe.randomized_benchmarking
         rb_exp = rb.StandardRB(
-            exp_attributes["qubits"],
+            exp_attributes["physical_qubits"],
             exp_attributes["lengths"],
             num_samples=exp_attributes["num_samples"],
             seed=exp_attributes["seed"],

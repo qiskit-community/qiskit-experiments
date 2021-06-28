@@ -57,14 +57,14 @@ class TestRB(QiskitTestCase):
         """
         backend = FakeParis()
         exp_attributes = {
-            "qubits": qubits,
+            "physical_qubits": qubits,
             "lengths": [1, 4, 6, 9, 13, 16],
             "num_samples": 1,
             "seed": 100,
         }
         rb = qe.randomized_benchmarking
         rb_exp = rb.StandardRB(
-            exp_attributes["qubits"],
+            exp_attributes["physical_qubits"],
             exp_attributes["lengths"],
             num_samples=exp_attributes["num_samples"],
             seed=exp_attributes["seed"],
@@ -104,7 +104,7 @@ class TestRB(QiskitTestCase):
                 "The number of gates in the experiment metadata doesn't match to the one provided.",
             )
             self.assertTrue(
-                qc.metadata["qubits"] == tuple(exp_attributes["qubits"]),
+                qc.metadata["physical_qubits"] == tuple(exp_attributes["physical_qubits"]),
                 "The qubits indices in the experiment metadata doesn't match to the one provided.",
             )
 
@@ -128,7 +128,7 @@ class TestRB(QiskitTestCase):
             "The number of samples in the experiment doesn't match to the one in the metadata.",
         )
         self.assertTrue(
-            tuple(exp_attributes["qubits"]) == experiment.physical_qubits,
+            tuple(exp_attributes["physical_qubits"]) == experiment.physical_qubits,
             "The qubits indices in the experiment doesn't match to the one in the metadata.",
         )
 
@@ -147,12 +147,12 @@ class TestRB(QiskitTestCase):
             list[dict]: list of dictionaries with experiment properties.
         """
         exp_data_list = [
-            {"qubits": [3, 3], "lengths": [1, 3, 5, 7, 9], "num_samples": 1, "seed": 100},
-            {"qubits": [-1], "lengths": [1, 3, 5, 7, 9], "num_samples": 1, "seed": 100},
-            {"qubits": [0, 1], "lengths": [1, 3, 5, -7, 9], "num_samples": 1, "seed": 100},
-            {"qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": -4, "seed": 100},
-            {"qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": 0, "seed": 100},
-            {"qubits": [0, 1], "lengths": [1, 5, 5, 5, 9], "num_samples": 0, "seed": 100},
+            {"physical_qubits": [3, 3], "lengths": [1, 3, 5, 7, 9], "num_samples": 1, "seed": 100},
+            {"physical_qubits": [-1], "lengths": [1, 3, 5, 7, 9], "num_samples": 1, "seed": 100},
+            {"physical_qubits": [0, 1], "lengths": [1, 3, 5, -7, 9], "num_samples": 1, "seed": 100},
+            {"physical_qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": -4, "seed": 100},
+            {"physical_qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": 0, "seed": 100},
+            {"physical_qubits": [0, 1], "lengths": [1, 5, 5, 5, 9], "num_samples": 0, "seed": 100},
         ]
         return exp_data_list
 
@@ -166,7 +166,7 @@ class TestRB(QiskitTestCase):
             self.assertRaises(
                 QiskitError,
                 rb.StandardRB,
-                exp_data["qubits"],
+                exp_data["physical_qubits"],
                 exp_data["lengths"],
                 num_samples=exp_data["num_samples"],
                 seed=exp_data["seed"],
@@ -192,7 +192,7 @@ class TestInterleavedRB(TestRB):
         backend = FakeParis()
         exp_attributes = {
             "interleaved_element": interleaved_element,
-            "qubits": qubits,
+            "physical_qubits": qubits,
             "lengths": [1, 4, 6, 9, 13, 16],
             "num_samples": 2,
             "seed": 100,
@@ -200,7 +200,7 @@ class TestInterleavedRB(TestRB):
         rb = qe.randomized_benchmarking
         rb_exp = rb.InterleavedRB(
             exp_attributes["interleaved_element"],
-            exp_attributes["qubits"],
+            exp_attributes["physical_qubits"],
             exp_attributes["lengths"],
             num_samples=exp_attributes["num_samples"],
             seed=exp_attributes["seed"],

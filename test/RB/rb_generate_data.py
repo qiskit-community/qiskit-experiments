@@ -48,13 +48,13 @@ def standard_rb_exp_data_gen(dir_name: str):
     rb_exp_name = ["rb_standard_1qubit", "rb_standard_2qubits"]
     experiments_attributes = [
         {
-            "qubits": [0],
+            "physical_qubits": [0],
             "lengths": list(range(1, 200, 20)),
             "num_samples": 3,
             "seed": 100,
         },
         {
-            "qubits": [0, 1],
+            "physical_qubits": [0, 1],
             "lengths": list(range(1, 200, 20)),
             "num_samples": 3,
             "seed": 100,
@@ -81,8 +81,8 @@ def _generate_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes: di
     noise_model = create_depolarizing_noise_model()
     backend = QasmSimulator()
     rb = qe.randomized_benchmarking
-    rb_exp = rb.RBExperiment(
-        exp_attributes["qubits"],
+    rb_exp = rb.StandardRB(
+        exp_attributes["physical_qubits"],
         exp_attributes["lengths"],
         num_samples=exp_attributes["num_samples"],
         seed=exp_attributes["seed"],
