@@ -175,10 +175,7 @@ class Rabi(BaseExperiment):
     @classmethod
     def _default_run_options(cls) -> Options:
         """Default option values for the experiment :meth:`run` method."""
-        return Options(
-            meas_level=MeasLevel.KERNELED,
-            meas_return="single",
-        )
+        return Options(meas_level=MeasLevel.KERNELED, meas_return="single",)
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
