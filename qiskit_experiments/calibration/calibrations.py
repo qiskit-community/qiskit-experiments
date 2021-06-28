@@ -892,7 +892,13 @@ class Calibrations:
 
         return data
 
-    def save(self, file_type: str = "csv", folder: str = None, overwrite: bool = False):
+    def save(
+        self,
+        file_type: str = "csv",
+        folder: str = None,
+        overwrite: bool = False,
+        file_prefix: str = "",
+    ):
         """Save the parameterized schedules and parameter value.
 
         The schedules and parameter values can be stored in csv files. This method creates
@@ -912,6 +918,8 @@ class Calibrations:
             folder: The folder in which to save the calibrations.
             overwrite: If the files already exist then they will not be overwritten
                 unless overwrite is set to True.
+            file_prefix: A prefix to add to the name of the files such as a date tag or a
+                UUID.
 
         Raises:
             CalibrationError: if the files exist and overwrite is not set to True.
@@ -922,14 +930,20 @@ class Calibrations:
         if folder:
             os.chdir(folder)
 
-        if os.path.isfile("parameter_config.csv") and not overwrite:
-            raise CalibrationError("parameter_config.csv already exists. Set overwrite to True.")
+        parameter_config_file = file_prefix + "parameter_config.csv"
+        parameter_value_file = file_prefix + "parameter_values.csv"
+        schedule_file = file_prefix + "schedules.csv"
 
-        if os.path.isfile("parameter_values.csv") and not overwrite:
-            raise CalibrationError("parameter_values.csv already exists. Set overwrite to True.")
+        if os.path.isfile(parameter_config_file) and not overwrite:
+            raise CalibrationError(
+                f"{parameter_config_file} already exists. Set overwrite to True."
+            )
 
-        if os.path.isfile("parameter_values.csv") and not overwrite:
-            raise CalibrationError("schedules.csv already exists. Set overwrite to True.")
+        if os.path.isfile(parameter_value_file) and not overwrite:
+            raise CalibrationError(f"{parameter_value_file} already exists. Set overwrite to True.")
+
+        if os.path.isfile(schedule_file) and not overwrite:
+            raise CalibrationError(f"{schedule_file} already exists. Set overwrite to True.")
 
         # Write the parameter configuration.
         header_keys = ["parameter.name", "parameter unique id", "schedule", "qubits"]
@@ -947,7 +961,7 @@ class Calibrations:
                 )
 
         if file_type == "csv":
-            with open("parameter_config.csv", "w", newline="", encoding="utf-8") as output_file:
+            with open(parameter_config_file, "w", newline="", encoding="utf-8") as output_file:
                 dict_writer = csv.DictWriter(output_file, header_keys)
                 dict_writer.writeheader()
                 dict_writer.writerows(body)
@@ -957,7 +971,7 @@ class Calibrations:
             if len(values) > 0:
                 header_keys = values[0].keys()
 
-                with open("parameter_values.csv", "w", newline="", encoding="utf-8") as output_file:
+                with open(parameter_value_file, "w", newline="", encoding="utf-8") as output_file:
                     dict_writer = csv.DictWriter(output_file, header_keys)
                     dict_writer.writeheader()
                     dict_writer.writerows(values)
@@ -970,7 +984,7 @@ class Calibrations:
                     {"name": key.schedule, "qubits": key.qubits, "schedule": str(sched)}
                 )
 
-            with open("schedules.csv", "w", newline="", encoding="utf-8") as output_file:
+            with open(schedule_file, "w", newline="", encoding="utf-8") as output_file:
                 dict_writer = csv.DictWriter(output_file, header_keys)
                 dict_writer.writeheader()
                 dict_writer.writerows(schedules)
