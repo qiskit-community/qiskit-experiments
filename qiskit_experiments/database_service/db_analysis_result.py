@@ -21,7 +21,7 @@ from functools import wraps
 
 from .json import NumpyEncoder, NumpyDecoder
 from .utils import save_data, qiskit_version
-from .exceptions import ExperimentError
+from .exceptions import DbExperimentDataError
 from .device_component import DeviceComponent, to_component
 
 LOG = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ def auto_save(func: Callable):
     return _wrapped
 
 
-class AnalysisResult:
+class DbAnalysisResult:
     """Base common type for all versioned AnalysisResult abstract classes.
 
     Note this class should not be inherited from directly, it is intended
@@ -52,8 +52,11 @@ class AnalysisResult:
     version = 0
 
 
-class AnalysisResultV1(AnalysisResult):
-    """Class representing an analysis result for an experiment."""
+class DbAnalysisResultV1(DbAnalysisResult):
+    """Class representing an analysis result for an experiment.
+
+    Analysis results can also be stored in a database.
+    """
 
     version = 1
     _data_version = 1
@@ -73,7 +76,7 @@ class AnalysisResultV1(AnalysisResult):
         quality: Optional[str] = None,
         verified: bool = False,
         tags: Optional[List[str]] = None,
-        service: Optional["ExperimentServiceV1"] = None,
+        service: Optional["DatabaseServiceV1"] = None,
         **kwargs,
     ):
         """AnalysisResult constructor.
@@ -155,7 +158,7 @@ class AnalysisResultV1(AnalysisResult):
         device_components: List[Union[DeviceComponent, str]],
         experiment_id: str,
         **kwargs,
-    ) -> "AnalysisResultV1":
+    ) -> "DbAnalysisResultV1":
         """Reconstruct the analysis result from input data.
 
         Args:
@@ -178,7 +181,7 @@ class AnalysisResultV1(AnalysisResult):
             **kwargs,
         )
 
-    def save(self, service: Optional["ExperimentServiceV1"] = None) -> None:
+    def save(self, service: Optional["DatabaseServiceV1"] = None) -> None:
         """Save this analysis result in the database.
 
         Args:
@@ -325,7 +328,7 @@ class AnalysisResultV1(AnalysisResult):
         return self._experiment_id
 
     @property
-    def service(self) -> Optional["ExperimentServiceV1"]:
+    def service(self) -> Optional["DatabaseServiceV1"]:
         """Return the database service.
 
         Returns:
@@ -335,7 +338,7 @@ class AnalysisResultV1(AnalysisResult):
         return self._service
 
     @service.setter
-    def service(self, service: "ExperimentServiceV1") -> None:
+    def service(self, service: "DatabaseServiceV1") -> None:
         """Set the service to be used for storing result data in a database.
 
         Args:
@@ -345,7 +348,7 @@ class AnalysisResultV1(AnalysisResult):
             ExperimentError: If an experiment service is already being used.
         """
         if self._service:
-            raise ExperimentError("An experiment service is already being used.")
+            raise DbExperimentDataError("An experiment service is already being used.")
         self._service = service
 
     @property

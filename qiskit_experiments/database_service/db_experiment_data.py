@@ -30,8 +30,8 @@ from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit.providers.exceptions import JobError
 from qiskit.visualization import HAS_MATPLOTLIB
 
-from .exceptions import ExperimentError, ExperimentEntryNotFound, ExperimentEntryExists
-from .analysis_result import AnalysisResultV1 as AnalysisResult
+from .exceptions import DbExperimentDataError, DbExperimentEntryNotFound, DbExperimentEntryExists
+from .db_analysis_result import DbAnalysisResultV1 as DbAnalysisResult
 from .json import NumpyEncoder, NumpyDecoder
 from .utils import (
     save_data,
@@ -66,8 +66,8 @@ def service_exception_to_warning():
         LOG.warning("Experiment service operation failed: %s", traceback.format_exc())
 
 
-class StoredData:
-    """Base common type for all versioned StoredData classes.
+class DbExperimentData:
+    """Base common type for all versioned DbExperimentData classes.
 
     Note this class should not be inherited from directly, it is intended
     to be used for type checking. When implementing a provider you should use
@@ -78,13 +78,13 @@ class StoredData:
     version = 0
 
 
-class StoredDataV1(StoredData):
-    """Class to handle stored data.
+class DbExperimentDataV1(DbExperimentData):
+    """Class to define and handle experiment data stored in a database.
 
-    This class serves as a container for data to be stored in a database, which
-    may include experiment metadata, analysis results, and figures. It also
-    provides methods used to interact with the database, such as storing into
-    and retrieving from the database.
+    This class serves as a container for experiment related data to be stored
+    in a database, which may include experiment metadata, analysis results,
+    and figures. It also provides methods used to interact with the database,
+    such as storing into and retrieving from the database.
     """
 
     version = 1
@@ -108,7 +108,7 @@ class StoredDataV1(StoredData):
         notes: Optional[str] = None,
         **kwargs,
     ):
-        """Initializes the StoredDataV1 instance.
+        """Initializes the DbExperimentData instance.
 
         Args:
             experiment_type: Experiment type.
@@ -117,7 +117,7 @@ class StoredDataV1(StoredData):
             tags: Tags to be associated with the experiment.
             job_ids: IDs of jobs submitted for the experiment.
             share_level: Whether this experiment can be shared with others. This
-                is applicable only if the experiment service supports sharing. See
+                is applicable only if the database service supports sharing. See
                 the specific service provider's documentation on valid values.
             metadata: Additional experiment metadata.
             figure_names: Name of figures associated with this experiment.
@@ -168,7 +168,6 @@ class StoredDataV1(StoredData):
         """
         with contextlib.suppress(Exception):
             self._service = backend.provider().service("experiment")
-        with contextlib.suppress(Exception):
             self.auto_save = self._service.option("auto_save")
 
     def add_data(
@@ -203,7 +202,7 @@ class StoredDataV1(StoredData):
                 the job finishes successfully.
                 The following positional arguments are provided to the callback function:
 
-                    * This ``StoredData`` object.
+                    * This ``DbExperimentData`` object.
                     * Additional keyword arguments passed to this method.
 
             **kwargs: Keyword arguments to be passed to the callback function.
@@ -250,7 +249,6 @@ class StoredDataV1(StoredData):
         elif isinstance(data, Result):
             self._add_result_data(data)
         elif isinstance(data, list):
-            # TODO use loop instead of recursion for fewer save()
             for dat in data:
                 self.add_data(dat)
         else:
@@ -364,7 +362,7 @@ class StoredDataV1(StoredData):
         figure_names: Optional[Union[List[str], str]] = None,
         overwrite: bool = False,
         save_figure: Optional[bool] = None,
-        service: Optional["ExperimentServiceV1"] = None,
+        service: Optional["DatabaseServiceV1"] = None,
     ) -> Union[str, List[str]]:
         """Add the experiment figure.
 
@@ -417,7 +415,7 @@ class StoredDataV1(StoredData):
 
             existing_figure = fig_name in self._figures
             if existing_figure and not overwrite:
-                raise ExperimentEntryExists(
+                raise DbExperimentEntryExists(
                     f"A figure with the name {fig_name} for this experiment "
                     f"already exists. Specify overwrite=True if you "
                     f"want to overwrite it."
@@ -458,7 +456,7 @@ class StoredDataV1(StoredData):
     def delete_figure(
         self,
         figure_key: Union[str, int],
-        service: Optional["ExperimentServiceV1"] = None,
+        service: Optional["DatabaseServiceV1"] = None,
     ) -> str:
         """Add the experiment figure.
 
@@ -476,7 +474,7 @@ class StoredDataV1(StoredData):
         if isinstance(figure_key, int):
             figure_key = self._figures.keys()[figure_key]
         elif figure_key not in self._figures:
-            raise ExperimentEntryNotFound(f"Figure {figure_key} not found.")
+            raise DbExperimentEntryNotFound(f"Figure {figure_key} not found.")
 
         del self._figures[figure_key]
         self._deleted_figures.append(figure_key)
@@ -517,7 +515,7 @@ class StoredDataV1(StoredData):
             self._figures[figure_key] = figure_data
 
         if figure_data is None:
-            raise ExperimentEntryNotFound(f"Figure {figure_key} not found.")
+            raise DbExperimentEntryNotFound(f"Figure {figure_key} not found.")
 
         if file_name:
             with open(file_name, "wb") as output:
@@ -528,8 +526,8 @@ class StoredDataV1(StoredData):
     @auto_save
     def add_analysis_results(
         self,
-        results: Union[AnalysisResult, List[AnalysisResult]],
-        service: "ExperimentServiceV1" = None,
+        results: Union[DbAnalysisResult, List[DbAnalysisResult]],
+        service: "DatabaseServiceV1" = None,
     ) -> None:
         """Save the analysis result.
 
@@ -544,7 +542,7 @@ class StoredDataV1(StoredData):
         for result in results:
             self._analysis_results[result.result_id] = result
 
-            with contextlib.suppress(ExperimentError):
+            with contextlib.suppress(DbExperimentDataError):
                 result.service = self.service
                 result.auto_save = self.auto_save
 
@@ -554,7 +552,7 @@ class StoredDataV1(StoredData):
 
     @auto_save
     def delete_analysis_result(
-        self, result_key: Union[int, str], service: "ExperimentServiceV1" = None
+        self, result_key: Union[int, str], service: "DatabaseServiceV1" = None
     ) -> str:
         """Delete the analysis result.
 
@@ -572,7 +570,7 @@ class StoredDataV1(StoredData):
         if isinstance(result_key, int):
             result_key = self._analysis_results.keys()[result_key]
         elif result_key not in self._analysis_results:
-            raise ExperimentEntryNotFound(f"Analysis result {result_key} not found.")
+            raise DbExperimentEntryNotFound(f"Analysis result {result_key} not found.")
 
         del self._analysis_results[result_key]
         self._deleted_analysis_results.append(result_key)
@@ -587,7 +585,7 @@ class StoredDataV1(StoredData):
 
     def analysis_result(
         self, index: Optional[Union[int, slice, str]] = None, refresh: bool = False
-    ) -> Union[AnalysisResult, List[AnalysisResult]]:
+    ) -> Union[DbAnalysisResult, List[DbAnalysisResult]]:
         """Return analysis results associated with this experiment.
 
         Args:
@@ -621,17 +619,17 @@ class StoredDataV1(StoredData):
             return self._analysis_results.values()[index]
         if isinstance(index, str):
             if index not in self._analysis_results:
-                raise ExperimentEntryNotFound(f"Analysis result {index} not found.")
+                raise DbExperimentEntryNotFound(f"Analysis result {index} not found.")
             return self._analysis_results[index]
 
         raise TypeError(f"Invalid index type {type(index)}.")
 
-    def save(self, service: Optional["ExperimentServiceV1"] = None) -> None:
+    def save(self, service: Optional["DatabaseServiceV1"] = None) -> None:
         """Save this experiment in the database.
 
         Note:
             Not all experiment properties are saved.
-            See :meth:`qiskit.providers.experiment.ExperimentServiceV1.create_experiment`
+            See :meth:`qiskit.providers.experiment.DatabaseServiceV1.create_experiment`
             for fields that are saved.
 
         Note:
@@ -673,7 +671,7 @@ class StoredDataV1(StoredData):
             update_data=update_data,
         )
 
-    def save_all(self, service: Optional["ExperimentServiceV1"] = None) -> None:
+    def save_all(self, service: Optional["DatabaseServiceV1"] = None) -> None:
         """Save this experiment and its analysis results and figures in the database.
 
         Note:
@@ -747,8 +745,8 @@ class StoredDataV1(StoredData):
         experiment_id: str,
         metadata: Optional[Dict] = None,
         **kwargs,
-    ) -> "StoredDataV1":
-        """Reconstruct a StoredData using the input data.
+    ) -> "DbExperimentDataV1":
+        """Reconstruct a DbExperimentDataV1 using the input data.
 
         Args:
             experiment_type: Experiment type.
@@ -757,7 +755,7 @@ class StoredDataV1(StoredData):
             **kwargs: Additional experiment attributes.
 
         Returns:
-            An StoredData instance.
+            An DbExperimentDataV1 instance.
         """
         if metadata:
             metadata = cls.deserialize_metadata(json.dumps(metadata))
@@ -990,7 +988,7 @@ class StoredDataV1(StoredData):
             self.save()
 
     @property
-    def service(self) -> Optional["ExperimentServiceV1"]:
+    def service(self) -> Optional["DatabaseServiceV1"]:
         """Return the database service.
 
         Returns:
@@ -999,7 +997,7 @@ class StoredDataV1(StoredData):
         return self._service
 
     @service.setter
-    def service(self, service: "ExperimentServiceV1") -> None:
+    def service(self, service: "DatabaseServiceV1") -> None:
         """Set the service to be used for storing experiment data.
 
         Args:
@@ -1009,7 +1007,7 @@ class StoredDataV1(StoredData):
             ExperimentError: If an experiment service is already being used.
         """
         if self._service:
-            raise ExperimentError("An experiment service is already being used.")
+            raise DbExperimentDataError("An experiment service is already being used.")
         self._service = service
         with contextlib.suppress(Exception):
             self.auto_save = self._service.option("auto_save")
