@@ -108,7 +108,7 @@ class T2RamseyAnalysis(BaseAnalysis):
         # Output unit is 'sec', regardless of the unit used in the input
         analysis_result = AnalysisResult(
             {
-                "t2Ramsey_value": fit_result["popt"][1],
+                "t2ramsey_value": fit_result["popt"][1],
                 "frequency_value": fit_result["popt"][2],
                 "stderr": fit_result["popt_err"][1],
                 "unit": "s",
@@ -145,11 +145,11 @@ class T2RamseyAnalysis(BaseAnalysis):
             b = 0.5
         else:
             a = user_p0["A"]
-            t2ramsey = user_p0["t2Ramsey"] * conversion_factor
+            t2ramsey = user_p0["t2ramsey"] * conversion_factor
             freq = user_p0["f"] / conversion_factor
             phi = user_p0["phi"]
             b = user_p0["B"]
-        p0 = {"a_guess": a, "t2Ramsey": t2ramsey, "f_guess": freq, "phi_guess": phi, "b_guess": b}
+        p0 = {"a_guess": a, "t2ramsey": t2ramsey, "f_guess": freq, "phi_guess": phi, "b_guess": b}
 
         if user_bounds is None:
             a_bounds = [-0.5, 1.5]

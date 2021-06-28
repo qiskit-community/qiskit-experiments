@@ -41,7 +41,7 @@ class T2RamseyBackend(BackendV1):
         """
         dt_factor_in_ns = dt_factor * 1e9 if dt_factor is not None else None
         configuration = QasmBackendConfiguration(
-            backend_name="t2Ramsey_simulator",
+            backend_name="T2Ramsey_simulator",
             backend_version="0",
             n_qubits=int(1e6),
             basis_gates=["barrier", "h", "p", "delay", "measure"],
@@ -56,7 +56,7 @@ class T2RamseyBackend(BackendV1):
             dt=dt_factor_in_ns,
         )
 
-        self._t2ramsey = p0["t2Ramsey"]
+        self._t2ramsey = p0["t2ramsey"]
         self._a_guess = p0["a_guess"]
         self._f_guess = p0["f_guess"]
         self._phi_guess = p0["phi_guess"]
@@ -180,7 +180,7 @@ class TestT2Ramsey(QiskitTestCase):
             exp = T2Ramsey(qubit, delays, unit=unit)
             default_p0 = {
                 "A": 0.5,
-                "t2Ramsey": estimated_t2ramsey,
+                "t2ramsey": estimated_t2ramsey,
                 "f": estimated_freq,
                 "phi": 0,
                 "B": 0.5,
@@ -190,7 +190,7 @@ class TestT2Ramsey(QiskitTestCase):
                 backend = T2RamseyBackend(
                     p0={
                         "a_guess": [0.5],
-                        "t2Ramsey": [estimated_t2ramsey],
+                        "t2ramsey": [estimated_t2ramsey],
                         "f_guess": [estimated_freq],
                         "phi_guess": [0.0],
                         "b_guess": [0.5],
@@ -207,7 +207,7 @@ class TestT2Ramsey(QiskitTestCase):
             )
             result = expdata.analysis_result(0)
             self.assertAlmostEqual(
-                result["t2Ramsey_value"],
+                result["t2ramsey_value"],
                 estimated_t2ramsey * dt_factor,
                 delta=3 * dt_factor,
             )
@@ -235,7 +235,7 @@ class TestT2Ramsey(QiskitTestCase):
 
         p0 = {
             "a_guess": [0.5, None, 0.5],
-            "t2Ramsey": [t2ramsey[0], None, t2ramsey[1]],
+            "t2ramsey": [t2ramsey[0], None, t2ramsey[1]],
             "f_guess": [estimated_freq[0], None, estimated_freq[1]],
             "phi_guess": [0, None, 0],
             "b_guess": [0.5, None, 0.5],
@@ -245,7 +245,7 @@ class TestT2Ramsey(QiskitTestCase):
 
         for i in range(2):
             sub_res = res.component_experiment_data(i).analysis_result(0)
-            self.assertAlmostEqual(sub_res["t2Ramsey_value"], t2ramsey[i], delta=3)
+            self.assertAlmostEqual(sub_res["t2ramsey_value"], t2ramsey[i], delta=3)
             self.assertAlmostEqual(
                 sub_res["frequency_value"],
                 estimated_freq[i],
