@@ -12,6 +12,8 @@
 
 """Test drag calibration experiment."""
 
+import numpy as np
+
 from qiskit.test import QiskitTestCase
 from qiskit.circuit import Parameter
 from qiskit.pulse import DriveChannel, Drag
@@ -46,7 +48,8 @@ class TestDragEndToEnd(QiskitTestCase):
         test_tol = 0.02
         backend = DragBackend()
 
-        drag = DragCal(3)
+        drag = DragCal(1)
+        drag.set_analysis_options(p0={"phase": 1.8})
 
         drag.set_experiment_options(xp=self.x_plus, xm=self.x_minus)
         result = drag.run(backend).analysis_result(0)
@@ -57,7 +60,8 @@ class TestDragEndToEnd(QiskitTestCase):
         # Small leakage will make the curves very flat.
         backend = DragBackend(leakage=0.005)
 
-        drag = DragCal(3)
+        drag = DragCal(0)
+        drag.set_analysis_options(p0={"phase": 1.2})
         drag.set_experiment_options(xp=self.x_plus, xm=self.x_minus)
         result = drag.run(backend).analysis_result(0)
 
@@ -67,7 +71,10 @@ class TestDragEndToEnd(QiskitTestCase):
         # Large leakage will make the curves oscillate quickly.
         backend = DragBackend(leakage=0.05)
 
-        drag = DragCal(3)
+        drag = DragCal(1)
+        drag.set_run_options(shots=200)
+        drag.set_experiment_options(betas=np.linspace(-3, 3, 21))
+        drag.set_analysis_options(p0={"phase": 1.2, "freq0": 0.08, "freq1": 0.16, "freq2": 0.32})
         drag.set_experiment_options(xp=self.x_plus, xm=self.x_minus)
         result = drag.run(backend).analysis_result(0)
 
@@ -81,7 +88,7 @@ class TestDragCircuits(QiskitTestCase):
     def test_default_circuits(self):
         """Test the default circuit."""
 
-        drag = DragCal(2)
+        drag = DragCal(0)
         drag.set_experiment_options(reps=[2, 4, 8])
         circuits = drag.circuits(DragBackend())
 
@@ -96,7 +103,7 @@ class TestDragOptions(QiskitTestCase):
     def test_reps(self):
         """Test that setting reps raises and error if reps is not of length three."""
 
-        drag = DragCal(2)
+        drag = DragCal(0)
 
         with self.assertRaises(CalibrationError):
             drag.set_experiment_options(reps=[1, 2, 3, 4])

@@ -158,17 +158,17 @@ class DragCalAnalysis(CurveAnalysis):
             amp_guesses.append(np.max(y_data) - np.min(y_data) - b_guess)
             base_guesses.append(b_guess)
 
-        if user_p0["phase"] is not None:
+        if user_p0.get("phase", None) is not None:
             p_guesses = [user_p0["phase"]]
         else:
             p_guesses = np.linspace(min_beta, max_beta, 20)
 
         user_amps = None
-        if all(user_p0["amp" + idx] is not None for idx in ["0", "1", "2"]):
+        if all(user_p0.get("amp" + idx, None) is not None for idx in ["0", "1", "2"]):
             user_amps = list(user_p0["amp" + idx] for idx in ["0", "1", "2"])
 
         user_base = None
-        if all(user_p0["base" + idx] is not None for idx in ["0", "1", "2"]):
+        if all(user_p0.get("base" + idx, None) is not None for idx in ["0", "1", "2"]):
             user_base = list(user_p0["base" + idx] for idx in ["0", "1", "2"])
 
         # Drag curves can sometimes be very flat, i.e. averages of y-data
@@ -189,25 +189,25 @@ class DragCalAnalysis(CurveAnalysis):
                         "amp0": amp_guess[0],
                         "amp1": amp_guess[1],
                         "amp2": amp_guess[2],
-                        "freq0": user_p0["freq0"] or freq_guess[0],
-                        "freq1": user_p0["freq1"] or freq_guess[1],
-                        "freq2": user_p0["freq2"] or freq_guess[2],
+                        "freq0": user_p0.get("freq0", None) or freq_guess[0],
+                        "freq1": user_p0.get("freq1", None) or freq_guess[1],
+                        "freq2": user_p0.get("freq2", None) or freq_guess[2],
                         "phase": p_guess,
                         "base0": b_guess[0],
                         "base1": b_guess[1],
                         "base2": b_guess[2],
                     },
                     "bounds": {
-                        "amp0": user_bounds["amp0"] or (-2 * max_abs_y, 2 * max_abs_y),
-                        "amp1": user_bounds["amp1"] or (-2 * max_abs_y, 2 * max_abs_y),
-                        "amp2": user_bounds["amp2"] or (-2 * max_abs_y, 2 * max_abs_y),
-                        "freq0": user_bounds["freq0"] or (0, np.inf),
-                        "freq1": user_bounds["freq1"] or (0, np.inf),
-                        "freq2": user_bounds["freq2"] or (0, np.inf),
-                        "phase": user_bounds["phase"] or (min_beta, max_beta),
-                        "base0": user_bounds["base0"] or (-1 * max_abs_y, 1 * max_abs_y),
-                        "base1": user_bounds["base1"] or (-1 * max_abs_y, 1 * max_abs_y),
-                        "base2": user_bounds["base2"] or (-1 * max_abs_y, 1 * max_abs_y),
+                        "amp0": user_bounds.get("amp0", None) or (-2 * max_abs_y, 2 * max_abs_y),
+                        "amp1": user_bounds.get("amp1", None) or (-2 * max_abs_y, 2 * max_abs_y),
+                        "amp2": user_bounds.get("amp2", None) or (-2 * max_abs_y, 2 * max_abs_y),
+                        "freq0": user_bounds.get("freq0", None) or (0, np.inf),
+                        "freq1": user_bounds.get("freq1", None) or (0, np.inf),
+                        "freq2": user_bounds.get("freq2", None) or (0, np.inf),
+                        "phase": user_bounds.get("phase", None) or (min_beta, max_beta),
+                        "base0": user_bounds.get("base0", None) or (-1 * max_abs_y, 1 * max_abs_y),
+                        "base1": user_bounds.get("base1", None) or (-1 * max_abs_y, 1 * max_abs_y),
+                        "base2": user_bounds.get("base2", None) or (-1 * max_abs_y, 1 * max_abs_y),
                     },
                 }
 
@@ -340,7 +340,7 @@ class DragCal(BaseExperiment):
                 - If either the xp or xm pulse do not have at least one Drag pulse.
                 - If the number of different repetition series is not three.
         """
-        # TODO this is temporarily logic.
+        # TODO this is temporary logic.
         self.set_analysis_options(
             data_processor=get_to_signal_processor(
                 meas_level=self.run_options.meas_level,
