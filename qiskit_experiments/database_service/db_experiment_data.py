@@ -168,12 +168,13 @@ class DbExperimentDataV1(DbExperimentData):
         """
         with contextlib.suppress(Exception):
             self._service = backend.provider().service("experiment")
-            self.auto_save = self._service.option("auto_save")
+            self.auto_save = self._service.options.get("auto_save", False)
 
     def add_data(
         self,
         data: Union[Result, List[Result], Job, List[Job], Dict, List[Dict]],
         post_processing_callback: Optional[Callable] = None,
+        timeout: Optional[float] = None,
         **kwargs: Any,
     ) -> None:
         """Add experiment data.
@@ -204,6 +205,8 @@ class DbExperimentDataV1(DbExperimentData):
 
                     * This ``DbExperimentData`` object.
                     * Additional keyword arguments passed to this method.
+
+            timeout: Timeout waiting for job to finish, if `data` is a ``Job``.
 
             **kwargs: Keyword arguments to be passed to the callback function.
 
@@ -236,7 +239,7 @@ class DbExperimentDataV1(DbExperimentData):
                 (
                     data,
                     self._executor.submit(
-                        self._wait_for_job, data, post_processing_callback, **kwargs
+                        self._wait_for_job, data, post_processing_callback, timeout, **kwargs
                     ),
                 )
             )
@@ -261,6 +264,7 @@ class DbExperimentDataV1(DbExperimentData):
         self,
         job: Union[Job, BaseJob],
         job_done_callback: Optional[Callable] = None,
+        timeout: Optional[float] = None,
         **kwargs: Any,
     ) -> None:
         """Wait for a job to finish.
@@ -268,6 +272,7 @@ class DbExperimentDataV1(DbExperimentData):
         Args:
             job: Job to wait for.
             job_done_callback: Callback function to invoke when job finishes.
+            timeout: Timeout waiting for job to finish.
             **kwargs: Keyword arguments to be passed to the callback function.
 
         Raises:
@@ -275,7 +280,10 @@ class DbExperimentDataV1(DbExperimentData):
         """
         LOG.debug("Waiting for job %s to finish.", job.job_id())
         try:
-            job_result = job.result()
+            try:
+                job_result = job.result(timeout=timeout)
+            except TypeError:  # Not all jobs take timeout.
+                job_result = job.result()
             with self._data.lock:
                 # Hold the lock so we add the block of results together.
                 self._add_result_data(job_result)
@@ -307,6 +315,10 @@ class DbExperimentDataV1(DbExperimentData):
             expr_result = result.results[i]
             if hasattr(expr_result, "header") and hasattr(expr_result.header, "metadata"):
                 data["metadata"] = expr_result.header.metadata
+            data["shots"] = expr_result.shots
+            data["meas_level"] = expr_result.meas_level
+            if hasattr(expr_result, "meas_return"):
+                data["meas_return"] = expr_result.meas_return
             self._add_single_data(data)
 
     def _add_single_data(self, data: Dict[str, any]) -> None:
@@ -775,12 +787,16 @@ class DbExperimentDataV1(DbExperimentData):
                 except Exception as err:  # pylint: disable=broad-except
                     LOG.info("Unable to cancel job %s: %s", job.job_id(), err)
 
-    def block_for_results(self) -> None:
-        """Block until all pending jobs and their post processing finish."""
+    def block_for_results(self, timeout: Optional[float] = None) -> None:
+        """Block until all pending jobs and their post processing finish.
+
+        Args:
+            timeout: Timeout waiting for results.
+        """
         for job, fut in self._job_futures.copy():
             LOG.info("Waiting for job %s and its post processing to finish.", job.job_id())
             with contextlib.suppress(Exception):
-                fut.result()
+                fut.result(timeout)
 
     def status(self) -> str:
         """Return the data processing status.
@@ -960,8 +976,8 @@ class DbExperimentDataV1(DbExperimentData):
 
         Args:
             new_level: New experiment share level. Valid share levels are provider-
-                specified. For example, IBMQ allows "global", "hub", "group",
-                "project", and "private".
+                specified. For example, IBM Quantum experiment service allows
+                "global", "hub", "group", "project", and "private".
         """
         self._share_level = new_level
         if self.auto_save:
@@ -1010,7 +1026,7 @@ class DbExperimentDataV1(DbExperimentData):
             raise DbExperimentDataError("An experiment service is already being used.")
         self._service = service
         with contextlib.suppress(Exception):
-            self.auto_save = self._service.option("auto_save")
+            self.auto_save = self._service.options.get("auto_save", False)
 
     @property
     def source(self) -> Dict:

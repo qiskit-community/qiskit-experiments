@@ -393,7 +393,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
         for field in fields:
             if field not in self._options:
                 raise AttributeError("Options field %s is not valid for this " "service." % field)
-        self._options.update(**fields)
+        self._options.update_options(**fields)
 
     def option(self, field: str) -> Any:
         """Get the value of the specified option.
@@ -410,3 +410,8 @@ class DatabaseServiceV1(DatabaseService, ABC):
         if field not in self._options:
             raise AttributeError(f"Options field {field} is not valid for this service.")
         return self._options[field]
+
+    @property
+    def options(self) -> Options:
+        """Return the options for the service."""
+        return self._options

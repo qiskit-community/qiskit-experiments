@@ -231,8 +231,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
         return self._result_data
 
     @auto_save
-    def update_data(self, new_data: Dict) -> None:
-        """Update result data.
+    def set_data(self, new_data: Dict) -> None:
+        """Set result data.
 
         Args:
             new_data: New analysis result data.
@@ -244,7 +244,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         return self._tags
 
     @auto_save
-    def update_tags(self, new_tags: List[str]) -> None:
+    def set_tags(self, new_tags: List[str]) -> None:
         """Set tags for this result.
 
         Args:

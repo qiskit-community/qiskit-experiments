@@ -61,8 +61,8 @@ class TestDbAnalysisResult(QiskitTestCase):
 
         subtests = [
             # update function, update parameters, service called
-            (result.update_tags, (["foo"],)),
-            (result.update_data, ({"foo": "bar"},)),
+            (result.set_tags, (["foo"],)),
+            (result.set_data, ({"foo": "bar"},)),
             (setattr, (result, "quality", "GOOD")),
             (setattr, (result, "verified", True)),
         ]
@@ -98,16 +98,16 @@ class TestDbAnalysisResult(QiskitTestCase):
         new_service.create_analysis_result.assert_called()
         orig_service.create_analysis_result.assert_not_called()
 
-    def test_update_data(self):
-        """Test updating data."""
+    def test_set_data(self):
+        """Test setting data."""
         result = self._new_analysis_result()
-        result.update_data({"foo": "new data"})
+        result.set_data({"foo": "new data"})
         self.assertEqual({"foo": "new data"}, result.data())
 
-    def test_update_tags(self):
-        """Test updating tags."""
+    def test_set_tags(self):
+        """Test setting tags."""
         result = self._new_analysis_result()
-        result.update_tags(["new_tag"])
+        result.set_tags(["new_tag"])
         self.assertEqual(["new_tag"], result.tags())
 
     def test_update_quality(self):
