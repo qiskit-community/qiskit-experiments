@@ -191,7 +191,7 @@ class AnalysisResultV1(AnalysisResult):
         service = service or self._service
         if not service:
             LOG.warning(
-                "Analysis result cannot be saved because no " "experiment service is available."
+                "Analysis result cannot be saved because no experiment service is available."
             )
             return
 
