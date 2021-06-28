@@ -21,7 +21,7 @@ from qiskit.test.mock import FakeOpenPulse2Q
 
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
-from .mock_job import MockJob
+from qiskit_experiments.test.mock_job import MockJob
 
 
 class MockIQBackend(FakeOpenPulse2Q):
