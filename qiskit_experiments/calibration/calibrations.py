@@ -278,7 +278,10 @@ class Calibrations:
             del self._parameter_map_r[key]
 
     def _register_parameter(
-        self, parameter: Parameter, qubits: Tuple[int, ...], schedule: ScheduleBlock = None,
+        self,
+        parameter: Parameter,
+        qubits: Tuple[int, ...],
+        schedule: ScheduleBlock = None,
     ):
         """Registers a parameter for the given schedule.
 
@@ -818,7 +821,11 @@ class Calibrations:
 
             if param not in binding_dict:
                 binding_dict[param] = self.get_parameter_value(
-                    key.parameter, key.qubits, key.schedule, group=group, cutoff_date=cutoff_date,
+                    key.parameter,
+                    key.qubits,
+                    key.schedule,
+                    group=group,
+                    cutoff_date=cutoff_date,
                 )
 
         return ret_schedule.assign_parameters(binding_dict, inplace=False)

@@ -68,7 +68,10 @@ class BackendCalibrations(Calibrations):
             self.add_parameter_value(freq, self.meas_freq, meas)
 
     def _get_frequencies(
-        self, element: FrequencyElement, group: str = "default", cutoff_date: datetime = None,
+        self,
+        element: FrequencyElement,
+        group: str = "default",
+        cutoff_date: datetime = None,
     ) -> List[float]:
         """Internal helper method."""
 
@@ -97,7 +100,9 @@ class BackendCalibrations(Calibrations):
         return freqs
 
     def get_qubit_frequencies(
-        self, group: str = "default", cutoff_date: datetime = None,
+        self,
+        group: str = "default",
+        cutoff_date: datetime = None,
     ) -> List[float]:
         """
         Get the most recent qubit frequencies. They can be passed to the run-time
@@ -119,7 +124,9 @@ class BackendCalibrations(Calibrations):
         return self._get_frequencies(FrequencyElement.QUBIT, group, cutoff_date)
 
     def get_meas_frequencies(
-        self, group: str = "default", cutoff_date: datetime = None,
+        self,
+        group: str = "default",
+        cutoff_date: datetime = None,
     ) -> List[float]:
         """
         Get the most recent measurement frequencies. They can be passed to the run-time

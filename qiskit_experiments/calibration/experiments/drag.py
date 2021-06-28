@@ -271,7 +271,10 @@ class DragCal(BaseExperiment):
     @classmethod
     def _default_run_options(cls) -> Options:
         """Default option values for the experiment :meth:`run` method."""
-        return Options(meas_level=MeasLevel.KERNELED, meas_return="single",)
+        return Options(
+            meas_level=MeasLevel.KERNELED,
+            meas_return="single",
+        )
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -340,7 +343,8 @@ class DragCal(BaseExperiment):
         # TODO this is temporarily logic.
         self.set_analysis_options(
             data_processor=get_to_signal_processor(
-                meas_level=self.run_options.meas_level, meas_return=self.run_options.meas_return,
+                meas_level=self.run_options.meas_level,
+                meas_return=self.run_options.meas_return,
             ),
         )
 
