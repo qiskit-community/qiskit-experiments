@@ -41,7 +41,7 @@ class TestStandardRBAnalysis(QiskitTestCase):
             "The file containing the experiment data doesn't exist."
             " Please run the data generator.",
         )
-        gate_error_ratio = {((0,), "id"): 1, ((0,), "rz"): 0, ((0,), "sx"): 1, ((0,), "x"): 1}
+        gate_error_ratio = {((0,), "id"): 1, ((0,), "rz"): 0, ((0,), "sx"): 1, ((0,), "x"): 1, ((0, 1), "cx"): 1}
         with open(rb_exp_data_file_name, "r") as json_file:
             data = json.load(json_file)
             # The experiment attributes added
@@ -161,13 +161,35 @@ class TestStandardRBAnalysis(QiskitTestCase):
                             "The analysis_type doesn't match to the one expected.",
                         )
                     else:
-                        self.assertAlmostEqual(
-                            np.float64(calculated_analysis_sample_data[key]),
-                            np.float64(expected_analysis_samples_data[idx][key]),
-                            msg="The calculated value for key '"
-                            + key
-                            + "', doesn't match the expected value.",
-                        )
+                        if key == "EPG":
+                            self._validate_EPG(calculated_analysis_sample_data[key], expected_analysis_samples_data[idx][key])
+                        else:
+                            self.assertAlmostEqual(
+                                np.float64(calculated_analysis_sample_data[key]),
+                                np.float64(expected_analysis_samples_data[idx][key]),
+                                msg="The calculated value for key '"
+                                + key
+                                + "', doesn't match the expected value.",
+                            )
+
+    def _validate_EPG(self, calculated_EPG_dict: dict, expected_EPG_dict: dict):
+        """
+        Confirm that the EPG that is calculated is the same as the expected one.
+        The attributes are dictionaries of the form (qubits, gate) -> value where value
+        is the epg for the given gate on the specified qubits
+        Args:
+            calculated_EPG_dict: Dictionary of the calculated EPG
+            expected_EPG_dict: Dictionary of the expected EPG
+        """
+        for physical_qubit in calculated_EPG_dict.keys():
+            for epg_key, epg_value in calculated_EPG_dict[physical_qubit].items():
+                self.assertAlmostEqual(np.float64(epg_value),
+                                       expected_EPG_dict[str(physical_qubit)][epg_key],
+                                       msg="The calculated value for EPG for qubit '"
+                                           + str(physical_qubit) + "' and key '" + str(epg_key)
+                                           + "', doesn't match the expected value.",
+                                       )
+
 
     def test_standard_rb_analysis_test(self):
         """
@@ -198,3 +220,7 @@ class TestStandardRBAnalysis(QiskitTestCase):
             self._validate_fitting_parameters(
                 analysis_obj.analysis_result(None), analysis_data_expected
             )
+
+
+a = TestStandardRBAnalysis()
+a.test_standard_rb_analysis_test()

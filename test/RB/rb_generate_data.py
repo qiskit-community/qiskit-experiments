@@ -75,7 +75,8 @@ def _generate_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes: di
         rb_exp_name: The experiment name for naming the output files.
         exp_attributes: attributes to config the RB experiment.
     """
-    gate_error_ratio = {((0,), "id"): 1, ((0,), "rz"): 0, ((0,), "sx"): 1, ((0,), "x"): 1}
+    gate_error_ratio = {((0,), "id"): 1, ((0,), "rz"): 0, ((0,), "sx"): 1, ((0,), "x"): 1, ((0, 1), "cx"): 1}
+    transpiled_base_gate = ['cx','sx','x']
     results_file_path = os.path.join(dir_name, str(rb_exp_name + "_output_data.json"))
     analysis_file_path = os.path.join(dir_name, str(rb_exp_name + "_output_analysis.json"))
     noise_model = create_depolarizing_noise_model()
@@ -88,7 +89,7 @@ def _generate_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes: di
         seed=exp_attributes["seed"],
     )
     rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
-    experiment_obj = rb_exp.run(backend, noise_model=noise_model)
+    experiment_obj = rb_exp.run(backend, noise_model=noise_model, basis_gates = transpiled_base_gate)
     exp_results = experiment_obj.data()
     with open(results_file_path, "w") as json_file:
         joined_list_data = [exp_attributes, exp_results]
@@ -110,6 +111,9 @@ def _analysis_save(analysis_data: list, analysis_file_path: str):
         sample_analysis["pcov"] = list(sample_analysis["pcov"])
         for idx, item in enumerate(sample_analysis["pcov"]):
             sample_analysis["pcov"][idx] = list(item)
+        epg_keys = list(sample_analysis["EPG"].keys())
+        for qubits in epg_keys:
+            sample_analysis["EPG"][str(qubits)] = sample_analysis["EPG"].pop(qubits)
         samples_analysis_list.append(sample_analysis)
     with open(analysis_file_path, "w") as json_file:
         json_file.write(json.dumps(samples_analysis_list))
