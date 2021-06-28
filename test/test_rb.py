@@ -59,7 +59,7 @@ class TestRB(QiskitTestCase):
             "seed": 100,
         }
         rb = qe.randomized_benchmarking
-        rb_exp = rb.RBExperiment(
+        rb_exp = rb.StandardRB(
             exp_attributes["qubits"],
             exp_attributes["lengths"],
             num_samples=exp_attributes["num_samples"],
@@ -107,7 +107,7 @@ class TestRB(QiskitTestCase):
 
     def validate_circuit_data(
         self,
-        experiment: qe.randomized_benchmarking.rb_experiment.RBExperiment,
+        experiment: qe.randomized_benchmarking.rb_experiment.StandardRB,
         exp_attributes: dict,
     ):
         """
@@ -134,7 +134,7 @@ class TestRB(QiskitTestCase):
 class TestInterleavedRB(TestRB):
     """
     A test class for the interleaved RB Experiment to check that the
-    InterleavedRBExperiment class is working correctly.
+    InterleavedRB class is working correctly.
     """
 
     @data([XGate(), [3]], [CXGate(), [4, 7]])
@@ -155,7 +155,7 @@ class TestInterleavedRB(TestRB):
             "seed": 100,
         }
         rb = qe.randomized_benchmarking
-        rb_exp = rb.InterleavedRBExperiment(
+        rb_exp = rb.InterleavedRB(
             exp_attributes["interleaved_element"],
             exp_attributes["qubits"],
             exp_attributes["lengths"],
