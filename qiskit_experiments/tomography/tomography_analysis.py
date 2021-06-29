@@ -110,7 +110,7 @@ class TomographyAnalysis(BaseAnalysis):
             result = {
                 "state": Choi(state) if preparation_basis else DensityMatrix(state),
                 "fitter_metadata": fitter_metadata,
-                "success": True
+                "success": True,
             }
 
             self._postprocess_fit(
@@ -130,7 +130,7 @@ class TomographyAnalysis(BaseAnalysis):
             device_components=[],
             experiment_id=experiment_data.experiment_id,
             quality=None,
-            )
+        )
 
         return [analysis_result], [None]
 

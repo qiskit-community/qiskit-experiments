@@ -241,7 +241,7 @@ class TestT2Ramsey(QiskitTestCase):
             "phi_guess": [0, None, 0],
             "b_guess": [0.5, None, 0.5],
         }
-        
+
         backend = T2RamseyBackend(p0)
         expdata = par_exp.run(backend=backend, shots=1000)
         expdata.block_for_results()

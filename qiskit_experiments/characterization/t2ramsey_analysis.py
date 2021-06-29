@@ -192,4 +192,3 @@ class T2RamseyAnalysis(BaseAnalysis):
             return "good"
         else:
             return "bad"
-
