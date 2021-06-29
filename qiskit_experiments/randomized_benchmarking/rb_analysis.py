@@ -175,11 +175,7 @@ class RBAnalysis(CurveAnalysis):
         # Add EPG data
         count_ops = []
         for meta in self._data(label="raw_data").metadata:
-            c_count_ops = meta.get("count_ops", [])
-            circuit_length = meta["xval"]
-            average_count_ops = [
-                (key, value / circuit_length) for key, value in c_count_ops
-            ]
+            average_count_ops = meta.get("count_ops", [])
             count_ops += average_count_ops
         if len(count_ops) > 0:
             gates_per_clifford = RBUtils.gates_per_clifford(count_ops)
