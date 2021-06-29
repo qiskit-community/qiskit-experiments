@@ -88,6 +88,9 @@ class BaseAnalysis(ABC):
 
         # Run analysis
         analysis_results, figures = self._run_analysis(experiment_data, **analysis_options)
+        for res in analysis_results:
+            if "success" not in res.data():
+                res._result_data["success"] = True
 
         # Save to experiment data
         if save:
