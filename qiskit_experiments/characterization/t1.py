@@ -43,22 +43,6 @@ class T1(BaseExperiment):
     3. Analysis of results: deduction of T\ :sub:`1`\ , based on the outcomes,
     by fitting to an exponential curve.
 
-    .. jupyter-execute::
-
-        from qiskit_experiments.characterization import T1
-        from qiskit_experiments.test.t1_backend import T1Backend
-
-        t1 = 25
-        delays = list(range(1, 40, 3))
-
-        exp = T1(0, delays)
-        res = exp.run(
-            T1Backend([t1]),
-            shots=10000,
-            return_figures=True
-        )
-
-        print(res.analysis_result(0))
     """
 
     __analysis_class__ = T1Analysis
