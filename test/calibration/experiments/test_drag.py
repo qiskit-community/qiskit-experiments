@@ -49,7 +49,7 @@ class TestDragEndToEnd(QiskitTestCase):
         backend = DragBackend()
 
         drag = DragCal(1)
-        drag.set_analysis_options(p0={"phase": 1.8})
+        drag.set_analysis_options(p0={"beta": 1.8})
 
         drag.set_experiment_options(xp=self.x_plus, xm=self.x_minus)
         result = drag.run(backend).analysis_result(0)
@@ -61,7 +61,7 @@ class TestDragEndToEnd(QiskitTestCase):
         backend = DragBackend(leakage=0.005)
 
         drag = DragCal(0)
-        drag.set_analysis_options(p0={"phase": 1.2})
+        drag.set_analysis_options(p0={"beta": 1.2})
         drag.set_experiment_options(xp=self.x_plus, xm=self.x_minus)
         result = drag.run(backend).analysis_result(0)
 
@@ -74,7 +74,7 @@ class TestDragEndToEnd(QiskitTestCase):
         drag = DragCal(1)
         drag.set_run_options(shots=200)
         drag.set_experiment_options(betas=np.linspace(-3, 3, 21))
-        drag.set_analysis_options(p0={"phase": 1.2, "freq0": 0.08, "freq1": 0.16, "freq2": 0.32})
+        drag.set_analysis_options(p0={"beta": 1.2, "freq0": 0.08, "freq1": 0.16, "freq2": 0.32})
         drag.set_experiment_options(xp=self.x_plus, xm=self.x_minus)
         result = drag.run(backend).analysis_result(0)
 

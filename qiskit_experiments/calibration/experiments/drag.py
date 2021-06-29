@@ -39,37 +39,37 @@ class DragCalAnalysis(CurveAnalysis):
     r"""Drag calibration analysis based on a fit to a cosine function.
 
     Analyse a Drag calibration experiment by fitting three series each to a cosine function.
-    The three functions share the phase parameter but each have their own amplitude, baseline,
-    and frequency parameters (which therefore depend on the number of repetitions of xp-xm).
-    Several initial guesses are tried if the user does not provide one.
+    The three functions share the phase parameter (i.e. beta) but each have their own amplitude,
+    baseline, and frequency parameters (which therefore depend on the number of repetitions of
+    xp-xm). Several initial guesses are tried if the user does not provide one.
 
     .. math::
-        y = amp_i \cos\left(2 \pi {\rm freq_i} x - 2 \pi {\rm phase}\right) + {\rm base}_i
+        y = amp_i \cos\left(2 \pi {\rm freq_i} x - 2 \pi {\rm beta}\right) + {\rm base}_i
 
     Fit Parameters
         - :math:`{\rm amp}_i`: Amplitude of series :math:`i`.
         - :math:`{\rm base}_i`: Base line of series :math:`i`.
         - :math:`{\rm freq}_i`: Frequency of the :math:`i`th oscillation.
-        - :math:`{\rm phase}`: Common phase offset. This is the parameter of interest.
+        - :math:`{\rm beta}`: Common beta offset. This is the parameter of interest.
 
     Initial Guesses
         - :math:`{\rm amp}_i`: The maximum y value less the minimum y value. 0.5 is also tried.
         - :math:`{\rm base}_i`: The average of the data. 0.5 is also tried.
         - :math:`{\rm freq}_i`: The frequency with the highest power spectral density.
-        - :math:`{\rm phase}`: Linearly spaced between the maximum and minimum scanned phase.
+        - :math:`{\rm beta}`: Linearly spaced between the maximum and minimum scanned beta.
 
     Bounds
         - :math:`{\rm amp}_i`: [-2, 2] scaled to the maximum signal value.
         - :math:`{\rm base}_i`: [-1, 1] scaled to the maximum signal value.
         - :math:`{\rm freq}_i`: [0, inf].
-        - :math:`{\rm phase}`: [-min scan range, max scan range].
+        - :math:`{\rm beta}`: [-min scan range, max scan range].
 
     """
 
     __series__ = [
         SeriesDef(
-            fit_func=lambda x, amp0, amp1, amp2, freq0, freq1, freq2, phase, base0, base1, base2: cos(
-                x, amp=amp0, freq=freq0, phase=-2 * np.pi * freq0 * phase, baseline=base0
+            fit_func=lambda x, amp0, amp1, amp2, freq0, freq1, freq2, beta, base0, base1, base2: cos(
+                x, amp=amp0, freq=freq0, phase=-2 * np.pi * freq0 * beta, baseline=base0
             ),
             plot_color="blue",
             name="series-0",
@@ -77,8 +77,8 @@ class DragCalAnalysis(CurveAnalysis):
             plot_symbol="o",
         ),
         SeriesDef(
-            fit_func=lambda x, amp0, amp1, amp2, freq0, freq1, freq2, phase, base0, base1, base2: cos(
-                x, amp=amp1, freq=freq1, phase=-2 * np.pi * freq1 * phase, baseline=base1
+            fit_func=lambda x, amp0, amp1, amp2, freq0, freq1, freq2, beta, base0, base1, base2: cos(
+                x, amp=amp1, freq=freq1, phase=-2 * np.pi * freq1 * beta, baseline=base1
             ),
             plot_color="green",
             name="series-1",
@@ -86,8 +86,8 @@ class DragCalAnalysis(CurveAnalysis):
             plot_symbol="^",
         ),
         SeriesDef(
-            fit_func=lambda x, amp0, amp1, amp2, freq0, freq1, freq2, phase, base0, base1, base2: cos(
-                x, amp=amp2, freq=freq2, phase=-2 * np.pi * freq2 * phase, baseline=base2
+            fit_func=lambda x, amp0, amp1, amp2, freq0, freq1, freq2, beta, base0, base1, base2: cos(
+                x, amp=amp2, freq=freq2, phase=-2 * np.pi * freq2 * beta, baseline=base2
             ),
             plot_color="red",
             name="series-2",
@@ -111,7 +111,7 @@ class DragCalAnalysis(CurveAnalysis):
             "freq0": None,
             "freq1": None,
             "freq2": None,
-            "phase": None,
+            "beta": None,
             "base0": None,
             "base1": None,
             "base2": None,
@@ -123,12 +123,12 @@ class DragCalAnalysis(CurveAnalysis):
             "freq0": None,
             "freq1": None,
             "freq2": None,
-            "phase": None,
+            "beta": None,
             "base0": None,
             "base1": None,
             "base2": None,
         }
-        default_options.fit_reports = {"phase": "phase"}
+        default_options.fit_reports = {"beta": "beta"}
         default_options.xlabel = "Beta"
         default_options.ylabel = "Signal (arb. units)"
 
@@ -158,8 +158,8 @@ class DragCalAnalysis(CurveAnalysis):
             amp_guesses.append(np.max(y_data) - np.min(y_data) - b_guess)
             base_guesses.append(b_guess)
 
-        if user_p0.get("phase", None) is not None:
-            p_guesses = [user_p0["phase"]]
+        if user_p0.get("beta", None) is not None:
+            p_guesses = [user_p0["beta"]]
         else:
             p_guesses = np.linspace(min_beta, max_beta, 20)
 
@@ -192,7 +192,7 @@ class DragCalAnalysis(CurveAnalysis):
                         "freq0": user_p0.get("freq0", None) or freq_guess[0],
                         "freq1": user_p0.get("freq1", None) or freq_guess[1],
                         "freq2": user_p0.get("freq2", None) or freq_guess[2],
-                        "phase": p_guess,
+                        "beta": p_guess,
                         "base0": b_guess[0],
                         "base1": b_guess[1],
                         "base2": b_guess[2],
@@ -204,7 +204,7 @@ class DragCalAnalysis(CurveAnalysis):
                         "freq0": user_bounds.get("freq0", None) or (0, np.inf),
                         "freq1": user_bounds.get("freq1", None) or (0, np.inf),
                         "freq2": user_bounds.get("freq2", None) or (0, np.inf),
-                        "phase": user_bounds.get("phase", None) or (min_beta, max_beta),
+                        "beta": user_bounds.get("beta", None) or (min_beta, max_beta),
                         "base0": user_bounds.get("base0", None) or (-1 * max_abs_y, 1 * max_abs_y),
                         "base1": user_bounds.get("base1", None) or (-1 * max_abs_y, 1 * max_abs_y),
                         "base2": user_bounds.get("base2", None) or (-1 * max_abs_y, 1 * max_abs_y),
@@ -225,8 +225,8 @@ class DragCalAnalysis(CurveAnalysis):
             - an error on the drag beta smaller than the beta.
         """
 
-        fit_beta = get_opt_value(analysis_result, "phase")
-        fit_beta_err = get_opt_error(analysis_result, "phase")
+        fit_beta = get_opt_value(analysis_result, "beta")
+        fit_beta_err = get_opt_error(analysis_result, "beta")
 
         x_data = self._data("series-0").x
         min_x, max_x = min(x_data), max(x_data)
@@ -428,7 +428,7 @@ class DragCal(BaseExperiment):
 
                 circuit.metadata = {
                     "experiment_type": self._type,
-                    "qubit": self.physical_qubits[0],
+                    "qubits": (self.physical_qubits[0],),
                     "xval": beta,
                     "series": idx,
                 }
