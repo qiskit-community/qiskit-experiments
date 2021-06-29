@@ -20,14 +20,14 @@ import json
 import numpy as np
 
 from qiskit.test import QiskitTestCase
-from qiskit_experiments.stored_data import AnalysisResultV1 as AnalysisResult
-from qiskit_experiments.stored_data.device_component import Qubit, Resonator, to_component
-from qiskit_experiments.stored_data.experiment_service import ExperimentServiceV1
-from qiskit_experiments.stored_data.exceptions import ExperimentError
+from qiskit_experiments.database_service import DbAnalysisResultV1 as DbAnalysisResult
+from qiskit_experiments.database_service.device_component import Qubit, Resonator, to_component
+from qiskit_experiments.database_service.database_service import DatabaseServiceV1
+from qiskit_experiments.database_service.exceptions import DbExperimentDataError
 
 
-class TestAnalysisResult(QiskitTestCase):
-    """Test the AnalysisResult class."""
+class TestDbAnalysisResult(QiskitTestCase):
+    """Test the DbAnalysisResult class."""
 
     def test_analysis_result_attributes(self):
         """Test analysis result attributes."""
@@ -39,7 +39,7 @@ class TestAnalysisResult(QiskitTestCase):
             "quality": "Good",
             "verified": False,
         }
-        result = AnalysisResult(result_data={"foo": "bar"}, tags=["tag1", "tag2"], **attrs)
+        result = DbAnalysisResult(result_data={"foo": "bar"}, tags=["tag1", "tag2"], **attrs)
         self.assertEqual({"foo": "bar"}, result.data())
         self.assertEqual(["tag1", "tag2"], result.tags())
         for key, val in attrs.items():
@@ -47,22 +47,22 @@ class TestAnalysisResult(QiskitTestCase):
 
     def test_save(self):
         """Test saving analysis result."""
-        mock_service = mock.create_autospec(ExperimentServiceV1)
+        mock_service = mock.create_autospec(DatabaseServiceV1)
         result = self._new_analysis_result()
         result.save(service=mock_service)
         mock_service.create_analysis_result.assert_called_once()
 
     def test_auto_save(self):
         """Test auto saving."""
-        mock_service = mock.create_autospec(ExperimentServiceV1)
+        mock_service = mock.create_autospec(DatabaseServiceV1)
         result = self._new_analysis_result(service=mock_service)
         result.auto_save = True
         result.save()
 
         subtests = [
             # update function, update parameters, service called
-            (result.update_tags, (["foo"],)),
-            (result.update_data, ({"foo": "bar"},)),
+            (result.set_tags, (["foo"],)),
+            (result.set_data, ({"foo": "bar"},)),
             (setattr, (result, "quality", "GOOD")),
             (setattr, (result, "verified", True)),
         ]
@@ -75,39 +75,39 @@ class TestAnalysisResult(QiskitTestCase):
 
     def test_set_service_init(self):
         """Test setting service in init."""
-        mock_service = mock.create_autospec(ExperimentServiceV1)
+        mock_service = mock.create_autospec(DatabaseServiceV1)
         result = self._new_analysis_result(service=mock_service)
         self.assertEqual(mock_service, result.service)
 
     def test_set_service_direct(self):
         """Test setting service directly."""
-        mock_service = mock.create_autospec(ExperimentServiceV1)
+        mock_service = mock.create_autospec(DatabaseServiceV1)
         result = self._new_analysis_result()
         result.service = mock_service
         self.assertEqual(mock_service, result.service)
 
-        with self.assertRaises(ExperimentError):
+        with self.assertRaises(DbExperimentDataError):
             result.service = mock_service
 
     def test_set_service_save(self):
         """Test setting service when saving."""
-        orig_service = mock.create_autospec(ExperimentServiceV1)
+        orig_service = mock.create_autospec(DatabaseServiceV1)
         result = self._new_analysis_result(service=orig_service)
-        new_service = mock.create_autospec(ExperimentServiceV1)
+        new_service = mock.create_autospec(DatabaseServiceV1)
         result.save(service=new_service)
         new_service.create_analysis_result.assert_called()
         orig_service.create_analysis_result.assert_not_called()
 
-    def test_update_data(self):
-        """Test updating data."""
+    def test_set_data(self):
+        """Test setting data."""
         result = self._new_analysis_result()
-        result.update_data({"foo": "new data"})
+        result.set_data({"foo": "new data"})
         self.assertEqual({"foo": "new data"}, result.data())
 
-    def test_update_tags(self):
-        """Test updating tags."""
+    def test_set_tags(self):
+        """Test setting tags."""
         result = self._new_analysis_result()
-        result.update_tags(["new_tag"])
+        result.set_tags(["new_tag"])
         self.assertEqual(["new_tag"], result.tags())
 
     def test_update_quality(self):
@@ -137,8 +137,7 @@ class TestAnalysisResult(QiskitTestCase):
     def test_source(self):
         """Test getting analysis result source."""
         result = self._new_analysis_result()
-        source_vals = "\n".join([str(val) for val in result.source.values()])
-        self.assertIn("AnalysisResultV1", source_vals)
+        self.assertIn("DbAnalysisResultV1", result.source["class"])
         self.assertTrue(result.source["qiskit_version"])
 
     def _new_analysis_result(self, **kwargs):
@@ -150,7 +149,7 @@ class TestAnalysisResult(QiskitTestCase):
             "experiment_id": "1234",
         }
         values.update(kwargs)
-        return AnalysisResult(**values)
+        return DbAnalysisResult(**values)
 
 
 class TestDeviceComponent(QiskitTestCase):

@@ -20,7 +20,7 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers.options import Options
 
 from qiskit_experiments.experiment_data import ExperimentData
-from qiskit_experiments.stored_data import AnalysisResultV1
+from qiskit_experiments.database_service import DbAnalysisResultV1
 
 
 class BaseAnalysis(ABC):
@@ -66,11 +66,11 @@ class BaseAnalysis(ABC):
                      supported options.
 
         Returns:
-            List[AnalysisResultV1]: the output for analysis that produces
+            List[DbAnalysisResultV1]: the output for analysis that produces
                                     multiple results.
             Tuple: If ``return_figures=True`` the output is a pair
                    ``(analysis_results, figures)`` where  ``analysis_results``
-                   may be a single or list of :class:`AnalysisResultV1` objects, and
+                   may be a single or list of :class:`DbAnalysisResultV1` objects, and
                    ``figures`` may be None, a single figure, or a list of figures.
 
         Raises:
@@ -103,7 +103,7 @@ class BaseAnalysis(ABC):
     @abstractmethod
     def _run_analysis(
         self, experiment_data: ExperimentData, **options
-    ) -> Tuple[Union[AnalysisResultV1, List[AnalysisResultV1]], List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[Union[DbAnalysisResultV1, List[DbAnalysisResultV1]], List["matplotlib.figure.Figure"]]:
         """Run analysis on circuit data.
 
         Args:
@@ -114,7 +114,7 @@ class BaseAnalysis(ABC):
 
         Returns:
             A pair ``(analysis_results, figures)`` where ``analysis_results``
-            may be a single or list of AnalysisResultV1 objects, and ``figures``
+            may be a single or list of DbAnalysisResultV1 objects, and ``figures``
             is a list of any figures for the experiment.
 
         Raises:

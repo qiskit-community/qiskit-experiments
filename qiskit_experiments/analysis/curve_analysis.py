@@ -31,8 +31,8 @@ from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.experiment_data import ExperimentData
-from qiskit_experiments.stored_data import AnalysisResultV1
-from qiskit_experiments.stored_data.device_component import Qubit
+from qiskit_experiments.database_service import DbAnalysisResultV1
+from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.matplotlib import requires_matplotlib
 
 
@@ -312,7 +312,7 @@ class CurveAnalysis(BaseAnalysis):
 
         Note:
             The ``requires_matplotlib`` decorator is needed to ensure this method
-            works with ``StoredData``.
+            works with ``DbExperimentData``.
 
         Args:
             result_data: Result containing fit parameters.
@@ -761,7 +761,7 @@ class CurveAnalysis(BaseAnalysis):
 
     def _run_analysis(
         self, experiment_data: ExperimentData, **options
-    ) -> Tuple[List[AnalysisResultV1], List["pyplot.Figure"]]:
+    ) -> Tuple[List[DbAnalysisResultV1], List["pyplot.Figure"]]:
         """Run analysis on circuit data.
 
         Args:
@@ -771,7 +771,7 @@ class CurveAnalysis(BaseAnalysis):
         Returns:
             tuple: A pair ``(analysis_results, figures)`` where
                    ``analysis_results`` may be a single or list of
-                   AnalysisResultV1 objects, and ``figures`` is a list of any
+                   DbAnalysisResultV1 objects, and ``figures`` is a list of any
                    figures for the experiment.
 
         Raises:

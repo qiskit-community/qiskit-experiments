@@ -20,10 +20,10 @@ import numpy as np
 import scipy.optimize as opt
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.analysis.data_processing import filter_data
-from qiskit_experiments.stored_data import AnalysisResultV1
+from qiskit_experiments.database_service import DbAnalysisResultV1
 
 
-class CurveAnalysisResult(AnalysisResultV1):
+class CurveAnalysisResult(DbAnalysisResultV1):
     """Analysis data container for curve fit analysis.
 
     Class Attributes:

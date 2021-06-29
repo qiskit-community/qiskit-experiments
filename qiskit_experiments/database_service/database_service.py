@@ -10,17 +10,18 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Experiment service abstract interface."""
+"""Experiment database service abstract interface."""
 
 from abc import ABC, abstractmethod
 from typing import Optional, Dict, List, Any, Union, Tuple
-from types import SimpleNamespace
+
+from qiskit.providers import Options
 
 from .device_component import DeviceComponent
 
 
-class ExperimentService:
-    """Base common type for all versioned ExperimentService abstract classes.
+class DatabaseService:
+    """Base common type for all versioned DatabaseService abstract classes.
 
     Note this class should not be inherited from directly, it is intended
     to be used for type checking. When implementing a subclass you should use
@@ -31,13 +32,13 @@ class ExperimentService:
     version = 0
 
 
-class ExperimentServiceV1(ExperimentService, ABC):
-    """Interface for providing experiment service.
+class DatabaseServiceV1(DatabaseService, ABC):
+    """Interface for providing experiment database service.
 
     This class defines the interface ``qiskit_experiments`` expects from an
-    experiment service.
+    experiment database service.
 
-    An experiment service allows you to store experiment data and metadata
+    An experiment database service allows you to store experiment data and metadata
     in a database. An experiment can have one or more jobs, analysis results,
     and figures.
 
@@ -48,16 +49,16 @@ class ExperimentServiceV1(ExperimentService, ABC):
     version = 1
 
     def __init__(self):
-        """Initialize an ExperimentService instance."""
+        """Initialize an DatabaseService instance."""
         self._options = self._default_options()
 
     @classmethod
     @abstractmethod
-    def _default_options(cls) -> Dict:
+    def _default_options(cls) -> Options:
         """Return the default options
 
         Returns:
-            A dictionary of default options.
+            Default options.
         """
         pass
 
@@ -120,15 +121,14 @@ class ExperimentServiceV1(ExperimentService, ABC):
         pass
 
     @abstractmethod
-    def experiment(self, experiment_id: str) -> SimpleNamespace:
+    def experiment(self, experiment_id: str) -> Dict:
         """Retrieve a previously stored experiment.
 
         Args:
             experiment_id: Experiment ID.
 
         Returns:
-            A dictionary containing the retrieved experiment data if `experiment_class`
-            is ``None``. Otherwise an instance of the `experiment_class` class.
+            A dictionary containing the retrieved experiment data.
 
         Raises:
             ExperimentEntryNotFound: If the experiment does not exist.
@@ -145,11 +145,11 @@ class ExperimentServiceV1(ExperimentService, ABC):
         tags: Optional[List[str]] = None,
         tags_operator: Optional[str] = "OR",
         **filters: Any,
-    ) -> List[SimpleNamespace]:
+    ) -> List[Dict]:
         """Retrieve all experiment data, with optional filtering.
 
         Args:
-            limit: Number of experiments to retrieve. ``None`` means no limit.
+            limit: Number of experiment data entries to retrieve. ``None`` means no limit.
             device_components: Filter by device components. An experiment must have analysis
                 results with device components matching the given list exactly to be included.
             experiment_type: Experiment type used for filtering.
@@ -167,9 +167,7 @@ class ExperimentServiceV1(ExperimentService, ABC):
             **filters: Additional filtering keywords supported by the service provider.
 
         Returns:
-            A list of experiments. Each experiment is either a dictionary containing the
-            retrieved experiment data, if `experiment_class`
-            is ``None``, or an instance of the `experiment_class` class.
+            A list of experiments.
         """
         pass
 
@@ -243,7 +241,7 @@ class ExperimentServiceV1(ExperimentService, ABC):
         pass
 
     @abstractmethod
-    def analysis_result(self, result_id: str) -> SimpleNamespace:
+    def analysis_result(self, result_id: str) -> Dict:
         """Retrieve a previously stored experiment.
 
         Args:
@@ -270,7 +268,7 @@ class ExperimentServiceV1(ExperimentService, ABC):
         tags: Optional[List[str]] = None,
         tags_operator: Optional[str] = "OR",
         **filters: Any,
-    ) -> List[SimpleNamespace]:
+    ) -> List[Dict]:
         """Retrieve all analysis results, with optional filtering.
 
         Args:
@@ -295,9 +293,7 @@ class ExperimentServiceV1(ExperimentService, ABC):
             **filters: Additional filtering keywords supported by the service provider.
 
         Returns:
-            A list of analysis results. Each analysis result is either a dictionary
-            containing the retrieved analysis result, if `result_class`
-            is ``None``, or an instance of the `result_class` class.
+            A list of analysis results.
         """
         pass
 
@@ -397,7 +393,7 @@ class ExperimentServiceV1(ExperimentService, ABC):
         for field in fields:
             if field not in self._options:
                 raise AttributeError("Options field %s is not valid for this " "service." % field)
-        self._options.update(**fields)
+        self._options.update_options(**fields)
 
     def option(self, field: str) -> Any:
         """Get the value of the specified option.
@@ -414,3 +410,8 @@ class ExperimentServiceV1(ExperimentService, ABC):
         if field not in self._options:
             raise AttributeError(f"Options field {field} is not valid for this service.")
         return self._options[field]
+
+    @property
+    def options(self) -> Options:
+        """Return the options for the service."""
+        return self._options

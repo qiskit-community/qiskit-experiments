@@ -16,13 +16,13 @@ import logging
 from typing import Dict
 from datetime import datetime
 
-from qiskit_experiments.stored_data import StoredDataV1
+from qiskit_experiments.database_service import DbExperimentDataV1
 
 
 LOG = logging.getLogger(__name__)
 
 
-class ExperimentData(StoredDataV1):
+class ExperimentData(DbExperimentDataV1):
     """Qiskit Experiments Data container class"""
 
     def __init__(

@@ -31,8 +31,8 @@ from qiskit_experiments.analysis.curve_fitting import (
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
 from qiskit_experiments.experiment_data import ExperimentData
-from qiskit_experiments.stored_data import AnalysisResultV1
-from qiskit_experiments.stored_data.device_component import Qubit
+from qiskit_experiments.database_service import DbAnalysisResultV1
+from qiskit_experiments.database_service.device_component import Qubit
 
 
 # pylint: disable = invalid-name
@@ -52,7 +52,7 @@ class T2StarAnalysis(BaseAnalysis):
         plot: bool = False,
         ax: Optional["AxesSubplot"] = None,
         **kwargs,
-    ) -> Tuple[List[AnalysisResultV1], List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[DbAnalysisResultV1], List["matplotlib.figure.Figure"]]:
         r"""Calculate T2Star experiment.
 
         The probability of measuring `+` is assumed to be of the form

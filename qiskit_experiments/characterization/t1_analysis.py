@@ -19,8 +19,8 @@ import numpy as np
 from qiskit.providers.options import Options
 from qiskit.utils import apply_prefix
 
-from qiskit_experiments.stored_data import AnalysisResultV1
-from qiskit_experiments.stored_data.device_component import Qubit
+from qiskit_experiments.database_service import DbAnalysisResultV1
+from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import (
     process_curve_data,
@@ -71,7 +71,7 @@ class T1Analysis(BaseAnalysis):
         offset_bounds=None,
         plot=True,
         ax=None,
-    ) -> Tuple[List[AnalysisResultV1], Optional[List["matplotlib.figure.Figure"]]]:
+    ) -> Tuple[List[DbAnalysisResultV1], Optional[List["matplotlib.figure.Figure"]]]:
         """
         Calculate T1
 

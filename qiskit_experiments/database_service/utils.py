@@ -26,8 +26,9 @@ import dateutil.parser
 from dateutil import tz
 
 from qiskit.version import __version__ as terra_version
+from ..version import __version__ as experiments_version
 
-from .exceptions import ExperimentEntryNotFound, ExperimentEntryExists, ExperimentError
+from .exceptions import DbExperimentEntryNotFound, DbExperimentEntryExists, DbExperimentDataError
 
 LOG = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ def qiskit_version():
     try:
         return pkg_resources.get_distribution("qiskit").version
     except Exception:  # pylint: disable=broad-except
-        return {"qiskit-terra": terra_version}
+        return {"qiskit-terra": terra_version, "qiskit-experiments": experiments_version}
 
 
 def parse_timestamp(utc_dt: Union[datetime, str]) -> datetime:
@@ -109,7 +110,7 @@ def save_data(
         A tuple of whether the data was saved and the function return value.
 
     Raises:
-        ExperimentError: If unable to determine whether the entry exists.
+        DbExperimentDataError: If unable to determine whether the entry exists.
     """
     attempts = 0
     try:
@@ -121,14 +122,14 @@ def save_data(
             if is_new:
                 try:
                     return True, new_func(**{**new_data, **update_data})
-                except ExperimentEntryExists:
+                except DbExperimentEntryExists:
                     is_new = False
             else:
                 try:
                     return True, update_func(**update_data)
-                except ExperimentEntryNotFound:
+                except DbExperimentEntryNotFound:
                     is_new = True
-        raise ExperimentError("Unable to determine the existence of the entry.")
+        raise DbExperimentDataError("Unable to determine the existence of the entry.")
     except Exception:  # pylint: disable=broad-except
         # Don't fail the experiment just because its data cannot be saved.
         LOG.error("Unable to save the experiment data: %s", traceback.format_exc())

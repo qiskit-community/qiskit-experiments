@@ -16,8 +16,8 @@ Composite Experiment Analysis class.
 from qiskit.exceptions import QiskitError
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.composite.composite_experiment_data import CompositeExperimentData
-from qiskit_experiments.stored_data import AnalysisResultV1
-from qiskit_experiments.stored_data.device_component import Qubit
+from qiskit_experiments.database_service import DbAnalysisResultV1
+from qiskit_experiments.database_service.device_component import Qubit
 
 
 class CompositeAnalysis(BaseAnalysis):
@@ -67,7 +67,7 @@ class CompositeAnalysis(BaseAnalysis):
             sub_ids.append(expdata.experiment_id)
             sub_qubits.append(expdata.experiment.physical_qubits)
 
-        analysis_result = AnalysisResultV1(
+        analysis_result = DbAnalysisResultV1(
             result_data={
                 "experiment_types": sub_types,
                 "experiment_ids": sub_ids,
