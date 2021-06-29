@@ -30,7 +30,7 @@ from .clifford_utils import CliffordUtils
 from .rb_utils import RBUtils
 
 
-class RBExperiment(BaseExperiment):
+class StandardRB(BaseExperiment):
     """RB Experiment class.
 
     Experiment Options:
