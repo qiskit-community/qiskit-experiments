@@ -123,7 +123,6 @@ class DragCal(BaseExperiment):
 
         if len(reps) != 3:
             raise CalibrationError(
-                "As longs as analysis series cannot be dynamically updated "
                 f"{self.__class__.__name__} must use exactly three repetition numbers. "
                 f"Received {reps} with length {len(reps)} != 3."
             )
@@ -209,9 +208,8 @@ class DragCal(BaseExperiment):
         reps = self.experiment_options.reps
         if len(reps) != 3:
             raise CalibrationError(
-                f"The number of repetitions for {self.__class__.__name__} must be three. "
-                "This constraint can be removed once CurveFitting supports a dynamic number "
-                "of series."
+                f"{self.__class__.__name__} must use exactly three repetition numbers. "
+                f"Received {reps} with length {len(reps)} != 3."
             )
 
         circuits = []
