@@ -284,7 +284,7 @@ See :py:func:`~qiskit_experiment.analysis.multi_curve_fit` for example.""",
                 default=probability(outcome="1"),
                 annotation=Callable,
                 description="""\
-A callback function to format experiment data.
+A callback function to extract and process experiment data making it fit-ready.
 This function should have signature:
 
 .. code-block::
