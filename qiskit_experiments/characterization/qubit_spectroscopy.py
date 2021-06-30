@@ -240,8 +240,8 @@ The parameters of the GaussianSquare spectroscopy pulse can be specified at run-
             "duration": OptionsField(
                 default=1024,
                 annotation=int,
-                description="Duration of spectroscopy pulse. This may need to satisfy the "
-                "hardware waveform memory constraint. "
+                description="The duration of the spectroscopy pulse which must satisfy any "
+                "hardware waveform memory constraints. "
                 "The default value is represented in units of dt.",
             ),
             "sigma": OptionsField(
