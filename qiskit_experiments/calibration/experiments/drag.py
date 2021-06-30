@@ -219,12 +219,9 @@ class DragCal(BaseExperiment):
 
             for idx, rep in enumerate(reps):
                 circuit = QuantumCircuit(1)
-                for index in range(rep):
+                for _ in range(rep):
                     circuit.append(xp_gate, (0,))
-                    circuit.barrier()
                     circuit.append(xm_gate, (0,))
-                    if index != rep - 1:
-                        circuit.barrier()
 
                 circuit.measure_active()
                 circuit.assign_parameters({beta_xp: beta}, inplace=True)

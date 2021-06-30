@@ -19,6 +19,7 @@ from qiskit.circuit import Parameter
 from qiskit.pulse import DriveChannel, Drag
 import qiskit.pulse as pulse
 from qiskit.qobj.utils import MeasLevel
+from qiskit import transpile
 
 from qiskit_experiments.calibration.exceptions import CalibrationError
 from qiskit_experiments.calibration.experiments.drag import DragCal
@@ -50,7 +51,7 @@ class TestDragEndToEnd(QiskitTestCase):
         backend = DragBackend()
 
         drag = DragCal(1)
-        drag.set_analysis_options(p0={"beta": 1.8})
+        drag.set_analysis_options(p0={"beta": 2.2})
 
         drag.set_experiment_options(rp=self.x_plus, rm=self.x_minus)
         result = drag.run(backend).analysis_result(0)
@@ -75,7 +76,7 @@ class TestDragEndToEnd(QiskitTestCase):
 
         drag = DragCal(1)
         drag.set_run_options(shots=200)
-        drag.set_experiment_options(betas=np.linspace(-3, 3, 21))
+        drag.set_experiment_options(betas=np.linspace(-4, 4, 31))
         drag.set_analysis_options(p0={"beta": 1.8, "freq0": 0.08, "freq1": 0.16, "freq2": 0.32})
         drag.set_experiment_options(rp=self.x_plus, rm=self.x_minus)
         result = drag.run(backend).analysis_result(0)
@@ -90,12 +91,14 @@ class TestDragCircuits(QiskitTestCase):
     def test_default_circuits(self):
         """Test the default circuit."""
 
+        backend = DragBackend(leakage=0.005)
+
         drag = DragCal(0)
         drag.set_experiment_options(reps=[2, 4, 8])
         circuits = drag.circuits(DragBackend())
 
         for idx, expected in enumerate([4, 8, 16]):
-            ops = circuits[idx].count_ops()
+            ops = transpile(circuits[idx], backend).count_ops()
             self.assertEqual(ops["Rp"] + ops["Rm"], expected)
 
     def test_raise_multiple_parameter(self):
