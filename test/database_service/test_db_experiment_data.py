@@ -386,10 +386,10 @@ class TestDbExperimentData(QiskitTestCase):
             results.append(res)
             exp_data.add_analysis_results(res)
 
-        self.assertEqual(results, exp_data.analysis_result())
-        self.assertEqual(results[1], exp_data.analysis_result(1))
-        self.assertEqual(results[2:4], exp_data.analysis_result(slice(2, 4)))
-        self.assertEqual(results[4], exp_data.analysis_result(results[4].result_id))
+        self.assertEqual(results, exp_data.analysis_results())
+        self.assertEqual(results[1], exp_data.analysis_results(1))
+        self.assertEqual(results[2:4], exp_data.analysis_results(slice(2, 4)))
+        self.assertEqual(results[4], exp_data.analysis_results(results[4].result_id))
 
     def test_add_get_analysis_results(self):
         """Test adding and getting a list of analysis results."""
@@ -401,7 +401,7 @@ class TestDbExperimentData(QiskitTestCase):
             results.append(res)
         exp_data.add_analysis_results(results)
 
-        self.assertEqual(results, exp_data.analysis_result())
+        self.assertEqual(results, exp_data.analysis_results())
 
     def test_delete_analysis_result(self):
         """Test deleting analysis result."""
@@ -416,7 +416,7 @@ class TestDbExperimentData(QiskitTestCase):
         for del_key, res_id in subtests:
             with self.subTest(del_key=del_key):
                 exp_data.delete_analysis_result(del_key)
-                self.assertRaises(DbExperimentEntryNotFound, exp_data.analysis_result, res_id)
+                self.assertRaises(DbExperimentEntryNotFound, exp_data.analysis_results, res_id)
 
     def test_save(self):
         """Test saving experiment data."""
@@ -521,8 +521,8 @@ class TestDbExperimentData(QiskitTestCase):
             (exp_data.add_figures, (str.encode("hello world"),), service.create_figure),
             (exp_data.delete_figure, (0,), service.delete_figure),
             (exp_data.delete_analysis_result, (0,), service.delete_analysis_result),
-            (exp_data.update_tags, (["foo"],), None),
-            (exp_data.update_metadata, ({"foo": "bar"},), None),
+            (exp_data.set_tags, (["foo"],), None),
+            (exp_data.set_metadata, ({"foo": "bar"},), None),
             (setattr, (exp_data, "notes", "foo"), None),
             (setattr, (exp_data, "share_level", "hub"), None),
         ]
@@ -603,18 +603,18 @@ class TestDbExperimentData(QiskitTestCase):
         exp_data.block_for_results()
         self.assertEqual("DONE", exp_data.status())
 
-    def test_update_tags(self):
+    def test_set_tags(self):
         """Test updating experiment tags."""
         exp_data = DbExperimentData(experiment_type="qiskit_test", tags=["foo"])
         self.assertEqual(["foo"], exp_data.tags())
-        exp_data.update_tags(["bar"])
+        exp_data.set_tags(["bar"])
         self.assertEqual(["bar"], exp_data.tags())
 
-    def test_update_metadata(self):
+    def test_set_metadata(self):
         """Test updating experiment metadata."""
         exp_data = DbExperimentData(experiment_type="qiskit_test", metadata={"foo": "bar"})
         self.assertEqual({"foo": "bar"}, exp_data.metadata())
-        exp_data.update_metadata({"bar": "foo"})
+        exp_data.set_metadata({"bar": "foo"})
         self.assertEqual({"bar": "foo"}, exp_data.metadata())
 
     def test_cancel_jobs(self):

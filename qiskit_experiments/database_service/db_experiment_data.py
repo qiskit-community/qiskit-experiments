@@ -312,6 +312,8 @@ class DbExperimentDataV1(DbExperimentData):
             if "counts" in data:
                 # Format to Counts object rather than hex dict
                 data["counts"] = result.get_counts(i)
+            if "memory" in data:
+                data["memory"] = result.get_memory(i)
             expr_result = result.results[i]
             if hasattr(expr_result, "header") and hasattr(expr_result.header, "metadata"):
                 data["metadata"] = expr_result.header.metadata
@@ -595,7 +597,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         return result_key
 
-    def analysis_result(
+    def analysis_results(
         self, index: Optional[Union[int, slice, str]] = None, refresh: bool = False
     ) -> Union[DbAnalysisResult, List[DbAnalysisResult]]:
         """Return analysis results associated with this experiment.
@@ -881,7 +883,7 @@ class DbExperimentDataV1(DbExperimentData):
         return self._tags
 
     @auto_save
-    def update_tags(self, new_tags: List[str]) -> None:
+    def set_tags(self, new_tags: List[str]) -> None:
         """Set tags for this experiment.
 
         Args:
@@ -898,8 +900,8 @@ class DbExperimentDataV1(DbExperimentData):
         return self._metadata
 
     @auto_save
-    def update_metadata(self, metadata: Dict) -> None:
-        """Update metadata for this experiment.
+    def set_metadata(self, metadata: Dict) -> None:
+        """Set metadata for this experiment.
 
         Args:
             metadata: New metadata for the experiment.
