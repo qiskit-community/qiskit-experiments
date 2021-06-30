@@ -96,6 +96,48 @@ class TestDragCircuits(QiskitTestCase):
             ops = circuits[idx].count_ops()
             self.assertEqual(ops["Rp"] + ops["Rm"], expected)
 
+    def test_raise_multiple_parameter(self):
+        """Check that the experiment raises with unassigned parameters."""
+
+        beta = Parameter("β")
+        amp = Parameter("amp")
+
+        with pulse.build(name="xp") as xp:
+            pulse.play(Drag(duration=160, amp=amp, sigma=40, beta=beta), DriveChannel(0))
+
+        with pulse.build(name="xm") as xm:
+            pulse.play(Drag(duration=160, amp=-amp, sigma=40, beta=beta), DriveChannel(0))
+
+        backend = DragBackend(leakage=0.05)
+
+        drag = DragCal(1)
+        drag.set_experiment_options(betas=np.linspace(-3, 3, 21))
+        drag.set_experiment_options(rp=xp, rm=xm)
+
+        with self.assertRaises(CalibrationError):
+            drag.run(backend).analysis_result(0)
+
+    def test_raise_inconsistent_parameter(self):
+        """Check that the experiment raises with unassigned parameters."""
+
+        beta1 = Parameter("β")
+        beta2 = Parameter("β")
+
+        with pulse.build(name="xp") as xp:
+            pulse.play(Drag(duration=160, amp=0.2, sigma=40, beta=beta1), DriveChannel(0))
+
+        with pulse.build(name="xm") as xm:
+            pulse.play(Drag(duration=160, amp=-0.2, sigma=40, beta=beta2), DriveChannel(0))
+
+        backend = DragBackend(leakage=0.05)
+
+        drag = DragCal(1)
+        drag.set_experiment_options(betas=np.linspace(-3, 3, 21))
+        drag.set_experiment_options(rp=xp, rm=xm)
+
+        with self.assertRaises(CalibrationError):
+            drag.run(backend).analysis_result(0)
+
 
 class TestDragOptions(QiskitTestCase):
     """Test non-trivial options."""

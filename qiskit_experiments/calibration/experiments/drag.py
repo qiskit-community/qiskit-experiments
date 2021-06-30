@@ -376,6 +376,13 @@ class DragCal(BaseExperiment):
                     pulse.DriveChannel(self._physical_qubits[0]),
                 )
 
+        if len(plus_sched.parameters) != 1 or len(minus_sched.parameters) != 1:
+            raise CalibrationError(
+                "The schedules for Drag calibration must both have one free parameter."
+                f"Found {len(plus_sched.parameters)} and {len(minus_sched.parameters)} "
+                "for Rp and Rm, respectively."
+            )
+
         beta_xp = next(iter(plus_sched.parameters))
         beta_xm = next(iter(minus_sched.parameters))
 
