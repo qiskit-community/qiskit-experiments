@@ -30,6 +30,7 @@ from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from qiskit.providers.exceptions import JobError
 from qiskit.visualization import HAS_MATPLOTLIB
 
+import qiskit_experiments.database_service as database_service  # pylint: disable=unused-import
 from .exceptions import DbExperimentDataError, DbExperimentEntryNotFound, DbExperimentEntryExists
 from .db_analysis_result import DbAnalysisResultV1 as DbAnalysisResult
 from .json import NumpyEncoder, NumpyDecoder
@@ -372,28 +373,30 @@ class DbExperimentDataV1(DbExperimentData):
     @auto_save
     def add_figures(
         self,
-        figures: Union[List[Union[str, bytes, "pyplot.Figure"]], str, bytes, "pyplot.Figure"],
-        figure_names: Optional[Union[List[str], str]] = None,
-        overwrite: bool = False,
-        save_figure: Optional[bool] = None,
-        service: Optional["DatabaseServiceV1"] = None,
+        figures,
+        figure_names=None,
+        overwrite=False,
+        save_figure=None,
+        service=None,
     ) -> Union[str, List[str]]:
         """Add the experiment figure.
 
         Args:
-            figures: Names of the figure files or figure data.
-            figure_names: Names of the figures. If ``None``, use the figure file
+            figures (str or bytes or pyplot.Figure or list): Names of the figure
+                files or figure data.
+            figure_names (str or list): Names of the figures. If ``None``, use the figure file
                 names, if given, or a generated name. If `figures` is a list, then
                 `figure_names` must also be a list of the same length or ``None``.
-            overwrite: Whether to overwrite the figure if one already exists with
+            overwrite (bool): Whether to overwrite the figure if one already exists with
                 the same name.
-            save_figure: Whether to save the figure in the database. If ``None``,
+            save_figure (bool): Whether to save the figure in the database. If ``None``,
                 the ``auto-save`` attribute is used.
-            service: Experiment service to be used to update the database, if
+            service (DatabaseServiceV1): Experiment service to be used to update the database, if
                 the figure is to be uploaded. If ``None``, the default service is used.
 
         Returns:
-            Figure names.
+            str or list:
+                Figure names.
 
         Raises:
             DbExperimentEntryExists: If the figure with the same name already exists,
@@ -470,7 +473,7 @@ class DbExperimentDataV1(DbExperimentData):
     def delete_figure(
         self,
         figure_key: Union[str, int],
-        service: Optional["DatabaseServiceV1"] = None,
+        service: Optional["database_service.DatabaseServiceV1"] = None,
     ) -> str:
         """Add the experiment figure.
 
@@ -541,7 +544,7 @@ class DbExperimentDataV1(DbExperimentData):
     def add_analysis_results(
         self,
         results: Union[DbAnalysisResult, List[DbAnalysisResult]],
-        service: "DatabaseServiceV1" = None,
+        service: "database_service.DatabaseServiceV1" = None,
     ) -> None:
         """Save the analysis result.
 
@@ -566,7 +569,7 @@ class DbExperimentDataV1(DbExperimentData):
 
     @auto_save
     def delete_analysis_result(
-        self, result_key: Union[int, str], service: "DatabaseServiceV1" = None
+        self, result_key: Union[int, str], service: "database_service.DatabaseServiceV1" = None
     ) -> str:
         """Delete the analysis result.
 
@@ -638,7 +641,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         raise TypeError(f"Invalid index type {type(index)}.")
 
-    def save(self, service: Optional["DatabaseServiceV1"] = None) -> None:
+    def save(self, service: Optional["database_service.DatabaseServiceV1"] = None) -> None:
         """Save this experiment in the database.
 
         Note:
@@ -685,7 +688,7 @@ class DbExperimentDataV1(DbExperimentData):
             update_data=update_data,
         )
 
-    def save_all(self, service: Optional["DatabaseServiceV1"] = None) -> None:
+    def save_all(self, service: Optional["database_service.DatabaseServiceV1"] = None) -> None:
         """Save this experiment and its analysis results and figures in the database.
 
         Note:
@@ -1006,7 +1009,7 @@ class DbExperimentDataV1(DbExperimentData):
             self.save()
 
     @property
-    def service(self) -> Optional["DatabaseServiceV1"]:
+    def service(self) -> Optional["database_service.DatabaseServiceV1"]:
         """Return the database service.
 
         Returns:
@@ -1015,7 +1018,7 @@ class DbExperimentDataV1(DbExperimentData):
         return self._service
 
     @service.setter
-    def service(self, service: "DatabaseServiceV1") -> None:
+    def service(self, service: "database_service.DatabaseServiceV1") -> None:
         """Set the service to be used for storing experiment data.
 
         Args:

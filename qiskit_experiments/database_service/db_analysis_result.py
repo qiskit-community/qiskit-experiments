@@ -19,6 +19,7 @@ import json
 import copy
 from functools import wraps
 
+import qiskit_experiments.database_service as database_service  # pylint: disable=unused-import
 from .json import NumpyEncoder, NumpyDecoder
 from .utils import save_data, qiskit_version
 from .exceptions import DbExperimentDataError
@@ -76,7 +77,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         quality: Optional[str] = None,
         verified: bool = False,
         tags: Optional[List[str]] = None,
-        service: Optional["DatabaseServiceV1"] = None,
+        service: Optional["database_service.DatabaseServiceV1"] = None,
         **kwargs,
     ):
         """AnalysisResult constructor.
@@ -181,7 +182,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             **kwargs,
         )
 
-    def save(self, service: Optional["DatabaseServiceV1"] = None) -> None:
+    def save(self, service: Optional["database_service.DatabaseServiceV1"] = None) -> None:
         """Save this analysis result in the database.
 
         Args:
@@ -328,7 +329,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         return self._experiment_id
 
     @property
-    def service(self) -> Optional["DatabaseServiceV1"]:
+    def service(self) -> Optional["database_service.DatabaseServiceV1"]:
         """Return the database service.
 
         Returns:
@@ -338,7 +339,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         return self._service
 
     @service.setter
-    def service(self, service: "DatabaseServiceV1") -> None:
+    def service(self, service: "database_service.DatabaseServiceV1") -> None:
         """Set the service to be used for storing result data in a database.
 
         Args:
