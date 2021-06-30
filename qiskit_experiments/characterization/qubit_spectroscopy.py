@@ -265,7 +265,7 @@ The parameters of the GaussianSquare spectroscopy pulse can be specified at run-
         unit: Optional[str] = "Hz",
         absolute: bool = True,
     ):
-        """Create new experiment.
+        """Create a new experiment.
 
         Args:
             qubit: The qubit on which to run spectroscopy.
