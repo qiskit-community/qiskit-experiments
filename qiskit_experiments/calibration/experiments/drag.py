@@ -375,15 +375,6 @@ class DragCal(BaseExperiment):
                     pulse.DriveChannel(self._physical_qubits[0]),
                 )
 
-        # Now check that we are dealing with Drag pulses.
-        for schedule in [xp, xm]:
-            for block in schedule.blocks:
-                if isinstance(block, pulse.Play):
-                    if isinstance(block.pulse, pulse.Drag):
-                        break
-            else:
-                raise CalibrationError(f"No Drag pulse found in {schedule.name}.")
-
         beta_xp = next(iter(xp.parameters))
         beta_xm = next(iter(xm.parameters))
 
