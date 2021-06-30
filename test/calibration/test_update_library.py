@@ -146,8 +146,8 @@ class TestCalibrationsUpdate(QiskitTestCase):
         drag = DragCal(qubit)
         drag.set_analysis_options(p0={"beta": 1.8})
         drag.set_experiment_options(
-            xp=cals.get_schedule("xp", qubit, assign_params={"β": beta}),
-            xm=cals.get_schedule("xm", qubit, assign_params={"β": beta}),
+            rp=cals.get_schedule("xp", qubit, assign_params={"β": beta}),
+            rm=cals.get_schedule("xm", qubit, assign_params={"β": beta}),
         )
 
         exp_data = drag.run(backend)
