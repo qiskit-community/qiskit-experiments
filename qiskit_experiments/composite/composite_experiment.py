@@ -70,4 +70,3 @@ class CompositeExperiment(BaseExperiment):
         for expr in self._experiments:
             if not isinstance(expr, CompositeExperiment):
                 expr._postprocess_transpiled_circuits(circuits, backend, **run_options)
-

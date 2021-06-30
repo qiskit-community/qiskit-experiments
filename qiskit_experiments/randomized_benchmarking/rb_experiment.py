@@ -166,11 +166,11 @@ class StandardRB(BaseExperiment):
         return circuits
 
     def _get_circuit_metadata(self, circuit):
-        if circuit.metadata['experiment_type'] == self._type:
+        if circuit.metadata["experiment_type"] == self._type:
             return circuit.metadata
-        if circuit.metadata['experiment_type'] == ParallelExperiment.__name__:
-            for meta in circuit.metadata['composite_metadata']:
-                if meta['qubits'] == self.physical_qubits:
+        if circuit.metadata["experiment_type"] == ParallelExperiment.__name__:
+            for meta in circuit.metadata["composite_metadata"]:
+                if meta["qubits"] == self.physical_qubits:
                     return meta
         return None
 
