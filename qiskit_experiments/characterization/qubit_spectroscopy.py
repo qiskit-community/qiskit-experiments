@@ -59,7 +59,7 @@ If multiple peaks exist, you will get a poor reduced chi squared value.
             name="a",
             description="Base line.",
             initial_guess="The maximum signal value with removed baseline.",
-            bounds="[-2, 2] scaled with maximum signal value.",
+            bounds="[-2, 2] scaled to the maximum absolute signal value.",
         ),
         CurveFitParameter(
             name="b",
