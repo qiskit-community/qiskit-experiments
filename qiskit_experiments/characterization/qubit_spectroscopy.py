@@ -234,8 +234,8 @@ The parameters of the GaussianSquare spectroscopy pulse can be specified at run-
             "amp": OptionsField(
                 default=0.1,
                 annotation=float,
-                description="Amplitude of spectroscopy pulse. Usually weak power pulse is used to "
-                "suppress broadening of observed peaks.",
+                description="The amplitude of the spectroscopy pulse. Usually a pulse with a weak power is used to "
+                "suppress any broadening in the observed peaks.",
             ),
             "duration": OptionsField(
                 default=1024,
