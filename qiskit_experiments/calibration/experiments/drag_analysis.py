@@ -34,23 +34,23 @@ class DragCalAnalysis(CurveAnalysis):
     xp-xm). Several initial guesses are tried if the user does not provide one.
 
     .. math::
-        y = amp_i \cos\left(2 \pi {\rm freq_i} x - 2 \pi {\rm beta}\right) + {\rm base}_i
+        y = {\rm amp} \cos\left(2 \pi {\rm freq_i} x - 2 \pi {\rm beta}\right) + {\rm base}
 
     Fit Parameters
-        - :math:`{\rm amp}_i`: Amplitude of series :math:`i`.
-        - :math:`{\rm base}_i`: Base line of series :math:`i`.
+        - :math:`{\rm amp}`: Amplitude of all series.
+        - :math:`{\rm base}`: Base line of all series.
         - :math:`{\rm freq}_i`: Frequency of the :math:`i`th oscillation.
         - :math:`{\rm beta}`: Common beta offset. This is the parameter of interest.
 
     Initial Guesses
-        - :math:`{\rm amp}_i`: The maximum y value less the minimum y value. 0.5 is also tried.
-        - :math:`{\rm base}_i`: The average of the data. 0.5 is also tried.
+        - :math:`{\rm amp}`: The maximum y value less the minimum y value. 0.5 is also tried.
+        - :math:`{\rm base}`: The average of the data. 0.5 is also tried.
         - :math:`{\rm freq}_i`: The frequency with the highest power spectral density.
         - :math:`{\rm beta}`: Linearly spaced between the maximum and minimum scanned beta.
 
     Bounds
-        - :math:`{\rm amp}_i`: [-2, 2] scaled to the maximum signal value.
-        - :math:`{\rm base}_i`: [-1, 1] scaled to the maximum signal value.
+        - :math:`{\rm amp}`: [-2, 2] scaled to the maximum signal value.
+        - :math:`{\rm base}`: [-1, 1] scaled to the maximum signal value.
         - :math:`{\rm freq}_i`: [0, inf].
         - :math:`{\rm beta}`: [-min scan range, max scan range].
 
@@ -58,8 +58,8 @@ class DragCalAnalysis(CurveAnalysis):
 
     __series__ = [
         SeriesDef(
-            fit_func=lambda x, amp0, amp1, amp2, freq0, freq1, freq2, beta, base0, base1, base2: cos(
-                x, amp=amp0, freq=freq0, phase=-2 * np.pi * freq0 * beta, baseline=base0
+            fit_func=lambda x, amp, freq0, freq1, freq2, beta, base: cos(
+                x, amp=amp, freq=freq0, phase=-2 * np.pi * freq0 * beta, baseline=base
             ),
             plot_color="blue",
             name="series-0",
@@ -67,8 +67,8 @@ class DragCalAnalysis(CurveAnalysis):
             plot_symbol="o",
         ),
         SeriesDef(
-            fit_func=lambda x, amp0, amp1, amp2, freq0, freq1, freq2, beta, base0, base1, base2: cos(
-                x, amp=amp1, freq=freq1, phase=-2 * np.pi * freq1 * beta, baseline=base1
+            fit_func=lambda x, amp, freq0, freq1, freq2, beta, base: cos(
+                x, amp=amp, freq=freq1, phase=-2 * np.pi * freq1 * beta, baseline=base
             ),
             plot_color="green",
             name="series-1",
@@ -76,8 +76,8 @@ class DragCalAnalysis(CurveAnalysis):
             plot_symbol="^",
         ),
         SeriesDef(
-            fit_func=lambda x, amp0, amp1, amp2, freq0, freq1, freq2, beta, base0, base1, base2: cos(
-                x, amp=amp2, freq=freq2, phase=-2 * np.pi * freq2 * beta, baseline=base2
+            fit_func=lambda x, amp, freq0, freq1, freq2, beta, base: cos(
+                x, amp=amp, freq=freq2, phase=-2 * np.pi * freq2 * beta, baseline=base
             ),
             plot_color="red",
             name="series-2",
@@ -95,28 +95,20 @@ class DragCalAnalysis(CurveAnalysis):
         """
         default_options = super()._default_options()
         default_options.p0 = {
-            "amp0": None,
-            "amp1": None,
-            "amp2": None,
+            "amp": None,
             "freq0": None,
             "freq1": None,
             "freq2": None,
             "beta": None,
-            "base0": None,
-            "base1": None,
-            "base2": None,
+            "base": None,
         }
         default_options.bounds = {
-            "amp0": None,
-            "amp1": None,
-            "amp2": None,
+            "amp": None,
             "freq0": None,
             "freq1": None,
             "freq2": None,
             "beta": None,
-            "base0": None,
-            "base1": None,
-            "base2": None,
+            "base": None,
         }
         default_options.fit_reports = {"beta": "beta"}
         default_options.xlabel = "Beta"
@@ -136,68 +128,52 @@ class DragCalAnalysis(CurveAnalysis):
         min_beta, max_beta = min(x_data), max(x_data)
 
         freq_guess = []
-        amp_guesses = []
-        base_guesses = []
         for series in ["series-0", "series-1", "series-2"]:
             y_data = self._data(series).y
             fft = np.abs(np.fft.fft(y_data - np.average(y_data)))
             freqs = np.linspace(0.0, 1.0 / (2.0 * delta_beta), len(fft))
             freq_guess.append(freqs[np.argmax(fft[0 : len(fft) // 2])])
 
-            b_guess = np.average(y_data)
-            amp_guesses.append(np.max(y_data) - np.min(y_data) - b_guess)
-            base_guesses.append(b_guess)
-
         if user_p0.get("beta", None) is not None:
             p_guesses = [user_p0["beta"]]
         else:
             p_guesses = np.linspace(min_beta, max_beta, 20)
 
-        user_amps = None
-        if all(user_p0.get("amp" + idx, None) is not None for idx in ["0", "1", "2"]):
-            user_amps = list(user_p0["amp" + idx] for idx in ["0", "1", "2"])
-
-        user_base = None
-        if all(user_p0.get("base" + idx, None) is not None for idx in ["0", "1", "2"]):
-            user_base = list(user_p0["base" + idx] for idx in ["0", "1", "2"])
+        user_amp = user_p0.get("amp", None)
+        user_base = user_p0.get("base", None)
 
         # Drag curves can sometimes be very flat, i.e. averages of y-data
         # and min-max do not always make good initial guesses. We therefore add
         # 0.5 to the initial guesses.
-        guesses = [([0.5] * 3, [0.5] * 3), (amp_guesses, base_guesses)]
+        guesses = [(0.5, 0.5)]
 
-        if user_amps is not None and user_base is not None:
-            guesses.append((user_amps, user_base))
+        if user_amp is not None and user_base is not None:
+            guesses.append((user_amp, user_base))
 
         max_abs_y = np.max(np.abs(self._data().y))
+
+        freq_guess0 = user_p0.get("freq0", None) or freq_guess[0]
 
         fit_options = []
         for amp_guess, b_guess in guesses:
             for p_guess in p_guesses:
                 fit_option = {
                     "p0": {
-                        "amp0": amp_guess[0],
-                        "amp1": amp_guess[1],
-                        "amp2": amp_guess[2],
-                        "freq0": user_p0.get("freq0", None) or freq_guess[0],
+                        "amp": amp_guess,
+                        "freq0": freq_guess0,
                         "freq1": user_p0.get("freq1", None) or freq_guess[1],
                         "freq2": user_p0.get("freq2", None) or freq_guess[2],
                         "beta": p_guess,
-                        "base0": b_guess[0],
-                        "base1": b_guess[1],
-                        "base2": b_guess[2],
+                        "base": b_guess,
                     },
                     "bounds": {
-                        "amp0": user_bounds.get("amp0", None) or (-2 * max_abs_y, 2 * max_abs_y),
-                        "amp1": user_bounds.get("amp1", None) or (-2 * max_abs_y, 2 * max_abs_y),
-                        "amp2": user_bounds.get("amp2", None) or (-2 * max_abs_y, 2 * max_abs_y),
+                        "amp": user_bounds.get("amp", None) or (-2 * max_abs_y, 2 * max_abs_y),
                         "freq0": user_bounds.get("freq0", None) or (0, np.inf),
                         "freq1": user_bounds.get("freq1", None) or (0, np.inf),
                         "freq2": user_bounds.get("freq2", None) or (0, np.inf),
-                        "beta": user_bounds.get("beta", None) or (min_beta, max_beta),
-                        "base0": user_bounds.get("base0", None) or (-1 * max_abs_y, 1 * max_abs_y),
-                        "base1": user_bounds.get("base1", None) or (-1 * max_abs_y, 1 * max_abs_y),
-                        "base2": user_bounds.get("base2", None) or (-1 * max_abs_y, 1 * max_abs_y),
+                        "beta": user_bounds.get("beta", None)
+                        or (-10 / freq_guess0, 10 / freq_guess0),
+                        "base": user_bounds.get("base", None) or (-1 * max_abs_y, 1 * max_abs_y),
                     },
                 }
 
@@ -211,19 +187,17 @@ class DragCalAnalysis(CurveAnalysis):
 
         A good fit has:
             - a reduced chi-squared lower than three,
-            - a drag parameter value contained in the range of x-values, and
+            - a DRAG parameter value within the first period of the lowest number of repetitions,
             - an error on the drag beta smaller than the beta.
         """
 
         fit_beta = get_opt_value(analysis_result, "beta")
+        fit_freq0 = get_opt_value(analysis_result, "freq0")
         fit_beta_err = get_opt_error(analysis_result, "beta")
-
-        x_data = self._data("series-0").x
-        min_x, max_x = min(x_data), max(x_data)
 
         criteria = [
             analysis_result["reduced_chisq"] < 3,
-            min_x <= fit_beta <= max_x,
+            fit_beta < 1 / fit_freq0,
             fit_beta_err < abs(fit_beta),
         ]
 

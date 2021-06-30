@@ -144,7 +144,6 @@ class TestCalibrationsUpdate(QiskitTestCase):
 
         # Run a Drag calibration experiment.
         drag = DragCal(qubit)
-        drag.set_analysis_options(p0={"beta": 1.8})
         drag.set_experiment_options(
             rp=cals.get_schedule("xp", qubit, assign_params={"β": beta}),
             rm=cals.get_schedule("xm", qubit, assign_params={"β": beta}),
@@ -154,7 +153,7 @@ class TestCalibrationsUpdate(QiskitTestCase):
         result = exp_data.analysis_result(0)
 
         # Test the fit for good measure.
-        self.assertTrue(abs(result["popt"][6] - backend.ideal_beta) < test_tol)
+        self.assertTrue(abs(result["popt"][4] - backend.ideal_beta) < test_tol)
         self.assertEqual(result["quality"], "computer_good")
 
         # Check schedules pre-update
@@ -164,5 +163,5 @@ class TestCalibrationsUpdate(QiskitTestCase):
         Drag.update(cals, exp_data, parameter="β", schedule="xp")
 
         # Check schedules post-update
-        expected = x_plus.assign_parameters({beta: result["popt"][6], chan: 1}, inplace=False)
+        expected = x_plus.assign_parameters({beta: result["popt"][4], chan: 1}, inplace=False)
         self.assertEqual(cals.get_schedule("xp", qubit), expected)

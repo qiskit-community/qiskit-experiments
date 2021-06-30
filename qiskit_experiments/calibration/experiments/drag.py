@@ -51,11 +51,11 @@ class DragCal(BaseExperiment):
 
     .. parsed-literal::
 
-                   ┌───────┐ ░ ┌───────┐ ░ ┌─┐
-              q_0: ┤ Rp(β) ├─░─┤ Rm(β) ├─░─┤M├
-                   └───────┘ ░ └───────┘ ░ └╥┘
-        measure: 1/═════════════════════════╩═
-                                            0
+                   ┌───────┐ ┌───────┐ ░ ┌─┐
+              q_0: ┤ Rp(β) ├─┤ Rm(β) ├─░─┤M├
+                   └───────┘ └───────┘ ░ └╥┘
+        measure: 1/═══════════════════════╩═
+                                          0
 
     Here, the Rp gate and the Rm gate are can be pi and -pi rotations about the
     x-axis of the Bloch sphere. The parameter β is scanned to find the value that minimizes
@@ -120,6 +120,8 @@ class DragCal(BaseExperiment):
 
         if reps is None:
             reps = [1, 3, 5]
+        else:
+            reps = sorted(reps)  # ensure reps 1 is the lowest frequency.
 
         if len(reps) != 3:
             raise CalibrationError(
