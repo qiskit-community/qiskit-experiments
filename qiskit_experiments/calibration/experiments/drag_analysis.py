@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Rough drag pulse calibration experiment."""
+"""DRAG pulse calibration experiment."""
 
 from typing import Any, Dict, List, Union
 import numpy as np
