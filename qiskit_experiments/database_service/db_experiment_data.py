@@ -396,7 +396,7 @@ class DbExperimentDataV1(DbExperimentData):
             Figure names.
 
         Raises:
-            DbExperimentEntryNotFound: If the figure with the same name already exists,
+            DbExperimentEntryExists: If the figure with the same name already exists,
                 and `overwrite=True` is not specified.
             ValueError: If an input parameter has an invalid value.
         """
