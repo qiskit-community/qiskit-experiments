@@ -78,7 +78,7 @@ If multiple peaks exist, you will get a poor reduced chi squared value.
             description="Standard deviation of Gaussian function.",
             initial_guess=r"Calculated from FWHM of peak :math:`w` such that "
             r":math:`w / \sqrt{8} \ln{2}`.",
-            bounds=r"[0, :math:`\Delta x`] where :math:`\Delta x` represents frequency scan range.",
+            bounds=r"[0, :math:`\Delta x`] where :math:`\Delta x` represents the scanned frequency range.",
         ),
     ]
 
