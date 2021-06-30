@@ -247,9 +247,7 @@ The parameters of the GaussianSquare spectroscopy pulse can be specified at run-
             "sigma": OptionsField(
                 default=256,
                 annotation=Union[int, float],
-                description="Sigma of Gaussian rising and falling edges. This value should be "
-                "sufficiently smaller than the duration, "
-                "otherwise waveform is distorted. "
+                description="Sigma of Gaussian rising and falling edges."
                 "The default value is represented in units of dt.",
             ),
             "width": OptionsField(
