@@ -29,12 +29,25 @@ from qiskit_experiments.calibration.experiments.drag_analysis import DragCalAnal
 
 
 class DragCal(BaseExperiment):
-    """An experiment that scans the drag parameter to find the optimal value.
+    """An experiment that scans the DRAG parameter to find the optimal value.
 
-    The Drag calibration will run several series of circuits. In a given circuit
-    a Rp(β) - Rm(β) block is repeated :math:`N` times. Here, Rp is a rotation with a
-    positive angle and Rm is the same rotation with a native angle. As example the
-    circuit of a single repetition, i.e. :math:`N=1`, is shown below.
+    A Derivative Removal by Adiabatic Gate (DRAG) pulse is designed to minimize leakage
+    to a neighbouring transition. It is a standard pulse with an additional derivative
+    component. It is designed to reduce the frequency spectrum of a normal pulse near
+    the :math:`|1\rangle` - :math:`|2\rangle` transition, reducing the chance of leakage
+    to the :math:`|2\rangle` state.
+
+    .. math::
+
+        f(t) = \Omega(t) + 1j * \beta * d/dt \Omega(t)
+
+    Here, :math:`\Omega` is the envelop of the in-phase component of the pulse and
+    :math:`\beta` is the strength of the quadrature which we refer to as the DRAG
+    parameter and seek to calibrate in this experiment. The DRAG calibration will run
+    several series of circuits. In a given circuit a Rp(β) - Rm(β) block is repeated
+    :math:`N` times. Here, Rp is a rotation with a positive angle and Rm is the same rotation
+    with a native angle. As example the circuit of a single repetition, i.e. :math:`N=1`, is
+    shown below.
 
     .. parsed-literal::
 
@@ -48,6 +61,22 @@ class DragCal(BaseExperiment):
     x-axis of the Bloch sphere. The parameter β is scanned to find the value that minimizes
     the leakage to the second excited state. Note that the analysis class requires this
     experiment to run with three repetition numbers.
+
+    References:
+        1. |citation1|_
+
+        .. _citation1: https://link.aps.org/doi/10.1103/PhysRevA.83.012308
+
+        .. |citation1| replace:: *Gambetta, J. M., Motzoi, F., Merkel, S. T. & Wilhelm, F. K.
+           Analytic control methods for high-fidelity unitary operations
+           in a weakly nonlinear oscillator. Phys. Rev. A 83, 012308 (2011).*
+
+        2. |citation2|_
+
+        .. _citation2: https://link.aps.org/doi/10.1103/PhysRevLett.103.110501
+
+        .. |citation2| replace:: *F. Motzoi, J. M. Gambetta, P. Rebentrost, and F. K. Wilhelm
+           Phys. Rev. Lett. 103, 110501 – Published 8 September 2009.*
     """
 
     __analysis_class__ = DragCalAnalysis
