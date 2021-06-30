@@ -70,7 +70,7 @@ If multiple peaks exist, you will get a poor reduced chi squared value.
         CurveFitParameter(
             name="f",
             description="Center frequency. This is the fit parameter of interest.",
-            initial_guess="A frequency value at the peak (maximum signal).",
+            initial_guess="The frequency value for which the absolute signal is maximum.",
             bounds="[min(x), max(x)] of frequency scan range.",
         ),
         CurveFitParameter(
