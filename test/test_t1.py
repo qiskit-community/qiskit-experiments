@@ -195,8 +195,33 @@ class TestT1(QiskitTestCase):
 
         for i in range(2):
             sub_res = res.component_experiment_data(i).analysis_result(0)
-            self.assertTrue(sub_res["quality"], "computer_good")
+            self.assertEqual(sub_res["quality"], "computer_good")
             self.assertAlmostEqual(sub_res["value"], t1[i], delta=3)
+
+    def test_t1_parallel_different_analysis_options(self):
+        """
+        Test parallel experiments of T1 using a simulator, for the case where
+        the sub-experiments have different analysis options
+        """
+
+        t1 = 25
+        delays = list(range(1, 40, 3))
+
+        exp0 = T1(0, delays)
+        exp0.set_analysis_options(t1_bounds=[10, 30])
+        exp1 = T1(1, delays)
+        exp1.set_analysis_options(t1_bounds=[100, 200])
+
+        par_exp = ParallelExperiment([exp0, exp1])
+        res = par_exp.run(T1Backend([t1, t1]))
+
+        sub_res = []
+        for i in range(2):
+            sub_res.append(res.component_experiment_data(i).analysis_result(0))
+
+        self.assertEqual(sub_res[0]["quality"], "computer_good")
+        self.assertAlmostEqual(sub_res[0]["value"], t1, delta=3)
+        self.assertFalse(sub_res[1]["success"])
 
     def test_t1_analysis(self):
         """
