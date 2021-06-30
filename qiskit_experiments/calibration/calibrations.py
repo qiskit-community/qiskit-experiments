@@ -13,7 +13,7 @@
 """Class to store and manage the results of calibration experiments."""
 
 import os
-from collections import namedtuple, defaultdict
+from collections import defaultdict
 from datetime import datetime
 from typing import Any, Dict, Set, Tuple, Union, List, Optional
 import csv
@@ -37,10 +37,11 @@ from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter, ParameterExpression
 from qiskit_experiments.calibration.exceptions import CalibrationError
 from qiskit_experiments.calibration.parameter_value import ParameterValue
-
-ParameterKey = namedtuple("ParameterKey", ["parameter", "qubits", "schedule"])
-ScheduleKey = namedtuple("ScheduleKey", ["schedule", "qubits"])
-ParameterValueType = Union[ParameterExpression, float, int, complex]
+from qiskit_experiments.calibration.calibration_key_types import (
+    ParameterKey,
+    ParameterValueType,
+    ScheduleKey,
+)
 
 
 class Calibrations:
@@ -545,7 +546,7 @@ class Calibrations:
             raise CalibrationError(msg)
 
         # 5) Return the most recent parameter.
-        return max(candidates, key=lambda x: x.date_time).value
+        return max(enumerate(candidates), key=lambda x: (x[1].date_time, x[0]))[1].value
 
     def get_schedule(
         self,
@@ -892,12 +893,19 @@ class Calibrations:
                 value_dict["qubits"] = key.qubits
                 value_dict["parameter"] = key.parameter
                 value_dict["schedule"] = key.schedule
+                value_dict["date_time"] = value_dict["date_time"].strftime("%Y-%m-%d %H:%M:%S.%f%z")
 
                 data.append(value_dict)
 
         return data
 
-    def save(self, file_type: str = "csv", folder: str = None, overwrite: bool = False):
+    def save(
+        self,
+        file_type: str = "csv",
+        folder: str = None,
+        overwrite: bool = False,
+        file_prefix: str = "",
+    ):
         """Save the parameterized schedules and parameter value.
 
         The schedules and parameter values can be stored in csv files. This method creates
@@ -917,6 +925,8 @@ class Calibrations:
             folder: The folder in which to save the calibrations.
             overwrite: If the files already exist then they will not be overwritten
                 unless overwrite is set to True.
+            file_prefix: A prefix to add to the name of the files such as a date tag or a
+                UUID.
 
         Raises:
             CalibrationError: if the files exist and overwrite is not set to True.
@@ -927,14 +937,20 @@ class Calibrations:
         if folder:
             os.chdir(folder)
 
-        if os.path.isfile("parameter_config.csv") and not overwrite:
-            raise CalibrationError("parameter_config.csv already exists. Set overwrite to True.")
+        parameter_config_file = file_prefix + "parameter_config.csv"
+        parameter_value_file = file_prefix + "parameter_values.csv"
+        schedule_file = file_prefix + "schedules.csv"
 
-        if os.path.isfile("parameter_values.csv") and not overwrite:
-            raise CalibrationError("parameter_values.csv already exists. Set overwrite to True.")
+        if os.path.isfile(parameter_config_file) and not overwrite:
+            raise CalibrationError(
+                f"{parameter_config_file} already exists. Set overwrite to True."
+            )
 
-        if os.path.isfile("parameter_values.csv") and not overwrite:
-            raise CalibrationError("schedules.csv already exists. Set overwrite to True.")
+        if os.path.isfile(parameter_value_file) and not overwrite:
+            raise CalibrationError(f"{parameter_value_file} already exists. Set overwrite to True.")
+
+        if os.path.isfile(schedule_file) and not overwrite:
+            raise CalibrationError(f"{schedule_file} already exists. Set overwrite to True.")
 
         # Write the parameter configuration.
         header_keys = ["parameter.name", "parameter unique id", "schedule", "qubits"]
@@ -952,7 +968,7 @@ class Calibrations:
                 )
 
         if file_type == "csv":
-            with open("parameter_config.csv", "w", newline="", encoding="utf-8") as output_file:
+            with open(parameter_config_file, "w", newline="", encoding="utf-8") as output_file:
                 dict_writer = csv.DictWriter(output_file, header_keys)
                 dict_writer.writeheader()
                 dict_writer.writerows(body)
@@ -962,7 +978,7 @@ class Calibrations:
             if len(values) > 0:
                 header_keys = values[0].keys()
 
-                with open("parameter_values.csv", "w", newline="", encoding="utf-8") as output_file:
+                with open(parameter_value_file, "w", newline="", encoding="utf-8") as output_file:
                     dict_writer = csv.DictWriter(output_file, header_keys)
                     dict_writer.writeheader()
                     dict_writer.writerows(values)
@@ -975,7 +991,7 @@ class Calibrations:
                     {"name": key.schedule, "qubits": key.qubits, "schedule": str(sched)}
                 )
 
-            with open("schedules.csv", "w", newline="", encoding="utf-8") as output_file:
+            with open(schedule_file, "w", newline="", encoding="utf-8") as output_file:
                 dict_writer = csv.DictWriter(output_file, header_keys)
                 dict_writer.writeheader()
                 dict_writer.writerows(schedules)
@@ -1025,7 +1041,7 @@ class Calibrations:
             CalibrationError: If the given input does not conform to an int or
                 tuple of ints.
         """
-        if not qubits:
+        if qubits is None:
             return tuple()
 
         if isinstance(qubits, str):
@@ -1036,6 +1052,9 @@ class Calibrations:
 
         if isinstance(qubits, int):
             return (qubits,)
+
+        if isinstance(qubits, list):
+            return tuple(qubits)
 
         if isinstance(qubits, tuple):
             if all(isinstance(n, int) for n in qubits):

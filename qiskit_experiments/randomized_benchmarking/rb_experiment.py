@@ -27,9 +27,10 @@ from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.analysis.data_processing import probability
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
+from .rb_utils import RBUtils
 
 
-class RBExperiment(BaseExperiment):
+class StandardRB(BaseExperiment):
     """RB Experiment class.
 
     Experiment Options:
@@ -46,7 +47,7 @@ class RBExperiment(BaseExperiment):
         lengths: Iterable[int],
         num_samples: int = 1,
         seed: Optional[Union[int, Generator]] = None,
-        full_sampling: bool = False,
+        full_sampling: Optional[bool] = False,
     ):
         """Standard randomized benchmarking experiment.
 
@@ -162,3 +163,13 @@ class RBExperiment(BaseExperiment):
                 rb_circ.measure_all()
                 circuits.append(rb_circ)
         return circuits
+
+    def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
+        """Additional post-processing of transpiled circuits before running on backend"""
+        for c in circuits:
+            c_count_ops = RBUtils.count_ops(c, self.physical_qubits)
+            circuit_length = c.metadata["xval"]
+            average_count_ops = [
+                (key, value / circuit_length) for key, value in c_count_ops.items()
+            ]
+            c.metadata.update({"count_ops": average_count_ops})

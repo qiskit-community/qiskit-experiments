@@ -8,9 +8,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Test T2Star experiment
+Test T2Ramsey experiment
 """
-import unittest
 import numpy as np
 
 from qiskit.utils import apply_prefix
@@ -20,12 +19,13 @@ from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.composite import ParallelExperiment
-from qiskit_experiments.characterization import T2StarExperiment
+from qiskit_experiments.characterization.t2ramsey import T2Ramsey
+from qiskit_experiments.test.mock_job import MockJob
 
 
-class T2starBackend(BackendV1):
+class T2RamseyBackend(BackendV1):
     """
-    A simple and primitive backend, to be run by the T2Star tests
+    A simple and primitive backend, to be run by the T2Ramsey tests
     """
 
     def __init__(
@@ -37,11 +37,11 @@ class T2starBackend(BackendV1):
         dt_factor=1,
     ):
         """
-        Initialize the T2star backend
+        Initialize the T2Ramsey backend
         """
-
+        dt_factor_in_ns = dt_factor * 1e9 if dt_factor is not None else None
         configuration = QasmBackendConfiguration(
-            backend_name="t2star_simulator",
+            backend_name="T2Ramsey_simulator",
             backend_version="0",
             n_qubits=int(1e6),
             basis_gates=["barrier", "h", "p", "delay", "measure"],
@@ -53,10 +53,10 @@ class T2starBackend(BackendV1):
             memory=False,
             max_shots=int(1e6),
             coupling_map=None,
-            dt=dt_factor,
+            dt=dt_factor_in_ns,
         )
 
-        self._t2star = p0["t2star"]
+        self._t2ramsey = p0["t2ramsey"]
         self._a_guess = p0["a_guess"]
         self._f_guess = p0["f_guess"]
         self._phi_guess = p0["phi_guess"]
@@ -75,13 +75,13 @@ class T2starBackend(BackendV1):
 
     def run(self, run_input, **options):
         """
-        Run the T2star backend
+        Run the T2Ramsey backend
         """
         self.options.update_options(**options)
         shots = self.options.get("shots")
 
         result = {
-            "backend_name": "T2star backend",
+            "backend_name": "T2Ramsey backend",
             "backend_version": "0",
             "qobj_id": 0,
             "job_id": 0,
@@ -114,12 +114,12 @@ class T2starBackend(BackendV1):
 
                     if op.name == "delay":
                         delay = op.params[0]
-                        t2star = self._t2star[qubit] * self._dt_factor
+                        t2ramsey = self._t2ramsey[qubit] * self._dt_factor
                         freq = self._f_guess[qubit] / self._dt_factor
 
                         prob_plus[qubit] = (
                             self._a_guess[qubit]
-                            * np.exp(-delay / t2star)
+                            * np.exp(-delay / t2ramsey)
                             * np.cos(2 * np.pi * freq * delay + self._phi_guess[qubit])
                             + self._b_guess[qubit]
                         )
@@ -150,28 +150,26 @@ class T2starBackend(BackendV1):
                     "data": {"counts": counts},
                 }
             )
-        return Result.from_dict(result)
+        return MockJob(self, Result.from_dict(result))
 
 
-class TestT2Star(QiskitTestCase):
-    """Test T2Star experiment"""
+class TestT2Ramsey(QiskitTestCase):
+    """Test T2Ramsey experiment"""
 
-    def test_t2star_run_end2end(self):
+    def test_t2ramsey_run_end2end(self):
         """
-        Run the T2 backend on all possible units
+        Run the T2Ramsey backend on all possible units
         """
-        # For some reason, 'ps' was not precise enough - need to check this
-
         for unit in ["s", "ms", "us", "ns", "dt"]:
             if unit in ("s", "dt"):
                 dt_factor = 1
             else:
                 dt_factor = apply_prefix(1, unit)
-            estimated_t2star = 20
+            estimated_t2ramsey = 20
             estimated_freq = 0.1
             # Set up the circuits
             qubit = 0
-            if unit == "dt":
+            if unit == "dt":  # dt requires integer values for delay
                 delays = list(range(1, 46))
             else:
                 delays = np.append(
@@ -179,34 +177,29 @@ class TestT2Star(QiskitTestCase):
                     (np.linspace(16.0, 45.0, num=59)).astype(float),
                 )
 
-            exp = T2StarExperiment(qubit, delays, unit=unit)
-            exp.set_analysis_options(
-                user_p0={
-                    "A": 0.5,
-                    "t2star": estimated_t2star,
-                    "f": estimated_freq,
-                    "phi": 0,
-                    "B": 0.5,
-                }
-            )
-
-            backend = T2starBackend(
-                p0={
-                    "a_guess": [0.5],
-                    "t2star": [estimated_t2star],
-                    "f_guess": [estimated_freq],
-                    "phi_guess": [0.0],
-                    "b_guess": [0.5],
-                },
-                initial_prob_plus=[0.0],
-                readout0to1=[0.02],
-                readout1to0=[0.02],
-                dt_factor=dt_factor,
-            )
-            if unit == "dt":
-                dt_factor = getattr(backend._configuration, "dt")
-
-            # run circuits
+            exp = T2Ramsey(qubit, delays, unit=unit)
+            default_p0 = {
+                "A": 0.5,
+                "t2ramsey": estimated_t2ramsey,
+                "f": estimated_freq,
+                "phi": 0,
+                "B": 0.5,
+            }
+            for user_p0 in [default_p0, None]:
+                exp.set_analysis_options(user_p0=user_p0)
+                backend = T2RamseyBackend(
+                    p0={
+                        "a_guess": [0.5],
+                        "t2ramsey": [estimated_t2ramsey],
+                        "f_guess": [estimated_freq],
+                        "phi_guess": [0.0],
+                        "b_guess": [0.5],
+                    },
+                    initial_prob_plus=[0.0],
+                    readout0to1=[0.02],
+                    readout1to0=[0.02],
+                    dt_factor=dt_factor,
+                )
 
             expdata = exp.run(
                 backend=backend,
@@ -214,58 +207,53 @@ class TestT2Star(QiskitTestCase):
             )
             result = expdata.analysis_result(0)
             self.assertAlmostEqual(
-                result["t2star_value"],
-                estimated_t2star * dt_factor,
-                delta=0.08 * result["t2star_value"],
+                result["t2ramsey_value"],
+                estimated_t2ramsey * dt_factor,
+                delta=3 * dt_factor,
             )
             self.assertAlmostEqual(
                 result["frequency_value"],
                 estimated_freq / dt_factor,
-                delta=0.08 * result["frequency_value"],
+                delta=3 / dt_factor,
             )
             self.assertEqual(
                 result["quality"], "computer_good", "Result quality bad for unit " + str(unit)
             )
 
-    def test_t2star_parallel(self):
+    def test_t2ramsey_parallel(self):
         """
-        Test parallel experiments of T2* using a simulator.
+        Test parallel experiments of T2Ramsey using a simulator.
         """
 
-        t2star = [30, 25]
+        t2ramsey = [30, 25]
         estimated_freq = [0.1, 0.12]
         delays = [list(range(1, 60)), list(range(1, 50))]
 
-        exp0 = T2StarExperiment(0, delays[0])
-        exp2 = T2StarExperiment(2, delays[1])
+        exp0 = T2Ramsey(0, delays[0])
+        exp2 = T2Ramsey(2, delays[1])
         par_exp = ParallelExperiment([exp0, exp2])
 
         p0 = {
             "a_guess": [0.5, None, 0.5],
-            "t2star": [t2star[0], None, t2star[1]],
+            "t2ramsey": [t2ramsey[0], None, t2ramsey[1]],
             "f_guess": [estimated_freq[0], None, estimated_freq[1]],
             "phi_guess": [0, None, 0],
             "b_guess": [0.5, None, 0.5],
         }
-        backend = T2starBackend(p0)
+        backend = T2RamseyBackend(p0)
         res = par_exp.run(backend=backend, shots=1000)
 
         for i in range(2):
             sub_res = res.component_experiment_data(i).analysis_result(0)
-            self.assertAlmostEqual(
-                sub_res["t2star_value"], t2star[i], delta=0.08 * sub_res["t2star_value"]
-            )
+            self.assertAlmostEqual(sub_res["t2ramsey_value"], t2ramsey[i], delta=3)
             self.assertAlmostEqual(
                 sub_res["frequency_value"],
                 estimated_freq[i],
-                delta=0.08 * sub_res["frequency_value"],
+                delta=3,
             )
+            sub_res = res.component_experiment_data(i).analysis_result(0)
             self.assertEqual(
                 sub_res["quality"],
                 "computer_good",
                 "Result quality bad for experiment on qubit " + str(i),
             )
-
-
-if __name__ == "__main__":
-    unittest.main()
