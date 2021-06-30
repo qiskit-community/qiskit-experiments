@@ -18,6 +18,7 @@ from qiskit.test import QiskitTestCase
 from qiskit.circuit import Parameter
 from qiskit.pulse import DriveChannel, Drag
 import qiskit.pulse as pulse
+from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.calibration.exceptions import CalibrationError
 from qiskit_experiments.calibration.experiments.drag import DragCal
@@ -63,6 +64,7 @@ class TestDragEndToEnd(QiskitTestCase):
         drag = DragCal(0)
         drag.set_analysis_options(p0={"beta": 1.2})
         drag.set_experiment_options(rp=self.x_plus, rm=self.x_minus)
+        drag.set_run_options(meas_level=MeasLevel.KERNELED)
         result = drag.run(backend).analysis_result(0)
 
         self.assertTrue(abs(result["popt"][6] - backend.ideal_beta) < test_tol)
@@ -74,7 +76,7 @@ class TestDragEndToEnd(QiskitTestCase):
         drag = DragCal(1)
         drag.set_run_options(shots=200)
         drag.set_experiment_options(betas=np.linspace(-3, 3, 21))
-        drag.set_analysis_options(p0={"beta": 1.2, "freq0": 0.08, "freq1": 0.16, "freq2": 0.32})
+        drag.set_analysis_options(p0={"beta": 1.8, "freq0": 0.08, "freq1": 0.16, "freq2": 0.32})
         drag.set_experiment_options(rp=self.x_plus, rm=self.x_minus)
         result = drag.run(backend).analysis_result(0)
 

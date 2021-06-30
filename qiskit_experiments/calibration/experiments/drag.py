@@ -273,8 +273,8 @@ class DragCal(BaseExperiment):
     def _default_run_options(cls) -> Options:
         """Default option values for the experiment :meth:`run` method."""
         return Options(
-            meas_level=MeasLevel.KERNELED,
-            meas_return="single",
+            meas_level=MeasLevel.CLASSIFIED,
+            meas_return="avg",
         )
 
     @classmethod
