@@ -145,6 +145,6 @@ class DragBackend(MockIQBackend):
         """Returns the probability based on the beta, number of gates, and leakage."""
         n_gates = sum(circuit.count_ops().values())
 
-        beta = next(iter(circuit.calibrations["xp"].keys()))[1][0]
+        beta = next(iter(circuit.calibrations["Rp"].keys()))[1][0]
 
         return np.sin(n_gates * self._leakage * (beta - self.ideal_beta)) ** 2

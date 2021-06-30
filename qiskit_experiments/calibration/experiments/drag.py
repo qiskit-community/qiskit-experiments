@@ -249,18 +249,19 @@ class DragCal(BaseExperiment):
     """An experiment that scans the drag parameter to find the optimal value.
 
     The Drag calibration will run several series of circuits. In a given circuit
-    a xp(β) - xm(β) block is repeated :math:`N` times. As example the circuit of a single
-    repetition, i.e. :math:`N=1`, is shown below.
+    a Rp(β) - Rm(β) block is repeated :math:`N` times. Here, Rp is a rotation with a
+    positive angle and Rm is the same rotation with a native angle. As example the
+    circuit of a single repetition, i.e. :math:`N=1`, is shown below.
 
     .. parsed-literal::
 
                    ┌───────┐ ░ ┌───────┐ ░ ┌─┐
-              q_0: ┤ xp(β) ├─░─┤ xm(β) ├─░─┤M├
+              q_0: ┤ Rp(β) ├─░─┤ Rm(β) ├─░─┤M├
                    └───────┘ ░ └───────┘ ░ └╥┘
         measure: 1/═════════════════════════╩═
                                             0
 
-    Here, the xp gate and the xm gate are intended to be pi and -pi rotations about the
+    Here, the Rp gate and the Rm gate are can be pi and -pi rotations about the
     x-axis of the Bloch sphere. The parameter β is scanned to find the value that minimizes
     the leakage to the second excited state. Note that the analysis class requires this
     experiment to run with three repetition numbers.
@@ -279,16 +280,16 @@ class DragCal(BaseExperiment):
     @classmethod
     def _default_experiment_options(cls) -> Options:
         """Default values for the pulse if no schedule is given.
-        Users can set the xm and xp schedules with
+        Users can set the positive and negative rotation schedules with
 
         .. code-block::
 
-            drag.set_experiment_options(xp=xp_schedule, xm=xm_schedule)
+            drag.set_experiment_options(rp=xp_schedule, rm=xm_schedule)
         """
         options = super()._default_experiment_options()
 
-        options.xp = None
-        options.xm = None
+        options.rp = None
+        options.rm = None
         options.amp = 0.2
         options.duration = 160
         options.sigma = 40
@@ -348,12 +349,12 @@ class DragCal(BaseExperiment):
             ),
         )
 
-        xm = self.experiment_options.xm
-        xp = self.experiment_options.xp
+        plus_sched = self.experiment_options.rp
+        minus_sched = self.experiment_options.rm
 
-        if xp is None:
+        if plus_sched is None:
             beta = Parameter("β")
-            with pulse.build(backend=backend, name="xp") as xp:
+            with pulse.build(backend=backend, name="xp") as plus_sched:
                 pulse.play(
                     pulse.Drag(
                         duration=self.experiment_options.duration,
@@ -364,7 +365,7 @@ class DragCal(BaseExperiment):
                     pulse.DriveChannel(self._physical_qubits[0]),
                 )
 
-            with pulse.build(backend=backend, name="xm") as xm:
+            with pulse.build(backend=backend, name="xm") as minus_sched:
                 pulse.play(
                     pulse.Drag(
                         duration=self.experiment_options.duration,
@@ -375,16 +376,16 @@ class DragCal(BaseExperiment):
                     pulse.DriveChannel(self._physical_qubits[0]),
                 )
 
-        beta_xp = next(iter(xp.parameters))
-        beta_xm = next(iter(xm.parameters))
+        beta_xp = next(iter(plus_sched.parameters))
+        beta_xm = next(iter(minus_sched.parameters))
 
         if beta_xp != beta_xm:
             raise CalibrationError(
                 f"Beta for xp and xm in {self.__class__.__name__} calibration are not identical."
             )
 
-        xp_gate = Gate(name="xp", num_qubits=1, params=[beta_xp])
-        xm_gate = Gate(name="xm", num_qubits=1, params=[beta_xp])
+        xp_gate = Gate(name="Rp", num_qubits=1, params=[beta_xp])
+        xm_gate = Gate(name="Rm", num_qubits=1, params=[beta_xp])
 
         reps = self.experiment_options.reps
         if len(reps) != 3:
@@ -411,11 +412,11 @@ class DragCal(BaseExperiment):
                 circuit.measure_active()
                 circuit.assign_parameters({beta_xp: beta}, inplace=True)
 
-                xm_ = xm.assign_parameters({beta_xp: beta}, inplace=False)
-                xp_ = xp.assign_parameters({beta_xp: beta}, inplace=False)
+                xm_ = minus_sched.assign_parameters({beta_xp: beta}, inplace=False)
+                xp_ = plus_sched.assign_parameters({beta_xp: beta}, inplace=False)
 
-                circuit.add_calibration("xp", (self.physical_qubits[0],), xp_, params=[beta])
-                circuit.add_calibration("xm", (self.physical_qubits[0],), xm_, params=[beta])
+                circuit.add_calibration("Rp", (self.physical_qubits[0],), xp_, params=[beta])
+                circuit.add_calibration("Rm", (self.physical_qubits[0],), xm_, params=[beta])
 
                 circuit.metadata = {
                     "experiment_type": self._type,
