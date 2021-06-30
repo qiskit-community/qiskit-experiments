@@ -46,7 +46,7 @@ class SpectroscopyAnalysis(CurveAnalysis):
     """Spectroscopy analysis."""
 
     __doc_overview__ = """
-This analysis uses Gaussian function to find a peak.
+This analysis uses a Gaussian function to find a peak.
 
 Note that this analysis assumes only single peak.
 If multiple peaks exist, you'll get a poor chi squared value.
