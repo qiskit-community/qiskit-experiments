@@ -48,8 +48,8 @@ class SpectroscopyAnalysis(CurveAnalysis):
     __doc_overview__ = """
 This analysis uses a Gaussian function to find a peak.
 
-Note that this analysis assumes only single peak.
-If multiple peaks exist, you'll get a poor chi squared value.
+Note that this analysis assumes only a single peak.
+If multiple peaks exist, you will get a poor reduced chi squared value.
 """
 
     __doc_equations__ = [r"F(x) = a \exp(-(x-f)^2/(2\sigma^2)) + b"]
