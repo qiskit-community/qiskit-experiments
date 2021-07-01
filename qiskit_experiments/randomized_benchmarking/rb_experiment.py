@@ -25,6 +25,7 @@ from qiskit.circuit import Gate
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.analysis.data_processing import probability
+from qiskit_experiments.composite import ParallelExperiment
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
 from .rb_utils import RBUtils
@@ -164,12 +165,21 @@ class StandardRB(BaseExperiment):
                 circuits.append(rb_circ)
         return circuits
 
+    def _get_circuit_metadata(self, circuit):
+        if circuit.metadata["experiment_type"] == self._type:
+            return circuit.metadata
+        if circuit.metadata["experiment_type"] == ParallelExperiment.__name__:
+            for meta in circuit.metadata["composite_metadata"]:
+                if meta["qubits"] == self.physical_qubits:
+                    return meta
+        return None
+
     def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
         """Additional post-processing of transpiled circuits before running on backend"""
         for c in circuits:
-            c_count_ops = RBUtils.count_ops(c, self.physical_qubits)
-            circuit_length = c.metadata["xval"]
-            average_count_ops = [
-                (key, value / circuit_length) for key, value in c_count_ops.items()
-            ]
-            c.metadata.update({"count_ops": average_count_ops})
+            meta = self._get_circuit_metadata(c)
+            if meta is not None:
+                c_count_ops = RBUtils.count_ops(c, self.physical_qubits)
+                circuit_length = meta["xval"]
+                count_ops = [(key, (value, circuit_length)) for key, value in c_count_ops.items()]
+                meta.update({"count_ops": count_ops})
