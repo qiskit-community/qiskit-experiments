@@ -71,8 +71,8 @@ class DbExperimentData:
     """Base common type for all versioned DbExperimentData classes.
 
     Note this class should not be inherited from directly, it is intended
-    to be used for type checking. When implementing a provider you should use
-    the versioned abstract classes as the parent class and not this class
+    to be used for type checking. When implementing a custom DbExperimentData class,
+    you should use the versioned classes as the parent class and not this class
     directly.
     """
 
@@ -381,7 +381,7 @@ class DbExperimentDataV1(DbExperimentData):
         """Add the experiment figure.
 
         Args:
-            figures (str or bytes or pyplot.Figure or list): Names of the figure
+            figures (str or bytes or pyplot.Figure or list): Paths of the figure
                 files or figure data.
             figure_names (str or list): Names of the figures. If ``None``, use the figure file
                 names, if given, or a generated name. If `figures` is a list, then
@@ -571,10 +571,12 @@ class DbExperimentDataV1(DbExperimentData):
         Raises:
             DbExperimentEntryNotFound: If analysis result not found.
         """
+
         if isinstance(result_key, int):
             result_key = self._analysis_results.keys()[result_key]
-        elif result_key not in self._analysis_results:
-            raise DbExperimentEntryNotFound(f"Analysis result {result_key} not found.")
+        else:
+            # Retrieve from DB if needed.
+            result_key = self.analysis_results(result_key).result_id
 
         del self._analysis_results[result_key]
         self._deleted_analysis_results.append(result_key)
@@ -958,7 +960,7 @@ class DbExperimentDataV1(DbExperimentData):
         Args:
             new_level: New experiment share level. Valid share levels are provider-
                 specified. For example, IBM Quantum experiment service allows
-                "global", "hub", "group", "project", and "private".
+                "public", "hub", "group", "project", and "private".
         """
         self._share_level = new_level
         if self.auto_save:
@@ -1025,6 +1027,10 @@ class DbExperimentDataV1(DbExperimentData):
         if status == "ERROR":
             ret += "\n  "
             ret += "\n  ".join(self._errors)
+        if self.backend:
+            ret += f"\nBackend: {self.backend}"
+        if self.tags():
+            ret += f"\nTags: {self.tags()}"
         ret += f"\nData: {len(self._data)}"
         ret += f"\nAnalysis Results: {n_res}"
         ret += f"\nFigures: {len(self._figures)}"

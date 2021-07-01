@@ -137,7 +137,7 @@ class TestDbAnalysisResult(QiskitTestCase):
         values = {
             "result_data": {"foo": "bar"},
             "result_type": "some_type",
-            "device_components": ["Q1", "Q1"],
+            "device_components": ["Q1", "Q2"],
             "experiment_id": "1234",
         }
         values.update(kwargs)

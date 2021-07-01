@@ -23,7 +23,7 @@ well as the interface to an experiment database service. An experiment database
 service allows one to store, retrieve, and query experiment related data.
 
 :class:`DbExperimentDataV1` is the main class that defines the structure of
-experiment data, which consists of the following::
+experiment data, which consists of the following:
 
     * Results from circuit execution, which is called ``data`` in this class.
       The :meth:`DbExperimentDataV1.add_data`
@@ -60,8 +60,9 @@ under the cover to save experiment related data. The low-level methods are only
 expected to be used when you want to interact with the database directly - for
 example, to retrieve a saved analysis result.
 
-Currently only IBM Quantum provides this database service, but we plan on having
-a local database service in the near future.
+Currently only IBM Quantum provides this database service. See
+`qiskit-ibmq-provider <https://qiskit.org/documentation/apidoc/ibmq_experiment.html>`_
+for more details.
 
 Classes
 =======

@@ -52,7 +52,7 @@ class TestDbExperimentData(QiskitTestCase):
         """Test stored data attributes."""
         attrs = {
             "job_ids": ["job1"],
-            "share_level": "global",
+            "share_level": "public",
             "figure_names": ["figure1"],
             "notes": "some notes",
         }

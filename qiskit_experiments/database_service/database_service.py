@@ -314,7 +314,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
 
         Args:
             experiment_id: ID of the experiment this figure is for.
-            figure: Name of the figure file or figure data to store.
+            figure: Path of the figure file or figure data to store.
             figure_name: Name of the figure. If ``None``, the figure file name, if
                 given, or a generated name is used.
 
@@ -334,7 +334,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
 
         Args:
             experiment_id: Experiment ID.
-            figure: Name of the figure file or figure data to store.
+            figure: Path of the figure file or figure data to store.
             figure_name: Name of the figure.
 
         Returns:

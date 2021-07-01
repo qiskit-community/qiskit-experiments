@@ -42,11 +42,11 @@ def auto_save(func: Callable):
 
 
 class DbAnalysisResult:
-    """Base common type for all versioned AnalysisResult abstract classes.
+    """Base common type for all versioned DbAnalysisResult abstract classes.
 
     Note this class should not be inherited from directly, it is intended
-    to be used for type checking. When implementing a provider you should use
-    the versioned abstract classes as the parent class and not this class
+    to be used for type checking. When implementing a custom DbAnalysisResult
+    you should use the versioned classes as the parent class and not this class
     directly.
     """
 
@@ -369,6 +369,9 @@ class DbAnalysisResultV1(DbAnalysisResult):
         ret += f"\nExperiment ID: {self.experiment_id}"
         ret += f"\nDevice Components: {self.device_components}"
         ret += f"\nQuality: {self.quality}"
+        ret += f"\nVerified: {self.verified}"
+        if self.tags():
+            ret += f"\nTags: {self.tags()}"
         ret += "\nResult Data:"
         for key, val in self.data().items():
             ret += f"\n  - {key}: {val}"
