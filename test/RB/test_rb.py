@@ -42,7 +42,7 @@ import qiskit_experiments as qe
 
 
 @ddt
-class TestRB(QiskitTestCase):
+class TestStandardRB(QiskitTestCase):
     """
     A test class for the RB Experiment to check that the StandardRB class is working correctly.
     """
@@ -174,7 +174,7 @@ class TestRB(QiskitTestCase):
 
 
 @ddt
-class TestInterleavedRB(TestRB):
+class TestInterleavedRB(TestStandardRB):
     """
     A test class for the interleaved RB Experiment to check that the
     InterleavedRB class is working correctly.
