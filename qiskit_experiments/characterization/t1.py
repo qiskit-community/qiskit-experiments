@@ -25,12 +25,24 @@ from qiskit_experiments.characterization.t1_analysis import T1Analysis
 
 
 class T1(BaseExperiment):
-    """T1 experiment class.
+    r"""
+    T1 experiment class
 
     Experiment Options:
         * delays: delay times of the experiments
         * unit: Optional, unit of the delay times. Supported units are
                 's', 'ms', 'us', 'ns', 'ps', 'dt'.
+
+    Design and analyze experiments for estimating T\ :sub:`1` of the device.
+
+    Each experiment consists of the following steps:
+    1. Circuits generation: the circuits set the qubit in the excited state,
+    wait different time intervals, then measure the qubit.
+    2. Backend execution: actually running the circuits on the device
+    (or simulator).
+    3. Analysis of results: deduction of T\ :sub:`1`\ , based on the outcomes,
+    by fitting to an exponential curve.
+
     """
 
     __analysis_class__ = T1Analysis
