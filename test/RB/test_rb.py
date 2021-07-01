@@ -37,7 +37,6 @@ from qiskit.circuit.library import (
     CZGate,
     SwapGate,
 )
-from qiskit.providers.aer import AerSimulator
 import qiskit_experiments as qe
 
 
@@ -62,8 +61,8 @@ class TestStandardRB(QiskitTestCase):
             "num_samples": 1,
             "seed": 100,
         }
-        rb = qe.randomized_benchmarking
-        rb_exp = rb.StandardRB(
+        rb_class = qe.randomized_benchmarking
+        rb_exp = rb_class.StandardRB(
             exp_attributes["physical_qubits"],
             exp_attributes["lengths"],
             num_samples=exp_attributes["num_samples"],
@@ -82,12 +81,12 @@ class TestStandardRB(QiskitTestCase):
         Args:
             circuits (list): list of the circuits which we want to check
         """
-        for qc in circuits:
-            num_qubits = qc.num_qubits
-            qc.remove_final_measurements()
+        for circ in circuits:
+            num_qubits = circ.num_qubits
+            circ.remove_final_measurements()
             # Checking if the matrix representation is the identity matrix
             self.assertTrue(
-                matrix_equal(Clifford(qc).to_matrix(), np.identity(2 ** num_qubits)),
+                matrix_equal(Clifford(circ).to_matrix(), np.identity(2 ** num_qubits)),
                 "Clifford sequence doesn't result in the identity matrix.",
             )
 
@@ -98,13 +97,13 @@ class TestStandardRB(QiskitTestCase):
             circuits (list): A list containing quantum circuits
             exp_attributes (dict): A dictionary with the experiment variable and values
         """
-        for ind, qc in enumerate(circuits):
+        for ind, circ in enumerate(circuits):
             self.assertTrue(
-                qc.metadata["xval"] == exp_attributes["lengths"][ind],
+                circ.metadata["xval"] == exp_attributes["lengths"][ind],
                 "The number of gates in the experiment metadata doesn't match to the one provided.",
             )
             self.assertTrue(
-                qc.metadata["physical_qubits"] == tuple(exp_attributes["physical_qubits"]),
+                circ.metadata["physical_qubits"] == tuple(exp_attributes["physical_qubits"]),
                 "The qubits indices in the experiment metadata doesn't match to the one provided.",
             )
 
@@ -152,7 +151,7 @@ class TestStandardRB(QiskitTestCase):
             {"physical_qubits": [0, 1], "lengths": [1, 3, 5, -7, 9], "num_samples": 1, "seed": 100},
             {"physical_qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": -4, "seed": 100},
             {"physical_qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": 0, "seed": 100},
-            {"physical_qubits": [0, 1], "lengths": [1, 5, 5, 5, 9], "num_samples": 0, "seed": 100},
+            {"physical_qubits": [0, 1], "lengths": [1, 5, 5, 5, 9], "num_samples": 2, "seed": 100},
         ]
         return exp_data_list
 
@@ -161,11 +160,11 @@ class TestStandardRB(QiskitTestCase):
         Check that errors emerge when invalid input is given to the RB experiment.
         """
         exp_data_list = self._exp_data_properties()
-        rb = qe.randomized_benchmarking
+        rb_class = qe.randomized_benchmarking
         for exp_data in exp_data_list:
             self.assertRaises(
                 QiskitError,
-                rb.StandardRB,
+                rb_class.StandardRB,
                 exp_data["physical_qubits"],
                 exp_data["lengths"],
                 num_samples=exp_data["num_samples"],
@@ -197,8 +196,8 @@ class TestInterleavedRB(TestStandardRB):
             "num_samples": 2,
             "seed": 100,
         }
-        rb = qe.randomized_benchmarking
-        rb_exp = rb.InterleavedRB(
+        rb_class = qe.randomized_benchmarking
+        rb_exp = rb_class.InterleavedRB(
             exp_attributes["interleaved_element"],
             exp_attributes["physical_qubits"],
             exp_attributes["lengths"],

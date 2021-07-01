@@ -52,11 +52,12 @@ class TestStandardRBAnalysis(QiskitTestCase):
             data = json.load(json_file)
             # The experiment attributes added
             exp_attributes = data[0]
+            # pylint: disable=protected-access, invalid-name
             expdata1._metadata = data[0]
             # The experiment data located in index [1] as it is a list of dicts
             expdata1.add_data(data[1])
-        rb = qe.randomized_benchmarking
-        rb_exp = rb.StandardRB(
+        rb_class = qe.randomized_benchmarking
+        rb_exp = rb_class.StandardRB(
             exp_attributes["physical_qubits"],
             exp_attributes["lengths"],
             num_samples=exp_attributes["num_samples"],
