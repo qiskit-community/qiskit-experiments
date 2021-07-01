@@ -143,7 +143,9 @@ class T1Analysis(BaseAnalysis):
 
         # Generate fit plot
         if plot and plotting.HAS_MATPLOTLIB:
-            ax = plotting.plot_curve_fit(fit_fun, fit_result, ax=ax)
+            ax = plotting.plot_curve_fit(
+                fit_fun, fit_result, monotonicity={"a": True, "tau": True, "c": True}, ax=ax
+            )
             ax = plotting.plot_errorbar(xdata, ydata, sigma, ax=ax)
             self._format_plot(ax, fit_result, qubit=qubit)
             figures = [ax.get_figure()]

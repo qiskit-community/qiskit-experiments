@@ -38,6 +38,7 @@ class SeriesDef:
     """Description of curve."""
 
     fit_func: Callable
+    monotonicity: List = None
     filter_kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
     name: str = "Series-0"
     plot_color: str = "black"
@@ -71,6 +72,8 @@ class CurveAnalysis(BaseAnalysis):
             Each series definition is SeriesDef element, that may be initialized with:
 
                 fit_func: The function to which the data will be fit.
+                monotonicity: a list of Booleans, whose length is the number of parameters.
+                    For every parameter, does the function increase when the parameter increases?
                 filter_kwargs: Circuit metadata key and value associated with this curve.
                     The data points of the curve are extracted from ExperimentData based on
                     this information.
@@ -98,6 +101,7 @@ class CurveAnalysis(BaseAnalysis):
                         fit_func=lambda x, p0, p1, p2:
                             exponential_decay(x, amp=p0, lamb=p1, baseline=p2),
                     ),
+                    monotonicity = {"p0": True, "p1": False, "p2": True}
                 ]
 
 
@@ -117,6 +121,7 @@ class CurveAnalysis(BaseAnalysis):
                         name="my_experiment1",
                         fit_func=lambda x, p0, p1, p2, p3:
                             exponential_decay(x, amp=p0, lamb=p1, baseline=p3),
+                        monotonicity = {"p0": True, "p1": False, "p2": False, "p3": True},
                         filter_kwargs={"experiment": 1},
                         plot_color="red",
                         plot_symbol="^",
@@ -125,6 +130,7 @@ class CurveAnalysis(BaseAnalysis):
                         name="my_experiment2",
                         fit_func=lambda x, p0, p1, p2, p3:
                             exponential_decay(x, amp=p0, lamb=p2, baseline=p3),
+                        monotonicity = {"p0": True, "p1": False, "p2": False, "p3": True},
                         filter_kwargs={"experiment": 2},
                         plot_color="blue",
                         plot_symbol="o",
@@ -301,18 +307,18 @@ class CurveAnalysis(BaseAnalysis):
             return_data_points=False,
         )
 
-    def _create_figures(self, analysis_results: CurveAnalysisResult) -> List["Figure"]:
+    def _create_figures(self, analysis_result: CurveAnalysisResult) -> List["Figure"]:
         """Create new figures with the fit result and raw data.
 
         Subclass can override this method to create different type of figures.
 
         Args:
-            analysis_results: Analysis result containing fit parameters.
+            analysis_result: Analysis result containing fit parameters.
 
         Returns:
             List of figures.
         """
-        fit_available = all(key in analysis_results for key in ("popt", "popt_err", "xrange"))
+        fit_available = all(key in analysis_result for key in ("popt", "popt_err", "xrange"))
 
         if plotting.HAS_MATPLOTLIB:
 
@@ -360,7 +366,8 @@ class CurveAnalysis(BaseAnalysis):
                 if fit_available:
                     plotting.plot_curve_fit(
                         func=series_def.fit_func,
-                        result=analysis_results,
+                        result=analysis_result,
+                        monotonicity=series_def.monotonicity,
                         ax=axis,
                         color=series_def.plot_color,
                         zorder=2,
@@ -391,14 +398,14 @@ class CurveAnalysis(BaseAnalysis):
                 for par_name, label in fit_reports.items():
                     try:
                         # fit value
-                        pval = get_opt_value(analysis_results, par_name)
-                        perr = get_opt_error(analysis_results, par_name)
+                        pval = get_opt_value(analysis_result, par_name)
+                        perr = get_opt_error(analysis_result, par_name)
                     except ValueError:
                         # maybe post processed value
-                        pval = analysis_results[par_name]
-                        perr = analysis_results[f"{par_name}_err"]
+                        pval = analysis_result[par_name]
+                        perr = analysis_result[f"{par_name}_err"]
                     analysis_description += f"{label} = {pval: .3e}\u00B1{perr: .3e}\n"
-                chisq = analysis_results["reduced_chisq"]
+                chisq = analysis_result["reduced_chisq"]
                 analysis_description += f"Fit \u03C7-squared = {chisq: .4f}"
 
                 report_handler = axis.text(
@@ -879,7 +886,7 @@ class CurveAnalysis(BaseAnalysis):
             # 5. Create figures
             #
             if self._get_option("plot"):
-                figures.extend(self._create_figures(analysis_results=analysis_result))
+                figures.extend(self._create_figures(analysis_result=analysis_result))
 
             #
             # 6. Optionally store raw data points

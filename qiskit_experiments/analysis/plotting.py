@@ -12,7 +12,7 @@
 """
 Plotting functions for experiment analysis
 """
-from typing import Callable, Optional
+from typing import Callable, Optional, Union, List, Dict
 import numpy as np
 
 from qiskit_experiments.base_analysis import AnalysisResult
@@ -26,7 +26,7 @@ from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
 def plot_curve_fit(
     func: Callable,
     result: AnalysisResult,
-    confidence_interval: bool = True,
+    monotonicity: Optional[Union[List, Dict]] = None,
     ax=None,
     num_fit_points: int = 100,
     labelsize: int = 14,
@@ -40,7 +40,14 @@ def plot_curve_fit(
     Args:
         func: the fit function for curve_fit.
         result: an AnalysisResult from curve_fit.
-        confidence_interval: if True plot the confidence interval from popt_err.
+        monotonicity: a list or dictionary of Booleans, whose length is the number of parameters.
+           Choice of list or dictionary has to match the format of `result["popt"]`.
+           For every parameter, does the function increase when the parameter increases?
+           If not None, then a confidence interval will be displayed -
+           the plot will be colored in the areas of possible values of the fit function,
+           where possible values are those that can be obtained when every parameter is in the range
+           [fitted_value - error, fitted_value + error]
+           If None then confidence interval will not be displayed
         ax (matplotlib.axes.Axes): Optional, a matplotlib axes to add the plot to.
         num_fit_points: the number of points to plot for xrange.
         labelsize: label size for plot
@@ -81,18 +88,24 @@ def plot_curve_fit(
     ax.plot(xs, ys_fit, **plot_opts)
 
     # Plot standard error interval
-    if confidence_interval and fit_errors is not None:
+    if monotonicity and fit_errors is not None:
         if param_keys:
             params_upper = {}
             params_lower = {}
             for key, param, error in zip(param_keys, fit_params, fit_errors):
-                params_upper[key] = param + error
-                params_lower[key] = param - error
+                params_upper[key] = param - error * (-1) ** monotonicity[key]
+                params_lower[key] = param + error * (-1) ** monotonicity[key]
             ys_upper = func(xs, **params_upper)
             ys_lower = func(xs, **params_lower)
         else:
-            params_upper = [param + error for param, error in zip(fit_params, fit_errors)]
-            params_lower = [param - error for param, error in zip(fit_params, fit_errors)]
+            params_upper = [
+                param - error * (-1) ** mono
+                for param, error, mono in zip(fit_params, fit_errors, monotonicity)
+            ]
+            params_lower = [
+                param + error * (-1) ** mono
+                for param, error, mono in zip(fit_params, fit_errors, monotonicity)
+            ]
             ys_upper = func(xs, *params_upper)
             ys_lower = func(xs, *params_lower)
         ax.fill_between(xs, ys_lower, ys_upper, alpha=0.1, color=plot_opts["color"])
