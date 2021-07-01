@@ -377,7 +377,6 @@ class DbExperimentDataV1(DbExperimentData):
         figure_names=None,
         overwrite=False,
         save_figure=None,
-        service=None,
     ) -> Union[str, List[str]]:
         """Add the experiment figure.
 
@@ -391,8 +390,6 @@ class DbExperimentDataV1(DbExperimentData):
                 the same name.
             save_figure (bool): Whether to save the figure in the database. If ``None``,
                 the ``auto-save`` attribute is used.
-            service (DatabaseServiceV1): Experiment service to be used to update the database, if
-                the figure is to be uploaded. If ``None``, the default service is used.
 
         Returns:
             str or list:
@@ -444,9 +441,8 @@ class DbExperimentDataV1(DbExperimentData):
 
             self._figures[fig_name] = figure
 
-            service = service or self._service
             save = save_figure if save_figure is not None else self.auto_save
-            if save and service:
+            if save and self._service:
                 if HAS_MATPLOTLIB:
                     # pylint: disable=import-error
                     from matplotlib import pyplot
@@ -460,8 +456,8 @@ class DbExperimentDataV1(DbExperimentData):
                 }
                 save_data(
                     is_new=(not existing_figure),
-                    new_func=service.create_figure,
-                    update_func=service.update_figure,
+                    new_func=self._service.create_figure,
+                    update_func=self._service.update_figure,
                     new_data={},
                     update_data=data,
                 )
@@ -473,14 +469,11 @@ class DbExperimentDataV1(DbExperimentData):
     def delete_figure(
         self,
         figure_key: Union[str, int],
-        service: Optional["database_service.DatabaseServiceV1"] = None,
     ) -> str:
         """Add the experiment figure.
 
         Args:
             figure_key: Name or index of the figure.
-            service: Experiment service to be used to update the database. If ``None``,
-                the default service is used.
 
         Returns:
             Figure name.
@@ -496,8 +489,7 @@ class DbExperimentDataV1(DbExperimentData):
         del self._figures[figure_key]
         self._deleted_figures.append(figure_key)
 
-        service = service or self._service
-        if service and self.auto_save:
+        if self._service and self.auto_save:
             with service_exception_to_warning():
                 self.service.delete_figure(experiment_id=self.experiment_id, figure_name=figure_key)
             self._deleted_figures.remove(figure_key)
@@ -544,14 +536,11 @@ class DbExperimentDataV1(DbExperimentData):
     def add_analysis_results(
         self,
         results: Union[DbAnalysisResult, List[DbAnalysisResult]],
-        service: "database_service.DatabaseServiceV1" = None,
     ) -> None:
         """Save the analysis result.
 
         Args:
             results: Analysis results to be saved.
-            service: Experiment service to be used to update the database. If ``None``,
-                the default service is used.
         """
         if not isinstance(results, list):
             results = [results]
@@ -563,20 +552,18 @@ class DbExperimentDataV1(DbExperimentData):
                 result.service = self.service
                 result.auto_save = self.auto_save
 
-            use_service = service or self.service
-            if self.auto_save and use_service:
-                result.save(service=service)
+            if self.auto_save and self._service:
+                result.save(service=self._service)
 
     @auto_save
     def delete_analysis_result(
-        self, result_key: Union[int, str], service: "database_service.DatabaseServiceV1" = None
+        self,
+        result_key: Union[int, str],
     ) -> str:
         """Delete the analysis result.
 
         Args:
             result_key: ID or index of the analysis result to be delete.
-            service: Experiment service to be used to update the database. If ``None``,
-                the default service is used.
 
         Returns:
             Analysis result ID.
@@ -592,8 +579,7 @@ class DbExperimentDataV1(DbExperimentData):
         del self._analysis_results[result_key]
         self._deleted_analysis_results.append(result_key)
 
-        service = service or self._service
-        if service and self.auto_save:
+        if self._service and self.auto_save:
             with service_exception_to_warning():
                 self.service.delete_analysis_result(result_id=result_key)
             self._deleted_analysis_results.remove(result_key)
@@ -641,7 +627,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         raise TypeError(f"Invalid index type {type(index)}.")
 
-    def save(self, service: Optional["database_service.DatabaseServiceV1"] = None) -> None:
+    def save(self) -> None:
         """Save this experiment in the database.
 
         Note:
@@ -652,13 +638,8 @@ class DbExperimentDataV1(DbExperimentData):
         Note:
             Note that this method does not save analysis results nor figures. Use
             ``save_all()`` if you want to save those.
-
-        Args:
-            service: Experiment service to be used to save the data.
-                If ``None``, the provider used to submit jobs will be used.
         """
-        service = service or self._service
-        if not service:
+        if not self._service:
             LOG.warning("Experiment cannot be saved because no experiment service is available.")
             return
 
@@ -682,13 +663,13 @@ class DbExperimentDataV1(DbExperimentData):
 
         self._created_in_db, _ = save_data(
             is_new=(not self._created_in_db),
-            new_func=service.create_experiment,
-            update_func=service.update_experiment,
+            new_func=self._service.create_experiment,
+            update_func=self._service.update_experiment,
             new_data=new_data,
             update_data=update_data,
         )
 
-    def save_all(self, service: Optional["database_service.DatabaseServiceV1"] = None) -> None:
+    def save_all(self) -> None:
         """Save this experiment and its analysis results and figures in the database.
 
         Note:
@@ -699,18 +680,17 @@ class DbExperimentDataV1(DbExperimentData):
                 If ``None``, the provider used to submit jobs will be used.
         """
         # TODO - track changes
-        use_service = service or self._service
-        if not use_service:
+        if not self._service:
             LOG.warning("Experiment cannot be saved because no experiment service is available.")
             return
 
-        self.save(service=use_service)
+        self.save()
         for result in self._analysis_results.values():
-            result.save(service)
+            result.save()
 
         for result in self._deleted_analysis_results.copy():
             with service_exception_to_warning():
-                use_service.delete_analysis_result(result_id=result)
+                self._service.delete_analysis_result(result_id=result)
             self._deleted_analysis_results.remove(result)
 
         with self._figures.lock:
@@ -724,15 +704,15 @@ class DbExperimentDataV1(DbExperimentData):
                 data = {"experiment_id": self.experiment_id, "figure": figure, "figure_name": name}
                 save_data(
                     is_new=True,
-                    new_func=use_service.create_figure,
-                    update_func=use_service.update_figure,
+                    new_func=self._service.create_figure,
+                    update_func=self._service.update_figure,
                     new_data={},
                     update_data=data,
                 )
 
         for name in self._deleted_figures.copy():
             with service_exception_to_warning():
-                use_service.delete_figure(experiment_id=self.experiment_id, figure_name=name)
+                self._service.delete_figure(experiment_id=self.experiment_id, figure_name=name)
             self._deleted_figures.remove(name)
 
     def serialize_metadata(self) -> str:

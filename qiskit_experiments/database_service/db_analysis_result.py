@@ -182,18 +182,13 @@ class DbAnalysisResultV1(DbAnalysisResult):
             **kwargs,
         )
 
-    def save(self, service: Optional["database_service.DatabaseServiceV1"] = None) -> None:
+    def save(self) -> None:
         """Save this analysis result in the database.
-
-        Args:
-            service: Experiment service to be used to save the data.
-                If ``None``, the default, if any, is used.
 
         Raises:
             DbExperimentDataError: If the analysis result contains invalid data.
         """
-        service = service or self._service
-        if not service:
+        if not self._service:
             LOG.warning(
                 "Analysis result cannot be saved because no experiment service is available."
             )
@@ -217,8 +212,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
 
         self._created_in_db, _ = save_data(
             is_new=(not self._created_in_db),
-            new_func=service.create_analysis_result,
-            update_func=service.update_analysis_result,
+            new_func=self._service.create_analysis_result,
+            update_func=self._service.update_analysis_result,
             new_data=new_data,
             update_data=update_data,
         )

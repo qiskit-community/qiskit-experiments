@@ -49,7 +49,8 @@ class TestDbAnalysisResult(QiskitTestCase):
         """Test saving analysis result."""
         mock_service = mock.create_autospec(DatabaseServiceV1)
         result = self._new_analysis_result()
-        result.save(service=mock_service)
+        result.service = mock_service
+        result.save()
         mock_service.create_analysis_result.assert_called_once()
 
     def test_auto_save(self):
@@ -88,15 +89,6 @@ class TestDbAnalysisResult(QiskitTestCase):
 
         with self.assertRaises(DbExperimentDataError):
             result.service = mock_service
-
-    def test_set_service_save(self):
-        """Test setting service when saving."""
-        orig_service = mock.create_autospec(DatabaseServiceV1)
-        result = self._new_analysis_result(service=orig_service)
-        new_service = mock.create_autospec(DatabaseServiceV1)
-        result.save(service=new_service)
-        new_service.create_analysis_result.assert_called()
-        orig_service.create_analysis_result.assert_not_called()
 
     def test_set_data(self):
         """Test setting data."""
