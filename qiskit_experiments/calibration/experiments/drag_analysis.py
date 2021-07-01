@@ -172,8 +172,7 @@ class DragCalAnalysis(CurveAnalysis):
                         "freq0": user_bounds.get("freq0", None) or (0, np.inf),
                         "freq1": user_bounds.get("freq1", None) or (0, np.inf),
                         "freq2": user_bounds.get("freq2", None) or (0, np.inf),
-                        "beta": user_bounds.get("beta", None)
-                        or (-freq_bound, freq_bound),
+                        "beta": user_bounds.get("beta", None) or (-freq_bound, freq_bound),
                         "base": user_bounds.get("base", None) or (-1 * max_abs_y, 1 * max_abs_y),
                     },
                 }
