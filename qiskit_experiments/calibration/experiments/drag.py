@@ -29,7 +29,7 @@ from qiskit_experiments.calibration.experiments.drag_analysis import DragCalAnal
 
 
 class DragCal(BaseExperiment):
-    """An experiment that scans the DRAG parameter to find the optimal value.
+    r"""An experiment that scans the DRAG parameter to find the optimal value.
 
     A Derivative Removal by Adiabatic Gate (DRAG) pulse is designed to minimize leakage
     to a neighbouring transition. It is a standard pulse with an additional derivative

@@ -153,6 +153,7 @@ class DragCalAnalysis(CurveAnalysis):
         max_abs_y = np.max(np.abs(self._data().y))
 
         freq_guess0 = user_p0.get("freq0", None) or freq_guess[0]
+        freq_bound = max(10 / freq_guess0, max(x_data))
 
         fit_options = []
         for amp_guess, b_guess in guesses:
@@ -172,7 +173,7 @@ class DragCalAnalysis(CurveAnalysis):
                         "freq1": user_bounds.get("freq1", None) or (0, np.inf),
                         "freq2": user_bounds.get("freq2", None) or (0, np.inf),
                         "beta": user_bounds.get("beta", None)
-                        or (-10 / freq_guess0, 10 / freq_guess0),
+                        or (-freq_bound, freq_bound),
                         "base": user_bounds.get("base", None) or (-1 * max_abs_y, 1 * max_abs_y),
                     },
                 }
