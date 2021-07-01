@@ -179,8 +179,7 @@ class RBAnalysis(CurveAnalysis):
             gate_error_ratio = self._get_option("error_dict")
         count_ops = []
         for meta in self._data(label="raw_data").metadata:
-            average_count_ops = meta.get("count_ops", [])
-            count_ops += average_count_ops
+            count_ops += meta.get("count_ops", [])
         if len(count_ops) > 0 and gate_error_ratio is not None:
             gates_per_clifford = RBUtils.gates_per_clifford(count_ops)
             num_qubits = len(self._physical_qubits)

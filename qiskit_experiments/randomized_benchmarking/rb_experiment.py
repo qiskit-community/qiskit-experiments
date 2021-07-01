@@ -181,7 +181,5 @@ class StandardRB(BaseExperiment):
             if meta is not None:
                 c_count_ops = RBUtils.count_ops(c, self.physical_qubits)
                 circuit_length = meta["xval"]
-                average_count_ops = [
-                    (key, value / circuit_length) for key, value in c_count_ops.items()
-                ]
-                meta.update({"count_ops": average_count_ops})
+                count_ops = [(key, (value, circuit_length)) for key, value in c_count_ops.items()]
+                meta.update({"count_ops": count_ops})
