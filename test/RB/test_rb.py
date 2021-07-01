@@ -58,7 +58,7 @@ class TestStandardRB(QiskitTestCase):
         exp_attributes = {
             "physical_qubits": qubits,
             "lengths": [1, 4, 6, 9, 13, 16],
-            "num_samples": 1,
+            "num_samples": 3,
             "seed": 100,
         }
         rb_class = qe.randomized_benchmarking
