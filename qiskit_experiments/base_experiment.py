@@ -68,7 +68,6 @@ class BaseExperiment(ABC):
             self._num_qubits = len(qubits)
             self._physical_qubits = tuple(qubits)
             if self._num_qubits != len(set(self._physical_qubits)):
-                print(self._num_qubits, self._physical_qubits)
                 raise QiskitError("Duplicate qubits in physical qubits list.")
 
         # Experiment options
@@ -110,7 +109,7 @@ class BaseExperiment(ABC):
         else:
             # Validate experiment is compatible with existing data container
             metadata = experiment_data.metadata()
-            if metadata.get("experiment_data") != self._type:
+            if metadata.get("experiment_type") != self._type:
                 raise QiskitError(
                     "Existing ExperimentData contains data from a different experiment."
                 )
