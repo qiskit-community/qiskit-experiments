@@ -108,10 +108,13 @@ class RBUtils:
         result = {}
         for ((qubits, gate_name), value) in ops_count:
             qubits = tuple(qubits)  # so we can hash
+            # for each (qubit, gate name) pair collect
+            # (number of gates, number of cliffords)
             if (qubits, gate_name) not in result:
-                result[(qubits, gate_name)] = []
-            result[(qubits, gate_name)].append(value)
-        return {key: np.mean(value) for (key, value) in result.items()}
+                result[(qubits, gate_name)] = [0, 0]
+            result[(qubits, gate_name)][0] += value[0]
+            result[(qubits, gate_name)][1] += value[1]
+        return {key: value[0] / value[1] for (key, value) in result.items()}
 
     @staticmethod
     def coherence_limit(nQ=2, T1_list=None, T2_list=None, gatelen=0.1):
