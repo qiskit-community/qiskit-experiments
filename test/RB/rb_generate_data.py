@@ -75,21 +75,27 @@ def _generate_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes: di
         rb_exp_name: The experiment name for naming the output files.
         exp_attributes: attributes to config the RB experiment.
     """
-    gate_error_ratio = {((0,), "id"): 1, ((0,), "rz"): 0, ((0,), "sx"): 1, ((0,), "x"): 1, ((0, 1), "cx"): 1}
-    transpiled_base_gate = ['cx','sx','x']
+    gate_error_ratio = {
+        ((0,), "id"): 1,
+        ((0,), "rz"): 0,
+        ((0,), "sx"): 1,
+        ((0,), "x"): 1,
+        ((0, 1), "cx"): 1,
+    }
+    transpiled_base_gate = ["cx", "sx", "x"]
     results_file_path = os.path.join(dir_name, str(rb_exp_name + "_output_data.json"))
     analysis_file_path = os.path.join(dir_name, str(rb_exp_name + "_output_analysis.json"))
     noise_model = create_depolarizing_noise_model()
     backend = QasmSimulator()
-    rb = qe.randomized_benchmarking
-    rb_exp = rb.StandardRB(
+    rb_class = qe.randomized_benchmarking
+    rb_exp = rb_class.StandardRB(
         exp_attributes["physical_qubits"],
         exp_attributes["lengths"],
         num_samples=exp_attributes["num_samples"],
         seed=exp_attributes["seed"],
     )
     rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
-    experiment_obj = rb_exp.run(backend, noise_model=noise_model, basis_gates = transpiled_base_gate)
+    experiment_obj = rb_exp.run(backend, noise_model=noise_model, basis_gates=transpiled_base_gate)
     exp_results = experiment_obj.data()
     with open(results_file_path, "w") as json_file:
         joined_list_data = [exp_attributes, exp_results]
