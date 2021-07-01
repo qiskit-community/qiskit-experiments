@@ -201,7 +201,7 @@ def plot_errorbar(
     if "markersize" not in plot_opts:
         plot_opts["markersize"] = 9
     if "linestyle" not in plot_opts:
-        plot_opts["linestyle"] = "--"
+        plot_opts["linestyle"] = "None"
 
     # Plot data
     ax.errorbar(xdata, ydata, yerr=sigma, **plot_opts)

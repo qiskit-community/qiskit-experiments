@@ -27,20 +27,29 @@ from qiskit_experiments.analysis import plotting
 
 
 class T1Analysis(BaseAnalysis):
-    """T1 Experiment result analysis class.
+    r"""A class to analyze T1 experiments.
 
-    Analysis Options:
+    Fit Model
+        The fit is based on the following decay function.
 
-        * t1_guess (float): Optional, an initial guess of T1.
-        * amplitude_guess (float): Optional, an initial guess of the
-                                   coefficient of the exponent.
-        * offset_guess (float): Optional, an initial guess of the offset.
-        * t1_bounds (list of two floats): Optional, lower bound and upper
-                                          bound to T1.
-        * amplitude_bounds (list of two floats): Optional, lower bound and upper
-                                                 bound to the amplitude.
-        * offset_bounds (list of two floats): Optional, lower bound and
-                                              upper bound to the offset.
+        .. math::
+
+            F(x) = a e^{-x/t1} + b
+
+    Fit Parameters
+        - :math:`amplitude`: Height of the decay curve
+        - :math:`offset`: Base line of the decay curve
+        - :math:`t1`: This is the fit parameter of main interest
+
+    Initial Guesses
+        - :math:`amplitude\_guess`: Determined by :math:`(y_0 - offset\_guess)`
+        - :math:`offset\_guess`: Determined by the last :math:`y`
+        - :math:`t1\_guess`: Determined by the mean of the data points
+
+    Bounds
+        - :math:`amplitude\_bounds`: [0, 1]
+        - :math:`offset\_bounds`: [0, 1]
+        - :math:`t1\_bounds`: [0, infinity]
     """
 
     @classmethod
