@@ -14,6 +14,7 @@
 A Tester for the RB experiment
 """
 
+
 import numpy as np
 from ddt import ddt, data, unpack
 from qiskit.quantum_info.operators.predicates import matrix_equal
@@ -21,6 +22,7 @@ from qiskit.quantum_info import Clifford
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeParis
 from qiskit import QuantumCircuit
+from qiskit.exceptions import QiskitError
 from qiskit.circuit.library import (
     IGate,
     XGate,
@@ -33,14 +35,13 @@ from qiskit.circuit.library import (
     CZGate,
     SwapGate,
 )
-from qiskit.providers.aer import AerSimulator
 import qiskit_experiments as qe
 
 
 @ddt
-class TestRB(QiskitTestCase):
+class TestStandardRB(QiskitTestCase):
     """
-    A test class for the RB Experiment to check that the RBExperiment class is working correctly.
+    A test class for the RB Experiment to check that the StandardRB class is working correctly.
     """
 
     @data([[3]], [[4, 7]], [[0, 5, 3]])
@@ -51,25 +52,25 @@ class TestRB(QiskitTestCase):
         Args:
             qubits (list): A list containing qubit indices for the experiment
         """
-        backend = AerSimulator.from_backend(FakeParis())
+        backend = FakeParis()
         exp_attributes = {
-            "qubits": qubits,
+            "physical_qubits": qubits,
             "lengths": [1, 4, 6, 9, 13, 16],
-            "num_samples": 2,
+            "num_samples": 3,
             "seed": 100,
         }
-        rb = qe.randomized_benchmarking
-        rb_exp = rb.StandardRB(
-            exp_attributes["qubits"],
+        rb_class = qe.randomized_benchmarking
+        rb_exp = rb_class.StandardRB(
+            exp_attributes["physical_qubits"],
             exp_attributes["lengths"],
             num_samples=exp_attributes["num_samples"],
             seed=exp_attributes["seed"],
         )
-        experiment_obj = rb_exp.run(backend)
-        exp_data = experiment_obj.experiment
+        exp_data = rb_exp.run(backend)
+        exp = exp_data.experiment
         exp_circuits = rb_exp.circuits()
         self.validate_metadata(exp_circuits, exp_attributes)
-        self.validate_circuit_data(exp_data, exp_attributes)
+        self.validate_circuit_data(exp, exp_attributes)
         self.is_identity(exp_circuits)
 
     def is_identity(self, circuits: list):
@@ -78,12 +79,12 @@ class TestRB(QiskitTestCase):
         Args:
             circuits (list): list of the circuits which we want to check
         """
-        for qc in circuits:
-            num_qubits = qc.num_qubits
-            qc.remove_final_measurements()
+        for circ in circuits:
+            num_qubits = circ.num_qubits
+            circ.remove_final_measurements()
             # Checking if the matrix representation is the identity matrix
             self.assertTrue(
-                matrix_equal(Clifford(qc).to_matrix(), np.identity(2 ** num_qubits)),
+                matrix_equal(Clifford(circ).to_matrix(), np.identity(2 ** num_qubits)),
                 "Clifford sequence doesn't result in the identity matrix.",
             )
 
@@ -94,14 +95,13 @@ class TestRB(QiskitTestCase):
             circuits (list): A list containing quantum circuits
             exp_attributes (dict): A dictionary with the experiment variable and values
         """
-        for qc in circuits:
+        for ind, circ in enumerate(circuits):
             self.assertTrue(
-                qc.metadata["xval"] in exp_attributes["lengths"],
-                "The number of gates in the experiment metadata doesn't match "
-                "any of the provided lengths",
+                circ.metadata["xval"] == exp_attributes["lengths"][ind],
+                "The number of gates in the experiment metadata doesn't match to the one provided.",
             )
             self.assertTrue(
-                qc.metadata["qubits"] == tuple(exp_attributes["qubits"]),
+                circ.metadata["physical_qubits"] == tuple(exp_attributes["physical_qubits"]),
                 "The qubits indices in the experiment metadata doesn't match to the one provided.",
             )
 
@@ -125,13 +125,53 @@ class TestRB(QiskitTestCase):
             "The number of samples in the experiment doesn't match to the one in the metadata.",
         )
         self.assertTrue(
-            tuple(exp_attributes["qubits"]) == experiment.physical_qubits,
+            tuple(exp_attributes["physical_qubits"]) == experiment.physical_qubits,
             "The qubits indices in the experiment doesn't match to the one in the metadata.",
         )
 
+    @staticmethod
+    def _exp_data_properties():
+        """
+        Creates a list of dictionaries that contains invalid experiment properties to check errors.
+        The dict invalid data is as following:
+            exp_data_list[1]: same index of qubit.
+            exp_data_list[2]: qubit index is negative.
+            exp_data_list[3]: the length of the sequence has negative number.
+            exp_data_list[4]: num of samples is negative.
+            exp_data_list[5]: num of samples is 0.
+            exp_data_list[6]: the length of the sequence list has duplicates.
+        Returns:
+            list[dict]: list of dictionaries with experiment properties.
+        """
+        exp_data_list = [
+            {"physical_qubits": [3, 3], "lengths": [1, 3, 5, 7, 9], "num_samples": 1, "seed": 100},
+            {"physical_qubits": [-1], "lengths": [1, 3, 5, 7, 9], "num_samples": 1, "seed": 100},
+            {"physical_qubits": [0, 1], "lengths": [1, 3, 5, -7, 9], "num_samples": 1, "seed": 100},
+            {"physical_qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": -4, "seed": 100},
+            {"physical_qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": 0, "seed": 100},
+            {"physical_qubits": [0, 1], "lengths": [1, 5, 5, 5, 9], "num_samples": 2, "seed": 100},
+        ]
+        return exp_data_list
+
+    def test_input(self):
+        """
+        Check that errors emerge when invalid input is given to the RB experiment.
+        """
+        exp_data_list = self._exp_data_properties()
+        rb_class = qe.randomized_benchmarking
+        for exp_data in exp_data_list:
+            self.assertRaises(
+                QiskitError,
+                rb_class.StandardRB,
+                exp_data["physical_qubits"],
+                exp_data["lengths"],
+                num_samples=exp_data["num_samples"],
+                seed=exp_data["seed"],
+            )
+
 
 @ddt
-class TestInterleavedRB(TestRB):
+class TestInterleavedRB(TestStandardRB):
     """
     A test class for the interleaved RB Experiment to check that the
     InterleavedRB class is working correctly.
@@ -146,18 +186,18 @@ class TestInterleavedRB(TestRB):
             interleaved_element: The Clifford element to interleave
             qubits (list): A list containing qubit indices for the experiment
         """
-        backend = AerSimulator.from_backend(FakeParis())
+        backend = FakeParis()
         exp_attributes = {
             "interleaved_element": interleaved_element,
-            "qubits": qubits,
+            "physical_qubits": qubits,
             "lengths": [1, 4, 6, 9, 13, 16],
             "num_samples": 2,
             "seed": 100,
         }
-        rb = qe.randomized_benchmarking
-        rb_exp = rb.InterleavedRB(
+        rb_class = qe.randomized_benchmarking
+        rb_exp = rb_class.InterleavedRB(
             exp_attributes["interleaved_element"],
-            exp_attributes["qubits"],
+            exp_attributes["physical_qubits"],
             exp_attributes["lengths"],
             num_samples=exp_attributes["num_samples"],
             seed=exp_attributes["seed"],
@@ -173,7 +213,7 @@ class TestInterleavedRB(TestRB):
 @ddt
 class TestRBUtilities(QiskitTestCase):
     """
-    A test class for additional functionality provided by the RBExperiment
+    A test class for additional functionality provided by the StandardRB
     class.
     """
 
