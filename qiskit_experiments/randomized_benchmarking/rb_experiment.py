@@ -159,7 +159,7 @@ class StandardRB(BaseExperiment):
                     "experiment_type": self._type,
                     "xval": current_length + 1,
                     "group": "Clifford",
-                    "qubits": self.physical_qubits,
+                    "physical_qubits": self.physical_qubits,
                 }
                 rb_circ.measure_all()
                 circuits.append(rb_circ)
