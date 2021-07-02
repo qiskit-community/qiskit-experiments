@@ -13,7 +13,7 @@
 T2Ramsey Experiment class.
 """
 
-from typing import List, Optional, Tuple, Dict
+from typing import List, Optional, Tuple, Dict, Union, Any
 import numpy as np
 
 from qiskit.utils import apply_prefix
@@ -22,6 +22,16 @@ from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResult
 from qiskit_experiments.analysis.curve_fitting import curve_fit, process_curve_data
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
+
+from qiskit_experiments.analysis import (
+    CurveAnalysis,
+    CurveAnalysisResult,
+    SeriesDef,
+    fit_function,
+    get_opt_value,
+    get_opt_error,
+)
+
 from ..experiment_data import ExperimentData
 
 # pylint: disable = invalid-name
@@ -177,3 +187,62 @@ class T2RamseyAnalysis(BaseAnalysis):
             return "computer_good"
         else:
             return "computer_bad"
+
+
+class RamseyXYAnalysis(CurveAnalysis):
+    """A class to analyze oscillation in complex plane.
+
+    Overview
+        This analysis takes two series for real and imaginary part oscillation to
+        find oscillating frequency with sign.
+
+    """
+    __series__ = [
+        SeriesDef(
+            fit_func=lambda x, a, freq, b: fit_function.cos(
+                x, amp=a, freq=freq, phase=0., baseline=b
+            ),
+            filter_kwargs={"post_pulse": "x"},
+            name="sx-sx",
+            plot_color="red",
+            plot_symbol="o",
+        ),
+        SeriesDef(
+            fit_func=lambda x, a, freq, b: fit_function.sin(
+                x, amp=a, freq=freq, phase=np.pi, baseline=b
+            ),
+            filter_kwargs={"post_pulse": "y"},
+            name="sx-sy",
+            plot_color="blue",
+            plot_symbol="^",
+        )
+    ]
+
+    @classmethod
+    def _default_options(cls):
+        """Return default data processing options.
+
+        See :meth:`~qiskit_experiment.analysis.CurveAnalysis._default_options` for
+        descriptions of analysis options.
+        """
+        default_options = super()._default_options()
+        default_options.p0 = {"a": None, "freq": None, "b": None}
+        default_options.bounds = {"a": None, "freq": None, "b": None}
+        default_options.fit_reports = {"freq": "frequency"}
+
+        return default_options
+
+    def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+        """Fitter options."""
+        user_p0 = self._get_option("p0")
+        user_bounds = self._get_option("bounds")
+
+        # TODO write init guess generation code
+
+        fit_option = {
+            "p0": user_p0,
+            "bounds": user_bounds,
+        }
+        fit_option.update(options)
+
+        return fit_option
