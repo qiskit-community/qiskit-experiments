@@ -231,8 +231,23 @@ class CurveAnalysis(BaseAnalysis):
     def __init__(self):
         """Initialize data fields that are privately accessed by methods."""
 
+        # str: Experiment type
+        self.__experiment_type = None
+
         #: Iterable[int]: Physical qubits tested by this experiment
         self.__qubits = None
+
+        #: Dict[str, Any]: Experiment options used for the latest experiment.
+        self.__experiment_options = None
+
+        #: Dict[str, Any]: Analysis options specified for this analysis.
+        self.__analysis_options = None
+
+        #: Dict[str, Any]: Backend run options used for the latest experiment.
+        self.__run_options = None
+
+        #: Dict[str, Any]: Transpiler options used for the latest experiment.
+        self.__transpile_options = None
 
         #: List[CurveData]: Processed experiment data set.
         self.__processed_data_set = list()
@@ -669,6 +684,11 @@ class CurveAnalysis(BaseAnalysis):
         return fitter_options
 
     @property
+    def _experiment_type(self):
+        """Return type of experiment."""
+        return self.__experiment_type
+
+    @property
     def _num_qubits(self):
         """Getter for qubit number."""
         return len(self.__qubits)
@@ -677,6 +697,26 @@ class CurveAnalysis(BaseAnalysis):
     def _physical_qubits(self):
         """Getter for physical qubit indices."""
         return list(self.__qubits)
+
+    @property
+    def _experiment_options(self) -> Dict[str, Any]:
+        """Return the latest experiment options."""
+        return self.__experiment_options
+
+    @property
+    def _analysis_options(self) -> Dict[str, Any]:
+        """Returns the latest analysis options."""
+        return self.__analysis_options
+
+    @property
+    def _run_options(self) -> Dict[str, Any]:
+        """Returns the latest run options."""
+        return self.__run_options
+
+    @property
+    def _transpile_options(self) -> Dict[str, Any]:
+        """Returns the latest transpile options."""
+        return self.__transpile_options
 
     def _data(
         self,
@@ -784,9 +824,16 @@ class CurveAnalysis(BaseAnalysis):
         # pop arguments that are not given to fitter
         extra_options = self._arg_parse(**options)
 
-        # TODO update this with experiment metadata PR #67
         try:
-            self.__qubits = experiment_data.data(0)["metadata"]["physical_qubits"]
+            metadata = experiment_data.metadata()
+            latest_job_metadata = metadata["job_metadata"][-1]
+
+            self.__experiment_type = metadata["experiment_type"]
+            self.__qubits = metadata["physical_qubits"]
+            self.__experiment_options = latest_job_metadata["experiment_options"]
+            self.__analysis_options = latest_job_metadata["analysis_options"]
+            self.__run_options = latest_job_metadata["run_options"]
+            self.__transpile_options = latest_job_metadata["transpile_options"]
         except KeyError:
             pass
 
