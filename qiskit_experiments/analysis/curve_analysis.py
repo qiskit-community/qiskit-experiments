@@ -826,15 +826,15 @@ class CurveAnalysis(BaseAnalysis):
 
         try:
             metadata = experiment_data.metadata()
-            latest_job_metadata = metadata["job_metadata"][-1]
-
             self.__experiment_type = metadata["experiment_type"]
             self.__qubits = metadata["physical_qubits"]
+
+            latest_job_metadata = metadata["job_metadata"][-1]
             self.__experiment_options = latest_job_metadata["experiment_options"]
             self.__analysis_options = latest_job_metadata["analysis_options"]
             self.__run_options = latest_job_metadata["run_options"]
             self.__transpile_options = latest_job_metadata["transpile_options"]
-        except KeyError:
+        except (KeyError, IndexError):
             pass
 
         #
