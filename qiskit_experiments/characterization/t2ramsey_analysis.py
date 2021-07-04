@@ -74,7 +74,7 @@ class T2RamseyAnalysis(BaseAnalysis):
             """Format curve fit plot"""
             # Formatting
             ax.tick_params(labelsize=10)
-            ax.set_xlabel("Delay (" + str(unit) + ")", fontsize=12)
+            ax.set_xlabel("Delay (s)", fontsize=12)
             ax.set_ylabel("Probability to measure |0>", fontsize=12)
 
         # implementation of  _run_analysis
@@ -91,15 +91,15 @@ class T2RamseyAnalysis(BaseAnalysis):
         p0, bounds = self._t2ramsey_default_params(
             conversion_factor, user_p0, user_bounds, t2ramsey_estimate
         )
-        si_xdata = xdata * conversion_factor
+        xdata *= conversion_factor
         fit_result = curve_fit(
-            osc_fit_fun, si_xdata, ydata, p0=list(p0.values()), sigma=sigma, bounds=bounds
+            osc_fit_fun, xdata, ydata, p0=list(p0.values()), sigma=sigma, bounds=bounds
         )
-
+ 
         if plot and plotting.HAS_MATPLOTLIB:
             ax = plotting.plot_curve_fit(osc_fit_fun, fit_result, ax=ax)
-            ax = plotting.plot_scatter(si_xdata, ydata, ax=ax)
-            ax = plotting.plot_errorbar(si_xdata, ydata, sigma, ax=ax)
+            ax = plotting.plot_scatter(xdata, ydata, ax=ax)
+            ax = plotting.plot_errorbar(xdata, ydata, sigma, ax=ax)
             _format_plot(ax, unit)
             figures = [ax.get_figure()]
         else:

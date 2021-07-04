@@ -38,12 +38,12 @@ class T2RamseyBackend(BackendV1):
     """
 
     def __init__(
-        self, p0=None, initial_prob_plus=None, readout0to1=None, readout1to0=None, dt_factor=1
+        self, p0=None, initial_prob_plus=None, readout0to1=None, readout1to0=None, conversion_factor=1
     ):
         """
         Initialize the T2Ramsey backend
         """
-        dt_factor_in_ns = dt_factor * 1e9 if dt_factor is not None else None
+        conversion_factor_in_ns = conversion_factor * 1e9 if conversion_factor is not None else None
         configuration = QasmBackendConfiguration(
             backend_name="t2ramsey_simulator",
             backend_version="0",
@@ -57,7 +57,7 @@ class T2RamseyBackend(BackendV1):
             memory=False,
             max_shots=int(1e6),
             coupling_map=None,
-            dt=dt_factor_in_ns,
+            conversion=conversion_factor_in_ns,
         )
 
         self._t2ramsey = p0["t2ramsey"]
@@ -68,7 +68,7 @@ class T2RamseyBackend(BackendV1):
         self._initial_prob_plus = initial_prob_plus
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
-        self._dt_factor = dt_factor
+        self._conversion_factor = conversion_factor
         self._rng = np.random.default_rng(0)
         super().__init__(configuration)
 
@@ -118,8 +118,8 @@ class T2RamseyBackend(BackendV1):
 
                     if op.name == "delay":
                         delay = op.params[0]
-                        t2ramsey = self._t2ramsey[qubit] * self._dt_factor
-                        freq = self._f_guess[qubit] / self._dt_factor
+                        t2ramsey = self._t2ramsey[qubit] * self._conversion_factor
+                        freq = self._f_guess[qubit] / self._conversion_factor
 
                         prob_plus[qubit] = (
                             self._a_guess[qubit]
