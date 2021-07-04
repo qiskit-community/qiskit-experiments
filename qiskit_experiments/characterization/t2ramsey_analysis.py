@@ -95,7 +95,7 @@ class T2RamseyAnalysis(BaseAnalysis):
         fit_result = curve_fit(
             osc_fit_fun, xdata, ydata, p0=list(p0.values()), sigma=sigma, bounds=bounds
         )
- 
+
         if plot and plotting.HAS_MATPLOTLIB:
             ax = plotting.plot_curve_fit(osc_fit_fun, fit_result, ax=ax)
             ax = plotting.plot_scatter(xdata, ydata, ax=ax)
