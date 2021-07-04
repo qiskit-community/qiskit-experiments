@@ -97,7 +97,7 @@ class TestDragCircuits(QiskitTestCase):
         circuits = drag.circuits(DragBackend())
 
         for idx, expected in enumerate([4, 8, 16]):
-            ops = transpile(circuits[idx*51], backend).count_ops()
+            ops = transpile(circuits[idx * 51], backend).count_ops()
             self.assertEqual(ops["Rp"] + ops["Rm"], expected)
 
     def test_raise_multiple_parameter(self):
