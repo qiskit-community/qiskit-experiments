@@ -786,7 +786,7 @@ class CurveAnalysis(BaseAnalysis):
 
         # TODO update this with experiment metadata PR #67
         try:
-            self.__qubits = experiment_data.data(0)["metadata"]["qubits"]
+            self.__qubits = experiment_data.data(0)["metadata"]["physical_qubits"]
         except KeyError:
             pass
 
