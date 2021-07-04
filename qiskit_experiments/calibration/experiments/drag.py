@@ -198,6 +198,12 @@ class DragCal(BaseExperiment):
                     pulse.DriveChannel(self._physical_qubits[0]),
                 )
 
+        if minus_sched is None:
+            with pulse.build(backend=backend, name="xm") as minus_sched:
+                pulse.shift_phase(np.pi, pulse.DriveChannel(self._physical_qubits[0]))
+                pulse.call(plus_sched)
+                pulse.shift_phase(-np.pi, pulse.DriveChannel(self._physical_qubits[0]))
+
         if len(plus_sched.parameters) != 1 or len(minus_sched.parameters) != 1:
             raise CalibrationError(
                 "The schedules for Drag calibration must both have one free parameter."
