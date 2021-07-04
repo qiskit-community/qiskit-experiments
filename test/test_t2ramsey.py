@@ -286,7 +286,7 @@ class TestT2Ramsey(QiskitTestCase):
             initial_prob_plus=[0.0],
             readout0to1=[0.02],
             readout1to0=[0.02],
-            dt_factor=1,
+            conversion_factor=1,
         )
 
         # run circuits
