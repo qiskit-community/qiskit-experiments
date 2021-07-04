@@ -35,11 +35,12 @@ class DragCal(BaseExperiment):
     to a neighbouring transition. It is a standard pulse with an additional derivative
     component. It is designed to reduce the frequency spectrum of a normal pulse near
     the :math:`|1\rangle` - :math:`|2\rangle` transition, reducing the chance of leakage
-    to the :math:`|2\rangle` state.
+    to the :math:`|2\rangle` state. The optimal value of the DRAG parameter is chosen to
+    minimize both leakage and phase errors resulting from the AC Stark shift.
 
     .. math::
 
-        f(t) = \Omega(t) + 1j * \beta * d/dt \Omega(t)
+        f(t) = \Omega(t) + 1j \beta d/dt \Omega(t)
 
     Here, :math:`\Omega` is the envelop of the in-phase component of the pulse and
     :math:`\beta` is the strength of the quadrature which we refer to as the DRAG
@@ -77,6 +78,14 @@ class DragCal(BaseExperiment):
 
         .. |citation2| replace:: *F. Motzoi, J. M. Gambetta, P. Rebentrost, and F. K. Wilhelm
            Phys. Rev. Lett. 103, 110501 – Published 8 September 2009.*
+
+        3. |citation3|_
+
+        .. _citation3: https://link.aps.org/doi/10.1103/PhysRevLett.116.020501
+
+        .. |citation3| replace:: *Z. Chen, et al.
+           Measuring and Suppressing Quantum State Leakage in a Superconducting Qubit
+           Phys. Rev. Lett. 116, 020501 – Published 13 January 2016.*
     """
 
     __analysis_class__ = DragCalAnalysis
