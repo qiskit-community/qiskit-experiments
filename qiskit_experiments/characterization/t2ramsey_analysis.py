@@ -88,10 +88,10 @@ class T2RamseyAnalysis(BaseAnalysis):
                 va="center",
                 size=12,
                 bbox=bbox_props,
-                transform=ax.transAxes
-                )
+                transform=ax.transAxes,
+            )
             return ax
-                
+
         # implementation of  _run_analysis
         data = experiment_data.data()
         metadata = data[0]["metadata"]
