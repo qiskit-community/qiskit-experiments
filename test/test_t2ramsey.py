@@ -185,7 +185,7 @@ class TestT2Ramsey(QiskitTestCase):
                 "B": 0.5,
             }
             for user_p0 in [default_p0, None]:
-                exp.set_analysis_options(user_p0=user_p0)
+                exp.set_analysis_options(user_p0=user_p0, plot=True)
                 backend = T2RamseyBackend(
                     p0={
                         "a_guess": [0.5],
@@ -310,5 +310,5 @@ class TestT2Ramsey(QiskitTestCase):
         self.assertEqual(
             result1["quality"], "computer_good", "Result quality bad for unit " + str(unit)
         )
-        self.assertLessEqual(result1["stderr"], result0["stderr"])
+        self.assertLessEqual(result1["stderr_t2"], result0["stderr_t2"])
         self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))

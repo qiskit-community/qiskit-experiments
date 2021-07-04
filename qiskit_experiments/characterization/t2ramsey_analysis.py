@@ -70,13 +70,28 @@ class T2RamseyAnalysis(BaseAnalysis):
             """Decay cosine fit function"""
             return a * np.exp(-x / t2ramsey) * np.cos(2 * np.pi * freq * x + phi) + c
 
-        def _format_plot(ax, unit):
+        def _format_plot(ax, unit, fit_result, conversion_factor):
             """Format curve fit plot"""
             # Formatting
             ax.tick_params(labelsize=10)
             ax.set_xlabel("Delay (s)", fontsize=12)
             ax.set_ylabel("Probability to measure |0>", fontsize=12)
-
+            t2ramsey = fit_result["popt"][1] / conversion_factor
+            t2_err = fit_result["popt_err"][1] / conversion_factor
+            box_text = "$T_2Ramsey$ = {:.2f} \u00B1 {:.2f} {}".format(t2ramsey, t2_err, unit)
+            bbox_props = dict(boxstyle="square,pad=0.3", fc="white", ec="black", lw=1)
+            ax.text(
+                0.6,
+                0.9,
+                box_text,
+                ha="center",
+                va="center",
+                size=12,
+                bbox=bbox_props,
+                transform=ax.transAxes
+                )
+            return ax
+                
         # implementation of  _run_analysis
         data = experiment_data.data()
         metadata = data[0]["metadata"]
@@ -100,7 +115,7 @@ class T2RamseyAnalysis(BaseAnalysis):
             ax = plotting.plot_curve_fit(osc_fit_fun, fit_result, ax=ax)
             ax = plotting.plot_scatter(xdata, ydata, ax=ax)
             ax = plotting.plot_errorbar(xdata, ydata, sigma, ax=ax)
-            _format_plot(ax, unit)
+            _format_plot(ax, unit, fit_result, conversion_factor)
             figures = [ax.get_figure()]
         else:
             figures = None
@@ -110,7 +125,8 @@ class T2RamseyAnalysis(BaseAnalysis):
             {
                 "t2ramsey_value": fit_result["popt"][1],
                 "frequency_value": fit_result["popt"][2],
-                "stderr": fit_result["popt_err"][1],
+                "stderr_t2": fit_result["popt_err"][1],
+                "stderr_freq": fit_result["popt_err"][2],
                 "unit": "s",
                 "label": "T2Ramsey",
                 "fit": fit_result,
