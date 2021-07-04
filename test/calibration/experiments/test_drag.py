@@ -47,7 +47,7 @@ class TestDragEndToEnd(QiskitTestCase):
     def test_end_to_end(self):
         """Test the drag experiment end to end."""
 
-        test_tol = 0.02
+        test_tol = 0.05
         backend = DragBackend()
 
         drag = DragCal(1)
@@ -97,7 +97,7 @@ class TestDragCircuits(QiskitTestCase):
         circuits = drag.circuits(DragBackend())
 
         for idx, expected in enumerate([4, 8, 16]):
-            ops = transpile(circuits[idx], backend).count_ops()
+            ops = transpile(circuits[idx*51], backend).count_ops()
             self.assertEqual(ops["Rp"] + ops["Rm"], expected)
 
     def test_raise_multiple_parameter(self):
