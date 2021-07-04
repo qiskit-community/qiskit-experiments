@@ -46,7 +46,7 @@ class StandardRB(BaseExperiment):
         self,
         qubits: Union[int, Iterable[int]],
         lengths: Iterable[int],
-        num_samples: int = 1,
+        num_samples: int = 3,
         seed: Optional[Union[int, Generator]] = None,
         full_sampling: Optional[bool] = False,
     ):
