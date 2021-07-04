@@ -230,32 +230,30 @@ class DragCal(BaseExperiment):
             )
 
         circuits = []
-        for beta in self.experiment_options.betas:
 
-            beta = np.round(beta, decimals=6)
+        for idx, rep in enumerate(reps):
+            circuit = QuantumCircuit(1)
+            for _ in range(rep):
+                circuit.append(xp_gate, (0,))
+                circuit.append(xm_gate, (0,))
 
-            for idx, rep in enumerate(reps):
-                circuit = QuantumCircuit(1)
-                for _ in range(rep):
-                    circuit.append(xp_gate, (0,))
-                    circuit.append(xm_gate, (0,))
+            circuit.measure_active()
 
-                circuit.measure_active()
-                circuit.assign_parameters({beta_xp: beta}, inplace=True)
+            circuit.add_calibration("Rp", (self.physical_qubits[0],), plus_sched, params=[beta_xp])
+            circuit.add_calibration("Rm", (self.physical_qubits[0],), minus_sched, params=[beta_xp])
 
-                xm_ = minus_sched.assign_parameters({beta_xp: beta}, inplace=False)
-                xp_ = plus_sched.assign_parameters({beta_xp: beta}, inplace=False)
+            for beta in self.experiment_options.betas:
+                beta = np.round(beta, decimals=6)
 
-                circuit.add_calibration("Rp", (self.physical_qubits[0],), xp_, params=[beta])
-                circuit.add_calibration("Rm", (self.physical_qubits[0],), xm_, params=[beta])
+                assigned_circuit = circuit.assign_parameters({beta_xp: beta}, inplace=False)
 
-                circuit.metadata = {
+                assigned_circuit.metadata = {
                     "experiment_type": self._type,
                     "qubits": (self.physical_qubits[0],),
                     "xval": beta,
                     "series": idx,
                 }
 
-                circuits.append(circuit)
+                circuits.append(assigned_circuit)
 
         return circuits
