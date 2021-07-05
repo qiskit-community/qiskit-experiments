@@ -46,9 +46,9 @@ def frequency(x: np.ndarray, y: np.ndarray) -> float:
 
 
 def max_height(
-        y: np.ndarray,
-        percentile: Optional[float] = None,
-        absolute: bool = False,
+    y: np.ndarray,
+    percentile: Optional[float] = None,
+    absolute: bool = False,
 ) -> Tuple[float, int]:
     """Get maximum value of y curve and its index.
 
@@ -76,9 +76,9 @@ def max_height(
 
 
 def min_height(
-        y: np.ndarray,
-        percentile: Optional[float] = None,
-        absolute: bool = False,
+    y: np.ndarray,
+    percentile: Optional[float] = None,
+    absolute: bool = False,
 ) -> Tuple[float, int]:
     """Get minimum value of y curve and its index.
 
@@ -135,11 +135,11 @@ def exp_decay(x: np.ndarray, y: np.ndarray) -> float:
 
 
 def oscillation_exp_decay(
-        x: np.ndarray,
-        y: np.ndarray,
-        filter_window: int = 5,
-        filter_dim: int = 2,
-        freq_guess: Optional[float] = None,
+    x: np.ndarray,
+    y: np.ndarray,
+    filter_window: int = 5,
+    filter_dim: int = 2,
+    freq_guess: Optional[float] = None,
 ) -> float:
     r"""Get exponential decay parameter from oscillating signal.
 
@@ -181,7 +181,7 @@ def oscillation_exp_decay(
     peak_pos, _ = signal.find_peaks(y_smoothed, distance=width_samples)
 
     if len(peak_pos) < 2:
-        return 0.
+        return 0.0
 
     x_peaks = x[peak_pos]
     y_peaks = y_smoothed[peak_pos]
