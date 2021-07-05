@@ -273,12 +273,12 @@ class CurveAnalysis(BaseAnalysis):
             for fixed_param in obj.__fixed_parameters__:
                 try:
                     fit_params.remove(fixed_param)
-                except ValueError:
+                except ValueError as ex:
                     raise AnalysisError(
                         f"Defined fixed parameter {fixed_param} is not a fit function argument."
                         "Update series definition to ensure the parameter name is defined with "
                         f"fit functions. Currently available parameters are {fit_params}."
-                    )
+                    ) from ex
         obj.__fit_params = fit_params
 
         return obj
@@ -845,11 +845,11 @@ class CurveAnalysis(BaseAnalysis):
             for pname in self.__fixed_parameters__:
                 try:
                     assigned_params[pname] = options.pop(pname)
-                except KeyError:
+                except KeyError as ex:
                     raise AnalysisError(
                         f"Argument for the fixed parameter {pname} is not found. "
                         "This value should be provided by analysis option to run this analysis."
-                    )
+                    ) from ex
             # Override series definition with assigned fit functions.
             assigned_series = []
             for series_def in self.__series__:
