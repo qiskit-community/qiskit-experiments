@@ -847,8 +847,9 @@ class CurveAnalysis(BaseAnalysis):
                     assigned_params[pname] = options.pop(pname)
                 except KeyError as ex:
                     raise AnalysisError(
-                        f"Argument for the fixed parameter {pname} is not found. "
-                        "This value should be provided by analysis option to run this analysis."
+                        f"The value of the fixed-value parameter {pname} for the fit function "
+                        f"of {self.__class__.__name__} was not found. "
+                        "This value must be provided by the analysis options to run this analysis."
                     ) from ex
             # Override series definition with assigned fit functions.
             assigned_series = []
