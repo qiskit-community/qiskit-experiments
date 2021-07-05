@@ -675,7 +675,7 @@ class CurveAnalysis(BaseAnalysis):
             return self.__experiment_metadata["experiment_type"]
         except (TypeError, KeyError):
             # Ignore experiment metadata is not set or key is not found
-            pass
+            return None
 
     @property
     def _num_qubits(self) -> int:
@@ -684,7 +684,7 @@ class CurveAnalysis(BaseAnalysis):
             return self.__experiment_metadata["num_qubits"]
         except (TypeError, KeyError):
             # Ignore experiment metadata is not set or key is not found
-            pass
+            return None
 
     @property
     def _physical_qubits(self) -> List[int]:
@@ -693,55 +693,67 @@ class CurveAnalysis(BaseAnalysis):
             return list(self.__experiment_metadata["physical_qubits"])
         except (TypeError, KeyError):
             # Ignore experiment metadata is not set or key is not found
-            pass
+            return None
 
     def _experiment_options(self, index: int = -1) -> Dict[str, Any]:
         """Return the experiment options of given job index.
 
         Args:
             index: Index of job metadata to extract. Default to -1 (latest).
+
+        Returns:
+            Experiment options. This option is used for circuit generation.
         """
         try:
             return self.__experiment_metadata["job_metadata"][index]["experiment_options"]
         except (TypeError, KeyError, IndexError):
             # Ignore experiment metadata or job metadata is not set or key is not found
-            pass
+            return None
 
     def _analysis_options(self, index: int = -1) -> Dict[str, Any]:
         """Returns the analysis options of given job index.
 
         Args:
             index: Index of job metadata to extract. Default to -1 (latest).
+
+        Returns:
+            Analysis options. This option is used for analysis.
         """
         try:
             return self.__experiment_metadata["job_metadata"][index]["analysis_options"]
         except (TypeError, KeyError, IndexError):
             # Ignore experiment metadata or job metadata is not set or key is not found
-            pass
+            return None
 
     def _run_options(self, index: int = -1) -> Dict[str, Any]:
         """Returns the run options of given job index.
 
         Args:
             index: Index of job metadata to extract. Default to -1 (latest).
+
+        Returns:
+            Run options. This option is used for backend execution.
         """
         try:
             return self.__experiment_metadata["job_metadata"][index]["run_options"]
         except (TypeError, KeyError, IndexError):
             # Ignore experiment metadata or job metadata is not set or key is not found
-            pass
+            return None
 
     def _transpile_options(self, index: int = -1) -> Dict[str, Any]:
         """Returns the transpile options of given job index.
 
         Args:
             index: Index of job metadata to extract. Default to -1 (latest).
+
+        Returns:
+            Transpile options. This option is used for circuit optimization.
         """
         try:
             return self.__experiment_metadata["job_metadata"][index]["transpile_options"]
         except (TypeError, KeyError, IndexError):
             # Ignore experiment metadata or job metadata is not set or key is not found
-            pass
+            return None
 
     def _data(
         self,
