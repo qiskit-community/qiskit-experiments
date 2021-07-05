@@ -14,7 +14,7 @@
 
 import numpy as np
 from qiskit.test import QiskitTestCase
-from ddt import ddt, data
+from ddt import ddt, data, unpack
 from qiskit_experiments.analysis import guesses
 
 
@@ -30,23 +30,29 @@ class TestGuesses(QiskitTestCase):
         self.assertAlmostEqual(value, ref_value, delta=delta)
 
     @data(1.1, 2.0, 1.6, -1.4, 4.5)
-    def test_frequency_fft(self, freq: float):
+    def test_frequency(self, freq: float):
         x = np.linspace(-1, 1, 101)
         y = 0.3 * np.cos(2 * np.pi * freq * x + 0.5) + 1.2
 
-        freq_guess = guesses.frequency(x, y, method="FFT")
+        freq_guess = guesses.frequency(x, y)
 
-        # breakpoint()
         self.assertAlmostEqualAbsolute(freq_guess, np.abs(freq))
 
-    @data(1.1, 2.0, 1.6, -1.4, 4.5)
-    def test_frequency_acf(self, freq: float):
-        x = np.linspace(-1, 1, 101)
-        y = 0.3 * np.cos(2 * np.pi * freq * x + 0.5) + 1.2
+    @data(1.2, -0.6, 0.1, 3.5, -4.1, 3.)
+    def test_exp_decay(self, alpha: float):
+        x = np.linspace(0, 1, 100)
+        y = np.exp(alpha * x)
 
-        freq_guess = guesses.frequency(x, y, method="ACF")
-        self.assertAlmostEqualAbsolute(freq_guess, np.abs(freq))
+        alpha_guess = guesses.exp_decay(x, y)
 
+        self.assertAlmostEqualAbsolute(alpha_guess, alpha)
 
+    @data([1.2, 1.4], [-0.6, 2.5], [0.1, 2.3], [3.5, 1.1], [-4.1, 6.5], [3., 1.2])
+    @unpack
+    def test_exp_osci_decay(self, alpha, freq):
+        x = np.linspace(0, 1, 100)
+        y = np.exp(alpha * x) * np.cos(2 * np.pi * freq * x)
 
+        alpha_guess = guesses.oscillation_exp_decay(x, y)
 
+        self.assertAlmostEqualAbsolute(alpha_guess, alpha)

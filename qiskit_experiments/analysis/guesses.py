@@ -20,14 +20,9 @@ from typing import Optional, Tuple
 import numpy as np
 from scipy import signal
 
-from qiskit_experiments.exceptions import AnalysisError
 
-
-def frequency(x: np.ndarray, y: np.ndarray, method: str = "FFT") -> float:
+def frequency(x: np.ndarray, y: np.ndarray) -> float:
     """Get frequency of oscillating signal.
-
-    This function provides several approach to estimate signal frequency.
-    See Methods section below for details.
 
     .. note::
 
@@ -36,40 +31,18 @@ def frequency(x: np.ndarray, y: np.ndarray, method: str = "FFT") -> float:
     Args:
         x: Array of x values.
         y: Array of y values.
-        method: A method to find signal frequency. See below for details.
 
     Returns:
         Frequency estimation of oscillation signal.
-
-    Raises:
-        AnalysisError: When invalid method is specified.
-
-    Methods
-        - ``FFT``: Use numpy fast Fourier transform to find signal frequency.
-          This is the standard method to estimate the frequency.
-        - ``ACF``: Calculate autocorrelation function with numpy and run scipy peak search.
-          Frequency is calculated based on x coordinate of the first peak.
-          Because this doesn't pick DC signal, sometimes we can get better estimate
-          for noisy low frequency signals.
     """
-    if method == "ACF":
-        corr = np.correlate(y, y, mode="full")
-        corr = corr[corr.size // 2:]
-        peak_inds, _ = signal.find_peaks(corr)
-        if len(peak_inds) == 0:
-            return 0
-        return 1 / x[peak_inds[0]]
+    fft_data = np.fft.fft(y - np.average(y))
+    sampling_rate = float(np.mean(np.diff(x)))
+    freqs = np.fft.fftfreq(len(x), sampling_rate)
 
-    if method == "FFT":
-        fft_data = np.abs(np.fft.fft(y - np.average(y)))
-        sampling_rate = float(np.mean(np.diff(x)))
-        freqs = np.linspace(0, 1.0 / (2 * sampling_rate), len(fft_data))
+    positive_freqs = freqs[freqs >= 0]
+    positive_fft_data = fft_data[freqs >= 0]
 
-        return freqs[np.argmax(fft_data[0:len(fft_data)//2])]
-
-    raise AnalysisError(
-        f"The specified method {method} is not available in frequency guess function."
-    )
+    return positive_freqs[np.argmax(np.abs(positive_fft_data))]
 
 
 def max_height(
@@ -181,6 +154,10 @@ def oscillation_exp_decay(
     then run scipy peak search to extract peak positions.
     If `freq_guess` is provided, the search function will be robust to fake peaks due to noise.
     This function calls :py:func:`exp_decay` function against x and y values at peaks.
+
+    .. note::
+
+        y values should contain more than one cycle of oscillation to use this guess approach.
 
     Args:
         x: Array of x values.
