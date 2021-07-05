@@ -231,23 +231,8 @@ class CurveAnalysis(BaseAnalysis):
     def __init__(self):
         """Initialize data fields that are privately accessed by methods."""
 
-        # str: Experiment type
-        self.__experiment_type = None
-
-        #: Iterable[int]: Physical qubits tested by this experiment
-        self.__qubits = None
-
-        #: Dict[str, Any]: Experiment options used for the latest experiment.
-        self.__experiment_options = None
-
-        #: Dict[str, Any]: Analysis options specified for this analysis.
-        self.__analysis_options = None
-
-        #: Dict[str, Any]: Backend run options used for the latest experiment.
-        self.__run_options = None
-
-        #: Dict[str, Any]: Transpiler options used for the latest experiment.
-        self.__transpile_options = None
+        #: Dirc[str, Any]: Experiment metadata
+        self.__experiment_metadata = None
 
         #: List[CurveData]: Processed experiment data set.
         self.__processed_data_set = list()
@@ -684,39 +669,79 @@ class CurveAnalysis(BaseAnalysis):
         return fitter_options
 
     @property
-    def _experiment_type(self):
+    def _experiment_type(self) -> str:
         """Return type of experiment."""
-        return self.__experiment_type
+        try:
+            return self.__experiment_metadata["experiment_type"]
+        except (TypeError, KeyError):
+            # Ignore experiment metadata is not set or key is not found
+            pass
 
     @property
-    def _num_qubits(self):
+    def _num_qubits(self) -> int:
         """Getter for qubit number."""
-        return len(self.__qubits)
+        try:
+            return self.__experiment_metadata["num_qubits"]
+        except (TypeError, KeyError):
+            # Ignore experiment metadata is not set or key is not found
+            pass
 
     @property
-    def _physical_qubits(self):
+    def _physical_qubits(self) -> List[int]:
         """Getter for physical qubit indices."""
-        return list(self.__qubits)
+        try:
+            return list(self.__experiment_metadata["physical_qubits"])
+        except (TypeError, KeyError):
+            # Ignore experiment metadata is not set or key is not found
+            pass
 
-    @property
-    def _experiment_options(self) -> Dict[str, Any]:
-        """Return the latest experiment options."""
-        return self.__experiment_options
+    def _experiment_options(self, index: int = -1) -> Dict[str, Any]:
+        """Return the latest experiment options.
 
-    @property
-    def _analysis_options(self) -> Dict[str, Any]:
-        """Returns the latest analysis options."""
-        return self.__analysis_options
+        Args:
+            index: Index of job metadata to extract. Default to -1 (latest).
+        """
+        try:
+            return self.__experiment_metadata["job_metadata"][index]["experiment_options"]
+        except (TypeError, KeyError, IndexError):
+            # Ignore experiment metadata or job metadata is not set or key is not found
+            pass
 
-    @property
-    def _run_options(self) -> Dict[str, Any]:
-        """Returns the latest run options."""
-        return self.__run_options
+    def _analysis_options(self, index: int = -1) -> Dict[str, Any]:
+        """Returns the latest analysis options.
 
-    @property
-    def _transpile_options(self) -> Dict[str, Any]:
-        """Returns the latest transpile options."""
-        return self.__transpile_options
+        Args:
+            index: Index of job metadata to extract. Default to -1 (latest).
+        """
+        try:
+            return self.__experiment_metadata["job_metadata"][index]["analysis_options"]
+        except (TypeError, KeyError, IndexError):
+            # Ignore experiment metadata or job metadata is not set or key is not found
+            pass
+
+    def _run_options(self, index: int = -1) -> Dict[str, Any]:
+        """Returns the latest run options.
+
+        Args:
+            index: Index of job metadata to extract. Default to -1 (latest).
+        """
+        try:
+            return self.__experiment_metadata["job_metadata"][index]["run_options"]
+        except (TypeError, KeyError, IndexError):
+            # Ignore experiment metadata or job metadata is not set or key is not found
+            pass
+
+    def _transpile_options(self, index: int = -1) -> Dict[str, Any]:
+        """Returns the latest transpile options.
+
+        Args:
+            index: Index of job metadata to extract. Default to -1 (latest).
+        """
+        try:
+            return self.__experiment_metadata["job_metadata"][index]["transpile_options"]
+        except (TypeError, KeyError, IndexError):
+            # Ignore experiment metadata or job metadata is not set or key is not found
+            pass
 
     def _data(
         self,
@@ -821,21 +846,14 @@ class CurveAnalysis(BaseAnalysis):
         analysis_result["analysis_type"] = self.__class__.__name__
         figures = list()
 
+        # get experiment metadata
+        try:
+            self.__experiment_metadata = experiment_data.metadata()
+        except AttributeError:
+            pass
+
         # pop arguments that are not given to fitter
         extra_options = self._arg_parse(**options)
-
-        try:
-            metadata = experiment_data.metadata()
-            self.__experiment_type = metadata["experiment_type"]
-            self.__qubits = metadata["physical_qubits"]
-
-            latest_job_metadata = metadata["job_metadata"][-1]
-            self.__experiment_options = latest_job_metadata["experiment_options"]
-            self.__analysis_options = latest_job_metadata["analysis_options"]
-            self.__run_options = latest_job_metadata["run_options"]
-            self.__transpile_options = latest_job_metadata["transpile_options"]
-        except (KeyError, IndexError):
-            pass
 
         #
         # 1. Setup data processor
