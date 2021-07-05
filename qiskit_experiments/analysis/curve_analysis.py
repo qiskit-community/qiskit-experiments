@@ -231,7 +231,7 @@ class CurveAnalysis(BaseAnalysis):
     def __init__(self):
         """Initialize data fields that are privately accessed by methods."""
 
-        #: Dirc[str, Any]: Experiment metadata
+        #: Dict[str, Any]: Experiment metadata
         self.__experiment_metadata = None
 
         #: List[CurveData]: Processed experiment data set.
@@ -696,7 +696,7 @@ class CurveAnalysis(BaseAnalysis):
             pass
 
     def _experiment_options(self, index: int = -1) -> Dict[str, Any]:
-        """Return the latest experiment options.
+        """Return the experiment options of given job index.
 
         Args:
             index: Index of job metadata to extract. Default to -1 (latest).
@@ -708,7 +708,7 @@ class CurveAnalysis(BaseAnalysis):
             pass
 
     def _analysis_options(self, index: int = -1) -> Dict[str, Any]:
-        """Returns the latest analysis options.
+        """Returns the analysis options of given job index.
 
         Args:
             index: Index of job metadata to extract. Default to -1 (latest).
@@ -720,7 +720,7 @@ class CurveAnalysis(BaseAnalysis):
             pass
 
     def _run_options(self, index: int = -1) -> Dict[str, Any]:
-        """Returns the latest run options.
+        """Returns the run options of given job index.
 
         Args:
             index: Index of job metadata to extract. Default to -1 (latest).
@@ -732,7 +732,7 @@ class CurveAnalysis(BaseAnalysis):
             pass
 
     def _transpile_options(self, index: int = -1) -> Dict[str, Any]:
-        """Returns the latest transpile options.
+        """Returns the transpile options of given job index.
 
         Args:
             index: Index of job metadata to extract. Default to -1 (latest).
