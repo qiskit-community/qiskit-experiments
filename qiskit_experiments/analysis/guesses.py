@@ -61,12 +61,11 @@ def frequency(x: np.ndarray, y: np.ndarray, method: str = "FFT") -> float:
         return 1 / x[peak_inds[0]]
 
     if method == "FFT":
-        y = y - np.mean(y)
-        fft_data = np.fft.fft(y)
-        fft_freqs = np.fft.fftfreq(len(x), float(np.mean(np.diff(x))))
-        main_freq_arg = np.argmax(np.abs(fft_data))
-        f_guess = np.abs(fft_freqs[main_freq_arg])
-        return f_guess
+        fft_data = np.abs(np.fft.fft(y - np.average(y)))
+        sampling_rate = float(np.mean(np.diff(x)))
+        freqs = np.linspace(0, 1.0 / (2 * sampling_rate), len(fft_data))
+
+        return freqs[np.argmax(fft_data[0:len(fft_data)//2])]
 
     raise AnalysisError(
         f"The specified method {method} is not available in frequency guess function."
