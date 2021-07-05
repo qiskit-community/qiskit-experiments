@@ -17,31 +17,15 @@ from typing import List, Tuple
 import numpy as np
 
 from qiskit import QuantumCircuit
-from qiskit.providers.backend import BackendV1 as Backend
-from qiskit.providers.models import QasmBackendConfiguration
+from qiskit.test.mock import FakeOpenPulse2Q
+
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
-from .mock_job import MockJob
+from qiskit_experiments.test.mock_job import MockJob
 
 
-class MockIQBackend(Backend):
+class MockIQBackend(FakeOpenPulse2Q):
     """An abstract backend for testing that can mock IQ data."""
-
-    __configuration__ = {
-        "backend_name": "simulator",
-        "backend_version": "0",
-        "n_qubits": int(1),
-        "basis_gates": [],
-        "gates": [],
-        "local": True,
-        "simulator": True,
-        "conditional": False,
-        "open_pulse": False,
-        "memory": True,
-        "max_shots": int(1e6),
-        "coupling_map": [],
-        "dt": 0.1,
-    }
 
     def __init__(
         self,
@@ -53,10 +37,9 @@ class MockIQBackend(Backend):
         """
         self._iq_cluster_centers = iq_cluster_centers
         self._iq_cluster_width = iq_cluster_width
-
         self._rng = np.random.default_rng(0)
 
-        super().__init__(QasmBackendConfiguration(**self.__configuration__))
+        super().__init__()
 
     def _default_options(self):
         """Default options of the test backend."""
@@ -140,3 +123,28 @@ class MockIQBackend(Backend):
             result["results"].append(run_result)
 
         return MockJob(self, result)
+
+
+class DragBackend(MockIQBackend):
+    """A simple and primitive backend, to be run by the rough drag tests."""
+
+    def __init__(
+        self,
+        iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
+        iq_cluster_width: float = 1.0,
+        leakage: float = 0.03,
+        ideal_beta=2.0,
+    ):
+        """Initialize the rabi backend."""
+        self._leakage = leakage
+        self.ideal_beta = ideal_beta
+
+        super().__init__(iq_cluster_centers, iq_cluster_width)
+
+    def _compute_probability(self, circuit: QuantumCircuit) -> float:
+        """Returns the probability based on the beta, number of gates, and leakage."""
+        n_gates = sum(circuit.count_ops().values())
+
+        beta = next(iter(circuit.calibrations["Rp"].keys()))[1][0]
+
+        return np.sin(n_gates * self._leakage * (beta - self.ideal_beta)) ** 2

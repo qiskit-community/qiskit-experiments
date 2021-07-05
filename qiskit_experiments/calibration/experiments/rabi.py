@@ -295,7 +295,7 @@ class Rabi(BaseExperiment):
             assigned_circ = circuit.assign_parameters({param: amp}, inplace=False)
             assigned_circ.metadata = {
                 "experiment_type": self._type,
-                "qubit": self.physical_qubits[0],
+                "qubits": (self.physical_qubits[0],),
                 "xval": amp,
                 "unit": "arb. unit",
                 "amplitude": amp,
