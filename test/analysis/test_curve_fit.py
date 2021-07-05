@@ -136,7 +136,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         with self.assertRaises(AnalysisError):
             create_new_analysis(
                 series=valid_series,
-                fixed_params=["not_existing_parameter"]  # this parameter is not defined
+                fixed_params=["not_existing_parameter"],  # this parameter is not defined
             )
 
     def test_arg_parse_and_get_option(self):
@@ -471,7 +471,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
                     ),
                 ),
             ],
-            fixed_params=["fixed_p2"]
+            fixed_params=["fixed_p2"],
         )
 
         ref_p0 = 0.1
@@ -508,7 +508,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
                     ),
                 ),
             ],
-            fixed_params=["fixed_p2"]
+            fixed_params=["fixed_p2"],
         )
 
         ref_p0 = 0.1
