@@ -55,7 +55,7 @@ class FineAmplitude(BaseExperiment):
 
         qubit = 3
         amp_cal = FineAmplitude(qubit)
-        amp_cal.set_schedule(schedule=x45p, angle_per_gate=np.pi/4)
+        amp_cal.set_schedule(schedule=x45p, angle_per_gate=np.pi/4, phase_offset=0.0)
         amp_cal.run(backend)
 
     Note that the schedule and angle_per_gate could have been set by independently calling
