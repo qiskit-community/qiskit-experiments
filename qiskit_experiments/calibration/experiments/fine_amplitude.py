@@ -75,15 +75,7 @@ class FineAmplitude(BaseExperiment):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default values for the fine amplitude experiment.
-
-        Users can set the schedule by doing
-
-        .. code-block::
-
-            amp_cal.set_experiment_options(schedule=my_x90p)
-
-        """
+        """Default values for the fine amplitude experiment."""
         options = super()._default_experiment_options()
         options.repetitions = 15
         options.schedule = None

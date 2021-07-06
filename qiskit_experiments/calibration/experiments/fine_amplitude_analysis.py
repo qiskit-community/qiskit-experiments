@@ -36,25 +36,26 @@ class FineAmplitudeAnalysis(CurveAnalysis):
     The fit function is
 
     .. math::
-        y = \frac{\rm amp}{2} \cos\left( x [{\rm d}\theta + {\rm apg} ] + {\rm phase}\right) + baseline
+        y = {\rm amp}/2\cos\left(x[{\rm d}\theta + {\rm apg} ]+{\rm phase\_offset}\right)+baseline
 
     Fit Parameters
         - :math:`amp`: Amplitude of the oscillation.
         - :math:`baseline`: Base line.
         - :math:`{\rm d}\theta`: The angle offset in the gate that we wish to measure.
-        - :math:`{\rm phase}`: Phase of the oscillation.
 
     Initial Guesses
         - :math:`amp`: The maximum y value less the minimum y value.
         - :math:`baseline`: The average of the data.
         - :math:`{\rm d}\theta`: Zero.
-        - :math:`{\rm phase}`: Zero.
 
     Bounds
         - :math:`amp`: [-1, 1] scaled to the maximum signal value.
         - :math:`baseline`: [-1, 1] scaled to the maximum signal value.
         - :math:`{\rm d}\theta`: [-pi, pi].
-        - :math:`{\rm phase}`: [-pi, pi].
+
+    Fixed-value parameters:
+        - :math:`{\rm apg}` The angle per gate is set by the user, for example pi for a pi-pulse.
+        - :math:`{\rm phase\_offset}` The phase offset in the cosine oscillation.
     """
 
     __series__ = [
@@ -87,6 +88,7 @@ class FineAmplitudeAnalysis(CurveAnalysis):
         default_options.xlabel = "Number of gates (n)"
         default_options.ylabel = "Population"
         default_options.angle_per_gate = None
+        default_options.phase_offset = None
         default_options.number_guesses = 101
 
         return default_options
