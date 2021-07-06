@@ -83,7 +83,7 @@ class StandardRB(BaseExperiment):
 
     def _verify_parameters(self, lengths, num_samples):
         """Verify input correctness, raise QiskitError if needed"""
-        if any([length <= 0 for length in lengths]):
+        if any(length <= 0 for length in lengths):
             raise QiskitError(
                 f"The lengths list {lengths} should only contain " "positive elements."
             )
