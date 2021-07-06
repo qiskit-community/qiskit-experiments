@@ -264,27 +264,42 @@ class Rabi(BaseExperiment):
             )
         )
 
-        # Create template circuit
-        schedule, amp_param = self._rabi_gate_schedule(backend)
-        circuit = self._template_circuit(amp_param)
-        circuit.add_calibration("Rabi", (self.physical_qubits[0],), schedule, params=[amp_param])
+        schedule = self.experiment_options.get("schedule", None)
 
-        if self.physical_qubits[0] not in set(ch.index for ch in schedule.channels):
-            raise QiskitError(
-                f"Provided schedule {schedule.name} does not contain a channel "
-                "for the qubit on which to run Rabi."
-            )
+        if schedule is None:
+            amp = Parameter("amp")
+            with pulse.build() as default_schedule:
+                pulse.play(
+                    pulse.Gaussian(
+                        duration=self.experiment_options.duration,
+                        amp=amp,
+                        sigma=self.experiment_options.sigma,
+                    ),
+                    pulse.DriveChannel(self.physical_qubits[0]),
+                )
+
+            schedule = default_schedule
+        else:
+            if self.physical_qubits[0] not in set(ch.index for ch in schedule.channels):
+                raise QiskitError(
+                    f"User provided schedule {schedule.name} does not contain a channel "
+                    "for the qubit on which to run Rabi."
+                )
 
         if len(schedule.parameters) != 1:
             raise QiskitError("Schedule in Rabi must have exactly one free parameter.")
 
-        circuit.add_calibration("Rabi", (self.physical_qubits[0],), schedule, params=[amp_param])
+        param = next(iter(schedule.parameters))
+
+        # Create template circuit
+        circuit = self._template_circuit(param)
+        circuit.add_calibration("Rabi", (self.physical_qubits[0],), schedule, params=[param])
 
         # Create the circuits to run
         circs = []
         for amp in self.experiment_options.amplitudes:
             amp = np.round(amp, decimals=6)
-            assigned_circ = circuit.assign_parameters({amp_param: amp}, inplace=False)
+            assigned_circ = circuit.assign_parameters({param: amp}, inplace=False)
             assigned_circ.metadata = {
                 "experiment_type": self._type,
                 "qubits": (self.physical_qubits[0],),

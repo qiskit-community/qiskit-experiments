@@ -12,11 +12,8 @@
 
 """Rabi amplitude experiment for the e-f transition."""
 
-from typing import Optional, Tuple
-
-from qiskit import QiskitError, QuantumCircuit
+from qiskit import QuantumCircuit
 from qiskit.circuit import Gate, Parameter
-from qiskit.providers import Backend
 import qiskit.pulse as pulse
 
 from qiskit_experiments.calibration.experiments import Rabi
@@ -36,37 +33,19 @@ class EFRabi(Rabi):
                                          0
     """
 
-    def __init__(self, qubit: int, frequency: float, absolute: bool = True):
-        """Setup a Rabi experiment on the given qubit.
+    def __init__(self, qubit: int, freq_shift: float):
+        """Setup a Rabi experiment between levels 1 and 2 on the given qubit.
 
         Args:
             qubit: The qubit on which to run the Rabi experiment.
-            frequency: The frequency at which the Rabi pulse between 1 and 2 is played
-            absolute: Boolean to specify if the frequency is absolute or relative to the
-                qubit frequency in the backend.
+            freq_shift: The frequency by which the Rabi pulse between 1 and 2 is shifted
         """
 
         super().__init__(qubit)
 
-        self._frequency = frequency
-        self._absolute = absolute
-
-    def _rabi_gate_schedule(
-        self, backend: Optional[Backend] = None
-    ) -> Tuple[pulse.Schedule, Parameter]:
-        """Create the rabi schedule."""
-
-        if backend is None and self._absolute:
-            raise QiskitError("Cannot determine frequency absolute to qubit without a backend.")
-
-        freq_shift = self._frequency
-        if self._absolute:
-            center_freq = backend.defaults().qubit_freq_est[self.physical_qubits[0]]
-            freq_shift -= center_freq
-
+        # create schedule of the Rabi gate with a shifted pulse frequency
         amp_param = Parameter("amp")
-        with pulse.build(backend=backend, name="rabi") as schedule:
-
+        with pulse.build(name="rabi") as sched:
             pulse.shift_frequency(freq_shift, pulse.DriveChannel(self.physical_qubits[0]))
             pulse.play(
                 pulse.Gaussian(
@@ -78,7 +57,7 @@ class EFRabi(Rabi):
             )
             pulse.shift_frequency(-freq_shift, pulse.DriveChannel(self.physical_qubits[0]))
 
-        return schedule, amp_param
+        self.set_experiment_options(schedule=sched)
 
     def _template_circuit(self, amp_param) -> QuantumCircuit:
         """Return the template quantum circuit."""
