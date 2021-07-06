@@ -21,6 +21,7 @@ from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.quantum_info import Clifford
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeParis
+from qiskit.providers.aer import AerSimulator
 from qiskit.exceptions import QiskitError
 from qiskit.circuit.library import (
     XGate,
@@ -43,7 +44,7 @@ class TestStandardRB(QiskitTestCase):
         Args:
             qubits (list): A list containing qubit indices for the experiment
         """
-        backend = FakeParis()
+        backend = AerSimulator.from_backend(FakeParis())
         exp_attributes = {
             "physical_qubits": qubits,
             "lengths": [1, 4, 6, 9, 13, 16],
@@ -86,10 +87,11 @@ class TestStandardRB(QiskitTestCase):
             circuits (list): A list containing quantum circuits
             exp_attributes (dict): A dictionary with the experiment variable and values
         """
-        for ind, circ in enumerate(circuits):
+        for circ in circuits:
             self.assertTrue(
-                circ.metadata["xval"] == exp_attributes["lengths"][ind],
-                "The number of gates in the experiment metadata doesn't match to the one provided.",
+                circ.metadata["xval"] in exp_attributes["lengths"],
+                "The number of gates in the experiment metadata doesn't match "
+                "any of the provided lengths",
             )
             self.assertTrue(
                 circ.metadata["physical_qubits"] == tuple(exp_attributes["physical_qubits"]),
@@ -175,12 +177,12 @@ class TestInterleavedRB(TestStandardRB):
             interleaved_element: The Clifford element to interleave
             qubits (list): A list containing qubit indices for the experiment
         """
-        backend = FakeParis()
+        backend = AerSimulator.from_backend(FakeParis())
         exp_attributes = {
             "interleaved_element": interleaved_element,
             "physical_qubits": qubits,
             "lengths": [1, 4, 6, 9, 13, 16],
-            "num_samples": 2,
+            "num_samples": 3,
             "seed": 100,
         }
         rb_class = qe.randomized_benchmarking

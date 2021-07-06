@@ -144,6 +144,4 @@ class TestRBUtilities(QiskitTestCase):
 
         expected_epg = error_dict[((1, 4), "cx")]
         actual_epg = epg[(1, 4)]["cx"]
-        print("expected", expected_epg)
-        print("actual :", actual_epg)
         self.assertTrue(np.allclose(expected_epg, actual_epg, atol=0.001))
