@@ -12,7 +12,7 @@
 
 """Rabi amplitude experiment."""
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, Tuple
 import numpy as np
 
 from qiskit import QiskitError, QuantumCircuit
@@ -156,7 +156,7 @@ class RabiAnalysis(CurveAnalysis):
 
 class Rabi(BaseExperiment):
     """An experiment that scans the amplitude of a pulse to calibrate rotations between 0 and 1.
-
+    # TODO: Update docstring
     The circuits that are run have a custom rabi gate with the pulse schedule attached to it
     through the calibrations. The circuits are of the form:
 
@@ -171,6 +171,7 @@ class Rabi(BaseExperiment):
     """
 
     __analysis_class__ = RabiAnalysis
+    __rabi_gate_name__ = "Rabi"
 
     @classmethod
     def _default_run_options(cls) -> Options:
@@ -195,17 +196,43 @@ class Rabi(BaseExperiment):
             duration=160,
             sigma=40,
             amplitudes=np.linspace(-0.95, 0.95, 51),
-            schedule=None,
             normalization=True,
         )
 
     def __init__(self, qubit: int):
         """Setup a Rabi experiment on the given qubit.
+        TODO: Update docstring about how to set amp params etc. and default params
 
         Args:
             qubit: The qubit on which to run the Rabi experiment.
         """
         super().__init__([qubit])
+
+    def _rabi_gate_schedule(self, backend: Optional[Backend] = None
+                            ) -> Tuple[pulse.ScheduleBlock, Parameter]:
+        """Create the rabi schedule."""
+        amp_param = Parameter("amp")
+        with pulse.build(backend=backend, name="rabi") as schedule:
+            pulse.play(
+                pulse.Gaussian(
+                    duration=self.experiment_options.duration,
+                    amp=amp_param,
+                    sigma=self.experiment_options.sigma,
+                ),
+                pulse.DriveChannel(self.physical_qubits[0]),
+            )
+
+        return schedule, amp_param
+
+    def _template_circuit(self, amp_param) -> QuantumCircuit:
+        """Return the template quantum circuit."""
+        gate = Gate(name="Rabi", num_qubits=1, params=[amp_param])
+
+        circuit = QuantumCircuit(1)
+        circuit.append(gate, (0,))
+        circuit.measure_active()
+
+        return circuit
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Create the circuits for the Rabi experiment.
@@ -232,44 +259,27 @@ class Rabi(BaseExperiment):
             )
         )
 
-        schedule = self.experiment_options.get("schedule", None)
+        # Create template circuit
+        schedule, amp_param = self._rabi_gate_schedule(backend)
+        circuit = self._template_circuit(amp_param)
+        circuit.add_calibration("Rabi", (self.physical_qubits[0],), schedule, params=[amp_param])
 
-        if schedule is None:
-            amp = Parameter("amp")
-            with pulse.build() as default_schedule:
-                pulse.play(
-                    pulse.Gaussian(
-                        duration=self.experiment_options.duration,
-                        amp=amp,
-                        sigma=self.experiment_options.sigma,
-                    ),
-                    pulse.DriveChannel(self.physical_qubits[0]),
-                )
-
-            schedule = default_schedule
-        else:
-            if self.physical_qubits[0] not in set(ch.index for ch in schedule.channels):
-                raise QiskitError(
-                    f"User provided schedule {schedule.name} does not contain a channel "
-                    "for the qubit on which to run Rabi."
-                )
+        if self.physical_qubits[0] not in set(ch.index for ch in schedule.channels):
+            raise QiskitError(
+                f"Provided schedule {schedule.name} does not contain a channel "
+                "for the qubit on which to run Rabi."
+            )
 
         if len(schedule.parameters) != 1:
             raise QiskitError("Schedule in Rabi must have exactly one free parameter.")
 
-        param = next(iter(schedule.parameters))
+        circuit.add_calibration("Rabi", (self.physical_qubits[0],), schedule, params=[amp_param])
 
-        gate = Gate(name="Rabi", num_qubits=1, params=[param])
-
-        circuit = QuantumCircuit(1)
-        circuit.append(gate, (0,))
-        circuit.measure_active()
-        circuit.add_calibration(gate, (self.physical_qubits[0],), schedule, params=[param])
-
+        # Create the circuits to run
         circs = []
         for amp in self.experiment_options.amplitudes:
             amp = np.round(amp, decimals=6)
-            assigned_circ = circuit.assign_parameters({param: amp}, inplace=False)
+            assigned_circ = circuit.assign_parameters({amp_param: amp}, inplace=False)
             assigned_circ.metadata = {
                 "experiment_type": self._type,
                 "qubits": (self.physical_qubits[0],),
