@@ -100,7 +100,7 @@ class InterleavedRBAnalysis(RBAnalysis):
             fit_func=lambda x, a, alpha, alpha_c, b: fit_function.exponential_decay(
                 x, amp=a, lamb=-1.0, base=alpha, baseline=b
             ),
-            monotonicity={"a": True, "alpha": False, "alpha_c": False, "b": True},
+            monotonicity={"a": True, "alpha": True, "alpha_c": True, "b": True},
             filter_kwargs={"interleaved": False},
             plot_color="red",
             plot_symbol=".",
@@ -110,7 +110,7 @@ class InterleavedRBAnalysis(RBAnalysis):
             fit_func=lambda x, a, alpha, alpha_c, b: fit_function.exponential_decay(
                 x, amp=a, lamb=-1.0, base=alpha * alpha_c, baseline=b
             ),
-            monotonicity={"a": True, "alpha": False, "alpha_c": False, "b": True},
+            monotonicity={"a": True, "alpha": True, "alpha_c": True, "b": True},
             filter_kwargs={"interleaved": True},
             plot_color="orange",
             plot_symbol="^",

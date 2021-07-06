@@ -70,7 +70,7 @@ class RBAnalysis(CurveAnalysis):
             fit_func=lambda x, a, alpha, b: fit_function.exponential_decay(
                 x, amp=a, lamb=-1.0, base=alpha, baseline=b
             ),
-            monotonicity={"a": True, "alpha": False, "b": True},
+            monotonicity={"a": True, "alpha": True, "b": True},
             plot_color="blue",
         )
     ]
