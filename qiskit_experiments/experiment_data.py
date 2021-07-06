@@ -17,6 +17,7 @@ from typing import Optional, Union, List, Dict, Tuple
 import os
 import uuid
 from collections import OrderedDict
+from datetime import datetime
 
 from qiskit.result import Result
 from qiskit.providers import Backend
@@ -65,6 +66,7 @@ class ExperimentData:
         """
         # Experiment class object
         self._experiment = experiment
+        self._metadata = experiment._metadata() if experiment else {}
 
         # Terra ExperimentDataV1 attributes
         self._backend = backend
@@ -99,6 +101,13 @@ class ExperimentData:
         """Return the experiment id."""
         return self._id
 
+    def metadata(self) -> Dict:
+        """Return experiment metadata.
+        Returns:
+            Experiment metadata.
+        """
+        return self._metadata
+
     @property
     def job_ids(self) -> List[str]:
         """Return experiment job IDs.
@@ -107,6 +116,16 @@ class ExperimentData:
             IDs of jobs submitted for this experiment.
         """
         return list(self._jobs.keys())
+
+    @property
+    def completion_times(self) -> Dict[str, datetime]:
+        """Returns the completion times of the jobs."""
+        job_times = {}
+        for job_id, job in self._jobs.items():
+            if job is not None and "COMPLETED" in job.time_per_step():
+                job_times[job_id] = job.time_per_step().get("COMPLETED")
+
+        return job_times
 
     @property
     def backend(self) -> Backend:
