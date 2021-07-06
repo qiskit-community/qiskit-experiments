@@ -161,7 +161,9 @@ class TestStandardRBAnalysis(QiskitTestCase):
                         ),
                         "The calculated value for the key '"
                         + key
-                        + "', doesn't match the expected value.",
+                        + "', doesn't match the expected value."
+                        + "\n {} != {}".format(calculated_analysis_sample_data[key],
+                                               expected_analysis_samples_data[idx][key])
                     )
                 else:
                     if key in keys_for_string_data:
