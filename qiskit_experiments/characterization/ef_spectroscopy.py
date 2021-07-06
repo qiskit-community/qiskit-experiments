@@ -41,4 +41,3 @@ class EFSpectroscopy(QubitSpectroscopy):
         circuit.measure_active()
 
         return circuit
-    

@@ -213,23 +213,6 @@ class Rabi(BaseExperiment):
         """
         super().__init__([qubit])
 
-    def _rabi_gate_schedule(
-        self, backend: Optional[Backend] = None
-    ) -> Tuple[pulse.Schedule, Parameter]:
-        """Create the rabi schedule."""
-        amp_param = Parameter("amp")
-        with pulse.build(backend=backend, name="rabi") as schedule:
-            pulse.play(
-                pulse.Gaussian(
-                    duration=self.experiment_options.duration,
-                    amp=amp_param,
-                    sigma=self.experiment_options.sigma,
-                ),
-                pulse.DriveChannel(self.physical_qubits[0]),
-            )
-
-        return schedule, amp_param
-
     def _template_circuit(self, amp_param) -> QuantumCircuit:
         """Return the template quantum circuit."""
         gate = Gate(name="Rabi", num_qubits=1, params=[amp_param])
