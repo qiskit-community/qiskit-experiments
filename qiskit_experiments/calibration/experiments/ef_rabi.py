@@ -33,12 +33,12 @@ class EFRabi(Rabi):
                                          0
     """
 
-    def __init__(self, qubit: int, freq_shift: float):
+    def __init__(self, qubit: int, frequency_shift: float):
         """Setup a Rabi experiment between levels 1 and 2 on the given qubit.
 
         Args:
             qubit: The qubit on which to run the Rabi experiment.
-            freq_shift: The frequency by which the Rabi pulse between 1 and 2 is shifted
+            frequency_shift: The frequency by which the Rabi pulse between 1 and 2 is shifted
         """
 
         super().__init__(qubit)
@@ -46,7 +46,7 @@ class EFRabi(Rabi):
         # create schedule of the Rabi gate with a shifted pulse frequency
         amp_param = Parameter("amp")
         with pulse.build(name="rabi") as sched:
-            pulse.shift_frequency(freq_shift, pulse.DriveChannel(self.physical_qubits[0]))
+            pulse.shift_frequency(frequency_shift, pulse.DriveChannel(self.physical_qubits[0]))
             pulse.play(
                 pulse.Gaussian(
                     duration=self.experiment_options.duration,
@@ -55,7 +55,7 @@ class EFRabi(Rabi):
                 ),
                 pulse.DriveChannel(self.physical_qubits[0]),
             )
-            pulse.shift_frequency(-freq_shift, pulse.DriveChannel(self.physical_qubits[0]))
+            pulse.shift_frequency(-frequency_shift, pulse.DriveChannel(self.physical_qubits[0]))
 
         self.set_experiment_options(schedule=sched)
 

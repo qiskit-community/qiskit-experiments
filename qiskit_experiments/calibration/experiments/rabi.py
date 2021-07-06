@@ -195,6 +195,7 @@ class Rabi(BaseExperiment):
             duration=160,
             sigma=40,
             amplitudes=np.linspace(-0.95, 0.95, 51),
+            schedule=None,
             normalization=True,
         )
 
