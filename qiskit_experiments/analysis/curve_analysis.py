@@ -528,6 +528,11 @@ class CurveAnalysis(BaseAnalysis):
         fit_options = {"p0": self._get_option("p0"), "bounds": self._get_option("bounds")}
         fit_options.update(options)
 
+        # Remove any fixed parameter so as not to give them to the fitter.
+        if self.__fixed_parameters__ is not None and len(self.__fixed_parameters__) > 0:
+            for pname in self.__fixed_parameters__:
+                fit_options.pop(pname, None)
+
         return fit_options
 
     def _format_data(self, data: CurveData) -> CurveData:
