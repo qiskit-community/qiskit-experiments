@@ -28,7 +28,7 @@ def create_depolarizing_noise_model():
     Returns:
         NoiseModel: depolarizing error noise model
     """
-    # the error parameters were took from ibmq_manila on 17 june 2021
+    # the error parameters were taken from ibmq_manila on 17 june 2021
     p1q = 0.002257
     p2q = 0.006827
     noise_model = NoiseModel()
@@ -49,7 +49,7 @@ def standard_rb_exp_data_gen(dir_name: str):
     experiments_attributes = [
         {
             "physical_qubits": [0],
-            "lengths": list(range(1, 200, 20)),
+            "lengths": list(range(1, 1000, 20)),
             "num_samples": 3,
             "seed": 100,
         },
@@ -61,6 +61,7 @@ def standard_rb_exp_data_gen(dir_name: str):
         },
     ]
     for idx, experiment_attributes in enumerate(experiments_attributes):
+        print("Generating experiment #{}: {}".format(idx, experiment_attributes))
         _generate_rb_fitter_data(dir_name, rb_exp_name[idx], experiment_attributes)
 
 
@@ -88,6 +89,7 @@ def _generate_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes: di
     noise_model = create_depolarizing_noise_model()
     backend = QasmSimulator()
     rb_class = qe.randomized_benchmarking
+    print("Generating experiment")
     rb_exp = rb_class.StandardRB(
         exp_attributes["physical_qubits"],
         exp_attributes["lengths"],
@@ -95,7 +97,9 @@ def _generate_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes: di
         seed=exp_attributes["seed"],
     )
     rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
+    print("Running experiment")
     experiment_obj = rb_exp.run(backend, noise_model=noise_model, basis_gates=transpiled_base_gate)
+    print("Done running experiment")
     exp_results = experiment_obj.data()
     with open(results_file_path, "w") as json_file:
         joined_list_data = [exp_attributes, exp_results]

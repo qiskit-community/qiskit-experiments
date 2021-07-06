@@ -148,18 +148,18 @@ class TestRBUtilities(QiskitTestCase):
 
     def test_coherence_limit(self):
         """Test coherence_limit."""
-        t1 = 100.
-        t2 = 100.
-        gate2Q = 0.5
-        gate1Q = 0.1
-        twoq_coherence_err = qe.randomized_benchmarking.RBUtils.coherence_limit(2, [t1, t1],
-                                                         [t2, t2], gate2Q)
+        t1 = 100.0
+        t2 = 100.0
+        gate_2_qubits = 0.5
+        gate_1_qubit = 0.1
+        twoq_coherence_err = qe.randomized_benchmarking.RBUtils.coherence_limit(
+            2, [t1, t1], [t2, t2], gate_2_qubits
+        )
 
-        oneq_coherence_err = qe.randomized_benchmarking.RBUtils.coherence_limit(1, [t1],
-                                                         [t2], gate1Q)
+        oneq_coherence_err = qe.randomized_benchmarking.RBUtils.coherence_limit(
+            1, [t1], [t2], gate_1_qubit
+        )
 
-        self.assertAlmostEqual(oneq_coherence_err, 0.00049975, 6,
-                               "Error: 1Q Coherence Limit")
+        self.assertAlmostEqual(oneq_coherence_err, 0.00049975, 6, "Error: 1Q Coherence Limit")
 
-        self.assertAlmostEqual(twoq_coherence_err, 0.00597, 5,
-                               "Error: 2Q Coherence Limit")
+        self.assertAlmostEqual(twoq_coherence_err, 0.00597, 5, "Error: 2Q Coherence Limit")

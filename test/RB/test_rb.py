@@ -202,7 +202,7 @@ class TestInterleavedRB(TestStandardRB):
 
     @data([XGate(), [3], 4], [CXGate(), [4, 7], 5])
     @unpack
-    def test_interleaved_structure(self, interleaved_element, qubits, length):
+    def test_interleaved_structure(self, interleaved_element: "Gate", qubits: list, length: int):
         """
         Verifies that when generating an interleaved circuit, it will be
         identical to the original circuit up to additions of
