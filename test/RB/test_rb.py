@@ -21,19 +21,10 @@ from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.quantum_info import Clifford
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeParis
-from qiskit import QuantumCircuit
 from qiskit.exceptions import QiskitError
 from qiskit.circuit.library import (
-    IGate,
     XGate,
-    YGate,
-    ZGate,
-    HGate,
-    SGate,
-    SdgGate,
     CXGate,
-    CZGate,
-    SwapGate,
 )
 import qiskit_experiments as qe
 
@@ -135,17 +126,15 @@ class TestStandardRB(QiskitTestCase):
         Creates a list of dictionaries that contains invalid experiment properties to check errors.
         The dict invalid data is as following:
             exp_data_list[1]: same index of qubit.
-            exp_data_list[2]: qubit index is negative.
-            exp_data_list[3]: the length of the sequence has negative number.
-            exp_data_list[4]: num of samples is negative.
-            exp_data_list[5]: num of samples is 0.
-            exp_data_list[6]: the length of the sequence list has duplicates.
+            exp_data_list[2]: the length of the sequence has negative number.
+            exp_data_list[3]: num of samples is negative.
+            exp_data_list[4]: num of samples is 0.
+            exp_data_list[5]: the length of the sequence list has duplicates.
         Returns:
             list[dict]: list of dictionaries with experiment properties.
         """
         exp_data_list = [
             {"physical_qubits": [3, 3], "lengths": [1, 3, 5, 7, 9], "num_samples": 1, "seed": 100},
-            {"physical_qubits": [-1], "lengths": [1, 3, 5, 7, 9], "num_samples": 1, "seed": 100},
             {"physical_qubits": [0, 1], "lengths": [1, 3, 5, -7, 9], "num_samples": 1, "seed": 100},
             {"physical_qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": -4, "seed": 100},
             {"physical_qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": 0, "seed": 100},
@@ -208,69 +197,3 @@ class TestInterleavedRB(TestStandardRB):
         self.validate_metadata(exp_circuits, exp_attributes)
         self.validate_circuit_data(exp_data, exp_attributes)
         self.is_identity(exp_circuits)
-
-
-@ddt
-class TestRBUtilities(QiskitTestCase):
-    """
-    A test class for additional functionality provided by the StandardRB
-    class.
-    """
-
-    instructions = {
-        "i": IGate(),
-        "x": XGate(),
-        "y": YGate(),
-        "z": ZGate(),
-        "h": HGate(),
-        "s": SGate(),
-        "sdg": SdgGate(),
-        "cx": CXGate(),
-        "cz": CZGate(),
-        "swap": SwapGate(),
-    }
-    seed = 42
-
-    @data(
-        [1, {((0,), "x"): 3, ((0,), "y"): 2, ((0,), "h"): 1}],
-        [5, {((1,), "x"): 3, ((4,), "y"): 2, ((1,), "h"): 1, ((1, 4), "cx"): 7}],
-    )
-    @unpack
-    def test_count_ops(self, num_qubits, expected_counts):
-        """Testing the count_ops utility function
-        this function receives a circuit and counts the number of gates
-        in it, counting gates for different qubits separately"""
-        circuit = QuantumCircuit(num_qubits)
-        gates_to_add = []
-        for gate, count in expected_counts.items():
-            gates_to_add += [gate for _ in range(count)]
-        rng = np.random.default_rng(self.seed)
-        rng.shuffle(gates_to_add)
-        for qubits, gate in gates_to_add:
-            circuit.append(self.instructions[gate], qubits)
-        counts = qe.randomized_benchmarking.RBUtils.count_ops(circuit)
-        self.assertDictEqual(expected_counts, counts)
-
-    def test_calculate_1q_epg(self):
-        """Testing the calculation of 1 qubit error per gate
-        The EPG is computed based on the error per clifford determined
-        in the RB experiment, the gate counts, and an estimate about the
-        relations between the errors of different gate types
-        """
-        epc_1_qubit = 0.0037
-        qubits = [0]
-        gate_error_ratio = {((0,), "id"): 1, ((0,), "rz"): 0, ((0,), "sx"): 1, ((0,), "x"): 1}
-        gates_per_clifford = {((0,), "rz"): 10.5, ((0,), "sx"): 8.15, ((0,), "x"): 0.25}
-        epg = qe.randomized_benchmarking.RBUtils.calculate_1q_epg(
-            epc_1_qubit, qubits, gate_error_ratio, gates_per_clifford
-        )
-        error_dict = {
-            ((0,), "rz"): 0,
-            ((0,), "sx"): 0.0004432101747785104,
-            ((0,), "x"): 0.0004432101747785104,
-        }
-
-        for gate in ["x", "sx", "rz"]:
-            expected_epg = error_dict[((0,), gate)]
-            actual_epg = epg[0][gate]
-            self.assertTrue(np.allclose(expected_epg, actual_epg, rtol=1.0e-2))
