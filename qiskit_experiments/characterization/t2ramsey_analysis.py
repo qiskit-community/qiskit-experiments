@@ -73,8 +73,9 @@ class T2RamseyAnalysis(BaseAnalysis):
         def _format_plot(ax, unit, fit_result, conversion_factor):
             """Format curve fit plot"""
             # Formatting
-            ax.tick_params(labelsize=10)
+            ax.tick_params(labelsize=14)
             ax.set_xlabel("Delay (s)", fontsize=12)
+            ax.ticklabel_format(axis="x", style="sci", scilimits=(0, 0))
             ax.set_ylabel("Probability to measure |0>", fontsize=12)
             t2ramsey = fit_result["popt"][1] / conversion_factor
             t2_err = fit_result["popt_err"][1] / conversion_factor
