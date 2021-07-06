@@ -126,8 +126,8 @@ class FineAmplitudeAnalysis(CurveAnalysis):
                 "bounds": {
                     "amp": user_bounds.get("amp", None) or (-2 * max_abs_y, 2 * max_abs_y),
                     "d_theta": user_bounds.get("d_theta", None) or (-np.pi, np.pi),
-                    "baseline":  user_bounds.get("d_theta", None) or (-1 * max_abs_y, 1 * max_abs_y),
-                }
+                    "baseline": user_bounds.get("d_theta", None) or (-1 * max_abs_y, 1 * max_abs_y),
+                },
             }
 
             fit_options.append(fit_option)

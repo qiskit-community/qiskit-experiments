@@ -50,7 +50,7 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         tol = 0.04
 
-        self.assertTrue(abs(dtheta - backend.angle_error) < tol )
+        self.assertTrue(abs(dtheta - backend.angle_error) < tol)
         self.assertEqual(result["quality"], "computer_good")
 
     def test_end_to_end_over_rotation(self):
@@ -97,7 +97,7 @@ class TestFineAmplitudeCircuits(QiskitTestCase):
         amp_cal.set_experiment_options(add_sx=True)
 
         for idx, circ in enumerate(amp_cal.circuits()):
-            self.assertTrue(circ.data[0][0].name =="sx")
+            self.assertTrue(circ.data[0][0].name == "sx")
             self.assertEqual(circ.count_ops().get("xp", 0), idx)
 
     def test_x90p(self):

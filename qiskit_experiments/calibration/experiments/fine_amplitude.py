@@ -87,9 +87,9 @@ class FineAmplitude(BaseExperiment):
         options = super()._default_experiment_options()
         options.repetitions = 15
         options.schedule = None
-        options.normalization=True
-        options.add_sx=False
-        options.sx_schedule=None
+        options.normalization = True
+        options.add_sx = False
+        options.sx_schedule = None
 
         return options
 
@@ -183,7 +183,7 @@ class FineAmplitude(BaseExperiment):
             circuit = self._pre_circuit()
 
             for _ in range(repetition):
-                circuit.append(gate, (0, ))
+                circuit.append(gate, (0,))
 
             circuit.measure_all()
             circuit.add_calibration(gate, (self.physical_qubits[0],), schedule, params=[])
