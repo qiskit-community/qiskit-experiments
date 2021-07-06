@@ -15,6 +15,7 @@
 from typing import Any, Dict, List, Union
 import numpy as np
 
+from qiskit_experiments.calibration.exceptions import CalibrationError
 from qiskit_experiments.analysis import (
     CurveAnalysis,
     CurveAnalysisResult,
@@ -30,7 +31,7 @@ class FineAmplitudeAnalysis(CurveAnalysis):
 
     Analyse a fine amplitude calibration experiment by fitting the data to a cosine function.
     The user must also specify the intended rotation angle per gate, here labeled,
-    :math:`{\rm apg}` (TODO for now this is hard coded to pi). The parameter of interest in the
+    :math:`{\rm apg}`. The parameter of interest in the
     fit is the deviation from the intended rotation angle per gate labeled :math:`{\rm d}\theta`.
     The fit function is
 
@@ -56,15 +57,21 @@ class FineAmplitudeAnalysis(CurveAnalysis):
         - :math:`{\rm phase}`: [-pi, pi].
     """
 
-    # TODO This will only work for pi pulses.
     __series__ = [
         SeriesDef(
-            fit_func=lambda x, amp, d_theta, phase, baseline: fit_function.cos(
-                x, amp=0.5 * amp, freq=d_theta + np.pi, phase=phase, baseline=baseline
+            fit_func=lambda x, amp, d_theta, phase_offset, baseline, angle_per_gate: fit_function.cos(
+                x,
+                amp=0.5 * amp,
+                freq=(d_theta + angle_per_gate) / (2 * np.pi),
+                phase=phase_offset,
+                baseline=baseline,
             ),
             plot_color="blue",
         )
     ]
+
+    # The intended angle per gat of the gate being calibrated, e.g. pi for a pi-pulse.
+    __fixed_parameters__ = ["angle_per_gate", "phase_offset"]
 
     @classmethod
     def _default_options(cls):
@@ -79,6 +86,8 @@ class FineAmplitudeAnalysis(CurveAnalysis):
         default_options.fit_reports = {"d_theta": "d_theta"}
         default_options.xlabel = "Number of gates (n)"
         default_options.ylabel = "Population"
+        default_options.angle_per_gate = None
+        default_options.number_guesses = 101
 
         return default_options
 
@@ -86,15 +95,19 @@ class FineAmplitudeAnalysis(CurveAnalysis):
         """Fitter options."""
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
+        n_guesses = self._get_option("number_guesses")
 
-        b_guess = np.average(self._data().y)
-        a_guess = np.max(self._data().y) - np.min(self._data().y) - b_guess
+        max_y, min_y = np.max(self._data().y), np.min(self._data().y)
+        b_guess = (max_y + min_y) / 2
+        a_guess = max_y - min_y
 
         max_abs_y = np.max(np.abs(self._data().y))
 
         # Base the initial guess on the intended angle_per_gate.
-        # TODO This is hardcoded for now until CurveAnalysis can accept fix_parameters
-        angle_per_gate = np.pi
+        angle_per_gate = self._get_option("angle_per_gate")
+
+        if angle_per_gate is None:
+            raise CalibrationError("The angle_per_gate was not specified in the analysis options.")
 
         if angle_per_gate == 0:
             guess_range = np.pi / 2
@@ -103,19 +116,17 @@ class FineAmplitudeAnalysis(CurveAnalysis):
 
         fit_options = []
 
-        for angle in np.linspace(-guess_range, guess_range, 11):
+        for angle in np.linspace(-guess_range, guess_range, n_guesses):
             fit_option = {
                 "p0": {
                     "amp": user_p0["amp"] or a_guess,
                     "d_theta": angle,
-                    "phase": 0.0,
                     "baseline": b_guess,
                 },
                 "bounds": {
-                    "amp": user_bounds["amp"] or (-2 * max_abs_y, 2 * max_abs_y),
-                    "d_theta": user_bounds["d_theta"] or (-np.pi, np.pi),
-                    "phase": user_bounds["phase"] or (-np.pi, np.pi),
-                    "baseline":  user_bounds["d_theta"] or (-1 * max_abs_y, 1 * max_abs_y),
+                    "amp": user_bounds.get("amp", None) or (-2 * max_abs_y, 2 * max_abs_y),
+                    "d_theta": user_bounds.get("d_theta", None) or (-np.pi, np.pi),
+                    "baseline":  user_bounds.get("d_theta", None) or (-1 * max_abs_y, 1 * max_abs_y),
                 }
             }
 
@@ -135,7 +146,7 @@ class FineAmplitudeAnalysis(CurveAnalysis):
 
         criteria = [
             analysis_result["reduced_chisq"] < 3,
-            (fit_d_theta_err is None or (fit_d_theta_err < fit_d_theta)),
+            (fit_d_theta_err is None or (fit_d_theta_err < abs(fit_d_theta))),
         ]
 
         if all(criteria):

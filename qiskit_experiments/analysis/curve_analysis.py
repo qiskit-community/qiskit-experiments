@@ -844,7 +844,7 @@ class CurveAnalysis(BaseAnalysis):
             # Extract fixed parameter value from analysis options
             for pname in self.__fixed_parameters__:
                 try:
-                    assigned_params[pname] = options.pop(pname)
+                    assigned_params[pname] = options[pname]
                 except KeyError as ex:
                     raise AnalysisError(
                         f"The value of the fixed-value parameter {pname} for the fit function "

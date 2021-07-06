@@ -19,6 +19,7 @@ from qiskit.circuit import Gate
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
 from qiskit.providers.options import Options
+from qiskit.pulse.schedule import ScheduleBlock
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
@@ -43,6 +44,23 @@ class FineAmplitude(BaseExperiment):
                                             0
 
     Here, Cal is the name of the gate which will be taken from the name of the schedule.
+    The user can optionally add a square-root of X pulse before the Cal gates are repeated.
+    This square-root of X pulse allows the analysis to differentiate between over rotations
+    and under rotations in the case of pi-pulses. Importantly, the resulting data is analyzed
+    by a fit to a cosine function in which we try and determine the over/under rotation given
+    an intended rotation angle per gate which must also be specified by the user. The steps
+    to run a fine amplitude calibration experiment are therefore
+
+    .. code-block:
+
+        qubit = 3
+        amp_cal = FineAmplitude(qubit)
+        amp_cal.set_schedule(schedule=x45p, angle_per_gate=np.pi/4)
+        amp_cal.run(backend)
+
+    Note that the schedule and angle_per_gate could have been set by independently calling
+    :meth:`set_experiment_options` for the schedule and :meth:`set_analysis_options` for
+    the angle_per_gate.
     """
 
     __analysis_class__ = FineAmplitudeAnalysis
@@ -63,12 +81,15 @@ class FineAmplitude(BaseExperiment):
 
         .. code-block::
 
-            amp_cal.set_experiment_options(schedule=my_x90p)  # TODO
+            amp_cal.set_experiment_options(schedule=my_x90p)
 
         """
         options = super()._default_experiment_options()
         options.repetitions = 15
         options.schedule = None
+        options.normalization=True
+        options.add_sx=False
+        options.sx_schedule=None
 
         return options
 
@@ -80,14 +101,34 @@ class FineAmplitude(BaseExperiment):
         """
         super().__init__([qubit])
 
-    @staticmethod
-    def _pre_circuit() -> QuantumCircuit:
+    def set_schedule(self, schedule: ScheduleBlock, angle_per_gate: float, phase_offset: float):
+        """Set the schedule and its corresponding intended angle per gate.
+
+        Args:
+            schedule: The schedule to attache to the gates.
+            angle_per_gate: The intended angle per gate used by the analysis method.
+            phase_offset: The phase offset to use in the fit.
+        """
+        self.set_experiment_options(schedule=schedule)
+        self.set_analysis_options(angle_per_gate=angle_per_gate, phase_offset=phase_offset)
+
+    def _pre_circuit(self) -> QuantumCircuit:
         """Return a preparation circuit.
 
         This method can be overridden by subclasses e.g. to calibrate schedules on
         transitions other than the 0 <-> 1 transition.
         """
-        return QuantumCircuit(1)
+        circuit = QuantumCircuit(1)
+
+        if self.experiment_options.add_sx:
+            circuit.sx(0)
+
+        if self.experiment_options.sx_schedule is not None:
+            sx_schedule = self.experiment_options.sx_schedule
+            circuit.add_calibration("sx", (self.physical_qubits[0],), sx_schedule, params=[])
+            circuit.barrier()
+
+        return circuit
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Create the circuits for the fine amplitude calibration experiment.
@@ -144,12 +185,12 @@ class FineAmplitude(BaseExperiment):
             for _ in range(repetition):
                 circuit.append(gate, (0, ))
 
-            circuit.measure_active()
+            circuit.measure_all()
             circuit.add_calibration(gate, (self.physical_qubits[0],), schedule, params=[])
 
             circuit.metadata = {
                 "experiment_type": self._type,
-                "qubit": self.physical_qubits[0],
+                "qubits": (self.physical_qubits[0],),
                 "xval": repetition,
                 "unit": "gate number",
             }

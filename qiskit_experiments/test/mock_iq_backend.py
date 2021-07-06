@@ -148,3 +148,32 @@ class DragBackend(MockIQBackend):
         beta = next(iter(circuit.calibrations["Rp"].keys()))[1][0]
 
         return np.sin(n_gates * self._leakage * (beta - self.ideal_beta)) ** 2
+
+
+class MockFineAmp(MockIQBackend):
+
+    def __init__(self, angle_error: float, angle_per_gate: float, gate_name: str):
+        """Setup a mock backend to test the fine amplitude calibration.
+
+        Args:
+            angle_error: The rotation error per gate.
+            gate_name: The name of the gate to find in the circuit.
+        """
+        self.angle_error = angle_error
+        self._gate_name = gate_name
+        self._angle_per_gate = angle_per_gate
+        super().__init__()
+
+        self.configuration().basis_gates.append("sx")
+
+    def _compute_probability(self, circuit: QuantumCircuit) -> float:
+        """Return the probability of being in the excited state."""
+
+        n_ops = circuit.count_ops().get(self._gate_name, 0)
+
+        angle = n_ops * (self._angle_per_gate + self.angle_error) / 2
+
+        if circuit.data[0][0].name == "sx":
+            angle += np.pi / 4
+
+        return np.sin(angle) ** 2
