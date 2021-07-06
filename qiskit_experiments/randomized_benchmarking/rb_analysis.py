@@ -71,6 +71,7 @@ class RBAnalysis(CurveAnalysis):
                 x, amp=a, lamb=-1.0, base=alpha, baseline=b
             ),
             plot_color="blue",
+            plot_confidence_interval=True,
         )
     ]
 

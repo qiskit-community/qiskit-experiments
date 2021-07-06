@@ -103,6 +103,7 @@ class InterleavedRBAnalysis(RBAnalysis):
             filter_kwargs={"interleaved": False},
             plot_color="red",
             plot_symbol=".",
+            plot_confidence_interval=True,
         ),
         SeriesDef(
             name="Interleaved",
@@ -112,6 +113,7 @@ class InterleavedRBAnalysis(RBAnalysis):
             filter_kwargs={"interleaved": True},
             plot_color="orange",
             plot_symbol="^",
+            plot_confidence_interval=True,
         ),
     ]
 

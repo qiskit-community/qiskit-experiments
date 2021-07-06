@@ -26,7 +26,7 @@ from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
 def plot_curve_fit(
     func: Callable,
     result: AnalysisResult,
-    confidence_interval: bool = True,
+    confidence_interval: bool = False,
     ax=None,
     num_fit_points: int = 100,
     labelsize: int = 14,
