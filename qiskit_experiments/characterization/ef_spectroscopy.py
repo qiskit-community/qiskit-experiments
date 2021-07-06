@@ -33,13 +33,12 @@ class EFSpectroscopy(QubitSpectroscopy):
 
     """
 
-    def _template_circuit(self, amp_param) -> QuantumCircuit:
+    def _template_circuit(self, freq_param) -> QuantumCircuit:
         """Return the template quantum circuit."""
-        gate = Gate(name="Rabi", num_qubits=1, params=[amp_param])
-
         circuit = QuantumCircuit(1)
         circuit.x(0)
-        circuit.append(gate, (0,))
+        circuit.append(Gate(name=self.__spec_gate_name__, num_qubits=1, params=[freq_param]), (0,))
         circuit.measure_active()
 
         return circuit
+    
