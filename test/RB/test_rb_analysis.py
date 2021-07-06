@@ -19,6 +19,9 @@ from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.test import QiskitTestCase
 import qiskit_experiments as qe
 
+ATOL_DEFAULT = 1e-3
+RTOL_DEFAULT = 1e-5
+
 
 class TestStandardRBAnalysis(QiskitTestCase):
     """
@@ -158,12 +161,16 @@ class TestStandardRBAnalysis(QiskitTestCase):
                         matrix_equal(
                             calculated_analysis_sample_data[key],
                             expected_analysis_samples_data[idx][key],
+                            rtol=RTOL_DEFAULT,
+                            atol=ATOL_DEFAULT,
                         ),
                         "The calculated value for the key '"
                         + key
                         + "', doesn't match the expected value."
-                        + "\n {} != {}".format(calculated_analysis_sample_data[key],
-                                               expected_analysis_samples_data[idx][key])
+                        + "\n {} != {}".format(
+                            calculated_analysis_sample_data[key],
+                            expected_analysis_samples_data[idx][key],
+                        ),
                     )
                 else:
                     if key in keys_for_string_data:
