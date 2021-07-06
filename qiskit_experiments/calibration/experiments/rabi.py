@@ -156,7 +156,7 @@ class RabiAnalysis(CurveAnalysis):
 
 class Rabi(BaseExperiment):
     """An experiment that scans the amplitude of a pulse to calibrate rotations between 0 and 1.
-    # TODO: Update docstring
+
     The circuits that are run have a custom rabi gate with the pulse schedule attached to it
     through the calibrations. The circuits are of the form:
 
@@ -167,7 +167,6 @@ class Rabi(BaseExperiment):
                    └───────────┘ ░ └╥┘
         measure: 1/═════════════════╩═
                                     0
-
     """
 
     __analysis_class__ = RabiAnalysis
@@ -201,15 +200,21 @@ class Rabi(BaseExperiment):
 
     def __init__(self, qubit: int):
         """Setup a Rabi experiment on the given qubit.
-        TODO: Update docstring about how to set amp params etc. and default params
+        The parameters of the Gaussian Rabi pulse can be specified at run-time.
+        The rabi pulse has the following parameters:
+            - duration: The duration of the rabi pulse in samples, the default is 160 samples.
+            - sigma: The standard deviation of the pulse, the default is duration 40.
+            - amplitudes: The amplitude that are scanned in the experiment, default  is
+                np.linspace(-0.95, 0.95, 51)
 
         Args:
             qubit: The qubit on which to run the Rabi experiment.
         """
         super().__init__([qubit])
 
-    def _rabi_gate_schedule(self, backend: Optional[Backend] = None
-                            ) -> Tuple[pulse.ScheduleBlock, Parameter]:
+    def _rabi_gate_schedule(
+        self, backend: Optional[Backend] = None
+    ) -> Tuple[pulse.Schedule, Parameter]:
         """Create the rabi schedule."""
         amp_param = Parameter("amp")
         with pulse.build(backend=backend, name="rabi") as schedule:
