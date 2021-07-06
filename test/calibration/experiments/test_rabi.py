@@ -24,7 +24,7 @@ from qiskit.qobj.utils import MeasLevel
 import qiskit.pulse as pulse
 
 from qiskit_experiments import ExperimentData
-from qiskit_experiments.calibration.experiments.rabi import RabiAnalysis, Rabi
+from qiskit_experiments.calibration.experiments import RabiAnalysis, Rabi, EFRabi
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
 from qiskit_experiments.composite.parallel_experiment import ParallelExperiment
@@ -88,6 +88,43 @@ class TestRabiEndToEnd(QiskitTestCase):
 
         self.assertEqual(result["quality"], "computer_good")
         self.assertTrue(abs(result["popt"][1] - backend.rabi_rate) < test_tol)
+
+
+class TestEFRabi(QiskitTestCase):
+    """Test the ef_rabi experiment."""
+
+    def test_ef_rabi_end_to_end(self):
+        """Test the EFRabi experiment end to end."""
+
+        test_tol = 0.01
+        backend = RabiBackend()
+        qubit = 0
+
+        # Note that the backend is not sophisticated enough to simulate an e-f
+        # transition so we run the test with g-e.
+        freq_shift = 0.
+        rabi = EFRabi(qubit, freq_shift)
+        rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
+        result = rabi.run(backend).analysis_result(0)
+
+        self.assertEqual(result["quality"], "computer_good")
+        self.assertTrue(abs(result["popt"][1] - backend.rabi_rate) < test_tol)
+
+    def test_ef_rabi_circuit(self):
+        """Test the EFRabi experiment end to end."""
+        anharm = 330e6
+        rabi12 = EFRabi(2, frequency_shift=anharm)
+        rabi12.set_experiment_options(amplitudes=[0.5])
+        circ = rabi12.circuits(RabiBackend())[0]
+
+        with pulse.build() as expected:
+            pulse.shift_frequency(anharm, pulse.DriveChannel(2))
+            pulse.play(pulse.Gaussian(160, 0.5, 40), pulse.DriveChannel(2))
+            pulse.shift_frequency(-anharm, pulse.DriveChannel(2))
+
+        self.assertEqual(circ.calibrations["Rabi"][((2,), (0.5,))], expected)
+        self.assertEqual(circ.data[0][0].name, "x")
+        self.assertEqual(circ.data[1][0].name, "Rabi")
 
 
 class TestRabiCircuits(QiskitTestCase):
