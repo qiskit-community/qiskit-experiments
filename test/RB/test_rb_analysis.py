@@ -19,7 +19,7 @@ from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.test import QiskitTestCase
 import qiskit_experiments as qe
 
-ATOL_DEFAULT = 1e-3
+ATOL_DEFAULT = 1e-2
 RTOL_DEFAULT = 1e-5
 
 

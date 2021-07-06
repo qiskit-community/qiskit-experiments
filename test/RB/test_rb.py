@@ -199,3 +199,40 @@ class TestInterleavedRB(TestStandardRB):
         self.validate_metadata(exp_circuits, exp_attributes)
         self.validate_circuit_data(exp_data, exp_attributes)
         self.is_identity(exp_circuits)
+
+    @data([XGate(), [3], 4], [CXGate(), [4, 7], 5])
+    @unpack
+    def test_interleaved_structure(self, interleaved_element, qubits, length):
+        """
+        Verifies that when generating an interleaved circuit, it will be
+        identical to the original circuit up to additions of
+        barrier and interleaved element between any two cliffords
+        Args:
+            interleaved_element: The clifford element to interleave
+            qubits: A list containing qubit indices for the experiment
+            length: The number of cliffords in the tested circuit
+        """
+        rb_class = qe.randomized_benchmarking
+        exp = rb_class.InterleavedRB(
+            qubits=qubits, interleaved_element=interleaved_element, lengths=[length], num_samples=1
+        )
+
+        circuits = exp.circuits()
+        c_std = circuits[0]
+        c_int = circuits[1]
+        if c_std.metadata["interleaved"]:
+            c_std, c_int = c_int, c_std
+        num_cliffords = c_std.metadata["xval"]
+        std_idx = 0
+        int_idx = 0
+        for _ in range(num_cliffords):
+            # barrier
+            self.assertEqual(c_std[std_idx][0].name, "barrier")
+            self.assertEqual(c_int[int_idx][0].name, "barrier")
+            # clifford
+            self.assertEqual(c_std[std_idx + 1], c_int[int_idx + 1])
+            # for interleaved circuit: barrier + interleaved element
+            self.assertEqual(c_int[int_idx + 2][0].name, "barrier")
+            self.assertEqual(c_int[int_idx + 3][0].name, interleaved_element.name)
+            std_idx += 2
+            int_idx += 4
