@@ -145,3 +145,21 @@ class TestRBUtilities(QiskitTestCase):
         expected_epg = error_dict[((1, 4), "cx")]
         actual_epg = epg[(1, 4)]["cx"]
         self.assertTrue(np.allclose(expected_epg, actual_epg, atol=0.001))
+
+    def test_coherence_limit(self):
+        """Test coherence_limit."""
+        t1 = 100.
+        t2 = 100.
+        gate2Q = 0.5
+        gate1Q = 0.1
+        twoq_coherence_err = qe.randomized_benchmarking.RBUtils.coherence_limit(2, [t1, t1],
+                                                         [t2, t2], gate2Q)
+
+        oneq_coherence_err = qe.randomized_benchmarking.RBUtils.coherence_limit(1, [t1],
+                                                         [t2], gate1Q)
+
+        self.assertAlmostEqual(oneq_coherence_err, 0.00049975, 6,
+                               "Error: 1Q Coherence Limit")
+
+        self.assertAlmostEqual(twoq_coherence_err, 0.00597, 5,
+                               "Error: 2Q Coherence Limit")
