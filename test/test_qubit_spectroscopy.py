@@ -68,7 +68,7 @@ class TestQubitSpectroscopy(QiskitTestCase):
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_result(0)
+        result = expdata.analysis_results(0)
         result_data = result.data()
 
         value = get_opt_value(result_data, "freq")
@@ -84,7 +84,7 @@ class TestQubitSpectroscopy(QiskitTestCase):
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_result(0)
+        result = expdata.analysis_results(0)
         result_data = result.data()
 
         value = get_opt_value(result_data, "freq")
@@ -103,7 +103,7 @@ class TestQubitSpectroscopy(QiskitTestCase):
         spec = QubitSpectroscopy(qubit, frequencies, unit="MHz")
         expdata = spec.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_result(0)
+        result = expdata.analysis_results(0)
         result_data = result.data()
 
         value = get_opt_value(result_data, "freq")
@@ -118,7 +118,7 @@ class TestQubitSpectroscopy(QiskitTestCase):
         spec = QubitSpectroscopy(qubit, frequencies, unit="MHz")
         expdata = spec.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_result(0)
+        result = expdata.analysis_results(0)
         result_data = result.data()
 
         value = get_opt_value(result_data, "freq")
@@ -129,7 +129,7 @@ class TestQubitSpectroscopy(QiskitTestCase):
         spec.set_run_options(meas_return="avg")
         expdata = spec.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_result(0)
+        result = expdata.analysis_results(0)
         result_data = result.data()
 
         value = get_opt_value(result_data, "freq")
@@ -151,7 +151,7 @@ class TestQubitSpectroscopy(QiskitTestCase):
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_result(0)
+        result = expdata.analysis_results(0)
         result_data = result.data()
 
         value = get_opt_value(result_data, "freq")

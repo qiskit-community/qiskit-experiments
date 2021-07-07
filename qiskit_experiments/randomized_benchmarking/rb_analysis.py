@@ -172,32 +172,33 @@ class RBAnalysis(CurveAnalysis):
         result_data["EPC_err"] = scale * alpha_err / alpha
 
         # Add EPG data
-        count_ops = []
-        for meta in self._data(label="raw_data").metadata:
-            count_ops += meta["count_ops"]
-        gates_per_clifford = RBUtils.gates_per_clifford(count_ops)
-
-        num_qubits = len(self._physical_qubits)
         gate_error_ratio = self._get_option("gate_error_ratio")
         if gate_error_ratio is None:
             # we attempt to get the ratio from the backend properties
             gate_error_ratio = self._get_option("error_dict")
-        if num_qubits in [1, 2]:
-            if num_qubits == 1:
-                epg = RBUtils.calculate_1q_epg(
-                    result_data["EPC"],
-                    self._physical_qubits,
-                    gate_error_ratio,
-                    gates_per_clifford,
-                )
-            elif self._num_qubits == 2:
-                epg_1_qubit = self._get_option("epg_1_qubit")
-                epg = RBUtils.calculate_2q_epg(
-                    result_data["EPC"],
-                    self._physical_qubits,
-                    gate_error_ratio,
-                    gates_per_clifford,
-                    epg_1_qubit=epg_1_qubit,
-                )
-            result_data["EPG"] = epg
+        count_ops = []
+        for meta in self._data(label="raw_data").metadata:
+            count_ops += meta.get("count_ops", [])
+        if len(count_ops) > 0 and gate_error_ratio is not None:
+            gates_per_clifford = RBUtils.gates_per_clifford(count_ops)
+            num_qubits = len(self._physical_qubits)
+            if num_qubits in [1, 2]:
+                if num_qubits == 1:
+                    epg = RBUtils.calculate_1q_epg(
+                        result_data["EPC"],
+                        self._physical_qubits,
+                        gate_error_ratio,
+                        gates_per_clifford,
+                    )
+                elif self._num_qubits == 2:
+                    epg_1_qubit = self._get_option("epg_1_qubit")
+                    epg = RBUtils.calculate_2q_epg(
+                        result_data["EPC"],
+                        self._physical_qubits,
+                        gate_error_ratio,
+                        gates_per_clifford,
+                        epg_1_qubit=epg_1_qubit,
+                    )
+                result_data["EPG"] = epg
         return result_data
+

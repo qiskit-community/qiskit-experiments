@@ -29,12 +29,14 @@ class ExperimentData(DbExperimentDataV1):
         self,
         experiment=None,
         backend=None,
+        job_ids=None,
     ):
         """Initialize experiment data.
 
         Args:
             experiment (BaseExperiment): Optional, experiment object that generated the data.
             backend (Backend): Optional, Backend the experiment runs on.
+            job_ids (list[str]): Optional, IDs of jobs submitted for the experiment.
 
         Raises:
             ExperimentError: If an input argument is invalid.
@@ -43,6 +45,7 @@ class ExperimentData(DbExperimentDataV1):
         super().__init__(
             experiment_type=experiment.experiment_type if experiment else "unknown",
             backend=backend,
+            job_ids=job_ids,
             metadata=experiment._metadata() if experiment else {},
         )
 

@@ -13,7 +13,6 @@
 """Test Rabi amplitude Experiment class."""
 
 from typing import Tuple
-from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 import numpy as np
 
 from qiskit import QuantumCircuit, execute, transpile
@@ -29,6 +28,7 @@ from qiskit_experiments.calibration.experiments.rabi import RabiAnalysis, Rabi
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
 from qiskit_experiments.composite.parallel_experiment import ParallelExperiment
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 
 
 class RabiBackend(MockIQBackend):
@@ -69,7 +69,7 @@ class TestRabiEndToEnd(QiskitTestCase):
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         expdata = rabi.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_result(0)
+        result = expdata.analysis_results(0)
         result_data = result.data()
 
         self.assertEqual(result.quality, "computer_good")
@@ -81,7 +81,7 @@ class TestRabiEndToEnd(QiskitTestCase):
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         expdata = rabi.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_result(0)
+        result = expdata.analysis_results(0)
         result_data = result.data()
         self.assertEqual(result.quality, "computer_good")
         self.assertTrue(abs(result_data["popt"][1] - backend.rabi_rate) < test_tol)
@@ -92,7 +92,7 @@ class TestRabiEndToEnd(QiskitTestCase):
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 101))
         expdata = rabi.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_result(0)
+        result = expdata.analysis_results(0)
         result_data = result.data()
         self.assertEqual(result.quality, "computer_good")
         self.assertTrue(abs(result_data["popt"][1] - backend.rabi_rate) < test_tol)

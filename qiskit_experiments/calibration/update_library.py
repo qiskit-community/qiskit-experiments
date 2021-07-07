@@ -12,9 +12,9 @@
 
 """A library of experiment calibrations."""
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from datetime import datetime
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 import numpy as np
 
 from qiskit.circuit import Parameter
@@ -30,6 +30,8 @@ from qiskit_experiments.calibration.calibration_key_types import ParameterValueT
 
 class BaseUpdater(ABC):
     """A base class to update calibrations."""
+
+    __fit_parameter__ = None
 
     def __init__(self):
         """Updaters are not meant to be instantiated."""
@@ -82,63 +84,78 @@ class BaseUpdater(ABC):
         cal.add_parameter_value(param_value, param, qubits, schedule)
 
     @classmethod
-    @abstractmethod
-    def update(cls, calibrations: BackendCalibrations, exp_data: ExperimentData, **options):
-        """Update the calibrations based on the data.
-
-        Child update classes must implement this function. This function defines how the data
-        is extracted from an experiment and then used to update the values of one or more
-        parameters in the calibrations.
-        """
-
-
-class Frequency(BaseUpdater):
-    """Update frequencies."""
-
-    # pylint: disable=arguments-differ
-    @classmethod
     def update(
         cls,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         exp_data: ExperimentData,
+        parameter: str,
+        schedule: Optional[Union[ScheduleBlock, str]],
         result_index: int = -1,
         group: str = "default",
-        parameter: str = BackendCalibrations.__qubit_freq_parameter__,
     ):
-        """Update a qubit frequency from, e.g., QubitSpectroscopy.
+        """Update the calibrations based on the data.
 
         Args:
             calibrations: The calibrations to update.
             exp_data: The experiment data from which to update.
+            parameter: The name of the parameter in the calibrations to update.
+            schedule: The ScheduleBlock instance or the name of the instance to which the parameter
+                is attached.
             result_index: The result index to use, defaults to -1.
             group: The calibrations group to update. Defaults to "default."
-            parameter: The name of the parameter to update. If it is not specified
-                this will default to the qubit frequency.
 
         Raises:
             CalibrationError: If the analysis result does not contain a frequency variable.
         """
 
-        from qiskit_experiments.characterization.qubit_spectroscopy import SpectroscopyAnalysis
+        result = exp_data.analysis_results(result_index).data()
 
-        result = exp_data.analysis_result(result_index).data()
-
-        if "freq" not in result["popt_keys"]:
+        if cls.__fit_parameter__ not in result["popt_keys"]:
             raise CalibrationError(
-                f"{cls.__name__} updates from analysis classes such as "
-                f'{type(SpectroscopyAnalysis.__name__)} which report "freq" in popt.'
+                f"{cls.__name__} updates from analysis classes "
+                f"which report {cls.__fit_parameter__} in popt."
             )
 
         param = parameter
-        value = result["popt"][result["popt_keys"].index("freq")]
+        value = result["popt"][result["popt_keys"].index(cls.__fit_parameter__)]
 
-        cls._add_parameter_value(calibrations, exp_data, value, param, schedule=None, group=group)
+        cls._add_parameter_value(
+            calibrations, exp_data, value, param, schedule=schedule, group=group
+        )
+
+
+class Frequency(BaseUpdater):
+    """Update frequencies."""
+
+    __fit_parameter__ = "freq"
+
+    # pylint: disable=arguments-differ,unused-argument
+    @classmethod
+    def update(
+        cls,
+        calibrations: BackendCalibrations,
+        exp_data: ExperimentData,
+        parameter: str = BackendCalibrations.__qubit_freq_parameter__,
+        result_index: int = -1,
+        group: str = "default",
+        **options,
+    ):
+        """Update a qubit frequency from, e.g., QubitSpectroscopy."""
+        super().update(
+            calibrations, exp_data, parameter, schedule=None, result_index=result_index, group=group
+        )
+
+
+class Drag(BaseUpdater):
+    """Update drag parameters."""
+
+    __fit_parameter__ = "beta"
 
 
 class Amplitude(BaseUpdater):
     """Update pulse amplitudes."""
 
-    # pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ,unused-argument
     @classmethod
     def update(
         cls,
@@ -147,8 +164,11 @@ class Amplitude(BaseUpdater):
         result_index: int = -1,
         group: str = "default",
         angles_schedules: List[Tuple[float, str, Union[str, ScheduleBlock]]] = None,
+        **options,
     ):
         """Update the amplitude of pulses.
+
+        The value of the amplitude must be derived from the fit so the base method cannot be used.
 
         Args:
             calibrations: The calibrations to update.
@@ -160,6 +180,7 @@ class Amplitude(BaseUpdater):
                 schedule). Here, angle is the rotation angle for which to extract the amplitude,
                 parameter_name is the name of the parameter whose value is to be updated, and
                 schedule is the schedule or its name that contains the parameter.
+            options: Trailing options.
 
         Raises:
             CalibrationError: If the experiment is not of the supported type.
@@ -170,7 +191,7 @@ class Amplitude(BaseUpdater):
             angles_schedules = [(np.pi, "amp", "xp")]
 
         if isinstance(exp_data.experiment, Rabi):
-            result = exp_data.analysis_result(result_index).data()
+            result = exp_data.analysis_results(result_index).data()
 
             freq = result["popt"][result["popt_keys"].index("freq")]
             rate = 2 * np.pi * freq

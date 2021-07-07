@@ -79,7 +79,6 @@ class T2RamseyBackend(BackendV1):
         """
         self.options.update_options(**options)
         shots = self.options.get("shots")
-
         result = {
             "backend_name": "T2Ramsey backend",
             "backend_version": "0",
@@ -207,7 +206,7 @@ class TestT2Ramsey(QiskitTestCase):
                 shots=2000,
             )
             expdata.block_for_results()  # Wait for job/analysis to finish.
-            result = expdata.analysis_result(0)
+            result = expdata.analysis_results(0)
             result_data = result.data()
             self.assertAlmostEqual(
                 result_data["t2ramsey_value"],
@@ -225,10 +224,10 @@ class TestT2Ramsey(QiskitTestCase):
         """
         Test parallel experiments of T2Ramsey using a simulator.
         """
-
         t2ramsey = [30, 25]
         estimated_freq = [0.1, 0.12]
         delays = [list(range(1, 60)), list(range(1, 50))]
+        dt_factor = 1
 
         exp0 = T2Ramsey(0, delays[0])
         exp2 = T2Ramsey(2, delays[1])
@@ -247,16 +246,79 @@ class TestT2Ramsey(QiskitTestCase):
         expdata.block_for_results()
 
         for i in range(2):
-            sub_res = expdata.component_experiment_data(i).analysis_result(0)
+            sub_res = expdata.component_experiment_data(i).analysis_results(0)
             sub_res_data = sub_res.data()
             self.assertAlmostEqual(sub_res_data["t2ramsey_value"], t2ramsey[i], delta=3)
             self.assertAlmostEqual(
                 sub_res_data["frequency_value"],
-                estimated_freq[i],
-                delta=3,
+                estimated_freq[i] / dt_factor,
+                delta=3 / dt_factor,
             )
             self.assertEqual(
                 sub_res.quality,
                 "good",
                 "Result quality bad for experiment on qubit " + str(i),
             )
+
+    def test_t2ramsey_concat_2_experiments(self):
+        """
+        Concatenate the data from 2 separate experiments
+        """
+        unit = "s"
+        dt_factor = 1
+        estimated_t2ramsey = 30
+        estimated_freq = 0.7
+        # First experiment
+        qubit = 0
+        delays0 = list(range(1, 60, 2))
+
+        exp0 = T2Ramsey(qubit, delays0, unit=unit)
+        default_p0 = {
+            "A": 0.5,
+            "t2ramsey": estimated_t2ramsey,
+            "f": estimated_freq,
+            "phi": 0,
+            "B": 0.5,
+        }
+        exp0.set_analysis_options(user_p0=default_p0)
+        backend = T2RamseyBackend(
+            p0={
+                "a_guess": [0.5],
+                "t2ramsey": [estimated_t2ramsey],
+                "f_guess": [estimated_freq],
+                "phi_guess": [0.0],
+                "b_guess": [0.5],
+            },
+            initial_prob_plus=[0.0],
+            readout0to1=[0.02],
+            readout1to0=[0.02],
+            dt_factor=1,
+        )
+
+        # run circuits
+        expdata0 = exp0.run(backend=backend, shots=1000)
+        expdata0.block_for_results()
+
+        # second experiment
+        delays1 = list(range(2, 65, 2))
+        exp1 = T2Ramsey(qubit, delays1, unit=unit)
+        exp1.set_analysis_options(user_p0=default_p0)
+        expdata1 = exp1.run(backend=backend, experiment_data=expdata0, shots=1000)
+        expdata1.block_for_results()
+        result0 = expdata1.analysis_results(0)
+        result0_data = result0.data()
+        result1 = expdata1.analysis_results(1)
+        result1_data = result1.data()
+        self.assertAlmostEqual(
+            result1_data["t2ramsey_value"],
+            estimated_t2ramsey * dt_factor,
+            delta=3 * dt_factor,
+        )
+        self.assertAlmostEqual(
+            result1_data["frequency_value"], estimated_freq / dt_factor, delta=3 / dt_factor
+        )
+        self.assertEqual(
+            result1.quality, "good", "Result quality bad for unit " + str(unit)
+        )
+        self.assertLessEqual(result1_data["stderr"], result0_data["stderr"])
+        self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))

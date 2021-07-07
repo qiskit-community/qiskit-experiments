@@ -109,7 +109,7 @@ class BaseExperiment(ABC):
         else:
             # Validate experiment is compatible with existing data container
             metadata = experiment_data.metadata()
-            if metadata.get("experiment_data") != self._type:
+            if metadata.get("experiment_type") != self._type:
                 raise QiskitError(
                     "Existing ExperimentData contains data from a different experiment."
                 )
@@ -220,7 +220,8 @@ class BaseExperiment(ABC):
         # Experiment subclasses should override this method to return
         # an `Options` object containing all the supported options for
         # that experiment and their default values. Only options listed
-        # here can be modified later by the `set_options` method.
+        # here can be modified later by the different methods for
+        # setting options.
         return Options()
 
     @property

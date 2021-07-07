@@ -19,6 +19,7 @@ import json
 import copy
 from functools import wraps
 
+from .database_service import DatabaseServiceV1
 from .json import NumpyEncoder, NumpyDecoder
 from .utils import save_data, qiskit_version
 from .exceptions import DbExperimentDataError
@@ -41,11 +42,11 @@ def auto_save(func: Callable):
 
 
 class DbAnalysisResult:
-    """Base common type for all versioned AnalysisResult abstract classes.
+    """Base common type for all versioned DbAnalysisResult abstract classes.
 
     Note this class should not be inherited from directly, it is intended
-    to be used for type checking. When implementing a provider you should use
-    the versioned abstract classes as the parent class and not this class
+    to be used for type checking. When implementing a custom DbAnalysisResult
+    you should use the versioned classes as the parent class and not this class
     directly.
     """
 
@@ -76,7 +77,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         quality: Optional[str] = None,
         verified: bool = False,
         tags: Optional[List[str]] = None,
-        service: Optional["DatabaseServiceV1"] = None,
+        service: Optional[DatabaseServiceV1] = None,
         **kwargs,
     ):
         """AnalysisResult constructor.
@@ -181,18 +182,13 @@ class DbAnalysisResultV1(DbAnalysisResult):
             **kwargs,
         )
 
-    def save(self, service: Optional["DatabaseServiceV1"] = None) -> None:
+    def save(self) -> None:
         """Save this analysis result in the database.
-
-        Args:
-            service: Experiment service to be used to save the data.
-                If ``None``, the default, if any, is used.
 
         Raises:
             DbExperimentDataError: If the analysis result contains invalid data.
         """
-        service = service or self._service
-        if not service:
+        if not self._service:
             LOG.warning(
                 "Analysis result cannot be saved because no experiment service is available."
             )
@@ -216,8 +212,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
 
         self._created_in_db, _ = save_data(
             is_new=(not self._created_in_db),
-            new_func=service.create_analysis_result,
-            update_func=service.update_analysis_result,
+            new_func=self._service.create_analysis_result,
+            update_func=self._service.update_analysis_result,
             new_data=new_data,
             update_data=update_data,
         )
@@ -328,7 +324,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         return self._experiment_id
 
     @property
-    def service(self) -> Optional["DatabaseServiceV1"]:
+    def service(self) -> Optional[DatabaseServiceV1]:
         """Return the database service.
 
         Returns:
@@ -338,7 +334,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         return self._service
 
     @service.setter
-    def service(self, service: "DatabaseServiceV1") -> None:
+    def service(self, service: DatabaseServiceV1) -> None:
         """Set the service to be used for storing result data in a database.
 
         Args:
@@ -373,6 +369,9 @@ class DbAnalysisResultV1(DbAnalysisResult):
         ret += f"\nExperiment ID: {self.experiment_id}"
         ret += f"\nDevice Components: {self.device_components}"
         ret += f"\nQuality: {self.quality}"
+        ret += f"\nVerified: {self.verified}"
+        if self.tags():
+            ret += f"\nTags: {self.tags()}"
         ret += "\nResult Data:"
         for key, val in self.data().items():
             ret += f"\n  - {key}: {val}"
