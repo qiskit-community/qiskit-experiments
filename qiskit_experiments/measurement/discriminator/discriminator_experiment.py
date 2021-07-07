@@ -33,20 +33,6 @@ class Discriminator(BaseExperiment):
             meas_return="single",
         )
 
-    @classmethod
-    def _default_experiment_options(cls) -> Options:
-        """Default values for the pulse if no schedule is given.
-
-        Users can set a schedule by doing
-
-        .. code-block::
-
-            rabi.set_experiment_options(schedule=rabi_schedule)
-
-        """
-        return Options(
-            classifier = "LDA"
-        )
 
     def __init__(
         self,

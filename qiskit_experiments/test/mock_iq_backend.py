@@ -85,7 +85,6 @@ class MockIQBackend(FakeOpenPulse2Q):
 
     def run(self, run_input, **options):
         """Run the IQ backend."""
-
         self.options.update_options(**options)
         shots = self.options.get("shots")
         meas_level = self.options.get("meas_level")
