@@ -17,19 +17,21 @@ import json
 import numpy as np
 from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.test import QiskitTestCase
-import qiskit_experiments as qe
 from qiskit.circuit.library import (
     XGate,
     CXGate,
 )
+import qiskit_experiments as qe
 
 ATOL_DEFAULT = 1e-2
 RTOL_DEFAULT = 1e-5
+
 
 class TestRBAnalysis(QiskitTestCase):
     """
     A base class for the tests of analysis of the RB experiments
     """
+
     def _load_json_data(self, rb_exp_data_file_name: str):
         """
         loader for the experiment data and configuration setup.
@@ -128,8 +130,6 @@ class TestRBAnalysis(QiskitTestCase):
                 "the gate sequence length isn't in the setup length list.",
             )
 
-
-
     def _validate_fitting_parameters(
         self, calculated_analysis_samples_data: list, expected_analysis_samples_data: list
     ):
@@ -175,8 +175,11 @@ class TestRBAnalysis(QiskitTestCase):
                                 expected_analysis_samples_data[idx][key],
                             )
                         else:
-                            self.assertTrue(np.allclose(np.float64(calculated_analysis_sample_data[key]),
-                                np.float64(expected_analysis_samples_data[idx][key])),
+                            self.assertTrue(
+                                np.allclose(
+                                    np.float64(calculated_analysis_sample_data[key]),
+                                    np.float64(expected_analysis_samples_data[idx][key]),
+                                ),
                                 msg="The calculated value for key '"
                                 + key
                                 + "', doesn't match the expected value.",
@@ -225,6 +228,7 @@ class TestRBAnalysis(QiskitTestCase):
                 analysis_obj.analysis_result(None), analysis_data_expected
             )
 
+
 class TestStandardRBAnalysis(TestRBAnalysis):
     """
     A test for the analysis of the standard RB experiment
@@ -272,6 +276,7 @@ class TestStandardRBAnalysis(TestRBAnalysis):
         ]
         self._run_tests(rb_exp_data_file_names, rb_exp_analysis_file_names)
 
+
 class TestInterleavedRBAnalysis(TestRBAnalysis):
     """
     A test for the analysis of the standard RB experiment
@@ -287,10 +292,7 @@ class TestInterleavedRBAnalysis(TestRBAnalysis):
                 containing the experiment results.
             ExperimentData:  ExperimentData object that was creates by the analysis function.
         """
-        interleaved_gates = {
-            'x': XGate(),
-            'cx': CXGate()
-        }
+        interleaved_gates = {"x": XGate(), "cx": CXGate()}
         data, exp_attributes, expdata1 = self._load_json_data(rb_exp_data_file_name)
         rb_class = qe.randomized_benchmarking
         rb_exp = rb_class.InterleavedRB(
@@ -323,6 +325,3 @@ class TestInterleavedRBAnalysis(TestRBAnalysis):
             "rb_interleaved_2qubits_output_analysis.json",
         ]
         self._run_tests(rb_exp_data_file_names, rb_exp_analysis_file_names)
-
-t = TestInterleavedRBAnalysis()
-t.test_interleaved_rb_analysis_test()
