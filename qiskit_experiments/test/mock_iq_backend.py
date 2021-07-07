@@ -106,6 +106,7 @@ class MockIQBackend(FakeOpenPulse2Q):
                 "shots": shots,
                 "success": True,
                 "header": {"metadata": circ.metadata},
+                "meas_level": meas_level,
             }
 
             prob = self._compute_probability(circ)
