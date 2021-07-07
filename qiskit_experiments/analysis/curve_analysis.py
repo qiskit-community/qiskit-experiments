@@ -17,6 +17,7 @@ Analysis class for curve fitting.
 
 import dataclasses
 import inspect
+import functools
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
 import numpy as np
@@ -37,10 +38,19 @@ from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
 class SeriesDef:
     """Description of curve."""
 
+    # Arbitrary callback to define the fit function. First argument should be x.
     fit_func: Callable
+
+    # Keyword dictionary to define the series with circuit metadata
     filter_kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
+
+    # Name of this series. This name will appear in the figure and raw x-y value report.
     name: str = "Series-0"
+
+    # Color of this line.
     plot_color: str = "black"
+
+    # Symbol to represent data points of this line.
     plot_symbol: str = "o"
 
 
@@ -137,7 +147,7 @@ class CurveAnalysis(BaseAnalysis):
         Both series have same fit function in this example.
 
         A fitting for two trigonometric curves with the same parameter
-        =============================================================
+        ==============================================================
 
         In this type of experiment, the analysis deals with two different curves.
         However the parameters are shared with both functions.
@@ -169,6 +179,33 @@ class CurveAnalysis(BaseAnalysis):
         all parameters. However, these series have different fit curves, i.e.
         `my_experiment1` (`my_experiment2`) uses the `cos` (`sin`) fit function.
 
+
+        A fitting with fixed parameter
+        ==============================
+
+        In this type of experiment, we can provide fixed fit function parameter.
+        This parameter should be assigned via analysis options
+        and not passed to the fitter function.
+
+        .. code-block::
+
+            class AnalysisExample(CurveAnalysis):
+
+                __series__ = [
+                    SeriesDef(
+                        fit_func=lambda x, p0, p1, p2:
+                            exponential_decay(x, amp=p0, lamb=p1, baseline=p2),
+                    ),
+                ]
+
+                __fixed_parameters__ = ["p1"]
+
+        You can add arbitrary number of parameters to the class variable
+        ``__fixed_parameters__`` from the fit function arguments.
+        This parameter should be defined with the fit functions otherwise the analysis
+        instance cannot be created. In above example, parameter ``p1`` should be also
+        defined in the analysis options. This parameter will be excluded from the fit parameters
+        and thus will not appear in the analysis result.
 
     Notes:
         This CurveAnalysis class provides several private methods that subclasses can override.
@@ -203,6 +240,9 @@ class CurveAnalysis(BaseAnalysis):
     #: List[SeriesDef]: List of mapping representing a data series
     __series__ = None
 
+    #: List[str]: Fixed parameter in fit function. Value should be set to the analysis options.
+    __fixed_parameters__ = None
+
     def __new__(cls) -> "CurveAnalysis":
         """Parse series data if all fit functions have the same argument.
 
@@ -224,7 +264,22 @@ class CurveAnalysis(BaseAnalysis):
                 "different function signature. They should receive "
                 "the same parameter set for multi-objective function fit."
             )
-        obj.__fit_params = list(list(fsigs)[0].parameters.keys())[1:]
+
+        # remove the first function argument. this is usually x, i.e. not a fit parameter.
+        fit_params = list(list(fsigs)[0].parameters.keys())[1:]
+
+        # remove fixed parameters
+        if obj.__fixed_parameters__ is not None:
+            for fixed_param in obj.__fixed_parameters__:
+                try:
+                    fit_params.remove(fixed_param)
+                except ValueError as ex:
+                    raise AnalysisError(
+                        f"Defined fixed parameter {fixed_param} is not a fit function argument."
+                        "Update series definition to ensure the parameter name is defined with "
+                        f"fit functions. Currently available parameters are {fit_params}."
+                    ) from ex
+        obj.__fit_params = fit_params
 
         return obj
 
@@ -858,17 +913,40 @@ class CurveAnalysis(BaseAnalysis):
         analysis_result["analysis_type"] = self.__class__.__name__
         figures = list()
 
+        #
+        # 1. Parse arguments
+        #
+        if self.__fixed_parameters__ is not None and len(self.__fixed_parameters__) > 0:
+            assigned_params = dict()
+            # Extract fixed parameter value from analysis options
+            for pname in self.__fixed_parameters__:
+                try:
+                    assigned_params[pname] = options.pop(pname)
+                except KeyError as ex:
+                    raise AnalysisError(
+                        f"The value of the fixed-value parameter {pname} for the fit function "
+                        f"of {self.__class__.__name__} was not found. "
+                        "This value must be provided by the analysis options to run this analysis."
+                    ) from ex
+            # Override series definition with assigned fit functions.
+            assigned_series = []
+            for series_def in self.__series__:
+                dict_def = dataclasses.asdict(series_def)
+                dict_def["fit_func"] = functools.partial(series_def.fit_func, **assigned_params)
+                assigned_series.append(SeriesDef(**dict_def))
+            self.__series__ = assigned_series
+
+        # pop arguments that are not given to fitter
+        extra_options = self._arg_parse(**options)
+
         # get experiment metadata
         try:
             self.__experiment_metadata = experiment_data.metadata()
         except AttributeError:
             pass
 
-        # pop arguments that are not given to fitter
-        extra_options = self._arg_parse(**options)
-
         #
-        # 1. Setup data processor
+        # 2. Setup data processor
         #
         data_processor = self._get_option("data_processor")
         if isinstance(data_processor, DataProcessor) and not data_processor.is_trained:
@@ -881,7 +959,7 @@ class CurveAnalysis(BaseAnalysis):
                 ) from ex
 
         #
-        # 2. Extract curve entries from experiment data
+        # 3. Extract curve entries from experiment data
         #
         try:
             self._extract_curves(experiment_data=experiment_data, data_processor=data_processor)
@@ -891,7 +969,7 @@ class CurveAnalysis(BaseAnalysis):
             ) from ex
 
         #
-        # 3. Run fitting
+        # 4. Run fitting
         #
         try:
             curve_fitter = self._get_option("curve_fitter")
@@ -947,19 +1025,19 @@ class CurveAnalysis(BaseAnalysis):
 
         else:
             #
-            # 4. Post-process analysis data
+            # 5. Post-process analysis data
             #
             analysis_result = self._post_analysis(analysis_result=analysis_result)
 
         finally:
             #
-            # 5. Create figures
+            # 6. Create figures
             #
             if self._get_option("plot"):
                 figures.extend(self._create_figures(analysis_results=analysis_result))
 
             #
-            # 6. Optionally store raw data points
+            # 7. Optionally store raw data points
             #
             if self._get_option("return_data_points"):
                 raw_data_dict = dict()
