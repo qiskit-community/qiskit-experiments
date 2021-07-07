@@ -27,7 +27,7 @@ from qiskit_experiments.analysis import (
     CurveAnalysisResult,
     SeriesDef,
     fit_function,
-    guesses,
+    guess,
     get_opt_value,
     get_opt_error,
 )
@@ -98,9 +98,9 @@ class RabiAnalysis(CurveAnalysis):
 
         max_abs_y = np.max(np.abs(curve_data.y))
 
-        f_guess = guesses.frequency(curve_data.x, curve_data.y)
-        b_guess = guesses.constant_sinusoidal_offset(curve_data.y)
-        a_guess, _ = guesses.max_height(curve_data.y - b_guess, absolute=True)
+        f_guess = guess.frequency(curve_data.x, curve_data.y)
+        b_guess = guess.constant_sinusoidal_offset(curve_data.y)
+        a_guess, _ = guess.max_height(curve_data.y - b_guess, absolute=True)
 
         if user_p0["phase"] is not None:
             p_guesses = [user_p0["phase"]]

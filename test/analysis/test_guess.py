@@ -17,7 +17,7 @@ import numpy as np
 from ddt import ddt, data, unpack
 from qiskit.test import QiskitTestCase
 
-from qiskit_experiments.analysis import guesses
+from qiskit_experiments.analysis import guess
 
 
 @ddt
@@ -37,7 +37,7 @@ class TestGuesses(QiskitTestCase):
         x = np.linspace(-1, 1, 101)
         y = 0.3 * np.cos(2 * np.pi * freq * x + 0.5) + 1.2
 
-        freq_guess = guesses.frequency(x, y)
+        freq_guess = guess.frequency(x, y)
 
         self.assertAlmostEqualAbsolute(freq_guess, np.abs(freq))
 
@@ -48,19 +48,19 @@ class TestGuesses(QiskitTestCase):
     )
     def test_max(self, test_values):
         """Test max value."""
-        max_guess, idx = guesses.max_height(test_values)
+        max_guess, idx = guess.max_height(test_values)
         ref_val = max(test_values)
         ref_idx = np.argmax(test_values)
         self.assertEqual(max_guess, ref_val)
         self.assertEqual(idx, ref_idx)
 
-        max_guess, idx = guesses.max_height(test_values, absolute=True)
+        max_guess, idx = guess.max_height(test_values, absolute=True)
         ref_val = max(np.absolute(test_values))
         ref_idx = np.argmax(np.absolute(test_values))
         self.assertEqual(max_guess, ref_val)
         self.assertEqual(idx, ref_idx)
 
-        max_guess, idx = guesses.max_height(test_values, percentile=80)
+        max_guess, idx = guess.max_height(test_values, percentile=80)
         ref_val = np.percentile(test_values, 80)
         ref_idx = np.argmin(np.abs(test_values - ref_val))
         self.assertEqual(max_guess, ref_val)
@@ -73,19 +73,19 @@ class TestGuesses(QiskitTestCase):
     )
     def test_min(self, test_values):
         """Test min value."""
-        min_guess, idx = guesses.min_height(test_values)
+        min_guess, idx = guess.min_height(test_values)
         ref_val = min(test_values)
         ref_idx = np.argmin(test_values)
         self.assertEqual(min_guess, ref_val)
         self.assertEqual(idx, ref_idx)
 
-        min_guess, idx = guesses.min_height(test_values, absolute=True)
+        min_guess, idx = guess.min_height(test_values, absolute=True)
         ref_val = min(np.absolute(test_values))
         ref_idx = np.argmin(np.absolute(test_values))
         self.assertEqual(min_guess, ref_val)
         self.assertEqual(idx, ref_idx)
 
-        min_guess, idx = guesses.min_height(test_values, percentile=20)
+        min_guess, idx = guess.min_height(test_values, percentile=20)
         ref_val = np.percentile(test_values, 20)
         ref_idx = np.argmin(np.abs(test_values - ref_val))
         self.assertEqual(min_guess, ref_val)
@@ -97,7 +97,7 @@ class TestGuesses(QiskitTestCase):
         x = np.linspace(0, 1, 100)
         y = np.exp(alpha * x)
 
-        alpha_guess = guesses.exp_decay(x, y)
+        alpha_guess = guess.exp_decay(x, y)
 
         self.assertAlmostEqualAbsolute(alpha_guess, alpha)
 
@@ -108,7 +108,7 @@ class TestGuesses(QiskitTestCase):
         x = np.linspace(0, 1, 100)
         y = np.exp(alpha * x) * np.cos(2 * np.pi * freq * x)
 
-        alpha_guess = guesses.oscillation_exp_decay(x, y)
+        alpha_guess = guess.oscillation_exp_decay(x, y)
 
         self.assertAlmostEqualAbsolute(alpha_guess, alpha)
 
@@ -127,7 +127,7 @@ class TestGuesses(QiskitTestCase):
         sigma = fwhm / np.sqrt(8 * np.log(2))
         y = a * np.exp(-((x - x[idx]) ** 2) / (2 * sigma ** 2))
 
-        lw_guess = guesses.full_width_half_max(x, y, idx)
+        lw_guess = guess.full_width_half_max(x, y, idx)
 
         self.assertAlmostEqual(fwhm, lw_guess, delta=0.1)
 
@@ -146,7 +146,7 @@ class TestGuesses(QiskitTestCase):
         sigma = fwhm / np.sqrt(8 * np.log(2))
         y = a * np.exp(-((x - x0) ** 2) / (2 * sigma ** 2)) + b0
 
-        b0_guess = guesses.constant_spectral_offset(y)
+        b0_guess = guess.constant_spectral_offset(y)
 
         self.assertAlmostEqual(b0, b0_guess, delta=0.1)
 
@@ -164,6 +164,6 @@ class TestGuesses(QiskitTestCase):
         x = np.linspace(-1, 1, 100)
         y = a * np.cos(2 * np.pi * freq * (x - x0)) + b0
 
-        b0_guess = guesses.constant_sinusoidal_offset(y)
+        b0_guess = guess.constant_sinusoidal_offset(y)
 
         self.assertAlmostEqual(b0, b0_guess, delta=0.1)
