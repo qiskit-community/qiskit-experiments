@@ -15,10 +15,13 @@ A library of parameter guess functions.
 """
 # pylint: disable=invalid-name
 
-from typing import Optional, Tuple
+import functools
+from typing import Optional, Tuple, Callable
 
 import numpy as np
 from scipy import signal
+
+from qiskit_experiments.exceptions import AnalysisError
 
 
 def frequency(x: np.ndarray, y: np.ndarray) -> float:
@@ -46,9 +49,9 @@ def frequency(x: np.ndarray, y: np.ndarray) -> float:
 
 
 def max_height(
-    y: np.ndarray,
-    percentile: Optional[float] = None,
-    absolute: bool = False,
+        y: np.ndarray,
+        percentile: Optional[float] = None,
+        absolute: bool = False,
 ) -> Tuple[float, int]:
     """Get maximum value of y curve and its index.
 
@@ -60,25 +63,15 @@ def max_height(
     Returns:
         The maximum y value and index.
     """
-    if absolute:
-        y_ = np.abs(y)
-    else:
-        y_ = y
-
     if percentile is not None:
-        y_max = np.percentile(y_, percentile)
-    else:
-        y_max = np.max(y_)
-
-    index = list(y_).index(y_max)
-
-    return y_max, index
+        return get_height(y, functools.partial(np.percentile, q=percentile), absolute)
+    return get_height(y, np.nanmax, absolute)
 
 
 def min_height(
-    y: np.ndarray,
-    percentile: Optional[float] = None,
-    absolute: bool = False,
+        y: np.ndarray,
+        percentile: Optional[float] = None,
+        absolute: bool = False,
 ) -> Tuple[float, int]:
     """Get minimum value of y curve and its index.
 
@@ -90,19 +83,35 @@ def min_height(
     Returns:
         The minimum y value and index.
     """
+    if percentile is not None:
+        return get_height(y, functools.partial(np.percentile, q=percentile), absolute)
+    return get_height(y, np.nanmin, absolute)
+
+
+def get_height(
+        y: np.ndarray,
+        find_height: Callable,
+        absolute: bool = False,
+) -> Tuple[float, int]:
+    """Get specific value of y curve defined by a callback and its index.
+
+    Args:
+        y: Array of y values.
+        find_height: A callback to find preferred y value.
+        absolute: Use absolute y value.
+
+    Returns:
+        The target y value and index.
+    """
     if absolute:
         y_ = np.abs(y)
     else:
         y_ = y
 
-    if percentile is not None:
-        y_min = np.percentile(y_, percentile)
-    else:
-        y_min = np.min(y_)
+    y_target = find_height(y_)
+    index = int(np.argmin(np.abs(y_ - y_target)))
 
-    index = list(y_).index(y_min)
-
-    return y_min, index
+    return y_target, index
 
 
 def exp_decay(x: np.ndarray, y: np.ndarray) -> float:
@@ -135,11 +144,11 @@ def exp_decay(x: np.ndarray, y: np.ndarray) -> float:
 
 
 def oscillation_exp_decay(
-    x: np.ndarray,
-    y: np.ndarray,
-    filter_window: int = 5,
-    filter_dim: int = 2,
-    freq_guess: Optional[float] = None,
+        x: np.ndarray,
+        y: np.ndarray,
+        filter_window: int = 5,
+        filter_dim: int = 2,
+        freq_guess: Optional[float] = None,
 ) -> float:
     r"""Get exponential decay parameter from oscillating signal.
 
@@ -187,3 +196,100 @@ def oscillation_exp_decay(
     y_peaks = y_smoothed[peak_pos]
 
     return exp_decay(x_peaks, y_peaks)
+
+
+def full_width_half_max(
+        x: np.ndarray,
+        y: np.ndarray,
+        peak_index: int,
+) -> float:
+    """Get full width half maximum value of the peak. Offset of y should be removed.
+
+    Args:
+        x: Array of x values.
+        y: Array of y values.
+        peak_index: Index of peak.
+
+    Returns:
+        FWHM of the peak.
+    """
+    y_ = np.abs(y)
+    peak_height = y_[peak_index]
+    halfmax_removed = np.sign(y_ - 0.5 * peak_height)
+
+    try:
+        r_bound = np.min(x[(halfmax_removed == -1) & (x > x[peak_index])])
+    except ValueError:
+        r_bound = None
+    try:
+        l_bound = np.max(x[(halfmax_removed == -1) & (x < x[peak_index])])
+    except ValueError:
+        l_bound = None
+
+    if r_bound and l_bound:
+        return r_bound - l_bound
+    elif r_bound:
+        return 2 * (r_bound - x[peak_index])
+    elif l_bound:
+        return 2 * (x[peak_index] - l_bound)
+
+    raise AnalysisError(
+        "FWHM of input curve was not found. Perhaps scanning range is too narrow."
+        )
+
+
+def constant_spectral_offset(
+        y: np.ndarray,
+        filter_window: int = 5,
+        filter_dim: int = 2,
+        ratio: float = 0.1
+) -> float:
+    """Get constant offset of spectral baseline.
+
+    This function searches constant offset by finding a region where 1st and 2nd order
+    differentiation are close to zero. A return value is an average y value of that region.
+    To suppress the noise contribution to derivatives, this function also applies a
+    Savitzky-Golay filter to y value.
+
+    This method is more robust to offset error than just taking median or average of y values
+    especially when a peak width is wider compared to the scan range.
+
+    Args:
+        y: Array of y values.
+        filter_window: Window size of Savitzky-Golay filter. This should be odd number.
+        filter_dim: Dimension of Savitzky-Golay filter.
+        ratio: Threshold value to decide flat region. This value represent a ratio
+            to the maximum derivative value.
+
+    Returns:
+        Offset value.
+    """
+    y_smoothed = signal.savgol_filter(y, window_length=filter_window, polyorder=filter_dim)
+
+    ydiff1 = np.abs(np.diff(y_smoothed, 1, append=np.nan))
+    ydiff2 = np.abs(np.diff(y_smoothed, 2, append=np.nan, prepend=np.nan))
+    non_peaks = y_smoothed[
+        (ydiff1 < ratio * np.nanmax(ydiff1)) & (ydiff2 < ratio * np.nanmax(ydiff2))
+        ]
+
+    return np.average(non_peaks)
+
+
+def constant_sinusoidal_offset(y: np.ndarray) -> float:
+    """Get constant offset of sinusoidal signal.
+
+    This function finds 95 and 5 percentile y values and take an average of them.
+    This method is robust to the dependency on sampling window, i.e.
+    if we sample sinusoidal signal for 2/3 of its period, simple averaging may induce
+    a drift towards positive or negative direction depending on the phase offset.
+
+    Args:
+        y: Array of y values.
+
+    Returns:
+        Offset value.
+    """
+    maxv, _ = max_height(y, percentile=95)
+    minv, _ = min_height(y, percentile=5)
+
+    return 0.5 * (maxv + minv)
