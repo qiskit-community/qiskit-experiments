@@ -373,25 +373,27 @@ class DbExperimentDataV1(DbExperimentData):
     @auto_save
     def add_figures(
         self,
-        figures: Union[List[Union[str, bytes, "pyplot.Figure"]], str, bytes, "pyplot.Figure"],
-        figure_names: Optional[Union[List[str], str]] = None,
-        overwrite: bool = False,
-        save_figure: Optional[bool] = None,
+        figures,
+        figure_names=None,
+        overwrite=False,
+        save_figure=None,
     ) -> Union[str, List[str]]:
         """Add the experiment figure.
 
         Args:
-            figures: Paths of the figure files or figure data.
-            figure_names: Names of the figures. If ``None``, use the figure file
+            figures (str or bytes or pyplot.Figure or list): Paths of the figure
+                files or figure data.
+            figure_names (str or list): Names of the figures. If ``None``, use the figure file
                 names, if given, or a generated name. If `figures` is a list, then
                 `figure_names` must also be a list of the same length or ``None``.
-            overwrite: Whether to overwrite the figure if one already exists with
+            overwrite (bool): Whether to overwrite the figure if one already exists with
                 the same name.
-            save_figure: Whether to save the figure in the database. If ``None``,
+            save_figure (bool): Whether to save the figure in the database. If ``None``,
                 the ``auto-save`` attribute is used.
 
         Returns:
-            Figure names.
+            str or list:
+                Figure names.
 
         Raises:
             DbExperimentEntryExists: If the figure with the same name already exists,
