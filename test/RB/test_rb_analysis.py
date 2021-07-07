@@ -228,6 +228,10 @@ class TestRBAnalysis(QiskitTestCase):
                 analysis_obj.analysis_result(None), analysis_data_expected
             )
 
+    def _load_rb_data(self, rb_exp_data_file_name: str):
+        # virtual method
+        pass
+
 
 class TestStandardRBAnalysis(TestRBAnalysis):
     """
