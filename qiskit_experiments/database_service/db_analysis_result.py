@@ -66,6 +66,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
     _json_decoder = NumpyDecoder
 
     _extra_data = {}
+    __keys_not_shown__ = tuple()
+    """Data keys of analysis result which are not directly shown in `__str__` method"""
 
     def __init__(
         self,
@@ -374,5 +376,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             ret += f"\nTags: {self.tags()}"
         ret += "\nResult Data:"
         for key, val in self.data().items():
+            if key in self.__keys_not_shown__:
+                continue
             ret += f"\n  - {key}: {val}"
         return ret

@@ -98,7 +98,7 @@ class BaseAnalysis(ABC):
             analysis_results = [
                 DbAnalysisResultV1(
                     result_data={"success": False, "error_message": ex},
-                    result_type=experiment_data.metadata()["experiment_type"],
+                    result_type=experiment_data.experiment_type,
                     device_components=[
                         Qubit(qubit) for qubit in experiment_data.metadata()["physical_qubits"]
                     ],
