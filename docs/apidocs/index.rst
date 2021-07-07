@@ -14,4 +14,5 @@ Qiskit Experiments API Reference
     tomography
     analysis
     data_processing
+    database_service
    
