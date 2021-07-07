@@ -52,12 +52,14 @@ def standard_rb_exp_data_gen(dir_name: str):
     rb_exp_name = ["rb_standard_1qubit", "rb_standard_2qubits"]
     experiments_attributes = [
         {
+            "num_qubits": 1,
             "physical_qubits": [0],
             "lengths": list(range(1, 1000, 100)),
             "num_samples": 3,
             "seed": 100,
         },
         {
+            "num_qubits": 2,
             "physical_qubits": [0, 1],
             "lengths": list(range(1, 200, 20)),
             "num_samples": 3,
@@ -144,6 +146,7 @@ def interleaved_rb_exp_data_gen(dir_name: str):
     rb_exp_name = ["rb_interleaved_1qubit", "rb_interleaved_2qubits"]
     experiments_attributes = [
         {
+            "num_qubits": 1,
             "physical_qubits": [0],
             "lengths": list(range(1, 1000, 100)),
             "num_samples": 3,
@@ -151,6 +154,7 @@ def interleaved_rb_exp_data_gen(dir_name: str):
             "interleaved_element": "x",
         },
         {
+            "num_qubits": 2,
             "physical_qubits": [0, 1],
             "lengths": list(range(1, 200, 20)),
             "num_samples": 3,

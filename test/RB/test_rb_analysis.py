@@ -229,16 +229,6 @@ class TestRBAnalysis(QiskitTestCase):
             )
 
     def _load_rb_data(self, rb_exp_data_file_name: str):
-        # virtual method
-        pass
-
-
-class TestStandardRBAnalysis(TestRBAnalysis):
-    """
-    A test for the analysis of the standard RB experiment
-    """
-
-    def _load_rb_data(self, rb_exp_data_file_name: str):
         """
         loader for the experiment data and configuration setup.
         Args:
@@ -266,6 +256,12 @@ class TestStandardRBAnalysis(TestRBAnalysis):
         rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
         analysis_results = rb_exp.run_analysis(expdata1)
         return data, analysis_results
+
+
+class TestStandardRBAnalysis(TestRBAnalysis):
+    """
+    A test for the analysis of the standard RB experiment
+    """
 
     def test_standard_rb_analysis_test(self):
         """Runs the standard RB analysis tests"""
