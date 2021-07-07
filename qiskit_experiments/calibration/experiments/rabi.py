@@ -12,7 +12,7 @@
 
 """Rabi amplitude experiment."""
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 import numpy as np
 
 from qiskit import QiskitError, QuantumCircuit
@@ -31,8 +31,6 @@ from qiskit_experiments.analysis import (
     get_opt_error,
 )
 from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
-from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
 
 
 class RabiAnalysis(CurveAnalysis):
@@ -71,14 +69,6 @@ class RabiAnalysis(CurveAnalysis):
         )
     ]
 
-    def __init__(self):
-        """Initialize a Rabi Analysis."""
-        super().__init__()
-
-        # Override the expected options of the base class.
-        for key in self._default_options().__dict__:
-            setattr(self, f"__{key}", None)
-
     @classmethod
     def _default_options(cls):
         """Return the default analysis options.
@@ -92,8 +82,6 @@ class RabiAnalysis(CurveAnalysis):
         default_options.fit_reports = {"freq": "rate"}
         default_options.xlabel = "Amplitude"
         default_options.ylabel = "Signal (arb. units)"
-        default_options.data_processor = None
-        default_options.normalization = True
 
         return default_options
 
@@ -138,27 +126,6 @@ class RabiAnalysis(CurveAnalysis):
             fit_options.append(fit_option)
 
         return fit_options
-
-    def _run_analysis(
-        self, experiment_data: ExperimentData, **options
-    ) -> Tuple[List[AnalysisResult], List["pyplot.Figure"]]:
-        """Run analysis wrapper to set the data processor."""
-
-        if options.get("data_processor", None) is None:
-            if "job_metadata" in experiment_data.metadata():
-                metadata = experiment_data.metadata()["job_metadata"]
-
-                run_options = metadata[-1].get("run_options", {})
-
-                processor = get_to_signal_processor(
-                    meas_level=run_options.get("meas_level", MeasLevel.KERNELED),
-                    meas_return=run_options.get("meas_return", "single"),
-                    normalize=options.get("normalization", True),
-                )
-
-                options["data_processor"] = processor
-
-        return super()._run_analysis(experiment_data, **options)
 
     def _post_analysis(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
         """Algorithmic criteria for whether the fit is good or bad.
@@ -228,8 +195,15 @@ class Rabi(BaseExperiment):
             sigma=40,
             amplitudes=np.linspace(-0.95, 0.95, 51),
             schedule=None,
-            normalization=True,
         )
+
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_analysis_options()
+        options.normalization = True
+
+        return options
 
     def __init__(self, qubit: int):
         """Setup a Rabi experiment on the given qubit.

@@ -94,7 +94,7 @@ class TestRabiEndToEnd(QiskitTestCase):
 
         backend = RabiBackend()
 
-        rabi = Rabi(3)
+        rabi = Rabi(1)
 
         fail_key = "fail_key"
 

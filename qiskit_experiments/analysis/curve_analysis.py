@@ -22,16 +22,17 @@ from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
 import numpy as np
 from qiskit.providers.options import Options
+from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.analysis import plotting
 from qiskit_experiments.analysis.curve_fitting import multi_curve_fit, CurveAnalysisResult
-from qiskit_experiments.analysis.data_processing import probability
 from qiskit_experiments.analysis.utils import get_opt_value, get_opt_error
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
+from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
 
 
 @dataclasses.dataclass(frozen=True)
@@ -342,7 +343,7 @@ class CurveAnalysis(BaseAnalysis):
         """
         return Options(
             curve_fitter=multi_curve_fit,
-            data_processor=probability(outcome="1"),
+            data_processor=None,
             normalization=False,
             p0=None,
             bounds=None,
@@ -939,10 +940,27 @@ class CurveAnalysis(BaseAnalysis):
         # pop arguments that are not given to fitter
         extra_options = self._arg_parse(**options)
 
-        # get experiment metadata
+        # get experiment metadata and run-options dependent data processor
         try:
             self.__experiment_metadata = experiment_data.metadata()
-        except AttributeError:
+
+            # No data processor has been provided at run-time we infer one from the job
+            # metadata and default to the data processor for averaged classified data.
+            if getattr(self, "__data_processor") is None:
+                try:
+                    run_options = self.__experiment_metadata["job_metadata"][-1]["run_options"]
+                except IndexError:
+                    run_options = {}
+
+                meas_level = run_options.get("meas_level", MeasLevel.CLASSIFIED)
+                meas_return = run_options.get("meas_return", "avg")
+                normalization = self._get_option("normalization")
+
+                processor = get_to_signal_processor(meas_level, meas_return, normalization)
+
+                setattr(self, "__data_processor", processor)
+
+        except (AttributeError, KeyError):
             pass
 
         #
