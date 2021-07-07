@@ -50,11 +50,11 @@ class RabiAnalysis(CurveAnalysis):
         - :math:`{\rm phase}`: Phase of the oscillation.
 
     Initial Guesses
-        - :math:`amp`: Calculated by :func:`~qiskit_experiments.analysis.guesses.max_height`.
+        - :math:`amp`: Calculated by :func:`~qiskit_experiments.analysis.guess.max_height`.
         - :math:`baseline`: Calculated by :func:`~qiskit_experiments.analysis.\
-          guesses.constant_sinusoidal_offset`.
+          guess.constant_sinusoidal_offset`.
         - :math:`{\rm freq}`: Calculated by :func:`~qiskit_experiments.analysis.\
-          guesses.frequency`.
+          guess.frequency`.
         - :math:`{\rm phase}`: Zero.
 
     Bounds
