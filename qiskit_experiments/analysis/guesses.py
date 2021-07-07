@@ -272,6 +272,9 @@ def constant_spectral_offset(
         (ydiff1 < ratio * np.nanmax(ydiff1)) & (ydiff2 < ratio * np.nanmax(ydiff2))
         ]
 
+    if len(non_peaks) == 0:
+        return float(np.median(y))
+
     return np.average(non_peaks)
 
 

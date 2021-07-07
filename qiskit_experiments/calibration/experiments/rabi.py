@@ -27,6 +27,7 @@ from qiskit_experiments.analysis import (
     CurveAnalysisResult,
     SeriesDef,
     fit_function,
+    guesses,
     get_opt_value,
     get_opt_error,
 )
@@ -91,16 +92,13 @@ class RabiAnalysis(CurveAnalysis):
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
 
-        max_abs_y = np.max(np.abs(self._data().y))
+        curve_data = self._data()
 
-        # Use a fast Fourier transform to guess the frequency.
-        fft = np.abs(np.fft.fft(self._data().y - np.average(self._data().y)))
-        damp = self._data().x[1] - self._data().x[0]
-        freqs = np.linspace(0.0, 1.0 / (2.0 * damp), len(fft))
+        max_abs_y = np.max(np.abs(curve_data.y))
 
-        b_guess = np.average(self._data().y)
-        a_guess = np.max(self._data().y) - np.min(self._data().y) - b_guess
-        f_guess = freqs[np.argmax(fft[0 : len(fft) // 2])]
+        f_guess = guesses.frequency(curve_data.x, curve_data.y)
+        b_guess = guesses.constant_sinusoidal_offset(curve_data.y)
+        a_guess, _ = guesses.max_height(curve_data.y - b_guess, absolute=True)
 
         if user_p0["phase"] is not None:
             p_guesses = [user_p0["phase"]]

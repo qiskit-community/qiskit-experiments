@@ -29,6 +29,7 @@ from qiskit_experiments.analysis import (
     CurveAnalysisResult,
     SeriesDef,
     fit_function,
+    guesses,
     get_opt_value,
     get_opt_error,
 )
@@ -102,15 +103,12 @@ class SpectroscopyAnalysis(CurveAnalysis):
 
         curve_data = self._data()
 
-        b_guess = np.median(curve_data.y)
-        peak_idx = np.argmax(np.abs(curve_data.y - b_guess))
-        f_guess = curve_data.x[peak_idx]
-        a_guess = curve_data.y[peak_idx] - b_guess
+        b_guess = guesses.constant_spectral_offset(curve_data.y)
+        y_ = curve_data.y - b_guess
 
-        # calculate sigma from FWHM
-        halfmax = curve_data.x[np.abs(curve_data.y - b_guess) > np.abs(a_guess / 2)]
-        fullwidth = max(halfmax) - min(halfmax)
-        s_guess = fullwidth / np.sqrt(8 * np.log(2))
+        f_guess, peak_idx = guesses.max_height(y_, absolute=True)
+        a_guess = y_[peak_idx]
+        s_guess = guesses.full_width_half_max(curve_data.x, y_, peak_idx) / np.sqrt(8 * np.log(2))
 
         max_abs_y = np.max(np.abs(curve_data.y))
 
