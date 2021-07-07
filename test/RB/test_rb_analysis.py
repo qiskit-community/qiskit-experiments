@@ -22,13 +22,11 @@ import qiskit_experiments as qe
 ATOL_DEFAULT = 1e-2
 RTOL_DEFAULT = 1e-5
 
-
-class TestStandardRBAnalysis(QiskitTestCase):
+class TestRBAnalysis(QiskitTestCase):
     """
-    A test for the analysis of the RB experiment
+    A base class for the tests of analysis of the RB experiments
     """
-
-    def _load_rb_data(self, rb_exp_data_file_name: str):
+    def _load_json_data(self, rb_exp_data_file_name: str):
         """
         loader for the experiment data and configuration setup.
         Args:
@@ -44,13 +42,6 @@ class TestStandardRBAnalysis(QiskitTestCase):
             "The file containing the experiment data doesn't exist."
             " Please run the data generator.",
         )
-        gate_error_ratio = {
-            ((0,), "id"): 1,
-            ((0,), "rz"): 0,
-            ((0,), "sx"): 1,
-            ((0,), "x"): 1,
-            ((0, 1), "cx"): 1,
-        }
         with open(rb_exp_data_file_name, "r") as json_file:
             data = json.load(json_file)
             # The experiment attributes added
@@ -59,16 +50,35 @@ class TestStandardRBAnalysis(QiskitTestCase):
             expdata1._metadata = data[0]
             # The experiment data located in index [1] as it is a list of dicts
             expdata1.add_data(data[1])
-        rb_class = qe.randomized_benchmarking
-        rb_exp = rb_class.StandardRB(
-            exp_attributes["physical_qubits"],
-            exp_attributes["lengths"],
-            num_samples=exp_attributes["num_samples"],
-            seed=exp_attributes["seed"],
+
+        return data, exp_attributes, expdata1
+
+    def _analysis_load(self, analysis_file_path: str):
+        """
+        Loads the expected data of the analysis and changing the the values type
+        to match the originals.
+        Args:
+            analysis_file_path(str): The full path of the json containing
+            the expected analysis results.
+        Returns:
+            list(dict): A list of dicts which contains the analysis results.
+        """
+        self.assertTrue(
+            os.path.isfile(analysis_file_path),
+            "The file containing the experiment analysis data doesn't exist."
+            " Please run the data generator.",
         )
-        rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
-        analysis_results = rb_exp.run_analysis(expdata1)
-        return data, analysis_results
+        samples_analysis_list = []
+        with open(analysis_file_path, "r") as expected_results_file:
+            analysis_data_experiments = json.load(expected_results_file)
+        for analysis_data_experiment in analysis_data_experiments:
+            analysis_data_experiment["popt"] = np.array(analysis_data_experiment["popt"])
+            analysis_data_experiment["popt_err"] = np.array(analysis_data_experiment["popt_err"])
+            for idx, item in enumerate(analysis_data_experiment["pcov"]):
+                analysis_data_experiment["pcov"][idx] = np.array(item)
+            analysis_data_experiment["pcov"] = np.array(analysis_data_experiment["pcov"])
+            samples_analysis_list.append(analysis_data_experiment)
+        return samples_analysis_list
 
     def _validate_counts(self, analysis_results_data: list, exp_data: list):
         """
@@ -114,32 +124,7 @@ class TestStandardRBAnalysis(QiskitTestCase):
                 "the gate sequence length isn't in the setup length list.",
             )
 
-    def _analysis_load(self, analysis_file_path: str):
-        """
-        Loads the expected data of the analysis and changing the the values type
-        to match the originals.
-        Args:
-            analysis_file_path(str): The full path of the json containing
-            the expected analysis results.
-        Returns:
-            list(dict): A list of dicts which contains the analysis results.
-        """
-        self.assertTrue(
-            os.path.isfile(analysis_file_path),
-            "The file containing the experiment analysis data doesn't exist."
-            " Please run the data generator.",
-        )
-        samples_analysis_list = []
-        with open(analysis_file_path, "r") as expected_results_file:
-            analysis_data_experiments = json.load(expected_results_file)
-        for analysis_data_experiment in analysis_data_experiments:
-            analysis_data_experiment["popt"] = np.array(analysis_data_experiment["popt"])
-            analysis_data_experiment["popt_err"] = np.array(analysis_data_experiment["popt_err"])
-            for idx, item in enumerate(analysis_data_experiment["pcov"]):
-                analysis_data_experiment["pcov"][idx] = np.array(item)
-            analysis_data_experiment["pcov"] = np.array(analysis_data_experiment["pcov"])
-            samples_analysis_list.append(analysis_data_experiment)
-        return samples_analysis_list
+
 
     def _validate_fitting_parameters(
         self, calculated_analysis_samples_data: list, expected_analysis_samples_data: list
@@ -214,6 +199,42 @@ class TestStandardRBAnalysis(QiskitTestCase):
                     + str(epg_key)
                     + "', doesn't match the expected value.",
                 )
+
+
+class TestStandardRBAnalysis(TestRBAnalysis):
+    """
+    A test for the analysis of the standard RB experiment
+    """
+
+    def _load_rb_data(self, rb_exp_data_file_name: str):
+        """
+        loader for the experiment data and configuration setup.
+        Args:
+            rb_exp_data_file_name(str): The file name that contain the experiment data.
+        Returns:
+            list: containing dict of the experiment setup configuration and list of dictionaries
+                containing the experiment results.
+            ExperimentData:  ExperimentData object that was creates by the analysis function.
+        """
+        data, exp_attributes, expdata1 = self._load_json_data(rb_exp_data_file_name)
+        rb_class = qe.randomized_benchmarking
+        rb_exp = rb_class.StandardRB(
+            exp_attributes["physical_qubits"],
+            exp_attributes["lengths"],
+            num_samples=exp_attributes["num_samples"],
+            seed=exp_attributes["seed"],
+        )
+        gate_error_ratio = {
+            ((0,), "id"): 1,
+            ((0,), "rz"): 0,
+            ((0,), "sx"): 1,
+            ((0,), "x"): 1,
+            ((0, 1), "cx"): 1,
+        }
+        rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
+        analysis_results = rb_exp.run_analysis(expdata1)
+        return data, analysis_results
+
 
     def test_standard_rb_analysis_test(self):
         """
