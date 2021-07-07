@@ -101,9 +101,10 @@ class TestEFRabi(QiskitTestCase):
         qubit = 0
 
         # Note that the backend is not sophisticated enough to simulate an e-f
-        # transition so we run the test with g-e.
-        freq_shift = 0.
-        rabi = EFRabi(qubit, freq_shift)
+        # transition so we run the test with a tiny frequency shift, still driving the e-g transition.
+        freq_shift = 0.01
+        rabi = EFRabi(qubit)
+        rabi.set_experiment_options(frequency_shift=freq_shift)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         result = rabi.run(backend).analysis_result(0)
 
@@ -112,9 +113,9 @@ class TestEFRabi(QiskitTestCase):
 
     def test_ef_rabi_circuit(self):
         """Test the EFRabi experiment end to end."""
-        anharm = 330e6
-        rabi12 = EFRabi(2, frequency_shift=anharm)
-        rabi12.set_experiment_options(amplitudes=[0.5])
+        anharm = -330e6
+        rabi12 = EFRabi(2)
+        rabi12.set_experiment_options(amplitudes=[0.5], frequency_shift=anharm)
         circ = rabi12.circuits(RabiBackend())[0]
 
         with pulse.build() as expected:
