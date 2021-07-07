@@ -43,6 +43,12 @@ class T1(BaseExperiment):
     3. Analysis of results: deduction of T\ :sub:`1`\ , based on the outcomes,
     by fitting to an exponential curve.
 
+    Note: before running a T1 experiment on an IBM device, or a parallel experiment
+    consisting of T1 sub-experiments, write:
+    <your experiment object>.set_transpile_options(alignment=16, scheduling_method="alap")
+    (in the case of a parallel experiment, the experiment object is the parallel
+    experiment, and not the sub-experiments).
+
     """
 
     __analysis_class__ = T1Analysis
