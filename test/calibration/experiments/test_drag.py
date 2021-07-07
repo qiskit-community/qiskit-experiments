@@ -70,7 +70,6 @@ class TestDragEndToEnd(QiskitTestCase):
         drag.set_run_options(meas_level=MeasLevel.KERNELED)
         expdata = drag.run(backend)
         expdata.block_for_results()
-        print(expdata)
         result = expdata.analysis_results(0)
         result_data = result.data()
 
