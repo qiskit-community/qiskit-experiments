@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 """Test parameter guess functions."""
+# pylint: disable=invalid-name
 
 import numpy as np
 from ddt import ddt, data, unpack
@@ -112,50 +113,50 @@ class TestGuesses(QiskitTestCase):
         self.assertAlmostEqualAbsolute(alpha_guess, alpha)
 
     @data(
-        [10, 1., 0.5],
+        [10, 1.0, 0.5],
         [50, 1.2, 0.2],
         [80, -1.2, 0.6],
         [30, -0.2, 0.4],
         [40, 3.2, 0.3],
-        [20, -0.4, 0.8]
+        [20, -0.4, 0.8],
     )
     @unpack
     def test_linewidth_spect(self, idx, a, fwhm):
         """Test of linewidth of peaks."""
         x = np.linspace(-1, 1, 100)
         sigma = fwhm / np.sqrt(8 * np.log(2))
-        y = a * np.exp(-(x - x[idx])**2/(2*sigma**2))
+        y = a * np.exp(-((x - x[idx]) ** 2) / (2 * sigma ** 2))
 
         lw_guess = guesses.full_width_half_max(x, y, idx)
 
         self.assertAlmostEqual(fwhm, lw_guess, delta=0.1)
 
     @data(
-        [0.1, 0., 1., 0.5],
+        [0.1, 0.0, 1.0, 0.5],
         [-0.3, 0.6, 1.2, 0.2],
         [0.2, -0.8, -1.2, 0.6],
         [0.9, 0.2, -0.2, 0.4],
         [0.6, 0.1, 3.2, 0.3],
-        [-0.7, -0.4, -1.6, 0.8]
+        [-0.7, -0.4, -1.6, 0.8],
     )
     @unpack
     def test_baseline_spect(self, b0, x0, a, fwhm):
         """Test of baseline of peaks."""
         x = np.linspace(-1, 1, 100)
         sigma = fwhm / np.sqrt(8 * np.log(2))
-        y = a * np.exp(-(x - x0)**2/(2*sigma**2)) + b0
+        y = a * np.exp(-((x - x0) ** 2) / (2 * sigma ** 2)) + b0
 
         b0_guess = guesses.constant_spectral_offset(y)
 
         self.assertAlmostEqual(b0, b0_guess, delta=0.1)
 
     @data(
-        [0.1, 0., 1., 1.3],
+        [0.1, 0.0, 1.0, 1.3],
         [-0.3, 0.6, 1.2, 0.4],
         [0.2, -0.8, -1.2, 3.6],
         [0.9, 0.2, -0.2, 0.3],
         [0.6, 0.1, 3.2, 0.8],
-        [-0.7, -0.4, -1.6, 1.2]
+        [-0.7, -0.4, -1.6, 1.2],
     )
     @unpack
     def test_baseline_sinusoidal(self, b0, x0, a, freq):

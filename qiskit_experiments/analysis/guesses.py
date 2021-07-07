@@ -49,9 +49,9 @@ def frequency(x: np.ndarray, y: np.ndarray) -> float:
 
 
 def max_height(
-        y: np.ndarray,
-        percentile: Optional[float] = None,
-        absolute: bool = False,
+    y: np.ndarray,
+    percentile: Optional[float] = None,
+    absolute: bool = False,
 ) -> Tuple[float, int]:
     """Get maximum value of y curve and its index.
 
@@ -69,9 +69,9 @@ def max_height(
 
 
 def min_height(
-        y: np.ndarray,
-        percentile: Optional[float] = None,
-        absolute: bool = False,
+    y: np.ndarray,
+    percentile: Optional[float] = None,
+    absolute: bool = False,
 ) -> Tuple[float, int]:
     """Get minimum value of y curve and its index.
 
@@ -89,9 +89,9 @@ def min_height(
 
 
 def get_height(
-        y: np.ndarray,
-        find_height: Callable,
-        absolute: bool = False,
+    y: np.ndarray,
+    find_height: Callable,
+    absolute: bool = False,
 ) -> Tuple[float, int]:
     """Get specific value of y curve defined by a callback and its index.
 
@@ -144,11 +144,11 @@ def exp_decay(x: np.ndarray, y: np.ndarray) -> float:
 
 
 def oscillation_exp_decay(
-        x: np.ndarray,
-        y: np.ndarray,
-        filter_window: int = 5,
-        filter_dim: int = 2,
-        freq_guess: Optional[float] = None,
+    x: np.ndarray,
+    y: np.ndarray,
+    filter_window: int = 5,
+    filter_dim: int = 2,
+    freq_guess: Optional[float] = None,
 ) -> float:
     r"""Get exponential decay parameter from oscillating signal.
 
@@ -199,9 +199,9 @@ def oscillation_exp_decay(
 
 
 def full_width_half_max(
-        x: np.ndarray,
-        y: np.ndarray,
-        peak_index: int,
+    x: np.ndarray,
+    y: np.ndarray,
+    peak_index: int,
 ) -> float:
     """Get full width half maximum value of the peak. Offset of y should be removed.
 
@@ -212,6 +212,9 @@ def full_width_half_max(
 
     Returns:
         FWHM of the peak.
+
+    Raises:
+        AnalysisError: When peak is too broad and line width is not found.
     """
     y_ = np.abs(y)
     peak_height = y_[peak_index]
@@ -233,16 +236,11 @@ def full_width_half_max(
     elif l_bound:
         return 2 * (x[peak_index] - l_bound)
 
-    raise AnalysisError(
-        "FWHM of input curve was not found. Perhaps scanning range is too narrow."
-        )
+    raise AnalysisError("FWHM of input curve was not found. Perhaps scanning range is too narrow.")
 
 
 def constant_spectral_offset(
-        y: np.ndarray,
-        filter_window: int = 5,
-        filter_dim: int = 2,
-        ratio: float = 0.1
+    y: np.ndarray, filter_window: int = 5, filter_dim: int = 2, ratio: float = 0.1
 ) -> float:
     """Get constant offset of spectral baseline.
 
@@ -270,7 +268,7 @@ def constant_spectral_offset(
     ydiff2 = np.abs(np.diff(y_smoothed, 2, append=np.nan, prepend=np.nan))
     non_peaks = y_smoothed[
         (ydiff1 < ratio * np.nanmax(ydiff1)) & (ydiff2 < ratio * np.nanmax(ydiff2))
-        ]
+    ]
 
     if len(non_peaks) == 0:
         return float(np.median(y))
