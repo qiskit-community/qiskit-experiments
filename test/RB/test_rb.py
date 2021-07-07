@@ -21,19 +21,11 @@ from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.quantum_info import Clifford
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeParis
-from qiskit import QuantumCircuit
+from qiskit.providers.aer import AerSimulator
 from qiskit.exceptions import QiskitError
 from qiskit.circuit.library import (
-    IGate,
     XGate,
-    YGate,
-    ZGate,
-    HGate,
-    SGate,
-    SdgGate,
     CXGate,
-    CZGate,
-    SwapGate,
 )
 import qiskit_experiments as qe
 
@@ -52,7 +44,7 @@ class TestStandardRB(QiskitTestCase):
         Args:
             qubits (list): A list containing qubit indices for the experiment
         """
-        backend = FakeParis()
+        backend = AerSimulator.from_backend(FakeParis())
         exp_attributes = {
             "physical_qubits": qubits,
             "lengths": [1, 4, 6, 9, 13, 16],
@@ -95,10 +87,11 @@ class TestStandardRB(QiskitTestCase):
             circuits (list): A list containing quantum circuits
             exp_attributes (dict): A dictionary with the experiment variable and values
         """
-        for ind, circ in enumerate(circuits):
+        for circ in circuits:
             self.assertTrue(
-                circ.metadata["xval"] == exp_attributes["lengths"][ind],
-                "The number of gates in the experiment metadata doesn't match to the one provided.",
+                circ.metadata["xval"] in exp_attributes["lengths"],
+                "The number of gates in the experiment metadata doesn't match "
+                "any of the provided lengths",
             )
             self.assertTrue(
                 circ.metadata["physical_qubits"] == tuple(exp_attributes["physical_qubits"]),
@@ -135,17 +128,15 @@ class TestStandardRB(QiskitTestCase):
         Creates a list of dictionaries that contains invalid experiment properties to check errors.
         The dict invalid data is as following:
             exp_data_list[1]: same index of qubit.
-            exp_data_list[2]: qubit index is negative.
-            exp_data_list[3]: the length of the sequence has negative number.
-            exp_data_list[4]: num of samples is negative.
-            exp_data_list[5]: num of samples is 0.
-            exp_data_list[6]: the length of the sequence list has duplicates.
+            exp_data_list[2]: the length of the sequence has negative number.
+            exp_data_list[3]: num of samples is negative.
+            exp_data_list[4]: num of samples is 0.
+            exp_data_list[5]: the length of the sequence list has duplicates.
         Returns:
             list[dict]: list of dictionaries with experiment properties.
         """
         exp_data_list = [
             {"physical_qubits": [3, 3], "lengths": [1, 3, 5, 7, 9], "num_samples": 1, "seed": 100},
-            {"physical_qubits": [-1], "lengths": [1, 3, 5, 7, 9], "num_samples": 1, "seed": 100},
             {"physical_qubits": [0, 1], "lengths": [1, 3, 5, -7, 9], "num_samples": 1, "seed": 100},
             {"physical_qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": -4, "seed": 100},
             {"physical_qubits": [0, 1], "lengths": [1, 3, 5, 7, 9], "num_samples": 0, "seed": 100},
@@ -186,12 +177,12 @@ class TestInterleavedRB(TestStandardRB):
             interleaved_element: The Clifford element to interleave
             qubits (list): A list containing qubit indices for the experiment
         """
-        backend = FakeParis()
+        backend = AerSimulator.from_backend(FakeParis())
         exp_attributes = {
             "interleaved_element": interleaved_element,
             "physical_qubits": qubits,
             "lengths": [1, 4, 6, 9, 13, 16],
-            "num_samples": 2,
+            "num_samples": 3,
             "seed": 100,
         }
         rb_class = qe.randomized_benchmarking
@@ -209,68 +200,39 @@ class TestInterleavedRB(TestStandardRB):
         self.validate_circuit_data(exp_data, exp_attributes)
         self.is_identity(exp_circuits)
 
-
-@ddt
-class TestRBUtilities(QiskitTestCase):
-    """
-    A test class for additional functionality provided by the StandardRB
-    class.
-    """
-
-    instructions = {
-        "i": IGate(),
-        "x": XGate(),
-        "y": YGate(),
-        "z": ZGate(),
-        "h": HGate(),
-        "s": SGate(),
-        "sdg": SdgGate(),
-        "cx": CXGate(),
-        "cz": CZGate(),
-        "swap": SwapGate(),
-    }
-    seed = 42
-
-    @data(
-        [1, {((0,), "x"): 3, ((0,), "y"): 2, ((0,), "h"): 1}],
-        [5, {((1,), "x"): 3, ((4,), "y"): 2, ((1,), "h"): 1, ((1, 4), "cx"): 7}],
-    )
+    @data([XGate(), [3], 4], [CXGate(), [4, 7], 5])
     @unpack
-    def test_count_ops(self, num_qubits, expected_counts):
-        """Testing the count_ops utility function
-        this function receives a circuit and counts the number of gates
-        in it, counting gates for different qubits separately"""
-        circuit = QuantumCircuit(num_qubits)
-        gates_to_add = []
-        for gate, count in expected_counts.items():
-            gates_to_add += [gate for _ in range(count)]
-        rng = np.random.default_rng(self.seed)
-        rng.shuffle(gates_to_add)
-        for qubits, gate in gates_to_add:
-            circuit.append(self.instructions[gate], qubits)
-        counts = qe.randomized_benchmarking.RBUtils.count_ops(circuit)
-        self.assertDictEqual(expected_counts, counts)
-
-    def test_calculate_1q_epg(self):
-        """Testing the calculation of 1 qubit error per gate
-        The EPG is computed based on the error per clifford determined
-        in the RB experiment, the gate counts, and an estimate about the
-        relations between the errors of different gate types
+    def test_interleaved_structure(self, interleaved_element: "Gate", qubits: list, length: int):
         """
-        epc_1_qubit = 0.0037
-        qubits = [0]
-        gate_error_ratio = {((0,), "id"): 1, ((0,), "rz"): 0, ((0,), "sx"): 1, ((0,), "x"): 1}
-        gates_per_clifford = {((0,), "rz"): 10.5, ((0,), "sx"): 8.15, ((0,), "x"): 0.25}
-        epg = qe.randomized_benchmarking.RBUtils.calculate_1q_epg(
-            epc_1_qubit, qubits, gate_error_ratio, gates_per_clifford
+        Verifies that when generating an interleaved circuit, it will be
+        identical to the original circuit up to additions of
+        barrier and interleaved element between any two cliffords
+        Args:
+            interleaved_element: The clifford element to interleave
+            qubits: A list containing qubit indices for the experiment
+            length: The number of cliffords in the tested circuit
+        """
+        rb_class = qe.randomized_benchmarking
+        exp = rb_class.InterleavedRB(
+            qubits=qubits, interleaved_element=interleaved_element, lengths=[length], num_samples=1
         )
-        error_dict = {
-            ((0,), "rz"): 0,
-            ((0,), "sx"): 0.0004432101747785104,
-            ((0,), "x"): 0.0004432101747785104,
-        }
 
-        for gate in ["x", "sx", "rz"]:
-            expected_epg = error_dict[((0,), gate)]
-            actual_epg = epg[0][gate]
-            self.assertTrue(np.allclose(expected_epg, actual_epg, rtol=1.0e-2))
+        circuits = exp.circuits()
+        c_std = circuits[0]
+        c_int = circuits[1]
+        if c_std.metadata["interleaved"]:
+            c_std, c_int = c_int, c_std
+        num_cliffords = c_std.metadata["xval"]
+        std_idx = 0
+        int_idx = 0
+        for _ in range(num_cliffords):
+            # barrier
+            self.assertEqual(c_std[std_idx][0].name, "barrier")
+            self.assertEqual(c_int[int_idx][0].name, "barrier")
+            # clifford
+            self.assertEqual(c_std[std_idx + 1], c_int[int_idx + 1])
+            # for interleaved circuit: barrier + interleaved element
+            self.assertEqual(c_int[int_idx + 2][0].name, "barrier")
+            self.assertEqual(c_int[int_idx + 3][0].name, interleaved_element.name)
+            std_idx += 2
+            int_idx += 4
