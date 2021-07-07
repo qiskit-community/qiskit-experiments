@@ -72,7 +72,7 @@ class TestRabiEndToEnd(QiskitTestCase):
         result = expdata.analysis_results(0)
         result_data = result.data()
 
-        self.assertEqual(result.quality, "computer_good")
+        self.assertEqual(result.quality, "good")
         self.assertTrue(abs(result_data["popt"][1] - backend.rabi_rate) < test_tol)
 
         backend = RabiBackend(amplitude_to_angle=np.pi / 2)
@@ -83,7 +83,7 @@ class TestRabiEndToEnd(QiskitTestCase):
         expdata.block_for_results()
         result = expdata.analysis_results(0)
         result_data = result.data()
-        self.assertEqual(result.quality, "computer_good")
+        self.assertEqual(result.quality, "good")
         self.assertTrue(abs(result_data["popt"][1] - backend.rabi_rate) < test_tol)
 
         backend = RabiBackend(amplitude_to_angle=2.5 * np.pi)
@@ -94,7 +94,7 @@ class TestRabiEndToEnd(QiskitTestCase):
         expdata.block_for_results()
         result = expdata.analysis_results(0)
         result_data = result.data()
-        self.assertEqual(result.quality, "computer_good")
+        self.assertEqual(result.quality, "good")
         self.assertTrue(abs(result_data["popt"][1] - backend.rabi_rate) < test_tol)
 
 
@@ -180,7 +180,7 @@ class TestRabiAnalysis(QiskitTestCase):
 
         result = RabiAnalysis().run(experiment_data, data_processor=data_processor, plot=False)
 
-        self.assertEqual(result[0].quality, "computer_good")
+        self.assertEqual(result[0].quality, "good")
         self.assertTrue(abs(result[0].data()["popt"][1] - expected_rate) < test_tol)
 
     def test_bad_analysis(self):
@@ -196,7 +196,7 @@ class TestRabiAnalysis(QiskitTestCase):
 
         result = RabiAnalysis().run(experiment_data, data_processor=data_processor, plot=False)
 
-        self.assertEqual(result[0].quality, "computer_bad")
+        self.assertEqual(result[0].quality, "bad")
 
 
 class TestCompositeExperiment(QiskitTestCase):

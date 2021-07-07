@@ -147,9 +147,9 @@ class RabiAnalysis(CurveAnalysis):
         ]
 
         if all(criteria):
-            result_data["quality"] = "computer_good"
+            result_data["quality"] = "good"
         else:
-            result_data["quality"] = "computer_bad"
+            result_data["quality"] = "bad"
 
         return result_data
 

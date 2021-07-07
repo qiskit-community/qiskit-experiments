@@ -59,7 +59,7 @@ class TestDragEndToEnd(QiskitTestCase):
         result_data = result.data()
 
         self.assertTrue(abs(result_data["popt"][4] - backend.ideal_beta) < test_tol)
-        self.assertEqual(result.quality, "computer_good")
+        self.assertEqual(result.quality, "good")
 
         # Small leakage will make the curves very flat.
         backend = DragBackend(leakage=0.005)
@@ -75,7 +75,7 @@ class TestDragEndToEnd(QiskitTestCase):
         result_data = result.data()
 
         self.assertTrue(abs(result_data["popt"][4] - backend.ideal_beta) < test_tol)
-        self.assertEqual(result.quality, "computer_good")
+        self.assertEqual(result.quality, "good")
 
         # Large leakage will make the curves oscillate quickly.
         backend = DragBackend(leakage=0.05)
@@ -91,7 +91,7 @@ class TestDragEndToEnd(QiskitTestCase):
         result_data = result.data()
 
         self.assertTrue(abs(result_data["popt"][4] - backend.ideal_beta) < test_tol)
-        self.assertEqual(result.quality, "computer_good")
+        self.assertEqual(result.quality, "good")
 
 
 class TestDragCircuits(QiskitTestCase):

@@ -108,7 +108,7 @@ class TestCalibrationsUpdate(QiskitTestCase):
         value = get_opt_value(result_data, "freq")
 
         self.assertTrue(freq01 + peak_offset - 2e6 < value < freq01 + peak_offset + 2e6)
-        self.assertEqual(result.quality, "computer_good")
+        self.assertEqual(result.quality, "good")
 
         # Test the integration with the BackendCalibrations
         cals = BackendCalibrations(FakeAthens())
@@ -159,7 +159,7 @@ class TestCalibrationsUpdate(QiskitTestCase):
 
         # Test the fit for good measure.
         self.assertTrue(abs(result_data["popt"][4] - backend.ideal_beta) < test_tol)
-        self.assertEqual(result.quality, "computer_good")
+        self.assertEqual(result.quality, "good")
 
         # Check schedules pre-update
         expected = x_plus.assign_parameters({beta: 0.2, chan: 1}, inplace=False)

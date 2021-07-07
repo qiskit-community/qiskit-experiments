@@ -75,7 +75,7 @@ class TestQubitSpectroscopy(QiskitTestCase):
 
         self.assertTrue(4.999e9 < value < 5.001e9)
         self.assertTrue(result_data["success"])
-        self.assertEqual(result.quality, "computer_good")
+        self.assertEqual(result.quality, "good")
 
         # Test if we find still find the peak when it is shifted by 5 MHz.
         backend = SpectroscopyBackend(line_width=2e6, freq_offset=5.0e6)
@@ -90,7 +90,7 @@ class TestQubitSpectroscopy(QiskitTestCase):
         value = get_opt_value(result_data, "freq")
 
         self.assertTrue(5.0049e9 < value < 5.0051e9)
-        self.assertEqual(result.quality, "computer_good")
+        self.assertEqual(result.quality, "good")
 
     def test_spectroscopy_end2end_kerneled(self):
         """End to end test of the spectroscopy experiment on IQ data."""
@@ -110,7 +110,7 @@ class TestQubitSpectroscopy(QiskitTestCase):
 
         self.assertTrue(freq01 - 2e6 < value < freq01 + 2e6)
         self.assertTrue(result_data["success"])
-        self.assertEqual(result.quality, "computer_good")
+        self.assertEqual(result.quality, "good")
 
         # Test if we find still find the peak when it is shifted by 5 MHz.
         backend = SpectroscopyBackend(line_width=2e6, freq_offset=5.0e6)
@@ -124,7 +124,7 @@ class TestQubitSpectroscopy(QiskitTestCase):
         value = get_opt_value(result_data, "freq")
 
         self.assertTrue(freq01 + 3e6 < value < freq01 + 8e6)
-        self.assertEqual(result.quality, "computer_good")
+        self.assertEqual(result.quality, "good")
 
         spec.set_run_options(meas_return="avg")
         expdata = spec.run(backend)
@@ -135,7 +135,7 @@ class TestQubitSpectroscopy(QiskitTestCase):
         value = get_opt_value(result_data, "freq")
 
         self.assertTrue(freq01 + 3e6 < value < freq01 + 8e6)
-        self.assertEqual(result.quality, "computer_good")
+        self.assertEqual(result.quality, "good")
 
     def test_spectroscopy12_end2end_classified(self):
         """End to end test of the spectroscopy experiment with an x pulse."""
@@ -158,7 +158,7 @@ class TestQubitSpectroscopy(QiskitTestCase):
 
         self.assertTrue(freq01 - 2e6 < value < freq01 + 2e6)
         self.assertTrue(result_data["success"])
-        self.assertEqual(result.quality, "computer_good")
+        self.assertEqual(result.quality, "good")
 
         # Test the circuits
         circ = spec.circuits(backend)[0]
