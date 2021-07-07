@@ -317,8 +317,6 @@ class TestT2Ramsey(QiskitTestCase):
         self.assertAlmostEqual(
             result1_data["frequency_value"], estimated_freq / dt_factor, delta=3 / dt_factor
         )
-        self.assertEqual(
-            result1.quality, "good", "Result quality bad for unit " + str(unit)
-        )
+        self.assertEqual(result1.quality, "good", "Result quality bad for unit " + str(unit))
         self.assertLessEqual(result1_data["stderr"], result0_data["stderr"])
         self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))

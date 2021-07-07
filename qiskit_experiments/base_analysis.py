@@ -19,8 +19,10 @@ from typing import List, Tuple, Union
 from qiskit.exceptions import QiskitError
 from qiskit.providers.options import Options
 
+from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.experiment_data import ExperimentData
 from qiskit_experiments.database_service import DbAnalysisResultV1
+from qiskit_experiments.database_service.device_component import Qubit
 
 
 class BaseAnalysis(ABC):
@@ -87,10 +89,23 @@ class BaseAnalysis(ABC):
         analysis_options = analysis_options.__dict__
 
         # Run analysis
-        analysis_results, figures = self._run_analysis(experiment_data, **analysis_options)
-        for res in analysis_results:
-            if "success" not in res.data():
-                res._result_data["success"] = True
+        try:
+            analysis_results, figures = self._run_analysis(experiment_data, **analysis_options)
+            for res in analysis_results:
+                if "success" not in res.data():
+                    res._result_data["success"] = True
+        except AnalysisError as ex:
+            analysis_results = [
+                DbAnalysisResultV1(
+                    result_data={"success": False, "error_message": ex},
+                    result_type=experiment_data.metadata()["experiment_type"],
+                    device_components=[
+                        Qubit(qubit) for qubit in experiment_data.metadata()["physical_qubits"]
+                    ],
+                    experiment_id=experiment_data.experiment_id,
+                )
+            ]
+            figures = None
 
         # Save to experiment data
         if save:

@@ -201,4 +201,3 @@ class RBAnalysis(CurveAnalysis):
                     )
                 result_data["EPG"] = epg
         return result_data
-

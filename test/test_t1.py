@@ -99,7 +99,7 @@ class TestT1(QiskitTestCase):
         for i in range(2):
             sub_res.append(res.component_experiment_data(i).analysis_results(0))
 
-        self.assertEqual(sub_res[0].quality, "computer_good")
+        self.assertEqual(sub_res[0].quality, "good")
         self.assertAlmostEqual(sub_res[0].data()["value"], t1, delta=3)
         self.assertFalse(sub_res[1].data()["success"])
 
