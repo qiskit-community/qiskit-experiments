@@ -289,8 +289,8 @@ class CurveAnalysis(BaseAnalysis):
     def __init__(self):
         """Initialize data fields that are privately accessed by methods."""
 
-        #: Iterable[int]: Physical qubits tested by this experiment
-        self.__qubits = None
+        #: Dict[str, Any]: Experiment metadata
+        self.__experiment_metadata = None
 
         #: List[CurveData]: Processed experiment data set.
         self.__processed_data_set = list()
@@ -724,14 +724,91 @@ class CurveAnalysis(BaseAnalysis):
         return fitter_options
 
     @property
-    def _num_qubits(self):
-        """Getter for qubit number."""
-        return len(self.__qubits)
+    def _experiment_type(self) -> str:
+        """Return type of experiment."""
+        try:
+            return self.__experiment_metadata["experiment_type"]
+        except (TypeError, KeyError):
+            # Ignore experiment metadata is not set or key is not found
+            return None
 
     @property
-    def _physical_qubits(self):
+    def _num_qubits(self) -> int:
+        """Getter for qubit number."""
+        try:
+            return self.__experiment_metadata["num_qubits"]
+        except (TypeError, KeyError):
+            # Ignore experiment metadata is not set or key is not found
+            return None
+
+    @property
+    def _physical_qubits(self) -> List[int]:
         """Getter for physical qubit indices."""
-        return list(self.__qubits)
+        try:
+            return list(self.__experiment_metadata["physical_qubits"])
+        except (TypeError, KeyError):
+            # Ignore experiment metadata is not set or key is not found
+            return None
+
+    def _experiment_options(self, index: int = -1) -> Dict[str, Any]:
+        """Return the experiment options of given job index.
+
+        Args:
+            index: Index of job metadata to extract. Default to -1 (latest).
+
+        Returns:
+            Experiment options. This option is used for circuit generation.
+        """
+        try:
+            return self.__experiment_metadata["job_metadata"][index]["experiment_options"]
+        except (TypeError, KeyError, IndexError):
+            # Ignore experiment metadata or job metadata is not set or key is not found
+            return None
+
+    def _analysis_options(self, index: int = -1) -> Dict[str, Any]:
+        """Returns the analysis options of given job index.
+
+        Args:
+            index: Index of job metadata to extract. Default to -1 (latest).
+
+        Returns:
+            Analysis options. This option is used for analysis.
+        """
+        try:
+            return self.__experiment_metadata["job_metadata"][index]["analysis_options"]
+        except (TypeError, KeyError, IndexError):
+            # Ignore experiment metadata or job metadata is not set or key is not found
+            return None
+
+    def _run_options(self, index: int = -1) -> Dict[str, Any]:
+        """Returns the run options of given job index.
+
+        Args:
+            index: Index of job metadata to extract. Default to -1 (latest).
+
+        Returns:
+            Run options. This option is used for backend execution.
+        """
+        try:
+            return self.__experiment_metadata["job_metadata"][index]["run_options"]
+        except (TypeError, KeyError, IndexError):
+            # Ignore experiment metadata or job metadata is not set or key is not found
+            return None
+
+    def _transpile_options(self, index: int = -1) -> Dict[str, Any]:
+        """Returns the transpile options of given job index.
+
+        Args:
+            index: Index of job metadata to extract. Default to -1 (latest).
+
+        Returns:
+            Transpile options. This option is used for circuit optimization.
+        """
+        try:
+            return self.__experiment_metadata["job_metadata"][index]["transpile_options"]
+        except (TypeError, KeyError, IndexError):
+            # Ignore experiment metadata or job metadata is not set or key is not found
+            return None
 
     def _data(
         self,
@@ -858,16 +935,14 @@ class CurveAnalysis(BaseAnalysis):
                 assigned_series.append(SeriesDef(**dict_def))
             self.__series__ = assigned_series
 
+        # pop arguments that are not given to fitter
         extra_options = self._arg_parse(**options)
 
-        # TODO update this with experiment metadata PR #67
+        # get experiment metadata
         try:
-            self.__qubits = experiment_data.data(0)["metadata"]["physical_qubits"]
-        except KeyError:
-            try:
-                self.__qubits = [experiment_data.data(0)["metadata"]["qubit"]]
-            except KeyError:
-                pass
+            self.__experiment_metadata = experiment_data.metadata()
+        except AttributeError:
+            pass
 
         #
         # 2. Setup data processor
@@ -979,7 +1054,7 @@ class CurveAnalysis(BaseAnalysis):
         analysis_result = CurveAnalysisResult(
             result_data=result_data,
             result_type=result_data["analysis_type"],
-            device_components=[Qubit(qubit) for qubit in self.__qubits] if self.__qubits else [],
+            device_components=[Qubit(qubit) for qubit in self._physical_qubits] if self._physical_qubits else [],
             experiment_id=experiment_data.experiment_id,
             quality=result_data.get("quality", None),
         )
