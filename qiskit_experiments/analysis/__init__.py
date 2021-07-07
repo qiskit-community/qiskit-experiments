@@ -57,10 +57,13 @@ Guess Functions
 .. autosummary::
     :toctree: ../stubs/
 
+    guesses.constant_sinusoidal_offset
+    guesses.constant_spectral_offset
+    guesses.exp_decay
+    guesses.full_width_half_max
     guesses.frequency
     guesses.max_height
     guesses.min_height
-    guesses.exp_decay
     guesses.oscillation_exp_decay
 
 

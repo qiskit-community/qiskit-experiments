@@ -50,9 +50,11 @@ class RabiAnalysis(CurveAnalysis):
         - :math:`{\rm phase}`: Phase of the oscillation.
 
     Initial Guesses
-        - :math:`amp`: The maximum y value less the minimum y value.
-        - :math:`baseline`: The average of the data.
-        - :math:`{\rm freq}`: The frequency with the highest power spectral density.
+        - :math:`amp`: Calculated by :func:`~qiskit_experiments.analysis.guesses.max_height`.
+        - :math:`baseline`: Calculated by :func:`~qiskit_experiments.analysis.\
+          guesses.constant_sinusoidal_offset`.
+        - :math:`{\rm freq}`: Calculated by :func:`~qiskit_experiments.analysis.\
+          guesses.frequency`.
         - :math:`{\rm phase}`: Zero.
 
     Bounds

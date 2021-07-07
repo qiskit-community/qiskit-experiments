@@ -158,11 +158,11 @@ def oscillation_exp_decay(
 
         y(x) = e^{\alpha x} F(x),
 
-    where :math:`F(x)` is arbitrary oscillation function oscillating at `freq_guess`.
+    where :math:`F(x)` is arbitrary oscillation function oscillating at ``freq_guess``.
     This function first applies a Savitzky-Golay filter to y value,
     then run scipy peak search to extract peak positions.
-    If `freq_guess` is provided, the search function will be robust to fake peaks due to noise.
-    This function calls :py:func:`exp_decay` function against x and y values at peaks.
+    If ``freq_guess`` is provided, the search function will be robust to fake peaks due to noise.
+    This function calls :py:func:`exp_decay` function for extracted x and y values at peaks.
 
     .. note::
 

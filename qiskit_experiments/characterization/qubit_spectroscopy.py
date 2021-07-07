@@ -57,11 +57,14 @@ class SpectroscopyAnalysis(CurveAnalysis):
         - :math:`\sigma`: Standard deviation of Gaussian function.
 
     Initial Guesses
-        - :math:`a`: The maximum signal value with removed baseline.
-        - :math:`b`: A median value of the signal.
-        - :math:`f`: A frequency value at the peak (maximum signal).
+        - :math:`a`: Calculated by :func:`~qiskit_experiments.analysis.guesses.max_height`.
+        - :math:`b`: Calculated by :func:`~qiskit_experiments.analysis.guesses.\
+          constant_spectral_offset`.
+        - :math:`f`: Frequency at max height position calculated by
+          :func:`~qiskit_experiments.analysis.guesses.max_height`.
         - :math:`\sigma`: Calculated from FWHM of peak :math:`w`
-          such that :math:`w / \sqrt{8} \ln{2}`.
+          such that :math:`w / \sqrt{8} \ln{2}`, where FWHM is calculated by
+          :func:`~qiskit_experiments.analysis.guesses.full_width_half_max`.
 
     Bounds
         - :math:`a`: [-2, 2] scaled with maximum signal value.
