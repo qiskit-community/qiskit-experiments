@@ -69,7 +69,7 @@ class EFRabi(Rabi):
         """Create the default schedule for the EFRabi gate with a frequency shift to the 1-2
         transition."""
         amp = Parameter("amp")
-        with pulse.build(backend=backend, name="rabi") as default_schedule:
+        with pulse.build(backend=backend, name=self.__rabi_gate_name__) as default_schedule:
 
             if self.experiment_options.frequency_shift == 0.0:
                 warnings.warn(
