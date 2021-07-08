@@ -19,6 +19,10 @@ import json
 from qiskit.providers.aer import QasmSimulator
 from qiskit.providers.aer.noise import NoiseModel
 from qiskit.providers.aer.noise.errors.standard_errors import depolarizing_error
+from qiskit.circuit.library import (
+    XGate,
+    CXGate,
+)
 import qiskit_experiments as qe
 
 
@@ -28,7 +32,7 @@ def create_depolarizing_noise_model():
     Returns:
         NoiseModel: depolarizing error noise model
     """
-    # the error parameters were took from ibmq_manila on 17 june 2021
+    # the error parameters were taken from ibmq_manila on 17 june 2021
     p1q = 0.002257
     p2q = 0.006827
     noise_model = NoiseModel()
@@ -48,12 +52,14 @@ def standard_rb_exp_data_gen(dir_name: str):
     rb_exp_name = ["rb_standard_1qubit", "rb_standard_2qubits"]
     experiments_attributes = [
         {
+            "num_qubits": 1,
             "physical_qubits": [0],
-            "lengths": list(range(1, 200, 20)),
+            "lengths": list(range(1, 1000, 100)),
             "num_samples": 3,
             "seed": 100,
         },
         {
+            "num_qubits": 2,
             "physical_qubits": [0, 1],
             "lengths": list(range(1, 200, 20)),
             "num_samples": 3,
@@ -61,6 +67,7 @@ def standard_rb_exp_data_gen(dir_name: str):
         },
     ]
     for idx, experiment_attributes in enumerate(experiments_attributes):
+        print("Generating experiment #{}: {}".format(idx, experiment_attributes))
         _generate_rb_fitter_data(dir_name, rb_exp_name[idx], experiment_attributes)
 
 
@@ -88,6 +95,7 @@ def _generate_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes: di
     noise_model = create_depolarizing_noise_model()
     backend = QasmSimulator()
     rb_class = qe.randomized_benchmarking
+    print("Generating RB experiment")
     rb_exp = rb_class.StandardRB(
         exp_attributes["physical_qubits"],
         exp_attributes["lengths"],
@@ -95,7 +103,9 @@ def _generate_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes: di
         seed=exp_attributes["seed"],
     )
     rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
+    print("Running experiment")
     experiment_obj = rb_exp.run(backend, noise_model=noise_model, basis_gates=transpiled_base_gate)
+    print("Done running experiment")
     exp_results = experiment_obj.data()
     with open(results_file_path, "w") as json_file:
         joined_list_data = [exp_attributes, exp_results]
@@ -117,17 +127,95 @@ def _analysis_save(analysis_data: list, analysis_file_path: str):
         sample_analysis["pcov"] = list(sample_analysis["pcov"])
         for idx, item in enumerate(sample_analysis["pcov"]):
             sample_analysis["pcov"][idx] = list(item)
-        epg_keys = list(sample_analysis["EPG"].keys())
-        for qubits in epg_keys:
-            sample_analysis["EPG"][str(qubits)] = sample_analysis["EPG"].pop(qubits)
+        if "EPG" in sample_analysis:
+            epg_keys = list(sample_analysis["EPG"].keys())
+            for qubits in epg_keys:
+                sample_analysis["EPG"][str(qubits)] = sample_analysis["EPG"].pop(qubits)
         samples_analysis_list.append(sample_analysis)
     with open(analysis_file_path, "w") as json_file:
         json_file.write(json.dumps(samples_analysis_list))
+
+
+def interleaved_rb_exp_data_gen(dir_name: str):
+    """
+    Encapsulation for different experiments attributes which in turn execute.
+    The data and analysis is saved to json file via "_generate_interleaved_rb_fitter_data" function.
+    Args:
+        dir_name(str): The directory which the program will save the data and anaysis.
+    """
+    rb_exp_name = ["rb_interleaved_1qubit", "rb_interleaved_2qubits"]
+    experiments_attributes = [
+        {
+            "num_qubits": 1,
+            "physical_qubits": [0],
+            "lengths": list(range(1, 1000, 100)),
+            "num_samples": 3,
+            "seed": 100,
+            "interleaved_element": "x",
+        },
+        {
+            "num_qubits": 2,
+            "physical_qubits": [0, 1],
+            "lengths": list(range(1, 200, 20)),
+            "num_samples": 3,
+            "seed": 100,
+            "interleaved_element": "cx",
+        },
+    ]
+    for idx, experiment_attributes in enumerate(experiments_attributes):
+        print("Generating interleaved RB experiment #{}: {}".format(idx, experiment_attributes))
+        _generate_int_rb_fitter_data(dir_name, rb_exp_name[idx], experiment_attributes)
+
+
+def _generate_int_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes: dict):
+    """
+    Executing standard RB experiment and storing its data in json format.
+    The json is composed of a list that the first element is a dictionary containing
+    the experiment attributes and the second element is a list with all the experiment
+    data.
+    Args:
+        dir_name: The json file name that the program write the data to.
+        rb_exp_name: The experiment name for naming the output files.
+        exp_attributes: attributes to config the RB experiment.
+    """
+    gate_error_ratio = {
+        ((0,), "id"): 1,
+        ((0,), "rz"): 0,
+        ((0,), "sx"): 1,
+        ((0,), "x"): 1,
+        ((0, 1), "cx"): 1,
+    }
+    interleaved_gates = {"x": XGate(), "cx": CXGate()}
+    transpiled_base_gate = ["cx", "sx", "x"]
+    results_file_path = os.path.join(dir_name, str(rb_exp_name + "_output_data.json"))
+    analysis_file_path = os.path.join(dir_name, str(rb_exp_name + "_output_analysis.json"))
+    noise_model = create_depolarizing_noise_model()
+    backend = QasmSimulator()
+    rb_class = qe.randomized_benchmarking
+    print("Generating experiment")
+    rb_exp = rb_class.InterleavedRB(
+        interleaved_gates[exp_attributes["interleaved_element"]],
+        exp_attributes["physical_qubits"],
+        exp_attributes["lengths"],
+        num_samples=exp_attributes["num_samples"],
+        seed=exp_attributes["seed"],
+    )
+    rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
+    print("Running experiment")
+    experiment_obj = rb_exp.run(backend, noise_model=noise_model, basis_gates=transpiled_base_gate)
+    print("Done running experiment")
+    exp_results = experiment_obj.data()
+    with open(results_file_path, "w") as json_file:
+        joined_list_data = [exp_attributes, exp_results]
+        json_file.write(json.dumps(joined_list_data))
+    _analysis_save(experiment_obj.analysis_result(None), analysis_file_path)
 
 
 DIRNAME = os.path.dirname(os.path.abspath(__file__))
 for rb_type in sys.argv[1:]:
     if rb_type == "standard":
         standard_rb_exp_data_gen(DIRNAME)
+    elif rb_type == "interleaved":
+        interleaved_rb_exp_data_gen(DIRNAME)
     else:
         print("Skipping unknown argument " + rb_type)
