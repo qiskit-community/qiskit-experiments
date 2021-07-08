@@ -546,6 +546,11 @@ class TestDbExperimentData(QiskitTestCase):
         exp_data.add_data(job2, lambda *args, **kwargs: event.wait())
         self.assertEqual("RUNNING", exp_data.status())
 
+        # Cleanup
+        with self.assertLogs("qiskit_experiments", "WARNING"):
+            event.set()
+            exp_data.block_for_results()
+
     def test_status_job_error(self):
         """Test experiment status when job failed."""
         job1 = mock.create_autospec(Job, instance=True)
@@ -613,14 +618,24 @@ class TestDbExperimentData(QiskitTestCase):
 
     def test_cancel_jobs(self):
         """Test canceling experiment jobs."""
+
+        def _job_result():
+            event.wait()
+            raise ValueError("Job was cancelled.")
+
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         event = threading.Event()
         self.addCleanup(event.set)
         job = mock.create_autospec(Job, instance=True)
-        job.result = lambda *args, **kwargs: event.wait()
+        job.result = _job_result
         exp_data.add_data(job)
         exp_data.cancel_jobs()
         job.cancel.assert_called_once()
+
+        # Cleanup
+        with self.assertLogs("qiskit_experiments", "WARNING"):
+            event.set()
+            exp_data.block_for_results()
 
     def test_metadata_serialization(self):
         """Test experiment metadata serialization."""

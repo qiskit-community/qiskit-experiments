@@ -288,9 +288,9 @@ class DbExperimentDataV1(DbExperimentData):
             with self._data.lock:
                 # Hold the lock so we add the block of results together.
                 self._add_result_data(job_result)
-        except JobError as err:
-            LOG.warning("Job %s failed: %s", job.job_id(), str(err))
-            return
+        except Exception:  # pylint: disable=broad-except
+            LOG.warning("Job %s failed:\n%s", job.job_id(), traceback.format_exc())
+            raise
 
         try:
             if job_done_callback:
