@@ -17,7 +17,7 @@ from typing import Union, Iterable, Optional, List
 import numpy as np
 from numpy.random import Generator, default_rng
 
-from qiskit import QuantumCircuit
+from qiskit import QuantumCircuit, QiskitError
 from qiskit.providers import Backend
 from qiskit.quantum_info import Clifford
 from qiskit.providers.options import Options
@@ -66,6 +66,7 @@ class StandardRB(BaseExperiment):
         """
         # Initialize base experiment
         super().__init__(qubits)
+        self._verify_parameters(lengths, num_samples)
 
         # Set configurable options
         self.set_experiment_options(lengths=list(lengths), num_samples=num_samples)
@@ -79,6 +80,19 @@ class StandardRB(BaseExperiment):
             self._rng = default_rng(seed=seed)
         else:
             self._rng = seed
+
+    def _verify_parameters(self, lengths, num_samples):
+        """Verify input correctness, raise QiskitError if needed"""
+        if any(length <= 0 for length in lengths):
+            raise QiskitError(
+                f"The lengths list {lengths} should only contain " "positive elements."
+            )
+        if len(set(lengths)) != len(lengths):
+            raise QiskitError(
+                f"The lengths list {lengths} should not contain " "duplicate elements."
+            )
+        if num_samples <= 0:
+            raise QiskitError(f"The number of samples {num_samples} should " "be positive.")
 
     @classmethod
     def _default_experiment_options(cls):
