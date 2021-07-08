@@ -27,7 +27,6 @@ from datetime import datetime
 from qiskit.providers import Job, BaseJob, Backend, BaseBackend, Provider
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
-from qiskit.providers.exceptions import JobError
 from qiskit.visualization import HAS_MATPLOTLIB
 
 from .database_service import DatabaseServiceV1
