@@ -313,8 +313,6 @@ class DbExperimentDataV1(DbExperimentData):
             if "counts" in data:
                 # Format to Counts object rather than hex dict
                 data["counts"] = result.get_counts(i)
-            if "memory" in data:
-                data["memory"] = result.get_memory(i)
             expr_result = result.results[i]
             if hasattr(expr_result, "header") and hasattr(expr_result.header, "metadata"):
                 data["metadata"] = expr_result.header.metadata
