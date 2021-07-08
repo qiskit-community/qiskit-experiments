@@ -20,7 +20,7 @@ import copy
 from functools import wraps
 
 from .database_service import DatabaseServiceV1
-from .json import NumpyEncoder, NumpyDecoder
+from .json import ExperimentEncoder, ExperimentDecoder
 from .utils import save_data, qiskit_version
 from .exceptions import DbExperimentDataError
 from .device_component import DeviceComponent, to_component
@@ -62,8 +62,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
     version = 1
     _data_version = 1
 
-    _json_encoder = NumpyEncoder
-    _json_decoder = NumpyDecoder
+    _json_encoder = ExperimentEncoder
+    _json_decoder = ExperimentDecoder
 
     _extra_data = {}
     __keys_not_shown__ = tuple()

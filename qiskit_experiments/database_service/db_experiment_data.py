@@ -33,7 +33,7 @@ from qiskit.visualization import HAS_MATPLOTLIB
 from .database_service import DatabaseServiceV1
 from .exceptions import DbExperimentDataError, DbExperimentEntryNotFound, DbExperimentEntryExists
 from .db_analysis_result import DbAnalysisResultV1 as DbAnalysisResult
-from .json import NumpyEncoder, NumpyDecoder
+from .json import ExperimentEncoder, ExperimentDecoder
 from .utils import (
     save_data,
     qiskit_version,
@@ -93,8 +93,8 @@ class DbExperimentDataV1(DbExperimentData):
     _executor = futures.ThreadPoolExecutor()
     """Threads used for asynchronous processing."""
 
-    _json_encoder = NumpyEncoder
-    _json_decoder = NumpyDecoder
+    _json_encoder = ExperimentEncoder
+    _json_decoder = ExperimentDecoder
 
     def __init__(
         self,
@@ -614,7 +614,7 @@ class DbExperimentDataV1(DbExperimentData):
                 experiment_id=self.experiment_id, limit=None
             )
             for result in retrieved_results:
-                self._analysis_results[result["result_id"]] = result
+                self._analysis_results[result["result_id"]] = DbAnalysisResult.from_data(**result)
 
         if index is None:
             return self._analysis_results.values()
