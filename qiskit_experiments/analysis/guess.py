@@ -38,9 +38,20 @@ def frequency(x: np.ndarray, y: np.ndarray) -> float:
     Returns:
         Frequency estimation of oscillation signal.
     """
-    fft_data = np.fft.fft(y - np.average(y))
-    sampling_rate = float(np.mean(np.diff(x)))
-    freqs = np.fft.fftfreq(len(x), sampling_rate)
+    sampling_rates = np.unique(np.diff(x))
+    sampling_rates = sampling_rates[sampling_rates > 0]
+
+    if len(sampling_rates) != 1:
+        sampling_rate = np.min(sampling_rates)
+        x_ = np.arange(x[0], x[-1], sampling_rate)
+        y_ = np.interp(x_, xp=x, fp=y)
+    else:
+        sampling_rate = sampling_rates[0]
+        x_ = x
+        y_ = y
+
+    fft_data = np.fft.fft(y_ - np.average(y_))
+    freqs = np.fft.fftfreq(len(x_), sampling_rate)
 
     positive_freqs = freqs[freqs >= 0]
     positive_fft_data = fft_data[freqs >= 0]

@@ -41,6 +41,16 @@ class TestGuesses(QiskitTestCase):
 
         self.assertAlmostEqualAbsolute(freq_guess, np.abs(freq))
 
+    @data(1.1, 2.0, 1.6, -1.4, 4.5)
+    def test_frequency_with_non_uniform_sampling(self, freq: float):
+        """Test for frequency guess with non uniform x value."""
+        x = np.concatenate((np.linspace(-1, 0, 15), np.linspace(0, 1, 30)))
+        y = 0.3 * np.cos(2 * np.pi * freq * x + 0.5) + 1.2
+
+        freq_guess = guess.frequency(x, y)
+
+        self.assertAlmostEqualAbsolute(freq_guess, np.abs(freq))
+
     @data(
         [0.20928722, -0.40958197, 0.29898025, 0.45622079, -0.33379813],
         [-0.41245894, -0.42868717, -0.17165843, -0.28708211, -0.25228829],
