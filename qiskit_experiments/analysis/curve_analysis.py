@@ -22,7 +22,6 @@ from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
 import numpy as np
 from qiskit.providers.options import Options
-from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.analysis import plotting
 from qiskit_experiments.analysis.curve_fitting import multi_curve_fit, CurveAnalysisResult
@@ -951,10 +950,10 @@ class CurveAnalysis(BaseAnalysis):
 
                 try:
                     meas_level = run_options["meas_level"]
-                except KeyError:
-                    raise DataProcessorError(
-                        "Cannot process data without knowing the measurement level."
-                    )
+                except KeyError as ex:
+                    raise AnalysisError(
+                        f"Cannot process data without knowing the measurement level: {str(ex)}."
+                    ) from ex
 
                 meas_return = run_options.get("meas_return", None)
                 normalization = self._get_option("normalization")
