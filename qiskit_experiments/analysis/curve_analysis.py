@@ -946,7 +946,7 @@ class CurveAnalysis(BaseAnalysis):
 
             # No data processor has been provided at run-time we infer one from the job
             # metadata and default to the data processor for averaged classified data.
-            if getattr(self, "__data_processor") is None:
+            if not self._get_option("data_processor"):
                 try:
                     run_options = self.__experiment_metadata["job_metadata"][-1]["run_options"]
                 except IndexError:
