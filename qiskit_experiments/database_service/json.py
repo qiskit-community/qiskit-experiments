@@ -27,7 +27,7 @@ class ExperimentEncoder(json.JSONEncoder):
             return {"__type__": "array", "__value__": obj.tolist()}
         if isinstance(obj, complex):
             return {"__type__": "complex", "__value__": [obj.real, obj.imag]}
-        if isinstance(obj, Callable):
+        if callable(obj):
             return {"__type__": "callable", "__value__": obj.__name__}
         return super().default(obj)
 
