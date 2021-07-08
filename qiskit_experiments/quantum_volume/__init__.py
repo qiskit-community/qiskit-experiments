@@ -11,5 +11,5 @@
 # that they have been altered from the originals.
 
 """Quantum Volume Experiment Classes."""
-from .qv_experiment import QVExperiment
+from .qv_experiment import QuantumVolume
 from .qv_analysis import QVAnalysis

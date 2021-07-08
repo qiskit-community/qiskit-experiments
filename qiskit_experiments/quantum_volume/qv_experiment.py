@@ -37,7 +37,7 @@ from qiskit_experiments.experiment_data import ExperimentData
 from .qv_analysis import QVAnalysis
 
 
-class QVExperiment(BaseExperiment):
+class QuantumVolume(BaseExperiment):
     """Quantum Volume Experiment class
 
     Experiment Options:
@@ -54,7 +54,7 @@ class QVExperiment(BaseExperiment):
     def __init__(
         self,
         qubits: Union[int, Iterable[int]],
-        trials: Optional[int] = 1,
+        trials: Optional[int] = 100,
         seed: Optional[Union[int, Generator]] = None,
         simulation_backend: Optional[Backend] = None,
     ):
