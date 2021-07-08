@@ -949,15 +949,21 @@ class CurveAnalysis(BaseAnalysis):
             if not self._get_option("data_processor"):
                 run_options = self._run_options() or dict()
 
-                meas_level = run_options.get("meas_level", MeasLevel.CLASSIFIED)
-                meas_return = run_options.get("meas_return", "avg")
+                try:
+                    meas_level = run_options["meas_level"]
+                except KeyError:
+                    raise DataProcessorError(
+                        "Cannot process data without knowing the measurement level."
+                    )
+
+                meas_return = run_options.get("meas_return", None)
                 normalization = self._get_option("normalization")
 
                 processor = get_to_signal_processor(meas_level, meas_return, normalization)
 
                 setattr(self, "__data_processor", processor)
 
-        except (AttributeError, KeyError):
+        except AttributeError:
             pass
 
         #
