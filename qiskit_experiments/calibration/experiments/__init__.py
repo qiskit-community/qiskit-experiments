@@ -12,5 +12,4 @@
 
 """Experiments used solely for calibrating schedules."""
 
-from .rabi import RabiAnalysis, Rabi
-from .ef_rabi import EFRabi
+from .rabi import RabiAnalysis, Rabi, EFRabi
