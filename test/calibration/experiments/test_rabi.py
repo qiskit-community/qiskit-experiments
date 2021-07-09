@@ -109,10 +109,11 @@ class TestRabiEndToEnd(QiskitTestCase):
         rabi.set_analysis_options(data_processor=DataProcessor(fail_key, []))
         rabi.set_run_options(shots=2)
         data = rabi.run(backend)
-        result = data.analysis_result(0)
+        data.block_for_results()
+        result = data.analysis_results(0)
 
         self.assertTrue(
-            f"The input key {fail_key} was not found" in result["error_message"].message
+            f"The input key {fail_key} was not found" in result.data()["error_message"].message
         )
 
 
