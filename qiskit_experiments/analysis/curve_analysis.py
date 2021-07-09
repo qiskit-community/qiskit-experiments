@@ -949,11 +949,11 @@ class CurveAnalysis(BaseAnalysis):
         #
         # 2. Setup data processor
         #
-        
+
         # No data processor has been provided at run-time we infer one from the job
         # metadata and default to the data processor for averaged classified data.
         data_processor = self._get_option("data_processor")
-        
+
         if not data_processor:
             run_options = self._run_options() or dict()
 
