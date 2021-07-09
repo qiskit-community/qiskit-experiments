@@ -34,7 +34,6 @@ from qiskit_experiments.analysis import (
     get_opt_error,
 )
 from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
 
 
 class SpectroscopyAnalysis(CurveAnalysis):
@@ -218,6 +217,14 @@ class QubitSpectroscopy(BaseExperiment):
             width=0,
         )
 
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_analysis_options()
+        options.normalization = True
+
+        return options
+
     def __init__(
         self,
         qubit: int,
@@ -311,14 +318,6 @@ class QubitSpectroscopy(BaseExperiment):
                 - If absolute frequencies are used but no backend is given.
                 - If the backend configuration does not define dt.
         """
-        # TODO this is temporary logic. Need update of circuit data and processor logic.
-        self.set_analysis_options(
-            data_processor=get_to_signal_processor(
-                meas_level=self.run_options.meas_level,
-                meas_return=self.run_options.meas_return,
-            )
-        )
-
         if backend is None and self._absolute:
             raise QiskitError("Cannot run spectroscopy absolute to qubit without a backend.")
 
