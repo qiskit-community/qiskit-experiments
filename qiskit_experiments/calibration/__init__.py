@@ -21,8 +21,18 @@ Calibration (:mod:`qiskit_experiments.calibration`)
     breaking API changes without deprecation warnings in future releases until
     otherwise indicated.
 
-Calibrations are managed by the Calibrations class. This class stores schedules which are
-intended to be fully parameterized, including the index of the channels. This class:
+Calibrating qubit setups is the task of finding the pulse shapes and parameter
+values that maximizes the fidelity of the resulting quantum operations. This
+therefore requires experiments which are analyzed to extract parameter values.
+Furthermore, the resulting parameter values and schedules must be managed. The
+calibration module in Qiskit experiments allows users to run calibration
+experiments and manage the resulting schedules and parameter values.
+
+Calibrations management
+=======================
+
+Calibrations are managed by the :class:`Calibrations` class. This class stores schedules
+which are intended to be fully parameterized, including the index of the channels. This class:
 
 * supports having different schedules share parameters
 * allows default schedules for qubits that can be overridden for specific qubits.
@@ -58,7 +68,7 @@ values to the parameters and query a schedule.
 The Calibrations make a couple of assumptions which are discussed below.
 
 Parametric channel naming convention
-====================================
+************************************
 
 Parametrized channel indices must be named according to a predefined pattern to properly
 identify the channels and control channels when assigning values to the parametric
@@ -75,7 +85,7 @@ then given qubits (2, 3) the name "ch1.0$1" will resolve to ControlChannel(12) w
 "ch1.0$0" will resolve to ControlChannel(3). A channel can only have one parameter.
 
 Parameter naming restriction
-============================
+****************************
 
 Each parameter must have a unique name within each schedule. For example, it is
 acceptable to have a parameter named 'amp' in the schedule 'xp' and a different
@@ -122,8 +132,23 @@ which would return the default xp schedule block template for all qubits.
 
 .. currentmodule:: qiskit_experiments.calibration
 
+.. autosummary::
+    :toctree: ../stubs/
+
+    BackendCalibrations
+    Calibrations
+    Frequency
+    Amplitude
+    Drag
+
 Calibration experiments
 =======================
+
+The following experiments are designed to calibrate parameter values. Some experiments such
+as :class:`QubitSpectroscopy` can both be seen as characterization and calibrations
+experiments. Such experiments can be found in the :mod:`qiskit_experiments.characterization`
+module.
+
 .. autosummary::
     :toctree: ../stubs/
 
@@ -137,17 +162,6 @@ Calibration analysis
 
     OscillationAnalysis
     DragCalAnalysis
-
-Calibration management
-=======================
-.. autosummary::
-    :toctree: ../stubs/
-
-    BackendCalibrations
-    Calibrations
-    Frequency
-    Amplitude
-    Drag
 
 """
 

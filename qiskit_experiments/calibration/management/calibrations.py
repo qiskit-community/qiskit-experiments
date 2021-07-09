@@ -100,14 +100,14 @@ class Calibrations:
                 given then this schedule is the default schedule for all qubits.
 
         Raises:
-            CalibrationError:
-                - If schedule is not an instance of :class:`ScheduleBlock`.
-                - If the parameterized channel index is not formatted properly.
-                - If several parameters in the same schedule have the same name.
-                - If a channel is parameterized by more than one parameter.
-                - If the schedule name starts with the prefix of ScheduleBlock.
-                - If the schedule calls subroutines that have not been registered.
-                - If a :class:`Schedule` is Called instead of a :class:`ScheduleBlock`.
+            CalibrationError: If schedule is not an instance of :class:`ScheduleBlock`.
+            CalibrationError: If the parameterized channel index is not formatted properly.
+            CalibrationError: If several parameters in the same schedule have the same name.
+            CalibrationError: If a channel is parameterized by more than one parameter.
+            CalibrationError: If the schedule name starts with the prefix of ScheduleBlock.
+            CalibrationError: If the schedule calls subroutines that have not been registered.
+            CalibrationError: If a :class:`Schedule` is Called instead of a :class:`ScheduleBlock`.
+
         """
         qubits = self._to_tuple(qubits)
 
@@ -467,15 +467,16 @@ class Calibrations:
     ) -> Union[int, float, complex]:
         """Retrieves the value of a parameter.
 
-        Parameters may be linked. get_parameter_value does the following steps:
-        1) Retrieve the parameter object corresponding to (param, qubits, schedule)
-        2) The values of this parameter may be stored under another schedule since
+        Parameters may be linked. :meth:`get_parameter_value` does the following steps:
+
+        1. Retrieve the parameter object corresponding to (param, qubits, schedule).
+        2. The values of this parameter may be stored under another schedule since
            schedules can share parameters. To deal with this, a list of candidate keys
            is created internally based on the current configuration.
-        3) Look for candidate parameter values under the candidate keys.
-        4) Filter the candidate parameter values according to their date (up until the
+        3. Look for candidate parameter values under the candidate keys.
+        4. Filter the candidate parameter values according to their date (up until the
            cutoff_date), validity and calibration group.
-        5) Return the most recent parameter.
+        5. Return the most recent parameter.
 
         Args:
             param: The parameter or the name of the parameter for which to get the parameter value.
@@ -493,8 +494,8 @@ class Calibrations:
             value: The value of the parameter.
 
         Raises:
-            CalibrationError:
-                - If there is no parameter value for the given parameter name and pulse channel.
+            CalibrationError: If there is no parameter value for the given parameter name and
+                pulse channel.
         """
         qubits = self._to_tuple(qubits)
 
@@ -591,12 +592,11 @@ class Calibrations:
 
         Returns:
             schedule: A copy of the template schedule with all parameters assigned
-                except for those specified by assign_params.
+            except for those specified by assign_params.
 
         Raises:
-            CalibrationError:
-                - If the name of the schedule is not known.
-                - If a parameter could not be found.
+            CalibrationError: If the name of the schedule is not known.
+            CalibrationError: If a parameter could not be found.
         """
         qubits = self._to_tuple(qubits)
 
@@ -835,10 +835,12 @@ class Calibrations:
 
         Returns:
             data: A list of dictionaries with all the schedules in it. The key-value pairs are
-                - 'qubits': the qubits to which this schedule applies. This may be () if the
-                    schedule is the default for all qubits.
-                - 'schedule': The schedule.
-                - 'parameters': The parameters in the schedule exposed for convenience.
+
+                * 'qubits': the qubits to which this schedule applies. This may be an empty
+                  tuple () if the schedule is the default for all qubits.
+                * 'schedule': The schedule.
+                * 'parameters': The parameters in the schedule exposed for convenience.
+
                 This list of dictionaries can easily be converted to a data frame.
         """
         data = []
@@ -910,10 +912,11 @@ class Calibrations:
 
         The schedules and parameter values can be stored in csv files. This method creates
         three files:
-        - parameter_config.csv: This file stores a table of parameters which indicates
+
+        * parameter_config.csv: This file stores a table of parameters which indicates
           which parameters appear in which schedules.
-        - parameter_values.csv: This file stores the values of the calibrated parameters.
-        - schedules.csv: This file stores the parameterized schedules.
+        * parameter_values.csv: This file stores the values of the calibrated parameters.
+        * schedules.csv: This file stores the parameterized schedules.
 
         Warning:
             Schedule blocks will only be saved in string format and can therefore not be
