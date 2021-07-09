@@ -32,7 +32,6 @@ from qiskit_experiments.analysis import (
     get_opt_error,
 )
 from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
 
 
 class RabiAnalysis(CurveAnalysis):
@@ -196,8 +195,15 @@ class Rabi(BaseExperiment):
             sigma=40,
             amplitudes=np.linspace(-0.95, 0.95, 51),
             schedule=None,
-            normalization=True,
         )
+
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_analysis_options()
+        options.normalization = True
+
+        return options
 
     def __init__(self, qubit: int):
         """Setup a Rabi experiment on the given qubit.
@@ -223,15 +229,6 @@ class Rabi(BaseExperiment):
                   that matches the qubit on which to run the Rabi experiment.
                 - If the user provided schedule has more than one free parameter.
         """
-        # TODO this is temporary logic. Need update of circuit data and processor logic.
-        self.set_analysis_options(
-            data_processor=get_to_signal_processor(
-                meas_level=self.run_options.meas_level,
-                meas_return=self.run_options.meas_return,
-                normalize=self.experiment_options.normalization,
-            )
-        )
-
         schedule = self.experiment_options.get("schedule", None)
 
         if schedule is None:
