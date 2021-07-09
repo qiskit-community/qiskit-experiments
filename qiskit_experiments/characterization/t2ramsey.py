@@ -13,16 +13,17 @@
 T2Ramsey Experiment class.
 """
 
-from typing import List, Optional, Union, Iterable
-import numpy as np
+from typing import List, Optional, Union, Iterable, Dict, Tuple
 
+import numpy as np
 import qiskit
+from qiskit.circuit import QuantumCircuit, Parameter, ParameterExpression
 from qiskit.providers import Backend, Options
-from qiskit.circuit import QuantumCircuit, Parameter
+from qiskit.pulse.schedule import ScheduleBlock
+from qiskit.utils import apply_prefix
+
 from qiskit_experiments.base_experiment import BaseExperiment
 from .t2ramsey_analysis import T2RamseyAnalysis, RamseyXYAnalysis
-from qiskit.utils import apply_prefix
-from qiskit.exceptions import QiskitError
 
 
 class T2Ramsey(BaseExperiment):
@@ -104,12 +105,59 @@ class T2Ramsey(BaseExperiment):
 
 
 class RamseyXY(BaseExperiment):
-    """Ramsey experiment for frequency calibration.
+    r"""Ramsey experiment for frequency calibration.
 
-    This experiment differs from the standard Ramsey experiment by the sensitivity to the
-    sign of frequency error. This experiment consists of following two circuits.
+    This experiment differs from the :class:`~qiskit_experiments.characterization.\
+    t2ramsey.T2Ramsey` by the sensitivity to the sign of frequency error.
+    This experiment consists of following two circuits:
 
-    TODO more documentation
+    .. parsed-literal::
+
+        (Ramsey X) Second pulse is SX
+
+                   ┌────┐┌─────────────┐┌────┐ ░ ┌─┐
+              q_0: ┤ √X ├┤ Delay(τ[s]) ├┤ √X ├─░─┤M├
+                   └────┘└─────────────┘└────┘ ░ └╥┘
+        measure: 1/═══════════════════════════════╩═
+                                                  0
+
+        (Ramsey Y) Second pulse is SY
+
+                   ┌────┐┌─────────────┐┌──────────┐┌────┐ ░ ┌─┐
+              q_0: ┤ √X ├┤ Delay(τ[s]) ├┤ Rz(-π/2) ├┤ √X ├─░─┤M├
+                   └────┘└─────────────┘└──────────┘└────┘ ░ └╥┘
+        measure: 1/═══════════════════════════════════════════╩═
+                                                              0
+
+    The first (second) circuit measures :math:`\sigma_Y` (:math:`\sigma_X`) expectation value,
+    so this experiment draws the dynamics of the Bloch vector as if drawing a Lissajous figure.
+
+    Given the control electronics tracks the frame of qubit at the reference frequency
+    which is slightly differ from the true qubit frequency by :math:`\Delta\omega`,
+    and the IQ mixer skew can be ignored, we can describe the dynamics of
+    two circuits as follows.
+
+    The Hamiltonian during the ``Delay`` instruction can be written as
+    :math:`H^R = - \frac{1}{2} \Delta\omega` in the rotating frame,
+    and the propagator will be :math:`U(\tau) = \exp(-iH^R\tau)` where :math:`\tau` is the
+    duration of the delay. By scanning this duration, we can get
+
+    .. math::
+
+        {\cal E}_x(\tau)
+            = {\rm Re} {\rm Tr}\left( \sigma_Y U \rho U^\dagger \right)
+            &= - \cos(\Delta\omega\tau) = \sin(\Delta\omega\tau - \frac{\pi}{2}), \\
+        {\cal E}_y(\tau)
+            = {\rm Re} {\rm Tr}\left( \sigma_X U \rho U^\dagger \right)
+            &= \sin(\Delta\omega\tau),
+
+    where :math:`\rho = | L \rangle` prepared by the :math:`\sqrt{\rm X}` gate in the beginning.
+
+    Note that phase difference of these two outcomes :math:`{\cal E}_x, {\cal E}_y` depends on
+    the frequency offset :math:`\Delta\omega`, which is also sensitive
+    to the sign of it, in contrast to the standard Ramsey experiment which
+    usually consists only of the first circuit,
+    i.e. :math:`\cos(-\Delta\omega\tau) = \cos(\Delta\omega\tau)`.
     """
 
     __analysis_class__ = RamseyXYAnalysis
@@ -149,7 +197,10 @@ class RamseyXY(BaseExperiment):
             delays=None,
             unit="s",
             offset_frequency=0.,
-            calibrations=dict(),
+            calibrations={
+                "sx": None,
+                "measure": None,
+            },
         )
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
@@ -215,23 +266,39 @@ class RamseyXY(BaseExperiment):
     def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
         """Attach gate calibration if available.
 
-        TODO perhaps this go to base class if we can make consensus of how we add calibration
-        i.e. currently it is user configurable field in experiment option.
-        all experiments can update the gate definition in this way.
+        TODO need discussion,
+        - Ramsey should be able to run without calibration, same for T1 T2
+        - However we should be able to add calibration to any gate
         """
-        calibrations = self.experiment_options.calibrations
-
-        if not any(calibrations.values()):
-            return
-
         for circ in circuits:
-            for gate_qubits, schedule in calibrations.items():
-                try:
-                    gate, qubits = gate_qubits
-                except ValueError:
-                    raise QiskitError(
-                        f"Calibration has invalid gate definition {repr(gate_qubits)}. "
-                        "This should be a tuple of gate name and qubit index."
-                    )
-                circ.add_calibration(gate=gate, qubits=qubits, schedule=schedule)
-            circ.metadata["calibrations"] = calibrations
+            apply_calibration(self.experiment_options.calibrations, circ)
+
+
+CalibrationEntry = Dict[
+    Tuple[Tuple[int, ...], Tuple[Union[complex, ParameterExpression], ...]],
+    ScheduleBlock
+]
+
+
+def apply_calibration(
+        calibrations: Dict[str, CalibrationEntry],
+        circuit: QuantumCircuit,
+) -> QuantumCircuit:
+    """A helper function to add calibration.
+
+    TODO need discussion
+    """
+    gates = list(circuit.count_ops().values())
+
+    for gate in gates:
+        entries = calibrations.get(gate, None)
+        if not entries:
+            continue
+        for qubit_parameters, schedule in entries.items():
+            circuit.add_calibration(
+                gate=gate,
+                qubits=qubit_parameters[0],
+                schedule=schedule,
+                params=qubit_parameters[1],
+            )
+    return circuit
