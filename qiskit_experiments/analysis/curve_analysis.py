@@ -939,16 +939,22 @@ class CurveAnalysis(BaseAnalysis):
         # pop arguments that are not given to fitter
         extra_options = self._arg_parse(**options)
 
-        # get experiment metadata and run-options dependent data processor
+        # get experiment metadata
         try:
             self.__experiment_metadata = experiment_data.metadata()
 
         except AttributeError:
             pass
 
+        #
+        # 2. Setup data processor
+        #
+        
         # No data processor has been provided at run-time we infer one from the job
         # metadata and default to the data processor for averaged classified data.
-        if not self._get_option("data_processor"):
+        data_processor = self._get_option("data_processor")
+        
+        if not data_processor:
             run_options = self._run_options() or dict()
 
             try:
@@ -961,14 +967,8 @@ class CurveAnalysis(BaseAnalysis):
             meas_return = run_options.get("meas_return", None)
             normalization = self._get_option("normalization")
 
-            processor = get_processor(meas_level, meas_return, normalization)
+            data_processor = get_processor(meas_level, meas_return, normalization)
 
-            setattr(self, "__data_processor", processor)
-
-        #
-        # 2. Setup data processor
-        #
-        data_processor = self._get_option("data_processor")
         if isinstance(data_processor, DataProcessor) and not data_processor.is_trained:
             # Qiskit DataProcessor instance. May need calibration.
             try:
