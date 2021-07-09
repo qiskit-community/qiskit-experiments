@@ -197,6 +197,7 @@ class RamseyXYAnalysis(CurveAnalysis):
         This analysis takes two series for real and imaginary part oscillation to
         find oscillating frequency with sign.
 
+    TODO More docstring
     """
     __series__ = [
         SeriesDef(
@@ -227,8 +228,8 @@ class RamseyXYAnalysis(CurveAnalysis):
         descriptions of analysis options.
         """
         default_options = super()._default_options()
-        default_options.p0 = {"a": None, "freq": None, "b": None}
-        default_options.bounds = {"a": None, "freq": None, "b": None}
+        default_options.p0 = {"a": None, "tau": None, "freq": None, "b": None}
+        default_options.bounds = {"a": None, "tau": None, "freq": None, "b": None}
         default_options.fit_reports = {"freq": "frequency"}
 
         return default_options
@@ -238,7 +239,6 @@ class RamseyXYAnalysis(CurveAnalysis):
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
 
-        # TODO write init guess generation code
         curve_x = self._data("RamseyX")
         curve_y = self._data("RamseyY")
 
@@ -252,15 +252,33 @@ class RamseyXYAnalysis(CurveAnalysis):
             guess.max_height(curve_y.y, percentile=95),
         ]))
 
+        guess_f = float(np.mean([
+            guess.frequency(curve_x.x, curve_x.y),
+            guess.frequency(curve_y.x, curve_y.y),
+        ]))
 
+        guess_tau = float(np.mean([
+            guess.oscillation_exp_decay(curve_x.x, curve_x.y, freq_guess=guess_f),
+            guess.oscillation_exp_decay(curve_y.x, curve_y.y, freq_guess=guess_f),
+        ]))
 
+        fit_options = []
 
+        # TODO determine sign with more smart approach
+        for signed_guess_f in (guess_f, -guess_f):
+            fit_option = {
+                "p0": {
+                    "a": user_p0["a"] or guess_a,
+                    "tau": user_p0["tau"] or guess_tau,
+                    "freq": user_p0["freq"] or signed_guess_f,
+                    "b": user_p0["b"] or guess_b,
+                },
+                # TODO add bounds
+                "bounds": user_bounds,
+            }
+            fit_option.update(options)
+            fit_options.append(fit_option)
 
+        return fit_options
 
-        fit_option = {
-            "p0": user_p0,
-            "bounds": user_bounds,
-        }
-        fit_option.update(options)
-
-        return fit_option
+    # TODO post analysis
