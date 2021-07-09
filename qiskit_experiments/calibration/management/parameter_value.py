@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Union
 
-from qiskit_experiments.calibration.exceptions import CalibrationError
+from qiskit_experiments.calibration.management.exceptions import CalibrationError
 
 
 @dataclass

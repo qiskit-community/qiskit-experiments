@@ -22,12 +22,12 @@ from qiskit.qobj.utils import MeasLevel
 import qiskit.pulse as pulse
 from qiskit.test.mock import FakeAthens
 
-from qiskit_experiments.calibration.experiments.rabi import Rabi
-from qiskit_experiments.calibration.experiments.drag import DragCal
-from qiskit_experiments.calibration.calibrations import Calibrations
-from qiskit_experiments.calibration.exceptions import CalibrationError
-from qiskit_experiments.calibration.update_library import Frequency, Amplitude, Drag
-from qiskit_experiments.calibration.backend_calibrations import BackendCalibrations
+from qiskit_experiments.calibration.rabi import Rabi
+from qiskit_experiments.calibration.drag import DragCal
+from qiskit_experiments.calibration.management.calibrations import Calibrations
+from qiskit_experiments.calibration.management.exceptions import CalibrationError
+from qiskit_experiments.calibration.management.update_library import Frequency, Amplitude, Drag
+from qiskit_experiments.calibration.management.backend_calibrations import BackendCalibrations
 from qiskit_experiments.characterization.qubit_spectroscopy import QubitSpectroscopy
 from qiskit_experiments.analysis import get_opt_value
 from qiskit_experiments.test.mock_iq_backend import DragBackend

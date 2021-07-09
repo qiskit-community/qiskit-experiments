@@ -24,7 +24,8 @@ from qiskit.qobj.utils import MeasLevel
 import qiskit.pulse as pulse
 
 from qiskit_experiments import ExperimentData
-from qiskit_experiments.calibration.experiments.rabi import RabiAnalysis, Rabi
+from qiskit_experiments.calibration.rabi import Rabi
+from qiskit_experiments.calibration.analysis.oscillation_analysis import OscillationAnalysis
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
 from qiskit_experiments.composite.parallel_experiment import ParallelExperiment
@@ -170,7 +171,9 @@ class TestRabiAnalysis(QiskitTestCase):
 
         data_processor = DataProcessor("counts", [Probability(outcome="1")])
 
-        result = RabiAnalysis().run(experiment_data, data_processor=data_processor, plot=False)
+        result = OscillationAnalysis().run(
+            experiment_data, data_processor=data_processor, plot=False
+        )
 
         self.assertEqual(result[0]["quality"], "computer_good")
         self.assertTrue(abs(result[0]["popt"][1] - expected_rate) < test_tol)
@@ -186,7 +189,9 @@ class TestRabiAnalysis(QiskitTestCase):
 
         data_processor = DataProcessor("counts", [Probability(outcome="1")])
 
-        result = RabiAnalysis().run(experiment_data, data_processor=data_processor, plot=False)
+        result = OscillationAnalysis().run(
+            experiment_data, data_processor=data_processor, plot=False
+        )
 
         self.assertEqual(result[0]["quality"], "computer_bad")
 

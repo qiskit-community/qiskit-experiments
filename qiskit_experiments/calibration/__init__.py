@@ -11,7 +11,10 @@
 # that they have been altered from the originals.
 
 r"""
-Qiskit Experiments Calibration Root.
+
+===================================================
+Calibration (:mod:`qiskit_experiments.calibration`)
+===================================================
 
 .. warning::
     The calibrations interface is still in active development. It may have
@@ -20,8 +23,9 @@ Qiskit Experiments Calibration Root.
 
 Calibrations are managed by the Calibrations class. This class stores schedules which are
 intended to be fully parameterized, including the index of the channels. This class:
-- supports having different schedules share parameters
-- allows default schedules for qubits that can be overridden for specific qubits.
+
+* supports having different schedules share parameters
+* allows default schedules for qubits that can be overridden for specific qubits.
 
 The following code illustrates how a user can create a parameterized schedule, add
 values to the parameters and query a schedule.
@@ -115,9 +119,44 @@ Note that a registered template schedule can be retrieve by doing
     xp = cals.get_template("xp")
 
 which would return the default xp schedule block template for all qubits.
+
+.. currentmodule:: qiskit_experiments.calibration
+
+Calibration experiments
+=======================
+.. autosummary::
+    :toctree: ../stubs/
+
+    DragCal
+    Rabi
+
+Calibration analysis
+====================
+.. autosummary::
+    :toctree: ../stubs/
+
+    OscillationAnalysis
+    DragCalAnalysis
+
+Calibration management
+=======================
+.. autosummary::
+    :toctree: ../stubs/
+
+    BackendCalibrations
+    Calibrations
+    Frequency
+    Amplitude
+    Drag
+
 """
 
-from .calibrations import Calibrations
-from .backend_calibrations import BackendCalibrations
-from .exceptions import CalibrationError
-from .parameter_value import ParameterValue
+from .drag import DragCal
+from .rabi import Rabi
+
+from .analysis.oscillation_analysis import OscillationAnalysis
+from .analysis.drag_analysis import DragCalAnalysis
+
+from .management.backend_calibrations import BackendCalibrations
+from .management.calibrations import Calibrations
+from .management.update_library import Frequency, Amplitude, Drag

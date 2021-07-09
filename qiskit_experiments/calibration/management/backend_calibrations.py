@@ -19,8 +19,8 @@ import copy
 
 from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Parameter
-from qiskit_experiments.calibration.calibrations import Calibrations, ParameterKey
-from qiskit_experiments.calibration.exceptions import CalibrationError
+from qiskit_experiments.calibration.management.calibrations import Calibrations, ParameterKey
+from qiskit_experiments.calibration.management.exceptions import CalibrationError
 
 
 class FrequencyElement(Enum):
