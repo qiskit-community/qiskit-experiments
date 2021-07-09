@@ -31,7 +31,7 @@ from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
-from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
+from qiskit_experiments.data_processing.processor_library import get_processor
 
 
 @dataclasses.dataclass(frozen=True)
@@ -958,7 +958,7 @@ class CurveAnalysis(BaseAnalysis):
                 meas_return = run_options.get("meas_return", None)
                 normalization = self._get_option("normalization")
 
-                processor = get_to_signal_processor(meas_level, meas_return, normalization)
+                processor = get_processor(meas_level, meas_return, normalization)
 
                 setattr(self, "__data_processor", processor)
 
