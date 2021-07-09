@@ -15,6 +15,8 @@ A library of fit functions.
 """
 # pylint: disable=invalid-name
 
+import inspect
+from typing import Callable, List
 import numpy as np
 
 
@@ -28,7 +30,7 @@ def cos(
     r"""Cosine function.
 
     .. math::
-        y = {\rm amp} \cos\left(2 \pi {\fm freq} x + {\rm phase}\right) + {\rm baseline}
+        y = {\rm amp} \cos\left(2 \pi {\rm freq} x + {\rm phase}\right) + {\rm baseline}
     """
     return amp * np.cos(2 * np.pi * freq * x + phase) + baseline
 
@@ -43,7 +45,7 @@ def sin(
     r"""Sine function.
 
     .. math::
-        y = {\rm amp} \sin\left(2 \pi {\fm freq} x + {\rm phase}\right) + {\rm baseline}
+        y = {\rm amp} \sin\left(2 \pi {\rm freq} x + {\rm phase}\right) + {\rm baseline}
     """
     return amp * np.sin(2 * np.pi * freq * x + phase) + baseline
 
@@ -59,9 +61,9 @@ def exponential_decay(
     r"""Exponential function
 
     .. math::
-        y = {\rm amp} {\rm base}^{\left( - \lambda x + {\rm x0} \right)} + {\rm baseline}
+        y = {\rm amp} {\rm base}^{\left( - \lambda (x + {\rm x0}) \right)} + {\rm baseline}
     """
-    return amp * base ** (-lamb * x + x0) + baseline
+    return amp * base ** (-lamb * (x + x0)) + baseline
 
 
 def gaussian(
@@ -73,3 +75,35 @@ def gaussian(
         y = {\rm amp} \exp \left( - (x - x0)^2 / 2 \sigma^2 \right) + {\rm baseline}
     """
     return amp * np.exp(-((x - x0) ** 2) / (2 * sigma ** 2)) + baseline
+
+
+def cos_decay(
+    x: np.ndarray,
+    amp: float = 1.0,
+    tau: float = 1.0,
+    freq: float = 1 / (2 * np.pi),
+    phase: float = 0.0,
+    baseline: float = 0.0,
+) -> np.ndarray:
+    r"""Cosine function with exponential decay.
+
+    .. math::
+        y = {\rm amp} e^{x/\tau} \cos\left(2 \pi {\rm freq} x + {\rm phase}\right) + {\rm baseline}
+    """
+    return exponential_decay(x, lamb=1/tau) * cos(x, amp=amp, freq=freq, phase=phase) + baseline
+
+
+def sin_decay(
+        x: np.ndarray,
+        amp: float = 1.0,
+        tau: float = 1.0,
+        freq: float = 1 / (2 * np.pi),
+        phase: float = 0.0,
+        baseline: float = 0.0,
+) -> np.ndarray:
+    r"""Sine function with exponential decay.
+
+    .. math::
+        y = {\rm amp} e^{x/\tau} \sin\left(2 \pi {\rm freq} x + {\rm phase}\right) + {\rm baseline}
+    """
+    return exponential_decay(x, lamb=1 / tau) * sin(x, amp=amp, freq=freq, phase=phase) + baseline

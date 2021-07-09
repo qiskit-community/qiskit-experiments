@@ -28,6 +28,7 @@ from qiskit_experiments.analysis import (
     CurveAnalysisResult,
     SeriesDef,
     fit_function,
+    guess,
     get_opt_value,
     get_opt_error,
 )
@@ -199,20 +200,20 @@ class RamseyXYAnalysis(CurveAnalysis):
     """
     __series__ = [
         SeriesDef(
-            fit_func=lambda x, a, freq, b: fit_function.cos(
-                x, amp=a, freq=freq, phase=0., baseline=b
+            fit_func=lambda x, a, tau, freq, b: fit_function.cos_decay(
+                x, amp=a, tau=tau, freq=freq, phase=np.pi, baseline=b
             ),
             filter_kwargs={"post_pulse": "x"},
-            name="sx-sx",
+            name="RamseyX",
             plot_color="red",
             plot_symbol="o",
         ),
         SeriesDef(
-            fit_func=lambda x, a, freq, b: fit_function.sin(
-                x, amp=a, freq=freq, phase=np.pi, baseline=b
+            fit_func=lambda x, a, tau, freq, b: fit_function.sin_decay(
+                x, amp=a, tau=tau, freq=freq, phase=np.pi, baseline=b
             ),
             filter_kwargs={"post_pulse": "y"},
-            name="sx-sy",
+            name="RamseyY",
             plot_color="blue",
             plot_symbol="^",
         )
@@ -238,6 +239,23 @@ class RamseyXYAnalysis(CurveAnalysis):
         user_bounds = self._get_option("bounds")
 
         # TODO write init guess generation code
+        curve_x = self._data("RamseyX")
+        curve_y = self._data("RamseyY")
+
+        guess_b = float(np.mean([
+            guess.constant_sinusoidal_offset(curve_x.y),
+            guess.constant_sinusoidal_offset(curve_y.y)
+        ]))
+
+        guess_a = float(np.mean([
+            guess.max_height(curve_x.y, percentile=95),
+            guess.max_height(curve_y.y, percentile=95),
+        ]))
+
+
+
+
+
 
         fit_option = {
             "p0": user_p0,
