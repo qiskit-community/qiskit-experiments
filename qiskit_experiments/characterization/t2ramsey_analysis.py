@@ -22,7 +22,6 @@ from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import (
     curve_fit,
     process_curve_data,
-    CurveAnalysisResult,
 )
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
@@ -130,7 +129,7 @@ class T2RamseyAnalysis(BaseAnalysis):
         if unit == "dt":
             result_data["fit"]["dt"] = conversion_factor
 
-        analysis_result = CurveAnalysisResult(
+        analysis_result = DbAnalysisResultV1(
             result_data=result_data,
             result_type="T2Ramsey",
             device_components=[Qubit(circ_metadata["qubit"])],

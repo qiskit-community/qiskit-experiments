@@ -25,7 +25,6 @@ from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import (
     process_curve_data,
     curve_fit,
-    CurveAnalysisResult,
 )
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
@@ -162,7 +161,7 @@ class T1Analysis(BaseAnalysis):
         else:
             figures = None
 
-        res_v1 = CurveAnalysisResult(
+        res_v1 = DbAnalysisResultV1(
             result_data=result_data,
             result_type="T1",
             device_components=[Qubit(data[0]["metadata"]["qubit"])],
