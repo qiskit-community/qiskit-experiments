@@ -943,27 +943,27 @@ class CurveAnalysis(BaseAnalysis):
         try:
             self.__experiment_metadata = experiment_data.metadata()
 
-            # No data processor has been provided at run-time we infer one from the job
-            # metadata and default to the data processor for averaged classified data.
-            if not self._get_option("data_processor"):
-                run_options = self._run_options() or dict()
-
-                try:
-                    meas_level = run_options["meas_level"]
-                except KeyError as ex:
-                    raise AnalysisError(
-                        f"Cannot process data without knowing the measurement level: {str(ex)}."
-                    ) from ex
-
-                meas_return = run_options.get("meas_return", None)
-                normalization = self._get_option("normalization")
-
-                processor = get_processor(meas_level, meas_return, normalization)
-
-                setattr(self, "__data_processor", processor)
-
         except AttributeError:
             pass
+
+        # No data processor has been provided at run-time we infer one from the job
+        # metadata and default to the data processor for averaged classified data.
+        if not self._get_option("data_processor"):
+            run_options = self._run_options() or dict()
+
+            try:
+                meas_level = run_options["meas_level"]
+            except KeyError as ex:
+                raise AnalysisError(
+                    f"Cannot process data without knowing the measurement level: {str(ex)}."
+                ) from ex
+
+            meas_return = run_options.get("meas_return", None)
+            normalization = self._get_option("normalization")
+
+            processor = get_processor(meas_level, meas_return, normalization)
+
+            setattr(self, "__data_processor", processor)
 
         #
         # 2. Setup data processor
