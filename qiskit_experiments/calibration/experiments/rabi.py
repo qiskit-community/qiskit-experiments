@@ -27,11 +27,11 @@ from qiskit_experiments.analysis import (
     CurveAnalysisResult,
     SeriesDef,
     fit_function,
+    guess,
     get_opt_value,
     get_opt_error,
 )
 from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
 
 
 class RabiAnalysis(CurveAnalysis):
@@ -49,9 +49,11 @@ class RabiAnalysis(CurveAnalysis):
         - :math:`{\rm phase}`: Phase of the oscillation.
 
     Initial Guesses
-        - :math:`amp`: The maximum y value less the minimum y value.
-        - :math:`baseline`: The average of the data.
-        - :math:`{\rm freq}`: The frequency with the highest power spectral density.
+        - :math:`amp`: Calculated by :func:`~qiskit_experiments.analysis.guess.max_height`.
+        - :math:`baseline`: Calculated by :func:`~qiskit_experiments.analysis.\
+          guess.constant_sinusoidal_offset`.
+        - :math:`{\rm freq}`: Calculated by :func:`~qiskit_experiments.analysis.\
+          guess.frequency`.
         - :math:`{\rm phase}`: Zero.
 
     Bounds
@@ -91,16 +93,13 @@ class RabiAnalysis(CurveAnalysis):
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
 
-        max_abs_y = np.max(np.abs(self._data().y))
+        curve_data = self._data()
 
-        # Use a fast Fourier transform to guess the frequency.
-        fft = np.abs(np.fft.fft(self._data().y - np.average(self._data().y)))
-        damp = self._data().x[1] - self._data().x[0]
-        freqs = np.linspace(0.0, 1.0 / (2.0 * damp), len(fft))
+        max_abs_y = np.max(np.abs(curve_data.y))
 
-        b_guess = np.average(self._data().y)
-        a_guess = np.max(self._data().y) - np.min(self._data().y) - b_guess
-        f_guess = freqs[np.argmax(fft[0 : len(fft) // 2])]
+        f_guess = guess.frequency(curve_data.x, curve_data.y)
+        b_guess = guess.constant_sinusoidal_offset(curve_data.y)
+        a_guess, _ = guess.max_height(curve_data.y - b_guess, absolute=True)
 
         if user_p0["phase"] is not None:
             p_guesses = [user_p0["phase"]]
@@ -196,8 +195,15 @@ class Rabi(BaseExperiment):
             sigma=40,
             amplitudes=np.linspace(-0.95, 0.95, 51),
             schedule=None,
-            normalization=True,
         )
+
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_analysis_options()
+        options.normalization = True
+
+        return options
 
     def __init__(self, qubit: int):
         """Setup a Rabi experiment on the given qubit.
@@ -223,15 +229,6 @@ class Rabi(BaseExperiment):
                   that matches the qubit on which to run the Rabi experiment.
                 - If the user provided schedule has more than one free parameter.
         """
-        # TODO this is temporary logic. Need update of circuit data and processor logic.
-        self.set_analysis_options(
-            data_processor=get_to_signal_processor(
-                meas_level=self.run_options.meas_level,
-                meas_return=self.run_options.meas_return,
-                normalize=self.experiment_options.normalization,
-            )
-        )
-
         schedule = self.experiment_options.get("schedule", None)
 
         if schedule is None:

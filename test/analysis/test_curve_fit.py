@@ -17,6 +17,7 @@ from typing import List
 
 import numpy as np
 from qiskit.test import QiskitTestCase
+from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.analysis import CurveAnalysis, SeriesDef, fit_function
@@ -53,6 +54,8 @@ def simulate_output_data(func, xvals, param_dict, **metadata):
     expdata = ExperimentData(experiment=FakeExperiment())
     for datum in data:
         expdata.add_data(datum)
+
+    expdata.metadata()["job_metadata"] = [{"run_options": {"meas_level": MeasLevel.CLASSIFIED}}]
 
     return expdata
 

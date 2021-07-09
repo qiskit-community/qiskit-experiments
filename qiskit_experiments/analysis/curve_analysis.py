@@ -25,7 +25,6 @@ from qiskit.providers.options import Options
 
 from qiskit_experiments.analysis import plotting
 from qiskit_experiments.analysis.curve_fitting import multi_curve_fit, CurveAnalysisResult
-from qiskit_experiments.analysis.data_processing import probability
 from qiskit_experiments.analysis.utils import get_opt_value, get_opt_error
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.data_processing import DataProcessor
@@ -35,6 +34,7 @@ from qiskit_experiments.experiment_data import ExperimentData
 from qiskit_experiments.database_service import DbAnalysisResultV1
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.matplotlib import requires_matplotlib
+from qiskit_experiments.data_processing.processor_library import get_processor
 
 
 @dataclasses.dataclass(frozen=True)
@@ -345,7 +345,7 @@ class CurveAnalysis(BaseAnalysis):
         """
         return Options(
             curve_fitter=multi_curve_fit,
-            data_processor=probability(outcome="1"),
+            data_processor=None,
             normalization=False,
             p0=None,
             bounds=None,
@@ -941,13 +941,33 @@ class CurveAnalysis(BaseAnalysis):
         # get experiment metadata
         try:
             self.__experiment_metadata = experiment_data.metadata()
+
         except AttributeError:
             pass
 
         #
         # 2. Setup data processor
         #
+
+        # No data processor has been provided at run-time we infer one from the job
+        # metadata and default to the data processor for averaged classified data.
         data_processor = self._get_option("data_processor")
+
+        if not data_processor:
+            run_options = self._run_options() or dict()
+
+            try:
+                meas_level = run_options["meas_level"]
+            except KeyError as ex:
+                raise AnalysisError(
+                    f"Cannot process data without knowing the measurement level: {str(ex)}."
+                ) from ex
+
+            meas_return = run_options.get("meas_return", None)
+            normalization = self._get_option("normalization")
+
+            data_processor = get_processor(meas_level, meas_return, normalization)
+
         if isinstance(data_processor, DataProcessor) and not data_processor.is_trained:
             # Qiskit DataProcessor instance. May need calibration.
             try:

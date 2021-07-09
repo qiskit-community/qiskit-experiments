@@ -24,6 +24,7 @@ from qiskit.providers.backend import Backend
 from qiskit.providers import BaseJob
 from qiskit.providers.basebackend import BaseBackend as LegacyBackend
 from qiskit.exceptions import QiskitError
+from qiskit.qobj.utils import MeasLevel
 
 from .experiment_data import ExperimentData
 
@@ -277,7 +278,7 @@ class BaseExperiment(ABC):
     @classmethod
     def _default_run_options(cls) -> Options:
         """Default options values for the experiment :meth:`run` method."""
-        return Options()
+        return Options(meas_level=MeasLevel.CLASSIFIED)
 
     @property
     def run_options(self) -> Options:
