@@ -29,6 +29,7 @@ from qiskit_experiments.analysis import (
     CurveAnalysisResult,
     SeriesDef,
     fit_function,
+    guess,
     get_opt_value,
     get_opt_error,
 )
@@ -56,11 +57,14 @@ class SpectroscopyAnalysis(CurveAnalysis):
         - :math:`\sigma`: Standard deviation of Gaussian function.
 
     Initial Guesses
-        - :math:`a`: The maximum signal value with removed baseline.
-        - :math:`b`: A median value of the signal.
-        - :math:`f`: A frequency value at the peak (maximum signal).
+        - :math:`a`: Calculated by :func:`~qiskit_experiments.analysis.guess.max_height`.
+        - :math:`b`: Calculated by :func:`~qiskit_experiments.analysis.guess.\
+          constant_spectral_offset`.
+        - :math:`f`: Frequency at max height position calculated by
+          :func:`~qiskit_experiments.analysis.guess.max_height`.
         - :math:`\sigma`: Calculated from FWHM of peak :math:`w`
-          such that :math:`w / \sqrt{8} \ln{2}`.
+          such that :math:`w / \sqrt{8} \ln{2}`, where FWHM is calculated by
+          :func:`~qiskit_experiments.analysis.guess.full_width_half_max`.
 
     Bounds
         - :math:`a`: [-2, 2] scaled with maximum signal value.
@@ -102,15 +106,13 @@ class SpectroscopyAnalysis(CurveAnalysis):
 
         curve_data = self._data()
 
-        b_guess = np.median(curve_data.y)
-        peak_idx = np.argmax(np.abs(curve_data.y - b_guess))
-        f_guess = curve_data.x[peak_idx]
-        a_guess = curve_data.y[peak_idx] - b_guess
+        b_guess = guess.constant_spectral_offset(curve_data.y)
+        y_ = curve_data.y - b_guess
 
-        # calculate sigma from FWHM
-        halfmax = curve_data.x[np.abs(curve_data.y - b_guess) > np.abs(a_guess / 2)]
-        fullwidth = max(halfmax) - min(halfmax)
-        s_guess = fullwidth / np.sqrt(8 * np.log(2))
+        _, peak_idx = guess.max_height(y_, absolute=True)
+        a_guess = curve_data.y[peak_idx] - b_guess
+        f_guess = curve_data.x[peak_idx]
+        s_guess = guess.full_width_half_max(curve_data.x, y_, peak_idx) / np.sqrt(8 * np.log(2))
 
         max_abs_y = np.max(np.abs(curve_data.y))
 
