@@ -32,6 +32,7 @@ class OscillationAnalysis(CurveAnalysis):
     Analyse oscillating data by fitting it to a cosine function
 
     .. math::
+
         y = amp \cos\left(2 \pi {\rm freq} x + {\rm phase}\right) + baseline
 
     Fit Parameters
