@@ -45,7 +45,7 @@ class BaseUpdater(ABC):
 
         Here, calibrations is an instance of :class:`BackendCalibrations` and spectroscopy_data
         is the result of a :class:`QubitSpectroscopy` experiment.
-         """
+        """
         raise CalibrationError(
             "Calibration updaters are not meant to be instantiated. The intended usage"
             "is Updater.update(calibrations, exp_data, ...)."
