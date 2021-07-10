@@ -14,6 +14,9 @@ Composite Experiment abstract base class.
 """
 
 from abc import abstractmethod
+import warnings
+
+from qiskit.providers.options import Options
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from .composite_experiment_data import CompositeExperimentData
@@ -63,5 +66,14 @@ class CompositeExperiment(BaseExperiment):
         # Add sub-experiment options
         for i in range(self.num_experiments):
             sub_exp = self.component_experiment(i)
+            if sub_exp.run_options != Options():
+                warnings.warn(
+                    "Sub-experiment run options are overridden by composite experiment settings."
+                )
             sub_data = experiment_data.component_experiment_data(i)
             sub_exp._add_job_metadata(sub_data, job, **run_options)
+
+    def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
+        for expr in self._experiments:
+            if not isinstance(expr, CompositeExperiment):
+                expr._postprocess_transpiled_circuits(circuits, backend, **run_options)

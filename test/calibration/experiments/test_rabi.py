@@ -13,7 +13,6 @@
 """Test Rabi amplitude Experiment class."""
 
 from typing import Tuple
-from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 import numpy as np
 
 from qiskit import QuantumCircuit, execute, transpile
@@ -29,6 +28,7 @@ from qiskit_experiments.calibration.experiments.rabi import RabiAnalysis, Rabi
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
 from qiskit_experiments.composite.parallel_experiment import ParallelExperiment
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 
 
 class RabiBackend(MockIQBackend):
