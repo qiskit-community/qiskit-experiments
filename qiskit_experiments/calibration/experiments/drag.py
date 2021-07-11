@@ -23,7 +23,6 @@ import qiskit.pulse as pulse
 from qiskit.providers.options import Options
 
 from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
 from qiskit_experiments.calibration.exceptions import CalibrationError
 from qiskit_experiments.calibration.experiments.drag_analysis import DragCalAnalysis
 
@@ -119,6 +118,14 @@ class DragCal(BaseExperiment):
 
         return options
 
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_analysis_options()
+        options.normalization = True
+
+        return options
+
     # pylint: disable=arguments-differ
     def set_experiment_options(self, reps: Optional[List] = None, **fields):
         """Raise if reps has a length different from three.
@@ -163,14 +170,6 @@ class DragCal(BaseExperiment):
                 - If either the xp or xm pulse do not have at least one Drag pulse.
                 - If the number of different repetition series is not three.
         """
-        # TODO this is temporary logic.
-        self.set_analysis_options(
-            data_processor=get_to_signal_processor(
-                meas_level=self.run_options.meas_level,
-                meas_return=self.run_options.meas_return,
-            ),
-        )
-
         plus_sched = self.experiment_options.rp
         minus_sched = self.experiment_options.rm
 

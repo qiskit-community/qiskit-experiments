@@ -52,6 +52,21 @@ Fit Functions
     fit_function.sin
 
 
+Guess Functions
+===============
+.. autosummary::
+    :toctree: ../stubs/
+
+    guess.constant_sinusoidal_offset
+    guess.constant_spectral_offset
+    guess.exp_decay
+    guess.full_width_half_max
+    guess.frequency
+    guess.max_height
+    guess.min_height
+    guess.oscillation_exp_decay
+
+
 Utility
 =======
 .. autosummary::
