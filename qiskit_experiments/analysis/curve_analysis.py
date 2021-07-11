@@ -53,6 +53,9 @@ class SeriesDef:
     # Symbol to represent data points of this line.
     plot_symbol: str = "o"
 
+    # Whether to plot fit uncertainty for this line.
+    plot_fit_uncertainty: bool = False
+
 
 @dataclasses.dataclass(frozen=True)
 class CurveData:
@@ -87,6 +90,8 @@ class CurveAnalysis(BaseAnalysis):
                 name: Name of the curve. This is arbitrary data field, but should be unique.
                 plot_color: String color representation of this series in the plot.
                 plot_symbol: String formatter of the scatter of this series in the plot.
+                plot_fit_uncertainty: A Boolean signaling whether to plot fit uncertainty
+                    for this series in the plot.
 
             See the Examples below for more details.
 
@@ -419,6 +424,7 @@ class CurveAnalysis(BaseAnalysis):
                         ax=axis,
                         color=series_def.plot_color,
                         zorder=2,
+                        fit_uncertainty=series_def.plot_fit_uncertainty,
                     )
 
             # format axis
