@@ -27,7 +27,7 @@ class T2Ramsey(BaseExperiment):
     
     r"""
     This experiment is used to estimate two properties for a single qubit:
-    $T_2$* and Ramsey frequency.
+    T2* and Ramsey frequency.
     The basic circuit used consists of:
     
     #. Hadamard gate
@@ -41,13 +41,8 @@ class T2Ramsey(BaseExperiment):
     #. Measurement
     
     A series of such circuits is created, with increasing delays, as specified
-    by the user.
-    The probabilities of measuring 0 is assumed to be of the form
-    
-    .. math::
-        f(t) = A\mathrm{e}^{-t / T_2^*}\cos(2\pi f t + \phi) + B
-        
-    for unknown parameters :math:`A, B, f, \phi, T_2^*`.
+    by the user. The circuits are run on the device or on a simulator backend.
+    Results are analysed in the class T2RamseyAnalysis.
     
     """
 
@@ -67,12 +62,11 @@ class T2Ramsey(BaseExperiment):
         Initialize the T2Ramsey class.
 
         Args:
-            qubit: the qubit under test
-            delays: delay times of the experiments
+            qubit: the qubit under test.
+            delays: delay times of the experiments.
             unit: Optional, time unit of `delays`.
-            Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'.
-            The unit is used for both T2Ramsey and the frequency
-            osc_freq: the oscillation frequency induced using by the user
+            Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'. The unit is used for both T2Ramsey and for the frequency.
+            osc_freq: the oscillation frequency induced using by the user.
             experiment_type: String indicating the experiment type.
         """
 
@@ -95,7 +89,7 @@ class T2Ramsey(BaseExperiment):
             The experiment circuits
 
         Raises:
-            AttributeError: if unit is dt but dt parameter is missing in the backend configuration
+            AttributeError: if unit is 'dt', but 'dt' parameter is missing in the backend configuration
         """
         if self._unit == "dt":
             try:
