@@ -12,77 +12,13 @@
 
 """Class to test composite experiments."""
 
-from typing import Optional
+from test.fake_backend import FakeBackend
+from test.fake_experiment import FakeExperiment
 
-from qiskit.providers import Backend
-from qiskit.providers.backend import BackendV1
-from qiskit.providers.options import Options
-from qiskit.providers.models import QasmBackendConfiguration
-from qiskit.result import Result
 from qiskit.test import QiskitTestCase
+from qiskit.providers.options import Options
 
-from qiskit_experiments.test.mock_job import MockJob
-from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.composite.parallel_experiment import ParallelExperiment
-
-
-class DummyAnalysis(BaseAnalysis):
-    """
-    Dummy analysis class for test purposes only.
-    """
-
-    def _run_analysis(self, experiment_data, **options):
-        return [], None
-
-
-class DummyExperiment(BaseExperiment):
-    """
-    Dummy experiment class for test purposes only.
-    """
-
-    __analysis_class__ = DummyAnalysis
-
-    def circuits(self, backend: Optional[Backend] = None):
-        return []
-
-
-class DummyBackend(BackendV1):
-    """
-    Dummy backend for test purposes only.
-    """
-
-    def __init__(self):
-        configuration = QasmBackendConfiguration(
-            backend_name="dummy_backend",
-            backend_version="0",
-            n_qubits=int(1e6),
-            basis_gates=["barrier", "x", "delay", "measure"],
-            gates=[],
-            local=True,
-            simulator=True,
-            conditional=False,
-            open_pulse=False,
-            memory=False,
-            max_shots=int(1e6),
-            coupling_map=None,
-        )
-        super().__init__(configuration)
-
-    @classmethod
-    def _default_options(cls):
-        return Options()
-
-    def run(self, run_input, **options):
-        result = {
-            "backend_name": "Dummmy backend",
-            "backend_version": "0",
-            "qobj_id": 0,
-            "job_id": 0,
-            "success": True,
-            "results": [],
-        }
-        return MockJob(backend=self, result=Result.from_dict(result))
 
 
 class TestComposite(QiskitTestCase):
@@ -95,12 +31,37 @@ class TestComposite(QiskitTestCase):
         Test parallel experiments overriding sub-experiment options.
         """
 
-        exp0 = DummyExperiment(0)
-        exp2 = DummyExperiment(2)
+        exp0 = FakeExperiment(0)
+        exp2 = FakeExperiment(2)
         exp2.set_run_options(shots=2000)
 
         par_exp = ParallelExperiment([exp0, exp2])
         with self.assertWarnsRegex(
             Warning, "Sub-experiment run options are overridden by composite experiment settings."
         ):
-            par_exp.run(DummyBackend())
+            par_exp.run(FakeBackend())
+
+    def test_parallel_options(self):
+        """
+        Test parallel experiments overriding sub-experiment options.
+        """
+
+        exp0 = FakeExperiment(0)
+        exp2 = FakeExperiment(2)
+        exp2.set_experiment_options(dummyoption="test")
+        exp2.set_run_options(shots=2000)
+        exp2.set_transpile_options(optimization_level=1)
+        exp2.set_analysis_options(dummyoption="test")
+
+        par_exp = ParallelExperiment([exp0, exp2])
+        with self.assertWarnsRegex(
+            Warning, "All sub-experiment options are overridden by composite experiment settings."
+        ):
+            self.assertEqual(par_exp.experiment_options, Options())
+            self.assertEqual(par_exp.run_options, Options())
+            self.assertEqual(
+                par_exp.transpile_options, Options(initial_layout=[0, 2], optimization_level=0)
+            )
+            self.assertEqual(par_exp.analysis_options, Options())
+
+            par_exp.run(FakeBackend())

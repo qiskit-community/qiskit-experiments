@@ -14,7 +14,7 @@
 
 # pylint: disable=unbalanced-tuple-unpacking
 
-from test.data_processing.fake_experiment import FakeExperiment, BaseDataProcessorTest
+from test.fake_experiment import FakeExperiment, BaseDataProcessorTest
 
 from typing import Any, List
 import numpy as np
