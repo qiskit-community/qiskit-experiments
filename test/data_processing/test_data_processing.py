@@ -20,9 +20,6 @@ import numpy as np
 from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit.result import Result
 
-from qiskit.test import QiskitTestCase
-from qiskit.qobj.common import QobjExperimentHeader
-
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
@@ -35,27 +32,7 @@ from qiskit_experiments.data_processing.nodes import (
     MinMaxNormalize,
 )
 
-
-class BaseDataProcessorTest(QiskitTestCase):
-    """Define some basic setup functionality for data processor tests."""
-
-    def setUp(self):
-        """Define variables needed for most tests."""
-        super().setUp()
-
-        self.base_result_args = dict(
-            backend_name="test_backend",
-            backend_version="1.0.0",
-            qobj_id="id-123",
-            job_id="job-123",
-            success=True,
-        )
-
-        self.header = QobjExperimentHeader(
-            memory_slots=2,
-            metadata={"experiment_type": "fake_test_experiment"},
-        )
-
+from . import BaseDataProcessorTest
 
 class DataProcessorTest(BaseDataProcessorTest):
     """Class to test DataProcessor."""

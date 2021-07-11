@@ -44,4 +44,3 @@ class FakeExperiment(BaseExperiment):
     def circuits(self, backend=None):
         """Fake circuits."""
         return []
-
