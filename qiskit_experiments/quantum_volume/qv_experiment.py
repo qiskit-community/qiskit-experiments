@@ -97,10 +97,10 @@ class QuantumVolume(BaseExperiment):
             probabilities = ideal_result.result().data().get("probabilities")
         else:
             from qiskit.quantum_info import Statevector
+
             state_vector = Statevector(ideal_circuit)
             probabilities = state_vector.probabilities()
-        circuit.metadata['ideal_probabilities'] = probabilities
-
+        circuit.metadata["ideal_probabilities"] = probabilities
 
     @classmethod
     def _default_experiment_options(cls):

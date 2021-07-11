@@ -30,14 +30,12 @@ class QuantumVolumeAnalysis(BaseAnalysis):
     def _run_analysis(
         self,
         experiment_data,
-        # simulation_data,
         plot: bool = True,
         ax: Optional["plotting.pyplot.AxesSubplot"] = None,
     ):
         """Run analysis on circuit data.
         Args:
             experiment_data (ExperimentData): the experiment data to analyze.
-            simulation_data (ExperimentData): the ideal experiment data to analyze.
             plot: If True generate a plot of fitted data.
             ax: Optional, matplotlib axis to add plot to.
         Returns:
@@ -52,8 +50,12 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         heavy_output_prob_exp = []
 
         for data_trial in data:
-            heavy_output = self._calc_ideal_heavy_output(data_trial['metadata']['ideal_probabilities'], data_trial['metadata']['depth'])
-            heavy_output_prob_exp.append(self._calc_exp_heavy_output_probability(data_trial, heavy_output))
+            heavy_output = self._calc_ideal_heavy_output(
+                data_trial["metadata"]["ideal_probabilities"], data_trial["metadata"]["depth"]
+            )
+            heavy_output_prob_exp.append(
+                self._calc_exp_heavy_output_probability(data_trial, heavy_output)
+            )
 
         analysis_result = AnalysisResult(
             self._calc_quantum_volume(heavy_output_prob_exp, depth, num_trials)
