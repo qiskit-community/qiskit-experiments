@@ -30,7 +30,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
     def _run_analysis(
         self,
         experiment_data,
-        simulation_data,
+        # simulation_data,
         plot: bool = True,
         ax: Optional["plotting.pyplot.AxesSubplot"] = None,
     ):
@@ -49,31 +49,11 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         depth = experiment_data.experiment.num_qubits
         num_trials = experiment_data.experiment.experiment_options.trials
         data = experiment_data.data()
-        ideal_data = simulation_data.data()
+        heavy_output_prob_exp = []
 
-        heavy_outputs = np.zeros(num_trials, dtype=list)
-        heavy_output_prob_exp = np.zeros(num_trials, dtype=list)
-
-        # Analyse ideal data to calculate all heavy outputs
-        # Must calculate first the ideal data, because the non-ideal calculation uses it
-        for ideal_data_trial in ideal_data:
-            if not ideal_data_trial["metadata"].get("is_simulation", None):
-                continue
-            trial = ideal_data_trial["metadata"]["trial"]
-            trial_index = trial - 1  # trials starts from 1, so as index use trials - 1
-
-            heavy_outputs[trial_index] = self._calc_ideal_heavy_output(ideal_data_trial)
-
-        # Analyse non-ideal data
         for data_trial in data:
-            if data_trial["metadata"].get("is_simulation", None):
-                continue
-            trial = data_trial["metadata"]["trial"]
-            trial_index = trial - 1  # Trials starts from 1, so as index use trials - 1
-
-            heavy_output_prob_exp[trial_index] = self._calc_exp_heavy_output_probability(
-                data_trial, heavy_outputs[trial_index]
-            )
+            heavy_output = self._calc_ideal_heavy_output(data_trial['metadata']['ideal_probabilities'], data_trial['metadata']['depth'])
+            heavy_output_prob_exp.append(self._calc_exp_heavy_output_probability(data_trial, heavy_output))
 
         analysis_result = AnalysisResult(
             self._calc_quantum_volume(heavy_output_prob_exp, depth, num_trials)
@@ -87,7 +67,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         return [analysis_result], figures
 
     @staticmethod
-    def _calc_ideal_heavy_output(ideal_data):
+    def _calc_ideal_heavy_output(probabilities_vector, depth):
         """
         Calculate the bit strings of the heavy output for the ideal simulation
         Args:
@@ -95,8 +75,8 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         Returns:
              list: the bit strings of the heavy output
         """
-        depth = ideal_data["metadata"]["depth"]
-        probabilities_vector = ideal_data.get("probabilities")
+        # depth = ideal_data["metadata"]["depth"]
+        # probabilities_vector = ideal_data.get("probabilities")
 
         format_spec = "{0:0%db}" % depth
         # Keys are bit strings and values are probabilities of observing those strings
