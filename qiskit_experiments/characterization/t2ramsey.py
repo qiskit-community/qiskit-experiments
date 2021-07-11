@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 """
 T2Ramsey Experiment class.
+
 """
 
 from typing import List, Optional, Union
@@ -22,9 +23,33 @@ from qiskit.circuit import QuantumCircuit
 from qiskit_experiments.base_experiment import BaseExperiment
 from .t2ramsey_analysis import T2RamseyAnalysis
 
-
 class T2Ramsey(BaseExperiment):
-    """T2Ramsey class"""
+    
+    r"""
+    This experiment is used to estimate two properties for a single qubit:
+    $T_2$* and Ramsey frequency.
+    The basic circuit used consists of:
+    
+    #. Hadamard gate
+    
+    #. Delay
+    
+    #. Phase gate
+    
+    #. Hadamard gate
+    
+    #. Measurement
+    
+    A series of such circuits is created, with increasing delays, as specified
+    by the user.
+    The probabilities of measuring 0 is assumed to be of the form
+    
+    .. math::
+        f(t) = A\mathrm{e}^{-t / T_2^*}\cos(2\pi f t + \phi) + B
+        
+    for unknown parameters :math:`A, B, f, \phi, T_2^*`.
+    
+    """
 
     __analysis_class__ = T2RamseyAnalysis
 
@@ -36,7 +61,10 @@ class T2Ramsey(BaseExperiment):
         osc_freq: float = 0.0,
         experiment_type: Optional[str] = None,
     ):
-        """Initialize the T2Ramsey class.
+        """
+        **T2Ramsey class**
+        
+        Initialize the T2Ramsey class.
 
         Args:
             qubit: the qubit under test
