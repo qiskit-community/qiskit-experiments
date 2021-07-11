@@ -25,13 +25,13 @@ from qiskit.providers.options import Options
 
 from qiskit_experiments.analysis import plotting
 from qiskit_experiments.analysis.curve_fitting import multi_curve_fit, CurveAnalysisResult
-from qiskit_experiments.analysis.data_processing import probability
 from qiskit_experiments.analysis.utils import get_opt_value, get_opt_error
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
+from qiskit_experiments.data_processing.processor_library import get_processor
 
 
 @dataclasses.dataclass(frozen=True)
@@ -291,8 +291,8 @@ class CurveAnalysis(BaseAnalysis):
     def __init__(self):
         """Initialize data fields that are privately accessed by methods."""
 
-        #: Iterable[int]: Physical qubits tested by this experiment
-        self.__qubits = None
+        #: Dict[str, Any]: Experiment metadata
+        self.__experiment_metadata = None
 
         #: List[CurveData]: Processed experiment data set.
         self.__processed_data_set = list()
@@ -347,7 +347,7 @@ class CurveAnalysis(BaseAnalysis):
         """
         return Options(
             curve_fitter=multi_curve_fit,
-            data_processor=probability(outcome="1"),
+            data_processor=None,
             normalization=False,
             p0=None,
             bounds=None,
@@ -730,14 +730,91 @@ class CurveAnalysis(BaseAnalysis):
         return fitter_options
 
     @property
-    def _num_qubits(self):
-        """Getter for qubit number."""
-        return len(self.__qubits)
+    def _experiment_type(self) -> str:
+        """Return type of experiment."""
+        try:
+            return self.__experiment_metadata["experiment_type"]
+        except (TypeError, KeyError):
+            # Ignore experiment metadata is not set or key is not found
+            return None
 
     @property
-    def _physical_qubits(self):
+    def _num_qubits(self) -> int:
+        """Getter for qubit number."""
+        try:
+            return self.__experiment_metadata["num_qubits"]
+        except (TypeError, KeyError):
+            # Ignore experiment metadata is not set or key is not found
+            return None
+
+    @property
+    def _physical_qubits(self) -> List[int]:
         """Getter for physical qubit indices."""
-        return list(self.__qubits)
+        try:
+            return list(self.__experiment_metadata["physical_qubits"])
+        except (TypeError, KeyError):
+            # Ignore experiment metadata is not set or key is not found
+            return None
+
+    def _experiment_options(self, index: int = -1) -> Dict[str, Any]:
+        """Return the experiment options of given job index.
+
+        Args:
+            index: Index of job metadata to extract. Default to -1 (latest).
+
+        Returns:
+            Experiment options. This option is used for circuit generation.
+        """
+        try:
+            return self.__experiment_metadata["job_metadata"][index]["experiment_options"]
+        except (TypeError, KeyError, IndexError):
+            # Ignore experiment metadata or job metadata is not set or key is not found
+            return None
+
+    def _analysis_options(self, index: int = -1) -> Dict[str, Any]:
+        """Returns the analysis options of given job index.
+
+        Args:
+            index: Index of job metadata to extract. Default to -1 (latest).
+
+        Returns:
+            Analysis options. This option is used for analysis.
+        """
+        try:
+            return self.__experiment_metadata["job_metadata"][index]["analysis_options"]
+        except (TypeError, KeyError, IndexError):
+            # Ignore experiment metadata or job metadata is not set or key is not found
+            return None
+
+    def _run_options(self, index: int = -1) -> Dict[str, Any]:
+        """Returns the run options of given job index.
+
+        Args:
+            index: Index of job metadata to extract. Default to -1 (latest).
+
+        Returns:
+            Run options. This option is used for backend execution.
+        """
+        try:
+            return self.__experiment_metadata["job_metadata"][index]["run_options"]
+        except (TypeError, KeyError, IndexError):
+            # Ignore experiment metadata or job metadata is not set or key is not found
+            return None
+
+    def _transpile_options(self, index: int = -1) -> Dict[str, Any]:
+        """Returns the transpile options of given job index.
+
+        Args:
+            index: Index of job metadata to extract. Default to -1 (latest).
+
+        Returns:
+            Transpile options. This option is used for circuit optimization.
+        """
+        try:
+            return self.__experiment_metadata["job_metadata"][index]["transpile_options"]
+        except (TypeError, KeyError, IndexError):
+            # Ignore experiment metadata or job metadata is not set or key is not found
+            return None
 
     def _data(
         self,
@@ -865,18 +942,39 @@ class CurveAnalysis(BaseAnalysis):
                 assigned_series.append(SeriesDef(**dict_def))
             self.__series__ = assigned_series
 
+        # pop arguments that are not given to fitter
         extra_options = self._arg_parse(**options)
 
-        # TODO update this with experiment metadata PR #67
+        # get experiment metadata
         try:
-            self.__qubits = experiment_data.data(0)["metadata"]["physical_qubits"]
-        except KeyError:
+            self.__experiment_metadata = experiment_data.metadata()
+
+        except AttributeError:
             pass
 
         #
         # 2. Setup data processor
         #
+
+        # No data processor has been provided at run-time we infer one from the job
+        # metadata and default to the data processor for averaged classified data.
         data_processor = self._get_option("data_processor")
+
+        if not data_processor:
+            run_options = self._run_options() or dict()
+
+            try:
+                meas_level = run_options["meas_level"]
+            except KeyError as ex:
+                raise AnalysisError(
+                    f"Cannot process data without knowing the measurement level: {str(ex)}."
+                ) from ex
+
+            meas_return = run_options.get("meas_return", None)
+            normalization = self._get_option("normalization")
+
+            data_processor = get_processor(meas_level, meas_return, normalization)
+
         if isinstance(data_processor, DataProcessor) and not data_processor.is_trained:
             # Qiskit DataProcessor instance. May need calibration.
             try:
