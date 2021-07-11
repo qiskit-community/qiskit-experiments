@@ -33,21 +33,6 @@ class TestComposite(QiskitTestCase):
 
         exp0 = FakeExperiment(0)
         exp2 = FakeExperiment(2)
-        exp2.set_run_options(shots=2000)
-
-        par_exp = ParallelExperiment([exp0, exp2])
-        with self.assertWarnsRegex(
-            Warning, "Sub-experiment run options are overridden by composite experiment settings."
-        ):
-            par_exp.run(FakeBackend())
-
-    def test_parallel_options(self):
-        """
-        Test parallel experiments overriding sub-experiment options.
-        """
-
-        exp0 = FakeExperiment(0)
-        exp2 = FakeExperiment(2)
         exp2.set_experiment_options(dummyoption="test")
         exp2.set_run_options(shots=2000)
         exp2.set_transpile_options(optimization_level=1)
