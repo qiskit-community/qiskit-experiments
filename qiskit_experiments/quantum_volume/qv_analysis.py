@@ -47,7 +47,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
                    None, a single figure, or a list of figures.
         """
         depth = experiment_data.experiment.num_qubits
-        num_trials = experiment_data.experiment.trials
+        num_trials = experiment_data.experiment.experiment_options.trials
         data = experiment_data.data()
         ideal_data = simulation_data.data()
 
@@ -84,7 +84,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
             figures = [ax.get_figure()]
         else:
             figures = None
-        return analysis_result, figures
+        return [analysis_result], figures
 
     @staticmethod
     def _calc_ideal_heavy_output(ideal_data):

@@ -34,7 +34,7 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers.basebackend import BaseBackend as LegacyBackend
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.experiment_data import ExperimentData
-from .qv_analysis import QVAnalysis
+from .qv_analysis import QuantumVolumeAnalysis
 
 
 class QuantumVolume(BaseExperiment):
@@ -46,7 +46,7 @@ class QuantumVolume(BaseExperiment):
     """
 
     # Analysis class for experiment
-    __analysis_class__ = QVAnalysis
+    __analysis_class__ = QuantumVolumeAnalysis
 
     # ExperimentData class for the simulations
     __simulation_data__ = ExperimentData
@@ -91,7 +91,7 @@ class QuantumVolume(BaseExperiment):
 
     @classmethod
     def _default_experiment_options(cls):
-        return Options(trials=1)
+        return Options(trials=100)
 
     # pylint: disable = arguments-differ
     def run(
