@@ -180,11 +180,6 @@ class QuantumVolume(BaseExperiment):
         return experiment_data
 
     @property
-    def trials(self):
-        """Return number of trials in the experiment"""
-        return self.experiment_options.trials
-
-    @property
     def simulation_data(self):
         """Return the ideal data of the experiment"""
         return self._simulation_data
