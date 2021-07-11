@@ -23,7 +23,7 @@ from qiskit_experiments.base_analysis import AnalysisResult
 from qiskit_experiments.analysis import plotting
 
 
-class QVAnalysis(BaseAnalysis):
+class QuantumVolumeAnalysis(BaseAnalysis):
     """Quantum Volume Analysis class."""
 
     # pylint: disable = arguments-differ

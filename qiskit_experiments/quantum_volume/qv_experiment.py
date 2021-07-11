@@ -27,7 +27,7 @@ except ImportError:
     HAS_SIMULATION_BACKEND = False
 
 from qiskit import QuantumCircuit
-from qiskit.circuit.library import QuantumVolume
+from qiskit.circuit.library import QuantumVolume as QuantumVolumeCircuit
 from qiskit import transpile, assemble
 from qiskit import execute
 from qiskit.exceptions import QiskitError
@@ -236,7 +236,7 @@ class QuantumVolume(BaseExperiment):
 
         # Continue the trials numbers from previous experiments runs
         for trial in range(self._previous_trials + 1, self.experiment_options.trials + 1):
-            qv_circ = QuantumVolume(depth, depth, seed=self._rng)
+            qv_circ = QuantumVolumeCircuit(depth, depth, seed=self._rng)
             qv_circ.measure_active()
             qv_circ.metadata = {
                 "experiment_type": self._type,

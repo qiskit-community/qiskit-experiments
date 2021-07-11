@@ -12,4 +12,4 @@
 
 """Quantum Volume Experiment Classes."""
 from .qv_experiment import QuantumVolume
-from .qv_analysis import QVAnalysis
+from .qv_analysis import QuantumVolumeAnalysis
