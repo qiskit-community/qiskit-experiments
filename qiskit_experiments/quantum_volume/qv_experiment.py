@@ -179,15 +179,6 @@ class QuantumVolume(BaseExperiment):
         # Return the ExperimentData future
         return experiment_data
 
-    def add_trials(self, additional_trials):
-        """
-        Add more trials to the experiment
-        Args:
-            additional_trials (int): The amount of trials to add
-        """
-        new_trials = self.experiment_options.trials + additional_trials
-        self.set_experiment_options(trials=new_trials)
-
     @property
     def trials(self):
         """Return number of trials in the experiment"""
