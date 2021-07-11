@@ -26,7 +26,7 @@ from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
 def plot_curve_fit(
     func: Callable,
     result: AnalysisResult,
-    confidence_interval: bool = True,
+    fit_uncertainty: bool = False,
     ax=None,
     num_fit_points: int = 100,
     labelsize: int = 14,
@@ -40,7 +40,7 @@ def plot_curve_fit(
     Args:
         func: the fit function for curve_fit.
         result: an AnalysisResult from curve_fit.
-        confidence_interval: if True plot the confidence interval from popt_err.
+        fit_uncertainty: if True plot the fit uncertainty from popt_err.
         ax (matplotlib.axes.Axes): Optional, a matplotlib axes to add the plot to.
         num_fit_points: the number of points to plot for xrange.
         labelsize: label size for plot
@@ -81,7 +81,7 @@ def plot_curve_fit(
     ax.plot(xs, ys_fit, **plot_opts)
 
     # Plot standard error interval
-    if confidence_interval and fit_errors is not None:
+    if fit_uncertainty and fit_errors is not None:
         if param_keys:
             params_upper = {}
             params_lower = {}
