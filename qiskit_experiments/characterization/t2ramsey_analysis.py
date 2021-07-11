@@ -26,15 +26,15 @@ from ..experiment_data import ExperimentData
 
 # pylint: disable = invalid-name
 class T2RamseyAnalysis(BaseAnalysis):
-    
+
     r"""
     **T2Ramsey result analysis class.**
-    
-    This class is used to analyze the results of a T2Ramsey experiment. 
+
+    This class is used to analyze the results of a T2Ramsey experiment.
     The probability of measuring `+` is assumed to be of the form
-        
+
     :math:`f(t) = a\mathrm{e}^{-t / T_2^*}\cos(2\pi f t + \phi) + b`
-        
+
     for unknown parameters :math:`a, b, f, \phi, T_2^*`.
 
     """
@@ -53,9 +53,8 @@ class T2RamseyAnalysis(BaseAnalysis):
         ax: Optional["AxesSubplot"] = None,
         **kwargs,
     ) -> Tuple[List[AnalysisResult], List["matplotlib.figure.Figure"]]:
-        
 
-        """
+        r"""
         Args:
             experiment_data (ExperimentData): the experiment data to analyze
             user_p0: contains initial values given by the user, for the
