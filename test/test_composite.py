@@ -58,7 +58,7 @@ class TestComposite(QiskitTestCase):
             Warning, "All sub-experiment options are overridden by composite experiment settings."
         ):
             self.assertEqual(par_exp.experiment_options, Options())
-            self.assertEqual(par_exp.run_options, Options())
+            self.assertEqual(par_exp.run_options, Options(meas_level=2))
             self.assertEqual(
                 par_exp.transpile_options, Options(initial_layout=[0, 2], optimization_level=0)
             )
