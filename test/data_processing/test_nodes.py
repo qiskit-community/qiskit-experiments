@@ -28,6 +28,7 @@ from qiskit_experiments.data_processing.data_processor import DataProcessor
 
 from . import BaseDataProcessorTest
 
+
 class TestAveraging(QiskitTestCase):
     """Test the averaging nodes."""
 

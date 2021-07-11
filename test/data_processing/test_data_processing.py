@@ -34,6 +34,7 @@ from qiskit_experiments.data_processing.nodes import (
 
 from . import BaseDataProcessorTest
 
+
 class DataProcessorTest(BaseDataProcessorTest):
     """Class to test DataProcessor."""
 
