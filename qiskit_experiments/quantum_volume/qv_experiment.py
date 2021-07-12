@@ -13,7 +13,6 @@
 Quantum Volume Experiment class.
 """
 
-import copy
 from typing import Union, Iterable, Optional, List
 from numpy.random import Generator, default_rng
 from qiskit.providers.backend import Backend
@@ -30,7 +29,6 @@ from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume as QuantumVolumeCircuit
 from qiskit import execute
 from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.experiment_data import ExperimentData
 from .qv_analysis import QuantumVolumeAnalysis
 
 
@@ -86,33 +84,14 @@ class QuantumVolume(BaseExperiment):
     def _default_experiment_options(cls):
         return Options(trials=100)
 
-    def _get_ideal_data(self, circuits, **run_options):
+    def _get_ideal_data(self, circuit, **run_options):
         """
         In case the user does not have Aer installed - use Terra to calculate the ideal state
         Args:
-            circuits: the circuits to extract the ideal data from
+            circuit: the circuit to extract the ideal data from
         Returns:
-            dict: data object with the circuit's metadata
-                  and the probability for each state in each circuit
+            dict: the probability for each state in the circuit
         """
-        if self._simulation_backend:
-            for circuit in circuits:
-                circuit.save_probabilities()
-            return execute(circuits, backend=self._simulation_backend, **run_options)
-        else:
-            from qiskit.quantum_info import Statevector
-
-            sim_obj = []
-            for circuit in circuits:
-                state_vector = Statevector(circuit)
-                sim_data = {
-                    "probabilities": state_vector.probabilities(),
-                    "metadata": circuit.metadata,
-                }
-                sim_obj.append(sim_data)
-            return sim_obj
-
-    def _get_ideal_data(self, circuit, **run_options):
         ideal_circuit = circuit.remove_final_measurements(inplace=False)
         ideal_circuit.save_probabilities()
         if self._simulation_backend:
@@ -120,6 +99,7 @@ class QuantumVolume(BaseExperiment):
             probabilities = ideal_result.result().data().get("probabilities")
         else:
             from qiskit.quantum_info import Statevector
+
             state_vector = Statevector(ideal_circuit)
             probabilities = state_vector.probabilities()
         return probabilities
