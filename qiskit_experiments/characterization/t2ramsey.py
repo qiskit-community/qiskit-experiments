@@ -168,7 +168,7 @@ class RamseyXY(BaseExperiment):
             unit: str = "s",
             offset_frequency: float = 0.,
     ):
-        """Initialize new experiment.
+        """Initialize a new experiment.
 
         Args:
             qubit: The qubit under test.
