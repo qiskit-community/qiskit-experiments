@@ -72,7 +72,7 @@ class CompositeExperiment(BaseExperiment):
                 or sub_exp.experiment_options != Options()
             ):
                 warnings.warn(
-                    "Sub-experiment run, transpile, and experiment options are overridden by composite experiment options."
+                    "Sub-experiment run, transpile, and experiment options are overridden by composite experiment."
                 )
             sub_data = experiment_data.component_experiment_data(i)
             sub_exp._add_job_metadata(sub_data, job, **run_options)
