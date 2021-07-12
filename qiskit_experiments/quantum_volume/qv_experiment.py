@@ -45,9 +45,6 @@ class QuantumVolume(BaseExperiment):
     # Analysis class for experiment
     __analysis_class__ = QuantumVolumeAnalysis
 
-    # ExperimentData class for the simulations
-    __simulation_data__ = ExperimentData
-
     def __init__(
         self,
         qubits: Union[int, Iterable[int]],
@@ -74,7 +71,6 @@ class QuantumVolume(BaseExperiment):
 
         # Set fixed options
         self._previous_trials = 0
-        self._simulation_data = None
 
         if not isinstance(seed, Generator):
             self._rng = default_rng(seed=seed)
@@ -100,11 +96,6 @@ class QuantumVolume(BaseExperiment):
     @classmethod
     def _default_experiment_options(cls):
         return Options(trials=100)
-
-    @property
-    def simulation_data(self):
-        """Return the ideal data of the experiment"""
-        return self._simulation_data
 
     def _get_ideal_data(self, circuits, **run_options):
         """
