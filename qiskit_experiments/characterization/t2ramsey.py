@@ -154,9 +154,8 @@ class RamseyXY(BaseExperiment):
     where :math:`\rho = | L \rangle` prepared by the :math:`\sqrt{\rm X}` gate in the beginning.
 
     Note that phase difference of these two outcomes :math:`{\cal E}_x, {\cal E}_y` depends on
-    the frequency offset :math:`\Delta\omega`, which is also sensitive
-    to the sign of it, in contrast to the standard Ramsey experiment which
-    usually consists only of the first circuit,
+    the sign and magnitude of the frequency offset :math:`\Delta\omega`. By contrast, the standard Ramsey
+    does not depend on the sign of :math:`\Delta\omega`
     i.e. :math:`\cos(-\Delta\omega\tau) = \cos(\Delta\omega\tau)`.
     """
 
