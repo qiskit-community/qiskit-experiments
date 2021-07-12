@@ -24,7 +24,7 @@ from qiskit_experiments.experiment_data import ExperimentData
 from qiskit_experiments.calibration.management.backend_calibrations import BackendCalibrations
 from qiskit_experiments.calibration.management.calibrations import Calibrations
 from qiskit_experiments.calibration.management.parameter_value import ParameterValue
-from qiskit_experiments.calibration.management.exceptions import CalibrationError
+from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration.management.calibration_key_types import ParameterValueType
 
 

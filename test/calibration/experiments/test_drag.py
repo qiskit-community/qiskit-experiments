@@ -21,7 +21,7 @@ import qiskit.pulse as pulse
 from qiskit.qobj.utils import MeasLevel
 from qiskit import transpile
 
-from qiskit_experiments.calibration.management.exceptions import CalibrationError
+from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration.drag import DragCal
 from qiskit_experiments.test.mock_iq_backend import DragBackend
 
