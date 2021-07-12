@@ -23,21 +23,19 @@ from qiskit_experiments.base_analysis import AnalysisResult
 from qiskit_experiments.analysis import plotting
 
 
-class QVAnalysis(BaseAnalysis):
+class QuantumVolumeAnalysis(BaseAnalysis):
     """Quantum Volume Analysis class."""
 
     # pylint: disable = arguments-differ
     def _run_analysis(
         self,
         experiment_data,
-        simulation_data,
         plot: bool = True,
         ax: Optional["plotting.pyplot.AxesSubplot"] = None,
     ):
         """Run analysis on circuit data.
         Args:
             experiment_data (ExperimentData): the experiment data to analyze.
-            simulation_data (ExperimentData): the ideal experiment data to analyze.
             plot: If True generate a plot of fitted data.
             ax: Optional, matplotlib axis to add plot to.
         Returns:
@@ -47,32 +45,16 @@ class QVAnalysis(BaseAnalysis):
                    None, a single figure, or a list of figures.
         """
         depth = experiment_data.experiment.num_qubits
-        num_trials = experiment_data.experiment.trials
+        num_trials = experiment_data.experiment.experiment_options.trials
         data = experiment_data.data()
-        ideal_data = simulation_data.data()
+        heavy_output_prob_exp = []
 
-        heavy_outputs = np.zeros(num_trials, dtype=list)
-        heavy_output_prob_exp = np.zeros(num_trials, dtype=list)
-
-        # Analyse ideal data to calculate all heavy outputs
-        # Must calculate first the ideal data, because the non-ideal calculation uses it
-        for ideal_data_trial in ideal_data:
-            if not ideal_data_trial["metadata"].get("is_simulation", None):
-                continue
-            trial = ideal_data_trial["metadata"]["trial"]
-            trial_index = trial - 1  # trials starts from 1, so as index use trials - 1
-
-            heavy_outputs[trial_index] = self._calc_ideal_heavy_output(ideal_data_trial)
-
-        # Analyse non-ideal data
         for data_trial in data:
-            if data_trial["metadata"].get("is_simulation", None):
-                continue
-            trial = data_trial["metadata"]["trial"]
-            trial_index = trial - 1  # Trials starts from 1, so as index use trials - 1
-
-            heavy_output_prob_exp[trial_index] = self._calc_exp_heavy_output_probability(
-                data_trial, heavy_outputs[trial_index]
+            heavy_output = self._calc_ideal_heavy_output(
+                data_trial["metadata"]["ideal_probabilities"], data_trial["metadata"]["depth"]
+            )
+            heavy_output_prob_exp.append(
+                self._calc_exp_heavy_output_probability(data_trial, heavy_output)
             )
 
         analysis_result = AnalysisResult(
@@ -84,10 +66,10 @@ class QVAnalysis(BaseAnalysis):
             figures = [ax.get_figure()]
         else:
             figures = None
-        return analysis_result, figures
+        return [analysis_result], figures
 
     @staticmethod
-    def _calc_ideal_heavy_output(ideal_data):
+    def _calc_ideal_heavy_output(probabilities_vector, depth):
         """
         Calculate the bit strings of the heavy output for the ideal simulation
         Args:
@@ -95,8 +77,6 @@ class QVAnalysis(BaseAnalysis):
         Returns:
              list: the bit strings of the heavy output
         """
-        depth = ideal_data["metadata"]["depth"]
-        probabilities_vector = ideal_data.get("probabilities")
 
         format_spec = "{0:0%db}" % depth
         # Keys are bit strings and values are probabilities of observing those strings
