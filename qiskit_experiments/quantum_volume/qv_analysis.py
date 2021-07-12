@@ -77,8 +77,6 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         Returns:
              list: the bit strings of the heavy output
         """
-        # depth = ideal_data["metadata"]["depth"]
-        # probabilities_vector = ideal_data.get("probabilities")
 
         format_spec = "{0:0%db}" % depth
         # Keys are bit strings and values are probabilities of observing those strings

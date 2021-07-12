@@ -156,6 +156,4 @@ class QuantumVolume(BaseExperiment):
             ideal_circuit.save_probabilities()
             self._add_ideal_data(qv_circ, ideal_circuit)
             circuits.append(qv_circ)
-
-
         return circuits
