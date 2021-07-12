@@ -129,8 +129,8 @@ class RamseyXY(BaseExperiment):
         measure: 1/═══════════════════════════════════════════╩═
                                                               0
 
-    The first (second) circuit measures :math:`\sigma_Y` (:math:`\sigma_X`) expectation value,
-    so this experiment draws the dynamics of the Bloch vector as if drawing a Lissajous figure.
+    The first and second circuits measure the expectation value along the X and Y axis, respectively.
+    This experiment can therefore be seen as drawing the dynamics of the Bloch vector as a Lissajous figure.
 
     Given the control electronics tracks the frame of qubit at the reference frequency
     which is slightly differ from the true qubit frequency by :math:`\Delta\omega`,
