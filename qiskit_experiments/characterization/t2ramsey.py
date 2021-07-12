@@ -108,7 +108,7 @@ class RamseyXY(BaseExperiment):
     r"""Ramsey experiment for frequency calibration.
 
     This experiment differs from the :class:`~qiskit_experiments.characterization.\
-    t2ramsey.T2Ramsey` by the sensitivity to the sign of frequency error.
+    t2ramsey.T2Ramsey` since it is sensitive to the sign of frequency offset from the main transition.
     This experiment consists of following two circuits:
 
     .. parsed-literal::
