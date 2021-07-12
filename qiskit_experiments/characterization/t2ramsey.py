@@ -145,10 +145,10 @@ class RamseyXY(BaseExperiment):
     .. math::
 
         {\cal E}_x(\tau)
-            = {\rm Re} {\rm Tr}\left( \sigma_Y U \rho U^\dagger \right)
+            = {\rm Re} {\rm Tr}\left( Y U \rho U^\dagger \right)
             &= - \cos(\Delta\omega\tau) = \sin(\Delta\omega\tau - \frac{\pi}{2}), \\
         {\cal E}_y(\tau)
-            = {\rm Re} {\rm Tr}\left( \sigma_X U \rho U^\dagger \right)
+            = {\rm Re} {\rm Tr}\left( X U \rho U^\dagger \right)
             &= \sin(\Delta\omega\tau),
 
     where :math:`\rho = | L \rangle` prepared by the :math:`\sqrt{\rm X}` gate in the beginning.
