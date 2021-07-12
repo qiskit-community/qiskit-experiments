@@ -34,12 +34,13 @@ class DragCalAnalysis(CurveAnalysis):
     xp-xm). Several initial guesses are tried if the user does not provide one.
 
     .. math::
-        y = {\rm amp} \cos\left(2 \pi {\rm freq_i} x - 2 \pi {\rm beta}\right) + {\rm base}
+
+        y = {\rm amp} \cos\left(2 \pi {\rm freq}_i x - 2 \pi {\rm beta}\right) + {\rm base}
 
     Fit Parameters
         - :math:`{\rm amp}`: Amplitude of all series.
         - :math:`{\rm base}`: Base line of all series.
-        - :math:`{\rm freq}_i`: Frequency of the :math:`i`th oscillation.
+        - :math:`{\rm freq}_i`: Frequency of the :math:`i` th oscillation.
         - :math:`{\rm beta}`: Common beta offset. This is the parameter of interest.
 
     Initial Guesses
@@ -53,7 +54,6 @@ class DragCalAnalysis(CurveAnalysis):
         - :math:`{\rm base}`: [-1, 1] scaled to the maximum signal value.
         - :math:`{\rm freq}_i`: [0, inf].
         - :math:`{\rm beta}`: [-min scan range, max scan range].
-
     """
 
     __series__ = [

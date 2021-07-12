@@ -12,35 +12,33 @@
 
 """
 =========================================================================
-Characterization Experiments (:mod:`qiskit_experiments.characterization`)
+Calibration management (:mod:`qiskit_experiments.calibration.management`)
 =========================================================================
 
-.. currentmodule:: qiskit_experiments.characterization
+.. currentmodule:: qiskit_experiments.calibration.management
 
-Experiments
-===========
+Calibration management
+======================
 .. autosummary::
     :toctree: ../stubs/
 
-    T1
-    T2Ramsey
-    QubitSpectroscopy
+    Calibrations
+    BackendCalibrations
+    ParameterValue
 
-
-Analysis
-========
-
+Parameter value updating
+========================
 .. autosummary::
     :toctree: ../stubs/
 
-    T1Analysis
-    T2RamseyAnalysis
-    ResonanceAnalysis
+    Frequency
+    Amplitude
+    Drag
+
 """
-from .t1 import T1
-from .t1_analysis import T1Analysis
-from .qubit_spectroscopy import QubitSpectroscopy
-from .resonance_analysis import ResonanceAnalysis
-from .ef_spectroscopy import EFSpectroscopy
-from .t2ramsey import T2Ramsey
-from .t2ramsey_analysis import T2RamseyAnalysis
+
+from .calibrations import Calibrations
+from .backend_calibrations import BackendCalibrations
+from .parameter_value import ParameterValue
+
+from .update_library import Frequency, Drag, Amplitude

@@ -16,6 +16,11 @@ Experiment Data Processing (:mod:`qiskit_experiments.data_processing`)
 
 .. currentmodule:: qiskit_experiments.data_processing
 
+Data processing is the act of taking taking the data returned by the backend and
+converting it into a format that can be analyzed. For instance, counts can be
+converted to a probability while two-dimensional IQ data may be converted to a
+one-dimensional signal.
+
 Classes
 =======
 .. autosummary::
