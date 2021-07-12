@@ -113,7 +113,7 @@ class RamseyXY(BaseExperiment):
 
     .. parsed-literal::
 
-        (Ramsey X) Second pulse is SX
+        (Ramsey X) The second pulse rotates by pi-half around the X axis
 
                    ┌────┐┌─────────────┐┌────┐ ░ ┌─┐
               q_0: ┤ √X ├┤ Delay(τ[s]) ├┤ √X ├─░─┤M├
