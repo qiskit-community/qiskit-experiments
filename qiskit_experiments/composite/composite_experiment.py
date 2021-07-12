@@ -66,10 +66,6 @@ class CompositeExperiment(BaseExperiment):
         # Add sub-experiment options
         for i in range(self.num_experiments):
             sub_exp = self.component_experiment(i)
-            if sub_exp.run_options != Options():
-                warnings.warn(
-                    "Sub-experiment run options are overridden by composite experiment settings."
-                )
             sub_data = experiment_data.component_experiment_data(i)
             sub_exp._add_job_metadata(sub_data, job, **run_options)
 

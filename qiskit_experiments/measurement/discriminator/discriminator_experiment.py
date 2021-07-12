@@ -8,7 +8,6 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticD
 
 
 from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.base_analysis import BaseAnalysis
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.qobj.utils import MeasLevel
@@ -18,6 +17,7 @@ from qiskit_experiments.analysis import plotting
 from qiskit_experiments import AnalysisResult
 from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
 from .discriminator_analysis import DiscriminatorAnalysis
+
 
 class Discriminator(BaseExperiment):
     """Discriminator Experiment class"""
@@ -32,7 +32,6 @@ class Discriminator(BaseExperiment):
             meas_level=MeasLevel.KERNELED,
             meas_return="single",
         )
-
 
     def __init__(
         self,
@@ -55,10 +54,10 @@ class Discriminator(BaseExperiment):
         """
         circuits = []
         for label in (0, 1):
-            circ = QuantumCircuit(1, 1)
+            circ = QuantumCircuit(1)
             if label == 1:
                 circ.x(0)
-            circ.measure(0, 0)
+            circ.measure_all()
 
             circ.metadata = {
                 "experiment_type": self._type,

@@ -26,6 +26,7 @@ from qiskit_experiments.test.mock_job import MockJob
 
 class MockIQBackend(FakeOpenPulse2Q):
     """An abstract backend for testing that can mock IQ data."""
+
     def __init__(
         self,
         iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
@@ -34,6 +35,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         """
         Initialize the backend.
         """
+        self.options = Options()
         self._iq_cluster_centers = iq_cluster_centers
         self._iq_cluster_width = iq_cluster_width
 
@@ -98,6 +100,7 @@ class MockIQBackend(FakeOpenPulse2Q):
             "success": True,
             "results": [],
         }
+        print(run_input)
 
         for circ in run_input:
             run_result = {

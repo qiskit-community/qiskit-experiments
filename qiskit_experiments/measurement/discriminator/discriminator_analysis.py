@@ -1,20 +1,16 @@
-
 from typing import List, Optional, Union, Iterable, Tuple
 import numpy as np
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
 
+from qiskit.providers.options import Options
 
-from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.base_analysis import BaseAnalysis
 
-from qiskit.circuit import QuantumCircuit
 from qiskit.qobj.utils import MeasLevel
-from qiskit.providers.options import Options
 
 from qiskit_experiments.analysis import plotting
 from qiskit_experiments import AnalysisResult
 from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
-
 
 
 class DiscriminatorAnalysis(BaseAnalysis):
@@ -27,7 +23,12 @@ class DiscriminatorAnalysis(BaseAnalysis):
         )
 
     def _run_analysis(
-        self, experiment_data, discriminator_type="LDA", data_processor: Optional[callable] = None, plot: bool = True, **options
+        self,
+        experiment_data,
+        discriminator_type="LDA",
+        data_processor: Optional[callable] = None,
+        plot: bool = True,
+        **options,
     ) -> Tuple[AnalysisResult, List["matplotlib.figure.Figure"]]:
         """Run analysis on discriminator data.
         Args:
@@ -57,7 +58,7 @@ class DiscriminatorAnalysis(BaseAnalysis):
         discriminator.fit(_ydata, _xdata)
         score = discriminator.score(_ydata, _xdata)
 
-        if plot and plotting.HAS_MATPLOTLIB:            
+        if plot and plotting.HAS_MATPLOTLIB:
             xx, yy = np.meshgrid(
                 np.arange(
                     min(_ydata[:, 0]),
@@ -76,7 +77,7 @@ class DiscriminatorAnalysis(BaseAnalysis):
             ax = plotting.plot_contourf(xx, yy, zz, ax, alpha=0.2)
             ax.set_xlabel("I data")
             ax.set_ylabel("Q data")
-            #ax.legend(*scatter.legend_elements())
+            # ax.legend(*scatter.legend_elements())
             figures = [ax.get_figure()]
         else:
             figures = None
@@ -107,12 +108,12 @@ class DiscriminatorAnalysis(BaseAnalysis):
     def _process_data(self, data, qubit):
         """Returns x and y data for discriminator on specific qubit."""
         xdata = np.array([int(data[0]["metadata"]["ylabel"])] * len(data[0]["memory"]))
-        ydata = data[0]["memory"][:,0,:]
+        ydata = data[0]["memory"][:, 0, :]
         xdata = np.concatenate(
             (
                 xdata,
                 [int(data[1]["metadata"]["ylabel"])] * len(data[1]["memory"]),
             )
         )
-        ydata = np.concatenate((ydata, data[1]["memory"][:,0,:]))
+        ydata = np.concatenate((ydata, data[1]["memory"][:, 0, :]))
         return xdata, ydata
