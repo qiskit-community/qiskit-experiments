@@ -82,17 +82,6 @@ class QuantumVolume(BaseExperiment):
         else:
             self._simulation_backend = simulation_backend
 
-    def _add_ideal_data(self, circuit, ideal_circuit, **run_options):
-        if self._simulation_backend:
-            ideal_result = execute(ideal_circuit, backend=self._simulation_backend, **run_options)
-            probabilities = ideal_result.result().data().get("probabilities")
-        else:
-            from qiskit.quantum_info import Statevector
-
-            state_vector = Statevector(ideal_circuit)
-            probabilities = state_vector.probabilities()
-        circuit.metadata["ideal_probabilities"] = probabilities
-
     @classmethod
     def _default_experiment_options(cls):
         return Options(trials=100)
@@ -123,6 +112,18 @@ class QuantumVolume(BaseExperiment):
                 sim_obj.append(sim_data)
             return sim_obj
 
+    def _get_ideal_data(self, circuit, **run_options):
+        ideal_circuit = circuit.remove_final_measurements(inplace=False)
+        ideal_circuit.save_probabilities()
+        if self._simulation_backend:
+            ideal_result = execute(ideal_circuit, backend=self._simulation_backend, **run_options)
+            probabilities = ideal_result.result().data().get("probabilities")
+        else:
+            from qiskit.quantum_info import Statevector
+            state_vector = Statevector(ideal_circuit)
+            probabilities = state_vector.probabilities()
+        return probabilities
+
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Return a list of QV circuits, without the measurement instruction
         Args:
@@ -142,9 +143,7 @@ class QuantumVolume(BaseExperiment):
                 "depth": depth,
                 "trial": trial,
                 "qubits": self.physical_qubits,
+                "ideal_probabilities": self._get_ideal_data(qv_circ),
             }
-            ideal_circuit = qv_circ.remove_final_measurements(inplace=False)
-            ideal_circuit.save_probabilities()
-            self._add_ideal_data(qv_circ, ideal_circuit)
             circuits.append(qv_circ)
         return circuits
