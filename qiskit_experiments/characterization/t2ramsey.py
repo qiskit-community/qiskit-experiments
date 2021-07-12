@@ -121,7 +121,7 @@ class RamseyXY(BaseExperiment):
         measure: 1/═══════════════════════════════╩═
                                                   0
 
-        (Ramsey Y) Second pulse is SY
+        (Ramsey X) The second pulse rotates by pi-half around the Y axis
 
                    ┌────┐┌─────────────┐┌──────────┐┌────┐ ░ ┌─┐
               q_0: ┤ √X ├┤ Delay(τ[s]) ├┤ Rz(-π/2) ├┤ √X ├─░─┤M├
