@@ -86,11 +86,6 @@ class QuantumVolume(BaseExperiment):
         else:
             self._simulation_backend = simulation_backend
 
-    def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
-        """Add ideal simulation data to the circuits"""
-        for circuit, ideal_circuit in zip(circuits, self._ideal_circuits):
-            self._add_ideal_data(circuit, ideal_circuit, **run_options)
-
     def _add_ideal_data(self, circuit, ideal_circuit, **run_options):
         if self._simulation_backend:
             ideal_result = execute(ideal_circuit, backend=self._simulation_backend, **run_options)
@@ -145,7 +140,6 @@ class QuantumVolume(BaseExperiment):
             List[QuantumCircuit]: A list of :class:`QuantumCircuit`s.
         """
         circuits = []
-        self._ideal_circuits = []
         depth = self._num_qubits
 
         # Continue the trials numbers from previous experiments runs
@@ -158,9 +152,10 @@ class QuantumVolume(BaseExperiment):
                 "trial": trial,
                 "qubits": self.physical_qubits,
             }
-            circuits.append(qv_circ)
             ideal_circuit = qv_circ.remove_final_measurements(inplace=False)
             ideal_circuit.save_probabilities()
-            self._ideal_circuits.append(ideal_circuit)
+            self._add_ideal_data(qv_circ, ideal_circuit)
+            circuits.append(qv_circ)
+
 
         return circuits
