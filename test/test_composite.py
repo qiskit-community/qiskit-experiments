@@ -40,7 +40,8 @@ class TestComposite(QiskitTestCase):
 
         par_exp = ParallelExperiment([exp0, exp2])
         with self.assertWarnsRegex(
-            Warning, "All sub-experiment options are overridden by composite experiment settings."
+            Warning,
+            "Sub-experiment run, transpile, and experiment options are overridden by composite experiment settings.",
         ):
             self.assertEqual(par_exp.experiment_options, Options())
             self.assertEqual(par_exp.run_options, Options(meas_level=2))
