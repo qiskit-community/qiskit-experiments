@@ -166,7 +166,7 @@ Calibration analysis
 """
 
 from .drag import DragCal
-from .rabi import Rabi
+from .rabi import Rabi, EFRabi
 
 from .analysis.oscillation_analysis import OscillationAnalysis
 from .analysis.drag_analysis import DragCalAnalysis
