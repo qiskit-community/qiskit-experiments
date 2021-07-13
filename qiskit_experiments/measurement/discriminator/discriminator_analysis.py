@@ -1,16 +1,27 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright IBM 2021.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+"""
+Standard discriminator analysis class.
+"""
 from typing import List, Optional, Union, Iterable, Tuple
 import numpy as np
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
 
 from qiskit.providers.options import Options
-
-from qiskit_experiments.base_analysis import BaseAnalysis
-
 from qiskit.qobj.utils import MeasLevel
 
+from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis import plotting
 from qiskit_experiments import AnalysisResult
-from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
 
 
 class DiscriminatorAnalysis(BaseAnalysis):
@@ -77,7 +88,6 @@ class DiscriminatorAnalysis(BaseAnalysis):
             ax = plotting.plot_contourf(xx, yy, zz, ax, alpha=0.2)
             ax.set_xlabel("I data")
             ax.set_ylabel("Q data")
-            # ax.legend(*scatter.legend_elements())
             figures = [ax.get_figure()]
         else:
             figures = None
@@ -89,7 +99,6 @@ class DiscriminatorAnalysis(BaseAnalysis):
                     "coef": discriminator.coef_,
                     "intercept": discriminator.intercept_,
                     "score": score,
-                    "plt": ax,
                 }
             )
 
@@ -99,21 +108,20 @@ class DiscriminatorAnalysis(BaseAnalysis):
                     "discriminator": discriminator,
                     "rotations": discriminator.rotations_,
                     "score": score,
-                    "plt": ax,
                 }
             )
 
-        return analysis_result, figures
+        return [analysis_result], figures
 
     def _process_data(self, data, qubit):
         """Returns x and y data for discriminator on specific qubit."""
         xdata = np.array([int(data[0]["metadata"]["ylabel"])] * len(data[0]["memory"]))
-        ydata = data[0]["memory"][:, 0, :]
+        ydata = np.array(data[0]["memory"])[:, 0, :]
         xdata = np.concatenate(
             (
                 xdata,
                 [int(data[1]["metadata"]["ylabel"])] * len(data[1]["memory"]),
             )
         )
-        ydata = np.concatenate((ydata, data[1]["memory"][:, 0, :]))
+        ydata = np.concatenate((ydata, np.array(data[1]["memory"])[:, 0, :]))
         return xdata, ydata

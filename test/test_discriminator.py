@@ -22,7 +22,6 @@ from qiskit.test import QiskitTestCase
 
 from qiskit_experiments.measurement.discriminator import (
     Discriminator,
-    DiscriminatorAnalysis,
 )
 
 

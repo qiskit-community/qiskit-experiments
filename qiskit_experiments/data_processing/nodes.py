@@ -372,6 +372,7 @@ class ToReal(IQPart):
         else:
             return datum[..., 0] * self.scale, None
 
+
 class ToImag(IQPart):
     """IQ data post-processing. Isolate the imaginary part of single-shot IQ data."""
 
@@ -393,13 +394,12 @@ class ToImag(IQPart):
         else:
             return datum[..., 1] * self.scale, None
 
+
 class Discriminator(TrainableDataAction):
     """Base class for discriminator processor. Takes IQ data and calibrated discriminator as input,
     outputs counts."""
 
-    def __init__(
-        self, handle: ExperimentData, validate: bool = True
-    ):
+    def __init__(self, handle: ExperimentData, validate: bool = True):
         """Initialize a counts to probability data conversion.
 
         Args:
@@ -407,9 +407,10 @@ class Discriminator(TrainableDataAction):
         """
         self._handle = handle
         self._analysis = None
+        self.train(self._handle)
         super().__init__(validate)
 
-    def _format_data(self, datum, error):
+    def _format_data(self, datum: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
         return datum
 
     def train(self, data: List[Any]):
@@ -421,7 +422,6 @@ class Discriminator(TrainableDataAction):
             self._analysis = data.analysis_result
         else:
             raise DataProcessorError("Invalid training data input type")
-
 
     @property
     def is_trained(self) -> bool:
@@ -458,17 +458,17 @@ class Discriminator(TrainableDataAction):
             processed data: Counts dictionary.
         """
         if not self.is_trained:
-            raise DataProcessorError("SVD must be trained on data before it can be used.")
+            raise DataProcessorError(
+                "The discriminator must be trained on data before it can be used."
+            )
 
-        #super()._process(datum)
         list_data = []
-
 
         for i in range(np.shape(datum)[1]):
             if "discriminator" not in self._analysis(i):
                 raise DataProcessorError("Input not a discriminator.")
             discriminator = self._analysis(i)["discriminator"]
-            list_data.append(discriminator.predict(datum[:, i, :]))
+            list_data.append(discriminator.predict(np.array(datum)[:, i, :]))
         return self._to_dict(list_data), None
 
 

@@ -1,5 +1,16 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright IBM 2021.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
 """
-Standard Discriminator Experiment class.
+Standard discriminator experiment class.
 """
 
 from typing import List, Optional, Union, Iterable, Tuple
@@ -13,9 +24,6 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
 
-from qiskit_experiments.analysis import plotting
-from qiskit_experiments import AnalysisResult
-from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
 from .discriminator_analysis import DiscriminatorAnalysis
 
 
