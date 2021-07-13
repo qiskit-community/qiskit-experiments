@@ -17,7 +17,6 @@ import numpy as np
 
 from qiskit_experiments.analysis import (
     CurveAnalysis,
-    CurveAnalysisResult,
     SeriesDef,
     fit_function,
     guess,
@@ -120,7 +119,7 @@ class OscillationAnalysis(CurveAnalysis):
 
         return fit_options
 
-    def _post_analysis(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_analysis(self, result_data: Dict) -> Dict:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -129,18 +128,18 @@ class OscillationAnalysis(CurveAnalysis):
             - less than 10 full periods, and
             - an error on the fit frequency lower than the fit frequency.
         """
-        fit_freq = get_opt_value(analysis_result, "freq")
-        fit_freq_err = get_opt_error(analysis_result, "freq")
+        fit_freq = get_opt_value(result_data, "freq")
+        fit_freq_err = get_opt_error(result_data, "freq")
 
         criteria = [
-            analysis_result["reduced_chisq"] < 3,
+            result_data["reduced_chisq"] < 3,
             1.0 / 4.0 < fit_freq < 10.0,
             (fit_freq_err is None or (fit_freq_err < fit_freq)),
         ]
 
         if all(criteria):
-            analysis_result["quality"] = "computer_good"
+            result_data["quality"] = "good"
         else:
-            analysis_result["quality"] = "computer_bad"
+            result_data["quality"] = "bad"
 
-        return analysis_result
+        return result_data
