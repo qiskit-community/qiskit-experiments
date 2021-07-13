@@ -140,14 +140,14 @@ See [1] for more details.
         default_options = super()._default_options()
 
         # update default values
-        default_options["p0"].default = {"a": None, "alpha": None, "alpha_c": None, "b": None}
-        default_options["bounds"].default = {
+        default_options.p0 = {"a": None, "alpha": None, "alpha_c": None, "b": None}
+        default_options.bounds = {
             "a": (0.0, 1.0),
             "alpha": (0.0, 1.0),
             "alpha_c": (0.0, 1.0),
             "b": (0.0, 1.0),
         }
-        default_options["fit_reports"].default = {
+        default_options.fit_reports = {
             "alpha": "\u03B1",
             "alpha_c": "\u03B1$_c$",
             "EPC": "EPC",

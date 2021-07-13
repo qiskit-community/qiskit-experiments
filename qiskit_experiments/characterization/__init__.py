@@ -17,6 +17,24 @@ Characterization Experiments (:mod:`qiskit_experiments.characterization`)
 
 .. currentmodule:: qiskit_experiments.characterization
 
+Experiments (auto)
+==================
+.. autosummary::
+    :toctree: ../stubs/
+    :template: autosummary/experiment.rst
+
+    QubitSpectroscopy
+
+
+Analysis (auto)
+===============
+.. autosummary::
+    :toctree: ../stubs/
+    :template: autosummary/analysis.rst
+
+    SpectroscopyAnalysis
+
+
 Experiments
 ===========
 .. autosummary::
@@ -24,7 +42,6 @@ Experiments
 
     T1Experiment
     T2StarExperiment
-    QubitSpectroscopy
 
 
 Analysis
@@ -35,7 +52,6 @@ Analysis
 
     T1Analysis
     T2StarAnalysis
-    SpectroscopyAnalysis
 """
 from .t1_experiment import T1Experiment, T1Analysis
 from .qubit_spectroscopy import QubitSpectroscopy, SpectroscopyAnalysis
