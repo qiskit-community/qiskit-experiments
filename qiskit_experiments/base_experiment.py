@@ -124,6 +124,12 @@ class BaseExperiment(ABC):
         run_opts.update_options(**run_options)
         run_opts = run_opts.__dict__
 
+        # Scheduling parameters
+        if backend.configuration().simulator is False:
+            alignment = getattr(self.transpile_options.__dict__, "alignment", 16)
+            scheduling_method = getattr(self.transpile_options.__dict__, "scheduling_method", "alap")
+            self.set_transpile_options(alignment=alignment, scheduling_method=scheduling_method)
+
         # Generate and transpile circuits
         circuits = transpile(self.circuits(backend), backend, **self.transpile_options.__dict__)
         self._postprocess_transpiled_circuits(circuits, backend, **run_options)
