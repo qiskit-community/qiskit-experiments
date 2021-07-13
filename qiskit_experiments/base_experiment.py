@@ -127,7 +127,9 @@ class BaseExperiment(ABC):
         # Scheduling parameters
         if backend.configuration().simulator is False:
             alignment = getattr(self.transpile_options.__dict__, "alignment", 16)
-            scheduling_method = getattr(self.transpile_options.__dict__, "scheduling_method", "alap")
+            scheduling_method = getattr(
+                self.transpile_options.__dict__, "scheduling_method", "alap"
+            )
             self.set_transpile_options(alignment=alignment, scheduling_method=scheduling_method)
 
         # Generate and transpile circuits
