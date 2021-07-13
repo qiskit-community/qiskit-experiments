@@ -184,7 +184,7 @@ class StandardRB(BaseExperiment):
             return circuit.metadata
         if circuit.metadata["experiment_type"] == ParallelExperiment.__name__:
             for meta in circuit.metadata["composite_metadata"]:
-                if meta["qubits"] == self.physical_qubits:
+                if meta["physical_qubits"] == self.physical_qubits:
                     return meta
         return None
 
