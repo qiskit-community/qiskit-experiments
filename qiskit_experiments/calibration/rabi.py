@@ -87,10 +87,10 @@ class Rabi(BaseExperiment):
 
         The parameters of the Gaussian Rabi pulse can be specified at run-time.
         The rabi pulse has the following parameters:
-            - duration: The duration of the rabi pulse in samples, the default is 160 samples.
-            - sigma: The standard deviation of the pulse, the default is duration 40.
-            - amplitudes: The amplitude that are scanned in the experiment, default  is
-                np.linspace(-0.95, 0.95, 51)
+        - duration: The duration of the rabi pulse in samples, the default is 160 samples.
+        - sigma: The standard deviation of the pulse, the default is duration 40.
+        - amplitudes: The amplitude that are scanned in the experiment, default  is
+        np.linspace(-0.95, 0.95, 51)
 
         Args:
             qubit: The qubit on which to run the Rabi experiment.
