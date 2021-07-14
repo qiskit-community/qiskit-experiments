@@ -18,6 +18,7 @@ import numpy as np
 
 from qiskit_experiments.analysis import (
     SeriesDef,
+    CurveAnalysisResultData,
     fit_function,
     get_opt_value,
     get_opt_error,
@@ -166,7 +167,7 @@ class InterleavedRBAnalysis(RBAnalysis):
 
         return fit_option
 
-    def _post_analysis(self, result_data: Dict) -> Dict:
+    def _post_analysis(self, result_data: CurveAnalysisResultData) -> CurveAnalysisResultData:
         """Calculate EPC."""
         # Add EPC data
         nrb = 2 ** self._num_qubits

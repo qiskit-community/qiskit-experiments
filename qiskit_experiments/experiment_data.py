@@ -43,7 +43,7 @@ class ExperimentData(DbExperimentDataV1):
         """
         self._experiment = experiment
         super().__init__(
-            experiment_type=experiment.experiment_type if experiment else "unknown",
+            experiment_type=experiment.experiment_type if experiment else None,
             backend=backend,
             job_ids=job_ids,
             metadata=experiment._metadata() if experiment else {},

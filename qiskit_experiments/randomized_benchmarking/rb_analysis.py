@@ -19,6 +19,7 @@ import numpy as np
 
 from qiskit_experiments.analysis import (
     CurveAnalysis,
+    CurveAnalysisResultData,
     SeriesDef,
     CurveData,
     fit_function,
@@ -163,7 +164,7 @@ class RBAnalysis(CurveAnalysis):
             )
         return super()._run_analysis(experiment_data, **options)
 
-    def _post_analysis(self, result_data: Dict) -> Dict:
+    def _post_analysis(self, result_data: CurveAnalysisResultData) -> CurveAnalysisResultData:
         """Calculate EPC."""
         alpha = get_opt_value(result_data, "alpha")
         alpha_err = get_opt_error(result_data, "alpha")

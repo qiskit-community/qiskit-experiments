@@ -17,6 +17,7 @@ import numpy as np
 
 from qiskit_experiments.analysis import (
     CurveAnalysis,
+    CurveAnalysisResultData,
     SeriesDef,
     fit_function,
     guess,
@@ -119,7 +120,7 @@ class OscillationAnalysis(CurveAnalysis):
 
         return fit_options
 
-    def _post_analysis(self, result_data: Dict) -> Dict:
+    def _post_analysis(self, result_data: CurveAnalysisResultData) -> CurveAnalysisResultData:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:

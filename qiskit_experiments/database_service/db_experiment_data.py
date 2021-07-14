@@ -97,7 +97,7 @@ class DbExperimentDataV1(DbExperimentData):
 
     def __init__(
         self,
-        experiment_type: str,
+        experiment_type: Optional[str] = "Unknown",
         backend: Optional[Union[Backend, BaseBackend]] = None,
         experiment_id: Optional[str] = None,
         tags: Optional[List[str]] = None,

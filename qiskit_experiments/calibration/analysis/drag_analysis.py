@@ -17,7 +17,7 @@ import numpy as np
 
 from qiskit_experiments.analysis import (
     CurveAnalysis,
-    CurveAnalysisResult,
+    CurveAnalysisResultData,
     SeriesDef,
     get_opt_value,
     get_opt_error,
@@ -182,7 +182,7 @@ class DragCalAnalysis(CurveAnalysis):
 
         return fit_options
 
-    def _post_analysis(self, result_data: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_analysis(self, result_data: CurveAnalysisResultData) -> CurveAnalysisResultData:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:

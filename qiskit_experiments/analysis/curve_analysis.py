@@ -24,7 +24,11 @@ import numpy as np
 from qiskit.providers.options import Options
 
 from qiskit_experiments.analysis import plotting
-from qiskit_experiments.analysis.curve_fitting import multi_curve_fit, CurveAnalysisResult
+from qiskit_experiments.analysis.curve_fitting import (
+    multi_curve_fit,
+    CurveAnalysisResult,
+    CurveAnalysisResultData,
+)
 from qiskit_experiments.analysis.utils import get_opt_value, get_opt_error
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.data_processing import DataProcessor
@@ -365,17 +369,15 @@ class CurveAnalysis(BaseAnalysis):
         )
 
     @requires_matplotlib
-    def _create_figures(self, result_data: Dict) -> List["Figure"]:
+    def _create_figures(self, result_data: CurveAnalysisResultData) -> List["Figure"]:
         """Create new figures with the fit result and raw data.
 
-        Subclass can override this method to create different type of figures.
-
-        Note:
-            The ``requires_matplotlib`` decorator is needed to ensure this method
-            works with ``DbExperimentData``.
+        Subclass can override this method to create different type of figures, but
+        the ``requires_matplotlib`` decorator is needed to ensure this method
+        works with ``DbExperimentData``.
 
         Args:
-            result_data: Result containing fit parameters.
+            result_data: Result data containing fit parameters.
 
         Returns:
             List of figures.
@@ -566,7 +568,7 @@ class CurveAnalysis(BaseAnalysis):
             metadata=data.metadata,
         )
 
-    def _post_analysis(self, result_data: Dict) -> Dict:
+    def _post_analysis(self, result_data: CurveAnalysisResultData) -> CurveAnalysisResultData:
         """Calculate new quantity from the fit result.
 
         Subclasses can override this method to do post analysis.
@@ -575,7 +577,7 @@ class CurveAnalysis(BaseAnalysis):
             result_data: Result containing fit result.
 
         Returns:
-            New CurveAnalysisResult instance containing the result of post analysis.
+            Updated result data containing the result of post analysis.
         """
         return result_data
 
@@ -915,7 +917,8 @@ class CurveAnalysis(BaseAnalysis):
         Raises:
             AnalysisError: if the analysis fails.
         """
-        result_data = {"analysis_type": self.__class__.__name__}
+        result_data = CurveAnalysisResultData()
+        result_data["analysis_type"] = self.__class__.__name__
         figures = list()
 
         #

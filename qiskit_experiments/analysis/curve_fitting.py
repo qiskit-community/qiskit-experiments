@@ -23,8 +23,14 @@ from qiskit_experiments.analysis.data_processing import filter_data
 from qiskit_experiments.database_service import DbAnalysisResultV1
 
 
+class CurveAnalysisResultData(dict):
+    """Analysis data container for curve fit analysis."""
+
+    pass
+
+
 class CurveAnalysisResult(DbAnalysisResultV1):
-    """Analysis data container for curve fit analysis.
+    """Curve fit analysis result.
 
     Class Attributes:
         __keys_not_shown__: Data keys of analysis result which are not directly shown
@@ -80,7 +86,7 @@ def curve_fit(
     sigma: Optional[np.ndarray] = None,
     bounds: Optional[Union[Dict[str, Tuple[float, float]], Tuple[np.ndarray, np.ndarray]]] = None,
     **kwargs,
-) -> Dict:
+) -> CurveAnalysisResultData:
     r"""Perform a non-linear least squares to fit
 
     This solves the optimization problem
@@ -201,7 +207,7 @@ def curve_fit(
         "xrange": xdata_range,
     }
 
-    return result
+    return CurveAnalysisResultData(result)
 
 
 def multi_curve_fit(
@@ -214,7 +220,7 @@ def multi_curve_fit(
     weights: Optional[np.ndarray] = None,
     bounds: Optional[Union[Dict[str, Tuple[float, float]], Tuple[np.ndarray, np.ndarray]]] = None,
     **kwargs,
-) -> Dict:
+) -> CurveAnalysisResultData:
     r"""Perform a linearized multi-objective non-linear least squares fit.
 
     This solves the optimization problem
@@ -294,9 +300,9 @@ def multi_curve_fit(
         return y
 
     # Run linearized curve_fit
-    analysis_result = curve_fit(f, xdata, ydata, p0, sigma=wsigma, bounds=bounds, **kwargs)
+    result_data = curve_fit(f, xdata, ydata, p0, sigma=wsigma, bounds=bounds, **kwargs)
 
-    return analysis_result
+    return result_data
 
 
 def process_curve_data(
