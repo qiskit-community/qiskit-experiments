@@ -164,6 +164,7 @@ class MockFineAmp(MockIQBackend):
         super().__init__()
 
         self.configuration().basis_gates.append("sx")
+        self.configuration().basis_gates.append("x")
 
     def _compute_probability(self, circuit: QuantumCircuit) -> float:
         """Return the probability of being in the excited state."""
@@ -172,9 +173,9 @@ class MockFineAmp(MockIQBackend):
         n_sx_ops = circuit.count_ops().get("sx", 0)
         n_x_ops = circuit.count_ops().get("x", 0)
 
-        angle = n_ops * (self._angle_per_gate + self.angle_error) / 2
+        angle = n_ops * (self._angle_per_gate + self.angle_error)
 
-        angle += np.pi / 4 * n_sx_ops
-        angle += np.pi / 2 * n_x_ops
+        angle += np.pi / 2 * n_sx_ops
+        angle += np.pi * n_x_ops
 
-        return np.sin(angle) ** 2
+        return np.sin(angle / 2) ** 2

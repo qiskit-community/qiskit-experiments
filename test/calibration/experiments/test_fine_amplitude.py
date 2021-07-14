@@ -39,25 +39,7 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         amp_cal = FineAmplitude(0)
         amp_cal.set_schedule(schedule=self.x_plus, angle_per_gate=np.pi, add_xp_circuit=True, add_sx=True)
-        amp_cal.set_analysis_options(number_guesses=11, bounds={"amp": (0, 1)})
-
-        backend = MockFineAmp(-np.pi * 0.07, np.pi, "xp")
-
-        result = amp_cal.run(backend).analysis_result(-1)
-
-        d_theta = result["popt"][result["popt_keys"].index("d_theta")]
-
-        tol = 0.04
-
-        self.assertTrue(abs(d_theta + backend.angle_error) < tol)
-        self.assertEqual(result["quality"], "computer_good")
-
-    def test_end_to_end_over_rotation(self):
-        """Test the experiment end to end."""
-
-        amp_cal = FineAmplitude(0)
-        amp_cal.set_schedule(schedule=self.x_plus, angle_per_gate=np.pi, add_xp_circuit=True, add_sx=True)
-        amp_cal.set_analysis_options(number_guesses=6, bounds={"amp": (0, 1)})
+        amp_cal.set_analysis_options(number_guesses=11)  #, bounds={"amp": (0, 1)})
 
         backend = MockFineAmp(np.pi * 0.07, np.pi, "xp")
 
@@ -67,7 +49,25 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         tol = 0.04
 
-        self.assertTrue(abs(d_theta + backend.angle_error) < tol)
+        self.assertTrue(abs(d_theta - backend.angle_error) < tol)
+        self.assertEqual(result["quality"], "computer_good")
+
+    def test_end_to_end_over_rotation(self):
+        """Test the experiment end to end."""
+
+        amp_cal = FineAmplitude(0)
+        amp_cal.set_schedule(schedule=self.x_plus, angle_per_gate=np.pi, add_xp_circuit=True, add_sx=True)
+        amp_cal.set_analysis_options(number_guesses=6)
+
+        backend = MockFineAmp(np.pi * 0.07, np.pi, "xp")
+
+        result = amp_cal.run(backend).analysis_result(-1)
+
+        d_theta = result["popt"][result["popt_keys"].index("d_theta")]
+
+        tol = 0.04
+
+        self.assertTrue(abs(d_theta - backend.angle_error) < tol)
         self.assertEqual(result["quality"], "computer_good")
 
 
