@@ -31,6 +31,8 @@ from qiskit.transpiler.basepasses import TransformationPass
 
 from qiskit_experiments.calibration.management.calibrations import Calibrations
 
+# TODO: need to show how this might work in an experiment. E.g. Rabi?
+
 class CalibrationAdder(TransformationPass):
     """Transformation pass to inject calibrations into circuits."""
 
@@ -98,9 +100,10 @@ class CalibrationAdder(TransformationPass):
 
 
 def get_calibration_pass_manager(
-        initial_layout: List[int],
-        coupling_map: List[List[int]],
-        calibrations: Optional[Calibrations]
+    initial_layout: List[int],
+    coupling_map: List[List[int]],
+    calibrations: Optional[Calibrations],
+    gate_schedule_map: Optional[Dict[str, str]],
 ) -> PassManager:
     """Get a calibrations experiment pass manager.
 
@@ -108,6 +111,7 @@ def get_calibration_pass_manager(
         initial_layout:
         coupling_map:
         calibrations:
+        gate_schedule_map:
 
     Returns:
          An instance of :class:`PassManager` tailored to calibration experiments.
@@ -124,6 +128,6 @@ def get_calibration_pass_manager(
     pm.append([FullAncillaAllocation(coupling_map), EnlargeWithAncilla(), ApplyLayout()])
 
     if calibrations is not None:
-        pm.append(CalibrationAdder(calibrations))
+        pm.append(CalibrationAdder(calibrations, gate_schedule_map))
 
     return pm
