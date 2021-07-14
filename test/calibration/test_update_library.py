@@ -24,7 +24,7 @@ from qiskit.test.mock import FakeAthens
 
 from qiskit_experiments.calibration.rabi import Rabi
 from qiskit_experiments.calibration.drag import DragCal
-from qiskit_experiments.calibration.experiments.fine_amplitude import FineAmplitude
+from qiskit_experiments.calibration.fine_amplitude import FineAmplitude
 from qiskit_experiments.calibration.management.calibrations import Calibrations
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration.management.update_library import Frequency, Amplitude, Drag

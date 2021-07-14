@@ -23,7 +23,7 @@ from qiskit.pulse.schedule import ScheduleBlock
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
-from qiskit_experiments.calibration.experiments.fine_amplitude_analysis import FineAmplitudeAnalysis
+from qiskit_experiments.calibration.analysis.fine_amplitude_analysis import FineAmplitudeAnalysis
 from qiskit_experiments.calibration.exceptions import CalibrationError
 
 
