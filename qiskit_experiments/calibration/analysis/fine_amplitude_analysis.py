@@ -49,7 +49,7 @@ class FineAmplitudeAnalysis(CurveAnalysis):
         - :math:`{\rm d}\theta`: Zero.
 
     Bounds
-        - :math:`amp`: [-1, 1] scaled to the maximum signal value.
+        - :math:`amp`: [-2, 2] scaled to the maximum signal value.
         - :math:`baseline`: [-1, 1] scaled to the maximum signal value.
         - :math:`{\rm d}\theta`: [-pi, pi].
 
