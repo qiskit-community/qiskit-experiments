@@ -32,9 +32,9 @@ class FakeExperiment(BaseExperiment):
 
     __analysis_class__ = FakeAnalysis
 
-    # @classmethod
-    # def _default_experiment_options(cls) -> Options:
-    #     return Options(dummyoption=None)
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        return Options(dummyoption=None)
 
     def __init__(self, qubit=0):
         """Initialise the fake experiment."""
