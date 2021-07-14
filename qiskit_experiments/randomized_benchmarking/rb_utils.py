@@ -123,9 +123,9 @@ class RBUtils:
         Args:
             nQ (int): number of qubits (1 and 2 supported).
             T1_list (list): list of T1's (Q1,...,Qn).
-            T2_list (list): list of T2's (as measured, not Tphi).
-                If not given assume T2=2*T1 .
+            T2_list (list): list of T2's (as measured, not Tphi). If not given assume T2=2*T1 .
             gatelen (float): length of the gate.
+
         Returns:
             float: coherence limited error per gate.
         Raises:

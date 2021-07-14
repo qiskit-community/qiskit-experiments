@@ -47,6 +47,10 @@ class StandardRB(BaseExperiment):
         See :class:`RBAnalysis` documentation for additional
         information on RB experiment analysis.
 
+        See :class:`RBUtils` documentation for additional information
+        on estimating the Error Per Gate (EPG) for 1-qubit and 2-qubit gates,
+        from 1-qubit and 2-qubit standard RB experiments, by Ref. [3].
+
     References
         1. Easwar Magesan, J. M. Gambetta, and Joseph Emerson,
            Robust randomized benchmarking of quantum processes,
@@ -54,6 +58,9 @@ class StandardRB(BaseExperiment):
         2. Easwar Magesan, Jay M. Gambetta, and Joseph Emerson,
            Characterizing Quantum Gates via Randomized Benchmarking,
            `arXiv:quant-ph/1009.6887 <https://arxiv.org/pdf/1109.6887>`_
+        3. David C. McKay, Sarah Sheldon, John A. Smolin, Jerry M. Chow, and Jay M. Gambetta,
+           Three Qubit Randomized Benchmarking, `arXiv:quant-ph/1712.06550
+           <https://arxiv.org/pdf/1712.06550>`_
 
     Analysis Class
         :class:`~qiskit.experiments.randomized_benchmarking.RBAnalysis`
@@ -64,8 +71,8 @@ class StandardRB(BaseExperiment):
 
     Analysis Options
         - **error_dict**: Optional. Error estimates for gates from the backend properties.
-        - **epg_1_qubit**: Optional. EPG data for the 1-qubits gate involved, assumed to
-          have been obtained from previous experiments
+        - **epg_1_qubit**: Optional. EPG data for the 1-qubit gate involved, assumed to
+          have been obtained from previous experiments. This is used to estimate the 2-qubit EPG.
         - **gate_error_ratio**: An estimate for the ratios between errors on different gates.
     """
 
