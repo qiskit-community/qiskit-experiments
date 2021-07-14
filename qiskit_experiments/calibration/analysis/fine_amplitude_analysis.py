@@ -141,14 +141,14 @@ class FineAmplitudeAnalysis(CurveAnalysis):
 
         A good fit has:
             - a reduced chi-squared lower than three,
-            - an error on the measured angle deviation that is lower than the measured value.
+            - a measured angle error that is smaller than the angle_per_gate.
         """
         fit_d_theta = get_opt_value(analysis_result, "d_theta")
-        fit_d_theta_err = get_opt_error(analysis_result, "d_theta")
+        angle_per_gate = self._get_option("angle_per_gate")
 
         criteria = [
             analysis_result["reduced_chisq"] < 3,
-            (fit_d_theta_err is None or (fit_d_theta_err < abs(fit_d_theta))),
+            abs(fit_d_theta) < abs(angle_per_gate),
         ]
 
         if all(criteria):
