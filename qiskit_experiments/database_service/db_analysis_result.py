@@ -133,56 +133,19 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 pass
         self._extra_data = kwargs
 
-    def serialize_data(self) -> str:
-        """Serialize result data into JSON string.
-
-        Returns:
-            Serialized JSON string.
-        """
-        return json.dumps(self._result_data, cls=self._json_encoder)
-
     @classmethod
-    def deserialize_data(cls, data: str) -> Dict:
-        """Deserialize experiment from JSON string.
+    def load(cls, result_id: str, service: DatabaseServiceV1) -> "DbAnalysisResultV1":
+        """Load a saved analysis result from a database service.
 
         Args:
-            data: Data to be deserialized.
+            result_id: Analysis result ID.
+            service: the database service.
 
         Returns:
-            Deserialized data.
+            The loaded analysis result.
         """
-        return json.loads(data, cls=cls._json_decoder)
-
-    @classmethod
-    def from_data(
-        cls,
-        result_data: Dict,
-        result_type: str,
-        device_components: List[Union[DeviceComponent, str]],
-        experiment_id: str,
-        **kwargs,
-    ) -> "DbAnalysisResultV1":
-        """Reconstruct the analysis result from input data.
-
-        Args:
-            result_data: Analysis result data.
-            result_type: Analysis result type.
-            device_components: Target device components this analysis is for.
-            experiment_id: ID of the experiment.
-            **kwargs: Additional analysis result attributes.
-
-        Returns:
-            Reconstructed analysis result.
-        """
-        if result_data:
-            result_data = cls.deserialize_data(json.dumps(result_data))
-        return cls(
-            result_data=result_data,
-            result_type=result_type,
-            device_components=device_components,
-            experiment_id=experiment_id,
-            **kwargs,
-        )
+        # Load data from the service
+        return cls._from_data(service.analysis_result(result_id))
 
     def save(self) -> None:
         """Save this analysis result in the database.
@@ -196,7 +159,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             )
             return
 
-        _result_data = json.loads(self.serialize_data())
+        _result_data = json.loads(json.dumps(self._result_data, cls=self._json_encoder))
         _result_data["_source"] = self._source
 
         new_data = {
@@ -218,6 +181,33 @@ class DbAnalysisResultV1(DbAnalysisResult):
             update_func=self._service.update_analysis_result,
             new_data=new_data,
             update_data=update_data,
+        )
+
+    @classmethod
+    def _from_service_data(cls, service_data: Dict) -> "DbAnalysisResultV1":
+        """Construct an analysis result from saved database service data.
+
+        Args:
+            service_data: Analysis result data.
+
+        Returns:
+            The loaded analysis result.
+        """
+        # Parse serialized data
+        result_data = service_data["result_data"]
+        if result_data:
+            result_data = json.loads(json.dumps(result_data), cls=cls._json_decoder)
+        # Initialize the result object
+        return DbAnalysisResultV1(
+            result_data,
+            result_type=service_data["result_type"],
+            device_components=service_data["device_components"],
+            experiment_id=service_data["experiment_id"],
+            result_id=service_data["result_id"],
+            quality=service_data["quality"],
+            verified=service_data["verified"],
+            tags=service_data["tags"],
+            service=service_data["service"],
         )
 
     def data(self) -> Dict:

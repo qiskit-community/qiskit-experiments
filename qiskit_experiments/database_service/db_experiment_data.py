@@ -329,6 +329,20 @@ class DbExperimentDataV1(DbExperimentData):
         """
         self._data.append(data)
 
+    def _retrieve_data(self):
+        """Retrieve job data if missing experiment data."""
+        # Get job results if missing experiment data.
+        if (not self._data) and self._provider:
+            with self._jobs.lock:
+                for jid in self._jobs:
+                    if self._jobs[jid] is None:
+                        try:
+                            self._jobs[jid] = self._provider.retrieve_job(jid)
+                        except Exception:  # pylint: disable=broad-except
+                            pass
+                    if self._jobs[jid] is not None:
+                        self._add_result_data(self._jobs[jid].result())
+
     def data(self, index: Optional[Union[int, slice, str]] = None) -> Union[Dict, List[Dict]]:
         """Return the experiment data at the specified index.
 
@@ -347,18 +361,7 @@ class DbExperimentDataV1(DbExperimentData):
         Raises:
             TypeError: If the input `index` has an invalid type.
         """
-        # Get job results if missing experiment data.
-        if (not self._data) and self._provider:
-            with self._jobs.lock:
-                for jid in self._jobs:
-                    if self._jobs[jid] is None:
-                        try:
-                            self._jobs[jid] = self._provider.retrieve_job(jid)
-                        except Exception:  # pylint: disable=broad-except
-                            pass
-                    if self._jobs[jid] is not None:
-                        self._add_result_data(self._jobs[jid].result())
-
+        self._retrieve_data()
         if index is None:
             return self._data.copy()
         if isinstance(index, (int, slice)):
@@ -585,6 +588,23 @@ class DbExperimentDataV1(DbExperimentData):
 
         return result_key
 
+    def _retrieve_analysis_results(self, refresh: bool = False):
+        """Retrieve service analysis results.
+
+        Args:
+            refresh: Retrieve the latest analysis results from the server, if
+                an experiment service is available.
+        """
+        # Get job results if missing experiment data.
+        if self.service and (not self._analysis_results or refresh):
+            retrieved_results = self.service.analysis_results(
+                experiment_id=self.experiment_id, limit=None
+            )
+            for result in retrieved_results:
+                self._analysis_results[result["result_id"]] = DbAnalysisResult._from_service_data(
+                    result
+                )
+
     def analysis_results(
         self, index: Optional[Union[int, slice, str]] = None, refresh: bool = False
     ) -> Union[DbAnalysisResult, List[DbAnalysisResult]]:
@@ -608,13 +628,7 @@ class DbExperimentDataV1(DbExperimentData):
             TypeError: If the input `index` has an invalid type.
             DbExperimentEntryNotFound: If the entry cannot be found.
         """
-        if self.service and (not self._analysis_results or refresh):
-            retrieved_results = self.service.analysis_results(
-                experiment_id=self.experiment_id, limit=None
-            )
-            for result in retrieved_results:
-                self._analysis_results[result["result_id"]] = DbAnalysisResult.from_data(**result)
-
+        self._retrieve_analysis_results(refresh=refresh)
         if index is None:
             return self._analysis_results.values()
         if isinstance(index, (int, slice)):
@@ -646,7 +660,7 @@ class DbExperimentDataV1(DbExperimentData):
             LOG.warning("Experiment cannot be saved because backend is missing.")
             return
 
-        metadata = json.loads(self.serialize_metadata())
+        metadata = json.loads(json.dumps(self._metadata, cls=self._json_encoder))
         metadata["_source"] = self._source
 
         update_data = {
@@ -710,53 +724,42 @@ class DbExperimentDataV1(DbExperimentData):
                 self._service.delete_figure(experiment_id=self.experiment_id, figure_name=name)
             self._deleted_figures.remove(name)
 
-    def serialize_metadata(self) -> str:
-        """Serialize experiment metadata into a JSON string.
-
-        Returns:
-            Serialized JSON string.
-        """
-        return json.dumps(self._metadata, cls=self._json_encoder)
-
     @classmethod
-    def deserialize_metadata(cls, data: str) -> Any:
-        """Deserialize experiment metadata from a JSON string.
+    def load(cls, experiment_id: str, service: DatabaseServiceV1) -> "DbExperimentDataV1":
+        """Load a saved experiment data from a database service.
 
         Args:
-            data: Data to be deserialized.
+            experiment_id: Experiment ID.
+            service: the database service.
 
         Returns:
-            Deserialized data.
+            The loaded experiment data.
         """
-        return json.loads(data, cls=cls._json_decoder)
+        service_data = service.experiment(experiment_id)
 
-    @classmethod
-    def from_data(
-        cls,
-        experiment_type: str,
-        experiment_id: str,
-        metadata: Optional[Dict] = None,
-        **kwargs,
-    ) -> "DbExperimentDataV1":
-        """Reconstruct a DbExperimentDataV1 using the input data.
-
-        Args:
-            experiment_type: Experiment type.
-            experiment_id: Experiment ID. One will be generated if not supplied.
-            metadata: Additional experiment metadata.
-            **kwargs: Additional experiment attributes.
-
-        Returns:
-            An DbExperimentDataV1 instance.
-        """
+        # Parse serialized metadata
+        metadata = service_data["metadata"]
         if metadata:
-            metadata = cls.deserialize_metadata(json.dumps(metadata))
-        return cls(
-            experiment_type=experiment_type,
-            experiment_id=experiment_id,
+            metadata = json.loads(json.dumps(metadata), cls=cls._json_decoder)
+
+        # Initialize container
+        # NOTE: not sure how to parse extra_args from service data
+        expdata = DbExperimentDataV1(
+            experiment_type=service_data["experiment_data"],
+            backend=service_data["backend"],
+            experiment_id=service_data["experiment_id"],
+            tags=service_data["tags"],
+            job_ids=service_data["job_ids"],
+            share_level=service_data["share_level"],
             metadata=metadata,
-            **kwargs,
+            figure_names=service_data["figure_names"],
+            notes=service_data["notes"],
         )
+        # Retrieve analysis results
+        # Maybe this isn't necessary but the repr of the class should
+        # be updated to show correct number of results including remote ones
+        expdata._retrieve_analysis_results()
+        return expdata
 
     def cancel_jobs(self) -> None:
         """Cancel any running jobs."""

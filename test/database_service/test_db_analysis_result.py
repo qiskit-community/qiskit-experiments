@@ -122,7 +122,7 @@ class TestDbAnalysisResult(QiskitTestCase):
     def test_data_serialization(self):
         """Test result data serialization."""
         result = self._new_analysis_result(result_data={"complex": 2 + 3j, "numpy": np.zeros(2)})
-        serialized = result.serialize_data()
+        serialized = json.dumps(result._result_data, cls=result._json_encoder)
         self.assertIsInstance(serialized, str)
         self.assertTrue(json.loads(serialized))
 

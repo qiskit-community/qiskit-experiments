@@ -641,11 +641,11 @@ class TestDbExperimentData(QiskitTestCase):
         """Test experiment metadata serialization."""
         metadata = {"complex": 2 + 3j, "numpy": np.zeros(2)}
         exp_data = DbExperimentData(experiment_type="qiskit_test", metadata=metadata)
-        serialized = exp_data.serialize_metadata()
+        serialized = json.dumps(exp_data._metadata, cls=exp_data._json_encoder)
         self.assertIsInstance(serialized, str)
         self.assertTrue(json.loads(serialized))
 
-        deserialized = DbExperimentData.deserialize_metadata(serialized)
+        deserialized = json.loads(serialized, cls=exp_data._json_decoder)
         self.assertEqual(metadata["complex"], deserialized["complex"])
         self.assertEqual(metadata["numpy"].all(), deserialized["numpy"].all())
 
