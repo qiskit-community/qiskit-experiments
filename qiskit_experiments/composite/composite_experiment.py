@@ -66,13 +66,21 @@ class CompositeExperiment(BaseExperiment):
         # Add sub-experiment options
         for i in range(self.num_experiments):
             sub_exp = self.component_experiment(i)
+
+            # Construct default transpile options with initial layout
+            default_transpile_options = Options(**sub_exp._default_transpile_options().__dict__)
+            default_transpile_options.update_options(
+                **{"initial_layout": sub_exp.transpile_options.get("initial_layout")}
+            )
+
+            # Run and transpile options are always overridden
             if (
-                sub_exp.run_options != Options()
-                or sub_exp.transpile_options != Options()
-                or sub_exp.experiment_options != Options()
+                sub_exp.run_options != sub_exp._default_run_options()
+                or sub_exp.transpile_options != default_transpile_options
             ):
+
                 warnings.warn(
-                    "Sub-experiment run, transpile, and experiment options"
+                    "Sub-experiment run and transpile options"
                     " are overridden by composite experiment options."
                 )
             sub_data = experiment_data.component_experiment_data(i)
