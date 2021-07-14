@@ -36,7 +36,7 @@ class RBUtils:
         Args:
             backend: The backend from which the properties are taken
             qubits: The qubits participating in the experiment, used
-            to filter irrelevant gates from the result.
+              to filter irrelevant gates from the result.
 
         Returns:
             A dictionary of the form (qubits, gate) -> value that for each
@@ -95,10 +95,11 @@ class RBUtils:
         """
         Computes the average number of gates per clifford for each gate type
         in the input from raw count data coming from multiple circuits.
+
         Args:
             ops_count: A List of [key, value] pairs where
-            key is [qubits, gate_name] and value is the average
-            number of gates per clifford of the type for the given key
+              key is [qubits, gate_name] and value is the average
+              number of gates per clifford of the type for the given key
 
         Returns:
             A dictionary with the mean value of values corresponding
@@ -120,11 +121,12 @@ class RBUtils:
     def coherence_limit(nQ=2, T1_list=None, T2_list=None, gatelen=0.1):
         """
         The error per gate (1-average_gate_fidelity) given by the T1,T2 limit.
+
         Args:
-            nQ (int): number of qubits (1 and 2 supported).
-            T1_list (list): list of T1's (Q1,...,Qn).
-            T2_list (list): list of T2's (as measured, not Tphi). If not given assume T2=2*T1 .
-            gatelen (float): length of the gate.
+            nQ (int): Number of qubits (1 and 2 supported).
+            T1_list (list): List of T1's (Q1,...,Qn).
+            T2_list (list): List of T2's (as measured, not Tphi). If not given assume T2=2*T1 .
+            gatelen (float): Length of the gate.
 
         Returns:
             float: coherence limited error per gate.
@@ -186,6 +188,7 @@ class RBUtils:
     ) -> Dict[int, Dict[str, float]]:
         r"""
         Convert error per Clifford (EPC) into error per gates (EPGs) of single qubit basis gates.
+
         Args:
             epc_1_qubit: The error per clifford rate obtained via experiment
             qubits: The qubits for which to compute epg
@@ -193,7 +196,7 @@ class RBUtils:
             gates_per_clifford: The computed gates per clifford data
         Returns:
             A dictionary of the form (qubits, gate) -> value where value
-            is the epg for the given gate on the specified qubits
+            is the EPG for the given gate on the specified qubits
         """
         epg = {qubit: {} for qubit in qubits}
         for qubit in qubits:
@@ -220,17 +223,20 @@ class RBUtils:
         r"""
         Convert error per Clifford (EPC) into error per gates (EPGs) of two-qubit basis gates.
         Assumes a single two-qubit gate type is used in transpilation
+
         Args:
             epc_2_qubit: The error per clifford rate obtained via experiment
             qubits: The qubits for which to compute epg
             gate_error_ratio: Estiamte for the ratios between errors on different gates
             gates_per_clifford: The computed gates per clifford data
-            epg_1_qubit: epg data for the 1-qubits gate involved, assumed to
-            have been obtained from previous experiments
+            epg_1_qubit: EPG data for the 1-qubits gate involved, assumed to
+              have been obtained from previous experiments
             gate_2_qubit_type: The name of the 2-qubit gate to be analyzed
+
         Returns:
-            The epg value for the specified gate on the specified qubits
+            The EPG value for the specified gate on the specified qubits
             given in a dictionary form as in calculate_1q_epg
+
         Raises:
             QiskitError: if a non 2-qubit gate was given
         """
