@@ -106,7 +106,7 @@ class TestAmplitudeUpdate(QiskitTestCase):
         )
         amp_cal.set_analysis_options(number_guesses=11)
 
-        error = -np.pi * 0.1
+        error = -np.pi * 0.05
         backend = MockFineAmp(error, np.pi, "xp")
 
         exp_data = amp_cal.run(backend)

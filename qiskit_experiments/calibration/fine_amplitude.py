@@ -28,7 +28,7 @@ from qiskit_experiments.exceptions import CalibrationError
 
 
 class FineAmplitude(BaseExperiment):
-    """Error amplifying fine amplitude calibration experiment.
+    r"""Error amplifying fine amplitude calibration experiment.
 
     The :class:`FineAmplitude` calibration experiment repeats N times a gate with a pulse
     to amplify the under-/over-rotations in the gate to determine the optimal amplitude.
@@ -51,16 +51,51 @@ class FineAmplitude(BaseExperiment):
     an intended rotation angle per gate which must also be specified by the user. The steps
     to run a fine amplitude calibration experiment are therefore
 
-    .. code-block:
+    .. code-block:: python
 
         qubit = 3
         amp_cal = FineAmplitude(qubit)
-        amp_cal.set_schedule(schedule=x45p, angle_per_gate=np.pi/4, phase_offset=0.0)
+        amp_cal.set_schedule(
+            schedule=x90p,
+            angle_per_gate=np.pi/2,
+            add_xp_circuit=False,
+            add_sx=False
+        )
         amp_cal.run(backend)
 
     Note that the schedule and angle_per_gate could have been set by independently calling
     :meth:`set_experiment_options` for the schedule and :meth:`set_analysis_options` for
     the angle_per_gate.
+
+    Error amplifying experiments are most sensitive to angle errors when we measure points along
+    the equator of the Block sphere. This is why users should insert a square-root of X pulse
+    before running calibrations for :math:`\pm\pi` rotations. Furthermore, when running
+    calibrations for :math:`\pm\pi/2` rotations users are advised to use an odd number of
+    repetitions, e.g. [1, 2, 3, 5, 7, ...] to ensure that the ideal points are on the equator
+    of the Bloch sphere. Note the presence of two repetitions which allows us to prepare the
+    excited state. Therefore, add_xp_circuit = True is not needed in this case.
+
+    **Summary of experiment options**
+
+    * repetitions: A list with the number of times the gate of interest will be repeated.
+    * schedule: The schedule of the gate that will be repeated.
+    * add_sx: A boolean which if set to True will add a square-root of X before the repetitions
+      of the gate of interest. Set this to True if you are calibrating gates with an ideal
+      rotation angle per gate of :math:`\pm\pi`. The default value is False.
+    * add_xp_circuit: A boolean which if set to True will cause the experiment to run an
+      additional circuit with an X gate and a measurement. This prepares the excited state
+      and is typically crucial to get the correct sign for the magnitude of the error in
+      the rotation angle. The default value is True.
+    * sx_schedule: Allows users to set a schedule for the square-root of X gate.
+
+    **Summary of analysis options**
+
+    * angle_per_gate: The ideal angle per repeated gate. The user must set this options.
+    * phase_offset: A phase offset for the analysis. This phase offset will be :math:`\pi/2`
+      if the square-root of X gate is added before the repeated gates.
+
+    Users can call :meth:`set_schedule` to conveniently set the schedule and the corresponding
+    experiment and analysis options.
     """
 
     __analysis_class__ = FineAmplitudeAnalysis
@@ -81,7 +116,7 @@ class FineAmplitude(BaseExperiment):
         options.schedule = None
         options.normalization = True
         options.add_sx = False
-        options.add_xp_circuit = False
+        options.add_xp_circuit = True
         options.sx_schedule = None
 
         return options
@@ -91,6 +126,7 @@ class FineAmplitude(BaseExperiment):
         """Default analysis options."""
         options = super()._default_analysis_options()
         options.phase_offset = 0.0
+        options.angle_per_gate = None
 
         return options
 
@@ -103,11 +139,11 @@ class FineAmplitude(BaseExperiment):
         super().__init__([qubit])
 
     def set_schedule(
-            self,
-            schedule: ScheduleBlock,
-            angle_per_gate: float,
-            add_xp_circuit: bool,
-            add_sx: bool,
+        self,
+        schedule: ScheduleBlock,
+        angle_per_gate: float,
+        add_xp_circuit: bool,
+        add_sx: bool,
     ):
         """Set the schedule and its corresponding intended angle per gate.
 
