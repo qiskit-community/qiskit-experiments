@@ -46,7 +46,7 @@ class StandardRB(BaseExperiment):
         self,
         qubits: Union[int, Iterable[int]],
         lengths: Iterable[int],
-        num_samples: int = 1,
+        num_samples: int = 3,
         seed: Optional[Union[int, Generator]] = None,
         full_sampling: Optional[bool] = False,
     ):
@@ -184,7 +184,7 @@ class StandardRB(BaseExperiment):
             return circuit.metadata
         if circuit.metadata["experiment_type"] == ParallelExperiment.__name__:
             for meta in circuit.metadata["composite_metadata"]:
-                if meta["qubits"] == self.physical_qubits:
+                if meta["physical_qubits"] == self.physical_qubits:
                     return meta
         return None
 
