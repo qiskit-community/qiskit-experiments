@@ -34,12 +34,12 @@ class T2RamseyBackend(BackendV1):
         initial_prob_plus=None,
         readout0to1=None,
         readout1to0=None,
-        dt_factor=1,
+        conversion_factor=1,
     ):
         """
         Initialize the T2Ramsey backend
         """
-        dt_factor_in_ns = dt_factor * 1e9 if dt_factor is not None else None
+        dt_factor_in_ns = conversion_factor * 1e9 if conversion_factor is not None else None
         configuration = QasmBackendConfiguration(
             backend_name="T2Ramsey_simulator",
             backend_version="0",
@@ -64,7 +64,7 @@ class T2RamseyBackend(BackendV1):
         self._initial_prob_plus = initial_prob_plus
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
-        self._dt_factor = dt_factor
+        self._dt_factor = conversion_factor
         self._rng = np.random.default_rng(0)
         super().__init__(configuration)
 
@@ -185,7 +185,7 @@ class TestT2Ramsey(QiskitTestCase):
                 "B": 0.5,
             }
             for user_p0 in [default_p0, None]:
-                exp.set_analysis_options(user_p0=user_p0)
+                exp.set_analysis_options(user_p0=user_p0, plot=True)
                 backend = T2RamseyBackend(
                     p0={
                         "a_guess": [0.5],
@@ -197,7 +197,7 @@ class TestT2Ramsey(QiskitTestCase):
                     initial_prob_plus=[0.0],
                     readout0to1=[0.02],
                     readout1to0=[0.02],
-                    dt_factor=dt_factor,
+                    conversion_factor=dt_factor,
                 )
 
             expdata = exp.run(
@@ -286,7 +286,7 @@ class TestT2Ramsey(QiskitTestCase):
             initial_prob_plus=[0.0],
             readout0to1=[0.02],
             readout1to0=[0.02],
-            dt_factor=1,
+            conversion_factor=1,
         )
 
         # run circuits
@@ -310,5 +310,5 @@ class TestT2Ramsey(QiskitTestCase):
         self.assertEqual(
             result1["quality"], "computer_good", "Result quality bad for unit " + str(unit)
         )
-        self.assertLessEqual(result1["stderr"], result0["stderr"])
+        self.assertLessEqual(result1["stderr_t2"], result0["stderr_t2"])
         self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))
