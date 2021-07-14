@@ -27,26 +27,38 @@ from .t2ramsey_analysis import T2RamseyAnalysis
 class T2Ramsey(BaseExperiment):
 
     r"""
-    This experiment is used to estimate two properties for a single qubit:
-    T2* and Ramsey frequency.
-    The basic circuit used consists of:
+    T2Ramsey Experiment
 
-    #. Hadamard gate
+    Overview
+        This experiment is used to estimate two properties for a single qubit:
+        T2* and Ramsey frequency.
+        This experiment consists of a series of circuits of the form
+        
+    .. parsed-literal::
 
-    #. Delay
+           ┌───┐┌──────────────┐┌──────┐ ░ ┌───┐ ░ ┌─┐
+      q_0: ┤ H ├┤   DELAY(t)   ├┤ P(λ) ├─░─┤ H ├─░─┤M├
+           └───┘└──────────────┘└──────┘ ░ └───┘ ░ └╥┘
+      c: 1/═════════════════════════════════════════╩═
+                                                    0 
 
-    #. Phase gate
+    for each *t* from the specified delay times, and where
+    :math:`\lambda =2 \pi \times {osc\_freq}`.
 
-    #. Hadamard gate
-
-    #. Measurement
+    Analysis Class
+        :class:`~qiskit.experiments.characterization.T2RamseyAnalysis`
+        
+    Analysis Options
+    
+        - **user_p0** (``List[Float]``): user guesses for the fit parameters:
+          :math:`a, b, f, \phi, T_2^*`.
+        - **bounds** - (Tuple[List[float], List[float]]) lower and upper bounds for the fit parameters.
+        - **plot** (bool) - create a graph if and only if True.
 
     A series of such circuits is created, with increasing delays, as specified
     by the user. The circuits are run on the device or on a simulator backend.
     Results are analysed in the class T2RamseyAnalysis.
-
     """
-
     __analysis_class__ = T2RamseyAnalysis
 
     def __init__(
