@@ -111,10 +111,7 @@ class FineAmplitudeAnalysis(CurveAnalysis):
         if angle_per_gate is None:
             raise CalibrationError("The angle_per_gate was not specified in the analysis options.")
 
-        if angle_per_gate == 0:
-            guess_range = np.pi / 2
-        else:
-            guess_range = angle_per_gate / 2
+        guess_range = max(abs(angle_per_gate), np.pi / 2)
 
         fit_options = []
 
