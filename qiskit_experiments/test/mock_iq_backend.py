@@ -169,10 +169,12 @@ class MockFineAmp(MockIQBackend):
         """Return the probability of being in the excited state."""
 
         n_ops = circuit.count_ops().get(self._gate_name, 0)
+        n_sx_ops = circuit.count_ops().get("sx", 0)
+        n_x_ops = circuit.count_ops().get("x", 0)
 
         angle = n_ops * (self._angle_per_gate + self.angle_error) / 2
 
-        if circuit.data[0][0].name == "sx":
-            angle += np.pi / 4
+        angle += np.pi / 4 * n_sx_ops
+        angle += np.pi / 2 * n_x_ops
 
         return np.sin(angle) ** 2

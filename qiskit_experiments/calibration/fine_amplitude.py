@@ -13,6 +13,7 @@
 """Fine amplitude calibration experiment."""
 
 from typing import List, Optional
+import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
@@ -22,9 +23,8 @@ from qiskit.providers.options import Options
 from qiskit.pulse.schedule import ScheduleBlock
 
 from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
 from qiskit_experiments.calibration.analysis.fine_amplitude_analysis import FineAmplitudeAnalysis
-from qiskit_experiments.calibration.exceptions import CalibrationError
+from qiskit_experiments.exceptions import CalibrationError
 
 
 class FineAmplitude(BaseExperiment):
@@ -77,11 +77,20 @@ class FineAmplitude(BaseExperiment):
     def _default_experiment_options(cls) -> Options:
         """Default values for the fine amplitude experiment."""
         options = super()._default_experiment_options()
-        options.repetitions = 15
+        options.repetitions = list(range(15))
         options.schedule = None
         options.normalization = True
         options.add_sx = False
+        options.add_xp_circuit = False
         options.sx_schedule = None
+
+        return options
+
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_analysis_options()
+        options.phase_offset = 0.0
 
         return options
 
@@ -93,15 +102,25 @@ class FineAmplitude(BaseExperiment):
         """
         super().__init__([qubit])
 
-    def set_schedule(self, schedule: ScheduleBlock, angle_per_gate: float, phase_offset: float):
+    def set_schedule(
+            self,
+            schedule: ScheduleBlock,
+            angle_per_gate: float,
+            add_xp_circuit: bool,
+            add_sx: bool,
+    ):
         """Set the schedule and its corresponding intended angle per gate.
 
         Args:
             schedule: The schedule to attache to the gates.
             angle_per_gate: The intended angle per gate used by the analysis method.
-            phase_offset: The phase offset to use in the fit.
+            add_xp_circuit: If True then a circuit preparing the excited state is also run.
+            add_sx: Whether or not to add a pi-half pulse before running the calibration.
         """
-        self.set_experiment_options(schedule=schedule)
+        self.set_experiment_options(schedule=schedule, add_xp_circuit=add_xp_circuit, add_sx=add_sx)
+
+        phase_offset = np.pi / 2 if add_sx else 0
+
         self.set_analysis_options(angle_per_gate=angle_per_gate, phase_offset=phase_offset)
 
     def _pre_circuit(self) -> QuantumCircuit:
@@ -137,15 +156,8 @@ class FineAmplitude(BaseExperiment):
                 - If no schedule was provided.
                 - If the channel index does not correspond to the physical qubit index.
                 - If the schedule contains unassigned parameters.
+                - If the analysis options do not contain the angle_per_gate.
         """
-        # TODO this is temporary logic. Need update of circuit data and processor logic.
-        self.set_analysis_options(
-            data_processor=get_to_signal_processor(
-                meas_level=self.run_options.meas_level,
-                meas_return=self.run_options.meas_return,
-                normalize=self.experiment_options.normalization,
-            )
-        )
 
         # Get the schedule and check assumptions.
         schedule = self.experiment_options.get("schedule", None)
@@ -168,10 +180,34 @@ class FineAmplitude(BaseExperiment):
         # Prepare the circuits.
         gate = Gate(name=schedule.name, num_qubits=1, params=[])
 
-        repetitions = self.experiment_options.get("repetitions", 15)
+        repetitions = self.experiment_options.get("repetitions")
 
         circuits = []
-        for repetition in range(repetitions):
+
+        if self.experiment_options.add_xp_circuit:
+            angle_per_gate = self.analysis_options.get("angle_per_gate", None)
+            phase_offset = self.analysis_options.get("phase_offset")
+
+            if angle_per_gate is None:
+                raise CalibrationError(
+                    f"Unknown angle_per_gate for {self.__class__.__name__}. "
+                    "Please set it in the analysis options."
+                )
+
+            circuit = QuantumCircuit(1)
+            circuit.x(0)
+            circuit.measure_all()
+
+            circuit.metadata = {
+                "experiment_type": self._type,
+                "qubits": (self.physical_qubits[0],),
+                "xval": (np.pi - phase_offset) / angle_per_gate,
+                "unit": "gate number",
+            }
+
+            circuits.append(circuit)
+
+        for repetition in repetitions:
             circuit = self._pre_circuit()
 
             for _ in range(repetition):

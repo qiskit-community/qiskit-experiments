@@ -15,7 +15,7 @@
 from typing import Any, Dict, List, Union
 import numpy as np
 
-from qiskit_experiments.calibration.exceptions import CalibrationError
+from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.analysis import (
     CurveAnalysis,
     CurveAnalysisResult,

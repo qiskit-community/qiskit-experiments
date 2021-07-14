@@ -38,8 +38,7 @@ class TestFineAmpEndToEnd(QiskitTestCase):
         """Test the experiment end to end."""
 
         amp_cal = FineAmplitude(0)
-        amp_cal.set_schedule(schedule=self.x_plus, angle_per_gate=np.pi, phase_offset=np.pi / 2)
-        amp_cal.set_experiment_options(add_sx=True)
+        amp_cal.set_schedule(schedule=self.x_plus, angle_per_gate=np.pi, add_xp_circuit=True, add_sx=True)
         amp_cal.set_analysis_options(number_guesses=11, bounds={"amp": (0, 1)})
 
         backend = MockFineAmp(-np.pi * 0.07, np.pi, "xp")
@@ -57,8 +56,7 @@ class TestFineAmpEndToEnd(QiskitTestCase):
         """Test the experiment end to end."""
 
         amp_cal = FineAmplitude(0)
-        amp_cal.set_schedule(schedule=self.x_plus, angle_per_gate=np.pi, phase_offset=np.pi / 2)
-        amp_cal.set_experiment_options(add_sx=True)
+        amp_cal.set_schedule(schedule=self.x_plus, angle_per_gate=np.pi, add_xp_circuit=True, add_sx=True)
         amp_cal.set_analysis_options(number_guesses=6, bounds={"amp": (0, 1)})
 
         backend = MockFineAmp(np.pi * 0.07, np.pi, "xp")
@@ -93,8 +91,7 @@ class TestFineAmplitudeCircuits(QiskitTestCase):
         """Test a circuit with xp."""
 
         amp_cal = FineAmplitude(0)
-        amp_cal.set_schedule(schedule=self.x_plus, angle_per_gate=np.pi, phase_offset=np.pi / 2)
-        amp_cal.set_experiment_options(add_sx=True)
+        amp_cal.set_schedule(schedule=self.x_plus, angle_per_gate=np.pi, add_xp_circuit=False, add_sx=True)
 
         for idx, circ in enumerate(amp_cal.circuits()):
             self.assertTrue(circ.data[0][0].name == "sx")
@@ -104,8 +101,7 @@ class TestFineAmplitudeCircuits(QiskitTestCase):
         """Test circuits with an x90p pulse."""
 
         amp_cal = FineAmplitude(0)
-        amp_cal.set_schedule(schedule=self.x_90_plus, angle_per_gate=np.pi, phase_offset=0.0)
-        amp_cal.set_experiment_options(add_sx=False)
+        amp_cal.set_schedule(schedule=self.x_90_plus, angle_per_gate=np.pi, add_xp_circuit=False, add_sx=False)
 
         for idx, circ in enumerate(amp_cal.circuits()):
             self.assertTrue(circ.data[0][0].name != "sx")
