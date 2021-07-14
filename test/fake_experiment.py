@@ -39,7 +39,7 @@ class FakeExperiment(BaseExperiment):
     def __init__(self, qubit=0):
         """Initialise the fake experiment."""
         self._type = None
-        super().__init__((qubit,), "fake_test_experiment")
+        super().__init__((qubit,), "fake_experiment")
 
     def circuits(self, backend=None):
         """Fake circuits."""
