@@ -34,7 +34,7 @@ from qiskit_experiments.analysis import get_opt_value
 from qiskit_experiments.test.mock_iq_backend import DragBackend, MockFineAmp
 
 
-class TestCalibrationsUpdate(QiskitTestCase):
+class TestAmplitudeUpdate(QiskitTestCase):
     """Test the update functions in the update library."""
 
     def setUp(self):
@@ -101,8 +101,9 @@ class TestCalibrationsUpdate(QiskitTestCase):
         target_angle = np.pi
 
         amp_cal = FineAmplitude(self.qubit)
-        amp_cal.set_schedule(schedule=xp_sched, angle_per_gate=target_angle, phase_offset=np.pi / 2)
-        amp_cal.set_experiment_options(add_sx=True)
+        amp_cal.set_schedule(
+            schedule=xp_sched, angle_per_gate=target_angle, add_xp_circuit=True, add_sx=True
+        )
         amp_cal.set_analysis_options(number_guesses=11)
 
         error = -np.pi * 0.1
