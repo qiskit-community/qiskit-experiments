@@ -24,7 +24,9 @@ from qiskit.qobj.utils import MeasLevel
 import qiskit.pulse as pulse
 
 from qiskit_experiments import ExperimentData
-from qiskit_experiments.calibration.experiments.rabi import RabiAnalysis, Rabi
+from qiskit_experiments.calibration import Rabi, EFRabi
+
+from qiskit_experiments.calibration.analysis.oscillation_analysis import OscillationAnalysis
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
 from qiskit_experiments.composite.parallel_experiment import ParallelExperiment
@@ -88,6 +90,62 @@ class TestRabiEndToEnd(QiskitTestCase):
 
         self.assertEqual(result["quality"], "computer_good")
         self.assertTrue(abs(result["popt"][1] - backend.rabi_rate) < test_tol)
+
+    def test_wrong_processor(self):
+        """Test that we can override the data processing by giving a faulty data processor."""
+
+        backend = RabiBackend()
+
+        rabi = Rabi(1)
+
+        fail_key = "fail_key"
+
+        rabi.set_analysis_options(data_processor=DataProcessor(fail_key, []))
+        rabi.set_run_options(shots=2)
+        data = rabi.run(backend)
+        result = data.analysis_result(0)
+
+        self.assertTrue(
+            f"The input key {fail_key} was not found" in result["error_message"].message
+        )
+
+
+class TestEFRabi(QiskitTestCase):
+    """Test the ef_rabi experiment."""
+
+    def test_ef_rabi_end_to_end(self):
+        """Test the EFRabi experiment end to end."""
+
+        test_tol = 0.01
+        backend = RabiBackend()
+        qubit = 0
+
+        # Note that the backend is not sophisticated enough to simulate an e-f
+        # transition so we run the test with a tiny frequency shift, still driving the e-g transition.
+        freq_shift = 0.01
+        rabi = EFRabi(qubit)
+        rabi.set_experiment_options(frequency_shift=freq_shift)
+        rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
+        result = rabi.run(backend).analysis_result(0)
+
+        self.assertEqual(result["quality"], "computer_good")
+        self.assertTrue(abs(result["popt"][1] - backend.rabi_rate) < test_tol)
+
+    def test_ef_rabi_circuit(self):
+        """Test the EFRabi experiment end to end."""
+        anharm = -330e6
+        rabi12 = EFRabi(2)
+        rabi12.set_experiment_options(amplitudes=[0.5], frequency_shift=anharm)
+        circ = rabi12.circuits(RabiBackend())[0]
+
+        with pulse.build() as expected:
+            pulse.shift_frequency(anharm, pulse.DriveChannel(2))
+            pulse.play(pulse.Gaussian(160, 0.5, 40), pulse.DriveChannel(2))
+            pulse.shift_frequency(-anharm, pulse.DriveChannel(2))
+
+        self.assertEqual(circ.calibrations["Rabi"][((2,), (0.5,))], expected)
+        self.assertEqual(circ.data[0][0].name, "x")
+        self.assertEqual(circ.data[1][0].name, "Rabi")
 
 
 class TestRabiCircuits(QiskitTestCase):
@@ -170,7 +228,9 @@ class TestRabiAnalysis(QiskitTestCase):
 
         data_processor = DataProcessor("counts", [Probability(outcome="1")])
 
-        result = RabiAnalysis().run(experiment_data, data_processor=data_processor, plot=False)
+        result = OscillationAnalysis().run(
+            experiment_data, data_processor=data_processor, plot=False
+        )
 
         self.assertEqual(result[0]["quality"], "computer_good")
         self.assertTrue(abs(result[0]["popt"][1] - expected_rate) < test_tol)
@@ -186,7 +246,9 @@ class TestRabiAnalysis(QiskitTestCase):
 
         data_processor = DataProcessor("counts", [Probability(outcome="1")])
 
-        result = RabiAnalysis().run(experiment_data, data_processor=data_processor, plot=False)
+        result = OscillationAnalysis().run(
+            experiment_data, data_processor=data_processor, plot=False
+        )
 
         self.assertEqual(result[0]["quality"], "computer_bad")
 

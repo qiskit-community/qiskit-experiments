@@ -9,6 +9,7 @@ Qiskit Experiments API Reference
 
     main
     characterization
+    calibration
     composite
     randomized_benchmarking
     tomography

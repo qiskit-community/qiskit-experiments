@@ -21,11 +21,11 @@ from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.experiment_data import ExperimentData
-from qiskit_experiments.calibration.backend_calibrations import BackendCalibrations
-from qiskit_experiments.calibration.calibrations import Calibrations
-from qiskit_experiments.calibration.parameter_value import ParameterValue
-from qiskit_experiments.calibration.exceptions import CalibrationError
-from qiskit_experiments.calibration.calibration_key_types import ParameterValueType
+from qiskit_experiments.calibration.management.backend_calibrations import BackendCalibrations
+from qiskit_experiments.calibration.management.calibrations import Calibrations
+from qiskit_experiments.calibration.management.parameter_value import ParameterValue
+from qiskit_experiments.exceptions import CalibrationError
+from qiskit_experiments.calibration.management.calibration_key_types import ParameterValueType
 
 
 class BaseUpdater(ABC):
@@ -34,7 +34,18 @@ class BaseUpdater(ABC):
     __fit_parameter__ = None
 
     def __init__(self):
-        """Updaters are not meant to be instantiated."""
+        """Updaters are not meant to be instantiated.
+
+        Instead of instantiating updaters use them by calling the :meth:`update` class method.
+        For example, the :class:`Frequency` updater is called in the following way
+
+         .. code-block:: python
+
+            Frequency.update(calibrations, spectroscopy_data)
+
+        Here, calibrations is an instance of :class:`BackendCalibrations` and spectroscopy_data
+        is the result of a :class:`QubitSpectroscopy` experiment.
+        """
         raise CalibrationError(
             "Calibration updaters are not meant to be instantiated. The intended usage"
             "is Updater.update(calibrations, exp_data, ...)."
@@ -185,7 +196,7 @@ class Amplitude(BaseUpdater):
         Raises:
             CalibrationError: If the experiment is not of the supported type.
         """
-        from qiskit_experiments.calibration.experiments.rabi import Rabi
+        from qiskit_experiments.calibration.rabi import Rabi
 
         if angles_schedules is None:
             angles_schedules = [(np.pi, "amp", "xp")]
