@@ -12,117 +12,87 @@
 
 """Test version string generation."""
 
+from typing import Tuple
 import numpy as np
-from qiskit.providers import BaseBackend
-from qiskit.providers.models import QasmBackendConfiguration
-from qiskit.result import Result
-from qiskit_experiments import ExperimentData
+
+from qiskit import QuantumCircuit
+from qiskit.qobj.utils import MeasLevel
 from qiskit.test import QiskitTestCase
 
-
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.measurement.discriminator import (
     Discriminator,
 )
+from qiskit_experiments.data_processing.data_processor import DataProcessor
+from qiskit_experiments.data_processing.nodes import Probability, Discriminator
 
 
-class DiscriminatorBackend(BaseBackend):
+class DiscriminatorBackend(MockIQBackend):
     """
     A simple backend that generates gaussian data for discriminator tests
     """
 
-    def __init__(self, seed=None):
-        """
-        Initialize the discriminator backend
-
-        Args:
-            seed: the random seed to generate data with.
-        """
-        configuration = QasmBackendConfiguration(
-            backend_name="discriminator_simulator",
-            backend_version="0",
-            n_qubits=int(1e6),
-            basis_gates=["x", "measure"],
-            gates=[],
-            local=True,
-            simulator=True,
-            conditional=False,
-            open_pulse=False,
-            memory=False,
-            max_shots=int(1e6),
-            coupling_map=None,
-        )
-
-        super().__init__(configuration)
-        self._rng = np.random.default_rng(seed)
-
-    def sample_gaussian(
-        self, centroid=np.array([0, 0]), cov=np.array([[0.1, 0], [0, 0.1]]), size=1
+    def __init__(
+        self,
+        iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
+        iq_cluster_width: float = 0.2,
     ):
         """
-        Draws random samples from a gaussian distribution.
+        Initialize the discriminator backend
         """
-        return self._rng.multivariate_normal(centroid, cov, size)
+        super().__init__(iq_cluster_centers, iq_cluster_width)
 
-    # pylint: disable = arguments-differ
-    def run(self, qobj):
-        """
-        Run the discriminator backend
-        """
-
-        shots = qobj.config.shots
-
-        result = {
-            "backend_name": "Discriminator backend",
-            "backend_version": "0",
-            "qobj_id": 0,
-            "job_id": 0,
-            "success": True,
-            "results": [],
-        }
-
-        for circ in qobj.experiments:
-            nqubits = circ.config.n_qubits
-            centroids = np.zeros([nqubits, 2])
-            counts = dict()
-            memory = np.zeros([shots, circ.config.memory_slots, 2])
-
-            for i in range(shots):
-                clbits = np.zeros(circ.config.memory_slots, dtype=int)
-                meas_res = 0
-                for op in circ.instructions:
-                    qubit = op.qubits[0]
-                    if op.name == "x":
-                        meas_res = 1
-                    elif op.name == "measure":
-                        # centroid is either (0,0) for |0> or (1,1) for |1>
-                        memory[i, op.memory[0]] = self.sample_gaussian(
-                            centroid=np.array([meas_res, meas_res])
-                        )
-                        clbits[op.memory[0]] = meas_res
-
-                clstr = ""
-                for clbit in clbits[::-1]:
-                    clstr = clstr + str(clbit)
-
-                if clstr in counts:
-                    counts[clstr] += 1
-                else:
-                    counts[clstr] = 1
-
-            result["results"].append(
-                {
-                    "shots": shots,
-                    "success": True,
-                    "header": {"metadata": circ.header.metadata},
-                    "data": {"counts": counts, "memory": memory},
-                }
-            )
-
-        return Result.from_dict(result)
+    def _compute_probability(self, circuit: QuantumCircuit) -> float:
+        """Returns the probability based on the frequency."""
+        if circuit.data[-1][0].name == "x":
+            return 1
+        elif circuit.data[-1][0].name == "measure":
+            return 0
 
 
 class TestDiscriminator(QiskitTestCase):
+    """Class to test the discriminator."""
+
     def test_single_qubit(self):
+        """Test the discriminator works on one qubit."""
         backend = DiscriminatorBackend()
         exp = Discriminator(1)
-        res = exp.run(backend, shots=10, meas_level=1, meas_return="single").analysis_result(0)
+        exp.set_run_options(meas_level=MeasLevel.KERNELED)
+        res = exp.run(backend, shots=10, meas_return="single").analysis_result(0)
+        self.assertEqual(res["success"], True)
+        self.assertAlmostEqual(res["coef"][0][0], 0.30699667)
+        self.assertAlmostEqual(res["coef"][0][1], 4.2800415)
+        self.assertAlmostEqual(res["intercept"][0], 4.72491722)
+
+    def test_single_qubit_qda(self):
+        """Test that the QDA discriminator works on one qubit."""
+        backend = DiscriminatorBackend()
+        exp = Discriminator(1)
+        exp.set_analysis_options(discriminator_type="QDA")
+        exp.set_run_options(meas_level=MeasLevel.KERNELED)
+        res = exp.run(backend, shots=10, meas_return="single").analysis_result(0)
+        self.assertEqual(res["success"], True)
+
+        self.assertTrue(
+            np.allclose(
+                res["rotations"][0],
+                [[-0.59700674, -0.80223622], [0.80223622, -0.59700674]],
+            )
+        )
+
+    def test_parallel_discriminator(self):
+        """Test the discriminator works correctly on multiple qubits."""
+
+        pass
+
+    def test_discriminator_data_processor_node(self):
+        """Test that the discriminator works in the data processing chain."""
+        backend = DiscriminatorBackend()
+        exp = Discriminator(1)
+        exp.set_run_options(meas_level=MeasLevel.KERNELED)
+        lda_res = exp.run(backend, shots=100)
+        print(lda_res)
+        processor = DataProcessor("memory", [Discriminator(lda_res)])
+        processor.append(Probability("0"))
+        datum = processor(lda_res.data(0))
+        self.assertTrue(np.allclose(datum, (0.53, 0.04990991885387112)))
