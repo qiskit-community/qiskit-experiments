@@ -22,7 +22,6 @@ from qiskit_experiments.analysis import (
     SeriesDef,
     fit_function,
     get_opt_value,
-    get_opt_error,
 )
 
 
@@ -90,6 +89,7 @@ class FineAmplitudeAnalysis(CurveAnalysis):
         default_options.angle_per_gate = None
         default_options.phase_offset = None
         default_options.number_guesses = 101
+        default_options.max_good_angle_error = np.pi / 2
 
         return default_options
 
@@ -138,14 +138,15 @@ class FineAmplitudeAnalysis(CurveAnalysis):
 
         A good fit has:
             - a reduced chi-squared lower than three,
-            - a measured angle error that is smaller than the angle_per_gate.
+            - a measured angle error that is smaller than the allowed maximum good angle error.
+              This quantity is set in the analysis options.
         """
         fit_d_theta = get_opt_value(analysis_result, "d_theta")
-        angle_per_gate = self._get_option("angle_per_gate")
+        max_good_angle_error = self._get_option("max_good_angle_error")
 
         criteria = [
             analysis_result["reduced_chisq"] < 3,
-            abs(fit_d_theta) < abs(angle_per_gate),
+            abs(fit_d_theta) < abs(max_good_angle_error),
         ]
 
         if all(criteria):
