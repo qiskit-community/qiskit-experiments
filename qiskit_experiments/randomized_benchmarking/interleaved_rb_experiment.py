@@ -35,7 +35,7 @@ class InterleavedRB(StandardRB):
         interleaved_element: Union[QuantumCircuit, Instruction, Clifford],
         qubits: Union[int, Iterable[int]],
         lengths: Iterable[int],
-        num_samples: int = 1,
+        num_samples: int = 3,
         seed: Optional[Union[int, Generator]] = None,
         full_sampling: bool = False,
     ):
