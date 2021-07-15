@@ -114,7 +114,7 @@ class DocumentedExperiment(BaseExperiment):
 
     # section: reference
 
-    Currently this supports article reference in ArXiv database.
+    Currently this supports article reference in arXiv database.
     You can use following helper directive.
 
     .. ref_arxiv:: Auth2020a 21xx.01xxx
@@ -122,8 +122,8 @@ class DocumentedExperiment(BaseExperiment):
     This directive takes two arguments separated by a whitespace.
     The first argument is arbitrary label for this article, which may be used to
     refer to this paper from other sections.
-    Second argument is the ArXiv ID of the paper to refer to.
-    Once this directive is inserted, Sphinx searches the ArXiv database and
+    Second argument is the arXiv ID of the paper to refer to.
+    Once this directive is inserted, Sphinx searches the arXiv database and
     automatically generates a formatted reference sentence with the link to PDF.
 
     # section: tutorial

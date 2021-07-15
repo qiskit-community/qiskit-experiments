@@ -50,13 +50,13 @@ class WebSite(Directive):
 
 
 class Arxiv(Directive):
-    """A custom helper directive for generating journal information from ArXiv id.
+    """A custom helper directive for generating journal information from arXiv id.
 
     This directive takes two arguments
 
     - Arbitrary reference name (no white space should be included)
 
-    - ArXiv ID
+    - arXiv ID
 
     This can be used, for example,
 
@@ -73,7 +73,7 @@ class Arxiv(Directive):
 
     def run(self):
 
-        # search ArXiv database
+        # search arXiv database
         try:
             search = arxiv.Search(id_list=[self.arguments[1]])
             paper = next(search.results())
