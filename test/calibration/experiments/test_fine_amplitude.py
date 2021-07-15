@@ -43,7 +43,7 @@ class TestFineAmpEndToEnd(QiskitTestCase):
         )
         amp_cal.set_analysis_options(number_guesses=11)
 
-        backend = MockFineAmp(np.pi * 0.07, np.pi, "xp")
+        backend = MockFineAmp(-np.pi * 0.07, np.pi, "xp")
 
         result = amp_cal.run(backend).analysis_result(-1)
 
