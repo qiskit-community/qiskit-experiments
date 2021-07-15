@@ -27,6 +27,7 @@ from qiskit_experiments import ExperimentData
 from qiskit_experiments.calibration import Rabi, EFRabi
 
 from qiskit_experiments.calibration.analysis.oscillation_analysis import OscillationAnalysis
+from qiskit_experiments.calibration.management.calibrations import Calibrations
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
 from qiskit_experiments.composite.parallel_experiment import ParallelExperiment
@@ -178,6 +179,29 @@ class TestRabiCircuits(QiskitTestCase):
 
         assigned_sched = my_schedule.assign_parameters({amp: 0.5}, inplace=False)
         self.assertEqual(circs[0].calibrations["Rabi"][((2,), (0.5,))], assigned_sched)
+
+    def test_transpile_x_gate(self):
+        """Test that we can use the calibrations to transpile in the x gate."""
+        cals = Calibrations()
+        qubit = 3
+
+        chan = Parameter("ch0")
+        amp = Parameter("amp")
+
+        with pulse.build(name="xp") as xp_sched:
+            pulse.play(pulse.Gaussian(123, amp, 25), pulse.DriveChannel(chan))
+
+        cals.add_schedule(xp_sched)
+        cals.add_parameter_value(0.2, "amp", schedule="xp")
+
+        rabi = EFRabi(qubit)
+        rabi.set_experiment_options(calibrations=cals, x_schedule_name="xp", frequency_shift=-330e6)
+
+        circs = rabi.circuits(RabiBackend())
+
+        expected = xp_sched.assign_parameters({amp: 0.2, chan: 3}, inplace=False)
+
+        self.assertEqual(circs[0].calibrations["x"][(3, ), ()], expected)
 
 
 class TestRabiAnalysis(QiskitTestCase):

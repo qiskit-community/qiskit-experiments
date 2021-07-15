@@ -30,8 +30,8 @@ from qiskit.pulse.schedule import ScheduleBlock
 from qiskit.transpiler.basepasses import TransformationPass
 
 from qiskit_experiments.calibration.management.calibrations import Calibrations
+from qiskit_experiments.exceptions import CalibrationError
 
-# TODO: need to show how this might work in an experiment. E.g. Rabi?
 
 class CalibrationAdder(TransformationPass):
     """Transformation pass to inject calibrations into circuits."""
@@ -40,24 +40,35 @@ class CalibrationAdder(TransformationPass):
             self,
             calibrations: Calibrations,
             gate_schedule_map: Optional[Dict[str, str]] = None,
+            qubit_layout: Optional[Dict[int, int]] = None
     ):
         """
+
+        This transpiler pass is intended to be run in the :meth:`circuits` method of the
+        experiment classes before the main transpiler pass.
+
         TODO Discuss: we could give calibrations as Dict[str, Dict[Tuple, ScheduleBlock]]
         TODO but this means that we need to export all the calibrations which may not scale well
-        TODO using cas.get_schedule(name, qubits) on an as needed basis seems better.
+        TODO using cals.get_schedule(name, qubits) on an as needed basis seems better.
 
         Args:
-            calibrations:
-            gate_schedule_map:
+            calibrations: An instance of calibration from which to fetch the schedules.
+            gate_schedule_map: A dictionary to map gate names to schedule names in the
+                calibrations. If this is not provided the transpiler pass will assume that
+                the schedule has the same name as the gate.
+            qubit_layout: The initial layout that will be used. This remaps the qubits
+                in the added calibrations. For instance, if {0: 3} is given and use this pass
+                on a circuit then any gates on qubit 0 will add calibrations for qubit 3.
         """
         super().__init__()
         self._cals = calibrations
         self._gate_schedule_map = gate_schedule_map or dict()
+        self._qubit_layout = qubit_layout
 
     def get_calibration(
             self,
             gate_name: str,
-            qubits: Tuple[int, ...]
+            qubits: Tuple[int, ...],
     ) -> Union[ScheduleBlock, None]:
         """Gets the calibrated schedule
 
@@ -72,7 +83,7 @@ class CalibrationAdder(TransformationPass):
         name = self._gate_schedule_map.get(gate_name, gate_name)
         try:
             return self._cals.get_schedule(name, qubits)
-        except KeyError:
+        except CalibrationError:
             return None
 
     def run(self, dag: DAGCircuit) -> DAGCircuit:
@@ -91,6 +102,12 @@ class CalibrationAdder(TransformationPass):
                 params = node.op.params
                 qubits = tuple(bit_indices[qarg] for qarg in node.qargs)
 
+                if self._qubit_layout is not None:
+                    try:
+                        qubits = tuple(self._qubit_layout[qubit] for qubit in qubits)
+                    except KeyError:
+                        pass
+
                 schedule = self.get_calibration(node.op.name, qubits)
 
                 if schedule is not None:
@@ -106,6 +123,8 @@ def get_calibration_pass_manager(
     gate_schedule_map: Optional[Dict[str, str]],
 ) -> PassManager:
     """Get a calibrations experiment pass manager.
+
+    TODO not sure if we need this. Maybe not.
 
     Args:
         initial_layout:

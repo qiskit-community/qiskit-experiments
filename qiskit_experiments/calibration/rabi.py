@@ -21,10 +21,12 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
 import qiskit.pulse as pulse
 from qiskit.providers.options import Options
+from qiskit.transpiler.passmanager import PassManager
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.calibration.analysis.oscillation_analysis import OscillationAnalysis
 from qiskit_experiments.exceptions import CalibrationError
+from qiskit_experiments.calibration.management.transpiler import CalibrationAdder
 
 
 class Rabi(BaseExperiment):
@@ -220,6 +222,8 @@ class EFRabi(Rabi):
             schedule=None,
             normalization=True,
             frequency_shift=None,
+            x_schedule_name="x",
+            calibrations=None,
         )
 
     def _default_gate_schedule(self, backend: Optional[Backend] = None):
@@ -267,5 +271,13 @@ class EFRabi(Rabi):
         circuit.x(0)
         circuit.append(Gate(name=self.__rabi_gate_name__, num_qubits=1, params=[amp_param]), (0,))
         circuit.measure_active()
+
+        if self.experiment_options.calibrations is not None:
+            cals = self.experiment_options.calibrations
+            gate_schedule_map = {"x": self.experiment_options.x_schedule_name}
+            qubit_layout = {0: self.physical_qubits[0]}
+            cal_adder = PassManager(CalibrationAdder(cals, gate_schedule_map, qubit_layout))
+
+            circuit = cal_adder.run(circuit)
 
         return circuit
