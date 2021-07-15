@@ -265,3 +265,48 @@ class FineAmplitude(BaseExperiment):
             circuits.append(circuit)
 
         return circuits
+
+
+class FineXAmplitude(FineAmplitude):
+    """A fine amplitude experiment with all the options set for the :math:`\pi`-rotation."""
+
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        """Default values for the fine amplitude experiment."""
+        options = super()._default_experiment_options()
+        options.add_sx = True
+        options.add_xp_circuit = True
+
+        return options
+
+    def __init__(self, qubit: int):
+        """Setup a fine amplitude experiment on the given qubit.
+
+        Args:
+            qubit: The qubit on which to run the fine amplitude calibration experiment.
+        """
+        super().__init__(qubit)
+        self.set_analysis_options(angle_per_gate=np.pi, phase_offset=np.pi/2)
+
+
+class FineSXAmplitude(FineAmplitude):
+    """A fine amplitude experiment with all the options set for the :math:`\pi/2`-rotation."""
+
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        """Default values for the fine amplitude experiment."""
+        options = super()._default_experiment_options()
+        options.add_sx = False
+        options.add_xp_circuit = False
+        options.repetitions = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
+
+        return options
+
+    def __init__(self, qubit: int):
+        """Setup a fine amplitude experiment on the given qubit.
+
+        Args:
+            qubit: The qubit on which to run the fine amplitude calibration experiment.
+        """
+        super().__init__(qubit)
+        self.set_analysis_options(angle_per_gate=np.pi/2, phase_offset=0)
