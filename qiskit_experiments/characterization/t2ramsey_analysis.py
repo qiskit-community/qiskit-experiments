@@ -25,8 +25,7 @@ from qiskit_experiments.analysis.curve_fitting import (
 )
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
-from qiskit_experiments.experiment_data import ExperimentData
-from qiskit_experiments.database_service import DbAnalysisResultV1
+from qiskit_experiments.experiment_data import ExperimentData, AnalysisResultData
 
 
 # pylint: disable = invalid-name
@@ -46,7 +45,7 @@ class T2RamseyAnalysis(BaseAnalysis):
         plot: bool = False,
         ax: Optional["AxesSubplot"] = None,
         **kwargs,
-    ) -> Tuple[List[DbAnalysisResultV1], List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         r"""Calculate T2Ramsey experiment.
 
         The probability of measuring `+` is assumed to be of the form
@@ -145,7 +144,7 @@ class T2RamseyAnalysis(BaseAnalysis):
         if unit == "dt":
             result_data["fit"]["dt"] = conversion_factor
 
-        return [result_data], figures
+        return [AnalysisResultData(result_data)], figures
 
     def _t2ramsey_default_params(
         self,

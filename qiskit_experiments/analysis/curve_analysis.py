@@ -908,7 +908,7 @@ class CurveAnalysis(BaseAnalysis):
         Returns:
             tuple: A pair ``(analysis_results, figures)`` where
                    ``analysis_results`` may be a single or list of
-                   DbAnalysisResultV1 objects, and ``figures`` is a list of any
+                   CurveAnalysisResultData objects, and ``figures`` is a list of any
                    figures for the experiment.
 
         Raises:
@@ -1077,4 +1077,4 @@ class CurveAnalysis(BaseAnalysis):
                     }
                 result_data["raw_data"] = raw_data_dict
 
-        return [result_data], figures
+        return [CurveAnalysisResultData(result_data)], figures

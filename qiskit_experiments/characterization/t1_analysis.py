@@ -19,7 +19,6 @@ import numpy as np
 from qiskit.providers.options import Options
 from qiskit.utils import apply_prefix
 
-from qiskit_experiments.database_service import DbAnalysisResultV1
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import (
     process_curve_data,
@@ -27,6 +26,7 @@ from qiskit_experiments.analysis.curve_fitting import (
 )
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
+from qiskit_experiments.experiment_data import AnalysisResultData
 
 
 class T1Analysis(BaseAnalysis):
@@ -78,7 +78,7 @@ class T1Analysis(BaseAnalysis):
         offset_bounds=None,
         plot=True,
         ax=None,
-    ) -> Tuple[List[DbAnalysisResultV1], Optional[List["matplotlib.figure.Figure"]]]:
+    ) -> Tuple[List[AnalysisResultData], Optional[List["matplotlib.figure.Figure"]]]:
         """
         Calculate T1
 
@@ -160,7 +160,7 @@ class T1Analysis(BaseAnalysis):
         else:
             figures = None
 
-        return [result_data], figures
+        return [AnalysisResultData(result_data)], figures
 
     @staticmethod
     def _fit_quality(fit_out, fit_err, reduced_chisq):

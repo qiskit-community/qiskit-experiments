@@ -135,7 +135,7 @@ class BaseAnalysis(ABC):
     def _run_analysis(
         self, experiment_data: ExperimentData, **options
     ) -> Tuple[
-        Union[DbAnalysisResultV1, List[DbAnalysisResultV1]], List["matplotlib.figure.Figure"]
+        Union["AnalysisResultData", List["AnalysisResultData"]], List["matplotlib.figure.Figure"]
     ]:
         """Run analysis on circuit data.
 
@@ -147,7 +147,7 @@ class BaseAnalysis(ABC):
 
         Returns:
             A pair ``(analysis_results, figures)`` where ``analysis_results``
-            may be a single or list of DbAnalysisResultV1 objects, and ``figures``
+            may be a single or list of AnalysisResultData objects, and ``figures``
             is a list of any figures for the experiment.
 
         Raises:

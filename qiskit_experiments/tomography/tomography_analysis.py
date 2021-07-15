@@ -26,6 +26,7 @@ from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
 
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.base_analysis import BaseAnalysis, Options
+from qiskit_experiments.experiment_data import AnalysisResultData
 from .fitters import (
     linear_inversion,
     scipy_linear_lstsq,
@@ -123,7 +124,7 @@ class TomographyAnalysis(BaseAnalysis):
         except AnalysisError as ex:
             raise AnalysisError(f"Tomography fitter failed with error: {str(ex)}") from ex
 
-        return [result], [None]
+        return [AnalysisResultData(result)], [None]
 
     @classmethod
     def _postprocess_fit(

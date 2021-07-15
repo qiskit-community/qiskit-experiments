@@ -15,6 +15,7 @@ Composite Experiment Analysis class.
 
 from qiskit.exceptions import QiskitError
 from qiskit_experiments.base_analysis import BaseAnalysis
+from qiskit_experiments.experiment_data import AnalysisResultData
 from qiskit_experiments.composite.composite_experiment_data import CompositeExperimentData
 
 
@@ -34,7 +35,7 @@ class CompositeAnalysis(BaseAnalysis):
         Returns:
             tuple: A pair ``(analysis_results, figures)`` where
                    ``analysis_results`` may be a single or list of
-                   AnalysisResult objects, and ``figures`` may be
+                   AnalysisResultData objects, and ``figures`` may be
                    None, a single figure, or a list of figures.
 
         Raises:
@@ -71,4 +72,4 @@ class CompositeAnalysis(BaseAnalysis):
             "experiment_qubits": sub_qubits,
         }
 
-        return [result_data], None
+        return [AnalysisResultData(result_data)], None
