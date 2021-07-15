@@ -22,6 +22,21 @@ from qiskit_experiments.database_service import DbExperimentDataV1
 LOG = logging.getLogger(__name__)
 
 
+class AnalysisResultData(dict):
+    """Placeholder class"""
+
+    __keys_not_shown__ = tuple()
+    """Data keys of analysis result which are not directly shown in `__str__` method"""
+
+    def __str__(self):
+        out = ""
+        for key, value in self.items():
+            if key in self.__keys_not_shown__:
+                continue
+            out += f"\n- {key}: {value}"
+        return out
+
+
 class ExperimentData(DbExperimentDataV1):
     """Qiskit Experiments Data container class"""
 

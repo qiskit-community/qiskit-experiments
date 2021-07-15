@@ -125,17 +125,7 @@ class TomographyAnalysis(BaseAnalysis):
         except AnalysisError as ex:
             raise AnalysisError(f"Tomography fitter failed with error: {str(ex)}") from ex
 
-        analysis_result = DbAnalysisResultV1(
-            result_data=result,
-            result_type="Tomography",
-            device_components=[
-                Qubit(qubit) for qubit in experiment_data.metadata()["physical_qubits"]
-            ],
-            experiment_id=experiment_data.experiment_id,
-            quality=None,
-        )
-
-        return [analysis_result], [None]
+        return [result], [None]
 
     @classmethod
     def _postprocess_fit(

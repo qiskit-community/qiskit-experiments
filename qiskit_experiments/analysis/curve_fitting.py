@@ -21,16 +21,11 @@ import scipy.optimize as opt
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.analysis.data_processing import filter_data
 from qiskit_experiments.database_service import DbAnalysisResultV1
+from qiskit_experiments.experiment_data import AnalysisResultData
 
 
-class CurveAnalysisResultData(dict):
-    """Analysis data container for curve fit analysis."""
-
-    pass
-
-
-class CurveAnalysisResult(DbAnalysisResultV1):
-    """Curve fit analysis result.
+class CurveAnalysisResultData(AnalysisResultData):
+    """Analysis data container for curve fit analysis.
 
     Class Attributes:
         __keys_not_shown__: Data keys of analysis result which are not directly shown
@@ -73,7 +68,7 @@ class CurveAnalysisResult(DbAnalysisResultV1):
 
             for key, value, error in zip(popt_keys, popt, popt_err):
                 out += f"\n  - {key}: {value} \u00B1 {error}"
-        out = super().__str__() + out
+        out = str(super()) + out
 
         return out
 

@@ -308,7 +308,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3}
 
         results, _ = analysis._run_analysis(test_data, **default_opts.__dict__)
-        result = results[0].data()
+        result = results[0]
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
 
@@ -347,7 +347,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
 
         # Try to fit with infeasible parameter boundary. This should fail.
         results, _ = analysis._run_analysis(test_data, **default_opts.__dict__)
-        result = results[0].data()
+        result = results[0]
 
         self.assertFalse(result["success"])
 
@@ -402,7 +402,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3, "p4": ref_p4}
 
         results, _ = analysis._run_analysis(test_data0, **default_opts.__dict__)
-        result = results[0].data()
+        result = results[0]
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3, ref_p4])
 
@@ -456,7 +456,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3}
 
         results, _ = analysis._run_analysis(test_data0, **default_opts.__dict__)
-        result = results[0].data()
+        result = results[0]
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
 
@@ -493,7 +493,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         default_opts.fixed_p2 = ref_p2
 
         results, _ = analysis._run_analysis(test_data, **default_opts.__dict__)
-        result = results[0].data()
+        result = results[0]
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p3])
 

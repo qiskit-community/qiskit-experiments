@@ -161,16 +161,7 @@ class T1Analysis(BaseAnalysis):
         else:
             figures = None
 
-        res_v1 = DbAnalysisResultV1(
-            result_data=result_data,
-            result_type="T1",
-            device_components=[Qubit(data[0]["metadata"]["qubit"])],
-            experiment_id=experiment_data.experiment_id,
-            quality=result_data["quality"],
-            verified=True,
-        )
-
-        return [res_v1], figures
+        return [result_data], figures
 
     @staticmethod
     def _fit_quality(fit_out, fit_err, reduced_chisq):

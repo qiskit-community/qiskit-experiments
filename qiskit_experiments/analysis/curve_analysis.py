@@ -26,7 +26,6 @@ from qiskit.providers.options import Options
 from qiskit_experiments.analysis import plotting
 from qiskit_experiments.analysis.curve_fitting import (
     multi_curve_fit,
-    CurveAnalysisResult,
     CurveAnalysisResultData,
 )
 from qiskit_experiments.analysis.utils import get_opt_value, get_opt_error
@@ -35,7 +34,6 @@ from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.experiment_data import ExperimentData
-from qiskit_experiments.database_service import DbAnalysisResultV1
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.matplotlib import requires_matplotlib
 from qiskit_experiments.data_processing.processor_library import get_processor
@@ -329,7 +327,7 @@ class CurveAnalysis(BaseAnalysis):
                         bounds: Optional[
                             Union[Dict[str, Tuple[float, float]], Tuple[ndarray, ndarray]]
                         ],
-                    ) -> CurveAnalysisResult:
+                    ) -> CurveAnalysisResultData:
 
                 See :func:`~qiskit_experiment.analysis.multi_curve_fit` for example.
             data_processor: A callback function to format experiment data.
@@ -901,7 +899,7 @@ class CurveAnalysis(BaseAnalysis):
 
     def _run_analysis(
         self, experiment_data: ExperimentData, **options
-    ) -> Tuple[List[DbAnalysisResultV1], List["pyplot.Figure"]]:
+    ) -> Tuple[List["AnalysisResult"], List["pyplot.Figure"]]:
         """Run analysis on circuit data.
 
         Args:
@@ -1080,14 +1078,4 @@ class CurveAnalysis(BaseAnalysis):
                     }
                 result_data["raw_data"] = raw_data_dict
 
-        analysis_result = CurveAnalysisResult(
-            result_data=result_data,
-            result_type=result_data["analysis_type"],
-            device_components=[Qubit(qubit) for qubit in self._physical_qubits]
-            if self._physical_qubits
-            else [],
-            experiment_id=experiment_data.experiment_id,
-            quality=result_data.get("quality", None),
-        )
-
-        return [analysis_result], figures
+        return [result_data], figures

@@ -89,20 +89,36 @@ class BaseAnalysis(ABC):
         analysis_options = analysis_options.__dict__
 
         # Run analysis
+        analysis_result_parameters = {
+            "result_type": experiment_data.experiment_type,
+            "experiment_id": experiment_data.experiment_id,
+            }
+        if "physical_qubits" in experiment_data.metadata():
+            analysis_result_parameters["device_components"] = [
+                Qubit(qubit) for qubit in experiment_data.metadata()["physical_qubits"]
+            ]
+        else:
+            analysis_result_parameters["device_components"] = []
         try:
-            analysis_results, figures = self._run_analysis(experiment_data, **analysis_options)
-            for res in analysis_results:
-                if "success" not in res.data():
-                    res._result_data["success"] = True
+            result_datum, figures = self._run_analysis(experiment_data, **analysis_options)
+            analysis_results = []
+            for res in result_datum:
+                if "success" not in res:
+                    res["success"] = True
+                analysis_result = DbAnalysisResultV1(
+                    result_data=res,
+                    **analysis_result_parameters
+                )
+                if "quality" in res:
+                    analysis_result.quality = res["quality"]
+                    analysis_result.verified = True
+                analysis_results.append(analysis_result)
+
         except AnalysisError as ex:
             analysis_results = [
                 DbAnalysisResultV1(
                     result_data={"success": False, "error_message": ex},
-                    result_type=experiment_data.experiment_type,
-                    device_components=[
-                        Qubit(qubit) for qubit in experiment_data.metadata()["physical_qubits"]
-                    ],
-                    experiment_id=experiment_data.experiment_id,
+                    **analysis_result_parameters
                 )
             ]
             figures = None

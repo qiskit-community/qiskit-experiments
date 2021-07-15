@@ -146,15 +146,7 @@ class T2RamseyAnalysis(BaseAnalysis):
         if unit == "dt":
             result_data["fit"]["dt"] = conversion_factor
 
-        analysis_result = DbAnalysisResultV1(
-            result_data=result_data,
-            result_type="T2Ramsey",
-            device_components=[Qubit(circ_metadata["qubit"])],
-            experiment_id=experiment_data.experiment_id,
-            quality=result_data["quality"],
-        )
-
-        return [analysis_result], figures
+        return [result_data], figures
 
     def _t2ramsey_default_params(
         self,
