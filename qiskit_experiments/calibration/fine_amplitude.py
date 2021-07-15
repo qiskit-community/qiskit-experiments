@@ -195,11 +195,10 @@ class FineAmplitude(BaseExperiment):
             pulse schedule.
 
         Raises:
-            CalibrationError:
-                - If no schedule was provided.
-                - If the channel index does not correspond to the physical qubit index.
-                - If the schedule contains unassigned parameters.
-                - If the analysis options do not contain the angle_per_gate.
+            CalibrationError: If no schedule was provided.
+            CalibrationError: If the channel index does not correspond to the physical qubit index.
+            CalibrationError: If the schedule contains unassigned parameters.
+            CalibrationError: If the analysis options do not contain the angle_per_gate.
         """
 
         # Get the schedule and check assumptions.
