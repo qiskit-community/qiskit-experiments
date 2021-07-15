@@ -151,7 +151,7 @@ class FineAmplitude(BaseExperiment):
         """
         self.set_experiment_options(schedule=schedule, add_xp_circuit=add_xp_circuit, add_sx=add_sx)
 
-        if np.isclose(angle_per_gate % (2*np.pi), 0.):
+        if np.isclose(angle_per_gate % (2 * np.pi), 0.0):
             raise CalibrationError(
                 f"It does not make sense to use {self.__class__.__name__} on a pulse with an "
                 "angle_per_gate of zero as the update rule will set the amplitude to zero "
@@ -289,7 +289,7 @@ class FineXAmplitude(FineAmplitude):
             qubit: The qubit on which to run the fine amplitude calibration experiment.
         """
         super().__init__(qubit)
-        self.set_analysis_options(angle_per_gate=np.pi, phase_offset=np.pi/2)
+        self.set_analysis_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
 
 
 class FineSXAmplitude(FineAmplitude):
@@ -312,4 +312,4 @@ class FineSXAmplitude(FineAmplitude):
             qubit: The qubit on which to run the fine amplitude calibration experiment.
         """
         super().__init__(qubit)
-        self.set_analysis_options(angle_per_gate=np.pi/2, phase_offset=0)
+        self.set_analysis_options(angle_per_gate=np.pi / 2, phase_offset=0)
