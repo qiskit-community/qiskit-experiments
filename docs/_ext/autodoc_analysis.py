@@ -14,14 +14,13 @@
 Documentation extension for analysis class.
 """
 
-
 from typing import Any
 
 from sphinx.application import Sphinx
 from sphinx.ext.autodoc import ClassDocumenter
 
 from qiskit_experiments import BaseAnalysis
-from qiskit_experiments.documentation.styles import AnalysisDocstring
+from .experiment_docs import AnalysisDocstring
 
 
 class AnalysisDocumenter(ClassDocumenter):

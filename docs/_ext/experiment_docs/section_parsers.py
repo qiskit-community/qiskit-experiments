@@ -16,6 +16,7 @@ Documentation section parsers.
 
 import re
 from typing import List
+
 from .utils import _trim_empty_lines
 
 

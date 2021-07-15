@@ -21,7 +21,7 @@ from sphinx.application import Sphinx
 from sphinx.ext.autodoc import ClassDocumenter
 
 from qiskit_experiments import BaseExperiment
-from qiskit_experiments.documentation.styles import ExperimentDocstring
+from .experiment_docs import ExperimentDocstring
 
 
 class ExperimentDocumenter(ClassDocumenter):

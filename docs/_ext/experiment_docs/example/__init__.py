@@ -45,10 +45,4 @@ Analysis
 
 """
 
-import warnings
 from .example_experiment import DocumentedExperiment, DocumentedCurveAnalysis
-
-warnings.warn(
-    "This module dosen't implement actual experiment. "
-    "This is just a mock module to show the schema of experiment documentation."
-)

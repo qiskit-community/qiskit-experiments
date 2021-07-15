@@ -11,11 +11,6 @@
 # that they have been altered from the originals.
 """
 Automatic documentation package.
-
-.. warning::
-
-    This module uses requirements-dev packages related to Sphinx and journal search.
-    Thus this should not be imported by the top-level module.
-    This module is not used except for the Sphinx documentation build.
-
 """
+
+from .styles import ExperimentDocstring, AnalysisDocstring

@@ -27,6 +27,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.append(os.path.abspath("./_ext"))
+sys.path.append(os.path.abspath("./_ext/experiment_docs"))
 
 """
 Sphinx documentation builder
