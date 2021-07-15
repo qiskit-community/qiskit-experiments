@@ -306,7 +306,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
     def _default_options(cls) -> Options:
         """Return default analysis options.
 
-        Options:
+        Analysis Options:
             curve_fitter (Callable): A callback function to perform fitting with formatted data.
                 See :func:`~qiskit_experiments.analysis.multi_curve_fit` for example.
             data_processor (Callable): A callback function to format experiment data.
@@ -322,6 +322,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             axis (AxesSubplot): Optional. A matplotlib axis object to draw.
             xlabel (str): X label of fit result figure.
             ylabel (str): Y label of fit result figure.
+            ylim (Tuple[float, float]): Min and max height limit of fit plot.
             fit_reports (Dict[str, str]): Mapping of fit parameters and representation
                 in the fit report.
             return_data_points (bool): Set ``True`` to return formatted XY data.

@@ -98,7 +98,7 @@ def _generate_options_documentation(
 
     # parse default options method
     parsed_lines, target_args = _parse_option_field(
-        docstring=default_opts.__doc__,
+        docstring=default_opts.__doc__ or "",
         config=config,
         target_args=target_args,
         indent=indent,
