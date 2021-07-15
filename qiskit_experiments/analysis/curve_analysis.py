@@ -693,7 +693,7 @@ class CurveAnalysis(BaseAnalysis):
         if self.__fixed_parameters__ is not None and len(self.__fixed_parameters__) > 0:
             for pname in self.__fixed_parameters__:
                 fitter_options.pop(pname, None)
-        
+
         # Validate dictionary keys
         def _check_keys(parameter_name):
             named_values = fitter_options[parameter_name]

@@ -220,7 +220,7 @@ class Amplitude(BaseUpdater):
 
                 qubits = exp_data.data(0)["metadata"]["qubits"]
 
-                prev_amp = calibrations.get_parameter_value("amp", qubits, schedule, group=group)
+                prev_amp = calibrations.get_parameter_value(param, qubits, schedule, group=group)
                 scale = target_angle / (target_angle + d_theta)
                 new_amp = prev_amp * scale
 

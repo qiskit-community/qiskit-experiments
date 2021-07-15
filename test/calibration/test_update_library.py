@@ -113,6 +113,11 @@ class TestAmplitudeUpdate(QiskitTestCase):
 
         self.assertEqual(self.cals.get_parameter_value("amp", self.qubit, "xp"), 0.2)
 
+        with self.assertRaises(CalibrationError):
+            Amplitude.update(
+                self.cals, exp_data, angles_schedules=[(target_angle, "amp_fail", "xp")]
+            )
+
         Amplitude.update(self.cals, exp_data, angles_schedules=[(target_angle, "amp", "xp")])
 
         new_value = 0.2 * target_angle / (target_angle + error)
