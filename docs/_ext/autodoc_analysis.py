@@ -20,7 +20,7 @@ from sphinx.application import Sphinx
 from sphinx.ext.autodoc import ClassDocumenter
 
 from qiskit_experiments import BaseAnalysis
-from .experiment_docs import AnalysisDocstring
+from docs._ext.custom_styles.styles import AnalysisDocstring
 
 
 class AnalysisDocumenter(ClassDocumenter):
