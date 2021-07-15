@@ -221,6 +221,10 @@ class FineAmplitude(BaseExperiment):
         circuits = []
 
         if self.experiment_options.add_xp_circuit:
+            # Note that the rotation error in this xval will be overweighted when calibrating xp
+            # because it will be treated as a half pulse instead of a full pulse. However, since
+            # the qubit population is first-order insensitive to rotation errors for an xp pulse
+            # this point won't contribute much to inferring the angle error.
             angle_per_gate = self.analysis_options.get("angle_per_gate", None)
             phase_offset = self.analysis_options.get("phase_offset")
 
