@@ -92,7 +92,7 @@ class BaseAnalysis(ABC):
         analysis_result_parameters = {
             "result_type": experiment_data.experiment_type,
             "experiment_id": experiment_data.experiment_id,
-            }
+        }
         if "physical_qubits" in experiment_data.metadata():
             analysis_result_parameters["device_components"] = [
                 Qubit(qubit) for qubit in experiment_data.metadata()["physical_qubits"]
@@ -105,10 +105,7 @@ class BaseAnalysis(ABC):
             for res in result_datum:
                 if "success" not in res:
                     res["success"] = True
-                analysis_result = DbAnalysisResultV1(
-                    result_data=res,
-                    **analysis_result_parameters
-                )
+                analysis_result = DbAnalysisResultV1(result_data=res, **analysis_result_parameters)
                 if "quality" in res:
                     analysis_result.quality = res["quality"]
                     analysis_result.verified = True
@@ -118,7 +115,7 @@ class BaseAnalysis(ABC):
             analysis_results = [
                 DbAnalysisResultV1(
                     result_data={"success": False, "error_message": ex},
-                    **analysis_result_parameters
+                    **analysis_result_parameters,
                 )
             ]
             figures = None
