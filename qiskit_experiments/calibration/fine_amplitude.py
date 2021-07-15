@@ -138,7 +138,7 @@ class FineAmplitude(BaseExperiment):
         add_xp_circuit: bool,
         add_sx: bool,
     ):
-        """Set the schedule and its corresponding intended angle per gate.
+        r"""Set the schedule and its corresponding intended angle per gate.
 
         Args:
             schedule: The schedule to attache to the gates.
