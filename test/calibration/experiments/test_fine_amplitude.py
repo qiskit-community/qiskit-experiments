@@ -20,6 +20,7 @@ import qiskit.pulse as pulse
 
 from qiskit_experiments.calibration.fine_amplitude import FineAmplitude
 from qiskit_experiments.test.mock_iq_backend import MockFineAmp
+from qiskit_experiments.exceptions import CalibrationError
 
 
 class TestFineAmpEndToEnd(QiskitTestCase):
@@ -73,6 +74,15 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         self.assertTrue(abs(d_theta - backend.angle_error) < tol)
         self.assertEqual(result["quality"], "computer_good")
+
+    def test_zero_angle_per_gate(self):
+        """Test that we cannot set angle per gate to zero."""
+        amp_cal = FineAmplitude(0)
+
+        with self.assertRaises(CalibrationError):
+            amp_cal.set_schedule(
+                schedule=self.x_plus, angle_per_gate=0.0, add_xp_circuit=True, add_sx=True
+            )
 
 
 class TestFineAmplitudeCircuits(QiskitTestCase):
