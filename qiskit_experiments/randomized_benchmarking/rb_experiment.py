@@ -12,55 +12,30 @@
 """
 Standard RB Experiment class.
 """
-from typing import Union, Iterable, Optional, List, Dict
+from typing import Union, Iterable, Optional, List
 
 import numpy as np
 from numpy.random import Generator, default_rng
+
 from qiskit import QuantumCircuit
-from qiskit.circuit import Gate
-from qiskit.providers import Backend, Options
+from qiskit.providers import Backend
 from qiskit.quantum_info import Clifford
+from qiskit.providers.options import Options
+from qiskit.circuit import Gate
 
-from qiskit_experiments.analysis.data_processing import probability
 from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.autodocs import (
-    OptionsField,
-    Reference,
-    standard_experiment_documentation,
-    standard_options_documentation,
-)
-from .clifford_utils import CliffordUtils
+from qiskit_experiments.analysis.data_processing import probability
 from .rb_analysis import RBAnalysis
+from .clifford_utils import CliffordUtils
 
 
-@standard_experiment_documentation
-@standard_options_documentation
 class RBExperiment(BaseExperiment):
-    """Randomized benchmarking."""
+    """RB Experiment class.
 
-    __doc_overview__ = """
-A randomized benchmarking (RB) is a scalable and robust algorithm
-for benchmarking the full set of Clifford gates by a single parameter using the
-randomization technique [1].
-
-The RB sequences consist of random Clifford elements chosen uniformly from the Clifford group on
-n-qubits, including a computed reversal element, that should return the qubits to the
-initial state.
-
-Averaging over K random realizations of the sequence, we can find the averaged sequence fidelity,
-or error per Clifford (EPC).
-"""
-
-    __doc_tutorial__ = "https://github.com/Qiskit/qiskit-experiments/blob/main/docs/tutorials/\
-rb_example.ipynb"
-
-    __doc_references__ = [
-        Reference(
-            title="Robust randomized benchmarking of quantum processes",
-            authors="Easwar Magesan, J. M. Gambetta, and Joseph Emerson",
-            open_access_link="https://arxiv.org/abs/1009.3639",
-        )
-    ]
+    Experiment Options:
+        lengths: A list of RB sequences lengths.
+        num_samples: number of samples to generate for each sequence length.
+    """
 
     # Analysis class for experiment
     __analysis_class__ = RBAnalysis
@@ -104,23 +79,8 @@ rb_example.ipynb"
             self._rng = seed
 
     @classmethod
-    def _default_experiment_options(cls) -> Union[Options, Dict[str, OptionsField]]:
-        return {
-            "lengths": OptionsField(
-                default=None,
-                annotation=Iterable[int],
-                description="Array of integer values representing a number of Clifford gate N "
-                "per RB sequence. This value should be chosen based on "
-                "expected decay curve. If the maximum length is "
-                "too short, confidence interval of fit will become poor.",
-            ),
-            "num_samples": OptionsField(
-                default=None,
-                annotation=int,
-                description="Number of RB sequence per Clifford length. M random sequences are "
-                "generated for a length N.",
-            ),
-        }
+    def _default_experiment_options(cls):
+        return Options(lengths=None, num_samples=None)
 
     # pylint: disable = arguments-differ
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:

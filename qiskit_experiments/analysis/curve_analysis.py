@@ -201,11 +201,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         https://github.com/Qiskit/qiskit-experiments/issues
     """
-
-    # extra documentations
-    __doc_equations__ = None
-    __doc_fit_params__ = None
-
     #: List[SeriesDef]: List of mapping representing a data series
     __series__ = None
 
@@ -254,7 +249,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             setattr(self, f"__{key}", None)
 
     @classmethod
-    def _default_options(cls) -> Union[Options, Dict[str, OptionsField]]:
+    def _default_options(cls) -> Options:
         """Return default analysis options.
 
         Analysis Options:

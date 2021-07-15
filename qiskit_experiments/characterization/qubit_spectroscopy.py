@@ -19,7 +19,8 @@ import qiskit.pulse as pulse
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate, Parameter
 from qiskit.exceptions import QiskitError
-from qiskit.providers import Backend, Options
+from qiskit.providers import Backend
+from qiskit.providers.options import Options
 from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.analysis import (
@@ -30,58 +31,45 @@ from qiskit_experiments.analysis import (
     get_opt_value,
     get_opt_error,
 )
-from qiskit_experiments.autodocs import (
-    OptionsField,
-    CurveFitParameter,
-    standard_experiment_documentation,
-    standard_options_documentation,
-    curve_analysis_documentation,
-)
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.data_processing.processor_library import get_to_signal_processor
 
 
 class SpectroscopyAnalysis(CurveAnalysis):
-    r"""Spectroscopy analysis.
+    r"""A class to analyze spectroscopy experiment.
 
-    # section: overview
+    Overview
+        This analysis takes only single series. This series is fit by the Gaussian function.
 
-    This analysis uses Gaussian function to find a peak.
+    Fit Model
+        The fit is based on the following Gaussian function.
 
-    Note that this analysis assumes only single peak.
-    If multiple peaks exist, you'll get a poor chi squared value.
+        .. math::
 
-    # section: fit_model
+            F(x) = a \exp(-(x-f)^2/(2\sigma^2)) + b
 
-    .. math::
+    Fit Parameters
+        - :math:`a`: Peak height.
+        - :math:`b`: Base line.
+        - :math:`f`: Center frequency. This is the fit parameter of main interest.
+        - :math:`\sigma`: Standard deviation of Gaussian function.
 
-        F(x) = a \exp(-(x-f)^2/(2\sigma^2)) + b
+    Initial Guesses
+        - :math:`a`: The maximum signal value with removed baseline.
+        - :math:`b`: A median value of the signal.
+        - :math:`f`: A frequency value at the peak (maximum signal).
+        - :math:`\sigma`: Calculated from FWHM of peak :math:`w`
+          such that :math:`w / \sqrt{8} \ln{2}`.
 
-    # section: fit_parameters
-
-    defpar a:
-        desc: Base line.
-        init_guess: The maximum signal value with removed baseline.
-        bounds: [-2, 2] scaled with maximum signal value.
-
-    defpar b:
-        desc: Peak height.
-        init_guess: A median value of the signal.
-        bounds: [-1, 1] scaled with maximum signal value.
-
-    defpar f:
-        desc: Center frequency. This is the fit parameter of main interest.
-        init_guess: A frequency value at the peak (maximum signal).
-        bounds: [min(x), max(x)] of frequency scan range.
-
-    defpar \sigma:
-        desc: Standard deviation of Gaussian function.
-        init_guess: Calculated from FWHM of peak :math:`w` such that
-            :math:`w / \sqrt{8} \ln{2}`.
-        bounds: [0, :math:`\Delta x`] where :math:`\Delta x` represents
-            frequency scan range.
+    Bounds
+        - :math:`a`: [-2, 2] scaled with maximum signal value.
+        - :math:`b`: [-1, 1] scaled with maximum signal value.
+        - :math:`f`: [min(x), max(x)] of frequency scan range.
+        - :math:`\sigma`: [0, :math:`\Delta x`] where :math:`\Delta x`
+          represents frequency scan range.
 
     """
+
     __series__ = [
         SeriesDef(
             fit_func=lambda x, a, sigma, freq, b: fit_function.gaussian(
@@ -92,12 +80,11 @@ class SpectroscopyAnalysis(CurveAnalysis):
     ]
 
     @classmethod
-    def _default_options(cls) -> Union[Options, Dict[str, OptionsField]]:
-        """Default analysis options.
+    def _default_options(cls):
+        """Return default data processing options.
 
-        Analysis Options:
-            normalization (bool): Set ``True`` to normalize measurement data. Usually applied to
-                Kerneled (level1) measurement data.
+        See :meth:`~qiskit_experiment.analysis.CurveAnalysis._default_options` for
+        descriptions of analysis options.
         """
         default_options = super()._default_options()
         default_options.p0 = {"a": None, "sigma": None, "freq": None, "b": None}
@@ -192,8 +179,6 @@ class SpectroscopyAnalysis(CurveAnalysis):
 class QubitSpectroscopy(BaseExperiment):
     """Class that runs spectroscopy by sweeping the qubit frequency.
 
-    # section: overview
-
     The circuits produced by spectroscopy, i.e.
 
     .. parsed-literal::
@@ -207,32 +192,6 @@ class QubitSpectroscopy(BaseExperiment):
     have a spectroscopy pulse-schedule embedded in a spectroscopy gate. The
     pulse-schedule consists of a set frequency instruction followed by a GaussianSquare
     pulse. A list of circuits is generated, each with a different frequency "freq".
-
-    A spectroscopy experiment run by setting the frequency of the qubit drive.
-    The parameters of the GaussianSquare spectroscopy pulse can be specified at run-time.
-
-    # section: warning
-
-    Test warning
-
-    # section: note
-
-    Test note
-
-    # section: example
-
-    Test example
-
-    # section: reference
-
-    .. ref_arxiv:: Alexander2020 2004.06755
-    .. ref_arxiv:: Shelly2021 2007.08532
-    .. ref_arxiv:: Qasm3 2104.14722
-
-    # section: tutorial
-
-    .. ref_website:: Qiskit Experiment Tutorial, https://quantum-computing.ibm.com/
-
     """
 
     __analysis_class__ = SpectroscopyAnalysis
@@ -249,21 +208,8 @@ class QubitSpectroscopy(BaseExperiment):
         )
 
     @classmethod
-    def _default_experiment_options(cls) -> Union[Options, Dict[str, OptionsField]]:
-        """Default experiment options.
-
-        Experiment Options:
-            amp (float): Amplitude of spectroscopy pulse. Usually weak power pulse is used to
-                suppress broadening of observed peaks.
-            duration (int):  Duration of spectroscopy pulse.
-                This may need to satisfy the hardware waveform memory constraint.
-                The default value is represented in units of dt.
-            sigma (Union[int, float]): Sigma of Gaussian rising and falling edges.
-                This value should be sufficiently smaller than the duration,
-                otherwise waveform is distorted. The default value is represented in units of dt.
-            width (Union[int, float]) Width of the flat-top part of the Gaussian square
-                envelope of spectroscopy pulse. Set width=0 to use Gaussian pulse.
-        """
+    def _default_experiment_options(cls) -> Options:
+        """Default option values used for the spectroscopy pulse."""
         return Options(
             amp=0.1,
             duration=1024,
@@ -278,7 +224,14 @@ class QubitSpectroscopy(BaseExperiment):
         unit: Optional[str] = "Hz",
         absolute: bool = True,
     ):
-        """Create new experiment.
+        """
+        A spectroscopy experiment run by setting the frequency of the qubit drive.
+        The parameters of the GaussianSquare spectroscopy pulse can be specified at run-time.
+        The spectroscopy pulse has the following parameters:
+        - amp: The amplitude of the pulse must be between 0 and 1, the default is 0.1.
+        - duration: The duration of the spectroscopy pulse in samples, the default is 1000 samples.
+        - sigma: The standard deviation of the pulse, the default is duration / 4.
+        - width: The width of the flat-top in the pulse, the default is 0, i.e. a Gaussian.
 
         Args:
             qubit: The qubit on which to run spectroscopy.

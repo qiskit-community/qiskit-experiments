@@ -15,28 +15,17 @@ Interleaved RB Experiment class.
 from typing import Union, Iterable, Optional, List
 
 from numpy.random import Generator
+
 from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
 from qiskit.quantum_info import Clifford
 
-from qiskit_experiments.autodocs import (
-    standard_experiment_documentation,
-    standard_options_documentation,
-)
-from .interleaved_rb_analysis import InterleavedRBAnalysis
 from .rb_experiment import RBExperiment
+from .interleaved_rb_analysis import InterleavedRBAnalysis
 
 
-@standard_experiment_documentation
-@standard_options_documentation
 class InterleavedRBExperiment(RBExperiment):
     """Interleaved RB Experiment class"""
-
-    __doc_overview__ = None
-
-    __doc_references__ = None
-
-    __doc_tutorial__ = None
 
     # Analysis class for experiment
     __analysis_class__ = InterleavedRBAnalysis
@@ -50,7 +39,7 @@ class InterleavedRBExperiment(RBExperiment):
         seed: Optional[Union[int, Generator]] = None,
         full_sampling: bool = False,
     ):
-        """Create new experiment.
+        """Interleaved randomized benchmarking experiment.
 
         Args:
             interleaved_element: the element to interleave,

@@ -15,7 +15,6 @@ Interleaved RB analysis class.
 from typing import List, Dict, Any, Union
 
 import numpy as np
-from qiskit.providers import Options
 
 from qiskit_experiments.analysis import (
     CurveAnalysisResult,
@@ -24,94 +23,76 @@ from qiskit_experiments.analysis import (
     get_opt_value,
     get_opt_error,
 )
-from qiskit_experiments.autodocs import (
-    Reference,
-    OptionsField,
-    CurveFitParameter,
-    curve_analysis_documentation,
-)
 from .rb_analysis import RBAnalysis
 
 
-@curve_analysis_documentation
 class InterleavedRBAnalysis(RBAnalysis):
-    """Interleaved randomized benchmarking analysis."""
+    r"""A class to analyze interleaved randomized benchmarking experiment.
 
-    __doc_overview__ = r"""
-This analysis takes two series for standard and interleaved RB curve fitting.
+    Overview
+        This analysis takes only two series for standard and interleaved RB curve fitting.
+        From the fit :math:`\alpha` and :math:`\alpha_c` value this analysis estimates
+        the error per Clifford (EPC) of interleaved gate.
 
-From the fit :math:`\alpha` and :math:`\alpha_c` value this analysis estimates
-the error per Clifford (EPC) of interleaved gate.
+        The EPC estimate is obtained using the equation
 
-The EPC estimate is obtained using the equation
 
-.. math::
+        .. math::
 
-    r_{\mathcal{C}}^{\text{est}} =
-        \frac{\left(d-1\right)\left(1-\alpha_{\overline{\mathcal{C}}}/\alpha\right)}{d}
+            r_{\mathcal{C}}^{\text{est}} =
+                \frac{\left(d-1\right)\left(1-\alpha_{\overline{\mathcal{C}}}/\alpha\right)}{d}
 
-The error bounds are given by
+        The error bounds are given by
 
-.. math::
+        .. math::
 
-    E = \min\left\{
-        \begin{array}{c}
-            \frac{\left(d-1\right)\left[\left|\alpha-\alpha_{\overline{\mathcal{C}}}\right|
-            +\left(1-\alpha\right)\right]}{d} \\
-            \frac{2\left(d^{2}-1\right)\left(1-\alpha\right)}
-            {\alpha d^{2}}+\frac{4\sqrt{1-\alpha}\sqrt{d^{2}-1}}{\alpha}
-        \end{array}
-    \right.
+            E = \min\left\{
+                \begin{array}{c}
+                    \frac{\left(d-1\right)\left[\left|\alpha-\alpha_{\overline{\mathcal{C}}}\right|
+                    +\left(1-\alpha\right)\right]}{d} \\
+                    \frac{2\left(d^{2}-1\right)\left(1-\alpha\right)}
+                    {\alpha d^{2}}+\frac{4\sqrt{1-\alpha}\sqrt{d^{2}-1}}{\alpha}
+                \end{array}
+            \right.
 
-See [1] for more details.
-"""
+        See the reference[1] for more details.
 
-    __doc_equations__ = [
-        r"F_1(x_1) = a \alpha^{x_1} + b",
-        r"F_2(x_2) = a (\alpha_c \alpha)^{x_2} + b",
-    ]
 
-    __doc_fit_params__ = [
-        CurveFitParameter(
-            name="a",
-            description="Height of decay curve.",
-            initial_guess=r"Average :math:`a` of the standard and interleaved RB.",
-            bounds="[0, 1]",
-        ),
-        CurveFitParameter(
-            name="b",
-            description="Base line.",
-            initial_guess=r"Average :math:`b` of the standard and interleaved RB. "
-            r"Usually equivalent to :math:`(1/2)^n` where :math:`n` is number "
-            "of qubit.",
-            bounds="[0, 1]",
-        ),
-        CurveFitParameter(
-            name=r"\alpha",
-            description="Depolarizing parameter.",
-            initial_guess=r"The slope of :math:`(y_1 - b)^{-x_1}` of the first and the "
-            "second data point of the standard RB.",
-            bounds="[0, 1]",
-        ),
-        CurveFitParameter(
-            name=r"\alpha_c",
-            description="Ratio of the depolarizing parameter of "
-            "interleaved RB to standard RB curve.",
-            initial_guess=r"Estimate :math:`\alpha' = \alpha_c \alpha` from the "
-            "interleaved RB curve, then divide this by "
-            r"the initial guess of :math:`\alpha`.",
-            bounds="[0, 1]",
-        ),
-    ]
 
-    __doc_references__ = [
-        Reference(
-            title="Efficient measurement of quantum gate error by "
-            "interleaved randomized benchmarking",
-            authors="Easwar Magesan, et. al.",
-            open_access_link="https://arxiv.org/abs/1203.4550",
-        ),
-    ]
+    Fit Model
+        The fit is based on the following decay functions.
+
+        .. math::
+
+            F_1(x_1) &= a \alpha^{x_1} + b  ... {\rm standard RB} \\
+            F_2(x_2) &= a (\alpha_c \alpha)^{x_2} + b ... {\rm interleaved RB}
+
+    Fit Parameters
+        - :math:`a`: Height of decay curve.
+        - :math:`b`: Base line.
+        - :math:`\alpha`: Depolarizing parameter.
+        - :math:`\alpha_c`: Ratio of the depolarizing parameter of
+          interleaved RB to standard RB curve.
+
+    Initial Guesses
+        - :math:`a`: Determined by the average :math:`a` of the standard and interleaved RB.
+        - :math:`b`: Determined by the average :math:`b` of the standard and interleaved RB.
+          Usually equivalent to :math:`(1/2)**n` where :math:`n` is number of qubit.
+        - :math:`\alpha`: Determined by the slope of :math:`(y_1 - b)**(-x_1)` of the first and the
+          second data point of the standard RB.
+        - :math:`\alpha_c`: Estimate :math:`\alpha' = \alpha_c * \alpha` from the
+          interleaved RB curve, then divide this by the initial guess of :math:`\alpha`.
+
+    Bounds
+        - :math:`a`: [0, 1]
+        - :math:`b`: [0, 1]
+        - :math:`\alpha`: [0, 1]
+        - :math:`\alpha_c`: [0, 1]
+
+    References
+        [1] "Efficient measurement of quantum gate error by interleaved randomized benchmarking"
+            (arXiv:1203.4550).
+    """
 
     __series__ = [
         SeriesDef(
@@ -135,11 +116,13 @@ See [1] for more details.
     ]
 
     @classmethod
-    def _default_options(cls) -> Union[Options, Dict[str, OptionsField]]:
-        """Return default options."""
-        default_options = super()._default_options()
+    def _default_options(cls):
+        """Return default data processing options.
 
-        # update default values
+        See :meth:`~qiskit_experiment.analysis.CurveAnalysis._default_options` for
+        descriptions of analysis options.
+        """
+        default_options = super()._default_options()
         default_options.p0 = {"a": None, "alpha": None, "alpha_c": None, "b": None}
         default_options.bounds = {
             "a": (0.0, 1.0),
@@ -147,11 +130,7 @@ See [1] for more details.
             "alpha_c": (0.0, 1.0),
             "b": (0.0, 1.0),
         }
-        default_options.fit_reports = {
-            "alpha": "\u03B1",
-            "alpha_c": "\u03B1$_c$",
-            "EPC": "EPC",
-        }
+        default_options.fit_reports = {"alpha": "\u03B1", "alpha_c": "\u03B1$_c$", "EPC": "EPC"}
 
         return default_options
 
