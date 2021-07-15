@@ -86,6 +86,34 @@ class DocumentedCurveAnalysis(CurveAnalysis):
 
     """
 
+    @classmethod
+    def _default_options(cls) -> Options:
+        """Default analysis options.
+
+        .. note::
+
+            This method documentation should conforms to the below documentation syntax.
+            Namely, the title should be "Analysis Options" and description should be
+            written in the Google docstring style. Numpy style is not accepted.
+            Documentation except for the experiment options will be just ignored, e.g. this note.
+            If experiment options contains some values from the parent class,
+            the custom Sphinx parser searches for the parent class method documentation
+            and automatically generate documentation for all available options.
+            If there is any missing documentation the Sphinx build will fail.
+
+        Analysis Options:
+            opt1 (int): Description for the option1.
+            opt2 (bool): Description for the option2.
+            opt3 (str): Description for the option3.
+
+        """
+        opts = super()._default_options()
+        opts.opt1 = 1.0
+        opts.opt2 = True
+        opts.opt3 = "opt3"
+
+        return opts
+
 
 class DocumentedExperiment(BaseExperiment):
     """One line summary of this class. This is shown in the top level contains list.
@@ -130,9 +158,9 @@ class DocumentedExperiment(BaseExperiment):
     This directive takes two arguments separated by a whitespace.
     The first argument is arbitrary label for this article, which may be used to
     refer to this paper from other sections.
-    Second argument is the arXiv ID of the paper to refer to.
+    Second argument is the arXiv ID of the paper referring to.
     Once this directive is inserted, Sphinx searches the arXiv database and
-    automatically generates a formatted reference sentence with the link to PDF.
+    automatically generates a formatted bibliography with the hyperlink to the online PDF.
 
     # section: tutorial
 
