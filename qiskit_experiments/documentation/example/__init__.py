@@ -33,7 +33,7 @@ Experiments
     :toctree: ../stubs/
     :template: autosummary/experiment.rst
 
-    ExampleDocExperiment
+    DocumentedExperiment
 
 Analysis
 ========
@@ -41,12 +41,12 @@ Analysis
     :toctree: ../stubs/
     :template: autosummary/analysis.rst
 
-    ExampleDocAnalysis
-    ExampleDocCurveAnalysis
+    DocumentedCurveAnalysis
 
 """
 
 import warnings
+from .example_experiment import DocumentedExperiment, DocumentedCurveAnalysis
 
 warnings.warn(
     "This module dosen't implement actual experiment. "
