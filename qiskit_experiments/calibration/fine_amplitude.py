@@ -155,7 +155,7 @@ class FineAmplitude(BaseExperiment):
         """
         self.set_experiment_options(schedule=schedule, add_xp_circuit=add_xp_circuit, add_sx=add_sx)
 
-        if np.isclose(angle_per_gate, 0.):
+        if np.isclose(angle_per_gate % (2*np.pi), 0.):
             raise CalibrationError(
                 f"It does not make sense to use {self.__class__.__name__} on a pulse with an "
                 "angle_per_gate of zero as the update rule will set the amplitude to zero "
