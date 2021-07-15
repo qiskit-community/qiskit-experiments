@@ -28,9 +28,10 @@ class TestComposite(QiskitTestCase):
 
     def test_parallel_options(self):
         """
-        Test parallel experiments overriding sub-experiment options.
+        Test parallel experiments overriding sub-experiment run and transpile options.
         """
 
+        # These options will all be overridden
         exp0 = FakeExperiment(0)
         exp0.set_transpile_options(optimization_level=1)
         exp2 = FakeExperiment(2)
@@ -40,6 +41,7 @@ class TestComposite(QiskitTestCase):
         exp2.set_analysis_options(dummyoption="test")
 
         par_exp = ParallelExperiment([exp0, exp2])
+
         with self.assertWarnsRegex(
             Warning,
             "Sub-experiment run and transpile options"
@@ -47,9 +49,7 @@ class TestComposite(QiskitTestCase):
         ):
             self.assertEqual(par_exp.experiment_options, Options())
             self.assertEqual(par_exp.run_options, Options(meas_level=2))
-            self.assertEqual(
-                par_exp.transpile_options, Options(initial_layout=[0, 2], optimization_level=0)
-            )
+            self.assertEqual(par_exp.transpile_options, Options(optimization_level=0))
             self.assertEqual(par_exp.analysis_options, Options())
 
             par_exp.run(FakeBackend())
