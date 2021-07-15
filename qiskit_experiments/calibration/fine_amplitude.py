@@ -92,7 +92,9 @@ class FineAmplitude(BaseExperiment):
 
     * angle_per_gate: The ideal angle per repeated gate. The user must set this options.
     * phase_offset: A phase offset for the analysis. This phase offset will be :math:`\pi/2`
-      if the square-root of X gate is added before the repeated gates.
+      if the square-root of X gate is added before the repeated gates. This is decided for
+      the user in :meth:`set_schedule` depending on whether the sx gate is included in the
+      experiment.
 
     Users can call :meth:`set_schedule` to conveniently set the schedule and the corresponding
     experiment and analysis options.
