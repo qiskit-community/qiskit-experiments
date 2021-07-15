@@ -79,9 +79,7 @@ def load_fit_parameters(docstring_lines: List[str]) -> List[str]:
                     f"    - :math:`{param}`: No description is provided. See source for details."
                 )
             else:
-                section_lines.append(
-                    f"    - :math:`{param}`: {desc[kind]}"
-                )
+                section_lines.append(f"    - :math:`{param}`: {desc[kind]}")
         section_lines.append("")
 
     write_description("Descriptions", "desc")

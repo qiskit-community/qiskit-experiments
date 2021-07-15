@@ -22,9 +22,13 @@ from sphinx.config import Config as SphinxConfig
 
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.base_experiment import BaseExperiment
-from .formatter import ExperimentSectionFormatter, AnalysisSectionFormatter
-from .utils import _generate_options_documentation, _format_default_options
+from .formatter import (
+    ExperimentSectionFormatter,
+    AnalysisSectionFormatter,
+    DocstringSectionFormatter,
+)
 from .section_parsers import load_standard_section, load_fit_parameters
+from .utils import _generate_options_documentation, _format_default_options
 
 section_regex = re.compile(r"# section: (?P<section_name>\S+)")
 
@@ -36,7 +40,7 @@ class QiskitExperimentDocstring(ABC):
     __sections__ = {}
 
     # section formatter
-    __formatter__ = None
+    __formatter__ = DocstringSectionFormatter
 
     def __init__(
         self,
@@ -84,9 +88,9 @@ class QiskitExperimentDocstring(ABC):
                     # set new section
                     current_section = section_name
                     temp_lines.clear()
-                    continue
                 else:
                     raise KeyError(f"Section name {section_name} is invalid.")
+                continue
             temp_lines.append(docstring_line)
         # parse final section
         add_new_section(current_section, temp_lines)
@@ -149,11 +153,11 @@ class ExperimentDocstring(QiskitExperimentDocstring):
     __formatter__ = ExperimentSectionFormatter
 
     def __init__(
-            self,
-            target_cls: BaseExperiment,
-            docstring_lines: Union[str, List[str]],
-            config: SphinxConfig,
-            indent: str = "",
+        self,
+        target_cls: BaseExperiment,
+        docstring_lines: Union[str, List[str]],
+        config: SphinxConfig,
+        indent: str = "",
     ):
         """Create new parser and parse formatted docstring."""
         super().__init__(target_cls, docstring_lines, config, indent)
@@ -225,7 +229,7 @@ class ExperimentDocstring(QiskitExperimentDocstring):
             "This option is used for circuit optimization. ",
             "See `Qiskit Transpiler <https://qiskit.org/documentation/stubs/",
             "qiskit.compiler.transpile.html>`_ documentation for available options.",
-            ""
+            "",
         ]
         transpiler_option_desc.extend(
             _format_default_options(
@@ -243,7 +247,7 @@ class ExperimentDocstring(QiskitExperimentDocstring):
             "See provider's backend runner API for available options. "
             "See `here <https://qiskit.org/documentation/stubs/qiskit.providers.ibmq.",
             "IBMQBackend.html#qiskit.providers.ibmq.IBMQBackend.run>`_ for IBM Quantum Service.",
-            ""
+            "",
         ]
         run_option_desc.extend(
             _format_default_options(
@@ -276,11 +280,11 @@ class AnalysisDocstring(QiskitExperimentDocstring):
     __formatter__ = AnalysisSectionFormatter
 
     def __init__(
-            self,
-            target_cls: BaseAnalysis,
-            docstring_lines: Union[str, List[str]],
-            config: SphinxConfig,
-            indent: str = "",
+        self,
+        target_cls: BaseAnalysis,
+        docstring_lines: Union[str, List[str]],
+        config: SphinxConfig,
+        indent: str = "",
     ):
         """Create new parser and parse formatted docstring."""
         super().__init__(target_cls, docstring_lines, config, indent)

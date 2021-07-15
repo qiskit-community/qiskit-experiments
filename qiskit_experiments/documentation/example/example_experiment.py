@@ -9,6 +9,14 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""
+Class documentation examples.
+
+.. warning::
+
+    This module is just an example for documentation. Do not import.
+
+"""
 
 from qiskit.providers import Options
 
@@ -37,7 +45,7 @@ class DocumentedCurveAnalysis(CurveAnalysis):
     See :class:`DocumentedExperiment` for description of these sections.
     In addition to above sections, analysis template provides following extra sections.
 
-    # section: fit_mode:
+    # section: fit_model:
 
     Here you can describe your fitting model.
     Standard reStructuredText directives can be used. For example:
@@ -179,5 +187,5 @@ class DocumentedExperiment(BaseExperiment):
         """
         super().__init__(qubits=[qubit])
 
-    def circuits(self, backend = None):
+    def circuits(self, backend=None):
         pass

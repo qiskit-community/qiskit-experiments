@@ -9,6 +9,9 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""
+A collection of utilities to generate documentation.
+"""
 
 import inspect
 import re
@@ -44,8 +47,7 @@ def _parse_option_field(
 
     # use GoogleDocstring parameter parser
     experiment_option_parser = GoogleDocstring(
-        docstring=prepare_docstring(docstring, tabsize=len(indent)),
-        config=config
+        docstring=prepare_docstring(docstring, tabsize=len(indent)), config=config
     )
     parsed_lines = experiment_option_parser.lines()
 
@@ -82,9 +84,7 @@ def _generate_options_documentation(
 
     if current_class == object:
         # check if no more base class
-        raise Exception(
-            f"Option docstring for {', '.join(target_args)} is missing."
-        )
+        raise Exception(f"Option docstring for {', '.join(target_args)} is missing.")
 
     options_docstring_lines = []
 
