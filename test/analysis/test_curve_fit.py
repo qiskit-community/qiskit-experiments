@@ -17,10 +17,10 @@ from typing import List
 
 import numpy as np
 from qiskit.test import QiskitTestCase
+from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.analysis import CurveAnalysis, SeriesDef, fit_function
-from qiskit_experiments.analysis.curve_fitting import multi_curve_fit
 from qiskit_experiments.analysis.data_processing import probability
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.exceptions import AnalysisError
@@ -55,16 +55,19 @@ def simulate_output_data(func, xvals, param_dict, **metadata):
     for datum in data:
         expdata.add_data(datum)
 
+    expdata.metadata()["job_metadata"] = [{"run_options": {"meas_level": MeasLevel.CLASSIFIED}}]
+
     return expdata
 
 
-def create_new_analysis(series: List[SeriesDef]) -> CurveAnalysis:
+def create_new_analysis(series: List[SeriesDef], fixed_params: List[str] = None) -> CurveAnalysis:
     """A helper function to create a mock analysis class instance."""
 
     class TestAnalysis(CurveAnalysis):
         """A mock analysis class to test."""
 
         __series__ = series
+        __fixed_parameters__ = fixed_params
 
     return TestAnalysis()
 
@@ -125,6 +128,19 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         ]
         with self.assertRaises(AnalysisError):
             create_new_analysis(series=invalid_series)  # fit1 has param p0 while fit2 has p1
+
+    def test_cannot_create_invalid_fixed_parameter(self):
+        """Test we cannot create invalid analysis instance with wrong fixed value name."""
+        valid_series = [
+            SeriesDef(
+                fit_func=lambda x, p0, p1: fit_function.exponential_decay(x, amp=p0, lamb=p1),
+            ),
+        ]
+        with self.assertRaises(AnalysisError):
+            create_new_analysis(
+                series=valid_series,
+                fixed_params=["not_existing_parameter"],  # this parameter is not defined
+            )
 
     def test_arg_parse_and_get_option(self):
         """Test if option parsing works correctly."""
@@ -288,19 +304,10 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "lamb": ref_p1, "x0": ref_p2, "baseline": ref_p3},
         )
-        results, _ = analysis._run_analysis(
-            test_data,
-            p0={"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3},
-            curve_fitter=multi_curve_fit,
-            data_processor=probability(outcome="1"),
-            x_key="xval",
-            plot=False,
-            axis=None,
-            xlabel="x value",
-            ylabel="y value",
-            fit_reports=None,
-            return_data_points=False,
-        )
+        default_opts = analysis._default_options()
+        default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3}
+
+        results, _ = analysis._run_analysis(test_data, **default_opts.__dict__)
         result = results[0]
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
@@ -333,22 +340,13 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "lamb": ref_p1, "x0": ref_p2, "baseline": ref_p3},
         )
+        default_opts = analysis._default_options()
+        default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3}
+        default_opts.bounds = {"p0": [-10, 0], "p1": [-10, 0], "p2": [-10, 0], "p3": [-10, 0]}
+        default_opts.return_data_points = True
 
         # Try to fit with infeasible parameter boundary. This should fail.
-        results, _ = analysis._run_analysis(
-            test_data,
-            p0={"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3},
-            bounds={"p0": [-10, 0], "p1": [-10, 0], "p2": [-10, 0], "p3": [-10, 0]},
-            curve_fitter=multi_curve_fit,
-            data_processor=probability(outcome="1"),
-            x_key="xval",
-            plot=False,
-            axis=None,
-            xlabel="x value",
-            ylabel="y value",
-            fit_reports=None,
-            return_data_points=True,
-        )
+        results, _ = analysis._run_analysis(test_data, **default_opts.__dict__)
         result = results[0]
 
         self.assertFalse(result["success"])
@@ -400,19 +398,10 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         for datum in test_data1.data():
             test_data0.add_data(datum)
 
-        results, _ = analysis._run_analysis(
-            test_data0,
-            p0={"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3, "p4": ref_p4},
-            curve_fitter=multi_curve_fit,
-            data_processor=probability(outcome="1"),
-            x_key="xval",
-            plot=False,
-            axis=None,
-            xlabel="x value",
-            ylabel="y value",
-            fit_reports=None,
-            return_data_points=False,
-        )
+        default_opts = analysis._default_options()
+        default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3, "p4": ref_p4}
+
+        results, _ = analysis._run_analysis(test_data0, **default_opts.__dict__)
         result = results[0]
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3, ref_p4])
@@ -463,22 +452,82 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         for datum in test_data1.data():
             test_data0.add_data(datum)
 
-        results, _ = analysis._run_analysis(
-            test_data0,
-            p0={"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3},
-            curve_fitter=multi_curve_fit,
-            data_processor=probability(outcome="1"),
-            x_key="xval",
-            plot=False,
-            axis=None,
-            xlabel="x value",
-            ylabel="y value",
-            fit_reports=None,
-            return_data_points=False,
-        )
+        default_opts = analysis._default_options()
+        default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3}
+
+        results, _ = analysis._run_analysis(test_data0, **default_opts.__dict__)
         result = results[0]
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
 
         # check result data
         np.testing.assert_array_almost_equal(result["popt"], ref_popt, decimal=self.err_decimal)
+
+    def test_run_fixed_parameters(self):
+        """Test analysis when some of parameters are fixed."""
+        analysis = create_new_analysis(
+            series=[
+                SeriesDef(
+                    name="curve1",
+                    fit_func=lambda x, p0, p1, fixed_p2, p3: fit_function.cos(
+                        x, amp=p0, freq=p1, phase=fixed_p2, baseline=p3
+                    ),
+                ),
+            ],
+            fixed_params=["fixed_p2"],
+        )
+
+        ref_p0 = 0.1
+        ref_p1 = 2
+        ref_p2 = -0.3
+        ref_p3 = 0.5
+
+        test_data = simulate_output_data(
+            func=fit_function.cos,
+            xvals=self.xvalues,
+            param_dict={"amp": ref_p0, "freq": ref_p1, "phase": ref_p2, "baseline": ref_p3},
+        )
+
+        default_opts = analysis._default_options()
+        default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p3": ref_p3}
+        default_opts.fixed_p2 = ref_p2
+
+        results, _ = analysis._run_analysis(test_data, **default_opts.__dict__)
+        result = results[0]
+
+        ref_popt = np.asarray([ref_p0, ref_p1, ref_p3])
+
+        # check result data
+        np.testing.assert_array_almost_equal(result["popt"], ref_popt, decimal=self.err_decimal)
+
+    def test_fixed_param_is_missing(self):
+        """Test raising an analysis error when fixed parameter is missing."""
+        analysis = create_new_analysis(
+            series=[
+                SeriesDef(
+                    name="curve1",
+                    fit_func=lambda x, p0, p1, fixed_p2, p3: fit_function.cos(
+                        x, amp=p0, freq=p1, phase=fixed_p2, baseline=p3
+                    ),
+                ),
+            ],
+            fixed_params=["fixed_p2"],
+        )
+
+        ref_p0 = 0.1
+        ref_p1 = 2
+        ref_p2 = -0.3
+        ref_p3 = 0.5
+
+        test_data = simulate_output_data(
+            func=fit_function.cos,
+            xvals=self.xvalues,
+            param_dict={"amp": ref_p0, "freq": ref_p1, "phase": ref_p2, "baseline": ref_p3},
+        )
+
+        default_opts = analysis._default_options()
+        default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p3": ref_p3}
+        # do not define fixed_p2 here
+
+        with self.assertRaises(AnalysisError):
+            analysis._run_analysis(test_data, **default_opts.__dict__)

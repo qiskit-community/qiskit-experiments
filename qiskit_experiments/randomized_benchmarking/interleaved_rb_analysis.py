@@ -32,7 +32,7 @@ class InterleavedRBAnalysis(RBAnalysis):
     Overview
         This analysis takes only two series for standard and interleaved RB curve fitting.
         From the fit :math:`\alpha` and :math:`\alpha_c` value this analysis estimates
-        the error per Clifford (EPC) of interleaved gate.
+        the error per Clifford (EPC) of the interleaved gate.
 
         The EPC estimate is obtained using the equation
 
@@ -42,7 +42,7 @@ class InterleavedRBAnalysis(RBAnalysis):
             r_{\mathcal{C}}^{\text{est}} =
                 \frac{\left(d-1\right)\left(1-\alpha_{\overline{\mathcal{C}}}/\alpha\right)}{d}
 
-        The error bounds are given by
+        The systematic error bounds are given by
 
         .. math::
 
@@ -55,7 +55,7 @@ class InterleavedRBAnalysis(RBAnalysis):
                 \end{array}
             \right.
 
-        See the reference[1] for more details.
+        See the Ref. [1] for more details.
 
 
 
@@ -64,8 +64,8 @@ class InterleavedRBAnalysis(RBAnalysis):
 
         .. math::
 
-            F_1(x_1) &= a \alpha^{x_1} + b  ... {\rm standard RB} \\
-            F_2(x_2) &= a (\alpha_c \alpha)^{x_2} + b ... {\rm interleaved RB}
+            F_1(x_1) &= a \alpha^{x_1} + b  \quad {\rm for standard RB} \\
+            F_2(x_2) &= a (\alpha_c \alpha)^{x_2} + b \quad {\rm for interleaved RB}
 
     Fit Parameters
         - :math:`a`: Height of decay curve.
@@ -90,8 +90,11 @@ class InterleavedRBAnalysis(RBAnalysis):
         - :math:`\alpha_c`: [0, 1]
 
     References
-        [1] "Efficient measurement of quantum gate error by interleaved randomized benchmarking"
-            (arXiv:1203.4550).
+        1. Easwar Magesan, Jay M. Gambetta, B. R. Johnson, Colm A. Ryan, Jerry M. Chow,
+           Seth T. Merkel, Marcus P. da Silva, George A. Keefe, Mary B. Rothwell, Thomas A. Ohki,
+           Mark B. Ketchen, M. Steffen, Efficient measurement of quantum gate error by
+           interleaved randomized benchmarking,
+           `arXiv:quant-ph/1203.4550 <https://arxiv.org/pdf/1203.4550>`_
     """
 
     __series__ = [
@@ -103,6 +106,7 @@ class InterleavedRBAnalysis(RBAnalysis):
             filter_kwargs={"interleaved": False},
             plot_color="red",
             plot_symbol=".",
+            plot_fit_uncertainty=True,
         ),
         SeriesDef(
             name="Interleaved",
@@ -112,6 +116,7 @@ class InterleavedRBAnalysis(RBAnalysis):
             filter_kwargs={"interleaved": True},
             plot_color="orange",
             plot_symbol="^",
+            plot_fit_uncertainty=True,
         ),
     ]
 

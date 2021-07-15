@@ -20,12 +20,42 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
 from qiskit.quantum_info import Clifford
 
-from .rb_experiment import RBExperiment
+from .rb_experiment import StandardRB
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 
 
-class InterleavedRBExperiment(RBExperiment):
-    """Interleaved RB Experiment class"""
+class InterleavedRB(StandardRB):
+    """Interleaved Randomized Benchmarking Experiment class.
+
+    Overview
+        Interleaved Randomized Benchmarking (RB) is a method
+        to estimate the average error-rate of a certain quantum gate.
+
+        An interleaved RB experiment generates a standard RB sequences of random Cliffors
+        and another sequence with the interleaved given gate.
+        After running the two sequences on a backend, it calculates the probabilities to get back to
+        the ground state, fit the two exponentially decaying curves, and estimate
+        the interleaved gate error. See Ref. [1] for details.
+
+        See :class:`InterleavedRBAnalysis` documentation for additional
+        information on interleaved RB experiment analysis.
+
+    References
+        1. Easwar Magesan, Jay M. Gambetta, B. R. Johnson, Colm A. Ryan, Jerry M. Chow,
+           Seth T. Merkel, Marcus P. da Silva, George A. Keefe, Mary B. Rothwell, Thomas A. Ohki,
+           Mark B. Ketchen, M. Steffen, Efficient measurement of quantum gate error by
+           interleaved randomized benchmarking,
+           `arXiv:quant-ph/1203.4550 <https://arxiv.org/pdf/1203.4550>`_
+
+    Analysis Class
+        :class:`~qiskit.experiments.randomized_benchmarking.InterleavedRBAnalysis`
+
+    Experiment Options
+        - **lengths**: A list of RB sequences lengths.
+        - **num_samples**: Number of samples to generate for each sequence length.
+        - **interleaved_element**: The element to interleave,
+          given either as a group element or as an instruction/circuit
+    """
 
     # Analysis class for experiment
     __analysis_class__ = InterleavedRBAnalysis
@@ -35,19 +65,19 @@ class InterleavedRBExperiment(RBExperiment):
         interleaved_element: Union[QuantumCircuit, Instruction, Clifford],
         qubits: Union[int, Iterable[int]],
         lengths: Iterable[int],
-        num_samples: int = 1,
+        num_samples: int = 3,
         seed: Optional[Union[int, Generator]] = None,
         full_sampling: bool = False,
     ):
-        """Interleaved randomized benchmarking experiment.
+        """Initialize an interleaved randomized benchmarking experiment.
 
         Args:
-            interleaved_element: the element to interleave,
+            interleaved_element: The element to interleave,
                     given either as a group element or as an instruction/circuit
-            qubits: the number of qubits or list of
+            qubits: The number of qubits or list of
                     physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
-            num_samples: number of samples to generate for each
+            num_samples: Number of samples to generate for each
                          sequence length
             seed: Seed or generator object for random number
                   generation. If None default_rng will be used.

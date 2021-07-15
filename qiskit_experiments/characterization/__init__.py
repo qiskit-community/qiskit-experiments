@@ -22,8 +22,8 @@ Experiments
 .. autosummary::
     :toctree: ../stubs/
 
-    T1Experiment
-    T2StarExperiment
+    T1
+    T2Ramsey
     QubitSpectroscopy
 
 
@@ -34,9 +34,13 @@ Analysis
     :toctree: ../stubs/
 
     T1Analysis
-    T2StarAnalysis
-    SpectroscopyAnalysis
+    T2RamseyAnalysis
+    ResonanceAnalysis
 """
-from .t1_experiment import T1Experiment, T1Analysis
-from .qubit_spectroscopy import QubitSpectroscopy, SpectroscopyAnalysis
-from .t2star_experiment import T2StarExperiment, T2StarAnalysis
+from .t1 import T1
+from .t1_analysis import T1Analysis
+from .qubit_spectroscopy import QubitSpectroscopy
+from .resonance_analysis import ResonanceAnalysis
+from .ef_spectroscopy import EFSpectroscopy
+from .t2ramsey import T2Ramsey
+from .t2ramsey_analysis import T2RamseyAnalysis

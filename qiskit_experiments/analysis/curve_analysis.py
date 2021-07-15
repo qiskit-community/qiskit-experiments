@@ -18,6 +18,7 @@ Analysis class for curve fitting.
 import dataclasses
 import inspect
 from abc import ABC
+import functools
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
 import numpy as np
@@ -25,24 +26,36 @@ from qiskit.providers import Options
 
 from qiskit_experiments.analysis import plotting
 from qiskit_experiments.analysis.curve_fitting import multi_curve_fit, CurveAnalysisResult
-from qiskit_experiments.analysis.data_processing import probability
 from qiskit_experiments.analysis.utils import get_opt_value, get_opt_error
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.experiment_data import AnalysisResult, ExperimentData
+from qiskit_experiments.data_processing.processor_library import get_processor
 
 
 @dataclasses.dataclass(frozen=True)
 class SeriesDef:
     """Description of curve."""
 
+    # Arbitrary callback to define the fit function. First argument should be x.
     fit_func: Callable
+
+    # Keyword dictionary to define the series with circuit metadata
     filter_kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
+
+    # Name of this series. This name will appear in the figure and raw x-y value report.
     name: str = "Series-0"
+
+    # Color of this line.
     plot_color: str = "black"
+
+    # Symbol to represent data points of this line.
     plot_symbol: str = "o"
+
+    # Whether to plot fit uncertainty for this line.
+    plot_fit_uncertainty: bool = False
 
 
 @dataclasses.dataclass(frozen=True)
@@ -78,6 +91,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 name: Name of the curve. This is arbitrary data field, but should be unique.
                 plot_color: String color representation of this series in the plot.
                 plot_symbol: String formatter of the scatter of this series in the plot.
+                plot_fit_uncertainty: A Boolean signaling whether to plot fit uncertainty
+                    for this series in the plot.
 
             See the Examples below for more details.
 
@@ -138,7 +153,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         Both series have same fit function in this example.
 
         A fitting for two trigonometric curves with the same parameter
-        =============================================================
+        ==============================================================
 
         In this type of experiment, the analysis deals with two different curves.
         However the parameters are shared with both functions.
@@ -171,6 +186,33 @@ class CurveAnalysis(BaseAnalysis, ABC):
         `my_experiment1` (`my_experiment2`) uses the `cos` (`sin`) fit function.
 
 
+        A fitting with fixed parameter
+        ==============================
+
+        In this type of experiment, we can provide fixed fit function parameter.
+        This parameter should be assigned via analysis options
+        and not passed to the fitter function.
+
+        .. code-block::
+
+            class AnalysisExample(CurveAnalysis):
+
+                __series__ = [
+                    SeriesDef(
+                        fit_func=lambda x, p0, p1, p2:
+                            exponential_decay(x, amp=p0, lamb=p1, baseline=p2),
+                    ),
+                ]
+
+                __fixed_parameters__ = ["p1"]
+
+        You can add arbitrary number of parameters to the class variable
+        ``__fixed_parameters__`` from the fit function arguments.
+        This parameter should be defined with the fit functions otherwise the analysis
+        instance cannot be created. In above example, parameter ``p1`` should be also
+        defined in the analysis options. This parameter will be excluded from the fit parameters
+        and thus will not appear in the analysis result.
+
     Notes:
         This CurveAnalysis class provides several private methods that subclasses can override.
 
@@ -200,8 +242,12 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         https://github.com/Qiskit/qiskit-experiments/issues
     """
+
     #: List[SeriesDef]: List of mapping representing a data series
     __series__ = None
+
+    #: List[str]: Fixed parameter in fit function. Value should be set to the analysis options.
+    __fixed_parameters__ = None
 
     def __new__(cls) -> "CurveAnalysis":
         """Parse series data if all fit functions have the same argument.
@@ -224,55 +270,66 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 "different function signature. They should receive "
                 "the same parameter set for multi-objective function fit."
             )
-        obj.__fit_params = list(list(fsigs)[0].parameters.keys())[1:]
+
+        # remove the first function argument. this is usually x, i.e. not a fit parameter.
+        fit_params = list(list(fsigs)[0].parameters.keys())[1:]
+
+        # remove fixed parameters
+        if obj.__fixed_parameters__ is not None:
+            for fixed_param in obj.__fixed_parameters__:
+                try:
+                    fit_params.remove(fixed_param)
+                except ValueError as ex:
+                    raise AnalysisError(
+                        f"Defined fixed parameter {fixed_param} is not a fit function argument."
+                        "Update series definition to ensure the parameter name is defined with "
+                        f"fit functions. Currently available parameters are {fit_params}."
+                    ) from ex
+        obj.__fit_params = fit_params
 
         return obj
 
     def __init__(self):
         """Initialize data fields that are privately accessed by methods."""
 
-        #: Iterable[int]: Physical qubits tested by this experiment
-        self.__qubits = None
+        #: Dict[str, Any]: Experiment metadata
+        self.__experiment_metadata = None
 
         #: List[CurveData]: Processed experiment data set.
         self.__processed_data_set = list()
 
         # Add expected options to instance variable so that every method can access to.
-        default_options = self._default_options()
-
-        if isinstance(default_options, Options):
-            # pylint: disable=no-member
-            default_options = default_options.__dict__
-
-        for key in default_options:
+        for key in self._default_options().__dict__:
             setattr(self, f"__{key}", None)
 
     @classmethod
     def _default_options(cls) -> Options:
         """Return default analysis options.
 
-        Analysis Options:
+        Options:
             curve_fitter (Callable): A callback function to perform fitting with formatted data.
-                See :py:func:`~qiskit_experiments.analysis.multi_curve_fit` for example.
+                See :func:`~qiskit_experiments.analysis.multi_curve_fit` for example.
             data_processor (Callable): A callback function to format experiment data.
-                This can be a :py:class:`~qiskit_experiments.data_processing.DataProcessor`
-                instance or any class instance that defines the ``__call__`` method.
-            p0 (Dict[str, float]): Dictionary of initial parameters. Keys are parameter names.
-            bounds (Dict[str, Tuple[float, float]]): Dictionary of (min, max) tuple of
-                fit parameter boundaries. Keys are parameter names.
+                This can be a :class:`~qiskit_experiments.data_processing.DataProcessor`
+                instance that defines the `self.__call__` method.
+            normalization (bool) : Set ``True`` to normalize y values within range [-1, 1].
+            p0 (Dict[str, float]): Array-like or dictionary
+                of initial parameters.
+            bounds (Dict[str, Tuple[float, float]]): Array-like or dictionary
+                of (min, max) tuple of fit parameter boundaries.
             x_key (str): Circuit metadata key representing a scanned value.
             plot (bool): Set ``True`` to create figure for fit result.
             axis (AxesSubplot): Optional. A matplotlib axis object to draw.
-            xlabel (str): X label of the fit result figure.
-            ylabel (str): Y label of the fit result figure.
-            ylim (Tuple[float, float]): Y axis limit of the fit result figure.
+            xlabel (str): X label of fit result figure.
+            ylabel (str): Y label of fit result figure.
             fit_reports (Dict[str, str]): Mapping of fit parameters and representation
-                in the fit report. If nothing specified, fit report will not be shown.
-            return_data_points (bool): Set ``True`` to return arrays of measured data points.
+                in the fit report.
+            return_data_points (bool): Set ``True`` to return formatted XY data.
         """
         return Options(
             curve_fitter=multi_curve_fit,
-            data_processor=probability(outcome="1"),
+            data_processor=None,
+            normalization=False,
             p0=None,
             bounds=None,
             x_key="xval",
@@ -348,6 +405,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         ax=axis,
                         color=series_def.plot_color,
                         zorder=2,
+                        fit_uncertainty=series_def.plot_fit_uncertainty,
                     )
 
             # format axis
@@ -653,14 +711,91 @@ class CurveAnalysis(BaseAnalysis, ABC):
         return fitter_options
 
     @property
-    def _num_qubits(self):
-        """Getter for qubit number."""
-        return len(self.__qubits)
+    def _experiment_type(self) -> str:
+        """Return type of experiment."""
+        try:
+            return self.__experiment_metadata["experiment_type"]
+        except (TypeError, KeyError):
+            # Ignore experiment metadata is not set or key is not found
+            return None
 
     @property
-    def _physical_qubits(self):
+    def _num_qubits(self) -> int:
+        """Getter for qubit number."""
+        try:
+            return self.__experiment_metadata["num_qubits"]
+        except (TypeError, KeyError):
+            # Ignore experiment metadata is not set or key is not found
+            return None
+
+    @property
+    def _physical_qubits(self) -> List[int]:
         """Getter for physical qubit indices."""
-        return list(self.__qubits)
+        try:
+            return list(self.__experiment_metadata["physical_qubits"])
+        except (TypeError, KeyError):
+            # Ignore experiment metadata is not set or key is not found
+            return None
+
+    def _experiment_options(self, index: int = -1) -> Dict[str, Any]:
+        """Return the experiment options of given job index.
+
+        Args:
+            index: Index of job metadata to extract. Default to -1 (latest).
+
+        Returns:
+            Experiment options. This option is used for circuit generation.
+        """
+        try:
+            return self.__experiment_metadata["job_metadata"][index]["experiment_options"]
+        except (TypeError, KeyError, IndexError):
+            # Ignore experiment metadata or job metadata is not set or key is not found
+            return None
+
+    def _analysis_options(self, index: int = -1) -> Dict[str, Any]:
+        """Returns the analysis options of given job index.
+
+        Args:
+            index: Index of job metadata to extract. Default to -1 (latest).
+
+        Returns:
+            Analysis options. This option is used for analysis.
+        """
+        try:
+            return self.__experiment_metadata["job_metadata"][index]["analysis_options"]
+        except (TypeError, KeyError, IndexError):
+            # Ignore experiment metadata or job metadata is not set or key is not found
+            return None
+
+    def _run_options(self, index: int = -1) -> Dict[str, Any]:
+        """Returns the run options of given job index.
+
+        Args:
+            index: Index of job metadata to extract. Default to -1 (latest).
+
+        Returns:
+            Run options. This option is used for backend execution.
+        """
+        try:
+            return self.__experiment_metadata["job_metadata"][index]["run_options"]
+        except (TypeError, KeyError, IndexError):
+            # Ignore experiment metadata or job metadata is not set or key is not found
+            return None
+
+    def _transpile_options(self, index: int = -1) -> Dict[str, Any]:
+        """Returns the transpile options of given job index.
+
+        Args:
+            index: Index of job metadata to extract. Default to -1 (latest).
+
+        Returns:
+            Transpile options. This option is used for circuit optimization.
+        """
+        try:
+            return self.__experiment_metadata["job_metadata"][index]["transpile_options"]
+        except (TypeError, KeyError, IndexError):
+            # Ignore experiment metadata or job metadata is not set or key is not found
+            return None
 
     def _data(
         self,
@@ -765,19 +900,62 @@ class CurveAnalysis(BaseAnalysis, ABC):
         analysis_result["analysis_type"] = self.__class__.__name__
         figures = list()
 
+        #
+        # 1. Parse arguments
+        #
+        if self.__fixed_parameters__ is not None and len(self.__fixed_parameters__) > 0:
+            assigned_params = dict()
+            # Extract fixed parameter value from analysis options
+            for pname in self.__fixed_parameters__:
+                try:
+                    assigned_params[pname] = options.pop(pname)
+                except KeyError as ex:
+                    raise AnalysisError(
+                        f"The value of the fixed-value parameter {pname} for the fit function "
+                        f"of {self.__class__.__name__} was not found. "
+                        "This value must be provided by the analysis options to run this analysis."
+                    ) from ex
+            # Override series definition with assigned fit functions.
+            assigned_series = []
+            for series_def in self.__series__:
+                dict_def = dataclasses.asdict(series_def)
+                dict_def["fit_func"] = functools.partial(series_def.fit_func, **assigned_params)
+                assigned_series.append(SeriesDef(**dict_def))
+            self.__series__ = assigned_series
+
         # pop arguments that are not given to fitter
         extra_options = self._arg_parse(**options)
 
-        # TODO update this with experiment metadata PR #67
+        # get experiment metadata
         try:
-            self.__qubits = experiment_data.data(0)["metadata"]["qubits"]
-        except KeyError:
+            self.__experiment_metadata = experiment_data.metadata()
+
+        except AttributeError:
             pass
 
         #
-        # 1. Setup data processor
+        # 2. Setup data processor
         #
+
+        # No data processor has been provided at run-time we infer one from the job
+        # metadata and default to the data processor for averaged classified data.
         data_processor = self._get_option("data_processor")
+
+        if not data_processor:
+            run_options = self._run_options() or dict()
+
+            try:
+                meas_level = run_options["meas_level"]
+            except KeyError as ex:
+                raise AnalysisError(
+                    f"Cannot process data without knowing the measurement level: {str(ex)}."
+                ) from ex
+
+            meas_return = run_options.get("meas_return", None)
+            normalization = self._get_option("normalization")
+
+            data_processor = get_processor(meas_level, meas_return, normalization)
+
         if isinstance(data_processor, DataProcessor) and not data_processor.is_trained:
             # Qiskit DataProcessor instance. May need calibration.
             try:
@@ -788,7 +966,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 ) from ex
 
         #
-        # 2. Extract curve entries from experiment data
+        # 3. Extract curve entries from experiment data
         #
         try:
             self._extract_curves(experiment_data=experiment_data, data_processor=data_processor)
@@ -798,7 +976,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             ) from ex
 
         #
-        # 3. Run fitting
+        # 4. Run fitting
         #
         try:
             curve_fitter = self._get_option("curve_fitter")
@@ -854,19 +1032,19 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         else:
             #
-            # 4. Post-process analysis data
+            # 5. Post-process analysis data
             #
             analysis_result = self._post_analysis(analysis_result=analysis_result)
 
         finally:
             #
-            # 5. Create figures
+            # 6. Create figures
             #
             if self._get_option("plot"):
                 figures.extend(self._create_figures(analysis_results=analysis_result))
 
             #
-            # 6. Optionally store raw data points
+            # 7. Optionally store raw data points
             #
             if self._get_option("return_data_points"):
                 raw_data_dict = dict()

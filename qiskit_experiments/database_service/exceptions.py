@@ -10,10 +10,24 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Exceptions for calibration."""
+"""Exceptions for errors raised by experiment service data."""
 
 from qiskit.exceptions import QiskitError
 
 
-class CalibrationError(QiskitError):
-    """Errors raised by the calibration module."""
+class DbExperimentDataError(QiskitError):
+    """Base class for errors raised by experiment service data."""
+
+    pass
+
+
+class DbExperimentEntryNotFound(DbExperimentDataError):
+    """Errors raised when an experiment entry cannot be found."""
+
+    pass
+
+
+class DbExperimentEntryExists(DbExperimentDataError):
+    """Errors raised when an experiment entry already exists."""
+
+    pass

@@ -9,8 +9,11 @@ Qiskit Experiments API Reference
 
     main
     characterization
+    calibration
     composite
     randomized_benchmarking
+    tomography
     analysis
     data_processing
+    database_service
    

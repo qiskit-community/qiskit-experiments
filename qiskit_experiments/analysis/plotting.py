@@ -26,7 +26,7 @@ from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
 def plot_curve_fit(
     func: Callable,
     result: AnalysisResult,
-    confidence_interval: bool = True,
+    fit_uncertainty: bool = False,
     ax=None,
     num_fit_points: int = 100,
     labelsize: int = 14,
@@ -40,7 +40,7 @@ def plot_curve_fit(
     Args:
         func: the fit function for curve_fit.
         result: an AnalysisResult from curve_fit.
-        confidence_interval: if True plot the confidence interval from popt_err.
+        fit_uncertainty: if True plot the fit uncertainty from popt_err.
         ax (matplotlib.axes.Axes): Optional, a matplotlib axes to add the plot to.
         num_fit_points: the number of points to plot for xrange.
         labelsize: label size for plot
@@ -57,11 +57,6 @@ def plot_curve_fit(
         figure = pyplot.figure()
         ax = figure.subplots()
 
-    # Result data
-    fit_params = dict(zip(result["popt_keys"], result["popt"]))
-    fit_errors = dict(zip(result["popt_keys"], result["popt_err"]))
-    xmin, xmax = result["xrange"]
-
     # Default plot options
     plot_opts = kwargs.copy()
     if "color" not in plot_opts:
@@ -71,17 +66,35 @@ def plot_curve_fit(
     if "linewidth" not in plot_opts:
         plot_opts["linewidth"] = 2
 
+    # Result data
+    fit_params = result["popt"]
+    param_keys = result.get("popt_keys")
+    fit_errors = result.get("popt_err")
+    xmin, xmax = result["xrange"]
+
     # Plot fit data
     xs = np.linspace(xmin, xmax, num_fit_points)
-    ys_fit = func(xs, **fit_params)
+    if param_keys:
+        ys_fit = func(xs, **dict(zip(param_keys, fit_params)))
+    else:
+        ys_fit = func(xs, *fit_params)
     ax.plot(xs, ys_fit, **plot_opts)
 
     # Plot standard error interval
-    if confidence_interval:
-        params_upper = {key: fit_params[key] + fit_errors[key] for key in result["popt_keys"]}
-        params_lower = {key: fit_params[key] - fit_errors[key] for key in result["popt_keys"]}
-        ys_upper = func(xs, **params_upper)
-        ys_lower = func(xs, **params_lower)
+    if fit_uncertainty and fit_errors is not None:
+        if param_keys:
+            params_upper = {}
+            params_lower = {}
+            for key, param, error in zip(param_keys, fit_params, fit_errors):
+                params_upper[key] = param + error
+                params_lower[key] = param - error
+            ys_upper = func(xs, **params_upper)
+            ys_lower = func(xs, **params_lower)
+        else:
+            params_upper = [param + error for param, error in zip(fit_params, fit_errors)]
+            params_lower = [param - error for param, error in zip(fit_params, fit_errors)]
+            ys_upper = func(xs, *params_upper)
+            ys_lower = func(xs, *params_lower)
         ax.fill_between(xs, ys_lower, ys_upper, alpha=0.1, color=plot_opts["color"])
 
     # Formatting
@@ -175,7 +188,7 @@ def plot_errorbar(
     if "markersize" not in plot_opts:
         plot_opts["markersize"] = 9
     if "linestyle" not in plot_opts:
-        plot_opts["linestyle"] = "--"
+        plot_opts["linestyle"] = "None"
 
     # Plot data
     ax.errorbar(xdata, ydata, yerr=sigma, **plot_opts)
