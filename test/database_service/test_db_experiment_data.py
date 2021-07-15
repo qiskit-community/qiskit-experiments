@@ -124,6 +124,7 @@ class TestDbExperimentData(QiskitTestCase):
 
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
         exp_data.add_data(a_job)
+        exp_data.block_for_results()
         exp_data.add_data(jobs)
         exp_data.block_for_results()
         self.assertEqual(expected, [sdata["counts"] for sdata in exp_data.data()])
@@ -583,9 +584,11 @@ class TestDbExperimentData(QiskitTestCase):
 
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         exp_data.add_data(job)
-        exp_data.add_data(job, _post_processing)
-        exp_data.block_for_results()
+        with self.assertLogs(logger="qiskit_experiments.database_service", level="WARN") as cm:
+            exp_data.add_data(job, _post_processing)
+            exp_data.block_for_results()
         self.assertEqual("ERROR", exp_data.status())
+        self.assertIn("Kaboom!", ",".join(cm.output))
 
     def test_status_done(self):
         """Test experiment status when all jobs are done."""
@@ -648,11 +651,13 @@ class TestDbExperimentData(QiskitTestCase):
         job2.job_id.return_value = "5678"
 
         exp_data = DbExperimentData(experiment_type="qiskit_test")
-        exp_data.add_data(job1, _post_processing)
-        exp_data.add_data(job2)
-        exp_data.block_for_results()
+        with self.assertLogs(logger="qiskit_experiments.database_service", level="WARN") as cm:
+            exp_data.add_data(job1, _post_processing)
+            exp_data.add_data(job2)
+            exp_data.block_for_results()
         self.assertEqual("ERROR", exp_data.status())
         self.assertTrue(re.match(r".*1234.*Kaboom!.*5678", exp_data.errors(), re.DOTALL))
+        self.assertIn("Kaboom", ",".join(cm.output))
 
     def test_source(self):
         """Test getting experiment source."""
