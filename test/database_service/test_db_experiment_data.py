@@ -362,7 +362,7 @@ class TestDbExperimentData(QiskitTestCase):
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         self.assertIsNone(exp_data.backend)
         self.assertIsNone(exp_data.service)
-        exp_data.save()
+        exp_data.save_metadata()
         a_job = mock.create_autospec(Job, instance=True)
         exp_data.add_data(a_job)
         self.assertIsNotNone(exp_data.backend)
@@ -418,21 +418,21 @@ class TestDbExperimentData(QiskitTestCase):
                 exp_data.delete_analysis_result(del_key)
                 self.assertRaises(DbExperimentEntryNotFound, exp_data.analysis_results, res_id)
 
-    def test_save(self):
-        """Test saving experiment data."""
+    def test_save_metadata(self):
+        """Test saving experiment metadata."""
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
         service = mock.create_autospec(DatabaseServiceV1, instance=True)
         exp_data.service = service
-        exp_data.save()
+        exp_data.save_metadata()
         service.create_experiment.assert_called_once()
         _, kwargs = service.create_experiment.call_args
         self.assertEqual(exp_data.experiment_id, kwargs["experiment_id"])
-        exp_data.save()
+        exp_data.save_metadata()
         service.update_experiment.assert_called_once()
         _, kwargs = service.update_experiment.call_args
         self.assertEqual(exp_data.experiment_id, kwargs["experiment_id"])
 
-    def test_save_all(self):
+    def test_save(self):
         """Test saving all experiment related data."""
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
         service = mock.create_autospec(DatabaseServiceV1, instance=True)
@@ -440,12 +440,12 @@ class TestDbExperimentData(QiskitTestCase):
         analysis_result = mock.MagicMock()
         exp_data.add_analysis_results(analysis_result)
         exp_data.service = service
-        exp_data.save_all()
+        exp_data.save()
         service.create_experiment.assert_called_once()
         service.create_figure.assert_called_once()
         analysis_result.save.assert_called_once()
 
-    def test_save_all_delete(self):
+    def test_save_delete(self):
         """Test saving all deletion."""
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
         service = mock.create_autospec(DatabaseServiceV1, instance=True)
@@ -455,7 +455,7 @@ class TestDbExperimentData(QiskitTestCase):
         exp_data.delete_figure(0)
         exp_data.service = service
 
-        exp_data.save_all()
+        exp_data.save()
         service.create_experiment.assert_called_once()
         service.delete_figure.assert_called_once()
         service.delete_analysis_result.assert_called_once()
@@ -507,7 +507,7 @@ class TestDbExperimentData(QiskitTestCase):
         exp_data.auto_save = True
 
         mock_result = mock.MagicMock()
-        exp_data.save()
+        exp_data.save_metadata()
 
         subtests = [
             # update function, update parameters, service called

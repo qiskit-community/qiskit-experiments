@@ -51,7 +51,7 @@ def auto_save(func: Callable):
     def _wrapped(self, *args, **kwargs):
         return_val = func(self, *args, **kwargs)
         if self.auto_save:
-            self.save()
+            self.save_metadata()
         return return_val
 
     return _wrapped
@@ -244,7 +244,7 @@ class DbExperimentDataV1(DbExperimentData):
                 )
             )
             if self.auto_save:
-                self.save()
+                self.save_metadata()
             return
 
         if isinstance(data, dict):
@@ -640,17 +640,15 @@ class DbExperimentDataV1(DbExperimentData):
 
         raise TypeError(f"Invalid index type {type(index)}.")
 
-    def save(self) -> None:
-        """Save this experiment in the database.
+    def save_metadata(self) -> None:
+        """Save this experiments metadata to a database service.
 
-        Note:
-            Not all experiment properties are saved.
+        .. note::
+            This method does not save analysis results nor figures.
+            Use :meth:`save` for general saving of all experiment data.
+
             See :meth:`qiskit.providers.experiment.DatabaseServiceV1.create_experiment`
             for fields that are saved.
-
-        Note:
-            Note that this method does not save analysis results nor figures. Use
-            ``save_all()`` if you want to save those.
         """
         if not self._service:
             LOG.warning("Experiment cannot be saved because no experiment service is available.")
@@ -682,18 +680,23 @@ class DbExperimentDataV1(DbExperimentData):
             update_data=update_data,
         )
 
-    def save_all(self) -> None:
-        """Save this experiment and its analysis results and figures in the database.
+    def save(self) -> None:
+        """Save the experiment data to a database service.
 
-        Note:
-            Depending on the amount of data, this operation could take a while.
+        .. note::
+            This saves the experiment metadata, all analysis results, and all
+            figures. Depending on the number of figures and analysis results this
+            operation could take a while.
+
+            To only update a previously saved experiments metadata (eg for
+            additional tags or notes) use :meth:`save_metadata`.
         """
         # TODO - track changes
         if not self._service:
             LOG.warning("Experiment cannot be saved because no experiment service is available.")
             return
 
-        self.save()
+        self.save_metadata()
         for result in self._analysis_results.values():
             result.save()
 
@@ -964,7 +967,7 @@ class DbExperimentDataV1(DbExperimentData):
         """
         self._share_level = new_level
         if self.auto_save:
-            self.save()
+            self.save_metadata()
 
     @property
     def notes(self) -> str:
@@ -984,7 +987,7 @@ class DbExperimentDataV1(DbExperimentData):
         """
         self._notes = new_notes
         if self.auto_save:
-            self.save()
+            self.save_metadata()
 
     @property
     def service(self) -> Optional[DatabaseServiceV1]:
