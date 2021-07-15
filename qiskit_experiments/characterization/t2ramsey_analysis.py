@@ -27,7 +27,6 @@ from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
 from qiskit_experiments.experiment_data import ExperimentData
 from qiskit_experiments.database_service import DbAnalysisResultV1
-from qiskit_experiments.database_service.device_component import Qubit
 
 
 # pylint: disable = invalid-name

@@ -34,7 +34,6 @@ from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.experiment_data import ExperimentData
-from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.matplotlib import requires_matplotlib
 from qiskit_experiments.data_processing.processor_library import get_processor
 

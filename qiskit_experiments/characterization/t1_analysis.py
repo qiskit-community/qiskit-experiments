@@ -20,7 +20,6 @@ from qiskit.providers.options import Options
 from qiskit.utils import apply_prefix
 
 from qiskit_experiments.database_service import DbAnalysisResultV1
-from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import (
     process_curve_data,

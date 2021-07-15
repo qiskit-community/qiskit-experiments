@@ -20,7 +20,6 @@ import numpy as np
 import scipy.optimize as opt
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.analysis.data_processing import filter_data
-from qiskit_experiments.database_service import DbAnalysisResultV1
 from qiskit_experiments.experiment_data import AnalysisResultData
 
 
@@ -60,11 +59,10 @@ class CurveAnalysisResultData(AnalysisResultData):
     def __str__(self):
         out = ""
 
-        result_data = self.data()
-        if result_data.get("success"):
-            popt_keys = result_data.get("popt_keys")
-            popt = result_data.get("popt")
-            popt_err = result_data.get("popt_err")
+        if self.get("success"):
+            popt_keys = self.get("popt_keys")
+            popt = self.get("popt")
+            popt_err = self.get("popt_err")
 
             for key, value, error in zip(popt_keys, popt, popt_err):
                 out += f"\n  - {key}: {value} \u00B1 {error}"

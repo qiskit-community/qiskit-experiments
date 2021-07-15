@@ -25,8 +25,6 @@ from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
 
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.database_service import DbAnalysisResultV1
-from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.base_analysis import BaseAnalysis, Options
 from .fitters import (
     linear_inversion,
