@@ -112,7 +112,7 @@ class QuantumVolume(BaseExperiment):
         circuits = []
         depth = self._num_qubits
 
-        # Note: the trails numbering in the metadata is starting from 1 for each new experiment run
+        # Note: the trials numbering in the metadata is starting from 1 for each new experiment run
         for trial in range(1, self.experiment_options.trials + 1):
             qv_circ = QuantumVolumeCircuit(depth, depth, seed=self._rng)
             qv_circ.measure_active()
