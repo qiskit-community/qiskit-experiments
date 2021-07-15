@@ -26,6 +26,7 @@ from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
 
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.database_service import DbAnalysisResultV1
+from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.base_analysis import BaseAnalysis, Options
 from .fitters import (
     linear_inversion,
@@ -127,7 +128,9 @@ class TomographyAnalysis(BaseAnalysis):
         analysis_result = DbAnalysisResultV1(
             result_data=result,
             result_type="Tomography",
-            device_components=[],
+            device_components=[
+                Qubit(qubit) for qubit in experiment_data.metadata()["physical_qubits"]
+            ],
             experiment_id=experiment_data.experiment_id,
             quality=None,
         )
