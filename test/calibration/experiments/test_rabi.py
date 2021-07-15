@@ -24,7 +24,7 @@ from qiskit.qobj.utils import MeasLevel
 import qiskit.pulse as pulse
 
 from qiskit_experiments import ExperimentData
-from qiskit_experiments.calibration import Rabi, EFRabi
+from qiskit_experiments.library import Rabi, EFRabi
 
 from qiskit_experiments.calibration.analysis.oscillation_analysis import OscillationAnalysis
 from qiskit_experiments.data_processing.data_processor import DataProcessor

@@ -1,6 +1,6 @@
-.. _qiskit-experiments-composite:
+.. _qiskit-experiments-analysis:
 
-.. automodule:: qiskit_experiments.composite
+.. automodule:: qiskit_experiments.analysis
    :no-members:
    :no-inherited-members:
    :no-special-members:

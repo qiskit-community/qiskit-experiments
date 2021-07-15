@@ -1,4 +1,4 @@
-.. _qiskit-experiments:
+.. _qiskit-experiments-database-service:
 
 .. automodule:: qiskit_experiments.database_service
    :no-members:

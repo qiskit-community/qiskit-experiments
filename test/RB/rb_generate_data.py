@@ -23,7 +23,7 @@ from qiskit.circuit.library import (
     XGate,
     CXGate,
 )
-import qiskit_experiments as qe
+from qiskit_experiments.library import StandardRB, InterleavedRB
 
 
 def create_depolarizing_noise_model():
@@ -94,9 +94,8 @@ def _generate_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes: di
     analysis_file_path = os.path.join(dir_name, str(rb_exp_name + "_output_analysis.json"))
     noise_model = create_depolarizing_noise_model()
     backend = QasmSimulator()
-    rb_class = qe.randomized_benchmarking
     print("Generating RB experiment")
-    rb_exp = rb_class.StandardRB(
+    rb_exp = StandardRB(
         exp_attributes["physical_qubits"],
         exp_attributes["lengths"],
         num_samples=exp_attributes["num_samples"],
@@ -191,9 +190,8 @@ def _generate_int_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes
     analysis_file_path = os.path.join(dir_name, str(rb_exp_name + "_output_analysis.json"))
     noise_model = create_depolarizing_noise_model()
     backend = QasmSimulator()
-    rb_class = qe.randomized_benchmarking
     print("Generating experiment")
-    rb_exp = rb_class.InterleavedRB(
+    rb_exp = InterleavedRB(
         interleaved_gates[exp_attributes["interleaved_element"]],
         exp_attributes["physical_qubits"],
         exp_attributes["lengths"],

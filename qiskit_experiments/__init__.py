@@ -21,6 +21,11 @@ Qiskit Experiments (:mod:`qiskit_experiments`)
 API changes, and re-organization of the package layout.*
 
 
+Experiment Library
+==================
+
+See :mod:`qiskit_experiments.library` for a list of available experiments.
+
 Experiment Data Classes
 =======================
 
@@ -53,9 +58,12 @@ from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
 
 # Experiment modules
+from . import library
+from . import data_processing
+from . import analysis
+
 from . import composite
 from . import characterization
-from . import analysis
 from . import randomized_benchmarking
 from . import tomography
 from . import quantum_volume

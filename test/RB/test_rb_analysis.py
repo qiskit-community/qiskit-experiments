@@ -22,6 +22,7 @@ from qiskit.circuit.library import (
     CXGate,
 )
 import qiskit_experiments as qe
+from qiskit_experiments.library import StandardRB, InterleavedRB
 
 ATOL_DEFAULT = 1e-2
 RTOL_DEFAULT = 1e-5
@@ -239,8 +240,7 @@ class TestRBAnalysis(QiskitTestCase):
             ExperimentData:  ExperimentData object that was creates by the analysis function.
         """
         data, exp_attributes, expdata1 = self._load_json_data(rb_exp_data_file_name)
-        rb_class = qe.randomized_benchmarking
-        rb_exp = rb_class.StandardRB(
+        rb_exp = StandardRB(
             exp_attributes["physical_qubits"],
             exp_attributes["lengths"],
             num_samples=exp_attributes["num_samples"],
@@ -294,8 +294,7 @@ class TestInterleavedRBAnalysis(TestRBAnalysis):
         """
         interleaved_gates = {"x": XGate(), "cx": CXGate()}
         data, exp_attributes, expdata1 = self._load_json_data(rb_exp_data_file_name)
-        rb_class = qe.randomized_benchmarking
-        rb_exp = rb_class.InterleavedRB(
+        rb_exp = InterleavedRB(
             interleaved_gates[exp_attributes["interleaved_element"]],
             exp_attributes["physical_qubits"],
             exp_attributes["lengths"],

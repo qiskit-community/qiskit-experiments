@@ -27,7 +27,7 @@ from qiskit.circuit.library import (
     XGate,
     CXGate,
 )
-import qiskit_experiments as qe
+from qiskit_experiments.library import StandardRB, InterleavedRB
 
 
 @ddt
@@ -51,8 +51,7 @@ class TestStandardRB(QiskitTestCase):
             "num_samples": 3,
             "seed": 100,
         }
-        rb_class = qe.randomized_benchmarking
-        rb_exp = rb_class.StandardRB(
+        rb_exp = StandardRB(
             exp_attributes["physical_qubits"],
             exp_attributes["lengths"],
             num_samples=exp_attributes["num_samples"],
@@ -100,7 +99,7 @@ class TestStandardRB(QiskitTestCase):
 
     def validate_circuit_data(
         self,
-        experiment: qe.randomized_benchmarking.rb_experiment.StandardRB,
+        experiment: StandardRB,
         exp_attributes: dict,
     ):
         """
@@ -149,11 +148,10 @@ class TestStandardRB(QiskitTestCase):
         Check that errors emerge when invalid input is given to the RB experiment.
         """
         exp_data_list = self._exp_data_properties()
-        rb_class = qe.randomized_benchmarking
         for exp_data in exp_data_list:
             self.assertRaises(
                 QiskitError,
-                rb_class.StandardRB,
+                StandardRB,
                 exp_data["physical_qubits"],
                 exp_data["lengths"],
                 num_samples=exp_data["num_samples"],
@@ -185,8 +183,7 @@ class TestInterleavedRB(TestStandardRB):
             "num_samples": 3,
             "seed": 100,
         }
-        rb_class = qe.randomized_benchmarking
-        rb_exp = rb_class.InterleavedRB(
+        rb_exp = InterleavedRB(
             exp_attributes["interleaved_element"],
             exp_attributes["physical_qubits"],
             exp_attributes["lengths"],
@@ -212,8 +209,7 @@ class TestInterleavedRB(TestStandardRB):
             qubits: A list containing qubit indices for the experiment
             length: The number of cliffords in the tested circuit
         """
-        rb_class = qe.randomized_benchmarking
-        exp = rb_class.InterleavedRB(
+        exp = InterleavedRB(
             qubits=qubits, interleaved_element=interleaved_element, lengths=[length], num_samples=1
         )
 
