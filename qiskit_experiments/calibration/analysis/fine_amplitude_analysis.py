@@ -89,7 +89,7 @@ class FineAmplitudeAnalysis(CurveAnalysis):
         default_options.ylabel = "Population"
         default_options.angle_per_gate = None
         default_options.phase_offset = 0.0
-        default_options.number_guesses = 101
+        default_options.number_guesses = 21
         default_options.max_good_angle_error = np.pi / 2
 
         return default_options

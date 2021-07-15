@@ -145,6 +145,9 @@ class FineAmplitude(BaseExperiment):
             angle_per_gate: The intended angle per gate used by the analysis method.
             add_xp_circuit: If True then a circuit preparing the excited state is also run.
             add_sx: Whether or not to add a pi-half pulse before running the calibration.
+
+        Raises:
+            CalibrationError: If the target angle is a multiple of :math:`2\pi`.
         """
         self.set_experiment_options(schedule=schedule, add_xp_circuit=add_xp_circuit, add_sx=add_sx)
 
@@ -268,7 +271,7 @@ class FineAmplitude(BaseExperiment):
 
 
 class FineXAmplitude(FineAmplitude):
-    """A fine amplitude experiment with all the options set for the :math:`\pi`-rotation."""
+    r"""A fine amplitude experiment with all the options set for the :math:`\pi`-rotation."""
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -290,7 +293,7 @@ class FineXAmplitude(FineAmplitude):
 
 
 class FineSXAmplitude(FineAmplitude):
-    """A fine amplitude experiment with all the options set for the :math:`\pi/2`-rotation."""
+    r"""A fine amplitude experiment with all the options set for the :math:`\pi/2`-rotation."""
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
