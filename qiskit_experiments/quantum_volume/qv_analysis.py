@@ -45,8 +45,8 @@ class QuantumVolumeAnalysis(BaseAnalysis):
                    None, a single figure, or a list of figures.
         """
         depth = experiment_data.experiment.num_qubits
-        num_trials = experiment_data.experiment.experiment_options.trials
         data = experiment_data.data()
+        num_trials = len(data)
         heavy_output_prob_exp = []
 
         for data_trial in data:

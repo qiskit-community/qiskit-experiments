@@ -27,7 +27,7 @@ except ImportError:
 
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume as QuantumVolumeCircuit
-from qiskit import execute
+from qiskit import transpile
 from qiskit_experiments.base_experiment import BaseExperiment
 from .qv_analysis import QuantumVolumeAnalysis
 
@@ -67,9 +67,6 @@ class QuantumVolume(BaseExperiment):
         # Set configurable options
         self.set_experiment_options(trials=trials)
 
-        # Set fixed options
-        self._previous_trials = 0
-
         if not isinstance(seed, Generator):
             self._rng = default_rng(seed=seed)
         else:
@@ -93,10 +90,11 @@ class QuantumVolume(BaseExperiment):
             dict: the probability for each state in the circuit
         """
         ideal_circuit = circuit.remove_final_measurements(inplace=False)
-        ideal_circuit.save_probabilities()
         if self._simulation_backend:
-            ideal_result = execute(ideal_circuit, backend=self._simulation_backend, **run_options)
-            probabilities = ideal_result.result().data().get("probabilities")
+            ideal_circuit.save_probabilities()
+            ideal_circuit = transpile(ideal_circuit, self._simulation_backend)
+            ideal_result = self._simulation_backend.run(ideal_circuit, **run_options).result()
+            probabilities = ideal_result.data().get("probabilities")
         else:
             from qiskit.quantum_info import Statevector
 
@@ -114,8 +112,8 @@ class QuantumVolume(BaseExperiment):
         circuits = []
         depth = self._num_qubits
 
-        # Continue the trials numbers from previous experiments runs
-        for trial in range(self._previous_trials + 1, self.experiment_options.trials + 1):
+        # Note: the trails numbering in the metadata is starting from 1 for each new experiment run
+        for trial in range(1, self.experiment_options.trials + 1):
             qv_circ = QuantumVolumeCircuit(depth, depth, seed=self._rng)
             qv_circ.measure_active()
             qv_circ.metadata = {
