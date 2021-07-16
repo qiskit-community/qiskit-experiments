@@ -898,7 +898,7 @@ class CurveAnalysis(BaseAnalysis):
 
     def _run_analysis(
         self, experiment_data: ExperimentData, **options
-    ) -> Tuple[List["AnalysisResult"], List["pyplot.Figure"]]:
+    ) -> Tuple[List["AnalysisResultData"], List["pyplot.Figure"]]:
         """Run analysis on circuit data.
 
         Args:
@@ -1077,4 +1077,4 @@ class CurveAnalysis(BaseAnalysis):
                     }
                 result_data["raw_data"] = raw_data_dict
 
-        return [CurveAnalysisResultData(result_data)], figures
+        return [result_data], figures

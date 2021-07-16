@@ -78,7 +78,7 @@ class T1Analysis(BaseAnalysis):
         offset_bounds=None,
         plot=True,
         ax=None,
-    ) -> Tuple[List[AnalysisResultData], Optional[List["matplotlib.figure.Figure"]]]:
+    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         """
         Calculate T1
 
@@ -152,13 +152,12 @@ class T1Analysis(BaseAnalysis):
             result_data["fit"]["dt"] = conversion_factor
 
         # Generate fit plot
+        figures = []
         if plot and plotting.HAS_MATPLOTLIB:
             ax = plotting.plot_curve_fit(fit_fun, fit_result, ax=ax, fit_uncertainty=True)
             ax = plotting.plot_errorbar(xdata, ydata, sigma, ax=ax)
             self._format_plot(ax, fit_result, qubit=qubit)
-            figures = [ax.get_figure()]
-        else:
-            figures = None
+            figures.append(ax.get_figure())
 
         return [AnalysisResultData(result_data)], figures
 

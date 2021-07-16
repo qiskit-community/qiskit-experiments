@@ -602,9 +602,7 @@ class DbExperimentDataV1(DbExperimentData):
             )
             for result in retrieved_results:
                 result_id = result["result_id"]
-                self._analysis_results[result_id] = DbAnalysisResult._from_service_data(
-                    result
-                )
+                self._analysis_results[result_id] = DbAnalysisResult._from_service_data(result)
 
     def analysis_results(
         self, index: Optional[Union[int, slice, str]] = None, refresh: bool = False
@@ -1038,7 +1036,7 @@ class DbExperimentDataV1(DbExperimentData):
         Args:
             save_val: Whether to do auto-save.
         """
-        if save_val and not self._auto_save:
+        if save_val is True and not self._auto_save:
             self.save()
         self._auto_save = save_val
         for res in self._analysis_results.values():

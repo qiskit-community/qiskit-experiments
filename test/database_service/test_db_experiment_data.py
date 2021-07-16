@@ -505,9 +505,7 @@ class TestDbExperimentData(QiskitTestCase):
         service = self._set_mock_service()
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
         exp_data.auto_save = True
-
         mock_result = mock.MagicMock()
-        exp_data.save_metadata()
 
         subtests = [
             # update function, update parameters, service called
@@ -515,16 +513,15 @@ class TestDbExperimentData(QiskitTestCase):
             (exp_data.add_figures, (str.encode("hello world"),), service.create_figure),
             (exp_data.delete_figure, (0,), service.delete_figure),
             (exp_data.delete_analysis_result, (0,), service.delete_analysis_result),
-            (exp_data.set_tags, (["foo"],), None),
-            (exp_data.set_metadata, ({"foo": "bar"},), None),
-            (setattr, (exp_data, "notes", "foo"), None),
-            (setattr, (exp_data, "share_level", "hub"), None),
+            (exp_data.set_tags, (["foo"],), service.update_experiment),
+            (exp_data.set_metadata, ({"foo": "bar"},), service.update_experiment),
+            (setattr, (exp_data, "notes", "foo"), service.update_experiment),
+            (setattr, (exp_data, "share_level", "hub"), service.update_experiment),
         ]
 
         for func, params, called in subtests:
             with self.subTest(func=func):
                 func(*params)
-                service.update_experiment.assert_called_once()
                 if called:
                     called.assert_called_once()
                 service.reset_mock()

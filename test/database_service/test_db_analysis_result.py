@@ -58,7 +58,6 @@ class TestDbAnalysisResult(QiskitTestCase):
         mock_service = mock.create_autospec(DatabaseServiceV1)
         result = self._new_analysis_result(service=mock_service)
         result.auto_save = True
-        result.save()
 
         subtests = [
             # update function, update parameters, service called
