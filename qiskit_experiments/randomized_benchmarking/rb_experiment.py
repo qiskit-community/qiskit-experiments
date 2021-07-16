@@ -36,12 +36,12 @@ class StandardRB(BaseExperiment):
 
     Overview
         Randomized Benchmarking (RB) is an efficient and robust method
-        to estimate the average error-rate of a set of quantum gate operations.
+        for estimating the average error-rate of a set of quantum gate operations.
 
-        A standard RB experiment generates sequences of random Cliffors
+        A standard RB experiment generates sequences of random Cliffords
         such that the unitary computed by the sequences is the identity.
         After running the sequences on a backend, it calculates the probabilities to get back to
-        the ground state, fit an exponentially decaying curve, and estimate
+        the ground state, fits an exponentially decaying curve, and estimates
         the Error Per Clifford (EPC). See Ref. [1, 2] for details.
 
         See :class:`RBAnalysis` documentation for additional

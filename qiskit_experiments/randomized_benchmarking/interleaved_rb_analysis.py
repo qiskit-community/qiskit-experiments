@@ -55,12 +55,12 @@ class InterleavedRBAnalysis(RBAnalysis):
                 \end{array}
             \right.
 
-        See the Ref. [1] for more details.
+        See Ref. [1] for more details.
 
 
 
     Fit Model
-        The fit is based on the following decay functions.
+        The fit is based on the following decay functions:
 
         .. math::
 
