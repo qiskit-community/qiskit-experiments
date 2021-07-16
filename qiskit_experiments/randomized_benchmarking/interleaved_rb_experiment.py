@@ -31,10 +31,10 @@ class InterleavedRB(StandardRB):
         Interleaved Randomized Benchmarking (RB) is a method
         to estimate the average error-rate of a certain quantum gate.
 
-        An interleaved RB experiment generates a standard RB sequences of random Cliffors
+        An interleaved RB experiment generates a standard RB sequences of random Cliffords
         and another sequence with the interleaved given gate.
         After running the two sequences on a backend, it calculates the probabilities to get back to
-        the ground state, fit the two exponentially decaying curves, and estimate
+        the ground state, fits the two exponentially decaying curves, and estimates
         the interleaved gate error. See Ref. [1] for details.
 
         See :class:`InterleavedRBAnalysis` documentation for additional
