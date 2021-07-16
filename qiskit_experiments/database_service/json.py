@@ -29,7 +29,10 @@ class ExperimentEncoder(json.JSONEncoder):
             return {"__type__": "complex", "__value__": [obj.real, obj.imag]}
         if callable(obj):
             return {"__type__": "callable", "__value__": obj.__name__}
-        return super().default(obj)
+        try:
+            return super().default(obj)
+        except TypeError:
+            return {"__type__": "__class_name__", "__value__": obj.__class__.__name__}
 
 
 class ExperimentDecoder(json.JSONDecoder):
@@ -47,5 +50,7 @@ class ExperimentDecoder(json.JSONDecoder):
             if obj["__type__"] == "array":
                 return np.array(obj["__value__"])
             if obj["__type__"] == "callable":
+                return obj["__value__"]
+            if obj["__type__"] == "__class_name__":
                 return obj["__value__"]
         return obj

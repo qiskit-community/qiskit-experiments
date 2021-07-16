@@ -658,6 +658,13 @@ class DbExperimentDataV1(DbExperimentData):
             LOG.warning("Experiment cannot be saved because backend is missing.")
             return
 
+        with self._job_futures.lock:
+            if any(not fut.done() for _, fut in self._job_futures) and not self.auto_save:
+                LOG.warning(
+                    "Not all post-processing has finished. Consider calling "
+                    "save() again after all post-processing is done to save any newly "
+                    "generated data."
+                )
         metadata = json.loads(json.dumps(self._metadata, cls=self._json_encoder))
         metadata["_source"] = self._source
 
@@ -1027,9 +1034,6 @@ class DbExperimentDataV1(DbExperimentData):
         ret += f"\nExperiment: {self.experiment_type}"
         ret += f"\nExperiment ID: {self.experiment_id}"
         ret += f"\nStatus: {status}"
-        if status == "ERROR":
-            ret += "\n  "
-            ret += "\n  ".join(self._errors)
         if self.backend:
             ret += f"\nBackend: {self.backend}"
         if self.tags():
