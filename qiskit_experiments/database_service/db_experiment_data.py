@@ -44,7 +44,7 @@ from .utils import (
 LOG = logging.getLogger(__name__)
 
 
-def auto_save(func: Callable):
+def do_auto_save(func: Callable):
     """Decorate the input function to auto save data."""
 
     @wraps(func)
@@ -137,7 +137,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         self._service = None
         self._backend = backend
-        self.auto_save = False
+        self._auto_save = False
         self._set_service_from_backend(backend)
 
         self._id = experiment_id or str(uuid.uuid4())
@@ -370,7 +370,7 @@ class DbExperimentDataV1(DbExperimentData):
             return [data for data in self._data if data.get("job_id") == index]
         raise TypeError(f"Invalid index type {type(index)}.")
 
-    @auto_save
+    @do_auto_save
     def add_figures(
         self,
         figures,
@@ -465,7 +465,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         return added_figs if len(added_figs) > 1 else added_figs[0]
 
-    @auto_save
+    @do_auto_save
     def delete_figure(
         self,
         figure_key: Union[str, int],
@@ -532,7 +532,7 @@ class DbExperimentDataV1(DbExperimentData):
                 return num_bytes
         return figure_data
 
-    @auto_save
+    @do_auto_save
     def add_analysis_results(
         self,
         results: Union[DbAnalysisResult, List[DbAnalysisResult]],
@@ -548,14 +548,14 @@ class DbExperimentDataV1(DbExperimentData):
         for result in results:
             self._analysis_results[result.result_id] = result
 
+            if self.auto_save and self._service:
+                result.save()
+
             with contextlib.suppress(DbExperimentDataError):
                 result.service = self.service
                 result.auto_save = self.auto_save
 
-            if self.auto_save and self._service:
-                result.save()
-
-    @auto_save
+    @do_auto_save
     def delete_analysis_result(
         self,
         result_key: Union[int, str],
@@ -601,7 +601,8 @@ class DbExperimentDataV1(DbExperimentData):
                 experiment_id=self.experiment_id, limit=None
             )
             for result in retrieved_results:
-                self._analysis_results[result["result_id"]] = DbAnalysisResult._from_service_data(
+                result_id = result["result_id"]
+                self._analysis_results[result_id] = DbAnalysisResult._from_service_data(
                     result
                 )
 
@@ -748,22 +749,22 @@ class DbExperimentDataV1(DbExperimentData):
         service_data = service.experiment(experiment_id)
 
         # Parse serialized metadata
-        metadata = service_data["metadata"]
+        metadata = service_data.pop("metadata")
         if metadata:
             metadata = json.loads(json.dumps(metadata), cls=cls._json_decoder)
 
         # Initialize container
-        # NOTE: not sure how to parse extra_args from service data
-        expdata = DbExperimentDataV1(
-            experiment_type=service_data["experiment_data"],
-            backend=service_data["backend"],
-            experiment_id=service_data["experiment_id"],
-            tags=service_data["tags"],
-            job_ids=service_data["job_ids"],
-            share_level=service_data["share_level"],
+        expdata = cls(
+            experiment_type=service_data.pop("experiment_type"),
+            backend=service_data.pop("backend"),
+            experiment_id=service_data.pop("experiment_id"),
+            tags=service_data.pop("tags"),
+            job_ids=service_data.pop("job_ids"),
+            share_level=service_data.pop("share_level"),
             metadata=metadata,
-            figure_names=service_data["figure_names"],
-            notes=service_data["notes"],
+            figure_names=service_data.pop("figure_names"),
+            notes=service_data.pop("notes"),
+            **service_data,
         )
         # Retrieve analysis results
         # Maybe this isn't necessary but the repr of the class should
@@ -873,7 +874,7 @@ class DbExperimentDataV1(DbExperimentData):
         """
         return self._tags
 
-    @auto_save
+    @do_auto_save
     def set_tags(self, new_tags: List[str]) -> None:
         """Set tags for this experiment.
 
@@ -890,7 +891,7 @@ class DbExperimentDataV1(DbExperimentData):
         """
         return self._metadata
 
-    @auto_save
+    @do_auto_save
     def set_metadata(self, metadata: Dict) -> None:
         """Set metadata for this experiment.
 
@@ -1020,6 +1021,30 @@ class DbExperimentDataV1(DbExperimentData):
         self._service = service
         with contextlib.suppress(Exception):
             self.auto_save = self._service.options.get("auto_save", False)
+
+    @property
+    def auto_save(self) -> bool:
+        """Return current auto-save option.
+
+        Returns:
+            Whether changes will be automatically saved.
+        """
+        return self._auto_save
+
+    @auto_save.setter
+    def auto_save(self, save_val: bool) -> None:
+        """Set auto save preference.
+
+        Args:
+            save_val: Whether to do auto-save.
+        """
+        if save_val and not self._auto_save:
+            self.save()
+        self._auto_save = save_val
+        for res in self._analysis_results.values():
+            # Setting private variable directly to avoid duplicate save. This
+            # can be removed when we start tracking changes.
+            res._auto_save = save_val
 
     @property
     def source(self) -> Dict:

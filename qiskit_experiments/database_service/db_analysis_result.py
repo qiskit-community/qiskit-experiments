@@ -28,7 +28,7 @@ from .device_component import DeviceComponent, to_component
 LOG = logging.getLogger(__name__)
 
 
-def auto_save(func: Callable):
+def do_auto_save(func: Callable):
     """Decorate the input function to auto save data."""
 
     @wraps(func)
@@ -143,7 +143,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             The loaded analysis result.
         """
         # Load data from the service
-        return cls._from_data(service.analysis_result(result_id))
+        return cls._from_service_data(service.analysis_result(result_id))
 
     def save(self) -> None:
         """Save this analysis result in the database.
@@ -192,20 +192,21 @@ class DbAnalysisResultV1(DbAnalysisResult):
             The loaded analysis result.
         """
         # Parse serialized data
-        result_data = service_data["result_data"]
+        result_data = service_data.pop("result_data")
         if result_data:
             result_data = json.loads(json.dumps(result_data), cls=cls._json_decoder)
         # Initialize the result object
-        return DbAnalysisResultV1(
+        return cls(
             result_data,
-            result_type=service_data["result_type"],
-            device_components=service_data["device_components"],
-            experiment_id=service_data["experiment_id"],
-            result_id=service_data["result_id"],
-            quality=service_data["quality"],
-            verified=service_data["verified"],
-            tags=service_data["tags"],
-            service=service_data["service"],
+            result_type=service_data.pop("result_type"),
+            device_components=service_data.pop("device_components"),
+            experiment_id=service_data.pop("experiment_id"),
+            result_id=service_data.pop("result_id"),
+            quality=service_data.pop("quality"),
+            verified=service_data.pop("verified"),
+            tags=service_data.pop("tags"),
+            service=service_data.pop("service"),
+            **service_data,
         )
 
     def data(self) -> Dict:
@@ -216,7 +217,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         """
         return self._result_data
 
-    @auto_save
+    @do_auto_save
     def set_data(self, new_data: Dict) -> None:
         """Set result data.
 
@@ -229,7 +230,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         """Return tags associated with this result."""
         return self._tags
 
-    @auto_save
+    @do_auto_save
     def set_tags(self, new_tags: List[str]) -> None:
         """Set tags for this result.
 
@@ -336,6 +337,26 @@ class DbAnalysisResultV1(DbAnalysisResult):
         if self._service:
             raise DbExperimentDataError("An experiment service is already being used.")
         self._service = service
+
+    @property
+    def auto_save(self) -> bool:
+        """Return current auto-save option.
+
+        Returns:
+            Whether changes will be automatically saved.
+        """
+        return self._auto_save
+
+    @auto_save.setter
+    def auto_save(self, save_val: bool) -> None:
+        """Set auto save preference.
+
+        Args:
+            save_val: Whether to do auto-save.
+        """
+        if save_val and not self._auto_save:
+            self.save()
+        self._auto_save = save_val
 
     @property
     def device_components(self) -> List[DeviceComponent]:
