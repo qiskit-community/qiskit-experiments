@@ -17,6 +17,7 @@ from enum import Enum
 from typing import List, Optional
 import copy
 
+from qiskit.pulse.instruction_schedule_map import CalibrationPublisher
 from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Parameter
 from qiskit_experiments.calibration.management.calibrations import Calibrations, ParameterKey
@@ -170,10 +171,12 @@ class BackendCalibrations(Calibrations):
         for sched_key in self._schedules.keys():
             if sched_key.schedule in basis_gates:
                 # Override existing calibration
+                sched = self.get_schedule(*sched_key, group=group, cutoff_date=cutoff_date)
+                sched.metadata["publisher"] = CalibrationPublisher.ExperimentService
                 backend.defaults().instruction_schedule_map.add(
                     instruction=sched_key.schedule,
                     qubits=sched_key.qubits,
-                    schedule=self.get_schedule(*sched_key, group=group, cutoff_date=cutoff_date),
+                    schedule=sched,
                 )
 
         return backend
