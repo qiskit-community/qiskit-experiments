@@ -14,7 +14,7 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import List
+from typing import List, Optional
 import copy
 
 from qiskit.providers.backend import BackendV1 as Backend
@@ -147,18 +147,33 @@ class BackendCalibrations(Calibrations):
         """
         return self._get_frequencies(FrequencyElement.READOUT, group, cutoff_date)
 
-    def export_backend(self) -> Backend:
+    def export_backend(
+            self,
+            basis_gates: Optional[List[str]] = None,
+            group: str = "default",
+            cutoff_date: Optional[datetime] = None,
+    ) -> Backend:
         """
-        Exports the calibrations to a backend object that can be used.
+        Exports the calibrations to a backend object with overridden defaults field.
 
         Returns:
             calibrated backend: A backend with the calibrations in it.
         """
         backend = copy.deepcopy(self._backend)
 
+        # override frequencies
         backend.defaults().qubit_freq_est = self.get_qubit_frequencies()
         backend.defaults().meas_freq_est = self.get_meas_frequencies()
 
-        # TODO: build the instruction schedule map using the stored calibrations
+        # override basis gates
+        basis_gates = basis_gates or backend.configuration().basis_gates
+        for sched_key in self._schedules.keys():
+            if sched_key.schedule in basis_gates:
+                # Override existing calibration
+                backend.defaults().instruction_schedule_map.add(
+                    instruction=sched_key.schedule,
+                    qubits=sched_key.qubits,
+                    schedule=self.get_schedule(*sched_key, group=group, cutoff_date=cutoff_date),
+                )
 
         return backend
