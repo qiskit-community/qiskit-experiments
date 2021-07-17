@@ -15,6 +15,7 @@ A Tester for the Quantum Volume experiment
 """
 
 import json
+import os
 from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.test import QiskitTestCase
 from qiskit import Aer
@@ -81,8 +82,9 @@ class TestQuantumVolume(QiskitTestCase):
             "probabilities calculated using simulation and " "statevector are not the same",
         )
         # compare to pre-calculated probabilities
+        dir_name = os.path.dirname(os.path.abspath(__file__))
         probabilities_json_file = "qv_ideal_probabilities.json"
-        with open(probabilities_json_file, "r") as json_file:
+        with open(os.path.join(dir_name, probabilities_json_file), "r") as json_file:
             probabilities = json.load(json_file)
         self.assertTrue(
             matrix_equal(simulation_probabilities, probabilities),
@@ -118,8 +120,9 @@ class TestQuantumVolume(QiskitTestCase):
         Test that the quantum volume is unsuccessful when:
             there is less than 100 trials
         """
+        dir_name = os.path.dirname(os.path.abspath(__file__))
         insufficient_trials_json_file = "qv_data_70_trials.json"
-        with open(insufficient_trials_json_file, "r") as json_file:
+        with open(os.path.join(dir_name, insufficient_trials_json_file), "r") as json_file:
             insufficient_trials_data = json.load(json_file)
 
         num_of_qubits = 3
@@ -141,8 +144,9 @@ class TestQuantumVolume(QiskitTestCase):
         Test that the quantum volume is unsuccessful when:
             there are more than 100 trials, but the heavy output probability mean is less than 2/3
         """
+        dir_name = os.path.dirname(os.path.abspath(__file__))
         insufficient_hop_json_file = "qv_data_high_noise.json"
-        with open(insufficient_hop_json_file, "r") as json_file:
+        with open(os.path.join(dir_name, insufficient_hop_json_file), "r") as json_file:
             insufficient_hop_data = json.load(json_file)
 
         num_of_qubits = 4
@@ -165,8 +169,9 @@ class TestQuantumVolume(QiskitTestCase):
             there are more than 100 trials, the heavy output probability mean is more than 2/3
             but the confidence is not high enough
         """
+        dir_name = os.path.dirname(os.path.abspath(__file__))
         insufficient_confidence_json = "qv_data_moderate_noise_100_trials.json"
-        with open(insufficient_confidence_json, "r") as json_file:
+        with open(os.path.join(dir_name, insufficient_confidence_json), "r") as json_file:
             insufficient_confidence_data = json.load(json_file)
 
         num_of_qubits = 4
@@ -188,8 +193,9 @@ class TestQuantumVolume(QiskitTestCase):
         Test a successful run of quantum volume.
         Compare the results to a pre-run experiment
         """
+        dir_name = os.path.dirname(os.path.abspath(__file__))
         successful_json_file = "qv_data_moderate_noise_300_trials.json"
-        with open(successful_json_file, "r") as json_file:
+        with open(os.path.join(dir_name, successful_json_file), "r") as json_file:
             successful_data = json.load(json_file)
 
         num_of_qubits = 4
@@ -201,7 +207,7 @@ class TestQuantumVolume(QiskitTestCase):
 
         qv_exp.run_analysis(exp_data)
         results_json_file = "qv_result_moderate_noise_300_trials.json"
-        with open(results_json_file, "r") as json_file:
+        with open(os.path.join(dir_name, results_json_file), "r") as json_file:
             successful_results = json.load(json_file)
         for key, value in successful_results.items():
             self.assertTrue(
