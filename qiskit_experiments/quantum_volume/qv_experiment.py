@@ -95,8 +95,7 @@ class QuantumVolume(BaseExperiment):
             # always transpile with optimization_level 0, even if the non ideal circuits will run
             # with different optimization level, because we need to compare the results to the
             # exact generated probabilities
-            ideal_circuit = transpile(ideal_circuit, self._simulation_backend,
-                                      optimization_level=0)
+            ideal_circuit = transpile(ideal_circuit, self._simulation_backend, optimization_level=0)
 
             ideal_result = self._simulation_backend.run(ideal_circuit, **run_options).result()
             probabilities = ideal_result.data().get("probabilities")
