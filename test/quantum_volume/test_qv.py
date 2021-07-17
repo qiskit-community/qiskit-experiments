@@ -210,7 +210,7 @@ class TestQuantumVolume(QiskitTestCase):
         with open(os.path.join(dir_name, results_json_file), "r") as json_file:
             successful_results = json.load(json_file)
         for key, value in successful_results.items():
-            self.assertTrue(
-                exp_data.analysis_result(-1)[key] == value,
+            self.assertAlmostEqual(
+                exp_data.analysis_result(-1)[key], value,
                 "result " + str(key) + " is not the same as the " "pre-calculated analysis",
             )
