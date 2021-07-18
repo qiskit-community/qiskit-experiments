@@ -34,6 +34,7 @@ Analysis
 
     RBAnalysis
     InterleavedRBAnalysis
+    RBUtils
 """
 from .rb_experiment import StandardRB
 from .interleaved_rb_experiment import InterleavedRB

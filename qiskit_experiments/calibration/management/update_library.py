@@ -197,13 +197,14 @@ class Amplitude(BaseUpdater):
             CalibrationError: If the experiment is not of the supported type.
         """
         from qiskit_experiments.calibration.rabi import Rabi
+        from qiskit_experiments.calibration.fine_amplitude import FineAmplitude
 
         if angles_schedules is None:
             angles_schedules = [(np.pi, "amp", "xp")]
 
-        if isinstance(exp_data.experiment, Rabi):
-            result = exp_data.analysis_result(result_index)
+        result = exp_data.analysis_result(result_index)
 
+        if isinstance(exp_data.experiment, Rabi):
             freq = result["popt"][result["popt_keys"].index("freq")]
             rate = 2 * np.pi * freq
 
@@ -211,5 +212,19 @@ class Amplitude(BaseUpdater):
                 value = np.round(angle / rate, decimals=8)
 
                 cls._add_parameter_value(calibrations, exp_data, value, param, schedule, group)
+
+        elif isinstance(exp_data.experiment, FineAmplitude):
+            d_theta = result["popt"][result["popt_keys"].index("d_theta")]
+
+            for target_angle, param, schedule in angles_schedules:
+
+                qubits = exp_data.data(0)["metadata"]["qubits"]
+
+                prev_amp = calibrations.get_parameter_value(param, qubits, schedule, group=group)
+                scale = target_angle / (target_angle + d_theta)
+                new_amp = prev_amp * scale
+
+                cls._add_parameter_value(calibrations, exp_data, new_amp, param, schedule, group)
+
         else:
             raise CalibrationError(f"{cls.__name__} updates from {type(Rabi.__name__)}.")
