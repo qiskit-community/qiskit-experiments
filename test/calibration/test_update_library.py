@@ -111,6 +111,7 @@ class TestAmplitudeUpdate(QiskitTestCase):
         backend = MockFineAmp(error, np.pi, "xp")
 
         exp_data = amp_cal.run(backend)
+        exp_data.block_for_results()
 
         self.assertEqual(self.cals.get_parameter_value("amp", self.qubit, "xp"), 0.2)
 
