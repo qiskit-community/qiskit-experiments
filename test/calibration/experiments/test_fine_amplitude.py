@@ -71,7 +71,7 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         expdata = amp_cal.run(backend)
         expdata.block_for_results()
-        result =  expdata.analysis_results(-1)
+        result = expdata.analysis_results(-1)
         result_data = result.data()
 
         d_theta = result_data["popt"][result_data["popt_keys"].index("d_theta")]
