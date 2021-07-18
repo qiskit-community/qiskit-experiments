@@ -13,7 +13,7 @@
 T1 Analysis class.
 """
 
-from typing import Tuple, List, Optional
+from typing import Tuple, List
 import numpy as np
 
 from qiskit.providers.options import Options

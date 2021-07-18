@@ -123,7 +123,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         # Other attributes.
         self._service = service
         self._created_in_db = False
-        self.auto_save = False
+        self._auto_save = False
         if self._service:
             try:
                 self.auto_save = self._service.option("auto_save")
