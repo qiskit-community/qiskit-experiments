@@ -32,11 +32,48 @@ from .rb_utils import RBUtils
 
 
 class StandardRB(BaseExperiment):
-    """RB Experiment class.
+    """Standard Randomized Benchmarking Experiment class.
 
-    Experiment Options:
-        lengths: A list of RB sequences lengths.
-        num_samples: number of samples to generate for each sequence length.
+    Overview
+        Randomized Benchmarking (RB) is an efficient and robust method
+        for estimating the average error-rate of a set of quantum gate operations.
+
+        A standard RB experiment generates sequences of random Cliffords
+        such that the unitary computed by the sequences is the identity.
+        After running the sequences on a backend, it calculates the probabilities to get back to
+        the ground state, fits an exponentially decaying curve, and estimates
+        the Error Per Clifford (EPC). See Ref. [1, 2] for details.
+
+        See :class:`RBAnalysis` documentation for additional
+        information on RB experiment analysis.
+
+        See :class:`RBUtils` documentation for additional information
+        on estimating the Error Per Gate (EPG) for 1-qubit and 2-qubit gates,
+        from 1-qubit and 2-qubit standard RB experiments, by Ref. [3].
+
+    References
+        1. Easwar Magesan, J. M. Gambetta, and Joseph Emerson,
+           Robust randomized benchmarking of quantum processes,
+           `arXiv:quant-ph/1009.3639 <https://arxiv.org/pdf/1009.3639>`_
+        2. Easwar Magesan, Jay M. Gambetta, and Joseph Emerson,
+           Characterizing Quantum Gates via Randomized Benchmarking,
+           `arXiv:quant-ph/1009.6887 <https://arxiv.org/pdf/1109.6887>`_
+        3. David C. McKay, Sarah Sheldon, John A. Smolin, Jerry M. Chow, and Jay M. Gambetta,
+           Three Qubit Randomized Benchmarking, `arXiv:quant-ph/1712.06550
+           <https://arxiv.org/pdf/1712.06550>`_
+
+    Analysis Class
+        :class:`~qiskit.experiments.randomized_benchmarking.RBAnalysis`
+
+    Experiment Options
+        - **lengths**: A list of RB sequences lengths.
+        - **num_samples**: Number of samples to generate for each sequence length.
+
+    Analysis Options
+        - **error_dict**: Optional. Error estimates for gates from the backend properties.
+        - **epg_1_qubit**: Optional. EPG data for the 1-qubit gate involved, assumed to
+          have been obtained from previous experiments. This is used to estimate the 2-qubit EPG.
+        - **gate_error_ratio**: An estimate for the ratios between errors on different gates.
     """
 
     # Analysis class for experiment
@@ -46,23 +83,24 @@ class StandardRB(BaseExperiment):
         self,
         qubits: Union[int, Iterable[int]],
         lengths: Iterable[int],
-        num_samples: int = 1,
+        num_samples: int = 3,
         seed: Optional[Union[int, Generator]] = None,
         full_sampling: Optional[bool] = False,
     ):
-        """Standard randomized benchmarking experiment.
+        """Initialize a standard randomized benchmarking experiment.
 
         Args:
-            qubits: the number of qubits or list of
+            qubits: The number of qubits or list of
                     physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
-            num_samples: number of samples to generate for each sequence length.
+            num_samples: Number of samples to generate for each sequence length.
             seed: Seed or generator object for random number
                   generation. If None default_rng will be used.
             full_sampling: If True all Cliffords are independently sampled for
                            all lengths. If False for sample of lengths longer
                            sequences are constructed by appending additional
                            Clifford samples to shorter sequences.
+                           The default is False.
         """
         # Initialize base experiment
         super().__init__(qubits)
@@ -184,7 +222,7 @@ class StandardRB(BaseExperiment):
             return circuit.metadata
         if circuit.metadata["experiment_type"] == ParallelExperiment.__name__:
             for meta in circuit.metadata["composite_metadata"]:
-                if meta["qubits"] == self.physical_qubits:
+                if meta["physical_qubits"] == self.physical_qubits:
                     return meta
         return None
 
