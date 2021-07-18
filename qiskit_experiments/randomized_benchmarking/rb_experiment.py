@@ -35,7 +35,6 @@ class StandardRB(BaseExperiment):
     """Standard Randomized Benchmarking Experiment class.
 
     Overview
-
         A standard randomized benchmarking (RB) experiment generates sequences of random Cliffords
         such that the unitary computed by the sequences is the identity.
         After running the sequences on a backend, it calculates the probabilities to get back to
