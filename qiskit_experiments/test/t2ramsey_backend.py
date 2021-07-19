@@ -25,7 +25,7 @@ from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.composite import ParallelExperiment
-from qiskit_experiments.characterization import T2Ramsey
+from qiskit_experiments.library import T2Ramsey
 from qiskit_experiments.test.mock_job import MockJob
 
 # Fix seed for simulations

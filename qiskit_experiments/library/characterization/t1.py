@@ -21,7 +21,7 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.providers.options import Options
 
 from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.characterization.t1_analysis import T1Analysis
+from qiskit_experiments.library.characterization.t1_analysis import T1Analysis
 
 
 class T1(BaseExperiment):

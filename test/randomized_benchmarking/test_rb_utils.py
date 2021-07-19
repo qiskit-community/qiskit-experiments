@@ -84,9 +84,7 @@ class TestRBUtilities(QiskitTestCase):
         qubits = [0]
         gate_error_ratio = {((0,), "id"): 1, ((0,), "rz"): 0, ((0,), "sx"): 1, ((0,), "x"): 1}
         gates_per_clifford = {((0,), "rz"): 10.5, ((0,), "sx"): 8.15, ((0,), "x"): 0.25}
-        epg = rb.RBUtils.calculate_1q_epg(
-            epc_1_qubit, qubits, gate_error_ratio, gates_per_clifford
-        )
+        epg = rb.RBUtils.calculate_1q_epg(epc_1_qubit, qubits, gate_error_ratio, gates_per_clifford)
         error_dict = {
             ((0,), "rz"): 0,
             ((0,), "sx"): 0.0004432101747785104,
@@ -152,13 +150,9 @@ class TestRBUtilities(QiskitTestCase):
         t2 = 100.0
         gate_2_qubits = 0.5
         gate_1_qubit = 0.1
-        twoq_coherence_err = rb.RBUtils.coherence_limit(
-            2, [t1, t1], [t2, t2], gate_2_qubits
-        )
+        twoq_coherence_err = rb.RBUtils.coherence_limit(2, [t1, t1], [t2, t2], gate_2_qubits)
 
-        oneq_coherence_err = rb.RBUtils.coherence_limit(
-            1, [t1], [t2], gate_1_qubit
-        )
+        oneq_coherence_err = rb.RBUtils.coherence_limit(1, [t1], [t2], gate_1_qubit)
 
         self.assertAlmostEqual(oneq_coherence_err, 0.00049975, 6, "Error: 1Q Coherence Limit")
 

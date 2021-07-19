@@ -25,7 +25,7 @@ from qiskit.providers.options import Options
 from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.characterization.resonance_analysis import ResonanceAnalysis
+from qiskit_experiments.library.characterization.resonance_analysis import ResonanceAnalysis
 
 
 class QubitSpectroscopy(BaseExperiment):

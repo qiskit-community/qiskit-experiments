@@ -32,7 +32,8 @@ experiments and manage the resulting schedules and parameter values.
 
 The following experiments are designed to calibrate parameter values. Some experiments such
 as :class:`QubitSpectroscopy` can both be seen as characterization and calibrations
-experiments. Such experiments can be found in the :mod:`qiskit_experiments.characterization`
+experiments. Such experiments can be found in the
+:mod:`qiskit_experiments.library.characterization`
 module.
 
 .. autosummary::

@@ -65,5 +65,4 @@ from . import database_service
 from . import analysis
 
 from . import composite
-from . import characterization
 from . import quantum_volume

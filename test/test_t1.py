@@ -16,7 +16,7 @@ Test T1 experiment
 from qiskit.test import QiskitTestCase
 from qiskit_experiments import ExperimentData
 from qiskit_experiments.library import T1, ParallelExperiment
-from qiskit_experiments.characterization import T1Analysis
+from qiskit_experiments.library.characterization import T1Analysis
 from qiskit_experiments.test.t1_backend import T1Backend
 
 

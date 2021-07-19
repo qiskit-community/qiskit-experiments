@@ -11,11 +11,11 @@
 # that they have been altered from the originals.
 
 """
-=========================================================================
-Characterization Experiments (:mod:`qiskit_experiments.characterization`)
-=========================================================================
+=================================================================================
+Characterization Experiments (:mod:`qiskit_experiments.library.characterization`)
+=================================================================================
 
-.. currentmodule:: qiskit_experiments.characterization
+.. currentmodule:: qiskit_experiments.library.characterization
 
 Experiments
 ===========

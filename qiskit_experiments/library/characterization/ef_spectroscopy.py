@@ -15,7 +15,7 @@
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 
-from qiskit_experiments.characterization.qubit_spectroscopy import QubitSpectroscopy
+from qiskit_experiments.library.characterization.qubit_spectroscopy import QubitSpectroscopy
 
 
 class EFSpectroscopy(QubitSpectroscopy):

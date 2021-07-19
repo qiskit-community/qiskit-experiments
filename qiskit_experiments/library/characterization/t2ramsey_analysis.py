@@ -28,7 +28,6 @@ from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
 from qiskit_experiments.experiment_data import ExperimentData
 
-
 # pylint: disable = invalid-name
 class T2RamseyAnalysis(BaseAnalysis):
     """T2Ramsey Experiment result analysis class."""
