@@ -28,61 +28,58 @@ class DocumentedCurveAnalysis(CurveAnalysis):
     r"""One line summary of this class. This is shown in the top level contains list.
 
     # section: overview
+        Overview of this experiment. It is recommended to write this section.
+        Here you can explain technical aspect of fit algorithm or fit model.
+        Standard reStructuredText directives can be used.
+        No section level indent is necessary.
 
-    Overview of this experiment. It is recommended to write this section.
-    Here you can explain technical aspect of fit algorithm or fit model.
-    Standard reStructuredText directives can be used.
-    No section level indent is necessary.
+        You can use following sections
 
-    You can use following sections
+        - ``warning``
+        - ``note``
+        - ``example``
+        - ``reference``
+        - ``tutorial``
 
-    - ``warning``
-    - ``note``
-    - ``example``
-    - ``reference``
-    - ``tutorial``
-
-    See :class:`DocumentedExperiment` for description of these sections.
-    In addition to above sections, analysis template provides following extra sections.
+        See :class:`DocumentedExperiment` for description of these sections.
+        In addition to above sections, analysis template provides following extra sections.
 
     # section: fit_model:
+        Here you can describe your fitting model.
+        Standard reStructuredText directives can be used. For example:
 
-    Here you can describe your fitting model.
-    Standard reStructuredText directives can be used. For example:
+        .. math::
 
-    .. math::
+            F(x) = a \exp(-(x-f)^2/(2\sigma^2)) + b
 
-        F(x) = a \exp(-(x-f)^2/(2\sigma^2)) + b
-
-    enables you to use the Latex syntax to write your equation.
+        enables you to use the Latex syntax to write your equation.
 
     # section: fit_parameters
+        Here you can explain fit parameter details.
+        This section provides a special syntax to describe details of each parameter.
+        Documentation except for this syntax will be just ignored.
 
-    Here you can explain fit parameter details.
-    This section provides a special syntax to describe details of each parameter.
-    Documentation except for this syntax will be just ignored.
+        defpar a:
+            desc: Description of parameter :math:`a`.
+            init_guess: Here you can describe how this analysis estimate initial guess of
+                parameter :math:`a`.
+            bounds: Here you can describe how this analysis bounds parameter :math:`a` value
+                during the fit.
 
-    defpar a:
-        desc: Description of parameter :math:`a`.
-        init_guess: Here you can describe how this analysis estimate initial guess of
-            parameter :math:`a`.
-        bounds: Here you can describe how this analysis bounds parameter :math:`a` value
-            during the fit.
+        defpar b:
+            desc: Description of parameter :math:`b`.
+            init_guess: Here you can describe how this analysis estimate initial guess of
+                parameter :math:`b`.
+            bounds: Here you can describe how this analysis bounds parameter :math:`b` value
+                during the fit.
 
-    defpar b:
-        desc: Description of parameter :math:`b`.
-        init_guess: Here you can describe how this analysis estimate initial guess of
-            parameter :math:`b`.
-        bounds: Here you can describe how this analysis bounds parameter :math:`b` value
-            during the fit.
+        Note that you cannot write text block (i.e. bullet lines, math mode, parsed literal, ...)
+        in the ``defpar`` syntax items. These are a single line description of parameters.
+        You can write multiple ``defpar`` block for each fitting parameter.
 
-    Note that you cannot write text block (i.e. bullet lines, math mode, parsed literal, ...)
-    in the ``defpar`` syntax items. These are a single line description of parameters.
-    You can write multiple ``defpar`` block for each fitting parameter.
-
-    It would be nice if parameter names conform to the parameter key values appearing in the
-    analysis result. For example, if fit model defines the parameter :math:`\sigma` and
-    this appears as ``eta`` in the result, user cannot find correspondence of these parameters.
+        It would be nice if parameter names conform to the parameter key values appearing in the
+        analysis result. For example, if fit model defines the parameter :math:`\sigma` and
+        this appears as ``eta`` in the result, user cannot find correspondence of these parameters.
 
     """
 
@@ -119,59 +116,53 @@ class DocumentedExperiment(BaseExperiment):
     """One line summary of this class. This is shown in the top level contains list.
 
     # section: overview
-
-    Overview of this experiment. It is recommended to write this section.
-    Here you can explain technical aspect of experiment, protocol, etc...
-    Standard reStructuredText directives can be used.
-    No section level indent is necessary.
+        Overview of this experiment. It is recommended to write this section.
+        Here you can explain technical aspect of experiment, protocol, etc...
+        Standard reStructuredText directives can be used.
+        No section level indent is necessary.
 
     # section: warning
-
-    Warning about this experiment if exist.
-    Some functionality is not available or under development,
-    you should write these details here.
+        Warning about this experiment if exist.
+        Some functionality is not available or under development,
+        you should write these details here.
 
     # section: note
-
-    Notification about this experiment if exist.
+        Notification about this experiment if exist.
 
     # section: example
+        Example code of this experiment.
+        If this experiment requires user to manage complicated options,
+        it might be convenient for users to have some code example here.
 
-    Example code of this experiment.
-    If this experiment requires user to manage complicated options,
-    it might be convenient for users to have some code example here.
+        You can write code example, for example, as follows
 
-    You can write code example, for example, as follows
+        .. code-block:: python
 
-    .. code-block:: python
-
-        import qiskit_experiments
-        my_experiment = qiskit_experiments.MyExperiment(**options)
+            import qiskit_experiments
+            my_experiment = qiskit_experiments.MyExperiment(**options)
 
     # section: reference
+        Currently this supports article reference in arXiv database.
+        You can use following helper directive.
 
-    Currently this supports article reference in arXiv database.
-    You can use following helper directive.
+        .. ref_arxiv:: Auth2020a 21xx.01xxx
 
-    .. ref_arxiv:: Auth2020a 21xx.01xxx
-
-    This directive takes two arguments separated by a whitespace.
-    The first argument is arbitrary label for this article, which may be used to
-    refer to this paper from other sections.
-    Second argument is the arXiv ID of the paper referring to.
-    Once this directive is inserted, Sphinx searches the arXiv database and
-    automatically generates a formatted bibliography with the hyperlink to the online PDF.
+        This directive takes two arguments separated by a whitespace.
+        The first argument is arbitrary label for this article, which may be used to
+        refer to this paper from other sections.
+        Second argument is the arXiv ID of the paper referring to.
+        Once this directive is inserted, Sphinx searches the arXiv database and
+        automatically generates a formatted bibliography with the hyperlink to the online PDF.
 
     # section: tutorial
+        You can refer to the arbitrary web page here.
+        Following helper directive can be used.
 
-    You can refer to the arbitrary web page here.
-    Following helper directive can be used.
+        .. ref_website:: Qiskit Experiment Github, https://github.com/Qiskit/qiskit-experiments
 
-    .. ref_website:: Qiskit Experiment Github, https://github.com/Qiskit/qiskit-experiments
-
-    This directive takes two arguments separated by a comma.
-    The first argument is arbitrary label shown before the link. Whitespace can be included.
-    The second argument is the URL of the website to hyperlink.
+        This directive takes two arguments separated by a comma.
+        The first argument is arbitrary label shown before the link. Whitespace can be included.
+        The second argument is the URL of the website to hyperlink.
 
     """
 

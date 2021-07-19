@@ -31,6 +31,7 @@ Experiments
 ===========
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
     DocumentedExperiment
 
@@ -38,6 +39,7 @@ Analysis
 ========
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/analysis.rst
 
     DocumentedCurveAnalysis
 

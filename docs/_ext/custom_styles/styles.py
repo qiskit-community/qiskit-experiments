@@ -91,7 +91,14 @@ class QiskitExperimentDocstring(ABC):
                 else:
                     raise KeyError(f"Section name {section_name} is invalid.")
                 continue
-            temp_lines.append(docstring_line)
+
+            # remove section indent
+            if docstring_line.startswith(self._indent):
+                begin = len(self._indent)
+            else:
+                begin = 0
+            temp_lines.append(docstring_line[begin:])
+
         # parse final section
         add_new_section(current_section, temp_lines)
 
