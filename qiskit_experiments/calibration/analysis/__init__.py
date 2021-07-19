@@ -12,35 +12,20 @@
 
 """
 =========================================================================
-Characterization Experiments (:mod:`qiskit_experiments.characterization`)
+Calibration management (:mod:`qiskit_experiments.calibration.analysis`)
 =========================================================================
 
-.. currentmodule:: qiskit_experiments.characterization
+.. currentmodule:: qiskit_experiments.calibration.analysis
 
-Experiments
-===========
+Analysis classes
+======================
 .. autosummary::
     :toctree: ../stubs/
 
-    T1
-    T2Ramsey
-    QubitSpectroscopy
+    DragCalAnalysis
+    OscillationAnalysis
 
-
-Analysis
-========
-
-.. autosummary::
-    :toctree: ../stubs/
-
-    T1Analysis
-    T2RamseyAnalysis
-    ResonanceAnalysis
 """
-from .t1 import T1
-from .t1_analysis import T1Analysis
-from .qubit_spectroscopy import QubitSpectroscopy
-from .resonance_analysis import ResonanceAnalysis
-from .ef_spectroscopy import EFSpectroscopy
-from .t2ramsey import T2Ramsey
-from .t2ramsey_analysis import T2RamseyAnalysis
+
+from .drag_analysis import DragCalAnalysis
+from .oscillation_analysis import OscillationAnalysis

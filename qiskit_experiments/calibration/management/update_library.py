@@ -21,11 +21,11 @@ from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.experiment_data import ExperimentData
-from qiskit_experiments.calibration.backend_calibrations import BackendCalibrations
-from qiskit_experiments.calibration.calibrations import Calibrations
-from qiskit_experiments.calibration.parameter_value import ParameterValue
-from qiskit_experiments.calibration.exceptions import CalibrationError
-from qiskit_experiments.calibration.calibration_key_types import ParameterValueType
+from qiskit_experiments.calibration.management.backend_calibrations import BackendCalibrations
+from qiskit_experiments.calibration.management.calibrations import Calibrations
+from qiskit_experiments.calibration.management.parameter_value import ParameterValue
+from qiskit_experiments.exceptions import CalibrationError
+from qiskit_experiments.calibration.management.calibration_key_types import ParameterValueType
 
 
 class BaseUpdater(ABC):
@@ -34,7 +34,18 @@ class BaseUpdater(ABC):
     __fit_parameter__ = None
 
     def __init__(self):
-        """Updaters are not meant to be instantiated."""
+        """Updaters are not meant to be instantiated.
+
+        Instead of instantiating updaters use them by calling the :meth:`update` class method.
+        For example, the :class:`Frequency` updater is called in the following way
+
+         .. code-block:: python
+
+            Frequency.update(calibrations, spectroscopy_data)
+
+        Here, calibrations is an instance of :class:`BackendCalibrations` and spectroscopy_data
+        is the result of a :class:`QubitSpectroscopy` experiment.
+        """
         raise CalibrationError(
             "Calibration updaters are not meant to be instantiated. The intended usage"
             "is Updater.update(calibrations, exp_data, ...)."
@@ -185,14 +196,15 @@ class Amplitude(BaseUpdater):
         Raises:
             CalibrationError: If the experiment is not of the supported type.
         """
-        from qiskit_experiments.calibration.experiments.rabi import Rabi
+        from qiskit_experiments.calibration.rabi import Rabi
+        from qiskit_experiments.calibration.fine_amplitude import FineAmplitude
 
         if angles_schedules is None:
             angles_schedules = [(np.pi, "amp", "xp")]
 
-        if isinstance(exp_data.experiment, Rabi):
-            result = exp_data.analysis_result(result_index)
+        result = exp_data.analysis_result(result_index)
 
+        if isinstance(exp_data.experiment, Rabi):
             freq = result["popt"][result["popt_keys"].index("freq")]
             rate = 2 * np.pi * freq
 
@@ -200,5 +212,19 @@ class Amplitude(BaseUpdater):
                 value = np.round(angle / rate, decimals=8)
 
                 cls._add_parameter_value(calibrations, exp_data, value, param, schedule, group)
+
+        elif isinstance(exp_data.experiment, FineAmplitude):
+            d_theta = result["popt"][result["popt_keys"].index("d_theta")]
+
+            for target_angle, param, schedule in angles_schedules:
+
+                qubits = exp_data.data(0)["metadata"]["qubits"]
+
+                prev_amp = calibrations.get_parameter_value(param, qubits, schedule, group=group)
+                scale = target_angle / (target_angle + d_theta)
+                new_amp = prev_amp * scale
+
+                cls._add_parameter_value(calibrations, exp_data, new_amp, param, schedule, group)
+
         else:
             raise CalibrationError(f"{cls.__name__} updates from {type(Rabi.__name__)}.")

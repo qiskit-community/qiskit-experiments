@@ -40,7 +40,7 @@ class RBAnalysis(CurveAnalysis):
         From the fit :math:`\alpha` value this analysis estimates the error per Clifford (EPC).
 
     Fit Model
-        The fit is based on the following decay function.
+        The fit is based on the following decay function:
 
         .. math::
 
