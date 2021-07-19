@@ -31,7 +31,6 @@ class DocumentedCurveAnalysis(CurveAnalysis):
         Overview of this experiment. It is recommended to write this section.
         Here you can explain technical aspect of fit algorithm or fit model.
         Standard reStructuredText directives can be used.
-        No section level indent is necessary.
 
         You can use following sections
 
@@ -119,7 +118,6 @@ class DocumentedExperiment(BaseExperiment):
         Overview of this experiment. It is recommended to write this section.
         Here you can explain technical aspect of experiment, protocol, etc...
         Standard reStructuredText directives can be used.
-        No section level indent is necessary.
 
     # section: warning
         Warning about this experiment if exist.
