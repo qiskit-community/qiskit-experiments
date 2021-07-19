@@ -9,12 +9,26 @@ Qiskit Experiments API Reference
 
     main
     library
-    calibration_management
-    data_processing
-    database_service
-    characterization
-    calibration
-    composite
-    randomized_benchmarking
-    tomography
-    analysis
+
+Utility Modules
+===============
+
+.. toctree::
+    :maxdepth: 1
+
+    mod_analysis
+    mod_calibration_management
+    mod_data_processing
+    mod_database_service
+
+Experiments Modules
+===================
+
+.. toctree::
+    :maxdepth: 1
+    
+    mod_calibration
+    mod_composite
+    mod_characterization
+    mod_randomized_benchmarking
+    mod_tomography

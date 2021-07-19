@@ -17,14 +17,55 @@ Qiskit Experiments (:mod:`qiskit_experiments`)
 
 .. currentmodule:: qiskit_experiments
 
-*Note: This package is still under active development, there will be breaking
-API changes, and re-organization of the package layout.*
+.. warning::
 
+    This package is still under active development, there will be breaking
+    API changes, and re-organization of the package layout.
+
+Modules
+=======
 
 Experiment Library
-==================
+******************
 
-See :mod:`qiskit_experiments.library` for a list of available experiments.
+The :mod:`qiskit_experiments.library` module contains a list of available
+experiments.
+
+Experiment Utility Modules
+--------------------------
+
+Certain experiments also have additional utilities contained which can be
+accessed by importing the following modules.
+
+- :mod:`qiskit_experiments.library.calibration`
+- :mod:`qiskit_experiments.library.characterization`
+- :mod:`qiskit_experiments.library.composite`
+- :mod:`qiskit_experiments.library.randomized_benchmarking`
+- :mod:`qiskit_experiments.library.tomography`
+
+Analysis
+********
+
+This :mod:`qiskit_experiments.analysis` module contains utility functions for
+analysis experiment data.
+
+Data Processing
+***************
+
+This :mod:`qiskit_experiments.data_processing` module contains tools for processing
+experiment measurement data.
+
+Calibration Management
+**********************
+
+This :mod:`qiskit_experiments.calibration_management` module contains classes
+for managing calibration experiment result data.
+
+Database Service
+****************
+
+This :mod:`qiskit_experiments.database_service` module contains classes for saving
+and retrieving experiment and analysis results from a database.
 
 Experiment Data Classes
 =======================
@@ -35,7 +76,6 @@ These container classes store the data and results from running experiments
     :toctree: ../stubs/
 
     ExperimentData
-
 
 Experiment Base Classes
 =======================
@@ -57,13 +97,9 @@ from .experiment_data import ExperimentData
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
 
-# Experiment Library
+# Modules
 from . import library
-
-# Utility Modules
+from . import analysis
 from . import calibration_management
 from . import data_processing
 from . import database_service
-from . import analysis
-
-from . import quantum_volume

@@ -69,3 +69,10 @@ from .calibration import DragCal, Rabi, EFRabi, FineAmplitude, FineXAmplitude, F
 from .characterization import T1, T2Ramsey, QubitSpectroscopy, EFSpectroscopy
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
+
+# Experiment Sub-modules
+from . import composite
+from . import calibration
+from . import characterization
+from . import randomized_benchmarking
+from . import tomography
