@@ -44,7 +44,7 @@ class DocumentedCurveAnalysis(CurveAnalysis):
         See :class:`DocumentedExperiment` for description of these sections.
         In addition to above sections, analysis template provides following extra sections.
 
-    # section: fit_model:
+    # section: fit_model
         Here you can describe your fitting model.
         Standard reStructuredText directives can be used. For example:
 

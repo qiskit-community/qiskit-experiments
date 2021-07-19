@@ -15,6 +15,7 @@ Documentation extension for experiment class.
 """
 import copy
 import re
+import sys
 from abc import ABC
 from typing import Union, List, Dict
 
@@ -78,28 +79,35 @@ class QiskitExperimentDocstring(ABC):
 
         current_section = list(self.__sections__.keys())[0]
         temp_lines = list()
+        margin = sys.maxsize
         for docstring_line in docstrings:
             match = re.match(section_regex, docstring_line)
             if match:
                 section_name = match["section_name"]
                 if section_name in self.__sections__:
                     # parse previous section
+                    if margin < sys.maxsize:
+                        temp_lines = [l[margin:] for l in temp_lines]
                     add_new_section(current_section, temp_lines)
                     # set new section
                     current_section = section_name
                     temp_lines.clear()
+                    margin = sys.maxsize
                 else:
                     raise KeyError(f"Section name {section_name} is invalid.")
                 continue
 
-            # remove section indent
-            if docstring_line.startswith(self._indent):
-                begin = len(self._indent)
-            else:
-                begin = 0
-            temp_lines.append(docstring_line[begin:])
+            # calculate section indent
+            if len(docstring_line) > 0:
+                # ignore empty line
+                indent = len(docstring_line) - len(docstring_line.lstrip())
+                margin = min(indent, margin)
+
+            temp_lines.append(docstring_line)
 
         # parse final section
+        if margin < sys.maxsize:
+            temp_lines = [l[margin:] for l in temp_lines]
         add_new_section(current_section, temp_lines)
 
         for section, lines in self._extra_sections().items():
