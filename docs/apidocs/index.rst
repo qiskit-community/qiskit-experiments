@@ -8,12 +8,13 @@ Qiskit Experiments API Reference
     :maxdepth: 1
 
     main
+    library
+    calibration_management
+    data_processing
+    database_service
     characterization
     calibration
     composite
     randomized_benchmarking
     tomography
     analysis
-    data_processing
-    database_service
-   

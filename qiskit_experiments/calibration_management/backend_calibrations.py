@@ -19,7 +19,7 @@ import copy
 
 from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Parameter
-from qiskit_experiments.calibration.management.calibrations import Calibrations, ParameterKey
+from qiskit_experiments.calibration_management.calibrations import Calibrations, ParameterKey
 from qiskit_experiments.exceptions import CalibrationError
 
 

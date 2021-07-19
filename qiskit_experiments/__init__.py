@@ -59,7 +59,9 @@ from .base_experiment import BaseExperiment
 
 # Experiment modules
 from . import library
+from . import calibration_management
 from . import data_processing
+from . import database_service
 from . import analysis
 
 from . import composite

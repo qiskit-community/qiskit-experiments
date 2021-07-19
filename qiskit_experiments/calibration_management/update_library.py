@@ -21,11 +21,11 @@ from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.experiment_data import ExperimentData
-from qiskit_experiments.calibration.management.backend_calibrations import BackendCalibrations
-from qiskit_experiments.calibration.management.calibrations import Calibrations
-from qiskit_experiments.calibration.management.parameter_value import ParameterValue
+from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
+from qiskit_experiments.calibration_management.calibrations import Calibrations
+from qiskit_experiments.calibration_management.parameter_value import ParameterValue
+from qiskit_experiments.calibration_management.calibration_key_types import ParameterValueType
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.calibration.management.calibration_key_types import ParameterValueType
 
 
 class BaseUpdater(ABC):

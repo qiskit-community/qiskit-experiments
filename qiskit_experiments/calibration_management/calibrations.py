@@ -36,8 +36,8 @@ from qiskit.pulse import (
 from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter, ParameterExpression
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.calibration.management.parameter_value import ParameterValue
-from qiskit_experiments.calibration.management.calibration_key_types import (
+from qiskit_experiments.calibration_management.parameter_value import ParameterValue
+from qiskit_experiments.calibration_management.calibration_key_types import (
     ParameterKey,
     ParameterValueType,
     ScheduleKey,
