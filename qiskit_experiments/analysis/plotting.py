@@ -198,6 +198,7 @@ def plot_errorbar(
     ax.grid(grid)
     return ax
 
+
 @requires_matplotlib
 def plot_contourf(
     xdata: np.ndarray,
