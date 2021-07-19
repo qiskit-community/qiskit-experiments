@@ -58,3 +58,4 @@ from . import characterization
 from . import analysis
 from . import randomized_benchmarking
 from . import tomography
+from . import quantum_volume

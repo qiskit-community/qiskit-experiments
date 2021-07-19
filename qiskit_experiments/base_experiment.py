@@ -77,9 +77,6 @@ class BaseExperiment(ABC):
         self._run_options = self._default_run_options()
         self._analysis_options = self._default_analysis_options()
 
-        # Set initial layout from qubits
-        self._transpile_options.initial_layout = list(self._physical_qubits)
-
     def run(
         self,
         backend: Backend,
@@ -125,7 +122,9 @@ class BaseExperiment(ABC):
         run_opts = run_opts.__dict__
 
         # Generate and transpile circuits
-        circuits = transpile(self.circuits(backend), backend, **self.transpile_options.__dict__)
+        transpile_opts = self.transpile_options.__dict__
+        transpile_opts["initial_layout"] = list(self._physical_qubits)
+        circuits = transpile(self.circuits(backend), backend, **transpile_opts)
         self._postprocess_transpiled_circuits(circuits, backend, **run_options)
 
         if isinstance(backend, LegacyBackend):
