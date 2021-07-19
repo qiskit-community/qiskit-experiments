@@ -18,7 +18,7 @@ import numpy as np
 import scipy.linalg as la
 
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.tomography.basis import (
+from qiskit_experiments.library.tomography.basis import (
     BaseFitterMeasurementBasis,
     BaseFitterPreparationBasis,
 )
@@ -63,7 +63,7 @@ def scipy_linear_lstsq(
         Linear least-squares constructs the full basis matrix :math:`A` as a dense
         numpy array so should not be used for than 5 or 6 qubits. For larger number
         of qubits try the
-        :func:`~qiskit_experiments.tomography.fitters.linear_inversion`
+        :func:`~qiskit_experiments.library.tomography.fitters.linear_inversion`
         fitter function.
 
     Args:

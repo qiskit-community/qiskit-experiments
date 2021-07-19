@@ -62,9 +62,9 @@ Composite Experiments
     BatchExperiment
 """
 
-from qiskit_experiments.randomized_benchmarking import StandardRB, InterleavedRB
-from qiskit_experiments.tomography import StateTomography, ProcessTomography
 from qiskit_experiments.quantum_volume import QuantumVolume
+from qiskit_experiments.randomized_benchmarking import StandardRB, InterleavedRB
 from qiskit_experiments.characterization import T1, T2Ramsey, QubitSpectroscopy, EFSpectroscopy
 from qiskit_experiments.calibration import DragCal, Rabi, EFRabi
 from qiskit_experiments.composite import ParallelExperiment, BatchExperiment
+from .tomography import StateTomography, ProcessTomography

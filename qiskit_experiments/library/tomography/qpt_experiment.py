@@ -42,7 +42,7 @@ class ProcessTomography(TomographyExperiment):
             preparation and measurement bases.
 
     Analysis Class
-        :class:`~qiskit_experiments.tomography.TomographyAnalysis`.
+        :class:`~qiskit_experiments.library.tomography.TomographyAnalysis`.
 
     Experiment Options
         - **measurement_basis** (:class:`~basis.BaseTomographyMeasurementBasis`)

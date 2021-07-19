@@ -16,7 +16,7 @@ Linear inversion MLEtomography fitter.
 from typing import Dict, List, Tuple, Optional
 from functools import lru_cache
 import numpy as np
-from qiskit_experiments.tomography.basis.fitter_basis import (
+from qiskit_experiments.library.tomography.basis.fitter_basis import (
     FitterMeasurementBasis,
     FitterPreparationBasis,
 )
@@ -72,7 +72,7 @@ def linear_inversion(
         Linear inversion is only possible if the input bases are a spanning set
         for the vector space of the reconstructed matrix
         (*tomographically complete*). If the basis is not tomographically complete
-        the :func:`~qiskit_experiments.tomography.fitters.scipy_linear_lstsq`
+        the :func:`~qiskit_experiments.library.tomography.fitters.scipy_linear_lstsq`
         function can be used to solve the same objective function via
         least-squares optimization.
 

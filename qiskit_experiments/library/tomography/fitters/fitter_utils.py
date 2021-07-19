@@ -18,7 +18,7 @@ import numpy as np
 import scipy.linalg as la
 
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.tomography.basis import FitterMeasurementBasis, FitterPreparationBasis
+from qiskit_experiments.library.tomography.basis import FitterMeasurementBasis, FitterPreparationBasis
 
 
 def make_positive_semidefinite(mat: np.array, epsilon: float = 0) -> np.array:

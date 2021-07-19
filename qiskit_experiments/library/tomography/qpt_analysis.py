@@ -22,18 +22,18 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
 
     Analysis Options
         - **measurement_basis**
-          (:class:`~qiskit_experiments.tomography.basis.BaseFitterMeasurementBasis`):
+          (:class:`~qiskit_experiments.library.tomography.basis.BaseFitterMeasurementBasis`):
           The measurement
-          :class:`~qiskit_experiments.tomography.basis.BaseFitterMeasurementBasis`
+          :class:`~qiskit_experiments.library.tomography.basis.BaseFitterMeasurementBasis`
           to use for tomographic reconstruction when running a
-          :class:`~qiskit_experiments.tomography.StateTomography` or
-          :class:`~qiskit_experiments.tomography.ProcessTomography`.
+          :class:`~qiskit_experiments.library.tomography.StateTomography` or
+          :class:`~qiskit_experiments.library.tomography.ProcessTomography`.
         - **preparation_basis**
-          (:class:`~qiskit_experiments.tomography.basis.BaseFitterPreparationBasis`):
+          (:class:`~qiskit_experiments.library.tomography.basis.BaseFitterPreparationBasis`):
           The preparation
-          :class:`~qiskit_experiments.tomography.basis.BaseFitterPreparationBasis`
+          :class:`~qiskit_experiments.library.tomography.basis.BaseFitterPreparationBasis`
           to use for tomographic reconstruction for
-          :class:`~qiskit_experiments.tomography.ProcessTomography`.
+          :class:`~qiskit_experiments.library.tomography.ProcessTomography`.
         - **fitter** (``str`` or ``Callable``): The fitter function to use for reconstruction.
           This can  be a string to select one of the built-in fitters, or a callable to
           supply a custom fitter function. See the `Fitter Functions` section
@@ -60,15 +60,15 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
         details on the fitters.
 
         * ``"linear_inversion"``:
-          :func:`~qiskit_experiments.tomography.fitters.linear_inversion` (Default)
+          :func:`~qiskit_experiments.library.tomography.fitters.linear_inversion` (Default)
         * ``"scipy_linear_lstsq"``:
-          :func:`~qiskit_experiments.tomography.fitters.scipy_linear_lstsq`
+          :func:`~qiskit_experiments.library.tomography.fitters.scipy_linear_lstsq`
         * ``"cvxpy_linear_lstsq"``:
-          :func:`~qiskit_experiments.tomography.fitters.cvxpy_linear_lstsq`
+          :func:`~qiskit_experiments.library.tomography.fitters.cvxpy_linear_lstsq`
         * ``"scipy_gaussian_lstsq"``:
-          :func:`~qiskit_experiments.tomography.fitters.scipy_gaussian_lstsq`
+          :func:`~qiskit_experiments.library.tomography.fitters.scipy_gaussian_lstsq`
         * ``"cvxpy_gaussian_lstsq"``:
-          :func:`~qiskit_experiments.tomography.fitters.cvxpy_gaussian_lstsq`
+          :func:`~qiskit_experiments.library.tomography.fitters.cvxpy_gaussian_lstsq`
 
         .. note::
 

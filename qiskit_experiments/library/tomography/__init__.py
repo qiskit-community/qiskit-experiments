@@ -11,11 +11,11 @@
 # that they have been altered from the originals.
 
 """
-=============================================================
-Tomography Experiments (:mod:`qiskit_experiments.tomography`)
-=============================================================
+=====================================================================
+Tomography Experiments (:mod:`qiskit_experiments.library.tomography`)
+=====================================================================
 
-.. currentmodule:: qiskit_experiments.tomography
+.. currentmodule:: qiskit_experiments.library.tomography
 
 
 Experiments
