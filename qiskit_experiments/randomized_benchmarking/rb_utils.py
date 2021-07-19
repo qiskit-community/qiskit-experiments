@@ -60,7 +60,7 @@ class RBUtils:
     def count_ops(
         circuit: QuantumCircuit, qubits: Optional[Iterable[int]] = None
     ) -> Dict[Tuple[Iterable[int], str], int]:
-        """Counts occurances of each gate in the given circuit
+        """Counts occurrences of each gate in the given circuit
 
         Args:
             circuit: The quantum circuit whose gates are counted

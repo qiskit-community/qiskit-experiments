@@ -10,5 +10,6 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Data processing tests."""
-from .base_data_processor_test import BaseDataProcessorTest
+"""Quantum Volume Experiment Classes."""
+from .qv_experiment import QuantumVolume
+from .qv_analysis import QuantumVolumeAnalysis

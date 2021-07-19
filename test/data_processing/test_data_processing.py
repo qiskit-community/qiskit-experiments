@@ -14,7 +14,8 @@
 
 # pylint: disable=unbalanced-tuple-unpacking
 
-from test.data_processing.fake_experiment import FakeExperiment, BaseDataProcessorTest
+from test.fake_experiment import FakeExperiment
+
 import numpy as np
 from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit.result import Result
@@ -30,6 +31,8 @@ from qiskit_experiments.data_processing.nodes import (
     Probability,
     MinMaxNormalize,
 )
+
+from . import BaseDataProcessorTest
 
 
 class DataProcessorTest(BaseDataProcessorTest):

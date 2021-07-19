@@ -671,6 +671,11 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 - When initial guesses are not provided.
                 - When fit option is array but length doesn't match with parameter number.
         """
+        # Remove any fixed parameter so as not to give them to the fitter.
+        if self.__fixed_parameters__ is not None and len(self.__fixed_parameters__) > 0:
+            for pname in self.__fixed_parameters__:
+                fitter_options.pop(pname, None)
+
         # Validate dictionary keys
         def _check_keys(parameter_name):
             named_values = fitter_options[parameter_name]
@@ -909,7 +914,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             # Extract fixed parameter value from analysis options
             for pname in self.__fixed_parameters__:
                 try:
-                    assigned_params[pname] = options.pop(pname)
+                    assigned_params[pname] = options[pname]
                 except KeyError as ex:
                     raise AnalysisError(
                         f"The value of the fixed-value parameter {pname} for the fit function "

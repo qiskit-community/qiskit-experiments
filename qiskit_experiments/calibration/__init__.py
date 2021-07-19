@@ -154,6 +154,7 @@ module.
 
     DragCal
     Rabi
+    FineAmplitude
 
 Calibration analysis
 ====================
@@ -162,14 +163,17 @@ Calibration analysis
 
     OscillationAnalysis
     DragCalAnalysis
+    FineAmplitudeAnalysis
 
 """
 
 from .drag import DragCal
 from .rabi import Rabi, EFRabi
+from .fine_amplitude import FineAmplitude
 
 from .analysis.oscillation_analysis import OscillationAnalysis
 from .analysis.drag_analysis import DragCalAnalysis
+from .analysis.fine_amplitude_analysis import FineAmplitudeAnalysis
 
 from .management.backend_calibrations import BackendCalibrations
 from .management.calibrations import Calibrations
