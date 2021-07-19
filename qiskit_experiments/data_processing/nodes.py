@@ -19,7 +19,6 @@ import numpy as np
 from qiskit_experiments.experiment_data import ExperimentData
 from qiskit_experiments.composite import CompositeExperimentData
 
-
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
@@ -395,7 +394,7 @@ class ToImag(IQPart):
             return datum[..., 1] * self.scale, None
 
 
-class Discriminator(TrainableDataAction):
+class Discriminate(TrainableDataAction):
     """Base class for discriminator processor. Takes IQ data and calibrated discriminator as input,
     outputs counts."""
 
@@ -411,7 +410,8 @@ class Discriminator(TrainableDataAction):
         super().__init__(validate)
 
     def _format_data(self, datum: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
-        return datum
+        datum = np.asarray(datum, dtype=float)
+        return datum, None
 
     def train(self, data: List[Any]):
         if not data:
@@ -461,14 +461,13 @@ class Discriminator(TrainableDataAction):
             raise DataProcessorError(
                 "The discriminator must be trained on data before it can be used."
             )
-
         list_data = []
 
-        for i in range(np.shape(datum)[1]):
+        for i in range(np.shape(datum)[0]):
             if "discriminator" not in self._analysis(i):
                 raise DataProcessorError("Input not a discriminator.")
             discriminator = self._analysis(i)["discriminator"]
-            list_data.append(discriminator.predict(np.array(datum)[:, i, :]))
+            list_data.append(discriminator.predict(np.array(datum)[i, :, 0, :]))
         return self._to_dict(list_data), None
 
 

@@ -14,9 +14,6 @@ Composite Experiment abstract base class.
 """
 
 from abc import abstractmethod
-import warnings
-
-from qiskit.providers.options import Options
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from .composite_experiment_data import CompositeExperimentData

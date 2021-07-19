@@ -66,6 +66,7 @@ class DiscriminatorAnalysis(BaseAnalysis):
             discriminator = QuadraticDiscriminantAnalysis()
         else:
             raise AttributeError("Unsupported discriminator type")
+
         discriminator.fit(_ydata, _xdata)
         score = discriminator.score(_ydata, _xdata)
 
