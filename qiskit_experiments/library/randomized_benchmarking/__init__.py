@@ -11,11 +11,11 @@
 # that they have been altered from the originals.
 
 """
-=======================================================================================
-Randomized Benchmarking Experiments (:mod:`qiskit_experiments.randomized_benchmarking`)
-=======================================================================================
+===============================================================================================
+Randomized Benchmarking Experiments (:mod:`qiskit_experiments.library.randomized_benchmarking`)
+===============================================================================================
 
-.. currentmodule:: qiskit_experiments.randomized_benchmarking
+.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
 
 Randomized Benchmarking (RB) is an efficient and robust method
 for estimating the average error-rate of a set of quantum gate operations.

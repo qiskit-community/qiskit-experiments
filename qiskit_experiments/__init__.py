@@ -66,6 +66,4 @@ from . import analysis
 
 from . import composite
 from . import characterization
-from . import randomized_benchmarking
-from . import tomography
 from . import quantum_volume
