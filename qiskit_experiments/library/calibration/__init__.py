@@ -12,11 +12,11 @@
 
 r"""
 
-===============================================================
-Calibration Experiments (:mod:`qiskit_experiments.calibration`)
-===============================================================
+=======================================================================
+Calibration Experiments (:mod:`qiskit_experiments.library.calibration`)
+=======================================================================
 
-.. currentmodule:: qiskit_experiments.calibration
+.. currentmodule:: qiskit_experiments.library.calibration
 
 .. warning::
     The calibrations interface is still in active development. It may have
@@ -60,7 +60,7 @@ See :mod:`qiskit_experiments.calibration_management`.
 
 from .drag import DragCal
 from .rabi import Rabi, EFRabi
-from .fine_amplitude import FineAmplitude
+from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
 
 from .analysis.oscillation_analysis import OscillationAnalysis
 from .analysis.drag_analysis import DragCalAnalysis

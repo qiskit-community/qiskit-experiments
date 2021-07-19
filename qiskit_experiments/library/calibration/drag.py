@@ -24,7 +24,7 @@ from qiskit.providers.options import Options
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.calibration.analysis.drag_analysis import DragCalAnalysis
+from qiskit_experiments.library.calibration.analysis.drag_analysis import DragCalAnalysis
 
 
 class DragCal(BaseExperiment):

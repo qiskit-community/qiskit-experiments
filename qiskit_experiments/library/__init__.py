@@ -51,6 +51,7 @@ Calibration Experiments
     EFRabi
     QubitSpectroscopy
     EFSpectroscopy
+    FineAmplitude
 
 Composite Experiments
 =====================
@@ -63,8 +64,8 @@ Composite Experiments
 """
 
 from qiskit_experiments.quantum_volume import QuantumVolume
-from qiskit_experiments.calibration import DragCal, Rabi, EFRabi
-from qiskit_experiments.composite import ParallelExperiment, BatchExperiment
+from .composite import ParallelExperiment, BatchExperiment
+from .calibration import DragCal, Rabi, EFRabi, FineAmplitude, FineXAmplitude, FineSXAmplitude
 from .characterization import T1, T2Ramsey, QubitSpectroscopy, EFSpectroscopy
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography

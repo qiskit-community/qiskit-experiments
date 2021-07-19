@@ -11,11 +11,11 @@
 # that they have been altered from the originals.
 
 """
-=========================================================================
-Calibration management (:mod:`qiskit_experiments.calibration.analysis`)
-=========================================================================
+===============================================================================
+Calibration management (:mod:`qiskit_experiments.library.calibration.analysis`)
+===============================================================================
 
-.. currentmodule:: qiskit_experiments.calibration.analysis
+.. currentmodule:: qiskit_experiments.library.calibration.analysis
 
 Analysis classes
 ======================
