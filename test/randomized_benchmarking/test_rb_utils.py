@@ -30,7 +30,7 @@ from qiskit.circuit.library import (
     CZGate,
     SwapGate,
 )
-import qiskit_experiments as qe
+import qiskit_experiments.library.randomized_benchmarking as rb
 
 
 @ddt
@@ -71,7 +71,7 @@ class TestRBUtilities(QiskitTestCase):
         rng.shuffle(gates_to_add)
         for qubits, gate in gates_to_add:
             circuit.append(self.instructions[gate], qubits)
-        counts = qe.randomized_benchmarking.RBUtils.count_ops(circuit)
+        counts = rb.RBUtils.count_ops(circuit)
         self.assertDictEqual(expected_counts, counts)
 
     def test_calculate_1q_epg(self):
@@ -84,7 +84,7 @@ class TestRBUtilities(QiskitTestCase):
         qubits = [0]
         gate_error_ratio = {((0,), "id"): 1, ((0,), "rz"): 0, ((0,), "sx"): 1, ((0,), "x"): 1}
         gates_per_clifford = {((0,), "rz"): 10.5, ((0,), "sx"): 8.15, ((0,), "x"): 0.25}
-        epg = qe.randomized_benchmarking.RBUtils.calculate_1q_epg(
+        epg = rb.RBUtils.calculate_1q_epg(
             epc_1_qubit, qubits, gate_error_ratio, gates_per_clifford
         )
         error_dict = {
@@ -135,7 +135,7 @@ class TestRBUtilities(QiskitTestCase):
             1: {"rz": 0.0, "sx": 0.00036207066403884814, "x": 0.00036207066403884814},
             4: {"rz": 0.0, "sx": 0.0005429962529239195, "x": 0.0005429962529239195},
         }
-        epg = qe.randomized_benchmarking.RBUtils.calculate_2q_epg(
+        epg = rb.RBUtils.calculate_2q_epg(
             epc_2_qubit, qubits, gate_error_ratio, gates_per_clifford, epg_1_qubit
         )
         error_dict = {
@@ -152,11 +152,11 @@ class TestRBUtilities(QiskitTestCase):
         t2 = 100.0
         gate_2_qubits = 0.5
         gate_1_qubit = 0.1
-        twoq_coherence_err = qe.randomized_benchmarking.RBUtils.coherence_limit(
+        twoq_coherence_err = rb.RBUtils.coherence_limit(
             2, [t1, t1], [t2, t2], gate_2_qubits
         )
 
-        oneq_coherence_err = qe.randomized_benchmarking.RBUtils.coherence_limit(
+        oneq_coherence_err = rb.RBUtils.coherence_limit(
             1, [t1], [t2], gate_1_qubit
         )
 
