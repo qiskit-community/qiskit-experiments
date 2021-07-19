@@ -11,11 +11,11 @@
 # that they have been altered from the originals.
 
 """
-===========================================================
-Composite Experiments (:mod:`qiskit_experiments.composite`)
-===========================================================
+===================================================================
+Composite Experiments (:mod:`qiskit_experiments.library.composite`)
+===================================================================
 
-.. currentmodule:: qiskit_experiments.composite
+.. currentmodule:: qiskit_experiments.library.composite
 
 Experiments
 ===========

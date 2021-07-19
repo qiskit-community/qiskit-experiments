@@ -57,12 +57,13 @@ from .experiment_data import ExperimentData
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
 
-# Experiment modules
+# Experiment Library
 from . import library
+
+# Utility Modules
 from . import calibration_management
 from . import data_processing
 from . import database_service
 from . import analysis
 
-from . import composite
 from . import quantum_volume
