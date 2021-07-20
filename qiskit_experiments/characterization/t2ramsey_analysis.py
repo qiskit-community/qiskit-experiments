@@ -28,15 +28,21 @@ from ..experiment_data import ExperimentData
 class T2RamseyAnalysis(BaseAnalysis):
 
     r"""
-    **T2Ramsey result analysis class.**
+    T2Ramsey result analysis class.
 
-    This class is used to analyze the results of a T2Ramsey experiment.
-    The probability of measuring `+` is assumed to be of the form
+    Fit Model
+        This class is used to analyze the results of a T2Ramsey experiment.
+        The probability of measuring `+` is assumed to be of the form
 
-    :math:`f(t) = a\mathrm{e}^{-t / T_2^*}\cos(2\pi f t + \phi) + b`
+        :math:`f(t) = a\mathrm{e}^{-t / T_2^*}\cos(2\pi f t + \phi) + b`
 
-    for unknown parameters :math:`a, b, f, \phi, T_2^*`.
-
+    Fit Parameters
+        - :math:`a (amplitude)`: Height of the decay curve.
+        - :math:`b (offset)`: Base line of the decay curve.
+        - :math:`\phi (shift)`: Relative shift of the graph from the origin.
+        - :math:`t2ramsey`: Represents the rate of decay.
+        - :math:`f (frequency)`: Represents the difference in frequency between
+          the user guess and the actual frequency of the qubit.
     """
 
     @classmethod
@@ -158,8 +164,8 @@ class T2RamseyAnalysis(BaseAnalysis):
     ) -> Tuple[List[float], Tuple[List[float]]]:
         """Default fit parameters for oscillation data.
 
-        Note that :math:`T_2^*` and 'f' units are converted to 'sec' and
-        will be output in 'sec'.
+        Note that :math:`T_2^*` unit is converted to 'sec' and 'f' unit is
+        converted to Hz, so the output will be given in 'sec' and 'Hz'.
         """
         if user_p0 is None:
             a = 0.5

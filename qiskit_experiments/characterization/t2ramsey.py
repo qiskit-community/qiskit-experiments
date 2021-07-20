@@ -43,7 +43,10 @@ class T2Ramsey(BaseExperiment):
                                                     0
 
     for each *t* from the specified delay times, and where
-    :math:`\lambda =2 \pi \times {osc\_freq}`.
+    :math:`\lambda =2 \pi \times {osc\_freq}`,
+    and the delays are specified by the user.
+    The circuits are run on the device or on a simulator backend.
+    Results are analysed in the class T2RamseyAnalysis.
 
     Analysis Class
         :class:`~qiskit.experiments.characterization.T2RamseyAnalysis`
@@ -55,9 +58,6 @@ class T2Ramsey(BaseExperiment):
         - **bounds** - (Tuple[List[float], List[float]]) lower and upper bounds for the fit parameters.
         - **plot** (bool) - create a graph if and only if True.
 
-    A series of such circuits is created, with increasing delays, as specified
-    by the user. The circuits are run on the device or on a simulator backend.
-    Results are analysed in the class T2RamseyAnalysis.
     """
     __analysis_class__ = T2RamseyAnalysis
 
