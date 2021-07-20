@@ -11,13 +11,13 @@
 # that they have been altered from the originals.
 
 """
-=====================================================
-Analysis Library (:mod:`qiskit_experiments.analysis`)
-=====================================================
+===================================================
+Curve Analysis (:mod:`qiskit_experiments.analysis`)
+===================================================
 
 .. currentmodule:: qiskit_experiments.analysis
 
-Helper functions for experiment data analysis
+Helper functions for curve analysis of experiment data
 
 
 Curve Fitting

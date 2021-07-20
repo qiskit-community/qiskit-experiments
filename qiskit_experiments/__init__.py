@@ -50,8 +50,7 @@ Modules
       - Classes for saving and retrieving experiment and analysis results
         from a database.
     * - :mod:`~qiskit_experiments.analysis`
-      - Utility functions for analysis *Note: this module will be
-        restructured soon.*
+      - Utility functions for curve fitting and analysis.
     * - :mod:`~qiskit_experiments.base`
       - Abstract base classes for experiments and analysis.
 
