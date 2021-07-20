@@ -228,7 +228,7 @@ class EFRabi(Rabi):
 
         if self.experiment_options.frequency_shift is None:
             try:
-                anharm, _ = backend.properties.qubit_property(self.physical_qubits[0])[
+                anharm, _ = backend.properties().qubit_property(self.physical_qubits[0])[
                     "anharmonicity"
                 ]
                 self.set_experiment_options(frequency_shift=anharm)

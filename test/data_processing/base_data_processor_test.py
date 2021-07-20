@@ -10,24 +10,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""A FakeExperiment for data processor testing."""
+"""Base class for data processor tests."""
 
 from qiskit.test import QiskitTestCase
 from qiskit.qobj.common import QobjExperimentHeader
-from qiskit_experiments.base_experiment import BaseExperiment
-
-
-class FakeExperiment(BaseExperiment):
-    """Fake experiment class for testing."""
-
-    def __init__(self):
-        """Initialise the fake experiment."""
-        self._type = None
-        super().__init__((0,), "fake_test_experiment")
-
-    def circuits(self, backend=None):
-        """Fake circuits."""
-        return []
 
 
 class BaseDataProcessorTest(QiskitTestCase):

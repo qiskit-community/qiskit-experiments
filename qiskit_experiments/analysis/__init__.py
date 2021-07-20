@@ -78,7 +78,7 @@ Utility
 from .curve_analysis import CurveAnalysis, SeriesDef, CurveData
 
 from .curve_fitting import (
-    CurveAnalysisResult,
+    CurveAnalysisResultData,
     curve_fit,
     multi_curve_fit,
     process_curve_data,
