@@ -36,8 +36,8 @@ class QuantumVolume(BaseExperiment):
     """Quantum Volume Experiment class
 
     Experiment Options:
-        trials (int): Optional, number of times to generate new Quantum Volume circuits and
-                    calculate their heavy output.
+        trials (int): Optional, number of times to generate new Quantum Volume
+                      circuits and calculate their heavy output.
     """
 
     # Analysis class for experiment
@@ -51,6 +51,7 @@ class QuantumVolume(BaseExperiment):
         simulation_backend: Optional[Backend] = None,
     ):
         """Quantum Volume experiment
+
         Args:
             qubits: the number of qubits or list of
                     physical qubits for the experiment.
@@ -58,9 +59,9 @@ class QuantumVolume(BaseExperiment):
             seed: Seed or generator object for random number
                   generation. If None default_rng will be used.
             simulation_backend: the simulator backend to use to generate
-                the expected results. the simulator must have a 'save_probabilities' method.
-                if None Aer simulator will be used (in case Aer is not installed -
-                qiskit.quantum_info will be used).
+                the expected results. the simulator must have a 'save_probabilities'
+                method. If None Aer simulator will be used (in case Aer is not
+                installed qiskit.quantum_info will be used).
         """
         super().__init__(qubits)
 
@@ -81,11 +82,16 @@ class QuantumVolume(BaseExperiment):
     def _default_experiment_options(cls):
         return Options(trials=100)
 
-    def _get_ideal_data(self, circuit, **run_options):
-        """
-        In case the user does not have Aer installed - use Terra to calculate the ideal state
+    def _get_ideal_data(self, circuit: QuantumCircuit, **run_options):
+        """Return ideal measurement probabilities.
+
+        In case the user does not have Aer installed use Terra to calculate
+        the ideal state.
+
         Args:
             circuit: the circuit to extract the ideal data from
+            run_options: backend run options.
+
         Returns:
             dict: the probability for each state in the circuit
         """
@@ -107,12 +113,6 @@ class QuantumVolume(BaseExperiment):
         return probabilities
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
-        """Return a list of QV circuits, without the measurement instruction
-        Args:
-            backend (Backend): Optional, a backend object.
-        Returns:
-            List[QuantumCircuit]: A list of :class:`QuantumCircuit`s.
-        """
         circuits = []
         depth = self._num_qubits
 
