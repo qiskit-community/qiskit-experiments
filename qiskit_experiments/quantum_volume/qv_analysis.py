@@ -19,7 +19,7 @@ from typing import Optional
 import numpy as np
 
 from qiskit_experiments.base_analysis import BaseAnalysis
-from qiskit_experiments.base_analysis import AnalysisResult
+from qiskit_experiments.experiment_data import AnalysisResultData
 from qiskit_experiments.analysis import plotting
 
 
@@ -39,9 +39,9 @@ class QuantumVolumeAnalysis(BaseAnalysis):
             plot: If True generate a plot of fitted data.
             ax: Optional, matplotlib axis to add plot to.
         Returns:
-            tuple: A pair ``(analysis_result, figures)`` where
-                   ``analysis_results`` may be a single or list of
-                   AnalysisResult objects, and ``figures`` may be
+            tuple: A pair ``(result_data figures)`` where
+                   ``result_data`` may be a single or list of
+                   AnalysisResultData objects, and ``figures`` may be
                    None, a single figure, or a list of figures.
         """
         depth = experiment_data.experiment.num_qubits
@@ -57,7 +57,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
                 self._calc_exp_heavy_output_probability(data_trial, heavy_output)
             )
 
-        analysis_result = AnalysisResult(
+        analysis_result = AnalysisResultData(
             self._calc_quantum_volume(heavy_output_prob_exp, depth, num_trials)
         )
 
