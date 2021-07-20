@@ -23,10 +23,10 @@ Verification Experiments
 .. autosummary::
     :toctree: ../stubs/
 
-    StandardRB
-    InterleavedRB
-    StateTomography
-    ProcessTomography
+    ~randomized_benchmarking.StandardRB
+    ~randomized_benchmarking.InterleavedRB
+    ~tomography.StateTomography
+    ~tomography.ProcessTomography
     QuantumVolume
 
 Characterization Experiments
@@ -35,10 +35,10 @@ Characterization Experiments
 .. autosummary::
     :toctree: ../stubs/
 
-    T1
-    T2Ramsey
-    QubitSpectroscopy
-    EFSpectroscopy
+    ~characterization.T1
+    ~characterization.T2Ramsey
+    ~characterization.QubitSpectroscopy
+    ~characterization.EFSpectroscopy
 
 Calibration Experiments
 =======================
@@ -46,12 +46,12 @@ Calibration Experiments
 .. autosummary::
     :toctree: ../stubs/
 
-    DragCal
-    Rabi
-    EFRabi
-    FineAmplitude
-    FineXAmplitude
-    FineSXAmplitude
+    ~calibration.DragCal
+    ~calibration.Rabi
+    ~calibration.EFRabi
+    ~calibration.FineAmplitude
+    ~calibration.FineXAmplitude
+    ~calibration.FineSXAmplitude
 """
 from .calibration import DragCal, Rabi, EFRabi, FineAmplitude, FineXAmplitude, FineSXAmplitude
 from .characterization import T1, T2Ramsey, QubitSpectroscopy, EFSpectroscopy

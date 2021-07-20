@@ -84,8 +84,8 @@ Composite Experiment Classes
 .. autosummary::
     :toctree: ../stubs/
 
-    BatchExperiment
-    ParallelExperiment
+    ~composite.BatchExperiment
+    ~composite.ParallelExperiment
 
 Experiment Base Classes
 =======================
