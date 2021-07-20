@@ -202,10 +202,7 @@ class TestT2Ramsey(QiskitTestCase):
                     conversion_factor=dt_factor,
                 )
 
-            expdata = exp.run(
-                backend=backend,
-                shots=2000
-            )
+            expdata = exp.run(backend=backend, shots=2000)
             expdata.block_for_results()  # Wait for job/analysis to finish.
             result = expdata.analysis_results(0)
             result_data = result.data()
@@ -228,7 +225,7 @@ class TestT2Ramsey(QiskitTestCase):
         t2ramsey = [30, 25]
         estimated_freq = [0.1, 0.12]
         delays = [list(range(1, 60)), list(range(1, 50))]
-        dt_factor = 1E-6
+        dt_factor = 1e-6
         osc_freq = 0.1111
 
         exp0 = T2Ramsey(0, delays[0], osc_freq=osc_freq)
