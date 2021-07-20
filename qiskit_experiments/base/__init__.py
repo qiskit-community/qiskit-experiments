@@ -80,7 +80,7 @@ overriden to define default values for these options.
 
 The :meth:`BaseAnalysis._run_analysis` method should return a pair
 ``(result_data, figures)`` where ``result_data`` is a list of
-:class:`AnalysisResultData` and``figures`` is a list of
+:class:`AnalysisResultData` and ``figures`` is a list of
 :class:`matplotlib.figure.Figure`.
 
 The :mod:`qiskit_experiments.data_processing` module contains classes for
