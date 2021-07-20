@@ -18,8 +18,9 @@ Experiment Base Classes (:mod:`qiskit_experiments.base`)
 .. currentmodule:: qiskit_experiments.base
 
 .. note::
-    
-    This page provides useful information for developers who create new experiment modules.
+
+    This page provides useful information for developers to implement new
+    experiments.
 
 Classes
 =======
