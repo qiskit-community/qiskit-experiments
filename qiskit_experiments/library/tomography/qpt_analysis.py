@@ -12,7 +12,7 @@
 """
 Quantum process tomography analysis
 """
-from qiskit_experiments.base_analysis import Options
+from qiskit_experiments.base import Options
 from .basis import PauliMeasurementBasis, PauliPreparationBasis
 from .tomography_analysis import TomographyAnalysis
 

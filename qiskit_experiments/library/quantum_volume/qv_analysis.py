@@ -18,7 +18,7 @@ import warnings
 from typing import Optional
 import numpy as np
 
-from qiskit_experiments.base_analysis import BaseAnalysis
+from qiskit_experiments.base import BaseAnalysis
 from qiskit_experiments.experiment_data import AnalysisResultData
 from qiskit_experiments.analysis import plotting
 

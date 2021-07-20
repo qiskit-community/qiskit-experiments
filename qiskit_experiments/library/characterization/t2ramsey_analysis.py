@@ -18,7 +18,7 @@ import numpy as np
 
 from qiskit.utils import apply_prefix
 from qiskit.providers.options import Options
-from qiskit_experiments.base_analysis import BaseAnalysis
+from qiskit_experiments.base import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import (
     curve_fit,
     process_curve_data,

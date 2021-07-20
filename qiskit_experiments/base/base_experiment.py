@@ -25,12 +25,11 @@ from qiskit.providers import BaseJob
 from qiskit.providers.basebackend import BaseBackend as LegacyBackend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
-
-from .experiment_data import ExperimentData
+from qiskit_experiments.experiment_data import ExperimentData
 
 
 class BaseExperiment(ABC):
-    """Base Experiment class
+    """Abstract base class for experiments.
 
     Class Attributes:
 

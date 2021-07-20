@@ -29,7 +29,7 @@ from qiskit_experiments.analysis.curve_fitting import (
     CurveAnalysisResultData,
 )
 from qiskit_experiments.analysis.utils import get_opt_value, get_opt_error
-from qiskit_experiments.base_analysis import BaseAnalysis
+from qiskit_experiments.base import BaseAnalysis
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.exceptions import AnalysisError

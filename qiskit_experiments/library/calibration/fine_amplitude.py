@@ -22,7 +22,7 @@ from qiskit.providers import Backend
 from qiskit.providers.options import Options
 from qiskit.pulse.schedule import ScheduleBlock
 
-from qiskit_experiments.base_experiment import BaseExperiment
+from qiskit_experiments.base import BaseExperiment
 from qiskit_experiments.library.calibration.analysis.fine_amplitude_analysis import (
     FineAmplitudeAnalysis,
 )

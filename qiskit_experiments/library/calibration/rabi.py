@@ -22,7 +22,7 @@ from qiskit.providers import Backend
 import qiskit.pulse as pulse
 from qiskit.providers.options import Options
 
-from qiskit_experiments.base_experiment import BaseExperiment
+from qiskit_experiments.base import BaseExperiment
 from qiskit_experiments.library.calibration.analysis.oscillation_analysis import OscillationAnalysis
 from qiskit_experiments.exceptions import CalibrationError
 

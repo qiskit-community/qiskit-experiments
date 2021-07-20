@@ -16,6 +16,7 @@ Utility Modules
 .. toctree::
     :maxdepth: 1
 
+    mod_base
     mod_analysis
     mod_calibration_management
     mod_composite
