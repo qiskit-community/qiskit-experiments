@@ -19,7 +19,7 @@ import numpy as np
 
 from qiskit_experiments.analysis import (
     CurveAnalysis,
-    CurveAnalysisResult,
+    CurveAnalysisResultData,
     SeriesDef,
     CurveData,
     fit_function,
@@ -40,7 +40,7 @@ class RBAnalysis(CurveAnalysis):
         From the fit :math:`\alpha` value this analysis estimates the error per Clifford (EPC).
 
     Fit Model
-        The fit is based on the following decay function.
+        The fit is based on the following decay function:
 
         .. math::
 
@@ -164,14 +164,14 @@ class RBAnalysis(CurveAnalysis):
             )
         return super()._run_analysis(experiment_data, **options)
 
-    def _post_analysis(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_analysis(self, result_data: CurveAnalysisResultData) -> CurveAnalysisResultData:
         """Calculate EPC."""
-        alpha = get_opt_value(analysis_result, "alpha")
-        alpha_err = get_opt_error(analysis_result, "alpha")
+        alpha = get_opt_value(result_data, "alpha")
+        alpha_err = get_opt_error(result_data, "alpha")
 
         scale = (2 ** self._num_qubits - 1) / (2 ** self._num_qubits)
-        analysis_result["EPC"] = scale * (1 - alpha)
-        analysis_result["EPC_err"] = scale * alpha_err / alpha
+        result_data["EPC"] = scale * (1 - alpha)
+        result_data["EPC_err"] = scale * alpha_err / alpha
 
         # Add EPG data
         gate_error_ratio = self._get_option("gate_error_ratio")
@@ -187,7 +187,7 @@ class RBAnalysis(CurveAnalysis):
             if num_qubits in [1, 2]:
                 if num_qubits == 1:
                     epg = RBUtils.calculate_1q_epg(
-                        analysis_result["EPC"],
+                        result_data["EPC"],
                         self._physical_qubits,
                         gate_error_ratio,
                         gates_per_clifford,
@@ -195,11 +195,11 @@ class RBAnalysis(CurveAnalysis):
                 elif self._num_qubits == 2:
                     epg_1_qubit = self._get_option("epg_1_qubit")
                     epg = RBUtils.calculate_2q_epg(
-                        analysis_result["EPC"],
+                        result_data["EPC"],
                         self._physical_qubits,
                         gate_error_ratio,
                         gates_per_clifford,
                         epg_1_qubit=epg_1_qubit,
                     )
-                analysis_result["EPG"] = epg
-        return analysis_result
+                result_data["EPG"] = epg
+        return result_data

@@ -58,7 +58,6 @@ class TestDbAnalysisResult(QiskitTestCase):
         mock_service = mock.create_autospec(DatabaseServiceV1)
         result = self._new_analysis_result(service=mock_service)
         result.auto_save = True
-        result.save()
 
         subtests = [
             # update function, update parameters, service called
@@ -122,7 +121,7 @@ class TestDbAnalysisResult(QiskitTestCase):
     def test_data_serialization(self):
         """Test result data serialization."""
         result = self._new_analysis_result(result_data={"complex": 2 + 3j, "numpy": np.zeros(2)})
-        serialized = result.serialize_data()
+        serialized = json.dumps(result._result_data, cls=result._json_encoder)
         self.assertIsInstance(serialized, str)
         self.assertTrue(json.loads(serialized))
 
