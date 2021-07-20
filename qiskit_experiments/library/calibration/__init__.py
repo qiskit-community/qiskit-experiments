@@ -10,8 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-r"""
-
+"""
 =======================================================================
 Calibration Experiments (:mod:`qiskit_experiments.library.calibration`)
 =======================================================================
