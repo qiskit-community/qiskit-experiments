@@ -41,7 +41,6 @@ accessed by importing the following modules.
 
 - :mod:`qiskit_experiments.library.calibration`
 - :mod:`qiskit_experiments.library.characterization`
-- :mod:`qiskit_experiments.library.composite`
 - :mod:`qiskit_experiments.library.randomized_benchmarking`
 - :mod:`qiskit_experiments.library.tomography`
 
@@ -79,8 +78,8 @@ These container classes store the data and results from running experiments
 
     ExperimentData
 
-Composite Experment Classes
-===========================
+Composite Experiment Classes
+============================
 
 .. autosummary::
     :toctree: ../stubs/
