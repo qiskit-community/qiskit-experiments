@@ -48,8 +48,8 @@ class TestDbExperimentData(QiskitTestCase):
         super().setUp()
         self.backend = FakeMelbourne()
 
-    def test_stored_data_attributes(self):
-        """Test stored data attributes."""
+    def test_db_experiment_data_attributes(self):
+        """Test DB experiment data attributes."""
         attrs = {
             "job_ids": ["job1"],
             "share_level": "public",
@@ -363,7 +363,7 @@ class TestDbExperimentData(QiskitTestCase):
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         self.assertIsNone(exp_data.backend)
         self.assertIsNone(exp_data.service)
-        exp_data.save()
+        exp_data.save_metadata()
         a_job = mock.create_autospec(Job, instance=True)
         exp_data.add_data(a_job)
         self.assertIsNotNone(exp_data.backend)
@@ -419,21 +419,21 @@ class TestDbExperimentData(QiskitTestCase):
                 exp_data.delete_analysis_result(del_key)
                 self.assertRaises(DbExperimentEntryNotFound, exp_data.analysis_results, res_id)
 
-    def test_save(self):
-        """Test saving experiment data."""
+    def test_save_metadata(self):
+        """Test saving experiment metadata."""
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
         service = mock.create_autospec(DatabaseServiceV1, instance=True)
         exp_data.service = service
-        exp_data.save()
+        exp_data.save_metadata()
         service.create_experiment.assert_called_once()
         _, kwargs = service.create_experiment.call_args
         self.assertEqual(exp_data.experiment_id, kwargs["experiment_id"])
-        exp_data.save()
+        exp_data.save_metadata()
         service.update_experiment.assert_called_once()
         _, kwargs = service.update_experiment.call_args
         self.assertEqual(exp_data.experiment_id, kwargs["experiment_id"])
 
-    def test_save_all(self):
+    def test_save(self):
         """Test saving all experiment related data."""
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
         service = mock.create_autospec(DatabaseServiceV1, instance=True)
@@ -441,12 +441,12 @@ class TestDbExperimentData(QiskitTestCase):
         analysis_result = mock.MagicMock()
         exp_data.add_analysis_results(analysis_result)
         exp_data.service = service
-        exp_data.save_all()
+        exp_data.save()
         service.create_experiment.assert_called_once()
         service.create_figure.assert_called_once()
         analysis_result.save.assert_called_once()
 
-    def test_save_all_delete(self):
+    def test_save_delete(self):
         """Test saving all deletion."""
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
         service = mock.create_autospec(DatabaseServiceV1, instance=True)
@@ -456,7 +456,7 @@ class TestDbExperimentData(QiskitTestCase):
         exp_data.delete_figure(0)
         exp_data.service = service
 
-        exp_data.save_all()
+        exp_data.save()
         service.create_experiment.assert_called_once()
         service.delete_figure.assert_called_once()
         service.delete_analysis_result.assert_called_once()
@@ -506,9 +506,7 @@ class TestDbExperimentData(QiskitTestCase):
         service = self._set_mock_service()
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
         exp_data.auto_save = True
-
         mock_result = mock.MagicMock()
-        exp_data.save()
 
         subtests = [
             # update function, update parameters, service called
@@ -516,16 +514,15 @@ class TestDbExperimentData(QiskitTestCase):
             (exp_data.add_figures, (str.encode("hello world"),), service.create_figure),
             (exp_data.delete_figure, (0,), service.delete_figure),
             (exp_data.delete_analysis_result, (0,), service.delete_analysis_result),
-            (exp_data.set_tags, (["foo"],), None),
-            (exp_data.set_metadata, ({"foo": "bar"},), None),
-            (setattr, (exp_data, "notes", "foo"), None),
-            (setattr, (exp_data, "share_level", "hub"), None),
+            (exp_data.set_tags, (["foo"],), service.update_experiment),
+            (exp_data.set_metadata, ({"foo": "bar"},), service.update_experiment),
+            (setattr, (exp_data, "notes", "foo"), service.update_experiment),
+            (setattr, (exp_data, "share_level", "hub"), service.update_experiment),
         ]
 
         for func, params, called in subtests:
             with self.subTest(func=func):
                 func(*params)
-                service.update_experiment.assert_called_once()
                 if called:
                     called.assert_called_once()
                 service.reset_mock()
@@ -546,6 +543,11 @@ class TestDbExperimentData(QiskitTestCase):
         exp_data.add_data(job1)
         exp_data.add_data(job2, lambda *args, **kwargs: event.wait())
         self.assertEqual("RUNNING", exp_data.status())
+
+        # Cleanup
+        with self.assertLogs("qiskit_experiments", "WARNING"):
+            event.set()
+            exp_data.block_for_results()
 
     def test_status_job_error(self):
         """Test experiment status when job failed."""
@@ -616,24 +618,34 @@ class TestDbExperimentData(QiskitTestCase):
 
     def test_cancel_jobs(self):
         """Test canceling experiment jobs."""
+
+        def _job_result():
+            event.wait()
+            raise ValueError("Job was cancelled.")
+
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         event = threading.Event()
         self.addCleanup(event.set)
         job = mock.create_autospec(Job, instance=True)
-        job.result = lambda *args, **kwargs: event.wait()
+        job.result = _job_result
         exp_data.add_data(job)
         exp_data.cancel_jobs()
         job.cancel.assert_called_once()
+
+        # Cleanup
+        with self.assertLogs("qiskit_experiments", "WARNING"):
+            event.set()
+            exp_data.block_for_results()
 
     def test_metadata_serialization(self):
         """Test experiment metadata serialization."""
         metadata = {"complex": 2 + 3j, "numpy": np.zeros(2)}
         exp_data = DbExperimentData(experiment_type="qiskit_test", metadata=metadata)
-        serialized = exp_data.serialize_metadata()
+        serialized = json.dumps(exp_data._metadata, cls=exp_data._json_encoder)
         self.assertIsInstance(serialized, str)
         self.assertTrue(json.loads(serialized))
 
-        deserialized = DbExperimentData.deserialize_metadata(serialized)
+        deserialized = json.loads(serialized, cls=exp_data._json_decoder)
         self.assertEqual(metadata["complex"], deserialized["complex"])
         self.assertEqual(metadata["numpy"].all(), deserialized["numpy"].all())
 

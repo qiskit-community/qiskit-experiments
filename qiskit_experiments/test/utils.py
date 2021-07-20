@@ -9,38 +9,37 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-"""
-Mock Job class for test backends
-"""
-import uuid
-from datetime import datetime
-from typing import Dict
 
-from qiskit.providers import JobV1 as Job
-from qiskit.providers import JobStatus
+"""Test utility functions."""
+
+import uuid
+from typing import Optional, Union, Dict
+from datetime import datetime
+import time
+
+from qiskit.providers.job import JobV1 as Job
+from qiskit.providers.jobstatus import JobStatus
+from qiskit.providers.backend import BackendV1 as Backend
+from qiskit.providers import BaseBackend
 from qiskit.result import Result
 
 
-class MockJob(Job):
-    """Mock Job class for tests"""
+class FakeJob(Job):
+    """Fake job."""
 
-    def __init__(self, backend, result):
-        if isinstance(result, dict):
-            self._result = Result.from_dict(result)
-        else:
-            self._result = result
-        super().__init__(backend, str(uuid.uuid4()))
+    def __init__(self, backend: Union[Backend, BaseBackend], result: Optional[Result] = None):
+        """Initialize FakeJob."""
+        job_id = uuid.uuid4().hex
+        super().__init__(backend, job_id)
+        self._result = result
+
+    def result(self):
+        """Return job result."""
+        time.sleep(3)
+        return self._result
 
     def submit(self):
         """Submit the job to the backend for execution."""
-        pass
-
-    def result(self):
-        """Return the results of the job."""
-        return self._result
-
-    def cancel(self):
-        """Attempt to cancel the job."""
         pass
 
     @staticmethod
@@ -48,6 +47,8 @@ class MockJob(Job):
         """Return the completion time."""
         return {"COMPLETED": datetime.now()}
 
-    def status(self):
+    def status(self) -> JobStatus:
         """Return the status of the job, among the values of ``JobStatus``."""
-        return JobStatus.DONE
+        if self._result:
+            return JobStatus.DONE
+        return JobStatus.RUNNING

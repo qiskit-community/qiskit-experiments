@@ -49,8 +49,15 @@ class CompositeExperiment(BaseExperiment):
         """Return the number of sub experiments"""
         return self._num_experiments
 
-    def component_experiment(self, index):
-        """Return the component Experiment object"""
+    def component_experiment(self, index=None):
+        """Return the component Experiment object.
+        Args:
+            index (int): Experiment index, or ``None`` if all experiments are to be returned.
+        Returns:
+            BaseExperiment: The component experiment(s).
+        """
+        if index is None:
+            return self._experiments
         return self._experiments[index]
 
     def component_analysis(self, index):
