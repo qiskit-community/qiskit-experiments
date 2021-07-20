@@ -1,4 +1,4 @@
-.. _qiskit-experiments-library-modules-tomography:
+.. _qiskit-experiments-tomography:
 
 .. automodule:: qiskit_experiments.library.tomography
    :no-members:

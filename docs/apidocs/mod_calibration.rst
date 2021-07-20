@@ -1,4 +1,4 @@
-.. _qiskit-experiments-library-modules-calibration:
+.. _qiskit-experiments-calibration:
 
 .. automodule:: qiskit_experiments.library.calibration
    :no-members:

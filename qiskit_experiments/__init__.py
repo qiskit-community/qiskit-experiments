@@ -20,7 +20,9 @@ Qiskit Experiments (:mod:`qiskit_experiments`)
 .. warning::
 
     This package is still under active development, there will be breaking
-    API changes, and re-organization of the package layout.
+    API changes, and re-organization of the package layout. If you
+    encounter any bugs please open an issue on
+    `Github <https://github.com/Qiskit/qiskit-experiments/issues>`_
 
 Modules
 =======
@@ -77,6 +79,15 @@ These container classes store the data and results from running experiments
 
     ExperimentData
 
+Composite Experment Classes
+===========================
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    BatchExperiment
+    ParallelExperiment
+
 Experiment Base Classes
 =======================
 
@@ -96,10 +107,12 @@ from .version import __version__
 from .experiment_data import ExperimentData
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
+from .composite import BatchExperiment, ParallelExperiment
 
 # Modules
 from . import library
 from . import analysis
 from . import calibration_management
+from . import composite
 from . import data_processing
 from . import database_service

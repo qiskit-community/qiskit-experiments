@@ -23,12 +23,8 @@ from qiskit.test import QiskitTestCase
 from qiskit import QuantumCircuit
 import qiskit.quantum_info as qi
 from qiskit.providers.aer import AerSimulator
-from qiskit_experiments.library import (
-    BatchExperiment,
-    ParallelExperiment,
-    StateTomography,
-    ProcessTomography,
-)
+from qiskit_experiments import BatchExperiment, ParallelExperiment
+from qiskit_experiments.library import StateTomography, ProcessTomography
 
 
 # TODO: tests for CVXPY fitters

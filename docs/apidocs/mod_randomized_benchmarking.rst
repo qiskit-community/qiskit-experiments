@@ -1,4 +1,4 @@
-.. _qiskit-experiments-library-modules-randomized-benchmarking:
+.. _qiskit-experiments-randomized-benchmarking:
 
 .. automodule:: qiskit_experiments.library.randomized_benchmarking
    :no-members:

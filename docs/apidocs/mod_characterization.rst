@@ -1,4 +1,4 @@
-.. _qiskit-experiments-library-modules-characterization:
+.. _qiskit-experiments-characterization:
 
 .. automodule:: qiskit_experiments.library.characterization
    :no-members:

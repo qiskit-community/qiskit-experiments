@@ -49,21 +49,10 @@ Calibration Experiments
     DragCal
     Rabi
     EFRabi
-    QubitSpectroscopy
-    EFSpectroscopy
     FineAmplitude
-
-Composite Experiments
-=====================
-
-.. autosummary::
-    :toctree: ../stubs/
-
-    ParallelExperiment
-    BatchExperiment
+    FineXAmplitude
+    FineSXAmplitude
 """
-
-from .composite import ParallelExperiment, BatchExperiment
 from .calibration import DragCal, Rabi, EFRabi, FineAmplitude, FineXAmplitude, FineSXAmplitude
 from .characterization import T1, T2Ramsey, QubitSpectroscopy, EFSpectroscopy
 from .randomized_benchmarking import StandardRB, InterleavedRB
@@ -71,7 +60,6 @@ from .tomography import StateTomography, ProcessTomography
 from .quantum_volume import QuantumVolume
 
 # Experiment Sub-modules
-from . import composite
 from . import calibration
 from . import characterization
 from . import randomized_benchmarking

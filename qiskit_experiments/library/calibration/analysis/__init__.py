@@ -10,22 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""
-===============================================================================
-Calibration management (:mod:`qiskit_experiments.library.calibration.analysis`)
-===============================================================================
-
-.. currentmodule:: qiskit_experiments.library.calibration.analysis
-
-Analysis classes
-======================
-.. autosummary::
-    :toctree: ../stubs/
-
-    DragCalAnalysis
-    OscillationAnalysis
-
-"""
+"""Calibration Analysis Classes"""
 
 from .drag_analysis import DragCalAnalysis
 from .oscillation_analysis import OscillationAnalysis

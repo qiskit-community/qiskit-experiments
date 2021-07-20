@@ -18,6 +18,7 @@ Utility Modules
 
     mod_analysis
     mod_calibration_management
+    mod_composite
     mod_data_processing
     mod_database_service
 
@@ -28,7 +29,6 @@ Experiments Modules
     :maxdepth: 1
     
     mod_calibration
-    mod_composite
     mod_characterization
     mod_randomized_benchmarking
     mod_tomography

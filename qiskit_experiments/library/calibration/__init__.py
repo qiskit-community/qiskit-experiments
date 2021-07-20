@@ -42,6 +42,8 @@ module.
     DragCal
     Rabi
     FineAmplitude
+    FineXAmplitude
+    FineSXAmplitude
 
 Calibration analysis
 ====================
