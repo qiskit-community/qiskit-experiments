@@ -63,12 +63,12 @@ Composite Experiments
     BatchExperiment
 """
 
-from qiskit_experiments.quantum_volume import QuantumVolume
 from .composite import ParallelExperiment, BatchExperiment
 from .calibration import DragCal, Rabi, EFRabi, FineAmplitude, FineXAmplitude, FineSXAmplitude
 from .characterization import T1, T2Ramsey, QubitSpectroscopy, EFSpectroscopy
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
+from .quantum_volume import QuantumVolume
 
 # Experiment Sub-modules
 from . import composite
