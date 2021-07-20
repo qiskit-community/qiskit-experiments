@@ -103,15 +103,20 @@ class TestQuantumVolume(QiskitTestCase):
         # set number of trials to a low number to make the test faster
         qv_exp.set_experiment_options(trials=2)
         expdata = qv_exp.run(backend)
+        expdata.block_for_results()
         expdata = qv_exp.run(backend, experiment_data=expdata)
+        expdata.block_for_results()
 
-        self.assertTrue(expdata.analysis_result(0)["trials"] == 2, "number of trials is incorrect")
         self.assertTrue(
-            expdata.analysis_result(1)["trials"] == 4,
+            expdata.analysis_results(0).data()["trials"] == 2, "number of trials is incorrect"
+        )
+        self.assertTrue(
+            expdata.analysis_results(1).data()["trials"] == 4,
             "number of trials is incorrect" " after adding more trials",
         )
         self.assertTrue(
-            expdata.analysis_result(1)["sigma"] <= expdata.analysis_result(0)["sigma"],
+            expdata.analysis_results(1).data()["sigma"]
+            <= expdata.analysis_results(0).data()["sigma"],
             "sigma did not decreased after adding more trials",
         )
 
@@ -134,8 +139,8 @@ class TestQuantumVolume(QiskitTestCase):
 
         qv_exp.run_analysis(exp_data)
         self.assertTrue(
-            exp_data.analysis_result(-1)["qv success"] is False
-            and exp_data.analysis_result(-1)["quantum volume"] == 1,
+            exp_data.analysis_results(-1).data()["qv success"] is False
+            and exp_data.analysis_results(-1).data()["quantum volume"] == 1,
             "quantum volume is successful with less than 100 trials",
         )
 
@@ -158,8 +163,8 @@ class TestQuantumVolume(QiskitTestCase):
 
         qv_exp.run_analysis(exp_data)
         self.assertTrue(
-            exp_data.analysis_result(-1)["qv success"] is False
-            and exp_data.analysis_result(-1)["quantum volume"] == 1,
+            exp_data.analysis_results(-1).data()["qv success"] is False
+            and exp_data.analysis_results(-1).data()["quantum volume"] == 1,
             "quantum volume is successful with heavy output probability less than 2/3",
         )
 
@@ -183,8 +188,8 @@ class TestQuantumVolume(QiskitTestCase):
 
         qv_exp.run_analysis(exp_data)
         self.assertTrue(
-            exp_data.analysis_result(-1)["qv success"] is False
-            and exp_data.analysis_result(-1)["quantum volume"] == 1,
+            exp_data.analysis_results(-1).data()["qv success"] is False
+            and exp_data.analysis_results(-1).data()["quantum volume"] == 1,
             "quantum volume is successful with insufficient confidence",
         )
 
@@ -212,12 +217,12 @@ class TestQuantumVolume(QiskitTestCase):
         for key, value in successful_results.items():
             if isinstance(value, float):
                 self.assertAlmostEqual(
-                    exp_data.analysis_result(-1)[key],
+                    exp_data.analysis_results(-1).data()[key],
                     value,
                     msg="result " + str(key) + " is not the same as the " "pre-calculated analysis",
                 )
             else:
                 self.assertTrue(
-                    exp_data.analysis_result(-1)[key] == value,
+                    exp_data.analysis_results(-1).data()[key] == value,
                     "result " + str(key) + " is not the same as the " "pre-calculated analysis",
                 )

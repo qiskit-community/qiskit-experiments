@@ -46,14 +46,17 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         backend = MockFineAmp(-np.pi * 0.07, np.pi, "xp")
 
-        result = amp_cal.run(backend).analysis_result(-1)
+        expdata = amp_cal.run(backend)
+        expdata.block_for_results()
+        result = expdata.analysis_results(-1)
+        result_data = result.data()
 
-        d_theta = result["popt"][result["popt_keys"].index("d_theta")]
+        d_theta = result_data["popt"][result_data["popt_keys"].index("d_theta")]
 
         tol = 0.04
 
         self.assertTrue(abs(d_theta - backend.angle_error) < tol)
-        self.assertEqual(result["quality"], "computer_good")
+        self.assertEqual(result.quality, "good")
 
     def test_end_to_end_over_rotation(self):
         """Test the experiment end to end."""
@@ -66,14 +69,17 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         backend = MockFineAmp(np.pi * 0.07, np.pi, "xp")
 
-        result = amp_cal.run(backend).analysis_result(-1)
+        expdata = amp_cal.run(backend)
+        expdata.block_for_results()
+        result = expdata.analysis_results(-1)
+        result_data = result.data()
 
-        d_theta = result["popt"][result["popt_keys"].index("d_theta")]
+        d_theta = result_data["popt"][result_data["popt_keys"].index("d_theta")]
 
         tol = 0.04
 
         self.assertTrue(abs(d_theta - backend.angle_error) < tol)
-        self.assertEqual(result["quality"], "computer_good")
+        self.assertEqual(result.quality, "good")
 
     def test_zero_angle_per_gate(self):
         """Test that we cannot set angle per gate to zero."""
