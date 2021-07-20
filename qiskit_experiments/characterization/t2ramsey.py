@@ -33,23 +33,23 @@ class T2Ramsey(BaseExperiment):
         This experiment is used to estimate two properties for a single qubit:
         T2* and Ramsey frequency.
         This experiment consists of a series of circuits of the form
-        
+
     .. parsed-literal::
 
            ┌───┐┌──────────────┐┌──────┐ ░ ┌───┐ ░ ┌─┐
       q_0: ┤ H ├┤   DELAY(t)   ├┤ P(λ) ├─░─┤ H ├─░─┤M├
            └───┘└──────────────┘└──────┘ ░ └───┘ ░ └╥┘
       c: 1/═════════════════════════════════════════╩═
-                                                    0 
+                                                    0
 
     for each *t* from the specified delay times, and where
     :math:`\lambda =2 \pi \times {osc\_freq}`.
 
     Analysis Class
         :class:`~qiskit.experiments.characterization.T2RamseyAnalysis`
-        
+
     Analysis Options
-    
+
         - **user_p0** (``List[Float]``): user guesses for the fit parameters:
           :math:`a, b, f, \phi, T_2^*`.
         - **bounds** - (Tuple[List[float], List[float]]) lower and upper bounds for the fit parameters.
