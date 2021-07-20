@@ -11,17 +11,31 @@
 # that they have been altered from the originals.
 
 r"""
-Qiskit Experiments Calibration Root.
+
+===================================================
+Calibration (:mod:`qiskit_experiments.calibration`)
+===================================================
 
 .. warning::
     The calibrations interface is still in active development. It may have
     breaking API changes without deprecation warnings in future releases until
     otherwise indicated.
 
-Calibrations are managed by the Calibrations class. This class stores schedules which are
-intended to be fully parameterized, including the index of the channels. This class:
-- supports having different schedules share parameters
-- allows default schedules for qubits that can be overridden for specific qubits.
+Calibrating qubit setups is the task of finding the pulse shapes and parameter
+values that maximizes the fidelity of the resulting quantum operations. This
+therefore requires experiments which are analyzed to extract parameter values.
+Furthermore, the resulting parameter values and schedules must be managed. The
+calibration module in Qiskit experiments allows users to run calibration
+experiments and manage the resulting schedules and parameter values.
+
+Calibrations management
+=======================
+
+Calibrations are managed by the :class:`Calibrations` class. This class stores schedules
+which are intended to be fully parameterized, including the index of the channels. This class:
+
+* supports having different schedules share parameters
+* allows default schedules for qubits that can be overridden for specific qubits.
 
 The following code illustrates how a user can create a parameterized schedule, add
 values to the parameters and query a schedule.
@@ -54,7 +68,7 @@ values to the parameters and query a schedule.
 The Calibrations make a couple of assumptions which are discussed below.
 
 Parametric channel naming convention
-=========================
+************************************
 
 Parametrized channel indices must be named according to a predefined pattern to properly
 identify the channels and control channels when assigning values to the parametric
@@ -71,7 +85,7 @@ then given qubits (2, 3) the name "ch1.0$1" will resolve to ControlChannel(12) w
 "ch1.0$0" will resolve to ControlChannel(3). A channel can only have one parameter.
 
 Parameter naming restriction
-===================
+****************************
 
 Each parameter must have a unique name within each schedule. For example, it is
 acceptable to have a parameter named 'amp' in the schedule 'xp' and a different
@@ -115,9 +129,52 @@ Note that a registered template schedule can be retrieve by doing
     xp = cals.get_template("xp")
 
 which would return the default xp schedule block template for all qubits.
+
+.. currentmodule:: qiskit_experiments.calibration
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    BackendCalibrations
+    Calibrations
+    Frequency
+    Amplitude
+    Drag
+
+Calibration experiments
+=======================
+
+The following experiments are designed to calibrate parameter values. Some experiments such
+as :class:`QubitSpectroscopy` can both be seen as characterization and calibrations
+experiments. Such experiments can be found in the :mod:`qiskit_experiments.characterization`
+module.
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    DragCal
+    Rabi
+    FineAmplitude
+
+Calibration analysis
+====================
+.. autosummary::
+    :toctree: ../stubs/
+
+    OscillationAnalysis
+    DragCalAnalysis
+    FineAmplitudeAnalysis
+
 """
 
-from .calibrations import Calibrations
-from .backend_calibrations import BackendCalibrations
-from .exceptions import CalibrationError
-from .parameter_value import ParameterValue
+from .drag import DragCal
+from .rabi import Rabi, EFRabi
+from .fine_amplitude import FineAmplitude
+
+from .analysis.oscillation_analysis import OscillationAnalysis
+from .analysis.drag_analysis import DragCalAnalysis
+from .analysis.fine_amplitude_analysis import FineAmplitudeAnalysis
+
+from .management.backend_calibrations import BackendCalibrations
+from .management.calibrations import Calibrations
+from .management.update_library import Frequency, Amplitude, Drag

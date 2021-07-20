@@ -17,7 +17,7 @@ import numpy as np
 
 from qiskit_experiments.analysis import (
     CurveAnalysis,
-    CurveAnalysisResult,
+    CurveAnalysisResultData,
     SeriesDef,
     get_opt_value,
     get_opt_error,
@@ -34,12 +34,13 @@ class DragCalAnalysis(CurveAnalysis):
     xp-xm). Several initial guesses are tried if the user does not provide one.
 
     .. math::
-        y = {\rm amp} \cos\left(2 \pi {\rm freq_i} x - 2 \pi {\rm beta}\right) + {\rm base}
+
+        y = {\rm amp} \cos\left(2 \pi {\rm freq}_i x - 2 \pi {\rm beta}\right) + {\rm base}
 
     Fit Parameters
         - :math:`{\rm amp}`: Amplitude of all series.
         - :math:`{\rm base}`: Base line of all series.
-        - :math:`{\rm freq}_i`: Frequency of the :math:`i`th oscillation.
+        - :math:`{\rm freq}_i`: Frequency of the :math:`i` th oscillation.
         - :math:`{\rm beta}`: Common beta offset. This is the parameter of interest.
 
     Initial Guesses
@@ -53,7 +54,6 @@ class DragCalAnalysis(CurveAnalysis):
         - :math:`{\rm base}`: [-1, 1] scaled to the maximum signal value.
         - :math:`{\rm freq}_i`: [0, inf].
         - :math:`{\rm beta}`: [-min scan range, max scan range].
-
     """
 
     __series__ = [
@@ -182,7 +182,7 @@ class DragCalAnalysis(CurveAnalysis):
 
         return fit_options
 
-    def _post_analysis(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_analysis(self, result_data: CurveAnalysisResultData) -> CurveAnalysisResultData:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -191,19 +191,19 @@ class DragCalAnalysis(CurveAnalysis):
             - an error on the drag beta smaller than the beta.
         """
 
-        fit_beta = get_opt_value(analysis_result, "beta")
-        fit_freq0 = get_opt_value(analysis_result, "freq0")
-        fit_beta_err = get_opt_error(analysis_result, "beta")
+        fit_beta = get_opt_value(result_data, "beta")
+        fit_freq0 = get_opt_value(result_data, "freq0")
+        fit_beta_err = get_opt_error(result_data, "beta")
 
         criteria = [
-            analysis_result["reduced_chisq"] < 3,
+            result_data["reduced_chisq"] < 3,
             fit_beta < 1 / fit_freq0,
             fit_beta_err < abs(fit_beta),
         ]
 
         if all(criteria):
-            analysis_result["quality"] = "computer_good"
+            result_data["quality"] = "good"
         else:
-            analysis_result["quality"] = "computer_bad"
+            result_data["quality"] = "bad"
 
-        return analysis_result
+        return result_data

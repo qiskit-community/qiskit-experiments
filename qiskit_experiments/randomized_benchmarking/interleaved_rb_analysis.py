@@ -17,8 +17,8 @@ from typing import List, Dict, Any, Union
 import numpy as np
 
 from qiskit_experiments.analysis import (
-    CurveAnalysisResult,
     SeriesDef,
+    CurveAnalysisResultData,
     fit_function,
     get_opt_value,
     get_opt_error,
@@ -32,7 +32,7 @@ class InterleavedRBAnalysis(RBAnalysis):
     Overview
         This analysis takes only two series for standard and interleaved RB curve fitting.
         From the fit :math:`\alpha` and :math:`\alpha_c` value this analysis estimates
-        the error per Clifford (EPC) of interleaved gate.
+        the error per Clifford (EPC) of the interleaved gate.
 
         The EPC estimate is obtained using the equation
 
@@ -42,7 +42,7 @@ class InterleavedRBAnalysis(RBAnalysis):
             r_{\mathcal{C}}^{\text{est}} =
                 \frac{\left(d-1\right)\left(1-\alpha_{\overline{\mathcal{C}}}/\alpha\right)}{d}
 
-        The error bounds are given by
+        The systematic error bounds are given by
 
         .. math::
 
@@ -55,17 +55,17 @@ class InterleavedRBAnalysis(RBAnalysis):
                 \end{array}
             \right.
 
-        See the reference[1] for more details.
+        See Ref. [1] for more details.
 
 
 
     Fit Model
-        The fit is based on the following decay functions.
+        The fit is based on the following decay functions:
 
         .. math::
 
-            F_1(x_1) &= a \alpha^{x_1} + b  ... {\rm standard RB} \\
-            F_2(x_2) &= a (\alpha_c \alpha)^{x_2} + b ... {\rm interleaved RB}
+            F_1(x_1) &= a \alpha^{x_1} + b  \quad {\rm for standard RB} \\
+            F_2(x_2) &= a (\alpha_c \alpha)^{x_2} + b \quad {\rm for interleaved RB}
 
     Fit Parameters
         - :math:`a`: Height of decay curve.
@@ -90,8 +90,11 @@ class InterleavedRBAnalysis(RBAnalysis):
         - :math:`\alpha_c`: [0, 1]
 
     References
-        [1] "Efficient measurement of quantum gate error by interleaved randomized benchmarking"
-            (arXiv:1203.4550).
+        1. Easwar Magesan, Jay M. Gambetta, B. R. Johnson, Colm A. Ryan, Jerry M. Chow,
+           Seth T. Merkel, Marcus P. da Silva, George A. Keefe, Mary B. Rothwell, Thomas A. Ohki,
+           Mark B. Ketchen, M. Steffen, Efficient measurement of quantum gate error by
+           interleaved randomized benchmarking,
+           `arXiv:quant-ph/1203.4550 <https://arxiv.org/pdf/1203.4550>`_
     """
 
     __series__ = [
@@ -167,20 +170,20 @@ class InterleavedRBAnalysis(RBAnalysis):
 
         return fit_option
 
-    def _post_analysis(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_analysis(self, result_data: CurveAnalysisResultData) -> CurveAnalysisResultData:
         """Calculate EPC."""
         # Add EPC data
         nrb = 2 ** self._num_qubits
         scale = (nrb - 1) / nrb
-        alpha = get_opt_value(analysis_result, "alpha")
-        alpha_c = get_opt_value(analysis_result, "alpha_c")
-        alpha_c_err = get_opt_error(analysis_result, "alpha_c")
+        alpha = get_opt_value(result_data, "alpha")
+        alpha_c = get_opt_value(result_data, "alpha_c")
+        alpha_c_err = get_opt_error(result_data, "alpha_c")
 
         # Calculate epc_est (=r_c^est) - Eq. (4):
         epc_est = scale * (1 - alpha_c)
         epc_est_err = scale * alpha_c_err
-        analysis_result["EPC"] = epc_est
-        analysis_result["EPC_err"] = epc_est_err
+        result_data["EPC"] = epc_est
+        result_data["EPC_err"] = epc_est_err
 
         # Calculate the systematic error bounds - Eq. (5):
         systematic_err_1 = scale * (abs(alpha - alpha_c) + (1 - alpha))
@@ -191,7 +194,7 @@ class InterleavedRBAnalysis(RBAnalysis):
         systematic_err = min(systematic_err_1, systematic_err_2)
         systematic_err_l = epc_est - systematic_err
         systematic_err_r = epc_est + systematic_err
-        analysis_result["EPC_systematic_err"] = systematic_err
-        analysis_result["EPC_systematic_bounds"] = [max(systematic_err_l, 0), systematic_err_r]
+        result_data["EPC_systematic_err"] = systematic_err
+        result_data["EPC_systematic_bounds"] = [max(systematic_err_l, 0), systematic_err_r]
 
-        return analysis_result
+        return result_data

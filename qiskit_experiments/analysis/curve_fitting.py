@@ -19,11 +19,11 @@ from typing import List, Dict, Tuple, Callable, Optional, Union
 import numpy as np
 import scipy.optimize as opt
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.base_analysis import AnalysisResult
 from qiskit_experiments.analysis.data_processing import filter_data
+from qiskit_experiments.experiment_data import AnalysisResultData
 
 
-class CurveAnalysisResult(AnalysisResult):
+class CurveAnalysisResultData(AnalysisResultData):
     """Analysis data container for curve fit analysis.
 
     Class Attributes:
@@ -65,8 +65,8 @@ class CurveAnalysisResult(AnalysisResult):
             popt_err = self.get("popt_err")
 
             for key, value, error in zip(popt_keys, popt, popt_err):
-                out += f"\n- {key}: {value} \u00B1 {error}"
-        out += super().__str__()
+                out += f"\n  - {key}: {value} \u00B1 {error}"
+        out = str(super()) + out
 
         return out
 
@@ -79,7 +79,7 @@ def curve_fit(
     sigma: Optional[np.ndarray] = None,
     bounds: Optional[Union[Dict[str, Tuple[float, float]], Tuple[np.ndarray, np.ndarray]]] = None,
     **kwargs,
-) -> CurveAnalysisResult:
+) -> CurveAnalysisResultData:
     r"""Perform a non-linear least squares to fit
 
     This solves the optimization problem
@@ -200,7 +200,7 @@ def curve_fit(
         "xrange": xdata_range,
     }
 
-    return CurveAnalysisResult(result)
+    return CurveAnalysisResultData(result)
 
 
 def multi_curve_fit(
@@ -213,7 +213,7 @@ def multi_curve_fit(
     weights: Optional[np.ndarray] = None,
     bounds: Optional[Union[Dict[str, Tuple[float, float]], Tuple[np.ndarray, np.ndarray]]] = None,
     **kwargs,
-) -> CurveAnalysisResult:
+) -> CurveAnalysisResultData:
     r"""Perform a linearized multi-objective non-linear least squares fit.
 
     This solves the optimization problem
@@ -293,9 +293,9 @@ def multi_curve_fit(
         return y
 
     # Run linearized curve_fit
-    analysis_result = curve_fit(f, xdata, ydata, p0, sigma=wsigma, bounds=bounds, **kwargs)
+    result_data = curve_fit(f, xdata, ydata, p0, sigma=wsigma, bounds=bounds, **kwargs)
 
-    return analysis_result
+    return result_data
 
 
 def process_curve_data(

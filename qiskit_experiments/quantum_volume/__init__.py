@@ -10,6 +10,6 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Experiments used solely for calibrating schedules."""
-
-from .rabi import RabiAnalysis, Rabi
+"""Quantum Volume Experiment Classes."""
+from .qv_experiment import QuantumVolume
+from .qv_analysis import QuantumVolumeAnalysis

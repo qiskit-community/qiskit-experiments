@@ -18,11 +18,16 @@ import numpy as np
 
 from qiskit.utils import apply_prefix
 from qiskit.providers.options import Options
-from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResult
-from qiskit_experiments.analysis.curve_fitting import curve_fit, process_curve_data
+from qiskit_experiments.base_analysis import BaseAnalysis
+from qiskit_experiments.analysis.curve_fitting import (
+    curve_fit,
+    process_curve_data,
+    CurveAnalysisResultData,
+)
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
-from ..experiment_data import ExperimentData
+from qiskit_experiments.experiment_data import ExperimentData
+
 
 # pylint: disable = invalid-name
 class T2RamseyAnalysis(BaseAnalysis):
@@ -58,9 +63,9 @@ class T2RamseyAnalysis(BaseAnalysis):
         plot: bool = False,
         ax: Optional["AxesSubplot"] = None,
         **kwargs,
-    ) -> Tuple[List[AnalysisResult], List["matplotlib.figure.Figure"]]:
-
-        r"""
+    ) -> Tuple[List[CurveAnalysisResultData], List["matplotlib.figure.Figure"]]:
+        r"""Calculate T2Ramsey experiment.
+        
         Args:
             experiment_data (ExperimentData): the experiment data to analyze
             user_p0: contains initial values given by the user, for the
@@ -107,10 +112,11 @@ class T2RamseyAnalysis(BaseAnalysis):
             return ax
 
         # implementation of  _run_analysis
+
         data = experiment_data.data()
-        metadata = data[0]["metadata"]
-        unit = metadata["unit"]
-        conversion_factor = metadata.get("dt_factor", None)
+        circ_metadata = data[0]["metadata"]
+        unit = circ_metadata["unit"]
+        conversion_factor = circ_metadata.get("dt_factor", None)
         if conversion_factor is None:
             conversion_factor = 1 if unit in ("s", "dt") else apply_prefix(1, unit)
 
@@ -135,25 +141,24 @@ class T2RamseyAnalysis(BaseAnalysis):
             figures = None
 
         # Output unit is 'sec', regardless of the unit used in the input
-        analysis_result = AnalysisResult(
-            {
-                "t2ramsey_value": fit_result["popt"][1],
-                "frequency_value": fit_result["popt"][2],
-                "stderr_t2": fit_result["popt_err"][1],
-                "stderr_freq": fit_result["popt_err"][2],
-                "unit": "s",
-                "label": "T2Ramsey",
-                "fit": fit_result,
-                "quality": self._fit_quality(
-                    fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
-                ),
-            }
-        )
+        result_data = {
+            "t2ramsey_value": fit_result["popt"][1],
+            "frequency_value": fit_result["popt"][2],
+            "stderr_t2": fit_result["popt_err"][1],
+            "stderr_freq": fit_result["popt_err"][2],
+            "unit": "s",
+            "label": "T2Ramsey",
+            "fit": fit_result,
+            "quality": self._fit_quality(
+                fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
+            ),
+        }
 
-        analysis_result["fit"]["circuit_unit"] = unit
+        result_data["fit"]["circuit_unit"] = unit
         if unit == "dt":
-            analysis_result["fit"]["dt"] = conversion_factor
-        return [analysis_result], figures
+            result_data["fit"]["dt"] = conversion_factor
+
+        return [CurveAnalysisResultData(result_data)], figures
 
     def _t2ramsey_default_params(
         self,
@@ -204,6 +209,6 @@ class T2RamseyAnalysis(BaseAnalysis):
             and (fit_err[1] is None or fit_err[1] < 0.1 * fit_out[1])
             and (fit_err[2] is None or fit_err[2] < 0.1 * fit_out[2])
         ):
-            return "computer_good"
+            return "good"
         else:
-            return "computer_bad"
+            return "bad"
