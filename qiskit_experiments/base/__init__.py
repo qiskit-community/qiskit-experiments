@@ -49,6 +49,8 @@ To create an experiment subclass
   constructor with a list of physical qubits. The length of this list must
   be equal to the number of qubits in each circuit and is used to map these
   circuits to this layout during execution.
+  Arguments in the constructor can be overridden so that a subclass can
+  be initialized with some experiment configuration.
 - Set :attr:`BaseExperiment.__analysis_class__` class attribute to
   specify the :class:`BaseAnalysis` subclass for analyzing result data.
 
