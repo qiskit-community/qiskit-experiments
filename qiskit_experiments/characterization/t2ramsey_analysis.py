@@ -58,18 +58,18 @@ class T2RamseyAnalysis(BaseAnalysis):
         Args:
             experiment_data (ExperimentData): the experiment data to analyze
             user_p0: contains initial values given by the user, for the
-            fit parameters :math:`(a, T_2ramsey, f, \phi, b)`
+            fit parameters :math:`(a, t2ramsey, f, \phi, b)`
             user_bounds: lower and upper bounds on the parameters in p0,
                          given by the user.
                          The first tuple is the lower bounds,
                          The second tuple is the upper bounds.
-                         For both params, the order is :math:`a, T_2ramsey, f, \phi, b`.
+                         For both params, the order is :math:`a, t2ramsey, f, \phi, b`.
             plot: if True, create the plot, otherwise, do not create the plot.
             ax: the plot object
             **kwargs: additional parameters for curve fit.
 
         Returns:
-            The analysis result with the estimated :math:`T_2Ramsey` and 'f' (frequency)
+            The analysis result with the estimated :math:`t2ramsey` and 'f' (frequency)
             The graph of the function.
         """
 
