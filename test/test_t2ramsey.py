@@ -164,6 +164,7 @@ class TestT2Ramsey(QiskitTestCase):
                 dt_factor = 1
             else:
                 dt_factor = apply_prefix(1, unit)
+            osc_freq = 0.1111
             estimated_t2ramsey = 20
             estimated_freq = 0.1
             # Set up the circuits
@@ -176,7 +177,7 @@ class TestT2Ramsey(QiskitTestCase):
                     (np.linspace(16.0, 45.0, num=59)).astype(float),
                 )
 
-            exp = T2Ramsey(qubit, delays, unit=unit)
+            exp = T2Ramsey(qubit, delays, unit=unit, osc_freq=osc_freq)
             default_p0 = {
                 "A": 0.5,
                 "t2ramsey": estimated_t2ramsey,
@@ -202,7 +203,7 @@ class TestT2Ramsey(QiskitTestCase):
 
             expdata = exp.run(
                 backend=backend,
-                shots=2000,
+                shots=2000
             )
             result = expdata.analysis_result(0)
             self.assertAlmostEqual(
@@ -226,10 +227,11 @@ class TestT2Ramsey(QiskitTestCase):
         t2ramsey = [30, 25]
         estimated_freq = [0.1, 0.12]
         delays = [list(range(1, 60)), list(range(1, 50))]
-        dt_factor = 1
+        dt_factor = 1E-6
+        osc_freq = 0.1111
 
-        exp0 = T2Ramsey(0, delays[0])
-        exp2 = T2Ramsey(2, delays[1])
+        exp0 = T2Ramsey(0, delays[0], osc_freq=osc_freq)
+        exp2 = T2Ramsey(2, delays[1], osc_freq=osc_freq)
         par_exp = ParallelExperiment([exp0, exp2])
 
         p0 = {
@@ -265,8 +267,9 @@ class TestT2Ramsey(QiskitTestCase):
         # First experiment
         qubit = 0
         delays0 = list(range(1, 60, 2))
+        osc_freq = 0.1111
 
-        exp0 = T2Ramsey(qubit, delays0, unit=unit)
+        exp0 = T2Ramsey(qubit, delays0, unit=unit, osc_freq=osc_freq)
         default_p0 = {
             "A": 0.5,
             "t2ramsey": estimated_t2ramsey,

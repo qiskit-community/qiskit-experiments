@@ -11,12 +11,14 @@
 # that they have been altered from the originals.
 """
 T2Ramsey Experiment class.
+
 """
 
 from typing import List, Optional, Union
 import numpy as np
 
 import qiskit
+from qiskit.utils import apply_prefix
 from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
 from qiskit_experiments.base_experiment import BaseExperiment
@@ -25,7 +27,7 @@ from .t2ramsey_analysis import T2RamseyAnalysis
 
 class T2Ramsey(BaseExperiment):
     """T2Ramsey class"""
-
+    
     __analysis_class__ = T2RamseyAnalysis
 
     def __init__(
@@ -67,7 +69,7 @@ class T2Ramsey(BaseExperiment):
             The experiment circuits
 
         Raises:
-            AttributeError: if unit is dt but dt parameter is missing in the backend configuration
+            AttributeError: if unit is 'dt', but 'dt' parameter is missing in the backend configuration
         """
         if self._unit == "dt":
             try:
@@ -75,12 +77,15 @@ class T2Ramsey(BaseExperiment):
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
 
+        conversion_factor = 1 if self._unit in ("s", "dt") else apply_prefix(1, self._unit)
         circuits = []
         for delay in self._delays:
             circ = qiskit.QuantumCircuit(1, 1)
             circ.h(0)
             circ.delay(delay, 0, self._unit)
-            circ.p(2 * np.pi * self._osc_freq, 0)
+            nosc = delay/self._delays[0]
+            rotation_angle = 2 * np.pi * self._osc_freq * nosc
+            circ.p(rotation_angle, 0)
             circ.barrier(0)
             circ.h(0)
             circ.barrier(0)
