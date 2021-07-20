@@ -17,16 +17,14 @@ from typing import List, Optional, Tuple, Dict
 import numpy as np
 
 from qiskit.utils import apply_prefix
-from qiskit.providers.options import Options
-from qiskit_experiments.base import BaseAnalysis
-from qiskit_experiments.analysis.curve_fitting import (
-    curve_fit,
-    process_curve_data,
-    CurveAnalysisResultData,
-)
-from qiskit_experiments.analysis.data_processing import level2_probability
-from qiskit_experiments.analysis import plotting
 from qiskit_experiments.experiment_data import ExperimentData
+from qiskit_experiments.base import BaseAnalysis, Options
+from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
+from qiskit_experiments.curve_analysis import curve_fit, plot_curve_fit, plot_errorbar, plot_scatter
+from qiskit_experiments.curve_analysis.curve_analysis_result_data import CurveAnalysisResultData
+from qiskit_experiments.curve_analysis.curve_fit import process_curve_data
+from qiskit_experiments.curve_analysis.data_processing import level2_probability
+
 
 # pylint: disable = invalid-name
 class T2RamseyAnalysis(BaseAnalysis):
@@ -117,10 +115,10 @@ class T2RamseyAnalysis(BaseAnalysis):
             osc_fit_fun, xdata, ydata, p0=list(p0.values()), sigma=sigma, bounds=bounds
         )
 
-        if plot and plotting.HAS_MATPLOTLIB:
-            ax = plotting.plot_curve_fit(osc_fit_fun, fit_result, ax=ax)
-            ax = plotting.plot_scatter(xdata, ydata, ax=ax)
-            ax = plotting.plot_errorbar(xdata, ydata, sigma, ax=ax)
+        if plot and HAS_MATPLOTLIB:
+            ax = plot_curve_fit(osc_fit_fun, fit_result, ax=ax)
+            ax = plot_scatter(xdata, ydata, ax=ax)
+            ax = plot_errorbar(xdata, ydata, sigma, ax=ax)
             _format_plot(ax, unit, fit_result, conversion_factor)
             figures = [ax.get_figure()]
         else:

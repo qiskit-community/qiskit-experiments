@@ -15,7 +15,7 @@ Package Modules
     base
     composite
     data_processing
-    analysis
+    curve_analysis
     calibration_management
     database_service
 

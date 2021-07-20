@@ -16,17 +16,16 @@ T1 Analysis class.
 from typing import Tuple, List
 import numpy as np
 
-from qiskit.providers.options import Options
 from qiskit.utils import apply_prefix
 
-from qiskit_experiments.base import BaseAnalysis
-from qiskit_experiments.analysis.curve_fitting import (
+from qiskit_experiments.base import BaseAnalysis, Options
+from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
+from qiskit_experiments.curve_analysis import plot_curve_fit, plot_errorbar, curve_fit
+from qiskit_experiments.curve_analysis.curve_fit import (
     process_curve_data,
-    curve_fit,
     CurveAnalysisResultData,
 )
-from qiskit_experiments.analysis.data_processing import level2_probability
-from qiskit_experiments.analysis import plotting
+from qiskit_experiments.curve_analysis.data_processing import level2_probability
 
 
 class T1Analysis(BaseAnalysis):
@@ -153,9 +152,9 @@ class T1Analysis(BaseAnalysis):
 
         # Generate fit plot
         figures = []
-        if plot and plotting.HAS_MATPLOTLIB:
-            ax = plotting.plot_curve_fit(fit_fun, fit_result, ax=ax, fit_uncertainty=True)
-            ax = plotting.plot_errorbar(xdata, ydata, sigma, ax=ax)
+        if plot and HAS_MATPLOTLIB:
+            ax = plot_curve_fit(fit_fun, fit_result, ax=ax, fit_uncertainty=True)
+            ax = plot_errorbar(xdata, ydata, sigma, ax=ax)
             self._format_plot(ax, fit_result, qubit=qubit)
             figures.append(ax.get_figure())
 

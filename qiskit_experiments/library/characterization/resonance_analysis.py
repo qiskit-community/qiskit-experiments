@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Union
 
 import numpy as np
 
-from qiskit_experiments.analysis import (
+from qiskit_experiments.curve_analysis import (
     CurveAnalysis,
     CurveAnalysisResultData,
     SeriesDef,
@@ -47,14 +47,14 @@ class ResonanceAnalysis(CurveAnalysis):
         - :math:`\sigma`: Standard deviation of Gaussian function.
 
     Initial Guesses
-        - :math:`a`: Calculated by :func:`~qiskit_experiments.analysis.guess.max_height`.
-        - :math:`b`: Calculated by :func:`~qiskit_experiments.analysis.guess.\
+        - :math:`a`: Calculated by :func:`~qiskit_experiments.curve_analysis.guess.max_height`.
+        - :math:`b`: Calculated by :func:`~qiskit_experiments.curve_analysis.guess.\
           constant_spectral_offset`.
         - :math:`f`: Frequency at max height position calculated by
-          :func:`~qiskit_experiments.analysis.guess.max_height`.
+          :func:`~qiskit_experiments.curve_analysis.guess.max_height`.
         - :math:`\sigma`: Calculated from FWHM of peak :math:`w`
           such that :math:`w / \sqrt{8} \ln{2}`, where FWHM is calculated by
-          :func:`~qiskit_experiments.analysis.guess.full_width_half_max`.
+          :func:`~qiskit_experiments.curve_analysis.guess.full_width_half_max`.
 
     Bounds
         - :math:`a`: [-2, 2] scaled with maximum signal value.
@@ -78,7 +78,7 @@ class ResonanceAnalysis(CurveAnalysis):
     def _default_options(cls):
         """Return default data processing options.
 
-        See :meth:`~qiskit_experiment.analysis.CurveAnalysis._default_options` for
+        See :meth:`~qiskit_experiment.curve_analysis.CurveAnalysis._default_options` for
         descriptions of analysis options.
         """
         default_options = super()._default_options()

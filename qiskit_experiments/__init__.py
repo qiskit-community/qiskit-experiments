@@ -44,13 +44,13 @@ Modules
     * - :mod:`~qiskit_experiments.data_processing`
       - Tools for building data processor workflows of experiment
         measurement data.
+    * - :mod:`~qiskit_experiments.curve_analysis`
+      - Utility functions for curve fitting and analysis.
     * - :mod:`~qiskit_experiments.calibration_management`
       - Classes for managing calibration experiment result data.
     * - :mod:`~qiskit_experiments.database_service`
       - Classes for saving and retrieving experiment and analysis results
         from a database.
-    * - :mod:`~qiskit_experiments.analysis`
-      - Utility functions for curve fitting and analysis.
     * - :mod:`~qiskit_experiments.base`
       - Abstract base classes for experiments and analysis.
 
@@ -72,7 +72,7 @@ from .composite import BatchExperiment, ParallelExperiment
 # Modules
 from . import base
 from . import library
-from . import analysis
+from . import curve_analysis
 from . import calibration_management
 from . import composite
 from . import data_processing
