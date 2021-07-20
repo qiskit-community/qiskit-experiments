@@ -23,10 +23,10 @@ from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis.curve_fitting import (
     process_curve_data,
     curve_fit,
+    CurveAnalysisResultData,
 )
 from qiskit_experiments.analysis.data_processing import level2_probability
 from qiskit_experiments.analysis import plotting
-from qiskit_experiments.experiment_data import AnalysisResultData
 
 
 class T1Analysis(BaseAnalysis):
@@ -78,7 +78,7 @@ class T1Analysis(BaseAnalysis):
         offset_bounds=None,
         plot=True,
         ax=None,
-    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[CurveAnalysisResultData], List["matplotlib.figure.Figure"]]:
         """
         Calculate T1
 
@@ -159,7 +159,7 @@ class T1Analysis(BaseAnalysis):
             self._format_plot(ax, fit_result, qubit=qubit)
             figures.append(ax.get_figure())
 
-        return [AnalysisResultData(result_data)], figures
+        return [CurveAnalysisResultData(result_data)], figures
 
     @staticmethod
     def _fit_quality(fit_out, fit_err, reduced_chisq):
