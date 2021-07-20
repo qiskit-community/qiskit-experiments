@@ -25,7 +25,8 @@ from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
 
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResult, Options
+from qiskit_experiments.base_analysis import BaseAnalysis, Options
+from qiskit_experiments.experiment_data import AnalysisResultData
 from .fitters import (
     linear_inversion,
     scipy_linear_lstsq,
@@ -106,12 +107,11 @@ class TomographyAnalysis(BaseAnalysis):
             fitter_metadata["fitter"] = fitter.__name__
             fitter_metadata["fitter_time"] = t_fitter_stop - t_fitter_start
 
-            result = AnalysisResult(
-                {
-                    "state": Choi(state) if preparation_basis else DensityMatrix(state),
-                    "fitter_metadata": fitter_metadata,
-                }
-            )
+            result = {
+                "state": Choi(state) if preparation_basis else DensityMatrix(state),
+                "fitter_metadata": fitter_metadata,
+                "success": True,
+            }
 
             self._postprocess_fit(
                 result,
@@ -124,7 +124,7 @@ class TomographyAnalysis(BaseAnalysis):
         except AnalysisError as ex:
             raise AnalysisError(f"Tomography fitter failed with error: {str(ex)}") from ex
 
-        return [AnalysisResult(result)], [None]
+        return [AnalysisResultData(result)], [None]
 
     @classmethod
     def _postprocess_fit(

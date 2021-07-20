@@ -133,15 +133,16 @@ class BaseExperiment(ABC):
         else:
             job = backend.run(circuits, **run_opts)
 
-        # Add Job to ExperimentData
-        experiment_data.add_data(job)
+        # Add Job to ExperimentData and add analysis for post processing.
+        run_analysis = None
 
         # Add experiment option metadata
         self._add_job_metadata(experiment_data, job, **run_opts)
 
-        # Queue analysis of data for when job is finished
         if analysis and self.__analysis_class__ is not None:
-            self.run_analysis(experiment_data)
+            run_analysis = self.run_analysis
+
+        experiment_data.add_data(job, post_processing_callback=run_analysis)
 
         # Return the ExperimentData future
         return experiment_data
@@ -180,6 +181,11 @@ class BaseExperiment(ABC):
     def physical_qubits(self) -> Tuple[int]:
         """Return the physical qubits for this experiment."""
         return self._physical_qubits
+
+    @property
+    def experiment_type(self) -> str:
+        """Return experiment type."""
+        return self._type
 
     @classmethod
     def analysis(cls):

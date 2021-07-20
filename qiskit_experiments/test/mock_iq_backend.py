@@ -17,11 +17,12 @@ from typing import List, Tuple
 import numpy as np
 
 from qiskit import QuantumCircuit
+from qiskit.result import Result
 from qiskit.test.mock import FakeOpenPulse2Q
 
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
-from qiskit_experiments.test.mock_job import MockJob
+from qiskit_experiments.test.utils import FakeJob
 
 
 class MockIQBackend(FakeOpenPulse2Q):
@@ -105,6 +106,7 @@ class MockIQBackend(FakeOpenPulse2Q):
                 "shots": shots,
                 "success": True,
                 "header": {"metadata": circ.metadata},
+                "meas_level": meas_level,
             }
 
             prob = self._compute_probability(circ)
@@ -122,7 +124,7 @@ class MockIQBackend(FakeOpenPulse2Q):
 
             result["results"].append(run_result)
 
-        return MockJob(self, result)
+        return FakeJob(self, Result.from_dict(result))
 
 
 class DragBackend(MockIQBackend):

@@ -17,7 +17,7 @@ from qiskit.providers.options import Options
 
 from qiskit.result import Result
 
-from qiskit_experiments.test.mock_job import MockJob
+from qiskit_experiments.test.utils import FakeJob
 
 
 class FakeBackend(BackendV1):
@@ -55,4 +55,4 @@ class FakeBackend(BackendV1):
             "success": True,
             "results": [],
         }
-        return MockJob(backend=self, result=Result.from_dict(result))
+        return FakeJob(backend=self, result=Result.from_dict(result))

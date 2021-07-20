@@ -101,6 +101,9 @@ class DataProcessorTest(BaseDataProcessorTest):
                 [[3016514.0, -14548009.0], [-3404756.0, -16743348.0]],
             ],
             "metadata": {"experiment_type": "fake_test_experiment"},
+            "job_id": "job-123",
+            "meas_level": 1,
+            "shots": 3,
         }
 
         expected_new = np.array([[1103.26, 2959.012], [442.17, -5279.41], [3016.514, -3404.7560]])
@@ -147,6 +150,9 @@ class DataProcessorTest(BaseDataProcessorTest):
                 [[3016514.0, -14548009.0], [-3404756.0, -16743348.0]],
             ],
             "metadata": {"experiment_type": "fake_test_experiment"},
+            "job_id": "job-123",
+            "meas_level": 1,
+            "shots": 3,
         }
 
         expected_new = np.array(

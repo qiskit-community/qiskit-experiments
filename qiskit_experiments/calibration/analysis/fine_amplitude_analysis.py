@@ -18,7 +18,7 @@ import numpy as np
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.analysis import (
     CurveAnalysis,
-    CurveAnalysisResult,
+    CurveAnalysisResultData,
     SeriesDef,
     fit_function,
     get_opt_value,
@@ -134,7 +134,7 @@ class FineAmplitudeAnalysis(CurveAnalysis):
 
         return fit_options
 
-    def _post_analysis(self, analysis_result: CurveAnalysisResult) -> CurveAnalysisResult:
+    def _post_analysis(self, result_data: CurveAnalysisResultData) -> CurveAnalysisResultData:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -142,17 +142,17 @@ class FineAmplitudeAnalysis(CurveAnalysis):
             - a measured angle error that is smaller than the allowed maximum good angle error.
               This quantity is set in the analysis options.
         """
-        fit_d_theta = get_opt_value(analysis_result, "d_theta")
+        fit_d_theta = get_opt_value(result_data, "d_theta")
         max_good_angle_error = self._get_option("max_good_angle_error")
 
         criteria = [
-            analysis_result["reduced_chisq"] < 3,
+            result_data["reduced_chisq"] < 3,
             abs(fit_d_theta) < abs(max_good_angle_error),
         ]
 
         if all(criteria):
-            analysis_result["quality"] = "computer_good"
+            result_data["quality"] = "good"
         else:
-            analysis_result["quality"] = "computer_bad"
+            result_data["quality"] = "bad"
 
-        return analysis_result
+        return result_data

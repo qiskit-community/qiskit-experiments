@@ -131,13 +131,13 @@ class SVD(TrainableDataAction):
         if self._validate:
             if len(datum.shape) not in {2, 3}:
                 raise DataProcessorError(
-                    f"IQ data given to {self.__class__.__name__} must be an 2D array. "
+                    f"IQ data given to {self.__class__.__name__} must be a 2D array. "
                     f"Instead, a {len(datum.shape)}D array was given."
                 )
 
             if error is not None and len(error.shape) not in {2, 3}:
                 raise DataProcessorError(
-                    f"IQ data error given to {self.__class__.__name__} must be an 2D array."
+                    f"IQ data error given to {self.__class__.__name__} must be a 2D array."
                     f"Instead, a {len(error.shape)}D array was given."
                 )
 

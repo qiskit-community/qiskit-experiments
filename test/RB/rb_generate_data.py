@@ -110,7 +110,7 @@ def _generate_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes: di
     with open(results_file_path, "w") as json_file:
         joined_list_data = [exp_attributes, exp_results]
         json_file.write(json.dumps(joined_list_data))
-    _analysis_save(experiment_obj.analysis_result(None), analysis_file_path)
+    _analysis_save(experiment_obj.analysis_results(None), analysis_file_path)
 
 
 def _analysis_save(analysis_data: list, analysis_file_path: str):
