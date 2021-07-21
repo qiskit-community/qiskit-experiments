@@ -14,7 +14,7 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional, Type
+from typing import List, Optional, Type
 import copy
 
 from qiskit.providers.backend import BackendV1 as Backend
@@ -52,6 +52,18 @@ class BackendCalibrations(Calibrations):
         **library_options,
     ):
         """Setup an instance to manage the calibrations of a backend.
+
+        BackendCalibrations can be initialized from a basis gate library, i.e. a subclass of
+        :class:`BasisGateLibrary`. As example consider the following code:
+
+        .. code-block:: python
+
+            cals = BackendCalibrations(
+                    backend,
+                    basis_gates=["x", "sx"],
+                    library=FixedFrequencyTransmon,
+                    default_values={"duration": 320},
+                )
 
         Args:
             backend: A backend instance from which to extract the qubit and readout frequencies
