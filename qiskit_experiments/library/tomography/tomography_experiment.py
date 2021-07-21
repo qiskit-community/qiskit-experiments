@@ -22,7 +22,7 @@ from qiskit.circuit.library import Permutation
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 import qiskit.quantum_info as qi
 from qiskit_experiments.exceptions import QiskitError
-from qiskit_experiments.base_experiment import BaseExperiment, Options
+from qiskit_experiments.framework import BaseExperiment, Options
 from .basis import BaseTomographyMeasurementBasis, BaseTomographyPreparationBasis
 from .tomography_analysis import TomographyAnalysis
 

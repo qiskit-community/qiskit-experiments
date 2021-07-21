@@ -27,14 +27,22 @@ Qiskit Experiments (:mod:`qiskit_experiments`)
 Modules
 =======
 
-Experiment Library
-******************
+.. list-table::
 
-The :mod:`qiskit_experiments.library` module contains a list of available
-experiments.
-
-Experiment Utility Modules
---------------------------
+    * - :mod:`~qiskit_experiments.library`
+      - Library of available experiments.
+    * - :mod:`~qiskit_experiments.framework`
+      - Core classes for experiments and analysis.
+    * - :mod:`~qiskit_experiments.data_processing`
+      - Tools for building data processor workflows of experiment
+        measurement data.
+    * - :mod:`~qiskit_experiments.curve_analysis`
+      - Utility functions for curve fitting and analysis.
+    * - :mod:`~qiskit_experiments.calibration_management`
+      - Classes for managing calibration experiment result data.
+    * - :mod:`~qiskit_experiments.database_service`
+      - Classes for saving and retrieving experiment and analysis results
+        from a database.
 
 Certain experiments also have additional utilities contained which can be
 accessed by importing the following modules.
@@ -43,75 +51,14 @@ accessed by importing the following modules.
 - :mod:`qiskit_experiments.library.characterization`
 - :mod:`qiskit_experiments.library.randomized_benchmarking`
 - :mod:`qiskit_experiments.library.tomography`
-
-Analysis
-********
-
-This :mod:`qiskit_experiments.analysis` module contains utility functions for
-analysis experiment data.
-
-Data Processing
-***************
-
-This :mod:`qiskit_experiments.data_processing` module contains tools for processing
-experiment measurement data.
-
-Calibration Management
-**********************
-
-This :mod:`qiskit_experiments.calibration_management` module contains classes
-for managing calibration experiment result data.
-
-Database Service
-****************
-
-This :mod:`qiskit_experiments.database_service` module contains classes for saving
-and retrieving experiment and analysis results from a database.
-
-Experiment Data Classes
-=======================
-
-These container classes store the data and results from running experiments
-
-.. autosummary::
-    :toctree: ../stubs/
-
-    ExperimentData
-
-Composite Experiment Classes
-============================
-
-.. autosummary::
-    :toctree: ../stubs/
-
-    ~composite.BatchExperiment
-    ~composite.ParallelExperiment
-
-Experiment Base Classes
-=======================
-
-Construction of custom experiments should be done by making subclasses of the following
-base classes
-
-.. autosummary::
-    :toctree: ../stubs/
-
-    BaseExperiment
-    BaseAnalysis
 """
 
 from .version import __version__
 
-# Base Classes
-from .experiment_data import ExperimentData
-from .base_analysis import BaseAnalysis
-from .base_experiment import BaseExperiment
-from .composite import BatchExperiment, ParallelExperiment
-
 # Modules
+from . import framework
 from . import library
-from . import analysis
+from . import curve_analysis
 from . import calibration_management
-from . import composite
 from . import data_processing
 from . import database_service
