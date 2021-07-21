@@ -108,7 +108,9 @@ class BackendCalibrations(Calibrations):
 
             # Add the default values
             for param_conf in library_instance.default_values():
-                self.add_parameter_value(*param_conf)
+                schedule_name = param_conf[-1]
+                if schedule_name in basis_gates:
+                    self.add_parameter_value(*param_conf)
 
     def _get_frequencies(
         self,
