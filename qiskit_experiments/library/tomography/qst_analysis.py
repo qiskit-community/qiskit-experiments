@@ -12,7 +12,7 @@
 """
 Quantum state tomography analysis
 """
-from qiskit_experiments.base import Options
+from qiskit_experiments.framework import Options
 from .basis import PauliMeasurementBasis
 from .tomography_analysis import TomographyAnalysis
 

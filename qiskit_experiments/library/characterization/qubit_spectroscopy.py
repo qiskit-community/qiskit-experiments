@@ -24,7 +24,7 @@ from qiskit.utils import apply_prefix
 from qiskit.providers.options import Options
 from qiskit.qobj.utils import MeasLevel
 
-from qiskit_experiments.base import BaseExperiment
+from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.library.characterization.resonance_analysis import ResonanceAnalysis
 
 

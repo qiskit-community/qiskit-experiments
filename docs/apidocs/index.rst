@@ -11,8 +11,8 @@ Package Modules
     :maxdepth: 1
 
     main
+    framework
     library
-    base
     composite
     data_processing
     curve_analysis

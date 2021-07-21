@@ -14,8 +14,8 @@
 
 from qiskit.providers.options import Options
 
-from qiskit_experiments.base import BaseExperiment
-from qiskit_experiments.base import BaseAnalysis
+from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework import BaseAnalysis
 
 
 class FakeAnalysis(BaseAnalysis):

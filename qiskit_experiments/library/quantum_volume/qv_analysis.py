@@ -18,7 +18,7 @@ import warnings
 from typing import Optional
 import numpy as np
 
-from qiskit_experiments.base import BaseAnalysis
+from qiskit_experiments.framework import BaseAnalysis
 from qiskit_experiments.experiment_data import AnalysisResultData
 from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
 from qiskit_experiments.curve_analysis import plot_scatter, plot_errorbar

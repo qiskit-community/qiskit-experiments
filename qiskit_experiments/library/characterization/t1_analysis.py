@@ -18,7 +18,7 @@ import numpy as np
 
 from qiskit.utils import apply_prefix
 
-from qiskit_experiments.base import BaseAnalysis, Options
+from qiskit_experiments.framework import BaseAnalysis, Options
 from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
 from qiskit_experiments.curve_analysis import plot_curve_fit, plot_errorbar, curve_fit
 from qiskit_experiments.curve_analysis.curve_fit import (

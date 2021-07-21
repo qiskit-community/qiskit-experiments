@@ -11,11 +11,11 @@
 # that they have been altered from the originals.
 
 """
-========================================================
-Experiment Base Classes (:mod:`qiskit_experiments.base`)
-========================================================
+==========================================================
+Experiment Framework (:mod:`qiskit_experiments.framework`)
+==========================================================
 
-.. currentmodule:: qiskit_experiments.base
+.. currentmodule:: qiskit_experiments.framework
 
 .. note::
 

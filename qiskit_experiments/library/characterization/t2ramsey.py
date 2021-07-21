@@ -19,7 +19,7 @@ import numpy as np
 import qiskit
 from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
-from qiskit_experiments.base import BaseExperiment
+from qiskit_experiments.framework import BaseExperiment
 from .t2ramsey_analysis import T2RamseyAnalysis
 
 

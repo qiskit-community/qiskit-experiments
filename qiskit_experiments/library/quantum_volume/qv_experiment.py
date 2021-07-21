@@ -28,7 +28,7 @@ except ImportError:
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume as QuantumVolumeCircuit
 from qiskit import transpile
-from qiskit_experiments.base import BaseExperiment
+from qiskit_experiments.framework import BaseExperiment
 from .qv_analysis import QuantumVolumeAnalysis
 
 

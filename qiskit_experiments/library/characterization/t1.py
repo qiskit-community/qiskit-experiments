@@ -20,7 +20,7 @@ from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
 from qiskit.providers.options import Options
 
-from qiskit_experiments.base import BaseExperiment
+from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.library.characterization.t1_analysis import T1Analysis
 
 

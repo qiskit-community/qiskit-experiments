@@ -41,6 +41,8 @@ Modules
 
     * - :mod:`~qiskit_experiments.library`
       - Library of available experiments.
+    * - :framework:`~qiskit_experiments.framework`
+      - Core classes for experiments and analysis.
     * - :mod:`~qiskit_experiments.data_processing`
       - Tools for building data processor workflows of experiment
         measurement data.
@@ -51,8 +53,6 @@ Modules
     * - :mod:`~qiskit_experiments.database_service`
       - Classes for saving and retrieving experiment and analysis results
         from a database.
-    * - :mod:`~qiskit_experiments.base`
-      - Abstract base classes for experiments and analysis.
 
 Certain experiments also have additional utilities contained which can be
 accessed by importing the following modules.
@@ -70,7 +70,7 @@ from .experiment_data import ExperimentData
 from .composite import BatchExperiment, ParallelExperiment
 
 # Modules
-from . import base
+from . import framework
 from . import library
 from . import curve_analysis
 from . import calibration_management

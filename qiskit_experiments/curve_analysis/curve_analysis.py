@@ -23,7 +23,7 @@ from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 import numpy as np
 from qiskit.providers.options import Options
 
-from qiskit_experiments.base import BaseAnalysis
+from qiskit_experiments.framework import BaseAnalysis
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.exceptions import AnalysisError
