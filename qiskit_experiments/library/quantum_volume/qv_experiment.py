@@ -33,11 +33,35 @@ from .qv_analysis import QuantumVolumeAnalysis
 
 
 class QuantumVolume(BaseExperiment):
-    """Quantum Volume Experiment class
+    """Quantum Volume Experiment class.
 
-    Experiment Options:
-        trials (int): Optional, number of times to generate new Quantum Volume
-                      circuits and calculate their heavy output.
+    Overview
+        Quantum Volume (QV) is a single-number metric that can be measured using a concrete protocol
+        on near-term quantum computers of modest size. The QV method quantifies the largest random circuit
+        of equal width and depth that the computer successfully implements.
+        Quantum computing systems with high-fidelity operations, high connectivity, large calibrated gate sets,
+        and circuit rewriting toolchains are expected to have higher quantum volumes.
+        See `Qiskit Textbook
+        <https://qiskit.org/textbook/ch-quantum-hardware/measuring-quantum-volume.html>`_
+        for an explanation on the QV method.
+
+        See :class:`QuantumVolumeAnalysis` documentation for additional
+        information on QV experiment analysis.
+
+    References
+        1. Andrew W. Cross, Lev S. Bishop, Sarah Sheldon, Paul D. Nation, and Jay M. Gambetta,
+           Validating quantum computers using randomized model circuits, Phys. Rev. A 100, 032328 (2019).
+           `arXiv:quant-ph/1811.12926 <https://arxiv.org/pdf/1811.12926>`_
+        2. Petar Jurcevic et. al. Demonstration of quantum volume 64 on asuperconducting
+           quantum computing system,
+           `arXiv:quant-ph/2008.08571 <https://arxiv.org/pdf/2008.08571>`_
+
+    Analysis Class
+        :class:`QuantumVolumeAnalysis`
+
+    Experiment Options
+        - **trials** (int): Optional, number of times to generate new Quantum Volume
+          circuits and calculate their heavy output.
     """
 
     # Analysis class for experiment
@@ -50,18 +74,19 @@ class QuantumVolume(BaseExperiment):
         seed: Optional[Union[int, Generator]] = None,
         simulation_backend: Optional[Backend] = None,
     ):
-        """Quantum Volume experiment
+        """Initialize a quantum volume experiment.
 
         Args:
-            qubits: the number of qubits or list of
+            qubits: The number of qubits or list of
                     physical qubits for the experiment.
-            trials: number of trials to run the quantum volume circuit.
+            trials: The number of trials to run the quantum volume circuit.
             seed: Seed or generator object for random number
                   generation. If None default_rng will be used.
-            simulation_backend: the simulator backend to use to generate
+            simulation_backend: The simulator backend to use to generate
                 the expected results. the simulator must have a 'save_probabilities'
-                method. If None Aer simulator will be used (in case Aer is not
-                installed qiskit.quantum_info will be used).
+                method. If None :class:`qiskit.Aer` simulator will be used
+                (in case :class:`qiskit.Aer` is not
+                installed :class:`qiskit.quantum_info` will be used).
         """
         super().__init__(qubits)
 
