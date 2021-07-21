@@ -24,7 +24,18 @@ from qiskit_experiments.analysis import plotting
 
 
 class QuantumVolumeAnalysis(BaseAnalysis):
-    """Quantum Volume Analysis class."""
+    r"""A class to analyze quantum volume experiments.
+
+    Overview
+        Calculate the quantum volume of the analysed system.
+        The quantum volume is determined by the largest successful circuit depth.
+        A depth is successful if it has 'mean heavy-output probability' > 2/3 with confidence
+        level > 0.977 (corresponding to z_value = 2), and at least 100 trials have been ran.
+        we assume the error (standard deviation) of the heavy output probability is due to a
+        binomial distribution. The standard deviation for binomial distribution is
+        :math:`\sqrt{(np(1-p))}`, where :math:`n` is the number of trials and :math:`p`
+        is the success probability.
+    """
 
     # pylint: disable = arguments-differ
     def _run_analysis(
