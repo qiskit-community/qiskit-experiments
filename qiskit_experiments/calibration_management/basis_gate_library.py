@@ -66,8 +66,12 @@ class BasisGateLibrary(ABC):
         """
 
 
-class FixedFrequencyTransmonSXRZ(BasisGateLibrary):
-    """A library of gates for fixed-frequency superconducting qubit architectures."""
+class FixedFrequencyTransmon(BasisGateLibrary):
+    """A library of gates for fixed-frequency superconducting qubit architectures.
+
+    Note that for now this library supports single-qubit gates and will be extended
+    in the future.
+    """
 
     __default_values__ = {"duration": 160, "amp": 0.5, "β": 0.0}
 

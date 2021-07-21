@@ -15,7 +15,7 @@
 import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
 
-from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmonSXRZ
+from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.exceptions import CalibrationError
 
 
@@ -25,7 +25,7 @@ class TestFixedFrequencyTransmonSXRZ(QiskitTestCase):
     def test_standard_single_qubit_gates(self):
         """Test the setup of single-qubit gates."""
 
-        library = FixedFrequencyTransmonSXRZ(default_values={"duration": 320})
+        library = FixedFrequencyTransmon(default_values={"duration": 320})
 
         for gate in ["x", "sx"]:
             sched = library[gate]

@@ -17,7 +17,7 @@ from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeArmonk
 
 from qiskit_experiments.calibration_management import BackendCalibrations
-from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmonSXRZ
+from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 
 
 class TestBackendCalibrations(QiskitTestCase):
@@ -36,7 +36,7 @@ class TestBackendCalibrations(QiskitTestCase):
         cals = BackendCalibrations(
             FakeArmonk(),
             basis_gates=["x", "sx"],
-            library=FixedFrequencyTransmonSXRZ,
+            library=FixedFrequencyTransmon,
             default_values={"duration": 320},
         )
 
