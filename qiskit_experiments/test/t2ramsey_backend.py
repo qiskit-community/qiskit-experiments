@@ -14,8 +14,6 @@ T2Ramsey Backend class.
 Temporary backend to be used for t2ramsey experiment
 """
 
-# pylint: disable = unused-import
-
 import numpy as np
 
 from qiskit.utils import apply_prefix
@@ -25,8 +23,8 @@ from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.composite import ParallelExperiment
-from qiskit_experiments.characterization import T2Ramsey
-from qiskit_experiments.test.mock_job import MockJob
+from qiskit_experiments.library.characterization import T2Ramsey
+from qiskit_experiments.test.utils import FakeJob
 
 # Fix seed for simulations
 SEED = 9000
@@ -97,7 +95,6 @@ class T2RamseyBackend(BackendV1):
             "success": True,
             "results": [],
         }
-
         for circ in run_input:
             nqubits = circ.num_qubits
             qubit_indices = {bit: idx for idx, bit in enumerate(circ.qubits)}
@@ -159,4 +156,4 @@ class T2RamseyBackend(BackendV1):
                     "data": {"counts": counts},
                 }
             )
-        return MockJob(self, Result.from_dict(result))
+        return FakeJob(self, Result.from_dict(result))
