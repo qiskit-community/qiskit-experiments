@@ -118,7 +118,7 @@ class BaseAnalysis(ABC):
             analysis_results = [
                 DbAnalysisResultV1(
                     result_data={"success": False, "error_message": ex},
-                    result_type = experiment_data.experiment_type,
+                    result_type=experiment_data.experiment_type,
                     **analysis_result_parameters,
                 )
             ]
