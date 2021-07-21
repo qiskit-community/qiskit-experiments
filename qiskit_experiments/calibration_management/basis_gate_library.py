@@ -41,8 +41,7 @@ class BasisGateLibrary(ABC):
         self._schedules = dict()
 
         if default_values is not None:
-            for key, value in default_values.items():
-                self.__default_values__[key] = value
+            self.__default_values__.update(default_values)
 
     def __getitem__(self, name: str) -> ScheduleBlock:
         """Return the schedule."""
