@@ -20,8 +20,8 @@ Class documentation examples.
 
 from qiskit.providers import Options
 
-from qiskit_experiments.analysis import CurveAnalysis
-from qiskit_experiments.base_experiment import BaseExperiment
+from qiskit_experiments.curve_analysis.curve_analysis import CurveAnalysis
+from qiskit_experiments.framework.base_experiment import BaseExperiment
 
 
 class DocumentedCurveAnalysis(CurveAnalysis):

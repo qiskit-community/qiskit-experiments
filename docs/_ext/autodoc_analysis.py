@@ -16,11 +16,10 @@ Documentation extension for analysis class.
 
 from typing import Any
 
+from docs._ext.custom_styles.styles import AnalysisDocstring
+from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from sphinx.application import Sphinx
 from sphinx.ext.autodoc import ClassDocumenter
-
-from qiskit_experiments import BaseAnalysis
-from docs._ext.custom_styles.styles import AnalysisDocstring
 
 
 class AnalysisDocumenter(ClassDocumenter):

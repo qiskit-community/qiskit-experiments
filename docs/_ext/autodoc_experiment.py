@@ -16,12 +16,11 @@ Documentation extension for experiment class.
 
 from typing import Any
 
+from docs._ext.custom_styles.styles import ExperimentDocstring
 from qiskit.exceptions import QiskitError
+from qiskit_experiments.framework.base_experiment import BaseExperiment
 from sphinx.application import Sphinx
 from sphinx.ext.autodoc import ClassDocumenter
-
-from qiskit_experiments import BaseExperiment
-from docs._ext.custom_styles.styles import ExperimentDocstring
 
 
 class ExperimentDocumenter(ClassDocumenter):

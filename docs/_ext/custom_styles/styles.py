@@ -19,10 +19,10 @@ import sys
 from abc import ABC
 from typing import Union, List, Dict
 
+from qiskit_experiments.framework.base_analysis import BaseAnalysis
+from qiskit_experiments.framework.base_experiment import BaseExperiment
 from sphinx.config import Config as SphinxConfig
 
-from qiskit_experiments.base_analysis import BaseAnalysis
-from qiskit_experiments.base_experiment import BaseExperiment
 from .formatter import (
     ExperimentSectionFormatter,
     AnalysisSectionFormatter,
