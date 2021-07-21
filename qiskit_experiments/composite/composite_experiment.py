@@ -14,6 +14,7 @@ Composite Experiment abstract base class.
 """
 
 from abc import abstractmethod
+import warnings
 
 from qiskit_experiments.base_experiment import BaseExperiment
 from .composite_experiment_data import CompositeExperimentData
@@ -48,8 +49,15 @@ class CompositeExperiment(BaseExperiment):
         """Return the number of sub experiments"""
         return self._num_experiments
 
-    def component_experiment(self, index):
-        """Return the component Experiment object"""
+    def component_experiment(self, index=None):
+        """Return the component Experiment object.
+        Args:
+            index (int): Experiment index, or ``None`` if all experiments are to be returned.
+        Returns:
+            BaseExperiment: The component experiment(s).
+        """
+        if index is None:
+            return self._experiments
         return self._experiments[index]
 
     def component_analysis(self, index):
@@ -63,5 +71,21 @@ class CompositeExperiment(BaseExperiment):
         # Add sub-experiment options
         for i in range(self.num_experiments):
             sub_exp = self.component_experiment(i)
+
+            # Run and transpile options are always overridden
+            if (
+                sub_exp.run_options != sub_exp._default_run_options()
+                or sub_exp.transpile_options != sub_exp._default_transpile_options()
+            ):
+
+                warnings.warn(
+                    "Sub-experiment run and transpile options"
+                    " are overridden by composite experiment options."
+                )
             sub_data = experiment_data.component_experiment_data(i)
             sub_exp._add_job_metadata(sub_data, job, **run_options)
+
+    def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
+        for expr in self._experiments:
+            if not isinstance(expr, CompositeExperiment):
+                expr._postprocess_transpiled_circuits(circuits, backend, **run_options)

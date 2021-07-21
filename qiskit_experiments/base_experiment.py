@@ -24,6 +24,7 @@ from qiskit.providers.backend import Backend
 from qiskit.providers import BaseJob
 from qiskit.providers.basebackend import BaseBackend as LegacyBackend
 from qiskit.exceptions import QiskitError
+from qiskit.qobj.utils import MeasLevel
 
 from .experiment_data import ExperimentData
 
@@ -68,7 +69,6 @@ class BaseExperiment(ABC):
             self._num_qubits = len(qubits)
             self._physical_qubits = tuple(qubits)
             if self._num_qubits != len(set(self._physical_qubits)):
-                print(self._num_qubits, self._physical_qubits)
                 raise QiskitError("Duplicate qubits in physical qubits list.")
 
         # Experiment options
@@ -76,9 +76,6 @@ class BaseExperiment(ABC):
         self._transpile_options = self._default_transpile_options()
         self._run_options = self._default_run_options()
         self._analysis_options = self._default_analysis_options()
-
-        # Set initial layout from qubits
-        self._transpile_options.initial_layout = list(self._physical_qubits)
 
     def run(
         self,
@@ -110,7 +107,7 @@ class BaseExperiment(ABC):
         else:
             # Validate experiment is compatible with existing data container
             metadata = experiment_data.metadata()
-            if metadata.get("experiment_data") != self._type:
+            if metadata.get("experiment_type") != self._type:
                 raise QiskitError(
                     "Existing ExperimentData contains data from a different experiment."
                 )
@@ -125,7 +122,10 @@ class BaseExperiment(ABC):
         run_opts = run_opts.__dict__
 
         # Generate and transpile circuits
-        circuits = transpile(self.circuits(backend), backend, **self.transpile_options.__dict__)
+        transpile_opts = self.transpile_options.__dict__
+        transpile_opts["initial_layout"] = list(self._physical_qubits)
+        circuits = transpile(self.circuits(backend), backend, **transpile_opts)
+        self._postprocess_transpiled_circuits(circuits, backend, **run_options)
 
         if isinstance(backend, LegacyBackend):
             qobj = assemble(circuits, backend=backend, **run_opts)
@@ -133,15 +133,16 @@ class BaseExperiment(ABC):
         else:
             job = backend.run(circuits, **run_opts)
 
-        # Add Job to ExperimentData
-        experiment_data.add_data(job)
+        # Add Job to ExperimentData and add analysis for post processing.
+        run_analysis = None
 
         # Add experiment option metadata
         self._add_job_metadata(experiment_data, job, **run_opts)
 
-        # Queue analysis of data for when job is finished
         if analysis and self.__analysis_class__ is not None:
-            self.run_analysis(experiment_data)
+            run_analysis = self.run_analysis
+
+        experiment_data.add_data(job, post_processing_callback=run_analysis)
 
         # Return the ExperimentData future
         return experiment_data
@@ -181,6 +182,11 @@ class BaseExperiment(ABC):
         """Return the physical qubits for this experiment."""
         return self._physical_qubits
 
+    @property
+    def experiment_type(self) -> str:
+        """Return experiment type."""
+        return self._type
+
     @classmethod
     def analysis(cls):
         """Return the default Analysis class for the experiment."""
@@ -214,7 +220,8 @@ class BaseExperiment(ABC):
         # Experiment subclasses should override this method to return
         # an `Options` object containing all the supported options for
         # that experiment and their default values. Only options listed
-        # here can be modified later by the `set_options` method.
+        # here can be modified later by the different methods for
+        # setting options.
         return Options()
 
     @property
@@ -270,7 +277,7 @@ class BaseExperiment(ABC):
     @classmethod
     def _default_run_options(cls) -> Options:
         """Default options values for the experiment :meth:`run` method."""
-        return Options()
+        return Options(meas_level=MeasLevel.CLASSIFIED)
 
     @property
     def run_options(self) -> Options:
@@ -307,6 +314,10 @@ class BaseExperiment(ABC):
             fields: The fields to update the options
         """
         self._analysis_options.update_options(**fields)
+
+    def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
+        """Additional post-processing of transpiled circuits before running on backend"""
+        pass
 
     def _metadata(self) -> Dict[str, any]:
         """Return experiment metadata for ExperimentData.

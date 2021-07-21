@@ -13,15 +13,15 @@
 """Spectroscopy tests."""
 
 from typing import Tuple
-from test.mock_iq_backend import MockIQBackend
 import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.qobj.utils import MeasLevel
 from qiskit.test import QiskitTestCase
 
-from qiskit_experiments.characterization.qubit_spectroscopy import QubitSpectroscopy
+from qiskit_experiments.library import QubitSpectroscopy, EFSpectroscopy
 from qiskit_experiments.analysis import get_opt_value
+from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 
 
 class SpectroscopyBackend(MockIQBackend):
@@ -36,7 +36,9 @@ class SpectroscopyBackend(MockIQBackend):
     ):
         """Initialize the spectroscopy backend."""
 
-        self.__configuration__["basis_gates"] = ["spec"]
+        super().__init__(iq_cluster_centers, iq_cluster_width)
+
+        self.configuration().basis_gates = ["x"]
 
         self._linewidth = line_width
         self._freq_offset = freq_offset
@@ -45,8 +47,8 @@ class SpectroscopyBackend(MockIQBackend):
 
     def _compute_probability(self, circuit: QuantumCircuit) -> float:
         """Returns the probability based on the frequency."""
-        set_freq = float(circuit.data[0][0].params[0])
-        delta_freq = set_freq - self._freq_offset
+        freq_shift = next(iter(circuit.calibrations["Spec"]))[1][0]
+        delta_freq = freq_shift - self._freq_offset
         return np.exp(-(delta_freq ** 2) / (2 * self._linewidth ** 2))
 
 
@@ -57,61 +59,107 @@ class TestQubitSpectroscopy(QiskitTestCase):
         """End to end test of the spectroscopy experiment."""
 
         backend = SpectroscopyBackend(line_width=2e6)
+        qubit = 1
+        freq01 = backend.defaults().qubit_freq_est[qubit]
+        frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
-        spec = QubitSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
+        spec = QubitSpectroscopy(qubit, frequencies, unit="Hz")
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
-        result = spec.run(backend).analysis_result(0)
+        expdata = spec.run(backend)
+        expdata.block_for_results()
+        result = expdata.analysis_results(0)
+        result_data = result.data()
 
-        value = get_opt_value(result, "freq")
+        value = get_opt_value(result_data, "freq")
 
-        self.assertTrue(abs(value) < 1e6)
-        self.assertTrue(result["success"])
-        self.assertEqual(result["quality"], "computer_good")
+        self.assertTrue(4.999e9 < value < 5.001e9)
+        self.assertTrue(result_data["success"])
+        self.assertEqual(result.quality, "good")
 
         # Test if we find still find the peak when it is shifted by 5 MHz.
         backend = SpectroscopyBackend(line_width=2e6, freq_offset=5.0e6)
 
-        spec = QubitSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
+        spec = QubitSpectroscopy(qubit, frequencies, unit="Hz")
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
-        result = spec.run(backend).analysis_result(0)
+        expdata = spec.run(backend)
+        expdata.block_for_results()
+        result = expdata.analysis_results(0)
+        result_data = result.data()
 
-        value = get_opt_value(result, "freq")
+        value = get_opt_value(result_data, "freq")
 
-        self.assertTrue(value < 5.1e6)
-        self.assertTrue(value > 4.9e6)
-        self.assertEqual(result["quality"], "computer_good")
+        self.assertTrue(5.0049e9 < value < 5.0051e9)
+        self.assertEqual(result.quality, "good")
 
     def test_spectroscopy_end2end_kerneled(self):
         """End to end test of the spectroscopy experiment on IQ data."""
 
         backend = SpectroscopyBackend(line_width=2e6)
+        qubit = 0
+        freq01 = backend.defaults().qubit_freq_est[qubit]
+        frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21) / 1e6
 
-        spec = QubitSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
-        result = spec.run(backend).analysis_result(0)
+        spec = QubitSpectroscopy(qubit, frequencies, unit="MHz")
+        expdata = spec.run(backend)
+        expdata.block_for_results()
+        result = expdata.analysis_results(0)
+        result_data = result.data()
 
-        value = get_opt_value(result, "freq")
+        value = get_opt_value(result_data, "freq")
 
-        self.assertTrue(abs(value) < 1e6)
-        self.assertTrue(result["success"])
-        self.assertEqual(result["quality"], "computer_good")
+        self.assertTrue(freq01 - 2e6 < value < freq01 + 2e6)
+        self.assertTrue(result_data["success"])
+        self.assertEqual(result.quality, "good")
 
         # Test if we find still find the peak when it is shifted by 5 MHz.
         backend = SpectroscopyBackend(line_width=2e6, freq_offset=5.0e6)
 
-        spec = QubitSpectroscopy(3, np.linspace(-10.0, 10.0, 21), unit="MHz")
-        result = spec.run(backend).analysis_result(0)
+        spec = QubitSpectroscopy(qubit, frequencies, unit="MHz")
+        expdata = spec.run(backend)
+        expdata.block_for_results()
+        result = expdata.analysis_results(0)
+        result_data = result.data()
 
-        value = get_opt_value(result, "freq")
+        value = get_opt_value(result_data, "freq")
 
-        self.assertTrue(value < 5.1e6)
-        self.assertTrue(value > 4.9e6)
-        self.assertEqual(result["quality"], "computer_good")
+        self.assertTrue(freq01 + 3e6 < value < freq01 + 8e6)
+        self.assertEqual(result.quality, "good")
 
         spec.set_run_options(meas_return="avg")
-        result = spec.run(backend).analysis_result(0)
+        expdata = spec.run(backend)
+        expdata.block_for_results()
+        result = expdata.analysis_results(0)
+        result_data = result.data()
 
-        value = get_opt_value(result, "freq")
+        value = get_opt_value(result_data, "freq")
 
-        self.assertTrue(value < 5.1e6)
-        self.assertTrue(value > 4.9e6)
-        self.assertEqual(result["quality"], "computer_good")
+        self.assertTrue(freq01 + 3e6 < value < freq01 + 8e6)
+        self.assertEqual(result.quality, "good")
+
+    def test_spectroscopy12_end2end_classified(self):
+        """End to end test of the spectroscopy experiment with an x pulse."""
+
+        backend = SpectroscopyBackend(line_width=2e6)
+        qubit = 0
+        freq01 = backend.defaults().qubit_freq_est[qubit]
+        frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
+
+        # Note that the backend is not sophisticated enough to simulate an e-f
+        # transition so we run the test with g-e.
+        spec = EFSpectroscopy(qubit, frequencies, unit="Hz")
+        spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
+        expdata = spec.run(backend)
+        expdata.block_for_results()
+        result = expdata.analysis_results(0)
+        result_data = result.data()
+
+        value = get_opt_value(result_data, "freq")
+
+        self.assertTrue(freq01 - 2e6 < value < freq01 + 2e6)
+        self.assertTrue(result_data["success"])
+        self.assertEqual(result.quality, "good")
+
+        # Test the circuits
+        circ = spec.circuits(backend)[0]
+        self.assertEqual(circ.data[0][0].name, "x")
+        self.assertEqual(circ.data[1][0].name, "Spec")

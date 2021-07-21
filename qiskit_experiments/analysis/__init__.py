@@ -52,6 +52,21 @@ Fit Functions
     fit_function.sin
 
 
+Guess Functions
+===============
+.. autosummary::
+    :toctree: ../stubs/
+
+    guess.constant_sinusoidal_offset
+    guess.constant_spectral_offset
+    guess.exp_decay
+    guess.full_width_half_max
+    guess.frequency
+    guess.max_height
+    guess.min_height
+    guess.oscillation_exp_decay
+
+
 Utility
 =======
 .. autosummary::
@@ -63,7 +78,7 @@ Utility
 from .curve_analysis import CurveAnalysis, SeriesDef, CurveData
 
 from .curve_fitting import (
-    CurveAnalysisResult,
+    CurveAnalysisResultData,
     curve_fit,
     multi_curve_fit,
     process_curve_data,
