@@ -92,18 +92,29 @@ class FixedFrequencyTransmon(BasisGateLibrary):
 
     __default_values__ = {"duration": 160, "amp": 0.5, "β": 0.0}
 
-    def __init__(self, default_values: Optional[Dict] = None):
-        """Setup the schedules."""
+    def __init__(self, default_values: Optional[Dict] = None, use_drag: bool = True):
+        """Setup the schedules.
+
+        Args:
+            default_values: Default values for the parameters this dictionary can contain
+                the following keys: "duration", "amp", "β", and "σ". If "σ" is not provided
+                this library will take one fourth of the pulse duration as default value.
+            use_drag: If set to False then Gaussian pulses will be used instead of DRAG
+                pulses.
+        """
         super().__init__(default_values)
 
         dur = Parameter("duration")
         sigma = Parameter("σ")
 
+        def _beta(use_drag):
+            return Parameter("β") if use_drag else None
+
         # X gates
-        sched_x = self._single_qubit_schedule("x", dur, Parameter("amp"), sigma, Parameter("β"))
+        sched_x = self._single_qubit_schedule("x", dur, Parameter("amp"), sigma, _beta(use_drag))
 
         # square-root X gates
-        sched_sx = self._single_qubit_schedule("sx", dur, Parameter("amp"), sigma, Parameter("β"))
+        sched_sx = self._single_qubit_schedule("sx", dur, Parameter("amp"), sigma, _beta(use_drag))
 
         for sched in [sched_x, sched_sx]:
             self._schedules[sched.name] = sched

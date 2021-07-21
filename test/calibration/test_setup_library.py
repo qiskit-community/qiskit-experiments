@@ -19,7 +19,7 @@ from qiskit_experiments.calibration_management.basis_gate_library import FixedFr
 from qiskit_experiments.exceptions import CalibrationError
 
 
-class TestFixedFrequencyTransmonSXRZ(QiskitTestCase):
+class TestFixedFrequencyTransmon(QiskitTestCase):
     """Test the various setup methods."""
 
     def test_standard_single_qubit_gates(self):
@@ -53,7 +53,17 @@ class TestFixedFrequencyTransmonSXRZ(QiskitTestCase):
             self.assertTrue(param_conf in expected)
 
         # Check that an error gets raise if the gate is not in the library.
-        self.assertRaises(CalibrationError, library["bswap"])
+        with self.assertRaises(CalibrationError):
+            print(library["bswap"])
 
         # Test the basis gates of the library.
         self.assertListEqual(library.basis_gates, ["x", "sx"])
+
+    def test_turn_off_drag(self):
+        """Test the use_drag parameter."""
+
+        library = FixedFrequencyTransmon(use_drag=False)
+        self.assertTrue(isinstance(library["x"].blocks[0].pulse, pulse.Gaussian))
+
+        library = FixedFrequencyTransmon()
+        self.assertTrue(isinstance(library["x"].blocks[0].pulse, pulse.Drag))
