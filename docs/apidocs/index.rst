@@ -32,3 +32,4 @@ Experiments Modules
     mod_characterization
     mod_randomized_benchmarking
     mod_tomography
+    mod_quantum_volume
