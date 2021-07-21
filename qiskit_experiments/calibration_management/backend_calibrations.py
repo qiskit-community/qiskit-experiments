@@ -49,7 +49,7 @@ class BackendCalibrations(Calibrations):
         backend: Backend,
         basis_gates: Optional[List[str]] = None,
         library: Type[BasisGateLibrary] = None,
-        library_options: Optional[Dict] = None,
+        **library_options,
     ):
         """Setup an instance to manage the calibrations of a backend.
 
@@ -88,7 +88,7 @@ class BackendCalibrations(Calibrations):
         basis_gates = basis_gates or list()
 
         if library is not None:
-            library_instance = library(library_options)
+            library_instance = library(**library_options)
 
             # Add the basis gates
             for gate in basis_gates:

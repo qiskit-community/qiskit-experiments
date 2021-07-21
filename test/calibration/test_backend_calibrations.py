@@ -37,7 +37,7 @@ class TestBackendCalibrations(QiskitTestCase):
             FakeArmonk(),
             basis_gates=["x", "sx"],
             library=FixedFrequencyTransmonSXRZ,
-            library_options={"duration": 320},
+            default_values={"duration": 320},
         )
 
         # Check the x gate

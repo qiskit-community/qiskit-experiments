@@ -24,7 +24,7 @@ class TestFixedFrequencyTransmonSXRZ(QiskitTestCase):
     def test_standard_single_qubit_gates(self):
         """Test the setup of single-qubit gates."""
 
-        library = FixedFrequencyTransmonSXRZ({"duration": 320})
+        library = FixedFrequencyTransmonSXRZ(default_values={"duration": 320})
 
         for gate in ["x", "sx"]:
             sched = library[gate]
