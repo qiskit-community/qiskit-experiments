@@ -59,14 +59,16 @@ class CompositeExperimentData(ExperimentData):
         ret += f"\nExperiment: {self.experiment_type}"
         ret += f"\nExperiment ID: {self.experiment_id}"
         ret += f"\nStatus: {status}"
+        if status == "ERROR":
+            ret += "\n  "
+            ret += "\n  ".join(self._errors)
         ret += f"\nComponent Experiments: {len(self._components)}"
         ret += f"\nCircuits: {len(self._data)}"
         ret += f"\nAnalysis Results: {n_res}"
         ret += "\n" + line
         if n_res:
-            ret += "\nLast Analysis Result"
-            for key, value in self._analysis_results[-1].items():
-                ret += f"\n- {key}: {value}"
+            ret += "\nLast Analysis Result:"
+            ret += f"\n{str(self._analysis_results.values()[-1])}"
         return ret
 
     def component_experiment_data(

@@ -31,9 +31,9 @@ from qiskit.pulse import (
 from qiskit.pulse.transforms import inline_subroutines, block_to_schedule
 import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
-from qiskit_experiments.calibration.calibrations import Calibrations, ParameterKey
-from qiskit_experiments.calibration.parameter_value import ParameterValue
-from qiskit_experiments.calibration.exceptions import CalibrationError
+from qiskit_experiments.calibration_management.calibrations import Calibrations, ParameterKey
+from qiskit_experiments.calibration_management.parameter_value import ParameterValue
+from qiskit_experiments.exceptions import CalibrationError
 
 
 class TestCalibrationsBasic(QiskitTestCase):

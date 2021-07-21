@@ -19,7 +19,7 @@ from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import AverageData, Probability, SVD, MinMaxNormalize
 
 
-def get_to_signal_processor(
+def get_processor(
     meas_level: MeasLevel = MeasLevel.CLASSIFIED,
     meas_return: str = "avg",
     normalize: bool = True,

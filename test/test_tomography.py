@@ -23,8 +23,9 @@ from qiskit.test import QiskitTestCase
 from qiskit import QuantumCircuit
 import qiskit.quantum_info as qi
 from qiskit.providers.aer import AerSimulator
-from qiskit_experiments.composite import BatchExperiment, ParallelExperiment
-import qiskit_experiments.tomography as tomo
+from qiskit_experiments import BatchExperiment, ParallelExperiment
+from qiskit_experiments.library import StateTomography, ProcessTomography
+
 
 # TODO: tests for CVXPY fitters
 FITTERS = [None, "linear_inversion", "scipy_linear_lstsq", "scipy_gaussian_lstsq"]
@@ -42,11 +43,12 @@ class TestStateTomography(QiskitTestCase):
         seed = 1234
         f_threshold = 0.95
         target = qi.random_statevector(2 ** num_qubits, seed=seed)
-        qstexp = tomo.StateTomography(target)
+        qstexp = StateTomography(target)
         if fitter:
             qstexp.set_analysis_options(fitter=fitter)
         expdata = qstexp.run(backend)
-        result = expdata.analysis_result(-1)
+        expdata.block_for_results()
+        result = expdata.analysis_results(-1).data()
 
         self.assertTrue(result.get("success", False), msg="analysis failed")
 
@@ -71,9 +73,10 @@ class TestStateTomography(QiskitTestCase):
 
         # Teleport qubit 0 -> 2
         backend = AerSimulator()
-        exp = tomo.StateTomography(teleport_circuit(), measurement_qubits=[2])
+        exp = StateTomography(teleport_circuit(), measurement_qubits=[2])
         expdata = exp.run(backend)
-        result = expdata.analysis_result(-1)
+        expdata.block_for_results()
+        result = expdata.analysis_results(-1).data()
 
         # Check result
         f_threshold = 0.95
@@ -119,7 +122,7 @@ class TestStateTomography(QiskitTestCase):
             circ.append(op, [i])
 
         num_meas = len(meas_qubits)
-        exp = tomo.StateTomography(circ, measurement_qubits=meas_qubits)
+        exp = StateTomography(circ, measurement_qubits=meas_qubits)
         tomo_circuits = exp.circuits()
 
         # Check correct number of circuits are generated
@@ -162,9 +165,10 @@ class TestStateTomography(QiskitTestCase):
 
         # Run
         backend = AerSimulator()
-        exp = tomo.StateTomography(circ, measurement_qubits=meas_qubits)
+        exp = StateTomography(circ, measurement_qubits=meas_qubits)
         expdata = exp.run(backend)
-        result = expdata.analysis_result(-1)
+        expdata.block_for_results()
+        result = expdata.analysis_results(-1).data()
 
         # Check result
         f_threshold = 0.95
@@ -201,19 +205,20 @@ class TestStateTomography(QiskitTestCase):
         targets = []
         for i in range(nq):
             targets.append(qi.Statevector(ops[i].to_instruction()))
-            exps.append(tomo.StateTomography(circuit, measurement_qubits=[i]))
+            exps.append(StateTomography(circuit, measurement_qubits=[i]))
 
         # Run batch experiments
         backend = AerSimulator()
         batch_exp = BatchExperiment(exps)
         batch_data = batch_exp.run(backend)
-        batch_result = batch_data.analysis_result(-1)
+        batch_data.block_for_results()
+        batch_result = batch_data.analysis_results(-1).data()
         self.assertTrue(batch_result.get("success"), msg="BatchExperiment failed")
 
         # Check target fidelity of component experiments
         f_threshold = 0.95
         for i in range(batch_exp.num_experiments):
-            result = batch_data.component_experiment_data(i).analysis_result(-1)
+            result = batch_data.component_experiment_data(i).analysis_results(-1).data()
             self.assertTrue(result.get("success", False), msg="component analysis failed")
 
             # Check state is density matrix
@@ -241,20 +246,21 @@ class TestStateTomography(QiskitTestCase):
         exps = []
         targets = []
         for i in range(nq):
-            exps.append(tomo.StateTomography(ops[i], qubits=[i]))
+            exps.append(StateTomography(ops[i], qubits=[i]))
             targets.append(qi.Statevector(ops[i].to_instruction()))
 
         # Run batch experiments
         backend = AerSimulator()
         par_exp = ParallelExperiment(exps)
         par_data = par_exp.run(backend)
-        par_result = par_data.analysis_result(-1)
+        par_data.block_for_results()
+        par_result = par_data.analysis_results(-1).data()
         self.assertTrue(par_result.get("success"), msg="ParallelExperiment failed")
 
         # Check target fidelity of component experiments
         f_threshold = 0.95
         for i in range(par_exp.num_experiments):
-            result = par_data.component_experiment_data(i).analysis_result(-1)
+            result = par_data.component_experiment_data(i).analysis_results(-1).data()
             self.assertTrue(result.get("success", False), msg="component analysis failed")
 
             # Check state is density matrix
@@ -284,11 +290,12 @@ class TestProcessTomography(QiskitTestCase):
         seed = 1234
         f_threshold = 0.94
         target = qi.random_unitary(2 ** num_qubits, seed=seed)
-        qstexp = tomo.ProcessTomography(target)
+        qstexp = ProcessTomography(target)
         if fitter:
             qstexp.set_analysis_options(fitter=fitter)
         expdata = qstexp.run(backend)
-        result = expdata.analysis_result(-1)
+        expdata.block_for_results()
+        result = expdata.analysis_results(-1).data()
 
         self.assertTrue(result.get("success", False), msg="analysis failed")
 
@@ -317,7 +324,7 @@ class TestProcessTomography(QiskitTestCase):
             circ.append(op, [i])
 
         num_meas = len(qubits)
-        exp = tomo.ProcessTomography(circ, measurement_qubits=qubits, preparation_qubits=qubits)
+        exp = ProcessTomography(circ, measurement_qubits=qubits, preparation_qubits=qubits)
         tomo_circuits = exp.circuits()
 
         # Check correct number of circuits are generated
@@ -361,9 +368,10 @@ class TestProcessTomography(QiskitTestCase):
 
         # Run
         backend = AerSimulator()
-        exp = tomo.ProcessTomography(circ, measurement_qubits=qubits, preparation_qubits=qubits)
+        exp = ProcessTomography(circ, measurement_qubits=qubits, preparation_qubits=qubits)
         expdata = exp.run(backend)
-        result = expdata.analysis_result(-1)
+        expdata.block_for_results()
+        result = expdata.analysis_results(-1).data()
 
         # Check result
         f_threshold = 0.95
@@ -388,11 +396,10 @@ class TestProcessTomography(QiskitTestCase):
 
         # Teleport qubit 0 -> 2
         backend = AerSimulator()
-        exp = tomo.ProcessTomography(
-            teleport_circuit(), measurement_qubits=[2], preparation_qubits=[0]
-        )
+        exp = ProcessTomography(teleport_circuit(), measurement_qubits=[2], preparation_qubits=[0])
         expdata = exp.run(backend, shots=10000)
-        result = expdata.analysis_result(-1)
+        expdata.block_for_results()
+        result = expdata.analysis_results(-1).data()
 
         # Check result
         f_threshold = 0.95
@@ -422,21 +429,20 @@ class TestProcessTomography(QiskitTestCase):
         targets = []
         for i in range(nq):
             targets.append(ops[i])
-            exps.append(
-                tomo.ProcessTomography(circuit, measurement_qubits=[i], preparation_qubits=[i])
-            )
+            exps.append(ProcessTomography(circuit, measurement_qubits=[i], preparation_qubits=[i]))
 
         # Run batch experiments
         backend = AerSimulator()
         batch_exp = BatchExperiment(exps)
         batch_data = batch_exp.run(backend)
-        batch_result = batch_data.analysis_result(-1)
+        batch_data.block_for_results()
+        batch_result = batch_data.analysis_results(-1).data()
         self.assertTrue(batch_result.get("success"), msg="BatchExperiment failed")
 
         # Check target fidelity of component experiments
         f_threshold = 0.95
         for i in range(batch_exp.num_experiments):
-            result = batch_data.component_experiment_data(i).analysis_result(-1)
+            result = batch_data.component_experiment_data(i).analysis_results(-1).data()
             self.assertTrue(result.get("success", False), msg="component analysis failed")
 
             # Check state is density matrix
@@ -462,20 +468,21 @@ class TestProcessTomography(QiskitTestCase):
         exps = []
         targets = []
         for i in range(nq):
-            exps.append(tomo.ProcessTomography(ops[i], qubits=[i]))
+            exps.append(ProcessTomography(ops[i], qubits=[i]))
             targets.append(ops[i])
 
         # Run batch experiments
         backend = AerSimulator()
         par_exp = ParallelExperiment(exps)
         par_data = par_exp.run(backend)
-        par_result = par_data.analysis_result(-1)
+        par_data.block_for_results()
+        par_result = par_data.analysis_results(-1).data()
         self.assertTrue(par_result.get("success"), msg="ParallelExperiment failed")
 
         # Check target fidelity of component experiments
         f_threshold = 0.95
         for i in range(par_exp.num_experiments):
-            result = par_data.component_experiment_data(i).analysis_result(-1)
+            result = par_data.component_experiment_data(i).analysis_results(-1).data()
             self.assertTrue(result.get("success", False), msg="component analysis failed")
 
             # Check state is density matrix

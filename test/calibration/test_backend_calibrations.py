@@ -14,7 +14,7 @@
 
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeArmonk
-from qiskit_experiments.calibration.backend_calibrations import BackendCalibrations
+from qiskit_experiments.calibration_management import BackendCalibrations
 
 
 class TestBackendCalibrations(QiskitTestCase):
