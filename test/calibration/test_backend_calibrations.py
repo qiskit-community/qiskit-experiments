@@ -12,9 +12,12 @@
 
 """Class to test the backend calibrations."""
 
+import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeArmonk
+
 from qiskit_experiments.calibration_management import BackendCalibrations
+from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmonSXRZ
 
 
 class TestBackendCalibrations(QiskitTestCase):
@@ -26,3 +29,25 @@ class TestBackendCalibrations(QiskitTestCase):
 
         self.assertEqual(cals.get_meas_frequencies(), [6993370669.000001])
         self.assertEqual(cals.get_qubit_frequencies(), [4971852852.405576])
+
+    def test_setup_withLibrary(self):
+        """Test that we can setup with a library."""
+
+        cals = BackendCalibrations(
+            FakeArmonk(),
+            basis_gates=["x", "sx"],
+            library=FixedFrequencyTransmonSXRZ,
+            library_options={"duration": 320},
+        )
+
+        # Check the x gate
+        with pulse.build(name="x") as expected:
+            pulse.play(pulse.Drag(duration=320, amp=0.5, sigma=80, beta=0), pulse.DriveChannel(0))
+
+        self.assertEqual(cals.get_schedule("x", (0,)), expected)
+
+        # Check the sx gate
+        with pulse.build(name="sx") as expected:
+            pulse.play(pulse.Drag(duration=320, amp=0.25, sigma=80, beta=0), pulse.DriveChannel(0))
+
+        self.assertEqual(cals.get_schedule("sx", (0,)), expected)
