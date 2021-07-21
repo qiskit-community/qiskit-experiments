@@ -24,12 +24,12 @@ from qiskit.qobj.utils import MeasLevel
 import qiskit.pulse as pulse
 
 from qiskit_experiments import ExperimentData
-from qiskit_experiments.calibration import Rabi, EFRabi
+from qiskit_experiments.library import Rabi, EFRabi
 
-from qiskit_experiments.calibration.analysis.oscillation_analysis import OscillationAnalysis
+from qiskit_experiments.library.calibration.analysis.oscillation_analysis import OscillationAnalysis
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
-from qiskit_experiments.composite.parallel_experiment import ParallelExperiment
+from qiskit_experiments import ParallelExperiment
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 
 

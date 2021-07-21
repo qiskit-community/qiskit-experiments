@@ -18,7 +18,7 @@ from qiskit.test import QiskitTestCase
 from qiskit.pulse import DriveChannel, Drag
 import qiskit.pulse as pulse
 
-from qiskit_experiments.calibration.fine_amplitude import FineAmplitude
+from qiskit_experiments.library import FineAmplitude
 from qiskit_experiments.test.mock_iq_backend import MockFineAmp
 from qiskit_experiments.exceptions import CalibrationError
 
