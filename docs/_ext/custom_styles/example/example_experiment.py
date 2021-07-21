@@ -28,7 +28,7 @@ class DocumentedCurveAnalysis(CurveAnalysis):
     r"""One line summary of this class. This is shown in the top level contains list.
 
     # section: overview
-        Overview of this experiment. It is recommended to write this section.
+        Overview of this analysis. It is recommended to write this section.
         Here you can explain technical aspect of fit algorithm or fit model.
         Standard reStructuredText directives can be used.
 
@@ -89,10 +89,15 @@ class DocumentedCurveAnalysis(CurveAnalysis):
         .. note::
 
             This method documentation should conforms to the below documentation syntax.
-            Namely, the title should be "Analysis Options" and description should be
-            written in the Google docstring style. Numpy style is not accepted.
-            Documentation except for the experiment options will be just ignored, e.g. this note.
-            If experiment options contains some values from the parent class,
+            Namely, the title should be "Analysis Options" followed by a single colon
+            and description should be written in the Google docstring style.
+            Numpy style is not accepted.
+
+            Google style docstring guideline:
+            https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html
+
+            Documentation except for the analysis options will be just ignored, e.g. this note.
+            If analysis options contains some values from the parent class,
             the custom Sphinx parser searches for the parent class method documentation
             and automatically generate documentation for all available options.
             If there is any missing documentation the Sphinx build will fail.
@@ -171,8 +176,13 @@ class DocumentedExperiment(BaseExperiment):
         .. note::
 
             This method documentation should conforms to the below documentation syntax.
-            Namely, the title should be "Experiment Options" and description should be
-            written in the Google docstring style. Numpy style is not accepted.
+            Namely, the title should be "Experiment Options" followed by a single colon
+            and description should be written in the Google docstring style.
+            Numpy style is not accepted.
+
+            Google style docstring guideline:
+            https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html
+
             Documentation except for the experiment options will be just ignored, e.g. this note.
             If experiment options contains some values from the parent class,
             the custom Sphinx parser searches for the parent class method documentation
