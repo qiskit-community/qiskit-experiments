@@ -13,6 +13,12 @@
 """Different data analysis steps."""
 
 from abc import abstractmethod
+from qiskit_experiments.measurement.discriminator.twoleveldiscriminator_experiment import (
+    TwoLevelDiscriminator,
+)
+from qiskit_experiments.measurement.discriminator.twoleveldiscriminator_analysis import (
+    TwoLevelDiscriminatorAnalysis,
+)
 from typing import Any, Dict, List, Optional, Tuple, Union
 import numpy as np
 
@@ -21,7 +27,6 @@ from qiskit_experiments.composite import CompositeExperimentData
 
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
 
 
 class AverageData(DataAction):
@@ -394,18 +399,18 @@ class ToImag(IQPart):
             return datum[..., 1] * self.scale, None
 
 
-class Discriminate(TrainableDataAction):
+class TwoLevelDiscriminate(TrainableDataAction):
     """Base class for discriminator processor. Takes IQ data and calibrated discriminator as input,
     outputs counts."""
 
     def __init__(self, handle: ExperimentData, validate: bool = True):
-        """Initialize a counts to probability data conversion.
+        """Initialize a kerneled data to counts data conversion node.
 
         Args:
             validate: If set to False the DataAction will not validate its input.
         """
         self._handle = handle
-        self._analysis = None
+        self._analysis = TwoLevelDiscriminatorAnalysis()
         self.train(self._handle)
         super().__init__(validate)
 
@@ -416,10 +421,10 @@ class Discriminate(TrainableDataAction):
     def train(self, data: List[Any]):
         if not data:
             return
-        if isinstance(data, CompositeExperimentData) is True:
-            self._analysis = lambda q: data.component_experiment_data(q).analysis_result(0)
-        elif isinstance(data, ExperimentData) is True:
-            self._analysis = data.analysis_result
+        if isinstance(data, CompositeExperimentData):
+            self._analysis = lambda q: data.component_experiment_data(q).analysis_results(0)
+        elif isinstance(data, ExperimentData):
+            self._analysis = data.analysis_results
         else:
             raise DataProcessorError("Invalid training data input type")
 

@@ -20,15 +20,17 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit.test import QiskitTestCase
 
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
-from qiskit_experiments.measurement.discriminator import Discriminator
-from qiskit_experiments.data_processing.nodes import Probability, Discriminate
+from qiskit_experiments.measurement.discriminator.twoleveldiscriminator_experiment import (
+    TwoLevelDiscriminator,
+)
+from qiskit_experiments.data_processing.nodes import Probability, TwoLevelDiscriminate
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.composite import ParallelExperiment
 
 
-class DiscriminatorBackend(MockIQBackend):
+class TwoLevelDiscriminatorBackend(MockIQBackend):
     """
-    A simple backend that generates gaussian data for discriminator tests
+    A simple backend that generates gaussian data for TwoLevelDiscriminator tests
     """
 
     def __init__(
@@ -37,7 +39,7 @@ class DiscriminatorBackend(MockIQBackend):
         iq_cluster_width: float = 1.5,
     ):
         """
-        Initialize the discriminator backend
+        Initialize the TwoLevelDiscriminator backend
         """
         super().__init__(iq_cluster_centers, iq_cluster_width)
         self.configuration().basis_gates = ["x"]
@@ -50,27 +52,25 @@ class DiscriminatorBackend(MockIQBackend):
             return 0
 
 
-class TestDiscriminator(QiskitTestCase):
-    """Class to test the discriminator."""
+class TestTwoLevelDiscriminator(QiskitTestCase):
+    """Class to test the TwoLevelDiscriminator."""
 
     def test_single_qubit(self):
-        """Test the default LDA discriminator works on one qubit."""
-        backend = DiscriminatorBackend()
-        exp = Discriminator(1)
-        exp.set_run_options(meas_level=MeasLevel.KERNELED)
-        res = exp.run(backend, shots=1000, meas_return="single").analysis_result(0)
+        """Test the default LDA TwoLevelDiscriminator works on one qubit."""
+        backend = TwoLevelDiscriminatorBackend()
+        exp = TwoLevelDiscriminator(1)
+        res = exp.run(backend, shots=1000).analysis_results(0)
         self.assertEqual(res["success"], True)
         self.assertAlmostEqual(res["coef"][0][0], 0.9051186)
         self.assertAlmostEqual(res["coef"][0][1], 0.87117249)
         self.assertAlmostEqual(res["intercept"][0], 0.04186)
 
     def test_single_qubit_qda(self):
-        """Test that the QDA discriminator works on one qubit."""
-        backend = DiscriminatorBackend()
-        exp = Discriminator(1)
-        exp.set_analysis_options(discriminator_type="QDA")
-        exp.set_run_options(meas_level=MeasLevel.KERNELED)
-        res = exp.run(backend, shots=1000, meas_return="single").analysis_result(0)
+        """Test that the QDA TwoLevelDiscriminator works on one qubit."""
+        backend = TwoLevelDiscriminatorBackend()
+        exp = TwoLevelDiscriminator(1)
+        exp.set_analysis_options(Discriminator_type="QDA")
+        res = exp.run(backend, shots=1000).analysis_results(0)
         self.assertEqual(res["success"], True)
 
         self.assertTrue(
@@ -87,34 +87,36 @@ class TestDiscriminator(QiskitTestCase):
         )
 
     def test_discriminate_data_processor_node(self):
-        """Test that the discriminator works in the data processing chain."""
-        backend = DiscriminatorBackend()
-        exp = Discriminator(1)
-        exp.set_analysis_options(discriminator_type="LDA")
-        exp.set_run_options(meas_level=MeasLevel.KERNELED)
+        """Test that the TwoLevelDiscriminator works in the data processing chain."""
+        backend = TwoLevelDiscriminatorBackend()
+        exp = TwoLevelDiscriminator(1)
+        exp.set_analysis_options(Discriminator_type="LDA")
         lda_res = exp.run(backend, shots=1000)
-        processor = DataProcessor("memory", [Discriminate(lda_res)])
+        processor = DataProcessor("memory", [TwoLevelDiscriminate(lda_res)])
         processor.append(Probability("0"))
         datum = processor(lda_res.data(0))
         self.assertTrue(np.allclose(datum, (0.821, 0.012122664723566351)))
 
-        backend = DiscriminatorBackend()
-        exp = Discriminator(1)
-        exp.set_analysis_options(discriminator_type="QDA")
-        exp.set_run_options(meas_level=MeasLevel.KERNELED)
+        backend = TwoLevelDiscriminatorBackend()
+        exp = TwoLevelDiscriminator(1)
+        exp.set_analysis_options(Discriminator_type="QDA")
         qda_res = exp.run(backend, shots=1000)
-        qda_processor = DataProcessor("memory", [Discriminate(qda_res)])
+        qda_processor = DataProcessor("memory", [TwoLevelDiscriminate(qda_res)])
         qda_processor.append(Probability("0"))
         datum = qda_processor(qda_res.data(0))
         self.assertTrue(np.allclose(datum, (0.819, 0.012175343937647102)))
 
-    def test_parallel_discriminator(self):
-        """Test the discriminator data processor works correctly on multiple qubits."""
-        backend = DiscriminatorBackend()
-        par_exp = ParallelExperiment([Discriminator(0), Discriminator(1)])
+    def test_parallel_TwoLevelDiscriminator(self):
+        """Test the TwoLevelDiscriminator data processor works correctly on multiple qubits."""
+        backend = TwoLevelDiscriminatorBackend()
+        par_exp = ParallelExperiment([TwoLevelDiscriminator(0), TwoLevelDiscriminator(1)])
         par_exp.set_run_options(meas_level=MeasLevel.KERNELED, meas_return="single")
         par_expdata = par_exp.run(backend, shots=1000)
-        processor = DataProcessor("memory", [Discriminate(par_expdata)])
+        processor = DataProcessor("memory", [TwoLevelDiscriminate(par_expdata)])
         processor.append(Probability("01"))
         datum = processor([par_expdata.data(0), par_expdata.data(1)])
         self.assertAlmostEqual(datum[0], 0.682)
+
+    def test_training_TwoLevelDiscriminator(self):
+        """Test that the discrminator node can be trained."""
+        pass

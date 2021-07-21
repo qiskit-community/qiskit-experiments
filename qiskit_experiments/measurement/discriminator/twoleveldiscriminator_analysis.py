@@ -21,10 +21,12 @@ from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.base_analysis import BaseAnalysis
 from qiskit_experiments.analysis import plotting
-from qiskit_experiments import AnalysisResult
+from qiskit_experiments.analysis.curve_fitting import (
+    CurveAnalysisResultData,
+)
 
 
-class DiscriminatorAnalysis(BaseAnalysis):
+class TwoLevelDiscriminatorAnalysis(BaseAnalysis):
     @classmethod
     def _default_options(cls):
         return Options(
@@ -40,7 +42,7 @@ class DiscriminatorAnalysis(BaseAnalysis):
         data_processor: Optional[callable] = None,
         plot: bool = True,
         **options,
-    ) -> Tuple[AnalysisResult, List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[CurveAnalysisResultData, List["matplotlib.figure.Figure"]]:
         """Run analysis on discriminator data.
         Args:
             experiment_data (ExperimentData): The experiment data to analyze.
@@ -94,7 +96,7 @@ class DiscriminatorAnalysis(BaseAnalysis):
             figures = None
 
         if discriminator_type == "LDA":
-            analysis_result = AnalysisResult(
+            analysis_result = CurveAnalysisResultData(
                 {
                     "discriminator": discriminator,
                     "coef": discriminator.coef_,
@@ -104,7 +106,7 @@ class DiscriminatorAnalysis(BaseAnalysis):
             )
 
         elif discriminator_type == "QDA":
-            analysis_result = AnalysisResult(
+            analysis_result = CurveAnalysisResultData(
                 {
                     "discriminator": discriminator,
                     "rotations": discriminator.rotations_,

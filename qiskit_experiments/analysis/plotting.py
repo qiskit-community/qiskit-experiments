@@ -230,10 +230,6 @@ def plot_contourf(
 
     # Default plot options
     plot_opts = kwargs.copy()
-    # if "c" not in plot_opts:
-    #     plot_opts["c"] = "grey"
-    # if "marker" not in plot_opts:
-    #     plot_opts["marker"] = "x"
 
     # Plot data
     ax.contourf(xdata, ydata, zdata, **plot_opts)

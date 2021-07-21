@@ -13,10 +13,7 @@
 Standard discriminator experiment class.
 """
 
-from typing import List, Optional, Union, Iterable, Tuple
-import numpy as np
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
-
+from typing import List, Optional
 
 from qiskit_experiments.base_experiment import BaseExperiment
 
@@ -24,14 +21,14 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
 
-from .discriminator_analysis import DiscriminatorAnalysis
+from .twoleveldiscriminator_analysis import TwoLevelDiscriminatorAnalysis
 
 
-class Discriminator(BaseExperiment):
-    """Discriminator Experiment class"""
+class TwoLevelDiscriminator(BaseExperiment):
+    """0 and 1 Discriminator Experiment class"""
 
     # Analysis class for experiment
-    __analysis_class__ = DiscriminatorAnalysis
+    __analysis_class__ = TwoLevelDiscriminatorAnalysis
 
     @classmethod
     def _default_run_options(cls) -> Options:

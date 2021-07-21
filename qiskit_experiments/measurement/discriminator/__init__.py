@@ -9,6 +9,30 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""
+=======================================================================================
+Discriminator Experiments (:mod:`qiskit_experiments.measurememt.discriminator`)
+=======================================================================================
 
-from .discriminator_experiment import Discriminator
-from .discriminator_analysis import DiscriminatorAnalysis
+.. currentmodule:: qiskit_experiments.discriminator
+
+The discriminator classifies kerneled data to state data.
+
+Experiments
+===========
+.. autosummary::
+    :toctree: ../stubs/
+
+    TwoLevelDiscriminator
+
+
+Analysis
+========
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    TwoLevelDiscriminatorAnalysis
+"""
+from .twoleveldiscriminator_experiment import TwoLevelDiscriminator
+from .twoleveldiscriminator_analysis import TwoLevelDiscriminatorAnalysis
