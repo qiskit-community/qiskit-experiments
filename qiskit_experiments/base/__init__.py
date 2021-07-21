@@ -60,13 +60,16 @@ allow configuring various experiment and execution options
 
 - :meth:`BaseExperiment._default_experiment_options`
   to set default values for configurable option parameters for the experiment.
-- :meth:`BaseExperiment._default_analysis_options`
-  to set default values for configurable options for the experiments analysis class.
 - :meth:`BaseExperiment._default_transpile_options`
   to set custom default values for the ``qiskit.transpile`` used to
   transpile the generated circuits before execution.
 - :meth:`BaseExperiment._default_run_options`
   to set default backend options for running the transpiled circuits on a backend.
+- :meth:`BaseExperiment._default_analysis_options`
+  to set default values for configurable options for the experiments analysis class.
+  Note that these should generally be set by overriding the :class:`BaseAnalysis`
+  method :meth:`BaseAnalysis._default_options` instead of this method except in the
+  case where the experiment requires different defaults to the used analysis class.
 - :meth:`BaseExperiment._post_process_transpiled_circuits`
   to implement any post-processing of the transpiled circuits before execution.
 - :meth:`BaseExperiment._additional_metadata`
