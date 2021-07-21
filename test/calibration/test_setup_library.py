@@ -41,11 +41,11 @@ class TestFixedFrequencyTransmonSXRZ(QiskitTestCase):
             (0.5, "amp", (), "x"),
             (0.0, "β", (), "x"),
             (320, "duration", (), "x"),
-            (40, "σ", (), "x"),
+            (80, "σ", (), "x"),
             (320, "duration", (), "sx"),
             (0.0, "β", (), "sx"),
             (0.25, "amp", (), "sx"),
-            (40, "σ", (), "sx"),
+            (80, "σ", (), "sx"),
         ]
 
         for param_conf in library.default_values():
