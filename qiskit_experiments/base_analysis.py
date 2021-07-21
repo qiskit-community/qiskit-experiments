@@ -108,7 +108,6 @@ class BaseAnalysis(ABC):
                 analysis_result = DbAnalysisResultV1(result_data=res, **analysis_result_parameters)
                 if "quality" in res:
                     analysis_result.quality = res["quality"]
-                    analysis_result.verified = True
                 analysis_results.append(analysis_result)
 
         except AnalysisError as ex:
