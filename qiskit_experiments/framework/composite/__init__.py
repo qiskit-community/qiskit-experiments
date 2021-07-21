@@ -10,39 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""
-===========================================================
-Composite Experiments (:mod:`qiskit_experiments.composite`)
-===========================================================
-
-.. currentmodule:: qiskit_experiments.composite
-
-Experiments
-===========
-.. autosummary::
-    :toctree: ../stubs/
-
-    ParallelExperiment
-    BatchExperiment
-
-
-Analysis
-========
-
-.. autosummary::
-    :toctree: ../stubs/
-
-    CompositeAnalysis
-
-
-Experiment Data
-===============
-
-.. autosummary::
-    :toctree: ../stubs/
-
-    CompositeExperimentData
-"""
+"""Composite Experiments"""
 
 # Base classes
 from .composite_experiment_data import CompositeExperimentData

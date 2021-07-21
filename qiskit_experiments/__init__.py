@@ -24,15 +24,6 @@ Qiskit Experiments (:mod:`qiskit_experiments`)
     encounter any bugs please open an issue on
     `Github <https://github.com/Qiskit/qiskit-experiments/issues>`_
 
-Classes
-=======
-
-.. autosummary::
-    :toctree: ../stubs/
-
-    ~composite.BatchExperiment
-    ~composite.ParallelExperiment
-
 Modules
 =======
 
@@ -40,7 +31,7 @@ Modules
 
     * - :mod:`~qiskit_experiments.library`
       - Library of available experiments.
-    * - :framework:`~qiskit_experiments.framework`
+    * - :mod:`~qiskit_experiments.framework`
       - Core classes for experiments and analysis.
     * - :mod:`~qiskit_experiments.data_processing`
       - Tools for building data processor workflows of experiment
@@ -64,13 +55,10 @@ accessed by importing the following modules.
 
 from .version import __version__
 
-from .composite import BatchExperiment, ParallelExperiment
-
 # Modules
 from . import framework
 from . import library
 from . import curve_analysis
 from . import calibration_management
-from . import composite
 from . import data_processing
 from . import database_service

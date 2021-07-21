@@ -13,7 +13,6 @@ Package Modules
     main
     framework
     library
-    composite
     data_processing
     curve_analysis
     calibration_management

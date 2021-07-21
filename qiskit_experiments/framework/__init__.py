@@ -25,14 +25,33 @@ Experiment Framework (:mod:`qiskit_experiments.framework`)
 Classes
 =======
 
+Experiment Data Classes
+***********************
 .. autosummary::
     :toctree: ../stubs/
 
-    ExperimentData
     AnalysisResultData
+    ExperimentData
+
+Composite Experiment Classes
+****************************
+.. autosummary::
+    :toctree: ../stubs/
+
+    ParallelExperiment
+    BatchExperiment
+    CompositeAnalysis
+    CompositeExperimentData
+
+Base Classes
+************
+
+.. autosummary::
+    :toctree: ../stubs/
+
     BaseExperiment
     BaseAnalysis
-    Options
+
 
 Creating Experiments
 ====================
@@ -99,3 +118,9 @@ from qiskit.providers.options import Options
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
 from .experiment_data import ExperimentData, AnalysisResultData
+from .composite import (
+    ParallelExperiment,
+    BatchExperiment,
+    CompositeAnalysis,
+    CompositeExperimentData,
+)
