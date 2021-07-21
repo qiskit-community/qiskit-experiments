@@ -48,7 +48,7 @@ class InterleavedRB(StandardRB):
            `arXiv:quant-ph/1203.4550 <https://arxiv.org/pdf/1203.4550>`_
 
     Analysis Class
-        :class:`~qiskit.experiments.randomized_benchmarking.InterleavedRBAnalysis`
+        :class:`InterleavedRBAnalysis`
 
     Experiment Options
         - **lengths**: A list of RB sequences lengths.

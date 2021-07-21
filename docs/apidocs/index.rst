@@ -4,26 +4,22 @@
 Qiskit Experiments API Reference
 ================================
 
-.. toctree::
-    :maxdepth: 1
-
-    main
-    library
-
-Utility Modules
+Package Modules
 ===============
 
 .. toctree::
     :maxdepth: 1
 
-    mod_analysis
-    mod_calibration_management
-    mod_composite
-    mod_data_processing
-    mod_database_service
+    main
+    framework
+    library
+    data_processing
+    curve_analysis
+    calibration_management
+    database_service
 
-Experiments Modules
-===================
+Experiment Modules
+==================
 
 .. toctree::
     :maxdepth: 1
@@ -32,3 +28,4 @@ Experiments Modules
     mod_characterization
     mod_randomized_benchmarking
     mod_tomography
+    mod_quantum_volume

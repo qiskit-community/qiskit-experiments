@@ -20,7 +20,7 @@ import numpy as np
 from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit.result import Result
 
-from qiskit_experiments import ExperimentData
+from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.nodes import (

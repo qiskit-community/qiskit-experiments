@@ -20,7 +20,7 @@ import numpy as np
 from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
 
-from qiskit_experiments.experiment_data import ExperimentData
+from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue

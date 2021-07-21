@@ -23,9 +23,8 @@ from qiskit.quantum_info import Clifford
 from qiskit.providers.options import Options
 from qiskit.circuit import Gate
 
-from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.analysis.data_processing import probability
-from qiskit_experiments.composite import ParallelExperiment
+from qiskit_experiments.framework import BaseExperiment, ParallelExperiment
+from qiskit_experiments.curve_analysis.data_processing import probability
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
 from .rb_utils import RBUtils
@@ -35,7 +34,13 @@ class StandardRB(BaseExperiment):
     """Standard Randomized Benchmarking Experiment class.
 
     Overview
-        A standard randomized benchmarking (RB) experiment generates sequences of random Cliffords
+        Randomized Benchmarking (RB) is an efficient and robust method
+        for estimating the average error-rate of a set of quantum gate operations.
+        See `Qiskit Textbook
+        <https://qiskit.org/textbook/ch-quantum-hardware/randomized-benchmarking.html>`_
+        for an explanation on the RB method.
+
+        A standard RB experiment generates sequences of random Cliffords
         such that the unitary computed by the sequences is the identity.
         After running the sequences on a backend, it calculates the probabilities to get back to
         the ground state, fits an exponentially decaying curve, and estimates
@@ -60,7 +65,7 @@ class StandardRB(BaseExperiment):
            <https://arxiv.org/pdf/1712.06550>`_
 
     Analysis Class
-        :class:`~qiskit.experiments.randomized_benchmarking.RBAnalysis`
+        :class:`RBAnalysis`
 
     Experiment Options
         - **lengths**: A list of RB sequences lengths.
