@@ -10,6 +10,30 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Quantum Volume Experiment Classes."""
+"""
+=======================================================================================
+Quantum Volume Experiment (:mod:`qiskit_experiments.library.quantum_volume`)
+=======================================================================================
+
+.. currentmodule:: qiskit_experiments.library.quantum_volume
+
+
+Experiments
+===========
+.. autosummary::
+    :toctree: ../stubs/
+
+    QuantumVolume
+
+
+Analysis
+========
+
+.. autosummary::
+    :toctree: ../stubs/
+
+    QuantumVolumeAnalysis
+"""
+
 from .qv_experiment import QuantumVolume
 from .qv_analysis import QuantumVolumeAnalysis
