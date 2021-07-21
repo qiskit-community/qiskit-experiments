@@ -24,6 +24,7 @@ import qiskit.pulse as pulse
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.calibration_management.calibration_key_types import ParameterValueType
+from qiskit_experiments.exceptions import CalibrationError
 
 
 class BasisGateLibrary(ABC):
@@ -45,6 +46,9 @@ class BasisGateLibrary(ABC):
 
     def __getitem__(self, name: str) -> ScheduleBlock:
         """Return the schedule."""
+        if name not in self._schedules:
+            raise CalibrationError(f"Gate {name} is not contained in {self.__class__.__name__}.")
+
         return self._schedules[name]
 
     @abstractmethod

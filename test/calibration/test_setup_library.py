@@ -16,6 +16,7 @@ import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
 
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmonSXRZ
+from qiskit_experiments.exceptions import CalibrationError
 
 
 class TestFixedFrequencyTransmonSXRZ(QiskitTestCase):
@@ -50,3 +51,6 @@ class TestFixedFrequencyTransmonSXRZ(QiskitTestCase):
 
         for param_conf in library.default_values():
             self.assertTrue(param_conf in expected)
+
+        # Check that an error gets raise if the gate is not in the library.
+        self.assertRaises(CalibrationError, library["bswap"])
