@@ -81,7 +81,7 @@ class QiskitExperimentDocstring(ABC):
         temp_lines = list()
         margin = sys.maxsize
         for docstring_line in docstrings:
-            match = re.match(section_regex, docstring_line)
+            match = re.match(section_regex, docstring_line.strip())
             if match:
                 section_name = match["section_name"]
                 if section_name in self.__sections__:
@@ -98,7 +98,7 @@ class QiskitExperimentDocstring(ABC):
                 continue
 
             # calculate section indent
-            if len(docstring_line) > 0:
+            if len(docstring_line) > 0 and not docstring_line.isspace():
                 # ignore empty line
                 indent = len(docstring_line) - len(docstring_line.lstrip())
                 margin = min(indent, margin)

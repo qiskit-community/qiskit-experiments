@@ -14,6 +14,7 @@
 A class that formats documentation sections.
 """
 from typing import List
+from .utils import _check_no_indent
 
 
 class DocstringSectionFormatter:
@@ -33,6 +34,7 @@ class DocstringSectionFormatter:
 
         return format_lines
 
+    @_check_no_indent
     def format_overview(self, lines: List[str]) -> List[str]:
         """Format overview section."""
         format_lines = [".. rubric:: Overview", ""]
@@ -41,6 +43,7 @@ class DocstringSectionFormatter:
 
         return format_lines
 
+    @_check_no_indent
     def format_reference(self, lines: List[str]) -> List[str]:
         """Format reference section."""
         format_lines = [".. rubric:: References", ""]
@@ -58,6 +61,7 @@ class DocstringSectionFormatter:
 
         return format_lines
 
+    @_check_no_indent
     def format_example(self, lines: List[str]) -> List[str]:
         """Format example section."""
         format_lines = [".. rubric:: Example", ""]
@@ -75,6 +79,7 @@ class DocstringSectionFormatter:
 
         return format_lines
 
+    @_check_no_indent
     def format_tutorial(self, lines: List[str]) -> List[str]:
         """Format tutorial section."""
         format_lines = [".. rubric:: Tutorials", ""]
@@ -87,6 +92,7 @@ class DocstringSectionFormatter:
 class ExperimentSectionFormatter(DocstringSectionFormatter):
     """Formatter for experiment class."""
 
+    @_check_no_indent
     def format_analysis_ref(self, lines: List[str]) -> List[str]:
         """Format analysis class reference section."""
         format_lines = [".. rubric:: Analysis Class Reference", ""]
@@ -95,6 +101,7 @@ class ExperimentSectionFormatter(DocstringSectionFormatter):
 
         return format_lines
 
+    @_check_no_indent
     def format_experiment_opts(self, lines: List[str]) -> List[str]:
         """Format experiment options section."""
         format_lines = [
@@ -108,6 +115,7 @@ class ExperimentSectionFormatter(DocstringSectionFormatter):
 
         return format_lines
 
+    @_check_no_indent
     def format_analysis_opts(self, lines: List[str]) -> List[str]:
         """Format analysis options section."""
         format_lines = [
@@ -121,6 +129,7 @@ class ExperimentSectionFormatter(DocstringSectionFormatter):
 
         return format_lines
 
+    @_check_no_indent
     def format_transpiler_opts(self, lines: List[str]) -> List[str]:
         """Format transpiler options section."""
         format_lines = [
@@ -134,6 +143,7 @@ class ExperimentSectionFormatter(DocstringSectionFormatter):
 
         return format_lines
 
+    @_check_no_indent
     def format_run_opts(self, lines: List[str]) -> List[str]:
         """Format run options section."""
         format_lines = [
@@ -151,6 +161,7 @@ class ExperimentSectionFormatter(DocstringSectionFormatter):
 class AnalysisSectionFormatter(DocstringSectionFormatter):
     """Formatter for analysis class."""
 
+    @_check_no_indent
     def format_analysis_opts(self, lines: List[str]) -> List[str]:
         """Format analysis options section."""
         format_lines = [
@@ -164,6 +175,7 @@ class AnalysisSectionFormatter(DocstringSectionFormatter):
 
         return format_lines
 
+    @_check_no_indent
     def format_fit_model(self, lines: List[str]) -> List[str]:
         """Format fit model section."""
         format_lines = [
@@ -178,6 +190,7 @@ class AnalysisSectionFormatter(DocstringSectionFormatter):
 
         return format_lines
 
+    @_check_no_indent
     def format_fit_parameters(self, lines: List[str]) -> List[str]:
         """Format fit parameter section."""
         format_lines = [

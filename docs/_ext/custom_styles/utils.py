@@ -15,7 +15,7 @@ A collection of utilities to generate documentation.
 
 import inspect
 import re
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple, Dict, Any, Callable
 
 from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.docstring import GoogleDocstring
@@ -146,3 +146,17 @@ def _format_default_options(defaults: Dict[str, Any], indent: str = "") -> List[
             docstring_lines.append(indent * 2 + f"{par:<25} := {value_repr}")
 
     return docstring_lines
+
+
+def _check_no_indent(method: Callable) -> Callable:
+    """Check indent of lines and return if this block is correctly indented."""
+    def wraps(self, lines: List[str], *args, **kwargs):
+        if all(l.startswith(" ") for l in lines):
+            text_block = "\n".join(lines)
+            raise ValueError(
+                "Following documentation may have invalid indentation. "
+                f"Please carefully check all indent levels are aligned. \n\n{text_block}"
+            )
+        return method(self, lines, *args, **kwargs)
+
+    return wraps
