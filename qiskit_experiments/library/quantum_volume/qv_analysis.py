@@ -33,7 +33,8 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         level > 0.977 (corresponding to z_value = 2), and at least 100 trials have been ran.
         we assume the error (standard deviation) of the heavy output probability is due to a
         binomial distribution. The standard deviation for binomial distribution is
-        :math:`\sqrt{(np(1-p))}`, where :math:`n` is the number of trials and :math:`p` is the success probability.
+        :math:`\sqrt{(np(1-p))}`, where :math:`n` is the number of trials and :math:`p`
+        is the success probability.
     """
 
     # pylint: disable = arguments-differ

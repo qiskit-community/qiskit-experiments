@@ -37,10 +37,11 @@ class QuantumVolume(BaseExperiment):
 
     Overview
         Quantum Volume (QV) is a single-number metric that can be measured using a concrete protocol
-        on near-term quantum computers of modest size. The QV method quantifies the largest random circuit
-        of equal width and depth that the computer successfully implements.
-        Quantum computing systems with high-fidelity operations, high connectivity, large calibrated gate sets,
-        and circuit rewriting toolchains are expected to have higher quantum volumes.
+        on near-term quantum computers of modest size. The QV method quantifies the largest random
+        circuit of equal width and depth that the computer successfully implements.
+        Quantum computing systems with high-fidelity operations, high connectivity,
+        large calibrated gate sets,and circuit rewriting toolchains are expected to
+        have higher quantum volumes.
         See `Qiskit Textbook
         <https://qiskit.org/textbook/ch-quantum-hardware/measuring-quantum-volume.html>`_
         for an explanation on the QV method.
