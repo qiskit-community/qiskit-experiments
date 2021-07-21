@@ -51,6 +51,11 @@ class BasisGateLibrary(ABC):
 
         return self._schedules[name]
 
+    @property
+    def basis_gates(self) -> List[str]:
+        """Return the basis gates supported by the library."""
+        return list(name for name in self._schedules)
+
     @abstractmethod
     def default_values(self) -> List[Tuple[ParameterValueType, Parameter, Tuple, ScheduleBlock]]:
         """Return the default values for the parameters.

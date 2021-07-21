@@ -54,3 +54,6 @@ class TestFixedFrequencyTransmonSXRZ(QiskitTestCase):
 
         # Check that an error gets raise if the gate is not in the library.
         self.assertRaises(CalibrationError, library["bswap"])
+
+        # Test the basis gates of the library.
+        self.assertListEqual(library.basis_gates, ["x", "sx"])
