@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Union
 import numpy as np
 
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.analysis import (
+from qiskit_experiments.curve_analysis import (
     CurveAnalysis,
     CurveAnalysisResultData,
     SeriesDef,
@@ -78,7 +78,7 @@ class FineAmplitudeAnalysis(CurveAnalysis):
     def _default_options(cls):
         """Return the default analysis options.
 
-        See :meth:`~qiskit_experiment.analysis.CurveAnalysis._default_options` for
+        See :meth:`~qiskit_experiment.curve_analysis.CurveAnalysis._default_options` for
         descriptions of analysis options.
         """
         default_options = super()._default_options()

@@ -20,13 +20,13 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers.options import Options
 
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.experiment_data import ExperimentData
 from qiskit_experiments.database_service import DbAnalysisResultV1
 from qiskit_experiments.database_service.device_component import Qubit
+from qiskit_experiments.framework.experiment_data import ExperimentData
 
 
 class BaseAnalysis(ABC):
-    """Base Analysis class for analyzing Experiment data.
+    """Abstract base class for analyzing Experiment data.
 
     The data produced by experiments (i.e. subclasses of BaseExperiment)
     are analyzed with subclasses of BaseExperiment. The analysis is
