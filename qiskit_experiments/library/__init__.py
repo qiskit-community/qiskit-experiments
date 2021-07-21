@@ -27,7 +27,7 @@ Verification Experiments
     ~randomized_benchmarking.InterleavedRB
     ~tomography.StateTomography
     ~tomography.ProcessTomography
-    QuantumVolume
+    ~quantum_volume.QuantumVolume
 
 Characterization Experiments
 ============================
@@ -64,3 +64,4 @@ from . import calibration
 from . import characterization
 from . import randomized_benchmarking
 from . import tomography
+from . import quantum_volume
