@@ -106,6 +106,8 @@ class BaseAnalysis(ABC):
                 if "success" not in res:
                     res["success"] = True
                 analysis_result = DbAnalysisResultV1(result_data=res, **analysis_result_parameters)
+                if "chisq" in res:
+                    analysis_result.chisq = res["chisq"]
                 if "quality" in res:
                     analysis_result.quality = res["quality"]
                 analysis_results.append(analysis_result)
