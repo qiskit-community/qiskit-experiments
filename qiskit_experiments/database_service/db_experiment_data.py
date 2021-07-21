@@ -768,6 +768,8 @@ class DbExperimentDataV1(DbExperimentData):
         # Maybe this isn't necessary but the repr of the class should
         # be updated to show correct number of results including remote ones
         expdata._retrieve_analysis_results()
+        # mark it as existing in the DB
+        expdata._created_in_db = True
         return expdata
 
     def cancel_jobs(self) -> None:
