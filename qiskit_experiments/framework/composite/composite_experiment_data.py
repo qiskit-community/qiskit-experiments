@@ -16,7 +16,7 @@ Composite Experiment data class.
 from typing import Optional, Union, List
 from qiskit.result import marginal_counts
 from qiskit.exceptions import QiskitError
-from qiskit_experiments.experiment_data import ExperimentData
+from qiskit_experiments.framework.experiment_data import ExperimentData
 
 
 class CompositeExperimentData(ExperimentData):

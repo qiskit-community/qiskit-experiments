@@ -21,7 +21,7 @@ from qiskit.circuit.library import (
     XGate,
     CXGate,
 )
-import qiskit_experiments as qe
+from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.library import StandardRB, InterleavedRB
 
 ATOL_DEFAULT = 1e-2
@@ -43,7 +43,7 @@ class TestRBAnalysis(QiskitTestCase):
                 containing the experiment results.
             ExperimentData:  ExperimentData object that was creates by the analysis function.
         """
-        expdata1 = qe.ExperimentData()
+        expdata1 = ExperimentData()
         self.assertTrue(
             os.path.isfile(rb_exp_data_file_name),
             "The file containing the experiment data doesn't exist."
