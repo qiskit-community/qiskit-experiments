@@ -781,16 +781,20 @@ class DbExperimentDataV1(DbExperimentData):
                 except Exception as err:  # pylint: disable=broad-except
                     LOG.info("Unable to cancel job %s: %s", job.job_id(), err)
 
-    def block_for_results(self, timeout: Optional[float] = None) -> None:
+    def block_for_results(self, timeout: Optional[float] = None) -> "DbExperimentDataV1":
         """Block until all pending jobs and their post processing finish.
 
         Args:
             timeout: Timeout waiting for results.
+
+        Returns:
+            The experiment data with finished jobs and post-processing.
         """
         for job, fut in self._job_futures.copy():
             LOG.info("Waiting for job %s and its post processing to finish.", job.job_id())
             with contextlib.suppress(Exception):
                 fut.result(timeout)
+        return self
 
     def status(self) -> str:
         """Return the data processing status.
