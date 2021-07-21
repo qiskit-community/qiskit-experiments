@@ -23,7 +23,7 @@ from qiskit.test import QiskitTestCase
 from qiskit.qobj.utils import MeasLevel
 import qiskit.pulse as pulse
 
-from qiskit_experiments import ExperimentData
+from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.library import Rabi, EFRabi
 
 from qiskit_experiments.library.calibration.analysis.oscillation_analysis import OscillationAnalysis

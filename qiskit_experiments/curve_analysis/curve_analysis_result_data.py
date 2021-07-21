@@ -12,7 +12,7 @@
 """
 Curve analysis result data class.
 """
-from qiskit_experiments.experiment_data import AnalysisResultData
+from qiskit_experiments.framework import AnalysisResultData
 
 
 class CurveAnalysisResultData(AnalysisResultData):

@@ -23,11 +23,10 @@ from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 import numpy as np
 from qiskit.providers.options import Options
 
-from qiskit_experiments.framework import BaseAnalysis
+from qiskit_experiments.framework import BaseAnalysis, ExperimentData
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.experiment_data import ExperimentData
 from qiskit_experiments.matplotlib import pyplot, requires_matplotlib, HAS_MATPLOTLIB
 from qiskit_experiments.data_processing.processor_library import get_processor
 

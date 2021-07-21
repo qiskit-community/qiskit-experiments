@@ -21,7 +21,7 @@ import numpy as np
 from qiskit.test import QiskitTestCase
 from qiskit.qobj.utils import MeasLevel
 
-from qiskit_experiments import ExperimentData
+from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.curve_analysis import CurveAnalysis, SeriesDef, fit_function
 from qiskit_experiments.curve_analysis.data_processing import probability
 from qiskit_experiments.exceptions import AnalysisError

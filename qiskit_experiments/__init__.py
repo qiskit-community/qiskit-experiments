@@ -30,7 +30,6 @@ Classes
 .. autosummary::
     :toctree: ../stubs/
 
-    ExperimentData
     ~composite.BatchExperiment
     ~composite.ParallelExperiment
 
@@ -64,8 +63,6 @@ accessed by importing the following modules.
 """
 
 from .version import __version__
-
-from .experiment_data import ExperimentData
 
 from .composite import BatchExperiment, ParallelExperiment
 

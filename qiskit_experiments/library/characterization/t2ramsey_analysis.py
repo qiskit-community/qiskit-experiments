@@ -17,8 +17,7 @@ from typing import List, Optional, Tuple, Dict
 import numpy as np
 
 from qiskit.utils import apply_prefix
-from qiskit_experiments.experiment_data import ExperimentData
-from qiskit_experiments.framework import BaseAnalysis, Options
+from qiskit_experiments.framework import BaseAnalysis, Options, ExperimentData
 from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
 from qiskit_experiments.curve_analysis import curve_fit, plot_curve_fit, plot_errorbar, plot_scatter
 from qiskit_experiments.curve_analysis.curve_analysis_result_data import CurveAnalysisResultData

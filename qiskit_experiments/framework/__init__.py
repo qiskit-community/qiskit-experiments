@@ -28,6 +28,8 @@ Classes
 .. autosummary::
     :toctree: ../stubs/
 
+    ExperimentData
+    AnalysisResultData
     BaseExperiment
     BaseAnalysis
     Options
@@ -96,3 +98,4 @@ experiment data.
 from qiskit.providers.options import Options
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
+from .experiment_data import ExperimentData, AnalysisResultData
