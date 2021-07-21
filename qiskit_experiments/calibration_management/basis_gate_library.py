@@ -113,10 +113,16 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         # X gates
         sched_x = self._single_qubit_schedule("x", dur, Parameter("amp"), sigma, _beta(use_drag))
 
+        # Y gates
+        sched_y = self._single_qubit_schedule("y", dur, Parameter("amp"), sigma, _beta(use_drag))
+
         # square-root X gates
         sched_sx = self._single_qubit_schedule("sx", dur, Parameter("amp"), sigma, _beta(use_drag))
 
-        for sched in [sched_x, sched_sx]:
+        # square-root Y gates
+        sched_sy = self._single_qubit_schedule("sy", dur, Parameter("amp"), sigma, _beta(use_drag))
+
+        for sched in [sched_x, sched_y, sched_sx, sched_sy]:
             self._schedules[sched.name] = sched
 
     @staticmethod
@@ -148,7 +154,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
             :class:`Calibrations` can call :meth:`add_parameter_value` on the tuples.
         """
         defaults = []
-        for name in ["x", "sx"]:
+        for name in self.basis_gates:
             schedule = self._schedules[name]
             for param in schedule.parameters:
                 if "ch" not in param.name:
@@ -158,8 +164,11 @@ class FixedFrequencyTransmon(BasisGateLibrary):
                     else:
                         value = self.__default_values__[param.name]
 
-                    if name == "sx" and param.name == "amp":
+                    if name in {"sx", "sy"} and param.name == "amp":
                         value /= 2.0
+
+                    if "y" in name and param.name == "amp":
+                        value *= 1.0j
 
                     defaults.append((value, param.name, tuple(), name))
 

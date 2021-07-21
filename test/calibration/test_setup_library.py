@@ -47,6 +47,14 @@ class TestFixedFrequencyTransmon(QiskitTestCase):
             (0.0, "β", (), "sx"),
             (0.25, "amp", (), "sx"),
             (80, "σ", (), "sx"),
+            (0.5j, "amp", (), "y"),
+            (0.0, "β", (), "y"),
+            (320, "duration", (), "y"),
+            (80, "σ", (), "y"),
+            (320, "duration", (), "sy"),
+            (0.0, "β", (), "sy"),
+            (0.25j, "amp", (), "sy"),
+            (80, "σ", (), "sy"),
         ]
 
         for param_conf in library.default_values():
@@ -57,7 +65,7 @@ class TestFixedFrequencyTransmon(QiskitTestCase):
             print(library["bswap"])
 
         # Test the basis gates of the library.
-        self.assertListEqual(library.basis_gates, ["x", "sx"])
+        self.assertListEqual(library.basis_gates, ["x", "y", "sx", "sy"])
 
     def test_turn_off_drag(self):
         """Test the use_drag parameter."""

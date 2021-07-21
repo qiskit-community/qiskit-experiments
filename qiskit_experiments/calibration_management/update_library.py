@@ -209,7 +209,10 @@ class Amplitude(BaseUpdater):
             rate = 2 * np.pi * freq
 
             for angle, param, schedule in angles_schedules:
-                value = np.round(angle / rate, decimals=8)
+                qubits = exp_data.data(0)["metadata"]["qubits"]
+                prev_amp = calibrations.get_parameter_value(param, qubits, schedule, group=group)
+
+                value = np.round(angle / rate, decimals=8) * np.exp(1.0j * np.angle(prev_amp))
 
                 cls._add_parameter_value(calibrations, exp_data, value, param, schedule, group)
 
