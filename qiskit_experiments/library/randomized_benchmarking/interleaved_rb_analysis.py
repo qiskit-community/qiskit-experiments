@@ -16,7 +16,7 @@ from typing import List, Dict, Any, Union
 
 import numpy as np
 
-from qiskit_experiments.analysis import (
+from qiskit_experiments.curve_analysis import (
     SeriesDef,
     CurveAnalysisResultData,
     fit_function,
@@ -124,7 +124,7 @@ class InterleavedRBAnalysis(RBAnalysis):
     def _default_options(cls):
         """Return default data processing options.
 
-        See :meth:`~qiskit_experiment.analysis.CurveAnalysis._default_options` for
+        See :meth:`~qiskit_experiment.curve_analysis.CurveAnalysis._default_options` for
         descriptions of analysis options.
         """
         default_options = super()._default_options()

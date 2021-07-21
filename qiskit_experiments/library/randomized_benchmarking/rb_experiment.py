@@ -23,9 +23,8 @@ from qiskit.quantum_info import Clifford
 from qiskit.providers.options import Options
 from qiskit.circuit import Gate
 
-from qiskit_experiments.base_experiment import BaseExperiment
-from qiskit_experiments.analysis.data_processing import probability
-from qiskit_experiments.composite import ParallelExperiment
+from qiskit_experiments.framework import BaseExperiment, ParallelExperiment
+from qiskit_experiments.curve_analysis.data_processing import probability
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
 from .rb_utils import RBUtils

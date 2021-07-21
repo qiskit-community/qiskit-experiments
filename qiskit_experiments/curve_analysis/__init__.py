@@ -11,38 +11,36 @@
 # that they have been altered from the originals.
 
 """
-=====================================================
-Analysis Library (:mod:`qiskit_experiments.analysis`)
-=====================================================
+=========================================================
+Curve Analysis (:mod:`qiskit_experiments.curve_analysis`)
+=========================================================
 
-.. currentmodule:: qiskit_experiments.analysis
+.. currentmodule:: qiskit_experiments.curve_analysis
 
-Helper functions for experiment data analysis
+Classes
+=======
+.. autosummary::
+    :toctree: ../stubs/
 
+    CurveAnalysis
+    CurveAnalysisResultData
+    SeriesDef
+    CurveData
+
+Functions
+=========
 
 Curve Fitting
-=============
+*************
+
 .. autosummary::
     :toctree: ../stubs/
 
     curve_fit
     multi_curve_fit
-    process_curve_data
-    process_multi_curve_data
-
-
-Plotting
-========
-.. autosummary::
-    :toctree: ../stubs/
-
-    plot_curve_fit
-    plot_errorbar
-    plot_scatter
-
 
 Fit Functions
-=============
+*************
 .. autosummary::
     :toctree: ../stubs/
 
@@ -51,9 +49,8 @@ Fit Functions
     fit_function.gaussian
     fit_function.sin
 
-
-Guess Functions
-===============
+Initial Guess
+*************
 .. autosummary::
     :toctree: ../stubs/
 
@@ -66,23 +63,33 @@ Guess Functions
     guess.min_height
     guess.oscillation_exp_decay
 
+Visualization
+*************
+.. autosummary::
+    :toctree: ../stubs/
+
+    plot_curve_fit
+    plot_errorbar
+    plot_scatter
 
 Utility
-=======
+*******
 .. autosummary::
     :toctree: ../stubs/
 
     get_opt_error
     get_opt_value
 """
-from .curve_analysis import CurveAnalysis, SeriesDef, CurveData
-
-from .curve_fitting import (
-    CurveAnalysisResultData,
+from .curve_analysis import CurveAnalysis
+from .curve_analysis_result_data import CurveAnalysisResultData
+from .curve_data import CurveData, SeriesDef
+from .curve_fit import (
     curve_fit,
     multi_curve_fit,
     process_curve_data,
     process_multi_curve_data,
 )
-from .plotting import plot_curve_fit, plot_errorbar, plot_scatter
+from .visualization import plot_curve_fit, plot_errorbar, plot_scatter
 from .utils import get_opt_error, get_opt_value
+from . import guess
+from . import fit_function
