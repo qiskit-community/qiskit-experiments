@@ -137,24 +137,30 @@ class T2RamseyAnalysis(BaseAnalysis):
             figures = None
 
         # Output unit is 'sec', regardless of the unit used in the input
-        result_data = {
-            "t2ramsey_value": fit_result["popt"][1],
-            "frequency_value": fit_result["popt"][2],
-            "stderr_t2": fit_result["popt_err"][1],
-            "stderr_freq": fit_result["popt_err"][2],
+        result_t2 = {
+            "value": fit_result["popt"][1],
+            "stderr": fit_result["popt_err"][1],
             "unit": "s",
-            "label": "T2Ramsey",
-            "fit": fit_result,
-            "quality": self._fit_quality(
-                fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
-            ),
+            "result_type": "T2Ramsey",
+        }
+        result_freq = {
+            "value": fit_result["popt"][2],
+            "stderr": fit_result["popt_err"][2],
+            "unit": "Hz",
+            "result_type": "RamseyFrequency",
         }
 
-        result_data["fit"]["circuit_unit"] = unit
-        if unit == "dt":
-            result_data["fit"]["dt"] = conversion_factor
+        quality = self._fit_quality(
+            fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
+        )
+        for res in [result_t2, result_freq]:
+            res["fit"] = fit_result
+            res["quality"] = quality
+            res["fit"]["circuit_unit"] = unit
+            if unit == "dt":
+                res["fit"]["dt"] = conversion_factor
 
-        return [CurveAnalysisResultData(result_data)], figures
+        return [CurveAnalysisResultData(result_t2), CurveAnalysisResultData(result_freq)], figures
 
     def _t2ramsey_default_params(
         self,
