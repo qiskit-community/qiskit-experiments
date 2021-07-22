@@ -23,54 +23,22 @@ from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 import numpy as np
 from qiskit.providers.options import Options
 
-from qiskit_experiments.analysis import plotting
-from qiskit_experiments.analysis.curve_fitting import (
-    multi_curve_fit,
-    CurveAnalysisResultData,
-)
-from qiskit_experiments.analysis.utils import get_opt_value, get_opt_error
-from qiskit_experiments.base_analysis import BaseAnalysis
+from qiskit_experiments.framework import BaseAnalysis, ExperimentData
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.experiment_data import ExperimentData
-from qiskit_experiments.matplotlib import requires_matplotlib
+from qiskit_experiments.matplotlib import pyplot, requires_matplotlib, HAS_MATPLOTLIB
 from qiskit_experiments.data_processing.processor_library import get_processor
 
-
-@dataclasses.dataclass(frozen=True)
-class SeriesDef:
-    """Description of curve."""
-
-    # Arbitrary callback to define the fit function. First argument should be x.
-    fit_func: Callable
-
-    # Keyword dictionary to define the series with circuit metadata
-    filter_kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
-
-    # Name of this series. This name will appear in the figure and raw x-y value report.
-    name: str = "Series-0"
-
-    # Color of this line.
-    plot_color: str = "black"
-
-    # Symbol to represent data points of this line.
-    plot_symbol: str = "o"
-
-    # Whether to plot fit uncertainty for this line.
-    plot_fit_uncertainty: bool = False
-
-
-@dataclasses.dataclass(frozen=True)
-class CurveData:
-    """Set of extracted experiment data."""
-
-    label: str
-    x: np.ndarray
-    y: np.ndarray
-    y_err: np.ndarray
-    data_index: Union[np.ndarray, int]
-    metadata: np.ndarray = None
+from qiskit_experiments.curve_analysis.curve_data import CurveData, SeriesDef
+from qiskit_experiments.curve_analysis.curve_analysis_result_data import CurveAnalysisResultData
+from qiskit_experiments.curve_analysis.curve_fit import multi_curve_fit
+from qiskit_experiments.curve_analysis.visualization import (
+    plot_scatter,
+    plot_errorbar,
+    plot_curve_fit,
+)
+from qiskit_experiments.curve_analysis.utils import get_opt_value, get_opt_error
 
 
 class CurveAnalysis(BaseAnalysis):
@@ -81,29 +49,27 @@ class CurveAnalysis(BaseAnalysis):
     create a new curve fit analysis subclass inheriting from this base class.
 
     Class Attributes:
+        - ``__series__``: A set of data points that will be fit to the same parameters
+          in the fit function. If this analysis contains multiple curves,
+          the same number of series definitions should be listed. Each series definition
+          is a :class:`SeriesDef` element, that may be initialized with
 
-        __series__: A set of data points that will be fit to the same parameters
-            in the fit function. If this analysis contains multiple curves,
-            the same number of series definitions should be listed.
-            Each series definition is SeriesDef element, that may be initialized with:
+            - ``fit_func``: The function to which the data will be fit.
+            - ``filter_kwargs``: Circuit metadata key and value associated with this curve.
+              The data points of the curve are extracted from ExperimentData based on
+              this information.
+            - ``name``: Name of the curve. This is arbitrary data field, but should be unique.
+            - ``plot_color``: String color representation of this series in the plot.
+            - ``plot_symbol``: String formatter of the scatter of this series in the plot.
+            - ``plot_fit_uncertainty``: A Boolean signaling whether to plot fit uncertainty
+              for this series in the plot.
 
-                fit_func: The function to which the data will be fit.
-                filter_kwargs: Circuit metadata key and value associated with this curve.
-                    The data points of the curve are extracted from ExperimentData based on
-                    this information.
-                name: Name of the curve. This is arbitrary data field, but should be unique.
-                plot_color: String color representation of this series in the plot.
-                plot_symbol: String formatter of the scatter of this series in the plot.
-                plot_fit_uncertainty: A Boolean signaling whether to plot fit uncertainty
-                    for this series in the plot.
-
-            See the Examples below for more details.
+        See the Examples below for more details.
 
 
     Examples:
 
-        A fitting for single exponential decay curve
-        ============================================
+        **A fitting for single exponential decay curve**
 
         In this type of experiment, the analysis deals with a single curve.
         Thus filter_kwargs and series name are not necessary defined.
@@ -120,8 +86,7 @@ class CurveAnalysis(BaseAnalysis):
                 ]
 
 
-        A fitting for two exponential decay curve with partly shared parameter
-        ======================================================================
+        **A fitting for two exponential decay curve with partly shared parameter**
 
         In this type of experiment, the analysis deals with two curves.
         We need a __series__ definition for each curve, and filter_kwargs should be
@@ -155,8 +120,8 @@ class CurveAnalysis(BaseAnalysis):
         Parameter `p1` (`p2`) is only used by `my_experiment1` (`my_experiment2`).
         Both series have same fit function in this example.
 
-        A fitting for two trigonometric curves with the same parameter
-        ==============================================================
+
+        **A fitting for two trigonometric curves with the same parameter**
 
         In this type of experiment, the analysis deals with two different curves.
         However the parameters are shared with both functions.
@@ -189,8 +154,7 @@ class CurveAnalysis(BaseAnalysis):
         `my_experiment1` (`my_experiment2`) uses the `cos` (`sin`) fit function.
 
 
-        A fitting with fixed parameter
-        ==============================
+        **A fitting with fixed parameter**
 
         In this type of experiment, we can provide fixed fit function parameter.
         This parameter should be assigned via analysis options
@@ -328,7 +292,7 @@ class CurveAnalysis(BaseAnalysis):
                         ],
                     ) -> CurveAnalysisResultData:
 
-                See :func:`~qiskit_experiment.analysis.multi_curve_fit` for example.
+                See :func:`~qiskit_experiment.curve_analysis.multi_curve_fit` for example.
             data_processor: A callback function to format experiment data.
                 This function should have signature:
 
@@ -383,7 +347,7 @@ class CurveAnalysis(BaseAnalysis):
 
         axis = self._get_option("axis")
         if axis is None:
-            figure = plotting.pyplot.figure(figsize=(8, 5))
+            figure = pyplot.figure(figsize=(8, 5))
             axis = figure.subplots(nrows=1, ncols=1)
         else:
             figure = axis.get_figure()
@@ -396,7 +360,7 @@ class CurveAnalysis(BaseAnalysis):
             curve_data_raw = self._data(series_name=series_def.name, label="raw_data")
             ymin = min(ymin, *curve_data_raw.y)
             ymax = max(ymax, *curve_data_raw.y)
-            plotting.plot_scatter(xdata=curve_data_raw.x, ydata=curve_data_raw.y, ax=axis, zorder=0)
+            plot_scatter(xdata=curve_data_raw.x, ydata=curve_data_raw.y, ax=axis, zorder=0)
 
             # plot formatted data
 
@@ -406,7 +370,7 @@ class CurveAnalysis(BaseAnalysis):
             else:
                 sigma = np.nan_to_num(curve_data_fit.y_err)
 
-            plotting.plot_errorbar(
+            plot_errorbar(
                 xdata=curve_data_fit.x,
                 ydata=curve_data_fit.y,
                 sigma=sigma,
@@ -421,7 +385,7 @@ class CurveAnalysis(BaseAnalysis):
             # plot fit curve
 
             if fit_available:
-                plotting.plot_curve_fit(
+                plot_curve_fit(
                     func=series_def.fit_func,
                     result=result_data,
                     ax=axis,
@@ -1065,7 +1029,7 @@ class CurveAnalysis(BaseAnalysis):
             #
             # 6. Create figures
             #
-            if self._get_option("plot") and plotting.HAS_MATPLOTLIB:
+            if self._get_option("plot") and HAS_MATPLOTLIB:
                 figures.extend(self._create_figures(result_data=result_data))
 
             #

@@ -19,7 +19,7 @@ import os
 from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.test import QiskitTestCase
 from qiskit import Aer
-from qiskit_experiments import ExperimentData
+from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.library import QuantumVolume
 
 SEED = 42
