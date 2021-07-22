@@ -13,7 +13,7 @@
 """
 A collections of libraries to setup Calibrations.
 
-Note that the set of available functions will be extended in future releases.
+Note that the set of available library will be extended in future releases.
 """
 
 from abc import ABC, abstractmethod
