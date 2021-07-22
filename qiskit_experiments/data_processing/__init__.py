@@ -10,9 +10,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-======================================================================
-Experiment Data Processing (:mod:`qiskit_experiments.data_processing`)
-======================================================================
+===========================================================
+Data Processing (:mod:`qiskit_experiments.data_processing`)
+===========================================================
 
 .. currentmodule:: qiskit_experiments.data_processing
 
