@@ -23,9 +23,10 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('.'))
+sys.path.append(os.path.abspath("./_ext"))
 
 """
 Sphinx documentation builder
@@ -37,7 +38,7 @@ import os
 os.environ['QISKIT_DOCS'] = 'TRUE'
 
 # -- Project information -----------------------------------------------------
-project = 'Qiskit ODE Solvers'
+project = 'Qiskit Experiments'
 copyright = '2021, Qiskit Development Team'  # pylint: disable=redefined-builtin
 author = 'Qiskit Development Team'
 
@@ -92,6 +93,9 @@ extensions = [
     'sphinx_panels',
     'sphinx.ext.intersphinx',
     'nbsphinx',
+    'autoref',
+    'autodoc_experiment',
+    'autodoc_analysis',
 ]
 html_static_path = ['_static']
 templates_path = ['_templates']
