@@ -12,7 +12,7 @@
 
 """Rabi amplitude experiment."""
 
-from typing import List, Optional
+from typing import List, Optional, Tuple
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -21,12 +21,12 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
 import qiskit.pulse as pulse
 from qiskit.providers.options import Options
-from qiskit.transpiler.passmanager import PassManager
 
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.library.calibration.analysis.oscillation_analysis import OscillationAnalysis
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.calibration_management.transpiler import CalibrationAdder
+from qiskit_experiments.calibration_management.transpiler import inject_calibrations
+from qiskit_experiments.calibration_management.calibration_key_types import InstructionMap
 
 
 class Rabi(BaseExperiment):
@@ -70,10 +70,10 @@ class Rabi(BaseExperiment):
 
         """
         return Options(
-            duration=160,
-            sigma=40,
             amplitudes=np.linspace(-0.95, 0.95, 51),
             schedule=None,
+            instruction_name_maps=[InstructionMap(cls.__rabi_gate_name__, "x", [Parameter("amp")])],
+            calibrations=None,
         )
 
     @classmethod
@@ -99,26 +99,32 @@ class Rabi(BaseExperiment):
         """
         super().__init__([qubit])
 
-    def _template_circuit(self, amp_param) -> QuantumCircuit:
-        """Return the template quantum circuit."""
-        gate = Gate(name=self.__rabi_gate_name__, num_qubits=1, params=[amp_param])
+    def _get_parameter(self):
+        """Extract the parameter from the options."""
+        for inst_map in self.experiment_options.instruction_name_maps:
+            if inst_map.free_param:
+                return inst_map.free_param[0]
+
+        raise CalibrationError(f"Parameter for {self.__class__.__name__} not found.")
+
+    def _template_circuit(self) -> Tuple[QuantumCircuit, Parameter]:
+        """Return the template quantum circuit and parameter."""
+        param = self._get_parameter()
+
+        gate = Gate(name=self.__rabi_gate_name__, num_qubits=1, params=[param])
 
         circuit = QuantumCircuit(1)
         circuit.append(gate, (0,))
         circuit.measure_active()
 
-        return circuit
+        return circuit, param
 
     def _default_gate_schedule(self, backend: Optional[Backend] = None):
         """Create the default schedule for the Rabi gate."""
         amp = Parameter("amp")
-        with pulse.build(backend=backend, name="rabi") as default_schedule:
+        with pulse.build(backend=backend, name=self.__rabi_gate_name__) as default_schedule:
             pulse.play(
-                pulse.Gaussian(
-                    duration=self.experiment_options.duration,
-                    amp=amp,
-                    sigma=self.experiment_options.sigma,
-                ),
+                pulse.Gaussian(duration=160, amp=amp, sigma=40),
                 pulse.DriveChannel(self.physical_qubits[0]),
             )
 
@@ -140,27 +146,28 @@ class Rabi(BaseExperiment):
                   that matches the qubit on which to run the Rabi experiment.
                 - If the user provided schedule has more than one free parameter.
         """
-        schedule = self.experiment_options.get("schedule", None)
+        circuit, param = self._template_circuit()
 
-        if schedule is None:
-            schedule = self._default_gate_schedule(backend=backend)
+        # Inject the calibrations if present.
+        if self.experiment_options.calibrations is not None:
+            circuit = inject_calibrations(circuit, self)
         else:
-            if self.physical_qubits[0] not in set(ch.index for ch in schedule.channels):
-                raise CalibrationError(
-                    f"User provided schedule {schedule.name} does not contain a channel "
-                    "for the qubit on which to run Rabi."
-                )
+            schedule = self.experiment_options.get("schedule", self._default_gate_schedule(backend))
+
+            circuit.add_calibration(
+                self.__rabi_gate_name__, (self.physical_qubits[0],), schedule, params=[param]
+            )
+
+        # Sanity check the schedule in the circuit.
+        schedule = next(iter(circuit.calibrations[self.__rabi_gate_name__].values()))
+        if self.physical_qubits[0] not in set(ch.index for ch in schedule.channels):
+            raise CalibrationError(
+                f"User provided schedule {schedule.name} does not contain a channel "
+                "for the qubit on which to run Rabi."
+            )
 
         if len(schedule.parameters) != 1:
             raise CalibrationError("Schedule in Rabi must have exactly one free parameter.")
-
-        param = next(iter(schedule.parameters))
-
-        # Create template circuit
-        circuit = self._template_circuit(param)
-        circuit.add_calibration(
-            self.__rabi_gate_name__, (self.physical_qubits[0],), schedule, params=[param]
-        )
 
         # Create the circuits to run
         circs = []
@@ -222,8 +229,6 @@ class EFRabi(Rabi):
             schedule=None,
             normalization=True,
             frequency_shift=None,
-            x_schedule_name="x",
-            calibrations=None,
         )
 
     def _default_gate_schedule(self, backend: Optional[Backend] = None):
@@ -265,19 +270,13 @@ class EFRabi(Rabi):
 
         return default_schedule
 
-    def _template_circuit(self, amp_param) -> QuantumCircuit:
+    def _template_circuit(self) -> Tuple[QuantumCircuit, Parameter]:
         """Return the template quantum circuit."""
+        param = self._get_parameter()
+
         circuit = QuantumCircuit(1)
         circuit.x(0)
-        circuit.append(Gate(name=self.__rabi_gate_name__, num_qubits=1, params=[amp_param]), (0,))
+        circuit.append(Gate(name=self.__rabi_gate_name__, num_qubits=1, params=[param]), (0,))
         circuit.measure_active()
 
-        if self.experiment_options.calibrations is not None:
-            cals = self.experiment_options.calibrations
-            gate_schedule_map = {"x": self.experiment_options.x_schedule_name}
-            qubit_layout = {0: self.physical_qubits[0]}
-            cal_adder = PassManager(CalibrationAdder(cals, gate_schedule_map, qubit_layout))
-
-            circuit = cal_adder.run(circuit)
-
-        return circuit
+        return circuit, param

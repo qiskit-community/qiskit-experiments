@@ -14,32 +14,25 @@
 
 from typing import Dict, List, Optional, Tuple, Union
 
-from qiskit.transpiler.passes import SetLayout
-from qiskit.transpiler.passes import (
-    TrivialLayout,
-    FullAncillaAllocation,
-    EnlargeWithAncilla,
-    ApplyLayout
-)
-from qiskit.transpiler.layout import Layout
-from qiskit.transpiler.passmanager import PassManager
-from qiskit.transpiler.coupling import CouplingMap
-from qiskit.circuit.quantumregister import QuantumRegister
+from qiskit import QuantumCircuit
 from qiskit.dagcircuit import DAGCircuit
 from qiskit.pulse.schedule import ScheduleBlock
 from qiskit.transpiler.basepasses import TransformationPass
+from qiskit.transpiler.passmanager import PassManager
 
 from qiskit_experiments.calibration.management.calibrations import Calibrations
 from qiskit_experiments.exceptions import CalibrationError
+from qiskit_experiments.calibration_management.calibration_key_types import InstructionMap
+from qiskit_experiments.framework.base_experiment import BaseExperiment
 
 
-class CalibrationAdder(TransformationPass):
+class CalAdder(TransformationPass):
     """Transformation pass to inject calibrations into circuits."""
 
     def __init__(
             self,
             calibrations: Calibrations,
-            gate_schedule_map: Optional[Dict[str, str]] = None,
+            instruction_maps: Optional[List[InstructionMap]] = None,
             qubit_layout: Optional[Dict[int, int]] = None
     ):
         """
@@ -47,22 +40,23 @@ class CalibrationAdder(TransformationPass):
         This transpiler pass is intended to be run in the :meth:`circuits` method of the
         experiment classes before the main transpiler pass.
 
-        TODO Discuss: we could give calibrations as Dict[str, Dict[Tuple, ScheduleBlock]]
-        TODO but this means that we need to export all the calibrations which may not scale well
-        TODO using cals.get_schedule(name, qubits) on an as needed basis seems better.
-
         Args:
             calibrations: An instance of calibration from which to fetch the schedules.
-            gate_schedule_map: A dictionary to map gate names to schedule names in the
-                calibrations. If this is not provided the transpiler pass will assume that
-                the schedule has the same name as the gate.
+            instruction_maps: A list of instruction maps to map gate names in the circuit to
+                schedule names in the calibrations. If this is not provided the transpiler pass
+                will assume that the schedule has the same name as the gate. Each instruction map
+                may also specify parameters that should be left free in the schedule.
             qubit_layout: The initial layout that will be used. This remaps the qubits
                 in the added calibrations. For instance, if {0: 3} is given and use this pass
                 on a circuit then any gates on qubit 0 will add calibrations for qubit 3.
         """
         super().__init__()
         self._cals = calibrations
-        self._gate_schedule_map = gate_schedule_map or dict()
+
+        self._instruction_maps = dict()
+        for inst_map in instruction_maps:
+            self._intruction_maps[inst_map.inst] = inst_map
+
         self._qubit_layout = qubit_layout
 
     def get_calibration(
@@ -74,15 +68,22 @@ class CalibrationAdder(TransformationPass):
 
         Args:
             gate_name: Name of the gate for which to get the schedule.
-            params: The parameters of the gate if any.
             qubits: The qubits for which to get the parameters.
 
         Returns:
             The schedule if one is found otherwise return None.
         """
-        name = self._gate_schedule_map.get(gate_name, gate_name)
+        name = gate_name
+        assign_params = None
+
+        # check for a non-trivial instruction to schedule mapping.
+        if gate_name in self._instruction_maps:
+            inst_map = self._instruction_maps[gate_name]
+            name = inst_map.schedule
+            assign_params = {param.name: param for param in inst_map.free_params}
+
         try:
-            return self._cals.get_schedule(name, qubits)
+            return self._cals.get_schedule(name, qubits, assign_params=assign_params)
         except CalibrationError:
             return None
 
@@ -116,37 +117,21 @@ class CalibrationAdder(TransformationPass):
         return dag
 
 
-def get_calibration_pass_manager(
-    initial_layout: List[int],
-    coupling_map: List[List[int]],
-    calibrations: Optional[Calibrations],
-    gate_schedule_map: Optional[Dict[str, str]],
-) -> PassManager:
-    """Get a calibrations experiment pass manager.
+def inject_calibrations(circuit: QuantumCircuit, experiment: BaseExperiment) -> QuantumCircuit:
+    """Inject calibrations from a :class:`Calibrations` instance into a circuit.
 
-    TODO not sure if we need this. Maybe not.
+    This function requires that the experiment has a list of InstructionMaps in its
+    experiment options.
 
     Args:
-        initial_layout:
-        coupling_map:
-        calibrations:
-        gate_schedule_map:
+        circuit: The circuit into which to inject calibrations.
+        experiment: The experiment object that
 
     Returns:
-         An instance of :class:`PassManager` tailored to calibration experiments.
+         A quantum circuit with the relevant calibrations inject into it.
     """
-    initial_layout = Layout.from_intlist(initial_layout, QuantumRegister(len(initial_layout), "q"))
-    coupling_map = CouplingMap(coupling_map)
+    calibrations = experiment.experiment_options.calibrations
+    inst_maps = experiment.experiment_options.instruction_name_maps
+    layout = {idx: qubit  for idx, qubit in enumerate(experiment.physical_qubits)}
 
-    def _choose_layout_condition(property_set):
-        return not property_set["layout"]
-
-    pm = PassManager()
-    pm.append(SetLayout(initial_layout))
-    pm.append(TrivialLayout(coupling_map), condition=_choose_layout_condition)
-    pm.append([FullAncillaAllocation(coupling_map), EnlargeWithAncilla(), ApplyLayout()])
-
-    if calibrations is not None:
-        pm.append(CalibrationAdder(calibrations, gate_schedule_map))
-
-    return pm
+    return PassManager(CalAdder(calibrations, inst_maps, layout)).run(circuit)
