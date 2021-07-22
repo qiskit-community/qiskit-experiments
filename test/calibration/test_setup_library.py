@@ -117,3 +117,6 @@ class TestFixedFrequencyTransmon(QiskitTestCase):
         self.assertTrue("sy" in library)
         self.assertTrue("y" not in library)
         self.assertTrue("sx" not in library)
+
+        with self.assertRaises(CalibrationError):
+            FixedFrequencyTransmon(basis_gates=["x", "bswap"])
