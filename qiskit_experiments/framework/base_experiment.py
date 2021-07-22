@@ -100,20 +100,8 @@ class BaseExperiment(ABC):
             QiskitError: if experiment is run with an incompatible existing
                          ExperimentData container.
         """
-        if experiment_data is None:
-            # Create new experiment data
-            experiment_data = self.__experiment_data__(experiment=self, backend=backend)
-        else:
-            # Validate experiment is compatible with existing data container
-            metadata = experiment_data.metadata()
-            if metadata.get("experiment_type") != self._type:
-                raise QiskitError(
-                    "Existing ExperimentData contains data from a different experiment."
-                )
-            if metadata.get("physical_qubits") != list(self.physical_qubits):
-                raise QiskitError(
-                    "Existing ExperimentData contains data for a different set of physical qubits."
-                )
+        # Create experiment data container
+        experiment_data = self._initialize_experiment_data(backend, experiment_data)
 
         # Run options
         run_opts = copy.copy(self.run_options)
@@ -145,6 +133,37 @@ class BaseExperiment(ABC):
 
         # Return the ExperimentData future
         return experiment_data
+
+    def _initialize_experiment_data(
+        self, backend: Backend, experiment_data: Optional[ExperimentData] = None
+    ) -> ExperimentData:
+        """Initialize the return data container for the experiment run"""
+        if experiment_data is None:
+            return self.__experiment_data__(experiment=self, backend=backend)
+
+        # Validate experiment is compatible with existing data
+        metadata = experiment_data.metadata()
+        if metadata.get("experiment_type") != self._type:
+            raise QiskitError("Existing ExperimentData contains data from a different experiment.")
+        if metadata.get("physical_qubits") != list(self.physical_qubits):
+            raise QiskitError(
+                "Existing ExperimentData contains data for a different set of physical qubits."
+            )
+
+        # Generate new ExperimentData containing a copy of previous
+        # jobs and data, but not analysis results or figures
+        ret = self.__experiment_data__(experiment=self, backend=backend)
+        ret._auto_save = copy.copy(experiment_data._auto_save)
+        ret._tags = copy.copy(experiment_data._tags)
+        ret._share_level = copy.copy(experiment_data._share_level)
+        ret._notes = copy.copy(experiment_data._notes)
+        ret._jobs = copy.copy(experiment_data._jobs)
+        ret._job_futures = copy.copy(experiment_data._job_futures)
+        ret._errors = copy.copy(experiment_data._errors)
+        ret._data = copy.copy(experiment_data._data)
+        ret._extra_data = copy.copy(experiment_data._extra_data)
+        ret._created_in_db = False
+        return ret
 
     def run_analysis(self, experiment_data, **options) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
