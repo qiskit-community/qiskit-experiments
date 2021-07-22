@@ -13,7 +13,7 @@
 """
 A collections of libraries to setup Calibrations.
 
-Note that the set of available functions will be extended in future releases.
+Note that the set of available libraries will be extended in future releases.
 """
 
 from abc import ABC, abstractmethod
@@ -28,24 +28,7 @@ from qiskit_experiments.exceptions import CalibrationError
 
 
 class BasisGateLibrary(ABC):
-    """A base class for libraries of basis gates to make it easier to setup Calibrations.
-
-    Calibration instances can be setup using subclasses of BasisGateLibrary. For example,
-
-    .. code-block:: python
-
-        cals = BackendCalibrations(
-                FakeArmonk(),
-                basis_gates=["x", "sx"],
-                library=FixedFrequencyTransmon,
-                default_values={"duration": 320},
-            )
-
-    creates an instance of :class:`BackendCalibrations` with the X and square-root X gates.
-    These gates in this example are obtained from the :class:`FixedFrequencyTransmon` gate
-    library. Here, we also override the default schedule duration of 160 samples and set
-    it to 320 samples.
-    """
+    """A base class for libraries of basis gates to make it easier to setup Calibrations."""
 
     # Location where default parameter values are stored. These may be updated at construction.
     __default_values__ = dict()
