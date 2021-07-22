@@ -14,7 +14,7 @@
 
 import uuid
 from typing import Optional, Union, Dict
-from datetime import datetime
+from datetime import datetime, timezone
 import time
 
 from qiskit.providers.job import JobV1 as Job
@@ -45,7 +45,7 @@ class FakeJob(Job):
     @staticmethod
     def time_per_step() -> Dict[str, datetime]:
         """Return the completion time."""
-        return {"COMPLETED": datetime.now()}
+        return {"COMPLETED": datetime.now(timezone.utc)}
 
     def status(self) -> JobStatus:
         """Return the status of the job, among the values of ``JobStatus``."""
