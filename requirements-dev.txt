@@ -10,6 +10,7 @@ pygments>=2.4
 reno>=3.2.0
 sphinx-panels
 nbsphinx
+arxiv
 
 ddt~=1.4.2
 qiskit-aer>=0.8.0
