@@ -90,7 +90,6 @@ class BaseAnalysis(ABC):
 
         # Run analysis
         analysis_result_parameters = {
-            "result_type": experiment_data.experiment_type,
             "experiment_id": experiment_data.experiment_id,
         }
         if "physical_qubits" in experiment_data.metadata():
@@ -107,7 +106,11 @@ class BaseAnalysis(ABC):
                     res["success"] = True
                 if "stderr" in res:
                     res["variance"] = res["stderr"] ** 2
-                analysis_result = DbAnalysisResultV1(result_data=res, **analysis_result_parameters)
+                analysis_result = DbAnalysisResultV1(
+                    result_data=res,
+                    result_type=res.get("result_type", experiment_data.experiment_type),
+                    **analysis_result_parameters,
+                )
                 if "chisq" in res:
                     analysis_result.chisq = res["chisq"]
                 if "quality" in res:
@@ -118,6 +121,7 @@ class BaseAnalysis(ABC):
             analysis_results = [
                 DbAnalysisResultV1(
                     result_data={"success": False, "error_message": ex},
+                    result_type=experiment_data.experiment_type,
                     **analysis_result_parameters,
                 )
             ]
