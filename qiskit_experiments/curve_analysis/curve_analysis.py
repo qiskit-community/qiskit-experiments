@@ -17,6 +17,7 @@ Analysis class for curve fitting.
 
 import dataclasses
 import inspect
+from abc import ABC
 import functools
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
@@ -41,7 +42,7 @@ from qiskit_experiments.curve_analysis.visualization import (
 from qiskit_experiments.curve_analysis.utils import get_opt_value, get_opt_error
 
 
-class CurveAnalysis(BaseAnalysis):
+class CurveAnalysis(BaseAnalysis, ABC):
     """A base class for curve fit type analysis.
 
     The subclasses can override class attributes to define the behavior of
@@ -270,48 +271,29 @@ class CurveAnalysis(BaseAnalysis):
             setattr(self, f"__{key}", None)
 
     @classmethod
-    def _default_options(cls):
+    def _default_options(cls) -> Options:
         """Return default analysis options.
 
-        Options:
-            curve_fitter: A callback function to perform fitting with formatted data.
-                This function should have signature:
-
-                .. code-block::
-
-                    def curve_fitter(
-                        funcs: List[Callable],
-                        series: ndarray,
-                        xdata: ndarray,
-                        ydata: ndarray,
-                        p0: ndarray,
-                        sigma: Optional[ndarray],
-                        weights: Optional[ndarray],
-                        bounds: Optional[
-                            Union[Dict[str, Tuple[float, float]], Tuple[ndarray, ndarray]]
-                        ],
-                    ) -> CurveAnalysisResultData:
-
-                See :func:`~qiskit_experiment.curve_analysis.multi_curve_fit` for example.
-            data_processor: A callback function to format experiment data.
-                This function should have signature:
-
-                .. code-block::
-
-                    def data_processor(data: Dict[str, Any]) -> Tuple[float, float]
-
-                This can be a :class:`~qiskit_experiment.data_processing.DataProcessor`
+        Analysis Options:
+            curve_fitter (Callable): A callback function to perform fitting with formatted data.
+                See :func:`~qiskit_experiments.analysis.multi_curve_fit` for example.
+            data_processor (Callable): A callback function to format experiment data.
+                This can be a :class:`~qiskit_experiments.data_processing.DataProcessor`
                 instance that defines the `self.__call__` method.
-            normalization: Set ``True`` to normalize y values within range [-1, 1].
-            p0: Array-like or dictionary of initial parameters.
-            bounds: Array-like or dictionary of (min, max) tuple of fit parameter boundaries.
-            x_key: Circuit metadata key representing a scanned value.
-            plot: Set ``True`` to create figure for fit result.
-            axis: Optional. A matplotlib axis object to draw.
-            xlabel: X label of fit result figure.
-            ylabel: Y label of fit result figure.
-            fit_reports: Mapping of fit parameters and representation in the fit report.
-            return_data_points: Set ``True`` to return formatted XY data.
+            normalization (bool) : Set ``True`` to normalize y values within range [-1, 1].
+            p0 (Dict[str, float]): Array-like or dictionary
+                of initial parameters.
+            bounds (Dict[str, Tuple[float, float]]): Array-like or dictionary
+                of (min, max) tuple of fit parameter boundaries.
+            x_key (str): Circuit metadata key representing a scanned value.
+            plot (bool): Set ``True`` to create figure for fit result.
+            axis (AxesSubplot): Optional. A matplotlib axis object to draw.
+            xlabel (str): X label of fit result figure.
+            ylabel (str): Y label of fit result figure.
+            ylim (Tuple[float, float]): Min and max height limit of fit plot.
+            fit_reports (Dict[str, str]): Mapping of fit parameters and representation
+                in the fit report.
+            return_data_points (bool): Set ``True`` to return formatted XY data.
         """
         return Options(
             curve_fitter=multi_curve_fit,
