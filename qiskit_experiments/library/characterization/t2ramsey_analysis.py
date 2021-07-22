@@ -17,16 +17,13 @@ from typing import List, Optional, Tuple, Dict
 import numpy as np
 
 from qiskit.utils import apply_prefix
-from qiskit.providers.options import Options
-from qiskit_experiments.base_analysis import BaseAnalysis
-from qiskit_experiments.analysis.curve_fitting import (
-    curve_fit,
-    process_curve_data,
-    CurveAnalysisResultData,
-)
-from qiskit_experiments.analysis.data_processing import level2_probability
-from qiskit_experiments.analysis import plotting
-from qiskit_experiments.experiment_data import ExperimentData
+from qiskit_experiments.framework import BaseAnalysis, Options, ExperimentData
+from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
+from qiskit_experiments.curve_analysis import curve_fit, plot_curve_fit, plot_errorbar, plot_scatter
+from qiskit_experiments.curve_analysis.curve_analysis_result_data import CurveAnalysisResultData
+from qiskit_experiments.curve_analysis.curve_fit import process_curve_data
+from qiskit_experiments.curve_analysis.data_processing import level2_probability
+
 
 # pylint: disable = invalid-name
 class T2RamseyAnalysis(BaseAnalysis):
@@ -117,34 +114,40 @@ class T2RamseyAnalysis(BaseAnalysis):
             osc_fit_fun, xdata, ydata, p0=list(p0.values()), sigma=sigma, bounds=bounds
         )
 
-        if plot and plotting.HAS_MATPLOTLIB:
-            ax = plotting.plot_curve_fit(osc_fit_fun, fit_result, ax=ax)
-            ax = plotting.plot_scatter(xdata, ydata, ax=ax)
-            ax = plotting.plot_errorbar(xdata, ydata, sigma, ax=ax)
+        if plot and HAS_MATPLOTLIB:
+            ax = plot_curve_fit(osc_fit_fun, fit_result, ax=ax)
+            ax = plot_scatter(xdata, ydata, ax=ax)
+            ax = plot_errorbar(xdata, ydata, sigma, ax=ax)
             _format_plot(ax, unit, fit_result, conversion_factor)
             figures = [ax.get_figure()]
         else:
             figures = None
 
         # Output unit is 'sec', regardless of the unit used in the input
-        result_data = {
-            "t2ramsey_value": fit_result["popt"][1],
-            "frequency_value": fit_result["popt"][2],
-            "stderr_t2": fit_result["popt_err"][1],
-            "stderr_freq": fit_result["popt_err"][2],
+        result_t2 = {
+            "value": fit_result["popt"][1],
+            "stderr": fit_result["popt_err"][1],
             "unit": "s",
-            "label": "T2Ramsey",
-            "fit": fit_result,
-            "quality": self._fit_quality(
-                fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
-            ),
+            "result_type": "T2Ramsey",
+        }
+        result_freq = {
+            "value": fit_result["popt"][2],
+            "stderr": fit_result["popt_err"][2],
+            "unit": "Hz",
+            "result_type": "RamseyFrequency",
         }
 
-        result_data["fit"]["circuit_unit"] = unit
-        if unit == "dt":
-            result_data["fit"]["dt"] = conversion_factor
+        quality = self._fit_quality(
+            fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
+        )
+        for res in [result_t2, result_freq]:
+            res["fit"] = fit_result
+            res["quality"] = quality
+            res["fit"]["circuit_unit"] = unit
+            if unit == "dt":
+                res["fit"]["dt"] = conversion_factor
 
-        return [CurveAnalysisResultData(result_data)], figures
+        return [CurveAnalysisResultData(result_t2), CurveAnalysisResultData(result_freq)], figures
 
     def _t2ramsey_default_params(
         self,

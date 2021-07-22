@@ -74,6 +74,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         device_components: List[Union[DeviceComponent, str]],
         experiment_id: str,
         result_id: Optional[str] = None,
+        chisq: Optional[float] = None,
         quality: Optional[str] = None,
         verified: bool = False,
         tags: Optional[List[str]] = None,
@@ -88,6 +89,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             device_components: Target device components this analysis is for.
             experiment_id: ID of the experiment.
             result_id: Result ID. If ``None``, one is generated.
+            chisq: Reduced chi squared of the fit.
             quality: Quality of the analysis. Refer to the experiment service
                 provider for valid values.
             verified: Whether the result quality has been verified.
@@ -116,6 +118,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 comp = to_component(comp)
             self._device_components.append(comp)
 
+        self._chisq = chisq
         self._quality = quality
         self._quality_verified = verified
         self._tags = tags or []
@@ -143,7 +146,9 @@ class DbAnalysisResultV1(DbAnalysisResult):
             The loaded analysis result.
         """
         # Load data from the service
-        return cls._from_service_data(service.analysis_result(result_id))
+        instance = cls._from_service_data(service.analysis_result(result_id))
+        instance._created_in_db = True
+        return instance
 
     def save(self) -> None:
         """Save this analysis result in the database.
@@ -169,6 +174,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             "result_id": self.result_id,
             "data": _result_data,
             "tags": self.tags(),
+            "chisq": self._chisq,
             "quality": self.quality,
             "verified": self.verified,
         }
@@ -261,6 +267,18 @@ class DbAnalysisResultV1(DbAnalysisResult):
     def source(self) -> Dict:
         """Return the class name and version."""
         return self._source
+
+    @property
+    def chisq(self) -> str:
+        """Return the reduced χ² of this analysis."""
+        return self._chisq
+
+    @chisq.setter
+    def chisq(self, new_chisq: float) -> None:
+        """Set the reduced χ² of this analysis."""
+        self._chisq = new_chisq
+        if self._auto_save:
+            self.save()
 
     @property
     def quality(self) -> str:
@@ -379,6 +397,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
         ret += f"\nAnalysis Result ID: {self.result_id}"
         ret += f"\nExperiment ID: {self.experiment_id}"
         ret += f"\nDevice Components: {self.device_components}"
+        if self.chisq:
+            ret += f"\nχ²: {self.chisq}"
         ret += f"\nQuality: {self.quality}"
         ret += f"\nVerified: {self.verified}"
         if self.tags():

@@ -17,21 +17,12 @@ from typing import List, Dict, Any, Union
 
 import numpy as np
 
-from qiskit_experiments.analysis import (
-    CurveAnalysis,
-    CurveAnalysisResultData,
-    SeriesDef,
-    CurveData,
-    fit_function,
-    get_opt_value,
-    get_opt_error,
-)
-
-from qiskit_experiments.analysis.data_processing import multi_mean_xy_data
+import qiskit_experiments.curve_analysis as curve
+from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data
 from .rb_utils import RBUtils
 
 
-class RBAnalysis(CurveAnalysis):
+class RBAnalysis(curve.CurveAnalysis):
     r"""A class to analyze randomized benchmarking experiments.
 
     Overview
@@ -66,8 +57,8 @@ class RBAnalysis(CurveAnalysis):
     """
 
     __series__ = [
-        SeriesDef(
-            fit_func=lambda x, a, alpha, b: fit_function.exponential_decay(
+        curve.SeriesDef(
+            fit_func=lambda x, a, alpha, b: curve.fit_function.exponential_decay(
                 x, amp=a, lamb=-1.0, base=alpha, baseline=b
             ),
             plot_color="blue",
@@ -79,7 +70,7 @@ class RBAnalysis(CurveAnalysis):
     def _default_options(cls):
         """Return default options.
 
-        See :meth:`~qiskit_experiment.analysis.CurveAnalysis._default_options` for
+        See :meth:`~qiskit_experiment.curve_analysis.CurveAnalysis._default_options` for
         descriptions of analysis options.
         """
         default_options = super()._default_options()
@@ -137,7 +128,7 @@ class RBAnalysis(CurveAnalysis):
 
         return fit_guess
 
-    def _format_data(self, data: CurveData) -> CurveData:
+    def _format_data(self, data: curve.CurveData) -> curve.CurveData:
         """Take average over the same x values."""
         mean_data_index, mean_x, mean_y, mean_e = multi_mean_xy_data(
             series=data.data_index,
@@ -146,7 +137,7 @@ class RBAnalysis(CurveAnalysis):
             sigma=data.y_err,
             method="sample",
         )
-        return CurveData(
+        return curve.CurveData(
             label="fit_ready",
             x=mean_x,
             y=mean_y,
@@ -164,10 +155,12 @@ class RBAnalysis(CurveAnalysis):
             )
         return super()._run_analysis(experiment_data, **options)
 
-    def _post_analysis(self, result_data: CurveAnalysisResultData) -> CurveAnalysisResultData:
+    def _post_analysis(
+        self, result_data: curve.CurveAnalysisResultData
+    ) -> curve.CurveAnalysisResultData:
         """Calculate EPC."""
-        alpha = get_opt_value(result_data, "alpha")
-        alpha_err = get_opt_error(result_data, "alpha")
+        alpha = curve.get_opt_value(result_data, "alpha")
+        alpha_err = curve.get_opt_error(result_data, "alpha")
 
         scale = (2 ** self._num_qubits - 1) / (2 ** self._num_qubits)
         result_data["EPC"] = scale * (1 - alpha)
