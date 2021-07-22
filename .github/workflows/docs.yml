@@ -1,8 +1,7 @@
 name: Docs Publish
 on:
   push:
-    tags:
-      - "*"
+    branches: [ test ]
 
 jobs:
   deploy:
