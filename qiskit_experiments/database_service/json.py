@@ -19,18 +19,23 @@ from typing import Any
 import numpy as np
 
 
-class NumpyEncoder(json.JSONEncoder):
+class ExperimentEncoder(json.JSONEncoder):
     """JSON Encoder for Numpy arrays and complex numbers."""
 
     def default(self, obj: Any) -> Any:  # pylint: disable=arguments-differ
         if hasattr(obj, "tolist"):
-            return {"type": "array", "value": obj.tolist()}
+            return {"__type__": "array", "__value__": obj.tolist()}
         if isinstance(obj, complex):
-            return {"type": "complex", "value": [obj.real, obj.imag]}
-        return super().default(obj)
+            return {"__type__": "complex", "__value__": [obj.real, obj.imag]}
+        if callable(obj):
+            return {"__type__": "callable", "__value__": obj.__name__}
+        try:
+            return super().default(obj)
+        except TypeError:
+            return {"__type__": "__class_name__", "__value__": obj.__class__.__name__}
 
 
-class NumpyDecoder(json.JSONDecoder):
+class ExperimentDecoder(json.JSONDecoder):
     """JSON Decoder for Numpy arrays and complex numbers."""
 
     def __init__(self, *args, **kwargs):
@@ -38,10 +43,14 @@ class NumpyDecoder(json.JSONDecoder):
 
     def object_hook(self, obj):
         """Object hook."""
-        if "type" in obj:
-            if obj["type"] == "complex":
-                val = obj["value"]
+        if "__type__" in obj:
+            if obj["__type__"] == "complex":
+                val = obj["__value__"]
                 return val[0] + 1j * val[1]
-            if obj["type"] == "array":
-                return np.array(obj["value"])
+            if obj["__type__"] == "array":
+                return np.array(obj["__value__"])
+            if obj["__type__"] == "callable":
+                return obj["__value__"]
+            if obj["__type__"] == "__class_name__":
+                return obj["__value__"]
         return obj

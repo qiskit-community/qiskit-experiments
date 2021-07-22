@@ -14,7 +14,7 @@
 
 # pylint: disable=unbalanced-tuple-unpacking
 
-from test.data_processing.fake_experiment import FakeExperiment, BaseDataProcessorTest
+from test.fake_experiment import FakeExperiment
 
 from typing import Any, List
 import numpy as np
@@ -22,9 +22,11 @@ import numpy as np
 from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit.result import Result
 from qiskit.test import QiskitTestCase
-from qiskit_experiments.experiment_data import ExperimentData
+from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.data_processing.nodes import SVD, AverageData, MinMaxNormalize
 from qiskit_experiments.data_processing.data_processor import DataProcessor
+
+from . import BaseDataProcessorTest
 
 
 class TestAveraging(QiskitTestCase):
