@@ -90,20 +90,30 @@ class TestFixedFrequencyTransmon(QiskitTestCase):
         expected = [
             (0.5, "amp", (), "x"),
             (0.0, "β", (), "x"),
-            (320, "duration", (), "x"),
-            (80, "σ", (), "x"),
-            (320, "duration", (), "sx"),
+            (160, "duration", (), "x"),
+            (40, "σ", (), "x"),
+            (160, "duration", (), "sx"),
             (0.0, "β", (), "sx"),
             (0.25, "amp", (), "sx"),
-            (80, "σ", (), "sx"),
+            (40, "σ", (), "sx"),
             (0.5j, "amp", (), "y"),
             (0.0, "β", (), "y"),
-            (320, "duration", (), "y"),
-            (80, "σ", (), "y"),
-            (320, "duration", (), "sy"),
+            (160, "duration", (), "y"),
+            (40, "σ", (), "y"),
+            (160, "duration", (), "sy"),
             (0.0, "β", (), "sy"),
             (0.25j, "amp", (), "sy"),
-            (80, "σ", (), "sy"),
+            (40, "σ", (), "sy"),
         ]
 
         self.assertSetEqual(set(library.default_values()), set(expected))
+
+    def setup_partial_gates(self):
+        """Check that we do not setup all gates if not required."""
+
+        library = FixedFrequencyTransmon(basis_gates=["x", "sy"])
+
+        self.assertTrue("x" in library)
+        self.assertTrue("sy" in library)
+        self.assertTrue("y" not in library)
+        self.assertTrue("sx" not in library)

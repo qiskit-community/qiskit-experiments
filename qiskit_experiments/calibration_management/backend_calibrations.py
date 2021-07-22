@@ -14,7 +14,7 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import List
 import copy
 
 from qiskit.providers.backend import BackendV1 as Backend
@@ -47,7 +47,6 @@ class BackendCalibrations(Calibrations):
     def __init__(
         self,
         backend: Backend,
-        basis_gates: Optional[List[str]] = None,
         library: BasisGateLibrary = None,
     ):
         """Setup an instance to manage the calibrations of a backend.
@@ -59,15 +58,16 @@ class BackendCalibrations(Calibrations):
 
             cals = BackendCalibrations(
                     backend,
-                    basis_gates=["x", "sx"],
-                    library=FixedFrequencyTransmon(default_values={duration: 320}),
+                    library=FixedFrequencyTransmon(
+                        basis_gates=["x", "sx"],
+                        default_values={duration: 320}
+                    )
                 )
 
         Args:
             backend: A backend instance from which to extract the qubit and readout frequencies
                 (which will be added as first guesses for the corresponding parameters) as well
                 as the coupling map.
-            basis_gates: The basis gates to extract from the library and add to the calibrations.
             library: A library class that will be instantiated with the library options to then
                 get template schedules to register as well as default parameter values.
         """
@@ -93,18 +93,16 @@ class BackendCalibrations(Calibrations):
         for meas, freq in enumerate(backend.defaults().meas_freq_est):
             self.add_parameter_value(freq, self.meas_freq, meas)
 
-        basis_gates = basis_gates or list()
-
         if library is not None:
 
             # Add the basis gates
-            for gate in basis_gates:
+            for gate in library.basis_gates:
                 self.add_schedule(library[gate])
 
             # Add the default values
             for param_conf in library.default_values():
                 schedule_name = param_conf[-1]
-                if schedule_name in basis_gates:
+                if schedule_name in library.basis_gates:
                     self.add_parameter_value(*param_conf)
 
     def _get_frequencies(

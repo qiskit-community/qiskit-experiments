@@ -35,8 +35,9 @@ class TestBackendCalibrations(QiskitTestCase):
 
         cals = BackendCalibrations(
             FakeArmonk(),
-            basis_gates=["x", "sx"],
-            library=FixedFrequencyTransmon(default_values={"duration": 320}),
+            library=FixedFrequencyTransmon(
+                basis_gates=["x", "sx"], default_values={"duration": 320}
+            ),
         )
 
         # Check the x gate

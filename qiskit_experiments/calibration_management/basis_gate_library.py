@@ -33,16 +33,37 @@ class BasisGateLibrary(ABC):
     # Location where default parameter values are stored. These may be updated at construction.
     __default_values__ = dict()
 
-    def __init__(self, default_values: Optional[Dict] = None):
+    # The basis gates that this library generates.
+    __supported_gates__ = None
+
+    def __init__(
+        self, basis_gates: Optional[List[str]] = None, default_values: Optional[Dict] = None
+    ):
         """Setup the library.
 
         Args:
+            basis_gates: The basis gates to generate.
             default_values: A dictionary to override library default parameter values.
+
+        Raises:
+            CalibrationError: If on of the given basis gates is not supported by the library.
         """
         self._schedules = dict()
 
+        # Update the default values.
+        self._default_values = dict(self.__default_values__)
         if default_values is not None:
-            self.__default_values__.update(default_values)
+            self._default_values.update(default_values)
+
+        if basis_gates is not None:
+            for gate in basis_gates:
+                if gate not in self.__supported_gates__:
+                    raise CalibrationError(
+                        f"Gate {gate} is not supported by {self.__class__.__name__}. "
+                        f"Supported gates are: {self.__supported_gates__}."
+                    )
+
+        self._basis_gates = basis_gates or self.__supported_gates__
 
     def __getitem__(self, name: str) -> ScheduleBlock:
         """Return the schedule."""
@@ -75,15 +96,19 @@ class FixedFrequencyTransmon(BasisGateLibrary):
 
     __default_values__ = {"duration": 160, "amp": 0.5, "β": 0.0}
 
+    __supported_gates__ = ["x", "y", "sx", "sy"]
+
     def __init__(
         self,
+        basis_gates: Optional[List[str]] = None,
         default_values: Optional[Dict] = None,
         use_drag: bool = True,
-        link_parameters: bool = True
+        link_parameters: bool = True,
     ):
         """Setup the schedules.
 
         Args:
+            basis_gates: The basis gates to generate.
             default_values: Default values for the parameters this dictionary can contain
                 the following keys: "duration", "amp", "β", and "σ". If "σ" is not provided
                 this library will take one fourth of the pulse duration as default value.
@@ -92,7 +117,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
             link_parameters: if set to True then the amplitude and DRAG parameters of the
                 X and Y gates will be linked as well as those of the SX and SY gates.
         """
-        super().__init__(default_values)
+        super().__init__(basis_gates, default_values)
         self._link_parameters = link_parameters
 
         dur = Parameter("duration")
@@ -105,7 +130,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         x_amp, x_beta = Parameter("amp"), _beta(use_drag)
 
         if self._link_parameters:
-            y_amp, y_beta = 1.0j*x_amp, x_beta
+            y_amp, y_beta = 1.0j * x_amp, x_beta
         else:
             y_amp, y_beta = Parameter("amp"), _beta(use_drag)
 
@@ -123,7 +148,8 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         sched_sy = self._single_qubit_schedule("sy", dur, sy_amp, sigma, sy_beta)
 
         for sched in [sched_x, sched_y, sched_sx, sched_sy]:
-            self._schedules[sched.name] = sched
+            if sched.name in self._basis_gates:
+                self._schedules[sched.name] = sched
 
     @staticmethod
     def _single_qubit_schedule(
@@ -161,10 +187,10 @@ class FixedFrequencyTransmon(BasisGateLibrary):
                     if "y" in name and self._link_parameters:
                         continue
 
-                    if param.name == "σ" and "σ" not in self.__default_values__:
-                        value = self.__default_values__["duration"] / 4
+                    if param.name == "σ" and "σ" not in self._default_values:
+                        value = self._default_values["duration"] / 4
                     else:
-                        value = self.__default_values__[param.name]
+                        value = self._default_values[param.name]
 
                     if name in {"sx", "sy"} and param.name == "amp":
                         value /= 2.0
