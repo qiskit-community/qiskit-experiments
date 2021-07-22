@@ -48,8 +48,7 @@ class BackendCalibrations(Calibrations):
         self,
         backend: Backend,
         basis_gates: Optional[List[str]] = None,
-        library: Type[BasisGateLibrary] = None,
-        **library_options,
+        library: BasisGateLibrary = None,
     ):
         """Setup an instance to manage the calibrations of a backend.
 
@@ -61,8 +60,7 @@ class BackendCalibrations(Calibrations):
             cals = BackendCalibrations(
                     backend,
                     basis_gates=["x", "sx"],
-                    library=FixedFrequencyTransmon,
-                    default_values={"duration": 320},
+                    library=FixedFrequencyTransmon(default_values={duration: 320}),
                 )
 
         Args:
@@ -72,8 +70,6 @@ class BackendCalibrations(Calibrations):
             basis_gates: The basis gates to extract from the library and add to the calibrations.
             library: A library class that will be instantiated with the library options to then
                 get template schedules to register as well as default parameter values.
-            library_options: Instantiation options for the gate library. See the init method of
-                :class:`BasisGateLibrary` and its subclasses.
         """
         if hasattr(backend.configuration(), "control_channels"):
             control_channels = backend.configuration().control_channels
@@ -100,14 +96,13 @@ class BackendCalibrations(Calibrations):
         basis_gates = basis_gates or list()
 
         if library is not None:
-            library_instance = library(**library_options)
 
             # Add the basis gates
             for gate in basis_gates:
-                self.add_schedule(library_instance[gate])
+                self.add_schedule(library[gate])
 
             # Add the default values
-            for param_conf in library_instance.default_values():
+            for param_conf in library.default_values():
                 schedule_name = param_conf[-1]
                 if schedule_name in basis_gates:
                     self.add_parameter_value(*param_conf)
