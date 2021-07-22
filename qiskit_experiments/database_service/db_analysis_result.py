@@ -20,7 +20,7 @@ import copy
 from functools import wraps
 
 from .database_service import DatabaseServiceV1
-from .json import NumpyEncoder, NumpyDecoder
+from .json import ExperimentEncoder, ExperimentDecoder
 from .utils import save_data, qiskit_version
 from .exceptions import DbExperimentDataError
 from .device_component import DeviceComponent, to_component
@@ -28,7 +28,7 @@ from .device_component import DeviceComponent, to_component
 LOG = logging.getLogger(__name__)
 
 
-def auto_save(func: Callable):
+def do_auto_save(func: Callable):
     """Decorate the input function to auto save data."""
 
     @wraps(func)
@@ -62,8 +62,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
     version = 1
     _data_version = 1
 
-    _json_encoder = NumpyEncoder
-    _json_decoder = NumpyDecoder
+    _json_encoder = ExperimentEncoder
+    _json_decoder = ExperimentDecoder
 
     _extra_data = {}
 
@@ -74,6 +74,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         device_components: List[Union[DeviceComponent, str]],
         experiment_id: str,
         result_id: Optional[str] = None,
+        chisq: Optional[float] = None,
         quality: Optional[str] = None,
         verified: bool = False,
         tags: Optional[List[str]] = None,
@@ -88,6 +89,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             device_components: Target device components this analysis is for.
             experiment_id: ID of the experiment.
             result_id: Result ID. If ``None``, one is generated.
+            chisq: Reduced chi squared of the fit.
             quality: Quality of the analysis. Refer to the experiment service
                 provider for valid values.
             verified: Whether the result quality has been verified.
@@ -116,6 +118,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 comp = to_component(comp)
             self._device_components.append(comp)
 
+        self._chisq = chisq
         self._quality = quality
         self._quality_verified = verified
         self._tags = tags or []
@@ -123,7 +126,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         # Other attributes.
         self._service = service
         self._created_in_db = False
-        self.auto_save = False
+        self._auto_save = False
         if self._service:
             try:
                 self.auto_save = self._service.option("auto_save")
@@ -131,56 +134,21 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 pass
         self._extra_data = kwargs
 
-    def serialize_data(self) -> str:
-        """Serialize result data into JSON string.
-
-        Returns:
-            Serialized JSON string.
-        """
-        return json.dumps(self._result_data, cls=self._json_encoder)
-
     @classmethod
-    def deserialize_data(cls, data: str) -> Dict:
-        """Deserialize experiment from JSON string.
+    def load(cls, result_id: str, service: DatabaseServiceV1) -> "DbAnalysisResultV1":
+        """Load a saved analysis result from a database service.
 
         Args:
-            data: Data to be deserialized.
+            result_id: Analysis result ID.
+            service: the database service.
 
         Returns:
-            Deserialized data.
+            The loaded analysis result.
         """
-        return json.loads(data, cls=cls._json_decoder)
-
-    @classmethod
-    def from_data(
-        cls,
-        result_data: Dict,
-        result_type: str,
-        device_components: List[Union[DeviceComponent, str]],
-        experiment_id: str,
-        **kwargs,
-    ) -> "DbAnalysisResultV1":
-        """Reconstruct the analysis result from input data.
-
-        Args:
-            result_data: Analysis result data.
-            result_type: Analysis result type.
-            device_components: Target device components this analysis is for.
-            experiment_id: ID of the experiment.
-            **kwargs: Additional analysis result attributes.
-
-        Returns:
-            Reconstructed analysis result.
-        """
-        if result_data:
-            result_data = cls.deserialize_data(json.dumps(result_data))
-        return cls(
-            result_data=result_data,
-            result_type=result_type,
-            device_components=device_components,
-            experiment_id=experiment_id,
-            **kwargs,
-        )
+        # Load data from the service
+        instance = cls._from_service_data(service.analysis_result(result_id))
+        instance._created_in_db = True
+        return instance
 
     def save(self) -> None:
         """Save this analysis result in the database.
@@ -194,7 +162,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             )
             return
 
-        _result_data = json.loads(self.serialize_data())
+        _result_data = json.loads(json.dumps(self._result_data, cls=self._json_encoder))
         _result_data["_source"] = self._source
 
         new_data = {
@@ -206,6 +174,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             "result_id": self.result_id,
             "data": _result_data,
             "tags": self.tags(),
+            "chisq": self._chisq,
             "quality": self.quality,
             "verified": self.verified,
         }
@@ -218,6 +187,34 @@ class DbAnalysisResultV1(DbAnalysisResult):
             update_data=update_data,
         )
 
+    @classmethod
+    def _from_service_data(cls, service_data: Dict) -> "DbAnalysisResultV1":
+        """Construct an analysis result from saved database service data.
+
+        Args:
+            service_data: Analysis result data.
+
+        Returns:
+            The loaded analysis result.
+        """
+        # Parse serialized data
+        result_data = service_data.pop("result_data")
+        if result_data:
+            result_data = json.loads(json.dumps(result_data), cls=cls._json_decoder)
+        # Initialize the result object
+        return cls(
+            result_data,
+            result_type=service_data.pop("result_type"),
+            device_components=service_data.pop("device_components"),
+            experiment_id=service_data.pop("experiment_id"),
+            result_id=service_data.pop("result_id"),
+            quality=service_data.pop("quality"),
+            verified=service_data.pop("verified"),
+            tags=service_data.pop("tags"),
+            service=service_data.pop("service"),
+            **service_data,
+        )
+
     def data(self) -> Dict:
         """Return analysis result data.
 
@@ -226,7 +223,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         """
         return self._result_data
 
-    @auto_save
+    @do_auto_save
     def set_data(self, new_data: Dict) -> None:
         """Set result data.
 
@@ -239,7 +236,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         """Return tags associated with this result."""
         return self._tags
 
-    @auto_save
+    @do_auto_save
     def set_tags(self, new_tags: List[str]) -> None:
         """Set tags for this result.
 
@@ -270,6 +267,18 @@ class DbAnalysisResultV1(DbAnalysisResult):
     def source(self) -> Dict:
         """Return the class name and version."""
         return self._source
+
+    @property
+    def chisq(self) -> str:
+        """Return the reduced χ² of this analysis."""
+        return self._chisq
+
+    @chisq.setter
+    def chisq(self, new_chisq: float) -> None:
+        """Set the reduced χ² of this analysis."""
+        self._chisq = new_chisq
+        if self._auto_save:
+            self.save()
 
     @property
     def quality(self) -> str:
@@ -348,6 +357,26 @@ class DbAnalysisResultV1(DbAnalysisResult):
         self._service = service
 
     @property
+    def auto_save(self) -> bool:
+        """Return current auto-save option.
+
+        Returns:
+            Whether changes will be automatically saved.
+        """
+        return self._auto_save
+
+    @auto_save.setter
+    def auto_save(self, save_val: bool) -> None:
+        """Set auto save preference.
+
+        Args:
+            save_val: Whether to do auto-save.
+        """
+        if save_val and not self._auto_save:
+            self.save()
+        self._auto_save = save_val
+
+    @property
     def device_components(self) -> List[DeviceComponent]:
         """Return target device components for this analysis result.
 
@@ -368,11 +397,13 @@ class DbAnalysisResultV1(DbAnalysisResult):
         ret += f"\nAnalysis Result ID: {self.result_id}"
         ret += f"\nExperiment ID: {self.experiment_id}"
         ret += f"\nDevice Components: {self.device_components}"
+        if self.chisq:
+            ret += f"\nχ²: {self.chisq}"
         ret += f"\nQuality: {self.quality}"
         ret += f"\nVerified: {self.verified}"
         if self.tags():
             ret += f"\nTags: {self.tags()}"
         ret += "\nResult Data:"
-        for key, val in self.data().items():
-            ret += f"\n  - {key}: {val}"
+        ret += str(self.data())
+
         return ret

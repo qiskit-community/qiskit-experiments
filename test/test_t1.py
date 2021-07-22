@@ -14,9 +14,9 @@ Test T1 experiment
 """
 
 from qiskit.test import QiskitTestCase
-from qiskit_experiments import ExperimentData
-from qiskit_experiments.composite import ParallelExperiment
-from qiskit_experiments.characterization import T1, T1Analysis
+from qiskit_experiments.framework import ExperimentData, ParallelExperiment
+from qiskit_experiments.library import T1
+from qiskit_experiments.library.characterization import T1Analysis
 from qiskit_experiments.test.t1_backend import T1Backend
 
 
@@ -51,10 +51,12 @@ class TestT1(QiskitTestCase):
 
         exp = T1(0, delays, unit="dt")
         exp.set_analysis_options(amplitude_guess=1, t1_guess=t1 / dt_factor, offset_guess=0)
-        res = exp.run(backend, shots=10000).analysis_result(0)
+        exp_data = exp.run(backend, shots=10000)
+        exp_data.block_for_results()  # Wait for analysis to finish.
+        res = exp_data.analysis_results(0)
 
-        self.assertEqual(res["quality"], "computer_good")
-        self.assertAlmostEqual(res["value"], t1, delta=3)
+        self.assertEqual(res.quality, "good")
+        self.assertAlmostEqual(res.data()["value"], t1, delta=3)
 
     def test_t1_parallel(self):
         """
@@ -68,11 +70,12 @@ class TestT1(QiskitTestCase):
         exp2 = T1(2, delays)
         par_exp = ParallelExperiment([exp0, exp2])
         res = par_exp.run(T1Backend([t1[0], None, t1[1]]))
+        res.block_for_results()
 
         for i in range(2):
-            sub_res = res.component_experiment_data(i).analysis_result(0)
-            self.assertEqual(sub_res["quality"], "computer_good")
-            self.assertAlmostEqual(sub_res["value"], t1[i], delta=3)
+            sub_res = res.component_experiment_data(i).analysis_results(0)
+            self.assertEqual(sub_res.quality, "good")
+            self.assertAlmostEqual(sub_res.data()["value"], t1[i], delta=3)
 
     def test_t1_parallel_different_analysis_options(self):
         """
@@ -90,25 +93,26 @@ class TestT1(QiskitTestCase):
 
         par_exp = ParallelExperiment([exp0, exp1])
         res = par_exp.run(T1Backend([t1, t1]))
+        res.block_for_results()
 
         sub_res = []
         for i in range(2):
-            sub_res.append(res.component_experiment_data(i).analysis_result(0))
+            sub_res.append(res.component_experiment_data(i).analysis_results(0))
 
-        self.assertEqual(sub_res[0]["quality"], "computer_good")
-        self.assertAlmostEqual(sub_res[0]["value"], t1, delta=3)
-        self.assertEqual(sub_res[1]["quality"], "computer_bad")
+        self.assertEqual(sub_res[0].quality, "good")
+        self.assertAlmostEqual(sub_res[0].data()["value"], t1, delta=3)
+        self.assertEqual(sub_res[1].quality, "bad")
 
     def test_t1_analysis(self):
         """
         Test T1Analysis
         """
 
-        data = ExperimentData(None)
+        data = ExperimentData()
         numbers = [750, 1800, 2750, 3550, 4250, 4850, 5450, 5900, 6400, 6800, 7000, 7350, 7700]
 
         for i, count0 in enumerate(numbers):
-            data._data.append(
+            data.add_data(
                 {
                     "counts": {"0": count0, "1": 10000 - count0},
                     "metadata": {
@@ -121,9 +125,9 @@ class TestT1(QiskitTestCase):
                 }
             )
 
-        res = T1Analysis()._run_analysis(data)[0]
-        self.assertEqual(res[0]["quality"], "computer_good")
-        self.assertAlmostEqual(res[0]["value"], 25e-9, delta=3)
+        res = T1Analysis()._run_analysis(data)[0][0]
+        self.assertEqual(res["quality"], "good")
+        self.assertAlmostEqual(res["value"], 25e-9, delta=3)
 
     def test_t1_metadata(self):
         """
@@ -152,10 +156,10 @@ class TestT1(QiskitTestCase):
         A test where the fit's quality will be low
         """
 
-        data = ExperimentData(None)
+        data = ExperimentData()
 
         for i in range(10):
-            data._data.append(
+            data.add_data(
                 {
                     "counts": {"0": 10, "1": 10},
                     "metadata": {
@@ -168,5 +172,5 @@ class TestT1(QiskitTestCase):
                 }
             )
 
-        res = T1Analysis()._run_analysis(data)[0]
-        self.assertEqual(res[0]["quality"], "computer_bad")
+        res = T1Analysis()._run_analysis(data)[0][0]
+        self.assertEqual(res["quality"], "bad")
