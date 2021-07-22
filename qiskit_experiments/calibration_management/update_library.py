@@ -13,7 +13,7 @@
 """A library of experiment calibrations."""
 
 from abc import ABC
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional, Tuple, Union
 import numpy as np
 
@@ -58,7 +58,7 @@ class BaseUpdater(ABC):
         if all_times:
             return max(all_times)
 
-        return datetime.now()
+        return datetime.now(timezone.utc)
 
     @classmethod
     def _add_parameter_value(
