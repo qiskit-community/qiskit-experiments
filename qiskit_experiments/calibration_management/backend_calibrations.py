@@ -14,7 +14,7 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional, Type
+from typing import List, Optional
 import copy
 
 from qiskit.providers.backend import BackendV1 as Backend
