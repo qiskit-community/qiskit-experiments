@@ -18,7 +18,7 @@ from qiskit.providers.options import Options
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
 from qiskit.test import QiskitTestCase
-from qiskit_experiments import ParallelExperiment
+from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library import T2Ramsey
 from qiskit_experiments.test.utils import FakeJob
 

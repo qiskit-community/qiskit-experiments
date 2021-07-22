@@ -17,7 +17,7 @@ import numpy as np
 from ddt import ddt, data, unpack
 from qiskit.test import QiskitTestCase
 
-from qiskit_experiments.analysis import guess
+from qiskit_experiments.curve_analysis import guess
 
 
 @ddt

@@ -22,7 +22,7 @@ import numpy as np
 from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit.result import Result
 from qiskit.test import QiskitTestCase
-from qiskit_experiments.experiment_data import ExperimentData
+from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.data_processing.nodes import SVD, AverageData, MinMaxNormalize
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 
