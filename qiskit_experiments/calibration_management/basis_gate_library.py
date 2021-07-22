@@ -72,6 +72,10 @@ class BasisGateLibrary(ABC):
 
         return self._schedules[name]
 
+    def __contains__(self, name: str) -> bool:
+        """Check if the basis gate is in the library."""
+        return name in self._schedules
+
     @property
     def basis_gates(self) -> List[str]:
         """Return the basis gates supported by the library."""

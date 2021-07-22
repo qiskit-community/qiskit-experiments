@@ -108,7 +108,7 @@ class TestFixedFrequencyTransmon(QiskitTestCase):
 
         self.assertSetEqual(set(library.default_values()), set(expected))
 
-    def setup_partial_gates(self):
+    def test_setup_partial_gates(self):
         """Check that we do not setup all gates if not required."""
 
         library = FixedFrequencyTransmon(basis_gates=["x", "sy"])
