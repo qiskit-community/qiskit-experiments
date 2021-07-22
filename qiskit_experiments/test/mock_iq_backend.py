@@ -17,11 +17,12 @@ from typing import List, Tuple
 import numpy as np
 
 from qiskit import QuantumCircuit
+from qiskit.result import Result
 from qiskit.test.mock import FakeOpenPulse2Q
 
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
-from qiskit_experiments.test.mock_job import MockJob
+from qiskit_experiments.test.utils import FakeJob
 
 
 class MockIQBackend(FakeOpenPulse2Q):
@@ -105,6 +106,7 @@ class MockIQBackend(FakeOpenPulse2Q):
                 "shots": shots,
                 "success": True,
                 "header": {"metadata": circ.metadata},
+                "meas_level": meas_level,
             }
 
             prob = self._compute_probability(circ)
@@ -122,7 +124,7 @@ class MockIQBackend(FakeOpenPulse2Q):
 
             result["results"].append(run_result)
 
-        return MockJob(self, result)
+        return FakeJob(self, Result.from_dict(result))
 
 
 class DragBackend(MockIQBackend):
@@ -148,3 +150,34 @@ class DragBackend(MockIQBackend):
         beta = next(iter(circuit.calibrations["Rp"].keys()))[1][0]
 
         return np.sin(n_gates * self._leakage * (beta - self.ideal_beta)) ** 2
+
+
+class MockFineAmp(MockIQBackend):
+    def __init__(self, angle_error: float, angle_per_gate: float, gate_name: str):
+        """Setup a mock backend to test the fine amplitude calibration.
+
+        Args:
+            angle_error: The rotation error per gate.
+            gate_name: The name of the gate to find in the circuit.
+        """
+        self.angle_error = angle_error
+        self._gate_name = gate_name
+        self._angle_per_gate = angle_per_gate
+        super().__init__()
+
+        self.configuration().basis_gates.append("sx")
+        self.configuration().basis_gates.append("x")
+
+    def _compute_probability(self, circuit: QuantumCircuit) -> float:
+        """Return the probability of being in the excited state."""
+
+        n_ops = circuit.count_ops().get(self._gate_name, 0)
+        n_sx_ops = circuit.count_ops().get("sx", 0)
+        n_x_ops = circuit.count_ops().get("x", 0)
+
+        angle = n_ops * (self._angle_per_gate + self.angle_error)
+
+        angle += np.pi / 2 * n_sx_ops
+        angle += np.pi * n_x_ops
+
+        return np.sin(angle / 2) ** 2
