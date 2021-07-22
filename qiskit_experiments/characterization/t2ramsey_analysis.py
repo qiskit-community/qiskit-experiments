@@ -65,7 +65,7 @@ class T2RamseyAnalysis(BaseAnalysis):
         **kwargs,
     ) -> Tuple[List[CurveAnalysisResultData], List["matplotlib.figure.Figure"]]:
         r"""Calculate T2Ramsey experiment.
-        
+
         Args:
             experiment_data (ExperimentData): the experiment data to analyze
             user_p0: contains initial values given by the user, for the
