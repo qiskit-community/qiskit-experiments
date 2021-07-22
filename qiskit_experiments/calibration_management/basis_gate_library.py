@@ -75,7 +75,12 @@ class FixedFrequencyTransmon(BasisGateLibrary):
 
     __default_values__ = {"duration": 160, "amp": 0.5, "β": 0.0}
 
-    def __init__(self, default_values: Optional[Dict] = None, use_drag: bool = True):
+    def __init__(
+        self,
+        default_values: Optional[Dict] = None,
+        use_drag: bool = True,
+        link_parameters: bool = True
+    ):
         """Setup the schedules.
 
         Args:
@@ -84,26 +89,38 @@ class FixedFrequencyTransmon(BasisGateLibrary):
                 this library will take one fourth of the pulse duration as default value.
             use_drag: If set to False then Gaussian pulses will be used instead of DRAG
                 pulses.
+            link_parameters: if set to True then the amplitude and DRAG parameters of the
+                X and Y gates will be linked as well as those of the SX and SY gates.
         """
         super().__init__(default_values)
+        self._link_parameters = link_parameters
 
         dur = Parameter("duration")
         sigma = Parameter("σ")
 
+        # Generate the pulse parameters
         def _beta(use_drag):
             return Parameter("β") if use_drag else None
 
-        # X gates
-        sched_x = self._single_qubit_schedule("x", dur, Parameter("amp"), sigma, _beta(use_drag))
+        x_amp, x_beta = Parameter("amp"), _beta(use_drag)
 
-        # Y gates
-        sched_y = self._single_qubit_schedule("y", dur, Parameter("amp"), sigma, _beta(use_drag))
+        if self._link_parameters:
+            y_amp, y_beta = 1.0j*x_amp, x_beta
+        else:
+            y_amp, y_beta = Parameter("amp"), _beta(use_drag)
 
-        # square-root X gates
-        sched_sx = self._single_qubit_schedule("sx", dur, Parameter("amp"), sigma, _beta(use_drag))
+        sx_amp, sx_beta = Parameter("amp"), _beta(use_drag)
 
-        # square-root Y gates
-        sched_sy = self._single_qubit_schedule("sy", dur, Parameter("amp"), sigma, _beta(use_drag))
+        if self._link_parameters:
+            sy_amp, sy_beta = 1.0j * sx_amp, sx_beta
+        else:
+            sy_amp, sy_beta = Parameter("amp"), _beta(use_drag)
+
+        # Create the schedules for the gates
+        sched_x = self._single_qubit_schedule("x", dur, x_amp, sigma, x_beta)
+        sched_y = self._single_qubit_schedule("y", dur, y_amp, sigma, y_beta)
+        sched_sx = self._single_qubit_schedule("sx", dur, sx_amp, sigma, sx_beta)
+        sched_sy = self._single_qubit_schedule("sy", dur, sy_amp, sigma, sy_beta)
 
         for sched in [sched_x, sched_y, sched_sx, sched_sy]:
             self._schedules[sched.name] = sched
@@ -141,6 +158,8 @@ class FixedFrequencyTransmon(BasisGateLibrary):
             schedule = self._schedules[name]
             for param in schedule.parameters:
                 if "ch" not in param.name:
+                    if "y" in name and self._link_parameters:
+                        continue
 
                     if param.name == "σ" and "σ" not in self.__default_values__:
                         value = self.__default_values__["duration"] / 4

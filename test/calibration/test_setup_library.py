@@ -33,10 +33,15 @@ class TestFixedFrequencyTransmon(QiskitTestCase):
             self.assertEqual(len(sched.parameters), 5)
 
         sched_x = library["x"]
+        sched_y = library["y"]
         sched_sx = library["sx"]
+        sched_sy = library["sy"]
 
         self.assertEqual(sched_x.blocks[0].pulse.duration, sched_sx.blocks[0].pulse.duration)
         self.assertEqual(sched_x.blocks[0].pulse.sigma, sched_sx.blocks[0].pulse.sigma)
+
+        self.assertEqual(len(sched_x.parameters & sched_y.parameters), 4)
+        self.assertEqual(len(sched_sx.parameters & sched_sy.parameters), 4)
 
         expected = [
             (0.5, "amp", (), "x"),
@@ -47,14 +52,6 @@ class TestFixedFrequencyTransmon(QiskitTestCase):
             (0.0, "β", (), "sx"),
             (0.25, "amp", (), "sx"),
             (80, "σ", (), "sx"),
-            (0.5j, "amp", (), "y"),
-            (0.0, "β", (), "y"),
-            (320, "duration", (), "y"),
-            (80, "σ", (), "y"),
-            (320, "duration", (), "sy"),
-            (0.0, "β", (), "sy"),
-            (0.25j, "amp", (), "sy"),
-            (80, "σ", (), "sy"),
         ]
 
         for param_conf in library.default_values():
@@ -75,3 +72,38 @@ class TestFixedFrequencyTransmon(QiskitTestCase):
 
         library = FixedFrequencyTransmon()
         self.assertTrue(isinstance(library["x"].blocks[0].pulse, pulse.Drag))
+
+    def test_unlinked_parameters(self):
+        """Test the we get schedules with unlinked parameters."""
+
+        library = FixedFrequencyTransmon(link_parameters=False)
+
+        sched_x = library["x"]
+        sched_y = library["y"]
+        sched_sx = library["sx"]
+        sched_sy = library["sy"]
+
+        # Test the number of parameters.
+        self.assertEqual(len(sched_x.parameters & sched_y.parameters), 2)
+        self.assertEqual(len(sched_sx.parameters & sched_sy.parameters), 2)
+
+        expected = [
+            (0.5, "amp", (), "x"),
+            (0.0, "β", (), "x"),
+            (320, "duration", (), "x"),
+            (80, "σ", (), "x"),
+            (320, "duration", (), "sx"),
+            (0.0, "β", (), "sx"),
+            (0.25, "amp", (), "sx"),
+            (80, "σ", (), "sx"),
+            (0.5j, "amp", (), "y"),
+            (0.0, "β", (), "y"),
+            (320, "duration", (), "y"),
+            (80, "σ", (), "y"),
+            (320, "duration", (), "sy"),
+            (0.0, "β", (), "sy"),
+            (0.25j, "amp", (), "sy"),
+            (80, "σ", (), "sy"),
+        ]
+
+        self.assertSetEqual(set(library.default_values()), set(expected))
