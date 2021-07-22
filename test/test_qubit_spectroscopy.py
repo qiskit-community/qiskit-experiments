@@ -19,9 +19,8 @@ from qiskit import QuantumCircuit
 from qiskit.qobj.utils import MeasLevel
 from qiskit.test import QiskitTestCase
 
-from qiskit_experiments.characterization.qubit_spectroscopy import QubitSpectroscopy
-from qiskit_experiments.characterization.ef_spectroscopy import EFSpectroscopy
-from qiskit_experiments.analysis import get_opt_value
+from qiskit_experiments.library import QubitSpectroscopy, EFSpectroscopy
+from qiskit_experiments.curve_analysis import get_opt_value
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 
 
