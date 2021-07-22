@@ -89,30 +89,21 @@ class BaseAnalysis(ABC):
         analysis_options = analysis_options.__dict__
 
         # Run analysis
-        analysis_result_parameters = {
-            "experiment_id": experiment_data.experiment_id,
-        }
-        if "physical_qubits" in experiment_data.metadata():
-            analysis_result_parameters["device_components"] = [
-                Qubit(qubit) for qubit in experiment_data.metadata()["physical_qubits"]
-            ]
-        else:
-            analysis_result_parameters["device_components"] = []
         try:
             result_datum, figures = self._run_analysis(experiment_data, **analysis_options)
             analysis_results = []
             for res in result_datum:
-                if "success" not in res:
-                    res["success"] = True
+                if "success" not in res.result_data:
+                    res.result_data["success"] = True
                 analysis_result = DbAnalysisResultV1(
-                    result_data=res,
-                    result_type=res.get("result_type", experiment_data.experiment_type),
-                    **analysis_result_parameters,
+                    result_data=res.result_data,
+                    result_type=res.result_type,
+                    device_components=[Qubit(qubit) for qubit in res.device_components],
+                    chisq=res.chisq,
+                    quality=res.quality,
+                    verified=res.verified,
+                    experiment_id=experiment_data.experiment_id,
                 )
-                if "chisq" in res:
-                    analysis_result.chisq = res["chisq"]
-                if "quality" in res:
-                    analysis_result.quality = res["quality"]
                 analysis_results.append(analysis_result)
 
         except AnalysisError as ex:

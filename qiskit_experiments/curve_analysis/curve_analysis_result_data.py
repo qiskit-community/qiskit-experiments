@@ -15,7 +15,7 @@ Curve analysis result data class.
 from qiskit_experiments.framework import AnalysisResultData
 
 
-class CurveAnalysisResultData(AnalysisResultData):
+class CurveAnalysisResultData(dict):
     """Analysis data container for curve fit analysis.
 
     Class Attributes:

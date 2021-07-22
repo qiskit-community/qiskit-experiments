@@ -13,27 +13,43 @@
 Experiment Data class
 """
 import logging
-from typing import Dict
+from typing import List, Union
 from datetime import datetime
+from dataclasses import dataclass
 
 from qiskit_experiments.database_service import DbExperimentDataV1
+from qiskit_experiments.database_service.device_component import DeviceComponent
 
 
 LOG = logging.getLogger(__name__)
 
-
-class AnalysisResultData(dict):
+@dataclass
+class AnalysisResultData:
     """Placeholder class"""
+    result_data: dict
+    result_type: str
+    device_components: List[Union[DeviceComponent, str]]
+    chisq: float = None
+    quality: str = None
+    verified: bool = False
 
     __keys_not_shown__ = tuple()
     """Data keys of analysis result which are not directly shown in `__str__` method"""
 
     def __str__(self):
-        out = ""
+        out = f"AnalysisResultData"
+        out += f"\n- result_type: {self.result_type}"
+        out += f"\n- device_components: {self.device_components}"
+        if self.chisq:
+            out += f"\n- chisq: {self.chisq}"
+        if self.quality:
+            out += f"\n- quality: {self.quality}"
+        out += f"\n- verified: {self.verified}"
+        out += f"\n- result_data:"
         for key, value in self.items():
             if key in self.__keys_not_shown__:
                 continue
-            out += f"\n- {key}: {value}"
+            out += f"\n  - {key}: {value}"
         return out
 
 

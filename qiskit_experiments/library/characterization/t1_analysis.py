@@ -18,7 +18,7 @@ import numpy as np
 
 from qiskit.utils import apply_prefix
 
-from qiskit_experiments.framework import BaseAnalysis, Options
+from qiskit_experiments.framework import BaseAnalysis, Options, AnalysisResultData
 from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
 from qiskit_experiments.curve_analysis import plot_curve_fit, plot_errorbar, curve_fit
 from qiskit_experiments.curve_analysis.curve_fit import (
@@ -135,19 +135,22 @@ class T1Analysis(BaseAnalysis):
         bounds = {"a": amplitude_bounds, "tau": t1_bounds, "c": offset_bounds}
         fit_result = curve_fit(fit_fun, xdata, ydata, init, sigma=sigma, bounds=bounds)
 
-        result_data = {
-            "value": fit_result["popt"][1],
-            "stderr": fit_result["popt_err"][1],
-            "unit": "s",
-            "fit": fit_result,
-            "quality": self._fit_quality(
+        result = AnalysisResultData(
+            result_data = {"value": fit_result["popt"][1],
+                           "variance": fit_result["popt_err"][1] ** 2,
+                           "unit": "s",
+                           "circuit_unit": unit,
+                           **fit_result},
+            result_type = "T1",
+            chisq = fit_result["reduced_chisq"],
+            quality = self._fit_quality(
                 fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
             ),
-        }
+            device_components = [data[0]["metadata"]["qubit"]]
+        )
 
-        result_data["fit"]["circuit_unit"] = unit
         if unit == "dt":
-            result_data["fit"]["dt"] = conversion_factor
+            result.result_data["dt"] = conversion_factor
 
         # Generate fit plot
         figures = []
@@ -157,7 +160,7 @@ class T1Analysis(BaseAnalysis):
             self._format_plot(ax, fit_result, qubit=qubit)
             figures.append(ax.get_figure())
 
-        return [CurveAnalysisResultData(result_data)], figures
+        return [result], figures
 
     @staticmethod
     def _fit_quality(fit_out, fit_err, reduced_chisq):
