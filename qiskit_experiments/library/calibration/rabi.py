@@ -26,7 +26,7 @@ from qiskit.transpiler.passmanager import PassManager
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.library.calibration.analysis.oscillation_analysis import OscillationAnalysis
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.calibration.management.transpiler import CalibrationAdder
+from qiskit_experiments.calibration_management.transpiler import CalibrationAdder
 
 
 class Rabi(BaseExperiment):
