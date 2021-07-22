@@ -106,7 +106,7 @@ class BaseAnalysis(ABC):
                 if "success" not in res:
                     res["success"] = True
                 if "stderr" in res:
-                    res["variance"] = res["stderr"]**2
+                    res["variance"] = res["stderr"] ** 2
                 analysis_result = DbAnalysisResultV1(result_data=res, **analysis_result_parameters)
                 if "chisq" in res:
                     analysis_result.chisq = res["chisq"]
