@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Transpiler functionality for calibrations."""
+"""Transpiler pass for calibration experiments."""
 
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -27,7 +27,7 @@ from qiskit_experiments.framework.base_experiment import BaseExperiment
 
 
 class CalAdder(TransformationPass):
-    """Transformation pass to inject calibrations into circuits."""
+    """Transformation pass to inject calibrations into circuits of calibration experiments."""
 
     def __init__(
             self,
@@ -35,10 +35,39 @@ class CalAdder(TransformationPass):
             instruction_maps: Optional[List[InstructionMap]] = None,
             qubit_layout: Optional[Dict[int, int]] = None
     ):
-        """
+        """Initialize the pass.
 
         This transpiler pass is intended to be run in the :meth:`circuits` method of the
-        experiment classes before the main transpiler pass.
+        experiment classes before the main transpiler pass. It's only goal is to extract
+        the needed pulse schedules from an instance of Calibrations and attach them to the
+        template circuit. This has a couple of challenges.
+
+        * First, the same pulse in the calibrations can be attached to different gates.
+          For example, an X-gate "x" may need to be attached to a Rabi gate in a
+          :class:`Rabi` experiment while in an :class:`EFSpectroscopy` experiment it will
+          be attached to the X-gate.
+
+        * Second, the gate may sometimes be attached with parameters and sometimes not.
+          In a Rabi experiment the "x" schedule will have a parametric amplitude while in
+          the :class:`FineXAmplitude` the gate will not have any free parameters.
+
+        These two issues are solved by adding an InstructionMap which is a named tuple of
+        instruction name in the circuit, the schedule name in the calibrations and any
+        parameter instance that needs to be unassigned when getting the schedule from the
+        :class:`Calibrations` instance. Consider the following examples.
+
+        .. code-block::python
+
+            # Instruction mapping for a Rabi experiment
+            InstructionMap("Rabi", "x", [Parameter("amp")])
+
+            # Instruction mapping for a Drag experiment
+            beta = Parameter("β")
+            InstructionMap("Rp", "x", [beta])
+            InstructionMap("Rm", "xm", [beta])
+
+        Note that if no mapping is provided this transpiler pass assumes that the name of
+        the schedule in the calibrations is the same as the name of the gate instruction.
 
         Args:
             calibrations: An instance of calibration from which to fetch the schedules.
@@ -55,7 +84,7 @@ class CalAdder(TransformationPass):
 
         self._instruction_maps = dict()
         for inst_map in instruction_maps:
-            self._intruction_maps[inst_map.inst] = inst_map
+            self._instruction_maps[inst_map.inst] = inst_map
 
         self._qubit_layout = qubit_layout
 
@@ -64,7 +93,7 @@ class CalAdder(TransformationPass):
             gate_name: str,
             qubits: Tuple[int, ...],
     ) -> Union[ScheduleBlock, None]:
-        """Gets the calibrated schedule
+        """Get a schedule from the calibrations.
 
         Args:
             gate_name: Name of the gate for which to get the schedule.
@@ -121,7 +150,7 @@ def inject_calibrations(circuit: QuantumCircuit, experiment: BaseExperiment) -> 
     """Inject calibrations from a :class:`Calibrations` instance into a circuit.
 
     This function requires that the experiment has a list of InstructionMaps in its
-    experiment options.
+    experiment options as well as the calibrations.
 
     Args:
         circuit: The circuit into which to inject calibrations.
