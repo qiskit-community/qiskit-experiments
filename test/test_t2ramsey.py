@@ -18,8 +18,8 @@ from qiskit.providers.options import Options
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
 from qiskit.test import QiskitTestCase
-from qiskit_experiments.composite import ParallelExperiment
-from qiskit_experiments.characterization import T2Ramsey
+from qiskit_experiments.framework import ParallelExperiment
+from qiskit_experiments.library import T2Ramsey
 from qiskit_experiments.test.utils import FakeJob
 
 
@@ -206,19 +206,19 @@ class TestT2Ramsey(QiskitTestCase):
                 shots=2000,
             )
             expdata.block_for_results()  # Wait for job/analysis to finish.
-            result = expdata.analysis_results(0)
-            result_data = result.data()
+            result = expdata.analysis_results()
             self.assertAlmostEqual(
-                result_data["t2ramsey_value"],
+                result[0].data()["value"],
                 estimated_t2ramsey * dt_factor,
                 delta=3 * dt_factor,
             )
             self.assertAlmostEqual(
-                result_data["frequency_value"],
+                result[1].data()["value"],
                 estimated_freq / dt_factor,
                 delta=3 / dt_factor,
             )
-            self.assertEqual(result.quality, "good", "Result quality bad for unit " + str(unit))
+            for res in result:
+                self.assertEqual(res.quality, "good", "Result quality bad for unit " + str(unit))
 
     def test_t2ramsey_parallel(self):
         """
@@ -246,19 +246,19 @@ class TestT2Ramsey(QiskitTestCase):
         expdata.block_for_results()
 
         for i in range(2):
-            sub_res = expdata.component_experiment_data(i).analysis_results(0)
-            sub_res_data = sub_res.data()
-            self.assertAlmostEqual(sub_res_data["t2ramsey_value"], t2ramsey[i], delta=3)
+            sub_res = expdata.component_experiment_data(i).analysis_results()
+            self.assertAlmostEqual(sub_res[0].data()["value"], t2ramsey[i], delta=3)
             self.assertAlmostEqual(
-                sub_res_data["frequency_value"],
+                sub_res[1].data()["value"],
                 estimated_freq[i] / dt_factor,
                 delta=3 / dt_factor,
             )
-            self.assertEqual(
-                sub_res.quality,
-                "good",
-                "Result quality bad for experiment on qubit " + str(i),
-            )
+            for res in sub_res:
+                self.assertEqual(
+                    res.quality,
+                    "good",
+                    "Result quality bad for experiment on qubit " + str(i),
+                )
 
     def test_t2ramsey_concat_2_experiments(self):
         """
@@ -305,17 +305,14 @@ class TestT2Ramsey(QiskitTestCase):
         exp1.set_analysis_options(user_p0=default_p0)
         expdata1 = exp1.run(backend=backend, experiment_data=expdata0, shots=1000)
         expdata1.block_for_results()
-        result0 = expdata1.analysis_results(0)
-        result0_data = result0.data()
-        result1 = expdata1.analysis_results(1)
-        result1_data = result1.data()
+        result = expdata1.analysis_results()
         self.assertAlmostEqual(
-            result1_data["t2ramsey_value"],
+            result[2].data()["value"],
             estimated_t2ramsey * dt_factor,
             delta=3 * dt_factor,
         )
         self.assertAlmostEqual(
-            result1_data["frequency_value"], estimated_freq / dt_factor, delta=3 / dt_factor
+            result[3].data()["value"], estimated_freq / dt_factor, delta=3 / dt_factor
         )
-        self.assertLessEqual(result1_data["stderr_t2"], result0_data["stderr_t2"])
+        self.assertLessEqual(result[2].data()["stderr"], result[0].data()["stderr"])
         self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))

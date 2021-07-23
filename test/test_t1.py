@@ -14,9 +14,9 @@ Test T1 experiment
 """
 
 from qiskit.test import QiskitTestCase
-from qiskit_experiments import ExperimentData
-from qiskit_experiments.composite import ParallelExperiment
-from qiskit_experiments.characterization import T1, T1Analysis
+from qiskit_experiments.framework import ExperimentData, ParallelExperiment
+from qiskit_experiments.library import T1
+from qiskit_experiments.library.characterization import T1Analysis
 from qiskit_experiments.test.t1_backend import T1Backend
 
 
@@ -87,9 +87,9 @@ class TestT1(QiskitTestCase):
         delays = list(range(1, 40, 3))
 
         exp0 = T1(0, delays)
-        exp0.set_analysis_options(t1_bounds=[10, 30])
+        exp0.set_analysis_options(t1_guess=30)
         exp1 = T1(1, delays)
-        exp1.set_analysis_options(t1_bounds=[100, 200])
+        exp1.set_analysis_options(t1_guess=1000000)
 
         par_exp = ParallelExperiment([exp0, exp1])
         res = par_exp.run(T1Backend([t1, t1]))
@@ -101,7 +101,7 @@ class TestT1(QiskitTestCase):
 
         self.assertEqual(sub_res[0].quality, "good")
         self.assertAlmostEqual(sub_res[0].data()["value"], t1, delta=3)
-        self.assertFalse(sub_res[1].data()["success"])
+        self.assertEqual(sub_res[1].quality, "bad")
 
     def test_t1_analysis(self):
         """
