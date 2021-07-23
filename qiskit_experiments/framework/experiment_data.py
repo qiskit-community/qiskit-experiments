@@ -13,28 +13,18 @@
 Experiment Data class
 """
 import logging
-from typing import Dict
+from typing import Dict, Union, List, Optional
 from datetime import datetime
 
-from qiskit_experiments.database_service import DbExperimentDataV1
+from qiskit_experiments.database_service import DbExperimentDataV1, DbAnalysisResultV1
+from qiskit_experiments.framework.analysis_result import (
+    AnalysisResult,
+    db_to_analysis_result,
+    analysis_result_to_db,
+)
 
 
 LOG = logging.getLogger(__name__)
-
-
-class AnalysisResultData(dict):
-    """Placeholder class"""
-
-    __keys_not_shown__ = tuple()
-    """Data keys of analysis result which are not directly shown in `__str__` method"""
-
-    def __str__(self):
-        out = ""
-        for key, value in self.items():
-            if key in self.__keys_not_shown__:
-                continue
-            out += f"\n- {key}: {value}"
-        return out
 
 
 class ExperimentData(DbExperimentDataV1):
@@ -72,6 +62,33 @@ class ExperimentData(DbExperimentDataV1):
             BaseExperiment: the experiment object.
         """
         return self._experiment
+
+    def add_analysis_results(
+        self,
+        results: Union[AnalysisResult, List[AnalysisResult]],
+    ) -> None:
+        """Save the analysis result.
+
+        Args:
+            results: Analysis results to be saved.
+        """
+        if not isinstance(results, list):
+            results = [results]
+
+        super().add_analysis_results(
+            [analysis_result_to_db(result, self.experiment_id) for result in results]
+        )
+
+    def analysis_results(
+        self, index: Optional[Union[int, slice, str]] = None, refresh: bool = False
+    ) -> Union[AnalysisResult, List[AnalysisResult]]:
+        # TODO: This needs handling of the converted results so any changes
+        # to the returned objects (such as setting tags, verified etc)
+        # can be updated and autosaved to the database results.
+        results = super().analysis_results(index, refresh)
+        if isinstance(results, list):
+            return [db_to_analysis_result(i) for i in results]
+        return db_to_analysis_result(results)
 
     @property
     def completion_times(self) -> Dict[str, datetime]:

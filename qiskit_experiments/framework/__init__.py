@@ -30,7 +30,7 @@ Experiment Data Classes
 .. autosummary::
     :toctree: ../stubs/
 
-    AnalysisResultData
+    AnalysisResult
     ExperimentData
 
 Composite Experiment Classes
@@ -107,7 +107,7 @@ overriden to define default values for these options.
 
 The :meth:`BaseAnalysis._run_analysis` method should return a pair
 ``(result_data, figures)`` where ``result_data`` is a list of
-:class:`AnalysisResultData` and ``figures`` is a list of
+:class:`AnalysisResult` and ``figures`` is a list of
 :class:`matplotlib.figure.Figure`.
 
 The :mod:`qiskit_experiments.data_processing` module contains classes for
@@ -117,7 +117,8 @@ experiment data.
 from qiskit.providers.options import Options
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
-from .experiment_data import ExperimentData, AnalysisResultData
+from .analysis_result import AnalysisResult
+from .experiment_data import ExperimentData
 from .composite import (
     ParallelExperiment,
     BatchExperiment,
