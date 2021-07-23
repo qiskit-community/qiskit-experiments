@@ -24,7 +24,7 @@ from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 import numpy as np
 from qiskit.providers.options import Options
 
-from qiskit_experiments.framework import BaseAnalysis, ExperimentData
+from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData, FitVal
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.exceptions import AnalysisError
@@ -849,7 +849,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
     def _run_analysis(
         self, experiment_data: ExperimentData, **options
-    ) -> Tuple[List["AnalysisResultData"], List["pyplot.Figure"]]:
+    ) -> Tuple[List[AnalysisResultData], List["pyplot.Figure"]]:
         """Run analysis on circuit data.
 
         Args:
@@ -869,85 +869,85 @@ class CurveAnalysis(BaseAnalysis, ABC):
         result_data["analysis_type"] = self.__class__.__name__
         figures = list()
 
-        #
-        # 1. Parse arguments
-        #
-        if self.__fixed_parameters__ is not None and len(self.__fixed_parameters__) > 0:
-            assigned_params = dict()
-            # Extract fixed parameter value from analysis options
-            for pname in self.__fixed_parameters__:
+        try:
+            #
+            # 1. Parse arguments
+            #
+            if self.__fixed_parameters__ is not None and len(self.__fixed_parameters__) > 0:
+                assigned_params = dict()
+                # Extract fixed parameter value from analysis options
+                for pname in self.__fixed_parameters__:
+                    try:
+                        assigned_params[pname] = options[pname]
+                    except KeyError as ex:
+                        raise AnalysisError(
+                            f"The value of the fixed-value parameter {pname} for the fit function "
+                            f"of {self.__class__.__name__} was not found. "
+                            "This value must be provided by the analysis options to run this analysis."
+                        ) from ex
+                # Override series definition with assigned fit functions.
+                assigned_series = []
+                for series_def in self.__series__:
+                    dict_def = dataclasses.asdict(series_def)
+                    dict_def["fit_func"] = functools.partial(series_def.fit_func, **assigned_params)
+                    assigned_series.append(SeriesDef(**dict_def))
+                self.__series__ = assigned_series
+
+            # pop arguments that are not given to fitter
+            extra_options = self._arg_parse(**options)
+
+            # get experiment metadata
+            try:
+                self.__experiment_metadata = experiment_data.metadata()
+
+            except AttributeError:
+                pass
+
+            #
+            # 2. Setup data processor
+            #
+
+            # No data processor has been provided at run-time we infer one from the job
+            # metadata and default to the data processor for averaged classified data.
+            data_processor = self._get_option("data_processor")
+
+            if not data_processor:
+                run_options = self._run_options() or dict()
+
                 try:
-                    assigned_params[pname] = options[pname]
+                    meas_level = run_options["meas_level"]
                 except KeyError as ex:
                     raise AnalysisError(
-                        f"The value of the fixed-value parameter {pname} for the fit function "
-                        f"of {self.__class__.__name__} was not found. "
-                        "This value must be provided by the analysis options to run this analysis."
+                        f"Cannot process data without knowing the measurement level: {str(ex)}."
                     ) from ex
-            # Override series definition with assigned fit functions.
-            assigned_series = []
-            for series_def in self.__series__:
-                dict_def = dataclasses.asdict(series_def)
-                dict_def["fit_func"] = functools.partial(series_def.fit_func, **assigned_params)
-                assigned_series.append(SeriesDef(**dict_def))
-            self.__series__ = assigned_series
 
-        # pop arguments that are not given to fitter
-        extra_options = self._arg_parse(**options)
+                meas_return = run_options.get("meas_return", None)
+                normalization = self._get_option("normalization")
 
-        # get experiment metadata
-        try:
-            self.__experiment_metadata = experiment_data.metadata()
+                data_processor = get_processor(meas_level, meas_return, normalization)
 
-        except AttributeError:
-            pass
+            if isinstance(data_processor, DataProcessor) and not data_processor.is_trained:
+                # Qiskit DataProcessor instance. May need calibration.
+                try:
+                    data_processor.train(data=experiment_data.data())
+                except DataProcessorError as ex:
+                    raise AnalysisError(
+                        f"DataProcessor calibration failed with error message: {str(ex)}."
+                    ) from ex
 
-        #
-        # 2. Setup data processor
-        #
-
-        # No data processor has been provided at run-time we infer one from the job
-        # metadata and default to the data processor for averaged classified data.
-        data_processor = self._get_option("data_processor")
-
-        if not data_processor:
-            run_options = self._run_options() or dict()
-
+            #
+            # 3. Extract curve entries from experiment data
+            #
             try:
-                meas_level = run_options["meas_level"]
-            except KeyError as ex:
-                raise AnalysisError(
-                    f"Cannot process data without knowing the measurement level: {str(ex)}."
-                ) from ex
-
-            meas_return = run_options.get("meas_return", None)
-            normalization = self._get_option("normalization")
-
-            data_processor = get_processor(meas_level, meas_return, normalization)
-
-        if isinstance(data_processor, DataProcessor) and not data_processor.is_trained:
-            # Qiskit DataProcessor instance. May need calibration.
-            try:
-                data_processor.train(data=experiment_data.data())
+                self._extract_curves(experiment_data=experiment_data, data_processor=data_processor)
             except DataProcessorError as ex:
                 raise AnalysisError(
-                    f"DataProcessor calibration failed with error message: {str(ex)}."
+                    f"Data extraction and formatting failed with error message: {str(ex)}."
                 ) from ex
 
-        #
-        # 3. Extract curve entries from experiment data
-        #
-        try:
-            self._extract_curves(experiment_data=experiment_data, data_processor=data_processor)
-        except DataProcessorError as ex:
-            raise AnalysisError(
-                f"Data extraction and formatting failed with error message: {str(ex)}."
-            ) from ex
-
-        #
-        # 4. Run fitting
-        #
-        try:
+            #
+            # 4. Run fitting
+            #
             curve_fitter = self._get_option("curve_fitter")
             formatted_data = self._data(label="fit_ready")
 
@@ -974,18 +974,15 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 ]
                 fit_results = []
                 for fit_options in fit_options_candidates:
-                    try:
-                        fit_result = curve_fitter(
-                            funcs=[series_def.fit_func for series_def in self.__series__],
-                            series=formatted_data.data_index,
-                            xdata=formatted_data.x,
-                            ydata=formatted_data.y,
-                            sigma=formatted_data.y_err,
-                            **fit_options,
-                        )
-                        fit_results.append(fit_result)
-                    except AnalysisError:
-                        pass
+                    fit_result = curve_fitter(
+                        funcs=[series_def.fit_func for series_def in self.__series__],
+                        series=formatted_data.data_index,
+                        xdata=formatted_data.x,
+                        ydata=formatted_data.y,
+                        sigma=formatted_data.y_err,
+                        **fit_options,
+                    )
+                    fit_results.append(fit_result)
                 if len(fit_results) == 0:
                     raise AnalysisError(
                         "All initial guesses and parameter boundaries failed to fit the data. "
@@ -994,26 +991,23 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 # Sort by chi squared value
                 fit_results = sorted(fit_results, key=lambda r: r["reduced_chisq"])
                 result_data.update(**fit_results[0])
+                result_data["quality"] = "good"
 
-            result_data["success"] = True
-
-        except AnalysisError as ex:
-            result_data["error_message"] = str(ex)
-            result_data["success"] = False
-
-        else:
             #
             # 5. Post-process analysis data
             #
             result_data = self._post_analysis(result_data=result_data)
 
-        finally:
             #
             # 6. Create figures
             #
             if self._get_option("plot") and HAS_MATPLOTLIB:
                 figures.extend(self._create_figures(result_data=result_data))
 
+        except AnalysisError as ex:
+            result_data["error_message"] = str(ex)
+            result_data["quality"] = "failed"
+        finally:
             #
             # 7. Optionally store raw data points
             #
@@ -1028,4 +1022,17 @@ class CurveAnalysis(BaseAnalysis, ABC):
                     }
                 result_data["raw_data"] = raw_data_dict
 
-        return [result_data], figures
+        # Convert to AnalysisResult
+        name = result_data.pop("analysis_type")
+        value = FitVal(result_data.get("popt"), result_data.get("popt_err"))
+        quality = result_data.pop("quality", None)
+        chisq = result_data.pop("chisq", None) or result_data.pop("reduced_chisq", None)
+        analysis_result = AnalysisResultData(
+            name=name,
+            value=value,
+            quality=quality,
+            chisq=chisq,
+            extra=result_data,
+        )
+
+        return [analysis_result], figures
