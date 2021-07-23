@@ -24,6 +24,7 @@ from .json import ExperimentEncoder, ExperimentDecoder
 from .utils import save_data, qiskit_version
 from .exceptions import DbExperimentDataError
 from .device_component import DeviceComponent, to_component
+from .db_fitval import FitVal
 
 LOG = logging.getLogger(__name__)
 

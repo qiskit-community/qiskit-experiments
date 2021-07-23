@@ -30,8 +30,10 @@ Experiment Data Classes
 .. autosummary::
     :toctree: ../stubs/
 
-    AnalysisResultData
     ExperimentData
+    DbAnalysisResultV1
+    FitVal
+    AnalysisResultData
 
 Composite Experiment Classes
 ****************************
@@ -115,9 +117,12 @@ building data processor workflows to help with advanced analysis of
 experiment data.
 """
 from qiskit.providers.options import Options
+from qiskit_experiments.database_service.db_analysis_result import DbAnalysisResultV1
+from qiskit_experiments.database_service.db_fitval import FitVal
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
-from .experiment_data import ExperimentData, AnalysisResultData
+from .analysis_result_data import AnalysisResultData
+from .experiment_data import ExperimentData
 from .composite import (
     ParallelExperiment,
     BatchExperiment,
