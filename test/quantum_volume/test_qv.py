@@ -16,11 +16,14 @@ A Tester for the Quantum Volume experiment
 
 import json
 import os
+import dataclasses
+from qiskit_experiments.framework.analysis_result import AnalysisResult
 from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.test import QiskitTestCase
 from qiskit import Aer
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.library import QuantumVolume
+from qiskit_experiments.database_service.json import ExperimentDecoder, ExperimentEncoder
 
 SEED = 42
 
@@ -86,7 +89,7 @@ class TestQuantumVolume(QiskitTestCase):
         dir_name = os.path.dirname(os.path.abspath(__file__))
         probabilities_json_file = "qv_ideal_probabilities.json"
         with open(os.path.join(dir_name, probabilities_json_file), "r") as json_file:
-            probabilities = json.load(json_file)
+            probabilities = json.load(json_file, cls=ExperimentDecoder)
         self.assertTrue(
             matrix_equal(simulation_probabilities, probabilities),
             "probabilities calculated using simulation and "
@@ -109,15 +112,15 @@ class TestQuantumVolume(QiskitTestCase):
         expdata.block_for_results()
 
         self.assertTrue(
-            expdata.analysis_results(0).data()["trials"] == 2, "number of trials is incorrect"
+            expdata.analysis_results(0).extra["trials"] == 2, "number of trials is incorrect"
         )
         self.assertTrue(
-            expdata.analysis_results(1).data()["trials"] == 4,
+            expdata.analysis_results(1).extra["trials"] == 4,
             "number of trials is incorrect" " after adding more trials",
         )
         self.assertTrue(
-            expdata.analysis_results(1).data()["sigma"]
-            <= expdata.analysis_results(0).data()["sigma"],
+            expdata.analysis_results(1).extra["sigma"]
+            <= expdata.analysis_results(0).extra["sigma"],
             "sigma did not decreased after adding more trials",
         )
 
@@ -129,7 +132,7 @@ class TestQuantumVolume(QiskitTestCase):
         dir_name = os.path.dirname(os.path.abspath(__file__))
         insufficient_trials_json_file = "qv_data_70_trials.json"
         with open(os.path.join(dir_name, insufficient_trials_json_file), "r") as json_file:
-            insufficient_trials_data = json.load(json_file)
+            insufficient_trials_data = json.load(json_file, cls=ExperimentDecoder)
 
         num_of_qubits = 3
         backend = Aer.get_backend("aer_simulator")
@@ -140,8 +143,8 @@ class TestQuantumVolume(QiskitTestCase):
 
         qv_exp.run_analysis(exp_data)
         self.assertTrue(
-            exp_data.analysis_results(-1).data()["qv success"] is False
-            and exp_data.analysis_results(-1).data()["quantum volume"] == 1,
+            exp_data.analysis_results(-1).quality == "bad"
+            and exp_data.analysis_results(-1).value == 1,
             "quantum volume is successful with less than 100 trials",
         )
 
@@ -153,7 +156,7 @@ class TestQuantumVolume(QiskitTestCase):
         dir_name = os.path.dirname(os.path.abspath(__file__))
         insufficient_hop_json_file = "qv_data_high_noise.json"
         with open(os.path.join(dir_name, insufficient_hop_json_file), "r") as json_file:
-            insufficient_hop_data = json.load(json_file)
+            insufficient_hop_data = json.load(json_file, cls=ExperimentDecoder)
 
         num_of_qubits = 4
         backend = Aer.get_backend("aer_simulator")
@@ -164,8 +167,8 @@ class TestQuantumVolume(QiskitTestCase):
 
         qv_exp.run_analysis(exp_data)
         self.assertTrue(
-            exp_data.analysis_results(-1).data()["qv success"] is False
-            and exp_data.analysis_results(-1).data()["quantum volume"] == 1,
+            exp_data.analysis_results(-1).quality == "bad"
+            and exp_data.analysis_results(-1).value == 1,
             "quantum volume is successful with heavy output probability less than 2/3",
         )
 
@@ -189,8 +192,8 @@ class TestQuantumVolume(QiskitTestCase):
 
         qv_exp.run_analysis(exp_data)
         self.assertTrue(
-            exp_data.analysis_results(-1).data()["qv success"] is False
-            and exp_data.analysis_results(-1).data()["quantum volume"] == 1,
+            exp_data.analysis_results(-1).quality == "bad"
+            and exp_data.analysis_results(-1).value == 1,
             "quantum volume is successful with insufficient confidence",
         )
 
@@ -202,7 +205,7 @@ class TestQuantumVolume(QiskitTestCase):
         dir_name = os.path.dirname(os.path.abspath(__file__))
         successful_json_file = "qv_data_moderate_noise_300_trials.json"
         with open(os.path.join(dir_name, successful_json_file), "r") as json_file:
-            successful_data = json.load(json_file)
+            successful_data = json.load(json_file, cls=ExperimentDecoder)
 
         num_of_qubits = 4
         backend = Aer.get_backend("aer_simulator")
@@ -214,16 +217,28 @@ class TestQuantumVolume(QiskitTestCase):
         qv_exp.run_analysis(exp_data)
         results_json_file = "qv_result_moderate_noise_300_trials.json"
         with open(os.path.join(dir_name, results_json_file), "r") as json_file:
-            successful_results = json.load(json_file)
-        for key, value in successful_results.items():
+            successful_results = AnalysisResult(**json.load(json_file, cls=ExperimentDecoder))
+
+        result = exp_data.analysis_results(-1)
+        self.assertEqual(
+            result.value,
+            successful_results.value,
+            "result value is not the same as precalculated analysis",
+        )
+        self.assertEqual(
+            result.name,
+            successful_results.name,
+            "result name is not the same as precalculated analysis",
+        )
+        for key, value in successful_results.extra.items():
             if isinstance(value, float):
                 self.assertAlmostEqual(
-                    exp_data.analysis_results(-1).data()[key],
+                    result.extra[key],
                     value,
                     msg="result " + str(key) + " is not the same as the " "pre-calculated analysis",
                 )
             else:
                 self.assertTrue(
-                    exp_data.analysis_results(-1).data()[key] == value,
+                    result.extra[key] == value,
                     "result " + str(key) + " is not the same as the " "pre-calculated analysis",
                 )
