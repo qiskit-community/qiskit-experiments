@@ -56,7 +56,7 @@ class TestT1(QiskitTestCase):
         res = exp_data.analysis_results(0)
 
         self.assertEqual(res.quality, "good")
-        self.assertAlmostEqual(res.data()["value"], t1, delta=3)
+        self.assertAlmostEqual(res.value, t1, delta=3)
 
     def test_t1_parallel(self):
         """
@@ -75,7 +75,7 @@ class TestT1(QiskitTestCase):
         for i in range(2):
             sub_res = res.component_experiment_data(i).analysis_results(0)
             self.assertEqual(sub_res.quality, "good")
-            self.assertAlmostEqual(sub_res.data()["value"], t1[i], delta=3)
+            self.assertAlmostEqual(sub_res.value, t1[i], delta=3)
 
     def test_t1_parallel_different_analysis_options(self):
         """
@@ -100,7 +100,7 @@ class TestT1(QiskitTestCase):
             sub_res.append(res.component_experiment_data(i).analysis_results(0))
 
         self.assertEqual(sub_res[0].quality, "good")
-        self.assertAlmostEqual(sub_res[0].data()["value"], t1, delta=3)
+        self.assertAlmostEqual(sub_res[0].value, t1, delta=3)
         self.assertEqual(sub_res[1].quality, "bad")
 
     def test_t1_analysis(self):
@@ -126,8 +126,8 @@ class TestT1(QiskitTestCase):
             )
 
         res = T1Analysis()._run_analysis(data)[0][0]
-        self.assertEqual(res["quality"], "good")
-        self.assertAlmostEqual(res["value"], 25e-9, delta=3)
+        self.assertEqual(res.quality, "good")
+        self.assertAlmostEqual(res.value, 25e-9, delta=3)
 
     def test_t1_metadata(self):
         """
@@ -173,4 +173,4 @@ class TestT1(QiskitTestCase):
             )
 
         res = T1Analysis()._run_analysis(data)[0][0]
-        self.assertEqual(res["quality"], "bad")
+        self.assertEqual(res.quality, "bad")
