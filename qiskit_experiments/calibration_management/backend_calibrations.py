@@ -21,6 +21,7 @@ from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Parameter
 from qiskit_experiments.calibration_management.calibrations import Calibrations, ParameterKey
 from qiskit_experiments.exceptions import CalibrationError
+from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 
 
 class FrequencyElement(Enum):
@@ -43,8 +44,33 @@ class BackendCalibrations(Calibrations):
     __qubit_freq_parameter__ = "qubit_lo_freq"
     __readout_freq_parameter__ = "meas_lo_freq"
 
-    def __init__(self, backend: Backend):
-        """Setup an instance to manage the calibrations of a backend."""
+    def __init__(
+        self,
+        backend: Backend,
+        library: BasisGateLibrary = None,
+    ):
+        """Setup an instance to manage the calibrations of a backend.
+
+        BackendCalibrations can be initialized from a basis gate library, i.e. a subclass of
+        :class:`BasisGateLibrary`. As example consider the following code:
+
+        .. code-block:: python
+
+            cals = BackendCalibrations(
+                    backend,
+                    library=FixedFrequencyTransmon(
+                        basis_gates=["x", "sx"],
+                        default_values={duration: 320}
+                    )
+                )
+
+        Args:
+            backend: A backend instance from which to extract the qubit and readout frequencies
+                (which will be added as first guesses for the corresponding parameters) as well
+                as the coupling map.
+            library: A library class that will be instantiated with the library options to then
+                get template schedules to register as well as default parameter values.
+        """
         if hasattr(backend.configuration(), "control_channels"):
             control_channels = backend.configuration().control_channels
         else:
@@ -66,6 +92,18 @@ class BackendCalibrations(Calibrations):
 
         for meas, freq in enumerate(backend.defaults().meas_freq_est):
             self.add_parameter_value(freq, self.meas_freq, meas)
+
+        if library is not None:
+
+            # Add the basis gates
+            for gate in library.basis_gates:
+                self.add_schedule(library[gate])
+
+            # Add the default values
+            for param_conf in library.default_values():
+                schedule_name = param_conf[-1]
+                if schedule_name in library.basis_gates:
+                    self.add_parameter_value(*param_conf)
 
     def _get_frequencies(
         self,
