@@ -73,7 +73,6 @@ class TestQubitSpectroscopy(QiskitTestCase):
         value = get_opt_value(result_data, "freq")
 
         self.assertTrue(4.999e9 < value < 5.001e9)
-        self.assertTrue(result_data["success"])
         self.assertEqual(result.quality, "good")
 
         # Test if we find still find the peak when it is shifted by 5 MHz.
@@ -108,7 +107,6 @@ class TestQubitSpectroscopy(QiskitTestCase):
         value = get_opt_value(result_data, "freq")
 
         self.assertTrue(freq01 - 2e6 < value < freq01 + 2e6)
-        self.assertTrue(result_data["success"])
         self.assertEqual(result.quality, "good")
 
         # Test if we find still find the peak when it is shifted by 5 MHz.
@@ -156,7 +154,6 @@ class TestQubitSpectroscopy(QiskitTestCase):
         value = get_opt_value(result_data, "freq")
 
         self.assertTrue(freq01 - 2e6 < value < freq01 + 2e6)
-        self.assertTrue(result_data["success"])
         self.assertEqual(result.quality, "good")
 
         # Test the circuits
