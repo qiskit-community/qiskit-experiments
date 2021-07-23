@@ -24,7 +24,7 @@ from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 import numpy as np
 from qiskit.providers.options import Options
 
-from qiskit_experiments.framework import BaseAnalysis, ExperimentData
+from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResult
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.exceptions import AnalysisError
@@ -849,7 +849,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
     def _run_analysis(
         self, experiment_data: ExperimentData, **options
-    ) -> Tuple[List["AnalysisResultData"], List["pyplot.Figure"]]:
+    ) -> Tuple[List[AnalysisResult], List["pyplot.Figure"]]:
         """Run analysis on circuit data.
 
         Args:
@@ -1000,13 +1000,11 @@ class CurveAnalysis(BaseAnalysis, ABC):
         except AnalysisError as ex:
             result_data["error_message"] = str(ex)
             result_data["success"] = False
-
         else:
             #
             # 5. Post-process analysis data
             #
             result_data = self._post_analysis(result_data=result_data)
-
         finally:
             #
             # 6. Create figures
@@ -1028,4 +1026,24 @@ class CurveAnalysis(BaseAnalysis, ABC):
                     }
                 result_data["raw_data"] = raw_data_dict
 
-        return [result_data], figures
+        # Convert to AnalysisResult
+        name = result_data.pop("analysis_type")
+        value = result_data.get("popt")
+        stderr = result_data.get("popt_err")
+        quality = result_data.pop("quality", None)
+        chisq = result_data.pop("chisq", None) or result_data.pop("reduced_chisq", None)
+        tags = []
+        if not result_data["success"]:
+            tags = ["failed"]
+
+        analysis_result = AnalysisResult(
+            name=name,
+            value=value,
+            stderr=stderr,
+            quality=quality,
+            chisq=chisq,
+            tags=tags,
+            extra=result_data,
+        )
+
+        return [analysis_result], figures

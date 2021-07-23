@@ -79,7 +79,7 @@ class TestAmplitudeUpdate(QiskitTestCase):
         self.assertEqual(len(self.cals.parameters_table()), 4)
 
         # Now check the corresponding schedules
-        result = exp_data.analysis_results(-1).data()
+        result = exp_data.analysis_results(-1).extra
         rate = 2 * np.pi * result["popt"][1]
         amp = np.round(np.pi / rate, decimals=8)
         with pulse.build(name="xp") as expected:
@@ -143,7 +143,7 @@ class TestFrequencyUpdate(QiskitTestCase):
         exp_data = spec.run(backend)
         exp_data.block_for_results()
         result = exp_data.analysis_results(0)
-        result_data = result.data()
+        result_data = result.extra
 
         value = get_opt_value(result_data, "freq")
 
@@ -199,7 +199,7 @@ class TestDragUpdate(QiskitTestCase):
         exp_data = drag.run(backend)
         exp_data.block_for_results()
         result = exp_data.analysis_results(0)
-        result_data = result.data()
+        result_data = result.extra
 
         # Test the fit for good measure.
         self.assertTrue(abs(result_data["popt"][4] - backend.ideal_beta) < test_tol)
