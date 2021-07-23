@@ -51,8 +51,8 @@ class QuantumVolumeAnalysis(BaseAnalysis):
             ax: Optional, matplotlib axis to add plot to.
         Returns:
             tuple: A pair ``(result_data figures)`` where
-                   ``result_data`` may be a single or list of
-                   AnalysisResultData objects, and ``figures`` may be
+                   ``result_data`` is a list of
+                   :class:`AnalysisResultData` objects, and ``figures`` may be
                    None, a single figure, or a list of figures.
         """
         depth = experiment_data.experiment.num_qubits
@@ -68,9 +68,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
                 self._calc_exp_heavy_output_probability(data_trial, heavy_output)
             )
 
-        analysis_result = AnalysisResultData(
-            self._calc_quantum_volume(heavy_output_prob_exp, depth, num_trials)
-        )
+        analysis_result = self._calc_quantum_volume(heavy_output_prob_exp, depth, num_trials)
 
         if plot and HAS_MATPLOTLIB:
             ax = self._format_plot(ax, analysis_result)
@@ -185,7 +183,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
             the number of trials ran
         """
         quantum_volume = 1
-        success = False
+        quality = "bad"
 
         mean_hop = np.mean(heavy_output_prob_exp)
         sigma_hop = (mean_hop * ((1.0 - mean_hop) / trials)) ** 0.5
@@ -198,19 +196,21 @@ class QuantumVolumeAnalysis(BaseAnalysis):
             warnings.warn("Must use at least 100 trials to consider Quantum Volume as successful.")
         if mean_hop > threshold and trials >= 100:
             quantum_volume = 2 ** depth
-            success = True
+            quality = "good"
 
-        result = {
-            "quantum volume": quantum_volume,
-            "qv success": success,
-            "confidence": confidence_level,
-            "heavy output probability": heavy_output_prob_exp,
-            "mean hop": mean_hop,
-            "sigma": sigma_hop,
-            "depth": depth,
-            "trials": trials,
-        }
-        return result
+        return AnalysisResultData(
+            "quantum_volume",
+            value=quantum_volume,
+            quality=quality,
+            extra={
+                "confidence": confidence_level,
+                "heavy_output_probability": heavy_output_prob_exp,
+                "mean_hop": mean_hop,
+                "sigma": sigma_hop,
+                "depth": depth,
+                "trials": trials,
+            },
+        )
 
     @staticmethod
     def _format_plot(ax, analysis_result):
@@ -222,15 +222,17 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         Returns:
             AxesSubPlot: the matplotlib axes containing the plot.
         """
-        trial_list = np.arange(1, analysis_result["trials"] + 1)  # x data
+        trials = analysis_result.extra["trials"]
+        heavy_probs = analysis_result.extra["heavy_output_probability"]
+        trial_list = np.arange(1, trials + 1)  # x data
 
-        hop_accumulative = np.cumsum(analysis_result["heavy output probability"]) / trial_list
+        hop_accumulative = np.cumsum(heavy_probs) / trial_list
         two_sigma = 2 * (hop_accumulative * (1 - hop_accumulative) / trial_list) ** 0.5
 
         # Plot inidivual HOP as scatter
         ax = plot_scatter(
             trial_list,
-            analysis_result["heavy output probability"],
+            heavy_probs,
             ax=ax,
             s=3,
             zorder=3,
@@ -264,7 +266,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
 
         ax.set_title(
             "Quantum Volume experiment for depth "
-            + str(analysis_result["depth"])
+            + str(analysis_result.extra["depth"])
             + " - accumulative hop",
             fontsize=14,
         )
