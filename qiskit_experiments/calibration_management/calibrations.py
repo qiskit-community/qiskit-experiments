@@ -14,7 +14,7 @@
 
 import os
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Set, Tuple, Union, List, Optional
 import csv
 import dataclasses
@@ -380,7 +380,7 @@ class Calibrations:
         qubits = self._to_tuple(qubits)
 
         if isinstance(value, (int, float, complex)):
-            value = ParameterValue(value, datetime.now())
+            value = ParameterValue(value, datetime.now(timezone.utc))
 
         param_name = param.name if isinstance(param, Parameter) else param
         sched_name = schedule.name if isinstance(schedule, ScheduleBlock) else schedule
