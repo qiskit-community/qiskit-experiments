@@ -104,6 +104,8 @@ class BaseAnalysis(ABC):
             for res in result_datum:
                 if "success" not in res:
                     res["success"] = True
+                if "stderr" in res:
+                    res["variance"] = res["stderr"] ** 2
                 analysis_result = DbAnalysisResultV1(
                     result_data=res,
                     result_type=res.get("result_type", experiment_data.experiment_type),
