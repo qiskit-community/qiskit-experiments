@@ -18,6 +18,8 @@ from typing import Any
 
 import numpy as np
 
+from .fit_value_type import fitval
+
 
 class ExperimentEncoder(json.JSONEncoder):
     """JSON Encoder for Numpy arrays and complex numbers."""
@@ -27,6 +29,13 @@ class ExperimentEncoder(json.JSONEncoder):
             return {"__type__": "array", "__value__": obj.tolist()}
         if isinstance(obj, complex):
             return {"__type__": "complex", "__value__": [obj.real, obj.imag]}
+        if isinstance(obj, fitval):
+            return {
+                "__type__": obj.__class__.__name__,
+                "__value__": obj.value,
+                "__stdev__": obj.stdev,
+                "__unit__": obj.unit,
+            }
         if callable(obj):
             return {"__type__": "callable", "__value__": obj.__name__}
         try:
@@ -49,6 +58,8 @@ class ExperimentDecoder(json.JSONDecoder):
                 return val[0] + 1j * val[1]
             if obj["__type__"] == "array":
                 return np.array(obj["__value__"])
+            if obj["__type__"] == fitval.__name__:
+                return fitval(value=obj["__value__"], stdev=obj["__stdev__"], unit=obj["__unit__"])
             if obj["__type__"] == "callable":
                 return obj["__value__"]
             if obj["__type__"] == "__class_name__":
