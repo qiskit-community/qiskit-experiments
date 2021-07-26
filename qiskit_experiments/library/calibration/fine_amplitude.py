@@ -27,6 +27,7 @@ from qiskit_experiments.library.calibration.analysis.fine_amplitude_analysis imp
     FineAmplitudeAnalysis,
 )
 from qiskit_experiments.exceptions import CalibrationError
+from qiskit_experiments.calibration_management.transpiler import inject_calibrations
 
 
 class FineAmplitude(BaseExperiment):
@@ -122,6 +123,7 @@ class FineAmplitude(BaseExperiment):
         options.add_sx = False
         options.add_xp_circuit = True
         options.sx_schedule = None
+        options.calibrations = None
 
         return options
 
@@ -205,6 +207,7 @@ class FineAmplitude(BaseExperiment):
         if schedule is None:
             raise CalibrationError("No schedule set for fine amplitude calibration.")
 
+        # TODO Get ride of this?
         if self.physical_qubits[0] not in set(ch.index for ch in schedule.channels):
             raise CalibrationError(
                 f"User provided schedule {schedule.name} does not contain a channel "
@@ -268,6 +271,9 @@ class FineAmplitude(BaseExperiment):
             }
 
             circuits.append(circuit)
+
+        if self.experiment_options.calibrations is not None:
+            circuits = inject_calibrations(circuits, self)
 
         return circuits
 

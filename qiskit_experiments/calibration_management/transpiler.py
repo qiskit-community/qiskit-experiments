@@ -22,10 +22,33 @@ from qiskit.pulse.schedule import ScheduleBlock
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.passmanager import PassManager
 
-from qiskit_experiments.calibration.management.calibrations import Calibrations
+from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.calibration_management.calibration_key_types import InstructionMap
 from qiskit_experiments.framework.base_experiment import BaseExperiment
+
+
+class CalibrationsMap:
+
+    def __init__(self):
+        """"""
+        self._map = dict()
+
+    def add(self, gate_name: str, schedule_name: str, parameter_map: Dict[str, str]):
+        """
+        Args:
+            gate_name:
+            schedule_name:
+            parameter_map:
+        """
+        self._map[gate_name] = (schedule_name, parameter_map)
+
+    def get(self, gate_name: str) -> Tuple[str, Dict]:
+        """"""
+        if gate_name in self._map:
+            return self._map[gate_name]
+
+        # Return the trivial map
+        return gate_name, {}
 
 
 class BaseCalibrationAdder(TransformationPass):
@@ -45,7 +68,9 @@ class BaseCalibrationAdder(TransformationPass):
         self._qubit_layout = qubit_layout
 
     @abstractmethod
-    def _get_calibration(self, gate: str, qubits: Tuple[int, ...]) -> Union[ScheduleBlock, None]:
+    def _get_calibration(
+        self, gate: str, qubits: Tuple[int, ...], params: List[Parameter]
+    ) -> Union[ScheduleBlock, None]:
         """Get a schedule from the internally stored schedules."""
 
     def run(self, dag: DAGCircuit) -> DAGCircuit:
@@ -69,7 +94,7 @@ class BaseCalibrationAdder(TransformationPass):
                 # Get the physical qubits that they will remap to.
                 qubits = tuple(self._qubit_layout[qubit] for qubit in qubits)
 
-                schedule = self._get_calibration(node.op.name, qubits)
+                schedule = self._get_calibration(node.op.name, qubits, params)
 
                 # Permissive stance: if we don't find a schedule we continue.
                 # The call to the transpiler that happens before running the
@@ -136,14 +161,14 @@ class CalibrationsAdder(BaseCalibrationAdder):
     def __init__(
             self,
             calibrations: Calibrations,
-            instruction_maps: Optional[List[InstructionMap]] = None,
+            calibrations_map: Optional[CalibrationsMap] = None,
             qubit_layout: Optional[Dict[int, int]] = None,
     ):
         """Initialize the pass.
 
         Args:
             calibrations: An instance of calibration from which to fetch the schedules.
-            instruction_maps: A list of instruction maps to map gate names in the circuit to
+            calibrations_map: A list of instruction maps to map gate names in the circuit to
                 schedule names in the calibrations. If this is not provided the transpiler pass
                 will assume that the schedule has the same name as the gate. Each instruction map
                 may also specify parameters that should be left free in the schedule.
@@ -151,13 +176,13 @@ class CalibrationsAdder(BaseCalibrationAdder):
         """
         super().__init__(qubit_layout)
         self._cals = calibrations
+        self._calibrations_map = calibrations_map or dict()
 
-        self._instruction_maps = dict()
-        for inst_map in instruction_maps:
-            self._instruction_maps[inst_map.inst] = inst_map
-
-
-    def _get_calibration(self, gate: str, qubits: Tuple[int, ...]) -> Union[ScheduleBlock, None]:
+    def _get_calibration(
+        self, gate: str,
+        qubits: Tuple[int, ...],
+        node_params: List[Parameter]
+    ) -> Union[ScheduleBlock, None]:
         """Get a schedule from the internally stored calibrations.
 
         Args:
@@ -167,17 +192,18 @@ class CalibrationsAdder(BaseCalibrationAdder):
         Returns:
             The schedule if one is found otherwise return None.
         """
-        name = gate
-        assign_params = None
 
-        # check for a non-trivial instruction to schedule mapping.
-        if gate in self._instruction_maps:
-            inst_map = self._instruction_maps[gate]
-            name = inst_map.schedule
-            assign_params = {param.name: param for param in inst_map.free_params}
+        # Extract the gate to schedule and any parameter name mappings.
+        sched_name, params_map = self._calibrations_map.get(gate)
 
+        assign_params = {}
+        for param in node_params:
+            if isinstance(param, Parameter):
+                assign_params[params_map.get(param.name, param.name)] = param
+
+        # Try and get a schedule, if there is none then return None.
         try:
-            return self._cals.get_schedule(name, qubits, assign_params=assign_params)
+            return self._cals.get_schedule(sched_name, qubits, assign_params=assign_params)
         except CalibrationError:
             return None
 
@@ -206,7 +232,12 @@ class ScheduleAdder(BaseCalibrationAdder):
         super().__init__(qubit_layout)
         self._schedules = schedules
 
-    def _get_calibration(self, gate: str, qubits: Tuple[int, ...]) -> Union[ScheduleBlock, None]:
+    def _get_calibration(
+        self,
+        gate: str,
+        qubits: Tuple[int, ...],
+        node_params: List[Parameter]
+    ) -> Union[ScheduleBlock, None]:
         """Get a schedule from the internally stored schedules.
 
         Args:
@@ -240,7 +271,7 @@ def inject_calibrations(
     calibrations = experiment.experiment_options.get("calibrations", None)
 
     if calibrations is None:
-        user_schedule_config = experiment.experiment_options.get("schedules", None)
+        user_schedule_config = experiment.experiment_options.get("schedules_config", None)
 
         if user_schedule_config is None:
             return circuits
