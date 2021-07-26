@@ -12,51 +12,14 @@
 
 """Extended value."""
 
-import operator
 from typing import Optional
 
 import numpy as np
 
 
-def _check_values_comparable(method):
-    """A method decorator to check if two values are operable."""
-
-    def _wraps(self, other):
-        if isinstance(other, fitval):
-            if self.unit is not None and self.unit != other.unit:
-                # values with different units are not operable.
-                raise ValueError(f"Two values {self} and {other} are not operable.")
-            if self.stdev is None or other.stdev is None:
-                # no stdev is provided. use equivalent method.
-                standard_method = getattr(operator, method.__name__)
-                return float(standard_method(self.value, other.value))
-            return method(self, other)
-        else:
-            # other is number object. ignore stdev and unit of self.
-            standard_method = getattr(operator, method.__name__)
-            return float(standard_method(self.value, other))
-
-    return _wraps
-
-
 # pylint: disable=invalid-name
 class fitval:
     """Extended float type to support value error and unit.
-
-    If two ``fitval`` types are operated, it raises an error if they have different units.
-    If one value doesn't provide an error, normal float value operation is performed.
-    If both values provide errors, error propagation is also calculated.
-    Only basic arithmetic operations are supported.
-
-    .. example::
-
-        >>> a = fitval(3.0, 0.1, "s")
-        >>> b = fitval(5.0, 0.2, "s")
-        >>> print(a + b)
-        8.0 ± 0.223606797749979 [s]
-        >>> c = 5.0
-        >>> print(a + c)
-        8.0
 
     This value is serializable with the Qiskit Experiment json serializer.
     """
@@ -105,61 +68,6 @@ class fitval:
     def unit(self):
         """Return unit of the value."""
         return self._unit
-
-    @_check_values_comparable
-    def __add__(self, other):
-        stdev = np.sqrt(self.stdev ** 2 + other.stdev ** 2)
-        return self.__class__(value=self._value + other.value, stdev=stdev, unit=self.unit)
-
-    @_check_values_comparable
-    def __sub__(self, other):
-        stdev = np.sqrt(self.stdev ** 2 + other.stdev ** 2)
-        return self.__class__(value=self._value - other.value, stdev=stdev, unit=self.unit)
-
-    @_check_values_comparable
-    def __mul__(self, other):
-        stdev = np.sqrt((other.value * self.stdev) ** 2 + (self.value * other.stdev) ** 2)
-        return self.__class__(value=self._value * other.value, stdev=stdev, unit=self.unit)
-
-    @_check_values_comparable
-    def __truediv__(self, other):
-        stdev = np.sqrt(
-            (self.stdev / other.value) ** 2 + (other.stdev * (self.value / other.value ** 2)) ** 2
-        )
-        return self.__class__(value=self._value / other.value, stdev=stdev, unit=self.unit)
-
-    @_check_values_comparable
-    def __ge__(self, other):
-        return operator.ge(self.value, other.value)
-
-    @_check_values_comparable
-    def __le__(self, other):
-        return operator.le(self.value, other.value)
-
-    @_check_values_comparable
-    def __gt__(self, other):
-        return operator.gt(self.value, other.value)
-
-    @_check_values_comparable
-    def __lt__(self, other):
-        return operator.lt(self.value, other.value)
-
-    @_check_values_comparable
-    def __eq__(self, other):
-        # compare with float value is allowed. e.g. 3.3 ± 1.0 == 3.3
-        return self.value == other.value and self.stdev == other.stdev and self.unit == other.unit
-
-    def __abs__(self):
-        return self.__class__(value=abs(self.value), stdev=self.stdev, unit=self.unit)
-
-    def __pos__(self):
-        return self.__class__(value=self.value, stdev=self.stdev, unit=self.unit)
-
-    def __neg__(self):
-        return self.__class__(value=-self.value, stdev=self.stdev, unit=self.unit)
-
-    def __float__(self):
-        return float(self.value)
 
     def __hash__(self):
         return hash((self._value, self._stdev, self._unit))
