@@ -1,4 +1,4 @@
-# This code is part of Qiskit.
+## This code is part of Qiskit.
 #
 # (C) Copyright IBM 2021.
 #
@@ -12,21 +12,25 @@
 """
 Standard discriminator analysis class.
 """
-from typing import List, Optional, Union, Iterable, Tuple
+from typing import List, Optional, Tuple
 import numpy as np
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
 
 from qiskit.providers.options import Options
 from qiskit.qobj.utils import MeasLevel
 
-from qiskit_experiments.base_analysis import BaseAnalysis
-from qiskit_experiments.analysis import plotting
-from qiskit_experiments.analysis.curve_fitting import (
-    CurveAnalysisResultData,
-)
+from qiskit_experiments.framework.base_analysis import BaseAnalysis
+from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
+
+from qiskit_experiments.curve_analysis import CurveAnalysisResultData
 
 
 class TwoLevelDiscriminatorAnalysis(BaseAnalysis):
+    """A class to analyze discriminator experiments.
+
+    LDA and QDA methods are supported.
+    """
+
     @classmethod
     def _default_options(cls):
         return Options(
@@ -72,7 +76,7 @@ class TwoLevelDiscriminatorAnalysis(BaseAnalysis):
         discriminator.fit(_ydata, _xdata)
         score = discriminator.score(_ydata, _xdata)
 
-        if plot and plotting.HAS_MATPLOTLIB:
+        if plot and HAS_MATPLOTLIB:
             xx, yy = np.meshgrid(
                 np.arange(
                     min(_ydata[:, 0]),

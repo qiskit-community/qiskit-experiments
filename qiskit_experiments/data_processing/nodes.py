@@ -13,17 +13,12 @@
 """Different data analysis steps."""
 
 from abc import abstractmethod
-from qiskit_experiments.measurement.discriminator.twoleveldiscriminator_experiment import (
-    TwoLevelDiscriminator,
-)
-from qiskit_experiments.measurement.discriminator.twoleveldiscriminator_analysis import (
+
+from qiskit_experiments.library.measurement.twoleveldiscriminator_analysis import (
     TwoLevelDiscriminatorAnalysis,
 )
 from typing import Any, Dict, List, Optional, Tuple, Union
 import numpy as np
-
-from qiskit_experiments.experiment_data import ExperimentData
-from qiskit_experiments.composite import CompositeExperimentData
 
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError

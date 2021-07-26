@@ -15,7 +15,7 @@ Standard discriminator experiment class.
 
 from typing import List, Optional
 
-from qiskit_experiments.base_experiment import BaseExperiment
+from qiskit_experiments.framework.base_experiment import BaseExperiment
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.qobj.utils import MeasLevel

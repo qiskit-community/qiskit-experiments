@@ -58,6 +58,7 @@ from .characterization import T1, T2Ramsey, QubitSpectroscopy, EFSpectroscopy
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
 from .quantum_volume import QuantumVolume
+from .measurement import TwoLevelDiscriminator
 
 # Experiment Sub-modules
 from . import calibration
