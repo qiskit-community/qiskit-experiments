@@ -15,7 +15,7 @@ Curve data classes.
 """
 
 import dataclasses
-from typing import Any, Dict, Callable, Union
+from typing import Any, Dict, Callable, Union, Optional
 import numpy as np
 
 
@@ -42,7 +42,7 @@ class SeriesDef:
     plot_fit_uncertainty: bool = False
 
     # Latex description of this fit model
-    model_description: str = "no description"
+    model_description: Optional[str] = None
 
 
 @dataclasses.dataclass(frozen=True)

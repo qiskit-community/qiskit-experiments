@@ -870,7 +870,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         # add model description
         result_data["fit_models"] = {
-            series_def.name: series_def.model_description for series_def in self.__series__
+            series_def.name: series_def.model_description or "no description"
+            for series_def in self.__series__
         }
         figures = list()
 
