@@ -19,10 +19,11 @@ import copy
 from numbers import Integral
 
 from qiskit import transpile, assemble, QuantumCircuit
+from qiskit.providers import BaseJob
 from qiskit.providers.options import Options
 from qiskit.providers.backend import Backend
-from qiskit.providers import BaseJob
 from qiskit.providers.basebackend import BaseBackend as LegacyBackend
+from qiskit.test.mock import FakeBackend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit_experiments.framework.experiment_data import ExperimentData
@@ -119,6 +120,19 @@ class BaseExperiment(ABC):
         run_opts = copy.copy(self.run_options)
         run_opts.update_options(**run_options)
         run_opts = run_opts.__dict__
+
+        # Scheduling parameters
+        if backend.configuration().simulator is False and isinstance(backend, FakeBackend) is False:
+            timing_constraints = getattr(self.transpile_options.__dict__, "timing_constraints", {})
+            timing_constraints["acquire_alignment"] = getattr(
+                timing_constraints, "acquire_alignment", 16
+            )
+            scheduling_method = getattr(
+                self.transpile_options.__dict__, "scheduling_method", "alap"
+            )
+            self.set_transpile_options(
+                timing_constraints=timing_constraints, scheduling_method=scheduling_method
+            )
 
         # Generate and transpile circuits
         transpile_opts = self.transpile_options.__dict__

@@ -47,11 +47,6 @@ class T1Analysis(BaseAnalysis):
         - :math:`amplitude\_guess`: Determined by :math:`(y_0 - offset\_guess)`
         - :math:`offset\_guess`: Determined by the last :math:`y`
         - :math:`t1\_guess`: Determined by the mean of the data points
-
-    Bounds
-        - :math:`amplitude\_bounds`: [0, 1]
-        - :math:`offset\_bounds`: [0, 1]
-        - :math:`t1\_bounds`: [0, infinity]
     """
 
     @classmethod
@@ -60,9 +55,6 @@ class T1Analysis(BaseAnalysis):
             t1_guess=None,
             amplitude_guess=None,
             offset_guess=None,
-            t1_bounds=None,
-            amplitude_bounds=None,
-            offset_bounds=None,
         )
 
     # pylint: disable=arguments-differ
@@ -72,9 +64,6 @@ class T1Analysis(BaseAnalysis):
         t1_guess=None,
         amplitude_guess=None,
         offset_guess=None,
-        t1_bounds=None,
-        amplitude_bounds=None,
-        offset_bounds=None,
         plot=True,
         ax=None,
     ) -> Tuple[List[CurveAnalysisResultData], List["matplotlib.figure.Figure"]]:
@@ -87,11 +76,6 @@ class T1Analysis(BaseAnalysis):
             amplitude_guess (float): Optional, an initial guess of the coefficient
                                      of the exponent
             offset_guess (float): Optional, an initial guess of the offset
-            t1_bounds (list of two floats): Optional, lower bound and upper bound to T1
-            amplitude_bounds (list of two floats): Optional, lower bound and upper
-                                                   bound to the amplitude
-            offset_bounds (list of two floats): Optional, lower bound and upper
-                                                bound to the offset
             plot (bool): Generator plot of exponential fit.
             ax (AxesSubplot): Optional, axes to add figure to.
 
@@ -120,20 +104,13 @@ class T1Analysis(BaseAnalysis):
             offset_guess = ydata[-1]
         if amplitude_guess is None:
             amplitude_guess = ydata[0] - offset_guess
-        if t1_bounds is None:
-            t1_bounds = [0, np.inf]
-        if amplitude_bounds is None:
-            amplitude_bounds = [0, 1]
-        if offset_bounds is None:
-            offset_bounds = [0, 1]
 
         # Perform fit
         def fit_fun(x, a, tau, c):
             return a * np.exp(-x / tau) + c
 
         init = {"a": amplitude_guess, "tau": t1_guess, "c": offset_guess}
-        bounds = {"a": amplitude_bounds, "tau": t1_bounds, "c": offset_bounds}
-        fit_result = curve_fit(fit_fun, xdata, ydata, init, sigma=sigma, bounds=bounds)
+        fit_result = curve_fit(fit_fun, xdata, ydata, init, sigma=sigma)
 
         result_data = {
             "value": fit_result["popt"][1],
