@@ -22,11 +22,11 @@ def _check_values_comparable(method):
     """A method decorator to check if two values are operable."""
 
     def _wraps(self, other):
-        if isinstance(other, fitval):
+        if isinstance(other, FitVal):
             if self.unit is not None and self.unit != other.unit:
                 # values with different units are not operable.
                 raise ValueError(f"Two values {self} and {other} are not operable.")
-            if self.stdev is None or other.stdev is None:
+            if self.stderr is None or other.stderr is None:
                 # no stdev is provided. use equivalent method.
                 standard_method = getattr(operator, method.__name__)
                 return float(standard_method(self.value, other.value))
@@ -39,19 +39,18 @@ def _check_values_comparable(method):
     return _wraps
 
 
-# pylint: disable=invalid-name
-class fitval:
+class FitVal:
     """Extended float type to support value error and unit.
 
-    If two ``fitval`` types are operated, it raises an error if they have different units.
+    If two ``FitVal`` types are operated, it raises an error if they have different units.
     If one value doesn't provide an error, normal float value operation is performed.
     If both values provide errors, error propagation is also calculated.
     Only basic arithmetic operations are supported.
 
     .. example::
 
-        >>> a = fitval(3.0, 0.1, "s")
-        >>> b = fitval(5.0, 0.2, "s")
+        >>> a = FitVal(3.0, 0.1, "s")
+        >>> b = FitVal(5.0, 0.2, "s")
         >>> print(a + b)
         8.0 ± 0.223606797749979 [s]
         >>> c = 5.0
@@ -64,32 +63,32 @@ class fitval:
     def __init__(
         self,
         value: float,
-        stdev: Optional[float] = None,
+        stderr: Optional[float] = None,
         unit: Optional[str] = "a.u.",
     ):
         """Create new fit value instance.
 
         Args:
             value: Value.
-            stdev: Optional. Standard deviation of value.
-            unit: Optional. Unit of this value.
+            stderr: Optional. Standard error of the value.
+            unit: Optional. Unit of the value.
 
         Raises:
-            TypeError: When ``value`` or ``stdev`` are non floating value.
+            TypeError: When ``value`` or ``stderr`` are non floating value.
             ValueError: When negative ``error`` is provided.
         """
         self._value = value
-        self._stdev = stdev
+        self._stderr = stderr
         self._unit = unit
 
         if not np.isreal(self._value):
             raise TypeError("Value should be float value.")
 
-        if not np.isreal(self._stdev):
-            raise TypeError("Value error should be float value.")
+        if not np.isreal(self._stderr):
+            raise TypeError("Error should be float value.")
 
-        if self._stdev is not None and self._stdev < 0:
-            raise ValueError("Value error should be positive float value.")
+        if self._stderr is not None and self._stderr < 0:
+            raise ValueError("Error should be positive float value.")
 
     @property
     def value(self):
@@ -97,9 +96,9 @@ class fitval:
         return self._value
 
     @property
-    def stdev(self):
+    def stderr(self):
         """Return value error."""
-        return self._stdev
+        return self._stderr
 
     @property
     def unit(self):
@@ -108,25 +107,25 @@ class fitval:
 
     @_check_values_comparable
     def __add__(self, other):
-        stdev = np.sqrt(self.stdev ** 2 + other.stdev ** 2)
-        return self.__class__(value=self._value + other.value, stdev=stdev, unit=self.unit)
+        stderr = np.sqrt(self.stderr ** 2 + other.stderr ** 2)
+        return self.__class__(value=self._value + other.value, stderr=stderr, unit=self.unit)
 
     @_check_values_comparable
     def __sub__(self, other):
-        stdev = np.sqrt(self.stdev ** 2 + other.stdev ** 2)
-        return self.__class__(value=self._value - other.value, stdev=stdev, unit=self.unit)
+        stderr = np.sqrt(self.stderr ** 2 + other.stderr ** 2)
+        return self.__class__(value=self._value - other.value, stderr=stderr, unit=self.unit)
 
     @_check_values_comparable
     def __mul__(self, other):
-        stdev = np.sqrt((other.value * self.stdev) ** 2 + (self.value * other.stdev) ** 2)
-        return self.__class__(value=self._value * other.value, stdev=stdev, unit=self.unit)
+        stderr = np.sqrt((other.value * self.stderr) ** 2 + (self.value * other.stderr) ** 2)
+        return self.__class__(value=self._value * other.value, stderr=stderr, unit=self.unit)
 
     @_check_values_comparable
     def __truediv__(self, other):
-        stdev = np.sqrt(
-            (self.stdev / other.value) ** 2 + (other.stdev * (self.value / other.value ** 2)) ** 2
+        stderr = np.sqrt(
+            (self.stderr / other.value) ** 2 + (other.stderr * (self.value / other.value ** 2)) ** 2
         )
-        return self.__class__(value=self._value / other.value, stdev=stdev, unit=self.unit)
+        return self.__class__(value=self._value / other.value, stderr=stderr, unit=self.unit)
 
     @_check_values_comparable
     def __ge__(self, other):
@@ -147,26 +146,26 @@ class fitval:
     @_check_values_comparable
     def __eq__(self, other):
         # compare with float value is allowed. e.g. 3.3 ± 1.0 == 3.3
-        return self.value == other.value and self.stdev == other.stdev and self.unit == other.unit
+        return self.value == other.value and self.stderr == other.stderr and self.unit == other.unit
 
     def __abs__(self):
-        return self.__class__(value=abs(self.value), stdev=self.stdev, unit=self.unit)
+        return self.__class__(value=abs(self.value), stderr=self.stderr, unit=self.unit)
 
     def __pos__(self):
-        return self.__class__(value=self.value, stdev=self.stdev, unit=self.unit)
+        return self.__class__(value=self.value, stderr=self.stderr, unit=self.unit)
 
     def __neg__(self):
-        return self.__class__(value=-self.value, stdev=self.stdev, unit=self.unit)
+        return self.__class__(value=-self.value, stderr=self.stderr, unit=self.unit)
 
     def __float__(self):
         return float(self.value)
 
     def __hash__(self):
-        return hash((self._value, self._stdev, self._unit))
+        return hash((self._value, self._stderr, self._unit))
 
     def __str__(self):
-        if self._stdev is not None:
-            value_rep = f"{self._value}\u00B1{self._stdev}"
+        if self._stderr is not None:
+            value_rep = f"{self._value}\u00B1{self._stderr}"
         else:
             value_rep = str(self._value)
 
@@ -178,5 +177,5 @@ class fitval:
     def __repr__(self):
         return (
             f"{self.__class__.__name__}"
-            f"(value={self._value}, stdev={self._stdev}, unit={self._unit})"
+            f"(value={self._value}, stderr={self._stderr}, unit={self._unit})"
         )

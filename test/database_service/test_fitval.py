@@ -18,7 +18,7 @@ import numpy as np
 from ddt import ddt, data, unpack
 from qiskit.test import QiskitTestCase
 
-from qiskit_experiments.database_service.fit_value_type import fitval
+from qiskit_experiments.database_service.fit_value_type import FitVal
 from qiskit_experiments.database_service.json import ExperimentEncoder, ExperimentDecoder
 
 
@@ -38,7 +38,7 @@ class TestBinOperFitValAndFloat(QiskitTestCase):
     @unpack
     def test_add(self, val1, val2):
         """Test adding two fit values."""
-        v1 = fitval(*val1)
+        v1 = FitVal(*val1)
         ret = v1 + val2
 
         ref_val = val1[0] + val2
@@ -50,7 +50,7 @@ class TestBinOperFitValAndFloat(QiskitTestCase):
     @unpack
     def test_sub(self, val1, val2):
         """Test subtracting two fit values."""
-        v1 = fitval(*val1)
+        v1 = FitVal(*val1)
         ret = v1 - val2
 
         ref_val = val1[0] - val2
@@ -62,7 +62,7 @@ class TestBinOperFitValAndFloat(QiskitTestCase):
     @unpack
     def test_mul(self, val1, val2):
         """Test multiplying two fit values."""
-        v1 = fitval(*val1)
+        v1 = FitVal(*val1)
         ret = v1 * val2
 
         ref_val = val1[0] * val2
@@ -74,7 +74,7 @@ class TestBinOperFitValAndFloat(QiskitTestCase):
     @unpack
     def test_div(self, val1, val2):
         """Test dividing two fit values."""
-        v1 = fitval(*val1)
+        v1 = FitVal(*val1)
         ret = v1 / val2
 
         ref_val = val1[0] / val2
@@ -86,7 +86,7 @@ class TestBinOperFitValAndFloat(QiskitTestCase):
     @unpack
     def test_ge(self, val1, val2):
         """Test comparison ge: >=."""
-        v1 = fitval(*val1)
+        v1 = FitVal(*val1)
 
         self.assertEqual(v1 >= val2, val1[0] >= val2)
 
@@ -94,7 +94,7 @@ class TestBinOperFitValAndFloat(QiskitTestCase):
     @unpack
     def test_le(self, val1, val2):
         """Test comparison le: <=."""
-        v1 = fitval(*val1)
+        v1 = FitVal(*val1)
 
         self.assertEqual(v1 <= val2, val1[0] <= val2)
 
@@ -102,7 +102,7 @@ class TestBinOperFitValAndFloat(QiskitTestCase):
     @unpack
     def test_gt(self, val1, val2):
         """Test comparison gt: >."""
-        v1 = fitval(*val1)
+        v1 = FitVal(*val1)
 
         self.assertEqual(v1 > val2, val1[0] > val2)
 
@@ -110,7 +110,7 @@ class TestBinOperFitValAndFloat(QiskitTestCase):
     @unpack
     def test_lt(self, val1, val2):
         """Test comparison lt: <."""
-        v1 = fitval(*val1)
+        v1 = FitVal(*val1)
 
         self.assertEqual(v1 < val2, val1[0] < val2)
 
@@ -118,7 +118,7 @@ class TestBinOperFitValAndFloat(QiskitTestCase):
     @unpack
     def test_eq(self, val1, val2):
         """Test comparison eq: ==."""
-        v1 = fitval(*val1)
+        v1 = FitVal(*val1)
 
         self.assertEqual(v1 == val2, val1[0] == val2)
 
@@ -140,64 +140,64 @@ class TestBinOperFitValAndFitVal(QiskitTestCase):
     @unpack
     def test_add(self, val1, val2):
         """Test adding two fit values."""
-        v1 = fitval(*val1)
-        v2 = fitval(*val2)
+        v1 = FitVal(*val1)
+        v2 = FitVal(*val2)
         ret = v1 + v2
 
         ref_val = val1[0] + val2[0]
         ref_std = np.sqrt(val1[1] ** 2 + val2[1] ** 2)
 
         self.assertEqual(ret.value, ref_val)
-        self.assertEqual(ret.stdev, ref_std)
+        self.assertEqual(ret.stderr, ref_std)
 
     @data(*__two_values__)
     @unpack
     def test_sub(self, val1, val2):
         """Test subtracting two fit values."""
-        v1 = fitval(*val1)
-        v2 = fitval(*val2)
+        v1 = FitVal(*val1)
+        v2 = FitVal(*val2)
         ret = v1 - v2
 
         ref_val = val1[0] - val2[0]
         ref_std = np.sqrt(val1[1] ** 2 + val2[1] ** 2)
 
         self.assertEqual(ret.value, ref_val)
-        self.assertEqual(ret.stdev, ref_std)
+        self.assertEqual(ret.stderr, ref_std)
 
     @data(*__two_values__)
     @unpack
     def test_mul(self, val1, val2):
         """Test multiplying two fit values."""
-        v1 = fitval(*val1)
-        v2 = fitval(*val2)
+        v1 = FitVal(*val1)
+        v2 = FitVal(*val2)
         ret = v1 * v2
 
         ref_val = val1[0] * val2[0]
         ref_std = np.sqrt((val2[0] * val1[1]) ** 2 + (val1[0] * val2[1]) ** 2)
 
         self.assertEqual(ret.value, ref_val)
-        self.assertEqual(ret.stdev, ref_std)
+        self.assertEqual(ret.stderr, ref_std)
 
     @data(*__two_values__)
     @unpack
     def test_div(self, val1, val2):
         """Test dividing two fit values."""
-        v1 = fitval(*val1)
-        v2 = fitval(*val2)
+        v1 = FitVal(*val1)
+        v2 = FitVal(*val2)
         ret = v1 / v2
 
         ref_val = val1[0] / val2[0]
         ref_std = np.sqrt((val1[1] / val2[0]) ** 2 + (val2[1] * (val1[0] / val2[0] ** 2)) ** 2)
 
         self.assertEqual(ret.value, ref_val)
-        self.assertEqual(ret.stdev, ref_std)
+        self.assertEqual(ret.stderr, ref_std)
 
     @data(*__two_values__)
     @unpack
     def test_ge(self, val1, val2):
         """Test comparison ge: >=."""
-        v1 = fitval(*val1)
-        v2 = fitval(*val2)
+        v1 = FitVal(*val1)
+        v2 = FitVal(*val2)
 
         self.assertEqual(v1 >= v2, val1[0] >= val2[0])
 
@@ -205,8 +205,8 @@ class TestBinOperFitValAndFitVal(QiskitTestCase):
     @unpack
     def test_le(self, val1, val2):
         """Test comparison le: <=."""
-        v1 = fitval(*val1)
-        v2 = fitval(*val2)
+        v1 = FitVal(*val1)
+        v2 = FitVal(*val2)
 
         self.assertEqual(v1 <= v2, val1[0] <= val2[0])
 
@@ -214,8 +214,8 @@ class TestBinOperFitValAndFitVal(QiskitTestCase):
     @unpack
     def test_gt(self, val1, val2):
         """Test comparison gt: >."""
-        v1 = fitval(*val1)
-        v2 = fitval(*val2)
+        v1 = FitVal(*val1)
+        v2 = FitVal(*val2)
 
         self.assertEqual(v1 > v2, val1[0] > val2[0])
 
@@ -223,8 +223,8 @@ class TestBinOperFitValAndFitVal(QiskitTestCase):
     @unpack
     def test_lt(self, val1, val2):
         """Test comparison lt: <."""
-        v1 = fitval(*val1)
-        v2 = fitval(*val2)
+        v1 = FitVal(*val1)
+        v2 = FitVal(*val2)
 
         self.assertEqual(v1 < v2, val1[0] < val2[0])
 
@@ -232,15 +232,15 @@ class TestBinOperFitValAndFitVal(QiskitTestCase):
     @unpack
     def test_eq(self, val1, val2):
         """Test comparison eq: ==."""
-        v1 = fitval(*val1)
-        v2 = fitval(*val2)
+        v1 = FitVal(*val1)
+        v2 = FitVal(*val2)
 
         self.assertEqual(v1 == v2, val1[0] == val2[0] and val1[1] == val2[1])
 
 
 @ddt
 class TestBinOperFitValAndFitValNoStdev(QiskitTestCase):
-    """Test binary operator for fitval and fitval without stdev."""
+    """Test binary operator for fitval and fitval without stderr."""
 
     __two_values__ = [
         [(3.0123, 0.001), (6.3,)],
@@ -255,8 +255,8 @@ class TestBinOperFitValAndFitValNoStdev(QiskitTestCase):
     @unpack
     def test_add(self, val1, val2):
         """Test adding two fit values."""
-        v1 = fitval(*val1)
-        v2 = fitval(*val2)
+        v1 = FitVal(*val1)
+        v2 = FitVal(*val2)
         ret = v1 + v2
 
         ref_val = val1[0] + val2[0]
@@ -268,8 +268,8 @@ class TestBinOperFitValAndFitValNoStdev(QiskitTestCase):
     @unpack
     def test_sub(self, val1, val2):
         """Test subtracting two fit values."""
-        v1 = fitval(*val1)
-        v2 = fitval(*val2)
+        v1 = FitVal(*val1)
+        v2 = FitVal(*val2)
         ret = v1 - v2
 
         ref_val = val1[0] - val2[0]
@@ -281,8 +281,8 @@ class TestBinOperFitValAndFitValNoStdev(QiskitTestCase):
     @unpack
     def test_mul(self, val1, val2):
         """Test multiplying two fit values."""
-        v1 = fitval(*val1)
-        v2 = fitval(*val2)
+        v1 = FitVal(*val1)
+        v2 = FitVal(*val2)
         ret = v1 * v2
 
         ref_val = val1[0] * val2[0]
@@ -294,8 +294,8 @@ class TestBinOperFitValAndFitValNoStdev(QiskitTestCase):
     @unpack
     def test_div(self, val1, val2):
         """Test dividing two fit values."""
-        v1 = fitval(*val1)
-        v2 = fitval(*val2)
+        v1 = FitVal(*val1)
+        v2 = FitVal(*val2)
         ret = v1 / v2
 
         ref_val = val1[0] / val2[0]
@@ -307,8 +307,8 @@ class TestBinOperFitValAndFitValNoStdev(QiskitTestCase):
     @unpack
     def test_ge(self, val1, val2):
         """Test comparison ge: >=."""
-        v1 = fitval(*val1)
-        v2 = fitval(*val2)
+        v1 = FitVal(*val1)
+        v2 = FitVal(*val2)
 
         self.assertEqual(v1 >= v2, val1[0] >= val2[0])
 
@@ -316,8 +316,8 @@ class TestBinOperFitValAndFitValNoStdev(QiskitTestCase):
     @unpack
     def test_le(self, val1, val2):
         """Test comparison le: <=."""
-        v1 = fitval(*val1)
-        v2 = fitval(*val2)
+        v1 = FitVal(*val1)
+        v2 = FitVal(*val2)
 
         self.assertEqual(v1 <= v2, val1[0] <= val2[0])
 
@@ -325,8 +325,8 @@ class TestBinOperFitValAndFitValNoStdev(QiskitTestCase):
     @unpack
     def test_gt(self, val1, val2):
         """Test comparison gt: >."""
-        v1 = fitval(*val1)
-        v2 = fitval(*val2)
+        v1 = FitVal(*val1)
+        v2 = FitVal(*val2)
 
         self.assertEqual(v1 > v2, val1[0] > val2[0])
 
@@ -334,8 +334,8 @@ class TestBinOperFitValAndFitValNoStdev(QiskitTestCase):
     @unpack
     def test_lt(self, val1, val2):
         """Test comparison lt: <."""
-        v1 = fitval(*val1)
-        v2 = fitval(*val2)
+        v1 = FitVal(*val1)
+        v2 = FitVal(*val2)
 
         self.assertEqual(v1 < v2, val1[0] < val2[0])
 
@@ -343,8 +343,8 @@ class TestBinOperFitValAndFitValNoStdev(QiskitTestCase):
     @unpack
     def test_eq(self, val1, val2):
         """Test comparison eq: ==."""
-        v1 = fitval(*val1)
-        v2 = fitval(*val2)
+        v1 = FitVal(*val1)
+        v2 = FitVal(*val2)
 
         self.assertEqual(v1 == v2, val1[0] == val2[0])
 
@@ -365,34 +365,34 @@ class TestUnaryOpers(QiskitTestCase):
     @data(*__signle_value__)
     def test_abs(self, val):
         """Test abs."""
-        v = fitval(*val)
+        v = FitVal(*val)
         ret = abs(v)
 
         self.assertEqual(ret.value, abs(val[0]))
-        self.assertEqual(ret.stdev, val[1])
+        self.assertEqual(ret.stderr, val[1])
 
     @data(*__signle_value__)
     def test_pos(self, val):
         """Test pos."""
-        v = fitval(*val)
+        v = FitVal(*val)
         ret = +v
 
         self.assertEqual(ret.value, val[0])
-        self.assertEqual(ret.stdev, val[1])
+        self.assertEqual(ret.stderr, val[1])
 
     @data(*__signle_value__)
     def test_neg(self, val):
         """Test neg."""
-        v = fitval(*val)
+        v = FitVal(*val)
         ret = -v
 
         self.assertEqual(ret.value, -val[0])
-        self.assertEqual(ret.stdev, val[1])
+        self.assertEqual(ret.stderr, val[1])
 
     @data(*__signle_value__)
     def test_float(self, val):
         """Test pos."""
-        v = fitval(*val)
+        v = FitVal(*val)
         ret = float(v)
 
         self.assertEqual(ret, val[0])
@@ -400,15 +400,15 @@ class TestUnaryOpers(QiskitTestCase):
     @data(*__signle_value__)
     def test_repr(self, val):
         """Test pos."""
-        v = fitval(*val)
+        v = FitVal(*val)
         ret = repr(v)
 
-        self.assertEqual(ret, f"fitval(value={val[0]}, stdev={val[1]}, unit={val[2]})")
+        self.assertEqual(ret, f"fitval(value={val[0]}, stderr={val[1]}, unit={val[2]})")
 
     @data(*__signle_value__)
     def test_str(self, val):
         """Test pos."""
-        v = fitval(*val)
+        v = FitVal(*val)
         ret = str(v)
 
         self.assertEqual(ret, f"{val[0]}\u00B1{val[1]} [{val[2]}]")
@@ -430,7 +430,7 @@ class TestSerialize(QiskitTestCase):
     @data(*__signle_value__)
     def test_serialize(self, val):
         """Test serialization of data."""
-        val_orig = fitval(*val)
+        val_orig = FitVal(*val)
 
         ser = json.dumps(val_orig, cls=ExperimentEncoder)
         val_deser = json.loads(ser, cls=ExperimentDecoder)
@@ -444,22 +444,22 @@ class TestFitValInvalidOpers(QiskitTestCase):
     def test_cannot_create_with_non_real_value(self):
         """Test create with non-real value."""
         with self.assertRaises(TypeError):
-            fitval(1j, 0.1)
+            FitVal(1j, 0.1)
 
-    def test_cannot_create_with_non_real_stdev(self):
-        """Test create with non-real stdev."""
+    def test_cannot_create_with_non_real_stderr(self):
+        """Test create with non-real stderr."""
         with self.assertRaises(TypeError):
-            fitval(0.3, 1j)
+            FitVal(0.3, 1j)
 
-    def test_cannot_create_with_negative_stdev(self):
-        """Test create with negative stdev."""
+    def test_cannot_create_with_negative_stderr(self):
+        """Test create with negative stderr."""
         with self.assertRaises(ValueError):
-            fitval(0.3, -0.1)
+            FitVal(0.3, -0.1)
 
     def test_cannot_oper_different_unit(self):
         """Test operation with different units."""
-        v1 = fitval(1.2, 0.34, "s")
-        v2 = fitval(3.4, 0.56, "m")
+        v1 = FitVal(1.2, 0.34, "s")
+        v2 = FitVal(3.4, 0.56, "m")
 
         # pylint: disable=pointless-statement
         with self.assertRaises(ValueError):
