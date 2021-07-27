@@ -18,7 +18,7 @@ import json
 from ddt import ddt, data
 from qiskit.test import QiskitTestCase
 
-from qiskit_experiments.database_service.fit_value_type import fitval
+from qiskit_experiments.database_service.utils import FitVal
 from qiskit_experiments.database_service.json import ExperimentEncoder, ExperimentDecoder
 
 
@@ -38,7 +38,7 @@ class TestFitVal(QiskitTestCase):
     @data(*__signle_value__)
     def test_serialize(self, val):
         """Test serialization of data."""
-        val_orig = fitval(*val)
+        val_orig = FitVal(*val)
 
         ser = json.dumps(val_orig, cls=ExperimentEncoder)
         val_deser = json.loads(ser, cls=ExperimentDecoder)
@@ -46,17 +46,9 @@ class TestFitVal(QiskitTestCase):
         self.assertEqual(val_orig, val_deser)
 
     @data(*__signle_value__)
-    def test_repr(self, val):
-        """Test repr."""
-        v = fitval(*val)
-        ret = repr(v)
-
-        self.assertEqual(ret, f"fitval(value={val[0]}, stdev={val[1]}, unit={val[2]})")
-
-    @data(*__signle_value__)
     def test_str(self, val):
         """Test str."""
-        v = fitval(*val)
+        v = FitVal(*val)
         ret = str(v)
 
-        self.assertEqual(ret, f"{val[0]}\u00B1{val[1]} [{val[2]}]")
+        self.assertEqual(ret, f"{val[0]} \u00B1 {val[1]} {val[2]}")
