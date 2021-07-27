@@ -199,16 +199,17 @@ class TestRabiCircuits(QiskitTestCase):
         chan = Parameter("ch0")
         amp = Parameter("amp")
 
-        with pulse.build(name="xp") as xp_sched:
+        with pulse.build(name="x") as xp_sched:
             pulse.play(pulse.Gaussian(123, amp, 25), pulse.DriveChannel(chan))
 
         cals.add_schedule(xp_sched)
-        cals.add_parameter_value(0.2, "amp", schedule="xp")
+        cals.add_parameter_value(0.2, "amp", schedule="x")
 
         rabi = EFRabi(qubit)
-        rabi.set_experiment_options(calibrations=cals, x_schedule_name="xp", frequency_shift=-330e6)
+        rabi.set_experiment_options(calibrations=cals, frequency_shift=-330e6)
 
         circs = rabi.circuits(RabiBackend())
+        print(circs[0].calibrations)
 
         expected = xp_sched.assign_parameters({amp: 0.2, chan: 3}, inplace=False)
 

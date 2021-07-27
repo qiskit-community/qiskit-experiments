@@ -12,7 +12,7 @@
 
 """Rabi amplitude experiment."""
 
-from typing import List, Optional, Tuple
+from typing import List, Optional
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -20,12 +20,12 @@ from qiskit.circuit import Gate, Parameter
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
 import qiskit.pulse as pulse
+from qiskit.pulse import ScheduleBlock
 from qiskit.providers.options import Options
 
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.library.calibration.analysis.oscillation_analysis import OscillationAnalysis
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.calibration_management.transpiler import CalibrationsMap
 from qiskit_experiments.calibration_management.transpiler import inject_calibrations
 
 
@@ -49,7 +49,6 @@ class Rabi(BaseExperiment):
 
     __analysis_class__ = OscillationAnalysis
     __rabi_gate_name__ = "Rabi"
-    __rabi_param_name__ = "amp"
 
     @classmethod
     def _default_run_options(cls) -> Options:
@@ -70,14 +69,13 @@ class Rabi(BaseExperiment):
             rabi.set_experiment_options(schedule=rabi_schedule)
 
         """
-        cal_map = CalibrationsMap()
-        cal_map.add(cls.__rabi_gate_name__, "x", {cls.__rabi_param_name__: "amp"})
-
         return Options(
+            duration=160,
+            sigma=40,
             amplitudes=np.linspace(-0.95, 0.95, 51),
-            schedules_config=None,
-            instruction_name_maps=cal_map,
+            schedule=None,
             calibrations=None,
+            instruction_name_map=None,
         )
 
     @classmethod
@@ -96,42 +94,40 @@ class Rabi(BaseExperiment):
         - duration: The duration of the rabi pulse in samples, the default is 160 samples.
         - sigma: The standard deviation of the pulse, the default is duration 40.
         - amplitudes: The amplitude that are scanned in the experiment, default  is
-        np.linspace(-0.95, 0.95, 51)
+          np.linspace(-0.95, 0.95, 51).
 
         Args:
             qubit: The qubit on which to run the Rabi experiment.
         """
         super().__init__([qubit])
 
-    def _get_parameter(self):
-        """Extract the parameter from the options."""
-        for inst_map in self.experiment_options.instruction_name_maps:
-            if inst_map.free_param:
-                return inst_map.free_param[0]
-
-        raise CalibrationError(f"Parameter for {self.__class__.__name__} not found.")
-
-    def _template_circuit(self) -> QuantumCircuit:
+    def _template_circuit(self, sched: ScheduleBlock) -> QuantumCircuit:
         """Return the template quantum circuit."""
-
-        gate = Gate(name=self.__rabi_gate_name__, num_qubits=1, params=[Parameter("amp")])
+        gate = Gate(name=self.__rabi_gate_name__, num_qubits=1, params=list(sched.parameters))
 
         circuit = QuantumCircuit(1)
         circuit.append(gate, (0,))
         circuit.measure_active()
 
+        circuit.add_calibration(
+            self.__rabi_gate_name__, (self.physical_qubits[0],), sched, list(sched.parameters)
+        )
+
         return circuit
 
-    def _default_gate_schedule(self, backend: Optional[Backend] = None):
+    def default_schedules(self, backend: Optional[Backend] = None):
         """Create the default schedule for the Rabi gate."""
-        amp = Parameter("amp")
-        with pulse.build(backend=backend, name=self.__rabi_gate_name__) as default_schedule:
+        with pulse.build(backend=backend, name=self.__rabi_gate_name__) as schedule:
             pulse.play(
-                pulse.Gaussian(duration=160, amp=amp, sigma=40),
+                pulse.Gaussian(
+                    duration=self.experiment_options.duration,
+                    amp=Parameter("amp"),
+                    sigma=self.experiment_options.sigma,
+                ),
                 pulse.DriveChannel(self.physical_qubits[0]),
             )
 
-        return default_schedule
+        return schedule
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Create the circuits for the Rabi experiment.
@@ -149,18 +145,30 @@ class Rabi(BaseExperiment):
                   that matches the qubit on which to run the Rabi experiment.
                 - If the user provided schedule has more than one free parameter.
         """
-        circuit = self._template_circuit()
 
-        # Inject calibrations or user-provided schedules if present.
+        # 1. Get the schedules for the custom gates.
+        schedule = self.experiment_options.schedule or self.default_schedules(backend)
+
+        if self.physical_qubits[0] not in set(ch.index for ch in schedule.channels):
+            raise CalibrationError(
+                f"Schedule {schedule.name} does not have a channel "
+                f"for the qubit on which to run {self.__class__.__name__}."
+            )
+
+        if len(schedule.parameters) != 1:
+            raise CalibrationError(
+                f"Schedule in {self.__class__.__name__} must have exactly one free parameter."
+            )
+
+        # 2. Create template circuit and attach the calibration.
+        circuit = self._template_circuit(schedule)
+
+        # 3. Inject calibrations for standard gates.
         circuit = inject_calibrations(circuit, self)
 
-        # Sanity check the schedule for Rabi.
-        schedule = next(iter(circuit.calibrations[self.__rabi_gate_name__].values()))
-        if len(schedule.parameters) != 1:
-            raise CalibrationError("Schedule in Rabi must have exactly one free parameter.")
-
-        # Create the circuits to run
+        # 4. Assign parameter values to create circuits to run on.
         circs = []
+        param = next(iter(schedule.parameters))
         for amp in self.experiment_options.amplitudes:
             amp = np.round(amp, decimals=6)
             assigned_circ = circuit.assign_parameters({param: amp}, inplace=False)
@@ -212,18 +220,12 @@ class EFRabi(Rabi):
             ef_rabi.set_experiment_options(schedule=rabi_schedule)
 
         """
-        return Options(
-            duration=160,
-            sigma=40,
-            amplitudes=np.linspace(-0.95, 0.95, 51),
-            schedule=None,
-            normalization=True,
-            frequency_shift=None,
-        )
+        options = super()._default_experiment_options()
+        options.frequency_shift=None
+        return options
 
-    def _default_gate_schedule(self, backend: Optional[Backend] = None):
-        """Create the default schedule for the EFRabi gate with a frequency shift to the 1-2
-        transition."""
+    def default_schedules(self, backend: Optional[Backend] = None):
+        """Create the default schedule with a frequency shift to the 1-2 transition."""
 
         if self.experiment_options.frequency_shift is None:
             try:
@@ -243,7 +245,6 @@ class EFRabi(Rabi):
                     "to be set manually through EFRabi.set_experiment_options(frequency_shift=..)."
                 ) from att_err
 
-        amp = Parameter("amp")
         with pulse.build(backend=backend, name=self.__rabi_gate_name__) as default_schedule:
             with pulse.frequency_offset(
                 self.experiment_options.frequency_shift,
@@ -252,7 +253,7 @@ class EFRabi(Rabi):
                 pulse.play(
                     pulse.Gaussian(
                         duration=self.experiment_options.duration,
-                        amp=amp,
+                        amp=Parameter("amp"),
                         sigma=self.experiment_options.sigma,
                     ),
                     pulse.DriveChannel(self.physical_qubits[0]),
@@ -260,12 +261,9 @@ class EFRabi(Rabi):
 
         return default_schedule
 
-    def _template_circuit(self) -> QuantumCircuit:
+    def _template_circuit(self, sched: ScheduleBlock) -> QuantumCircuit:
         """Return the template quantum circuit."""
-
-        circuit = QuantumCircuit(1)
+        circuit = QuantumCircuit(1, 1)
         circuit.x(0)
-        circuit.append(Gate(name=self.__rabi_gate_name__, num_qubits=1, params=[Parameter("amp")]), (0,))
-        circuit.measure_active()
 
-        return circuit
+        return circuit.compose(super()._template_circuit(sched))

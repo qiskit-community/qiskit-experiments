@@ -272,8 +272,7 @@ class FineAmplitude(BaseExperiment):
 
             circuits.append(circuit)
 
-        if self.experiment_options.calibrations is not None:
-            circuits = inject_calibrations(circuits, self)
+        circuits = inject_calibrations(circuits, self)
 
         return circuits
 
