@@ -27,7 +27,7 @@ class fitval:
         self,
         value: float,
         stdev: Optional[float] = None,
-        unit: Optional[str] = "a.u.",
+        unit: Optional[str] = None,
     ):
         """Create new fit value instance.
 
