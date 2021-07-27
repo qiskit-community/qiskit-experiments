@@ -73,7 +73,7 @@ class fitval:
 
     def __str__(self):
         if self._stdev is not None:
-            value_rep = f"{self._value}\u00B1{self._stdev}"
+            value_rep = f"{self._value} \u00B1 {self._stdev}"
         else:
             value_rep = str(self._value)
 
