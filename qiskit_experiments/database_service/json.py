@@ -17,8 +17,7 @@ import json
 from typing import Any
 
 import numpy as np
-
-from .utils import FitVal
+from .db_fitval import FitVal
 
 
 class ExperimentEncoder(json.JSONEncoder):
@@ -30,12 +29,7 @@ class ExperimentEncoder(json.JSONEncoder):
         if isinstance(obj, complex):
             return {"__type__": "complex", "__value__": [obj.real, obj.imag]}
         if isinstance(obj, FitVal):
-            return {
-                "__type__": obj.__class__.__name__,
-                "__value__": obj.value,
-                "__stderr__": obj.stderr,
-                "__unit__": obj.unit,
-            }
+            return {"__type__": obj.__class__.__name__, "args": (obj.value, obj.stderr, obj.unit)}
         if callable(obj):
             return {"__type__": "callable", "__value__": obj.__name__}
         try:
@@ -59,9 +53,7 @@ class ExperimentDecoder(json.JSONDecoder):
             if obj["__type__"] == "array":
                 return np.array(obj["__value__"])
             if obj["__type__"] == FitVal.__name__:
-                return FitVal(
-                    value=obj["__value__"], stderr=obj["__stderr__"], unit=obj["__unit__"]
-                )
+                return FitVal(*obj["args"])
             if obj["__type__"] == "callable":
                 return obj["__value__"]
             if obj["__type__"] == "__class_name__":

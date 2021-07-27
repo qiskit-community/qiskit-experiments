@@ -12,7 +12,6 @@
 
 """Experiment utility functions."""
 
-import dataclasses
 import io
 import logging
 import threading
@@ -20,7 +19,7 @@ import traceback
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 from datetime import datetime, timezone
-from typing import Callable, Tuple, Dict, Any, Union, Optional
+from typing import Callable, Tuple, Dict, Any, Union
 
 import dateutil.parser
 import pkg_resources
@@ -220,26 +219,3 @@ class ThreadSafeList(ThreadSafeContainer):
         """Returns a copy of the list."""
         with self.lock:
             return self._container.copy()
-
-
-@dataclasses.dataclass(frozen=True)
-class FitVal:
-    """A data container for the value estimated by the curve fitting.
-
-    This data is serializable with the Qiskit Experiment json serializer.
-    """
-
-    value: float
-    stderr: Optional[float] = None
-    unit: Optional[str] = None
-
-    def __str__(self):
-        if self.stderr is not None:
-            value_rep = f"{self.value} \u00B1 {self.stderr}"
-        else:
-            value_rep = str(self.value)
-
-        if self.unit:
-            return f"{value_rep} {self.unit}"
-        else:
-            return value_rep

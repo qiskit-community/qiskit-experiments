@@ -18,7 +18,7 @@ import json
 from ddt import ddt, data
 from qiskit.test import QiskitTestCase
 
-from qiskit_experiments.database_service.utils import FitVal
+from qiskit_experiments.database_service.db_fitval import FitVal
 from qiskit_experiments.database_service.json import ExperimentEncoder, ExperimentDecoder
 
 
