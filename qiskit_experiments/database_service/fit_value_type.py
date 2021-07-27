@@ -17,7 +17,6 @@ from typing import Optional
 import numpy as np
 
 
-# pylint: disable=invalid-name
 class fitval:
     """Extended float type to support value error and unit.
 
