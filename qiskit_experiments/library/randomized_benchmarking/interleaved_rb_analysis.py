@@ -109,8 +109,7 @@ class InterleavedRBAnalysis(RBAnalysis):
 
     @classmethod
     def _default_options(cls):
-        """Return default analysis options.
-        """
+        """Return default analysis options."""
         default_options = super()._default_options()
         default_options.p0 = {"a": None, "alpha": None, "alpha_c": None, "b": None}
         default_options.bounds = {
