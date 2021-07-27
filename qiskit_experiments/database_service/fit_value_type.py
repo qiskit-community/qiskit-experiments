@@ -23,18 +23,25 @@ def _check_values_comparable(method):
 
     def _wraps(self, other):
         if isinstance(other, FitVal):
-            if self.unit is not None and self.unit != other.unit:
+            if self.unit is not None and other.unit is not None and self.unit != other.unit:
                 # values with different units are not operable.
                 raise ValueError(f"Two values {self} and {other} are not operable.")
             if self.stderr is None or other.stderr is None:
                 # no stdev is provided. use equivalent method.
                 standard_method = getattr(operator, method.__name__)
-                return float(standard_method(self.value, other.value))
+                res = float(standard_method(self.value, other.value))
+                return FitVal(value=res, unit=self.unit)
             return method(self, other)
         else:
-            # other is number object. ignore stdev and unit of self.
-            standard_method = getattr(operator, method.__name__)
-            return float(standard_method(self.value, other))
+            if np.isreal(other):
+                # other is float number. type cast the value by assuming zero stderr.
+                other_fitval = FitVal(value=other, stderr=0.)
+                return method(self, other_fitval)
+            else:
+                raise TypeError(
+                    f"Error propagation of non-real value {repr(other)} is not supported. "
+                    "Perform calculation with self.value by ignoring the uncertainty."
+                )
 
     return _wraps
 
@@ -43,19 +50,21 @@ class FitVal:
     """Extended float type to support value error and unit.
 
     If two ``FitVal`` types are operated, it raises an error if they have different units.
-    If one value doesn't provide an error, normal float value operation is performed.
-    If both values provide errors, error propagation is also calculated.
+    If both values provide errors, uncertainly propagation is also calculated.
+    If one value doesn't provide an error, i.e. `None`, uncertainly propagation is just ignored
+    and single float value will be returned.
     Only basic arithmetic operations are supported.
 
-    .. example::
-
+    Examples:
         >>> a = FitVal(3.0, 0.1, "s")
         >>> b = FitVal(5.0, 0.2, "s")
         >>> print(a + b)
-        8.0 ± 0.223606797749979 [s]
+        8.0 ± 0.223606797749979 s
         >>> c = 5.0
         >>> print(a + c)
-        8.0
+        8.0 ± 0.1 s
+        >>> d = FitVal(5.0)
+        >>> print(a + d)
 
     This value is serializable with the Qiskit Experiment json serializer.
     """
