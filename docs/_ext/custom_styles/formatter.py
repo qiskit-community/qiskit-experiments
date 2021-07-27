@@ -181,8 +181,7 @@ class AnalysisSectionFormatter(DocstringSectionFormatter):
         format_lines = [
             ".. rubric:: Fit Model",
             "",
-            "This is the curve fitting analysis. ",
-            "Following equation(s) are used to represent curve(s).",
+            "Following fit models are used to represent the experimental result.",
             "",
         ]
         format_lines.extend(lines)

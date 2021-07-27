@@ -21,6 +21,7 @@ from typing import Union, List, Dict
 
 from qiskit_experiments.framework.base_analysis import BaseAnalysis
 from qiskit_experiments.framework.base_experiment import BaseExperiment
+from qiskit_experiments.curve_analysis import CurveAnalysis
 from sphinx.config import Config as SphinxConfig
 
 from .formatter import (
@@ -29,7 +30,11 @@ from .formatter import (
     DocstringSectionFormatter,
 )
 from .section_parsers import load_standard_section, load_fit_parameters
-from .utils import _generate_options_documentation, _format_default_options
+from .utils import (
+    _generate_options_documentation,
+    _generate_fit_model_documentation,
+    _format_default_options,
+)
 
 section_regex = re.compile(r"# section: (?P<section_name>\S+)")
 
@@ -111,7 +116,8 @@ class QiskitExperimentDocstring(ABC):
         add_new_section(current_section, temp_lines)
 
         for section, lines in self._extra_sections().items():
-            sectioned_docstrings[section] = lines
+            if section not in sectioned_docstrings:
+                sectioned_docstrings[section] = lines
 
         return sectioned_docstrings
 
@@ -319,5 +325,12 @@ class AnalysisDocstring(QiskitExperimentDocstring):
         )
         if analysis_option:
             parsed_sections["analysis_opts"] = analysis_option
+
+        # generate fit model from series definitions if curve analysis
+        if issubclass(self._target_cls, CurveAnalysis):
+            parsed_sections["fit_model"] = _generate_fit_model_documentation(
+                series_defs=self._target_cls.__series__,
+                indent=self._indent,
+            )
 
         return parsed_sections

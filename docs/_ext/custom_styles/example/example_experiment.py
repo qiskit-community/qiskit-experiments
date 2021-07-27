@@ -44,7 +44,13 @@ class DocumentedCurveAnalysis(CurveAnalysis):
         In addition to above sections, analysis template provides following extra sections.
 
     # section: fit_model
-        Here you can describe your fitting model.
+        Optional. Here you can describe your fitting model.
+        If you are documenting a CurveAnalysis subclass, Sphinx automatically  generates
+        the fit model descriptions based on descriptions in the SeriesDef.
+        However you can still override this section.
+        If you want to provide the fit model description for other analysis classes,
+        please write this section.
+
         Standard reStructuredText directives can be used. For example:
 
         .. math::

@@ -21,6 +21,8 @@ from sphinx.config import Config as SphinxConfig
 from sphinx.ext.napoleon.docstring import GoogleDocstring
 from sphinx.util.docstrings import prepare_docstring
 
+from qiskit_experiments.curve_analysis import SeriesDef
+
 
 def _trim_empty_lines(docstring_lines: List[str]) -> List[str]:
     """A helper function to remove redundant line feeds."""
@@ -121,6 +123,34 @@ def _generate_options_documentation(
         return _trim_empty_lines(options_docstring_lines)
 
     return options_docstring_lines
+
+
+def _generate_fit_model_documentation(series_defs: List[SeriesDef], indent: str = "") -> List[str]:
+    """Automatically generate fit model documentation from the series definition."""
+    n_curves = len(series_defs)
+
+    fit_model_docstring_lines = []
+    for idx, series_def in enumerate(series_defs):
+        if series_def.model_description is None:
+            continue
+        if n_curves > 1:
+            fit_model_docstring_lines.extend([
+                f"- Fit model for the curve ``{series_def.name}``:",
+                ""
+            ])
+        math_block = [
+            ".. math::",
+            "",
+            indent + f"F(x) = {series_def.model_description} \\tag{idx + 1}",
+            "",
+        ]
+        fit_model_docstring_lines.extend(math_block)
+
+    fit_model_docstring_lines.append(
+        "The information about the fit model is also stored in the analysis result metadata."
+    )
+
+    return fit_model_docstring_lines
 
 
 def _format_default_options(defaults: Dict[str, Any], indent: str = "") -> List[str]:
