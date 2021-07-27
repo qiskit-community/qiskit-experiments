@@ -14,7 +14,7 @@ Base analysis class.
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 from qiskit.exceptions import QiskitError
 from qiskit.providers.options import Options
@@ -127,19 +127,14 @@ class BaseAnalysis(ABC):
         elif experiment_components:
             device_components = experiment_components
 
-        # Temporary until DB class is updated to take value and extra
-        result_data = {"value": data.value}
-        if data.extra:
-            for key, val in data.extra.items():
-                result_data[key] = val
-
         return DbAnalysisResultV1(
-            result_data=result_data,
-            result_type=data.name,
+            name=data.name,
+            value=data.value,
             device_components=device_components,
             experiment_id=experiment_id,
             chisq=data.chisq,
             quality=data.quality,
+            extra=data.extra,
         )
 
     @abstractmethod

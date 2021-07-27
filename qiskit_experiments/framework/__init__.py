@@ -31,7 +31,7 @@ Experiment Data Classes
     :toctree: ../stubs/
 
     ExperimentData
-    DbAnalysisResultV1
+    ~qiskit_experiments.database_service.DbAnalysisResultV1
     FitVal
     AnalysisResultData
 
