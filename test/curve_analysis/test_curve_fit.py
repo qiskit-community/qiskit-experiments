@@ -86,6 +86,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
                         x, amp=p0, lamb=p1, baseline=p4
                     ),
                     filter_kwargs={"type": 1, "valid": True},
+                    model_description=r"p_0 * \exp(p_1 x) + p4",
                 ),
                 SeriesDef(
                     name="curve2",
@@ -93,6 +94,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
                         x, amp=p0, lamb=p2, baseline=p4
                     ),
                     filter_kwargs={"type": 2, "valid": True},
+                    model_description=r"p_0 * \exp(p_2 x) + p4",
                 ),
                 SeriesDef(
                     name="curve3",
@@ -100,6 +102,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
                         x, amp=p0, lamb=p3, baseline=p4
                     ),
                     filter_kwargs={"type": 3, "valid": True},
+                    model_description=r"p_0 * \exp(p_3 x) + p4",
                 ),
             ],
         )
@@ -282,6 +285,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
                     fit_func=lambda x, p0, p1, p2, p3: fit_function.exponential_decay(
                         x, amp=p0, lamb=p1, x0=p2, baseline=p3
                     ),
+                    model_description=r"p_0 \exp(p_1 x + p_2) + p_3",
                 )
             ],
         )
@@ -308,6 +312,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         self.assertEqual(result["dof"], 46)
         self.assertListEqual(result["xrange"], [0.1, 1.0])
         self.assertListEqual(result["popt_keys"], ["p0", "p1", "p2", "p3"])
+        self.assertDictEqual(result["fit_models"], {"curve1": r"p_0 \exp(p_1 x + p_2) + p_3"})
 
     def test_run_single_curve_fail(self):
         """Test analysis returns status when it fails."""
@@ -342,7 +347,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
 
         self.assertFalse(result["success"])
 
-        ref_result_keys = ["analysis_type", "error_message", "success", "raw_data"]
+        ref_result_keys = ["analysis_type", "fit_models", "error_message", "success", "raw_data"]
         self.assertSetEqual(set(result.keys()), set(ref_result_keys))
 
     def test_run_two_curves_with_same_fitfunc(self):
