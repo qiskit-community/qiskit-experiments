@@ -78,7 +78,7 @@ class fitval:
             value_rep = str(self._value)
 
         if self._unit:
-            return f"{value_rep} [{self._unit}]"
+            return f"{value_rep} {self._unit}"
         else:
             return value_rep
 
