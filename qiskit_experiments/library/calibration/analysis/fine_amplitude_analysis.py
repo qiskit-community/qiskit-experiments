@@ -69,7 +69,7 @@ class FineAmplitudeAnalysis(CurveAnalysis):
             ),
             plot_color="blue",
             model_description=r"{\rm amp} \cos(({\rm d}\theta + {\rm apg}) x "
-                              r"+ \theta_{\rm offset}) + b",
+            r"+ \theta_{\rm offset}) + b",
         )
     ]
 
