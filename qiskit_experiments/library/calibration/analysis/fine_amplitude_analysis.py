@@ -126,7 +126,7 @@ class FineAmplitudeAnalysis(CurveAnalysis):
                     "d_theta": user_p0["d_theta"],
                     "baseline": user_p0["baseline"] or b_guess,
                 },
-                "bounds": bounds
+                "bounds": bounds,
             }
             fit_option.update(options)
 
