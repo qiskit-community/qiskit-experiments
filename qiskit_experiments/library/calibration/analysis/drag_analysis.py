@@ -35,7 +35,7 @@ class DragCalAnalysis(CurveAnalysis):
 
     .. math::
 
-        y = {\rm amp} \cos\left(2 \pi {\rm freq}_i x - 2 \pi {\rm beta}\right) + {\rm base}
+        y = {\rm amp} \cos\left(2 \pi {\rm freq}_i x - 2 \pi {\rm beta}\right) + b
 
     Fit Parameters
         - :math:`{\rm amp}`: Amplitude of all series.
@@ -65,6 +65,7 @@ class DragCalAnalysis(CurveAnalysis):
             name="series-0",
             filter_kwargs={"series": 0},
             plot_symbol="o",
+            model_description=r"{\rm amp} \cos(2 \pi f_0 (x - beta)) + b",
         ),
         SeriesDef(
             fit_func=lambda x, amp, freq0, freq1, freq2, beta, base: cos(
@@ -74,6 +75,7 @@ class DragCalAnalysis(CurveAnalysis):
             name="series-1",
             filter_kwargs={"series": 1},
             plot_symbol="^",
+            model_description=r"{\rm amp} \cos(2 \pi f_1 (x - beta)) + b",
         ),
         SeriesDef(
             fit_func=lambda x, amp, freq0, freq1, freq2, beta, base: cos(
@@ -83,6 +85,7 @@ class DragCalAnalysis(CurveAnalysis):
             name="series-2",
             filter_kwargs={"series": 2},
             plot_symbol="v",
+            model_description=r"{\rm amp} \cos(2 \pi f_2 (x - beta)) + b",
         ),
     ]
 

@@ -63,6 +63,7 @@ class RBAnalysis(curve.CurveAnalysis):
             ),
             plot_color="blue",
             plot_fit_uncertainty=True,
+            model_description=r"a \alpha^x + b",
         )
     ]
 

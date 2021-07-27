@@ -35,7 +35,7 @@ class FineAmplitudeAnalysis(CurveAnalysis):
     The fit function is
 
     .. math::
-        y = {\rm amp}/2\cos\left(x[{\rm d}\theta + {\rm apg} ]+{\rm phase\_offset}\right)+baseline
+        y = {\rm amp}/2\cos\left(x[{\rm d}\theta + {\rm apg} ]+{\rm phase\_offset}\right)+b
 
     Fit Parameters
         - :math:`amp`: Amplitude of the oscillation.
@@ -60,14 +60,16 @@ class FineAmplitudeAnalysis(CurveAnalysis):
 
     __series__ = [
         SeriesDef(
-            fit_func=lambda x, amp, d_theta, phase_offset, baseline, angle_per_gate: fit_function.cos(
+            fit_func=lambda x, amp, d_theta, phase_offset, base, angle_per_gate: fit_function.cos(
                 x,
                 amp=0.5 * amp,
                 freq=(d_theta + angle_per_gate) / (2 * np.pi),
                 phase=phase_offset,
-                baseline=baseline,
+                baseline=base,
             ),
             plot_color="blue",
+            model_description=r"{\rm amp} \cos(({\rm d}\theta + {\rm apg}) x "
+                              r"+ \theta_{\rm offset}) + b",
         )
     ]
 
@@ -82,8 +84,8 @@ class FineAmplitudeAnalysis(CurveAnalysis):
         descriptions of analysis options.
         """
         default_options = super()._default_options()
-        default_options.p0 = {"amp": None, "d_theta": None, "phase": None, "baseline": None}
-        default_options.bounds = {"amp": None, "d_theta": None, "phase": None, "baseline": None}
+        default_options.p0 = {"amp": None, "d_theta": None, "phase": None, "base": None}
+        default_options.bounds = {"amp": None, "d_theta": None, "phase": None, "base": None}
         default_options.fit_reports = {"d_theta": "d_theta"}
         default_options.xlabel = "Number of gates (n)"
         default_options.ylabel = "Population"
@@ -115,18 +117,17 @@ class FineAmplitudeAnalysis(CurveAnalysis):
         guess_range = max(abs(angle_per_gate), np.pi / 2)
 
         fit_options = []
-
         for angle in np.linspace(-guess_range, guess_range, n_guesses):
             fit_option = {
                 "p0": {
                     "amp": user_p0["amp"] or a_guess,
                     "d_theta": angle,
-                    "baseline": b_guess,
+                    "base": b_guess,
                 },
                 "bounds": {
                     "amp": user_bounds.get("amp", None) or (-2 * max_abs_y, 2 * max_abs_y),
                     "d_theta": user_bounds.get("d_theta", None) or (-np.pi, np.pi),
-                    "baseline": user_bounds.get("d_theta", None) or (-1 * max_abs_y, 1 * max_abs_y),
+                    "base": user_bounds.get("base", None) or (-1 * max_abs_y, 1 * max_abs_y),
                 },
             }
 

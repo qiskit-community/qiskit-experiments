@@ -867,6 +867,11 @@ class CurveAnalysis(BaseAnalysis, ABC):
         """
         result_data = CurveAnalysisResultData()
         result_data["analysis_type"] = self.__class__.__name__
+
+        # add model description
+        result_data["fit_models"] = {
+            series_def.name: series_def.model_description for series_def in self.__series__
+        }
         figures = list()
 
         #

@@ -62,6 +62,7 @@ class OscillationAnalysis(CurveAnalysis):
                 x, amp=amp, freq=freq, phase=phase, baseline=baseline
             ),
             plot_color="blue",
+            model_description=r"{\rm amp} \cos(2 \pi f x + \theta) + b",
         )
     ]
 
