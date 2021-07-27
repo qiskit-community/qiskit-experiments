@@ -18,7 +18,7 @@ from typing import Any
 
 import numpy as np
 
-from .fit_value_type import FitVal
+from .utils import FitVal
 
 
 class ExperimentEncoder(json.JSONEncoder):
