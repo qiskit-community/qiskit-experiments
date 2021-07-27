@@ -37,7 +37,7 @@ class fitval:
             unit: Optional. Unit of this value.
 
         Raises:
-            TypeError: When ``value`` or ``stdev`` are non floating value.
+            TypeError: When ``value`` or ``stderr`` are non floating value.
             ValueError: When negative ``error`` is provided.
         """
         self._value = value
