@@ -175,6 +175,8 @@ class TestRBAnalysis(QiskitTestCase):
                                 calculated_analysis_sample_data.data()[key],
                                 expected_analysis_samples_data[idx][key],
                             )
+                        elif key == "fit_models":
+                            pass
                         else:
                             self.assertTrue(
                                 np.allclose(
