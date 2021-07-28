@@ -22,7 +22,7 @@ Table of Contains
 =================
 
 Below list contains automatically generated API documentation for Qiskit Experiments.
-If you are very new to this project, maybe you can start from the overview in :doc:`/apidocs/index`.
+If you are very new to this project, the :doc:`overview </apidocs/index>` is a good place to start. The :doc:`tutorials </tutorials/index>` also have hands-on examples for running many experiments.
 
 
 .. toctree::
