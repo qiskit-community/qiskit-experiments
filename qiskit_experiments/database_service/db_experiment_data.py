@@ -400,6 +400,7 @@ class DbExperimentDataV1(DbExperimentData):
                 and `overwrite=True` is not specified.
             ValueError: If an input parameter has an invalid value.
         """
+        print("adding figs!!")
         if (
             isinstance(figures, list)
             and figure_names is not None
@@ -513,8 +514,14 @@ class DbExperimentDataV1(DbExperimentData):
         Raises:
             DbExperimentEntryNotFound: If the figure cannot be found.
         """
-        if isinstance(figure_key, int):
+        if not HAS_MATPLOTLIB:
+            LOG.warning("Matplotlib must be installed for figures to be generated.")
+            return None
+        if isinstance(figure_key, int) and figure_key < len(self._figures.keys()):
             figure_key = self._figures.keys()[figure_key]
+        else:
+            LOG.warning("Invalid figure key.")
+            return None
 
         figure_data = self._figures.get(figure_key, None)
         if figure_data is None and self.service:
@@ -542,6 +549,7 @@ class DbExperimentDataV1(DbExperimentData):
         Args:
             results: Analysis results to be saved.
         """
+        print("add_analysis_Results")
         if not isinstance(results, list):
             results = [results]
 
@@ -697,6 +705,7 @@ class DbExperimentDataV1(DbExperimentData):
             To only update a previously saved experiments metadata (eg for
             additional tags or notes) use :meth:`save_metadata`.
         """
+        print("save???")
         # TODO - track changes
         if not self._service:
             LOG.warning("Experiment cannot be saved because no experiment service is available.")
