@@ -36,6 +36,9 @@ class StandardRB(BaseExperiment):
     # section: overview
         Randomized Benchmarking (RB) is an efficient and robust method
         for estimating the average error-rate of a set of quantum gate operations.
+        See `Qiskit Textbook
+        <https://qiskit.org/textbook/ch-quantum-hardware/randomized-benchmarking.html>`_
+        for an explanation on the RB method.
 
         A standard RB experiment generates sequences of random Cliffords
         such that the unitary computed by the sequences is the identity.
@@ -51,11 +54,6 @@ class StandardRB(BaseExperiment):
         .. ref_arxiv:: 1 1009.3639
         .. ref_arxiv:: 2 1109.6887
         .. ref_arxiv:: 3 1712.06550
-
-    # section: tutorial
-        An explanation on the RB method
-        .. ref_website:: Qiskit Textbook, https://qiskit.org/textbook/ch-quantum-hardware/\
-        randomized-benchmarking.html
 
     """
 
