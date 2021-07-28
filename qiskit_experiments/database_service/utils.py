@@ -12,23 +12,22 @@
 
 """Experiment utility functions."""
 
-import logging
-from typing import Callable, Tuple, Dict, Any, Union
 import io
-from datetime import datetime, timezone
+import logging
 import threading
-from collections import OrderedDict
-from abc import ABC, abstractmethod
 import traceback
-import pkg_resources
+from abc import ABC, abstractmethod
+from collections import OrderedDict
+from datetime import datetime, timezone
+from typing import Callable, Tuple, Dict, Any, Union
 
 import dateutil.parser
+import pkg_resources
 from dateutil import tz
-
 from qiskit.version import __version__ as terra_version
-from ..version import __version__ as experiments_version
 
 from .exceptions import DbExperimentEntryNotFound, DbExperimentEntryExists, DbExperimentDataError
+from ..version import __version__ as experiments_version
 
 LOG = logging.getLogger(__name__)
 
