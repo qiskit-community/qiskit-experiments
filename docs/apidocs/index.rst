@@ -17,7 +17,7 @@ need to manage massive amount of analysis data.
 Furthermore, physical properties of qubits may change from time to time,
 and this operation is often repeated on a regular basis while keeping the past data available for the time series analysis.
 This is where the Qiskit Experiments comes into play.
-This software aims at lightening the burden of experimentalists with the circuit generation and
+This project aims at lightening the burden of experimentalists with the circuit generation and
 data analysis framework implemented upon the Qiskit core package with preset experiment libraries.
 
 
@@ -84,6 +84,11 @@ You can reuse existing analysis class or you can define your own one in the same
 If you are an experiment developer, you might be interested in :ref:`create-experiment` for more details.
 Since Qiskit Experiments is distributed under the Apache License, Version 2.0, you can also release
 your experiment library to the public at will.
+
+.. note::
+
+    A framework to define a sequence of experiment, e.g. closed-loop experiment, is not yet provided with this version.
+    You can write own wrapper code until we officially support it.
 
 
 Package Modules

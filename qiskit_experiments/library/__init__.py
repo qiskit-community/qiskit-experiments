@@ -22,6 +22,17 @@ Experiment Library (:mod:`qiskit_experiments.library`)
 Verification Experiments
 ========================
 
+.. epigraph::
+
+    "Verification involves verifying that a control operation implements a
+    desired ideal operation to within a specified precision.
+
+    Validation is demonstrating that a quantum information processor can solve specific problems."
+
+    -- Joel Wallman, Steven Flammia and Ian Hincks
+
+This group provides a set of experiments for verification and validation of quantum processor.
+
 .. autosummary::
     :toctree: ../stubs/
 
@@ -36,6 +47,16 @@ Verification Experiments
 Characterization Experiments
 ============================
 
+.. epigraph::
+
+    "Characterization means determining the effect of control operations on a quantum system,
+    and the nature of external noise acting on the quantum system."
+
+    -- Joel Wallman, Steven Flammia and Ian Hincks
+
+This group provides a set of experiments for characterizing a quantum processor.
+Some experiments may be used for the calibration as well.
+
 .. autosummary::
     :toctree: ../stubs/
 
@@ -48,6 +69,12 @@ Characterization Experiments
 
 Calibration Experiments
 =======================
+
+This group provides a set of experiments for creating a quantum gate.
+These experiments are usually run with a
+:py:class:`~qiskit_experiments/calibration_management.Calibrations`
+class instance to manage parameters and pulse schedules.
+See :doc:`/tutorials/calibrating_armonk` for example.
 
 .. autosummary::
     :toctree: ../stubs/

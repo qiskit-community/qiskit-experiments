@@ -17,8 +17,12 @@ Experimentalits can also develop own experiment library on top of the experiment
    encounter any bugs please open an issue on
    `Github <https://github.com/Qiskit/qiskit-experiments/issues>`_
 
+
+Table of Contains
+=================
+
 Below list contains automatically generated API documentation for Qiskit Experiments.
-If you are very new to this software, maybe you can start from the overview in :doc:`/apidocs/index`.
+If you are very new to this project, maybe you can start from the overview in :doc:`/apidocs/index`.
 
 
 .. toctree::
