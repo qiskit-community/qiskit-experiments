@@ -907,8 +907,9 @@ class DbExperimentDataV1(DbExperimentData):
 
         with self._data.lock:  # Hold the lock so no new data can be added.
             new_instance._data = self._data.copy_object()
-            for orig_kwargs, _ in self._job_futures.copy():
-
+            for orig_kwargs, fut in self._job_futures.copy():
+                if fut.done():
+                    continue
                 # We cannot deep copy orig_kwargs because it contains a Job which
                 # inherits an abstract class.
                 extra_kwargs = {}
