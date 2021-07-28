@@ -118,7 +118,7 @@ class TomographyAnalysis(BaseAnalysis):
         except AnalysisError as ex:
             raise AnalysisError(f"Tomography fitter failed with error: {str(ex)}") from ex
 
-        return analysis_results, [None]
+        return analysis_results, []
 
     @classmethod
     def _postprocess_fit(
@@ -153,12 +153,11 @@ class TomographyAnalysis(BaseAnalysis):
 
         # Compute state with rescaled eigenvalues
         state_result = AnalysisResultData("state", state, extra=metadata)
-        eigvals_result = AnalysisResultData("eigvals", scaled_evals)
-
+        state_result.extra["eigvals"] = scaled_evals
         if rescaled_psd or rescaled_trace:
             state = state_cls(evecs @ (scaled_evals * evecs).T.conj())
             state_result.value = state
-            eigvals_result.extra["raw_eigvals"] = evals
+            state_result.extra["raw_eigvals"] = evals
 
         if rescaled_trace:
             state_result.extra["trace"] = np.sum(scaled_evals)
@@ -167,7 +166,7 @@ class TomographyAnalysis(BaseAnalysis):
             state_result.extra["trace"] = sum_evals
 
         # Results list
-        analysis_results = [state_result, eigvals_result]
+        analysis_results = [state_result]
 
         # Compute fidelity with target
         if target_state is not None:
@@ -217,7 +216,7 @@ class TomographyAnalysis(BaseAnalysis):
     def _positivity_result(evals, qpt=False):
         """Check if eigenvalues are positive"""
         cond = np.sum(np.abs(evals[evals < 0]))
-        is_pos = np.isclose(cond, 0)
+        is_pos = bool(np.isclose(cond, 0))
         name = "completely_positive" if qpt else "positive"
         result = AnalysisResultData(name, is_pos)
         if not is_pos:
@@ -232,7 +231,7 @@ class TomographyAnalysis(BaseAnalysis):
         mats = np.reshape(evecs.T, (size, dim, dim), order="F")
         kraus_cond = np.einsum("i,ija,ijb->ab", evals, mats.conj(), mats)
         cond = np.sum(np.abs(la.eigvalsh(kraus_cond - np.eye(dim))))
-        is_tp = np.isclose(cond, 0)
+        is_tp = bool(np.isclose(cond, 0))
         result = AnalysisResultData("trace_preserving", is_tp)
         if not is_tp:
             result.extra = {"delta": cond}

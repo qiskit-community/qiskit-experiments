@@ -748,12 +748,10 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             The loaded experiment data.
         """
-        service_data = service.experiment(experiment_id)
+        service_data = service.experiment(experiment_id, decoder=cls._json_decoder)
 
         # Parse serialized metadata
         metadata = service_data.pop("metadata")
-        if metadata:
-            metadata = json.loads(json.dumps(metadata), cls=cls._json_decoder)
 
         # Initialize container
         expdata = cls(

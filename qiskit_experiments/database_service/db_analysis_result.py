@@ -136,9 +136,31 @@ class DbAnalysisResultV1(DbAnalysisResult):
             The loaded analysis result.
         """
         # Load data from the service
-        instance = cls._from_service_data(service.analysis_result(result_id))
-        instance._created_in_db = True
-        return instance
+        service_data = service.analysis_result(result_id, decoder=cls._json_decoder)
+
+        # Parse serialized data
+        result_data = service_data.pop("result_data")
+        value = result_data.pop("_value")
+        extra = result_data.pop("_extra", {})
+        source = result_data.pop("_source", None)
+
+        # Initialize the result object
+        result = cls(
+            name=service_data.pop("result_type"),
+            value=value,
+            device_components=service_data.pop("device_components"),
+            experiment_id=service_data.pop("experiment_id"),
+            result_id=service_data.pop("result_id"),
+            quality=service_data.pop("quality"),
+            extra=extra,
+            verified=service_data.pop("verified"),
+            tags=service_data.pop("tags"),
+            service=service_data.pop("service"),
+            source=source,
+            **service_data,
+        )
+        result._created_in_db = True
+        return result
 
     def save(self) -> None:
         """Save this analysis result in the database.
@@ -151,29 +173,24 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 "Analysis result cannot be saved because no experiment service is available."
             )
             return
-        result_data = {}
+        # Get DB fit data
+        value = self.value
+        result_data = {
+            "_value": json.loads(json.dumps(value, cls=self._json_encoder)),
+            "_extra": json.loads(json.dumps(self.extra, cls=self._json_encoder)),
+            "_source": self._source,
+        }
 
-        # Temp hack for FitVal
-        if isinstance(self.value, FitVal):
-            value = json.loads(json.dumps(self.value, cls=self._json_encoder))
-            result_data["__type__"] = value["__type__"]
-            result_data["_value"] = value["args"][0]
-            if self.value.stderr is not None:
-                result_data["_stderr"] = value["args"][1]
-            if self.value.unit is not None:
-                result_data["_unit"] = value["args"][2]
-        else:
-            result_data["_value"] = json.loads(json.dumps(self.value, cls=self._json_encoder))
-        result_data["extra"] = json.loads(json.dumps(self.extra, cls=self._json_encoder))
-        result_data["_source"] = self._source
-
-        # Hack because DB expects certain types for some keys
-        if isinstance(result_data["_value"], (int, float)):
-            result_data["value"] = result_data["_value"]
-        if isinstance(result_data.get("_stderr"), (int, float)):
-            result_data["variance"] = result_data["_stderr"] ** 2
-        if isinstance(result_data.get("_unit"), str):
-            result_data["unit"] = result_data.pop("_unit")
+        # Display compatible float values in in DB
+        if isinstance(value, (int, float, bool)):
+            result_data["value"] = float(value)
+        elif isinstance(value, FitVal):
+            if isinstance(value.value, (int, float, bool)):
+                result_data["value"] = float(value.value)
+            if isinstance(value.stderr, (int, float)):
+                result_data["variance"] = value.stderr ** 2
+            if isinstance(value.unit, str):
+                result_data["unit"] = value.unit
 
         new_data = {
             "experiment_id": self._experiment_id,
@@ -253,14 +270,14 @@ class DbAnalysisResultV1(DbAnalysisResult):
         return self._value
 
     @value.setter
-    def value(self, new_value) -> None:
+    def value(self, new_value: Any) -> None:
         """Set the analysis result value."""
         self._value = new_value
         if self.auto_save:
             self.save()
 
     @property
-    def extra(self) -> Dict[str, any]:
+    def extra(self) -> Dict[str, Any]:
         """Return extra analysis result data.
 
         Returns:
@@ -269,7 +286,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         return self._extra
 
     @extra.setter
-    def extra(self, new_value) -> None:
+    def extra(self, new_value: Dict[str, Any]) -> None:
         """Set the analysis result value."""
         if not isinstance(new_value, dict):
             raise DbExperimentDataError(
@@ -431,7 +448,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         ret += f"\n- name: {self.name}"
         ret += f"\n- value: {str(self.value)}"
         if self.chisq is not None:
-            ret += "\n- chisq: {:.5f}".format(self.chisq)
+            ret += f"\n- χ²: {str(self.chisq)}"
         if self.quality is not None:
             ret += f"\n- quality: {self.quality}"
         if self.extra:
@@ -447,7 +464,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         out += f", device_components={repr(self.device_components)}"
         out += f", experiment_id={self.experiment_id}"
         out += f", result_id={self.result_id}"
-        out += f", chisq_id={self.chisq}"
+        out += f", chisq={self.chisq}"
         out += f", quality={self.quality}"
         out += f", verified={self.verified}"
         out += f", extra={repr(self.extra)}"
