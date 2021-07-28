@@ -17,6 +17,16 @@ Experiment Library (:mod:`qiskit_experiments.library`)
 
 .. currentmodule:: qiskit_experiments.library
 
+This provides a set of standard experiments in three groups, namely characterization,
+calibration, and verification.
+Though Qiskit Experiments is a framework that is agnostic to the underlying hardware architecture,
+our collection may lean towards superconducting quantum processors which IBM develops.
+
+We are still actively developing this library. If you cannot find experiment you need,
+please feel free to write a feature request in our
+`Github <https://github.com/Qiskit/qiskit-experiments/issues>`_.
+
+
 .. _verification:
 
 Verification Experiments
