@@ -18,7 +18,7 @@ Experimentalits can also develop own experiment library on top of the experiment
    `Github <https://github.com/Qiskit/qiskit-experiments/issues>`_
 
 
-Table of Contains
+Table of Contents
 =================
 
 Below list contains automatically generated API documentation for Qiskit Experiments.
