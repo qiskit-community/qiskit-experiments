@@ -137,13 +137,16 @@ def create_qv_data_high_confidence(dir_path: str):
 
     result_file_path = os.path.join(dir_path, "qv_result_moderate_noise_300_trials.json")
     with open(result_file_path, "w") as json_file:
-        result = qv_data.analysis_results(-1)
-        result_dict = {
-            "name": result.name,
-            "value": result.value,
-            "extra": result.extra,
-        }
-        json.dump(result_dict, json_file, cls=ExperimentEncoder)
+        result_dicts = []
+        for result in qv_data.analysis_results():
+            result_dicts.append(
+                {
+                    "name": result.name,
+                    "value": result.value,
+                    "extra": result.extra,
+                }
+            )
+        json.dump(result_dicts, json_file, cls=ExperimentEncoder)
 
 
 def create_noise_model():

@@ -117,7 +117,7 @@ class TestQuantumVolume(QiskitTestCase):
             "number of trials is incorrect" " after adding more trials",
         )
         self.assertTrue(
-            result_data2.extra["sigma"] <= result_data1.extra["sigma"],
+            result_data2.value.stderr <= result_data1.value.stderr,
             "sigma did not decreased after adding more trials",
         )
 
@@ -139,9 +139,9 @@ class TestQuantumVolume(QiskitTestCase):
         exp_data.add_data(insufficient_trials_data)
 
         qv_exp.run_analysis(exp_data)
+        qv_result = exp_data.analysis_results(1)
         self.assertTrue(
-            exp_data.analysis_results(-1).quality == "bad"
-            and exp_data.analysis_results(-1).value == 1,
+            qv_result.extra["success"] is False and qv_result.value is None,
             "quantum volume is successful with less than 100 trials",
         )
 
@@ -163,9 +163,9 @@ class TestQuantumVolume(QiskitTestCase):
         exp_data.add_data(insufficient_hop_data)
 
         qv_exp.run_analysis(exp_data)
+        qv_result = exp_data.analysis_results(1)
         self.assertTrue(
-            exp_data.analysis_results(-1).quality == "bad"
-            and exp_data.analysis_results(-1).value == 1,
+            qv_result.extra["success"] is False and qv_result.value is None,
             "quantum volume is successful with heavy output probability less than 2/3",
         )
 
@@ -188,9 +188,9 @@ class TestQuantumVolume(QiskitTestCase):
         exp_data.add_data(insufficient_confidence_data)
 
         qv_exp.run_analysis(exp_data)
+        qv_result = exp_data.analysis_results(1)
         self.assertTrue(
-            exp_data.analysis_results(-1).quality == "bad"
-            and exp_data.analysis_results(-1).value == 1,
+            qv_result.extra["success"] is False and qv_result.value is None,
             "quantum volume is successful with insufficient confidence",
         )
 
@@ -216,26 +216,27 @@ class TestQuantumVolume(QiskitTestCase):
         with open(os.path.join(dir_name, results_json_file), "r") as json_file:
             successful_results = json.load(json_file, cls=ExperimentDecoder)
 
-        result = exp_data.analysis_results(-1)
-        self.assertEqual(
-            result.value,
-            successful_results["value"],
-            "result value is not the same as precalculated analysis",
-        )
-        self.assertEqual(
-            result.name,
-            successful_results["name"],
-            "result name is not the same as precalculated analysis",
-        )
-        for key, value in successful_results["extra"].items():
-            if isinstance(value, float):
-                self.assertAlmostEqual(
-                    result.extra[key],
-                    value,
-                    msg="result " + str(key) + " is not the same as the " "pre-calculated analysis",
-                )
-            else:
-                self.assertTrue(
-                    result.extra[key] == value,
-                    "result " + str(key) + " is not the same as the " "pre-calculated analysis",
-                )
+        results = exp_data.analysis_results()
+        for result, reference in zip(results, successful_results):
+            self.assertEqual(
+                result.value,
+                reference["value"],
+                "result value is not the same as precalculated analysis",
+            )
+            self.assertEqual(
+                result.name,
+                reference["name"],
+                "result name is not the same as precalculated analysis",
+            )
+            for key, value in reference["extra"].items():
+                if isinstance(value, float):
+                    self.assertAlmostEqual(
+                        result.extra[key],
+                        value,
+                        msg="result " + str(key) + " is not the same as the " "pre-calculated analysis",
+                    )
+                else:
+                    self.assertTrue(
+                        result.extra[key] == value,
+                        "result " + str(key) + " is not the same as the " "pre-calculated analysis",
+                    )
