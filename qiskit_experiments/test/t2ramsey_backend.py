@@ -64,10 +64,10 @@ class T2RamseyBackend(BackendV1):
         )
 
         self._t2ramsey = p0["t2ramsey"]
-        self._a_guess = p0["a_guess"]
-        self._f_guess = p0["f_guess"]
-        self._phi_guess = p0["phi_guess"]
-        self._b_guess = p0["b_guess"]
+        self._a = p0["a"]
+        self._f = p0["f"]
+        self._phi = p0["phi"]
+        self._b = p0["b"]
         self._initial_prob_plus = initial_prob_plus
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
@@ -121,13 +121,13 @@ class T2RamseyBackend(BackendV1):
                     if op.name == "delay":
                         delay = op.params[0]
                         t2ramsey = self._t2ramsey[qubit] * self._conversion_factor
-                        freq = self._f_guess[qubit] / self._conversion_factor
+                        freq = self._f[qubit] / self._conversion_factor
 
                         prob_plus[qubit] = (
-                            self._a_guess[qubit]
+                            self._a[qubit]
                             * np.exp(-delay / t2ramsey)
-                            * np.cos(2 * np.pi * freq * delay + self._phi_guess[qubit])
-                            + self._b_guess[qubit]
+                            * np.cos(2 * np.pi * freq * delay + self._phi[qubit])
+                            + self._b[qubit]
                         )
 
                     if op.name == "measure":

@@ -165,9 +165,9 @@ class TestT2Ramsey(QiskitTestCase):
                 dt_factor = 1
             else:
                 dt_factor = apply_prefix(1, unit)
-            osc_freq = 0.1111
+            osc_freq = 0.1
             estimated_t2ramsey = 20
-            estimated_freq = 0.1
+            estimated_freq = 0.11
             # Set up the circuits
             qubit = 0
             if unit == "dt":  # dt requires integer values for delay
@@ -226,7 +226,7 @@ class TestT2Ramsey(QiskitTestCase):
         estimated_freq = [0.1, 0.12]
         delays = [list(range(1, 60)), list(range(1, 50))]
         dt_factor = 1e-6
-        osc_freq = 0.1111
+        osc_freq = 0.1
 
         exp0 = T2Ramsey(0, delays[0], osc_freq=osc_freq)
         exp2 = T2Ramsey(2, delays[1], osc_freq=osc_freq)
@@ -266,11 +266,11 @@ class TestT2Ramsey(QiskitTestCase):
         unit = "s"
         dt_factor = 1
         estimated_t2ramsey = 30
-        estimated_freq = 0.7
+        estimated_freq = 0.09
         # First experiment
         qubit = 0
         delays0 = list(range(1, 60, 2))
-        osc_freq = 0.1111
+        osc_freq = 0.08
 
         exp0 = T2Ramsey(qubit, delays0, unit=unit, osc_freq=osc_freq)
         default_p0 = {
