@@ -668,7 +668,7 @@ class DbExperimentDataV1(DbExperimentData):
                     "save() again after all post-processing is done to save any newly "
                     "generated data."
                 )
-        metadata = json.loads(json.dumps(self._metadata, cls=self._json_encoder))
+        metadata = copy.deepcopy(self._metadata)
         metadata["_source"] = self._source
 
         update_data = {
@@ -688,6 +688,7 @@ class DbExperimentDataV1(DbExperimentData):
             update_func=self._service.update_experiment,
             new_data=new_data,
             update_data=update_data,
+            json_encoder=self._json_encoder
         )
 
     def save(self) -> None:

@@ -19,7 +19,8 @@ import traceback
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 from datetime import datetime, timezone
-from typing import Callable, Tuple, Dict, Any, Union
+from typing import Callable, Tuple, Dict, Any, Union, Type, Optional
+import json
 
 import dateutil.parser
 import pkg_resources
@@ -95,7 +96,12 @@ def plot_to_svg_bytes(figure: "pyplot.Figure") -> bytes:
 
 
 def save_data(
-    is_new: bool, new_func: Callable, update_func: Callable, new_data: Dict, update_data: Dict
+    is_new: bool,
+    new_func: Callable,
+    update_func: Callable,
+    new_data: Dict,
+    update_data: Dict,
+    json_encoder: Optional[Type[json.JSONEncoder]] = None
 ) -> Tuple[bool, Any]:
     """Save data in the database.
 
@@ -106,6 +112,7 @@ def save_data(
         new_data: In addition to `update_data`, this data will be stored if creating
             a new entry.
         update_data: Data to be stored if updating an existing entry.
+        json_encoder: Custom JSON encoder to use to encode the experiment.
 
     Returns:
         A tuple of whether the data was saved and the function return value.
@@ -115,6 +122,9 @@ def save_data(
     """
     attempts = 0
     try:
+        kwargs = {}
+        if json_encoder:
+            kwargs["json_encoder"] = json_encoder
         # Attempt 3x for the unlikely scenario wherein is_new=False but the
         # entry doesn't actually exists. The second try might also fail if an entry
         # with the same ID somehow got created in the meantime.
@@ -122,12 +132,15 @@ def save_data(
             attempts += 1
             if is_new:
                 try:
-                    return True, new_func(**{**new_data, **update_data})
+                    kwargs.update(new_data)
+                    kwargs.update(update_data)
+                    return True, new_func(**kwargs)
                 except DbExperimentEntryExists:
                     is_new = False
             else:
                 try:
-                    return True, update_func(**update_data)
+                    kwargs.update(update_data)
+                    return True, update_func(**kwargs)
                 except DbExperimentEntryNotFound:
                     is_new = True
         raise DbExperimentDataError("Unable to determine the existence of the entry.")

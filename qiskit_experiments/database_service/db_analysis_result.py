@@ -162,7 +162,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             )
             return
 
-        _result_data = json.loads(json.dumps(self._result_data, cls=self._json_encoder))
+        _result_data = copy.deepcopy(self._result_data)
         _result_data["_source"] = self._source
 
         new_data = {
@@ -185,6 +185,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             update_func=self._service.update_analysis_result,
             new_data=new_data,
             update_data=update_data,
+            json_encoder=self._json_encoder
         )
 
     @classmethod
@@ -269,7 +270,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         return self._source
 
     @property
-    def chisq(self) -> str:
+    def chisq(self) -> Optional[float]:
         """Return the reduced χ² of this analysis."""
         return self._chisq
 
