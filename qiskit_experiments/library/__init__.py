@@ -22,9 +22,14 @@ Verification Experiments
 
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
     ~randomized_benchmarking.StandardRB
     ~randomized_benchmarking.InterleavedRB
+
+.. autosummary::
+    :toctree: ../stubs/
+
     ~tomography.StateTomography
     ~tomography.ProcessTomography
     ~quantum_volume.QuantumVolume

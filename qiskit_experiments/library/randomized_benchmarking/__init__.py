@@ -21,6 +21,7 @@ Experiments
 ===========
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
     StandardRB
     InterleavedRB
@@ -31,13 +32,18 @@ Analysis
 
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/analysis.rst
 
     RBAnalysis
     InterleavedRBAnalysis
+
+.. autosummary::
+    :toctree: ../stubs/
+
     RBUtils
 """
-from .rb_experiment import StandardRB
+from .interleaved_rb_analysis import InterleavedRBAnalysis
 from .interleaved_rb_experiment import InterleavedRB
 from .rb_analysis import RBAnalysis
-from .interleaved_rb_analysis import InterleavedRBAnalysis
+from .rb_experiment import StandardRB
 from .rb_utils import RBUtils

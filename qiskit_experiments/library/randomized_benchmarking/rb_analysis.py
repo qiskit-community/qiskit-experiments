@@ -23,36 +23,33 @@ from .rb_utils import RBUtils
 
 
 class RBAnalysis(curve.CurveAnalysis):
-    r"""A class to analyze randomized benchmarking experiments.
+    r"""Standard randomized benchmarking analysis.
 
-    Overview
+    # section: overview
         This analysis takes only single series.
         This series is fit by the exponential decay function.
         From the fit :math:`\alpha` value this analysis estimates the error per Clifford (EPC).
 
-    Fit Model
-        The fit is based on the following decay function:
-
+    # section: fit_model
         .. math::
 
             F(x) = a \alpha^x + b
 
-    Fit Parameters
-        - :math:`a`: Height of decay curve.
-        - :math:`b`: Base line.
-        - :math:`\alpha`: Depolarizing parameter. This is the fit parameter of main interest.
-
-    Initial Guesses
-        - :math:`a`: Determined by :math:`(y_0 - b) / \alpha^x_0`
-          where :math:`b` and :math:`\alpha` are initial guesses.
-        - :math:`b`: Determined by :math:`(1/2)^n` where :math:`n` is the number of qubit.
-        - :math:`\alpha`: Determined by the slope of :math:`(y - b)^{-x}` of the first and the
-          second data point.
-
-    Bounds
-        - :math:`a`: [0, 1]
-        - :math:`b`: [0, 1]
-        - :math:`\alpha`: [0, 1]
+    # section: fit_parameters
+        defpar a:
+            desc: Height of decay curve.
+            init_guess: Determined by :math:`(y - b) / \alpha^x`.
+            bounds: [0, 1]
+        defpar b:
+            desc: Base line.
+            init_guess: Determined by the average :math:`b` of the standard and interleaved RB.
+                Usually equivalent to :math:`(1/2)^n` where :math:`n` is number of qubit.
+            bounds: [0, 1]
+        defpar \alpha:
+            desc: Depolarizing parameter.
+            init_guess: Determined by the slope of :math:`(y - b)^{-x}` of the first and the
+                second data point.
+            bounds: [0, 1]
 
     """
 
@@ -68,10 +65,18 @@ class RBAnalysis(curve.CurveAnalysis):
 
     @classmethod
     def _default_options(cls):
-        """Return default options.
+        """Default analysis options.
 
-        See :meth:`~qiskit_experiment.curve_analysis.CurveAnalysis._default_options` for
-        descriptions of analysis options.
+        Analysis Options:
+            error_dict (Dict[Tuple[Iterable[int], str], float]): Optional.
+                Error estimates for gates from the backend properties.
+            epg_1_qubit (Dict[int, Dict[str, float]]) : Optional.
+                EPG data for the 1-qubit gate involved,
+                assumed to have been obtained from previous experiments.
+                This is used to estimate the 2-qubit EPG.
+            gate_error_ratio (Dict[str, float]): An estimate for the ratios
+                between errors on different gates.
+
         """
         default_options = super()._default_options()
         default_options.p0 = {"a": None, "alpha": None, "b": None}

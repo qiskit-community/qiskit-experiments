@@ -27,15 +27,14 @@ from .rb_analysis import RBAnalysis
 
 
 class InterleavedRBAnalysis(RBAnalysis):
-    r"""A class to analyze interleaved randomized benchmarking experiment.
+    r"""Interleaved randomized benchmarking analysis.
 
-    Overview
+    # section: overview
         This analysis takes only two series for standard and interleaved RB curve fitting.
         From the fit :math:`\alpha` and :math:`\alpha_c` value this analysis estimates
         the error per Clifford (EPC) of the interleaved gate.
 
         The EPC estimate is obtained using the equation
-
 
         .. math::
 
@@ -57,44 +56,41 @@ class InterleavedRBAnalysis(RBAnalysis):
 
         See Ref. [1] for more details.
 
-
-
-    Fit Model
-        The fit is based on the following decay functions:
+    # section: fit_model
+        Fit model for standard RB
 
         .. math::
+            F(x) = a \alpha^{x} + b
 
-            F_1(x_1) &= a \alpha^{x_1} + b  \quad {\rm for standard RB} \\
-            F_2(x_2) &= a (\alpha_c \alpha)^{x_2} + b \quad {\rm for interleaved RB}
+        Fit model for interleaved RB
 
-    Fit Parameters
-        - :math:`a`: Height of decay curve.
-        - :math:`b`: Base line.
-        - :math:`\alpha`: Depolarizing parameter.
-        - :math:`\alpha_c`: Ratio of the depolarizing parameter of
-          interleaved RB to standard RB curve.
+        .. math::
+            F(x) = a (\alpha_c \alpha)^{x_2} + b
 
-    Initial Guesses
-        - :math:`a`: Determined by the average :math:`a` of the standard and interleaved RB.
-        - :math:`b`: Determined by the average :math:`b` of the standard and interleaved RB.
-          Usually equivalent to :math:`(1/2)**n` where :math:`n` is number of qubit.
-        - :math:`\alpha`: Determined by the slope of :math:`(y_1 - b)**(-x_1)` of the first and the
-          second data point of the standard RB.
-        - :math:`\alpha_c`: Estimate :math:`\alpha' = \alpha_c * \alpha` from the
-          interleaved RB curve, then divide this by the initial guess of :math:`\alpha`.
+    # section: fit_parameters
+        defpar a:
+            desc: Height of decay curve.
+            init_guess: Determined by the average :math:`a` of the standard and interleaved RB.
+            bounds: [0, 1]
+        defpar b:
+            desc: Base line.
+            init_guess: Determined by the average :math:`b` of the standard and interleaved RB.
+                Usually equivalent to :math:`(1/2)^n` where :math:`n` is number of qubit.
+            bounds: [0, 1]
+        defpar \alpha:
+            desc: Depolarizing parameter.
+            init_guess: Determined by the slope of :math:`(y - b)^{-x}` of the first and the
+                second data point of the standard RB.
+            bounds: [0, 1]
+        defpar \alpha_c:
+            desc: Ratio of the depolarizing parameter of interleaved RB to standard RB curve.
+            init_guess: Estimate :math:`\alpha' = \alpha_c \alpha` from the
+                interleaved RB curve, then divide this by the initial guess of :math:`\alpha`.
+            bounds: [0, 1]
 
-    Bounds
-        - :math:`a`: [0, 1]
-        - :math:`b`: [0, 1]
-        - :math:`\alpha`: [0, 1]
-        - :math:`\alpha_c`: [0, 1]
+    # section: reference
+        .. ref_arxiv:: 1 1203.4550
 
-    References
-        1. Easwar Magesan, Jay M. Gambetta, B. R. Johnson, Colm A. Ryan, Jerry M. Chow,
-           Seth T. Merkel, Marcus P. da Silva, George A. Keefe, Mary B. Rothwell, Thomas A. Ohki,
-           Mark B. Ketchen, M. Steffen, Efficient measurement of quantum gate error by
-           interleaved randomized benchmarking,
-           `arXiv:quant-ph/1203.4550 <https://arxiv.org/pdf/1203.4550>`_
     """
 
     __series__ = [
@@ -122,11 +118,7 @@ class InterleavedRBAnalysis(RBAnalysis):
 
     @classmethod
     def _default_options(cls):
-        """Return default data processing options.
-
-        See :meth:`~qiskit_experiment.curve_analysis.CurveAnalysis._default_options` for
-        descriptions of analysis options.
-        """
+        """Default analysis options."""
         default_options = super()._default_options()
         default_options.p0 = {"a": None, "alpha": None, "alpha_c": None, "b": None}
         default_options.bounds = {
