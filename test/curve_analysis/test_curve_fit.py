@@ -339,10 +339,10 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
 
         # Try to fit with infeasible parameter boundary. This should fail.
         results, _ = analysis._run_analysis(test_data, **default_opts.__dict__)
-        result = results[0]
-        self.assertIn("failed", result.quality)
-        ref_result_keys = ["error_message", "raw_data"]
-        self.assertSetEqual(set(result.extra.keys()), set(ref_result_keys))
+        extra = results[0].extra
+        ref_result_keys = ["error_message", "raw_data", "success"]
+        self.assertSetEqual(set(extra.keys()), set(ref_result_keys))
+        self.assertFalse(extra["success"])
 
     def test_run_two_curves_with_same_fitfunc(self):
         """Test analysis for two curves. Curves shares fit model."""

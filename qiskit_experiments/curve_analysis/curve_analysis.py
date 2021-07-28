@@ -869,40 +869,40 @@ class CurveAnalysis(BaseAnalysis, ABC):
         result_data["analysis_type"] = self.__class__.__name__
         figures = list()
 
+        #
+        # 1. Parse arguments
+        #
+        if self.__fixed_parameters__ is not None and len(self.__fixed_parameters__) > 0:
+            assigned_params = dict()
+            # Extract fixed parameter value from analysis options
+            for pname in self.__fixed_parameters__:
+                try:
+                    assigned_params[pname] = options[pname]
+                except KeyError as ex:
+                    raise AnalysisError(
+                        f"The value of the fixed-value parameter {pname} for the fit function "
+                        f"of {self.__class__.__name__} was not found. "
+                        "This value must be provided by the analysis options to run this analysis."
+                    ) from ex
+            # Override series definition with assigned fit functions.
+            assigned_series = []
+            for series_def in self.__series__:
+                dict_def = dataclasses.asdict(series_def)
+                dict_def["fit_func"] = functools.partial(series_def.fit_func, **assigned_params)
+                assigned_series.append(SeriesDef(**dict_def))
+            self.__series__ = assigned_series
+
+        # pop arguments that are not given to fitter
+        extra_options = self._arg_parse(**options)
+
+        # get experiment metadata
         try:
-            #
-            # 1. Parse arguments
-            #
-            if self.__fixed_parameters__ is not None and len(self.__fixed_parameters__) > 0:
-                assigned_params = dict()
-                # Extract fixed parameter value from analysis options
-                for pname in self.__fixed_parameters__:
-                    try:
-                        assigned_params[pname] = options[pname]
-                    except KeyError as ex:
-                        raise AnalysisError(
-                            f"The value of the fixed-value parameter {pname} for the fit function "
-                            f"of {self.__class__.__name__} was not found. "
-                            "This value must be provided by the analysis options to run this analysis."
-                        ) from ex
-                # Override series definition with assigned fit functions.
-                assigned_series = []
-                for series_def in self.__series__:
-                    dict_def = dataclasses.asdict(series_def)
-                    dict_def["fit_func"] = functools.partial(series_def.fit_func, **assigned_params)
-                    assigned_series.append(SeriesDef(**dict_def))
-                self.__series__ = assigned_series
+            self.__experiment_metadata = experiment_data.metadata()
 
-            # pop arguments that are not given to fitter
-            extra_options = self._arg_parse(**options)
+        except AttributeError:
+            pass
 
-            # get experiment metadata
-            try:
-                self.__experiment_metadata = experiment_data.metadata()
-
-            except AttributeError:
-                pass
-
+        try:
             #
             # 2. Setup data processor
             #
@@ -948,32 +948,17 @@ class CurveAnalysis(BaseAnalysis, ABC):
             #
             # 4. Run fitting
             #
-            curve_fitter = self._get_option("curve_fitter")
-            formatted_data = self._data(label="fit_ready")
+            try:
+                curve_fitter = self._get_option("curve_fitter")
+                formatted_data = self._data(label="fit_ready")
 
-            # Generate fit options
-            fit_candidates = self._setup_fitting(**extra_options)
+                # Generate fit options
+                fit_candidates = self._setup_fitting(**extra_options)
 
-            # Fit for each fit parameter combination
-            if isinstance(fit_candidates, dict):
-                # Only single initial guess
-                fit_options = self._format_fit_options(**fit_candidates)
-                fit_result = curve_fitter(
-                    funcs=[series_def.fit_func for series_def in self.__series__],
-                    series=formatted_data.data_index,
-                    xdata=formatted_data.x,
-                    ydata=formatted_data.y,
-                    sigma=formatted_data.y_err,
-                    **fit_options,
-                )
-                result_data.update(**fit_result)
-            else:
-                # Multiple initial guesses
-                fit_options_candidates = [
-                    self._format_fit_options(**fit_options) for fit_options in fit_candidates
-                ]
-                fit_results = []
-                for fit_options in fit_options_candidates:
+                # Fit for each fit parameter combination
+                if isinstance(fit_candidates, dict):
+                    # Only single initial guess
+                    fit_options = self._format_fit_options(**fit_candidates)
                     fit_result = curve_fitter(
                         funcs=[series_def.fit_func for series_def in self.__series__],
                         series=formatted_data.data_index,
@@ -982,56 +967,79 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         sigma=formatted_data.y_err,
                         **fit_options,
                     )
-                    fit_results.append(fit_result)
-                if len(fit_results) == 0:
-                    raise AnalysisError(
-                        "All initial guesses and parameter boundaries failed to fit the data. "
-                        "Please provide better initial guesses or fit parameter boundaries."
-                    )
-                # Sort by chi squared value
-                fit_results = sorted(fit_results, key=lambda r: r["reduced_chisq"])
-                result_data.update(**fit_results[0])
-                result_data["quality"] = "good"
+                    result_data.update(**fit_result)
+                else:
+                    # Multiple initial guesses
+                    fit_options_candidates = [
+                        self._format_fit_options(**fit_options) for fit_options in fit_candidates
+                    ]
+                    fit_results = []
+                    for fit_options in fit_options_candidates:
+                        fit_result = curve_fitter(
+                            funcs=[series_def.fit_func for series_def in self.__series__],
+                            series=formatted_data.data_index,
+                            xdata=formatted_data.x,
+                            ydata=formatted_data.y,
+                            sigma=formatted_data.y_err,
+                            **fit_options,
+                        )
+                        fit_results.append(fit_result)
+                    if len(fit_results) == 0:
+                        raise AnalysisError(
+                            "All initial guesses and parameter boundaries failed to fit the data. "
+                            "Please provide better initial guesses or fit parameter boundaries."
+                        )
+                    # Sort by chi squared value
+                    fit_results = sorted(fit_results, key=lambda r: r["reduced_chisq"])
+                    result_data.update(**fit_results[0])
 
-            #
-            # 5. Post-process analysis data
-            #
-            result_data = self._post_analysis(result_data=result_data)
+                result_data["success"] = True
 
-            #
-            # 6. Create figures
-            #
-            if self._get_option("plot") and HAS_MATPLOTLIB:
-                figures.extend(self._create_figures(result_data=result_data))
+            except AnalysisError as ex:
+                result_data["error_message"] = str(ex)
+                result_data["success"] = False
+
+            else:
+                #
+                # 5. Post-process analysis data
+                #
+                result_data = self._post_analysis(result_data=result_data)
+
+            finally:
+                #
+                # 6. Create figures
+                #
+                if self._get_option("plot") and HAS_MATPLOTLIB:
+                    figures.extend(self._create_figures(result_data=result_data))
+
+                #
+                # 7. Optionally store raw data points
+                #
+                if self._get_option("return_data_points"):
+                    raw_data_dict = dict()
+                    for series_def in self.__series__:
+                        series_data = self._data(series_name=series_def.name, label="raw_data")
+                        raw_data_dict[series_def.name] = {
+                            "xdata": series_data.x,
+                            "ydata": series_data.y,
+                            "sigma": series_data.y_err,
+                        }
+                    result_data["raw_data"] = raw_data_dict
 
         except AnalysisError as ex:
             result_data["error_message"] = str(ex)
-            result_data["quality"] = "failed"
-        finally:
-            #
-            # 7. Optionally store raw data points
-            #
-            if self._get_option("return_data_points"):
-                raw_data_dict = dict()
-                for series_def in self.__series__:
-                    series_data = self._data(series_name=series_def.name, label="raw_data")
-                    raw_data_dict[series_def.name] = {
-                        "xdata": series_data.x,
-                        "ydata": series_data.y,
-                        "sigma": series_data.y_err,
-                    }
-                result_data["raw_data"] = raw_data_dict
+            result_data["success"] = False
 
         # Convert to AnalysisResult
         name = result_data.pop("analysis_type")
         value = FitVal(result_data.get("popt"), result_data.get("popt_err"))
-        quality = result_data.pop("quality", None)
         chisq = result_data.pop("chisq", None) or result_data.pop("reduced_chisq", None)
+        quality = result_data.pop("quality", None)
         analysis_result = AnalysisResultData(
             name=name,
             value=value,
-            quality=quality,
             chisq=chisq,
+            quality=quality,
             extra=result_data,
         )
 
