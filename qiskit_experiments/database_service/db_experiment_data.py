@@ -754,7 +754,7 @@ class DbExperimentDataV1(DbExperimentData):
         metadata = service_data.pop("metadata")
 
         # Initialize container
-        expdata = cls(
+        expdata = DbExperimentDataV1(
             experiment_type=service_data.pop("experiment_type"),
             backend=service_data.pop("backend"),
             experiment_id=service_data.pop("experiment_id"),
@@ -1108,6 +1108,27 @@ class DbExperimentDataV1(DbExperimentData):
     def source(self) -> Dict:
         """Return the class name and version."""
         return self._source
+
+    def __repr__(self):
+        out = f"{type(self).__name__}({self.experiment_type}"
+        out += f", {self.experiment_id}"
+        if self._tags:
+            out += f", tags={self._tags}"
+        if self.job_ids:
+            out += f", job_ids={self.job_ids}"
+        if self._share_level:
+            out += f", share_level={self._share_level}"
+        if self._metadata:
+            out += f", metadata=<{len(self._metadata)} items>"
+        if self.figure_names:
+            out += f", figure_names={self.figure_names}"
+        if self.notes:
+            out += f", notes={self.notes}"
+        if self._extra_data:
+            for key, val in self._extra_data.items():
+                out += f", {key}={repr(val)}"
+        out += ")"
+        return out
 
     def __str__(self):
         line = 51 * "-"

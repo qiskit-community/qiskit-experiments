@@ -84,3 +84,13 @@ class ExperimentData(DbExperimentDataV1):
                 experiment=self.experiment, backend=self.backend, job_ids=self.job_ids
             )
         return super()._copy_metadata(new_instance)
+
+    def __repr__(self):
+        out = f"{type(self).__name__}({self.experiment_type}"
+        out += f", {self.experiment_id}"
+        if self.backend:
+            out += f", backend={self.backend}"
+        if self.job_ids:
+            out += f", job_ids={self.job_ids}"
+        out += ")"
+        return out
