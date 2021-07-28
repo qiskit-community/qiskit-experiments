@@ -198,7 +198,7 @@ class RBUtils:
             A dictionary of the form (qubits, gate) -> value where value
             is the EPG for the given gate on the specified qubits
         """
-        epg = {qubit: {} for qubit in qubits}
+        epg = {(qubit,): {} for qubit in qubits}
         for qubit in qubits:
             error_sum = 0
             found_gates = []
@@ -208,7 +208,7 @@ class RBUtils:
                     found_gates.append(gate)
                     error_sum += gates_per_clifford[key] * value
             for gate in found_gates:
-                epg[qubit][gate] = (gate_error_ratio[((qubit,), gate)] * epc_1_qubit) / error_sum
+                epg[(qubit,)][gate] = (gate_error_ratio[((qubit,), gate)] * epc_1_qubit) / error_sum
         return epg
 
     @staticmethod

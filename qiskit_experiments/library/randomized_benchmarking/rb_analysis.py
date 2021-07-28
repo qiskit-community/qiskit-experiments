@@ -204,13 +204,16 @@ class RBAnalysis(curve.CurveAnalysis):
                 epg = None
 
             if epg:
-                extra_entries.append(
-                    AnalysisResultData(
-                        "EPG",
-                        value=epg,
-                        chisq=fit_data.reduced_chisq,
-                        quality=self._evaluate_quality(fit_data),
-                    )
-                )
+                for qubits, gate_dict in epg.items():
+                    for gate, value in gate_dict.items():
+                        epg_name = "EPG_{}_{}".format(gate, "_".join([str(q) for q in qubits]))
+                        extra_entries.append(
+                            AnalysisResultData(
+                                epg_name,
+                                FitVal(value, None),  # TODO: add EPG_err computation
+                                chisq=fit_data.reduced_chisq,
+                                quality=self._evaluate_quality(fit_data),
+                            )
+                        )
 
         return extra_entries

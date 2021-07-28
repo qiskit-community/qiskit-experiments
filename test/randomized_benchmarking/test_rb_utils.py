@@ -93,7 +93,7 @@ class TestRBUtilities(QiskitTestCase):
 
         for gate in ["x", "sx", "rz"]:
             expected_epg = error_dict[((0,), gate)]
-            actual_epg = epg[0][gate]
+            actual_epg = epg[(0,)][gate]
             self.assertTrue(np.allclose(expected_epg, actual_epg, atol=0.001))
 
     def test_calculate_2q_epg(self):
