@@ -142,28 +142,17 @@ class BaseExperiment(ABC):
             return self.__experiment_data__(experiment=self, backend=backend)
 
         # Validate experiment is compatible with existing data
+        if not isinstance(experiment_data, ExperimentData):
+            raise QiskitError("Input `experiment_data` is not a valid ExperimentData.")
         metadata = experiment_data.metadata()
-        if metadata.get("experiment_type") != self._type:
+        if experiment_data.experiment_type != self._type:
             raise QiskitError("Existing ExperimentData contains data from a different experiment.")
         if metadata.get("physical_qubits") != list(self.physical_qubits):
             raise QiskitError(
                 "Existing ExperimentData contains data for a different set of physical qubits."
             )
 
-        # Generate new ExperimentData containing a copy of previous
-        # jobs and data, but not analysis results or figures
-        ret = self.__experiment_data__(experiment=self, backend=backend)
-        ret._auto_save = copy.copy(experiment_data._auto_save)
-        ret._tags = copy.copy(experiment_data._tags)
-        ret._share_level = copy.copy(experiment_data._share_level)
-        ret._notes = copy.copy(experiment_data._notes)
-        ret._jobs = copy.copy(experiment_data._jobs)
-        ret._job_futures = copy.copy(experiment_data._job_futures)
-        ret._errors = copy.copy(experiment_data._errors)
-        ret._data = copy.copy(experiment_data._data)
-        ret._extra_data = copy.copy(experiment_data._extra_data)
-        ret._created_in_db = False
-        return ret
+        return experiment_data.copy_metadata()
 
     def run_analysis(self, experiment_data, **options) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.

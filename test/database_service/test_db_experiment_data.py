@@ -710,6 +710,50 @@ class TestDbExperimentData(QiskitTestCase):
         self.assertIn(exp_data.experiment_id, exp_data_str)
         self.assertIn(str(result), exp_data_str)
 
+    def test_copy_metadata(self):
+        """Test copy metadata."""
+        exp_data = DbExperimentData(experiment_type="qiskit_test")
+        exp_data.add_data(self._get_job_result(1))
+        result = mock.MagicMock()
+        exp_data.add_analysis_results(result)
+        copied = exp_data.copy_metadata()
+        self.assertEqual(exp_data.data(), copied.data())
+        self.assertFalse(copied.analysis_results())
+
+    def test_copy_metadata_pending_job(self):
+        """Test copy metadata with a pending job."""
+
+        def _job1_result():
+            event.wait()
+            return job_results[0]
+
+        def _job2_result():
+            event.wait()
+            return job_results[1]
+
+        exp_data = DbExperimentData(experiment_type="qiskit_test")
+        event = threading.Event()
+        self.addCleanup(event.set)
+        job_results = [self._get_job_result(1), self._get_job_result(1)]
+        job = mock.create_autospec(Job, instance=True)
+        job.result = _job1_result
+        exp_data.add_data(job)
+
+        copied = exp_data.copy_metadata()
+        job2 = mock.create_autospec(Job, instance=True)
+        job2.result = _job2_result
+        copied.add_data(job2)
+        event.set()
+
+        exp_data.block_for_results()
+        copied.block_for_results()
+
+        self.assertEqual(1, len(exp_data.data()))
+        self.assertEqual(2, len(copied.data()))
+        self.assertIn(
+            exp_data.data(0)["counts"], [copied.data(0)["counts"], copied.data(1)["counts"]]
+        )
+
     def _get_job_result(self, circ_count, has_metadata=False):
         """Return a job result with random counts."""
         job_result = {
