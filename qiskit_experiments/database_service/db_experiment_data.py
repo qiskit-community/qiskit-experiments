@@ -400,7 +400,6 @@ class DbExperimentDataV1(DbExperimentData):
                 and `overwrite=True` is not specified.
             ValueError: If an input parameter has an invalid value.
         """
-        print("adding figs!!")
         if (
             isinstance(figures, list)
             and figure_names is not None
@@ -549,7 +548,6 @@ class DbExperimentDataV1(DbExperimentData):
         Args:
             results: Analysis results to be saved.
         """
-        print("add_analysis_Results")
         if not isinstance(results, list):
             results = [results]
 
@@ -705,7 +703,6 @@ class DbExperimentDataV1(DbExperimentData):
             To only update a previously saved experiments metadata (eg for
             additional tags or notes) use :meth:`save_metadata`.
         """
-        print("save???")
         # TODO - track changes
         if not self._service:
             LOG.warning("Experiment cannot be saved because no experiment service is available.")
