@@ -716,7 +716,7 @@ class TestDbExperimentData(QiskitTestCase):
         exp_data.add_data(self._get_job_result(1))
         result = mock.MagicMock()
         exp_data.add_analysis_results(result)
-        copied = exp_data.copy_metadata()
+        copied = exp_data._copy_metadata()
         self.assertEqual(exp_data.data(), copied.data())
         self.assertFalse(copied.analysis_results())
 
@@ -739,7 +739,7 @@ class TestDbExperimentData(QiskitTestCase):
         job.result = _job1_result
         exp_data.add_data(job)
 
-        copied = exp_data.copy_metadata()
+        copied = exp_data._copy_metadata()
         job2 = mock.create_autospec(Job, instance=True)
         job2.result = _job2_result
         copied.add_data(job2)

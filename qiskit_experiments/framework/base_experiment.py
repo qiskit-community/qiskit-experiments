@@ -166,7 +166,7 @@ class BaseExperiment(ABC):
                 "Existing ExperimentData contains data for a different set of physical qubits."
             )
 
-        return experiment_data.copy_metadata()
+        return experiment_data._copy_metadata()
 
     def run_analysis(self, experiment_data, **options) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.

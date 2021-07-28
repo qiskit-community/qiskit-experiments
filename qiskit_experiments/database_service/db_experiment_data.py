@@ -876,7 +876,7 @@ class DbExperimentDataV1(DbExperimentData):
         self.status()  # Collect new errors.
         return "\n".join(self._errors)
 
-    def copy_metadata(
+    def _copy_metadata(
         self, new_instance: Optional["DbExperimentDataV1"] = None
     ) -> "DbExperimentDataV1":
         """Make a copy of the experiment metadata.

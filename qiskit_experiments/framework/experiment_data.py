@@ -83,7 +83,7 @@ class ExperimentData(DbExperimentDataV1):
 
         return job_times
 
-    def copy_metadata(self, new_instance: Optional["ExperimentData"] = None) -> "ExperimentData":
+    def _copy_metadata(self, new_instance: Optional["ExperimentData"] = None) -> "ExperimentData":
         """Make a copy of the experiment metadata.
 
         Note:
@@ -99,4 +99,4 @@ class ExperimentData(DbExperimentDataV1):
             new_instance = ExperimentData(
                 experiment=self.experiment, backend=self.backend, job_ids=self.job_ids
             )
-        return super().copy_metadata(new_instance)
+        return super()._copy_metadata(new_instance)
