@@ -13,7 +13,7 @@
 Experiment Data class
 """
 import logging
-from typing import Dict
+from typing import Dict, Optional
 from datetime import datetime
 
 from qiskit_experiments.database_service import DbExperimentDataV1
@@ -82,3 +82,21 @@ class ExperimentData(DbExperimentDataV1):
                 job_times[job_id] = job.time_per_step().get("COMPLETED")
 
         return job_times
+
+    def _copy_metadata(self, new_instance: Optional["ExperimentData"] = None) -> "ExperimentData":
+        """Make a copy of the experiment metadata.
+
+        Note:
+            This method only copies experiment data and metadata, not its
+            figures nor analysis results. The copy also contains a different
+            experiment ID.
+
+        Returns:
+            A copy of the ``ExperimentData`` object with the same data
+            and metadata but different ID.
+        """
+        if new_instance is None:
+            new_instance = ExperimentData(
+                experiment=self.experiment, backend=self.backend, job_ids=self.job_ids
+            )
+        return super()._copy_metadata(new_instance)
