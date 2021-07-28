@@ -185,7 +185,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             update_func=self._service.update_analysis_result,
             new_data=new_data,
             update_data=update_data,
-            json_encoder=self._json_encoder
+            json_encoder=self._json_encoder,
         )
 
     @classmethod

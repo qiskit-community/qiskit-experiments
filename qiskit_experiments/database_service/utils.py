@@ -101,7 +101,7 @@ def save_data(
     update_func: Callable,
     new_data: Dict,
     update_data: Dict,
-    json_encoder: Optional[Type[json.JSONEncoder]] = None
+    json_encoder: Optional[Type[json.JSONEncoder]] = None,
 ) -> Tuple[bool, Any]:
     """Save data in the database.
 

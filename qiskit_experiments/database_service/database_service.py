@@ -125,9 +125,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
 
     @abstractmethod
     def experiment(
-            self,
-            experiment_id: str,
-            json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
+        self, experiment_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
     ) -> Dict:
         """Retrieve a previously stored experiment.
 
@@ -254,9 +252,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
 
     @abstractmethod
     def analysis_result(
-            self,
-            result_id: str,
-            json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
+        self, result_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
     ) -> Dict:
         """Retrieve a previously stored experiment.
 

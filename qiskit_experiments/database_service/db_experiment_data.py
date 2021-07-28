@@ -654,7 +654,11 @@ class DbExperimentDataV1(DbExperimentData):
             for fields that are saved.
         """
         if not self._service:
-            LOG.warning("Experiment cannot be saved because no experiment service is available.")
+            LOG.warning(
+                "Experiment cannot be saved because no experiment service is available. "
+                "An experiment service is available, for example, "
+                "when using an IBM Quantum backend."
+            )
             return
 
         if not self._backend:
@@ -688,7 +692,7 @@ class DbExperimentDataV1(DbExperimentData):
             update_func=self._service.update_experiment,
             new_data=new_data,
             update_data=update_data,
-            json_encoder=self._json_encoder
+            json_encoder=self._json_encoder,
         )
 
     def save(self) -> None:
@@ -704,7 +708,11 @@ class DbExperimentDataV1(DbExperimentData):
         """
         # TODO - track changes
         if not self._service:
-            LOG.warning("Experiment cannot be saved because no experiment service is available.")
+            LOG.warning(
+                "Experiment cannot be saved because no experiment service is available. "
+                "An experiment service is available, for example, "
+                "when using an IBM Quantum backend."
+            )
             return
 
         self.save_metadata()
