@@ -33,6 +33,8 @@ Experiment Data Classes
     AnalysisResultData
     ExperimentData
 
+.. _composite-experiment:
+
 Composite Experiment Classes
 ****************************
 .. autosummary::
@@ -52,6 +54,7 @@ Base Classes
     BaseExperiment
     BaseAnalysis
 
+.. _create-experiment:
 
 Creating Experiments
 ====================
