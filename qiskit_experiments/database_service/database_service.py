@@ -184,7 +184,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
     def create_analysis_result(
         self,
         experiment_id: str,
-        data: Dict,
+        result_data: Dict,
         result_type: str,
         device_components: Optional[Union[str, DeviceComponent]] = None,
         tags: Optional[List[str]] = None,
@@ -197,7 +197,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
 
         Args:
             experiment_id: ID of the experiment this result is for.
-            data: Result data to be stored.
+            result_data: Result data to be stored.
             result_type: Analysis result type.
             device_components: Target device components, such as qubits.
             tags: Tags to be associated with the analysis result.
@@ -219,7 +219,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
     def update_analysis_result(
         self,
         result_id: str,
-        data: Optional[Dict] = None,
+        result_data: Optional[Dict] = None,
         tags: Optional[List[str]] = None,
         quality: Optional[str] = None,
         verified: bool = None,
@@ -229,7 +229,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
 
         Args:
             result_id: Analysis result ID.
-            data: Result data to be stored.
+            result_data: Result data to be stored.
             quality: Quality of this analysis.
             verified: Whether the result quality has been verified.
             tags: Tags to be associated with the analysis result.
