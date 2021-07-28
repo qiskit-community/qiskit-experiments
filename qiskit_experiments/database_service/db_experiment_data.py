@@ -515,12 +515,9 @@ class DbExperimentDataV1(DbExperimentData):
         """
         if not HAS_MATPLOTLIB:
             LOG.warning("Matplotlib must be installed for figures to be generated.")
-            return None
+
         if isinstance(figure_key, int) and figure_key < len(self._figures.keys()):
             figure_key = self._figures.keys()[figure_key]
-        else:
-            LOG.warning("Invalid figure key.")
-            return None
 
         figure_data = self._figures.get(figure_key, None)
         if figure_data is None and self.service:
