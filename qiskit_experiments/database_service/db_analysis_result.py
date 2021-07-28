@@ -172,7 +172,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         }
         update_data = {
             "result_id": self.result_id,
-            "data": _result_data,
+            "result_data": _result_data,
             "tags": self.tags(),
             "chisq": self._chisq,
             "quality": self.quality,
