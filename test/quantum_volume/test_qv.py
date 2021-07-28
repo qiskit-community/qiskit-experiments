@@ -21,6 +21,7 @@ from qiskit.test import QiskitTestCase
 from qiskit import Aer
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.library import QuantumVolume
+from qiskit_experiments.database_service.json import ExperimentDecoder
 
 SEED = 42
 
@@ -86,7 +87,7 @@ class TestQuantumVolume(QiskitTestCase):
         dir_name = os.path.dirname(os.path.abspath(__file__))
         probabilities_json_file = "qv_ideal_probabilities.json"
         with open(os.path.join(dir_name, probabilities_json_file), "r") as json_file:
-            probabilities = json.load(json_file)
+            probabilities = json.load(json_file, cls=ExperimentDecoder)
         self.assertTrue(
             matrix_equal(simulation_probabilities, probabilities),
             "probabilities calculated using simulation and "
@@ -128,7 +129,7 @@ class TestQuantumVolume(QiskitTestCase):
         dir_name = os.path.dirname(os.path.abspath(__file__))
         insufficient_trials_json_file = "qv_data_70_trials.json"
         with open(os.path.join(dir_name, insufficient_trials_json_file), "r") as json_file:
-            insufficient_trials_data = json.load(json_file)
+            insufficient_trials_data = json.load(json_file, cls=ExperimentDecoder)
 
         num_of_qubits = 3
         backend = Aer.get_backend("aer_simulator")
@@ -152,7 +153,7 @@ class TestQuantumVolume(QiskitTestCase):
         dir_name = os.path.dirname(os.path.abspath(__file__))
         insufficient_hop_json_file = "qv_data_high_noise.json"
         with open(os.path.join(dir_name, insufficient_hop_json_file), "r") as json_file:
-            insufficient_hop_data = json.load(json_file)
+            insufficient_hop_data = json.load(json_file, cls=ExperimentDecoder)
 
         num_of_qubits = 4
         backend = Aer.get_backend("aer_simulator")
@@ -177,7 +178,7 @@ class TestQuantumVolume(QiskitTestCase):
         dir_name = os.path.dirname(os.path.abspath(__file__))
         insufficient_confidence_json = "qv_data_moderate_noise_100_trials.json"
         with open(os.path.join(dir_name, insufficient_confidence_json), "r") as json_file:
-            insufficient_confidence_data = json.load(json_file)
+            insufficient_confidence_data = json.load(json_file, cls=ExperimentDecoder)
 
         num_of_qubits = 4
         backend = Aer.get_backend("aer_simulator")
@@ -201,7 +202,7 @@ class TestQuantumVolume(QiskitTestCase):
         dir_name = os.path.dirname(os.path.abspath(__file__))
         successful_json_file = "qv_data_moderate_noise_300_trials.json"
         with open(os.path.join(dir_name, successful_json_file), "r") as json_file:
-            successful_data = json.load(json_file)
+            successful_data = json.load(json_file, cls=ExperimentDecoder)
 
         num_of_qubits = 4
         backend = Aer.get_backend("aer_simulator")
@@ -213,7 +214,7 @@ class TestQuantumVolume(QiskitTestCase):
         qv_exp.run_analysis(exp_data)
         results_json_file = "qv_result_moderate_noise_300_trials.json"
         with open(os.path.join(dir_name, results_json_file), "r") as json_file:
-            successful_results = json.load(json_file)
+            successful_results = json.load(json_file, cls=ExperimentDecoder)
         for key, value in successful_results.items():
             if isinstance(value, float):
                 self.assertAlmostEqual(
