@@ -175,6 +175,17 @@ class ThreadSafeContainer(ABC):
         """Return lock used for this container."""
         return self._lock
 
+    def copy(self):
+        """Returns a copy of the container."""
+        with self.lock:
+            return self._container.copy()
+
+    def copy_object(self):
+        """Returns a copy of this object."""
+        obj = self.__class__()
+        obj._container = self.copy()
+        return obj
+
 
 class ThreadSafeOrderedDict(ThreadSafeContainer):
     """Thread safe OrderedDict."""
@@ -214,8 +225,3 @@ class ThreadSafeList(ThreadSafeContainer):
         """Append to the list."""
         with self._lock:
             self._container.append(value)
-
-    def copy(self):
-        """Returns a copy of the list."""
-        with self.lock:
-            return self._container.copy()

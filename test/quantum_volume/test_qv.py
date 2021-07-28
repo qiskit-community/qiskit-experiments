@@ -104,21 +104,20 @@ class TestQuantumVolume(QiskitTestCase):
         qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
         # set number of trials to a low number to make the test faster
         qv_exp.set_experiment_options(trials=2)
-        expdata = qv_exp.run(backend)
-        expdata.block_for_results()
-        expdata = qv_exp.run(backend, experiment_data=expdata)
-        expdata.block_for_results()
+        expdata1 = qv_exp.run(backend)
+        expdata1.block_for_results()
+        result_data1 = expdata1.analysis_results(0).data()
+        expdata2 = qv_exp.run(backend, experiment_data=expdata1)
+        expdata2.block_for_results()
+        result_data2 = expdata2.analysis_results(0).data()
 
+        self.assertTrue(result_data1["trials"] == 2, "number of trials is incorrect")
         self.assertTrue(
-            expdata.analysis_results(0).data()["trials"] == 2, "number of trials is incorrect"
-        )
-        self.assertTrue(
-            expdata.analysis_results(1).data()["trials"] == 4,
+            result_data2["trials"] == 4,
             "number of trials is incorrect" " after adding more trials",
         )
         self.assertTrue(
-            expdata.analysis_results(1).data()["sigma"]
-            <= expdata.analysis_results(0).data()["sigma"],
+            result_data2["sigma"] <= result_data1["sigma"],
             "sigma did not decreased after adding more trials",
         )
 
