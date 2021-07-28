@@ -233,7 +233,8 @@ class TestQuantumVolume(QiskitTestCase):
                     self.assertAlmostEqual(
                         result.extra[key],
                         value,
-                        msg="result " + str(key) + " is not the same as the " "pre-calculated analysis",
+                        msg="result " + str(key) + " is not the same as the "
+                        "pre-calculated analysis",
                     )
                 else:
                     self.assertTrue(

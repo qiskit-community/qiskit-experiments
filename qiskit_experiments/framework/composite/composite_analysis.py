@@ -32,10 +32,9 @@ class CompositeAnalysis(BaseAnalysis):
             options: kwarg options for analysis function.
 
         Returns:
-            tuple: A pair ``(analysis_results, figures)`` where
-                   ``analysis_results`` may be a single or list of
-                   AnalysisResult objects, and ``figures`` may be
-                   None, a single figure, or a list of figures.
+            tuple: A pair ``(analysis_results, figures)`` where ``analysis_results``
+                   is a list of :class:`AnalysisResultData` objects, and ``figures``
+                   is a list of any figures for the experiment.
 
         Raises:
             QiskitError: if analysis is attempted on non-composite

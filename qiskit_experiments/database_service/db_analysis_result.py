@@ -68,6 +68,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         verified: bool = False,
         tags: Optional[List[str]] = None,
         service: Optional[DatabaseServiceV1] = None,
+        source: Optional[Dict[str, str]] = None,
         **kwargs,
     ):
         """AnalysisResult constructor.
@@ -85,6 +86,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
             verified: Whether the result quality has been verified.
             tags: Tags for this analysis result.
             service: Experiment service to be used to store result in database.
+            source: Class and qiskit version information when loading from an
+                experiment service.
             **kwargs: Additional analysis result attributes.
         """
         # Data to be stored in DB.
@@ -106,6 +109,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
 
         # Other attributes.
         self._service = service
+        self._source = source
         self._created_in_db = False
         self._auto_save = False
         if self._service:
@@ -113,10 +117,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 self.auto_save = self._service.option("auto_save")
             except AttributeError:
                 pass
-        # Get source
-        if "source" in kwargs:
-            self._source = kwargs.pop("source")
-        else:
+        if self._source is None:
             self._source = {
                 "class": f"{self.__class__.__module__}.{self.__class__.__name__}",
                 "data_version": self._data_version,
@@ -137,28 +138,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         """
         # Load data from the service
         service_data = service.analysis_result(result_id, decoder=cls._json_decoder)
-
-        # Parse serialized data
-        result_data = service_data.pop("result_data")
-        value = result_data.pop("_value")
-        extra = result_data.pop("_extra", {})
-        source = result_data.pop("_source", None)
-
-        # Initialize the result object
-        result = cls(
-            name=service_data.pop("result_type"),
-            value=value,
-            device_components=service_data.pop("device_components"),
-            experiment_id=service_data.pop("experiment_id"),
-            result_id=service_data.pop("result_id"),
-            quality=service_data.pop("quality"),
-            extra=extra,
-            verified=service_data.pop("verified"),
-            tags=service_data.pop("tags"),
-            service=service_data.pop("service"),
-            source=source,
-            **service_data,
-        )
+        result = cls._from_service_data(service_data)
         result._created_in_db = True
         return result
 
@@ -226,14 +206,9 @@ class DbAnalysisResultV1(DbAnalysisResult):
         """
         # Parse serialized data
         result_data = service_data.pop("result_data")
-        extra = json.loads(json.dumps(result_data.pop("extra", {})), cls=cls._json_decoder)
+        value = result_data.pop("_value")
+        extra = result_data.pop("_extra", {})
         source = result_data.pop("_source", None)
-        value = json.loads(json.dumps(result_data["_value"]), cls=cls._json_decoder)
-        # Hack for FitVal
-        if result_data.get("__type__") == "FitVal":
-            stderr = json.loads(json.dumps(result_data.get("_stderr")), cls=cls._json_decoder)
-            unit = json.loads(json.dumps(result_data.get("_unit")), cls=cls._json_decoder)
-            value = FitVal(value, stderr, unit)
 
         # Initialize the result object
         return cls(

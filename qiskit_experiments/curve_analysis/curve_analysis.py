@@ -857,10 +857,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
             options: kwarg options for analysis function.
 
         Returns:
-            tuple: A pair ``(analysis_results, figures)`` where
-                   ``analysis_results`` may be a single or list of
-                   CurveAnalysisResultData objects, and ``figures`` is a list of any
-                   figures for the experiment.
+            tuple: A pair ``(analysis_results, figures)`` where ``analysis_results``
+                   is a list of :class:`AnalysisResultData` objects, and ``figures``
+                   is a list of any figures for the experiment.
 
         Raises:
             AnalysisError: if the analysis fails.
