@@ -72,7 +72,7 @@ Calibration Experiments
 
 This group provides a set of experiments for creating a quantum gate.
 These experiments are usually run with a
-:py:class:`~qiskit_experiments/calibration_management.Calibrations`
+:py:class:`~qiskit_experiments.calibration_management.Calibrations`
 class instance to manage parameters and pulse schedules.
 See :doc:`/tutorials/calibrating_armonk` for example.
 
