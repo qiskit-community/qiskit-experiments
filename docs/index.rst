@@ -21,7 +21,7 @@ Experimentalits can also develop own experiment library on top of the experiment
 Table of Contents
 =================
 
-Below list contains automatically generated API documentation for Qiskit Experiments.
+The following is a list of automatically generated API documentation for Qiskit Experiments.
 If you are very new to this project, the :doc:`overview </apidocs/index>` is a good place to start. The :doc:`tutorials </tutorials/index>` also have hands-on examples for running many experiments.
 
 
