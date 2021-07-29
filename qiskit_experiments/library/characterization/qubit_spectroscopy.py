@@ -15,14 +15,14 @@
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
+import qiskit.pulse as pulse
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate, Parameter
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
-import qiskit.pulse as pulse
-from qiskit.utils import apply_prefix
 from qiskit.providers.options import Options
 from qiskit.qobj.utils import MeasLevel
+from qiskit.utils import apply_prefix
 
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.library.characterization.resonance_analysis import ResonanceAnalysis
@@ -71,6 +71,7 @@ class QubitSpectroscopy(BaseExperiment):
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
+        options.db_parameters = {"freq": ("f01", "Hz")}
         options.normalization = True
 
         return options

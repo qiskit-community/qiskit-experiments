@@ -79,7 +79,7 @@ class RBAnalysis(curve.CurveAnalysis):
         default_options.bounds = {"a": (0.0, 1.0), "alpha": (0.0, 1.0), "b": (0.0, 1.0)}
         default_options.xlabel = "Clifford Length"
         default_options.ylabel = "P(0)"
-        default_options.fit_reports = {"alpha": "\u03B1", "EPC": "EPC"}
+        default_options.db_parameters = {"alpha": ("\u03B1", None)}
         default_options.error_dict = None
         default_options.epg_1_qubit = None
         default_options.gate_error_ratio = None
@@ -146,88 +146,65 @@ class RBAnalysis(curve.CurveAnalysis):
             data_index=mean_data_index,
         )
 
-    def _post_analysis(
-        self, result_data: curve.CurveAnalysisResultData
-    ) -> curve.CurveAnalysisResultData:
+    def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
         """Calculate EPC."""
-        alpha = curve.get_opt_value(result_data, "alpha")
-        alpha_err = curve.get_opt_error(result_data, "alpha")
+        extra_entries = []
 
+        # Calculate EPC
+        alpha = curve.get_fitval(fit_data, "alpha")
         scale = (2 ** self._num_qubits - 1) / (2 ** self._num_qubits)
-        result_data["EPC"] = scale * (1 - alpha)
-        result_data["EPC_err"] = scale * alpha_err / alpha
+        epc = FitVal(value=scale * (1 - alpha.value), stderr=scale * alpha.stderr / alpha.value)
+        extra_entries.append(
+            AnalysisResultData(
+                name="EPC",
+                value=epc,
+                chisq=fit_data.reduced_chisq,
+                quality=self._evaluate_quality(fit_data),
+            )
+        )
 
-        # Add EPG data
+        # Calculate EPG
         gate_error_ratio = self._get_option("gate_error_ratio")
         if gate_error_ratio is None:
             # we attempt to get the ratio from the backend properties
             gate_error_ratio = self._get_option("error_dict")
+
         count_ops = []
         for meta in self._data(label="raw_data").metadata:
             count_ops += meta.get("count_ops", [])
+
         if len(count_ops) > 0 and gate_error_ratio is not None:
             gates_per_clifford = RBUtils.gates_per_clifford(count_ops)
             num_qubits = len(self._physical_qubits)
-            if num_qubits in [1, 2]:
-                if num_qubits == 1:
-                    epg = RBUtils.calculate_1q_epg(
-                        result_data["EPC"],
-                        self._physical_qubits,
-                        gate_error_ratio,
-                        gates_per_clifford,
-                    )
-                elif self._num_qubits == 2:
-                    epg_1_qubit = self._get_option("epg_1_qubit")
-                    epg = RBUtils.calculate_2q_epg(
-                        result_data["EPC"],
-                        self._physical_qubits,
-                        gate_error_ratio,
-                        gates_per_clifford,
-                        epg_1_qubit=epg_1_qubit,
-                    )
-                result_data["EPG"] = epg
-        return result_data
 
-    def _run_analysis(self, experiment_data, **options):
-        """Run analysis on circuit data."""
-        error_dict = options["error_dict"]
-        qubits = experiment_data.metadata()["physical_qubits"]
-        if not error_dict:
-            options["error_dict"] = RBUtils.get_error_dict_from_backend(
-                experiment_data.backend, qubits
-            )
-        analysis_results, figures = super()._run_analysis(experiment_data, **options)
-
-        # Manual formatting for analysis result
-        # This sort of post-processing should be refactored into CurveAnalysis
-        # so that it works with the AnalysisResult dataclasses
-        curve_result = analysis_results[0]
-        chisq = curve_result.chisq
-        quality = curve_result.quality
-        result_data = curve_result.extra
-
-        alpha = FitVal(
-            curve.get_opt_value(result_data, "alpha"), curve.get_opt_error(result_data, "alpha")
-        )
-        analysis_results.append(AnalysisResultData("alpha", alpha, chisq=chisq, quality=quality))
-        if "EPC" in result_data:
-            analysis_results.append(
-                AnalysisResultData(
-                    "EPC",
-                    FitVal(result_data["EPC"], result_data.get("EPC_err")),
-                    chisq=chisq,
-                    quality=quality,
+            if num_qubits == 1:
+                epg = RBUtils.calculate_1q_epg(
+                    epc.value,
+                    self._physical_qubits,
+                    gate_error_ratio,
+                    gates_per_clifford,
                 )
-            )
-        # TODO: the EPG dict should be broken up into separate
-        # analysis results for each gate on each qubit
-        if "EPG" in result_data:
-            analysis_results.append(
-                AnalysisResultData(
-                    "EPG",
-                    FitVal(result_data["EPG"], result_data.get("EPG_err")),
-                    chisq=chisq,
-                    quality=quality,
+            elif num_qubits == 2:
+                epg_1_qubit = self._get_option("epg_1_qubit")
+                epg = RBUtils.calculate_2q_epg(
+                    epc.value,
+                    self._physical_qubits,
+                    gate_error_ratio,
+                    gates_per_clifford,
+                    epg_1_qubit=epg_1_qubit,
                 )
-            )
-        return analysis_results, figures
+            else:
+                # EPG calculation is not supported for more than 3 qubits RB
+                epg = None
+
+            if epg:
+                extra_entries.append(
+                    AnalysisResultData(
+                        "EPG",
+                        value=epg,
+                        chisq=fit_data.reduced_chisq,
+                        quality=self._evaluate_quality(fit_data),
+                    )
+                )
+
+        return extra_entries

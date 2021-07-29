@@ -17,13 +17,7 @@ from typing import List, Dict, Any, Union
 import numpy as np
 
 from qiskit_experiments.framework import AnalysisResultData, FitVal
-from qiskit_experiments.curve_analysis import (
-    SeriesDef,
-    CurveAnalysisResultData,
-    fit_function,
-    get_opt_value,
-    get_opt_error,
-)
+import qiskit_experiments.curve_analysis as curve
 from .rb_analysis import RBAnalysis
 
 
@@ -99,9 +93,9 @@ class InterleavedRBAnalysis(RBAnalysis):
     """
 
     __series__ = [
-        SeriesDef(
+        curve.SeriesDef(
             name="Standard",
-            fit_func=lambda x, a, alpha, alpha_c, b: fit_function.exponential_decay(
+            fit_func=lambda x, a, alpha, alpha_c, b: curve.fit_function.exponential_decay(
                 x, amp=a, lamb=-1.0, base=alpha, baseline=b
             ),
             filter_kwargs={"interleaved": False},
@@ -109,9 +103,9 @@ class InterleavedRBAnalysis(RBAnalysis):
             plot_symbol=".",
             plot_fit_uncertainty=True,
         ),
-        SeriesDef(
+        curve.SeriesDef(
             name="Interleaved",
-            fit_func=lambda x, a, alpha, alpha_c, b: fit_function.exponential_decay(
+            fit_func=lambda x, a, alpha, alpha_c, b: curve.fit_function.exponential_decay(
                 x, amp=a, lamb=-1.0, base=alpha * alpha_c, baseline=b
             ),
             filter_kwargs={"interleaved": True},
@@ -136,7 +130,10 @@ class InterleavedRBAnalysis(RBAnalysis):
             "alpha_c": (0.0, 1.0),
             "b": (0.0, 1.0),
         }
-        default_options.fit_reports = {"alpha": "\u03B1", "alpha_c": "\u03B1$_c$", "EPC": "EPC"}
+        default_options.db_parameters = {
+            "alpha": ("\u03B1", None),
+            "alpha_c": ("\u03B1_c", None),
+        }
 
         return default_options
 
@@ -171,71 +168,36 @@ class InterleavedRBAnalysis(RBAnalysis):
 
         return fit_option
 
-    def _post_analysis(self, result_data: CurveAnalysisResultData) -> CurveAnalysisResultData:
+    def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
         """Calculate EPC."""
-        # Add EPC data
         nrb = 2 ** self._num_qubits
         scale = (nrb - 1) / nrb
-        alpha = get_opt_value(result_data, "alpha")
-        alpha_c = get_opt_value(result_data, "alpha_c")
-        alpha_c_err = get_opt_error(result_data, "alpha_c")
+
+        alpha = curve.get_fitval(fit_data, "alpha")
+        alpha_c = curve.get_fitval(fit_data, "alpha_c")
 
         # Calculate epc_est (=r_c^est) - Eq. (4):
-        epc_est = scale * (1 - alpha_c)
-        epc_est_err = scale * alpha_c_err
-        result_data["EPC"] = epc_est
-        result_data["EPC_err"] = epc_est_err
+        epc = FitVal(value=scale * (1 - alpha_c.value), stderr=scale * alpha_c.stderr)
 
         # Calculate the systematic error bounds - Eq. (5):
-        systematic_err_1 = scale * (abs(alpha - alpha_c) + (1 - alpha))
+        systematic_err_1 = scale * (abs(alpha.value - alpha_c.value) + (1 - alpha.value))
         systematic_err_2 = (
-            2 * (nrb * nrb - 1) * (1 - alpha) / (alpha * nrb * nrb)
-            + 4 * (np.sqrt(1 - alpha)) * (np.sqrt(nrb * nrb - 1)) / alpha
+            2 * (nrb * nrb - 1) * (1 - alpha.value) / (alpha.value * nrb * nrb)
+            + 4 * (np.sqrt(1 - alpha.value)) * (np.sqrt(nrb * nrb - 1)) / alpha.value
         )
         systematic_err = min(systematic_err_1, systematic_err_2)
-        systematic_err_l = epc_est - systematic_err
-        systematic_err_r = epc_est + systematic_err
-        result_data["EPC_systematic_err"] = systematic_err
-        result_data["EPC_systematic_bounds"] = [max(systematic_err_l, 0), systematic_err_r]
+        systematic_err_l = epc.value - systematic_err
+        systematic_err_r = epc.value + systematic_err
 
-        return result_data
-
-    def _run_analysis(self, experiment_data, **options):
-        """Run analysis on circuit data."""
-
-        analysis_results, figures = super()._run_analysis(experiment_data, **options)
-
-        # Manual formatting for analysis result
-        # This sort of post-processing should be refactored into CurveAnalysis
-        # so that it works with the AnalysisResult dataclasses
-        curve_result = analysis_results[0]
-        chisq = curve_result.chisq
-        quality = curve_result.quality
-        result_data = curve_result.extra
-
-        alpha = FitVal(get_opt_value(result_data, "alpha"), get_opt_error(result_data, "alpha"))
-        analysis_results.append(AnalysisResultData("alpha", alpha, chisq=chisq, quality=quality))
-
-        alpha_c = FitVal(
-            get_opt_value(result_data, "alpha_c"), get_opt_error(result_data, "alpha_c")
-        )
-        analysis_results.append(
-            AnalysisResultData("alpha_c", alpha_c, chisq=chisq, quality=quality)
+        extra_data = AnalysisResultData(
+            name="EPC",
+            value=epc,
+            chisq=fit_data.reduced_chisq,
+            quality=self._evaluate_quality(fit_data),
+            extra={
+                "EPC_systematic_err": systematic_err,
+                "EPC_systematic_bounds": [max(systematic_err_l, 0), systematic_err_r],
+            },
         )
 
-        if "EPC" in result_data:
-            extra = {}
-            for key in ["EPC_systematic_err", "EPC__systematic_bounds"]:
-                if key in result_data:
-                    extra[key] = result_data[key]
-            epc = FitVal(result_data["EPC"], result_data.get("EPC_err"))
-            analysis_results.append(
-                AnalysisResultData(
-                    "EPC",
-                    epc,
-                    chisq=chisq,
-                    quality=quality,
-                    extra=extra,
-                )
-            )
-        return analysis_results, figures
+        return [extra_data]

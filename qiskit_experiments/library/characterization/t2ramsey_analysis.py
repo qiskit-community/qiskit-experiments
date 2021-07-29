@@ -14,6 +14,7 @@ T2Ramsey Experiment class.
 """
 
 from typing import List, Optional, Tuple, Dict
+import dataclasses
 import numpy as np
 
 from qiskit.utils import apply_prefix
@@ -118,6 +119,7 @@ class T2RamseyAnalysis(BaseAnalysis):
         fit_result = curve_fit(
             osc_fit_fun, xdata, ydata, p0=list(p0.values()), sigma=sigma, bounds=bounds
         )
+        fit_result = dataclasses.asdict(fit_result)
         fit_result["circuit_unit"] = unit
         if unit == "dt":
             fit_result["dt"] = conversion_factor

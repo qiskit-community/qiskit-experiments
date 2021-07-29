@@ -12,10 +12,11 @@
 """
 Plotting functions for experiment analysis
 """
-from typing import Callable, Optional, Dict
+from typing import Callable, Optional
 import numpy as np
 
 from qiskit_experiments.matplotlib import pyplot, requires_matplotlib
+from qiskit_experiments.curve_analysis.curve_data import FitData
 
 # pylint: disable = unused-import
 from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
@@ -24,7 +25,7 @@ from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
 @requires_matplotlib
 def plot_curve_fit(
     func: Callable,
-    result: Dict,
+    result: FitData,
     fit_uncertainty: bool = False,
     ax=None,
     num_fit_points: int = 100,
@@ -38,7 +39,7 @@ def plot_curve_fit(
 
     Args:
         func: the fit function for curve_fit.
-        result: a result dictionary from curve_fit.
+        result: a fitting data set.
         fit_uncertainty: if True plot the fit uncertainty from popt_err.
         ax (matplotlib.axes.Axes): Optional, a matplotlib axes to add the plot to.
         num_fit_points: the number of points to plot for xrange.
@@ -66,10 +67,16 @@ def plot_curve_fit(
         plot_opts["linewidth"] = 2
 
     # Result data
-    fit_params = result["popt"]
-    param_keys = result.get("popt_keys")
-    fit_errors = result.get("popt_err")
-    xmin, xmax = result["xrange"]
+    if isinstance(result, dict):
+        # TODO: remove this after T1 T2 migration to curve analysis
+        fit_params = result["popt"]
+        param_keys = result["popt_keys"]
+        fit_errors = result["popt_err"]
+    else:
+        fit_params = result.popt
+        param_keys = result.popt_keys
+        fit_errors = result.popt_err
+    xmin, xmax = result.x_range
 
     # Plot fit data
     xs = np.linspace(xmin, xmax, num_fit_points)

@@ -14,6 +14,7 @@
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
+from qiskit.providers.options import Options
 
 from qiskit_experiments.library.characterization.qubit_spectroscopy import QubitSpectroscopy
 
@@ -32,6 +33,14 @@ class EFSpectroscopy(QubitSpectroscopy):
                                           0
 
     """
+
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_analysis_options()
+        options.db_parameters = {"freq": ("f12", "Hz")}
+
+        return options
 
     def _template_circuit(self, freq_param) -> QuantumCircuit:
         """Return the template quantum circuit."""

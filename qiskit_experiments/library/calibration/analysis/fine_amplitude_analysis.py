@@ -16,16 +16,10 @@ from typing import Any, Dict, List, Union
 import numpy as np
 
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.curve_analysis import (
-    CurveAnalysis,
-    CurveAnalysisResultData,
-    SeriesDef,
-    fit_function,
-    get_opt_value,
-)
+import qiskit_experiments.curve_analysis as curve
 
 
-class FineAmplitudeAnalysis(CurveAnalysis):
+class FineAmplitudeAnalysis(curve.CurveAnalysis):
     r"""Fine amplitude analysis class based on a fit to a cosine function.
 
     Analyse a fine amplitude calibration experiment by fitting the data to a cosine function.
@@ -59,8 +53,9 @@ class FineAmplitudeAnalysis(CurveAnalysis):
     """
 
     __series__ = [
-        SeriesDef(
-            fit_func=lambda x, amp, d_theta, phase_offset, baseline, angle_per_gate: fit_function.cos(
+        curve.SeriesDef(
+            # pylint: disable=line-too-long
+            fit_func=lambda x, amp, d_theta, phase_offset, baseline, angle_per_gate: curve.fit_function.cos(
                 x,
                 amp=0.5 * amp,
                 freq=(d_theta + angle_per_gate) / (2 * np.pi),
@@ -84,7 +79,7 @@ class FineAmplitudeAnalysis(CurveAnalysis):
         default_options = super()._default_options()
         default_options.p0 = {"amp": None, "d_theta": None, "phase": None, "baseline": None}
         default_options.bounds = {"amp": None, "d_theta": None, "phase": None, "baseline": None}
-        default_options.fit_reports = {"d_theta": "d_theta"}
+        default_options.db_parameters = {"d_theta": ("d\u03B8", None)}
         default_options.xlabel = "Number of gates (n)"
         default_options.ylabel = "Population"
         default_options.angle_per_gate = None
@@ -134,7 +129,7 @@ class FineAmplitudeAnalysis(CurveAnalysis):
 
         return fit_options
 
-    def _post_analysis(self, result_data: CurveAnalysisResultData) -> CurveAnalysisResultData:
+    def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -142,17 +137,15 @@ class FineAmplitudeAnalysis(CurveAnalysis):
             - a measured angle error that is smaller than the allowed maximum good angle error.
               This quantity is set in the analysis options.
         """
-        fit_d_theta = get_opt_value(result_data, "d_theta")
+        fit_d_theta = curve.get_fitval(fit_data, "d_theta").value
         max_good_angle_error = self._get_option("max_good_angle_error")
 
         criteria = [
-            result_data["reduced_chisq"] < 3,
+            fit_data.reduced_chisq < 3,
             abs(fit_d_theta) < abs(max_good_angle_error),
         ]
 
         if all(criteria):
-            result_data["quality"] = "good"
-        else:
-            result_data["quality"] = "bad"
+            return "good"
 
-        return result_data
+        return "bad"

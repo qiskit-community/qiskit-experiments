@@ -12,60 +12,39 @@
 
 """Analysis utility functions."""
 
-from typing import Dict
+from typing import Optional
+
+from qiskit_experiments.curve_analysis.curve_data import FitData
+from qiskit_experiments.framework import FitVal
 
 
-def get_opt_value(result_data: Dict, param_name: str) -> float:
-    """A helper function to get parameter value from a result dictionary.
-
-    Args:
-        result_data: Result data.
-        param_name: Name of parameter to extract.
-
-    Returns:
-        Parameter value.
-
-    Raises:
-        KeyError:
-            - When the result does not contain parameter information.
-        ValueError:
-            - When specified parameter is not defined.
-    """
-    try:
-        index = result_data["popt_keys"].index(param_name)
-        return result_data["popt"][index]
-    except KeyError as ex:
-        raise KeyError(
-            "Input result has not fit parameter information. "
-            "Please confirm if the fit is successfully completed."
-        ) from ex
-    except ValueError as ex:
-        raise ValueError(f"Parameter {param_name} is not defined.") from ex
-
-
-def get_opt_error(result_data: Dict, param_name: str) -> float:
-    """A helper function to get error value from analysis result.
+def get_fitval(fit_data: FitData, param_name: str, unit: Optional[str] = None) -> FitVal:
+    """A helper function to format fit value object from fit data.
 
     Args:
-        result_data: Result data.
-        param_name: Name of parameter to extract.
+        fit_data: Fitting data set.
+        param_name: Name of parameters to extract.
+        unit: Optional. Unit of this value.
 
     Returns:
-        Parameter error value.
+        FitVal object.
 
     Raises:
-        KeyError:
-            - When the result does not contain parameter information.
-        ValueError:
-            - When specified parameter is not defined.
+        KeyError: When the result does not contain parameter information.
+        ValueError: When specified parameter is not defined.
     """
-    try:
-        index = result_data["popt_keys"].index(param_name)
-        return result_data["popt_err"][index]
-    except KeyError as ex:
+    if not fit_data.popt_keys:
         raise KeyError(
-            "Input result has not fit parameter information. "
+            "Fit result has not fit parameter name information. "
             "Please confirm if the fit is successfully completed."
-        ) from ex
+        )
+
+    try:
+        index = fit_data.popt_keys.index(param_name)
+        return FitVal(
+            value=fit_data.popt[index],
+            stderr=fit_data.popt_err[index],
+            unit=unit,
+        )
     except ValueError as ex:
         raise ValueError(f"Parameter {param_name} is not defined.") from ex

@@ -78,6 +78,7 @@ class Rabi(BaseExperiment):
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
+        options.db_parameters = {"freq": ("Rabi rate", None)}
         options.normalization = True
 
         return options
@@ -221,6 +222,14 @@ class EFRabi(Rabi):
             normalization=True,
             frequency_shift=None,
         )
+
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_analysis_options()
+        options.db_parameters = {"freq": ("EF Rabi rate", None)}
+
+        return options
 
     def _default_gate_schedule(self, backend: Optional[Backend] = None):
         """Create the default schedule for the EFRabi gate with a frequency shift to the 1-2
