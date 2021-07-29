@@ -602,7 +602,7 @@ class DbExperimentDataV1(DbExperimentData):
         # Get job results if missing experiment data.
         if self.service and (not self._analysis_results or refresh):
             retrieved_results = self.service.analysis_results(
-                experiment_id=self.experiment_id, limit=None
+                experiment_id=self.experiment_id, limit=None, json_decoder=self._json_decoder
             )
             for result in retrieved_results:
                 result_id = result["result_id"]
@@ -620,7 +620,7 @@ class DbExperimentDataV1(DbExperimentData):
                     * None: Return all analysis results.
                     * int: Specific index of the analysis results.
                     * slice: A list slice of indexes.
-                    * str: ID of the analysis result.
+                    * str: ID or name of the analysis result.
             refresh: Retrieve the latest analysis results from the server, if
                 an experiment service is available.
 
@@ -637,9 +637,19 @@ class DbExperimentDataV1(DbExperimentData):
         if isinstance(index, (int, slice)):
             return self._analysis_results.values()[index]
         if isinstance(index, str):
-            if index not in self._analysis_results:
+            # Check by result ID
+            if index in self._analysis_results:
+                return self._analysis_results[index]
+            # Check by name
+            filtered = [
+                result for result in self._analysis_results.values() if result.name == index
+            ]
+            if not filtered:
                 raise DbExperimentEntryNotFound(f"Analysis result {index} not found.")
-            return self._analysis_results[index]
+            if len(filtered) == 1:
+                return filtered[0]
+            else:
+                return filtered
 
         raise TypeError(f"Invalid index type {type(index)}.")
 
@@ -757,15 +767,13 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             The loaded experiment data.
         """
-        service_data = service.experiment(experiment_id)
+        service_data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
 
         # Parse serialized metadata
         metadata = service_data.pop("metadata")
-        if metadata:
-            metadata = json.loads(json.dumps(metadata), cls=cls._json_decoder)
 
         # Initialize container
-        expdata = cls(
+        expdata = DbExperimentDataV1(
             experiment_type=service_data.pop("experiment_type"),
             backend=service_data.pop("backend"),
             experiment_id=service_data.pop("experiment_id"),
@@ -1119,6 +1127,27 @@ class DbExperimentDataV1(DbExperimentData):
     def source(self) -> Dict:
         """Return the class name and version."""
         return self._source
+
+    def __repr__(self):
+        out = f"{type(self).__name__}({self.experiment_type}"
+        out += f", {self.experiment_id}"
+        if self._tags:
+            out += f", tags={self._tags}"
+        if self.job_ids:
+            out += f", job_ids={self.job_ids}"
+        if self._share_level:
+            out += f", share_level={self._share_level}"
+        if self._metadata:
+            out += f", metadata=<{len(self._metadata)} items>"
+        if self.figure_names:
+            out += f", figure_names={self.figure_names}"
+        if self.notes:
+            out += f", notes={self.notes}"
+        if self._extra_data:
+            for key, val in self._extra_data.items():
+                out += f", {key}={repr(val)}"
+        out += ")"
+        return out
 
     def __str__(self):
         line = 51 * "-"
