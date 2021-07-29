@@ -30,19 +30,21 @@ from qiskit_experiments.exceptions import CalibrationError
 class Rabi(BaseExperiment):
     """An experiment that scans the amplitude of a pulse to calibrate rotations between 0 and 1.
 
-    The circuits that are run have a custom rabi gate with the pulse schedule attached to it
-    through the calibrations. The circuits are of the form:
+    # section: overview
 
-    .. parsed-literal::
+        The circuits that are run have a custom rabi gate with the pulse schedule attached to it
+        through the calibrations. The circuits are of the form:
 
-                   ┌───────────┐ ░ ┌─┐
-              q_0: ┤ Rabi(amp) ├─░─┤M├
-                   └───────────┘ ░ └╥┘
-        measure: 1/═════════════════╩═
-                                    0
+        .. parsed-literal::
 
-    If the user provides his own schedule for the Rabi then it must have one free parameter, i.e.
-    the amplitude that will be scanned, and a drive channel which matches the qubit.
+                       ┌───────────┐ ░ ┌─┐
+                  q_0: ┤ Rabi(amp) ├─░─┤M├
+                       └───────────┘ ░ └╥┘
+            measure: 1/═════════════════╩═
+                                        0
+
+        If the user provides his own schedule for the Rabi then it must have one free parameter,
+        i.e. the amplitude that will be scanned, and a drive channel which matches the qubit.
     """
 
     __analysis_class__ = OscillationAnalysis

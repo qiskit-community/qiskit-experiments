@@ -30,39 +30,41 @@ from qiskit_experiments.library.calibration.analysis.drag_analysis import DragCa
 class DragCal(BaseExperiment):
     r"""An experiment that scans the DRAG parameter to find the optimal value.
 
-    A Derivative Removal by Adiabatic Gate (DRAG) pulse is designed to minimize leakage
-    to a neighbouring transition. It is a standard pulse with an additional derivative
-    component. It is designed to reduce the frequency spectrum of a normal pulse near
-    the :math:`|1\rangle` - :math:`|2\rangle` transition, reducing the chance of leakage
-    to the :math:`|2\rangle` state. The optimal value of the DRAG parameter is chosen to
-    minimize both leakage and phase errors resulting from the AC Stark shift.
+    # section: overview
 
-    .. math::
+        A Derivative Removal by Adiabatic Gate (DRAG) pulse is designed to minimize leakage
+        to a neighbouring transition. It is a standard pulse with an additional derivative
+        component. It is designed to reduce the frequency spectrum of a normal pulse near
+        the :math:`|1\rangle` - :math:`|2\rangle` transition, reducing the chance of leakage
+        to the :math:`|2\rangle` state. The optimal value of the DRAG parameter is chosen to
+        minimize both leakage and phase errors resulting from the AC Stark shift.
 
-        f(t) = \Omega(t) + 1j \beta d/dt \Omega(t)
+        .. math::
 
-    Here, :math:`\Omega` is the envelop of the in-phase component of the pulse and
-    :math:`\beta` is the strength of the quadrature which we refer to as the DRAG
-    parameter and seek to calibrate in this experiment. The DRAG calibration will run
-    several series of circuits. In a given circuit a Rp(β) - Rm(β) block is repeated
-    :math:`N` times. Here, Rp is a rotation with a positive angle and Rm is the same rotation
-    with a native angle. As example the circuit of a single repetition, i.e. :math:`N=1`, is
-    shown below.
+            f(t) = \Omega(t) + 1j \beta d/dt \Omega(t)
 
-    .. parsed-literal::
+        Here, :math:`\Omega` is the envelop of the in-phase component of the pulse and
+        :math:`\beta` is the strength of the quadrature which we refer to as the DRAG
+        parameter and seek to calibrate in this experiment. The DRAG calibration will run
+        several series of circuits. In a given circuit a Rp(β) - Rm(β) block is repeated
+        :math:`N` times. Here, Rp is a rotation with a positive angle and Rm is the same rotation
+        with a native angle. As example the circuit of a single repetition, i.e. :math:`N=1`, is
+        shown below.
 
-                   ┌───────┐ ┌───────┐ ░ ┌─┐
-              q_0: ┤ Rp(β) ├─┤ Rm(β) ├─░─┤M├
-                   └───────┘ └───────┘ ░ └╥┘
-        measure: 1/═══════════════════════╩═
-                                          0
+        .. parsed-literal::
 
-    Here, the Rp gate and the Rm gate are can be pi and -pi rotations about the
-    x-axis of the Bloch sphere. The parameter β is scanned to find the value that minimizes
-    the leakage to the second excited state. Note that the analysis class requires this
-    experiment to run with three repetition numbers.
+                       ┌───────┐ ┌───────┐ ░ ┌─┐
+                  q_0: ┤ Rp(β) ├─┤ Rm(β) ├─░─┤M├
+                       └───────┘ └───────┘ ░ └╥┘
+            measure: 1/═══════════════════════╩═
+                                              0
 
-    References:
+        Here, the Rp gate and the Rm gate are can be pi and -pi rotations about the
+        x-axis of the Bloch sphere. The parameter β is scanned to find the value that minimizes
+        the leakage to the second excited state. Note that the analysis class requires this
+        experiment to run with three repetition numbers.
+
+    # section: reference
         1. |citation1|_
 
         .. _citation1: https://link.aps.org/doi/10.1103/PhysRevA.83.012308
