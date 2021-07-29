@@ -30,61 +30,44 @@ from qiskit_experiments.library.calibration.analysis.drag_analysis import DragCa
 class DragCal(BaseExperiment):
     r"""An experiment that scans the DRAG parameter to find the optimal value.
 
-    A Derivative Removal by Adiabatic Gate (DRAG) pulse is designed to minimize leakage
-    to a neighbouring transition. It is a standard pulse with an additional derivative
-    component. It is designed to reduce the frequency spectrum of a normal pulse near
-    the :math:`|1\rangle` - :math:`|2\rangle` transition, reducing the chance of leakage
-    to the :math:`|2\rangle` state. The optimal value of the DRAG parameter is chosen to
-    minimize both leakage and phase errors resulting from the AC Stark shift.
+    # section: overview
 
-    .. math::
+        A Derivative Removal by Adiabatic Gate (DRAG) pulse is designed to minimize leakage
+        to a neighbouring transition. It is a standard pulse with an additional derivative
+        component. It is designed to reduce the frequency spectrum of a normal pulse near
+        the :math:`|1\rangle` - :math:`|2\rangle` transition, reducing the chance of leakage
+        to the :math:`|2\rangle` state. The optimal value of the DRAG parameter is chosen to
+        minimize both leakage and phase errors resulting from the AC Stark shift.
 
-        f(t) = \Omega(t) + 1j \beta d/dt \Omega(t)
+        .. math::
 
-    Here, :math:`\Omega` is the envelop of the in-phase component of the pulse and
-    :math:`\beta` is the strength of the quadrature which we refer to as the DRAG
-    parameter and seek to calibrate in this experiment. The DRAG calibration will run
-    several series of circuits. In a given circuit a Rp(β) - Rm(β) block is repeated
-    :math:`N` times. Here, Rp is a rotation with a positive angle and Rm is the same rotation
-    with a native angle. As example the circuit of a single repetition, i.e. :math:`N=1`, is
-    shown below.
+            f(t) = \Omega(t) + 1j \beta d/dt \Omega(t)
 
-    .. parsed-literal::
+        Here, :math:`\Omega` is the envelop of the in-phase component of the pulse and
+        :math:`\beta` is the strength of the quadrature which we refer to as the DRAG
+        parameter and seek to calibrate in this experiment. The DRAG calibration will run
+        several series of circuits. In a given circuit a Rp(β) - Rm(β) block is repeated
+        :math:`N` times. Here, Rp is a rotation with a positive angle and Rm is the same rotation
+        with a native angle. As example the circuit of a single repetition, i.e. :math:`N=1`, is
+        shown below.
 
-                   ┌───────┐ ┌───────┐ ░ ┌─┐
-              q_0: ┤ Rp(β) ├─┤ Rm(β) ├─░─┤M├
-                   └───────┘ └───────┘ ░ └╥┘
-        measure: 1/═══════════════════════╩═
-                                          0
+        .. parsed-literal::
 
-    Here, the Rp gate and the Rm gate are can be pi and -pi rotations about the
-    x-axis of the Bloch sphere. The parameter β is scanned to find the value that minimizes
-    the leakage to the second excited state. Note that the analysis class requires this
-    experiment to run with three repetition numbers.
+                       ┌───────┐ ┌───────┐ ░ ┌─┐
+                  q_0: ┤ Rp(β) ├─┤ Rm(β) ├─░─┤M├
+                       └───────┘ └───────┘ ░ └╥┘
+            measure: 1/═══════════════════════╩═
+                                              0
 
-    References:
-        1. |citation1|_
+        Here, the Rp gate and the Rm gate are can be pi and -pi rotations about the
+        x-axis of the Bloch sphere. The parameter β is scanned to find the value that minimizes
+        the leakage to the second excited state. Note that the analysis class requires this
+        experiment to run with three repetition numbers.
 
-        .. _citation1: https://link.aps.org/doi/10.1103/PhysRevA.83.012308
-
-        .. |citation1| replace:: *Gambetta, J. M., Motzoi, F., Merkel, S. T. & Wilhelm, F. K.
-           Analytic control methods for high-fidelity unitary operations
-           in a weakly nonlinear oscillator. Phys. Rev. A 83, 012308 (2011).*
-
-        2. |citation2|_
-
-        .. _citation2: https://link.aps.org/doi/10.1103/PhysRevLett.103.110501
-
-        .. |citation2| replace:: *F. Motzoi, J. M. Gambetta, P. Rebentrost, and F. K. Wilhelm
-           Phys. Rev. Lett. 103, 110501 – Published 8 September 2009.*
-
-        3. |citation3|_
-
-        .. _citation3: https://link.aps.org/doi/10.1103/PhysRevLett.116.020501
-
-        .. |citation3| replace:: *Z. Chen, et al.
-           Measuring and Suppressing Quantum State Leakage in a Superconducting Qubit
-           Phys. Rev. Lett. 116, 020501 – Published 13 January 2016.*
+    # section: reference
+        .. ref_arxiv:: 1 1011.1949
+        .. ref_arxiv:: 2 0901.0534
+        .. ref_arxiv:: 3 1509.05470
     """
 
     __analysis_class__ = DragCalAnalysis
@@ -99,12 +82,26 @@ class DragCal(BaseExperiment):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default values for the pulse if no schedule is given.
+        r"""Default values for the pulse if no schedule is given.
         Users can set the positive and negative rotation schedules with
 
         .. code-block::
 
             drag.set_experiment_options(rp=xp_schedule, rm=xm_schedule)
+
+        Experiment Options:
+            rp (ScheduleBlock): The schedule for the plus rotation.
+            rm (ScheduleBlock): The schedule for the minus rotation. If this schedule is
+                not specified it will be build from the rp schedule by sandwiching it
+                between phase shift gates with an angle of :math:`\pi`.
+            amp (complex): The amplitude for the default Drag pulse. Must have a magnitude
+                smaller than one.
+            duration (int): The duration of the default pulse in samples.
+            sigma (float): The standard deviation of the default pulse.
+            reps (List[int]): The number of times the Rp - Rm gate sequence is repeated in
+                each series. Note that this list must always have a length of three as
+                otherwise the analysis class will not run.
+            betas (Iterable): the values of the DRAG parameter to scan.
         """
         options = super()._default_experiment_options()
 

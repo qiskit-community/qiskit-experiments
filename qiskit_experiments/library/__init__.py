@@ -45,6 +45,7 @@ Calibration Experiments
 
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
     ~calibration.DragCal
     ~calibration.Rabi
