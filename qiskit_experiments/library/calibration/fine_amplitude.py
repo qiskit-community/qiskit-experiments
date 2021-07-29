@@ -52,8 +52,22 @@ class FineAmplitude(BaseExperiment):
         This square-root of X pulse allows the analysis to differentiate between over rotations
         and under rotations in the case of pi-pulses. Importantly, the resulting data is analyzed
         by a fit to a cosine function in which we try and determine the over/under rotation given
-        an intended rotation angle per gate which must also be specified by the user. The steps
-        to run a fine amplitude calibration experiment are therefore
+        an intended rotation angle per gate which must also be specified by the user.
+
+        Error amplifying experiments are most sensitive to angle errors when we measure points along
+        the equator of the Block sphere. This is why users should insert a square-root of X pulse
+        before running calibrations for :math:`\pm\pi` rotations. Furthermore, when running
+        calibrations for :math:`\pm\pi/2` rotations users are advised to use an odd number of
+        repetitions, e.g. [1, 2, 3, 5, 7, ...] to ensure that the ideal points are on the equator
+        of the Bloch sphere. Note the presence of two repetitions which allows us to prepare the
+        excited state. Therefore, add_xp_circuit = True is not needed in this case.
+
+        Users can call :meth:`set_schedule` to conveniently set the schedule and the corresponding
+        experiment and analysis options.
+
+        # section: example
+
+        The steps to run a fine amplitude calibration experiment are
 
         .. code-block:: python
 
@@ -70,17 +84,6 @@ class FineAmplitude(BaseExperiment):
         Note that the schedule and angle_per_gate could have been set by independently calling
         :meth:`set_experiment_options` for the schedule and :meth:`set_analysis_options` for
         the angle_per_gate.
-
-        Error amplifying experiments are most sensitive to angle errors when we measure points along
-        the equator of the Block sphere. This is why users should insert a square-root of X pulse
-        before running calibrations for :math:`\pm\pi` rotations. Furthermore, when running
-        calibrations for :math:`\pm\pi/2` rotations users are advised to use an odd number of
-        repetitions, e.g. [1, 2, 3, 5, 7, ...] to ensure that the ideal points are on the equator
-        of the Bloch sphere. Note the presence of two repetitions which allows us to prepare the
-        excited state. Therefore, add_xp_circuit = True is not needed in this case.
-
-        Users can call :meth:`set_schedule` to conveniently set the schedule and the corresponding
-        experiment and analysis options.
     """
 
     __analysis_class__ = FineAmplitudeAnalysis
