@@ -182,7 +182,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
             the depth of the circuit,
             the number of trials ran
         """
-        quantum_volume = 1
+        quantum_volume = None
         success = False
 
         mean_hop = np.mean(heavy_output_prob_exp)
@@ -191,15 +191,9 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         threshold = 2 / 3 + z * sigma_hop
         z_value = self._calc_z_value(mean_hop, sigma_hop)
         confidence_level = self._calc_confidence_level(z_value)
-        if confidence_level > 0.977:
-            quality = "good"
-        else:
-            quality = "bad"
-
         # Must have at least 100 trials
         if trials < 100:
             warnings.warn("Must use at least 100 trials to consider Quantum Volume as successful.")
-
         if mean_hop > threshold and trials >= 100:
             quantum_volume = 2 ** depth
             success = True
@@ -207,7 +201,6 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         hop_result = AnalysisResultData(
             "mean_HOP",
             value=FitVal(mean_hop, sigma_hop),
-            quality=quality,
             extra={
                 "HOPs": heavy_output_prob_exp,
                 "two_sigma": 2 * sigma_hop,
@@ -219,7 +212,6 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         qv_result = AnalysisResultData(
             "quantum_volume",
             value=quantum_volume,
-            quality=quality,
             extra={
                 "success": success,
                 "confidence": confidence_level,
