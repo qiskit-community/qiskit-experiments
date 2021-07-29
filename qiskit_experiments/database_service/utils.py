@@ -12,23 +12,22 @@
 
 """Experiment utility functions."""
 
-import logging
-from typing import Callable, Tuple, Dict, Any, Union
 import io
-from datetime import datetime, timezone
+import logging
 import threading
-from collections import OrderedDict
-from abc import ABC, abstractmethod
 import traceback
-import pkg_resources
+from abc import ABC, abstractmethod
+from collections import OrderedDict
+from datetime import datetime, timezone
+from typing import Callable, Tuple, Dict, Any, Union
 
 import dateutil.parser
+import pkg_resources
 from dateutil import tz
-
 from qiskit.version import __version__ as terra_version
-from ..version import __version__ as experiments_version
 
 from .exceptions import DbExperimentEntryNotFound, DbExperimentEntryExists, DbExperimentDataError
+from ..version import __version__ as experiments_version
 
 LOG = logging.getLogger(__name__)
 
@@ -86,7 +85,9 @@ def plot_to_svg_bytes(figure: "pyplot.Figure") -> bytes:
     buf = io.BytesIO()
     opaque_color = list(figure.get_facecolor())
     opaque_color[3] = 1.0  # set alpha to opaque
-    figure.savefig(buf, format="svg", facecolor=tuple(opaque_color), edgecolor="none")
+    figure.savefig(
+        buf, format="svg", facecolor=tuple(opaque_color), edgecolor="none", bbox_inches="tight"
+    )
     buf.seek(0)
     figure_data = buf.read()
     buf.close()
@@ -174,6 +175,17 @@ class ThreadSafeContainer(ABC):
         """Return lock used for this container."""
         return self._lock
 
+    def copy(self):
+        """Returns a copy of the container."""
+        with self.lock:
+            return self._container.copy()
+
+    def copy_object(self):
+        """Returns a copy of this object."""
+        obj = self.__class__()
+        obj._container = self.copy()
+        return obj
+
 
 class ThreadSafeOrderedDict(ThreadSafeContainer):
     """Thread safe OrderedDict."""
@@ -213,8 +225,3 @@ class ThreadSafeList(ThreadSafeContainer):
         """Append to the list."""
         with self._lock:
             self._container.append(value)
-
-    def copy(self):
-        """Returns a copy of the list."""
-        with self.lock:
-            return self._container.copy()
