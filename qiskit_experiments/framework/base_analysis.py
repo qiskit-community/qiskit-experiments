@@ -51,29 +51,17 @@ class BaseAnalysis(ABC):
     def run(
         self,
         experiment_data: ExperimentData,
-        save: bool = True,
-        return_figures: bool = False,
         **options,
-    ):
+    ) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
         Args:
             experiment_data: the experiment data to analyze.
-            save: if True save analysis results and figures to the
-                  :class:`ExperimentData`.
-            return_figures: if true return a pair of
-                            ``(analysis_results, figures)``,
-                            otherwise return only analysis_results.
             options: additional analysis options. See class documentation for
                      supported options.
 
         Returns:
-            List[DbAnalysisResultV1]: the output for analysis that produces
-                                  multiple results.
-            Tuple: If ``return_figures=True`` the output is a pair
-                   ``(analysis_results, figures)`` where  ``analysis_results``
-                   may be a single or list of :class:`DbAnalysisResultV1` objects, and
-                   ``figures`` may be None, a single figure, or a list of figures.
+            An experiment data object containing the analysis results and figures.
 
         Raises:
             QiskitError: if experiment_data container is not valid for analysis.
@@ -108,16 +96,12 @@ class BaseAnalysis(ABC):
             for result in results
         ]
 
-        # Save to experiment data
-        if save:
-            experiment_data.add_analysis_results(analysis_results)
-            if figures:
-                experiment_data.add_figures(figures)
+        # Update experiment data with analysis results
+        experiment_data.add_analysis_results(analysis_results)
+        if figures:
+            experiment_data.add_figures(figures)
 
-        if return_figures:
-            return analysis_results, figures
-
-        return analysis_results
+        return experiment_data
 
     def _format_analysis_result(self, data, experiment_id, experiment_components=None):
         """Format run analysis result to DbAnalysisResult"""
