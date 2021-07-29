@@ -178,7 +178,7 @@ class BaseExperiment(ABC):
                      for the current run.
 
         Returns:
-            The updated experiment data containing the analysis results and figures.
+            An experiment data object containing the analysis results and figures.
 
         Raises:
             QiskitError: if experiment_data container is not valid for analysis.
@@ -190,8 +190,7 @@ class BaseExperiment(ABC):
 
         # Run analysis
         analysis = self.analysis()
-        analysis.run(experiment_data, save=True, return_figures=False, **analysis_options)
-        return experiment_data
+        return analysis.run(experiment_data, **analysis_options)
 
     @property
     def num_qubits(self) -> int:
