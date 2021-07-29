@@ -426,10 +426,14 @@ class DbExperimentDataV1(DbExperimentData):
                 else:
                     fig_name = (
                         f"figure_{self.experiment_id[:8]}_"
-                        f"{datetime.now().isoformat()}_{len(self._figures)}"
+                        f"{datetime.now().isoformat()}_{len(self._figures)}.svg"
                     )
             else:
                 fig_name = figure_names[idx]
+
+            if not fig_name.endswith(".svg"):
+                LOG.info("File name %s does not have an SVG extension. A '.svg' is added.")
+                fig_name += ".svg"
 
             existing_figure = fig_name in self._figures
             if existing_figure and not overwrite:
@@ -717,6 +721,8 @@ class DbExperimentDataV1(DbExperimentData):
 
         with self._figures.lock:
             for name, figure in self._figures.items():
+                if figure is None:
+                    continue
                 if HAS_MATPLOTLIB:
                     # pylint: disable=import-error
                     from matplotlib import pyplot
