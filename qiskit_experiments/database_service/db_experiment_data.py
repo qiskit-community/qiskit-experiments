@@ -620,7 +620,7 @@ class DbExperimentDataV1(DbExperimentData):
                     * None: Return all analysis results.
                     * int: Specific index of the analysis results.
                     * slice: A list slice of indexes.
-                    * str: ID of the analysis result.
+                    * str: ID or name of the analysis result.
             refresh: Retrieve the latest analysis results from the server, if
                 an experiment service is available.
 
@@ -637,9 +637,19 @@ class DbExperimentDataV1(DbExperimentData):
         if isinstance(index, (int, slice)):
             return self._analysis_results.values()[index]
         if isinstance(index, str):
-            if index not in self._analysis_results:
+            # Check by result ID
+            if index in self._analysis_results:
+                return self._analysis_results[index]
+            # Check by name
+            filtered = [
+                result for result in self._analysis_results.values() if result.name == index
+            ]
+            if not filtered:
                 raise DbExperimentEntryNotFound(f"Analysis result {index} not found.")
-            return self._analysis_results[index]
+            if len(filtered) == 1:
+                return filtered[0]
+            else:
+                return filtered
 
         raise TypeError(f"Invalid index type {type(index)}.")
 
