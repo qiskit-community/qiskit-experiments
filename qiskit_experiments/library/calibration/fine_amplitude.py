@@ -79,27 +79,6 @@ class FineAmplitude(BaseExperiment):
         of the Bloch sphere. Note the presence of two repetitions which allows us to prepare the
         excited state. Therefore, add_xp_circuit = True is not needed in this case.
 
-        **Summary of experiment options**
-
-        * repetitions: A list with the number of times the gate of interest will be repeated.
-        * schedule: The schedule of the gate that will be repeated.
-        * add_sx: A boolean which if set to True will add a square-root of X before the repetitions
-          of the gate of interest. Set this to True if you are calibrating gates with an ideal
-          rotation angle per gate of :math:`\pm\pi`. The default value is False.
-        * add_xp_circuit: A boolean which if set to True will cause the experiment to run an
-          additional circuit with an X gate and a measurement. This prepares the excited state
-          and is typically crucial to get the correct sign for the magnitude of the error in
-          the rotation angle. The default value is True.
-        * sx_schedule: Allows users to set a schedule for the square-root of X gate.
-
-        **Summary of analysis options**
-
-        * angle_per_gate: The ideal angle per repeated gate. The user must set this options.
-        * phase_offset: A phase offset for the analysis. This phase offset will be :math:`\pi/2`
-          if the square-root of X gate is added before the repeated gates. This is decided for
-          the user in :meth:`set_schedule` depending on whether the sx gate is included in the
-          experiment.
-
         Users can call :meth:`set_schedule` to conveniently set the schedule and the corresponding
         experiment and analysis options.
     """

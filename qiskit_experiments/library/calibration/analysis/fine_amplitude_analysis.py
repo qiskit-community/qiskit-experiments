@@ -83,10 +83,21 @@ class FineAmplitudeAnalysis(CurveAnalysis):
 
     @classmethod
     def _default_options(cls):
-        """Return the default analysis options.
+        r"""Return the default analysis options.
 
         See :meth:`~qiskit_experiment.curve_analysis.CurveAnalysis._default_options` for
         descriptions of analysis options.
+
+        Analysis Options:
+            angle_per_gate (float): The ideal angle per repeated gate.
+                The user must set this option as it defaults to None.
+            phase_offset (float): A phase offset for the analysis. This phase offset will be
+                :math:`\pi/2` if the square-root of X gate is added before the repeated gates.
+                This is decided for the user in :meth:`set_schedule` depending on whether the
+                sx gate is included in the experiment.
+            number_of_guesses (int): The number of initial guesses to try.
+            max_good_angle_error (float): The maximum angle error for which the fit is
+                considered as good. Defaults to :math:`\pi/2`.
         """
         default_options = super()._default_options()
         default_options.p0 = {"amp": None, "d_theta": None, "phase": None, "base": None}
