@@ -190,7 +190,8 @@ class BaseExperiment(ABC):
 
         # Run analysis
         analysis = self.analysis()
-        return analysis.run(experiment_data, **analysis_options)
+        analysis.run(experiment_data, **analysis_options)
+        return experiment_data
 
     @property
     def num_qubits(self) -> int:

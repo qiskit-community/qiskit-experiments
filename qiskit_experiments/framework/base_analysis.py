@@ -72,10 +72,6 @@ class BaseAnalysis(ABC):
                 f" but received {type(experiment_data).__name__}"
             )
 
-        # Check if data already contains analysis, if so make a copy
-        if experiment_data.analysis_results():
-            experiment_data = experiment_data._copy_metadata()
-
         # Get experiment device components
         if "physical_qubits" in experiment_data.metadata():
             experiment_components = [
