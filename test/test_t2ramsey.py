@@ -298,6 +298,7 @@ class TestT2Ramsey(QiskitTestCase):
         # run circuits
         expdata0 = exp0.run(backend=backend, shots=1000)
         expdata0.block_for_results()
+        results0 = expdata0.analysis_results()
 
         # second experiment
         delays1 = list(range(2, 65, 2))
@@ -305,14 +306,15 @@ class TestT2Ramsey(QiskitTestCase):
         exp1.set_analysis_options(user_p0=default_p0)
         expdata1 = exp1.run(backend=backend, experiment_data=expdata0, shots=1000)
         expdata1.block_for_results()
-        result = expdata1.analysis_results()
+        results1 = expdata1.analysis_results()
+
         self.assertAlmostEqual(
-            result[2].data()["value"],
+            results1[0].data()["value"],
             estimated_t2ramsey * dt_factor,
             delta=3 * dt_factor,
         )
         self.assertAlmostEqual(
-            result[3].data()["value"], estimated_freq / dt_factor, delta=3 / dt_factor
+            results1[1].data()["value"], estimated_freq / dt_factor, delta=3 / dt_factor
         )
-        self.assertLessEqual(result[2].data()["stderr"], result[0].data()["stderr"])
+        self.assertLessEqual(results1[0].data()["stderr"], results0[0].data()["stderr"])
         self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))
