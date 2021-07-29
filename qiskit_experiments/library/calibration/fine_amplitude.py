@@ -270,11 +270,25 @@ class FineAmplitude(BaseExperiment):
 
 
 class FineXAmplitude(FineAmplitude):
-    r"""A fine amplitude experiment with all the options set for the :math:`\pi`-rotation."""
+    r"""A fine amplitude experiment with all the options set for the :math:`\pi`-rotation.
+
+    # section: overview
+
+        :class:`FineXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
+        the appropriate values for the default options.
+    """
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default values for the fine amplitude experiment."""
+        """Default values for the fine amplitude experiment.
+
+        Experiment Options:
+            add_sx (bool): This option is True by default when calibrating gates with a target
+                angle per gate of :math:`\pi` as this increases the sensitivity of the
+                experiment.
+            add_xp_circuit (bool): This option is True by default when calibrating gates with
+                a target angle per gate of :math:`\pi`.
+        """
         options = super()._default_experiment_options()
         options.add_sx = True
         options.add_xp_circuit = True
@@ -292,11 +306,29 @@ class FineXAmplitude(FineAmplitude):
 
 
 class FineSXAmplitude(FineAmplitude):
-    r"""A fine amplitude experiment with all the options set for the :math:`\pi/2`-rotation."""
+    r"""A fine amplitude experiment with all the options set for the :math:`\pi/2`-rotation.
+
+    # section: overview
+
+        :class:`FineSXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
+        the appropriate values for the default options.
+    """
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default values for the fine amplitude experiment."""
+        """Default values for the fine amplitude experiment.
+
+        Experiment Options:
+            add_sx (bool): This option is False by default when calibrating gates with a target
+                angle per gate of :math:`\pi/2` as this increases the sensitivity of the
+                experiment.
+            add_xp_circuit (bool): This option is False by default when calibrating gates with
+                a target angle per gate of :math:`\pi/2`.
+            repetitions (List[int]): By default the repetitions take on odd numbers for
+                :math:`\pi/2` target angles as this ideally prepares states on the equator of
+                the Bloch sphere. Note that the repetitions include two repetitions which
+                plays the same role as including a circuit with an X gate.
+        """
         options = super()._default_experiment_options()
         options.add_sx = False
         options.add_xp_circuit = False
