@@ -84,7 +84,7 @@ class FineAmplitude(BaseExperiment):
         Note that the schedule and angle_per_gate could have been set by independently calling
         :meth:`set_experiment_options` for the schedule and :meth:`set_analysis_options` for
         the angle_per_gate.
-        
+
     # section: reference
         .. ref_arxiv:: 1 1504.06597
     """
@@ -101,7 +101,7 @@ class FineAmplitude(BaseExperiment):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default values for the fine amplitude experiment.
+        r"""Default values for the fine amplitude experiment.
 
         Experiment Options:
             repetitions (List[int]): A list of the number of times that the gate is repeated.
@@ -283,7 +283,7 @@ class FineXAmplitude(FineAmplitude):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default values for the fine amplitude experiment.
+        r"""Default values for the fine amplitude experiment.
 
         Experiment Options:
             add_sx (bool): This option is True by default when calibrating gates with a target
@@ -319,7 +319,7 @@ class FineSXAmplitude(FineAmplitude):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default values for the fine amplitude experiment.
+        r"""Default values for the fine amplitude experiment.
 
         Experiment Options:
             add_sx (bool): This option is False by default when calibrating gates with a target

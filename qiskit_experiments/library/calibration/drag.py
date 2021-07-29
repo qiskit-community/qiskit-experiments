@@ -82,7 +82,7 @@ class DragCal(BaseExperiment):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default values for the pulse if no schedule is given.
+        r"""Default values for the pulse if no schedule is given.
         Users can set the positive and negative rotation schedules with
 
         .. code-block::
