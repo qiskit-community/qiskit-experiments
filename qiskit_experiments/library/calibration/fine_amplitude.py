@@ -82,9 +82,10 @@ class FineAmplitude(BaseExperiment):
             )
             amp_cal.run(backend)
 
-        Note that the schedule and angle_per_gate could have been set by independently calling
-        :meth:`set_experiment_options` for the schedule and :meth:`set_analysis_options` for
-        the angle_per_gate.
+        Note that the ``schedule`` and ``angle_per_gate`` could have been set by independently calling
+        :meth:`set_experiment_options` for the ``schedule`` and :meth:`set_analysis_options` for
+        the ``angle_per_gate``.
+
 
     # section: reference
         .. ref_arxiv:: 1 1504.06597
