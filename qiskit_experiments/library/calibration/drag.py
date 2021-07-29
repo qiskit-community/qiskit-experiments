@@ -65,28 +65,9 @@ class DragCal(BaseExperiment):
         experiment to run with three repetition numbers.
 
     # section: reference
-        1. |citation1|_
-
-        .. _citation1: https://link.aps.org/doi/10.1103/PhysRevA.83.012308
-
-        .. |citation1| replace:: *Gambetta, J. M., Motzoi, F., Merkel, S. T. & Wilhelm, F. K.
-           Analytic control methods for high-fidelity unitary operations
-           in a weakly nonlinear oscillator. Phys. Rev. A 83, 012308 (2011).*
-
-        2. |citation2|_
-
-        .. _citation2: https://link.aps.org/doi/10.1103/PhysRevLett.103.110501
-
-        .. |citation2| replace:: *F. Motzoi, J. M. Gambetta, P. Rebentrost, and F. K. Wilhelm
-           Phys. Rev. Lett. 103, 110501 – Published 8 September 2009.*
-
-        3. |citation3|_
-
-        .. _citation3: https://link.aps.org/doi/10.1103/PhysRevLett.116.020501
-
-        .. |citation3| replace:: *Z. Chen, et al.
-           Measuring and Suppressing Quantum State Leakage in a Superconducting Qubit
-           Phys. Rev. Lett. 116, 020501 – Published 13 January 2016.*
+        .. ref_arxiv:: 1 1011.1949
+        .. ref_arxiv:: 2 0901.0534
+        .. ref_arxiv:: 3 1509.05470
     """
 
     __analysis_class__ = DragCalAnalysis
