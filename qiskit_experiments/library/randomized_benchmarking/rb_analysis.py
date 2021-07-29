@@ -225,7 +225,7 @@ class RBAnalysis(curve.CurveAnalysis):
             analysis_results.append(
                 AnalysisResultData(
                     "EPG",
-                    FitVal(result_data["EPG"], result_data.get("EPG_err")),
+                    result_data["EPG"],
                     chisq=chisq,
                     quality=quality,
                 )
