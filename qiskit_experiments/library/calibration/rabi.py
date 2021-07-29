@@ -193,21 +193,24 @@ class Rabi(BaseExperiment):
 class EFRabi(Rabi):
     """An experiment that scans the amplitude of a pulse to calibrate rotations between 1 and 2.
 
-    This experiment is similar to the Rabi experiment between the ground and first excited state.
-    The difference is in the initial X gate used to populate the first excited state. The Rabi pulse
-    is then applied on the 1 <-> 2 transition (sometimes also labeled the e <-> f transition) which
-    implies that frequency shift instructions are used. The necessary frequency shift (typically the
-    qubit anharmonicity) should be specified through the experiment options.
+    # section: overview
 
-    The circuits are of the form:
+        This experiment is a subclass of the :class:`Rabi` experiment but takes place between
+        the first and second excited state. An initial X gate used to populate the first excited
+        state. The Rabi pulse is then applied on the 1 <-> 2 transition (sometimes also labeled
+        the e <-> f transition) which implies that frequency shift instructions are used. The
+        necessary frequency shift (typically the qubit anharmonicity) should be specified
+        through the experiment options.
 
-    .. parsed-literal::
+        The circuits are of the form:
 
-                   ┌───┐┌───────────┐ ░ ┌─┐
-              q_0: ┤ X ├┤ Rabi(amp) ├─░─┤M├
-                   └───┘└───────────┘ ░ └╥┘
-        measure: 1/══════════════════════╩═
-                                         0
+        .. parsed-literal::
+
+                       ┌───┐┌───────────┐ ░ ┌─┐
+                  q_0: ┤ X ├┤ Rabi(amp) ├─░─┤M├
+                       └───┘└───────────┘ ░ └╥┘
+            measure: 1/══════════════════════╩═
+                                             0
     """
 
     @classmethod
@@ -220,15 +223,15 @@ class EFRabi(Rabi):
 
             ef_rabi.set_experiment_options(schedule=rabi_schedule)
 
+        Experiment Options:
+
+            frequency_shift (float): The frequency by which the 1 to 2 transition is
+                detuned from the 0 to 1 transition.
         """
-        return Options(
-            duration=160,
-            sigma=40,
-            amplitudes=np.linspace(-0.95, 0.95, 51),
-            schedule=None,
-            normalization=True,
-            frequency_shift=None,
-        )
+        options = super()._default_experiment_options()
+        options.frequency_shift = None
+
+        return options
 
     def _default_gate_schedule(self, backend: Optional[Backend] = None):
         """Create the default schedule for the EFRabi gate with a frequency shift to the 1-2
