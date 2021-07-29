@@ -132,7 +132,7 @@ def save_data(
                 is_new = True
 
     # Don't fail the experiment just because its data cannot be saved.
-    LOG.error("Unable to save experiment data: %s", '\n'.join(errors))
+    LOG.error("Unable to save experiment data: %s", "\n".join(errors))
     return False, None
 
 
