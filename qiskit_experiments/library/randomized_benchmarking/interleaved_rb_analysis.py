@@ -27,7 +27,7 @@ from .rb_analysis import RBAnalysis
 
 
 class InterleavedRBAnalysis(RBAnalysis):
-    r"""Interleaved randomized benchmarking analysis.
+    r"""A class to analyze interleaved randomized benchmarking experiment.
 
     # section: overview
         This analysis takes only two series for standard and interleaved RB curve fitting.
@@ -57,14 +57,18 @@ class InterleavedRBAnalysis(RBAnalysis):
         See Ref. [1] for more details.
 
     # section: fit_model
+        The fit is based on the following decay functions:
+
         Fit model for standard RB
 
         .. math::
+
             F(x) = a \alpha^{x} + b
 
         Fit model for interleaved RB
 
         .. math::
+
             F(x) = a (\alpha_c \alpha)^{x_2} + b
 
     # section: fit_parameters

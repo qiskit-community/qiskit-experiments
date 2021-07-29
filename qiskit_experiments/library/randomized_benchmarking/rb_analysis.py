@@ -23,7 +23,7 @@ from .rb_utils import RBUtils
 
 
 class RBAnalysis(curve.CurveAnalysis):
-    r"""Standard randomized benchmarking analysis.
+    r"""A class to analyze randomized benchmarking experiments.
 
     # section: overview
         This analysis takes only single series.
