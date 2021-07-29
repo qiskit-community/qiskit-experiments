@@ -32,74 +32,63 @@ from qiskit_experiments.exceptions import CalibrationError
 class FineAmplitude(BaseExperiment):
     r"""Error amplifying fine amplitude calibration experiment.
 
-    The :class:`FineAmplitude` calibration experiment repeats N times a gate with a pulse
-    to amplify the under-/over-rotations in the gate to determine the optimal amplitude.
-    The circuits that are run have a custom gate with the pulse schedule attached to it
-    through the calibrations. The circuits are therefore of the form:
+    # section: overview
 
-    .. parsed-literal::
+        The :class:`FineAmplitude` calibration experiment repeats N times a gate with a pulse
+        to amplify the under-/over-rotations in the gate to determine the optimal amplitude.
+        The circuits that are run have a custom gate with the pulse schedule attached to it
+        through the calibrations. The circuits are therefore of the form:
 
-                   ┌─────┐       ┌─────┐ ░ ┌─┐
-              q_0: ┤ Cal ├─ ... ─┤ Cal ├─░─┤M├
-                   └─────┘       └─────┘ ░ └╥┘
-        measure: 1/════════ ... ════════════╩═
-                                            0
+        .. parsed-literal::
 
-    Here, Cal is the name of the gate which will be taken from the name of the schedule.
-    The user can optionally add a square-root of X pulse before the Cal gates are repeated.
-    This square-root of X pulse allows the analysis to differentiate between over rotations
-    and under rotations in the case of pi-pulses. Importantly, the resulting data is analyzed
-    by a fit to a cosine function in which we try and determine the over/under rotation given
-    an intended rotation angle per gate which must also be specified by the user. The steps
-    to run a fine amplitude calibration experiment are therefore
+                       ┌─────┐       ┌─────┐ ░ ┌─┐
+                  q_0: ┤ Cal ├─ ... ─┤ Cal ├─░─┤M├
+                       └─────┘       └─────┘ ░ └╥┘
+            measure: 1/════════ ... ════════════╩═
+                                                0
 
-    .. code-block:: python
+        Here, Cal is the name of the gate which will be taken from the name of the schedule.
+        The user can optionally add a square-root of X pulse before the Cal gates are repeated.
+        This square-root of X pulse allows the analysis to differentiate between over rotations
+        and under rotations in the case of pi-pulses. Importantly, the resulting data is analyzed
+        by a fit to a cosine function in which we try and determine the over/under rotation given
+        an intended rotation angle per gate which must also be specified by the user.
 
-        qubit = 3
-        amp_cal = FineAmplitude(qubit)
-        amp_cal.set_schedule(
-            schedule=x90p,
-            angle_per_gate=np.pi/2,
-            add_xp_circuit=False,
-            add_sx=False
-        )
-        amp_cal.run(backend)
+        Error amplifying experiments are most sensitive to angle errors when we measure points along
+        the equator of the Block sphere. This is why users should insert a square-root of X pulse
+        before running calibrations for :math:`\pm\pi` rotations. Furthermore, when running
+        calibrations for :math:`\pm\pi/2` rotations users are advised to use an odd number of
+        repetitions, e.g. [1, 2, 3, 5, 7, ...] to ensure that the ideal points are on the equator
+        of the Bloch sphere. Note the presence of two repetitions which allows us to prepare the
+        excited state. Therefore, add_xp_circuit = True is not needed in this case.
 
-    Note that the schedule and angle_per_gate could have been set by independently calling
-    :meth:`set_experiment_options` for the schedule and :meth:`set_analysis_options` for
-    the angle_per_gate.
+        Users can call :meth:`set_schedule` to conveniently set the schedule and the corresponding
+        experiment and analysis options.
 
-    Error amplifying experiments are most sensitive to angle errors when we measure points along
-    the equator of the Block sphere. This is why users should insert a square-root of X pulse
-    before running calibrations for :math:`\pm\pi` rotations. Furthermore, when running
-    calibrations for :math:`\pm\pi/2` rotations users are advised to use an odd number of
-    repetitions, e.g. [1, 2, 3, 5, 7, ...] to ensure that the ideal points are on the equator
-    of the Bloch sphere. Note the presence of two repetitions which allows us to prepare the
-    excited state. Therefore, add_xp_circuit = True is not needed in this case.
+    # section: example
 
-    **Summary of experiment options**
 
-    * repetitions: A list with the number of times the gate of interest will be repeated.
-    * schedule: The schedule of the gate that will be repeated.
-    * add_sx: A boolean which if set to True will add a square-root of X before the repetitions
-      of the gate of interest. Set this to True if you are calibrating gates with an ideal
-      rotation angle per gate of :math:`\pm\pi`. The default value is False.
-    * add_xp_circuit: A boolean which if set to True will cause the experiment to run an
-      additional circuit with an X gate and a measurement. This prepares the excited state
-      and is typically crucial to get the correct sign for the magnitude of the error in
-      the rotation angle. The default value is True.
-    * sx_schedule: Allows users to set a schedule for the square-root of X gate.
+        The steps to run a fine amplitude calibration experiment are
 
-    **Summary of analysis options**
+        .. code-block:: python
 
-    * angle_per_gate: The ideal angle per repeated gate. The user must set this options.
-    * phase_offset: A phase offset for the analysis. This phase offset will be :math:`\pi/2`
-      if the square-root of X gate is added before the repeated gates. This is decided for
-      the user in :meth:`set_schedule` depending on whether the sx gate is included in the
-      experiment.
+            qubit = 3
+            amp_cal = FineAmplitude(qubit)
+            amp_cal.set_schedule(
+                schedule=x90p,
+                angle_per_gate=np.pi/2,
+                add_xp_circuit=False,
+                add_sx=False
+            )
+            amp_cal.run(backend)
 
-    Users can call :meth:`set_schedule` to conveniently set the schedule and the corresponding
-    experiment and analysis options.
+        Note that the ``schedule`` and ``angle_per_gate`` could have been set by independently calling
+        :meth:`set_experiment_options` for the ``schedule`` and :meth:`set_analysis_options` for
+        the ``angle_per_gate``.
+
+
+    # section: reference
+        .. ref_arxiv:: 1 1504.06597
     """
 
     __analysis_class__ = FineAmplitudeAnalysis
@@ -114,7 +103,20 @@ class FineAmplitude(BaseExperiment):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default values for the fine amplitude experiment."""
+        r"""Default values for the fine amplitude experiment.
+
+        Experiment Options:
+            repetitions (List[int]): A list of the number of times that the gate is repeated.
+            schedule (ScheduleBlock): The schedule attached to the gate that will be repeated.
+            normalization (bool): If set to True the DataProcessor will normalized the
+                measured signal to the interval [0, 1]. Defaults to True.
+            add_sx (bool): If True then the circuits will start with an sx gate. This is typically
+                needed when calibrating pulses with a target rotation angle of :math:`\pi`. The
+                default value is False.
+            add_xp_circuit (bool): If set to True then a circuit with only an X gate will also be
+                run. This allows the analysis class to determine the correct sign for the amplitude.
+            sx_schedule (ScheduleBlock): The schedule to attache to the SX gate.
+        """
         options = super()._default_experiment_options()
         options.repetitions = list(range(15))
         options.schedule = None
@@ -273,11 +275,25 @@ class FineAmplitude(BaseExperiment):
 
 
 class FineXAmplitude(FineAmplitude):
-    r"""A fine amplitude experiment with all the options set for the :math:`\pi`-rotation."""
+    r"""A fine amplitude experiment with all the options set for the :math:`\pi`-rotation.
+
+    # section: overview
+
+        :class:`FineXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
+        the appropriate values for the default options.
+    """
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default values for the fine amplitude experiment."""
+        r"""Default values for the fine amplitude experiment.
+
+        Experiment Options:
+            add_sx (bool): This option is True by default when calibrating gates with a target
+                angle per gate of :math:`\pi` as this increases the sensitivity of the
+                experiment.
+            add_xp_circuit (bool): This option is True by default when calibrating gates with
+                a target angle per gate of :math:`\pi`.
+        """
         options = super()._default_experiment_options()
         options.add_sx = True
         options.add_xp_circuit = True
@@ -295,11 +311,29 @@ class FineXAmplitude(FineAmplitude):
 
 
 class FineSXAmplitude(FineAmplitude):
-    r"""A fine amplitude experiment with all the options set for the :math:`\pi/2`-rotation."""
+    r"""A fine amplitude experiment with all the options set for the :math:`\pi/2`-rotation.
+
+    # section: overview
+
+        :class:`FineSXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
+        the appropriate values for the default options.
+    """
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default values for the fine amplitude experiment."""
+        r"""Default values for the fine amplitude experiment.
+
+        Experiment Options:
+            add_sx (bool): This option is False by default when calibrating gates with a target
+                angle per gate of :math:`\pi/2` as this increases the sensitivity of the
+                experiment.
+            add_xp_circuit (bool): This option is False by default when calibrating gates with
+                a target angle per gate of :math:`\pi/2`.
+            repetitions (List[int]): By default the repetitions take on odd numbers for
+                :math:`\pi/2` target angles as this ideally prepares states on the equator of
+                the Bloch sphere. Note that the repetitions include two repetitions which
+                plays the same role as including a circuit with an X gate.
+        """
         options = super()._default_experiment_options()
         options.add_sx = False
         options.add_xp_circuit = False
