@@ -68,6 +68,12 @@ class Rabi(BaseExperiment):
 
             rabi.set_experiment_options(schedule=rabi_schedule)
 
+        Experiment Options:
+            duration (int): The duration of the default Gaussian pulse.
+            sigma (float): The standard deviation of the default Gaussian pulse.
+            amplitudes (iterable): The list of amplitude values to scan.
+            schedule (ScheduleBlock): The schedule for the Rabi pulse that overrides the default.
+
         """
         return Options(
             duration=160,

@@ -107,6 +107,20 @@ class DragCal(BaseExperiment):
         .. code-block::
 
             drag.set_experiment_options(rp=xp_schedule, rm=xm_schedule)
+
+        Experiment Options:
+            rp (ScheduleBlock): The schedule for the plus rotation.
+            rm (ScheduleBlock): The schedule for the minus rotation. If this schedule is
+                not specified it will be build from the rp schedule by sandwiching it
+                between phase shift gates with an angle of :math:`\pi`.
+            amp (complex): The amplitude for the default Drag pulse. Must have a magnitude
+                smaller than one.
+            duration (int): The duration of the default pulse in samples.
+            sigma (float): The standard deviation of the default pulse.
+            reps (List[int]): The number of times the Rp - Rm gate sequence is repeated in
+                each series. Note that this list must always have a length of three as
+                otherwise the analysis class will not run.
+            betas (Iterable): the values of the DRAG parameter to scan.
         """
         options = super()._default_experiment_options()
 

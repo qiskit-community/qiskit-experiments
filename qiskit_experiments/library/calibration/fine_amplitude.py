@@ -116,7 +116,20 @@ class FineAmplitude(BaseExperiment):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default values for the fine amplitude experiment."""
+        """Default values for the fine amplitude experiment.
+
+        Experiment Options:
+            repetitions (List[int]): A list of the number of times that the gate is repeated.
+            schedule (ScheduleBlock): The schedule attached to the gate that will be repeated.
+            normalization (bool): If set to True the DataProcessor will normalized the
+                measured signal to the interval [0, 1]. Defaults to True.
+            add_sx (bool): If True then the circuits will start with an sx gate. This is typically
+                needed when calibrating pulses with a target rotation angle of :math:`\pi`. The
+                default value is False.
+            add_xp_circuit (bool): If set to True then a circuit with only an X gate will also be
+                run. This allows the analysis class to determine the correct sign for the amplitude.
+            sx_schedule (ScheduleBlock): The schedule to attache to the SX gate.
+        """
         options = super()._default_experiment_options()
         options.repetitions = list(range(15))
         options.schedule = None
