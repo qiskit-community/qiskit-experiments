@@ -602,7 +602,7 @@ class DbExperimentDataV1(DbExperimentData):
         # Get job results if missing experiment data.
         if self.service and (not self._analysis_results or refresh):
             retrieved_results = self.service.analysis_results(
-                experiment_id=self.experiment_id, limit=None
+                experiment_id=self.experiment_id, limit=None, json_decoder=self._json_decoder
             )
             for result in retrieved_results:
                 result_id = result["result_id"]
@@ -748,7 +748,7 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             The loaded experiment data.
         """
-        service_data = service.experiment(experiment_id, decoder=cls._json_decoder)
+        service_data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
 
         # Parse serialized metadata
         metadata = service_data.pop("metadata")

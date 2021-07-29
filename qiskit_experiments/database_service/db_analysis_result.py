@@ -137,7 +137,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             The loaded analysis result.
         """
         # Load data from the service
-        service_data = service.analysis_result(result_id, decoder=cls._json_decoder)
+        service_data = service.analysis_result(result_id, json_decoder=cls._json_decoder)
         result = cls._from_service_data(service_data)
         result._created_in_db = True
         return result
@@ -165,8 +165,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
         if isinstance(value, (int, float, bool)):
             result_data["value"] = float(value)
         elif isinstance(value, FitVal):
-            if isinstance(value.value, (int, float, bool)):
-                result_data["value"] = float(value.value)
+            if isinstance(value.value, (int, float)):
+                result_data["value"] = value.value
             if isinstance(value.stderr, (int, float)):
                 result_data["variance"] = value.stderr ** 2
             if isinstance(value.unit, str):
