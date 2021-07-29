@@ -15,6 +15,7 @@
 import io
 import logging
 import threading
+import traceback
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 from datetime import datetime, timezone
@@ -25,6 +26,17 @@ import pkg_resources
 from dateutil import tz
 from qiskit.version import __version__ as terra_version
 
+try:
+    from qiskit.providers.ibmq.experiment import (
+        IBMExperimentEntryExists,
+        IBMExperimentEntryNotFound,
+    )
+
+    HAS_IBMQ = True
+except ImportError:
+    HAS_IBMQ = False
+
+from .exceptions import DbExperimentEntryNotFound, DbExperimentEntryExists, DbExperimentDataError
 from ..version import __version__ as experiments_version
 
 LOG = logging.getLogger(__name__)
@@ -112,28 +124,32 @@ def save_data(
         DbExperimentDataError: If unable to determine whether the entry exists.
     """
     attempts = 0
-    # Attempt 3x for the unlikely scenario wherein is_new=False but the
-    # entry doesn't actually exists. The second try might also fail if an entry
-    # with the same ID somehow got created in the meantime.
-    errors = []
-    while attempts < 3:
-        attempts += 1
-        if is_new:
-            try:
-                return True, new_func(**{**new_data, **update_data})
-            except Exception as err:  # pylint: disable=broad-except
-                errors.append(str(err))
-                is_new = False
-        else:
-            try:
-                return True, update_func(**update_data)
-            except Exception as err:  # pylint: disable=broad-except
-                errors.append(str(err))
-                is_new = True
-
-    # Don't fail the experiment just because its data cannot be saved.
-    LOG.error("Unable to save experiment data: %s", "\n".join(errors))
-    return False, None
+    no_entry_exception = [DbExperimentEntryNotFound]
+    dup_entry_exception = [DbExperimentEntryExists]
+    if HAS_IBMQ:
+        no_entry_exception.append(IBMExperimentEntryNotFound)
+        dup_entry_exception.append(IBMExperimentEntryExists)
+    try:
+        # Attempt 3x for the unlikely scenario wherein is_new=False but the
+        # entry doesn't actually exists. The second try might also fail if an entry
+        # with the same ID somehow got created in the meantime.
+        while attempts < 3:
+            attempts += 1
+            if is_new:
+                try:
+                    return True, new_func(**{**new_data, **update_data})
+                except tuple(dup_entry_exception):
+                    is_new = False
+            else:
+                try:
+                    return True, update_func(**update_data)
+                except tuple(no_entry_exception):
+                    is_new = True
+        raise DbExperimentDataError("Unable to determine the existence of the entry.")
+    except Exception:  # pylint: disable=broad-except
+        # Don't fail the experiment just because its data cannot be saved.
+        LOG.error("Unable to save the experiment data: %s", traceback.format_exc())
+        return False, None
 
 
 class ThreadSafeContainer(ABC):
