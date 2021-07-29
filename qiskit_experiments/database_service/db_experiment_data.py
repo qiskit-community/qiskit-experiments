@@ -620,7 +620,7 @@ class DbExperimentDataV1(DbExperimentData):
                     * None: Return all analysis results.
                     * int: Specific index of the analysis results.
                     * slice: A list slice of indexes.
-                    * str: ID of the analysis result.
+                    * str: ID or name of the analysis result.
             refresh: Retrieve the latest analysis results from the server, if
                 an experiment service is available.
 
