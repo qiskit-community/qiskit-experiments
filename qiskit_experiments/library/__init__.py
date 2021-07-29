@@ -34,6 +34,7 @@ Characterization Experiments
 
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
     ~characterization.T1
     ~characterization.T2Ramsey

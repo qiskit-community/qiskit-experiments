@@ -21,6 +21,7 @@ Experiments
 ===========
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
     T1
     T2Ramsey
@@ -32,6 +33,7 @@ Analysis
 
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
     T1Analysis
     T2RamseyAnalysis

@@ -31,26 +31,30 @@ from qiskit_experiments.curve_analysis.data_processing import level2_probability
 class T1Analysis(BaseAnalysis):
     r"""A class to analyze T1 experiments.
 
-    Fit Model
+    #section: fit Model
         The fit is based on the following decay function.
 
         .. math::
 
             F(x) = a e^{-x/t1} + b
 
-    Fit Parameters
-        - :math:`amplitude`: Height of the decay curve
-        - :math:`offset`: Base line of the decay curve
-        - :math:`t1`: This is the fit parameter of main interest
+    #section: fit Parameters
+       defpar amplitude:
+           desc: Height of the decay curve.
+           init_guess: Determined by :math:`(y_0 - offset\_guess)`.
 
-    Initial Guesses
-        - :math:`amplitude\_guess`: Determined by :math:`(y_0 - offset\_guess)`
-        - :math:`offset\_guess`: Determined by the last :math:`y`
-        - :math:`t1\_guess`: Determined by the mean of the data points
+       defpar offset:
+           desc: Base line of the decay curve.
+           init_guess: Determined by the last :math:`y`.
+
+       defpar t1:
+           desc: This is the fit parameter of main interest.
+           init_guess: Determined by the mean of the data points.
     """
 
     @classmethod
     def _default_options(cls):
+        """Default analysis options"""
         return Options(
             t1_guess=None,
             amplitude_guess=None,
