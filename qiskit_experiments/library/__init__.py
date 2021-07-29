@@ -17,14 +17,10 @@ Experiment Library (:mod:`qiskit_experiments.library`)
 
 .. currentmodule:: qiskit_experiments.library
 
-This provides a set of standard experiments in three groups, namely characterization,
-calibration, and verification.
-Though Qiskit Experiments is a framework that is agnostic to the underlying hardware architecture,
-our collection may lean towards superconducting quantum processors which IBM develops.
-
-We are still actively developing this library. If you cannot find experiment you need
-and if you find that is quite useful, please feel free to write a feature request in our
-`Github <https://github.com/Qiskit/qiskit-experiments/issues>`_.
+A library of of quantum characterization, calibration and verification
+experiments for calibrating and benchmarking quantum devices. See
+:mod:`qiskit_experiments.framework` for general information the framework
+for running experiments.
 
 
 .. _verification:
@@ -32,16 +28,7 @@ and if you find that is quite useful, please feel free to write a feature reques
 Verification Experiments
 ========================
 
-.. epigraph::
-
-    "Verification involves verifying that a control operation implements a
-    desired ideal operation to within a specified precision.
-
-    Validation is demonstrating that a quantum information processor can solve specific problems."
-
-    -- Joel Wallman, Steven Flammia and Ian Hincks
-
-This group provides a set of experiments for verification and validation of quantum processor.
+Experiments for verification and validation of quantum devices.
 
 .. autosummary::
     :toctree: ../stubs/
@@ -57,15 +44,8 @@ This group provides a set of experiments for verification and validation of quan
 Characterization Experiments
 ============================
 
-.. epigraph::
-
-    "Characterization means determining the effect of control operations on a quantum system,
-    and the nature of external noise acting on the quantum system."
-
-    -- Joel Wallman, Steven Flammia and Ian Hincks
-
-This group provides a set of experiments for characterizing a quantum processor.
-Some experiments may be used for the calibration as well.
+Experiments for characterization of qubits and quantum device properties.
+Some experiments may be also used for gate calibration.
 
 .. autosummary::
     :toctree: ../stubs/
@@ -80,8 +60,8 @@ Some experiments may be used for the calibration as well.
 Calibration Experiments
 =======================
 
-This group provides a set of experiments for creating a quantum gate.
-These experiments are usually run with a
+Experiments for pulse level calibration of quantum gates. These experiments
+are usually run with a
 :py:class:`~qiskit_experiments.calibration_management.Calibrations`
 class instance to manage parameters and pulse schedules.
 See :doc:`/tutorials/calibrating_armonk` for example.

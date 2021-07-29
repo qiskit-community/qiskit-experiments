@@ -2,28 +2,28 @@
 Qiskit Experiments Documentation
 ################################
 
-About Qiskit Experiment
-=======================
+About Qiskit Experiments
+========================
 
-Qiskit Experiments provides for a fundamental framework to perform quantum physics experiments
-along with a library of standard experiments for quantum characterization, verification, validation and calibration.
-This also supports the application platform interface connecting to the remote database for the experiment result management.
-Experimentalits can also develop own experiment library on top of the experiment framework for their inhouse quantum systems.
+Qiskit Experiments provides both a `library <apidocs/library>`_ of standard
+quantum characterization, calibration, and verification experiments, and a
+general `framework <apidocs/framework>`_ for implementing custom experiments
+which can be run on quantum devices through Qiskit.
+
+Experiments run on `IBMQ Provider <https://github.com/Qiskit/qiskit-ibmq-provider>`_
+backends can be stored and retrieved from an online experiment
+`database <apidocs/database_service>`_.
 
 .. warning::
 
-   This package is still under active development, there will be breaking
-   API changes, and re-organization of the package layout. If you
-   encounter any bugs please open an issue on
+   This package is still under active development and it is very likely
+   that there will be breaking API changes in future releases.
+   If you encounter any bugs please open an issue on
    `Github <https://github.com/Qiskit/qiskit-experiments/issues>`_
 
 
 Table of Contents
 =================
-
-The following is a list of automatically generated API documentation for Qiskit Experiments.
-If you are very new to this project, the :doc:`overview </apidocs/index>` is a good place to start. The :doc:`tutorials </tutorials/index>` also have hands-on examples for running many experiments.
-
 
 .. toctree::
   :maxdepth: 2
