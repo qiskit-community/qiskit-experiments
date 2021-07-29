@@ -28,44 +28,52 @@ from qiskit_experiments.curve_analysis import (
 class FineAmplitudeAnalysis(CurveAnalysis):
     r"""Fine amplitude analysis class based on a fit to a cosine function.
 
-    Analyse a fine amplitude calibration experiment by fitting the data to a cosine function.
-    The user must also specify the intended rotation angle per gate, here labeled,
-    :math:`{\rm apg}`. The parameter of interest in the
-    fit is the deviation from the intended rotation angle per gate labeled :math:`{\rm d}\theta`.
-    The fit function is
+    # section: fit_model
 
-    .. math::
-        y = {\rm amp}/2\cos\left(x[{\rm d}\theta + {\rm apg} ]+{\rm phase\_offset}\right)+baseline
+        Analyse a fine amplitude calibration experiment by fitting the data to a cosine function.
+        The user must also specify the intended rotation angle per gate, here labeled,
+        :math:`{\rm apg}`. The parameter of interest in the
+        fit is the deviation from the intended rotation angle per gate labeled
+        :math:`{\rm d}\theta`. The fit function is
 
-    Fit Parameters
-        - :math:`amp`: Amplitude of the oscillation.
-        - :math:`baseline`: Base line.
-        - :math:`{\rm d}\theta`: The angle offset in the gate that we wish to measure.
+        .. math::
+            y = \frac{{\rm amp}}{2}\cos\left(x[{\rm d}\theta + {\rm apg} ] \
+            +{\rm phase\_offset}\right)+{\rm base}
 
-    Initial Guesses
-        - :math:`amp`: The maximum y value less the minimum y value.
-        - :math:`baseline`: The average of the data.
-        - :math:`{\rm d}\theta`: Zero.
+    # section: fit_parameters
+        defpar \rm amp:
+            desc: Amplitude of the oscillation.
+            init_guess: The maximum y value less the minimum y value.
+            bounds: [-2, 2] scaled to the maximum signal value.
 
-    Bounds
-        - :math:`amp`: [-2, 2] scaled to the maximum signal value.
-        - :math:`baseline`: [-1, 1] scaled to the maximum signal value.
-        - :math:`{\rm d}\theta`: [-pi, pi].
+        defpar \rm base:
+            desc: Base line.
+            init_guess: The average of the data.
+            bounds: [-1, 1] scaled to the maximum signal value.
 
-    Fixed-value parameters:
-        - :math:`{\rm apg}` The angle per gate is set by the user, for example pi for a pi-pulse.
-        - :math:`{\rm phase\_offset}` The phase offset in the cosine oscillation, for example,
+        defpar d\theta:
+            desc: The angle offset in the gate that we wish to measure.
+            init_guess: Multiple initial guesses are tried ranging from -a to a
+                where a is given by :code:`max(abs(angle_per_gate), np.pi / 2)`.
+            bounds: [-pi, pi].
+
+    # section: note
+
+        The following is a list of fixed-valued parameters that enter the fit.
+
+        * :math:`{\rm apg}` The angle per gate is set by the user, for example pi for a pi-pulse.
+        * :math:`{\rm phase\_offset}` The phase offset in the cosine oscillation, for example,
           :math:`\pi/2` if a square-root of X gate is added before the repeated gates.
     """
 
     __series__ = [
         SeriesDef(
-            fit_func=lambda x, amp, d_theta, phase_offset, baseline, angle_per_gate: fit_function.cos(
+            fit_func=lambda x, amp, d_theta, phase_offset, base, angle_per_gate: fit_function.cos(
                 x,
                 amp=0.5 * amp,
                 freq=(d_theta + angle_per_gate) / (2 * np.pi),
                 phase=phase_offset,
-                baseline=baseline,
+                baseline=base,
             ),
             plot_color="blue",
         )
@@ -76,14 +84,25 @@ class FineAmplitudeAnalysis(CurveAnalysis):
 
     @classmethod
     def _default_options(cls):
-        """Return the default analysis options.
+        r"""Return the default analysis options.
 
         See :meth:`~qiskit_experiment.curve_analysis.CurveAnalysis._default_options` for
         descriptions of analysis options.
+
+        Analysis Options:
+            angle_per_gate (float): The ideal angle per repeated gate.
+                The user must set this option as it defaults to None.
+            phase_offset (float): A phase offset for the analysis. This phase offset will be
+                :math:`\pi/2` if the square-root of X gate is added before the repeated gates.
+                This is decided for the user in :meth:`set_schedule` depending on whether the
+                sx gate is included in the experiment.
+            number_of_guesses (int): The number of initial guesses to try.
+            max_good_angle_error (float): The maximum angle error for which the fit is
+                considered as good. Defaults to :math:`\pi/2`.
         """
         default_options = super()._default_options()
-        default_options.p0 = {"amp": None, "d_theta": None, "phase": None, "baseline": None}
-        default_options.bounds = {"amp": None, "d_theta": None, "phase": None, "baseline": None}
+        default_options.p0 = {"amp": None, "d_theta": None, "phase": None, "base": None}
+        default_options.bounds = {"amp": None, "d_theta": None, "phase": None, "base": None}
         default_options.fit_reports = {"d_theta": "d_theta"}
         default_options.xlabel = "Number of gates (n)"
         default_options.ylabel = "Population"
@@ -121,12 +140,12 @@ class FineAmplitudeAnalysis(CurveAnalysis):
                 "p0": {
                     "amp": user_p0["amp"] or a_guess,
                     "d_theta": angle,
-                    "baseline": b_guess,
+                    "base": b_guess,
                 },
                 "bounds": {
                     "amp": user_bounds.get("amp", None) or (-2 * max_abs_y, 2 * max_abs_y),
                     "d_theta": user_bounds.get("d_theta", None) or (-np.pi, np.pi),
-                    "baseline": user_bounds.get("d_theta", None) or (-1 * max_abs_y, 1 * max_abs_y),
+                    "base": user_bounds.get("d_theta", None) or (-1 * max_abs_y, 1 * max_abs_y),
                 },
             }
 

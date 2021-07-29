@@ -56,7 +56,7 @@ class TestDragEndToEnd(QiskitTestCase):
         expdata = drag.run(backend)
         expdata.block_for_results()
         result = expdata.analysis_results(0)
-        result_data = result.data()
+        result_data = result.extra
 
         self.assertTrue(abs(result_data["popt"][4] - backend.ideal_beta) < test_tol)
         self.assertEqual(result.quality, "good")
@@ -71,7 +71,7 @@ class TestDragEndToEnd(QiskitTestCase):
         exp_data = drag.run(backend)
         exp_data.block_for_results()
         result = exp_data.analysis_results(0)
-        result_data = result.data()
+        result_data = result.extra
 
         meas_level = exp_data.metadata()["job_metadata"][-1]["run_options"]["meas_level"]
 
@@ -90,7 +90,7 @@ class TestDragEndToEnd(QiskitTestCase):
         exp_data = drag.run(backend)
         exp_data.block_for_results()
         result = exp_data.analysis_results(0)
-        result_data = result.data()
+        result_data = result.extra
 
         meas_level = exp_data.metadata()["job_metadata"][-1]["run_options"]["meas_level"]
 

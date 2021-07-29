@@ -88,6 +88,7 @@ See :doc:`/tutorials/calibrating_armonk` for example.
 
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
     ~calibration.DragCal
     ~calibration.Rabi
