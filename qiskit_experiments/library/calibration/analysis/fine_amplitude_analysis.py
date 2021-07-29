@@ -53,7 +53,8 @@ class FineAmplitudeAnalysis(CurveAnalysis):
 
         defpar d\theta:
             desc: The angle offset in the gate that we wish to measure.
-            init_guess: Zero.
+            init_guess: Multiple initial guesses are tried ranging from -a to a
+                where a is given by :code:`max(abs(angle_per_gate), np.pi / 2)`.
             bounds: [-pi, pi].
 
     # section: note
