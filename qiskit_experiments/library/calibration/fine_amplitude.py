@@ -65,7 +65,8 @@ class FineAmplitude(BaseExperiment):
         Users can call :meth:`set_schedule` to conveniently set the schedule and the corresponding
         experiment and analysis options.
 
-        # section: example
+    # section: example
+
 
         The steps to run a fine amplitude calibration experiment are
 
