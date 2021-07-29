@@ -300,14 +300,15 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
 
         results, _ = analysis._run_analysis(test_data, **default_opts.__dict__)
         result = results[0]
+        extra = result.extra
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
 
         # check result data
-        np.testing.assert_array_almost_equal(result["popt"], ref_popt, decimal=self.err_decimal)
-        self.assertEqual(result["dof"], 46)
-        self.assertListEqual(result["xrange"], [0.1, 1.0])
-        self.assertListEqual(result["popt_keys"], ["p0", "p1", "p2", "p3"])
+        np.testing.assert_array_almost_equal(extra["popt"], ref_popt, decimal=self.err_decimal)
+        self.assertEqual(extra["dof"], 46)
+        self.assertListEqual(extra["xrange"], [0.1, 1.0])
+        self.assertListEqual(extra["popt_keys"], ["p0", "p1", "p2", "p3"])
 
     def test_run_single_curve_fail(self):
         """Test analysis returns status when it fails."""
@@ -338,12 +339,10 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
 
         # Try to fit with infeasible parameter boundary. This should fail.
         results, _ = analysis._run_analysis(test_data, **default_opts.__dict__)
-        result = results[0]
-
-        self.assertFalse(result["success"])
-
-        ref_result_keys = ["analysis_type", "error_message", "success", "raw_data"]
-        self.assertSetEqual(set(result.keys()), set(ref_result_keys))
+        extra = results[0].extra
+        ref_result_keys = ["error_message", "raw_data", "success"]
+        self.assertSetEqual(set(extra.keys()), set(ref_result_keys))
+        self.assertFalse(extra["success"])
 
     def test_run_two_curves_with_same_fitfunc(self):
         """Test analysis for two curves. Curves shares fit model."""
@@ -393,7 +392,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3, "p4": ref_p4}
 
         results, _ = analysis._run_analysis(test_data0, **default_opts.__dict__)
-        result = results[0]
+        result = results[0].extra
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3, ref_p4])
 
@@ -447,7 +446,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3}
 
         results, _ = analysis._run_analysis(test_data0, **default_opts.__dict__)
-        result = results[0]
+        result = results[0].extra
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
 
@@ -484,7 +483,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         default_opts.fixed_p2 = ref_p2
 
         results, _ = analysis._run_analysis(test_data, **default_opts.__dict__)
-        result = results[0]
+        result = results[0].extra
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p3])
 

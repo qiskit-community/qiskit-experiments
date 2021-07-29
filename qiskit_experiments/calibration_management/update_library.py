@@ -119,7 +119,7 @@ class BaseUpdater(ABC):
             CalibrationError: If the analysis result does not contain a frequency variable.
         """
 
-        result = exp_data.analysis_results(result_index).data()
+        result = exp_data.analysis_results(result_index).extra
 
         if cls.__fit_parameter__ not in result["popt_keys"]:
             raise CalibrationError(
@@ -202,7 +202,7 @@ class Amplitude(BaseUpdater):
         if angles_schedules is None:
             angles_schedules = [(np.pi, "amp", "xp")]
 
-        result = exp_data.analysis_results(result_index).data()
+        result = exp_data.analysis_results(result_index).extra
 
         if isinstance(exp_data.experiment, Rabi):
             freq = result["popt"][result["popt_keys"].index("freq")]
