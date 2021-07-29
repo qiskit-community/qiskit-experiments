@@ -19,10 +19,10 @@ from typing import List, Tuple
 from qiskit.exceptions import QiskitError
 from qiskit.providers.options import Options
 
-from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.database_service import DbAnalysisResultV1
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework.experiment_data import ExperimentData
+from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
+from qiskit_experiments.database_service import DbAnalysisResultV1
 
 
 class BaseAnalysis(ABC):
@@ -69,7 +69,7 @@ class BaseAnalysis(ABC):
 
         Returns:
             List[DbAnalysisResultV1]: the output for analysis that produces
-                                    multiple results.
+                                  multiple results.
             Tuple: If ``return_figures=True`` the output is a pair
                    ``(analysis_results, figures)`` where  ``analysis_results``
                    may be a single or list of :class:`DbAnalysisResultV1` objects, and
@@ -83,49 +83,30 @@ class BaseAnalysis(ABC):
                 f"Invalid experiment data type, expected {self.__experiment_data__.__name__}"
                 f" but received {type(experiment_data).__name__}"
             )
+
+        # Get experiment device components
+        if "physical_qubits" in experiment_data.metadata():
+            experiment_components = [
+                Qubit(qubit) for qubit in experiment_data.metadata()["physical_qubits"]
+            ]
+        else:
+            experiment_components = []
+
         # Get analysis options
         analysis_options = self._default_options()
         analysis_options.update_options(**options)
         analysis_options = analysis_options.__dict__
 
         # Run analysis
-        analysis_result_parameters = {
-            "experiment_id": experiment_data.experiment_id,
-        }
-        if "physical_qubits" in experiment_data.metadata():
-            analysis_result_parameters["device_components"] = [
-                Qubit(qubit) for qubit in experiment_data.metadata()["physical_qubits"]
-            ]
-        else:
-            analysis_result_parameters["device_components"] = []
-        try:
-            result_datum, figures = self._run_analysis(experiment_data, **analysis_options)
-            analysis_results = []
-            for res in result_datum:
-                if "success" not in res:
-                    res["success"] = True
-                if "stderr" in res:
-                    res["variance"] = res["stderr"] ** 2
-                analysis_result = DbAnalysisResultV1(
-                    result_data=res,
-                    result_type=res.get("result_type", experiment_data.experiment_type),
-                    **analysis_result_parameters,
-                )
-                if "chisq" in res:
-                    analysis_result.chisq = res["chisq"]
-                if "quality" in res:
-                    analysis_result.quality = res["quality"]
-                analysis_results.append(analysis_result)
+        results, figures = self._run_analysis(experiment_data, **analysis_options)
 
-        except AnalysisError as ex:
-            analysis_results = [
-                DbAnalysisResultV1(
-                    result_data={"success": False, "error_message": ex},
-                    result_type=experiment_data.experiment_type,
-                    **analysis_result_parameters,
-                )
-            ]
-            figures = None
+        # Add components
+        analysis_results = [
+            self._format_analysis_result(
+                result, experiment_data.experiment_id, experiment_components
+            )
+            for result in results
+        ]
 
         # Save to experiment data
         if save:
@@ -138,10 +119,28 @@ class BaseAnalysis(ABC):
 
         return analysis_results
 
+    def _format_analysis_result(self, data, experiment_id, experiment_components=None):
+        """Format run analysis result to DbAnalysisResult"""
+        device_components = []
+        if data.device_components:
+            device_components = data.device_components
+        elif experiment_components:
+            device_components = experiment_components
+
+        return DbAnalysisResultV1(
+            name=data.name,
+            value=data.value,
+            device_components=device_components,
+            experiment_id=experiment_id,
+            chisq=data.chisq,
+            quality=data.quality,
+            extra=data.extra,
+        )
+
     @abstractmethod
     def _run_analysis(
         self, experiment_data: ExperimentData, **options
-    ) -> Tuple[List["AnalysisResultData"], List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         """Run analysis on circuit data.
 
         Args:
@@ -152,7 +151,7 @@ class BaseAnalysis(ABC):
 
         Returns:
             A pair ``(analysis_results, figures)`` where ``analysis_results``
-            may be a single or list of AnalysisResultData objects, and ``figures``
+            is a list of :class:`AnalysisResultData` objects, and ``figures``
             is a list of any figures for the experiment.
 
         Raises:

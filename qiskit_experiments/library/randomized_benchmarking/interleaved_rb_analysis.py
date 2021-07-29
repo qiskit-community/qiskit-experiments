@@ -16,6 +16,7 @@ from typing import List, Dict, Any, Union
 
 import numpy as np
 
+from qiskit_experiments.framework import AnalysisResultData, FitVal
 from qiskit_experiments.curve_analysis import (
     SeriesDef,
     CurveAnalysisResultData,
@@ -198,3 +199,43 @@ class InterleavedRBAnalysis(RBAnalysis):
         result_data["EPC_systematic_bounds"] = [max(systematic_err_l, 0), systematic_err_r]
 
         return result_data
+
+    def _run_analysis(self, experiment_data, **options):
+        """Run analysis on circuit data."""
+
+        analysis_results, figures = super()._run_analysis(experiment_data, **options)
+
+        # Manual formatting for analysis result
+        # This sort of post-processing should be refactored into CurveAnalysis
+        # so that it works with the AnalysisResult dataclasses
+        curve_result = analysis_results[0]
+        chisq = curve_result.chisq
+        quality = curve_result.quality
+        result_data = curve_result.extra
+
+        alpha = FitVal(get_opt_value(result_data, "alpha"), get_opt_error(result_data, "alpha"))
+        analysis_results.append(AnalysisResultData("alpha", alpha, chisq=chisq, quality=quality))
+
+        alpha_c = FitVal(
+            get_opt_value(result_data, "alpha_c"), get_opt_error(result_data, "alpha_c")
+        )
+        analysis_results.append(
+            AnalysisResultData("alpha_c", alpha_c, chisq=chisq, quality=quality)
+        )
+
+        if "EPC" in result_data:
+            extra = {}
+            for key in ["EPC_systematic_err", "EPC__systematic_bounds"]:
+                if key in result_data:
+                    extra[key] = result_data[key]
+            epc = FitVal(result_data["EPC"], result_data.get("EPC_err"))
+            analysis_results.append(
+                AnalysisResultData(
+                    "EPC",
+                    epc,
+                    chisq=chisq,
+                    quality=quality,
+                    extra=extra,
+                )
+            )
+        return analysis_results, figures
