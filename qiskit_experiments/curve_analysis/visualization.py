@@ -72,11 +72,12 @@ def plot_curve_fit(
         fit_params = result["popt"]
         param_keys = result["popt_keys"]
         fit_errors = result["popt_err"]
+        xmin, xmax = result["x_range"]
     else:
         fit_params = result.popt
         param_keys = result.popt_keys
         fit_errors = result.popt_err
-    xmin, xmax = result.x_range
+        xmin, xmax = result.x_range
 
     # Plot fit data
     xs = np.linspace(xmin, xmax, num_fit_points)
