@@ -15,18 +15,10 @@
 from typing import Any, Dict, List, Union
 import numpy as np
 
-from qiskit_experiments.curve_analysis import (
-    CurveAnalysis,
-    CurveAnalysisResultData,
-    SeriesDef,
-    fit_function,
-    guess,
-    get_opt_value,
-    get_opt_error,
-)
+import qiskit_experiments.curve_analysis as curve
 
 
-class OscillationAnalysis(CurveAnalysis):
+class OscillationAnalysis(curve.CurveAnalysis):
     r"""Oscillation analysis class based on a fit of the data to a cosine function.
 
     # section: fit_model
@@ -62,8 +54,8 @@ class OscillationAnalysis(CurveAnalysis):
     """
 
     __series__ = [
-        SeriesDef(
-            fit_func=lambda x, amp, freq, phase, base: fit_function.cos(
+        curve.SeriesDef(
+            fit_func=lambda x, amp, freq, phase, base: curve.fit_function.cos(
                 x, amp=amp, freq=freq, phase=phase, baseline=base
             ),
             plot_color="blue",
@@ -80,7 +72,7 @@ class OscillationAnalysis(CurveAnalysis):
         default_options = super()._default_options()
         default_options.p0 = {"amp": None, "freq": None, "phase": None, "base": None}
         default_options.bounds = {"amp": None, "freq": None, "phase": None, "base": None}
-        default_options.fit_reports = {"freq": "rate"}
+        default_options.result_parameters = ["freq"]
         default_options.xlabel = "Amplitude"
         default_options.ylabel = "Signal (arb. units)"
 
@@ -95,9 +87,9 @@ class OscillationAnalysis(CurveAnalysis):
 
         max_abs_y = np.max(np.abs(curve_data.y))
 
-        f_guess = guess.frequency(curve_data.x, curve_data.y)
-        b_guess = guess.constant_sinusoidal_offset(curve_data.y)
-        a_guess, _ = guess.max_height(curve_data.y - b_guess, absolute=True)
+        f_guess = curve.guess.frequency(curve_data.x, curve_data.y)
+        b_guess = curve.guess.constant_sinusoidal_offset(curve_data.y)
+        a_guess, _ = curve.guess.max_height(curve_data.y - b_guess, absolute=True)
 
         if user_p0["phase"] is not None:
             p_guesses = [user_p0["phase"]]
@@ -125,7 +117,7 @@ class OscillationAnalysis(CurveAnalysis):
 
         return fit_options
 
-    def _post_analysis(self, result_data: CurveAnalysisResultData) -> CurveAnalysisResultData:
+    def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -134,18 +126,16 @@ class OscillationAnalysis(CurveAnalysis):
             - less than 10 full periods, and
             - an error on the fit frequency lower than the fit frequency.
         """
-        fit_freq = get_opt_value(result_data, "freq")
-        fit_freq_err = get_opt_error(result_data, "freq")
+        fit_freq = fit_data.fitval("freq").value
+        fit_freq_err = fit_data.fitval("freq").stderr
 
         criteria = [
-            result_data["reduced_chisq"] < 3,
+            fit_data.reduced_chisq < 3,
             1.0 / 4.0 < fit_freq < 10.0,
             (fit_freq_err is None or (fit_freq_err < fit_freq)),
         ]
 
         if all(criteria):
-            result_data["quality"] = "good"
-        else:
-            result_data["quality"] = "bad"
+            return "good"
 
-        return result_data
+        return "bad"

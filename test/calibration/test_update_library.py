@@ -27,7 +27,6 @@ from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.update_library import Frequency, Amplitude, Drag
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
-from qiskit_experiments.curve_analysis import get_opt_value
 from qiskit_experiments.test.mock_iq_backend import DragBackend, MockFineAmp
 
 
@@ -79,8 +78,8 @@ class TestAmplitudeUpdate(QiskitTestCase):
         self.assertEqual(len(self.cals.parameters_table()), 4)
 
         # Now check the corresponding schedules
-        result = exp_data.analysis_results(-1).extra
-        rate = 2 * np.pi * result["popt"][1]
+        result = exp_data.analysis_results(1)
+        rate = 2 * np.pi * result.value.value
         amp = np.round(np.pi / rate, decimals=8)
         with pulse.build(name="xp") as expected:
             pulse.play(pulse.Gaussian(160, amp, 40), pulse.DriveChannel(self.qubit))
@@ -142,19 +141,17 @@ class TestFrequencyUpdate(QiskitTestCase):
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         exp_data = spec.run(backend)
         exp_data.block_for_results()
-        result = exp_data.analysis_results(0)
-        result_data = result.extra
-
-        value = get_opt_value(result_data, "freq")
+        result = exp_data.analysis_results(1)
+        value = result.value.value
 
         self.assertTrue(freq01 + peak_offset - 2e6 < value < freq01 + peak_offset + 2e6)
         self.assertEqual(result.quality, "good")
 
         # Test the integration with the BackendCalibrations
         cals = BackendCalibrations(FakeAthens())
-        self.assertNotEqual(cals.get_qubit_frequencies()[qubit], result_data["popt"][2])
+        self.assertNotEqual(cals.get_qubit_frequencies()[qubit], value)
         Frequency.update(cals, exp_data)
-        self.assertEqual(cals.get_qubit_frequencies()[qubit], result_data["popt"][2])
+        self.assertEqual(cals.get_qubit_frequencies()[qubit], value)
 
 
 class TestDragUpdate(QiskitTestCase):
@@ -198,11 +195,10 @@ class TestDragUpdate(QiskitTestCase):
 
         exp_data = drag.run(backend)
         exp_data.block_for_results()
-        result = exp_data.analysis_results(0)
-        result_data = result.extra
+        result = exp_data.analysis_results(1)
 
         # Test the fit for good measure.
-        self.assertTrue(abs(result_data["popt"][4] - backend.ideal_beta) < test_tol)
+        self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
         self.assertEqual(result.quality, "good")
 
         # Check schedules pre-update
@@ -212,5 +208,5 @@ class TestDragUpdate(QiskitTestCase):
         Drag.update(cals, exp_data, parameter="β", schedule="xp")
 
         # Check schedules post-update
-        expected = x_plus.assign_parameters({beta: result_data["popt"][4], chan: 1}, inplace=False)
+        expected = x_plus.assign_parameters({beta: result.value.value, chan: 1}, inplace=False)
         self.assertEqual(cals.get_schedule("xp", qubit), expected)
