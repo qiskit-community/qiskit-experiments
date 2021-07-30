@@ -29,37 +29,42 @@ from qiskit_experiments.curve_analysis import (
 class OscillationAnalysis(CurveAnalysis):
     r"""Oscillation analysis class based on a fit of the data to a cosine function.
 
-    Analyse oscillating data by fitting it to a cosine function
+    # section: fit_model
 
-    .. math::
+        Analyse oscillating data by fitting it to a cosine function
 
-        y = amp \cos\left(2 \pi {\rm freq} x + {\rm phase}\right) + baseline
+        .. math::
 
-    Fit Parameters
-        - :math:`amp`: Amplitude of the oscillation.
-        - :math:`baseline`: Base line.
-        - :math:`{\rm freq}`: Frequency of the oscillation. This is the fit parameter of interest.
-        - :math:`{\rm phase}`: Phase of the oscillation.
+            y = {\rm amp} \cos\left(2 \pi\cdot {\rm freq}\cdot x + {\rm phase}\right) + {\rm base}
 
-    Initial Guesses
-        - :math:`amp`: Calculated by :func:`~qiskit_experiments.curve_analysis.guess.max_height`.
-        - :math:`baseline`: Calculated by :func:`~qiskit_experiments.curve_analysis.\
-          guess.constant_sinusoidal_offset`.
-        - :math:`{\rm freq}`: Calculated by :func:`~qiskit_experiments.curve_analysis.\
-          guess.frequency`.
-        - :math:`{\rm phase}`: Zero.
+    # section: fit_parameters
+        defpar \rm amp:
+            desc: Amplitude of the oscillation.
+            init_guess: Calculated by :func:`~qiskit_experiments.curve_analysis.guess.max_height`.
+            bounds: [-2, 2] scaled to the maximum signal value.
 
-    Bounds
-        - :math:`amp`: [-2, 2] scaled to the maximum signal value.
-        - :math:`baseline`: [-1, 1] scaled to the maximum signal value.
-        - :math:`{\rm freq}`: [0, inf].
-        - :math:`{\rm phase}`: [-pi, pi].
+        defpar \rm base:
+            desc: Base line.
+            init_guess: Calculated by :func:`~qiskit_experiments.curve_analysis.\
+            guess.constant_sinusoidal_offset`.
+            bounds: [-1, 1] scaled to the maximum signal value.
+
+        defpar \rm freq:
+            desc: Frequency of the oscillation. This is the fit parameter of interest.
+            init_guess: Calculated by :func:`~qiskit_experiments.curve_analysis.\
+            guess.frequency`.
+            bounds: [0, inf].
+
+        defpar \rm phase:
+            desc: Phase of the oscillation.
+            init_guess: Zero.
+            bounds: [-pi, pi].
     """
 
     __series__ = [
         SeriesDef(
-            fit_func=lambda x, amp, freq, phase, baseline: fit_function.cos(
-                x, amp=amp, freq=freq, phase=phase, baseline=baseline
+            fit_func=lambda x, amp, freq, phase, base: fit_function.cos(
+                x, amp=amp, freq=freq, phase=phase, baseline=base
             ),
             plot_color="blue",
         )
@@ -73,8 +78,8 @@ class OscillationAnalysis(CurveAnalysis):
         descriptions of analysis options.
         """
         default_options = super()._default_options()
-        default_options.p0 = {"amp": None, "freq": None, "phase": None, "baseline": None}
-        default_options.bounds = {"amp": None, "freq": None, "phase": None, "baseline": None}
+        default_options.p0 = {"amp": None, "freq": None, "phase": None, "base": None}
+        default_options.bounds = {"amp": None, "freq": None, "phase": None, "base": None}
         default_options.fit_reports = {"freq": "rate"}
         default_options.xlabel = "Amplitude"
         default_options.ylabel = "Signal (arb. units)"
@@ -106,13 +111,13 @@ class OscillationAnalysis(CurveAnalysis):
                     "amp": user_p0["amp"] or a_guess,
                     "freq": user_p0["freq"] or f_guess,
                     "phase": p_guess,
-                    "baseline": user_p0["baseline"] or b_guess,
+                    "base": user_p0["base"] or b_guess,
                 },
                 "bounds": {
                     "amp": user_bounds["amp"] or (-2 * max_abs_y, 2 * max_abs_y),
                     "freq": user_bounds["freq"] or (0, np.inf),
                     "phase": user_bounds["phase"] or (-np.pi, np.pi),
-                    "baseline": user_bounds["baseline"] or (-1 * max_abs_y, 1 * max_abs_y),
+                    "base": user_bounds["base"] or (-1 * max_abs_y, 1 * max_abs_y),
                 },
             }
             fit_option.update(options)

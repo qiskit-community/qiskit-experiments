@@ -17,6 +17,7 @@ from typing import List, Dict, Any, Union
 
 import numpy as np
 
+from qiskit_experiments.framework import AnalysisResultData, FitVal
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data
 from .rb_utils import RBUtils
@@ -145,16 +146,6 @@ class RBAnalysis(curve.CurveAnalysis):
             data_index=mean_data_index,
         )
 
-    def _run_analysis(self, experiment_data, **options):
-        """Run analysis on circuit data."""
-        error_dict = options["error_dict"]
-        qubits = experiment_data.metadata()["physical_qubits"]
-        if not error_dict:
-            options["error_dict"] = RBUtils.get_error_dict_from_backend(
-                experiment_data.backend, qubits
-            )
-        return super()._run_analysis(experiment_data, **options)
-
     def _post_analysis(
         self, result_data: curve.CurveAnalysisResultData
     ) -> curve.CurveAnalysisResultData:
@@ -196,3 +187,47 @@ class RBAnalysis(curve.CurveAnalysis):
                     )
                 result_data["EPG"] = epg
         return result_data
+
+    def _run_analysis(self, experiment_data, **options):
+        """Run analysis on circuit data."""
+        error_dict = options["error_dict"]
+        qubits = experiment_data.metadata()["physical_qubits"]
+        if not error_dict:
+            options["error_dict"] = RBUtils.get_error_dict_from_backend(
+                experiment_data.backend, qubits
+            )
+        analysis_results, figures = super()._run_analysis(experiment_data, **options)
+
+        # Manual formatting for analysis result
+        # This sort of post-processing should be refactored into CurveAnalysis
+        # so that it works with the AnalysisResult dataclasses
+        curve_result = analysis_results[0]
+        chisq = curve_result.chisq
+        quality = curve_result.quality
+        result_data = curve_result.extra
+
+        alpha = FitVal(
+            curve.get_opt_value(result_data, "alpha"), curve.get_opt_error(result_data, "alpha")
+        )
+        analysis_results.append(AnalysisResultData("alpha", alpha, chisq=chisq, quality=quality))
+        if "EPC" in result_data:
+            analysis_results.append(
+                AnalysisResultData(
+                    "EPC",
+                    FitVal(result_data["EPC"], result_data.get("EPC_err")),
+                    chisq=chisq,
+                    quality=quality,
+                )
+            )
+        # TODO: the EPG dict should be broken up into separate
+        # analysis results for each gate on each qubit
+        if "EPG" in result_data:
+            analysis_results.append(
+                AnalysisResultData(
+                    "EPG",
+                    result_data["EPG"],
+                    chisq=chisq,
+                    quality=quality,
+                )
+            )
+        return analysis_results, figures

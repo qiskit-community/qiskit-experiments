@@ -17,10 +17,15 @@ from typing import List, Optional, Tuple, Dict
 import numpy as np
 
 from qiskit.utils import apply_prefix
-from qiskit_experiments.framework import BaseAnalysis, Options, ExperimentData
+from qiskit_experiments.framework import (
+    BaseAnalysis,
+    Options,
+    ExperimentData,
+    AnalysisResultData,
+    FitVal,
+)
 from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
 from qiskit_experiments.curve_analysis import curve_fit, plot_curve_fit, plot_errorbar, plot_scatter
-from qiskit_experiments.curve_analysis.curve_analysis_result_data import CurveAnalysisResultData
 from qiskit_experiments.curve_analysis.curve_fit import process_curve_data
 from qiskit_experiments.curve_analysis.data_processing import level2_probability
 
@@ -59,7 +64,7 @@ class T2RamseyAnalysis(BaseAnalysis):
         plot: bool = False,
         ax: Optional["AxesSubplot"] = None,
         **kwargs,
-    ) -> Tuple[List[CurveAnalysisResultData], List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         r"""Calculate T2Ramsey experiment.
 
         Args:
@@ -126,6 +131,13 @@ class T2RamseyAnalysis(BaseAnalysis):
         fit_result = curve_fit(
             osc_fit_fun, xdata, ydata, p0=list(p0.values()), sigma=sigma, bounds=bounds
         )
+        fit_result["circuit_unit"] = unit
+        if unit == "dt":
+            fit_result["dt"] = conversion_factor
+        quality = self._fit_quality(
+            fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
+        )
+        chisq = fit_result["reduced_chisq"]
 
         if plot and HAS_MATPLOTLIB:
             ax = plot_curve_fit(osc_fit_fun, fit_result, ax=ax)
@@ -137,30 +149,22 @@ class T2RamseyAnalysis(BaseAnalysis):
             figures = None
 
         # Output unit is 'sec', regardless of the unit used in the input
-        result_t2 = {
-            "value": fit_result["popt"][1],
-            "stderr": fit_result["popt_err"][1],
-            "unit": "s",
-            "result_type": "T2Ramsey",
-        }
-        result_freq = {
-            "value": fit_result["popt"][2],
-            "stderr": fit_result["popt_err"][2],
-            "unit": "Hz",
-            "result_type": "RamseyFrequency",
-        }
-
-        quality = self._fit_quality(
-            fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
+        result_t2 = AnalysisResultData(
+            "T2",
+            value=FitVal(fit_result["popt"][1], fit_result["popt_err"][1], "s"),
+            quality=quality,
+            chisq=chisq,
+            extra=fit_result,
         )
-        for res in [result_t2, result_freq]:
-            res["fit"] = fit_result
-            res["quality"] = quality
-            res["fit"]["circuit_unit"] = unit
-            if unit == "dt":
-                res["fit"]["dt"] = conversion_factor
+        result_freq = AnalysisResultData(
+            "Frequency",
+            value=FitVal(fit_result["popt"][2], fit_result["popt_err"][2], "Hz"),
+            quality=quality,
+            chisq=chisq,
+            extra=fit_result,
+        )
 
-        return [CurveAnalysisResultData(result_t2), CurveAnalysisResultData(result_freq)], figures
+        return [result_t2, result_freq], figures
 
     def _t2ramsey_default_params(
         self,

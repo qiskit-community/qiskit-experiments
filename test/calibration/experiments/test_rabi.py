@@ -71,10 +71,9 @@ class TestRabiEndToEnd(QiskitTestCase):
         expdata = rabi.run(backend)
         expdata.block_for_results()
         result = expdata.analysis_results(0)
-        result_data = result.data()
 
         self.assertEqual(result.quality, "good")
-        self.assertTrue(abs(result_data["popt"][1] - backend.rabi_rate) < test_tol)
+        self.assertTrue(abs(result.value.value[1] - backend.rabi_rate) < test_tol)
 
         backend = RabiBackend(amplitude_to_angle=np.pi / 2)
 
@@ -83,9 +82,8 @@ class TestRabiEndToEnd(QiskitTestCase):
         expdata = rabi.run(backend)
         expdata.block_for_results()
         result = expdata.analysis_results(0)
-        result_data = result.data()
         self.assertEqual(result.quality, "good")
-        self.assertTrue(abs(result_data["popt"][1] - backend.rabi_rate) < test_tol)
+        self.assertTrue(abs(result.value.value[1] - backend.rabi_rate) < test_tol)
 
         backend = RabiBackend(amplitude_to_angle=2.5 * np.pi)
 
@@ -94,9 +92,8 @@ class TestRabiEndToEnd(QiskitTestCase):
         expdata = rabi.run(backend)
         expdata.block_for_results()
         result = expdata.analysis_results(0)
-        result_data = result.data()
         self.assertEqual(result.quality, "good")
-        self.assertTrue(abs(result_data["popt"][1] - backend.rabi_rate) < test_tol)
+        self.assertTrue(abs(result.value.value[1] - backend.rabi_rate) < test_tol)
 
     def test_wrong_processor(self):
         """Test that we can override the data processing by giving a faulty data processor."""
@@ -113,9 +110,7 @@ class TestRabiEndToEnd(QiskitTestCase):
         data.block_for_results()
         result = data.analysis_results(0)
 
-        self.assertTrue(
-            f"The input key {fail_key} was not found" in result.data()["error_message"].message
-        )
+        self.assertTrue(f"The input key {fail_key} was not found" in result.extra["error_message"])
 
 
 class TestEFRabi(QiskitTestCase):
@@ -137,7 +132,7 @@ class TestEFRabi(QiskitTestCase):
         expdata = rabi.run(backend)
         expdata.block_for_results()
         result = expdata.analysis_results(0)
-        result_data = result.data()
+        result_data = result.extra
 
         self.assertEqual(result.quality, "good")
         self.assertTrue(abs(result_data["popt"][1] - backend.rabi_rate) < test_tol)
@@ -239,12 +234,12 @@ class TestRabiAnalysis(QiskitTestCase):
 
         data_processor = DataProcessor("counts", [Probability(outcome="1")])
 
-        result = OscillationAnalysis().run(
+        experiment_data = OscillationAnalysis().run(
             experiment_data, data_processor=data_processor, plot=False
         )
-
+        result = experiment_data.analysis_results()
         self.assertEqual(result[0].quality, "good")
-        self.assertTrue(abs(result[0].data()["popt"][1] - expected_rate) < test_tol)
+        self.assertTrue(abs(result[0].value.value[1] - expected_rate) < test_tol)
 
     def test_bad_analysis(self):
         """Test the Rabi analysis."""
@@ -257,9 +252,10 @@ class TestRabiAnalysis(QiskitTestCase):
 
         data_processor = DataProcessor("counts", [Probability(outcome="1")])
 
-        result = OscillationAnalysis().run(
+        experiment_data = OscillationAnalysis().run(
             experiment_data, data_processor=data_processor, plot=False
         )
+        result = experiment_data.analysis_results()
 
         self.assertEqual(result[0].quality, "bad")
 

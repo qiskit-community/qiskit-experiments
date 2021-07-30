@@ -18,7 +18,7 @@ import warnings
 from typing import Optional
 import numpy as np
 
-from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData
+from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, FitVal
 from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
 from qiskit_experiments.curve_analysis import plot_scatter, plot_errorbar
 
@@ -51,8 +51,8 @@ class QuantumVolumeAnalysis(BaseAnalysis):
             ax: Optional, matplotlib axis to add plot to.
         Returns:
             tuple: A pair ``(result_data figures)`` where
-                   ``result_data`` may be a single or list of
-                   AnalysisResultData objects, and ``figures`` may be
+                   ``result_data`` is a list of
+                   :class:`AnalysisResultData` objects, and ``figures`` may be
                    None, a single figure, or a list of figures.
         """
         depth = experiment_data.experiment.num_qubits
@@ -68,16 +68,14 @@ class QuantumVolumeAnalysis(BaseAnalysis):
                 self._calc_exp_heavy_output_probability(data_trial, heavy_output)
             )
 
-        analysis_result = AnalysisResultData(
-            self._calc_quantum_volume(heavy_output_prob_exp, depth, num_trials)
-        )
+        hop_result, qv_result = self._calc_quantum_volume(heavy_output_prob_exp, depth, num_trials)
 
         if plot and HAS_MATPLOTLIB:
-            ax = self._format_plot(ax, analysis_result)
+            ax = self._format_plot(hop_result, ax=ax)
             figures = [ax.get_figure()]
         else:
             figures = None
-        return [analysis_result], figures
+        return [hop_result, qv_result], figures
 
     @staticmethod
     def _calc_ideal_heavy_output(probabilities_vector, depth):
@@ -193,44 +191,68 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         threshold = 2 / 3 + z * sigma_hop
         z_value = self._calc_z_value(mean_hop, sigma_hop)
         confidence_level = self._calc_confidence_level(z_value)
+        if confidence_level > 0.977:
+            quality = "good"
+        else:
+            quality = "bad"
+
         # Must have at least 100 trials
         if trials < 100:
             warnings.warn("Must use at least 100 trials to consider Quantum Volume as successful.")
+
         if mean_hop > threshold and trials >= 100:
             quantum_volume = 2 ** depth
             success = True
 
-        result = {
-            "quantum volume": quantum_volume,
-            "qv success": success,
-            "confidence": confidence_level,
-            "heavy output probability": heavy_output_prob_exp,
-            "mean hop": mean_hop,
-            "sigma": sigma_hop,
-            "depth": depth,
-            "trials": trials,
-        }
-        return result
+        hop_result = AnalysisResultData(
+            "mean_HOP",
+            value=FitVal(mean_hop, sigma_hop),
+            quality=quality,
+            extra={
+                "HOPs": heavy_output_prob_exp,
+                "two_sigma": 2 * sigma_hop,
+                "depth": depth,
+                "trials": trials,
+            },
+        )
+
+        qv_result = AnalysisResultData(
+            "quantum_volume",
+            value=quantum_volume,
+            quality=quality,
+            extra={
+                "success": success,
+                "confidence": confidence_level,
+                "depth": depth,
+                "trials": trials,
+            },
+        )
+        return hop_result, qv_result
 
     @staticmethod
-    def _format_plot(ax, analysis_result):
-        """
-        Format the QV plot
+    def _format_plot(
+        hop_result: AnalysisResultData, ax: Optional["matplotlib.pyplot.AxesSubplot"] = None
+    ):
+        """Format the QV plot
+
         Args:
+            hop_results: the heavy output probability analysis result.
             ax: matplotlib axis to add plot to.
-            analysis_result: the results of the experimnt
+
         Returns:
             AxesSubPlot: the matplotlib axes containing the plot.
         """
-        trial_list = np.arange(1, analysis_result["trials"] + 1)  # x data
+        trials = hop_result.extra["trials"]
+        heavy_probs = hop_result.extra["HOPs"]
+        trial_list = np.arange(1, trials + 1)  # x data
 
-        hop_accumulative = np.cumsum(analysis_result["heavy output probability"]) / trial_list
+        hop_accumulative = np.cumsum(heavy_probs) / trial_list
         two_sigma = 2 * (hop_accumulative * (1 - hop_accumulative) / trial_list) ** 0.5
 
         # Plot inidivual HOP as scatter
         ax = plot_scatter(
             trial_list,
-            analysis_result["heavy output probability"],
+            heavy_probs,
             ax=ax,
             s=3,
             zorder=3,
@@ -264,7 +286,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
 
         ax.set_title(
             "Quantum Volume experiment for depth "
-            + str(analysis_result["depth"])
+            + str(hop_result.extra["depth"])
             + " - accumulative hop",
             fontsize=14,
         )

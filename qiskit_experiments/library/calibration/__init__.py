@@ -37,6 +37,7 @@ module.
 
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
     DragCal
     Rabi
@@ -48,6 +49,7 @@ Calibration analysis
 ====================
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/analysis.rst
 
     OscillationAnalysis
     DragCalAnalysis
