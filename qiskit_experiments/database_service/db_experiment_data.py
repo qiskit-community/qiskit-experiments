@@ -168,7 +168,7 @@ class DbExperimentDataV1(DbExperimentData):
         """
         with contextlib.suppress(Exception):
             self._service = backend.provider().service("experiment")
-            self.auto_save = self._service.options.get("auto_save", False)
+            self._auto_save = self._service.preferences.get("auto_save", False)
 
     def add_data(
         self,
@@ -556,12 +556,12 @@ class DbExperimentDataV1(DbExperimentData):
         for result in results:
             self._analysis_results[result.result_id] = result
 
-            if self.auto_save and self._service:
-                result.save()
-
             with contextlib.suppress(DbExperimentDataError):
                 result.service = self.service
                 result.auto_save = self.auto_save
+
+            if self.auto_save and self._service:
+                result.save()
 
     @do_auto_save
     def delete_analysis_result(

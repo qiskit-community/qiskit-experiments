@@ -15,8 +15,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Dict, List, Any, Union, Tuple
 
-from qiskit.providers import Options
-
 from .device_component import DeviceComponent
 
 
@@ -47,20 +45,6 @@ class DatabaseServiceV1(DatabaseService, ABC):
     """
 
     version = 1
-
-    def __init__(self):
-        """Initialize an DatabaseService instance."""
-        self._options = self._default_options()
-
-    @classmethod
-    @abstractmethod
-    def _default_options(cls) -> Options:
-        """Return the default options
-
-        Returns:
-            Default options.
-        """
-        pass
 
     @abstractmethod
     def create_experiment(
@@ -380,38 +364,17 @@ class DatabaseServiceV1(DatabaseService, ABC):
         """
         pass
 
-    def set_options(self, **fields):
-        """Set the options fields for the service.
+    @property
+    @abstractmethod
+    def preferences(self) -> Dict:
+        """Return the preferences for the service.
 
-        Args:
-            fields: The fields to update the options
-
-        Raises:
-            AttributeError: If the field passed in is not part of the
-                options
-        """
-        for field in fields:
-            if field not in self._options:
-                raise AttributeError("Options field %s is not valid for this " "service." % field)
-        self._options.update_options(**fields)
-
-    def option(self, field: str) -> Any:
-        """Get the value of the specified option.
-
-        Args:
-            field: Option field to retrieve.
+        Note:
+            These are preferences passed to the applications that use this service
+            and have no effect on the service itself. It is up to the application
+            to implement the preferences.
 
         Returns:
-            Option value.
-
-        Raises:
-            AttributeError: If the input field is not valid for the service.
+            Dict: The experiment preferences.
         """
-        if field not in self._options:
-            raise AttributeError(f"Options field {field} is not valid for this service.")
-        return self._options[field]
-
-    @property
-    def options(self) -> Options:
-        """Return the options for the service."""
-        return self._options
+        pass
