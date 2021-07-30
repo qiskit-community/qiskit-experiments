@@ -68,6 +68,10 @@ class DragCal(BaseExperiment):
         .. ref_arxiv:: 1 1011.1949
         .. ref_arxiv:: 2 0901.0534
         .. ref_arxiv:: 3 1509.05470
+
+    # section: tutorial
+        :doc:`/tutorials/calibrating_armonk`
+
     """
 
     __analysis_class__ = DragCalAnalysis

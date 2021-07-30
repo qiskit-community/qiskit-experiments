@@ -141,7 +141,7 @@ class TestQuantumVolume(QiskitTestCase):
         qv_exp.run_analysis(exp_data)
         qv_result = exp_data.analysis_results(1)
         self.assertTrue(
-            qv_result.extra["success"] is False and qv_result.value is None,
+            qv_result.extra["success"] is False and qv_result.value == 1,
             "quantum volume is successful with less than 100 trials",
         )
 
@@ -165,7 +165,7 @@ class TestQuantumVolume(QiskitTestCase):
         qv_exp.run_analysis(exp_data)
         qv_result = exp_data.analysis_results(1)
         self.assertTrue(
-            qv_result.extra["success"] is False and qv_result.value is None,
+            qv_result.extra["success"] is False and qv_result.value == 1,
             "quantum volume is successful with heavy output probability less than 2/3",
         )
 
@@ -190,7 +190,7 @@ class TestQuantumVolume(QiskitTestCase):
         qv_exp.run_analysis(exp_data)
         qv_result = exp_data.analysis_results(1)
         self.assertTrue(
-            qv_result.extra["success"] is False and qv_result.value is None,
+            qv_result.extra["success"] is False and qv_result.value == 1,
             "quantum volume is successful with insufficient confidence",
         )
 
