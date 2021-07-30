@@ -308,9 +308,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
             xlabel (str): X label of fit result figure.
             ylabel (str): Y label of fit result figure.
             ylim (Tuple[float, float]): Min and max height limit of fit plot.
-            db_parameters (Dict[str, Tuple[str, str]]): Parameters reported in the
-                database. This is the dictionary of parameter name with a value of
-                (representation, unit) string tuple. For example, ``{"p0": ("f01", "Hz")}``.
+            result_parameters (Dict[str, Tuple[str, str]]): Parameters reported in the
+                database as a dedicated entry. This is the dictionary of parameter name with a value
+                of (representation, unit) string tuple. For example, ``{"p0": ("f01", "Hz")}``.
                 The parameter name should be defined in the series definition.
                 Representation should be printable in standard output, i.e. no latex syntax.
             return_data_points (bool): Set ``True`` to return formatted XY data.
@@ -327,7 +327,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             xlabel=None,
             ylabel=None,
             ylim=None,
-            db_parameters=None,
+            result_parameters=None,
             return_data_points=False,
         )
 
@@ -1031,9 +1031,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
             )
 
             # output special parameters
-            db_parameters = self._get_option("db_parameters")
-            if db_parameters:
-                for primary_param, repr_unit_tuple in db_parameters.items():
+            result_parameters = self._get_option("result_parameters")
+            if result_parameters:
+                for primary_param, repr_unit_tuple in result_parameters.items():
                     result_entry = AnalysisResultData(
                         name=repr_unit_tuple[0],
                         value=fit_result.value_of(primary_param, repr_unit_tuple[1]),

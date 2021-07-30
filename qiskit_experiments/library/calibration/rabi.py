@@ -94,7 +94,7 @@ class Rabi(BaseExperiment):
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
-        options.db_parameters = {"freq": ("Rabi rate", None)}
+        options.result_parameters = {"freq": ("Rabi rate", None)}
         options.normalization = True
 
         return options
@@ -248,7 +248,7 @@ class EFRabi(Rabi):
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
-        options.db_parameters = {"freq": ("EF Rabi rate", None)}
+        options.result_parameters = {"freq": ("EF Rabi rate", None)}
 
         return options
 

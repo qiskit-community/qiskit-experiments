@@ -38,7 +38,7 @@ class EFSpectroscopy(QubitSpectroscopy):
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
-        options.db_parameters = {"freq": ("f12", "Hz")}
+        options.result_parameters = {"freq": ("f12", "Hz")}
 
         return options
 
