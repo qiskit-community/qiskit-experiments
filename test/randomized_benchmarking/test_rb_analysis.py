@@ -146,8 +146,6 @@ class TestRBAnalysis(QiskitTestCase):
                 self.assertAlmostEqual(value, target)
             elif isinstance(value, np.ndarray):
                 self.assertTrue(matrix_equal(value, target))
-            else:
-                self.assertEqual(value, target)
 
             # Check extra match
             for key, value in result.extra.items():
@@ -159,8 +157,6 @@ class TestRBAnalysis(QiskitTestCase):
                     self.assertAlmostEqual(value, target)
                 elif isinstance(value, np.ndarray):
                     self.assertTrue(matrix_equal(value, target))
-                else:
-                    self.assertEqual(value, target)
 
     def _run_tests(self, data_filenames, analysis_filenames):
         """
