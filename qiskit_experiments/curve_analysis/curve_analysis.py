@@ -23,6 +23,7 @@ from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
 import numpy as np
 from qiskit.providers.options import Options
+from qiskit.providers import Backend
 
 from qiskit_experiments.curve_analysis.curve_data import CurveData, SeriesDef, FitData
 from qiskit_experiments.curve_analysis.curve_fit import multi_curve_fit
@@ -282,6 +283,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         #: List[CurveData]: Processed experiment data set.
         self.__processed_data_set = list()
+
+        #: Backend: backend object used for experimentation
+        self.__backend = None
 
         # Add expected options to instance variable so that every method can access to.
         for key in self._default_options().__dict__:
@@ -733,6 +737,11 @@ class CurveAnalysis(BaseAnalysis, ABC):
             # Ignore experiment metadata is not set or key is not found
             return None
 
+    @property
+    def _backend(self) -> Backend:
+        """Getter for backend object."""
+        return self.__backend
+
     def _experiment_options(self, index: int = -1) -> Dict[str, Any]:
         """Return the experiment options of given job index.
 
@@ -923,6 +932,12 @@ class CurveAnalysis(BaseAnalysis, ABC):
         try:
             self.__experiment_metadata = experiment_data.metadata()
 
+        except AttributeError:
+            pass
+
+        # get backend
+        try:
+            self.__backend = experiment_data.backend
         except AttributeError:
             pass
 
