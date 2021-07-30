@@ -73,9 +73,9 @@ class BaseAnalysis(ABC):
             )
 
         # Get experiment device components
-        if "physical_qubits" in experiment_data.metadata():
+        if "physical_qubits" in experiment_data.metadata:
             experiment_components = [
-                Qubit(qubit) for qubit in experiment_data.metadata()["physical_qubits"]
+                Qubit(qubit) for qubit in experiment_data.metadata["physical_qubits"]
             ]
         else:
             experiment_components = []
