@@ -216,11 +216,14 @@ class ExperimentDocstring(QiskitExperimentDocstring):
         analysis_option_desc = []
 
         if analysis_class:
+            default_analysis_options = self._target_cls._default_analysis_options().__dict__
+
             analysis_docs_config = copy.copy(self._config)
             analysis_docs_config.napoleon_custom_sections = [("analysis options", "args")]
             analysis_option = _generate_options_documentation(
                 current_class=analysis_class,
                 method_name="_default_options",
+                target_args=list(default_analysis_options.keys()),
                 config=analysis_docs_config,
                 indent=self._indent,
             )
@@ -230,7 +233,7 @@ class ExperimentDocstring(QiskitExperimentDocstring):
                 analysis_option_desc.append("")
                 analysis_option_desc.extend(
                     _format_default_options(
-                        defaults=analysis_class._default_options().__dict__,
+                        defaults=default_analysis_options,
                         indent=self._indent,
                     )
                 )
