@@ -31,6 +31,7 @@ from qiskit.circuit.library import (
     SwapGate,
 )
 import qiskit_experiments.library.randomized_benchmarking as rb
+from qiskit_experiments.framework import AnalysisResultData
 
 
 @ddt
@@ -129,10 +130,14 @@ class TestRBUtilities(QiskitTestCase):
             ((4,), "measure"): 0.01098901098901099,
             ((1,), "x"): 0.2525918944392083,
         }
-        epg_1_qubit = {
-            1: {"rz": 0.0, "sx": 0.00036207066403884814, "x": 0.00036207066403884814},
-            4: {"rz": 0.0, "sx": 0.0005429962529239195, "x": 0.0005429962529239195},
-        }
+        epg_1_qubit = [
+            AnalysisResultData("EPG_rz", 0.0, device_components=[1]),
+            AnalysisResultData("EPG_rz", 0.0, device_components=[4]),
+            AnalysisResultData("EPG_sx", 0.00036207066403884814, device_components=[1]),
+            AnalysisResultData("EPG_sx", 0.0005429962529239195, device_components=[4]),
+            AnalysisResultData("EPG_x", 0.00036207066403884814, device_components=[1]),
+            AnalysisResultData("EPG_x", 0.0005429962529239195, device_components=[4]),
+        ]
         epg = rb.RBUtils.calculate_2q_epg(
             epc_2_qubit, qubits, gate_error_ratio, gates_per_clifford, epg_1_qubit
         )

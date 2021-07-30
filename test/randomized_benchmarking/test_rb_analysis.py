@@ -12,7 +12,6 @@
 """
 A test for RB analysis. Using pre-Generated data from rb_generate_data.py.
 """
-import unittest
 import os
 import json
 import numpy as np
@@ -239,7 +238,6 @@ class TestStandardRBAnalysis(TestRBAnalysis):
     A test for the analysis of the standard RB experiment
     """
 
-    @unittest.skip("Skipping RB analysis tests until reference generation can be updated")
     def test_standard_rb_analysis_test(self):
         """Runs the standard RB analysis tests"""
 
@@ -289,7 +287,6 @@ class TestInterleavedRBAnalysis(TestRBAnalysis):
         analysis_results = rb_exp.run_analysis(expdata1)
         return data, analysis_results
 
-    @unittest.skip("Skipping RB analysis tests until reference generation can be updated")
     def test_interleaved_rb_analysis_test(self):
         """Runs the standard RB analysis tests"""
 

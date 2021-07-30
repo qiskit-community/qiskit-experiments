@@ -18,6 +18,8 @@ from typing import Tuple, Dict, Optional, Iterable, List
 import numpy as np
 from qiskit import QiskitError, QuantumCircuit
 from qiskit.providers.backend import Backend
+from qiskit_experiments.database_service.device_component import Qubit
+from qiskit_experiments.database_service.db_fitval import FitVal
 
 
 class RBUtils:
@@ -248,11 +250,15 @@ class RBUtils:
         if epg_1_qubit is not None:
             for result in epg_1_qubit:
                 if "EPG_" in result.name and len(result.device_components) == 1:
-                    qubit = result.device_components[0]._index
+                    qubit = result.device_components[0]
+                    if isinstance(qubit, Qubit):
+                        qubit = qubit._index
                     if not qubit in epg_1_qubit_dict:
                         epg_1_qubit_dict[qubit] = {}
                     gate = result.name.replace("EPG_", "")
-                    epg = result.value.value
+                    epg = result.value
+                    if isinstance(epg, FitVal):
+                        epg = epg.value
                     epg_1_qubit_dict[qubit][gate] = epg
 
         for key in gate_error_ratio:
