@@ -109,7 +109,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
             "beta": None,
             "base": None,
         }
-        default_options.result_parameters = {"beta": ("\u03B2", None)}
+        default_options.result_parameters = [curve.ParameterRepr("beta", "\u03B2")]
         default_options.xlabel = "Beta"
         default_options.ylabel = "Signal (arb. units)"
 

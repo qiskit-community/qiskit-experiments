@@ -117,3 +117,17 @@ class FitData:
             )
         except ValueError as ex:
             raise ValueError(f"Parameter {key} is not defined.") from ex
+
+
+@dataclasses.dataclass
+class ParameterRepr:
+    """Detailed description of fitting parameter."""
+
+    # Fitter argument name
+    name: str
+
+    # Unicode representation
+    repr: Optional[str] = None
+
+    # Unit
+    unit: Optional[str] = None

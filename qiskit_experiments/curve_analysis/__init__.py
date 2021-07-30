@@ -26,6 +26,7 @@ Classes
     SeriesDef
     CurveData
     FitData
+    ParameterRepr
 
 Functions
 =========
@@ -73,7 +74,7 @@ Visualization
     plot_scatter
 """
 from .curve_analysis import CurveAnalysis
-from .curve_data import CurveData, SeriesDef, FitData
+from .curve_data import CurveData, SeriesDef, FitData, ParameterRepr
 from .curve_fit import (
     curve_fit,
     multi_curve_fit,

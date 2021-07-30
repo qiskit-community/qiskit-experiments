@@ -79,7 +79,7 @@ class RBAnalysis(curve.CurveAnalysis):
         default_options.bounds = {"a": (0.0, 1.0), "alpha": (0.0, 1.0), "b": (0.0, 1.0)}
         default_options.xlabel = "Clifford Length"
         default_options.ylabel = "P(0)"
-        default_options.result_parameters = {"alpha": ("\u03B1", None)}
+        default_options.result_parameters = [curve.ParameterRepr("alpha", "\u03B1")]
         default_options.error_dict = None
         default_options.epg_1_qubit = None
         default_options.gate_error_ratio = None

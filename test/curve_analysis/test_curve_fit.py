@@ -22,7 +22,7 @@ from qiskit.test import QiskitTestCase
 from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.framework import ExperimentData
-from qiskit_experiments.curve_analysis import CurveAnalysis, SeriesDef, fit_function
+from qiskit_experiments.curve_analysis import CurveAnalysis, SeriesDef, fit_function, ParameterRepr
 from qiskit_experiments.curve_analysis.data_processing import probability
 from qiskit_experiments.exceptions import AnalysisError
 
@@ -297,7 +297,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         )
         default_opts = analysis._default_options()
         default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3}
-        default_opts.result_parameters = {"p1": ("parameter_name", "unit")}
+        default_opts.result_parameters = [ParameterRepr("p1", "parameter_name", "unit")]
 
         results, _ = analysis._run_analysis(test_data, **default_opts.__dict__)
         result = results[0]

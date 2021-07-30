@@ -25,7 +25,12 @@ import numpy as np
 from qiskit.providers.options import Options
 from qiskit.providers import Backend
 
-from qiskit_experiments.curve_analysis.curve_data import CurveData, SeriesDef, FitData
+from qiskit_experiments.curve_analysis.curve_data import (
+    CurveData,
+    SeriesDef,
+    FitData,
+    ParameterRepr,
+)
 from qiskit_experiments.curve_analysis.curve_fit import multi_curve_fit
 from qiskit_experiments.curve_analysis.visualization import (
     plot_scatter,
@@ -312,9 +317,11 @@ class CurveAnalysis(BaseAnalysis, ABC):
             xlabel (str): X label of fit result figure.
             ylabel (str): Y label of fit result figure.
             ylim (Tuple[float, float]): Min and max height limit of fit plot.
-            result_parameters (Dict[str, Tuple[str, str]]): Parameters reported in the
-                database as a dedicated entry. This is the dictionary of parameter name with a value
-                of (representation, unit) string tuple. For example, ``{"p0": ("f01", "Hz")}``.
+            result_parameters (List[Union[str, ParameterRepr]): Parameters reported in the
+                database as a dedicated entry. This is a list of parameter representation
+                which is either string or ParameterRepr object. If you provide more
+                information other than name, you can specify
+                ``[ParameterRepr("alpha", "\u03B1", "a.u.")]`` for example.
                 The parameter name should be defined in the series definition.
                 Representation should be printable in standard output, i.e. no latex syntax.
             return_data_points (bool): Set ``True`` to return formatted XY data.
@@ -1048,10 +1055,18 @@ class CurveAnalysis(BaseAnalysis, ABC):
             # output special parameters
             result_parameters = self._get_option("result_parameters")
             if result_parameters:
-                for primary_param, repr_unit_tuple in result_parameters.items():
+                for param_repr in result_parameters:
+                    if isinstance(param_repr, ParameterRepr):
+                        p_name = param_repr.name
+                        p_repr = param_repr.repr or param_repr.name
+                        unit = param_repr.unit
+                    else:
+                        p_name = param_repr
+                        p_repr = param_repr
+                        unit = None
                     result_entry = AnalysisResultData(
-                        name=repr_unit_tuple[0],
-                        value=fit_result.value_of(primary_param, repr_unit_tuple[1]),
+                        name=p_name,
+                        value=fit_result.value_of(p_repr, unit),
                         chisq=fit_result.reduced_chisq,
                         quality=quality,
                     )

@@ -130,10 +130,10 @@ class InterleavedRBAnalysis(RBAnalysis):
             "alpha_c": (0.0, 1.0),
             "b": (0.0, 1.0),
         }
-        default_options.result_parameters = {
-            "alpha": ("\u03B1", None),
-            "alpha_c": ("\u03B1_c", None),
-        }
+        default_options.result_parameters = [
+            curve.ParameterRepr("alpha", "\u03B1"),
+            curve.ParameterRepr("alpha_c", "\u03B1_c"),
+        ]
 
         return default_options
 
