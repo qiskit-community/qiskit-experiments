@@ -37,6 +37,7 @@ Characterization Experiments
 
     ~characterization.T1
     ~characterization.T2Ramsey
+    ~characterization.T_phi
     ~characterization.QubitSpectroscopy
     ~characterization.EFSpectroscopy
 
@@ -54,7 +55,7 @@ Calibration Experiments
     ~calibration.FineSXAmplitude
 """
 from .calibration import DragCal, Rabi, EFRabi, FineAmplitude, FineXAmplitude, FineSXAmplitude
-from .characterization import T1, T2Ramsey, QubitSpectroscopy, EFSpectroscopy
+from .characterization import T1, T2Ramsey, T_phi, QubitSpectroscopy, EFSpectroscopy
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
 from .quantum_volume import QuantumVolume

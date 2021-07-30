@@ -24,6 +24,7 @@ Experiments
 
     T1
     T2Ramsey
+    T2_phi
     QubitSpectroscopy
 
 
@@ -44,3 +45,4 @@ from .resonance_analysis import ResonanceAnalysis
 from .ef_spectroscopy import EFSpectroscopy
 from .t2ramsey import T2Ramsey
 from .t2ramsey_analysis import T2RamseyAnalysis
+from .t_phi import T_phi
