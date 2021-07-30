@@ -106,6 +106,10 @@ class TestQuantumVolume(QiskitTestCase):
         qv_exp.set_experiment_options(trials=2)
         expdata1 = qv_exp.run(backend)
         expdata1.block_for_results()
+
+        print(expdata1.status()) # DEBUG
+        print(expdata1) # DEBUG
+
         result_data1 = expdata1.analysis_results(0)
         expdata2 = qv_exp.run(backend, experiment_data=expdata1)
         expdata2.block_for_results()
