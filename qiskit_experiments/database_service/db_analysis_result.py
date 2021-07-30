@@ -111,7 +111,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         self._auto_save = False
         if self._service:
             try:
-                self.auto_save = self._service.option("auto_save")
+                self.auto_save = self._service.preferences["auto_save"]
             except AttributeError:
                 pass
         if self._source is None:
