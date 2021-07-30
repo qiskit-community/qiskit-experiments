@@ -89,6 +89,11 @@ class FineAmplitude(BaseExperiment):
 
     # section: reference
         .. ref_arxiv:: 1 1504.06597
+
+
+    # section: tutorial
+        :doc:`/tutorials/fine_amplitude_calibration`
+
     """
 
     __analysis_class__ = FineAmplitudeAnalysis
