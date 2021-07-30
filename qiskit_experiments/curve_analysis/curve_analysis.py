@@ -405,7 +405,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
                     zorder=2,
                     fit_uncertainty=series_def.plot_fit_uncertainty,
                 )
-
         # format axis
         if len(self.__series__) > 1:
             axis.legend(loc="center right")
@@ -414,11 +413,12 @@ class CurveAnalysis(BaseAnalysis, ABC):
         axis.tick_params(labelsize=14)
         axis.grid(True)
 
-        # automatic scaling y axis by actual data point.
-        # note that y axis will be scaled by confidence interval by default.
-        # sometimes we cannot see any data point if variance of parameters is too large.
-        height = fit_data.y_range[1] - fit_data.y_range[0]
-        axis.set_ylim(fit_data.y_range[0] - 0.1 * height, fit_data.y_range[1] + 0.1 * height)
+        if fit_data:
+            # automatic scaling y axis by actual data point.
+            # note that y axis will be scaled by confidence interval by default.
+            # sometimes we cannot see any data point if variance of parameters is too large.
+            height = fit_data.y_range[1] - fit_data.y_range[0]
+            axis.set_ylim(fit_data.y_range[0] - 0.1 * height, fit_data.y_range[1] + 0.1 * height)
 
         # write analysis report
         def _format_val(val):
