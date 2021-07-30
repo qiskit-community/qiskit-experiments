@@ -95,7 +95,7 @@ class Rabi(BaseExperiment):
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
-        options.result_parameters = [ParameterRepr("freq", "Rabi rate")]
+        options.result_parameters = [ParameterRepr("freq", "rabi_rate")]
         options.normalization = True
 
         return options
@@ -249,7 +249,7 @@ class EFRabi(Rabi):
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
-        options.result_parameters = [ParameterRepr("freq", "EF Rabi rate")]
+        options.result_parameters = [ParameterRepr("freq", "rabi_rate_12")]
 
         return options
 

@@ -130,11 +130,7 @@ class InterleavedRBAnalysis(RBAnalysis):
             "alpha_c": (0.0, 1.0),
             "b": (0.0, 1.0),
         }
-        default_options.result_parameters = [
-            curve.ParameterRepr("alpha", "\u03B1"),
-            curve.ParameterRepr("alpha_c", "\u03B1_c"),
-        ]
-
+        default_options.result_parameters = ["alpha", "alpha_c"]
         return default_options
 
     def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
