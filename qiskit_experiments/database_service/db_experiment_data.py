@@ -692,7 +692,7 @@ class DbExperimentDataV1(DbExperimentData):
             "experiment_id": self._id,
             "metadata": metadata,
             "job_ids": self.job_ids,
-            "tags": self.tags(),
+            "tags": self.tags,
             "notes": self.notes,
         }
         new_data = {"experiment_type": self._type, "backend_name": self._backend.name()}
@@ -947,6 +947,7 @@ class DbExperimentDataV1(DbExperimentData):
                 )
         return new_instance
 
+    @property
     def tags(self) -> List[str]:
         """Return tags assigned to this experiment data.
 
@@ -956,15 +957,18 @@ class DbExperimentDataV1(DbExperimentData):
         """
         return self._tags
 
-    @do_auto_save
-    def set_tags(self, new_tags: List[str]) -> None:
-        """Set tags for this experiment.
-
-        Args:
-            new_tags: New tags for the experiment.
-        """
+    @tags.setter
+    def tags(self, new_tags: List[str]) -> None:
+        """Set tags for this experiment."""
+        if not isinstance(new_tags, list):
+            raise DbExperimentDataError(
+                f"The `tags` field of {type(self).__name__} must be a list."
+            )
         self._tags = new_tags
+        if self.auto_save:
+            self.save_metadata()
 
+    @property
     def metadata(self) -> Dict:
         """Return experiment metadata.
 
@@ -973,14 +977,16 @@ class DbExperimentDataV1(DbExperimentData):
         """
         return self._metadata
 
-    @do_auto_save
-    def set_metadata(self, metadata: Dict) -> None:
+    @metadata.setter
+    def metadata(self, new_metadata: Dict) -> None:
         """Set metadata for this experiment.
 
         Args:
-            metadata: New metadata for the experiment.
+            new_metadata: New metadata for the experiment.
         """
-        self._metadata = copy.deepcopy(metadata)
+        self._metadata = copy.deepcopy(new_metadata)
+        if self.auto_save:
+            self.save_metadata()
 
     @property
     def _provider(self) -> Optional[Provider]:
@@ -1164,8 +1170,8 @@ class DbExperimentDataV1(DbExperimentData):
         ret += f"\nStatus: {status}"
         if self.backend:
             ret += f"\nBackend: {self.backend}"
-        if self.tags():
-            ret += f"\nTags: {self.tags()}"
+        if self.tags:
+            ret += f"\nTags: {self.tags}"
         ret += f"\nData: {len(self._data)}"
         ret += f"\nAnalysis Results: {n_res}"
         ret += f"\nFigures: {len(self._figures)}"

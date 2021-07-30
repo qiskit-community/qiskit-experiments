@@ -67,8 +67,8 @@ class TestDbExperimentData(QiskitTestCase):
         self.assertEqual(exp_data.backend.name(), self.backend.name())
         self.assertEqual(exp_data.experiment_type, "qiskit_test")
         self.assertEqual(exp_data.experiment_id, "1234")
-        self.assertEqual(exp_data.tags(), ["tag1", "tag2"])
-        self.assertEqual(exp_data.metadata(), {"foo": "bar"})
+        self.assertEqual(exp_data.tags, ["tag1", "tag2"])
+        self.assertEqual(exp_data.metadata, {"foo": "bar"})
         for key, val in attrs.items():
             self.assertEqual(getattr(exp_data, key), val)
 
@@ -514,8 +514,8 @@ class TestDbExperimentData(QiskitTestCase):
             (exp_data.add_figures, (str.encode("hello world"),), service.create_figure),
             (exp_data.delete_figure, (0,), service.delete_figure),
             (exp_data.delete_analysis_result, (0,), service.delete_analysis_result),
-            (exp_data.set_tags, (["foo"],), service.update_experiment),
-            (exp_data.set_metadata, ({"foo": "bar"},), service.update_experiment),
+            (setattr, (exp_data, "tags", ["foo"]), service.update_experiment),
+            (setattr, (exp_data, "metadata", {"foo": "bar"}), service.update_experiment),
             (setattr, (exp_data, "notes", "foo"), service.update_experiment),
             (setattr, (exp_data, "share_level", "hub"), service.update_experiment),
         ]
@@ -605,16 +605,16 @@ class TestDbExperimentData(QiskitTestCase):
     def test_set_tags(self):
         """Test updating experiment tags."""
         exp_data = DbExperimentData(experiment_type="qiskit_test", tags=["foo"])
-        self.assertEqual(["foo"], exp_data.tags())
-        exp_data.set_tags(["bar"])
-        self.assertEqual(["bar"], exp_data.tags())
+        self.assertEqual(["foo"], exp_data.tags)
+        exp_data.tags = ["bar"]
+        self.assertEqual(["bar"], exp_data.tags)
 
     def test_set_metadata(self):
         """Test updating experiment metadata."""
         exp_data = DbExperimentData(experiment_type="qiskit_test", metadata={"foo": "bar"})
-        self.assertEqual({"foo": "bar"}, exp_data.metadata())
-        exp_data.set_metadata({"bar": "foo"})
-        self.assertEqual({"bar": "foo"}, exp_data.metadata())
+        self.assertEqual({"foo": "bar"}, exp_data.metadata)
+        exp_data.metadata = {"bar": "foo"}
+        self.assertEqual({"bar": "foo"}, exp_data.metadata)
 
     def test_cancel_jobs(self):
         """Test canceling experiment jobs."""
