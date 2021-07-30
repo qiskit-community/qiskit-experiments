@@ -14,12 +14,13 @@
 RB Helper functions
 """
 
-from typing import Tuple, Dict, Optional, Iterable, List
+from typing import Tuple, Dict, Optional, Iterable, List, Union
 import numpy as np
 from qiskit import QiskitError, QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.database_service.db_fitval import FitVal
+from qiskit_experiments.framework import DbAnalysisResultV1, AnalysisResultData
 
 
 class RBUtils:
@@ -219,7 +220,7 @@ class RBUtils:
         qubits: Iterable[int],
         gate_error_ratio: Dict[str, float],
         gates_per_clifford: Dict[Tuple[Iterable[int], str], float],
-        epg_1_qubit: Optional[List["DbAnalysisResultV1"]] = None,
+        epg_1_qubit: Optional[List[Union[DbAnalysisResultV1, AnalysisResultData]]] = None,
         gate_2_qubit_type: Optional[str] = "cx",
     ) -> Dict[int, Dict[str, float]]:
         r"""
