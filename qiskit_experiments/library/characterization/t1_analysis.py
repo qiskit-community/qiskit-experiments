@@ -13,17 +13,18 @@
 T1 Analysis class.
 """
 
+
 from typing import Tuple, List
+import dataclasses
 import numpy as np
 
 from qiskit.utils import apply_prefix
 
-from qiskit_experiments.framework import BaseAnalysis, Options
+from qiskit_experiments.framework import BaseAnalysis, Options, AnalysisResultData, FitVal
 from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
 from qiskit_experiments.curve_analysis import plot_curve_fit, plot_errorbar, curve_fit
 from qiskit_experiments.curve_analysis.curve_fit import (
     process_curve_data,
-    CurveAnalysisResultData,
 )
 from qiskit_experiments.curve_analysis.data_processing import level2_probability
 
@@ -66,7 +67,7 @@ class T1Analysis(BaseAnalysis):
         offset_guess=None,
         plot=True,
         ax=None,
-    ) -> Tuple[List[CurveAnalysisResultData], List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         """
         Calculate T1
 
@@ -111,20 +112,28 @@ class T1Analysis(BaseAnalysis):
 
         init = {"a": amplitude_guess, "tau": t1_guess, "c": offset_guess}
         fit_result = curve_fit(fit_fun, xdata, ydata, init, sigma=sigma)
-
-        result_data = {
-            "value": fit_result["popt"][1],
-            "stderr": fit_result["popt_err"][1],
-            "unit": "s",
-            "fit": fit_result,
-            "quality": self._fit_quality(
-                fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
-            ),
-        }
-
-        result_data["fit"]["circuit_unit"] = unit
+        fit_result = dataclasses.asdict(fit_result)
+        fit_result["circuit_unit"] = unit
         if unit == "dt":
-            result_data["fit"]["dt"] = conversion_factor
+            fit_result["dt"] = conversion_factor
+
+        # Construct analysis result
+        name = "T1"
+        unit = "s"
+        value = FitVal(fit_result["popt"][1], fit_result["popt_err"][1], unit="s")
+        chisq = fit_result["reduced_chisq"]
+        quality = self._fit_quality(
+            fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
+        )
+        analysis_results = [
+            AnalysisResultData(
+                name,
+                value,
+                chisq=chisq,
+                quality=quality,
+                extra=fit_result,
+            )
+        ]
 
         # Generate fit plot
         figures = []
@@ -134,7 +143,7 @@ class T1Analysis(BaseAnalysis):
             self._format_plot(ax, fit_result, qubit=qubit)
             figures.append(ax.get_figure())
 
-        return [CurveAnalysisResultData(result_data)], figures
+        return analysis_results, figures
 
     @staticmethod
     def _fit_quality(fit_out, fit_err, reduced_chisq):

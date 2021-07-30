@@ -55,10 +55,9 @@ class TestDragEndToEnd(QiskitTestCase):
         drag.set_experiment_options(rp=self.x_plus, rm=self.x_minus)
         expdata = drag.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_results(0)
-        result_data = result.data()
+        result = expdata.analysis_results(1)
 
-        self.assertTrue(abs(result_data["popt"][4] - backend.ideal_beta) < test_tol)
+        self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
         self.assertEqual(result.quality, "good")
 
         # Small leakage will make the curves very flat.
@@ -70,13 +69,12 @@ class TestDragEndToEnd(QiskitTestCase):
         drag.set_run_options(meas_level=MeasLevel.KERNELED)
         exp_data = drag.run(backend)
         exp_data.block_for_results()
-        result = exp_data.analysis_results(0)
-        result_data = result.data()
+        result = exp_data.analysis_results(1)
 
         meas_level = exp_data.metadata()["job_metadata"][-1]["run_options"]["meas_level"]
 
         self.assertEqual(meas_level, MeasLevel.KERNELED)
-        self.assertTrue(abs(result_data["popt"][4] - backend.ideal_beta) < test_tol)
+        self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
         self.assertEqual(result.quality, "good")
 
         # Large leakage will make the curves oscillate quickly.
@@ -89,13 +87,12 @@ class TestDragEndToEnd(QiskitTestCase):
         drag.set_experiment_options(rp=self.x_plus, rm=self.x_minus)
         exp_data = drag.run(backend)
         exp_data.block_for_results()
-        result = exp_data.analysis_results(0)
-        result_data = result.data()
+        result = exp_data.analysis_results(1)
 
         meas_level = exp_data.metadata()["job_metadata"][-1]["run_options"]["meas_level"]
 
         self.assertEqual(meas_level, MeasLevel.CLASSIFIED)
-        self.assertTrue(abs(result_data["popt"][4] - backend.ideal_beta) < test_tol)
+        self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
         self.assertEqual(result.quality, "good")
 
 

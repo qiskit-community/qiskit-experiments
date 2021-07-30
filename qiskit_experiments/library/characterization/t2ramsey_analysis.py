@@ -14,20 +14,43 @@ T2Ramsey Experiment class.
 """
 
 from typing import List, Optional, Tuple, Dict
+import dataclasses
 import numpy as np
 
 from qiskit.utils import apply_prefix
-from qiskit_experiments.framework import BaseAnalysis, Options, ExperimentData
+from qiskit_experiments.framework import (
+    BaseAnalysis,
+    Options,
+    ExperimentData,
+    AnalysisResultData,
+    FitVal,
+)
 from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
 from qiskit_experiments.curve_analysis import curve_fit, plot_curve_fit, plot_errorbar, plot_scatter
-from qiskit_experiments.curve_analysis.curve_analysis_result_data import CurveAnalysisResultData
 from qiskit_experiments.curve_analysis.curve_fit import process_curve_data
 from qiskit_experiments.curve_analysis.data_processing import level2_probability
 
 
 # pylint: disable = invalid-name
 class T2RamseyAnalysis(BaseAnalysis):
-    """T2Ramsey Experiment result analysis class."""
+
+    r"""
+    T2Ramsey result analysis class.
+
+    Fit Model
+        This class is used to analyze the results of a T2Ramsey experiment.
+        The probability of measuring `+` is assumed to be of the form
+
+        :math:`f(t) = a\mathrm{e}^{-t / T_2^*}\cos(2\pi f t + \phi) + b`
+
+    Fit Parameters
+        - :math:`a (amplitude)`: Height of the decay curve.
+        - :math:`b (offset)`: Base line of the decay curve.
+        - :math:`\phi (shift)`: Relative shift of the graph from the origin.
+        - :math:`t2ramsey`: Represents the rate of decay.
+        - :math:`f (frequency)`: Represents the difference in frequency between
+          the user guess and the actual frequency of the qubit.
+    """
 
     @classmethod
     def _default_options(cls):
@@ -42,34 +65,30 @@ class T2RamseyAnalysis(BaseAnalysis):
         plot: bool = False,
         ax: Optional["AxesSubplot"] = None,
         **kwargs,
-    ) -> Tuple[List[CurveAnalysisResultData], List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         r"""Calculate T2Ramsey experiment.
-
-        The probability of measuring `+` is assumed to be of the form
-        :math:`f(t) = a\mathrm{e}^{-t / T_2^*}\cos(2\pi freq t + \phi) + b`
-        for unknown parameters :math:`a, b, freq, \phi, T_2^*`.
 
         Args:
             experiment_data (ExperimentData): the experiment data to analyze
             user_p0: contains initial values given by the user, for the
-            fit parameters :math:`(a, t_2ramsey, freq, \phi, b)`
+            fit parameters :math:`(a, t2ramsey, f, \phi, b)`
             user_bounds: lower and upper bounds on the parameters in p0,
                          given by the user.
                          The first tuple is the lower bounds,
                          The second tuple is the upper bounds.
-                         For both params, the order is :math:`a, t_2ramsey, freq, \phi, b`.
+                         For both params, the order is :math:`a, t2ramsey, f, \phi, b`.
             plot: if True, create the plot, otherwise, do not create the plot.
             ax: the plot object
             **kwargs: additional parameters for curve fit.
 
         Returns:
-            The analysis result with the estimated :math:`T_2Ramsey` and 'freq' (frequency)
+            The analysis result with the estimated :math:`t2ramsey` and 'f' (frequency)
             The graph of the function.
         """
 
-        def osc_fit_fun(x, a, t2ramsey, freq, phi, c):
+        def osc_fit_fun(x, a, t2ramsey, f, phi, c):
             """Decay cosine fit function"""
-            return a * np.exp(-x / t2ramsey) * np.cos(2 * np.pi * freq * x + phi) + c
+            return a * np.exp(-x / t2ramsey) * np.cos(2 * np.pi * f * x + phi) + c
 
         def _format_plot(ax, unit, fit_result, conversion_factor):
             """Format curve fit plot"""
@@ -113,6 +132,14 @@ class T2RamseyAnalysis(BaseAnalysis):
         fit_result = curve_fit(
             osc_fit_fun, xdata, ydata, p0=list(p0.values()), sigma=sigma, bounds=bounds
         )
+        fit_result = dataclasses.asdict(fit_result)
+        fit_result["circuit_unit"] = unit
+        if unit == "dt":
+            fit_result["dt"] = conversion_factor
+        quality = self._fit_quality(
+            fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
+        )
+        chisq = fit_result["reduced_chisq"]
 
         if plot and HAS_MATPLOTLIB:
             ax = plot_curve_fit(osc_fit_fun, fit_result, ax=ax)
@@ -124,30 +151,22 @@ class T2RamseyAnalysis(BaseAnalysis):
             figures = None
 
         # Output unit is 'sec', regardless of the unit used in the input
-        result_t2 = {
-            "value": fit_result["popt"][1],
-            "stderr": fit_result["popt_err"][1],
-            "unit": "s",
-            "result_type": "T2Ramsey",
-        }
-        result_freq = {
-            "value": fit_result["popt"][2],
-            "stderr": fit_result["popt_err"][2],
-            "unit": "Hz",
-            "result_type": "RamseyFrequency",
-        }
-
-        quality = self._fit_quality(
-            fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
+        result_t2 = AnalysisResultData(
+            "T2",
+            value=FitVal(fit_result["popt"][1], fit_result["popt_err"][1], "s"),
+            quality=quality,
+            chisq=chisq,
+            extra=fit_result,
         )
-        for res in [result_t2, result_freq]:
-            res["fit"] = fit_result
-            res["quality"] = quality
-            res["fit"]["circuit_unit"] = unit
-            if unit == "dt":
-                res["fit"]["dt"] = conversion_factor
+        result_freq = AnalysisResultData(
+            "Frequency",
+            value=FitVal(fit_result["popt"][2], fit_result["popt_err"][2], "Hz"),
+            quality=quality,
+            chisq=chisq,
+            extra=fit_result,
+        )
 
-        return [CurveAnalysisResultData(result_t2), CurveAnalysisResultData(result_freq)], figures
+        return [result_t2, result_freq], figures
 
     def _t2ramsey_default_params(
         self,
@@ -158,27 +177,27 @@ class T2RamseyAnalysis(BaseAnalysis):
     ) -> Tuple[List[float], Tuple[List[float]]]:
         """Default fit parameters for oscillation data.
 
-        Note that :math:`T_2^*` and 'freq' units are converted to 'sec' and
-        will be output in 'sec'.
+        Note that :math:`T_2^*` unit is converted to 'sec' and 'f' unit is
+        converted to Hz, so the output will be given in 'sec' and 'Hz'.
         """
         if user_p0 is None:
             a = 0.5
             t2ramsey = t2ramsey_input * conversion_factor
-            freq = 0.1 / conversion_factor
+            f = 0.1 / conversion_factor
             phi = 0.0
             b = 0.5
         else:
             a = user_p0["A"]
             t2ramsey = user_p0["t2ramsey"] * conversion_factor
-            freq = user_p0["f"] / conversion_factor
+            f = user_p0["f"] / conversion_factor
             phi = user_p0["phi"]
             b = user_p0["B"]
-        p0 = {"a_guess": a, "t2ramsey": t2ramsey, "f_guess": freq, "phi_guess": phi, "b_guess": b}
+        p0 = {"a_guess": a, "t2ramsey": t2ramsey, "f_guess": f, "phi_guess": phi, "b_guess": b}
 
         if user_bounds is None:
             a_bounds = [-0.5, 1.5]
             t2ramsey_bounds = [0, np.inf]
-            f_bounds = [0.1 * freq, 10 * freq]
+            f_bounds = [0.1 * f, 10 * f]
             phi_bounds = [-np.pi, np.pi]
             b_bounds = [-0.5, 1.5]
             bounds = [
