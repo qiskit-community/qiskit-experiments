@@ -21,6 +21,7 @@ import inspect
 from abc import ABC
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
+from matplotlib import pyplot
 import numpy as np
 from qiskit.providers.options import Options
 from qiskit.providers import Backend
@@ -42,7 +43,7 @@ from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.processor_library import get_processor
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData, FitVal
-from qiskit_experiments.matplotlib import pyplot, requires_matplotlib, HAS_MATPLOTLIB
+from qiskit_experiments.matplotlib import requires_matplotlib
 
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"
@@ -404,7 +405,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
                     zorder=2,
                     fit_uncertainty=series_def.plot_fit_uncertainty,
                 )
-
         # format axis
         if len(self.__series__) > 1:
             axis.legend(loc="center right")
@@ -413,11 +413,12 @@ class CurveAnalysis(BaseAnalysis, ABC):
         axis.tick_params(labelsize=14)
         axis.grid(True)
 
-        # automatic scaling y axis by actual data point.
-        # note that y axis will be scaled by confidence interval by default.
-        # sometimes we cannot see any data point if variance of parameters is too large.
-        height = fit_data.y_range[1] - fit_data.y_range[0]
-        axis.set_ylim(fit_data.y_range[0] - 0.1 * height, fit_data.y_range[1] + 0.1 * height)
+        if fit_data:
+            # automatic scaling y axis by actual data point.
+            # note that y axis will be scaled by confidence interval by default.
+            # sometimes we cannot see any data point if variance of parameters is too large.
+            height = fit_data.y_range[1] - fit_data.y_range[0]
+            axis.set_ylim(fit_data.y_range[0] - 0.1 * height, fit_data.y_range[1] + 0.1 * height)
 
         # write analysis report
         def _format_val(val):
@@ -939,7 +940,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         # get experiment metadata
         try:
-            self.__experiment_metadata = experiment_data.metadata()
+            self.__experiment_metadata = experiment_data.metadata
 
         except AttributeError:
             pass
@@ -1096,7 +1097,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         #
         # 6. Create figures
         #
-        if self._get_option("plot") and HAS_MATPLOTLIB:
+        if self._get_option("plot"):
             figures = self._create_figures(fit_data=fit_result, analysis_results=analysis_results)
         else:
             figures = []
