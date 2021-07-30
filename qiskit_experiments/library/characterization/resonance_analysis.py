@@ -136,11 +136,11 @@ class ResonanceAnalysis(curve.CurveAnalysis):
         min_freq = np.min(curve_data.x)
         freq_increment = np.mean(np.diff(curve_data.x))
 
-        fit_a = fit_data.value_of("a").value
-        fit_b = fit_data.value_of("b").value
-        fit_freq = fit_data.value_of("freq").value
-        fit_sigma = fit_data.value_of("sigma").value
-        fit_sigma_err = fit_data.value_of("sigma").stderr
+        fit_a = fit_data.fitval("a").value
+        fit_b = fit_data.fitval("b").value
+        fit_freq = fit_data.fitval("freq").value
+        fit_sigma = fit_data.fitval("sigma").value
+        fit_sigma_err = fit_data.fitval("sigma").stderr
 
         snr = abs(fit_a) / np.sqrt(abs(np.median(curve_data.y) - fit_b))
         fit_width_ratio = fit_sigma / (max_freq - min_freq)

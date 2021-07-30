@@ -95,7 +95,7 @@ class FitData:
     # Y data range
     y_range: Tuple[float, float]
 
-    def value_of(self, key: str, unit: Optional[str] = None) -> FitVal:
+    def fitval(self, key: str, unit: Optional[str] = None) -> FitVal:
         """A helper method to get fit value object from parameter key name.
 
         Args:

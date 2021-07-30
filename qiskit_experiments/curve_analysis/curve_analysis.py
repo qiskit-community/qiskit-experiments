@@ -1066,7 +1066,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         unit = None
                     result_entry = AnalysisResultData(
                         name=p_repr,
-                        value=fit_result.value_of(p_name, unit),
+                        value=fit_result.fitval(p_name, unit),
                         chisq=fit_result.reduced_chisq,
                         quality=quality,
                     )
