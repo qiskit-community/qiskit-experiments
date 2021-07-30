@@ -125,62 +125,42 @@ class TestRBAnalysis(QiskitTestCase):
                 "the gate sequence length isn't in the setup length list.",
             )
 
-    def _validate_fitting_parameters(self, calculated_analysis: list, expected_analysis: dict):
+    def _validate_fitting_parameters(self, analysis_results: list, expected_analysis: list):
         """
         The function checking that the results of the analysis matches to the expected one.
         Args:
-            calculated_analysis_samples_data(list): list of dictionary containing the
-            analysis result.
-            expected_analysis_samples_data(dict): list of dictionary containing the analysis
-                expected result.
+            analysis_results: list of experiment analysis results.
+            expected_analysis: list of reference results as dicts.
         """
-        for result in calculated_analysis:
-            if result.name in expected_analysis:
-                for key, expected_value in expected_analysis[result.name].items():
-                    if key == "value":
-                        calculated_value = result.value
-                    else:
-                        calculated_value = result.extra[key]
-                    if isinstance(calculated_value, FitVal):
-                        self.assertTrue(
-                            matrix_equal(
-                                calculated_value.value,
-                                expected_value.value,
-                                "The calculated value for the key '"
-                                + key
-                                + "', doesn't match the expected value."
-                                + "\n {} != {}".format(
-                                    calculated_value,
-                                    expected_value,
-                                ),
-                            )
-                        )
-                    elif isinstance(calculated_value, np.ndarray):
-                        self.assertTrue(
-                            matrix_equal(
-                                calculated_value,
-                                expected_value,
-                                "The calculated value for the key '"
-                                + key
-                                + "', doesn't match the expected value."
-                                + "\n {} != {}".format(
-                                    calculated_value,
-                                    expected_value,
-                                ),
-                            )
-                        )
-                    else:
-                        self.assertEqual(
-                            calculated_value,
-                            expected_value,
-                            "The calculated value for the key '"
-                            + key
-                            + "', doesn't match the expected value."
-                            + "\n {} != {}".format(
-                                calculated_value,
-                                expected_value,
-                            ),
-                        )
+        for result, reference in zip(analysis_results, expected_analysis):
+            # Check names match
+            self.assertEqual(result.name, reference["name"])
+
+            # Check values match
+            value = result.value
+            target = reference["value"]
+            if isinstance(value, FitVal):
+                value = value.value
+                target = target.value
+            if isinstance(value, float):
+                self.assertAlmostEqual(value, target)
+            elif isinstance(value, np.ndarray):
+                self.assertTrue(matrix_equal(value, target))
+            else:
+                self.assertEqual(value, target)
+
+            # Check extra match
+            for key, value in result.extra.items():
+                target = reference["extra"][key]
+                if isinstance(value, FitVal):
+                    value = value.value
+                    target = target.value
+                if isinstance(value, float):
+                    self.assertAlmostEqual(value, target)
+                elif isinstance(value, np.ndarray):
+                    self.assertTrue(matrix_equal(value, target))
+                else:
+                    self.assertEqual(value, target)
 
     def _run_tests(self, data_filenames, analysis_filenames):
         """
@@ -197,11 +177,11 @@ class TestRBAnalysis(QiskitTestCase):
             experiment_setup, experiment_data = json_data[0], json_data[1]
             self._validate_metadata(analysis_obj.data(), experiment_setup)
             self._validate_counts(analysis_obj.data(), experiment_data)
-            analysis_data_expected = self._analysis_load(
+            analysis_results_expected = self._analysis_load(
                 os.path.join(dir_name, rb_analysis_file_name)
             )
             self._validate_fitting_parameters(
-                analysis_obj.analysis_results(), analysis_data_expected
+                analysis_obj.analysis_results(), analysis_results_expected
             )
 
     def _load_rb_data(self, rb_exp_data_file_name: str):

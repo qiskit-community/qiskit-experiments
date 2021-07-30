@@ -113,46 +113,28 @@ def _generate_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes: di
     with open(results_file_path, "w") as json_file:
         joined_list_data = [exp_attributes, exp_results]
         json_file.write(json.dumps(joined_list_data))
-    _analysis_save(experiment_obj, analysis_file_path, "RBAnalysis")
+    _analysis_save(experiment_obj.analysis_results(), analysis_file_path)
 
 
-def _analysis_save(experiment_obj, analysis_file_path: str, analysis_type: str):
+def _analysis_save(analysis_results, analysis_file_path: str):
     """
     The function is creating a json file from the data of the RB experiment analysis.
     Args:
-        analysis_data: The data from the analysis of the experiment.
+        analysis_results: the analysis results to save.
         analysis_file_path (str): The path to save the json file.
-        analysis_type (str): The type of analysis class used
     """
-    analysis_json_dict = {}
-    for result in experiment_obj.analysis_results():
-        if result.name == analysis_type:
-            result_dict = {
+    dict_analysis_results = []
+    for result in analysis_results:
+        dict_analysis_results.append(
+            {
+                "name": result.name,
                 "value": result.value,
-                "popt": result.extra["popt"],
-                "popt_err": result.extra["popt_err"],
-                "pcov": result.extra["pcov"],
+                "extra": result.extra,
             }
-            analysis_json_dict[analysis_type] = result_dict
-        if result.name == "alpha":
-            result_dict = {
-                "value": result.value,
-            }
-            analysis_json_dict["alpha"] = result_dict
-        if result.name == "EPC":
-            result_dict = {
-                "value": result.value,
-            }
-            analysis_json_dict["EPC"] = result_dict
-        if result.name[0:3] == "EPG":
-            result_dict = {
-                "value": result.value,
-            }
-            analysis_json_dict[result.name] = result_dict
-
+        )
     print("Writing to file", analysis_file_path)
     with open(analysis_file_path, "w") as json_file:
-        json.dump(analysis_json_dict, json_file, cls=ExperimentEncoder)
+        json.dump(dict_analysis_results, json_file, cls=ExperimentEncoder)
 
 
 def interleaved_rb_exp_data_gen(dir_name: str):
@@ -227,7 +209,7 @@ def _generate_int_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes
     with open(results_file_path, "w") as json_file:
         joined_list_data = [exp_attributes, exp_results]
         json_file.write(json.dumps(joined_list_data))
-    _analysis_save(experiment_obj, analysis_file_path, "InterleavedRBanalysis")
+    _analysis_save(experiment_obj.analysis_results(), analysis_file_path)
 
 
 DIRNAME = os.path.dirname(os.path.abspath(__file__))
