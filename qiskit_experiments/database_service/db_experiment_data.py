@@ -977,17 +977,6 @@ class DbExperimentDataV1(DbExperimentData):
         """
         return self._metadata
 
-    @metadata.setter
-    def metadata(self, new_metadata: Dict) -> None:
-        """Set metadata for this experiment.
-
-        Args:
-            new_metadata: New metadata for the experiment.
-        """
-        self._metadata = copy.deepcopy(new_metadata)
-        if self.auto_save:
-            self.save_metadata()
-
     @property
     def _provider(self) -> Optional[Provider]:
         """Return the provider.

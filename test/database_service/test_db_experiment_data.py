@@ -515,7 +515,6 @@ class TestDbExperimentData(QiskitTestCase):
             (exp_data.delete_figure, (0,), service.delete_figure),
             (exp_data.delete_analysis_result, (0,), service.delete_analysis_result),
             (setattr, (exp_data, "tags", ["foo"]), service.update_experiment),
-            (setattr, (exp_data, "metadata", {"foo": "bar"}), service.update_experiment),
             (setattr, (exp_data, "notes", "foo"), service.update_experiment),
             (setattr, (exp_data, "share_level", "hub"), service.update_experiment),
         ]
@@ -608,13 +607,6 @@ class TestDbExperimentData(QiskitTestCase):
         self.assertEqual(["foo"], exp_data.tags)
         exp_data.tags = ["bar"]
         self.assertEqual(["bar"], exp_data.tags)
-
-    def test_set_metadata(self):
-        """Test updating experiment metadata."""
-        exp_data = DbExperimentData(experiment_type="qiskit_test", metadata={"foo": "bar"})
-        self.assertEqual({"foo": "bar"}, exp_data.metadata)
-        exp_data.metadata = {"bar": "foo"}
-        self.assertEqual({"bar": "foo"}, exp_data.metadata)
 
     def test_cancel_jobs(self):
         """Test canceling experiment jobs."""
