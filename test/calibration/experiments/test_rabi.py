@@ -108,9 +108,9 @@ class TestRabiEndToEnd(QiskitTestCase):
         rabi.set_run_options(shots=2)
         data = rabi.run(backend)
         data.block_for_results()
-        result = data.analysis_results(0)
+        result = data.analysis_results()
 
-        self.assertTrue(f"The input key {fail_key} was not found" in result.extra["error_message"])
+        self.assertEqual(len(result), 0)
 
 
 class TestEFRabi(QiskitTestCase):
@@ -131,11 +131,10 @@ class TestEFRabi(QiskitTestCase):
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         expdata = rabi.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_results(0)
-        result_data = result.extra
+        result = expdata.analysis_results(1)
 
         self.assertEqual(result.quality, "good")
-        self.assertTrue(abs(result_data["popt"][1] - backend.rabi_rate) < test_tol)
+        self.assertTrue(abs(result.value.value - backend.rabi_rate) < test_tol)
 
     def test_ef_rabi_circuit(self):
         """Test the EFRabi experiment end to end."""

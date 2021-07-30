@@ -15,6 +15,7 @@ T1 Analysis class.
 
 
 from typing import Tuple, List
+import dataclasses
 import numpy as np
 
 from qiskit.utils import apply_prefix
@@ -111,6 +112,7 @@ class T1Analysis(BaseAnalysis):
 
         init = {"a": amplitude_guess, "tau": t1_guess, "c": offset_guess}
         fit_result = curve_fit(fit_fun, xdata, ydata, init, sigma=sigma)
+        fit_result = dataclasses.asdict(fit_result)
         fit_result["circuit_unit"] = unit
         if unit == "dt":
             fit_result["dt"] = conversion_factor

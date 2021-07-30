@@ -23,9 +23,10 @@ Classes
     :toctree: ../stubs/
 
     CurveAnalysis
-    CurveAnalysisResultData
     SeriesDef
     CurveData
+    FitData
+    ParameterRepr
 
 Functions
 =========
@@ -71,18 +72,9 @@ Visualization
     plot_curve_fit
     plot_errorbar
     plot_scatter
-
-Utility
-*******
-.. autosummary::
-    :toctree: ../stubs/
-
-    get_opt_error
-    get_opt_value
 """
 from .curve_analysis import CurveAnalysis
-from .curve_analysis_result_data import CurveAnalysisResultData
-from .curve_data import CurveData, SeriesDef
+from .curve_data import CurveData, SeriesDef, FitData, ParameterRepr
 from .curve_fit import (
     curve_fit,
     multi_curve_fit,
@@ -90,6 +82,5 @@ from .curve_fit import (
     process_multi_curve_data,
 )
 from .visualization import plot_curve_fit, plot_errorbar, plot_scatter
-from .utils import get_opt_error, get_opt_value
 from . import guess
 from . import fit_function
