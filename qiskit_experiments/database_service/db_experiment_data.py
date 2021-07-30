@@ -23,10 +23,10 @@ import contextlib
 from collections import deque
 from datetime import datetime
 
+from matplotlib import pyplot
 from qiskit.providers import Job, BaseJob, Backend, BaseBackend, Provider
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
-from qiskit.visualization import HAS_MATPLOTLIB
 
 from .database_service import DatabaseServiceV1
 from .exceptions import DbExperimentDataError, DbExperimentEntryNotFound, DbExperimentEntryExists
@@ -450,12 +450,8 @@ class DbExperimentDataV1(DbExperimentData):
 
             save = save_figure if save_figure is not None else self.auto_save
             if save and self._service:
-                if HAS_MATPLOTLIB:
-                    # pylint: disable=import-error
-                    from matplotlib import pyplot
-
-                    if isinstance(figure, pyplot.Figure):
-                        figure = plot_to_svg_bytes(figure)
+                if isinstance(figure, pyplot.Figure):
+                    figure = plot_to_svg_bytes(figure)
                 data = {
                     "experiment_id": self.experiment_id,
                     "figure": figure,
@@ -741,12 +737,8 @@ class DbExperimentDataV1(DbExperimentData):
             for name, figure in self._figures.items():
                 if figure is None:
                     continue
-                if HAS_MATPLOTLIB:
-                    # pylint: disable=import-error
-                    from matplotlib import pyplot
-
-                    if isinstance(figure, pyplot.Figure):
-                        figure = plot_to_svg_bytes(figure)
+                if isinstance(figure, pyplot.Figure):
+                    figure = plot_to_svg_bytes(figure)
                 data = {"experiment_id": self.experiment_id, "figure": figure, "figure_name": name}
                 save_data(
                     is_new=True,

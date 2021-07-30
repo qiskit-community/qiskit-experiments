@@ -15,7 +15,7 @@
 """Test ExperimentData."""
 
 import os
-from unittest import mock, skipIf
+from unittest import mock
 import copy
 from random import randrange
 import time
@@ -24,14 +24,14 @@ import json
 import re
 import uuid
 
+import matplotlib.pyplot as plt
 import numpy as np
-
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeMelbourne
 from qiskit.result import Result
 from qiskit.providers import JobV1 as Job
 from qiskit.providers import JobStatus
-from qiskit.tools.visualization import HAS_MATPLOTLIB
+
 from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
 from qiskit_experiments.database_service import DatabaseServiceV1
 from qiskit_experiments.database_service.exceptions import (
@@ -256,12 +256,8 @@ class TestDbExperimentData(QiskitTestCase):
                 fn = exp_data.add_figures(figure, figure_name)
                 self.assertEqual(hello_bytes, exp_data.figure(fn))
 
-    @skipIf(not HAS_MATPLOTLIB, "matplotlib not available.")
     def test_add_figure_plot(self):
         """Test adding a matplotlib figure."""
-        # pylint: disable=import-error
-        import matplotlib.pyplot as plt
-
         figure, ax = plt.subplots()
         ax.plot([1, 2, 3])
 
