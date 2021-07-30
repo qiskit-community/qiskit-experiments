@@ -328,7 +328,7 @@ class TestDbExperimentData(QiskitTestCase):
         """Test getting figure."""
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         figure_template = "hello world {}"
-        name_template = "figure_{}"
+        name_template = "figure_{}.svg"
         for idx in range(3):
             exp_data.add_figures(
                 str.encode(figure_template.format(idx)), figure_names=name_template.format(idx)
@@ -347,7 +347,7 @@ class TestDbExperimentData(QiskitTestCase):
     def test_delete_figure(self):
         """Test deleting a figure."""
         exp_data = DbExperimentData(experiment_type="qiskit_test")
-        id_template = "figure_{}"
+        id_template = "figure_{}.svg"
         for idx in range(3):
             exp_data.add_figures(str.encode("hello world"), id_template.format(idx))
 

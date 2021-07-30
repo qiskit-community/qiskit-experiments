@@ -17,8 +17,18 @@ Experiment Library (:mod:`qiskit_experiments.library`)
 
 .. currentmodule:: qiskit_experiments.library
 
+A library of of quantum characterization, calibration and verification
+experiments for calibrating and benchmarking quantum devices. See
+:mod:`qiskit_experiments.framework` for general information the framework
+for running experiments.
+
+
+.. _verification:
+
 Verification Experiments
 ========================
+
+Experiments for verification and validation of quantum devices.
 
 .. autosummary::
     :toctree: ../stubs/
@@ -29,8 +39,13 @@ Verification Experiments
     ~tomography.ProcessTomography
     ~quantum_volume.QuantumVolume
 
+.. _characterization:
+
 Characterization Experiments
 ============================
+
+Experiments for characterization of qubits and quantum device properties.
+Some experiments may be also used for gate calibration.
 
 .. autosummary::
     :toctree: ../stubs/
@@ -40,11 +55,20 @@ Characterization Experiments
     ~characterization.QubitSpectroscopy
     ~characterization.EFSpectroscopy
 
+.. _calibration:
+
 Calibration Experiments
 =======================
 
+Experiments for pulse level calibration of quantum gates. These experiments
+are usually run with a
+:py:class:`~qiskit_experiments.calibration_management.Calibrations`
+class instance to manage parameters and pulse schedules.
+See :doc:`/tutorials/calibrating_armonk` for example.
+
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
     ~calibration.DragCal
     ~calibration.Rabi
@@ -52,6 +76,7 @@ Calibration Experiments
     ~calibration.FineAmplitude
     ~calibration.FineXAmplitude
     ~calibration.FineSXAmplitude
+
 """
 from .calibration import DragCal, Rabi, EFRabi, FineAmplitude, FineXAmplitude, FineSXAmplitude
 from .characterization import T1, T2Ramsey, QubitSpectroscopy, EFSpectroscopy

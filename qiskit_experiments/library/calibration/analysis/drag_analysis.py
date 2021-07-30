@@ -22,32 +22,37 @@ from qiskit_experiments.curve_analysis.fit_function import cos
 class DragCalAnalysis(curve.CurveAnalysis):
     r"""Drag calibration analysis based on a fit to a cosine function.
 
-    Analyse a Drag calibration experiment by fitting three series each to a cosine function.
-    The three functions share the phase parameter (i.e. beta) but each have their own amplitude,
-    baseline, and frequency parameters (which therefore depend on the number of repetitions of
-    xp-xm). Several initial guesses are tried if the user does not provide one.
+    # section: fit_model
 
-    .. math::
+        Analyse a Drag calibration experiment by fitting three series each to a cosine function.
+        The three functions share the phase parameter (i.e. beta) but each have their own amplitude,
+        baseline, and frequency parameters (which therefore depend on the number of repetitions of
+        xp-xm). Several initial guesses are tried if the user does not provide one.
 
-        y = {\rm amp} \cos\left(2 \pi {\rm freq}_i x - 2 \pi {\rm beta}\right) + {\rm base}
+        .. math::
 
-    Fit Parameters
-        - :math:`{\rm amp}`: Amplitude of all series.
-        - :math:`{\rm base}`: Base line of all series.
-        - :math:`{\rm freq}_i`: Frequency of the :math:`i` th oscillation.
-        - :math:`{\rm beta}`: Common beta offset. This is the parameter of interest.
+            y = {\rm amp} \cos\left(2 \pi\cdot {\rm freq}_i\cdot x - 2 \pi \beta\right) + {\rm base}
 
-    Initial Guesses
-        - :math:`{\rm amp}`: The maximum y value less the minimum y value. 0.5 is also tried.
-        - :math:`{\rm base}`: The average of the data. 0.5 is also tried.
-        - :math:`{\rm freq}_i`: The frequency with the highest power spectral density.
-        - :math:`{\rm beta}`: Linearly spaced between the maximum and minimum scanned beta.
+    # section: fit_parameters
+        defpar \rm amp:
+            desc: Amplitude of all series.
+            init_guess: The maximum y value less the minimum y value. 0.5 is also tried.
+            bounds: [-2, 2] scaled to the maximum signal value.
 
-    Bounds
-        - :math:`{\rm amp}`: [-2, 2] scaled to the maximum signal value.
-        - :math:`{\rm base}`: [-1, 1] scaled to the maximum signal value.
-        - :math:`{\rm freq}_i`: [0, inf].
-        - :math:`{\rm beta}`: [-min scan range, max scan range].
+        defpar \rm base:
+            desc: Base line of all series.
+            init_guess: The average of the data. 0.5 is also tried.
+            bounds: [-1, 1] scaled to the maximum signal value.
+
+        defpar {\rm freq}_i:
+            desc: Frequency of the :math:`i` th oscillation.
+            init_guess: The frequency with the highest power spectral density.
+            bounds: [0, inf].
+
+        defpar \beta:
+            desc: Common beta offset. This is the parameter of interest.
+            init_guess: Linearly spaced between the maximum and minimum scanned beta.
+            bounds: [-min scan range, max scan range].
     """
 
     __series__ = [

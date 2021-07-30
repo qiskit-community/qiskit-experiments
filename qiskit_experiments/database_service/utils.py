@@ -26,6 +26,16 @@ import pkg_resources
 from dateutil import tz
 from qiskit.version import __version__ as terra_version
 
+try:
+    from qiskit.providers.ibmq.experiment import (
+        IBMExperimentEntryExists,
+        IBMExperimentEntryNotFound,
+    )
+
+    HAS_IBMQ = True
+except ImportError:
+    HAS_IBMQ = False
+
 from .exceptions import DbExperimentEntryNotFound, DbExperimentEntryExists, DbExperimentDataError
 from ..version import __version__ as experiments_version
 
@@ -114,6 +124,11 @@ def save_data(
         DbExperimentDataError: If unable to determine whether the entry exists.
     """
     attempts = 0
+    no_entry_exception = [DbExperimentEntryNotFound]
+    dup_entry_exception = [DbExperimentEntryExists]
+    if HAS_IBMQ:
+        no_entry_exception.append(IBMExperimentEntryNotFound)
+        dup_entry_exception.append(IBMExperimentEntryExists)
     try:
         # Attempt 3x for the unlikely scenario wherein is_new=False but the
         # entry doesn't actually exists. The second try might also fail if an entry
@@ -123,12 +138,12 @@ def save_data(
             if is_new:
                 try:
                     return True, new_func(**{**new_data, **update_data})
-                except DbExperimentEntryExists:
+                except tuple(dup_entry_exception):
                     is_new = False
             else:
                 try:
                     return True, update_func(**update_data)
-                except DbExperimentEntryNotFound:
+                except tuple(no_entry_exception):
                     is_new = True
         raise DbExperimentDataError("Unable to determine the existence of the entry.")
     except Exception:  # pylint: disable=broad-except
