@@ -20,7 +20,7 @@ import numpy as np
 import scipy.optimize as opt
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.curve_analysis.data_processing import filter_data
-from qiskit_experiments.curve_analysis.curve_analysis_result_data import CurveAnalysisResultData
+from qiskit_experiments.curve_analysis.curve_data import FitData
 
 
 def curve_fit(
@@ -31,7 +31,7 @@ def curve_fit(
     sigma: Optional[np.ndarray] = None,
     bounds: Optional[Union[Dict[str, Tuple[float, float]], Tuple[np.ndarray, np.ndarray]]] = None,
     **kwargs,
-) -> CurveAnalysisResultData:
+) -> FitData:
     r"""Perform a non-linear least squares to fit
 
     This solves the optimization problem
@@ -142,20 +142,20 @@ def curve_fit(
         residues = residues / (sigma ** 2)
     reduced_chisq = np.sum(residues) / dof
 
-    # Compute xdata range for fit
-    xdata_range = [min(xdata), max(xdata)]
+    # Compute data range for fit
+    xdata_range = np.min(xdata), np.max(xdata)
+    ydata_range = np.min(ydata), np.max(ydata)
 
-    result = {
-        "popt": popt,
-        "popt_keys": param_keys,
-        "popt_err": popt_err,
-        "pcov": pcov,
-        "reduced_chisq": reduced_chisq,
-        "dof": dof,
-        "xrange": xdata_range,
-    }
-
-    return CurveAnalysisResultData(result)
+    return FitData(
+        popt=popt,
+        popt_keys=param_keys,
+        popt_err=popt_err,
+        pcov=pcov,
+        reduced_chisq=reduced_chisq,
+        dof=dof,
+        x_range=xdata_range,
+        y_range=ydata_range,
+    )
 
 
 def multi_curve_fit(
@@ -168,7 +168,7 @@ def multi_curve_fit(
     weights: Optional[np.ndarray] = None,
     bounds: Optional[Union[Dict[str, Tuple[float, float]], Tuple[np.ndarray, np.ndarray]]] = None,
     **kwargs,
-) -> CurveAnalysisResultData:
+) -> FitData:
     r"""Perform a linearized multi-objective non-linear least squares fit.
 
     This solves the optimization problem

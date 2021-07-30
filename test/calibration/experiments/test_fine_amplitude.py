@@ -48,10 +48,8 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         expdata = amp_cal.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_results(-1)
-        result_data = result.extra
-
-        d_theta = result_data["popt"][result_data["popt_keys"].index("d_theta")]
+        result = expdata.analysis_results(1)
+        d_theta = result.value.value
 
         tol = 0.04
 
@@ -71,10 +69,8 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         expdata = amp_cal.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_results(-1)
-        result_data = result.extra
-
-        d_theta = result_data["popt"][result_data["popt_keys"].index("d_theta")]
+        result = expdata.analysis_results(1)
+        d_theta = result.value.value
 
         tol = 0.04
 
