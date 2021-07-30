@@ -33,7 +33,24 @@ from qiskit_experiments.curve_analysis.data_processing import level2_probability
 
 # pylint: disable = invalid-name
 class T2RamseyAnalysis(BaseAnalysis):
-    """T2Ramsey Experiment result analysis class."""
+
+    r"""
+    T2Ramsey result analysis class.
+
+    Fit Model
+        This class is used to analyze the results of a T2Ramsey experiment.
+        The probability of measuring `+` is assumed to be of the form
+
+        :math:`f(t) = a\mathrm{e}^{-t / T_2^*}\cos(2\pi f t + \phi) + b`
+
+    Fit Parameters
+        - :math:`a (amplitude)`: Height of the decay curve.
+        - :math:`b (offset)`: Base line of the decay curve.
+        - :math:`\phi (shift)`: Relative shift of the graph from the origin.
+        - :math:`t2ramsey`: Represents the rate of decay.
+        - :math:`f (frequency)`: Represents the difference in frequency between
+          the user guess and the actual frequency of the qubit.
+    """
 
     @classmethod
     def _default_options(cls):
@@ -51,31 +68,27 @@ class T2RamseyAnalysis(BaseAnalysis):
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         r"""Calculate T2Ramsey experiment.
 
-        The probability of measuring `+` is assumed to be of the form
-        :math:`f(t) = a\mathrm{e}^{-t / T_2^*}\cos(2\pi freq t + \phi) + b`
-        for unknown parameters :math:`a, b, freq, \phi, T_2^*`.
-
         Args:
             experiment_data (ExperimentData): the experiment data to analyze
             user_p0: contains initial values given by the user, for the
-            fit parameters :math:`(a, t_2ramsey, freq, \phi, b)`
+            fit parameters :math:`(a, t2ramsey, f, \phi, b)`
             user_bounds: lower and upper bounds on the parameters in p0,
                          given by the user.
                          The first tuple is the lower bounds,
                          The second tuple is the upper bounds.
-                         For both params, the order is :math:`a, t_2ramsey, freq, \phi, b`.
+                         For both params, the order is :math:`a, t2ramsey, f, \phi, b`.
             plot: if True, create the plot, otherwise, do not create the plot.
             ax: the plot object
             **kwargs: additional parameters for curve fit.
 
         Returns:
-            The analysis result with the estimated :math:`T_2Ramsey` and 'freq' (frequency)
+            The analysis result with the estimated :math:`t2ramsey` and 'f' (frequency)
             The graph of the function.
         """
 
-        def osc_fit_fun(x, a, t2ramsey, freq, phi, c):
+        def osc_fit_fun(x, a, t2ramsey, f, phi, c):
             """Decay cosine fit function"""
-            return a * np.exp(-x / t2ramsey) * np.cos(2 * np.pi * freq * x + phi) + c
+            return a * np.exp(-x / t2ramsey) * np.cos(2 * np.pi * f * x + phi) + c
 
         def _format_plot(ax, unit, fit_result, conversion_factor):
             """Format curve fit plot"""
@@ -164,27 +177,27 @@ class T2RamseyAnalysis(BaseAnalysis):
     ) -> Tuple[List[float], Tuple[List[float]]]:
         """Default fit parameters for oscillation data.
 
-        Note that :math:`T_2^*` and 'freq' units are converted to 'sec' and
-        will be output in 'sec'.
+        Note that :math:`T_2^*` unit is converted to 'sec' and 'f' unit is
+        converted to Hz, so the output will be given in 'sec' and 'Hz'.
         """
         if user_p0 is None:
             a = 0.5
             t2ramsey = t2ramsey_input * conversion_factor
-            freq = 0.1 / conversion_factor
+            f = 0.1 / conversion_factor
             phi = 0.0
             b = 0.5
         else:
             a = user_p0["A"]
             t2ramsey = user_p0["t2ramsey"] * conversion_factor
-            freq = user_p0["f"] / conversion_factor
+            f = user_p0["f"] / conversion_factor
             phi = user_p0["phi"]
             b = user_p0["B"]
-        p0 = {"a_guess": a, "t2ramsey": t2ramsey, "f_guess": freq, "phi_guess": phi, "b_guess": b}
+        p0 = {"a_guess": a, "t2ramsey": t2ramsey, "f_guess": f, "phi_guess": phi, "b_guess": b}
 
         if user_bounds is None:
             a_bounds = [-0.5, 1.5]
             t2ramsey_bounds = [0, np.inf]
-            f_bounds = [0.1 * freq, 10 * freq]
+            f_bounds = [0.1 * f, 10 * f]
             phi_bounds = [-np.pi, np.pi]
             b_bounds = [-0.5, 1.5]
             bounds = [
