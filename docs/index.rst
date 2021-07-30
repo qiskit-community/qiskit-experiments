@@ -5,14 +5,14 @@ Qiskit Experiments Documentation
 About Qiskit Experiments
 ========================
 
-Qiskit Experiments provides both a `library <apidocs/library>`_ of standard
+Qiskit Experiments provides both a :doc:`library <apidocs/library>` of standard
 quantum characterization, calibration, and verification experiments, and a
-general `framework <apidocs/framework>`_ for implementing custom experiments
+general :doc:`framework <apidocs/framework>` for implementing custom experiments
 which can be run on quantum devices through Qiskit.
 
 Experiments run on `IBMQ Provider <https://github.com/Qiskit/qiskit-ibmq-provider>`_
 backends can be stored and retrieved from an online experiment
-`database <apidocs/database_service>`_.
+:doc:`database <apidocs/database_service>`.
 
 .. warning::
 
