@@ -940,7 +940,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         # get experiment metadata
         try:
-            self.__experiment_metadata = experiment_data.metadata()
+            self.__experiment_metadata = experiment_data.metadata
 
         except AttributeError:
             pass

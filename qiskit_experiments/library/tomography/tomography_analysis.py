@@ -83,7 +83,7 @@ class TomographyAnalysis(BaseAnalysis):
 
         # Get target state from circuit metadata
         if target_state == "default":
-            metadata = experiment_data.metadata()
+            metadata = experiment_data.metadata
             target_state = metadata.get("target", None)
 
         # Get tomography fitter function
