@@ -20,7 +20,6 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit.test import QiskitTestCase
 
 from qiskit_experiments.library import QubitSpectroscopy, EFSpectroscopy
-from qiskit_experiments.curve_analysis import get_opt_value
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 
 
@@ -67,10 +66,8 @@ class TestQubitSpectroscopy(QiskitTestCase):
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_results(0)
-        result_data = result.extra
-
-        value = get_opt_value(result_data, "freq")
+        result = expdata.analysis_results(1)
+        value = result.value.value
 
         self.assertTrue(4.999e9 < value < 5.001e9)
         self.assertEqual(result.quality, "good")
@@ -82,10 +79,8 @@ class TestQubitSpectroscopy(QiskitTestCase):
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_results(0)
-        result_data = result.extra
-
-        value = get_opt_value(result_data, "freq")
+        result = expdata.analysis_results(1)
+        value = result.value.value
 
         self.assertTrue(5.0049e9 < value < 5.0051e9)
         self.assertEqual(result.quality, "good")
@@ -101,10 +96,8 @@ class TestQubitSpectroscopy(QiskitTestCase):
         spec = QubitSpectroscopy(qubit, frequencies, unit="MHz")
         expdata = spec.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_results(0)
-        result_data = result.extra
-
-        value = get_opt_value(result_data, "freq")
+        result = expdata.analysis_results(1)
+        value = result.value.value
 
         self.assertTrue(freq01 - 2e6 < value < freq01 + 2e6)
         self.assertEqual(result.quality, "good")
@@ -115,10 +108,8 @@ class TestQubitSpectroscopy(QiskitTestCase):
         spec = QubitSpectroscopy(qubit, frequencies, unit="MHz")
         expdata = spec.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_results(0)
-        result_data = result.extra
-
-        value = get_opt_value(result_data, "freq")
+        result = expdata.analysis_results(1)
+        value = result.value.value
 
         self.assertTrue(freq01 + 3e6 < value < freq01 + 8e6)
         self.assertEqual(result.quality, "good")
@@ -126,10 +117,8 @@ class TestQubitSpectroscopy(QiskitTestCase):
         spec.set_run_options(meas_return="avg")
         expdata = spec.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_results(0)
-        result_data = result.extra
-
-        value = get_opt_value(result_data, "freq")
+        result = expdata.analysis_results(1)
+        value = result.value.value
 
         self.assertTrue(freq01 + 3e6 < value < freq01 + 8e6)
         self.assertEqual(result.quality, "good")
@@ -148,10 +137,8 @@ class TestQubitSpectroscopy(QiskitTestCase):
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_results(0)
-        result_data = result.extra
-
-        value = get_opt_value(result_data, "freq")
+        result = expdata.analysis_results(1)
+        value = result.value.value
 
         self.assertTrue(freq01 - 2e6 < value < freq01 + 2e6)
         self.assertEqual(result.quality, "good")
