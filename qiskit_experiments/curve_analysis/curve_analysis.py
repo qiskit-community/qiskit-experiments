@@ -430,7 +430,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
             for res in analysis_results:
                 if isinstance(res.value, FitVal) and not res.name.startswith(PARAMS_ENTRY_PREFIX):
                     fitval = res.value
-                    value_repr = f"{_format_val(fitval.value)} \u00B1 {_format_val(fitval.stderr)}"
+                    value_repr = f"{_format_val(fitval.value)}"
+                    if fitval.stderr is not None:
+                        value_repr += f" \u00B1 {_format_val(fitval.stderr)}"
                     analysis_description += f"{res.name} = {value_repr}\n"
             analysis_description += r"Fit $\chi^2$ = " + f"{fit_data.reduced_chisq: .4f}"
 
