@@ -21,6 +21,7 @@ import inspect
 from abc import ABC
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
+from matplotlib import pyplot
 import numpy as np
 from qiskit.providers.options import Options
 from qiskit.providers import Backend
@@ -42,7 +43,7 @@ from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.processor_library import get_processor
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData, FitVal
-from qiskit_experiments.matplotlib import pyplot, requires_matplotlib, HAS_MATPLOTLIB
+from qiskit_experiments.matplotlib import requires_matplotlib
 
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"
@@ -1096,7 +1097,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         #
         # 6. Create figures
         #
-        if self._get_option("plot") and HAS_MATPLOTLIB:
+        if self._get_option("plot"):
             figures = self._create_figures(fit_data=fit_result, analysis_results=analysis_results)
         else:
             figures = []
