@@ -68,7 +68,6 @@ class DbAnalysisResultV1(DbAnalysisResult):
         tags: Optional[List[str]] = None,
         service: Optional[DatabaseServiceV1] = None,
         source: Optional[Dict[str, str]] = None,
-        **kwargs,
     ):
         """AnalysisResult constructor.
 
@@ -87,7 +86,6 @@ class DbAnalysisResultV1(DbAnalysisResult):
             service: Experiment service to be used to store result in database.
             source: Class and qiskit version information when loading from an
                 experiment service.
-            **kwargs: Additional analysis result attributes.
         """
         # Data to be stored in DB.
         self._experiment_id = experiment_id
@@ -122,7 +120,6 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 "data_version": self._data_version,
                 "qiskit_version": qiskit_version(),
             }
-        self._extra_data = kwargs
 
     @classmethod
     def load(cls, result_id: str, service: DatabaseServiceV1) -> "DbAnalysisResultV1":
@@ -211,7 +208,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         source = result_data.pop("_source", None)
 
         # Initialize the result object
-        return cls(
+        obj = cls(
             name=service_data.pop("result_type"),
             value=value,
             device_components=service_data.pop("device_components"),
@@ -223,8 +220,10 @@ class DbAnalysisResultV1(DbAnalysisResult):
             tags=service_data.pop("tags"),
             service=service_data.pop("service"),
             source=source,
-            **service_data,
         )
+        for key, val in service_data.items():
+            setattr(obj, key, val)
+        return obj
 
     @property
     def name(self) -> str:
