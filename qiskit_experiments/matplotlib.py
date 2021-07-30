@@ -10,18 +10,12 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Optional matplotlib helper functions
+Matplotlib helper functions
 """
+
 import functools
 
-try:
-    # pylint: disable = unused-import
-    from matplotlib import pyplot
-
-    HAS_MATPLOTLIB = True
-except ImportError:
-    pyplot = None
-    HAS_MATPLOTLIB = False
+from matplotlib import pyplot
 
 
 def requires_matplotlib(func):
@@ -29,12 +23,6 @@ def requires_matplotlib(func):
 
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
-        if not HAS_MATPLOTLIB:
-            raise ImportError(
-                f"{func} requires matplotlib to generate curve fit plot."
-                ' Run "pip install matplotlib" before.'
-            )
-
         # Analysis/plotting is done in a separate thread (so it doesn't block the
         # main thread), but matplotlib doesn't support GUI mode in a child thread.
         # The code below switches to a non-GUI backend "Agg" when creating the
