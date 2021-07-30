@@ -12,10 +12,9 @@
 """
 Curve analysis result data class.
 """
-from qiskit_experiments.framework import AnalysisResultData
 
 
-class CurveAnalysisResultData(AnalysisResultData):
+class CurveAnalysisResultData(dict):
     """Analysis data container for curve fit analysis.
 
     Class Attributes:
@@ -58,58 +57,9 @@ class CurveAnalysisResultData(AnalysisResultData):
 
             for key, value, error in zip(popt_keys, popt, popt_err):
                 out += f"\n  - {key}: {value} \u00B1 {error}"
-        out = str(super()) + out
 
+        for key, value in self.items():
+            if key in self.__keys_not_shown__:
+                continue
+            out += f"\n- {key}: {value}"
         return out
-
-    # def get_opt_value(self, param_name: str) -> float:
-    #     """A helper function to get parameter value from a result dictionary.
-
-    #     Args:
-    #         param_name: Name of parameter to extract.
-
-    #     Returns:
-    #         Parameter value.
-
-    #     Raises:
-    #         KeyError:
-    #             - When the result does not contain parameter information.
-    #         ValueError:
-    #             - When specified parameter is not defined.
-    #     """
-    #     try:
-    #         index = self["popt_keys"].index(param_name)
-    #         return self["popt"][index]
-    #     except KeyError as ex:
-    #         raise KeyError(
-    #             "Input result has not fit parameter information. "
-    #             "Please confirm if the fit is successfully completed."
-    #         ) from ex
-    #     except ValueError as ex:
-    #         raise ValueError(f"Parameter {param_name} is not defined.") from ex
-
-    # def get_opt_error(self, param_name: str) -> float:
-    #     """A helper function to get error value from analysis result.
-
-    #     Args:
-    #         param_name: Name of parameter to extract.
-
-    #     Returns:
-    #         Parameter error value.
-
-    #     Raises:
-    #         KeyError:
-    #             - When the result does not contain parameter information.
-    #         ValueError:
-    #             - When specified parameter is not defined.
-    #     """
-    #     try:
-    #         index = self["popt_keys"].index(param_name)
-    #         return self["popt_err"][index]
-    #     except KeyError as ex:
-    #         raise KeyError(
-    #             "Input result has not fit parameter information. "
-    #             "Please confirm if the fit is successfully completed."
-    #         ) from ex
-    #     except ValueError as ex:
-    #         raise ValueError(f"Parameter {param_name} is not defined.") from ex

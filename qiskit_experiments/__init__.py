@@ -19,10 +19,18 @@ Qiskit Experiments (:mod:`qiskit_experiments`)
 
 .. warning::
 
-    This package is still under active development, there will be breaking
-    API changes, and re-organization of the package layout. If you
-    encounter any bugs please open an issue on
+    This package is still under active development and it is very likely
+    that there will be breaking API changes in future releases.
+    If you encounter any bugs please open an issue on
     `Github <https://github.com/Qiskit/qiskit-experiments/issues>`_
+
+Qiskit Experiments provides both a general
+:mod:`~qiskit_experiments.framework` for creating and
+running experiments through Qiskit and optionally storing results in an
+online :mod:`~qiskit_experiments.database_service`, as well as a
+:mod:`~qiskit_experiments.library` of standard
+quantum characterization, calibration, and verification experiments.
+
 
 Modules
 =======
