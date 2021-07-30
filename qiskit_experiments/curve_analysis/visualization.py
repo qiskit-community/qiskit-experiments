@@ -15,11 +15,10 @@ Plotting functions for experiment analysis
 from typing import Callable, Optional
 import numpy as np
 
-from qiskit_experiments.matplotlib import pyplot, requires_matplotlib
-from qiskit_experiments.curve_analysis.curve_data import FitData
+from matplotlib import pyplot
 
-# pylint: disable = unused-import
-from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
+from qiskit_experiments.curve_analysis.curve_data import FitData
+from qiskit_experiments.matplotlib import requires_matplotlib
 
 
 @requires_matplotlib

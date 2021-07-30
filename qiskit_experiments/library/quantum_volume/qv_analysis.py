@@ -19,7 +19,6 @@ from typing import Optional
 import numpy as np
 
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, FitVal
-from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
 from qiskit_experiments.curve_analysis import plot_scatter, plot_errorbar
 
 
@@ -70,7 +69,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
 
         hop_result, qv_result = self._calc_quantum_volume(heavy_output_prob_exp, depth, num_trials)
 
-        if plot and HAS_MATPLOTLIB:
+        if plot:
             ax = self._format_plot(hop_result, ax=ax)
             figures = [ax.get_figure()]
         else:

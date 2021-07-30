@@ -25,7 +25,6 @@ from qiskit_experiments.framework import (
     AnalysisResultData,
     FitVal,
 )
-from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
 from qiskit_experiments.curve_analysis import curve_fit, plot_curve_fit, plot_errorbar, plot_scatter
 from qiskit_experiments.curve_analysis.curve_fit import process_curve_data
 from qiskit_experiments.curve_analysis.data_processing import level2_probability
@@ -141,7 +140,7 @@ class T2RamseyAnalysis(BaseAnalysis):
         )
         chisq = fit_result["reduced_chisq"]
 
-        if plot and HAS_MATPLOTLIB:
+        if plot:
             ax = plot_curve_fit(osc_fit_fun, fit_result, ax=ax)
             ax = plot_scatter(xdata, ydata, ax=ax)
             ax = plot_errorbar(xdata, ydata, sigma, ax=ax)
