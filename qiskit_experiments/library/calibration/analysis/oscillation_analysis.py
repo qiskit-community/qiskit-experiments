@@ -126,8 +126,8 @@ class OscillationAnalysis(curve.CurveAnalysis):
             - less than 10 full periods, and
             - an error on the fit frequency lower than the fit frequency.
         """
-        fit_freq = curve.get_fitval(fit_data, "freq").value
-        fit_freq_err = curve.get_fitval(fit_data, "freq").stderr
+        fit_freq = fit_data.value_of("freq").value
+        fit_freq_err = fit_data.value_of("freq").stderr
 
         criteria = [
             fit_data.reduced_chisq < 3,

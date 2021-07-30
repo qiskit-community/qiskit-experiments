@@ -173,8 +173,8 @@ class InterleavedRBAnalysis(RBAnalysis):
         nrb = 2 ** self._num_qubits
         scale = (nrb - 1) / nrb
 
-        alpha = curve.get_fitval(fit_data, "alpha")
-        alpha_c = curve.get_fitval(fit_data, "alpha_c")
+        alpha = fit_data.value_of("alpha")
+        alpha_c = fit_data.value_of("alpha_c")
 
         # Calculate epc_est (=r_c^est) - Eq. (4):
         epc = FitVal(value=scale * (1 - alpha_c.value), stderr=scale * alpha_c.stderr)

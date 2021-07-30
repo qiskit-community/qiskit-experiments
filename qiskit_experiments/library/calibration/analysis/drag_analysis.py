@@ -189,9 +189,9 @@ class DragCalAnalysis(curve.CurveAnalysis):
             - a DRAG parameter value within the first period of the lowest number of repetitions,
             - an error on the drag beta smaller than the beta.
         """
-        fit_beta = curve.get_fitval(fit_data, "beta").value
-        fit_beta_err = curve.get_fitval(fit_data, "beta").stderr
-        fit_freq0 = curve.get_fitval(fit_data, "freq0").value
+        fit_beta = fit_data.value_of("beta").value
+        fit_beta_err = fit_data.value_of("beta").stderr
+        fit_freq0 = fit_data.value_of("freq0").value
 
         criteria = [
             fit_data.reduced_chisq < 3,

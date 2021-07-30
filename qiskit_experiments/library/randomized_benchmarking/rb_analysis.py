@@ -151,7 +151,7 @@ class RBAnalysis(curve.CurveAnalysis):
         extra_entries = []
 
         # Calculate EPC
-        alpha = curve.get_fitval(fit_data, "alpha")
+        alpha = fit_data.value_of("alpha")
         scale = (2 ** self._num_qubits - 1) / (2 ** self._num_qubits)
         epc = FitVal(value=scale * (1 - alpha.value), stderr=scale * alpha.stderr / alpha.value)
         extra_entries.append(

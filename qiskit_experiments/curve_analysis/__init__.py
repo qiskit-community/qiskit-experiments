@@ -71,13 +71,6 @@ Visualization
     plot_curve_fit
     plot_errorbar
     plot_scatter
-
-Utility
-*******
-.. autosummary::
-    :toctree: ../stubs/
-
-    get_fitval
 """
 from .curve_analysis import CurveAnalysis
 from .curve_data import CurveData, SeriesDef, FitData
@@ -88,6 +81,5 @@ from .curve_fit import (
     process_multi_curve_data,
 )
 from .visualization import plot_curve_fit, plot_errorbar, plot_scatter
-from .utils import get_fitval
 from . import guess
 from . import fit_function

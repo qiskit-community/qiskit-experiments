@@ -26,7 +26,6 @@ from qiskit.providers.options import Options
 
 from qiskit_experiments.curve_analysis.curve_data import CurveData, SeriesDef, FitData
 from qiskit_experiments.curve_analysis.curve_fit import multi_curve_fit
-from qiskit_experiments.curve_analysis.utils import get_fitval
 from qiskit_experiments.curve_analysis.visualization import (
     plot_scatter,
     plot_errorbar,
@@ -1037,7 +1036,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 for primary_param, repr_unit_tuple in db_parameters.items():
                     result_entry = AnalysisResultData(
                         name=repr_unit_tuple[0],
-                        value=get_fitval(fit_result, primary_param, repr_unit_tuple[1]),
+                        value=fit_result.value_of(primary_param, repr_unit_tuple[1]),
                         chisq=fit_result.reduced_chisq,
                         quality=quality,
                     )

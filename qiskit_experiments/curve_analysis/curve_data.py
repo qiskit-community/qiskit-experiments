@@ -15,8 +15,10 @@ Curve data classes.
 """
 
 import dataclasses
-from typing import Any, Dict, Callable, Union, List, Tuple
+from typing import Any, Dict, Callable, Union, List, Tuple, Optional
 import numpy as np
+
+from qiskit_experiments.framework import FitVal
 
 
 @dataclasses.dataclass(frozen=True)
@@ -92,3 +94,26 @@ class FitData:
 
     # Y data range
     y_range: Tuple[float, float]
+
+    def value_of(self, key: str, unit: Optional[str] = None):
+        """A helper method to get fit value object from parameter key name.
+
+        Args:
+            key: Name of parameters to extract.
+            unit: Optional. Unit of this value.
+
+        Returns:
+            FitVal object.
+
+        Raises:
+            ValueError: When specified parameter is not defined.
+        """
+        try:
+            index = self.popt_keys.index(key)
+            return FitVal(
+                value=self.popt[index],
+                stderr=self.popt_err[index],
+                unit=unit,
+            )
+        except ValueError as ex:
+            raise ValueError(f"Parameter {key} is not defined.") from ex

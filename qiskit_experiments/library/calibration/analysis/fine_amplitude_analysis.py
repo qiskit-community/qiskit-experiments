@@ -156,7 +156,7 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
             - a measured angle error that is smaller than the allowed maximum good angle error.
               This quantity is set in the analysis options.
         """
-        fit_d_theta = curve.get_fitval(fit_data, "d_theta").value
+        fit_d_theta = fit_data.value_of("d_theta").value
         max_good_angle_error = self._get_option("max_good_angle_error")
 
         criteria = [
