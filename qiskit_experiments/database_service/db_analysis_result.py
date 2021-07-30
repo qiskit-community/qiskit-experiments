@@ -15,7 +15,6 @@
 import logging
 from typing import Optional, List, Union, Dict, Any
 import uuid
-import json
 import copy
 
 from .database_service import DatabaseServiceV1
@@ -153,8 +152,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
         # Get DB fit data
         value = self.value
         result_data = {
-            "_value": json.loads(json.dumps(value, cls=self._json_encoder)),
-            "_extra": json.loads(json.dumps(self.extra, cls=self._json_encoder)),
+            "_value": value,
+            "_extra": self.extra,
             "_source": self._source,
         }
 
@@ -189,6 +188,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             update_func=self._service.update_analysis_result,
             new_data=new_data,
             update_data=update_data,
+            json_encoder=self._json_encoder,
         )
 
     @classmethod
@@ -298,7 +298,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         return self._experiment_id
 
     @property
-    def chisq(self) -> str:
+    def chisq(self) -> Optional[float]:
         """Return the reduced χ² of this analysis."""
         return self._chisq
 
