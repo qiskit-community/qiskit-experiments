@@ -13,7 +13,8 @@
 """Experiment database service abstract interface."""
 
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, List, Any, Union, Tuple
+from typing import Optional, Dict, List, Any, Union, Tuple, Type
+import json
 
 from qiskit.providers import Options
 
@@ -72,6 +73,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
         job_ids: Optional[List[str]] = None,
         tags: Optional[List[str]] = None,
         notes: Optional[str] = None,
+        json_encoder: Type[json.JSONEncoder] = json.JSONEncoder,
         **kwargs: Any,
     ) -> str:
         """Create a new experiment in the database.
@@ -85,6 +87,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
             job_ids: IDs of experiment jobs.
             tags: Tags to be associated with the experiment.
             notes: Freeform notes about the experiment.
+            json_encoder: Custom JSON encoder to use to encode the experiment.
             kwargs: Additional keywords supported by the service provider.
 
         Returns:
@@ -121,11 +124,14 @@ class DatabaseServiceV1(DatabaseService, ABC):
         pass
 
     @abstractmethod
-    def experiment(self, experiment_id: str) -> Dict:
+    def experiment(
+        self, experiment_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
+    ) -> Dict:
         """Retrieve a previously stored experiment.
 
         Args:
             experiment_id: Experiment ID.
+            json_decoder: Custom JSON decoder to use to decode the retrieved experiment.
 
         Returns:
             A dictionary containing the retrieved experiment data.
@@ -139,6 +145,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
     def experiments(
         self,
         limit: Optional[int] = 10,
+        json_decoder: Type[json.JSONDecoder] = json.JSONDecoder,
         device_components: Optional[Union[str, DeviceComponent]] = None,
         experiment_type: Optional[str] = None,
         backend_name: Optional[str] = None,
@@ -150,6 +157,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
 
         Args:
             limit: Number of experiment data entries to retrieve. ``None`` means no limit.
+            json_decoder: Custom JSON decoder to use to decode the retrieved experiment.
             device_components: Filter by device components. An experiment must have analysis
                 results with device components matching the given list exactly to be included.
             experiment_type: Experiment type used for filtering.
@@ -191,6 +199,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
         quality: Optional[str] = None,
         verified: bool = False,
         result_id: Optional[str] = None,
+        json_encoder: Type[json.JSONEncoder] = json.JSONEncoder,
         **kwargs: Any,
     ) -> str:
         """Create a new analysis result in the database.
@@ -205,6 +214,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
             verified: Whether the result quality has been verified.
             result_id: Analysis result ID. It must be in the ``uuid4`` format.
                 One will be generated if not supplied.
+            json_encoder: Custom JSON encoder to use to encode the analysis result.
             kwargs: Additional keywords supported by the service provider.
 
         Returns:
@@ -241,11 +251,14 @@ class DatabaseServiceV1(DatabaseService, ABC):
         pass
 
     @abstractmethod
-    def analysis_result(self, result_id: str) -> Dict:
+    def analysis_result(
+        self, result_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
+    ) -> Dict:
         """Retrieve a previously stored experiment.
 
         Args:
             result_id: Analysis result ID.
+            json_decoder: Custom JSON decoder to use to decode the retrieved analysis result.
 
         Returns:
             Retrieved analysis result.
@@ -259,6 +272,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
     def analysis_results(
         self,
         limit: Optional[int] = 10,
+        json_decoder: Type[json.JSONDecoder] = json.JSONDecoder,
         device_components: Optional[Union[str, DeviceComponent]] = None,
         experiment_id: Optional[str] = None,
         result_type: Optional[str] = None,
@@ -273,6 +287,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
 
         Args:
             limit: Number of analysis results to retrieve. ``None`` means no limit.
+            json_decoder: Custom JSON decoder to use to decode the retrieved analysis results.
             device_components: Target device components, such as qubits.
             experiment_id: Experiment ID used for filtering.
             result_type: Analysis result type used for filtering.
