@@ -20,6 +20,7 @@ import numpy as np
 from qiskit_experiments.framework import AnalysisResultData, FitVal
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data
+from qiskit_experiments.database_service.device_component import Qubit
 from .rb_utils import RBUtils
 
 
@@ -153,7 +154,7 @@ class RBAnalysis(curve.CurveAnalysis):
         # Calculate EPC
         alpha = fit_data.fitval("alpha")
         scale = (2 ** self._num_qubits - 1) / (2 ** self._num_qubits)
-        epc = FitVal(value=scale * (1 - alpha.value), stderr=scale * alpha.stderr / alpha.value)
+        epc = FitVal(value=scale * (1 - alpha.value), stderr=scale * alpha.stderr)
         extra_entries.append(
             AnalysisResultData(
                 name="EPC",
@@ -202,15 +203,16 @@ class RBAnalysis(curve.CurveAnalysis):
             else:
                 # EPG calculation is not supported for more than 3 qubits RB
                 epg = None
-
             if epg:
-                extra_entries.append(
-                    AnalysisResultData(
-                        "EPG",
-                        value=epg,
-                        chisq=fit_data.reduced_chisq,
-                        quality=self._evaluate_quality(fit_data),
-                    )
-                )
-
+                for qubits, gate_dict in epg.items():
+                    for gate, value in gate_dict.items():
+                        extra_entries.append(
+                            AnalysisResultData(
+                                f"EPG_{gate}",
+                                FitVal(value, None),  # TODO: add EPG_err computation
+                                chisq=fit_data.reduced_chisq,
+                                quality=self._evaluate_quality(fit_data),
+                                device_components=[Qubit(i) for i in qubits],
+                            )
+                        )
         return extra_entries

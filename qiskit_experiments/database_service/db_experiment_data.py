@@ -14,7 +14,6 @@
 
 import logging
 import uuid
-import json
 from typing import Optional, List, Any, Union, Callable, Dict
 import copy
 from concurrent import futures
@@ -668,7 +667,11 @@ class DbExperimentDataV1(DbExperimentData):
             for fields that are saved.
         """
         if not self._service:
-            LOG.warning("Experiment cannot be saved because no experiment service is available.")
+            LOG.warning(
+                "Experiment cannot be saved because no experiment service is available. "
+                "An experiment service is available, for example, "
+                "when using an IBM Quantum backend."
+            )
             return
 
         if not self._backend:
@@ -682,7 +685,7 @@ class DbExperimentDataV1(DbExperimentData):
                     "save() again after all post-processing is done to save any newly "
                     "generated data."
                 )
-        metadata = json.loads(json.dumps(self._metadata, cls=self._json_encoder))
+        metadata = copy.deepcopy(self._metadata)
         metadata["_source"] = self._source
 
         update_data = {
@@ -702,6 +705,7 @@ class DbExperimentDataV1(DbExperimentData):
             update_func=self._service.update_experiment,
             new_data=new_data,
             update_data=update_data,
+            json_encoder=self._json_encoder,
         )
 
     def save(self) -> None:
@@ -717,7 +721,11 @@ class DbExperimentDataV1(DbExperimentData):
         """
         # TODO - track changes
         if not self._service:
-            LOG.warning("Experiment cannot be saved because no experiment service is available.")
+            LOG.warning(
+                "Experiment cannot be saved because no experiment service is available. "
+                "An experiment service is available, for example, "
+                "when using an IBM Quantum backend."
+            )
             return
 
         self.save_metadata()
