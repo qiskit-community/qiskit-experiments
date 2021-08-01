@@ -36,13 +36,13 @@ class T2RamseyAnalysis(BaseAnalysis):
     r"""
     T2Ramsey result analysis class.
 
-    Fit Model
+    # section: fit_model
         This class is used to analyze the results of a T2Ramsey experiment.
         The probability of measuring `+` is assumed to be of the form
 
         :math:`f(t) = a\mathrm{e}^{-t / T_2^*}\cos(2\pi f t + \phi) + b`
 
-    Fit Parameters
+    # section: fit_parameters
         - :math:`a (amplitude)`: Height of the decay curve.
         - :math:`b (offset)`: Base line of the decay curve.
         - :math:`\phi (shift)`: Relative shift of the graph from the origin.

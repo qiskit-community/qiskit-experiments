@@ -25,34 +25,34 @@ from .t2ramsey_analysis import T2RamseyAnalysis
 
 
 class T2Ramsey(BaseExperiment):
+    r"""T2Ramsey Experiment.
 
-    r"""
-    T2Ramsey Experiment
-
-    Overview
+    # section: overview
+    
         This experiment is used to estimate two properties for a single qubit:
         T2* and Ramsey frequency.
         This experiment consists of a series of circuits of the form
 
-    .. parsed-literal::
+        .. parsed-literal::
 
-           ┌───┐┌──────────────┐┌──────┐ ░ ┌───┐ ░ ┌─┐
-      q_0: ┤ H ├┤   DELAY(t)   ├┤ P(λ) ├─░─┤ H ├─░─┤M├
-           └───┘└──────────────┘└──────┘ ░ └───┘ ░ └╥┘
-      c: 1/═════════════════════════════════════════╩═
-                                                    0
+               ┌───┐┌──────────────┐┌──────┐ ░ ┌───┐ ░ ┌─┐
+          q_0: ┤ H ├┤   DELAY(t)   ├┤ P(λ) ├─░─┤ H ├─░─┤M├
+               └───┘└──────────────┘└──────┘ ░ └───┘ ░ └╥┘
+          c: 1/═════════════════════════════════════════╩═
+                                                        0
 
-    for each *t* from the specified delay times, and where
-    :math:`\lambda =2 \pi \times {osc\_freq}`,
-    and the delays are specified by the user.
-    The circuits are run on the device or on a simulator backend.
-    Results are analysed in the class T2RamseyAnalysis.
+        for each *t* from the specified delay times, and where
+        :math:`\lambda =2 \pi \times {osc\_freq}`,
+        and the delays are specified by the user.
+        The circuits are run on the device or on a simulator backend.
+        Results are analysed in the class T2RamseyAnalysis.
 
-    Analysis Class
+    # section: analysis_class
+    
         :class:`~qiskit.experiments.characterization.T2RamseyAnalysis`
 
-    Analysis Options
-
+    # section: analysis_options
+    
         - **user_p0** (``List[Float]``): user guesses for the fit parameters:
           :math:`a, b, f, \phi, T_2^*`.
         - **bounds** - (Tuple[List[float], List[float]]) lower and upper bounds for the fit parameters.
