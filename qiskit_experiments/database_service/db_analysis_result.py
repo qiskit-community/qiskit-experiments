@@ -15,7 +15,6 @@
 import logging
 from typing import Optional, List, Union, Dict, Any
 import uuid
-import json
 import copy
 
 from .database_service import DatabaseServiceV1
@@ -69,7 +68,6 @@ class DbAnalysisResultV1(DbAnalysisResult):
         tags: Optional[List[str]] = None,
         service: Optional[DatabaseServiceV1] = None,
         source: Optional[Dict[str, str]] = None,
-        **kwargs,
     ):
         """AnalysisResult constructor.
 
@@ -88,7 +86,6 @@ class DbAnalysisResultV1(DbAnalysisResult):
             service: Experiment service to be used to store result in database.
             source: Class and qiskit version information when loading from an
                 experiment service.
-            **kwargs: Additional analysis result attributes.
         """
         # Data to be stored in DB.
         self._experiment_id = experiment_id
@@ -114,7 +111,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         self._auto_save = False
         if self._service:
             try:
-                self.auto_save = self._service.option("auto_save")
+                self.auto_save = self._service.preferences["auto_save"]
             except AttributeError:
                 pass
         if self._source is None:
@@ -123,7 +120,6 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 "data_version": self._data_version,
                 "qiskit_version": qiskit_version(),
             }
-        self._extra_data = kwargs
 
     @classmethod
     def load(cls, result_id: str, service: DatabaseServiceV1) -> "DbAnalysisResultV1":
@@ -156,8 +152,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
         # Get DB fit data
         value = self.value
         result_data = {
-            "_value": json.loads(json.dumps(value, cls=self._json_encoder)),
-            "_extra": json.loads(json.dumps(self.extra, cls=self._json_encoder)),
+            "_value": value,
+            "_extra": self.extra,
             "_source": self._source,
         }
 
@@ -192,6 +188,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             update_func=self._service.update_analysis_result,
             new_data=new_data,
             update_data=update_data,
+            json_encoder=self._json_encoder,
         )
 
     @classmethod
@@ -211,7 +208,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         source = result_data.pop("_source", None)
 
         # Initialize the result object
-        return cls(
+        obj = cls(
             name=service_data.pop("result_type"),
             value=value,
             device_components=service_data.pop("device_components"),
@@ -223,8 +220,10 @@ class DbAnalysisResultV1(DbAnalysisResult):
             tags=service_data.pop("tags"),
             service=service_data.pop("service"),
             source=source,
-            **service_data,
         )
+        for key, val in service_data.items():
+            setattr(obj, key, val)
+        return obj
 
     @property
     def name(self) -> str:
@@ -299,7 +298,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         return self._experiment_id
 
     @property
-    def chisq(self) -> str:
+    def chisq(self) -> Optional[float]:
         """Return the reduced χ² of this analysis."""
         return self._chisq
 

@@ -15,12 +15,12 @@ T1 Analysis class.
 
 
 from typing import Tuple, List
+import dataclasses
 import numpy as np
 
 from qiskit.utils import apply_prefix
 
 from qiskit_experiments.framework import BaseAnalysis, Options, AnalysisResultData, FitVal
-from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
 from qiskit_experiments.curve_analysis import plot_curve_fit, plot_errorbar, curve_fit
 from qiskit_experiments.curve_analysis.curve_fit import (
     process_curve_data,
@@ -111,6 +111,7 @@ class T1Analysis(BaseAnalysis):
 
         init = {"a": amplitude_guess, "tau": t1_guess, "c": offset_guess}
         fit_result = curve_fit(fit_fun, xdata, ydata, init, sigma=sigma)
+        fit_result = dataclasses.asdict(fit_result)
         fit_result["circuit_unit"] = unit
         if unit == "dt":
             fit_result["dt"] = conversion_factor
@@ -135,7 +136,7 @@ class T1Analysis(BaseAnalysis):
 
         # Generate fit plot
         figures = []
-        if plot and HAS_MATPLOTLIB:
+        if plot:
             ax = plot_curve_fit(fit_fun, fit_result, ax=ax, fit_uncertainty=True)
             ax = plot_errorbar(xdata, ydata, sigma, ax=ax)
             self._format_plot(ax, fit_result, qubit=qubit)

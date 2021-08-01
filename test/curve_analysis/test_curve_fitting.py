@@ -91,7 +91,7 @@ class TestCurveFitting(QiskitTestCase):
         p0 = [0.6]
         bounds = ([0], [2])
         sol = curve_fit(self.objective0, xdata, ydata, p0, sigma=sigma, bounds=bounds)
-        self.assertTrue(abs(sol["popt"][0] - 0.5) < 0.05)
+        self.assertTrue(abs(sol.popt[0] - 0.5) < 0.05)
 
     def test_multi_curve_fit(self):
         """Test multi_curve_fit function"""
@@ -111,7 +111,7 @@ class TestCurveFitting(QiskitTestCase):
         sol = multi_curve_fit(
             [self.objective0, self.objective1], series, xdata, ydata, p0, sigma=sigma, bounds=bounds
         )
-        self.assertTrue(abs(sol["popt"][0] - 0.5) < 0.05)
+        self.assertTrue(abs(sol.popt[0] - 0.5) < 0.05)
 
     def test_mean_xy_data(self):
         """Test mean_xy_data function"""

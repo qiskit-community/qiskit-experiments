@@ -23,6 +23,7 @@ import qiskit.pulse as pulse
 from qiskit.providers.options import Options
 
 from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.curve_analysis import ParameterRepr
 from qiskit_experiments.library.calibration.analysis.oscillation_analysis import OscillationAnalysis
 from qiskit_experiments.exceptions import CalibrationError
 
@@ -45,6 +46,14 @@ class Rabi(BaseExperiment):
 
         If the user provides his own schedule for the Rabi then it must have one free parameter,
         i.e. the amplitude that will be scanned, and a drive channel which matches the qubit.
+
+    # section: tutorial
+        :doc:`/tutorials/calibrating_armonk`
+
+        See also `Qiskit Textbook <https://qiskit.org/textbook/ch-quantum-hardware/\
+        calibrating-qubits-pulse.html>`_
+        for the pulse level programming of Rabi experiment.
+
     """
 
     __analysis_class__ = OscillationAnalysis
@@ -86,6 +95,7 @@ class Rabi(BaseExperiment):
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
+        options.result_parameters = [ParameterRepr("freq", "rabi_rate")]
         options.normalization = True
 
         return options
@@ -211,17 +221,19 @@ class EFRabi(Rabi):
                        └───┘└───────────┘ ░ └╥┘
             measure: 1/══════════════════════╩═
                                              0
-    """
 
-    @classmethod
-    def _default_experiment_options(cls) -> Options:
-        """Default values for the pulse if no schedule is given.
-
+    # section: example
         Users can set a schedule by doing
 
         .. code-block::
 
             ef_rabi.set_experiment_options(schedule=rabi_schedule)
+
+    """
+
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        """Default values for the pulse if no schedule is given.
 
         Experiment Options:
 
@@ -230,6 +242,14 @@ class EFRabi(Rabi):
         """
         options = super()._default_experiment_options()
         options.frequency_shift = None
+
+        return options
+
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_analysis_options()
+        options.result_parameters = [ParameterRepr("freq", "rabi_rate_12")]
 
         return options
 
