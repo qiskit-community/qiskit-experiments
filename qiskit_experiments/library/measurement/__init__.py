@@ -22,6 +22,7 @@ Experiments
 ===========
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
     TwoLevelDiscriminator
 

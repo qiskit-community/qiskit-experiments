@@ -45,6 +45,7 @@ Calibration Experiments
 
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
     ~calibration.DragCal
     ~calibration.Rabi
@@ -52,6 +53,14 @@ Calibration Experiments
     ~calibration.FineAmplitude
     ~calibration.FineXAmplitude
     ~calibration.FineSXAmplitude
+
+Measurement Experiments
+=======================
+.. autosummary::
+    :toctree: ../stubs/
+    :template: autosummary/experiment.rst
+
+    ~measurement.TwoLevelDiscriminator
 """
 from .calibration import DragCal, Rabi, EFRabi, FineAmplitude, FineXAmplitude, FineSXAmplitude
 from .characterization import T1, T2Ramsey, QubitSpectroscopy, EFSpectroscopy
