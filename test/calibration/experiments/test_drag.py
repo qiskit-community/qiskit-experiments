@@ -71,7 +71,7 @@ class TestDragEndToEnd(QiskitTestCase):
         exp_data.block_for_results()
         result = exp_data.analysis_results(1)
 
-        meas_level = exp_data.metadata()["job_metadata"][-1]["run_options"]["meas_level"]
+        meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
 
         self.assertEqual(meas_level, MeasLevel.KERNELED)
         self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
@@ -89,7 +89,7 @@ class TestDragEndToEnd(QiskitTestCase):
         exp_data.block_for_results()
         result = exp_data.analysis_results(1)
 
-        meas_level = exp_data.metadata()["job_metadata"][-1]["run_options"]["meas_level"]
+        meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
 
         self.assertEqual(meas_level, MeasLevel.CLASSIFIED)
         self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
