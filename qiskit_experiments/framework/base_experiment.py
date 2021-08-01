@@ -123,7 +123,7 @@ class BaseExperiment(ABC):
             )
 
         # Generate and transpile circuits
-        transpile_opts = self.transpile_options.__dict__
+        transpile_opts = copy.copy(self.transpile_options).__dict__
         transpile_opts["initial_layout"] = list(self._physical_qubits)
         circuits = transpile(self.circuits(backend), backend, **transpile_opts)
         self._postprocess_transpiled_circuits(circuits, backend, **run_options)
