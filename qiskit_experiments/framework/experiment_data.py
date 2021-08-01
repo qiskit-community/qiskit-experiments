@@ -18,23 +18,7 @@ from datetime import datetime
 
 from qiskit_experiments.database_service import DbExperimentDataV1
 
-
 LOG = logging.getLogger(__name__)
-
-
-class AnalysisResultData(dict):
-    """Placeholder class"""
-
-    __keys_not_shown__ = tuple()
-    """Data keys of analysis result which are not directly shown in `__str__` method"""
-
-    def __str__(self):
-        out = ""
-        for key, value in self.items():
-            if key in self.__keys_not_shown__:
-                continue
-            out += f"\n- {key}: {value}"
-        return out
 
 
 class ExperimentData(DbExperimentDataV1):
@@ -100,3 +84,13 @@ class ExperimentData(DbExperimentDataV1):
                 experiment=self.experiment, backend=self.backend, job_ids=self.job_ids
             )
         return super()._copy_metadata(new_instance)
+
+    def __repr__(self):
+        out = f"{type(self).__name__}({self.experiment_type}"
+        out += f", {self.experiment_id}"
+        if self.backend:
+            out += f", backend={self.backend}"
+        if self.job_ids:
+            out += f", job_ids={self.job_ids}"
+        out += ")"
+        return out

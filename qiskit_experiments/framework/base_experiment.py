@@ -158,10 +158,9 @@ class BaseExperiment(ABC):
         # Validate experiment is compatible with existing data
         if not isinstance(experiment_data, ExperimentData):
             raise QiskitError("Input `experiment_data` is not a valid ExperimentData.")
-        metadata = experiment_data.metadata()
         if experiment_data.experiment_type != self._type:
             raise QiskitError("Existing ExperimentData contains data from a different experiment.")
-        if metadata.get("physical_qubits") != list(self.physical_qubits):
+        if experiment_data.metadata.get("physical_qubits") != list(self.physical_qubits):
             raise QiskitError(
                 "Existing ExperimentData contains data for a different set of physical qubits."
             )
@@ -178,7 +177,7 @@ class BaseExperiment(ABC):
                      for the current run.
 
         Returns:
-            The updated experiment data containing the analysis results and figures.
+            An experiment data object containing the analysis results and figures.
 
         Raises:
             QiskitError: if experiment_data container is not valid for analysis.
@@ -190,7 +189,7 @@ class BaseExperiment(ABC):
 
         # Run analysis
         analysis = self.analysis()
-        analysis.run(experiment_data, save=True, return_figures=False, **analysis_options)
+        analysis.run(experiment_data, **analysis_options)
         return experiment_data
 
     @property

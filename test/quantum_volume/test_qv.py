@@ -106,18 +106,18 @@ class TestQuantumVolume(QiskitTestCase):
         qv_exp.set_experiment_options(trials=2)
         expdata1 = qv_exp.run(backend)
         expdata1.block_for_results()
-        result_data1 = expdata1.analysis_results(0).data()
+        result_data1 = expdata1.analysis_results(0)
         expdata2 = qv_exp.run(backend, experiment_data=expdata1)
         expdata2.block_for_results()
-        result_data2 = expdata2.analysis_results(0).data()
+        result_data2 = expdata2.analysis_results(0)
 
-        self.assertTrue(result_data1["trials"] == 2, "number of trials is incorrect")
+        self.assertTrue(result_data1.extra["trials"] == 2, "number of trials is incorrect")
         self.assertTrue(
-            result_data2["trials"] == 4,
+            result_data2.extra["trials"] == 4,
             "number of trials is incorrect" " after adding more trials",
         )
         self.assertTrue(
-            result_data2["sigma"] <= result_data1["sigma"],
+            result_data2.value.stderr <= result_data1.value.stderr,
             "sigma did not decreased after adding more trials",
         )
 
@@ -139,9 +139,9 @@ class TestQuantumVolume(QiskitTestCase):
         exp_data.add_data(insufficient_trials_data)
 
         qv_exp.run_analysis(exp_data)
+        qv_result = exp_data.analysis_results(1)
         self.assertTrue(
-            exp_data.analysis_results(-1).data()["qv success"] is False
-            and exp_data.analysis_results(-1).data()["quantum volume"] == 1,
+            qv_result.extra["success"] is False and qv_result.value == 1,
             "quantum volume is successful with less than 100 trials",
         )
 
@@ -163,9 +163,9 @@ class TestQuantumVolume(QiskitTestCase):
         exp_data.add_data(insufficient_hop_data)
 
         qv_exp.run_analysis(exp_data)
+        qv_result = exp_data.analysis_results(1)
         self.assertTrue(
-            exp_data.analysis_results(-1).data()["qv success"] is False
-            and exp_data.analysis_results(-1).data()["quantum volume"] == 1,
+            qv_result.extra["success"] is False and qv_result.value == 1,
             "quantum volume is successful with heavy output probability less than 2/3",
         )
 
@@ -188,9 +188,9 @@ class TestQuantumVolume(QiskitTestCase):
         exp_data.add_data(insufficient_confidence_data)
 
         qv_exp.run_analysis(exp_data)
+        qv_result = exp_data.analysis_results(1)
         self.assertTrue(
-            exp_data.analysis_results(-1).data()["qv success"] is False
-            and exp_data.analysis_results(-1).data()["quantum volume"] == 1,
+            qv_result.extra["success"] is False and qv_result.value == 1,
             "quantum volume is successful with insufficient confidence",
         )
 
@@ -215,15 +215,29 @@ class TestQuantumVolume(QiskitTestCase):
         results_json_file = "qv_result_moderate_noise_300_trials.json"
         with open(os.path.join(dir_name, results_json_file), "r") as json_file:
             successful_results = json.load(json_file, cls=ExperimentDecoder)
-        for key, value in successful_results.items():
-            if isinstance(value, float):
-                self.assertAlmostEqual(
-                    exp_data.analysis_results(-1).data()[key],
-                    value,
-                    msg="result " + str(key) + " is not the same as the " "pre-calculated analysis",
-                )
-            else:
-                self.assertTrue(
-                    exp_data.analysis_results(-1).data()[key] == value,
-                    "result " + str(key) + " is not the same as the " "pre-calculated analysis",
-                )
+
+        results = exp_data.analysis_results()
+        for result, reference in zip(results, successful_results):
+            self.assertEqual(
+                result.value,
+                reference["value"],
+                "result value is not the same as precalculated analysis",
+            )
+            self.assertEqual(
+                result.name,
+                reference["name"],
+                "result name is not the same as precalculated analysis",
+            )
+            for key, value in reference["extra"].items():
+                if isinstance(value, float):
+                    self.assertAlmostEqual(
+                        result.extra[key],
+                        value,
+                        msg="result " + str(key) + " is not the same as the "
+                        "pre-calculated analysis",
+                    )
+                else:
+                    self.assertTrue(
+                        result.extra[key] == value,
+                        "result " + str(key) + " is not the same as the " "pre-calculated analysis",
+                    )

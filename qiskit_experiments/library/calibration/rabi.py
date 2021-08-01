@@ -23,6 +23,7 @@ import qiskit.pulse as pulse
 from qiskit.providers.options import Options
 
 from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.curve_analysis import ParameterRepr
 from qiskit_experiments.library.calibration.analysis.oscillation_analysis import OscillationAnalysis
 from qiskit_experiments.exceptions import CalibrationError
 
@@ -30,19 +31,29 @@ from qiskit_experiments.exceptions import CalibrationError
 class Rabi(BaseExperiment):
     """An experiment that scans the amplitude of a pulse to calibrate rotations between 0 and 1.
 
-    The circuits that are run have a custom rabi gate with the pulse schedule attached to it
-    through the calibrations. The circuits are of the form:
+    # section: overview
 
-    .. parsed-literal::
+        The circuits that are run have a custom rabi gate with the pulse schedule attached to it
+        through the calibrations. The circuits are of the form:
 
-                   ┌───────────┐ ░ ┌─┐
-              q_0: ┤ Rabi(amp) ├─░─┤M├
-                   └───────────┘ ░ └╥┘
-        measure: 1/═════════════════╩═
-                                    0
+        .. parsed-literal::
 
-    If the user provides his own schedule for the Rabi then it must have one free parameter, i.e.
-    the amplitude that will be scanned, and a drive channel which matches the qubit.
+                       ┌───────────┐ ░ ┌─┐
+                  q_0: ┤ Rabi(amp) ├─░─┤M├
+                       └───────────┘ ░ └╥┘
+            measure: 1/═════════════════╩═
+                                        0
+
+        If the user provides his own schedule for the Rabi then it must have one free parameter,
+        i.e. the amplitude that will be scanned, and a drive channel which matches the qubit.
+
+    # section: tutorial
+        :doc:`/tutorials/calibrating_armonk`
+
+        See also `Qiskit Textbook <https://qiskit.org/textbook/ch-quantum-hardware/\
+        calibrating-qubits-pulse.html>`_
+        for the pulse level programming of Rabi experiment.
+
     """
 
     __analysis_class__ = OscillationAnalysis
@@ -66,6 +77,12 @@ class Rabi(BaseExperiment):
 
             rabi.set_experiment_options(schedule=rabi_schedule)
 
+        Experiment Options:
+            duration (int): The duration of the default Gaussian pulse.
+            sigma (float): The standard deviation of the default Gaussian pulse.
+            amplitudes (iterable): The list of amplitude values to scan.
+            schedule (ScheduleBlock): The schedule for the Rabi pulse that overrides the default.
+
         """
         return Options(
             duration=160,
@@ -78,6 +95,7 @@ class Rabi(BaseExperiment):
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
+        options.result_parameters = [ParameterRepr("freq", "rabi_rate")]
         options.normalization = True
 
         return options
@@ -185,42 +203,55 @@ class Rabi(BaseExperiment):
 class EFRabi(Rabi):
     """An experiment that scans the amplitude of a pulse to calibrate rotations between 1 and 2.
 
-    This experiment is similar to the Rabi experiment between the ground and first excited state.
-    The difference is in the initial X gate used to populate the first excited state. The Rabi pulse
-    is then applied on the 1 <-> 2 transition (sometimes also labeled the e <-> f transition) which
-    implies that frequency shift instructions are used. The necessary frequency shift (typically the
-    qubit anharmonicity) should be specified through the experiment options.
+    # section: overview
 
-    The circuits are of the form:
+        This experiment is a subclass of the :class:`Rabi` experiment but takes place between
+        the first and second excited state. An initial X gate used to populate the first excited
+        state. The Rabi pulse is then applied on the 1 <-> 2 transition (sometimes also labeled
+        the e <-> f transition) which implies that frequency shift instructions are used. The
+        necessary frequency shift (typically the qubit anharmonicity) should be specified
+        through the experiment options.
 
-    .. parsed-literal::
+        The circuits are of the form:
 
-                   ┌───┐┌───────────┐ ░ ┌─┐
-              q_0: ┤ X ├┤ Rabi(amp) ├─░─┤M├
-                   └───┘└───────────┘ ░ └╥┘
-        measure: 1/══════════════════════╩═
-                                         0
-    """
+        .. parsed-literal::
 
-    @classmethod
-    def _default_experiment_options(cls) -> Options:
-        """Default values for the pulse if no schedule is given.
+                       ┌───┐┌───────────┐ ░ ┌─┐
+                  q_0: ┤ X ├┤ Rabi(amp) ├─░─┤M├
+                       └───┘└───────────┘ ░ └╥┘
+            measure: 1/══════════════════════╩═
+                                             0
 
+    # section: example
         Users can set a schedule by doing
 
         .. code-block::
 
             ef_rabi.set_experiment_options(schedule=rabi_schedule)
 
+    """
+
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        """Default values for the pulse if no schedule is given.
+
+        Experiment Options:
+
+            frequency_shift (float): The frequency by which the 1 to 2 transition is
+                detuned from the 0 to 1 transition.
         """
-        return Options(
-            duration=160,
-            sigma=40,
-            amplitudes=np.linspace(-0.95, 0.95, 51),
-            schedule=None,
-            normalization=True,
-            frequency_shift=None,
-        )
+        options = super()._default_experiment_options()
+        options.frequency_shift = None
+
+        return options
+
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_analysis_options()
+        options.result_parameters = [ParameterRepr("freq", "rabi_rate_12")]
+
+        return options
 
     def _default_gate_schedule(self, backend: Optional[Backend] = None):
         """Create the default schedule for the EFRabi gate with a frequency shift to the 1-2
