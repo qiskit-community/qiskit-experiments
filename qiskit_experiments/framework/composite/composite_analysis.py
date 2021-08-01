@@ -32,10 +32,9 @@ class CompositeAnalysis(BaseAnalysis):
             options: kwarg options for analysis function.
 
         Returns:
-            tuple: A pair ``(analysis_results, figures)`` where
-                   ``analysis_results`` may be a single or list of
-                   AnalysisResultData objects, and ``figures`` may be
-                   None, a single figure, or a list of figures.
+            tuple: A pair ``(analysis_results, figures)`` where ``analysis_results``
+                   is a list of :class:`AnalysisResultData` objects, and ``figures``
+                   is a list of any figures for the experiment.
 
         Raises:
             QiskitError: if analysis is attempted on non-composite
@@ -65,10 +64,12 @@ class CompositeAnalysis(BaseAnalysis):
             sub_ids.append(expdata.experiment_id)
             sub_qubits.append(expdata.experiment.physical_qubits)
 
-        result_data = {
-            "experiment_types": sub_types,
-            "experiment_ids": sub_ids,
-            "experiment_qubits": sub_qubits,
-        }
-
-        return [AnalysisResultData(result_data)], None
+        result = AnalysisResultData(
+            name="parallel_experiment",
+            value=len(sub_types),
+            extra={
+                "experiment_types": sub_types,
+                "experiment_ids": sub_ids,
+            },
+        )
+        return [result], None

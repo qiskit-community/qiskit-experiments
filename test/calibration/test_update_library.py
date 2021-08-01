@@ -40,20 +40,21 @@ class TestAmplitudeUpdate(QiskitTestCase):
         self.cals = Calibrations()
         self.qubit = 1
 
-        amp = Parameter("amp")
+        axp = Parameter("amp")
         chan = Parameter("ch0")
         with pulse.build(name="xp") as xp:
-            pulse.play(pulse.Gaussian(duration=160, amp=amp, sigma=40), pulse.DriveChannel(chan))
+            pulse.play(pulse.Gaussian(duration=160, amp=axp, sigma=40), pulse.DriveChannel(chan))
 
-        amp = Parameter("amp")
+        ax90p = Parameter("amp")
         with pulse.build(name="x90p") as x90p:
-            pulse.play(pulse.Gaussian(duration=160, amp=amp, sigma=40), pulse.DriveChannel(chan))
+            pulse.play(pulse.Gaussian(duration=160, amp=ax90p, sigma=40), pulse.DriveChannel(chan))
 
         self.x90p = x90p
 
         self.cals.add_schedule(xp)
         self.cals.add_schedule(x90p)
         self.cals.add_parameter_value(0.2, "amp", self.qubit, "xp")
+        self.cals.add_parameter_value(0.1, "amp", self.qubit, "x90p")
 
     def test_amplitude(self):
         """Test amplitude update from Rabi."""
@@ -68,17 +69,17 @@ class TestAmplitudeUpdate(QiskitTestCase):
 
         to_update = [(np.pi, "amp", "xp"), (np.pi / 2, "amp", self.x90p)]
 
-        self.assertEqual(len(self.cals.parameters_table()), 1)
+        self.assertEqual(len(self.cals.parameters_table()), 2)
 
         Amplitude.update(self.cals, exp_data, angles_schedules=to_update)
 
         with self.assertRaises(CalibrationError):
             self.cals.get_schedule("xp", qubits=0)
 
-        self.assertEqual(len(self.cals.parameters_table()), 3)
+        self.assertEqual(len(self.cals.parameters_table()), 4)
 
         # Now check the corresponding schedules
-        result = exp_data.analysis_results(-1).data()
+        result = exp_data.analysis_results(-1).extra
         rate = 2 * np.pi * result["popt"][1]
         amp = np.round(np.pi / rate, decimals=8)
         with pulse.build(name="xp") as expected:
@@ -142,7 +143,7 @@ class TestFrequencyUpdate(QiskitTestCase):
         exp_data = spec.run(backend)
         exp_data.block_for_results()
         result = exp_data.analysis_results(0)
-        result_data = result.data()
+        result_data = result.extra
 
         value = get_opt_value(result_data, "freq")
 
@@ -198,7 +199,7 @@ class TestDragUpdate(QiskitTestCase):
         exp_data = drag.run(backend)
         exp_data.block_for_results()
         result = exp_data.analysis_results(0)
-        result_data = result.data()
+        result_data = result.extra
 
         # Test the fit for good measure.
         self.assertTrue(abs(result_data["popt"][4] - backend.ideal_beta) < test_tol)

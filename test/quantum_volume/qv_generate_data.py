@@ -24,6 +24,7 @@ from qiskit.providers.aer.noise.errors.standard_errors import (
 from qiskit.providers.aer.noise.errors import readout_error
 from qiskit import Aer
 from qiskit_experiments.library import QuantumVolume
+from qiskit_experiments.database_service.json import ExperimentEncoder
 
 SEED = 42
 
@@ -44,7 +45,7 @@ def create_qv_ideal_probabilities(dir_path: str):
 
     result_file_path = os.path.join(dir_path, "qv_ideal_probabilities.json")
     with open(result_file_path, "w") as json_file:
-        json.dump(simulation_probabilities, json_file)
+        json.dump(simulation_probabilities, json_file, cls=ExperimentEncoder)
 
 
 def create_qv_data_70_trials(dir_path: str):
@@ -59,10 +60,11 @@ def create_qv_data_70_trials(dir_path: str):
     qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
     qv_exp.set_experiment_options(trials=70)
     qv_data = qv_exp.run(backend)
+    qv_data.block_for_results()
 
     result_file_path = os.path.join(dir_path, "qv_data_70_trials.json")
     with open(result_file_path, "w") as json_file:
-        json.dump(qv_data.data(), json_file)
+        json.dump(qv_data.data(), json_file, cls=ExperimentEncoder)
 
 
 def create_qv_data_low_hop(dir_path: str):
@@ -80,10 +82,11 @@ def create_qv_data_low_hop(dir_path: str):
     qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
     qv_exp.set_transpile_options(basis_gates=basis_gates)
     qv_data = qv_exp.run(backend, noise_model=noise, basis_gates=basis_gates)
+    qv_data.block_for_results()
 
     result_file_path = os.path.join(dir_path, "qv_data_high_noise.json")
     with open(result_file_path, "w") as json_file:
-        json.dump(qv_data.data(), json_file)
+        json.dump(qv_data.data(), json_file, cls=ExperimentEncoder)
 
 
 def create_qv_data_low_confidence(dir_path: str):
@@ -102,10 +105,11 @@ def create_qv_data_low_confidence(dir_path: str):
     qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
     qv_exp.set_transpile_options(basis_gates=basis_gates)
     qv_data = qv_exp.run(backend, noise_model=noise, basis_gates=basis_gates)
+    qv_data.block_for_results()
 
     result_file_path = os.path.join(dir_path, "qv_data_moderate_noise_100_trials.json")
     with open(result_file_path, "w") as json_file:
-        json.dump(qv_data.data(), json_file)
+        json.dump(qv_data.data(), json_file, cls=ExperimentEncoder)
 
 
 def create_qv_data_high_confidence(dir_path: str):
@@ -125,14 +129,24 @@ def create_qv_data_high_confidence(dir_path: str):
     qv_exp.set_experiment_options(trials=300)
     qv_exp.set_transpile_options(basis_gates=basis_gates)
     qv_data = qv_exp.run(backend, noise_model=noise, basis_gates=basis_gates)
+    qv_data.block_for_results()
 
     result_file_path = os.path.join(dir_path, "qv_data_moderate_noise_300_trials.json")
     with open(result_file_path, "w") as json_file:
-        json.dump(qv_data.data(), json_file)
+        json.dump(qv_data.data(), json_file, cls=ExperimentEncoder)
 
     result_file_path = os.path.join(dir_path, "qv_result_moderate_noise_300_trials.json")
     with open(result_file_path, "w") as json_file:
-        json.dump(qv_data.analysis_result(-1), json_file)
+        result_dicts = []
+        for result in qv_data.analysis_results():
+            result_dicts.append(
+                {
+                    "name": result.name,
+                    "value": result.value,
+                    "extra": result.extra,
+                }
+            )
+        json.dump(result_dicts, json_file, cls=ExperimentEncoder)
 
 
 def create_noise_model():
@@ -201,14 +215,20 @@ def create_high_noise_model():
     return noise_model
 
 
-DIRNAME = os.path.dirname(os.path.abspath(__file__))
-for generation_type in sys.argv[1:]:
-    if generation_type == "circuits":
-        create_qv_ideal_probabilities(DIRNAME)
-    elif generation_type == "analysis":
-        create_qv_data_70_trials(DIRNAME)
-        create_qv_data_low_hop(DIRNAME)
-        create_qv_data_low_confidence(DIRNAME)
-        create_qv_data_high_confidence(DIRNAME)
-    else:
-        print("Skipping unknown argument " + generation_type)
+def main(argv):
+    """Run data generation script"""
+    directory = os.path.dirname(os.path.abspath(__file__))
+    for generation_type in argv:
+        if generation_type == "circuits":
+            create_qv_ideal_probabilities(directory)
+        elif generation_type == "analysis":
+            create_qv_data_70_trials(directory)
+            create_qv_data_low_hop(directory)
+            create_qv_data_low_confidence(directory)
+            create_qv_data_high_confidence(directory)
+        else:
+            print("Skipping unknown argument " + generation_type)
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

@@ -13,32 +13,20 @@
 """Analysis result abstract interface."""
 
 import logging
-from typing import Optional, List, Union, Dict, Callable, Any
+from typing import Optional, List, Union, Dict, Any
 import uuid
 import json
 import copy
-from functools import wraps
 
 from .database_service import DatabaseServiceV1
 from .json import ExperimentEncoder, ExperimentDecoder
 from .utils import save_data, qiskit_version
 from .exceptions import DbExperimentDataError
 from .device_component import DeviceComponent, to_component
+from .db_fitval import FitVal
+
 
 LOG = logging.getLogger(__name__)
-
-
-def do_auto_save(func: Callable):
-    """Decorate the input function to auto save data."""
-
-    @wraps(func)
-    def _wrapped(self, *args, **kwargs):
-        return_val = func(self, *args, **kwargs)
-        if self.auto_save:
-            self.save()
-        return return_val
-
-    return _wrapped
 
 
 class DbAnalysisResult:
@@ -69,49 +57,45 @@ class DbAnalysisResultV1(DbAnalysisResult):
 
     def __init__(
         self,
-        result_data: Dict,
-        result_type: str,
+        name: str,
+        value: Any,
         device_components: List[Union[DeviceComponent, str]],
         experiment_id: str,
         result_id: Optional[str] = None,
         chisq: Optional[float] = None,
         quality: Optional[str] = None,
+        extra: Optional[Dict[str, Any]] = None,
         verified: bool = False,
         tags: Optional[List[str]] = None,
         service: Optional[DatabaseServiceV1] = None,
+        source: Optional[Dict[str, str]] = None,
         **kwargs,
     ):
         """AnalysisResult constructor.
 
         Args:
-            result_data: Analysis result data.
-            result_type: Analysis result type.
+            name: analysis result name.
+            value: main analysis result value.
             device_components: Target device components this analysis is for.
             experiment_id: ID of the experiment.
             result_id: Result ID. If ``None``, one is generated.
             chisq: Reduced chi squared of the fit.
             quality: Quality of the analysis. Refer to the experiment service
                 provider for valid values.
+            extra: Dictionary of extra analysis result data
             verified: Whether the result quality has been verified.
             tags: Tags for this analysis result.
             service: Experiment service to be used to store result in database.
+            source: Class and qiskit version information when loading from an
+                experiment service.
             **kwargs: Additional analysis result attributes.
         """
-        result_data = result_data or {}
-        self._result_data = copy.deepcopy(result_data)
-        self._source = self._result_data.pop(
-            "_source",
-            {
-                "class": f"{self.__class__.__module__}.{self.__class__.__name__}",
-                "data_version": self._data_version,
-                "qiskit_version": qiskit_version(),
-            },
-        )
-
         # Data to be stored in DB.
         self._experiment_id = experiment_id
         self._id = result_id or str(uuid.uuid4())
-        self._type = result_type
+        self._name = name
+        self._value = copy.deepcopy(value)
+        self._extra = copy.deepcopy(extra or {})
         self._device_components = []
         for comp in device_components:
             if isinstance(comp, str):
@@ -125,6 +109,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
 
         # Other attributes.
         self._service = service
+        self._source = source
         self._created_in_db = False
         self._auto_save = False
         if self._service:
@@ -132,6 +117,12 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 self.auto_save = self._service.option("auto_save")
             except AttributeError:
                 pass
+        if self._source is None:
+            self._source = {
+                "class": f"{self.__class__.__module__}.{self.__class__.__name__}",
+                "data_version": self._data_version,
+                "qiskit_version": qiskit_version(),
+            }
         self._extra_data = kwargs
 
     @classmethod
@@ -146,9 +137,10 @@ class DbAnalysisResultV1(DbAnalysisResult):
             The loaded analysis result.
         """
         # Load data from the service
-        instance = cls._from_service_data(service.analysis_result(result_id))
-        instance._created_in_db = True
-        return instance
+        service_data = service.analysis_result(result_id, json_decoder=cls._json_decoder)
+        result = cls._from_service_data(service_data)
+        result._created_in_db = True
+        return result
 
     def save(self) -> None:
         """Save this analysis result in the database.
@@ -161,19 +153,34 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 "Analysis result cannot be saved because no experiment service is available."
             )
             return
+        # Get DB fit data
+        value = self.value
+        result_data = {
+            "_value": json.loads(json.dumps(value, cls=self._json_encoder)),
+            "_extra": json.loads(json.dumps(self.extra, cls=self._json_encoder)),
+            "_source": self._source,
+        }
 
-        _result_data = json.loads(json.dumps(self._result_data, cls=self._json_encoder))
-        _result_data["_source"] = self._source
+        # Display compatible float values in in DB
+        if isinstance(value, (int, float, bool)):
+            result_data["value"] = float(value)
+        elif isinstance(value, FitVal):
+            if isinstance(value.value, (int, float)):
+                result_data["value"] = value.value
+            if isinstance(value.stderr, (int, float)):
+                result_data["variance"] = value.stderr ** 2
+            if isinstance(value.unit, str):
+                result_data["unit"] = value.unit
 
         new_data = {
             "experiment_id": self._experiment_id,
-            "result_type": self.result_type,
+            "result_type": self.name,
             "device_components": self.device_components,
         }
         update_data = {
             "result_id": self.result_id,
-            "data": _result_data,
-            "tags": self.tags(),
+            "result_data": result_data,
+            "tags": self.tags,
             "chisq": self._chisq,
             "quality": self.quality,
             "verified": self.verified,
@@ -199,51 +206,79 @@ class DbAnalysisResultV1(DbAnalysisResult):
         """
         # Parse serialized data
         result_data = service_data.pop("result_data")
-        if result_data:
-            result_data = json.loads(json.dumps(result_data), cls=cls._json_decoder)
+        value = result_data.pop("_value")
+        extra = result_data.pop("_extra", {})
+        source = result_data.pop("_source", None)
+
         # Initialize the result object
         return cls(
-            result_data,
-            result_type=service_data.pop("result_type"),
+            name=service_data.pop("result_type"),
+            value=value,
             device_components=service_data.pop("device_components"),
             experiment_id=service_data.pop("experiment_id"),
             result_id=service_data.pop("result_id"),
             quality=service_data.pop("quality"),
+            extra=extra,
             verified=service_data.pop("verified"),
             tags=service_data.pop("tags"),
             service=service_data.pop("service"),
+            source=source,
             **service_data,
         )
 
-    def data(self) -> Dict:
-        """Return analysis result data.
+    @property
+    def name(self) -> str:
+        """Return analysis result name.
 
         Returns:
-            Analysis result data.
+            Analysis result name.
         """
-        return self._result_data
+        return self._name
 
-    @do_auto_save
-    def set_data(self, new_data: Dict) -> None:
-        """Set result data.
+    @property
+    def value(self) -> Any:
+        """Return analysis result value.
 
-        Args:
-            new_data: New analysis result data.
+        Returns:
+            Analysis result value.
         """
-        self._result_data = new_data
+        return self._value
 
-    def tags(self):
-        """Return tags associated with this result."""
-        return self._tags
+    @value.setter
+    def value(self, new_value: Any) -> None:
+        """Set the analysis result value."""
+        self._value = new_value
+        if self.auto_save:
+            self.save()
 
-    @do_auto_save
-    def set_tags(self, new_tags: List[str]) -> None:
-        """Set tags for this result.
+    @property
+    def extra(self) -> Dict[str, Any]:
+        """Return extra analysis result data.
 
-        Args:
-            new_tags: New tags for the result.
+        Returns:
+            Additional analysis result data.
         """
-        self._tags = new_tags
+        return self._extra
+
+    @extra.setter
+    def extra(self, new_value: Dict[str, Any]) -> None:
+        """Set the analysis result value."""
+        if not isinstance(new_value, dict):
+            raise DbExperimentDataError(
+                f"The `extra` field of {type(self).__name__} must be a dict."
+            )
+        self._extra = new_value
+        if self.auto_save:
+            self.save()
+
+    @property
+    def device_components(self) -> List[DeviceComponent]:
+        """Return target device components for this analysis result.
+
+        Returns:
+            Target device components.
+        """
+        return self._device_components
 
     @property
     def result_id(self) -> str:
@@ -255,18 +290,13 @@ class DbAnalysisResultV1(DbAnalysisResult):
         return self._id
 
     @property
-    def result_type(self) -> str:
-        """Return analysis result type.
+    def experiment_id(self) -> str:
+        """Return the ID of the experiment associated with this analysis result.
 
         Returns:
-            Analysis result type.
+            ID of experiment associated with this analysis result.
         """
-        return self._type
-
-    @property
-    def source(self) -> Dict:
-        """Return the class name and version."""
-        return self._source
+        return self._experiment_id
 
     @property
     def chisq(self) -> str:
@@ -277,7 +307,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
     def chisq(self, new_chisq: float) -> None:
         """Set the reduced χ² of this analysis."""
         self._chisq = new_chisq
-        if self._auto_save:
+        if self.auto_save:
             self.save()
 
     @property
@@ -324,13 +354,20 @@ class DbAnalysisResultV1(DbAnalysisResult):
             self.save()
 
     @property
-    def experiment_id(self) -> str:
-        """Return the ID of the experiment associated with this analysis result.
+    def tags(self):
+        """Return tags associated with this result."""
+        return self._tags
 
-        Returns:
-            ID of experiment associated with this analysis result.
-        """
-        return self._experiment_id
+    @tags.setter
+    def tags(self, new_tags: List[str]) -> None:
+        """Set tags for this result."""
+        if not isinstance(new_tags, list):
+            raise DbExperimentDataError(
+                f"The `tags` field of {type(self).__name__} must be a list."
+            )
+        self._tags = new_tags
+        if self.auto_save:
+            self.save()
 
     @property
     def service(self) -> Optional[DatabaseServiceV1]:
@@ -357,6 +394,11 @@ class DbAnalysisResultV1(DbAnalysisResult):
         self._service = service
 
     @property
+    def source(self) -> Dict:
+        """Return the class name and version."""
+        return self._source
+
+    @property
     def auto_save(self) -> bool:
         """Return current auto-save option.
 
@@ -376,34 +418,34 @@ class DbAnalysisResultV1(DbAnalysisResult):
             self.save()
         self._auto_save = save_val
 
-    @property
-    def device_components(self) -> List[DeviceComponent]:
-        """Return target device components for this analysis result.
-
-        Returns:
-            Target device components.
-        """
-        return self._device_components
-
-    def __getattr__(self, name: str) -> Any:
-        try:
-            return self._extra_data[name]
-        except KeyError:
-            # pylint: disable=raise-missing-from
-            raise AttributeError("Attribute %s is not defined" % name)
-
     def __str__(self):
-        ret = f"\nAnalysis Result: {self.result_type}"
-        ret += f"\nAnalysis Result ID: {self.result_id}"
-        ret += f"\nExperiment ID: {self.experiment_id}"
-        ret += f"\nDevice Components: {self.device_components}"
-        if self.chisq:
-            ret += f"\nχ²: {self.chisq}"
-        ret += f"\nQuality: {self.quality}"
-        ret += f"\nVerified: {self.verified}"
-        if self.tags():
-            ret += f"\nTags: {self.tags()}"
-        ret += "\nResult Data:"
-        ret += str(self.data())
-
+        ret = f"{type(self).__name__}"
+        ret += f"\n- name: {self.name}"
+        ret += f"\n- value: {str(self.value)}"
+        if self.chisq is not None:
+            ret += f"\n- χ²: {str(self.chisq)}"
+        if self.quality is not None:
+            ret += f"\n- quality: {self.quality}"
+        if self.extra:
+            ret += f"\n- extra: <{len(self.extra)} items>"
+        ret += f"\n- device_components: {[str(i) for i in self.device_components]}"
+        ret += f"\n- verified: {self.verified}"
         return ret
+
+    def __repr__(self):
+        out = f"{type(self).__name__}("
+        out += f"name={self.name}"
+        out += f", value={repr(self.value)}"
+        out += f", device_components={repr(self.device_components)}"
+        out += f", experiment_id={self.experiment_id}"
+        out += f", result_id={self.result_id}"
+        out += f", chisq={self.chisq}"
+        out += f", quality={self.quality}"
+        out += f", verified={self.verified}"
+        out += f", extra={repr(self.extra)}"
+        out += f", tags={self.tags}"
+        out += f", service={repr(self.experiment_id)}"
+        for key, val in self._extra_data.items():
+            out += f", {key}={repr(val)}"
+        out += ")"
+        return out

@@ -12,23 +12,32 @@
 
 """Experiment utility functions."""
 
-import logging
-from typing import Callable, Tuple, Dict, Any, Union
 import io
-from datetime import datetime, timezone
+import logging
 import threading
-from collections import OrderedDict
-from abc import ABC, abstractmethod
 import traceback
-import pkg_resources
+from abc import ABC, abstractmethod
+from collections import OrderedDict
+from datetime import datetime, timezone
+from typing import Callable, Tuple, Dict, Any, Union
 
 import dateutil.parser
+import pkg_resources
 from dateutil import tz
-
 from qiskit.version import __version__ as terra_version
-from ..version import __version__ as experiments_version
+
+try:
+    from qiskit.providers.ibmq.experiment import (
+        IBMExperimentEntryExists,
+        IBMExperimentEntryNotFound,
+    )
+
+    HAS_IBMQ = True
+except ImportError:
+    HAS_IBMQ = False
 
 from .exceptions import DbExperimentEntryNotFound, DbExperimentEntryExists, DbExperimentDataError
+from ..version import __version__ as experiments_version
 
 LOG = logging.getLogger(__name__)
 
@@ -115,6 +124,11 @@ def save_data(
         DbExperimentDataError: If unable to determine whether the entry exists.
     """
     attempts = 0
+    no_entry_exception = [DbExperimentEntryNotFound]
+    dup_entry_exception = [DbExperimentEntryExists]
+    if HAS_IBMQ:
+        no_entry_exception.append(IBMExperimentEntryNotFound)
+        dup_entry_exception.append(IBMExperimentEntryExists)
     try:
         # Attempt 3x for the unlikely scenario wherein is_new=False but the
         # entry doesn't actually exists. The second try might also fail if an entry
@@ -124,12 +138,12 @@ def save_data(
             if is_new:
                 try:
                     return True, new_func(**{**new_data, **update_data})
-                except DbExperimentEntryExists:
+                except tuple(dup_entry_exception):
                     is_new = False
             else:
                 try:
                     return True, update_func(**update_data)
-                except DbExperimentEntryNotFound:
+                except tuple(no_entry_exception):
                     is_new = True
         raise DbExperimentDataError("Unable to determine the existence of the entry.")
     except Exception:  # pylint: disable=broad-except
@@ -176,6 +190,17 @@ class ThreadSafeContainer(ABC):
         """Return lock used for this container."""
         return self._lock
 
+    def copy(self):
+        """Returns a copy of the container."""
+        with self.lock:
+            return self._container.copy()
+
+    def copy_object(self):
+        """Returns a copy of this object."""
+        obj = self.__class__()
+        obj._container = self.copy()
+        return obj
+
 
 class ThreadSafeOrderedDict(ThreadSafeContainer):
     """Thread safe OrderedDict."""
@@ -215,8 +240,3 @@ class ThreadSafeList(ThreadSafeContainer):
         """Append to the list."""
         with self._lock:
             self._container.append(value)
-
-    def copy(self):
-        """Returns a copy of the list."""
-        with self.lock:
-            return self._container.copy()

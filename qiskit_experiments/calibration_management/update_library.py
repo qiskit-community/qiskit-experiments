@@ -13,7 +13,7 @@
 """A library of experiment calibrations."""
 
 from abc import ABC
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional, Tuple, Union
 import numpy as np
 
@@ -58,7 +58,7 @@ class BaseUpdater(ABC):
         if all_times:
             return max(all_times)
 
-        return datetime.now()
+        return datetime.now(timezone.utc)
 
     @classmethod
     def _add_parameter_value(
@@ -119,7 +119,7 @@ class BaseUpdater(ABC):
             CalibrationError: If the analysis result does not contain a frequency variable.
         """
 
-        result = exp_data.analysis_results(result_index).data()
+        result = exp_data.analysis_results(result_index).extra
 
         if cls.__fit_parameter__ not in result["popt_keys"]:
             raise CalibrationError(
@@ -202,14 +202,17 @@ class Amplitude(BaseUpdater):
         if angles_schedules is None:
             angles_schedules = [(np.pi, "amp", "xp")]
 
-        result = exp_data.analysis_results(result_index).data()
+        result = exp_data.analysis_results(result_index).extra
 
         if isinstance(exp_data.experiment, Rabi):
             freq = result["popt"][result["popt_keys"].index("freq")]
             rate = 2 * np.pi * freq
 
             for angle, param, schedule in angles_schedules:
-                value = np.round(angle / rate, decimals=8)
+                qubits = exp_data.data(0)["metadata"]["qubits"]
+                prev_amp = calibrations.get_parameter_value(param, qubits, schedule, group=group)
+
+                value = np.round(angle / rate, decimals=8) * np.exp(1.0j * np.angle(prev_amp))
 
                 cls._add_parameter_value(calibrations, exp_data, value, param, schedule, group)
 
