@@ -39,11 +39,11 @@ class T1Analysis(BaseAnalysis):
             F(x) = a e^{-x/t1} + b
 
     #section: fit Parameters
-       defpar amplitude:
+       defpar a:
            desc: Height of the decay curve.
-           init_guess: Determined by :math:`(y_0 - offset\_guess)`.
+           init_guess: Determined by :math:`(y_0 - b)`.
 
-       defpar offset:
+       defpar b:
            desc: Base line of the decay curve.
            init_guess: Determined by the last :math:`y`.
 

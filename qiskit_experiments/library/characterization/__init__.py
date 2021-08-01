@@ -33,7 +33,7 @@ Analysis
 
 .. autosummary::
     :toctree: ../stubs/
-    :template: autosummary/experiment.rst
+    :template: autosummary/analysis.rst
 
     T1Analysis
     T2RamseyAnalysis
