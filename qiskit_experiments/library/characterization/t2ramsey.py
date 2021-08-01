@@ -31,11 +31,11 @@ class T2Ramsey(BaseExperiment):
 
         This experiment is used to estimate two properties for a single qubit:
         T2* and Ramsey frequency.
-        
+
         See `Qiskit Textbook <https://qiskit.org/textbook/ch-quantum-hardware/\
         calibrating-qubits-pulse.html>`_  for a more detailed explanation on
         these properties.
-        
+
         This experiment consists of a series of circuits of the form
 
         .. parsed-literal::
