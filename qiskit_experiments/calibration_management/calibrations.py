@@ -19,7 +19,7 @@ from typing import Any, Dict, Set, Tuple, Union, List, Optional
 import csv
 import dataclasses
 import warnings
-import regex as re
+import re
 
 from qiskit.pulse import (
     ScheduleBlock,
