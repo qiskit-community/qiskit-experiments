@@ -56,11 +56,11 @@ class T2RamseyBackend(BackendV1):
             dt=dt_factor_in_ns,
         )
 
-        self._t2ramsey = p0["t2ramsey"]
-        self._a_param = p0["a"]
+        self._t2ramsey = p0["T2star"]
+        self._a_param = p0["A"]
         self._freq = p0["f"]
         self._phi = p0["phi"]
-        self._b_param = p0["b"]
+        self._b_param = p0["B"]
         self._initial_prob_plus = initial_prob_plus
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
@@ -181,7 +181,7 @@ class TestT2Ramsey(QiskitTestCase):
             exp = T2Ramsey(qubit, delays, unit=unit, osc_freq=osc_freq)
             default_p0 = {
                 "A": 0.5,
-                "t2ramsey": estimated_t2ramsey,
+                "T2star": estimated_t2ramsey,
                 "f": estimated_freq,
                 "phi": 0,
                 "B": 0.5,
@@ -190,11 +190,11 @@ class TestT2Ramsey(QiskitTestCase):
                 exp.set_analysis_options(user_p0=user_p0, plot=True)
                 backend = T2RamseyBackend(
                     p0={
-                        "a": [0.5],
-                        "t2ramsey": [estimated_t2ramsey],
+                        "A": [0.5],
+                        "T2star": [estimated_t2ramsey],
                         "f": [estimated_freq],
                         "phi": [0.0],
-                        "b": [0.5],
+                        "B": [0.5],
                     },
                     initial_prob_plus=[0.0],
                     readout0to1=[0.02],
@@ -233,11 +233,11 @@ class TestT2Ramsey(QiskitTestCase):
         par_exp = ParallelExperiment([exp0, exp2])
 
         p0 = {
-            "a": [0.5, None, 0.5],
-            "t2ramsey": [t2ramsey[0], None, t2ramsey[1]],
+            "A": [0.5, None, 0.5],
+            "T2star": [t2ramsey[0], None, t2ramsey[1]],
             "f": [estimated_freq[0], None, estimated_freq[1]],
             "phi": [0, None, 0],
-            "b": [0.5, None, 0.5],
+            "B": [0.5, None, 0.5],
         }
 
         backend = T2RamseyBackend(p0)
@@ -275,7 +275,7 @@ class TestT2Ramsey(QiskitTestCase):
         exp0 = T2Ramsey(qubit, delays0, unit=unit, osc_freq=osc_freq)
         default_p0 = {
             "A": 0.5,
-            "t2ramsey": estimated_t2ramsey,
+            "T2star": estimated_t2ramsey,
             "f": estimated_freq,
             "phi": 0,
             "B": 0.5,
@@ -283,11 +283,11 @@ class TestT2Ramsey(QiskitTestCase):
         exp0.set_analysis_options(user_p0=default_p0)
         backend = T2RamseyBackend(
             p0={
-                "a": [0.5],
-                "t2ramsey": [estimated_t2ramsey],
+                "A": [0.5],
+                "T2star": [estimated_t2ramsey],
                 "f": [estimated_freq],
                 "phi": [0.0],
-                "b": [0.5],
+                "B": [0.5],
             },
             initial_prob_plus=[0.0],
             readout0to1=[0.02],

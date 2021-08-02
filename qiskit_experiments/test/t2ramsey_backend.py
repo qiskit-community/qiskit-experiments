@@ -59,11 +59,11 @@ class T2RamseyBackend(BackendV1):
             conversion=conversion_factor_in_ns,
         )
 
-        self._t2ramsey = p0["t2ramsey"]
-        self._a_param = p0["a"]
+        self._t2ramsey = p0["T2star"]
+        self._a_param = p0["A"]
         self._freq = p0["f"]
         self._phi = p0["phi"]
-        self._b_param = p0["b"]
+        self._b_param = p0["B"]
         self._initial_prob_plus = initial_prob_plus
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
