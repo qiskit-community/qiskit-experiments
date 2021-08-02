@@ -40,7 +40,7 @@ class T1(BaseExperiment):
 
     Experiment Options:
         delays (list or array of float): Delay times of the experiments
-        unit (str): Unit of the delay times. Supported units are 
+        unit (str): Unit of the delay times. Supported units are
                 's', 'ms', 'us', 'ns', 'ps', 'dt'.
     """
 

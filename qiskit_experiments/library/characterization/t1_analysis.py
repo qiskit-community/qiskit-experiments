@@ -60,7 +60,7 @@ class T1Analysis(BaseAnalysis):
             amplitude_guess (float): Initial guess of the amplitude.
             offset_guess (float): Initial guess of the offset.
         """
-        
+
         return Options(
             t1_guess=None,
             amplitude_guess=None,
