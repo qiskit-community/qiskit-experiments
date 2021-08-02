@@ -16,14 +16,10 @@ Temporary backend to be used for t2ramsey experiment
 
 import numpy as np
 
-from qiskit.utils import apply_prefix
 from qiskit.providers import BackendV1
 from qiskit.providers.options import Options
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
-from qiskit.test import QiskitTestCase
-from qiskit_experiments.framework import ParallelExperiment
-from qiskit_experiments.library.characterization import T2Ramsey
 from qiskit_experiments.test.utils import FakeJob
 
 # Fix seed for simulations
@@ -63,11 +59,11 @@ class T2RamseyBackend(BackendV1):
             conversion=conversion_factor_in_ns,
         )
 
-        self._t2ramsey = p0["t2ramsey"]
-        self._a_guess = p0["a_guess"]
-        self._f_guess = p0["f_guess"]
-        self._phi_guess = p0["phi_guess"]
-        self._b_guess = p0["b_guess"]
+        self._t2ramsey = p0["T2star"]
+        self._a_param = p0["A"]
+        self._freq = p0["f"]
+        self._phi = p0["phi"]
+        self._b_param = p0["B"]
         self._initial_prob_plus = initial_prob_plus
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
@@ -121,13 +117,13 @@ class T2RamseyBackend(BackendV1):
                     if op.name == "delay":
                         delay = op.params[0]
                         t2ramsey = self._t2ramsey[qubit] * self._conversion_factor
-                        freq = self._f_guess[qubit] / self._conversion_factor
+                        freq = self._freq[qubit] / self._conversion_factor
 
                         prob_plus[qubit] = (
-                            self._a_guess[qubit]
+                            self._a_param[qubit]
                             * np.exp(-delay / t2ramsey)
-                            * np.cos(2 * np.pi * freq * delay + self._phi_guess[qubit])
-                            + self._b_guess[qubit]
+                            * np.cos(2 * np.pi * freq * delay + self._phi[qubit])
+                            + self._b_param[qubit]
                         )
 
                     if op.name == "measure":
