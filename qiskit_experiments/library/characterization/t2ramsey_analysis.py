@@ -151,7 +151,7 @@ class T2RamseyAnalysis(BaseAnalysis):
 
         # Output unit is 'sec', regardless of the unit used in the input
         result_t2 = AnalysisResultData(
-            "t2star",
+            "T2star",
             value=FitVal(fit_result["popt"][1], fit_result["popt_err"][1], "s"),
             quality=quality,
             chisq=chisq,
