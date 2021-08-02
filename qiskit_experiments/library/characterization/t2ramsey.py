@@ -20,8 +20,10 @@ import numpy as np
 import qiskit
 from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
+from qiskit.utils import apply_prefix
 from qiskit_experiments.framework import BaseExperiment
 from .t2ramsey_analysis import T2RamseyAnalysis
+
 
 
 class T2Ramsey(BaseExperiment):
@@ -37,7 +39,7 @@ class T2Ramsey(BaseExperiment):
     .. parsed-literal::
 
            ┌───┐┌──────────────┐┌──────┐ ░ ┌───┐ ░ ┌─┐
-      q_0: ┤ H ├┤   DELAY(t)   ├┤ P(λ) ├─░─┤ H ├─░─┤M├
+      q_0: ┤ H ├┤   DELAY(t)   ├┤ RZ(λ)├─░─┤ H ├─░─┤M├
            └───┘└──────────────┘└──────┘ ░ └───┘ ░ └╥┘
       c: 1/═════════════════════════════════════════╩═
                                                     0
@@ -104,25 +106,21 @@ class T2Ramsey(BaseExperiment):
 
         Raises:
             AttributeError: if unit is 'dt', but 'dt' parameter is missing in the backend configuration.
-            ValueError: if values in `delays` are not strictly increasing.
+
         """
         if self._unit == "dt":
             try:
                 dt_factor = getattr(backend._configuration, "dt")
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
-        if not all(d1 < d2 for d1, d2 in zip(self._delays, self._delays[1:])):
-            raise ValueError("Delays should be strictly increasing")
 
         circuits = []
-        min_delay = self._delays[0] if self._delays[0] != 0 else self._delays[1]
         for delay in self._delays:
             circ = qiskit.QuantumCircuit(1, 1)
             circ.h(0)
             circ.delay(delay, 0, self._unit)
-            nosc = delay / min_delay
-            rotation_angle = 2 * np.pi * self._osc_freq * nosc
-            circ.p(rotation_angle, 0)
+            rotation_angle = 2 * np.pi * self._osc_freq * delay
+            circ.rz(rotation_angle, 0)
             circ.barrier(0)
             circ.h(0)
             circ.barrier(0)
