@@ -13,9 +13,8 @@
 """Experiment database service abstract interface."""
 
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, List, Any, Union, Tuple
-
-from qiskit.providers import Options
+from typing import Optional, Dict, List, Any, Union, Tuple, Type
+import json
 
 from .device_component import DeviceComponent
 
@@ -48,20 +47,6 @@ class DatabaseServiceV1(DatabaseService, ABC):
 
     version = 1
 
-    def __init__(self):
-        """Initialize an DatabaseService instance."""
-        self._options = self._default_options()
-
-    @classmethod
-    @abstractmethod
-    def _default_options(cls) -> Options:
-        """Return the default options
-
-        Returns:
-            Default options.
-        """
-        pass
-
     @abstractmethod
     def create_experiment(
         self,
@@ -72,6 +57,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
         job_ids: Optional[List[str]] = None,
         tags: Optional[List[str]] = None,
         notes: Optional[str] = None,
+        json_encoder: Type[json.JSONEncoder] = json.JSONEncoder,
         **kwargs: Any,
     ) -> str:
         """Create a new experiment in the database.
@@ -85,6 +71,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
             job_ids: IDs of experiment jobs.
             tags: Tags to be associated with the experiment.
             notes: Freeform notes about the experiment.
+            json_encoder: Custom JSON encoder to use to encode the experiment.
             kwargs: Additional keywords supported by the service provider.
 
         Returns:
@@ -121,11 +108,14 @@ class DatabaseServiceV1(DatabaseService, ABC):
         pass
 
     @abstractmethod
-    def experiment(self, experiment_id: str) -> Dict:
+    def experiment(
+        self, experiment_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
+    ) -> Dict:
         """Retrieve a previously stored experiment.
 
         Args:
             experiment_id: Experiment ID.
+            json_decoder: Custom JSON decoder to use to decode the retrieved experiment.
 
         Returns:
             A dictionary containing the retrieved experiment data.
@@ -139,6 +129,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
     def experiments(
         self,
         limit: Optional[int] = 10,
+        json_decoder: Type[json.JSONDecoder] = json.JSONDecoder,
         device_components: Optional[Union[str, DeviceComponent]] = None,
         experiment_type: Optional[str] = None,
         backend_name: Optional[str] = None,
@@ -150,6 +141,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
 
         Args:
             limit: Number of experiment data entries to retrieve. ``None`` means no limit.
+            json_decoder: Custom JSON decoder to use to decode the retrieved experiment.
             device_components: Filter by device components. An experiment must have analysis
                 results with device components matching the given list exactly to be included.
             experiment_type: Experiment type used for filtering.
@@ -191,6 +183,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
         quality: Optional[str] = None,
         verified: bool = False,
         result_id: Optional[str] = None,
+        json_encoder: Type[json.JSONEncoder] = json.JSONEncoder,
         **kwargs: Any,
     ) -> str:
         """Create a new analysis result in the database.
@@ -205,6 +198,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
             verified: Whether the result quality has been verified.
             result_id: Analysis result ID. It must be in the ``uuid4`` format.
                 One will be generated if not supplied.
+            json_encoder: Custom JSON encoder to use to encode the analysis result.
             kwargs: Additional keywords supported by the service provider.
 
         Returns:
@@ -241,11 +235,14 @@ class DatabaseServiceV1(DatabaseService, ABC):
         pass
 
     @abstractmethod
-    def analysis_result(self, result_id: str) -> Dict:
+    def analysis_result(
+        self, result_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
+    ) -> Dict:
         """Retrieve a previously stored experiment.
 
         Args:
             result_id: Analysis result ID.
+            json_decoder: Custom JSON decoder to use to decode the retrieved analysis result.
 
         Returns:
             Retrieved analysis result.
@@ -259,6 +256,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
     def analysis_results(
         self,
         limit: Optional[int] = 10,
+        json_decoder: Type[json.JSONDecoder] = json.JSONDecoder,
         device_components: Optional[Union[str, DeviceComponent]] = None,
         experiment_id: Optional[str] = None,
         result_type: Optional[str] = None,
@@ -273,6 +271,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
 
         Args:
             limit: Number of analysis results to retrieve. ``None`` means no limit.
+            json_decoder: Custom JSON decoder to use to decode the retrieved analysis results.
             device_components: Target device components, such as qubits.
             experiment_id: Experiment ID used for filtering.
             result_type: Analysis result type used for filtering.
@@ -380,38 +379,17 @@ class DatabaseServiceV1(DatabaseService, ABC):
         """
         pass
 
-    def set_options(self, **fields):
-        """Set the options fields for the service.
+    @property
+    @abstractmethod
+    def preferences(self) -> Dict:
+        """Return the preferences for the service.
 
-        Args:
-            fields: The fields to update the options
-
-        Raises:
-            AttributeError: If the field passed in is not part of the
-                options
-        """
-        for field in fields:
-            if field not in self._options:
-                raise AttributeError("Options field %s is not valid for this " "service." % field)
-        self._options.update_options(**fields)
-
-    def option(self, field: str) -> Any:
-        """Get the value of the specified option.
-
-        Args:
-            field: Option field to retrieve.
+        Note:
+            These are preferences passed to the applications that use this service
+            and have no effect on the service itself. It is up to the application
+            to implement the preferences.
 
         Returns:
-            Option value.
-
-        Raises:
-            AttributeError: If the input field is not valid for the service.
+            Dict: The experiment preferences.
         """
-        if field not in self._options:
-            raise AttributeError(f"Options field {field} is not valid for this service.")
-        return self._options[field]
-
-    @property
-    def options(self) -> Options:
-        """Return the options for the service."""
-        return self._options
+        pass

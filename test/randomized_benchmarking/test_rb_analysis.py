@@ -23,6 +23,8 @@ from qiskit.circuit.library import (
 )
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.library import StandardRB, InterleavedRB
+from qiskit_experiments.database_service.json import ExperimentDecoder
+from qiskit_experiments.database_service.db_fitval import FitVal
 
 ATOL_DEFAULT = 1e-2
 RTOL_DEFAULT = 1e-5
@@ -75,17 +77,9 @@ class TestRBAnalysis(QiskitTestCase):
             "The file containing the experiment analysis data doesn't exist."
             " Please run the data generator.",
         )
-        samples_analysis_list = []
         with open(analysis_file_path, "r") as expected_results_file:
-            analysis_data_experiments = json.load(expected_results_file)
-        for analysis_data_experiment in analysis_data_experiments:
-            analysis_data_experiment["popt"] = np.array(analysis_data_experiment["popt"])
-            analysis_data_experiment["popt_err"] = np.array(analysis_data_experiment["popt_err"])
-            for idx, item in enumerate(analysis_data_experiment["pcov"]):
-                analysis_data_experiment["pcov"][idx] = np.array(item)
-            analysis_data_experiment["pcov"] = np.array(analysis_data_experiment["pcov"])
-            samples_analysis_list.append(analysis_data_experiment)
-        return samples_analysis_list
+            analysis_data = json.load(expected_results_file, cls=ExperimentDecoder)
+        return analysis_data
 
     def _validate_counts(self, analysis_results_data: list, exp_data: list):
         """
@@ -131,81 +125,38 @@ class TestRBAnalysis(QiskitTestCase):
                 "the gate sequence length isn't in the setup length list.",
             )
 
-    def _validate_fitting_parameters(
-        self, calculated_analysis_samples_data: list, expected_analysis_samples_data: list
-    ):
+    def _validate_fitting_parameters(self, analysis_results: list, expected_analysis: list):
         """
         The function checking that the results of the analysis matches to the expected one.
         Args:
-            calculated_analysis_samples_data(list): list of dictionary containing the
-            analysis result.
-            expected_analysis_samples_data(list): list of dictionary containing the analysis
-                expected result.
+            analysis_results: list of experiment analysis results.
+            expected_analysis: list of reference results as dicts.
         """
-        keys_for_array_data = ["popt", "popt_err", "pcov", "xrange"]
-        keys_for_string_data = ["popt_keys", "analysis_type"]
-        for idx, calculated_analysis_sample_data in enumerate(calculated_analysis_samples_data):
-            for key in calculated_analysis_sample_data.data():
-                if key in keys_for_array_data:
-                    self.assertTrue(
-                        matrix_equal(
-                            calculated_analysis_sample_data.data()[key],
-                            expected_analysis_samples_data[idx][key],
-                            rtol=RTOL_DEFAULT,
-                            atol=ATOL_DEFAULT,
-                        ),
-                        "The calculated value for the key '"
-                        + key
-                        + "', doesn't match the expected value."
-                        + "\n {} != {}".format(
-                            calculated_analysis_sample_data.data()[key],
-                            expected_analysis_samples_data[idx][key],
-                        ),
-                    )
-                else:
-                    if key in keys_for_string_data:
-                        self.assertTrue(
-                            calculated_analysis_sample_data.data()[key]
-                            == expected_analysis_samples_data[idx][key],
-                            "The analysis_type doesn't match to the one expected.",
-                        )
-                    else:
-                        if key == "EPG":
-                            self._validate_epg(
-                                calculated_analysis_sample_data.data()[key],
-                                expected_analysis_samples_data[idx][key],
-                            )
-                        else:
-                            self.assertTrue(
-                                np.allclose(
-                                    np.float64(calculated_analysis_sample_data.data()[key]),
-                                    np.float64(expected_analysis_samples_data[idx][key]),
-                                ),
-                                msg="The calculated value for key '"
-                                + key
-                                + "', doesn't match the expected value.",
-                            )
+        for result, reference in zip(analysis_results, expected_analysis):
+            # Check names match
+            self.assertEqual(result.name, reference["name"])
 
-    def _validate_epg(self, calculated_epg_dict: dict, expected_epg_dict: dict):
-        """
-        Confirm that the EPG that is calculated is the same as the expected one.
-        The attributes are dictionaries of the form (qubits, gate) -> value where value
-        is the epg for the given gate on the specified qubits
-        Args:
-            calculated_epg_dict: Dictionary of the calculated EPG
-            expected_epg_dict: Dictionary of the expected EPG
-        """
-        for physical_qubit in calculated_epg_dict.keys():
-            for epg_key, epg_value in calculated_epg_dict[physical_qubit].items():
-                self.assertAlmostEqual(
-                    np.float64(epg_value),
-                    expected_epg_dict[str(physical_qubit)][epg_key],
-                    msg="The calculated value for EPG for qubit '"
-                    + str(physical_qubit)
-                    + "' and key '"
-                    + str(epg_key)
-                    + "', doesn't match the expected value.",
-                )
+            # Check values match
+            value = result.value
+            target = reference["value"]
+            if isinstance(value, FitVal):
+                value = value.value
+                target = target.value
+            if isinstance(value, float):
+                self.assertAlmostEqual(value, target)
+            elif isinstance(value, np.ndarray):
+                self.assertTrue(matrix_equal(value, target))
+
+            # Check extra match
+            for key, value in result.extra.items():
+                target = reference["extra"][key]
+                if isinstance(value, FitVal):
+                    value = value.value
+                    target = target.value
+                if isinstance(value, float):
+                    self.assertAlmostEqual(value, target)
+                elif isinstance(value, np.ndarray):
+                    self.assertTrue(matrix_equal(value, target))
 
     def _run_tests(self, data_filenames, analysis_filenames):
         """
@@ -222,11 +173,11 @@ class TestRBAnalysis(QiskitTestCase):
             experiment_setup, experiment_data = json_data[0], json_data[1]
             self._validate_metadata(analysis_obj.data(), experiment_setup)
             self._validate_counts(analysis_obj.data(), experiment_data)
-            analysis_data_expected = self._analysis_load(
+            analysis_results_expected = self._analysis_load(
                 os.path.join(dir_name, rb_analysis_file_name)
             )
             self._validate_fitting_parameters(
-                analysis_obj.analysis_results(None), analysis_data_expected
+                analysis_obj.analysis_results(), analysis_results_expected
             )
 
     def _load_rb_data(self, rb_exp_data_file_name: str):
