@@ -190,7 +190,8 @@ class TestRBAnalysis(QiskitTestCase):
                 containing the experiment results.
             ExperimentData:  ExperimentData object that was creates by the analysis function.
         """
-        data, exp_attributes, expdata1 = self._load_json_data(rb_exp_data_file_name)
+        source = f"./refdata/{rb_exp_data_file_name}"
+        data, exp_attributes, expdata1 = self._load_json_data(source)
         rb_exp = StandardRB(
             exp_attributes["physical_qubits"],
             exp_attributes["lengths"],
@@ -243,8 +244,9 @@ class TestInterleavedRBAnalysis(TestRBAnalysis):
                 containing the experiment results.
             ExperimentData:  ExperimentData object that was creates by the analysis function.
         """
+        source = f"./refdata/{rb_exp_data_file_name}"
         interleaved_gates = {"x": XGate(), "cx": CXGate()}
-        data, exp_attributes, expdata1 = self._load_json_data(rb_exp_data_file_name)
+        data, exp_attributes, expdata1 = self._load_json_data(source)
         rb_exp = InterleavedRB(
             interleaved_gates[exp_attributes["interleaved_element"]],
             exp_attributes["physical_qubits"],

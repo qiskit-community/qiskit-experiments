@@ -85,7 +85,7 @@ class TestQuantumVolume(QiskitTestCase):
         )
         # compare to pre-calculated probabilities
         dir_name = os.path.dirname(os.path.abspath(__file__))
-        probabilities_json_file = "qv_ideal_probabilities.json"
+        probabilities_json_file = "./refdata/qv_ideal_probabilities.json"
         with open(os.path.join(dir_name, probabilities_json_file), "r") as json_file:
             probabilities = json.load(json_file, cls=ExperimentDecoder)
         self.assertTrue(
@@ -127,7 +127,7 @@ class TestQuantumVolume(QiskitTestCase):
             there is less than 100 trials
         """
         dir_name = os.path.dirname(os.path.abspath(__file__))
-        insufficient_trials_json_file = "qv_data_70_trials.json"
+        insufficient_trials_json_file = "./refdata/qv_data_70_trials.json"
         with open(os.path.join(dir_name, insufficient_trials_json_file), "r") as json_file:
             insufficient_trials_data = json.load(json_file, cls=ExperimentDecoder)
 
@@ -151,7 +151,7 @@ class TestQuantumVolume(QiskitTestCase):
             there are more than 100 trials, but the heavy output probability mean is less than 2/3
         """
         dir_name = os.path.dirname(os.path.abspath(__file__))
-        insufficient_hop_json_file = "qv_data_high_noise.json"
+        insufficient_hop_json_file = "./refdata/qv_data_high_noise.json"
         with open(os.path.join(dir_name, insufficient_hop_json_file), "r") as json_file:
             insufficient_hop_data = json.load(json_file, cls=ExperimentDecoder)
 
@@ -176,7 +176,7 @@ class TestQuantumVolume(QiskitTestCase):
             but the confidence is not high enough
         """
         dir_name = os.path.dirname(os.path.abspath(__file__))
-        insufficient_confidence_json = "qv_data_moderate_noise_100_trials.json"
+        insufficient_confidence_json = "./refdata/qv_data_moderate_noise_100_trials.json"
         with open(os.path.join(dir_name, insufficient_confidence_json), "r") as json_file:
             insufficient_confidence_data = json.load(json_file, cls=ExperimentDecoder)
 
@@ -200,7 +200,7 @@ class TestQuantumVolume(QiskitTestCase):
         Compare the results to a pre-run experiment
         """
         dir_name = os.path.dirname(os.path.abspath(__file__))
-        successful_json_file = "qv_data_moderate_noise_300_trials.json"
+        successful_json_file = "./refdata/qv_data_moderate_noise_300_trials.json"
         with open(os.path.join(dir_name, successful_json_file), "r") as json_file:
             successful_data = json.load(json_file, cls=ExperimentDecoder)
 
@@ -212,7 +212,7 @@ class TestQuantumVolume(QiskitTestCase):
         exp_data.add_data(successful_data)
 
         qv_exp.run_analysis(exp_data)
-        results_json_file = "qv_result_moderate_noise_300_trials.json"
+        results_json_file = "./refdata/qv_result_moderate_noise_300_trials.json"
         with open(os.path.join(dir_name, results_json_file), "r") as json_file:
             successful_results = json.load(json_file, cls=ExperimentDecoder)
 
