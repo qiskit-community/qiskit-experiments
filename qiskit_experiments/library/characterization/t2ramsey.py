@@ -24,7 +24,6 @@ from qiskit_experiments.framework import BaseExperiment
 from .t2ramsey_analysis import T2RamseyAnalysis
 
 
-
 class T2Ramsey(BaseExperiment):
 
     r"""
