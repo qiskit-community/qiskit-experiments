@@ -110,21 +110,21 @@ def _generate_int_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description='Interleaved RB ref data generation.')
+    parser = argparse.ArgumentParser(description="Interleaved RB ref data generation.")
     parser.add_argument(
-        '--folder',
+        "--folder",
         required=False,
         default="test/randomized_benchmarking/refdata",
         type=str,
     )
     parser.add_argument(
-        '--samples',
+        "--samples",
         required=False,
         default=3,
         type=int,
     )
     parser.add_argument(
-        '--seed',
+        "--seed",
         required=False,
         default=100,
         type=int,

@@ -14,10 +14,12 @@ Utils to generate RB experiment data reference.
 """
 
 import json
+from typing import List
 
 from qiskit.providers.aer.noise import NoiseModel
 from qiskit.providers.aer.noise.errors.standard_errors import depolarizing_error
 
+from qiskit_experiments.database_service import DbAnalysisResultV1
 from qiskit_experiments.database_service.json import ExperimentEncoder
 
 
@@ -37,7 +39,7 @@ def create_depolarizing_noise_model():
     return noise_model
 
 
-def analysis_save(analysis_results, analysis_file_path: str):
+def analysis_save(analysis_results: List[DbAnalysisResultV1], analysis_file_path: str):
     """
     The function is creating a json file from the data of the RB experiment analysis.
     Args:

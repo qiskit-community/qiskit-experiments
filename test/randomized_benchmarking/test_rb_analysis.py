@@ -166,7 +166,7 @@ class TestRBAnalysis(QiskitTestCase):
         dir_name = os.path.dirname(os.path.abspath(__file__))
         for rb_exp_data_file_name, rb_analysis_file_name in zip(data_filenames, analysis_filenames):
             json_data, analysis_obj = self._load_rb_data(
-                os.path.join(dir_name, rb_exp_data_file_name)
+                os.path.join(dir_name, "refdata", rb_exp_data_file_name)
             )
             # experiment_setup is the attributes passed to the experiment while
             # experiment_data is the data of the experiment that was simulated
@@ -174,7 +174,7 @@ class TestRBAnalysis(QiskitTestCase):
             self._validate_metadata(analysis_obj.data(), experiment_setup)
             self._validate_counts(analysis_obj.data(), experiment_data)
             analysis_results_expected = self._analysis_load(
-                os.path.join(dir_name, rb_analysis_file_name)
+                os.path.join(dir_name, "refdata", rb_analysis_file_name)
             )
             self._validate_fitting_parameters(
                 analysis_obj.analysis_results(), analysis_results_expected
@@ -190,8 +190,7 @@ class TestRBAnalysis(QiskitTestCase):
                 containing the experiment results.
             ExperimentData:  ExperimentData object that was creates by the analysis function.
         """
-        source = f"./refdata/{rb_exp_data_file_name}"
-        data, exp_attributes, expdata1 = self._load_json_data(source)
+        data, exp_attributes, expdata1 = self._load_json_data(rb_exp_data_file_name)
         rb_exp = StandardRB(
             exp_attributes["physical_qubits"],
             exp_attributes["lengths"],
@@ -244,9 +243,8 @@ class TestInterleavedRBAnalysis(TestRBAnalysis):
                 containing the experiment results.
             ExperimentData:  ExperimentData object that was creates by the analysis function.
         """
-        source = f"./refdata/{rb_exp_data_file_name}"
         interleaved_gates = {"x": XGate(), "cx": CXGate()}
-        data, exp_attributes, expdata1 = self._load_json_data(source)
+        data, exp_attributes, expdata1 = self._load_json_data(rb_exp_data_file_name)
         rb_exp = InterleavedRB(
             interleaved_gates[exp_attributes["interleaved_element"]],
             exp_attributes["physical_qubits"],

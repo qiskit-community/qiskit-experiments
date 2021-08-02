@@ -44,15 +44,15 @@ def _create_qv_ideal_probabilities(dir_path: str, seed_val: int):
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description='Quantum volume ref data generation.')
+    parser = argparse.ArgumentParser(description="Quantum volume ref data generation.")
     parser.add_argument(
-        '--folder',
+        "--folder",
         required=False,
         default="test/quantum_volume/refdata",
         type=str,
     )
     parser.add_argument(
-        '--seed',
+        "--seed",
         required=False,
         default=42,
         type=int,
@@ -63,4 +63,4 @@ if __name__ == "__main__":
 
     _create_qv_ideal_probabilities(args.folder, args.seed)
 
-    print(f"Completed")
+    print("Completed")
