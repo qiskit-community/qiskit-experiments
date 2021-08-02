@@ -45,7 +45,7 @@ author = 'Qiskit Development Team'
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = '0.0.1b1'
+release = '0.1.0'
 
 rst_prolog = """
 .. raw:: html
