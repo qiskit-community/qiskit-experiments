@@ -250,6 +250,20 @@ accomplished by using the
 [`--buffer`](https://docs.python.org/3/library/unittest.html#command-line-options)
 option (e.g. `python -m unittest discover --buffer ./test/python`).
 
+##### Regenerating reference data files
+
+When you update the structure or format of the experiment data, you may need to 
+regenerate some of reference data files used by the test framework.
+If test fails due to broken reference data, you can regenerate those files by
+
+```
+tox -erefdata
+```
+
+Please make sure your code works as expected otherwise this command may break the 
+test framework. It will take quite a lot of time to actually execute 
+all reference experiments with available simulators.
+
 ### Code style
 
 The qiskit-experiments repo uses black for code formatting and style and pylint
