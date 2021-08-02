@@ -54,7 +54,13 @@ class T1Analysis(BaseAnalysis):
 
     @classmethod
     def _default_options(cls):
-        """Default analysis options"""
+        """Default analysis options
+        Analysis Options:
+            t1_guess (gloat): Initial guess of T1.
+            amplitude_guess (float): Initial guess of the amplitude.
+            offset_guess (float): Initial guess of the offset.
+        """
+        
         return Options(
             t1_guess=None,
             amplitude_guess=None,

@@ -28,11 +28,6 @@ class T1(BaseExperiment):
     r"""
     T1 experiment class
 
-    Experiment Options:
-        * delays: delay times of the experiments
-        * unit: Optional, unit of the delay times. Supported units are
-                's', 'ms', 'us', 'ns', 'ps', 'dt'.
-
     Design and analyze experiments for estimating T\ :sub:`1` of the device.
 
     Each experiment consists of the following steps:
@@ -43,6 +38,10 @@ class T1(BaseExperiment):
     3. Analysis of results: deduction of T\ :sub:`1`\ , based on the outcomes,
     by fitting to an exponential curve.
 
+    Experiment Options:
+        delays (list or array of float): Delay times of the experiments
+        unit (str): Unit of the delay times. Supported units are 
+                's', 'ms', 'us', 'ns', 'ps', 'dt'.
     """
 
     __analysis_class__ = T1Analysis
