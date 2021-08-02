@@ -44,13 +44,13 @@ class T1(BaseExperiment):
     @classmethod
     def _default_experiment_options(cls) -> Options:
         """Default experiment options.
-        
+
         Experiment Options:
             delays (list or array of float): Delay times of the experiments.
             unit (str): Unit of the delay times. Supported units are
                     's', 'ms', 'us', 'ns', 'ps', 'dt'.
         """
-        
+
         return Options(delays=None, unit="s")
 
     def __init__(
