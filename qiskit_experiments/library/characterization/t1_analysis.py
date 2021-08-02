@@ -38,7 +38,7 @@ class T1Analysis(BaseAnalysis):
 
             F(x) = a e^{-x/t1} + b
 
-    #section: fit Parameters
+    #section: fit_parameters
        defpar a:
            desc: Height of the decay curve.
            init_guess: Determined by :math:`(y_0 - b)`.
