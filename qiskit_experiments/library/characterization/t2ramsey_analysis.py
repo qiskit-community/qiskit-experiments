@@ -150,8 +150,8 @@ class T2RamseyAnalysis(BaseAnalysis):
             figures = None
 
         # Output unit is 'sec', regardless of the unit used in the input
-        result_t2 = AnalysisResultData(
-            "T2",
+        result_t2star = AnalysisResultData(
+            "T2star",
             value=FitVal(fit_result["popt"][1], fit_result["popt_err"][1], "s"),
             quality=quality,
             chisq=chisq,
@@ -165,7 +165,7 @@ class T2RamseyAnalysis(BaseAnalysis):
             extra=fit_result,
         )
 
-        return [result_t2, result_freq], figures
+        return [result_t2star, result_freq], figures
 
     def _t2ramsey_default_params(
         self,
