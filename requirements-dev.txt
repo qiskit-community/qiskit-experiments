@@ -7,7 +7,8 @@ qiskit-sphinx-theme>=1.6
 sphinx-autodoc-typehints
 jupyter-sphinx
 pygments>=2.4
-reno>=3.4.0
+# TODO: Remove after reno 3.3.0 is released
+reno @ git+https://opendev.org/openstack/reno.git
 sphinx-panels
 nbsphinx
 arxiv
