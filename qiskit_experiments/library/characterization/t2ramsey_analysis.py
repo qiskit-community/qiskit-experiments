@@ -95,7 +95,7 @@ class T2RamseyAnalysis(BaseAnalysis):
             ax.tick_params(labelsize=14)
             ax.set_xlabel("Delay (s)", fontsize=12)
             ax.ticklabel_format(axis="x", style="sci", scilimits=(0, 0))
-            ax.set_ylabel("Probability to measure |0>", fontsize=12)
+            ax.set_ylabel("Probability of 0 state", fontsize=12)
             t2ramsey = fit_result["popt"][1] / conversion_factor
             t2_err = fit_result["popt_err"][1] / conversion_factor
             box_text = "$T_2Ramsey$ = {:.2f} \u00B1 {:.2f} {}".format(t2ramsey, t2_err, unit)
