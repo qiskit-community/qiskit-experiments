@@ -31,7 +31,7 @@ from qiskit_experiments.curve_analysis.data_processing import level2_probability
 class T1Analysis(BaseAnalysis):
     r"""A class to analyze T1 experiments.
 
-    #section: fit Model
+    #section: fit_model
         The fit is based on the following decay function.
 
         .. math::
