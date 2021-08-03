@@ -28,20 +28,20 @@ class T1(BaseExperiment):
     r"""
     T1 experiment class
 
-    Experiment Options:
-        * delays: delay times of the experiments
-        * unit: Optional, unit of the delay times. Supported units are
-                's', 'ms', 'us', 'ns', 'ps', 'dt'.
+    # section: overview
 
-    Design and analyze experiments for estimating T\ :sub:`1` of the device.
+        Design and analyze experiments for estimating T\ :sub:`1` relaxation time of the qubit.
 
-    Each experiment consists of the following steps:
-    1. Circuits generation: the circuits set the qubit in the excited state,
-    wait different time intervals, then measure the qubit.
-    2. Backend execution: actually running the circuits on the device
-    (or simulator).
-    3. Analysis of results: deduction of T\ :sub:`1`\ , based on the outcomes,
-    by fitting to an exponential curve.
+        Each experiment consists of the following steps:
+
+        1. Circuits generation: the circuits set the qubit in the excited state,
+        wait different time intervals, then measure the qubit.
+
+        2. Backend execution: actually running the circuits on the device
+        (or simulator).
+
+        3. Analysis of results: deduction of T\ :sub:`1`\ , based on the outcomes,
+        by fitting to an exponential curve.
 
     """
 
@@ -49,6 +49,14 @@ class T1(BaseExperiment):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
+        """Default experiment options.
+
+        Experiment Options:
+            delays (Iterable[float]): Delay times of the experiments.
+            unit (str): Unit of the delay times. Supported units are
+                's', 'ms', 'us', 'ns', 'ps', 'dt'.
+        """
+
         return Options(delays=None, unit="s")
 
     def __init__(
