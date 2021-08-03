@@ -31,26 +31,36 @@ from qiskit_experiments.curve_analysis.data_processing import level2_probability
 class T1Analysis(BaseAnalysis):
     r"""A class to analyze T1 experiments.
 
-    Fit Model
+    # section: fit_model
         The fit is based on the following decay function.
 
         .. math::
 
             F(x) = a e^{-x/t1} + b
 
-    Fit Parameters
-        - :math:`amplitude`: Height of the decay curve
-        - :math:`offset`: Base line of the decay curve
-        - :math:`t1`: This is the fit parameter of main interest
+    # section: fit_parameters
+       defpar a:
+           desc: Height of the decay curve.
+           init_guess: Determined by :math:`(y_0 - b)`.
 
-    Initial Guesses
-        - :math:`amplitude\_guess`: Determined by :math:`(y_0 - offset\_guess)`
-        - :math:`offset\_guess`: Determined by the last :math:`y`
-        - :math:`t1\_guess`: Determined by the mean of the data points
+       defpar b:
+           desc: Base line of the decay curve.
+           init_guess: Determined by the last :math:`y`.
+
+       defpar t1:
+           desc: This is the fit parameter of main interest.
+           init_guess: Determined by the mean of the data points.
     """
 
     @classmethod
     def _default_options(cls):
+        """Default analysis options
+        Analysis Options:
+            t1_guess (float): Initial guess of T1.
+            amplitude_guess (float): Initial guess of the amplitude.
+            offset_guess (float): Initial guess of the offset.
+        """
+
         return Options(
             t1_guess=None,
             amplitude_guess=None,
@@ -167,6 +177,7 @@ class T1Analysis(BaseAnalysis):
         if qubit is not None:
             ax.set_title(f"Qubit {qubit}", fontsize=16)
         ax.set_xlabel("Delay (s)", fontsize=16)
+        ax.ticklabel_format(axis="x", style="sci", scilimits=(-3, 3))
         ax.set_ylabel("P(1)", fontsize=16)
         ax.grid(True)
 
