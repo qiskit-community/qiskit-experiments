@@ -55,16 +55,9 @@ class T2Ramsey(BaseExperiment):
     # section: tutorial
         :doc:`/tutorials/t2ramsey_characterization`
 
-    # section: analysis_class
+    Analysis class
 
         :class:`~qiskit.experiments.characterization.T2RamseyAnalysis`
-
-    # section: analysis_options
-
-        - **user_p0** (``List[Float]``): user guesses for the fit parameters:
-          :math:`a, b, f, \phi, T_2^*`.
-        - **bounds** - (Tuple[List[float], List[float]]) lower and upper bounds for the fit parameters.
-        - **plot** (bool) - create a graph if and only if True.
 
     """
     __analysis_class__ = T2RamseyAnalysis

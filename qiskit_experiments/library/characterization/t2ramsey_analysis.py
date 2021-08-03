@@ -49,6 +49,13 @@ class T2RamseyAnalysis(BaseAnalysis):
         - :math:`t2ramsey`: Represents the rate of decay.
         - :math:`f (frequency)`: Represents the difference in frequency between
           the user guess and the actual frequency of the qubit.
+
+    Analysis options
+
+        - **user_p0** (``List[Float]``): user guesses for the fit parameters:
+          :math:`a, b, f, \phi, T_2^*`.
+        - **bounds** - (Tuple[List[float], List[float]]) lower and upper bounds for the fit parameters.
+        - **plot** (bool) - create a graph if and only if True.
     """
 
     @classmethod
