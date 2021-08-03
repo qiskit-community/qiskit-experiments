@@ -177,6 +177,7 @@ class T1Analysis(BaseAnalysis):
         if qubit is not None:
             ax.set_title(f"Qubit {qubit}", fontsize=16)
         ax.set_xlabel("Delay (s)", fontsize=16)
+        ax.ticklabel_format(axis="x", style="sci", scilimits=(-3, 3))
         ax.set_ylabel("P(1)", fontsize=16)
         ax.grid(True)
 
