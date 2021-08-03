@@ -25,9 +25,9 @@ from .interleaved_rb_analysis import InterleavedRBAnalysis
 
 
 class InterleavedRB(StandardRB):
-    """Interleaved Randomized Benchmarking Experiment class.
+    """Interleaved randomized benchmarking experiment.
 
-    Overview
+    # section: overview
         Interleaved Randomized Benchmarking (RB) is a method
         to estimate the average error-rate of a certain quantum gate.
 
@@ -37,24 +37,9 @@ class InterleavedRB(StandardRB):
         the ground state, fits the two exponentially decaying curves, and estimates
         the interleaved gate error. See Ref. [1] for details.
 
-        See :class:`InterleavedRBAnalysis` documentation for additional
-        information on interleaved RB experiment analysis.
+    # section: reference
+        .. ref_arxiv:: 1 1203.4550
 
-    References
-        1. Easwar Magesan, Jay M. Gambetta, B. R. Johnson, Colm A. Ryan, Jerry M. Chow,
-           Seth T. Merkel, Marcus P. da Silva, George A. Keefe, Mary B. Rothwell, Thomas A. Ohki,
-           Mark B. Ketchen, M. Steffen, Efficient measurement of quantum gate error by
-           interleaved randomized benchmarking,
-           `arXiv:quant-ph/1203.4550 <https://arxiv.org/pdf/1203.4550>`_
-
-    Analysis Class
-        :class:`InterleavedRBAnalysis`
-
-    Experiment Options
-        - **lengths**: A list of RB sequences lengths.
-        - **num_samples**: Number of samples to generate for each sequence length.
-        - **interleaved_element**: The element to interleave,
-          given either as a group element or as an instruction/circuit
     """
 
     # Analysis class for experiment
