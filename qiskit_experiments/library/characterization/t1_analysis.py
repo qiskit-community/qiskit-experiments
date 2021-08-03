@@ -15,12 +15,12 @@ T1 Analysis class.
 
 
 from typing import Tuple, List
+import dataclasses
 import numpy as np
 
 from qiskit.utils import apply_prefix
 
 from qiskit_experiments.framework import BaseAnalysis, Options, AnalysisResultData, FitVal
-from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
 from qiskit_experiments.curve_analysis import plot_curve_fit, plot_errorbar, curve_fit
 from qiskit_experiments.curve_analysis.curve_fit import (
     process_curve_data,
@@ -31,26 +31,36 @@ from qiskit_experiments.curve_analysis.data_processing import level2_probability
 class T1Analysis(BaseAnalysis):
     r"""A class to analyze T1 experiments.
 
-    Fit Model
+    # section: fit_model
         The fit is based on the following decay function.
 
         .. math::
 
             F(x) = a e^{-x/t1} + b
 
-    Fit Parameters
-        - :math:`amplitude`: Height of the decay curve
-        - :math:`offset`: Base line of the decay curve
-        - :math:`t1`: This is the fit parameter of main interest
+    # section: fit_parameters
+       defpar a:
+           desc: Height of the decay curve.
+           init_guess: Determined by :math:`(y_0 - b)`.
 
-    Initial Guesses
-        - :math:`amplitude\_guess`: Determined by :math:`(y_0 - offset\_guess)`
-        - :math:`offset\_guess`: Determined by the last :math:`y`
-        - :math:`t1\_guess`: Determined by the mean of the data points
+       defpar b:
+           desc: Base line of the decay curve.
+           init_guess: Determined by the last :math:`y`.
+
+       defpar t1:
+           desc: This is the fit parameter of main interest.
+           init_guess: Determined by the mean of the data points.
     """
 
     @classmethod
     def _default_options(cls):
+        """Default analysis options
+        Analysis Options:
+            t1_guess (float): Initial guess of T1.
+            amplitude_guess (float): Initial guess of the amplitude.
+            offset_guess (float): Initial guess of the offset.
+        """
+
         return Options(
             t1_guess=None,
             amplitude_guess=None,
@@ -111,6 +121,7 @@ class T1Analysis(BaseAnalysis):
 
         init = {"a": amplitude_guess, "tau": t1_guess, "c": offset_guess}
         fit_result = curve_fit(fit_fun, xdata, ydata, init, sigma=sigma)
+        fit_result = dataclasses.asdict(fit_result)
         fit_result["circuit_unit"] = unit
         if unit == "dt":
             fit_result["dt"] = conversion_factor
@@ -135,7 +146,7 @@ class T1Analysis(BaseAnalysis):
 
         # Generate fit plot
         figures = []
-        if plot and HAS_MATPLOTLIB:
+        if plot:
             ax = plot_curve_fit(fit_fun, fit_result, ax=ax, fit_uncertainty=True)
             ax = plot_errorbar(xdata, ydata, sigma, ax=ax)
             self._format_plot(ax, fit_result, qubit=qubit)

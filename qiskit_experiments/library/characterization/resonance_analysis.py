@@ -15,19 +15,10 @@
 from typing import Any, Dict, List, Union
 
 import numpy as np
-
-from qiskit_experiments.curve_analysis import (
-    CurveAnalysis,
-    CurveAnalysisResultData,
-    SeriesDef,
-    fit_function,
-    guess,
-    get_opt_value,
-    get_opt_error,
-)
+import qiskit_experiments.curve_analysis as curve
 
 
-class ResonanceAnalysis(CurveAnalysis):
+class ResonanceAnalysis(curve.CurveAnalysis):
     r"""A class to analyze a resonance, typically seen as a peak.
 
     Overview
@@ -66,8 +57,8 @@ class ResonanceAnalysis(CurveAnalysis):
     """
 
     __series__ = [
-        SeriesDef(
-            fit_func=lambda x, a, sigma, freq, b: fit_function.gaussian(
+        curve.SeriesDef(
+            fit_func=lambda x, a, sigma, freq, b: curve.fit_function.gaussian(
                 x, amp=a, sigma=sigma, x0=freq, baseline=b
             ),
             plot_color="blue",
@@ -84,7 +75,7 @@ class ResonanceAnalysis(CurveAnalysis):
         default_options = super()._default_options()
         default_options.p0 = {"a": None, "sigma": None, "freq": None, "b": None}
         default_options.bounds = {"a": None, "sigma": None, "freq": None, "b": None}
-        default_options.fit_reports = {"freq": "frequency"}
+        default_options.reporting_parameters = {"freq": ("frequency", "Hz")}
         default_options.normalization = True
 
         return default_options
@@ -96,13 +87,15 @@ class ResonanceAnalysis(CurveAnalysis):
 
         curve_data = self._data()
 
-        b_guess = guess.constant_spectral_offset(curve_data.y)
+        b_guess = curve.guess.constant_spectral_offset(curve_data.y)
         y_ = curve_data.y - b_guess
 
-        _, peak_idx = guess.max_height(y_, absolute=True)
+        _, peak_idx = curve.guess.max_height(y_, absolute=True)
         a_guess = curve_data.y[peak_idx] - b_guess
         f_guess = curve_data.x[peak_idx]
-        s_guess = guess.full_width_half_max(curve_data.x, y_, peak_idx) / np.sqrt(8 * np.log(2))
+        s_guess = curve.guess.full_width_half_max(curve_data.x, y_, peak_idx) / np.sqrt(
+            8 * np.log(2)
+        )
 
         max_abs_y = np.max(np.abs(curve_data.y))
 
@@ -124,7 +117,7 @@ class ResonanceAnalysis(CurveAnalysis):
 
         return fit_option
 
-    def _post_analysis(self, result_data: CurveAnalysisResultData) -> CurveAnalysisResultData:
+    def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
@@ -143,11 +136,11 @@ class ResonanceAnalysis(CurveAnalysis):
         min_freq = np.min(curve_data.x)
         freq_increment = np.mean(np.diff(curve_data.x))
 
-        fit_a = get_opt_value(result_data, "a")
-        fit_b = get_opt_value(result_data, "b")
-        fit_freq = get_opt_value(result_data, "freq")
-        fit_sigma = get_opt_value(result_data, "sigma")
-        fit_sigma_err = get_opt_error(result_data, "sigma")
+        fit_a = fit_data.fitval("a").value
+        fit_b = fit_data.fitval("b").value
+        fit_freq = fit_data.fitval("freq").value
+        fit_sigma = fit_data.fitval("sigma").value
+        fit_sigma_err = fit_data.fitval("sigma").stderr
 
         snr = abs(fit_a) / np.sqrt(abs(np.median(curve_data.y) - fit_b))
         fit_width_ratio = fit_sigma / (max_freq - min_freq)
@@ -156,14 +149,12 @@ class ResonanceAnalysis(CurveAnalysis):
             min_freq <= fit_freq <= max_freq,
             1.5 * freq_increment < fit_sigma,
             fit_width_ratio < 0.25,
-            result_data["reduced_chisq"] < 3,
+            fit_data.reduced_chisq < 3,
             (fit_sigma_err is None or fit_sigma_err < fit_sigma),
             snr > 2,
         ]
 
         if all(criteria):
-            result_data["quality"] = "good"
-        else:
-            result_data["quality"] = "bad"
+            return "good"
 
-        return result_data
+        return "bad"

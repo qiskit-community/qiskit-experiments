@@ -14,7 +14,6 @@
 
 import logging
 import uuid
-import json
 from typing import Optional, List, Any, Union, Callable, Dict
 import copy
 from concurrent import futures
@@ -24,10 +23,10 @@ import contextlib
 from collections import deque
 from datetime import datetime
 
+from matplotlib import pyplot
 from qiskit.providers import Job, BaseJob, Backend, BaseBackend, Provider
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
-from qiskit.visualization import HAS_MATPLOTLIB
 
 from .database_service import DatabaseServiceV1
 from .exceptions import DbExperimentDataError, DbExperimentEntryNotFound, DbExperimentEntryExists
@@ -168,7 +167,7 @@ class DbExperimentDataV1(DbExperimentData):
         """
         with contextlib.suppress(Exception):
             self._service = backend.provider().service("experiment")
-            self.auto_save = self._service.options.get("auto_save", False)
+            self._auto_save = self._service.preferences.get("auto_save", False)
 
     def add_data(
         self,
@@ -451,12 +450,8 @@ class DbExperimentDataV1(DbExperimentData):
 
             save = save_figure if save_figure is not None else self.auto_save
             if save and self._service:
-                if HAS_MATPLOTLIB:
-                    # pylint: disable=import-error
-                    from matplotlib import pyplot
-
-                    if isinstance(figure, pyplot.Figure):
-                        figure = plot_to_svg_bytes(figure)
+                if isinstance(figure, pyplot.Figure):
+                    figure = plot_to_svg_bytes(figure)
                 data = {
                     "experiment_id": self.experiment_id,
                     "figure": figure,
@@ -556,12 +551,12 @@ class DbExperimentDataV1(DbExperimentData):
         for result in results:
             self._analysis_results[result.result_id] = result
 
-            if self.auto_save and self._service:
-                result.save()
-
             with contextlib.suppress(DbExperimentDataError):
                 result.service = self.service
                 result.auto_save = self.auto_save
+
+            if self.auto_save and self._service:
+                result.save()
 
     @do_auto_save
     def delete_analysis_result(
@@ -571,7 +566,7 @@ class DbExperimentDataV1(DbExperimentData):
         """Delete the analysis result.
 
         Args:
-            result_key: ID or index of the analysis result to be delete.
+            result_key: ID or index of the analysis result to be deleted.
 
         Returns:
             Analysis result ID.
@@ -668,7 +663,11 @@ class DbExperimentDataV1(DbExperimentData):
             for fields that are saved.
         """
         if not self._service:
-            LOG.warning("Experiment cannot be saved because no experiment service is available.")
+            LOG.warning(
+                "Experiment cannot be saved because no experiment service is available. "
+                "An experiment service is available, for example, "
+                "when using an IBM Quantum backend."
+            )
             return
 
         if not self._backend:
@@ -682,14 +681,14 @@ class DbExperimentDataV1(DbExperimentData):
                     "save() again after all post-processing is done to save any newly "
                     "generated data."
                 )
-        metadata = json.loads(json.dumps(self._metadata, cls=self._json_encoder))
+        metadata = copy.deepcopy(self._metadata)
         metadata["_source"] = self._source
 
         update_data = {
             "experiment_id": self._id,
             "metadata": metadata,
             "job_ids": self.job_ids,
-            "tags": self.tags(),
+            "tags": self.tags,
             "notes": self.notes,
         }
         new_data = {"experiment_type": self._type, "backend_name": self._backend.name()}
@@ -702,6 +701,7 @@ class DbExperimentDataV1(DbExperimentData):
             update_func=self._service.update_experiment,
             new_data=new_data,
             update_data=update_data,
+            json_encoder=self._json_encoder,
         )
 
     def save(self) -> None:
@@ -717,7 +717,11 @@ class DbExperimentDataV1(DbExperimentData):
         """
         # TODO - track changes
         if not self._service:
-            LOG.warning("Experiment cannot be saved because no experiment service is available.")
+            LOG.warning(
+                "Experiment cannot be saved because no experiment service is available. "
+                "An experiment service is available, for example, "
+                "when using an IBM Quantum backend."
+            )
             return
 
         self.save_metadata()
@@ -733,12 +737,8 @@ class DbExperimentDataV1(DbExperimentData):
             for name, figure in self._figures.items():
                 if figure is None:
                     continue
-                if HAS_MATPLOTLIB:
-                    # pylint: disable=import-error
-                    from matplotlib import pyplot
-
-                    if isinstance(figure, pyplot.Figure):
-                        figure = plot_to_svg_bytes(figure)
+                if isinstance(figure, pyplot.Figure):
+                    figure = plot_to_svg_bytes(figure)
                 data = {"experiment_id": self.experiment_id, "figure": figure, "figure_name": name}
                 save_data(
                     is_new=True,
@@ -939,6 +939,7 @@ class DbExperimentDataV1(DbExperimentData):
                 )
         return new_instance
 
+    @property
     def tags(self) -> List[str]:
         """Return tags assigned to this experiment data.
 
@@ -948,15 +949,18 @@ class DbExperimentDataV1(DbExperimentData):
         """
         return self._tags
 
-    @do_auto_save
-    def set_tags(self, new_tags: List[str]) -> None:
-        """Set tags for this experiment.
-
-        Args:
-            new_tags: New tags for the experiment.
-        """
+    @tags.setter
+    def tags(self, new_tags: List[str]) -> None:
+        """Set tags for this experiment."""
+        if not isinstance(new_tags, list):
+            raise DbExperimentDataError(
+                f"The `tags` field of {type(self).__name__} must be a list."
+            )
         self._tags = new_tags
+        if self.auto_save:
+            self.save_metadata()
 
+    @property
     def metadata(self) -> Dict:
         """Return experiment metadata.
 
@@ -964,15 +968,6 @@ class DbExperimentDataV1(DbExperimentData):
             Experiment metadata.
         """
         return self._metadata
-
-    @do_auto_save
-    def set_metadata(self, metadata: Dict) -> None:
-        """Set metadata for this experiment.
-
-        Args:
-            metadata: New metadata for the experiment.
-        """
-        self._metadata = copy.deepcopy(metadata)
 
     @property
     def _provider(self) -> Optional[Provider]:
@@ -1156,8 +1151,8 @@ class DbExperimentDataV1(DbExperimentData):
         ret += f"\nStatus: {status}"
         if self.backend:
             ret += f"\nBackend: {self.backend}"
-        if self.tags():
-            ret += f"\nTags: {self.tags()}"
+        if self.tags:
+            ret += f"\nTags: {self.tags}"
         ret += f"\nData: {len(self._data)}"
         ret += f"\nAnalysis Results: {n_res}"
         ret += f"\nFigures: {len(self._figures)}"
