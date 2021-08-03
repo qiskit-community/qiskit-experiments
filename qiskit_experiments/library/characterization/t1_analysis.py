@@ -31,14 +31,14 @@ from qiskit_experiments.curve_analysis.data_processing import level2_probability
 class T1Analysis(BaseAnalysis):
     r"""A class to analyze T1 experiments.
 
-    #section: fit_model
+    # section: fit_model
         The fit is based on the following decay function.
 
         .. math::
 
             F(x) = a e^{-x/t1} + b
 
-    #section: fit_parameters
+    # section: fit_parameters
        defpar a:
            desc: Height of the decay curve.
            init_guess: Determined by :math:`(y_0 - b)`.
