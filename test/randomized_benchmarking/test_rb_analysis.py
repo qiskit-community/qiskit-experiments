@@ -10,268 +10,250 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-A test for RB analysis. Using pre-Generated data from rb_generate_data.py.
+A test for RB analysis.
 """
-import os
-import json
-import numpy as np
-from qiskit.quantum_info.operators.predicates import matrix_equal
-from qiskit.test import QiskitTestCase
 from qiskit.circuit.library import (
     XGate,
     CXGate,
 )
-from qiskit_experiments.framework import ExperimentData
+from qiskit.providers.aer import QasmSimulator
+from qiskit.providers.aer.noise import NoiseModel
+from qiskit.providers.aer.noise.errors.standard_errors import depolarizing_error
+from qiskit.test import QiskitTestCase
+
 from qiskit_experiments.library import StandardRB, InterleavedRB
-from qiskit_experiments.database_service.json import ExperimentDecoder
-from qiskit_experiments.database_service.db_fitval import FitVal
 
 ATOL_DEFAULT = 1e-2
 RTOL_DEFAULT = 1e-5
 
 
-class TestRBAnalysis(QiskitTestCase):
+def create_depolarizing_noise_model():
     """
-    A base class for the tests of analysis of the RB experiments
+    create noise model of depolarizing error
+    Returns:
+        NoiseModel: depolarizing error noise model
+    """
+    # the error parameters were taken from ibmq_manila on 17 june 2021
+    p1q = 0.002257
+    p2q = 0.006827
+    noise_model = NoiseModel()
+    noise_model.add_all_qubit_quantum_error(depolarizing_error(p1q, 1), "x")
+    noise_model.add_all_qubit_quantum_error(depolarizing_error(p1q, 1), "sx")
+    noise_model.add_all_qubit_quantum_error(depolarizing_error(p2q, 2), "cx")
+    return noise_model
+
+
+class TestStandardRBAnalysis(QiskitTestCase):
+    """
+    A test for the analysis of the standard RB experiment
     """
 
-    def _load_json_data(self, rb_exp_data_file_name: str):
-        """
-        loader for the experiment data and configuration setup.
-        Args:
-            rb_exp_data_file_name(str): The file name that contain the experiment data.
-        Returns:
-            list: containing dict of the experiment setup configuration and list of dictionaries
-                containing the experiment results.
-            ExperimentData:  ExperimentData object that was creates by the analysis function.
-        """
-        expdata1 = ExperimentData()
-        self.assertTrue(
-            os.path.isfile(rb_exp_data_file_name),
-            "The file containing the experiment data doesn't exist."
-            " Please run the data generator.",
-        )
-        with open(rb_exp_data_file_name, "r") as json_file:
-            data = json.load(json_file)
-            # The experiment attributes added
-            exp_attributes = data[0]
-            # pylint: disable=protected-access, invalid-name
-            expdata1._metadata = data[0]
-            # The experiment data located in index [1] as it is a list of dicts
-            expdata1.add_data(data[1])
+    def setUp(self):
+        self.gate_error_ratio = {
+            ((0,), "id"): 1,
+            ((0,), "rz"): 0,
+            ((0,), "sx"): 1,
+            ((0,), "x"): 1,
+            ((0, 1), "cx"): 1,
+        }
+        self.transpiled_base_gate = ["cx", "sx", "x"]
+        super().setUp()
 
-        return data, exp_attributes, expdata1
-
-    def _analysis_load(self, analysis_file_path: str):
-        """
-        Loads the expected data of the analysis and changing the the values type
-        to match the originals.
-        Args:
-            analysis_file_path(str): The full path of the json containing
-            the expected analysis results.
-        Returns:
-            list(dict): A list of dicts which contains the analysis results.
-        """
-        self.assertTrue(
-            os.path.isfile(analysis_file_path),
-            "The file containing the experiment analysis data doesn't exist."
-            " Please run the data generator.",
-        )
-        with open(analysis_file_path, "r") as expected_results_file:
-            analysis_data = json.load(expected_results_file, cls=ExperimentDecoder)
-        return analysis_data
-
-    def _validate_counts(self, analysis_results_data: list, exp_data: list):
-        """
-        Function to check that the count statistics that is stored in the ExpirimentData object
-        matches the data in the json file.
-        Args:
-            analysis_results_data(list): The data that is stored in the analysis object.
-            exp_data(list): The setup data for the experiment.
-        Returns(bool):
-            return if the validation result.
-        """
-        for idx, exp_result in enumerate(analysis_results_data):
-            # making a dict with all the shared keys with the same value
-            shared_items = {
-                k: exp_result["counts"][k]
-                for k in exp_result
-                if k in exp_data[idx]["counts"]
-                and exp_result["counts"][k] == exp_data[idx]["counts"][k]
-            }
-            # check if all the keys and values are identical by length
-            self.assertTrue(
-                len(shared_items) != len(exp_data[idx]["counts"]),
-                "The counts statistics doesn't match the data from the json.",
+    def _check_fit_val(self, entry, ref_value=None, ref_stderr=None):
+        """A helper method to check fit value entry with tolerance."""
+        if ref_value is not None:
+            self.assertAlmostEqual(
+                entry.value.value,
+                ref_value,
+                delta=ATOL_DEFAULT,
             )
-            self.assertTrue(
-                len(shared_items) != len(exp_result["counts"]),
-                "The counts statistics doesn't match the data from the analytics.",
+        if ref_stderr is not None:
+            self.assertAlmostEqual(
+                entry.value.stderr,
+                ref_stderr,
+                delta=ATOL_DEFAULT,
             )
 
-    def _validate_metadata(self, analysis_results_data: list, exp_setup: list):
-        """
-        Function to check that the metadata that is stored in the ExpirimentData matches the
-        metadata in the json file.
-        Args:
-            analysis_results_data(list): The data that is stored in the analysis object.
-            exp_setup(list): The setup data for the experiment.
-        Returns(bool):
-            return if the validation result.
-        """
-        for exp_result in analysis_results_data:
-            self.assertTrue(
-                exp_result["metadata"]["xval"] in exp_setup["lengths"],
-                "the gate sequence length isn't in the setup length list.",
-            )
-
-    def _validate_fitting_parameters(self, analysis_results: list, expected_analysis: list):
-        """
-        The function checking that the results of the analysis matches to the expected one.
-        Args:
-            analysis_results: list of experiment analysis results.
-            expected_analysis: list of reference results as dicts.
-        """
-        for result, reference in zip(analysis_results, expected_analysis):
-            # Check names match
-            self.assertEqual(result.name, reference["name"])
-
-            # Check values match
-            value = result.value
-            target = reference["value"]
-            if isinstance(value, FitVal):
-                value = value.value
-                target = target.value
-            if isinstance(value, float):
-                self.assertAlmostEqual(value, target)
-            elif isinstance(value, np.ndarray):
-                self.assertTrue(matrix_equal(value, target))
-
-            # Check extra match
-            for key, value in result.extra.items():
-                target = reference["extra"][key]
-                if isinstance(value, FitVal):
-                    value = value.value
-                    target = target.value
-                if isinstance(value, float):
-                    self.assertAlmostEqual(value, target)
-                elif isinstance(value, np.ndarray):
-                    self.assertTrue(matrix_equal(value, target))
-
-    def _run_tests(self, data_filenames, analysis_filenames):
-        """
-        A function to validate the data that is stored and the jsons and
-        check that the analysis is correct.
-        """
-        dir_name = os.path.dirname(os.path.abspath(__file__))
-        for rb_exp_data_file_name, rb_analysis_file_name in zip(data_filenames, analysis_filenames):
-            json_data, analysis_obj = self._load_rb_data(
-                os.path.join(dir_name, rb_exp_data_file_name)
-            )
-            # experiment_setup is the attributes passed to the experiment while
-            # experiment_data is the data of the experiment that was simulated
-            experiment_setup, experiment_data = json_data[0], json_data[1]
-            self._validate_metadata(analysis_obj.data(), experiment_setup)
-            self._validate_counts(analysis_obj.data(), experiment_data)
-            analysis_results_expected = self._analysis_load(
-                os.path.join(dir_name, rb_analysis_file_name)
-            )
-            self._validate_fitting_parameters(
-                analysis_obj.analysis_results(), analysis_results_expected
-            )
-
-    def _load_rb_data(self, rb_exp_data_file_name: str):
-        """
-        loader for the experiment data and configuration setup.
-        Args:
-            rb_exp_data_file_name(str): The file name that contain the experiment data.
-        Returns:
-            list: containing dict of the experiment setup configuration and list of dictionaries
-                containing the experiment results.
-            ExperimentData:  ExperimentData object that was creates by the analysis function.
-        """
-        data, exp_attributes, expdata1 = self._load_json_data(rb_exp_data_file_name)
+    def test_1qubit_standard_rb(self):
+        """Executing standard RB experiment and analyze with 1 qubit."""
+        noise_model = create_depolarizing_noise_model()
+        backend = QasmSimulator()
         rb_exp = StandardRB(
-            exp_attributes["physical_qubits"],
-            exp_attributes["lengths"],
-            num_samples=exp_attributes["num_samples"],
-            seed=exp_attributes["seed"],
+            qubits=[0],
+            lengths=list(range(1, 1000, 100)),
+            num_samples=3,
+            seed=100,
         )
-        gate_error_ratio = {
+        rb_exp.set_analysis_options(gate_error_ratio=self.gate_error_ratio)
+        rb_data = rb_exp.run(
+            backend, noise_model=noise_model, basis_gates=self.transpiled_base_gate
+        )
+        rb_data.block_for_results()
+
+        # alpha entry
+        alpha = rb_data.analysis_results("alpha")
+        self._check_fit_val(alpha, 0.9997606942463159, 0.00041321430695411904)
+
+        # epc entry
+        epc = rb_data.analysis_results("EPC")
+        self._check_fit_val(epc, 0.00011965287684206904, 0.00020660715347705952)
+
+        # epg entry
+        epg_x = rb_data.analysis_results("EPG_x")
+        self._check_fit_val(epg_x, 0.0005083368294731997)
+
+    def test_2qubit_standard_rb(self):
+        """Executing standard RB experiment and analyze with 2 qubit."""
+        noise_model = create_depolarizing_noise_model()
+        backend = QasmSimulator()
+        rb_exp = StandardRB(
+            qubits=[0, 1],
+            lengths=list(range(1, 200, 20)),
+            num_samples=3,
+            seed=100,
+        )
+        rb_exp.set_analysis_options(gate_error_ratio=self.gate_error_ratio)
+        rb_data = rb_exp.run(
+            backend, noise_model=noise_model, basis_gates=self.transpiled_base_gate
+        )
+        rb_data.block_for_results()
+
+        # alpha entry
+        alpha = rb_data.analysis_results("alpha")
+        self._check_fit_val(alpha, 0.988240664113885, 0.0005254263962064677)
+
+        # epc entry
+        epc = rb_data.analysis_results("EPC")
+        self._check_fit_val(epc, 0.008819501914586247, 0.00039406979715485074)
+
+        # epg entry
+        epg_x = rb_data.analysis_results("EPG_cx")
+        self._check_fit_val(epg_x, 0.005560563562776086)
+
+
+class TestInterleavedRBAnalysis(QiskitTestCase):
+    """
+    A test for the analysis of the standard RB experiment
+    """
+    def setUp(self):
+        self.gate_error_ratio = {
             ((0,), "id"): 1,
             ((0,), "rz"): 0,
             ((0,), "sx"): 1,
             ((0,), "x"): 1,
             ((0, 1), "cx"): 1,
         }
-        rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
-        analysis_results = rb_exp.run_analysis(expdata1)
-        return data, analysis_results
+        self.interleaved_gates = {"x": XGate(), "cx": CXGate()}
+        self.transpiled_base_gate = ["cx", "sx", "x"]
+        super().setUp()
 
+    def _check_fit_val(self, entry, ref_value=None, ref_stderr=None):
+        """A helper method to check fit value entry with tolerance."""
+        if ref_value is not None:
+            self.assertAlmostEqual(
+                entry.value.value,
+                ref_value,
+                delta=ATOL_DEFAULT,
+            )
+        if ref_stderr is not None:
+            self.assertAlmostEqual(
+                entry.value.stderr,
+                ref_stderr,
+                delta=ATOL_DEFAULT,
+            )
 
-class TestStandardRBAnalysis(TestRBAnalysis):
-    """
-    A test for the analysis of the standard RB experiment
-    """
-
-    def test_standard_rb_analysis_test(self):
-        """Runs the standard RB analysis tests"""
-
-        rb_exp_data_file_names = [
-            "rb_standard_1qubit_output_data.json",
-            "rb_standard_2qubits_output_data.json",
-        ]
-        rb_exp_analysis_file_names = [
-            "rb_standard_1qubit_output_analysis.json",
-            "rb_standard_2qubits_output_analysis.json",
-        ]
-        self._run_tests(rb_exp_data_file_names, rb_exp_analysis_file_names)
-
-
-class TestInterleavedRBAnalysis(TestRBAnalysis):
-    """
-    A test for the analysis of the standard RB experiment
-    """
-
-    def _load_rb_data(self, rb_exp_data_file_name: str):
-        """
-        loader for the experiment data and configuration setup.
-        Args:
-            rb_exp_data_file_name(str): The file name that contain the experiment data.
-        Returns:
-            list: containing dict of the experiment setup configuration and list of dictionaries
-                containing the experiment results.
-            ExperimentData:  ExperimentData object that was creates by the analysis function.
-        """
-        interleaved_gates = {"x": XGate(), "cx": CXGate()}
-        data, exp_attributes, expdata1 = self._load_json_data(rb_exp_data_file_name)
+    def test_1qubit_interleaved_rb(self):
+        """Executing interleaved RB experiment and analyze with 1 qubit."""
+        noise_model = create_depolarizing_noise_model()
+        backend = QasmSimulator()
         rb_exp = InterleavedRB(
-            interleaved_gates[exp_attributes["interleaved_element"]],
-            exp_attributes["physical_qubits"],
-            exp_attributes["lengths"],
-            num_samples=exp_attributes["num_samples"],
-            seed=exp_attributes["seed"],
+            interleaved_element=self.interleaved_gates["x"],
+            qubits=[0],
+            lengths=list(range(1, 1000, 100)),
+            num_samples=3,
+            seed=100,
         )
-        gate_error_ratio = {
-            ((0,), "id"): 1,
-            ((0,), "rz"): 0,
-            ((0,), "sx"): 1,
-            ((0,), "x"): 1,
-            ((0, 1), "cx"): 1,
-        }
-        rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
-        analysis_results = rb_exp.run_analysis(expdata1)
-        return data, analysis_results
+        rb_exp.set_analysis_options(gate_error_ratio=self.gate_error_ratio)
+        rb_data = rb_exp.run(
+            backend, noise_model=noise_model, basis_gates=self.transpiled_base_gate
+        )
+        rb_data.block_for_results()
 
-    def test_interleaved_rb_analysis_test(self):
-        """Runs the standard RB analysis tests"""
+        # alpha entry
+        alpha = rb_data.analysis_results("alpha")
+        self._check_fit_val(alpha, 0.9994768276408555, 1.4847358402650982e-05)
 
-        rb_exp_data_file_names = [
-            "rb_interleaved_1qubit_output_data.json",
-            "rb_interleaved_2qubits_output_data.json",
-        ]
-        rb_exp_analysis_file_names = [
-            "rb_interleaved_1qubit_output_analysis.json",
-            "rb_interleaved_2qubits_output_analysis.json",
-        ]
-        self._run_tests(rb_exp_data_file_names, rb_exp_analysis_file_names)
+        # alpha_c entry
+        alpha_c = rb_data.analysis_results("alpha_c")
+        self._check_fit_val(alpha_c, 0.9979725591597532, 6.882915444481367e-05)
+
+        # epc entry
+        epc = rb_data.analysis_results("EPC")
+        ref_epc_systematic_err = 0.0010137204201233763
+        ref_epc_systematic_bounds = [0.0, 0.0020274408402467525]
+
+        self._check_fit_val(epc, 0.0010137204201233763, 3.4414577222406835e-05)
+
+        self.assertAlmostEqual(
+            epc.extra["EPC_systematic_err"],
+            ref_epc_systematic_err,
+            delta=ATOL_DEFAULT,
+        )
+        self.assertAlmostEqual(
+            epc.extra["EPC_systematic_bounds"][0],
+            ref_epc_systematic_bounds[0],
+            delta=ATOL_DEFAULT,
+        )
+        self.assertAlmostEqual(
+            epc.extra["EPC_systematic_bounds"][1],
+            ref_epc_systematic_bounds[1],
+            delta=ATOL_DEFAULT,
+        )
+
+    def test_2qubit_interleaved_rb(self):
+        """Executing interleaved RB experiment and analyze with 2 qubit."""
+        noise_model = create_depolarizing_noise_model()
+        backend = QasmSimulator()
+        rb_exp = InterleavedRB(
+            interleaved_element=self.interleaved_gates["x"],
+            qubits=[0],
+            lengths=list(range(1, 1000, 100)),
+            num_samples=3,
+            seed=100,
+        )
+        rb_exp.set_analysis_options(gate_error_ratio=self.gate_error_ratio)
+        rb_data = rb_exp.run(
+            backend, noise_model=noise_model, basis_gates=self.transpiled_base_gate
+        )
+        rb_data.block_for_results()
+
+        # alpha entry
+        alpha = rb_data.analysis_results("alpha")
+        self._check_fit_val(alpha, 0.9884063217136179, 0.00020370367690368603)
+
+        # alpha_c entry
+        alpha_c = rb_data.analysis_results("alpha_c")
+        self._check_fit_val(alpha_c, 0.9927651616883224, 0.00044396411042263065)
+
+        # epc entry
+        epc = rb_data.analysis_results("EPC")
+        ref_epc_systematic_err = 0.01196438869581501
+        ref_epc_systematic_bounds = [0.0, 0.017390517429573205]
+
+        self._check_fit_val(epc, 0.005426128733758195, 0.000332973082816973)
+
+        self.assertAlmostEqual(
+            epc.extra["EPC_systematic_err"],
+            ref_epc_systematic_err,
+            delta=ATOL_DEFAULT,
+        )
+        self.assertAlmostEqual(
+            epc.extra["EPC_systematic_bounds"][0],
+            ref_epc_systematic_bounds[0],
+            delta=ATOL_DEFAULT,
+        )
+        self.assertAlmostEqual(
+            epc.extra["EPC_systematic_bounds"][1],
+            ref_epc_systematic_bounds[1],
+            delta=ATOL_DEFAULT,
+        )
