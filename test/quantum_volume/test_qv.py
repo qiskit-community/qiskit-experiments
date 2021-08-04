@@ -14,16 +14,85 @@
 A Tester for the Quantum Volume experiment
 """
 
-import json
-import os
+from qiskit import Aer
+from qiskit.providers.aer.noise import NoiseModel
+from qiskit.providers.aer.noise.errors import readout_error
+from qiskit.providers.aer.noise.errors.standard_errors import (
+    depolarizing_error,
+    thermal_relaxation_error,
+)
 from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit.test import QiskitTestCase
-from qiskit import Aer
-from qiskit_experiments.framework import ExperimentData
+
 from qiskit_experiments.library import QuantumVolume
-from qiskit_experiments.database_service.json import ExperimentDecoder
 
 SEED = 42
+
+
+def create_noise_model():
+    """
+    create noise model with depolarizing error, thermal error and readout error
+    Returns:
+        NoiseModel: noise model
+    """
+    noise_model = NoiseModel()
+    p1q = 0.0004
+    p2q = 0.01
+    depol_sx = depolarizing_error(p1q, 1)
+    depol_x = depolarizing_error(p1q, 1)
+    depol_cx = depolarizing_error(p2q, 2)
+
+    # Add T1/T2 noise to the simulation
+    t_1 = 110e3
+    t_2 = 120e3
+    gate1q = 50
+    gate2q = 100
+    termal_sx = thermal_relaxation_error(t_1, t_2, gate1q)
+    termal_x = thermal_relaxation_error(t_1, t_2, gate1q)
+    termal_cx = thermal_relaxation_error(t_1, t_2, gate2q).tensor(
+        thermal_relaxation_error(t_1, t_2, gate2q)
+    )
+
+    noise_model.add_all_qubit_quantum_error(depol_sx.compose(termal_sx), "sx")
+    noise_model.add_all_qubit_quantum_error(depol_x.compose(termal_x), "x")
+    noise_model.add_all_qubit_quantum_error(depol_cx.compose(termal_cx), "cx")
+
+    read_err = readout_error.ReadoutError([[0.98, 0.02], [0.04, 0.96]])
+    noise_model.add_all_qubit_readout_error(read_err)
+    return noise_model
+
+
+def create_high_noise_model():
+    """
+    create high noise model with depolarizing error, thermal error and readout error
+    Returns:
+        NoiseModel: noise model
+    """
+    noise_model = NoiseModel()
+    p1q = 0.004
+    p2q = 0.05
+    depol_sx = depolarizing_error(p1q, 1)
+    depol_x = depolarizing_error(p1q, 1)
+    depol_cx = depolarizing_error(p2q, 2)
+
+    # Add T1/T2 noise to the simulation
+    t_1 = 110e2
+    t_2 = 120e2
+    gate1q = 50
+    gate2q = 100
+    termal_sx = thermal_relaxation_error(t_1, t_2, gate1q)
+    termal_x = thermal_relaxation_error(t_1, t_2, gate1q)
+    termal_cx = thermal_relaxation_error(t_1, t_2, gate2q).tensor(
+        thermal_relaxation_error(t_1, t_2, gate2q)
+    )
+
+    noise_model.add_all_qubit_quantum_error(depol_sx.compose(termal_sx), "sx")
+    noise_model.add_all_qubit_quantum_error(depol_x.compose(termal_x), "x")
+    noise_model.add_all_qubit_quantum_error(depol_cx.compose(termal_cx), "cx")
+
+    read_err = readout_error.ReadoutError([[0.98, 0.02], [0.04, 0.96]])
+    noise_model.add_all_qubit_readout_error(read_err)
+    return noise_model
 
 
 class TestQuantumVolume(QiskitTestCase):
@@ -65,10 +134,11 @@ class TestQuantumVolume(QiskitTestCase):
         """
         num_of_qubits = 3
         qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
-        # set number of trials to a low number to make the test faster
         qv_exp.set_experiment_options(trials=20)
         qv_circs = qv_exp.circuits()
-        simulation_probabilities = [qv_circ.metadata["ideal_probabilities"] for qv_circ in qv_circs]
+        simulation_probabilities = [
+            list(qv_circ.metadata["ideal_probabilities"]) for qv_circ in qv_circs
+        ]
         # create the circuits again, but this time disable simulation so the
         # ideal probabilities will be calculated using statevector
         qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
@@ -82,16 +152,6 @@ class TestQuantumVolume(QiskitTestCase):
         self.assertTrue(
             matrix_equal(simulation_probabilities, statevector_probabilities),
             "probabilities calculated using simulation and " "statevector are not the same",
-        )
-        # compare to pre-calculated probabilities
-        dir_name = os.path.dirname(os.path.abspath(__file__))
-        probabilities_json_file = "qv_ideal_probabilities.json"
-        with open(os.path.join(dir_name, probabilities_json_file), "r") as json_file:
-            probabilities = json.load(json_file, cls=ExperimentDecoder)
-        self.assertTrue(
-            matrix_equal(simulation_probabilities, probabilities),
-            "probabilities calculated using simulation and "
-            "pre-calculated probabilities are not the same",
         )
 
     def test_qv_sigma_decreasing(self):
@@ -126,20 +186,16 @@ class TestQuantumVolume(QiskitTestCase):
         Test that the quantum volume is unsuccessful when:
             there is less than 100 trials
         """
-        dir_name = os.path.dirname(os.path.abspath(__file__))
-        insufficient_trials_json_file = "qv_data_70_trials.json"
-        with open(os.path.join(dir_name, insufficient_trials_json_file), "r") as json_file:
-            insufficient_trials_data = json.load(json_file, cls=ExperimentDecoder)
-
         num_of_qubits = 3
         backend = Aer.get_backend("aer_simulator")
 
         qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
-        exp_data = ExperimentData(experiment=qv_exp, backend=backend)
-        exp_data.add_data(insufficient_trials_data)
+        qv_exp.set_experiment_options(trials=70)
+        qv_data = qv_exp.run(backend)
+        qv_data.block_for_results()
 
-        qv_exp.run_analysis(exp_data)
-        qv_result = exp_data.analysis_results(1)
+        qv_exp.run_analysis(qv_data)
+        qv_result = qv_data.analysis_results(1)
         self.assertTrue(
             qv_result.extra["success"] is False and qv_result.value == 1,
             "quantum volume is successful with less than 100 trials",
@@ -150,20 +206,18 @@ class TestQuantumVolume(QiskitTestCase):
         Test that the quantum volume is unsuccessful when:
             there are more than 100 trials, but the heavy output probability mean is less than 2/3
         """
-        dir_name = os.path.dirname(os.path.abspath(__file__))
-        insufficient_hop_json_file = "qv_data_high_noise.json"
-        with open(os.path.join(dir_name, insufficient_hop_json_file), "r") as json_file:
-            insufficient_hop_data = json.load(json_file, cls=ExperimentDecoder)
-
         num_of_qubits = 4
         backend = Aer.get_backend("aer_simulator")
+        basis_gates = ["id", "rz", "sx", "x", "cx", "reset"]
+        noise = create_high_noise_model()
 
         qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
-        exp_data = ExperimentData(experiment=qv_exp, backend=backend)
-        exp_data.add_data(insufficient_hop_data)
+        qv_exp.set_transpile_options(basis_gates=basis_gates)
+        qv_data = qv_exp.run(backend, noise_model=noise, basis_gates=basis_gates)
+        qv_data.block_for_results()
 
-        qv_exp.run_analysis(exp_data)
-        qv_result = exp_data.analysis_results(1)
+        qv_exp.run_analysis(qv_data)
+        qv_result = qv_data.analysis_results(1)
         self.assertTrue(
             qv_result.extra["success"] is False and qv_result.value == 1,
             "quantum volume is successful with heavy output probability less than 2/3",
@@ -175,20 +229,18 @@ class TestQuantumVolume(QiskitTestCase):
             there are more than 100 trials, the heavy output probability mean is more than 2/3
             but the confidence is not high enough
         """
-        dir_name = os.path.dirname(os.path.abspath(__file__))
-        insufficient_confidence_json = "qv_data_moderate_noise_100_trials.json"
-        with open(os.path.join(dir_name, insufficient_confidence_json), "r") as json_file:
-            insufficient_confidence_data = json.load(json_file, cls=ExperimentDecoder)
-
         num_of_qubits = 4
         backend = Aer.get_backend("aer_simulator")
+        basis_gates = ["id", "rz", "sx", "x", "cx", "reset"]
+        noise = create_noise_model()
 
         qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
-        exp_data = ExperimentData(experiment=qv_exp, backend=backend)
-        exp_data.add_data(insufficient_confidence_data)
+        qv_exp.set_transpile_options(basis_gates=basis_gates)
+        qv_data = qv_exp.run(backend, noise_model=noise, basis_gates=basis_gates)
+        qv_data.block_for_results()
 
-        qv_exp.run_analysis(exp_data)
-        qv_result = exp_data.analysis_results(1)
+        qv_exp.run_analysis(qv_data)
+        qv_result = qv_data.analysis_results(1)
         self.assertTrue(
             qv_result.extra["success"] is False and qv_result.value == 1,
             "quantum volume is successful with insufficient confidence",
@@ -199,45 +251,79 @@ class TestQuantumVolume(QiskitTestCase):
         Test a successful run of quantum volume.
         Compare the results to a pre-run experiment
         """
-        dir_name = os.path.dirname(os.path.abspath(__file__))
-        successful_json_file = "qv_data_moderate_noise_300_trials.json"
-        with open(os.path.join(dir_name, successful_json_file), "r") as json_file:
-            successful_data = json.load(json_file, cls=ExperimentDecoder)
-
         num_of_qubits = 4
         backend = Aer.get_backend("aer_simulator")
+        basis_gates = ["id", "rz", "sx", "x", "cx", "reset"]
+        noise = create_noise_model()
 
         qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
-        exp_data = ExperimentData(experiment=qv_exp, backend=backend)
-        exp_data.add_data(successful_data)
+        qv_exp.set_experiment_options(trials=300)
+        qv_exp.set_transpile_options(basis_gates=basis_gates)
+        qv_data = qv_exp.run(backend, noise_model=noise, basis_gates=basis_gates)
+        qv_data.block_for_results()
 
-        qv_exp.run_analysis(exp_data)
-        results_json_file = "qv_result_moderate_noise_300_trials.json"
-        with open(os.path.join(dir_name, results_json_file), "r") as json_file:
-            successful_results = json.load(json_file, cls=ExperimentDecoder)
+        # check HOP entry
+        mean_hop = qv_data.analysis_results("mean_HOP")
 
-        results = exp_data.analysis_results()
-        for result, reference in zip(results, successful_results):
-            self.assertEqual(
-                result.value,
-                reference["value"],
-                "result value is not the same as precalculated analysis",
-            )
-            self.assertEqual(
-                result.name,
-                reference["name"],
-                "result name is not the same as precalculated analysis",
-            )
-            for key, value in reference["extra"].items():
-                if isinstance(value, float):
-                    self.assertAlmostEqual(
-                        result.extra[key],
-                        value,
-                        msg="result " + str(key) + " is not the same as the "
-                        "pre-calculated analysis",
-                    )
-                else:
-                    self.assertTrue(
-                        result.extra[key] == value,
-                        "result " + str(key) + " is not the same as the " "pre-calculated analysis",
-                    )
+        ref_hop_value = 0.73146484375
+        ref_hop_stderr = 0.025588019729799863
+        ref_hop_two_sigma = 0.051176039459599726
+        ref_hop_depth = 4
+        ref_hop_trials = 300
+
+        self.assertAlmostEqual(
+            mean_hop.value.value,
+            ref_hop_value,
+            delta=1e-3,
+            msg="result mean HOP value is not the same as precalculated analysis",
+        )
+        self.assertAlmostEqual(
+            mean_hop.value.stderr,
+            ref_hop_stderr,
+            delta=1e-3,
+            msg="result value is not the same as precalculated analysis",
+        )
+        self.assertAlmostEqual(
+            mean_hop.extra["two_sigma"],
+            ref_hop_two_sigma,
+            delta=1e-3,
+            msg="result two_sigma is not the same as precalculated analysis",
+        )
+        self.assertAlmostEqual(
+            mean_hop.extra["two_sigma"],
+            ref_hop_two_sigma,
+            delta=1e-3,
+            msg="result two_sigma is not the same as precalculated analysis",
+        )
+        self.assertEqual(
+            mean_hop.extra["depth"],
+            ref_hop_depth,
+            msg="result depth is not the same as precalculated analysis",
+        )
+        self.assertEqual(
+            mean_hop.extra["trials"],
+            ref_hop_trials,
+            msg="result trials is not the same as precalculated analysis",
+        )
+
+        # check QV entry
+        quantum_volume = qv_data.analysis_results("quantum_volume")
+
+        ref_qv_value = 16
+        ref_qv_confidence = 0.9943351826324864
+
+        self.assertEqual(
+            quantum_volume.value,
+            ref_qv_value,
+            msg="result quantum volume value is not the same as precalculated analysis",
+        )
+        self.assertTrue(
+            quantum_volume.extra["success"],
+            msg="result quantum volume success is not the same as precalculated analysis",
+        )
+        self.assertAlmostEqual(
+            quantum_volume.extra["confidence"],
+            ref_qv_confidence,
+            delta=1e-3,
+            msg="result quantum volume confidence is not the same as precalculated analysis",
+        )
