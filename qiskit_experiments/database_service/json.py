@@ -26,22 +26,55 @@ from qiskit.quantum_info.operators import Operator, Choi
 from qiskit.quantum_info.states import Statevector, DensityMatrix
 
 
-def serialize_safe_float(value):
-    """Serialize floats including inf and NaN"""
-    if isinstance(value, float) and not math.isfinite(value):
-        if math.isnan(value):
+def serialize_safe_float(obj):
+    """Recursively serialize basic types safely handing inf and NaN"""
+    if isinstance(obj, float):
+        if math.isfinite(obj):
+            return obj
+        if math.isnan(obj):
             return {"__type__": "safe_float", "__value__": "NaN"}
-        if value == math.inf:
+        if obj == math.inf:
             return {"__type__": "safe_float", "__value__": "Infinity"}
-        if value == -math.inf:
+        if obj == -math.inf:
             return {"__type__": "safe_float", "__value__": "-Infinity"}
-    return value
+    elif isinstance(obj, (list, tuple)):
+        return [serialize_safe_float(i) for i in obj]
+    elif isinstance(obj, dict):
+        return {key: serialize_safe_float(val) for key, val in obj.items()}
+    elif isinstance(obj, complex):
+        return {"__type__": "complex", "__value__": serialize_safe_float([obj.real, obj.imag])}
+    elif isinstance(obj, np.ndarray):
+        return {"__type__": "array", "__value__": serialize_safe_float(obj.tolist())}
+    return obj
 
 
-def deserialize_safe_float(value):
-    """Deserialize floats including inf and NaN"""
-    nans = {"NaN": math.nan, "Infinity": math.inf, "-Infinity": -math.inf}
-    return nans.get(value, value)
+def serialize_object(
+    cls: Type, args: Optional[Tuple] = None, kwargs: Optional[Dict] = None, safe_float: bool = False
+) -> Dict:
+    """Serialize a class object from its init args and kwargs.
+
+    Args:
+        cls: The object to be serialized.
+        args: the class init arg values for reconstruction.
+        kwargs: the class init kwarg values for reconstruction.
+        safe_float: if True check float values for NaN, inf and -inf
+                    and cast to strings during serialization.
+
+    Returns:
+        Dict for serialization.
+    """
+    value = {
+        "__name__": cls.__name__,
+        "__module__": cls.__module__,
+    }
+    if safe_float:
+        args = serialize_safe_float(args)
+        kwargs = serialize_safe_float(kwargs)
+    if args:
+        value["__args__"] = args
+    if kwargs:
+        value["__kwargs__"] = kwargs
+    return {"__type__": "__object__", "__value__": value}
 
 
 def deserialize_object(mod_name: str, class_name: str, args: Tuple, kwargs: Dict) -> Any:
@@ -66,36 +99,6 @@ def deserialize_object(mod_name: str, class_name: str, args: Tuple, kwargs: Dict
     raise ValueError(f"Unable to find class {class_name} in module {mod_name}")
 
 
-def serialize_object(
-    cls: Type, args: Optional[Tuple] = None, kwargs: Optional[Dict] = None, safe_nan: bool = False
-) -> Dict:
-    """Serialize a class object from its init args and kwargs.
-
-    Args:
-        cls: The object to be serialized.
-        args: the class init arg values for reconstruction.
-        kwargs: the class init kwarg values for reconstruction.
-        safe_nan: if True check float values for NaN, inf and -inf
-                  and cast to strings during serialization.
-
-    Returns:
-        Dict for serialization.
-    """
-    value = {
-        "__name__": cls.__name__,
-        "__module__": cls.__module__,
-    }
-    if args:
-        if safe_nan:
-            args = (serialize_safe_float(i) for i in args)
-        value["__args__"] = args
-    if kwargs:
-        if safe_nan:
-            kwargs = {key: serialize_safe_float(val) for key, val in kwargs.items()}
-        value["__kwargs__"] = kwargs
-    return {"__type__": "__object__", "__value__": value}
-
-
 class ExperimentEncoder(json.JSONEncoder):
     """JSON Encoder for Numpy arrays and complex numbers."""
 
@@ -103,13 +106,12 @@ class ExperimentEncoder(json.JSONEncoder):
         if isinstance(obj, np.ndarray):
             value = obj.tolist()
             if obj.dtype == float and not np.isfinite(obj).all():
-                value = [serialize_safe_float(i) for i in value]
+                value = serialize_safe_float(value)
             return {"__type__": "array", "__value__": value}
         if isinstance(obj, complex):
-            value = [serialize_safe_float(obj.real), serialize_safe_float(obj.imag)]
-            return {"__type__": "complex", "__value__": value}
+            return {"__type__": "complex", "__value__": serialize_safe_float(obj)}
         if dataclasses.is_dataclass(obj):
-            return serialize_object(type(obj), kwargs=dataclasses.asdict(obj), safe_nan=True)
+            return serialize_object(type(obj), kwargs=dataclasses.asdict(obj), safe_float=True)
         if isinstance(obj, (Operator, Choi)):
             return serialize_object(
                 type(obj),
@@ -128,6 +130,8 @@ class ExperimentEncoder(json.JSONEncoder):
 
 class ExperimentDecoder(json.JSONDecoder):
     """JSON Decoder for Numpy arrays and complex numbers."""
+
+    _NaNs = {"NaN": math.nan, "Infinity": math.inf, "-Infinity": -math.inf}
 
     def __init__(self, *args, **kwargs):
         super().__init__(object_hook=self.object_hook, *args, **kwargs)
@@ -151,7 +155,8 @@ class ExperimentDecoder(json.JSONDecoder):
                 kwargs = value.get("__kwargs__", dict())
                 return deserialize_object(mod_name, class_name, args, kwargs)
             if obj_type == "safe_float":
-                return deserialize_safe_float(obj["__value__"])
+                value = obj["__value__"]
+                return self._NaNs.get(value, value)
             if obj_type == "__class_name__":
                 return obj["__value__"]
         return obj
