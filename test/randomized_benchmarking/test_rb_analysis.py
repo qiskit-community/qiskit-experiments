@@ -215,9 +215,9 @@ class TestInterleavedRBAnalysis(QiskitTestCase):
         noise_model = create_depolarizing_noise_model()
         backend = QasmSimulator()
         rb_exp = InterleavedRB(
-            interleaved_element=self.interleaved_gates["x"],
-            qubits=[0],
-            lengths=list(range(1, 1000, 100)),
+            interleaved_element=self.interleaved_gates["cx"],
+            qubits=[0, 1],
+            lengths=list(range(1, 200, 20)),
             num_samples=3,
             seed=100,
         )
