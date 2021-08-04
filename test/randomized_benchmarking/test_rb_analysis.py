@@ -34,8 +34,8 @@ def create_depolarizing_noise_model():
         NoiseModel: depolarizing error noise model
     """
     # the error parameters were taken from ibmq_manila on 17 june 2021
-    p1q = 0.002257
-    p2q = 0.006827
+    p1q = 0.002257 * 10
+    p2q = 0.006827 * 10
     noise_model = NoiseModel()
     noise_model.add_all_qubit_quantum_error(depolarizing_error(p1q, 1), "x")
     noise_model.add_all_qubit_quantum_error(depolarizing_error(p1q, 1), "sx")
@@ -80,7 +80,7 @@ class TestStandardRBAnalysis(QiskitTestCase):
         backend = QasmSimulator()
         rb_exp = StandardRB(
             qubits=[0],
-            lengths=list(range(1, 1000, 100)),
+            lengths=list(range(1, 100, 10)),
             num_samples=3,
             seed=100,
         )
@@ -108,7 +108,7 @@ class TestStandardRBAnalysis(QiskitTestCase):
         backend = QasmSimulator()
         rb_exp = StandardRB(
             qubits=[0, 1],
-            lengths=list(range(1, 200, 20)),
+            lengths=list(range(1, 20, 2)),
             num_samples=3,
             seed=100,
         )
@@ -169,7 +169,7 @@ class TestInterleavedRBAnalysis(QiskitTestCase):
         rb_exp = InterleavedRB(
             interleaved_element=self.interleaved_gates["x"],
             qubits=[0],
-            lengths=list(range(1, 1000, 100)),
+            lengths=list(range(1, 100, 10)),
             num_samples=3,
             seed=100,
         )
@@ -217,7 +217,7 @@ class TestInterleavedRBAnalysis(QiskitTestCase):
         rb_exp = InterleavedRB(
             interleaved_element=self.interleaved_gates["cx"],
             qubits=[0, 1],
-            lengths=list(range(1, 200, 20)),
+            lengths=list(range(1, 20, 2)),
             num_samples=3,
             seed=100,
         )
