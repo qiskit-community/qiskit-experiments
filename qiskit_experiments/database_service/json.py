@@ -26,17 +26,20 @@ from qiskit.quantum_info.operators import Operator, Choi
 from qiskit.quantum_info.states import Statevector, DensityMatrix
 
 
-def serialize_safe_float(obj):
+def serialize_safe_float(obj: any):
     """Recursively serialize basic types safely handing inf and NaN"""
     if isinstance(obj, float):
         if math.isfinite(obj):
             return obj
-        if math.isnan(obj):
-            return {"__type__": "safe_float", "__value__": "NaN"}
-        if obj == math.inf:
-            return {"__type__": "safe_float", "__value__": "Infinity"}
-        if obj == -math.inf:
-            return {"__type__": "safe_float", "__value__": "-Infinity"}
+        else:
+            value = obj
+            if math.isnan(obj):
+                value = "NaN"
+            elif obj == math.inf:
+                value = "Infinity"
+            elif obj == -math.inf:
+                value = "-Infinity"
+            return {"__type__": "safe_float", "__value__": value}
     elif isinstance(obj, (list, tuple)):
         return [serialize_safe_float(i) for i in obj]
     elif isinstance(obj, dict):
@@ -44,12 +47,15 @@ def serialize_safe_float(obj):
     elif isinstance(obj, complex):
         return {"__type__": "complex", "__value__": serialize_safe_float([obj.real, obj.imag])}
     elif isinstance(obj, np.ndarray):
-        return {"__type__": "array", "__value__": serialize_safe_float(obj.tolist())}
+        value = obj.tolist()
+        if issubclass(obj.dtype.type, np.inexact) and not np.isfinite(obj).all():
+            value = serialize_safe_float(value)
+        return {"__type__": "array", "__value__": value}
     return obj
 
 
 def serialize_object(
-    cls: Type, args: Optional[Tuple] = None, kwargs: Optional[Dict] = None, safe_float: bool = False
+    cls: Type, args: Optional[Tuple] = None, kwargs: Optional[Dict] = None, safe_float: bool = True
 ) -> Dict:
     """Serialize a class object from its init args and kwargs.
 
@@ -103,13 +109,8 @@ class ExperimentEncoder(json.JSONEncoder):
     """JSON Encoder for Numpy arrays and complex numbers."""
 
     def default(self, obj: Any) -> Any:  # pylint: disable=arguments-differ
-        if isinstance(obj, np.ndarray):
-            value = obj.tolist()
-            if obj.dtype == float and not np.isfinite(obj).all():
-                value = serialize_safe_float(value)
-            return {"__type__": "array", "__value__": value}
-        if isinstance(obj, complex):
-            return {"__type__": "complex", "__value__": serialize_safe_float(obj)}
+        if isinstance(obj, (np.ndarray, complex)):
+            return serialize_safe_float(obj)
         if dataclasses.is_dataclass(obj):
             return serialize_object(type(obj), kwargs=dataclasses.asdict(obj), safe_float=True)
         if isinstance(obj, (Operator, Choi)):
@@ -117,9 +118,12 @@ class ExperimentEncoder(json.JSONEncoder):
                 type(obj),
                 args=(obj.data,),
                 kwargs={"input_dims": obj.input_dims(), "output_dims": obj.output_dims()},
+                safe_float=False,
             )
         if isinstance(obj, (Statevector, DensityMatrix)):
-            return serialize_object(type(obj), args=(obj.data,), kwargs={"dims": obj.dims()})
+            return serialize_object(
+                type(obj), args=(obj.data,), kwargs={"dims": obj.dims()}, safe_float=False
+            )
         if isinstance(obj, FunctionType):
             return {"__type__": "function", "__value__": obj.__name__}
         try:

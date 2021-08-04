@@ -16,10 +16,9 @@ import logging
 from typing import Optional, List, Union, Dict, Any
 import uuid
 import copy
-import math
 
 from .database_service import DatabaseServiceV1
-from .json import ExperimentEncoder, ExperimentDecoder
+from .json import ExperimentEncoder, ExperimentDecoder, serialize_safe_float
 from .utils import save_data, qiskit_version
 from .exceptions import DbExperimentDataError
 from .device_component import DeviceComponent, to_component
@@ -158,21 +157,18 @@ class DbAnalysisResultV1(DbAnalysisResult):
             "_source": self._source,
         }
 
-        def is_float(value):
+        def safe_float(value):
             """Return True if value is finite float"""
-            return isinstance(value, (int, float)) and math.isfinite(value)
+            return serialize_safe_float(value)["__value__"]
 
         # Display compatible float values in in DB
-        if is_float(value):
-            result_data["value"] = float(value)
-        elif isinstance(value, bool):
-            # Cast to float
-            result_data["value"] = float(value)
+        if isinstance(value, (int, float, bool)):
+            result_data["value"] = safe_float(value)
         elif isinstance(value, FitVal):
-            if is_float(value.value):
-                result_data["value"] = value.value
-            if is_float(value.stderr):
-                result_data["variance"] = value.stderr ** 2
+            if isinstance(value, (int, float)):
+                result_data["value"] = safe_float(value.value)
+            if isinstance(value, (int, float)):
+                result_data["variance"] = safe_float(value.stderr ** 2)
             if isinstance(value.unit, str):
                 result_data["unit"] = value.unit
 
