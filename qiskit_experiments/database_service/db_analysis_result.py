@@ -16,6 +16,7 @@ import logging
 from typing import Optional, List, Union, Dict, Any
 import uuid
 import copy
+import math
 
 from .database_service import DatabaseServiceV1
 from .json import ExperimentEncoder, ExperimentDecoder
@@ -157,13 +158,20 @@ class DbAnalysisResultV1(DbAnalysisResult):
             "_source": self._source,
         }
 
+        def is_float(value):
+            """Return True if value is finite float"""
+            return isinstance(value, (int, float)) and math.isfinite(value)
+
         # Display compatible float values in in DB
-        if isinstance(value, (int, float, bool)):
+        if is_float(value):
+            result_data["value"] = float(value)
+        elif isinstance(value, bool):
+            # Cast to float
             result_data["value"] = float(value)
         elif isinstance(value, FitVal):
-            if isinstance(value.value, (int, float)):
+            if is_float(value.value):
                 result_data["value"] = value.value
-            if isinstance(value.stderr, (int, float)):
+            if is_float(value.stderr):
                 result_data["variance"] = value.stderr ** 2
             if isinstance(value.unit, str):
                 result_data["unit"] = value.unit
