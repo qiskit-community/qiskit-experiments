@@ -115,7 +115,6 @@ class FitData:
         try:
             index = self.popt_keys.index(key)
             if unit and scale:
-                # trick: ceil(1.2) = 2; ceil(-1.2) = 1
                 fixed_point_3n = int(np.floor(np.log10(self.popt[index]) / 3))
                 if fixed_point_3n != 0:
                     if fixed_point_3n > 0:
