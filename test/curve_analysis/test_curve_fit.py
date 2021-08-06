@@ -21,8 +21,9 @@ import numpy as np
 from qiskit.test import QiskitTestCase
 from qiskit.qobj.utils import MeasLevel
 
-from qiskit_experiments.framework import ExperimentData
-from qiskit_experiments.curve_analysis import CurveAnalysis, SeriesDef, fit_function, ParameterRepr
+from qiskit_experiments.framework import ExperimentData, FitVal
+from qiskit_experiments.curve_analysis import CurveAnalysis, fit_function
+from qiskit_experiments.curve_analysis.curve_data import SeriesDef, FitData, ParameterRepr
 from qiskit_experiments.curve_analysis.data_processing import probability
 from qiskit_experiments.exceptions import AnalysisError
 
@@ -61,6 +62,67 @@ def create_new_analysis(series: List[SeriesDef], fixed_params: List[str] = None)
         __fixed_parameters__ = fixed_params
 
     return TestAnalysis()
+
+
+class TestFitData(QiskitTestCase):
+    """Unittest for fit data dataclass."""
+
+    def test_get_value(self):
+        """Get fit value from fit data object."""
+        data = FitData(
+            popt=np.asarray([1.0, 2.0, 3.0]),
+            popt_keys=["a", "b", "c"],
+            popt_err=np.asarray([0.1, 0.2, 0.3]),
+            pcov=np.diag(np.ones(3)),
+            reduced_chisq=0.0,
+            dof=0,
+            x_range=(0, 0),
+            y_range=(0, 0),
+        )
+
+        a_val = data.fitval("a")
+        self.assertEqual(a_val, FitVal(1.0, 0.1))
+
+        a_val = data.fitval("b")
+        self.assertEqual(a_val, FitVal(2.0, 0.2))
+
+        a_val = data.fitval("c")
+        self.assertEqual(a_val, FitVal(3.0, 0.3))
+
+    def test_get_value_with_unit_scaling(self):
+        """Get fit value from fit data object with unit and aux unit."""
+
+        data = FitData(
+            popt=np.logspace(-7, 7, 15),
+            popt_keys=[f"x{i}" for i in range(15)],
+            popt_err=np.full(15, None),
+            pcov=np.diag(np.ones(15)),
+            reduced_chisq=0.0,
+            dof=0,
+            x_range=(0, 0),
+            y_range=(0, 0),
+        )
+
+        unitrefs = [
+            FitVal(100.0, unit="nHz"),
+            FitVal(1.0, unit="μHz"),
+            FitVal(10.0, unit="μHz"),
+            FitVal(100.0, unit="μHz"),
+            FitVal(1.0, unit="mHz"),
+            FitVal(10.0, unit="mHz"),
+            FitVal(100.0, unit="mHz"),
+            FitVal(1.0, unit="Hz"),
+            FitVal(10.0, unit="Hz"),
+            FitVal(100.0, unit="Hz"),
+            FitVal(1.0, unit="kHz"),
+            FitVal(10.0, unit="kHz"),
+            FitVal(100.0, unit="kHz"),
+            FitVal(1.0, unit="MHz"),
+            FitVal(10.0, unit="MHz"),
+        ]
+
+        for i in range(15):
+            self.assertEqual(data.fitval(key=f"x{i}", unit="Hz", scale=True), unitrefs[i])
 
 
 class TestCurveAnalysisUnit(QiskitTestCase):
@@ -205,6 +267,28 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         # check y errors
         ref_yerr = ref_y * (1 - ref_y) / 100000
         np.testing.assert_array_almost_equal(sigma, ref_yerr, decimal=self.err_decimal)
+
+    def test_data_extraction_with_unit(self):
+        """Test data extraction with unit in metadata."""
+        self.analysis._arg_parse(x_key="xval")
+        x_values = np.linspace(0, 1, 10)
+        ref_values = np.linspace(0, 1, 10) * 1e3
+
+        # data to analyze
+        test_data = simulate_output_data(
+            func=fit_function.exponential_decay,
+            xvals=x_values,
+            param_dict={"amp": 1.0e-3},
+            type=1,
+            valid=True,
+            unit="kHz",  # actual value is x 1e3
+        )
+
+        self.analysis._extract_curves(
+            experiment_data=test_data, data_processor=probability(outcome="1")
+        )
+        raw_data = self.analysis._data(series_name="curve1", label="raw_data")
+        np.testing.assert_array_equal(raw_data.x, ref_values)
 
     def test_get_subset(self):
         """Test that get subset data from full data array."""

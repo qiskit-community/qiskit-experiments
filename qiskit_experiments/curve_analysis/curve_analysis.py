@@ -25,6 +25,7 @@ from matplotlib import pyplot
 import numpy as np
 from qiskit.providers.options import Options
 from qiskit.providers import Backend
+from qiskit.utils import apply_prefix
 
 from qiskit_experiments.curve_analysis.curve_data import (
     CurveData,
@@ -410,6 +411,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             axis.legend(loc="center right")
         axis.set_xlabel(self._get_option("xlabel"), fontsize=16)
         axis.set_ylabel(self._get_option("ylabel"), fontsize=16)
+        axis.ticklabel_format(axis="x", style="sci", scilimits=(-3, 3))
         axis.tick_params(labelsize=14)
         axis.grid(True)
 
@@ -434,6 +436,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
                     value_repr = f"{_format_val(fitval.value)}"
                     if fitval.stderr is not None:
                         value_repr += f" \u00B1 {_format_val(fitval.stderr)}"
+                    if fitval.unit is not None:
+                        value_repr += f" {fitval.unit}"
                     analysis_description += f"{res.name} = {value_repr}\n"
             analysis_description += r"Fit $\chi^2$ = " + f"{fit_data.reduced_chisq: .4f}"
 
@@ -612,12 +616,23 @@ class CurveAnalysis(BaseAnalysis, ABC):
         data = experiment_data.data()
 
         x_key = self._get_option("x_key")
-        try:
-            x_values = [datum["metadata"][x_key] for datum in data]
-        except KeyError as ex:
-            raise DataProcessorError(
-                f"X value key {x_key} is not defined in circuit metadata."
-            ) from ex
+
+        x_values = []
+        for idx, datum in enumerate(data):
+            if x_key not in datum["metadata"]:
+                raise DataProcessorError(
+                    f"X value key {x_key} is not defined in metadata of circuit[{idx}]."
+                )
+            xval = datum["metadata"][x_key]
+
+            # pylint: disable=broad-except
+            try:
+                # apply aux unit (1 ms -> 0.001 s)
+                xval = apply_prefix(xval, datum["metadata"].get("unit", None))
+            except Exception:
+                pass
+
+            x_values.append(xval)
 
         if isinstance(data_processor, DataProcessor):
             y_values, y_sigmas = data_processor(data)
@@ -1069,7 +1084,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         unit = None
                     result_entry = AnalysisResultData(
                         name=p_repr,
-                        value=fit_result.fitval(p_name, unit),
+                        value=fit_result.fitval(key=p_name, unit=unit, scale=False),
                         chisq=fit_result.reduced_chisq,
                         quality=quality,
                     )

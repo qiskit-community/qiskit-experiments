@@ -95,12 +95,14 @@ class FitData:
     # Y data range
     y_range: Tuple[float, float]
 
-    def fitval(self, key: str, unit: Optional[str] = None) -> FitVal:
+    def fitval(self, key: str, unit: Optional[str] = None, scale: bool = False) -> FitVal:
         """A helper method to get fit value object from parameter key name.
 
         Args:
             key: Name of parameters to extract.
             unit: Optional. Unit of this value.
+            scale: Set ``True`` to add auxiliary unit if ``unit`` is provided.
+                For example, 1000 ± 100 Hz will be displayed as 1 ± 0.1 kHz.
 
         Returns:
             FitVal object.
@@ -108,11 +110,36 @@ class FitData:
         Raises:
             ValueError: When specified parameter is not defined.
         """
+        up_factors = ["k", "M", "G", "T", "P"]
+        down_factors = ["f", "p", "n", "μ", "m"]
         try:
             index = self.popt_keys.index(key)
+            if unit and scale:
+                # trick: ceil(1.2) = 2; ceil(-1.2) = 1
+                fixed_point_3n = int(np.floor(np.log10(self.popt[index]) / 3))
+                if fixed_point_3n != 0:
+                    if fixed_point_3n > 0:
+                        unit = up_factors[fixed_point_3n - 1] + unit
+                    else:
+                        unit = down_factors[fixed_point_3n] + unit
+                    scale = 10 ** (-3 * fixed_point_3n)
+                else:
+                    scale = 1.0
+            else:
+                scale = 1.0
+
+            # format values
+            value = self.popt[index] * scale
+            stdev = self.popt_err[index]
+
+            try:
+                stdev *= scale
+            except TypeError:
+                stdev = None
+
             return FitVal(
-                value=self.popt[index],
-                stderr=self.popt_err[index],
+                value=value,
+                stderr=stdev,
                 unit=unit,
             )
         except ValueError as ex:
