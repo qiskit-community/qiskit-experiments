@@ -436,13 +436,13 @@ class DbAnalysisResultV1(DbAnalysisResult):
         if isinstance(value, complex):
             # Convert to string and truncate to 6 significant digits
             value = "{:.8g}".format(value)
-        elif isinstance(value, list) and len(value) < 10:
-            value = str(value)
-        elif isinstance(value, (list, np.ndarray)):
-            value = np.array2string(np.asarray(value), max_line_width=100, precision=8)
+        elif isinstance(value, (list, np.ndarray)) and len(value) < 10:
+            value = np.array2string(
+                np.asarray(value), separator=", ", max_line_width=100, precision=8
+            )
 
         # Store string
-        if isinstance(value, str) and len(value) < 60:
+        if isinstance(value, str) and len(value) < 70:
             return value
         return None
 
