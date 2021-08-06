@@ -16,6 +16,8 @@ import logging
 from typing import Optional, List, Union, Dict, Any
 import uuid
 import copy
+import math
+import numpy as np
 
 from .database_service import DatabaseServiceV1
 from .json import ExperimentEncoder, ExperimentDecoder, serialize_safe_float
@@ -149,7 +151,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 "Analysis result cannot be saved because no experiment service is available."
             )
             return
-        # Get DB fit data
+
         value = self.value
         result_data = {
             "_value": value,
@@ -157,20 +159,19 @@ class DbAnalysisResultV1(DbAnalysisResult):
             "_source": self._source,
         }
 
-        def safe_float(value):
-            """Return True if value is finite float"""
-            return serialize_safe_float(value)["__value__"]
-
-        # Display compatible float values in in DB
-        if isinstance(value, (int, float, bool)):
-            result_data["value"] = safe_float(value)
-        elif isinstance(value, FitVal):
-            if isinstance(value, (int, float)):
-                result_data["value"] = safe_float(value.value)
-            if isinstance(value, (int, float)):
-                result_data["variance"] = safe_float(value.stderr ** 2)
+        # Format special DB display fields
+        if isinstance(value, FitVal):
+            db_value = self._format_db_display(value.value)
+            if db_value is not None:
+                result_data["value"] = db_value
+            if isinstance(value.stderr, (int, float)):
+                result_data["variance"] = self._format_db_display(value.stderr ** 2)
             if isinstance(value.unit, str):
                 result_data["unit"] = value.unit
+        else:
+            db_value = self._format_db_display(value)
+            if db_value is not None:
+                result_data["value"] = db_value
 
         new_data = {
             "experiment_id": self._experiment_id,
@@ -420,6 +421,30 @@ class DbAnalysisResultV1(DbAnalysisResult):
         if save_val and not self._auto_save:
             self.save()
         self._auto_save = save_val
+
+    @staticmethod
+    def _format_db_display(value):
+        if isinstance(value, (int, bool)):
+            return value
+        if isinstance(value, float):
+            if math.isfinite(value):
+                return value
+            else:
+                return serialize_safe_float(value)["__value__"]
+
+        # Values that we can store by string conversion
+        if isinstance(value, complex):
+            # Convert to string and truncate to 6 significant digits
+            value = "{:.8g}".format(value)
+        elif isinstance(value, list) and len(value) < 10:
+            value = str(value)
+        elif isinstance(value, (list, np.ndarray)):
+            value = np.array2string(np.asarray(value), max_line_width=100, precision=8)
+
+        # Store string
+        if isinstance(value, str) and len(value) < 60:
+            return value
+        return None
 
     def __str__(self):
         ret = f"{type(self).__name__}"
