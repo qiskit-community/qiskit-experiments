@@ -452,7 +452,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         return [figure]
 
-    def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """An analysis subroutine that is called to set fitter options.
 
         Subclasses can override this method to provide their own fitter options
@@ -503,7 +503,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             List of FitOptions that are passed to fitter function.
         """
         fit_options = {"p0": self._get_option("p0"), "bounds": self._get_option("bounds")}
-        fit_options.update(options)
+        fit_options.update(extra_options)
 
         return fit_options
 

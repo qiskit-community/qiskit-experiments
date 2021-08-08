@@ -92,7 +92,7 @@ class RBAnalysis(curve.CurveAnalysis):
 
         return default_options
 
-    def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
@@ -108,7 +108,7 @@ class RBAnalysis(curve.CurveAnalysis):
                 "b": user_bounds["b"] or (0.0, 1.0),
             },
         }
-        fit_options.update(options)
+        fit_options.update(extra_options)
 
         return fit_options
 

@@ -115,7 +115,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
         return default_options
 
-    def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Compute the initial guesses."""
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
@@ -176,7 +176,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
                     },
                 }
 
-                fit_option.update(options)
+                fit_option.update(extra_options)
                 fit_options.append(fit_option)
 
         return fit_options
