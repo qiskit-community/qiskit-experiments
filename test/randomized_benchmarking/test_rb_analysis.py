@@ -229,6 +229,10 @@ class TestStandardRBAnalysis(TestRBAnalysis):
         self._run_tests(rb_exp_data_file_names, rb_exp_analysis_file_names)
 
     def test_standard_rb_initial_guess(self):
+        """Test setting of guesses when provided by the user,
+        and also automatic guesses when the guess is not provided
+        by the user"""
+
         rbanalysis = RBAnalysis()
 
         x_values = [30, 50]
