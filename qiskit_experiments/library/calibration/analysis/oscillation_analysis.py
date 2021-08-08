@@ -112,6 +112,8 @@ class OscillationAnalysis(curve.CurveAnalysis):
                     "base": user_bounds["base"] or (-1 * max_abs_y, 1 * max_abs_y),
                 },
             }
+            # p0 and bounds are defined in the default options, therefore updating
+            # with the extra options only adds options and doesn't override p0 or bounds
             fit_option.update(extra_options)
             fit_options.append(fit_option)
 

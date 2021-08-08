@@ -113,6 +113,8 @@ class ResonanceAnalysis(curve.CurveAnalysis):
                 "b": user_bounds["b"] or (-max_abs_y, max_abs_y),
             },
         }
+        # p0 and bounds are defined in the default options, therefore updating
+        # with the extra options only adds options and doesn't override p0 or bounds
         fit_option.update(extra_options)
 
         return fit_option

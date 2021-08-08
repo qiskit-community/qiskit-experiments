@@ -108,6 +108,8 @@ class RBAnalysis(curve.CurveAnalysis):
                 "b": user_bounds["b"] or (0.0, 1.0),
             },
         }
+        # p0 and bounds are defined in the default options, therefore updating
+        # with the extra options only adds options and doesn't override p0 or bounds
         fit_options.update(extra_options)
 
         return fit_options

@@ -176,6 +176,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
                     },
                 }
 
+                # p0 and bounds are defined in the default options, therefore updating
+                # with the extra options only adds options and doesn't override p0 or bounds
                 fit_option.update(extra_options)
                 fit_options.append(fit_option)
 
