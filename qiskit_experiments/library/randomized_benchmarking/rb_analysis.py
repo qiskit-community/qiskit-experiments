@@ -100,7 +100,7 @@ class RBAnalysis(curve.CurveAnalysis):
         curve_data = self._data()
 
         initial_guess = self._initial_guess(curve_data.x, curve_data.y, self._num_qubits, user_p0)
-        fit_option = {
+        fit_options = {
             "p0": initial_guess,
             "bounds": {
                 "a": user_bounds["a"] or (0.0, 1.0),
@@ -108,9 +108,9 @@ class RBAnalysis(curve.CurveAnalysis):
                 "b": user_bounds["b"] or (0.0, 1.0),
             },
         }
-        fit_option.update(options)
+        fit_options.update(options)
 
-        return fit_option
+        return fit_options
 
     @staticmethod
     def _initial_guess(
