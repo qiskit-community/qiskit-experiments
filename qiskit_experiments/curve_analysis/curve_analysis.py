@@ -860,7 +860,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             options: User-input keyword argument options.
 
         Returns:
-            Keyword arguments that not specified in the default options.
+            Keyword arguments not specified in the default options.
         """
         extra_options = dict()
         for key, value in options.items():

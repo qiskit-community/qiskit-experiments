@@ -98,13 +98,10 @@ class RBAnalysis(curve.CurveAnalysis):
         user_bounds = self._get_option("bounds")
 
         curve_data = self._data()
-        initial_guess = self._initial_guess(curve_data.x, curve_data.y, self._num_qubits)
+
+        initial_guess = self._initial_guess(curve_data.x, curve_data.y, self._num_qubits, user_p0)
         fit_option = {
-            "p0": {
-                "a": user_p0["a"] or initial_guess["a"],
-                "alpha": user_p0["alpha"] or initial_guess["alpha"],
-                "b": user_p0["b"] or initial_guess["b"],
-            },
+            "p0": initial_guess,
             "bounds": {
                 "a": user_bounds["a"] or (0.0, 1.0),
                 "alpha": user_bounds["alpha"] or (0.0, 1.0),
@@ -117,20 +114,27 @@ class RBAnalysis(curve.CurveAnalysis):
 
     @staticmethod
     def _initial_guess(
-        x_values: np.ndarray, y_values: np.ndarray, num_qubits: int
+        x_values: np.ndarray, y_values: np.ndarray, num_qubits: int, user_p0: Dict = None
     ) -> Dict[str, float]:
         """Create initial guess with experiment data."""
+        if user_p0 is None:
+            user_p0 = {}
+
         fit_guess = {"a": 0.95, "alpha": 0.99, "b": 1 / 2 ** num_qubits}
+        for key in fit_guess:
+            if user_p0.get(key, None) is not None:
+                fit_guess[key] = user_p0[key]
 
-        # Use the first two points to guess the decay param
-        dcliff = x_values[1] - x_values[0]
-        dy = (y_values[1] - fit_guess["b"]) / (y_values[0] - fit_guess["b"])
-        alpha_guess = dy ** (1 / dcliff)
+        if user_p0.get("alpha", None) is None:
+            # Use the first two points to guess the decay param
+            dcliff = x_values[1] - x_values[0]
+            dy = (y_values[1] - fit_guess["b"]) / (y_values[0] - fit_guess["b"])
+            alpha_guess = dy ** (1 / dcliff)
 
-        if alpha_guess < 1.0:
-            fit_guess["alpha"] = alpha_guess
+            if alpha_guess < 1.0:
+                fit_guess["alpha"] = alpha_guess
 
-        if y_values[0] > fit_guess["b"]:
+        if user_p0.get("a", None) is None and y_values[0] > fit_guess["b"]:
             fit_guess["a"] = (y_values[0] - fit_guess["b"]) / fit_guess["alpha"] ** x_values[0]
 
         return fit_guess
