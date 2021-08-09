@@ -102,7 +102,6 @@ class T2Ramsey(BaseExperiment):
 
         # Set experiment options
         self.set_experiment_options(delays=delays, unit=unit, osc_freq=osc_freq)
- 
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
@@ -134,7 +133,9 @@ class T2Ramsey(BaseExperiment):
             circ = qiskit.QuantumCircuit(1, 1)
             circ.h(0)
             circ.delay(delay, 0, self.experiment_options.unit)
-            rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * conversion_factor * delay
+            rotation_angle = (
+                2 * np.pi * self.experiment_options.osc_freq * conversion_factor * delay
+            )
             circ.rz(rotation_angle, 0)
             circ.barrier(0)
             circ.h(0)
