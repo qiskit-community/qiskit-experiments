@@ -46,7 +46,7 @@ def _create_qv_data_high_confidence(dir_path: str, seed_val: int):
     qv_exp = QuantumVolume(num_of_qubits, seed=seed_val)
     qv_exp.set_experiment_options(trials=300)
     qv_exp.set_transpile_options(basis_gates=basis_gates)
-    qv_data = qv_exp.run(backend, noise_model=noise, basis_gates=basis_gates)
+    qv_data = qv_exp.run(backend, noise_model=noise, seed_simulator=123, basis_gates=basis_gates)
     qv_data.block_for_results()
 
     result_file_path = os.path.join(dir_path, "qv_data_moderate_noise_300_trials.json")

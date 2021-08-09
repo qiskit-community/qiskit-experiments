@@ -35,7 +35,7 @@ def _create_qv_data_70_trials(dir_path: str, seed_val: int):
 
     qv_exp = QuantumVolume(num_of_qubits, seed=seed_val)
     qv_exp.set_experiment_options(trials=70)
-    qv_data = qv_exp.run(backend)
+    qv_data = qv_exp.run(backend, seed_simulator=123)
     qv_data.block_for_results()
 
     result_file_path = os.path.join(dir_path, "qv_data_70_trials.json")
