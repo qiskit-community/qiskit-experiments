@@ -27,7 +27,7 @@ ATOL_DEFAULT = 1e-2
 RTOL_DEFAULT = 1e-5
 
 
-def create_depolarizing_noise_model_1q():
+def create_noise_model_1q():
     """Create noise model of depolarizing error for 1q RB.
 
     Notes:
@@ -44,7 +44,7 @@ def create_depolarizing_noise_model_1q():
     return noise_model
 
 
-def create_depolarizing_noise_model_2q():
+def create_noise_model_2q():
     """Create noise model of depolarizing error for 2q RB.
 
     Notes:
@@ -97,7 +97,7 @@ class TestStandardRBAnalysis(QiskitTestCase):
 
     def test_1qubit_standard_rb(self):
         """Executing standard RB experiment and analyze with 1 qubit."""
-        noise_model = create_depolarizing_noise_model_1q()
+        noise_model = create_noise_model_1q()
         backend = QasmSimulator()
         rb_exp = StandardRB(
             qubits=[0],
@@ -128,7 +128,7 @@ class TestStandardRBAnalysis(QiskitTestCase):
 
     def test_2qubit_standard_rb(self):
         """Executing standard RB experiment and analyze with 2 qubit."""
-        noise_model = create_depolarizing_noise_model_2q()
+        noise_model = create_noise_model_2q()
         backend = QasmSimulator()
         rb_exp = StandardRB(
             qubits=[0, 1],
@@ -162,6 +162,7 @@ class TestInterleavedRBAnalysis(QiskitTestCase):
     """
     A test for the analysis of the standard RB experiment
     """
+
     def setUp(self):
         self.gate_error_ratio = {
             ((0,), "id"): 1,
@@ -191,7 +192,7 @@ class TestInterleavedRBAnalysis(QiskitTestCase):
 
     def test_1qubit_interleaved_rb(self):
         """Executing interleaved RB experiment and analyze with 1 qubit."""
-        noise_model = create_depolarizing_noise_model_1q()
+        noise_model = create_noise_model_1q()
         backend = QasmSimulator()
         rb_exp = InterleavedRB(
             interleaved_element=self.interleaved_gates["x"],
@@ -242,7 +243,7 @@ class TestInterleavedRBAnalysis(QiskitTestCase):
 
     def test_2qubit_interleaved_rb(self):
         """Executing interleaved RB experiment and analyze with 2 qubit."""
-        noise_model = create_depolarizing_noise_model_2q()
+        noise_model = create_noise_model_2q()
         backend = QasmSimulator()
         rb_exp = InterleavedRB(
             interleaved_element=self.interleaved_gates["cx"],
