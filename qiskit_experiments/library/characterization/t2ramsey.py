@@ -21,6 +21,7 @@ import qiskit
 from qiskit.utils import apply_prefix
 from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
+from qiskit.providers.options import Options
 from qiskit_experiments.framework import BaseExperiment
 from .t2ramsey_analysis import T2RamseyAnalysis
 
@@ -62,13 +63,25 @@ class T2Ramsey(BaseExperiment):
     """
     __analysis_class__ = T2RamseyAnalysis
 
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        """Default experiment options.
+
+        Experiment Options:
+            delays (Iterable[float]): Delay times of the experiments.
+            unit (str): Unit of the delay times. Supported units are
+                's', 'ms', 'us', 'ns', 'ps', 'dt'.
+            osc_freq (float): Oscillation frequency offset in Hz.
+        """
+
+        return Options(delays=None, unit="s", osc_freq=0.0)
+
     def __init__(
         self,
         qubit: int,
         delays: Union[List[float], np.array],
         unit: str = "s",
         osc_freq: float = 0.0,
-        experiment_type: Optional[str] = None,
     ):
         """
         **T2Ramsey class**
@@ -81,15 +94,15 @@ class T2Ramsey(BaseExperiment):
             unit: Optional, time unit of `delays`.
             Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'. The unit is \
             used for both T2Ramsey and for the frequency.
-            osc_freq: optional oscillation frequency offset in Hz.
-            experiment_type: String indicating the experiment type.
-        """
+            osc_freq: optional, oscillation frequency offset in Hz.
+         """
 
-        self._qubit = qubit
-        self._delays = delays
-        self._unit = unit
-        self._osc_freq = osc_freq
-        super().__init__([qubit], experiment_type)
+        # Initialize base experiment
+        super().__init__([qubit])
+
+        # Set experiment options
+        self.set_experiment_options(delays=delays, unit=unit, osc_freq=osc_freq)
+ 
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
@@ -107,21 +120,21 @@ class T2Ramsey(BaseExperiment):
             AttributeError: if unit is 'dt', but 'dt' parameter is missing in the backend configuration.
         """
         conversion_factor = 1
-        if self._unit == "dt":
+        if self.experiment_options.unit == "dt":
             try:
                 dt_factor = getattr(backend._configuration, "dt")
                 conversion_factor = dt_factor
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
-        elif self._unit != "s":
-            apply_prefix(1, self._unit)
+        elif self.experiment_options.unit != "s":
+            apply_prefix(1, self.experiment_options.unit)
 
         circuits = []
-        for delay in self._delays:
+        for delay in self.experiment_options.delays:
             circ = qiskit.QuantumCircuit(1, 1)
             circ.h(0)
-            circ.delay(delay, 0, self._unit)
-            rotation_angle = 2 * np.pi * self._osc_freq * conversion_factor * delay
+            circ.delay(delay, 0, self.experiment_options.unit)
+            rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * conversion_factor * delay
             circ.rz(rotation_angle, 0)
             circ.barrier(0)
             circ.h(0)
@@ -130,12 +143,12 @@ class T2Ramsey(BaseExperiment):
 
             circ.metadata = {
                 "experiment_type": self._type,
-                "qubit": self._qubit,
-                "osc_freq": self._osc_freq,
+                "qubit": self.physical_qubits[0],
+                "osc_freq": self.experiment_options.osc_freq,
                 "xval": delay,
-                "unit": self._unit,
+                "unit": self.experiment_options.unit,
             }
-            if self._unit == "dt":
+            if self.experiment_options.unit == "dt":
                 circ.metadata["dt_factor"] = dt_factor
 
             circuits.append(circ)
