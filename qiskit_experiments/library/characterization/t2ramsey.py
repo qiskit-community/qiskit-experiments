@@ -95,12 +95,9 @@ class T2Ramsey(BaseExperiment):
             Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'. The unit is \
             used for both T2Ramsey and for the frequency.
             osc_freq: optional, oscillation frequency offset in Hz.
-         """
+        """
 
-        # Initialize base experiment
         super().__init__([qubit])
-
-        # Set experiment options
         self.set_experiment_options(delays=delays, unit=unit, osc_freq=osc_freq)
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
