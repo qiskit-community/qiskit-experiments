@@ -110,7 +110,7 @@ class T1(BaseExperiment):
         else:
             if not self.experiment_options.unit.endswith("s"):
                 raise ValueError(f"Invalid time unit {self.experiment_options.unit} is set.")
-            conversion_factor = apply_prefix(1.0, self._unit)
+            conversion_factor = apply_prefix(1.0, self.experiment_options.unit)
 
         circuits = []
         for delay in self.experiment_options.delays:

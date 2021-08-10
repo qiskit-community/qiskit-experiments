@@ -59,6 +59,7 @@ except ImportError:
 
         return scale * value, prefix
 
+
 from qiskit_experiments.curve_analysis.curve_data import (
     CurveData,
     SeriesDef,
@@ -457,6 +458,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 maxv = np.max(np.abs(sub_axis.get_data_interval()))
                 scaled_maxv, prefix = detach_prefix(maxv)
                 prefactor = scaled_maxv / maxv
+                # pylint: disable=cell-var-from-loop
                 sub_axis.set_major_formatter(FuncFormatter(lambda x, p: f"{x * prefactor: g}"))
                 sub_axis.set_label_text(f"{label} [{prefix}{unit}]", fontsize=16)
             else:
