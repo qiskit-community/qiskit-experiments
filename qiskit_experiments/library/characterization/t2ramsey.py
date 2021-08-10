@@ -56,7 +56,6 @@ class T2Ramsey(BaseExperiment):
 
         - **user_p0** (``List[Float]``): user guesses for the fit parameters
           ``A``, ``B``, ``f``, ``phi``, ``T2star``.
-        - **bounds** - (Tuple[List[float], List[float]]) lower and upper bounds for the fit parameters.
         - **plot** (bool) - create a graph if and only if True.
 
     """

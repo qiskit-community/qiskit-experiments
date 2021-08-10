@@ -33,7 +33,6 @@ def load_fit_parameters(docstring_lines: List[str]) -> List[str]:
     description_kind = {
         "desc": re.compile(r"desc: (?P<s>.+)"),
         "init_guess": re.compile(r"init_guess: (?P<s>.+)"),
-        "bounds": re.compile(r"bounds: (?P<s>.+)"),
     }
 
     # parse lines
@@ -52,7 +51,6 @@ def load_fit_parameters(docstring_lines: List[str]) -> List[str]:
             parameter_desc[current_param] = {
                 "desc": "",
                 "init_guess": "",
-                "bounds": "",
             }
             continue
 
@@ -85,6 +83,5 @@ def load_fit_parameters(docstring_lines: List[str]) -> List[str]:
 
     write_description("Descriptions", "desc")
     write_description("Initial Guess", "init_guess")
-    write_description("Boundaries", "bounds")
 
     return _trim_empty_lines(section_lines)

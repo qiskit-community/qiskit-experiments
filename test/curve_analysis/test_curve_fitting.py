@@ -89,8 +89,7 @@ class TestCurveFitting(QiskitTestCase):
         data = self.simulate_experiment_data(thetas)
         xdata, ydata, sigma = process_curve_data(data, data_processor=self.data_processor_p0)
         p0 = [0.6]
-        bounds = ([0], [2])
-        sol = curve_fit(self.objective0, xdata, ydata, p0, sigma=sigma, bounds=bounds)
+        sol = curve_fit(self.objective0, xdata, ydata, p0, sigma=sigma)
         self.assertTrue(abs(sol.popt[0] - 0.5) < 0.05)
 
     def test_multi_curve_fit(self):
@@ -107,9 +106,8 @@ class TestCurveFitting(QiskitTestCase):
         sigma = np.concatenate([sigma0, sigma1])
 
         p0 = [0.6]
-        bounds = ([0], [2])
         sol = multi_curve_fit(
-            [self.objective0, self.objective1], series, xdata, ydata, p0, sigma=sigma, bounds=bounds
+            [self.objective0, self.objective1], series, xdata, ydata, p0, sigma=sigma
         )
         self.assertTrue(abs(sol.popt[0] - 0.5) < 0.05)
 

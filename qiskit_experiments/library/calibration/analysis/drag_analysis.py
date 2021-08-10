@@ -37,22 +37,18 @@ class DragCalAnalysis(curve.CurveAnalysis):
         defpar \rm amp:
             desc: Amplitude of all series.
             init_guess: The maximum y value less the minimum y value. 0.5 is also tried.
-            bounds: [-2, 2] scaled to the maximum signal value.
 
         defpar \rm base:
             desc: Base line of all series.
             init_guess: The average of the data. 0.5 is also tried.
-            bounds: [-1, 1] scaled to the maximum signal value.
 
         defpar {\rm freq}_i:
             desc: Frequency of the :math:`i` th oscillation.
             init_guess: The frequency with the highest power spectral density.
-            bounds: [0, inf].
 
         defpar \beta:
             desc: Common beta offset. This is the parameter of interest.
             init_guess: Linearly spaced between the maximum and minimum scanned beta.
-            bounds: [-min scan range, max scan range].
     """
 
     __series__ = [
@@ -101,14 +97,6 @@ class DragCalAnalysis(curve.CurveAnalysis):
             "beta": None,
             "base": None,
         }
-        default_options.bounds = {
-            "amp": None,
-            "freq0": None,
-            "freq1": None,
-            "freq2": None,
-            "beta": None,
-            "base": None,
-        }
         default_options.result_parameters = ["beta"]
         default_options.xlabel = "Beta"
         default_options.ylabel = "Signal (arb. units)"
@@ -118,7 +106,6 @@ class DragCalAnalysis(curve.CurveAnalysis):
     def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Compute the initial guesses."""
         user_p0 = self._get_option("p0")
-        user_bounds = self._get_option("bounds")
 
         # Use a fast Fourier transform to guess the frequency.
         x_data = self._data("series-0").x
@@ -165,14 +152,6 @@ class DragCalAnalysis(curve.CurveAnalysis):
                         "freq2": user_p0.get("freq2", None) or freq_guess[2],
                         "beta": p_guess,
                         "base": b_guess,
-                    },
-                    "bounds": {
-                        "amp": user_bounds.get("amp", None) or (-2 * max_abs_y, 2 * max_abs_y),
-                        "freq0": user_bounds.get("freq0", None) or (0, np.inf),
-                        "freq1": user_bounds.get("freq1", None) or (0, np.inf),
-                        "freq2": user_bounds.get("freq2", None) or (0, np.inf),
-                        "beta": user_bounds.get("beta", None) or (-freq_bound, freq_bound),
-                        "base": user_bounds.get("base", None) or (-1 * max_abs_y, 1 * max_abs_y),
                     },
                 }
 

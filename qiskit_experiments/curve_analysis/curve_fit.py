@@ -29,7 +29,6 @@ def curve_fit(
     ydata: np.ndarray,
     p0: Union[Dict[str, float], np.ndarray],
     sigma: Optional[np.ndarray] = None,
-    bounds: Optional[Union[Dict[str, Tuple[float, float]], Tuple[np.ndarray, np.ndarray]]] = None,
     **kwargs,
 ) -> FitData:
     r"""Perform a non-linear least squares to fit
@@ -49,8 +48,6 @@ def curve_fit(
         p0: initial guess for optimization parameters.
         sigma: Optional, a 1D array of standard deviations in ydata
                in absolute units.
-        bounds: Optional, lower and upper bounds for optimization
-                parameters.
         kwargs: additional kwargs for :func:`scipy.optimize.curve_fit`.
 
     Returns:
@@ -79,14 +76,6 @@ def curve_fit(
         param_keys = list(p0.keys())
         param_p0 = list(p0.values())
 
-        # Convert bounds
-        if bounds:
-            lower = [bounds[key][0] for key in param_keys]
-            upper = [bounds[key][1] for key in param_keys]
-            param_bounds = (lower, upper)
-        else:
-            param_bounds = ([-np.inf] * len(param_keys), [np.inf] * len(param_keys))
-
         # Convert fit function
         def fit_func(x, *params):
             return func(x, **dict(zip(param_keys, params)))
@@ -94,10 +83,6 @@ def curve_fit(
     else:
         param_keys = None
         param_p0 = p0
-        if bounds:
-            param_bounds = bounds
-        else:
-            param_bounds = ([-np.inf] * len(p0), [np.inf] * len(p0))
         fit_func = func
 
     # Check the degrees of freedom is greater than 0
@@ -125,9 +110,7 @@ def curve_fit(
     # Run curve fit
     try:
         # pylint: disable = unbalanced-tuple-unpacking
-        popt, pcov = opt.curve_fit(
-            fit_func, xdata, ydata, sigma=sigma, p0=param_p0, bounds=param_bounds, **kwargs
-        )
+        popt, pcov = opt.curve_fit(fit_func, xdata, ydata, sigma=sigma, p0=param_p0, **kwargs)
     except Exception as ex:
         raise AnalysisError(
             "scipy.optimize.curve_fit failed with error: {}".format(str(ex))
@@ -166,7 +149,6 @@ def multi_curve_fit(
     p0: np.ndarray,
     sigma: Optional[np.ndarray] = None,
     weights: Optional[np.ndarray] = None,
-    bounds: Optional[Union[Dict[str, Tuple[float, float]], Tuple[np.ndarray, np.ndarray]]] = None,
     **kwargs,
 ) -> FitData:
     r"""Perform a linearized multi-objective non-linear least squares fit.
@@ -195,8 +177,6 @@ def multi_curve_fit(
                in absolute units.
         weights: Optional, a 1D float list of weights :math:`w_k` for each
                  component function :math:`f_k`.
-        bounds: Optional, lower and upper bounds for optimization
-                parameters.
         kwargs: additional kwargs for :func:`scipy.optimize.curve_fit`.
 
     Returns:
@@ -248,7 +228,7 @@ def multi_curve_fit(
         return y
 
     # Run linearized curve_fit
-    result_data = curve_fit(f, xdata, ydata, p0, sigma=wsigma, bounds=bounds, **kwargs)
+    result_data = curve_fit(f, xdata, ydata, p0, sigma=wsigma, **kwargs)
 
     return result_data
 

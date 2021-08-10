@@ -246,14 +246,12 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         """Test option formatter."""
         test_options = {
             "p0": [0, 1, 2, 3, 4],
-            "bounds": [(-1, 1), (-2, 2), (-3, 3), (-4, 4), (-5, 5)],
             "other_value": "test",
         }
         formatted_options = self.analysis._format_fit_options(**test_options)
 
         ref_options = {
             "p0": {"p0": 0, "p1": 1, "p2": 2, "p3": 3, "p4": 4},
-            "bounds": {"p0": (-1, 1), "p1": (-2, 2), "p2": (-3, 3), "p3": (-4, 4), "p4": (-5, 5)},
             "other_value": "test",
         }
         self.assertDictEqual(formatted_options, ref_options)
@@ -339,7 +337,6 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         )
         default_opts = analysis._default_options()
         default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3}
-        default_opts.bounds = {"p0": [-10, 0], "p1": [-10, 0], "p2": [-10, 0], "p3": [-10, 0]}
         default_opts.return_data_points = True
 
         # Try to fit with infeasible parameter boundary. This should fail.

@@ -38,18 +38,15 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
         defpar \rm amp:
             desc: Amplitude of the oscillation.
             init_guess: The maximum y value less the minimum y value.
-            bounds: [-2, 2] scaled to the maximum signal value.
 
         defpar \rm base:
             desc: Base line.
             init_guess: The average of the data.
-            bounds: [-1, 1] scaled to the maximum signal value.
 
         defpar d\theta:
             desc: The angle offset in the gate that we wish to measure.
             init_guess: Multiple initial guesses are tried ranging from -a to a
                 where a is given by :code:`max(abs(angle_per_gate), np.pi / 2)`.
-            bounds: [-pi, pi].
 
     # section: note
 
@@ -97,7 +94,6 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
         """
         default_options = super()._default_options()
         default_options.p0 = {"amp": None, "d_theta": None, "phase": None, "base": None}
-        default_options.bounds = {"amp": None, "d_theta": None, "phase": None, "base": None}
         default_options.result_parameters = ["d_theta"]
         default_options.xlabel = "Number of gates (n)"
         default_options.ylabel = "Population"
@@ -111,14 +107,11 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
     def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
         user_p0 = self._get_option("p0")
-        user_bounds = self._get_option("bounds")
         n_guesses = self._get_option("number_guesses")
 
         max_y, min_y = np.max(self._data().y), np.min(self._data().y)
         b_guess = (max_y + min_y) / 2
         a_guess = max_y - min_y
-
-        max_abs_y = np.max(np.abs(self._data().y))
 
         # Base the initial guess on the intended angle_per_gate.
         angle_per_gate = self._get_option("angle_per_gate")
@@ -136,11 +129,6 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
                     "amp": user_p0["amp"] or a_guess,
                     "d_theta": angle,
                     "base": b_guess,
-                },
-                "bounds": {
-                    "amp": user_bounds.get("amp", None) or (-2 * max_abs_y, 2 * max_abs_y),
-                    "d_theta": user_bounds.get("d_theta", None) or (-np.pi, np.pi),
-                    "base": user_bounds.get("d_theta", None) or (-1 * max_abs_y, 1 * max_abs_y),
                 },
             }
 

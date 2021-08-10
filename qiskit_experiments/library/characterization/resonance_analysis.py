@@ -46,14 +46,6 @@ class ResonanceAnalysis(curve.CurveAnalysis):
         - :math:`\sigma`: Calculated from FWHM of peak :math:`w`
           such that :math:`w / \sqrt{8} \ln{2}`, where FWHM is calculated by
           :func:`~qiskit_experiments.curve_analysis.guess.full_width_half_max`.
-
-    Bounds
-        - :math:`a`: [-2, 2] scaled with maximum signal value.
-        - :math:`b`: [-1, 1] scaled with maximum signal value.
-        - :math:`f`: [min(x), max(x)] of frequency scan range.
-        - :math:`\sigma`: [0, :math:`\Delta x`] where :math:`\Delta x`
-          represents frequency scan range.
-
     """
 
     __series__ = [
@@ -74,7 +66,6 @@ class ResonanceAnalysis(curve.CurveAnalysis):
         """
         default_options = super()._default_options()
         default_options.p0 = {"a": None, "sigma": None, "freq": None, "b": None}
-        default_options.bounds = {"a": None, "sigma": None, "freq": None, "b": None}
         default_options.reporting_parameters = {"freq": ("frequency", "Hz")}
         default_options.normalization = True
 
@@ -83,7 +74,6 @@ class ResonanceAnalysis(curve.CurveAnalysis):
     def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
         user_p0 = self._get_option("p0")
-        user_bounds = self._get_option("bounds")
 
         curve_data = self._data()
 
@@ -97,20 +87,12 @@ class ResonanceAnalysis(curve.CurveAnalysis):
             8 * np.log(2)
         )
 
-        max_abs_y = np.max(np.abs(curve_data.y))
-
         fit_option = {
             "p0": {
                 "a": user_p0["a"] or a_guess,
                 "sigma": user_p0["sigma"] or s_guess,
                 "freq": user_p0["freq"] or f_guess,
                 "b": user_p0["b"] or b_guess,
-            },
-            "bounds": {
-                "a": user_bounds["a"] or (-2 * max_abs_y, 2 * max_abs_y),
-                "sigma": user_bounds["sigma"] or (0.0, max(curve_data.x) - min(curve_data.x)),
-                "freq": user_bounds["freq"] or (min(curve_data.x), max(curve_data.x)),
-                "b": user_bounds["b"] or (-max_abs_y, max_abs_y),
             },
         }
         fit_option.update(options)

@@ -33,24 +33,20 @@ class OscillationAnalysis(curve.CurveAnalysis):
         defpar \rm amp:
             desc: Amplitude of the oscillation.
             init_guess: Calculated by :func:`~qiskit_experiments.curve_analysis.guess.max_height`.
-            bounds: [-2, 2] scaled to the maximum signal value.
 
         defpar \rm base:
             desc: Base line.
             init_guess: Calculated by :func:`~qiskit_experiments.curve_analysis.\
             guess.constant_sinusoidal_offset`.
-            bounds: [-1, 1] scaled to the maximum signal value.
 
         defpar \rm freq:
             desc: Frequency of the oscillation. This is the fit parameter of interest.
             init_guess: Calculated by :func:`~qiskit_experiments.curve_analysis.\
             guess.frequency`.
-            bounds: [0, inf].
 
         defpar \rm phase:
             desc: Phase of the oscillation.
             init_guess: Zero.
-            bounds: [-pi, pi].
     """
 
     __series__ = [
@@ -71,7 +67,6 @@ class OscillationAnalysis(curve.CurveAnalysis):
         """
         default_options = super()._default_options()
         default_options.p0 = {"amp": None, "freq": None, "phase": None, "base": None}
-        default_options.bounds = {"amp": None, "freq": None, "phase": None, "base": None}
         default_options.result_parameters = ["freq"]
         default_options.xlabel = "Amplitude"
         default_options.ylabel = "Signal (arb. units)"
@@ -81,11 +76,8 @@ class OscillationAnalysis(curve.CurveAnalysis):
     def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
         user_p0 = self._get_option("p0")
-        user_bounds = self._get_option("bounds")
 
         curve_data = self._data()
-
-        max_abs_y = np.max(np.abs(curve_data.y))
 
         f_guess = curve.guess.frequency(curve_data.x, curve_data.y)
         b_guess = curve.guess.constant_sinusoidal_offset(curve_data.y)
@@ -104,12 +96,6 @@ class OscillationAnalysis(curve.CurveAnalysis):
                     "freq": user_p0["freq"] or f_guess,
                     "phase": p_guess,
                     "base": user_p0["base"] or b_guess,
-                },
-                "bounds": {
-                    "amp": user_bounds["amp"] or (-2 * max_abs_y, 2 * max_abs_y),
-                    "freq": user_bounds["freq"] or (0, np.inf),
-                    "phase": user_bounds["phase"] or (-np.pi, np.pi),
-                    "base": user_bounds["base"] or (-1 * max_abs_y, 1 * max_abs_y),
                 },
             }
             fit_option.update(options)

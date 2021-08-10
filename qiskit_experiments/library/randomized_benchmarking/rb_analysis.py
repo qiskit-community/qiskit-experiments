@@ -41,18 +41,14 @@ class RBAnalysis(curve.CurveAnalysis):
         defpar a:
             desc: Height of decay curve.
             init_guess: Determined by :math:`(y - b) / \alpha^x`.
-            bounds: [0, 1]
         defpar b:
             desc: Base line.
             init_guess: Determined by the average :math:`b` of the standard and interleaved RB.
                 Usually equivalent to :math:`(1/2)^n` where :math:`n` is number of qubit.
-            bounds: [0, 1]
         defpar \alpha:
             desc: Depolarizing parameter.
             init_guess: Determined by the slope of :math:`(y - b)^{-x}` of the first and the
                 second data point.
-            bounds: [0, 1]
-
     """
 
     __series__ = [
@@ -82,7 +78,6 @@ class RBAnalysis(curve.CurveAnalysis):
         """
         default_options = super()._default_options()
         default_options.p0 = {"a": None, "alpha": None, "b": None}
-        default_options.bounds = {"a": (0.0, 1.0), "alpha": (0.0, 1.0), "b": (0.0, 1.0)}
         default_options.xlabel = "Clifford Length"
         default_options.ylabel = "P(0)"
         default_options.result_parameters = ["alpha"]
@@ -95,7 +90,6 @@ class RBAnalysis(curve.CurveAnalysis):
     def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
         user_p0 = self._get_option("p0")
-        user_bounds = self._get_option("bounds")
 
         curve_data = self._data()
         initial_guess = self._initial_guess(curve_data.x, curve_data.y, self._num_qubits)
@@ -104,11 +98,6 @@ class RBAnalysis(curve.CurveAnalysis):
                 "a": user_p0["a"] or initial_guess["a"],
                 "alpha": user_p0["alpha"] or initial_guess["alpha"],
                 "b": user_p0["b"] or initial_guess["b"],
-            },
-            "bounds": {
-                "a": user_bounds["a"] or (0.0, 1.0),
-                "alpha": user_bounds["alpha"] or (0.0, 1.0),
-                "b": user_bounds["b"] or (0.0, 1.0),
             },
         }
         fit_option.update(options)

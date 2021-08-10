@@ -70,22 +70,18 @@ class InterleavedRBAnalysis(RBAnalysis):
         defpar a:
             desc: Height of decay curve.
             init_guess: Determined by the average :math:`a` of the standard and interleaved RB.
-            bounds: [0, 1]
         defpar b:
             desc: Base line.
             init_guess: Determined by the average :math:`b` of the standard and interleaved RB.
                 Usually equivalent to :math:`(1/2)^n` where :math:`n` is number of qubit.
-            bounds: [0, 1]
         defpar \alpha:
             desc: Depolarizing parameter.
             init_guess: Determined by the slope of :math:`(y - b)^{-x}` of the first and the
                 second data point of the standard RB.
-            bounds: [0, 1]
         defpar \alpha_c:
             desc: Ratio of the depolarizing parameter of interleaved RB to standard RB curve.
             init_guess: Estimate :math:`\alpha' = \alpha_c \alpha` from the
                 interleaved RB curve, then divide this by the initial guess of :math:`\alpha`.
-            bounds: [0, 1]
 
     # section: reference
         .. ref_arxiv:: 1 1203.4550
@@ -120,19 +116,12 @@ class InterleavedRBAnalysis(RBAnalysis):
         """Default analysis options."""
         default_options = super()._default_options()
         default_options.p0 = {"a": None, "alpha": None, "alpha_c": None, "b": None}
-        default_options.bounds = {
-            "a": (0.0, 1.0),
-            "alpha": (0.0, 1.0),
-            "alpha_c": (0.0, 1.0),
-            "b": (0.0, 1.0),
-        }
         default_options.result_parameters = ["alpha", "alpha_c"]
         return default_options
 
     def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
         user_p0 = self._get_option("p0")
-        user_bounds = self._get_option("bounds")
 
         # for standard RB curve
         std_curve = self._data(series_name="Standard")
@@ -148,12 +137,6 @@ class InterleavedRBAnalysis(RBAnalysis):
                 "alpha": user_p0["alpha"] or p0_std["alpha"],
                 "alpha_c": user_p0["alpha_c"] or min(p0_int["alpha"] / p0_std["alpha"], 1),
                 "b": user_p0["b"] or np.mean([p0_std["b"], p0_int["b"]]),
-            },
-            "bounds": {
-                "a": user_bounds["a"] or (0.0, 1.0),
-                "alpha": user_bounds["alpha"] or (0.0, 1.0),
-                "alpha_c": user_bounds["alpha_c"] or (0.0, 1.0),
-                "b": user_bounds["b"] or (0.0, 1.0),
             },
         }
         fit_option.update(options)

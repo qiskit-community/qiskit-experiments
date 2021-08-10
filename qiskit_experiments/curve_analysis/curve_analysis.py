@@ -310,8 +310,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
             normalization (bool) : Set ``True`` to normalize y values within range [-1, 1].
             p0 (Dict[str, float]): Array-like or dictionary
                 of initial parameters.
-            bounds (Dict[str, Tuple[float, float]]): Array-like or dictionary
-                of (min, max) tuple of fit parameter boundaries.
             x_key (str): Circuit metadata key representing a scanned value.
             plot (bool): Set ``True`` to create figure for fit result.
             axis (AxesSubplot): Optional. A matplotlib axis object to draw.
@@ -332,7 +330,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
             data_processor=None,
             normalization=False,
             p0=None,
-            bounds=None,
             x_key="xval",
             plot=True,
             axis=None,
@@ -473,12 +470,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
             if self._get_option("my_option1") == "abc":
                 p0 = my_guess_function(curve_data.x, curve_data.y, ...)
-                bounds = ...
             else:
                 p0 = ...
-                bounds = ...
 
-            return {"p0": p0, "bounds": bounds}
+            return {"p0": p0}
 
         Note that this subroutine can generate multiple fit options.
         If multiple options are provided, fitter runs multiple times for each fit option,
@@ -486,8 +481,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         .. code-block::
 
-            fit_1 = {"p0": p0_1, "bounds": bounds, "extra_fit_parameter": "option1"}
-            fit_2 = {"p0": p0_2, "bounds": bounds, "extra_fit_parameter": "option2"}
+            fit_1 = {"p0": p0_1, "extra_fit_parameter": "option1"}
+            fit_2 = {"p0": p0_2, "extra_fit_parameter": "option2"}
 
             return [fit_1, fit_2]
 
@@ -502,7 +497,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         Returns:
             List of FitOptions that are passed to fitter function.
         """
-        fit_options = {"p0": self._get_option("p0"), "bounds": self._get_option("bounds")}
+        fit_options = {"p0": self._get_option("p0")}
         fit_options.update(options)
 
         return fit_options
@@ -708,15 +703,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
         else:
             # p0 should be defined
             raise AnalysisError("Initial guess p0 is not provided to the fitting options.")
-
-        if fitter_options.get("bounds", None):
-            if isinstance(fitter_options["bounds"], dict):
-                _check_keys("bounds")
-            else:
-                fitter_options["bounds"] = _dictionarize("bounds")
-        else:
-            # bounds are optional
-            fitter_options["bounds"] = {par: (-np.inf, np.inf) for par in self.__fit_params}
 
         return fitter_options
 
@@ -1023,8 +1009,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
                     fit_results.append(fit_result)
                 if len(fit_results) == 0:
                     raise AnalysisError(
-                        "All initial guesses and parameter boundaries failed to fit the data. "
-                        "Please provide better initial guesses or fit parameter boundaries."
+                        "All initial guesses failed to fit the data. "
+                        "Please provide better initial guesses."
                     )
                 # Sort by chi squared value
                 fit_result = sorted(fit_results, key=lambda r: r.reduced_chisq)[0]

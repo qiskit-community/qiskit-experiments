@@ -53,14 +53,13 @@ class T2RamseyAnalysis(BaseAnalysis):
 
     @classmethod
     def _default_options(cls):
-        return Options(user_p0=None, user_bounds=None)
+        return Options(user_p0=None)
 
     # pylint: disable=arguments-differ, unused-argument
     def _run_analysis(
         self,
         experiment_data: ExperimentData,
         user_p0: Optional[Dict[str, float]] = None,
-        user_bounds: Optional[Tuple[List[float], List[float]]] = None,
         plot: bool = False,
         ax: Optional["AxesSubplot"] = None,
         **kwargs,
@@ -71,11 +70,6 @@ class T2RamseyAnalysis(BaseAnalysis):
             experiment_data (ExperimentData): the experiment data to analyze
             user_p0: contains initial values given by the user, for the
             fit parameters :math:`(a, t2ramsey, f, \phi, b)`
-            user_bounds: lower and upper bounds on the parameters in p0,
-                         given by the user.
-                         The first tuple is the lower bounds,
-                         The second tuple is the upper bounds.
-                         For both params, the order is :math:`a, t2ramsey, f, \phi, b`.
             plot: if True, create the plot, otherwise, do not create the plot.
             ax: the plot object
             **kwargs: additional parameters for curve fit.
@@ -125,13 +119,9 @@ class T2RamseyAnalysis(BaseAnalysis):
         xdata, ydata, sigma = process_curve_data(data, lambda datum: level2_probability(datum, "0"))
 
         t2ramsey_estimate = np.mean(xdata)
-        p0, bounds = self._t2ramsey_default_params(
-            conversion_factor, user_p0, user_bounds, t2ramsey_estimate
-        )
+        p0 = self._t2ramsey_default_params(conversion_factor, user_p0, t2ramsey_estimate)
         xdata *= conversion_factor
-        fit_result = curve_fit(
-            osc_fit_fun, xdata, ydata, p0=list(p0.values()), sigma=sigma, bounds=bounds
-        )
+        fit_result = curve_fit(osc_fit_fun, xdata, ydata, p0=list(p0.values()), sigma=sigma)
         fit_result = dataclasses.asdict(fit_result)
         fit_result["circuit_unit"] = unit
         if osc_freq is not None:
@@ -174,7 +164,6 @@ class T2RamseyAnalysis(BaseAnalysis):
         self,
         conversion_factor,
         user_p0=None,
-        user_bounds=None,
         t2ramsey_input=None,
     ) -> Tuple[List[float], Tuple[List[float]]]:
         """Default fit parameters for oscillation data.
@@ -196,19 +185,7 @@ class T2RamseyAnalysis(BaseAnalysis):
             b = user_p0["B"]
         p0 = {"a_guess": a, "T2star": t2ramsey, "f_guess": f, "phi_guess": phi, "b_guess": b}
 
-        if user_bounds is None:
-            a_bounds = [-0.5, 1.5]
-            t2ramsey_bounds = [0, np.inf]
-            f_bounds = [0.1 * f, 10 * f]
-            phi_bounds = [-np.pi, np.pi]
-            b_bounds = [-0.5, 1.5]
-            bounds = [
-                [a_bounds[i], t2ramsey_bounds[i], f_bounds[i], phi_bounds[i], b_bounds[i]]
-                for i in range(2)
-            ]
-        else:
-            bounds = user_bounds
-        return p0, bounds
+        return p0
 
     @staticmethod
     def _fit_quality(fit_out, fit_err, reduced_chisq):

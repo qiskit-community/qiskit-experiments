@@ -62,15 +62,11 @@ class DocumentedCurveAnalysis(CurveAnalysis):
             desc: Description of parameter :math:`a`.
             init_guess: Here you can describe how this analysis estimate initial guess of
                 parameter :math:`a`.
-            bounds: Here you can describe how this analysis bounds parameter :math:`a` value
-                during the fit.
 
         defpar b:
             desc: Description of parameter :math:`b`.
             init_guess: Here you can describe how this analysis estimate initial guess of
                 parameter :math:`b`.
-            bounds: Here you can describe how this analysis bounds parameter :math:`b` value
-                during the fit.
 
         Note that you cannot write text block (i.e. bullet lines, math mode, parsed literal, ...)
         in the ``defpar`` syntax items. These are a single line description of parameters.
