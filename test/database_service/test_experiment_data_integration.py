@@ -20,7 +20,6 @@ import numpy as np
 from qiskit import transpile
 from qiskit.providers import JobStatus
 from qiskit.test.reference_circuits import ReferenceCircuits
-from qiskit.tools.visualization import HAS_MATPLOTLIB
 
 from qiskit.providers.ibmq.experiment import (
     IBMExperimentService,
@@ -31,18 +30,12 @@ from qiskit.providers.ibmq.experiment import (
 from qiskit.test import QiskitTestCase
 from ..decorators import requires_provider, requires_device
 
-try:
-    from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
-    from qiskit_experiments.database_service import DbAnalysisResultV1 as AnalysisResult
-    from qiskit_experiments.database_service.exceptions import DbExperimentEntryNotFound
-
-    HAS_QISKIT_EXPERIMENTS = True
-except ImportError:
-    HAS_QISKIT_EXPERIMENTS = False
+from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
+from qiskit_experiments.database_service import DbAnalysisResultV1 as AnalysisResult
+from qiskit_experiments.database_service.exceptions import DbExperimentEntryNotFound
 
 
 @skipIf(not os.environ.get("QISKIT_IBM_USE_STAGING_CREDENTIALS", ""), "Only runs on staging")
-@skipIf(not HAS_QISKIT_EXPERIMENTS, "Requires qiskit-experiments")
 class TestExperimentDataIntegration(QiskitTestCase):
     """Test experiment service with experiment data."""
 
@@ -100,11 +93,6 @@ class TestExperimentDataIntegration(QiskitTestCase):
                 job.cancel()
         super().tearDown()
 
-    # TODO add after options PR
-    # def test_service_options(self):
-    #     """Test service options."""
-    #     self.assertFalse(self.experiment.options()['auto_save'])
-    #
     def test_add_data_job(self):
         """Test add job to experiment data."""
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
@@ -223,9 +211,6 @@ class TestExperimentDataIntegration(QiskitTestCase):
         self.assertEqual(expected.tags, actual.tags)
         self.assertEqual(expected.value["complex"], actual.value["complex"])
         self.assertEqual(expected.value["numpy"].all(), actual.value["numpy"].all())
-        # TODO: re-enable when DbAnalysisResultV1 supports kwargs again
-        # self.assertTrue(actual.creation_datetime)
-        # self.assertTrue(getattr(actual, 'creation_datetime').tzinfo)
 
     def test_delete_analysis_result(self):
         """Test deleting an analysis result."""
@@ -254,7 +239,6 @@ class TestExperimentDataIntegration(QiskitTestCase):
                 rexp = DbExperimentData.load(exp_data.experiment_id, self.experiment)
                 self.assertEqual(rexp.figure(idx), hello_bytes)
 
-    @skipIf(not HAS_MATPLOTLIB, "matplotlib not available.")
     def test_add_figures_plot(self):
         """Test adding a matplotlib figure."""
         import matplotlib.pyplot as plt
