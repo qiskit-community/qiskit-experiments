@@ -74,6 +74,7 @@ class QubitSpectroscopy(BaseExperiment):
         options = super()._default_analysis_options()
         options.result_parameters = [ParameterRepr("freq", "f01", "Hz")]
         options.normalization = True
+        options.xval_unit = "Hz"
 
         return options
 
@@ -119,9 +120,9 @@ class QubitSpectroscopy(BaseExperiment):
         self._absolute = absolute
 
         if not self._absolute:
-            self.set_analysis_options(xlabel="Frequency shift [Hz]")
+            self.set_analysis_options(xlabel="Frequency shift")
         else:
-            self.set_analysis_options(xlabel="Frequency [Hz]")
+            self.set_analysis_options(xlabel="Frequency")
 
         self.set_analysis_options(ylabel="Signal [arb. unit]")
 

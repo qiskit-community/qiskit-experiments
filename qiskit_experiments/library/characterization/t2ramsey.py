@@ -104,17 +104,19 @@ class T2Ramsey(BaseExperiment):
             The experiment circuits
 
         Raises:
-            AttributeError: if unit is 'dt', but 'dt' parameter is missing in the backend configuration.
+            AttributeError: If unit is ``dt``, but ``dt`` parameter is missing in
+                the backend configuration.
+            ValueError: If invalid unit is specified, i.e. not ``dt`` or ``s``.
         """
-        conversion_factor = 1
         if self._unit == "dt":
             try:
-                dt_factor = getattr(backend._configuration, "dt")
-                conversion_factor = dt_factor
+                conversion_factor = getattr(backend._configuration, "dt")
             except AttributeError as no_dt:
-                raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
-        elif self._unit != "s":
-            apply_prefix(1, self._unit)
+                raise AttributeError("Dt parameter is missing in backend configuration.") from no_dt
+        else:
+            if not self._unit.endswith("s"):
+                raise ValueError(f"Invalid time unit {self._unit} is set.")
+            conversion_factor = apply_prefix(1.0, self._unit)
 
         circuits = []
         for delay in self._delays:
@@ -132,11 +134,9 @@ class T2Ramsey(BaseExperiment):
                 "experiment_type": self._type,
                 "qubit": self._qubit,
                 "osc_freq": self._osc_freq,
-                "xval": delay,
-                "unit": self._unit,
+                "xval": conversion_factor * delay,
+                "unit": "s",
             }
-            if self._unit == "dt":
-                circ.metadata["dt_factor"] = dt_factor
 
             circuits.append(circ)
 

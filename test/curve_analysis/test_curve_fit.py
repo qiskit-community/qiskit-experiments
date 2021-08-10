@@ -83,46 +83,11 @@ class TestFitData(QiskitTestCase):
         a_val = data.fitval("a")
         self.assertEqual(a_val, FitVal(1.0, 0.1))
 
-        a_val = data.fitval("b")
-        self.assertEqual(a_val, FitVal(2.0, 0.2))
+        b_val = data.fitval("b")
+        self.assertEqual(b_val, FitVal(2.0, 0.2))
 
-        a_val = data.fitval("c")
-        self.assertEqual(a_val, FitVal(3.0, 0.3))
-
-    def test_get_value_with_unit_scaling(self):
-        """Get fit value from fit data object with unit and aux unit."""
-
-        data = FitData(
-            popt=np.logspace(-7, 7, 15),
-            popt_keys=[f"x{i}" for i in range(15)],
-            popt_err=np.full(15, None),
-            pcov=np.diag(np.ones(15)),
-            reduced_chisq=0.0,
-            dof=0,
-            x_range=(0, 0),
-            y_range=(0, 0),
-        )
-
-        unitrefs = [
-            FitVal(100.0, unit="nHz"),
-            FitVal(1.0, unit="μHz"),
-            FitVal(10.0, unit="μHz"),
-            FitVal(100.0, unit="μHz"),
-            FitVal(1.0, unit="mHz"),
-            FitVal(10.0, unit="mHz"),
-            FitVal(100.0, unit="mHz"),
-            FitVal(1.0, unit="Hz"),
-            FitVal(10.0, unit="Hz"),
-            FitVal(100.0, unit="Hz"),
-            FitVal(1.0, unit="kHz"),
-            FitVal(10.0, unit="kHz"),
-            FitVal(100.0, unit="kHz"),
-            FitVal(1.0, unit="MHz"),
-            FitVal(10.0, unit="MHz"),
-        ]
-
-        for i in range(15):
-            self.assertEqual(data.fitval(key=f"x{i}", unit="Hz", scale=True), unitrefs[i])
+        c_val = data.fitval("c")
+        self.assertEqual(c_val, FitVal(3.0, 0.3))
 
 
 class TestCurveAnalysisUnit(QiskitTestCase):
