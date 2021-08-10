@@ -32,34 +32,48 @@ from qiskit_experiments.curve_analysis.data_processing import level2_probability
 
 # pylint: disable = invalid-name
 class T2RamseyAnalysis(BaseAnalysis):
-
     r"""
-    T2Ramsey result analysis class.
+    T2 Ramsey result analysis class.
 
     # section: fit_model
-        This class is used to analyze the results of a T2Ramsey experiment.
-        The probability of measuring `+` is assumed to be of the form
+        This class is used to analyze the results of a T2 Ramsey experiment.
+        The probability of measuring :math:`|+\rangle` state is assumed to be of the form
 
-        :math:`f(t) = a\mathrm{e}^{-t / T_2^*}\cos(2\pi f t + \phi) + b`
+        .. math::
+
+            f(t) = a\mathrm{e}^{-t / T_2^*}\cos(2\pi f t + \phi) + b
 
     # section: fit_parameters
-        - :math:`a (amplitude)`: Height of the decay curve.
-        - :math:`b (offset)`: Base line of the decay curve.
-        - :math:`\phi (shift)`: Relative shift of the graph from the origin.
-        - :math:`t2ramsey`: Represents the rate of decay.
-        - :math:`f (frequency)`: Represents the difference in frequency between
-          the user guess and the actual frequency of the qubit.
 
-    Analysis options
+        defpar a:
+            desc: Amplitude. Height of the decay curve.
 
-        - **user_p0** (``List[Float]``): user guesses for the fit parameters:
-          :math:`a, b, f, \phi, T_2^*`.
-        - **bounds** - (Tuple[List[float], List[float]]) lower and upper bounds for the fit parameters.
-        - **plot** (bool) - create a graph if and only if True.
+        defpar b:
+            desc: Offset. Base line of the decay curve.
+
+        defpar \phi:
+            desc: Shift. Relative shift of the graph from the origin.
+
+        defpar T_2^*:
+            desc: Represents the rate of decay.
+
+        defpar f:
+            desc: Frequency. Represents the difference in frequency between
+                the user guess and the actual frequency of the qubit.
+
     """
 
     @classmethod
     def _default_options(cls):
+        r"""Default analysis options.
+
+        Analysis Options:
+            user_p0 (List[Float]): user guesses for the fit parameters
+                :math:`(a, b, f, \phi, T_2^*)`.
+            user_bounds (Tuple[List[float], List[float]]): Lower and upper bounds
+                for the fit parameters.
+            plot (bool): Create a graph if and only if True.
+        """
         return Options(user_p0=None, user_bounds=None)
 
     # pylint: disable=arguments-differ, unused-argument
