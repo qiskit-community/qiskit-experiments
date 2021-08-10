@@ -41,7 +41,7 @@ except ImportError:
     HAS_QISKIT_EXPERIMENTS = False
 
 
-@skipIf(not os.environ.get('QISKIT_IBM_USE_STAGING_CREDENTIALS', ''), "Only runs on staging")
+@skipIf(not os.environ.get("QISKIT_IBM_USE_STAGING_CREDENTIALS", ""), "Only runs on staging")
 @skipIf(not HAS_QISKIT_EXPERIMENTS, "Requires qiskit-experiments")
 class TestExperimentDataIntegration(QiskitTestCase):
     """Test experiment service with experiment data."""
