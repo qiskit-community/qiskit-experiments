@@ -93,22 +93,6 @@ class DragCalAnalysis(curve.CurveAnalysis):
         descriptions of analysis options.
         """
         default_options = super()._default_options()
-        default_options.p0 = {
-            "amp": None,
-            "freq0": None,
-            "freq1": None,
-            "freq2": None,
-            "beta": None,
-            "base": None,
-        }
-        default_options.bounds = {
-            "amp": None,
-            "freq0": None,
-            "freq1": None,
-            "freq2": None,
-            "beta": None,
-            "base": None,
-        }
         default_options.result_parameters = ["beta"]
         default_options.xlabel = "Beta"
         default_options.ylabel = "Signal (arb. units)"
