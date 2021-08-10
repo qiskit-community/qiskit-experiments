@@ -21,7 +21,7 @@ from qiskit.result import Result
 from qiskit.test.mock import FakeOpenPulse2Q
 
 from qiskit.qobj.utils import MeasLevel
-from qiskit.providers.options import Options
+from qiskit_experiments.framework import Options
 from qiskit_experiments.test.utils import FakeJob
 
 

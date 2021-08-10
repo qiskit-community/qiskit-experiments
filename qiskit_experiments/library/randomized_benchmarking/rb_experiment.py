@@ -20,7 +20,6 @@ from numpy.random import Generator, default_rng
 from qiskit import QuantumCircuit, QiskitError
 from qiskit.providers import Backend
 from qiskit.quantum_info import Clifford
-from qiskit.providers.options import Options
 from qiskit.circuit import Gate
 
 from qiskit_experiments.framework import BaseExperiment, ParallelExperiment
@@ -114,7 +113,7 @@ class StandardRB(BaseExperiment):
             raise QiskitError(f"The number of samples {num_samples} should " "be positive.")
 
     @classmethod
-    def _default_experiment_options(cls):
+    def _default_experiment_options(cls) -> "Options":
         """Default experiment options.
 
         Experiment Options:
@@ -122,7 +121,12 @@ class StandardRB(BaseExperiment):
             num_samples (int): Number of samples to generate for each sequence length.
 
         """
-        return Options(lengths=None, num_samples=None)
+        options = super()._default_experiment_options()
+
+        options.lengths = None
+        options.num_samples = None
+
+        return options
 
     # pylint: disable = arguments-differ
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:

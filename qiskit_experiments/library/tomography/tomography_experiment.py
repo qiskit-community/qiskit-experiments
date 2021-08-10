@@ -22,7 +22,7 @@ from qiskit.circuit.library import Permutation
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 import qiskit.quantum_info as qi
 from qiskit_experiments.exceptions import QiskitError
-from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework import BaseExperiment
 from .basis import BaseTomographyMeasurementBasis, BaseTomographyPreparationBasis
 from .tomography_analysis import TomographyAnalysis
 
@@ -33,8 +33,12 @@ class TomographyExperiment(BaseExperiment):
     __analysis_class__ = TomographyAnalysis
 
     @classmethod
-    def _default_experiment_options(cls):
-        return Options(basis_indices=None)
+    def _default_experiment_options(cls) -> "Options":
+        options = super()._default_experiment_options()
+
+        options.basis_indices = None
+
+        return options
 
     def __init__(
         self,

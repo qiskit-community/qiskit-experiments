@@ -17,7 +17,7 @@ from typing import Union, Optional, Iterable, List
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info import Statevector
-from .tomography_experiment import TomographyExperiment, Options
+from .tomography_experiment import TomographyExperiment
 from .qst_analysis import StateTomographyAnalysis
 from . import basis
 
@@ -68,8 +68,12 @@ class StateTomography(TomographyExperiment):
     __analysis_class__ = StateTomographyAnalysis
 
     @classmethod
-    def _default_analysis_options(cls):
-        return Options(measurement_basis=basis.PauliMeasurementBasis().matrix)
+    def _default_analysis_options(cls) -> "Options":
+        options = super()._default_analysis_options()
+
+        options.measurement_basis = basis.PauliMeasurementBasis().matrix
+
+        return options
 
     def __init__(
         self,

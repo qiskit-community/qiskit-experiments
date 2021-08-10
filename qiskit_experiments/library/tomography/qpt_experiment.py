@@ -16,7 +16,7 @@ Quantum Process Tomography experiment
 from typing import Union, Optional, Iterable, List, Tuple
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.quantum_info.operators.base_operator import BaseOperator
-from .tomography_experiment import TomographyExperiment, Options
+from .tomography_experiment import TomographyExperiment
 from .qpt_analysis import ProcessTomographyAnalysis
 from . import basis
 
@@ -77,11 +77,13 @@ class ProcessTomography(TomographyExperiment):
     __analysis_class__ = ProcessTomographyAnalysis
 
     @classmethod
-    def _default_analysis_options(cls):
-        return Options(
-            measurement_basis=basis.PauliMeasurementBasis(),
-            preparation_basis=basis.PauliPreparationBasis(),
-        )
+    def _default_analysis_options(cls) -> "Options":
+        options = super()._default_analysis_options()
+
+        options.measurement_basis = basis.PauliMeasurementBasis()
+        options.preparation_basis = basis.PauliPreparationBasis()
+
+        return options
 
     def __init__(
         self,

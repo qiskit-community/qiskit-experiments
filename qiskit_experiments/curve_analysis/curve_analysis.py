@@ -23,7 +23,6 @@ from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
 from matplotlib import pyplot
 import numpy as np
-from qiskit.providers.options import Options
 from qiskit.providers import Backend
 
 from qiskit_experiments.curve_analysis.curve_data import (
@@ -298,7 +297,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             setattr(self, f"__{key}", None)
 
     @classmethod
-    def _default_options(cls) -> Options:
+    def _default_options(cls) -> "Options":
         """Return default analysis options.
 
         Analysis Options:
@@ -327,21 +326,23 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 Representation should be printable in standard output, i.e. no latex syntax.
             return_data_points (bool): Set ``True`` to return formatted XY data.
         """
-        return Options(
-            curve_fitter=multi_curve_fit,
-            data_processor=None,
-            normalization=False,
-            p0=None,
-            bounds=None,
-            x_key="xval",
-            plot=True,
-            axis=None,
-            xlabel=None,
-            ylabel=None,
-            ylim=None,
-            result_parameters=None,
-            return_data_points=False,
-        )
+        options = super()._default_options()
+
+        options.curve_fitter = multi_curve_fit
+        options.data_processor = None
+        options.normalization = False
+        options.p0 = None
+        options.bounds = None
+        options.x_key = "xval"
+        options.plot = True
+        options.axis = None
+        options.xlabel = None
+        options.ylabel = None
+        options.ylim = None
+        options.result_parameters = None
+        options.return_data_points = False
+
+        return options
 
     @requires_matplotlib
     def _create_figures(

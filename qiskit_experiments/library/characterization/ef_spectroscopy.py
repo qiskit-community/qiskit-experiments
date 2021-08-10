@@ -14,7 +14,6 @@
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
-from qiskit.providers.options import Options
 
 from qiskit_experiments.curve_analysis import ParameterRepr
 from qiskit_experiments.library.characterization.qubit_spectroscopy import QubitSpectroscopy
@@ -36,7 +35,7 @@ class EFSpectroscopy(QubitSpectroscopy):
     """
 
     @classmethod
-    def _default_analysis_options(cls) -> Options:
+    def _default_analysis_options(cls) -> "Options":
         """Default analysis options."""
         options = super()._default_analysis_options()
         options.result_parameters = [ParameterRepr("freq", "f12", "Hz")]

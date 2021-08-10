@@ -20,7 +20,6 @@ from qiskit.circuit import Gate, Parameter
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
 import qiskit.pulse as pulse
-from qiskit.providers.options import Options
 
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.exceptions import CalibrationError
@@ -77,15 +76,17 @@ class DragCal(BaseExperiment):
     __analysis_class__ = DragCalAnalysis
 
     @classmethod
-    def _default_run_options(cls) -> Options:
+    def _default_run_options(cls) -> "Options":
         """Default option values for the experiment :meth:`run` method."""
-        return Options(
-            meas_level=MeasLevel.CLASSIFIED,
-            meas_return="avg",
-        )
+        options = super()._default_run_options()
+
+        options.meas_level = MeasLevel.CLASSIFIED
+        options.meas_return = "avg"
+
+        return options
 
     @classmethod
-    def _default_experiment_options(cls) -> Options:
+    def _default_experiment_options(cls) -> "Options":
         r"""Default values for the pulse if no schedule is given.
         Users can set the positive and negative rotation schedules with
 
@@ -120,7 +121,7 @@ class DragCal(BaseExperiment):
         return options
 
     @classmethod
-    def _default_analysis_options(cls) -> Options:
+    def _default_analysis_options(cls) -> "Options":
         """Default analysis options."""
         options = super()._default_analysis_options()
         options.normalization = True

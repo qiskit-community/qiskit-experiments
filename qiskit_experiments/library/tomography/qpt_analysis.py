@@ -12,7 +12,6 @@
 """
 Quantum process tomography analysis
 """
-from qiskit_experiments.framework import Options
 from .basis import PauliMeasurementBasis, PauliPreparationBasis
 from .tomography_analysis import TomographyAnalysis
 
@@ -93,12 +92,14 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
     """
 
     @classmethod
-    def _default_options(cls) -> Options:
-        return Options(
-            measurement_basis=PauliMeasurementBasis(),
-            preparation_basis=PauliPreparationBasis(),
-            fitter="linear_inversion",
-            rescale_positive=True,
-            rescale_trace=True,
-            target="default",
-        )
+    def _default_options(cls) -> "Options":
+        options = super()._default_options()
+
+        options.measurement_basis = PauliMeasurementBasis()
+        options.preparation_basis = PauliPreparationBasis()
+        options.fitter = "linear_inversion"
+        options.rescale_positive = True
+        options.rescale_trace = True
+        options.target = "default"
+
+        return options

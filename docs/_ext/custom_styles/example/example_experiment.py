@@ -18,8 +18,6 @@ Class documentation examples.
 
 """
 
-from qiskit.providers import Options
-
 from qiskit_experiments.curve_analysis.curve_analysis import CurveAnalysis
 from qiskit_experiments.framework.base_experiment import BaseExperiment
 
@@ -83,7 +81,7 @@ class DocumentedCurveAnalysis(CurveAnalysis):
     """
 
     @classmethod
-    def _default_options(cls) -> Options:
+    def _default_options(cls) -> "Options":
         """Default analysis options.
 
         .. note::
@@ -170,7 +168,7 @@ class DocumentedExperiment(BaseExperiment):
     """
 
     @classmethod
-    def _default_experiment_options(cls) -> Options:
+    def _default_experiment_options(cls) -> "Options":
         """Default experiment options.
 
         .. note::

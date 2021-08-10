@@ -16,7 +16,6 @@ Quantum Volume Experiment class.
 from typing import Union, Iterable, Optional, List
 from numpy.random import Generator, default_rng
 from qiskit.providers.backend import Backend
-from qiskit.providers.options import Options
 
 try:
     from qiskit import Aer
@@ -118,8 +117,12 @@ class QuantumVolume(BaseExperiment):
             self._simulation_backend = simulation_backend
 
     @classmethod
-    def _default_experiment_options(cls):
-        return Options(trials=100)
+    def _default_experiment_options(cls) -> "Options":
+        options = super()._default_experiment_options()
+
+        options.trials = 100
+
+        return options
 
     def _get_ideal_data(self, circuit: QuantumCircuit, **run_options):
         """Return ideal measurement probabilities.

@@ -19,7 +19,6 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
-from qiskit.providers.options import Options
 from qiskit.pulse.schedule import ScheduleBlock
 
 from qiskit_experiments.framework import BaseExperiment
@@ -99,15 +98,16 @@ class FineAmplitude(BaseExperiment):
     __analysis_class__ = FineAmplitudeAnalysis
 
     @classmethod
-    def _default_run_options(cls) -> Options:
+    def _default_run_options(cls) -> "Options":
         """Default option values for the experiment :meth:`run` method."""
-        return Options(
-            meas_level=MeasLevel.CLASSIFIED,
-            meas_return="avg",
-        )
+        options = super()._default_run_options()
+        options.meas_level = MeasLevel.CLASSIFIED
+        options.meas_return = "avg"
+
+        return options
 
     @classmethod
-    def _default_experiment_options(cls) -> Options:
+    def _default_experiment_options(cls) -> "Options":
         r"""Default values for the fine amplitude experiment.
 
         Experiment Options:
@@ -289,7 +289,7 @@ class FineXAmplitude(FineAmplitude):
     """
 
     @classmethod
-    def _default_experiment_options(cls) -> Options:
+    def _default_experiment_options(cls) -> "Options":
         r"""Default values for the fine amplitude experiment.
 
         Experiment Options:
@@ -325,7 +325,7 @@ class FineSXAmplitude(FineAmplitude):
     """
 
     @classmethod
-    def _default_experiment_options(cls) -> Options:
+    def _default_experiment_options(cls) -> "Options":
         r"""Default values for the fine amplitude experiment.
 
         Experiment Options:
