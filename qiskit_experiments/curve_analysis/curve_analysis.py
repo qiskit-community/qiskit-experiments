@@ -505,7 +505,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         def format_val(float_val: float) -> str:
                             if np.abs(float_val) < 1e-3 or np.abs(float_val) > 1e3:
                                 return f"{float_val: .4e}"
-                            return f"{float_val: 4.f}"
+                            return f"{float_val: .4f}"
 
                         value_repr = format_val(fitval.value)
                         if fitval.stderr is not None:
