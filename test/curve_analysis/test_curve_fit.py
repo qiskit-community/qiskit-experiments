@@ -233,28 +233,6 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         ref_yerr = ref_y * (1 - ref_y) / 100000
         np.testing.assert_array_almost_equal(sigma, ref_yerr, decimal=self.err_decimal)
 
-    def test_data_extraction_with_unit(self):
-        """Test data extraction with unit in metadata."""
-        self.analysis._arg_parse(x_key="xval")
-        x_values = np.linspace(0, 1, 10)
-        ref_values = np.linspace(0, 1, 10) * 1e3
-
-        # data to analyze
-        test_data = simulate_output_data(
-            func=fit_function.exponential_decay,
-            xvals=x_values,
-            param_dict={"amp": 1.0e-3},
-            type=1,
-            valid=True,
-            unit="kHz",  # actual value is x 1e3
-        )
-
-        self.analysis._extract_curves(
-            experiment_data=test_data, data_processor=probability(outcome="1")
-        )
-        raw_data = self.analysis._data(series_name="curve1", label="raw_data")
-        np.testing.assert_array_equal(raw_data.x, ref_values)
-
     def test_get_subset(self):
         """Test that get subset data from full data array."""
         # data to analyze
