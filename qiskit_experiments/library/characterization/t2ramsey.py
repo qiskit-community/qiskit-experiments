@@ -25,7 +25,7 @@ from .t2ramsey_analysis import T2RamseyAnalysis
 
 
 class T2Ramsey(BaseExperiment):
-    r"""T2Ramsey Experiment.
+    r"""T2 Ramsey Experiment.
 
     # section: overview
 
@@ -40,10 +40,10 @@ class T2Ramsey(BaseExperiment):
 
         .. parsed-literal::
 
-               ┌───┐┌──────────────┐┌──────┐ ░ ┌───┐ ░ ┌─┐
-          q_0: ┤ H ├┤   DELAY(t)   ├┤ P(λ) ├─░─┤ H ├─░─┤M├
-               └───┘└──────────────┘└──────┘ ░ └───┘ ░ └╥┘
-          c: 1/═════════════════════════════════════════╩═
+                 ┌───┐┌──────────────┐┌──────┐ ░ ┌───┐ ░ ┌─┐
+            q_0: ┤ H ├┤   DELAY(t)   ├┤ P(λ) ├─░─┤ H ├─░─┤M├
+                 └───┘└──────────────┘└──────┘ ░ └───┘ ░ └╥┘
+            c: 1/═════════════════════════════════════════╩═
                                                         0
 
         for each *t* from the specified delay times, and where
@@ -54,10 +54,6 @@ class T2Ramsey(BaseExperiment):
 
     # section: tutorial
         :doc:`/tutorials/t2ramsey_characterization`
-
-    Analysis class
-
-        :class:`~qiskit.experiments.characterization.T2RamseyAnalysis`
 
     """
     __analysis_class__ = T2RamseyAnalysis
