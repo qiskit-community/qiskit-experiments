@@ -32,9 +32,14 @@ Experiments for verification and validation of quantum devices.
 
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
     ~randomized_benchmarking.StandardRB
     ~randomized_benchmarking.InterleavedRB
+
+.. autosummary::
+    :toctree: ../stubs/
+
     ~tomography.StateTomography
     ~tomography.ProcessTomography
     ~quantum_volume.QuantumVolume
@@ -49,6 +54,7 @@ Some experiments may be also used for gate calibration.
 
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
     ~characterization.T1
     ~characterization.T2Ramsey
