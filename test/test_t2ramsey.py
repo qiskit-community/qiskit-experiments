@@ -13,15 +13,11 @@ Test T2Ramsey experiment
 import numpy as np
 
 from qiskit.utils import apply_prefix
-from qiskit.providers import BackendV1
-from qiskit.providers.options import Options
-from qiskit.providers.models import QasmBackendConfiguration
-from qiskit.result import Result
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library import T2Ramsey
-from qiskit_experiments.test.utils import FakeJob
 from qiskit_experiments.test.t2ramsey_backend import T2RamseyBackend
+
 
 class TestT2Ramsey(QiskitTestCase):
     """Test T2Ramsey experiment"""
