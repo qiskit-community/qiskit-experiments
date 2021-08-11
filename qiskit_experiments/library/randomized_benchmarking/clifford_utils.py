@@ -69,13 +69,13 @@ class CliffordUtils:
         """Return the 1-qubit clifford element corresponding to `num`
         where `num` is between 0 and 23.
         """
-        return Clifford(self.clifford_1_qubit_circuit(num))
+        return Clifford(self.clifford_1_qubit_circuit(num), validate=False)
 
     def clifford_2_qubit(self, num):
         """Return the 2-qubit clifford element corresponding to `num`
         where `num` is between 0 and 11519.
         """
-        return Clifford(self.clifford_2_qubit_circuit(num))
+        return Clifford(self.clifford_2_qubit_circuit(num), validate=False)
 
     def random_cliffords(
         self, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
@@ -92,10 +92,10 @@ class CliffordUtils:
 
         if num_qubits == 1:
             samples = rng.integers(24, size=size)
-            return [Clifford(self.clifford_1_qubit_circuit(i)) for i in samples]
+            return [Clifford(self.clifford_1_qubit_circuit(i), validate=False) for i in samples]
         else:
             samples = rng.integers(11520, size=size)
-            return [Clifford(self.clifford_2_qubit_circuit(i)) for i in samples]
+            return [Clifford(self.clifford_2_qubit_circuit(i), validate=False) for i in samples]
 
     def random_clifford_circuits(
         self, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
