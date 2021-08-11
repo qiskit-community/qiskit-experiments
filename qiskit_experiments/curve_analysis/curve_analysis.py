@@ -1179,7 +1179,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 extra={
                     "x-unit": self._get_option("xval_unit"),
                     "y-unit": self._get_option("yval_unit"),
-                }
+                },
             )
             analysis_results.append(raw_data_entry)
 
