@@ -352,10 +352,17 @@ class CurveAnalysis(BaseAnalysis, ABC):
             xlabel (str): X label of fit result figure.
             ylabel (str): Y label of fit result figure.
             ylim (Tuple[float, float]): Min and max height limit of fit plot.
-            xval_unit (str): Unit of x values. No auxiliary unit is needed here.
-                The value is automatically scaled if unit is provided.
-            yval_unit (str): Unit of y values. No auxiliary unit is needed here.
-                The value is automatically scaled if unit is provided.
+            xval_unit (str): SI unit of x values. No prefix is needed here.
+                For example, when the x values represent time, this option will be just "s"
+                rather than "ms". In the fit result plot, the prefix is automatically selected
+                based on the maximum value. If your x values are in [1e-3, 1e-4], they
+                are displayed as [1 ms, 10 ms]. This option is likely provided by the
+                analysis class rather than end-users. However, users can still override
+                if they need different unit notation. By default, this option is set to ``None``,
+                and no scaling is applied. X axis will be displayed in the scientific notation.
+            yval_unit (str): Unit of y values. Same as ``xval_unit``.
+                This value is not provided in most experiments, because y value is usually
+                population or expectation values.
             result_parameters (List[Union[str, ParameterRepr]): Parameters reported in the
                 database as a dedicated entry. This is a list of parameter representation
                 which is either string or ParameterRepr object. If you provide more
