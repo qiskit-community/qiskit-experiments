@@ -14,12 +14,11 @@ T1 Experiment class.
 """
 
 from typing import List, Optional, Union
-
 import numpy as np
-from qiskit.circuit import QuantumCircuit
+
 from qiskit.providers import Backend
+from qiskit.circuit import QuantumCircuit
 from qiskit.providers.options import Options
-from qiskit.utils import apply_prefix
 
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.library.characterization.t1_analysis import T1Analysis
@@ -98,21 +97,16 @@ class T1(BaseExperiment):
             The experiment circuits
 
         Raises:
-            AttributeError: If unit is ``dt``, but ``dt`` parameter is missing in
-                the backend configuration.
-            ValueError: If invalid unit is specified, i.e. not ``dt`` or ``s``.
+            AttributeError: if unit is dt but dt parameter is missing in the backend configuration
         """
         if self.experiment_options.unit == "dt":
             try:
-                conversion_factor = getattr(backend.configuration(), "dt")
+                dt_factor = getattr(backend.configuration(), "dt")
             except AttributeError as no_dt:
-                raise AttributeError("Dt parameter is missing in backend configuration.") from no_dt
-        else:
-            if not self.experiment_options.unit.endswith("s"):
-                raise ValueError(f"Invalid time unit {self.experiment_options.unit} is set.")
-            conversion_factor = apply_prefix(1.0, self.experiment_options.unit)
+                raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
 
         circuits = []
+
         for delay in self.experiment_options.delays:
             circ = QuantumCircuit(1, 1)
             circ.x(0)
@@ -124,9 +118,12 @@ class T1(BaseExperiment):
             circ.metadata = {
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
-                "xval": conversion_factor * delay,
-                "unit": "s",
+                "xval": delay,
+                "unit": self.experiment_options.unit,
             }
+
+            if self.experiment_options.unit == "dt":
+                circ.metadata["dt_factor"] = dt_factor
 
             circuits.append(circ)
 
