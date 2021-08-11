@@ -1176,6 +1176,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
             raw_data_entry = AnalysisResultData(
                 name=DATA_ENTRY_PREFIX + self.__class__.__name__,
                 value=raw_data_dict,
+                extra={
+                    "x-unit": self._get_option("xval_unit"),
+                    "y-unit": self._get_option("yval_unit"),
+                }
             )
             analysis_results.append(raw_data_entry)
 
