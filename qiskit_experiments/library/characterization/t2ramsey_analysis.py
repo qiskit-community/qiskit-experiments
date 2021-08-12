@@ -64,7 +64,7 @@ class T2RamseyAnalysis(BaseAnalysis):
             desc: Represents the rate of decay.
             init_guess: the mean of the input delays.
             bounds: [0, np.inf]
-            
+
         defpar f:
             desc: Frequency. Represents the difference in frequency between
                 the user guess and the actual frequency of the qubit.
