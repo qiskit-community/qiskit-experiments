@@ -126,7 +126,7 @@ class T2RamseyAnalysis(BaseAnalysis):
             ax.tick_params(labelsize=14)
             ax.set_xlabel("Delay (s)", fontsize=12)
             ax.ticklabel_format(axis="x", style="sci", scilimits=(0, 0))
-            ax.set_ylabel("Probability to measure |0>", fontsize=12)
+            ax.set_ylabel("Probability of measuring 0", fontsize=12)
             t2ramsey = fit_result["popt"][1] / conversion_factor
             t2_err = fit_result["popt_err"][1] / conversion_factor
             box_text = "$T_2Ramsey$ = {:.2f} \u00B1 {:.2f} {}".format(t2ramsey, t2_err, unit)
@@ -149,6 +149,7 @@ class T2RamseyAnalysis(BaseAnalysis):
         circ_metadata = data[0]["metadata"]
         unit = circ_metadata["unit"]
         conversion_factor = circ_metadata.get("dt_factor", None)
+        osc_freq = circ_metadata.get("osc_freq", None)
         if conversion_factor is None:
             conversion_factor = 1 if unit in ("s", "dt") else apply_prefix(1, unit)
 
@@ -164,6 +165,8 @@ class T2RamseyAnalysis(BaseAnalysis):
         )
         fit_result = dataclasses.asdict(fit_result)
         fit_result["circuit_unit"] = unit
+        if osc_freq is not None:
+            fit_result["osc_freq"] = osc_freq
         if unit == "dt":
             fit_result["dt"] = conversion_factor
         quality = self._fit_quality(
@@ -181,8 +184,8 @@ class T2RamseyAnalysis(BaseAnalysis):
             figures = None
 
         # Output unit is 'sec', regardless of the unit used in the input
-        result_t2 = AnalysisResultData(
-            "T2",
+        result_t2star = AnalysisResultData(
+            "T2star",
             value=FitVal(fit_result["popt"][1], fit_result["popt_err"][1], "s"),
             quality=quality,
             chisq=chisq,
@@ -196,7 +199,7 @@ class T2RamseyAnalysis(BaseAnalysis):
             extra=fit_result,
         )
 
-        return [result_t2, result_freq], figures
+        return [result_t2star, result_freq], figures
 
     def _t2ramsey_default_params(
         self,
@@ -218,11 +221,11 @@ class T2RamseyAnalysis(BaseAnalysis):
             b = 0.5
         else:
             a = user_p0["A"]
-            t2ramsey = user_p0["t2ramsey"] * conversion_factor
+            t2ramsey = user_p0["T2star"] * conversion_factor
             f = user_p0["f"] / conversion_factor
             phi = user_p0["phi"]
             b = user_p0["B"]
-        p0 = {"a_guess": a, "t2ramsey": t2ramsey, "f_guess": f, "phi_guess": phi, "b_guess": b}
+        p0 = {"a_guess": a, "T2star": t2ramsey, "f_guess": f, "phi_guess": phi, "b_guess": b}
 
         if user_bounds is None:
             a_bounds = [-0.5, 1.5]

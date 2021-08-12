@@ -76,7 +76,7 @@ class RBUtils:
         if qubits is None:
             qubits = range(len(circuit.qubits))
         count_ops_result = {}
-        for instr, qargs, _ in circuit._data:
+        for instr, qargs, _ in circuit:
             instr_qubits = []
             skip_instr = False
             for qubit in qargs:

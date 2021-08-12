@@ -566,7 +566,7 @@ class DbExperimentDataV1(DbExperimentData):
         """Delete the analysis result.
 
         Args:
-            result_key: ID or index of the analysis result to be delete.
+            result_key: ID or index of the analysis result to be deleted.
 
         Returns:
             Analysis result ID.
