@@ -19,7 +19,7 @@ import numpy as np
 from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
 
-from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.t1_analysis import T1Analysis
 
 
@@ -47,7 +47,7 @@ class T1(BaseExperiment):
     __analysis_class__ = T1Analysis
 
     @classmethod
-    def _default_experiment_options(cls) -> "Options":
+    def _default_experiment_options(cls) -> Options:
         """Default experiment options.
 
         Experiment Options:

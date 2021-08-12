@@ -21,7 +21,7 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
 from qiskit.pulse.schedule import ScheduleBlock
 
-from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.calibration.analysis.fine_amplitude_analysis import (
     FineAmplitudeAnalysis,
 )
@@ -98,7 +98,7 @@ class FineAmplitude(BaseExperiment):
     __analysis_class__ = FineAmplitudeAnalysis
 
     @classmethod
-    def _default_run_options(cls) -> "Options":
+    def _default_run_options(cls) -> Options:
         """Default option values for the experiment :meth:`run` method."""
         options = super()._default_run_options()
         options.meas_level = MeasLevel.CLASSIFIED
@@ -107,7 +107,7 @@ class FineAmplitude(BaseExperiment):
         return options
 
     @classmethod
-    def _default_experiment_options(cls) -> "Options":
+    def _default_experiment_options(cls) -> Options:
         r"""Default values for the fine amplitude experiment.
 
         Experiment Options:
@@ -289,7 +289,7 @@ class FineXAmplitude(FineAmplitude):
     """
 
     @classmethod
-    def _default_experiment_options(cls) -> "Options":
+    def _default_experiment_options(cls) -> Options:
         r"""Default values for the fine amplitude experiment.
 
         Experiment Options:
@@ -325,7 +325,7 @@ class FineSXAmplitude(FineAmplitude):
     """
 
     @classmethod
-    def _default_experiment_options(cls) -> "Options":
+    def _default_experiment_options(cls) -> Options:
         r"""Default values for the fine amplitude experiment.
 
         Experiment Options:

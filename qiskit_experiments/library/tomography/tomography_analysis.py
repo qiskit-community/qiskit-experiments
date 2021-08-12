@@ -25,7 +25,7 @@ from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
 
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData
+from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
 from .fitters import (
     linear_inversion,
     scipy_linear_lstsq,
@@ -47,7 +47,7 @@ class TomographyAnalysis(BaseAnalysis):
     }
 
     @classmethod
-    def _default_options(cls) -> "Options":
+    def _default_options(cls) -> Options:
         options = super()._default_options()
 
         options.measurement_basis = None

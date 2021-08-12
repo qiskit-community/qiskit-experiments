@@ -41,7 +41,13 @@ from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.processor_library import get_processor
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData, FitVal
+from qiskit_experiments.framework import (
+    BaseAnalysis,
+    ExperimentData,
+    AnalysisResultData,
+    FitVal,
+    Options,
+)
 from qiskit_experiments.matplotlib import requires_matplotlib
 
 
@@ -297,7 +303,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             setattr(self, f"__{key}", None)
 
     @classmethod
-    def _default_options(cls) -> "Options":
+    def _default_options(cls) -> Options:
         """Return default analysis options.
 
         Analysis Options:

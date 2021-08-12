@@ -22,7 +22,7 @@ from qiskit.providers import Backend
 from qiskit.quantum_info import Clifford
 from qiskit.circuit import Gate
 
-from qiskit_experiments.framework import BaseExperiment, ParallelExperiment
+from qiskit_experiments.framework import BaseExperiment, ParallelExperiment, Options
 from qiskit_experiments.curve_analysis.data_processing import probability
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
@@ -113,7 +113,7 @@ class StandardRB(BaseExperiment):
             raise QiskitError(f"The number of samples {num_samples} should " "be positive.")
 
     @classmethod
-    def _default_experiment_options(cls) -> "Options":
+    def _default_experiment_options(cls) -> Options:
         """Default experiment options.
 
         Experiment Options:

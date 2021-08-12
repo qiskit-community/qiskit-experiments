@@ -21,7 +21,7 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
 import qiskit.pulse as pulse
 
-from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.curve_analysis import ParameterRepr
 from qiskit_experiments.library.calibration.analysis.oscillation_analysis import OscillationAnalysis
 from qiskit_experiments.exceptions import CalibrationError
@@ -59,7 +59,7 @@ class Rabi(BaseExperiment):
     __rabi_gate_name__ = "Rabi"
 
     @classmethod
-    def _default_run_options(cls) -> "Options":
+    def _default_run_options(cls) -> Options:
         """Default option values for the experiment :meth:`run` method."""
         options = super()._default_run_options()
 
@@ -69,7 +69,7 @@ class Rabi(BaseExperiment):
         return options
 
     @classmethod
-    def _default_experiment_options(cls) -> "Options":
+    def _default_experiment_options(cls) -> Options:
         """Default values for the pulse if no schedule is given.
 
         Users can set a schedule by doing
@@ -95,7 +95,7 @@ class Rabi(BaseExperiment):
         return options
 
     @classmethod
-    def _default_analysis_options(cls) -> "Options":
+    def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
         options.result_parameters = [ParameterRepr("freq", "rabi_rate")]
@@ -235,7 +235,7 @@ class EFRabi(Rabi):
     """
 
     @classmethod
-    def _default_experiment_options(cls) -> "Options":
+    def _default_experiment_options(cls) -> Options:
         """Default values for the pulse if no schedule is given.
 
         Experiment Options:
@@ -249,7 +249,7 @@ class EFRabi(Rabi):
         return options
 
     @classmethod
-    def _default_analysis_options(cls) -> "Options":
+    def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
         options.result_parameters = [ParameterRepr("freq", "rabi_rate_12")]

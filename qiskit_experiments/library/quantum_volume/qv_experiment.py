@@ -27,7 +27,7 @@ except ImportError:
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume as QuantumVolumeCircuit
 from qiskit import transpile
-from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework import BaseExperiment, Options
 from .qv_analysis import QuantumVolumeAnalysis
 
 
@@ -117,7 +117,7 @@ class QuantumVolume(BaseExperiment):
             self._simulation_backend = simulation_backend
 
     @classmethod
-    def _default_experiment_options(cls) -> "Options":
+    def _default_experiment_options(cls) -> Options:
         options = super()._default_experiment_options()
 
         options.trials = 100

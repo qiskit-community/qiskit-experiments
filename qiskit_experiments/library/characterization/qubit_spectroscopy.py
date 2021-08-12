@@ -23,7 +23,7 @@ from qiskit.providers import Backend
 from qiskit.qobj.utils import MeasLevel
 from qiskit.utils import apply_prefix
 
-from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.curve_analysis import ParameterRepr
 from qiskit_experiments.library.characterization.resonance_analysis import ResonanceAnalysis
 
@@ -50,7 +50,7 @@ class QubitSpectroscopy(BaseExperiment):
     __spec_gate_name__ = "Spec"
 
     @classmethod
-    def _default_run_options(cls) -> "Options":
+    def _default_run_options(cls) -> Options:
         """Default options values for the experiment :meth:`run` method."""
         options = super()._default_run_options()
 
@@ -60,7 +60,7 @@ class QubitSpectroscopy(BaseExperiment):
         return options
 
     @classmethod
-    def _default_experiment_options(cls) -> "Options":
+    def _default_experiment_options(cls) -> Options:
         """Default option values used for the spectroscopy pulse."""
         options = super()._default_experiment_options()
 
@@ -72,7 +72,7 @@ class QubitSpectroscopy(BaseExperiment):
         return options
 
     @classmethod
-    def _default_analysis_options(cls) -> "Options":
+    def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
         options.result_parameters = [ParameterRepr("freq", "f01", "Hz")]
