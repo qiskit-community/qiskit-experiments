@@ -859,7 +859,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
     def _arg_parse(self, **options) -> Dict[str, Any]:
         """Parse input kwargs with predicted input.
 
-        Class attributes will be updated according to the`options`.
+        Class attributes will be updated according to the ``options``.
         For example, if `options` has a key `p0`, and the class
         has an attribute named `__p0`,  then the attribute  `__0p`
         will be updated to `options["p0"]`.
