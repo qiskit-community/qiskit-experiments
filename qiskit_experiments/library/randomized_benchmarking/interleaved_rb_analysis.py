@@ -14,8 +14,8 @@ Interleaved RB analysis class.
 """
 from typing import List, Dict, Any, Union
 
-import numpy as np
 import copy
+import numpy as np
 
 from qiskit_experiments.framework import AnalysisResultData, FitVal
 import qiskit_experiments.curve_analysis as curve
