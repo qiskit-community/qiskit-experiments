@@ -46,7 +46,7 @@ class T2Ramsey(BaseExperiment):
             c: 1/═════════════════════════════════════════╩═
                                                         0
 
-        for each *t* from the specified delay times, and where
+        for each *t* from the specified delay times, where
         :math:`\lambda =2 \pi \times {osc\_freq}`,
         and the delays are specified by the user.
         The circuits are run on the device or on a simulator backend.
@@ -74,10 +74,13 @@ class T2Ramsey(BaseExperiment):
         Args:
             qubit: the qubit under test.
             delays: delay times of the experiments.
-            unit: Optional, time unit of `delays`.
+            unit: Optional, time unit of `delays`. \
             Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'. The unit is \
             used for both T2Ramsey and for the frequency.
-            osc_freq: the oscillation frequency induced using by the user.
+            osc_freq: the oscillation frequency induced by the user. \
+            The frequency is given in Hz and scaled according to the \
+            reciprocal of the unit, \
+            e.g.,if unit='ms' then the frequency unit is KHz.
             experiment_type: String indicating the experiment type.
         """
 

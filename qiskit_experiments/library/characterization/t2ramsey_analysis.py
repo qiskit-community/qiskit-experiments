@@ -47,19 +47,29 @@ class T2RamseyAnalysis(BaseAnalysis):
 
         defpar a:
             desc: Amplitude. Height of the decay curve.
+            init_guess: 0.5
+            bounds: [-0.5, 1.5]
 
         defpar b:
             desc: Offset. Base line of the decay curve.
+            init_guess: 0.5
+            bounds: [-0.5, 1.5]
 
         defpar \phi:
             desc: Shift. Relative shift of the graph from the origin.
+            init_guess: 0.0
+            bounds: [-np.pi, np.pi]
 
         defpar T_2^*:
             desc: Represents the rate of decay.
-
+            init_guess: the mean of the input delays.
+            bounds: [0, np.inf]
+            
         defpar f:
             desc: Frequency. Represents the difference in frequency between
                 the user guess and the actual frequency of the qubit.
+            init_guess: input osc_freq.
+            bounds: [0.1 * f, 10 * f]
 
     """
 
