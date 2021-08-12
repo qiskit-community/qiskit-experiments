@@ -147,7 +147,9 @@ class InterleavedRBAnalysis(RBAnalysis):
         # for interleaved RB curve
         int_curve = self._data(series_name="Interleaved")
         user_p0_int = copy.copy(user_p0_std)
-        user_p0_int["alpha"] = (p0_std["alpha"] * user_p0_full["alpha_c"]) if user_p0_full["alpha_c"] else None
+        user_p0_int["alpha"] = (
+            (p0_std["alpha"] * user_p0_full["alpha_c"]) if user_p0_full["alpha_c"] else None
+        )
         p0_int = self._initial_guess(int_curve.x, int_curve.y, self._num_qubits, user_p0_int)
 
         fit_option = {
