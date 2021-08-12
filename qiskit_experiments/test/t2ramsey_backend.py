@@ -14,19 +14,13 @@ T2Ramsey Backend class.
 Temporary backend to be used for t2ramsey experiment
 """
 
-# pylint: disable = unused-import
-
 import numpy as np
 
-from qiskit.utils import apply_prefix
 from qiskit.providers import BackendV1
 from qiskit.providers.options import Options
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
-from qiskit.test import QiskitTestCase
-from qiskit_experiments.composite import ParallelExperiment
-from qiskit_experiments.characterization import T2Ramsey
-from qiskit_experiments.test.mock_job import MockJob
+from qiskit_experiments.test.utils import FakeJob
 
 # Fix seed for simulations
 SEED = 9000
@@ -65,11 +59,11 @@ class T2RamseyBackend(BackendV1):
             conversion=conversion_factor_in_ns,
         )
 
-        self._t2ramsey = p0["t2ramsey"]
-        self._a_guess = p0["a_guess"]
-        self._f_guess = p0["f_guess"]
-        self._phi_guess = p0["phi_guess"]
-        self._b_guess = p0["b_guess"]
+        self._t2ramsey = p0["T2star"]
+        self._a_param = p0["A"]
+        self._freq = p0["f"]
+        self._phi = p0["phi"]
+        self._b_param = p0["B"]
         self._initial_prob_plus = initial_prob_plus
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
@@ -97,7 +91,6 @@ class T2RamseyBackend(BackendV1):
             "success": True,
             "results": [],
         }
-
         for circ in run_input:
             nqubits = circ.num_qubits
             qubit_indices = {bit: idx for idx, bit in enumerate(circ.qubits)}
@@ -124,13 +117,13 @@ class T2RamseyBackend(BackendV1):
                     if op.name == "delay":
                         delay = op.params[0]
                         t2ramsey = self._t2ramsey[qubit] * self._conversion_factor
-                        freq = self._f_guess[qubit] / self._conversion_factor
+                        freq = self._freq[qubit] / self._conversion_factor
 
                         prob_plus[qubit] = (
-                            self._a_guess[qubit]
+                            self._a_param[qubit]
                             * np.exp(-delay / t2ramsey)
-                            * np.cos(2 * np.pi * freq * delay + self._phi_guess[qubit])
-                            + self._b_guess[qubit]
+                            * np.cos(2 * np.pi * freq * delay + self._phi[qubit])
+                            + self._b_param[qubit]
                         )
 
                     if op.name == "measure":
@@ -159,4 +152,4 @@ class T2RamseyBackend(BackendV1):
                     "data": {"counts": counts},
                 }
             )
-        return MockJob(self, Result.from_dict(result))
+        return FakeJob(self, Result.from_dict(result))

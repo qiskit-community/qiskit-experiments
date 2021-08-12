@@ -22,7 +22,7 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit import transpile
 
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.calibration.drag import DragCal
+from qiskit_experiments.library import DragCal
 from qiskit_experiments.test.mock_iq_backend import DragBackend
 
 
@@ -53,10 +53,12 @@ class TestDragEndToEnd(QiskitTestCase):
         drag = DragCal(1)
 
         drag.set_experiment_options(rp=self.x_plus, rm=self.x_minus)
-        result = drag.run(backend).analysis_result(0)
+        expdata = drag.run(backend)
+        expdata.block_for_results()
+        result = expdata.analysis_results(1)
 
-        self.assertTrue(abs(result["popt"][4] - backend.ideal_beta) < test_tol)
-        self.assertEqual(result["quality"], "computer_good")
+        self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
+        self.assertEqual(result.quality, "good")
 
         # Small leakage will make the curves very flat.
         backend = DragBackend(leakage=0.005)
@@ -66,13 +68,14 @@ class TestDragEndToEnd(QiskitTestCase):
         drag.set_experiment_options(rp=self.x_plus, rm=self.x_minus)
         drag.set_run_options(meas_level=MeasLevel.KERNELED)
         exp_data = drag.run(backend)
-        result = exp_data.analysis_result(0)
+        exp_data.block_for_results()
+        result = exp_data.analysis_results(1)
 
-        meas_level = exp_data.metadata()["job_metadata"][-1]["run_options"]["meas_level"]
+        meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
 
         self.assertEqual(meas_level, MeasLevel.KERNELED)
-        self.assertTrue(abs(result["popt"][4] - backend.ideal_beta) < test_tol)
-        self.assertEqual(result["quality"], "computer_good")
+        self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
+        self.assertEqual(result.quality, "good")
 
         # Large leakage will make the curves oscillate quickly.
         backend = DragBackend(leakage=0.05)
@@ -83,13 +86,14 @@ class TestDragEndToEnd(QiskitTestCase):
         drag.set_analysis_options(p0={"beta": 1.8, "freq0": 0.08, "freq1": 0.16, "freq2": 0.32})
         drag.set_experiment_options(rp=self.x_plus, rm=self.x_minus)
         exp_data = drag.run(backend)
-        result = exp_data.analysis_result(0)
+        exp_data.block_for_results()
+        result = exp_data.analysis_results(1)
 
-        meas_level = exp_data.metadata()["job_metadata"][-1]["run_options"]["meas_level"]
+        meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
 
         self.assertEqual(meas_level, MeasLevel.CLASSIFIED)
-        self.assertTrue(abs(result["popt"][4] - backend.ideal_beta) < test_tol)
-        self.assertEqual(result["quality"], "computer_good")
+        self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
+        self.assertEqual(result.quality, "good")
 
 
 class TestDragCircuits(QiskitTestCase):
@@ -127,7 +131,7 @@ class TestDragCircuits(QiskitTestCase):
         drag.set_experiment_options(rp=xp, rm=xm)
 
         with self.assertRaises(CalibrationError):
-            drag.run(backend).analysis_result(0)
+            drag.run(backend).analysis_results(0)
 
     def test_raise_inconsistent_parameter(self):
         """Check that the experiment raises with unassigned parameters."""
@@ -148,7 +152,7 @@ class TestDragCircuits(QiskitTestCase):
         drag.set_experiment_options(rp=xp, rm=xm)
 
         with self.assertRaises(CalibrationError):
-            drag.run(backend).analysis_result(0)
+            drag.run(backend).analysis_results(0)
 
 
 class TestDragOptions(QiskitTestCase):

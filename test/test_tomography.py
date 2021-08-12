@@ -23,11 +23,20 @@ from qiskit.test import QiskitTestCase
 from qiskit import QuantumCircuit
 import qiskit.quantum_info as qi
 from qiskit.providers.aer import AerSimulator
-from qiskit_experiments.composite import BatchExperiment, ParallelExperiment
-import qiskit_experiments.tomography as tomo
+from qiskit_experiments.framework import BatchExperiment, ParallelExperiment
+from qiskit_experiments.library import StateTomography, ProcessTomography
+
 
 # TODO: tests for CVXPY fitters
 FITTERS = [None, "linear_inversion", "scipy_linear_lstsq", "scipy_gaussian_lstsq"]
+
+
+def filter_results(analysis_results, name):
+    """Filter list of analysis results by result name"""
+    for result in analysis_results:
+        if result.name == name:
+            return result
+    return None
 
 
 @ddt.ddt
@@ -38,26 +47,25 @@ class TestStateTomography(QiskitTestCase):
     @ddt.unpack
     def test_full_qst(self, num_qubits, fitter):
         """Test 1-qubit QST experiment"""
-        backend = AerSimulator()
+        backend = AerSimulator(seed_simulator=9000)
         seed = 1234
         f_threshold = 0.95
         target = qi.random_statevector(2 ** num_qubits, seed=seed)
-        qstexp = tomo.StateTomography(target)
+        qstexp = StateTomography(target)
         if fitter:
             qstexp.set_analysis_options(fitter=fitter)
         expdata = qstexp.run(backend)
-        result = expdata.analysis_result(-1)
-
-        self.assertTrue(result.get("success", False), msg="analysis failed")
+        expdata.block_for_results()
+        results = expdata.analysis_results()
 
         # Check state is density matrix
-        state = result.get("state")
+        state = filter_results(results, "state").value
         self.assertTrue(
             isinstance(state, qi.DensityMatrix), msg="fitted state is not density matrix"
         )
 
         # Check fit state fidelity
-        fid = result.get("state_fidelity", 0)
+        fid = filter_results(results, "state_fidelity").value
         self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
         # Manually check fidelity
@@ -70,17 +78,17 @@ class TestStateTomography(QiskitTestCase):
         # conditionals in Terra.
 
         # Teleport qubit 0 -> 2
-        backend = AerSimulator()
-        exp = tomo.StateTomography(teleport_circuit(), measurement_qubits=[2])
+        backend = AerSimulator(seed_simulator=9000)
+        exp = StateTomography(teleport_circuit(), measurement_qubits=[2])
         expdata = exp.run(backend)
-        result = expdata.analysis_result(-1)
+        expdata.block_for_results()
+        results = expdata.analysis_results()
 
         # Check result
         f_threshold = 0.95
-        self.assertTrue(result.get("success", False), msg="analysis failed")
 
         # Check state is density matrix
-        state = result.get("state")
+        state = filter_results(results, "state").value
         self.assertTrue(
             isinstance(state, qi.DensityMatrix), msg="fitted state is not a density matrix"
         )
@@ -119,7 +127,7 @@ class TestStateTomography(QiskitTestCase):
             circ.append(op, [i])
 
         num_meas = len(meas_qubits)
-        exp = tomo.StateTomography(circ, measurement_qubits=meas_qubits)
+        exp = StateTomography(circ, measurement_qubits=meas_qubits)
         tomo_circuits = exp.circuits()
 
         # Check correct number of circuits are generated
@@ -161,23 +169,23 @@ class TestStateTomography(QiskitTestCase):
             circ.append(op, [i])
 
         # Run
-        backend = AerSimulator()
-        exp = tomo.StateTomography(circ, measurement_qubits=meas_qubits)
+        backend = AerSimulator(seed_simulator=9000)
+        exp = StateTomography(circ, measurement_qubits=meas_qubits)
         expdata = exp.run(backend)
-        result = expdata.analysis_result(-1)
+        expdata.block_for_results()
+        results = expdata.analysis_results()
 
         # Check result
         f_threshold = 0.95
-        self.assertTrue(result.get("success", False), msg="analysis failed")
 
         # Check state is density matrix
-        state = result.get("state")
+        state = filter_results(results, "state").value
         self.assertTrue(
             isinstance(state, qi.DensityMatrix), msg="fitted state is not density matrix"
         )
 
         # Check fit state fidelity
-        fid = result.get("state_fidelity", 0)
+        fid = filter_results(results, "state_fidelity").value
         self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
         # Manually check fidelity
@@ -201,29 +209,27 @@ class TestStateTomography(QiskitTestCase):
         targets = []
         for i in range(nq):
             targets.append(qi.Statevector(ops[i].to_instruction()))
-            exps.append(tomo.StateTomography(circuit, measurement_qubits=[i]))
+            exps.append(StateTomography(circuit, measurement_qubits=[i]))
 
         # Run batch experiments
-        backend = AerSimulator()
+        backend = AerSimulator(seed_simulator=9000)
         batch_exp = BatchExperiment(exps)
         batch_data = batch_exp.run(backend)
-        batch_result = batch_data.analysis_result(-1)
-        self.assertTrue(batch_result.get("success"), msg="BatchExperiment failed")
+        batch_data.block_for_results()
 
         # Check target fidelity of component experiments
         f_threshold = 0.95
         for i in range(batch_exp.num_experiments):
-            result = batch_data.component_experiment_data(i).analysis_result(-1)
-            self.assertTrue(result.get("success", False), msg="component analysis failed")
+            results = batch_data.component_experiment_data(i).analysis_results()
 
             # Check state is density matrix
-            state = result.get("state")
+            state = filter_results(results, "state").value
             self.assertTrue(
                 isinstance(state, qi.DensityMatrix), msg="fitted state is not density matrix"
             )
 
             # Check fit state fidelity
-            fid = result.get("state_fidelity", 0)
+            fid = filter_results(results, "state_fidelity").value
             self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
             # Manually check fidelity
@@ -241,30 +247,28 @@ class TestStateTomography(QiskitTestCase):
         exps = []
         targets = []
         for i in range(nq):
-            exps.append(tomo.StateTomography(ops[i], qubits=[i]))
+            exps.append(StateTomography(ops[i], qubits=[i]))
             targets.append(qi.Statevector(ops[i].to_instruction()))
 
         # Run batch experiments
-        backend = AerSimulator()
+        backend = AerSimulator(seed_simulator=9000)
         par_exp = ParallelExperiment(exps)
         par_data = par_exp.run(backend)
-        par_result = par_data.analysis_result(-1)
-        self.assertTrue(par_result.get("success"), msg="ParallelExperiment failed")
+        par_data.block_for_results()
 
         # Check target fidelity of component experiments
         f_threshold = 0.95
         for i in range(par_exp.num_experiments):
-            result = par_data.component_experiment_data(i).analysis_result(-1)
-            self.assertTrue(result.get("success", False), msg="component analysis failed")
+            results = par_data.component_experiment_data(i).analysis_results()
 
             # Check state is density matrix
-            state = result.get("state")
+            state = filter_results(results, "state").value
             self.assertTrue(
                 isinstance(state, qi.DensityMatrix), msg="fitted state is not density matrix"
             )
 
             # Check fit state fidelity
-            fid = result.get("state_fidelity", 0)
+            fid = filter_results(results, "state_fidelity").value
             self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
             # Manually check fidelity
@@ -280,24 +284,23 @@ class TestProcessTomography(QiskitTestCase):
     @ddt.unpack
     def test_full_qpt(self, num_qubits, fitter):
         """Test QPT experiment"""
-        backend = AerSimulator()
+        backend = AerSimulator(seed_simulator=9000)
         seed = 1234
         f_threshold = 0.94
         target = qi.random_unitary(2 ** num_qubits, seed=seed)
-        qstexp = tomo.ProcessTomography(target)
+        qstexp = ProcessTomography(target)
         if fitter:
             qstexp.set_analysis_options(fitter=fitter)
         expdata = qstexp.run(backend)
-        result = expdata.analysis_result(-1)
-
-        self.assertTrue(result.get("success", False), msg="analysis failed")
+        expdata.block_for_results()
+        results = expdata.analysis_results()
 
         # Check state is density matrix
-        state = result.get("state")
+        state = filter_results(results, "state").value
         self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
 
         # Check fit state fidelity
-        fid = result.get("process_fidelity", 0)
+        fid = filter_results(results, "process_fidelity").value
         self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
         # Manually check fidelity
         target_fid = qi.process_fidelity(state, target, require_tp=False, require_cp=False)
@@ -317,7 +320,7 @@ class TestProcessTomography(QiskitTestCase):
             circ.append(op, [i])
 
         num_meas = len(qubits)
-        exp = tomo.ProcessTomography(circ, measurement_qubits=qubits, preparation_qubits=qubits)
+        exp = ProcessTomography(circ, measurement_qubits=qubits, preparation_qubits=qubits)
         tomo_circuits = exp.circuits()
 
         # Check correct number of circuits are generated
@@ -360,21 +363,21 @@ class TestProcessTomography(QiskitTestCase):
             circ.append(op, [i])
 
         # Run
-        backend = AerSimulator()
-        exp = tomo.ProcessTomography(circ, measurement_qubits=qubits, preparation_qubits=qubits)
+        backend = AerSimulator(seed_simulator=9000)
+        exp = ProcessTomography(circ, measurement_qubits=qubits, preparation_qubits=qubits)
         expdata = exp.run(backend)
-        result = expdata.analysis_result(-1)
+        expdata.block_for_results()
+        results = expdata.analysis_results()
 
         # Check result
         f_threshold = 0.95
-        self.assertTrue(result.get("success", False), msg="analysis failed")
 
         # Check state is density matrix
-        state = result.get("state")
+        state = filter_results(results, "state").value
         self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
 
         # Check fit state fidelity
-        fid = result.get("process_fidelity", 0)
+        fid = filter_results(results, "process_fidelity").value
         self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
         # Manually check fidelity
@@ -387,19 +390,17 @@ class TestProcessTomography(QiskitTestCase):
         # conditionals in Terra.
 
         # Teleport qubit 0 -> 2
-        backend = AerSimulator()
-        exp = tomo.ProcessTomography(
-            teleport_circuit(), measurement_qubits=[2], preparation_qubits=[0]
-        )
+        backend = AerSimulator(seed_simulator=9000)
+        exp = ProcessTomography(teleport_circuit(), measurement_qubits=[2], preparation_qubits=[0])
         expdata = exp.run(backend, shots=10000)
-        result = expdata.analysis_result(-1)
+        expdata.block_for_results()
+        results = expdata.analysis_results()
 
         # Check result
         f_threshold = 0.95
-        self.assertTrue(result.get("success", False), msg="analysis failed")
 
         # Check state is density matrix
-        state = result.get("state")
+        state = filter_results(results, "state").value
         self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
 
         # Manually check fidelity
@@ -422,29 +423,25 @@ class TestProcessTomography(QiskitTestCase):
         targets = []
         for i in range(nq):
             targets.append(ops[i])
-            exps.append(
-                tomo.ProcessTomography(circuit, measurement_qubits=[i], preparation_qubits=[i])
-            )
+            exps.append(ProcessTomography(circuit, measurement_qubits=[i], preparation_qubits=[i]))
 
         # Run batch experiments
-        backend = AerSimulator()
+        backend = AerSimulator(seed_simulator=9000)
         batch_exp = BatchExperiment(exps)
         batch_data = batch_exp.run(backend)
-        batch_result = batch_data.analysis_result(-1)
-        self.assertTrue(batch_result.get("success"), msg="BatchExperiment failed")
+        batch_data.block_for_results()
 
         # Check target fidelity of component experiments
         f_threshold = 0.95
         for i in range(batch_exp.num_experiments):
-            result = batch_data.component_experiment_data(i).analysis_result(-1)
-            self.assertTrue(result.get("success", False), msg="component analysis failed")
+            results = batch_data.component_experiment_data(i).analysis_results()
 
             # Check state is density matrix
-            state = result.get("state")
+            state = filter_results(results, "state").value
             self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
 
             # Check fit state fidelity
-            fid = result.get("process_fidelity", 0)
+            fid = filter_results(results, "process_fidelity").value
             self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
             # Manually check fidelity
@@ -462,28 +459,26 @@ class TestProcessTomography(QiskitTestCase):
         exps = []
         targets = []
         for i in range(nq):
-            exps.append(tomo.ProcessTomography(ops[i], qubits=[i]))
+            exps.append(ProcessTomography(ops[i], qubits=[i]))
             targets.append(ops[i])
 
         # Run batch experiments
-        backend = AerSimulator()
+        backend = AerSimulator(seed_simulator=9000)
         par_exp = ParallelExperiment(exps)
         par_data = par_exp.run(backend)
-        par_result = par_data.analysis_result(-1)
-        self.assertTrue(par_result.get("success"), msg="ParallelExperiment failed")
+        par_data.block_for_results()
 
         # Check target fidelity of component experiments
         f_threshold = 0.95
         for i in range(par_exp.num_experiments):
-            result = par_data.component_experiment_data(i).analysis_result(-1)
-            self.assertTrue(result.get("success", False), msg="component analysis failed")
+            results = par_data.component_experiment_data(i).analysis_results()
 
             # Check state is density matrix
-            state = result.get("state")
+            state = filter_results(results, "state").value
             self.assertTrue(isinstance(state, qi.Choi), msg="fitted state is not a Choi matrix")
 
             # Check fit state fidelity
-            fid = result.get("process_fidelity", 0)
+            fid = filter_results(results, "process_fidelity").value
             self.assertGreater(fid, f_threshold, msg="fit fidelity is low")
 
             # Manually check fidelity

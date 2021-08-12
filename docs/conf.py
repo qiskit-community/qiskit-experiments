@@ -23,9 +23,10 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('.'))
+sys.path.append(os.path.abspath("./_ext"))
 
 """
 Sphinx documentation builder
@@ -37,14 +38,14 @@ import os
 os.environ['QISKIT_DOCS'] = 'TRUE'
 
 # -- Project information -----------------------------------------------------
-project = 'Qiskit ODE Solvers'
+project = 'Qiskit Experiments'
 copyright = '2021, Qiskit Development Team'  # pylint: disable=redefined-builtin
 author = 'Qiskit Development Team'
 
 # The short X.Y version
-version = ''
+version = '0.2'
 # The full version, including alpha/beta/rc tags
-release = '0.0.1b1'
+release = '0.2.0'
 
 rst_prolog = """
 .. raw:: html
@@ -92,6 +93,9 @@ extensions = [
     'sphinx_panels',
     'sphinx.ext.intersphinx',
     'nbsphinx',
+    'autoref',
+    'autodoc_experiment',
+    'autodoc_analysis',
 ]
 html_static_path = ['_static']
 templates_path = ['_templates']
@@ -178,5 +182,7 @@ html_theme_options = {
 }
 
 autoclass_content = 'both'
-intersphinx_mapping = {'matplotlib': ('https://matplotlib.org/stable/', None),
-                       'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None)}
+intersphinx_mapping = {'matplotlib': ('https://matplotlib.org/stable/', None)}
+# Current scipy hosted docs are missing the object.inv file so leaving this
+# commented out until the missing file is added back.
+#                       'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None)}

@@ -12,23 +12,33 @@
 
 """Experiment utility functions."""
 
-import logging
-from typing import Callable, Tuple, Dict, Any, Union
 import io
-from datetime import datetime, timezone
+import logging
 import threading
-from collections import OrderedDict
-from abc import ABC, abstractmethod
 import traceback
-import pkg_resources
+from abc import ABC, abstractmethod
+from collections import OrderedDict
+from datetime import datetime, timezone
+from typing import Callable, Tuple, Dict, Any, Union, Type, Optional
+import json
 
 import dateutil.parser
+import pkg_resources
 from dateutil import tz
-
 from qiskit.version import __version__ as terra_version
-from ..version import __version__ as experiments_version
+
+try:
+    from qiskit.providers.ibmq.experiment import (
+        IBMExperimentEntryExists,
+        IBMExperimentEntryNotFound,
+    )
+
+    HAS_IBMQ = True
+except ImportError:
+    HAS_IBMQ = False
 
 from .exceptions import DbExperimentEntryNotFound, DbExperimentEntryExists, DbExperimentDataError
+from ..version import __version__ as experiments_version
 
 LOG = logging.getLogger(__name__)
 
@@ -86,7 +96,9 @@ def plot_to_svg_bytes(figure: "pyplot.Figure") -> bytes:
     buf = io.BytesIO()
     opaque_color = list(figure.get_facecolor())
     opaque_color[3] = 1.0  # set alpha to opaque
-    figure.savefig(buf, format="svg", facecolor=tuple(opaque_color), edgecolor="none")
+    figure.savefig(
+        buf, format="svg", facecolor=tuple(opaque_color), edgecolor="none", bbox_inches="tight"
+    )
     buf.seek(0)
     figure_data = buf.read()
     buf.close()
@@ -94,7 +106,12 @@ def plot_to_svg_bytes(figure: "pyplot.Figure") -> bytes:
 
 
 def save_data(
-    is_new: bool, new_func: Callable, update_func: Callable, new_data: Dict, update_data: Dict
+    is_new: bool,
+    new_func: Callable,
+    update_func: Callable,
+    new_data: Dict,
+    update_data: Dict,
+    json_encoder: Optional[Type[json.JSONEncoder]] = None,
 ) -> Tuple[bool, Any]:
     """Save data in the database.
 
@@ -105,6 +122,7 @@ def save_data(
         new_data: In addition to `update_data`, this data will be stored if creating
             a new entry.
         update_data: Data to be stored if updating an existing entry.
+        json_encoder: Custom JSON encoder to use to encode the experiment.
 
     Returns:
         A tuple of whether the data was saved and the function return value.
@@ -113,7 +131,15 @@ def save_data(
         DbExperimentDataError: If unable to determine whether the entry exists.
     """
     attempts = 0
+    no_entry_exception = [DbExperimentEntryNotFound]
+    dup_entry_exception = [DbExperimentEntryExists]
+    if HAS_IBMQ:
+        no_entry_exception.append(IBMExperimentEntryNotFound)
+        dup_entry_exception.append(IBMExperimentEntryExists)
     try:
+        kwargs = {}
+        if json_encoder:
+            kwargs["json_encoder"] = json_encoder
         # Attempt 3x for the unlikely scenario wherein is_new=False but the
         # entry doesn't actually exists. The second try might also fail if an entry
         # with the same ID somehow got created in the meantime.
@@ -121,13 +147,16 @@ def save_data(
             attempts += 1
             if is_new:
                 try:
-                    return True, new_func(**{**new_data, **update_data})
-                except DbExperimentEntryExists:
+                    kwargs.update(new_data)
+                    kwargs.update(update_data)
+                    return True, new_func(**kwargs)
+                except tuple(dup_entry_exception):
                     is_new = False
             else:
                 try:
-                    return True, update_func(**update_data)
-                except DbExperimentEntryNotFound:
+                    kwargs.update(update_data)
+                    return True, update_func(**kwargs)
+                except tuple(no_entry_exception):
                     is_new = True
         raise DbExperimentDataError("Unable to determine the existence of the entry.")
     except Exception:  # pylint: disable=broad-except
@@ -174,6 +203,17 @@ class ThreadSafeContainer(ABC):
         """Return lock used for this container."""
         return self._lock
 
+    def copy(self):
+        """Returns a copy of the container."""
+        with self.lock:
+            return self._container.copy()
+
+    def copy_object(self):
+        """Returns a copy of this object."""
+        obj = self.__class__()
+        obj._container = self.copy()
+        return obj
+
 
 class ThreadSafeOrderedDict(ThreadSafeContainer):
     """Thread safe OrderedDict."""
@@ -213,8 +253,3 @@ class ThreadSafeList(ThreadSafeContainer):
         """Append to the list."""
         with self._lock:
             self._container.append(value)
-
-    def copy(self):
-        """Returns a copy of the list."""
-        with self.lock:
-            return self._container.copy()

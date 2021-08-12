@@ -18,7 +18,7 @@ from qiskit.test import QiskitTestCase
 from qiskit.pulse import DriveChannel, Drag
 import qiskit.pulse as pulse
 
-from qiskit_experiments.calibration.fine_amplitude import FineAmplitude
+from qiskit_experiments.library import FineAmplitude
 from qiskit_experiments.test.mock_iq_backend import MockFineAmp
 from qiskit_experiments.exceptions import CalibrationError
 
@@ -46,14 +46,15 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         backend = MockFineAmp(-np.pi * 0.07, np.pi, "xp")
 
-        result = amp_cal.run(backend).analysis_result(-1)
-
-        d_theta = result["popt"][result["popt_keys"].index("d_theta")]
+        expdata = amp_cal.run(backend)
+        expdata.block_for_results()
+        result = expdata.analysis_results(1)
+        d_theta = result.value.value
 
         tol = 0.04
 
         self.assertTrue(abs(d_theta - backend.angle_error) < tol)
-        self.assertEqual(result["quality"], "computer_good")
+        self.assertEqual(result.quality, "good")
 
     def test_end_to_end_over_rotation(self):
         """Test the experiment end to end."""
@@ -66,14 +67,15 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         backend = MockFineAmp(np.pi * 0.07, np.pi, "xp")
 
-        result = amp_cal.run(backend).analysis_result(-1)
-
-        d_theta = result["popt"][result["popt_keys"].index("d_theta")]
+        expdata = amp_cal.run(backend)
+        expdata.block_for_results()
+        result = expdata.analysis_results(1)
+        d_theta = result.value.value
 
         tol = 0.04
 
         self.assertTrue(abs(d_theta - backend.angle_error) < tol)
-        self.assertEqual(result["quality"], "computer_good")
+        self.assertEqual(result.quality, "good")
 
     def test_zero_angle_per_gate(self):
         """Test that we cannot set angle per gate to zero."""
