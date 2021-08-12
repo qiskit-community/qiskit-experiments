@@ -860,9 +860,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
         """Parse input kwargs with predicted input.
 
         Class attributes will be updated according to the ``options``.
-        For example, if `options` has a key `p0`, and the class
-        has an attribute named `__p0`,  then the attribute  `__0p`
-        will be updated to `options["p0"]`.
+        For example, if ``options`` has a key ``p0``, and the class
+        has an attribute named ``__p0``,  then the attribute  ``__0p``
+        will be updated to ``options["p0"]``.
 
         Options that don't have matching attributes will be included
         in the returned dictionary.
