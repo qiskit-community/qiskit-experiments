@@ -27,6 +27,9 @@ from qiskit_experiments.library.calibration.analysis.fine_amplitude_analysis imp
     FineAmplitudeAnalysis,
 )
 from qiskit_experiments.exceptions import CalibrationError
+from qiskit_experiments.framework.experiment_data import ExperimentData
+from qiskit_experiments.calibration_management.update_library import Amplitude
+from qiskit_experiments.calibration_management.calibrations import Calibrations
 
 
 class FineAmplitude(BaseExperiment):
@@ -121,6 +124,7 @@ class FineAmplitude(BaseExperiment):
             add_xp_circuit (bool): If set to True then a circuit with only an X gate will also be
                 run. This allows the analysis class to determine the correct sign for the amplitude.
             sx_schedule (ScheduleBlock): The schedule to attache to the SX gate.
+            calibrations (Calibrations): An instance of :class:`Calibrations` with the pulses.
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(15))
@@ -129,16 +133,35 @@ class FineAmplitude(BaseExperiment):
         options.add_sx = False
         options.add_xp_circuit = True
         options.sx_schedule = None
+        options.calibrations = None
 
         return options
 
-    def __init__(self, qubit: int):
+    def __init__(
+        self,
+        qubit: int,
+        calibrations: Optional[Calibrations] = None,
+        schedule_name: Optional[str] = None,
+        repetitions: Optional[int] = None,
+    ):
         """Setup a fine amplitude experiment on the given qubit.
 
         Args:
             qubit: The qubit on which to run the fine amplitude calibration experiment.
+            calibrations: An optional instance of :class:`Calibrations`. If calibrations is
+                given then running the experiment will update the values of the pulse parameters
+                stored in calibrations.
+            schedule_name: The name of the schedule to extract from the calibrations.
+            repetitions: The list of times to repeat the gate in each circuit.
         """
         super().__init__([qubit])
+        self.experiment_options.calibrations = calibrations
+
+        if calibrations is not None and schedule_name is not None:
+            self.experiment_options.schedule = calibrations.get_schedule(schedule_name, qubit)
+
+        if repetitions is not None:
+            self.experiment_options.repetitions = repetitions
 
     def set_schedule(
         self,
@@ -278,6 +301,37 @@ class FineAmplitude(BaseExperiment):
 
         return circuits
 
+    def run(
+        self,
+        backend: Backend,
+        analysis: bool = True,
+        experiment_data: Optional[ExperimentData] = None,
+        **run_options,
+    ) -> ExperimentData:
+        """Run an experiment, perform analysis, and update any calibrations.
+
+        Args:
+            backend: The backend to run the experiment on.
+            analysis: If True run analysis on the experiment data.
+            experiment_data: Optional, add results to existing experiment data.
+                If None a new ExperimentData object will be returned.
+            run_options: backend runtime options used for circuit execution.
+
+        Returns:
+            The experiment data object.
+        """
+        experiment_data = super().run(backend, analysis, experiment_data, **run_options)
+
+        calibrations = self.experiment_options.get("calibrations", None)
+
+        if calibrations is not None:
+            experiment_data = experiment_data.block_for_results()
+            angle = self.analysis_options.angle_per_gate
+            name = self.experiment_options.schedule.name
+            Amplitude.update(calibrations, experiment_data, angles_schedules=[(angle, "amp", name)])
+
+        return experiment_data
+
 
 class FineXAmplitude(FineAmplitude):
     r"""A fine amplitude experiment with all the options set for the :math:`\pi`-rotation.
@@ -305,14 +359,32 @@ class FineXAmplitude(FineAmplitude):
 
         return options
 
-    def __init__(self, qubit: int):
+    def __init__(
+        self,
+        qubit: int,
+        calibrations: Optional[Calibrations] = None,
+        schedule_name: Optional[str] = "x",
+        sx_schedule_name: Optional[str] = "sx",
+        repetitions: Optional[int] = None,
+    ):
         """Setup a fine amplitude experiment on the given qubit.
 
         Args:
             qubit: The qubit on which to run the fine amplitude calibration experiment.
+            calibrations: An optional instance of :class:`Calibrations`. If calibrations is
+                given then running the experiment will update the values of the pulse parameters
+                stored in calibrations.
+            schedule_name: The name of the schedule to extract from the calibrations. The default
+                value is "x".
+            sx_schedule_name: The name of the schedule to extract from the calibrations for the
+                "sx" pulse that will be added.
+            repetitions: The list of times to repeat the gate in each circuit.
         """
-        super().__init__(qubit)
+        super().__init__(qubit, calibrations, schedule_name, repetitions)
         self.set_analysis_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
+
+        if calibrations is not None and sx_schedule_name is not None:
+            self.experiment_options.sx_schedule = calibrations.get_schedule(sx_schedule_name, qubit)
 
 
 class FineSXAmplitude(FineAmplitude):
@@ -346,11 +418,23 @@ class FineSXAmplitude(FineAmplitude):
 
         return options
 
-    def __init__(self, qubit: int):
+    def __init__(
+        self,
+        qubit: int,
+        calibrations: Optional[Calibrations] = None,
+        schedule_name: Optional[str] = "sx",
+        repetitions: Optional[int] = None,
+    ):
         """Setup a fine amplitude experiment on the given qubit.
 
         Args:
             qubit: The qubit on which to run the fine amplitude calibration experiment.
+            calibrations: An optional instance of :class:`Calibrations`. If calibrations is
+                given then running the experiment will update the values of the pulse parameters
+                stored in calibrations.
+            schedule_name: The name of the schedule to extract from the calibrations. The default
+                value is "sx".
+            repetitions: The list of times to repeat the gate in each circuit.
         """
-        super().__init__(qubit)
+        super().__init__(qubit, calibrations, schedule_name, repetitions)
         self.set_analysis_options(angle_per_gate=np.pi / 2, phase_offset=0)

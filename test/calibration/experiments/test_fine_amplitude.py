@@ -17,10 +17,13 @@ import numpy as np
 from qiskit.test import QiskitTestCase
 from qiskit.pulse import DriveChannel, Drag
 import qiskit.pulse as pulse
+from qiskit.test.mock import FakeArmonk
 
-from qiskit_experiments.library import FineAmplitude
+from qiskit_experiments.library import FineAmplitude, FineXAmplitude
 from qiskit_experiments.test.mock_iq_backend import MockFineAmp
 from qiskit_experiments.exceptions import CalibrationError
+from qiskit_experiments.calibration_management import BackendCalibrations
+from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 
 
 class TestFineAmpEndToEnd(QiskitTestCase):
@@ -85,6 +88,32 @@ class TestFineAmpEndToEnd(QiskitTestCase):
             amp_cal.set_schedule(
                 schedule=self.x_plus, angle_per_gate=0.0, add_xp_circuit=True, add_sx=True
             )
+
+    def test_update_calibrations(self):
+        """Test that calibrations are updated."""
+
+        library = FixedFrequencyTransmon(basis_gates=["x", "sx"], default_values={"duration": 320})
+        cals = BackendCalibrations(FakeArmonk(), library=library)
+
+        pre_cal_amp = cals.get_parameter_value("amp", (0,), "x")
+
+        target_angle = np.pi
+        backend = MockFineAmp(target_angle * 0.01, target_angle, "x")
+        exp_data = FineXAmplitude(0, calibrations=cals).run(backend)
+
+        result = [
+            r for r in exp_data.analysis_results() if r.name.startswith("@Parameters_")
+        ][0]
+        d_theta = result.value.value[result.extra["popt_keys"].index("d_theta")]
+
+        post_cal_amp = cals.get_parameter_value("amp", (0,), "x")
+
+        self.assertEqual(post_cal_amp, pre_cal_amp * target_angle / (target_angle + d_theta))
+
+        # Test that the circuit has a calibration for the sx and x gate.
+        circs = FineXAmplitude(0, calibrations=cals).circuits()
+        self.assertTrue("sx" in circs[3].calibrations)
+        self.assertTrue("x" in circs[3].calibrations)
 
 
 class TestFineAmplitudeCircuits(QiskitTestCase):
