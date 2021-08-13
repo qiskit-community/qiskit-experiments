@@ -14,10 +14,13 @@
 RB Helper functions
 """
 
-from typing import Tuple, Dict, Optional, Iterable, List
+from typing import Tuple, Dict, Optional, Iterable, List, Union
 import numpy as np
 from qiskit import QiskitError, QuantumCircuit
 from qiskit.providers.backend import Backend
+from qiskit_experiments.database_service.device_component import Qubit
+from qiskit_experiments.database_service.db_fitval import FitVal
+from qiskit_experiments.framework import DbAnalysisResultV1, AnalysisResultData
 
 
 class RBUtils:
@@ -73,7 +76,7 @@ class RBUtils:
         if qubits is None:
             qubits = range(len(circuit.qubits))
         count_ops_result = {}
-        for instr, qargs, _ in circuit._data:
+        for instr, qargs, _ in circuit:
             instr_qubits = []
             skip_instr = False
             for qubit in qargs:
@@ -198,7 +201,7 @@ class RBUtils:
             A dictionary of the form (qubits, gate) -> value where value
             is the EPG for the given gate on the specified qubits
         """
-        epg = {qubit: {} for qubit in qubits}
+        epg = {(qubit,): {} for qubit in qubits}
         for qubit in qubits:
             error_sum = 0
             found_gates = []
@@ -208,7 +211,7 @@ class RBUtils:
                     found_gates.append(gate)
                     error_sum += gates_per_clifford[key] * value
             for gate in found_gates:
-                epg[qubit][gate] = (gate_error_ratio[((qubit,), gate)] * epc_1_qubit) / error_sum
+                epg[(qubit,)][gate] = (gate_error_ratio[((qubit,), gate)] * epc_1_qubit) / error_sum
         return epg
 
     @staticmethod
@@ -217,7 +220,7 @@ class RBUtils:
         qubits: Iterable[int],
         gate_error_ratio: Dict[str, float],
         gates_per_clifford: Dict[Tuple[Iterable[int], str], float],
-        epg_1_qubit: Optional[Dict[int, Dict[str, float]]] = None,
+        epg_1_qubit: Optional[List[Union[DbAnalysisResultV1, AnalysisResultData]]] = None,
         gate_2_qubit_type: Optional[str] = "cx",
     ) -> Dict[int, Dict[str, float]]:
         r"""
@@ -229,8 +232,8 @@ class RBUtils:
             qubits: The qubits for which to compute epg
             gate_error_ratio: Estiamte for the ratios between errors on different gates
             gates_per_clifford: The computed gates per clifford data
-            epg_1_qubit: EPG data for the 1-qubits gate involved, assumed to
-              have been obtained from previous experiments
+            epg_1_qubit: analysis results containing EPG for the 1-qubits gate involved,
+                assumed to have been obtained from previous experiments
             gate_2_qubit_type: The name of the 2-qubit gate to be analyzed
 
         Returns:
@@ -242,6 +245,23 @@ class RBUtils:
         """
         epg_2_qubit = {}
         qubit_pairs = []
+
+        # Extract 1-qubit epgs
+        epg_1_qubit_dict = {}
+        if epg_1_qubit is not None:
+            for result in epg_1_qubit:
+                if "EPG_" in result.name and len(result.device_components) == 1:
+                    qubit = result.device_components[0]
+                    if isinstance(qubit, Qubit):
+                        qubit = qubit._index
+                    if not qubit in epg_1_qubit_dict:
+                        epg_1_qubit_dict[qubit] = {}
+                    gate = result.name.replace("EPG_", "")
+                    epg = result.value
+                    if isinstance(epg, FitVal):
+                        epg = epg.value
+                    epg_1_qubit_dict[qubit][gate] = epg
+
         for key in gate_error_ratio:
             qubits, gate = key
             if gate == gate_2_qubit_type and key in gates_per_clifford:
@@ -256,8 +276,8 @@ class RBUtils:
                     qubit_pairs.append(qubit_pair)
         for qubit_pair in qubit_pairs:
             alpha_1q = [1.0, 1.0]
-            if epg_1_qubit is not None:
-                list_epgs_1q = [epg_1_qubit[qubit_pair[i]] for i in range(2)]
+            if epg_1_qubit_dict:
+                list_epgs_1q = [epg_1_qubit_dict[qubit_pair[i]] for i in range(2)]
                 for ind, (qubit, epg_1q) in enumerate(zip(qubit_pair, list_epgs_1q)):
                     for gate_name, epg in epg_1q.items():
                         n_gate = gates_per_clifford.get(((qubit,), gate_name), 0)
