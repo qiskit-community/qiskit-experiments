@@ -14,7 +14,7 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Dict, Union, Tuple
 import copy
 
 from qiskit.pulse.instruction_schedule_map import CalibrationPublisher
@@ -188,8 +188,9 @@ class BackendCalibrations(Calibrations):
 
     def export_backend(
             self,
-            qubits: Optional[List[int]] = None,
+            outputs: Dict[str, List[Union[int, Tuple[int, ...]]]],
             basis_gates: Optional[List[str]] = None,
+            coupling_map: Optional[List[List[int]]] = None,
             group: str = "default",
             cutoff_date: Optional[datetime] = None,
     ) -> Backend:
@@ -197,12 +198,15 @@ class BackendCalibrations(Calibrations):
         Exports the calibrations to a backend object with overridden defaults field.
 
         Args:
-            qubits: List of qubits that the exported backend overrides the default gate
-                implementation. If nothing specified, the backend updates gate calibration for
-                all available qubit set.
+            outputs: Dictionary of gate to export. For example,
+                ``{"sx": [0], "cx": [[0, 1]]}`` outputs SX gate for qubit 0, and
+                SX gate for qubit pair (0, 1).
             basis_gates: List of gate names that the exported backend overrides the default gate
                 implementation. If nothing specified, the backend takes
                 ``basis_gates`` information from the backend configuration.
+            coupling_map: List of qubit coupling map if need to override. For example,
+                if gate calibration is missing for specific qubit pair,
+                that coupling might be removed from the list.
             group: Target calibration group. This defaults to ``default`` group.
             cutoff_date: A valid calibration datetime. If nothing specified,
                 gate calibrations are created based on the latest calibration results.
@@ -217,21 +221,20 @@ class BackendCalibrations(Calibrations):
         backend.defaults().meas_freq_est = self.get_meas_frequencies()
 
         # override basis gates
-        basis_gates = basis_gates or backend.configuration().basis_gates
+        if basis_gates:
+            backend.configuration().basis_gates = basis_gates
 
-        def _is_exported(_schedule, _qubits):
-            schedule_flag = _schedule in basis_gates
-            qubit_flag = qubits is None or all(q in qubits for q in _qubits)
-            return schedule_flag & qubit_flag
+        # override coupling map
+        if coupling_map:
+            backend.configuration().coupling_map = coupling_map
 
-        for sched_key in self._schedules.keys():
-            if _is_exported(sched_key.schedule, sched_key.qubits):
-                # Override existing calibration
-                sched = self.get_schedule(*sched_key, group=group, cutoff_date=cutoff_date)
+        for gate, qubit_list in outputs.items():
+            for qubits in qubit_list:
+                sched = self.get_schedule(gate, qubits, group=group, cutoff_date=cutoff_date)
                 sched.metadata["publisher"] = CalibrationPublisher.EXPERIMENT_SERVICE
                 backend.defaults().instruction_schedule_map.add(
-                    instruction=sched_key.schedule,
-                    qubits=sched_key.qubits,
+                    instruction=sched,
+                    qubits=qubits,
                     schedule=sched,
                 )
 
