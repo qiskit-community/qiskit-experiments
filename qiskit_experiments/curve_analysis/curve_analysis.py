@@ -302,7 +302,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
             AnalysisError: When series definitions have inconsistent multi-objective fit function.
             ValueError: When fixed parameter name is not used in the fit function.
         """
-        # this logic is call only once
         fsigs = set()
         for series_def in cls.__series__:
             fsigs.add(inspect.signature(series_def.fit_func))
