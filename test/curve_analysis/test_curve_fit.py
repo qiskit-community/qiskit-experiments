@@ -105,6 +105,18 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         )
         self.err_decimal = 3
 
+    def test_parsed_fit_params(self):
+        """Test parsed fit params."""
+        self.assertSetEqual(set(self.analysis._fit_params()), {"p0", "p1", "p2", "p3", "p4"})
+
+    def test_parsed_init_guess(self):
+        """Test parsed initial guess and boundaries."""
+        default_p0 = self.analysis._default_options().p0
+        default_bounds = self.analysis._default_options().bounds
+        ref = {"p0": None, "p1": None, "p2": None, "p3": None, "p4": None}
+        self.assertDictEqual(default_p0, ref)
+        self.assertDictEqual(default_bounds, ref)
+
     def test_cannot_create_invalid_series_fit(self):
         """Test we cannot create invalid analysis instance."""
         invalid_series = [

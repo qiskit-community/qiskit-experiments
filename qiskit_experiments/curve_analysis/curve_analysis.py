@@ -268,12 +268,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
             AnalysisError: When series definitions have inconsistent multi-objective fit function.
             ValueError: When fixed parameter name is not used in the fit function.
         """
-        fit_params = getattr(cls, "__fit_params__", None)
-
-        if fit_params is not None:
-            # load from cache. python inspect is compute-heavy.
-            return fit_params
-
         # this logic is call only once
         fsigs = set()
         for series_def in cls.__series__:
@@ -300,7 +294,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         f"fit functions. Currently available parameters are {fit_params}."
                     ) from ex
 
-        setattr(cls, "__fit_params__", fit_params)
         return fit_params
 
     @classmethod
@@ -347,8 +340,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
             return_data_points=False,
         )
 
-        options.p0 = {par_name: None for par_name in cls._fit_params()}
-        options.bounds = {par_name: None for par_name in cls._fit_params()}
+        # automatically populate initial guess and boundary
+        fit_params = cls._fit_params()
+        options.p0 = {par_name: None for par_name in fit_params}
+        options.bounds = {par_name: None for par_name in fit_params}
 
         return options
 
@@ -684,6 +679,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 - When initial guesses are not provided.
                 - When fit option is array but length doesn't match with parameter number.
         """
+        fit_params = self._fit_params()
+
         # Remove any fixed parameter so as not to give them to the fitter.
         if self.__fixed_parameters__:
             for pname in self.__fixed_parameters__:
@@ -692,10 +689,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # Validate dictionary keys
         def _check_keys(parameter_name, default_value=None):
             named_values = fitter_options[parameter_name]
-            if not named_values.keys() == set(self._fit_params()):
+            if not named_values.keys() == set(fit_params):
                 raise AnalysisError(
                     f"Fitting option `{parameter_name}` doesn't have the "
-                    f"expected parameter names {','.join(self._fit_params())}."
+                    f"expected parameter names {','.join(fit_params)}."
                 )
             for key in named_values:
                 if named_values[key] is None:
@@ -704,13 +701,13 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # Convert array into dictionary
         def _dictionarize(parameter_name):
             parameter_array = fitter_options[parameter_name]
-            if len(parameter_array) != len(self._fit_params()):
+            if len(parameter_array) != len(fit_params):
                 raise AnalysisError(
                     f"Value length of fitting option `{parameter_name}` doesn't "
                     "match with the length of expected parameters. "
-                    f"{len(parameter_array)} != {len(self._fit_params())}."
+                    f"{len(parameter_array)} != {len(fit_params)}."
                 )
-            return dict(zip(self._fit_params(), parameter_array))
+            return dict(zip(fit_params, parameter_array))
 
         if fitter_options.get("p0", None):
             if isinstance(fitter_options["p0"], dict):
@@ -728,7 +725,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 fitter_options["bounds"] = _dictionarize("bounds")
         else:
             # bounds are optional
-            fitter_options["bounds"] = {par: (-np.inf, np.inf) for par in self._fit_params()}
+            fitter_options["bounds"] = {par: (-np.inf, np.inf) for par in fit_params}
 
         return fitter_options
 
