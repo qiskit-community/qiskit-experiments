@@ -52,7 +52,6 @@ class T2Ramsey(BaseExperiment):
         :math:`\lambda =2 \pi \times {osc\_freq}`,
         and the delays are specified by the user.
         The circuits are run on the device or on a simulator backend.
-        Results are analysed in the class T2RamseyAnalysis.
 
     # section: tutorial
         :doc:`/tutorials/t2ramsey_characterization`
@@ -92,9 +91,7 @@ class T2Ramsey(BaseExperiment):
             Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'. The unit is \
             used for both T2Ramsey and for the frequency.
             osc_freq: the oscillation frequency induced by the user. \
-            The frequency is given in Hz and scaled according to the \
-            reciprocal of the unit, \
-            e.g.,if unit='ms' then the frequency unit is KHz.
+            The frequency is given in Hz.
             experiment_type: String indicating the experiment type.
 
         """
