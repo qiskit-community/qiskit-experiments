@@ -22,9 +22,43 @@ from abc import ABC
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
 from matplotlib import pyplot
+from matplotlib.ticker import FuncFormatter
 import numpy as np
 from qiskit.providers.options import Options
 from qiskit.providers import Backend
+
+try:
+    from qiskit.utils import detach_prefix
+except ImportError:
+    import warnings
+
+    # TODO remove this after Qiskit-terra #6885 becomes available
+    def detach_prefix(value: float) -> Tuple[float, str]:
+        """A placeholder function. This will be imported from qiskit terra."""
+        downfactors = ["p", "n", "μ", "m"]
+        upfactors = ["k", "M", "G", "T"]
+
+        if not value:
+            return 0.0, ""
+
+        try:
+            fixed_point_3n = int(np.floor(np.log10(np.abs(value)) / 3))
+            if fixed_point_3n != 0:
+                if fixed_point_3n > 0:
+                    prefix = upfactors[fixed_point_3n - 1]
+                else:
+                    prefix = downfactors[fixed_point_3n]
+                scale = 10 ** (-3 * fixed_point_3n)
+            else:
+                prefix = ""
+                scale = 1.0
+        except IndexError:
+            warnings.warn(f"The value {value} is out of range. Raw value is returned.", UserWarning)
+            prefix = ""
+            scale = 1.0
+
+        return scale * value, prefix
+
 
 from qiskit_experiments.curve_analysis.curve_data import (
     CurveData,
@@ -318,6 +352,17 @@ class CurveAnalysis(BaseAnalysis, ABC):
             xlabel (str): X label of fit result figure.
             ylabel (str): Y label of fit result figure.
             ylim (Tuple[float, float]): Min and max height limit of fit plot.
+            xval_unit (str): SI unit of x values. No prefix is needed here.
+                For example, when the x values represent time, this option will be just "s"
+                rather than "ms". In the fit result plot, the prefix is automatically selected
+                based on the maximum value. If your x values are in [1e-3, 1e-4], they
+                are displayed as [1 ms, 10 ms]. This option is likely provided by the
+                analysis class rather than end-users. However, users can still override
+                if they need different unit notation. By default, this option is set to ``None``,
+                and no scaling is applied. X axis will be displayed in the scientific notation.
+            yval_unit (str): Unit of y values. Same as ``xval_unit``.
+                This value is not provided in most experiments, because y value is usually
+                population or expectation values.
             result_parameters (List[Union[str, ParameterRepr]): Parameters reported in the
                 database as a dedicated entry. This is a list of parameter representation
                 which is either string or ParameterRepr object. If you provide more
@@ -339,6 +384,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
             xlabel=None,
             ylabel=None,
             ylim=None,
+            xval_unit=None,
+            yval_unit=None,
             result_parameters=None,
             return_data_points=False,
         )
@@ -408,8 +455,23 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # format axis
         if len(self.__series__) > 1:
             axis.legend(loc="center right")
-        axis.set_xlabel(self._get_option("xlabel"), fontsize=16)
-        axis.set_ylabel(self._get_option("ylabel"), fontsize=16)
+
+        # get axis scaling factor
+        for this_axis in ("x", "y"):
+            sub_axis = getattr(axis, this_axis + "axis")
+            unit = self._get_option(this_axis + "val_unit")
+            label = self._get_option(this_axis + "label")
+            if unit:
+                maxv = np.max(np.abs(sub_axis.get_data_interval()))
+                scaled_maxv, prefix = detach_prefix(maxv)
+                prefactor = scaled_maxv / maxv
+                # pylint: disable=cell-var-from-loop
+                sub_axis.set_major_formatter(FuncFormatter(lambda x, p: f"{x * prefactor: g}"))
+                sub_axis.set_label_text(f"{label} [{prefix}{unit}]", fontsize=16)
+            else:
+                sub_axis.set_label_text(label, fontsize=16)
+                axis.ticklabel_format(axis=this_axis, style="sci", scilimits=(-3, 3))
+
         axis.tick_params(labelsize=14)
         axis.grid(True)
 
@@ -421,19 +483,42 @@ class CurveAnalysis(BaseAnalysis, ABC):
             axis.set_ylim(fit_data.y_range[0] - 0.1 * height, fit_data.y_range[1] + 0.1 * height)
 
         # write analysis report
-        def _format_val(val):
-            if val < 1e-2 or val > 1e2:
-                return f"{val: .4e}"
-            return f"{val: .4f}"
-
         if fit_data and analysis_results:
             analysis_description = ""
             for res in analysis_results:
                 if isinstance(res.value, FitVal) and not res.name.startswith(PARAMS_ENTRY_PREFIX):
                     fitval = res.value
-                    value_repr = f"{_format_val(fitval.value)}"
-                    if fitval.stderr is not None:
-                        value_repr += f" \u00B1 {_format_val(fitval.stderr)}"
+                    if fitval.unit:
+                        # unit is defined. do detaching prefix, i.e. 1000 Hz -> 1 kHz
+                        val, val_prefix = detach_prefix(fitval.value)
+                        val_unit = val_prefix + fitval.unit
+                        value_repr = f"{val: .3f}"
+                        if fitval.stderr is not None:
+                            # with stderr
+                            err, err_prefix = detach_prefix(fitval.stderr)
+                            err_unit = err_prefix + fitval.unit
+                            if val_unit == err_unit:
+                                # same value scaling, same prefix
+                                value_repr += f" \u00B1 {err: .2f} {val_unit}"
+                            else:
+                                # different value scaling, different prefix
+                                value_repr += f" {val_unit} \u00B1 {err: .2f} {err_unit}"
+                        else:
+                            # without stderr, just append unit
+                            value_repr += f" {val_unit}"
+                    else:
+                        # unit is not defined. raw value formatting is performed.
+
+                        def format_val(float_val: float) -> str:
+                            if np.abs(float_val) < 1e-3 or np.abs(float_val) > 1e3:
+                                return f"{float_val: .4e}"
+                            return f"{float_val: .4f}"
+
+                        value_repr = format_val(fitval.value)
+                        if fitval.stderr is not None:
+                            # with stderr
+                            value_repr += f" \u00B1 {format_val(fitval.stderr)}"
+
                     analysis_description += f"{res.name} = {value_repr}\n"
             analysis_description += r"Fit $\chi^2$ = " + f"{fit_data.reduced_chisq: .4f}"
 
@@ -452,7 +537,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         return [figure]
 
-    def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """An analysis subroutine that is called to set fitter options.
 
         Subclasses can override this method to provide their own fitter options
@@ -497,13 +582,16 @@ class CurveAnalysis(BaseAnalysis, ABC):
         as the fitter function. See Scipy API docs for more fitting option details.
 
         Args:
-            options: User provided extra options that are not defined in default options.
+            extra_options: User provided extra options that are not defined in the default options.
 
         Returns:
-            List of FitOptions that are passed to fitter function.
+            List of fit options that are passed to the fitter function.
         """
         fit_options = {"p0": self._get_option("p0"), "bounds": self._get_option("bounds")}
-        fit_options.update(options)
+
+        # p0 and bounds are defined in the default options, therefore updating
+        # with the extra options only adds options and doesn't override p0 or bounds
+        fit_options.update(extra_options)
 
         return fit_options
 
@@ -856,11 +944,20 @@ class CurveAnalysis(BaseAnalysis, ABC):
     def _arg_parse(self, **options) -> Dict[str, Any]:
         """Parse input kwargs with predicted input.
 
+        Class attributes will be updated according to the ``options``.
+        For example, if ``options`` has a key ``p0``, and the class
+        has an attribute named ``__p0``,  then the attribute  ``__0p``
+        will be updated to ``options["p0"]``.
+
+        Options that don't have matching attributes will be included
+        in the returned dictionary.
+
         Args:
             options: User-input keyword argument options.
 
         Returns:
-            Keyword arguments that not specified in the default options.
+            Keyword arguments not specified in the default options
+            of the class.
         """
         extra_options = dict()
         for key, value in options.items():
@@ -935,7 +1032,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 assigned_series.append(SeriesDef(**dict_def))
             self.__series__ = assigned_series
 
-        # pop arguments that are not given to fitter
+        # pop arguments that are not given to the fitter,
+        # and update class attributes with the arguments that are given to the fitter
+        # (arguments that have matching attributes in the class)
         extra_options = self._arg_parse(**options)
 
         # get experiment metadata
@@ -1091,6 +1190,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
             raw_data_entry = AnalysisResultData(
                 name=DATA_ENTRY_PREFIX + self.__class__.__name__,
                 value=raw_data_dict,
+                extra={
+                    "x-unit": self._get_option("xval_unit"),
+                    "y-unit": self._get_option("yval_unit"),
+                },
             )
             analysis_results.append(raw_data_entry)
 
