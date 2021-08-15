@@ -22,12 +22,17 @@ from qiskit.providers import Backend
 import qiskit.pulse as pulse
 from qiskit.providers.options import Options
 
-from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.library.calibration.analysis.drag_analysis import DragCalAnalysis
+from qiskit_experiments.calibration_management.update_library import Drag
+from qiskit_experiments.calibration_management.calibrations import Calibrations
+from qiskit_experiments.calibration_management.base_calibration_experiment import (
+    BaseCalibrationExperiment,
+)
 
 
-class DragCal(BaseExperiment):
+class DragCal(BaseCalibrationExperiment):
     r"""An experiment that scans the DRAG parameter to find the optimal value.
 
     # section: overview
@@ -76,6 +81,8 @@ class DragCal(BaseExperiment):
 
     __analysis_class__ = DragCalAnalysis
 
+    __updater__ = Drag
+
     @classmethod
     def _default_run_options(cls) -> Options:
         """Default option values for the experiment :meth:`run` method."""
@@ -106,6 +113,8 @@ class DragCal(BaseExperiment):
                 each series. Note that this list must always have a length of three as
                 otherwise the analysis class will not run.
             betas (Iterable): the values of the DRAG parameter to scan.
+            cal_parameter_name (str): The name of the DRAG parameter in the schedule stored in
+                the calibrations instance. The default value is "β".
         """
         options = super()._default_experiment_options()
 
@@ -116,6 +125,7 @@ class DragCal(BaseExperiment):
         options.sigma = 40
         options.reps = [1, 3, 5]
         options.betas = np.linspace(-5, 5, 51)
+        options.cal_parameter_name = "β"
 
         return options
 
@@ -148,13 +158,38 @@ class DragCal(BaseExperiment):
 
         super().set_experiment_options(reps=reps, **fields)
 
-    def __init__(self, qubit: int):
+    def __init__(
+        self,
+        qubit: int,
+        calibrations: Optional[Calibrations] = None,
+        schedule_name: Optional[str] = "x",
+        cal_parameter_name: Optional[str] = "β",
+        betas: Optional[List] = None,
+    ):
         """
         Args:
             qubit: The qubit for which to run the Drag calibration.
+            calibrations: An optional instance of :class:`Calibrations`. If calibrations is
+                given then running the experiment may update the values of the pulse parameters
+                stored in calibrations.
+            schedule_name: The name of the schedule to extract from the calibrations. This value
+                defaults to "x".
+            cal_parameter_name: The name of the parameter in calibrations to update. This name will
+                be stored in the experiment options and defaults to "β".
+            betas: The values of the DRAG parameter to scan. Specify this argument to override the
+                default values of the experiment.
         """
-
         super().__init__([qubit])
+        self.experiment_options.calibrations = calibrations
+        self.experiment_options.cal_parameter_name = cal_parameter_name
+
+        if calibrations is not None and schedule_name is not None:
+            self.experiment_options.rp = calibrations.get_schedule(
+                schedule_name, qubit, assign_params={cal_parameter_name: Parameter("β")}
+            )
+
+        if betas is not None:
+            self.experiment_options.betas = betas
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Create the circuits for the Drag calibration.
@@ -257,3 +292,17 @@ class DragCal(BaseExperiment):
                 circuits.append(assigned_circuit)
 
         return circuits
+
+    def update_calibrations(self, experiment_data: ExperimentData):
+        """Update the calibrations given the experiment data.
+
+        Args:
+            experiment_data: The experiment data to use for the update.
+        """
+        calibrations = self.experiment_options.calibrations
+        name = self.experiment_options.rp.name
+        parameter_name = self.experiment_options.cal_parameter_name
+
+        self.__updater__.update(
+            calibrations, experiment_data, parameter=parameter_name, schedule=name
+        )

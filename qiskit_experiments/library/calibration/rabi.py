@@ -12,7 +12,7 @@
 
 """Rabi amplitude experiment."""
 
-from typing import List, Optional
+from typing import List, Optional, Tuple
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -22,13 +22,18 @@ from qiskit.providers import Backend
 import qiskit.pulse as pulse
 from qiskit.providers.options import Options
 
-from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.curve_analysis import ParameterRepr
+from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.library.calibration.analysis.oscillation_analysis import OscillationAnalysis
 from qiskit_experiments.exceptions import CalibrationError
+from qiskit_experiments.calibration_management.update_library import Amplitude
+from qiskit_experiments.calibration_management.calibrations import Calibrations
+from qiskit_experiments.calibration_management.base_calibration_experiment import (
+    BaseCalibrationExperiment,
+)
 
 
-class Rabi(BaseExperiment):
+class Rabi(BaseCalibrationExperiment):
     """An experiment that scans the amplitude of a pulse to calibrate rotations between 0 and 1.
 
     # section: overview
@@ -58,6 +63,7 @@ class Rabi(BaseExperiment):
 
     __analysis_class__ = OscillationAnalysis
     __rabi_gate_name__ = "Rabi"
+    __updater__ = Amplitude
 
     @classmethod
     def _default_run_options(cls) -> Options:
@@ -82,14 +88,21 @@ class Rabi(BaseExperiment):
             sigma (float): The standard deviation of the default Gaussian pulse.
             amplitudes (iterable): The list of amplitude values to scan.
             schedule (ScheduleBlock): The schedule for the Rabi pulse that overrides the default.
-
+            cal_parameter_name (str): The name of the amplitude parameter in the schedule stored in
+                the calibrations instance. The default value is "amp".
+            angles_schedules (List): A list of tuples that is given to the :class:`Amplitude`
+                updater. By default this is set to update the x and square-root X pulse, i.e. the
+                default value is :code:`[(np.pi, "amp", "x"), (np.pi / 2, "amp", "sx")]`.
         """
-        return Options(
-            duration=160,
-            sigma=40,
-            amplitudes=np.linspace(-0.95, 0.95, 51),
-            schedule=None,
-        )
+        options = super()._default_experiment_options()
+        options.duration = 160
+        options.sigma = 40
+        options.amplitudes = (np.linspace(-0.95, 0.95, 51),)
+        options.schedule = None
+        options.cal_parameter_name = "amp"
+        options.angles_schedules = [(np.pi, "amp", "x"), (np.pi / 2, "amp", "sx")]
+
+        return options
 
     @classmethod
     def _default_analysis_options(cls) -> Options:
@@ -100,7 +113,15 @@ class Rabi(BaseExperiment):
 
         return options
 
-    def __init__(self, qubit: int):
+    def __init__(
+        self,
+        qubit: int,
+        calibrations: Optional[Calibrations] = None,
+        schedule_name: Optional[str] = "x",
+        cal_parameter_name: Optional[str] = "amp",
+        amplitudes: Optional[List] = None,
+        angles_schedules: Optional[List[Tuple]] = None,
+    ):
         """Initialize a Rabi experiment on the given qubit.
 
         The parameters of the Gaussian Rabi pulse can be specified at run-time.
@@ -112,8 +133,45 @@ class Rabi(BaseExperiment):
 
         Args:
             qubit: The qubit on which to run the Rabi experiment.
+            calibrations: An optional instance of :class:`Calibrations`. If calibrations is
+                given then running the experiment may update the values of the pulse parameters
+                stored in calibrations.
+            schedule_name: The name of the schedule to extract from the calibrations. This value
+                defaults to "x".
+            cal_parameter_name: The name of the parameter in calibrations to update. This name will
+                be stored in the experiment options and defaults to "amp".
+            amplitudes: The values of the amplitudes to scan. Specify this argument to override the
+                default values of the experiment.
+            angles_schedules: A list of tuples that is given to the :class:`Amplitude`
+                updater. See the experiment options for default values.
+
+        Raises:
+            CalibrationError: If the schedule_name or calibration parameter name are not contained
+                in the list of angles to update.
         """
         super().__init__([qubit])
+        self.experiment_options.calibrations = calibrations
+        self.experiment_options.cal_parameter_name = cal_parameter_name
+
+        if angles_schedules is not None:
+            self.experiment_options.angles_schedules = angles_schedules
+
+        if calibrations is not None:
+            self.experiment_options.schedule = calibrations.get_schedule(
+                schedule_name, qubit, assign_params={cal_parameter_name: Parameter("amp")}
+            )
+
+            # consistency check between the schedule and the amplitudes to update.
+            for update_tuple in self.experiment_options.angles_schedules:
+                if update_tuple[1] == cal_parameter_name and update_tuple[2] == schedule_name:
+                    break
+            else:
+                raise CalibrationError(
+                    f"The schedule {schedule_name} is not contained in the angles to update."
+                )
+
+        if amplitudes is not None:
+            self.experiment_options.amplitudes = amplitudes
 
     def _template_circuit(self, amp_param) -> QuantumCircuit:
         """Return the template quantum circuit."""
@@ -198,6 +256,18 @@ class Rabi(BaseExperiment):
             circs.append(assigned_circ)
 
         return circs
+
+    def update_calibrations(self, experiment_data: ExperimentData):
+        """Update the calibrations given the experiment data.
+
+        Args:
+            experiment_data: The experiment data to use for the update.
+        """
+        calibrations = self.experiment_options.calibrations
+
+        self.__updater__.update(
+            calibrations, experiment_data, angles_schedules=self.experiment_options.angles_schedules
+        )
 
 
 class EFRabi(Rabi):

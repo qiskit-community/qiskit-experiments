@@ -85,7 +85,7 @@ def roughamp(
     qubits: Union[int, Tuple[int]],
     backend,
     schedule_name: str = "x",
-    half_angle_schedule_name = "sx",
+    half_angle_schedule_name="sx",
     experiment_options=None,
 ) -> ExperimentData:
     """Run the Rabi amplitude calibration.
@@ -113,9 +113,7 @@ def roughamp(
         rabi = Rabi(qubit)
 
         sched = calibrations.get_schedule(
-            schedule_name,
-            qubit,
-            assign_params={"amp": Parameter("amp")}
+            schedule_name, qubit, assign_params={"amp": Parameter("amp")}
         )
 
         rabi.set_experiment_options(schedule=sched)
@@ -140,6 +138,7 @@ def roughamp(
         Amplitude.update(calibrations, data, angles_schedules=angles_schedules)
 
     return rabi_data
+
 
 def roughdrag(
     calibrations: Calibrations,
@@ -191,6 +190,7 @@ def roughdrag(
 
     return drag_data
 
+
 def fineamp(
     calibrations: Calibrations,
     qubits: Union[int, Tuple[int]],
@@ -230,7 +230,7 @@ def fineamp(
         experiment = FineXAmplitude
         cal_schedule_name = x_schedule_name
 
-    if np.allclose(angle, np.pi/2):
+    if np.allclose(angle, np.pi / 2):
         experiment = FineSXAmplitude
         cal_schedule_name = sx_schedule_name
 
@@ -255,7 +255,6 @@ def fineamp(
 
     # 2. Run the experiment
     fine_amp_data = fine_amplitude.run(backend).block_for_results()
-
 
     # 3. Update the calibrations
     for idx in range(len(qubits)):

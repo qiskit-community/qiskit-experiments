@@ -22,7 +22,6 @@ from qiskit.providers import Backend
 from qiskit.providers.options import Options
 from qiskit.pulse.schedule import ScheduleBlock
 
-from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.library.calibration.analysis.fine_amplitude_analysis import (
     FineAmplitudeAnalysis,
 )
@@ -30,9 +29,12 @@ from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.calibration_management.update_library import Amplitude
 from qiskit_experiments.calibration_management.calibrations import Calibrations
+from qiskit_experiments.calibration_management.base_calibration_experiment import (
+    BaseCalibrationExperiment,
+)
 
 
-class FineAmplitude(BaseExperiment):
+class FineAmplitude(BaseCalibrationExperiment):
     r"""Error amplifying fine amplitude calibration experiment.
 
     # section: overview
@@ -101,6 +103,8 @@ class FineAmplitude(BaseExperiment):
 
     __analysis_class__ = FineAmplitudeAnalysis
 
+    __updater__ = Amplitude
+
     @classmethod
     def _default_run_options(cls) -> Options:
         """Default option values for the experiment :meth:`run` method."""
@@ -125,6 +129,8 @@ class FineAmplitude(BaseExperiment):
                 run. This allows the analysis class to determine the correct sign for the amplitude.
             sx_schedule (ScheduleBlock): The schedule to attache to the SX gate.
             calibrations (Calibrations): An instance of :class:`Calibrations` with the pulses.
+            cal_parameter_name (str): The name of the parameter in calibrations to update. The
+                value of this parameter defaults to "amp".
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(15))
@@ -134,6 +140,7 @@ class FineAmplitude(BaseExperiment):
         options.add_xp_circuit = True
         options.sx_schedule = None
         options.calibrations = None
+        options.cal_parameter_name = "amp"
 
         return options
 
@@ -142,9 +149,10 @@ class FineAmplitude(BaseExperiment):
         qubit: int,
         calibrations: Optional[Calibrations] = None,
         schedule_name: Optional[str] = None,
+        cal_parameter_name: Optional[str] = "amp",
         repetitions: Optional[int] = None,
     ):
-        """Setup a fine amplitude experiment on the given qubit.
+        r"""Setup a fine amplitude experiment on the given qubit.
 
         Args:
             qubit: The qubit on which to run the fine amplitude calibration experiment.
@@ -152,10 +160,13 @@ class FineAmplitude(BaseExperiment):
                 given then running the experiment will update the values of the pulse parameters
                 stored in calibrations.
             schedule_name: The name of the schedule to extract from the calibrations.
+            cal_parameter_name: The name of the parameter in calibrations to update. This name will
+                be stored in the experiment options and defaults to "amp".
             repetitions: The list of times to repeat the gate in each circuit.
         """
         super().__init__([qubit])
         self.experiment_options.calibrations = calibrations
+        self.experiment_options.cal_parameter_name = cal_parameter_name
 
         if calibrations is not None and schedule_name is not None:
             self.experiment_options.schedule = calibrations.get_schedule(schedule_name, qubit)
@@ -301,36 +312,20 @@ class FineAmplitude(BaseExperiment):
 
         return circuits
 
-    def run(
-        self,
-        backend: Backend,
-        analysis: bool = True,
-        experiment_data: Optional[ExperimentData] = None,
-        **run_options,
-    ) -> ExperimentData:
-        """Run an experiment, perform analysis, and update any calibrations.
+    def update_calibrations(self, experiment_data: ExperimentData):
+        """Update the calibrations given the experiment data.
 
         Args:
-            backend: The backend to run the experiment on.
-            analysis: If True run analysis on the experiment data.
-            experiment_data: Optional, add results to existing experiment data.
-                If None a new ExperimentData object will be returned.
-            run_options: backend runtime options used for circuit execution.
-
-        Returns:
-            The experiment data object.
+            experiment_data: The experiment data to use for the update.
         """
-        experiment_data = super().run(backend, analysis, experiment_data, **run_options)
+        calibrations = self.experiment_options.calibrations
+        angle = self.analysis_options.angle_per_gate
+        name = self.experiment_options.schedule.name
+        parameter_name = self.experiment_options.cal_parameter_name
 
-        calibrations = self.experiment_options.get("calibrations", None)
-
-        if calibrations is not None:
-            experiment_data = experiment_data.block_for_results()
-            angle = self.analysis_options.angle_per_gate
-            name = self.experiment_options.schedule.name
-            Amplitude.update(calibrations, experiment_data, angles_schedules=[(angle, "amp", name)])
-
-        return experiment_data
+        self.__updater__.update(
+            calibrations, experiment_data, angles_schedules=[(angle, parameter_name, name)]
+        )
 
 
 class FineXAmplitude(FineAmplitude):
