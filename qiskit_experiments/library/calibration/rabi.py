@@ -97,7 +97,7 @@ class Rabi(BaseCalibrationExperiment):
         options = super()._default_experiment_options()
         options.duration = 160
         options.sigma = 40
-        options.amplitudes = (np.linspace(-0.95, 0.95, 51),)
+        options.amplitudes = np.linspace(-0.95, 0.95, 51)
         options.schedule = None
         options.cal_parameter_name = "amp"
         options.angles_schedules = [(np.pi, "amp", "x"), (np.pi / 2, "amp", "sx")]

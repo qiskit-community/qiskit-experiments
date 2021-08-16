@@ -20,10 +20,13 @@ from qiskit.pulse import DriveChannel, Drag
 import qiskit.pulse as pulse
 from qiskit.qobj.utils import MeasLevel
 from qiskit import transpile
+from qiskit.test.mock import FakeArmonk
 
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.library import DragCal
 from qiskit_experiments.test.mock_iq_backend import DragBackend
+from qiskit_experiments.calibration_management import BackendCalibrations
+from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 
 
 class TestDragEndToEnd(QiskitTestCase):
@@ -43,11 +46,11 @@ class TestDragEndToEnd(QiskitTestCase):
 
         self.x_minus = xm
         self.x_plus = xp
+        self.test_tol = 0.05
 
     def test_end_to_end(self):
         """Test the drag experiment end to end."""
 
-        test_tol = 0.05
         backend = DragBackend()
 
         drag = DragCal(1)
@@ -57,7 +60,7 @@ class TestDragEndToEnd(QiskitTestCase):
         expdata.block_for_results()
         result = expdata.analysis_results(1)
 
-        self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
+        self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
         # Small leakage will make the curves very flat.
@@ -74,7 +77,7 @@ class TestDragEndToEnd(QiskitTestCase):
         meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
 
         self.assertEqual(meas_level, MeasLevel.KERNELED)
-        self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
+        self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
         # Large leakage will make the curves oscillate quickly.
@@ -92,8 +95,17 @@ class TestDragEndToEnd(QiskitTestCase):
         meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
 
         self.assertEqual(meas_level, MeasLevel.CLASSIFIED)
-        self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
+        self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
+
+    def test_update_calibrations(self):
+        """Test that an instance of calibrations can be updated."""
+        library = FixedFrequencyTransmon(basis_gates=["x", "sx"])
+        cals = BackendCalibrations(FakeArmonk(), library=library)
+
+        self.assertEqual(cals.get_parameter_value("β", (0,), "x"), 0.0)
+        DragCal(0, calibrations=cals).run(DragBackend())
+        self.assertTrue(abs(cals.get_parameter_value("β", (0,), "x") - 2.0) < self.test_tol)
 
 
 class TestDragCircuits(QiskitTestCase):

@@ -22,6 +22,7 @@ from qiskit.providers.basicaer import QasmSimulatorPy
 from qiskit.test import QiskitTestCase
 from qiskit.qobj.utils import MeasLevel
 import qiskit.pulse as pulse
+from qiskit.test.mock import FakeArmonk
 
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import Rabi, EFRabi
@@ -30,6 +31,8 @@ from qiskit_experiments.library.calibration.analysis.oscillation_analysis import
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+from qiskit_experiments.calibration_management import BackendCalibrations
+from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 
 
 class RabiBackend(MockIQBackend):
@@ -60,10 +63,13 @@ class RabiBackend(MockIQBackend):
 class TestRabiEndToEnd(QiskitTestCase):
     """Test the rabi experiment."""
 
+    def setUp(self):
+        """Setup the test."""
+        self.test_tol = 0.01
+
     def test_rabi_end_to_end(self):
         """Test the Rabi experiment end to end."""
 
-        test_tol = 0.01
         backend = RabiBackend()
 
         rabi = Rabi(1)
@@ -73,7 +79,7 @@ class TestRabiEndToEnd(QiskitTestCase):
         result = expdata.analysis_results(0)
 
         self.assertEqual(result.quality, "good")
-        self.assertTrue(abs(result.value.value[1] - backend.rabi_rate) < test_tol)
+        self.assertTrue(abs(result.value.value[1] - backend.rabi_rate) < self.test_tol)
 
         backend = RabiBackend(amplitude_to_angle=np.pi / 2)
 
@@ -83,7 +89,7 @@ class TestRabiEndToEnd(QiskitTestCase):
         expdata.block_for_results()
         result = expdata.analysis_results(0)
         self.assertEqual(result.quality, "good")
-        self.assertTrue(abs(result.value.value[1] - backend.rabi_rate) < test_tol)
+        self.assertTrue(abs(result.value.value[1] - backend.rabi_rate) < self.test_tol)
 
         backend = RabiBackend(amplitude_to_angle=2.5 * np.pi)
 
@@ -93,7 +99,7 @@ class TestRabiEndToEnd(QiskitTestCase):
         expdata.block_for_results()
         result = expdata.analysis_results(0)
         self.assertEqual(result.quality, "good")
-        self.assertTrue(abs(result.value.value[1] - backend.rabi_rate) < test_tol)
+        self.assertTrue(abs(result.value.value[1] - backend.rabi_rate) < self.test_tol)
 
     def test_wrong_processor(self):
         """Test that we can override the data processing by giving a faulty data processor."""
@@ -111,6 +117,15 @@ class TestRabiEndToEnd(QiskitTestCase):
         result = data.analysis_results()
 
         self.assertEqual(len(result), 0)
+
+    def test_update_calibrations(self):
+        """Test that we can update an instance of calibrations."""
+        library = FixedFrequencyTransmon(basis_gates=["x", "sx"])
+        cals = BackendCalibrations(FakeArmonk(), library=library)
+
+        self.assertEqual(cals.get_parameter_value("amp", (0,), "x"), 0.5)
+        Rabi(0, calibrations=cals).run(RabiBackend())
+        self.assertTrue(abs(cals.get_parameter_value("amp", (0,), "x") - 1.0) < self.test_tol)
 
 
 class TestEFRabi(QiskitTestCase):
