@@ -19,9 +19,9 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
-from qiskit.providers.options import Options
 from qiskit.pulse.schedule import ScheduleBlock
 
+from qiskit_experiments.framework import Options
 from qiskit_experiments.library.calibration.analysis.fine_amplitude_analysis import (
     FineAmplitudeAnalysis,
 )
@@ -108,10 +108,11 @@ class FineAmplitude(BaseCalibrationExperiment):
     @classmethod
     def _default_run_options(cls) -> Options:
         """Default option values for the experiment :meth:`run` method."""
-        return Options(
-            meas_level=MeasLevel.CLASSIFIED,
-            meas_return="avg",
-        )
+        options = super()._default_run_options()
+        options.meas_level = MeasLevel.CLASSIFIED
+        options.meas_return = "avg"
+
+        return options
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -375,10 +376,18 @@ class FineXAmplitude(FineAmplitude):
             repetitions: The list of times to repeat the gate in each circuit.
         """
         super().__init__(qubit, cals, schedule_name, repetitions)
-        self.set_analysis_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
-
+        
         if cals is not None and sx_schedule_name is not None:
             self.experiment_options.sx_schedule = cals.get_schedule(sx_schedule_name, qubit)
+
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_analysis_options()
+        options.angle_per_gate = np.pi
+        options.phase_offset = np.pi / 2
+
+        return options
 
 
 class FineSXAmplitude(FineAmplitude):
@@ -412,23 +421,11 @@ class FineSXAmplitude(FineAmplitude):
 
         return options
 
-    def __init__(
-        self,
-        qubit: int,
-        cals: Optional[Calibrations] = None,
-        schedule_name: Optional[str] = "sx",
-        repetitions: Optional[int] = None,
-    ):
-        """Setup a fine amplitude experiment on the given qubit.
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_analysis_options()
+        options.angle_per_gate = np.pi / 2
+        options.phase_offset = 0
 
-        Args:
-            qubit: The qubit on which to run the fine amplitude calibration experiment.
-            cals: An optional instance of :class:`Calibrations`. If calibrations is
-                given then running the experiment will update the values of the pulse parameters
-                stored in calibrations.
-            schedule_name: The name of the schedule to extract from the calibrations. The default
-                value is "sx".
-            repetitions: The list of times to repeat the gate in each circuit.
-        """
-        super().__init__(qubit, cals, schedule_name, repetitions)
-        self.set_analysis_options(angle_per_gate=np.pi / 2, phase_offset=0)
+        return options

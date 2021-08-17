@@ -20,7 +20,6 @@ from qiskit.circuit import Gate, Parameter
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
 import qiskit.pulse as pulse
-from qiskit.providers.options import Options
 
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.exceptions import CalibrationError
@@ -86,10 +85,12 @@ class DragCal(BaseCalibrationExperiment):
     @classmethod
     def _default_run_options(cls) -> Options:
         """Default option values for the experiment :meth:`run` method."""
-        return Options(
-            meas_level=MeasLevel.CLASSIFIED,
-            meas_return="avg",
-        )
+        options = super()._default_run_options()
+
+        options.meas_level = MeasLevel.CLASSIFIED
+        options.meas_return = "avg"
+
+        return options
 
     @classmethod
     def _default_experiment_options(cls) -> Options:

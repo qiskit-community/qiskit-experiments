@@ -20,11 +20,11 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Gate, Parameter
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
-from qiskit.providers.options import Options
 from qiskit.qobj.utils import MeasLevel
 from qiskit.utils import apply_prefix
 
 from qiskit_experiments.framework.experiment_data import ExperimentData
+from qiskit_experiments.framework import Options
 from qiskit_experiments.curve_analysis import ParameterRepr
 from qiskit_experiments.calibration_management.update_library import Frequency
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
@@ -59,10 +59,12 @@ class QubitSpectroscopy(BaseCalibrationExperiment):
     @classmethod
     def _default_run_options(cls) -> Options:
         """Default options values for the experiment :meth:`run` method."""
-        return Options(
-            meas_level=MeasLevel.KERNELED,
-            meas_return="single",
-        )
+        options = super()._default_run_options()
+
+        options.meas_level = MeasLevel.KERNELED
+        options.meas_return = "single"
+
+        return options
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -77,6 +79,7 @@ class QubitSpectroscopy(BaseCalibrationExperiment):
                 Defaults to 0.
         """
         options = super()._default_experiment_options()
+
         options.amp = 0.1
         options.duration = 1024
         options.sigma = 256

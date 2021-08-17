@@ -20,8 +20,8 @@ from qiskit.circuit import Gate, Parameter
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
 import qiskit.pulse as pulse
-from qiskit.providers.options import Options
 
+from qiskit_experiments.framework import Options
 from qiskit_experiments.curve_analysis import ParameterRepr
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.library.calibration.analysis.oscillation_analysis import OscillationAnalysis
@@ -68,10 +68,12 @@ class Rabi(BaseCalibrationExperiment):
     @classmethod
     def _default_run_options(cls) -> Options:
         """Default option values for the experiment :meth:`run` method."""
-        return Options(
-            meas_level=MeasLevel.KERNELED,
-            meas_return="single",
-        )
+        options = super()._default_run_options()
+
+        options.meas_level = MeasLevel.KERNELED
+        options.meas_return = "single"
+
+        return options
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -95,6 +97,7 @@ class Rabi(BaseCalibrationExperiment):
                 default value is :code:`[(np.pi, "amp", "x"), (np.pi / 2, "amp", "sx")]`.
         """
         options = super()._default_experiment_options()
+
         options.duration = 160
         options.sigma = 40
         options.amplitudes = np.linspace(-0.95, 0.95, 51)
