@@ -114,7 +114,7 @@ class T2RamseyBackend(BackendV1):
                     if op.name == "delay":
                         delay = op.params[0]
                         t2ramsey = self._t2ramsey[qubit] * self._dt_factor
-                        freq = self._freq[qubit] / self._dt_factor
+                        freq = self._freq[qubit]
 
                         prob_plus[qubit] = (
                             self._a_param[qubit]
@@ -156,6 +156,8 @@ class T2RamseyBackend(BackendV1):
 class TestT2Ramsey(QiskitTestCase):
     """Test T2Ramsey experiment"""
 
+    __tolerance__ = 0.1
+
     def test_t2ramsey_run_end2end(self):
         """
         Run the T2Ramsey backend on all possible units
@@ -165,9 +167,9 @@ class TestT2Ramsey(QiskitTestCase):
                 dt_factor = 1
             else:
                 dt_factor = apply_prefix(1, unit)
-            osc_freq = 0.1
+            osc_freq = 0.1 / dt_factor
             estimated_t2ramsey = 20
-            estimated_freq = 0.11
+            estimated_freq = osc_freq * 1.001
             # Set up the circuits
             qubit = 0
             if unit == "dt":  # dt requires integer values for delay
@@ -177,7 +179,6 @@ class TestT2Ramsey(QiskitTestCase):
                     (np.linspace(1.0, 15.0, num=15)).astype(float),
                     (np.linspace(16.0, 45.0, num=59)).astype(float),
                 )
-
             exp = T2Ramsey(qubit, delays, unit=unit, osc_freq=osc_freq)
             default_p0 = {
                 "A": 0.5,
@@ -208,12 +209,12 @@ class TestT2Ramsey(QiskitTestCase):
             self.assertAlmostEqual(
                 result[0].value.value,
                 estimated_t2ramsey * dt_factor,
-                delta=3 * dt_factor,
+                delta=TestT2Ramsey.__tolerance__ * result[0].value.value
             )
             self.assertAlmostEqual(
                 result[1].value.value,
-                estimated_freq / dt_factor,
-                delta=3 / dt_factor,
+                estimated_freq,
+                delta=TestT2Ramsey.__tolerance__ * result[1].value.value
             )
             for res in result:
                 self.assertEqual(res.quality, "good", "Result quality bad for unit " + str(unit))
@@ -223,13 +224,14 @@ class TestT2Ramsey(QiskitTestCase):
         Test parallel experiments of T2Ramsey using a simulator.
         """
         t2ramsey = [30, 25]
+        unit = "s"
         estimated_freq = [0.1, 0.12]
         delays = [list(range(1, 60)), list(range(1, 50))]
-        dt_factor = 1e-6
-        osc_freq = 0.1
 
-        exp0 = T2Ramsey(0, delays[0], osc_freq=osc_freq)
-        exp2 = T2Ramsey(2, delays[1], osc_freq=osc_freq)
+        osc_freq = [0.11, 0.11]
+
+        exp0 = T2Ramsey(0, delays[0], osc_freq=osc_freq[0])
+        exp2 = T2Ramsey(2, delays[1], osc_freq=osc_freq[1])
         par_exp = ParallelExperiment([exp0, exp2])
 
         p0 = {
@@ -246,11 +248,12 @@ class TestT2Ramsey(QiskitTestCase):
 
         for i in range(2):
             sub_res = expdata.component_experiment_data(i).analysis_results()
-            self.assertAlmostEqual(sub_res[0].value.value, t2ramsey[i], delta=3)
+            self.assertAlmostEqual(sub_res[0].value.value, t2ramsey[i],
+                                   delta=TestT2Ramsey.__tolerance__ * sub_res[0].value.value)
             self.assertAlmostEqual(
                 sub_res[1].value.value,
-                estimated_freq[i] / dt_factor,
-                delta=3 / dt_factor,
+                estimated_freq[i],
+                delta=TestT2Ramsey.__tolerance__ * sub_res[1].value.value
             )
             for res in sub_res:
                 self.assertEqual(
@@ -264,7 +267,6 @@ class TestT2Ramsey(QiskitTestCase):
         Concatenate the data from 2 separate experiments
         """
         unit = "s"
-        dt_factor = 1
         estimated_t2ramsey = 30
         estimated_freq = 0.09
         # First experiment
@@ -310,11 +312,11 @@ class TestT2Ramsey(QiskitTestCase):
 
         self.assertAlmostEqual(
             results1[0].value.value,
-            estimated_t2ramsey * dt_factor,
-            delta=3 * dt_factor,
+            estimated_t2ramsey,
+            delta=TestT2Ramsey.__tolerance__ * results1[0].value.value
         )
         self.assertAlmostEqual(
-            results1[1].value.value, estimated_freq / dt_factor, delta=3 / dt_factor
+            results1[1].value.value, estimated_freq, delta=TestT2Ramsey.__tolerance__ * results1[0].value.value
         )
         self.assertLessEqual(results1[0].value.stderr, results0[0].value.stderr)
         self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))
