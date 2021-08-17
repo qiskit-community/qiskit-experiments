@@ -305,6 +305,7 @@ class FineXAmplitude(FineAmplitude):
 
         return options
 
+    @classmethod
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
@@ -353,6 +354,7 @@ class FineSXAmplitude(FineAmplitude):
 
         return options
 
+    @classmethod
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
