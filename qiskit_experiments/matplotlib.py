@@ -14,7 +14,8 @@ Matplotlib helper functions
 """
 
 import functools
-import sys
+
+from matplotlib import pyplot
 
 
 def requires_matplotlib(func):
@@ -28,17 +29,12 @@ def requires_matplotlib(func):
         # plot. An alternative is to run this in a separate process, but then
         # we'd need to deal with pickling issues.
 
-        import matplotlib.pyplot as plt
-
-        saved_backend = plt.get_backend()
-        del sys.modules["matplotlib.pyplot"]
-        from matplotlib import use
-
-        use("Agg")
+        saved_backend = pyplot.get_backend()
+        pyplot.switch_backend("Agg")
         try:
             ret_val = func(*args, **kwargs)
         finally:
-            use(saved_backend)
+            pyplot.switch_backend(saved_backend)
         return ret_val
 
     return wrapped
