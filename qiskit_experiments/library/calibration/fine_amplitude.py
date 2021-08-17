@@ -314,14 +314,6 @@ class FineXAmplitude(FineAmplitude):
 
         return options
 
-    def __init__(self, qubit: int):
-        """Setup a fine amplitude experiment on the given qubit.
-
-        Args:
-            qubit: The qubit on which to run the fine amplitude calibration experiment.
-        """
-        super().__init__(qubit)
-
 
 class FineSXAmplitude(FineAmplitude):
     r"""A fine amplitude experiment with all the options set for the :math:`\pi/2`-rotation.
@@ -362,11 +354,3 @@ class FineSXAmplitude(FineAmplitude):
         options.phase_offset = 0
 
         return options
-
-    def __init__(self, qubit: int):
-        """Setup a fine amplitude experiment on the given qubit.
-
-        Args:
-            qubit: The qubit on which to run the fine amplitude calibration experiment.
-        """
-        super().__init__(qubit)
