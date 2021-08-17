@@ -354,11 +354,21 @@ class FineXAmplitude(FineAmplitude):
 
         return options
 
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_analysis_options()
+        options.angle_per_gate = np.pi
+        options.phase_offset = np.pi / 2
+
+        return options
+
     def __init__(
         self,
         qubit: int,
         cals: Optional[Calibrations] = None,
         schedule_name: Optional[str] = "x",
+        cal_parameter_name: Optional[str] = "amp",
         sx_schedule_name: Optional[str] = "sx",
         repetitions: Optional[int] = None,
     ):
@@ -371,23 +381,16 @@ class FineXAmplitude(FineAmplitude):
                 stored in calibrations.
             schedule_name: The name of the schedule to extract from the calibrations. The default
                 value is "x".
+            cal_parameter_name: The name of the parameter in calibrations to update. This name will
+                be stored in the experiment options and defaults to "amp".
             sx_schedule_name: The name of the schedule to extract from the calibrations for the
                 "sx" pulse that will be added.
             repetitions: The list of times to repeat the gate in each circuit.
         """
-        super().__init__(qubit, cals, schedule_name, repetitions)
-        
+        super().__init__(qubit, cals, schedule_name, cal_parameter_name, repetitions)
+
         if cals is not None and sx_schedule_name is not None:
             self.experiment_options.sx_schedule = cals.get_schedule(sx_schedule_name, qubit)
-
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = super()._default_analysis_options()
-        options.angle_per_gate = np.pi
-        options.phase_offset = np.pi / 2
-
-        return options
 
 
 class FineSXAmplitude(FineAmplitude):

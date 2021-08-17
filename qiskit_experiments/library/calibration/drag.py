@@ -21,6 +21,7 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
 import qiskit.pulse as pulse
 
+from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.library.calibration.analysis.drag_analysis import DragCalAnalysis
