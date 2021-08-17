@@ -126,8 +126,7 @@ class T2RamseyAnalysis(BaseAnalysis):
 
         t2ramsey_estimate = np.mean(xdata)
         p0, bounds = self._t2ramsey_default_params(
-            conversion_factor, user_p0, user_bounds, t2ramsey_estimate,
-            osc_freq
+            conversion_factor, user_p0, user_bounds, t2ramsey_estimate, osc_freq
         )
         xdata *= conversion_factor
         fit_result = curve_fit(
@@ -177,7 +176,7 @@ class T2RamseyAnalysis(BaseAnalysis):
         user_p0=None,
         user_bounds=None,
         t2ramsey_input=None,
-        freq_input=None
+        freq_input=None,
     ) -> Tuple[List[float], Tuple[List[float]]]:
         """Default fit parameters for oscillation data.
 
