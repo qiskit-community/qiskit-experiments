@@ -16,6 +16,7 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 from qiskit.providers.options import Options
 
+from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.curve_analysis import ParameterRepr
 from qiskit_experiments.library.characterization.qubit_spectroscopy import QubitSpectroscopy
 
@@ -36,6 +37,19 @@ class EFSpectroscopy(QubitSpectroscopy):
     """
 
     @classmethod
+    def _default_experiment_options(cls) -> Options:
+        """Default option values used for the spectroscopy pulse.
+
+        Experiment Options:
+            parameter_name (str): The name of the parameter to update in the calibrations
+                if a calibrations instance was specified in the experiment options. The
+                parameter_name name variable defaults to "f12".
+        """
+        options = super()._default_experiment_options()
+        options.parameter_name = "f12"
+        return options
+
+    @classmethod
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
@@ -51,3 +65,15 @@ class EFSpectroscopy(QubitSpectroscopy):
         circuit.measure_active()
 
         return circuit
+
+    def update_calibrations(self, experiment_data: ExperimentData):
+        """Update the calibrations given the experiment data.
+
+        Args:
+            experiment_data: The experiment data to use for the update.
+        """
+        param = self.experiment_options.parameter_name
+
+        self.__updater__.update(
+            self.experiment_options.calibrations, experiment_data, parameter=param
+        )

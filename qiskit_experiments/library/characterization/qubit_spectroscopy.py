@@ -24,12 +24,17 @@ from qiskit.providers.options import Options
 from qiskit.qobj.utils import MeasLevel
 from qiskit.utils import apply_prefix
 
-from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.curve_analysis import ParameterRepr
+from qiskit_experiments.calibration_management.update_library import Frequency
+from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
 from qiskit_experiments.library.characterization.resonance_analysis import ResonanceAnalysis
+from qiskit_experiments.calibration_management.base_calibration_experiment import (
+    BaseCalibrationExperiment,
+)
 
 
-class QubitSpectroscopy(BaseExperiment):
+class QubitSpectroscopy(BaseCalibrationExperiment):
     """Class that runs spectroscopy by sweeping the qubit frequency.
 
     The circuits produced by spectroscopy, i.e.
@@ -49,6 +54,7 @@ class QubitSpectroscopy(BaseExperiment):
 
     __analysis_class__ = ResonanceAnalysis
     __spec_gate_name__ = "Spec"
+    __updater__ = Frequency
 
     @classmethod
     def _default_run_options(cls) -> Options:
@@ -60,13 +66,23 @@ class QubitSpectroscopy(BaseExperiment):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default option values used for the spectroscopy pulse."""
-        return Options(
-            amp=0.1,
-            duration=1024,
-            sigma=256,
-            width=0,
-        )
+        """Default option values used for the spectroscopy pulse.
+
+        Experiment Options:
+            amp (float): The amplitude of the spectroscopy pulse. Defaults to 0.1.
+            duration (int): The duration of the spectroscopy pulse. Defaults to 1024 samples.
+            sigma (float): The standard deviation of the flanks of the spectroscopy pulse.
+                Defaults to 256.
+            width (int): The width of the flat-top part of the GaussianSquare pulse.
+                Defaults to 0.
+        """
+        options = super()._default_experiment_options()
+        options.amp = 0.1
+        options.duration = 1024
+        options.sigma = 256
+        options.width = 0
+
+        return options
 
     @classmethod
     def _default_analysis_options(cls) -> Options:
@@ -82,6 +98,7 @@ class QubitSpectroscopy(BaseExperiment):
         self,
         qubit: int,
         frequencies: Union[List[float], np.array],
+        cals: Optional[BackendCalibrations] = None,
         unit: Optional[str] = "Hz",
         absolute: bool = True,
     ):
@@ -97,9 +114,10 @@ class QubitSpectroscopy(BaseExperiment):
         Args:
             qubit: The qubit on which to run spectroscopy.
             frequencies: The frequencies to scan in the experiment.
-            unit: The unit in which the user specifies the frequencies. Can be one
-                of 'Hz', 'kHz', 'MHz', 'GHz'. Internally, all frequencies will be converted
-                to 'Hz'.
+            cals: If calibrations is given then running the experiment may update the values
+                of the frequencies stored in calibrations.
+            unit: The unit in which the user specifies the frequencies. Can be one of 'Hz', 'kHz',
+                'MHz', 'GHz'. Internally, all frequencies will be converted to 'Hz'.
             absolute: Boolean to specify if the frequencies are absolute or relative to the
                 qubit frequency in the backend.
 
@@ -107,6 +125,9 @@ class QubitSpectroscopy(BaseExperiment):
             QiskitError: if there are less than three frequency shifts or if the unit is not known.
 
         """
+        super().__init__([qubit])
+        self.experiment_options.calibrations = cals
+
         if len(frequencies) < 3:
             raise QiskitError("Spectroscopy requires at least three frequencies.")
 
@@ -114,8 +135,6 @@ class QubitSpectroscopy(BaseExperiment):
             self._frequencies = frequencies
         else:
             self._frequencies = [apply_prefix(freq, unit) for freq in frequencies]
-
-        super().__init__([qubit])
 
         self._absolute = absolute
 
@@ -211,3 +230,11 @@ class QubitSpectroscopy(BaseExperiment):
             circs.append(assigned_circ)
 
         return circs
+
+    def update_calibrations(self, experiment_data: ExperimentData):
+        """Update the calibrations given the experiment data.
+
+        Args:
+            experiment_data: The experiment data to use for the update.
+        """
+        self.__updater__.update(self.experiment_options.calibrations, experiment_data)

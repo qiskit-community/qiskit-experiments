@@ -18,9 +18,12 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.qobj.utils import MeasLevel
 from qiskit.test import QiskitTestCase
+from qiskit.test.mock import FakeArmonk
 
 from qiskit_experiments.library import QubitSpectroscopy, EFSpectroscopy
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
+from qiskit_experiments.calibration_management import BackendCalibrations
+from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 
 
 class SpectroscopyBackend(MockIQBackend):
@@ -147,3 +150,23 @@ class TestQubitSpectroscopy(QiskitTestCase):
         circ = spec.circuits(backend)[0]
         self.assertEqual(circ.data[0][0].name, "x")
         self.assertEqual(circ.data[1][0].name, "Spec")
+
+    def test_update_calibrations(self):
+        """Test that we can properly update an instance of BackendCalibrations."""
+
+        freq01 = FakeArmonk().defaults().qubit_freq_est[0]
+
+        backend = SpectroscopyBackend(freq_offset=5e6, line_width=2e6)
+        backend.defaults().qubit_freq_est = [freq01, freq01]
+
+        library = FixedFrequencyTransmon(basis_gates=["x", "sx"])
+        cals = BackendCalibrations(FakeArmonk(), library=library)
+
+        prev_freq = cals.get_parameter_value(cals.__qubit_freq_parameter__, (0,))
+        self.assertEqual(prev_freq, freq01)
+
+        frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
+
+        QubitSpectroscopy(0, frequencies, cals=cals).run(backend)
+        post_freq = cals.get_parameter_value(cals.__qubit_freq_parameter__, (0,))
+        self.assertTrue(abs(post_freq - freq01 - 5e6) < 1e6)

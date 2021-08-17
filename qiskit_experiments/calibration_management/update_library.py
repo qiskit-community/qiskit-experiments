@@ -152,6 +152,7 @@ class Frequency(BaseUpdater):
         calibrations: BackendCalibrations,
         exp_data: ExperimentData,
         result_index: Optional[int] = None,
+        parameter: str = None,
         group: str = "default",
         **options,
     ):
@@ -163,14 +164,19 @@ class Frequency(BaseUpdater):
             calibrations: The calibrations to update.
             exp_data: The experiment data from which to update.
             result_index: The result index to use. By default search entry by name.
+            parameter: The name of the parameter to update. If None is given this will default
+                to :code:`calibrations.__qubit_freq_parameter__`.
             group: The calibrations group to update. Defaults to "default."
             options: Trailing options.
 
         """
+        if parameter is None:
+            parameter = calibrations.__qubit_freq_parameter__
+
         super().update(
             calibrations=calibrations,
             exp_data=exp_data,
-            parameter=calibrations.__qubit_freq_parameter__,
+            parameter=parameter,
             schedule=None,
             result_index=result_index,
             group=group,

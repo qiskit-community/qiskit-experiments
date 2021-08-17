@@ -123,16 +123,12 @@ class TestRabiEndToEnd(QiskitTestCase):
         library = FixedFrequencyTransmon(basis_gates=["x", "sx"])
         cals = BackendCalibrations(FakeArmonk(), library=library)
 
-        backend = RabiBackend(amplitude_to_angle=np.pi/2)
+        backend = RabiBackend(amplitude_to_angle=np.pi / 2)
         self.assertEqual(cals.get_parameter_value("amp", (0,), "x"), 0.5)
         self.assertEqual(cals.get_parameter_value("amp", (0,), "sx"), 0.25)
-        Rabi(0, calibrations=cals).run(backend)
-        self.assertTrue(
-            abs(cals.get_parameter_value("amp", (0,), "x") - 1.0) < self.test_tol
-        )
-        self.assertTrue(
-            abs(cals.get_parameter_value("amp", (0,), "sx") - 0.5) < self.test_tol
-        )
+        Rabi(0, cals=cals).run(backend)
+        self.assertTrue(abs(cals.get_parameter_value("amp", (0,), "x") - 1.0) < self.test_tol)
+        self.assertTrue(abs(cals.get_parameter_value("amp", (0,), "sx") - 0.5) < self.test_tol)
 
 
 class TestEFRabi(QiskitTestCase):

@@ -104,7 +104,7 @@ class TestDragEndToEnd(QiskitTestCase):
         cals = BackendCalibrations(FakeArmonk(), library=library)
 
         self.assertEqual(cals.get_parameter_value("β", (0,), "x"), 0.0)
-        DragCal(0, calibrations=cals).run(DragBackend())
+        DragCal(0, cals=cals).run(DragBackend())
         self.assertTrue(abs(cals.get_parameter_value("β", (0,), "x") - 2.0) < self.test_tol)
 
 

@@ -116,7 +116,7 @@ class Rabi(BaseCalibrationExperiment):
     def __init__(
         self,
         qubit: int,
-        calibrations: Optional[Calibrations] = None,
+        cals: Optional[Calibrations] = None,
         schedule_name: Optional[str] = "x",
         cal_parameter_name: Optional[str] = "amp",
         amplitudes: Optional[List] = None,
@@ -133,9 +133,8 @@ class Rabi(BaseCalibrationExperiment):
 
         Args:
             qubit: The qubit on which to run the Rabi experiment.
-            calibrations: An optional instance of :class:`Calibrations`. If calibrations is
-                given then running the experiment may update the values of the pulse parameters
-                stored in calibrations.
+            cals: If calibrations is given then running the experiment may update the
+                values of the pulse parameters stored in calibrations.
             schedule_name: The name of the schedule to extract from the calibrations. This value
                 defaults to "x".
             cal_parameter_name: The name of the parameter in calibrations to update. This name will
@@ -150,14 +149,14 @@ class Rabi(BaseCalibrationExperiment):
                 in the list of angles to update.
         """
         super().__init__([qubit])
-        self.experiment_options.calibrations = calibrations
+        self.experiment_options.calibrations = cals
         self.experiment_options.cal_parameter_name = cal_parameter_name
 
         if angles_schedules is not None:
             self.experiment_options.angles_schedules = angles_schedules
 
-        if calibrations is not None:
-            self.experiment_options.schedule = calibrations.get_schedule(
+        if cals is not None:
+            self.experiment_options.schedule = cals.get_schedule(
                 schedule_name, qubit, assign_params={cal_parameter_name: Parameter("amp")}
             )
 

@@ -99,11 +99,9 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         target_angle = np.pi
         backend = MockFineAmp(target_angle * 0.01, target_angle, "x")
-        exp_data = FineXAmplitude(0, calibrations=cals).run(backend)
+        exp_data = FineXAmplitude(0, cals=cals).run(backend)
 
-        result = [
-            r for r in exp_data.analysis_results() if r.name.startswith("@Parameters_")
-        ][0]
+        result = [r for r in exp_data.analysis_results() if r.name.startswith("@Parameters_")][0]
         d_theta = result.value.value[result.extra["popt_keys"].index("d_theta")]
 
         post_cal_amp = cals.get_parameter_value("amp", (0,), "x")
@@ -111,7 +109,7 @@ class TestFineAmpEndToEnd(QiskitTestCase):
         self.assertEqual(post_cal_amp, pre_cal_amp * target_angle / (target_angle + d_theta))
 
         # Test that the circuit has a calibration for the sx and x gate.
-        circs = FineXAmplitude(0, calibrations=cals).circuits()
+        circs = FineXAmplitude(0, cals=cals).circuits()
         self.assertTrue("sx" in circs[3].calibrations)
         self.assertTrue("x" in circs[3].calibrations)
 

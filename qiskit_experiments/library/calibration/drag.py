@@ -161,7 +161,7 @@ class DragCal(BaseCalibrationExperiment):
     def __init__(
         self,
         qubit: int,
-        calibrations: Optional[Calibrations] = None,
+        cals: Optional[Calibrations] = None,
         schedule_name: Optional[str] = "x",
         cal_parameter_name: Optional[str] = "β",
         betas: Optional[List] = None,
@@ -169,9 +169,8 @@ class DragCal(BaseCalibrationExperiment):
         """
         Args:
             qubit: The qubit for which to run the Drag calibration.
-            calibrations: An optional instance of :class:`Calibrations`. If calibrations is
-                given then running the experiment may update the values of the pulse parameters
-                stored in calibrations.
+            cals: If calibrations is given then running the experiment may update the
+                values of the pulse parameters stored in calibrations.
             schedule_name: The name of the schedule to extract from the calibrations. This value
                 defaults to "x".
             cal_parameter_name: The name of the parameter in calibrations to update. This name will
@@ -180,11 +179,11 @@ class DragCal(BaseCalibrationExperiment):
                 default values of the experiment.
         """
         super().__init__([qubit])
-        self.experiment_options.calibrations = calibrations
+        self.experiment_options.calibrations = cals
         self.experiment_options.cal_parameter_name = cal_parameter_name
 
-        if calibrations is not None and schedule_name is not None:
-            self.experiment_options.rp = calibrations.get_schedule(
+        if cals is not None and schedule_name is not None:
+            self.experiment_options.rp = cals.get_schedule(
                 schedule_name, qubit, assign_params={cal_parameter_name: Parameter("β")}
             )
 
