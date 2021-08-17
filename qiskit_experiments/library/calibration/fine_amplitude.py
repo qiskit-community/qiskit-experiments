@@ -305,14 +305,14 @@ class FineXAmplitude(FineAmplitude):
 
         return options
 
-    def __init__(self, qubit: int):
-        """Setup a fine amplitude experiment on the given qubit.
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_analysis_options()
+        options.angle_per_gate = np.pi
+        options.phase_offset = np.pi / 2
 
-        Args:
-            qubit: The qubit on which to run the fine amplitude calibration experiment.
-        """
-        super().__init__(qubit)
-        self.set_analysis_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
+        return options
 
 
 class FineSXAmplitude(FineAmplitude):
@@ -346,11 +346,11 @@ class FineSXAmplitude(FineAmplitude):
 
         return options
 
-    def __init__(self, qubit: int):
-        """Setup a fine amplitude experiment on the given qubit.
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_analysis_options()
+        options.angle_per_gate = np.pi / 2
+        options.phase_offset = 0
 
-        Args:
-            qubit: The qubit on which to run the fine amplitude calibration experiment.
-        """
-        super().__init__(qubit)
-        self.set_analysis_options(angle_per_gate=np.pi / 2, phase_offset=0)
+        return options
