@@ -190,7 +190,7 @@ class TestRBUtilities(QiskitTestCase):
             {"stabilizer": ["+Y"], "destabilizer": ["-X"]},
             {"stabilizer": ["-X"], "destabilizer": ["+Y"]},
             {"stabilizer": ["+Z"], "destabilizer": ["-Y"]},
-            {"stabilizer": ["-Y"], "destabilizer": ["+Z"]}
+            {"stabilizer": ["-Y"], "destabilizer": ["+Z"]},
         ]
         cliffords = [Clifford.from_dict(i) for i in clifford_dicts]
         utils = rb.CliffordUtils()
