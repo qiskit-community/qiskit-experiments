@@ -33,8 +33,12 @@ class TomographyExperiment(BaseExperiment):
     __analysis_class__ = TomographyAnalysis
 
     @classmethod
-    def _default_experiment_options(cls):
-        return Options(basis_indices=None)
+    def _default_experiment_options(cls) -> Options:
+        options = super()._default_experiment_options()
+
+        options.basis_indices = None
+
+        return options
 
     def __init__(
         self,
