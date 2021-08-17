@@ -30,6 +30,7 @@ from qiskit.circuit.library import (
     CZGate,
     SwapGate,
 )
+from qiskit.quantum_info import Clifford
 import qiskit_experiments.library.randomized_benchmarking as rb
 from qiskit_experiments.framework import AnalysisResultData
 
@@ -162,3 +163,37 @@ class TestRBUtilities(QiskitTestCase):
         self.assertAlmostEqual(oneq_coherence_err, 0.00049975, 6, "Error: 1Q Coherence Limit")
 
         self.assertAlmostEqual(twoq_coherence_err, 0.00597, 5, "Error: 2Q Coherence Limit")
+
+    def test_clifford_generation(self):
+        """Verify 1-qubit clifford indeed genetates the correct group"""
+        clifford_dicts = [
+            {"stabilizer": ["+Z"], "destabilizer": ["+X"]},
+            {"stabilizer": ["+X"], "destabilizer": ["+Z"]},
+            {"stabilizer": ["-Y"], "destabilizer": ["+X"]},
+            {"stabilizer": ["+X"], "destabilizer": ["-Y"]},
+            {"stabilizer": ["+Z"], "destabilizer": ["+Y"]},
+            {"stabilizer": ["+Y"], "destabilizer": ["+Z"]},
+            {"stabilizer": ["-Z"], "destabilizer": ["+X"]},
+            {"stabilizer": ["+X"], "destabilizer": ["-Z"]},
+            {"stabilizer": ["+Y"], "destabilizer": ["+X"]},
+            {"stabilizer": ["+X"], "destabilizer": ["+Y"]},
+            {"stabilizer": ["-Z"], "destabilizer": ["-Y"]},
+            {"stabilizer": ["-Y"], "destabilizer": ["-Z"]},
+            {"stabilizer": ["-Z"], "destabilizer": ["-X"]},
+            {"stabilizer": ["-X"], "destabilizer": ["-Z"]},
+            {"stabilizer": ["-Y"], "destabilizer": ["-X"]},
+            {"stabilizer": ["-X"], "destabilizer": ["-Y"]},
+            {"stabilizer": ["-Z"], "destabilizer": ["+Y"]},
+            {"stabilizer": ["+Y"], "destabilizer": ["-Z"]},
+            {"stabilizer": ["+Z"], "destabilizer": ["-X"]},
+            {"stabilizer": ["-X"], "destabilizer": ["+Z"]},
+            {"stabilizer": ["+Y"], "destabilizer": ["-X"]},
+            {"stabilizer": ["-X"], "destabilizer": ["+Y"]},
+            {"stabilizer": ["+Z"], "destabilizer": ["-Y"]},
+            {"stabilizer": ["-Y"], "destabilizer": ["+Z"]}
+        ]
+        cliffords = [Clifford.from_dict(i) for i in clifford_dicts]
+        utils = rb.CliffordUtils()
+        for n in range(24):
+            clifford = utils.clifford_1_qubit(n)
+            self.assertEqual(clifford, cliffords[n])

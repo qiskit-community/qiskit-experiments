@@ -132,7 +132,7 @@ class CliffordUtils:
         if j == 1:
             qc._append(SXGate(), [qr[0]], [])
         if j == 2:
-            qc._append(SXdgGate(), [qr[0]], [])
+            qc._append(SGate(), [qr[0]], [])
         if p == 1:
             qc.x(0)
         if p == 2:
@@ -158,13 +158,13 @@ class CliffordUtils:
         if i1 == 1:
             qc.h(1)
         if j0 == 1:
-            qc._append(SXGate(), [qr[0]], [])
+            qc._append(VGate(), [qr[0]], [])
         if j0 == 2:
-            qc._append(SXdgGate(), [qr[0]], [])
+            qc._append(WGate(), [qr[0]], [])
         if j1 == 1:
-            qc._append(SXGate(), [qr[1]], [])
+            qc._append(VGate(), [qr[1]], [])
         if j1 == 2:
-            qc._append(SXdgGate(), [qr[1]], [])
+            qc._append(WGate(), [qr[1]], [])
         if form in (1, 2, 3):
             qc.cx(0, 1)
         if form in (2, 3):
@@ -173,14 +173,14 @@ class CliffordUtils:
             qc.cx(0, 1)
         if form in (1, 2):
             if k0 == 1:
-                qc._append(SXGate(), [qr[0]], [])
+                qc._append(VGate(), [qr[0]], [])
             if k0 == 2:
-                qc._append(SXdgGate(), [qr[0]], [])
+                qc._append(WGate(), [qr[0]], [])
             if k1 == 1:
-                qc._append(SXGate(), [qr[1]], [])
+                qc._append(VGate(), [qr[1]], [])
             if k1 == 2:
-                qc._append(SXGate(), [qr[1]], [])
-                qc._append(SXGate(), [qr[1]], [])
+                qc._append(VGate(), [qr[1]], [])
+                qc._append(VGate(), [qr[1]], [])
         if p0 == 1:
             qc.x(0)
         if p0 == 2:
