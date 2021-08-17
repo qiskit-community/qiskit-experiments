@@ -18,7 +18,7 @@ from functools import lru_cache
 from numpy.random import Generator, default_rng
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate
-from qiskit.circuit.library import SdgGate, HGate, SGate, SXGate, SXdgGate
+from qiskit.circuit.library import SdgGate, HGate, SGate, SXGate
 from qiskit.quantum_info import Clifford, random_clifford
 
 
