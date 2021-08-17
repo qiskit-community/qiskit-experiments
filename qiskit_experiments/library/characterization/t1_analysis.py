@@ -20,7 +20,7 @@ import numpy as np
 
 from qiskit.utils import apply_prefix
 
-from qiskit_experiments.framework import BaseAnalysis, Options, AnalysisResultData, FitVal
+from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, FitVal, Options
 from qiskit_experiments.curve_analysis import plot_curve_fit, plot_errorbar, curve_fit
 from qiskit_experiments.curve_analysis.curve_fit import (
     process_curve_data,
@@ -53,19 +53,20 @@ class T1Analysis(BaseAnalysis):
     """
 
     @classmethod
-    def _default_options(cls):
+    def _default_options(cls) -> Options:
         """Default analysis options
         Analysis Options:
             t1_guess (float): Initial guess of T1.
             amplitude_guess (float): Initial guess of the amplitude.
             offset_guess (float): Initial guess of the offset.
         """
+        options = super()._default_options()
 
-        return Options(
-            t1_guess=None,
-            amplitude_guess=None,
-            offset_guess=None,
-        )
+        options.t1_guess = None
+        options.amplitude_guess = None
+        options.offset_guess = None
+
+        return options
 
     # pylint: disable=arguments-differ
     def _run_analysis(

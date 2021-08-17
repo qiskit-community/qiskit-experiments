@@ -25,7 +25,7 @@ from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
 
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.framework import BaseAnalysis, Options, AnalysisResultData
+from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
 from .fitters import (
     linear_inversion,
     scipy_linear_lstsq,
@@ -48,14 +48,16 @@ class TomographyAnalysis(BaseAnalysis):
 
     @classmethod
     def _default_options(cls) -> Options:
-        return Options(
-            measurement_basis=None,
-            preparation_basis=None,
-            fitter="linear_inversion",
-            rescale_positive=True,
-            rescale_trace=True,
-            target="default",
-        )
+        options = super()._default_options()
+
+        options.measurement_basis = None
+        options.preparation_basis = None
+        options.fitter = "linear_inversion"
+        options.rescale_positive = True
+        options.rescale_trace = True
+        options.target = "default"
+
+        return options
 
     @classmethod
     def _get_fitter(cls, fitter):

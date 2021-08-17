@@ -17,9 +17,9 @@ from abc import ABC, abstractmethod
 from typing import List, Tuple
 
 from qiskit.exceptions import QiskitError
-from qiskit.providers.options import Options
 
 from qiskit_experiments.database_service.device_component import Qubit
+from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
 from qiskit_experiments.database_service import DbAnalysisResultV1
