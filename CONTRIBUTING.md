@@ -21,11 +21,17 @@ please ensure that:
 2. The documentation has been updated accordingly. In particular, if a
    function or class has been modified during the PR, please update the
    *docstring* accordingly.
+
+    If you are adding a new experiment or other functionality which merits
+    a tutorial, add one based on these [guidelines](docs/tutorials/GUIDELINES.md)
+   (this can be done in a separate PR)
 3. If it makes sense for your change that you have added new tests that
    cover the changes.
 4. Ensure that if your change has an end user facing impact (new feature,
    deprecation, removal etc) that you have added a reno release note for that
    change and that the PR is tagged for the changelog.
+
+
 
 ### Changelog generation
 
