@@ -16,7 +16,6 @@ Quantum Volume Experiment class.
 from typing import Union, Iterable, Optional, List
 from numpy.random import Generator, default_rng
 from qiskit.providers.backend import Backend
-from qiskit.providers.options import Options
 
 try:
     from qiskit import Aer
@@ -28,7 +27,7 @@ except ImportError:
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume as QuantumVolumeCircuit
 from qiskit import transpile
-from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework import BaseExperiment, Options
 from .qv_analysis import QuantumVolumeAnalysis
 
 
@@ -40,11 +39,24 @@ class QuantumVolume(BaseExperiment):
         on near-term quantum computers of modest size. The QV method quantifies the largest random
         circuit of equal width and depth that the computer successfully implements.
         Quantum computing systems with high-fidelity operations, high connectivity,
-        large calibrated gate sets,and circuit rewriting toolchains are expected to
+        large calibrated gate sets, and circuit rewriting toolchains are expected to
         have higher quantum volumes.
+
+        The Quantum Volume is determined by the largest circuit depth :math:`d_{max}`,
+        and equals to :math:`2^{d_{max}}`.
         See `Qiskit Textbook
         <https://qiskit.org/textbook/ch-quantum-hardware/measuring-quantum-volume.html>`_
-        for an explanation on the QV method.
+        for an explanation on the QV protocol.
+
+        In the QV experiment we generate `QV circuits
+        <https://qiskit.org/documentation/stubs/qiskit.circuit.library.QuantumVolume.html>`_
+        on :math:`d` qubits, which contain :math:`d` layers, where each layer consists of random 2-qubit
+        unitary gates from :math:`SU(4)`, followed by a random permutation on the :math:`d` qubit.
+        Then these circuits run on the quantum backend and on an ideal simulator
+        (either :class:`AerSimulator` or :class:`qiskit.quantum_info.Statevector`).
+
+        A depth :math:`d` QV circuit is successful if it has 'mean heavy-output probability' > 2/3 with
+        confidence level > 0.977 (corresponding to z_value = 2), and at least 100 trials have been ran.
 
         See :class:`QuantumVolumeAnalysis` documentation for additional
         information on QV experiment analysis.
@@ -85,9 +97,9 @@ class QuantumVolume(BaseExperiment):
                   generation. If None default_rng will be used.
             simulation_backend: The simulator backend to use to generate
                 the expected results. the simulator must have a 'save_probabilities'
-                method. If None :class:`qiskit.Aer` simulator will be used
-                (in case :class:`qiskit.Aer` is not
-                installed :class:`qiskit.quantum_info` will be used).
+                method. If None :class:`AerSimulator` simulator will be used
+                (in case :class:`AerSimulator` is not
+                installed :class:`qiskit.quantum_info.Statevector` will be used).
         """
         super().__init__(qubits)
 
@@ -105,8 +117,12 @@ class QuantumVolume(BaseExperiment):
             self._simulation_backend = simulation_backend
 
     @classmethod
-    def _default_experiment_options(cls):
-        return Options(trials=100)
+    def _default_experiment_options(cls) -> Options:
+        options = super()._default_experiment_options()
+
+        options.trials = 100
+
+        return options
 
     def _get_ideal_data(self, circuit: QuantumCircuit, **run_options):
         """Return ideal measurement probabilities.

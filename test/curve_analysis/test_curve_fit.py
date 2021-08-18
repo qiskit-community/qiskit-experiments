@@ -21,8 +21,9 @@ import numpy as np
 from qiskit.test import QiskitTestCase
 from qiskit.qobj.utils import MeasLevel
 
-from qiskit_experiments.framework import ExperimentData
-from qiskit_experiments.curve_analysis import CurveAnalysis, SeriesDef, fit_function
+from qiskit_experiments.framework import ExperimentData, FitVal
+from qiskit_experiments.curve_analysis import CurveAnalysis, fit_function
+from qiskit_experiments.curve_analysis.curve_data import SeriesDef, FitData, ParameterRepr
 from qiskit_experiments.curve_analysis.data_processing import probability
 from qiskit_experiments.exceptions import AnalysisError
 
@@ -46,7 +47,7 @@ def simulate_output_data(func, xvals, param_dict, **metadata):
     for datum in data:
         expdata.add_data(datum)
 
-    expdata.metadata()["job_metadata"] = [{"run_options": {"meas_level": MeasLevel.CLASSIFIED}}]
+    expdata.metadata["job_metadata"] = [{"run_options": {"meas_level": MeasLevel.CLASSIFIED}}]
 
     return expdata
 
@@ -61,6 +62,32 @@ def create_new_analysis(series: List[SeriesDef], fixed_params: List[str] = None)
         __fixed_parameters__ = fixed_params
 
     return TestAnalysis()
+
+
+class TestFitData(QiskitTestCase):
+    """Unittest for fit data dataclass."""
+
+    def test_get_value(self):
+        """Get fit value from fit data object."""
+        data = FitData(
+            popt=np.asarray([1.0, 2.0, 3.0]),
+            popt_keys=["a", "b", "c"],
+            popt_err=np.asarray([0.1, 0.2, 0.3]),
+            pcov=np.diag(np.ones(3)),
+            reduced_chisq=0.0,
+            dof=0,
+            x_range=(0, 0),
+            y_range=(0, 0),
+        )
+
+        a_val = data.fitval("a")
+        self.assertEqual(a_val, FitVal(1.0, 0.1))
+
+        b_val = data.fitval("b")
+        self.assertEqual(b_val, FitVal(2.0, 0.2))
+
+        c_val = data.fitval("c")
+        self.assertEqual(c_val, FitVal(3.0, 0.3))
 
 
 class TestCurveAnalysisUnit(QiskitTestCase):
@@ -297,6 +324,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         )
         default_opts = analysis._default_options()
         default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3}
+        default_opts.result_parameters = [ParameterRepr("p1", "parameter_name", "unit")]
 
         results, _ = analysis._run_analysis(test_data, **default_opts.__dict__)
         result = results[0]
@@ -304,10 +332,15 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
 
         # check result data
-        np.testing.assert_array_almost_equal(result["popt"], ref_popt, decimal=self.err_decimal)
-        self.assertEqual(result["dof"], 46)
-        self.assertListEqual(result["xrange"], [0.1, 1.0])
-        self.assertListEqual(result["popt_keys"], ["p0", "p1", "p2", "p3"])
+        np.testing.assert_array_almost_equal(result.value.value, ref_popt, decimal=self.err_decimal)
+        self.assertEqual(result.extra["dof"], 46)
+        self.assertListEqual(result.extra["popt_keys"], ["p0", "p1", "p2", "p3"])
+
+        # special entry formatted for database
+        result = results[1]
+        self.assertEqual(result.name, "parameter_name")
+        self.assertEqual(result.value.unit, "unit")
+        self.assertAlmostEqual(result.value.value, ref_p1, places=self.err_decimal)
 
     def test_run_single_curve_fail(self):
         """Test analysis returns status when it fails."""
@@ -338,12 +371,10 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
 
         # Try to fit with infeasible parameter boundary. This should fail.
         results, _ = analysis._run_analysis(test_data, **default_opts.__dict__)
-        result = results[0]
 
-        self.assertFalse(result["success"])
-
-        ref_result_keys = ["analysis_type", "error_message", "success", "raw_data"]
-        self.assertSetEqual(set(result.keys()), set(ref_result_keys))
+        # This returns only data point entry
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].name, "@Data_TestAnalysis")
 
     def test_run_two_curves_with_same_fitfunc(self):
         """Test analysis for two curves. Curves shares fit model."""
@@ -398,7 +429,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3, ref_p4])
 
         # check result data
-        np.testing.assert_array_almost_equal(result["popt"], ref_popt, decimal=self.err_decimal)
+        np.testing.assert_array_almost_equal(result.value.value, ref_popt, decimal=self.err_decimal)
 
     def test_run_two_curves_with_two_fitfuncs(self):
         """Test analysis for two curves. Curves shares fit parameters."""
@@ -452,7 +483,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
 
         # check result data
-        np.testing.assert_array_almost_equal(result["popt"], ref_popt, decimal=self.err_decimal)
+        np.testing.assert_array_almost_equal(result.value.value, ref_popt, decimal=self.err_decimal)
 
     def test_run_fixed_parameters(self):
         """Test analysis when some of parameters are fixed."""
@@ -489,7 +520,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p3])
 
         # check result data
-        np.testing.assert_array_almost_equal(result["popt"], ref_popt, decimal=self.err_decimal)
+        np.testing.assert_array_almost_equal(result.value.value, ref_popt, decimal=self.err_decimal)
 
     def test_fixed_param_is_missing(self):
         """Test raising an analysis error when fixed parameter is missing."""
@@ -517,8 +548,9 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         )
 
         default_opts = analysis._default_options()
-        default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p3": ref_p3}
+
         # do not define fixed_p2 here
+        default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p3": ref_p3}
 
         with self.assertRaises(AnalysisError):
             analysis._run_analysis(test_data, **default_opts.__dict__)

@@ -27,7 +27,6 @@ from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.update_library import Frequency, Amplitude, Drag
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
-from qiskit_experiments.curve_analysis import get_opt_value
 from qiskit_experiments.test.mock_iq_backend import DragBackend, MockFineAmp
 
 
@@ -40,20 +39,21 @@ class TestAmplitudeUpdate(QiskitTestCase):
         self.cals = Calibrations()
         self.qubit = 1
 
-        amp = Parameter("amp")
+        axp = Parameter("amp")
         chan = Parameter("ch0")
         with pulse.build(name="xp") as xp:
-            pulse.play(pulse.Gaussian(duration=160, amp=amp, sigma=40), pulse.DriveChannel(chan))
+            pulse.play(pulse.Gaussian(duration=160, amp=axp, sigma=40), pulse.DriveChannel(chan))
 
-        amp = Parameter("amp")
+        ax90p = Parameter("amp")
         with pulse.build(name="x90p") as x90p:
-            pulse.play(pulse.Gaussian(duration=160, amp=amp, sigma=40), pulse.DriveChannel(chan))
+            pulse.play(pulse.Gaussian(duration=160, amp=ax90p, sigma=40), pulse.DriveChannel(chan))
 
         self.x90p = x90p
 
         self.cals.add_schedule(xp)
         self.cals.add_schedule(x90p)
         self.cals.add_parameter_value(0.2, "amp", self.qubit, "xp")
+        self.cals.add_parameter_value(0.1, "amp", self.qubit, "x90p")
 
     def test_amplitude(self):
         """Test amplitude update from Rabi."""
@@ -68,18 +68,18 @@ class TestAmplitudeUpdate(QiskitTestCase):
 
         to_update = [(np.pi, "amp", "xp"), (np.pi / 2, "amp", self.x90p)]
 
-        self.assertEqual(len(self.cals.parameters_table()), 1)
+        self.assertEqual(len(self.cals.parameters_table()), 2)
 
         Amplitude.update(self.cals, exp_data, angles_schedules=to_update)
 
         with self.assertRaises(CalibrationError):
             self.cals.get_schedule("xp", qubits=0)
 
-        self.assertEqual(len(self.cals.parameters_table()), 3)
+        self.assertEqual(len(self.cals.parameters_table()), 4)
 
         # Now check the corresponding schedules
-        result = exp_data.analysis_results(-1).data()
-        rate = 2 * np.pi * result["popt"][1]
+        result = exp_data.analysis_results(1)
+        rate = 2 * np.pi * result.value.value
         amp = np.round(np.pi / rate, decimals=8)
         with pulse.build(name="xp") as expected:
             pulse.play(pulse.Gaussian(160, amp, 40), pulse.DriveChannel(self.qubit))
@@ -141,19 +141,17 @@ class TestFrequencyUpdate(QiskitTestCase):
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         exp_data = spec.run(backend)
         exp_data.block_for_results()
-        result = exp_data.analysis_results(0)
-        result_data = result.data()
-
-        value = get_opt_value(result_data, "freq")
+        result = exp_data.analysis_results(1)
+        value = result.value.value
 
         self.assertTrue(freq01 + peak_offset - 2e6 < value < freq01 + peak_offset + 2e6)
         self.assertEqual(result.quality, "good")
 
         # Test the integration with the BackendCalibrations
         cals = BackendCalibrations(FakeAthens())
-        self.assertNotEqual(cals.get_qubit_frequencies()[qubit], result_data["popt"][2])
+        self.assertNotEqual(cals.get_qubit_frequencies()[qubit], value)
         Frequency.update(cals, exp_data)
-        self.assertEqual(cals.get_qubit_frequencies()[qubit], result_data["popt"][2])
+        self.assertEqual(cals.get_qubit_frequencies()[qubit], value)
 
 
 class TestDragUpdate(QiskitTestCase):
@@ -197,11 +195,10 @@ class TestDragUpdate(QiskitTestCase):
 
         exp_data = drag.run(backend)
         exp_data.block_for_results()
-        result = exp_data.analysis_results(0)
-        result_data = result.data()
+        result = exp_data.analysis_results(1)
 
         # Test the fit for good measure.
-        self.assertTrue(abs(result_data["popt"][4] - backend.ideal_beta) < test_tol)
+        self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
         self.assertEqual(result.quality, "good")
 
         # Check schedules pre-update
@@ -211,5 +208,5 @@ class TestDragUpdate(QiskitTestCase):
         Drag.update(cals, exp_data, parameter="β", schedule="xp")
 
         # Check schedules post-update
-        expected = x_plus.assign_parameters({beta: result_data["popt"][4], chan: 1}, inplace=False)
+        expected = x_plus.assign_parameters({beta: result.value.value, chan: 1}, inplace=False)
         self.assertEqual(cals.get_schedule("xp", qubit), expected)
