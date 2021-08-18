@@ -121,6 +121,8 @@ class FineAmplitude(BaseCalibrationExperiment):
         Experiment Options:
             repetitions (List[int]): A list of the number of times that the gate is repeated.
             schedule (ScheduleBlock): The schedule attached to the gate that will be repeated.
+            schedule_name (str): The name of the schedule to retrieve from the Calibrations,
+                if calibrations have been specified.
             normalization (bool): If set to True the DataProcessor will normalized the
                 measured signal to the interval [0, 1]. Defaults to True.
             add_sx (bool): If True then the circuits will start with an sx gate. This is typically
@@ -136,6 +138,7 @@ class FineAmplitude(BaseCalibrationExperiment):
         options = super()._default_experiment_options()
         options.repetitions = list(range(15))
         options.schedule = None
+        options.schedule_name = None
         options.normalization = True
         options.add_sx = False
         options.add_xp_circuit = True
@@ -168,8 +171,13 @@ class FineAmplitude(BaseCalibrationExperiment):
         self.experiment_options.calibrations = cals
         self.experiment_options.cal_parameter_name = cal_parameter_name
 
-        if cals is not None and schedule_name is not None:
-            self.experiment_options.schedule = cals.get_schedule(schedule_name, qubit)
+        if schedule_name is not None:
+            self.experiment_options.schedule_name = schedule_name
+
+        if cals is not None and self.experiment_options.schedule_name is not None:
+            self.experiment_options.schedule = cals.get_schedule(
+                self.experiment_options.schedule_name, qubit
+            )
 
         if repetitions is not None:
             self.experiment_options.repetitions = repetitions
@@ -351,6 +359,7 @@ class FineXAmplitude(FineAmplitude):
         options = super()._default_experiment_options()
         options.add_sx = True
         options.add_xp_circuit = True
+        options.schedule_name = "x"
 
         return options
 
@@ -412,6 +421,8 @@ class FineSXAmplitude(FineAmplitude):
                 experiment.
             add_xp_circuit (bool): This option is False by default when calibrating gates with
                 a target angle per gate of :math:`\pi/2`.
+            schedule_name: The name of the schedule to extract from the calibrations. The default
+                value is "sx".
             repetitions (List[int]): By default the repetitions take on odd numbers for
                 :math:`\pi/2` target angles as this ideally prepares states on the equator of
                 the Bloch sphere. Note that the repetitions include two repetitions which
@@ -420,6 +431,7 @@ class FineSXAmplitude(FineAmplitude):
         options = super()._default_experiment_options()
         options.add_sx = False
         options.add_xp_circuit = False
+        options.schedule_name = "sx"
         options.repetitions = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
 
         return options

@@ -167,6 +167,7 @@ class DragCal(BaseCalibrationExperiment):
         schedule_name: Optional[str] = "x",
         cal_parameter_name: Optional[str] = "β",
         betas: Optional[List] = None,
+        reps: Optional[List] = None,
     ):
         """
         Args:
@@ -191,6 +192,9 @@ class DragCal(BaseCalibrationExperiment):
 
         if betas is not None:
             self.experiment_options.betas = betas
+
+        if reps is not None:
+            self.experiment_options.reps = reps
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Create the circuits for the Drag calibration.
