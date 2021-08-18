@@ -18,7 +18,7 @@ from functools import lru_cache
 from numpy.random import Generator, default_rng
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate
-from qiskit.circuit.library import SdgGate, HGate, SGate
+from qiskit.circuit.library import SdgGate, HGate, SGate, SXdgGate
 from qiskit.quantum_info import Clifford, random_clifford
 
 
@@ -69,13 +69,13 @@ class CliffordUtils:
         """Return the 1-qubit clifford element corresponding to `num`
         where `num` is between 0 and 23.
         """
-        return Clifford(self.clifford_1_qubit_circuit(num))
+        return Clifford(self.clifford_1_qubit_circuit(num), validate=False)
 
     def clifford_2_qubit(self, num):
         """Return the 2-qubit clifford element corresponding to `num`
         where `num` is between 0 and 11519.
         """
-        return Clifford(self.clifford_2_qubit_circuit(num))
+        return Clifford(self.clifford_2_qubit_circuit(num), validate=False)
 
     def random_cliffords(
         self, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
@@ -92,10 +92,10 @@ class CliffordUtils:
 
         if num_qubits == 1:
             samples = rng.integers(24, size=size)
-            return [Clifford(self.clifford_1_qubit_circuit(i)) for i in samples]
+            return [Clifford(self.clifford_1_qubit_circuit(i), validate=False) for i in samples]
         else:
             samples = rng.integers(11520, size=size)
-            return [Clifford(self.clifford_2_qubit_circuit(i)) for i in samples]
+            return [Clifford(self.clifford_2_qubit_circuit(i), validate=False) for i in samples]
 
     def random_clifford_circuits(
         self, num_qubits: int, size: int = 1, rng: Optional[Union[int, Generator]] = None
@@ -125,13 +125,14 @@ class CliffordUtils:
         # pylint: disable=unbalanced-tuple-unpacking
         # This is safe since `_unpack_num` returns list the size of the sig
         (i, j, p) = self._unpack_num(num, self.CLIFFORD_1_QUBIT_SIG)
-        qc = QuantumCircuit(1)
+        qr = QuantumRegister(1)
+        qc = QuantumCircuit(qr)
         if i == 1:
             qc.h(0)
         if j == 1:
-            qc.append(VGate(), [0])
+            qc._append(SXdgGate(), [qr[0]], [])
         if j == 2:
-            qc.append(WGate(), [0])
+            qc._append(SGate(), [qr[0]], [])
         if p == 1:
             qc.x(0)
         if p == 2:
@@ -146,7 +147,8 @@ class CliffordUtils:
         where `num` is between 0 and 11519.
         """
         vals = self._unpack_num_multi_sigs(num, self.CLIFFORD_2_QUBIT_SIGS)
-        qc = QuantumCircuit(2)
+        qr = QuantumRegister(2)
+        qc = QuantumCircuit(qr)
         if vals[0] == 0 or vals[0] == 3:
             (form, i0, i1, j0, j1, p0, p1) = vals
         else:
@@ -156,13 +158,13 @@ class CliffordUtils:
         if i1 == 1:
             qc.h(1)
         if j0 == 1:
-            qc.append(VGate(), [0])
+            qc.sxdg(0)
         if j0 == 2:
-            qc.append(WGate(), [0])
+            qc.s(0)
         if j1 == 1:
-            qc.append(VGate(), [1])
+            qc.sxdg(1)
         if j1 == 2:
-            qc.append(WGate(), [1])
+            qc.s(1)
         if form in (1, 2, 3):
             qc.cx(0, 1)
         if form in (2, 3):
@@ -171,14 +173,14 @@ class CliffordUtils:
             qc.cx(0, 1)
         if form in (1, 2):
             if k0 == 1:
-                qc.append(VGate(), [0])
+                qc._append(VGate(), [qr[0]], [])
             if k0 == 2:
-                qc.append(WGate(), [0])
+                qc._append(WGate(), [qr[0]], [])
             if k1 == 1:
-                qc.append(VGate(), [1])
+                qc._append(VGate(), [qr[1]], [])
             if k1 == 2:
-                qc.append(VGate(), [1])
-                qc.append(VGate(), [1])
+                qc._append(VGate(), [qr[1]], [])
+                qc._append(VGate(), [qr[1]], [])
         if p0 == 1:
             qc.x(0)
         if p0 == 2:
