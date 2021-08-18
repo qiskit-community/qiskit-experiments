@@ -10,20 +10,17 @@ from enum import Enum
 import qiskit
 from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
+from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.framework.composite.composite_experiment import CompositeExperiment
-from qiskit_experiments.library import T1, T2Ramsey
+from qiskit_experiments.library.characterization import T1, T2Ramsey
 
-class SubExp(Enum):
-    T1 = 0
-    T2 = 1
-
-class T_phi():
+class T_phi(CompositeExperiment):
     """T_phi Experiment Class"""
     
     def __init__(self,
                  qubit: int,
-                 delays_t1: ListUnion[List[float], np.array],
-                 delays_t2: ListUnion[List[float], np.array],
+                 delays_t1: List[Union[List[float], np.array]],
+                 delays_t2: List[Union[List[float], np.array]],
                  unit: str = "s",
                  osc_freq: float = 0.0,
                  experiment_type: Optional[str] = None,
@@ -46,25 +43,24 @@ class T_phi():
         self._delays_t2 = delays_t2
         self._unit = unit
         self._osc_freq = osc_freq
-        super().__init__([qubit], experiment_type)
         
-        self_.expT1 = T1(self._qubit, self._delays_t1)
-        self._expT2 = T2Ramsey(self._qubit, self._delays_t2, osc_freq)
+        self._expT1 = T1(self._qubit, self._delays_t1, self._unit)
+        self._expT2 = T2Ramsey(self._qubit, self._delays_t2, self._unit, self._osc_freq)
 
-        exp_t_phi = CompositeExperiment(experiments=[expT1, expT2], qubits= self.qubit,
-                                    experiment_type=experiment_type)
+        super().__init__(experiments=[self._expT1, self._expT2],
+                         qubits= self._qubit,
+                         experiment_type=experiment_type)
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """
-        Return a list of experiment circuits
-
+        Return a dictionary of experiment circuits, those of 'T1' and those of 'T2*'
         Args:
             backend: Optional, a backend object
 
         Returns:
             The experiment circuits
             """
-        circuits = []
-        circuits.append(self.expT1.circuits())
-        circuits.append(self.expT2.circuits())
+        circuits = {}
+        circuits['T1'] = self._expT1.circuits()
+        circuits['T2*'] = self._expT2.circuits()
         return circuits
