@@ -20,12 +20,12 @@ from numbers import Integral
 
 from qiskit import transpile, assemble, QuantumCircuit
 from qiskit.providers import BaseJob
-from qiskit.providers.options import Options
 from qiskit.providers.backend import Backend
 from qiskit.providers.basebackend import BaseBackend as LegacyBackend
 from qiskit.test.mock import FakeBackend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
+from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.experiment_data import ExperimentData
 
 

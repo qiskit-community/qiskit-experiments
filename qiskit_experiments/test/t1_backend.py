@@ -15,9 +15,9 @@ A simulator for T1 experiment for testing and documentation
 
 import numpy as np
 from qiskit.providers.backend import BackendV1
-from qiskit.providers.options import Options
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
+from qiskit_experiments.framework import Options
 from qiskit_experiments.test.utils import FakeJob
 
 

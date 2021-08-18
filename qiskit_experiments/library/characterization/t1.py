@@ -18,9 +18,8 @@ import numpy as np
 
 from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
-from qiskit.providers.options import Options
 
-from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.t1_analysis import T1Analysis
 
 
@@ -56,8 +55,12 @@ class T1(BaseExperiment):
             unit (str): Unit of the delay times. Supported units are
                 's', 'ms', 'us', 'ns', 'ps', 'dt'.
         """
+        options = super()._default_experiment_options()
 
-        return Options(delays=None, unit="s")
+        options.delays = None
+        options.unit = "s"
+
+        return options
 
     def __init__(
         self,
