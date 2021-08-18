@@ -21,7 +21,7 @@ class PlotterStyle:
     """A stylesheet for curve analysis figure."""
 
     # size of figure (width, height)
-    figsize: Tuple[int, int] = 8, 5
+    figsize: Tuple[int, int] = (8, 5)
 
     # legent location (vertical, horizontal)
     legend_loc: str = "center right"
@@ -33,7 +33,7 @@ class PlotterStyle:
     axis_label_size: int = 16
 
     # relative position of fit report
-    fit_report_rpos: Tuple[float, float] = 0.6, 0.95
+    fit_report_rpos: Tuple[float, float] = (0.6, 0.95)
 
     # size of fit report text
     fit_report_text_size: int = 14
