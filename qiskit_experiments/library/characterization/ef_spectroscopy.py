@@ -37,15 +37,15 @@ class EFSpectroscopy(QubitSpectroscopy):
     """
 
     @classmethod
-    def _default_experiment_options(cls) -> Options:
+    def _default_calibration_options(cls) -> Options:
         """Default option values used for the spectroscopy pulse.
 
-        Experiment Options:
+        Calibration Options:
             parameter_name (str): The name of the parameter to update in the calibrations
                 if a calibrations instance was specified in the experiment options. The
                 parameter_name name variable defaults to "f12".
         """
-        options = super()._default_experiment_options()
+        options = super()._default_calibration_options()
         options.parameter_name = "f12"
         return options
 
@@ -72,8 +72,8 @@ class EFSpectroscopy(QubitSpectroscopy):
         Args:
             experiment_data: The experiment data to use for the update.
         """
-        param = self.experiment_options.parameter_name
+        param = self.calibration_options.parameter_name
 
         self.__updater__.update(
-            self.experiment_options.calibrations, experiment_data, parameter=param
+            self.calibration_options.calibrations, experiment_data, parameter=param
         )

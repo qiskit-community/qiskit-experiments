@@ -115,8 +115,6 @@ class DragCal(BaseCalibrationExperiment):
                 each series. Note that this list must always have a length of three as
                 otherwise the analysis class will not run.
             betas (Iterable): the values of the DRAG parameter to scan.
-            cal_parameter_name (str): The name of the DRAG parameter in the schedule stored in
-                the calibrations instance. The default value is "β".
         """
         options = super()._default_experiment_options()
 
@@ -127,8 +125,19 @@ class DragCal(BaseCalibrationExperiment):
         options.sigma = 40
         options.reps = [1, 3, 5]
         options.betas = np.linspace(-5, 5, 51)
-        options.cal_parameter_name = "β"
 
+        return options
+
+    @classmethod
+    def _default_calibration_options(cls) -> Options:
+        """Default calibration options for the experiment.
+
+        Calibration Options:
+            cal_parameter_name (str): The name of the DRAG parameter in the schedule stored in
+                the calibrations instance. The default value is "β".
+        """
+        options = super()._default_calibration_options()
+        options.cal_parameter_name = "β"
         return options
 
     @classmethod
@@ -182,8 +191,8 @@ class DragCal(BaseCalibrationExperiment):
                 default values of the experiment.
         """
         super().__init__([qubit])
-        self.experiment_options.calibrations = cals
-        self.experiment_options.cal_parameter_name = cal_parameter_name
+        self.calibration_options.calibrations = cals
+        self.calibration_options.cal_parameter_name = cal_parameter_name
 
         if cals is not None and schedule_name is not None:
             self.experiment_options.rp = cals.get_schedule(
@@ -304,9 +313,9 @@ class DragCal(BaseCalibrationExperiment):
         Args:
             experiment_data: The experiment data to use for the update.
         """
-        calibrations = self.experiment_options.calibrations
+        calibrations = self.calibration_options.calibrations
         name = self.experiment_options.rp.name
-        parameter_name = self.experiment_options.cal_parameter_name
+        parameter_name = self.calibration_options.cal_parameter_name
 
         self.__updater__.update(
             calibrations, experiment_data, parameter=parameter_name, schedule=name

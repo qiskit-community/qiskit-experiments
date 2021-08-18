@@ -90,11 +90,6 @@ class Rabi(BaseCalibrationExperiment):
             sigma (float): The standard deviation of the default Gaussian pulse.
             amplitudes (iterable): The list of amplitude values to scan.
             schedule (ScheduleBlock): The schedule for the Rabi pulse that overrides the default.
-            cal_parameter_name (str): The name of the amplitude parameter in the schedule stored in
-                the calibrations instance. The default value is "amp".
-            angles_schedules (List): A list of tuples that is given to the :class:`Amplitude`
-                updater. By default this is set to update the x and square-root X pulse, i.e. the
-                default value is :code:`[(np.pi, "amp", "x"), (np.pi / 2, "amp", "sx")]`.
         """
         options = super()._default_experiment_options()
 
@@ -102,9 +97,22 @@ class Rabi(BaseCalibrationExperiment):
         options.sigma = 40
         options.amplitudes = np.linspace(-0.95, 0.95, 51)
         options.schedule = None
+        return options
+
+    @classmethod
+    def _default_calibration_options(cls) -> Options:
+        """Default calibration options for the experiment.
+
+        Calibration Options:
+            cal_parameter_name (str): The name of the amplitude parameter in the schedule stored in
+                the calibrations instance. The default value is "amp".
+            angles_schedules (List): A list of tuples that is given to the :class:`Amplitude`
+                updater. By default this is set to update the x and square-root X pulse, i.e. the
+                default value is :code:`[(np.pi, "amp", "x"), (np.pi / 2, "amp", "sx")]`.
+        """
+        options = super()._default_calibration_options()
         options.cal_parameter_name = "amp"
         options.angles_schedules = [(np.pi, "amp", "x"), (np.pi / 2, "amp", "sx")]
-
         return options
 
     @classmethod
@@ -152,11 +160,11 @@ class Rabi(BaseCalibrationExperiment):
                 in the list of angles to update.
         """
         super().__init__([qubit])
-        self.experiment_options.calibrations = cals
-        self.experiment_options.cal_parameter_name = cal_parameter_name
+        self.calibration_options.calibrations = cals
+        self.calibration_options.cal_parameter_name = cal_parameter_name
 
         if angles_schedules is not None:
-            self.experiment_options.angles_schedules = angles_schedules
+            self.calibration_options.angles_schedules = angles_schedules
 
         if cals is not None:
             self.experiment_options.schedule = cals.get_schedule(
@@ -164,7 +172,7 @@ class Rabi(BaseCalibrationExperiment):
             )
 
             # consistency check between the schedule and the amplitudes to update.
-            for update_tuple in self.experiment_options.angles_schedules:
+            for update_tuple in self.calibration_options.angles_schedules:
                 if update_tuple[1] == cal_parameter_name and update_tuple[2] == schedule_name:
                     break
             else:
@@ -265,11 +273,10 @@ class Rabi(BaseCalibrationExperiment):
         Args:
             experiment_data: The experiment data to use for the update.
         """
-        calibrations = self.experiment_options.calibrations
+        calibrations = self.calibration_options.calibrations
+        angles_schedules = self.calibration_options.angles_schedules
 
-        self.__updater__.update(
-            calibrations, experiment_data, angles_schedules=self.experiment_options.angles_schedules
-        )
+        self.__updater__.update(calibrations, experiment_data, angles_schedules=angles_schedules)
 
 
 class EFRabi(Rabi):

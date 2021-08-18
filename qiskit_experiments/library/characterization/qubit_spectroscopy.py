@@ -129,7 +129,7 @@ class QubitSpectroscopy(BaseCalibrationExperiment):
 
         """
         super().__init__([qubit])
-        self.experiment_options.calibrations = cals
+        self.calibration_options.calibrations = cals
 
         if len(frequencies) < 3:
             raise QiskitError("Spectroscopy requires at least three frequencies.")
@@ -240,4 +240,4 @@ class QubitSpectroscopy(BaseCalibrationExperiment):
         Args:
             experiment_data: The experiment data to use for the update.
         """
-        self.__updater__.update(self.experiment_options.calibrations, experiment_data)
+        self.__updater__.update(self.calibration_options.calibrations, experiment_data)
