@@ -12,7 +12,7 @@
 
 """Base class for calibration-type experiments."""
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from typing import Optional
 
 from qiskit.providers.options import Options
@@ -22,7 +22,7 @@ from qiskit_experiments.framework.base_experiment import BaseExperiment
 from qiskit_experiments.framework.experiment_data import ExperimentData
 
 
-class BaseCalibrationExperiment(BaseExperiment):
+class BaseCalibrationExperiment(BaseExperiment, ABC):
     """An abstract base class for calibration experiments.
 
     This abstract base class specifies an experiment and how to update an
