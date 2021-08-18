@@ -120,13 +120,6 @@ class InterleavedRBAnalysis(RBAnalysis):
     def _default_options(cls):
         """Default analysis options."""
         default_options = super()._default_options()
-        default_options.p0 = {"a": None, "alpha": None, "alpha_c": None, "b": None}
-        default_options.bounds = {
-            "a": (0.0, 1.0),
-            "alpha": (0.0, 1.0),
-            "alpha_c": (0.0, 1.0),
-            "b": (0.0, 1.0),
-        }
         default_options.result_parameters = ["alpha", "alpha_c"]
         return default_options
 
