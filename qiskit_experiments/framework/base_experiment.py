@@ -169,6 +169,7 @@ class BaseExperiment(ABC):
 
         return experiment_data._copy_metadata()
 
+    @requires_matplotlib
     def run_analysis(self, experiment_data, **options) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
