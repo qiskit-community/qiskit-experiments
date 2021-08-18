@@ -27,6 +27,7 @@ from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.experiment_data import ExperimentData
+from qiskit_experiments.matplotlib import requires_matplotlib
 
 
 class BaseExperiment(ABC):
@@ -77,6 +78,7 @@ class BaseExperiment(ABC):
         self._run_options = self._default_run_options()
         self._analysis_options = self._default_analysis_options()
 
+    @requires_matplotlib
     def run(
         self,
         backend: Backend,

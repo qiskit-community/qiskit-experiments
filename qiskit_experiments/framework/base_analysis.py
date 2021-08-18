@@ -23,6 +23,7 @@ from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
 from qiskit_experiments.database_service import DbAnalysisResultV1
+from qiskit_experiments.matplotlib import requires_matplotlib
 
 
 class BaseAnalysis(ABC):
@@ -48,6 +49,7 @@ class BaseAnalysis(ABC):
     def _default_options(cls) -> Options:
         return Options()
 
+    @requires_matplotlib
     def run(
         self,
         experiment_data: ExperimentData,

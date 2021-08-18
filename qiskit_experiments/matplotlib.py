@@ -14,8 +14,11 @@ Matplotlib helper functions
 """
 
 import functools
+import threading
 
-from matplotlib import pyplot
+from matplotlib import pyplot as plt
+
+from qiskit.exceptions import QiskitError
 
 
 def requires_matplotlib(func):
@@ -23,18 +26,39 @@ def requires_matplotlib(func):
 
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
-        # Analysis/plotting is done in a separate thread (so it doesn't block the
-        # main thread), but matplotlib doesn't support GUI mode in a child thread.
-        # The code below switches to a non-GUI backend "Agg" when creating the
-        # plot. An alternative is to run this in a separate process, but then
-        # we'd need to deal with pickling issues.
+        """
+        Analysis/plotting is done in a separate thread (so it doesn't block the
+        main thread), but matplotlib doesn't support GUI mode in a child thread.
+        Therefore, we have to switch to a non-GUI backend.
+        This has to be done carefully, because switching backends in one of the
+        threads (either the main thread or one of the child threads) closes all
+        the existing figures in all the threads. In addition, switching backends
+        (either by `use` or `switch_backend`) inside a child thread sometimes
+        makes Windows trigger an exception, stating that this can be done
+        only in the main thread.
+        The code below switches to a non-GUI backend "agg" before running the
+        function, if the current thread is the main thread.
+        An alternative is to run this in a separate process, but then
+        we'd need to deal with pickling issues.
 
-        saved_backend = pyplot.get_backend()
-        pyplot.switch_backend("Agg")
-        try:
-            ret_val = func(*args, **kwargs)
-        finally:
-            pyplot.switch_backend(saved_backend)
-        return ret_val
+        Returns:
+            Any: the return value of `func`
+
+        Raises:
+            QiskitError: if the current backend is not "agg" and the current
+                thread is not the main thread.
+        """
+
+        current_backend = plt.get_backend()
+        if current_backend != "agg":
+            if threading.current_thread() is not threading.main_thread():
+                raise QiskitError(
+                    "Trying to switch from backend "
+                    + current_backend
+                    + " to agg in a child thread."
+                )
+            plt.switch_backend("agg")
+
+        return func(*args, **kwargs)
 
     return wrapped
