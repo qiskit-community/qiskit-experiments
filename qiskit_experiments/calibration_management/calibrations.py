@@ -895,8 +895,12 @@ class Calibrations:
                 value_dict["qubits"] = key.qubits
                 value_dict["parameter"] = key.parameter
                 value_dict["schedule"] = key.schedule
-                value_dict["date_time"] = value_dict["date_time"].strftime("%Y-%m-%d %H:%M:%S.%f%z")
-
+                value_dict["date_time"] = (
+                    value_dict["date_time"]
+                    .replace(tzinfo=timezone.utc)
+                    .astimezone(tz=None)
+                    .strftime("%Y-%m-%d %H:%M:%S.%f%z")
+                )
                 data.append(value_dict)
 
         return data
