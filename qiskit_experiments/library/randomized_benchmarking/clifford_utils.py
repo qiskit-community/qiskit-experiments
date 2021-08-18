@@ -219,34 +219,3 @@ class CliffordUtils:
                 return [i] + self._unpack_num(num, sig)
             num -= sig_size
         return None
-#
-# NUM_CLIFFORD_1_QUBIT = 24
-# NUM_CLIFFORD_2_QUBIT = 11520
-# CLIFFORD_1_QUBIT_SIG = (2, 3, 4)
-# CLIFFORD_2_QUBIT_SIGS = [
-#     (2, 2, 3, 3, 4, 4),
-#     (2, 2, 3, 3, 3, 3, 4, 4),
-#     (2, 2, 3, 3, 3, 3, 4, 4),
-#     (2, 2, 3, 3, 4, 4),
-# ]
-utils = CliffordUtils()
-target = []
-for num in range(utils.NUM_CLIFFORD_2_QUBIT):
-    vals = utils._unpack_num_multi_sigs(num, utils.CLIFFORD_2_QUBIT_SIGS)
-    if vals[0] == 0 or vals[0] == 3:
-        (form, i0, i1, j0, j1, p0, p1) = vals
-        if form == 3 and i0 == 0 and i1 == 0 and j0 == 0 and j1 == 0:
-            print(
-                "{}: form = {}, i0 = {}, i1 = {}, j0 = {}, j1 = {}, p0 = {}, p1 = {}".format(
-                    num, form, i0, i1, j0, j1, p0, p1))
-            target.append(num)
-    else:
-        (form, i0, i1, j0, j1, k0, k1, p0, p1) = vals
-        if form == 3 and i0 == 0 and i1 == 0 and j0 == 0 and j1 == 0 and k0 == 0 and k1 == 0:
-            print(
-                "{}: form = {}, i0 = {}, i1 = {}, j0 = {}, j1 = {}, k0 = {}, k1 = {}, p0 = {}, p1 = {}".format(
-                    num, form, i0, i1, j0, j1, k0, k1, p0, p1))
-            target.append(num)
-
-print(target)
-print(len(target))
