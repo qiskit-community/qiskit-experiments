@@ -24,7 +24,6 @@ from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 from matplotlib import pyplot
 from matplotlib.ticker import FuncFormatter
 import numpy as np
-from qiskit.providers.options import Options
 from qiskit.providers import Backend
 
 try:
@@ -76,7 +75,13 @@ from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.processor_library import get_processor
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData, FitVal
+from qiskit_experiments.framework import (
+    BaseAnalysis,
+    ExperimentData,
+    AnalysisResultData,
+    FitVal,
+    Options,
+)
 from qiskit_experiments.matplotlib import requires_matplotlib
 
 
@@ -372,23 +377,25 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 Representation should be printable in standard output, i.e. no latex syntax.
             return_data_points (bool): Set ``True`` to return formatted XY data.
         """
-        return Options(
-            curve_fitter=multi_curve_fit,
-            data_processor=None,
-            normalization=False,
-            p0=None,
-            bounds=None,
-            x_key="xval",
-            plot=True,
-            axis=None,
-            xlabel=None,
-            ylabel=None,
-            ylim=None,
-            xval_unit=None,
-            yval_unit=None,
-            result_parameters=None,
-            return_data_points=False,
-        )
+        options = super()._default_options()
+
+        options.curve_fitter = multi_curve_fit
+        options.data_processor = None
+        options.normalization = False
+        options.p0 = None
+        options.bounds = None
+        options.x_key = "xval"
+        options.plot = True
+        options.axis = None
+        options.xlabel = None
+        options.ylabel = None
+        options.ylim = None
+        options.xval_unit = None
+        options.yval_unit = None
+        options.result_parameters = None
+        options.return_data_points = False
+
+        return options
 
     @requires_matplotlib
     def _create_figures(
@@ -537,7 +544,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         return [figure]
 
-    def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """An analysis subroutine that is called to set fitter options.
 
         Subclasses can override this method to provide their own fitter options
@@ -582,13 +589,16 @@ class CurveAnalysis(BaseAnalysis, ABC):
         as the fitter function. See Scipy API docs for more fitting option details.
 
         Args:
-            options: User provided extra options that are not defined in default options.
+            extra_options: User provided extra options that are not defined in the default options.
 
         Returns:
-            List of FitOptions that are passed to fitter function.
+            List of fit options that are passed to the fitter function.
         """
         fit_options = {"p0": self._get_option("p0"), "bounds": self._get_option("bounds")}
-        fit_options.update(options)
+
+        # p0 and bounds are defined in the default options, therefore updating
+        # with the extra options only adds options and doesn't override p0 or bounds
+        fit_options.update(extra_options)
 
         return fit_options
 
@@ -941,11 +951,20 @@ class CurveAnalysis(BaseAnalysis, ABC):
     def _arg_parse(self, **options) -> Dict[str, Any]:
         """Parse input kwargs with predicted input.
 
+        Class attributes will be updated according to the ``options``.
+        For example, if ``options`` has a key ``p0``, and the class
+        has an attribute named ``__p0``,  then the attribute  ``__0p``
+        will be updated to ``options["p0"]``.
+
+        Options that don't have matching attributes will be included
+        in the returned dictionary.
+
         Args:
             options: User-input keyword argument options.
 
         Returns:
-            Keyword arguments that not specified in the default options.
+            Keyword arguments not specified in the default options
+            of the class.
         """
         extra_options = dict()
         for key, value in options.items():
@@ -1020,7 +1039,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 assigned_series.append(SeriesDef(**dict_def))
             self.__series__ = assigned_series
 
-        # pop arguments that are not given to fitter
+        # pop arguments that are not given to the fitter,
+        # and update class attributes with the arguments that are given to the fitter
+        # (arguments that have matching attributes in the class)
         extra_options = self._arg_parse(**options)
 
         # get experiment metadata
