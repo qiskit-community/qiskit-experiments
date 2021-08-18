@@ -165,7 +165,7 @@ class TestRBUtilities(QiskitTestCase):
         self.assertAlmostEqual(twoq_coherence_err, 0.00597, 5, "Error: 2Q Coherence Limit")
 
     def test_clifford_1_qubit_generation(self):
-        """Verify 1-qubit clifford indeed genetates the correct group"""
+        """Verify 1-qubit clifford indeed generates the correct group"""
         clifford_dicts = [
             {"stabilizer": ["+Z"], "destabilizer": ["+X"]},
             {"stabilizer": ["+X"], "destabilizer": ["+Z"]},
@@ -199,6 +199,7 @@ class TestRBUtilities(QiskitTestCase):
             self.assertEqual(clifford, cliffords[n])
 
     def test_clifford_2_qubit_generation(self):
+        """Verify 2-qubit clifford indeed generates the correct group"""
         utils = rb.CliffordUtils()
         pauli_free_elements = [
             0,
