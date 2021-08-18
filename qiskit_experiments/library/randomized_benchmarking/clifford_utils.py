@@ -18,7 +18,7 @@ from functools import lru_cache
 from numpy.random import Generator, default_rng
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate
-from qiskit.circuit.library import SdgGate, HGate, SGate, SXGate
+from qiskit.circuit.library import SdgGate, HGate, SGate, SXdgGate
 from qiskit.quantum_info import Clifford, random_clifford
 
 
@@ -130,7 +130,7 @@ class CliffordUtils:
         if i == 1:
             qc.h(0)
         if j == 1:
-            qc._append(SXGate(), [qr[0]], [])
+            qc._append(SXdgGate(), [qr[0]], [])
         if j == 2:
             qc._append(SGate(), [qr[0]], [])
         if p == 1:
@@ -158,13 +158,13 @@ class CliffordUtils:
         if i1 == 1:
             qc.h(1)
         if j0 == 1:
-            qc._append(VGate(), [qr[0]], [])
+            qc.sxdg(0)
         if j0 == 2:
-            qc._append(WGate(), [qr[0]], [])
+            qc.s(0)
         if j1 == 1:
-            qc._append(VGate(), [qr[1]], [])
+            qc.sxdg(1)
         if j1 == 2:
-            qc._append(WGate(), [qr[1]], [])
+            qc.s(1)
         if form in (1, 2, 3):
             qc.cx(0, 1)
         if form in (2, 3):
@@ -219,3 +219,34 @@ class CliffordUtils:
                 return [i] + self._unpack_num(num, sig)
             num -= sig_size
         return None
+#
+# NUM_CLIFFORD_1_QUBIT = 24
+# NUM_CLIFFORD_2_QUBIT = 11520
+# CLIFFORD_1_QUBIT_SIG = (2, 3, 4)
+# CLIFFORD_2_QUBIT_SIGS = [
+#     (2, 2, 3, 3, 4, 4),
+#     (2, 2, 3, 3, 3, 3, 4, 4),
+#     (2, 2, 3, 3, 3, 3, 4, 4),
+#     (2, 2, 3, 3, 4, 4),
+# ]
+utils = CliffordUtils()
+target = []
+for num in range(utils.NUM_CLIFFORD_2_QUBIT):
+    vals = utils._unpack_num_multi_sigs(num, utils.CLIFFORD_2_QUBIT_SIGS)
+    if vals[0] == 0 or vals[0] == 3:
+        (form, i0, i1, j0, j1, p0, p1) = vals
+        if form == 3 and i0 == 0 and i1 == 0 and j0 == 0 and j1 == 0:
+            print(
+                "{}: form = {}, i0 = {}, i1 = {}, j0 = {}, j1 = {}, p0 = {}, p1 = {}".format(
+                    num, form, i0, i1, j0, j1, p0, p1))
+            target.append(num)
+    else:
+        (form, i0, i1, j0, j1, k0, k1, p0, p1) = vals
+        if form == 3 and i0 == 0 and i1 == 0 and j0 == 0 and j1 == 0 and k0 == 0 and k1 == 0:
+            print(
+                "{}: form = {}, i0 = {}, i1 = {}, j0 = {}, j1 = {}, k0 = {}, k1 = {}, p0 = {}, p1 = {}".format(
+                    num, form, i0, i1, j0, j1, k0, k1, p0, p1))
+            target.append(num)
+
+print(target)
+print(len(target))
