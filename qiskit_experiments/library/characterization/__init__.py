@@ -24,7 +24,7 @@ Experiments
 
     T1
     T2Ramsey
-    T2_phi
+    T_phi
     QubitSpectroscopy
 
 
