@@ -21,43 +21,8 @@ import inspect
 from abc import ABC
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
-from matplotlib import pyplot
-from matplotlib.ticker import FuncFormatter
 import numpy as np
 from qiskit.providers import Backend
-
-try:
-    from qiskit.utils import detach_prefix
-except ImportError:
-    import warnings
-
-    # TODO remove this after Qiskit-terra #6885 becomes available
-    def detach_prefix(value: float) -> Tuple[float, str]:
-        """A placeholder function. This will be imported from qiskit terra."""
-        downfactors = ["p", "n", "μ", "m"]
-        upfactors = ["k", "M", "G", "T"]
-
-        if not value:
-            return 0.0, ""
-
-        try:
-            fixed_point_3n = int(np.floor(np.log10(np.abs(value)) / 3))
-            if fixed_point_3n != 0:
-                if fixed_point_3n > 0:
-                    prefix = upfactors[fixed_point_3n - 1]
-                else:
-                    prefix = downfactors[fixed_point_3n]
-                scale = 10 ** (-3 * fixed_point_3n)
-            else:
-                prefix = ""
-                scale = 1.0
-        except IndexError:
-            warnings.warn(f"The value {value} is out of range. Raw value is returned.", UserWarning)
-            prefix = ""
-            scale = 1.0
-
-        return scale * value, prefix
-
 
 from qiskit_experiments.curve_analysis.curve_data import (
     CurveData,
@@ -66,11 +31,7 @@ from qiskit_experiments.curve_analysis.curve_data import (
     ParameterRepr,
 )
 from qiskit_experiments.curve_analysis.curve_fit import multi_curve_fit
-from qiskit_experiments.curve_analysis.visualization import (
-    plot_scatter,
-    plot_errorbar,
-    plot_curve_fit,
-)
+from qiskit_experiments.curve_analysis.visualization import FitResultPlotters, PlotterStyle
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.processor_library import get_processor
@@ -82,8 +43,6 @@ from qiskit_experiments.framework import (
     FitVal,
     Options,
 )
-from qiskit_experiments.matplotlib import requires_matplotlib
-
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"
 DATA_ENTRY_PREFIX = "@Data_"
@@ -235,10 +194,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
     Notes:
         This CurveAnalysis class provides several private methods that subclasses can override.
 
-        - Customize figure generation:
-            Override :meth:`~self._create_figures`. For example, here you can create
-            arbitrary number of new figures or upgrade the default figure appearance.
-
         - Customize pre-data processing:
             Override :meth:`~self._format_data`. For example, here you can apply smoothing
             to y values, remove outlier, or apply filter function to the data.
@@ -374,6 +329,13 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 The parameter name should be defined in the series definition.
                 Representation should be printable in standard output, i.e. no latex syntax.
             return_data_points (bool): Set ``True`` to return formatted XY data.
+            curve_plotter (str): A name of plotter function used to generate
+                the curve fit result figure. This refers to the mapper
+                :py:class:`~qiskit_experiments.curve_analysis.visualization.FitResultPlotters`
+                to retrieve the corresponding callback function.
+            style(PlotterStyle): An instance of
+                :py:class:`~qiskit_experiments.curve_analysis.visualization.style.PlotterStyle`
+                that contains set of configurations to create a fit plot.
         """
         options = super()._default_options()
 
@@ -390,6 +352,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
         options.yval_unit = None
         options.result_parameters = None
         options.return_data_points = False
+        options.curve_plotter = "mpl_single_canvas"
+        options.style = PlotterStyle()
 
         # automatically populate initial guess and boundary
         fit_params = cls._fit_params()
@@ -397,153 +361,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
         options.bounds = {par_name: None for par_name in fit_params}
 
         return options
-
-    @requires_matplotlib
-    def _create_figures(
-        self,
-        fit_data: FitData,
-        analysis_results: List[AnalysisResultData],
-    ) -> List["Figure"]:
-        """Create new figures with the fit result and raw data.
-
-        Subclass can override this method to create different type of figures, but
-        the ``requires_matplotlib`` decorator is needed to ensure this method
-        works with ``DbExperimentData``.
-
-        Args:
-            fit_data: Fit data set.
-            analysis_results: List of database entries.
-
-        Returns:
-            List of figures.
-        """
-        axis = self._get_option("axis")
-        if axis is None:
-            figure = pyplot.figure(figsize=(8, 5))
-            axis = figure.subplots(nrows=1, ncols=1)
-        else:
-            figure = axis.get_figure()
-
-        for series_def in self.__series__:
-            curve_data_raw = self._data(series_name=series_def.name, label="raw_data")
-            curve_data_fit = self._data(series_name=series_def.name, label="fit_ready")
-
-            # plot raw data if data is formatted
-            if not np.array_equal(curve_data_raw.y, curve_data_fit.y):
-                plot_scatter(xdata=curve_data_raw.x, ydata=curve_data_raw.y, ax=axis, zorder=0)
-
-            # plot formatted data
-            curve_data_fit = self._data(series_name=series_def.name, label="fit_ready")
-            if np.all(np.isnan(curve_data_fit.y_err)):
-                sigma = None
-            else:
-                sigma = np.nan_to_num(curve_data_fit.y_err)
-            plot_errorbar(
-                xdata=curve_data_fit.x,
-                ydata=curve_data_fit.y,
-                sigma=sigma,
-                ax=axis,
-                label=series_def.name,
-                marker=series_def.plot_symbol,
-                color=series_def.plot_color,
-                zorder=1,
-                linestyle="",
-            )
-
-            # plot fit curve
-            if fit_data:
-                plot_curve_fit(
-                    func=series_def.fit_func,
-                    result=fit_data,
-                    ax=axis,
-                    color=series_def.plot_color,
-                    zorder=2,
-                    fit_uncertainty=series_def.plot_fit_uncertainty,
-                )
-        # format axis
-        if len(self.__series__) > 1:
-            axis.legend(loc="center right")
-
-        # get axis scaling factor
-        for this_axis in ("x", "y"):
-            sub_axis = getattr(axis, this_axis + "axis")
-            unit = self._get_option(this_axis + "val_unit")
-            label = self._get_option(this_axis + "label")
-            if unit:
-                maxv = np.max(np.abs(sub_axis.get_data_interval()))
-                scaled_maxv, prefix = detach_prefix(maxv)
-                prefactor = scaled_maxv / maxv
-                # pylint: disable=cell-var-from-loop
-                sub_axis.set_major_formatter(FuncFormatter(lambda x, p: f"{x * prefactor: g}"))
-                sub_axis.set_label_text(f"{label} [{prefix}{unit}]", fontsize=16)
-            else:
-                sub_axis.set_label_text(label, fontsize=16)
-                axis.ticklabel_format(axis=this_axis, style="sci", scilimits=(-3, 3))
-
-        axis.tick_params(labelsize=14)
-        axis.grid(True)
-
-        if fit_data:
-            # automatic scaling y axis by actual data point.
-            # note that y axis will be scaled by confidence interval by default.
-            # sometimes we cannot see any data point if variance of parameters is too large.
-            height = fit_data.y_range[1] - fit_data.y_range[0]
-            axis.set_ylim(fit_data.y_range[0] - 0.1 * height, fit_data.y_range[1] + 0.1 * height)
-
-        # write analysis report
-        if fit_data and analysis_results:
-            analysis_description = ""
-            for res in analysis_results:
-                if isinstance(res.value, FitVal) and not res.name.startswith(PARAMS_ENTRY_PREFIX):
-                    fitval = res.value
-                    if fitval.unit:
-                        # unit is defined. do detaching prefix, i.e. 1000 Hz -> 1 kHz
-                        val, val_prefix = detach_prefix(fitval.value)
-                        val_unit = val_prefix + fitval.unit
-                        value_repr = f"{val: .3f}"
-                        if fitval.stderr is not None:
-                            # with stderr
-                            err, err_prefix = detach_prefix(fitval.stderr)
-                            err_unit = err_prefix + fitval.unit
-                            if val_unit == err_unit:
-                                # same value scaling, same prefix
-                                value_repr += f" \u00B1 {err: .2f} {val_unit}"
-                            else:
-                                # different value scaling, different prefix
-                                value_repr += f" {val_unit} \u00B1 {err: .2f} {err_unit}"
-                        else:
-                            # without stderr, just append unit
-                            value_repr += f" {val_unit}"
-                    else:
-                        # unit is not defined. raw value formatting is performed.
-
-                        def format_val(float_val: float) -> str:
-                            if np.abs(float_val) < 1e-3 or np.abs(float_val) > 1e3:
-                                return f"{float_val: .4e}"
-                            return f"{float_val: .4f}"
-
-                        value_repr = format_val(fitval.value)
-                        if fitval.stderr is not None:
-                            # with stderr
-                            value_repr += f" \u00B1 {format_val(fitval.stderr)}"
-
-                    analysis_description += f"{res.name} = {value_repr}\n"
-            analysis_description += r"Fit $\chi^2$ = " + f"{fit_data.reduced_chisq: .4f}"
-
-            report_handler = axis.text(
-                0.60,
-                0.95,
-                analysis_description,
-                ha="center",
-                va="top",
-                size=14,
-                transform=axis.transAxes,
-            )
-
-            bbox_props = dict(boxstyle="square, pad=0.3", fc="white", ec="black", lw=1, alpha=0.8)
-            report_handler.set_bbox(bbox_props)
-
-        return [figure]
 
     def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """An analysis subroutine that is called to set fitter options.
@@ -1214,7 +1031,23 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # 6. Create figures
         #
         if self._get_option("plot"):
-            figures = self._create_figures(fit_data=fit_result, analysis_results=analysis_results)
+            fit_figure = FitResultPlotters[self._get_option("curve_plotter")].value.draw(
+                curves=[
+                    (ser, self._data(ser.name, "raw_data"), self._data(ser.name, "fit_ready"))
+                    for ser in self.__series__
+                ],
+                tick_labels={
+                    "xval_unit": self._get_option("xval_unit"),
+                    "yval_unit": self._get_option("yval_unit"),
+                    "xlabel": self._get_option("xlabel"),
+                    "ylabel": self._get_option("ylabel"),
+                },
+                fit_data=fit_result,
+                result_entries=analysis_results,
+                style=self._get_option("style"),
+                axis=self._get_option("axis"),
+            )
+            figures = [fit_figure]
         else:
             figures = []
 
