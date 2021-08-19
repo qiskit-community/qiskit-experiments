@@ -70,8 +70,6 @@ class OscillationAnalysis(curve.CurveAnalysis):
         descriptions of analysis options.
         """
         default_options = super()._default_options()
-        default_options.p0 = {"amp": None, "freq": None, "phase": None, "base": None}
-        default_options.bounds = {"amp": None, "freq": None, "phase": None, "base": None}
         default_options.result_parameters = ["freq"]
         default_options.xlabel = "Amplitude"
         default_options.ylabel = "Signal (arb. units)"
