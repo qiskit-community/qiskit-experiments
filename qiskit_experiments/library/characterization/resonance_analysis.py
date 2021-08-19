@@ -73,14 +73,12 @@ class ResonanceAnalysis(curve.CurveAnalysis):
         descriptions of analysis options.
         """
         default_options = super()._default_options()
-        default_options.p0 = {"a": None, "sigma": None, "freq": None, "b": None}
-        default_options.bounds = {"a": None, "sigma": None, "freq": None, "b": None}
         default_options.reporting_parameters = {"freq": ("frequency", "Hz")}
         default_options.normalization = True
 
         return default_options
 
-    def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
@@ -113,7 +111,9 @@ class ResonanceAnalysis(curve.CurveAnalysis):
                 "b": user_bounds["b"] or (-max_abs_y, max_abs_y),
             },
         }
-        fit_option.update(options)
+        # p0 and bounds are defined in the default options, therefore updating
+        # with the extra options only adds options and doesn't override p0 or bounds
+        fit_option.update(extra_options)
 
         return fit_option
 

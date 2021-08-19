@@ -14,10 +14,10 @@
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
-from qiskit.providers.options import Options
 
 from qiskit_experiments.curve_analysis import ParameterRepr
 from qiskit_experiments.library.characterization.qubit_spectroscopy import QubitSpectroscopy
+from qiskit_experiments.framework import Options
 
 
 class EFSpectroscopy(QubitSpectroscopy):

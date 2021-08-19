@@ -633,8 +633,19 @@ class DbExperimentDataV1(DbExperimentData):
         self._retrieve_analysis_results(refresh=refresh)
         if index is None:
             return self._analysis_results.values()
-        if isinstance(index, (int, slice)):
+        if isinstance(index, int):
+            if index >= len(self._analysis_results.values()):
+                raise DbExperimentEntryNotFound(
+                    f"Analysis result {index} not found. " f"Errors: {self.errors()}"
+                )
             return self._analysis_results.values()[index]
+        if isinstance(index, slice):
+            results = self._analysis_results.values()[index]
+            if not results:
+                raise DbExperimentEntryNotFound(
+                    f"Analysis result {index} not found. " f"Errors: {self.errors()}"
+                )
+            return results
         if isinstance(index, str):
             # Check by result ID
             if index in self._analysis_results:
@@ -644,7 +655,9 @@ class DbExperimentDataV1(DbExperimentData):
                 result for result in self._analysis_results.values() if result.name == index
             ]
             if not filtered:
-                raise DbExperimentEntryNotFound(f"Analysis result {index} not found.")
+                raise DbExperimentEntryNotFound(
+                    f"Analysis result {index} not found. " f"Errors: {self.errors()}"
+                )
             if len(filtered) == 1:
                 return filtered[0]
             else:
@@ -752,6 +765,11 @@ class DbExperimentDataV1(DbExperimentData):
             with service_exception_to_warning():
                 self._service.delete_figure(experiment_id=self.experiment_id, figure_name=name)
             self._deleted_figures.remove(name)
+
+        print(
+            "You can view the experiment online at https://quantum-computing.ibm.com/experiments/"
+            + self.experiment_id
+        )
 
     @classmethod
     def load(cls, experiment_id: str, service: DatabaseServiceV1) -> "DbExperimentDataV1":

@@ -96,8 +96,6 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
                 considered as good. Defaults to :math:`\pi/2`.
         """
         default_options = super()._default_options()
-        default_options.p0 = {"amp": None, "d_theta": None, "phase": None, "base": None}
-        default_options.bounds = {"amp": None, "d_theta": None, "phase": None, "base": None}
         default_options.result_parameters = ["d_theta"]
         default_options.xlabel = "Number of gates (n)"
         default_options.ylabel = "Population"
@@ -108,7 +106,7 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
 
         return default_options
 
-    def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")

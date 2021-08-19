@@ -21,8 +21,9 @@ import numpy as np
 from qiskit.test import QiskitTestCase
 from qiskit.qobj.utils import MeasLevel
 
-from qiskit_experiments.framework import ExperimentData
-from qiskit_experiments.curve_analysis import CurveAnalysis, SeriesDef, fit_function, ParameterRepr
+from qiskit_experiments.framework import ExperimentData, FitVal
+from qiskit_experiments.curve_analysis import CurveAnalysis, fit_function
+from qiskit_experiments.curve_analysis.curve_data import SeriesDef, FitData, ParameterRepr
 from qiskit_experiments.curve_analysis.data_processing import probability
 from qiskit_experiments.exceptions import AnalysisError
 
@@ -61,6 +62,32 @@ def create_new_analysis(series: List[SeriesDef], fixed_params: List[str] = None)
         __fixed_parameters__ = fixed_params
 
     return TestAnalysis()
+
+
+class TestFitData(QiskitTestCase):
+    """Unittest for fit data dataclass."""
+
+    def test_get_value(self):
+        """Get fit value from fit data object."""
+        data = FitData(
+            popt=np.asarray([1.0, 2.0, 3.0]),
+            popt_keys=["a", "b", "c"],
+            popt_err=np.asarray([0.1, 0.2, 0.3]),
+            pcov=np.diag(np.ones(3)),
+            reduced_chisq=0.0,
+            dof=0,
+            x_range=(0, 0),
+            y_range=(0, 0),
+        )
+
+        a_val = data.fitval("a")
+        self.assertEqual(a_val, FitVal(1.0, 0.1))
+
+        b_val = data.fitval("b")
+        self.assertEqual(b_val, FitVal(2.0, 0.2))
+
+        c_val = data.fitval("c")
+        self.assertEqual(c_val, FitVal(3.0, 0.3))
 
 
 class TestCurveAnalysisUnit(QiskitTestCase):
@@ -104,6 +131,18 @@ class TestCurveAnalysisUnit(QiskitTestCase):
             ],
         )
         self.err_decimal = 3
+
+    def test_parsed_fit_params(self):
+        """Test parsed fit params."""
+        self.assertSetEqual(set(self.analysis._fit_params()), {"p0", "p1", "p2", "p3", "p4"})
+
+    def test_parsed_init_guess(self):
+        """Test parsed initial guess and boundaries."""
+        default_p0 = self.analysis._default_options().p0
+        default_bounds = self.analysis._default_options().bounds
+        ref = {"p0": None, "p1": None, "p2": None, "p3": None, "p4": None}
+        self.assertDictEqual(default_p0, ref)
+        self.assertDictEqual(default_bounds, ref)
 
     def test_cannot_create_invalid_series_fit(self):
         """Test we cannot create invalid analysis instance."""

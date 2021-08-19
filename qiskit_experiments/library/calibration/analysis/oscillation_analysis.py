@@ -70,15 +70,13 @@ class OscillationAnalysis(curve.CurveAnalysis):
         descriptions of analysis options.
         """
         default_options = super()._default_options()
-        default_options.p0 = {"amp": None, "freq": None, "phase": None, "base": None}
-        default_options.bounds = {"amp": None, "freq": None, "phase": None, "base": None}
         default_options.result_parameters = ["freq"]
         default_options.xlabel = "Amplitude"
         default_options.ylabel = "Signal (arb. units)"
 
         return default_options
 
-    def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
@@ -112,7 +110,9 @@ class OscillationAnalysis(curve.CurveAnalysis):
                     "base": user_bounds["base"] or (-1 * max_abs_y, 1 * max_abs_y),
                 },
             }
-            fit_option.update(options)
+            # p0 and bounds are defined in the default options, therefore updating
+            # with the extra options only adds options and doesn't override p0 or bounds
+            fit_option.update(extra_options)
             fit_options.append(fit_option)
 
         return fit_options
