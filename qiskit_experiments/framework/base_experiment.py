@@ -20,12 +20,12 @@ from numbers import Integral
 
 from qiskit import transpile, assemble, QuantumCircuit
 from qiskit.providers import BaseJob
-from qiskit.providers.options import Options
 from qiskit.providers.backend import Backend
 from qiskit.providers.basebackend import BaseBackend as LegacyBackend
 from qiskit.test.mock import FakeBackend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
+from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.experiment_data import ExperimentData
 
 
@@ -101,20 +101,8 @@ class BaseExperiment(ABC):
             QiskitError: if experiment is run with an incompatible existing
                          ExperimentData container.
         """
-        if experiment_data is None:
-            # Create new experiment data
-            experiment_data = self.__experiment_data__(experiment=self, backend=backend)
-        else:
-            # Validate experiment is compatible with existing data container
-            metadata = experiment_data.metadata()
-            if metadata.get("experiment_type") != self._type:
-                raise QiskitError(
-                    "Existing ExperimentData contains data from a different experiment."
-                )
-            if metadata.get("physical_qubits") != list(self.physical_qubits):
-                raise QiskitError(
-                    "Existing ExperimentData contains data for a different set of physical qubits."
-                )
+        # Create experiment data container
+        experiment_data = self._initialize_experiment_data(backend, experiment_data)
 
         # Run options
         run_opts = copy.copy(self.run_options)
@@ -135,7 +123,7 @@ class BaseExperiment(ABC):
             )
 
         # Generate and transpile circuits
-        transpile_opts = self.transpile_options.__dict__
+        transpile_opts = copy.copy(self.transpile_options.__dict__)
         transpile_opts["initial_layout"] = list(self._physical_qubits)
         circuits = transpile(self.circuits(backend), backend, **transpile_opts)
         self._postprocess_transpiled_circuits(circuits, backend, **run_options)
@@ -160,6 +148,25 @@ class BaseExperiment(ABC):
         # Return the ExperimentData future
         return experiment_data
 
+    def _initialize_experiment_data(
+        self, backend: Backend, experiment_data: Optional[ExperimentData] = None
+    ) -> ExperimentData:
+        """Initialize the return data container for the experiment run"""
+        if experiment_data is None:
+            return self.__experiment_data__(experiment=self, backend=backend)
+
+        # Validate experiment is compatible with existing data
+        if not isinstance(experiment_data, ExperimentData):
+            raise QiskitError("Input `experiment_data` is not a valid ExperimentData.")
+        if experiment_data.experiment_type != self._type:
+            raise QiskitError("Existing ExperimentData contains data from a different experiment.")
+        if experiment_data.metadata.get("physical_qubits") != list(self.physical_qubits):
+            raise QiskitError(
+                "Existing ExperimentData contains data for a different set of physical qubits."
+            )
+
+        return experiment_data._copy_metadata()
+
     def run_analysis(self, experiment_data, **options) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
@@ -170,7 +177,7 @@ class BaseExperiment(ABC):
                      for the current run.
 
         Returns:
-            The updated experiment data containing the analysis results and figures.
+            An experiment data object containing the analysis results and figures.
 
         Raises:
             QiskitError: if experiment_data container is not valid for analysis.
@@ -182,7 +189,7 @@ class BaseExperiment(ABC):
 
         # Run analysis
         analysis = self.analysis()
-        analysis.run(experiment_data, save=True, return_figures=False, **analysis_options)
+        analysis.run(experiment_data, **analysis_options)
         return experiment_data
 
     @property

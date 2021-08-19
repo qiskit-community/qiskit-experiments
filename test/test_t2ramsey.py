@@ -56,11 +56,11 @@ class T2RamseyBackend(BackendV1):
             dt=dt_factor_in_ns,
         )
 
-        self._t2ramsey = p0["t2ramsey"]
-        self._a_guess = p0["a_guess"]
-        self._f_guess = p0["f_guess"]
-        self._phi_guess = p0["phi_guess"]
-        self._b_guess = p0["b_guess"]
+        self._t2ramsey = p0["T2star"]
+        self._a_param = p0["A"]
+        self._freq = p0["f"]
+        self._phi = p0["phi"]
+        self._b_param = p0["B"]
         self._initial_prob_plus = initial_prob_plus
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
@@ -114,13 +114,13 @@ class T2RamseyBackend(BackendV1):
                     if op.name == "delay":
                         delay = op.params[0]
                         t2ramsey = self._t2ramsey[qubit] * self._dt_factor
-                        freq = self._f_guess[qubit] / self._dt_factor
+                        freq = self._freq[qubit] / self._dt_factor
 
                         prob_plus[qubit] = (
-                            self._a_guess[qubit]
+                            self._a_param[qubit]
                             * np.exp(-delay / t2ramsey)
-                            * np.cos(2 * np.pi * freq * delay + self._phi_guess[qubit])
-                            + self._b_guess[qubit]
+                            * np.cos(2 * np.pi * freq * delay + self._phi[qubit])
+                            + self._b_param[qubit]
                         )
 
                     if op.name == "measure":
@@ -165,8 +165,9 @@ class TestT2Ramsey(QiskitTestCase):
                 dt_factor = 1
             else:
                 dt_factor = apply_prefix(1, unit)
+            osc_freq = 0.1
             estimated_t2ramsey = 20
-            estimated_freq = 0.1
+            estimated_freq = 0.11
             # Set up the circuits
             qubit = 0
             if unit == "dt":  # dt requires integer values for delay
@@ -177,10 +178,10 @@ class TestT2Ramsey(QiskitTestCase):
                     (np.linspace(16.0, 45.0, num=59)).astype(float),
                 )
 
-            exp = T2Ramsey(qubit, delays, unit=unit)
+            exp = T2Ramsey(qubit, delays, unit=unit, osc_freq=osc_freq)
             default_p0 = {
                 "A": 0.5,
-                "t2ramsey": estimated_t2ramsey,
+                "T2star": estimated_t2ramsey,
                 "f": estimated_freq,
                 "phi": 0,
                 "B": 0.5,
@@ -189,11 +190,11 @@ class TestT2Ramsey(QiskitTestCase):
                 exp.set_analysis_options(user_p0=user_p0, plot=True)
                 backend = T2RamseyBackend(
                     p0={
-                        "a_guess": [0.5],
-                        "t2ramsey": [estimated_t2ramsey],
-                        "f_guess": [estimated_freq],
-                        "phi_guess": [0.0],
-                        "b_guess": [0.5],
+                        "A": [0.5],
+                        "T2star": [estimated_t2ramsey],
+                        "f": [estimated_freq],
+                        "phi": [0.0],
+                        "B": [0.5],
                     },
                     initial_prob_plus=[0.0],
                     readout0to1=[0.02],
@@ -201,19 +202,16 @@ class TestT2Ramsey(QiskitTestCase):
                     conversion_factor=dt_factor,
                 )
 
-            expdata = exp.run(
-                backend=backend,
-                shots=2000,
-            )
+            expdata = exp.run(backend=backend, shots=2000)
             expdata.block_for_results()  # Wait for job/analysis to finish.
             result = expdata.analysis_results()
             self.assertAlmostEqual(
-                result[0].data()["value"],
+                result[0].value.value,
                 estimated_t2ramsey * dt_factor,
                 delta=3 * dt_factor,
             )
             self.assertAlmostEqual(
-                result[1].data()["value"],
+                result[1].value.value,
                 estimated_freq / dt_factor,
                 delta=3 / dt_factor,
             )
@@ -227,18 +225,19 @@ class TestT2Ramsey(QiskitTestCase):
         t2ramsey = [30, 25]
         estimated_freq = [0.1, 0.12]
         delays = [list(range(1, 60)), list(range(1, 50))]
-        dt_factor = 1
+        dt_factor = 1e-6
+        osc_freq = 0.1
 
-        exp0 = T2Ramsey(0, delays[0])
-        exp2 = T2Ramsey(2, delays[1])
+        exp0 = T2Ramsey(0, delays[0], osc_freq=osc_freq)
+        exp2 = T2Ramsey(2, delays[1], osc_freq=osc_freq)
         par_exp = ParallelExperiment([exp0, exp2])
 
         p0 = {
-            "a_guess": [0.5, None, 0.5],
-            "t2ramsey": [t2ramsey[0], None, t2ramsey[1]],
-            "f_guess": [estimated_freq[0], None, estimated_freq[1]],
-            "phi_guess": [0, None, 0],
-            "b_guess": [0.5, None, 0.5],
+            "A": [0.5, None, 0.5],
+            "T2star": [t2ramsey[0], None, t2ramsey[1]],
+            "f": [estimated_freq[0], None, estimated_freq[1]],
+            "phi": [0, None, 0],
+            "B": [0.5, None, 0.5],
         }
 
         backend = T2RamseyBackend(p0)
@@ -247,9 +246,9 @@ class TestT2Ramsey(QiskitTestCase):
 
         for i in range(2):
             sub_res = expdata.component_experiment_data(i).analysis_results()
-            self.assertAlmostEqual(sub_res[0].data()["value"], t2ramsey[i], delta=3)
+            self.assertAlmostEqual(sub_res[0].value.value, t2ramsey[i], delta=3)
             self.assertAlmostEqual(
-                sub_res[1].data()["value"],
+                sub_res[1].value.value,
                 estimated_freq[i] / dt_factor,
                 delta=3 / dt_factor,
             )
@@ -267,15 +266,16 @@ class TestT2Ramsey(QiskitTestCase):
         unit = "s"
         dt_factor = 1
         estimated_t2ramsey = 30
-        estimated_freq = 0.7
+        estimated_freq = 0.09
         # First experiment
         qubit = 0
         delays0 = list(range(1, 60, 2))
+        osc_freq = 0.08
 
-        exp0 = T2Ramsey(qubit, delays0, unit=unit)
+        exp0 = T2Ramsey(qubit, delays0, unit=unit, osc_freq=osc_freq)
         default_p0 = {
             "A": 0.5,
-            "t2ramsey": estimated_t2ramsey,
+            "T2star": estimated_t2ramsey,
             "f": estimated_freq,
             "phi": 0,
             "B": 0.5,
@@ -283,11 +283,11 @@ class TestT2Ramsey(QiskitTestCase):
         exp0.set_analysis_options(user_p0=default_p0)
         backend = T2RamseyBackend(
             p0={
-                "a_guess": [0.5],
-                "t2ramsey": [estimated_t2ramsey],
-                "f_guess": [estimated_freq],
-                "phi_guess": [0.0],
-                "b_guess": [0.5],
+                "A": [0.5],
+                "T2star": [estimated_t2ramsey],
+                "f": [estimated_freq],
+                "phi": [0.0],
+                "B": [0.5],
             },
             initial_prob_plus=[0.0],
             readout0to1=[0.02],
@@ -298,6 +298,7 @@ class TestT2Ramsey(QiskitTestCase):
         # run circuits
         expdata0 = exp0.run(backend=backend, shots=1000)
         expdata0.block_for_results()
+        results0 = expdata0.analysis_results()
 
         # second experiment
         delays1 = list(range(2, 65, 2))
@@ -305,14 +306,15 @@ class TestT2Ramsey(QiskitTestCase):
         exp1.set_analysis_options(user_p0=default_p0)
         expdata1 = exp1.run(backend=backend, experiment_data=expdata0, shots=1000)
         expdata1.block_for_results()
-        result = expdata1.analysis_results()
+        results1 = expdata1.analysis_results()
+
         self.assertAlmostEqual(
-            result[2].data()["value"],
+            results1[0].value.value,
             estimated_t2ramsey * dt_factor,
             delta=3 * dt_factor,
         )
         self.assertAlmostEqual(
-            result[3].data()["value"], estimated_freq / dt_factor, delta=3 / dt_factor
+            results1[1].value.value, estimated_freq / dt_factor, delta=3 / dt_factor
         )
-        self.assertLessEqual(result[2].data()["stderr"], result[0].data()["stderr"])
+        self.assertLessEqual(results1[0].value.stderr, results0[0].value.stderr)
         self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))

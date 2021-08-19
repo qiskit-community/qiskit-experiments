@@ -15,7 +15,7 @@
 """Test ExperimentData."""
 
 import os
-from unittest import mock, skipIf
+from unittest import mock
 import copy
 from random import randrange
 import time
@@ -24,14 +24,14 @@ import json
 import re
 import uuid
 
+import matplotlib.pyplot as plt
 import numpy as np
-
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeMelbourne
 from qiskit.result import Result
 from qiskit.providers import JobV1 as Job
 from qiskit.providers import JobStatus
-from qiskit.tools.visualization import HAS_MATPLOTLIB
+
 from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
 from qiskit_experiments.database_service import DatabaseServiceV1
 from qiskit_experiments.database_service.exceptions import (
@@ -67,8 +67,8 @@ class TestDbExperimentData(QiskitTestCase):
         self.assertEqual(exp_data.backend.name(), self.backend.name())
         self.assertEqual(exp_data.experiment_type, "qiskit_test")
         self.assertEqual(exp_data.experiment_id, "1234")
-        self.assertEqual(exp_data.tags(), ["tag1", "tag2"])
-        self.assertEqual(exp_data.metadata(), {"foo": "bar"})
+        self.assertEqual(exp_data.tags, ["tag1", "tag2"])
+        self.assertEqual(exp_data.metadata, {"foo": "bar"})
         for key, val in attrs.items():
             self.assertEqual(getattr(exp_data, key), val)
 
@@ -256,12 +256,8 @@ class TestDbExperimentData(QiskitTestCase):
                 fn = exp_data.add_figures(figure, figure_name)
                 self.assertEqual(hello_bytes, exp_data.figure(fn))
 
-    @skipIf(not HAS_MATPLOTLIB, "matplotlib not available.")
     def test_add_figure_plot(self):
         """Test adding a matplotlib figure."""
-        # pylint: disable=import-error
-        import matplotlib.pyplot as plt
-
         figure, ax = plt.subplots()
         ax.plot([1, 2, 3])
 
@@ -328,7 +324,7 @@ class TestDbExperimentData(QiskitTestCase):
         """Test getting figure."""
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         figure_template = "hello world {}"
-        name_template = "figure_{}"
+        name_template = "figure_{}.svg"
         for idx in range(3):
             exp_data.add_figures(
                 str.encode(figure_template.format(idx)), figure_names=name_template.format(idx)
@@ -347,7 +343,7 @@ class TestDbExperimentData(QiskitTestCase):
     def test_delete_figure(self):
         """Test deleting a figure."""
         exp_data = DbExperimentData(experiment_type="qiskit_test")
-        id_template = "figure_{}"
+        id_template = "figure_{}.svg"
         for idx in range(3):
             exp_data.add_figures(str.encode("hello world"), id_template.format(idx))
 
@@ -514,8 +510,7 @@ class TestDbExperimentData(QiskitTestCase):
             (exp_data.add_figures, (str.encode("hello world"),), service.create_figure),
             (exp_data.delete_figure, (0,), service.delete_figure),
             (exp_data.delete_analysis_result, (0,), service.delete_analysis_result),
-            (exp_data.set_tags, (["foo"],), service.update_experiment),
-            (exp_data.set_metadata, ({"foo": "bar"},), service.update_experiment),
+            (setattr, (exp_data, "tags", ["foo"]), service.update_experiment),
             (setattr, (exp_data, "notes", "foo"), service.update_experiment),
             (setattr, (exp_data, "share_level", "hub"), service.update_experiment),
         ]
@@ -605,16 +600,9 @@ class TestDbExperimentData(QiskitTestCase):
     def test_set_tags(self):
         """Test updating experiment tags."""
         exp_data = DbExperimentData(experiment_type="qiskit_test", tags=["foo"])
-        self.assertEqual(["foo"], exp_data.tags())
-        exp_data.set_tags(["bar"])
-        self.assertEqual(["bar"], exp_data.tags())
-
-    def test_set_metadata(self):
-        """Test updating experiment metadata."""
-        exp_data = DbExperimentData(experiment_type="qiskit_test", metadata={"foo": "bar"})
-        self.assertEqual({"foo": "bar"}, exp_data.metadata())
-        exp_data.set_metadata({"bar": "foo"})
-        self.assertEqual({"bar": "foo"}, exp_data.metadata())
+        self.assertEqual(["foo"], exp_data.tags)
+        exp_data.tags = ["bar"]
+        self.assertEqual(["bar"], exp_data.tags)
 
     def test_cancel_jobs(self):
         """Test canceling experiment jobs."""
@@ -709,6 +697,50 @@ class TestDbExperimentData(QiskitTestCase):
         self.assertIn(exp_data.experiment_type, exp_data_str)
         self.assertIn(exp_data.experiment_id, exp_data_str)
         self.assertIn(str(result), exp_data_str)
+
+    def test_copy_metadata(self):
+        """Test copy metadata."""
+        exp_data = DbExperimentData(experiment_type="qiskit_test")
+        exp_data.add_data(self._get_job_result(1))
+        result = mock.MagicMock()
+        exp_data.add_analysis_results(result)
+        copied = exp_data._copy_metadata()
+        self.assertEqual(exp_data.data(), copied.data())
+        self.assertFalse(copied.analysis_results())
+
+    def test_copy_metadata_pending_job(self):
+        """Test copy metadata with a pending job."""
+
+        def _job1_result():
+            event.wait()
+            return job_results[0]
+
+        def _job2_result():
+            event.wait()
+            return job_results[1]
+
+        exp_data = DbExperimentData(experiment_type="qiskit_test")
+        event = threading.Event()
+        self.addCleanup(event.set)
+        job_results = [self._get_job_result(1), self._get_job_result(1)]
+        job = mock.create_autospec(Job, instance=True)
+        job.result = _job1_result
+        exp_data.add_data(job)
+
+        copied = exp_data._copy_metadata()
+        job2 = mock.create_autospec(Job, instance=True)
+        job2.result = _job2_result
+        copied.add_data(job2)
+        event.set()
+
+        exp_data.block_for_results()
+        copied.block_for_results()
+
+        self.assertEqual(1, len(exp_data.data()))
+        self.assertEqual(2, len(copied.data()))
+        self.assertIn(
+            exp_data.data(0)["counts"], [copied.data(0)["counts"], copied.data(1)["counts"]]
+        )
 
     def _get_job_result(self, circ_count, has_metadata=False):
         """Return a job result with random counts."""

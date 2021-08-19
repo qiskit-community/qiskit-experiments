@@ -17,42 +17,41 @@ from typing import List, Dict, Any, Union
 
 import numpy as np
 
+from qiskit_experiments.framework import AnalysisResultData, FitVal
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data
+from qiskit_experiments.database_service.device_component import Qubit
 from .rb_utils import RBUtils
 
 
 class RBAnalysis(curve.CurveAnalysis):
     r"""A class to analyze randomized benchmarking experiments.
 
-    Overview
+    # section: overview
         This analysis takes only single series.
         This series is fit by the exponential decay function.
         From the fit :math:`\alpha` value this analysis estimates the error per Clifford (EPC).
 
-    Fit Model
-        The fit is based on the following decay function:
-
+    # section: fit_model
         .. math::
 
             F(x) = a \alpha^x + b
 
-    Fit Parameters
-        - :math:`a`: Height of decay curve.
-        - :math:`b`: Base line.
-        - :math:`\alpha`: Depolarizing parameter. This is the fit parameter of main interest.
-
-    Initial Guesses
-        - :math:`a`: Determined by :math:`(y_0 - b) / \alpha^x_0`
-          where :math:`b` and :math:`\alpha` are initial guesses.
-        - :math:`b`: Determined by :math:`(1/2)^n` where :math:`n` is the number of qubit.
-        - :math:`\alpha`: Determined by the slope of :math:`(y - b)^{-x}` of the first and the
-          second data point.
-
-    Bounds
-        - :math:`a`: [0, 1]
-        - :math:`b`: [0, 1]
-        - :math:`\alpha`: [0, 1]
+    # section: fit_parameters
+        defpar a:
+            desc: Height of decay curve.
+            init_guess: Determined by :math:`(y - b) / \alpha^x`.
+            bounds: [0, 1]
+        defpar b:
+            desc: Base line.
+            init_guess: Determined by the average :math:`b` of the standard and interleaved RB.
+                Usually equivalent to :math:`(1/2)^n` where :math:`n` is number of qubit.
+            bounds: [0, 1]
+        defpar \alpha:
+            desc: Depolarizing parameter.
+            init_guess: Determined by the slope of :math:`(y - b)^{-x}` of the first and the
+                second data point.
+            bounds: [0, 1]
 
     """
 
@@ -69,62 +68,74 @@ class RBAnalysis(curve.CurveAnalysis):
 
     @classmethod
     def _default_options(cls):
-        """Return default options.
+        """Default analysis options.
 
-        See :meth:`~qiskit_experiment.curve_analysis.CurveAnalysis._default_options` for
-        descriptions of analysis options.
+        Analysis Options:
+            error_dict (Dict[Tuple[Iterable[int], str], float]): Optional.
+                Error estimates for gates from the backend properties.
+            epg_1_qubit (Dict[int, Dict[str, float]]) : Optional.
+                EPG data for the 1-qubit gate involved,
+                assumed to have been obtained from previous experiments.
+                This is used to estimate the 2-qubit EPG.
+            gate_error_ratio (Dict[str, float]): An estimate for the ratios
+                between errors on different gates.
+
         """
         default_options = super()._default_options()
-        default_options.p0 = {"a": None, "alpha": None, "b": None}
-        default_options.bounds = {"a": (0.0, 1.0), "alpha": (0.0, 1.0), "b": (0.0, 1.0)}
         default_options.xlabel = "Clifford Length"
         default_options.ylabel = "P(0)"
-        default_options.fit_reports = {"alpha": "\u03B1", "EPC": "EPC"}
+        default_options.result_parameters = ["alpha"]
         default_options.error_dict = None
         default_options.epg_1_qubit = None
         default_options.gate_error_ratio = None
 
         return default_options
 
-    def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
 
         curve_data = self._data()
-        initial_guess = self._initial_guess(curve_data.x, curve_data.y, self._num_qubits)
-        fit_option = {
-            "p0": {
-                "a": user_p0["a"] or initial_guess["a"],
-                "alpha": user_p0["alpha"] or initial_guess["alpha"],
-                "b": user_p0["b"] or initial_guess["b"],
-            },
+
+        initial_guess = self._initial_guess(curve_data.x, curve_data.y, self._num_qubits, user_p0)
+        fit_options = {
+            "p0": initial_guess,
             "bounds": {
                 "a": user_bounds["a"] or (0.0, 1.0),
                 "alpha": user_bounds["alpha"] or (0.0, 1.0),
                 "b": user_bounds["b"] or (0.0, 1.0),
             },
         }
-        fit_option.update(options)
+        # p0 and bounds are defined in the default options, therefore updating
+        # with the extra options only adds options and doesn't override p0 or bounds
+        fit_options.update(extra_options)
 
-        return fit_option
+        return fit_options
 
     @staticmethod
     def _initial_guess(
-        x_values: np.ndarray, y_values: np.ndarray, num_qubits: int
+        x_values: np.ndarray, y_values: np.ndarray, num_qubits: int, user_p0: Dict = None
     ) -> Dict[str, float]:
         """Create initial guess with experiment data."""
+        if user_p0 is None:
+            user_p0 = {}
+
         fit_guess = {"a": 0.95, "alpha": 0.99, "b": 1 / 2 ** num_qubits}
+        for key in fit_guess:
+            if user_p0.get(key, None) is not None:
+                fit_guess[key] = user_p0[key]
 
-        # Use the first two points to guess the decay param
-        dcliff = x_values[1] - x_values[0]
-        dy = (y_values[1] - fit_guess["b"]) / (y_values[0] - fit_guess["b"])
-        alpha_guess = dy ** (1 / dcliff)
+        if user_p0.get("alpha", None) is None:
+            # Use the first two points to guess the decay param
+            dcliff = x_values[1] - x_values[0]
+            dy = (y_values[1] - fit_guess["b"]) / (y_values[0] - fit_guess["b"])
+            alpha_guess = dy ** (1 / dcliff)
 
-        if alpha_guess < 1.0:
-            fit_guess["alpha"] = alpha_guess
+            if alpha_guess < 1.0:
+                fit_guess["alpha"] = alpha_guess
 
-        if y_values[0] > fit_guess["b"]:
+        if user_p0.get("a", None) is None and y_values[0] > fit_guess["b"]:
             fit_guess["a"] = (y_values[0] - fit_guess["b"]) / fit_guess["alpha"] ** x_values[0]
 
         return fit_guess
@@ -146,54 +157,72 @@ class RBAnalysis(curve.CurveAnalysis):
             data_index=mean_data_index,
         )
 
-    def _run_analysis(self, experiment_data, **options):
-        """Run analysis on circuit data."""
-        error_dict = options["error_dict"]
-        qubits = experiment_data.metadata()["physical_qubits"]
-        if not error_dict:
-            options["error_dict"] = RBUtils.get_error_dict_from_backend(
-                experiment_data.backend, qubits
-            )
-        return super()._run_analysis(experiment_data, **options)
-
-    def _post_analysis(
-        self, result_data: curve.CurveAnalysisResultData
-    ) -> curve.CurveAnalysisResultData:
+    def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
         """Calculate EPC."""
-        alpha = curve.get_opt_value(result_data, "alpha")
-        alpha_err = curve.get_opt_error(result_data, "alpha")
+        extra_entries = []
 
+        # Calculate EPC
+        alpha = fit_data.fitval("alpha")
         scale = (2 ** self._num_qubits - 1) / (2 ** self._num_qubits)
-        result_data["EPC"] = scale * (1 - alpha)
-        result_data["EPC_err"] = scale * alpha_err / alpha
+        epc = FitVal(value=scale * (1 - alpha.value), stderr=scale * alpha.stderr)
+        extra_entries.append(
+            AnalysisResultData(
+                name="EPC",
+                value=epc,
+                chisq=fit_data.reduced_chisq,
+                quality=self._evaluate_quality(fit_data),
+            )
+        )
 
-        # Add EPG data
-        gate_error_ratio = self._get_option("gate_error_ratio")
-        if gate_error_ratio is None:
+        # Calculate EPG
+        if not self._get_option("gate_error_ratio"):
             # we attempt to get the ratio from the backend properties
-            gate_error_ratio = self._get_option("error_dict")
+            if not self._get_option("error_dict"):
+                gate_error_ratio = RBUtils.get_error_dict_from_backend(
+                    backend=self._backend, qubits=self._physical_qubits
+                )
+            else:
+                gate_error_ratio = self._get_option("error_dict")
+        else:
+            gate_error_ratio = self._get_option("gate_error_ratio")
+
         count_ops = []
         for meta in self._data(label="raw_data").metadata:
             count_ops += meta.get("count_ops", [])
+
         if len(count_ops) > 0 and gate_error_ratio is not None:
             gates_per_clifford = RBUtils.gates_per_clifford(count_ops)
             num_qubits = len(self._physical_qubits)
-            if num_qubits in [1, 2]:
-                if num_qubits == 1:
-                    epg = RBUtils.calculate_1q_epg(
-                        result_data["EPC"],
-                        self._physical_qubits,
-                        gate_error_ratio,
-                        gates_per_clifford,
-                    )
-                elif self._num_qubits == 2:
-                    epg_1_qubit = self._get_option("epg_1_qubit")
-                    epg = RBUtils.calculate_2q_epg(
-                        result_data["EPC"],
-                        self._physical_qubits,
-                        gate_error_ratio,
-                        gates_per_clifford,
-                        epg_1_qubit=epg_1_qubit,
-                    )
-                result_data["EPG"] = epg
-        return result_data
+
+            if num_qubits == 1:
+                epg = RBUtils.calculate_1q_epg(
+                    epc.value,
+                    self._physical_qubits,
+                    gate_error_ratio,
+                    gates_per_clifford,
+                )
+            elif num_qubits == 2:
+                epg_1_qubit = self._get_option("epg_1_qubit")
+                epg = RBUtils.calculate_2q_epg(
+                    epc.value,
+                    self._physical_qubits,
+                    gate_error_ratio,
+                    gates_per_clifford,
+                    epg_1_qubit=epg_1_qubit,
+                )
+            else:
+                # EPG calculation is not supported for more than 3 qubits RB
+                epg = None
+            if epg:
+                for qubits, gate_dict in epg.items():
+                    for gate, value in gate_dict.items():
+                        extra_entries.append(
+                            AnalysisResultData(
+                                f"EPG_{gate}",
+                                FitVal(value, None),  # TODO: add EPG_err computation
+                                chisq=fit_data.reduced_chisq,
+                                quality=self._evaluate_quality(fit_data),
+                                device_components=[Qubit(i) for i in qubits],
+                            )
+                        )
+        return extra_entries

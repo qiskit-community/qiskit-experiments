@@ -12,10 +12,7 @@
 
 """A FakeExperiment for testing."""
 
-from qiskit.providers.options import Options
-
-from qiskit_experiments.framework import BaseExperiment
-from qiskit_experiments.framework import BaseAnalysis
+from qiskit_experiments.framework import BaseExperiment, BaseAnalysis, Options
 
 
 class FakeAnalysis(BaseAnalysis):
