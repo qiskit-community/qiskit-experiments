@@ -82,7 +82,7 @@ from qiskit_experiments.framework import (
     FitVal,
     Options,
 )
-from qiskit_experiments.matplotlib import requires_matplotlib
+from qiskit_experiments.matplotlib import get_non_gui_ax
 
 
 PARAMS_ENTRY_PREFIX = "@Parameters_"
@@ -398,7 +398,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         return options
 
-    @requires_matplotlib
     def _create_figures(
         self,
         fit_data: FitData,
@@ -419,10 +418,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         """
         axis = self._get_option("axis")
         if axis is None:
-            figure = pyplot.figure(figsize=(8, 5))
-            axis = figure.subplots(nrows=1, ncols=1)
-        else:
-            figure = axis.get_figure()
+            axis = get_non_gui_ax()
 
         for series_def in self.__series__:
             curve_data_raw = self._data(series_name=series_def.name, label="raw_data")
@@ -543,7 +539,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             bbox_props = dict(boxstyle="square, pad=0.3", fc="white", ec="black", lw=1, alpha=0.8)
             report_handler.set_bbox(bbox_props)
 
-        return [figure]
+        return [axis.get_figure()]
 
     def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """An analysis subroutine that is called to set fitter options.
