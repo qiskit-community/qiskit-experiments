@@ -16,7 +16,7 @@ on each experiment method. Hence a good practice would
 be to have in the beginning of the tutorial a short background explanation, 
 preferably 1 or 2 paragraphs long which includes the main literature references 
 as well as a link to the relevant chapter in the Qiskit textbook, if available. See for example the
-[Randomized Benchmarking](docs/tutorials/randomized_benchmarking.ipynb) tutorial.
+[Randomized Benchmarking](randomized_benchmarking.ipynb) tutorial.
 
 Below are more concrete guidelines pertaining to various tutorial aspects: 
 
