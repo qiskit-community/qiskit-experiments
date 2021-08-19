@@ -1,0 +1,8 @@
+---
+other:
+  - |
+    ``model_description`` is added to
+    :py:class:`~qiskit_experiments.curve_analysis.curve_data.SeriesDef`.
+    This field stores string representation of the fit model of the curve.
+    This information is appended to the parameter analysis result entry and will be
+    saved in the resuld database (if possible).
