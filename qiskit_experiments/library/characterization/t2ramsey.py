@@ -63,6 +63,9 @@ class T2Ramsey(BaseExperiment):
     """
     __analysis_class__ = T2RamseyAnalysis
 
+    # update transpile events
+    __transpile_events__ = ["set_scheduling_contraints", "transpile_circuits"]
+
     @classmethod
     def _default_experiment_options(cls) -> Options:
         """Default experiment options.

@@ -13,20 +13,19 @@
 Base Experiment class.
 """
 
-from abc import ABC, abstractmethod
-from typing import Iterable, Optional, Tuple, List, Dict
 import copy
+from abc import ABC, abstractmethod
 from numbers import Integral
+from typing import Iterable, Optional, Tuple, List, Dict
 
-from qiskit import transpile, assemble, QuantumCircuit
-from qiskit.providers import BaseJob
-from qiskit.providers.backend import Backend
-from qiskit.providers.basebackend import BaseBackend as LegacyBackend
-from qiskit.test.mock import FakeBackend
+from qiskit import QuantumCircuit
 from qiskit.exceptions import QiskitError
+from qiskit.providers.backend import Backend
 from qiskit.qobj.utils import MeasLevel
+
 from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.experiment_data import ExperimentData
+from .events import ExperimentRunner
 
 
 class BaseExperiment(ABC):
@@ -46,6 +45,18 @@ class BaseExperiment(ABC):
 
     # ExperimentData class for experiment
     __experiment_data__ = ExperimentData
+
+    # Execute hooks
+    __execute_events__ = ["backend_run"]
+
+    # Transpile hooks
+    __transpile_events__ = ["transpile_circuits"]
+
+    # Pre-processing hooks
+    __pre_processing_events__ = ["initialize_experiment_data", "update_run_options"]
+
+    # Post-processing hooks
+    __post_processing_events__ = ["add_job_metadata", "set_analysis"]
 
     def __init__(self, qubits: Iterable[int], experiment_type: Optional[str] = None):
         """Initialize the experiment object.
@@ -101,71 +112,27 @@ class BaseExperiment(ABC):
             QiskitError: if experiment is run with an incompatible existing
                          ExperimentData container.
         """
-        # Create experiment data container
-        experiment_data = self._initialize_experiment_data(backend, experiment_data)
+        runner = ExperimentRunner(self)
 
-        # Run options
-        run_opts = copy.copy(self.run_options)
-        run_opts.update_options(**run_options)
-        run_opts = run_opts.__dict__
+        # add pre-processing events
+        for handler in self.__pre_processing_events__:
+            runner.add_handler(handler, module="events_preprocessing")
 
-        # Scheduling parameters
-        if backend.configuration().simulator is False and isinstance(backend, FakeBackend) is False:
-            timing_constraints = getattr(self.transpile_options.__dict__, "timing_constraints", {})
-            timing_constraints["acquire_alignment"] = getattr(
-                timing_constraints, "acquire_alignment", 16
-            )
-            scheduling_method = getattr(
-                self.transpile_options.__dict__, "scheduling_method", "alap"
-            )
-            self.set_transpile_options(
-                timing_constraints=timing_constraints, scheduling_method=scheduling_method
-            )
+        # add transpiler events
+        for handler in self.__transpile_events__:
+            runner.add_handler(handler, module="events_transpiler")
 
-        # Generate and transpile circuits
-        transpile_opts = copy.copy(self.transpile_options.__dict__)
-        transpile_opts["initial_layout"] = list(self._physical_qubits)
-        circuits = transpile(self.circuits(backend), backend, **transpile_opts)
-        self._postprocess_transpiled_circuits(circuits, backend, **run_options)
+        # add execution events
+        for handler in self.__execute_events__:
+            runner.add_handler(handler, module="events_execute")
 
-        if isinstance(backend, LegacyBackend):
-            qobj = assemble(circuits, backend=backend, **run_opts)
-            job = backend.run(qobj)
-        else:
-            job = backend.run(circuits, **run_opts)
+        # add post-processing events
+        for handler in self.__post_processing_events__:
+            runner.add_handler(handler, module="events_postprocess")
 
-        # Add Job to ExperimentData and add analysis for post processing.
-        run_analysis = None
-
-        # Add experiment option metadata
-        self._add_job_metadata(experiment_data, job, **run_opts)
-
-        if analysis and self.__analysis_class__ is not None:
-            run_analysis = self.run_analysis
-
-        experiment_data.add_data(job, post_processing_callback=run_analysis)
-
-        # Return the ExperimentData future
-        return experiment_data
-
-    def _initialize_experiment_data(
-        self, backend: Backend, experiment_data: Optional[ExperimentData] = None
-    ) -> ExperimentData:
-        """Initialize the return data container for the experiment run"""
-        if experiment_data is None:
-            return self.__experiment_data__(experiment=self, backend=backend)
-
-        # Validate experiment is compatible with existing data
-        if not isinstance(experiment_data, ExperimentData):
-            raise QiskitError("Input `experiment_data` is not a valid ExperimentData.")
-        if experiment_data.experiment_type != self._type:
-            raise QiskitError("Existing ExperimentData contains data from a different experiment.")
-        if experiment_data.metadata.get("physical_qubits") != list(self.physical_qubits):
-            raise QiskitError(
-                "Existing ExperimentData contains data for a different set of physical qubits."
-            )
-
-        return experiment_data._copy_metadata()
+        return runner.run(
+            backend=backend, analysis=analysis, experiment_data=experiment_data, **run_options
+        )
 
     def run_analysis(self, experiment_data, **options) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
@@ -335,10 +302,6 @@ class BaseExperiment(ABC):
         """
         self._analysis_options.update_options(**fields)
 
-    def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
-        """Additional post-processing of transpiled circuits before running on backend"""
-        pass
-
     def _metadata(self) -> Dict[str, any]:
         """Return experiment metadata for ExperimentData.
 
@@ -364,20 +327,3 @@ class BaseExperiment(ABC):
         additional experiment metadata in ExperimentData.
         """
         return {}
-
-    def _add_job_metadata(self, experiment_data: ExperimentData, job: BaseJob, **run_options):
-        """Add runtime job metadata to ExperimentData.
-
-        Args:
-            experiment_data: the experiment data container.
-            job: the job object.
-            run_options: backend run options for the job.
-        """
-        metadata = {
-            "job_id": job.job_id(),
-            "experiment_options": copy.copy(self.experiment_options.__dict__),
-            "transpile_options": copy.copy(self.transpile_options.__dict__),
-            "analysis_options": copy.copy(self.analysis_options.__dict__),
-            "run_options": copy.copy(run_options),
-        }
-        experiment_data._metadata["job_metadata"].append(metadata)

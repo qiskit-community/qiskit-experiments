@@ -60,38 +60,6 @@ class RBUtils:
         return error_dict
 
     @staticmethod
-    def count_ops(
-        circuit: QuantumCircuit, qubits: Optional[Iterable[int]] = None
-    ) -> Dict[Tuple[Iterable[int], str], int]:
-        """Counts occurrences of each gate in the given circuit
-
-        Args:
-            circuit: The quantum circuit whose gates are counted
-            qubits: A list of qubits to filter irrelevant gates
-
-        Returns:
-            A dictionary of the form (qubits, gate) -> value where value
-            is the number of occurrences of the gate on the given qubits
-        """
-        if qubits is None:
-            qubits = range(len(circuit.qubits))
-        count_ops_result = {}
-        for instr, qargs, _ in circuit:
-            instr_qubits = []
-            skip_instr = False
-            for qubit in qargs:
-                qubit_index = circuit.qubits.index(qubit)
-                if qubit_index not in qubits:
-                    skip_instr = True
-                instr_qubits.append(qubit_index)
-            if not skip_instr:
-                instr_qubits = tuple(instr_qubits)
-                count_ops_result[(instr_qubits, instr.name)] = (
-                    count_ops_result.get((instr_qubits, instr.name), 0) + 1
-                )
-        return count_ops_result
-
-    @staticmethod
     def gates_per_clifford(
         ops_count: List,
     ) -> Dict[Tuple[Iterable[int], str], float]:

@@ -59,6 +59,9 @@ class StandardRB(BaseExperiment):
     # Analysis class for experiment
     __analysis_class__ = RBAnalysis
 
+    # Update transpile hook
+    __transpile_events__ = ["transpile_circuits", "count_transpiled_ops"]
+
     def __init__(
         self,
         qubits: Union[int, Iterable[int]],
@@ -219,13 +222,3 @@ class StandardRB(BaseExperiment):
                 if meta["physical_qubits"] == self.physical_qubits:
                     return meta
         return None
-
-    def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
-        """Additional post-processing of transpiled circuits before running on backend"""
-        for c in circuits:
-            meta = self._get_circuit_metadata(c)
-            if meta is not None:
-                c_count_ops = RBUtils.count_ops(c, self.physical_qubits)
-                circuit_length = meta["xval"]
-                count_ops = [(key, (value, circuit_length)) for key, value in c_count_ops.items()]
-                meta.update({"count_ops": count_ops})

@@ -46,6 +46,9 @@ class T1(BaseExperiment):
 
     __analysis_class__ = T1Analysis
 
+    # update transpile events
+    __transpile_events__ = ["set_scheduling_contraints", "transpile_circuits"]
+
     @classmethod
     def _default_experiment_options(cls) -> Options:
         """Default experiment options.
