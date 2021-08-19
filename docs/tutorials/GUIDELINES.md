@@ -17,7 +17,7 @@ be to have in the beginning of the tutorial a short background explanation,
 preferably 1 or 2 paragraphs long which includes the main literature references 
 as well as a link to the relevant chapter in the Qiskit textbook, if available. 
 
-Below are more concrete guidelines pertaining various tutorial aspects: 
+Below are more concrete guidelines pertaining to various tutorial aspects: 
 
 ## Formatting guidelines 
 * For experiments, tutorial title should be just the name of the experiment. Use regular capitalization. 
