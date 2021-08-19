@@ -21,7 +21,7 @@ import inspect
 from abc import ABC
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
-from matplotlib import pyplot
+from matplotlib import pyplot  # pylint: disable=unused-import
 from matplotlib.ticker import FuncFormatter
 import numpy as np
 from qiskit.providers import Backend
