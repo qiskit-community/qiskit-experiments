@@ -1,4 +1,4 @@
-# Guideliens for writing tutorials
+# Guidelines for writing tutorials
 
 First read the overall project contributing guidelines. These are all
 included in the qiskit documentation:
@@ -7,17 +7,18 @@ https://qiskit.org/documentation/contributing_to_qiskit.html
 
 ## Introduction
 
-The main goal of `qiskit-experiment` tutorials is to serve as user guides for  
+The main goal of `qiskit-experiment` tutorials is to serve as user guides for
 the various package components such as the characterization and calibration 
-experiments. To this end each tutorial should cover the main (if not all) use-cases 
+experiments. To this end each tutorial should cover the main (if not all) use-cases
 of the documented functionality, including code examples and expected outputs.
 Another objective of the tutorials is to provide the user with basic background
-on each experiment method, e.g. Randomized Benchmarking. Hence a good practice would 
+on each experiment method. Hence a good practice would
 be to have in the beginning of the tutorial a short background explanation, 
 preferably 1 or 2 paragraphs long which includes the main literature references 
-as well as a link to the relevant chapter in the Qiskit textbook, if available. 
+as well as a link to the relevant chapter in the Qiskit textbook, if available. See for example the
+[Randomized Benchmarking](docs/tutorials/randomized_benchmarking.ipynb) tutorial.
 
-Below are more concrete guidelines pertaining various tutorial aspects: 
+Below are more concrete guidelines pertaining to various tutorial aspects: 
 
 ## Formatting guidelines 
 * For experiments, tutorial title should be just the name of the experiment. Use regular capitalization. 
