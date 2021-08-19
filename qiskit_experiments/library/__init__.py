@@ -84,7 +84,15 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     ~calibration.FineSXAmplitude
 
 """
-from .calibration import DragCal, Rabi, EFRabi, FineAmplitude, FineXAmplitude, FineSXAmplitude
+from .calibration import (
+    DragCal,
+    FineDrag,
+    Rabi,
+    EFRabi,
+    FineAmplitude,
+    FineXAmplitude,
+    FineSXAmplitude,
+)
 from .characterization import T1, T2Ramsey, QubitSpectroscopy, EFSpectroscopy
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography

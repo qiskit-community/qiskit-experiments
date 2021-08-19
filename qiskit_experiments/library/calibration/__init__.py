@@ -40,6 +40,7 @@ module.
     :template: autosummary/experiment.rst
 
     DragCal
+    FineDrag
     Rabi
     FineAmplitude
     FineXAmplitude
@@ -62,6 +63,7 @@ See :mod:`qiskit_experiments.calibration_management`.
 """
 
 from .drag import DragCal
+from .fine_drag import FineDrag
 from .rabi import Rabi, EFRabi
 from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
 
