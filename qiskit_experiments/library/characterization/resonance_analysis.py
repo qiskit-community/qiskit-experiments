@@ -62,6 +62,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
                 x, amp=a, sigma=sigma, x0=freq, baseline=b
             ),
             plot_color="blue",
+            model_description=r"a \exp(-(x-f)^2/(2\sigma^2)) + b",
         )
     ]
 
@@ -73,8 +74,6 @@ class ResonanceAnalysis(curve.CurveAnalysis):
         descriptions of analysis options.
         """
         default_options = super()._default_options()
-        default_options.p0 = {"a": None, "sigma": None, "freq": None, "b": None}
-        default_options.bounds = {"a": None, "sigma": None, "freq": None, "b": None}
         default_options.reporting_parameters = {"freq": ("frequency", "Hz")}
         default_options.normalization = True
 

@@ -62,6 +62,7 @@ class RBAnalysis(curve.CurveAnalysis):
             ),
             plot_color="blue",
             plot_fit_uncertainty=True,
+            model_description=r"a \alpha^x + b",
         )
     ]
 
@@ -81,8 +82,6 @@ class RBAnalysis(curve.CurveAnalysis):
 
         """
         default_options = super()._default_options()
-        default_options.p0 = {"a": None, "alpha": None, "b": None}
-        default_options.bounds = {"a": (0.0, 1.0), "alpha": (0.0, 1.0), "b": (0.0, 1.0)}
         default_options.xlabel = "Clifford Length"
         default_options.ylabel = "P(0)"
         default_options.result_parameters = ["alpha"]
