@@ -103,6 +103,7 @@ class InterleavedRBAnalysis(RBAnalysis):
             plot_color="red",
             plot_symbol=".",
             plot_fit_uncertainty=True,
+            model_description=r"a \alpha^{x} + b",
         ),
         curve.SeriesDef(
             name="Interleaved",
@@ -113,6 +114,7 @@ class InterleavedRBAnalysis(RBAnalysis):
             plot_color="orange",
             plot_symbol="^",
             plot_fit_uncertainty=True,
+            model_description=r"a (\alpha_c\alpha)^{x} + b",
         ),
     ]
 
