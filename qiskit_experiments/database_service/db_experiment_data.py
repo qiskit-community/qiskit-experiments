@@ -424,8 +424,9 @@ class DbExperimentDataV1(DbExperimentData):
                     fig_name = figure
                 else:
                     fig_name = (
-                        f"figure_{self.experiment_id[:8]}_"
-                        f"{datetime.now().isoformat()}_{len(self._figures)}.svg"
+                        f"{self.experiment_type}_"
+                        f"Figure-{len(self._figures)}_"
+                        f"Experiment-{self.experiment_id[:8]}.svg"
                     )
             else:
                 fig_name = figure_names[idx]
