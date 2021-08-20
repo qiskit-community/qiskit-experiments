@@ -398,13 +398,13 @@ class TwoLevelDiscriminate(TrainableDataAction):
     """Base class for discriminator processor. Takes IQ data and calibrated discriminator as input,
     outputs counts."""
 
-    def __init__(self, handle: ExperimentData, validate: bool = True):
+    def __init__(self, validate: bool = True):
         """Initialize a kerneled data to counts data conversion node.
 
         Args:
             validate: If set to False the DataAction will not validate its input.
         """
-        self._handle = handle
+        # self._handle = handle
         self._analysis = TwoLevelDiscriminatorAnalysis()
         self.train(self._handle)
         super().__init__(validate)

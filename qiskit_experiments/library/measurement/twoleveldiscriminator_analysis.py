@@ -16,13 +16,10 @@ from typing import List, Optional, Tuple
 import numpy as np
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
 
-from qiskit.providers.options import Options
 from qiskit.qobj.utils import MeasLevel
 
-from qiskit_experiments.framework.base_analysis import BaseAnalysis
-from qiskit_experiments.matplotlib import HAS_MATPLOTLIB
-
-from qiskit_experiments.curve_analysis import CurveAnalysisResultData
+from qiskit_experiments.curve_analysis.visualization import plot_contourf, plot_scatter
+from qiskit_experiments.framework import BaseAnalysis, Options, AnalysisResultData
 
 
 class TwoLevelDiscriminatorAnalysis(BaseAnalysis):
@@ -46,7 +43,7 @@ class TwoLevelDiscriminatorAnalysis(BaseAnalysis):
         data_processor: Optional[callable] = None,
         plot: bool = True,
         **options,
-    ) -> Tuple[CurveAnalysisResultData, List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[AnalysisResultData, List["matplotlib.figure.Figure"]]:
         """Run analysis on discriminator data.
         Args:
             experiment_data (ExperimentData): The experiment data to analyze.
@@ -76,7 +73,7 @@ class TwoLevelDiscriminatorAnalysis(BaseAnalysis):
         discriminator.fit(_ydata, _xdata)
         score = discriminator.score(_ydata, _xdata)
 
-        if plot and HAS_MATPLOTLIB:
+        if plot:
             xx, yy = np.meshgrid(
                 np.arange(
                     min(_ydata[:, 0]),
@@ -89,10 +86,10 @@ class TwoLevelDiscriminatorAnalysis(BaseAnalysis):
                     (max(_ydata[:, 1]) - min(_ydata[:, 1])) / 500,
                 ),
             )
-            ax = plotting.plot_scatter(_ydata[:, 0], _ydata[:, 1], c=_xdata)
+            ax = plot_scatter(_ydata[:, 0], _ydata[:, 1], c=_xdata)
             zz = discriminator.predict(np.c_[xx.ravel(), yy.ravel()])
             zz = np.array(zz).astype(float).reshape(xx.shape)
-            ax = plotting.plot_contourf(xx, yy, zz, ax, alpha=0.2)
+            ax = plot_contourf(xx, yy, zz, ax, alpha=0.2)
             ax.set_xlabel("I data")
             ax.set_ylabel("Q data")
             figures = [ax.get_figure()]
@@ -100,25 +97,41 @@ class TwoLevelDiscriminatorAnalysis(BaseAnalysis):
             figures = None
 
         if discriminator_type == "LDA":
-            analysis_result = CurveAnalysisResultData(
-                {
-                    "discriminator": discriminator,
-                    "coef": discriminator.coef_,
-                    "intercept": discriminator.intercept_,
-                    "score": score,
-                }
-            )
-
+            analysis_results = [
+                AnalysisResultData(
+                    "discriminator",
+                    discriminator,
+                ),
+                AnalysisResultData(
+                    "coef",
+                    discriminator.coef_,
+                ),
+                AnalysisResultData(
+                    "intercept",
+                    discriminator.intercept_,
+                ),
+                AnalysisResultData(
+                    "score",
+                    score,
+                ),
+            ]
         elif discriminator_type == "QDA":
-            analysis_result = CurveAnalysisResultData(
-                {
-                    "discriminator": discriminator,
-                    "rotations": discriminator.rotations_,
-                    "score": score,
-                }
-            )
+            analysis_results = [
+                AnalysisResultData(
+                    "discriminator",
+                    discriminator,
+                ),
+                AnalysisResultData(
+                    "rotations",
+                    discriminator.rotations_,
+                ),
+                AnalysisResultData(
+                    "score",
+                    score,
+                ),
+            ]
 
-        return [analysis_result], figures
+        return analysis_results, figures
 
     def _process_data(self, data, qubit):
         """Returns x and y data for discriminator on specific qubit."""

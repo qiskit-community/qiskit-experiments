@@ -20,12 +20,14 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit.test import QiskitTestCase
 
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
-from qiskit_experiments.measurement.discriminator.twoleveldiscriminator_experiment import (
+from qiskit_experiments.library.measurement.twoleveldiscriminator_experiment import (
     TwoLevelDiscriminator,
 )
-from qiskit_experiments.data_processing.nodes import Probability, TwoLevelDiscriminate
+from qiskit_experiments.framework.composite import ParallelExperiment
+
 from qiskit_experiments.data_processing.data_processor import DataProcessor
-from qiskit_experiments.composite import ParallelExperiment
+
+from qiskit_experiments.data_processing.nodes import Probability, TwoLevelDiscriminate
 
 
 class TwoLevelDiscriminatorBackend(MockIQBackend):
