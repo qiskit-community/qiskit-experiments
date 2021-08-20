@@ -71,6 +71,8 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
                 baseline=base,
             ),
             plot_color="blue",
+            model_description=r"\frac{{\rm amp}}{2}\cos\left(x[{\rm d}\theta + {\rm apg} ] "
+            r"+ {\rm phase\_offset}\right)+{\rm base}",
         )
     ]
 
