@@ -64,6 +64,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
             name="series-0",
             filter_kwargs={"series": 0},
             plot_symbol="o",
+            model_description=r"{\rm amp} \cos\left(2 \pi\cdot {\rm freq}_0\cdot x "
+            r"- 2 \pi \beta\right) + {\rm base}",
         ),
         curve.SeriesDef(
             fit_func=lambda x, amp, freq0, freq1, freq2, beta, base: cos(
@@ -73,6 +75,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
             name="series-1",
             filter_kwargs={"series": 1},
             plot_symbol="^",
+            model_description=r"{\rm amp} \cos\left(2 \pi\cdot {\rm freq}_1\cdot x "
+            r"- 2 \pi \beta\right) + {\rm base}",
         ),
         curve.SeriesDef(
             fit_func=lambda x, amp, freq0, freq1, freq2, beta, base: cos(
@@ -82,6 +86,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
             name="series-2",
             filter_kwargs={"series": 2},
             plot_symbol="v",
+            model_description=r"{\rm amp} \cos\left(2 \pi\cdot {\rm freq}_2\cdot x "
+            r"- 2 \pi \beta\right) + {\rm base}",
         ),
     ]
 
