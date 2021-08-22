@@ -33,6 +33,7 @@ from qiskit.circuit.library import (
 from qiskit.quantum_info import Clifford
 import qiskit_experiments.library.randomized_benchmarking as rb
 from qiskit_experiments.framework import AnalysisResultData
+from qiskit_experiments.database_service.db_fitval import FitVal
 
 
 @ddt
@@ -83,20 +84,22 @@ class TestRBUtilities(QiskitTestCase):
         relations between the errors of different gate types
         """
         epc_1_qubit = 0.0037
+        epc_1_qubit_stderr = 0
         qubits = [0]
         gate_error_ratio = {((0,), "id"): 1, ((0,), "rz"): 0, ((0,), "sx"): 1, ((0,), "x"): 1}
         gates_per_clifford = {((0,), "rz"): 10.5, ((0,), "sx"): 8.15, ((0,), "x"): 0.25}
-        epg = rb.RBUtils.calculate_1q_epg(epc_1_qubit, qubits, gate_error_ratio, gates_per_clifford)
+        epg = rb.RBUtils.calculate_1q_epg(epc_1_qubit, epc_1_qubit_stderr, qubits, gate_error_ratio, gates_per_clifford)
         error_dict = {
-            ((0,), "rz"): 0,
-            ((0,), "sx"): 0.0004432101747785104,
-            ((0,), "x"): 0.0004432101747785104,
+            ((0,), "rz"): FitVal(0,0),
+            ((0,), "sx"): FitVal(0.0004432101747785104,0),
+            ((0,), "x"): FitVal(0.0004432101747785104, 0),
         }
 
         for gate in ["x", "sx", "rz"]:
             expected_epg = error_dict[((0,), gate)]
             actual_epg = epg[(0,)][gate]
-            self.assertTrue(np.allclose(expected_epg, actual_epg, atol=0.001))
+            self.assertTrue(np.allclose(expected_epg.value, actual_epg.value, atol=0.001))
+            self.assertTrue(np.allclose(expected_epg.stderr, actual_epg.stderr, atol=0.001))
 
     def test_calculate_2q_epg(self):
         """Testing the calculation of 2 qubit error per gate
@@ -105,6 +108,7 @@ class TestRBUtilities(QiskitTestCase):
         relations between the errors of different gate types
         """
         epc_2_qubit = 0.034184849962675984
+        epc_2_stderr = 0
         qubits = [1, 4]
         gate_error_ratio = {
             ((1,), "id"): 1,
@@ -140,15 +144,18 @@ class TestRBUtilities(QiskitTestCase):
             AnalysisResultData("EPG_x", 0.0005429962529239195, device_components=[4]),
         ]
         epg = rb.RBUtils.calculate_2q_epg(
-            epc_2_qubit, qubits, gate_error_ratio, gates_per_clifford, epg_1_qubit
+            epc_2_qubit, epc_2_stderr, qubits, gate_error_ratio, gates_per_clifford, epg_1_qubit
         )
+
         error_dict = {
-            ((1, 4), "cx"): 0.012438847900902494,
+            ((1, 4), "cx"): FitVal(0.012438847900902494, 0),
         }
 
         expected_epg = error_dict[((1, 4), "cx")]
         actual_epg = epg[(1, 4)]["cx"]
-        self.assertTrue(np.allclose(expected_epg, actual_epg, atol=0.001))
+        self.assertTrue(np.allclose(expected_epg.value, actual_epg.value, atol=0.001))
+        self.assertTrue(
+            np.allclose(expected_epg.stderr, actual_epg.stderr, atol=0.001))
 
     def test_coherence_limit(self):
         """Test coherence_limit."""
