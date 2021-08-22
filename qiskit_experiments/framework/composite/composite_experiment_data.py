@@ -50,6 +50,8 @@ class CompositeExperimentData(ExperimentData):
         self._components = [
             expr.__experiment_data__(expr, backend, job_ids) for expr in experiment._experiments
         ]
+        for comp in self._components:
+            comp.tags.extend(self.tags)
 
     def __str__(self):
         line = 51 * "-"
