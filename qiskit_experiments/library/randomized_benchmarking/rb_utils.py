@@ -185,6 +185,7 @@ class RBUtils:
     @staticmethod
     def calculate_1q_epg(
         epc_1_qubit: float,
+        epc_1_qubit_stderr: float,
         qubits: Iterable[int],
         gate_error_ratio: Dict[str, float],
         gates_per_clifford: Dict[Tuple[Iterable[int], str], float],
@@ -194,6 +195,7 @@ class RBUtils:
 
         Args:
             epc_1_qubit: The error per clifford rate obtained via experiment
+            epc_1_qubit_stderr: The standard deviation error for the epc
             qubits: The qubits for which to compute epg
             gate_error_ratio: Estiamte for the ratios between errors on different gates
             gates_per_clifford: The computed gates per clifford data
@@ -211,12 +213,19 @@ class RBUtils:
                     found_gates.append(gate)
                     error_sum += gates_per_clifford[key] * value
             for gate in found_gates:
-                epg[(qubit,)][gate] = (gate_error_ratio[((qubit,), gate)] * epc_1_qubit) / error_sum
+                epg_value = (gate_error_ratio[((qubit,), gate)] * epc_1_qubit) / error_sum
+                epg_stderr = (gate_error_ratio[((qubit,), gate)] * epc_1_qubit_stderr) / error_sum
+                epg_fitval = FitVal(
+                    value=epg_value,
+                    stderr=epg_stderr,
+                )
+                epg[(qubit,)][gate] = epg_fitval
         return epg
 
     @staticmethod
     def calculate_2q_epg(
         epc_2_qubit: float,
+        epc_2_qubit_stderr: float,
         qubits: Iterable[int],
         gate_error_ratio: Dict[str, float],
         gates_per_clifford: Dict[Tuple[Iterable[int], str], float],
@@ -229,6 +238,7 @@ class RBUtils:
 
         Args:
             epc_2_qubit: The error per clifford rate obtained via experiment
+            epc_2_qubit_stderr: The standard deviation error for the epc
             qubits: The qubits for which to compute epg
             gate_error_ratio: Estiamte for the ratios between errors on different gates
             gates_per_clifford: The computed gates per clifford data
@@ -284,10 +294,16 @@ class RBUtils:
                         alpha_1q[ind] *= (1 - 2 * epg) ** n_gate
             alpha_c_1q = 1 / 5 * (alpha_1q[0] + alpha_1q[1] + 3 * alpha_1q[0] * alpha_1q[1])
             alpha_c_2q = (1 - 4 / 3 * epc_2_qubit) / alpha_c_1q
+            alpha_c_2q_stderr = (1 - 4 / 3 * epc_2_qubit_stderr) / alpha_c_1q
             inverse_qubit_pair = (qubit_pair[1], qubit_pair[0])
             n_gate_2q = gates_per_clifford.get(
                 (qubit_pair, gate_2_qubit_type), 0
             ) + gates_per_clifford.get((inverse_qubit_pair, gate_2_qubit_type), 0)
-            epg = 3 / 4 * (1 - alpha_c_2q) / n_gate_2q
-            epg_2_qubit[qubit_pair] = {gate_2_qubit_type: epg}
+            epg_value = 3 / 4 * (1 - alpha_c_2q) / n_gate_2q
+            epg_stderr = 3 / 4 * (1 - alpha_c_2q_stderr) / n_gate_2q
+            epg_fitval = FitVal(
+                value=epg_value,
+                stderr=epg_stderr,
+            )
+            epg_2_qubit[qubit_pair] = {gate_2_qubit_type: epg_fitval}
         return epg_2_qubit
