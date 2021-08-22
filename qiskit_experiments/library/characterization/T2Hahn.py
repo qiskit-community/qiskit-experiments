@@ -18,31 +18,6 @@ from .rb_utils import RBUtils
 
 
 class T2Hahn(BaseExperiment):
-    """Standard randomized benchmarking experiment.
-
-    # section: overview
-        Randomized Benchmarking (RB) is an efficient and robust method
-        for estimating the average error-rate of a set of quantum gate operations.
-        See `Qiskit Textbook
-        <https://qiskit.org/textbook/ch-quantum-hardware/randomized-benchmarking.html>`_
-        for an explanation on the RB method.
-
-        A standard RB experiment generates sequences of random Cliffords
-        such that the unitary computed by the sequences is the identity.
-        After running the sequences on a backend, it calculates the probabilities to get back to
-        the ground state, fits an exponentially decaying curve, and estimates
-        the Error Per Clifford (EPC), as described in Refs. [1, 2].
-
-        See :class:`RBUtils` documentation for additional information
-        on estimating the Error Per Gate (EPG) for 1-qubit and 2-qubit gates,
-        from 1-qubit and 2-qubit standard RB experiments, by Ref. [3].
-
-    # section: reference
-        .. ref_arxiv:: 1 1009.3639
-        .. ref_arxiv:: 2 1109.6887
-        .. ref_arxiv:: 3 1712.06550
-
-    """
 
     # Analysis class for experiment
     __analysis_class__ = T2Analysis  # need to add T2Analysis
