@@ -79,14 +79,6 @@ class T2Hahn(BaseExperiment):
         self.set_analysis_options(data_processor=probability(
             outcome="0" * self.num_qubits))  # Need to rewrite after making the analysis class
 
-        # Set fixed options
-        self._full_sampling = full_sampling  # Don't need?
-        self._clifford_utils = CliffordUtils()  # Don't need?
-
-        if not isinstance(seed, Generator):
-            self._rng = default_rng(seed=seed)
-        else:
-            self._rng = seed
 
     def _verify_parameters(self, qubits, lengths, n_echos, gate_time):
         """Verify input correctness, raise QiskitError if needed"""
