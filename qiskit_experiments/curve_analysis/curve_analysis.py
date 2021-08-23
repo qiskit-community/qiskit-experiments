@@ -24,7 +24,6 @@ from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 from matplotlib import pyplot
 from matplotlib.ticker import FuncFormatter
 import numpy as np
-from qiskit.providers.options import Options
 from qiskit.providers import Backend
 
 try:
@@ -76,7 +75,13 @@ from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.processor_library import get_processor
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData, FitVal
+from qiskit_experiments.framework import (
+    BaseAnalysis,
+    ExperimentData,
+    AnalysisResultData,
+    FitVal,
+    Options,
+)
 from qiskit_experiments.matplotlib import requires_matplotlib
 
 
@@ -270,50 +275,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
     """
 
     #: List[SeriesDef]: List of mapping representing a data series
-    __series__ = None
+    __series__ = list()
 
     #: List[str]: Fixed parameter in fit function. Value should be set to the analysis options.
-    __fixed_parameters__ = None
-
-    def __new__(cls) -> "CurveAnalysis":
-        """Parse series data if all fit functions have the same argument.
-
-        Raises:
-            AnalysisError:
-                - When fit functions have different argument.
-
-        Returns:
-            CurveAnalysis instance with validated series definitions.
-        """
-        obj = object.__new__(cls)
-
-        fsigs = set()
-        for series_def in obj.__series__:
-            fsigs.add(inspect.signature(series_def.fit_func))
-        if len(fsigs) > 1:
-            raise AnalysisError(
-                "Fit functions specified in the series definition have "
-                "different function signature. They should receive "
-                "the same parameter set for multi-objective function fit."
-            )
-
-        # remove the first function argument. this is usually x, i.e. not a fit parameter.
-        fit_params = list(list(fsigs)[0].parameters.keys())[1:]
-
-        # remove fixed parameters
-        if obj.__fixed_parameters__ is not None:
-            for fixed_param in obj.__fixed_parameters__:
-                try:
-                    fit_params.remove(fixed_param)
-                except ValueError as ex:
-                    raise AnalysisError(
-                        f"Defined fixed parameter {fixed_param} is not a fit function argument."
-                        "Update series definition to ensure the parameter name is defined with "
-                        f"fit functions. Currently available parameters are {fit_params}."
-                    ) from ex
-        obj.__fit_params = fit_params
-
-        return obj
+    __fixed_parameters__ = list()
 
     def __init__(self):
         """Initialize data fields that are privately accessed by methods."""
@@ -330,6 +295,44 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # Add expected options to instance variable so that every method can access to.
         for key in self._default_options().__dict__:
             setattr(self, f"__{key}", None)
+
+    @classmethod
+    def _fit_params(cls) -> List[str]:
+        """Return a list of fitting parameters.
+
+        Returns:
+            A list of fit parameter names.
+
+        Raises:
+            AnalysisError: When series definitions have inconsistent multi-objective fit function.
+            ValueError: When fixed parameter name is not used in the fit function.
+        """
+        fsigs = set()
+        for series_def in cls.__series__:
+            fsigs.add(inspect.signature(series_def.fit_func))
+        if len(fsigs) > 1:
+            raise AnalysisError(
+                "Fit functions specified in the series definition have "
+                "different function signature. They should receive "
+                "the same parameter set for multi-objective function fit."
+            )
+
+        # remove the first function argument. this is usually x, i.e. not a fit parameter.
+        fit_params = list(list(fsigs)[0].parameters.keys())[1:]
+
+        # remove fixed parameters
+        if cls.__fixed_parameters__ is not None:
+            for fixed_param in cls.__fixed_parameters__:
+                try:
+                    fit_params.remove(fixed_param)
+                except ValueError as ex:
+                    raise AnalysisError(
+                        f"Defined fixed parameter {fixed_param} is not a fit function argument."
+                        "Update series definition to ensure the parameter name is defined with "
+                        f"fit functions. Currently available parameters are {fit_params}."
+                    ) from ex
+
+        return fit_params
 
     @classmethod
     def _default_options(cls) -> Options:
@@ -372,23 +375,28 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 Representation should be printable in standard output, i.e. no latex syntax.
             return_data_points (bool): Set ``True`` to return formatted XY data.
         """
-        return Options(
-            curve_fitter=multi_curve_fit,
-            data_processor=None,
-            normalization=False,
-            p0=None,
-            bounds=None,
-            x_key="xval",
-            plot=True,
-            axis=None,
-            xlabel=None,
-            ylabel=None,
-            ylim=None,
-            xval_unit=None,
-            yval_unit=None,
-            result_parameters=None,
-            return_data_points=False,
-        )
+        options = super()._default_options()
+
+        options.curve_fitter = multi_curve_fit
+        options.data_processor = None
+        options.normalization = False
+        options.x_key = "xval"
+        options.plot = True
+        options.axis = None
+        options.xlabel = None
+        options.ylabel = None
+        options.ylim = None
+        options.xval_unit = None
+        options.yval_unit = None
+        options.result_parameters = None
+        options.return_data_points = False
+
+        # automatically populate initial guess and boundary
+        fit_params = cls._fit_params()
+        options.p0 = {par_name: None for par_name in fit_params}
+        options.bounds = {par_name: None for par_name in fit_params}
+
+        return options
 
     @requires_matplotlib
     def _create_figures(
@@ -763,30 +771,35 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 - When initial guesses are not provided.
                 - When fit option is array but length doesn't match with parameter number.
         """
+        fit_params = self._fit_params()
+
         # Remove any fixed parameter so as not to give them to the fitter.
-        if self.__fixed_parameters__ is not None and len(self.__fixed_parameters__) > 0:
+        if self.__fixed_parameters__:
             for pname in self.__fixed_parameters__:
                 fitter_options.pop(pname, None)
 
         # Validate dictionary keys
-        def _check_keys(parameter_name):
+        def _check_keys(parameter_name, default_value=None):
             named_values = fitter_options[parameter_name]
-            if not named_values.keys() == set(self.__fit_params):
+            if not named_values.keys() == set(fit_params):
                 raise AnalysisError(
                     f"Fitting option `{parameter_name}` doesn't have the "
-                    f"expected parameter names {','.join(self.__fit_params)}."
+                    f"expected parameter names {','.join(fit_params)}."
                 )
+            for key in named_values:
+                if named_values[key] is None:
+                    named_values[key] = default_value
 
         # Convert array into dictionary
         def _dictionarize(parameter_name):
             parameter_array = fitter_options[parameter_name]
-            if len(parameter_array) != len(self.__fit_params):
+            if len(parameter_array) != len(fit_params):
                 raise AnalysisError(
                     f"Value length of fitting option `{parameter_name}` doesn't "
                     "match with the length of expected parameters. "
-                    f"{len(parameter_array)} != {len(self.__fit_params)}."
+                    f"{len(parameter_array)} != {len(fit_params)}."
                 )
-            return dict(zip(self.__fit_params, parameter_array))
+            return dict(zip(fit_params, parameter_array))
 
         if fitter_options.get("p0", None):
             if isinstance(fitter_options["p0"], dict):
@@ -799,12 +812,12 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         if fitter_options.get("bounds", None):
             if isinstance(fitter_options["bounds"], dict):
-                _check_keys("bounds")
+                _check_keys("bounds", default_value=(-np.inf, np.inf))
             else:
                 fitter_options["bounds"] = _dictionarize("bounds")
         else:
             # bounds are optional
-            fitter_options["bounds"] = {par: (-np.inf, np.inf) for par in self.__fit_params}
+            fitter_options["bounds"] = {par: (-np.inf, np.inf) for par in fit_params}
 
         return fitter_options
 
@@ -1139,6 +1152,11 @@ class CurveAnalysis(BaseAnalysis, ABC):
             # pylint: disable=assignment-from-none
             quality = self._evaluate_quality(fit_data=fit_result)
 
+            fit_models = {
+                series_def.name: series_def.model_description or "no description"
+                for series_def in self.__series__
+            }
+
             # overview entry
             analysis_results.append(
                 AnalysisResultData(
@@ -1150,6 +1168,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         "popt_keys": fit_result.popt_keys,
                         "dof": fit_result.dof,
                         "covariance_mat": fit_result.pcov,
+                        "fit_models": fit_models,
                     },
                 )
             )

@@ -17,9 +17,9 @@ Temporary backend to be used for t2ramsey experiment
 import numpy as np
 
 from qiskit.providers import BackendV1
-from qiskit.providers.options import Options
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
+from qiskit_experiments.framework import Options
 from qiskit_experiments.test.utils import FakeJob
 
 # Fix seed for simulations
