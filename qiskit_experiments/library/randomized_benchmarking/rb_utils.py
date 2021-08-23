@@ -184,8 +184,7 @@ class RBUtils:
 
     @staticmethod
     def calculate_1q_epg(
-        epc_1_qubit: float,
-        epc_1_qubit_stderr: float,
+        epc_1_qubit: Union[FitVal, float],
         qubits: Iterable[int],
         gate_error_ratio: Dict[str, float],
         gates_per_clifford: Dict[Tuple[Iterable[int], str], float],
@@ -195,7 +194,6 @@ class RBUtils:
 
         Args:
             epc_1_qubit: The error per clifford rate obtained via experiment
-            epc_1_qubit_stderr: The standard deviation error for the epc
             qubits: The qubits for which to compute epg
             gate_error_ratio: Estiamte for the ratios between errors on different gates
             gates_per_clifford: The computed gates per clifford data
@@ -203,6 +201,10 @@ class RBUtils:
             A dictionary of the form (qubits, gate) -> value where value
             is the EPG for the given gate on the specified qubits
         """
+        epc_1_qubit_stderr = 0
+        if isinstance(epc_1_qubit, FitVal):
+            epc_1_qubit_stderr = epc_1_qubit.stderr
+            epc_1_qubit = epc_1_qubit.value
         epg = {(qubit,): {} for qubit in qubits}
         for qubit in qubits:
             error_sum = 0
@@ -224,8 +226,7 @@ class RBUtils:
 
     @staticmethod
     def calculate_2q_epg(
-        epc_2_qubit: float,
-        epc_2_qubit_stderr: float,
+        epc_2_qubit: Union[FitVal, float],
         qubits: Iterable[int],
         gate_error_ratio: Dict[str, float],
         gates_per_clifford: Dict[Tuple[Iterable[int], str], float],
@@ -238,7 +239,6 @@ class RBUtils:
 
         Args:
             epc_2_qubit: The error per clifford rate obtained via experiment
-            epc_2_qubit_stderr: The standard deviation error for the epc
             qubits: The qubits for which to compute epg
             gate_error_ratio: Estiamte for the ratios between errors on different gates
             gates_per_clifford: The computed gates per clifford data
@@ -253,6 +253,10 @@ class RBUtils:
         Raises:
             QiskitError: if a non 2-qubit gate was given
         """
+        epc_2_qubit_stderr = 0
+        if isinstance(epc_2_qubit, FitVal):
+            epc_2_qubit_stderr = epc_2_qubit.stderr
+            epc_2_qubit = epc_2_qubit.value
         epg_2_qubit = {}
         qubit_pairs = []
 
