@@ -142,7 +142,7 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
                 },
                 "bounds": bounds,
             }
-            fit_option.update(options)
+            fit_option.update(extra_options)
 
             return fit_option
 
@@ -157,7 +157,7 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
                 },
                 "bounds": bounds,
             }
-            fit_option.update(options)
+            fit_option.update(extra_options)
             fit_options.append(fit_option)
 
         return fit_options
