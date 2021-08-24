@@ -16,9 +16,8 @@ from test.fake_backend import FakeBackend
 from test.fake_experiment import FakeExperiment
 
 from qiskit.test import QiskitTestCase
-from qiskit.providers.options import Options
 
-from qiskit_experiments.framework import ParallelExperiment
+from qiskit_experiments.framework import ParallelExperiment, Options
 
 
 class TestComposite(QiskitTestCase):

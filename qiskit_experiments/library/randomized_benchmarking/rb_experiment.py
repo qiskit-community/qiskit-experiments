@@ -20,10 +20,9 @@ from numpy.random import Generator, default_rng
 from qiskit import QuantumCircuit, QiskitError
 from qiskit.providers import Backend
 from qiskit.quantum_info import Clifford
-from qiskit.providers.options import Options
 from qiskit.circuit import Gate
 
-from qiskit_experiments.framework import BaseExperiment, ParallelExperiment
+from qiskit_experiments.framework import BaseExperiment, ParallelExperiment, Options
 from qiskit_experiments.curve_analysis.data_processing import probability
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
@@ -31,9 +30,9 @@ from .rb_utils import RBUtils
 
 
 class StandardRB(BaseExperiment):
-    """Standard Randomized Benchmarking Experiment class.
+    """Standard randomized benchmarking experiment.
 
-    Overview
+    # section: overview
         Randomized Benchmarking (RB) is an efficient and robust method
         for estimating the average error-rate of a set of quantum gate operations.
         See `Qiskit Textbook
@@ -44,38 +43,17 @@ class StandardRB(BaseExperiment):
         such that the unitary computed by the sequences is the identity.
         After running the sequences on a backend, it calculates the probabilities to get back to
         the ground state, fits an exponentially decaying curve, and estimates
-        the Error Per Clifford (EPC), as described in Ref. [1, 2].
-
-        See :class:`RBAnalysis` documentation for additional
-        information on RB experiment analysis.
+        the Error Per Clifford (EPC), as described in Refs. [1, 2].
 
         See :class:`RBUtils` documentation for additional information
         on estimating the Error Per Gate (EPG) for 1-qubit and 2-qubit gates,
         from 1-qubit and 2-qubit standard RB experiments, by Ref. [3].
 
-    References
-        1. Easwar Magesan, J. M. Gambetta, and Joseph Emerson,
-           Robust randomized benchmarking of quantum processes,
-           `arXiv:quant-ph/1009.3639 <https://arxiv.org/pdf/1009.3639>`_
-        2. Easwar Magesan, Jay M. Gambetta, and Joseph Emerson,
-           Characterizing Quantum Gates via Randomized Benchmarking,
-           `arXiv:quant-ph/1009.6887 <https://arxiv.org/pdf/1109.6887>`_
-        3. David C. McKay, Sarah Sheldon, John A. Smolin, Jerry M. Chow, and Jay M. Gambetta,
-           Three Qubit Randomized Benchmarking, `arXiv:quant-ph/1712.06550
-           <https://arxiv.org/pdf/1712.06550>`_
+    # section: reference
+        .. ref_arxiv:: 1 1009.3639
+        .. ref_arxiv:: 2 1109.6887
+        .. ref_arxiv:: 3 1712.06550
 
-    Analysis Class
-        :class:`RBAnalysis`
-
-    Experiment Options
-        - **lengths**: A list of RB sequences lengths.
-        - **num_samples**: Number of samples to generate for each sequence length.
-
-    Analysis Options
-        - **error_dict**: Optional. Error estimates for gates from the backend properties.
-        - **epg_1_qubit**: Optional. EPG data for the 1-qubit gate involved, assumed to
-          have been obtained from previous experiments. This is used to estimate the 2-qubit EPG.
-        - **gate_error_ratio**: An estimate for the ratios between errors on different gates.
     """
 
     # Analysis class for experiment
@@ -135,14 +113,28 @@ class StandardRB(BaseExperiment):
             raise QiskitError(f"The number of samples {num_samples} should " "be positive.")
 
     @classmethod
-    def _default_experiment_options(cls):
-        return Options(lengths=None, num_samples=None)
+    def _default_experiment_options(cls) -> Options:
+        """Default experiment options.
+
+        Experiment Options:
+            lengths (List[int]): A list of RB sequences lengths.
+            num_samples (int): Number of samples to generate for each sequence length.
+
+        """
+        options = super()._default_experiment_options()
+
+        options.lengths = None
+        options.num_samples = None
+
+        return options
 
     # pylint: disable = arguments-differ
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Return a list of RB circuits.
+
         Args:
             backend (Backend): Optional, a backend object.
+
         Returns:
             A list of :class:`QuantumCircuit`.
         """

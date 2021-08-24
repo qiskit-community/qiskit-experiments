@@ -15,16 +15,16 @@
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
+import qiskit.pulse as pulse
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate, Parameter
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
-import qiskit.pulse as pulse
-from qiskit.utils import apply_prefix
-from qiskit.providers.options import Options
 from qiskit.qobj.utils import MeasLevel
+from qiskit.utils import apply_prefix
 
-from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.curve_analysis import ParameterRepr
 from qiskit_experiments.library.characterization.resonance_analysis import ResonanceAnalysis
 
 
@@ -52,26 +52,32 @@ class QubitSpectroscopy(BaseExperiment):
     @classmethod
     def _default_run_options(cls) -> Options:
         """Default options values for the experiment :meth:`run` method."""
-        return Options(
-            meas_level=MeasLevel.KERNELED,
-            meas_return="single",
-        )
+        options = super()._default_run_options()
+
+        options.meas_level = MeasLevel.KERNELED
+        options.meas_return = "single"
+
+        return options
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
         """Default option values used for the spectroscopy pulse."""
-        return Options(
-            amp=0.1,
-            duration=1024,
-            sigma=256,
-            width=0,
-        )
+        options = super()._default_experiment_options()
+
+        options.amp = 0.1
+        options.duration = 1024
+        options.sigma = 256
+        options.width = 0
+
+        return options
 
     @classmethod
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
+        options.result_parameters = [ParameterRepr("freq", "f01", "Hz")]
         options.normalization = True
+        options.xval_unit = "Hz"
 
         return options
 
@@ -117,9 +123,9 @@ class QubitSpectroscopy(BaseExperiment):
         self._absolute = absolute
 
         if not self._absolute:
-            self.set_analysis_options(xlabel="Frequency shift [Hz]")
+            self.set_analysis_options(xlabel="Frequency shift")
         else:
-            self.set_analysis_options(xlabel="Frequency [Hz]")
+            self.set_analysis_options(xlabel="Frequency")
 
         self.set_analysis_options(ylabel="Signal [arb. unit]")
 

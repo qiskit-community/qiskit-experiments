@@ -18,7 +18,7 @@ from qiskit.test import QiskitTestCase
 from qiskit.pulse import DriveChannel, Drag
 import qiskit.pulse as pulse
 
-from qiskit_experiments.library import FineAmplitude
+from qiskit_experiments.library import FineAmplitude, FineXAmplitude, FineSXAmplitude
 from qiskit_experiments.test.mock_iq_backend import MockFineAmp
 from qiskit_experiments.exceptions import CalibrationError
 
@@ -48,10 +48,8 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         expdata = amp_cal.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_results(-1)
-        result_data = result.data()
-
-        d_theta = result_data["popt"][result_data["popt_keys"].index("d_theta")]
+        result = expdata.analysis_results(1)
+        d_theta = result.value.value
 
         tol = 0.04
 
@@ -71,10 +69,8 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         expdata = amp_cal.run(backend)
         expdata.block_for_results()
-        result = expdata.analysis_results(-1)
-        result_data = result.data()
-
-        d_theta = result_data["popt"][result_data["popt_keys"].index("d_theta")]
+        result = expdata.analysis_results(1)
+        d_theta = result.value.value
 
         tol = 0.04
 
@@ -130,3 +126,30 @@ class TestFineAmplitudeCircuits(QiskitTestCase):
         for idx, circ in enumerate(amp_cal.circuits()):
             self.assertTrue(circ.data[0][0].name != "sx")
             self.assertEqual(circ.count_ops().get("x90p", 0), idx)
+
+
+class TestSpecializations(QiskitTestCase):
+    """Test the options of the specialized classes."""
+
+    def test_fine_x_amp(self):
+        """Test the fine X amplitude."""
+
+        exp = FineXAmplitude(0)
+
+        self.assertTrue(exp.experiment_options.add_sx)
+        self.assertTrue(exp.experiment_options.add_xp_circuit)
+        self.assertEqual(exp.analysis_options.angle_per_gate, np.pi)
+        self.assertEqual(exp.analysis_options.phase_offset, np.pi / 2)
+
+    def test_fine_sx_amp(self):
+        """Test the fine SX amplitude."""
+
+        exp = FineSXAmplitude(0)
+
+        self.assertFalse(exp.experiment_options.add_sx)
+        self.assertFalse(exp.experiment_options.add_xp_circuit)
+
+        expected = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
+        self.assertEqual(exp.experiment_options.repetitions, expected)
+        self.assertEqual(exp.analysis_options.angle_per_gate, np.pi / 2)
+        self.assertEqual(exp.analysis_options.phase_offset, 0)

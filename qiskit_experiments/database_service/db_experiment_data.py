@@ -14,7 +14,6 @@
 
 import logging
 import uuid
-import json
 from typing import Optional, List, Any, Union, Callable, Dict
 import copy
 from concurrent import futures
@@ -24,10 +23,10 @@ import contextlib
 from collections import deque
 from datetime import datetime
 
+from matplotlib import pyplot
 from qiskit.providers import Job, BaseJob, Backend, BaseBackend, Provider
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
-from qiskit.visualization import HAS_MATPLOTLIB
 
 from .database_service import DatabaseServiceV1
 from .exceptions import DbExperimentDataError, DbExperimentEntryNotFound, DbExperimentEntryExists
@@ -168,7 +167,7 @@ class DbExperimentDataV1(DbExperimentData):
         """
         with contextlib.suppress(Exception):
             self._service = backend.provider().service("experiment")
-            self.auto_save = self._service.options.get("auto_save", False)
+            self._auto_save = self._service.preferences.get("auto_save", False)
 
     def add_data(
         self,
@@ -235,12 +234,16 @@ class DbExperimentDataV1(DbExperimentData):
                 self._set_service_from_backend(self._backend)
 
             self._jobs[data.job_id()] = data
+            job_kwargs = {
+                "job": data,
+                "job_done_callback": post_processing_callback,
+                "timeout": timeout,
+                **kwargs,
+            }
             self._job_futures.append(
                 (
-                    data,
-                    self._executor.submit(
-                        self._wait_for_job, data, post_processing_callback, timeout, **kwargs
-                    ),
+                    job_kwargs,
+                    self._executor.submit(self._wait_for_job, **job_kwargs),
                 )
             )
             if self.auto_save:
@@ -422,10 +425,14 @@ class DbExperimentDataV1(DbExperimentData):
                 else:
                     fig_name = (
                         f"figure_{self.experiment_id[:8]}_"
-                        f"{datetime.now().isoformat()}_{len(self._figures)}"
+                        f"{datetime.now().isoformat()}_{len(self._figures)}.svg"
                     )
             else:
                 fig_name = figure_names[idx]
+
+            if not fig_name.endswith(".svg"):
+                LOG.info("File name %s does not have an SVG extension. A '.svg' is added.")
+                fig_name += ".svg"
 
             existing_figure = fig_name in self._figures
             if existing_figure and not overwrite:
@@ -443,12 +450,8 @@ class DbExperimentDataV1(DbExperimentData):
 
             save = save_figure if save_figure is not None else self.auto_save
             if save and self._service:
-                if HAS_MATPLOTLIB:
-                    # pylint: disable=import-error
-                    from matplotlib import pyplot
-
-                    if isinstance(figure, pyplot.Figure):
-                        figure = plot_to_svg_bytes(figure)
+                if isinstance(figure, pyplot.Figure):
+                    figure = plot_to_svg_bytes(figure)
                 data = {
                     "experiment_id": self.experiment_id,
                     "figure": figure,
@@ -548,12 +551,12 @@ class DbExperimentDataV1(DbExperimentData):
         for result in results:
             self._analysis_results[result.result_id] = result
 
-            if self.auto_save and self._service:
-                result.save()
-
             with contextlib.suppress(DbExperimentDataError):
                 result.service = self.service
                 result.auto_save = self.auto_save
+
+            if self.auto_save and self._service:
+                result.save()
 
     @do_auto_save
     def delete_analysis_result(
@@ -563,7 +566,7 @@ class DbExperimentDataV1(DbExperimentData):
         """Delete the analysis result.
 
         Args:
-            result_key: ID or index of the analysis result to be delete.
+            result_key: ID or index of the analysis result to be deleted.
 
         Returns:
             Analysis result ID.
@@ -598,7 +601,7 @@ class DbExperimentDataV1(DbExperimentData):
         # Get job results if missing experiment data.
         if self.service and (not self._analysis_results or refresh):
             retrieved_results = self.service.analysis_results(
-                experiment_id=self.experiment_id, limit=None
+                experiment_id=self.experiment_id, limit=None, json_decoder=self._json_decoder
             )
             for result in retrieved_results:
                 result_id = result["result_id"]
@@ -616,7 +619,7 @@ class DbExperimentDataV1(DbExperimentData):
                     * None: Return all analysis results.
                     * int: Specific index of the analysis results.
                     * slice: A list slice of indexes.
-                    * str: ID of the analysis result.
+                    * str: ID or name of the analysis result.
             refresh: Retrieve the latest analysis results from the server, if
                 an experiment service is available.
 
@@ -630,12 +633,35 @@ class DbExperimentDataV1(DbExperimentData):
         self._retrieve_analysis_results(refresh=refresh)
         if index is None:
             return self._analysis_results.values()
-        if isinstance(index, (int, slice)):
+        if isinstance(index, int):
+            if index >= len(self._analysis_results.values()):
+                raise DbExperimentEntryNotFound(
+                    f"Analysis result {index} not found. " f"Errors: {self.errors()}"
+                )
             return self._analysis_results.values()[index]
+        if isinstance(index, slice):
+            results = self._analysis_results.values()[index]
+            if not results:
+                raise DbExperimentEntryNotFound(
+                    f"Analysis result {index} not found. " f"Errors: {self.errors()}"
+                )
+            return results
         if isinstance(index, str):
-            if index not in self._analysis_results:
-                raise DbExperimentEntryNotFound(f"Analysis result {index} not found.")
-            return self._analysis_results[index]
+            # Check by result ID
+            if index in self._analysis_results:
+                return self._analysis_results[index]
+            # Check by name
+            filtered = [
+                result for result in self._analysis_results.values() if result.name == index
+            ]
+            if not filtered:
+                raise DbExperimentEntryNotFound(
+                    f"Analysis result {index} not found. " f"Errors: {self.errors()}"
+                )
+            if len(filtered) == 1:
+                return filtered[0]
+            else:
+                return filtered
 
         raise TypeError(f"Invalid index type {type(index)}.")
 
@@ -650,7 +676,11 @@ class DbExperimentDataV1(DbExperimentData):
             for fields that are saved.
         """
         if not self._service:
-            LOG.warning("Experiment cannot be saved because no experiment service is available.")
+            LOG.warning(
+                "Experiment cannot be saved because no experiment service is available. "
+                "An experiment service is available, for example, "
+                "when using an IBM Quantum backend."
+            )
             return
 
         if not self._backend:
@@ -664,14 +694,14 @@ class DbExperimentDataV1(DbExperimentData):
                     "save() again after all post-processing is done to save any newly "
                     "generated data."
                 )
-        metadata = json.loads(json.dumps(self._metadata, cls=self._json_encoder))
+        metadata = copy.deepcopy(self._metadata)
         metadata["_source"] = self._source
 
         update_data = {
             "experiment_id": self._id,
             "metadata": metadata,
             "job_ids": self.job_ids,
-            "tags": self.tags(),
+            "tags": self.tags,
             "notes": self.notes,
         }
         new_data = {"experiment_type": self._type, "backend_name": self._backend.name()}
@@ -684,6 +714,7 @@ class DbExperimentDataV1(DbExperimentData):
             update_func=self._service.update_experiment,
             new_data=new_data,
             update_data=update_data,
+            json_encoder=self._json_encoder,
         )
 
     def save(self) -> None:
@@ -699,7 +730,11 @@ class DbExperimentDataV1(DbExperimentData):
         """
         # TODO - track changes
         if not self._service:
-            LOG.warning("Experiment cannot be saved because no experiment service is available.")
+            LOG.warning(
+                "Experiment cannot be saved because no experiment service is available. "
+                "An experiment service is available, for example, "
+                "when using an IBM Quantum backend."
+            )
             return
 
         self.save_metadata()
@@ -713,12 +748,10 @@ class DbExperimentDataV1(DbExperimentData):
 
         with self._figures.lock:
             for name, figure in self._figures.items():
-                if HAS_MATPLOTLIB:
-                    # pylint: disable=import-error
-                    from matplotlib import pyplot
-
-                    if isinstance(figure, pyplot.Figure):
-                        figure = plot_to_svg_bytes(figure)
+                if figure is None:
+                    continue
+                if isinstance(figure, pyplot.Figure):
+                    figure = plot_to_svg_bytes(figure)
                 data = {"experiment_id": self.experiment_id, "figure": figure, "figure_name": name}
                 save_data(
                     is_new=True,
@@ -733,6 +766,11 @@ class DbExperimentDataV1(DbExperimentData):
                 self._service.delete_figure(experiment_id=self.experiment_id, figure_name=name)
             self._deleted_figures.remove(name)
 
+        print(
+            "You can view the experiment online at https://quantum-computing.ibm.com/experiments/"
+            + self.experiment_id
+        )
+
     @classmethod
     def load(cls, experiment_id: str, service: DatabaseServiceV1) -> "DbExperimentDataV1":
         """Load a saved experiment data from a database service.
@@ -744,15 +782,13 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             The loaded experiment data.
         """
-        service_data = service.experiment(experiment_id)
+        service_data = service.experiment(experiment_id, json_decoder=cls._json_decoder)
 
         # Parse serialized metadata
         metadata = service_data.pop("metadata")
-        if metadata:
-            metadata = json.loads(json.dumps(metadata), cls=cls._json_decoder)
 
         # Initialize container
-        expdata = cls(
+        expdata = DbExperimentDataV1(
             experiment_type=service_data.pop("experiment_type"),
             backend=service_data.pop("backend"),
             experiment_id=service_data.pop("experiment_id"),
@@ -774,7 +810,8 @@ class DbExperimentDataV1(DbExperimentData):
 
     def cancel_jobs(self) -> None:
         """Cancel any running jobs."""
-        for job, fut in self._job_futures.copy():
+        for kwargs, fut in self._job_futures.copy():
+            job = kwargs["job"]
             if not fut.done() and job.status() not in JOB_FINAL_STATES:
                 try:
                     job.cancel()
@@ -790,7 +827,8 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             The experiment data with finished jobs and post-processing.
         """
-        for job, fut in self._job_futures.copy():
+        for kwargs, fut in self._job_futures.copy():
+            job = kwargs["job"]
             LOG.info("Waiting for job %s and its post processing to finish.", job.job_id())
             with contextlib.suppress(Exception):
                 fut.result(timeout)
@@ -823,7 +861,8 @@ class DbExperimentDataV1(DbExperimentData):
         statuses = set()
         with self._job_futures.lock:
             for idx, item in enumerate(self._job_futures):
-                job, fut = item
+                kwargs, fut = item
+                job = kwargs["job"]
                 job_status = job.status()
                 statuses.add(job_status)
                 if job_status == JobStatus.ERROR:
@@ -869,6 +908,56 @@ class DbExperimentDataV1(DbExperimentData):
         self.status()  # Collect new errors.
         return "\n".join(self._errors)
 
+    def _copy_metadata(
+        self, new_instance: Optional["DbExperimentDataV1"] = None
+    ) -> "DbExperimentDataV1":
+        """Make a copy of the experiment metadata.
+
+        Note:
+            This method only copies experiment data and metadata, not its
+            figures nor analysis results. The copy also contains a different
+            experiment ID.
+
+        Returns:
+            A copy of the ``DbExperimentDataV1`` object with the same data
+            and metadata but different ID.
+        """
+        if new_instance is None:
+            new_instance = self.__class__()
+
+        new_instance._type = self.experiment_type
+        new_instance._backend = self._backend
+        new_instance._tags = self._tags
+        new_instance._jobs = self._jobs.copy_object()
+        new_instance._share_level = self._share_level
+        new_instance._metadata = self._metadata
+        new_instance._notes = self._notes
+        new_instance._auto_save = self._auto_save
+        new_instance._service = self._service
+        new_instance._extra_data = self._extra_data
+        new_instance._errors = self._errors
+
+        with self._data.lock:  # Hold the lock so no new data can be added.
+            new_instance._data = self._data.copy_object()
+            for orig_kwargs, fut in self._job_futures.copy():
+                if fut.done():
+                    continue
+                # We cannot deep copy orig_kwargs because it contains a Job which
+                # inherits an abstract class.
+                extra_kwargs = {}
+                for key, val in orig_kwargs.items():
+                    if key not in ["job", "job_done_callback", "timeout"]:
+                        extra_kwargs[key] = val
+
+                new_instance.add_data(
+                    data=orig_kwargs["job"],
+                    post_processing_callback=orig_kwargs["job_done_callback"],
+                    timeout=orig_kwargs["timeout"],
+                    **extra_kwargs,
+                )
+        return new_instance
+
+    @property
     def tags(self) -> List[str]:
         """Return tags assigned to this experiment data.
 
@@ -878,15 +967,18 @@ class DbExperimentDataV1(DbExperimentData):
         """
         return self._tags
 
-    @do_auto_save
-    def set_tags(self, new_tags: List[str]) -> None:
-        """Set tags for this experiment.
-
-        Args:
-            new_tags: New tags for the experiment.
-        """
+    @tags.setter
+    def tags(self, new_tags: List[str]) -> None:
+        """Set tags for this experiment."""
+        if not isinstance(new_tags, list):
+            raise DbExperimentDataError(
+                f"The `tags` field of {type(self).__name__} must be a list."
+            )
         self._tags = new_tags
+        if self.auto_save:
+            self.save_metadata()
 
+    @property
     def metadata(self) -> Dict:
         """Return experiment metadata.
 
@@ -894,15 +986,6 @@ class DbExperimentDataV1(DbExperimentData):
             Experiment metadata.
         """
         return self._metadata
-
-    @do_auto_save
-    def set_metadata(self, metadata: Dict) -> None:
-        """Set metadata for this experiment.
-
-        Args:
-            metadata: New metadata for the experiment.
-        """
-        self._metadata = copy.deepcopy(metadata)
 
     @property
     def _provider(self) -> Optional[Provider]:
@@ -1055,6 +1138,27 @@ class DbExperimentDataV1(DbExperimentData):
         """Return the class name and version."""
         return self._source
 
+    def __repr__(self):
+        out = f"{type(self).__name__}({self.experiment_type}"
+        out += f", {self.experiment_id}"
+        if self._tags:
+            out += f", tags={self._tags}"
+        if self.job_ids:
+            out += f", job_ids={self.job_ids}"
+        if self._share_level:
+            out += f", share_level={self._share_level}"
+        if self._metadata:
+            out += f", metadata=<{len(self._metadata)} items>"
+        if self.figure_names:
+            out += f", figure_names={self.figure_names}"
+        if self.notes:
+            out += f", notes={self.notes}"
+        if self._extra_data:
+            for key, val in self._extra_data.items():
+                out += f", {key}={repr(val)}"
+        out += ")"
+        return out
+
     def __str__(self):
         line = 51 * "-"
         n_res = len(self._analysis_results)
@@ -1065,8 +1169,8 @@ class DbExperimentDataV1(DbExperimentData):
         ret += f"\nStatus: {status}"
         if self.backend:
             ret += f"\nBackend: {self.backend}"
-        if self.tags():
-            ret += f"\nTags: {self.tags()}"
+        if self.tags:
+            ret += f"\nTags: {self.tags}"
         ret += f"\nData: {len(self._data)}"
         ret += f"\nAnalysis Results: {n_res}"
         ret += f"\nFigures: {len(self._figures)}"

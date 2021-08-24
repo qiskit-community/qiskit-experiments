@@ -20,6 +20,7 @@ import numpy as np
 from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
 
+from qiskit_experiments.curve_analysis.curve_analysis import PARAMS_ENTRY_PREFIX
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
 from qiskit_experiments.calibration_management.calibrations import Calibrations
@@ -56,9 +57,8 @@ class BaseUpdater(ABC):
         """Helper method to extract the datetime."""
         all_times = exp_data.completion_times.values()
         if all_times:
-            return max(all_times)
-
-        return datetime.now(timezone.utc)
+            return max(all_times).astimezone()
+        return datetime.now(timezone.utc).astimezone()
 
     @classmethod
     def _add_parameter_value(
@@ -83,7 +83,7 @@ class BaseUpdater(ABC):
             group: The calibrations group to update.
         """
 
-        qubits = exp_data.data(0)["metadata"]["qubits"]
+        qubits = exp_data.metadata["physical_qubits"]
 
         param_value = ParameterValue(
             value=value,
@@ -101,7 +101,7 @@ class BaseUpdater(ABC):
         exp_data: ExperimentData,
         parameter: str,
         schedule: Optional[Union[ScheduleBlock, str]],
-        result_index: int = -1,
+        result_index: Optional[int] = None,
         group: str = "default",
     ):
         """Update the calibrations based on the data.
@@ -112,23 +112,27 @@ class BaseUpdater(ABC):
             parameter: The name of the parameter in the calibrations to update.
             schedule: The ScheduleBlock instance or the name of the instance to which the parameter
                 is attached.
-            result_index: The result index to use, defaults to -1.
+            result_index: The result index to use. By default search entry by name.
             group: The calibrations group to update. Defaults to "default."
 
         Raises:
             CalibrationError: If the analysis result does not contain a frequency variable.
         """
+        if result_index is None:
+            result = [
+                r for r in exp_data.analysis_results() if r.name.startswith(PARAMS_ENTRY_PREFIX)
+            ][0]
+        else:
+            result = exp_data.analysis_results(index=result_index)
 
-        result = exp_data.analysis_results(result_index).data()
-
-        if cls.__fit_parameter__ not in result["popt_keys"]:
+        if cls.__fit_parameter__ not in result.extra["popt_keys"]:
             raise CalibrationError(
                 f"{cls.__name__} updates from analysis classes "
                 f"which report {cls.__fit_parameter__} in popt."
             )
 
         param = parameter
-        value = result["popt"][result["popt_keys"].index(cls.__fit_parameter__)]
+        value = result.value.value[result.extra["popt_keys"].index(cls.__fit_parameter__)]
 
         cls._add_parameter_value(
             calibrations, exp_data, value, param, schedule=schedule, group=group
@@ -146,14 +150,29 @@ class Frequency(BaseUpdater):
         cls,
         calibrations: BackendCalibrations,
         exp_data: ExperimentData,
-        parameter: str = BackendCalibrations.__qubit_freq_parameter__,
-        result_index: int = -1,
+        result_index: Optional[int] = None,
         group: str = "default",
         **options,
     ):
-        """Update a qubit frequency from, e.g., QubitSpectroscopy."""
+        """Update a qubit frequency from, e.g., QubitSpectroscopy
+
+        The value of the amplitude must be derived from the fit so the base method cannot be used.
+
+        Args:
+            calibrations: The calibrations to update.
+            exp_data: The experiment data from which to update.
+            result_index: The result index to use. By default search entry by name.
+            group: The calibrations group to update. Defaults to "default."
+            options: Trailing options.
+
+        """
         super().update(
-            calibrations, exp_data, parameter, schedule=None, result_index=result_index, group=group
+            calibrations=calibrations,
+            exp_data=exp_data,
+            parameter=calibrations.__qubit_freq_parameter__,
+            schedule=None,
+            result_index=result_index,
+            group=group,
         )
 
 
@@ -172,7 +191,7 @@ class Amplitude(BaseUpdater):
         cls,
         calibrations: Calibrations,
         exp_data: ExperimentData,
-        result_index: int = -1,
+        result_index: Optional[int] = None,
         group: str = "default",
         angles_schedules: List[Tuple[float, str, Union[str, ScheduleBlock]]] = None,
         **options,
@@ -184,7 +203,7 @@ class Amplitude(BaseUpdater):
         Args:
             calibrations: The calibrations to update.
             exp_data: The experiment data from which to update.
-            result_index: The result index to use, defaults to -1.
+            result_index: The result index to use. By default search entry by name.
             group: The calibrations group to update. Defaults to "default."
             angles_schedules: A list of tuples specifying which angle to update for which
                 pulse schedule. Each tuple is of the form: (angle, parameter_name,
@@ -202,14 +221,18 @@ class Amplitude(BaseUpdater):
         if angles_schedules is None:
             angles_schedules = [(np.pi, "amp", "xp")]
 
-        result = exp_data.analysis_results(result_index).data()
+        if result_index is None:
+            result = [
+                r for r in exp_data.analysis_results() if r.name.startswith(PARAMS_ENTRY_PREFIX)
+            ][0]
+        else:
+            result = exp_data.analysis_results(index=result_index)
 
         if isinstance(exp_data.experiment, Rabi):
-            freq = result["popt"][result["popt_keys"].index("freq")]
-            rate = 2 * np.pi * freq
+            rate = 2 * np.pi * result.value.value[result.extra["popt_keys"].index("freq")]
 
             for angle, param, schedule in angles_schedules:
-                qubits = exp_data.data(0)["metadata"]["qubits"]
+                qubits = exp_data.metadata["physical_qubits"]
                 prev_amp = calibrations.get_parameter_value(param, qubits, schedule, group=group)
 
                 value = np.round(angle / rate, decimals=8) * np.exp(1.0j * np.angle(prev_amp))
@@ -217,11 +240,10 @@ class Amplitude(BaseUpdater):
                 cls._add_parameter_value(calibrations, exp_data, value, param, schedule, group)
 
         elif isinstance(exp_data.experiment, FineAmplitude):
-            d_theta = result["popt"][result["popt_keys"].index("d_theta")]
+            d_theta = result.value.value[result.extra["popt_keys"].index("d_theta")]
 
             for target_angle, param, schedule in angles_schedules:
-
-                qubits = exp_data.data(0)["metadata"]["qubits"]
+                qubits = exp_data.metadata["physical_qubits"]
 
                 prev_amp = calibrations.get_parameter_value(param, qubits, schedule, group=group)
                 scale = target_angle / (target_angle + d_theta)
