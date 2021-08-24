@@ -126,10 +126,28 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
         if angle_per_gate is None:
             raise CalibrationError("The angle_per_gate was not specified in the analysis options.")
 
+        bounds = {
+            "amp": user_bounds.get("amp", None) or (-2 * max_abs_y, 2 * max_abs_y),
+            "d_theta": user_bounds.get("d_theta", None) or (-np.pi, np.pi),
+            "base": user_bounds.get("base", None) or (-1 * max_abs_y, 1 * max_abs_y),
+        }
+
+        if user_p0["d_theta"] is not None:
+            # angle error guess is provided
+            fit_option = {
+                "p0": {
+                    "amp": user_p0["amp"] or a_guess,
+                    "d_theta": user_p0["d_theta"],
+                    "base": user_p0["base"] or b_guess,
+                },
+                "bounds": bounds,
+            }
+            fit_option.update(extra_options)
+
+            return fit_option
+
         guess_range = max(abs(angle_per_gate), np.pi / 2)
-
         fit_options = []
-
         for angle in np.linspace(-guess_range, guess_range, n_guesses):
             fit_option = {
                 "p0": {
@@ -137,13 +155,9 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
                     "d_theta": angle,
                     "base": b_guess,
                 },
-                "bounds": {
-                    "amp": user_bounds.get("amp", None) or (-2 * max_abs_y, 2 * max_abs_y),
-                    "d_theta": user_bounds.get("d_theta", None) or (-np.pi, np.pi),
-                    "base": user_bounds.get("d_theta", None) or (-1 * max_abs_y, 1 * max_abs_y),
-                },
+                "bounds": bounds,
             }
-
+            fit_option.update(extra_options)
             fit_options.append(fit_option)
 
         return fit_options
