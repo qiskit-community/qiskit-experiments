@@ -90,22 +90,26 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
                 )
         self._calibration_options.update_options(**fields)
 
-    def run_analysis(self, experiment_data, **options) -> ExperimentData:
-        """Run analysis and update ExperimentData and Calibrations with analysis result.
+    def run(
+        self,
+        backend: Backend,
+        analysis: bool = True,
+        experiment_data: Optional[ExperimentData] = None,
+        **run_options,
+    ) -> ExperimentData:
+        """Run an experiment, perform analysis, and update any calibrations.
 
         Args:
-            experiment_data (ExperimentData): the experiment data to analyze.
-            options: additional analysis options. Any values set here will
-                     override the value from :meth:`analysis_options`
-                     for the current run.
+            backend: The backend to run the experiment on.
+            analysis: If True run analysis on the experiment data.
+            experiment_data: Optional, add results to existing experiment data.
+                If None a new ExperimentData object will be returned.
+            run_options: backend runtime options used for circuit execution.
 
         Returns:
-            An experiment data object containing the analysis results and figures.
-
-        Raises:
-            QiskitError: if experiment_data container is not valid for analysis.
+            The experiment data object.
         """
-        experiment_data = super().run_analysis(experiment_data, **options)
+        experiment_data = super().run(backend, analysis, experiment_data, **run_options)
 
         if self.calibration_options.auto_update:
             if self.calibration_options.calibrations is not None:
