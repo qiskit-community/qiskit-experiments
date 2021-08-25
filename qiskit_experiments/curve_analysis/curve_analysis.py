@@ -1152,6 +1152,11 @@ class CurveAnalysis(BaseAnalysis, ABC):
             # pylint: disable=assignment-from-none
             quality = self._evaluate_quality(fit_data=fit_result)
 
+            fit_models = {
+                series_def.name: series_def.model_description or "no description"
+                for series_def in self.__series__
+            }
+
             # overview entry
             analysis_results.append(
                 AnalysisResultData(
@@ -1163,6 +1168,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         "popt_keys": fit_result.popt_keys,
                         "dof": fit_result.dof,
                         "covariance_mat": fit_result.pcov,
+                        "fit_models": fit_models,
                     },
                 )
             )

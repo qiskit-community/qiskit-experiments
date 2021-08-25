@@ -113,6 +113,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
                         x, amp=p0, lamb=p1, baseline=p4
                     ),
                     filter_kwargs={"type": 1, "valid": True},
+                    model_description=r"p_0 * \exp(p_1 x) + p4",
                 ),
                 SeriesDef(
                     name="curve2",
@@ -120,6 +121,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
                         x, amp=p0, lamb=p2, baseline=p4
                     ),
                     filter_kwargs={"type": 2, "valid": True},
+                    model_description=r"p_0 * \exp(p_2 x) + p4",
                 ),
                 SeriesDef(
                     name="curve3",
@@ -127,6 +129,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
                         x, amp=p0, lamb=p3, baseline=p4
                     ),
                     filter_kwargs={"type": 3, "valid": True},
+                    model_description=r"p_0 * \exp(p_3 x) + p4",
                 ),
             ],
         )
@@ -321,6 +324,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
                     fit_func=lambda x, p0, p1, p2, p3: fit_function.exponential_decay(
                         x, amp=p0, lamb=p1, x0=p2, baseline=p3
                     ),
+                    model_description=r"p_0 \exp(p_1 x + p_2) + p_3",
                 )
             ],
         )
@@ -347,6 +351,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
         np.testing.assert_array_almost_equal(result.value.value, ref_popt, decimal=self.err_decimal)
         self.assertEqual(result.extra["dof"], 46)
         self.assertListEqual(result.extra["popt_keys"], ["p0", "p1", "p2", "p3"])
+        self.assertDictEqual(result.extra["fit_models"], {"curve1": r"p_0 \exp(p_1 x + p_2) + p_3"})
 
         # special entry formatted for database
         result = results[1]
