@@ -737,7 +737,7 @@ class DbExperimentDataV1(DbExperimentData):
             )
             return
 
-        self.save_metadata()
+        DbExperimentDataV1.save_metadata(self)
         for result in self._analysis_results.values():
             result.save()
 

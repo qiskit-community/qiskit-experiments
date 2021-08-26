@@ -105,3 +105,13 @@ class CompositeExperimentData(ExperimentData):
                     else:
                         sub_data["counts"] = data["counts"]
                 self._components[index].add_data(sub_data)
+
+    def save(self) -> None:
+        super().save()
+        for comp in self._components:
+            comp.save()
+
+    def save_metadata(self) -> None:
+        super().save_metadata()
+        for comp in self._components:
+            comp.save_metadata()
