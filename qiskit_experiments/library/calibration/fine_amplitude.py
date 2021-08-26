@@ -177,48 +177,30 @@ class FineAmplitude(BaseCalibrationExperiment):
         super().__init__([qubit])
         self.calibration_options.calibrations = cals
         self.calibration_options.cal_parameter_name = cal_parameter_name
-
-        if schedule_name is not None:
-            self.calibration_options.schedule_name = schedule_name
-
-        if cals is not None and self.calibration_options.schedule_name is not None:
-            self.experiment_options.schedule = cals.get_schedule(
-                self.calibration_options.schedule_name, qubit
-            )
+        self.calibration_options.schedule_name = schedule_name
 
         if repetitions is not None:
             self.experiment_options.repetitions = repetitions
 
-    def set_schedule(
-        self,
-        schedule: ScheduleBlock,
-        angle_per_gate: float,
-        add_xp_circuit: bool,
-        add_sx: bool,
-    ):
-        r"""Set the schedule and its corresponding intended angle per gate.
+    def get_schedules_from_options(self) -> ScheduleBlock:
+        """Get the schedules from the experiment options."""
+        return self.experiment_options.schedule
 
-        Args:
-            schedule: The schedule to attache to the gates.
-            angle_per_gate: The intended angle per gate used by the analysis method.
-            add_xp_circuit: If True then a circuit preparing the excited state is also run.
-            add_sx: Whether or not to add a pi-half pulse before running the calibration.
+    def get_schedules_from_calibrations(self, backend) -> Optional[ScheduleBlock]:
+        """Get the schedules from the calibrations if they are present."""
+        cals = self.calibration_options.calibrations
+        schedule_name = self.calibration_options.schedule_name
 
-        Raises:
-            CalibrationError: If the target angle is a multiple of :math:`2\pi`.
-        """
-        self.set_experiment_options(schedule=schedule, add_xp_circuit=add_xp_circuit, add_sx=add_sx)
+        if cals is not None and self.calibration_options.schedule_name is not None:
+            return cals.get_schedule(schedule_name, self.physical_qubits[0])
 
-        if np.isclose(angle_per_gate % (2 * np.pi), 0.0):
-            raise CalibrationError(
-                f"It does not make sense to use {self.__class__.__name__} on a pulse with an "
-                "angle_per_gate of zero as the update rule will set the amplitude to zero "
-                "angle_per_gate / (angle_per_gate + d_theta)."
-            )
+        return None
 
-        phase_offset = np.pi / 2 if add_sx else 0
-
-        self.set_analysis_options(angle_per_gate=angle_per_gate, phase_offset=phase_offset)
+    # pylint: disable=arguments-differ
+    def validate_schedules(self, schedule: ScheduleBlock):
+        """Validate the schedule to calibrate."""
+        self._validate_channels(schedule)
+        self._validate_parameters(schedule, 0)
 
     def _pre_circuit(self) -> QuantumCircuit:
         """Return a preparation circuit.
@@ -249,29 +231,11 @@ class FineAmplitude(BaseCalibrationExperiment):
             pulse schedule.
 
         Raises:
-            CalibrationError: If no schedule was provided.
-            CalibrationError: If the channel index does not correspond to the physical qubit index.
-            CalibrationError: If the schedule contains unassigned parameters.
             CalibrationError: If the analysis options do not contain the angle_per_gate.
         """
 
         # Get the schedule and check assumptions.
-        schedule = self.experiment_options.get("schedule", None)
-
-        if schedule is None:
-            raise CalibrationError("No schedule set for fine amplitude calibration.")
-
-        if self.physical_qubits[0] not in set(ch.index for ch in schedule.channels):
-            raise CalibrationError(
-                f"User provided schedule {schedule.name} does not contain a channel "
-                "for the qubit on which to run the fine amplitude calibration."
-            )
-
-        if len(schedule.parameters) > 0:
-            raise CalibrationError(
-                "All parameters in a fine amplitude calibration schedule must be bound. "
-                f"Unbound parameters: {schedule.parameters}"
-            )
+        schedule = self.get_schedules(backend)
 
         # Prepare the circuits.
         gate = Gate(name=schedule.name, num_qubits=1, params=[])
@@ -297,14 +261,7 @@ class FineAmplitude(BaseCalibrationExperiment):
             circuit = QuantumCircuit(1)
             circuit.x(0)
             circuit.measure_all()
-
-            circuit.metadata = {
-                "experiment_type": self._type,
-                "qubits": (self.physical_qubits[0],),
-                "xval": (np.pi - phase_offset) / angle_per_gate,
-                "unit": "gate number",
-            }
-
+            circuit.metadata = self.circuit_metadata(xval=(np.pi - phase_offset) / angle_per_gate)
             circuits.append(circuit)
 
         for repetition in repetitions:
@@ -315,13 +272,7 @@ class FineAmplitude(BaseCalibrationExperiment):
 
             circuit.measure_all()
             circuit.add_calibration(gate, (self.physical_qubits[0],), schedule, params=[])
-
-            circuit.metadata = {
-                "experiment_type": self._type,
-                "qubits": (self.physical_qubits[0],),
-                "xval": repetition,
-                "unit": "gate number",
-            }
+            circuit.metadata = self.circuit_metadata(xval=repetition)
 
             circuits.append(circuit)
 
@@ -335,7 +286,7 @@ class FineAmplitude(BaseCalibrationExperiment):
         """
         calibrations = self.calibration_options.calibrations
         angle = self.analysis_options.angle_per_gate
-        name = self.experiment_options.schedule.name
+        name = self.calibration_options.schedule_name
         parameter_name = self.calibration_options.cal_parameter_name
 
         self.__updater__.update(

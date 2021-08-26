@@ -41,16 +41,13 @@ class TestFineAmpEndToEnd(QiskitTestCase):
     def test_end_to_end_under_rotation(self):
         """Test the experiment end to end."""
 
-        amp_cal = FineAmplitude(0)
-        amp_cal.set_schedule(
-            schedule=self.x_plus, angle_per_gate=np.pi, add_xp_circuit=True, add_sx=True
-        )
+        amp_cal = FineXAmplitude(0)
+        amp_cal.experiment_options.schedule = self.x_plus
         amp_cal.set_analysis_options(number_guesses=11)
 
         backend = MockFineAmp(-np.pi * 0.07, np.pi, "xp")
 
         expdata = amp_cal.run(backend)
-        expdata.block_for_results()
         result = expdata.analysis_results(1)
         d_theta = result.value.value
 
@@ -62,16 +59,13 @@ class TestFineAmpEndToEnd(QiskitTestCase):
     def test_end_to_end_over_rotation(self):
         """Test the experiment end to end."""
 
-        amp_cal = FineAmplitude(0)
-        amp_cal.set_schedule(
-            schedule=self.x_plus, angle_per_gate=np.pi, add_xp_circuit=True, add_sx=True
-        )
+        amp_cal = FineXAmplitude(0)
+        amp_cal.experiment_options.schedule = self.x_plus
         amp_cal.set_analysis_options(number_guesses=6)
 
         backend = MockFineAmp(np.pi * 0.07, np.pi, "xp")
 
         expdata = amp_cal.run(backend)
-        expdata.block_for_results()
         result = expdata.analysis_results(1)
         d_theta = result.value.value
 
@@ -79,15 +73,6 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         self.assertTrue(abs(d_theta - backend.angle_error) < tol)
         self.assertEqual(result.quality, "good")
-
-    def test_zero_angle_per_gate(self):
-        """Test that we cannot set angle per gate to zero."""
-        amp_cal = FineAmplitude(0)
-
-        with self.assertRaises(CalibrationError):
-            amp_cal.set_schedule(
-                schedule=self.x_plus, angle_per_gate=0.0, add_xp_circuit=True, add_sx=True
-            )
 
     def test_update_calibrations(self):
         """Test that calibrations are updated."""
@@ -133,26 +118,25 @@ class TestFineAmplitudeCircuits(QiskitTestCase):
     def test_xp(self):
         """Test a circuit with xp."""
 
-        amp_cal = FineAmplitude(0)
-        amp_cal.set_schedule(
-            schedule=self.x_plus, angle_per_gate=np.pi, add_xp_circuit=False, add_sx=True
-        )
+        amp_cal = FineXAmplitude(0)
+        amp_cal.experiment_options.schedule = self.x_plus
+        reps = amp_cal.experiment_options.repetitions
 
         for idx, circ in enumerate(amp_cal.circuits()):
-            self.assertTrue(circ.data[0][0].name == "sx")
-            self.assertEqual(circ.count_ops().get("xp", 0), idx)
+            if idx > 0:
+                self.assertTrue(circ.data[0][0].name == "sx")
+                self.assertEqual(circ.count_ops().get("xp", 0), reps[idx-1])
 
     def test_x90p(self):
         """Test circuits with an x90p pulse."""
 
-        amp_cal = FineAmplitude(0)
-        amp_cal.set_schedule(
-            schedule=self.x_90_plus, angle_per_gate=np.pi, add_xp_circuit=False, add_sx=False
-        )
+        amp_cal = FineSXAmplitude(0)
+        amp_cal.experiment_options.schedule = self.x_90_plus
+        reps = amp_cal.experiment_options.repetitions
 
         for idx, circ in enumerate(amp_cal.circuits()):
             self.assertTrue(circ.data[0][0].name != "sx")
-            self.assertEqual(circ.count_ops().get("x90p", 0), idx)
+            self.assertEqual(circ.count_ops().get("x90p", 0), reps[idx])
 
 
 class TestSpecializations(QiskitTestCase):

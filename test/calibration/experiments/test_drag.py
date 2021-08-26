@@ -53,11 +53,10 @@ class TestDragEndToEnd(QiskitTestCase):
 
         backend = DragBackend()
 
-        drag = DragCal(1)
+        drag = DragCal(0)
 
         drag.set_experiment_options(rp=self.x_plus, rm=self.x_minus)
         expdata = drag.run(backend)
-        expdata.block_for_results()
         result = expdata.analysis_results(1)
 
         self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
@@ -71,7 +70,6 @@ class TestDragEndToEnd(QiskitTestCase):
         drag.set_experiment_options(rp=self.x_plus, rm=self.x_minus)
         drag.set_run_options(meas_level=MeasLevel.KERNELED)
         exp_data = drag.run(backend)
-        exp_data.block_for_results()
         result = exp_data.analysis_results(1)
 
         meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
@@ -83,13 +81,12 @@ class TestDragEndToEnd(QiskitTestCase):
         # Large leakage will make the curves oscillate quickly.
         backend = DragBackend(leakage=0.05)
 
-        drag = DragCal(1)
+        drag = DragCal(0)
         drag.set_run_options(shots=200)
         drag.set_experiment_options(betas=np.linspace(-4, 4, 31))
         drag.set_analysis_options(p0={"beta": 1.8, "freq0": 0.08, "freq1": 0.16, "freq2": 0.32})
         drag.set_experiment_options(rp=self.x_plus, rm=self.x_minus)
         exp_data = drag.run(backend)
-        exp_data.block_for_results()
         result = exp_data.analysis_results(1)
 
         meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]

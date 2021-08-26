@@ -19,6 +19,7 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Gate, Parameter
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
+from qiskit.pulse import ScheduleBlock
 import qiskit.pulse as pulse
 
 from qiskit_experiments.framework import Options
@@ -138,6 +139,7 @@ class DragCal(BaseCalibrationExperiment):
         """
         options = super()._default_calibration_options()
         options.cal_parameter_name = "β"
+        options.schedule_name = "x"
         return options
 
     @classmethod
@@ -193,17 +195,83 @@ class DragCal(BaseCalibrationExperiment):
         super().__init__([qubit])
         self.calibration_options.calibrations = cals
         self.calibration_options.cal_parameter_name = cal_parameter_name
-
-        if cals is not None and schedule_name is not None:
-            self.experiment_options.rp = cals.get_schedule(
-                schedule_name, qubit, assign_params={cal_parameter_name: Parameter("β")}
-            )
+        self.calibration_options.schedule_name = schedule_name
 
         if betas is not None:
             self.experiment_options.betas = betas
 
         if reps is not None:
             self.experiment_options.reps = reps
+
+    def get_schedules_from_options(self) -> Optional[List[ScheduleBlock]]:
+        """Get the schedules from the experiment options."""
+        rp, rm = self.experiment_options.rp, self.experiment_options.rm
+
+        if rp is not None:
+            return [rp, rm or self._set_anti_schedule(rp)]
+
+        return None
+
+    def get_schedules_from_calibrations(self, backend) -> Optional[List[ScheduleBlock]]:
+        """Get the schedules from the calibrations if they are present."""
+        cals = self.calibration_options.calibrations
+        param = self.calibration_options.cal_parameter_name
+        schedule_name = self.calibration_options.schedule_name
+
+        if cals is not None and param is not None:
+            rp = cals.get_schedule(
+                schedule_name, self.physical_qubits[0], assign_params={param: Parameter("β")}
+            )
+
+            return [rp, self._set_anti_schedule(rp)]
+
+        return None
+
+    def get_schedules_from_defaults(self, backend) -> List[ScheduleBlock]:
+        """Get the schedules from the default options."""
+        with pulse.build(backend=backend, name="rp") as rp:
+            pulse.play(
+                pulse.Drag(
+                    duration=self.experiment_options.duration,
+                    amp=self.experiment_options.amp,
+                    sigma=self.experiment_options.sigma,
+                    beta=Parameter("β"),
+                ),
+                pulse.DriveChannel(self._physical_qubits[0]),
+            )
+
+        return [rp, self._set_anti_schedule(rp)]
+
+    def _set_anti_schedule(self, schedule) -> ScheduleBlock:
+        """A DRAG specific method that sets the rm schedule based on rp.
+
+        The rm schedule, i.e. the anti-schedule, is the rp schedule sandwiched
+        between two virtual phase gates with angle pi.
+        """
+        with pulse.build(name="xm") as minus_sched:
+            pulse.shift_phase(np.pi, pulse.DriveChannel(self._physical_qubits[0]))
+            pulse.call(schedule)
+            pulse.shift_phase(-np.pi, pulse.DriveChannel(self._physical_qubits[0]))
+
+        return minus_sched
+
+    def validate_schedules(self, schedules: List[ScheduleBlock]):
+        """Validate any drag schedules.
+
+        Raises:
+            CalibrationError: If the beta parameters in the xp and xm pulses are not the same.
+            CalibrationError: If either the xp or xm pulse do not have at least one Drag pulse.
+        """
+        rp, rm = schedules[0], schedules[1]
+
+        for schedule in schedules:
+            self._validate_channels(schedule)
+            self._validate_parameters(schedule, 1)
+
+        if next(iter(rp.parameters)) != next(iter(rm.parameters)):
+            raise CalibrationError(
+                f"Beta for xp and xm in {self.__class__.__name__} calibration are not identical."
+            )
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Create the circuits for the Drag calibration.
@@ -215,61 +283,14 @@ class DragCal(BaseCalibrationExperiment):
             circuits: The circuits that will run the Drag calibration.
 
         Raises:
-            CalibrationError:
-                - If the beta parameters in the xp and xm pulses are not the same.
-                - If either the xp or xm pulse do not have at least one Drag pulse.
-                - If the number of different repetition series is not three.
+            CalibrationError: If the number of different repetition series is not three.
         """
-        plus_sched = self.experiment_options.rp
-        minus_sched = self.experiment_options.rm
+        rp, rm = self.get_schedules(backend)
 
-        if plus_sched is None:
-            beta = Parameter("β")
-            with pulse.build(backend=backend, name="xp") as plus_sched:
-                pulse.play(
-                    pulse.Drag(
-                        duration=self.experiment_options.duration,
-                        amp=self.experiment_options.amp,
-                        sigma=self.experiment_options.sigma,
-                        beta=beta,
-                    ),
-                    pulse.DriveChannel(self._physical_qubits[0]),
-                )
+        beta = next(iter(rp.parameters))
 
-            with pulse.build(backend=backend, name="xm") as minus_sched:
-                pulse.play(
-                    pulse.Drag(
-                        duration=self.experiment_options.duration,
-                        amp=-self.experiment_options.amp,
-                        sigma=self.experiment_options.sigma,
-                        beta=beta,
-                    ),
-                    pulse.DriveChannel(self._physical_qubits[0]),
-                )
-
-        if minus_sched is None:
-            with pulse.build(backend=backend, name="xm") as minus_sched:
-                pulse.shift_phase(np.pi, pulse.DriveChannel(self._physical_qubits[0]))
-                pulse.call(plus_sched)
-                pulse.shift_phase(-np.pi, pulse.DriveChannel(self._physical_qubits[0]))
-
-        if len(plus_sched.parameters) != 1 or len(minus_sched.parameters) != 1:
-            raise CalibrationError(
-                "The schedules for Drag calibration must both have one free parameter."
-                f"Found {len(plus_sched.parameters)} and {len(minus_sched.parameters)} "
-                "for Rp and Rm, respectively."
-            )
-
-        beta_xp = next(iter(plus_sched.parameters))
-        beta_xm = next(iter(minus_sched.parameters))
-
-        if beta_xp != beta_xm:
-            raise CalibrationError(
-                f"Beta for xp and xm in {self.__class__.__name__} calibration are not identical."
-            )
-
-        xp_gate = Gate(name="Rp", num_qubits=1, params=[beta_xp])
-        xm_gate = Gate(name="Rm", num_qubits=1, params=[beta_xp])
+        xp_gate = Gate(name="Rp", num_qubits=1, params=[beta])
+        xm_gate = Gate(name="Rm", num_qubits=1, params=[beta])
 
         reps = self.experiment_options.reps
         if len(reps) != 3:
@@ -278,7 +299,7 @@ class DragCal(BaseCalibrationExperiment):
                 f"Received {reps} with length {len(reps)} != 3."
             )
 
-        circuits = []
+        qubits, circuits = (self.physical_qubits[0],), []
 
         for idx, rep in enumerate(reps):
             circuit = QuantumCircuit(1)
@@ -288,22 +309,15 @@ class DragCal(BaseCalibrationExperiment):
 
             circuit.measure_active()
 
-            circuit.add_calibration("Rp", (self.physical_qubits[0],), plus_sched, params=[beta_xp])
-            circuit.add_calibration("Rm", (self.physical_qubits[0],), minus_sched, params=[beta_xp])
+            circuit.add_calibration("Rp", qubits, rp, params=[beta])
+            circuit.add_calibration("Rm", qubits, rm, params=[beta])
 
-            for beta in self.experiment_options.betas:
-                beta = np.round(beta, decimals=6)
+            for beta_val in self.experiment_options.betas:
+                beta_val = np.round(beta_val, decimals=6)
 
-                assigned_circuit = circuit.assign_parameters({beta_xp: beta}, inplace=False)
-
-                assigned_circuit.metadata = {
-                    "experiment_type": self._type,
-                    "qubits": (self.physical_qubits[0],),
-                    "xval": beta,
-                    "series": idx,
-                }
-
-                circuits.append(assigned_circuit)
+                qc_ = circuit.assign_parameters({beta: beta_val}, inplace=False)
+                qc_.metadata = self.circuit_metadata(beta_val, series=idx)
+                circuits.append(qc_)
 
         return circuits
 
@@ -314,7 +328,7 @@ class DragCal(BaseCalibrationExperiment):
             experiment_data: The experiment data to use for the update.
         """
         calibrations = self.calibration_options.calibrations
-        name = self.experiment_options.rp.name
+        name = self.calibration_options.schedule_name
         parameter_name = self.calibration_options.cal_parameter_name
 
         self.__updater__.update(

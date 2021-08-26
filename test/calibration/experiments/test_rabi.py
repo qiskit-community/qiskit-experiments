@@ -113,7 +113,6 @@ class TestRabiEndToEnd(QiskitTestCase):
         rabi.set_analysis_options(data_processor=DataProcessor(fail_key, []))
         rabi.set_run_options(shots=2)
         data = rabi.run(backend)
-        data.block_for_results()
         result = data.analysis_results()
 
         self.assertEqual(len(result), 0)
