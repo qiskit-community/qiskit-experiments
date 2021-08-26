@@ -50,6 +50,8 @@ class CompositeExperimentData(ExperimentData):
         self._components = [
             expr.__experiment_data__(expr, backend, job_ids) for expr in experiment._experiments
         ]
+
+        self.metadata["component_ids"] = [comp.experiment_id for comp in self._components]
         for comp in self._components:
             comp.tags.extend(self.tags)
 
