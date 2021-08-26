@@ -10,7 +10,12 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-A systematic plotting function that draws full analysis result.
+A collection of functions that draw formatted curve analysis results.
+
+For example, this visualization contains not only fit curves and raw data points,
+but also some extra fitting information, such as fit values of some interesting parameters
+and goodness of the fitting represented by chi-squared. These extra information can be
+also visualized with the curves.
 
 Note that plotter is a class that only has a class method to draw the image.
 This is just like a function, but allows serialization via Enum.
