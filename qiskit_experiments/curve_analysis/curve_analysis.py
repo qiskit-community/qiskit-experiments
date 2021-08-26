@@ -333,9 +333,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 the curve fit result figure. This refers to the mapper
                 :py:class:`~qiskit_experiments.curve_analysis.visualization.FitResultPlotters`
                 to retrieve the corresponding callback function.
-            style(PlotterStyle): An instance of
+            style (PlotterStyle): An instance of
                 :py:class:`~qiskit_experiments.curve_analysis.visualization.style.PlotterStyle`
-                that contains set of configurations to create a fit plot.
+                that contains a set of configurations to create a fit plot.
         """
         options = super()._default_options()
 
