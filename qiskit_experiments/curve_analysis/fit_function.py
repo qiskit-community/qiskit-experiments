@@ -45,7 +45,7 @@ def sin(
     .. math::
         y = {\rm amp} \sin\left(2 \pi {\fm freq} x + {\rm phase}\right) + {\rm baseline}
     """
-    return amp * np.cos(2 * np.pi * freq * x + phase) + baseline
+    return amp * np.sin(2 * np.pi * freq * x + phase) + baseline
 
 
 def exponential_decay(
