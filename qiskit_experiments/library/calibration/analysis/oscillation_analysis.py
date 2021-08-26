@@ -59,6 +59,8 @@ class OscillationAnalysis(curve.CurveAnalysis):
                 x, amp=amp, freq=freq, phase=phase, baseline=base
             ),
             plot_color="blue",
+            model_description=r"{\rm amp} \cos\left(2 \pi\cdot {\rm freq}\cdot x "
+            r"+ {\rm phase}\right) + {\rm base}",
         )
     ]
 

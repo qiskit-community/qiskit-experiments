@@ -62,6 +62,7 @@ class RBAnalysis(curve.CurveAnalysis):
             ),
             plot_color="blue",
             plot_fit_uncertainty=True,
+            model_description=r"a \alpha^x + b",
         )
     ]
 
@@ -195,7 +196,7 @@ class RBAnalysis(curve.CurveAnalysis):
 
             if num_qubits == 1:
                 epg = RBUtils.calculate_1q_epg(
-                    epc.value,
+                    epc,
                     self._physical_qubits,
                     gate_error_ratio,
                     gates_per_clifford,
@@ -203,7 +204,7 @@ class RBAnalysis(curve.CurveAnalysis):
             elif num_qubits == 2:
                 epg_1_qubit = self._get_option("epg_1_qubit")
                 epg = RBUtils.calculate_2q_epg(
-                    epc.value,
+                    epc,
                     self._physical_qubits,
                     gate_error_ratio,
                     gates_per_clifford,
@@ -218,7 +219,7 @@ class RBAnalysis(curve.CurveAnalysis):
                         extra_entries.append(
                             AnalysisResultData(
                                 f"EPG_{gate}",
-                                FitVal(value, None),  # TODO: add EPG_err computation
+                                value,
                                 chisq=fit_data.reduced_chisq,
                                 quality=self._evaluate_quality(fit_data),
                                 device_components=[Qubit(i) for i in qubits],

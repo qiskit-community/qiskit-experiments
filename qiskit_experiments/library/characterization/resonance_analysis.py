@@ -62,6 +62,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
                 x, amp=a, sigma=sigma, x0=freq, baseline=b
             ),
             plot_color="blue",
+            model_description=r"a \exp(-(x-f)^2/(2\sigma^2)) + b",
         )
     ]
 
