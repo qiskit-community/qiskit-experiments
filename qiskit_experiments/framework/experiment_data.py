@@ -36,9 +36,6 @@ class ExperimentData(DbExperimentDataV1):
             experiment (BaseExperiment): Optional, experiment object that generated the data.
             backend (Backend): Optional, Backend the experiment runs on.
             job_ids (list[str]): Optional, IDs of jobs submitted for the experiment.
-
-        Raises:
-            ExperimentError: If an input argument is invalid.
         """
         self._experiment = experiment
         super().__init__(

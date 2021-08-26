@@ -22,12 +22,7 @@ from qiskit_experiments.framework.experiment_data import ExperimentData
 class CompositeExperimentData(ExperimentData):
     """Composite experiment data class"""
 
-    def __init__(
-        self,
-        experiment,
-        backend=None,
-        job_ids=None,
-    ):
+    def __init__(self, experiment, backend=None, job_ids=None, components=None):
         """Initialize experiment data.
 
         Args:
@@ -35,10 +30,19 @@ class CompositeExperimentData(ExperimentData):
             backend (Backend): Optional, Backend the experiment runs on. It can either be a
                 :class:`~qiskit.providers.Backend` instance or just backend name.
             job_ids (list[str]): Optional, IDs of jobs submitted for the experiment.
+            components (list[DbExperimentDataV1]): Optional, a list of already prepared experiment
+                data objects of the components. Applicable only if ``experiment`` is ``None``,
+                otherwise the components are created from the experiment's components.
 
         Raises:
-            ExperimentError: If an input argument is invalid.
+            ValueError: If both ``experiment`` and ``components`` are not ``None``.
         """
+
+        if experiment is not None and components is not None:
+            raise ValueError(
+                "CompositeExperimentData initialization does not accept experiment "
+                "and component parameters that are both not None"
+            )
 
         super().__init__(
             experiment,
@@ -47,9 +51,12 @@ class CompositeExperimentData(ExperimentData):
         )
 
         # Initialize sub experiments
-        self._components = [
-            expr.__experiment_data__(expr, backend, job_ids) for expr in experiment._experiments
-        ]
+        if components:
+            self._components = components
+        else:
+            self._components = [
+                expr.__experiment_data__(expr, backend, job_ids) for expr in experiment._experiments
+            ]
 
         self.metadata["component_ids"] = [comp.experiment_id for comp in self._components]
         for comp in self._components:
