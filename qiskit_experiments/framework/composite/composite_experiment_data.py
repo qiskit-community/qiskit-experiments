@@ -17,6 +17,7 @@ from typing import Optional, Union, List
 from qiskit.result import marginal_counts
 from qiskit.exceptions import QiskitError
 from qiskit_experiments.framework.experiment_data import ExperimentData
+from qiskit_experiments.database_service import DbExperimentDataV1, DatabaseServiceV1
 
 
 class CompositeExperimentData(ExperimentData):
@@ -59,6 +60,7 @@ class CompositeExperimentData(ExperimentData):
             ]
 
         self.metadata["component_ids"] = [comp.experiment_id for comp in self._components]
+        self.metadata["component_classes"] = [comp.__class__ for comp in self._components]
         for comp in self._components:
             comp.tags.extend(self.tags)
 
@@ -124,3 +126,23 @@ class CompositeExperimentData(ExperimentData):
         super().save_metadata()
         for comp in self._components:
             comp.save_metadata()
+
+    @classmethod
+    def load(cls, experiment_id: str, service: DatabaseServiceV1) -> "CompositeExperimentData":
+        expdata1 = DbExperimentDataV1.load(experiment_id, service)
+        components = []
+        for comp_id, comp_class in zip(
+            expdata1.metadata["component_ids"], expdata1.metadata["component_classes"]
+        ):
+            cmd = comp_class + ".load(" + comp_id + ", " + service + ")"
+            # pylint: disable=eval-used
+            components.append(eval(cmd))
+
+        expdata2 = CompositeExperimentData(
+            experiment=None,
+            backend=expdata1.backend,
+            job_ids=expdata1.job_ids,
+            components=components,
+        )
+
+        return expdata2
