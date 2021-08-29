@@ -123,12 +123,17 @@ class InterleavedRBAnalysis(RBAnalysis):
         """Default analysis options."""
         default_options = super()._default_options()
         default_options.result_parameters = ["alpha", "alpha_c"]
+        default_options.bounds = {
+            "a": (0.0, 1.0),
+            "alpha": (0.0, 1.0),
+            "alpha_c": (0.0, 1.0),
+            "b": (0.0, 1.0),
+        }
         return default_options
 
     def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
         user_p0 = self._get_option("p0")
-        user_bounds = self._get_option("bounds")
 
         user_p0_full = {}
         for key in ["a", "alpha", "alpha_c", "b"]:
@@ -154,12 +159,7 @@ class InterleavedRBAnalysis(RBAnalysis):
                 "alpha_c": user_p0_full["alpha_c"] or min(p0_int["alpha"] / p0_std["alpha"], 1),
                 "b": user_p0_full["b"] or np.mean([p0_std["b"], p0_int["b"]]),
             },
-            "bounds": {
-                "a": user_bounds["a"] or (0.0, 1.0),
-                "alpha": user_bounds["alpha"] or (0.0, 1.0),
-                "alpha_c": user_bounds["alpha_c"] or (0.0, 1.0),
-                "b": user_bounds["b"] or (0.0, 1.0),
-            },
+            "bounds": self._get_option("bounds"),
         }
         # p0 and bounds are defined in the default options, therefore updating
         # with the extra options only adds options and doesn't override p0 or bounds
