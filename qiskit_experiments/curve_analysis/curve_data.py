@@ -43,6 +43,9 @@ class SeriesDef:
     # Whether to plot fit uncertainty for this line.
     plot_fit_uncertainty: bool = False
 
+    # Latex description of this fit model
+    model_description: Optional[str] = None
+
 
 @dataclasses.dataclass(frozen=True)
 class CurveData:
