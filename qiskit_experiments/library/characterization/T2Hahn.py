@@ -112,7 +112,7 @@ class T2Hahn(BaseExperiment):
                 # circ = pad_id_gates(circ, qr, qubit, circ_length)  # ids - waiting
 #                 circ.delay(delay, qr[qubit], self.experiment_options.unit)
                 circ.delay(delay, qubit, 's')
-                circ.rx(np.pi/2, qubit)
+                circ.rx(np.pi, qubit)
 
 #                 for echoid in range(n_echos - 1):  # repeat
 #                     circ = pad_id_gates(circ, qr, qubit, 2 * delay)  # ids
