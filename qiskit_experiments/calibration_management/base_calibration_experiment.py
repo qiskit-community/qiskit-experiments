@@ -31,7 +31,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
     This abstract base class specifies an experiment and how to update an
     optional instance of :class:`Calibrations` specified in the calibration options
-    under calibrations. Furthermore, the calibration options also specify
+    as `calibrations`. Furthermore, the calibration options also specify
     an auto_update variable which, by default, is set to True. If this variable,
     is True then the run method of the experiment will call :meth:`block_for_results`
     and update the calibrations instance once the backend has returned the data.
