@@ -23,7 +23,7 @@ from qiskit_experiments.framework.base_experiment import BaseExperiment
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.exceptions import CalibrationError
 
-Schedules = Union[ScheduleBlock, List[ScheduleBlock]]
+Schedules = Union[ScheduleBlock, Iterable[ScheduleBlock]]
 
 
 class BaseCalibrationExperiment(BaseExperiment, ABC):
