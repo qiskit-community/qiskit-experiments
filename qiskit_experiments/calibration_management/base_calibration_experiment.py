@@ -48,7 +48,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
     These methods are called by :meth:`get_schedules`. Furthermore, developers must implement
     the :meth:`update_calibrations` which is responsible for updating the values of the
-    parameters stored in an instance of :meth:`Calibrations`. This may require the developer
+    parameters stored in an instance of :class:`Calibrations`. This may require the developer
     to set the class variable :code:`__updater__` if he wishes to use the update classes
     implemented in :mod:`qiskit_experiments.calibration_management.update_library`. In addition
     to these calibration specific requirements, the developer must set the analysis method with
