@@ -120,10 +120,12 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     def get_schedules_from_defaults(self, backend) -> Schedules:
         """Get the schedules based on default experiment options.
 
-        Subclasses can override this method to set default schedules based on
-        default experiment options such as the number of samples in a Gaussian
-        and its amplitude. For example, if the default schedule is a Gaussian then
-        this function may return the schedule
+        Subclasses can override this method to define and get default schedules based on
+        default experiment options such as the number of samples in a Gaussian and its
+        amplitude. This function is called as a last resort in :meth:`get_schedules`
+        and accommodates cases when the user provides neither calibrations nor schedules.
+        For example, if the default schedule is a Gaussian then this function may return
+        the schedule
 
         .. code-block:: python
 
