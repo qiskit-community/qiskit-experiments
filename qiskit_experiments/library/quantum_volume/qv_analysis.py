@@ -258,7 +258,14 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         two_sigma = 2 * (hop_accumulative * (1 - hop_accumulative) / trial_list) ** 0.5
 
         # Plot inidivual HOP as scatter
-        ax = plot_scatter(trial_list, heavy_probs, ax=ax, s=3, zorder=3, label="Individual HOP",)
+        ax = plot_scatter(
+            trial_list,
+            heavy_probs,
+            ax=ax,
+            s=3,
+            zorder=3,
+            label="Individual HOP",
+        )
         # Plot accumulative HOP
         ax.plot(trial_list, hop_accumulative, color="r", label="Cumulative HOP")
 
