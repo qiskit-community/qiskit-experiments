@@ -120,7 +120,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         Subclasses can override this method to set default schedules based on
         default experiment options such as the number of samples in a Gaussian
         and its amplitude. For example, if the default schedule is a Gaussian then
-        this function my return the schedule
+        this function may return the schedule
 
         .. code-block:: python
 
