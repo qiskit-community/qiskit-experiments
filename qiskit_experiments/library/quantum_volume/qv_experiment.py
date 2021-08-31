@@ -34,7 +34,7 @@ from .qv_analysis import QuantumVolumeAnalysis
 class QuantumVolume(BaseExperiment):
     """Quantum Volume Experiment class.
 
-    Overview
+    # section: overview
         Quantum Volume (QV) is a single-number metric that can be measured using a concrete protocol
         on near-term quantum computers of modest size. The QV method quantifies the largest random
         circuit of equal width and depth that the computer successfully implements.
@@ -51,7 +51,7 @@ class QuantumVolume(BaseExperiment):
         In the QV experiment we generate `QV circuits
         <https://qiskit.org/documentation/stubs/qiskit.circuit.library.QuantumVolume.html>`_
         on :math:`d` qubits, which contain :math:`d` layers, where each layer consists of random 2-qubit
-        unitary gates from :math:`SU(4)`, followed by a random permutation on the :math:`d` qubit.
+        unitary gates from :math:`SU(4)`, followed by a random permutation on the :math:`d` qubits.
         Then these circuits run on the quantum backend and on an ideal simulator
         (either :class:`AerSimulator` or :class:`qiskit.quantum_info.Statevector`).
 
@@ -61,20 +61,10 @@ class QuantumVolume(BaseExperiment):
         See :class:`QuantumVolumeAnalysis` documentation for additional
         information on QV experiment analysis.
 
-    References
-        1. Andrew W. Cross, Lev S. Bishop, Sarah Sheldon, Paul D. Nation, and Jay M. Gambetta,
-           Validating quantum computers using randomized model circuits, Phys. Rev. A 100, 032328 (2019).
-           `arXiv:quant-ph/1811.12926 <https://arxiv.org/pdf/1811.12926>`_
-        2. Petar Jurcevic et. al. Demonstration of quantum volume 64 on asuperconducting
-           quantum computing system,
-           `arXiv:quant-ph/2008.08571 <https://arxiv.org/pdf/2008.08571>`_
+    # section: reference
+        .. ref_arxiv:: 1 1811.12926
+        .. ref_arxiv:: 2 2008.08571
 
-    Analysis Class
-        :class:`QuantumVolumeAnalysis`
-
-    Experiment Options
-        - **trials** (int): Optional, number of times to generate new Quantum Volume
-          circuits and calculate their heavy output.
     """
 
     # Analysis class for experiment
@@ -118,6 +108,12 @@ class QuantumVolume(BaseExperiment):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
+        """Default experiment options.
+
+        Experiment Options:
+            trials (int): Optional, number of times to generate new Quantum Volume
+                circuits and calculate their heavy output.
+        """
         options = super()._default_experiment_options()
 
         options.trials = 100
@@ -131,7 +127,7 @@ class QuantumVolume(BaseExperiment):
         the ideal state.
 
         Args:
-            circuit: the circuit to extract the ideal data from
+            circuit (:class:`QuantumCircuit`): the circuit to extract the ideal data from
             run_options: backend run options.
 
         Returns:
@@ -155,6 +151,14 @@ class QuantumVolume(BaseExperiment):
         return probabilities
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+        """Return a list of Quantum Volume circuits.
+
+        Args:
+            backend (Backend): Optional, a backend object.
+
+        Returns:
+            A list of :class:`QuantumCircuit`.
+        """
         circuits = []
         depth = self._num_qubits
 
