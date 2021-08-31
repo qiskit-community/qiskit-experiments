@@ -38,7 +38,10 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
     Developers that wish to create a calibration experiment must subclass this base
     class. If the experiment uses custom schedules, which is typically the case, then
-    developers must override at least one of the following methods used to set the schedules:
+    developers may chose to use the :meth:`get_schedules` method when creating the
+    circuits for the experiment. If :meth:`get_schedules` is used then the developer
+    must override at least one of the following methods used by :meth:`get_schedules`
+    to set the schedules:
 
     #. :meth:`get_schedules_from_options`
 
