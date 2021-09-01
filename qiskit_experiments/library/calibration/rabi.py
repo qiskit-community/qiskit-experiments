@@ -12,7 +12,7 @@
 
 """Rabi amplitude experiment."""
 
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -172,6 +172,7 @@ class Rabi(BaseCalibrationExperiment):
         if amplitudes is not None:
             self.experiment_options.amplitudes = amplitudes
 
+    # pylint: disable=arguments-differ
     def get_schedule_from_defaults(self, backend: Optional[Backend] = None) -> ScheduleBlock:
         """Get the schedules from the default options."""
         with pulse.build(backend=backend, name="rabi") as default_schedule:
@@ -186,8 +187,7 @@ class Rabi(BaseCalibrationExperiment):
 
         return default_schedule
 
-    # pylint: disable=arguments-differ
-    def validate_schedules(self, schedule: ScheduleBlock):
+    def validate_schedule(self, schedule: ScheduleBlock):
         """Validate the Rabi schedule.
 
         Raises:

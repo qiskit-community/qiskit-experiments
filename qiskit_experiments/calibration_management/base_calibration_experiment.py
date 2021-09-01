@@ -12,8 +12,8 @@
 
 """Base class for calibration-type experiments."""
 
-from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
+from abc import ABC
+from typing import Any, Dict, Iterable, Optional, Tuple
 
 from qiskit.providers.options import Options
 from qiskit.providers.backend import Backend
@@ -23,8 +23,6 @@ from qiskit.pulse import ScheduleBlock
 from qiskit_experiments.framework.base_experiment import BaseExperiment
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.exceptions import CalibrationError
-
-Schedules = Union[ScheduleBlock, Iterable[ScheduleBlock]]
 
 
 class BaseCalibrationExperiment(BaseExperiment, ABC):
@@ -87,7 +85,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             self.calibration_options.calibrations,
             experiment_data,
             parameter=self.calibration_options.cal_parameter_name,
-            schedule=self.calibration_options.schedule_name
+            schedule=self.calibration_options.schedule_name,
         )
 
     def get_schedule_from_options(self, option_name: str) -> ScheduleBlock:
@@ -106,8 +104,8 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
     def get_schedule_from_calibrations(
         self,
-        sched_name: Optional[str] = None,
         qubits: Optional[Tuple[int, ...]] = None,
+        sched_name: Optional[str] = None,
         assign_params: Optional[Dict[str, Parameter]] = None,
     ) -> Optional[ScheduleBlock]:
         """Get the schedules from the Calibrations instance.
@@ -118,10 +116,10 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         this method if they need a different behaviour.
 
         Args:
-            sched_name: The name of the schedule to fetch from the calibrations. If None is
-                gven this will default to :code:`schedule_name` in the calibration options.
             qubits: The qubits for which to fetch the schedules. If None is given this will
                 default to the physical qubits of the experiment.
+            sched_name: The name of the schedule to fetch from the calibrations. If None is
+                gven this will default to :code:`schedule_name` in the calibration options.
             assign_params: A dict to specify parameters in the schedule that are
                 to be mapped to an unassigned parameter.
 
@@ -170,7 +168,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             "or the calibrations and no default schedule method was implemented."
         )
 
-    def validate_schedules(self, schedules: Schedules):
+    def validate_schedule(self, schedule: ScheduleBlock):
         """Subclass can implement this method to validate the schedule they use.
 
         Validating schedules may include checks on the number of parameters and
@@ -253,6 +251,8 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             assign_params: A dict that :meth:`get_schedule_from_calibrations` can use to leave
                 certain parameters in the schedule unassigned. The key is the name of the parameter
                 and the value should be an instance of :class:`ParameterExpression`.
+            kwargs: Additional keyword arguments that can be used by implementations of
+                :meth:`get_schedule_from_defaults`.
 
         Returns:
             schedules: The schedules (possibly with one or more free parameters) as either a
@@ -269,7 +269,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         if schedules is None:
             schedules = self.get_schedule_from_defaults(**kwargs)
 
-        self.validate_schedules(schedules)
+        self.validate_schedule(schedules)
 
         return schedules
 
@@ -293,10 +293,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             cal_parameter_name (str): The name of the parameter to update in the calibrations.
         """
         return Options(
-            calibrations=None,
-            auto_update=True,
-            schedule_name=None,
-            cal_parameter_name=None
+            calibrations=None, auto_update=True, schedule_name=None, cal_parameter_name=None
         )
 
     @property

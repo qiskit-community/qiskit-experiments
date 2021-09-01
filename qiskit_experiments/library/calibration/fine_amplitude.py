@@ -182,22 +182,7 @@ class FineAmplitude(BaseCalibrationExperiment):
         if repetitions is not None:
             self.experiment_options.repetitions = repetitions
 
-    def get_schedules_from_options(self) -> ScheduleBlock:
-        """Get the schedules from the experiment options."""
-        return self.experiment_options.schedule
-
-    def get_schedules_from_calibrations(self, backend) -> Optional[ScheduleBlock]:
-        """Get the schedules from the calibrations if they are present."""
-        cals = self.calibration_options.calibrations
-        schedule_name = self.calibration_options.schedule_name
-
-        if cals is not None and self.calibration_options.schedule_name is not None:
-            return cals.get_schedule(schedule_name, self.physical_qubits[0])
-
-        return None
-
-    # pylint: disable=arguments-differ
-    def validate_schedules(self, schedule: ScheduleBlock):
+    def validate_schedule(self, schedule: ScheduleBlock):
         """Validate the schedule to calibrate."""
         self._validate_channels(schedule)
         self._validate_parameters(schedule, 0)
@@ -283,6 +268,9 @@ class FineAmplitude(BaseCalibrationExperiment):
 
         Args:
             experiment_data: The experiment data to use for the update.
+
+        Raises:
+            CalibrationError: If the schedule name is None in the calibration options.
         """
         calibrations = self.calibration_options.calibrations
         angle = self.analysis_options.angle_per_gate

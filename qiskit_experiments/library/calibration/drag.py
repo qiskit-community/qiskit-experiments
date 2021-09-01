@@ -23,7 +23,6 @@ from qiskit.pulse import ScheduleBlock
 import qiskit.pulse as pulse
 
 from qiskit_experiments.framework import Options
-from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.library.calibration.analysis.drag_analysis import DragCalAnalysis
 from qiskit_experiments.calibration_management.update_library import Drag
@@ -227,7 +226,7 @@ class DragCal(BaseCalibrationExperiment):
 
         return minus_sched
 
-    def validate_schedules(self, schedule: ScheduleBlock):
+    def validate_schedule(self, schedule: ScheduleBlock):
         """Validate any drag schedules.
 
         Raises:
