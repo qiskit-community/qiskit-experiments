@@ -165,6 +165,10 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             )
 
         """
+        raise NotImplementedError(
+            f"{self.__class__.__name__} could not find a schedule in the experiment options "
+            "or the calibrations and no default schedule method was implemented."
+        )
 
     def validate_schedules(self, schedules: Schedules):
         """Subclass can implement this method to validate the schedule they use.
@@ -264,9 +268,6 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
         if schedules is None:
             schedules = self.get_schedule_from_defaults(**kwargs)
-
-        if schedules is None:
-            raise CalibrationError(f"Cannot get schedules for {self.__class__.__name__}.")
 
         self.validate_schedules(schedules)
 
