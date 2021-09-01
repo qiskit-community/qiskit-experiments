@@ -41,6 +41,7 @@ class StateTomography(TomographyExperiment):
             Performing full state tomography on an `N`-qubit state requires
             running :math:`3^N` measurement circuits when using the default
             measurement basis.
+
     """
 
     __analysis_class__ = StateTomographyAnalysis
@@ -59,6 +60,7 @@ class StateTomography(TomographyExperiment):
             rescale_trace (``bool``): If True rescale the state returned by the fitter
                 have either trace 1 (Default: True).
             kwargs: Additional kwargs will be supplied to the fitter function.
+
         """
         options = super()._default_analysis_options()
 

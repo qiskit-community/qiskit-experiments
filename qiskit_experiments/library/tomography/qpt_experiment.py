@@ -41,6 +41,7 @@ class ProcessTomography(TomographyExperiment):
             Performing full process tomography on an `N`-qubit circuit requires
             running :math:`4^N 3^N` measurement circuits when using the default
             preparation and measurement bases.
+
     """
 
     __analysis_class__ = ProcessTomographyAnalysis
@@ -82,6 +83,7 @@ class ProcessTomography(TomographyExperiment):
             rescale_trace (bool): If True rescale the state returned by the fitter have either
                 trace 1 (Default: True).
             kwargs: Additional kwargs will be supplied to the fitter function.
+
         """
         options = super()._default_analysis_options()
 

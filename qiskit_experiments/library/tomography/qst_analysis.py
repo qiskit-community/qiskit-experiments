@@ -56,6 +56,7 @@ class StateTomographyAnalysis(TomographyAnalysis):
 
     # section: reference
         .. ref_arxiv:: 1 1106.5458
+
     """
 
     @classmethod
@@ -88,6 +89,7 @@ class StateTomographyAnalysis(TomographyAnalysis):
                 will be used. If ``None`` no fidelity will be computed (Default: "default").
             kwargs: will be supplied to the fitter function, for documentation of available
                 args refer to the fitter function documentation.
+
         """
         options = super()._default_options()
 

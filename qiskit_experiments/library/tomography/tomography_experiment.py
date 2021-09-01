@@ -42,6 +42,7 @@ class TomographyExperiment(BaseExperiment):
                 The default basis is the :class:`~basis.PauliMeasurementBasis` which
                 performs measurements in the Pauli Z, X, Y bases for each qubit
                 measurement.
+
         """
         options = super()._default_experiment_options()
 

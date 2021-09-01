@@ -56,6 +56,7 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
 
     # section: reference
         .. ref_arxiv:: 1 1106.5458
+
     """
 
     @classmethod
@@ -94,6 +95,7 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
                 (Default: "default").
             kwargs: will be supplied to the fitter function, for documentation of available args
                 refer to the fitter function documentation.
+
         """
         options = super()._default_options()
 
