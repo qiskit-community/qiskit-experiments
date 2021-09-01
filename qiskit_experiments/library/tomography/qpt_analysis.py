@@ -21,7 +21,7 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
     """Quantum state and process tomography experiment analysis.
 
     # section overview:
-    Fitter Functions:
+        Fitter Functions:
         Built-in fitter functions may be selected using the following string
         labels, refer to the corresponding functions documentation for additional
         details on the fitters.
@@ -46,7 +46,7 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
             The API for tomography fitters is still under development so may change
             in future releases.
 
-    PSD Rescaling
+        PSD Rescaling:
         For fitters that do not constrain the reconstructed state to be
         `positive-semidefinite` (PSD) we construct the maximum-likelihood
         nearest PSD state under the assumption of Gaussian measurement noise
