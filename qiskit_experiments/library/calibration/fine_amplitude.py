@@ -289,6 +289,11 @@ class FineAmplitude(BaseCalibrationExperiment):
         name = self.calibration_options.schedule_name
         parameter_name = self.calibration_options.cal_parameter_name
 
+        if name is None:
+            raise CalibrationError(
+                f"Cannot perform {self.__updater__.__class__.__name__} without a schedule name."
+            )
+
         self.__updater__.update(
             calibrations, experiment_data, angles_schedules=[(angle, parameter_name, name)]
         )
