@@ -19,7 +19,7 @@ from qiskit_experiments.library.characterization.qubit_spectroscopy import Qubit
 from qiskit_experiments.calibration_management.update_library import Frequency
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
 from qiskit_experiments.calibration_management.base_calibration_experiment import (
-    BaseCalibrationExperiment
+    BaseCalibrationExperiment,
 )
 
 

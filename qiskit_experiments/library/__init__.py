@@ -92,7 +92,7 @@ from .calibration import (
     FineAmplitude,
     FineXAmplitude,
     FineSXAmplitude,
-    RoughFrequency
+    RoughFrequency,
 )
 from .characterization import T1, T2Ramsey, QubitSpectroscopy, EFSpectroscopy
 from .randomized_benchmarking import StandardRB, InterleavedRB
