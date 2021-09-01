@@ -320,7 +320,7 @@ class EFRabi(Rabi):
 
         return options
 
-    def get_schedules_from_defaults(self, backend: Optional[Backend] = None) -> ScheduleBlock:
+    def get_schedule_from_defaults(self, backend: Optional[Backend] = None) -> ScheduleBlock:
         """Create the default schedule for the EFRabi gate with a frequency shift to the 1-2
         transition."""
 

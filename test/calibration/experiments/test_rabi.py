@@ -66,6 +66,7 @@ class TestRabiEndToEnd(QiskitTestCase):
     def setUp(self):
         """Setup the test."""
         self.test_tol = 0.01
+        super().setUp()
 
     def test_rabi_end_to_end(self):
         """Test the Rabi experiment end to end."""

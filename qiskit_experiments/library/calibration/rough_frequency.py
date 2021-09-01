@@ -15,7 +15,9 @@
 from typing import List, Optional, Union
 import numpy as np
 
+from qiskit_experiments.framework import Options
 from qiskit_experiments.library.characterization.qubit_spectroscopy import QubitSpectroscopy
+from qiskit_experiments.library.characterization.ef_spectroscopy import EFSpectroscopy
 from qiskit_experiments.calibration_management.update_library import Frequency
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
 from qiskit_experiments.calibration_management.base_calibration_experiment import (
@@ -57,3 +59,52 @@ class RoughFrequency(BaseCalibrationExperiment, QubitSpectroscopy):
 
         self._calibration_options = self._default_calibration_options()
         self.calibration_options.calibrations = cals
+
+
+class RoughEFFrequency(BaseCalibrationExperiment, EFSpectroscopy):
+    """A calibration experiment that runs QubitSpectroscopy."""
+
+    __updater__ = Frequency
+
+    # pylint: disable=super-init-not-called
+    def __init__(
+        self,
+        qubit: int,
+        frequencies: Union[List[float], np.array],
+        cals: Optional[BackendCalibrations] = None,
+        unit: Optional[str] = "Hz",
+        absolute: bool = True,
+    ):
+        """See :class:`QubitSpectroscopy` for detailed documentation.
+
+        Args:
+            qubit: The qubit on which to run spectroscopy.
+            frequencies: The frequencies to scan in the experiment.
+            cals: If calibrations is given then running the experiment may update the values
+                of the frequencies stored in calibrations.
+            unit: The unit in which the user specifies the frequencies. Can be one of 'Hz', 'kHz',
+                'MHz', 'GHz'. Internally, all frequencies will be converted to 'Hz'.
+            absolute: Boolean to specify if the frequencies are absolute or relative to the
+                qubit frequency in the backend.
+
+        Raises:
+            QiskitError: if there are less than three frequency shifts or if the unit is not known.
+
+        """
+        EFSpectroscopy.__init__(self, qubit, frequencies, unit, absolute)
+
+        self._calibration_options = self._default_calibration_options()
+        self.calibration_options.calibrations = cals
+
+    @classmethod
+    def _default_calibration_options(cls) -> Options:
+        """Default option values used for the spectroscopy pulse.
+
+        Calibration Options:
+            parameter_name (str): The name of the parameter to update in the calibrations
+                if a calibrations instance was specified in the experiment options. The
+                parameter_name name variable defaults to "f12".
+        """
+        options = super()._default_calibration_options()
+        options.cal_parameter_name = "f12"
+        return options
