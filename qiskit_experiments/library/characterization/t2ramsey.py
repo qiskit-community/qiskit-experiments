@@ -87,9 +87,9 @@ class T2Ramsey(BaseExperiment):
         Args:
             qubit: the qubit under test.
             delays: delay times of the experiments.
-            unit: Optional, time unit of `delays`. \
-            Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'. The unit is \
-            used for both T2Ramsey and for the frequency.
+            unit: Optional, time unit of `delays`.
+                Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'. The unit is
+                used for both T2Ramsey and for the frequency.
             osc_freq: the oscillation frequency induced by the user. \
             The frequency is given in Hz.
             experiment_type: String indicating the experiment type.
