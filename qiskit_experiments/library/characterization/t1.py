@@ -17,6 +17,7 @@ from typing import List, Optional, Union
 import numpy as np
 
 from qiskit.providers import Backend
+from qiskit.test.mock import FakeBackend
 from qiskit.circuit import QuantumCircuit
 
 from qiskit_experiments.framework import BaseExperiment, Options
@@ -131,3 +132,22 @@ class T1(BaseExperiment):
             circuits.append(circ)
 
         return circuits
+
+    def _pre_transpile_hook(self, backend: Backend):
+        """Set timing constraints if backend is real hardware."""
+
+        if not backend.configuration().simulator and not isinstance(backend, FakeBackend):
+            timing_constraints = getattr(self.transpile_options.__dict__, "timing_constraints", {})
+
+            # alignment=16 is IBM standard. Will be soon provided by IBM providers.
+            # Then, this configuration can be removed.
+            timing_constraints["acquire_alignment"] = getattr(
+                timing_constraints, "acquire_alignment", 16
+            )
+
+            scheduling_method = getattr(
+                self.transpile_options.__dict__, "scheduling_method", "alap"
+            )
+            self.set_transpile_options(
+                timing_constraints=timing_constraints, scheduling_method=scheduling_method
+            )

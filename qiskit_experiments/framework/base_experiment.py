@@ -109,43 +109,25 @@ class BaseExperiment(ABC):
         run_opts.update_options(**run_options)
         run_opts = run_opts.__dict__
 
-        # Scheduling parameters
-        if backend.configuration().simulator is False and isinstance(backend, FakeBackend) is False:
-            timing_constraints = getattr(self.transpile_options.__dict__, "timing_constraints", {})
-            timing_constraints["acquire_alignment"] = getattr(
-                timing_constraints, "acquire_alignment", 16
-            )
-            scheduling_method = getattr(
-                self.transpile_options.__dict__, "scheduling_method", "alap"
-            )
-            self.set_transpile_options(
-                timing_constraints=timing_constraints, scheduling_method=scheduling_method
-            )
-
         # Generate and transpile circuits
-        transpile_opts = copy.copy(self.transpile_options.__dict__)
-        transpile_opts["initial_layout"] = list(self._physical_qubits)
-        circuits = transpile(self.circuits(backend), backend, **transpile_opts)
-        self._postprocess_transpiled_circuits(circuits, backend, **run_options)
+        circuits = self.run_transpile(backend)
 
+        # Execute experiment
         if isinstance(backend, LegacyBackend):
             qobj = assemble(circuits, backend=backend, **run_opts)
             job = backend.run(qobj)
         else:
             job = backend.run(circuits, **run_opts)
 
-        # Add Job to ExperimentData and add analysis for post processing.
-        run_analysis = None
-
         # Add experiment option metadata
         self._add_job_metadata(experiment_data, job, **run_opts)
 
-        if analysis and self.__analysis_class__ is not None:
-            run_analysis = self.run_analysis
+        # Run analysis
+        if analysis:
+            experiment_data = self.run_analysis(experiment_data, job)
+        else:
+            experiment_data.add_data(job)
 
-        experiment_data.add_data(job, post_processing_callback=run_analysis)
-
-        # Return the ExperimentData future
         return experiment_data
 
     def _initialize_experiment_data(
@@ -167,29 +149,110 @@ class BaseExperiment(ABC):
 
         return experiment_data._copy_metadata()
 
-    def run_analysis(self, experiment_data, **options) -> ExperimentData:
+    def _pre_transpile_hook(self, backend: Backend):
+        """An extra transpile subroutine executed before transpilation.
+
+        Args:
+            backend: Target backend.
+        """
+        pass
+
+    def _post_transpile_hook(
+            self, circuits: List[QuantumCircuit], backend: Backend
+    ) -> List[QuantumCircuit]:
+        """An extra transpile subroutine executed after transpilation.
+
+        Args:
+            circuits: List of transpiled circuits.
+            backend: Target backend.
+
+        Returns:
+            List of circuits to execute.
+        """
+        return circuits
+
+    def run_transpile(self, backend: Backend, **options):
+        """Run transpile and returns transpiled circuits.
+
+        Args:
+            backend: Target backend.
+
+        Returns:
+            Transpiled circuit to execute.
+        """
+        # Run pre transpile. This is implemented by each experiment subclass.
+        self._pre_transpile_hook(backend)
+
+        # Get transpile options
+        transpile_options = copy.copy(self.transpile_options)
+        transpile_options.update_options(
+            initial_layout=list(self._physical_qubits),
+            **options,
+        )
+        transpile_options = transpile_options.__dict__
+
+        circuits = transpile(circuits=self.circuits(backend), backend=backend, **transpile_options)
+
+        # Run post transpile. This is implemented by each experiment subclass.
+        circuits = self._post_transpile_hook(circuits, backend)
+
+        return circuits
+
+    def _post_analysis_hook(self, experiment_data: ExperimentData):
+        """An extra analysis subroutine executed after analysis.
+
+        Args:
+            experiment_data: A future object of the experiment result.
+
+        Note:
+            The experiment_data may contain a future object as an experiment result
+            and the previous analysis routine has not completed yet.
+            If the hook should be executed immediately, call :meth:`block_for_results` method
+            before starting the data processing code.
+        """
+        pass
+
+    def run_analysis(
+            self, experiment_data: ExperimentData, job: BaseJob = None, **options
+    ) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
         Args:
-            experiment_data (ExperimentData): the experiment data to analyze.
-            options: additional analysis options. Any values set here will
-                     override the value from :meth:`analysis_options`
-                     for the current run.
+            experiment_data: The experiment data to analyze.
+            job: The future object of experiment result which is currently running on the backend.
+            options: Additional analysis options. Any values set here will
+                override the value from :meth:`analysis_options` for the current run.
 
         Returns:
             An experiment data object containing the analysis results and figures.
 
         Raises:
-            QiskitError: if experiment_data container is not valid for analysis.
+            QiskitError: Method is called with an empty experiment result.
         """
+        run_analysis = self.analysis().run if self.__analysis_class__ else None
+
         # Get analysis options
         analysis_options = copy.copy(self.analysis_options)
         analysis_options.update_options(**options)
         analysis_options = analysis_options.__dict__
 
-        # Run analysis
-        analysis = self.analysis()
-        analysis.run(experiment_data, **analysis_options)
+        if not job and run_analysis is not None:
+            # Run analysis immediately
+            if not experiment_data.data():
+                raise QiskitError(
+                    "Experiment data seems to be empty and no running job is provided. "
+                    "At least one data entry is required to run analysis."
+                )
+            experiment_data = run_analysis(experiment_data, **analysis_options)
+        else:
+            # Run analysis when job is completed
+            experiment_data.add_data(
+                job, post_processing_callback=run_analysis, **analysis_options
+            )
+
+        # Run post analysis. This is implemented by each experiment subclass.
+        self._post_analysis_hook(experiment_data)
+
         return experiment_data
 
     @property
@@ -334,10 +397,6 @@ class BaseExperiment(ABC):
             fields: The fields to update the options
         """
         self._analysis_options.update_options(**fields)
-
-    def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
-        """Additional post-processing of transpiled circuits before running on backend"""
-        pass
 
     def _metadata(self) -> Dict[str, any]:
         """Return experiment metadata for ExperimentData.
