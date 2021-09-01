@@ -114,6 +114,7 @@ class Rabi(BaseCalibrationExperiment):
         options = super()._default_calibration_options()
         options.cal_parameter_name = "amp"
         options.angles_schedules = [(np.pi, "amp", "x"), (np.pi / 2, "amp", "sx")]
+        options.schedule_name = "x"
         return options
 
     @classmethod
@@ -171,24 +172,7 @@ class Rabi(BaseCalibrationExperiment):
         if amplitudes is not None:
             self.experiment_options.amplitudes = amplitudes
 
-    def get_schedules_from_options(self) -> ScheduleBlock:
-        """Get the schedules from the experiment options."""
-        return self.experiment_options.schedule
-
-    def get_schedules_from_calibrations(self, backend) -> Union[ScheduleBlock, None]:
-        """Get the schedules from the calibrations if they are present."""
-        cals = self.calibration_options.calibrations
-        param = self.calibration_options.cal_parameter_name
-        schedule_name = self.calibration_options.schedule_name
-
-        if cals is not None:
-            return cals.get_schedule(
-                schedule_name, self.physical_qubits[0], assign_params={param: Parameter("amp")}
-            )
-
-        return None
-
-    def get_schedules_from_defaults(self, backend: Optional[Backend] = None) -> ScheduleBlock:
+    def get_schedule_from_defaults(self, backend: Optional[Backend] = None) -> ScheduleBlock:
         """Get the schedules from the default options."""
         with pulse.build(backend=backend, name="rabi") as default_schedule:
             pulse.play(
@@ -248,7 +232,10 @@ class Rabi(BaseCalibrationExperiment):
                   that matches the qubit on which to run the Rabi experiment.
                 - If the user provided schedule has more than one free parameter.
         """
-        schedule = self.get_schedules(backend)
+        schedule = self.get_schedule(
+            assign_params={self.calibration_options.cal_parameter_name: Parameter("amp")},
+        )
+
         param = next(iter(schedule.parameters))
 
         # Create template circuit

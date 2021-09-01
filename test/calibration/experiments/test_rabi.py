@@ -284,9 +284,7 @@ class TestCompositeExperiment(QiskitTestCase):
 
         experiments = []
         for qubit in range(3):
-            rabi = Rabi(qubit)
-            rabi.set_experiment_options(amplitudes=[0.5])
-            experiments.append(rabi)
+            experiments.append(Rabi(qubit, amplitudes=[0.5]))
 
         par_exp = ParallelExperiment(experiments)
         par_circ = par_exp.circuits()[0]

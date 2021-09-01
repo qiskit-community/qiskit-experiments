@@ -60,7 +60,7 @@ class TestAmplitudeUpdate(QiskitTestCase):
 
         rabi = Rabi(self.qubit)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
-        exp_data = rabi.run(RabiBackend())
+        exp_data = rabi.run(RabiBackend()).block_for_results()
 
         with self.assertRaises(CalibrationError):
             self.cals.get_schedule("xp", qubits=0)
@@ -115,8 +115,6 @@ class TestAmplitudeUpdate(QiskitTestCase):
             Amplitude.update(
                 self.cals, exp_data, angles_schedules=[(target_angle, "amp_fail", "xp")]
             )
-
-        Amplitude.update(self.cals, exp_data, angles_schedules=[(target_angle, "amp", "xp")])
 
         new_value = 0.2 * target_angle / (target_angle + error)
         self.assertAlmostEqual(

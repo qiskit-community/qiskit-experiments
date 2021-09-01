@@ -41,10 +41,6 @@ class TestDragEndToEnd(QiskitTestCase):
         with pulse.build(name="xp") as xp:
             pulse.play(Drag(duration=160, amp=0.208519, sigma=40, beta=beta), DriveChannel(0))
 
-        with pulse.build(name="xm") as xm:
-            pulse.play(Drag(duration=160, amp=-0.208519, sigma=40, beta=beta), DriveChannel(0))
-
-        self.x_minus = xm
         self.x_plus = xp
         self.test_tol = 0.05
 
@@ -55,8 +51,8 @@ class TestDragEndToEnd(QiskitTestCase):
 
         drag = DragCal(0)
 
-        drag.set_experiment_options(rp=self.x_plus, rm=self.x_minus)
-        expdata = drag.run(backend)
+        drag.set_experiment_options(schedule=self.x_plus)
+        expdata = drag.run(backend).block_for_results()
         result = expdata.analysis_results(1)
 
         self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
@@ -67,9 +63,9 @@ class TestDragEndToEnd(QiskitTestCase):
 
         drag = DragCal(0)
         drag.set_analysis_options(p0={"beta": 1.2})
-        drag.set_experiment_options(rp=self.x_plus, rm=self.x_minus)
+        drag.set_experiment_options(schedule=self.x_plus)
         drag.set_run_options(meas_level=MeasLevel.KERNELED)
-        exp_data = drag.run(backend)
+        exp_data = drag.run(backend).block_for_results()
         result = exp_data.analysis_results(1)
 
         meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
@@ -85,8 +81,8 @@ class TestDragEndToEnd(QiskitTestCase):
         drag.set_run_options(shots=200)
         drag.set_experiment_options(betas=np.linspace(-4, 4, 31))
         drag.set_analysis_options(p0={"beta": 1.8, "freq0": 0.08, "freq1": 0.16, "freq2": 0.32})
-        drag.set_experiment_options(rp=self.x_plus, rm=self.x_minus)
-        exp_data = drag.run(backend)
+        drag.set_experiment_options(schedule=self.x_plus)
+        exp_data = drag.run(backend).block_for_results()
         result = exp_data.analysis_results(1)
 
         meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
@@ -130,14 +126,11 @@ class TestDragCircuits(QiskitTestCase):
         with pulse.build(name="xp") as xp:
             pulse.play(Drag(duration=160, amp=amp, sigma=40, beta=beta), DriveChannel(0))
 
-        with pulse.build(name="xm") as xm:
-            pulse.play(Drag(duration=160, amp=-amp, sigma=40, beta=beta), DriveChannel(0))
-
         backend = DragBackend(leakage=0.05)
 
         drag = DragCal(1)
         drag.set_experiment_options(betas=np.linspace(-3, 3, 21))
-        drag.set_experiment_options(rp=xp, rm=xm)
+        drag.set_experiment_options(schedule=xp)
 
         with self.assertRaises(CalibrationError):
             drag.run(backend).analysis_results(0)
@@ -151,14 +144,11 @@ class TestDragCircuits(QiskitTestCase):
         with pulse.build(name="xp") as xp:
             pulse.play(Drag(duration=160, amp=0.2, sigma=40, beta=beta1), DriveChannel(0))
 
-        with pulse.build(name="xm") as xm:
-            pulse.play(Drag(duration=160, amp=-0.2, sigma=40, beta=beta2), DriveChannel(0))
-
         backend = DragBackend(leakage=0.05)
 
         drag = DragCal(1)
         drag.set_experiment_options(betas=np.linspace(-3, 3, 21))
-        drag.set_experiment_options(rp=xp, rm=xm)
+        drag.set_experiment_options(schedule=xp)
 
         with self.assertRaises(CalibrationError):
             drag.run(backend).analysis_results(0)

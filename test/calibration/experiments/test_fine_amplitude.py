@@ -47,7 +47,7 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         backend = MockFineAmp(-np.pi * 0.07, np.pi, "xp")
 
-        expdata = amp_cal.run(backend)
+        expdata = amp_cal.run(backend).block_for_results()
         result = expdata.analysis_results(1)
         d_theta = result.value.value
 
@@ -65,7 +65,7 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         backend = MockFineAmp(np.pi * 0.07, np.pi, "xp")
 
-        expdata = amp_cal.run(backend)
+        expdata = amp_cal.run(backend).block_for_results()
         result = expdata.analysis_results(1)
         d_theta = result.value.value
 
@@ -125,7 +125,7 @@ class TestFineAmplitudeCircuits(QiskitTestCase):
         for idx, circ in enumerate(amp_cal.circuits()):
             if idx > 0:
                 self.assertTrue(circ.data[0][0].name == "sx")
-                self.assertEqual(circ.count_ops().get("xp", 0), reps[idx-1])
+                self.assertEqual(circ.count_ops().get("xp", 0), reps[idx - 1])
 
     def test_x90p(self):
         """Test circuits with an x90p pulse."""

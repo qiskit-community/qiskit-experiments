@@ -13,10 +13,11 @@
 """Base class for calibration-type experiments."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterable, List, Optional, Union
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 from qiskit.providers.options import Options
 from qiskit.providers.backend import Backend
+from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.framework.base_experiment import BaseExperiment
@@ -95,29 +96,59 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         i.e. :code:`__updater__ = Drag`.
         """
 
-    def get_schedules_from_options(self) -> Schedules:
-        """Return the schedules from the experiment options.
+    def get_schedule_from_options(self, option_name: str) -> ScheduleBlock:
+        """Get a schedule from the experiment options.
 
-        This function is used when the experiment allows one or more
-        experiment options that are schedules for the experiment. For example,
-        in the :class:`Rabi` experiment the user can specify the schedule by doing
+        Developers can subclass this method if they need a more sophisticated
+        methodology to get schedules from their experiment options.
 
-        .. code-block:: python
+        Args:
+            option_name: The name of the option under which the schedule is stored.
 
-            rabi.set_experiment_options(schedules=my_schedule)
-
+        Returns:
+            The schedule to use in the calibration experiment.
         """
+        return self.experiment_options.get(option_name, None)
 
-    def get_schedules_from_calibrations(self, backend) -> Schedules:
+    def get_schedule_from_calibrations(
+        self,
+        sched_name: Optional[str] = None,
+        qubits: Optional[Tuple[int, ...]] = None,
+        assign_params: Optional[Dict[str, Parameter]] = None,
+    ) -> Optional[ScheduleBlock]:
         """Get the schedules from the Calibrations instance.
 
-        Subclasses must implement this method if they want to get schedules from
-        an instance of :class:`Calibrations` using the :meth:`get_schedule` method.
         This method is called if :meth:`get_schedules_from_options` did not return
-        any schedules to use.
-        """
+        any schedules to use. Here, we get a schedule from an instance of
+        :class:`Calibrations` using the :meth:`get_schedule` method. Subclasses can override
+        this method if they need a different behaviour.
 
-    def get_schedules_from_defaults(self, backend) -> Schedules:
+        Args:
+            sched_name: The name of the schedule to fetch from the calibrations. If None is
+                gven this will default to :code:`schedule_name` in the calibration options.
+            qubits: The qubits for which to fetch the schedules. If None is given this will
+                default to the physical qubits of the experiment.
+            assign_params: A dict to specify parameters in the schedule that are
+                to be mapped to an unassigned parameter.
+
+        Returns:
+            A schedule for the corresponding arguments if there exists an instance
+            :code:`self.calibration_options.calibrations`.
+        """
+        cals = self.calibration_options.calibrations
+
+        if sched_name is None:
+            sched_name = self.calibration_options.schedule_name
+
+        if qubits is None:
+            qubits = self.physical_qubits
+
+        if cals is not None:
+            return cals.get_schedule(sched_name, qubits=qubits, assign_params=assign_params)
+
+        return None
+
+    def get_schedule_from_defaults(self, **kwargs) -> Optional[ScheduleBlock]:
         """Get the schedules based on default experiment options.
 
         Subclasses can override this method to define and get default schedules based on
@@ -141,7 +172,6 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
         """
 
-    @abstractmethod
     def validate_schedules(self, schedules: Schedules):
         """Subclass can implement this method to validate the schedule they use.
 
@@ -188,7 +218,14 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
                 f"{n_expected_parameters} parameters. Found {len(schedule.parameters)}."
             )
 
-    def get_schedules(self, backend) -> Schedules:
+    def get_schedule(
+        self,
+        qubits: Optional[Tuple[int, ...]] = None,
+        sched_name: Optional[str] = None,
+        option_name: str = "schedule",
+        assign_params: Optional[Dict[str, Parameter]] = None,
+        **kwargs,
+    ) -> ScheduleBlock:
         """Get the schedules for the circuits.
 
         This method defines the order in which the schedules are consumed. This order is
@@ -206,6 +243,19 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         If any one step does not return a schedule then we attempt to get schedules from the next
         step. If none of these three steps have returned any schedules then an error is raised.
 
+        Args:
+            qubits: The qubits for which to get the schedule in the calibrations. If None is given
+                this will default to the physical qubits of the experiment.
+            sched_name: The name of the schedule to retrieve from the instance of
+                :class:`Calibrations` stored under the calibration options. If this is None then
+                :meth:`get_schedule_from_calibrations` will default to the :code:`schedule_name`
+                in the calibration options.
+            option_name: The name of the option under which to get the schedule from the experiment
+                options. This will default to "schedule" if None is given.
+            assign_params: A dict that :meth:`get_schedule_from_calibrations` can use to leave
+                certain parameters in the schedule unassigned. The key is the name of the parameter
+                and the value should be an instance of :class:`ParameterExpression`.
+
         Returns:
             schedules: The schedules (possibly with one or more free parameters) as either a
                 ScheduleBlock or a list of ScheduleBlocks depending on the experiment.
@@ -213,13 +263,13 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         Raises:
             CalibrationError: if none of the methods above returned schedules.
         """
-        schedules = self.get_schedules_from_options()
+        schedules = self.get_schedule_from_options(option_name)
 
         if schedules is None:
-            schedules = self.get_schedules_from_calibrations(backend)
+            schedules = self.get_schedule_from_calibrations(qubits, sched_name, assign_params)
 
         if schedules is None:
-            schedules = self.get_schedules_from_defaults(backend)
+            schedules = self.get_schedule_from_defaults(**kwargs)
 
         if schedules is None:
             raise CalibrationError(f"Cannot get schedules for {self.__class__.__name__}.")
@@ -244,8 +294,9 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             auto_update (bool): A boolean which defaults to True. If this variable is set to
                 True then running the calibration experiment will block for the results and
                 update the calibrations if the calibrations is not None.
+            schedule_name (str): The name of the schedule to retrieve from the calibrations.
         """
-        return Options(calibrations=None, auto_update=True)
+        return Options(calibrations=None, auto_update=True, schedule_name=None)
 
     @property
     def calibration_options(self) -> Options:

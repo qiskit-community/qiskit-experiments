@@ -235,7 +235,7 @@ class FineAmplitude(BaseCalibrationExperiment):
         """
 
         # Get the schedule and check assumptions.
-        schedule = self.get_schedules(backend)
+        schedule = self.get_schedule()
 
         # Prepare the circuits.
         gate = Gate(name=schedule.name, num_qubits=1, params=[])
