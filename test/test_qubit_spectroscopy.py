@@ -20,7 +20,7 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeArmonk
 
-from qiskit_experiments.library import QubitSpectroscopy, EFSpectroscopy
+from qiskit_experiments.library import QubitSpectroscopy, EFSpectroscopy, RoughFrequency
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 from qiskit_experiments.calibration_management import BackendCalibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
@@ -167,6 +167,6 @@ class TestQubitSpectroscopy(QiskitTestCase):
 
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
-        QubitSpectroscopy(0, frequencies, cals=cals).run(backend)
+        RoughFrequency(0, frequencies, cals=cals).run(backend)
         post_freq = cals.get_parameter_value(cals.__qubit_freq_parameter__, (0,))
         self.assertTrue(abs(post_freq - freq01 - 5e6) < 1e6)

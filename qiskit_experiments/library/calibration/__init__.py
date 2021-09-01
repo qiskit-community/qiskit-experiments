@@ -39,6 +39,7 @@ module.
     :toctree: ../stubs/
     :template: autosummary/experiment.rst
 
+    RoughFrequency
     DragCal
     Rabi
     FineAmplitude
@@ -61,6 +62,7 @@ Calibrations management
 See :mod:`qiskit_experiments.calibration_management`.
 """
 
+from .rough_frequency import RoughFrequency
 from .drag import DragCal
 from .rabi import Rabi, EFRabi
 from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude

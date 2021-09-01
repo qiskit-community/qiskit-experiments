@@ -138,11 +138,8 @@ class TestDragCircuits(QiskitTestCase):
     def test_raise_inconsistent_parameter(self):
         """Check that the experiment raises with unassigned parameters."""
 
-        beta1 = Parameter("β")
-        beta2 = Parameter("β")
-
         with pulse.build(name="xp") as xp:
-            pulse.play(Drag(duration=160, amp=0.2, sigma=40, beta=beta1), DriveChannel(0))
+            pulse.play(Drag(duration=160, amp=0.2, sigma=40, beta=Parameter("β")), DriveChannel(0))
 
         backend = DragBackend(leakage=0.05)
 

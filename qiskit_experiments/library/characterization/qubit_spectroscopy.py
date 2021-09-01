@@ -23,18 +23,13 @@ from qiskit.providers import Backend
 from qiskit.qobj.utils import MeasLevel
 from qiskit.utils import apply_prefix
 
-from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework import Options
 from qiskit_experiments.curve_analysis import ParameterRepr
-from qiskit_experiments.calibration_management.update_library import Frequency
-from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
 from qiskit_experiments.library.characterization.resonance_analysis import ResonanceAnalysis
-from qiskit_experiments.calibration_management.base_calibration_experiment import (
-    BaseCalibrationExperiment,
-)
+from qiskit_experiments.framework.base_experiment import BaseExperiment
 
 
-class QubitSpectroscopy(BaseCalibrationExperiment):
+class QubitSpectroscopy(BaseExperiment):
     """Class that runs spectroscopy by sweeping the qubit frequency.
 
     The circuits produced by spectroscopy, i.e.
@@ -54,7 +49,6 @@ class QubitSpectroscopy(BaseCalibrationExperiment):
 
     __analysis_class__ = ResonanceAnalysis
     __spec_gate_name__ = "Spec"
-    __updater__ = Frequency
 
     @classmethod
     def _default_run_options(cls) -> Options:
@@ -101,7 +95,6 @@ class QubitSpectroscopy(BaseCalibrationExperiment):
         self,
         qubit: int,
         frequencies: Union[List[float], np.array],
-        cals: Optional[BackendCalibrations] = None,
         unit: Optional[str] = "Hz",
         absolute: bool = True,
     ):
@@ -117,8 +110,6 @@ class QubitSpectroscopy(BaseCalibrationExperiment):
         Args:
             qubit: The qubit on which to run spectroscopy.
             frequencies: The frequencies to scan in the experiment.
-            cals: If calibrations is given then running the experiment may update the values
-                of the frequencies stored in calibrations.
             unit: The unit in which the user specifies the frequencies. Can be one of 'Hz', 'kHz',
                 'MHz', 'GHz'. Internally, all frequencies will be converted to 'Hz'.
             absolute: Boolean to specify if the frequencies are absolute or relative to the
@@ -129,7 +120,6 @@ class QubitSpectroscopy(BaseCalibrationExperiment):
 
         """
         super().__init__([qubit])
-        self.calibration_options.calibrations = cals
 
         if len(frequencies) < 3:
             raise QiskitError("Spectroscopy requires at least three frequencies.")
@@ -233,11 +223,3 @@ class QubitSpectroscopy(BaseCalibrationExperiment):
             circs.append(assigned_circ)
 
         return circs
-
-    def update_calibrations(self, experiment_data: ExperimentData):
-        """Update the calibrations given the experiment data.
-
-        Args:
-            experiment_data: The experiment data to use for the update.
-        """
-        self.__updater__.update(self.calibration_options.calibrations, experiment_data)

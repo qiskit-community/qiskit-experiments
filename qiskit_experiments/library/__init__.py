@@ -76,6 +76,7 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     :toctree: ../stubs/
     :template: autosummary/experiment.rst
 
+    ~calibration.RoughFrequency
     ~calibration.DragCal
     ~calibration.Rabi
     ~calibration.EFRabi
@@ -84,7 +85,15 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     ~calibration.FineSXAmplitude
 
 """
-from .calibration import DragCal, Rabi, EFRabi, FineAmplitude, FineXAmplitude, FineSXAmplitude
+from .calibration import (
+    DragCal,
+    Rabi,
+    EFRabi,
+    FineAmplitude,
+    FineXAmplitude,
+    FineSXAmplitude,
+    RoughFrequency
+)
 from .characterization import T1, T2Ramsey, QubitSpectroscopy, EFSpectroscopy
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography

@@ -19,9 +19,8 @@ from qiskit.pulse import DriveChannel, Drag
 import qiskit.pulse as pulse
 from qiskit.test.mock import FakeArmonk
 
-from qiskit_experiments.library import FineAmplitude, FineXAmplitude, FineSXAmplitude
+from qiskit_experiments.library import FineXAmplitude, FineSXAmplitude
 from qiskit_experiments.test.mock_iq_backend import MockFineAmp
-from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management import BackendCalibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 

@@ -25,7 +25,7 @@ from qiskit.test.mock import FakeAthens
 from qiskit_experiments.library import Rabi, DragCal, QubitSpectroscopy, FineXAmplitude
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.calibration_management.update_library import Frequency, Amplitude, Drag
+from qiskit_experiments.calibration_management.update_library import Frequency, Amplitude
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
 from qiskit_experiments.test.mock_iq_backend import DragBackend, MockFineAmp
 
