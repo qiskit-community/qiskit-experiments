@@ -286,17 +286,3 @@ class DragCal(BaseCalibrationExperiment):
                 circuits.append(qc_)
 
         return circuits
-
-    def update_calibrations(self, experiment_data: ExperimentData):
-        """Update the calibrations given the experiment data.
-
-        Args:
-            experiment_data: The experiment data to use for the update.
-        """
-        calibrations = self.calibration_options.calibrations
-        name = self.calibration_options.schedule_name
-        parameter_name = self.calibration_options.cal_parameter_name
-
-        self.__updater__.update(
-            calibrations, experiment_data, parameter=parameter_name, schedule=name
-        )

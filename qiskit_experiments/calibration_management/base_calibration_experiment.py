@@ -74,27 +74,21 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
         self._calibration_options = self._default_calibration_options()
 
-    @abstractmethod
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update parameter values in the :class:`Calibrations` instance.
 
-        Subclasses must implement this method to update the instance of
-        :class:`Calibrations`. This can be done using the updater class variable.
-        The following is an example for a Drag calibration.
-
-        .. code-bock:: python
-
-            calibrations = self.calibration_options.calibrations
-            name = self.calibration_options.schedule_name
-            parameter_name = self.calibration_options.cal_parameter_name
-
-            self.__updater__.update(
-                calibrations, experiment_data, parameter=parameter_name, schedule=name
-            )
-
-        Here, the updater class variable is the :class:`Drag` updater,
-        i.e. :code:`__updater__ = Drag`.
+        The default behaviour is to call the update method of the class variable
+        :code:`__updater__` with simplistic options. Subclasses can override this
+        method to update the instance of :class:`Calibrations` if they require a
+        more sophisticated behaviour as is the case for the :class:`Rabi` and
+        :class:`FineAmplitude` calibration experiments.
         """
+        self.__updater__.update(
+            self.calibration_options.calibrations,
+            experiment_data,
+            parameter=self.calibration_options.cal_parameter_name,
+            schedule=self.calibration_options.schedule_name
+        )
 
     def get_schedule_from_options(self, option_name: str) -> ScheduleBlock:
         """Get a schedule from the experiment options.
@@ -295,8 +289,14 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
                 True then running the calibration experiment will block for the results and
                 update the calibrations if the calibrations is not None.
             schedule_name (str): The name of the schedule to retrieve from the calibrations.
+            cal_parameter_name (str): The name of the parameter to update in the calibrations.
         """
-        return Options(calibrations=None, auto_update=True, schedule_name=None)
+        return Options(
+            calibrations=None,
+            auto_update=True,
+            schedule_name=None,
+            cal_parameter_name=None
+        )
 
     @property
     def calibration_options(self) -> Options:
