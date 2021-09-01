@@ -71,13 +71,16 @@ class ProcessTomography(TomographyExperiment):
 
         Analysis Options:
             measurement_basis (:class:`~basis.BaseFitterMeasurementBasis`): A custom measurement
-                basis for analysis. By default the :meth:`experiment_options` measurement basis will be used.
+                basis for analysis. By default the :meth:`experiment_options` measurement basis
+                will be used.
             preparation_basis (:class:`~basis.BaseFitterPreparationBasis`): A custom preparation
-                basis for analysis. By default the :meth:`experiment_options` preparation basis will be used.
+                basis for analysis. By default the :meth:`experiment_options` preparation basis
+                will be used.
             fitter (str or Callable): The fitter function to use for reconstruction.
-            rescale_psd (bool): If True rescale the fitted state to be positive-semidefinite (Default: True).
-            rescale_trace (bool): If True rescale the state returned by the fitter have either trace 1
+                rescale_psd (bool): If True rescale the fitted state to be positive-semidefinite
                 (Default: True).
+            rescale_trace (bool): If True rescale the state returned by the fitter have either
+                trace 1 (Default: True).
             kwargs: Additional kwargs will be supplied to the fitter function.
         """
         options = super()._default_analysis_options()

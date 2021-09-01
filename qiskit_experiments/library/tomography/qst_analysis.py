@@ -20,7 +20,8 @@ from .tomography_analysis import TomographyAnalysis
 class StateTomographyAnalysis(TomographyAnalysis):
     """State tomography experiment analysis.
 
-    # section: Fitter Functions
+    # section overview:
+    Fitter Functions
         Built-in fitter functions may be selected using the following string
         labels, refer to the corresponding functions documentation for additional
         details on the fitters.
@@ -45,7 +46,7 @@ class StateTomographyAnalysis(TomographyAnalysis):
             The API for tomography fitters is still under development so may change
             in future releases.
 
-    # section: PSD Rescaling
+    PSD Rescaling
         For fitters that do not constrain the reconstructed state to be
         `positive-semidefinite` (PSD) we construct the maximum-likelihood
         nearest PSD state under the assumption of Gaussian measurement noise
@@ -61,8 +62,10 @@ class StateTomographyAnalysis(TomographyAnalysis):
     def _default_options(cls) -> Options:
         """Default analysis options
         Analysis Options:
-            measurement_basis (:class:`~qiskit_experiments.library.tomography.basis.BaseFitterMeasurementBasis`):
-                The measurement :class:`~qiskit_experiments.library.tomography.basis.BaseFitterMeasurementBasis`
+            measurement_basis
+                (:class:`~qiskit_experiments.library.tomography.basis.BaseFitterMeasurementBasis`):
+                The measurement
+                :class:`~qiskit_experiments.library.tomography.basis.BaseFitterMeasurementBasis`
                 to use for tomographic reconstruction when running a
                 :class:`~qiskit_experiments.library.tomography.StateTomography` or
                 :class:`~qiskit_experiments.library.tomography.ProcessTomography`.
@@ -77,7 +80,8 @@ class StateTomographyAnalysis(TomographyAnalysis):
                 have either trace 1 for :class:`~qiskit.quantum_info.DensityMatrix`,
                 or trace dim for :class:`~qiskit.quantum_info.Choi`.
                 matrices (Default: True).
-            target (str or :class:`~qiskit.quantum_info.DensityMatrix` or :class:`~qiskit.quantum_info.StateVector`):
+            target (str or :class:`~qiskit.quantum_info.DensityMatrix` or
+                :class:`~qiskit.quantum_info.StateVector`):
                 Set a custom target state for computing the
                 :func:`~qiskit.quantum_info.state_fidelity` of the fitted
                 state against. If ``"default"``  the ideal state prepared by the input circuit

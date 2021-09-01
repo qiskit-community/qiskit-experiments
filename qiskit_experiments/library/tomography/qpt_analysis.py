@@ -20,7 +20,8 @@ from .tomography_analysis import TomographyAnalysis
 class ProcessTomographyAnalysis(TomographyAnalysis):
     """Quantum state and process tomography experiment analysis.
 
-    # section: Fitter Functions
+    # section overview:
+    Fitter Functions:
         Built-in fitter functions may be selected using the following string
         labels, refer to the corresponding functions documentation for additional
         details on the fitters.
@@ -45,7 +46,7 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
             The API for tomography fitters is still under development so may change
             in future releases.
 
-    # section: PSD Rescaling
+    PSD Rescaling
         For fitters that do not constrain the reconstructed state to be
         `positive-semidefinite` (PSD) we construct the maximum-likelihood
         nearest PSD state under the assumption of Gaussian measurement noise
@@ -62,31 +63,37 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
         """Default analysis options
 
         Analysis Options:
-            measurement_basis (:class:`~qiskit_experiments.library.tomography.basis.BaseFitterMeasurementBasis`):
-                The measurement :class:`~qiskit_experiments.library.tomography.basis.BaseFitterMeasurementBasis`
+            measurement_basis
+                (:class:`~qiskit_experiments.library.tomography.basis.BaseFitterMeasurementBasis`):
+                The measurement
+                :class:`~qiskit_experiments.library.tomography.basis.BaseFitterMeasurementBasis`
                 to use for tomographic reconstruction when running a
                 :class:`~qiskit_experiments.library.tomography.StateTomography` or
                 :class:`~qiskit_experiments.library.tomography.ProcessTomography`.
-            preparation_basis (:class:`~qiskit_experiments.library.tomography.basis.BaseFitterPreparationBasis`):
-                The preparation :class:`~qiskit_experiments.library.tomography.basis.BaseFitterPreparationBasis`
+            preparation_basis
+                (:class:`~qiskit_experiments.library.tomography.basis.BaseFitterPreparationBasis`):
+                The preparation
+                :class:`~qiskit_experiments.library.tomography.basis.BaseFitterPreparationBasis`
                 to use for tomographic reconstruction for
                 :class:`~qiskit_experiments.library.tomography.ProcessTomography`.
             fitter (str or Callable): The fitter function to use for reconstruction.
                 This can  be a string to select one of the built-in fitters, or a callable to
-                supply a custom fitter function. See the `Fitter Functions` section for additional information.
+                supply a custom fitter function. See the `Fitter Functions` section for
+                additional information.
             rescale_positive (bool): If True rescale the state returned by the fitter
                 to be positive-semidefinite. See the `PSD Rescaling` section for additional information
                 (Default: True).
             rescale_trace (bool): If True rescale the state returned by the fitter have either trace 1
-                for :class:`~qiskit.quantum_info.DensityMatrix`, or trace dim for :class:`~qiskit.quantum_info.Choi`
-                matrices (Default: True).
+                for :class:`~qiskit.quantum_info.DensityMatrix`, or trace dim for
+                :class:`~qiskit.quantum_info.Choi` matrices (Default: True).
             target (str or :class:`~qiskit.quantum_info..operators.channel.quantum_channel`
                 or :class:`~qiskit.quantum_info.Operator`): Set a custom target quantum
                 channel for computing the :func:~qiskit.quantum_info.process_fidelity` of the
                 fitted process against. If ``"default"`` the ideal process corresponding for
-                the input circuit will be used. If ``None`` no fidelity will be computed (Default: "default").
-            kwargs: will be supplied to the fitter function, for documentation of available args refer to
-                the fitter function documentation.
+                the input circuit will be used. If ``None`` no fidelity will be computed
+                (Default: "default").
+            kwargs: will be supplied to the fitter function, for documentation of available args
+                refer to the fitter function documentation.
         """
         options = super()._default_options()
 
