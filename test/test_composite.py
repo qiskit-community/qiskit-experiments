@@ -12,12 +12,23 @@
 
 """Class to test composite experiments."""
 
+from typing import Optional, List
+
 from test.fake_backend import FakeBackend
 from test.fake_experiment import FakeExperiment
 
+from qiskit import QuantumCircuit
 from qiskit.test import QiskitTestCase
+from qiskit.test.mock import FakeMelbourne
+from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import ParallelExperiment, Options
+from qiskit_experiments.framework import (
+    ParallelExperiment,
+    Options,
+    CompositeExperimentData,
+    BaseExperiment,
+    BatchExperiment,
+)
 
 
 class TestComposite(QiskitTestCase):
@@ -29,7 +40,6 @@ class TestComposite(QiskitTestCase):
         """
         Test parallel experiments overriding sub-experiment run and transpile options.
         """
-
         # These options will all be overridden
         exp0 = FakeExperiment(0)
         exp0.set_transpile_options(optimization_level=1)
@@ -52,3 +62,51 @@ class TestComposite(QiskitTestCase):
             self.assertEqual(par_exp.analysis_options, Options())
 
             par_exp.run(FakeBackend())
+
+
+class DummyExperiment(BaseExperiment):
+    """
+    An experiment that does nothing, to fill in the experiment tree
+    """
+
+    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+        return []
+
+
+class TestCompositeExperimentData(QiskitTestCase):
+    """
+    Test operations on objects of CompositeExperimentData
+    """
+
+    def setUp(self):
+        super().setUp()
+
+        self.backend = FakeMelbourne()
+        self.job_ids = [1, 2, 3, 4, 5]
+
+        exp1 = DummyExperiment([0, 2])
+        exp2 = DummyExperiment([1, 3])
+        par_exp = ParallelExperiment([exp1, exp2])
+        exp3 = DummyExperiment(4)
+        batch_exp = BatchExperiment([par_exp, exp3])
+
+        self.rootdata = CompositeExperimentData(
+            batch_exp, backend=self.backend, job_ids=self.job_ids
+        )
+
+    def check_attributes(self, expdata):
+        """
+        Recursively traverse the tree to verify attributes
+        """
+        self.assertEqual(expdata.backend, self.backend)
+        self.assertEqual(expdata.job_ids, self.job_ids)
+
+        if isinstance(expdata, CompositeExperimentData):
+            for childdata in expdata.component_experiment_data():
+                self.check_attributes(childdata)
+
+    def test_composite_experiment_data_attributes(self):
+        """
+        Verify correct attributes of parents and children
+        """
+        self.check_attributes(self.rootdata)
