@@ -27,38 +27,34 @@ from .t2ramsey_analysis import T2RamseyAnalysis
 
 
 class T2Ramsey(BaseExperiment):
+    r"""T2 Ramsey Experiment.
 
-    r"""
-    T2Ramsey Experiment
+    # section: overview
 
-    Overview
         This experiment is used to estimate two properties for a single qubit:
         T2* and Ramsey frequency.
+
+        See `Qiskit Textbook <https://qiskit.org/textbook/ch-quantum-hardware/\
+        calibrating-qubits-pulse.html>`_  for a more detailed explanation on
+        these properties.
+
         This experiment consists of a series of circuits of the form
 
-    .. parsed-literal::
+        .. parsed-literal::
 
-           ┌───┐┌──────────────┐┌──────┐ ░ ┌───┐ ░ ┌─┐
-      q_0: ┤ H ├┤   DELAY(t)   ├┤ RZ(λ)├─░─┤ H ├─░─┤M├
-           └───┘└──────────────┘└──────┘ ░ └───┘ ░ └╥┘
-      c: 1/═════════════════════════════════════════╩═
-                                                    0
+                 ┌───┐┌──────────────┐┌──────┐ ░ ┌───┐ ░ ┌─┐
+            q_0: ┤ H ├┤   DELAY(t)   ├┤ P(λ) ├─░─┤ H ├─░─┤M├
+                 └───┘└──────────────┘└──────┘ ░ └───┘ ░ └╥┘
+            c: 1/═════════════════════════════════════════╩═
+                                                        0
 
-    for each *t* from the specified delay times, and where
-    :math:`\lambda =2 \pi \times {osc\_freq}`,
-    and the delays are specified by the user.
-    The circuits are run on the device or on a simulator backend.
-    Results are analysed in the class T2RamseyAnalysis.
+        for each *t* from the specified delay times, where
+        :math:`\lambda =2 \pi \times {osc\_freq}`,
+        and the delays are specified by the user.
+        The circuits are run on the device or on a simulator backend.
 
-    Analysis Class
-        :class:`~qiskit.experiments.characterization.T2RamseyAnalysis`
-
-    Analysis Options
-
-        - **user_p0** (``List[Float]``): user guesses for the fit parameters
-          ``A``, ``B``, ``f``, ``phi``, ``T2star``.
-        - **bounds** - (Tuple[List[float], List[float]]) lower and upper bounds for the fit parameters.
-        - **plot** (bool) - create a graph if and only if True.
+    # section: tutorial
+        :doc:`/tutorials/t2ramsey_characterization`
 
     """
     __analysis_class__ = T2RamseyAnalysis
@@ -92,9 +88,12 @@ class T2Ramsey(BaseExperiment):
             qubit: the qubit under test.
             delays: delay times of the experiments.
             unit: Optional, time unit of `delays`.
-            Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'. The unit is \
-            used for both T2Ramsey and for the frequency.
-            osc_freq: optional, oscillation frequency offset in Hz.
+                Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'. The unit is
+                used for both T2Ramsey and for the frequency.
+            osc_freq: the oscillation frequency induced by the user. \
+            The frequency is given in Hz.
+            experiment_type: String indicating the experiment type.
+
         """
 
         super().__init__([qubit])
