@@ -213,16 +213,19 @@ class DragCal(BaseCalibrationExperiment):
 
         return rp
 
-    def _set_anti_schedule(self, schedule) -> ScheduleBlock:
+    @classmethod
+    def anti_schedule(cls, schedule) -> ScheduleBlock:
         """A DRAG specific method that sets the rm schedule based on rp.
 
         The rm schedule, i.e. the anti-schedule, is the rp schedule sandwiched
-        between two virtual phase gates with angle pi.
+        between two virtual phase gates with angle pi. This is a class method
+        so that it can be reused in other drag experiments by calling
+        :code:`DragCal.anti_schedule(schedule)`.
         """
-        with pulse.build(name="xm") as minus_sched:
-            pulse.shift_phase(np.pi, pulse.DriveChannel(self._physical_qubits[0]))
+        with pulse.build(name="Rm") as minus_sched:
+            pulse.shift_phase(np.pi, schedule.channels[0])
             pulse.call(schedule)
-            pulse.shift_phase(-np.pi, pulse.DriveChannel(self._physical_qubits[0]))
+            pulse.shift_phase(-np.pi, schedule.channels[0])
 
         return minus_sched
 
@@ -275,7 +278,7 @@ class DragCal(BaseCalibrationExperiment):
             circuit.measure_active()
 
             circuit.add_calibration("Rp", qubits, rp, params=[beta])
-            circuit.add_calibration("Rm", qubits, self._set_anti_schedule(rp), params=[beta])
+            circuit.add_calibration("Rm", qubits, self.anti_schedule(rp), params=[beta])
 
             for beta_val in self.experiment_options.betas:
                 beta_val = np.round(beta_val, decimals=6)
