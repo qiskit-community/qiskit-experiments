@@ -12,7 +12,7 @@
 
 """Fine DRAG calibration experiment."""
 
-from typing import Optional
+from typing import Optional, List
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -126,7 +126,7 @@ class FineDrag(BaseExperiment):
 
         return minus_sched
 
-    def circuits(self, backend: Optional[Backend] = None):
+    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Create the circuits for the fine DRAG calibration experiment.
 
         Args:

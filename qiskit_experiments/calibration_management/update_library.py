@@ -185,7 +185,7 @@ class Drag(BaseUpdater):
 class FineDrag(BaseUpdater):
     """Updater for the fine drag calibration."""
 
-    # pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ,unused-argument
     @classmethod
     def update(
         cls,
@@ -209,6 +209,10 @@ class FineDrag(BaseUpdater):
             result_index: The result index to use. By default search entry by name.
             group: The calibrations group to update. Defaults to "default."
             target_angle: The target rotation angle of the pulse.
+            options: Trailing options.
+
+        Raises:
+            CalibrationError: If we cannot get the pulse's standard deviation from the schedule.
         """
         qubits = exp_data.metadata["physical_qubits"]
 
