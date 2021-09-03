@@ -182,6 +182,63 @@ class Drag(BaseUpdater):
     __fit_parameter__ = "beta"
 
 
+class FineDrag(BaseUpdater):
+    """Updater for the fine drag calibration."""
+
+    # pylint: disable=arguments-differ
+    @classmethod
+    def update(
+        cls,
+        calibrations: Calibrations,
+        exp_data: ExperimentData,
+        parameter: str,
+        schedule: Union[ScheduleBlock, str],
+        result_index: Optional[int] = None,
+        group: str = "default",
+        target_angle: float = np.pi,
+        **options,
+    ):
+        """Update the value of a drag parameter measured by the FineDrag experiment.
+
+        Args:
+            calibrations: The calibrations to update.
+            exp_data: The experiment data from which to update.
+            parameter: The name of the parameter in the calibrations to update.
+            schedule: The ScheduleBlock instance or the name of the instance to which the parameter
+                is attached.
+            result_index: The result index to use. By default search entry by name.
+            group: The calibrations group to update. Defaults to "default."
+            target_angle: The target rotation angle of the pulse.
+        """
+        qubits = exp_data.metadata["physical_qubits"]
+
+        if isinstance(schedule, str):
+            schedule = calibrations.get_schedule(schedule, qubits)
+
+        # Obtain sigma as it is needed for the update rule.
+        for block in schedule.blocks:
+            if isinstance(block, ScheduleBlock):
+                sigma = block.pulse.sigma
+                break
+        else:
+            raise CalibrationError(f"Could not infer sigma from {schedule}.")
+
+        if result_index is None:
+            result = [
+                r for r in exp_data.analysis_results() if r.name.startswith(PARAMS_ENTRY_PREFIX)
+            ][0]
+        else:
+            result = exp_data.analysis_results(index=result_index)
+
+        d_theta = result.value.value[result.extra["popt_keys"].index("d_theta")]
+        d_delta = -0.25 * np.sqrt(np.pi) * d_theta * sigma / ((target_angle ** 2) / 4)
+
+        old_beta = calibrations.get_parameter_value(parameter, qubits, schedule, group=group)
+        new_beta = old_beta + d_delta
+
+        cls._add_parameter_value(calibrations, exp_data, new_beta, parameter, schedule, group)
+
+
 class Amplitude(BaseUpdater):
     """Update pulse amplitudes."""
 
