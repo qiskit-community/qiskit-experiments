@@ -27,10 +27,22 @@ from qiskit_experiments.library.calibration.analysis.fine_amplitude_analysis imp
 class HalfAngle(BaseExperiment):
     """A calibration experiment class to perform half angle calibration.
 
-    This runs: Y90p [X90p X90p Yp] ^ iter X90p for iter in range(14)
-    i.e. sy [sx sx y] ^ n sx
+    This experiment runs circuits that repeat blocks of :code:`Rx(π/2) - Rx(π/2) - Ry(π)`
+    circuits.
 
     .. parsed-literal::
+
+                ┌─────────┐┌─────────┐┌─────────┐┌───────┐   ┌─────────┐┌─────────┐»
+           q_0: ┤ Ry(π/2) ├┤ Rx(π/2) ├┤ Rx(π/2) ├┤ Ry(π) ├...┤ Rx(π/2) ├┤ Rx(π/2) ├»
+                └─────────┘└─────────┘└─────────┘└───────┘   └─────────┘└─────────┘»
+        meas: 1/══════════════════════════════════════════...══════════════════════»
+                                                                                   »
+        «        ┌───────┐┌─────────┐ ░ ┌─┐
+        «   q_0: ┤ Ry(π) ├┤ Rx(π/2) ├─░─┤M├
+        «        └───────┘└─────────┘ ░ └╥┘
+        «meas: 1/════════════════════════╩═
+        «                                0
+
 
     """
 
