@@ -10,7 +10,7 @@ import arviz as az
 def get_GSP_counts(data, x_length, data_range):
 #obtain the observed counts used in the bayesian model
 #corrected for accomodation pooled data from 1Q, 2Q and 3Q interleave processes
-    list_bitstring = ['0','00', '000', '100'] # all valid bistrings[]
+    list_bitstring = ['0','00', '000', '100'] # all valid bistrings
     Y_list = []    
     for i_samples in data_range:
         row_list = []
@@ -31,8 +31,7 @@ def get_GSP_counts(data, x_length, data_range):
 
 def prepare_data_GSP_plot(my_model, my_trace, HDI = True):
     with my_model:
-        hdi_prob = .94
-        #  (hdi_prob=.94 is default, roughly corresponding to 2σ)
+        hdi_prob = .94        
         theta_summary = az.summary(my_trace, round_to=12, hdi_prob = hdi_prob,
                                 var_names = ["θ"], kind="stats")
     y1 = theta_summary.values[:,0]
@@ -193,7 +192,7 @@ def create_model(T_priors, X, Y, shots, scale,
                             
 
         theta = pm.Beta('θ', mu=GSP, sigma = sigma_t,
-                         shape = Y.shape[1])#(len(X), )) )                                 
+                         shape = Y.shape[1])                                
 
         # Likelihood (sampling distribution) of observations    
         p = pm.Binomial("Counts", p = theta, observed = Y, n = shots)
