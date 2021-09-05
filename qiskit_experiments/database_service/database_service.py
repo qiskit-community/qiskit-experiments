@@ -78,7 +78,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
             Experiment ID.
 
         Raises:
-            ExperimentEntryExists: If the experiment already exits.
+            ExperimentEntryExists: If the experiment already exists.
         """
         pass
 

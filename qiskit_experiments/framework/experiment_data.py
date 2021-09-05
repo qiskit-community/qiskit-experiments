@@ -44,7 +44,6 @@ class ExperimentData(DbExperimentDataV1):
             job_ids=job_ids,
             metadata=experiment._metadata() if experiment else {},
         )
-        self.tags = [self.experiment_id]
 
     @property
     def experiment(self):

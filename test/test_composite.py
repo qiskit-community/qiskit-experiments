@@ -110,3 +110,9 @@ class TestCompositeExperimentData(QiskitTestCase):
         Verify correct attributes of parents and children
         """
         self.check_attributes(self.rootdata)
+
+    def test_composite_save_load(self):
+        """
+        Verify that saving and loading restores the original composite experiment data object
+        """
+        pass

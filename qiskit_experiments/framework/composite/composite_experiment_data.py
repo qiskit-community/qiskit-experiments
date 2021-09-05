@@ -61,8 +61,6 @@ class CompositeExperimentData(ExperimentData):
 
         self.metadata["component_ids"] = [comp.experiment_id for comp in self._components]
         self.metadata["component_classes"] = [comp.__class__ for comp in self._components]
-        for comp in self._components:
-            comp.tags.extend(self.tags)
 
     def __str__(self):
         line = 51 * "-"
