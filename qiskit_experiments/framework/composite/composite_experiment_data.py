@@ -24,7 +24,7 @@ class CompositeExperimentData(ExperimentData):
     """Composite experiment data class"""
 
     def __init__(
-        self, experiment, backend=None, job_ids=None, parent_id=None, root_id=None, components=None
+            self, experiment, backend=None, experiment_id=None, job_ids=None, parent_id=None, root_id=None, components=None
     ):
         """Initialize experiment data.
 
@@ -32,6 +32,7 @@ class CompositeExperimentData(ExperimentData):
             experiment (CompositeExperiment): experiment object that generated the data.
             backend (Backend): Optional, Backend the experiment runs on. It can either be a
                 :class:`~qiskit.providers.Backend` instance or just backend name.
+            experiment_id (str): Experiment ID. One will be generated if not supplied.
             job_ids (list[str]): Optional, IDs of jobs submitted for the experiment.
             parent_id (str): Optional, ID of the parent experiment data in a composite experiment
             root_id (str): Optional, ID of the root experiment data in a composite experiment
@@ -50,7 +51,7 @@ class CompositeExperimentData(ExperimentData):
             )
 
         super().__init__(
-            experiment, backend=backend, job_ids=job_ids, parent_id=parent_id, root_id=root_id
+            experiment, backend=backend, experiment_id=experiment_id, job_ids=job_ids, parent_id=parent_id, root_id=root_id
         )
 
         # In a composite setting, an experiment is tagged with its direct parent and with the root.
@@ -150,6 +151,7 @@ class CompositeExperimentData(ExperimentData):
         expdata2 = CompositeExperimentData(
             experiment=None,
             backend=expdata1.backend,
+            experiment_id=expdata1.experiment_id,
             job_ids=expdata1.job_ids,
             components=components,
         )

@@ -24,12 +24,13 @@ LOG = logging.getLogger(__name__)
 class ExperimentData(DbExperimentDataV1):
     """Qiskit Experiments Data container class"""
 
-    def __init__(self, experiment=None, backend=None, job_ids=None, parent_id=None, root_id=None):
+    def __init__(self, experiment=None, backend=None, experiment_id=None, job_ids=None, parent_id=None, root_id=None):
         """Initialize experiment data.
 
         Args:
             experiment (BaseExperiment): Optional, experiment object that generated the data.
             backend (Backend): Optional, Backend the experiment runs on.
+            experiment_id (str): Experiment ID. One will be generated if not supplied.
             job_ids (list[str]): Optional, IDs of jobs submitted for the experiment.
             parent_id (str): Optional, ID of the parent experiment data in the setting of a composite experiment
             root_id (str): Optional, ID of the root experiment data in the setting of a composite experiment
@@ -38,6 +39,7 @@ class ExperimentData(DbExperimentDataV1):
         super().__init__(
             experiment_type=experiment.experiment_type if experiment else None,
             backend=backend,
+            experiment_id=experiment_id,
             job_ids=job_ids,
             metadata=experiment._metadata() if experiment else {},
         )
