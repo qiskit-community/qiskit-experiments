@@ -29,6 +29,8 @@ class ExperimentData(DbExperimentDataV1):
         experiment=None,
         backend=None,
         job_ids=None,
+        parent_id=None,
+        root_id=None    
     ):
         """Initialize experiment data.
 
@@ -36,6 +38,8 @@ class ExperimentData(DbExperimentDataV1):
             experiment (BaseExperiment): Optional, experiment object that generated the data.
             backend (Backend): Optional, Backend the experiment runs on.
             job_ids (list[str]): Optional, IDs of jobs submitted for the experiment.
+            parent_id (str): Optional, ID of the parent experiment data in the setting of a composite experiment
+            root_id (str): Optional, ID of the root experiment data in the setting of a composite experiment
         """
         self._experiment = experiment
         super().__init__(
@@ -44,6 +48,12 @@ class ExperimentData(DbExperimentDataV1):
             job_ids=job_ids,
             metadata=experiment._metadata() if experiment else {},
         )
+
+        # In a composite setting, an experiment is tagged with its direct parent and with the root
+        if root_id is not None:
+            self.tags = [parent_id]
+            if parent_id != root_id:
+                self.tags.append(root_id)
 
     @property
     def experiment(self):

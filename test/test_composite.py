@@ -101,9 +101,16 @@ class TestCompositeExperimentData(QiskitTestCase):
         self.assertEqual(expdata.backend, self.backend)
         self.assertEqual(expdata.job_ids, self.job_ids)
 
+        # Experiments have to be tagged with their direct parents and the root
+        self.assertTrue(len(expdata.tags) == 1 or len(expdata.tags) == 2)
+        if len(expdata.tags) == 2:
+            self.assertNotEqual(expdata.tags[0], expdata.tags[1])
+        self.assertTrue(self.rootdata.experiment_id in expdata.tags)
+
         if isinstance(expdata, CompositeExperimentData):
             for childdata in expdata.component_experiment_data():
                 self.check_attributes(childdata)
+                self.assertTrue(expdata.experiment_id in childdata.tags)
 
     def test_composite_experiment_data_attributes(self):
         """

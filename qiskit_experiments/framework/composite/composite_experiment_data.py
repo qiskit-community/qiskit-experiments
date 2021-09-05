@@ -23,7 +23,7 @@ from qiskit_experiments.database_service import DbExperimentDataV1, DatabaseServ
 class CompositeExperimentData(ExperimentData):
     """Composite experiment data class"""
 
-    def __init__(self, experiment, backend=None, job_ids=None, components=None):
+    def __init__(self, experiment, backend=None, job_ids=None, parent_id=None, root_id=None, components=None):
         """Initialize experiment data.
 
         Args:
@@ -31,7 +31,9 @@ class CompositeExperimentData(ExperimentData):
             backend (Backend): Optional, Backend the experiment runs on. It can either be a
                 :class:`~qiskit.providers.Backend` instance or just backend name.
             job_ids (list[str]): Optional, IDs of jobs submitted for the experiment.
-            components (list[DbExperimentDataV1]): Optional, a list of already prepared experiment
+            parent_id (str): Optional, ID of the parent experiment data in a composite experiment
+            root_id (str): Optional, ID of the root experiment data in a composite experiment
+            components (list[ExperimentData]): Optional, a list of already prepared experiment
                 data objects of the components. Applicable only if ``experiment`` is ``None``,
                 otherwise the components are created from the experiment's components.
 
@@ -49,14 +51,23 @@ class CompositeExperimentData(ExperimentData):
             experiment,
             backend=backend,
             job_ids=job_ids,
+            parent_id=parent_id,
+            root_id=root_id
         )
+
+        # In a composite setting, an experiment is tagged with its direct parent and with the root.
+        # This is done in the ExperimentData constructir, except for the root experiment,
+        # for whom this is done here
+        root_id = root_id if root_id is not None else self.experiment_id
+        if root_id not in self.tags:
+            self.tags.append(root_id)
 
         # Initialize sub experiments
         if components:
             self._components = components
         else:
             self._components = [
-                expr.__experiment_data__(expr, backend, job_ids) for expr in experiment._experiments
+                expr.__experiment_data__(expr, backend, job_ids, self.experiment_id, root_id) for expr in experiment._experiments
             ]
 
         self.metadata["component_ids"] = [comp.experiment_id for comp in self._components]
