@@ -66,7 +66,7 @@ class CompositeExperimentData(ExperimentData):
             self._components = components
         else:
             self._components = [
-                expr.__experiment_data__(expr, backend, job_ids, self.experiment_id, root_id)
+                expr.__experiment_data__(expr, backend=backend, job_ids=job_ids, root_id=root_id)
                 for expr in experiment._experiments
             ]
 
@@ -155,6 +155,11 @@ class CompositeExperimentData(ExperimentData):
             job_ids=expdata1.job_ids,
             components=components,
         )
+        expdata2.metadata = expdata1.metadata
+        expdata2.tags = expdata1.tags
+        expdata2.share_level = expdata1.share_level
+        expdata2.figure_names = expdata1.figure_names
+        expdata2.notes = expdata1.notes
 
         return expdata2
 
