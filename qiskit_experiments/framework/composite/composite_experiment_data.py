@@ -144,7 +144,8 @@ class CompositeExperimentData(ExperimentData):
         ):
             load_class = globals()[comp_class]
             load_func = getattr(load_class, "load")
-            components.append(load_func(experiment_id, service))
+            loaded_comp = load_func(comp_id, service)
+            components.append(loaded_comp)
 
         expdata2 = CompositeExperimentData(
             experiment=None,

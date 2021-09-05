@@ -303,7 +303,7 @@ class TestCompositeExperimentData(QiskitTestCase):
         """
         Recursively traverse the tree and checkequality of expdata1 and expdata2
         """
-        self.assertEqual(expdata1.backend, expdata2.backend)
+        self.assertEqual(expdata1.backend.name(), expdata2.backend.name())
         self.assertEqual(expdata1.job_ids, expdata2.job_ids)
         self.assertEqual(expdata1.tags, expdata2.tags)
         self.assertEqual(expdata1.experiment_type, expdata2.experiment_type)
@@ -332,4 +332,4 @@ class TestCompositeExperimentData(QiskitTestCase):
             self.rootdata.experiment_id, self.rootdata.service
         )
 
-        check_if_equal(loaded_data, self.rootdata)
+        self.check_if_equal(loaded_data, self.rootdata)
