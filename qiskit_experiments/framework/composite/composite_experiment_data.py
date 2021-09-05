@@ -138,30 +138,20 @@ class CompositeExperimentData(ExperimentData):
 
     @classmethod
     def load(cls, experiment_id: str, service: DatabaseServiceV1) -> "CompositeExperimentData":
-        expdata1 = DbExperimentDataV1.load(experiment_id, service)
+        expdata = DbExperimentDataV1.load(experiment_id, service)
         components = []
         for comp_id, comp_class in zip(
-            expdata1.metadata["component_ids"], expdata1.metadata["component_classes"]
+            expdata.metadata["component_ids"], expdata.metadata["component_classes"]
         ):
             load_class = globals()[comp_class]
             load_func = getattr(load_class, "load")
             loaded_comp = load_func(comp_id, service)
             components.append(loaded_comp)
 
-        expdata2 = CompositeExperimentData(
-            experiment=None,
-            backend=expdata1.backend,
-            experiment_id=expdata1.experiment_id,
-            job_ids=expdata1.job_ids,
-            components=components,
-        )
-        expdata2.metadata = expdata1.metadata
-        expdata2.tags = expdata1.tags
-        expdata2.share_level = expdata1.share_level
-        expdata2.figure_names = expdata1.figure_names
-        expdata2.notes = expdata1.notes
+        expdata.__class__ = CompositeExperimentData
+        expdata._components = components
 
-        return expdata2
+        return expdata
 
     def _set_service(self, service: DatabaseServiceV1) -> None:
         """Set the service to be used for storing experiment data.
