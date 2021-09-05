@@ -1098,6 +1098,17 @@ class DbExperimentDataV1(DbExperimentData):
         Raises:
             DbExperimentDataError: If an experiment service is already being used.
         """
+        self._set_service(service)
+
+    def _set_service(self, service: DatabaseServiceV1) -> None:
+        """Set the service to be used for storing experiment data.
+
+        Args:
+            service: Service to be used.
+
+        Raises:
+            DbExperimentDataError: If an experiment service is already being used.
+        """
         if self._service:
             raise DbExperimentDataError("An experiment service is already being used.")
         self._service = service

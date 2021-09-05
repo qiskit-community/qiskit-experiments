@@ -23,7 +23,9 @@ from qiskit_experiments.database_service import DbExperimentDataV1, DatabaseServ
 class CompositeExperimentData(ExperimentData):
     """Composite experiment data class"""
 
-    def __init__(self, experiment, backend=None, job_ids=None, parent_id=None, root_id=None, components=None):
+    def __init__(
+        self, experiment, backend=None, job_ids=None, parent_id=None, root_id=None, components=None
+    ):
         """Initialize experiment data.
 
         Args:
@@ -48,11 +50,7 @@ class CompositeExperimentData(ExperimentData):
             )
 
         super().__init__(
-            experiment,
-            backend=backend,
-            job_ids=job_ids,
-            parent_id=parent_id,
-            root_id=root_id
+            experiment, backend=backend, job_ids=job_ids, parent_id=parent_id, root_id=root_id
         )
 
         # In a composite setting, an experiment is tagged with its direct parent and with the root.
@@ -67,11 +65,12 @@ class CompositeExperimentData(ExperimentData):
             self._components = components
         else:
             self._components = [
-                expr.__experiment_data__(expr, backend, job_ids, self.experiment_id, root_id) for expr in experiment._experiments
+                expr.__experiment_data__(expr, backend, job_ids, self.experiment_id, root_id)
+                for expr in experiment._experiments
             ]
 
         self.metadata["component_ids"] = [comp.experiment_id for comp in self._components]
-        self.metadata["component_classes"] = [comp.__class__ for comp in self._components]
+        self.metadata["component_classes"] = [comp.__class__.__name__ for comp in self._components]
 
     def __str__(self):
         line = 51 * "-"
@@ -143,9 +142,9 @@ class CompositeExperimentData(ExperimentData):
         for comp_id, comp_class in zip(
             expdata1.metadata["component_ids"], expdata1.metadata["component_classes"]
         ):
-            cmd = comp_class + ".load(" + comp_id + ", " + service + ")"
-            # pylint: disable=eval-used
-            components.append(eval(cmd))
+            load_class = globals()[comp_class]
+            load_func = getattr(load_class, "load")
+            components.append(load_func(experiment_id, service))
 
         expdata2 = CompositeExperimentData(
             experiment=None,
@@ -155,3 +154,16 @@ class CompositeExperimentData(ExperimentData):
         )
 
         return expdata2
+
+    def _set_service(self, service: DatabaseServiceV1) -> None:
+        """Set the service to be used for storing experiment data.
+
+        Args:
+            service: Service to be used.
+
+        Raises:
+            DbExperimentDataError: If an experiment service is already being used.
+        """
+        DbExperimentDataV1._set_service(self, service)
+        for comp in self._components:
+            comp._set_service(service)

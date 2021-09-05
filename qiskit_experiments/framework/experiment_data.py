@@ -24,14 +24,7 @@ LOG = logging.getLogger(__name__)
 class ExperimentData(DbExperimentDataV1):
     """Qiskit Experiments Data container class"""
 
-    def __init__(
-        self,
-        experiment=None,
-        backend=None,
-        job_ids=None,
-        parent_id=None,
-        root_id=None    
-    ):
+    def __init__(self, experiment=None, backend=None, job_ids=None, parent_id=None, root_id=None):
         """Initialize experiment data.
 
         Args:
