@@ -120,18 +120,18 @@ class QuantumVolume(BaseExperiment):
 
         return options
 
-    def _get_ideal_data(self, circuit: QuantumCircuit, **run_options):
+    def _get_ideal_data(self, circuit: QuantumCircuit, **run_options) -> List[float]:
         """Return ideal measurement probabilities.
 
         In case the user does not have Aer installed use Terra to calculate
         the ideal state.
 
         Args:
-            circuit (:class:`QuantumCircuit`): the circuit to extract the ideal data from
+            circuit: the circuit to extract the ideal data from
             run_options: backend run options.
 
         Returns:
-            dict: the probability for each state in the circuit
+            list: list of the probabilities for each state in the circuit (as Numpy array)
         """
         ideal_circuit = circuit.remove_final_measurements(inplace=False)
         if self._simulation_backend:
