@@ -116,7 +116,6 @@ class TestParallelExperiment(QiskitTestCase):
             """Add transpiler hook to insert calibration."""
 
             def _post_transpile_hook(self, circuits, backend):
-                """Add pulse gate."""
                 for circ in circuits:
                     circ.add_calibration(
                         "x", self.physical_qubits, Schedule(name="test_calibration")
@@ -138,7 +137,7 @@ class TestParallelExperiment(QiskitTestCase):
         ref_circ.measure(1, 1)
 
         # only q1 has pulse gate
-        ref_circ.add_calibration("x", (1, ), Schedule(name="test_calibration"))
+        ref_circ.add_calibration("x", (1,), Schedule(name="test_calibration"))
 
         self.assertEqual(test_circ, ref_circ)
 
@@ -149,7 +148,6 @@ class TestParallelExperiment(QiskitTestCase):
             """Add transpiler hook to update metadata."""
 
             def _post_transpile_hook(self, circuits, backend):
-                """Add pulse gate."""
                 for circ in circuits:
                     circ.metadata["new_data"] = "test_value"
 
@@ -261,13 +259,13 @@ class TestParallelExperiment(QiskitTestCase):
         """Test update class variable with analysis result."""
 
         class FakeExperimentAnalysisHook(FakeExperimentCommon):
+            """Extract probability and update instance variable."""
 
             def __init__(self, qubits):
                 super().__init__(qubits)
                 self.probability = None
 
             def _post_analysis_hook(self, experiment_data):
-                """Extract probability and update instance variable."""
                 prob_val = experiment_data.analysis_results("probability").value
                 self.probability = prob_val
 

@@ -68,9 +68,7 @@ class CompositeExperiment(BaseExperiment):
 
         # This is not identical to the `num_qubits` when the backend is AerSimulator.
         # In this case, usually a circuit qubit number is determined by the maximum qubit index.
-        n_qubits = max(
-            max(sub_circ.num_qubits for sub_circ in sub_circs) for sub_circs in circuits
-        )
+        n_qubits = max(max(sub_circ.num_qubits for sub_circ in sub_circs) for sub_circs in circuits)
 
         # merge circuits
         return self._flatten_circuits(circuits, n_qubits)
