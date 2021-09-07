@@ -20,6 +20,7 @@ from qiskit.exceptions import QiskitError
 from qiskit.circuit import Parameter
 from qiskit.providers.basicaer import QasmSimulatorPy
 from qiskit.test import QiskitTestCase
+from qiskit.test.mock.utils import ConfigurableFakeBackend
 from qiskit.qobj.utils import MeasLevel
 import qiskit.pulse as pulse
 
@@ -272,7 +273,7 @@ class TestCompositeExperiment(QiskitTestCase):
             experiments.append(rabi)
 
         par_exp = ParallelExperiment(experiments)
-        par_circ = par_exp.circuits()[0]
+        par_circ = par_exp.run_transpile(backend=ConfigurableFakeBackend("test", 3))[0]
 
         # If the calibrations are not there we will not be able to transpile
         try:

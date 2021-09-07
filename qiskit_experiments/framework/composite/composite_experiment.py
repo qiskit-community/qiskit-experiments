@@ -63,12 +63,17 @@ class CompositeExperiment(BaseExperiment):
 
             No transpile configuration assumed for composite experiment object itself.
         """
-        # transpile each sub experiment circuit
-        sub_circs = list(map(lambda expr: expr.run_transpile(backend), self._experiments))
-        n_qubits = max(sub_circ.num_qubits for sub_circ in sub_circs)
+        # Transpile each sub experiment circuit
+        circuits = list(map(lambda expr: expr.run_transpile(backend), self._experiments))
+
+        # This is not identical to the `num_qubits` when the backend is AerSimulator.
+        # In this case, usually a circuit qubit number is determined by the maximum qubit index.
+        n_qubits = max(
+            max(sub_circ.num_qubits for sub_circ in sub_circs) for sub_circs in circuits
+        )
 
         # merge circuits
-        return self._flatten_circuits(sub_circs, n_qubits)
+        return self._flatten_circuits(circuits, n_qubits)
 
     def run_analysis(
         self, experiment_data: ExperimentData, job: BaseJob = None, **options

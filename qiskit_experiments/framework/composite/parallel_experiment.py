@@ -142,12 +142,12 @@ class ParallelExperiment(CompositeExperiment):
                     # Skip merging process.
                     continue
                 # Add sub circuits to joint circuit
-                clbits = list(ClassicalRegister(sub_circ.num_clbits))
+                clbits = ClassicalRegister(sub_circ.num_clbits)
                 joint_circ.add_register(clbits)
                 joint_circ.compose(
                     sub_circ,
-                    qubits=range(num_qubits),
-                    clbits=clbits,
+                    qubits=range(sub_circ.num_qubits),
+                    clbits=list(clbits),
                     inplace=True,
                 )
                 joint_metadata["composite_index"].append(expr_idx)

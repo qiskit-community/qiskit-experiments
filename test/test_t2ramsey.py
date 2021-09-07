@@ -43,7 +43,7 @@ class T2RamseyBackend(BackendV1):
         configuration = QasmBackendConfiguration(
             backend_name="T2Ramsey_simulator",
             backend_version="0",
-            n_qubits=int(1e6),
+            n_qubits=100,
             basis_gates=["barrier", "h", "p", "delay", "measure"],
             gates=[],
             local=True,

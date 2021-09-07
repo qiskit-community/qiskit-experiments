@@ -85,7 +85,7 @@ class BatchExperiment(CompositeExperiment):
                 sub_circ.metadata = {
                     "experiment_type": self._type,
                     "composite_index": [expr_idx],
-                    "composite_metadata": sub_circ.metadata,
+                    "composite_metadata": [sub_circ.metadata],
                 }
                 batch_circuits.append(sub_circ)
 
