@@ -75,7 +75,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         ),
         curve.SeriesDef(
             fit_func=lambda x, amp, tau, freq, base, phase: cos_decay(
-                x, amp=amp, tau=tau, freq=freq, phase=phase-np.pi/2, baseline=base
+                x, amp=amp, tau=tau, freq=freq, phase=phase - np.pi / 2, baseline=base
             ),
             plot_color="green",
             name="Y",
@@ -103,10 +103,9 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
     def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Compute the initial guesses."""
         user_p0 = self._get_option("p0")
-        user_bounds = self._get_option("bounds")
 
         # Default guess values
-        freq_guesses, amp_guesses, offset_guesses = [], [], []
+        freq_guesses, offset_guesses = [], []
 
         for series in ["X", "Y"]:
             data = self._data(series)
@@ -124,15 +123,16 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
 
         for freq in [-freq_guess, freq_guess]:
             fit_options.append(
-            {
-                "p0": {
-                    "amp": user_p0.get("amp", None) or 0.5,
-                    "tau": guess_decay,
-                    "freq": freq,
-                    "base": user_p0.get("base", None) or np.average(offset_guesses),
-                    "phase": user_p0.get("phase", None) or 0.0,
-                },
-            })
+                {
+                    "p0": {
+                        "amp": user_p0.get("amp", None) or 0.5,
+                        "tau": guess_decay,
+                        "freq": freq,
+                        "base": user_p0.get("base", None) or np.average(offset_guesses),
+                        "phase": user_p0.get("phase", None) or 0.0,
+                    },
+                }
+            )
 
         return fit_options
 

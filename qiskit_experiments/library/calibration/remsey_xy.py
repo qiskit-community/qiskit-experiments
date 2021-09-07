@@ -26,7 +26,7 @@ from qiskit_experiments.library.calibration.analysis.remsey_xy_analysis import R
 
 
 class RamseyXY(BaseExperiment):
-    """Ramsey XY experiment to measure the frequency of a qubit.
+    r"""Ramsey XY experiment to measure the frequency of a qubit.
 
     This experiment differs from the :class:`~qiskit_experiments.characterization.\
     t2ramsey.T2Ramsey` since it is sensitive to the sign of frequency offset from the main transition.
@@ -178,7 +178,7 @@ class RamseyXY(BaseExperiment):
             with pulse.frequency_offset(d_freq, pulse.DriveChannel(self.physical_qubits[0])):
                 pulse.call(schedule)
                 pulse.delay(p_delay, pulse.drive_channel(self.physical_qubits[0]))
-                pulse.shift_phase(-np.pi/2, pulse.drive_channel(self.physical_qubits[0]))
+                pulse.shift_phase(-np.pi / 2, pulse.drive_channel(self.physical_qubits[0]))
                 pulse.call(schedule)
 
         # Create the X and Y circuits.
@@ -213,7 +213,7 @@ class RamseyXY(BaseExperiment):
 
             metadata = {
                 "experiment_type": self._type,
-                "qubits": (self.physical_qubits[0], ),
+                "qubits": (self.physical_qubits[0],),
                 "delay": delay,
                 "unit": unit,
                 "xval": xval,

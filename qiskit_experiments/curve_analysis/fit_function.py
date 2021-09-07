@@ -87,4 +87,4 @@ def cos_decay(
     .. math::
         y = {\rm amp} e^{-x/\tau} \cos\left(2 \pi {\rm freq} x + {\rm phase}\right) + {\rm baseline}
     """
-    return exponential_decay(x, lamb=1/tau) * cos(x, amp=amp, freq=freq, phase=phase) + baseline
+    return exponential_decay(x, lamb=1 / tau) * cos(x, amp=amp, freq=freq, phase=phase) + baseline

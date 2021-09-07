@@ -201,4 +201,4 @@ class MockRamseyXY(MockIQBackend):
         else:
             phase_offset = np.pi / 2
 
-        return 0.5*np.cos(2*np.pi*delay*self.freq_shift - phase_offset) + 0.5
+        return 0.5 * np.cos(2 * np.pi * delay * self.freq_shift - phase_offset) + 0.5
