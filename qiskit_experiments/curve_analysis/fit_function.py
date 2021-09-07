@@ -73,3 +73,18 @@ def gaussian(
         y = {\rm amp} \exp \left( - (x - x0)^2 / 2 \sigma^2 \right) + {\rm baseline}
     """
     return amp * np.exp(-((x - x0) ** 2) / (2 * sigma ** 2)) + baseline
+
+
+def cos_decay(
+    x: np.ndarray,
+    amp: float = 1.0,
+    tau: float = 1.0,
+    freq: float = 1 / (2 * np.pi),
+    phase: float = 0.0,
+    baseline: float = 0.0,
+) -> np.ndarray:
+    r"""Cosine function with exponential decay.
+    .. math::
+        y = {\rm amp} e^{-x/\tau} \cos\left(2 \pi {\rm freq} x + {\rm phase}\right) + {\rm baseline}
+    """
+    return exponential_decay(x, lamb=1/tau) * cos(x, amp=amp, freq=freq, phase=phase) + baseline
