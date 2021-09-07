@@ -69,9 +69,9 @@ class BatchExperiment(CompositeExperiment):
         super().__init__(experiments, qubits)
 
     def _flatten_circuits(
-            self,
-            circuits: List[List[QuantumCircuit]],
-            num_qubits: int,
+        self,
+        circuits: List[List[QuantumCircuit]],
+        num_qubits: int,
     ) -> List[QuantumCircuit]:
         """Flatten circuits.
 

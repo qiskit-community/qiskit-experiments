@@ -152,8 +152,9 @@ class BaseExperiment(ABC):
         """
         pass
 
+    # pylint: disable = unused-argument
     def _post_transpile_hook(
-            self, circuits: List[QuantumCircuit], backend: Backend
+        self, circuits: List[QuantumCircuit], backend: Backend
     ) -> List[QuantumCircuit]:
         """An extra subroutine executed after transpilation.
 
@@ -166,11 +167,12 @@ class BaseExperiment(ABC):
         """
         return circuits
 
-    def run_transpile(self, backend: Backend, **options):
+    def run_transpile(self, backend: Backend, **options) -> List[QuantumCircuit]:
         """Run transpile and returns transpiled circuits.
 
         Args:
             backend: Target backend.
+            options: User provided runtime options.
 
         Returns:
             Transpiled circuit to execute.
@@ -208,7 +210,7 @@ class BaseExperiment(ABC):
         pass
 
     def run_analysis(
-            self, experiment_data: ExperimentData, job: BaseJob = None, **options
+        self, experiment_data: ExperimentData, job: BaseJob = None, **options
     ) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
@@ -224,7 +226,7 @@ class BaseExperiment(ABC):
         Raises:
             QiskitError: Method is called with an empty experiment result.
         """
-        run_analysis = self.analysis().run if self.__analysis_class__ else None
+        run_analysis = self.analysis() if self.__analysis_class__ else None
 
         # Get analysis options
         analysis_options = copy.copy(self.analysis_options)
@@ -238,11 +240,13 @@ class BaseExperiment(ABC):
                     "Experiment data seems to be empty and no running job is provided. "
                     "At least one data entry is required to run analysis."
                 )
-            experiment_data = run_analysis(experiment_data, **analysis_options)
+            experiment_data = run_analysis.run(experiment_data, **analysis_options)
         else:
             # Run analysis when job is completed
             experiment_data.add_data(
-                job, post_processing_callback=run_analysis, **analysis_options
+                data=job,
+                post_processing_callback=run_analysis.run,
+                **analysis_options,
             )
 
         # Run post analysis. This is implemented by each experiment subclass.

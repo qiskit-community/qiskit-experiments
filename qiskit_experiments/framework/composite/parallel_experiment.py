@@ -120,9 +120,9 @@ class ParallelExperiment(CompositeExperiment):
         super().__init__(experiments, qubits)
 
     def _flatten_circuits(
-            self,
-            circuits: List[List[QuantumCircuit]],
-            num_qubits: int,
+        self,
+        circuits: List[List[QuantumCircuit]],
+        num_qubits: int,
     ) -> List[QuantumCircuit]:
         """Flatten circuits.
 
@@ -138,7 +138,7 @@ class ParallelExperiment(CompositeExperiment):
             for expr_idx, sub_circ in enumerate(sub_circs):
                 if not sub_circ:
                     # This experiment provides small number of circuits than others.
-                    # No circuit available for merging with others.
+                    # No circuit available for combining with others.
                     # Skip merging process.
                     continue
                 # Add sub circuits to joint circuit

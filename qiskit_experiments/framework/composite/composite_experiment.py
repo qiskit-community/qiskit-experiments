@@ -14,7 +14,7 @@ Composite Experiment abstract base class.
 """
 
 from abc import abstractmethod
-from typing import List
+from typing import List, Optional
 import warnings
 
 from qiskit import QuantumCircuit
@@ -44,11 +44,12 @@ class CompositeExperiment(BaseExperiment):
         self._num_experiments = len(experiments)
         super().__init__(qubits, experiment_type=experiment_type)
 
-    def run_transpile(self, backend: Backend, **options):
+    def run_transpile(self, backend: Backend, **options) -> List[QuantumCircuit]:
         """Run transpile and returns transpiled circuits.
 
         Args:
             backend: Target backend.
+            options: User provided runtime options.
 
         Returns:
             Transpiled circuit to execute.
@@ -70,7 +71,7 @@ class CompositeExperiment(BaseExperiment):
         return self._flatten_circuits(sub_circs, n_qubits)
 
     def run_analysis(
-            self, experiment_data: ExperimentData, job: BaseJob = None, **options
+        self, experiment_data: ExperimentData, job: BaseJob = None, **options
     ) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
@@ -82,6 +83,9 @@ class CompositeExperiment(BaseExperiment):
 
         Returns:
             An experiment data object containing the analysis results and figures.
+
+        Raises:
+            QiskitError: When the experiment data format is not for the composite experiment.
 
         Note:
             This is analysis method for the composite experiment subclass.
@@ -107,14 +111,14 @@ class CompositeExperiment(BaseExperiment):
 
     @abstractmethod
     def _flatten_circuits(
-            self,
-            circuits: List[List[QuantumCircuit]],
-            num_qubits: int,
+        self,
+        circuits: List[List[QuantumCircuit]],
+        num_qubits: int,
     ) -> List[QuantumCircuit]:
         """An abstract method to control merger logic of sub experiments."""
         pass
 
-    def circuits(self, backend=None):
+    def circuits(self, backend: Optional[Backend] = None):
         """Composite experiment does not provide this method.
 
         Args:

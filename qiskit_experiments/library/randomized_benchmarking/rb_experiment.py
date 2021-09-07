@@ -221,7 +221,7 @@ class StandardRB(BaseExperiment):
         return None
 
     def _post_transpile_hook(
-            self, circuits: List[QuantumCircuit], backend: Backend
+        self, circuits: List[QuantumCircuit], backend: Backend
     ) -> List[QuantumCircuit]:
         """Count gate operations in each circuit and update metadata."""
         for circuit in circuits:
