@@ -165,13 +165,14 @@ def create_model(T_priors, X, Y, shots, scale,
         # sigma of Beta functions
         if s_prior == "Unif":
             sigma_t = pm.Uniform("σ_Beta",  testval = testval_s,
-                                upper = upper_s, lower = lower_s)
+                                upper = upper_s, lower = lower_s, shape = Y.shape[1]) 
+            
         elif s_prior == "Gamma":
             BoundedGamma = pm.Bound(pm.Gamma,
                                    lower= lower_s,
                                    upper= upper_s)
             sigma_t = BoundedGamma("σ_Beta", alpha = alpha_Gamma, beta = beta_Gamma,
-                                    testval = testval_s)            
+                                    testval = testval_s, shape = Y.shape[1])           
         else: 
             raise Exception("Prior for sigma Beta only Uniform or Gamma at this time")
          
@@ -231,8 +232,8 @@ def reduced_chisquare(ydata, sigma, my_trace):
     theta_stacked = mean_h.θ.values
     r = ydata - theta_stacked
     chisq = np.sum((r / sigma) ** 2)
-    NDF = len(ydata) - my_trace.posterior.dims['Tying_Parameters_dim_0'] - 1 
-    # (-1 is for σ_Beta)
+    NDF = len(ydata) - my_trace.posterior.dims['Tying_Parameters_dim_0']
+    
     return chisq/NDF
 
 def get_box_interleaved(my_summary, reduced_chisq):
