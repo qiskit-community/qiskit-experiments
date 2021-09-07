@@ -22,7 +22,6 @@ from qiskit import transpile, assemble, QuantumCircuit
 from qiskit.providers import BaseJob
 from qiskit.providers.backend import Backend
 from qiskit.providers.basebackend import BaseBackend as LegacyBackend
-from qiskit.test.mock import FakeBackend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit_experiments.framework import Options
@@ -96,10 +95,6 @@ class BaseExperiment(ABC):
 
         Returns:
             The experiment data object.
-
-        Raises:
-            QiskitError: if experiment is run with an incompatible existing
-                         ExperimentData container.
         """
         # Create experiment data container
         experiment_data = self._initialize_experiment_data(backend, experiment_data)
@@ -150,7 +145,7 @@ class BaseExperiment(ABC):
         return experiment_data._copy_metadata()
 
     def _pre_transpile_hook(self, backend: Backend):
-        """An extra transpile subroutine executed before transpilation.
+        """An extra subroutine executed before transpilation.
 
         Args:
             backend: Target backend.
@@ -160,7 +155,7 @@ class BaseExperiment(ABC):
     def _post_transpile_hook(
             self, circuits: List[QuantumCircuit], backend: Backend
     ) -> List[QuantumCircuit]:
-        """An extra transpile subroutine executed after transpilation.
+        """An extra subroutine executed after transpilation.
 
         Args:
             circuits: List of transpiled circuits.
@@ -199,7 +194,7 @@ class BaseExperiment(ABC):
         return circuits
 
     def _post_analysis_hook(self, experiment_data: ExperimentData):
-        """An extra analysis subroutine executed after analysis.
+        """An extra subroutine executed after analysis.
 
         Args:
             experiment_data: A future object of the experiment result.

@@ -13,15 +13,51 @@
 Batch Experiment class.
 """
 
-from collections import OrderedDict
+from typing import List
 
 from qiskit import QuantumCircuit
+
 
 from .composite_experiment import CompositeExperiment
 
 
 class BatchExperiment(CompositeExperiment):
-    """Batch experiment class"""
+    """Batch experiment class.
+
+    This experiment takes multiple experiment instances and generates
+    a list of flattened circuit to execute.
+    The experimental circuits are executed ony be one on the target backend as a single job.
+
+    If an experiment analysis needs results of different types of experiments,
+    ``BatchExperiment`` may be convenient to describe the flow of the entire experiment.
+
+    The experimental result of ``i``-th experiment can be accessed by
+
+    .. code-block:: python3
+
+        batch_exp = BatchExperiment([exp1, exp2, exp3])
+        batch_result = batch_exp.run(backend)
+
+        exp1_res = batch_result.component_experiment_data(0)  # data of exp1
+        exp2_res = batch_result.component_experiment_data(1)  # data of exp2
+        exp3_res = batch_result.component_experiment_data(2)  # data of exp3
+
+    One can also create a custom analysis class that estimates some parameters by
+    combining above analysis results. Here the ``exp*_res`` is a single
+    :py:class:`~qiskit_experiments.framework.experiment_data.ExperimentData` class of
+    a standard experiment, and the associated analysis will be performed once the batch job
+    is completed. Thus analyzed parameter value of each experiment can be obtained as usual.
+
+    .. code-block:: python3
+
+        param_x = exp1_res.analysis_results("target_parameter_x")
+        param_y = exp2_res.analysis_results("target_parameter_y")
+        param_z = exp3_res.analysis_results("target_parameter_z")
+
+        param_xyz = param_x + param_y + param_z  # do some computation
+
+    The final parameter ``param_xyz`` can be returned as an outcome of this batch experiment.
+    """
 
     def __init__(self, experiments):
         """Initialize a batch experiment.
@@ -29,46 +65,28 @@ class BatchExperiment(CompositeExperiment):
         Args:
             experiments (List[BaseExperiment]): a list of experiments.
         """
-
-        # Generate qubit map
-        self._qubit_map = OrderedDict()
-        logical_qubit = 0
-        for expr in experiments:
-            for physical_qubit in expr.physical_qubits:
-                if physical_qubit not in self._qubit_map:
-                    self._qubit_map[physical_qubit] = logical_qubit
-                    logical_qubit += 1
-        qubits = tuple(self._qubit_map.keys())
+        qubits = sorted(set(sum([list(expr.physical_qubits) for expr in experiments], [])))
         super().__init__(experiments, qubits)
 
-    def circuits(self, backend=None):
+    def _flatten_circuits(
+            self,
+            circuits: List[List[QuantumCircuit]],
+            num_qubits: int,
+    ) -> List[QuantumCircuit]:
+        """Flatten circuits.
 
+        Note:
+            This experiment concatenates sub experiment circuits.
+        """
         batch_circuits = []
 
-        # Generate data for combination
-        for index, expr in enumerate(self._experiments):
-            if self.physical_qubits == expr.physical_qubits:
-                qubit_mapping = None
-            else:
-                qubit_mapping = [self._qubit_map[qubit] for qubit in expr.physical_qubits]
-            for circuit in expr.circuits(backend):
-                # Update metadata
-                circuit.metadata = {
+        for expr_idx, sub_circs in enumerate(circuits):
+            for sub_circ in sub_circs:
+                sub_circ.metadata = {
                     "experiment_type": self._type,
-                    "composite_metadata": [circuit.metadata],
-                    "composite_index": [index],
+                    "composite_index": [expr_idx],
+                    "composite_metadata": sub_circ.metadata,
                 }
-                # Remap qubits if required
-                if qubit_mapping:
-                    circuit = self._remap_qubits(circuit, qubit_mapping)
-                batch_circuits.append(circuit)
-        return batch_circuits
+                batch_circuits.append(sub_circ)
 
-    def _remap_qubits(self, circuit, qubit_mapping):
-        """Remap qubits if physical qubit layout is different to batch layout"""
-        num_qubits = self.num_qubits
-        num_clbits = circuit.num_clbits
-        new_circuit = QuantumCircuit(num_qubits, num_clbits, name="batch_" + circuit.name)
-        new_circuit.metadata = circuit.metadata
-        new_circuit.append(circuit, qubit_mapping, list(range(num_clbits)))
-        return new_circuit
+        return batch_circuits
