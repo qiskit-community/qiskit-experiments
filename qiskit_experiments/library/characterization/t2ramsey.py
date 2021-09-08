@@ -92,7 +92,6 @@ class T2Ramsey(BaseExperiment):
                 used for both T2Ramsey and for the frequency.
             osc_freq: the oscillation frequency induced by the user. \
             The frequency is given in Hz.
-            experiment_type: String indicating the experiment type.
 
         """
 
@@ -114,15 +113,14 @@ class T2Ramsey(BaseExperiment):
         Raises:
             AttributeError: if unit is 'dt', but 'dt' parameter is missing in the backend configuration.
         """
-        conversion_factor = 1
         if self.experiment_options.unit == "dt":
             try:
                 dt_factor = getattr(backend._configuration, "dt")
                 conversion_factor = dt_factor
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
-        elif self.experiment_options.unit != "s":
-            apply_prefix(1, self.experiment_options.unit)
+        else:
+            conversion_factor = apply_prefix(1, self.experiment_options.unit)
 
         circuits = []
         for delay in self.experiment_options.delays:

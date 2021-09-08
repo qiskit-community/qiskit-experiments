@@ -16,13 +16,11 @@ from typing import List, Optional
 import numpy as np
 
 from qiskit import QuantumCircuit
-from qiskit.circuit import Parameter, Gate
+from qiskit.circuit import Parameter
 from qiskit.providers import Backend
 from qiskit.utils import apply_prefix
-import qiskit.pulse as pulse
 
 from qiskit_experiments.framework import BaseExperiment
-from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.library.calibration.analysis.remsey_xy_analysis import RamseyXYAnalysis
 
 
@@ -39,19 +37,19 @@ class RamseyXY(BaseExperiment):
 
             (Ramsey X) The second pulse rotates by pi-half around the X axis
 
-                       ┌────┐┌─────────────┐┌────┐ ░ ┌─┐
-                  q_0: ┤ √X ├┤ Delay(τ[s]) ├┤ √X ├─░─┤M├
-                       └────┘└─────────────┘└────┘ ░ └╥┘
-            measure: 1/═══════════════════════════════╩═
-                                                      0
+                       ┌────┐┌─────────────┐┌───────┐┌────┐ ░ ┌─┐
+                  q_0: ┤ √X ├┤ Delay(τ[s]) ├┤ Rz(θ) ├┤ √X ├─░─┤M├
+                       └────┘└─────────────┘└───────┘└────┘ ░ └╥┘
+            measure: 1/════════════════════════════════════════╩═
+                                                               0
 
             (Ramsey Y) The second pulse rotates by pi-half around the Y axis
 
-                       ┌────┐┌─────────────┐┌──────────┐┌────┐ ░ ┌─┐
-                  q_0: ┤ √X ├┤ Delay(τ[s]) ├┤ Rz(-π/2) ├┤ √X ├─░─┤M├
-                       └────┘└─────────────┘└──────────┘└────┘ ░ └╥┘
-            measure: 1/═══════════════════════════════════════════╩═
-                                                                  0
+                       ┌────┐┌─────────────┐┌───────────┐┌────┐ ░ ┌─┐
+                  q_0: ┤ √X ├┤ Delay(τ[s]) ├┤ Rz(θ-π/2) ├┤ √X ├─░─┤M├
+                       └────┘└─────────────┘└───────────┘└────┘ ░ └╥┘
+            measure: 1/════════════════════════════════════════════╩═
+                                                                   0
 
         The first and second circuits measure the expectation value along the X and Y axis,
         respectively. This experiment therefore draws the dynamics of the Bloch vector as a
@@ -77,26 +75,9 @@ class RamseyXY(BaseExperiment):
         data in the standard Ramsey experiment does not depend on the sign of :math:`\Delta\omega`,
         i.e. :math:`\cos(-\Delta\omega\tau) = \cos(\Delta\omega\tau)`.
 
-        Note: The experiment allows users to add a small frequency offset to better resolve
-        any oscillations. This is implemented by embedding the circuits shown above in a
-        single gate (:code:`RamseyX` or :code:`RamseyY`) since :code:`pulse.set_frequency`
-        cannot be encapsulated in pulse gates on IBM backends yet. The circuits that are run
-        are thus
-
-        .. parsed-literal::
-
-                       ┌───────────────┐ ░ ┌─┐
-                  q_0: ┤ RamseyX(τ[s]) ├─░─┤M├
-                       └───────────────┘ ░ └╥┘
-            measure: 1/═════════════════════╩═
-                                            0
-
-                       ┌───────────────┐ ░ ┌─┐
-                  q_0: ┤ RamseyY(τ[s]) ├─░─┤M├
-                       └───────────────┘ ░ └╥┘
-            measure: 1/═════════════════════╩═
-                                            0
-
+        The experiment also allows users to add a small frequency offset to better resolve
+        any oscillations. This is implemented by a virtual Z rotation in the circuits. In the
+        circuit above it appears as the delay-dependent angle θ(τ).
     """
 
     __analysis_class__ = RamseyXYAnalysis
@@ -111,15 +92,14 @@ class RamseyXY(BaseExperiment):
             unit (str): The unit of the delays. Accepted values are dt, i.e. the
                 duration of a single sample on the backend, seconds, and sub-units,
                 e.g. ms, us, ns.
-            frequency_offset (float): A frequency shift in Hz that will be applied to the
-                schedule to increase the frequency of the measured oscillation.
+            osc_freq (float): A frequency shift in Hz that will be applied by means of
+                a virtual Z rotation to increase the frequency of the measured oscillation.
         """
         options = super()._default_experiment_options()
         options.schedule = None
         options.delays = np.linspace(0, 1.0e-6, 51)
         options.unit = "s"
-        options.frequency_offset = 2e6
-        options.sample_multiple = 16
+        options.osc_freq = 2e6
 
         return options
 
@@ -127,8 +107,8 @@ class RamseyXY(BaseExperiment):
         self,
         qubit: int,
         delays: Optional[List] = None,
-        unit: Optional[str] = None,
-        freq_offset: Optional[float] = None,
+        unit: str = "s",
+        osc_freq: float = 2e6,
     ):
         """Create new experiment.
         
@@ -136,18 +116,13 @@ class RamseyXY(BaseExperiment):
             qubit: The qubit on which to run the Ramsey XY experiment.
             delays: The delays to scan.
             unit: The unit of the delays.
-            freq_offset: A frequency offset from the qubit's frequency.
+            osc_freq: the oscillation frequency induced by the user through a virtual
+                Rz rotation. This quantity is given in Hz.
         """
         super().__init__([qubit])
 
-        if delays is not None:
-            self.experiment_options.delays = delays
-
-        if unit is not None:
-            self.experiment_options.unit = unit
-
-        if freq_offset is not None:
-            self.experiment_options.frequency_offset = freq_offset
+        delays = delays or self.experiment_options.delays
+        self.set_experiment_options(delays=delays, unit=unit, osc_freq=osc_freq)
 
     def _pre_circuit(self) -> QuantumCircuit:
         """Return a preparation circuit.
@@ -165,76 +140,69 @@ class RamseyXY(BaseExperiment):
 
         Returns:
             A list of circuits with a variable delay.
+
+        Raises:
+            AttributeError: if unit is 'dt', but 'dt' the parameter is missing
+                from the backend's configuration.
         """
+
+        if self.experiment_options.unit == "dt":
+            try:
+                conversion_factor = getattr(backend.configuration(), "dt")
+            except AttributeError as no_dt:
+                raise AttributeError(
+                    "Dt parameter is missing from the backend's configuration."
+                ) from no_dt
+
+        else:
+            conversion_factor = apply_prefix(1, self.experiment_options.unit)
+
+        # Compute the rz rotation angle to add a modulation.
         p_delay = Parameter("delay")
-        unit = self._experiment_options.unit
-
-        # Get the schedule and add a potential frequency shift.
-        schedule = self.experiment_options.schedule
-
-        if schedule is None:
-            raise CalibrationError(f"The schedule was not specified for self.__class__.__name__.")
-
-        d_freq = self.experiment_options.frequency_offset
-
-        with pulse.build(backend=backend, name="RamseyXY_x") as sched_x:
-            with pulse.frequency_offset(d_freq, pulse.drive_channel(self.physical_qubits[0])):
-                pulse.call(schedule)
-                pulse.delay(p_delay, pulse.drive_channel(self.physical_qubits[0]))
-                pulse.call(schedule)
-
-        with pulse.build(backend=backend, name="RamseyXY_y") as sched_y:
-            with pulse.frequency_offset(d_freq, pulse.DriveChannel(self.physical_qubits[0])):
-                pulse.call(schedule)
-                pulse.delay(p_delay, pulse.drive_channel(self.physical_qubits[0]))
-                pulse.shift_phase(-np.pi / 2, pulse.drive_channel(self.physical_qubits[0]))
-                pulse.call(schedule)
+        
+        rotation_angle = (
+            2 * np.pi * self.experiment_options.osc_freq * conversion_factor * p_delay
+        )
 
         # Create the X and Y circuits.
         ram_x = self._pre_circuit()
-        ram_x.append(Gate("RamseyX", num_qubits=1, params=[p_delay]), (0,))
+        ram_x.sx(0)
+        ram_x.delay(p_delay, 0, self.experiment_options.unit)
+        ram_x.rz(rotation_angle, 0)
+        ram_x.sx(0)
         ram_x.measure_active()
-        ram_x.add_calibration("RamseyX", self.physical_qubits, sched_x, params=[p_delay])
 
         ram_y = self._pre_circuit()
-        ram_y.append(Gate("RamseyY", num_qubits=1, params=[p_delay]), (0,))
+        ram_y.sx(0)
+        ram_y.delay(p_delay, 0, self.experiment_options.unit)
+        ram_y.rz(rotation_angle - np.pi / 2, 0)
+        ram_y.sx(0)
         ram_y.measure_active()
-        ram_y.add_calibration("RamseyY", self.physical_qubits, sched_y, params=[p_delay])
+
+        # Add the schedule if any.
+        schedule = self.experiment_options.schedule
+        if schedule is not None:
+            for circ in [ram_x, ram_y]:
+                circ.add_calibration("sx", self.physical_qubits, schedule)
 
         circs = []
         for delay in self.experiment_options.delays:
 
-            # format delay to SI unit for analysis
-            if unit == "dt":
-                xval = delay * backend.configuration().dt
-                samples = delay
-            else:
-                if unit == "s":
-                    xval = delay
-                else:
-                    xval = apply_prefix(delay, unit)
-
-                samples = int(xval / backend.configuration().dt)
-
-            if self.experiment_options.sample_multiple:
-                mult = self.experiment_options.sample_multiple
-                samples = int(samples / mult) * mult
-
             metadata = {
                 "experiment_type": self._type,
-                "qubits": (self.physical_qubits[0],),
-                "delay": delay,
-                "unit": unit,
-                "xval": xval,
+                "qubits": self.physical_qubits,
+                "osc_freq": self.experiment_options.osc_freq,
+                "unit": "s",
+                "xval": delay * conversion_factor,
             }
 
             # create ramsey x
-            assigned_x = ram_x.assign_parameters({p_delay: samples}, inplace=False)
+            assigned_x = ram_x.assign_parameters({p_delay: delay}, inplace=False)
             assigned_x.metadata = metadata.copy()
             assigned_x.metadata["series"] = "X"
 
             # create ramsey y
-            assigned_y = ram_y.assign_parameters({p_delay: samples}, inplace=False)
+            assigned_y = ram_y.assign_parameters({p_delay: delay}, inplace=False)
             assigned_y.metadata = metadata.copy()
             assigned_y.metadata["series"] = "Y"
 
