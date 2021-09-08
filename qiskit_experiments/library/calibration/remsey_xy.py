@@ -28,70 +28,72 @@ from qiskit_experiments.library.calibration.analysis.remsey_xy_analysis import R
 class RamseyXY(BaseExperiment):
     r"""Ramsey XY experiment to measure the frequency of a qubit.
 
-    This experiment differs from the :class:`~qiskit_experiments.characterization.\
-    t2ramsey.T2Ramsey` since it is sensitive to the sign of frequency offset from the main transition.
-    This experiment consists of following two circuits:
+    # section: overview
 
-    .. parsed-literal::
+        This experiment differs from the :class:`~qiskit_experiments.characterization.\
+        t2ramsey.T2Ramsey` since it is sensitive to the sign of frequency offset from the main
+        transition. This experiment consists of following two circuits:
 
-        (Ramsey X) The second pulse rotates by pi-half around the X axis
+        .. parsed-literal::
 
-                   ┌────┐┌─────────────┐┌────┐ ░ ┌─┐
-              q_0: ┤ √X ├┤ Delay(τ[s]) ├┤ √X ├─░─┤M├
-                   └────┘└─────────────┘└────┘ ░ └╥┘
-        measure: 1/═══════════════════════════════╩═
-                                                  0
+            (Ramsey X) The second pulse rotates by pi-half around the X axis
 
-        (Ramsey Y) The second pulse rotates by pi-half around the Y axis
+                       ┌────┐┌─────────────┐┌────┐ ░ ┌─┐
+                  q_0: ┤ √X ├┤ Delay(τ[s]) ├┤ √X ├─░─┤M├
+                       └────┘└─────────────┘└────┘ ░ └╥┘
+            measure: 1/═══════════════════════════════╩═
+                                                      0
 
-                   ┌────┐┌─────────────┐┌──────────┐┌────┐ ░ ┌─┐
-              q_0: ┤ √X ├┤ Delay(τ[s]) ├┤ Rz(-π/2) ├┤ √X ├─░─┤M├
-                   └────┘└─────────────┘└──────────┘└────┘ ░ └╥┘
-        measure: 1/═══════════════════════════════════════════╩═
-                                                              0
+            (Ramsey Y) The second pulse rotates by pi-half around the Y axis
 
-    The first and second circuits measure the expectation value along the X and Y axis,
-    respectively. This experiment therefore draws the dynamics of the Bloch vector as a
-    Lissajous figure. Since the control electronics tracks the frame of qubit at the
-    reference frequency, which differs from the true qubit frequency by :math:`\Delta\omega`,
-    we can describe the dynamics of two circuits as follows. The Hamiltonian during the
-    ``Delay`` instruction is :math:`H^R = - \frac{1}{2} \Delta\omega` in the rotating frame,
-    and the propagator will be :math:`U(\tau) = \exp(-iH^R\tau)` where :math:`\tau` is the
-    duration of the delay. By scanning this duration, we can get
+                       ┌────┐┌─────────────┐┌──────────┐┌────┐ ░ ┌─┐
+                  q_0: ┤ √X ├┤ Delay(τ[s]) ├┤ Rz(-π/2) ├┤ √X ├─░─┤M├
+                       └────┘└─────────────┘└──────────┘└────┘ ░ └╥┘
+            measure: 1/═══════════════════════════════════════════╩═
+                                                                  0
 
-    .. math::
+        The first and second circuits measure the expectation value along the X and Y axis,
+        respectively. This experiment therefore draws the dynamics of the Bloch vector as a
+        Lissajous figure. Since the control electronics tracks the frame of qubit at the
+        reference frequency, which differs from the true qubit frequency by :math:`\Delta\omega`,
+        we can describe the dynamics of two circuits as follows. The Hamiltonian during the
+        ``Delay`` instruction is :math:`H^R = - \frac{1}{2} \Delta\omega` in the rotating frame,
+        and the propagator will be :math:`U(\tau) = \exp(-iH^R\tau)` where :math:`\tau` is the
+        duration of the delay. By scanning this duration, we can get
 
-        {\cal E}_x(\tau)
-            = {\rm Re} {\rm Tr}\left( Y U \rho U^\dagger \right)
-            &= - \cos(\Delta\omega\tau) = \sin(\Delta\omega\tau - \frac{\pi}{2}), \\
-        {\cal E}_y(\tau)
-            = {\rm Re} {\rm Tr}\left( X U \rho U^\dagger \right)
-            &= \sin(\Delta\omega\tau),
+        .. math::
 
-    where :math:`\rho` is prepared by the first :math:`\sqrt{\rm X}` gate. Note that phase
-    difference of these two outcomes :math:`{\cal E}_x, {\cal E}_y` depends on the sign and
-    the magnitude of the frequency offset :math:`\Delta\omega`. By contrast, the measured
-    data in the standard Ramsey experiment does not depend on the sign of :math:`\Delta\omega`,
-    i.e. :math:`\cos(-\Delta\omega\tau) = \cos(\Delta\omega\tau)`.
+            {\cal E}_x(\tau)
+                = {\rm Re} {\rm Tr}\left( Y U \rho U^\dagger \right)
+                &= - \cos(\Delta\omega\tau) = \sin(\Delta\omega\tau - \frac{\pi}{2}), \\
+            {\cal E}_y(\tau)
+                = {\rm Re} {\rm Tr}\left( X U \rho U^\dagger \right)
+                &= \sin(\Delta\omega\tau),
 
-    Note: The experiment allows users to add a small frequency offset to better resolve
-    any oscillations. This is implemented by embedding the circuits shown above in a
-    single gate (:code:`RamseyX` or :code:`RamseyY`) since :code:`pulse.set_frequency`
-    on IBM backends has unexpected behaviour. The circuits that are run are thus
+        where :math:`\rho` is prepared by the first :math:`\sqrt{\rm X}` gate. Note that phase
+        difference of these two outcomes :math:`{\cal E}_x, {\cal E}_y` depends on the sign and
+        the magnitude of the frequency offset :math:`\Delta\omega`. By contrast, the measured
+        data in the standard Ramsey experiment does not depend on the sign of :math:`\Delta\omega`,
+        i.e. :math:`\cos(-\Delta\omega\tau) = \cos(\Delta\omega\tau)`.
 
-    .. parsed-literal::
+        Note: The experiment allows users to add a small frequency offset to better resolve
+        any oscillations. This is implemented by embedding the circuits shown above in a
+        single gate (:code:`RamseyX` or :code:`RamseyY`) since :code:`pulse.set_frequency`
+        on IBM backends has unexpected behaviour. The circuits that are run are thus
 
-                   ┌───────────────┐ ░ ┌─┐
-              q_0: ┤ RamseyX(τ[s]) ├─░─┤M├
-                   └───────────────┘ ░ └╥┘
-        measure: 1/═════════════════════╩═
-                                        0
+        .. parsed-literal::
 
-                   ┌───────────────┐ ░ ┌─┐
-              q_0: ┤ RamseyY(τ[s]) ├─░─┤M├
-                   └───────────────┘ ░ └╥┘
-        measure: 1/═════════════════════╩═
-                                        0
+                       ┌───────────────┐ ░ ┌─┐
+                  q_0: ┤ RamseyX(τ[s]) ├─░─┤M├
+                       └───────────────┘ ░ └╥┘
+            measure: 1/═════════════════════╩═
+                                            0
+
+                       ┌───────────────┐ ░ ┌─┐
+                  q_0: ┤ RamseyY(τ[s]) ├─░─┤M├
+                       └───────────────┘ ░ └╥┘
+            measure: 1/═════════════════════╩═
+                                            0
 
     """
 
