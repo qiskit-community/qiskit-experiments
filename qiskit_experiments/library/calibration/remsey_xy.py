@@ -126,7 +126,8 @@ class RamseyXY(BaseExperiment):
         unit: Optional[str] = None,
         freq_offset: Optional[float] = None,
     ):
-        """
+        """Create new experiment.
+        
         Args:
             qubit: The qubit on which to run the Ramsey XY experiment.
             delays: The delays to scan.
