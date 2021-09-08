@@ -119,7 +119,7 @@ class T2Ramsey(BaseExperiment):
                 conversion_factor = dt_factor
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
-        else:
+        elif self.experiment_options.unit != "s":
             conversion_factor = apply_prefix(1, self.experiment_options.unit)
 
         circuits = []

@@ -154,7 +154,7 @@ class RamseyXY(BaseExperiment):
                     "Dt parameter is missing from the backend's configuration."
                 ) from no_dt
 
-        else:
+        elif self.experiment_options.unit != "s":
             conversion_factor = apply_prefix(1, self.experiment_options.unit)
 
         # Compute the rz rotation angle to add a modulation.
