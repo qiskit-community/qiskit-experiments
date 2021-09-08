@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Union
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.curve_analysis.fit_function import cos_decay
+from qiskit_experiments.curve_analysis import fit_function
 
 
 class RamseyXYAnalysis(curve.CurveAnalysis):
@@ -63,7 +63,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
 
     __series__ = [
         curve.SeriesDef(
-            fit_func=lambda x, amp, tau, freq, base, phase: cos_decay(
+            fit_func=lambda x, amp, tau, freq, base, phase: fit_function.cos_decay(
                 x, amp=amp, tau=tau, freq=freq, phase=phase, baseline=base
             ),
             plot_color="blue",
@@ -74,7 +74,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
             r"+ {\rm phase}) + {\rm base}",
         ),
         curve.SeriesDef(
-            fit_func=lambda x, amp, tau, freq, base, phase: cos_decay(
+            fit_func=lambda x, amp, tau, freq, base, phase: fit_function.cos_decay(
                 x, amp=amp, tau=tau, freq=freq, phase=phase - np.pi / 2, baseline=base
             ),
             plot_color="green",
