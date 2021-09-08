@@ -22,6 +22,7 @@ from qiskit.utils import apply_prefix
 import qiskit.pulse as pulse
 
 from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.library.calibration.analysis.remsey_xy_analysis import RamseyXYAnalysis
 
 
@@ -169,6 +170,10 @@ class RamseyXY(BaseExperiment):
 
         # Get the schedule and add a potential frequency shift.
         schedule = self.experiment_options.schedule
+
+        if schedule is None:
+            raise CalibrationError(f"The schedule was not specified for self.__class__.__name__.")
+
         d_freq = self.experiment_options.frequency_offset
 
         with pulse.build(backend=backend, name="RamseyXY_x") as sched_x:
