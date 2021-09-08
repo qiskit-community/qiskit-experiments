@@ -113,6 +113,7 @@ class T2Ramsey(BaseExperiment):
         Raises:
             AttributeError: if unit is 'dt', but 'dt' parameter is missing in the backend configuration.
         """
+        conversion_factor = 1
         if self.experiment_options.unit == "dt":
             try:
                 dt_factor = getattr(backend._configuration, "dt")

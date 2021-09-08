@@ -146,6 +146,7 @@ class RamseyXY(BaseExperiment):
                 from the backend's configuration.
         """
 
+        conversion_factor = 1
         if self.experiment_options.unit == "dt":
             try:
                 conversion_factor = getattr(backend.configuration(), "dt")
