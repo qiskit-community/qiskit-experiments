@@ -80,7 +80,8 @@ class RamseyXY(BaseExperiment):
         Note: The experiment allows users to add a small frequency offset to better resolve
         any oscillations. This is implemented by embedding the circuits shown above in a
         single gate (:code:`RamseyX` or :code:`RamseyY`) since :code:`pulse.set_frequency`
-        on IBM backends has unexpected behaviour. The circuits that are run are thus
+        cannot be encapsulated in pulse gates on IBM backends yet. The circuits that are run
+        are thus
 
         .. parsed-literal::
 
