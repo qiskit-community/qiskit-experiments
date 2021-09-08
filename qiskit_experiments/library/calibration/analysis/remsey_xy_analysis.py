@@ -30,8 +30,8 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
 
         .. math::
 
-            y_X = {\rm amp}e^{x/\tau}\cos\left(2\pi\cdot{\rm freq}_i\cdot x-\pi/2\right)+{\rm base}
-            y_Y = {\rm amp}e^{x/\tau}\cos\left(2\pi\cdot{\rm freq}_i\cdot x) + {\rm base}
+            y_X = {\rm amp}e^{x/\tau}\cos\left(2\pi\cdot{\rm freq}_i\cdot x\right) + {\rm base}
+            y_Y = {\rm amp}e^{x/\tau}\sin\left(2\pi\cdot{\rm freq}_i\cdot x\right) + {\rm base}
 
     # section: fit_parameters
         defpar \rm amp:
@@ -74,15 +74,15 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
             r"+ {\rm phase}) + {\rm base}",
         ),
         curve.SeriesDef(
-            fit_func=lambda x, amp, tau, freq, base, phase: fit_function.cos_decay(
-                x, amp=amp, tau=tau, freq=freq, phase=phase - np.pi / 2, baseline=base
+            fit_func=lambda x, amp, tau, freq, base, phase: fit_function.sin_decay(
+                x, amp=amp, tau=tau, freq=freq, phase=phase, baseline=base
             ),
             plot_color="green",
             name="Y",
             filter_kwargs={"series": "Y"},
             plot_symbol="^",
-            model_description=r"{\rm amp} e^{-x/\tau} \cos\left(2 \pi\cdot {\rm freq}\cdot x "
-            r"+{\rm phase} - \pi/2\right) + {\rm base}",
+            model_description=r"{\rm amp} e^{-x/\tau} \sin\left(2 \pi\cdot {\rm freq}\cdot x "
+            r"+ {\rm phase}\right) + {\rm base}",
         ),
     ]
 
@@ -104,6 +104,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
     def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Compute the initial guesses."""
         user_p0 = self._get_option("p0")
+        user_bounds = self._get_option("bounds")
 
         # Default guess values
         freq_guesses, offset_guesses = [], []
@@ -122,6 +123,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         freq_guess = user_p0.get("freq", None) or np.average(freq_guesses)
         fit_options = []
 
+        max_abs_y = np.max(np.abs(self._data().y))
         for freq in [-freq_guess, freq_guess]:
             fit_options.append(
                 {
@@ -131,6 +133,13 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
                         "freq": freq,
                         "base": user_p0.get("base", None) or np.average(offset_guesses),
                         "phase": user_p0.get("phase", None) or 0.0,
+                    },
+                    "bounds": {
+                        "amp": user_bounds.get("amp", None) or (-2 * max_abs_y, 2 * max_abs_y),
+                        "tau": user_bounds.get("tau", None) or (0, np.inf),
+                        "freq": user_bounds.get("freq", None) or (-np.inf, np.inf),
+                        "base": user_bounds.get("base", None) or (-max_abs_y, max_abs_y),
+                        "phase": user_bounds.get("phase", None) or (-np.inf, np.inf),
                     },
                 }
             )

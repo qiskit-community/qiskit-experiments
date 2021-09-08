@@ -111,7 +111,7 @@ class RamseyXY(BaseExperiment):
         osc_freq: float = 2e6,
     ):
         """Create new experiment.
-        
+
         Args:
             qubit: The qubit on which to run the Ramsey XY experiment.
             delays: The delays to scan.
@@ -159,10 +159,8 @@ class RamseyXY(BaseExperiment):
 
         # Compute the rz rotation angle to add a modulation.
         p_delay = Parameter("delay")
-        
-        rotation_angle = (
-            2 * np.pi * self.experiment_options.osc_freq * conversion_factor * p_delay
-        )
+
+        rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * conversion_factor * p_delay
 
         # Create the X and Y circuits.
         ram_x = self._pre_circuit()
