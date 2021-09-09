@@ -164,12 +164,20 @@ class RamseyXY(BaseExperiment):
         rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * conversion_factor * p_delay
 
         # Create the X and Y circuits.
+        metadata = {
+            "experiment_type": self._type,
+            "qubits": self.physical_qubits,
+            "osc_freq": self.experiment_options.osc_freq,
+            "unit": "s",
+        }
+
         ram_x = self._pre_circuit()
         ram_x.sx(0)
         ram_x.delay(p_delay, 0, self.experiment_options.unit)
         ram_x.rz(rotation_angle, 0)
         ram_x.sx(0)
         ram_x.measure_active()
+        ram_x.metadata = metadata.copy()
 
         ram_y = self._pre_circuit()
         ram_y.sx(0)
@@ -177,6 +185,7 @@ class RamseyXY(BaseExperiment):
         ram_y.rz(rotation_angle - np.pi / 2, 0)
         ram_y.sx(0)
         ram_y.measure_active()
+        ram_y.metadata = metadata.copy()
 
         # Add the schedule if any.
         schedule = self.experiment_options.schedule
@@ -187,23 +196,15 @@ class RamseyXY(BaseExperiment):
         circs = []
         for delay in self.experiment_options.delays:
 
-            metadata = {
-                "experiment_type": self._type,
-                "qubits": self.physical_qubits,
-                "osc_freq": self.experiment_options.osc_freq,
-                "unit": "s",
-                "xval": delay * conversion_factor,
-            }
-
             # create ramsey x
             assigned_x = ram_x.assign_parameters({p_delay: delay}, inplace=False)
-            assigned_x.metadata = metadata.copy()
             assigned_x.metadata["series"] = "X"
+            assigned_x.metadata["xval"] = delay * conversion_factor
 
             # create ramsey y
             assigned_y = ram_y.assign_parameters({p_delay: delay}, inplace=False)
-            assigned_y.metadata = metadata.copy()
             assigned_y.metadata["series"] = "Y"
+            assigned_y.metadata["xval"] = delay * conversion_factor
 
             circs.extend([assigned_x, assigned_y])
 

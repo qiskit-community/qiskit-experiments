@@ -65,7 +65,7 @@ See :mod:`qiskit_experiments.calibration_management`.
 from .drag import DragCal
 from .rabi import Rabi, EFRabi
 from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
-from .remsey_xy import RamseyXY
+from .ramsey_xy import RamseyXY
 
 from .analysis.oscillation_analysis import OscillationAnalysis
 from .analysis.drag_analysis import DragCalAnalysis
