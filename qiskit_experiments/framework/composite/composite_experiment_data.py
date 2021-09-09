@@ -33,9 +33,6 @@ class CompositeExperimentData(ExperimentData):
             job_ids (list[str]): Optional, IDs of jobs submitted for the experiment.
             parent_id (str): Optional, ID of the parent experiment data in a composite experiment
             root_id (str): Optional, ID of the root experiment data in a composite experiment
-
-        Raises:
-            ValueError: If both ``experiment`` and ``components`` are not ``None``.
         """
 
         super().__init__(
