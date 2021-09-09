@@ -14,19 +14,19 @@ from qiskit_experiments.framework import BaseExperiment, ParallelExperiment
 from qiskit_experiments.curve_analysis.data_processing import probability
 from qiskit.utils import apply_prefix
 
-
 from qiskit.providers import Backend
 from qiskit.test.mock import FakeParis
 from qiskit.providers.aer import AerSimulator
 
+
 class T2Hahn(BaseExperiment):
 
     # Analysis class for experiment
-#     __analysis_class__ = T2Analysis  # need to add T2Analysis
+    #     __analysis_class__ = T2Analysis  # need to add T2Analysis
 
     def __init__(
             self,
-            qubits: Union[int, Iterable[int]],
+            qubit: Union[int, Iterable[int]],
             delays: Union[List[int], np.array],  # need to change name?
             gate_time: float,
             n_echos: int = 1,
@@ -48,22 +48,22 @@ class T2Hahn(BaseExperiment):
                     `X` and `Y`.
         """
         # Initialize base experiment
-        super().__init__(qubits)
-        self._verify_parameters(qubits, delays, n_echos,gate_time)
-        self._qubits = qubits
+        super().__init__(qubit)
+        self._verify_parameters(qubit, delays, n_echos, gate_time)
+        self._qubit = qubit
         self._delays = delays
         self._gate_time = gate_time
         self._n_echos = n_echos
         self._phase_alt_echo = phase_alt_echo
 
         # Set configurable options
-#         self.set_experiment_options(delays=delays, n_echos=n_echos, phase_alt_echo=phase_alt_echo)
-#         self.set_analysis_options(data_processor=probability(
-#             outcome="0" * self.num_qubits))  # Need to rewrite after making the analysis class
 
+    #         self.set_experiment_options(delays=delays, n_echos=n_echos, phase_alt_echo=phase_alt_echo)
+    #         self.set_analysis_options(data_processor=probability(
+    #             outcome="0" * self.num_qubits))  # Need to rewrite after making the analysis class
 
-
-    def _verify_parameters(self, qubits, delays, n_echos, gate_time):
+    @staticmethod
+    def _verify_parameters(self, qubit, delays, n_echos, gate_time):
         """Verify input correctness, raise QiskitError if needed"""
         if any(delay <= 0 for delay in delays):
             raise QiskitError(
@@ -76,8 +76,17 @@ class T2Hahn(BaseExperiment):
         if any(delays[idx - 1] >= delays[idx] for idx in range(1, len(delays))):
             raise QiskitError(f"The number of identity gates {delays} should " "be increasing.")
 
-        if any(qubit < 0 for qubit in qubits):
-            raise QiskitError(f"The index of the qubits {qubits} should " "be non-negative.")
+        # if any(qubit < 0 for qubit in qubits):
+        #     raise QiskitError(f"The index of the qubits {qubits} should " "be non-negative.")
+        if isinstance(qubit, List):
+            if len(qubit) != 1:
+                raise QiskitError(f"The experiment if for 1 qubit. For multiple qubits, please use "
+                                  f"parallel experiments.")
+            if qubit[0] < 0:
+                raise QiskitError(f"The index of the qubit {qubit[0]} should " "be non-negative.")
+        else:
+            if qubit < 0:
+                raise QiskitError(f"The index of the qubit {qubit} should " "be non-negative.")
 
         if n_echos < 1:
             raise QiskitError(f"The number of echoes {n_echos} should " "be at least 1.")
@@ -85,55 +94,52 @@ class T2Hahn(BaseExperiment):
         if gate_time <= 0:
             raise QiskitError(f"The gate time {gate_time} should " "be positive.")
 
-    def circuits(self, backend, qubits: Union[List[int], np.array],
-                        n_echos: int = 1,
-                        phase_alt_echo: bool = False):
+    def circuits(self, backend, qubit: Union[List[int], np.array],
+                 n_echos: int = 1,
+                 phase_alt_echo: bool = False):
 
         conversion_factor = 1
-#         if self.experiment_options.unit == "dt":
-#             try:
-#                 dt_factor = getattr(backend._configuration, "dt")
-#                 conversion_factor = dt_factor
-#             except AttributeError as no_dt:
-#                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
-#         elif self.experiment_options.unit != "s":
-#             apply_prefix(1, self.experiment_options.unit)
-#         xdata = 2 * gate_time * np.array(num_of_gates) * n_echos
-        qr = QuantumRegister(max(qubits) + 1)
-        cr = ClassicalRegister(len(qubits))
+        #         if self.experiment_options.unit == "dt":
+        #             try:
+        #                 dt_factor = getattr(backend._configuration, "dt")
+        #                 conversion_factor = dt_factor
+        #             except AttributeError as no_dt:
+        #                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
+        #         elif self.experiment_options.unit != "s":
+        #             apply_prefix(1, self.experiment_options.unit)
+        #         xdata = 2 * gate_time * np.array(num_of_gates) * n_echos
+        qr = QuantumRegister(max(qubit) + 1)
+        cr = ClassicalRegister(len(qubit))
         circuits = []
         for circ_index, delay in enumerate(self._delays):
-            circ = QuantumCircuit(max(qubits) + 1,len(qubits))
+            circ = QuantumCircuit(max(qubit) + 1, len(qubit))
             circ.name = 't2circuit_' + str(circ_index) + '_0'
-            for qind, qubit in enumerate(qubits):
+            # First Y rotation in 90 degrees
+            circ.ry(np.pi / 2, qubit)  # Bring to qubits to X Axis
+            # circ = pad_id_gates(circ, qr, qubit, circ_length)  # ids - waiting
+            #                 circ.delay(delay, qr[qubit], self.experiment_options.unit)
+            circ.delay(delay, qubit, 's')
+            circ.rx(np.pi, qubit)
 
-                # First Y rotation in 90 degrees
-                circ.ry(np.pi/2, qubit)  # Bring to qubits to X Axis
-                # circ = pad_id_gates(circ, qr, qubit, circ_length)  # ids - waiting
-#                 circ.delay(delay, qr[qubit], self.experiment_options.unit)
-                circ.delay(delay, qubit, 's')
-                circ.rx(np.pi, qubit)
+            #                 for echoid in range(n_echos - 1):  # repeat
+            #                     circ = pad_id_gates(circ, qr, qubit, 2 * delay)  # ids
+            #                     if phase_alt_echo and (not echoid % 2):  # optionally
+            #                         circ.x(qr[qubit])  # X
+            #                     else:
+            #                         circ.y(qr[qubit])
 
-#                 for echoid in range(n_echos - 1):  # repeat
-#                     circ = pad_id_gates(circ, qr, qubit, 2 * delay)  # ids
-#                     if phase_alt_echo and (not echoid % 2):  # optionally
-#                         circ.x(qr[qubit])  # X
-#                     else:
-#                         circ.y(qr[qubit])
-
-#                 circ.delay(delay, qr[qubit], self.experiment_options.unit)  # ids
-                circ.delay(delay, qubit, 's')
-                circ.ry(-np.pi/2, qubit)  # Y90
-            for qind, qubit in enumerate(qubits):
-                circ.measure(qubit, qind)  # measure
+            #                 circ.delay(delay, qr[qubit], self.experiment_options.unit)  # ids
+            circ.delay(delay, qubit, 's')
+            circ.ry(-np.pi / 2, qubit)  # Y90
+            circ.measure(qubit, 0)  # measure
             circ.metadata = {
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits,
                 "xval": delay,
                 "unit": 's',
             }
-#             if self.experiment_options.unit == "dt":
-#                 circ.metadata["dt_factor"] = dt_factor
+            #             if self.experiment_options.unit == "dt":
+            #                 circ.metadata["dt_factor"] = dt_factor
             circuits.append(circ)
 
         return circuits
