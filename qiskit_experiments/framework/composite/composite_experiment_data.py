@@ -23,8 +23,7 @@ from qiskit_experiments.database_service import DbExperimentDataV1, DatabaseServ
 class CompositeExperimentData(ExperimentData):
     """Composite experiment data class"""
 
-    def __init__(
-            self, experiment, backend=None, job_ids=None, parent_id=None, root_id=None):
+    def __init__(self, experiment, backend=None, job_ids=None, parent_id=None, root_id=None):
         """Initialize experiment data.
 
         Args:
@@ -52,7 +51,13 @@ class CompositeExperimentData(ExperimentData):
 
         # Initialize sub experiments
         self._components = [
-            expr.__experiment_data__(expr, backend=backend, job_ids=job_ids, parent_id=self.experiment_id, root_id=root_id)
+            expr.__experiment_data__(
+                expr,
+                backend=backend,
+                job_ids=job_ids,
+                parent_id=self.experiment_id,
+                root_id=root_id,
+            )
             for expr in experiment._experiments
         ]
 
