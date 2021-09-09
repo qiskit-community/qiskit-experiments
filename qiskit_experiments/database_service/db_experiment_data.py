@@ -903,7 +903,6 @@ class DbExperimentDataV1(DbExperimentData):
         self.status()  # Collect new errors.
         return "\n".join(self._errors)
 
-    # pylint disable=no-value-for-parameter
     def _copy_metadata(
         self, new_instance: Optional["DbExperimentDataV1"] = None
     ) -> "DbExperimentDataV1":
@@ -919,7 +918,7 @@ class DbExperimentDataV1(DbExperimentData):
             and metadata but different ID.
         """
         if new_instance is None:
-            new_instance = self.__class__()
+            new_instance = DbExperimentDataV1()
 
         new_instance._type = self.experiment_type
         new_instance._backend = self._backend
