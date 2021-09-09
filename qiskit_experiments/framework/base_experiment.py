@@ -167,14 +167,11 @@ class BaseExperiment(ABC):
 
         return experiment_data._copy_metadata()
 
-    def run_analysis(self, experiment_data, **options) -> ExperimentData:
+    def run_analysis(self, experiment_data) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
         Args:
             experiment_data (ExperimentData): the experiment data to analyze.
-            options: additional analysis options. Any values set here will
-                     override the value from :meth:`analysis_options`
-                     for the current run.
 
         Returns:
             An experiment data object containing the analysis results and figures.
@@ -182,14 +179,10 @@ class BaseExperiment(ABC):
         Raises:
             QiskitError: if experiment_data container is not valid for analysis.
         """
-        # Get analysis options
-        analysis_options = copy.copy(self.analysis_options)
-        analysis_options.update_options(**options)
-        analysis_options = analysis_options.__dict__
 
         # Run analysis
         analysis = self.analysis()
-        analysis.run(experiment_data, **analysis_options)
+        analysis.run(experiment_data, **self.analysis_options)
         return experiment_data
 
     @property
