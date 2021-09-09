@@ -36,6 +36,7 @@ from qiskit_experiments.database_service.device_component import DeviceComponent
 
 # pylint: disable=missing-raises-doc
 
+
 class TestComposite(QiskitTestCase):
     """
     Test composite experiment behavior.
