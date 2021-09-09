@@ -24,51 +24,37 @@ class CompositeExperimentData(ExperimentData):
     """Composite experiment data class"""
 
     def __init__(
-            self, experiment, backend=None, experiment_id=None, job_ids=None, parent_id=None, root_id=None, components=None
-    ):
+            self, experiment, backend=None, job_ids=None, parent_id=None, root_id=None):
         """Initialize experiment data.
 
         Args:
             experiment (CompositeExperiment): experiment object that generated the data.
             backend (Backend): Optional, Backend the experiment runs on. It can either be a
                 :class:`~qiskit.providers.Backend` instance or just backend name.
-            experiment_id (str): Experiment ID. One will be generated if not supplied.
             job_ids (list[str]): Optional, IDs of jobs submitted for the experiment.
             parent_id (str): Optional, ID of the parent experiment data in a composite experiment
             root_id (str): Optional, ID of the root experiment data in a composite experiment
-            components (list[ExperimentData]): Optional, a list of already prepared experiment
-                data objects of the components. Applicable only if ``experiment`` is ``None``,
-                otherwise the components are created from the experiment's components.
 
         Raises:
             ValueError: If both ``experiment`` and ``components`` are not ``None``.
         """
 
-        if experiment is not None and components is not None:
-            raise ValueError(
-                "CompositeExperimentData initialization does not accept experiment "
-                "and component parameters that are both not None"
-            )
-
         super().__init__(
-            experiment, backend=backend, experiment_id=experiment_id, job_ids=job_ids, parent_id=parent_id, root_id=root_id
+            experiment, backend=backend, job_ids=job_ids, parent_id=parent_id, root_id=root_id
         )
 
         # In a composite setting, an experiment is tagged with its direct parent and with the root.
-        # This is done in the ExperimentData constructir, except for the root experiment,
+        # This is done in the ExperimentData constructor, except for the root experiment,
         # for whom this is done here
         root_id = root_id if root_id is not None else self.experiment_id
         if root_id not in self.tags:
             self.tags.append(root_id)
 
         # Initialize sub experiments
-        if components:
-            self._components = components
-        else:
-            self._components = [
-                expr.__experiment_data__(expr, backend=backend, job_ids=job_ids, root_id=root_id)
-                for expr in experiment._experiments
-            ]
+        self._components = [
+            expr.__experiment_data__(expr, backend=backend, job_ids=job_ids, root_id=root_id)
+            for expr in experiment._experiments
+        ]
 
         self.metadata["component_ids"] = [comp.experiment_id for comp in self._components]
         self.metadata["component_classes"] = [comp.__class__.__name__ for comp in self._components]
