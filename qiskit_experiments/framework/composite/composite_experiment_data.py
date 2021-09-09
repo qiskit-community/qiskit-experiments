@@ -151,3 +151,15 @@ class CompositeExperimentData(ExperimentData):
         DbExperimentDataV1._set_service(self, service)
         for comp in self._components:
             comp._set_service(service)
+
+    def _set_share_level_without_save(self, new_level: str) -> None:
+        """Set the experiment share level. Doesn't save, not even when auto_save is set to True.
+
+        Args:
+            new_level: New experiment share level. Valid share levels are provider-
+                specified. For example, IBM Quantum experiment service allows
+                "public", "hub", "group", "project", and "private".
+        """
+        DbExperimentDataV1._set_share_level_without_save(self, new_level)
+        for comp in self._components:
+            comp._set_share_level_without_save(new_level)

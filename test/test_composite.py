@@ -78,7 +78,8 @@ class DummyExperiment(BaseExperiment):
 
 
 class DummyService(DatabaseServiceV1):
-    db = {}
+    def __init__(self):
+        self.db = {}
 
     def create_experiment(
         self,
@@ -110,7 +111,7 @@ class DummyService(DatabaseServiceV1):
             Experiment ID.
         """
 
-        DummyService.db[experiment_id] = {
+        self.db[experiment_id] = {
             "experiment_type": experiment_type,
             "backend_name": backend_name,
             "metadata": metadata,
@@ -142,9 +143,9 @@ class DummyService(DatabaseServiceV1):
             kwargs: Additional keywords supported by the service provider.
         """
 
-        DummyService.db[experiment_id]["metadata"] = metadata
-        DummyService.db[experiment_id]["job_ids"] = job_ids
-        DummyService.db[experiment_od]["tags"] = tags
+        self.db[experiment_id]["metadata"] = metadata
+        self.db[experiment_id]["job_ids"] = job_ids
+        self.db[experiment_od]["tags"] = tags
 
     def experiment(
         self, experiment_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
@@ -159,7 +160,7 @@ class DummyService(DatabaseServiceV1):
             A dictionary containing the retrieved experiment data.
         """
 
-        db_entry = copy.deepcopy(DummyService.db[experiment_id])
+        db_entry = copy.deepcopy(self.db[experiment_id])
         backend_name = db_entry.pop("backend_name")
         backend = FakeMelbourne()
         if backend_name == backend.name():
@@ -270,6 +271,7 @@ class TestCompositeExperimentData(QiskitTestCase):
 
         self.backend = FakeMelbourne()
         self.job_ids = [1, 2, 3, 4, 5]
+        self.share_level = "hey"
 
         exp1 = DummyExperiment([0, 2])
         exp2 = DummyExperiment([1, 3])
@@ -280,6 +282,7 @@ class TestCompositeExperimentData(QiskitTestCase):
         self.rootdata = CompositeExperimentData(
             batch_exp, backend=self.backend, job_ids=self.job_ids
         )
+        self.rootdata.share_level = self.share_level
 
     def check_attributes(self, expdata):
         """
@@ -287,6 +290,7 @@ class TestCompositeExperimentData(QiskitTestCase):
         """
         self.assertEqual(expdata.backend, self.backend)
         self.assertEqual(expdata.job_ids, self.job_ids)
+        self.assertEqual(expdata.share_level, self.share_level)
 
         # Experiments have to be tagged with their direct parents and the root
         self.assertTrue(len(expdata.tags) == 1 or len(expdata.tags) == 2)
@@ -308,6 +312,7 @@ class TestCompositeExperimentData(QiskitTestCase):
         self.assertEqual(expdata1.tags, expdata2.tags)
         self.assertEqual(expdata1.experiment_type, expdata2.experiment_type)
         self.assertEqual(expdata1.metadata, expdata2.metadata)
+        self.assertEqual(expdata1.share_level, expdata2.share_level)
 
         if isinstance(expdata1, CompositeExperimentData):
             for childdata1, childdata2 in zip(
@@ -328,6 +333,19 @@ class TestCompositeExperimentData(QiskitTestCase):
 
         self.rootdata.service = DummyService()
         self.rootdata.save()
+        loaded_data = CompositeExperimentData.load(
+            self.rootdata.experiment_id, self.rootdata.service
+        )
+
+        self.check_if_equal(loaded_data, self.rootdata)
+
+    def test_composite_save_metadata(self):
+        """
+        Verify that saving metadata and loading restores the original composite experiment data object
+        """
+
+        self.rootdata.service = DummyService()
+        self.rootdata.save_metadata()
         loaded_data = CompositeExperimentData.load(
             self.rootdata.experiment_id, self.rootdata.service
         )
