@@ -34,6 +34,7 @@ from qiskit_experiments.framework import (
 from qiskit_experiments.database_service import DatabaseServiceV1
 from qiskit_experiments.database_service.device_component import DeviceComponent
 
+# pylint: disable=missing-raises-doc
 
 class TestComposite(QiskitTestCase):
     """
@@ -78,8 +79,12 @@ class DummyExperiment(BaseExperiment):
 
 
 class DummyService(DatabaseServiceV1):
+    """
+    Extremely simple database for testing
+    """
+
     def __init__(self):
-        self.db = {}
+        self.database = {}
 
     def create_experiment(
         self,
@@ -111,7 +116,7 @@ class DummyService(DatabaseServiceV1):
             Experiment ID.
         """
 
-        self.db[experiment_id] = {
+        self.database[experiment_id] = {
             "experiment_type": experiment_type,
             "backend_name": backend_name,
             "metadata": metadata,
@@ -142,10 +147,7 @@ class DummyService(DatabaseServiceV1):
             tags: Tags to be associated with the experiment.
             kwargs: Additional keywords supported by the service provider.
         """
-
-        self.db[experiment_id]["metadata"] = metadata
-        self.db[experiment_id]["job_ids"] = job_ids
-        self.db[experiment_od]["tags"] = tags
+        raise Exception("not implemented")
 
     def experiment(
         self, experiment_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
@@ -160,7 +162,7 @@ class DummyService(DatabaseServiceV1):
             A dictionary containing the retrieved experiment data.
         """
 
-        db_entry = copy.deepcopy(self.db[experiment_id])
+        db_entry = copy.deepcopy(self.database[experiment_id])
         backend_name = db_entry.pop("backend_name")
         backend = FakeMelbourne()
         if backend_name == backend.name():
@@ -180,10 +182,10 @@ class DummyService(DatabaseServiceV1):
         tags_operator: Optional[str] = "OR",
         **filters: Any,
     ) -> List[Dict]:
-        pass
+        raise Exception("not implemented")
 
     def delete_experiment(self, experiment_id: str) -> None:
-        pass
+        raise Exception("not implemented")
 
     def create_analysis_result(
         self,
@@ -198,7 +200,7 @@ class DummyService(DatabaseServiceV1):
         json_encoder: Type[json.JSONEncoder] = json.JSONEncoder,
         **kwargs: Any,
     ) -> str:
-        pass
+        raise Exception("not implemented")
 
     def update_analysis_result(
         self,
@@ -209,12 +211,12 @@ class DummyService(DatabaseServiceV1):
         verified: bool = None,
         **kwargs: Any,
     ) -> None:
-        pass
+        raise Exception("not implemented")
 
     def analysis_result(
         self, result_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder
     ) -> Dict:
-        pass
+        raise Exception("not implemented")
 
     def analysis_results(
         self,
@@ -230,35 +232,36 @@ class DummyService(DatabaseServiceV1):
         tags_operator: Optional[str] = "OR",
         **filters: Any,
     ) -> List[Dict]:
-        pass
+        raise Exception("not implemented")
 
     def delete_analysis_result(self, result_id: str) -> None:
-        pass
+        raise Exception("not implemented")
 
     def create_figure(
         self, experiment_id: str, figure: Union[str, bytes], figure_name: Optional[str]
     ) -> Tuple[str, int]:
-        pass
+        raise Exception("not implemented")
 
     def update_figure(
         self, experiment_id: str, figure: Union[str, bytes], figure_name: str
     ) -> Tuple[str, int]:
-        pass
+        raise Exception("not implemented")
 
     def figure(
         self, experiment_id: str, figure_name: str, file_name: Optional[str] = None
     ) -> Union[int, bytes]:
-        pass
+        raise Exception("not implemented")
 
     def delete_figure(
         self,
         experiment_id: str,
         figure_name: str,
     ) -> None:
-        pass
+        raise Exception("not implemented")
 
+    @property
     def preferences(self) -> Dict:
-        pass
+        raise Exception("not implemented")
 
 
 class TestCompositeExperimentData(QiskitTestCase):
