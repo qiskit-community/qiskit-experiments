@@ -52,7 +52,7 @@ class CompositeExperimentData(ExperimentData):
 
         # Initialize sub experiments
         self._components = [
-            expr.__experiment_data__(expr, backend=backend, job_ids=job_ids, root_id=root_id)
+            expr.__experiment_data__(expr, backend=backend, job_ids=job_ids, parent_id=self.experiment_id, root_id=root_id)
             for expr in experiment._experiments
         ]
 
