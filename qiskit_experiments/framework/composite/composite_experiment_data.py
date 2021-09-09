@@ -140,6 +140,7 @@ class CompositeExperimentData(ExperimentData):
             components.append(loaded_comp)
 
         expdata.__class__ = CompositeExperimentData
+        expdata._experiment = None
         expdata._components = components
 
         return expdata
