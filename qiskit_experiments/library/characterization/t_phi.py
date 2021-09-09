@@ -1,6 +1,6 @@
 # that they have been altered from the originals.
 """
-T_phi Experiment class.
+Tphi Experiment class.
 """
 
 from typing import List, Optional, Union
@@ -13,9 +13,12 @@ from qiskit.circuit import QuantumCircuit
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.framework.composite.composite_experiment import CompositeExperiment
 from qiskit_experiments.library.characterization import T1, T2Ramsey
+from qiskit_experiments.library.characterization.t_phi_analysis import TphiAnalysis
 
-class T_phi(CompositeExperiment):
-    """T_phi Experiment Class"""
+class Tphi(CompositeExperiment):
+    """Tphi Experiment Class"""
+
+    __analysis_class__ = TphiAnalysis
     
     def __init__(self,
                  qubit: int,
@@ -64,3 +67,8 @@ class T_phi(CompositeExperiment):
         circuits['T1'] = self._expT1.circuits()
         circuits['T2*'] = self._expT2.circuits()
         return circuits
+
+    def run(self, backends, experiment_data, **run_options):
+        expdata = {}
+        expdata['T1'] = super().run(self, backends['T1'], experiment_data, **run_options)
+        expdata['T2*'] = super().run(self, backends['T2*'], experiment_data, **run_options)

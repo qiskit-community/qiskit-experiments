@@ -58,7 +58,7 @@ Some experiments may be also used for gate calibration.
 
     ~characterization.T1
     ~characterization.T2Ramsey
-    ~characterization.T_phi
+    ~characterization.Tphi
     ~characterization.QubitSpectroscopy
     ~characterization.EFSpectroscopy
 
@@ -86,7 +86,7 @@ See :doc:`/tutorials/calibrating_armonk` for example.
 
 """
 from .calibration import DragCal, Rabi, EFRabi, FineAmplitude, FineXAmplitude, FineSXAmplitude
-from .characterization import T1, T2Ramsey, T_phi, QubitSpectroscopy, EFSpectroscopy
+from .characterization import T1, T2Ramsey, Tphi, QubitSpectroscopy, EFSpectroscopy
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
 from .quantum_volume import QuantumVolume

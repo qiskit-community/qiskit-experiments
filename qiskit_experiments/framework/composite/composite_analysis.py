@@ -65,7 +65,7 @@ class CompositeAnalysis(BaseAnalysis):
             sub_qubits.append(expdata.experiment.physical_qubits)
 
         result = AnalysisResultData(
-            name="parallel_experiment",
+            name="composite_experiment",
             value=len(sub_types),
             extra={
                 "experiment_types": sub_types,
