@@ -62,6 +62,7 @@ class RBAnalysis(curve.CurveAnalysis):
             ),
             plot_color="blue",
             plot_fit_uncertainty=True,
+            model_description=r"a \alpha^x + b",
         )
     ]
 
@@ -81,8 +82,6 @@ class RBAnalysis(curve.CurveAnalysis):
 
         """
         default_options = super()._default_options()
-        default_options.p0 = {"a": None, "alpha": None, "b": None}
-        default_options.bounds = {"a": (0.0, 1.0), "alpha": (0.0, 1.0), "b": (0.0, 1.0)}
         default_options.xlabel = "Clifford Length"
         default_options.ylabel = "P(0)"
         default_options.result_parameters = ["alpha"]
@@ -92,45 +91,51 @@ class RBAnalysis(curve.CurveAnalysis):
 
         return default_options
 
-    def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
 
         curve_data = self._data()
-        initial_guess = self._initial_guess(curve_data.x, curve_data.y, self._num_qubits)
-        fit_option = {
-            "p0": {
-                "a": user_p0["a"] or initial_guess["a"],
-                "alpha": user_p0["alpha"] or initial_guess["alpha"],
-                "b": user_p0["b"] or initial_guess["b"],
-            },
+
+        initial_guess = self._initial_guess(curve_data.x, curve_data.y, self._num_qubits, user_p0)
+        fit_options = {
+            "p0": initial_guess,
             "bounds": {
                 "a": user_bounds["a"] or (0.0, 1.0),
                 "alpha": user_bounds["alpha"] or (0.0, 1.0),
                 "b": user_bounds["b"] or (0.0, 1.0),
             },
         }
-        fit_option.update(options)
+        # p0 and bounds are defined in the default options, therefore updating
+        # with the extra options only adds options and doesn't override p0 or bounds
+        fit_options.update(extra_options)
 
-        return fit_option
+        return fit_options
 
     @staticmethod
     def _initial_guess(
-        x_values: np.ndarray, y_values: np.ndarray, num_qubits: int
+        x_values: np.ndarray, y_values: np.ndarray, num_qubits: int, user_p0: Dict = None
     ) -> Dict[str, float]:
         """Create initial guess with experiment data."""
+        if user_p0 is None:
+            user_p0 = {}
+
         fit_guess = {"a": 0.95, "alpha": 0.99, "b": 1 / 2 ** num_qubits}
+        for key in fit_guess:
+            if user_p0.get(key, None) is not None:
+                fit_guess[key] = user_p0[key]
 
-        # Use the first two points to guess the decay param
-        dcliff = x_values[1] - x_values[0]
-        dy = (y_values[1] - fit_guess["b"]) / (y_values[0] - fit_guess["b"])
-        alpha_guess = dy ** (1 / dcliff)
+        if user_p0.get("alpha", None) is None:
+            # Use the first two points to guess the decay param
+            dcliff = x_values[1] - x_values[0]
+            dy = (y_values[1] - fit_guess["b"]) / (y_values[0] - fit_guess["b"])
+            alpha_guess = dy ** (1 / dcliff)
 
-        if alpha_guess < 1.0:
-            fit_guess["alpha"] = alpha_guess
+            if alpha_guess < 1.0:
+                fit_guess["alpha"] = alpha_guess
 
-        if y_values[0] > fit_guess["b"]:
+        if user_p0.get("a", None) is None and y_values[0] > fit_guess["b"]:
             fit_guess["a"] = (y_values[0] - fit_guess["b"]) / fit_guess["alpha"] ** x_values[0]
 
         return fit_guess
@@ -191,7 +196,7 @@ class RBAnalysis(curve.CurveAnalysis):
 
             if num_qubits == 1:
                 epg = RBUtils.calculate_1q_epg(
-                    epc.value,
+                    epc,
                     self._physical_qubits,
                     gate_error_ratio,
                     gates_per_clifford,
@@ -199,7 +204,7 @@ class RBAnalysis(curve.CurveAnalysis):
             elif num_qubits == 2:
                 epg_1_qubit = self._get_option("epg_1_qubit")
                 epg = RBUtils.calculate_2q_epg(
-                    epc.value,
+                    epc,
                     self._physical_qubits,
                     gate_error_ratio,
                     gates_per_clifford,
@@ -214,7 +219,7 @@ class RBAnalysis(curve.CurveAnalysis):
                         extra_entries.append(
                             AnalysisResultData(
                                 f"EPG_{gate}",
-                                FitVal(value, None),  # TODO: add EPG_err computation
+                                value,
                                 chisq=fit_data.reduced_chisq,
                                 quality=self._evaluate_quality(fit_data),
                                 device_components=[Qubit(i) for i in qubits],

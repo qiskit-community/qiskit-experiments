@@ -17,12 +17,10 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate, Parameter
-from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
 import qiskit.pulse as pulse
-from qiskit.providers.options import Options
 
-from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.library.calibration.analysis.drag_analysis import DragCalAnalysis
 
@@ -75,14 +73,6 @@ class DragCal(BaseExperiment):
     """
 
     __analysis_class__ = DragCalAnalysis
-
-    @classmethod
-    def _default_run_options(cls) -> Options:
-        """Default option values for the experiment :meth:`run` method."""
-        return Options(
-            meas_level=MeasLevel.CLASSIFIED,
-            meas_return="avg",
-        )
 
     @classmethod
     def _default_experiment_options(cls) -> Options:

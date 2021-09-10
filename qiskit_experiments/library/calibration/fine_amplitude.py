@@ -17,12 +17,10 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
-from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
-from qiskit.providers.options import Options
 from qiskit.pulse.schedule import ScheduleBlock
 
-from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.calibration.analysis.fine_amplitude_analysis import (
     FineAmplitudeAnalysis,
 )
@@ -97,14 +95,6 @@ class FineAmplitude(BaseExperiment):
     """
 
     __analysis_class__ = FineAmplitudeAnalysis
-
-    @classmethod
-    def _default_run_options(cls) -> Options:
-        """Default option values for the experiment :meth:`run` method."""
-        return Options(
-            meas_level=MeasLevel.CLASSIFIED,
-            meas_return="avg",
-        )
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -305,14 +295,14 @@ class FineXAmplitude(FineAmplitude):
 
         return options
 
-    def __init__(self, qubit: int):
-        """Setup a fine amplitude experiment on the given qubit.
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_analysis_options()
+        options.angle_per_gate = np.pi
+        options.phase_offset = np.pi / 2
 
-        Args:
-            qubit: The qubit on which to run the fine amplitude calibration experiment.
-        """
-        super().__init__(qubit)
-        self.set_analysis_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
+        return options
 
 
 class FineSXAmplitude(FineAmplitude):
@@ -346,11 +336,11 @@ class FineSXAmplitude(FineAmplitude):
 
         return options
 
-    def __init__(self, qubit: int):
-        """Setup a fine amplitude experiment on the given qubit.
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_analysis_options()
+        options.angle_per_gate = np.pi / 2
+        options.phase_offset = 0
 
-        Args:
-            qubit: The qubit on which to run the fine amplitude calibration experiment.
-        """
-        super().__init__(qubit)
-        self.set_analysis_options(angle_per_gate=np.pi / 2, phase_offset=0)
+        return options

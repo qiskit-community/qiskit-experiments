@@ -81,6 +81,6 @@ from .curve_fit import (
     process_curve_data,
     process_multi_curve_data,
 )
-from .visualization import plot_curve_fit, plot_errorbar, plot_scatter
+from .visualization import plot_curve_fit, plot_errorbar, plot_scatter, FitResultPlotters
 from . import guess
 from . import fit_function

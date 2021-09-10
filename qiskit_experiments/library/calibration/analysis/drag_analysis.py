@@ -64,6 +64,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
             name="series-0",
             filter_kwargs={"series": 0},
             plot_symbol="o",
+            model_description=r"{\rm amp} \cos\left(2 \pi\cdot {\rm freq}_0\cdot x "
+            r"- 2 \pi \beta\right) + {\rm base}",
         ),
         curve.SeriesDef(
             fit_func=lambda x, amp, freq0, freq1, freq2, beta, base: cos(
@@ -73,6 +75,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
             name="series-1",
             filter_kwargs={"series": 1},
             plot_symbol="^",
+            model_description=r"{\rm amp} \cos\left(2 \pi\cdot {\rm freq}_1\cdot x "
+            r"- 2 \pi \beta\right) + {\rm base}",
         ),
         curve.SeriesDef(
             fit_func=lambda x, amp, freq0, freq1, freq2, beta, base: cos(
@@ -82,6 +86,8 @@ class DragCalAnalysis(curve.CurveAnalysis):
             name="series-2",
             filter_kwargs={"series": 2},
             plot_symbol="v",
+            model_description=r"{\rm amp} \cos\left(2 \pi\cdot {\rm freq}_2\cdot x "
+            r"- 2 \pi \beta\right) + {\rm base}",
         ),
     ]
 
@@ -93,29 +99,13 @@ class DragCalAnalysis(curve.CurveAnalysis):
         descriptions of analysis options.
         """
         default_options = super()._default_options()
-        default_options.p0 = {
-            "amp": None,
-            "freq0": None,
-            "freq1": None,
-            "freq2": None,
-            "beta": None,
-            "base": None,
-        }
-        default_options.bounds = {
-            "amp": None,
-            "freq0": None,
-            "freq1": None,
-            "freq2": None,
-            "beta": None,
-            "base": None,
-        }
         default_options.result_parameters = ["beta"]
         default_options.xlabel = "Beta"
         default_options.ylabel = "Signal (arb. units)"
 
         return default_options
 
-    def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Compute the initial guesses."""
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
@@ -176,7 +166,9 @@ class DragCalAnalysis(curve.CurveAnalysis):
                     },
                 }
 
-                fit_option.update(options)
+                # p0 and bounds are defined in the default options, therefore updating
+                # with the extra options only adds options and doesn't override p0 or bounds
+                fit_option.update(extra_options)
                 fit_options.append(fit_option)
 
         return fit_options

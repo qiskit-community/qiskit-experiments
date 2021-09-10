@@ -57,9 +57,8 @@ class BaseUpdater(ABC):
         """Helper method to extract the datetime."""
         all_times = exp_data.completion_times.values()
         if all_times:
-            return max(all_times)
-
-        return datetime.now(timezone.utc)
+            return max(all_times).astimezone()
+        return datetime.now(timezone.utc).astimezone()
 
     @classmethod
     def _add_parameter_value(
@@ -84,7 +83,7 @@ class BaseUpdater(ABC):
             group: The calibrations group to update.
         """
 
-        qubits = exp_data.data(0)["metadata"]["qubits"]
+        qubits = exp_data.metadata["physical_qubits"]
 
         param_value = ParameterValue(
             value=value,
@@ -233,7 +232,7 @@ class Amplitude(BaseUpdater):
             rate = 2 * np.pi * result.value.value[result.extra["popt_keys"].index("freq")]
 
             for angle, param, schedule in angles_schedules:
-                qubits = exp_data.data(0)["metadata"]["qubits"]
+                qubits = exp_data.metadata["physical_qubits"]
                 prev_amp = calibrations.get_parameter_value(param, qubits, schedule, group=group)
 
                 value = np.round(angle / rate, decimals=8) * np.exp(1.0j * np.angle(prev_amp))
@@ -244,7 +243,7 @@ class Amplitude(BaseUpdater):
             d_theta = result.value.value[result.extra["popt_keys"].index("d_theta")]
 
             for target_angle, param, schedule in angles_schedules:
-                qubits = exp_data.data(0)["metadata"]["qubits"]
+                qubits = exp_data.metadata["physical_qubits"]
 
                 prev_amp = calibrations.get_parameter_value(param, qubits, schedule, group=group)
                 scale = target_angle / (target_angle + d_theta)
