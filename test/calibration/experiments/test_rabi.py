@@ -198,7 +198,7 @@ class TestRabiAnalysis(QiskitTestCase):
             circuits.append(qc)
 
         sim = QasmSimulatorPy()
-        circuits = transpile(circuits, basis_gates=["rz", "sx", "x", "cx"])
+        circuits = transpile(circuits, sim)
         job = sim.run(circuits, shots=shots, seed_simulator=10)
         result = job.result()
         data = [
