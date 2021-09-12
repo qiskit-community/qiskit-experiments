@@ -179,10 +179,13 @@ class BaseExperiment(ABC):
         Raises:
             QiskitError: if experiment_data container is not valid for analysis.
         """
+        # Get analysis options
+        analysis_options = copy.copy(self.analysis_options)
+        analysis_options = analysis_options.__dict__
 
         # Run analysis
         analysis = self.analysis()
-        analysis.run(experiment_data, **self.analysis_options)
+        analysis.run(experiment_data, **analysis_options)
         return experiment_data
 
     @property
