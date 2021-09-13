@@ -154,7 +154,7 @@ class T2Ramsey(BaseExperiment):
 
         return circuits
 
-    def _pre_transpile_hook(self, backend: Backend):
+    def pre_transpile_action(self, backend: Backend):
         """Set timing constraints if backend is real hardware."""
 
         if not backend.configuration().simulator and not isinstance(backend, FakeBackend):

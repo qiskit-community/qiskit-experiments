@@ -115,7 +115,7 @@ class TestParallelExperiment(QiskitTestCase):
         class FakeExperimentPulseGate(FakeExperimentCommon):
             """Add transpiler hook to insert calibration."""
 
-            def _post_transpile_hook(self, circuits, backend):
+            def post_transpile_action(self, circuits, backend):
                 for circ in circuits:
                     circ.add_calibration(
                         "x", self.physical_qubits, Schedule(name="test_calibration")
@@ -147,7 +147,7 @@ class TestParallelExperiment(QiskitTestCase):
         class FakeExperimentUpdateCircuitMetadata(FakeExperimentCommon):
             """Add transpiler hook to update metadata."""
 
-            def _post_transpile_hook(self, circuits, backend):
+            def post_transpile_action(self, circuits, backend):
                 for circ in circuits:
                     circ.metadata["new_data"] = "test_value"
 
@@ -265,7 +265,7 @@ class TestParallelExperiment(QiskitTestCase):
                 super().__init__(qubits)
                 self.probability = None
 
-            def _post_analysis_hook(self, experiment_data):
+            def post_analysis_action(self, experiment_data):
                 prob_val = experiment_data.analysis_results("probability").value
                 self.probability = prob_val
 

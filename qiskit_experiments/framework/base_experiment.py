@@ -144,8 +144,18 @@ class BaseExperiment(ABC):
 
         return experiment_data._copy_metadata()
 
-    def _pre_transpile_hook(self, backend: Backend):
+    def pre_transpile_action(self, backend: Backend):
         """An extra subroutine executed before transpilation.
+
+        Note:
+            This method may be implemented by a subclass that requires to update the
+            transpiler configuration based on the given backend instance,
+            otherwise the transpiler configuration should be updated with the
+            :py:meth:`_default_transpile_options` method.
+
+            For example, some specific transpiler options might change depending on the real
+            hardware execution or circuit simulator execution.
+            By default, this method does nothing.
 
         Args:
             backend: Target backend.
@@ -153,10 +163,19 @@ class BaseExperiment(ABC):
         pass
 
     # pylint: disable = unused-argument
-    def _post_transpile_hook(
+    def post_transpile_action(
         self, circuits: List[QuantumCircuit], backend: Backend
     ) -> List[QuantumCircuit]:
         """An extra subroutine executed after transpilation.
+
+        Note:
+            This method may be implemented by a subclass that requires to update the
+            circuit or its metadata after transpilation.
+            Without this method, the transpiled circuit will be immediately executed on the backend.
+            This method enables the experiment to modify the circuit with pulse gates,
+            or some extra metadata regarding the transpiled sequence of instructions.
+
+            By default, this method just passes transpiled circuits to the execution chain.
 
         Args:
             circuits: List of transpiled circuits.
@@ -178,7 +197,7 @@ class BaseExperiment(ABC):
             Transpiled circuit to execute.
         """
         # Run pre transpile. This is implemented by each experiment subclass.
-        self._pre_transpile_hook(backend)
+        self.pre_transpile_action(backend)
 
         # Get transpile options
         transpile_options = copy.copy(self.transpile_options)
@@ -191,21 +210,32 @@ class BaseExperiment(ABC):
         circuits = transpile(circuits=self.circuits(backend), backend=backend, **transpile_options)
 
         # Run post transpile. This is implemented by each experiment subclass.
-        circuits = self._post_transpile_hook(circuits, backend)
+        circuits = self.post_transpile_action(circuits, backend)
 
         return circuits
 
-    def _post_analysis_hook(self, experiment_data: ExperimentData):
+    def post_analysis_action(self, experiment_data: ExperimentData):
         """An extra subroutine executed after analysis.
 
-        Args:
-            experiment_data: A future object of the experiment result.
-
         Note:
-            The experiment_data may contain a future object as an experiment result
-            and the previous analysis routine has not completed yet.
-            If the hook should be executed immediately, call :meth:`block_for_results` method
-            before starting the data processing code.
+            This method may be implemented by a subclass that requires to perform
+            extra data processing based on the analyzed experimental result.
+
+            Note that the analysis routine will not complete until the backend job
+            is executed, and this method will be called after the analysis routine
+            is completed though a handler of the experiment result will be immediately
+            returned to users (a future object). This method is automatically triggered
+            when the analysis is finished, and will be processed in background.
+
+            If this method updates some other (mutable) objects, you may need manage
+            synchronization of update of the object data. Otherwise you may want to
+            call :meth:`block_for_results` method of the ``experiment_data`` here
+            to freeze processing chain until the job result is returned.
+
+            By default, this method does nothing.
+
+        Args:
+            experiment_data: A future object of the experimental result.
         """
         pass
 
@@ -250,7 +280,7 @@ class BaseExperiment(ABC):
             )
 
         # Run post analysis. This is implemented by each experiment subclass.
-        self._post_analysis_hook(experiment_data)
+        self.post_analysis_action(experiment_data)
 
         return experiment_data
 
