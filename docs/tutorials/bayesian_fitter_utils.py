@@ -150,7 +150,7 @@ def gsp_plot(scale, lengths, num_samples,shots, texto, title,
                   fontsize=14)
 
 # building the model
-def create_model(T_priors, X, Y, shots, scale,
+def create_model(T_test_values, X, Y, shots, scale,
                 testval_s = 0.0001, upper_s = 0.001, lower_s = 0.00001, s_prior = "Uniform",
                 alpha_Gamma = 1.5, beta_Gamma = 10000):
     my_model = pm.Model()
@@ -158,9 +158,9 @@ def create_model(T_priors, X, Y, shots, scale,
 
         # Tying parameters
         BoundedUniform = pm.Bound(pm.Uniform,
-                                   lower=np.fmax(T_priors-0.1, np.full(T_priors.shape,1.e-9)),
-                                   upper=np.fmin(T_priors+0.1, np.full(T_priors.shape,1.-1e-9)))
-        pi = BoundedUniform("Tying_Parameters",testval = T_priors, shape = T_priors.shape) 
+                                   lower=np.fmax(T_test_values-0.1, np.full(T_test_values.shape,1.e-9)),
+                                   upper=np.fmin(T_test_values+0.1, np.full(T_test_values.shape,1.-1e-9)))
+        pi = BoundedUniform("Tying_Parameters",testval = T_test_values, shape = T_test_values.shape) 
 
         # sigma of Beta functions
         if s_prior == "Unif":
@@ -176,13 +176,13 @@ def create_model(T_priors, X, Y, shots, scale,
         else: 
             raise Exception("Prior for sigma Beta only Uniform or Gamma at this time")
          
-        if len(T_priors) == 3: # standard RB
+        if len(T_test_values) == 3: # standard RB
             # Tracing EPC
             EPC = pm.Deterministic('EPC', scale*(1-pi[1])) 
             # Tying function
             GSP = pi[0] * pi[1]**X + pi[2]
             
-        elif len(T_priors) == 4: # interleaved RB
+        elif len(T_test_values) == 4: # interleaved RB
             EPC = pm.Deterministic('EPC', scale*(1-pi[2])) 
             # Tying function
             GSP = pi[0] * ( X[1]*pi[1]**X[0] +\
