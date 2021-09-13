@@ -187,7 +187,7 @@ class BaseExperiment(ABC):
         return circuits
 
     def run_transpile(self, backend: Backend, **options) -> List[QuantumCircuit]:
-        """Run transpile and returns transpiled circuits.
+        """Run transpile and return transpiled circuits.
 
         Args:
             backend: Target backend.
