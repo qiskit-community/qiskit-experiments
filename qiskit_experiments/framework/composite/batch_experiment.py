@@ -17,7 +17,6 @@ from typing import List
 
 from qiskit import QuantumCircuit
 
-
 from .composite_experiment import CompositeExperiment
 
 
@@ -73,6 +72,7 @@ class BatchExperiment(CompositeExperiment):
 
         super().__init__(experiments, qubits)
 
+    # pylint: disable=unused-argument
     def _flatten_circuits(
         self,
         circuits: List[List[QuantumCircuit]],

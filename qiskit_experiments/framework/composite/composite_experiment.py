@@ -13,16 +13,17 @@
 Composite Experiment abstract base class.
 """
 
+import warnings
 from abc import abstractmethod
 from typing import List, Optional
-import warnings
 
 from qiskit import QuantumCircuit
-from qiskit.providers import Backend, BaseJob
 from qiskit.exceptions import QiskitError
+from qiskit.providers import Backend, BaseJob
+
 from qiskit_experiments.framework import BaseExperiment, ExperimentData
-from .composite_experiment_data import CompositeExperimentData
 from .composite_analysis import CompositeAnalysis
+from .composite_experiment_data import CompositeExperimentData
 
 
 class CompositeExperiment(BaseExperiment):
@@ -66,7 +67,7 @@ class CompositeExperiment(BaseExperiment):
         # Generate a set of transpiled circuits for each nested experiment and have them as a list.
         # In each list element, a list of quantum circuit for nested experiment is stored.
 
-        # type: List[List[QuantumCircuit]]
+        # : List[List[QuantumCircuit]]
         experiment_circuits_list = list(
             map(lambda expr: expr.run_transpile(backend), self._experiments)
         )
@@ -190,4 +191,4 @@ class CompositeExperiment(BaseExperiment):
             "Note that transpile options are provided by each nested experiment, "
             f"and thus provided options here {fields} are just discarded."
         )
-        super().set_transpile_options(fields)
+        super().set_transpile_options(**fields)
