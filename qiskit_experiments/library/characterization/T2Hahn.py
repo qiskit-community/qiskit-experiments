@@ -69,7 +69,6 @@ class T2Hahn(BaseExperiment):
         """
         options = super()._default_experiment_options()
 
-        options.qubit = []
         options.delays = None
         options.unit = "s"
         options.n_echos = 1
@@ -97,7 +96,7 @@ class T2Hahn(BaseExperiment):
              Error for invalid input.
         """
         # Initialize base experiment
-        super().__init__(qubit)
+        super().__init__([qubit])
         # Set configurable options
         self.set_experiment_options(
             delays=delays, n_echos=n_echos, phase_alt_echo=phase_alt_echo, qubit=qubit
@@ -167,7 +166,7 @@ class T2Hahn(BaseExperiment):
         """
 
         circuits = []
-        qubit = self.experiment_options.qubit
+        qubit = list(self._physical_qubits)
         for circ_index, delay in enumerate(self.experiment_options.delays):
             circ = QuantumCircuit(max(qubit) + 1, len(qubit))
             circ.name = "t2circuit_" + str(circ_index) + "_0"
@@ -177,7 +176,7 @@ class T2Hahn(BaseExperiment):
             circ.rx(np.pi, qubit)
             circ.delay(delay, qubit, self.experiment_options.unit)
             circ.ry(-np.pi / 2, qubit)  # Y90
-            circ.append(Measure(), qubit, [0])  # measure
+            circ.append(Measure(), self._physical_qubits, [0])  # measure
             circ.metadata = {
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits,
