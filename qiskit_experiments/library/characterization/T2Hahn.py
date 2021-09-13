@@ -24,6 +24,28 @@ class T2Hahn(BaseExperiment):
     # Analysis class for experiment
     #     __analysis_class__ = T2Analysis  # need to add T2Analysis
 
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        """Default experiment options.
+
+        Experiment Options:
+            delays (Iterable[float]): Delay times of the experiments.
+            unit (str): Unit of the delay times. Supported units are
+                's', 'ms', 'us', 'ns', 'ps', 'dt'.
+            osc_freq (float): Oscillation frequency offset in Hz.
+            n_echos (int); Number of echoes to preform.
+
+        """
+        options = super()._default_experiment_options()
+
+        options.delays = None
+        options.unit = "s"
+        options.osc_freq = 0.0
+        options.n_echoes = 1
+        options.phase_alt_echo = False
+
+        return options
+
     def __init__(
             self,
             qubit: Union[int, Iterable[int]],
