@@ -27,7 +27,7 @@ from qiskit_experiments.matplotlib import requires_matplotlib
 class QuantumVolumeAnalysis(BaseAnalysis):
     r"""A class to analyze quantum volume experiments.
 
-    Overview
+    # section: overview
         Calculate the quantum volume of the analysed system.
         The quantum volume is determined by the largest successful circuit depth.
         A depth is successful if it has 'mean heavy-output probability' > 2/3 with confidence
@@ -46,10 +46,12 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         ax: Optional["matplotlib.pyplot.AxesSubplot"] = None,
     ):
         """Run analysis on circuit data.
+
         Args:
             experiment_data (ExperimentData): the experiment data to analyze.
-            plot: If True generate a plot of fitted data.
-            ax: Optional, matplotlib axis to add plot to.
+            plot (bool): If True generate a plot of fitted data.
+            ax (AxesSubplot): Optional, matplotlib axis to add plot to.
+
         Returns:
             tuple: A pair ``(result_data figures)`` where
                    ``result_data`` is a list of
@@ -82,8 +84,10 @@ class QuantumVolumeAnalysis(BaseAnalysis):
     def _calc_ideal_heavy_output(probabilities_vector, depth):
         """
         Calculate the bit strings of the heavy output for the ideal simulation
+
         Args:
             ideal_data (dict): the simulation result of the ideal circuit
+
         Returns:
              list: the bit strings of the heavy output
         """
@@ -108,9 +112,11 @@ class QuantumVolumeAnalysis(BaseAnalysis):
     def _calc_exp_heavy_output_probability(data, heavy_outputs):
         """
         Calculate the probability of measuring heavy output string in the data
+
         Args:
             data (dict): the result of the circuit exectution
             heavy_outputs (list): the bit strings of the heavy output from the ideal simulation
+
         Returns:
             int: heavy output probability
         """
