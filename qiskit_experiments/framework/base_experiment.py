@@ -196,7 +196,7 @@ class BaseExperiment(ABC):
         Returns:
             Transpiled circuit to execute.
         """
-        # Run pre transpile. This is implemented by each experiment subclass.
+        # Run pre transpile if implemented by subclasses.
         self.pre_transpile_action(backend)
 
         # Get transpile options
