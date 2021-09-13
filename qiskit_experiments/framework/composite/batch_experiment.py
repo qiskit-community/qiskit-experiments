@@ -24,9 +24,10 @@ from .composite_experiment import CompositeExperiment
 class BatchExperiment(CompositeExperiment):
     """Batch experiment class.
 
-    This experiment takes multiple experiment instances and generates
-    a list of flattened circuit to execute.
-    The experimental circuits are executed ony be one on the target backend as a single job.
+    This experiment takes multiple experiment instances and generates a list of circuits for
+    each nested experiment. This nested circuit list is flattened to a single long list of
+    all circuits to execute, and the circuits are executed ony be one
+    on the target backend as a single job.
 
     If an experiment analysis needs results of different types of experiments,
     ``BatchExperiment`` may be convenient to describe the flow of the entire experiment.
@@ -80,7 +81,8 @@ class BatchExperiment(CompositeExperiment):
         """Flatten circuits.
 
         Note:
-            This experiment concatenates sub experiment circuits.
+            This experiment just flattens a list of list of circuit to a single long list of
+            circuits. The structure of experiment is kept in a metadata.
         """
         batch_circuits = []
 
