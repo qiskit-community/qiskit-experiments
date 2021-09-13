@@ -924,8 +924,13 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
             # Fit for each fit parameter combination
             if isinstance(fit_candidates, dict):
-                # Only single initial guess
-                fit_options = self._format_fit_options(**fit_candidates)
+                fit_candidates = [fit_candidates]
+
+            fit_options_candidates = [
+                self._format_fit_options(**fit_options) for fit_options in fit_candidates
+            ]
+            fit_results = []
+            for fit_options in fit_options_candidates:
                 fit_result = curve_fitter(
                     funcs=[series_def.fit_func for series_def in self.__series__],
                     series=formatted_data.data_index,
@@ -934,29 +939,14 @@ class CurveAnalysis(BaseAnalysis, ABC):
                     sigma=formatted_data.y_err,
                     **fit_options,
                 )
-            else:
-                # Multiple initial guesses
-                fit_options_candidates = [
-                    self._format_fit_options(**fit_options) for fit_options in fit_candidates
-                ]
-                fit_results = []
-                for fit_options in fit_options_candidates:
-                    fit_result = curve_fitter(
-                        funcs=[series_def.fit_func for series_def in self.__series__],
-                        series=formatted_data.data_index,
-                        xdata=formatted_data.x,
-                        ydata=formatted_data.y,
-                        sigma=formatted_data.y_err,
-                        **fit_options,
-                    )
-                    fit_results.append(fit_result)
-                if len(fit_results) == 0:
-                    raise AnalysisError(
-                        "All initial guesses and parameter boundaries failed to fit the data. "
-                        "Please provide better initial guesses or fit parameter boundaries."
-                    )
-                # Sort by chi squared value
-                fit_result = sorted(fit_results, key=lambda r: r.reduced_chisq)[0]
+                fit_results.append(fit_result)
+            if len(fit_results) == 0:
+                raise AnalysisError(
+                    "All initial guesses and parameter boundaries failed to fit the data. "
+                    "Please provide better initial guesses or fit parameter boundaries."
+                )
+            # Sort by chi squared value
+            fit_result = sorted(fit_results, key=lambda r: r.reduced_chisq)[0]
 
         except AnalysisError:
             fit_result = None
