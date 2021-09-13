@@ -22,6 +22,7 @@ Experiments
 ===========
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
     QuantumVolume
 
@@ -31,6 +32,7 @@ Analysis
 
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/analysis.rst
 
     QuantumVolumeAnalysis
 """
