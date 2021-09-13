@@ -65,7 +65,11 @@ class BatchExperiment(CompositeExperiment):
         Args:
             experiments (List[BaseExperiment]): a list of experiments.
         """
-        qubits = sorted(set(sum([list(expr.physical_qubits) for expr in experiments], [])))
+        qubits = list()
+        for expr in experiments:
+            qubits.extend(expr.physical_qubits)
+        qubits = sorted(set(qubits))
+
         super().__init__(experiments, qubits)
 
     def _flatten_circuits(
