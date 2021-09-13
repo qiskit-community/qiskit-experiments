@@ -12,12 +12,9 @@
 
 """Test suite for composite experiments.
 
-This test assumes some simple but enough general virtual experiment.
-The prepared fake experiment just flips qubit state and measure it,
-while attached analysis class calculate the excited state population and create analysis result.
-
-This experiment can cover the situation that deals with several hook methods and configurations.
-This simplicity may benefit the debugging when some unexpected error is induced.
+This test platform defines simple virtual experiment classes, rather than using the
+actual experiments from the experiment library to isolate test of composite framework
+from other experiments.
 """
 
 from qiskit.circuit import QuantumCircuit
@@ -90,7 +87,16 @@ class FakeExperimentCommon(BaseExperiment):
 
 
 class TestParallelExperiment(QiskitTestCase):
-    """Test parallel experiment."""
+    """Test parallel experiment.
+
+    This experiment uses a fake experiment that just flips qubit state and measure it,
+    while attached analysis class calculate the excited state population
+    and create analysis result data.
+
+    This experiment can cover the situation that deals with
+    several pre and post processing methods and experiment-wise configurations.
+    This simplicity may benefit the debugging when some unexpected error is induced.
+    """
 
     def test_standard_circuit_construction(self):
         """Test standard parallel experiment construction."""
