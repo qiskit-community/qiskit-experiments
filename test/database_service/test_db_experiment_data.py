@@ -554,7 +554,9 @@ class TestDbExperimentData(QiskitTestCase):
         job2.status.return_value = JobStatus.ERROR
 
         exp_data = DbExperimentData(experiment_type="qiskit_test")
-        exp_data.add_data([job1, job2])
+        with self.assertLogs(logger="qiskit_experiments.database_service", level="WARN") as cm:
+            exp_data.add_data([job1, job2])
+        self.assertIn("Adding a job from a backend", ",".join(cm.output))
         self.assertEqual("ERROR", exp_data.status())
 
     def test_status_post_processing(self):

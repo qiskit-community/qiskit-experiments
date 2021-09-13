@@ -21,11 +21,17 @@ please ensure that:
 2. The documentation has been updated accordingly. In particular, if a
    function or class has been modified during the PR, please update the
    *docstring* accordingly.
-3. If it makes sense for your change that you have added new tests that
-   cover the changes.
-4. Ensure that if your change has an end user facing impact (new feature,
+3. You update the relevant tutorial or write a new one. Use this [tutorial guidelines](docs/tutorials/GUIDELINES.md)
+   document for further details.
+
+   In case the PR needs to be merged without delay (e.g. for a high priority fix), open an issue for updating or adding
+   the tutorial later.
+4. If it makes sense for your change that you have added to include new tests that cover the changes.
+5. If your change has an end user facing impact (new feature,
    deprecation, removal etc) that you have added a reno release note for that
    change and that the PR is tagged for the changelog.
+
+
 
 ### Changelog generation
 
