@@ -12,6 +12,7 @@
 """
 Composite Experiment Analysis class.
 """
+import warnings
 
 from qiskit.exceptions import QiskitError
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData
@@ -40,8 +41,16 @@ class CompositeAnalysis(BaseAnalysis):
             QiskitError: if analysis is attempted on non-composite
                          experiment data.
         """
-        if not isinstance(experiment_data, CompositeExperimentData):
+        if not isinstance(experiment_data, self.__experiment_data__):
             raise QiskitError("CompositeAnalysis must be run on CompositeExperimentData.")
+
+        if len(options) > 0:
+            warnings.warn(
+                f"Analysis options for the composite experiment are provided: {options}. "
+                "Note that the provided options will override every analysis of an experiment"
+                "associated with this composite experiment.",
+                UserWarning,
+            )
 
         # Add sub-experiment metadata as result of batch experiment
         # Note: if Analysis results had ID's these should be included here

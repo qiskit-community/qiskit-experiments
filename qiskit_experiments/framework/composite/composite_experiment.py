@@ -107,16 +107,8 @@ class CompositeExperiment(BaseExperiment):
 
             No analysis configuration assumed for composite experiment object itself.
         """
-        if not isinstance(experiment_data, CompositeExperimentData):
+        if not isinstance(experiment_data, self.__experiment_data__):
             raise QiskitError("CompositeAnalysis must be run on CompositeExperimentData.")
-
-        if len(options) > 0:
-            warnings.warn(
-                f"Analysis options for the composite experiment are provided: {options}. "
-                "Note that the provided options will override every analysis of an experiment"
-                "associated with this composite experiment.",
-                UserWarning,
-            )
 
         return super().run_analysis(experiment_data, job, **options)
 
@@ -190,3 +182,12 @@ class CompositeExperiment(BaseExperiment):
                 )
             sub_data = experiment_data.component_experiment_data(i)
             sub_exp._add_job_metadata(sub_data, job, **run_options)
+
+    def set_transpile_options(self, **fields):
+        """Composite experiment itself doesn't provide transpile options."""
+        warnings.warn(
+            "A composite experiment class doesn't provide transpile options. "
+            "Note that transpile options are provided by each nested experiment, "
+            f"and thus provided options here {fields} are just discarded."
+        )
+        super().set_transpile_options(fields)
