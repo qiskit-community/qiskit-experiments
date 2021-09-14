@@ -20,10 +20,15 @@ from .base_experiment import BaseExperiment
 
 
 def apply_delay_validation(experiment: BaseExperiment, backend: Backend):
+    """Enable delay duration validation to conform to backend alignment constraints.
 
-    if_simulator = getattr(backend.configuration(), "simulator", False)
+    Args:
+        experiment: Experiment instance to run.
+        backend: Target backend.
+    """
+    is_simulator = getattr(backend.configuration(), "simulator", False)
 
-    if not if_simulator and not isinstance(backend, FakeBackend):
+    if not is_simulator and not isinstance(backend, FakeBackend):
         timing_constraints = getattr(
             experiment.transpile_options.__dict__, "timing_constraints", {}
         )
