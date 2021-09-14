@@ -28,5 +28,5 @@ upgrade:
     under the consistent transpile configurations, which may discard required
     transpile configurations for a specific experiment.
 
-    Note that run options set to each experiment instance is discarded because
+    Note that run options set to each experiment instance is still discarded because
     Qiskit assumes a backend doesn't change run configurations per circuit.
