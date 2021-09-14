@@ -368,7 +368,7 @@ class Calibrations:
         Args:
             value: The value of the parameter to add. If an int, float, or complex is given
                 then the timestamp of the parameter value will automatically be generated
-                and set to the current time.
+                and set to the current local time of the user.
             param: The parameter or its name for which to add the measured value.
             qubits: The qubits to which this parameter applies.
             schedule: The schedule or its name for which to add the measured parameter value.
@@ -380,7 +380,7 @@ class Calibrations:
         qubits = self._to_tuple(qubits)
 
         if isinstance(value, (int, float, complex)):
-            value = ParameterValue(value, datetime.now(timezone.utc))
+            value = ParameterValue(value, datetime.now(timezone.utc).astimezone())
 
         param_name = param.name if isinstance(param, Parameter) else param
         sched_name = schedule.name if isinstance(schedule, ScheduleBlock) else schedule
@@ -896,7 +896,6 @@ class Calibrations:
                 value_dict["parameter"] = key.parameter
                 value_dict["schedule"] = key.schedule
                 value_dict["date_time"] = value_dict["date_time"].strftime("%Y-%m-%d %H:%M:%S.%f%z")
-
                 data.append(value_dict)
 
         return data

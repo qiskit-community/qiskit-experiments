@@ -17,7 +17,6 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
-from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
 from qiskit.pulse.schedule import ScheduleBlock
 
@@ -96,15 +95,6 @@ class FineAmplitude(BaseExperiment):
     """
 
     __analysis_class__ = FineAmplitudeAnalysis
-
-    @classmethod
-    def _default_run_options(cls) -> Options:
-        """Default option values for the experiment :meth:`run` method."""
-        options = super()._default_run_options()
-        options.meas_level = MeasLevel.CLASSIFIED
-        options.meas_return = "avg"
-
-        return options
 
     @classmethod
     def _default_experiment_options(cls) -> Options:

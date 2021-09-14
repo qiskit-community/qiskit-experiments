@@ -181,3 +181,24 @@ class MockFineAmp(MockIQBackend):
         angle += np.pi * n_x_ops
 
         return np.sin(angle / 2) ** 2
+
+
+class MockRamseyXY(MockIQBackend):
+    """A mock backend for the RamseyXY experiment."""
+
+    def __init__(self, freq_shift: float):
+        super().__init__()
+        self.freq_shift = freq_shift
+
+    def _compute_probability(self, circuit: QuantumCircuit) -> float:
+        """Return the probability of the circuit."""
+
+        series = circuit.metadata["series"]
+        delay = circuit.metadata["xval"]
+
+        if series == "X":
+            phase_offset = 0.0
+        else:
+            phase_offset = np.pi / 2
+
+        return 0.5 * np.cos(2 * np.pi * delay * self.freq_shift - phase_offset) + 0.5
