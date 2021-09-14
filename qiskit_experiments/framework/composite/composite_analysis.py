@@ -42,7 +42,9 @@ class CompositeAnalysis(BaseAnalysis):
                          experiment data.
         """
         if not isinstance(experiment_data, self.__experiment_data__):
-            raise QiskitError("CompositeAnalysis must be run on CompositeExperimentData.")
+            raise QiskitError(
+                f"CompositeAnalysis must be run on {self.__experiment_data__.__class__.__name__}."
+            )
 
         if len(options) > 0:
             warnings.warn(

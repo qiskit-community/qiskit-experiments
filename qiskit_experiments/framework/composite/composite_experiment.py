@@ -108,9 +108,6 @@ class CompositeExperiment(BaseExperiment):
 
             No analysis configuration assumed for composite experiment object itself.
         """
-        if not isinstance(experiment_data, self.__experiment_data__):
-            raise QiskitError("CompositeAnalysis must be run on CompositeExperimentData.")
-
         return super().run_analysis(experiment_data, job, **options)
 
     @abstractmethod
