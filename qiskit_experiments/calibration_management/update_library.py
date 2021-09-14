@@ -57,9 +57,8 @@ class BaseUpdater(ABC):
         """Helper method to extract the datetime."""
         all_times = exp_data.completion_times.values()
         if all_times:
-            return max(all_times)
-
-        return datetime.now(timezone.utc)
+            return max(all_times).astimezone()
+        return datetime.now(timezone.utc).astimezone()
 
     @classmethod
     def _add_parameter_value(
