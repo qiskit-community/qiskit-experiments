@@ -30,18 +30,18 @@ class CompositeExperiment(BaseExperiment):
     """Composite Experiment base class.
 
     Note:
-        Composite experiment defines different option handling policies for each
-        type of options.
+        Composite experiment defines different option handling policies for different
+        kind of options.
 
-        * transpile options: The transpile options set to each nested experiment are retained.
+        * transpile options: The transpile options set to nested experiments are retained.
           Thus, the experiment can transpile experimental circuits individually and combine.
-          Note that no transpile option can be set to composite experiment itself.
+          Note that no transpile option can be set to the composite experiment itself.
 
-        * experiment options: Same with transpile options.
+        * experiment options: Same with the transpile options.
 
         * analysis options: Same with transpile options. However, one can set analysis options
           to the composite experiment. The set value will override all analysis configurations
-          of the nested experiments.
+          of experiments associated with the composite experiment.
 
         * run options: The run options set to nested experiments are discarded.
           This is because Qiskit doesn't assume a backend that can execute each circuit
