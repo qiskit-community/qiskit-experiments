@@ -261,6 +261,28 @@ class TestParallelExperiment(QiskitTestCase):
         prob_entry_exp1 = exp_data1.analysis_results("probability")
         self.assertEqual(prob_entry_exp1.extra["shots"], 1024)
 
+    def test_transpile_option_overriden(self):
+        """Test if transpile option is retained."""
+        backend = ConfigurableFakeBackend("test", 2)
+        exp0 = FakeExperimentCommon(qubits=[0])
+        exp1 = FakeExperimentCommon(qubits=[1])
+
+        par_exp = ParallelExperiment([exp0, exp1])
+
+        # transpile option for composite experiment doesn't affect transpilation
+        with self.assertWarns(UserWarning):
+            par_exp.set_transpile_options(basis_gates=["sx", "rz"])
+
+        test_circ = par_exp.run_transpile(backend=backend)[0]
+
+        ref_circ = QuantumCircuit(*test_circ.qregs, *test_circ.cregs)
+        ref_circ.x(0)
+        ref_circ.x(1)
+        ref_circ.measure(0, 0)
+        ref_circ.measure(1, 1)
+
+        self.assertEqual(test_circ, ref_circ)
+
     def test_analysis_hook(self):
         """Test update class variable with analysis result."""
 

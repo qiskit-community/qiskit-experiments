@@ -189,6 +189,7 @@ class CompositeExperiment(BaseExperiment):
         warnings.warn(
             "A composite experiment class doesn't provide transpile options. "
             "Note that transpile options are provided by each nested experiment, "
-            f"and thus provided options here {fields} are just discarded."
+            f"and thus provided options here {fields} are just discarded.",
+            UserWarning,
         )
         super().set_transpile_options(**fields)

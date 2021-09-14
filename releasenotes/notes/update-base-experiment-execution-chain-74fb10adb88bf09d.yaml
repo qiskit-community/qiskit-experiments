@@ -1,0 +1,32 @@
+---
+features:
+  - |
+    The execution chain of :py:class:`~qiskit_experiments.framework.base_experiment.BaseExperiment`
+    is updated with some flexibility. This new feature will benefit experiment developers
+    who need to modify the standard job execution and analysis workflow.
+
+    With this change, following three methods are newly introduced.
+
+    - :py:meth:`~qiskit_experiments.framework.base_experiment.BaseExperiment#pre_transpile_action`
+    - :py:meth:`~qiskit_experiments.framework.base_experiment.BaseExperiment#post_transpile_action`
+    - :py:meth:`~qiskit_experiments.framework.base_experiment.BaseExperiment#post_analysis_action`
+
+    These methods allow a developer to insert extra data processing routine (somewhat of hooks)
+    in between circuit generation and result data generation.
+    This feature increases the flexibility of job execution.
+
+    In addition, :py:meth:`run_transpile` method is added to all experiment classes.
+    This returns a list of quantum circuits to execute on the given backend.
+
+upgrade:
+  - |
+    Behavior of the composite experiment is upgraded.
+    Now transpile options set to the nested experiment instances are retained during transpilation.
+    This means we can practically combine different set of experiments in a
+    single parallel or batch job.
+    Previously, all experimental circuits set to the composite experiment used to be transpiled
+    under the consistent transpile configurations, which may discard required
+    transpile configurations for a specific experiment.
+
+    Note that run options set to each experiment instance is discarded because
+    Qiskit assumes a backend doesn't change run configurations per circuit.
