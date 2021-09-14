@@ -18,6 +18,7 @@ from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library import T2Ramsey
 from qiskit_experiments.test.t2ramsey_backend import T2RamseyBackend
 
+
 class TestT2Ramsey(QiskitTestCase):
     """Test T2Ramsey experiment"""
 
