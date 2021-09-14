@@ -12,9 +12,10 @@
 
 """Class to test the backend calibrations."""
 
+from qiskit.circuit import Parameter
 import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
-from qiskit.test.mock import FakeArmonk
+from qiskit.test.mock import FakeArmonk, FakeBelem
 
 from qiskit_experiments.calibration_management import BackendCalibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
@@ -51,3 +52,31 @@ class TestBackendCalibrations(QiskitTestCase):
             pulse.play(pulse.Drag(duration=320, amp=0.25, sigma=80, beta=0), pulse.DriveChannel(0))
 
         self.assertEqual(cals.get_schedule("sx", (0,)), expected)
+
+    def test_instruction_schedule_map_export(self):
+        """Test that exporting the inst map works as planned."""
+
+        backend = FakeBelem()
+
+        cals = BackendCalibrations(
+            backend,
+            library=FixedFrequencyTransmon(basis_gates=["sx"]),
+        )
+
+        u_chan = pulse.ControlChannel(Parameter("ch0.1"))
+        with pulse.build(name="cr") as cr:
+            pulse.play(pulse.GaussianSquare(640, 0.5, 64, 384), u_chan)
+
+        cals.add_schedule(cr, n_qubits=2)
+        cals.complete_inst_map_update({"cr"})
+
+        for qubit in range(backend.configuration().num_qubits):
+            self.assertTrue(cals.instruction_schedule_map.has("sx", (qubit,)))
+
+        # based on coupling map of Belem to keep the test robust.
+        expected_pairs = [(0, 1), (1, 0), (1, 2), (2, 1), (1, 3), (3, 1), (3, 4), (4, 3)]
+        coupling_map = set(tuple(pair) for pair in backend.configuration().coupling_map)
+
+        for pair in expected_pairs:
+            self.assertTrue(pair in coupling_map)
+            self.assertTrue(cals.instruction_schedule_map.has("cr", pair), pair)

@@ -89,7 +89,12 @@ class Calibrations:
         self._hash_to_counter_map = {}
         self._parameter_counter = 0
 
-    def add_schedule(self, schedule: ScheduleBlock, qubits: Union[int, Tuple[int, ...]] = None):
+    def add_schedule(
+        self,
+        schedule: ScheduleBlock,
+        qubits: Union[int, Tuple[int, ...]] = None,
+        n_qubits: Optional[int] = None,
+    ):
         """Add a schedule block and register its parameters.
 
         Schedules that use Call instructions must register the called schedules separately.
@@ -97,7 +102,11 @@ class Calibrations:
         Args:
             schedule: The :class:`ScheduleBlock` to add.
             qubits: The qubits for which to add the schedules. If None or an empty tuple is
-                given then this schedule is the default schedule for all qubits.
+                given then this schedule is the default schedule for all qubits and, in this
+                case, the number of qubits that this schedule act on must be given.
+            n_qubits: The number of qubits that this schedule will act on when exported to
+                a circuit instruction. This argument is optional as long as qubits is either
+                not None or not an empty tuple (i.e. default schedule).
 
         Raises:
             CalibrationError: If schedule is not an instance of :class:`ScheduleBlock`.
@@ -107,12 +116,28 @@ class Calibrations:
             CalibrationError: If the schedule name starts with the prefix of ScheduleBlock.
             CalibrationError: If the schedule calls subroutines that have not been registered.
             CalibrationError: If a :class:`Schedule` is Called instead of a :class:`ScheduleBlock`.
+            CalibrationError: If a schedule with the same name exists and acts on a different
+                number of qubits.
 
         """
+        if (qubits is None or qubits == tuple()) and n_qubits is None:
+            raise CalibrationError("Both qubits and n_qubits cannot simultaneously be None.")
+
         qubits = self._to_tuple(qubits)
+        n_qubits = len(qubits) if qubits != () else n_qubits
 
         if not isinstance(schedule, ScheduleBlock):
             raise CalibrationError(f"{schedule.name} is not a ScheduleBlock.")
+
+        # Check that we are not adding a schedule with the same name acting on a different
+        # number of qubits
+        for key in self._schedules:
+            if key.schedule == schedule.name and key.n_qubits != n_qubits:
+                raise CalibrationError(
+                    f"Cannot add schedule {schedule.name} acting on {n_qubits} qubits."
+                    "self already contains a schedule with the same name acting on "
+                    f"{key.n_qubits} qubits."
+                )
 
         # check that channels, if parameterized, have the proper name format.
         if schedule.name.startswith(ScheduleBlock.prefix):
@@ -142,7 +167,8 @@ class Calibrations:
                         "Calling a Schedule is forbidden, call ScheduleBlock instead."
                     )
 
-                if (block.subroutine.name, qubits) not in self._schedules:
+                key = ScheduleKey(block.subroutine.name, qubits, n_qubits)
+                if key not in self._schedules:
                     raise CalibrationError(
                         f"Cannot register schedule block {schedule.name} with unregistered "
                         f"subroutine {block.subroutine.name}."
@@ -152,7 +178,7 @@ class Calibrations:
         self._clean_parameter_map(schedule.name, qubits)
 
         # Add the schedule.
-        self._schedules[ScheduleKey(schedule.name, qubits)] = schedule
+        self._schedules[ScheduleKey(schedule.name, qubits, n_qubits)] = schedule
 
         # Register parameters that are not indices.
         # Do not register parameters that are in call instructions.
@@ -193,9 +219,7 @@ class Calibrations:
 
         return instructions
 
-    def get_template(
-        self, schedule_name: str, qubits: Optional[Tuple[int, ...]] = None
-    ) -> ScheduleBlock:
+    def get_template(self, schedule_name: str, qubits: Tuple[int, ...]) -> ScheduleBlock:
         """Get a template schedule.
 
         Allows the user to get a template schedule that was previously registered.
@@ -213,22 +237,34 @@ class Calibrations:
             CalibrationError: if no template schedule for the given schedule name and qubits
                 was registered.
         """
-        key = ScheduleKey(schedule_name, self._to_tuple(qubits))
+        n_qubits = self._get_n_qubits(schedule_name)
 
-        if key in self._schedules:
-            return self._schedules[key]
-
-        if ScheduleKey(schedule_name, ()) in self._schedules:
-            return self._schedules[ScheduleKey(schedule_name, ())]
+        for qubit_tuple in [self._to_tuple(qubits), ()]:
+            key = ScheduleKey(schedule_name, qubit_tuple, n_qubits)
+            if key in self._schedules:
+                return self._schedules[key]
 
         if qubits:
             msg = f"Could not find schedule {schedule_name} on qubits {qubits}."
         else:
-            msg = f"Could not find schedule {schedule_name}."
+            msg = f"Could not find schedule {schedule_name} on {n_qubits} qubits."
 
         raise CalibrationError(msg)
 
-    def remove_schedule(self, schedule: ScheduleBlock, qubits: Union[int, Tuple[int, ...]] = None):
+    def _get_n_qubits(self, schedule_name: str) -> Tuple:
+        """Return the number of qubits for this schedule."""
+        for key in self._schedules:
+            if key.schedule == schedule_name:
+                return key.n_qubits
+
+        raise CalibrationError(f"No default schedule found with name {schedule_name}.")
+
+    def remove_schedule(
+        self,
+        schedule: ScheduleBlock,
+        qubits: Union[int, Tuple[int, ...]] = None,
+        n_qubits: Optional[int] = None,
+    ):
         """Remove a schedule that was previously registered.
 
         Allows users to remove a schedule from the calibrations. The history of the parameters
@@ -238,11 +274,15 @@ class Calibrations:
             schedule: The schedule to remove.
             qubits: The qubits for which to remove the schedules. If None is given then this
                 schedule is the default schedule for all qubits.
+            n_qubits: The number of qubits that this schedule will act on when exported to
+                a circuit instruction. This argument is optional as long as qubits is either
+                not None or not an empty tuple (i.e. default schedule).
         """
         qubits = self._to_tuple(qubits)
+        n_qubits = len(qubits) if qubits != () else n_qubits
 
-        if ScheduleKey(schedule.name, qubits) in self._schedules:
-            del self._schedules[ScheduleKey(schedule.name, qubits)]
+        if ScheduleKey(schedule.name, qubits, n_qubits) in self._schedules:
+            del self._schedules[ScheduleKey(schedule.name, qubits, n_qubits)]
 
         # Clean the parameter to schedule mapping.
         self._clean_parameter_map(schedule.name, qubits)
@@ -614,10 +654,12 @@ class Calibrations:
             assign_params = dict()
 
         # Get the template schedule
-        if (name, qubits) in self._schedules:
-            schedule = self._schedules[ScheduleKey(name, qubits)]
-        elif (name, ()) in self._schedules:
-            schedule = self._schedules[ScheduleKey(name, ())]
+        key = ScheduleKey(name, qubits, len(qubits))
+        default_key = ScheduleKey(name, (), len(qubits))
+        if key in self._schedules:
+            schedule = self._schedules[key]
+        elif default_key in self._schedules:
+            schedule = self._schedules[default_key]
         else:
             raise CalibrationError(f"Schedule {name} is not defined for qubits {qubits}.")
 
