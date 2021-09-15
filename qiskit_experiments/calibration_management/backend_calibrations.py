@@ -96,7 +96,10 @@ class BackendCalibrations(Calibrations):
         self._register_parameter(self.qubit_freq, ())
         self._register_parameter(self.meas_freq, ())
 
-        self._qubits = set(range(backend.configuration().n_qubits))
+        if not hasattr(backend.configuration(), "n_qubits"):
+            raise CalibrationError("backend.configuration() does not have 'n_qubits'.")
+
+        self._qubits = list(range(backend.configuration().n_qubits))
         self._backend = backend
 
         for qubit, freq in enumerate(backend.defaults().qubit_freq_est):
@@ -350,7 +353,7 @@ class BackendCalibrations(Calibrations):
         self._sorted_coupling_map = defaultdict(list)
 
         # Single qubits
-        for qubit in range(self._backend.configuration().num_qubits):
+        for qubit in self._qubits:
             self._sorted_coupling_map[1].append([qubit])
 
         # Multi-qubit couplings
