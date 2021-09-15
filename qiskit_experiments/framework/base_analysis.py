@@ -18,7 +18,7 @@ from typing import List, Tuple
 
 from qiskit.exceptions import QiskitError
 
-from qiskit_experiments.database_service.device_component import Qubit
+from qiskit_experiments.database_service.device_component import Qubit, Resonator
 from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
@@ -73,12 +73,16 @@ class BaseAnalysis(ABC):
             )
 
         # Get experiment device components
+        experiment_components = []
         if "physical_qubits" in experiment_data.metadata:
             experiment_components = [
                 Qubit(qubit) for qubit in experiment_data.metadata["physical_qubits"]
-            ]
-        else:
-            experiment_components = []
+                ]
+        if "resonators" in experiment_data.metadata:
+            experiment_components.extend([
+                Resonator(resonator) for resonator in experiment_data.metadata["resonators"]
+            ])
+
 
         # Get analysis options
         analysis_options = self._default_options()
