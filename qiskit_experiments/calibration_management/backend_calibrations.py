@@ -88,7 +88,7 @@ class BackendCalibrations(Calibrations):
 
         # Instruction schedule map variables and support variables.
         self._inst_map = InstructionScheduleMap()
-        self._sorted_coupling_map = None
+        self._operated_qubits = None
 
         # Use the same naming convention as in backend.defaults()
         self.qubit_freq = Parameter(self.__qubit_freq_parameter__)
@@ -281,7 +281,7 @@ class BackendCalibrations(Calibrations):
             if schedules is not None and sched_name not in schedules:
                 continue
 
-            for qubits in self.sorted_coupling_map[n_qubits]:
+            for qubits in self.operated_qubits[n_qubits]:
                 try:
                     self._inst_map.add(
                         instruction=sched_name,
@@ -328,14 +328,16 @@ class BackendCalibrations(Calibrations):
             self._parameter_inst_map_update(param_obj)
 
     @property
-    def sorted_coupling_map(self) -> Dict[int, List[int]]:
-        """Get a sorted coupling map for easy look-up.
+    def operated_qubits(self) -> Dict[int, List[int]]:
+        """Get a dict describing qubit couplings.
+
+        This is an extension of the coupling map and used as a convenience to help populate
+        the instruction schedule map.
 
         Returns:
-            The coupling map in dict format where the key is the number of qubits coupled
-            and the value is a list of lists where the sublist shows which qubits are
-            coupled. For example a three qubit system with a three qubit gate and three two-
-            qubit gates would be represented as
+            A dict where the key is the number of qubits coupled and the value is a list of
+            lists where the sublist shows which qubits are coupled. For example, a three qubit
+            system with a three qubit gate and three two-qubit gates would be represented as
 
             .. parsed-literal::
 
@@ -347,18 +349,18 @@ class BackendCalibrations(Calibrations):
         """
 
         # Use the cached map if there is one.
-        if self._sorted_coupling_map is not None:
-            return self._sorted_coupling_map
+        if self._operated_qubits is not None:
+            return self._operated_qubits
 
-        self._sorted_coupling_map = defaultdict(list)
+        self._operated_qubits = defaultdict(list)
 
         # Single qubits
         for qubit in self._qubits:
-            self._sorted_coupling_map[1].append([qubit])
+            self._operated_qubits[1].append([qubit])
 
         # Multi-qubit couplings
         if self._backend.configuration().coupling_map is not None:
             for coupling in self._backend.configuration().coupling_map:
-                self._sorted_coupling_map[len(coupling)].append(coupling)
+                self._operated_qubits[len(coupling)].append(coupling)
 
-        return self._sorted_coupling_map
+        return self._operated_qubits
