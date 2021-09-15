@@ -78,6 +78,9 @@ class BackendCalibrations(Calibrations):
                 as the coupling map.
             library: A library class that will be instantiated with the library options to then
                 get template schedules to register as well as default parameter values.
+
+        Raises:
+            CalibrationError: If the backend configuration does not have n_qubits.
         """
         if hasattr(backend.configuration(), "control_channels"):
             control_channels = backend.configuration().control_channels
