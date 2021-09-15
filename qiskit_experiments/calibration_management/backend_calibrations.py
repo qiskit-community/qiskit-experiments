@@ -118,7 +118,12 @@ class BackendCalibrations(Calibrations):
             for param_conf in library.default_values():
                 schedule_name = param_conf[-1]
                 if schedule_name in library.basis_gates:
-                    self.add_parameter_value(*param_conf)
+                    # Call super to avoid inst_map update as not all parameters
+                    # will have default values until this loop completes.
+                    super().add_parameter_value(*param_conf)
+
+        # Push the schedules to the instruction schedule map.
+        self.update_inst_map()
 
     @property
     def instruction_schedule_map(self) -> InstructionScheduleMap:
@@ -262,7 +267,7 @@ class BackendCalibrations(Calibrations):
             arguments=inst_map_args,
         )
 
-    def complete_inst_map_update(self, schedules: Optional[set] = None):
+    def update_inst_map(self, schedules: Optional[set] = None, qubits: Optional[Tuple[int]] = None):
         """Push all schedules from the Calibrations to the inst map.
 
         This will create instructions with the same name as the schedules.
@@ -270,6 +275,9 @@ class BackendCalibrations(Calibrations):
         Args:
             schedules: The name of the schedules to update. If None is given then
                 all schedules will be pushed to instructions.
+            qubits: The qubits for which to update the instruction schedule map.
+                If qubits is None then all possible schedules defined by the coupling
+                map will be updated.
         """
 
         for sched_name, _, n_qubits in self._schedules:
@@ -277,24 +285,32 @@ class BackendCalibrations(Calibrations):
             if schedules is not None and sched_name not in schedules:
                 continue
 
-            for qubits in self.operated_qubits[n_qubits]:
-                try:
-                    self._inst_map.add(
-                        instruction=sched_name,
-                        qubits=qubits,
-                        schedule=self.get_schedule(sched_name, qubits),
-                    )
-                except CalibrationError:
-                    # get_schedule may raise an error if not all parameters have values or
-                    # default values. In this case we ignore and continue updating inst_map.
-                    pass
+            if qubits is not None:
+                self._inst_map.add(
+                    instruction=sched_name,
+                    qubits=qubits,
+                    schedule=self.get_schedule(sched_name, qubits),
+                )
+
+            else:
+                for qubits_ in self.operated_qubits[n_qubits]:
+                    try:
+                        self._inst_map.add(
+                            instruction=sched_name,
+                            qubits=qubits_,
+                            schedule=self.get_schedule(sched_name, qubits_),
+                        )
+                    except CalibrationError:
+                        # get_schedule may raise an error if not all parameters have values or
+                        # default values. In this case we ignore and continue updating inst_map.
+                        pass
 
     def _parameter_inst_map_update(self, param: Parameter):
         """Update all instructions in the inst map that contain the given parameter."""
 
         schedules = set(key.schedule for key in self._parameter_map_r[param])
 
-        self.complete_inst_map_update(schedules)
+        self.update_inst_map(schedules)
 
     def add_parameter_value(
         self,

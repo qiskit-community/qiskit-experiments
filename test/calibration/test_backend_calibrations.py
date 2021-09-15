@@ -69,7 +69,7 @@ class TestBackendCalibrations(QiskitTestCase):
             pulse.play(pulse.GaussianSquare(640, 0.5, 64, 384), u_chan)
 
         cals.add_schedule(cr, n_qubits=2)
-        cals.complete_inst_map_update({"cr"})
+        cals.update_inst_map({"cr"})
 
         for qubit in range(backend.configuration().num_qubits):
             self.assertTrue(cals.instruction_schedule_map.has("sx", (qubit,)))
@@ -126,8 +126,50 @@ class TestBackendCalibrations(QiskitTestCase):
             self.assertEqual(circ_rabi, rabi_expected)
 
         # Test the removal of the Rabi instruction
-        self.assertTrue(cals.instruction_schedule_map.has("Rabi", (0, )))
+        self.assertTrue(cals.instruction_schedule_map.has("Rabi", (0,)))
 
-        cals.instruction_schedule_map.remove("Rabi", (0, ))
+        cals.instruction_schedule_map.remove("Rabi", (0,))
 
         self.assertFalse(cals.instruction_schedule_map.has("Rabi", (0,)))
+
+    def test_inst_map_updates(self):
+        """Test that updating a parameter will force an inst map update."""
+
+        cals = BackendCalibrations(
+            FakeBelem(),
+            library=FixedFrequencyTransmon(basis_gates=["sx", "x"]),
+        )
+
+        # Test the schedules before the update.
+        for qubit in range(5):
+            for gate, amp in [("x", 0.5), ("sx", 0.25)]:
+                with pulse.build() as expected:
+                    pulse.play(pulse.Drag(160, amp, 40, 0), pulse.DriveChannel(qubit))
+
+                self.assertEqual(cals.instruction_schedule_map.get(gate, qubit), expected)
+
+        # Update the duration, this should impact all gates.
+        cals.add_parameter_value(200, "duration", schedule="sx")
+
+        # Test that all schedules now have an updated duration in the inst_map
+        for qubit in range(5):
+            for gate, amp in [("x", 0.5), ("sx", 0.25)]:
+                with pulse.build() as expected:
+                    pulse.play(pulse.Drag(200, amp, 40, 0), pulse.DriveChannel(qubit))
+
+                self.assertEqual(cals.instruction_schedule_map.get(gate, qubit), expected)
+
+        # Update the amp on a single qubit, this should only update one gate in the inst_map
+        cals.add_parameter_value(0.8, "amp", qubits=(4,), schedule="sx")
+
+        # Test that all schedules now have an updated duration in the inst_map
+        for qubit in range(5):
+            for gate, amp in [("x", 0.5), ("sx", 0.25)]:
+
+                if gate == "sx" and qubit == 4:
+                    amp = 0.8
+
+                with pulse.build() as expected:
+                    pulse.play(pulse.Drag(200, amp, 40, 0), pulse.DriveChannel(qubit))
+
+                self.assertEqual(cals.instruction_schedule_map.get(gate, qubit), expected)
