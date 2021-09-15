@@ -133,7 +133,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
         if len(qubits) != 2:
             raise QiskitError(
-                "Length of qubit is not 2. Please provide index for control and target qubit."
+                "Length of qubits is not 2. Please provide index for control and target qubit."
             )
 
         self.set_experiment_options(durations=durations, unit=unit, **kwargs)
