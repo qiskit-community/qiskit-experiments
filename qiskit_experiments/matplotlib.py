@@ -16,8 +16,8 @@ Matplotlib helper functions
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_svg import FigureCanvasSVG
 
-DEFAULT_FIGURE_CANVAS = FigureCanvasSVG
-"""Matplotlib canvas to use when rendering a figure. This needs to be a 
+default_figure_canvas = FigureCanvasSVG  # pylint: disable=invalid-name
+"""Matplotlib canvas to use when rendering a figure. This needs to be a
 canvas for a `non-interactive backend
 <https://matplotlib.org/stable/tutorials/introductory/usage.html#the-builtin-backends>`_.
 The default is `FigureCanvasSVG`."""
@@ -34,6 +34,7 @@ def get_non_gui_ax():
     Returns:
         matplotlib.axes.Axes: A matplotlib axes that can be used in a child thread.
     """
+    print(f">>>> using canvas {default_figure_canvas}")
     figure = Figure()
-    _ = DEFAULT_FIGURE_CANVAS(figure)
+    _ = default_figure_canvas(figure)
     return figure.subplots()
