@@ -91,11 +91,11 @@ class TestBackendCalibrations(QiskitTestCase):
         )
 
         param = Parameter("amp")
-        cals.inst_map_add("Rabi", (0, ), "x", assign_params={"amp": param})
+        cals.inst_map_add("Rabi", (0,), "x", assign_params={"amp": param})
 
         circ = QuantumCircuit(1)
         circ.x(0)
-        circ.append(Gate("Rabi", num_qubits=1, params=[param]), (0, ))
+        circ.append(Gate("Rabi", num_qubits=1, params=[param]), (0,))
 
         circs, amps = [], [0.12, 0.25]
 
@@ -120,7 +120,7 @@ class TestBackendCalibrations(QiskitTestCase):
             with pulse.build() as rabi_expected:
                 pulse.play(pulse.Drag(160, amp, 40, 0), pulse.DriveChannel(0))
 
-            self.assertEqual(circ.calibrations["x"][((0, ), ())], x_expected)
+            self.assertEqual(circ.calibrations["x"][((0,), ())], x_expected)
 
             circ_rabi = next(iter(circ.calibrations["Rabi"].values()))
             self.assertEqual(circ_rabi, rabi_expected)
