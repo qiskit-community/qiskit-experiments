@@ -45,8 +45,8 @@ class CrossResonanceHamiltonian(BaseExperiment):
         We will observe the control qubit state dependent (controlled-) Rabi oscillation on the
         target qubit. The fit for this oscillation topographically reconstructs the
         Hamiltonian in the form shown above.
-        Thus the control qubit is prepared in both ground and excited state and
-        the experiment is repeated for both control qubit states.
+        Thus, the circuits are executed twice: once for the control qubit in the ground state and 
+        once for the control qubit in the excited state.
         See Ref. [1] for more details.
 
         More specifically following circuits are executed in this experiment.
@@ -117,7 +117,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
     def __init__(
         self, qubits: Tuple[int, int], durations: Iterable[float], unit: str = "dt", **kwargs
     ):
-        """Crete new experiment.
+        """Create a new experiment.
 
         Args:
             qubits: Two-value tuple of qubit indices on which to run tomography.
@@ -133,7 +133,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
         if len(qubits) != 2:
             raise QiskitError(
-                "Length of qubit is not 2. Please provide index for control and target qubit."
+                "Length of qubits is not 2. Please provide index for control and target qubit."
             )
 
         self.set_experiment_options(durations=durations, unit=unit, **kwargs)
@@ -236,7 +236,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
         opt = self.experiment_options
 
         flat_top_width = duration - 2 * opt.risefall * sigma
-        net_edge_width = np.sqrt(2 * np.pi * sigma ** 2)
+        net_edge_width = np.sqrt(2 * np.pi) * sigma
 
         return flat_top_width + net_edge_width
 

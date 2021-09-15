@@ -487,7 +487,7 @@ class Eigenvalue(DataAction):
     def _format_data(
         self, datum: np.ndarray, error: Optional[np.ndarray] = None
     ) -> Tuple[Any, Any]:
-        """Check if input data is likely probability.
+        """Check that the input data are probabilities.
 
         Args:
             datum: An array representing probabilities.
