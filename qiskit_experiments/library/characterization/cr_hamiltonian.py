@@ -178,8 +178,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
         """
         cr_gate = circuit.Gate("cr_tone", num_qubits=2, params=[duration])
 
-        cr_circuit = QuantumCircuit()
-        cr_circuit.add_register(2)
+        cr_circuit = QuantumCircuit(2)
         cr_circuit.append(cr_gate, [0, 1])
 
         opt = self.experiment_options
@@ -265,8 +264,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
         template_circuits = list()
         for control_state in (0, 1):
             for meas_basis in ("x", "y", "z"):
-                tomo_circ = QuantumCircuit()
-                tomo_circ.add_register(2, 1)
+                tomo_circ = QuantumCircuit(2, 1)
 
                 # state prep
                 if control_state:
@@ -367,8 +365,7 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
         cr_gate_p = circuit.Gate("cr_tone_p", num_qubits=2, params=[duration])
         cr_gate_m = circuit.Gate("cr_tone_m", num_qubits=2, params=[duration])
 
-        cr_circuit = QuantumCircuit()
-        cr_circuit.add_register(2)
+        cr_circuit = QuantumCircuit(2)
         cr_circuit.append(cr_gate_p, [0, 1])
         cr_circuit.x(0)
         cr_circuit.append(cr_gate_m, [0, 1])
