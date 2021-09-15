@@ -237,7 +237,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
         opt = self.experiment_options
 
         flat_top_width = duration - 2 * opt.risefall * sigma
-        net_edge_width = np.sqrt(2 * np.pi * sigma ** 2)
+        net_edge_width = np.sqrt(2 * np.pi) * sigma
 
         return flat_top_width + net_edge_width
 
