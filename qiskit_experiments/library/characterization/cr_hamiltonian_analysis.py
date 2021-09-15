@@ -221,11 +221,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
                 omega = 0.0
 
             zmin, zmax = np.percentile(z_data.y, [10, 90])
-            zrange = zmax - zmin
-            if zrange > 2.0:
-                theta = 0.0
-            else:
-                theta = np.arccos(np.sqrt(zrange / 2))
+            theta = np.arccos(np.sqrt((zmax - zmin) / 2))
 
             # The FFT might be up to 1/2 bin off
             df = 1 / ((z_data.x[1] - z_data.x[0]) * len(z_data.x))

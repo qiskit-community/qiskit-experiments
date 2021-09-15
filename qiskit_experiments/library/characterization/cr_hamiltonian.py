@@ -45,8 +45,8 @@ class CrossResonanceHamiltonian(BaseExperiment):
         We will observe the control qubit state dependent (controlled-) Rabi oscillation on the
         target qubit. The fit for this oscillation topographically reconstructs the
         Hamiltonian in the form shown above.
-        Thus, the circuits are executed twice: once for the control qubit in the ground state and 
-        once for the control qubit in the excited state.
+        Thus the control qubit is prepared in both ground and excited state and
+        the experiment is repeated for both control qubit states.
         See Ref. [1] for more details.
 
         More specifically following circuits are executed in this experiment.
@@ -362,16 +362,17 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
         Returns:
             A circuit decomposition for the cross resonance to measure.
         """
-        cr_gate_p = circuit.Gate("cr_tone_p", num_qubits=2, params=[duration])
-        cr_gate_m = circuit.Gate("cr_tone_m", num_qubits=2, params=[duration])
+        cr_gate = circuit.Gate("cr_tone", num_qubits=2, params=[duration])
 
         cr_circuit = QuantumCircuit(2)
-        cr_circuit.append(cr_gate_p, [0, 1])
+        cr_circuit.append(cr_gate, [0, 1])
         cr_circuit.x(0)
-        cr_circuit.append(cr_gate_m, [0, 1])
+        cr_circuit.rz(np.pi, 1)
+        cr_circuit.append(cr_gate, [0, 1])
+        cr_circuit.rz(-np.pi, 1)
 
         opt = self.experiment_options
-        with pulse.build(backend, default_alignment="left", name="cr_p") as cross_resonance_p:
+        with pulse.build(backend, default_alignment="left", name="cr") as cross_resonance:
             # add cross resonance tone
             pulse.play(
                 pulse.GaussianSquare(
@@ -399,49 +400,10 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
             # place holder for empty drive channels. this is necessary due to known pulse gate bug.
             pulse.delay(duration, pulse.drive_channel(self.physical_qubits[0]))
 
-        with pulse.build(backend, default_alignment="left", name="cr_m") as cross_resonance_m:
-            with pulse.phase_offset(
-                np.pi,
-                pulse.control_channels(*self.physical_qubits)[0],
-                pulse.drive_channel(self.physical_qubits[1]),
-            ):
-                # add cross resonance tone
-                pulse.play(
-                    pulse.GaussianSquare(
-                        duration,
-                        amp=opt.amp,
-                        sigma=sigma,
-                        risefall_sigma_ratio=opt.risefall,
-                    ),
-                    pulse.control_channels(*self.physical_qubits)[0],
-                )
-                # add cancellation tone
-                if not np.isclose(opt.amp_t, 0.0):
-                    pulse.play(
-                        pulse.GaussianSquare(
-                            duration,
-                            amp=opt.amp_t,
-                            sigma=sigma,
-                            risefall_sigma_ratio=opt.risefall,
-                        ),
-                        pulse.drive_channel(self.physical_qubits[1]),
-                    )
-                else:
-                    pulse.delay(duration, pulse.drive_channel(self.physical_qubits[1]))
-
-            # place holder for empty drive channels. this is necessary due to known pulse gate bug.
-            pulse.delay(duration, pulse.drive_channel(self.physical_qubits[0]))
-
         cr_circuit.add_calibration(
-            gate=cr_gate_p,
+            gate=cr_gate,
             qubits=self.physical_qubits,
-            schedule=cross_resonance_p,
-            params=[duration],
-        )
-        cr_circuit.add_calibration(
-            gate=cr_gate_m,
-            qubits=self.physical_qubits,
-            schedule=cross_resonance_m,
+            schedule=cross_resonance,
             params=[duration],
         )
 
