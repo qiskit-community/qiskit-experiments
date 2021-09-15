@@ -262,10 +262,6 @@ class BackendCalibrations(Calibrations):
             arguments=inst_map_args,
         )
 
-    def inst_map_remove(self, instruction: str, qubits: Tuple[int]):
-        """Remove a single instruction from the inst_map."""
-        self._inst_map.remove(instruction, qubits)
-
     def complete_inst_map_update(self, schedules: Optional[set] = None):
         """Push all schedules from the Calibrations to the inst map.
 

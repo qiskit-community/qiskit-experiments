@@ -124,3 +124,10 @@ class TestBackendCalibrations(QiskitTestCase):
 
             circ_rabi = next(iter(circ.calibrations["Rabi"].values()))
             self.assertEqual(circ_rabi, rabi_expected)
+
+        # Test the removal of the Rabi instruction
+        self.assertTrue(cals.instruction_schedule_map.has("Rabi", (0, )))
+
+        cals.instruction_schedule_map.remove("Rabi", (0, ))
+
+        self.assertFalse(cals.instruction_schedule_map.has("Rabi", (0,)))
