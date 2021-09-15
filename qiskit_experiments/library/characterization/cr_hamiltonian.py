@@ -45,8 +45,8 @@ class CrossResonanceHamiltonian(BaseExperiment):
         We will observe the control qubit state dependent (controlled-) Rabi oscillation on the
         target qubit. The fit for this oscillation topographically reconstructs the
         Hamiltonian in the form shown above.
-        Thus the control qubit is prepared in both ground and excited state and
-        the experiment is repeated for both control qubit states.
+        Thus, the circuits are executed twice: once for the control qubit in the ground state and 
+        once for the control qubit in the excited state.
         See Ref. [1] for more details.
 
         More specifically following circuits are executed in this experiment.
