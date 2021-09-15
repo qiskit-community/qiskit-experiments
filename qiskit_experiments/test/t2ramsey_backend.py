@@ -117,7 +117,7 @@ class T2RamseyBackend(BackendV1):
                     if op.name == "delay":
                         delay = op.params[0]
                         t2ramsey = self._t2ramsey[qubit] * self._conversion_factor
-                        freq = self._freq[qubit] / self._conversion_factor
+                        freq = self._freq[qubit]
 
                         prob_plus[qubit] = (
                             self._a_param[qubit]
