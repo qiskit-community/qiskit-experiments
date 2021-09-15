@@ -124,7 +124,7 @@ class Calibrations:
             raise CalibrationError("Both qubits and n_qubits cannot simultaneously be None.")
 
         qubits = self._to_tuple(qubits)
-        n_qubits = len(qubits) if qubits != () else n_qubits
+        n_qubits = len(qubits) or n_qubits
 
         if not isinstance(schedule, ScheduleBlock):
             raise CalibrationError(f"{schedule.name} is not a ScheduleBlock.")
