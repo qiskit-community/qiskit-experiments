@@ -12,7 +12,8 @@
 
 """Class to test the backend calibrations."""
 
-from qiskit.circuit import Parameter
+from qiskit import transpile, QuantumCircuit
+from qiskit.circuit import Parameter, Gate
 import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeArmonk, FakeBelem
@@ -80,3 +81,46 @@ class TestBackendCalibrations(QiskitTestCase):
         for pair in expected_pairs:
             self.assertTrue(pair in coupling_map)
             self.assertTrue(cals.instruction_schedule_map.has("cr", pair), pair)
+
+    def test_inst_map_transpilation(self):
+        """Test that we can use the inst_map to inject the cals into the circuit."""
+
+        cals = BackendCalibrations(
+            FakeArmonk(),
+            library=FixedFrequencyTransmon(basis_gates=["x"]),
+        )
+
+        param = Parameter("amp")
+        cals.inst_map_add("Rabi", (0, ), "x", assign_params={"amp": param})
+
+        circ = QuantumCircuit(1)
+        circ.x(0)
+        circ.append(Gate("Rabi", num_qubits=1, params=[param]), (0, ))
+
+        circs, amps = [], [0.12, 0.25]
+
+        for amp in amps:
+            new_circ = circ.assign_parameters({param: amp}, inplace=False)
+            circs.append(new_circ)
+
+        # Check that calibrations are absent
+        for circ in circs:
+            self.assertEqual(len(circ.calibrations), 0)
+
+        # Transpile to inject the cals.
+        circs = transpile(circs, inst_map=cals.instruction_schedule_map)
+
+        # Check that we have the expected schedules.
+        with pulse.build() as x_expected:
+            pulse.play(pulse.Drag(160, 0.5, 40, 0), pulse.DriveChannel(0))
+
+        for idx, circ in enumerate(circs):
+            amp = amps[idx]
+
+            with pulse.build() as rabi_expected:
+                pulse.play(pulse.Drag(160, amp, 40, 0), pulse.DriveChannel(0))
+
+            self.assertEqual(circ.calibrations["x"][((0, ), ())], x_expected)
+
+            circ_rabi = next(iter(circ.calibrations["Rabi"].values()))
+            self.assertEqual(circ_rabi, rabi_expected)

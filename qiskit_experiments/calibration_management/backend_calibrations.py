@@ -217,7 +217,7 @@ class BackendCalibrations(Calibrations):
 
         return backend
 
-    def single_inst_map_update(
+    def inst_map_add(
         self,
         instruction_name: str,
         qubits: Tuple[int],
@@ -225,6 +225,18 @@ class BackendCalibrations(Calibrations):
         assign_params: Optional[Dict[Union[str, ParameterKey], ParameterValueType]] = None,
     ):
         """Update a single instruction in the instruction schedule map.
+
+        This method can be used to update a single instruction for the given qubits but
+        it can also be used by experiments that define custom gates with parameters
+        such as the :class:`Rabi` experiment. In a Rabi experiment there is a gate named
+        "Rabi" that scans a pulse with a custom amplitude. Therefore we would do
+
+        .. code-block:: python
+
+            cals.inst_map_add("Rabi", (0, ), "xp", assign_params={"amp": Parameter("amp")})
+
+        to temporarily add a pulse for the Rabi gate in the instruction schedule map. This
+        then allows calling :code:`transpile(circ, inst_map=cals.instruction_schedule_map)`.
 
         Args:
             instruction_name: The name of the instruction to add to the instruction schedule map.
@@ -236,11 +248,20 @@ class BackendCalibrations(Calibrations):
         """
         schedule_name = schedule_name or instruction_name
 
+        inst_map_args = None
+        if assign_params is not None:
+            inst_map_args = assign_params.keys()
+
         self._inst_map.add(
             instruction=instruction_name,
             qubits=qubits,
             schedule=self.get_schedule(schedule_name, qubits, assign_params),
+            arguments=inst_map_args,
         )
+
+    def inst_map_remove(self, instruction: str, qubits: Tuple[int]):
+        """Remove a single instruction from the inst_map."""
+        self._inst_map.remove(instruction, qubits)
 
     def complete_inst_map_update(self, schedules: Optional[set] = None):
         """Push all schedules from the Calibrations to the inst map.
@@ -315,11 +336,11 @@ class BackendCalibrations(Calibrations):
 
             .. parsed-literal::
 
-            {
-                1: [[0], [1], [2]],
-                2: [[0, 1], [1, 2], [2, 1]],
-                3: [[0, 1, 2]]
-            }
+                {
+                    1: [[0], [1], [2]],
+                    2: [[0, 1], [1, 2], [2, 1]],
+                    3: [[0, 1, 2]]
+                }
         """
 
         # Use the cached map if there is one.

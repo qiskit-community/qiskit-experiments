@@ -185,7 +185,7 @@ class TestDragUpdate(QiskitTestCase):
             cals.add_schedule(sched, n_qubits=1)
 
         cals.add_parameter_value(0.2, "β", qubit, x_plus)
-        cals.single_inst_map_update("xp", (qubit,))
+        cals.inst_map_add("xp", (qubit,))
 
         # Check that the inst_map has the default beta
         beta_val = cals.instruction_schedule_map.get("xp", (qubit,)).blocks[0].pulse.beta
