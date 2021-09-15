@@ -320,26 +320,19 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
 
         .. parsed-literal::
 
-                 ┌──────────────────────┐┌───┐┌──────────────────────┐
-            q_0: ┤0                     ├┤ X ├┤0                     ├
-                 │  cr_tone_p(duration) │└───┘│  cr_tone_m(duration) │
-            q_1: ┤1                     ├─────┤1                     ├
-                 └──────────────────────┘     └──────────────────────┘
+                 ┌────────────────────┐  ┌───┐  ┌────────────────────┐
+            q_0: ┤0                   ├──┤ X ├──┤0                   ├──────────
+                 │  cr_tone(duration) │┌─┴───┴─┐│  cr_tone(duration) │┌────────┐
+            q_1: ┤1                   ├┤ Rz(π) ├┤1                   ├┤ Rz(-π) ├
+                 └────────────────────┘└───────┘└────────────────────┘└────────┘
 
-        Where the ``cr_tone_p`` and ``cr_tone_m`` are the cross resonance tone with
-        positive and negative pulse amplitude. The net Hamiltonian of the gate
-        eliminates IX and ZI interactions [1]. Note that the CR Hamiltonian tomography experiment
-        cannot detect the ZI term, however it is sensitive to the IX term.
-
-        If you are only interested in the ZX term as a generator of the CNOT gate,
-        sometime this pulse sequence can improve the fitting performance within
-        the limited available hardware resource.
-        The ZX + IX induces control state dependent Rabi oscillation on the target qubit
-        and its oscillation rate will be pretty different when these interaction strengths
-        are close to each other. In this case, you may need fine duration scan
-        while keeping longer maximum duration to get enough oscillation cycles for fitting.
-        This situation often causes the waveform memory overflow in the control electronics.
-        The elimination of IX term by echoing may save us from such a dilemma.
+        Here two ``cr_tone``s are applied where the latter one is with the flipped
+        control qubit state and with the phase flip of the target qubit frame.
+        This operation is equivalent to applying the ``cr_tone`` with the negative amplitude.
+        The net Hamiltonian of this decomposition eliminates IX and ZI interactions,
+        and also IY interaction to some extent (not completely eliminated) [1].
+        Note that the CR Hamiltonian tomography experiment cannot detect the ZI term,
+        however it is sensitive to the IX and IY term.
 
     # section: reference
         .. ref_arxiv:: 1 2007.02925
