@@ -117,7 +117,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
     def __init__(
         self, qubits: Tuple[int, int], durations: Iterable[float], unit: str = "dt", **kwargs
     ):
-        """Crete new experiment.
+        """Create a new experiment.
 
         Args:
             qubits: Two-value tuple of qubit indices on which to run tomography.
