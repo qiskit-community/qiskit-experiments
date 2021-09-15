@@ -88,7 +88,7 @@ class BackendCalibrations(Calibrations):
 
         # Instruction schedule map variables and support variables.
         self._inst_map = InstructionScheduleMap()
-        self._operated_qubits = None
+        self._operated_qubits = defaultdict(list)
 
         # Use the same naming convention as in backend.defaults()
         self.qubit_freq = Parameter(self.__qubit_freq_parameter__)
@@ -349,10 +349,8 @@ class BackendCalibrations(Calibrations):
         """
 
         # Use the cached map if there is one.
-        if self._operated_qubits is not None:
+        if len(self._operated_qubits) != 0:
             return self._operated_qubits
-
-        self._operated_qubits = defaultdict(list)
 
         # Single qubits
         for qubit in self._qubits:
