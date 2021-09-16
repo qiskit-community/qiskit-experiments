@@ -83,7 +83,10 @@ figures generated during analysis need to use a non-GUI canvas. The default is
 `non-interactive backend
 <https://matplotlib.org/stable/tutorials/introductory/usage.html#the-builtin-backends>`_
 by setting the ``qiskit_experiments.framework.matplotlib.default_figure_canvas``
-attribute.
+attribute. For example, you can set ``default_figure_canvas`` to
+`FigureCanvasAgg
+<https://matplotlib.org/stable/api/backend_agg_api.html>`_ to use the
+``AGG`` backend.
 
 For experiments run through a compatible provider such as the
 `IBMQ provider <https://github.com/Qiskit/qiskit-ibmq-provider>`_
