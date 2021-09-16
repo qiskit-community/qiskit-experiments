@@ -24,12 +24,11 @@ This is just like a function, but allows serialization via Enum.
 from typing import List, Tuple, Dict, Optional
 
 import numpy as np
-from matplotlib import pyplot
 from matplotlib.ticker import FuncFormatter
 
 from qiskit_experiments.curve_analysis.curve_data import SeriesDef, FitData, CurveData
 from qiskit_experiments.framework import AnalysisResultData, FitVal
-from qiskit_experiments.matplotlib import requires_matplotlib
+from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 
 
 try:
@@ -86,7 +85,6 @@ class MplDrawSingleCanvas:
     """A plotter to draw a single canvas figure for fit result."""
 
     @classmethod
-    @requires_matplotlib
     def draw(
         cls,
         curves: List[Tuple[SeriesDef, CurveData, CurveData]],
@@ -114,10 +112,7 @@ class MplDrawSingleCanvas:
             A matplotlib figure of the curve fit result.
         """
         if axis is None:
-            figure = pyplot.figure(figsize=style.figsize)
-            axis = figure.subplots(nrows=1, ncols=1)
-        else:
-            figure = axis.get_figure()
+            axis = get_non_gui_ax()
 
         for series_def, raw_data, format_data in curves:
             # plot raw data if data is formatted
@@ -192,7 +187,7 @@ class MplDrawSingleCanvas:
         axis.tick_params(labelsize=style.tick_label_size)
         axis.grid(True)
 
-        return figure
+        return axis.get_figure()
 
 
 def write_fit_report(result_entries: List[AnalysisResultData]) -> str:

@@ -76,7 +76,18 @@ and the raw measurement data. These can each be accessed using the
 :meth:`ExperimentData.analysis_results`, :meth:`ExperimentData.figure`
 and :meth:`ExperimentData.data` methods respectively.
 
-For experiments run through a compatable provider such as the
+Analysis/plotting is done in a separate child thread, so it doesn't block the
+main thread. Since matplotlib doesn't support GUI mode in a child threads, the
+figures generated during analysis need to use a non-GUI canvas. The default is
+:class:`~matplotlib.backends.backend_svg.FigureCanvasSVG`, but you can change it to a different
+`non-interactive backend
+<https://matplotlib.org/stable/tutorials/introductory/usage.html#the-builtin-backends>`_
+by setting the ``qiskit_experiments.framework.matplotlib.default_figure_canvas``
+attribute. For example, you can set ``default_figure_canvas`` to
+:class:`~matplotlib.backends.backend_agg.FigureCanvasAgg` to use the
+``AGG`` backend.
+
+For experiments run through a compatible provider such as the
 `IBMQ provider <https://github.com/Qiskit/qiskit-ibmq-provider>`_
 the :class:`ExperimentData` object can be saved to an online experiment
 database by calling the :meth:`ExperimentData.save` method. This data can
