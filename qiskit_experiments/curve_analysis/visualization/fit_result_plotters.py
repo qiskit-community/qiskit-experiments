@@ -25,12 +25,11 @@ from typing import List, Tuple, Dict, Optional
 from collections import defaultdict
 
 import numpy as np
-from matplotlib import pyplot
 from matplotlib.ticker import FuncFormatter
 
 from qiskit_experiments.curve_analysis.curve_data import SeriesDef, FitData, CurveData
 from qiskit_experiments.framework import AnalysisResultData, FitVal
-from qiskit_experiments.matplotlib import requires_matplotlib
+from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 
 
 try:
@@ -87,7 +86,6 @@ class MplDrawSingleCanvas:
     """A plotter to draw a single canvas figure for fit result."""
 
     @classmethod
-    @requires_matplotlib
     def draw(
         cls,
         series_defs: List[SeriesDef],
@@ -118,10 +116,7 @@ class MplDrawSingleCanvas:
             A matplotlib figure of the curve fit result.
         """
         if axis is None:
-            figure = pyplot.figure(figsize=style.figsize)
-            axis = figure.subplots(nrows=1, ncols=1)
-        else:
-            figure = axis.get_figure()
+            axis = get_non_gui_ax()
 
         # draw all curves on the same canvas
         for series_def, raw_samp, fit_samp in zip(series_defs, raw_samples, fit_samples):
@@ -179,7 +174,7 @@ class MplDrawSingleCanvas:
         axis.tick_params(labelsize=style.tick_label_size)
         axis.grid(True)
 
-        return figure
+        return axis.get_figure()
 
 
 class MplDrawMultiCanvasVstack:

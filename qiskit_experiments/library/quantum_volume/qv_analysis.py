@@ -21,7 +21,6 @@ import numpy as np
 
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, FitVal
 from qiskit_experiments.curve_analysis import plot_scatter, plot_errorbar
-from qiskit_experiments.matplotlib import requires_matplotlib
 
 
 class QuantumVolumeAnalysis(BaseAnalysis):
@@ -237,14 +236,13 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         return hop_result, qv_result
 
     @staticmethod
-    @requires_matplotlib
     def _format_plot(
         hop_result: AnalysisResultData, ax: Optional["matplotlib.pyplot.AxesSubplot"] = None
     ):
         """Format the QV plot
 
         Args:
-            hop_results: the heavy output probability analysis result.
+            hop_result: the heavy output probability analysis result.
             ax: matplotlib axis to add plot to.
 
         Returns:
