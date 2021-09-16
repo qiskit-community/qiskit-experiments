@@ -18,7 +18,7 @@ import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeArmonk, FakeBelem
 
-from qiskit_experiments.calibration_management import BackendCalibrations
+from qiskit_experiments.calibration_management import BackendCalibrations, Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 
 
@@ -173,3 +173,57 @@ class TestBackendCalibrations(QiskitTestCase):
                     pulse.play(pulse.Drag(200, amp, 40, 0), pulse.DriveChannel(qubit))
 
                 self.assertEqual(cals.instruction_schedule_map.get(gate, qubit), expected)
+
+    def test_cx_cz_case(self):
+        """Test the case where the coupling map has CX and CZ on different qubits.
+
+        We use FakeBelem which has a linear coupling map and will restrict ourselves to
+        qubits 0, 1, and 2. The Cals will define a template schedule for CX and CZ. We will
+        mock this with GaussianSquare and Gaussian pulses since the nature of the schedules
+        is irrelevant here. The parameters for CX will only have values for qubis 0 and 1 while
+        the parameters for CZ will only have values for qubis 1 and 2. We therefore will have
+        a CX on qubits 0, 1 in the inst. map and a CZ on qubits 1, 2.
+        """
+
+        cals = BackendCalibrations(FakeBelem())
+
+        sig = Parameter("σ")
+        dur = Parameter("duration")
+        width = Parameter("width")
+        amp_cx = Parameter("amp")
+        amp_cz = Parameter("amp")
+        uchan = Parameter("ch1.0")
+
+        with pulse.build(name="cx") as cx:
+            pulse.play(
+                pulse.GaussianSquare(duration=dur,amp=amp_cx, sigma=sig, width=width),
+                pulse.ControlChannel(uchan),
+            )
+
+        with pulse.build(name="cz") as cz:
+            pulse.play(
+                pulse.Gaussian(duration=dur,amp=amp_cz, sigma=sig), pulse.ControlChannel(uchan))
+
+        cals.add_schedule(cx, n_qubits=2)
+        cals.add_schedule(cz, n_qubits=2)
+
+        cals.add_parameter_value(640, "duration", schedule="cx")
+        cals.add_parameter_value(64, "σ", schedule="cx")
+        cals.add_parameter_value(320, "width", qubits=(0, 1), schedule="cx")
+        cals.add_parameter_value(320, "width", qubits=(1, 0), schedule="cx")
+        cals.add_parameter_value(0.1, "amp", qubits=(0, 1), schedule="cx")
+        cals.add_parameter_value(0.8, "amp", qubits=(1, 0), schedule="cx")
+        cals.add_parameter_value(0.1, "amp", qubits=(2, 1), schedule="cz")
+        cals.add_parameter_value(0.8, "amp", qubits=(1, 2), schedule="cz")
+
+        # CX only defined for qubits (0, 1) and (1,0)?
+        self.assertTrue(cals.instruction_schedule_map.has("cx", (0, 1)))
+        self.assertTrue(cals.instruction_schedule_map.has("cx", (1, 0)))
+        self.assertFalse(cals.instruction_schedule_map.has("cx", (2, 1)))
+        self.assertFalse(cals.instruction_schedule_map.has("cx", (1, 2)))
+
+        # CZ only defined for qubits (2, 1) and (1,2)?
+        self.assertTrue(cals.instruction_schedule_map.has("cz", (2, 1)))
+        self.assertTrue(cals.instruction_schedule_map.has("cz", (1, 2)))
+        self.assertFalse(cals.instruction_schedule_map.has("cz", (0, 1)))
+        self.assertFalse(cals.instruction_schedule_map.has("cz", (1, 0)))
