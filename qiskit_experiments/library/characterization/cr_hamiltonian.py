@@ -49,7 +49,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
         the experiment is repeated for both control qubit states.
         See Ref. [1] for more details.
 
-        More specifically following circuits are executed in this experiment.
+        More specifically, the following circuits are executed in this experiment.
 
         .. parsed-literal::
 
