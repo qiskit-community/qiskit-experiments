@@ -40,16 +40,16 @@ class CrossResonanceHamiltonian(BaseExperiment):
         The coefficient of each Pauli term in the Hamiltonian
         can be estimated with this experiment.
 
-        This experiment is performed by stretching a pulse duration of the cross resonance tone
+        This experiment is performed by stretching the pulse duration of the cross resonance tone
         and measuring the target qubit by projecting onto x, y, and z basis.
         We will observe the control qubit state dependent (controlled-) Rabi oscillation on the
-        target qubit. The fit for this oscillation topographically reconstructs the
+        target qubit. The fit for this oscillation tomographically reconstructs the
         Hamiltonian in the form shown above.
         Thus the control qubit is prepared in both ground and excited state and
         the experiment is repeated for both control qubit states.
         See Ref. [1] for more details.
 
-        More specifically following circuits are executed in this experiment.
+        More specifically, the following circuits are executed in this experiment.
 
         .. parsed-literal::
 
