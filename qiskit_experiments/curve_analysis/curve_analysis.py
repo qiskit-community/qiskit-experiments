@@ -419,7 +419,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         5. The best fit is selected based on the minimum chisq.
 
         Note that in this method you don't need to worry about the user provided initial guesses
-        and bounds. These are automatically applied in the step 2. These values are
+        and bounds. These are automatically applied in the second step. These values
         default to ``None``, and no initial guess is overridden unless user explicitly provides
         a value with the `set_analysis_options` method.
 
