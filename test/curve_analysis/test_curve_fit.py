@@ -286,11 +286,17 @@ class TestCurveAnalysisUnit(QiskitTestCase):
 
     def test_formatting_options(self):
         """Test option formatter."""
+        # assume user provided options
+        self.analysis._arg_parse(
+            p0=[0, 1, 2, 3, 4],
+            bounds=[(-1, 1), (-2, 2), (-3, 3), (-4, 4), (-5, 5)],
+        )
+
+        # no option is provided in fit setup
         test_options = {
-            "p0": [0, 1, 2, 3, 4],
-            "bounds": [(-1, 1), (-2, 2), (-3, 3), (-4, 4), (-5, 5)],
             "other_value": "test",
         }
+
         formatted_options = self.analysis._format_fit_options(**test_options)
 
         ref_options = {

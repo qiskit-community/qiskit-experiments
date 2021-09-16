@@ -138,8 +138,9 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
                     "d_theta": (-np.pi, np.pi),
                     "base": (-max_abs_y, max_abs_y),
                 },
-                **extra_options
-            } for d_theta_guess in np.linspace(-guess_range, guess_range, n_guesses)
+                **extra_options,
+            }
+            for d_theta_guess in np.linspace(-guess_range, guess_range, n_guesses)
         ]
 
         return fit_options

@@ -107,7 +107,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
                 "freq": (min(curve_data.x), max(curve_data.x)),
                 "b": (-max_abs_y, max_abs_y),
             },
-            **extra_options
+            **extra_options,
         }
 
         return fit_option

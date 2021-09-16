@@ -140,8 +140,9 @@ class DragCalAnalysis(curve.CurveAnalysis):
                     "beta": (-freq_bound, freq_bound),
                     "base": (-1 * max_abs_y, 1 * max_abs_y),
                 },
-                **extra_options
-            } for beta_guess in np.linspace(min_beta, max_beta, 20)
+                **extra_options,
+            }
+            for beta_guess in np.linspace(min_beta, max_beta, 20)
         ]
 
         return fit_options

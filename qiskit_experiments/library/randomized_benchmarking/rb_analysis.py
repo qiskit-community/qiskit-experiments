@@ -103,7 +103,7 @@ class RBAnalysis(curve.CurveAnalysis):
                 "alpha": (0.0, 1.0),
                 "b": (0.0, 1.0),
             },
-            **extra_options
+            **extra_options,
         }
 
         return fit_options

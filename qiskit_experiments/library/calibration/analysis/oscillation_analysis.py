@@ -101,8 +101,9 @@ class OscillationAnalysis(curve.CurveAnalysis):
                     "phase": (-np.pi, np.pi),
                     "base": (-1 * max_abs_y, 1 * max_abs_y),
                 },
-                **extra_options
-            } for phase_guess in np.linspace(0, np.pi, 5)
+                **extra_options,
+            }
+            for phase_guess in np.linspace(0, np.pi, 5)
         ]
         return fit_options
 

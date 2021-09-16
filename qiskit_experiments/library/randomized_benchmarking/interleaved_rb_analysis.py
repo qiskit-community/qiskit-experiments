@@ -14,7 +14,6 @@ Interleaved RB analysis class.
 """
 from typing import List, Dict, Any, Union
 
-import copy
 import numpy as np
 
 from qiskit_experiments.framework import AnalysisResultData, FitVal
@@ -148,7 +147,7 @@ class InterleavedRBAnalysis(RBAnalysis):
                 "alpha_c": (0.0, 1.0),
                 "b": (0.0, 1.0),
             },
-            **extra_options
+            **extra_options,
         }
 
         return fit_option

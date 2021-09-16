@@ -23,7 +23,6 @@ from qiskit.circuit.library import (
 )
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.library import StandardRB, InterleavedRB
-from qiskit_experiments.library.randomized_benchmarking import RBAnalysis
 from qiskit_experiments.database_service.json import ExperimentDecoder
 from qiskit_experiments.database_service.db_fitval import FitVal
 

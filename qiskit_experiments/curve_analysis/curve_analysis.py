@@ -585,7 +585,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
             AnalysisError:
                 - When fit functions have different signature.
                 - When fit option is dictionary but key doesn't match with parameter names.
-                - When initial guesses are not provided.
                 - When fit option is array but length doesn't match with parameter number.
         """
         fit_params = self._fit_params()
@@ -595,7 +594,26 @@ class CurveAnalysis(BaseAnalysis, ABC):
             for pname in self.__fixed_parameters__:
                 fitter_options.pop(pname, None)
 
-        # Validate dictionary keys
+        # Helper method to get user provided option with formatting
+        def _get_user_option(name: str) -> Dict[str, Any]:
+            user_option = self._get_option(name)
+
+            if user_option is None:
+                return dict()
+
+            if not isinstance(user_option, dict):
+                # convert array into dictionary
+                if len(user_option) != len(fit_params):
+                    raise AnalysisError(
+                        f"Value length of fitting option `{name}` doesn't "
+                        "match with the length of expected parameters. "
+                        f"{len(user_option)} != {len(fit_params)}."
+                    )
+                return dict(zip(fit_params, user_option))
+
+            return user_option
+
+        # Helper method to validate dictionary keys
         def _check_keys(parameter_name, default_value=None):
             named_values = fitter_options[parameter_name]
             if not named_values.keys() == set(fit_params):
@@ -605,61 +623,30 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 )
             for key in named_values:
                 if named_values[key] is None:
-                    named_values[key] = default_value
+                    fitter_options[parameter_name][key] = default_value
 
-        # Convert array into dictionary
-        def _dictionarize(parameter_name):
-            parameter_array = fitter_options[parameter_name]
-            if len(parameter_array) != len(fit_params):
-                raise AnalysisError(
-                    f"Value length of fitting option `{parameter_name}` doesn't "
-                    "match with the length of expected parameters. "
-                    f"{len(parameter_array)} != {len(fit_params)}."
-                )
-            return dict(zip(fit_params, parameter_array))
+        # Format initial guesses
+        if "p0" not in fitter_options:
+            fitter_options["p0"] = {par: None for par in fit_params}
 
-        #
-        # Format p0 and boundary to dictionary
-        #
-        if "p0" in fitter_options:
-            if isinstance(fitter_options["p0"], dict):
-                _check_keys("p0")
-            else:
-                fitter_options["p0"] = _dictionarize("p0")
-        else:
-            # p0 should be defined
-            raise AnalysisError("Initial guess p0 is not provided to the fitting options.")
+        for k, v in _get_user_option("p0").items():
+            if v is not None and k in fit_params:
+                fitter_options["p0"][k] = float(v)
+        _check_keys("p0", default_value=None)
 
-        if "bounds" in fitter_options:
-            if isinstance(fitter_options["bounds"], dict):
-                _check_keys("bounds", default_value=(-np.inf, np.inf))
-            else:
-                fitter_options["bounds"] = _dictionarize("bounds")
-        else:
-            # bounds are optional
+        # Format boundaries
+        if "bounds" not in fitter_options:
             fitter_options["bounds"] = {par: (-np.inf, np.inf) for par in fit_params}
 
-        #
-        # Apply user provided p0 and boundary
-        #
-        user_p0 = self._get_option("p0")
-        if user_p0 is not None:
-            for p0_key, p0_val in user_p0.items():
-                if p0_val is not None and p0_key in fit_params:
-                    fitter_options["p0"][p0_key] = float(p0_val)
-
-        user_bounds = self._get_option("bounds")
-        if user_bounds is not None:
-            for bounds_key, bounds_val in user_bounds.items():
-                if bounds_val is not None and bounds_key in fit_params:
-                    fitter_options["bounds"][bounds_key] = tuple(bounds_val)
+        for k, v in _get_user_option("bounds").items():
+            if v is not None and k in fit_params:
+                fitter_options["bounds"][k] = tuple(v)
+        _check_keys("bounds", default_value=(-np.inf, np.inf))
 
         return fitter_options
 
     @staticmethod
-    def _reduce_duplicated_fit(
-            fit_candidates: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+    def _reduce_duplicated_fit(fit_candidates: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Remove duplicated fit options from multiple-guess fit.
 
         If multiple fit configurations are provided by :meth:`_setup_fitting` but
@@ -668,6 +655,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         These duplicated entries should be combined to reduce fitting overhead.
         """
+
         def _hash_dict(obj_to_hash):
             # get hash value of nested dictionary
             if isinstance(obj_to_hash, dict):

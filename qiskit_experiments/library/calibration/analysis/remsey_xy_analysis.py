@@ -116,7 +116,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         data_y = self._data("Y")
         decay_data = (data_x.y - base_guesses[0]) ** 2 + (data_y.y - base_guesses[1]) ** 2
         tau_guess = -curve.guess.exp_decay(data_x.x, decay_data)
-        freq_guess = np.average(freq_guesses)
+        freq_guess = float(np.average(freq_guesses))
 
         max_abs_y, _ = curve.guess.max_height(self._data().y, absolute=True)
 
@@ -136,8 +136,9 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
                     "base": (-max_abs_y, max_abs_y),
                     "phase": (-np.inf, np.inf),
                 },
-                **extra_options
-            } for signed_freq_guess in [-freq_guess, freq_guess]
+                **extra_options,
+            }
+            for signed_freq_guess in [-freq_guess, freq_guess]
         ]
 
         return fit_options
