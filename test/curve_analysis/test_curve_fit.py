@@ -23,7 +23,12 @@ from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.framework import ExperimentData, FitVal
 from qiskit_experiments.curve_analysis import CurveAnalysis, fit_function
-from qiskit_experiments.curve_analysis.curve_data import SeriesDef, FitData, ParameterRepr
+from qiskit_experiments.curve_analysis.curve_data import (
+    SeriesDef,
+    FitData,
+    ParameterRepr,
+    FitOptions,
+)
 from qiskit_experiments.curve_analysis.data_processing import probability
 from qiskit_experiments.exceptions import AnalysisError
 
@@ -59,7 +64,7 @@ def create_new_analysis(series: List[SeriesDef], fixed_params: List[str] = None)
         """A mock analysis class to test."""
 
         __series__ = series
-        __fixed_parameters__ = fixed_params
+        __fixed_parameters__ = fixed_params or list()
 
     return TestAnalysis()
 
@@ -283,34 +288,6 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         np.testing.assert_array_equal(filt_data.x, np.asarray([4, 5], dtype=float))
         np.testing.assert_array_equal(filt_data.y, np.asarray([4, 5], dtype=float))
         np.testing.assert_array_equal(filt_data.y_err, np.asarray([8, 10], dtype=float))
-
-    def test_formatting_options(self):
-        """Test option formatter."""
-        # assume user provided options
-        self.analysis._arg_parse(
-            p0=[0, 1, 2, 3, 4],
-            bounds=[(-1, 1), (-2, 2), (-3, 3), (-4, 4), (-5, 5)],
-        )
-
-        # no option is provided in fit setup
-        test_options = {
-            "other_value": "test",
-        }
-
-        formatted_options = self.analysis._finalize_fit_options(**test_options)
-
-        ref_options = {
-            "p0": {"p0": 0, "p1": 1, "p2": 2, "p3": 3, "p4": 4},
-            "bounds": {"p0": (-1, 1), "p1": (-2, 2), "p2": (-3, 3), "p3": (-4, 4), "p4": (-5, 5)},
-            "other_value": "test",
-        }
-        self.assertDictEqual(formatted_options, ref_options)
-
-        test_invalid_options = {
-            "p0": {"invalid_key1": 0, "invalid_key2": 2, "invalid_key3": 3, "invalid:_key4": 4}
-        }
-        with self.assertRaises(AnalysisError):
-            self.analysis._finalize_fit_options(**test_invalid_options)
 
 
 class TestCurveAnalysisIntegration(QiskitTestCase):
@@ -577,3 +554,129 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
 
         with self.assertRaises(AnalysisError):
             analysis._run_analysis(test_data, **default_opts.__dict__)
+
+
+class TestFitOptions(QiskitTestCase):
+    """Unittest for fit option object."""
+
+    def test_empty(self):
+        """Test if default value is automatically filled."""
+        opt = FitOptions(["p0", "p1", "p2"])
+
+        # bounds should be default to inf tuple. otherwise crashes the scipy fitter.
+        ref_opts = {
+            "p0": {"p0": None, "p1": None, "p2": None},
+            "bounds": {"p0": (-np.inf, np.inf), "p1": (-np.inf, np.inf), "p2": (-np.inf, np.inf)},
+        }
+
+        self.assertDictEqual(opt.options, ref_opts)
+
+    def test_create_option_with_dict(self):
+        """Create option and fill with dictionary."""
+        opt = FitOptions(["p0", "p1", "p2"])
+        opt.p0 = {"p0": 0, "p1": 1, "p2": 2}
+        opt.bounds = {"p0": (0, 1), "p1": (1, 2), "p2": (2, 3)}
+
+        ref_opts = {
+            "p0": {"p0": 0.0, "p1": 1.0, "p2": 2.0},
+            "bounds": {"p0": (0, 1), "p1": (1, 2), "p2": (2, 3)},
+        }
+
+        self.assertDictEqual(opt.options, ref_opts)
+
+    def test_create_option_with_array(self):
+        """Create option and fill with array."""
+        opt = FitOptions(["p0", "p1", "p2"])
+        opt.p0 = [0, 1, 2]
+        opt.bounds = [(0, 1), (1, 2), (2, 3)]
+
+        ref_opts = {
+            "p0": {"p0": 0.0, "p1": 1.0, "p2": 2.0},
+            "bounds": {"p0": (0, 1), "p1": (1, 2), "p2": (2, 3)},
+        }
+
+        self.assertDictEqual(opt.options, ref_opts)
+
+    def test_override_partial_dict(self):
+        """Create option and override value with partial dictionary."""
+        opt = FitOptions(["p0", "p1", "p2"])
+        opt.p0 = [0, 1, 2]
+        opt.bounds = [(0, 1), (1, 2), (2, 3)]
+
+        opt.p0 = {"p1": 3}
+
+        ref_opts = {
+            "p0": {"p0": 0.0, "p1": 3.0, "p2": 2.0},
+            "bounds": {"p0": (0, 1), "p1": (1, 2), "p2": (2, 3)},
+        }
+
+        self.assertDictEqual(opt.options, ref_opts)
+
+    def test_override_full_dict(self):
+        """Create option and override value with full dictionary."""
+        opt = FitOptions(["p0", "p1", "p2"])
+        opt.p0 = [0, 1, 2]
+        opt.bounds = [(0, 1), (1, 2), (2, 3)]
+
+        opt.p0 = {"p0": None, "p1": 3, "p2": None}
+
+        ref_opts = {
+            "p0": {"p0": 0.0, "p1": 3.0, "p2": 2.0},
+            "bounds": {"p0": (0, 1), "p1": (1, 2), "p2": (2, 3)},
+        }
+
+        self.assertDictEqual(opt.options, ref_opts)
+
+    def test_set_operation(self):
+        """Test if set works and duplicated entry is removed."""
+        opt1 = FitOptions(["p0", "p1"])
+        opt1.p0 = [0, 1]
+
+        opt2 = FitOptions(["p0", "p1"])
+        opt2.p0 = [0, 1]
+
+        opt3 = FitOptions(["p0", "p1"])
+        opt3.p0 = [0, 2]
+
+        opts = set()
+        opts.add(opt1)
+        opts.add(opt2)
+        opts.add(opt3)
+
+        self.assertEqual(len(opts), 2)
+
+    def test_detect_invalid_p0(self):
+        """Test if invalid p0 raises Error."""
+        opt1 = FitOptions(["p0", "p1", "p2"])
+
+        with self.assertRaises(AnalysisError):
+            # less element
+            opt1.p0 = [0, 1]
+
+    def test_detect_invalid_bounds(self):
+        """Test if invalid bounds raises Error."""
+        opt1 = FitOptions(["p0", "p1", "p2"])
+
+        with self.assertRaises(AnalysisError):
+            # less element
+            opt1.bounds = [(0, 1), (1, 2)]
+
+        with self.assertRaises(AnalysisError):
+            # not min-max tuple
+            opt1.bounds = [0, 1, 2]
+
+    def test_set_extra_options(self):
+        """Add extra fitter options."""
+        opt = FitOptions(["p0", "p1", "p2"])
+        opt.p0 = [0, 1, 2]
+        opt.bounds = [(0, 1), (1, 2), (2, 3)]
+        opt.extra_opts = {"ex1": 0, "ex2": 1}
+
+        ref_opts = {
+            "p0": {"p0": 0.0, "p1": 1.0, "p2": 2.0},
+            "bounds": {"p0": (0, 1), "p1": (1, 2), "p2": (2, 3)},
+            "ex1": 0,
+            "ex2": 1,
+        }
+
+        self.assertDictEqual(opt.options, ref_opts)

@@ -15,10 +15,11 @@ Curve data classes.
 """
 
 import dataclasses
-from typing import Any, Dict, Callable, Union, List, Tuple, Optional
+from typing import Any, Dict, Callable, Union, List, Tuple, Optional, Iterable
 import numpy as np
 
 from qiskit_experiments.framework import FitVal
+from qiskit_experiments.exceptions import AnalysisError
 
 
 @dataclasses.dataclass(frozen=True)
@@ -134,3 +135,119 @@ class ParameterRepr:
 
     # Unit
     unit: Optional[str] = None
+
+
+# pylint: disable=invalid-name
+class FitOptions:
+    """Collection of fitting options.
+
+    This class is initialized with a list of parameter names,
+    and automatically format given initial parameters and boundaries based on it.
+
+    This class provides ``__hash__`` and ``__eq__`` methods to evaluate duplication.
+    """
+
+    def __init__(self, parameters: List[str]):
+        """Create a new fit options."""
+
+        # no direct access to members for safety hash. these are usually mutable objects.
+        self.__p0 = {p: None for p in parameters}
+        self.__bounds = {p: (-np.inf, np.inf) for p in parameters}
+        self.__extra_opts = dict()
+
+    @property
+    def p0(self) -> Dict[str, float]:
+        """Return initial guesses."""
+        return self.__p0.copy()
+
+    @p0.setter
+    def p0(self, new_p0: Union[Dict[str, float], Iterable[float]]):
+        """Set new initial guesses.
+
+        Raises:
+            AnalysisError: New value is array-like but number of element doesn't match.
+        """
+        if new_p0 is None:
+            return
+
+        if not isinstance(new_p0, dict):
+            # format to dictionary
+            if len(new_p0) != len(self.__p0):
+                raise AnalysisError(
+                    "Initial guess is provided as an array with invalid length. "
+                    f"{len(self.__p0)} parameters should be provided."
+                )
+            new_p0 = dict(zip(self.__p0.keys(), new_p0))
+
+        # update initial guesses
+        for k, v in new_p0.items():
+            if k in self.__p0 and v is not None:
+                self.__p0[k] = float(v)
+
+    @property
+    def bounds(self) -> Dict[str, Tuple[float, float]]:
+        """Return boundaries."""
+        return self.__bounds.copy()
+
+    @bounds.setter
+    def bounds(self, new_bounds: Union[Iterable[Tuple], Dict[str, Tuple]]):
+        """Set new boundaries.
+
+        Raises:
+            AnalysisError: New value is array-like but number of element doesn't match.
+            AnalysisError: One of new value is not a tuple of min max value.
+        """
+        if new_bounds is None:
+            return
+
+        if not isinstance(new_bounds, dict):
+            # format to dictionary
+            if len(new_bounds) != len(self.__bounds):
+                raise AnalysisError(
+                    "Boundary is provided as an array with invalid length. "
+                    f"{len(self.__bounds)} boundaries should be provided."
+                )
+            new_bounds = dict(zip(self.__bounds.keys(), new_bounds))
+
+        # update bounds
+        for k, v in new_bounds.items():
+            if k in self.__bounds and v is not None:
+                try:
+                    minv, maxv = v
+                except (TypeError, ValueError) as ex:
+                    raise AnalysisError(
+                        f"Boundary of {k} is not a tuple of min-max values."
+                    ) from ex
+                self.__bounds[k] = (float(minv), float(maxv))
+
+    @property
+    def extra_opts(self):
+        """Returns extra options provided to the fitter."""
+        return self.__extra_opts.copy()
+
+    @extra_opts.setter
+    def extra_opts(self, new_options: Dict[str, Any]):
+        """Set extra options provided to the fitter."""
+        if new_options is None:
+            return
+
+        self.__extra_opts.update(**new_options)
+
+    @property
+    def options(self) -> Dict[str, Any]:
+        """Generate full argument for the fitter."""
+        return {"p0": self.p0, "bounds": self.bounds, **self.extra_opts}
+
+    def __hash__(self):
+        return hash(
+            (
+                tuple(sorted(self.__p0.items())),
+                tuple(sorted(self.__bounds.items())),
+                tuple(sorted(self.__extra_opts.items())),
+            )
+        )
+
+    def __eq__(self, other):
+        if isinstance(other, FitOptions):
+            return hash(self) == hash(other)
+        return False

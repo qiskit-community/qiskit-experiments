@@ -108,7 +108,7 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
 
         return default_options
 
-    def _generate_fit_guesses(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _generate_fit_guesses(self) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
         n_guesses = self._get_option("number_guesses")
 
@@ -138,7 +138,6 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
                     "d_theta": (-np.pi, np.pi),
                     "base": (-max_abs_y, max_abs_y),
                 },
-                **extra_options,
             }
             for d_theta_guess in np.linspace(-guess_range, guess_range, n_guesses)
         ]
