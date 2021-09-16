@@ -79,13 +79,12 @@ and :meth:`ExperimentData.data` methods respectively.
 Analysis/plotting is done in a separate child thread, so it doesn't block the
 main thread. Since matplotlib doesn't support GUI mode in a child threads, the
 figures generated during analysis need to use a non-GUI canvas. The default is
-`FigureCanvasSVG`, but you can change it to a different
+:class:`~matplotlib.backends.backend_svg.FigureCanvasSVG`, but you can change it to a different
 `non-interactive backend
 <https://matplotlib.org/stable/tutorials/introductory/usage.html#the-builtin-backends>`_
 by setting the ``qiskit_experiments.framework.matplotlib.default_figure_canvas``
 attribute. For example, you can set ``default_figure_canvas`` to
-`FigureCanvasAgg
-<https://matplotlib.org/stable/api/backend_agg_api.html>`_ to use the
+:class:`~matplotlib.backends.backend_agg.FigureCanvasAgg` to use the
 ``AGG`` backend.
 
 For experiments run through a compatible provider such as the
