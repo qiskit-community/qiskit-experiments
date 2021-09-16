@@ -124,7 +124,7 @@ class InterleavedRBAnalysis(RBAnalysis):
         default_options.result_parameters = ["alpha", "alpha_c"]
         return default_options
 
-    def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _generate_fit_guesses(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
         # for standard RB curve
         std_curve = self._data(series_name="Standard")

@@ -78,7 +78,7 @@ class OscillationAnalysis(curve.CurveAnalysis):
 
         return default_options
 
-    def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _generate_fit_guesses(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
         curve_data = self._data()
         max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)

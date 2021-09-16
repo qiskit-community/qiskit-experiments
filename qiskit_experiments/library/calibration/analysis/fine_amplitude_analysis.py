@@ -108,7 +108,7 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
 
         return default_options
 
-    def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _generate_fit_guesses(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
         n_guesses = self._get_option("number_guesses")
 

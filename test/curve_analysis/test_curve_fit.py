@@ -297,7 +297,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
             "other_value": "test",
         }
 
-        formatted_options = self.analysis._format_fit_options(**test_options)
+        formatted_options = self.analysis._finalize_fit_options(**test_options)
 
         ref_options = {
             "p0": {"p0": 0, "p1": 1, "p2": 2, "p3": 3, "p4": 4},
@@ -310,7 +310,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
             "p0": {"invalid_key1": 0, "invalid_key2": 2, "invalid_key3": 3, "invalid:_key4": 4}
         }
         with self.assertRaises(AnalysisError):
-            self.analysis._format_fit_options(**test_invalid_options)
+            self.analysis._finalize_fit_options(**test_invalid_options)
 
 
 class TestCurveAnalysisIntegration(QiskitTestCase):

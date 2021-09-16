@@ -101,7 +101,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
 
         return default_options
 
-    def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _generate_fit_guesses(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Compute the initial guesses."""
         # Default guess values
         freq_guesses, base_guesses = [], []
