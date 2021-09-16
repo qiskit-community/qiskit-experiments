@@ -34,7 +34,6 @@ def get_non_gui_ax():
     Returns:
         matplotlib.axes.Axes: A matplotlib axes that can be used in a child thread.
     """
-    print(f">>>> using canvas {default_figure_canvas}")
     figure = Figure()
     _ = default_figure_canvas(figure)
     return figure.subplots()

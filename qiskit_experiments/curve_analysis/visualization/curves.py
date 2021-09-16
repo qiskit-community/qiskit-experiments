@@ -16,7 +16,7 @@ from typing import Callable, Optional
 import numpy as np
 
 from qiskit_experiments.curve_analysis.curve_data import FitData
-from qiskit_experiments.matplotlib import get_non_gui_ax
+from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 
 
 def plot_curve_fit(

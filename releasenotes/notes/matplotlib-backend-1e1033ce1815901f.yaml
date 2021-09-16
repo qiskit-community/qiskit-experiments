@@ -1,0 +1,13 @@
+---
+features:
+  - |
+    You can now change the default ``matplotlib`` backend used for generated
+    figures by setting
+    ``qiskit_experiments.framework.matplotlib.default_figure_canvas`` to the
+    desired canvas. Note that it has to be one of the
+    `non-interactive backend
+    <https://matplotlib.org/stable/tutorials/introductory/usage.html#the-builtin-backends>`_.
+upgrade:
+  - |
+    The default ``matplotlib`` backend used for generated figures was changed
+    from `AGG` to `SVG`.
