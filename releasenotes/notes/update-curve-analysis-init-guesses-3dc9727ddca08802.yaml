@@ -1,0 +1,12 @@
+---
+
+upgrade:
+  - |
+    For developpers. The handling of user provided initial guesss and fit boundaries in the
+    :py:class:`~qiskit_experiments.curve_analysis.curve_analysis.CurveAnalysis` has been changed.
+    A curve analysis subclass doesn't need to worry about user provided options, since
+    the logic is updated so that these options are automatically applied in the following step.
+    Note that the method name to provide these initial guess is also updated from
+    ``_setup_fitting`` to ``_generate_fit_guesses`` to reflect the new behavior of the method.
+    Please also update your curve analysis subclass to conform to the new name,
+    otherwise the method will be never called.
