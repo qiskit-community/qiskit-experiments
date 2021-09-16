@@ -228,41 +228,6 @@ class TestStandardRBAnalysis(TestRBAnalysis):
         ]
         self._run_tests(rb_exp_data_file_names, rb_exp_analysis_file_names)
 
-    def test_standard_rb_initial_guess(self):
-        """Test setting of guesses when provided by the user,
-        and also automatic guesses when the guess is not provided
-        by the user"""
-
-        rbanalysis = RBAnalysis()
-
-        x_values = [30, 50]
-        y_values = [0.97, 0.9]
-        num_qubits = 1
-
-        user_p0 = {"a": 0.6, "alpha": 0.8, "b": 0.1}
-        initial_guess = rbanalysis._initial_guess(x_values, y_values, num_qubits, user_p0)
-        self.assertAlmostEqual(initial_guess, user_p0)
-
-        user_p0["a"] = None
-        initial_guess = rbanalysis._initial_guess(x_values, y_values, num_qubits, user_p0)
-        self.assertEqual(
-            initial_guess["a"], (y_values[0] - user_p0["b"]) / user_p0["alpha"] ** x_values[0]
-        )
-
-        user_p0["alpha"] = None
-        initial_guess = rbanalysis._initial_guess(x_values, y_values, num_qubits, user_p0)
-        dcliff = x_values[1] - x_values[0]
-        dy = (y_values[1] - user_p0["b"]) / (y_values[0] - user_p0["b"])
-        alpha_guess = dy ** (1 / dcliff)
-        self.assertAlmostEqual(initial_guess["alpha"], alpha_guess)
-
-        user_p0["b"] = None
-        initial_guess = rbanalysis._initial_guess(x_values, y_values, num_qubits, user_p0)
-        self.assertAlmostEqual(initial_guess["b"], 1 / 2 ** num_qubits)
-
-        initial_guess_no_p0 = rbanalysis._initial_guess(x_values, y_values, num_qubits)
-        self.assertAlmostEqual(initial_guess, initial_guess_no_p0)
-
 
 class TestInterleavedRBAnalysis(TestRBAnalysis):
     """

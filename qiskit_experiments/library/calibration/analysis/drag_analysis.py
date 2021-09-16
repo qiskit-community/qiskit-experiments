@@ -107,69 +107,42 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
     def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Compute the initial guesses."""
-        user_p0 = self._get_option("p0")
-        user_bounds = self._get_option("bounds")
-
         # Use a fast Fourier transform to guess the frequency.
         x_data = self._data("series-0").x
-        delta_beta = x_data[1] - x_data[0]
-
         min_beta, max_beta = min(x_data), max(x_data)
 
         freq_guess = []
         for series in ["series-0", "series-1", "series-2"]:
-            y_data = self._data(series).y
-            fft = np.abs(np.fft.fft(y_data - np.average(y_data)))
-            freqs = np.linspace(0.0, 1.0 / (2.0 * delta_beta), len(fft))
-            freq_guess.append(freqs[np.argmax(fft[0 : len(fft) // 2])])
+            curve_data = self._data(series)
+            freq_guess.append(curve.guess.frequency(curve_data.x, curve_data.y))
 
-        if user_p0.get("beta", None) is not None:
-            p_guesses = [user_p0["beta"]]
-        else:
-            p_guesses = np.linspace(min_beta, max_beta, 20)
-
-        user_amp = user_p0.get("amp", None)
-        user_base = user_p0.get("base", None)
+        max_abs_y, _ = curve.guess.max_height(self._data().y, absolute=True)
+        freq_bound = max(10 / freq_guess[0], max(x_data))
 
         # Drag curves can sometimes be very flat, i.e. averages of y-data
         # and min-max do not always make good initial guesses. We therefore add
         # 0.5 to the initial guesses.
-        guesses = [(0.5, 0.5)]
-
-        if user_amp is not None and user_base is not None:
-            guesses.append((user_amp, user_base))
-
-        max_abs_y = np.max(np.abs(self._data().y))
-
-        freq_guess0 = user_p0.get("freq0", None) or freq_guess[0]
-        freq_bound = max(10 / freq_guess0, max(x_data))
-
-        fit_options = []
-        for amp_guess, b_guess in guesses:
-            for p_guess in p_guesses:
-                fit_option = {
-                    "p0": {
-                        "amp": amp_guess,
-                        "freq0": freq_guess0,
-                        "freq1": user_p0.get("freq1", None) or freq_guess[1],
-                        "freq2": user_p0.get("freq2", None) or freq_guess[2],
-                        "beta": p_guess,
-                        "base": b_guess,
-                    },
-                    "bounds": {
-                        "amp": user_bounds.get("amp", None) or (-2 * max_abs_y, 2 * max_abs_y),
-                        "freq0": user_bounds.get("freq0", None) or (0, np.inf),
-                        "freq1": user_bounds.get("freq1", None) or (0, np.inf),
-                        "freq2": user_bounds.get("freq2", None) or (0, np.inf),
-                        "beta": user_bounds.get("beta", None) or (-freq_bound, freq_bound),
-                        "base": user_bounds.get("base", None) or (-1 * max_abs_y, 1 * max_abs_y),
-                    },
-                }
-
-                # p0 and bounds are defined in the default options, therefore updating
-                # with the extra options only adds options and doesn't override p0 or bounds
-                fit_option.update(extra_options)
-                fit_options.append(fit_option)
+        fit_options = [
+            {
+                "p0": {
+                    "amp": 0.5,
+                    "freq0": freq_guess[0],
+                    "freq1": freq_guess[1],
+                    "freq2": freq_guess[2],
+                    "beta": beta_guess,
+                    "base": 0.5,
+                },
+                "bounds": {
+                    "amp": (-2 * max_abs_y, 2 * max_abs_y),
+                    "freq0": (0, np.inf),
+                    "freq1": (0, np.inf),
+                    "freq2": (0, np.inf),
+                    "beta": (-freq_bound, freq_bound),
+                    "base": (-1 * max_abs_y, 1 * max_abs_y),
+                },
+                **extra_options
+            } for beta_guess in np.linspace(min_beta, max_beta, 20)
+        ]
 
         return fit_options
 

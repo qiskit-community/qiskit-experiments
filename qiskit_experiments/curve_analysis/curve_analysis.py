@@ -618,7 +618,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 )
             return dict(zip(fit_params, parameter_array))
 
-        if fitter_options.get("p0", None):
+        #
+        # Format p0 and boundary to dictionary
+        #
+        if "p0" in fitter_options:
             if isinstance(fitter_options["p0"], dict):
                 _check_keys("p0")
             else:
@@ -627,7 +630,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             # p0 should be defined
             raise AnalysisError("Initial guess p0 is not provided to the fitting options.")
 
-        if fitter_options.get("bounds", None):
+        if "bounds" in fitter_options:
             if isinstance(fitter_options["bounds"], dict):
                 _check_keys("bounds", default_value=(-np.inf, np.inf))
             else:
@@ -636,7 +639,52 @@ class CurveAnalysis(BaseAnalysis, ABC):
             # bounds are optional
             fitter_options["bounds"] = {par: (-np.inf, np.inf) for par in fit_params}
 
+        #
+        # Apply user provided p0 and boundary
+        #
+        user_p0 = self._get_option("p0")
+        if user_p0 is not None:
+            for p0_key, p0_val in user_p0.items():
+                if p0_val is not None and p0_key in fit_params:
+                    fitter_options["p0"][p0_key] = float(p0_val)
+
+        user_bounds = self._get_option("bounds")
+        if user_bounds is not None:
+            for bounds_key, bounds_val in user_bounds.items():
+                if bounds_val is not None and bounds_key in fit_params:
+                    fitter_options["bounds"][bounds_key] = tuple(bounds_val)
+
         return fitter_options
+
+    @staticmethod
+    def _reduce_duplicated_fit(
+            fit_candidates: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """Remove duplicated fit options from multiple-guess fit.
+
+        If multiple fit configurations are provided by :meth:`_setup_fitting` but
+        the scanned guess value is overridden by the user provided option,
+        there will be multiple duplicated configurations.
+
+        These duplicated entries should be combined to reduce fitting overhead.
+        """
+        def _hash_dict(obj_to_hash):
+            # get hash value of nested dictionary
+            if isinstance(obj_to_hash, dict):
+                return hash(tuple(sorted([(k, _hash_dict(v)) for k, v in obj_to_hash.items()])))
+            return obj_to_hash
+
+        if len(fit_candidates) == 1:
+            return fit_candidates
+
+        # check duplication
+        valid_candidates = dict()
+        for fit_candidate in fit_candidates:
+            obj_hash = _hash_dict(fit_candidate)
+            if obj_hash not in valid_candidates:
+                valid_candidates[obj_hash] = fit_candidate
+
+        return list(valid_candidates.values())
 
     @property
     def _experiment_type(self) -> str:
@@ -926,9 +974,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
             if isinstance(fit_candidates, dict):
                 fit_candidates = [fit_candidates]
 
-            fit_options_candidates = [
-                self._format_fit_options(**fit_options) for fit_options in fit_candidates
-            ]
+            fit_options_candidates = self._reduce_duplicated_fit(
+                [self._format_fit_options(**fit_options) for fit_options in fit_candidates]
+            )
             fit_results = []
             for fit_options in fit_options_candidates:
                 fit_result = curve_fitter(

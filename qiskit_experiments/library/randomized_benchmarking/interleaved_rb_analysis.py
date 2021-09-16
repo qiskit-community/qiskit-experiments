@@ -127,43 +127,29 @@ class InterleavedRBAnalysis(RBAnalysis):
 
     def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
-        user_p0 = self._get_option("p0")
-        user_bounds = self._get_option("bounds")
-
-        user_p0_full = {}
-        for key in ["a", "alpha", "alpha_c", "b"]:
-            user_p0_full[key] = user_p0.get(key, None)
-
         # for standard RB curve
         std_curve = self._data(series_name="Standard")
-        user_p0_std = {key: user_p0[key] for key in ["a", "alpha", "b"]}
-        p0_std = self._initial_guess(std_curve.x, std_curve.y, self._num_qubits, user_p0_std)
+        p0_std = self._initial_guess(std_curve.x, std_curve.y, self._num_qubits)
 
         # for interleaved RB curve
         int_curve = self._data(series_name="Interleaved")
-        user_p0_int = copy.copy(user_p0_std)
-        user_p0_int["alpha"] = (
-            (p0_std["alpha"] * user_p0_full["alpha_c"]) if user_p0_full["alpha_c"] else None
-        )
-        p0_int = self._initial_guess(int_curve.x, int_curve.y, self._num_qubits, user_p0_int)
+        p0_int = self._initial_guess(int_curve.x, int_curve.y, self._num_qubits)
 
         fit_option = {
             "p0": {
-                "a": user_p0_full["a"] or np.mean([p0_std["a"], p0_int["a"]]),
-                "alpha": user_p0_full["alpha"] or p0_std["alpha"],
-                "alpha_c": user_p0_full["alpha_c"] or min(p0_int["alpha"] / p0_std["alpha"], 1),
-                "b": user_p0_full["b"] or np.mean([p0_std["b"], p0_int["b"]]),
+                "a": np.mean([p0_std["a"], p0_int["a"]]),
+                "alpha": p0_std["alpha"],
+                "alpha_c": min(p0_int["alpha"] / p0_std["alpha"], 1),
+                "b": np.mean([p0_std["b"], p0_int["b"]]),
             },
             "bounds": {
-                "a": user_bounds["a"] or (0.0, 1.0),
-                "alpha": user_bounds["alpha"] or (0.0, 1.0),
-                "alpha_c": user_bounds["alpha_c"] or (0.0, 1.0),
-                "b": user_bounds["b"] or (0.0, 1.0),
+                "a": (0.0, 1.0),
+                "alpha": (0.0, 1.0),
+                "alpha_c": (0.0, 1.0),
+                "b": (0.0, 1.0),
             },
+            **extra_options
         }
-        # p0 and bounds are defined in the default options, therefore updating
-        # with the extra options only adds options and doesn't override p0 or bounds
-        fit_option.update(extra_options)
 
         return fit_option
 

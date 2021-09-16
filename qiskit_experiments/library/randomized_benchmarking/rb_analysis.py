@@ -93,49 +93,37 @@ class RBAnalysis(curve.CurveAnalysis):
 
     def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
-        user_p0 = self._get_option("p0")
-        user_bounds = self._get_option("bounds")
-
         curve_data = self._data()
 
-        initial_guess = self._initial_guess(curve_data.x, curve_data.y, self._num_qubits, user_p0)
+        initial_guess = self._initial_guess(curve_data.x, curve_data.y, self._num_qubits)
         fit_options = {
             "p0": initial_guess,
             "bounds": {
-                "a": user_bounds["a"] or (0.0, 1.0),
-                "alpha": user_bounds["alpha"] or (0.0, 1.0),
-                "b": user_bounds["b"] or (0.0, 1.0),
+                "a": (0.0, 1.0),
+                "alpha": (0.0, 1.0),
+                "b": (0.0, 1.0),
             },
+            **extra_options
         }
-        # p0 and bounds are defined in the default options, therefore updating
-        # with the extra options only adds options and doesn't override p0 or bounds
-        fit_options.update(extra_options)
 
         return fit_options
 
     @staticmethod
     def _initial_guess(
-        x_values: np.ndarray, y_values: np.ndarray, num_qubits: int, user_p0: Dict = None
+        x_values: np.ndarray, y_values: np.ndarray, num_qubits: int
     ) -> Dict[str, float]:
         """Create initial guess with experiment data."""
-        if user_p0 is None:
-            user_p0 = {}
-
         fit_guess = {"a": 0.95, "alpha": 0.99, "b": 1 / 2 ** num_qubits}
-        for key in fit_guess:
-            if user_p0.get(key, None) is not None:
-                fit_guess[key] = user_p0[key]
 
-        if user_p0.get("alpha", None) is None:
-            # Use the first two points to guess the decay param
-            dcliff = x_values[1] - x_values[0]
-            dy = (y_values[1] - fit_guess["b"]) / (y_values[0] - fit_guess["b"])
-            alpha_guess = dy ** (1 / dcliff)
+        # Use the first two points to guess the decay param
+        dcliff = x_values[1] - x_values[0]
+        dy = (y_values[1] - fit_guess["b"]) / (y_values[0] - fit_guess["b"])
+        alpha_guess = dy ** (1 / dcliff)
 
-            if alpha_guess < 1.0:
-                fit_guess["alpha"] = alpha_guess
+        if alpha_guess < 1.0:
+            fit_guess["alpha"] = alpha_guess
 
-        if user_p0.get("a", None) is None and y_values[0] > fit_guess["b"]:
+        if y_values[0] > fit_guess["b"]:
             fit_guess["a"] = (y_values[0] - fit_guess["b"]) / fit_guess["alpha"] ** x_values[0]
 
         return fit_guess

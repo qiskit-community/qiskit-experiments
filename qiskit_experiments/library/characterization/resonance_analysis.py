@@ -81,40 +81,34 @@ class ResonanceAnalysis(curve.CurveAnalysis):
 
     def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
-        user_p0 = self._get_option("p0")
-        user_bounds = self._get_option("bounds")
-
         curve_data = self._data()
+        max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
 
         b_guess = curve.guess.constant_spectral_offset(curve_data.y)
         y_ = curve_data.y - b_guess
 
         _, peak_idx = curve.guess.max_height(y_, absolute=True)
         a_guess = curve_data.y[peak_idx] - b_guess
-        f_guess = curve_data.x[peak_idx]
-        s_guess = curve.guess.full_width_half_max(curve_data.x, y_, peak_idx) / np.sqrt(
+        freq_guess = curve_data.x[peak_idx]
+        sigma_guess = curve.guess.full_width_half_max(curve_data.x, y_, peak_idx) / np.sqrt(
             8 * np.log(2)
         )
 
-        max_abs_y = np.max(np.abs(curve_data.y))
-
         fit_option = {
             "p0": {
-                "a": user_p0["a"] or a_guess,
-                "sigma": user_p0["sigma"] or s_guess,
-                "freq": user_p0["freq"] or f_guess,
-                "b": user_p0["b"] or b_guess,
+                "a": a_guess,
+                "sigma": sigma_guess,
+                "freq": freq_guess,
+                "b": b_guess,
             },
             "bounds": {
-                "a": user_bounds["a"] or (-2 * max_abs_y, 2 * max_abs_y),
-                "sigma": user_bounds["sigma"] or (0.0, max(curve_data.x) - min(curve_data.x)),
-                "freq": user_bounds["freq"] or (min(curve_data.x), max(curve_data.x)),
-                "b": user_bounds["b"] or (-max_abs_y, max_abs_y),
+                "a": (-2 * max_abs_y, 2 * max_abs_y),
+                "sigma": (0.0, max(curve_data.x) - min(curve_data.x)),
+                "freq": (min(curve_data.x), max(curve_data.x)),
+                "b": (-max_abs_y, max_abs_y),
             },
+            **extra_options
         }
-        # p0 and bounds are defined in the default options, therefore updating
-        # with the extra options only adds options and doesn't override p0 or bounds
-        fit_option.update(extra_options)
 
         return fit_option
 

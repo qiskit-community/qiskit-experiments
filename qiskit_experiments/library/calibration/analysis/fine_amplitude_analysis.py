@@ -110,15 +110,14 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
 
     def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
-        user_p0 = self._get_option("p0")
-        user_bounds = self._get_option("bounds")
         n_guesses = self._get_option("number_guesses")
 
-        max_y, min_y = np.max(self._data().y), np.min(self._data().y)
-        b_guess = (max_y + min_y) / 2
-        a_guess = max_y - min_y
+        curve_data = self._data()
+        max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
 
-        max_abs_y = np.max(np.abs(self._data().y))
+        max_y, min_y = np.max(curve_data.y), np.min(curve_data.y)
+        base_guess = (max_y + min_y) / 2
+        amp_guess = max_y - min_y
 
         # Base the initial guess on the intended angle_per_gate.
         angle_per_gate = self._get_option("angle_per_gate")
@@ -126,39 +125,22 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
         if angle_per_gate is None:
             raise CalibrationError("The angle_per_gate was not specified in the analysis options.")
 
-        bounds = {
-            "amp": user_bounds.get("amp", None) or (-2 * max_abs_y, 2 * max_abs_y),
-            "d_theta": user_bounds.get("d_theta", None) or (-np.pi, np.pi),
-            "base": user_bounds.get("base", None) or (-1 * max_abs_y, 1 * max_abs_y),
-        }
-
-        if user_p0["d_theta"] is not None:
-            # angle error guess is provided
-            fit_option = {
-                "p0": {
-                    "amp": user_p0["amp"] or a_guess,
-                    "d_theta": user_p0["d_theta"],
-                    "base": user_p0["base"] or b_guess,
-                },
-                "bounds": bounds,
-            }
-            fit_option.update(extra_options)
-
-            return fit_option
-
         guess_range = max(abs(angle_per_gate), np.pi / 2)
-        fit_options = []
-        for angle in np.linspace(-guess_range, guess_range, n_guesses):
-            fit_option = {
+        fit_options = [
+            {
                 "p0": {
-                    "amp": user_p0["amp"] or a_guess,
-                    "d_theta": angle,
-                    "base": b_guess,
+                    "amp": amp_guess,
+                    "d_theta": d_theta_guess,
+                    "base": base_guess,
                 },
-                "bounds": bounds,
-            }
-            fit_option.update(extra_options)
-            fit_options.append(fit_option)
+                "bounds": {
+                    "amp": (-2 * max_abs_y, 2 * max_abs_y),
+                    "d_theta": (-np.pi, np.pi),
+                    "base": (-max_abs_y, max_abs_y),
+                },
+                **extra_options
+            } for d_theta_guess in np.linspace(-guess_range, guess_range, n_guesses)
+        ]
 
         return fit_options
 

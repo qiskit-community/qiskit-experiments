@@ -103,46 +103,42 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
 
     def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Compute the initial guesses."""
-        user_p0 = self._get_option("p0")
-        user_bounds = self._get_option("bounds")
-
         # Default guess values
-        freq_guesses, offset_guesses = [], []
+        freq_guesses, base_guesses = [], []
 
         for series in ["X", "Y"]:
             data = self._data(series)
             freq_guesses.append(curve.guess.frequency(data.x, data.y))
-            offset_guesses.append(curve.guess.constant_sinusoidal_offset(data.y))
+            base_guesses.append(curve.guess.constant_sinusoidal_offset(data.y))
 
         # Guess the exponential decay by combining both curves
         data_x = self._data("X")
         data_y = self._data("Y")
-        decay_data = (data_x.y - offset_guesses[0]) ** 2 + (data_y.y - offset_guesses[1]) ** 2
-        guess_decay = -curve.guess.exp_decay(data_x.x, decay_data)
+        decay_data = (data_x.y - base_guesses[0]) ** 2 + (data_y.y - base_guesses[1]) ** 2
+        tau_guess = -curve.guess.exp_decay(data_x.x, decay_data)
+        freq_guess = np.average(freq_guesses)
 
-        freq_guess = user_p0.get("freq", None) or np.average(freq_guesses)
-        fit_options = []
+        max_abs_y, _ = curve.guess.max_height(self._data().y, absolute=True)
 
-        max_abs_y = np.max(np.abs(self._data().y))
-        for freq in [-freq_guess, freq_guess]:
-            fit_options.append(
-                {
-                    "p0": {
-                        "amp": user_p0.get("amp", None) or 0.5,
-                        "tau": guess_decay,
-                        "freq": freq,
-                        "base": user_p0.get("base", None) or np.average(offset_guesses),
-                        "phase": user_p0.get("phase", None) or 0.0,
-                    },
-                    "bounds": {
-                        "amp": user_bounds.get("amp", None) or (-2 * max_abs_y, 2 * max_abs_y),
-                        "tau": user_bounds.get("tau", None) or (0, np.inf),
-                        "freq": user_bounds.get("freq", None) or (-np.inf, np.inf),
-                        "base": user_bounds.get("base", None) or (-max_abs_y, max_abs_y),
-                        "phase": user_bounds.get("phase", None) or (-np.inf, np.inf),
-                    },
-                }
-            )
+        fit_options = [
+            {
+                "p0": {
+                    "amp": 0.5,
+                    "tau": tau_guess,
+                    "freq": signed_freq_guess,
+                    "base": np.average(base_guesses),
+                    "phase": 0.0,
+                },
+                "bounds": {
+                    "amp": (-2 * max_abs_y, 2 * max_abs_y),
+                    "tau": (0, np.inf),
+                    "freq": (-np.inf, np.inf),
+                    "base": (-max_abs_y, max_abs_y),
+                    "phase": (-np.inf, np.inf),
+                },
+                **extra_options
+            } for signed_freq_guess in [-freq_guess, freq_guess]
+        ]
 
         return fit_options
 
