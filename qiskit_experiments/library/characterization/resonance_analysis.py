@@ -79,7 +79,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
 
         return default_options
 
-    def _generate_fit_guesses(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _generate_fit_guesses(self) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
         curve_data = self._data()
         max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
@@ -107,7 +107,6 @@ class ResonanceAnalysis(curve.CurveAnalysis):
                 "freq": (min(curve_data.x), max(curve_data.x)),
                 "b": (-max_abs_y, max_abs_y),
             },
-            **extra_options,
         }
 
         return fit_option

@@ -101,7 +101,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
 
         return default_options
 
-    def _generate_fit_guesses(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _generate_fit_guesses(self) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Compute the initial guesses."""
         # Default guess values
         freq_guesses, base_guesses = [], []
@@ -136,7 +136,6 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
                     "base": (-max_abs_y, max_abs_y),
                     "phase": (-np.inf, np.inf),
                 },
-                **extra_options,
             }
             for signed_freq_guess in [-freq_guess, freq_guess]
         ]

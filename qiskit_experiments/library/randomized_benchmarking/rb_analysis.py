@@ -91,7 +91,7 @@ class RBAnalysis(curve.CurveAnalysis):
 
         return default_options
 
-    def _generate_fit_guesses(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _generate_fit_guesses(self) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
         curve_data = self._data()
 
@@ -103,7 +103,6 @@ class RBAnalysis(curve.CurveAnalysis):
                 "alpha": (0.0, 1.0),
                 "b": (0.0, 1.0),
             },
-            **extra_options,
         }
 
         return fit_options

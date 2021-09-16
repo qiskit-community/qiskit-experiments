@@ -105,7 +105,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
         return default_options
 
-    def _generate_fit_guesses(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def _generate_fit_guesses(self) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Compute the initial guesses."""
         # Use a fast Fourier transform to guess the frequency.
         x_data = self._data("series-0").x
@@ -140,7 +140,6 @@ class DragCalAnalysis(curve.CurveAnalysis):
                     "beta": (-freq_bound, freq_bound),
                     "base": (-1 * max_abs_y, 1 * max_abs_y),
                 },
-                **extra_options,
             }
             for beta_guess in np.linspace(min_beta, max_beta, 20)
         ]
