@@ -18,7 +18,7 @@ import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeArmonk, FakeBelem
 
-from qiskit_experiments.calibration_management import BackendCalibrations, Calibrations
+from qiskit_experiments.calibration_management import BackendCalibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 
 
