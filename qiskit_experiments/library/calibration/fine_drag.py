@@ -51,6 +51,84 @@ class FineDrag(BaseExperiment):
         with a target rotation angle of π the Pre and Post gates are Id and RYGate(π/2),
         respectively. When calibrating a pulse with a target rotation angle of π/2 the Pre and
         Post gates are RXGate(π/2) and RYGate(π/2), respectively.
+
+        We now describe what this experiment corrects by following Ref. [1]. We follow equations
+        4.30 and onwards of Ref. [1] which state that the first-order corrections to the control
+        fields are
+
+        .. math::
+
+            \begin{align}
+                \bar{\Omega}_x^{(1)}(t) = &\, 2\dot{s}^{(1)}_{x,0,1}(t) \\
+                \bar{\Omega}_y^{(1)}(t) = &\, 2\dot{s}^{(1)}_{y,0,1}(t)
+                - s_{z,1}^{(1)}(t)t_g\Omega_x(t) \\
+                \bar{\delta}^{(1)}(t) = &\, \dot{s}_{z,1}^{(1)}(t) + 2s^{(1)}_{y,0,1}(t)t_g\Omega_x(t)
+                 + \frac{\lambda_1^2 t_g^2 \Omega_x^2(t)}{4}
+            \end{align}
+
+
+        Here, the :math:`s` terms are coefficients of the expansion of an operator :math:`S(t)`
+        that generates a transformation that keeps the qubit sub-space isolated from the
+        higher-order states. :math:`t_g` is the gate time, :math:`\Omega_x(t)` is the pulse envelope
+        on the in-phase component of the drive and :math:`\lambda_1` is a parmeter of the Hamiltonian.
+        For additional details please see Ref. [1].
+        As in Ref. [1] we now set :math:`s^{(1)}_{x,0,1}` and :math:`s^{(1)}_{z,1}` to zero
+        and set :math:`s^{(1)}_{y,0,1}` to :math:`-\lambda_1^2 t_g\Omega_x(t)/8`. This
+        results in a Z angle rotation rate of :math:`\bar{\delta}^{(1)}(t)=0` in the equations
+        above and defines the value for the ideal :math:`\beta` parameter.
+        With these choices, the Y quadrature of the first-order DRAG pulse is
+
+        .. math::
+
+            \Omega_y(t)=-\frac{\lambda_1^2\dot{\Omega}_x(t)}{4\Delta}
+
+        In Qiskit pulse the definition of the DRAG pulse is
+
+        .. math::
+
+            \Omega(t) = \Omega_x(t) + i\beta\,\dot{\Omega}_x(t)\quad\Longrightarrow\quad
+            \Omega_y(t)= \beta\,\dot{\Omega}_x(t)
+
+        From which we identify the ideal value of :math:`\beta` as :math:`-\lambda^2_1/(4\Delta)`.
+        We now assume that there is a small error :math:`{\rm d}\beta` in :math:`\beta` such
+        that the instantaneous Z-angle error is
+
+        .. math::
+
+            \bar\delta(t) = 2\,{\rm d}\beta\, \Omega^2_x(t)
+
+
+        We can integrate :math:`\bar{\delta}(t)`, i.e. the instantaneous Z-angle rotation error,
+        to obtain the total rotation angle error per pulse :math:`{\rm d}\theta`.
+
+        .. math::
+
+            \int\bar\delta(t){\rm d}t = 2{\rm d}\beta \int\Omega^2_x(t){\rm d}t
+
+        If we assume a Gaussian pulse, i.e. :math:`\Omega_x(t)=A\exp[-t^2/(2\sigma^2)]`
+        then the integral of :math:`\Omega_x^2(t)` in the equation above results in
+        :math:`A^2\sigma\sqrt{\pi}`. Furthermore, the integral of :math:`\Omega_x(t)` is
+        :math:`A\sigma\sqrt{\pi/2}=\theta_\text{target}`, where :math:`\theta_\text{target}`
+        is the target rotation angle, i.e. the area under the pulse. This last point allows
+        us to rewrite :math:`A^2\sigma\sqrt{\pi}` as
+        :math:`\theta^2_\text{target}/(2\sigma\sqrt{\pi})`. The total Z angle error per pulse
+        is therefore
+
+        .. math::
+
+            \int\bar\delta(t){\rm d}t=2\,{\rm d}\beta\,\frac{\theta^2_\text{target}}{2\sigma\sqrt{\pi}}
+            ={\rm d}\theta
+
+        Here, :math:`{\rm d}\theta` is the Z angle error which the gate sequence shown above
+        can measure. Inverting the relation above yields the error in :math:`\beta` that
+        produced the rotation error :math:`{\rm d}\theta`.
+
+        .. math::
+
+            {\rm d}\beta=\frac{\sqrt{\pi}\,{\rm d}\theta\sigma}{ \theta_\text{target}^2}
+
+    # section: reference
+        .. ref_arxiv:: 1 1011.1949
     """
 
     __analysis_class__ = FineAmplitudeAnalysis

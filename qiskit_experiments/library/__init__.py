@@ -77,6 +77,7 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     :template: autosummary/experiment.rst
 
     ~calibration.DragCal
+    ~calibration.FineDrag
     ~calibration.Rabi
     ~calibration.EFRabi
     ~calibration.FineAmplitude
