@@ -51,7 +51,7 @@ from .nodes import (
     ToReal,
     SVD,
     AverageData,
-    Eigenvalue,
+    BasisExpectationValue,
 )
 
 from .data_processor import DataProcessor

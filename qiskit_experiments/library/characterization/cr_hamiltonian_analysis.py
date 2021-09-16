@@ -171,7 +171,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         """Return the default analysis options."""
         default_options = super()._default_options()
         default_options.data_processor = dp.DataProcessor(
-            input_key="counts", data_actions=[dp.Probability("1"), dp.Eigenvalue()]
+            input_key="counts", data_actions=[dp.Probability("1"), dp.BasisExpectationValue()]
         )
         default_options.curve_plotter = "mpl_multiv_canvas"
         default_options.xlabel = "Net cross resonance duration"

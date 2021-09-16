@@ -481,8 +481,8 @@ class Probability(DataAction):
         return p_mean, np.sqrt(p_var)
 
 
-class Eigenvalue(DataAction):
-    """Compute eigenvalue from probability."""
+class BasisExpectationValue(DataAction):
+    """Compute expectation value of measured basis from probability."""
 
     def _format_data(
         self, datum: np.ndarray, error: Optional[np.ndarray] = None
