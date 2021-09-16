@@ -2,7 +2,7 @@
 
 upgrade:
   - |
-    For developpers. The handling of user provided initial guesss and fit boundaries in the
+    For developers. The handling of user provided initial guesss and fit boundaries in the
     :py:class:`~qiskit_experiments.curve_analysis.curve_analysis.CurveAnalysis` has been changed.
     A curve analysis subclass doesn't need to worry about user provided options, since
     the logic is updated so that these options are automatically applied in the following step.
