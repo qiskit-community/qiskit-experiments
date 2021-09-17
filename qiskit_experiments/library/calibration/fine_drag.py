@@ -89,7 +89,7 @@ class FineDrag(BaseExperiment):
             \Omega(t) = \Omega_x(t) + i\beta\,\dot{\Omega}_x(t)\quad\Longrightarrow\quad
             \Omega_y(t)= \beta\,\dot{\Omega}_x(t)
 
-        From which we identify the ideal value of :math:`\beta` as :math:`-\lambda^2_1/(4\Delta)`.
+        from which we identify the ideal value of :math:`\beta` as :math:`-\lambda^2_1/(4\Delta)`.
         We now assume that there is a small error :math:`{\rm d}\beta` in :math:`\beta` such
         that the instantaneous Z-angle error is
 
