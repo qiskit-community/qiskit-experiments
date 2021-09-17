@@ -103,7 +103,7 @@ class FineDrag(BaseExperiment):
 
         .. math::
 
-            \int\bar\delta(t){\rm d}t = 2{\rm d}\beta \int\Omega^2_x(t){\rm d}t
+           {\rm d}\theta = \int\bar\delta(t){\rm d}t = 2{\rm d}\beta \int\Omega^2_x(t){\rm d}t
 
         If we assume a Gaussian pulse, i.e. :math:`\Omega_x(t)=A\exp[-t^2/(2\sigma^2)]`
         then the integral of :math:`\Omega_x^2(t)` in the equation above results in
