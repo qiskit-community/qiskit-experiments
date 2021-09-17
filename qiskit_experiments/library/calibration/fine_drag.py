@@ -99,7 +99,7 @@ class FineDrag(BaseExperiment):
 
 
         We can integrate :math:`\bar{\delta}(t)`, i.e. the instantaneous Z-angle rotation error,
-        to obtain the total rotation angle error per pulse :math:`{\rm d}\theta`.
+        to obtain the total rotation angle error per pulse, :math:`{\rm d}\theta`:
 
         .. math::
 
