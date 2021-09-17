@@ -92,6 +92,7 @@ class BackendCalibrations(Calibrations):
         # Instruction schedule map variables and support variables.
         self._inst_map = InstructionScheduleMap()
         self._operated_qubits = defaultdict(list)
+        self._update_inst_map = False  # When True add_parameter_value triggers an inst. map update
 
         # Use the same naming convention as in backend.defaults()
         self.qubit_freq = Parameter(self.__qubit_freq_parameter__)
@@ -121,9 +122,9 @@ class BackendCalibrations(Calibrations):
             for param_conf in library.default_values():
                 schedule_name = param_conf[-1]
                 if schedule_name in library.basis_gates:
-                    # Call super to avoid inst_map update as not all parameters
-                    # will have default values until this loop completes.
-                    super().add_parameter_value(*param_conf)
+                    self.add_parameter_value(*param_conf)
+
+        self._update_inst_map = True
 
         # Push the schedules to the instruction schedule map.
         self.update_inst_map()
@@ -337,10 +338,11 @@ class BackendCalibrations(Calibrations):
         """
         super().add_parameter_value(value, param, qubits, schedule)
 
-        if schedule is not None:
-            schedule = schedule.name if isinstance(schedule, ScheduleBlock) else schedule
-            param_obj = self.calibration_parameter(param, qubits, schedule)
-            self._parameter_inst_map_update(param_obj)
+        if self._update_inst_map:
+            if schedule is not None:
+                schedule = schedule.name if isinstance(schedule, ScheduleBlock) else schedule
+                param_obj = self.calibration_parameter(param, qubits, schedule)
+                self._parameter_inst_map_update(param_obj)
 
     @property
     def operated_qubits(self) -> Dict[int, List[int]]:
