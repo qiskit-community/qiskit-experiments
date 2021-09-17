@@ -323,10 +323,12 @@ class BackendCalibrations(Calibrations):
         qubits: Union[int, Tuple[int, ...]] = None,
         schedule: Union[ScheduleBlock, str] = None,
     ):
-        """Wraps :meth:`add_parameter_value` of :class:`Calibrations`.
+        """Add a parameter value to the stored parameters.
 
-        This wrapper updates the parameter in the Calibrations but also updates any instructions in
-        the instruction schedule map that contain this parameter.
+        This parameter value may be applied to several channels, for instance, all
+        DRAG pulses may have the same standard deviation. Additionally, this function
+        will update any instructions in the instruction schedule map that contain this
+        parameter.
 
         Args:
             value: The value of the parameter to add. If an int, float, or complex is given
