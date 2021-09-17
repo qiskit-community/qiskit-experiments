@@ -30,12 +30,13 @@ class DragCal(BaseExperiment):
 
     # section: overview
 
-        A Derivative Removal by Adiabatic Gate (DRAG) pulse is designed to minimize leakage
-        to a neighbouring transition. It is a standard pulse with an additional derivative
-        component. It is designed to reduce the frequency spectrum of a normal pulse near
-        the :math:`|1\rangle` - :math:`|2\rangle` transition, reducing the chance of leakage
-        to the :math:`|2\rangle` state. The optimal value of the DRAG parameter is chosen to
-        minimize both leakage and phase errors resulting from the AC Stark shift.
+        A Derivative Removal by Adiabatic Gate (DRAG) pulse is designed to minimize phase
+        errors and leakage resulting from the presence of a neighbouring transition. DRAG
+        is a standard pulse with an additional derivative component. It reduces the frequency
+        spectrum of a normal pulse near the :math:`|1\rangle` - :math:`|2\rangle` transition,
+        reducing the chance of leakage to the :math:`|2\rangle` state. The optimal value of
+        the DRAG parameter, :math:`\beta`, is chosen to primarily minimize phase errors
+        resulting from the AC Stark shift and leakage errors. The DRAG pulse is
 
         .. math::
 
@@ -59,7 +60,7 @@ class DragCal(BaseExperiment):
 
         Here, the Rp gate and the Rm gate are can be pi and -pi rotations about the
         x-axis of the Bloch sphere. The parameter β is scanned to find the value that minimizes
-        the leakage to the second excited state. Note that the analysis class requires this
+        the unwanted Z-rotation. Note that the analysis class requires this
         experiment to run with three repetition numbers.
 
     # section: reference
