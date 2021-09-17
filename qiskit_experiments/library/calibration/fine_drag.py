@@ -82,7 +82,7 @@ class FineDrag(BaseExperiment):
 
             \Omega_y(t)=-\frac{\lambda_1^2\dot{\Omega}_x(t)}{4\Delta}
 
-        In Qiskit pulse the definition of the DRAG pulse is
+        In Qiskit pulse, the definition of the DRAG pulse is
 
         .. math::
 
