@@ -15,13 +15,10 @@ Plotting functions for experiment analysis
 from typing import Callable, Optional
 import numpy as np
 
-from matplotlib import pyplot
-
 from qiskit_experiments.curve_analysis.curve_data import FitData
-from qiskit_experiments.matplotlib import requires_matplotlib
+from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 
 
-@requires_matplotlib
 def plot_curve_fit(
     func: Callable,
     result: FitData,
@@ -53,8 +50,7 @@ def plot_curve_fit(
         ImportError: if matplotlib is not installed.
     """
     if ax is None:
-        figure = pyplot.figure()
-        ax = figure.subplots()
+        ax = get_non_gui_ax()
 
     # Default plot options
     plot_opts = kwargs.copy()
@@ -109,7 +105,6 @@ def plot_curve_fit(
     return ax
 
 
-@requires_matplotlib
 def plot_scatter(
     xdata: np.ndarray,
     ydata: np.ndarray,
@@ -134,8 +129,7 @@ def plot_scatter(
         matplotlib.axes.Axes: the matplotlib axes containing the plot.
     """
     if ax is None:
-        figure = pyplot.figure()
-        ax = figure.subplots()
+        ax = get_non_gui_ax()
 
     # Default plot options
     plot_opts = kwargs.copy()
@@ -155,7 +149,6 @@ def plot_scatter(
     return ax
 
 
-@requires_matplotlib
 def plot_errorbar(
     xdata: np.ndarray,
     ydata: np.ndarray,
@@ -182,8 +175,7 @@ def plot_errorbar(
         matplotlib.axes.Axes: the matplotlib axes containing the plot.
     """
     if ax is None:
-        figure = pyplot.figure()
-        ax = figure.subplots()
+        ax = get_non_gui_ax()
 
     # Default plot options
     plot_opts = kwargs.copy()
