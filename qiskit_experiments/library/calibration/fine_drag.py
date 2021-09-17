@@ -116,8 +116,8 @@ class FineDrag(BaseExperiment):
 
         .. math::
 
+           {\rm d}\theta=
             \int\bar\delta(t){\rm d}t=2\,{\rm d}\beta\,\frac{\theta^2_\text{target}}{2\sigma\sqrt{\pi}}
-            ={\rm d}\theta
 
         Here, :math:`{\rm d}\theta` is the Z angle error which the gate sequence shown above
         can measure. Inverting the relation above yields the error in :math:`\beta` that
