@@ -138,7 +138,7 @@ class TestCalibrationsBasic(QiskitTestCase):
 
         self.assertEqual(len(self.cals.schedules()), 4)
 
-        self.cals.remove_schedule(self.xm_pulse, n_qubits=1)
+        self.cals.remove_schedule(self.xm_pulse)
 
         # Removing xm should remove the schedule but not the parameters as they are shared.
         self.assertEqual(len(self.cals.schedules()), 3)
@@ -154,7 +154,7 @@ class TestCalibrationsBasic(QiskitTestCase):
         self.assertEqual(len(self.cals.schedules()), 4)
         self.assertEqual(len(self.cals.parameters), 7)
 
-        self.cals.remove_schedule(sched, n_qubits=1)
+        self.cals.remove_schedule(sched)
 
         self.assertEqual(len(self.cals.schedules()), 3)
         self.assertEqual(len(self.cals.parameters), 6)

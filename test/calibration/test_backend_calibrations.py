@@ -196,13 +196,14 @@ class TestBackendCalibrations(QiskitTestCase):
 
         with pulse.build(name="cx") as cx:
             pulse.play(
-                pulse.GaussianSquare(duration=dur,amp=amp_cx, sigma=sig, width=width),
+                pulse.GaussianSquare(duration=dur, amp=amp_cx, sigma=sig, width=width),
                 pulse.ControlChannel(uchan),
             )
 
         with pulse.build(name="cz") as cz:
             pulse.play(
-                pulse.Gaussian(duration=dur,amp=amp_cz, sigma=sig), pulse.ControlChannel(uchan))
+                pulse.Gaussian(duration=dur, amp=amp_cz, sigma=sig), pulse.ControlChannel(uchan)
+            )
 
         cals.add_schedule(cx, n_qubits=2)
         cals.add_schedule(cz, n_qubits=2)

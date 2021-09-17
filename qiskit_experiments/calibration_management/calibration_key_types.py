@@ -19,5 +19,5 @@ from qiskit.circuit import ParameterExpression
 
 
 ParameterKey = namedtuple("ParameterKey", ["parameter", "qubits", "schedule"])
-ScheduleKey = namedtuple("ScheduleKey", ["schedule", "qubits", "n_qubits"])
+ScheduleKey = namedtuple("ScheduleKey", ["schedule", "qubits"])
 ParameterValueType = Union[ParameterExpression, float, int, complex]

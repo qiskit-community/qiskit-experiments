@@ -284,7 +284,8 @@ class BackendCalibrations(Calibrations):
                 map will be updated.
         """
 
-        for sched_name, _, n_qubits in self._schedules:
+        for key in self._schedules:
+            sched_name = key.schedule
 
             if schedules is not None and sched_name not in schedules:
                 continue
@@ -297,7 +298,7 @@ class BackendCalibrations(Calibrations):
                 )
 
             else:
-                for qubits_ in self.operated_qubits[n_qubits]:
+                for qubits_ in self.operated_qubits[self._schedules_qubits[key]]:
                     try:
                         self._inst_map.add(
                             instruction=sched_name,
