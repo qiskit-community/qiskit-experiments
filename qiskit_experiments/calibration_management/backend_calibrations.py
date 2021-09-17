@@ -56,6 +56,7 @@ class BackendCalibrations(Calibrations):
         self,
         backend: Backend,
         library: BasisGateLibrary = None,
+        n_qubits: Optional[int] = None,
     ):
         """Setup an instance to manage the calibrations of a backend.
 
@@ -78,16 +79,14 @@ class BackendCalibrations(Calibrations):
                 as the coupling map.
             library: A library class that will be instantiated with the library options to then
                 get template schedules to register as well as default parameter values.
+            n_qubits: Number of qubits in case the backend object fails to specify this in its
+                configuration.
 
         Raises:
-            CalibrationError: If the backend configuration does not have n_qubits.
+            CalibrationError: If the backend configuration does not have num_qubits and n_qubits
+                is None.
         """
-        if hasattr(backend.configuration(), "control_channels"):
-            control_channels = backend.configuration().control_channels
-        else:
-            control_channels = None
-
-        super().__init__(control_channels)
+        super().__init__(getattr(backend.configuration(), "control_channels", None))
 
         # Instruction schedule map variables and support variables.
         self._inst_map = InstructionScheduleMap()
@@ -100,10 +99,13 @@ class BackendCalibrations(Calibrations):
         self._register_parameter(self.qubit_freq, ())
         self._register_parameter(self.meas_freq, ())
 
-        if not hasattr(backend.configuration(), "n_qubits"):
-            raise CalibrationError("backend.configuration() does not have 'n_qubits'.")
+        n_qubits = getattr(backend.configuration(), "num_qubits", n_qubits)
+        if n_qubits is None:
+            raise CalibrationError(
+                "backend.configuration() does not have 'num_qubits' and None given."
+            )
 
-        self._qubits = list(range(backend.configuration().n_qubits))
+        self._qubits = list(range(n_qubits))
         self._backend = backend
 
         for qubit, freq in enumerate(backend.defaults().qubit_freq_est):
