@@ -119,9 +119,12 @@ class FineDrag(BaseExperiment):
            {\rm d}\theta=
             \int\bar\delta(t){\rm d}t=2\,{\rm d}\beta\,\frac{\theta^2_\text{target}}{2\sigma\sqrt{\pi}}
 
-        Here, :math:`{\rm d}\theta` is the Z angle error which the gate sequence shown above
-        can measure. Inverting the relation above yields the error in :math:`\beta` that
-        produced the rotation error :math:`{\rm d}\theta`.
+        Here, :math:`{\rm d}\theta` is the Z angle error per pulse. The qubit population produced by
+        the gate sequence shown above is used to measure :math:`{\rm d}\theta`. Indeed, each
+        gate pair Rp - Rm will produce a small unwanted Z - rotation out of the ZX plane. The total
+        rotation out of the ZX plane is then mapped to a qubit population by the final Post gate.
+        Inverting the relation above yields the error in :math:`\beta` that produced the rotation
+        error :math:`{\rm d}\theta`.
 
         .. math::
 
