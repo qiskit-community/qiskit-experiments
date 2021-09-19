@@ -182,7 +182,7 @@ class AnalysisSectionFormatter(DocstringSectionFormatter):
             ".. rubric:: Fit Model",
             "",
             "This is the curve fitting analysis. ",
-            "Following equation(s) are used to represent curve(s).",
+            "The following equation(s) are used to represent curve(s).",
             "",
         ]
         format_lines.extend(lines)
@@ -196,7 +196,7 @@ class AnalysisSectionFormatter(DocstringSectionFormatter):
         format_lines = [
             ".. rubric:: Fit Parameters",
             "",
-            "Following fit parameters are estimated during the analysis.",
+            "The following fit parameters are estimated during the analysis.",
             "",
         ]
         format_lines.extend(lines)
