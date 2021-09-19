@@ -1,0 +1,3 @@
+features:
+  - |
+    Composite experiments: saving a composite experiment saves also all its descendants; similarly, setting the share level and service of a composite experiment sets the share level and service of all its descendants; loading a composite experiment is now enabled; composite experiments and their descnedants are tagged with the root experiment and the direct parent experiment.
