@@ -314,9 +314,11 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
 
     # section: overview
 
-        This is a variant of :py:class:`CrossResonanceHamiltonian`.
-        The experiment framework is identical to it, however, in this experiment,
-        cross resonance tone is realized with the echoed cross resonance.
+        This is a variant of :py:class:`CrossResonanceHamiltonian`
+        for which the experiment framework is identical but the
+        cross resonance operation is realized as an echoed sequence
+        to remove unwanted single qubit rotations. The cross resonance
+        circuit looks like:
 
         .. parsed-literal::
 
