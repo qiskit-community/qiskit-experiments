@@ -160,7 +160,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
         return options
 
-    def _define_decomposition(
+    def _build_cr_circuit(
         self,
         backend: Backend,
         duration: circuit.Parameter,
@@ -174,7 +174,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
             sigma: Sigma of Gaussian edges.
 
         Returns:
-            A circuit decomposition for the cross resonance to measure.
+            A circuit decomposition for the cross resonance pulse to measure.
         """
         cr_gate = circuit.Gate("cr_tone", num_qubits=2, params=[duration])
 
@@ -272,7 +272,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
                 # add cross resonance
                 tomo_circ.compose(
-                    other=self._define_decomposition(backend, duration, sigma_dt),
+                    other=self._build_cr_circuit(backend, duration, sigma_dt),
                     qubits=[0, 1],
                     inplace=True,
                 )
@@ -341,7 +341,7 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
 
     """
 
-    def _define_decomposition(
+    def _build_cr_circuit(
         self,
         backend: Backend,
         duration: circuit.Parameter,
@@ -355,7 +355,7 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
             sigma: Sigma of Gaussian edges.
 
         Returns:
-            A circuit decomposition for the cross resonance to measure.
+            A circuit decomposition for the cross resonance pulse to measure.
         """
         cr_gate = circuit.Gate("cr_tone", num_qubits=2, params=[duration])
 
