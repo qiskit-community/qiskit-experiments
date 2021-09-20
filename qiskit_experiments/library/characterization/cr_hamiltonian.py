@@ -328,8 +328,8 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
             q_1: ┤1                   ├┤ Rz(π) ├┤1                   ├┤ Rz(-π) ├
                  └────────────────────┘└───────┘└────────────────────┘└────────┘
 
-        Here two ``cr_tone``s are applied where the latter one is with the flipped
-        control qubit state and with the phase flip of the target qubit frame.
+        Here two ``cr_tone``s are applied where the latter one is with the
+        control qubit state flipped and with a phase flip of the target qubit frame.
         This operation is equivalent to applying the ``cr_tone`` with the negative amplitude.
         The net Hamiltonian of this decomposition eliminates IX and ZI interactions,
         and also IY interaction to some extent (not completely eliminated) [1].
