@@ -330,7 +330,7 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
 
         Here two ``cr_tone``s are applied where the latter one is with the
         control qubit state flipped and with a phase flip of the target qubit frame.
-        This operation is equivalent to applying the ``cr_tone`` with the negative amplitude.
+        This operation is equivalent to applying the ``cr_tone`` with a negative amplitude.
         The net Hamiltonian of this decomposition eliminates IX and ZI interactions,
         and also IY interaction to some extent (not completely eliminated) [1].
         Note that the CR Hamiltonian tomography experiment cannot detect the ZI term,
