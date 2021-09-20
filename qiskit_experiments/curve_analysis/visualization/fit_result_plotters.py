@@ -149,7 +149,7 @@ class MplDrawSingleCanvas:
                 axis.ticklabel_format(axis=this_axis, style="sci", scilimits=(-3, 3))
 
         if tick_labels["xlim"]:
-            axis.set_ylim(tick_labels["xlim"])
+            axis.set_xlim(tick_labels["xlim"])
 
         if tick_labels["ylim"]:
             axis.set_ylim(tick_labels["ylim"])
