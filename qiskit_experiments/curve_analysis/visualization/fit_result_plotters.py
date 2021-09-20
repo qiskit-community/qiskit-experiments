@@ -181,7 +181,6 @@ class MplDrawMultiCanvasVstack:
     """A plotter to draw a vertically stacked multi canvas figure for fit result."""
 
     @classmethod
-    @requires_matplotlib
     def draw(
         cls,
         series_defs: List[SeriesDef],
@@ -212,10 +211,7 @@ class MplDrawMultiCanvasVstack:
             A matplotlib figure of the curve fit result.
         """
         if axis is None:
-            figure = pyplot.figure(figsize=style.figsize)
-            axis = figure.subplots(nrows=1, ncols=1)
-        else:
-            figure = axis.get_figure()
+            axis = get_non_gui_ax()
 
         # get canvas number
         n_subplots = max(series_def.canvas for series_def in series_defs) + 1
@@ -325,7 +321,7 @@ class MplDrawMultiCanvasVstack:
         axis.tick_params(labelsize=style.tick_label_size)
         axis.grid(True)
 
-        return figure
+        return axis.get_figure()
 
 
 def draw_single_curve_mpl(
