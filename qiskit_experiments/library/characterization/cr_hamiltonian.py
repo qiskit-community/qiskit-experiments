@@ -333,8 +333,8 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
         This operation is equivalent to applying the ``cr_tone`` with a negative amplitude.
         The Hamiltonian for this decomposition has no IX and ZI interactions,
         and also a reduced IY interaction to some extent (not completely eliminated) [1].
-        Note that the CR Hamiltonian tomography experiment cannot detect the ZI term,
-        however it is sensitive to the IX and IY term.
+        Note that the CR Hamiltonian tomography experiment cannot detect the ZI term.
+        However, it is sensitive to the IX and IY terms.
 
     # section: reference
         .. ref_arxiv:: 1 2007.02925
