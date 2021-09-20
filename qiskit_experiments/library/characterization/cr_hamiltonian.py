@@ -174,7 +174,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
             sigma: Sigma of Gaussian edges.
 
         Returns:
-            A circuit decomposition for the cross resonance pulse to measure.
+            A circuit definition for the cross resonance pulse to measure.
         """
         cr_gate = circuit.Gate("cr_tone", num_qubits=2, params=[duration])
 
@@ -355,7 +355,7 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
             sigma: Sigma of Gaussian edges.
 
         Returns:
-            A circuit decomposition for the cross resonance pulse to measure.
+            A circuit definition for the cross resonance pulse to measure.
         """
         cr_gate = circuit.Gate("cr_tone", num_qubits=2, params=[duration])
 
