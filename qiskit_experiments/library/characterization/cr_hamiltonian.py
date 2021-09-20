@@ -85,7 +85,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
         The ``X`` gate on the control qubit (``q_0``) depends on the required control state.
         Here ``cr_tone`` is implemented by a single cross resonance tone
-        driving the control qubit at the frequency of target qubit.
+        driving the control qubit at the frequency of the target qubit.
         The pulse envelope is the flat-topped Gaussian implemented by the parametric pulse
         :py:class:`~qiskit.pulse.library.parametric_pulses.GaussianSquare`.
         The effect of pulse edges are also considered as a net cross resonance pulse duration.
