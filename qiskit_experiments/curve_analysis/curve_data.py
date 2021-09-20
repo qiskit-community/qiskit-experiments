@@ -148,7 +148,13 @@ class FitOptions:
     """
 
     def __init__(self, parameters: List[str]):
-        """Create a new fit options."""
+        """Create a new fit options.
+
+        Args:
+            parameters: A list of parameter names used for curve fitting.
+                Note that the list is order sensitive, that should match with the
+                fit function signature in the series definition.
+        """
 
         # no direct access to members for safety hash. these are usually mutable objects.
         self.__p0 = {p: None for p in parameters}
