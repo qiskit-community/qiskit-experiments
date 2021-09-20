@@ -18,7 +18,7 @@ Analysis class for curve fitting.
 import dataclasses
 import functools
 import inspect
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
 import numpy as np
@@ -1047,4 +1047,19 @@ class CurveAnalysis(BaseAnalysis, ABC):
         else:
             figures = []
 
+        self._post_analysis(experiment_data, analysis_results, **options)
+
         return analysis_results, figures
+
+    def _post_analysis(
+        self,
+        experiment_data: ExperimentData,
+        analysis_results: List[AnalysisResultData],
+        **options
+    ):
+        """Abstract method to perform extra analysis after _run_analysis.
+
+        Subclasses my implement this method if they need to perform extra analysis
+        after the fitting.
+        """
+        pass
