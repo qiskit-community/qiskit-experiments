@@ -273,7 +273,13 @@ class BackendCalibrations(Calibrations):
             arguments=inst_map_args,
         )
 
-    def update_inst_map(self, schedules: Optional[set] = None, qubits: Optional[Tuple[int]] = None):
+    def update_inst_map(
+        self,
+        schedules: Optional[set] = None,
+        qubits: Optional[Tuple[int]] = None,
+        group: Optional[str] = "default",
+        cutoff_date: datetime = None,
+    ):
         """Push all schedules from the Calibrations to the inst map.
 
         This will create instructions with the same name as the schedules.
@@ -284,6 +290,12 @@ class BackendCalibrations(Calibrations):
             qubits: The qubits for which to update the instruction schedule map.
                 If qubits is None then all possible schedules defined by the coupling
                 map will be updated.
+            group: The calibration group from which to draw the parameters. If not specified
+                this defaults to the 'default' group.
+            cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
+                generated after the cutoff date will be ignored. If the cutoff_date is None then
+                all parameters are considered. This allows users to discard more recent values that
+                may be erroneous.
         """
 
         for key in self._schedules:
@@ -296,7 +308,9 @@ class BackendCalibrations(Calibrations):
                 self._inst_map.add(
                     instruction=sched_name,
                     qubits=qubits,
-                    schedule=self.get_schedule(sched_name, qubits),
+                    schedule=self.get_schedule(
+                        sched_name, qubits, group=group, cutoff_date=cutoff_date
+                    ),
                 )
 
             else:
@@ -305,7 +319,9 @@ class BackendCalibrations(Calibrations):
                         self._inst_map.add(
                             instruction=sched_name,
                             qubits=qubits_,
-                            schedule=self.get_schedule(sched_name, qubits_),
+                            schedule=self.get_schedule(
+                                sched_name, qubits_, group=group, cutoff_date=cutoff_date
+                            ),
                         )
                     except CalibrationError:
                         # get_schedule may raise an error if not all parameters have values or
