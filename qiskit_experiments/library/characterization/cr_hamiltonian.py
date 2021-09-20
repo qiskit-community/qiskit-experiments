@@ -42,11 +42,11 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
         This experiment is performed by stretching the pulse duration of a cross resonance pulse
         and measuring the target qubit by projecting onto the x, y, and z bases.
-        We will observe the control qubit state dependent (controlled-) Rabi oscillation on the
-        target qubit. The fit for this oscillation tomographically reconstructs the
-        Hamiltonian in the form shown above.
-        Thus the control qubit is prepared in both ground and excited state and
-        the experiment is repeated for both control qubit states.
+        The control qubit state dependent (controlled-) Rabi oscillation on the
+        target qubit is observed by repeating the experiment with the control qubit
+        both in the ground and excited states. The fit for the oscillations in the
+        three bases with the two control qubit preparations tomographically
+        reconstructs the Hamiltonian in the form shown above.
         See Ref. [1] for more details.
 
         More specifically, the following circuits are executed in this experiment.
