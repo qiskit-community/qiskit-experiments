@@ -482,7 +482,11 @@ class Probability(DataAction):
 
 
 class BasisExpectationValue(DataAction):
-    """Compute expectation value of measured basis from probability."""
+    """Compute expectation value of measured basis from probability.
+
+    Note:
+        The sign becomes P(0) -> 1, P(1) -> -1.
+    """
 
     def _format_data(
         self, datum: np.ndarray, error: Optional[np.ndarray] = None
