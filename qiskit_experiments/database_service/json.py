@@ -13,26 +13,26 @@
 
 """Experiment serialization methods."""
 
+import base64
+import io
 import json
 import dataclasses
 import importlib
 import inspect
 from types import FunctionType
-from typing import Any, Tuple, Dict, Type, Optional
+from typing import Any, Tuple, Dict, Optional
 
 import numpy as np
+from qiskit.circuit import qpy_serialization, QuantumCircuit
 from qiskit.quantum_info.operators import Operator, Choi
 from qiskit.quantum_info.states import Statevector, DensityMatrix
 
 
-def deserialize_object(mod_name: str, class_name: str, args: Tuple, kwargs: Dict) -> Any:
+def deserialize_object(value: Dict) -> Any:
     """Deserialize a class object from its init args and kwargs.
 
     Args:
-        mod_name: Name of the module.
-        class_name: Name of the class.
-        args: args for class init method.
-        kwargs: kwargs for class init method.
+        value: serialized value of the object.
 
     Returns:
         Deserialized object.
@@ -40,33 +40,42 @@ def deserialize_object(mod_name: str, class_name: str, args: Tuple, kwargs: Dict
     Raises:
         ValueError: If unable to find the class.
     """
+    mod_name = value["__module__"]
     mod = importlib.import_module(mod_name)
+    class_name = value["__name__"]
     for name, cls in inspect.getmembers(mod, inspect.isclass):
         if name == class_name:
-            return cls(*args, **kwargs)
+            if hasattr(cls, "_deserialize"):
+                return cls._deserialize(value)
+            else:
+                args = value.get("__args__", tuple())
+                kwargs = value.get("__kwargs__", dict())
+                return cls(*args, **kwargs)
     raise ValueError(f"Unable to find class {class_name} in module {mod_name}")
 
 
-def serialize_object(
-    cls: Type, args: Optional[Tuple] = None, kwargs: Optional[Dict] = None
-) -> Dict:
-    """Serialize a class object from its init args and kwargs.
+def serialize_object(obj: any, args: Optional[Tuple] = None, kwargs: Optional[Dict] = None) -> Dict:
+    """Serialize a class object.
 
     Args:
-        cls: The object to be serialized.
-        args: the class init arg values for reconstruction.
-        kwargs: the class init kwarg values for reconstruction.
+        obj: The object to be serialized.
+        args: Optional class init arg values for reconstruction.
+        kwargs: Optional class init kwarg values for reconstruction.
 
     Returns:
         Dict for serialization.
     """
-    value = {
-        "__name__": cls.__name__,
-        "__module__": cls.__module__,
-    }
-    if args:
+    if hasattr(obj, "_serialize"):
+        value = obj._serialize()
+    else:
+        value = {}
+    if "__name__" not in value:
+        value["__name__"] = type(obj).__name__
+    if "__module__" not in value:
+        value["__module__"] = type(obj).__module__
+    if args is not None:
         value["__args__"] = args
-    if kwargs:
+    if kwargs is not None:
         value["__kwargs__"] = kwargs
     return {"__type__": "__object__", "__value__": value}
 
@@ -79,22 +88,29 @@ class ExperimentEncoder(json.JSONEncoder):
             return {"__type__": "array", "__value__": obj.tolist()}
         if isinstance(obj, complex):
             return {"__type__": "complex", "__value__": [obj.real, obj.imag]}
+        if isinstance(obj, QuantumCircuit):
+            buf = io.BytesIO()
+            qpy_serialization.dump(obj, buf)
+            qpy_str = base64.standard_b64encode(buf.getvalue()).decode("utf-8")
+            return {"__type__": "qpy_circuit", "__value__": qpy_str}
+        if hasattr(obj, "_serialize"):
+            return serialize_object(obj)
         if dataclasses.is_dataclass(obj):
-            return serialize_object(type(obj), kwargs=dataclasses.asdict(obj))
+            return serialize_object(obj, kwargs=dataclasses.asdict(obj))
         if isinstance(obj, (Operator, Choi)):
             return serialize_object(
-                type(obj),
+                obj,
                 args=(obj.data,),
                 kwargs={"input_dims": obj.input_dims(), "output_dims": obj.output_dims()},
             )
         if isinstance(obj, (Statevector, DensityMatrix)):
-            return serialize_object(type(obj), args=(obj.data,), kwargs={"dims": obj.dims()})
+            return serialize_object(obj, args=(obj.data,), kwargs={"dims": obj.dims()})
         if isinstance(obj, FunctionType):
             return {"__type__": "function", "__value__": obj.__name__}
         try:
             return super().default(obj)
         except TypeError:
-            return {"__type__": "__class_name__", "__value__": type(obj).__name__}
+            return serialize_object(obj)
 
 
 class ExperimentDecoder(json.JSONDecoder):
@@ -113,13 +129,14 @@ class ExperimentDecoder(json.JSONDecoder):
                 return np.array(obj["__value__"])
             if obj["__type__"] == "function":
                 return obj["__value__"]
-            if obj["__type__"] == "__object__":
-                value = obj["__value__"]
-                class_name = value["__name__"]
-                mod_name = value["__module__"]
-                args = value.get("__args__", tuple())
-                kwargs = value.get("__kwargs__", dict())
-                return deserialize_object(mod_name, class_name, args, kwargs)
+            if obj["__type__"] == "qpy_circuit":
+                buf =  io.BytesIO(base64.standard_b64decode(obj["__value__"]))
+                return qpy_serialization.load(buf)[0]
             if obj["__type__"] == "__class_name__":
                 return obj["__value__"]
+            if obj["__type__"] == "__object__":
+                try:
+                    return deserialize_object(obj["__value__"])
+                except ValueError:
+                    return obj["__value__"]
         return obj

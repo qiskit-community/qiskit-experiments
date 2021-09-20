@@ -17,6 +17,7 @@ from abc import ABC, abstractmethod
 from typing import Iterable, Optional, Tuple, List, Dict
 import copy
 from numbers import Integral
+import warnings
 
 from qiskit import transpile, assemble, QuantumCircuit
 from qiskit.providers import BaseJob
@@ -71,11 +72,60 @@ class BaseExperiment(ABC):
             if self._num_qubits != len(set(self._physical_qubits)):
                 raise QiskitError("Duplicate qubits in physical qubits list.")
 
+        # Settings
+        self._settings_args = tuple()
+        self._settings_kwargs = dict()
+
         # Experiment options
         self._experiment_options = self._default_experiment_options()
         self._transpile_options = self._default_transpile_options()
         self._run_options = self._default_run_options()
         self._analysis_options = self._default_analysis_options()
+
+    def _store_settings(self, *args, **kwargs):
+        """Store init arg and kwarg settings for experiment serialization"""
+        self._settings_args = args
+        self._settings_kwargs = kwargs
+
+    def _serialize(self) -> Dict:
+        """Convert experiment to a value dict for serialization"""
+        options = {
+            "__experiment_options__": self.experiment_options.__dict__,
+            "__transpile_options__": self.transpile_options.__dict__,
+            "__analysis_options__": self.analysis_options.__dict__,
+            "__run_options__": self.run_options.__dict__,
+        }
+        return {
+            "__name__": type(self).__name__,
+            "__args__": self._settings_args,
+            "__kwargs__": self._settings_kwargs,
+            "__options__": options,
+        }
+
+    @classmethod
+    def _deserialize(cls, value: Dict):
+        """Initialize experiment from serialized value dict"""
+        if "__name__" in value:
+            class_name = value["__name__"]
+            if class_name != cls.__name__:
+                warnings.warn(
+                    "The class name of the object being deserialized does not match"
+                    f" the current experiment class ({class_name} != {cls.__name__})."
+                )
+
+        # Initialize experiment object
+        args = value.get("__args__", tuple())
+        kwargs = value.get("__kwargs__", dict())
+        experiment = cls(*args, **kwargs)
+
+        # Set saved options
+        options = value.get("__options__", dict())
+        experiment.set_experiment_options(**getattr(options, "__experiment_options__", dict()))
+        experiment.set_analysis_options(**getattr(options, "__analysis_options__", dict()))
+        experiment.set_transpile_options(**getattr(options, "__transpile_options__", dict()))
+        experiment.set_run_options(**getattr(options, "__run_options__", dict()))
+
+        return experiment
 
     def run(
         self,
