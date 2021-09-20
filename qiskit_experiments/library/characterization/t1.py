@@ -85,6 +85,7 @@ class T1(BaseExperiment):
 
         # Initialize base experiment
         super().__init__([qubit])
+        self._store_settings(qubit, delays, unit=unit)
 
         # Set experiment options
         self.set_experiment_options(delays=delays, unit=unit)

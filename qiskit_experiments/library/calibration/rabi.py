@@ -117,6 +117,7 @@ class Rabi(BaseExperiment):
             qubit: The qubit on which to run the Rabi experiment.
         """
         super().__init__([qubit])
+        self._store_settings(qubit)
 
     def _template_circuit(self, amp_param) -> QuantumCircuit:
         """Return the template quantum circuit."""

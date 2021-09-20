@@ -73,6 +73,16 @@ class TomographyExperiment(BaseExperiment):
             qubits = circuit.num_qubits
         super().__init__(qubits)
 
+        self._store_settings(
+            circuit,
+            measurement_basis=measurement_basis,
+            measurement_qubits=measurement_qubits,
+            preparation_basis=preparation_basis,
+            preparation_qubits=preparation_qubits,
+            basis_indices=basis_indices,
+            qubits=qubits,
+        )
+
         # Get the target tomography circuit
         if isinstance(circuit, QuantumCircuit):
             target_circuit = circuit

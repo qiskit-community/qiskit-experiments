@@ -31,6 +31,7 @@ class ParallelExperiment(CompositeExperiment):
         for exp in experiments:
             qubits += exp.physical_qubits
         super().__init__(experiments, qubits)
+        self._store_settings(experiments)
 
     def circuits(self, backend=None):
 

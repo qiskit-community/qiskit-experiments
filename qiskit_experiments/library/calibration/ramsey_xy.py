@@ -120,6 +120,7 @@ class RamseyXY(BaseExperiment):
                 Rz rotation. This quantity is given in Hz.
         """
         super().__init__([qubit])
+        self._store_settings(qubit, delays=delays, unit=unit, osc_freq=osc_freq)
 
         delays = delays or self.experiment_options.delays
         self.set_experiment_options(delays=delays, unit=unit, osc_freq=osc_freq)

@@ -84,6 +84,11 @@ class StandardRB(BaseExperiment):
         """
         # Initialize base experiment
         super().__init__(qubits)
+
+        self._store_settings(
+            qubits, lengths, num_samples=num_samples, seed=seed, full_sampling=full_sampling
+        )
+
         self._verify_parameters(lengths, num_samples)
 
         # Set configurable options

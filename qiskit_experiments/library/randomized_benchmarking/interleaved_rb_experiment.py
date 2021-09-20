@@ -73,6 +73,14 @@ class InterleavedRB(StandardRB):
         """
         self._interleaved_element = interleaved_element
         super().__init__(qubits, lengths, num_samples, seed, full_sampling)
+        self._store_settings(
+            interleaved_element,
+            qubits,
+            lengths,
+            num_samples=num_samples,
+            seed=seed,
+            full_sampling=full_sampling,
+        )
 
     def _sample_circuits(self, lengths, seed=None):
         circuits = []

@@ -118,3 +118,11 @@ class StateTomography(TomographyExperiment):
             basis_indices=basis_indices,
             qubits=qubits,
         )
+
+        self._store_settings(
+            circuit,
+            measurement_basis=measurement_basis,
+            measurement_qubits=measurement_qubits,
+            basis_indices=basis_indices,
+            qubits=qubits,
+        )

@@ -143,8 +143,8 @@ class DragCal(BaseExperiment):
         Args:
             qubit: The qubit for which to run the Drag calibration.
         """
-
         super().__init__([qubit])
+        self._store_settings(qubit)
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Create the circuits for the Drag calibration.

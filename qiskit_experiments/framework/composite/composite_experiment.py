@@ -39,6 +39,7 @@ class CompositeExperiment(BaseExperiment):
         self._experiments = experiments
         self._num_experiments = len(experiments)
         super().__init__(qubits, experiment_type=experiment_type)
+        self._store_settings(experiments, qubits, experiment_type=experiment_type)
 
     @abstractmethod
     def circuits(self, backend=None):

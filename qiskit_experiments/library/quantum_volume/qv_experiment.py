@@ -93,6 +93,10 @@ class QuantumVolume(BaseExperiment):
         """
         super().__init__(qubits)
 
+        self._store_settings(
+            qubits, trials=trials, seed=seed, simulation_backend=simulation_backend
+        )
+
         # Set configurable options
         self.set_experiment_options(trials=trials)
 

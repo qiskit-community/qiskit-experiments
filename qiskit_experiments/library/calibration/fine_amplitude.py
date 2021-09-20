@@ -129,6 +129,7 @@ class FineAmplitude(BaseExperiment):
             qubit: The qubit on which to run the fine amplitude calibration experiment.
         """
         super().__init__([qubit])
+        self._store_settings(qubit)
 
     def set_schedule(
         self,

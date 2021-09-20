@@ -119,6 +119,7 @@ class QubitSpectroscopy(BaseExperiment):
             self._frequencies = [apply_prefix(freq, unit) for freq in frequencies]
 
         super().__init__([qubit])
+        self._store_settings(qubit, frequencies, unit=unit, absolute=absolute)
 
         self._absolute = absolute
 
