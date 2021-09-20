@@ -41,7 +41,7 @@ Data Processing Nodes
     ToReal
     SVD
     AverageData
-    Eigenvalue
+    BasisExpectationValue
 """
 
 from .data_action import DataAction, TrainableDataAction
