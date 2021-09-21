@@ -25,10 +25,10 @@ from qiskit_experiments.exceptions import AnalysisError
 
 
 def frequency(
-        x: np.ndarray,
-        y: np.ndarray,
-        filter_window: int = 5,
-        filter_dim: int = 2,
+    x: np.ndarray,
+    y: np.ndarray,
+    filter_window: int = 5,
+    filter_dim: int = 2,
 ) -> float:
     r"""Get frequency of oscillating signal.
 
