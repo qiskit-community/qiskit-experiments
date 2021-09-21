@@ -44,8 +44,8 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         :math:`p_{x, c}, p_{y, c}, p_{z, c}, b` are the fit parameters.
         The subscript :math:`c` represents the state of control qubit :math:`c \in \{0, 1\}`.
         The fit functions :math:`F_{x, c}, F_{y, c}, F_{z, c}` approximate the Pauli expectation
-        value of target qubit :math:`\langle \sigma_{x, c} (t) \rangle,
-        \langle \sigma_{y, c} (t) \rangle, \langle \sigma_{z, c} (t) \rangle`, respectively.
+        values :math:`\langle \sigma_{x, c} (t) \rangle, \langle \sigma_{y, c} (t) \rangle,
+        \langle \sigma_{z, c} (t) \rangle` of the target qubit, respectively.
 
         Based on the fit result, cross resonance Hamiltonian coefficients can be written as
 
