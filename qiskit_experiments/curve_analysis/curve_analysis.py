@@ -732,6 +732,16 @@ class CurveAnalysis(BaseAnalysis, ABC):
             # Ignore experiment metadata or job metadata is not set or key is not found
             return None
 
+    def _extra_metadata(self) -> Dict[str, Any]:
+        """Returns extra metadata.
+
+        Returns:
+            Extra metadata explicitly added by the experiment subclass.
+        """
+        exclude = ["experiment_type", "num_qubits", "physical_qubits", "job_metadata"]
+
+        return {k: v for k, v in self.__experiment_metadata.items() if k not in exclude}
+
     def _data(
         self,
         series_name: Optional[str] = None,
@@ -931,6 +941,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             fit_options_candidates = [
                 self._format_fit_options(**fit_options) for fit_options in fit_candidates
             ]
+
             fit_results = []
             for fit_options in fit_options_candidates:
                 fit_result = curve_fitter(

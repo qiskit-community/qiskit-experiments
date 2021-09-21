@@ -17,10 +17,13 @@ from typing import Any, Dict, List, Union
 
 import numpy as np
 
+from qiskit.utils import apply_prefix
+
 import qiskit_experiments.curve_analysis as curve
 import qiskit_experiments.data_processing as dp
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework import AnalysisResultData, FitVal
+from qiskit_experiments.exceptions import AnalysisError
 
 
 class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
@@ -32,16 +35,18 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         .. math::
 
             F_{x, c}(t) &= \frac{1}{\Omega_c^2} \left(
-                - p_{z, c} p_{x, c} + p_{z, c} p_{x, c} \cos(\Omega_c t) +
-                \Omega_c p_{y, c} \sin(\Omega_c t) \right) + b \ ... \ (1), \\
+                - p_{z, c} p_{x, c} + p_{z, c} p_{x, c} \cos(\Omega_c t') +
+                \Omega_c p_{y, c} \sin(\Omega_c t') \right) + b \ ... \ (1), \\
             F_{y, c}(t) &= \frac{1}{\Omega_c^2} \left(
-                p_{z, c} p_{y, c} - p_{z, c} p_{y, c} \cos(\Omega_c t) -
-                \Omega_c p_{x, c} \sin(\Omega_c t) \right) + b \ ... \ (2), \\
+                p_{z, c} p_{y, c} - p_{z, c} p_{y, c} \cos(\Omega_c t') -
+                \Omega_c p_{x, c} \sin(\Omega_c t') \right) + b \ ... \ (2), \\
             F_{z, c}(t) &= \frac{1}{\Omega_c^2} \left(
-             p_{z, c}^2 + (p_{x, c}^2 + p_{y, c}^2) \cos(\Omega_c t) \right) + b \ ... \ (3),
+             p_{z, c}^2 + (p_{x, c}^2 + p_{y, c}^2) \cos(\Omega_c t') \right) + b \ ... \ (3),
 
-        where :math:`\Omega_c = \sqrt{p_{x, c}^2+p_{y, c}^2+p_{z, c}^2}` and
-        :math:`p_{x, c}, p_{y, c}, p_{z, c}, b` are the fit parameters.
+        where :math:`t' = t + t_{\rm offset}` with :math:`t` is pulse duration to scan
+        and :math:`t_{\rm offset}` is an extra fit parameter that may represent the edge effect.
+        The :math:`\Omega_c = \sqrt{p_{x, c}^2+p_{y, c}^2+p_{z, c}^2}` and
+        :math:`p_{x, c}, p_{y, c}, p_{z, c}, b` are also fit parameters.
         The subscript :math:`c` represents the state of control qubit :math:`c \in \{0, 1\}`.
         The fit functions :math:`F_{x, c}, F_{y, c}, F_{z, c}` approximate the Pauli expectation
         value of target qubit :math:`\langle \sigma_{x, c} (t) \rangle,
@@ -70,6 +75,15 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         $\theta = \cos^{-1}\sqrt{\frac{\max F_z - \min F_z}{2}}$ and $\phi \in [-\pi, \pi]$.
 
     # section: fit_parameters
+
+        defpar t_{\rm off}:
+            desc: Offset to the pulse duration. For example, if pulse envelope is
+                a flat-topped Gaussian, two Gaussian edges may become an offset duration.
+            init_guess: Computed as :math:`N \sqrt{2 \pi} \sigma` where the :math:`N` is number of
+                pulses and :math:`\sigma` is Gaussian sigma of riring and falling edges.
+                Note that this implicitly assumes the :py:class:`~qiskit.pulse.library\
+                .parametric_pulses.GaussianSquare` pulse envelope.
+            bounds: [0, None]
 
         defpar p_{x, 0}:
             desc: Fit parameter of oscillations when control qubit state is 0.
@@ -101,13 +115,17 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
             init_guess: See fit model section.
             bounds: None
 
+        defpar b:
+            desc: Vertical offset of oscillations that may represent the readout error.
+            init_guess: 0
+            bounds: [-1, 1]
     """
 
     __series__ = [
         curve.SeriesDef(
             name="x|c=0",
-            fit_func=lambda x, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_x(
-                x, px=px0, py=py0, pz=pz0, baseline=b
+            fit_func=lambda x, t_off, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_x(
+                x + t_off, px=px0, py=py0, pz=pz0, baseline=b
             ),
             filter_kwargs={"control_state": 0, "meas_basis": "x"},
             plot_color="blue",
@@ -116,8 +134,8 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         ),
         curve.SeriesDef(
             name="y|c=0",
-            fit_func=lambda x, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_y(
-                x, px=px0, py=py0, pz=pz0, baseline=b
+            fit_func=lambda x, t_off, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_y(
+                x + t_off, px=px0, py=py0, pz=pz0, baseline=b
             ),
             filter_kwargs={"control_state": 0, "meas_basis": "y"},
             plot_color="blue",
@@ -126,8 +144,8 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         ),
         curve.SeriesDef(
             name="z|c=0",
-            fit_func=lambda x, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_z(
-                x, px=px0, py=py0, pz=pz0, baseline=b
+            fit_func=lambda x, t_off, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_z(
+                x + t_off, px=px0, py=py0, pz=pz0, baseline=b
             ),
             filter_kwargs={"control_state": 0, "meas_basis": "z"},
             plot_color="blue",
@@ -136,8 +154,8 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         ),
         curve.SeriesDef(
             name="x|c=1",
-            fit_func=lambda x, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_x(
-                x, px=px1, py=py1, pz=pz1, baseline=b
+            fit_func=lambda x, t_off, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_x(
+                x + t_off, px=px1, py=py1, pz=pz1, baseline=b
             ),
             filter_kwargs={"control_state": 1, "meas_basis": "x"},
             plot_color="red",
@@ -146,8 +164,8 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         ),
         curve.SeriesDef(
             name="y|c=1",
-            fit_func=lambda x, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_y(
-                x, px=px1, py=py1, pz=pz1, baseline=b
+            fit_func=lambda x, t_off, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_y(
+                x + t_off, px=px1, py=py1, pz=pz1, baseline=b
             ),
             filter_kwargs={"control_state": 1, "meas_basis": "y"},
             plot_color="red",
@@ -156,8 +174,8 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         ),
         curve.SeriesDef(
             name="z|c=1",
-            fit_func=lambda x, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_z(
-                x, px=px1, py=py1, pz=pz1, baseline=b
+            fit_func=lambda x, t_off, px0, px1, py0, py1, pz0, pz1, b: curve.fit_function.bloch_oscillation_z(
+                x + t_off, px=px1, py=py1, pz=pz1, baseline=b
             ),
             filter_kwargs={"control_state": 1, "meas_basis": "z"},
             plot_color="red",
@@ -174,7 +192,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
             input_key="counts", data_actions=[dp.Probability("1"), dp.BasisExpectationValue()]
         )
         default_options.curve_plotter = "mpl_multiv_canvas"
-        default_options.xlabel = "Net cross resonance duration"
+        default_options.xlabel = "Flat top width"
         default_options.ylabel = "<X(t)>,<Y(t)>,<Z(t)>"
         default_options.xval_unit = "s"
         default_options.style = curve.visualization.PlotterStyle(
@@ -186,12 +204,48 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
 
         return default_options
 
+    def _t_off_initial_guess(self) -> float:
+        """Return initial guess for time offset.
+
+        This method assumes the :py:class:`~qiskit.pulse.library.parametric_pulses.GaussianSquare`
+        envelope with the Gaussian rising and falling edges with the parameter ``sigma``.
+
+        This is intended to be overridden by a child class so that rest of the analysis class
+        logic can be reused for the fitting that assumes other pulse envelopes.
+
+        Returns:
+            An initial guess for time offset parameter ``t_off`` in SI units.
+
+        Raises:
+            AnalysisError: When time unit is ``dt`` but the backend doesn't report
+                the time resolution of waveforms.
+        """
+        n_pulses = self._extra_metadata().get("n_cr_pulses", 1)
+        sigma = self._experiment_options().get("sigma", 0)
+        unit = self._experiment_options().get("unit")
+
+        # Convert sigma unit into SI
+        if unit == "dt":
+            try:
+                prefactor = self._backend.configuration().dt
+            except AttributeError as ex:
+                raise AnalysisError(
+                    "Backend configuration does not provide time resolution."
+                ) from ex
+        elif unit != "s":
+            prefactor = apply_prefix(1.0, unit)
+        else:
+            prefactor = 1.0
+
+        return np.sqrt(2 * np.pi) * prefactor * sigma * n_pulses
+
     def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Fitter options."""
         user_p0 = self._get_option("p0")
         user_bounds = self._get_option("bounds")
 
         bounds = {
+            "t_off": user_bounds["t_off"] or (0, np.inf),
             "px0": user_bounds["px0"] or (-np.inf, np.inf),
             "py0": user_bounds["py0"] or (-np.inf, np.inf),
             "pz0": user_bounds["pz0"] or (-np.inf, np.inf),
@@ -241,7 +295,12 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         fit_options = []
         for p0s, p1s in zip(guesses[0], guesses[1]):
             fit_option = {
-                "p0": {**p0s, **p1s, "b": user_p0["b"] or 1e-9},
+                "p0": {
+                    "b": user_p0["b"] or 1e-9,
+                    "t_off": user_p0["t_off"] or self._t_off_initial_guess(),
+                    **p0s,
+                    **p1s,
+                },
                 "bounds": bounds,
             }
             fit_option.update(extra_options)
