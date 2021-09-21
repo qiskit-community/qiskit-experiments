@@ -202,7 +202,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
         opt = self.experiment_options
 
         # Compute valid integer duration
-        cr_duration = stretch_pulse_duration(
+        cr_duration = round_pulse_duration(
             backend=backend, duration=flat_top_width + 2 * sigma * opt.risefall
         )
 
@@ -382,7 +382,7 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
         opt = self.experiment_options
 
         # Compute valid integer duration
-        cr_duration = stretch_pulse_duration(
+        cr_duration = round_pulse_duration(
             backend=backend, duration=flat_top_width + 2 * sigma * opt.risefall
         )
 
@@ -428,8 +428,8 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
         return {"n_cr_pulses": 2}
 
 
-def stretch_pulse_duration(backend: Backend, duration: float) -> int:
-    """Stretch pulse duration to meet timing constraints.
+def round_pulse_duration(backend: Backend, duration: float) -> int:
+    """Find the best pulse duration that meets timing constraints of the backend.
 
     Args:
         backend: Target backend to play pulses.
