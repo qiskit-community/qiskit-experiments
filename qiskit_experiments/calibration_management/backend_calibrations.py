@@ -136,7 +136,7 @@ class BackendCalibrations(Calibrations):
         """Return the default and up to date instruction schedule map."""
         return self._inst_map
 
-    def get_instruction_schedule_map(
+    def get_inst_map(
         self,
         group: str = "default",
         cutoff_date: datetime = None,
