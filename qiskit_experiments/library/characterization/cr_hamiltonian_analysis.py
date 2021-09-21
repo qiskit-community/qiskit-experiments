@@ -27,7 +27,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
     r"""A class to analyze cross resonance Hamiltonian tomography experiment.
 
     # section: fit_model
-        Following equations are used to approximate the dynamics of target qubit Bloch vector.
+        The following equations are used to approximate the dynamics of the target qubit Bloch vector.
 
         .. math::
 
