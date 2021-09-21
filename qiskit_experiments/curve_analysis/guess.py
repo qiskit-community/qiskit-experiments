@@ -57,9 +57,13 @@ def frequency(
         Frequency estimation of oscillation signal.
     """
     sampling_interval = np.unique(np.diff(x))
+
+    # if there are the same x values in the array, the minimum interval becomes zero.
+    # this prevents to get zero interval for interpolation.
     sampling_interval = sampling_interval[sampling_interval > 0]
 
     if len(sampling_interval) != 1:
+        # resampling with minimum xdata interval
         sampling_interval = np.min(sampling_interval)
         x_ = np.arange(x[0], x[-1], sampling_interval)
         y_ = np.interp(x_, xp=x, fp=y)
@@ -77,7 +81,7 @@ def frequency(
     freq_guess = positive_freqs[np.argmax(np.abs(positive_fft_data))]
 
     if freq_guess < 1 / (sampling_interval * len(x)):
-        # low frequency fit, use this mode when the estimate is beyond Nyquist limit
+        # low frequency fit, use this mode when the estimate is below the resolution
         y_smooth = signal.savgol_filter(y, window_length=filter_window, polyorder=filter_dim)
         y_smooth -= np.average(y_smooth)
 
