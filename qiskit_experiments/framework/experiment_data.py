@@ -14,7 +14,7 @@ Experiment Data class
 """
 import logging
 from typing import Dict, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 from qiskit_experiments.database_service import DbExperimentDataV1
 
@@ -66,6 +66,14 @@ class ExperimentData(DbExperimentDataV1):
                 job_times[job_id] = job.time_per_step().get("COMPLETED")
 
         return job_times
+
+    def time_stamp(self) -> datetime:
+        """Extract the datetime and default to now if there are no completion times."""
+        all_times = self.completion_times.values()
+        if all_times:
+            return max(all_times).astimezone()
+
+        return datetime.now(timezone.utc).astimezone()
 
     def _copy_metadata(self, new_instance: Optional["ExperimentData"] = None) -> "ExperimentData":
         """Make a copy of the experiment metadata.

@@ -17,6 +17,8 @@ import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.curve_analysis.fit_function import cos
+from qiskit_experiments.framework import ExperimentData, AnalysisResultData
+from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 
 
 class DragCalAnalysis(curve.CurveAnalysis):
@@ -102,6 +104,10 @@ class DragCalAnalysis(curve.CurveAnalysis):
         default_options.result_parameters = ["beta"]
         default_options.xlabel = "Beta"
         default_options.ylabel = "Signal (arb. units)"
+        default_options.calibrations = None
+        default_options.calibration_parameter = "β"
+        default_options.schedule = None
+        default_options.calibration_group = "default"
 
         return default_options
 
@@ -195,3 +201,36 @@ class DragCalAnalysis(curve.CurveAnalysis):
             return "good"
 
         return "bad"
+
+    def _post_analysis(
+        self,
+        experiment_data: ExperimentData,
+        analysis_results: List[AnalysisResultData],
+        **options
+    ):
+        """Update the calibrations if any.
+
+        Args:
+            experiment_data: The experiment data which has some required metadata.
+            analysis_results: The analysis result from which to update the parameter value.
+        """
+        cals = self._get_option("calibrations")
+
+        if cals is None:
+            return
+
+        result = analysis_results[-1]
+
+        param_value = ParameterValue(
+            value=result.value.value[result.extra["popt_keys"].index("beta")],
+            date_time=experiment_data.time_stamp(),
+            group=self._get_option("calibration_group"),
+            exp_id=experiment_data.experiment_id,
+        )
+
+        cals.add_parameter_value(
+            param_value,
+            self._get_option("calibration_parameter"),
+            experiment_data.metadata["physical_qubits"],
+            self._get_option("schedule")
+        )
