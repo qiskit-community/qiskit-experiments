@@ -150,6 +150,10 @@ class BackendCalibrations(Calibrations):
                 generated after the cutoff date will be ignored. If the cutoff_date is None then
                 all parameters are considered. This allows users to discard more recent values that
                 may be erroneous.
+
+        Returns:
+            An instruction schedule map with parameters updated up to the desired cutoff date
+            and from the desired calibration group.
         """
         inst_map = InstructionScheduleMap()
 
