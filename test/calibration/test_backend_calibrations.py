@@ -70,7 +70,7 @@ class TestBackendCalibrations(QiskitTestCase):
         with pulse.build(name="cr") as cr:
             pulse.play(pulse.GaussianSquare(640, 0.5, 64, 384), u_chan)
 
-        cals.add_schedule(cr, n_qubits=2)
+        cals.add_schedule(cr, num_qubits=2)
         cals.update_inst_map({"cr"})
 
         for qubit in range(backend.configuration().num_qubits):
@@ -209,8 +209,8 @@ class TestBackendCalibrations(QiskitTestCase):
                 pulse.Gaussian(duration=dur, amp=amp_cz, sigma=sig), pulse.ControlChannel(uchan)
             )
 
-        cals.add_schedule(cx, n_qubits=2)
-        cals.add_schedule(cz, n_qubits=2)
+        cals.add_schedule(cx, num_qubits=2)
+        cals.add_schedule(cz, num_qubits=2)
 
         cals.add_parameter_value(640, "duration", schedule="cx")
         cals.add_parameter_value(64, "σ", schedule="cx")

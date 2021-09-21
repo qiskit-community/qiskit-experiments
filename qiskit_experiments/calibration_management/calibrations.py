@@ -97,7 +97,7 @@ class Calibrations:
         self,
         schedule: ScheduleBlock,
         qubits: Union[int, Tuple[int, ...]] = None,
-        n_qubits: Optional[int] = None,
+        num_qubits: Optional[int] = None,
     ):
         """Add a schedule block and register its parameters.
 
@@ -108,7 +108,7 @@ class Calibrations:
             qubits: The qubits for which to add the schedules. If None or an empty tuple is
                 given then this schedule is the default schedule for all qubits and, in this
                 case, the number of qubits that this schedule act on must be given.
-            n_qubits: The number of qubits that this schedule will act on when exported to
+            num_qubits: The number of qubits that this schedule will act on when exported to
                 a circuit instruction. This argument is optional as long as qubits is either
                 not None or not an empty tuple (i.e. default schedule).
 
@@ -126,10 +126,10 @@ class Calibrations:
         """
         qubits = self._to_tuple(qubits)
 
-        if len(qubits) == 0 and n_qubits is None:
-            raise CalibrationError("Both qubits and n_qubits cannot simultaneously be None.")
+        if len(qubits) == 0 and num_qubits is None:
+            raise CalibrationError("Both qubits and num_qubits cannot simultaneously be None.")
 
-        n_qubits = len(qubits) or n_qubits
+        num_qubits = len(qubits) or num_qubits
 
         if not isinstance(schedule, ScheduleBlock):
             raise CalibrationError(f"{schedule.name} is not a ScheduleBlock.")
@@ -137,9 +137,9 @@ class Calibrations:
         sched_key = ScheduleKey(schedule.name, qubits)
 
         # Ensure one to one mapping between name and number of qubits.
-        if sched_key in self._schedules_qubits and self._schedules_qubits[sched_key] != n_qubits:
+        if sched_key in self._schedules_qubits and self._schedules_qubits[sched_key] != num_qubits:
             raise CalibrationError(
-                f"Cannot add schedule {schedule.name} acting on {n_qubits} qubits."
+                f"Cannot add schedule {schedule.name} acting on {num_qubits} qubits."
                 "self already contains a schedule with the same name acting on "
                 f"{self._schedules_qubits[sched_key]} qubits. Remove old schedule first."
             )
@@ -183,7 +183,7 @@ class Calibrations:
 
         # Add the schedule.
         self._schedules[sched_key] = schedule
-        self._schedules_qubits[sched_key] = n_qubits
+        self._schedules_qubits[sched_key] = num_qubits
 
         # Register parameters that are not indices.
         # Do not register parameters that are in call instructions.

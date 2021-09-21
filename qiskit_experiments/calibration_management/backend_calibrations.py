@@ -83,7 +83,7 @@ class BackendCalibrations(Calibrations):
                 configuration.
 
         Raises:
-            CalibrationError: If the backend configuration does not have num_qubits and n_qubits
+            CalibrationError: If the backend configuration does not have num_qubits and num_qubits
                 is None.
         """
         super().__init__(getattr(backend.configuration(), "control_channels", None))
@@ -118,7 +118,7 @@ class BackendCalibrations(Calibrations):
 
             # Add the basis gates
             for gate in library.basis_gates:
-                self.add_schedule(library[gate], n_qubits=library.num_qubits(gate))
+                self.add_schedule(library[gate], num_qubits=library.num_qubits(gate))
 
             # Add the default values
             for param_conf in library.default_values():

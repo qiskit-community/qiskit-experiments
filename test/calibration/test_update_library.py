@@ -50,8 +50,8 @@ class TestAmplitudeUpdate(QiskitTestCase):
 
         self.x90p = x90p
 
-        self.cals.add_schedule(xp, n_qubits=1)
-        self.cals.add_schedule(x90p, n_qubits=1)
+        self.cals.add_schedule(xp, num_qubits=1)
+        self.cals.add_schedule(x90p, num_qubits=1)
         self.cals.add_parameter_value(0.2, "amp", self.qubit, "xp")
         self.cals.add_parameter_value(0.1, "amp", self.qubit, "x90p")
 
@@ -182,7 +182,7 @@ class TestDragUpdate(QiskitTestCase):
         cals = BackendCalibrations(backend)
 
         for sched in [x_plus, x_minus]:
-            cals.add_schedule(sched, n_qubits=1)
+            cals.add_schedule(sched, num_qubits=1)
 
         cals.add_parameter_value(0.2, "β", qubit, x_plus)
         cals.inst_map_add("xp", (qubit,))
