@@ -32,27 +32,58 @@ from qiskit_experiments.curve_analysis.data_processing import level2_probability
 
 # pylint: disable = invalid-name
 class T2RamseyAnalysis(BaseAnalysis):
-
     r"""
-    T2Ramsey result analysis class.
+    T2 Ramsey result analysis class.
 
-    Fit Model
-        This class is used to analyze the results of a T2Ramsey experiment.
-        The probability of measuring `+` is assumed to be of the form
+    # section: fit_model
+        This class is used to analyze the results of a T2 Ramsey experiment.
+        The probability of measuring :math:`|+\rangle` state is assumed to be of the form
 
-        :math:`f(t) = a\mathrm{e}^{-t / T_2^*}\cos(2\pi f t + \phi) + b`
+        .. math::
 
-    Fit Parameters
-        - :math:`A (amplitude)`: Height of the decay curve.
-        - :math:`B (offset)`: Base line of the decay curve.
-        - :math:`\phi (shift)`: Relative shift of the graph from the origin.
-        - :math:`T2star`: Represents the rate of decay.
-        - :math:`f (frequency)`: Represents the difference in frequency between
-          the user guess and the actual frequency of the qubit.
+            f(t) = a\mathrm{e}^{-t / T_2^*}\cos(2\pi f t + \phi) + b
+
+    # section: fit_parameters
+
+        defpar a:
+            desc: Amplitude. Height of the decay curve.
+            init_guess: 0.5
+            bounds: [-0.5, 1.5]
+
+        defpar b:
+            desc: Offset. Base line of the decay curve.
+            init_guess: 0.5
+            bounds: [-0.5, 1.5]
+
+        defpar \phi:
+            desc: Shift. Relative shift of the graph from the origin.
+            init_guess: 0.0
+            bounds: [-np.pi, np.pi]
+
+        defpar T_2^*:
+            desc: Represents the rate of decay.
+            init_guess: the mean of the input delays.
+            bounds: [0, np.inf]
+
+        defpar f:
+            desc: Frequency. Represents the difference in frequency between
+                the user guess and the actual frequency of the qubit.
+            init_guess: input osc_freq.
+            bounds: [0.1 * f, 10 * f]
+
     """
 
     @classmethod
     def _default_options(cls):
+        r"""Default analysis options.
+
+        Analysis Options:
+            user_p0 (List[Float]): user guesses for the fit parameters
+                :math:`(a, b, f, \phi, T_2^*)`.
+            user_bounds (Tuple[List[float], List[float]]): Lower and upper bounds
+                for the fit parameters.
+            plot (bool): Create a graph if and only if True.
+        """
         return Options(user_p0=None, user_bounds=None)
 
     # pylint: disable=arguments-differ, unused-argument
@@ -126,7 +157,7 @@ class T2RamseyAnalysis(BaseAnalysis):
 
         t2ramsey_estimate = np.mean(xdata)
         p0, bounds = self._t2ramsey_default_params(
-            conversion_factor, user_p0, user_bounds, t2ramsey_estimate
+            conversion_factor, user_p0, user_bounds, t2ramsey_estimate, osc_freq
         )
         xdata *= conversion_factor
         fit_result = curve_fit(
@@ -176,6 +207,7 @@ class T2RamseyAnalysis(BaseAnalysis):
         user_p0=None,
         user_bounds=None,
         t2ramsey_input=None,
+        freq_input=None,
     ) -> Tuple[List[float], Tuple[List[float]]]:
         """Default fit parameters for oscillation data.
 
@@ -185,13 +217,13 @@ class T2RamseyAnalysis(BaseAnalysis):
         if user_p0 is None:
             a = 0.5
             t2ramsey = t2ramsey_input * conversion_factor
-            f = 0.1 / conversion_factor
+            f = freq_input
             phi = 0.0
             b = 0.5
         else:
             a = user_p0["A"]
             t2ramsey = user_p0["T2star"] * conversion_factor
-            f = user_p0["f"] / conversion_factor
+            f = user_p0["f"]
             phi = user_p0["phi"]
             b = user_p0["B"]
         p0 = {"a_guess": a, "T2star": t2ramsey, "f_guess": f, "phi_guess": phi, "b_guess": b}

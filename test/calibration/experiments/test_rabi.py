@@ -15,7 +15,7 @@
 from typing import Tuple
 import numpy as np
 
-from qiskit import QuantumCircuit, execute, transpile
+from qiskit import QuantumCircuit, transpile
 from qiskit.exceptions import QiskitError
 from qiskit.circuit import Parameter
 from qiskit.providers.basicaer import QasmSimulatorPy
@@ -216,7 +216,9 @@ class TestRabiAnalysis(QiskitTestCase):
             circuits.append(qc)
 
         sim = QasmSimulatorPy()
-        result = execute(circuits, sim, shots=shots, seed_simulator=10).result()
+        circuits = transpile(circuits, sim)
+        job = sim.run(circuits, shots=shots, seed_simulator=10)
+        result = job.result()
         data = [
             {
                 "counts": self._add_uncertainty(result.get_counts(i)),

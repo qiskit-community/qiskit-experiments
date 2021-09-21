@@ -45,6 +45,7 @@ module.
     FineAmplitude
     FineXAmplitude
     FineSXAmplitude
+    RamseyXY
 
 Calibration analysis
 ====================
@@ -66,7 +67,9 @@ from .rough_frequency import RoughFrequency
 from .drag import DragCal
 from .rabi import Rabi, EFRabi
 from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
+from .ramsey_xy import RamseyXY
 
 from .analysis.oscillation_analysis import OscillationAnalysis
 from .analysis.drag_analysis import DragCalAnalysis
 from .analysis.fine_amplitude_analysis import FineAmplitudeAnalysis
+from .analysis.remsey_xy_analysis import RamseyXYAnalysis
