@@ -80,11 +80,9 @@ def frequency(
 
     freq_guess = positive_freqs[np.argmax(np.abs(positive_fft_data))]
 
-    if freq_guess < 1 / (sampling_interval * len(x)):
+    if freq_guess <= 1 / (sampling_interval * len(x)):
         # low frequency fit, use this mode when the estimate is below the resolution
         y_smooth = signal.savgol_filter(y, window_length=filter_window, polyorder=filter_dim)
-        y_smooth -= np.average(y_smooth)
-
         y_amp = max(np.abs(y_smooth))
 
         if np.isclose(y_amp, 0.0):
