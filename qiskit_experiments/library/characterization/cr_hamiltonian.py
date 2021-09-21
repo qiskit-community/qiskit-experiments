@@ -56,7 +56,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
             (X measurement)
 
                  ┌───┐┌────────────────────┐
-            q_0: ┤ X ├┤0                   ├────────
+            q_0: ┤ P ├┤0                   ├────────
                  └───┘│  cr_tone(duration) │┌───┐┌─┐
             q_1: ─────┤1                   ├┤ H ├┤M├
                       └────────────────────┘└───┘└╥┘
@@ -66,7 +66,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
             (Y measurement)
 
                  ┌───┐┌────────────────────┐
-            q_0: ┤ X ├┤0                   ├───────────────
+            q_0: ┤ P ├┤0                   ├───────────────
                  └───┘│  cr_tone(duration) │┌─────┐┌───┐┌─┐
             q_1: ─────┤1                   ├┤ Sdg ├┤ H ├┤M├
                       └────────────────────┘└─────┘└───┘└╥┘
@@ -76,14 +76,16 @@ class CrossResonanceHamiltonian(BaseExperiment):
             (Z measurement)
 
                  ┌───┐┌────────────────────┐
-            q_0: ┤ X ├┤0                   ├───
+            q_0: ┤ P ├┤0                   ├───
                  └───┘│  cr_tone(duration) │┌─┐
             q_1: ─────┤1                   ├┤M├
                       └────────────────────┘└╥┘
             c: 1/════════════════════════════╩═
                                              0
 
-        The ``X`` gate on the control qubit (``q_0``) depends on the required control state.
+        The ``P`` gate on the control qubit (``q_0``) indicates the state preparation.
+        Since this experiment requires two sets of sub experiments with the control qubit in the
+        excited and ground state, ``P`` will become ``X`` gate or just be omitted, respectively.
         Here ``cr_tone`` is implemented by a single cross resonance tone
         driving the control qubit at the frequency of the target qubit.
         The pulse envelope is the flat-topped Gaussian implemented by the parametric pulse
