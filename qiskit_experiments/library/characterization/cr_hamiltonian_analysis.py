@@ -13,6 +13,7 @@
 """Cross resonance Hamiltonian tomography experiment analysis."""
 
 from collections import defaultdict
+from itertools import product
 from typing import Any, Dict, List, Union
 
 import numpy as np
@@ -26,11 +27,13 @@ from qiskit_experiments.framework import AnalysisResultData, FitVal
 from qiskit_experiments.exceptions import AnalysisError
 
 
+# pylint: disable=line-too-long
 class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
     r"""A class to analyze cross resonance Hamiltonian tomography experiment.
 
     # section: fit_model
-        The following equations are used to approximate the dynamics of the target qubit Bloch vector.
+        The following equations are used to approximate the dynamics of
+        the target qubit Bloch vector.
 
         .. math::
 
@@ -310,7 +313,8 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
                 )
 
         fit_options = []
-        for p0s, p1s in zip(guesses[0], guesses[1]):
+        # combine all guesses in Cartesian product
+        for p0s, p1s in product(guesses[0], guesses[1]):
             fit_option = {
                 "p0": {
                     "b": user_p0["b"] or 1e-9,
