@@ -188,7 +188,7 @@ class TestDragUpdate(QiskitTestCase):
         cals.inst_map_add("xp", (qubit,))
 
         # Check that the inst_map has the default beta
-        beta_val = cals.instruction_schedule_map.get("xp", (qubit,)).blocks[0].pulse.beta
+        beta_val = cals.default_inst_map.get("xp", (qubit,)).blocks[0].pulse.beta
         self.assertEqual(beta_val, 0.2)
 
         # Run a Drag calibration experiment.
@@ -217,5 +217,5 @@ class TestDragUpdate(QiskitTestCase):
         self.assertEqual(cals.get_schedule("xp", qubit), expected)
 
         # Check the inst map post update
-        beta_val = cals.instruction_schedule_map.get("xp", (qubit,)).blocks[0].pulse.beta
+        beta_val = cals.default_inst_map.get("xp", (qubit,)).blocks[0].pulse.beta
         self.assertTrue(np.allclose(beta_val, result.value.value))

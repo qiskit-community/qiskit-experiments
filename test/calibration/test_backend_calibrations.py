@@ -74,7 +74,7 @@ class TestBackendCalibrations(QiskitTestCase):
         cals.update_inst_map({"cr"})
 
         for qubit in range(backend.configuration().num_qubits):
-            self.assertTrue(cals.instruction_schedule_map.has("sx", (qubit,)))
+            self.assertTrue(cals.default_inst_map.has("sx", (qubit,)))
 
         # based on coupling map of Belem to keep the test robust.
         expected_pairs = [(0, 1), (1, 0), (1, 2), (2, 1), (1, 3), (3, 1), (3, 4), (4, 3)]
@@ -82,7 +82,7 @@ class TestBackendCalibrations(QiskitTestCase):
 
         for pair in expected_pairs:
             self.assertTrue(pair in coupling_map)
-            self.assertTrue(cals.instruction_schedule_map.has("cr", pair), pair)
+            self.assertTrue(cals.default_inst_map.has("cr", pair), pair)
 
     @unittest.skip("Requires qiskit terra >= 0.19.0")
     def test_inst_map_transpilation(self):
@@ -130,11 +130,11 @@ class TestBackendCalibrations(QiskitTestCase):
             self.assertEqual(circ_rabi, rabi_expected)
 
         # Test the removal of the Rabi instruction
-        self.assertTrue(cals.instruction_schedule_map.has("Rabi", (0,)))
+        self.assertTrue(cals.default_inst_map.has("Rabi", (0,)))
 
-        cals.instruction_schedule_map.remove("Rabi", (0,))
+        cals.default_inst_map.remove("Rabi", (0,))
 
-        self.assertFalse(cals.instruction_schedule_map.has("Rabi", (0,)))
+        self.assertFalse(cals.default_inst_map.has("Rabi", (0,)))
 
     def test_inst_map_updates(self):
         """Test that updating a parameter will force an inst map update."""
@@ -150,7 +150,7 @@ class TestBackendCalibrations(QiskitTestCase):
                 with pulse.build() as expected:
                     pulse.play(pulse.Drag(160, amp, 40, 0), pulse.DriveChannel(qubit))
 
-                self.assertEqual(cals.instruction_schedule_map.get(gate, qubit), expected)
+                self.assertEqual(cals.default_inst_map.get(gate, qubit), expected)
 
         # Update the duration, this should impact all gates.
         cals.add_parameter_value(200, "duration", schedule="sx")
@@ -161,7 +161,7 @@ class TestBackendCalibrations(QiskitTestCase):
                 with pulse.build() as expected:
                     pulse.play(pulse.Drag(200, amp, 40, 0), pulse.DriveChannel(qubit))
 
-                self.assertEqual(cals.instruction_schedule_map.get(gate, qubit), expected)
+                self.assertEqual(cals.default_inst_map.get(gate, qubit), expected)
 
         # Update the amp on a single qubit, this should only update one gate in the inst_map
         cals.add_parameter_value(0.8, "amp", qubits=(4,), schedule="sx")
@@ -176,7 +176,7 @@ class TestBackendCalibrations(QiskitTestCase):
                 with pulse.build() as expected:
                     pulse.play(pulse.Drag(200, amp, 40, 0), pulse.DriveChannel(qubit))
 
-                self.assertEqual(cals.instruction_schedule_map.get(gate, qubit), expected)
+                self.assertEqual(cals.default_inst_map.get(gate, qubit), expected)
 
     def test_cx_cz_case(self):
         """Test the case where the coupling map has CX and CZ on different qubits.
@@ -222,13 +222,13 @@ class TestBackendCalibrations(QiskitTestCase):
         cals.add_parameter_value(0.8, "amp", qubits=(1, 2), schedule="cz")
 
         # CX only defined for qubits (0, 1) and (1,0)?
-        self.assertTrue(cals.instruction_schedule_map.has("cx", (0, 1)))
-        self.assertTrue(cals.instruction_schedule_map.has("cx", (1, 0)))
-        self.assertFalse(cals.instruction_schedule_map.has("cx", (2, 1)))
-        self.assertFalse(cals.instruction_schedule_map.has("cx", (1, 2)))
+        self.assertTrue(cals.default_inst_map.has("cx", (0, 1)))
+        self.assertTrue(cals.default_inst_map.has("cx", (1, 0)))
+        self.assertFalse(cals.default_inst_map.has("cx", (2, 1)))
+        self.assertFalse(cals.default_inst_map.has("cx", (1, 2)))
 
         # CZ only defined for qubits (2, 1) and (1,2)?
-        self.assertTrue(cals.instruction_schedule_map.has("cz", (2, 1)))
-        self.assertTrue(cals.instruction_schedule_map.has("cz", (1, 2)))
-        self.assertFalse(cals.instruction_schedule_map.has("cz", (0, 1)))
-        self.assertFalse(cals.instruction_schedule_map.has("cz", (1, 0)))
+        self.assertTrue(cals.default_inst_map.has("cz", (2, 1)))
+        self.assertTrue(cals.default_inst_map.has("cz", (1, 2)))
+        self.assertFalse(cals.default_inst_map.has("cz", (0, 1)))
+        self.assertFalse(cals.default_inst_map.has("cz", (1, 0)))

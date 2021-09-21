@@ -132,9 +132,30 @@ class BackendCalibrations(Calibrations):
         self.update_inst_map()
 
     @property
-    def instruction_schedule_map(self) -> InstructionScheduleMap:
-        """Returns the updated instruction schedule map."""
+    def default_inst_map(self) -> InstructionScheduleMap:
+        """Return the default and up to date instruction schedule map."""
         return self._inst_map
+
+    def get_instruction_schedule_map(
+        self,
+        group: str = "default",
+        cutoff_date: datetime = None,
+    ) -> InstructionScheduleMap:
+        """Get a new instance of an Instruction schedule map.
+
+        Args:
+            group: The calibration group from which to draw the parameters.
+                If not specified this defaults to the 'default' group.
+            cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
+                generated after the cutoff date will be ignored. If the cutoff_date is None then
+                all parameters are considered. This allows users to discard more recent values that
+                may be erroneous.
+        """
+        inst_map = InstructionScheduleMap()
+
+        self.update_inst_map(group=group, cutoff_date=cutoff_date, inst_map=inst_map)
+
+        return inst_map
 
     def _get_frequencies(
         self,
@@ -279,6 +300,7 @@ class BackendCalibrations(Calibrations):
         qubits: Optional[Tuple[int]] = None,
         group: Optional[str] = "default",
         cutoff_date: datetime = None,
+        inst_map: Optional[InstructionScheduleMap] = None,
     ):
         """Push all schedules from the Calibrations to the inst map.
 
@@ -296,7 +318,10 @@ class BackendCalibrations(Calibrations):
                 generated after the cutoff date will be ignored. If the cutoff_date is None then
                 all parameters are considered. This allows users to discard more recent values that
                 may be erroneous.
+            inst_map: The instruction schedule map to update. If None is given then the default
+                instruction schedule map (i.e. self._inst_map) will be updated.
         """
+        inst_map = inst_map or self._inst_map
 
         for key in self._schedules:
             sched_name = key.schedule
@@ -305,7 +330,7 @@ class BackendCalibrations(Calibrations):
                 continue
 
             if qubits is not None:
-                self._inst_map.add(
+                inst_map.add(
                     instruction=sched_name,
                     qubits=qubits,
                     schedule=self.get_schedule(
@@ -316,7 +341,7 @@ class BackendCalibrations(Calibrations):
             else:
                 for qubits_ in self.operated_qubits[self._schedules_qubits[key]]:
                     try:
-                        self._inst_map.add(
+                        inst_map.add(
                             instruction=sched_name,
                             qubits=qubits_,
                             schedule=self.get_schedule(
