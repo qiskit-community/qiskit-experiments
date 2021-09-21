@@ -299,7 +299,8 @@ class TestCrossResonanceHamiltonian(QiskitTestCase):
         [1e6, 2e6, 1e3, -3e6, -2e6, 1e4],
         [-1e6, -2e6, 1e3, 3e6, 2e6, 1e4],
         [1e4, 2e4, 1e3, 5e6, 1e6, 2e3],
-        # [1e4, -1e3, 1e3, 5e5, 1e3, -1e3],  # slow oscillation
+        [1e4, -1e3, 1e3, 5e5, 1e3, -1e3],  # low frequency test case 1
+        [-1.0e5, 1.2e5, 1.0e3, 1.5e5, -1.1e5, -1.0e3],  # low frequency test case 2
     )
     @unpack
     # pylint: disable=invalid-name

@@ -286,7 +286,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
             theta = np.arccos(np.sqrt((zmax - zmin) / 2))
 
             # The FFT might be up to 1/2 bin off
-            df = 1 / ((z_data.x[1] - z_data.x[0]) * len(z_data.x))
+            df = 2 * np.pi / ((z_data.x[1] - z_data.x[0]) * len(z_data.x))
             for omega_shifted in [omega, omega - df / 2, omega + df / 2]:
                 for phi in np.linspace(-np.pi, np.pi, 9):
                     px = omega_shifted * np.cos(theta) * np.cos(phi)
@@ -299,6 +299,15 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
                             f"pz{control}": user_p0[f"pz{control}"] or pz,
                         }
                     )
+            if omega < df:
+                # empirical guess for low frequency case
+                guesses[control].append(
+                    {
+                        f"px{control}": user_p0[f"px{control}"] or omega,
+                        f"py{control}": user_p0[f"py{control}"] or omega,
+                        f"pz{control}": user_p0[f"pz{control}"] or 0,
+                    }
+                )
 
         fit_options = []
         for p0s, p1s in zip(guesses[0], guesses[1]):
