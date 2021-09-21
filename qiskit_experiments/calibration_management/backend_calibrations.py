@@ -118,7 +118,7 @@ class BackendCalibrations(Calibrations):
 
             # Add the basis gates
             for gate in library.basis_gates:
-                self.add_schedule(library[gate], n_qubits=library.n_qubits(gate))
+                self.add_schedule(library[gate], n_qubits=library.num_qubits(gate))
 
             # Add the default values
             for param_conf in library.default_values():
