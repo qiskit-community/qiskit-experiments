@@ -118,6 +118,12 @@ class MplDrawSingleCanvas:
         if axis is None:
             axis = get_non_gui_ax()
 
+            # update image size to experiment default
+            figure = axis.get_figure()
+            figure.set_size_inches(*style.figsize)
+        else:
+            figure = axis.get_figure()
+
         # draw all curves on the same canvas
         for series_def, raw_samp, fit_samp in zip(series_defs, raw_samples, fit_samples):
             draw_single_curve_mpl(
@@ -174,7 +180,7 @@ class MplDrawSingleCanvas:
         axis.tick_params(labelsize=style.tick_label_size)
         axis.grid(True)
 
-        return axis.get_figure()
+        return figure
 
 
 class MplDrawMultiCanvasVstack:
@@ -212,6 +218,12 @@ class MplDrawMultiCanvasVstack:
         """
         if axis is None:
             axis = get_non_gui_ax()
+
+            # update image size to experiment default
+            figure = axis.get_figure()
+            figure.set_size_inches(*style.figsize)
+        else:
+            figure = axis.get_figure()
 
         # get canvas number
         n_subplots = max(series_def.canvas for series_def in series_defs) + 1
@@ -321,7 +333,7 @@ class MplDrawMultiCanvasVstack:
         axis.tick_params(labelsize=style.tick_label_size)
         axis.grid(True)
 
-        return axis.get_figure()
+        return figure
 
 
 def draw_single_curve_mpl(

@@ -13,7 +13,7 @@
 Cross resonance Hamiltonian tomography.
 """
 
-from typing import List, Tuple, Optional, Iterable
+from typing import List, Tuple, Optional, Iterable, Dict
 
 import numpy as np
 from qiskit import pulse, circuit, QuantumCircuit
@@ -36,7 +36,8 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
             H = \frac{I \otimes A}{2} + \frac{Z \otimes B}{2}
 
-        where :math:`A` and :math:`B` are linear combinations of the Pauli operators :math:`\in {X, Y, Z}`.
+        where :math:`A` and :math:`B` are linear combinations of
+        the Pauli operators :math:`\in {X, Y, Z}`.
         The coefficient of each Pauli term in the Hamiltonian
         can be estimated with this experiment.
 
@@ -90,21 +91,27 @@ class CrossResonanceHamiltonian(BaseExperiment):
         driving the control qubit at the frequency of the target qubit.
         The pulse envelope is the flat-topped Gaussian implemented by the parametric pulse
         :py:class:`~qiskit.pulse.library.parametric_pulses.GaussianSquare`.
-        The effect of pulse edges are also considered as a net cross resonance pulse duration.
-        The net duration of pulse edges are approximated by
+
+        This experiment scans the flat-top width of the :py:class:`~qiskit.pulse.library.\
+        parametric_pulses.GaussianSquare` envelope with the fixed rising and falling edges.
+        The total pulse duration is implicitly computed to meet the timing constraints of
+        the target backend. The edge duration is usually computed as
 
         .. math::
 
-            \tau_{\rm edges} = \sqrt{2 \pi \sigma^2},
+            \tau_{\rm edges} = 2 r \sigma,
 
-        where the :math:`\sigma` is the sigma of Gaussian rising and falling edges.
-        Thus the net duration of the entire cross resonance pulse will become
+        where the :math:`r` is the ratio of the actual edge duration to :math:`\sigma` of
+        the Gaussian rising and falling edges. Note that actual edge duration is not
+        identical to the net duration because of the smaller pulse amplitude of the edges.
+
+        The net edge duration is an extra fitting parameter with initial guess
 
         .. math::
 
-            \tau = {\rm duration} - 2 r \sigma + \tau_{\rm edges},
+            \tau_{\rm edges}' = \sqrt{2 \pi} \sigma,
 
-        where :math:`r` is the ratio of the actual edge duration to the sigma.
+        which is derived by assuming a square edges with the full pulse amplitude.
 
     # section: reference
         .. ref_arxiv:: 1 1603.04821
@@ -117,14 +124,20 @@ class CrossResonanceHamiltonian(BaseExperiment):
     __analysis_class__ = CrossResonanceHamiltonianAnalysis
 
     def __init__(
-        self, qubits: Tuple[int, int], durations: Iterable[float], unit: str = "dt", **kwargs
+        self,
+        qubits: Tuple[int, int],
+        flat_top_widths: Iterable[float],
+        unit: str = "dt",
+        **kwargs,
     ):
         """Create a new experiment.
 
         Args:
             qubits: Two-value tuple of qubit indices on which to run tomography.
                 The first index stands for the control qubit.
-            durations: The pulse durations to scan.
+            flat_top_widths: The total duration of the square part of cross resonance pulse(s)
+                to scan. The total pulse duration including Gaussian rising and falling edges
+                is implicitly computed with experiment parameters ``sigma`` and ``risefall``.
             unit: The time unit of durations.
             kwargs: Pulse parameters. See :meth:`experiment_options` for details.
 
@@ -138,14 +151,17 @@ class CrossResonanceHamiltonian(BaseExperiment):
                 "Length of qubits is not 2. Please provide index for control and target qubit."
             )
 
-        self.set_experiment_options(durations=durations, unit=unit, **kwargs)
+        self.set_experiment_options(flat_top_widths=flat_top_widths, unit=unit, **kwargs)
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
         """Default experiment options.
 
         Experiment Options:
-            durations (np.ndarray): The length of the cross resonance tone.
+            flat_top_widths (np.ndarray): The total duration of the square part of
+                cross resonance pulse(s) to scan. This can start from zero and
+                take positive real values representing the durations.
+                Pulse edge effect is considered as an offset to the durations.
             unit (str): Time unit of durations.
             amp (complex): Amplitude of the cross resonance tone.
             amp_t (complex): Amplitude of the cancellation or rotary drive on target qubit.
@@ -153,7 +169,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
             risefall (float): Ratio of edge durations to sigma.
         """
         options = super()._default_experiment_options()
-        options.durations = None
+        options.flat_top_widths = None
         options.unit = "dt"
         options.amp = 0.2
         options.amp_t = 0.0
@@ -165,33 +181,40 @@ class CrossResonanceHamiltonian(BaseExperiment):
     def _build_cr_circuit(
         self,
         backend: Backend,
-        duration: circuit.Parameter,
+        flat_top_width: float,
         sigma: float,
     ) -> QuantumCircuit:
         """Single tone cross resonance.
 
         Args:
             backend: The target backend.
-            duration: Parameter object representing a duration of cross resonance pulse.
-            sigma: Sigma of Gaussian edges.
+            flat_top_width: Total length of flat top part of the pulse in units of dt.
+            sigma: Sigma of Gaussian edges in units of dt.
 
         Returns:
             A circuit definition for the cross resonance pulse to measure.
         """
-        cr_gate = circuit.Gate("cr_tone", num_qubits=2, params=[duration])
+        cr_gate = circuit.Gate("cr_tone", num_qubits=2, params=[flat_top_width])
 
         cr_circuit = QuantumCircuit(2)
         cr_circuit.append(cr_gate, [0, 1])
 
         opt = self.experiment_options
+
+        # Compute valid integer duration
+        cr_duration = stretch_pulse_duration(
+            backend=backend, duration=flat_top_width + 2 * sigma * opt.risefall
+        )
+
         with pulse.build(backend, default_alignment="left", name="cr") as cross_resonance:
+
             # add cross resonance tone
             pulse.play(
                 pulse.GaussianSquare(
-                    duration,
+                    duration=cr_duration,
                     amp=opt.amp,
                     sigma=sigma,
-                    risefall_sigma_ratio=opt.risefall,
+                    width=flat_top_width,
                 ),
                 pulse.control_channels(*self.physical_qubits)[0],
             )
@@ -199,55 +222,41 @@ class CrossResonanceHamiltonian(BaseExperiment):
             if not np.isclose(opt.amp_t, 0.0):
                 pulse.play(
                     pulse.GaussianSquare(
-                        duration,
+                        duration=cr_duration,
                         amp=opt.amp_t,
                         sigma=sigma,
-                        risefall_sigma_ratio=opt.risefall,
+                        width=flat_top_width,
                     ),
                     pulse.drive_channel(self.physical_qubits[1]),
                 )
             else:
-                pulse.delay(duration, pulse.drive_channel(self.physical_qubits[1]))
+                pulse.delay(cr_duration, pulse.drive_channel(self.physical_qubits[1]))
 
             # place holder for empty drive channels. this is necessary due to known pulse gate bug.
-            pulse.delay(duration, pulse.drive_channel(self.physical_qubits[0]))
+            pulse.delay(cr_duration, pulse.drive_channel(self.physical_qubits[0]))
 
         cr_circuit.add_calibration(
             gate=cr_gate,
             qubits=self.physical_qubits,
             schedule=cross_resonance,
-            params=[duration],
         )
 
         return cr_circuit
 
-    def _net_duration(
-        self,
-        duration: float,
-        sigma: float,
-    ) -> float:
-        """Calculate net cross resonance pulse duration considering the pulse edges.
+    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+        """Return a list of experiment circuits.
 
         Args:
-            duration: Parameter object representing a duration of cross resonance pulse.
-            sigma: Sigma of Gaussian edges.
+            backend: The target backend.
 
         Returns:
-            Net duration in units of sec.
+            A list of :class:`QuantumCircuit`.
+
+        Raises:
+            AttributeError: When the backend doesn't report the time resolution of waveforms.
         """
         opt = self.experiment_options
-
-        flat_top_width = duration - 2 * opt.risefall * sigma
-        net_edge_width = np.sqrt(2 * np.pi) * sigma
-
-        return flat_top_width + net_edge_width
-
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
-
-        opt = self.experiment_options
         prefactor = 1.0
-        timing_constraints = getattr(backend.configuration(), "timing_constraints", dict())
-        granularity = timing_constraints.get("granularity", 1)
 
         try:
             dt_factor = backend.configuration().dt
@@ -260,55 +269,55 @@ class CrossResonanceHamiltonian(BaseExperiment):
             prefactor /= dt_factor
 
         # Define pulse gate of cross resonance tone
-        duration = circuit.Parameter("duration")
         sigma_dt = prefactor * opt.sigma
 
-        template_circuits = list()
-        for control_state in (0, 1):
-            for meas_basis in ("x", "y", "z"):
-                tomo_circ = QuantumCircuit(2, 1)
+        # Parametrized duration cannot be used because total duration is computed
+        # on the fly with granularity validation. This validation requires
+        # duration value that is not a parameter expression.
 
-                # state prep
-                if control_state:
-                    tomo_circ.x(0)
-
-                # add cross resonance
-                tomo_circ.compose(
-                    other=self._build_cr_circuit(backend, duration, sigma_dt),
-                    qubits=[0, 1],
-                    inplace=True,
-                )
-
-                # measure
-                if meas_basis == "x":
-                    tomo_circ.h(1)
-                elif meas_basis == "y":
-                    tomo_circ.sdg(1)
-                    tomo_circ.h(1)
-                tomo_circ.measure(1, 0)
-
-                # add metadata
-                tomo_circ.metadata = {"control_state": control_state, "meas_basis": meas_basis}
-
-                template_circuits.append(tomo_circ)
-
+        # Note that this experiment scans flat top width rather than total duration.
         expr_circs = list()
-        for dur_value in opt.durations:
-            # pulse duration should be an integer value which is multiple of granularity
-            dur_value = granularity * int(prefactor * dur_value / granularity)
+        for flat_top_width_dt in prefactor * np.asarray(opt.flat_top_widths, dtype=float):
+            for control_state in (0, 1):
+                for meas_basis in ("x", "y", "z"):
+                    tomo_circ = QuantumCircuit(2, 1)
 
-            for template_circuit in template_circuits:
-                bind_circuit = template_circuit.assign_parameters(
-                    {duration: int(dur_value)}, inplace=False
-                )
-                bind_circuit.metadata["experiment_type"] = self._type
-                bind_circuit.metadata["qubits"] = self.physical_qubits
-                bind_circuit.metadata["xval"] = self._net_duration(dur_value, sigma_dt) * dt_factor
-                bind_circuit.metadata["dt"] = dt_factor
+                    # state prep
+                    if control_state:
+                        tomo_circ.x(0)
 
-                expr_circs.append(bind_circuit)
+                    # add cross resonance
+                    tomo_circ.compose(
+                        other=self._build_cr_circuit(backend, flat_top_width_dt, sigma_dt),
+                        qubits=[0, 1],
+                        inplace=True,
+                    )
+
+                    # measure
+                    if meas_basis == "x":
+                        tomo_circ.h(1)
+                    elif meas_basis == "y":
+                        tomo_circ.sdg(1)
+                        tomo_circ.h(1)
+                    tomo_circ.measure(1, 0)
+
+                    # add metadata
+                    tomo_circ.metadata = {
+                        "experiment_type": self.experiment_type,
+                        "qubits": self.physical_qubits,
+                        "xval": flat_top_width_dt * dt_factor,
+                        "control_state": control_state,
+                        "meas_basis": meas_basis,
+                    }
+
+                    expr_circs.append(tomo_circ)
 
         return expr_circs
+
+    def _additional_metadata(self) -> Dict[str, any]:
+        """Attach number of pulses to construct time offset initial guess in the fitter."""
+
+        return {"n_cr_pulses": 1}
 
 
 class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
@@ -346,20 +355,22 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
     def _build_cr_circuit(
         self,
         backend: Backend,
-        duration: circuit.Parameter,
+        flat_top_width: circuit.Parameter,
         sigma: float,
     ) -> QuantumCircuit:
         """Echoed cross resonance.
 
         Args:
             backend: The target backend.
-            duration: Parameter object representing a duration of cross resonance pulse.
-            sigma: Sigma of Gaussian edges.
+            flat_top_width: Total length of flat top part of the pulse in units of dt.
+            sigma: Sigma of Gaussian edges in units of dt.
 
         Returns:
             A circuit definition for the cross resonance pulse to measure.
         """
-        cr_gate = circuit.Gate("cr_tone", num_qubits=2, params=[duration])
+        flat_top_width /= 2
+
+        cr_gate = circuit.Gate("cr_tone", num_qubits=2, params=[flat_top_width])
 
         cr_circuit = QuantumCircuit(2)
         cr_circuit.append(cr_gate, [0, 1])
@@ -369,14 +380,20 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
         cr_circuit.rz(-np.pi, 1)
 
         opt = self.experiment_options
+
+        # Compute valid integer duration
+        cr_duration = stretch_pulse_duration(
+            backend=backend, duration=flat_top_width + 2 * sigma * opt.risefall
+        )
+
         with pulse.build(backend, default_alignment="left", name="cr") as cross_resonance:
             # add cross resonance tone
             pulse.play(
                 pulse.GaussianSquare(
-                    duration,
+                    duration=cr_duration,
                     amp=opt.amp,
                     sigma=sigma,
-                    risefall_sigma_ratio=opt.risefall,
+                    width=flat_top_width,
                 ),
                 pulse.control_channels(*self.physical_qubits)[0],
             )
@@ -384,45 +401,46 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
             if not np.isclose(opt.amp_t, 0.0):
                 pulse.play(
                     pulse.GaussianSquare(
-                        duration,
+                        duration=cr_duration,
                         amp=opt.amp_t,
                         sigma=sigma,
-                        risefall_sigma_ratio=opt.risefall,
+                        width=flat_top_width,
                     ),
                     pulse.drive_channel(self.physical_qubits[1]),
                 )
             else:
-                pulse.delay(duration, pulse.drive_channel(self.physical_qubits[1]))
+                pulse.delay(cr_duration, pulse.drive_channel(self.physical_qubits[1]))
 
             # place holder for empty drive channels. this is necessary due to known pulse gate bug.
-            pulse.delay(duration, pulse.drive_channel(self.physical_qubits[0]))
+            pulse.delay(cr_duration, pulse.drive_channel(self.physical_qubits[0]))
 
         cr_circuit.add_calibration(
             gate=cr_gate,
             qubits=self.physical_qubits,
             schedule=cross_resonance,
-            params=[duration],
         )
 
         return cr_circuit
 
-    def _net_duration(
-        self,
-        duration: float,
-        sigma: float,
-    ) -> float:
-        """Calculate net cross resonance pulse duration considering the pulse edges.
+    def _additional_metadata(self) -> Dict[str, any]:
+        """Attach number of pulses to construct time offset initial guess in the fitter."""
 
-        Args:
-            duration: Parameter object representing a duration of cross resonance pulse.
-            sigma: Sigma of Gaussian edges.
+        return {"n_cr_pulses": 2}
 
-        Returns:
-            Net duration in units of sec.
-        """
-        opt = self.experiment_options
 
-        flat_top_width = duration - 2 * opt.risefall * sigma
-        net_edge_width = np.sqrt(2 * np.pi * sigma ** 2)
+def stretch_pulse_duration(backend: Backend, duration: float) -> int:
+    """Stretch pulse duration to meet timing constraints.
 
-        return 2 * (flat_top_width + net_edge_width)
+    Args:
+        backend: Target backend to play pulses.
+        duration: Duration of pulse to be formatted.
+
+    Returns:
+        Valid integer pulse duration that meets timing constraints of the backend.
+    """
+    # TODO this can be moved to some common utils
+
+    timing_constraints = getattr(backend.configuration(), "timing_constraints", dict())
+    granularity = int(timing_constraints.get("granularity", 1))
+
+    return granularity * int(duration / granularity)
