@@ -36,7 +36,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
             H = \frac{I \otimes A}{2} + \frac{Z \otimes B}{2}
 
-        where :math:`A` and :math:`B` are Pauli operator :math:`\in {X, Y, Z}`.
+        where :math:`A` and :math:`B` are linear combinations of the Pauli operators :math:`\in {X, Y, Z}`.
         The coefficient of each Pauli term in the Hamiltonian
         can be estimated with this experiment.
 
