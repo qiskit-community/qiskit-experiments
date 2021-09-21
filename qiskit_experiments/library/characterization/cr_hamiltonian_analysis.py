@@ -31,14 +31,16 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
 
         .. math::
 
-            F_{x, c}(t) &= \frac{1}{\Omega_c^2} \left(
-                - p_{z, c} p_{x, c} + p_{z, c} p_{x, c} \cos(\Omega_c t) +
-                \Omega_c p_{y, c} \sin(\Omega_c t) \right) + b \ ... \ (1), \\
-            F_{y, c}(t) &= \frac{1}{\Omega_c^2} \left(
-                p_{z, c} p_{y, c} - p_{z, c} p_{y, c} \cos(\Omega_c t) -
-                \Omega_c p_{x, c} \sin(\Omega_c t) \right) + b \ ... \ (2), \\
-            F_{z, c}(t) &= \frac{1}{\Omega_c^2} \left(
-             p_{z, c}^2 + (p_{x, c}^2 + p_{y, c}^2) \cos(\Omega_c t) \right) + b \ ... \ (3),
+            \begin{align}
+                F_{x, c}(t) &= \frac{1}{\Omega_c^2} \left(
+                    - p_{z, c} p_{x, c} + p_{z, c} p_{x, c} \cos(\Omega_c t) +
+                    \Omega_c p_{y, c} \sin(\Omega_c t) \right) + b \tag{1} \\
+                F_{y, c}(t) &= \frac{1}{\Omega_c^2} \left(
+                    p_{z, c} p_{y, c} - p_{z, c} p_{y, c} \cos(\Omega_c t) -
+                    \Omega_c p_{x, c} \sin(\Omega_c t) \right) + b \tag{2} \\
+                F_{z, c}(t) &= \frac{1}{\Omega_c^2} \left(
+                    p_{z, c}^2 + (p_{x, c}^2 + p_{y, c}^2) \cos(\Omega_c t) \right) + b \tag{3}
+            \end{align}
 
         where :math:`\Omega_c = \sqrt{p_{x, c}^2+p_{y, c}^2+p_{z, c}^2}` and
         :math:`p_{x, c}, p_{y, c}, p_{z, c}, b` are the fit parameters.
@@ -66,8 +68,9 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
             p_y &= \omega \cos(\theta) \sin(\phi) \\
             p_z &= \omega \sin(\theta)
 
-        where $\omega$ is the mean oscillation frequency of eigenvalues,
-        $\theta = \cos^{-1}\sqrt{\frac{\max F_z - \min F_z}{2}}$ and $\phi \in [-\pi, \pi]$.
+        where :math:`\omega` is the mean oscillation frequency of eigenvalues,
+        :math:`\theta = \cos^{-1}\sqrt{\frac{\max F_z - \min F_z}{2}}`
+        and :math:`\phi \in [-\pi, \pi]`.
 
     # section: fit_parameters
 
@@ -100,6 +103,15 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
             desc: Fit parameter of oscillations when control qubit state is 1.
             init_guess: See fit model section.
             bounds: None
+
+        defpar b:
+            desc: Vertical offset of oscillations. This may indicate the state preparation and
+                measurement error.
+            init_guess: 0
+            bounds: None
+
+    # section: see_also
+        qiskit_experiments.library.characterization.cr_hamiltonian.CrossResonanceHamiltonian
 
     """
 
