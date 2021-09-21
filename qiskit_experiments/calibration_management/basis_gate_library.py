@@ -82,7 +82,7 @@ class BasisGateLibrary(ABC):
         """Check if the basis gate is in the library."""
         return name in self._schedules
 
-    def n_qubits(self, schedule_name: str) -> int:
+    def num_qubits(self, schedule_name: str) -> int:
         """Return the number of qubits that the schedule with the given name acts on."""
         return self._basis_gates[schedule_name]
 
