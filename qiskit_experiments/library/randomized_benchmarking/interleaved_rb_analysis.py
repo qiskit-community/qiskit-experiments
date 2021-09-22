@@ -124,33 +124,40 @@ class InterleavedRBAnalysis(RBAnalysis):
         default_options.result_parameters = ["alpha", "alpha_c"]
         return default_options
 
-    def _generate_fit_guesses(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
-        """Fitter options."""
+    def _generate_fit_guesses(
+            self, opt: curve.FitOptions
+    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+        """Compute the initial guesses.
+
+        Args:
+            opt: Fit options filled with user provided guess and bounds.
+
+        Returns:
+            List of fit options that are passed to the fitter function.
+        """
+        opt.bounds["a"] = 0, 1
+        opt.bounds["alpha"] = 0, 1
+        opt.bounds["alpha_c"] = 0, 1
+        opt.bounds["b"] = 0, 1
+
         # for standard RB curve
         std_curve = self._data(series_name="Standard")
-        p0_std = self._initial_guess(std_curve.x, std_curve.y, self._num_qubits)
+        opt_std = opt.copy()
+        opt_std = self._initial_guess(opt_std, std_curve.x, std_curve.y, self._num_qubits)
 
         # for interleaved RB curve
         int_curve = self._data(series_name="Interleaved")
-        p0_int = self._initial_guess(int_curve.x, int_curve.y, self._num_qubits)
+        opt_int = opt.copy()
+        if opt_int.p0["alpha_c"] is not None:
+            opt_int.p0["alpha"] = opt_std.p0["alpha"] * opt_int.p0["alpha_c"]
+        opt_int = self._initial_guess(opt_int, int_curve.x, int_curve.y, self._num_qubits)
 
-        fit_option = {
-            "p0": {
-                "a": np.mean([p0_std["a"], p0_int["a"]]),
-                "alpha": p0_std["alpha"],
-                "alpha_c": min(p0_int["alpha"] / p0_std["alpha"], 1),
-                "b": np.mean([p0_std["b"], p0_int["b"]]),
-            },
-            "bounds": {
-                "a": (0.0, 1.0),
-                "alpha": (0.0, 1.0),
-                "alpha_c": (0.0, 1.0),
-                "b": (0.0, 1.0),
-            },
-            **extra_options,
-        }
+        opt.p0["a"] = np.mean([opt_std.p0["a"], opt_int.p0["a"]])
+        opt.p0["alpha"] = opt_std.p0["alpha"]
+        opt.p0["alpha_c"] = min(opt_int.p0["alpha"] / opt_std.p0["alpha"], 1)
+        opt.p0["b"] = np.mean([opt_std.p0["b"], opt_int.p0["b"]])
 
-        return fit_option
+        return opt
 
     def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
         """Calculate EPC."""

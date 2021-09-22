@@ -16,10 +16,11 @@ Curve data classes.
 
 import dataclasses
 from typing import Any, Dict, Callable, Union, List, Tuple, Optional, Iterable
+
 import numpy as np
 
-from qiskit_experiments.framework import FitVal
 from qiskit_experiments.exceptions import AnalysisError
+from qiskit_experiments.framework import FitVal
 
 
 @dataclasses.dataclass(frozen=True)
@@ -137,123 +138,161 @@ class ParameterRepr:
     unit: Optional[str] = None
 
 
-# pylint: disable=invalid-name
+class OptionsDict(dict):
+    """General extended dictionary for fit options.
+
+    This dictionary provides several extra features.
+
+    - A value set to the dictionary is automatically validated.
+    - New value can be set iff value is not assigned.
+    - Dictionary key is limited to what are specified in the constructor as ``parameters``.
+    """
+    def __init__(
+            self,
+            parameters: List[str],
+            defaults: Optional[Union[Iterable[Any], Dict[str, Any]]] = None,
+    ):
+        """Create new dictionary.
+
+        Args:
+            parameters: List of parameter names used in the fit model.
+            defaults: Default values.
+        """
+        if defaults is not None:
+            if not isinstance(defaults, dict):
+                if len(defaults) != len(parameters):
+                    raise AnalysisError(
+                        f"Default parameter {defaults} is provided with array-like "
+                        "but the number of element doesn't match. "
+                        f"This fit requires {len(parameters)} parameters."
+                    )
+                defaults = dict(zip(parameters, defaults))
+
+            full_options = {p: self.format(defaults.get(p, None)) for p in parameters}
+        else:
+            full_options = {p: None for p in parameters}
+
+        super().__init__(**full_options)
+
+    def __setitem__(self, key, value):
+        """Set value with validations.
+
+        Raises:
+            AnalysisError: When key is not previously defined.
+        """
+        if key not in self:
+            raise AnalysisError(
+                f"Parameter {key} is not defined in this fit model."
+            )
+
+        # value can be set if never assigned
+        if self.get(key) is None:
+            super().__setitem__(key, self.format(value))
+
+    def __hash__(self):
+        return hash(tuple(sorted(self.items())))
+
+    @staticmethod
+    def format(value):
+        pass
+
+
+class InitialGuesses(OptionsDict):
+    """Dictionary providing a validation for initial guesses."""
+
+    @staticmethod
+    def format(value):
+        """Validate if value is float.
+
+        Args:
+            value: New value to assign.
+
+        Raises:
+            AnalysisError: When value is invalid format.
+        """
+        if value is None:
+            return None
+
+        try:
+            return float(value)
+        except (TypeError, ValueError) as ex:
+            raise AnalysisError(
+                f"Input value {value} is not valid initial guess. "
+            ) from ex
+
+
+class Boundaries(OptionsDict):
+    """Dictionary providing a validation for boundaries."""
+
+    @staticmethod
+    def format(value):
+        """Validate if value is a min-max value tuple.
+
+        Args:
+            value: New value to assign.
+
+        Raises:
+            AnalysisError: When value is invalid format.
+        """
+        if value is None:
+            return None
+
+        try:
+            minv, maxv = value
+            if minv >= maxv:
+                raise AnalysisError(
+                    f"The first value is larger than the second value {minv} >= {maxv}."
+                )
+            return float(minv), float(maxv)
+        except (TypeError, ValueError) as ex:
+            raise AnalysisError(
+                f"Input boundary {value} is not a min-max value tuple."
+            ) from ex
+
+
 class FitOptions:
     """Collection of fitting options.
 
-    This class is initialized with a list of parameter names,
-    and automatically format given initial parameters and boundaries based on it.
+    This class is initialized with list of parameter names used in the fit model
+    and associated default values provided by users.
 
-    This class provides ``__hash__`` and ``__eq__`` methods to evaluate duplication.
+    This class is hashable, and generates fitter keyword arguments.
     """
 
-    def __init__(self, parameters: List[str]):
-        """Create a new fit options.
-
-        Args:
-            parameters: A list of parameter names used for curve fitting.
-                Note that the list is order sensitive, that should match with the
-                fit function signature in the series definition.
-        """
-
-        # no direct access to members for safety hash. these are usually mutable objects.
-        self.__p0 = {p: None for p in parameters}
-        self.__bounds = {p: (-np.inf, np.inf) for p in parameters}
-        self.__extra_opts = dict()
-
-    @property
-    def p0(self) -> Dict[str, float]:
-        """Return initial guesses."""
-        return self.__p0.copy()
-
-    @p0.setter
-    def p0(self, new_p0: Union[Dict[str, float], Iterable[float]]):
-        """Set new initial guesses.
-
-        Raises:
-            AnalysisError: New value is array-like but number of element doesn't match.
-        """
-        if new_p0 is None:
-            return
-
-        if not isinstance(new_p0, dict):
-            # format to dictionary
-            if len(new_p0) != len(self.__p0):
-                raise AnalysisError(
-                    "Initial guess is provided as an array with invalid length. "
-                    f"{len(self.__p0)} parameters should be provided."
-                )
-            new_p0 = dict(zip(self.__p0.keys(), new_p0))
-
-        # update initial guesses
-        for k, v in new_p0.items():
-            if k in self.__p0 and v is not None:
-                self.__p0[k] = float(v)
-
-    @property
-    def bounds(self) -> Dict[str, Tuple[float, float]]:
-        """Return boundaries."""
-        return self.__bounds.copy()
-
-    @bounds.setter
-    def bounds(self, new_bounds: Union[Iterable[Tuple], Dict[str, Tuple]]):
-        """Set new boundaries.
-
-        Raises:
-            AnalysisError: New value is array-like but number of element doesn't match.
-            AnalysisError: One of new value is not a tuple of min max value.
-        """
-        if new_bounds is None:
-            return
-
-        if not isinstance(new_bounds, dict):
-            # format to dictionary
-            if len(new_bounds) != len(self.__bounds):
-                raise AnalysisError(
-                    "Boundary is provided as an array with invalid length. "
-                    f"{len(self.__bounds)} boundaries should be provided."
-                )
-            new_bounds = dict(zip(self.__bounds.keys(), new_bounds))
-
-        # update bounds
-        for k, v in new_bounds.items():
-            if k in self.__bounds and v is not None:
-                try:
-                    minv, maxv = v
-                except (TypeError, ValueError) as ex:
-                    raise AnalysisError(
-                        f"Boundary of {k} is not a tuple of min-max values."
-                    ) from ex
-                self.__bounds[k] = (float(minv), float(maxv))
-
-    @property
-    def extra_opts(self):
-        """Returns extra options provided to the fitter."""
-        return self.__extra_opts.copy()
-
-    @extra_opts.setter
-    def extra_opts(self, new_options: Dict[str, Any]):
-        """Set extra options provided to the fitter."""
-        if new_options is None:
-            return
-
-        self.__extra_opts.update(**new_options)
-
-    @property
-    def options(self) -> Dict[str, Any]:
-        """Generate full argument for the fitter."""
-        return {"p0": self.p0, "bounds": self.bounds, **self.extra_opts}
+    def __init__(
+            self,
+            parameters: List[str],
+            default_p0: Optional[Union[Iterable[float], Dict[str, float]]] = None,
+            default_bounds: Optional[Union[Iterable[Tuple], Dict[str, Tuple]]] = None,
+            **extra,
+    ):
+        self.p0 = InitialGuesses(parameters, default_p0)
+        self.bounds = Boundaries(parameters, default_bounds)
+        self.extra = extra
 
     def __hash__(self):
-        return hash(
-            (
-                tuple(sorted(self.__p0.items())),
-                tuple(sorted(self.__bounds.items())),
-                tuple(sorted(self.__extra_opts.items())),
-            )
-        )
+        return hash((self.p0, self.bounds, tuple(sorted(self.extra.items()))))
 
     def __eq__(self, other):
         if isinstance(other, FitOptions):
-            return hash(self) == hash(other)
+            checks = [
+                self.p0 == other.p0,
+                self.bounds == other.bounds,
+                self.extra == other.extra,
+            ]
+            return all(checks)
         return False
+
+    def add_extra_options(self, **kwargs):
+        """Add more fitter options."""
+        self.extra.update(kwargs)
+
+    def copy(self):
+        """Create copy of this option."""
+        return FitOptions(list(self.p0.keys()), dict(self.p0), dict(self.bounds), **self.extra)
+
+    @property
+    def options(self):
+        """Generate keyword arguments of the curve fitter."""
+        bounds = {k: v if v is not None else (-np.inf, np.inf) for k, v in self.bounds.items()}
+        return {"p0": dict(self.p0), "bounds": bounds, **self.extra}

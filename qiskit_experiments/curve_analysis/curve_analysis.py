@@ -363,18 +363,19 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         return options
 
-    def _generate_fit_guesses(self) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
-        """An analysis subroutine that is called to set fitter options.
+    def _generate_fit_guesses(
+            self, opt: FitOptions
+    ) -> Union[FitOptions, List[FitOptions]]:
+        """Create algorithmic guess with analysis options and curve data.
 
-        Subclasses can override this method to provide their own fitter options
-        such as initial guesses.
+        Subclasses can override this method.
 
-        Create initial guesses from the experimental data provided by the ``self._data()`` method.
+        Subclass can access to the curve data with ``self._data()`` method.
         If there are multiple series, you can get a specific series by specifying ``series_name``.
-        This function returns a ``CurveData`` instance, which is the `dataclass`
+        This method returns a ``CurveData`` instance, which is the `dataclass`
         containing x values `.x`, y values `.y`, and  sigma values `.y_err`.
 
-        You can also access the defined analysis options with the ``self._get_option``.
+        Subclass can also access the defined analysis options with the ``self._get_option``.
         For example:
 
         .. code-block::
@@ -382,13 +383,11 @@ class CurveAnalysis(BaseAnalysis, ABC):
             curve_data = self._data(series_name="my_experiment1")
 
             if self._get_option("my_option1") == "abc":
-                p0 = my_guess_function(curve_data.x, curve_data.y, ...)
-                bounds = ...
+                param_a = my_guess_function(curve_data.x, curve_data.y, ...)
             else:
-                p0 = ...
-                bounds = ...
+                param_a = ...
 
-            return {"p0": p0, "bounds": bounds}
+            opt.p0["param_a"] = param_a
 
         Note that this subroutine can generate multiple fit options.
         If multiple options are provided, fitter runs multiple times for each fit option,
@@ -396,39 +395,48 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         .. code-block::
 
-            fit_1 = {"p0": p0_1, "bounds": bounds, "extra_fit_parameter": "option1"}
-            fit_2 = {"p0": p0_2, "bounds": bounds, "extra_fit_parameter": "option2"}
+            opt1 = opt.copy()
+            opt1.p0["param_a"] = 3
 
-            return [fit_1, fit_2]
+            opt2 = opt.copy()
+            opt2.p0["param_a"] = 4
 
-        Note that you can also change fitter options (not only initial guesses) in each
-        fit condition. This might be convenient to fit parameter with multiple fit algorithms
+            return [opt1, opt2]
+
+        Note that you can also change fitter options (not only initial guesses and boundaries)
+        in each fit options with :meth:`add_extra_options` method.
+        This might be convenient to run fitting with multiple fit algorithms
         or different fitting options. By default, this class uses `scipy.curve_fit`
         as the fitter function. See Scipy API docs for more fitting option details.
-
+        See also :py:class:`qiskit_experiments.curve_analysis.curve_data.FitOptions`
+        for the behavior of the fit option instance.
 
         The final fit parameters are decided with the following procedure.
 
-        1. :meth:`_generate_fit_guesses` generates a list of configurations.
+        1. :class:`FitOptions` object is initialized with user options.
 
-        2. :class:`FitOptions` object is generated with configurations generated here.
+        2. Algorithmic guess is generated here and override the default fit options object.
 
-        3. User provided guess and boundaries are added to the fit option object.
+        3. A list of fit options is returned.
 
-        4. The fitter optimizes parameters with unique configurations and outputs the chisq value.
+        4. Duplicated entries are eliminated.
 
-        5. The best fit is selected based on the minimum chisq.
+        5. The fitter optimizes parameters with unique fit options and outputs the chisq value.
+
+        6. The best fit is selected based on the minimum chisq.
 
         Note that in this method you don't need to worry about the user provided initial guesses
-        and bounds. These are automatically applied in the third step. These values
-        default to ``None``, and no initial guess is overridden unless user explicitly provides
-        a value with the `set_analysis_options` method.
+        and bounds. These user options are already assigned to the ``opt``
+        instance, and the dictionary automatically reject new values once it's assigned.
+
+        Args:
+            opt: Fit options filled with user provided guess and bounds.
 
         Returns:
             List of fit options that are passed to the fitter function.
         """
 
-        return dict()
+        return opt
 
     def _format_data(self, data: CurveData) -> CurveData:
         """An optional subroutine to perform data pre-processing.
@@ -865,32 +873,21 @@ class CurveAnalysis(BaseAnalysis, ABC):
             curve_fitter = self._get_option("curve_fitter")
             formatted_data = self._data(label="fit_ready")
 
-            # Generate algorithmic initial guess
-            fit_opt_dicts = self._generate_fit_guesses()
-            if isinstance(fit_opt_dicts, dict):
-                fit_opt_dicts = [fit_opt_dicts]
+            # Generate algorithmic initial guesses and boundaries
+            default_fit_opt = FitOptions(
+                parameters=self._fit_params(),
+                default_p0=self._get_option("p0"),
+                default_bounds=self._get_option("bounds"),
+                **extra_options,
+            )
 
-            # Format parameters
-            fit_candidates = set()
-            for fit_opt_dict in fit_opt_dicts:
-                fit_candidate = FitOptions(self._fit_params())
-
-                # add algorithmic guesses
-                fit_candidate.p0 = fit_opt_dict.pop("p0", None)
-                fit_candidate.bounds = fit_opt_dict.pop("bounds", None)
-                fit_candidate.extra_opts = fit_opt_dict
-
-                # add user options
-                fit_candidate.p0 = self._get_option("p0")
-                fit_candidate.bounds = self._get_option("bounds")
-                fit_candidate.extra_opts = extra_options
-
-                # duplicate entry is eliminated
-                fit_candidates.add(fit_candidate)
+            fit_options = self._generate_fit_guesses(default_fit_opt)
+            if isinstance(fit_options, FitOptions):
+                fit_options = [fit_options]
 
             # Run fit for each configuration
             fit_results = []
-            for fit_opt in fit_candidates:
+            for fit_opt in set(fit_options):
                 fit_result = curve_fitter(
                     funcs=[series_def.fit_func for series_def in self.__series__],
                     series=formatted_data.data_index,

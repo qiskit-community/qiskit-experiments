@@ -79,37 +79,36 @@ class ResonanceAnalysis(curve.CurveAnalysis):
 
         return default_options
 
-    def _generate_fit_guesses(self) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
-        """Fitter options."""
+    def _generate_fit_guesses(
+            self, opt: curve.FitOptions
+    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+        """Compute the initial guesses.
+
+        Args:
+            opt: Fit options filled with user provided guess and bounds.
+
+        Returns:
+            List of fit options that are passed to the fitter function.
+        """
         curve_data = self._data()
         max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
 
-        b_guess = curve.guess.constant_spectral_offset(curve_data.y)
-        y_ = curve_data.y - b_guess
+        opt.bounds["a"] = -2 * max_abs_y, 2 * max_abs_y
+        opt.bounds["sigma"] = 0, np.ptp(curve_data.x)
+        opt.bounds["freq"] = min(curve_data.x), max(curve_data.x)
+        opt.bounds["b"] = -max_abs_y, max_abs_y
+
+        opt.p0["b"] = curve.guess.constant_spectral_offset(curve_data.y)
+        y_ = curve_data.y - opt.p0["b"]
 
         _, peak_idx = curve.guess.max_height(y_, absolute=True)
-        a_guess = curve_data.y[peak_idx] - b_guess
-        freq_guess = curve_data.x[peak_idx]
-        sigma_guess = curve.guess.full_width_half_max(curve_data.x, y_, peak_idx) / np.sqrt(
-            8 * np.log(2)
-        )
+        opt.p0["a"] = curve_data.y[peak_idx] - opt.p0["b"]
+        opt.p0["freq"] = curve_data.x[peak_idx]
 
-        fit_option = {
-            "p0": {
-                "a": a_guess,
-                "sigma": sigma_guess,
-                "freq": freq_guess,
-                "b": b_guess,
-            },
-            "bounds": {
-                "a": (-2 * max_abs_y, 2 * max_abs_y),
-                "sigma": (0.0, max(curve_data.x) - min(curve_data.x)),
-                "freq": (min(curve_data.x), max(curve_data.x)),
-                "b": (-max_abs_y, max_abs_y),
-            },
-        }
+        fwhm = curve.guess.full_width_half_max(curve_data.x, y_, peak_idx)
+        opt.p0["sigma"] = fwhm / np.sqrt(8 * np.log(2))
 
-        return fit_option
+        return opt
 
     def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.

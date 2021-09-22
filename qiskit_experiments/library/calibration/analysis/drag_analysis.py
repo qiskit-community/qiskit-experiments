@@ -105,46 +105,48 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
         return default_options
 
-    def _generate_fit_guesses(self) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
-        """Compute the initial guesses."""
+    def _generate_fit_guesses(
+            self, opt: curve.FitOptions
+    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+        """Compute the initial guesses.
+
+        Args:
+            opt: Fit options filled with user provided guess and bounds.
+
+        Returns:
+            List of fit options that are passed to the fitter function.
+        """
         # Use a fast Fourier transform to guess the frequency.
         x_data = self._data("series-0").x
         min_beta, max_beta = min(x_data), max(x_data)
 
-        freq_guess = []
-        for series in ["series-0", "series-1", "series-2"]:
-            curve_data = self._data(series)
-            freq_guess.append(curve.guess.frequency(curve_data.x, curve_data.y))
+        for i in range(3):
+            curve_data = self._data(f"series-{i}")
+            opt.p0[f"freq{i}"] = curve.guess.frequency(curve_data.x, curve_data.y)
 
         max_abs_y, _ = curve.guess.max_height(self._data().y, absolute=True)
-        freq_bound = max(10 / freq_guess[0], max(x_data))
+        freq_bound = max(10 / opt.p0["freq0"], max(x_data))
+
+        opt.bounds["amp"] = -2 * max_abs_y, 2 * max_abs_y
+        opt.bounds["freq0"] = 0, np.inf
+        opt.bounds["freq1"] = 0, np.inf
+        opt.bounds["freq2"] = 0, np.inf
+        opt.bounds["beta"] = -freq_bound, freq_bound
+        opt.bounds["base"] = -max_abs_y, max_abs_y
+
+        opt.p0["amp"] = 0.5
+        opt.p0["base"] = 0.5
 
         # Drag curves can sometimes be very flat, i.e. averages of y-data
         # and min-max do not always make good initial guesses. We therefore add
         # 0.5 to the initial guesses.
-        fit_options = [
-            {
-                "p0": {
-                    "amp": 0.5,
-                    "freq0": freq_guess[0],
-                    "freq1": freq_guess[1],
-                    "freq2": freq_guess[2],
-                    "beta": beta_guess,
-                    "base": 0.5,
-                },
-                "bounds": {
-                    "amp": (-2 * max_abs_y, 2 * max_abs_y),
-                    "freq0": (0, np.inf),
-                    "freq1": (0, np.inf),
-                    "freq2": (0, np.inf),
-                    "beta": (-freq_bound, freq_bound),
-                    "base": (-1 * max_abs_y, 1 * max_abs_y),
-                },
-            }
-            for beta_guess in np.linspace(min_beta, max_beta, 20)
-        ]
+        options = []
+        for beta_guess in np.linspace(min_beta, max_beta, 20):
+            new_opt = opt.copy()
+            new_opt.p0["beta"] = beta_guess
+            options.append(new_opt)
 
-        return fit_options
+        return options
 
     def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.

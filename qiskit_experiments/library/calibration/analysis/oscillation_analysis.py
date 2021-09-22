@@ -78,33 +78,36 @@ class OscillationAnalysis(curve.CurveAnalysis):
 
         return default_options
 
-    def _generate_fit_guesses(self) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
-        """Fitter options."""
+    def _generate_fit_guesses(
+            self, opt: curve.FitOptions
+    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+        """Compute the initial guesses.
+
+        Args:
+            opt: Fit options filled with user provided guess and bounds.
+
+        Returns:
+            List of fit options that are passed to the fitter function.
+        """
         curve_data = self._data()
         max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
 
-        freq_guess = curve.guess.frequency(curve_data.x, curve_data.y)
-        base_guess = curve.guess.constant_sinusoidal_offset(curve_data.y)
-        amp_guess, _ = curve.guess.max_height(curve_data.y - base_guess, absolute=True)
+        opt.bounds["amp"] = -2 * max_abs_y, 2 * max_abs_y
+        opt.bounds["freq"] = 0, np.inf
+        opt.bounds["phase"] = -np.pi, np.pi
+        opt.bounds["base"] = -max_abs_y, max_abs_y
 
-        fit_options = [
-            {
-                "p0": {
-                    "amp": amp_guess,
-                    "freq": freq_guess,
-                    "phase": phase_guess,
-                    "base": base_guess,
-                },
-                "bounds": {
-                    "amp": (-2 * max_abs_y, 2 * max_abs_y),
-                    "freq": (0, np.inf),
-                    "phase": (-np.pi, np.pi),
-                    "base": (-1 * max_abs_y, 1 * max_abs_y),
-                },
-            }
-            for phase_guess in np.linspace(0, np.pi, 5)
-        ]
-        return fit_options
+        opt.p0["freq"] = curve.guess.frequency(curve_data.x, curve_data.y)
+        opt.p0["base"] = curve.guess.constant_sinusoidal_offset(curve_data.y)
+        opt.p0["amp"] = curve.guess.max_height(curve_data.y - opt.p0["base"], absolute=True)[0]
+
+        options = []
+        for phase_guess in np.linspace(0, np.pi, 5):
+            new_opt = opt.copy()
+            new_opt.p0["phase"] = phase_guess
+            options.append(new_opt)
+
+        return options
 
     def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.

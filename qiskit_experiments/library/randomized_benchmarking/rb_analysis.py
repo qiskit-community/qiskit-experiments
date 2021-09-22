@@ -91,41 +91,45 @@ class RBAnalysis(curve.CurveAnalysis):
 
         return default_options
 
-    def _generate_fit_guesses(self) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
-        """Fitter options."""
+    def _generate_fit_guesses(
+            self, opt: curve.FitOptions
+    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+        """Compute the initial guesses.
+
+        Args:
+            opt: Fit options filled with user provided guess and bounds.
+
+        Returns:
+            List of fit options that are passed to the fitter function.
+        """
         curve_data = self._data()
 
-        initial_guess = self._initial_guess(curve_data.x, curve_data.y, self._num_qubits)
-        fit_options = {
-            "p0": initial_guess,
-            "bounds": {
-                "a": (0.0, 1.0),
-                "alpha": (0.0, 1.0),
-                "b": (0.0, 1.0),
-            },
-        }
+        opt.bounds["a"] = 0, 1
+        opt.bounds["alpha"] = 0, 1
+        opt.bounds["b"] = 0, 1
 
-        return fit_options
+        return self._initial_guess(opt, curve_data.x, curve_data.y, self._num_qubits)
 
     @staticmethod
     def _initial_guess(
-        x_values: np.ndarray, y_values: np.ndarray, num_qubits: int
-    ) -> Dict[str, float]:
+        opt: curve.FitOptions, x_values: np.ndarray, y_values: np.ndarray, num_qubits: int
+    ) -> curve.FitOptions:
         """Create initial guess with experiment data."""
-        fit_guess = {"a": 0.95, "alpha": 0.99, "b": 1 / 2 ** num_qubits}
+        opt.p0["b"] = 1 / 2 ** num_qubits
 
         # Use the first two points to guess the decay param
         dcliff = x_values[1] - x_values[0]
-        dy = (y_values[1] - fit_guess["b"]) / (y_values[0] - fit_guess["b"])
+        dy = (y_values[1] - opt.p0["b"]) / (y_values[0] - opt.p0["b"])
         alpha_guess = dy ** (1 / dcliff)
 
-        if alpha_guess < 1.0:
-            fit_guess["alpha"] = alpha_guess
+        opt.p0["alpha"] = alpha_guess if alpha_guess < 1.0 else 0.99
 
-        if y_values[0] > fit_guess["b"]:
-            fit_guess["a"] = (y_values[0] - fit_guess["b"]) / fit_guess["alpha"] ** x_values[0]
+        if y_values[0] > opt.p0["b"]:
+            opt.p0["a"] = (y_values[0] - opt.p0["b"]) / (opt.p0["alpha"] ** x_values[0])
+        else:
+            opt.p0["a"] = 0.95
 
-        return fit_guess
+        return opt
 
     def _format_data(self, data: curve.CurveData) -> curve.CurveData:
         """Take average over the same x values."""
