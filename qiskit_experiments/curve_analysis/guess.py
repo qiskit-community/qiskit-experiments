@@ -32,7 +32,7 @@ def frequency(
 ) -> float:
     r"""Get frequency of oscillating signal.
 
-    First this tries FFT. If the true value is likely below the frequency resolution,
+    First this tries FFT. If the true value is likely below or near the frequency resolution,
     the function tries low frequency fit with
 
     .. math::
@@ -46,6 +46,7 @@ def frequency(
     .. note::
 
         This function returns always positive frequency.
+        This function is sensitive to the DC offset.
 
     Args:
         x: Array of x values.
@@ -80,9 +81,11 @@ def frequency(
 
     freq_guess = positive_freqs[np.argmax(np.abs(positive_fft_data))]
 
-    if freq_guess <= 1 / (sampling_interval * len(x)):
-        # low frequency fit, use this mode when the estimate is below the resolution
+    if freq_guess < 1.5 / (sampling_interval * len(x)):
+        # low frequency fit, use this mode when the estimate is near the resolution
         y_smooth = signal.savgol_filter(y, window_length=filter_window, polyorder=filter_dim)
+
+        # no offset is assumed
         y_amp = max(np.abs(y_smooth))
 
         if np.isclose(y_amp, 0.0):
