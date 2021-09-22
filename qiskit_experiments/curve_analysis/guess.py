@@ -22,6 +22,7 @@ import numpy as np
 from scipy import signal
 
 from qiskit_experiments.exceptions import AnalysisError
+from .data_processing import mean_xy_data
 
 
 def frequency(
@@ -57,11 +58,16 @@ def frequency(
     Returns:
         Frequency estimation of oscillation signal.
     """
-    sampling_interval = np.unique(np.diff(x))
+    # TODO averaging and sort should be done by data processor
 
-    # if there are the same x values in the array, the minimum interval becomes zero.
-    # this prevents to get zero interval for interpolation.
-    sampling_interval = sampling_interval[sampling_interval > 0]
+    # average the same data points
+    x, y, _ = mean_xy_data(x, y)
+
+    # sorted by x to be monotonic increase
+    x, y = np.asarray(sorted(zip(x, y), key=lambda xy: xy[0])).T
+
+    # to run FFT x interval should be identical
+    sampling_interval = np.unique(np.round(np.diff(x), decimals=20))
 
     if len(sampling_interval) != 1:
         # resampling with minimum xdata interval
@@ -81,9 +87,9 @@ def frequency(
 
     freq_guess = positive_freqs[np.argmax(np.abs(positive_fft_data))]
 
-    if freq_guess < 1.5 / (sampling_interval * len(x)):
+    if freq_guess < 1.5 / (sampling_interval * len(x_)):
         # low frequency fit, use this mode when the estimate is near the resolution
-        y_smooth = signal.savgol_filter(y, window_length=filter_window, polyorder=filter_dim)
+        y_smooth = signal.savgol_filter(y_, window_length=filter_window, polyorder=filter_dim)
 
         # no offset is assumed
         y_amp = max(np.abs(y_smooth))
@@ -92,7 +98,7 @@ def frequency(
             # no oscillation signal
             return 0.0
 
-        freq_guess = max(np.abs(np.diff(y_smooth) / np.diff(x))) / (y_amp * 2 * np.pi)
+        freq_guess = max(np.abs(np.diff(y_smooth) / sampling_interval)) / (y_amp * 2 * np.pi)
 
     return freq_guess
 
