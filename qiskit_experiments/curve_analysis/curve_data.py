@@ -147,16 +147,21 @@ class OptionsDict(dict):
     - New value can be set iff value is not assigned.
     - Dictionary key is limited to what are specified in the constructor as ``parameters``.
     """
+
     def __init__(
-            self,
-            parameters: List[str],
-            defaults: Optional[Union[Iterable[Any], Dict[str, Any]]] = None,
+        self,
+        parameters: List[str],
+        defaults: Optional[Union[Iterable[Any], Dict[str, Any]]] = None,
     ):
         """Create new dictionary.
 
         Args:
             parameters: List of parameter names used in the fit model.
             defaults: Default values.
+
+        Raises:
+            AnalysisError: When defaults is provided as array-like but the number of
+                element doesn't match with the number of fit parameters.
         """
         if defaults is not None:
             if not isinstance(defaults, dict):
@@ -181,9 +186,7 @@ class OptionsDict(dict):
             AnalysisError: When key is not previously defined.
         """
         if key not in self:
-            raise AnalysisError(
-                f"Parameter {key} is not defined in this fit model."
-            )
+            raise AnalysisError(f"Parameter {key} is not defined in this fit model.")
 
         # value can be set if never assigned
         if self.get(key) is None:
@@ -193,19 +196,30 @@ class OptionsDict(dict):
         return hash(tuple(sorted(self.items())))
 
     @staticmethod
-    def format(value):
-        pass
+    def format(value: Any) -> Any:
+        """Format dictionary value.
+
+        Args:
+            value: New value to assign.
+
+        Returns:
+            Formatted value.
+        """
+        return value
 
 
 class InitialGuesses(OptionsDict):
     """Dictionary providing a validation for initial guesses."""
 
     @staticmethod
-    def format(value):
+    def format(value: Any) -> Any:
         """Validate if value is float.
 
         Args:
             value: New value to assign.
+
+        Returns:
+            Formatted value.
 
         Raises:
             AnalysisError: When value is invalid format.
@@ -216,20 +230,21 @@ class InitialGuesses(OptionsDict):
         try:
             return float(value)
         except (TypeError, ValueError) as ex:
-            raise AnalysisError(
-                f"Input value {value} is not valid initial guess. "
-            ) from ex
+            raise AnalysisError(f"Input value {value} is not valid initial guess. ") from ex
 
 
 class Boundaries(OptionsDict):
     """Dictionary providing a validation for boundaries."""
 
     @staticmethod
-    def format(value):
+    def format(value: Any) -> Any:
         """Validate if value is a min-max value tuple.
 
         Args:
             value: New value to assign.
+
+        Returns:
+            Formatted value.
 
         Raises:
             AnalysisError: When value is invalid format.
@@ -245,11 +260,10 @@ class Boundaries(OptionsDict):
                 )
             return float(minv), float(maxv)
         except (TypeError, ValueError) as ex:
-            raise AnalysisError(
-                f"Input boundary {value} is not a min-max value tuple."
-            ) from ex
+            raise AnalysisError(f"Input boundary {value} is not a min-max value tuple.") from ex
 
 
+# pylint: disable=invalid-name
 class FitOptions:
     """Collection of fitting options.
 
@@ -260,11 +274,11 @@ class FitOptions:
     """
 
     def __init__(
-            self,
-            parameters: List[str],
-            default_p0: Optional[Union[Iterable[float], Dict[str, float]]] = None,
-            default_bounds: Optional[Union[Iterable[Tuple], Dict[str, Tuple]]] = None,
-            **extra,
+        self,
+        parameters: List[str],
+        default_p0: Optional[Union[Iterable[float], Dict[str, float]]] = None,
+        default_bounds: Optional[Union[Iterable[Tuple], Dict[str, Tuple]]] = None,
+        **extra,
     ):
         self.p0 = InitialGuesses(parameters, default_p0)
         self.bounds = Boundaries(parameters, default_bounds)

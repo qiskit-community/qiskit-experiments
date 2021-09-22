@@ -12,7 +12,8 @@
 
 """The analysis class for the Ramsey XY experiment."""
 
-from typing import Any, Dict, List, Union
+from typing import List, Union
+
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
@@ -102,7 +103,7 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         return default_options
 
     def _generate_fit_guesses(
-            self, opt: curve.FitOptions
+        self, opt: curve.FitOptions
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Compute the initial guesses.
 

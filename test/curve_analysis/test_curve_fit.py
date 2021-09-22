@@ -681,9 +681,7 @@ class TestFitOptions(QiskitTestCase):
     def test_set_extra_options(self):
         """Add extra fitter options."""
         opt = FitOptions(
-            ["p0", "p1", "p2"],
-            default_p0=[0, 1, 2],
-            default_bounds=[(0, 1), (1, 2), (2, 3)]
+            ["p0", "p1", "p2"], default_p0=[0, 1, 2], default_bounds=[(0, 1), (1, 2), (2, 3)]
         )
         opt.add_extra_options(ex1=0, ex2=1)
 

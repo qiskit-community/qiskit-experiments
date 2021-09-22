@@ -363,9 +363,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         return options
 
-    def _generate_fit_guesses(
-            self, opt: FitOptions
-    ) -> Union[FitOptions, List[FitOptions]]:
+    def _generate_fit_guesses(self, opt: FitOptions) -> Union[FitOptions, List[FitOptions]]:
         """Create algorithmic guess with analysis options and curve data.
 
         Subclasses can override this method.

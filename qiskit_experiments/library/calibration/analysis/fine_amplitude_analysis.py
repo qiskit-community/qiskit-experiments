@@ -12,11 +12,12 @@
 
 """Fine amplitude calibration analysis."""
 
-from typing import Any, Dict, List, Union
+from typing import List, Union
+
 import numpy as np
 
-from qiskit_experiments.exceptions import CalibrationError
 import qiskit_experiments.curve_analysis as curve
+from qiskit_experiments.exceptions import CalibrationError
 
 
 class FineAmplitudeAnalysis(curve.CurveAnalysis):
@@ -109,7 +110,7 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
         return default_options
 
     def _generate_fit_guesses(
-            self, opt: curve.FitOptions
+        self, opt: curve.FitOptions
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Compute the initial guesses.
 
@@ -118,6 +119,9 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
 
         Returns:
             List of fit options that are passed to the fitter function.
+
+        Raises:
+            CalibrationError: When ``angle_per_gate`` is missing.
         """
         n_guesses = self._get_option("number_guesses")
 

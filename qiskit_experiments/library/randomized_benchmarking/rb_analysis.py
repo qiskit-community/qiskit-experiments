@@ -13,14 +13,14 @@
 Standard RB analysis class.
 """
 
-from typing import List, Dict, Any, Union
+from typing import List, Union
 
 import numpy as np
 
-from qiskit_experiments.framework import AnalysisResultData, FitVal
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data
 from qiskit_experiments.database_service.device_component import Qubit
+from qiskit_experiments.framework import AnalysisResultData, FitVal
 from .rb_utils import RBUtils
 
 
@@ -92,7 +92,7 @@ class RBAnalysis(curve.CurveAnalysis):
         return default_options
 
     def _generate_fit_guesses(
-            self, opt: curve.FitOptions
+        self, opt: curve.FitOptions
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Compute the initial guesses.
 

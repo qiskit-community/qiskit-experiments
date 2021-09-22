@@ -12,12 +12,12 @@
 """
 Interleaved RB analysis class.
 """
-from typing import List, Dict, Any, Union
+from typing import List, Union
 
 import numpy as np
 
-from qiskit_experiments.framework import AnalysisResultData, FitVal
 import qiskit_experiments.curve_analysis as curve
+from qiskit_experiments.framework import AnalysisResultData, FitVal
 from .rb_analysis import RBAnalysis
 
 
@@ -125,7 +125,7 @@ class InterleavedRBAnalysis(RBAnalysis):
         return default_options
 
     def _generate_fit_guesses(
-            self, opt: curve.FitOptions
+        self, opt: curve.FitOptions
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Compute the initial guesses.
 
