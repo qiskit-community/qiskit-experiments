@@ -125,7 +125,7 @@ class T2Ramsey(BaseExperiment):
 
         circuits = []
         for delay in self.experiment_options.delays:
-            circ = qiskit.QuantumCircuit(1, 1)
+            circ = qiskit.QuantumCircuit(1, 1, name="T2*")
             circ.h(0)
             circ.delay(delay, 0, self.experiment_options.unit)
             rotation_angle = (

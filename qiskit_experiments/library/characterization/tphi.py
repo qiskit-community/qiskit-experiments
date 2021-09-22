@@ -11,11 +11,11 @@ import qiskit
 from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
 from qiskit_experiments.framework import BaseExperiment
-from qiskit_experiments.framework.composite.composite_experiment import CompositeExperiment
+from qiskit_experiments.framework.composite.batch_experiment import BatchExperiment
 from qiskit_experiments.library.characterization import T1, T2Ramsey
-from qiskit_experiments.library.characterization.t_phi_analysis import TphiAnalysis
+from qiskit_experiments.library.characterization.tphi_analysis import TphiAnalysis
 
-class Tphi(CompositeExperiment):
+class Tphi(BatchExperiment):
     """Tphi Experiment Class"""
 
     __analysis_class__ = TphiAnalysis
@@ -33,7 +33,7 @@ class Tphi(CompositeExperiment):
         Args:
             qubit: the qubit under test
             delays_t1: delay times of the T1 experiment
-            delays_t2: delay times of the T2*1 experiment
+            delays_t2: delay times of the T2* experiment
             unit: Optional, time unit of `delays`.
             Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'.
             The unit is used for both experiments
@@ -41,34 +41,21 @@ class Tphi(CompositeExperiment):
             experiment_type: String indicating the experiment type.
 
         """
-        self._qubit = qubit
+        #self._qubit = qubit
         self._delays_t1 = delays_t1
         self._delays_t2 = delays_t2
         self._unit = unit
         self._osc_freq = osc_freq
         
-        self._expT1 = T1(self._qubit, self._delays_t1, self._unit)
-        self._expT2 = T2Ramsey(self._qubit, self._delays_t2, self._unit, self._osc_freq)
+        expT1 = T1(qubit, self._delays_t1, self._unit)
+        expT2 = T2Ramsey(qubit, self._delays_t2, self._unit, self._osc_freq)
+        exps = []
+        exps.append(expT1)
+        exps.append(expT2)
+        
+        # Run batch experiments
+        batch_exp = super().__init__(exps)
 
-        super().__init__(experiments=[self._expT1, self._expT2],
-                         qubits= self._qubit,
-                         experiment_type=experiment_type)
+    def run(self, backend, experiment_data, **run_options):
+        expdata = super().run(backend, shots=1000)
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
-        """
-        Return a dictionary of experiment circuits, those of 'T1' and those of 'T2*'
-        Args:
-            backend: Optional, a backend object
-
-        Returns:
-            The experiment circuits
-            """
-        circuits = {}
-        circuits['T1'] = self._expT1.circuits()
-        circuits['T2*'] = self._expT2.circuits()
-        return circuits
-
-    def run(self, backends, experiment_data, **run_options):
-        expdata = {}
-        expdata['T1'] = super().run(self, backends['T1'], experiment_data, **run_options)
-        expdata['T2*'] = super().run(self, backends['T2*'], experiment_data, **run_options)

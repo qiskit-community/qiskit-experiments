@@ -48,5 +48,5 @@ from .resonance_analysis import ResonanceAnalysis
 from .ef_spectroscopy import EFSpectroscopy
 from .t2ramsey import T2Ramsey
 from .t2ramsey_analysis import T2RamseyAnalysis
-from .t_phi import Tphi
-from .t_phi_analysis import TphiAnalysis
+from .tphi import Tphi
+from .tphi_analysis import TphiAnalysis
