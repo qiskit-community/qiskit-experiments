@@ -50,8 +50,8 @@ class TestAmplitudeUpdate(QiskitTestCase):
 
         self.x90p = x90p
 
-        self.cals.add_schedule(xp)
-        self.cals.add_schedule(x90p)
+        self.cals.add_schedule(xp, num_qubits=1)
+        self.cals.add_schedule(x90p, num_qubits=1)
         self.cals.add_parameter_value(0.2, "amp", self.qubit, "xp")
         self.cals.add_parameter_value(0.1, "amp", self.qubit, "x90p")
 
@@ -182,9 +182,14 @@ class TestDragUpdate(QiskitTestCase):
         cals = BackendCalibrations(backend)
 
         for sched in [x_plus, x_minus]:
-            cals.add_schedule(sched)
+            cals.add_schedule(sched, num_qubits=1)
 
         cals.add_parameter_value(0.2, "β", qubit, x_plus)
+        cals.inst_map_add("xp", (qubit,))
+
+        # Check that the inst_map has the default beta
+        beta_val = cals.default_inst_map.get("xp", (qubit,)).blocks[0].pulse.beta
+        self.assertEqual(beta_val, 0.2)
 
         # Run a Drag calibration experiment.
         drag = DragCal(qubit)
@@ -210,3 +215,7 @@ class TestDragUpdate(QiskitTestCase):
         # Check schedules post-update
         expected = x_plus.assign_parameters({beta: result.value.value, chan: 1}, inplace=False)
         self.assertEqual(cals.get_schedule("xp", qubit), expected)
+
+        # Check the inst map post update
+        beta_val = cals.default_inst_map.get("xp", (qubit,)).blocks[0].pulse.beta
+        self.assertTrue(np.allclose(beta_val, result.value.value))
