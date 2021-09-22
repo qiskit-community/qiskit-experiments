@@ -18,7 +18,6 @@ from typing import Union, Iterable, List, Optional
 
 import numpy as np
 from qiskit import QuantumCircuit, QiskitError
-from qiskit.circuit import Measure
 from qiskit.providers.options import Options
 from qiskit.providers import Backend
 
@@ -45,9 +44,7 @@ class T2Hahn(BaseExperiment):
                  └─────────┘└──────────┘└───────┘└──────────┘└──────────┘└╥┘
             c: 1/═════════════════════════════════════════════════════════╩═
                                                                          0
-
-            for each *t* from the specified delay times, where
-            :math:`\lambda =2 \pi \times {osc\_freq}`,
+            for each *t* from the specified delay times
             and the delays are specified by the user.
             The circuits are run on the device or on a simulator backend.
 
@@ -63,44 +60,38 @@ class T2Hahn(BaseExperiment):
         Experiment Options:
             delays (Iterable[float]): Delay times of the experiments.
             unit (str): Unit of the delay times. Supported units are
-                's'.
-            n_echos (int); Number of echoes to preform.
-            phase_alt_echo (bool): If to use alternate echoes (must have n_echoes greater than 1)
+                's', 'ms', 'us', 'ns', 'ps', 'dt'.
         """
         options = super()._default_experiment_options()
 
         options.delays = None
         options.unit = "s"
-        options.n_echos = 1
-        options.phase_alt_echo = False
 
         return options
 
     def __init__(
         self,
         qubit: Union[int, Iterable[int]],
-        delays: Union[List[float], np.array],  # need to change name?
-        n_echos: int = 1,
-        phase_alt_echo: bool = False,
+        delays: Union[List[float], np.array],
+        unit: str = "s",
     ):
         """
         **T2 - Hahn Echo class**
         Initialize the T2 - Hahn Echo class
-         Args:
-             qubit: the qubit under test.
-             delays (List[float)): delay times of the experiments.
-             n_echos (int): Amount of Echoes to preform.
-             phase_alt_echo (bool): if to use alternate echo methods
+        Args:
+            qubit: the qubit under test.
+            delays (List[float)): delay times of the experiments.
+            unit: Optional, time unit of `delays`.
+                Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'. The unit is
+                used for both T2Ramsey and for the frequency.
 
          Raises:
-             Error for invalid input.
+             QiskitError : Error for invalid input.
         """
         # Initialize base experiment
         super().__init__([qubit])
         # Set configurable options
-        self.set_experiment_options(
-            delays=delays, n_echos=n_echos, phase_alt_echo=phase_alt_echo, qubit=qubit
-        )
+        self.set_experiment_options(delays=delays, unit=unit, qubit=qubit)
         self._verify_parameters()
 
     def _verify_parameters(self):
@@ -168,7 +159,7 @@ class T2Hahn(BaseExperiment):
         circuits = []
         qubit = list(self._physical_qubits)
         for circ_index, delay in enumerate(self.experiment_options.delays):
-            circ = QuantumCircuit(max(qubit) + 1, len(qubit))
+            circ = QuantumCircuit(1, 1)
             circ.name = "t2circuit_" + str(circ_index) + "_0"
             # First Y rotation in 90 degrees
             circ.ry(np.pi / 2, qubit)  # Bring to qubits to X Axis
@@ -176,10 +167,10 @@ class T2Hahn(BaseExperiment):
             circ.rx(np.pi, qubit)
             circ.delay(delay, qubit, self.experiment_options.unit)
             circ.ry(-np.pi / 2, qubit)  # Y90
-            circ.append(Measure(), self._physical_qubits, [0])  # measure
+            circ.measure(0, 0)  # measure
             circ.metadata = {
                 "experiment_type": self._type,
-                "qubit": self.physical_qubits,
+                "qubit": self.physical_qubits[0],
                 "xval": delay,
                 "unit": self.experiment_options.unit,
             }
