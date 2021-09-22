@@ -148,7 +148,7 @@ class MplDrawSingleCanvas:
                 scaled_maxv, prefix = detach_prefix(maxv, decimal=3)
                 prefactor = scaled_maxv / maxv
                 # pylint: disable=cell-var-from-loop
-                sub_axis.set_major_formatter(FuncFormatter(lambda x, p: f"{x * prefactor: .3f}"))
+                sub_axis.set_major_formatter(FuncFormatter(lambda x, p: f"{x * prefactor: .3g}"))
                 sub_axis.set_label_text(f"{label} [{prefix}{unit}]", fontsize=style.axis_label_size)
             else:
                 sub_axis.set_label_text(label, fontsize=style.axis_label_size)
@@ -163,7 +163,7 @@ class MplDrawSingleCanvas:
         # write analysis report
         if fit_data:
             report_str = write_fit_report(result_entries)
-            report_str += r"Fit $\chi^2$ = " + f"{fit_data.reduced_chisq: .4f}"
+            report_str += r"Fit $\chi^2$ = " + f"{fit_data.reduced_chisq: .4g}"
 
             report_handler = axis.text(
                 *style.fit_report_rpos,
@@ -286,7 +286,7 @@ class MplDrawMultiCanvasVstack:
                 scaled_maxv, prefix = detach_prefix(maxv, decimal=3)
                 prefactor = scaled_maxv / maxv
                 # pylint: disable=cell-var-from-loop
-                yaxis.set_major_formatter(FuncFormatter(lambda x, p: f"{x * prefactor: .3f}"))
+                yaxis.set_major_formatter(FuncFormatter(lambda x, p: f"{x * prefactor: .3g}"))
                 yaxis.set_label_text(f"{label} [{prefix}{unit}]", fontsize=style.axis_label_size)
             else:
                 inset_axis.ticklabel_format(axis="y", style="sci", scilimits=(-3, 3))
@@ -304,7 +304,7 @@ class MplDrawMultiCanvasVstack:
             scaled_maxv, prefix = detach_prefix(maxv, decimal=3)
             prefactor = scaled_maxv / maxv
             # pylint: disable=cell-var-from-loop
-            xaxis.set_major_formatter(FuncFormatter(lambda x, p: f"{x * prefactor: .3f}"))
+            xaxis.set_major_formatter(FuncFormatter(lambda x, p: f"{x * prefactor: .3g}"))
             xaxis.set_label_text(f"{label} [{prefix}{unit}]", fontsize=style.axis_label_size)
         else:
             axis.ticklabel_format(axis="x", style="sci", scilimits=(-3, 3))
@@ -316,7 +316,7 @@ class MplDrawMultiCanvasVstack:
         # write analysis report
         if fit_data:
             report_str = write_fit_report(result_entries)
-            report_str += r"Fit $\chi^2$ = " + f"{fit_data.reduced_chisq: .4f}"
+            report_str += r"Fit $\chi^2$ = " + f"{fit_data.reduced_chisq: .4g}"
 
             report_handler = axis.text(
                 *style.fit_report_rpos,
@@ -401,7 +401,7 @@ def write_fit_report(result_entries: List[AnalysisResultData]) -> str:
     def format_val(float_val: float) -> str:
         if np.abs(float_val) < 1e-3 or np.abs(float_val) > 1e3:
             return f"{float_val: .4e}"
-        return f"{float_val: .4f}"
+        return f"{float_val: .4g}"
 
     for res in result_entries:
         if isinstance(res.value, FitVal) and not res.name.startswith("@Parameters_"):
@@ -410,7 +410,7 @@ def write_fit_report(result_entries: List[AnalysisResultData]) -> str:
                 # unit is defined. do detaching prefix, i.e. 1000 Hz -> 1 kHz
                 val, val_prefix = detach_prefix(fitval.value, decimal=3)
                 val_unit = val_prefix + fitval.unit
-                value_repr = f"{val: .3f}"
+                value_repr = f"{val: .3g}"
                 if fitval.stderr is not None:
                     # with stderr
                     err, err_prefix = detach_prefix(fitval.stderr, decimal=3)
