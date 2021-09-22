@@ -20,6 +20,7 @@ import numpy as np
 from qiskit import QuantumCircuit, QiskitError
 from qiskit.providers.options import Options
 from qiskit.providers import Backend
+from .t2hahn_analysis import T2HahnAnalysis
 
 from qiskit_experiments.framework import BaseExperiment
 
@@ -52,6 +53,7 @@ class T2Hahn(BaseExperiment):
             :doc:`/tutorials/t2ramsey_characterization`
 
         """
+    __analysis_class__ = T2HahnAnalysis
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
