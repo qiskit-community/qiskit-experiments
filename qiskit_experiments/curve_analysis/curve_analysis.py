@@ -381,11 +381,11 @@ class CurveAnalysis(BaseAnalysis, ABC):
             curve_data = self._data(series_name="my_experiment1")
 
             if self._get_option("my_option1") == "abc":
-                param_a = my_guess_function(curve_data.x, curve_data.y, ...)
+                param_a_guess = my_guess_function(curve_data.x, curve_data.y, ...)
             else:
-                param_a = ...
+                param_a_guess = ...
 
-            opt.p0["param_a"] = param_a
+            opt.p0.set_if_empty(param_a=param_a_guess)
 
         Note that this subroutine can generate multiple fit options.
         If multiple options are provided, fitter runs multiple times for each fit option,
@@ -394,10 +394,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
         .. code-block::
 
             opt1 = opt.copy()
-            opt1.p0["param_a"] = 3
+            opt1.p0.set_if_empty(param_a=3)
 
             opt2 = opt.copy()
-            opt2.p0["param_a"] = 4
+            opt2.p0.set_if_empty(param_a=4)
 
             return [opt1, opt2]
 
