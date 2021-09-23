@@ -388,8 +388,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
             opt.p0["param_a"] = param_a
 
         Note that this subroutine can generate multiple fit options.
-        If multiple options are provided, fitter runs multiple times for each fit option,
-        and find the best result measured by the reduced chi-squared value.
+        If multiple options are provided, the fitter will run multiple times, i.e. once for each fit option.
+        The result with the best reduced chi-squared value is kept.
 
         .. code-block::
 
