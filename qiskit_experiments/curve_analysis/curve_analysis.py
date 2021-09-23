@@ -373,7 +373,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         This method returns a ``CurveData`` instance, which is the `dataclass`
         containing x values `.x`, y values `.y`, and  sigma values `.y_err`.
 
-        Subclass can also access the defined analysis options with the ``self._get_option``.
+        Subclasses can also access the defined analysis options with the ``self._get_option``.
         For example:
 
         .. code-block::
