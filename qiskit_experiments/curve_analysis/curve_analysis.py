@@ -373,7 +373,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         This method returns a ``CurveData`` instance, which is the `dataclass`
         containing x values `.x`, y values `.y`, and  sigma values `.y_err`.
 
-        Subclass can also access the defined analysis options with the ``self._get_option``.
+        Subclasses can also access the defined analysis options with the ``self._get_option``.
         For example:
 
         .. code-block::
@@ -388,8 +388,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
             opt.p0.set_if_empty(param_a=param_a_guess)
 
         Note that this subroutine can generate multiple fit options.
-        If multiple options are provided, fitter runs multiple times for each fit option,
-        and find the best result measured by the reduced chi-squared value.
+        If multiple options are provided, the fitter will run multiple times, i.e. once for each fit option.
+        The result with the best reduced chi-squared value is kept.
 
         .. code-block::
 
