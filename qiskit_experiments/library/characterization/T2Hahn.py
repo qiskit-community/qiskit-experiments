@@ -93,7 +93,7 @@ class T2Hahn(BaseExperiment):
         # Initialize base experiment
         super().__init__([qubit])
         # Set configurable options
-        self.set_experiment_options(delays=delays, unit=unit, qubit=qubit)
+        self.set_experiment_options(delays=delays, unit=unit)
         self._verify_parameters()
 
     def _verify_parameters(self):
@@ -123,29 +123,6 @@ class T2Hahn(BaseExperiment):
             raise QiskitError(
                 f"The number of identity gates {self.experiment_options.delays} should "
                 "be increasing."
-            )
-
-        if isinstance(self.experiment_options.qubit, list):
-            if len(self.experiment_options.qubit) != 1:
-                raise QiskitError(
-                    "The experiment if for 1 qubit. For multiple qubits,"
-                    " please use parallel experiments."
-                )
-            if self.experiment_options.qubit[0] < 0:
-                raise QiskitError(
-                    f"The index of the qubit {self.experiment_options.qubit[0]} should "
-                    "be non-negative."
-                )
-        else:
-            if self.experiment_options.qubit < 0:
-                raise QiskitError(
-                    f"The index of the qubit {self.experiment_options.qubit} should "
-                    "be non-negative."
-                )
-
-        if self.experiment_options.n_echos < 1:
-            raise QiskitError(
-                f"The number of echoes {self.experiment_options.n_echos} should " "be at least 1."
             )
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
