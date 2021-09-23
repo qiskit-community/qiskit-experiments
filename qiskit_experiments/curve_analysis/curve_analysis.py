@@ -388,7 +388,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
             opt.p0.set_if_empty(param_a=param_a_guess)
 
         Note that this subroutine can generate multiple fit options.
-        If multiple options are provided, the fitter will run multiple times, i.e. once for each fit option.
+        If multiple options are provided, the fitter will run multiple times,
+        i.e. once for each fit option.
         The result with the best reduced chi-squared value is kept.
 
         .. code-block::
