@@ -333,15 +333,9 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         """Algorithmic criteria for whether the fit is good or bad.
 
         A good fit has:
-            - All fit parameter uncertainties are smaller than fit values.
+            - If chi-squared value is less than 3.
         """
-        criteria = []
-        for control in (0, 1):
-            for axis in ("x", "y", "z"):
-                fit_par = fit_data.fitval(f"p{axis}{control}")
-                criteria.append(fit_par.value > fit_par.stderr)
-
-        if all(criteria):
+        if fit_data.reduced_chisq < 3:
             return "good"
 
         return "bad"
