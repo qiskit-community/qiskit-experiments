@@ -128,14 +128,15 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
         curve_data = self._data()
         max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
 
-        opt.bounds["amp"] = -2 * max_abs_y, 2 * max_abs_y
-        opt.bounds["d_theta"] = -np.pi, np.pi
-        opt.bounds["base"] = -max_abs_y, max_abs_y
+        opt.bounds.set_if_empty(
+            amp=(-2 * max_abs_y, 2 * max_abs_y),
+            d_theta=(-np.pi, np.pi),
+            base=(-max_abs_y, max_abs_y),
+        )
 
         max_y, min_y = np.max(curve_data.y), np.min(curve_data.y)
 
-        opt.p0["amp"] = max_y - min_y
-        opt.p0["base"] = (max_y + min_y) / 2
+        opt.p0.set_if_empty(amp=max_y - min_y, base=(max_y + min_y) / 2)
 
         # Base the initial guess on the intended angle_per_gate.
         angle_per_gate = self._get_option("angle_per_gate")
@@ -147,7 +148,7 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
         options = []
         for d_theta_guess in np.linspace(-guess_range, guess_range, n_guesses):
             new_opt = opt.copy()
-            new_opt.p0["d_theta"] = d_theta_guess
+            new_opt.p0.set_if_empty(d_theta=d_theta_guess)
             options.append(new_opt)
 
         return options

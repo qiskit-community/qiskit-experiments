@@ -104,9 +104,11 @@ class RBAnalysis(curve.CurveAnalysis):
         """
         curve_data = self._data()
 
-        opt.bounds["a"] = 0, 1
-        opt.bounds["alpha"] = 0, 1
-        opt.bounds["b"] = 0, 1
+        opt.bounds.set_if_empty(
+            a=(0, 1),
+            alpha=(0, 1),
+            b=(0, 1),
+        )
 
         return self._initial_guess(opt, curve_data.x, curve_data.y, self._num_qubits)
 
@@ -115,19 +117,19 @@ class RBAnalysis(curve.CurveAnalysis):
         opt: curve.FitOptions, x_values: np.ndarray, y_values: np.ndarray, num_qubits: int
     ) -> curve.FitOptions:
         """Create initial guess with experiment data."""
-        opt.p0["b"] = 1 / 2 ** num_qubits
+        opt.p0.set_if_empty(b=1 / 2 ** num_qubits)
 
         # Use the first two points to guess the decay param
         dcliff = x_values[1] - x_values[0]
         dy = (y_values[1] - opt.p0["b"]) / (y_values[0] - opt.p0["b"])
         alpha_guess = dy ** (1 / dcliff)
 
-        opt.p0["alpha"] = alpha_guess if alpha_guess < 1.0 else 0.99
+        opt.p0.set_if_empty(alpha=alpha_guess if alpha_guess < 1.0 else 0.99)
 
         if y_values[0] > opt.p0["b"]:
-            opt.p0["a"] = (y_values[0] - opt.p0["b"]) / (opt.p0["alpha"] ** x_values[0])
+            opt.p0.set_if_empty(a=(y_values[0] - opt.p0["b"]) / (opt.p0["alpha"] ** x_values[0]))
         else:
-            opt.p0["a"] = 0.95
+            opt.p0.set_if_empty(a=0.95)
 
         return opt
 

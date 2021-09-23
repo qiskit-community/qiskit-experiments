@@ -135,10 +135,12 @@ class InterleavedRBAnalysis(RBAnalysis):
         Returns:
             List of fit options that are passed to the fitter function.
         """
-        opt.bounds["a"] = 0, 1
-        opt.bounds["alpha"] = 0, 1
-        opt.bounds["alpha_c"] = 0, 1
-        opt.bounds["b"] = 0, 1
+        opt.bounds.set_if_empty(
+            a=(0, 1),
+            alpha=(0, 1),
+            alpha_c=(0, 1),
+            b=(0, 1),
+        )
 
         # for standard RB curve
         std_curve = self._data(series_name="Standard")
@@ -152,10 +154,12 @@ class InterleavedRBAnalysis(RBAnalysis):
             opt_int.p0["alpha"] = opt_std.p0["alpha"] * opt_int.p0["alpha_c"]
         opt_int = self._initial_guess(opt_int, int_curve.x, int_curve.y, self._num_qubits)
 
-        opt.p0["a"] = np.mean([opt_std.p0["a"], opt_int.p0["a"]])
-        opt.p0["alpha"] = opt_std.p0["alpha"]
-        opt.p0["alpha_c"] = min(opt_int.p0["alpha"] / opt_std.p0["alpha"], 1)
-        opt.p0["b"] = np.mean([opt_std.p0["b"], opt_int.p0["b"]])
+        opt.p0.set_if_empty(
+            a=np.mean([opt_std.p0["a"], opt_int.p0["a"]]),
+            alpha=opt_std.p0["alpha"],
+            alpha_c=min(opt_int.p0["alpha"] / opt_std.p0["alpha"], 1),
+            b=np.mean([opt_std.p0["b"], opt_int.p0["b"]]),
+        )
 
         return opt
 

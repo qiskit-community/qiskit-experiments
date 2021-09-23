@@ -94,20 +94,24 @@ class ResonanceAnalysis(curve.CurveAnalysis):
         curve_data = self._data()
         max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
 
-        opt.bounds["a"] = -2 * max_abs_y, 2 * max_abs_y
-        opt.bounds["sigma"] = 0, np.ptp(curve_data.x)
-        opt.bounds["freq"] = min(curve_data.x), max(curve_data.x)
-        opt.bounds["b"] = -max_abs_y, max_abs_y
+        opt.bounds.set_if_empty(
+            a=(-2 * max_abs_y, 2 * max_abs_y),
+            sigma=(0, np.ptp(curve_data.x)),
+            freq=(min(curve_data.x), max(curve_data.x)),
+            b=(-max_abs_y, max_abs_y),
+        )
+        opt.p0.set_if_empty(b=curve.guess.constant_spectral_offset(curve_data.y))
 
-        opt.p0["b"] = curve.guess.constant_spectral_offset(curve_data.y)
         y_ = curve_data.y - opt.p0["b"]
 
         _, peak_idx = curve.guess.max_height(y_, absolute=True)
-        opt.p0["a"] = curve_data.y[peak_idx] - opt.p0["b"]
-        opt.p0["freq"] = curve_data.x[peak_idx]
-
         fwhm = curve.guess.full_width_half_max(curve_data.x, y_, peak_idx)
-        opt.p0["sigma"] = fwhm / np.sqrt(8 * np.log(2))
+
+        opt.p0.set_if_empty(
+            a=curve_data.y[peak_idx] - opt.p0["b"],
+            freq=curve_data.x[peak_idx],
+            sigma=fwhm / np.sqrt(8 * np.log(2)),
+        )
 
         return opt
 

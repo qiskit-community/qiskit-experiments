@@ -93,19 +93,24 @@ class OscillationAnalysis(curve.CurveAnalysis):
         curve_data = self._data()
         max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
 
-        opt.bounds["amp"] = -2 * max_abs_y, 2 * max_abs_y
-        opt.bounds["freq"] = 0, np.inf
-        opt.bounds["phase"] = -np.pi, np.pi
-        opt.bounds["base"] = -max_abs_y, max_abs_y
-
-        opt.p0["freq"] = curve.guess.frequency(curve_data.x, curve_data.y)
-        opt.p0["base"] = curve.guess.constant_sinusoidal_offset(curve_data.y)
-        opt.p0["amp"] = curve.guess.max_height(curve_data.y - opt.p0["base"], absolute=True)[0]
+        opt.bounds.set_if_empty(
+            amp=(-2 * max_abs_y, 2 * max_abs_y),
+            freq=(0, np.inf),
+            phase=(-np.pi, np.pi),
+            base=(-max_abs_y, max_abs_y),
+        )
+        opt.p0.set_if_empty(
+            freq=curve.guess.frequency(curve_data.x, curve_data.y),
+            base=curve.guess.constant_sinusoidal_offset(curve_data.y),
+        )
+        opt.p0.set_if_empty(
+            amp=curve.guess.max_height(curve_data.y - opt.p0["base"], absolute=True)[0],
+        )
 
         options = []
         for phase_guess in np.linspace(0, np.pi, 5):
             new_opt = opt.copy()
-            new_opt.p0["phase"] = phase_guess
+            new_opt.p0.set_if_empty(phase=phase_guess)
             options.append(new_opt)
 
         return options

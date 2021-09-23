@@ -604,10 +604,10 @@ class TestFitOptions(QiskitTestCase):
     def test_override_partial_dict(self):
         """Create option and override value with partial dictionary."""
         opt = FitOptions(["p0", "p1", "p2"])
-        opt.p0["p1"] = 3
+        opt.p0.set_if_empty(p1=3)
 
         ref_opts = {
-            "p0": {"p0": None, "p1": 3, "p2": None},
+            "p0": {"p0": None, "p1": 3.0, "p2": None},
             "bounds": {"p0": (-np.inf, np.inf), "p1": (-np.inf, np.inf), "p2": (-np.inf, np.inf)},
         }
 
@@ -616,11 +616,24 @@ class TestFitOptions(QiskitTestCase):
     def test_cannot_override_assigned_value(self):
         """Test cannot override already assigned value."""
         opt = FitOptions(["p0", "p1", "p2"])
+        opt.p0.set_if_empty(p1=3)
+        opt.p0.set_if_empty(p1=5)
+
+        ref_opts = {
+            "p0": {"p0": None, "p1": 3.0, "p2": None},
+            "bounds": {"p0": (-np.inf, np.inf), "p1": (-np.inf, np.inf), "p2": (-np.inf, np.inf)},
+        }
+
+        self.assertDictEqual(opt.options, ref_opts)
+
+    def test_can_override_assigned_value_with_dict_access(self):
+        """Test override already assigned value with direct dict access."""
+        opt = FitOptions(["p0", "p1", "p2"])
         opt.p0["p1"] = 3
         opt.p0["p1"] = 5
 
         ref_opts = {
-            "p0": {"p0": None, "p1": 3, "p2": None},
+            "p0": {"p0": None, "p1": 5.0, "p2": None},
             "bounds": {"p0": (-np.inf, np.inf), "p1": (-np.inf, np.inf), "p2": (-np.inf, np.inf)},
         }
 
@@ -629,7 +642,7 @@ class TestFitOptions(QiskitTestCase):
     def test_cannot_override_user_option(self):
         """Test cannot override already assigned value."""
         opt = FitOptions(["p0", "p1", "p2"], default_p0={"p1": 3})
-        opt.p0["p1"] = 5
+        opt.p0.set_if_empty(p1=5)
 
         ref_opts = {
             "p0": {"p0": None, "p1": 3, "p2": None},
@@ -676,7 +689,7 @@ class TestFitOptions(QiskitTestCase):
         opt = FitOptions(["p0", "p1", "p2"])
 
         with self.assertRaises(AnalysisError):
-            opt.p0["p3"] = 3
+            opt.p0.set_if_empty(p3=3)
 
     def test_set_extra_options(self):
         """Add extra fitter options."""
@@ -707,17 +720,17 @@ class TestFitOptions(QiskitTestCase):
 
         # similar computation in algorithmic guess
 
-        opt.p0["p0"] = 5  # this is ignored because user already provided initial guess
-        opt.p0["p1"] = opt.p0["p0"] * 2 + 3  # user provided guess propagates
+        opt.p0.set_if_empty(p0=5)  # this is ignored because user already provided initial guess
+        opt.p0.set_if_empty(p1=opt.p0["p0"] * 2 + 3)  # user provided guess propagates
 
-        opt.bounds["p0"] = 0, 10  # this will be set
+        opt.bounds.set_if_empty(p0=(0, 10))  # this will be set
         opt.add_extra_options(fitter="algo1")
 
         opt1 = opt.copy()  # copy options while keeping previous values
-        opt1.p0["p2"] = opt1.p0["p0"] + opt1.p0["p1"]
+        opt1.p0.set_if_empty(p2=opt1.p0["p0"] + opt1.p0["p1"])
 
         opt2 = opt.copy()
-        opt2.p0["p2"] = opt2.p0["p0"] * 2  # add another p2 value
+        opt2.p0.set_if_empty(p2=opt2.p0["p0"] * 2)  # add another p2 value
 
         ref_opt1 = {
             "p0": {"p0": 1.0, "p1": 5.0, "p2": 6.0},

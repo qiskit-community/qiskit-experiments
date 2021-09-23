@@ -144,7 +144,6 @@ class OptionsDict(dict):
     This dictionary provides several extra features.
 
     - A value set to the dictionary is automatically validated.
-    - New value can be set iff value is not assigned.
     - Dictionary key is limited to what are specified in the constructor as ``parameters``.
     """
 
@@ -189,11 +188,20 @@ class OptionsDict(dict):
             raise AnalysisError(f"Parameter {key} is not defined in this fit model.")
 
         # value can be set if never assigned
-        if self.get(key) is None:
-            super().__setitem__(key, self.format(value))
+        super().__setitem__(key, self.format(value))
 
     def __hash__(self):
         return hash(tuple(sorted(self.items())))
+
+    def set_if_empty(self, **kwargs):
+        """Set value to the dictionary if not assigned.
+
+        Args:
+              kwargs: Key and new value to assign.
+        """
+        for key, value in kwargs.items():
+            if self.get(key) is None:
+                self.__setitem__(key, value)
 
     @staticmethod
     def format(value: Any) -> Any:
@@ -256,7 +264,7 @@ class Boundaries(OptionsDict):
             minv, maxv = value
             if minv >= maxv:
                 raise AnalysisError(
-                    f"The first value is larger than the second value {minv} >= {maxv}."
+                    f"The first value is greater than the second value {minv} >= {maxv}."
                 )
             return float(minv), float(maxv)
         except (TypeError, ValueError) as ex:
@@ -280,33 +288,53 @@ class FitOptions:
         default_bounds: Optional[Union[Iterable[Tuple], Dict[str, Tuple]]] = None,
         **extra,
     ):
-        self.p0 = InitialGuesses(parameters, default_p0)
-        self.bounds = Boundaries(parameters, default_bounds)
-        self.extra = extra
+        self._p0 = InitialGuesses(parameters, default_p0)
+        self._bounds = Boundaries(parameters, default_bounds)
+        self._extra = extra
 
     def __hash__(self):
-        return hash((self.p0, self.bounds, tuple(sorted(self.extra.items()))))
+        return hash((self._p0, self._bounds, tuple(sorted(self._extra.items()))))
 
     def __eq__(self, other):
         if isinstance(other, FitOptions):
             checks = [
-                self.p0 == other.p0,
-                self.bounds == other.bounds,
-                self.extra == other.extra,
+                self._p0 == other._p0,
+                self._bounds == other._bounds,
+                self._extra == other._extra,
             ]
             return all(checks)
         return False
 
     def add_extra_options(self, **kwargs):
         """Add more fitter options."""
-        self.extra.update(kwargs)
+        self._extra.update(kwargs)
 
     def copy(self):
         """Create copy of this option."""
-        return FitOptions(list(self.p0.keys()), dict(self.p0), dict(self.bounds), **self.extra)
+        return FitOptions(list(self._p0.keys()), dict(self._p0), dict(self._bounds), **self._extra)
+
+    @property
+    def p0(self) -> InitialGuesses:
+        """Return initial guess dictionary."""
+        return self._p0
+
+    @p0.setter
+    def p0(self, new_dict: Dict[str, float]):
+        """Set new dictionary. Only non-assigned value is updated."""
+        self._p0.set_if_empty(**new_dict)
+
+    @property
+    def bounds(self) -> Boundaries:
+        """Return bounds dictionary."""
+        return self._bounds
+
+    @bounds.setter
+    def bounds(self, new_dict: Dict[str, float]):
+        """Set new dictionary. Only non-assigned value is updated."""
+        self._bounds.set_if_empty(**new_dict)
 
     @property
     def options(self):
         """Generate keyword arguments of the curve fitter."""
-        bounds = {k: v if v is not None else (-np.inf, np.inf) for k, v in self.bounds.items()}
-        return {"p0": dict(self.p0), "bounds": bounds, **self.extra}
+        bounds = {k: v if v is not None else (-np.inf, np.inf) for k, v in self._bounds.items()}
+        return {"p0": dict(self._p0), "bounds": bounds, **self._extra}
