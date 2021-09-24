@@ -17,10 +17,7 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
-from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
-from qiskit.pulse import ScheduleBlock
-import qiskit.pulse as pulse
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.calibration.analysis.fine_amplitude_analysis import (
@@ -36,24 +33,25 @@ class FineDrag(BaseExperiment):
         The class :class:`FineDrag` runs fine DRAG calibration experiments (see :class:`DragCal`
         for the definition of DRAG pulses). Fine DRAG calibration proceeds by iterating the
         gate sequence Rp - Rm where Rp is a rotation around an axis and Rm is the same rotation
-        but in the opposite direction. The circuits that are executed are of the form
+        but in the opposite direction and is implemented by the gates Rz - Rp - Rz where the Rz
+        gates are virtual Z-rotations, see Ref. [1]. The executed circuits are of the form
 
         .. parsed-literal::
 
-                    ┌─────┐┌────┐┌────┐     ┌────┐┌────┐┌──────┐ ░ ┌─┐
-               q_0: ┤ Pre ├┤ Rp ├┤ Rm ├ ... ┤ Rp ├┤ Rm ├┤ Post ├─░─┤M├
-                    └─────┘└────┘└────┘     └────┘└────┘└──────┘ ░ └╥┘
-            meas: 1/═══════════════════ ... ════════════════════════╩═
-                                                                    0
+                    ┌─────┐┌────┐┌───────┐┌────┐┌───────┐     ┌──────┐ ░ ┌─┐
+               q_0: ┤ Pre ├┤ Rp ├┤ Rz(π) ├┤ Rp ├┤ Rz(π) ├ ... ┤ Post ├─░─┤M├
+                    └─────┘└────┘└───────┘└────┘└───────┘     └──────┘ ░ └╥┘
+            meas: 1/══════════════════════════════════════════════════════╩═
+                                                                          0
 
         Here, Pre and Post designate gates that may be pre-appended and and post-appended,
-        respectively, to the repeated sequence of Rp and Rm gates. When calibrating a pulse
-        with a target rotation angle of π the Pre and Post gates are Id and RYGate(π/2),
+        respectively, to the repeated sequence of Rp - Rz - Rp - Rz gates. When calibrating
+        a pulse with a target rotation angle of π the Pre and Post gates are Id and RYGate(π/2),
         respectively. When calibrating a pulse with a target rotation angle of π/2 the Pre and
         Post gates are RXGate(π/2) and RYGate(π/2), respectively.
 
-        We now describe what this experiment corrects by following Ref. [1]. We follow equations
-        4.30 and onwards of Ref. [1] which state that the first-order corrections to the control
+        We now describe what this experiment corrects by following Ref. [2]. We follow equations
+        4.30 and onwards of Ref. [2] which state that the first-order corrections to the control
         fields are
 
         .. math::
@@ -71,8 +69,8 @@ class FineDrag(BaseExperiment):
         that generates a transformation that keeps the qubit sub-space isolated from the
         higher-order states. :math:`t_g` is the gate time, :math:`\Omega_x(t)` is the pulse envelope
         on the in-phase component of the drive and :math:`\lambda_1` is a parmeter of the Hamiltonian.
-        For additional details please see Ref. [1].
-        As in Ref. [1] we now set :math:`s^{(1)}_{x,0,1}` and :math:`s^{(1)}_{z,1}` to zero
+        For additional details please see Ref. [2].
+        As in Ref. [2] we now set :math:`s^{(1)}_{x,0,1}` and :math:`s^{(1)}_{z,1}` to zero
         and set :math:`s^{(1)}_{y,0,1}` to :math:`-\lambda_1^2 t_g\Omega_x(t)/8`. This
         results in a Z angle rotation rate of :math:`\bar{\delta}^{(1)}(t)=0` in the equations
         above and defines the value for the ideal :math:`\beta` parameter.
@@ -131,19 +129,11 @@ class FineDrag(BaseExperiment):
             {\rm d}\beta=\frac{\sqrt{\pi}\,{\rm d}\theta\sigma}{ \theta_\text{target}^2}
 
     # section: reference
-        .. ref_arxiv:: 1 1011.1949
+        .. ref_arxiv:: 1 1612.00858
+        .. ref_arxiv:: 2 1011.1949
     """
 
     __analysis_class__ = FineAmplitudeAnalysis
-
-    @classmethod
-    def _default_run_options(cls) -> Options:
-        """Default option values for the experiment :meth:`run` method."""
-        options = super()._default_run_options()
-        options.meas_level = MeasLevel.CLASSIFIED
-        options.meas_return = "avg"
-
-        return options
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -155,13 +145,13 @@ class FineDrag(BaseExperiment):
             schedule (ScheduleBlock): The schedule for the plus rotation.
             normalization (bool): If set to True the DataProcessor will normalized the
                 measured signal to the interval [0, 1]. Defaults to True.
-            sx_schedule (ScheduleBlock): The schedule to attache to the SX gate.
+            add_sx (bool): If True an sx gate is pre-pended to the circuit.
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(20))
         options.schedule = None
         options.normalization = True
-        options.sx_schedule = None
+        options.add_sx = False
 
         return options
 
@@ -184,28 +174,13 @@ class FineDrag(BaseExperiment):
 
     @staticmethod
     def _pre_circuit() -> QuantumCircuit:
-        """Return the quantum circuit to apply before repeating the Rp and Rm gates."""
+        """Return the quantum circuit to apply before repeating the Rp - Rz - Rp - Rz gates."""
         return QuantumCircuit(1)
 
     @staticmethod
     def _post_circuit() -> QuantumCircuit:
-        """Return the quantum circuit to apply after repeating the Rp and Rm gates."""
-        circ = QuantumCircuit(1)
-        circ.ry(np.pi / 2, 0)
-        return circ
-
-    # TODO Remove once #251 gets merged.
-    def _set_anti_schedule(self, schedule) -> ScheduleBlock:
-        """A DRAG specific method that sets the rm schedule based on rp.
-        The rm schedule, i.e. the anti-schedule, is the rp schedule sandwiched
-        between two virtual phase gates with angle pi.
-        """
-        with pulse.build(name="rm") as minus_sched:
-            pulse.shift_phase(np.pi, pulse.DriveChannel(self._physical_qubits[0]))
-            pulse.call(schedule)
-            pulse.shift_phase(-np.pi, pulse.DriveChannel(self._physical_qubits[0]))
-
-        return minus_sched
+        """Return the quantum circuit to apply after repeating the Rp - Rz - Rp - Rz gates."""
+        return QuantumCircuit(1)
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Create the circuits for the fine DRAG calibration experiment.
@@ -217,31 +192,32 @@ class FineDrag(BaseExperiment):
             A list of circuits with a variable number of gates. Each gate has the same
             pulse schedule.
         """
+        schedule, circuits = self.experiment_options.schedule, []
 
-        schedule, qubits = self.experiment_options.schedule, self._physical_qubits
+        drag_gate = Gate(name=schedule.name, num_qubits=1, params=[])
 
-        # Prepare the circuits
-        repetitions = self.experiment_options.get("repetitions")
-
-        circuits = []
-
-        for repetition in repetitions:
+        for repetition in self.experiment_options.repetitions:
             circuit = self._pre_circuit()
 
+            if self.experiment_options.add_sx:
+                circuit.sx(0)
+
             for _ in range(repetition):
-                circuit.append(Gate(name="Rp", num_qubits=1, params=[]), (0,))
-                circuit.append(Gate(name="Rm", num_qubits=1, params=[]), (0,))
+                circuit.append(drag_gate, (0,))
+                circuit.rz(np.pi, 0)
+                circuit.append(drag_gate, (0,))
+                circuit.rz(np.pi, 0)
+
+            circuit.ry(np.pi / 2, 0)  # Maps unwanted Z rotations to qubit population.
 
             circuit.compose(self._post_circuit(), inplace=True)
 
             circuit.measure_all()
-            circuit.add_calibration("Rp", qubits, schedule, params=[])
-            circuit.add_calibration("Rm", qubits, self._set_anti_schedule(schedule), params=[])
+            circuit.add_calibration(schedule.name, self._physical_qubits, schedule, params=[])
 
-            # TODO update with metadata function after #251
             circuit.metadata = {
                 "experiment_type": self._type,
-                "qubits": (self.physical_qubits[0],),
+                "qubits": self.physical_qubits,
                 "xval": repetition,
                 "unit": "gate number",
             }
@@ -249,3 +225,30 @@ class FineDrag(BaseExperiment):
             circuits.append(circuit)
 
         return circuits
+
+
+class FineSXDrag(FineDrag):
+    """Class to fine calibrate the DRAG parameter of an SX gate."""
+
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        r"""Default values for the fine amplitude experiment.
+
+        Experiment Options:
+            add_sx (bool): By default prepend a SX gate to the circuits.
+        """
+        options = super()._default_experiment_options()
+        options.add_sx = True
+
+        return options
+
+
+class FineDragEF(FineDrag):
+    """A class to run the fine DRAG calibration on the e-f transition."""
+
+    @staticmethod
+    def _pre_circuit() -> QuantumCircuit:
+        """Add an extra X gate before the Rp - Rz - Rp - Rz sequence done on the e-f transition."""
+        circuit = QuantumCircuit(1)
+        circuit.x(0)
+        return circuit
