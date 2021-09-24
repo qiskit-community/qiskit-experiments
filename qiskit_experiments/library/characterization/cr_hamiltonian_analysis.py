@@ -250,24 +250,22 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
 
         return np.sqrt(2 * np.pi) * prefactor * sigma * n_pulses
 
-    def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
-        """Fitter options."""
-        user_p0 = self._get_option("p0")
-        user_bounds = self._get_option("bounds")
+    def _generate_fit_guesses(
+        self, opt: curve.FitOptions
+    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+        """Compute the initial guesses.
 
-        bounds = {
-            "t_off": user_bounds["t_off"] or (0, np.inf),
-            "px0": user_bounds["px0"] or (-np.inf, np.inf),
-            "py0": user_bounds["py0"] or (-np.inf, np.inf),
-            "pz0": user_bounds["pz0"] or (-np.inf, np.inf),
-            "px1": user_bounds["px1"] or (-np.inf, np.inf),
-            "py1": user_bounds["py1"] or (-np.inf, np.inf),
-            "pz1": user_bounds["pz1"] or (-np.inf, np.inf),
-            "b": user_bounds["b"] or (-1, 1),
-        }
+        Args:
+            opt: Fit options filled with user provided guess and bounds.
+
+        Returns:
+            List of fit options that are passed to the fitter function.
+        """
+        opt.bounds.set_if_empty(t_off=(0, np.inf), b=(-1, 1))
+
+        opt.p0.set_if_empty(t_off=self._t_off_initial_guess(), b=1e-9)
 
         guesses = defaultdict(list)
-
         for control in (0, 1):
             # start from Z oscillation
             x_data = self._data(series_name=f"x|c={control}")
@@ -291,41 +289,33 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
             # The FFT might be up to 1/2 bin off
             df = 2 * np.pi / ((z_data.x[1] - z_data.x[0]) * len(z_data.x))
             for omega_shifted in [omega, omega - df / 2, omega + df / 2]:
-                for phi in np.linspace(-np.pi, np.pi, 9):
+                for phi in np.linspace(-np.pi, np.pi, 5):
                     px = omega_shifted * np.cos(theta) * np.cos(phi)
                     py = omega_shifted * np.cos(theta) * np.sin(phi)
                     pz = omega_shifted * np.sin(theta)
                     guesses[control].append(
                         {
-                            f"px{control}": user_p0[f"px{control}"] or px,
-                            f"py{control}": user_p0[f"py{control}"] or py,
-                            f"pz{control}": user_p0[f"pz{control}"] or pz,
+                            f"px{control}": px,
+                            f"py{control}": py,
+                            f"pz{control}": pz,
                         }
                     )
             if omega < df:
                 # empirical guess for low frequency case
                 guesses[control].append(
                     {
-                        f"px{control}": user_p0[f"px{control}"] or omega,
-                        f"py{control}": user_p0[f"py{control}"] or omega,
-                        f"pz{control}": user_p0[f"pz{control}"] or 0,
+                        f"px{control}": omega,
+                        f"py{control}": omega,
+                        f"pz{control}": 0,
                     }
                 )
 
         fit_options = []
         # combine all guesses in Cartesian product
         for p0s, p1s in product(guesses[0], guesses[1]):
-            fit_option = {
-                "p0": {
-                    "b": user_p0["b"] or 1e-9,
-                    "t_off": user_p0["t_off"] or self._t_off_initial_guess(),
-                    **p0s,
-                    **p1s,
-                },
-                "bounds": bounds,
-            }
-            fit_option.update(extra_options)
-            fit_options.append(fit_option)
+            new_opt = opt.copy()
+            new_opt.p0.set_if_empty(**p0s, **p1s)
+            fit_options.append(new_opt)
 
         return fit_options
 
