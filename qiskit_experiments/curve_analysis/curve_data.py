@@ -46,6 +46,9 @@ class SeriesDef:
     # Latex description of this fit model
     model_description: Optional[str] = None
 
+    # Index of canvas if the result figure is multi-panel
+    canvas: Optional[int] = None
+
 
 @dataclasses.dataclass(frozen=True)
 class CurveData:
