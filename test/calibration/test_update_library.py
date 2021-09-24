@@ -160,7 +160,7 @@ class TestDragUpdate(QiskitTestCase):
     def test_drag(self):
         """Test calibrations update from drag."""
 
-        backend = DragBackend()
+        backend = DragBackend(gate_name="xp")
         beta = Parameter("β")
         qubit = 1
         test_tol = 0.02
@@ -172,17 +172,10 @@ class TestDragUpdate(QiskitTestCase):
                 pulse.DriveChannel(chan),
             )
 
-        with pulse.build(backend=backend, name="xm") as x_minus:
-            pulse.play(
-                pulse.Drag(duration=160, amp=-0.208519, sigma=40, beta=beta),
-                pulse.DriveChannel(chan),
-            )
-
         # Setup the calibrations
         cals = BackendCalibrations(backend)
 
-        for sched in [x_plus, x_minus]:
-            cals.add_schedule(sched, num_qubits=1)
+        cals.add_schedule(x_plus, num_qubits=1)
 
         cals.add_parameter_value(0.2, "β", qubit, x_plus)
         cals.inst_map_add("xp", (qubit,))
@@ -194,8 +187,7 @@ class TestDragUpdate(QiskitTestCase):
         # Run a Drag calibration experiment.
         drag = DragCal(qubit)
         drag.set_experiment_options(
-            rp=cals.get_schedule("xp", qubit, assign_params={"β": beta}),
-            rm=cals.get_schedule("xm", qubit, assign_params={"β": beta}),
+            schedule=cals.get_schedule("xp", qubit, assign_params={"β": beta}),
         )
 
         exp_data = drag.run(backend)
