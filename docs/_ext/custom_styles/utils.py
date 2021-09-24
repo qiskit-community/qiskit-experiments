@@ -140,7 +140,12 @@ def _format_default_options(defaults: Dict[str, Any], indent: str = "") -> List[
         docstring_lines.append("")
         for par, value in defaults.items():
             if callable(value):
-                value_repr = f"Callable {value.__name__}"
+                if value.__class__.__name__ == "function":
+                    # callback function
+                    value_repr = f"Callable {value.__name__}"
+                else:
+                    # class instance with call method
+                    value_repr = repr(value)
             else:
                 value_repr = repr(value)
             docstring_lines.append(indent * 2 + f"{par:<25} := {value_repr}")

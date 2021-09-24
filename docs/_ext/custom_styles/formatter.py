@@ -80,6 +80,18 @@ class DocstringSectionFormatter:
         return format_lines
 
     @_check_no_indent
+    def format_see_also(self, lines: List[str]) -> List[str]:
+        """Format see also section."""
+        text = ".. seealso:: Module(s) "
+
+        modules = []
+        for line in lines:
+            modules.append(f":py:mod:`~{line.lstrip()}`")
+        text += ", ".join(modules)
+
+        return [text, ""]
+
+    @_check_no_indent
     def format_tutorial(self, lines: List[str]) -> List[str]:
         """Format tutorial section."""
         format_lines = [".. rubric:: Tutorials", ""]
