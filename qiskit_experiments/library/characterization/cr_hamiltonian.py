@@ -385,7 +385,7 @@ class EchoedCrossResonanceHamiltonian(CrossResonanceHamiltonian):
         self,
         pulse_gate: circuit.Gate,
     ) -> QuantumCircuit:
-        """Single tone cross resonance.
+        """Build the echoed cross-resonance circuit out of two single cross-resonance tones.
 
         Args:
             pulse_gate: A pulse gate to represent a single cross resonance pulse.
