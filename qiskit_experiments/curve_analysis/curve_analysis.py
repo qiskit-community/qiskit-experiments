@@ -309,7 +309,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
             axis (AxesSubplot): Optional. A matplotlib axis object to draw.
             xlabel (str): X label of fit result figure.
             ylabel (str): Y label of fit result figure.
-            ylim (Tuple[float, float]): Min and max height limit of fit plot.
+            xlim (Tuple[float, float]): Min and max value of horizontal axis of the fit plot.
+            ylim (Tuple[float, float]): Min and max value of vertical axis of the fit plot.
             xval_unit (str): SI unit of x values. No prefix is needed here.
                 For example, when the x values represent time, this option will be just "s"
                 rather than "ms". In the fit result plot, the prefix is automatically selected
@@ -347,6 +348,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         options.axis = None
         options.xlabel = None
         options.ylabel = None
+        options.xlim = None
         options.ylim = None
         options.xval_unit = None
         options.yval_unit = None
@@ -730,6 +732,16 @@ class CurveAnalysis(BaseAnalysis, ABC):
             # Ignore experiment metadata or job metadata is not set or key is not found
             return None
 
+    def _extra_metadata(self) -> Dict[str, Any]:
+        """Returns extra metadata.
+
+        Returns:
+            Extra metadata explicitly added by the experiment subclass.
+        """
+        exclude = ["experiment_type", "num_qubits", "physical_qubits", "job_metadata"]
+
+        return {k: v for k, v in self.__experiment_metadata.items() if k not in exclude}
+
     def _data(
         self,
         series_name: Optional[str] = None,
@@ -929,6 +941,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             fit_options_candidates = [
                 self._format_fit_options(**fit_options) for fit_options in fit_candidates
             ]
+
             fit_results = []
             for fit_options in fit_options_candidates:
                 fit_result = curve_fitter(
@@ -1028,15 +1041,16 @@ class CurveAnalysis(BaseAnalysis, ABC):
         #
         if self._get_option("plot"):
             fit_figure = FitResultPlotters[self._get_option("curve_plotter")].value.draw(
-                curves=[
-                    (ser, self._data(ser.name, "raw_data"), self._data(ser.name, "fit_ready"))
-                    for ser in self.__series__
-                ],
+                series_defs=self.__series__,
+                raw_samples=[self._data(ser.name, "raw_data") for ser in self.__series__],
+                fit_samples=[self._data(ser.name, "fit_ready") for ser in self.__series__],
                 tick_labels={
                     "xval_unit": self._get_option("xval_unit"),
                     "yval_unit": self._get_option("yval_unit"),
                     "xlabel": self._get_option("xlabel"),
                     "ylabel": self._get_option("ylabel"),
+                    "xlim": self._get_option("xlim"),
+                    "ylim": self._get_option("ylim"),
                 },
                 fit_data=fit_result,
                 result_entries=analysis_results,
