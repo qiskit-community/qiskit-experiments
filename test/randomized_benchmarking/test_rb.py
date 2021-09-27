@@ -235,6 +235,7 @@ class TestInterleavedRB(TestStandardRB):
             int_idx += 4
 
     def test_non_clifford_interleaved_element(self):
+        """Verifies trying to run interleaved RB with non Clifford element throws an exception"""
         qubits = 1
         lengths = [1, 4, 6, 9, 13, 16]
         interleaved_element = TGate()  # T gate is not Clifford, this should fail
