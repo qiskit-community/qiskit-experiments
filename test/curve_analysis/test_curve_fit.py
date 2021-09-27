@@ -556,11 +556,6 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             analysis._run_analysis(test_data, **default_opts.__dict__)
 
 
-# Note: test_set_entire_dict test confuses the unittest. The dict set to the setter method is
-# internally converted into OptionsDict, but the linter guesses self.p0 and self.bounds are
-# dictionary and causes no-member warning for the rest of self.p0.set_if_empty.
-
-# pylint: disable=no-member
 class TestFitOptions(QiskitTestCase):
     """Unittest for fit option object."""
 
@@ -751,16 +746,3 @@ class TestFitOptions(QiskitTestCase):
 
         self.assertDictEqual(opt1.options, ref_opt1)
         self.assertDictEqual(opt2.options, ref_opt2)
-
-    def test_set_entire_dict(self):
-        """Set dict to p0 and bounds keeps instance type."""
-        opt = FitOptions(
-            ["p0", "p1", "p2"], default_p0=[0, 1, 2], default_bounds=[(0, 1), (1, 2), (2, 3)]
-        )
-
-        # This is internally converted into OptionsDict
-        opt.p0 = {"p0": 1, "p1": 2, "p2": 3}
-        opt.bounds = {"p0": (1, 2), "p1": (2, 3), "p2": (3, 4)}
-
-        self.assertTrue(hasattr(opt.p0, "set_if_empty"))
-        self.assertTrue(hasattr(opt.bounds, "set_if_empty"))

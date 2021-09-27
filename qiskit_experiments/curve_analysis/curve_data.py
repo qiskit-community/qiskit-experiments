@@ -291,55 +291,50 @@ class FitOptions:
         default_bounds: Optional[Union[Iterable[Tuple], Dict[str, Tuple]]] = None,
         **extra,
     ):
-        self._p0 = InitialGuesses(parameters, default_p0)
-        self._bounds = Boundaries(parameters, default_bounds)
-        self._extra = extra
+        # These are private members so that user cannot directly override values
+        # without implicitly implemented validation logic. No setter will be provided.
+        self.__p0 = InitialGuesses(parameters, default_p0)
+        self.__bounds = Boundaries(parameters, default_bounds)
+        self.__extra = extra
 
     def __hash__(self):
-        return hash((self._p0, self._bounds, tuple(sorted(self._extra.items()))))
+        return hash((self.__p0, self.__bounds, tuple(sorted(self.__extra.items()))))
 
     def __eq__(self, other):
         if isinstance(other, FitOptions):
             checks = [
-                self._p0 == other._p0,
-                self._bounds == other._bounds,
-                self._extra == other._extra,
+                self.__p0 == other.__p0,
+                self.__bounds == other.__bounds,
+                self.__extra == other.__extra,
             ]
             return all(checks)
         return False
 
     def add_extra_options(self, **kwargs):
         """Add more fitter options."""
-        self._extra.update(kwargs)
+        self.__extra.update(kwargs)
 
     def copy(self):
         """Create copy of this option."""
-        return FitOptions(list(self._p0.keys()), dict(self._p0), dict(self._bounds), **self._extra)
+        return FitOptions(
+            parameters=list(self.__p0.keys()),
+            default_p0=dict(self.__p0),
+            default_bounds=dict(self.__bounds),
+            **self.__extra,
+        )
 
     @property
     def p0(self) -> InitialGuesses:
         """Return initial guess dictionary."""
-        return self._p0
-
-    @p0.setter
-    def p0(self, new_dict: Dict[str, float]):
-        """Set new dictionary."""
-        for key, val in new_dict.items():
-            self._p0[key] = val
+        return self.__p0
 
     @property
     def bounds(self) -> Boundaries:
         """Return bounds dictionary."""
-        return self._bounds
-
-    @bounds.setter
-    def bounds(self, new_dict: Dict[str, float]):
-        """Set new dictionary."""
-        for key, val in new_dict.items():
-            self._bounds[key] = val
+        return self.__bounds
 
     @property
     def options(self):
         """Generate keyword arguments of the curve fitter."""
-        bounds = {k: v if v is not None else (-np.inf, np.inf) for k, v in self._bounds.items()}
-        return {"p0": dict(self._p0), "bounds": bounds, **self._extra}
+        bounds = {k: v if v is not None else (-np.inf, np.inf) for k, v in self.__bounds.items()}
+        return {"p0": dict(self.__p0), "bounds": bounds, **self.__extra}
