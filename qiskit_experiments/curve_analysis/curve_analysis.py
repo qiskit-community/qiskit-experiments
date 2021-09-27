@@ -396,8 +396,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         Note that the argument ``user_opt`` is a collection of fitting options (initial guesses,
         boundaries, and extra fitter options) with the user-provided guesses and boundaries.
-        The method :meth:`set_if_empty` sets specified parameters to the fit options
-        dictionary, only when the value is not assigned.
+        The method :meth:`set_if_empty` sets the value of specified parameters of the fit options
+        dictionary only if the values of these parameters have not yet been assigned.
 
         .. code-block::
 
