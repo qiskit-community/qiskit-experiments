@@ -233,7 +233,7 @@ class InitialGuesses(OptionsDict):
             Formatted value.
 
         Raises:
-            AnalysisError: When value is invalid format.
+            AnalysisError: When value is not a float or None.
         """
         if value is None:
             return None
