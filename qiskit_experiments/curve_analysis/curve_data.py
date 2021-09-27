@@ -323,8 +323,9 @@ class FitOptions:
 
     @p0.setter
     def p0(self, new_dict: Dict[str, float]):
-        """Set new dictionary. Only non-assigned value is updated."""
-        self._p0.set_if_empty(**new_dict)
+        """Set new dictionary."""
+        for key, val in new_dict.items():
+            self._p0[key] = val
 
     @property
     def bounds(self) -> Boundaries:
@@ -333,8 +334,9 @@ class FitOptions:
 
     @bounds.setter
     def bounds(self, new_dict: Dict[str, float]):
-        """Set new dictionary. Only non-assigned value is updated."""
-        self._bounds.set_if_empty(**new_dict)
+        """Set new dictionary."""
+        for key, val in new_dict.items():
+            self._bounds[key] = val
 
     @property
     def options(self):

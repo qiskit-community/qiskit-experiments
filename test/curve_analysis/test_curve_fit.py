@@ -28,6 +28,8 @@ from qiskit_experiments.curve_analysis.curve_data import (
     FitData,
     ParameterRepr,
     FitOptions,
+    InitialGuesses,
+    Boundaries,
 )
 from qiskit_experiments.curve_analysis.data_processing import probability
 from qiskit_experiments.exceptions import AnalysisError
@@ -746,3 +748,15 @@ class TestFitOptions(QiskitTestCase):
 
         self.assertDictEqual(opt1.options, ref_opt1)
         self.assertDictEqual(opt2.options, ref_opt2)
+
+    def test_set_entire_dict(self):
+        """Set dict to p0 and bounds keeps instance type."""
+        opt = FitOptions(
+            ["p0", "p1", "p2"], default_p0=[0, 1, 2], default_bounds=[(0, 1), (1, 2), (2, 3)]
+        )
+
+        opt.p0 = {"p0": 1, "p1": 2, "p2": 3}
+        opt.bounds = {"p0": (1, 2), "p1": (2, 3), "p2": (3, 4)}
+
+        self.assertTrue(isinstance(opt.p0, InitialGuesses))
+        self.assertTrue(isinstance(opt.bounds, Boundaries))
