@@ -28,8 +28,6 @@ from qiskit_experiments.curve_analysis.curve_data import (
     FitData,
     ParameterRepr,
     FitOptions,
-    InitialGuesses,
-    Boundaries,
 )
 from qiskit_experiments.curve_analysis.data_processing import probability
 from qiskit_experiments.exceptions import AnalysisError
@@ -558,6 +556,11 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             analysis._run_analysis(test_data, **default_opts.__dict__)
 
 
+# Note: test_set_entire_dict test confuses the unittest. The dict set to the setter method is
+# internally converted into OptionsDict, but the linter guesses self.p0 and self.bounds are
+# dictionary and causes no-member warning for the rest of self.p0.set_if_empty.
+
+# pylint: disable=no-member
 class TestFitOptions(QiskitTestCase):
     """Unittest for fit option object."""
 
@@ -755,8 +758,9 @@ class TestFitOptions(QiskitTestCase):
             ["p0", "p1", "p2"], default_p0=[0, 1, 2], default_bounds=[(0, 1), (1, 2), (2, 3)]
         )
 
+        # This is internally converted into OptionsDict
         opt.p0 = {"p0": 1, "p1": 2, "p2": 3}
         opt.bounds = {"p0": (1, 2), "p1": (2, 3), "p2": (3, 4)}
 
-        self.assertTrue(isinstance(opt.p0, InitialGuesses))
-        self.assertTrue(isinstance(opt.bounds, Boundaries))
+        self.assertTrue(hasattr(opt.p0, "set_if_empty"))
+        self.assertTrue(hasattr(opt.bounds, "set_if_empty"))
