@@ -19,6 +19,7 @@ from numpy.random import Generator
 from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
 from qiskit.quantum_info import Clifford
+from qiskit.exceptions import QiskitError
 
 from .rb_experiment import StandardRB
 from .interleaved_rb_analysis import InterleavedRBAnalysis
@@ -71,7 +72,7 @@ class InterleavedRB(StandardRB):
                            sequences are constructed by appending additional
                            Clifford samples to shorter sequences.
         """
-        self._interleaved_element = interleaved_element
+        self._set_interleaved_element(interleaved_element)
         super().__init__(qubits, lengths, num_samples, seed, full_sampling)
 
     def _sample_circuits(self, lengths, seed=None):
@@ -107,3 +108,23 @@ class InterleavedRB(StandardRB):
             new_element_list.append(element)
             new_element_list.append(self._interleaved_element)
         return new_element_list
+
+    def _set_interleaved_element(self, interleaved_element):
+        """Handle the various types of the interleaved element
+
+        Args:
+            interleaved_element: The element to interleave
+
+        Raises:
+            QiskitError: if there is no known conversion of interleaved_element
+            to a Clifford group element
+        """
+        try:
+            interleaved_element_op = Clifford(interleaved_element)
+            self._interleaved_element = (interleaved_element, interleaved_element_op)
+        except QiskitError:
+            raise QiskitError(
+                "Interleaved element {} could not be converted to Clifford element".format(
+                    interleaved_element.name
+                )
+            )
