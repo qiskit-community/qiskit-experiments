@@ -248,7 +248,7 @@ class Boundaries(OptionsDict):
     """Dictionary providing a validation for boundaries."""
 
     @staticmethod
-    def format(value: Any) -> Any:
+    def format(value: Any) -> Optional[Tuple[float, float]]:
         """Validate if value is a min-max value tuple.
 
         Args:
