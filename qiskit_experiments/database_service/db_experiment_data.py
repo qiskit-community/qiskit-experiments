@@ -250,18 +250,22 @@ class DbExperimentDataV1(DbExperimentData):
 
             self._jobs[job.job_id()] = job
 
-        job_kwargs = {
-            "jobs": job_data,
-            "jobs_done_callback": post_processing_callback,
-            "timeout": timeout,
-            **kwargs,
-        }
-        self._job_futures.append(
-            (
-                job_kwargs,
-                self._executor.submit(self._wait_for_job, **job_kwargs),
+        if job_data:
+            job_kwargs = {
+                "jobs": job_data,
+                "jobs_done_callback": post_processing_callback,
+                "timeout": timeout,
+                **kwargs,
+            }
+            self._job_futures.append(
+                (
+                    job_kwargs,
+                    self._executor.submit(self._wait_for_job, **job_kwargs),
+                )
             )
-        )
+        elif post_processing_callback:
+            post_processing_callback(self, **kwargs)
+
         if self.auto_save:
             self.save_metadata()
 
