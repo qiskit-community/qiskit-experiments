@@ -189,8 +189,6 @@ class OptionsDict(dict):
         """
         if key not in self:
             raise AnalysisError(f"Parameter {key} is not defined in this fit model.")
-
-        # value can be set if never assigned
         super().__setitem__(key, self.format(value))
 
     def __hash__(self):
