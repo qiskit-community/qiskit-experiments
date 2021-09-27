@@ -816,7 +816,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         extra_options = self._arg_parse(**options)
 
         # Update all fit functions in the series definitions if fixed parameter is defined.
-        # Fixed parameter should be provided as a part of analysis options.
+        # Fixed parameters should be provided by the analysis options.
         if self.__fixed_parameters__:
             assigned_params = {k: self._get_option(k) for k in self.__fixed_parameters__}
 
