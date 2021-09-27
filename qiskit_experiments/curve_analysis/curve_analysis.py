@@ -823,9 +823,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
             # Check if all parameters are assigned.
             if any(v is None for v in assigned_params.values()):
                 raise AnalysisError(
-                    f"All fixed-value parameters for the fit function of {self.__class__.__name__}"
-                    " are not assigned. All values must be provided from the analysis options"
-                    f" to run this analysis: {self.__fixed_parameters__}"
+                    f"Unassigned fixed-value parameters for the fit function {self.__class__.__name__}."
+                    f"All values of fixed-parameters, i.e. {self.__fixed_parameters__}, must be provided "
+                    "by the analysis options to run this analysis."
                 )
 
             # Override series definition with assigned fit functions.
