@@ -278,8 +278,8 @@ class Boundaries(OptionsDict):
 class FitOptions:
     """Collection of fitting options.
 
-    This class is initialized with list of parameter names used in the fit model
-    and associated default values provided by users.
+    This class is initialized with a list of parameter names used in the fit model
+    and corresponding default values provided by users.
 
     This class is hashable, and generates fitter keyword arguments.
     """
