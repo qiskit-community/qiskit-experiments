@@ -146,8 +146,8 @@ class OptionsDict(dict):
 
     This dictionary provides several extra features.
 
-    - A value set to the dictionary is automatically validated.
-    - Dictionary key is limited to what are specified in the constructor as ``parameters``.
+    - A value setting method which validates the dict key and value.
+    - Dictionary keys are limited to those specified in the constructor as ``parameters``.
     """
 
     def __init__(
