@@ -2,7 +2,15 @@
 encoding: utf8
 default_branch: main
 sections:
+  - [features, New Features]
+  - [issues, Known Issues]
+  - [upgrade, Upgrade Notes]
+  - [deprecations, Deprecation Notes]
+  - [critical, Critical Issues]
+  - [security, Security Issues]
+  - [fixes, Bug Fixes]
   - [developer, API Changes for Experiment Authors]
+  - [other, Others]
 template: |
           ---
           prelude: >
