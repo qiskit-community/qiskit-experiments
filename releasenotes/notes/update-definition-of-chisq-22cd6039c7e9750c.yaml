@@ -2,26 +2,27 @@
 critical:
   - |
     Definiton of the chi-squared value stored in the analysis result has been changed.
+    This change will be applied to all experiments involving the curve fitting.
 
     From this version, the definition becomes
 
-    ..math::
+    .. math::
 
-      \chi^2 = \sum_{i} \frac{(O_i - C_i)^2}
+      \chi^2 = \sum_{i} (O_i - C_i)^2,
 
-    which indicates a residual sum of squares (RSS). This definition used to be
+    where :math:`O_i` and :math:`C_i` are ovserved and fit values, respectively.
+    This form indicates a residual sum of squares (RSS). This definition used to be
 
-    ..math::
+    .. math::
 
-      \chi^2 = \sum_{i} \frac{(O_i - C_i)^2}{\sigma_i^2}
+      \chi^2 = \sum_{i} \frac{(O_i - C_i)^2}{\sigma_i^2},
 
-    where :math:`O_i` and :math:`C_i` are ovserved and calculated values, respectively,
-    and the :math:`\sigma_i^2` is a variance of the observed data.
-    The :math:`\sigma_i^2` is computed as a sampling error, which is defined by
+    where the :math:`\sigma_i^2` is a variance of the observed data.
+    The :math:`\sigma_i^2` is computed as a sampling error, in the form of
 
-    ..math::
+    .. math::
 
-      \sigma_i^2 = \tilde{p} * (1 - \tilde{p}) / {\rm shots}
+      \sigma_i^2 = \tilde{p} (1 - \tilde{p}) / {\rm shots},
 
     where :math:`\tilde{p}` is the population computed from the counts, i.e.
     :math:`\sum c_i / {\rm shots}`. This sometime increases :math:`\chi^2` as :math:`\tilde{p}`
