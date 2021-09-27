@@ -146,8 +146,8 @@ class OptionsDict(dict):
 
     This dictionary provides several extra features.
 
-    - A value set to the dictionary is automatically validated.
-    - Dictionary key is limited to what are specified in the constructor as ``parameters``.
+    - A value setting method which validates the dict key and value.
+    - Dictionary keys are limited to those specified in the constructor as ``parameters``.
     """
 
     def __init__(
@@ -220,11 +220,11 @@ class OptionsDict(dict):
 
 
 class InitialGuesses(OptionsDict):
-    """Dictionary providing a validation for initial guesses."""
+    """Dictionary providing a float validation for initial guesses."""
 
     @staticmethod
-    def format(value: Any) -> Any:
-        """Validate if value is float.
+    def format(value: Any) -> Optional[float]:
+        """Validate that value is float a float or None.
 
         Args:
             value: New value to assign.
@@ -233,7 +233,7 @@ class InitialGuesses(OptionsDict):
             Formatted value.
 
         Raises:
-            AnalysisError: When value is invalid format.
+            AnalysisError: When value is not a float or None.
         """
         if value is None:
             return None
@@ -248,7 +248,7 @@ class Boundaries(OptionsDict):
     """Dictionary providing a validation for boundaries."""
 
     @staticmethod
-    def format(value: Any) -> Any:
+    def format(value: Any) -> Optional[Tuple[float, float]]:
         """Validate if value is a min-max value tuple.
 
         Args:
@@ -278,8 +278,8 @@ class Boundaries(OptionsDict):
 class FitOptions:
     """Collection of fitting options.
 
-    This class is initialized with list of parameter names used in the fit model
-    and associated default values provided by users.
+    This class is initialized with a list of parameter names used in the fit model
+    and corresponding default values provided by users.
 
     This class is hashable, and generates fitter keyword arguments.
     """
