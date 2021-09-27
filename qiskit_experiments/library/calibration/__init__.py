@@ -41,6 +41,8 @@ module.
 
     DragCal
     FineDrag
+    FineXDrag
+    FineSXDrag
     Rabi
     FineAmplitude
     FineXAmplitude
@@ -64,7 +66,7 @@ See :mod:`qiskit_experiments.calibration_management`.
 """
 
 from .drag import DragCal
-from .fine_drag import FineDrag
+from .fine_drag import FineDrag, FineXDrag, FineSXDrag
 from .rabi import Rabi, EFRabi
 from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
 from .ramsey_xy import RamseyXY

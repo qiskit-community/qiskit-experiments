@@ -20,8 +20,8 @@ from qiskit.circuit import Gate
 from qiskit.providers import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options
-from qiskit_experiments.library.calibration.analysis.fine_amplitude_analysis import (
-    FineAmplitudeAnalysis,
+from qiskit_experiments.library.calibration.analysis.fine_drag_analysis import (
+    FineDragAnalysis,
 )
 
 
@@ -133,7 +133,7 @@ class FineDrag(BaseExperiment):
         .. ref_arxiv:: 2 1011.1949
     """
 
-    __analysis_class__ = FineAmplitudeAnalysis
+    __analysis_class__ = FineDragAnalysis
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -151,7 +151,7 @@ class FineDrag(BaseExperiment):
         options.repetitions = list(range(20))
         options.schedule = None
         options.normalization = True
-        options.add_sx = False
+        options.add_sx = None
 
         return options
 
@@ -160,7 +160,8 @@ class FineDrag(BaseExperiment):
         """Default analysis options."""
         options = super()._default_analysis_options()
         options.angle_per_gate = 0.0
-        options.phase_offset = np.pi / 2
+        options.phase_offset = -np.pi / 2
+        options.amp = 1.0
 
         return options
 
@@ -227,6 +228,22 @@ class FineDrag(BaseExperiment):
         return circuits
 
 
+class FineXDrag(FineDrag):
+    """Class to fine calibrate the DRAG parameter of an SX gate."""
+
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        r"""Default values for the fine amplitude experiment.
+
+        Experiment Options:
+            add_sx (bool): By default do not prepend an SX gate to the circuits.
+        """
+        options = super()._default_experiment_options()
+        options.add_sx = False
+
+        return options
+
+
 class FineSXDrag(FineDrag):
     """Class to fine calibrate the DRAG parameter of an SX gate."""
 
@@ -235,7 +252,7 @@ class FineSXDrag(FineDrag):
         r"""Default values for the fine amplitude experiment.
 
         Experiment Options:
-            add_sx (bool): By default prepend a SX gate to the circuits.
+            add_sx (bool): By default prepend an SX gate to the circuits.
         """
         options = super()._default_experiment_options()
         options.add_sx = True
