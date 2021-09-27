@@ -365,7 +365,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         return options
 
-    def _generate_fit_guesses(self, opt: FitOptions) -> Union[FitOptions, List[FitOptions]]:
+    def _generate_fit_guesses(self, user_opt: FitOptions) -> Union[FitOptions, List[FitOptions]]:
         """Create algorithmic guess with analysis options and curve data.
 
         Subclasses can override this method.
@@ -387,19 +387,24 @@ class CurveAnalysis(BaseAnalysis, ABC):
             else:
                 param_a_guess = ...
 
-            opt.p0.set_if_empty(param_a=param_a_guess)
+            user_opt.p0.set_if_empty(param_a=param_a_guess)
 
         Note that this subroutine can generate multiple fit options.
         If multiple options are provided, the fitter will run multiple times,
         i.e. once for each fit option.
         The result with the best reduced chi-squared value is kept.
 
+        Note that the argument ``user_opt`` is a collection of fitting options (initial guesses,
+        boundaries, and extra fitter options) with the user-provided guesses and boundaries.
+        The method :meth:`set_if_empty` sets specified parameters to the fit options
+        dictionary, only when the value is not assigned.
+
         .. code-block::
 
-            opt1 = opt.copy()
+            opt1 = user_opt.copy()
             opt1.p0.set_if_empty(param_a=3)
 
-            opt2 = opt.copy()
+            opt2 = user_opt.copy()
             opt2.p0.set_if_empty(param_a=4)
 
             return [opt1, opt2]
@@ -427,17 +432,16 @@ class CurveAnalysis(BaseAnalysis, ABC):
         6. The best fit is selected based on the minimum chisq.
 
         Note that in this method you don't need to worry about the user provided initial guesses
-        and bounds. These user options are already assigned to the ``opt``
-        instance, and the dictionary automatically reject new values once it's assigned.
+        and boundaries. These values are already assigned in the ``user_opts``.
 
         Args:
-            opt: Fit options filled with user provided guess and bounds.
+            user_opt: Fit options filled with user provided guess and bounds.
 
         Returns:
             List of fit options that are passed to the fitter function.
         """
 
-        return opt
+        return user_opt
 
     def _format_data(self, data: CurveData) -> CurveData:
         """An optional subroutine to perform data pre-processing.

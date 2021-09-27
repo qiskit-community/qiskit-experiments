@@ -125,17 +125,17 @@ class InterleavedRBAnalysis(RBAnalysis):
         return default_options
 
     def _generate_fit_guesses(
-        self, opt: curve.FitOptions
+        self, user_opt: curve.FitOptions
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Compute the initial guesses.
 
         Args:
-            opt: Fit options filled with user provided guess and bounds.
+            user_opt: Fit options filled with user provided guess and bounds.
 
         Returns:
             List of fit options that are passed to the fitter function.
         """
-        opt.bounds.set_if_empty(
+        user_opt.bounds.set_if_empty(
             a=(0, 1),
             alpha=(0, 1),
             alpha_c=(0, 1),
@@ -144,24 +144,24 @@ class InterleavedRBAnalysis(RBAnalysis):
 
         # for standard RB curve
         std_curve = self._data(series_name="Standard")
-        opt_std = opt.copy()
+        opt_std = user_opt.copy()
         opt_std = self._initial_guess(opt_std, std_curve.x, std_curve.y, self._num_qubits)
 
         # for interleaved RB curve
         int_curve = self._data(series_name="Interleaved")
-        opt_int = opt.copy()
+        opt_int = user_opt.copy()
         if opt_int.p0["alpha_c"] is not None:
             opt_int.p0["alpha"] = opt_std.p0["alpha"] * opt_int.p0["alpha_c"]
         opt_int = self._initial_guess(opt_int, int_curve.x, int_curve.y, self._num_qubits)
 
-        opt.p0.set_if_empty(
+        user_opt.p0.set_if_empty(
             a=np.mean([opt_std.p0["a"], opt_int.p0["a"]]),
             alpha=opt_std.p0["alpha"],
             alpha_c=min(opt_int.p0["alpha"] / opt_std.p0["alpha"], 1),
             b=np.mean([opt_std.p0["b"], opt_int.p0["b"]]),
         )
 
-        return opt
+        return user_opt
 
     def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
         """Calculate EPC."""

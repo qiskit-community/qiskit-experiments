@@ -103,19 +103,19 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
         return default_options
 
     def _generate_fit_guesses(
-        self, opt: curve.FitOptions
+        self, user_opt: curve.FitOptions
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Compute the initial guesses.
 
         Args:
-            opt: Fit options filled with user provided guess and bounds.
+            user_opt: Fit options filled with user provided guess and bounds.
 
         Returns:
             List of fit options that are passed to the fitter function.
         """
         max_abs_y, _ = curve.guess.max_height(self._data().y, absolute=True)
 
-        opt.bounds.set_if_empty(
+        user_opt.bounds.set_if_empty(
             amp=(-2 * max_abs_y, 2 * max_abs_y),
             tau=(0, np.inf),
             base=(-max_abs_y, max_abs_y),
@@ -130,23 +130,23 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
             base_guesses.append(curve.guess.constant_sinusoidal_offset(data.y))
 
         freq_val = float(np.average(freq_guesses))
-        opt.p0.set_if_empty(base=np.average(base_guesses))
+        user_opt.p0.set_if_empty(base=np.average(base_guesses))
 
         # Guess the exponential decay by combining both curves
         data_x = self._data("X")
         data_y = self._data("Y")
-        decay_data = (data_x.y - opt.p0["base"]) ** 2 + (data_y.y - opt.p0["base"]) ** 2
+        decay_data = (data_x.y - user_opt.p0["base"]) ** 2 + (data_y.y - user_opt.p0["base"]) ** 2
 
-        opt.p0.set_if_empty(
+        user_opt.p0.set_if_empty(
             tau=-curve.guess.exp_decay(data_x.x, decay_data),
             amp=0.5,
             phase=0.0,
         )
 
-        opt_fp = opt.copy()
+        opt_fp = user_opt.copy()
         opt_fp.p0.set_if_empty(freq=freq_val)
 
-        opt_fm = opt.copy()
+        opt_fm = user_opt.copy()
         opt_fm.p0.set_if_empty(freq=-freq_val)
 
         return [opt_fp, opt_fm]

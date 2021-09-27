@@ -92,25 +92,25 @@ class RBAnalysis(curve.CurveAnalysis):
         return default_options
 
     def _generate_fit_guesses(
-        self, opt: curve.FitOptions
+        self, user_opt: curve.FitOptions
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Compute the initial guesses.
 
         Args:
-            opt: Fit options filled with user provided guess and bounds.
+            user_opt: Fit options filled with user provided guess and bounds.
 
         Returns:
             List of fit options that are passed to the fitter function.
         """
         curve_data = self._data()
 
-        opt.bounds.set_if_empty(
+        user_opt.bounds.set_if_empty(
             a=(0, 1),
             alpha=(0, 1),
             b=(0, 1),
         )
 
-        return self._initial_guess(opt, curve_data.x, curve_data.y, self._num_qubits)
+        return self._initial_guess(user_opt, curve_data.x, curve_data.y, self._num_qubits)
 
     @staticmethod
     def _initial_guess(

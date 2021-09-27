@@ -80,12 +80,12 @@ class OscillationAnalysis(curve.CurveAnalysis):
         return default_options
 
     def _generate_fit_guesses(
-        self, opt: curve.FitOptions
+        self, user_opt: curve.FitOptions
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Compute the initial guesses.
 
         Args:
-            opt: Fit options filled with user provided guess and bounds.
+            user_opt: Fit options filled with user provided guess and bounds.
 
         Returns:
             List of fit options that are passed to the fitter function.
@@ -93,23 +93,23 @@ class OscillationAnalysis(curve.CurveAnalysis):
         curve_data = self._data()
         max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
 
-        opt.bounds.set_if_empty(
+        user_opt.bounds.set_if_empty(
             amp=(-2 * max_abs_y, 2 * max_abs_y),
             freq=(0, np.inf),
             phase=(-np.pi, np.pi),
             base=(-max_abs_y, max_abs_y),
         )
-        opt.p0.set_if_empty(
+        user_opt.p0.set_if_empty(
             freq=curve.guess.frequency(curve_data.x, curve_data.y),
             base=curve.guess.constant_sinusoidal_offset(curve_data.y),
         )
-        opt.p0.set_if_empty(
-            amp=curve.guess.max_height(curve_data.y - opt.p0["base"], absolute=True)[0],
+        user_opt.p0.set_if_empty(
+            amp=curve.guess.max_height(curve_data.y - user_opt.p0["base"], absolute=True)[0],
         )
 
         options = []
         for phase_guess in np.linspace(0, np.pi, 5):
-            new_opt = opt.copy()
+            new_opt = user_opt.copy()
             new_opt.p0.set_if_empty(phase=phase_guess)
             options.append(new_opt)
 

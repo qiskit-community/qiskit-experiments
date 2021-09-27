@@ -250,19 +250,19 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         return np.sqrt(2 * np.pi) * prefactor * sigma * n_pulses
 
     def _generate_fit_guesses(
-        self, opt: curve.FitOptions
+        self, user_opt: curve.FitOptions
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Compute the initial guesses.
 
         Args:
-            opt: Fit options filled with user provided guess and bounds.
+            user_opt: Fit options filled with user provided guess and bounds.
 
         Returns:
             List of fit options that are passed to the fitter function.
         """
-        opt.bounds.set_if_empty(t_off=(0, np.inf), b=(-1, 1))
+        user_opt.bounds.set_if_empty(t_off=(0, np.inf), b=(-1, 1))
 
-        opt.p0.set_if_empty(t_off=self._t_off_initial_guess(), b=1e-9)
+        user_opt.p0.set_if_empty(t_off=self._t_off_initial_guess(), b=1e-9)
 
         guesses = defaultdict(list)
         for control in (0, 1):
@@ -312,7 +312,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         fit_options = []
         # combine all guesses in Cartesian product
         for p0s, p1s in product(guesses[0], guesses[1]):
-            new_opt = opt.copy()
+            new_opt = user_opt.copy()
             new_opt.p0.set_if_empty(**p0s, **p1s)
             fit_options.append(new_opt)
 

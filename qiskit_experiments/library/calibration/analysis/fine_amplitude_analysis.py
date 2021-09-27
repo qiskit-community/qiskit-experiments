@@ -110,12 +110,12 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
         return default_options
 
     def _generate_fit_guesses(
-        self, opt: curve.FitOptions
+        self, user_opt: curve.FitOptions
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Compute the initial guesses.
 
         Args:
-            opt: Fit options filled with user provided guess and bounds.
+            user_opt: Fit options filled with user provided guess and bounds.
 
         Returns:
             List of fit options that are passed to the fitter function.
@@ -128,7 +128,7 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
         curve_data = self._data()
         max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
 
-        opt.bounds.set_if_empty(
+        user_opt.bounds.set_if_empty(
             amp=(-2 * max_abs_y, 2 * max_abs_y),
             d_theta=(-np.pi, np.pi),
             base=(-max_abs_y, max_abs_y),
@@ -136,7 +136,7 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
 
         max_y, min_y = np.max(curve_data.y), np.min(curve_data.y)
 
-        opt.p0.set_if_empty(amp=max_y - min_y, base=(max_y + min_y) / 2)
+        user_opt.p0.set_if_empty(amp=max_y - min_y, base=(max_y + min_y) / 2)
 
         # Base the initial guess on the intended angle_per_gate.
         angle_per_gate = self._get_option("angle_per_gate")
@@ -147,7 +147,7 @@ class FineAmplitudeAnalysis(curve.CurveAnalysis):
         guess_range = max(abs(angle_per_gate), np.pi / 2)
         options = []
         for d_theta_guess in np.linspace(-guess_range, guess_range, n_guesses):
-            new_opt = opt.copy()
+            new_opt = user_opt.copy()
             new_opt.p0.set_if_empty(d_theta=d_theta_guess)
             options.append(new_opt)
 

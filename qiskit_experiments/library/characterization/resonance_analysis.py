@@ -81,12 +81,12 @@ class ResonanceAnalysis(curve.CurveAnalysis):
         return default_options
 
     def _generate_fit_guesses(
-        self, opt: curve.FitOptions
+        self, user_opt: curve.FitOptions
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Compute the initial guesses.
 
         Args:
-            opt: Fit options filled with user provided guess and bounds.
+            user_opt: Fit options filled with user provided guess and bounds.
 
         Returns:
             List of fit options that are passed to the fitter function.
@@ -94,26 +94,26 @@ class ResonanceAnalysis(curve.CurveAnalysis):
         curve_data = self._data()
         max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
 
-        opt.bounds.set_if_empty(
+        user_opt.bounds.set_if_empty(
             a=(-2 * max_abs_y, 2 * max_abs_y),
             sigma=(0, np.ptp(curve_data.x)),
             freq=(min(curve_data.x), max(curve_data.x)),
             b=(-max_abs_y, max_abs_y),
         )
-        opt.p0.set_if_empty(b=curve.guess.constant_spectral_offset(curve_data.y))
+        user_opt.p0.set_if_empty(b=curve.guess.constant_spectral_offset(curve_data.y))
 
-        y_ = curve_data.y - opt.p0["b"]
+        y_ = curve_data.y - user_opt.p0["b"]
 
         _, peak_idx = curve.guess.max_height(y_, absolute=True)
         fwhm = curve.guess.full_width_half_max(curve_data.x, y_, peak_idx)
 
-        opt.p0.set_if_empty(
-            a=curve_data.y[peak_idx] - opt.p0["b"],
+        user_opt.p0.set_if_empty(
+            a=curve_data.y[peak_idx] - user_opt.p0["b"],
             freq=curve_data.x[peak_idx],
             sigma=fwhm / np.sqrt(8 * np.log(2)),
         )
 
-        return opt
+        return user_opt
 
     def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.

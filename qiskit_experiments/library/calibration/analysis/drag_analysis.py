@@ -107,12 +107,12 @@ class DragCalAnalysis(curve.CurveAnalysis):
         return default_options
 
     def _generate_fit_guesses(
-        self, opt: curve.FitOptions
+        self, user_opt: curve.FitOptions
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Compute the initial guesses.
 
         Args:
-            opt: Fit options filled with user provided guess and bounds.
+            user_opt: Fit options filled with user provided guess and bounds.
 
         Returns:
             List of fit options that are passed to the fitter function.
@@ -125,12 +125,12 @@ class DragCalAnalysis(curve.CurveAnalysis):
         for i in range(3):
             curve_data = self._data(f"series-{i}")
             freqs_guesses[f"freq{i}"] = curve.guess.frequency(curve_data.x, curve_data.y)
-        opt.p0.set_if_empty(**freqs_guesses)
+        user_opt.p0.set_if_empty(**freqs_guesses)
 
         max_abs_y, _ = curve.guess.max_height(self._data().y, absolute=True)
-        freq_bound = max(10 / opt.p0["freq0"], max(x_data))
+        freq_bound = max(10 / user_opt.p0["freq0"], max(x_data))
 
-        opt.bounds.set_if_empty(
+        user_opt.bounds.set_if_empty(
             amp=(-2 * max_abs_y, 2 * max_abs_y),
             freq0=(0, np.inf),
             freq1=(0, np.inf),
@@ -138,14 +138,14 @@ class DragCalAnalysis(curve.CurveAnalysis):
             beta=(-freq_bound, freq_bound),
             base=(-max_abs_y, max_abs_y),
         )
-        opt.p0.set_if_empty(amp=0.5, base=0.5)
+        user_opt.p0.set_if_empty(amp=0.5, base=0.5)
 
         # Drag curves can sometimes be very flat, i.e. averages of y-data
         # and min-max do not always make good initial guesses. We therefore add
         # 0.5 to the initial guesses.
         options = []
         for beta_guess in np.linspace(min_beta, max_beta, 20):
-            new_opt = opt.copy()
+            new_opt = user_opt.copy()
             new_opt.p0.set_if_empty(beta=beta_guess)
             options.append(new_opt)
 
