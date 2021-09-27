@@ -138,8 +138,6 @@ def curve_fit(
     # Calculate the reduced chi-squared for fit
     yfits = fit_func(xdata, *popt)
     residues = (yfits - ydata) ** 2
-    if sigma is not None:
-        residues = residues / (sigma ** 2)
     reduced_chisq = np.sum(residues) / dof
 
     # Compute data range for fit
