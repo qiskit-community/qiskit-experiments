@@ -224,7 +224,7 @@ class InitialGuesses(OptionsDict):
 
     @staticmethod
     def format(value: Any) -> Any:
-        """Validate if value is float.
+        """Validate that value is float a float or None.
 
         Args:
             value: New value to assign.
