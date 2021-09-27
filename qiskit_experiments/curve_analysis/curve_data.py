@@ -223,7 +223,7 @@ class InitialGuesses(OptionsDict):
     """Dictionary providing a float validation for initial guesses."""
 
     @staticmethod
-    def format(value: Any) -> Any:
+    def format(value: Any) -> Optional[float]:
         """Validate that value is float a float or None.
 
         Args:
