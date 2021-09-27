@@ -10,7 +10,7 @@ sections:
   - [security, Security Issues]
   - [fixes, Bug Fixes]
   - [developer, API Changes for Experiment Authors]
-  - [other, Others]
+  - [other, Other Notes]
 template: |
           ---
           prelude: >
