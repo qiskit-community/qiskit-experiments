@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Fine amplitude calibration analysis."""
+"""Fine DRAG calibration analysis."""
 
 from .fine_amplitude_analysis import FineAmplitudeAnalysis
 

@@ -229,7 +229,7 @@ class FineDrag(BaseExperiment):
 
 
 class FineXDrag(FineDrag):
-    """Class to fine calibrate the DRAG parameter of an SX gate."""
+    """Class to fine calibrate the DRAG parameter of an X gate."""
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
