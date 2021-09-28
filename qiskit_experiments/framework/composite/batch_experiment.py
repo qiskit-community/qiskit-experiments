@@ -67,8 +67,9 @@ class BatchExperiment(CompositeExperiment):
         """
         qubits = list()
         for expr in experiments:
-            qubits.extend(expr.physical_qubits)
-        qubits = sorted(set(qubits))
+            for qubit in expr.physical_qubits:
+                if qubit not in qubits:
+                    qubits.append(qubit)
 
         super().__init__(experiments, qubits)
 
