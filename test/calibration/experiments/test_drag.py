@@ -39,21 +39,20 @@ class TestDragEndToEnd(QiskitTestCase):
             pulse.play(Drag(duration=160, amp=0.208519, sigma=40, beta=beta), DriveChannel(0))
 
         self.x_plus = xp
+        self.test_tol = 0.05
 
     def test_end_to_end(self):
         """Test the drag experiment end to end."""
 
-        test_tol = 0.05
         backend = DragBackend(gate_name="xp")
 
         drag = DragCal(1)
 
         drag.set_experiment_options(schedule=self.x_plus)
-        expdata = drag.run(backend)
-        expdata.block_for_results()
+        expdata = drag.run(backend).block_for_results()
         result = expdata.analysis_results(1)
 
-        self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
+        self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
         # Small leakage will make the curves very flat.
@@ -63,14 +62,13 @@ class TestDragEndToEnd(QiskitTestCase):
         drag.set_analysis_options(p0={"beta": 1.2})
         drag.set_experiment_options(schedule=self.x_plus)
         drag.set_run_options(meas_level=MeasLevel.KERNELED, meas_return="avg")
-        exp_data = drag.run(backend)
-        exp_data.block_for_results()
+        exp_data = drag.run(backend).block_for_results()
         result = exp_data.analysis_results(1)
 
         meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
 
         self.assertEqual(meas_level, MeasLevel.KERNELED)
-        self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
+        self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
         # Large leakage will make the curves oscillate quickly.
@@ -81,14 +79,13 @@ class TestDragEndToEnd(QiskitTestCase):
         drag.set_experiment_options(betas=np.linspace(-4, 4, 31))
         drag.set_analysis_options(p0={"beta": 1.8, "freq0": 0.08, "freq1": 0.16, "freq2": 0.32})
         drag.set_experiment_options(schedule=self.x_plus)
-        exp_data = drag.run(backend)
-        exp_data.block_for_results()
+        exp_data = drag.run(backend).block_for_results()
         result = exp_data.analysis_results(1)
 
         meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
 
         self.assertEqual(meas_level, MeasLevel.CLASSIFIED)
-        self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
+        self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
 
