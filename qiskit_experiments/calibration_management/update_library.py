@@ -18,7 +18,7 @@ from typing import List, Optional, Tuple, Union
 import numpy as np
 
 from qiskit.circuit import Parameter
-from qiskit.pulse import ScheduleBlock
+from qiskit.pulse import ScheduleBlock, Play
 
 from qiskit_experiments.curve_analysis.curve_analysis import PARAMS_ENTRY_PREFIX
 from qiskit_experiments.framework.experiment_data import ExperimentData
@@ -233,12 +233,13 @@ class FineDrag(BaseUpdater):
         if isinstance(schedule, str):
             schedule = calibrations.get_schedule(schedule, qubits)
 
-        # Obtain sigma as it is needed for the update rule.
+        # Obtain sigma as it is needed for the fine DRAG update rule.
+        sigma = None
         for block in schedule.blocks:
-            if isinstance(block, ScheduleBlock):
-                sigma = block.pulse.sigma
-                break
-        else:
+            if isinstance(block, Play) and hasattr(block.pulse, "sigma"):
+                sigma = getattr(block.pulse, "sigma")
+
+        if sigma is None:
             raise CalibrationError(f"Could not infer sigma from {schedule}.")
 
         result = BaseUpdater._get_result(exp_data, result_index)
