@@ -65,20 +65,6 @@ class OscillationAnalysis(curve.CurveAnalysis):
         )
     ]
 
-    @classmethod
-    def _default_options(cls):
-        """Return the default analysis options.
-
-        See :meth:`~qiskit_experiment.curve_analysis.CurveAnalysis._default_options` for
-        descriptions of analysis options.
-        """
-        default_options = super()._default_options()
-        default_options.result_parameters = ["freq"]
-        default_options.xlabel = "Amplitude"
-        default_options.ylabel = "Signal (arb. units)"
-
-        return default_options
-
     def _generate_fit_guesses(
         self, user_opt: curve.FitOptions
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
