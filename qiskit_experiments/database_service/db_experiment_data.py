@@ -14,7 +14,7 @@
 
 import logging
 import uuid
-from typing import Optional, List, Any, Union, Callable, Dict
+from typing import Optional, List, Any, Union, Callable, Dict, Tuple
 import copy
 from concurrent import futures
 from functools import wraps
@@ -147,6 +147,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         self._jobs = ThreadSafeOrderedDict(job_ids or [])
         self._job_futures = ThreadSafeList()
+        self._analysis_futures = ThreadSafeList()
         self._errors = []
 
         self._data = ThreadSafeList()
@@ -172,48 +173,26 @@ class DbExperimentDataV1(DbExperimentData):
     def add_data(
         self,
         data: Union[Result, List[Result], Job, List[Job], Dict, List[Dict]],
-        post_processing_callback: Optional[Callable] = None,
         timeout: Optional[float] = None,
-        **kwargs: Any,
     ) -> None:
         """Add experiment data.
-
-        Note:
-            This method is not thread safe and should not be called by the
-            `post_processing_callback` function.
-
-        Note:
-            If `data` is a ``Job``, this method waits for the job to finish
-            and calls the `post_processing_callback` function asynchronously.
 
         Args:
             data: Experiment data to add.
                 Several types are accepted for convenience:
-
                     * Result: Add data from this ``Result`` object.
                     * List[Result]: Add data from the ``Result`` objects.
                     * Job: Add data from the job result.
                     * List[Job]: Add data from the job results.
                     * Dict: Add this data.
                     * List[Dict]: Add this list of data.
-
-            post_processing_callback: Callback function invoked when data is
-                added. If `data` is a ``Job``, the callback is only invoked when
-                the job finishes successfully.
-                The following positional arguments are provided to the callback function:
-
-                    * This ``DbExperimentData`` object.
-                    * Additional keyword arguments passed to this method.
-
             timeout: Timeout waiting for job to finish, if `data` is a ``Job``.
-
-            **kwargs: Keyword arguments to be passed to the callback function.
 
         Raises:
             TypeError: If the input data type is invalid.
         """
-        with self._job_futures.lock:
-            if any(not fut.done() for _, fut in self._job_futures):
+        with self._analysis_futures.lock:
+            if any(not fut.done() for _, fut in self._analysis_futures):
                 LOG.warning(
                     "Not all post-processing has finished. Adding new data "
                     "may create unexpected analysis results."
@@ -254,42 +233,70 @@ class DbExperimentDataV1(DbExperimentData):
         if job_data:
             job_kwargs = {
                 "jobs": job_data,
-                "jobs_done_callback": post_processing_callback,
                 "timeout": timeout,
-                **kwargs,
             }
             self._job_futures.append(
-                (
-                    job_kwargs,
-                    self._executor.submit(self._wait_for_job, **job_kwargs),
-                )
+                (job_kwargs, self._executor.submit(self._add_jobs_data, **job_kwargs))
             )
-        elif post_processing_callback:
-            post_processing_callback(self, **kwargs)
 
         if self.auto_save:
             self.save_metadata()
 
-    def _wait_for_job(
+    def add_analysis_callback(
+        self, callback: Callable, timeout: Optional[float] = None, **kwargs: Any
+    ):
+        """Add analysis callback for running after experiment data jobs are finished.
+
+        This method waits for the last set of jobs to finish and calls
+        the `callback` function asynchronously.
+
+        .. note::
+            This method is not thread safe and should not be called by the
+            `callback` function.
+
+        Args:
+            callback: Callback function invoked when job finishes successfully.
+                The following positional arguments are provided to the callback function:
+                    * This ``DbExperimentData`` object.
+                    * Additional keyword arguments passed to this method.
+            timeout: Timeout waiting for job to finish, if `data` is a ``Job``.
+            **kwargs: Keyword arguments to be passed to the callback function.
+        """
+        running_futures = []
+        with self._job_futures.lock:
+            for fut_kwargs, fut in self._job_futures.copy():
+                if not fut.done():
+                    running_futures.append((fut_kwargs, fut))
+
+        job_kwargs = {
+            "job_futures": running_futures,
+            "callback": callback,
+            "timeout": timeout,
+            "callback_kwargs": kwargs,
+        }
+        self._analysis_futures.append(
+            (
+                job_kwargs,
+                self._executor.submit(self._wait_for_data, **job_kwargs),
+            )
+        )
+
+    def _add_jobs_data(
         self,
         jobs: List[Union[Job, BaseJob]],
-        jobs_done_callback: Optional[Callable] = None,
         timeout: Optional[float] = None,
-        **kwargs: Any,
     ) -> None:
-        """Wait for a job to finish.
+        """Wait for a job to finish and add job result data.
 
         Args:
             jobs: Jobs to wait for.
-            jobs_done_callback: Callback function to invoke when jobs finish.
             timeout: Timeout waiting for job to finish.
-            **kwargs: Keyword arguments to be passed to the callback function.
 
         Raises:
-            Exception: If post processing failed.
+            Exception: If any of the jobs failed.
         """
         for job in jobs:
-            LOG.debug("Waiting for jobs %s to finish.", job.job_id())
+            LOG.debug("Waiting for job %s to finish.", job.job_id())
             try:
                 try:
                     job_result = job.result(timeout=timeout)
@@ -302,9 +309,36 @@ class DbExperimentDataV1(DbExperimentData):
                 LOG.warning("Job %s failed:\n%s", job.job_id(), traceback.format_exc())
                 raise
 
+    def _wait_for_data(
+        self,
+        job_futures: List[Tuple[Dict, futures.Future]],
+        callback: Optional[Callable] = None,
+        callback_kwargs: Optional[Dict] = None,
+        timeout: Optional[float] = None,
+    ) -> None:
+        """Wait for a job to finish.
+
+        Args:
+            job_futures: running jobs futures to wait for.
+            callback: Callback function to invoke when jobs finish.
+            callback_kwargs: Dict of kwargs to pass to callback function.
+            timeout: Timeout waiting for job to finish.
+            **kwargs: Keyword arguments to be passed to the callback function.
+
+        Raises:
+            Exception: If post processing failed.
+        """
+        for fut_kwargs, fut in job_futures:
+            jobs = [job.job_id() for job in fut_kwargs["jobs"]]
+            LOG.debug("Waiting for jobs %s to finish.", jobs)
+            try:
+                fut.result(timeout)
+            except Exception:  # pylint: disable=broad-except
+                LOG.warning("Jobs %s failed:\n%s", jobs, traceback.format_exc())
+                raise
         try:
-            if jobs_done_callback:
-                jobs_done_callback(self, **kwargs)
+            kwargs = callback_kwargs or {}
+            callback(self, **kwargs)
         except Exception:  # pylint: disable=broad-except
             LOG.warning("Post processing function failed:\n%s", traceback.format_exc())
             raise
@@ -836,9 +870,13 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             The experiment data with finished jobs and post-processing.
         """
+        for kwargs, fut in self._analysis_futures.copy():
+            LOG.info("Waiting for analysis job %s and to finish.", kwargs["callback"])
+            with contextlib.suppress(Exception):
+                fut.result(timeout)
         for kwargs, fut in self._job_futures.copy():
-            job_ids = [job.job_id() for job in kwargs["jobs"]]
-            LOG.info("Waiting for jobs %s and its post processing to finish.", job_ids)
+            jobs = [job.job_id() for job in kwargs["jobs"]]
+            LOG.info("Waiting for data job %s and to finish.", jobs)
             with contextlib.suppress(Exception):
                 fut.result(timeout)
         return self
@@ -867,12 +905,11 @@ class DbExperimentDataV1(DbExperimentData):
         ):
             return "INITIALIZING"
 
+        # Backend jobs
         statuses = set()
         with self._job_futures.lock:
-            for idx, item in enumerate(self._job_futures):
-                kwargs, fut = item
-                jobs = kwargs["jobs"]
-                for job in jobs:
+            for idx, (kwargs, fut) in enumerate(self._job_futures):
+                for job in kwargs["jobs"]:
                     job_status = job.status()
                     statuses.add(job_status)
                     if job_status == JobStatus.ERROR:
@@ -885,14 +922,33 @@ class DbExperimentDataV1(DbExperimentData):
                     self._job_futures[idx] = None
                     ex = fut.exception()
                     if ex:
-                        job_ids = [job.job_id() for job in jobs]
+                        jobs = [job.job_id() for job in kwargs["jobs"]]
                         self._errors.append(
-                            f"Post processing for job {job_ids} failed: \n"
+                            f"Post processing for job {jobs} failed: \n"
                             + "".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
                         )
                         statuses.add(JobStatus.ERROR)
-
             self._job_futures = ThreadSafeList(list(filter(None, self._job_futures)))
+
+        # Analysis jobs
+        proc_statuses = set()
+        with self._analysis_futures.lock:
+            for idx, (kwargs, fut) in enumerate(self._analysis_futures):
+                if fut.done():
+                    self._analysis_futures[idx] = None
+                    ex = fut.exception()
+                    if ex:
+                        callback = kwargs["callback"]
+                        self._errors.append(
+                            f"Post processing for callback {callback} failed: \n"
+                            + "".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
+                        )
+                        proc_statuses.add(JobStatus.ERROR)
+
+            self._analysis_futures = ThreadSafeList(list(filter(None, self._analysis_futures)))
+
+        if JobStatus.ERROR in proc_statuses:
+            return JobStatus.ERROR.name
 
         for stat in [
             JobStatus.INITIALIZING,
@@ -905,7 +961,7 @@ class DbExperimentDataV1(DbExperimentData):
             if stat in statuses:
                 return stat.name
 
-        if self._job_futures:
+        if self._analysis_futures or self._job_futures:
             return "POST_PROCESSING"
 
         return "DONE"
@@ -957,12 +1013,11 @@ class DbExperimentDataV1(DbExperimentData):
                 # inherits an abstract class.
                 extra_kwargs = {}
                 for key, val in orig_kwargs.items():
-                    if key not in ["jobs", "jobs_done_callback", "timeout"]:
+                    if key not in ["jobs", "timeout"]:
                         extra_kwargs[key] = val
 
                 new_instance.add_data(
                     data=orig_kwargs["jobs"],
-                    post_processing_callback=orig_kwargs["jobs_done_callback"],
                     timeout=orig_kwargs["timeout"],
                     **extra_kwargs,
                 )
