@@ -12,10 +12,10 @@
 
 """Fine DRAG calibration analysis."""
 
-from .fine_amplitude_analysis import FineAmplitudeAnalysis
+from .fine_amplitude_analysis import ErrorAmplificationAnalysis
 
 
-class FineDragAnalysis(FineAmplitudeAnalysis):
+class FineDragAnalysis(ErrorAmplificationAnalysis):
     """An analysis class for fine DRAG calibrations in which the amplitude of the fit is fixed."""
 
     __fixed_parameters__ = ["angle_per_gate", "phase_offset", "amp"]

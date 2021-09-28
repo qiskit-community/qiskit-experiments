@@ -22,7 +22,7 @@ from qiskit.pulse.schedule import ScheduleBlock
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.calibration.analysis.fine_amplitude_analysis import (
-    FineAmplitudeAnalysis,
+    ErrorAmplificationAnalysis,
 )
 from qiskit_experiments.exceptions import CalibrationError
 
@@ -94,7 +94,7 @@ class FineAmplitude(BaseExperiment):
 
     """
 
-    __analysis_class__ = FineAmplitudeAnalysis
+    __analysis_class__ = ErrorAmplificationAnalysis
 
     @classmethod
     def _default_experiment_options(cls) -> Options:

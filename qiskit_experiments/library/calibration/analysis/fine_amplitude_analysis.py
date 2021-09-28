@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Fine amplitude calibration analysis."""
+"""Error amplification analysis."""
 
 from typing import List, Union
 
@@ -20,16 +20,15 @@ import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.exceptions import CalibrationError
 
 
-class FineAmplitudeAnalysis(curve.CurveAnalysis):
-    r"""Fine amplitude analysis class based on a fit to a cosine function.
+class ErrorAmplificationAnalysis(curve.CurveAnalysis):
+    r"""Error amplification analysis class based on a fit to a cosine function.
 
     # section: fit_model
 
-        Analyse a fine amplitude calibration experiment by fitting the data to a cosine function.
-        The user must also specify the intended rotation angle per gate, here labeled,
-        :math:`{\rm apg}`. The parameter of interest in the
-        fit is the deviation from the intended rotation angle per gate labeled
-        :math:`{\rm d}\theta`. The fit function is
+        Analyse an error amplifying calibration experiment by fitting the data to a cosine
+        function. The user must also specify the intended rotation angle per gate, here labeled,
+        :math:`{\rm apg}`. The parameter of interest in the fit is the deviation from the
+        intended rotation angle per gate labeled :math:`{\rm d}\theta`. The fit function is
 
         .. math::
             y = \frac{{\rm amp}}{2}\cos\left(x[{\rm d}\theta + {\rm apg} ] \
