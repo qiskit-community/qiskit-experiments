@@ -117,9 +117,8 @@ class BaseExperiment(ABC):
         # Add experiment option metadata
         self._add_job_metadata(experiment_data, job, **run_opts)
 
-        # Run analysis
-        if analysis:
-            experiment_data = self.run_analysis(experiment_data, job)
+        if analysis and self.__analysis_class__ is not None:
+            experiment_data.add_data(job, post_processing_callback=self.run_analysis)
         else:
             experiment_data.add_data(job)
 
@@ -240,15 +239,12 @@ class BaseExperiment(ABC):
         pass
 
     def run_analysis(
-        self, experiment_data: ExperimentData, job: BaseJob = None, **options
+        self, experiment_data: ExperimentData, **options
     ) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
         Args:
             experiment_data: The experiment data to analyze.
-            job: The future object of experiment result which is currently running on the backend.
-            options: Additional analysis options. Any values set here will
-                override the value from :meth:`analysis_options` for the current run.
 
         Returns:
             An experiment data object containing the analysis results and figures.
@@ -256,32 +252,14 @@ class BaseExperiment(ABC):
         Raises:
             QiskitError: Method is called with an empty experiment result.
         """
-        run_analysis = self.analysis() if self.__analysis_class__ else None
-
         # Get analysis options
         analysis_options = copy.copy(self.analysis_options)
         analysis_options.update_options(**options)
         analysis_options = analysis_options.__dict__
 
-        if not job and run_analysis is not None:
-            # Run analysis immediately
-            if not experiment_data.data():
-                raise QiskitError(
-                    "Experiment data seems to be empty and no running job is provided. "
-                    "At least one data entry is required to run analysis."
-                )
-            experiment_data = run_analysis.run(experiment_data, **analysis_options)
-        else:
-            # Run analysis when job is completed
-            experiment_data.add_data(
-                data=job,
-                post_processing_callback=run_analysis.run,
-                **analysis_options,
-            )
-
-        # Run post analysis. This is implemented by each experiment subclass.
-        self._post_analysis_action(experiment_data)
-
+        # Run analysis
+        analysis = self.analysis()
+        analysis.run(experiment_data, **analysis_options)
         return experiment_data
 
     @property
