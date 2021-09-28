@@ -118,12 +118,7 @@ class BaseUpdater(ABC):
         Raises:
             CalibrationError: If the analysis result does not contain a frequency variable.
         """
-        if result_index is None:
-            result = [
-                r for r in exp_data.analysis_results() if r.name.startswith(PARAMS_ENTRY_PREFIX)
-            ][0]
-        else:
-            result = exp_data.analysis_results(index=result_index)
+        result = BaseUpdater._get_result(exp_data, result_index)
 
         if cls.__fit_parameter__ not in result.extra["popt_keys"]:
             raise CalibrationError(
@@ -137,6 +132,25 @@ class BaseUpdater(ABC):
         cls._add_parameter_value(
             calibrations, exp_data, value, param, schedule=schedule, group=group
         )
+
+    @staticmethod
+    def _get_result(exp_data: ExperimentData, result_index: Optional[int] = None):
+        """Internal helper method to extract results.
+
+        Args:
+            exp_data: The experiment data from which to extract the result.
+            result_index: The index of the result.
+
+        Returns:
+             The result at the given index or the first one starting with
+             :code:`PARAMS_ENTRY_PREFIX`.
+        """
+        if result_index is None:
+            return [
+                r for r in exp_data.analysis_results() if r.name.startswith(PARAMS_ENTRY_PREFIX)
+            ][0]
+        else:
+            return exp_data.analysis_results(index=result_index)
 
 
 class Frequency(BaseUpdater):
@@ -227,12 +241,7 @@ class FineDrag(BaseUpdater):
         else:
             raise CalibrationError(f"Could not infer sigma from {schedule}.")
 
-        if result_index is None:
-            result = [
-                r for r in exp_data.analysis_results() if r.name.startswith(PARAMS_ENTRY_PREFIX)
-            ][0]
-        else:
-            result = exp_data.analysis_results(index=result_index)
+        result = BaseUpdater._get_result(exp_data, result_index)
 
         d_theta = result.value.value[result.extra["popt_keys"].index("d_theta")]
         d_delta = -0.25 * np.sqrt(np.pi) * d_theta * sigma / ((target_angle ** 2) / 4)
@@ -282,12 +291,7 @@ class Amplitude(BaseUpdater):
         if angles_schedules is None:
             angles_schedules = [(np.pi, "amp", "xp")]
 
-        if result_index is None:
-            result = [
-                r for r in exp_data.analysis_results() if r.name.startswith(PARAMS_ENTRY_PREFIX)
-            ][0]
-        else:
-            result = exp_data.analysis_results(index=result_index)
+        result = BaseUpdater._get_result(exp_data, result_index)
 
         if isinstance(exp_data.experiment, Rabi):
             rate = 2 * np.pi * result.value.value[result.extra["popt_keys"].index("freq")]
