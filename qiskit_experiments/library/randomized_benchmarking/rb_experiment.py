@@ -220,7 +220,7 @@ class StandardRB(BaseExperiment):
                     return meta
         return None
 
-    def post_transpile_action(
+    def _post_transpile_action(
         self, circuits: List[QuantumCircuit], backend: Backend
     ) -> List[QuantumCircuit]:
         """Count gate operations in each circuit and update metadata."""

@@ -144,7 +144,7 @@ class BaseExperiment(ABC):
 
         return experiment_data._copy_metadata()
 
-    def pre_transpile_action(self, backend: Backend):
+    def _pre_transpile_action(self, backend: Backend):
         """An extra subroutine executed before transpilation.
 
         Note:
@@ -163,7 +163,7 @@ class BaseExperiment(ABC):
         pass
 
     # pylint: disable = unused-argument
-    def post_transpile_action(
+    def _post_transpile_action(
         self, circuits: List[QuantumCircuit], backend: Backend
     ) -> List[QuantumCircuit]:
         """An extra subroutine executed after transpilation.
@@ -197,7 +197,7 @@ class BaseExperiment(ABC):
             Transpiled circuit to execute.
         """
         # Run pre transpile if implemented by subclasses.
-        self.pre_transpile_action(backend)
+        self._pre_transpile_action(backend)
 
         # Get transpile options
         transpile_options = copy.copy(self.transpile_options)
@@ -210,11 +210,11 @@ class BaseExperiment(ABC):
         circuits = transpile(circuits=self.circuits(backend), backend=backend, **transpile_options)
 
         # Run post transpile. This is implemented by each experiment subclass.
-        circuits = self.post_transpile_action(circuits, backend)
+        circuits = self._post_transpile_action(circuits, backend)
 
         return circuits
 
-    def post_analysis_action(self, experiment_data: ExperimentData):
+    def _post_analysis_action(self, experiment_data: ExperimentData):
         """An extra subroutine executed after analysis.
 
         Note:
@@ -280,7 +280,7 @@ class BaseExperiment(ABC):
             )
 
         # Run post analysis. This is implemented by each experiment subclass.
-        self.post_analysis_action(experiment_data)
+        self._post_analysis_action(experiment_data)
 
         return experiment_data
 

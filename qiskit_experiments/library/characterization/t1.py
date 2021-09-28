@@ -132,7 +132,7 @@ class T1(BaseExperiment):
 
         return circuits
 
-    def pre_transpile_action(self, backend: Backend):
+    def _pre_transpile_action(self, backend: Backend):
         """Set timing constraints if backend is real hardware."""
 
         common_operations.apply_delay_validation(self, backend)
