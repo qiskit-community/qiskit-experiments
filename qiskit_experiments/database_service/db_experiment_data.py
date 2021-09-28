@@ -223,15 +223,16 @@ class DbExperimentDataV1(DbExperimentData):
 
         # Extract job data and directly add non-job data
         job_data = []
-        for datum in data:
-            if isinstance(datum, (Job, BaseJob)):
-                job_data.append(datum)
-            elif isinstance(datum, dict):
-                self._add_single_data(datum)
-            elif isinstance(datum, Result):
-                self._add_result_data(datum)
-            else:
-                raise TypeError(f"Invalid data type {type(datum)}.")
+        with self._data.lock:
+            for datum in data:
+                if isinstance(datum, (Job, BaseJob)):
+                    job_data.append(datum)
+                elif isinstance(datum, dict):
+                    self._add_single_data(datum)
+                elif isinstance(datum, Result):
+                    self._add_result_data(datum)
+                else:
+                    raise TypeError(f"Invalid data type {type(datum)}.")
 
         # Add futures for job data
         for job in job_data:
