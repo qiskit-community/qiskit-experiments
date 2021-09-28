@@ -15,12 +15,14 @@ T2Ramsey Experiment class.
 """
 
 from typing import List, Optional, Union
-import numpy as np
 
+import numpy as np
 import qiskit
-from qiskit.utils import apply_prefix
-from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
+from qiskit.providers import Backend
+from qiskit.test.mock import FakeBackend
+from qiskit.utils import apply_prefix
+
 from qiskit_experiments.framework import BaseExperiment, Options
 from .t2ramsey_analysis import T2RamseyAnalysis
 
@@ -73,14 +75,6 @@ class T2Ramsey(BaseExperiment):
         options.delays = None
         options.unit = "s"
         options.osc_freq = 0.0
-
-        return options
-
-    @classmethod
-    def _default_transpile_options(cls) -> Options:
-        """Default transpile options."""
-        options = super()._default_transpile_options()
-        options.scheduling_method = "alap"
 
         return options
 
@@ -162,3 +156,11 @@ class T2Ramsey(BaseExperiment):
             circuits.append(circ)
 
         return circuits
+
+    def _pre_transpile_action(self, backend: Backend):
+        """Set schedule method if not simulator."""
+        is_simulator = getattr(backend.configuration(), "simulator", False)
+
+        if not is_simulator and not isinstance(backend, FakeBackend):
+            if "scheduling_method" not in self.transpile_options.__dict__:
+                self.set_transpile_options(scheduling_method="alap")

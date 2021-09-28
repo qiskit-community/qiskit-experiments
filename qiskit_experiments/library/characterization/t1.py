@@ -14,10 +14,11 @@ T1 Experiment class.
 """
 
 from typing import List, Optional, Union
-import numpy as np
 
-from qiskit.providers import Backend
+import numpy as np
 from qiskit.circuit import QuantumCircuit
+from qiskit.providers import Backend
+from qiskit.test.mock import FakeBackend
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.t1_analysis import T1Analysis
@@ -59,14 +60,6 @@ class T1(BaseExperiment):
 
         options.delays = None
         options.unit = "s"
-
-        return options
-
-    @classmethod
-    def _default_transpile_options(cls) -> Options:
-        """Default transpile options."""
-        options = super()._default_transpile_options()
-        options.scheduling_method = "alap"
 
         return options
 
@@ -139,3 +132,11 @@ class T1(BaseExperiment):
             circuits.append(circ)
 
         return circuits
+
+    def _pre_transpile_action(self, backend: Backend):
+        """Set schedule method if not simulator."""
+        is_simulator = getattr(backend.configuration(), "simulator", False)
+
+        if not is_simulator and not isinstance(backend, FakeBackend):
+            if "scheduling_method" not in self.transpile_options.__dict__:
+                self.set_transpile_options(scheduling_method="alap")
