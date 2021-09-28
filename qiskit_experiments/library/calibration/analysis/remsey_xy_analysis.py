@@ -12,7 +12,8 @@
 
 """The analysis class for the Ramsey XY experiment."""
 
-from typing import Any, Dict, List, Union
+from typing import List, Union
+
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
@@ -101,50 +102,54 @@ class RamseyXYAnalysis(curve.CurveAnalysis):
 
         return default_options
 
-    def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
-        """Compute the initial guesses."""
-        user_p0 = self._get_option("p0")
-        user_bounds = self._get_option("bounds")
+    def _generate_fit_guesses(
+        self, user_opt: curve.FitOptions
+    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+        """Compute the initial guesses.
+
+        Args:
+            user_opt: Fit options filled with user provided guess and bounds.
+
+        Returns:
+            List of fit options that are passed to the fitter function.
+        """
+        max_abs_y, _ = curve.guess.max_height(self._data().y, absolute=True)
+
+        user_opt.bounds.set_if_empty(
+            amp=(-2 * max_abs_y, 2 * max_abs_y),
+            tau=(0, np.inf),
+            base=(-max_abs_y, max_abs_y),
+            phase=(-np.pi, np.pi),
+        )
 
         # Default guess values
-        freq_guesses, offset_guesses = [], []
-
+        freq_guesses, base_guesses = [], []
         for series in ["X", "Y"]:
             data = self._data(series)
             freq_guesses.append(curve.guess.frequency(data.x, data.y))
-            offset_guesses.append(curve.guess.constant_sinusoidal_offset(data.y))
+            base_guesses.append(curve.guess.constant_sinusoidal_offset(data.y))
+
+        freq_val = float(np.average(freq_guesses))
+        user_opt.p0.set_if_empty(base=np.average(base_guesses))
 
         # Guess the exponential decay by combining both curves
         data_x = self._data("X")
         data_y = self._data("Y")
-        decay_data = (data_x.y - offset_guesses[0]) ** 2 + (data_y.y - offset_guesses[1]) ** 2
-        guess_decay = -curve.guess.exp_decay(data_x.x, decay_data)
+        decay_data = (data_x.y - user_opt.p0["base"]) ** 2 + (data_y.y - user_opt.p0["base"]) ** 2
 
-        freq_guess = user_p0.get("freq", None) or np.average(freq_guesses)
-        fit_options = []
+        user_opt.p0.set_if_empty(
+            tau=-curve.guess.exp_decay(data_x.x, decay_data),
+            amp=0.5,
+            phase=0.0,
+        )
 
-        max_abs_y = np.max(np.abs(self._data().y))
-        for freq in [-freq_guess, freq_guess]:
-            fit_options.append(
-                {
-                    "p0": {
-                        "amp": user_p0.get("amp", None) or 0.5,
-                        "tau": guess_decay,
-                        "freq": freq,
-                        "base": user_p0.get("base", None) or np.average(offset_guesses),
-                        "phase": user_p0.get("phase", None) or 0.0,
-                    },
-                    "bounds": {
-                        "amp": user_bounds.get("amp", None) or (-2 * max_abs_y, 2 * max_abs_y),
-                        "tau": user_bounds.get("tau", None) or (0, np.inf),
-                        "freq": user_bounds.get("freq", None) or (-np.inf, np.inf),
-                        "base": user_bounds.get("base", None) or (-max_abs_y, max_abs_y),
-                        "phase": user_bounds.get("phase", None) or (-np.inf, np.inf),
-                    },
-                }
-            )
+        opt_fp = user_opt.copy()
+        opt_fp.p0.set_if_empty(freq=freq_val)
 
-        return fit_options
+        opt_fm = user_opt.copy()
+        opt_fm.p0.set_if_empty(freq=-freq_val)
+
+        return [opt_fp, opt_fm]
 
     def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
