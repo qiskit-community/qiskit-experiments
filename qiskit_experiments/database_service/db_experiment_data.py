@@ -247,8 +247,8 @@ class DbExperimentDataV1(DbExperimentData):
     ):
         """Add analysis callback for running after experiment data jobs are finished.
 
-        This method waits for the last set of jobs to finish and calls
-        the `callback` function asynchronously.
+        This method waits for any currently running experiment execution
+        jobs to finish and calls the `callback` function asynchronously.
 
         .. note::
             This method is not thread safe and should not be called by the
@@ -256,9 +256,10 @@ class DbExperimentDataV1(DbExperimentData):
 
         Args:
             callback: Callback function invoked when job finishes successfully.
-                The following positional arguments are provided to the callback function:
-                    * This ``DbExperimentData`` object.
-                    * Additional keyword arguments passed to this method.
+                      The callback function will be called as
+                      ``callback(expdata, **kwargs)`` where `expdata` is this
+                      ``DbExperimentData`` object, and `kwargs` are any additional
+                      keywork arguments passed to this method.
             timeout: Timeout waiting for job to finish, if `data` is a ``Job``.
             **kwargs: Keyword arguments to be passed to the callback function.
         """
