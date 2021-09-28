@@ -168,7 +168,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             "or the calibrations and no default schedule method was implemented."
         )
 
-    def validate_schedule(self, schedule: ScheduleBlock):
+    def _validate_schedule(self, schedule: ScheduleBlock):
         """Subclass can implement this method to validate the schedule they use.
 
         Validating schedules may include checks on the number of parameters and
