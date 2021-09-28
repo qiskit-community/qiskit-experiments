@@ -47,7 +47,7 @@ class TestDragEndToEnd(QiskitTestCase):
     def test_end_to_end(self):
         """Test the drag experiment end to end."""
 
-        backend = DragBackend()
+        backend = DragBackend(gate_name="xp")
 
         drag = DragCal(0)
 
@@ -59,7 +59,7 @@ class TestDragEndToEnd(QiskitTestCase):
         self.assertEqual(result.quality, "good")
 
         # Small leakage will make the curves very flat.
-        backend = DragBackend(leakage=0.005)
+        backend = DragBackend(leakage=0.005, gate_name="xp")
 
         drag = DragCal(0)
         drag.set_analysis_options(p0={"beta": 1.2})
@@ -71,11 +71,11 @@ class TestDragEndToEnd(QiskitTestCase):
         meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
 
         self.assertEqual(meas_level, MeasLevel.KERNELED)
-        self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
+        self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
         self.assertEqual(result.quality, "good")
 
         # Large leakage will make the curves oscillate quickly.
-        backend = DragBackend(leakage=0.05)
+        backend = DragBackend(leakage=0.05, gate_name="xp")
 
         drag = DragCal(0)
         drag.set_run_options(shots=200)
@@ -104,18 +104,29 @@ class TestDragEndToEnd(QiskitTestCase):
 class TestDragCircuits(QiskitTestCase):
     """Test the circuits of the drag calibration."""
 
+    def setUp(self):
+        """Setup some schedules."""
+        super().setUp()
+
+        beta = Parameter("β")
+
+        with pulse.build(name="xp") as xp:
+            pulse.play(Drag(duration=160, amp=0.208519, sigma=40, beta=beta), DriveChannel(0))
+
+        self.x_plus = xp
+
     def test_default_circuits(self):
         """Test the default circuit."""
 
-        backend = DragBackend(leakage=0.005)
+        backend = DragBackend(leakage=0.005, gate_name="xp")
 
         drag = DragCal(0)
-        drag.set_experiment_options(reps=[2, 4, 8])
-        circuits = drag.circuits(DragBackend())
+        drag.set_experiment_options(reps=[2, 4, 8], schedule=self.x_plus)
+        circuits = drag.circuits(DragBackend(gate_name="xp"))
 
         for idx, expected in enumerate([4, 8, 16]):
             ops = transpile(circuits[idx * 51], backend).count_ops()
-            self.assertEqual(ops["Rp"] + ops["Rm"], expected)
+            self.assertEqual(ops["xp"], expected)
 
     def test_raise_multiple_parameter(self):
         """Check that the experiment raises with unassigned parameters."""
@@ -126,22 +137,7 @@ class TestDragCircuits(QiskitTestCase):
         with pulse.build(name="xp") as xp:
             pulse.play(Drag(duration=160, amp=amp, sigma=40, beta=beta), DriveChannel(0))
 
-        backend = DragBackend(leakage=0.05)
-
-        drag = DragCal(1)
-        drag.set_experiment_options(betas=np.linspace(-3, 3, 21))
-        drag.set_experiment_options(schedule=xp)
-
-        with self.assertRaises(CalibrationError):
-            drag.run(backend).analysis_results(0)
-
-    def test_raise_inconsistent_parameter(self):
-        """Check that the experiment raises with unassigned parameters."""
-
-        with pulse.build(name="xp") as xp:
-            pulse.play(Drag(duration=160, amp=0.2, sigma=40, beta=Parameter("β")), DriveChannel(0))
-
-        backend = DragBackend(leakage=0.05)
+        backend = DragBackend(leakage=0.05, gate_name="xp")
 
         drag = DragCal(1)
         drag.set_experiment_options(betas=np.linspace(-3, 3, 21))

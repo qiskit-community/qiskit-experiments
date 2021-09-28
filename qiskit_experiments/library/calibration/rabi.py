@@ -161,8 +161,7 @@ class Rabi(BaseCalibrationExperiment):
             CalibrationError: If the schedule_name or calibration parameter name are not contained
                 in the list of angles to update.
         """
-        super().__init__([qubit])
-        self.calibration_options.calibrations = cals
+        super().__init__([qubit], cals)
         self.calibration_options.cal_parameter_name = cal_parameter_name
         self.calibration_options.schedule_name = schedule_name
 
@@ -173,7 +172,7 @@ class Rabi(BaseCalibrationExperiment):
             self.experiment_options.amplitudes = amplitudes
 
     # pylint: disable=arguments-differ
-    def get_schedule_from_defaults(self, backend: Optional[Backend] = None) -> ScheduleBlock:
+    def _get_schedule_from_defaults(self, backend: Optional[Backend] = None) -> ScheduleBlock:
         """Get the schedules from the default options."""
         with pulse.build(backend=backend, name="rabi") as default_schedule:
             pulse.play(
@@ -198,7 +197,7 @@ class Rabi(BaseCalibrationExperiment):
         self._validate_parameters(schedule, 1)
 
         # consistency check between the schedule and the amplitudes to update.
-        if self.calibration_options.calibrations is not None:
+        if self._cals is not None:
             param = self.calibration_options.cal_parameter_name
             for update_tuple in self.calibration_options.angles_schedules:
                 if update_tuple[1] == param and update_tuple[2] == schedule.name:
@@ -249,7 +248,7 @@ class Rabi(BaseCalibrationExperiment):
         for amp in self.experiment_options.amplitudes:
             amp = np.round(amp, decimals=6)
             assigned_circ = circuit.assign_parameters({param: amp}, inplace=False)
-            assigned_circ.metadata = self.circuit_metadata(xval=amp)
+            assigned_circ.metadata = self._circuit_metadata(xval=amp)
 
             circs.append(assigned_circ)
 
@@ -261,10 +260,9 @@ class Rabi(BaseCalibrationExperiment):
         Args:
             experiment_data: The experiment data to use for the update.
         """
-        calibrations = self.calibration_options.calibrations
         angles_schedules = self.calibration_options.angles_schedules
 
-        self.__updater__.update(calibrations, experiment_data, angles_schedules=angles_schedules)
+        self.__updater__.update(self._cals, experiment_data, angles_schedules=angles_schedules)
 
 
 class EFRabi(Rabi):
@@ -320,7 +318,7 @@ class EFRabi(Rabi):
 
         return options
 
-    def get_schedule_from_defaults(self, backend: Optional[Backend] = None) -> ScheduleBlock:
+    def _get_schedule_from_defaults(self, backend: Optional[Backend] = None) -> ScheduleBlock:
         """Create the default schedule for the EFRabi gate with a frequency shift to the 1-2
         transition."""
 

@@ -20,6 +20,7 @@ from qiskit.providers.backend import Backend
 from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
 
+from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.framework.base_experiment import BaseExperiment
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.exceptions import CalibrationError
@@ -60,17 +61,29 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     # The updater class that updates the Calibrations instance
     __updater__ = None
 
-    def __init__(self, qubits: Iterable[int], experiment_type: Optional[str] = None):
+    def __init__(
+        self,
+        qubits: Iterable[int],
+        calibrations: Calibrations,
+        experiment_type: Optional[str] = None
+    ):
         """Initialize the experiment object.
 
         Args:
             qubits: the number of qubits or list of physical qubits for
                     the experiment.
+            calibrations: The calibrations instance with which to initialize the experiment.
             experiment_type: Optional, the experiment type string.
         """
         super().__init__(qubits, experiment_type)
 
         self._calibration_options = self._default_calibration_options()
+        self._cals = calibrations
+
+    @property
+    def calibrations(self) -> Calibrations:
+        """Calibration management object that holds the schedule."""
+        return self._cals
 
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update parameter values in the :class:`Calibrations` instance.
@@ -82,7 +95,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         :class:`FineAmplitude` calibration experiments.
         """
         self.__updater__.update(
-            self.calibration_options.calibrations,
+            self._cals,
             experiment_data,
             parameter=self.calibration_options.cal_parameter_name,
             schedule=self.calibration_options.schedule_name,
@@ -127,7 +140,6 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             A schedule for the corresponding arguments if there exists an instance
             :code:`self.calibration_options.calibrations`.
         """
-        cals = self.calibration_options.calibrations
 
         if sched_name is None:
             sched_name = self.calibration_options.schedule_name
@@ -135,8 +147,8 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         if qubits is None:
             qubits = self.physical_qubits
 
-        if cals is not None:
-            return cals.get_schedule(sched_name, qubits=qubits, assign_params=assign_params)
+        if self._cals is not None:
+            return self._cals.get_schedule(sched_name, qubits=qubits, assign_params=assign_params)
 
         return None
 
@@ -261,15 +273,15 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         Raises:
             CalibrationError: if none of the methods above returned schedules.
         """
-        schedules = self.get_schedule_from_options(option_name)
+        schedules = self._get_schedule_from_options(option_name)
 
         if schedules is None:
-            schedules = self.get_schedule_from_calibrations(qubits, sched_name, assign_params)
+            schedules = self._get_schedule_from_calibrations(qubits, sched_name, assign_params)
 
         if schedules is None:
-            schedules = self.get_schedule_from_defaults(**kwargs)
+            schedules = self._get_schedule_from_defaults(**kwargs)
 
-        self.validate_schedule(schedules)
+        self._validate_schedule(schedules)
 
         return schedules
 
@@ -292,9 +304,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             schedule_name (str): The name of the schedule to retrieve from the calibrations.
             cal_parameter_name (str): The name of the parameter to update in the calibrations.
         """
-        return Options(
-            calibrations=None, auto_update=True, schedule_name=None, cal_parameter_name=None
-        )
+        return Options(auto_update=True, schedule_name=None, cal_parameter_name=None)
 
     @property
     def calibration_options(self) -> Options:
@@ -339,7 +349,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         experiment_data = super().run(backend, analysis, experiment_data, **run_options)
 
         if self.calibration_options.auto_update:
-            if self.calibration_options.calibrations is not None:
+            if self._cals is not None:
                 experiment_data = experiment_data.block_for_results()
                 self.update_calibrations(experiment_data)
 

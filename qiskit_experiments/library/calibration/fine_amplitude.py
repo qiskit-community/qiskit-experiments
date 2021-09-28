@@ -164,8 +164,7 @@ class FineAmplitude(BaseCalibrationExperiment):
                 be stored in the experiment options and defaults to "amp".
             repetitions: The list of times to repeat the gate in each circuit.
         """
-        super().__init__([qubit])
-        self.calibration_options.calibrations = cals
+        super().__init__([qubit], cals)
         self.calibration_options.cal_parameter_name = cal_parameter_name
         self.calibration_options.schedule_name = schedule_name
 
@@ -236,7 +235,7 @@ class FineAmplitude(BaseCalibrationExperiment):
             circuit = QuantumCircuit(1)
             circuit.x(0)
             circuit.measure_all()
-            circuit.metadata = self.circuit_metadata(xval=(np.pi - phase_offset) / angle_per_gate)
+            circuit.metadata = self._circuit_metadata(xval=(np.pi - phase_offset) / angle_per_gate)
             circuits.append(circuit)
 
         for repetition in repetitions:
@@ -247,7 +246,7 @@ class FineAmplitude(BaseCalibrationExperiment):
 
             circuit.measure_all()
             circuit.add_calibration(gate, (self.physical_qubits[0],), schedule, params=[])
-            circuit.metadata = self.circuit_metadata(xval=repetition)
+            circuit.metadata = self._circuit_metadata(xval=repetition)
 
             circuits.append(circuit)
 
@@ -262,7 +261,6 @@ class FineAmplitude(BaseCalibrationExperiment):
         Raises:
             CalibrationError: If the schedule name is None in the calibration options.
         """
-        calibrations = self.calibration_options.calibrations
         angle = self.analysis_options.angle_per_gate
         name = self.calibration_options.schedule_name
         parameter_name = self.calibration_options.cal_parameter_name
@@ -273,7 +271,7 @@ class FineAmplitude(BaseCalibrationExperiment):
             )
 
         self.__updater__.update(
-            calibrations, experiment_data, angles_schedules=[(angle, parameter_name, name)]
+            self._cals, experiment_data, angles_schedules=[(angle, parameter_name, name)]
         )
 
 
