@@ -102,7 +102,8 @@ class BaseAnalysis(ABC):
             experiment_data.add_figures(figures)
 
         # Run post analysis
-        experiment_data.experiment._post_analysis_action(experiment_data)
+        if experiment_data.experiment is not None:
+            experiment_data.experiment._post_analysis_action(experiment_data)
 
         return experiment_data
 
