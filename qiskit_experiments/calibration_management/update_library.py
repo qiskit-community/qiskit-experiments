@@ -207,7 +207,7 @@ class FineDrag(BaseUpdater):
         exp_data: ExperimentData,
         parameter: str,
         schedule: Union[ScheduleBlock, str],
-        result_index: Optional[int] = None,
+        result_index: Optional[int] = -1,
         group: str = "default",
         target_angle: float = np.pi,
         **options,
@@ -242,9 +242,8 @@ class FineDrag(BaseUpdater):
         if sigma is None:
             raise CalibrationError(f"Could not infer sigma from {schedule}.")
 
-        result = BaseUpdater._get_result(exp_data, result_index)
+        d_theta = exp_data.analysis_results("d_theta")[result_index].value
 
-        d_theta = result.value.value[result.extra["popt_keys"].index("d_theta")]
         d_delta = -0.25 * np.sqrt(np.pi) * d_theta * sigma / ((target_angle ** 2) / 4)
 
         old_beta = calibrations.get_parameter_value(parameter, qubits, schedule, group=group)
