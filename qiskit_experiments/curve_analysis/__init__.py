@@ -19,6 +19,9 @@ Curve Analysis (:mod:`qiskit_experiments.curve_analysis`)
 
 Classes
 =======
+
+These are the base class and internal data structures to implement a curve analysis.
+
 .. autosummary::
     :toctree: ../stubs/
 
@@ -29,8 +32,25 @@ Classes
     ParameterRepr
     FitOptions
 
+Standard Analysis
+=================
+
+These classes provide typical analysis functionality.
+These are expected to be reused in multiple experiments.
+By overriding default options from the class method :meth:`_default_analysis_options` of
+your experiment class, you can still tailor the standard analysis classes to your experiment.
+
+.. autosummary::
+    :toctree: ../stubs/
+    :template: autosummary/analysis.rst
+
+    OscillationAnalysis
+    ResonanceAnalysis
+
 Functions
 =========
+
+These are the helper functions to realize a part of curve fitting functionality.
 
 Curve Fitting
 *************
@@ -85,3 +105,9 @@ from .curve_fit import (
 from .visualization import plot_curve_fit, plot_errorbar, plot_scatter, FitResultPlotters
 from . import guess
 from . import fit_function
+
+# standard analysis
+from .standard_analysis import (
+    OscillationAnalysis,
+    ResonanceAnalysis,
+)
