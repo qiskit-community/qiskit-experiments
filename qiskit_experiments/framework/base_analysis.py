@@ -101,6 +101,10 @@ class BaseAnalysis(ABC):
         if figures:
             experiment_data.add_figures(figures)
 
+        # Run post analysis
+        if experiment_data.experiment is not None:
+            experiment_data.experiment._post_analysis_action(experiment_data)
+
         return experiment_data
 
     def _format_analysis_result(self, data, experiment_id, experiment_components=None):

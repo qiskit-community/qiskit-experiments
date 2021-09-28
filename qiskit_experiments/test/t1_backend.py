@@ -36,7 +36,7 @@ class T1Backend(BackendV1):
         configuration = QasmBackendConfiguration(
             backend_name="t1_simulator",
             backend_version="0",
-            n_qubits=int(1e6),
+            n_qubits=100,
             basis_gates=["barrier", "x", "delay", "measure"],
             gates=[],
             local=True,

@@ -220,12 +220,16 @@ class StandardRB(BaseExperiment):
                     return meta
         return None
 
-    def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
-        """Additional post-processing of transpiled circuits before running on backend"""
-        for c in circuits:
-            meta = self._get_circuit_metadata(c)
+    def _post_transpile_action(
+        self, circuits: List[QuantumCircuit], backend: Backend
+    ) -> List[QuantumCircuit]:
+        """Count gate operations in each circuit and update metadata."""
+        for circuit in circuits:
+            meta = self._get_circuit_metadata(circuit)
             if meta is not None:
-                c_count_ops = RBUtils.count_ops(c, self.physical_qubits)
+                c_count_ops = RBUtils.count_ops(circuit, self.physical_qubits)
                 circuit_length = meta["xval"]
                 count_ops = [(key, (value, circuit_length)) for key, value in c_count_ops.items()]
                 meta.update({"count_ops": count_ops})
+
+        return circuits

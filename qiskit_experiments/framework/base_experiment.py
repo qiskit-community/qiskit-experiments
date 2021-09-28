@@ -22,7 +22,6 @@ from qiskit import transpile, assemble, QuantumCircuit
 from qiskit.providers import BaseJob
 from qiskit.providers.backend import Backend
 from qiskit.providers.basebackend import BaseBackend as LegacyBackend
-from qiskit.test.mock import FakeBackend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit_experiments.framework import Options
@@ -96,10 +95,6 @@ class BaseExperiment(ABC):
 
         Returns:
             The experiment data object.
-
-        Raises:
-            QiskitError: if experiment is run with an incompatible existing
-                         ExperimentData container.
         """
         # Create experiment data container
         experiment_data = self._initialize_experiment_data(backend, experiment_data)
@@ -109,43 +104,24 @@ class BaseExperiment(ABC):
         run_opts.update_options(**run_options)
         run_opts = run_opts.__dict__
 
-        # Scheduling parameters
-        if backend.configuration().simulator is False and isinstance(backend, FakeBackend) is False:
-            timing_constraints = getattr(self.transpile_options.__dict__, "timing_constraints", {})
-            timing_constraints["acquire_alignment"] = getattr(
-                timing_constraints, "acquire_alignment", 16
-            )
-            scheduling_method = getattr(
-                self.transpile_options.__dict__, "scheduling_method", "alap"
-            )
-            self.set_transpile_options(
-                timing_constraints=timing_constraints, scheduling_method=scheduling_method
-            )
-
         # Generate and transpile circuits
-        transpile_opts = copy.copy(self.transpile_options.__dict__)
-        transpile_opts["initial_layout"] = list(self._physical_qubits)
-        circuits = transpile(self.circuits(backend), backend, **transpile_opts)
-        self._postprocess_transpiled_circuits(circuits, backend, **run_options)
+        circuits = self.run_transpile(backend)
 
+        # Execute experiment
         if isinstance(backend, LegacyBackend):
             qobj = assemble(circuits, backend=backend, **run_opts)
             job = backend.run(qobj)
         else:
             job = backend.run(circuits, **run_opts)
 
-        # Add Job to ExperimentData and add analysis for post processing.
-        run_analysis = None
-
         # Add experiment option metadata
         self._add_job_metadata(experiment_data, job, **run_opts)
 
         if analysis and self.__analysis_class__ is not None:
-            run_analysis = self.run_analysis
+            experiment_data.add_data(job, post_processing_callback=self.run_analysis)
+        else:
+            experiment_data.add_data(job)
 
-        experiment_data.add_data(job, post_processing_callback=run_analysis)
-
-        # Return the ExperimentData future
         return experiment_data
 
     def _initialize_experiment_data(
@@ -167,11 +143,106 @@ class BaseExperiment(ABC):
 
         return experiment_data._copy_metadata()
 
-    def run_analysis(self, experiment_data, **options) -> ExperimentData:
+    def _pre_transpile_action(self, backend: Backend):
+        """An extra subroutine executed before transpilation.
+
+        Note:
+            This method may be implemented by a subclass that requires to update the
+            transpiler configuration based on the given backend instance,
+            otherwise the transpiler configuration should be updated with the
+            :py:meth:`_default_transpile_options` method.
+
+            For example, some specific transpiler options might change depending on the real
+            hardware execution or circuit simulator execution.
+            By default, this method does nothing.
+
+        Args:
+            backend: Target backend.
+        """
+        pass
+
+    # pylint: disable = unused-argument
+    def _post_transpile_action(
+        self, circuits: List[QuantumCircuit], backend: Backend
+    ) -> List[QuantumCircuit]:
+        """An extra subroutine executed after transpilation.
+
+        Note:
+            This method may be implemented by a subclass that requires to update the
+            circuit or its metadata after transpilation.
+            Without this method, the transpiled circuit will be immediately executed on the backend.
+            This method enables the experiment to modify the circuit with pulse gates,
+            or some extra metadata regarding the transpiled sequence of instructions.
+
+            By default, this method just passes transpiled circuits to the execution chain.
+
+        Args:
+            circuits: List of transpiled circuits.
+            backend: Target backend.
+
+        Returns:
+            List of circuits to execute.
+        """
+        return circuits
+
+    def run_transpile(self, backend: Backend, **options) -> List[QuantumCircuit]:
+        """Run transpile and return transpiled circuits.
+
+        Args:
+            backend: Target backend.
+            options: User provided runtime options.
+
+        Returns:
+            Transpiled circuit to execute.
+        """
+        # Run pre transpile if implemented by subclasses.
+        self._pre_transpile_action(backend)
+
+        # Get transpile options
+        transpile_options = copy.copy(self.transpile_options)
+        transpile_options.update_options(
+            initial_layout=list(self._physical_qubits),
+            **options,
+        )
+        transpile_options = transpile_options.__dict__
+
+        circuits = transpile(circuits=self.circuits(backend), backend=backend, **transpile_options)
+
+        # Run post transpile. This is implemented by each experiment subclass.
+        circuits = self._post_transpile_action(circuits, backend)
+
+        return circuits
+
+    def _post_analysis_action(self, experiment_data: ExperimentData):
+        """An extra subroutine executed after analysis.
+
+        Note:
+            This method may be implemented by a subclass that requires to perform
+            extra data processing based on the analyzed experimental result.
+
+            Note that the analysis routine will not complete until the backend job
+            is executed, and this method will be called after the analysis routine
+            is completed though a handler of the experiment result will be immediately
+            returned to users (a future object). This method is automatically triggered
+            when the analysis is finished, and will be processed in background.
+
+            If this method updates some other (mutable) objects, you may need manage
+            synchronization of update of the object data. Otherwise you may want to
+            call :meth:`block_for_results` method of the ``experiment_data`` here
+            to freeze processing chain until the job result is returned.
+
+            By default, this method does nothing.
+
+        Args:
+            experiment_data: A future object of the experimental result.
+        """
+        pass
+
+    def run_analysis(self, experiment_data: ExperimentData, **options) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
         Args:
-            experiment_data (ExperimentData): the experiment data to analyze.
+            experiment_data: The experiment data to analyze.
             options: additional analysis options. Any values set here will
                      override the value from :meth:`analysis_options`
                      for the current run.
@@ -180,7 +251,7 @@ class BaseExperiment(ABC):
             An experiment data object containing the analysis results and figures.
 
         Raises:
-            QiskitError: if experiment_data container is not valid for analysis.
+            QiskitError: Method is called with an empty experiment result.
         """
         # Get analysis options
         analysis_options = copy.copy(self.analysis_options)
@@ -334,10 +405,6 @@ class BaseExperiment(ABC):
             fields: The fields to update the options
         """
         self._analysis_options.update_options(**fields)
-
-    def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
-        """Additional post-processing of transpiled circuits before running on backend"""
-        pass
 
     def _metadata(self) -> Dict[str, any]:
         """Return experiment metadata for ExperimentData.

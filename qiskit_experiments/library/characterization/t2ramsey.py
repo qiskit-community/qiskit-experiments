@@ -76,6 +76,14 @@ class T2Ramsey(BaseExperiment):
 
         return options
 
+    @classmethod
+    def _default_transpile_options(cls) -> Options:
+        """Default transpile options."""
+        options = super()._default_transpile_options()
+        options.scheduling_method = "alap"
+
+        return options
+
     def __init__(
         self,
         qubit: int,
