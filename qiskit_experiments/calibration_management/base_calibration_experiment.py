@@ -102,7 +102,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         """
         return self.experiment_options.get(option_name, None)
 
-    def get_schedule_from_calibrations(
+    def _get_schedule_from_calibrations(
         self,
         qubits: Optional[Tuple[int, ...]] = None,
         sched_name: Optional[str] = None,
