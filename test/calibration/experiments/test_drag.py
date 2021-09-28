@@ -39,7 +39,7 @@ class TestDragEndToEnd(QiskitTestCase):
         beta = Parameter("β")
 
         with pulse.build(name="xp") as xp:
-            pulse.play(Drag(duration=160, amp=0.208519, sigma=40, beta=beta), DriveChannel(0))
+            pulse.play(Drag(duration=160, amp=0.208519, sigma=40, beta=beta), DriveChannel(1))
 
         self.x_plus = xp
         self.test_tol = 0.05
@@ -49,7 +49,7 @@ class TestDragEndToEnd(QiskitTestCase):
 
         backend = DragBackend(gate_name="xp")
 
-        drag = DragCal(0)
+        drag = DragCal(1)
 
         drag.set_experiment_options(schedule=self.x_plus)
         expdata = drag.run(backend).block_for_results()
@@ -61,10 +61,10 @@ class TestDragEndToEnd(QiskitTestCase):
         # Small leakage will make the curves very flat.
         backend = DragBackend(leakage=0.005, gate_name="xp")
 
-        drag = DragCal(0)
+        drag = DragCal(1)
         drag.set_analysis_options(p0={"beta": 1.2})
         drag.set_experiment_options(schedule=self.x_plus)
-        drag.set_run_options(meas_level=MeasLevel.KERNELED)
+        drag.set_run_options(meas_level=MeasLevel.KERNELED, meas_return="avg")
         exp_data = drag.run(backend).block_for_results()
         result = exp_data.analysis_results(1)
 
@@ -77,12 +77,12 @@ class TestDragEndToEnd(QiskitTestCase):
         # Large leakage will make the curves oscillate quickly.
         backend = DragBackend(leakage=0.05, gate_name="xp")
 
-        drag = DragCal(0)
+        drag = DragCal(1)
         drag.set_run_options(shots=200)
         drag.set_experiment_options(betas=np.linspace(-4, 4, 31))
         drag.set_analysis_options(p0={"beta": 1.8, "freq0": 0.08, "freq1": 0.16, "freq2": 0.32})
         drag.set_experiment_options(schedule=self.x_plus)
-        exp_data = drag.run(backend)
+        exp_data = drag.run(backend).block_for_results()
         result = exp_data.analysis_results(1)
 
         meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
@@ -97,7 +97,7 @@ class TestDragEndToEnd(QiskitTestCase):
         cals = BackendCalibrations(FakeArmonk(), library=library)
 
         self.assertEqual(cals.get_parameter_value("β", (0,), "x"), 0.0)
-        DragCal(0, cals=cals).run(DragBackend())
+        DragCal(0, cals=cals).run(DragBackend(gate_name="x"))
         self.assertTrue(abs(cals.get_parameter_value("β", (0,), "x") - 2.0) < self.test_tol)
 
 
@@ -139,7 +139,7 @@ class TestDragCircuits(QiskitTestCase):
 
         backend = DragBackend(leakage=0.05, gate_name="xp")
 
-        drag = DragCal(1)
+        drag = DragCal(0)
         drag.set_experiment_options(betas=np.linspace(-3, 3, 21))
         drag.set_experiment_options(schedule=xp)
 

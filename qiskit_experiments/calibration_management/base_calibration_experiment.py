@@ -65,7 +65,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         self,
         qubits: Iterable[int],
         calibrations: Calibrations,
-        experiment_type: Optional[str] = None
+        experiment_type: Optional[str] = None,
     ):
         """Initialize the experiment object.
 

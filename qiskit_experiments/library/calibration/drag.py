@@ -201,7 +201,7 @@ class DragCal(BaseCalibrationExperiment):
 
         return sched
 
-    def validate_schedule(self, schedule: ScheduleBlock):
+    def _validate_schedule(self, schedule: ScheduleBlock):
         """Validate any drag schedules.
 
         Raises:
