@@ -12,7 +12,7 @@
 
 """Fine DRAG calibration analysis."""
 
-from .error_amplification_analysis import ErrorAmplificationAnalysis
+from qiskit_experiments.curve_analysis.standard_analysis.error_amplification_analysis import ErrorAmplificationAnalysis
 
 
 class FineDragAnalysis(ErrorAmplificationAnalysis):

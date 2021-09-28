@@ -56,7 +56,8 @@ Calibration analysis
     :template: autosummary/analysis.rst
 
     DragCalAnalysis
-    FineAmplitudeAnalysis
+    FineDragAnalysis
+    RamseyXYAnalysis
 
 Calibrations management
 =======================
@@ -71,5 +72,5 @@ from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
 from .ramsey_xy import RamseyXY
 
 from .analysis.drag_analysis import DragCalAnalysis
-from .analysis.error_amplification_analysis import ErrorAmplificationAnalysis
+from .analysis.fine_drag_analysis import FineDragAnalysis
 from .analysis.remsey_xy_analysis import RamseyXYAnalysis
