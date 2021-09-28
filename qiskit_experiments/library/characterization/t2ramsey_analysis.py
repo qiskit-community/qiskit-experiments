@@ -74,7 +74,7 @@ class T2RamseyAnalysis(BaseAnalysis):
     """
 
     @classmethod
-    def _default_options(cls):
+    def _default_options(cls) -> Options:
         r"""Default analysis options.
 
         Analysis Options:
@@ -84,7 +84,12 @@ class T2RamseyAnalysis(BaseAnalysis):
                 for the fit parameters.
             plot (bool): Create a graph if and only if True.
         """
-        return Options(user_p0=None, user_bounds=None)
+        options = super()._default_options()
+
+        options.user_p0 = None
+        options.user_bounds = None
+
+        return options
 
     # pylint: disable=arguments-differ, unused-argument
     def _run_analysis(
