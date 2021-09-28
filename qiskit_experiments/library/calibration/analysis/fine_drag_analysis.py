@@ -12,7 +12,7 @@
 
 """Fine DRAG calibration analysis."""
 
-from .fine_amplitude_analysis import ErrorAmplificationAnalysis
+from .error_amplification_analysis import ErrorAmplificationAnalysis
 
 
 class FineDragAnalysis(ErrorAmplificationAnalysis):

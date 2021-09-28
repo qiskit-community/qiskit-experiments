@@ -73,5 +73,5 @@ from .ramsey_xy import RamseyXY
 
 from .analysis.oscillation_analysis import OscillationAnalysis
 from .analysis.drag_analysis import DragCalAnalysis
-from .analysis.fine_amplitude_analysis import ErrorAmplificationAnalysis
+from .analysis.error_amplification_analysis import ErrorAmplificationAnalysis
 from .analysis.remsey_xy_analysis import RamseyXYAnalysis
