@@ -55,7 +55,6 @@ Calibration analysis
     :toctree: ../stubs/
     :template: autosummary/analysis.rst
 
-    OscillationAnalysis
     DragCalAnalysis
     FineAmplitudeAnalysis
 
@@ -71,7 +70,6 @@ from .rabi import Rabi, EFRabi
 from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
 from .ramsey_xy import RamseyXY
 
-from .analysis.oscillation_analysis import OscillationAnalysis
 from .analysis.drag_analysis import DragCalAnalysis
 from .analysis.error_amplification_analysis import ErrorAmplificationAnalysis
 from .analysis.remsey_xy_analysis import RamseyXYAnalysis
