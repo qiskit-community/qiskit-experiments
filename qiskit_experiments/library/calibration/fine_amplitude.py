@@ -252,7 +252,9 @@ class FineAmplitude(BaseCalibrationExperiment):
             )
 
         self.__updater__.update(
-            self._cals, experiment_data, angles_schedules=[(angle, self._param_name, self._sched_name)]
+            self._cals,
+            experiment_data,
+            angles_schedules=[(angle, self._param_name, self._sched_name)],
         )
 
 

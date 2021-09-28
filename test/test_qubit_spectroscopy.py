@@ -167,6 +167,6 @@ class TestQubitSpectroscopy(QiskitTestCase):
 
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
-        RoughFrequency(0, frequencies, cals=cals).run(backend)
+        RoughFrequency(0, frequencies, calibrations=cals).run(backend)
         post_freq = cals.get_parameter_value(cals.__qubit_freq_parameter__, (0,))
         self.assertTrue(abs(post_freq - freq01 - 5e6) < 1e6)

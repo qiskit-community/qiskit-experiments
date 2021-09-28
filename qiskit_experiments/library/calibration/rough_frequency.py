@@ -34,8 +34,9 @@ class RoughFrequency(BaseCalibrationExperiment, QubitSpectroscopy):
         self,
         qubit: int,
         frequencies: Union[List[float], np.array],
-        cals: Optional[BackendCalibrations] = None,
+        calibrations: Optional[BackendCalibrations] = None,
         unit: Optional[str] = "Hz",
+        auto_update: Optional[bool] = True,
         absolute: bool = True,
     ):
         """See :class:`QubitSpectroscopy` for detailed documentation.
@@ -55,7 +56,10 @@ class RoughFrequency(BaseCalibrationExperiment, QubitSpectroscopy):
 
         """
         QubitSpectroscopy.__init__(self, qubit, frequencies, unit, absolute)
-        self._cals = cals
+        self._cals = calibrations
+        self._sched_name = None
+        self._param_name = None
+        self._auto_update = auto_update
 
 
 class RoughEFFrequency(BaseCalibrationExperiment, EFSpectroscopy):
