@@ -337,3 +337,13 @@ class TestBatchExperiment(QiskitTestCase):
         ref_circ1.measure(1, 0)
 
         self.assertListEqual(test_circs, [ref_circ0, ref_circ1])
+
+    def test_keep_qubit_ordering(self):
+        """Test if qubit ordering is preserved."""
+
+        exp0 = FakeExperimentCommon(qubits=[1, 0])
+        exp1 = FakeExperimentCommon(qubits=[1, 0])
+
+        par_exp = BatchExperiment([exp0, exp1])
+
+        self.assertTupleEqual(par_exp.physical_qubits, (1, 0))
