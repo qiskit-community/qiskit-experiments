@@ -153,7 +153,6 @@ class FineDrag(BaseExperiment):
         options = super()._default_experiment_options()
         options.repetitions = list(range(20))
         options.schedule = None
-        options.normalization = True
         options.add_sx = None
 
         return options
@@ -162,6 +161,7 @@ class FineDrag(BaseExperiment):
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
+        options.normalization = True
         options.angle_per_gate = 0.0
         options.phase_offset = -np.pi / 2
         options.amp = 1.0
