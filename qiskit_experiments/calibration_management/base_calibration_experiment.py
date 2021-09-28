@@ -140,7 +140,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
         return None
 
-    def get_schedule_from_defaults(self, **kwargs) -> Optional[ScheduleBlock]:
+    def _get_schedule_from_defaults(self, **kwargs) -> Optional[ScheduleBlock]:
         """Get the schedules based on default experiment options.
 
         Subclasses can override this method to define and get default schedules based on
