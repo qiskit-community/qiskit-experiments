@@ -75,7 +75,7 @@ class QubitSpectroscopy(BaseExperiment):
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
-        options.result_parameters = [ParameterRepr("freq", "f01", "Hz")]
+        options.result_parameters = [ParameterRepr("freq", "freq", "Hz")]
         options.normalization = True
         options.xval_unit = "Hz"
 
