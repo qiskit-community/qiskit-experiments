@@ -15,7 +15,6 @@
 from abc import ABC
 from typing import Any, Dict, Iterable, Optional, Tuple
 
-from qiskit.providers.options import Options
 from qiskit.providers.backend import Backend
 from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
@@ -29,9 +28,8 @@ from qiskit_experiments.exceptions import CalibrationError
 class BaseCalibrationExperiment(BaseExperiment, ABC):
     """An abstract base class for calibration experiments.
 
-    This abstract base class specifies an experiment and how to update an
-    optional instance of :class:`Calibrations` specified in the calibration options
-    as `calibrations`. Furthermore, the calibration options also specify
+    This abstract base class specifies an experiment and how to update an optional
+    instance of :class:`Calibrations`. Furthermore, calibration experiments also specify
     an auto_update variable which, by default, is set to True. If this variable,
     is True then the run method of the experiment will call :meth:`block_for_results`
     and update the calibrations instance once the backend has returned the data.
@@ -43,19 +41,25 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     must override at least one of the following methods used by :meth:`get_schedules`
     to set the schedules:
 
-    #. :meth:`get_schedules_from_options`
+    #. :meth:`_get_schedules_from_options`
 
-    #. :meth:`get_schedules_from_calibrations`
+    #. :meth:`_get_schedules_from_calibrations`
 
-    #. :meth:`get_schedules_from_defaults`
+    #. :meth:`_get_schedules_from_defaults`
 
-    These methods are called by :meth:`get_schedules`. Furthermore, developers must implement
-    the :meth:`update_calibrations` which is responsible for updating the values of the
-    parameters stored in an instance of :class:`Calibrations`. This may require the developer
-    to set the class variable :code:`__updater__` if they wish to use the update classes
-    implemented in :mod:`qiskit_experiments.calibration_management.update_library`. In addition
-    to these calibration specific requirements, the developer must set the analysis method with
-    the class variable :code:`__analysis_class__` and any default experiment options.
+    These methods are called by :meth:`get_schedules`.
+
+    The :meth:`update_calibrations` method is responsible for updating the values of the parameters
+    stored in the instance of :class:`Calibrations`. Here, :class:`BaseCalibrationExperiment`
+    provides a default update methodology that subclasses can override if a more elaborate behaviour
+    is needed. At the minimum the developer must set the class variable :code:`__updater__` which
+    should have an :code:`update` method and can be chosen from the library
+    :mod:`qiskit_experiments.calibration_management.update_library`. See also
+    :class:`qiskit_experiments.calibration_management.update_library.BaseUpdater`. If no updater
+    is specified the experiment will still run but no update of the calibrations will be performed.
+
+    In addition to the calibration specific requirements, the developer must set the analysis method
+    with the class variable :code:`__analysis_class__` and any default experiment options.
     """
 
     # The updater class that updates the Calibrations instance
@@ -116,12 +120,13 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         more sophisticated behaviour as is the case for the :class:`Rabi` and
         :class:`FineAmplitude` calibration experiments.
         """
-        self.__updater__.update(
-            self._cals,
-            experiment_data,
-            parameter=self._param_name,
-            schedule=self._sched_name,
-        )
+        if self.__updater__ is not None:
+            self.__updater__.update(
+                self._cals,
+                experiment_data,
+                parameter=self._param_name,
+                schedule=self._sched_name,
+            )
 
     def _get_schedule_from_options(self, option_name: str) -> ScheduleBlock:
         """Get a schedule from the experiment options.
@@ -154,13 +159,13 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             qubits: The qubits for which to fetch the schedules. If None is given this will
                 default to the physical qubits of the experiment.
             sched_name: The name of the schedule to fetch from the calibrations. If None is
-                gven this will default to :code:`schedule_name` in the calibration options.
+                gven this will default to :code:`self._sched_name`.
             assign_params: A dict to specify parameters in the schedule that are
                 to be mapped to an unassigned parameter.
 
         Returns:
             A schedule for the corresponding arguments if there exists an instance
-            :code:`self.calibration_options.calibrations`.
+            :code:`self._cals`.
         """
 
         if sched_name is None:
@@ -277,9 +282,8 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             qubits: The qubits for which to get the schedule in the calibrations. If None is given
                 this will default to the physical qubits of the experiment.
             sched_name: The name of the schedule to retrieve from the instance of
-                :class:`Calibrations` stored under the calibration options. If this is None then
-                :meth:`get_schedule_from_calibrations` will default to the :code:`schedule_name`
-                in the calibration options.
+                :class:`Calibrations` stored as a protected variable. If this is None then
+                :meth:`get_schedule_from_calibrations` will default to the :code:`self._sched_name`.
             option_name: The name of the option under which to get the schedule from the experiment
                 options. This will default to "schedule" if None is given.
             assign_params: A dict that :meth:`get_schedule_from_calibrations` can use to leave
