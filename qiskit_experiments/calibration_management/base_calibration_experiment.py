@@ -273,7 +273,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
         return schedules
 
-    def circuit_metadata(self, xval: Any, **kwargs) -> Dict[str, Any]:
+    def _circuit_metadata(self, xval: Any, **kwargs) -> Dict[str, Any]:
         """Return the circuit metadata for the calibration experiment."""
         metadata = {"experiment_type": self._type, "qubits": self.physical_qubits, "xval": xval}
         metadata.update(kwargs)
