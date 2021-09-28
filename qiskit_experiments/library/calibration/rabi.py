@@ -249,6 +249,14 @@ class EFRabi(Rabi):
 
         return options
 
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_analysis_options()
+        options.result_parameters = [ParameterRepr("freq", "rabi_rate_12")]
+
+        return options
+
     def _default_gate_schedule(self, backend: Optional[Backend] = None):
         """Create the default schedule for the EFRabi gate with a frequency shift to the 1-2
         transition."""

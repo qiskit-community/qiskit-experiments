@@ -102,6 +102,7 @@ class BaseUpdater(ABC):
         schedule: Optional[Union[ScheduleBlock, str]],
         result_index: Optional[int] = -1,
         group: str = "default",
+        fit_parameter: Optional[str] = None,
     ):
         """Update the calibrations based on the data.
 
@@ -113,11 +114,14 @@ class BaseUpdater(ABC):
                 is attached.
             result_index: The result index to use which defaults to -1.
             group: The calibrations group to update. Defaults to "default."
+            fit_parameter: The name of the fit parameter in the analysis result. This will default
+                to the class variable :code:`__fit_parameter__` if not given.
 
         Raises:
             CalibrationError: If the analysis result does not contain a frequency variable.
         """
-        value = BaseUpdater.get_value(exp_data, cls.__fit_parameter__, result_index)
+        fit_parameter = fit_parameter or cls.__fit_parameter__
+        value = BaseUpdater.get_value(exp_data, fit_parameter, result_index)
 
         cls._add_parameter_value(
             calibrations, exp_data, value, parameter, schedule=schedule, group=group
@@ -146,6 +150,7 @@ class Frequency(BaseUpdater):
         exp_data: ExperimentData,
         result_index: Optional[int] = None,
         group: str = "default",
+        fit_parameter: Optional[str] = None,
         **options,
     ):
         """Update a qubit frequency from, e.g., QubitSpectroscopy
@@ -158,6 +163,8 @@ class Frequency(BaseUpdater):
             result_index: The result index to use which defaults to -1.
             group: The calibrations group to update. Defaults to "default."
             options: Trailing options.
+            fit_parameter: The name of the fit parameter in the analysis result. This will default
+                to the class variable :code:`__fit_parameter__` if not given.
 
         """
         super().update(
@@ -167,6 +174,7 @@ class Frequency(BaseUpdater):
             schedule=None,
             result_index=result_index,
             group=group,
+            fit_parameter=fit_parameter,
         )
 
 
