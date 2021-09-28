@@ -183,6 +183,7 @@ class TestDbExperimentData(QiskitTestCase):
             with self.subTest(data=data):
                 exp_data.add_data(data)
                 exp_data.add_analysis_callback(_callback)
+                exp_data.block_for_results()
 
         self.assertEqual(len(subtests), called_back_count)
 
