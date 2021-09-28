@@ -238,13 +238,14 @@ class BaseExperiment(ABC):
         """
         pass
 
-    def run_analysis(
-        self, experiment_data: ExperimentData, **options
-    ) -> ExperimentData:
+    def run_analysis(self, experiment_data: ExperimentData, **options) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
         Args:
             experiment_data: The experiment data to analyze.
+            options: additional analysis options. Any values set here will
+                     override the value from :meth:`analysis_options`
+                     for the current run.
 
         Returns:
             An experiment data object containing the analysis results and figures.
