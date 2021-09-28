@@ -413,7 +413,7 @@ class Calibrations:
         qubits = self._to_tuple(qubits)
 
         if isinstance(value, (int, float, complex)):
-            value = ParameterValue(value, datetime.now(timezone.utc).astimezone())
+            value = ParameterValue(value=value, date_time=datetime.now(timezone.utc).astimezone())
 
         param_name = param.name if isinstance(param, Parameter) else param
         sched_name = schedule.name if isinstance(schedule, ScheduleBlock) else schedule
@@ -924,10 +924,16 @@ class Calibrations:
 
         for key in keys:
             for value in self._params[key]:
-                value_dict = dataclasses.asdict(value)
-                value_dict["qubits"] = key.qubits
-                value_dict["parameter"] = key.parameter
+                # Order data: group, schedule, parameter, qubits, value, valid, date_time, exp_id
+
+                _val_dict = dataclasses.asdict(value)
+                value_dict = {}
+                value_dict["group"] = _val_dict["group"]
                 value_dict["schedule"] = key.schedule
+                value_dict["parameter"] = key.parameter
+                value_dict["qubits"] = key.qubits
+                _val_dict.pop("group")
+                value_dict.update(_val_dict)
                 value_dict["date_time"] = value_dict["date_time"].strftime("%Y-%m-%d %H:%M:%S.%f%z")
                 data.append(value_dict)
 
@@ -1049,7 +1055,11 @@ class Calibrations:
 
             for row in reader:
                 param_val = ParameterValue(
-                    row["value"], row["date_time"], row["valid"], row["exp_id"], row["group"]
+                    value=row["value"],
+                    date_time=row["date_time"],
+                    valid=row["valid"],
+                    exp_id=row["exp_id"],
+                    group=row["group"],
                 )
                 key = ParameterKey(row["parameter"], self._to_tuple(row["qubits"]), row["schedule"])
                 self.add_parameter_value(param_val, *key)

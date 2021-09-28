@@ -21,22 +21,24 @@ from qiskit_experiments.exceptions import CalibrationError
 
 @dataclass
 class ParameterValue:
-    """A data class to store parameter values."""
+    """A data class to store parameter values.
+    The order of declaration of variables group, value, valid, date_time,
+    exp_id should be maintained to get the output(s) in the same order"""
+
+    # The group of calibrations to which this parameter belongs
+    group: str = "default"
 
     # Value assumed by the parameter
     value: Union[int, float, complex] = None
 
-    # Data time when the value of the parameter was generated
-    date_time: datetime = datetime.fromtimestamp(0)
-
     # A bool indicating if the parameter is valid
     valid: bool = True
 
+    # Data time when the value of the parameter was generated
+    date_time: datetime = datetime.fromtimestamp(0)
+
     # The experiment from which the value of this parameter was generated.
     exp_id: str = None
-
-    # The group of calibrations to which this parameter belongs
-    group: str = "default"
 
     def __post_init__(self):
         """

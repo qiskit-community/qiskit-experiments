@@ -75,12 +75,24 @@ class TestCalibrationsBasic(QiskitTestCase):
         # Add some parameter values.
         self.date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
 
-        self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", schedule="xp")
-        self.cals.add_parameter_value(ParameterValue(160, self.date_time), "dur", schedule="xp")
-        self.cals.add_parameter_value(ParameterValue(0.2, self.date_time), "amp", 3, "xp")
-        self.cals.add_parameter_value(ParameterValue(0.1, self.date_time), "amp", (3,), "x90p")
-        self.cals.add_parameter_value(ParameterValue(0.08, self.date_time), "amp", (3,), "y90p")
-        self.cals.add_parameter_value(ParameterValue(40, self.date_time), "β", (3,), "xp")
+        self.cals.add_parameter_value(
+            ParameterValue(value=40, date_time=self.date_time), "σ", schedule="xp"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=160, date_time=self.date_time), "dur", schedule="xp"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=0.2, date_time=self.date_time), "amp", 3, "xp"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=0.1, date_time=self.date_time), "amp", (3,), "x90p"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=0.08, date_time=self.date_time), "amp", (3,), "y90p"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=40, date_time=self.date_time), "β", (3,), "xp"
+        )
 
     def test_setup(self):
         """Test that the initial setup behaves as expected."""
@@ -170,7 +182,9 @@ class TestCalibrationsBasic(QiskitTestCase):
         xm = self.cals.get_schedule("xm", (3,))
         self.assertEqual(xm.instructions[0][1].operands[0].amp, -0.2)
 
-        self.cals.add_parameter_value(ParameterValue(0.25, datetime.now()), "amp", (3,), "xp")
+        self.cals.add_parameter_value(
+            ParameterValue(value=0.25, date_time=datetime.now()), "amp", (3,), "xp"
+        )
 
         xp = self.cals.get_schedule("xp", (3,))
         self.assertEqual(xp.instructions[0][1].operands[0].amp, 0.25)
@@ -187,7 +201,9 @@ class TestCalibrationsBasic(QiskitTestCase):
         self.assertEqual(self.cals.get_parameter_value("σ", (3,), "x90p"), 40)
         self.assertEqual(self.cals.get_parameter_value("σ", (3,), "xp"), 40)
 
-        self.cals.add_parameter_value(ParameterValue(50, datetime.now()), "σ", (3,), "xp")
+        self.cals.add_parameter_value(
+            ParameterValue(value=50, date_time=datetime.now()), "σ", (3,), "xp"
+        )
         self.assertEqual(self.cals.get_parameter_value("σ", (3,), "x90p"), 50)
         self.assertEqual(self.cals.get_parameter_value("σ", (3,), "xp"), 50)
 
@@ -296,7 +312,9 @@ class TestOverrideDefaults(QiskitTestCase):
         self.assertEqual(params, [])
 
         # Add a default parameter common to all qubits.
-        self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", schedule="xp")
+        self.cals.add_parameter_value(
+            ParameterValue(value=40, date_time=self.date_time), "σ", schedule="xp"
+        )
         self.assertEqual(len(self.cals.parameters_table()), 1)
 
         # Check that we can get a default parameter in the parameter table
@@ -324,10 +342,18 @@ class TestOverrideDefaults(QiskitTestCase):
         """Helper function."""
 
         # Add the minimum number of parameter values. Sigma is shared across both schedules.
-        self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", schedule="xp")
-        self.cals.add_parameter_value(ParameterValue(0.25, self.date_time), "amp", (3,), "xp")
-        self.cals.add_parameter_value(ParameterValue(0.15, self.date_time), "amp", (0,), "xp")
-        self.cals.add_parameter_value(ParameterValue(10, self.date_time), "β", (3,), "xp")
+        self.cals.add_parameter_value(
+            ParameterValue(value=40, date_time=self.date_time), "σ", schedule="xp"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=0.25, date_time=self.date_time), "amp", (3,), "xp"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=0.15, date_time=self.date_time), "amp", (0,), "xp"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=10, date_time=self.date_time), "β", (3,), "xp"
+        )
         self.cals.add_parameter_value(160, "dur", schedule="xp")
 
     def test_default_schedules(self):
@@ -359,7 +385,9 @@ class TestOverrideDefaults(QiskitTestCase):
 
         # Check that updating sigma updates both schedules.
         later_date_time = datetime.strptime("16/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
-        self.cals.add_parameter_value(ParameterValue(50, later_date_time), "σ", schedule="xp")
+        self.cals.add_parameter_value(
+            ParameterValue(value=50, date_time=later_date_time), "σ", schedule="xp"
+        )
 
         xp0 = self.cals.get_schedule("xp", (0,))
         xp3 = self.cals.get_schedule("xp", (3,))
@@ -374,9 +402,15 @@ class TestOverrideDefaults(QiskitTestCase):
     def test_replace_schedule(self):
         """Test that schedule replacement works as expected."""
 
-        self.cals.add_parameter_value(ParameterValue(0.25, self.date_time), "amp", (3,), "xp")
-        self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", schedule="xp")
-        self.cals.add_parameter_value(ParameterValue(10, self.date_time), "β", (3,), "xp")
+        self.cals.add_parameter_value(
+            ParameterValue(value=0.25, date_time=self.date_time), "amp", (3,), "xp"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=40, date_time=self.date_time), "σ", schedule="xp"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=10, date_time=self.date_time), "β", (3,), "xp"
+        )
 
         # Let's replace the schedule for qubit 3 with a double Drag pulse.
         with pulse.build(name="xp") as sched:
@@ -458,9 +492,9 @@ class TestConcurrentParameters(QiskitTestCase):
 
         date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
 
-        cals.add_parameter_value(ParameterValue(0.25, date_time), "amp", (3,), "xp")
-        cals.add_parameter_value(ParameterValue(0.35, date_time), "amp", (3,), "xp")
-        cals.add_parameter_value(ParameterValue(0.45, date_time), "amp", (3,), "xp")
+        cals.add_parameter_value(ParameterValue(value=0.25, date_time=date_time), "amp", (3,), "xp")
+        cals.add_parameter_value(ParameterValue(value=0.35, date_time=date_time), "amp", (3,), "xp")
+        cals.add_parameter_value(ParameterValue(value=0.45, date_time=date_time), "amp", (3,), "xp")
 
         self.assertEqual(cals.get_parameter_value("amp", 3, "xp"), 0.45)
 
@@ -654,8 +688,12 @@ class TestInstructions(QiskitTestCase):
 
         self.date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
 
-        self.cals.add_parameter_value(ParameterValue(1.57, self.date_time), "φ", (3,), "xp12")
-        self.cals.add_parameter_value(ParameterValue(200, self.date_time), "ν", (3,), "xp12")
+        self.cals.add_parameter_value(
+            ParameterValue(value=1.57, date_time=self.date_time), "φ", (3,), "xp12"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=200, date_time=self.date_time), "ν", (3,), "xp12"
+        )
 
     def test_call_registration(self):
         """Check that by registering the call we registered three schedules."""
@@ -801,20 +839,38 @@ class CrossResonanceTest(QiskitTestCase):
         self.cals.add_schedule(cr, num_qubits=2)
         self.cals.add_schedule(tcp, num_qubits=2)
 
-        self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", schedule="xp")
         self.cals.add_parameter_value(
-            ParameterValue(0.1 + 0.01j, self.date_time), "amp", (3,), "xp"
+            ParameterValue(value=40, date_time=self.date_time), "σ", schedule="xp"
         )
-        self.cals.add_parameter_value(ParameterValue(0.3, self.date_time), "amp", (3, 2), "cr")
-        self.cals.add_parameter_value(ParameterValue(0.2, self.date_time), "amp_rot", (3, 2), "cr")
-        self.cals.add_parameter_value(ParameterValue(0.8, self.date_time), "amp", (3, 2), "tcp")
-        self.cals.add_parameter_value(ParameterValue(20, self.date_time), "w", (3, 2), "cr")
+        self.cals.add_parameter_value(
+            ParameterValue(value=0.1 + 0.01j, date_time=self.date_time), "amp", (3,), "xp"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=0.3, date_time=self.date_time), "amp", (3, 2), "cr"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=0.2, date_time=self.date_time), "amp_rot", (3, 2), "cr"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=0.8, date_time=self.date_time), "amp", (3, 2), "tcp"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=20, date_time=self.date_time), "w", (3, 2), "cr"
+        )
 
         # Reverse gate parameters
-        self.cals.add_parameter_value(ParameterValue(0.15, self.date_time), "amp", (2,), "xp")
-        self.cals.add_parameter_value(ParameterValue(0.5, self.date_time), "amp", (2, 3), "cr")
-        self.cals.add_parameter_value(ParameterValue(0.4, self.date_time), "amp_rot", (2, 3), "cr")
-        self.cals.add_parameter_value(ParameterValue(30, self.date_time), "w", (2, 3), "cr")
+        self.cals.add_parameter_value(
+            ParameterValue(value=0.15, date_time=self.date_time), "amp", (2,), "xp"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=0.5, date_time=self.date_time), "amp", (2, 3), "cr"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=0.4, date_time=self.date_time), "amp_rot", (2, 3), "cr"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=30, date_time=self.date_time), "w", (2, 3), "cr"
+        )
 
 
 class TestControlChannels(CrossResonanceTest):
@@ -1260,14 +1316,23 @@ class TestFiltering(QiskitTestCase):
         self.date_time1 = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
         self.date_time2 = datetime.strptime("15/09/19 11:21:35", "%d/%m/%y %H:%M:%S")
 
-        self.cals.add_parameter_value(ParameterValue(40, self.date_time1), "σ", schedule="xp")
         self.cals.add_parameter_value(
-            ParameterValue(45, self.date_time2, False), "σ", schedule="xp"
+            ParameterValue(value=40, date_time=self.date_time1), "σ", schedule="xp"
         )
-        self.cals.add_parameter_value(ParameterValue(0.1, self.date_time1), "amp", (0,), "xp")
-        self.cals.add_parameter_value(ParameterValue(0.2, self.date_time2), "amp", (0,), "xp")
         self.cals.add_parameter_value(
-            ParameterValue(0.4, self.date_time2, group="super_cal"), "amp", (0,), "xp"
+            ParameterValue(value=45, date_time=self.date_time2, valid=False), "σ", schedule="xp"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=0.1, date_time=self.date_time1), "amp", (0,), "xp"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=0.2, date_time=self.date_time2), "amp", (0,), "xp"
+        )
+        self.cals.add_parameter_value(
+            ParameterValue(value=0.4, date_time=self.date_time2, group="super_cal"),
+            "amp",
+            (0,),
+            "xp",
         )
 
     def test_get_parameter_value(self):
@@ -1341,7 +1406,7 @@ class TestSavingAndLoading(CrossResonanceTest):
         """Test that we can reload dates with or without time-zone."""
 
         new_date = datetime.strptime("16/09/20 10:21:35.012+0200", "%d/%m/%y %H:%M:%S.%f%z")
-        value = ParameterValue(0.222, date_time=new_date)
+        value = ParameterValue(value=0.222, date_time=new_date)
         self.cals.add_parameter_value(value, "amp", (3,), "xp")
 
         self.cals.save("csv", overwrite=True, file_prefix=self._prefix)
