@@ -178,14 +178,13 @@ class DbExperimentDataV1(DbExperimentData):
         """Add experiment data.
 
         Args:
-            data: Experiment data to add.
-                Several types are accepted for convenience:
-                    * Result: Add data from this ``Result`` object.
-                    * List[Result]: Add data from the ``Result`` objects.
-                    * Job: Add data from the job result.
-                    * List[Job]: Add data from the job results.
-                    * Dict: Add this data.
-                    * List[Dict]: Add this list of data.
+            data: Experiment data to add. Several types are accepted for convenience
+                * Result: Add data from this ``Result`` object.
+                * List[Result]: Add data from the ``Result`` objects.
+                * Job: Add data from the job result.
+                * List[Job]: Add data from the job results.
+                * Dict: Add this data.
+                * List[Dict]: Add this list of data.
             timeout: Timeout waiting for job to finish, if `data` is a ``Job``.
 
         Raises:
