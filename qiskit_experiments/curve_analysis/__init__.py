@@ -67,9 +67,14 @@ Fit Functions
     :toctree: ../stubs/
 
     fit_function.cos
+    fit_function.cos_decay
     fit_function.exponential_decay
     fit_function.gaussian
     fit_function.sin
+    fit_function.sin_decay
+    fit_function.bloch_oscillation_x
+    fit_function.bloch_oscillation_y
+    fit_function.bloch_oscillation_z
 
 Initial Guess
 *************
