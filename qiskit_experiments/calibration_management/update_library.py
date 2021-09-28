@@ -140,7 +140,7 @@ class BaseUpdater(ABC):
 class Frequency(BaseUpdater):
     """Update frequencies."""
 
-    __fit_parameter__ = "freq"
+    __fit_parameter__ = "f01"
 
     # pylint: disable=arguments-differ,unused-argument
     @classmethod
