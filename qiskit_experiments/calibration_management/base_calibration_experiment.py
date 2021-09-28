@@ -88,7 +88,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             schedule=self.calibration_options.schedule_name,
         )
 
-    def get_schedule_from_options(self, option_name: str) -> ScheduleBlock:
+    def _get_schedule_from_options(self, option_name: str) -> ScheduleBlock:
         """Get a schedule from the experiment options.
 
         Developers can subclass this method if they need a more sophisticated
