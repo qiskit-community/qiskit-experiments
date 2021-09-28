@@ -98,6 +98,8 @@ class Rabi(BaseExperiment):
         """Default analysis options."""
         options = super()._default_analysis_options()
         options.result_parameters = [ParameterRepr("freq", "rabi_rate")]
+        options.xlabel = "Amplitude"
+        options.ylabel = "Signal (arb. units)"
         options.normalization = True
 
         return options
