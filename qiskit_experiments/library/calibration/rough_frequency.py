@@ -15,7 +15,6 @@
 from typing import List, Optional, Union
 import numpy as np
 
-from qiskit_experiments.framework import Options
 from qiskit_experiments.library.characterization.qubit_spectroscopy import QubitSpectroscopy
 from qiskit_experiments.library.characterization.ef_spectroscopy import EFSpectroscopy
 from qiskit_experiments.calibration_management.update_library import Frequency
@@ -56,9 +55,7 @@ class RoughFrequency(BaseCalibrationExperiment, QubitSpectroscopy):
 
         """
         QubitSpectroscopy.__init__(self, qubit, frequencies, unit, absolute)
-
-        self._calibration_options = self._default_calibration_options()
-        self.calibration_options.calibrations = cals
+        self._cals = cals
 
 
 class RoughEFFrequency(BaseCalibrationExperiment, EFSpectroscopy):
@@ -92,19 +89,5 @@ class RoughEFFrequency(BaseCalibrationExperiment, EFSpectroscopy):
 
         """
         EFSpectroscopy.__init__(self, qubit, frequencies, unit, absolute)
-
-        self._calibration_options = self._default_calibration_options()
-        self.calibration_options.calibrations = cals
-
-    @classmethod
-    def _default_calibration_options(cls) -> Options:
-        """Default option values used for the spectroscopy pulse.
-
-        Calibration Options:
-            parameter_name (str): The name of the parameter to update in the calibrations
-                if a calibrations instance was specified in the experiment options. The
-                parameter_name name variable defaults to "f12".
-        """
-        options = super()._default_calibration_options()
-        options.cal_parameter_name = "f12"
-        return options
+        self._cals = cals
+        self._param_name = "f12"

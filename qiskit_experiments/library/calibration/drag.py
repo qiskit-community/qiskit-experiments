@@ -114,19 +114,6 @@ class DragCal(BaseCalibrationExperiment):
         return options
 
     @classmethod
-    def _default_calibration_options(cls) -> Options:
-        """Default calibration options for the experiment.
-
-        Calibration Options:
-            cal_parameter_name (str): The name of the DRAG parameter in the schedule stored in
-                the calibrations instance. The default value is "β".
-        """
-        options = super()._default_calibration_options()
-        options.cal_parameter_name = "β"
-        options.schedule_name = "x"
-        return options
-
-    @classmethod
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
@@ -176,9 +163,7 @@ class DragCal(BaseCalibrationExperiment):
             betas: The values of the DRAG parameter to scan. Specify this argument to override the
                 default values of the experiment.
         """
-        super().__init__([qubit], cals)
-        self.calibration_options.cal_parameter_name = cal_parameter_name
-        self.calibration_options.schedule_name = schedule_name
+        super().__init__([qubit], cals, schedule_name, cal_parameter_name)
 
         if betas is not None:
             self.experiment_options.betas = betas
@@ -224,7 +209,7 @@ class DragCal(BaseCalibrationExperiment):
             CalibrationError: If the number of different repetition series is not three.
         """
         schedule = self.get_schedule(
-            assign_params={self.calibration_options.cal_parameter_name: Parameter("β")},
+            assign_params={self._param_name: Parameter("β")},
         )
 
         beta = next(iter(schedule.parameters))

@@ -101,23 +101,6 @@ class Rabi(BaseCalibrationExperiment):
         return options
 
     @classmethod
-    def _default_calibration_options(cls) -> Options:
-        """Default calibration options for the experiment.
-
-        Calibration Options:
-            cal_parameter_name (str): The name of the amplitude parameter in the schedule stored in
-                the calibrations instance. The default value is "amp".
-            angles_schedules (List): A list of tuples that is given to the :class:`Amplitude`
-                updater. By default this is set to update the x and square-root X pulse, i.e. the
-                default value is :code:`[(np.pi, "amp", "x"), (np.pi / 2, "amp", "sx")]`.
-        """
-        options = super()._default_calibration_options()
-        options.cal_parameter_name = "amp"
-        options.angles_schedules = [(np.pi, "amp", "x"), (np.pi / 2, "amp", "sx")]
-        options.schedule_name = "x"
-        return options
-
-    @classmethod
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
@@ -161,12 +144,9 @@ class Rabi(BaseCalibrationExperiment):
             CalibrationError: If the schedule_name or calibration parameter name are not contained
                 in the list of angles to update.
         """
-        super().__init__([qubit], cals)
-        self.calibration_options.cal_parameter_name = cal_parameter_name
-        self.calibration_options.schedule_name = schedule_name
+        super().__init__([qubit], cals, schedule_name, cal_parameter_name)
 
-        if angles_schedules is not None:
-            self.calibration_options.angles_schedules = angles_schedules
+        self._angles_schedules = angles_schedules or [(np.pi, "amp", "x"), (np.pi / 2, "amp", "sx")]
 
         if amplitudes is not None:
             self.experiment_options.amplitudes = amplitudes
@@ -198,9 +178,8 @@ class Rabi(BaseCalibrationExperiment):
 
         # consistency check between the schedule and the amplitudes to update.
         if self._cals is not None:
-            param = self.calibration_options.cal_parameter_name
-            for update_tuple in self.calibration_options.angles_schedules:
-                if update_tuple[1] == param and update_tuple[2] == schedule.name:
+            for update_tuple in self._angles_schedules:
+                if update_tuple[1] == self._param_name and update_tuple[2] == schedule.name:
                     break
             else:
                 raise CalibrationError(
@@ -232,7 +211,7 @@ class Rabi(BaseCalibrationExperiment):
                 - If the user provided schedule has more than one free parameter.
         """
         schedule = self.get_schedule(
-            assign_params={self.calibration_options.cal_parameter_name: Parameter("amp")},
+            assign_params={self._param_name: Parameter("amp")},
         )
 
         param = next(iter(schedule.parameters))
@@ -260,7 +239,7 @@ class Rabi(BaseCalibrationExperiment):
         Args:
             experiment_data: The experiment data to use for the update.
         """
-        angles_schedules = self.calibration_options.angles_schedules
+        angles_schedules = self._angles_schedules
 
         self.__updater__.update(self._cals, experiment_data, angles_schedules=angles_schedules)
 

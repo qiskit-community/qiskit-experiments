@@ -65,25 +65,47 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         self,
         qubits: Iterable[int],
         calibrations: Calibrations,
+        schedule_name: Optional[str] = None,
+        cal_parameter_name: Optional[str] = None,
+        auto_update: Optional[bool] = True,
         experiment_type: Optional[str] = None,
     ):
-        """Initialize the experiment object.
+        """Initialize the calibration experiment object.
 
         Args:
             qubits: the number of qubits or list of physical qubits for
                     the experiment.
             calibrations: The calibrations instance with which to initialize the experiment.
+            schedule_name: An optional string which specifies the name of the schedule in
+                the calibrations that will be updated.
+            cal_parameter_name: An optional string which specifies the name of the parameter in
+                the calibrations that will be updated. If None is given then no parameter will
+                be updated. Subclasses may assign default values in their init.
+            auto_update: If set to True (the default) then the calibrations will automatically be
+                updated once the experiment has run and :meth:`block_for_results()` will be called.
             experiment_type: Optional, the experiment type string.
         """
         super().__init__(qubits, experiment_type)
 
-        self._calibration_options = self._default_calibration_options()
         self._cals = calibrations
+        self._sched_name = schedule_name
+        self._param_name = cal_parameter_name
+        self._auto_update = auto_update
 
     @property
     def calibrations(self) -> Calibrations:
         """Calibration management object that holds the schedule."""
         return self._cals
+
+    @property
+    def auto_update(self) -> bool:
+        """Return the auto update property"""
+        return self._auto_update
+
+    @auto_update.setter
+    def auto_update(self, auto_update: bool):
+        """Set the value of auto_update."""
+        self._auto_update = auto_update
 
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update parameter values in the :class:`Calibrations` instance.
@@ -97,8 +119,8 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         self.__updater__.update(
             self._cals,
             experiment_data,
-            parameter=self.calibration_options.cal_parameter_name,
-            schedule=self.calibration_options.schedule_name,
+            parameter=self._param_name,
+            schedule=self._sched_name,
         )
 
     def _get_schedule_from_options(self, option_name: str) -> ScheduleBlock:
@@ -142,7 +164,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         """
 
         if sched_name is None:
-            sched_name = self.calibration_options.schedule_name
+            sched_name = self._sched_name
 
         if qubits is None:
             qubits = self.physical_qubits
@@ -291,42 +313,6 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         metadata.update(kwargs)
         return metadata
 
-    @classmethod
-    def _default_calibration_options(cls) -> Options:
-        """Default calibration options for the experiment.
-
-        Calibration Options:
-            calibrations (Calibrations): An optional instance of :class:`Calibrations` if this
-                instance is specified then the experiment will try and update the calibrations.
-            auto_update (bool): A boolean which defaults to True. If this variable is set to
-                True then running the calibration experiment will block for the results and
-                update the calibrations if the calibrations is not None.
-            schedule_name (str): The name of the schedule to retrieve from the calibrations.
-            cal_parameter_name (str): The name of the parameter to update in the calibrations.
-        """
-        return Options(auto_update=True, schedule_name=None, cal_parameter_name=None)
-
-    @property
-    def calibration_options(self) -> Options:
-        """Return the calibration options for the experiment."""
-        return self._calibration_options
-
-    def set_calibration_options(self, **fields):
-        """Set the calibration options.
-
-        Args:
-            fields: The fields to update the options
-
-        Raises:
-            AttributeError: If the field passed in is not a supported options
-        """
-        for field in fields:
-            if not hasattr(self._calibration_options, field):
-                raise AttributeError(
-                    f"Options field {field} is not valid for {type(self).__name__}"
-                )
-        self._calibration_options.update_options(**fields)
-
     def run(
         self,
         backend: Backend,
@@ -348,9 +334,8 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         """
         experiment_data = super().run(backend, analysis, experiment_data, **run_options)
 
-        if self.calibration_options.auto_update:
-            if self._cals is not None:
-                experiment_data = experiment_data.block_for_results()
-                self.update_calibrations(experiment_data)
+        if self._auto_update and self._cals is not None:
+            experiment_data = experiment_data.block_for_results()
+            self.update_calibrations(experiment_data)
 
         return experiment_data

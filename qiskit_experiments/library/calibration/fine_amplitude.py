@@ -130,21 +130,6 @@ class FineAmplitude(BaseCalibrationExperiment):
 
         return options
 
-    @classmethod
-    def _default_calibration_options(cls) -> Options:
-        """Default calibration options for the experiment.
-
-        Calibration Options:
-            schedule_name (str): The name of the schedule to retrieve from the Calibrations,
-                if calibrations have been specified.
-            cal_parameter_name (str): The name of the parameter in calibrations to update. The
-                value of this parameter defaults to "amp".
-        """
-        options = super()._default_calibration_options()
-        options.schedule_name = None
-        options.cal_parameter_name = "amp"
-        return options
-
     def __init__(
         self,
         qubit: int,
@@ -164,9 +149,7 @@ class FineAmplitude(BaseCalibrationExperiment):
                 be stored in the experiment options and defaults to "amp".
             repetitions: The list of times to repeat the gate in each circuit.
         """
-        super().__init__([qubit], cals)
-        self.calibration_options.cal_parameter_name = cal_parameter_name
-        self.calibration_options.schedule_name = schedule_name
+        super().__init__([qubit], cals, schedule_name, cal_parameter_name)
 
         if repetitions is not None:
             self.experiment_options.repetitions = repetitions
@@ -262,16 +245,14 @@ class FineAmplitude(BaseCalibrationExperiment):
             CalibrationError: If the schedule name is None in the calibration options.
         """
         angle = self.analysis_options.angle_per_gate
-        name = self.calibration_options.schedule_name
-        parameter_name = self.calibration_options.cal_parameter_name
 
-        if name is None:
+        if self._sched_name is None:
             raise CalibrationError(
                 f"Cannot perform {self.__updater__.__class__.__name__} without a schedule name."
             )
 
         self.__updater__.update(
-            self._cals, experiment_data, angles_schedules=[(angle, parameter_name, name)]
+            self._cals, experiment_data, angles_schedules=[(angle, self._param_name, self._sched_name)]
         )
 
 
@@ -299,18 +280,6 @@ class FineXAmplitude(FineAmplitude):
         options.add_sx = True
         options.add_xp_circuit = True
 
-        return options
-
-    @classmethod
-    def _default_calibration_options(cls) -> Options:
-        """Default values for the calibration options.
-
-        Calibration Options:
-            schedule_name: The name of the schedule to extract from the calibrations. The default
-                value is "x".
-        """
-        options = super()._default_calibration_options()
-        options.schedule_name = "x"
         return options
 
     @classmethod
@@ -381,18 +350,6 @@ class FineSXAmplitude(FineAmplitude):
         options.add_xp_circuit = False
         options.repetitions = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
 
-        return options
-
-    @classmethod
-    def _default_calibration_options(cls) -> Options:
-        """Default values for the calibration options.
-
-        Calibration Options:
-            schedule_name: The name of the schedule to extract from the calibrations. The default
-                value is "sx".
-        """
-        options = super()._default_calibration_options()
-        options.schedule_name = "sx"
         return options
 
     @classmethod
