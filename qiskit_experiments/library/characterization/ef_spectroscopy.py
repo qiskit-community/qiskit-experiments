@@ -39,7 +39,7 @@ class EFSpectroscopy(QubitSpectroscopy):
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
-        options.result_parameters = [ParameterRepr("freq", "f12", "Hz")]
+        options.result_parameters = [ParameterRepr("freq", "freq", "Hz")]
 
         return options
 
