@@ -62,7 +62,8 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     with the class variable :code:`__analysis_class__` and any default experiment options.
     """
 
-    # The updater class that updates the Calibrations instance
+    # The updater class that updates the Calibrations instance. Different calibration
+    # experiments will use different updaters.
     __updater__ = None
 
     def __init__(
