@@ -128,6 +128,9 @@ class FineDrag(BaseExperiment):
 
             {\rm d}\beta=\frac{\sqrt{\pi}\,{\rm d}\theta\sigma}{ \theta_\text{target}^2}
 
+    # section: see_also
+        qiskit_experiments.library.calibration.drag.DragCal
+
     # section: reference
         .. ref_arxiv:: 1 1612.00858
         .. ref_arxiv:: 2 1011.1949
