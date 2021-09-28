@@ -1,0 +1,19 @@
+---
+developer:
+  - |
+    The execution chain of :py:class:`~qiskit_experiments.framework.base_experiment.BaseExperiment`
+    has been updated with some flexibility. The new feature will benefit experiment developers
+    who need to modify the standard job execution and analysis workflow.
+
+    With this change, following three methods are newly introduced.
+
+    - :py:meth:`~qiskit_experiments.framework.base_experiment.BaseExperiment#_pre_transpile_action`
+    - :py:meth:`~qiskit_experiments.framework.base_experiment.BaseExperiment#_post_transpile_action`
+    - :py:meth:`~qiskit_experiments.framework.base_experiment.BaseExperiment#_post_analysis_action`
+
+    These methods allow a developer to insert extra data processing routine (somewhat of hooks)
+    in between circuit generation and result data generation.
+    This feature increases the flexibility of job execution.
+
+    In addition, :py:meth:`run_transpile` method is added to all experiment classes.
+    This returns a list of quantum circuits to execute on the given backend.
