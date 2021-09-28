@@ -21,8 +21,7 @@ import qiskit
 from qiskit.utils import apply_prefix
 from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
-from qiskit.providers.options import Options
-from qiskit_experiments.framework import BaseExperiment, common_operations
+from qiskit_experiments.framework import BaseExperiment, Options, common_operations
 from .t2ramsey_analysis import T2RamseyAnalysis
 
 
@@ -69,8 +68,13 @@ class T2Ramsey(BaseExperiment):
                 's', 'ms', 'us', 'ns', 'ps', 'dt'.
             osc_freq (float): Oscillation frequency offset in Hz.
         """
+        options = super()._default_experiment_options()
 
-        return Options(delays=None, unit="s", osc_freq=0.0)
+        options.delays = None
+        options.unit = "s"
+        options.osc_freq = 0.0
+
+        return options
 
     def __init__(
         self,

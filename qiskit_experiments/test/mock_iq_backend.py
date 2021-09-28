@@ -153,6 +153,8 @@ class DragBackend(MockIQBackend):
 
 
 class MockFineAmp(MockIQBackend):
+    """A mock backend for fine amplitude calibration."""
+
     def __init__(self, angle_error: float, angle_per_gate: float, gate_name: str):
         """Setup a mock backend to test the fine amplitude calibration.
 

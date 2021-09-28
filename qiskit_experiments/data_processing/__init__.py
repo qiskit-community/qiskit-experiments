@@ -41,6 +41,7 @@ Data Processing Nodes
     ToReal
     SVD
     AverageData
+    BasisExpectationValue
 """
 
 from .data_action import DataAction, TrainableDataAction
@@ -50,6 +51,7 @@ from .nodes import (
     ToReal,
     SVD,
     AverageData,
+    BasisExpectationValue,
 )
 
 from .data_processor import DataProcessor
