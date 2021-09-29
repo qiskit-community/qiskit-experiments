@@ -18,6 +18,7 @@ from typing import Union, Iterable, List, Optional
 
 import numpy as np
 from qiskit import QuantumCircuit, QiskitError
+from qiskit.utils import apply_prefix
 from qiskit.providers.options import Options
 from qiskit.providers import Backend
 from .t2hahn_analysis import T2HahnAnalysis
@@ -134,6 +135,15 @@ class T2Hahn(BaseExperiment):
             The experiment circuits.
 
         """
+        conversion_factor = 1
+        if self.experiment_options.unit == "dt":
+            try:
+                dt_factor = getattr(backend._configuration, "dt")
+                conversion_factor = dt_factor
+            except AttributeError as no_dt:
+                raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
+        elif self.experiment_options.unit != "s":
+            conversion_factor = apply_prefix(1, self.experiment_options.unit)
 
         circuits = []
         qubit = list(self._physical_qubits)
@@ -152,6 +162,8 @@ class T2Hahn(BaseExperiment):
                 "xval": delay,
                 "unit": self.experiment_options.unit,
             }
+            if self.experiment_options.unit == "dt":
+                circ.metadata["dt_factor"] = dt_factor
             circuits.append(circ)
 
         return circuits
