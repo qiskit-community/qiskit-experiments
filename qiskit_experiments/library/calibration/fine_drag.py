@@ -148,12 +148,10 @@ class FineDrag(BaseExperiment):
             schedule (ScheduleBlock): The schedule for the plus rotation.
             normalization (bool): If set to True the DataProcessor will normalized the
                 measured signal to the interval [0, 1]. Defaults to True.
-            add_sx (bool): If True an sx gate is pre-pended to the circuit.
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(20))
         options.schedule = None
-        options.add_sx = None
 
         return options
 
@@ -203,9 +201,6 @@ class FineDrag(BaseExperiment):
         for repetition in self.experiment_options.repetitions:
             circuit = self._pre_circuit()
 
-            if self.experiment_options.add_sx:
-                circuit.sx(0)
-
             for _ in range(repetition):
                 circuit.append(drag_gate, (0,))
                 circuit.rz(np.pi, 0)
@@ -238,17 +233,10 @@ class FineXDrag(FineDrag):
         qiskit_experiments.library.calibration.fine_drag.FineDrag
     """
 
-    @classmethod
-    def _default_experiment_options(cls) -> Options:
-        r"""Default values for the fine amplitude experiment.
-
-        Experiment Options:
-            add_sx (bool): By default do not prepend an SX gate to the circuits.
-        """
-        options = super()._default_experiment_options()
-        options.add_sx = False
-
-        return options
+    @staticmethod
+    def _pre_circuit() -> QuantumCircuit:
+        """Return the quantum circuit done before the Rp - Rz - Rp - Rz gates."""
+        return QuantumCircuit(1)
 
 
 class FineSXDrag(FineDrag):
@@ -258,20 +246,15 @@ class FineSXDrag(FineDrag):
         qiskit_experiments.library.calibration.fine_drag.FineDrag
     """
 
-    @classmethod
-    def _default_experiment_options(cls) -> Options:
-        r"""Default values for the fine amplitude experiment.
-
-        Experiment Options:
-            add_sx (bool): By default prepend an SX gate to the circuits.
-        """
-        options = super()._default_experiment_options()
-        options.add_sx = True
-
-        return options
+    @staticmethod
+    def _pre_circuit() -> QuantumCircuit:
+        """Return the quantum circuit with an sx gate before the Rp - Rz - Rp - Rz gates."""
+        circ =  QuantumCircuit(1)
+        circ.sx(0)
+        return circ
 
 
-class FineDragEF(FineDrag):
+class FineXDragEF(FineDrag):
     """A class to run the fine DRAG calibration on the e-f transition."""
 
     @staticmethod
