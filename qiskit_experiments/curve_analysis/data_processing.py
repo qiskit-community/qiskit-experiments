@@ -129,7 +129,7 @@ def mean_xy_data(
 
             # Compute sample mean and biased sample variance
             y_means[i] = np.mean(ys)
-            y_sigmas[i] = np.sqrt(np.mean(ss**2))
+            y_sigmas[i] = np.sqrt(np.mean(ss ** 2))
 
         return x_means, y_means, y_sigmas
 
@@ -191,10 +191,7 @@ def multi_mean_xy_data(
 
 
 def data_sort(
-    series: np.ndarray,
-    xdata: np.ndarray,
-    ydata: np.ndarray,
-    sigma: Optional[np.ndarray] = None
+    series: np.ndarray, xdata: np.ndarray, ydata: np.ndarray, sigma: Optional[np.ndarray] = None
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Sort data.
 
