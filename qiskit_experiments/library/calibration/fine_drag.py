@@ -249,7 +249,7 @@ class FineSXDrag(FineDrag):
     @staticmethod
     def _pre_circuit() -> QuantumCircuit:
         """Return the quantum circuit with an sx gate before the Rp - Rz - Rp - Rz gates."""
-        circ =  QuantumCircuit(1)
+        circ = QuantumCircuit(1)
         circ.sx(0)
         return circ
 
