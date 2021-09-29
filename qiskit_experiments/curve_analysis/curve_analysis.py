@@ -32,6 +32,7 @@ from qiskit_experiments.curve_analysis.curve_data import (
     FitOptions,
 )
 from qiskit_experiments.curve_analysis.curve_fit import multi_curve_fit
+from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data, data_sort
 from qiskit_experiments.curve_analysis.visualization import FitResultPlotters, PlotterStyle
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
@@ -198,6 +199,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
         - Customize pre-data processing:
             Override :meth:`~self._format_data`. For example, here you can apply smoothing
             to y values, remove outlier, or apply filter function to the data.
+            By default, data is sorted by x values and the measured values at the same
+            x value are averaged.
 
         - Create extra data from fit result:
             Override :meth:`~self._extra_database_entry`. You need to return a list of
@@ -464,13 +467,29 @@ class CurveAnalysis(BaseAnalysis, ABC):
         Returns:
             Formatted CurveData instance.
         """
+        # take average over the same x value by keeping sigma
+        series, xdata, ydata, sigma = multi_mean_xy_data(
+            series=data.data_index,
+            xdata=data.x,
+            ydata=data.y,
+            sigma=data.y_err,
+            method="quad_sum",
+        )
+
+        # sort by x value in ascending order
+        series, xdata, ydata, sigma = data_sort(
+            series=series,
+            xdata=xdata,
+            ydata=ydata,
+            sigma=sigma,
+        )
+
         return CurveData(
             label="fit_ready",
-            x=data.x,
-            y=data.y,
-            y_err=data.y_err,
-            data_index=data.data_index,
-            metadata=data.metadata,
+            x=xdata,
+            y=ydata,
+            y_err=sigma,
+            data_index=series,
         )
 
     # pylint: disable=unused-argument

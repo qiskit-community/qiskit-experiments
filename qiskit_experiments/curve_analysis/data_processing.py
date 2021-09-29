@@ -61,6 +61,9 @@ def mean_xy_data(
     * ``"iwv"`` *Inverse-weighted variance*
       :math:`\overline{y} = (\sum_{i=1}^N y_i / \sigma_i^2 ) \sigma^2`
       :math:`\sigma^2 = 1 / (\sum_{i=1}^N 1 / \sigma_i^2)`
+    * ``"quad_sum"`` *Sample man and take quadrature sum of variance*
+      :math: `\overline{y} = \sum_{i=1}^N y_i / N`,
+      :math: `\sigma^2 = \sum_{i=1}^N \sigma_i^2 / N`
 
     Args
         xdata: 1D or 2D array of xdata from curve_fit_data or
@@ -116,6 +119,20 @@ def mean_xy_data(
 
         return x_means, y_means, y_sigmas
 
+    # Quadrature sum of variance
+    if method == "quad_sum":
+        for i in range(x_means.size):
+            # Get positions of y to average
+            idxs = xdata == x_means[i]
+            ys = ydata[idxs]
+            ss = sigma[idxs]
+
+            # Compute sample mean and biased sample variance
+            y_means[i] = np.mean(ys)
+            y_sigmas[i] = np.sqrt(np.mean(ss**2))
+
+        return x_means, y_means, y_sigmas
+
     # Invalid method
     raise QiskitError(f"Unsupported method {method}")
 
@@ -126,10 +143,24 @@ def multi_mean_xy_data(
     ydata: np.ndarray,
     sigma: Optional[np.ndarray] = None,
     method: str = "sample",
-):
-    r"""Return (series, x, y_mean, sigma) data.
-    Performs `mean_xy_data` for each series
-    and returns the concatenated results
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Take mean of multi series data set.
+
+    Args:
+        series: Series index.
+        xdata: 1D or 2D array of xdata from curve_fit_data or
+               multi_curve_fit_data
+        ydata: array of ydata returned from curve_fit_data or
+               multi_curve_fit_data
+        sigma: Optional, array of standard deviations in ydata.
+        method: The method to use for computing y means and
+                standard deviations sigma (default: "sample").
+
+    Returns:
+        Tuple of (series, xdata, ydata, sigma)
+
+    See also:
+        :py:func:`~qiskit_experiments.curve_analysis.data_processing.mean_xy_data`
     """
     series_vals = np.unique(series)
 
@@ -157,6 +188,39 @@ def multi_mean_xy_data(
         np.concatenate(ydata_means),
         np.concatenate(sigma_means),
     )
+
+
+def data_sort(
+    series: np.ndarray,
+    xdata: np.ndarray,
+    ydata: np.ndarray,
+    sigma: Optional[np.ndarray] = None
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Sort data.
+
+    Input x values may not be lined up in order, since experiment may accept user input array,
+    or data may be concatenated with previous scan. This sometimes confuses the algorithmic
+    generation of initial guesses especially when guess depends on derivative.
+
+    This returns data set that is sorted by xdata and series in ascending order.
+
+    Args:
+        series: Series index.
+        xdata: 1D or 2D array of xdata from curve_fit_data or
+               multi_curve_fit_data
+        ydata: array of ydata returned from curve_fit_data or
+               multi_curve_fit_data
+        sigma: Optional, array of standard deviations in ydata.
+
+    Returns:
+        Tuple of (series, xdata, ydata, sigma) sorted in ascending order of xdata and series.
+    """
+    if sigma is None:
+        sigma = np.full(series.size, np.nan, dtype=float)
+
+    sorted_data = sorted(zip(series, xdata, ydata, sigma), key=lambda d: (d[0], d[1]))
+
+    return np.asarray(sorted_data).T
 
 
 def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float, float]:

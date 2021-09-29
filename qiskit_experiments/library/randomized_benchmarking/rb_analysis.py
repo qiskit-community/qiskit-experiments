@@ -133,23 +133,6 @@ class RBAnalysis(curve.CurveAnalysis):
 
         return opt
 
-    def _format_data(self, data: curve.CurveData) -> curve.CurveData:
-        """Take average over the same x values."""
-        mean_data_index, mean_x, mean_y, mean_e = multi_mean_xy_data(
-            series=data.data_index,
-            xdata=data.x,
-            ydata=data.y,
-            sigma=data.y_err,
-            method="sample",
-        )
-        return curve.CurveData(
-            label="fit_ready",
-            x=mean_x,
-            y=mean_y,
-            y_err=mean_e,
-            data_index=mean_data_index,
-        )
-
     def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
         """Calculate EPC."""
         extra_entries = []
