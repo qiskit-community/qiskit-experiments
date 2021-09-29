@@ -46,9 +46,7 @@ class ExperimentData(DbExperimentDataV1):
 
         # In a composite setting, an experiment is tagged with its direct parent and with the root
         if root_id is not None:
-            self.tags = [parent_id]
-            if parent_id != root_id:
-                self.tags.append(root_id)
+            self.tags = ["parent exp id: " + parent_id, "root exp id: " + root_id]
 
     @property
     def experiment(self):

@@ -300,12 +300,12 @@ class TestCompositeExperimentData(QiskitTestCase):
         self.assertTrue(len(expdata.tags) == 1 or len(expdata.tags) == 2)
         if len(expdata.tags) == 2:
             self.assertNotEqual(expdata.tags[0], expdata.tags[1])
-        self.assertTrue(self.rootdata.experiment_id in expdata.tags)
+        self.assertTrue("root exp id: " + self.rootdata.experiment_id in expdata.tags)
 
         if isinstance(expdata, CompositeExperimentData):
             for childdata in expdata.component_experiment_data():
                 self.check_attributes(childdata)
-                self.assertTrue(expdata.experiment_id in childdata.tags)
+                self.assertTrue("parent exp id: " + expdata.experiment_id in childdata.tags)
 
     def check_if_equal(self, expdata1, expdata2):
         """

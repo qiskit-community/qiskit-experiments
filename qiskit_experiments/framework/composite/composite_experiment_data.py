@@ -43,8 +43,8 @@ class CompositeExperimentData(ExperimentData):
         # This is done in the ExperimentData constructor, except for the root experiment,
         # for whom this is done here
         root_id = root_id if root_id is not None else self.experiment_id
-        if root_id not in self.tags:
-            self.tags.append(root_id)
+        if len(self.tags)==0:
+            self.tags = ["root exp id: " + root_id]
 
         # Initialize sub experiments
         self._components = [
