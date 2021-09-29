@@ -887,7 +887,7 @@ class Calibrations:
         parameters: List[str] = None,
         qubit_list: List[Tuple[int, ...]] = None,
         schedules: List[Union[ScheduleBlock, str]] = None,
-    ) -> List[Dict[str, Any]]:
+    ) -> Dict[str, Union[List[Dict], List[str]]]:
         """A convenience function to help users visualize the values of their parameter.
 
         Args:
@@ -898,7 +898,7 @@ class Calibrations:
             schedules: The schedules to which to restrict the output.
 
         Returns:
-            data: A list of dictionaries with parameter values and metadata which can
+            data: A dictionary with parameter values and metadata which can
                 easily be converted to a data frame.
         """
         if qubit_list:
@@ -931,7 +931,17 @@ class Calibrations:
                 value_dict["date_time"] = value_dict["date_time"].strftime("%Y-%m-%d %H:%M:%S.%f%z")
                 data.append(value_dict)
 
-        return data
+        columns = [
+            "group",
+            "schedule",
+            "parameter",
+            "qubits",
+            "value",
+            "valid",
+            "date_time",
+            "exp_id",
+        ]
+        return {"data": data, "columns": columns}
 
     def save(
         self,
@@ -1009,7 +1019,7 @@ class Calibrations:
                 dict_writer.writerows(body)
 
             # Write the values of the parameters.
-            values = self.parameters_table()
+            values = self.parameters_table()["data"]
             if len(values) > 0:
                 header_keys = values[0].keys()
 
