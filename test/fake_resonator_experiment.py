@@ -12,23 +12,20 @@
 
 """Fake experiment using resonator instead of qubits for testing."""
 
-from typing import Iterable, Optional, Tuple, List, Dict
+from typing import Iterable, Optional, Tuple, List
+from qiskit.providers import Backend
 from qiskit_experiments.framework import BaseExperiment, Options, BaseAnalysis, AnalysisResultData
 
-from qiskit.providers import Backend
-from qiskit.circuit import QuantumCircuit
-from qiskit.test import QiskitTestCase
 
 class FakeResonatorAnalysis(BaseAnalysis):
+    """
+    Simple analysis to test experiment using resonators instead of qubits
+    """
     # pylint: disable=arguments-differ
     def _run_analysis(
-            self,
-            experiment_data,
+        self, experiment_data,
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
-        return [AnalysisResultData(
-            "ResonatorTest",
-            0
-        )], None
+        return [AnalysisResultData("ResonatorTest", 0)], None
 
 
 class FakeResonatorExperiment(BaseExperiment):
@@ -47,13 +44,14 @@ class FakeResonatorExperiment(BaseExperiment):
         options.resonators = []
         return options
 
-    def __init__(
-            self,
-            resonators: Iterable[int]):
+    def __init__(self, resonators: Iterable[int]):
         super().__init__([])
 
         # Set experiment options
         self.set_experiment_options(resonators=resonators)
+
+    def _additional_metadata(self):
+        return {"resonators": self.experiment_options.resonators}
 
     def circuits(self, backend: Optional[Backend] = None):
         """return empty circuits for test"""
