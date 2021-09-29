@@ -898,7 +898,7 @@ class Calibrations:
             schedules: The schedules to which to restrict the output.
 
         Returns:
-            data: A dictionary with parameter values and metadata which can
+                 A dictionary with parameter values and metadata which can
                 easily be converted to a data frame.
         """
         if qubit_list:
