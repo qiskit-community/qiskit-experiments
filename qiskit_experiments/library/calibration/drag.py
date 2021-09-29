@@ -84,7 +84,7 @@ class DragCal(BaseExperiment):
             drag.set_experiment_options(schedule=xp_schedule)
 
         Experiment Options:
-            schedule (ScheduleBlock): The schedule for the plus rotation.
+            schedule (ScheduleBlock): The schedule of the rotation.
             amp (complex): The amplitude for the default Drag pulse. Must have a magnitude
                 smaller than one.
             duration (int): The duration of the default pulse in samples.
