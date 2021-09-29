@@ -22,7 +22,6 @@ from qiskit.pulse.schedule import ScheduleBlock
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.curve_analysis import ErrorAmplificationAnalysis
-)
 from qiskit_experiments.exceptions import CalibrationError
 
 
