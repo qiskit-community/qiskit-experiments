@@ -48,7 +48,11 @@ class BaseAnalysis(ABC):
     def _default_options(cls) -> Options:
         return Options()
 
-    def run(self, experiment_data: ExperimentData, **options,) -> ExperimentData:
+    def run(
+        self,
+        experiment_data: ExperimentData,
+        **options,
+    ) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
         Args:

@@ -24,7 +24,8 @@ class FakeResonatorAnalysis(BaseAnalysis):
 
     # pylint: disable=arguments-differ
     def _run_analysis(
-        self, experiment_data,
+        self,
+        experiment_data,
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         return [AnalysisResultData("ResonatorTest", 0)], None
 
