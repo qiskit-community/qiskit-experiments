@@ -424,23 +424,23 @@ class TestOverrideDefaults(QiskitTestCase):
         self._add_parameters()
 
         # Check that these values are split between the qubits.
-        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(0,)])
-        self.assertEqual(len(amp_values["data"]), 1)
+        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(0,)])["data"]
+        self.assertEqual(len(amp_values), 1)
 
         # Check that we have one value for sigma.
-        sigma_values = self.cals.parameters_table(parameters=["σ"])
-        self.assertEqual(len(sigma_values["data"]), 1)
+        sigma_values = self.cals.parameters_table(parameters=["σ"])["data"]
+        self.assertEqual(len(sigma_values), 1)
 
         # Check that we have two values for amp.
-        amp_values = self.cals.parameters_table(parameters=["amp"])
-        self.assertEqual(len(amp_values["data"]), 2)
+        amp_values = self.cals.parameters_table(parameters=["amp"])["data"]
+        self.assertEqual(len(amp_values), 2)
 
-        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,)])
-        self.assertEqual(len(amp_values["data"]), 1)
+        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,)])["data"]
+        self.assertEqual(len(amp_values), 1)
 
         # Check to see if we get back the two qubits when explicitly specifying them.
-        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,), (0,)])
-        self.assertEqual(len(amp_values["data"]), 2)
+        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,), (0,)])["data"]
+        self.assertEqual(len(amp_values), 2)
 
 
 class TestConcurrentParameters(QiskitTestCase):
