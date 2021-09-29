@@ -99,6 +99,7 @@ class DbExperimentDataV1(DbExperimentData):
         experiment_type: Optional[str] = "Unknown",
         backend: Optional[Union[Backend, BaseBackend]] = None,
         experiment_id: Optional[str] = None,
+        parent_id: Optional[str] = None,
         tags: Optional[List[str]] = None,
         job_ids: Optional[List[str]] = None,
         share_level: Optional[str] = None,
@@ -113,6 +114,7 @@ class DbExperimentDataV1(DbExperimentData):
             experiment_type: Experiment type.
             backend: Backend the experiment runs on.
             experiment_id: Experiment ID. One will be generated if not supplied.
+            parent_id: The experiment ID of the parent experiment.
             tags: Tags to be associated with the experiment.
             job_ids: IDs of jobs submitted for the experiment.
             share_level: Whether this experiment can be shared with others. This
@@ -140,6 +142,7 @@ class DbExperimentDataV1(DbExperimentData):
         self._set_service_from_backend(backend)
 
         self._id = experiment_id or str(uuid.uuid4())
+        self._parent_id = parent_id
         self._type = experiment_type
         self._tags = tags or []
         self._share_level = share_level
@@ -796,6 +799,7 @@ class DbExperimentDataV1(DbExperimentData):
             experiment_type=service_data.pop("experiment_type"),
             backend=service_data.pop("backend"),
             experiment_id=service_data.pop("experiment_id"),
+            parent_id=service_data.pop("parent_id"),
             tags=service_data.pop("tags"),
             job_ids=service_data.pop("job_ids"),
             share_level=service_data.pop("share_level"),
@@ -1166,6 +1170,8 @@ class DbExperimentDataV1(DbExperimentData):
     def __repr__(self):
         out = f"{type(self).__name__}({self.experiment_type}"
         out += f", {self.experiment_id}"
+        if self._parent_id:
+            out += f", parent_id={self._parent_id}"
         if self._tags:
             out += f", tags={self._tags}"
         if self.job_ids:
