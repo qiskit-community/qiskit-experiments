@@ -17,6 +17,7 @@ from qiskit_experiments.framework import BaseExperiment, Options, BaseAnalysis, 
 
 from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
+from qiskit.test import QiskitTestCase
 
 class FakeResonatorAnalysis(BaseAnalysis):
     # pylint: disable=arguments-differ
@@ -24,13 +25,18 @@ class FakeResonatorAnalysis(BaseAnalysis):
             self,
             experiment_data,
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
-        return [], None
+        return [AnalysisResultData(
+            "ResonatorTest",
+            0
+        )], None
 
 
 class FakeResonatorExperiment(BaseExperiment):
     """
     An experiment to show how to use resonators instead of qubits
     """
+
+    __analysis_class__ = FakeResonatorAnalysis
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -50,7 +56,5 @@ class FakeResonatorExperiment(BaseExperiment):
         self.set_experiment_options(resonators=resonators)
 
     def circuits(self, backend: Optional[Backend] = None):
-        circ = QuantumCircuit(1, 1)
-        circ.measure(0, 0)
-
-        return [circ]
+        """return empty circuits for test"""
+        return []

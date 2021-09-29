@@ -18,8 +18,11 @@ from unittest import mock
 import json
 
 import numpy as np
+import unittest
 
 from qiskit.test import QiskitTestCase
+from test.fake_resonator_experiment import FakeResonatorExperiment, FakeResonatorAnalysis
+from test.fake_backend import FakeBackend
 from qiskit_experiments.database_service import DbAnalysisResultV1 as DbAnalysisResult
 from qiskit_experiments.database_service.device_component import Qubit, Resonator, to_component
 from qiskit_experiments.database_service.database_service import DatabaseServiceV1
@@ -156,3 +159,16 @@ class TestDeviceComponent(QiskitTestCase):
         r1 = to_component("R1")
         self.assertIsInstance(r1, Resonator)
         self.assertEqual("R1", str(r1))
+
+    def test_resonator_experiment(self):
+        """Test creating an experiment consisting only resonator components"""
+        resonator_exp = FakeResonatorExperiment(resonators=[0,1])
+        resonator_data = resonator_exp.run(FakeBackend())
+        resonator_data.block_for_results()
+        analysis_res = resonator_data._analysis_results
+        for key in analysis_res._container.keys():
+            device_components = analysis_res._container[key].device_components
+            self.assertIsInstance(device_components[0], Resonator)
+            self.assertEqual("R0", str(device_components[0]))
+            self.assertIsInstance(device_components[1], Resonator)
+            self.assertEqual("R1", str(device_components[1]))
