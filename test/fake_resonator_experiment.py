@@ -21,6 +21,7 @@ class FakeResonatorAnalysis(BaseAnalysis):
     """
     Simple analysis to test experiment using resonators instead of qubits
     """
+
     # pylint: disable=arguments-differ
     def _run_analysis(
         self, experiment_data,

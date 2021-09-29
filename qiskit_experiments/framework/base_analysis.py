@@ -48,11 +48,7 @@ class BaseAnalysis(ABC):
     def _default_options(cls) -> Options:
         return Options()
 
-    def run(
-        self,
-        experiment_data: ExperimentData,
-        **options,
-    ) -> ExperimentData:
+    def run(self, experiment_data: ExperimentData, **options,) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
         Args:
@@ -77,12 +73,11 @@ class BaseAnalysis(ABC):
         if "physical_qubits" in experiment_data.metadata:
             experiment_components = [
                 Qubit(qubit) for qubit in experiment_data.metadata["physical_qubits"]
-                ]
+            ]
         if "resonators" in experiment_data.metadata:
-            experiment_components.extend([
-                Resonator(resonator) for resonator in experiment_data.metadata["resonators"]
-            ])
-
+            experiment_components.extend(
+                [Resonator(resonator) for resonator in experiment_data.metadata["resonators"]]
+            )
 
         # Get analysis options
         analysis_options = self._default_options()
