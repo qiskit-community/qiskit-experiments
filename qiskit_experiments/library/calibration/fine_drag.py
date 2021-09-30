@@ -73,21 +73,14 @@ class FineDrag(BaseExperiment):
         As in Ref. [2] we now set :math:`s^{(1)}_{x,0,1}` and :math:`s^{(1)}_{z,1}` to zero
         and set :math:`s^{(1)}_{y,0,1}` to :math:`-\lambda_1^2 t_g\Omega_x(t)/8`. This
         results in a Z angle rotation rate of :math:`\bar{\delta}^{(1)}(t)=0` in the equations
-        above and defines the value for the ideal :math:`\beta` parameter.
-        With these choices, the Y quadrature of the first-order DRAG pulse is
-
-        .. math::
-
-            \Omega_y(t)=-\frac{\lambda_1^2\dot{\Omega}_x(t)}{4\Delta}
-
-        In Qiskit pulse, the definition of the DRAG pulse is
+        above and defines the value for the ideal :math:`\beta` parameter. In Qiskit pulse, the
+        definition of the DRAG pulse is
 
         .. math::
 
             \Omega(t) = \Omega_x(t) + i\beta\,\dot{\Omega}_x(t)\quad\Longrightarrow\quad
-            \Omega_y(t)= \beta\,\dot{\Omega}_x(t)
+            \Omega_y(t)= \beta\,\dot{\Omega}_x(t).
 
-        from which we identify the ideal value of :math:`\beta` as :math:`-\lambda^2_1/(4\Delta)`.
         We now assume that there is a small error :math:`{\rm d}\beta` in :math:`\beta` such
         that the instantaneous Z-angle error is
 
