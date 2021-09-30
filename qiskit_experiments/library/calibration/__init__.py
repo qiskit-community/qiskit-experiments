@@ -57,6 +57,7 @@ Calibration analysis
 
     DragCalAnalysis
     FineDragAnalysis
+    FineAmplitudeAnalysis
     RamseyXYAnalysis
 
 Calibrations management
@@ -73,4 +74,5 @@ from .ramsey_xy import RamseyXY
 
 from .analysis.drag_analysis import DragCalAnalysis
 from .analysis.fine_drag_analysis import FineDragAnalysis
+from .analysis.fine_amplitude_analysis import FineAmplitudeAnalysis
 from .analysis.remsey_xy_analysis import RamseyXYAnalysis

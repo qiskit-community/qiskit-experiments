@@ -53,11 +53,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
 
     # section: note
 
-        The following is a list of fixed-valued parameters that enter the fit.
-
-        * :math:`{\rm apg}` The angle per gate is set by the user, for example pi for a pi-pulse.
-        * :math:`{\rm phase\_offset}` The phase offset in the cosine oscillation, for example,
-          :math:`\pi/2` if a square-root of X gate is added before the repeated gates.
+        Different analysis classes may subclass this class to fix some of the fit parameters.
     """
 
     __series__ = [
@@ -75,9 +71,6 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
             r"+ {\rm phase\_offset}\right)+{\rm base}",
         )
     ]
-
-    # The intended angle per gat of the gate being calibrated, e.g. pi for a pi-pulse.
-    __fixed_parameters__ = ["angle_per_gate", "phase_offset"]
 
     @classmethod
     def _default_options(cls):
