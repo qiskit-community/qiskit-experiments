@@ -12,28 +12,21 @@
 
 """Rabi amplitude experiment."""
 
-from typing import List, Optional, Tuple
+from typing import List, Optional
 import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate, Parameter
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
-from qiskit.pulse import ScheduleBlock
 import qiskit.pulse as pulse
 
-from qiskit_experiments.framework.experiment_data import ExperimentData
-from qiskit_experiments.framework import Options
+from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.curve_analysis import ParameterRepr, OscillationAnalysis
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.calibration_management.update_library import Amplitude
-from qiskit_experiments.calibration_management.calibrations import Calibrations
-from qiskit_experiments.calibration_management.base_calibration_experiment import (
-    BaseCalibrationExperiment,
-)
 
 
-class Rabi(BaseCalibrationExperiment):
+class Rabi(BaseExperiment):
     """An experiment that scans the amplitude of a pulse to calibrate rotations between 0 and 1.
 
     # section: overview
@@ -63,7 +56,6 @@ class Rabi(BaseCalibrationExperiment):
 
     __analysis_class__ = OscillationAnalysis
     __rabi_gate_name__ = "Rabi"
-    __updater__ = Amplitude
 
     @classmethod
     def _default_run_options(cls) -> Options:
@@ -90,6 +82,7 @@ class Rabi(BaseCalibrationExperiment):
             sigma (float): The standard deviation of the default Gaussian pulse.
             amplitudes (iterable): The list of amplitude values to scan.
             schedule (ScheduleBlock): The schedule for the Rabi pulse that overrides the default.
+
         """
         options = super()._default_experiment_options()
 
@@ -97,6 +90,7 @@ class Rabi(BaseCalibrationExperiment):
         options.sigma = 40
         options.amplitudes = np.linspace(-0.95, 0.95, 51)
         options.schedule = None
+
         return options
 
     @classmethod
@@ -110,15 +104,7 @@ class Rabi(BaseCalibrationExperiment):
 
         return options
 
-    def __init__(
-        self,
-        qubit: int,
-        cals: Optional[Calibrations] = None,
-        schedule_name: Optional[str] = "x",
-        cal_parameter_name: Optional[str] = "amp",
-        amplitudes: Optional[List] = None,
-        angles_schedules: Optional[List[Tuple]] = None,
-    ):
+    def __init__(self, qubit: int):
         """Initialize a Rabi experiment on the given qubit.
 
         The parameters of the Gaussian Rabi pulse can be specified at run-time.
@@ -130,70 +116,33 @@ class Rabi(BaseCalibrationExperiment):
 
         Args:
             qubit: The qubit on which to run the Rabi experiment.
-            cals: If calibrations is given then running the experiment may update the
-                values of the pulse parameters stored in calibrations.
-            schedule_name: The name of the schedule to extract from the calibrations. This value
-                defaults to "x".
-            cal_parameter_name: The name of the parameter in calibrations to update. This name will
-                be stored in the experiment options and defaults to "amp".
-            amplitudes: The values of the amplitudes to scan. Specify this argument to override the
-                default values of the experiment.
-            angles_schedules: A list of tuples that is given to the :class:`Amplitude`
-                updater. See the experiment options for default values.
-
-        Raises:
-            CalibrationError: If the schedule_name or calibration parameter name are not contained
-                in the list of angles to update.
         """
-        super().__init__([qubit], cals, schedule_name, cal_parameter_name)
+        super().__init__([qubit])
 
-        self._angles_schedules = angles_schedules or [(np.pi, "amp", "x"), (np.pi / 2, "amp", "sx")]
+    def _template_circuit(self, amp_param) -> QuantumCircuit:
+        """Return the template quantum circuit."""
+        gate = Gate(name=self.__rabi_gate_name__, num_qubits=1, params=[amp_param])
 
-        if amplitudes is not None:
-            self.experiment_options.amplitudes = amplitudes
+        circuit = QuantumCircuit(1)
+        circuit.append(gate, (0,))
+        circuit.measure_active()
 
-    # pylint: disable=arguments-differ
-    def _get_schedule_from_defaults(self, backend: Optional[Backend] = None) -> ScheduleBlock:
-        """Get the schedules from the default options."""
+        return circuit
+
+    def _default_gate_schedule(self, backend: Optional[Backend] = None):
+        """Create the default schedule for the Rabi gate."""
+        amp = Parameter("amp")
         with pulse.build(backend=backend, name="rabi") as default_schedule:
             pulse.play(
                 pulse.Gaussian(
                     duration=self.experiment_options.duration,
-                    amp=Parameter("amp"),
+                    amp=amp,
                     sigma=self.experiment_options.sigma,
                 ),
                 pulse.DriveChannel(self.physical_qubits[0]),
             )
 
         return default_schedule
-
-    def validate_schedule(self, schedule: ScheduleBlock):
-        """Validate the Rabi schedule.
-
-        Raises:
-            CalibrationError: If the name of the schedule and its parameter are not
-                in the angles and schedules tuple to update (see :class:`Amplitude`).
-        """
-        self._validate_channels(schedule)
-        self._validate_parameters(schedule, 1)
-
-        # consistency check between the schedule and the amplitudes to update.
-        if self._cals is not None:
-            for update_tuple in self._angles_schedules:
-                if update_tuple[1] == self._param_name and update_tuple[2] == schedule.name:
-                    break
-            else:
-                raise CalibrationError(
-                    f"The schedule {schedule.name} is not in the angles to update."
-                )
-
-    def _template_circuit(self, amp_param) -> QuantumCircuit:
-        """Return the template quantum circuit."""
-        circuit = QuantumCircuit(1)
-        circuit.append(Gate(name=self.__rabi_gate_name__, num_qubits=1, params=[amp_param]), (0,))
-        circuit.measure_active()
-
-        return circuit
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Create the circuits for the Rabi experiment.
@@ -211,16 +160,26 @@ class Rabi(BaseCalibrationExperiment):
                   that matches the qubit on which to run the Rabi experiment.
                 - If the user provided schedule has more than one free parameter.
         """
-        schedule = self.get_schedule(
-            assign_params={self._param_name: Parameter("amp")},
-        )
+        schedule = self.experiment_options.get("schedule", None)
+
+        if schedule is None:
+            schedule = self._default_gate_schedule(backend=backend)
+        else:
+            if self.physical_qubits[0] not in set(ch.index for ch in schedule.channels):
+                raise CalibrationError(
+                    f"User provided schedule {schedule.name} does not contain a channel "
+                    "for the qubit on which to run Rabi."
+                )
+
+        if len(schedule.parameters) != 1:
+            raise CalibrationError("Schedule in Rabi must have exactly one free parameter.")
 
         param = next(iter(schedule.parameters))
 
         # Create template circuit
         circuit = self._template_circuit(param)
         circuit.add_calibration(
-            self.__rabi_gate_name__, self.physical_qubits, schedule, params=[param]
+            self.__rabi_gate_name__, (self.physical_qubits[0],), schedule, params=[param]
         )
 
         # Create the circuits to run
@@ -228,21 +187,21 @@ class Rabi(BaseCalibrationExperiment):
         for amp in self.experiment_options.amplitudes:
             amp = np.round(amp, decimals=6)
             assigned_circ = circuit.assign_parameters({param: amp}, inplace=False)
-            assigned_circ.metadata = self._circuit_metadata(xval=amp)
+            assigned_circ.metadata = {
+                "experiment_type": self._type,
+                "qubits": (self.physical_qubits[0],),
+                "xval": amp,
+                "unit": "arb. unit",
+                "amplitude": amp,
+                "schedule": str(schedule),
+            }
+
+            if backend:
+                assigned_circ.metadata["dt"] = getattr(backend.configuration(), "dt", "n.a.")
 
             circs.append(assigned_circ)
 
         return circs
-
-    def update_calibrations(self, experiment_data: ExperimentData):
-        """Update the calibrations given the experiment data.
-
-        Args:
-            experiment_data: The experiment data to use for the update.
-        """
-        angles_schedules = self._angles_schedules
-
-        self.__updater__.update(self._cals, experiment_data, angles_schedules=angles_schedules)
 
 
 class EFRabi(Rabi):
@@ -298,7 +257,7 @@ class EFRabi(Rabi):
 
         return options
 
-    def _get_schedule_from_defaults(self, backend: Optional[Backend] = None) -> ScheduleBlock:
+    def _default_gate_schedule(self, backend: Optional[Backend] = None):
         """Create the default schedule for the EFRabi gate with a frequency shift to the 1-2
         transition."""
 
@@ -320,6 +279,7 @@ class EFRabi(Rabi):
                     "to be set manually through EFRabi.set_experiment_options(frequency_shift=..)."
                 ) from att_err
 
+        amp = Parameter("amp")
         with pulse.build(backend=backend, name=self.__rabi_gate_name__) as default_schedule:
             with pulse.frequency_offset(
                 self.experiment_options.frequency_shift,
@@ -328,7 +288,7 @@ class EFRabi(Rabi):
                 pulse.play(
                     pulse.Gaussian(
                         duration=self.experiment_options.duration,
-                        amp=Parameter("amp"),
+                        amp=amp,
                         sigma=self.experiment_options.sigma,
                     ),
                     pulse.DriveChannel(self.physical_qubits[0]),

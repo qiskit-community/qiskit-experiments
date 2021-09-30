@@ -136,11 +136,9 @@ class DragBackend(MockIQBackend):
         iq_cluster_width: float = 1.0,
         leakage: float = 0.03,
         ideal_beta=2.0,
-        gate_name: str = "Rp",
     ):
         """Initialize the rabi backend."""
         self._leakage = leakage
-        self._gate_name = gate_name
         self.ideal_beta = ideal_beta
 
         super().__init__(iq_cluster_centers, iq_cluster_width)
@@ -149,7 +147,7 @@ class DragBackend(MockIQBackend):
         """Returns the probability based on the beta, number of gates, and leakage."""
         n_gates = sum(circuit.count_ops().values())
 
-        beta = next(iter(circuit.calibrations[self._gate_name].keys()))[1][0]
+        beta = next(iter(circuit.calibrations["Rp"].keys()))[1][0]
 
         return np.sin(n_gates * self._leakage * (beta - self.ideal_beta)) ** 2
 

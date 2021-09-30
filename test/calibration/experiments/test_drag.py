@@ -20,13 +20,10 @@ from qiskit.pulse import DriveChannel, Drag
 import qiskit.pulse as pulse
 from qiskit.qobj.utils import MeasLevel
 from qiskit import transpile
-from qiskit.test.mock import FakeArmonk
 
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.library import DragCal
 from qiskit_experiments.test.mock_iq_backend import DragBackend
-from qiskit_experiments.calibration_management import BackendCalibrations
-from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 
 
 class TestDragEndToEnd(QiskitTestCase):
@@ -39,94 +36,81 @@ class TestDragEndToEnd(QiskitTestCase):
         beta = Parameter("β")
 
         with pulse.build(name="xp") as xp:
-            pulse.play(Drag(duration=160, amp=0.208519, sigma=40, beta=beta), DriveChannel(1))
+            pulse.play(Drag(duration=160, amp=0.208519, sigma=40, beta=beta), DriveChannel(0))
 
+        with pulse.build(name="xm") as xm:
+            pulse.play(Drag(duration=160, amp=-0.208519, sigma=40, beta=beta), DriveChannel(0))
+
+        self.x_minus = xm
         self.x_plus = xp
-        self.test_tol = 0.05
 
     def test_end_to_end(self):
         """Test the drag experiment end to end."""
 
-        backend = DragBackend(gate_name="xp")
+        test_tol = 0.05
+        backend = DragBackend()
 
         drag = DragCal(1)
 
-        drag.set_experiment_options(schedule=self.x_plus)
-        expdata = drag.run(backend).block_for_results()
+        drag.set_experiment_options(rp=self.x_plus, rm=self.x_minus)
+        expdata = drag.run(backend)
+        expdata.block_for_results()
         result = expdata.analysis_results(1)
 
-        self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
+        self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
         self.assertEqual(result.quality, "good")
 
         # Small leakage will make the curves very flat.
-        backend = DragBackend(leakage=0.005, gate_name="xp")
+        backend = DragBackend(leakage=0.005)
 
-        drag = DragCal(1)
+        drag = DragCal(0)
         drag.set_analysis_options(p0={"beta": 1.2})
-        drag.set_experiment_options(schedule=self.x_plus)
+        drag.set_experiment_options(rp=self.x_plus, rm=self.x_minus)
         drag.set_run_options(meas_level=MeasLevel.KERNELED, meas_return="avg")
-        exp_data = drag.run(backend).block_for_results()
+        exp_data = drag.run(backend)
+        exp_data.block_for_results()
         result = exp_data.analysis_results(1)
 
         meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
 
         self.assertEqual(meas_level, MeasLevel.KERNELED)
-        self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
+        self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
         self.assertEqual(result.quality, "good")
 
         # Large leakage will make the curves oscillate quickly.
-        backend = DragBackend(leakage=0.05, gate_name="xp")
+        backend = DragBackend(leakage=0.05)
 
         drag = DragCal(1)
         drag.set_run_options(shots=200)
         drag.set_experiment_options(betas=np.linspace(-4, 4, 31))
         drag.set_analysis_options(p0={"beta": 1.8, "freq0": 0.08, "freq1": 0.16, "freq2": 0.32})
-        drag.set_experiment_options(schedule=self.x_plus)
-        exp_data = drag.run(backend).block_for_results()
+        drag.set_experiment_options(rp=self.x_plus, rm=self.x_minus)
+        exp_data = drag.run(backend)
+        exp_data.block_for_results()
         result = exp_data.analysis_results(1)
 
         meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
 
         self.assertEqual(meas_level, MeasLevel.CLASSIFIED)
-        self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
+        self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
         self.assertEqual(result.quality, "good")
-
-    def test_update_calibrations(self):
-        """Test that an instance of calibrations can be updated."""
-        library = FixedFrequencyTransmon(basis_gates=["x", "sx"])
-        cals = BackendCalibrations(FakeArmonk(), library=library)
-
-        self.assertEqual(cals.get_parameter_value("β", (0,), "x"), 0.0)
-        DragCal(0, cals=cals).run(DragBackend(gate_name="x"))
-        self.assertTrue(abs(cals.get_parameter_value("β", (0,), "x") - 2.0) < self.test_tol)
 
 
 class TestDragCircuits(QiskitTestCase):
     """Test the circuits of the drag calibration."""
 
-    def setUp(self):
-        """Setup some schedules."""
-        super().setUp()
-
-        beta = Parameter("β")
-
-        with pulse.build(name="xp") as xp:
-            pulse.play(Drag(duration=160, amp=0.208519, sigma=40, beta=beta), DriveChannel(0))
-
-        self.x_plus = xp
-
     def test_default_circuits(self):
         """Test the default circuit."""
 
-        backend = DragBackend(leakage=0.005, gate_name="xp")
+        backend = DragBackend(leakage=0.005)
 
         drag = DragCal(0)
-        drag.set_experiment_options(reps=[2, 4, 8], schedule=self.x_plus)
-        circuits = drag.circuits(DragBackend(gate_name="xp"))
+        drag.set_experiment_options(reps=[2, 4, 8])
+        circuits = drag.circuits(DragBackend())
 
         for idx, expected in enumerate([4, 8, 16]):
             ops = transpile(circuits[idx * 51], backend).count_ops()
-            self.assertEqual(ops["xp"], expected)
+            self.assertEqual(ops["Rp"] + ops["Rm"], expected)
 
     def test_raise_multiple_parameter(self):
         """Check that the experiment raises with unassigned parameters."""
@@ -137,11 +121,35 @@ class TestDragCircuits(QiskitTestCase):
         with pulse.build(name="xp") as xp:
             pulse.play(Drag(duration=160, amp=amp, sigma=40, beta=beta), DriveChannel(0))
 
-        backend = DragBackend(leakage=0.05, gate_name="xp")
+        with pulse.build(name="xm") as xm:
+            pulse.play(Drag(duration=160, amp=-amp, sigma=40, beta=beta), DriveChannel(0))
 
-        drag = DragCal(0)
+        backend = DragBackend(leakage=0.05)
+
+        drag = DragCal(1)
         drag.set_experiment_options(betas=np.linspace(-3, 3, 21))
-        drag.set_experiment_options(schedule=xp)
+        drag.set_experiment_options(rp=xp, rm=xm)
+
+        with self.assertRaises(CalibrationError):
+            drag.run(backend).analysis_results(0)
+
+    def test_raise_inconsistent_parameter(self):
+        """Check that the experiment raises with unassigned parameters."""
+
+        beta1 = Parameter("β")
+        beta2 = Parameter("β")
+
+        with pulse.build(name="xp") as xp:
+            pulse.play(Drag(duration=160, amp=0.2, sigma=40, beta=beta1), DriveChannel(0))
+
+        with pulse.build(name="xm") as xm:
+            pulse.play(Drag(duration=160, amp=-0.2, sigma=40, beta=beta2), DriveChannel(0))
+
+        backend = DragBackend(leakage=0.05)
+
+        drag = DragCal(1)
+        drag.set_experiment_options(betas=np.linspace(-3, 3, 21))
+        drag.set_experiment_options(rp=xp, rm=xm)
 
         with self.assertRaises(CalibrationError):
             drag.run(backend).analysis_results(0)

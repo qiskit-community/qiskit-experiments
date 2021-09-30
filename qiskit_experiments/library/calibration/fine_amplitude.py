@@ -20,20 +20,14 @@ from qiskit.circuit import Gate
 from qiskit.providers import Backend
 from qiskit.pulse.schedule import ScheduleBlock
 
-from qiskit_experiments.framework import Options
+from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.calibration.analysis.fine_amplitude_analysis import (
     FineAmplitudeAnalysis,
 )
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.framework.experiment_data import ExperimentData
-from qiskit_experiments.calibration_management.update_library import Amplitude
-from qiskit_experiments.calibration_management.calibrations import Calibrations
-from qiskit_experiments.calibration_management.base_calibration_experiment import (
-    BaseCalibrationExperiment,
-)
 
 
-class FineAmplitude(BaseCalibrationExperiment):
+class FineAmplitude(BaseExperiment):
     r"""Error amplifying fine amplitude calibration experiment.
 
     # section: overview
@@ -102,8 +96,6 @@ class FineAmplitude(BaseCalibrationExperiment):
 
     __analysis_class__ = FineAmplitudeAnalysis
 
-    __updater__ = Amplitude
-
     @classmethod
     def _default_experiment_options(cls) -> Options:
         r"""Default values for the fine amplitude experiment.
@@ -130,34 +122,44 @@ class FineAmplitude(BaseCalibrationExperiment):
 
         return options
 
-    def __init__(
-        self,
-        qubit: int,
-        cals: Optional[Calibrations] = None,
-        schedule_name: Optional[str] = None,
-        cal_parameter_name: Optional[str] = "amp",
-        repetitions: Optional[int] = None,
-    ):
-        r"""Setup a fine amplitude experiment on the given qubit.
+    def __init__(self, qubit: int):
+        """Setup a fine amplitude experiment on the given qubit.
 
         Args:
             qubit: The qubit on which to run the fine amplitude calibration experiment.
-            cals: If calibrations is given then running the experiment will update
-                the values of the pulse parameters stored in calibrations.
-            schedule_name: The name of the schedule to extract from the calibrations.
-            cal_parameter_name: The name of the parameter in calibrations to update. This name will
-                be stored in the experiment options and defaults to "amp".
-            repetitions: The list of times to repeat the gate in each circuit.
         """
-        super().__init__([qubit], cals, schedule_name, cal_parameter_name)
+        super().__init__([qubit])
 
-        if repetitions is not None:
-            self.experiment_options.repetitions = repetitions
+    def set_schedule(
+        self,
+        schedule: ScheduleBlock,
+        angle_per_gate: float,
+        add_xp_circuit: bool,
+        add_sx: bool,
+    ):
+        r"""Set the schedule and its corresponding intended angle per gate.
 
-    def validate_schedule(self, schedule: ScheduleBlock):
-        """Validate the schedule to calibrate."""
-        self._validate_channels(schedule)
-        self._validate_parameters(schedule, 0)
+        Args:
+            schedule: The schedule to attache to the gates.
+            angle_per_gate: The intended angle per gate used by the analysis method.
+            add_xp_circuit: If True then a circuit preparing the excited state is also run.
+            add_sx: Whether or not to add a pi-half pulse before running the calibration.
+
+        Raises:
+            CalibrationError: If the target angle is a multiple of :math:`2\pi`.
+        """
+        self.set_experiment_options(schedule=schedule, add_xp_circuit=add_xp_circuit, add_sx=add_sx)
+
+        if np.isclose(angle_per_gate % (2 * np.pi), 0.0):
+            raise CalibrationError(
+                f"It does not make sense to use {self.__class__.__name__} on a pulse with an "
+                "angle_per_gate of zero as the update rule will set the amplitude to zero "
+                "angle_per_gate / (angle_per_gate + d_theta)."
+            )
+
+        phase_offset = np.pi / 2 if add_sx else 0
+
+        self.set_analysis_options(angle_per_gate=angle_per_gate, phase_offset=phase_offset)
 
     def _pre_circuit(self) -> QuantumCircuit:
         """Return a preparation circuit.
@@ -188,11 +190,29 @@ class FineAmplitude(BaseCalibrationExperiment):
             pulse schedule.
 
         Raises:
+            CalibrationError: If no schedule was provided.
+            CalibrationError: If the channel index does not correspond to the physical qubit index.
+            CalibrationError: If the schedule contains unassigned parameters.
             CalibrationError: If the analysis options do not contain the angle_per_gate.
         """
 
         # Get the schedule and check assumptions.
-        schedule = self.get_schedule()
+        schedule = self.experiment_options.get("schedule", None)
+
+        if schedule is None:
+            raise CalibrationError("No schedule set for fine amplitude calibration.")
+
+        if self.physical_qubits[0] not in set(ch.index for ch in schedule.channels):
+            raise CalibrationError(
+                f"User provided schedule {schedule.name} does not contain a channel "
+                "for the qubit on which to run the fine amplitude calibration."
+            )
+
+        if len(schedule.parameters) > 0:
+            raise CalibrationError(
+                "All parameters in a fine amplitude calibration schedule must be bound. "
+                f"Unbound parameters: {schedule.parameters}"
+            )
 
         # Prepare the circuits.
         gate = Gate(name=schedule.name, num_qubits=1, params=[])
@@ -218,7 +238,14 @@ class FineAmplitude(BaseCalibrationExperiment):
             circuit = QuantumCircuit(1)
             circuit.x(0)
             circuit.measure_all()
-            circuit.metadata = self._circuit_metadata(xval=(np.pi - phase_offset) / angle_per_gate)
+
+            circuit.metadata = {
+                "experiment_type": self._type,
+                "qubits": (self.physical_qubits[0],),
+                "xval": (np.pi - phase_offset) / angle_per_gate,
+                "unit": "gate number",
+            }
+
             circuits.append(circuit)
 
         for repetition in repetitions:
@@ -229,33 +256,17 @@ class FineAmplitude(BaseCalibrationExperiment):
 
             circuit.measure_all()
             circuit.add_calibration(gate, (self.physical_qubits[0],), schedule, params=[])
-            circuit.metadata = self._circuit_metadata(xval=repetition)
+
+            circuit.metadata = {
+                "experiment_type": self._type,
+                "qubits": (self.physical_qubits[0],),
+                "xval": repetition,
+                "unit": "gate number",
+            }
 
             circuits.append(circuit)
 
         return circuits
-
-    def update_calibrations(self, experiment_data: ExperimentData):
-        """Update the calibrations given the experiment data.
-
-        Args:
-            experiment_data: The experiment data to use for the update.
-
-        Raises:
-            CalibrationError: If the schedule name is None in the calibration options.
-        """
-        angle = self.analysis_options.angle_per_gate
-
-        if self._sched_name is None:
-            raise CalibrationError(
-                f"Cannot perform {self.__updater__.__class__.__name__} without a schedule name."
-            )
-
-        self.__updater__.update(
-            self._cals,
-            experiment_data,
-            angles_schedules=[(angle, self._param_name, self._sched_name)],
-        )
 
 
 class FineXAmplitude(FineAmplitude):
@@ -292,35 +303,6 @@ class FineXAmplitude(FineAmplitude):
         options.phase_offset = np.pi / 2
 
         return options
-
-    def __init__(
-        self,
-        qubit: int,
-        cals: Optional[Calibrations] = None,
-        schedule_name: Optional[str] = "x",
-        cal_parameter_name: Optional[str] = "amp",
-        sx_schedule_name: Optional[str] = "sx",
-        repetitions: Optional[int] = None,
-    ):
-        """Setup a fine amplitude experiment on the given qubit.
-
-        Args:
-            qubit: The qubit on which to run the fine amplitude calibration experiment.
-            cals: An optional instance of :class:`Calibrations`. If calibrations is
-                given then running the experiment will update the values of the pulse parameters
-                stored in calibrations.
-            schedule_name: The name of the schedule to extract from the calibrations. The default
-                value is "x".
-            cal_parameter_name: The name of the parameter in calibrations to update. This name will
-                be stored in the experiment options and defaults to "amp".
-            sx_schedule_name: The name of the schedule to extract from the calibrations for the
-                "sx" pulse that will be added.
-            repetitions: The list of times to repeat the gate in each circuit.
-        """
-        super().__init__(qubit, cals, schedule_name, cal_parameter_name, repetitions)
-
-        if cals is not None and sx_schedule_name is not None:
-            self.experiment_options.sx_schedule = cals.get_schedule(sx_schedule_name, qubit)
 
 
 class FineSXAmplitude(FineAmplitude):
