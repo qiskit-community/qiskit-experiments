@@ -22,10 +22,10 @@ from qiskit.qobj.utils import MeasLevel
 import qiskit.pulse as pulse
 from qiskit.test.mock import FakeAthens
 
-from qiskit_experiments.library import Rabi, DragCal, QubitSpectroscopy, FineXAmplitude
+from qiskit_experiments.library import Rabi, DragCal, QubitSpectroscopy, FineAmplitude
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.calibration_management.update_library import Frequency, Amplitude
+from qiskit_experiments.calibration_management.update_library import Frequency, Amplitude, Drag
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
 from qiskit_experiments.test.mock_iq_backend import DragBackend, MockFineAmp
 
@@ -60,7 +60,8 @@ class TestAmplitudeUpdate(QiskitTestCase):
 
         rabi = Rabi(self.qubit)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
-        exp_data = rabi.run(RabiBackend()).block_for_results()
+        exp_data = rabi.run(RabiBackend())
+        exp_data.block_for_results()
 
         with self.assertRaises(CalibrationError):
             self.cals.get_schedule("xp", qubits=0)
@@ -94,27 +95,29 @@ class TestAmplitudeUpdate(QiskitTestCase):
     def test_fine_amplitude(self):
         """Test that we can update from a fine amplitude experiment."""
 
+        xp_sched = self.cals.get_schedule("xp", self.qubit)
         target_angle = np.pi
 
-        amp_cal = FineXAmplitude(
-            self.qubit,
-            cals=self.cals,
-            schedule_name="xp",
-            sx_schedule_name="x90p",
+        amp_cal = FineAmplitude(self.qubit)
+        amp_cal.set_schedule(
+            schedule=xp_sched, angle_per_gate=target_angle, add_xp_circuit=True, add_sx=True
         )
         amp_cal.set_analysis_options(number_guesses=11)
 
         error = -np.pi * 0.05
         backend = MockFineAmp(error, np.pi, "xp")
 
-        self.assertEqual(self.cals.get_parameter_value("amp", self.qubit, "xp"), 0.2)
-
         exp_data = amp_cal.run(backend)
+        exp_data.block_for_results()
+
+        self.assertEqual(self.cals.get_parameter_value("amp", self.qubit, "xp"), 0.2)
 
         with self.assertRaises(CalibrationError):
             Amplitude.update(
                 self.cals, exp_data, angles_schedules=[(target_angle, "amp_fail", "xp")]
             )
+
+        Amplitude.update(self.cals, exp_data, angles_schedules=[(target_angle, "amp", "xp")])
 
         new_value = 0.2 * target_angle / (target_angle + error)
         self.assertAlmostEqual(
@@ -157,7 +160,7 @@ class TestDragUpdate(QiskitTestCase):
     def test_drag(self):
         """Test calibrations update from drag."""
 
-        backend = DragBackend(gate_name="xp")
+        backend = DragBackend()
         beta = Parameter("β")
         qubit = 1
         test_tol = 0.02
@@ -169,10 +172,17 @@ class TestDragUpdate(QiskitTestCase):
                 pulse.DriveChannel(chan),
             )
 
+        with pulse.build(backend=backend, name="xm") as x_minus:
+            pulse.play(
+                pulse.Drag(duration=160, amp=-0.208519, sigma=40, beta=beta),
+                pulse.DriveChannel(chan),
+            )
+
         # Setup the calibrations
         cals = BackendCalibrations(backend)
 
-        cals.add_schedule(x_plus, num_qubits=1)
+        for sched in [x_plus, x_minus]:
+            cals.add_schedule(sched, num_qubits=1)
 
         cals.add_parameter_value(0.2, "β", qubit, x_plus)
         cals.inst_map_add("xp", (qubit,))
@@ -181,17 +191,26 @@ class TestDragUpdate(QiskitTestCase):
         beta_val = cals.default_inst_map.get("xp", (qubit,)).blocks[0].pulse.beta
         self.assertEqual(beta_val, 0.2)
 
-        # Check schedules pre-update
-        expected = x_plus.assign_parameters({beta: 0.2, chan: 1}, inplace=False)
-        self.assertEqual(cals.get_schedule("xp", qubit), expected)
-
         # Run a Drag calibration experiment.
-        exp_data = DragCal(qubit, cals=cals, schedule_name="xp").run(backend)
+        drag = DragCal(qubit)
+        drag.set_experiment_options(
+            rp=cals.get_schedule("xp", qubit, assign_params={"β": beta}),
+            rm=cals.get_schedule("xm", qubit, assign_params={"β": beta}),
+        )
+
+        exp_data = drag.run(backend)
+        exp_data.block_for_results()
         result = exp_data.analysis_results(1)
 
         # Test the fit for good measure.
         self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
         self.assertEqual(result.quality, "good")
+
+        # Check schedules pre-update
+        expected = x_plus.assign_parameters({beta: 0.2, chan: 1}, inplace=False)
+        self.assertEqual(cals.get_schedule("xp", qubit), expected)
+
+        Drag.update(cals, exp_data, parameter="β", schedule="xp")
 
         # Check schedules post-update
         expected = x_plus.assign_parameters({beta: result.value.value, chan: 1}, inplace=False)
