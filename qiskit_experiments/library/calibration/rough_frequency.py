@@ -34,7 +34,7 @@ class RoughFrequency(BaseCalibrationExperiment, QubitSpectroscopy):
         self,
         qubit: int,
         frequencies: Union[List[float], np.array],
-        calibrations: Optional[BackendCalibrations] = None,
+        calibrations: BackendCalibrations,
         unit: Optional[str] = "Hz",
         auto_update: Optional[bool] = True,
         absolute: bool = True,
