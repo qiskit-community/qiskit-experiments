@@ -915,9 +915,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 )
                 fit_results.append(fit_result)
             except AnalysisError:
-                # some guess might be completely off from true parameters.
-                # even if some attempts fail, we just ignore that result and continue
-                # as long as we have more fit option candidates.
+                # Some guesses might be too far from the true parameters and may thus fail.
+                # We ignore initial guesses that fail and continue with the next fit candidate.
                 pass
 
         # Find best value with chi-squared value
