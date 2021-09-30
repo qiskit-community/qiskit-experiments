@@ -48,6 +48,8 @@ class RoughFrequency(BaseCalibrationExperiment, QubitSpectroscopy):
                 of the frequencies stored in calibrations.
             unit: The unit in which the user specifies the frequencies. Can be one of 'Hz', 'kHz',
                 'MHz', 'GHz'. Internally, all frequencies will be converted to 'Hz'.
+            auto_update: If set to True, which is the default, then the experiment will
+                automatically update the frequency in the calibrations.
             absolute: Boolean to specify if the frequencies are absolute or relative to the
                 qubit frequency in the backend.
 
@@ -59,7 +61,7 @@ class RoughFrequency(BaseCalibrationExperiment, QubitSpectroscopy):
         self._cals = calibrations
         self._sched_name = None
         self._param_name = None
-        self._auto_update = auto_update
+        self.auto_update = auto_update
 
 
 class RoughEFFrequency(BaseCalibrationExperiment, EFSpectroscopy):
@@ -74,6 +76,7 @@ class RoughEFFrequency(BaseCalibrationExperiment, EFSpectroscopy):
         frequencies: Union[List[float], np.array],
         cals: Optional[BackendCalibrations] = None,
         unit: Optional[str] = "Hz",
+        auto_update: bool = True,
         absolute: bool = True,
     ):
         """See :class:`QubitSpectroscopy` for detailed documentation.
@@ -85,6 +88,8 @@ class RoughEFFrequency(BaseCalibrationExperiment, EFSpectroscopy):
                 of the frequencies stored in calibrations.
             unit: The unit in which the user specifies the frequencies. Can be one of 'Hz', 'kHz',
                 'MHz', 'GHz'. Internally, all frequencies will be converted to 'Hz'.
+            auto_update: If set to True, which is the default, then the experiment will
+                automatically update the frequency in the calibrations.
             absolute: Boolean to specify if the frequencies are absolute or relative to the
                 qubit frequency in the backend.
 
@@ -95,3 +100,5 @@ class RoughEFFrequency(BaseCalibrationExperiment, EFSpectroscopy):
         EFSpectroscopy.__init__(self, qubit, frequencies, unit, absolute)
         self._cals = cals
         self._param_name = "f12"
+        self._sched_name = None
+        self.auto_update = auto_update
