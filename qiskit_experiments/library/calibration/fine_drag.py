@@ -249,14 +249,3 @@ class FineSXDrag(FineDrag):
         circ = QuantumCircuit(1)
         circ.sx(0)
         return circ
-
-
-class FineXDragEF(FineDrag):
-    """A class to run the fine DRAG calibration on the e-f transition."""
-
-    @staticmethod
-    def _pre_circuit() -> QuantumCircuit:
-        """Add an extra X gate before the Rp - Rz - Rp - Rz sequence done on the e-f transition."""
-        circuit = QuantumCircuit(1)
-        circuit.x(0)
-        return circuit
