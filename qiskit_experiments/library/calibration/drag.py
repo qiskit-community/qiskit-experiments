@@ -30,12 +30,11 @@ class DragCal(BaseExperiment):
 
     # section: overview
 
-        A Derivative Removal by Adiabatic Gate (DRAG) pulse is designed to minimize leakage
-        to a neighbouring transition. It is a standard pulse with an additional derivative
-        component. It is designed to reduce the frequency spectrum of a normal pulse near
-        the :math:`|1\rangle` - :math:`|2\rangle` transition, reducing the chance of leakage
-        to the :math:`|2\rangle` state. The optimal value of the DRAG parameter is chosen to
-        minimize both leakage and phase errors resulting from the AC Stark shift.
+        A Derivative Removal by Adiabatic Gate (DRAG) pulse is designed to minimize phase
+        errors and leakage resulting from the presence of a neighbouring transition. DRAG
+        is a standard pulse with an additional derivative component. The optimal value of
+        the DRAG parameter, :math:`\beta`, is chosen to primarily minimize phase errors
+        resulting from the AC Stark shift and potentially leakage errors. The DRAG pulse is
 
         .. math::
 
@@ -46,21 +45,20 @@ class DragCal(BaseExperiment):
         parameter and seek to calibrate in this experiment. The DRAG calibration will run
         several series of circuits. In a given circuit a Rp(β) - Rm(β) block is repeated
         :math:`N` times. Here, Rp is a rotation with a positive angle and Rm is the same rotation
-        with a native angle. As example the circuit of a single repetition, i.e. :math:`N=1`, is
-        shown below.
+        with a native angle and is implemented by the gate sequence Rz(π) - Rp(β) - Rz(π) where
+        the Z rotations are virtual. As example the circuit of a single repetition, i.e.
+        :math:`N=1`, is shown below.
 
         .. parsed-literal::
 
-                       ┌───────┐ ┌───────┐ ░ ┌─┐
-                  q_0: ┤ Rp(β) ├─┤ Rm(β) ├─░─┤M├
-                       └───────┘ └───────┘ ░ └╥┘
-            measure: 1/═══════════════════════╩═
-                                              0
+                       ┌───────┐┌───────┐┌───────┐┌───────┐ ░ ┌─┐
+                  q_0: ┤ Rp(β) ├┤ Rz(π) ├┤ Rp(β) ├┤ Rz(π) ├─░─┤M├
+                       └───────┘└───────┘└───────┘└───────┘ ░ └╥┘
+            measure: 1/════════════════════════════════════════╩═
+                                                               0
 
-        Here, the Rp gate and the Rm gate are can be pi and -pi rotations about the
-        x-axis of the Bloch sphere. The parameter β is scanned to find the value that minimizes
-        the leakage to the second excited state. Note that the analysis class requires this
-        experiment to run with three repetition numbers.
+        The parameter β is scanned to find the value that minimizes the unwanted Z-rotation.
+        Note that the analysis class requires this experiment to run with three repetition numbers.
 
     # section: reference
         .. ref_arxiv:: 1 1011.1949
@@ -81,13 +79,10 @@ class DragCal(BaseExperiment):
 
         .. code-block::
 
-            drag.set_experiment_options(rp=xp_schedule, rm=xm_schedule)
+            drag.set_experiment_options(schedule=xp_schedule)
 
         Experiment Options:
-            rp (ScheduleBlock): The schedule for the plus rotation.
-            rm (ScheduleBlock): The schedule for the minus rotation. If this schedule is
-                not specified it will be build from the rp schedule by sandwiching it
-                between phase shift gates with an angle of :math:`\pi`.
+            schedule (ScheduleBlock): The schedule of the rotation.
             amp (complex): The amplitude for the default Drag pulse. Must have a magnitude
                 smaller than one.
             duration (int): The duration of the default pulse in samples.
@@ -99,8 +94,7 @@ class DragCal(BaseExperiment):
         """
         options = super()._default_experiment_options()
 
-        options.rp = None
-        options.rm = None
+        options.schedule = None
         options.amp = 0.2
         options.duration = 160
         options.sigma = 40
@@ -161,12 +155,11 @@ class DragCal(BaseExperiment):
                 - If either the xp or xm pulse do not have at least one Drag pulse.
                 - If the number of different repetition series is not three.
         """
-        plus_sched = self.experiment_options.rp
-        minus_sched = self.experiment_options.rm
+        schedule = self.experiment_options.schedule
 
-        if plus_sched is None:
+        if schedule is None:
             beta = Parameter("β")
-            with pulse.build(backend=backend, name="xp") as plus_sched:
+            with pulse.build(backend=backend, name="drag") as schedule:
                 pulse.play(
                     pulse.Drag(
                         duration=self.experiment_options.duration,
@@ -177,40 +170,15 @@ class DragCal(BaseExperiment):
                     pulse.DriveChannel(self._physical_qubits[0]),
                 )
 
-            with pulse.build(backend=backend, name="xm") as minus_sched:
-                pulse.play(
-                    pulse.Drag(
-                        duration=self.experiment_options.duration,
-                        amp=-self.experiment_options.amp,
-                        sigma=self.experiment_options.sigma,
-                        beta=beta,
-                    ),
-                    pulse.DriveChannel(self._physical_qubits[0]),
-                )
-
-        if minus_sched is None:
-            with pulse.build(backend=backend, name="xm") as minus_sched:
-                pulse.shift_phase(np.pi, pulse.DriveChannel(self._physical_qubits[0]))
-                pulse.call(plus_sched)
-                pulse.shift_phase(-np.pi, pulse.DriveChannel(self._physical_qubits[0]))
-
-        if len(plus_sched.parameters) != 1 or len(minus_sched.parameters) != 1:
+        if len(schedule.parameters) != 1:
             raise CalibrationError(
-                "The schedules for Drag calibration must both have one free parameter."
-                f"Found {len(plus_sched.parameters)} and {len(minus_sched.parameters)} "
-                "for Rp and Rm, respectively."
+                "The schedule for Drag calibration must have one free parameter."
+                f"Found {len(schedule.parameters)}."
             )
 
-        beta_xp = next(iter(plus_sched.parameters))
-        beta_xm = next(iter(minus_sched.parameters))
+        beta = next(iter(schedule.parameters))
 
-        if beta_xp != beta_xm:
-            raise CalibrationError(
-                f"Beta for xp and xm in {self.__class__.__name__} calibration are not identical."
-            )
-
-        xp_gate = Gate(name="Rp", num_qubits=1, params=[beta_xp])
-        xm_gate = Gate(name="Rm", num_qubits=1, params=[beta_xp])
+        drag_gate = Gate(name=schedule.name, num_qubits=1, params=[beta])
 
         reps = self.experiment_options.reps
         if len(reps) != 3:
@@ -224,23 +192,24 @@ class DragCal(BaseExperiment):
         for idx, rep in enumerate(reps):
             circuit = QuantumCircuit(1)
             for _ in range(rep):
-                circuit.append(xp_gate, (0,))
-                circuit.append(xm_gate, (0,))
+                circuit.append(drag_gate, (0,))
+                circuit.rz(np.pi, 0)
+                circuit.append(drag_gate, (0,))
+                circuit.rz(np.pi, 0)
 
             circuit.measure_active()
 
-            circuit.add_calibration("Rp", (self.physical_qubits[0],), plus_sched, params=[beta_xp])
-            circuit.add_calibration("Rm", (self.physical_qubits[0],), minus_sched, params=[beta_xp])
+            circuit.add_calibration(schedule.name, self.physical_qubits, schedule, params=[beta])
 
-            for beta in self.experiment_options.betas:
-                beta = np.round(beta, decimals=6)
+            for beta_val in self.experiment_options.betas:
+                beta_val = np.round(beta_val, decimals=6)
 
-                assigned_circuit = circuit.assign_parameters({beta_xp: beta}, inplace=False)
+                assigned_circuit = circuit.assign_parameters({beta: beta_val}, inplace=False)
 
                 assigned_circuit.metadata = {
                     "experiment_type": self._type,
-                    "qubits": (self.physical_qubits[0],),
-                    "xval": beta,
+                    "qubits": self.physical_qubits,
+                    "xval": beta_val,
                     "series": idx,
                 }
 

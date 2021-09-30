@@ -40,6 +40,9 @@ module.
     :template: autosummary/experiment.rst
 
     DragCal
+    FineDrag
+    FineXDrag
+    FineSXDrag
     Rabi
     FineAmplitude
     FineXAmplitude
@@ -53,7 +56,9 @@ Calibration analysis
     :template: autosummary/analysis.rst
 
     DragCalAnalysis
+    FineDragAnalysis
     FineAmplitudeAnalysis
+    RamseyXYAnalysis
 
 Calibrations management
 =======================
@@ -62,10 +67,12 @@ See :mod:`qiskit_experiments.calibration_management`.
 """
 
 from .drag import DragCal
+from .fine_drag import FineDrag, FineXDrag, FineSXDrag
 from .rabi import Rabi, EFRabi
 from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
 from .ramsey_xy import RamseyXY
 
 from .analysis.drag_analysis import DragCalAnalysis
+from .analysis.fine_drag_analysis import FineDragAnalysis
 from .analysis.fine_amplitude_analysis import FineAmplitudeAnalysis
 from .analysis.remsey_xy_analysis import RamseyXYAnalysis
