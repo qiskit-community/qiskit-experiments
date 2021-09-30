@@ -32,11 +32,9 @@ class DragCal(BaseExperiment):
 
         A Derivative Removal by Adiabatic Gate (DRAG) pulse is designed to minimize phase
         errors and leakage resulting from the presence of a neighbouring transition. DRAG
-        is a standard pulse with an additional derivative component. It reduces the frequency
-        spectrum of a normal pulse near the :math:`|1\rangle` - :math:`|2\rangle` transition,
-        reducing the chance of leakage to the :math:`|2\rangle` state. The optimal value of
+        is a standard pulse with an additional derivative component. The optimal value of
         the DRAG parameter, :math:`\beta`, is chosen to primarily minimize phase errors
-        resulting from the AC Stark shift and leakage errors. The DRAG pulse is
+        resulting from the AC Stark shift and potentially leakage errors. The DRAG pulse is
 
         .. math::
 
