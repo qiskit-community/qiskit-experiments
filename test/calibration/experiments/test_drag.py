@@ -66,7 +66,7 @@ class TestDragEndToEnd(QiskitTestCase):
         drag = DragCal(0)
         drag.set_analysis_options(p0={"beta": 1.2})
         drag.set_experiment_options(rp=self.x_plus, rm=self.x_minus)
-        drag.set_run_options(meas_level=MeasLevel.KERNELED)
+        drag.set_run_options(meas_level=MeasLevel.KERNELED, meas_return="avg")
         exp_data = drag.run(backend)
         exp_data.block_for_results()
         result = exp_data.analysis_results(1)

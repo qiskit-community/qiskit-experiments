@@ -479,3 +479,49 @@ class Probability(DataAction):
         p_var = p_mean * (1 - p_mean) / shots
 
         return p_mean, np.sqrt(p_var)
+
+
+class BasisExpectationValue(DataAction):
+    """Compute expectation value of measured basis from probability.
+
+    Note:
+        The sign becomes P(0) -> 1, P(1) -> -1.
+    """
+
+    def _format_data(
+        self, datum: np.ndarray, error: Optional[np.ndarray] = None
+    ) -> Tuple[Any, Any]:
+        """Check that the input data are probabilities.
+
+        Args:
+            datum: An array representing probabilities.
+            error: An array representing error.
+
+        Returns:
+            Arrays of probability and its error
+
+        Raises:
+            DataProcessorError: When input value is not in [0, 1]
+        """
+        if not all(0.0 <= p <= 1.0 for p in datum):
+            raise DataProcessorError(
+                f"Input data for node {self.__class__.__name__} is not likely probability."
+            )
+        return datum, error
+
+    def _process(
+        self, datum: np.array, error: Optional[np.array] = None
+    ) -> Tuple[np.array, np.array]:
+        """Compute eigenvalue.
+
+        Args:
+            datum: An array representing probabilities.
+            error: An array representing error.
+
+        Returns:
+            Arrays of eigenvalues and its error
+        """
+        if error is not None:
+            return 2 * (0.5 - datum), 2 * error
+        else:
+            return 2 * (0.5 - datum), None

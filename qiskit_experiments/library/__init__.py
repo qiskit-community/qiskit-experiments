@@ -60,6 +60,8 @@ Some experiments may be also used for gate calibration.
     ~characterization.T2Ramsey
     ~characterization.QubitSpectroscopy
     ~characterization.EFSpectroscopy
+    ~characterization.CrossResonanceHamiltonian
+    ~characterization.EchoedCrossResonanceHamiltonian
 
 .. _calibration:
 
@@ -83,6 +85,7 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     ~calibration.FineXAmplitude
     ~calibration.FineSXAmplitude
     ~calibration.HalfAngle
+    ~calibration.RamseyXY
 
 """
 from .calibration import (
@@ -93,8 +96,16 @@ from .calibration import (
     FineXAmplitude,
     FineSXAmplitude,
     HalfAngle,
+    RamseyXY,
 )
-from .characterization import T1, T2Ramsey, QubitSpectroscopy, EFSpectroscopy
+from .characterization import (
+    T1,
+    T2Ramsey,
+    QubitSpectroscopy,
+    EFSpectroscopy,
+    CrossResonanceHamiltonian,
+    EchoedCrossResonanceHamiltonian,
+)
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
 from .quantum_volume import QuantumVolume

@@ -28,7 +28,8 @@ class HalfAngle(BaseExperiment):
     """A calibration experiment class to perform half angle calibration.
 
     This experiment runs circuits that repeat blocks of :code:`Rx(π/2) - Rx(π/2) - Ry(π)`
-    circuits.
+    circuits. This gate sequence is designed to amplify errors in the rotation axis of the
+    X and Y rotations. Such errors can occur due to ...
 
     .. parsed-literal::
 
@@ -72,7 +73,8 @@ class HalfAngle(BaseExperiment):
         """
         super().__init__([qubit])
 
-    def _pre_circuit(self) -> QuantumCircuit:
+    @staticmethod
+    def _pre_circuit() -> QuantumCircuit:
         """Return the preparation circuit for the experiment."""
         return QuantumCircuit(1)
 

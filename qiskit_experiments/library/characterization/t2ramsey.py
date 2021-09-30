@@ -21,8 +21,7 @@ import qiskit
 from qiskit.utils import apply_prefix
 from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
-from qiskit.providers.options import Options
-from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework import BaseExperiment, Options
 from .t2ramsey_analysis import T2RamseyAnalysis
 
 
@@ -69,8 +68,13 @@ class T2Ramsey(BaseExperiment):
                 's', 'ms', 'us', 'ns', 'ps', 'dt'.
             osc_freq (float): Oscillation frequency offset in Hz.
         """
+        options = super()._default_experiment_options()
 
-        return Options(delays=None, unit="s", osc_freq=0.0)
+        options.delays = None
+        options.unit = "s"
+        options.osc_freq = 0.0
+
+        return options
 
     def __init__(
         self,
@@ -92,7 +96,6 @@ class T2Ramsey(BaseExperiment):
                 used for both T2Ramsey and for the frequency.
             osc_freq: the oscillation frequency induced by the user. \
             The frequency is given in Hz.
-            experiment_type: String indicating the experiment type.
 
         """
 
@@ -122,7 +125,7 @@ class T2Ramsey(BaseExperiment):
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
         elif self.experiment_options.unit != "s":
-            apply_prefix(1, self.experiment_options.unit)
+            conversion_factor = apply_prefix(1, self.experiment_options.unit)
 
         circuits = []
         for delay in self.experiment_options.delays:

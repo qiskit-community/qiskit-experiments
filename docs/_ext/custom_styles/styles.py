@@ -163,6 +163,7 @@ class ExperimentDocstring(QiskitExperimentDocstring):
         "run_opts": None,
         "example": load_standard_section,
         "note": load_standard_section,
+        "see_also": load_standard_section,
     }
 
     __formatter__ = ExperimentSectionFormatter
@@ -293,6 +294,7 @@ class AnalysisDocstring(QiskitExperimentDocstring):
         "analysis_opts": None,
         "example": load_standard_section,
         "note": load_standard_section,
+        "see_also": load_standard_section,
     }
 
     __formatter__ = AnalysisSectionFormatter

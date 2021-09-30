@@ -44,7 +44,11 @@ module.
     FineAmplitude
     FineXAmplitude
     FineSXAmplitude
+<<<<<<< HEAD
     HalfAngle
+=======
+    RamseyXY
+>>>>>>> f859b2d55351faaef59ce6f62dd866f5c89978a7
 
 Calibration analysis
 ====================
@@ -52,7 +56,6 @@ Calibration analysis
     :toctree: ../stubs/
     :template: autosummary/analysis.rst
 
-    OscillationAnalysis
     DragCalAnalysis
     FineAmplitudeAnalysis
 
@@ -66,7 +69,8 @@ from .drag import DragCal
 from .rabi import Rabi, EFRabi
 from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
 from .half_angle import HalfAngle
+from .ramsey_xy import RamseyXY
 
-from .analysis.oscillation_analysis import OscillationAnalysis
 from .analysis.drag_analysis import DragCalAnalysis
 from .analysis.fine_amplitude_analysis import FineAmplitudeAnalysis
+from .analysis.remsey_xy_analysis import RamseyXYAnalysis
