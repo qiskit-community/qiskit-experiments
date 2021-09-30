@@ -23,10 +23,8 @@ from qiskit.providers import Backend
 from qiskit.qobj.utils import MeasLevel
 from qiskit.utils import apply_prefix
 
-from qiskit_experiments.framework import Options
-from qiskit_experiments.curve_analysis import ParameterRepr
-from qiskit_experiments.library.characterization.resonance_analysis import ResonanceAnalysis
-from qiskit_experiments.framework.base_experiment import BaseExperiment
+from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.curve_analysis import ParameterRepr, ResonanceAnalysis
 
 
 class QubitSpectroscopy(BaseExperiment):
@@ -87,6 +85,8 @@ class QubitSpectroscopy(BaseExperiment):
         options = super()._default_analysis_options()
         options.result_parameters = [ParameterRepr("freq", "f01", "Hz")]
         options.normalization = True
+        options.xlabel = "Frequency"
+        options.ylabel = "Signal (arb. units)"
         options.xval_unit = "Hz"
 
         return options

@@ -22,10 +22,9 @@ from qiskit.providers import Backend
 from qiskit.pulse import ScheduleBlock
 import qiskit.pulse as pulse
 
-from qiskit_experiments.framework import Options
-from qiskit_experiments.curve_analysis import ParameterRepr
 from qiskit_experiments.framework.experiment_data import ExperimentData
-from qiskit_experiments.library.calibration.analysis.oscillation_analysis import OscillationAnalysis
+from qiskit_experiments.framework import Options
+from qiskit_experiments.curve_analysis import ParameterRepr, OscillationAnalysis
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.update_library import Amplitude
 from qiskit_experiments.calibration_management.calibrations import Calibrations
@@ -105,6 +104,8 @@ class Rabi(BaseCalibrationExperiment):
         """Default analysis options."""
         options = super()._default_analysis_options()
         options.result_parameters = [ParameterRepr("freq", "rabi_rate")]
+        options.xlabel = "Amplitude"
+        options.ylabel = "Signal (arb. units)"
         options.normalization = True
 
         return options

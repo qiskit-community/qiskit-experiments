@@ -27,7 +27,7 @@ from qiskit.test.mock import FakeArmonk
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import Rabi, EFRabi
 
-from qiskit_experiments.library.calibration.analysis.oscillation_analysis import OscillationAnalysis
+from qiskit_experiments.curve_analysis.standard_analysis.oscillation import OscillationAnalysis
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
