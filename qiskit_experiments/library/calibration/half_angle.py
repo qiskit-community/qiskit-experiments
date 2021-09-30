@@ -27,24 +27,29 @@ from qiskit_experiments.library.calibration.analysis.fine_amplitude_analysis imp
 class HalfAngle(BaseExperiment):
     """A calibration experiment class to perform half angle calibration.
 
-    This experiment runs circuits that repeat blocks of :code:`Rx(π/2) - Rx(π/2) - Ry(π)`
-    circuits. This gate sequence is designed to amplify errors in the rotation axis of the
-    X and Y rotations. Such errors can occur due to ...
+    # section: overview
 
-    .. parsed-literal::
+        This experiment runs circuits that repeat blocks of :code:`Rx(π/2) - Rx(π/2) - Ry(π)`
+        circuits inserted in a Ramsey type experiment, i.e. the full gate sequence is thus
+        :code:`Ry(π/2) - [Rx(π/2) - Rx(π/2) - Ry(π)] ^ n - Rx(π/2)` where :code:`n` is
+        varied, see [1]. This gate sequence is designed to amplify X-Y axis errors. Such
+        errors can occur due to phase errors.
 
-                ┌─────────┐┌─────────┐┌─────────┐┌───────┐   ┌─────────┐┌─────────┐»
-           q_0: ┤ Ry(π/2) ├┤ Rx(π/2) ├┤ Rx(π/2) ├┤ Ry(π) ├...┤ Rx(π/2) ├┤ Rx(π/2) ├»
-                └─────────┘└─────────┘└─────────┘└───────┘   └─────────┘└─────────┘»
-        meas: 1/══════════════════════════════════════════...══════════════════════»
-                                                                                   »
-        «        ┌───────┐┌─────────┐ ░ ┌─┐
-        «   q_0: ┤ Ry(π) ├┤ Rx(π/2) ├─░─┤M├
-        «        └───────┘└─────────┘ ░ └╥┘
-        «meas: 1/════════════════════════╩═
-        «                                0
+        .. parsed-literal::
 
+                    ┌─────────┐┌─────────┐┌─────────┐┌───────┐   ┌─────────┐┌─────────┐»
+               q_0: ┤ Ry(π/2) ├┤ Rx(π/2) ├┤ Rx(π/2) ├┤ Ry(π) ├...┤ Rx(π/2) ├┤ Rx(π/2) ├»
+                    └─────────┘└─────────┘└─────────┘└───────┘   └─────────┘└─────────┘»
+            meas: 1/══════════════════════════════════════════...══════════════════════»
+                                                                                       »
+            «        ┌───────┐┌─────────┐ ░ ┌─┐
+            «   q_0: ┤ Ry(π) ├┤ Rx(π/2) ├─░─┤M├
+            «        └───────┘└─────────┘ ░ └╥┘
+            «meas: 1/════════════════════════╩═
+            «                                0
 
+    # section: reference
+        .. ref_arxiv:: 1 1504.06597
     """
 
     __analysis_class__ = FineAmplitudeAnalysis
@@ -61,8 +66,29 @@ class HalfAngle(BaseExperiment):
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(15))
+
+        return options
+
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_analysis_options()
         options.normalization = True
 
+        return options
+
+    @classmethod
+    def _default_transpile_options(cls) -> Options:
+        """Default transpile options.
+
+        # TODO This will require terra 0.19.0
+
+        Experiment Options:
+            inst_map (InstructionScheduleMap): An instance of an instruction schedule map
+                to bring in the pulses for the rx, and ry rotations.
+        """
+        options = super()._default_transpile_options()
+        options.inst_map = None
         return options
 
     def __init__(self, qubit: int):
