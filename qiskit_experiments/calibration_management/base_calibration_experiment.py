@@ -95,22 +95,8 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         self._cals = calibrations
         self._sched_name = schedule_name
         self._param_name = cal_parameter_name
-        self._auto_update = auto_update
+        self.auto_update = auto_update
 
-    @property
-    def calibrations(self) -> Calibrations:
-        """Calibration management object that holds the schedule."""
-        return self._cals
-
-    @property
-    def auto_update(self) -> bool:
-        """Return the auto update property"""
-        return self._auto_update
-
-    @auto_update.setter
-    def auto_update(self, auto_update: bool):
-        """Set the value of auto_update."""
-        self._auto_update = auto_update
 
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update parameter values in the :class:`Calibrations` instance.
