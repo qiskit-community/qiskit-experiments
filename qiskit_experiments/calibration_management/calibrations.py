@@ -933,11 +933,11 @@ class Calibrations:
                 data.append(value_dict)
 
         columns = [
-            "group",
-            "schedule",
             "parameter",
             "qubits",
+            "schedule",
             "value",
+            "group",
             "valid",
             "date_time",
             "exp_id",
