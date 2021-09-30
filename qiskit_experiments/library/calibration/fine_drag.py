@@ -179,7 +179,9 @@ class FineDrag(BaseExperiment):
     @staticmethod
     def _post_circuit() -> QuantumCircuit:
         """Return the quantum circuit to apply after repeating the Rp - Rz - Rp - Rz gates."""
-        return QuantumCircuit(1)
+        circ = QuantumCircuit(1)
+        circ.ry(np.pi / 2, 0)  # Maps unwanted Z rotations to qubit population.
+        return circ
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Create the circuits for the fine DRAG calibration experiment.
@@ -203,8 +205,6 @@ class FineDrag(BaseExperiment):
                 circuit.rz(np.pi, 0)
                 circuit.append(drag_gate, (0,))
                 circuit.rz(np.pi, 0)
-
-            circuit.ry(np.pi / 2, 0)  # Maps unwanted Z rotations to qubit population.
 
             circuit.compose(self._post_circuit(), inplace=True)
 
