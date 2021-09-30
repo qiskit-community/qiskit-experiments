@@ -184,7 +184,7 @@ class Drag(BaseUpdater):
     __fit_parameter__ = "beta"
 
 
-class FineDrag(BaseUpdater):
+class FineDragUpdater(BaseUpdater):
     """Updater for the fine drag calibration."""
 
     # pylint: disable=arguments-differ,unused-argument

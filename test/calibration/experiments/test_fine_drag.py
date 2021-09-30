@@ -30,7 +30,7 @@ class FineDragTestBackend(DragBackend):
         """Returns the probability based on the beta, number of gates, and leakage."""
         n_gates = circuit.count_ops().get("rz", 0) // 2
 
-        return np.sin(n_gates * self._leakage) ** 2
+        return 0.5 * np.sin(n_gates * self._error) + 0.5
 
 
 class TestFineDrag(QiskitTestCase):

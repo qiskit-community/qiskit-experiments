@@ -134,12 +134,12 @@ class DragBackend(MockIQBackend):
         self,
         iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
         iq_cluster_width: float = 1.0,
-        leakage: float = 0.03,
+        error: float = 0.03,
         ideal_beta=2.0,
         gate_name: str = "Rp",
     ):
         """Initialize the rabi backend."""
-        self._leakage = leakage
+        self._error = error
         self._gate_name = gate_name
         self.ideal_beta = ideal_beta
 
@@ -151,7 +151,7 @@ class DragBackend(MockIQBackend):
 
         beta = next(iter(circuit.calibrations[self._gate_name].keys()))[1][0]
 
-        return np.sin(n_gates * self._leakage * (beta - self.ideal_beta)) ** 2
+        return np.sin(n_gates * self._error * (beta - self.ideal_beta)) ** 2
 
 
 class MockFineAmp(MockIQBackend):

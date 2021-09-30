@@ -56,7 +56,7 @@ class TestDragEndToEnd(QiskitTestCase):
         self.assertEqual(result.quality, "good")
 
         # Small leakage will make the curves very flat.
-        backend = DragBackend(leakage=0.005, gate_name="xp")
+        backend = DragBackend(error=0.005, gate_name="xp")
 
         drag = DragCal(0)
         drag.set_analysis_options(p0={"beta": 1.2})
@@ -72,7 +72,7 @@ class TestDragEndToEnd(QiskitTestCase):
         self.assertEqual(result.quality, "good")
 
         # Large leakage will make the curves oscillate quickly.
-        backend = DragBackend(leakage=0.05, gate_name="xp")
+        backend = DragBackend(error=0.05, gate_name="xp")
 
         drag = DragCal(1)
         drag.set_run_options(shots=200)
@@ -106,7 +106,7 @@ class TestDragCircuits(QiskitTestCase):
     def test_default_circuits(self):
         """Test the default circuit."""
 
-        backend = DragBackend(leakage=0.005, gate_name="xp")
+        backend = DragBackend(error=0.005, gate_name="xp")
 
         drag = DragCal(0)
         drag.set_experiment_options(reps=[2, 4, 8], schedule=self.x_plus)
@@ -125,7 +125,7 @@ class TestDragCircuits(QiskitTestCase):
         with pulse.build(name="xp") as xp:
             pulse.play(Drag(duration=160, amp=amp, sigma=40, beta=beta), DriveChannel(0))
 
-        backend = DragBackend(leakage=0.05, gate_name="xp")
+        backend = DragBackend(error=0.05, gate_name="xp")
 
         drag = DragCal(1)
         drag.set_experiment_options(betas=np.linspace(-3, 3, 21))
