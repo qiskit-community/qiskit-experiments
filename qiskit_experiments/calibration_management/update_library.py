@@ -233,7 +233,7 @@ class FineDrag(BaseUpdater):
         d_theta = BaseUpdater.get_value(exp_data, "d_theta", result_index)
 
         # See the documentation in fine_drag.py for the derivation of this rule.
-        d_beta = -0.25 * np.sqrt(np.pi) * d_theta * sigma / ((target_angle ** 2) / 4)
+        d_beta = -np.sqrt(np.pi) * d_theta * sigma / target_angle ** 2
 
         old_beta = calibrations.get_parameter_value(parameter, qubits, schedule, group=group)
         new_beta = old_beta + d_beta
