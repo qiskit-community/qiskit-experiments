@@ -97,7 +97,6 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         self._param_name = cal_parameter_name
         self.auto_update = auto_update
 
-
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update parameter values in the :class:`Calibrations` instance.
 
