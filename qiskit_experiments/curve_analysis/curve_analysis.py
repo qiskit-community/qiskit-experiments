@@ -18,6 +18,7 @@ Analysis class for curve fitting.
 import dataclasses
 import functools
 import inspect
+import warnings
 from abc import ABC
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
 
@@ -850,60 +851,60 @@ class CurveAnalysis(BaseAnalysis, ABC):
         except AttributeError:
             pass
 
-        try:
-            #
-            # 2. Setup data processor
-            #
+        #
+        # 2. Setup data processor
+        #
 
-            # No data processor has been provided at run-time we infer one from the job
-            # metadata and default to the data processor for averaged classified data.
-            data_processor = self._get_option("data_processor")
+        # No data processor has been provided at run-time we infer one from the job
+        # metadata and default to the data processor for averaged classified data.
+        data_processor = self._get_option("data_processor")
 
-            if not data_processor:
-                run_options = self._run_options() or dict()
+        if not data_processor:
+            run_options = self._run_options() or dict()
 
-                try:
-                    meas_level = run_options["meas_level"]
-                except KeyError as ex:
-                    raise DataProcessorError(
-                        f"Cannot process data without knowing the measurement level: {str(ex)}."
-                    ) from ex
+            try:
+                meas_level = run_options["meas_level"]
+            except KeyError as ex:
+                raise DataProcessorError(
+                    f"Cannot process data without knowing the measurement level: {str(ex)}."
+                ) from ex
 
-                meas_return = run_options.get("meas_return", None)
-                normalization = self._get_option("normalization")
+            meas_return = run_options.get("meas_return", None)
+            normalization = self._get_option("normalization")
 
-                data_processor = get_processor(meas_level, meas_return, normalization)
+            data_processor = get_processor(meas_level, meas_return, normalization)
 
-            if isinstance(data_processor, DataProcessor) and not data_processor.is_trained:
-                # Qiskit DataProcessor instance. May need calibration.
-                data_processor.train(data=experiment_data.data())
+        if isinstance(data_processor, DataProcessor) and not data_processor.is_trained:
+            # Qiskit DataProcessor instance. May need calibration.
+            data_processor.train(data=experiment_data.data())
 
-            #
-            # 3. Extract curve entries from experiment data
-            #
-            self._extract_curves(experiment_data=experiment_data, data_processor=data_processor)
+        #
+        # 3. Extract curve entries from experiment data
+        #
+        self._extract_curves(experiment_data=experiment_data, data_processor=data_processor)
 
-            #
-            # 4. Run fitting
-            #
-            curve_fitter = self._get_option("curve_fitter")
-            formatted_data = self._data(label="fit_ready")
+        #
+        # 4. Run fitting
+        #
+        curve_fitter = self._get_option("curve_fitter")
+        formatted_data = self._data(label="fit_ready")
 
-            # Generate algorithmic initial guesses and boundaries
-            default_fit_opt = FitOptions(
-                parameters=self._fit_params(),
-                default_p0=self._get_option("p0"),
-                default_bounds=self._get_option("bounds"),
-                **extra_options,
-            )
+        # Generate algorithmic initial guesses and boundaries
+        default_fit_opt = FitOptions(
+            parameters=self._fit_params(),
+            default_p0=self._get_option("p0"),
+            default_bounds=self._get_option("bounds"),
+            **extra_options,
+        )
 
-            fit_options = self._generate_fit_guesses(default_fit_opt)
-            if isinstance(fit_options, FitOptions):
-                fit_options = [fit_options]
+        fit_options = self._generate_fit_guesses(default_fit_opt)
+        if isinstance(fit_options, FitOptions):
+            fit_options = [fit_options]
 
-            # Run fit for each configuration
-            fit_results = []
-            for fit_opt in set(fit_options):
+        # Run fit for each configuration
+        fit_results = []
+        for fit_opt in set(fit_options):
+            try:
                 fit_result = curve_fitter(
                     funcs=[series_def.fit_func for series_def in self.__series__],
                     series=formatted_data.data_index,
@@ -913,17 +914,23 @@ class CurveAnalysis(BaseAnalysis, ABC):
                     **fit_opt.options,
                 )
                 fit_results.append(fit_result)
+            except AnalysisError:
+                # some guess might be completely off from true parameters.
+                # even if some attempts fail, we just ignore that result and continue
+                # as long as we have more fit option candidates.
+                pass
 
-            # Find best value with chi-squared value
-            if len(fit_results) == 0:
-                raise AnalysisError(
-                    "All initial guesses and parameter boundaries failed to fit the data. "
-                    "Please provide better initial guesses or fit parameter boundaries."
-                )
-            fit_result = sorted(fit_results, key=lambda r: r.reduced_chisq)[0]
-
-        except AnalysisError:
+        # Find best value with chi-squared value
+        if len(fit_results) == 0:
+            warnings.warn(
+                "All initial guesses and parameter boundaries failed to fit the data. "
+                "Please provide better initial guesses or fit parameter boundaries.",
+                UserWarning,
+            )
+            # at least return raw data points rather than terminating
             fit_result = None
+        else:
+            fit_result = sorted(fit_results, key=lambda r: r.reduced_chisq)[0]
 
         #
         # 5. Create database entry
