@@ -79,14 +79,15 @@ class FineDrag(BaseExperiment):
         .. math::
 
             \Omega(t) = \Omega_x(t) + i\beta\,\dot{\Omega}_x(t)\quad\Longrightarrow\quad
-            \Omega_y(t)= \beta\,\dot{\Omega}_x(t).
+            \Omega_y(t)= \beta\,\dot{\Omega}_x(t)
 
+        which implies that :math:`-\lambda_1^2 t_g/4` is the ideal :math:`\beta` value.
         We now assume that there is a small error :math:`{\rm d}\beta` in :math:`\beta` such
-        that the instantaneous Z-angle error is
+        that the instantaneous Z-angle error induced by a single pulse is
 
         .. math::
 
-            \bar\delta(t) = 2\,{\rm d}\beta\, \Omega^2_x(t)
+            \bar\delta(t) = {\rm d}\beta\, \Omega^2_x(t)
 
 
         We can integrate :math:`\bar{\delta}(t)`, i.e. the instantaneous Z-angle rotation error,
@@ -94,7 +95,7 @@ class FineDrag(BaseExperiment):
 
         .. math::
 
-           {\rm d}\theta = \int\bar\delta(t){\rm d}t = 2{\rm d}\beta \int\Omega^2_x(t){\rm d}t
+           {\rm d}\theta = \int\bar\delta(t){\rm d}t = {\rm d}\beta \int\Omega^2_x(t){\rm d}t
 
         If we assume a Gaussian pulse, i.e. :math:`\Omega_x(t)=A\exp[-t^2/(2\sigma^2)]`
         then the integral of :math:`\Omega_x^2(t)` in the equation above results in
@@ -108,18 +109,21 @@ class FineDrag(BaseExperiment):
         .. math::
 
            {\rm d}\theta=
-            \int\bar\delta(t){\rm d}t=2\,{\rm d}\beta\,\frac{\theta^2_\text{target}}{2\sigma\sqrt{\pi}}
+            \int\bar\delta(t){\rm d}t={\rm d}\beta\,\frac{\theta^2_\text{target}}{2\sigma\sqrt{\pi}}
 
         Here, :math:`{\rm d}\theta` is the Z angle error per pulse. The qubit population produced by
         the gate sequence shown above is used to measure :math:`{\rm d}\theta`. Indeed, each
-        gate pair Rp - Rm will produce a small unwanted Z - rotation out of the ZX plane. The total
-        rotation out of the ZX plane is then mapped to a qubit population by the final Post gate.
-        Inverting the relation above yields the error in :math:`\beta` that produced the rotation
-        error :math:`{\rm d}\theta`.
+        gate pair Rp - Rm will produce a small unwanted Z - rotation out of the ZX plane with a
+        magnitude :math:`2\,{\rm d}\theta`. The total rotation out of the ZX plane is then mapped
+        to a qubit population by the final Post gate. Inverting the relation above after cancelling
+        out the factor of two due to the Rp - Rm pulse pair yields the error in :math:`\beta` that
+        produced the rotation error :math:`{\rm d}\theta` as
 
         .. math::
 
-            {\rm d}\beta=\frac{\sqrt{\pi}\,{\rm d}\theta\sigma}{ \theta_\text{target}^2}
+            {\rm d}\beta=\frac{\sqrt{\pi}\,{\rm d}\theta\sigma}{ \theta_\text{target}^2}.
+
+        This is the correction formula in the FineDRAG Updater.
 
     # section: see_also
         qiskit_experiments.library.calibration.drag.DragCal
