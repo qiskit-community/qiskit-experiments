@@ -325,7 +325,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         """
         experiment_data = super().run(backend, analysis, experiment_data, **run_options)
 
-        if self._auto_update and self._cals is not None:
+        if self.auto_update and self._cals is not None:
             experiment_data = experiment_data.block_for_results()
             self.update_calibrations(experiment_data)
 
