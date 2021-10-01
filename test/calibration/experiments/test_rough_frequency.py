@@ -12,6 +12,8 @@
 
 """Rough frequency calibration tests."""
 
+from test.test_qubit_spectroscopy import SpectroscopyBackend
+
 import numpy as np
 
 from qiskit.test import QiskitTestCase
@@ -20,7 +22,6 @@ from qiskit.test.mock import FakeArmonk
 from qiskit_experiments.library import RoughFrequencyCal
 from qiskit_experiments.calibration_management import BackendCalibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
-from test.test_qubit_spectroscopy import SpectroscopyBackend
 
 
 class TestRoughFrequency(QiskitTestCase):

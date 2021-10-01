@@ -39,7 +39,7 @@ module.
     :toctree: ../stubs/
     :template: autosummary/experiment.rst
 
-    RoughFrequency
+    RoughFrequencyCal
     DragCal
     Rabi
     FineAmplitude

@@ -78,7 +78,7 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     :toctree: ../stubs/
     :template: autosummary/experiment.rst
 
-    ~calibration.RoughFrequency
+    ~calibration.RoughFrequencyCal
     ~calibration.DragCal
     ~calibration.Rabi
     ~calibration.EFRabi
