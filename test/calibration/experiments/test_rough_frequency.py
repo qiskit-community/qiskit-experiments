@@ -25,6 +25,8 @@ from qiskit_experiments.calibration_management.basis_gate_library import FixedFr
 
 
 class TestRoughFrequency(QiskitTestCase):
+    """Tests for the rough frequency calibration experiment."""
+
     def test_update_calibrations(self):
         """Test that we can properly update an instance of BackendCalibrations."""
 
