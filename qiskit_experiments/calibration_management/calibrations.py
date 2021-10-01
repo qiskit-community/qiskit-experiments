@@ -898,9 +898,10 @@ class Calibrations:
             schedules: The schedules to which to restrict the output.
 
         Returns:
-                A dictionary with the keys "data" and "columns" that can easily be converted to a data frame.
-                The "data" are a list of dictionaries each holding a parameter value. The "columns" are the
-                 keys in the "data" dictionaries and are returned in the preferred display order.
+                A dictionary with the keys "data" and "columns" that can easily
+                be converted to a data frame. The "data" are a list of dictionaries
+                each holding a parameter value. The "columns" are the keys in the "data"
+                dictionaries and are returned in the preferred display order.
         """
         if qubit_list:
             qubit_list = [self._to_tuple(qubits) for qubits in qubit_list]
