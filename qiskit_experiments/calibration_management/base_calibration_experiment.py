@@ -13,20 +13,21 @@
 """Base class for calibration-type experiments."""
 
 from abc import ABC
-from typing import Any, Dict, Iterable, Optional, Tuple
+from typing import Dict, Optional, Tuple, Union
 
 from qiskit.providers.backend import Backend
 from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
+from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
 from qiskit_experiments.framework.base_experiment import BaseExperiment
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.exceptions import CalibrationError
 
 
 class BaseCalibrationExperiment(BaseExperiment, ABC):
-    """An abstract base class for calibration experiments.
+    """A mixin class for calibration experiments.
 
     This abstract base class specifies an experiment and how to update an optional
     instance of :class:`Calibrations`. Furthermore, calibration experiments also specify
@@ -34,8 +35,24 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     is True then the run method of the experiment will call :meth:`block_for_results`
     and update the calibrations instance once the backend has returned the data.
 
-    Developers that wish to create a calibration experiment must subclass this base
-    class. If the experiment uses custom schedules, which is typically the case, then
+    This mixin class inherits from the :class:`BaseExperiment` class since calibration
+    experiments by default call :meth:`block_for_results`. This ensures that the next
+    calibration experiment cannot proceed before the calibration parameters have been
+    updated. Developers that wish to create a calibration experiment must subclass this
+    base class and the characterization experiment. Therefore, developers that use this
+    mixin class must pay special attention to their class definition. Indeed, the first
+    class should be this mixin and the second class should be the characterization
+    experiment. For example, the rough frequency calibration experiment is defined as
+
+    .. code-block:: python
+
+        RoughFrequency(BaseCalibrationExperiment, QubitSpectroscopy)
+
+    This ensures that the :meth:`run` method of :class:`RoughFrequency` will be the
+    run method of the :class:`BaseCalibrationExperiment` class. Furthermore, developers
+    must explicitly call the :meth:`__init__` methods of both parent classes.
+
+    If the experiment uses custom schedules, which is typically the case, then
     developers may chose to use the :meth:`get_schedules` method when creating the
     circuits for the experiment. If :meth:`get_schedules` is used then the developer
     must override at least one of the following methods used by :meth:`get_schedules`
@@ -66,20 +83,17 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     # experiments will use different updaters.
     __updater__ = None
 
+    # pylint: disable=super-init-not-called
     def __init__(
         self,
-        qubits: Iterable[int],
-        calibrations: Calibrations,
+        calibrations: Union[BackendCalibrations, Calibrations],
         schedule_name: Optional[str] = None,
         cal_parameter_name: Optional[str] = None,
         auto_update: Optional[bool] = True,
-        experiment_type: Optional[str] = None,
     ):
-        """Initialize the calibration experiment object.
+        """Setup the calibration experiment object.
 
         Args:
-            qubits: the number of qubits or list of physical qubits for
-                    the experiment.
             calibrations: The calibrations instance with which to initialize the experiment.
             schedule_name: An optional string which specifies the name of the schedule in
                 the calibrations that will be updated.
@@ -88,10 +102,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
                 be updated. Subclasses may assign default values in their init.
             auto_update: If set to True (the default) then the calibrations will automatically be
                 updated once the experiment has run and :meth:`block_for_results()` will be called.
-            experiment_type: Optional, the experiment type string.
         """
-        super().__init__(qubits, experiment_type)
-
         self._cals = calibrations
         self._sched_name = schedule_name
         self._param_name = cal_parameter_name
@@ -296,12 +307,6 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         self._validate_schedule(schedules)
 
         return schedules
-
-    def _circuit_metadata(self, xval: Any, **kwargs) -> Dict[str, Any]:
-        """Return the circuit metadata for the calibration experiment."""
-        metadata = {"experiment_type": self._type, "qubits": self.physical_qubits, "xval": xval}
-        metadata.update(kwargs)
-        return metadata
 
     def run(
         self,

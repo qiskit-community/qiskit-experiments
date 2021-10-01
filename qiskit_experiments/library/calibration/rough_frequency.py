@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Spectroscopy calibration experiment class."""
+"""Calibration version of spectroscopy experiments."""
 
 from typing import List, Optional, Union
 import numpy as np
@@ -29,7 +29,6 @@ class RoughFrequency(BaseCalibrationExperiment, QubitSpectroscopy):
 
     __updater__ = Frequency
 
-    # pylint: disable=super-init-not-called
     def __init__(
         self,
         qubit: int,
@@ -58,10 +57,7 @@ class RoughFrequency(BaseCalibrationExperiment, QubitSpectroscopy):
 
         """
         QubitSpectroscopy.__init__(self, qubit, frequencies, unit, absolute)
-        self._cals = calibrations
-        self._sched_name = None
-        self._param_name = None
-        self.auto_update = auto_update
+        BaseCalibrationExperiment.__init__(self, calibrations, auto_update=auto_update)
 
 
 class RoughEFFrequency(BaseCalibrationExperiment, EFSpectroscopy):
@@ -98,7 +94,5 @@ class RoughEFFrequency(BaseCalibrationExperiment, EFSpectroscopy):
 
         """
         EFSpectroscopy.__init__(self, qubit, frequencies, unit, absolute)
-        self._cals = cals
-        self._param_name = "f12"
-        self._sched_name = None
-        self.auto_update = auto_update
+        BaseCalibrationExperiment.__init__(self, cals, None, "f12",auto_update)
+
