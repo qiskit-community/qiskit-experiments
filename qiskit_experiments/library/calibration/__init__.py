@@ -62,7 +62,7 @@ Calibrations management
 See :mod:`qiskit_experiments.calibration_management`.
 """
 
-from .rough_frequency import RoughFrequency
+from .rough_frequency import RoughFrequencyCal
 from .drag import DragCal
 from .rabi import Rabi, EFRabi
 from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude

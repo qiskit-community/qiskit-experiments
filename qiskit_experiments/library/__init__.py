@@ -95,7 +95,7 @@ from .calibration import (
     FineAmplitude,
     FineXAmplitude,
     FineSXAmplitude,
-    RoughFrequency,
+    RoughFrequencyCal,
     RamseyXY,
 )
 from .characterization import (

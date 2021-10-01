@@ -24,7 +24,7 @@ from qiskit_experiments.calibration_management.base_calibration_experiment impor
 )
 
 
-class RoughFrequency(BaseCalibrationExperiment, QubitSpectroscopy):
+class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
     """A calibration experiment that runs QubitSpectroscopy."""
 
     __updater__ = Frequency
@@ -60,7 +60,7 @@ class RoughFrequency(BaseCalibrationExperiment, QubitSpectroscopy):
         BaseCalibrationExperiment.__init__(self, calibrations, auto_update=auto_update)
 
 
-class RoughEFFrequency(BaseCalibrationExperiment, EFSpectroscopy):
+class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
     """A calibration experiment that runs QubitSpectroscopy."""
 
     __updater__ = Frequency
@@ -94,5 +94,4 @@ class RoughEFFrequency(BaseCalibrationExperiment, EFSpectroscopy):
 
         """
         EFSpectroscopy.__init__(self, qubit, frequencies, unit, absolute)
-        BaseCalibrationExperiment.__init__(self, cals, None, "f12",auto_update)
-
+        BaseCalibrationExperiment.__init__(self, cals, None, "f12", auto_update)

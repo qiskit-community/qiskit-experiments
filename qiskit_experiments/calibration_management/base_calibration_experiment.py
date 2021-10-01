@@ -27,9 +27,10 @@ from qiskit_experiments.exceptions import CalibrationError
 
 
 class BaseCalibrationExperiment(BaseExperiment, ABC):
-    """A mixin class for calibration experiments.
+    """A mixin class to create calibration experiments.
 
-    This abstract base class specifies an experiment and how to update an optional
+    This abstract class extends a characterization experiment by turning it into a
+    calibration experiment. Such experiments allow schedule management and how to update an
     instance of :class:`Calibrations`. Furthermore, calibration experiments also specify
     an auto_update variable which, by default, is set to True. If this variable,
     is True then the run method of the experiment will call :meth:`block_for_results`
@@ -42,7 +43,8 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     base class and the characterization experiment. Therefore, developers that use this
     mixin class must pay special attention to their class definition. Indeed, the first
     class should be this mixin and the second class should be the characterization
-    experiment. For example, the rough frequency calibration experiment is defined as
+    experiment since the run method from the mixin must be used. For example, the rough
+    frequency calibration experiment is defined as
 
     .. code-block:: python
 
