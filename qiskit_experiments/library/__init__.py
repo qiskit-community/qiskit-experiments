@@ -80,6 +80,9 @@ See :doc:`/tutorials/calibrating_armonk` for example.
 
     ~calibration.RoughFrequencyCal
     ~calibration.DragCal
+    ~calibration.FineDrag
+    ~calibration.FineXDrag
+    ~calibration.FineSXDrag
     ~calibration.Rabi
     ~calibration.EFRabi
     ~calibration.FineAmplitude
@@ -90,6 +93,9 @@ See :doc:`/tutorials/calibrating_armonk` for example.
 """
 from .calibration import (
     DragCal,
+    FineDrag,
+    FineXDrag,
+    FineSXDrag,
     Rabi,
     EFRabi,
     FineAmplitude,
