@@ -15,15 +15,16 @@ T2Hahn Echo Experiment class.
 """
 
 from typing import Union, Iterable, List, Optional
-
 import numpy as np
+
 from qiskit import QuantumCircuit, QiskitError
 from qiskit.utils import apply_prefix
 from qiskit.providers.options import Options
 from qiskit.providers import Backend
+from qiskit_experiments.framework import BaseExperiment
 from .t2hahn_analysis import T2HahnAnalysis
 
-from qiskit_experiments.framework import BaseExperiment
+
 
 
 class T2Hahn(BaseExperiment):
@@ -83,7 +84,7 @@ class T2Hahn(BaseExperiment):
         Initialize the T2 - Hahn Echo class
         Args:
             qubit: the qubit under test.
-            delays (List[float)): delay times of the experiments.
+            delays: delay times of the experiments.
             unit: Optional, time unit of `delays`.
                 Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'. The unit is
                 used for both T2Ramsey and for the frequency.
@@ -125,6 +126,8 @@ class T2Hahn(BaseExperiment):
         Returns:
             The experiment circuits.
 
+        Raises:
+            AttributeError: if unit is 'dt', but 'dt' parameter is missing in the backend configuration
         """
         conversion_factor = 1
         if self.experiment_options.unit == "dt":
@@ -137,7 +140,7 @@ class T2Hahn(BaseExperiment):
             conversion_factor = apply_prefix(1, self.experiment_options.unit)
 
         circuits = []
-        for circ_index, delay in enumerate(self.experiment_options.delays):
+        for delay in self.experiment_options.delays:
             circ = QuantumCircuit(1, 1)
             # First Y rotation in 90 degrees
             circ.ry(np.pi / 2, 0)  # Bring to qubits to X Axis
