@@ -90,7 +90,7 @@ class FineAmplitude(BaseExperiment):
 
 
     # section: tutorial
-        :doc:`/tutorials/fine_amplitude_calibration`
+        :doc:`/tutorials/fine_calibrations`
 
     """
 
