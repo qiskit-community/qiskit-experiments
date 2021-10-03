@@ -137,15 +137,14 @@ class T2Hahn(BaseExperiment):
             conversion_factor = apply_prefix(1, self.experiment_options.unit)
 
         circuits = []
-        qubit = list(self._physical_qubits)
         for circ_index, delay in enumerate(self.experiment_options.delays):
             circ = QuantumCircuit(1, 1)
             # First Y rotation in 90 degrees
-            circ.ry(np.pi / 2, qubit)  # Bring to qubits to X Axis
-            circ.delay(delay, qubit, self.experiment_options.unit)
-            circ.rx(np.pi, qubit)
-            circ.delay(delay, qubit, self.experiment_options.unit)
-            circ.ry(-np.pi / 2, qubit)  # Y90
+            circ.ry(np.pi / 2, 0)  # Bring to qubits to X Axis
+            circ.delay(delay, 0, self.experiment_options.unit)
+            circ.rx(np.pi, 0)
+            circ.delay(delay, 0, self.experiment_options.unit)
+            circ.ry(-np.pi / 2, 0)  # Y90
             circ.measure(0, 0)  # measure
             circ.metadata = {
                 "experiment_type": self._type,
