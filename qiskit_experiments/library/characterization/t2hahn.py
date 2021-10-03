@@ -51,7 +51,7 @@ class T2Hahn(BaseExperiment):
             The circuits are run on the device or on a simulator backend.
 
         # section: tutorial
-            :doc:`/tutorials/t2ramsey_characterization`
+            :doc:`/tutorials/t2hahn_characterization`
 
         """
     __analysis_class__ = T2HahnAnalysis
@@ -106,24 +106,15 @@ class T2Hahn(BaseExperiment):
         Raises:
             QiskitError : Error for invalid input.
         """
-        if any(delay <= 0 for delay in self.experiment_options.delays):
+        if any(delay < 0 for delay in self.experiment_options.delays):
             raise QiskitError(
                 f"The lengths list {self.experiment_options.delays} should only contain "
-                "positive elements."
+                "non-negative elements."
             )
         if len(set(self.experiment_options.delays)) != len(self.experiment_options.delays):
             raise QiskitError(
                 f"The lengths list {self.experiment_options.delays} should not contain "
                 "duplicate elements."
-            )
-
-        if any(
-            self.experiment_options.delays[idx - 1] >= self.experiment_options.delays[idx]
-            for idx in range(1, len(self.experiment_options.delays))
-        ):
-            raise QiskitError(
-                f"The number of identity gates {self.experiment_options.delays} should "
-                "be increasing."
             )
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
