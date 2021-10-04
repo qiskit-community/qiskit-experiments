@@ -53,6 +53,9 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     run method of the :class:`BaseCalibrationExperiment` class. Furthermore, developers
     must explicitly call the :meth:`__init__` methods of both parent classes.
 
+    Developers should strive to follow the convention that the first two arguments of
+    a calibration experiment are the qubit(s) and the :class:`Calibration` instance.
+
     If the experiment uses custom schedules, which is typically the case, then
     developers may chose to use the :meth:`get_schedules` method when creating the
     circuits for the experiment. If :meth:`get_schedules` is used then the developer
