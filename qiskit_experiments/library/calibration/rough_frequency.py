@@ -32,7 +32,7 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
     def __init__(
         self,
         qubit: int,
-        frequencies: Union[List[float], np.array],
+        frequencies: Iterable[float],
         calibrations: BackendCalibrations,
         unit: Optional[str] = "Hz",
         auto_update: Optional[bool] = True,
