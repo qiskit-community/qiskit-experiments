@@ -12,7 +12,7 @@
 
 """Calibration version of spectroscopy experiments."""
 
-from typing import List, Optional, Union
+from typing import List, Optional, Iterable, Union
 import numpy as np
 
 from qiskit_experiments.library.characterization.qubit_spectroscopy import QubitSpectroscopy

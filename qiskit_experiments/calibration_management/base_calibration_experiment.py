@@ -13,14 +13,13 @@
 """Base class for calibration-type experiments."""
 
 from abc import ABC
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict, Optional, Tuple
 
 from qiskit.providers.backend import Backend
 from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
-from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
 from qiskit_experiments.framework.base_experiment import BaseExperiment
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.exceptions import CalibrationError
@@ -88,7 +87,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     # pylint: disable=super-init-not-called
     def __init__(
         self,
-        calibrations: Union[BackendCalibrations, Calibrations],
+        calibrations: Calibrations,
         schedule_name: Optional[str] = None,
         cal_parameter_name: Optional[str] = None,
         auto_update: Optional[bool] = True,
