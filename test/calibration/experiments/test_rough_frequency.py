@@ -43,7 +43,7 @@ class TestRoughFrequency(QiskitTestCase):
 
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
-        RoughFrequencyCal(0, frequencies, calibrations=cals).run(backend)
+        RoughFrequencyCal(0, cals, frequencies).run(backend)
 
         # Check the updated frequency which should be shifted by 5MHz.
         post_freq = cals.get_parameter_value(cals.__qubit_freq_parameter__, (0,))
