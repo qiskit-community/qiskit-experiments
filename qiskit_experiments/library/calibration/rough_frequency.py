@@ -32,8 +32,8 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
     def __init__(
         self,
         qubit: int,
-        frequencies: Iterable[float],
         calibrations: BackendCalibrations,
+        frequencies: Iterable[float],
         unit: Optional[str] = "Hz",
         auto_update: Optional[bool] = True,
         absolute: bool = True,
@@ -42,9 +42,9 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
 
         Args:
             qubit: The qubit on which to run spectroscopy.
-            frequencies: The frequencies to scan in the experiment.
-            cals: If calibrations is given then running the experiment may update the values
+            calibrations: If calibrations is given then running the experiment may update the values
                 of the frequencies stored in calibrations.
+            frequencies: The frequencies to scan in the experiment.
             unit: The unit in which the user specifies the frequencies. Can be one of 'Hz', 'kHz',
                 'MHz', 'GHz'. Internally, all frequencies will be converted to 'Hz'.
             auto_update: If set to True, which is the default, then the experiment will
@@ -69,8 +69,8 @@ class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
     def __init__(
         self,
         qubit: int,
-        frequencies: Union[List[float], np.array],
-        cals: Optional[BackendCalibrations] = None,
+        calibrations: BackendCalibrations,
+        frequencies: Iterable[float],
         unit: Optional[str] = "Hz",
         auto_update: bool = True,
         absolute: bool = True,
@@ -79,9 +79,9 @@ class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
 
         Args:
             qubit: The qubit on which to run spectroscopy.
-            frequencies: The frequencies to scan in the experiment.
-            cals: If calibrations is given then running the experiment may update the values
+            calibrations: If calibrations is given then running the experiment may update the values
                 of the frequencies stored in calibrations.
+            frequencies: The frequencies to scan in the experiment.
             unit: The unit in which the user specifies the frequencies. Can be one of 'Hz', 'kHz',
                 'MHz', 'GHz'. Internally, all frequencies will be converted to 'Hz'.
             auto_update: If set to True, which is the default, then the experiment will
@@ -94,4 +94,4 @@ class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
 
         """
         EFSpectroscopy.__init__(self, qubit, frequencies, unit, absolute)
-        BaseCalibrationExperiment.__init__(self, cals, None, "f12", auto_update)
+        BaseCalibrationExperiment.__init__(self, calibrations, None, "f12", auto_update)
