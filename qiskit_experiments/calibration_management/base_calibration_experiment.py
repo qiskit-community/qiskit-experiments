@@ -30,7 +30,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     """A mixin class to create calibration experiments.
 
     This abstract class extends a characterization experiment by turning it into a
-    calibration experiment. Such experiments allow schedule management and how to update an
+    calibration experiment. Such experiments allow schedule management and updating of an
     instance of :class:`Calibrations`. Furthermore, calibration experiments also specify
     an auto_update variable which, by default, is set to True. If this variable,
     is True then the run method of the experiment will call :meth:`block_for_results`
