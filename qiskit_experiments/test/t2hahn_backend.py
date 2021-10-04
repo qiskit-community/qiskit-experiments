@@ -126,6 +126,11 @@ class T2HahnBackend(BackendV1):
                             + self._b_param[qubit]
                         )
 
+                    if op.name == "rx":
+                        prob_plus[qubit] = prob_plus[qubit] * np.cos(op.params[0]/2) - \
+                                           (1-prob_plus[qubit]) * np.sin(op.params[0]/2)
+                        # prob_plus[qubit] = 1- prob_plus[qubit]
+
                     if op.name == "measure":
                         # we measure in |+> basis which is the same as measuring |0>
                         meas_res = self._rng.binomial(
