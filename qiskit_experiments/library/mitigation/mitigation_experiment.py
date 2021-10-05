@@ -10,18 +10,15 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Measurement calibration experiment class.
+Measurement calibration experiment classes.
 """
-from typing import Union, Iterable, Optional, List
-from abc import ABC, abstractmethod
-import numpy as np
-from numpy.random import Generator, default_rng
+from typing import Iterable, Optional, List
+from abc import abstractmethod
 
-from qiskit import QuantumCircuit, QiskitError
+from qiskit import QuantumCircuit
 from qiskit.providers import Backend
-from qiskit.quantum_info import Clifford
-from qiskit.circuit import Gate
 from qiskit_experiments.framework import BaseExperiment
+from .mitigation_analysis import CompleteMitigationAnalysis
 
 
 class MeasurementMitigation(BaseExperiment):
@@ -57,6 +54,9 @@ class MeasurementMitigation(BaseExperiment):
 
 
 class CompleteMeasurementMitigation(MeasurementMitigation):
+    # Analysis class for experiment
+    __analysis_class__ = CompleteMitigationAnalysis
+
     def __init__(self, qubits: List[int]):
         super().__init__(qubits)
 
