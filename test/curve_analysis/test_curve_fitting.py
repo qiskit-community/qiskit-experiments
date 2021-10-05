@@ -138,7 +138,7 @@ class TestCurveFitting(QiskitTestCase):
         self.assertTrue(np.allclose(expected_y_sigma, y_sigma))
 
         sigma = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
-        shots = np.array([10, 20, 10, 10, 20, 10, 10, 10, 10, 20, 30, 20])
+        shots = np.array([10, 20, 10, 30, 20, 10, 40, 10, 10, 20, 30, 20, 30, 10])
         x_mean, y_mean, y_sigma, y_shots = mean_xy_data(x, y, sigma, shots, method="shots_weighted")
         expected_y_mean = np.array([2.0, 33.4, 10.5, 17.0, 10.0])
         expected_y_sigma = np.array([1.27475488, 3.26190129, 6.02079729, 10.0, 6.46166282])
