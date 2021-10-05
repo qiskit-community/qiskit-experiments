@@ -18,6 +18,7 @@ from typing import List, Union
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
+from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data, data_sort
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework import AnalysisResultData, FitVal
 from .rb_utils import RBUtils
@@ -131,6 +132,35 @@ class RBAnalysis(curve.CurveAnalysis):
             opt.p0.set_if_empty(a=0.95)
 
         return opt
+
+    def _format_data(self, data: curve.CurveData) -> curve.CurveData:
+        """Data format with averaging with sampling strategy."""
+        # take average over the same x value by regenerating sigma from variance of y values
+        series, xdata, ydata, sigma, shots = multi_mean_xy_data(
+            series=data.data_index,
+            xdata=data.x,
+            ydata=data.y,
+            sigma=data.y_err,
+            shots=data.shots,
+            method="sample",
+        )
+
+        # sort by x value in ascending order
+        series, xdata, ydata, sigma = data_sort(
+            series=series,
+            xdata=xdata,
+            ydata=ydata,
+            sigma=sigma,
+        )
+
+        return curve.CurveData(
+            label="fit_ready",
+            x=xdata,
+            y=ydata,
+            y_err=sigma,
+            shots=shots,
+            data_index=series,
+        )
 
     def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
         """Calculate EPC."""
