@@ -68,6 +68,9 @@ class CurveData:
     # Error bar
     y_err: np.ndarray
 
+    # Shots number
+    shots: np.ndarray
+
     # Maping of data index to series index
     data_index: Union[np.ndarray, int]
 
