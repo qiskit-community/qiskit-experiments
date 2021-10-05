@@ -81,7 +81,7 @@ class TestAmplitudeUpdate(QiskitTestCase):
         with self.assertRaises(CalibrationError):
             self.cals.get_schedule("xp", qubits=0)
 
-        self.assertEqual(len(self.cals.parameters_table()), 4)
+        self.assertEqual(len(self.cals.parameters_table()["data"]), 4)
 
         # Now check the corresponding schedules
         result = exp_data.analysis_results(1)
