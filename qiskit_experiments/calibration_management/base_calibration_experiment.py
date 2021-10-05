@@ -14,6 +14,7 @@
 
 from abc import ABC
 from typing import Dict, Optional, Tuple
+import warnings
 
 from qiskit.providers.backend import Backend
 from qiskit.circuit import Parameter
@@ -87,18 +88,36 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     # experiments will use different updaters.
     __updater__ = None
 
+    def __init_subclass__(cls, **kwargs):
+        """Warn if BaseCalibrationExperiment is not the first parent."""
+        for mro_cls in cls.mro():
+            if mro_cls is BaseCalibrationExperiment:
+                break
+            if issubclass(mro_cls, BaseExperiment) and not issubclass(
+                mro_cls, BaseCalibrationExperiment
+            ):
+                warnings.warn(
+                    "Calibration experiments must inherit from BaseCalibrationExperiment "
+                    f"before a BaseExperiment subclass: {cls}->{mro_cls}."
+                )
+                break
+        super().__init_subclass__(**kwargs)
+
     # pylint: disable=super-init-not-called
     def __init__(
         self,
         calibrations: Calibrations,
+        *args,
         schedule_name: Optional[str] = None,
         cal_parameter_name: Optional[str] = None,
-        auto_update: Optional[bool] = True,
+        auto_update: bool = True,
+        **kwargs,
     ):
         """Setup the calibration experiment object.
 
         Args:
             calibrations: The calibrations instance with which to initialize the experiment.
+            args: Arguments for the characterization class.
             schedule_name: An optional string which specifies the name of the schedule in
                 the calibrations that will be updated.
             cal_parameter_name: An optional string which specifies the name of the parameter in
@@ -106,7 +125,9 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
                 be updated. Subclasses may assign default values in their init.
             auto_update: If set to True (the default) then the calibrations will automatically be
                 updated once the experiment has run and :meth:`block_for_results()` will be called.
+            kwargs: Key word arguments for the characterization class.
         """
+        super().__init__(*args, **kwargs)
         self._cals = calibrations
         self._sched_name = schedule_name
         self._param_name = cal_parameter_name

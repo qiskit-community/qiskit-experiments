@@ -27,6 +27,23 @@ from qiskit_experiments.calibration_management.basis_gate_library import FixedFr
 class TestRoughFrequency(QiskitTestCase):
     """Tests for the rough frequency calibration experiment."""
 
+    def test_init(self):
+        """Test that initialization."""
+
+        qubit = 1
+        cals = BackendCalibrations(FakeArmonk())
+        frequencies = [1, 2, 3]
+        unit = "kHz"
+        auto_update = False
+        absolute = False
+
+        freq = RoughFrequencyCal(qubit, cals, frequencies, unit, auto_update, absolute)
+
+        self.assertEqual(freq.physical_qubits, (qubit,))
+        self.assertEqual(freq._frequencies, [1000, 2000, 3000])
+        self.assertEqual(freq._absolute, False)
+        self.assertEqual(freq.auto_update, False)
+
     def test_update_calibrations(self):
         """Test that we can properly update an instance of BackendCalibrations."""
 

@@ -12,7 +12,7 @@
 
 """Spectroscopy experiment class."""
 
-from typing import List, Optional, Tuple, Union
+from typing import Iterable, Optional, Tuple
 
 import numpy as np
 import qiskit.pulse as pulse
@@ -94,8 +94,8 @@ class QubitSpectroscopy(BaseExperiment):
     def __init__(
         self,
         qubit: int,
-        frequencies: Union[List[float], np.array],
-        unit: Optional[str] = "Hz",
+        frequencies: Iterable[float],
+        unit: str = "Hz",
         absolute: bool = True,
     ):
         """
