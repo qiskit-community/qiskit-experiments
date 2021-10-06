@@ -54,7 +54,10 @@ class MeasurementMitigation(BaseExperiment):
 
 
 class CompleteMeasurementMitigation(MeasurementMitigation):
-    # Analysis class for experiment
+    """
+    Measurement correction experiment for a full calibration
+    """
+
     __analysis_class__ = CompleteMitigationAnalysis
 
     def __init__(self, qubits: List[int]):

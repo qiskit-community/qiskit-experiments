@@ -22,6 +22,10 @@ from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 
 
 class CompleteMitigationAnalysis(BaseAnalysis):
+    """
+    Measurement correction analysis for a full calibration
+    """
+
     def _run_analysis(
         self, experiment_data: ExperimentData, **options
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
