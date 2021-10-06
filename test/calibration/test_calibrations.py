@@ -292,30 +292,34 @@ class TestOverrideDefaults(QiskitTestCase):
         """Test that adding parameter values behaves in the expected way."""
 
         # Ensure that no parameter values are present when none have been added.
-        params = self.cals.parameters_table()
+        params = self.cals.parameters_table()["data"]
         self.assertEqual(params, [])
 
         # Add a default parameter common to all qubits.
         self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", schedule="xp")
-        self.assertEqual(len(self.cals.parameters_table()), 1)
+        self.assertEqual(len(self.cals.parameters_table()["data"]), 1)
 
         # Check that we can get a default parameter in the parameter table
-        self.assertEqual(len(self.cals.parameters_table(parameters=["σ"])), 1)
-        self.assertEqual(len(self.cals.parameters_table(parameters=["σ"], schedules=["xp"])), 1)
-        self.assertEqual(len(self.cals.parameters_table(parameters=["σ"], schedules=["xm"])), 0)
+        self.assertEqual(len(self.cals.parameters_table(parameters=["σ"])["data"]), 1)
+        self.assertEqual(
+            len(self.cals.parameters_table(parameters=["σ"], schedules=["xp"])["data"]), 1
+        )
+        self.assertEqual(
+            len(self.cals.parameters_table(parameters=["σ"], schedules=["xm"])["data"]), 0
+        )
 
         # Test behaviour of qubit-specific parameter and without ParameterValue.
         self.cals.add_parameter_value(0.25, "amp", (3,), "xp")
         self.cals.add_parameter_value(0.15, "amp", (0,), "xp")
 
         # Check the value for qubit 0
-        params = self.cals.parameters_table(parameters=["amp"], qubit_list=[(0,)])
+        params = self.cals.parameters_table(parameters=["amp"], qubit_list=[(0,)])["data"]
         self.assertEqual(len(params), 1)
         self.assertEqual(params[0]["value"], 0.15)
         self.assertEqual(params[0]["qubits"], (0,))
 
         # Check the value for qubit 3
-        params = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,)])
+        params = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,)])["data"]
         self.assertEqual(len(params), 1)
         self.assertEqual(params[0]["value"], 0.25)
         self.assertEqual(params[0]["qubits"], (3,))
@@ -420,22 +424,22 @@ class TestOverrideDefaults(QiskitTestCase):
         self._add_parameters()
 
         # Check that these values are split between the qubits.
-        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(0,)])
+        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(0,)])["data"]
         self.assertEqual(len(amp_values), 1)
 
         # Check that we have one value for sigma.
-        sigma_values = self.cals.parameters_table(parameters=["σ"])
+        sigma_values = self.cals.parameters_table(parameters=["σ"])["data"]
         self.assertEqual(len(sigma_values), 1)
 
         # Check that we have two values for amp.
-        amp_values = self.cals.parameters_table(parameters=["amp"])
+        amp_values = self.cals.parameters_table(parameters=["amp"])["data"]
         self.assertEqual(len(amp_values), 2)
 
-        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,)])
+        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,)])["data"]
         self.assertEqual(len(amp_values), 1)
 
         # Check to see if we get back the two qubits when explicitly specifying them.
-        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,), (0,)])
+        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,), (0,)])["data"]
         self.assertEqual(len(amp_values), 2)
 
 
