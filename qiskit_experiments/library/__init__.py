@@ -61,6 +61,8 @@ Some experiments may be also used for gate calibration.
     ~characterization.Tphi
     ~characterization.QubitSpectroscopy
     ~characterization.EFSpectroscopy
+    ~characterization.CrossResonanceHamiltonian
+    ~characterization.EchoedCrossResonanceHamiltonian
 
 .. _calibration:
 
@@ -78,6 +80,9 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     :template: autosummary/experiment.rst
 
     ~calibration.DragCal
+    ~calibration.FineDrag
+    ~calibration.FineXDrag
+    ~calibration.FineSXDrag
     ~calibration.Rabi
     ~calibration.EFRabi
     ~calibration.FineAmplitude
@@ -88,6 +93,9 @@ See :doc:`/tutorials/calibrating_armonk` for example.
 """
 from .calibration import (
     DragCal,
+    FineDrag,
+    FineXDrag,
+    FineSXDrag,
     Rabi,
     EFRabi,
     FineAmplitude,
@@ -95,7 +103,16 @@ from .calibration import (
     FineSXAmplitude,
     RamseyXY,
 )
-from .characterization import T1, T2Ramsey, Tphi, QubitSpectroscopy, EFSpectroscopy
+
+from .characterization import (
+    T1,
+    T2Ramsey,
+    QubitSpectroscopy,
+    EFSpectroscopy,
+    CrossResonanceHamiltonian,
+    EchoedCrossResonanceHamiltonian,
+    Tphi
+)
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
 from .quantum_volume import QuantumVolume

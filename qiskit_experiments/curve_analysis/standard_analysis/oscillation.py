@@ -12,7 +12,8 @@
 
 """Analyze oscillating data such as a Rabi amplitude experiment."""
 
-from typing import Any, Dict, List, Union
+from typing import List, Union
+
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
@@ -64,60 +65,41 @@ class OscillationAnalysis(curve.CurveAnalysis):
         )
     ]
 
-    @classmethod
-    def _default_options(cls):
-        """Return the default analysis options.
+    def _generate_fit_guesses(
+        self, user_opt: curve.FitOptions
+    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+        """Compute the initial guesses.
 
-        See :meth:`~qiskit_experiment.curve_analysis.CurveAnalysis._default_options` for
-        descriptions of analysis options.
+        Args:
+            user_opt: Fit options filled with user provided guess and bounds.
+
+        Returns:
+            List of fit options that are passed to the fitter function.
         """
-        default_options = super()._default_options()
-        default_options.result_parameters = ["freq"]
-        default_options.xlabel = "Amplitude"
-        default_options.ylabel = "Signal (arb. units)"
-
-        return default_options
-
-    def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
-        """Fitter options."""
-        user_p0 = self._get_option("p0")
-        user_bounds = self._get_option("bounds")
-
         curve_data = self._data()
+        max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
 
-        max_abs_y = np.max(np.abs(curve_data.y))
+        user_opt.bounds.set_if_empty(
+            amp=(-2 * max_abs_y, 2 * max_abs_y),
+            freq=(0, np.inf),
+            phase=(-np.pi, np.pi),
+            base=(-max_abs_y, max_abs_y),
+        )
+        user_opt.p0.set_if_empty(
+            freq=curve.guess.frequency(curve_data.x, curve_data.y),
+            base=curve.guess.constant_sinusoidal_offset(curve_data.y),
+        )
+        user_opt.p0.set_if_empty(
+            amp=curve.guess.max_height(curve_data.y - user_opt.p0["base"], absolute=True)[0],
+        )
 
-        f_guess = curve.guess.frequency(curve_data.x, curve_data.y)
-        b_guess = curve.guess.constant_sinusoidal_offset(curve_data.y)
-        a_guess, _ = curve.guess.max_height(curve_data.y - b_guess, absolute=True)
+        options = []
+        for phase_guess in np.linspace(0, np.pi, 5):
+            new_opt = user_opt.copy()
+            new_opt.p0.set_if_empty(phase=phase_guess)
+            options.append(new_opt)
 
-        if user_p0["phase"] is not None:
-            p_guesses = [user_p0["phase"]]
-        else:
-            p_guesses = [0, np.pi / 4, np.pi / 2, 3 * np.pi / 4, np.pi]
-
-        fit_options = []
-        for p_guess in p_guesses:
-            fit_option = {
-                "p0": {
-                    "amp": user_p0["amp"] or a_guess,
-                    "freq": user_p0["freq"] or f_guess,
-                    "phase": p_guess,
-                    "base": user_p0["base"] or b_guess,
-                },
-                "bounds": {
-                    "amp": user_bounds["amp"] or (-2 * max_abs_y, 2 * max_abs_y),
-                    "freq": user_bounds["freq"] or (0, np.inf),
-                    "phase": user_bounds["phase"] or (-np.pi, np.pi),
-                    "base": user_bounds["base"] or (-1 * max_abs_y, 1 * max_abs_y),
-                },
-            }
-            # p0 and bounds are defined in the default options, therefore updating
-            # with the extra options only adds options and doesn't override p0 or bounds
-            fit_option.update(extra_options)
-            fit_options.append(fit_option)
-
-        return fit_options
+        return options
 
     def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.

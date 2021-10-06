@@ -353,7 +353,7 @@ class BaseExperiment(ABC):
             "job_metadata": [],
         }
         # Add additional metadata if subclasses specify it
-        for key, val in self._additional_metadata():
+        for key, val in self._additional_metadata().items():
             metadata[key] = val
         return metadata
 
