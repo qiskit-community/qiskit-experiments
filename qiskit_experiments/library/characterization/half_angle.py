@@ -74,14 +74,14 @@ class HalfAngle(BaseExperiment):
         """Default analysis options."""
         options = super()._default_analysis_options()
         options.normalization = True
+        options.angle_per_gate = 0.0
+        options.phase_offset = 0.0
 
         return options
 
     @classmethod
     def _default_transpile_options(cls) -> Options:
         """Default transpile options.
-
-        # TODO This will require terra 0.19.0
 
         Experiment Options:
             inst_map (InstructionScheduleMap): An instance of an instruction schedule map
@@ -112,15 +112,26 @@ class HalfAngle(BaseExperiment):
         for repetition in self.experiment_options.repetitions:
             circuit = self._pre_circuit()
 
-            circuit.ry(np.pi / 2, 0)
+            # First ry gate
+            circuit.rz(np.pi / 2, 0)
+            circuit.sx(0)
+            circuit.rz(-np.pi / 2, 0)
 
+            # Error amplifying sequence
             for _ in range(repetition):
-                circuit.rx(np.pi / 2, 0)
-                circuit.rx(np.pi / 2, 0)
-                circuit.ry(np.pi, 0)
+                circuit.sx(0)
+                circuit.sx(0)
+                circuit.y(0)
 
-            circuit.rx(np.pi / 2, 0)
+            circuit.sx(0)
             circuit.measure_all()
+
+            circuit.metadata = {
+                "experiment_type": self._type,
+                "qubits": self.physical_qubits,
+                "xval": repetition,
+                "unit": "repetition number",
+            }
 
             circuits.append(circuit)
 

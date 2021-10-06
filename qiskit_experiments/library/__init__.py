@@ -62,6 +62,7 @@ Some experiments may be also used for gate calibration.
     ~characterization.EFSpectroscopy
     ~characterization.CrossResonanceHamiltonian
     ~characterization.EchoedCrossResonanceHamiltonian
+    ~characterization.HalfAngle,
 
 .. _calibration:
 
@@ -101,7 +102,6 @@ from .calibration import (
     FineAmplitude,
     FineXAmplitude,
     FineSXAmplitude,
-    HalfAngle,
     RamseyXY,
 )
 from .characterization import (
@@ -111,6 +111,7 @@ from .characterization import (
     EFSpectroscopy,
     CrossResonanceHamiltonian,
     EchoedCrossResonanceHamiltonian,
+    HalfAngle,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography

@@ -74,7 +74,6 @@ from .drag import DragCal
 from .fine_drag import FineDrag, FineXDrag, FineSXDrag
 from .rabi import Rabi, EFRabi
 from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
-from .half_angle import HalfAngle
 from .ramsey_xy import RamseyXY
 
 from .analysis.drag_analysis import DragCalAnalysis
