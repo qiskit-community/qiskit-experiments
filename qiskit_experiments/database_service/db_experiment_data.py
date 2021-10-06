@@ -717,8 +717,11 @@ class DbExperimentDataV1(DbExperimentData):
             json_encoder=self._json_encoder,
         )
 
-    def save(self) -> None:
+    def save(self, verbose: bool = True) -> None:
         """Save the experiment data to a database service.
+
+        Args:
+            verbose: if True then the method may print messages to the standard output
 
         .. note::
             This saves the experiment metadata, all analysis results, and all
@@ -766,10 +769,11 @@ class DbExperimentDataV1(DbExperimentData):
                 self._service.delete_figure(experiment_id=self.experiment_id, figure_name=name)
             self._deleted_figures.remove(name)
 
-        print(
-            "You can view the experiment online at https://quantum-computing.ibm.com/experiments/"
-            + self.experiment_id
-        )
+        if verbose:
+            print(
+                "You can view the experiment online at https://quantum-computing.ibm.com/experiments/"
+                + self.experiment_id
+            )
 
     @classmethod
     def load(cls, experiment_id: str, service: DatabaseServiceV1) -> "DbExperimentDataV1":
