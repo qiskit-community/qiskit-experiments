@@ -138,11 +138,12 @@ class DragCalAnalysis(curve.CurveAnalysis):
             beta=(-freq_bound, freq_bound),
             base=(-max_abs_y, max_abs_y),
         )
-        user_opt.p0.set_if_empty(amp=0.5, base=0.5)
+        user_opt.p0.set_if_empty(amp=-0.5, base=0.5)
 
         # Drag curves can sometimes be very flat, i.e. averages of y-data
         # and min-max do not always make good initial guesses. We therefore add
-        # 0.5 to the initial guesses.
+        # 0.5 to the initial guesses. Note that amp=-0.5 because the cosine function
+        # becomes +1 at zero phase, i.e. optimal beta, in which probability should become zero.
         options = []
         for beta_guess in np.linspace(min_beta, max_beta, 20):
             new_opt = user_opt.copy()

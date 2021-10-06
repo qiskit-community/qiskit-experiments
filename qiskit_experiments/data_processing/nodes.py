@@ -481,6 +481,84 @@ class Probability(DataAction):
         return p_mean, np.sqrt(p_var)
 
 
+class DirichletProbability(Probability):
+    r"""Compute probability and variance from count dictionary.
+
+    This node is a subtype of :py:class:`~qiskit_experiments.data_processing.nodes.Probability`,
+    in which variance is computed based on a binomial distribution at the risk of zero variance
+    at probability at either zero or one.
+
+    This node avoid such singularity by assuming Dirichlet distribution with Bayes update
+    taking a prior distribution. Namely, a mean value is replaced by a mode that represents
+    the most likely value to be sampled
+
+    .. math::
+
+        p = \frac{\alpha_i - 1}{\alpha_0 + K}
+
+    where :math:`\alpha_i = f_i + \theta_i`, :math:`\alpha_0 = \sum_{i=1}^K \alpha_i`,
+    :math:`\theta_i` is the prior distribution and :math:`f_i` is
+    the count of :math:`i`-th element of :math:`K` dimensional vector.
+    The variance is computed by
+
+    .. math::
+
+        v = \frac{E[x] (1 - E[x])}{\alpha_0 + 1}
+
+    where :math:`E[x] = \alpha_i / \alpha_0` is the mean value of the outcome of interest.
+    With a finite prior, this node always returns finite variance.
+    This saves us from the risk of unexpected zero division throughout the stack.
+    """
+
+    def __init__(
+        self,
+        outcome: str = "1",
+        prior: Union[Dict[str, float], float] = 0.5,
+        validate: bool = True,
+    ):
+        """Initialize a counts to probability data conversion.
+
+        Args:
+            outcome: The bitstring for which to compute the probability which defaults to "1".
+            prior: Prior distribution. This can be float value or dictionary keyed on
+                outcome bitstring. If n-bit label is provided in ``outcome``, the
+                dimension of the prior distribution, i.e. dictionary length, should be :math:`2^n`.
+                If a float value is applied, this applies a flat prior with the provided value.
+                By default, this assumes flat prior of 0.5 corresponding to the Jeffery's prior.
+            validate: If set to False the DataAction will not validate its input.
+
+        Raises:
+            DataProcessorError: When dimension of prior and expected parameter vector
+                doesn't match.
+        """
+        self._dim = 2 ** len(outcome)
+        self._prior = prior
+        super().__init__(outcome=outcome, validate=validate)
+
+        if isinstance(prior, dict) and self._dim != len(prior):
+            raise DataProcessorError(
+                "Dimension of probability density function and prior distribution doesn't match."
+            )
+
+    def _population_error(self, counts_dict) -> Tuple[float, float]:
+        """Helper method"""
+        shots = sum(counts_dict.values())
+        freq = counts_dict.get(self._outcome, 0.0)
+
+        if isinstance(self._prior, dict):
+            alpha_i = freq + self._prior[self._outcome]
+            alpha_0 = sum([v + self._prior[k] for k, v in counts_dict.items()])
+        else:
+            alpha_i = freq + self._prior
+            alpha_0 = shots + self._prior + self._dim
+
+        p_mean = alpha_i / alpha_0
+        p_var = p_mean * (1 - p_mean) / (alpha_0 + 1)
+        mode = (alpha_i - 1) / (alpha_0 + self._dim)
+
+        return mode, np.sqrt(p_var)
+
+
 class BasisExpectationValue(DataAction):
     """Compute expectation value of measured basis from probability.
 
