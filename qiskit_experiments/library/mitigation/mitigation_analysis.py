@@ -18,7 +18,7 @@ from matplotlib import pyplot
 from qiskit_experiments.framework import BaseAnalysis
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework import AnalysisResultData
-from qiskit_experiments.matplotlib import requires_matplotlib
+from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 
 
 class CompleteMitigationAnalysis(BaseAnalysis):
@@ -30,12 +30,13 @@ class CompleteMitigationAnalysis(BaseAnalysis):
         matrix = self._generate_matrix(data, labels)
         result_matrix = AnalysisResultData("Mitigation Matrix", matrix)
         result_labels = AnalysisResultData("Matrix Labels", labels)
-        figures = [self._plot_calibration(matrix, labels)]
+        ax = options["ax"]
+        figures = [self._plot_calibration(matrix, labels, ax)]
         return [result_matrix, result_labels], figures
 
     def _generate_matrix(self, data, labels):
         list_size = len(labels)
-        matrix = np.zeros([2 ** list_size, 2 ** list_size], dtype=float)
+        matrix = np.zeros([list_size, list_size], dtype=float)
         # matrix[i][j] is the probability of counting i for expected j
         for datum in data:
             expected_outcome = datum["metadata"]["label"]
@@ -46,7 +47,6 @@ class CompleteMitigationAnalysis(BaseAnalysis):
                 matrix[i][j] = count / total_counts
         return matrix
 
-    @requires_matplotlib
     def _plot_calibration(self, matrix, labels, ax=None):
         """
         Plot the calibration matrix (2D color grid plot).
@@ -61,12 +61,11 @@ class CompleteMitigationAnalysis(BaseAnalysis):
             ImportError: if matplotlib was not installed.
 
         """
-        if ax is None:
-            figure = pyplot.figure()
-            ax = figure.subplots()
 
+        if ax is None:
+            ax = get_non_gui_ax()
+        figure = ax.get_figure()
         axim = ax.matshow(matrix, cmap=pyplot.cm.binary, clim=[0, 1])
-        ax.figure.colorbar(axim)
         ax.set_xlabel("Prepared State")
         ax.xaxis.set_label_position("top")
         ax.set_ylabel("Measured State")
@@ -74,4 +73,4 @@ class CompleteMitigationAnalysis(BaseAnalysis):
         ax.set_yticks(np.arange(len(labels)))
         ax.set_xticklabels(labels)
         ax.set_yticklabels(labels)
-        return ax
+        return figure
