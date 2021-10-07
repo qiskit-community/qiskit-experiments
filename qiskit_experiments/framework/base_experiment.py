@@ -167,14 +167,11 @@ class BaseExperiment(ABC):
 
         return experiment_data._copy_metadata()
 
-    def run_analysis(self, experiment_data, **options) -> ExperimentData:
+    def run_analysis(self, experiment_data) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
         Args:
             experiment_data (ExperimentData): the experiment data to analyze.
-            options: additional analysis options. Any values set here will
-                     override the value from :meth:`analysis_options`
-                     for the current run.
 
         Returns:
             An experiment data object containing the analysis results and figures.
@@ -184,7 +181,6 @@ class BaseExperiment(ABC):
         """
         # Get analysis options
         analysis_options = copy.copy(self.analysis_options)
-        analysis_options.update_options(**options)
         analysis_options = analysis_options.__dict__
 
         # Run analysis
