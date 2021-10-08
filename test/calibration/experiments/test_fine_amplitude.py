@@ -14,6 +14,7 @@
 
 import numpy as np
 
+from qiskit.circuit.library import XGate, SXGate
 from qiskit.test import QiskitTestCase
 from qiskit.pulse import DriveChannel, Drag
 import qiskit.pulse as pulse
@@ -140,6 +141,7 @@ class TestSpecializations(QiskitTestCase):
         self.assertTrue(exp.experiment_options.add_xp_circuit)
         self.assertEqual(exp.analysis_options.angle_per_gate, np.pi)
         self.assertEqual(exp.analysis_options.phase_offset, np.pi / 2)
+        self.assertEqual(exp.experiment_options.gate_type, XGate)
 
     def test_fine_sx_amp(self):
         """Test the fine SX amplitude."""
@@ -153,6 +155,7 @@ class TestSpecializations(QiskitTestCase):
         self.assertEqual(exp.experiment_options.repetitions, expected)
         self.assertEqual(exp.analysis_options.angle_per_gate, np.pi / 2)
         self.assertEqual(exp.analysis_options.phase_offset, 0)
+        self.assertEqual(exp.experiment_options.gate_type, SXGate)
 
     def test_end_to_end_no_schedule(self):
         """Test the experiment end to end."""
