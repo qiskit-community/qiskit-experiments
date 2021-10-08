@@ -153,3 +153,21 @@ class TestSpecializations(QiskitTestCase):
         self.assertEqual(exp.experiment_options.repetitions, expected)
         self.assertEqual(exp.analysis_options.angle_per_gate, np.pi / 2)
         self.assertEqual(exp.analysis_options.phase_offset, 0)
+
+    def test_end_to_end_no_schedule(self):
+        """Test the experiment end to end."""
+
+        amp_cal = FineXAmplitude(0)
+        amp_cal.set_analysis_options(number_guesses=11)
+
+        backend = MockFineAmp(-np.pi * 0.07, np.pi, "x")
+
+        expdata = amp_cal.run(backend).block_for_results()
+        result = expdata.analysis_results(1)
+        d_theta = result.value.value
+
+        tol = 0.04
+
+        self.assertTrue(abs(d_theta - backend.angle_error) < tol)
+        self.assertEqual(result.quality, "good")
+        self.assertIsNone(amp_cal.experiment_options.schedule)
