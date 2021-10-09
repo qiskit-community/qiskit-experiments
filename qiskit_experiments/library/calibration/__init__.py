@@ -47,11 +47,7 @@ module.
     FineAmplitude
     FineXAmplitude
     FineSXAmplitude
-<<<<<<< HEAD
-    HalfAngle
-=======
     RamseyXY
->>>>>>> f859b2d55351faaef59ce6f62dd866f5c89978a7
 
 Calibration analysis
 ====================

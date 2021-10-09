@@ -29,24 +29,19 @@ class HalfAngle(BaseExperiment):
 
     # section: overview
 
-        This experiment runs circuits that repeat blocks of :code:`Rx(π/2) - Rx(π/2) - Ry(π)`
+        This experiment runs circuits that repeat blocks of :code:`sx - sx - y`
         circuits inserted in a Ramsey type experiment, i.e. the full gate sequence is thus
-        :code:`Ry(π/2) - [Rx(π/2) - Rx(π/2) - Ry(π)] ^ n - Rx(π/2)` where :code:`n` is
-        varied, see [1]. This gate sequence is designed to amplify X-Y axis errors. Such
-        errors can occur due to phase errors.
+        :code:`Ry(π/2) - [sx - sx - y] ^ n - sx` where :code:`n` is varied, see [1]. This
+        gate sequence is designed to amplify X-Y axis errors. Such errors can occur due to
+        phase errors.
 
         .. parsed-literal::
 
-                    ┌─────────┐┌─────────┐┌─────────┐┌───────┐   ┌─────────┐┌─────────┐»
-               q_0: ┤ Ry(π/2) ├┤ Rx(π/2) ├┤ Rx(π/2) ├┤ Ry(π) ├...┤ Rx(π/2) ├┤ Rx(π/2) ├»
-                    └─────────┘└─────────┘└─────────┘└───────┘   └─────────┘└─────────┘»
-            meas: 1/══════════════════════════════════════════...══════════════════════»
-                                                                                       »
-            «        ┌───────┐┌─────────┐ ░ ┌─┐
-            «   q_0: ┤ Ry(π) ├┤ Rx(π/2) ├─░─┤M├
-            «        └───────┘└─────────┘ ░ └╥┘
-            «meas: 1/════════════════════════╩═
-            «                                0
+                    ┌─────────┐┌────┐┌────┐┌───┐   ┌────┐┌────┐┌───┐┌────┐ ░ ┌─┐
+               q_0: ┤ Ry(π/2) ├┤ sx ├┤ sx ├┤ y ├...┤ sx ├┤ sx ├┤ y ├┤ sx ├─░─┤M├
+                    └─────────┘└────┘└────┘└───┘   └────┘└────┘└───┘└────┘ ░ └╥┘
+            meas: 1/════════════════════════════...═══════════════════════════╩═
+                                                                              0
 
     # section: reference
         .. ref_arxiv:: 1 1504.06597
