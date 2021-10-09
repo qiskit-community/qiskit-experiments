@@ -27,7 +27,7 @@ from qiskit_experiments.library.calibration.analysis.fine_drag_analysis import (
 
 
 class FineDrag(BaseExperiment):
-    r"""Fine DRAG Calibration experiment.
+    r"""Fine DRAG experiment.
 
     # section: overview
 
