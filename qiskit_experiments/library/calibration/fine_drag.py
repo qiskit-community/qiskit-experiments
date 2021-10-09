@@ -267,7 +267,7 @@ class FineSXDrag(FineDrag):
         r"""Default values for the FineSXDrag experiment.
 
         Experiment Options:
-            gate_type (Type): FineSXDrag calibrates an XGate.
+            gate_type (Type): FineSXDrag calibrates an SXGate.
         """
         options = super()._default_experiment_options()
         options.gate_type = SXGate
