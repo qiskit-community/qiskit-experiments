@@ -17,6 +17,7 @@ from typing import Dict, Optional
 from datetime import datetime
 
 from qiskit_experiments.database_service import DbExperimentDataV1
+from qiskit_experiments.database_service.database_service import DatabaseServiceV1
 
 LOG = logging.getLogger(__name__)
 
@@ -61,6 +62,23 @@ class ExperimentData(DbExperimentDataV1):
                 job_times[job_id] = job.time_per_step().get("COMPLETED")
 
         return job_times
+
+    @classmethod
+    def load(cls, experiment_id: str, service: DatabaseServiceV1) -> "ExperimentData":
+        """Load a saved experiment data from a database service.
+
+        Args:
+            experiment_id: Experiment ID.
+            service: the database service.
+
+        Returns:
+            The loaded experiment data.
+        """
+        db_expdata = DbExperimentDataV1.load(experiment_id, service=service)
+        expdata = ExperimentData()
+        for attr, value in db_expdata.__dict__.items():
+            setattr(expdata, attr, value)
+        return expdata
 
     def _copy_metadata(self, new_instance: Optional["ExperimentData"] = None) -> "ExperimentData":
         """Make a copy of the experiment metadata.
