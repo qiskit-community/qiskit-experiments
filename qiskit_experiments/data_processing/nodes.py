@@ -556,6 +556,9 @@ class DirichletProbability(Probability):
         p_var = p_mean * (1 - p_mean) / (alpha_0 + 1)
         mode = (alpha_i - 1) / (alpha_0 + self._dim)
 
+        # If coutcome count is zero, mode becomes tiny negative value with prior < 1
+        mode = max(0.0, mode)
+
         return mode, np.sqrt(p_var)
 
 

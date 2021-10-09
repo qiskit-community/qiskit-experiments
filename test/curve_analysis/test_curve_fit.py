@@ -296,7 +296,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
     def setUp(self):
         super().setUp()
         self.xvalues = np.linspace(0.1, 1, 50)
-        self.err_decimal = 2
+        self.err_decimal = 1
 
     def test_run_single_curve_analysis(self):
         """Test analysis for single curve."""
