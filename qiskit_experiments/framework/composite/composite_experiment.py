@@ -64,9 +64,9 @@ class CompositeExperiment(BaseExperiment):
         """Return the component experiment Analysis object"""
         return self.component_experiment(index).analysis()
 
-    def _add_job_metadata(self, experiment_data, job, **run_options):
+    def _add_job_metadata(self, experiment_data, jobs, **run_options):
         # Add composite metadata
-        super()._add_job_metadata(experiment_data, job, **run_options)
+        super()._add_job_metadata(experiment_data, jobs, **run_options)
 
         # Add sub-experiment options
         for i in range(self.num_experiments):
@@ -83,7 +83,7 @@ class CompositeExperiment(BaseExperiment):
                     " are overridden by composite experiment options."
                 )
             sub_data = experiment_data.component_experiment_data(i)
-            sub_exp._add_job_metadata(sub_data, job, **run_options)
+            sub_exp._add_job_metadata(sub_data, jobs, **run_options)
 
     def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
         for expr in self._experiments:
