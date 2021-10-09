@@ -12,12 +12,13 @@
 """
 Standard RB Experiment class.
 """
-from typing import Union, Optional, Iterable, List
+from typing import Union, Optional, Sequence, List
 from numpy.random import default_rng, Generator
 
 from qiskit.circuit import QuantumCircuit
+from qiskit.providers.backend import Backend
 from qiskit.quantum_info import Clifford
-from qiskit_experiments.base_experiment import BaseExperiment
+from qiskit_experiments.framework import BaseExperiment, Options
 from .purity_analysis import PurityEstimationAnalysis
 
 
@@ -41,12 +42,10 @@ class PurityEstimation(BaseExperiment):
     and the sum is taken over all tensor products of 1-qubit Cliffords
     :math:`C = \bigotimes_{i=1}^N C_i` applied before Z-basis measurements.
 
-    Note that while there are 24 single-qubit Cliffords there are only 6 that need to be sampled uniformly from
-    to generate all possible measurement outcome distributions and implement averaging over the full unitary
-    2-design.
+    Note that while there are 24 single-qubit Cliffords there are only 6 that
+    need to be sampled uniformly from to generate all possible measurement
+    outcome distributions and implement averaging over the full unitary 2-design.
     """
-
-    __analysis_class__ = PurityEstimationAnalysis
 
     # Pre-synthesized 1-qubit Clifford circuits
     _CLIFFORD1_INST = [
@@ -63,9 +62,10 @@ class PurityEstimation(BaseExperiment):
 
     def __init__(
         self,
-        circuit: Union[QuantumCircuit, "InstructionLike"],
-        qubits: Optional[Iterable[int]] = None,
-        meas_qubits: Optional[Iterable[int]] = None,
+        circuit: QuantumCircuit,
+        backend: Optional[Backend] = None,
+        qubits: Optional[Sequence[int]] = None,
+        meas_qubits: Optional[Sequence[int]] = None,
         num_samples: Optional[int] = None,
         seed: Optional[Union[Generator, int]] = None,
     ):
@@ -75,6 +75,7 @@ class PurityEstimation(BaseExperiment):
             circuit: the quantum state preparation circuit. If not a quantum
                 circuit it must be a class that can be appended to a quantum
                 circuit.
+            backend: Optional, the backend to run the experiment on.
             qubits: Optional, the physical qubits for the initial state circuit.
             meas_qubits: Optional, the qubits to be measured. These should refer
                 to the logical qubits in the state circuit. If None all qubits
@@ -89,7 +90,9 @@ class PurityEstimation(BaseExperiment):
 
         # Get physical qubits
         if qubits is None:
-            qubits = num_qubits
+            qubits = range(num_qubits)
+
+        super().__init__(qubits, backend=backend, analysis=PurityEstimationAnalysis())
 
         # Get measured qubits
         if meas_qubits is None:
@@ -106,22 +109,31 @@ class PurityEstimation(BaseExperiment):
             prep_circuit.append(circuit, range(num_qubits))
         self._circuit = prep_circuit
 
-        # Number of samples
-        if num_samples is None:
-            self._num_samples = 6 ** len(self._meas_qubits)
-        else:
-            self._num_samples = num_samples
-
         # RNG
         if isinstance(seed, Generator):
             self._rng = seed
         else:
             self._rng = default_rng(seed)
 
-        super().__init__(qubits, circuit_options=["num_samples"])
+        # Number of samples
+        if num_samples is None:
+            num_samples = 6 ** len(self._meas_qubits)
+        self.set_experiment_options(num_samples=num_samples)
 
-    # pylint: disable = arguments-differ
-    def circuits(self, backend=None, num_samples=None):
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        """Default experiment options.
+
+        Experiment Options:
+            num_samples (int): Optional, the number of random measurement circuit
+                samples to generate. If not specified the full set of :math:`6^n`
+                circuits will be generated.
+        """
+        opts = super()._default_experiment_options()
+        opts.update_options(num_samples=None)
+        return opts
+
+    def circuits(self):
 
         # Get qubits and clbits
         num_meas = len(self._meas_qubits)
@@ -131,10 +143,7 @@ class PurityEstimation(BaseExperiment):
         meas_clbits = list(range(self._circuit.num_clbits, total_clbits))
 
         # Generate indices of measurement circuits
-        max_size = 6 ** num_meas
-        if num_samples is None:
-            num_samples = self._num_samples
-        index_lst = self._sampler(num_samples, num_meas)
+        index_lst = self._sampler(num_meas)
 
         # Build circuits
         circuits = []
@@ -160,11 +169,13 @@ class PurityEstimation(BaseExperiment):
             circuits.append(circ)
         return circuits
 
-    def _sampler(self, num_samples, num_meas):
+    def _sampler(self, num_meas):
         max_size = 6 ** num_meas
+        num_samples = self.experiment_options.num_samples
         if max_size <= 2 ** 63:
             # We sample without replacement
-            samples = self._rng.choice(max_size, size=num_samples, replace=False)
+            samples = self._rng.choice(
+                max_size, size=num_samples, replace=False)
             return [self._int2indices(i) for i in samples]
         else:
             # We can't use numpy random choice without replacement since range

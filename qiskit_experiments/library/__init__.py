@@ -39,6 +39,7 @@ Experiments for verification and validation of quantum devices.
     ~tomography.StateTomography
     ~tomography.ProcessTomography
     ~quantum_volume.QuantumVolume
+    ~purity_estimation.PurityEstimation
 
 .. _characterization:
 
@@ -137,6 +138,7 @@ from .characterization import (
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
 from .quantum_volume import QuantumVolume
+from .purity_estimation import PurityEstimation
 
 # Experiment Sub-modules
 from . import calibration
@@ -144,3 +146,4 @@ from . import characterization
 from . import randomized_benchmarking
 from . import tomography
 from . import quantum_volume
+from . import purity_estimation

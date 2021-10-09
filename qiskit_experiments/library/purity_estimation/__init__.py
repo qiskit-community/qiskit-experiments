@@ -13,3 +13,4 @@
 """Purity estimation experiment."""
 
 from .purity_experiment import PurityEstimation
+from .purity_analysis import PurityEstimationAnalysis

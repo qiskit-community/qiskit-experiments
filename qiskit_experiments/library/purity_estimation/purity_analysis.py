@@ -13,19 +13,25 @@
 Purity Estimation analysis.
 """
 
+import numpy as np
 from qiskit.result import marginal_counts
-from qiskit_experiments.base_analysis import BaseAnalysis, AnalysisResult
+from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData
 
 
 class PurityEstimationAnalysis(BaseAnalysis):
     """Purity estimation analysis class."""
 
-    def _run_analysis(self, experiment_data: "ExperimentData", **kwargs):
-        data = experiment_data.data
-        purity_samples = []
-        num_samples = len(data)
+    @staticmethod
+    def _hamming_dist(outcome1: str, outcome2: str) -> int:
+        """Return the Hamming-distance between two bitstrings"""
+        return bin(int(outcome1, 2) ^ int(outcome2, 2)).count("1")
 
-        for k, datum in enumerate(data):
+    def _run_analysis(self, experiment_data):
+        data = experiment_data.data()
+        num_samples = len(data)
+        purity_samples = np.zeros(num_samples, dtype=float)
+
+        for idx, datum in enumerate(data):
             meas_clbits = datum["metadata"]["clbits"]
             counts = marginal_counts(datum["counts"], meas_clbits)
             n_sub = len(next(iter(counts)))
@@ -41,18 +47,18 @@ class PurityEstimationAnalysis(BaseAnalysis):
             purity_k *= (2 ** n_sub) / (shots ** 2)
 
             # Accumualte with average purity estimate
-            purity_samples.append(purity_k)
+            purity_samples[idx] = purity_k
 
         # Compute purity estimate
-        purity = sum(purity_samples) / num_samples
+        purity = np.sum(purity_samples) / num_samples
 
-        result = AnalysisResult({"purity": purity})
+        # Create analysis result data structure
+        result = AnalysisResultData(
+            "purity",
+            value=purity,
+            extra={
+                "num_samples": num_samples,
+                "samples": purity_samples
+            })
 
-        # TODO: Add estimation of error bars
-
-        return result, None
-
-    @staticmethod
-    def _hamming_dist(outcome1: str, outcome2: str) -> int:
-        """Return the Hamming-distance between two bitstrings"""
-        return bin(int(outcome1, 2) ^ int(outcome2, 2)).count("1")
+        return [result], []
