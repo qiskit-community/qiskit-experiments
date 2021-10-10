@@ -18,20 +18,70 @@ from abc import abstractmethod
 from qiskit import QuantumCircuit
 from qiskit.providers import Backend
 from qiskit.exceptions import QiskitError
-from qiskit_experiments.framework import BaseExperiment, ParallelExperiment
+from qiskit_experiments.framework import BaseExperiment, ParallelExperiment, ExperimentData
 from .mitigation_analysis import CompleteMitigationAnalysis
 
 
 class MeasurementMitigation(BaseExperiment):
-    """Base class for measurement mitigation experiments"""
+    """Interface class for measurement mitigation experiments"""
 
-    def __init__(self, qubits: Iterable[int]):
+    METHOD_COMPLETE = "complete"
+    METHOD_TENSORED = "tensored"
+    ALL_METHODS = [METHOD_COMPLETE, METHOD_TENSORED]
+
+    def __init__(self, qubits: Iterable[int], method=METHOD_COMPLETE):
+        if method not in self.ALL_METHODS:
+            raise QiskitError("Method {} not recognized".format(method))
+        self._method = method
+        if method == self.METHOD_COMPLETE:
+            self._exp = CompleteMeasurementMitigation(qubits)
+            qubit_list = qubits
+        if method == self.METHOD_TENSORED:
+            if not isinstance(qubits, list) or not isinstance(qubits[0], list):
+                raise QiskitError(
+                    "Tensored experiment requires a list of qubit lists; {} was passed".format(
+                        qubits
+                    )
+                )
+            sub_experiments = []
+            for qubit_list in qubits:
+                exp = CompleteMeasurementMitigation(qubit_list)
+                sub_experiments.append(exp)
+            self._exp = ParallelExperiment(sub_experiments)
+        super().__init__(qubit_list)
+
+    def run(
+        self,
+        backend: Backend,
+        analysis: bool = True,
+        experiment_data: Optional[ExperimentData] = None,
+        **run_options,
+    ) -> ExperimentData:
+        if self._method == self.METHOD_COMPLETE:
+            res = self._exp.run(backend, analysis, experiment_data, run_options)
+            return res
+        if self._method == self.METHOD_TENSORED:
+            res = self._exp.run(backend, analysis, experiment_data, run_options)
+            return res
+        return None
+
+
+class CompleteMeasurementMitigation(BaseExperiment):
+    """
+    Measurement correction experiment for a full calibration
+    """
+
+    __analysis_class__ = CompleteMitigationAnalysis
+
+    def __init__(self, qubits: List[int]):
         super().__init__(qubits)
+
+    def labels(self) -> List[str]:
+        return [bin(j)[2:].zfill(self.num_qubits) for j in range(2 ** self.num_qubits)]
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         return [self._calibration_circuit(self.num_qubits, label) for label in self.labels()]
 
-    @abstractmethod
     def labels(self) -> List[str]:
         """Return the labels for the mitigation circuits.
         since different mitigation methods use different sets
@@ -52,35 +102,3 @@ class MeasurementMitigation(BaseExperiment):
         circ.measure_all()
         circ.metadata = {"label": label}
         return circ
-
-
-class CompleteMeasurementMitigation(MeasurementMitigation):
-    """
-    Measurement correction experiment for a full calibration
-    """
-
-    __analysis_class__ = CompleteMitigationAnalysis
-
-    def __init__(self, qubits: List[int]):
-        super().__init__(qubits)
-
-    def labels(self) -> List[str]:
-        return [bin(j)[2:].zfill(self.num_qubits) for j in range(2 ** self.num_qubits)]
-
-
-def run_mitigation_experiment(qubits, backend, method="complete"):
-    if method == "complete":
-        exp = CompleteMeasurementMitigation(qubits)
-        return exp.run(backend).block_for_results()
-    if method == "tensored":
-        if not isinstance(qubits, list) or not isinstance(qubits[0], list):
-            raise QiskitError(
-                "Tensored experiment requires a list of qubit lists; {} was passed".format(qubits)
-            )
-        sub_experiments = []
-        for qubit_list in qubits:
-            exp = CompleteMeasurementMitigation(qubit_list)
-            sub_experiments.append(exp)
-        par_exp = ParallelExperiment(sub_experiments)
-        res = par_exp.run(backend).block_for_results()
-        return res
