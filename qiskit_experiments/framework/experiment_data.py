@@ -75,7 +75,7 @@ class ExperimentData(DbExperimentDataV1):
             and metadata but different ID.
         """
         if new_instance is None:
-            new_instance = ExperimentData(
+            new_instance = self.__class__(
                 experiment=self.experiment, backend=self.backend, job_ids=self.job_ids
             )
         return super()._copy_metadata(new_instance)

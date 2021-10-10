@@ -280,6 +280,7 @@ class TestCompositeExperimentData(QiskitTestCase):
         self.rootdata = CompositeExperimentData(
             batch_exp, backend=self.backend, job_ids=self.job_ids
         )
+        
         self.rootdata.share_level = self.share_level
 
     def check_attributes(self, expdata):
@@ -300,29 +301,45 @@ class TestCompositeExperimentData(QiskitTestCase):
                 self.assertEqual(childdata.experiment_id, comp_id)
                 self.assertEqual(childdata.__class__.__name__, comp_class)
 
-    def check_if_equal(self, expdata1, expdata2):
+    def check_if_equal(self, expdata1, expdata2, is_a_copy):
         """
-        Recursively traverse the tree and checkequality of expdata1 and expdata2
+        Recursively traverse the tree and check equality of expdata1 and expdata2
         """
-        self.assertEqual(expdata1.parent_id, expdata2.parent_id)
         self.assertEqual(expdata1.backend.name(), expdata2.backend.name())
         self.assertEqual(expdata1.job_ids, expdata2.job_ids)
         self.assertEqual(expdata1.tags, expdata2.tags)
         self.assertEqual(expdata1.experiment_type, expdata2.experiment_type)
-        self.assertEqual(expdata1.metadata, expdata2.metadata)
         self.assertEqual(expdata1.share_level, expdata2.share_level)
+
+        metadata1 = copy.copy(expdata1.metadata)
+        metadata2 = copy.copy(expdata2.metadata)
+        if is_a_copy:
+            comp_ids1 = metadata1.pop("component_ids", None)
+            comp_ids2 = metadata2.pop("component_ids", None)
+            if comp_ids1 is None:
+                self.assertEqual(comp_ids2, None)
+            else:
+                self.assertNotEqual(comp_ids1, comp_ids2)
+            if expdata1.parent_id is None:
+                self.assertEqual(expdata2.parent_id, None)
+            else:
+                self.assertNotEqual(expdata1.parent_id, expdata2.parent_id)
+        else:
+            self.assertEqual(expdata1.parent_id, expdata2.parent_id)
+        self.assertEqual(metadata1, metadata2)
 
         if isinstance(expdata1, CompositeExperimentData):
             for childdata1, childdata2 in zip(
                 expdata1.component_experiment_data(), expdata2.component_experiment_data()
             ):
-                self.check_if_equal(childdata1, childdata2)
+                self.check_if_equal(childdata1, childdata2, is_a_copy)
 
     def test_composite_experiment_data_attributes(self):
         """
         Verify correct attributes of parents and children
         """
         self.check_attributes(self.rootdata)
+        self.assertEqual(self.rootdata.parent_id, None)
 
     def test_composite_save_load(self):
         """
@@ -335,7 +352,7 @@ class TestCompositeExperimentData(QiskitTestCase):
             self.rootdata.experiment_id, self.rootdata.service
         )
 
-        self.check_if_equal(loaded_data, self.rootdata)
+        self.check_if_equal(loaded_data, self.rootdata, is_a_copy=False)
 
     def test_composite_save_metadata(self):
         """
@@ -348,4 +365,9 @@ class TestCompositeExperimentData(QiskitTestCase):
             self.rootdata.experiment_id, self.rootdata.service
         )
 
-        self.check_if_equal(loaded_data, self.rootdata)
+        self.check_if_equal(loaded_data, self.rootdata, is_a_copy=False)
+
+    def test_composite_copy_metadata(self):
+        new_instance = self.rootdata._copy_metadata()
+        self.check_if_equal(new_instance, self.rootdata, is_a_copy=True)
+        self.check_attributes(new_instance)

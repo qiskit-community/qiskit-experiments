@@ -940,7 +940,7 @@ class DbExperimentDataV1(DbExperimentData):
         new_instance._tags = self._tags
         new_instance._jobs = self._jobs.copy_object()
         new_instance._share_level = self._share_level
-        new_instance._metadata = self._metadata
+        new_instance._metadata = copy.deepcopy(self._metadata)
         new_instance._notes = self._notes
         new_instance._auto_save = self._auto_save
         new_instance._service = self._service
@@ -965,6 +965,7 @@ class DbExperimentDataV1(DbExperimentData):
                     timeout=orig_kwargs["timeout"],
                     **extra_kwargs,
                 )
+
         return new_instance
 
     @property

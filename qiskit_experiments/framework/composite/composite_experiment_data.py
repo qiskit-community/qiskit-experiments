@@ -158,3 +158,24 @@ class CompositeExperimentData(ExperimentData):
         DbExperimentDataV1._set_share_level_without_save(self, new_level)
         for comp in self._components:
             comp._set_share_level_without_save(new_level)
+
+    def _copy_metadata(self, new_instance: Optional["CompositeExperimentData"] = None) -> "CompositeExperimentData":
+        """Make a copy of the composite experiment metadata.
+
+        Note:
+            This method only copies experiment data and metadata, not its
+            figures nor analysis results. The copy also contains a different
+            experiment ID.
+
+        Returns:
+            A copy of the ``CompositeExperimentData`` object with the same data
+            and metadata but different ID.
+        """
+        new_instance = super()._copy_metadata(new_instance)
+
+        for original_comp, new_comp in zip(self.component_experiment_data(), new_instance.component_experiment_data()):
+            original_comp._copy_metadata(new_comp)
+
+        new_instance.metadata["component_ids"] = [comp.experiment_id for comp in new_instance.component_experiment_data()]
+        return new_instance
+
