@@ -268,7 +268,6 @@ class TestCompositeExperimentData(QiskitTestCase):
         super().setUp()
 
         self.backend = FakeMelbourne()
-        self.job_ids = [1, 2, 3, 4, 5]
         self.share_level = "hey"
 
         exp1 = FakeExperiment([0, 2])
@@ -278,7 +277,7 @@ class TestCompositeExperimentData(QiskitTestCase):
         batch_exp = BatchExperiment([par_exp, exp3])
 
         self.rootdata = CompositeExperimentData(
-            batch_exp, backend=self.backend, job_ids=self.job_ids
+            batch_exp, backend=self.backend
         )
 
         self.rootdata.share_level = self.share_level
@@ -288,7 +287,6 @@ class TestCompositeExperimentData(QiskitTestCase):
         Recursively traverse the tree to verify attributes
         """
         self.assertEqual(expdata.backend, self.backend)
-        self.assertEqual(expdata.job_ids, self.job_ids)
         self.assertEqual(expdata.share_level, self.share_level)
 
         if isinstance(expdata, CompositeExperimentData):
@@ -306,7 +304,6 @@ class TestCompositeExperimentData(QiskitTestCase):
         Recursively traverse the tree and check equality of expdata1 and expdata2
         """
         self.assertEqual(expdata1.backend.name(), expdata2.backend.name())
-        self.assertEqual(expdata1.job_ids, expdata2.job_ids)
         self.assertEqual(expdata1.tags, expdata2.tags)
         self.assertEqual(expdata1.experiment_type, expdata2.experiment_type)
         self.assertEqual(expdata1.share_level, expdata2.share_level)
