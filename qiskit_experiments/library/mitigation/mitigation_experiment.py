@@ -17,7 +17,8 @@ from abc import abstractmethod
 
 from qiskit import QuantumCircuit
 from qiskit.providers import Backend
-from qiskit_experiments.framework import BaseExperiment
+from qiskit.exceptions import QiskitError
+from qiskit_experiments.framework import BaseExperiment, ParallelExperiment
 from .mitigation_analysis import CompleteMitigationAnalysis
 
 
@@ -65,3 +66,21 @@ class CompleteMeasurementMitigation(MeasurementMitigation):
 
     def labels(self) -> List[str]:
         return [bin(j)[2:].zfill(self.num_qubits) for j in range(2 ** self.num_qubits)]
+
+
+def run_mitigation_experiment(qubits, backend, method="complete"):
+    if method == "complete":
+        exp = CompleteMeasurementMitigation(qubits)
+        return exp.run(backend).block_for_results()
+    if method == "tensored":
+        if not isinstance(qubits, list) or not isinstance(qubits[0], list):
+            raise QiskitError(
+                "Tensored experiment requires a list of qubit lists; {} was passed".format(qubits)
+            )
+        sub_experiments = []
+        for qubit_list in qubits:
+            exp = CompleteMeasurementMitigation(qubit_list)
+            sub_experiments.append(exp)
+        par_exp = ParallelExperiment(sub_experiments)
+        res = par_exp.run(backend).block_for_results()
+        return res

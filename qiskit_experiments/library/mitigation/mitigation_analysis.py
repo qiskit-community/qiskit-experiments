@@ -34,7 +34,7 @@ class CompleteMitigationAnalysis(BaseAnalysis):
         matrix = self._generate_matrix(data, labels)
         result_matrix = AnalysisResultData("Mitigation Matrix", matrix)
         result_labels = AnalysisResultData("Matrix Labels", labels)
-        ax = options["ax"]
+        ax = options.get("ax", None)
         figures = [self._plot_calibration(matrix, labels, ax)]
         return [result_matrix, result_labels], figures
 
