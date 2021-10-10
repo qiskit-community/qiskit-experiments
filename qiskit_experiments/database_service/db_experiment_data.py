@@ -1016,6 +1016,15 @@ class DbExperimentDataV1(DbExperimentData):
         return self._id
 
     @property
+    def parent_id(self) -> str:
+        """Return parent ID
+
+        Returns:
+            Parent ID.
+        """
+        return self._parent_id
+
+    @property
     def job_ids(self) -> List[str]:
         """Return experiment job IDs.
 
