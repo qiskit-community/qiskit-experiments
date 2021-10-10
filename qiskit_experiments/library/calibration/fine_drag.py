@@ -145,7 +145,7 @@ class FineDrag(BaseExperiment):
                 is repeated.
             schedule (ScheduleBlock): The schedule for the plus rotation.
             gate_type (Type[Gate]): This is a gate class such as XGate, so that one can obtain a gate
-                by doing :code:`options.gate_class()`.
+                by doing :code:`options.gate_type()`.
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(20))
