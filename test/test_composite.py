@@ -280,7 +280,7 @@ class TestCompositeExperimentData(QiskitTestCase):
         self.rootdata = CompositeExperimentData(
             batch_exp, backend=self.backend, job_ids=self.job_ids
         )
-        
+
         self.rootdata.share_level = self.share_level
 
     def check_attributes(self, expdata):

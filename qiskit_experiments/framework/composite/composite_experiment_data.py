@@ -35,9 +35,7 @@ class CompositeExperimentData(ExperimentData):
             job_ids (list[str]): Optional, IDs of jobs submitted for the experiment.
         """
 
-        super().__init__(
-            experiment, backend=backend, parent_id=parent_id, job_ids=job_ids
-        )
+        super().__init__(experiment, backend=backend, parent_id=parent_id, job_ids=job_ids)
 
         # Initialize sub experiments
         self._components = [
@@ -159,7 +157,9 @@ class CompositeExperimentData(ExperimentData):
         for comp in self._components:
             comp._set_share_level_without_save(new_level)
 
-    def _copy_metadata(self, new_instance: Optional["CompositeExperimentData"] = None) -> "CompositeExperimentData":
+    def _copy_metadata(
+        self, new_instance: Optional["CompositeExperimentData"] = None
+    ) -> "CompositeExperimentData":
         """Make a copy of the composite experiment metadata.
 
         Note:
@@ -173,9 +173,12 @@ class CompositeExperimentData(ExperimentData):
         """
         new_instance = super()._copy_metadata(new_instance)
 
-        for original_comp, new_comp in zip(self.component_experiment_data(), new_instance.component_experiment_data()):
+        for original_comp, new_comp in zip(
+            self.component_experiment_data(), new_instance.component_experiment_data()
+        ):
             original_comp._copy_metadata(new_comp)
 
-        new_instance.metadata["component_ids"] = [comp.experiment_id for comp in new_instance.component_experiment_data()]
+        new_instance.metadata["component_ids"] = [
+            comp.experiment_id for comp in new_instance.component_experiment_data()
+        ]
         return new_instance
-
