@@ -368,6 +368,9 @@ class TestCompositeExperimentData(QiskitTestCase):
         self.check_if_equal(loaded_data, self.rootdata, is_a_copy=False)
 
     def test_composite_copy_metadata(self):
+        """
+        Test CompositeExperimentData._copy_metadata
+        """
         new_instance = self.rootdata._copy_metadata()
         self.check_if_equal(new_instance, self.rootdata, is_a_copy=True)
         self.check_attributes(new_instance)
