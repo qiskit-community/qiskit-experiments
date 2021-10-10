@@ -81,6 +81,7 @@ class DummyService(DatabaseServiceV1):
         backend_name: str,
         metadata: Optional[Dict] = None,
         experiment_id: Optional[str] = None,
+        parent_id: Optional[str] = None,
         job_ids: Optional[List[str]] = None,
         tags: Optional[List[str]] = None,
         notes: Optional[str] = None,
@@ -95,6 +96,9 @@ class DummyService(DatabaseServiceV1):
             metadata: Experiment metadata.
             experiment_id: Experiment ID. It must be in the ``uuid4`` format.
                 One will be generated if not supplied.
+            parent_id: The experiment ID of the parent experiment.
+                The parent experiment must exist, must be on the same backend as the child,
+                and an experiment cannot be its own parent.
             job_ids: IDs of experiment jobs.
             tags: Tags to be associated with the experiment.
             notes: Freeform notes about the experiment.
@@ -107,6 +111,7 @@ class DummyService(DatabaseServiceV1):
 
         self.database[experiment_id] = {
             "experiment_type": experiment_type,
+            "parent_id": parent_id,
             "backend_name": backend_name,
             "metadata": metadata,
             "job_ids": job_ids,
@@ -168,6 +173,7 @@ class DummyService(DatabaseServiceV1):
         experiment_type: Optional[str] = None,
         backend_name: Optional[str] = None,
         tags: Optional[List[str]] = None,
+        parent_id: Optional[str] = None,
         tags_operator: Optional[str] = "OR",
         **filters: Any,
     ) -> List[Dict]:
@@ -284,21 +290,16 @@ class TestCompositeExperimentData(QiskitTestCase):
         self.assertEqual(expdata.job_ids, self.job_ids)
         self.assertEqual(expdata.share_level, self.share_level)
 
-        # Experiments have to be tagged with their direct parents and the root
-        self.assertTrue(len(expdata.tags) == 1 or len(expdata.tags) == 2)
-        if len(expdata.tags) == 2:
-            self.assertNotEqual(expdata.tags[0], expdata.tags[1])
-        self.assertTrue("root exp id: " + self.rootdata.experiment_id in expdata.tags)
-
         if isinstance(expdata, CompositeExperimentData):
             for childdata in expdata.component_experiment_data():
                 self.check_attributes(childdata)
-                self.assertTrue("parent exp id: " + expdata.experiment_id in childdata.tags)
+                self.assertEqual(childdata.parent_id, expdata.experiment_id)
 
     def check_if_equal(self, expdata1, expdata2):
         """
         Recursively traverse the tree and checkequality of expdata1 and expdata2
         """
+        self.assertEqual(expdata1.parent_id, expdata2.parent_id)
         self.assertEqual(expdata1.backend.name(), expdata2.backend.name())
         self.assertEqual(expdata1.job_ids, expdata2.job_ids)
         self.assertEqual(expdata1.tags, expdata2.tags)

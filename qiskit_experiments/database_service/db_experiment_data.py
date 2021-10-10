@@ -710,6 +710,8 @@ class DbExperimentDataV1(DbExperimentData):
         new_data = {"experiment_type": self._type, "backend_name": self._backend.name()}
         if self.share_level:
             update_data["share_level"] = self.share_level
+        if self.parent_id:
+            update_data["parent_id"] = self.parent_id
 
         self._created_in_db, _ = save_data(
             is_new=(not self._created_in_db),

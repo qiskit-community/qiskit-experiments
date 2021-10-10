@@ -23,42 +23,35 @@ from qiskit_experiments.database_service import DbExperimentDataV1, DatabaseServ
 class CompositeExperimentData(ExperimentData):
     """Composite experiment data class"""
 
-    def __init__(self, experiment, backend=None, job_ids=None, root_id=None):
+    def __init__(self, experiment, backend=None, parent_id=None, job_ids=None):
         """Initialize experiment data.
 
         Args:
             experiment (CompositeExperiment): experiment object that generated the data.
             backend (Backend): Optional, Backend the experiment runs on. It can either be a
                 :class:`~qiskit.providers.Backend` instance or just backend name.
+            parent_id (str): Optional, ID of the parent experiment data
+                in the setting of a composite experiment.
             job_ids (list[str]): Optional, IDs of jobs submitted for the experiment.
-            root_id (str): Optional, ID of the root experiment data in a composite experiment
         """
 
         super().__init__(
-            experiment, backend=backend, job_ids=job_ids, root_id=root_id
+            experiment, backend=backend, parent_id=parent_id, job_ids=job_ids
         )
-
-        if root_id is None:
-            root_id = self.experiment_id
-            self.tags = ["root exp id: " + root_id]
 
         # Initialize sub experiments
         self._components = [
             expr.__experiment_data__(
                 expr,
                 backend=backend,
+                parent_id=self.experiment_id,
                 job_ids=job_ids,
-                root_id=root_id,
             )
             for expr in experiment._experiments
         ]
 
         self.metadata["component_ids"] = [comp.experiment_id for comp in self._components]
         self.metadata["component_classes"] = [comp.__class__.__name__ for comp in self._components]
-
-        # In a composite setting, an experiment is tagged with its direct parent and with the root.
-        for comp in self._components:
-            comp.tags = ["root exp id: " + root_id, "parent exp id: " + self.experiment_id]
 
     def __str__(self):
         line = 51 * "-"
