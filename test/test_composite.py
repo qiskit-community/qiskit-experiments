@@ -276,9 +276,7 @@ class TestCompositeExperimentData(QiskitTestCase):
         exp3 = FakeExperiment(4)
         batch_exp = BatchExperiment([par_exp, exp3])
 
-        self.rootdata = CompositeExperimentData(
-            batch_exp, backend=self.backend
-        )
+        self.rootdata = CompositeExperimentData(batch_exp, backend=self.backend)
 
         self.rootdata.share_level = self.share_level
 
