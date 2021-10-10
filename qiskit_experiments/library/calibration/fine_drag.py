@@ -17,6 +17,7 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
+from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options
@@ -26,7 +27,7 @@ from qiskit_experiments.library.calibration.analysis.fine_drag_analysis import (
 
 
 class FineDrag(BaseExperiment):
-    r"""Fine DRAG Calibration experiment.
+    r"""Fine DRAG experiment.
 
     # section: overview
 
@@ -143,12 +144,13 @@ class FineDrag(BaseExperiment):
             repetitions (List[int]): A list of the number of times that Rp - Rm gate sequence
                 is repeated.
             schedule (ScheduleBlock): The schedule for the plus rotation.
-            normalization (bool): If set to True the DataProcessor will normalized the
-                measured signal to the interval [0, 1]. Defaults to True.
+            gate_type (Type[Gate]): This is a gate class such as XGate, so that one can obtain a gate
+                by doing :code:`options.gate_type()`.
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(20))
         options.schedule = None
+        options.gate_type = None
 
         return options
 
@@ -195,21 +197,26 @@ class FineDrag(BaseExperiment):
         """
         schedule, circuits = self.experiment_options.schedule, []
 
-        drag_gate = Gate(name=schedule.name, num_qubits=1, params=[])
+        if schedule is None:
+            gate = self.experiment_options.gate_type()
+        else:
+            gate = Gate(name=schedule.name, num_qubits=1, params=[])
 
         for repetition in self.experiment_options.repetitions:
             circuit = self._pre_circuit()
 
             for _ in range(repetition):
-                circuit.append(drag_gate, (0,))
+                circuit.append(gate, (0,))
                 circuit.rz(np.pi, 0)
-                circuit.append(drag_gate, (0,))
+                circuit.append(gate, (0,))
                 circuit.rz(np.pi, 0)
 
             circuit.compose(self._post_circuit(), inplace=True)
 
             circuit.measure_all()
-            circuit.add_calibration(schedule.name, self._physical_qubits, schedule, params=[])
+
+            if schedule is not None:
+                circuit.add_calibration(schedule.name, self._physical_qubits, schedule, params=[])
 
             circuit.metadata = {
                 "experiment_type": self._type,
@@ -230,6 +237,18 @@ class FineXDrag(FineDrag):
         qiskit_experiments.library.calibration.fine_drag.FineDrag
     """
 
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        r"""Default values for the FineXDrag experiment.
+
+        Experiment Options:
+            gate_type (Type): FineXDrag calibrates an XGate.
+        """
+        options = super()._default_experiment_options()
+        options.gate_type = XGate
+
+        return options
+
     @staticmethod
     def _pre_circuit() -> QuantumCircuit:
         """Return the quantum circuit done before the Rp - Rz - Rp - Rz gates."""
@@ -242,6 +261,18 @@ class FineSXDrag(FineDrag):
     # section: see_also
         qiskit_experiments.library.calibration.fine_drag.FineDrag
     """
+
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        r"""Default values for the FineSXDrag experiment.
+
+        Experiment Options:
+            gate_type (Type): FineSXDrag calibrates an SXGate.
+        """
+        options = super()._default_experiment_options()
+        options.gate_type = SXGate
+
+        return options
 
     @staticmethod
     def _pre_circuit() -> QuantumCircuit:
