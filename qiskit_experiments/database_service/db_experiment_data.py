@@ -933,7 +933,7 @@ class DbExperimentDataV1(DbExperimentData):
             and metadata but different ID.
         """
         if new_instance is None:
-            new_instance = DbExperimentDataV1()
+            new_instance = self.__class__()
 
         new_instance._type = self.experiment_type
         new_instance._backend = self._backend
