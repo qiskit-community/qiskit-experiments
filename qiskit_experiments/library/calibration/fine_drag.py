@@ -144,7 +144,7 @@ class FineDrag(BaseExperiment):
             repetitions (List[int]): A list of the number of times that Rp - Rm gate sequence
                 is repeated.
             schedule (ScheduleBlock): The schedule for the plus rotation.
-            gate_type (Type): This is a gate class such as XGate, so that one can obtain a gate
+            gate_type (Type[Gate]): This is a gate class such as XGate, so that one can obtain a gate
                 by doing :code:`options.gate_class()`.
         """
         options = super()._default_experiment_options()
