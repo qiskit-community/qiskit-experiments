@@ -221,25 +221,43 @@ class DbExperimentDataV1(DbExperimentData):
                     "Not all post-processing has finished. Adding new data "
                     "may create unexpected analysis results."
                 )
+        if not isinstance(data, list):
+            data = [data]
 
-        if isinstance(data, (Job, BaseJob)):
-            if self.backend and self.backend.name() != data.backend().name():
+        # Extract job data and directly add non-job data
+        job_data = []
+        with self._data.lock:
+            for datum in data:
+                if isinstance(datum, (Job, BaseJob)):
+                    job_data.append(datum)
+                elif isinstance(datum, dict):
+                    self._add_single_data(datum)
+                elif isinstance(datum, Result):
+                    self._add_result_data(datum)
+                else:
+                    raise TypeError(f"Invalid data type {type(datum)}.")
+
+        # Add futures for job data
+        for job in job_data:
+            if self.backend and self.backend.name() != job.backend().name():
                 LOG.warning(
                     "Adding a job from a backend (%s) that is different "
                     "than the current backend (%s). "
                     "The new backend will be used, but "
                     "service is not changed if one already exists.",
-                    data.backend(),
+                    job.backend(),
                     self.backend,
                 )
-            self._backend = data.backend()
+            self._backend = job.backend()
             if not self._service:
                 self._set_service_from_backend(self._backend)
 
-            self._jobs[data.job_id()] = data
+            self._jobs[job.job_id()] = job
+
+        if job_data:
             job_kwargs = {
-                "job": data,
-                "job_done_callback": post_processing_callback,
+                "jobs": job_data,
+                "jobs_done_callback": post_processing_callback,
                 "timeout": timeout,
                 **kwargs,
             }
@@ -249,57 +267,47 @@ class DbExperimentDataV1(DbExperimentData):
                     self._executor.submit(self._wait_for_job, **job_kwargs),
                 )
             )
-            if self.auto_save:
-                self.save_metadata()
-            return
-
-        if isinstance(data, dict):
-            self._add_single_data(data)
-        elif isinstance(data, Result):
-            self._add_result_data(data)
-        elif isinstance(data, list):
-            for dat in data:
-                self.add_data(dat)
-        else:
-            raise TypeError(f"Invalid data type {type(data)}.")
-
-        if post_processing_callback is not None:
+        elif post_processing_callback:
             post_processing_callback(self, **kwargs)
+
+        if self.auto_save:
+            self.save_metadata()
 
     def _wait_for_job(
         self,
-        job: Union[Job, BaseJob],
-        job_done_callback: Optional[Callable] = None,
+        jobs: List[Union[Job, BaseJob]],
+        jobs_done_callback: Optional[Callable] = None,
         timeout: Optional[float] = None,
         **kwargs: Any,
     ) -> None:
         """Wait for a job to finish.
 
         Args:
-            job: Job to wait for.
-            job_done_callback: Callback function to invoke when job finishes.
+            jobs: Jobs to wait for.
+            jobs_done_callback: Callback function to invoke when jobs finish.
             timeout: Timeout waiting for job to finish.
             **kwargs: Keyword arguments to be passed to the callback function.
 
         Raises:
             Exception: If post processing failed.
         """
-        LOG.debug("Waiting for job %s to finish.", job.job_id())
-        try:
+        for job in jobs:
+            LOG.debug("Waiting for jobs %s to finish.", job.job_id())
             try:
-                job_result = job.result(timeout=timeout)
-            except TypeError:  # Not all jobs take timeout.
-                job_result = job.result()
-            with self._data.lock:
-                # Hold the lock so we add the block of results together.
-                self._add_result_data(job_result)
-        except Exception:  # pylint: disable=broad-except
-            LOG.warning("Job %s failed:\n%s", job.job_id(), traceback.format_exc())
-            raise
+                try:
+                    job_result = job.result(timeout=timeout)
+                except TypeError:  # Not all jobs take timeout.
+                    job_result = job.result()
+                with self._data.lock:
+                    # Hold the lock so we add the block of results together.
+                    self._add_result_data(job_result)
+            except Exception:  # pylint: disable=broad-except
+                LOG.warning("Job %s failed:\n%s", job.job_id(), traceback.format_exc())
+                raise
 
         try:
-            if job_done_callback:
-                job_done_callback(self, **kwargs)
+            if jobs_done_callback:
+                jobs_done_callback(self, **kwargs)
         except Exception:  # pylint: disable=broad-except
             LOG.warning("Post processing function failed:\n%s", traceback.format_exc())
             raise
@@ -821,12 +829,13 @@ class DbExperimentDataV1(DbExperimentData):
     def cancel_jobs(self) -> None:
         """Cancel any running jobs."""
         for kwargs, fut in self._job_futures.copy():
-            job = kwargs["job"]
-            if not fut.done() and job.status() not in JOB_FINAL_STATES:
-                try:
-                    job.cancel()
-                except Exception as err:  # pylint: disable=broad-except
-                    LOG.info("Unable to cancel job %s: %s", job.job_id(), err)
+            if not fut.done():
+                for job in kwargs["jobs"]:
+                    if job.status() not in JOB_FINAL_STATES:
+                        try:
+                            job.cancel()
+                        except Exception as err:  # pylint: disable=broad-except
+                            LOG.info("Unable to cancel job %s: %s", job.job_id(), err)
 
     def block_for_results(self, timeout: Optional[float] = None) -> "DbExperimentDataV1":
         """Block until all pending jobs and their post processing finish.
@@ -838,8 +847,8 @@ class DbExperimentDataV1(DbExperimentData):
             The experiment data with finished jobs and post-processing.
         """
         for kwargs, fut in self._job_futures.copy():
-            job = kwargs["job"]
-            LOG.info("Waiting for job %s and its post processing to finish.", job.job_id())
+            job_ids = [job.job_id() for job in kwargs["jobs"]]
+            LOG.info("Waiting for jobs %s and its post processing to finish.", job_ids)
             with contextlib.suppress(Exception):
                 fut.result(timeout)
         return self
@@ -872,21 +881,23 @@ class DbExperimentDataV1(DbExperimentData):
         with self._job_futures.lock:
             for idx, item in enumerate(self._job_futures):
                 kwargs, fut = item
-                job = kwargs["job"]
-                job_status = job.status()
-                statuses.add(job_status)
-                if job_status == JobStatus.ERROR:
-                    job_err = "."
-                    if hasattr(job, "error_message"):
-                        job_err = ": " + job.error_message()
-                    self._errors.append(f"Job {job.job_id()} failed{job_err}")
+                jobs = kwargs["jobs"]
+                for job in jobs:
+                    job_status = job.status()
+                    statuses.add(job_status)
+                    if job_status == JobStatus.ERROR:
+                        job_err = "."
+                        if hasattr(job, "error_message"):
+                            job_err = ": " + job.error_message()
+                        self._errors.append(f"Job {job.job_id()} failed{job_err}")
 
                 if fut.done():
                     self._job_futures[idx] = None
                     ex = fut.exception()
                     if ex:
+                        job_ids = [job.job_id() for job in jobs]
                         self._errors.append(
-                            f"Post processing for job {job.job_id()} failed: \n"
+                            f"Post processing for job {job_ids} failed: \n"
                             + "".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
                         )
                         statuses.add(JobStatus.ERROR)
@@ -956,12 +967,12 @@ class DbExperimentDataV1(DbExperimentData):
                 # inherits an abstract class.
                 extra_kwargs = {}
                 for key, val in orig_kwargs.items():
-                    if key not in ["job", "job_done_callback", "timeout"]:
+                    if key not in ["jobs", "jobs_done_callback", "timeout"]:
                         extra_kwargs[key] = val
 
                 new_instance.add_data(
-                    data=orig_kwargs["job"],
-                    post_processing_callback=orig_kwargs["job_done_callback"],
+                    data=orig_kwargs["jobs"],
+                    post_processing_callback=orig_kwargs["jobs_done_callback"],
                     timeout=orig_kwargs["timeout"],
                     **extra_kwargs,
                 )
