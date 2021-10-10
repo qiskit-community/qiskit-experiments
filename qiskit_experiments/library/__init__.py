@@ -113,7 +113,7 @@ from .characterization import (
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
 from .quantum_volume import QuantumVolume
-from .mitigation import CompleteMeasurementMitigation
+from .mitigation import MeasurementMitigation
 
 # Experiment Sub-modules
 from . import calibration

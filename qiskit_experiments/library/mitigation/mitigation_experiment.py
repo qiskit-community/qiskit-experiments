@@ -50,6 +50,9 @@ class MeasurementMitigation(BaseExperiment):
             self._exp = ParallelExperiment(sub_experiments)
         super().__init__(qubit_list)
 
+    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+        return self._exp.circuits(backend)
+
     def run(
         self,
         backend: Backend,
@@ -58,10 +61,10 @@ class MeasurementMitigation(BaseExperiment):
         **run_options,
     ) -> ExperimentData:
         if self._method == self.METHOD_COMPLETE:
-            res = self._exp.run(backend, analysis, experiment_data, run_options)
+            res = self._exp.run(backend, analysis, experiment_data, **run_options)
             return res
         if self._method == self.METHOD_TENSORED:
-            res = self._exp.run(backend, analysis, experiment_data, run_options)
+            res = self._exp.run(backend, analysis, experiment_data, **run_options)
             return res
         return None
 
@@ -81,11 +84,6 @@ class CompleteMeasurementMitigation(BaseExperiment):
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         return [self._calibration_circuit(self.num_qubits, label) for label in self.labels()]
-
-    def labels(self) -> List[str]:
-        """Return the labels for the mitigation circuits.
-        since different mitigation methods use different sets
-        of circuits, this is an abstract method"""
 
     @staticmethod
     def _calibration_circuit(num_qubits: int, label: str) -> QuantumCircuit:
