@@ -17,7 +17,6 @@ from typing import List, Union
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.exceptions import CalibrationError
 
 
 class ErrorAmplificationAnalysis(curve.CurveAnalysis):
@@ -161,13 +160,13 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
         # y = ± A sin(d_theta x) ~ ± A d_theta x, when d_theta x << 1
         # Finally, d_theta = ± y / (A x)
         d_theta_guesses = []
-        if np.isclose(apg % np.pi/2, 0) or np.isclose(phi % np.pi/2, 0):
+        if np.isclose(apg % np.pi / 2, 0) or np.isclose(phi % np.pi / 2, 0):
             offsets = apg * curve_data.x + phi
             amp = user_opt.p0.get("amp", 1.0)
             for i in range(curve_data.x.size):
                 xi = curve_data.x[i]
                 yi = curve_data.y[i]
-                if np.isclose(offsets[i] % np.pi, np.pi/2) and xi > 0:
+                if np.isclose(offsets[i] % np.pi, np.pi / 2) and xi > 0:
                     # Condition satisfied: i.e. cos(apg x + phi) = 0
                     err = np.sign(np.sin(offsets[i])) * (yi - user_opt.p0["base"]) / (0.5 * amp)
                     # Validate estimate. This is first order term of Maclaurin expansion.

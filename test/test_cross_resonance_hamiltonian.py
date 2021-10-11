@@ -132,7 +132,7 @@ class CrossResonanceHamiltonianBackend(FakeBackend):
 
             expv = series_defs[curve_ind].fit_func(xval, **self.fit_func_args)
             popl = 0.5 * (1 - expv)
-            counts = rng.multinomial(shots, [1-popl, popl])
+            counts = rng.multinomial(shots, [1 - popl, popl])
             results.append(
                 {
                     "shots": shots,
