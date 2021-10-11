@@ -944,7 +944,7 @@ class DbExperimentDataV1(DbExperimentData):
             and metadata but different ID.
         """
         if new_instance is None:
-            # pylint disable=no-value-for-parameter
+            # pylint: disable=no-value-for-parameter
             new_instance = self.__class__()
 
         new_instance._type = self.experiment_type
