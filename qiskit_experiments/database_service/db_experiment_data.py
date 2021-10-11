@@ -381,16 +381,21 @@ class DbExperimentDataV1(DbExperimentData):
     def _retrieve_data(self):
         """Retrieve job data if missing experiment data."""
         # Get job results if missing experiment data.
-        if (not self._data) and self._provider:
+        if (not self._data) and self._backend:
             with self._jobs.lock:
-                for jid in self._jobs:
-                    if self._jobs[jid] is None:
+                for jid, job in self._jobs.items():
+                    if job is None:
                         try:
-                            self._jobs[jid] = self._provider.retrieve_job(jid)
+                            job = self._backend.retrieve_job(jid)
+                            self._jobs[jid] = job
                         except Exception:  # pylint: disable=broad-except
-                            pass
-                    if self._jobs[jid] is not None:
-                        self._add_result_data(self._jobs[jid].result())
+                            LOG.warning(
+                                "Unable to retrive data from job %s on backend %s",
+                                jid,
+                                self._backend,
+                            )
+                    if job is not None:
+                        self._add_result_data(job.result())
 
     def data(self, index: Optional[Union[int, slice, str]] = None) -> Union[Dict, List[Dict]]:
         """Return the experiment data at the specified index.
