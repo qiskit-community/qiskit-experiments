@@ -33,7 +33,7 @@ class FakeExperiment(BaseExperiment):
     def _default_experiment_options(cls) -> Options:
         return Options(dummyoption=None)
 
-    def __init__(self, qubits=0):
+    def __init__(self, qubits=1):
         """Initialise the fake experiment."""
         super().__init__(qubits)
 
