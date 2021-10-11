@@ -42,7 +42,6 @@ class TestFineAmpEndToEnd(QiskitTestCase):
         amp_cal.set_schedule(
             schedule=self.x_plus, angle_per_gate=np.pi, add_xp_circuit=True, add_sx=True
         )
-        amp_cal.set_analysis_options(number_guesses=11)
 
         backend = MockFineAmp(-np.pi * 0.07, np.pi, "xp")
 
@@ -63,7 +62,6 @@ class TestFineAmpEndToEnd(QiskitTestCase):
         amp_cal.set_schedule(
             schedule=self.x_plus, angle_per_gate=np.pi, add_xp_circuit=True, add_sx=True
         )
-        amp_cal.set_analysis_options(number_guesses=6)
 
         backend = MockFineAmp(np.pi * 0.07, np.pi, "xp")
 

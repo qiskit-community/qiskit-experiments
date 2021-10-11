@@ -108,7 +108,6 @@ class TestAmplitudeUpdate(QiskitTestCase):
         amp_cal.set_schedule(
             schedule=xp_sched, angle_per_gate=target_angle, add_xp_circuit=True, add_sx=True
         )
-        amp_cal.set_analysis_options(number_guesses=11)
 
         error = -np.pi * 0.05
         backend = MockFineAmp(error, np.pi, "xp")
