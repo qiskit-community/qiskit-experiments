@@ -152,12 +152,12 @@ class BaseExperiment(ABC):
         # Add experiment option metadata
         self._add_job_metadata(experiment_data, jobs, **run_opts)
 
-        # Add Job to ExperimentData and add analysis for post processing.
-        run_analysis = None
-        if analysis and self.__analysis_class__ is not None:
-            run_analysis = self.run_analysis
+        # Add jobs
+        experiment_data.add_data(jobs)
 
-        experiment_data.add_data(jobs, post_processing_callback=run_analysis)
+        # Optionally run analysis
+        if analysis and self.__analysis_class__:
+            experiment_data.add_analysis_callback(self.run_analysis)
 
         # Return the ExperimentData future
         return experiment_data
