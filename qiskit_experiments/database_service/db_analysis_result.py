@@ -17,7 +17,6 @@ from typing import Optional, List, Union, Dict, Any
 import uuid
 import copy
 import math
-import numpy as np
 
 from .database_service import DatabaseServiceV1
 from .json import ExperimentEncoder, ExperimentDecoder, serialize_safe_float
