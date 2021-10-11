@@ -161,22 +161,22 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
         # Finally, d_theta = ∓ y / (A x)
 
         d_theta_guesses = []
-        if np.isclose(apg % np.pi / 2, 0) or np.isclose(phi % np.pi / 2, 0):
-            offsets = apg * curve_data.x + phi
-            amp = user_opt.p0.get("amp", self._get_option("amp"))
-            for i in range(curve_data.x.size):
-                xi = curve_data.x[i]
-                yi = curve_data.y[i]
-                if np.isclose(offsets[i] % np.pi, np.pi / 2) and xi > 0:
-                    # Condition satisfied: i.e. cos(apg x + phi) = 0
-                    err = -np.sign(np.sin(offsets[i])) * (yi - user_opt.p0["base"]) / (0.5 * amp)
-                    # Validate estimate. This is first order term of Maclaurin expansion.
-                    if np.abs(err) < 0.5:
-                        d_theta_guesses.append(err / xi)
-                    else:
-                        # Terminate guess generation because larger d_theta x will start to
-                        # reduce net y value and underestimate the rotation.
-                        break
+
+        offsets = apg * curve_data.x + phi
+        amp = user_opt.p0.get("amp", self._get_option("amp"))
+        for i in range(curve_data.x.size):
+            xi = curve_data.x[i]
+            yi = curve_data.y[i]
+            if np.isclose(offsets[i] % np.pi, np.pi / 2) and xi > 0:
+                # Condition satisfied: i.e. cos(apg x + phi) = 0
+                err = -np.sign(np.sin(offsets[i])) * (yi - user_opt.p0["base"]) / (0.5 * amp)
+                # Validate estimate. This is first order term of Maclaurin expansion.
+                if np.abs(err) < 0.5:
+                    d_theta_guesses.append(err / xi)
+                else:
+                    # Terminate guess generation because larger d_theta x will start to
+                    # reduce net y value and underestimate the rotation.
+                    break
 
         # Add naive guess for more coverage
         guess_range = max(abs(apg), np.pi / 2)
