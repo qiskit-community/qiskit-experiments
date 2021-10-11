@@ -318,7 +318,7 @@ class TestCrossResonanceHamiltonian(QiskitTestCase):
         expr = cr_hamiltonian.CrossResonanceHamiltonian(
             qubits=(0, 1), flat_top_widths=durations, sigma=sigma, risefall=2
         )
-        exp_data = expr.run(backend, shots=10000)
+        exp_data = expr.run(backend, shots=2000)
         exp_data.block_for_results()
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")

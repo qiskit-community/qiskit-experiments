@@ -550,13 +550,13 @@ class DirichletProbability(Probability):
             alpha_0 = sum([v + self._prior[k] for k, v in counts_dict.items()])
         else:
             alpha_i = freq + self._prior
-            alpha_0 = shots + self._prior + self._dim
+            alpha_0 = shots + self._prior * self._dim
 
         p_mean = alpha_i / alpha_0
         p_var = p_mean * (1 - p_mean) / (alpha_0 + 1)
         mode = (alpha_i - 1) / (alpha_0 + self._dim)
 
-        # If coutcome count is zero, mode becomes tiny negative value with prior < 1
+        # If outcome count is zero, mode becomes tiny negative value with prior < 1
         mode = max(0.0, mode)
 
         return mode, np.sqrt(p_var)
