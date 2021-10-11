@@ -31,28 +31,28 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
 
         .. math::
             y = \frac{{\rm amp}}{2}\cos\left(x[{\rm d}\theta + {\rm apg} ] \
-            +{\rm phase\_offset}\right)+{\rm base}
+            -{\rm phase\_offset}\right)+{\rm base}
 
         The fit function can be transformed into
 
         .. math::
             y = \frac{{\rm amp}}{2} \left(\
             \cos\right({\rm d}\theta \cdot x\left)\
-            \cos\right({\rm apg} \cdot x + {\rm phase\_offset}\left) -\
+            \cos\right({\rm apg} \cdot x - {\rm phase\_offset}\left) -\
             \sin\right({\rm d}\theta \cdot x\left)\
-            \sin\right({\rm apg} \cdot x + {\rm phase\_offset}\left)
+            \sin\right({\rm apg} \cdot x - {\rm phase\_offset}\left)
             \right) + {\rm base}
 
-        When :math:`{\rm apg} \cdot x + {\rm phase\_offset} = (2n + 1) \pi/2` is satisfied,
+        When :math:`{\rm apg} \cdot x - {\rm phase\_offset} = (2n + 1) \pi/2` is satisfied,
         above fit model can be simplified to
 
         .. math::
-            y = \pm \frac{{\rm amp}}{2} \sin\left({\rm d}\theta \cdot x\right) + {\rm base}
+            y = \mp \frac{{\rm amp}}{2} \sin\left({\rm d}\theta \cdot x\right) + {\rm base}
 
         In the limit :math:`{\rm d}\theta \ll 1`, the error can be estimated from curve data
 
         .. math::
-            {\rm d}\theta \simeq \pm \frac{2(y - {\rm base})}{x \cdot {\rm amp}}
+            {\rm d}\theta \simeq \mp \frac{2(y - {\rm base})}{x \cdot {\rm amp}}
 
 
     # section: fit_parameters
@@ -86,7 +86,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
                 x,
                 amp=0.5 * amp,
                 freq=(d_theta + angle_per_gate) / (2 * np.pi),
-                phase=phase_offset,
+                phase=-phase_offset,
                 baseline=base,
             ),
             plot_color="blue",
@@ -154,21 +154,22 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
         # Prepare logical guess for specific condition (often satisfied)
 
         # The fit function can be transformed into
-        # y = A cos((d_theta + apg) x + phi)
-        #   = A cos(d_theta x)cos(apg x + phi) - A sin(d_theta x)sin(apg x + phi)
-        # If apg x + phi = (2n + 1) pi / 2 is satisfied,
-        # y = ± A sin(d_theta x) ~ ± A d_theta x, when d_theta x << 1
-        # Finally, d_theta = ± y / (A x)
+        # y = A cos((d_theta + apg) x - phi)
+        #   = A cos(d_theta x)cos(apg x - phi) - A sin(d_theta x)sin(apg x - phi)
+        # If apg x - phi = (2n + 1) pi / 2 is satisfied,
+        # y = ∓ A sin(d_theta x) ~ ∓ A d_theta x, when d_theta x << 1
+        # Finally, d_theta = ∓ y / (A x)
+
         d_theta_guesses = []
         if np.isclose(apg % np.pi / 2, 0) or np.isclose(phi % np.pi / 2, 0):
             offsets = apg * curve_data.x + phi
-            amp = user_opt.p0.get("amp", 1.0)
+            amp = user_opt.p0.get("amp", self._get_option("amp"))
             for i in range(curve_data.x.size):
                 xi = curve_data.x[i]
                 yi = curve_data.y[i]
                 if np.isclose(offsets[i] % np.pi, np.pi / 2) and xi > 0:
                     # Condition satisfied: i.e. cos(apg x + phi) = 0
-                    err = np.sign(np.sin(offsets[i])) * (yi - user_opt.p0["base"]) / (0.5 * amp)
+                    err = - np.sign(np.sin(offsets[i])) * (yi - user_opt.p0["base"]) / (0.5 * amp)
                     # Validate estimate. This is first order term of Maclaurin expansion.
                     if np.abs(err) < 0.5:
                         d_theta_guesses.append(err / xi)
