@@ -169,7 +169,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
                 yi = curve_data.y[i]
                 if np.isclose(offsets[i] % np.pi, np.pi / 2) and xi > 0:
                     # Condition satisfied: i.e. cos(apg x + phi) = 0
-                    err = - np.sign(np.sin(offsets[i])) * (yi - user_opt.p0["base"]) / (0.5 * amp)
+                    err = -np.sign(np.sin(offsets[i])) * (yi - user_opt.p0["base"]) / (0.5 * amp)
                     # Validate estimate. This is first order term of Maclaurin expansion.
                     if np.abs(err) < 0.5:
                         d_theta_guesses.append(err / xi)
