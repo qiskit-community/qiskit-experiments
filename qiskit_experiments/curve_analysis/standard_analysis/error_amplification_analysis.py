@@ -170,9 +170,12 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
                     # Condition satisfied: i.e. cos(apg x + phi) = 0
                     err = np.sign(np.sin(offsets[i])) * (yi - user_opt.p0["base"]) / (0.5 * amp)
                     # Validate estimate. This is first order term of Maclaurin expansion.
-                    if np.abs(err) < 0.5 and xi < 10:
-                        # larger xi may accumulate error more than pi, for safety xi < 10
+                    if np.abs(err) < 0.5:
                         d_theta_guesses.append(err / xi)
+                    else:
+                        # Terminate guess generation because larger d_theta x will start to
+                        # reduce net y value and underestimate the rotation.
+                        break
 
         # Add naive guess for more coverage
         guess_range = max(abs(apg), np.pi / 2)
