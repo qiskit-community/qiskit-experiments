@@ -13,6 +13,7 @@
 """Test the fine amplitude calibration experiment."""
 
 import numpy as np
+from ddt import ddt, data
 
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.test import QiskitTestCase
@@ -24,6 +25,7 @@ from qiskit_experiments.test.mock_iq_backend import MockFineAmp
 from qiskit_experiments.exceptions import CalibrationError
 
 
+@ddt
 class TestFineAmpEndToEnd(QiskitTestCase):
     """Test the drag experiment."""
 
@@ -36,7 +38,8 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         self.x_plus = xp
 
-    def test_end_to_end_under_rotation(self):
+    @data(0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08)
+    def test_end_to_end_under_rotation(self, pi_ratio):
         """Test the experiment end to end."""
 
         amp_cal = FineAmplitude(0)
@@ -44,7 +47,8 @@ class TestFineAmpEndToEnd(QiskitTestCase):
             schedule=self.x_plus, angle_per_gate=np.pi, add_xp_circuit=True, add_sx=True
         )
 
-        backend = MockFineAmp(-np.pi * 0.07, np.pi, "xp")
+        error = -np.pi * pi_ratio
+        backend = MockFineAmp(error, np.pi, "xp")
 
         expdata = amp_cal.run(backend)
         expdata.block_for_results()
@@ -53,10 +57,11 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         tol = 0.04
 
-        self.assertTrue(abs(d_theta - backend.angle_error) < tol)
+        self.assertAlmostEqual(d_theta, error, delta=tol)
         self.assertEqual(result.quality, "good")
 
-    def test_end_to_end_over_rotation(self):
+    @data(0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08)
+    def test_end_to_end_over_rotation(self, pi_ratio):
         """Test the experiment end to end."""
 
         amp_cal = FineAmplitude(0)
@@ -64,7 +69,8 @@ class TestFineAmpEndToEnd(QiskitTestCase):
             schedule=self.x_plus, angle_per_gate=np.pi, add_xp_circuit=True, add_sx=True
         )
 
-        backend = MockFineAmp(np.pi * 0.07, np.pi, "xp")
+        error = np.pi * pi_ratio
+        backend = MockFineAmp(error, np.pi, "xp")
 
         expdata = amp_cal.run(backend)
         expdata.block_for_results()
@@ -73,7 +79,7 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         tol = 0.04
 
-        self.assertTrue(abs(d_theta - backend.angle_error) < tol)
+        self.assertAlmostEqual(d_theta, error, delta=tol)
         self.assertEqual(result.quality, "good")
 
     def test_zero_angle_per_gate(self):
