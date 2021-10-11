@@ -178,6 +178,10 @@ class ThreadSafeContainer(ABC):
         """Initialize the container."""
         pass
 
+    def __iter__(self):
+        with self._lock:
+            return iter(self._container)
+
     def __getitem__(self, key):
         with self._lock:
             return self._container[key]
