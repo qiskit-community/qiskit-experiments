@@ -161,15 +161,15 @@ class DbAnalysisResultV1(DbAnalysisResult):
 
         # Format special DB display fields
         if isinstance(value, FitVal):
-            db_value = self._format_db_display(value.value)
+            db_value = self._display_format(value.value)
             if db_value is not None:
                 result_data["value"] = db_value
             if isinstance(value.stderr, (int, float)):
-                result_data["variance"] = self._format_db_display(value.stderr ** 2)
+                result_data["variance"] = self._display_format(value.stderr ** 2)
             if isinstance(value.unit, str):
                 result_data["unit"] = value.unit
         else:
-            db_value = self._format_db_display(value)
+            db_value = self._display_format(value)
             if db_value is not None:
                 result_data["value"] = db_value
 
@@ -423,28 +423,23 @@ class DbAnalysisResultV1(DbAnalysisResult):
         self._auto_save = save_val
 
     @staticmethod
-    def _format_db_display(value):
-        if isinstance(value, (int, bool)):
+    def _display_format(value):
+        """Format values for supported types for display in database service"""
+        if value is None or isinstance(value, (int, bool, str)):
+            # Pass supported value types directly
             return value
         if isinstance(value, float):
+            # Safe handling on NaN float values that serialize to invalid JSON
             if math.isfinite(value):
                 return value
             else:
                 return serialize_safe_float(value)["__value__"]
-
-        # Values that we can store by string conversion
         if isinstance(value, complex):
-            # Convert to string and truncate to 6 significant digits
-            value = "{:.8g}".format(value)
-        elif isinstance(value, (list, np.ndarray)) and len(value) < 10:
-            value = np.array2string(
-                np.asarray(value), separator=", ", max_line_width=100, precision=8
-            )
-
-        # Store string
-        if isinstance(value, str) and len(value) < 70:
-            return value
-        return None
+            # Convert complex floats to strings for display
+            return f"{value}"
+        # For all other value types that cannot be natively displayed
+        # we return the class name
+        return f"({type(value).__name__})"
 
     def __str__(self):
         ret = f"{type(self).__name__}"
