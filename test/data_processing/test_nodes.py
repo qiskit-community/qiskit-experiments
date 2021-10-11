@@ -23,7 +23,12 @@ from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit.result import Result
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.framework import ExperimentData
-from qiskit_experiments.data_processing.nodes import SVD, AverageData, MinMaxNormalize
+from qiskit_experiments.data_processing.nodes import (
+    SVD,
+    AverageData,
+    MinMaxNormalize,
+    DirichletProbability,
+)
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 
 from . import BaseDataProcessorTest
@@ -240,3 +245,19 @@ class TestSVD(BaseDataProcessorTest):
 
         self.assertTrue(np.allclose(avg_datum, expected_avg))
         self.assertTrue(np.allclose(error, expected_std))
+
+
+class TestProbability(QiskitTestCase):
+    """Test probability computation."""
+
+    def test_variance_not_zero(self):
+        """Test if finite variance is computed at max or min probability."""
+        node = DirichletProbability(outcome="1")
+
+        data = {"1": 1024, "0": 0}
+        _, stderr = node(data)
+        self.assertGreater(stderr, 0.0)
+
+        data = {"1": 0, "0": 1024}
+        _, stderr = node(data)
+        self.assertGreater(stderr, 0.0)
