@@ -159,8 +159,6 @@ class TestSpecializations(QiskitTestCase):
         """Test the experiment end to end."""
 
         amp_cal = FineXAmplitude(0)
-        amp_cal.set_analysis_options(number_guesses=11)
-
         backend = MockFineAmp(-np.pi * 0.07, np.pi, "x")
 
         expdata = amp_cal.run(backend).block_for_results()
