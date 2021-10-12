@@ -255,9 +255,16 @@ class TestProbability(QiskitTestCase):
         node = DirichletProbability(outcome="1")
 
         data = {"1": 1024, "0": 0}
-        _, stderr = node(data)
+        mode, stderr = node(data)
         self.assertGreater(stderr, 0.0)
+        self.assertLess(mode, 1.0)
 
         data = {"1": 0, "0": 1024}
-        _, stderr = node(data)
+        mode, stderr = node(data)
         self.assertGreater(stderr, 0.0)
+        self.assertGreater(mode, 0.0)
+
+        # balanced counts with a flat prior will yield p = 0.5
+        data = {"1": 512, "0": 512}
+        mode, _ = node(data)
+        self.assertAlmostEqual(mode, 0.5)

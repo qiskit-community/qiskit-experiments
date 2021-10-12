@@ -172,7 +172,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
 
         # Add naive guess for more coverage
         guess_range = max(abs(apg), np.pi / 2)
-        d_theta_guesses.extend(np.linspace(-guess_range, guess_range, 21))
+        d_theta_guesses.extend(np.linspace(-guess_range, guess_range, 11))
 
         options = []
         for d_theta_guess in d_theta_guesses:
