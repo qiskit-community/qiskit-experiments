@@ -43,8 +43,8 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
             \sin\right({\rm apg} \cdot x - {\rm phase\_offset}\left)
             \right) + {\rm base}
 
-        When :math:`{\rm apg} \cdot x - {\rm phase\_offset} = (2n + 1) \pi/2` is satisfied,
-        above fit model can be simplified to
+        When :math:`{\rm apg} \cdot x - {\rm phase\_offset} = (2n + 1) \pi/2` is satisfied the
+        fit model above simplifies to
 
         .. math::
             y = \mp \frac{{\rm amp}}{2} \sin\left({\rm d}\theta \cdot x\right) + {\rm base}
