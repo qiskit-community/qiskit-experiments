@@ -33,7 +33,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
             y = \frac{{\rm amp}}{2}\cos\left(x[{\rm d}\theta + {\rm apg} ] \
             -{\rm phase\_offset}\right)+{\rm base}
 
-        The fit function can be transformed into
+        To understand how the error is measured we can transformed the function above into
 
         .. math::
             y = \frac{{\rm amp}}{2} \left(\
