@@ -106,6 +106,7 @@ class DbExperimentDataV1(DbExperimentData):
         metadata: Optional[Dict] = None,
         figure_names: Optional[List[str]] = None,
         notes: Optional[str] = None,
+        verbose: Optional[bool] = True,
         **kwargs,
     ):
         """Initializes the DbExperimentData instance.
@@ -123,6 +124,7 @@ class DbExperimentDataV1(DbExperimentData):
             metadata: Additional experiment metadata.
             figure_names: Name of figures associated with this experiment.
             notes: Freeform notes about the experiment.
+            verbose: Whether to print messages to the standard output.
             **kwargs: Additional experiment attributes.
         """
         metadata = metadata or {}
@@ -147,6 +149,7 @@ class DbExperimentDataV1(DbExperimentData):
         self._tags = tags or []
         self._share_level = share_level
         self._notes = notes or ""
+        self._verbose = verbose
 
         self._jobs = ThreadSafeOrderedDict(job_ids or [])
         self._job_futures = ThreadSafeList()
@@ -714,6 +717,7 @@ class DbExperimentDataV1(DbExperimentData):
             "job_ids": self.job_ids,
             "tags": self.tags,
             "notes": self.notes,
+            "verbose": self.verbose
         }
         new_data = {"experiment_type": self._type, "backend_name": self._backend.name()}
         if self.share_level:
@@ -730,11 +734,8 @@ class DbExperimentDataV1(DbExperimentData):
             json_encoder=self._json_encoder,
         )
 
-    def save(self, verbose: bool = True) -> None:
+    def save(self) -> None:
         """Save the experiment data to a database service.
-
-        Args:
-            verbose: if True then the method may print messages to the standard output
 
         .. note::
             This saves the experiment metadata, all analysis results, and all
@@ -782,7 +783,7 @@ class DbExperimentDataV1(DbExperimentData):
                 self._service.delete_figure(experiment_id=self.experiment_id, figure_name=name)
             self._deleted_figures.remove(name)
 
-        if verbose:
+        if self.verbose:
             print(
                 "You can view the experiment online at https://quantum-computing.ibm.com/experiments/"
                 + self.experiment_id
@@ -816,6 +817,7 @@ class DbExperimentDataV1(DbExperimentData):
             metadata=metadata,
             figure_names=service_data.pop("figure_names"),
             notes=service_data.pop("notes"),
+            verbose=service_data.pop("verbose"),
             **service_data,
         )
         # Retrieve analysis results
@@ -954,6 +956,7 @@ class DbExperimentDataV1(DbExperimentData):
         new_instance._share_level = self._share_level
         new_instance._metadata = copy.deepcopy(self._metadata)
         new_instance._notes = self._notes
+        new_instance._verbose = self._verbose,
         new_instance._auto_save = self._auto_save
         new_instance._service = self._service
         new_instance._extra_data = self._extra_data
@@ -1187,6 +1190,26 @@ class DbExperimentDataV1(DbExperimentData):
             res._auto_save = save_val
 
     @property
+    def verbose(self) -> bool:
+        """Whether to print messages to the standard output.
+
+        Returns:
+            Verbosity flag for this experiment.
+        """
+        return self._verbose
+
+    @verbose.setter
+    def verbose(self, verbose: bool) -> None:
+        """Set the verbosity flag for this experiment.
+
+        Args:
+            service: Whether to print messages to the standard output.
+        """
+        self._verbose = verbose
+        if self.auto_save:
+            self.save_metadata()
+
+    @property
     def source(self) -> Dict:
         """Return the class name and version."""
         return self._source
@@ -1208,6 +1231,7 @@ class DbExperimentDataV1(DbExperimentData):
             out += f", figure_names={self.figure_names}"
         if self.notes:
             out += f", notes={self.notes}"
+        out += ", verbose={self.verbose}"
         if self._extra_data:
             for key, val in self._extra_data.items():
                 out += f", {key}={repr(val)}"
