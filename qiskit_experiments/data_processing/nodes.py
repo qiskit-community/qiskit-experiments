@@ -527,8 +527,8 @@ class DirichletProbability(Probability):
             validate: If set to False the DataAction will not validate its input.
 
         Raises:
-            DataProcessorError: When dimension of prior and expected parameter vector
-                doesn't match.
+            DataProcessorError: When the dimension of the prior and expected parameter vector
+                do not match.
         """
         self._dim = 2 ** len(outcome)
         self._prior = prior
