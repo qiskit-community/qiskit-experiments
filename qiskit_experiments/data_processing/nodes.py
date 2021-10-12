@@ -505,8 +505,8 @@ class DirichletProbability(Probability):
         v = \frac{E[x] (1 - E[x])}{\alpha_0 + 1}
 
     where :math:`E[x] = \alpha_i / \alpha_0` is the mean value of the outcome of interest.
-    With a finite prior, this node always returns finite variance.
-    This saves us from the risk of unexpected zero division throughout the stack.
+    With a finite prior, this node always returns a finite variance which prevents 
+    unexpected zero divisions.
     """
 
     def __init__(
