@@ -32,9 +32,9 @@ class HalfAngleTestBackend(MockIQBackend):
     def _compute_probability(self, circuit: QuantumCircuit) -> float:
         """Returns the probability of measuring the excited state."""
 
-        n_gates = circuit.metadata.xval
+        n_gates = circuit.metadata["xval"]
 
-        return 0.5 * np.sin(n_gates * self._error) + 0.5
+        return 0.5 * np.sin((-1) ** n_gates * n_gates * self._error) + 0.5
 
 
 class TestHalfAngle(QiskitTestCase):
@@ -43,10 +43,10 @@ class TestHalfAngle(QiskitTestCase):
     def test_end_to_end(self):
         """Test a full experiment end to end."""
 
-        error = 0.05
         tol = 0.005
-        hac = HalfAngle(0)
-        exp_data = hac.run(HalfAngleTestBackend(error)).block_for_results()
-        d_theta = exp_data.analysis_results(1).value.value
+        for error in [-0.05, -0.02, 0.02, 0.05]:
+            hac = HalfAngle(0)
+            exp_data = hac.run(HalfAngleTestBackend(error)).block_for_results()
+            d_theta = exp_data.analysis_results(1).value.value
 
-        self.assertTrue(abs(d_theta-error) < tol)
+            self.assertTrue(abs(d_theta - error) < tol)

@@ -19,13 +19,11 @@ from qiskit import QuantumCircuit
 from qiskit.providers import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options
-from qiskit_experiments.library.calibration.analysis.fine_amplitude_analysis import (
-    FineAmplitudeAnalysis,
-)
+from qiskit_experiments.library.calibration.analysis import FineHalfAngleAnalysis
 
 
 class HalfAngle(BaseExperiment):
-    """A calibration experiment class to perform half angle calibration.
+    r"""A calibration experiment class to perform half angle calibration.
 
     # section: overview
 
@@ -47,7 +45,7 @@ class HalfAngle(BaseExperiment):
         .. ref_arxiv:: 1 1504.06597
     """
 
-    __analysis_class__ = FineAmplitudeAnalysis
+    __analysis_class__ = FineHalfAngleAnalysis
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -56,8 +54,6 @@ class HalfAngle(BaseExperiment):
         Experiment Options:
             repetitions (List[int]): A list of the number of times that the gate
                 sequence :code:`[sx sx y]` is repeated.
-            normalization (bool): If set to True the DataProcessor will normalized the
-                measured signal to the interval [0, 1]. Defaults to True.
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(15))
@@ -66,24 +62,18 @@ class HalfAngle(BaseExperiment):
 
     @classmethod
     def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
+        r"""Default analysis options.
+
+        If the rotation error is very small the fit may chose a d_theta close to
+        :math:`\pm\pi`. To prevent this we impose bounds on d_theta.
+        """
         options = super()._default_analysis_options()
         options.normalization = True
-        options.angle_per_gate = 0.0
-        options.phase_offset = 0.0
+        options.angle_per_gate = np.pi
+        options.phase_offset = -np.pi / 2
+        options.amp = 1.0
+        options.bounds = {"d_theta": (-np.pi / 2, np.pi / 2)}
 
-        return options
-
-    @classmethod
-    def _default_transpile_options(cls) -> Options:
-        """Default transpile options.
-
-        Experiment Options:
-            inst_map (InstructionScheduleMap): An instance of an instruction schedule map
-                to bring in the pulses for the rx, and ry rotations.
-        """
-        options = super()._default_transpile_options()
-        options.inst_map = None
         return options
 
     def __init__(self, qubit: int):
