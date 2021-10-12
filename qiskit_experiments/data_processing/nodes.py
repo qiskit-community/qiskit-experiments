@@ -485,7 +485,7 @@ class DirichletProbability(Probability):
     r"""Compute probabilities and variances from a count dictionary.
 
     This node is a subtype of :py:class:`~qiskit_experiments.data_processing.nodes.Probability`.
-    In the Probability node the variance is computed based on a binomial distribution which can 
+    In the Probability node the variance is computed based on a binomial distribution which can
     result in a zero variance when the probability is either zero or one.
     The DirichletProbability node avoids this singularity by assuming a Dirichlet distribution
     with Bayes update taking a prior distribution. Namely, the mean value is replaced by
@@ -511,7 +511,7 @@ class DirichletProbability(Probability):
         v = \frac{E[x] (1 - E[x])}{\alpha_0 + 1}
 
     where :math:`E[x] = \alpha_i / \alpha_0` is the mean value of the outcome of interest.
-    With a finite prior, this node always returns a finite variance which prevents 
+    With a finite prior, this node always returns a finite variance which prevents
     unexpected zero divisions.
     """
 
