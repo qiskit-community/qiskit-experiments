@@ -1095,19 +1095,9 @@ class DbExperimentDataV1(DbExperimentData):
                 specified. For example, IBM Quantum experiment service allows
                 "public", "hub", "group", "project", and "private".
         """
-        self._set_share_level_without_save(new_level)
+        self._share_level = new_level
         if self.auto_save:
             self.save_metadata()
-
-    def _set_share_level_without_save(self, new_level: str) -> None:
-        """Set the experiment share level. Doesn't save, not even when auto_save is set to True.
-
-        Args:
-            new_level: New experiment share level. Valid share levels are provider-
-                specified. For example, IBM Quantum experiment service allows
-                "public", "hub", "group", "project", and "private".
-        """
-        self._share_level = new_level
 
     @property
     def notes(self) -> str:
