@@ -1193,7 +1193,7 @@ class DbExperimentDataV1(DbExperimentData):
         """Set the verbosity flag for this experiment.
 
         Args:
-            service: Whether to print messages to the standard output.
+            verbose: Whether to print messages to the standard output.
         """
         self._verbose = verbose
         if self.auto_save:
