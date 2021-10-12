@@ -152,14 +152,6 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
         phi = self._get_option("phase_offset")
 
         # Prepare logical guess for specific condition (often satisfied)
-
-        # The fit function can be transformed into
-        # y = A cos((d_theta + apg) x - phi)
-        #   = A cos(d_theta x)cos(apg x - phi) - A sin(d_theta x)sin(apg x - phi)
-        # If apg x - phi = (2n + 1) pi / 2 is satisfied,
-        # y = ∓ A sin(d_theta x) ~ ∓ A d_theta x, when d_theta x << 1
-        # Finally, d_theta = ∓ y / (A x)
-
         d_theta_guesses = []
 
         offsets = apg * curve_data.x + phi
@@ -168,9 +160,9 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
             xi = curve_data.x[i]
             yi = curve_data.y[i]
             if np.isclose(offsets[i] % np.pi, np.pi / 2) and xi > 0:
-                # Condition satisfied: i.e. cos(apg x + phi) = 0
+                # Condition satisfied: i.e. cos(apg x - phi) = 0
                 err = -np.sign(np.sin(offsets[i])) * (yi - user_opt.p0["base"]) / (0.5 * amp)
-                # Validate estimate. This is first order term of Maclaurin expansion.
+                # Validate estimate. This is just the first order term of Maclaurin expansion.
                 if np.abs(err) < 0.5:
                     d_theta_guesses.append(err / xi)
                 else:

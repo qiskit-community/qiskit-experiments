@@ -472,7 +472,7 @@ class Probability(DataAction):
 
             return np.array(populations), np.array(errors)
 
-    def _population_error(self, counts_dict) -> Tuple[float, float]:
+    def _population_error(self, counts_dict: Dict[str, int]) -> Tuple[float, float]:
         """Helper method"""
         shots = sum(counts_dict.values())
         p_mean = counts_dict.get(self._outcome, 0.0) / shots
@@ -487,9 +487,9 @@ class DirichletProbability(Probability):
     This node is a subtype of :py:class:`~qiskit_experiments.data_processing.nodes.Probability`.
     In the Probability node the variance is computed based on a binomial distribution which can 
     result in a zero variance when the probability is either zero or one.
-    The DirichletProbability node avoids this singularity by assuming a Dirichlet distribution with Bayes
-    update taking a prior distribution. Namely, the mean value is replaced by a mode that represents
-    the most likely value to be sampled
+    The DirichletProbability node avoids this singularity by assuming a Dirichlet distribution
+    with Bayes update taking a prior distribution. Namely, the mean value is replaced by
+    a mode that represents the most likely value to be sampled
 
     .. math::
 
@@ -497,7 +497,13 @@ class DirichletProbability(Probability):
 
     where :math:`\alpha_i = f_i + \theta_i`, :math:`\alpha_0 = \sum_{i=1}^K \alpha_i`,
     :math:`\theta_i` is the prior distribution and :math:`f_i` is
-    the count of :math:`i`-th element of :math:`K` dimensional vector.
+    the count number of the :math:`i`-th state out of :math:`K` measurable states.
+    For example, if one provides a 2 bit outcome label, i.e. two-qubit measurement,
+    the possible measurable states are (00, 01, 10, 11) and thus :math:`K` is 4.
+
+    One can provide an arbitrary prior as a dictionary keyed on the outcome label, or
+    a flat prior with an arbitrary float value. It defaults to the Jefferys prior.
+
     The variance is computed by
 
     .. math::
@@ -519,11 +525,12 @@ class DirichletProbability(Probability):
 
         Args:
             outcome: The bitstring for which to compute the probability which defaults to "1".
-            prior: Prior distribution. This can be a float or a dictionary with keys corresponding to
-                the outcome bitstrings. If n-bit label is provided in ``outcome``, the
-                dimension of the prior distribution, i.e. dictionary length, should be :math:`2^n`.
-                If a float value is applied, this applies a flat prior with the provided value.
-                By default, this assumes a flat prior of 0.5 corresponding to Jeffery's prior.
+            prior: Prior distribution. This can be a float or a dictionary with keys
+                corresponding to the outcome bitstrings. If n-bit label is provided in
+                ``outcome``, the dimension of the prior distribution, i.e. dictionary length,
+                should be :math:`2^n`. If a float value is applied, this applies a flat prior
+                with the provided value. By default, this assumes a flat prior of 0.5
+                corresponding to the Jefferys prior.
             validate: If set to False the DataAction will not validate its input.
 
         Raises:
@@ -539,7 +546,7 @@ class DirichletProbability(Probability):
                 "Dimension of probability density function and prior distribution do not match."
             )
 
-    def _population_error(self, counts_dict) -> Tuple[float, float]:
+    def _population_error(self, counts_dict: Dict[str, int]) -> Tuple[float, float]:
         """Helper method"""
         shots = sum(counts_dict.values())
         freq = counts_dict.get(self._outcome, 0.0)
