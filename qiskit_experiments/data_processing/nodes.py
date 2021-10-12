@@ -482,14 +482,13 @@ class Probability(DataAction):
 
 
 class DirichletProbability(Probability):
-    r"""Compute probability and variance from count dictionary.
+    r"""Compute probabilities and variances from a count dictionary.
 
-    This node is a subtype of :py:class:`~qiskit_experiments.data_processing.nodes.Probability`,
-    in which variance is computed based on a binomial distribution at the risk of zero variance
-    at probability at either zero or one.
-
-    This node avoid such singularity by assuming Dirichlet distribution with Bayes update
-    taking a prior distribution. Namely, a mean value is replaced by a mode that represents
+    This node is a subtype of :py:class:`~qiskit_experiments.data_processing.nodes.Probability`.
+    In the Probability node the variance is computed based on a binomial distribution which can 
+    result in a zero variance when the probability is either zero or one.
+    The DirichletProbability node avoids this singularity by assuming a Dirichlet distribution with Bayes
+    update taking a prior distribution. Namely, the mean value is replaced by a mode that represents
     the most likely value to be sampled
 
     .. math::
