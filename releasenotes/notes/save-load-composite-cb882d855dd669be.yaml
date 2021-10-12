@@ -1,3 +1,5 @@
 features:
   - |
-    Composite experiments: saving a composite experiment saves also all its descendants; similarly, setting the share level and service of a composite experiment sets the share level and service of all its descendants; loading a composite experiment is now enabled; composite experiments and their descnedants are tagged with the root experiment and the direct parent experiment.
+    Adds support for saving and loading :class:~qiskit_experiments.framework.ParallelExperiment and
+:class:~qiskit_experiments.framework.BatchExperiment experiment data, including all their component experiment data and results, to the IBM experiments database service. When saving one of these experiments each component experiment will be saved under a unique experiment ID which references the original parent composite experiment via the :meth:~qiskit_Expeirments.framework.ExperimentData.parent_id. Note that changing the share level of the parent composite experiment will also change the share level of all component experiments.
+
