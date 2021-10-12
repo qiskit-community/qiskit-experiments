@@ -717,7 +717,7 @@ class DbExperimentDataV1(DbExperimentData):
             "job_ids": self.job_ids,
             "tags": self.tags,
             "notes": self.notes,
-            "verbose": self.verbose
+            "verbose": self.verbose,
         }
         new_data = {"experiment_type": self._type, "backend_name": self._backend.name()}
         if self.share_level:
@@ -956,7 +956,7 @@ class DbExperimentDataV1(DbExperimentData):
         new_instance._share_level = self._share_level
         new_instance._metadata = copy.deepcopy(self._metadata)
         new_instance._notes = self._notes
-        new_instance._verbose = self._verbose,
+        new_instance._verbose = (self._verbose,)
         new_instance._auto_save = self._auto_save
         new_instance._service = self._service
         new_instance._extra_data = self._extra_data

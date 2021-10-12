@@ -105,7 +105,7 @@ class CompositeExperimentData(ExperimentData):
     def save(self) -> None:
         super().save()
         for comp in self._components:
-            comp.save()           
+            comp.save()
 
     def save_metadata(self) -> None:
         super().save_metadata()
