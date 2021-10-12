@@ -49,7 +49,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
         .. math::
             y = \mp \frac{{\rm amp}}{2} \sin\left({\rm d}\theta \cdot x\right) + {\rm base}
 
-        In the limit :math:`{\rm d}\theta \ll 1`, the error can be estimated from curve data
+        In the limit :math:`{\rm d}\theta \ll 1`, the error can be estimated from the curve data
 
         .. math::
             {\rm d}\theta \simeq \mp \frac{2(y - {\rm base})}{x \cdot {\rm amp}}
