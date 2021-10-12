@@ -62,7 +62,7 @@ Some experiments may be also used for gate calibration.
     ~characterization.EFSpectroscopy
     ~characterization.CrossResonanceHamiltonian
     ~characterization.EchoedCrossResonanceHamiltonian
-    ~characterization.HalfAngle,
+    ~characterization.HalfAngle
 
 .. _calibration:
 
@@ -88,7 +88,6 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     ~calibration.FineAmplitude
     ~calibration.FineXAmplitude
     ~calibration.FineSXAmplitude
-    ~calibration.HalfAngle
     ~calibration.RamseyXY
 
 """
