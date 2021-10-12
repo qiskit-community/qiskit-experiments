@@ -536,7 +536,7 @@ class DirichletProbability(Probability):
 
         if isinstance(prior, dict) and self._dim != len(prior):
             raise DataProcessorError(
-                "Dimension of probability density function and prior distribution doesn't match."
+                "Dimension of probability density function and prior distribution do not match."
             )
 
     def _population_error(self, counts_dict) -> Tuple[float, float]:
