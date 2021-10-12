@@ -15,6 +15,7 @@ Measurement calibration analysis classes
 from typing import List, Tuple
 import numpy as np
 from matplotlib import pyplot
+from qiskit.result import marginal_counts
 from qiskit_experiments.framework import BaseAnalysis
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework import AnalysisResultData
@@ -78,3 +79,43 @@ class CompleteMitigationAnalysis(BaseAnalysis):
         ax.set_xticklabels(labels)
         ax.set_yticklabels(labels)
         return figure
+
+
+class TensoredMitigationAnalysis(BaseAnalysis):
+    """
+    Measurement correction analysis for a full calibration
+    """
+
+    def _run_analysis(
+        self, experiment_data: ExperimentData, **options
+    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
+        data = experiment_data.data()
+        matrices = self._generate_matrices(data)
+        result_matrices = [
+            AnalysisResultData("Mitigation Matrix {}".format(i), matrix)
+            for i, matrix in enumerate(matrices)
+        ]
+        figures = None
+        return result_matrices, figures
+
+    def _generate_matrices(self, data):
+        num_qubits = len(data[0]["metadata"]["label"])
+        counts = [None, None]
+        for result in data:
+            for i in range(2):
+                if result["metadata"]["label"] == str(i) * num_qubits:
+                    counts[i] = result["counts"]
+        matrices = []
+        for k in range(num_qubits):
+            matrix = np.zeros([2, 2], dtype=float)
+            marginalized_counts = []
+            for i in range(2):
+                marginalized_counts.append(marginal_counts(counts[i], [k]))
+            # matrix[i][j] is the probability of counting i for expected j
+            for i in range(2):
+                for j in range(2):
+                    matrix[i][j] = marginalized_counts[j][str(i)] / sum(
+                        marginalized_counts[j].values()
+                    )
+            matrices.append(matrix)
+        return matrices

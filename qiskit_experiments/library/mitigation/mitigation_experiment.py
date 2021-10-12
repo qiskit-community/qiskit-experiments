@@ -19,7 +19,7 @@ from qiskit import QuantumCircuit
 from qiskit.providers import Backend
 from qiskit.exceptions import QiskitError
 from qiskit_experiments.framework import BaseExperiment, ParallelExperiment, ExperimentData
-from .mitigation_analysis import CompleteMitigationAnalysis
+from .mitigation_analysis import CompleteMitigationAnalysis, TensoredMitigationAnalysis
 
 
 class MeasurementMitigation(BaseExperiment):
@@ -30,57 +30,23 @@ class MeasurementMitigation(BaseExperiment):
     ALL_METHODS = [METHOD_COMPLETE, METHOD_TENSORED]
 
     def __init__(self, qubits: Iterable[int], method=METHOD_COMPLETE):
+        super().__init__(qubits)
         if method not in self.ALL_METHODS:
             raise QiskitError("Method {} not recognized".format(method))
         self._method = method
-        if method == self.METHOD_COMPLETE:
-            self._exp = CompleteMeasurementMitigation(qubits)
-            qubit_list = qubits
-        if method == self.METHOD_TENSORED:
-            if not isinstance(qubits, list) or not isinstance(qubits[0], list):
-                raise QiskitError(
-                    "Tensored experiment requires a list of qubit lists; {} was passed".format(
-                        qubits
-                    )
-                )
-            sub_experiments = []
-            for qubit_list in qubits:
-                exp = CompleteMeasurementMitigation(qubit_list)
-                sub_experiments.append(exp)
-            self._exp = ParallelExperiment(sub_experiments)
-        super().__init__(qubit_list)
+        self._set_analysis_class()
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
-        return self._exp.circuits(backend)
-
-    def run(
-        self,
-        backend: Backend,
-        analysis: bool = True,
-        experiment_data: Optional[ExperimentData] = None,
-        **run_options,
-    ) -> ExperimentData:
+    def _set_analysis_class(self):
         if self._method == self.METHOD_COMPLETE:
-            res = self._exp.run(backend, analysis, experiment_data, **run_options)
-            return res
+            MeasurementMitigation.__analysis_class__ = CompleteMitigationAnalysis
         if self._method == self.METHOD_TENSORED:
-            res = self._exp.run(backend, analysis, experiment_data, **run_options)
-            return res
-        return None
-
-
-class CompleteMeasurementMitigation(BaseExperiment):
-    """
-    Measurement correction experiment for a full calibration
-    """
-
-    __analysis_class__ = CompleteMitigationAnalysis
-
-    def __init__(self, qubits: List[int]):
-        super().__init__(qubits)
+            MeasurementMitigation.__analysis_class__ = TensoredMitigationAnalysis
 
     def labels(self) -> List[str]:
-        return [bin(j)[2:].zfill(self.num_qubits) for j in range(2 ** self.num_qubits)]
+        if self._method == self.METHOD_COMPLETE:
+            return [bin(j)[2:].zfill(self.num_qubits) for j in range(2 ** self.num_qubits)]
+        if self._method == self.METHOD_TENSORED:
+            return ["0" * self.num_qubits, "1" * self.num_qubits]
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         return [self._calibration_circuit(self.num_qubits, label) for label in self.labels()]
