@@ -519,11 +519,11 @@ class DirichletProbability(Probability):
 
         Args:
             outcome: The bitstring for which to compute the probability which defaults to "1".
-            prior: Prior distribution. This can be float value or dictionary keyed on
-                outcome bitstring. If n-bit label is provided in ``outcome``, the
+            prior: Prior distribution. This can be a float or a dictionary with keys corresponding to
+                the outcome bitstrings. If n-bit label is provided in ``outcome``, the
                 dimension of the prior distribution, i.e. dictionary length, should be :math:`2^n`.
                 If a float value is applied, this applies a flat prior with the provided value.
-                By default, this assumes flat prior of 0.5 corresponding to the Jeffery's prior.
+                By default, this assumes a flat prior of 0.5 corresponding to Jeffery's prior.
             validate: If set to False the DataAction will not validate its input.
 
         Raises:
