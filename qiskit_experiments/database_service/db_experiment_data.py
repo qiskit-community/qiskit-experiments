@@ -1032,7 +1032,7 @@ class DbExperimentDataV1(DbExperimentData):
 
     @property
     def parent_id(self) -> str:
-        """Return parent ID
+        """Return parent experiment ID
 
         Returns:
             Parent ID.
