@@ -105,7 +105,7 @@ class BaseExperiment(ABC):
         run_opts = run_opts.__dict__
 
         # Generate and transpile circuits
-        circuits = self.run_transpile(backend)
+        circuits = self.circuits(backend, run_transpile=True)
 
         # Run experiment jobs
         max_experiments = getattr(backend.configuration(), "max_experiments", None)
@@ -203,16 +203,33 @@ class BaseExperiment(ABC):
         """
         return circuits
 
-    def run_transpile(self, backend: Backend, **options) -> List[QuantumCircuit]:
+    def circuits(
+            self,
+            backend: Optional[Backend] = None,
+            run_transpile: bool = False,
+            **options
+    ) -> List[QuantumCircuit]:
         """Run transpile and return transpiled circuits.
 
         Args:
             backend: Target backend.
-            options: User provided runtime options.
+            run_transpile: Set ``True`` to run transpile, otherwise this returns logical circuits.
+                The logical circuits are convenient to grasp overview of the experiment,
+                while transpiled circuits can be used to scrutinize the program actually
+                executed on the backend. This defaults to ``False``.
+            options: User provided transpile options.
 
         Returns:
-            Transpiled circuit to execute.
+            Experiment circuits.
         """
+        logical_circs = self._circuits(backend)
+
+        if not run_transpile:
+            return logical_circs
+
+        if backend is None:
+            raise QiskitError("Transpile cannot be performed without backend instance.")
+
         # Run pre transpile if implemented by subclasses.
         self._pre_transpile_action(backend)
 
@@ -224,7 +241,7 @@ class BaseExperiment(ABC):
         )
         transpile_options = transpile_options.__dict__
 
-        circuits = transpile(circuits=self.circuits(backend), backend=backend, **transpile_options)
+        circuits = transpile(circuits=logical_circs, backend=backend, **transpile_options)
 
         # Run post transpile. This is implemented by each experiment subclass.
         circuits = self._post_transpile_action(circuits, backend)
@@ -245,10 +262,7 @@ class BaseExperiment(ABC):
             when the analysis is finished, and will be processed in background.
 
             If this method updates some other (mutable) objects, you may need manage
-            synchronization of update of the object data. Otherwise you may want to
-            call :meth:`block_for_results` method of the ``experiment_data`` here
-            to freeze processing chain until the job result is returned.
-
+            synchronization of update of the object data.
             By default, this method does nothing.
 
         Args:
@@ -305,8 +319,8 @@ class BaseExperiment(ABC):
         return cls.__analysis_class__()
 
     @abstractmethod
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
-        """Return a list of experiment circuits.
+    def _circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+        """Return a list of logical circuits with logical qubit index.
 
         Args:
             backend: Optional, a backend object.

@@ -51,7 +51,7 @@ class TestFineDrag(QiskitTestCase):
         drag = FineDrag(0)
         drag.set_experiment_options(schedule=self.schedule)
 
-        for circuit in drag.circuits(FakeArmonk())[1:]:
+        for circuit in drag._circuits(FakeArmonk())[1:]:
             for idx, name in enumerate(["Drag", "rz", "Drag", "rz"]):
                 self.assertEqual(circuit.data[idx][0].name, name)
 

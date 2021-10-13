@@ -112,7 +112,7 @@ class TestFineAmplitudeCircuits(QiskitTestCase):
             schedule=self.x_plus, angle_per_gate=np.pi, add_xp_circuit=False, add_sx=True
         )
 
-        for idx, circ in enumerate(amp_cal.circuits()):
+        for idx, circ in enumerate(amp_cal._circuits()):
             self.assertTrue(circ.data[0][0].name == "sx")
             self.assertEqual(circ.count_ops().get("xp", 0), idx)
 
@@ -124,7 +124,7 @@ class TestFineAmplitudeCircuits(QiskitTestCase):
             schedule=self.x_90_plus, angle_per_gate=np.pi, add_xp_circuit=False, add_sx=False
         )
 
-        for idx, circ in enumerate(amp_cal.circuits()):
+        for idx, circ in enumerate(amp_cal._circuits()):
             self.assertTrue(circ.data[0][0].name != "sx")
             self.assertEqual(circ.count_ops().get("x90p", 0), idx)
 

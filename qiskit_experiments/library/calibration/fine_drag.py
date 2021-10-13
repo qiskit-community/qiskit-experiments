@@ -185,7 +185,7 @@ class FineDrag(BaseExperiment):
         circ.ry(np.pi / 2, 0)  # Maps unwanted Z rotations to qubit population.
         return circ
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def _circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Create the circuits for the fine DRAG calibration experiment.
 
         Args:

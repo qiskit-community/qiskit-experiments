@@ -141,7 +141,7 @@ class TestEFRabi(QiskitTestCase):
         anharm = -330e6
         rabi12 = EFRabi(2)
         rabi12.set_experiment_options(amplitudes=[0.5], frequency_shift=anharm)
-        circ = rabi12.circuits(RabiBackend())[0]
+        circ = rabi12._circuits(RabiBackend())[0]
 
         with pulse.build() as expected:
             pulse.shift_frequency(anharm, pulse.DriveChannel(2))
@@ -161,7 +161,7 @@ class TestRabiCircuits(QiskitTestCase):
 
         rabi = Rabi(2)
         rabi.set_experiment_options(amplitudes=[0.5])
-        circs = rabi.circuits(RabiBackend())
+        circs = rabi._circuits(RabiBackend())
 
         with pulse.build() as expected:
             pulse.play(pulse.Gaussian(160, 0.5, 40), pulse.DriveChannel(2))
@@ -179,7 +179,7 @@ class TestRabiCircuits(QiskitTestCase):
 
         rabi = Rabi(2)
         rabi.set_experiment_options(schedule=my_schedule, amplitudes=[0.5])
-        circs = rabi.circuits(RabiBackend())
+        circs = rabi._circuits(RabiBackend())
 
         assigned_sched = my_schedule.assign_parameters({amp: 0.5}, inplace=False)
         self.assertEqual(circs[0].calibrations["Rabi"][((2,), (0.5,))], assigned_sched)
@@ -274,7 +274,7 @@ class TestCompositeExperiment(QiskitTestCase):
             experiments.append(rabi)
 
         par_exp = ParallelExperiment(experiments)
-        par_circ = par_exp.circuits()[0]
+        par_circ = par_exp._circuits()[0]
 
         # If the calibrations are not there we will not be able to transpile
         try:
@@ -284,7 +284,7 @@ class TestCompositeExperiment(QiskitTestCase):
 
         # Assert that the calibration keys are in the calibrations of the composite circuit.
         for qubit in range(3):
-            rabi_circuit = experiments[qubit].circuits()[0]
+            rabi_circuit = experiments[qubit]._circuits()[0]
             cal_key = next(iter(rabi_circuit.calibrations["Rabi"].keys()))
 
             self.assertEqual(cal_key[0], (qubit,))

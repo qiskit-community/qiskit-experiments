@@ -90,7 +90,7 @@ class T1(BaseExperiment):
         # Set experiment options
         self.set_experiment_options(delays=delays, unit=unit)
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def _circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """
         Return a list of experiment circuits
 

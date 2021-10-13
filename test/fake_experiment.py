@@ -38,6 +38,6 @@ class FakeExperiment(BaseExperiment):
         self._type = None
         super().__init__((qubit,), "fake_test_experiment")
 
-    def circuits(self, backend=None):
+    def _circuits(self, backend=None):
         """Fake circuits."""
         return []

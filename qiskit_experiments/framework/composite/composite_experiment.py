@@ -41,7 +41,7 @@ class CompositeExperiment(BaseExperiment):
         super().__init__(qubits, experiment_type=experiment_type)
 
     @abstractmethod
-    def circuits(self, backend=None):
+    def _circuits(self, backend=None):
         pass
 
     @property

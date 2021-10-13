@@ -137,7 +137,7 @@ class TestT1(QiskitTestCase):
 
         delays = list(range(1, 40, 3))
         exp = T1(0, delays, unit="ms")
-        circs = exp.circuits()
+        circs = exp._circuits()
 
         self.assertEqual(len(circs), len(delays))
 

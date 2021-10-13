@@ -144,7 +144,7 @@ class Rabi(BaseExperiment):
 
         return default_schedule
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def _circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Create the circuits for the Rabi experiment.
 
         Args:

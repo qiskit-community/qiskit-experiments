@@ -144,6 +144,6 @@ class TestQubitSpectroscopy(QiskitTestCase):
         self.assertEqual(result.quality, "good")
 
         # Test the circuits
-        circ = spec.circuits(backend)[0]
+        circ = spec._circuits(backend)[0]
         self.assertEqual(circ.data[0][0].name, "x")
         self.assertEqual(circ.data[1][0].name, "Spec")

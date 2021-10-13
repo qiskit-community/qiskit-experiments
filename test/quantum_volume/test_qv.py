@@ -42,7 +42,7 @@ class TestQuantumVolume(QiskitTestCase):
             for trials in ntrials:
                 qv_exp = QuantumVolume(qubits)
                 qv_exp.set_experiment_options(trials=trials)
-                qv_circs = qv_exp.circuits()
+                qv_circs = qv_exp._circuits()
 
                 self.assertEqual(
                     len(qv_circs),
@@ -67,14 +67,14 @@ class TestQuantumVolume(QiskitTestCase):
         qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
         # set number of trials to a low number to make the test faster
         qv_exp.set_experiment_options(trials=20)
-        qv_circs = qv_exp.circuits()
+        qv_circs = qv_exp._circuits()
         simulation_probabilities = [qv_circ.metadata["ideal_probabilities"] for qv_circ in qv_circs]
         # create the circuits again, but this time disable simulation so the
         # ideal probabilities will be calculated using statevector
         qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
         qv_exp.set_experiment_options(trials=20)
         qv_exp._simulation_backend = None
-        qv_circs = qv_exp.circuits()
+        qv_circs = qv_exp._circuits()
         statevector_probabilities = [
             qv_circ.metadata["ideal_probabilities"] for qv_circ in qv_circs
         ]

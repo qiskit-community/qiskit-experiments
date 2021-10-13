@@ -158,7 +158,7 @@ class QubitSpectroscopy(BaseExperiment):
 
         return circuit
 
-    def circuits(self, backend: Optional[Backend] = None):
+    def _circuits(self, backend: Optional[Backend] = None):
         """Create the circuit for the spectroscopy experiment.
 
         The circuits are based on a GaussianSquare pulse and a frequency_shift instruction

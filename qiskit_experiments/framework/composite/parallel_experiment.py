@@ -32,7 +32,7 @@ class ParallelExperiment(CompositeExperiment):
             qubits += exp.physical_qubits
         super().__init__(experiments, qubits)
 
-    def circuits(self, backend=None):
+    def _circuits(self, backend=None):
 
         sub_circuits = []
         sub_qubits = []
@@ -42,7 +42,7 @@ class ParallelExperiment(CompositeExperiment):
         # Generate data for combination
         for expr in self._experiments:
             # Add subcircuits
-            circs = expr.circuits(backend)
+            circs = expr._circuits(backend)
             sub_circuits.append(circs)
             sub_size.append(len(circs))
 

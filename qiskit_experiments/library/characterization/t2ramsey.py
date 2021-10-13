@@ -104,7 +104,7 @@ class T2Ramsey(BaseExperiment):
         super().__init__([qubit])
         self.set_experiment_options(delays=delays, unit=unit, osc_freq=osc_freq)
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def _circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
 
         Each circuit consists of a Hadamard gate, followed by a fixed delay,

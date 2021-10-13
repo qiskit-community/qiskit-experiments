@@ -60,7 +60,7 @@ class TestStandardRB(QiskitTestCase):
         )
         exp_data = rb_exp.run(backend)
         exp = exp_data.experiment
-        exp_circuits = rb_exp.circuits()
+        exp_circuits = rb_exp._circuits()
         self.validate_metadata(exp_circuits, exp_attributes)
         self.validate_circuit_data(exp, exp_attributes)
         self.is_identity(exp_circuits)
@@ -193,7 +193,7 @@ class TestInterleavedRB(TestStandardRB):
         )
         experiment_obj = rb_exp.run(backend)
         exp_data = experiment_obj.experiment
-        exp_circuits = rb_exp.circuits()
+        exp_circuits = rb_exp._circuits()
         self.validate_metadata(exp_circuits, exp_attributes)
         self.validate_circuit_data(exp_data, exp_attributes)
         self.is_identity(exp_circuits)
@@ -214,7 +214,7 @@ class TestInterleavedRB(TestStandardRB):
             qubits=qubits, interleaved_element=interleaved_element, lengths=[length], num_samples=1
         )
 
-        circuits = exp.circuits()
+        circuits = exp._circuits()
         c_std = circuits[0]
         c_int = circuits[1]
         if c_std.metadata["interleaved"]:

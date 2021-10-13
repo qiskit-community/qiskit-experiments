@@ -38,7 +38,7 @@ def create_qv_ideal_probabilities(dir_path: str):
     num_of_qubits = 3
     qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
     qv_exp.set_experiment_options(trials=20)
-    qv_circs = qv_exp.circuits()
+    qv_circs = qv_exp._circuits()
     simulation_probabilities = [
         list(qv_circ.metadata["ideal_probabilities"]) for qv_circ in qv_circs
     ]

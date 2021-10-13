@@ -140,7 +140,7 @@ class TomographyExperiment(BaseExperiment):
             metadata["target"] = copy.copy(self._target)
         return metadata
 
-    def circuits(self, backend=None):
+    def _circuits(self, backend=None):
 
         # Get qubits and clbits
         meas_qubits = self._meas_qubits or range(self.num_qubits)

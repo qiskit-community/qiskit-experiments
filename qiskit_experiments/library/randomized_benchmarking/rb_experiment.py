@@ -129,7 +129,7 @@ class StandardRB(BaseExperiment):
         return options
 
     # pylint: disable = arguments-differ
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def _circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Return a list of RB circuits.
 
         Args:

@@ -140,7 +140,7 @@ class DragCal(BaseExperiment):
 
         super().__init__([qubit])
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def _circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Create the circuits for the Drag calibration.
 
         Args:

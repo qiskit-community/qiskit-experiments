@@ -128,7 +128,7 @@ class TestStateTomography(QiskitTestCase):
 
         num_meas = len(meas_qubits)
         exp = StateTomography(circ, measurement_qubits=meas_qubits)
-        tomo_circuits = exp.circuits()
+        tomo_circuits = exp._circuits()
 
         # Check correct number of circuits are generated
         self.assertEqual(len(tomo_circuits), 3 ** num_meas)
@@ -321,7 +321,7 @@ class TestProcessTomography(QiskitTestCase):
 
         num_meas = len(qubits)
         exp = ProcessTomography(circ, measurement_qubits=qubits, preparation_qubits=qubits)
-        tomo_circuits = exp.circuits()
+        tomo_circuits = exp._circuits()
 
         # Check correct number of circuits are generated
         size = 3 ** num_meas * 4 ** num_meas

@@ -252,7 +252,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
         return cross_resonance
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def _circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
 
         Args:
