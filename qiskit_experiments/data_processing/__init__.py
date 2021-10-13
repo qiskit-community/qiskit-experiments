@@ -37,7 +37,6 @@ Data Processing Nodes
     :toctree: ../stubs/
 
     Probability
-    DirichletProbability
     ToImag
     ToReal
     SVD
@@ -48,7 +47,6 @@ Data Processing Nodes
 from .data_action import DataAction, TrainableDataAction
 from .nodes import (
     Probability,
-    DirichletProbability,
     ToImag,
     ToReal,
     SVD,

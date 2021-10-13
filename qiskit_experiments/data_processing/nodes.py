@@ -391,18 +391,70 @@ class ToImag(IQPart):
 
 
 class Probability(DataAction):
-    """Count data post processing. This returns the probabilities of the outcome string
-    used to initialize an instance of Probability."""
+    r"""Compute the most likely value for pribability and variance from a count dictionary.
 
-    def __init__(self, outcome: str = "1", validate: bool = True):
+    This node assumes the Dirichlet distribution with Bayes update taking a prior distribution,
+    and only returns a pribability and variance of the state labeled by the ``outcome``.
+
+    Here the :math:`alpha_i` denotes a parameter of the Dirichlet distribution.
+    The most likely distribution of probabilities are computed as
+
+    .. math::
+
+        p_i = \frac{\alpha_i - 1}{\alpha_0 - K}
+
+    where :math:`\alpha_i = f_i + \theta_i`, :math:`\alpha_0 = \sum_{i=1}^K \alpha_i`,
+    :math:`\theta_i` is the prior distribution and :math:`f_i` is
+    the count number of the :math:`i`-th state out of :math:`K` measurable states.
+    For example, if one provides a 2 bit ``outcome`` label, i.e. two-qubit measurement,
+    the possible measurable states are (00, 01, 10, 11) and thus :math:`K` is 4.
+
+    One can provide an arbitrary prior as a dictionary keyed on the state labels, or
+    a flat prior with an arbitrary float value. It defaults to a flat MLE-like prior.
+
+    Then, the variance is computed by
+
+    .. math::
+
+        v_i = \frac{\alpha_i / \alpha_0 (1 - \alpha_i / \alpha_0)}{\alpha_0 + 1}
+
+    With a finite prior, this node always returns a finite variance which prevents
+    unexpected zero divisions. The returned data is :math:`(p_j, \sqrt{v_j})` where :math:`j`
+    is the index of state corresponding to the ``outcome``.
+    """
+
+    def __init__(
+        self,
+        outcome: str,
+        prior: Union[Dict[str, float], float] = 1,
+        validate: bool = True,
+    ):
         """Initialize a counts to probability data conversion.
 
         Args:
             outcome: The bitstring for which to compute the probability which defaults to "1".
+            prior: Prior distribution. This can be a float or a dictionary keyed on
+                corresponding to the outcome bit-strings. If n-bit label is provided in
+                ``outcome``, the dimension of the prior distribution, i.e. dictionary length,
+                should be :math:`2^n`. If a float value is applied, this applies a flat prior
+                with the provided value. By default, this assumes a flat prior of 1.0
+                corresponding to the MLE-like prior.
             validate: If set to False the DataAction will not validate its input.
+
+        Raises:
+            DataProcessorError: When the dimension of the prior and expected parameter vector
+                do not match.
         """
         self._outcome = outcome
+
+        self._dim = 2 ** len(outcome)
+        self._prior = prior
         super().__init__(validate)
+
+        if isinstance(prior, dict) and self._dim != len(prior):
+            raise DataProcessorError(
+                "Dimension of probability density function and prior distribution do not match."
+            )
 
     def _format_data(self, datum: dict, error: Optional[Any] = None) -> Tuple[dict, Any]:
         """
@@ -471,80 +523,6 @@ class Probability(DataAction):
                 errors.append(error)
 
             return np.array(populations), np.array(errors)
-
-    def _population_error(self, counts_dict: Dict[str, int]) -> Tuple[float, float]:
-        """Helper method"""
-        shots = sum(counts_dict.values())
-        p_mean = counts_dict.get(self._outcome, 0.0) / shots
-        p_var = p_mean * (1 - p_mean) / shots
-
-        return p_mean, np.sqrt(p_var)
-
-
-class DirichletProbability(Probability):
-    r"""Compute probabilities and variances from a count dictionary.
-
-    This node is a subtype of :py:class:`~qiskit_experiments.data_processing.nodes.Probability`.
-    In the Probability node the variance is computed based on a binomial distribution which can
-    result in a zero variance when the probability is either zero or one.
-    The DirichletProbability node avoids this singularity by assuming a Dirichlet distribution
-    with Bayes update taking a prior distribution. Namely, the mean value is replaced by
-    a mode that represents the most likely value to be sampled
-
-    .. math::
-
-        p = \frac{\alpha_i - 1}{\alpha_0 + K}
-
-    where :math:`\alpha_i = f_i + \theta_i`, :math:`\alpha_0 = \sum_{i=1}^K \alpha_i`,
-    :math:`\theta_i` is the prior distribution and :math:`f_i` is
-    the count number of the :math:`i`-th state out of :math:`K` measurable states.
-    For example, if one provides a 2 bit outcome label, i.e. two-qubit measurement,
-    the possible measurable states are (00, 01, 10, 11) and thus :math:`K` is 4.
-
-    One can provide an arbitrary prior as a dictionary keyed on the outcome label, or
-    a flat prior with an arbitrary float value. It defaults to the Jefferys prior.
-
-    The variance is computed by
-
-    .. math::
-
-        v = \frac{E[x] (1 - E[x])}{\alpha_0 + 1}
-
-    where :math:`E[x] = \alpha_i / \alpha_0` is the mean value of the outcome of interest.
-    With a finite prior, this node always returns a finite variance which prevents
-    unexpected zero divisions.
-    """
-
-    def __init__(
-        self,
-        outcome: str = "1",
-        prior: Union[Dict[str, float], float] = 1,
-        validate: bool = True,
-    ):
-        """Initialize a counts to probability data conversion.
-
-        Args:
-            outcome: The bitstring for which to compute the probability which defaults to "1".
-            prior: Prior distribution. This can be a float or a dictionary with keys
-                corresponding to the outcome bitstrings. If n-bit label is provided in
-                ``outcome``, the dimension of the prior distribution, i.e. dictionary length,
-                should be :math:`2^n`. If a float value is applied, this applies a flat prior
-                with the provided value. By default, this assumes a flat prior of 0.5
-                corresponding to the Jefferys prior.
-            validate: If set to False the DataAction will not validate its input.
-
-        Raises:
-            DataProcessorError: When the dimension of the prior and expected parameter vector
-                do not match.
-        """
-        self._dim = 2 ** len(outcome)
-        self._prior = prior
-        super().__init__(outcome=outcome, validate=validate)
-
-        if isinstance(prior, dict) and self._dim != len(prior):
-            raise DataProcessorError(
-                "Dimension of probability density function and prior distribution do not match."
-            )
 
     def _population_error(self, counts_dict: Dict[str, int]) -> Tuple[float, float]:
         """Helper method"""

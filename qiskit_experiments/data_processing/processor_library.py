@@ -38,7 +38,7 @@ def get_processor(
         DataProcessorError: if the measurement level is not supported.
     """
     if meas_level == MeasLevel.CLASSIFIED:
-        return DataProcessor("counts", [nodes.DirichletProbability("1")])
+        return DataProcessor("counts", [nodes.Probability("1")])
 
     if meas_level == MeasLevel.KERNELED:
         if meas_return == "single":

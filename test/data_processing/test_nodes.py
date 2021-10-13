@@ -27,7 +27,7 @@ from qiskit_experiments.data_processing.nodes import (
     SVD,
     AverageData,
     MinMaxNormalize,
-    DirichletProbability,
+    Probability,
 )
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 
@@ -252,7 +252,7 @@ class TestProbability(QiskitTestCase):
 
     def test_variance_not_zero(self):
         """Test if finite variance is computed at max or min probability."""
-        node = DirichletProbability(outcome="1")
+        node = Probability(outcome="1")
 
         data = {"1": 1024, "0": 0}
         mode, stderr = node(data)
@@ -266,7 +266,7 @@ class TestProbability(QiskitTestCase):
 
     def test_probability_balanced(self):
         """Test if p=0.5 is returned when counts are balanced and prior is flat."""
-        node = DirichletProbability(outcome="1")
+        node = Probability(outcome="1")
 
         # balanced counts with a flat prior will yield p = 0.5
         data = {"1": 512, "0": 512}

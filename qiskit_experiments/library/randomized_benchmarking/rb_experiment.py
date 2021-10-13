@@ -91,7 +91,7 @@ class StandardRB(BaseExperiment):
         self.set_analysis_options(
             data_processor=dp.DataProcessor(
                 input_key="counts",
-                data_actions=[dp.DirichletProbability(outcome="0" * self.num_qubits)],
+                data_actions=[dp.Probability(outcome="0" * self.num_qubits)],
             )
         )
 
