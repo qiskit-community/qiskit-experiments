@@ -53,3 +53,142 @@ class TestFramework(QiskitTestCase):
             if num_circuits % max_experiments:
                 num_jobs += 1
         self.assertEqual(len(job_ids), num_jobs)
+
+    def test_logical_circuits(self):
+        """Test if user can get logical circuits."""
+        backend = FakeBackend(n_qubits=3)
+
+        class Experiment(FakeExperiment):
+            """Fake Experiment to test transpile."""
+
+            def _circuits(self, backend=None):
+                """Generate fake circuits"""
+                qc = QuantumCircuit(1, 1)
+                qc.x(0)
+                qc.measure(0, 0)
+
+                return [qc]
+
+        exp = Experiment(1)
+        test_circ = exp.circuits(backend)[0]
+
+        ref_circ = QuantumCircuit(1, 1)
+        ref_circ.x(0)
+        ref_circ.measure(0, 0)
+
+        self.assertEqual(test_circ, ref_circ)
+
+    def test_physical_circuits(self):
+        """Test if user can get physical circuits."""
+        backend = FakeBackend(n_qubits=3)
+
+        class Experiment(FakeExperiment):
+            """Fake Experiment to test transpile."""
+
+            def _circuits(self, backend=None):
+                """Generate fake circuits"""
+                qc = QuantumCircuit(1, 1)
+                qc.x(0)
+                qc.measure(0, 0)
+
+                return [qc]
+
+        exp = Experiment(2)
+        test_circ = exp.circuits(backend, run_transpile=True)[0]
+
+        ref_circ = QuantumCircuit(3, 1)
+        ref_circ.x(2)
+        ref_circ.measure(2, 0)
+
+        self.assertEqual(test_circ, ref_circ)
+
+    def test_pre_transpile_action(self):
+        """Test pre transpile."""
+        backend = FakeBackend(n_qubits=1)
+
+        class Experiment(FakeExperiment):
+            """Fake Experiment to test transpile."""
+
+            def _circuits(self, backend=None):
+                """Generate fake circuits"""
+                qc = QuantumCircuit(1, 1)
+                qc.y(0)
+                qc.measure(0, 0)
+
+                return [qc]
+
+            def _pre_transpile_action(self, backend):
+                """Update basis gates with y gate."""
+                basis_gates = backend.configuration().basis_gates
+
+                if "y" not in basis_gates:
+                    basis_gates.append("y")
+
+                self.set_transpile_options(basis_gates=basis_gates)
+
+        exp = Experiment(0)
+        test_circ = exp.circuits(backend, run_transpile=True)[0]
+
+        ref_circ = QuantumCircuit(1, 1)
+        ref_circ.y(0)
+        ref_circ.measure(0, 0)
+
+        self.assertEqual(test_circ, ref_circ)
+
+    def test_post_transpile_action(self):
+        """Test post transpile."""
+        backend = FakeBackend(n_qubits=1)
+
+        class Experiment(FakeExperiment):
+            """Fake Experiment to test transpile."""
+
+            def _circuits(self, backend=None):
+                """Generate fake circuits"""
+                qc = QuantumCircuit(1, 1)
+                qc.x(0)
+                qc.measure(0, 0)
+
+                return [qc]
+
+            def _post_transpile_action(self, circuits, backend):
+                """Add test metadata."""
+                for circ in circuits:
+                    circ.metadata = {"test": "test"}
+
+                return circuits
+
+        exp = Experiment(0)
+        test_circ = exp.circuits(backend, run_transpile=True)[0]
+
+        ref_metadata = {"test": "test"}
+
+        self.assertDictEqual(test_circ.metadata, ref_metadata)
+
+    def test_post_analysis(self):
+        """Test post analysis."""
+        backend = FakeBackend(n_qubits=1)
+        mutable_target_obj = {"type": ""}
+
+        class Experiment(FakeExperiment):
+            """Fake Experiment to test transpile."""
+
+            def __init__(self, qubit=0, target_obj=None):
+                """Initialise the fake experiment."""
+                super().__init__(qubit)
+                self.target = target_obj
+
+            def _circuits(self, backend=None):
+                """Generate fake circuits"""
+                qc = QuantumCircuit(1)
+                qc.measure_all()
+
+                return [qc]
+
+            def _post_analysis_action(self, experiment_data):
+                """Update target object."""
+                self.target["type"] = experiment_data.metadata["experiment_type"]
+
+        exp = Experiment(0, target_obj=mutable_target_obj)
+        exp.run(backend).block_for_results()
+
+        self.assertEqual(mutable_target_obj["type"], "fake_test_experiment")

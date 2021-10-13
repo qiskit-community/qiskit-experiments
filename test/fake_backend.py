@@ -26,12 +26,12 @@ class FakeBackend(BackendV1):
     Fake backend for test purposes only.
     """
 
-    def __init__(self, max_experiments=None):
+    def __init__(self, n_qubits: int = 2, max_experiments: int = None):
         configuration = QasmBackendConfiguration(
             backend_name="dummy_backend",
             backend_version="0",
-            n_qubits=int(1e6),
-            basis_gates=["barrier", "x", "delay", "measure"],
+            n_qubits=n_qubits,
+            basis_gates=["barrier", "sx", "x", "cx", "rz", "delay", "measure"],
             gates=[],
             local=True,
             simulator=True,
