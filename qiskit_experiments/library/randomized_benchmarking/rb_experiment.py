@@ -188,10 +188,16 @@ class StandardRB(BaseExperiment):
         circ_op = Clifford(np.eye(2 * self.num_qubits))
 
         for current_length, group_elt_circ in enumerate(elements):
-            group_elt_gate = group_elt_circ
+            if isinstance(group_elt_circ, tuple):
+                group_elt_gate = group_elt_circ[0]
+                group_elt_op = group_elt_circ[1]
+            else:
+                group_elt_gate = group_elt_circ
+                group_elt_op = Clifford(group_elt_circ)
+
             if not isinstance(group_elt_gate, Gate):
                 group_elt_gate = group_elt_gate.to_gate()
-            circ_op = circ_op.compose(Clifford(group_elt_circ))
+            circ_op = circ_op.compose(group_elt_op)
             for circ in circs:
                 circ.append(group_elt_gate, qubits)
                 circ.barrier(qubits)
