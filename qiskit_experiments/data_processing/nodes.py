@@ -542,7 +542,7 @@ class Probability(DataAction):
         p_var = p_mean * (1 - p_mean) / (alpha_0 + 1)
         mode = (alpha_i - 1) / (alpha_0 - self._dim)
 
-        # If outcome count is zero or full, mode becomes < 0 or > 1 with a finite prior
+        # If outcome count is zero or full, mode may become < 0 or > 1 with a finite prior
         mode = max(0.0, mode)
         mode = min(1.0, mode)
 

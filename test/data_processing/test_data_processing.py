@@ -67,8 +67,12 @@ class DataProcessorTest(BaseDataProcessorTest):
         raw_counts2 = {"0x0": 2, "0x2": 8}
         data1 = ExperimentResultData(counts=dict(**raw_counts1))
         data2 = ExperimentResultData(counts=dict(**raw_counts2))
-        res1 = ExperimentResult(shots=9, success=True, meas_level=2, data=data1, header=self.header)
-        res2 = ExperimentResult(shots=9, success=True, meas_level=2, data=data2, header=self.header)
+        res1 = ExperimentResult(
+            shots=10, success=True, meas_level=2, data=data1, header=self.header
+        )
+        res2 = ExperimentResult(
+            shots=10, success=True, meas_level=2, data=data2, header=self.header
+        )
         self.exp_data_lvl2 = ExperimentData(FakeExperiment())
         self.exp_data_lvl2.add_data(Result(results=[res1, res2], **self.base_result_args))
 
@@ -191,13 +195,13 @@ class DataProcessorTest(BaseDataProcessorTest):
         """Test that counts are properly converted to a population."""
 
         processor = DataProcessor("counts")
-        processor.append(Probability("00"))
+        processor.append(Probability("00", prior=1.0))
 
         # Test on a single datum.
         new_data, error = processor(self.exp_data_lvl2.data(0))
 
         self.assertEqual(new_data, 0.4)
-        self.assertEqual(error, np.sqrt(0.4 * (1 - 0.4) / 10))
+        self.assertEqual(error, np.sqrt(0.12371791482634836))
 
         # Test on all the data
         new_data, error = processor(self.exp_data_lvl2.data())
