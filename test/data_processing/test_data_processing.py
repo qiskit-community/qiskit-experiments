@@ -201,7 +201,7 @@ class DataProcessorTest(BaseDataProcessorTest):
         new_data, error = processor(self.exp_data_lvl2.data(0))
 
         self.assertEqual(new_data, 0.4)
-        self.assertEqual(error, np.sqrt(0.12371791482634836))
+        self.assertEqual(error, 0.12371791482634836)
 
         # Test on all the data
         new_data, error = processor(self.exp_data_lvl2.data())
