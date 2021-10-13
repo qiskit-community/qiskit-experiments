@@ -6,13 +6,9 @@ other:
     and the variance is computed by assuming a binominal distribution.
     However, this has been sometime resulting in a zero variance,
     which may induce a zero division error during the following fitting.
-    To avoid this, a new data processor node :py:class:`~qiskit_experiments.data_processing.\
-    nodes.DirichletProbability` is added, in which the probability is computed from the mode,
-    and the variance is computed by assuming a Dirichlet distribution with a flat prior.
+    With this update, :py:class:`qiskit_experiments.data_processing.nodes.Probability` node
+    returns the most likely value of probability and standard error assuming the
+    Dirichlet distribution with given flat prior, by computing the poterior with Bayes update.
     See class documentation of the node for details.
-    The default :py:class:`~qiskit_experiments.data_processing.data_processor.DataProcessor`
-    configuration is replaced with :py:class:`~qiskit_experiments.data_processing.nodes.\
-    DirichletProbability` but the conventional :py:class:`qiskit_experiments.data_processing.\
-    nodes.Probability` node will be continuously supported.
-    This change may impact your experiment data especially when the shot number
+    This change may impact your experiment analysis results especially when the shot number
     is really small, e.g. ~ 100.
