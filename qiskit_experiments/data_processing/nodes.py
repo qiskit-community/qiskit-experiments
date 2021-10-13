@@ -432,7 +432,9 @@ class Probability(DataAction):
         """Initialize a counts to probability data conversion.
 
         Args:
-            outcome: The bitstring for which to compute the probability which defaults to "1".
+            outcome: The bitstring for which to return the probability and variance.
+                Dimension of the probability function is implicitly inferred from the
+                length of this bit string.
             prior: Prior distribution. This can be a float or a dictionary keyed on
                 corresponding to the outcome bit-strings. If n-bit label is provided in
                 ``outcome``, the dimension of the prior distribution, i.e. dictionary length,
