@@ -518,7 +518,7 @@ class DirichletProbability(Probability):
     def __init__(
         self,
         outcome: str = "1",
-        prior: Union[Dict[str, float], float] = 0.5,
+        prior: Union[Dict[str, float], float] = 1,
         validate: bool = True,
     ):
         """Initialize a counts to probability data conversion.
