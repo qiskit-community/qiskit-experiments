@@ -29,24 +29,12 @@ class MeasurementMitigation(BaseExperiment):
     METHOD_TENSORED = "tensored"
     ALL_METHODS = [METHOD_COMPLETE, METHOD_TENSORED]
 
-    def __init__(self, qubits: Iterable[int], method=METHOD_COMPLETE):
+    def __init__(self, qubits: Iterable[int]):
         super().__init__(qubits)
-        if method not in self.ALL_METHODS:
-            raise QiskitError("Method {} not recognized".format(method))
-        self._method = method
-        self._set_analysis_class()
 
-    def _set_analysis_class(self):
-        if self._method == self.METHOD_COMPLETE:
-            MeasurementMitigation.__analysis_class__ = CompleteMitigationAnalysis
-        if self._method == self.METHOD_TENSORED:
-            MeasurementMitigation.__analysis_class__ = TensoredMitigationAnalysis
-
+    @abstractmethod
     def labels(self) -> List[str]:
-        if self._method == self.METHOD_COMPLETE:
-            return [bin(j)[2:].zfill(self.num_qubits) for j in range(2 ** self.num_qubits)]
-        if self._method == self.METHOD_TENSORED:
-            return ["0" * self.num_qubits, "1" * self.num_qubits]
+        return None
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         return [self._calibration_circuit(self.num_qubits, label) for label in self.labels()]
@@ -66,3 +54,32 @@ class MeasurementMitigation(BaseExperiment):
         circ.measure_all()
         circ.metadata = {"label": label}
         return circ
+
+
+class CompleteMeasurementMitigation(MeasurementMitigation):
+    __analysis_class__ = CompleteMitigationAnalysis
+
+    def __init__(self, qubits: Iterable[int]):
+        super().__init__(qubits)
+
+    def labels(self) -> List[str]:
+        return [bin(j)[2:].zfill(self.num_qubits) for j in range(2 ** self.num_qubits)]
+
+
+class TensoredMeasurementMitigation(MeasurementMitigation):
+    __analysis_class__ = TensoredMitigationAnalysis
+
+    def __init__(self, qubits: Iterable[int]):
+        super().__init__(qubits)
+
+    def labels(self) -> List[str]:
+        return ["0" * self.num_qubits, "1" * self.num_qubits]
+
+
+def mitigation_experiment(qubits, method=MeasurementMitigation.METHOD_COMPLETE):
+    if method not in MeasurementMitigation.ALL_METHODS:
+        raise QiskitError("Method {} not recognized".format(method))
+    if method == MeasurementMitigation.METHOD_COMPLETE:
+        return CompleteMeasurementMitigation(qubits)
+    if method == MeasurementMitigation.METHOD_TENSORED:
+        return TensoredMeasurementMitigation(qubits)
