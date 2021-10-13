@@ -167,7 +167,7 @@ class TestFramework(QiskitTestCase):
     def test_post_analysis(self):
         """Test post analysis."""
         backend = FakeBackend(n_qubits=1)
-        mutable_target_obj = {"type": ""}
+        mutable_target_obj = {"type": "dummy_data"}
 
         class Experiment(FakeExperiment):
             """Fake Experiment to test transpile."""
@@ -191,4 +191,36 @@ class TestFramework(QiskitTestCase):
         exp = Experiment(0, target_obj=mutable_target_obj)
         exp.run(backend).block_for_results()
 
+        self.assertEqual(mutable_target_obj["type"], "fake_test_experiment")
+
+    def test_post_analysis_from_run_analysis(self):
+        """Test post analysis called from run analysis."""
+        backend = FakeBackend(n_qubits=1)
+        mutable_target_obj = {"type": "dummy_data"}
+
+        class Experiment(FakeExperiment):
+            """Fake Experiment to test transpile."""
+
+            def __init__(self, qubit=0, target_obj=None):
+                """Initialise the fake experiment."""
+                super().__init__(qubit)
+                self.target = target_obj
+
+            def _circuits(self, backend=None):
+                """Generate fake circuits"""
+                qc = QuantumCircuit(1)
+                qc.measure_all()
+
+                return [qc]
+
+            def _post_analysis_action(self, experiment_data):
+                """Update target object."""
+                self.target["type"] = experiment_data.metadata["experiment_type"]
+
+        exp = Experiment(0, target_obj=mutable_target_obj)
+        exp_data = exp.run(backend, analysis=False).block_for_results()
+        self.assertEqual(mutable_target_obj["type"], "dummy_data")
+
+        # post analysis should be called
+        exp.run_analysis(experiment_data=exp_data)
         self.assertEqual(mutable_target_obj["type"], "fake_test_experiment")
