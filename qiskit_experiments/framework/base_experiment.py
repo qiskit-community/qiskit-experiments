@@ -112,7 +112,7 @@ class BaseExperiment(ABC):
         if max_experiments and len(circuits) > max_experiments:
             # Split jobs for backends that have a maximum job size
             job_circuits = [
-                circuits[i:i + max_experiments] for i in range(0, len(circuits), max_experiments)
+                circuits[i : i + max_experiments] for i in range(0, len(circuits), max_experiments)
             ]
         else:
             # Run as single job
@@ -204,10 +204,7 @@ class BaseExperiment(ABC):
         return circuits
 
     def circuits(
-            self,
-            backend: Optional[Backend] = None,
-            run_transpile: bool = False,
-            **options
+        self, backend: Optional[Backend] = None, run_transpile: bool = False, **options
     ) -> List[QuantumCircuit]:
         """Run transpile and return transpiled circuits.
 
@@ -221,6 +218,9 @@ class BaseExperiment(ABC):
 
         Returns:
             Experiment circuits.
+
+        Raises:
+            QiskitError: When transpile is performed without backend instance.
         """
         logical_circs = self._circuits(backend)
 
