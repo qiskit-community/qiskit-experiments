@@ -112,7 +112,7 @@ class BaseExperiment(ABC):
         if max_experiments and len(circuits) > max_experiments:
             # Split jobs for backends that have a maximum job size
             job_circuits = [
-                circuits[i : i + max_experiments] for i in range(0, len(circuits), max_experiments)
+                circuits[i:i + max_experiments] for i in range(0, len(circuits), max_experiments)
             ]
         else:
             # Run as single job
@@ -137,6 +137,7 @@ class BaseExperiment(ABC):
         # Optionally run analysis
         if analysis and self.__analysis_class__:
             experiment_data.add_analysis_callback(self.run_analysis)
+            experiment_data.add_analysis_callback(self._post_analysis_action)
 
         # Return the ExperimentData future
         return experiment_data
@@ -449,7 +450,12 @@ class BaseExperiment(ABC):
         """
         return {}
 
-    def _add_job_metadata(self, experiment_data: ExperimentData, jobs: BaseJob, **run_options):
+    def _add_job_metadata(
+        self,
+        experiment_data: ExperimentData,
+        jobs: List[BaseJob],
+        **run_options,
+    ):
         """Add runtime job metadata to ExperimentData.
 
         Args:
