@@ -689,6 +689,18 @@ class DbExperimentDataV1(DbExperimentData):
             See :meth:`qiskit.providers.experiment.DatabaseServiceV1.create_experiment`
             for fields that are saved.
         """
+        self.save_experiment_metadata()
+
+    def save_experiment_metadata(self) -> None:
+        """Save this experiments metadata to a database service.
+
+        .. note::
+            This method does not save analysis results nor figures.
+            Use :meth:`save` for general saving of all experiment data.
+
+            See :meth:`qiskit.providers.experiment.DatabaseServiceV1.create_experiment`
+            for fields that are saved.
+        """
         if not self._service:
             LOG.warning(
                 "Experiment cannot be saved because no experiment service is available. "
@@ -754,7 +766,7 @@ class DbExperimentDataV1(DbExperimentData):
             )
             return
 
-        DbExperimentDataV1.save_metadata(self)
+        self.save_experiment_metadata()
         for result in self._analysis_results.values():
             result.save()
 
