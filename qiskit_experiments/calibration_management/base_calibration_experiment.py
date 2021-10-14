@@ -361,7 +361,6 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         experiment_data = super().run(backend, analysis, experiment_data, **run_options)
 
         if self.auto_update and analysis:
-            experiment_data = experiment_data.block_for_results()
-            self.update_calibrations(experiment_data)
+            experiment_data.add_analysis_callback(self.update_calibrations)
 
         return experiment_data
