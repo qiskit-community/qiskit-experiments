@@ -846,7 +846,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # Pop arguments that are not given to the fitter,
         # and update class attributes with the arguments that are given to the fitter
         # (arguments that have matching attributes in the class)
-        extra_options = self._arg_parse(**options)
+        analysis_options = self._default_options().__dict__
+        analysis_options.update(options)
+
+        extra_options = self._arg_parse(**analysis_options)
 
         # Update all fit functions in the series definitions if fixed parameter is defined.
         # Fixed parameters should be provided by the analysis options.

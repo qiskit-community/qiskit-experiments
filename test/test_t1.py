@@ -50,7 +50,7 @@ class TestT1(QiskitTestCase):
         )
 
         exp = T1(0, delays, unit="dt")
-        exp.set_analysis_options(p0={"amp": 1, "tau": t1/dt_factor, "base": 0})
+        exp.set_analysis_options(p0={"amp": 1, "tau": t1 / dt_factor, "base": 0})
         exp_data = exp.run(backend, shots=10000)
         exp_data.block_for_results()  # Wait for analysis to finish.
         res = exp_data.analysis_results("T1")
@@ -110,6 +110,8 @@ class TestT1(QiskitTestCase):
         """
 
         data = ExperimentData()
+        data._metadata = {"job_metadata": [{"run_options": {"meas_level": 2}}]}
+
         numbers = [750, 1800, 2750, 3550, 4250, 4850, 5450, 5900, 6400, 6800, 7000, 7350, 7700]
 
         for i, count0 in enumerate(numbers):
@@ -157,6 +159,7 @@ class TestT1(QiskitTestCase):
         """
 
         data = ExperimentData()
+        data._metadata = {"job_metadata": [{"run_options": {"meas_level": 2}}]}
 
         for i in range(10):
             data.add_data(
