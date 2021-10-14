@@ -33,6 +33,7 @@ from qiskit_experiments.curve_analysis.curve_data import (
     FitOptions,
 )
 from qiskit_experiments.curve_analysis.curve_fit import multi_curve_fit
+from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data, data_sort
 from qiskit_experiments.curve_analysis.visualization import FitResultPlotters, PlotterStyle
 from qiskit_experiments.data_processing import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
@@ -199,6 +200,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
         - Customize pre-data processing:
             Override :meth:`~self._format_data`. For example, here you can apply smoothing
             to y values, remove outlier, or apply filter function to the data.
+            By default, data is sorted by x values and the measured values at the same
+            x value are averaged.
 
         - Create extra data from fit result:
             Override :meth:`~self._extra_database_entry`. You need to return a list of
@@ -448,7 +451,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
         """An optional subroutine to perform data pre-processing.
 
         Subclasses can override this method to apply pre-precessing to data values to fit.
-        Otherwise the analysis uses extracted data values as-is.
 
         For example,
 
@@ -458,6 +460,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         etc...
 
+        By default, the analysis just takes average over the same x values and sort
+        data index by the x values in ascending order.
+
         .. note::
 
             The data returned by this method should have the label "fit_ready".
@@ -465,13 +470,32 @@ class CurveAnalysis(BaseAnalysis, ABC):
         Returns:
             Formatted CurveData instance.
         """
+        # take average over the same x value by keeping sigma
+        series, xdata, ydata, sigma, shots = multi_mean_xy_data(
+            series=data.data_index,
+            xdata=data.x,
+            ydata=data.y,
+            sigma=data.y_err,
+            shots=data.shots,
+            method="shots_weighted",
+        )
+
+        # sort by x value in ascending order
+        series, xdata, ydata, sigma, shots = data_sort(
+            series=series,
+            xdata=xdata,
+            ydata=ydata,
+            sigma=sigma,
+            shots=shots,
+        )
+
         return CurveData(
             label="fit_ready",
-            x=data.x,
-            y=data.y,
-            y_err=data.y_err,
-            data_index=data.data_index,
-            metadata=data.metadata,
+            x=xdata,
+            y=ydata,
+            y_err=sigma,
+            shots=shots,
+            data_index=series,
         )
 
     # pylint: disable=unused-argument
@@ -566,6 +590,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # Store metadata
         metadata = np.asarray([datum["metadata"] for datum in data], dtype=object)
 
+        # Store shots
+        shots = np.asarray([datum.get("shots", np.nan) for datum in data])
+
         # Format data
         x_values = np.asarray(x_values, dtype=float)
         y_values = np.asarray(y_values, dtype=float)
@@ -585,6 +612,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             x=x_values,
             y=y_values,
             y_err=y_sigmas,
+            shots=shots,
             data_index=data_index,
             metadata=metadata,
         )
@@ -733,6 +761,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                     x=data.x[locs],
                     y=data.y[locs],
                     y_err=data.y_err[locs],
+                    shots=data.shots[locs],
                     data_index=idx,
                     metadata=data.metadata[locs] if data.metadata is not None else None,
                 )
