@@ -60,7 +60,14 @@ class HalfAngle(BaseExperiment):
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(15))
+        return options
 
+    @classmethod
+    def _default_transpile_options(cls) -> Options:
+        """Default transpile options."""
+        options = super()._default_transpile_options()
+        options.basis_gates = ["sx", "rz", "y"]
+        options.inst_map = None
         return options
 
     @classmethod
@@ -76,7 +83,6 @@ class HalfAngle(BaseExperiment):
         options.phase_offset = -np.pi / 2
         options.amp = 1.0
         options.bounds = {"d_theta": (-np.pi / 2, np.pi / 2)}
-
         return options
 
     def __init__(self, qubit: int):
