@@ -20,6 +20,7 @@ from qiskit.providers import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.calibration.analysis import FineHalfAngleAnalysis
+from qiskit_experiments.curve_analysis import ParameterRepr
 
 
 class HalfAngle(BaseExperiment):
@@ -78,6 +79,7 @@ class HalfAngle(BaseExperiment):
         :math:`\pm\pi`. To prevent this we impose bounds on d_theta.
         """
         options = super()._default_analysis_options()
+        options.result_parameters = [ParameterRepr("d_theta", "d_hac", "rad")]
         options.normalization = True
         options.angle_per_gate = np.pi
         options.phase_offset = -np.pi / 2
