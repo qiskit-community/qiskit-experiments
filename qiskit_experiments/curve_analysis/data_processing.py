@@ -83,7 +83,7 @@ def mean_xy_data(
                 standard deviations sigma (default: "sample").
 
     Returns:
-        tuple: ``(x, y_mean, shots, sigma, shots)``, where
+        tuple: ``(x, y_mean, sigma, shots)``, where
                ``x`` is an arrays of unique x-values, ``y`` is an array of
                sample mean y-values, ``sigma`` is an array of sample standard
                deviation of y values, and ``shots`` are the total number of experiment shots
