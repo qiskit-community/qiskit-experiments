@@ -78,6 +78,7 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     :toctree: ../stubs/
     :template: autosummary/experiment.rst
 
+    ~calibration.RoughFrequencyCal
     ~calibration.DragCal
     ~calibration.FineDrag
     ~calibration.FineXDrag
@@ -100,6 +101,7 @@ from .calibration import (
     FineAmplitude,
     FineXAmplitude,
     FineSXAmplitude,
+    RoughFrequencyCal,
     RamseyXY,
 )
 from .characterization import (
