@@ -46,6 +46,7 @@ class T1Analysis(curve.DecayAnalysis):
         extra = self._get_option("extra")
 
         conversion_factor = extra.get("conversion_factor", 1)
-        user_opt.p0["tau"] *= conversion_factor
+        if user_opt.p0["tau"] is not None:
+            user_opt.p0["tau"] *= conversion_factor
 
         return super()._generate_fit_guesses(user_opt)

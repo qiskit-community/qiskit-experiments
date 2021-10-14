@@ -118,7 +118,7 @@ class T2Ramsey(BaseExperiment):
         if "osc_freq" in fields:
             user_p0 = self.analysis_options.p0
             if user_p0.get("freq", None) is None:
-                user_p0["freq"] = fields["freq"]
+                user_p0["freq"] = fields["osc_freq"]
 
             self.set_analysis_options(p0=user_p0)
 
