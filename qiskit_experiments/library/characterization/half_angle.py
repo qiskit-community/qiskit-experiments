@@ -82,7 +82,8 @@ class HalfAngle(BaseExperiment):
         options.angle_per_gate = np.pi
         options.phase_offset = -np.pi / 2
         options.amp = 1.0
-        options.bounds = {"d_theta": (-np.pi / 2, np.pi / 2)}
+        options.bounds.update({"d_theta": (-np.pi / 2, np.pi / 2)})
+
         return options
 
     def __init__(self, qubit: int):
