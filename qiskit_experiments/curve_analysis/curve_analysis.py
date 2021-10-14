@@ -342,6 +342,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
             style (PlotterStyle): An instance of
                 :py:class:`~qiskit_experiments.curve_analysis.visualization.style.PlotterStyle`
                 that contains a set of configurations to create a fit plot.
+            extra (Dict[str, Any]): A dictionary that is appended to all database entries
+                as an extra information.
         """
         options = super()._default_options()
 
@@ -361,6 +363,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         options.return_data_points = False
         options.curve_plotter = "mpl_single_canvas"
         options.style = PlotterStyle()
+        options.extra = dict()
 
         # automatically populate initial guess and boundary
         fit_params = cls._fit_params()
@@ -985,6 +988,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         "dof": fit_result.dof,
                         "covariance_mat": fit_result.pcov,
                         "fit_models": fit_models,
+                        **self._get_option("extra"),
                     },
                 )
             )
@@ -1006,6 +1010,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         value=fit_result.fitval(p_name, unit),
                         chisq=fit_result.reduced_chisq,
                         quality=quality,
+                        extra=self._get_option("extra"),
                     )
                     analysis_results.append(result_entry)
 
