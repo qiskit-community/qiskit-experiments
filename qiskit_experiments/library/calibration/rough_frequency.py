@@ -26,8 +26,6 @@ from qiskit_experiments.calibration_management.base_calibration_experiment impor
 class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
     """A calibration experiment that runs QubitSpectroscopy."""
 
-    __updater__ = Frequency
-
     def __init__(
         self,
         qubit: int,
@@ -55,7 +53,15 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
             QiskitError: if there are less than three frequency shifts or if the unit is not known.
 
         """
-        super().__init__(calibrations, qubit, frequencies, unit, absolute, auto_update=auto_update)
+        super().__init__(
+            calibrations,
+            qubit,
+            frequencies,
+            unit,
+            absolute,
+            updater=Frequency,
+            auto_update=auto_update
+        )
 
 
 class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
@@ -98,5 +104,6 @@ class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
             unit,
             absolute,
             cal_parameter_name="f12",
+            updater=Frequency,
             auto_update=auto_update,
         )

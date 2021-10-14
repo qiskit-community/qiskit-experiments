@@ -13,7 +13,7 @@
 """Base class for calibration-type experiments."""
 
 from abc import ABC
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, Type
 import warnings
 
 from qiskit.providers.backend import Backend
@@ -21,6 +21,7 @@ from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
+from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.framework.base_experiment import BaseExperiment
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.exceptions import CalibrationError
@@ -74,7 +75,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     The :meth:`update_calibrations` method is responsible for updating the values of the parameters
     stored in the instance of :class:`Calibrations`. Here, :class:`BaseCalibrationExperiment`
     provides a default update methodology that subclasses can override if a more elaborate behaviour
-    is needed. At the minimum the developer must set the class variable :code:`__updater__` which
+    is needed. At the minimum the developer must set the variable :code:`_updater` which
     should have an :code:`update` method and can be chosen from the library
     :mod:`qiskit_experiments.calibration_management.update_library`. See also
     :class:`qiskit_experiments.calibration_management.update_library.BaseUpdater`. If no updater
@@ -83,10 +84,6 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     In addition to the calibration specific requirements, the developer must set the analysis method
     with the class variable :code:`__analysis_class__` and any default experiment options.
     """
-
-    # The updater class that updates the Calibrations instance. Different calibration
-    # experiments will use different updaters.
-    __updater__ = None
 
     def __init_subclass__(cls, **kwargs):
         """Warn if BaseCalibrationExperiment is not the first parent."""
@@ -110,6 +107,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         *args,
         schedule_name: Optional[str] = None,
         cal_parameter_name: Optional[str] = None,
+        updater: Optional[Type[BaseUpdater]] = None,
         auto_update: bool = True,
         **kwargs,
     ):
@@ -123,6 +121,8 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             cal_parameter_name: An optional string which specifies the name of the parameter in
                 the calibrations that will be updated. If None is given then no parameter will
                 be updated. Subclasses may assign default values in their init.
+            updater: The updater class that updates the Calibrations instance. Different
+                calibration experiments will use different updaters.
             auto_update: If set to True (the default) then the calibrations will automatically be
                 updated once the experiment has run and :meth:`block_for_results()` will be called.
             kwargs: Key word arguments for the characterization class.
@@ -131,6 +131,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         self._cals = calibrations
         self._sched_name = schedule_name
         self._param_name = cal_parameter_name
+        self._updater = updater
         self.auto_update = auto_update
 
     @property
@@ -147,8 +148,8 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         more sophisticated behaviour as is the case for the :class:`Rabi` and
         :class:`FineAmplitude` calibration experiments.
         """
-        if self.__updater__ is not None:
-            self.__updater__.update(
+        if self._updater is not None:
+            self._updater.update(
                 self._cals,
                 experiment_data,
                 parameter=self._param_name,
