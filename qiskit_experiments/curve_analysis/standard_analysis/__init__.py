@@ -14,3 +14,4 @@
 
 from .oscillation import OscillationAnalysis
 from .resonance import ResonanceAnalysis
+from .error_amplification_analysis import ErrorAmplificationAnalysis

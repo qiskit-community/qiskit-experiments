@@ -10,13 +10,13 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Fine Amplitude calibration analysis."""
+"""Fine DRAG calibration analysis."""
 
 from qiskit_experiments.curve_analysis import ErrorAmplificationAnalysis
 
 
-class FineAmplitudeAnalysis(ErrorAmplificationAnalysis):
-    r"""An analysis class for fine amplitude calibrations to define the fixed parameters.
+class FineDragAnalysis(ErrorAmplificationAnalysis):
+    r"""An analysis class for fine DRAG calibrations to define the fixed parameters.
 
     # section: note
 
@@ -25,7 +25,7 @@ class FineAmplitudeAnalysis(ErrorAmplificationAnalysis):
         * :math:`{\rm apg}` The angle per gate is set by the user, for example pi for a pi-pulse.
         * :math:`{\rm phase\_offset}` The phase offset in the cosine oscillation, for example,
           :math:`\pi/2` if a square-root of X gate is added before the repeated gates.
+        * :math:`{\rm amp}` The amplitude of the oscillation.
     """
 
-    # The intended angle per gat of the gate being calibrated, e.g. pi for a pi-pulse.
-    __fixed_parameters__ = ["angle_per_gate", "phase_offset"]
+    __fixed_parameters__ = ["angle_per_gate", "phase_offset", "amp"]

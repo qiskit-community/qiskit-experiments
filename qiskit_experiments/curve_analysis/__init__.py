@@ -46,6 +46,7 @@ your experiment class, you can still tailor the standard analysis classes to you
 
     OscillationAnalysis
     ResonanceAnalysis
+    ErrorAmplificationAnalysis
 
 Functions
 =========
@@ -115,4 +116,5 @@ from . import fit_function
 from .standard_analysis import (
     OscillationAnalysis,
     ResonanceAnalysis,
+    ErrorAmplificationAnalysis,
 )
