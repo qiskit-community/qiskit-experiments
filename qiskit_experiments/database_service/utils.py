@@ -14,6 +14,7 @@
 
 import io
 import logging
+import time
 import threading
 import traceback
 from abc import ABC, abstractmethod
@@ -105,6 +106,27 @@ def plot_to_svg_bytes(figure: "pyplot.Figure") -> bytes:
     return figure_data
 
 
+def combined_timeout(
+    func: Callable, timeout: Optional[float] = None
+) -> Tuple[Any, Union[float, None]]:
+    """Call func(timeout) and return reduced timeout for subsequent funcs.
+
+    Args:
+        func: A function with signature func(timeout).
+        timeout: The time to wait for function call.
+
+    Returns:
+        A pair of the function return and the updated timeout variable
+        for remaining time left to wait for other functions.
+    """
+    time_start = time.time()
+    ret = func(timeout)
+    time_stop = time.time()
+    if timeout is not None:
+        timeout = max(0, timeout + time_start - time_stop)
+    return ret, timeout
+
+
 def save_data(
     is_new: bool,
     new_func: Callable,
@@ -177,6 +199,10 @@ class ThreadSafeContainer(ABC):
     def _init_container(self, init_values):
         """Initialize the container."""
         pass
+
+    def __iter__(self):
+        with self._lock:
+            return iter(self._container)
 
     def __getitem__(self, key):
         with self._lock:
