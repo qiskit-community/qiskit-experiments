@@ -103,6 +103,25 @@ class T2Ramsey(BaseExperiment):
         super().__init__([qubit])
         self.set_experiment_options(delays=delays, unit=unit, osc_freq=osc_freq)
 
+    def set_experiment_options(self, **fields):
+        """Set the experiment options.
+
+        Args:
+            fields: The fields to update the options
+
+        Raises:
+            AttributeError: If the field passed in is not a supported options
+        """
+        super().set_experiment_options(**fields)
+
+        # set frequency guess from experiment configuration
+        if "osc_freq" in fields:
+            user_p0 = self.analysis_options.p0
+            if user_p0.get("freq", None) is None:
+                user_p0["freq"] = fields["freq"]
+
+            self.set_analysis_options(p0=user_p0)
+
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
 
@@ -129,16 +148,7 @@ class T2Ramsey(BaseExperiment):
         elif self.experiment_options.unit != "s":
             conversion_factor = apply_prefix(1, self.experiment_options.unit)
 
-        # override init guess with correct unit
-        # TODO be moved to pre-analysis
-        user_p0 = self.analysis_options.p0
-        if user_p0.get("tau", None) is not None:
-            user_p0["tau"] *= conversion_factor
-        if user_p0.get("freq", None) is None:
-            user_p0["freq"] = self.experiment_options.osc_freq
-
         self.set_analysis_options(
-            p0=user_p0,
             extra={
                 "osc_freq": self.experiment_options.osc_freq,
                 "conversion_factor": conversion_factor,

@@ -114,14 +114,7 @@ class T1(BaseExperiment):
         elif self.experiment_options.unit != "s":
             conversion_factor = apply_prefix(1, self.experiment_options.unit)
 
-        # override init guess with correct unit
-        # TODO be moved to pre-analysis
-        user_p0 = self.analysis_options.p0
-        if user_p0.get("tau", None) is not None:
-            user_p0["tau"] *= conversion_factor
-
         self.set_analysis_options(
-            p0=user_p0,
             extra={
                 "conversion_factor": conversion_factor,
                 "unit": self.experiment_options.unit,

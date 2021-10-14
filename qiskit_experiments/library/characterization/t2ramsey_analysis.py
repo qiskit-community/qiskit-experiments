@@ -12,14 +12,16 @@
 """
 T2Ramsey Experiment class.
 """
+from typing import Union, List
 
-from qiskit_experiments.curve_analysis import DumpedOscillationAnalysis, ParameterRepr
 from qiskit_experiments.data_processing import DataProcessor, Probability
+import qiskit_experiments.curve_analysis as curve
+
 
 from qiskit_experiments.framework import Options
 
 
-class T2RamseyAnalysis(DumpedOscillationAnalysis):
+class T2RamseyAnalysis(curve.DumpedOscillationAnalysis):
     """T2 Ramsey result analysis class.
 
     # section: see_also
@@ -38,8 +40,19 @@ class T2RamseyAnalysis(DumpedOscillationAnalysis):
         options.ylabel = "P(0)"
         options.xval_unit = "s"
         options.result_parameters = [
-            ParameterRepr("freq", "Frequency", "Hz"),
-            ParameterRepr("tau", "T2star", "s"),
+            curve.ParameterRepr("freq", "Frequency", "Hz"),
+            curve.ParameterRepr("tau", "T2star", "s"),
         ]
 
         return options
+
+    def _generate_fit_guesses(
+        self, user_opt: curve.FitOptions
+    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+        """Apply conversion factor to tau."""
+        extra = self._get_option("extra")
+
+        conversion_factor = extra.get("conversion_factor", 1)
+        user_opt.p0["tau"] *= conversion_factor
+
+        return super()._generate_fit_guesses(user_opt)

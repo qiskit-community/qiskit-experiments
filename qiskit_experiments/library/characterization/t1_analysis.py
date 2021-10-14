@@ -12,13 +12,14 @@
 """
 T1 Analysis class.
 """
+from typing import Union, List
 
-from qiskit_experiments.curve_analysis import DecayAnalysis, ParameterRepr
+import qiskit_experiments.curve_analysis as curve
 
 from qiskit_experiments.framework import Options
 
 
-class T1Analysis(DecayAnalysis):
+class T1Analysis(curve.DecayAnalysis):
     r"""A class to analyze T1 experiments.
 
     # section: see_also
@@ -33,6 +34,18 @@ class T1Analysis(DecayAnalysis):
         options.xlabel = "Delay"
         options.ylabel = "P(1)"
         options.xval_unit = "s"
-        options.result_parameters = [ParameterRepr("tau", "T1", "s")]
+        options.result_parameters = [curve.ParameterRepr("tau", "T1", "s")]
 
         return options
+
+    def _generate_fit_guesses(
+        self, user_opt: curve.FitOptions
+    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+        """Apply conversion factor to tau."""
+
+        extra = self._get_option("extra")
+
+        conversion_factor = extra.get("conversion_factor", 1)
+        user_opt.p0["tau"] *= conversion_factor
+
+        return super()._generate_fit_guesses(user_opt)
