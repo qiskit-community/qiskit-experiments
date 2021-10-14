@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Half angle calibration."""
+"""Half angle characterization."""
 
 from typing import Optional
 import numpy as np
@@ -23,15 +23,13 @@ from qiskit_experiments.library.calibration.analysis import FineHalfAngleAnalysi
 
 
 class HalfAngle(BaseExperiment):
-    r"""A calibration experiment class to perform half angle calibration.
+    r"""An experiment class to measure the amount by which sx and x are not parallel.
 
     # section: overview
 
-        This experiment runs circuits that repeat blocks of :code:`sx - sx - y`
-        circuits inserted in a Ramsey type experiment, i.e. the full gate sequence is thus
-        :code:`Ry(π/2) - [sx - sx - y] ^ n - sx` where :code:`n` is varied, see [1]. This
-        gate sequence is designed to amplify X-Y axis errors. Such errors can occur due to
-        phase errors.
+        This experiment runs circuits that repeat blocks of :code:`sx - sx - y` gates
+        inserted in a Ramsey type experiment, i.e. the full gate sequence is thus
+        :code:`Ry(π/2) - [sx - sx - y] ^ n - sx` where :code:`n` is varied.
 
         .. parsed-literal::
 
@@ -40,6 +38,11 @@ class HalfAngle(BaseExperiment):
                     └─────────┘└────┘└────┘└───┘   └────┘└────┘└───┘└────┘ ░ └╥┘
             meas: 1/════════════════════════════...═══════════════════════════╩═
                                                                               0
+
+        This sequence corrects angle errors where the axis of the :code:`sx` and :code:`x`
+        rotation are not parallel. A similar experiment is described in Ref.~[1] where the
+        gate sequence :code:`x - y` is repeated to amplify errors caused by non-orthogonal
+        :code:`x` and :code:`y` rotation axis. Such errors can occur due to phase errors.
 
     # section: reference
         .. ref_arxiv:: 1 1504.06597
