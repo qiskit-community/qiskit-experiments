@@ -170,7 +170,12 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
     __series__ = [
         curve.SeriesDef(
             fit_func=lambda x, amp, base, tau, freq, phi: curve.fit_function.cos_decay(
-                x, amp=amp, tau=tau, freq=freq, phase=phi, baseline=base,
+                x,
+                amp=amp,
+                tau=tau,
+                freq=freq,
+                phase=phi,
+                baseline=base,
             ),
             plot_color="blue",
             model_description=r"amp \exp(-x/tau) \cos(2pi freq x + phi) + base",
@@ -178,7 +183,7 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
     ]
 
     def _generate_fit_guesses(
-            self, user_opt: curve.FitOptions
+        self, user_opt: curve.FitOptions
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Compute the initial guesses.
 
@@ -215,13 +220,14 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
         # Set guess for decay parameter based on estimated frequency
         if freq_guess > df:
             user_opt.p0.set_if_empty(
-                tau=-1/curve.guess.oscillation_exp_decay(
+                tau=-1
+                / curve.guess.oscillation_exp_decay(
                     curve_data.x, curve_data.y - user_opt.p0["base"], freq_guess=freq_guess
                 )
             )
         else:
             # Very low frequency. Assume standard exponential decay
-            user_opt.p0.set_if_empty(tau=-1/curve.guess.exp_decay(curve_data.x, curve_data.y))
+            user_opt.p0.set_if_empty(tau=-1 / curve.guess.exp_decay(curve_data.x, curve_data.y))
 
         user_opt.bounds.set_if_empty(
             amp=[0, 1.5],

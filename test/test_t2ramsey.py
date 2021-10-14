@@ -81,18 +81,14 @@ class TestT2Ramsey(QiskitTestCase):
                     estimated_t2ramsey * conversion_factor,
                     delta=TestT2Ramsey.__tolerance__ * result.value.value,
                 )
-                self.assertEqual(
-                    result.quality, "good", "Result quality bad for unit " + str(unit)
-                )
+                self.assertEqual(result.quality, "good", "Result quality bad for unit " + str(unit))
                 result = expdata.analysis_results("Frequency")
                 self.assertAlmostEqual(
                     result.value.value,
                     estimated_freq,
                     delta=TestT2Ramsey.__tolerance__ * result.value.value,
                 )
-                self.assertEqual(
-                    result.quality, "good", "Result quality bad for unit " + str(unit)
-                )
+                self.assertEqual(result.quality, "good", "Result quality bad for unit " + str(unit))
 
     def test_t2ramsey_parallel(self):
         """

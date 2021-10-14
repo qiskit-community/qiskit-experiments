@@ -40,7 +40,10 @@ class DecayAnalysis(curve.CurveAnalysis):
     __series__ = [
         curve.SeriesDef(
             fit_func=lambda x, amp, base, tau: curve.fit_function.exponential_decay(
-                x, amp=amp, lamb=1/tau, baseline=base,
+                x,
+                amp=amp,
+                lamb=1 / tau,
+                baseline=base,
             ),
             plot_color="blue",
             model_description=r"amp \exp(-x/tau) + base",
@@ -49,7 +52,7 @@ class DecayAnalysis(curve.CurveAnalysis):
     ]
 
     def _generate_fit_guesses(
-            self, user_opt: curve.FitOptions
+        self, user_opt: curve.FitOptions
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Compute the initial guesses.
         Args:
@@ -62,7 +65,7 @@ class DecayAnalysis(curve.CurveAnalysis):
         user_opt.p0.set_if_empty(base=curve.guess.min_height(curve_data.y)[0])
 
         user_opt.p0.set_if_empty(
-            tau=-1/curve.guess.exp_decay(curve_data.x, curve_data.y),
+            tau=-1 / curve.guess.exp_decay(curve_data.x, curve_data.y),
             amp=curve.guess.max_height(curve_data.y)[0] - user_opt.p0["base"],
         )
 
