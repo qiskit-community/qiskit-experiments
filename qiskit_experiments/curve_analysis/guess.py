@@ -22,7 +22,6 @@ import numpy as np
 from scipy import signal
 
 from qiskit_experiments.exceptions import AnalysisError
-from .data_processing import mean_xy_data
 
 
 def frequency(
@@ -48,6 +47,7 @@ def frequency(
 
         This function returns always positive frequency.
         This function is sensitive to the DC offset.
+        This function assumes sorted, no-overlapping x values.
 
     Args:
         x: Array of x values.
@@ -58,14 +58,6 @@ def frequency(
     Returns:
         Frequency estimation of oscillation signal.
     """
-    # TODO averaging and sort should be done by data processor
-
-    # average the same data points
-    x, y, _ = mean_xy_data(x, y)
-
-    # sorted by x to be monotonic increase
-    x, y = np.asarray(sorted(zip(x, y), key=lambda xy: xy[0])).T
-
     # to run FFT x interval should be identical
     sampling_interval = np.unique(np.round(np.diff(x), decimals=20))
 
