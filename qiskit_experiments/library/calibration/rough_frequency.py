@@ -60,7 +60,7 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
             unit,
             absolute,
             updater=Frequency,
-            auto_update=auto_update
+            auto_update=auto_update,
         )
 
 
