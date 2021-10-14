@@ -44,7 +44,7 @@ class TestGuesses(QiskitTestCase):
     @data(1.1, 2.0, 1.6, -1.4, 4.5)
     def test_frequency_with_non_uniform_sampling(self, freq: float):
         """Test for frequency guess with non uniform x value."""
-        x = np.concatenate((np.linspace(-1, 0, 15), np.linspace(0, 1, 30)))
+        x = np.concatenate((np.linspace(-1, 0, 15), np.linspace(0.1, 1, 30)))
         y = 0.3 * np.cos(2 * np.pi * freq * x + 0.5) + 1.2
 
         freq_guess = guess.frequency(x, y)
