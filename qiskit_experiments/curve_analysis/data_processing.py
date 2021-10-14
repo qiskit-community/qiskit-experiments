@@ -226,7 +226,7 @@ def data_sort(
     ydata: np.ndarray,
     sigma: Optional[np.ndarray] = None,
     shots: Optional[np.ndarray] = None,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Sort data.
 
     Input x values may not be lined up in order, since experiment may accept user input array,
