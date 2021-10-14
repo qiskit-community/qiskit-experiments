@@ -221,7 +221,11 @@ def multi_mean_xy_data(
 
 
 def data_sort(
-    series: np.ndarray, xdata: np.ndarray, ydata: np.ndarray, sigma: Optional[np.ndarray] = None
+    series: np.ndarray,
+    xdata: np.ndarray,
+    ydata: np.ndarray,
+    sigma: Optional[np.ndarray] = None,
+    shots: Optional[np.ndarray] = None,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Sort data.
 
@@ -238,14 +242,20 @@ def data_sort(
         ydata: array of ydata returned from curve_fit_data or
                multi_curve_fit_data
         sigma: Optional, array of standard deviations in ydata.
+        shots: Optional, array of shots used to get a data point.
 
     Returns:
-        Tuple of (series, xdata, ydata, sigma) sorted in ascending order of xdata and series.
+        Tuple of (series, xdata, ydata, sigma, shots) sorted in ascending order of xdata and series.
     """
     if sigma is None:
         sigma = np.full(series.size, np.nan, dtype=float)
 
-    sorted_data = sorted(zip(series, xdata, ydata, sigma), key=lambda d: (d[0], d[1]))
+    if shots is None:
+        shots = np.full(series.size, np.nan, dtype=float)
+
+    sorted_data = sorted(
+        zip(series, xdata, ydata, sigma, shots), key=lambda d: (d[0], d[1])
+    )
 
     return np.asarray(sorted_data).T
 

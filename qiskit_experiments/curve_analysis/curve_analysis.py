@@ -450,7 +450,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
         """An optional subroutine to perform data pre-processing.
 
         Subclasses can override this method to apply pre-precessing to data values to fit.
-        Otherwise the analysis uses extracted data values as-is.
 
         For example,
 
@@ -459,6 +458,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
         - Apply frequency filter function
 
         etc...
+
+        By default, the analysis just takes average over the same x values and sort
+        data index by the x values in ascending order.
 
         .. note::
 
@@ -483,6 +485,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             xdata=xdata,
             ydata=ydata,
             sigma=sigma,
+            shots=shots,
         )
 
         return CurveData(
