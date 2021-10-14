@@ -19,7 +19,7 @@ from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeArmonk
 import qiskit.pulse as pulse
 
-from qiskit_experiments.library import FineDrag
+from qiskit_experiments.library import FineDrag, FineXDrag
 from qiskit_experiments.test.mock_iq_backend import DragBackend
 
 
@@ -62,5 +62,12 @@ class TestFineDrag(QiskitTestCase):
         drag.set_experiment_options(schedule=self.schedule)
         drag.set_transpile_options(basis_gates=["rz", "Drag", "ry"])
         exp_data = drag.run(FineDragTestBackend()).block_for_results()
+
+        self.assertEqual(exp_data.analysis_results(0).quality, "good")
+
+    def test_end_to_end_no_schedule(self):
+        """Test that we can run without a schedule."""
+
+        exp_data = FineXDrag(0).run(FineDragTestBackend()).block_for_results()
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")

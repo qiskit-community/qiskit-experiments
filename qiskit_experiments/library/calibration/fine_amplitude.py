@@ -17,6 +17,7 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
+from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers import Backend
 from qiskit.pulse.schedule import ScheduleBlock
 
@@ -103,6 +104,8 @@ class FineAmplitude(BaseExperiment):
         Experiment Options:
             repetitions (List[int]): A list of the number of times that the gate is repeated.
             schedule (ScheduleBlock): The schedule attached to the gate that will be repeated.
+            gate_type (Type): This is a gate class such as XGate, so that one can obtain a gate
+                by doing :code:`options.gate_class()`.
             normalization (bool): If set to True the DataProcessor will normalized the
                 measured signal to the interval [0, 1]. Defaults to True.
             add_sx (bool): If True then the circuits will start with an sx gate. This is typically
@@ -115,6 +118,7 @@ class FineAmplitude(BaseExperiment):
         options = super()._default_experiment_options()
         options.repetitions = list(range(15))
         options.schedule = None
+        options.gate_type = None
         options.normalization = True
         options.add_sx = False
         options.add_xp_circuit = True
@@ -197,26 +201,26 @@ class FineAmplitude(BaseExperiment):
         """
 
         # Get the schedule and check assumptions.
-        schedule = self.experiment_options.get("schedule", None)
+        schedule = self.experiment_options.schedule
 
         if schedule is None:
-            raise CalibrationError("No schedule set for fine amplitude calibration.")
+            gate = self.experiment_options.gate_type()
+        else:
+            gate = Gate(name=schedule.name, num_qubits=1, params=[])
 
-        if self.physical_qubits[0] not in set(ch.index for ch in schedule.channels):
-            raise CalibrationError(
-                f"User provided schedule {schedule.name} does not contain a channel "
-                "for the qubit on which to run the fine amplitude calibration."
-            )
+            if self.physical_qubits[0] not in set(ch.index for ch in schedule.channels):
+                raise CalibrationError(
+                    f"User provided schedule {schedule.name} does not contain a channel "
+                    "for the qubit on which to run the fine amplitude calibration."
+                )
 
-        if len(schedule.parameters) > 0:
-            raise CalibrationError(
-                "All parameters in a fine amplitude calibration schedule must be bound. "
-                f"Unbound parameters: {schedule.parameters}"
-            )
+            if len(schedule.parameters) > 0:
+                raise CalibrationError(
+                    "All parameters in a fine amplitude calibration schedule must be bound. "
+                    f"Unbound parameters: {schedule.parameters}"
+                )
 
         # Prepare the circuits.
-        gate = Gate(name=schedule.name, num_qubits=1, params=[])
-
         repetitions = self.experiment_options.get("repetitions")
 
         circuits = []
@@ -241,7 +245,7 @@ class FineAmplitude(BaseExperiment):
 
             circuit.metadata = {
                 "experiment_type": self._type,
-                "qubits": (self.physical_qubits[0],),
+                "qubits": self.physical_qubits,
                 "xval": (np.pi - phase_offset) / angle_per_gate,
                 "unit": "gate number",
             }
@@ -255,11 +259,13 @@ class FineAmplitude(BaseExperiment):
                 circuit.append(gate, (0,))
 
             circuit.measure_all()
-            circuit.add_calibration(gate, (self.physical_qubits[0],), schedule, params=[])
+
+            if schedule is not None:
+                circuit.add_calibration(gate, self.physical_qubits, schedule, params=[])
 
             circuit.metadata = {
                 "experiment_type": self._type,
-                "qubits": (self.physical_qubits[0],),
+                "qubits": self.physical_qubits,
                 "xval": repetition,
                 "unit": "gate number",
             }
@@ -283,6 +289,7 @@ class FineXAmplitude(FineAmplitude):
         r"""Default values for the fine amplitude experiment.
 
         Experiment Options:
+            gate_type (Type): FineXAmplitude calibrates an XGate.
             add_sx (bool): This option is True by default when calibrating gates with a target
                 angle per gate of :math:`\pi` as this increases the sensitivity of the
                 experiment.
@@ -290,6 +297,7 @@ class FineXAmplitude(FineAmplitude):
                 a target angle per gate of :math:`\pi`.
         """
         options = super()._default_experiment_options()
+        options.gate_type = XGate
         options.add_sx = True
         options.add_xp_circuit = True
 
@@ -319,6 +327,7 @@ class FineSXAmplitude(FineAmplitude):
         r"""Default values for the fine amplitude experiment.
 
         Experiment Options:
+            gate_type (Type): FineSXAmplitude calibrates an SXGate.
             add_sx (bool): This option is False by default when calibrating gates with a target
                 angle per gate of :math:`\pi/2` as this increases the sensitivity of the
                 experiment.
@@ -330,6 +339,7 @@ class FineSXAmplitude(FineAmplitude):
                 plays the same role as including a circuit with an X gate.
         """
         options = super()._default_experiment_options()
+        options.gate_type = SXGate
         options.add_sx = False
         options.add_xp_circuit = False
         options.repetitions = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
