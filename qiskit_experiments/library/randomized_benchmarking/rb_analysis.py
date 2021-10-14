@@ -146,11 +146,12 @@ class RBAnalysis(curve.CurveAnalysis):
         )
 
         # sort by x value in ascending order
-        series, xdata, ydata, sigma = data_sort(
+        series, xdata, ydata, sigma, shots = data_sort(
             series=series,
             xdata=xdata,
             ydata=ydata,
             sigma=sigma,
+            shots=shots,
         )
 
         return curve.CurveData(
