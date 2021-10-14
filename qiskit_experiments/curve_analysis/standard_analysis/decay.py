@@ -18,23 +18,31 @@ import qiskit_experiments.curve_analysis as curve
 
 class DecayAnalysis(curve.CurveAnalysis):
     r"""A class to analyze general exponential decay curve.
+
     # section: fit_model
-        The fit is based on the following decay function.
-        .. math::
-            F(x) = {\rm amp} \cdot e^{-x/\tau} + {\rm base}
+
+    The fit is based on the following decay function.
+
+    .. math::
+        F(x) = {\rm amp} \cdot e^{-x/\tau} + {\rm base}
+
     # section: fit_parameters
-       defpar \rm amp:
+
+        defpar \rm amp:
            desc: Height of the decay curve.
            init_guess: Determined by :py:func:`~qiskit_experiments.curve_analysis.guess.min_height`.
            bounds: None
-       defpar \rm base:
+
+        defpar \rm base:
            desc: Base line of the decay curve.
            init_guess: Determined by the difference of minimum and maximum points.
            bounds: None
-       defpar \tau:
+
+        defpar \tau:
            desc: This is the fit parameter of main interest.
            init_guess: Determined by :py:func:`~qiskit_experiments.curve_analysis.guess.exp_decay`.
            bounds: None
+
     """
 
     __series__ = [
@@ -55,8 +63,10 @@ class DecayAnalysis(curve.CurveAnalysis):
         self, user_opt: curve.FitOptions
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Compute the initial guesses.
+
         Args:
             user_opt: Fit options filled with user provided guess and bounds.
+
         Returns:
             List of fit options that are passed to the fitter function.
         """
@@ -73,6 +83,7 @@ class DecayAnalysis(curve.CurveAnalysis):
 
     def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
+
         A good fit has:
             - a reduced chi-squared lower than three
             - absolute amp is within [0.9, 1.1]
