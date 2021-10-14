@@ -253,9 +253,7 @@ def data_sort(
     if shots is None:
         shots = np.full(series.size, np.nan, dtype=float)
 
-    sorted_data = sorted(
-        zip(series, xdata, ydata, sigma, shots), key=lambda d: (d[0], d[1])
-    )
+    sorted_data = sorted(zip(series, xdata, ydata, sigma, shots), key=lambda d: (d[0], d[1]))
 
     return np.asarray(sorted_data).T
 
