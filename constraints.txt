@@ -1,0 +1,4 @@
+# stevedore, used by Terra currently (as of 3.4.0) issues deprecation warnings
+# with modern importlib-metadata (4.8.1). importlib-metadata is only needed on
+# Python <3.8.
+importlib-metadata==4.6.4
