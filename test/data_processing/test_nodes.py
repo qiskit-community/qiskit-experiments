@@ -138,7 +138,7 @@ class TestSVD(BaseDataProcessorTest):
         """Use IQ data gathered from the hardware."""
 
         # This data is primarily oriented along the real axis with a slight tilt.
-        # The is a large offset in the imaginary dimension when comparing qubits
+        # There is a large offset in the imaginary dimension when comparing qubits
         # 0 and 1.
         iq_data = [
             [[-6.20601501e14, -1.33257051e15], [-1.70921324e15, -4.05881657e15]],
@@ -179,7 +179,7 @@ class TestSVD(BaseDataProcessorTest):
         self.assertEqual(processed, np.array([1.0]))
         self.assertEqual(error, np.array([0.2]))
 
-        # Title the axis to an angle of 36.9... degrees
+        # Tilt the axis to an angle of 36.9... degrees
         iq_svd._main_axes = np.array([[0.8, 0.6]])
         processed, error = iq_svd([[1.0, 0.0]], [[0.2, 0.3]])
         cos_ = np.cos(np.arctan(0.6 / 0.8))
