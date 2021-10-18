@@ -78,7 +78,11 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     :toctree: ../stubs/
     :template: autosummary/experiment.rst
 
+    ~calibration.RoughFrequencyCal
     ~calibration.DragCal
+    ~calibration.FineDrag
+    ~calibration.FineXDrag
+    ~calibration.FineSXDrag
     ~calibration.Rabi
     ~calibration.EFRabi
     ~calibration.FineAmplitude
@@ -89,11 +93,15 @@ See :doc:`/tutorials/calibrating_armonk` for example.
 """
 from .calibration import (
     DragCal,
+    FineDrag,
+    FineXDrag,
+    FineSXDrag,
     Rabi,
     EFRabi,
     FineAmplitude,
     FineXAmplitude,
     FineSXAmplitude,
+    RoughFrequencyCal,
     RamseyXY,
 )
 from .characterization import (

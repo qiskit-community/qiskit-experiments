@@ -18,7 +18,7 @@ from typing import List, Optional, Tuple, Union
 import numpy as np
 
 from qiskit.circuit import Parameter
-from qiskit.pulse import ScheduleBlock
+from qiskit.pulse import ScheduleBlock, Play
 
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
@@ -149,6 +149,7 @@ class Frequency(BaseUpdater):
         calibrations: BackendCalibrations,
         exp_data: ExperimentData,
         result_index: Optional[int] = None,
+        parameter: str = None,
         group: str = "default",
         fit_parameter: Optional[str] = None,
         **options,
@@ -161,16 +162,21 @@ class Frequency(BaseUpdater):
             calibrations: The calibrations to update.
             exp_data: The experiment data from which to update.
             result_index: The result index to use which defaults to -1.
+            parameter: The name of the parameter to update. If None is given this will default
+                to :code:`calibrations.__qubit_freq_parameter__`.
             group: The calibrations group to update. Defaults to "default."
             options: Trailing options.
             fit_parameter: The name of the fit parameter in the analysis result. This will default
                 to the class variable :code:`__fit_parameter__` if not given.
 
         """
+        if parameter is None:
+            parameter = calibrations.__qubit_freq_parameter__
+
         super().update(
             calibrations=calibrations,
             exp_data=exp_data,
-            parameter=calibrations.__qubit_freq_parameter__,
+            parameter=parameter,
             schedule=None,
             result_index=result_index,
             group=group,
@@ -182,6 +188,63 @@ class Drag(BaseUpdater):
     """Update drag parameters."""
 
     __fit_parameter__ = "beta"
+
+
+class FineDragUpdater(BaseUpdater):
+    """Updater for the fine drag calibration."""
+
+    # pylint: disable=arguments-differ,unused-argument
+    @classmethod
+    def update(
+        cls,
+        calibrations: Calibrations,
+        exp_data: ExperimentData,
+        parameter: str,
+        schedule: Union[ScheduleBlock, str],
+        result_index: Optional[int] = -1,
+        group: str = "default",
+        target_angle: float = np.pi,
+        **options,
+    ):
+        """Update the value of a drag parameter measured by the FineDrag experiment.
+
+        Args:
+            calibrations: The calibrations to update.
+            exp_data: The experiment data from which to update.
+            parameter: The name of the parameter in the calibrations to update.
+            schedule: The ScheduleBlock instance or the name of the instance to which the parameter
+                is attached.
+            result_index: The result index to use. By default search entry by name.
+            group: The calibrations group to update. Defaults to "default."
+            target_angle: The target rotation angle of the pulse.
+            options: Trailing options.
+
+        Raises:
+            CalibrationError: If we cannot get the pulse's standard deviation from the schedule.
+        """
+        qubits = exp_data.metadata["physical_qubits"]
+
+        if isinstance(schedule, str):
+            schedule = calibrations.get_schedule(schedule, qubits)
+
+        # Obtain sigma as it is needed for the fine DRAG update rule.
+        sigma = None
+        for block in schedule.blocks:
+            if isinstance(block, Play) and hasattr(block.pulse, "sigma"):
+                sigma = getattr(block.pulse, "sigma")
+
+        if sigma is None:
+            raise CalibrationError(f"Could not infer sigma from {schedule}.")
+
+        d_theta = BaseUpdater.get_value(exp_data, "d_theta", result_index)
+
+        # See the documentation in fine_drag.py for the derivation of this rule.
+        d_beta = -np.sqrt(np.pi) * d_theta * sigma / target_angle ** 2
+
+        old_beta = calibrations.get_parameter_value(parameter, qubits, schedule, group=group)
+        new_beta = old_beta + d_beta
+
+        cls._add_parameter_value(calibrations, exp_data, new_beta, parameter, schedule, group)
 
 
 class Amplitude(BaseUpdater):
