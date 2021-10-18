@@ -204,7 +204,7 @@ class BaseExperiment(ABC):
         return circuits
 
     def circuits(
-        self, backend: Optional[Backend] = None, run_transpile: bool = False, **options
+        self, backend: Optional[Backend] = None, run_transpile: bool = False,
     ) -> List[QuantumCircuit]:
         """Run transpile and return transpiled circuits.
 
@@ -214,7 +214,6 @@ class BaseExperiment(ABC):
                 The logical circuits are convenient to grasp overview of the experiment,
                 while transpiled circuits can be used to scrutinize the program actually
                 executed on the backend. This defaults to ``False``.
-            options: User provided transpile options.
 
         Returns:
             Experiment circuits.
@@ -227,21 +226,13 @@ class BaseExperiment(ABC):
         if not run_transpile:
             return logical_circs
 
-        if backend is None:
-            raise QiskitError("Transpile cannot be performed without backend instance.")
-
         # Run pre transpile if implemented by subclasses.
         self._pre_transpile_action(backend)
 
         # Get transpile options
-        transpile_options = copy.copy(self.transpile_options)
-        transpile_options.update_options(
-            initial_layout=list(self._physical_qubits),
-            **options,
+        circuits = transpile(
+            circuits=logical_circs, backend=backend, **self.transpile_options.__dict__
         )
-        transpile_options = transpile_options.__dict__
-
-        circuits = transpile(circuits=logical_circs, backend=backend, **transpile_options)
 
         # Run post transpile. This is implemented by each experiment subclass.
         circuits = self._post_transpile_action(circuits, backend)
