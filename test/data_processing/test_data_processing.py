@@ -200,12 +200,12 @@ class DataProcessorTest(BaseDataProcessorTest):
         # Test on a single datum.
         new_data, error = processor(self.exp_data_lvl2.data(0))
 
-        self.assertEqual(new_data, 0.4)
-        self.assertEqual(error, 0.12371791482634836)
+        self.assertAlmostEqual(float(new_data), 0.41666667)
+        self.assertAlmostEqual(float(error), 0.13673544235706114)
 
         # Test on all the data
         new_data, error = processor(self.exp_data_lvl2.data())
-        self.assertTrue(np.allclose(new_data, np.array([0.4, 0.2])))
+        np.testing.assert_array_almost_equal(new_data, np.array([0.41666667, 0.25]))
 
     def test_validation(self):
         """Test the validation mechanism."""
