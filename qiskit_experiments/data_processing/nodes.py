@@ -426,21 +426,16 @@ class Probability(DataAction):
     def __init__(
         self,
         outcome: str,
-        prior: Union[Dict[str, float], float] = 1,
+        prior: float = 1,
         validate: bool = True,
     ):
         """Initialize a counts to probability data conversion.
 
         Args:
             outcome: The bitstring for which to return the probability and variance.
-                Dimension of the probability function is implicitly inferred from the
-                length of this bit string.
-            prior: Prior distribution. This can be a float or a dictionary keyed on
-                corresponding to the outcome bit-strings. If n-bit label is provided in
-                ``outcome``, the dimension of the prior distribution, i.e. dictionary length,
-                should be :math:`2^n`. If a float value is applied, this applies a flat prior
-                with the provided value. By default, this assumes a flat prior of 1.0
-                corresponding to the MLE-like prior.
+            prior: A float value to represent a prior distribution. This applies a
+                flat prior for the probability of interest and other.
+                By default, this assumes 1.0 corresponding to the MLE-like prior.
             validate: If set to False the DataAction will not validate its input.
 
         Raises:
@@ -448,15 +443,8 @@ class Probability(DataAction):
                 do not match.
         """
         self._outcome = outcome
-
-        self._dim = 2 ** len(outcome)
         self._prior = prior
         super().__init__(validate)
-
-        if isinstance(prior, dict) and self._dim != len(prior):
-            raise DataProcessorError(
-                "Dimension of probability density function and prior distribution do not match."
-            )
 
     def _format_data(self, datum: dict, error: Optional[Any] = None) -> Tuple[dict, Any]:
         """
@@ -531,22 +519,13 @@ class Probability(DataAction):
         shots = sum(counts_dict.values())
         freq = counts_dict.get(self._outcome, 0.0)
 
-        if isinstance(self._prior, dict):
-            alpha_i = freq + self._prior[self._outcome]
-            alpha_0 = sum([v + self._prior[k] for k, v in counts_dict.items()])
-        else:
-            alpha_i = freq + self._prior
-            alpha_0 = shots + self._prior * self._dim
+        alpha_i = freq + self._prior
+        alpha_0 = shots + 2 * self._prior
 
         p_mean = alpha_i / alpha_0
         p_var = p_mean * (1 - p_mean) / (alpha_0 + 1)
-        mode = (alpha_i - 1) / (alpha_0 - self._dim)
 
-        # If outcome count is zero or full, mode may become < 0 or > 1 with a finite prior
-        mode = max(0.0, mode)
-        mode = min(1.0, mode)
-
-        return mode, np.sqrt(p_var)
+        return p_mean, np.sqrt(p_var)
 
 
 class BasisExpectationValue(DataAction):
