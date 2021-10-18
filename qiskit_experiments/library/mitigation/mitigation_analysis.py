@@ -70,7 +70,7 @@ class CompleteMitigationAnalysis(BaseAnalysis):
         if ax is None:
             ax = get_non_gui_ax()
         figure = ax.get_figure()
-        axim = ax.matshow(matrix, cmap=pyplot.cm.binary, clim=[0, 1])
+        ax.matshow(matrix, cmap=pyplot.cm.binary, clim=[0, 1])
         ax.set_xlabel("Prepared State")
         ax.xaxis.set_label_position("top")
         ax.set_ylabel("Measured State")

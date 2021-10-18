@@ -18,7 +18,7 @@ from abc import abstractmethod
 from qiskit import QuantumCircuit
 from qiskit.providers import Backend
 from qiskit.exceptions import QiskitError
-from qiskit_experiments.framework import BaseExperiment, ParallelExperiment, ExperimentData
+from qiskit_experiments.framework import BaseExperiment
 from .mitigation_analysis import CompleteMitigationAnalysis, TensoredMitigationAnalysis
 
 
