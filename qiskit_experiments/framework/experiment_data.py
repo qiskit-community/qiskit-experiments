@@ -74,10 +74,9 @@ class ExperimentData(DbExperimentDataV1):
         Returns:
             The loaded experiment data.
         """
-        db_expdata = DbExperimentDataV1.load(experiment_id, service=service)
-        expdata = ExperimentData()
-        for attr, value in db_expdata.__dict__.items():
-            setattr(expdata, attr, value)
+        expdata = DbExperimentDataV1.load(experiment_id, service)
+        expdata.__class__ = ExperimentData
+        expdata._experiment = None
         return expdata
 
     def _copy_metadata(self, new_instance: Optional["ExperimentData"] = None) -> "ExperimentData":
