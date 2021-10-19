@@ -139,7 +139,7 @@ class CompositeExperimentData(ExperimentData):
         Raises:
             DbExperimentDataError: If an experiment service is already being used.
         """
-        DbExperimentDataV1._set_service(self, service)
+        super()._set_service(service)
         for comp in self._components:
             comp._set_service(service)
 
