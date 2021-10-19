@@ -16,7 +16,6 @@ Base Experiment class.
 from abc import ABC, abstractmethod
 from typing import Iterable, Optional, Tuple, List, Dict
 import copy
-from numbers import Integral
 
 from qiskit import transpile, assemble, QuantumCircuit
 from qiskit.providers import BaseJob
@@ -51,25 +50,20 @@ class BaseExperiment(ABC):
         """Initialize the experiment object.
 
         Args:
-            qubits: the number of qubits or list of physical qubits for
-                    the experiment.
+            qubits: list of physical qubits for the experiment.
             experiment_type: Optional, the experiment type string.
 
         Raises:
-            QiskitError: if qubits is a list and contains duplicates.
+            QiskitError: if qubits contains duplicates.
         """
         # Experiment identification metadata
         self._type = experiment_type if experiment_type else type(self).__name__
 
         # Circuit parameters
-        if isinstance(qubits, Integral):
-            self._num_qubits = qubits
-            self._physical_qubits = tuple(range(qubits))
-        else:
-            self._num_qubits = len(qubits)
-            self._physical_qubits = tuple(qubits)
-            if self._num_qubits != len(set(self._physical_qubits)):
-                raise QiskitError("Duplicate qubits in physical qubits list.")
+        self._num_qubits = len(qubits)
+        self._physical_qubits = tuple(qubits)
+        if self._num_qubits != len(set(self._physical_qubits)):
+            raise QiskitError("Duplicate qubits in physical qubits list.")
 
         # Experiment options
         self._experiment_options = self._default_experiment_options()

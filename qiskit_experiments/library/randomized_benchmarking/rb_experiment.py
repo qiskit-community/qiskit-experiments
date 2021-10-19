@@ -61,7 +61,7 @@ class StandardRB(BaseExperiment):
 
     def __init__(
         self,
-        qubits: Union[int, Iterable[int]],
+        qubits: Iterable[int],
         lengths: Iterable[int],
         num_samples: int = 3,
         seed: Optional[Union[int, Generator]] = None,
@@ -70,8 +70,7 @@ class StandardRB(BaseExperiment):
         """Initialize a standard randomized benchmarking experiment.
 
         Args:
-            qubits: The number of qubits or list of
-                    physical qubits for the experiment.
+            qubits: list of physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
             num_samples: Number of samples to generate for each sequence length.
             seed: Seed or generator object for random number

@@ -49,7 +49,7 @@ class InterleavedRB(StandardRB):
     def __init__(
         self,
         interleaved_element: Union[QuantumCircuit, Instruction, Clifford],
-        qubits: Union[int, Iterable[int]],
+        qubits: Iterable[int],
         lengths: Iterable[int],
         num_samples: int = 3,
         seed: Optional[Union[int, Generator]] = None,
@@ -60,8 +60,7 @@ class InterleavedRB(StandardRB):
         Args:
             interleaved_element: The element to interleave,
                     given either as a group element or as an instruction/circuit
-            qubits: The number of qubits or list of
-                    physical qubits for the experiment.
+            qubits: list of physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
             num_samples: Number of samples to generate for each
                          sequence length

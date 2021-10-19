@@ -70,7 +70,7 @@ class TomographyExperiment(BaseExperiment):
         """
         # Initialize BaseExperiment
         if qubits is None:
-            qubits = circuit.num_qubits
+            qubits = range(circuit.num_qubits)
         super().__init__(qubits)
 
         # Get the target tomography circuit

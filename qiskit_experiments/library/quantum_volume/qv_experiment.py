@@ -72,7 +72,7 @@ class QuantumVolume(BaseExperiment):
 
     def __init__(
         self,
-        qubits: Union[int, Iterable[int]],
+        qubits: Iterable[int],
         trials: Optional[int] = 100,
         seed: Optional[Union[int, Generator]] = None,
         simulation_backend: Optional[Backend] = None,
@@ -80,8 +80,7 @@ class QuantumVolume(BaseExperiment):
         """Initialize a quantum volume experiment.
 
         Args:
-            qubits: The number of qubits or list of
-                    physical qubits for the experiment.
+            qubits: list of physical qubits for the experiment.
             trials: The number of trials to run the quantum volume circuit.
             seed: Seed or generator object for random number
                   generation. If None default_rng will be used.

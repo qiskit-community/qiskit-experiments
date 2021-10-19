@@ -32,8 +32,7 @@ class CompositeExperiment(BaseExperiment):
 
         Args:
             experiments (List[BaseExperiment]): a list of experiment objects.
-            qubits (int or Iterable[int]): the number of qubits or list of
-                                           physical qubits for the experiment.
+            qubits (Iterable[int]): list of physical qubits for the experiment.
             experiment_type (str): Optional, composite experiment subclass name.
         """
         self._experiments = experiments
