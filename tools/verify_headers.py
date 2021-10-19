@@ -73,14 +73,15 @@ def validate_header(file_path):
 
 
 def main():
-    default_path = os.path.join(
+    default_paths = [os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        'qiskit_experiments')
+        'qiskit_experiments'),
+                     os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        'test')]
     parser = argparse.ArgumentParser(description="Check file headers.")
     parser.add_argument("paths", type=str, nargs='*',
-                        default=[default_path],
-                        help='Paths to scan by default uses ../qiskit from the'
-                             ' script')
+                        default=default_paths)
     args = parser.parse_args()
     files = discover_files(args.paths)
     pool = multiprocessing.Pool()
