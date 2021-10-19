@@ -58,7 +58,6 @@ class DatabaseServiceV1(DatabaseService, ABC):
         job_ids: Optional[List[str]] = None,
         tags: Optional[List[str]] = None,
         notes: Optional[str] = None,
-        verbose: Optional[bool] = None,
         json_encoder: Type[json.JSONEncoder] = json.JSONEncoder,
         **kwargs: Any,
     ) -> str:
@@ -76,7 +75,6 @@ class DatabaseServiceV1(DatabaseService, ABC):
             job_ids: IDs of experiment jobs.
             tags: Tags to be associated with the experiment.
             notes: Freeform notes about the experiment.
-            verbose: Whether to print messages to the standard output.
             json_encoder: Custom JSON encoder to use to encode the experiment.
             kwargs: Additional keywords supported by the service provider.
 
@@ -95,7 +93,6 @@ class DatabaseServiceV1(DatabaseService, ABC):
         metadata: Optional[Dict] = None,
         job_ids: Optional[List[str]] = None,
         notes: Optional[str] = None,
-        verbose: Optional[bool] = None,
         tags: Optional[List[str]] = None,
         **kwargs: Any,
     ) -> None:
@@ -106,7 +103,6 @@ class DatabaseServiceV1(DatabaseService, ABC):
             metadata: Experiment metadata.
             job_ids: IDs of experiment jobs.
             notes: Freeform notes about the experiment.
-            verbose: Whether to print messages to the standard output.
             tags: Tags to be associated with the experiment.
             kwargs: Additional keywords supported by the service provider.
 

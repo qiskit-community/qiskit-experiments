@@ -85,7 +85,6 @@ class DummyService(DatabaseServiceV1):
         job_ids: Optional[List[str]] = None,
         tags: Optional[List[str]] = None,
         notes: Optional[str] = None,
-        verbose: Optional[bool] = None,
         json_encoder: Type[json.JSONEncoder] = json.JSONEncoder,
         **kwargs: Any,
     ) -> str:
@@ -103,7 +102,6 @@ class DummyService(DatabaseServiceV1):
             job_ids: IDs of experiment jobs.
             tags: Tags to be associated with the experiment.
             notes: Freeform notes about the experiment.
-            verbose: Whether to print messages to the standard output.
             json_encoder: Custom JSON encoder to use to encode the experiment.
             kwargs: Additional keywords supported by the service provider.
 
@@ -119,7 +117,6 @@ class DummyService(DatabaseServiceV1):
             "job_ids": job_ids,
             "tags": tags,
             "notes": notes,
-            "verbose": verbose,
             "share_level": kwargs.get("share_level", None),
             "figure_names": kwargs.get("figure_names", None),
         }
@@ -131,7 +128,6 @@ class DummyService(DatabaseServiceV1):
         metadata: Optional[Dict] = None,
         job_ids: Optional[List[str]] = None,
         notes: Optional[str] = None,
-        verbose: Optional[bool] = None,
         tags: Optional[List[str]] = None,
         **kwargs: Any,
     ) -> None:
@@ -142,7 +138,6 @@ class DummyService(DatabaseServiceV1):
             metadata: Experiment metadata.
             job_ids: IDs of experiment jobs.
             notes: Freeform notes about the experiment.
-            verbose: Whether to print messages to the standard output.
             tags: Tags to be associated with the experiment.
             kwargs: Additional keywords supported by the service provider.
         """

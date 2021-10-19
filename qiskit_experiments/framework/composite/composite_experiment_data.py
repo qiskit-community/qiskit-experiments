@@ -46,9 +46,6 @@ class CompositeExperimentData(ExperimentData):
         self.metadata["component_ids"] = [comp.experiment_id for comp in self._components]
         self.metadata["component_classes"] = [comp.__class__.__name__ for comp in self._components]
 
-        for comp in self._components:
-            comp.verbose = False
-
     def __str__(self):
         line = 51 * "-"
         n_res = len(self._analysis_results)
@@ -105,7 +102,10 @@ class CompositeExperimentData(ExperimentData):
     def save(self) -> None:
         super().save()
         for comp in self._components:
+            original_verbose = comp.verbose
+            comp.verbose = False
             comp.save()
+            comp.verbose = original_verbose
 
     def save_metadata(self) -> None:
         super().save_metadata()
