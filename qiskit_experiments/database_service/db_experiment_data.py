@@ -687,9 +687,9 @@ class DbExperimentDataV1(DbExperimentData):
             See :meth:`qiskit.providers.experiment.DatabaseServiceV1.create_experiment`
             for fields that are saved.
         """
-        self.save_experiment_metadata()
+        self._save_experiment_metadata()
 
-    def save_experiment_metadata(self) -> None:
+    def _save_experiment_metadata(self) -> None:
         """Save this experiments metadata to a database service.
 
         .. note::
@@ -763,7 +763,7 @@ class DbExperimentDataV1(DbExperimentData):
             )
             return
 
-        self.save_experiment_metadata()
+        self._save_experiment_metadata()
         for result in self._analysis_results.values():
             result.save()
 
