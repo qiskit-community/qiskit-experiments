@@ -98,9 +98,9 @@ from .calibration import (
     FineSXDrag,
     Rabi,
     EFRabi,
-    FineAmplitude,
-    FineXAmplitude,
-    FineSXAmplitude,
+    FineAmplitudeCal,
+    FineXAmplitudeCal,
+    FineSXAmplitudeCal,
     RoughFrequencyCal,
     RamseyXY,
 )
@@ -111,6 +111,9 @@ from .characterization import (
     EFSpectroscopy,
     CrossResonanceHamiltonian,
     EchoedCrossResonanceHamiltonian,
+    FineAmplitude,
+    FineXAmplitude,
+    FineSXAmplitude,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
