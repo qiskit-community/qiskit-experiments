@@ -11,6 +11,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""
+Verify that headers of Python files comply with the rules
+"""
+
 import argparse
 import multiprocessing
 import os
@@ -22,6 +26,9 @@ pep263 = re.compile(r"^[ \t\f]*#.*?coding[:=][ \t]*([-_.a-zA-Z0-9]+)")
 
 
 def discover_files(code_paths):
+    """
+    Find all Python files in the given paths
+    """
     out_paths = []
     for path in code_paths:
         if os.path.isfile(path):
@@ -36,6 +43,9 @@ def discover_files(code_paths):
 
 
 def validate_header(file_path):
+    """
+    Check if the file header complies with the rules
+    """
     header = """# This code is part of Qiskit.
 #
 """
@@ -71,6 +81,9 @@ def validate_header(file_path):
 
 
 def main():
+    """
+    Run the verifier
+    """
     root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     default_paths = [os.path.join(root_dir, "qiskit_experiments"), os.path.join(root_dir, "test")]
     parser = argparse.ArgumentParser(description="Check file headers.")
