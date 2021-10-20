@@ -17,7 +17,7 @@ from typing import Optional, Union, List
 from qiskit.result import marginal_counts
 from qiskit.exceptions import QiskitError
 from qiskit_experiments.framework.experiment_data import ExperimentData
-from qiskit_experiments.database_service import DbExperimentDataV1, DatabaseServiceV1
+from qiskit_experiments.database_service import DatabaseServiceV1
 
 
 class CompositeExperimentData(ExperimentData):
@@ -114,19 +114,16 @@ class CompositeExperimentData(ExperimentData):
 
     @classmethod
     def load(cls, experiment_id: str, service: DatabaseServiceV1) -> "CompositeExperimentData":
-        expdata = DbExperimentDataV1.load(experiment_id, service)
-        components = []
+        expdata = ExperimentData.load(experiment_id, service)
+        expdata.__class__ = CompositeExperimentData
+        expdata._components = []
         for comp_id, comp_class in zip(
             expdata.metadata["component_ids"], expdata.metadata["component_classes"]
         ):
             load_class = globals()[comp_class]
             load_func = getattr(load_class, "load")
             loaded_comp = load_func(comp_id, service)
-            components.append(loaded_comp)
-
-        expdata.__class__ = CompositeExperimentData
-        expdata._experiment = None
-        expdata._components = components
+            expdata._components.append(loaded_comp)
 
         return expdata
 
