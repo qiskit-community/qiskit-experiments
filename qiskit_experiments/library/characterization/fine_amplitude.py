@@ -54,11 +54,14 @@ class FineAmplitude(BaseExperiment):
 
         Error amplifying experiments are most sensitive to angle errors when we measure points along
         the equator of the Block sphere. This is why users should insert a square-root of X pulse
-        before running calibrations for :math:`\pm\pi` rotations. Furthermore, when running
-        calibrations for :math:`\pm\pi/2` rotations users are advised to use an odd number of
-        repetitions, e.g. [1, 2, 3, 5, 7, ...] to ensure that the ideal points are on the equator
-        of the Bloch sphere. Note the presence of two repetitions which allows us to prepare the
-        excited state. Therefore, add_xp_circuit = True is not needed in this case.
+        before running calibrations for :math:`\pm\pi` rotations. When all data points are close to
+        the equator, it is difficult for a fitter to infer the overall scale of the error. When calibrating
+        a :math:`pi` rotation, one can use ``add_xp_circuit = True`` to insert one circuit that puts
+        the qubit in the excited state to set the scale for the other circuits. Furthermore, when
+        running calibrations for :math:`\pm\pi/2` rotations users are advised to use an odd
+        number of repetitions, e.g. [1, 2, 3, 5, 7, ...] to ensure that the ideal points are on the
+        equator of the Bloch sphere. Note the presence of two repetitions which allows us to
+        prepare the excited state. Therefore, ``add_xp_circuit = True`` is not needed in this case.
 
         Users can call :meth:`set_schedule` to conveniently set the schedule and the corresponding
         experiment and analysis options.
