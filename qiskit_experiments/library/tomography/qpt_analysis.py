@@ -21,7 +21,9 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
     """Quantum state and process tomography experiment analysis.
 
     # section overview:
+    
         Fitter Functions
+        
         Built-in fitter functions may be selected using the following string
         labels, refer to the corresponding functions documentation for additional
         details on the fitters.
@@ -37,16 +39,8 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
         * ``"cvxpy_gaussian_lstsq"``:
           :func:`~qiskit_experiments.library.tomography.fitters.cvxpy_gaussian_lstsq`
 
-        .. note::
-
-            Fitters starting with ``"cvxpy_*"`` require the optional CVXPY Python
-            package to be installed.
-
-        .. warning::
-            The API for tomography fitters is still under development so may change
-            in future releases.
-
         PSD Rescaling
+        
         For fitters that do not constrain the reconstructed state to be
         `positive-semidefinite` (PSD) we construct the maximum-likelihood
         nearest PSD state under the assumption of Gaussian measurement noise
@@ -54,6 +48,14 @@ class ProcessTomographyAnalysis(TomographyAnalysis):
         support PSD constraints this option can be disabled by setting
         ``rescale_positive=False``.
 
+    # section: note
+        Fitters starting with ``"cvxpy_*"`` require the optional CVXPY Python
+        package to be installed.
+    
+    # section: warning
+        The API for tomography fitters is still under development so may change
+        in future releases.
+    
     # section: reference
         .. ref_arxiv:: 1 1106.5458
 
