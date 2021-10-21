@@ -276,8 +276,7 @@ class FineSXAmplitude(FineAmplitude):
         Experiment Options:
             gate (Gate): FineSXAmplitude calibrates an SXGate.
             add_sx (bool): This option is False by default when calibrating gates with a target
-                angle per gate of :math:`\pi/2` as this increases the sensitivity of the
-                experiment.
+                angle per gate of :math:`\pi/2` as it is not necessary in this case.
             add_xp_circuit (bool): This option is False by default when calibrating gates with
                 a target angle per gate of :math:`\pi/2`.
             repetitions (List[int]): By default the repetitions take on odd numbers for
