@@ -1305,17 +1305,18 @@ class TestSavingAndLoading(CrossResonanceTest):
         self._prefix = str(uuid.uuid4())
         super().setUp()
 
-    def _remove_files(self, prefix: str):
-        """Delete the files."""
-        os.remove(prefix + "parameter_values.csv")
-        os.remove(prefix + "parameter_config.csv")
-        os.remove(prefix + "schedules.csv")
+    def tearDown(self):
+        """Clean-up after the test."""
+        super().tearDown()
+
+        for file in ["parameter_values.csv", "parameter_config.csv", "schedules.csv"]:
+            if os.path.exists(self._prefix + file):
+                os.remove(self._prefix + file)
 
     def test_save_load_parameter_values(self):
         """Test that we can save and load parameter values."""
 
         self.cals.save("csv", overwrite=True, file_prefix=self._prefix)
-        self.addCleanup(self._remove_files, self._prefix)
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.1 + 0.01j)
 
         self.cals._params = defaultdict(list)
@@ -1352,7 +1353,6 @@ class TestSavingAndLoading(CrossResonanceTest):
         self.cals.add_parameter_value(value, "amp", (3,), "xp")
 
         self.cals.save("csv", overwrite=True, file_prefix=self._prefix)
-        self.addCleanup(self._remove_files, self._prefix)
         self.cals._params = defaultdict(list)
         self.cals.load_parameter_values(self._prefix + "parameter_values.csv")
 
@@ -1379,5 +1379,3 @@ class TestSavingAndLoading(CrossResonanceTest):
             cals.get_parameter_value("qubit_lo_freq", (0,)),
             backend.defaults().qubit_freq_est[0],
         )
-
-        self.addCleanup(self._remove_files, self._prefix)
