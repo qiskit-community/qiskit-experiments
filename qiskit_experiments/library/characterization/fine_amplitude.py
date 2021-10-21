@@ -85,7 +85,8 @@ class FineAmplitude(BaseExperiment):
 
         Note that the ``schedule`` and ``angle_per_gate`` could have been set by independently calling
         :meth:`set_experiment_options` for the ``schedule`` and :meth:`set_analysis_options` for
-        the ``angle_per_gate``.
+        the ``angle_per_gate``. Note that there are subclasses of :class:`FineAmplitude` such as 
+        :class:`FineSXAmplitude` that set the appropriate options by default for specific schedules.
 
 
     # section: reference
