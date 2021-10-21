@@ -34,9 +34,6 @@ class ProcessTomography(TomographyExperiment):
         bases. The resulting measurement data is then post-processed by a
         tomography fitter to reconstruct the quantum channel.
 
-        See :class:`TomographyAnalysis` documentation for additional
-        information on tomography experiment analysis.
-
     # section: note
         Performing full process tomography on an `N`-qubit circuit requires
         running :math:`4^N 3^N` measurement circuits when using the default

@@ -34,9 +34,6 @@ class StateTomography(TomographyExperiment):
         circuit in different measurement bases and post-processes the
         measurement data to reconstruct the state.
 
-        See :class:`TomographyAnalysis` documentation for additional
-        information on tomography experiment analysis.
-
     # section: note
         Performing full state tomography on an `N`-qubit state requires
         running :math:`3^N` measurement circuits when using the default

@@ -20,7 +20,7 @@ from .tomography_analysis import TomographyAnalysis
 class StateTomographyAnalysis(TomographyAnalysis):
     """State tomography experiment analysis.
 
-    # section overview:
+    # section: overview
         Fitter Functions
 
         Built-in fitter functions may be selected using the following string
@@ -66,34 +66,13 @@ class StateTomographyAnalysis(TomographyAnalysis):
     @classmethod
     def _default_options(cls) -> Options:
         """Default analysis options
+
         Analysis Options:
-            measurement_basis
-                (:class:`~qiskit_experiments.library.tomography.basis.BaseFitterMeasurementBasis`):
-                The measurement
-                :class:`~qiskit_experiments.library.tomography.basis.BaseFitterMeasurementBasis`
-                to use for tomographic reconstruction when running a
-                :class:`~qiskit_experiments.library.tomography.StateTomography` or
-                :class:`~qiskit_experiments.library.tomography.ProcessTomography`.
-            fitter (str or Callable): The fitter function to use for reconstruction.
-                This can  be a string to select one of the built-in fitters, or a callable to
-                supply a custom fitter function. See the `Fitter Functions` section
-                for additional information.
-            rescale_positive (bool): If True rescale the state returned by the fitter
-                to be positive-semidefinite. See the `PSD Rescaling` section for
-                additional information (Default: True).
-            rescale_trace (bool): If True rescale the state returned by the fitter
-                have either trace 1 for :class:`~qiskit.quantum_info.DensityMatrix`,
-                or trace dim for :class:`~qiskit.quantum_info.Choi`.
-                matrices (Default: True).
-            target (str or :class:`~qiskit.quantum_info.DensityMatrix` or
-                :class:`~qiskit.quantum_info.StateVector`):
-                Set a custom target state for computing the
-                :func:`~qiskit.quantum_info.state_fidelity` of the fitted
+            target (Union[str, :class:`~qiskit.quantum_info.DensityMatrix`,
+                :class:`~qiskit.quantum_info.StateVector`]): Set a custom target state
+                for computing the :func:`~qiskit.quantum_info.state_fidelity` of the fitted
                 state against. If ``"default"``  the ideal state prepared by the input circuit
                 will be used. If ``None`` no fidelity will be computed (Default: "default").
-            kwargs: will be supplied to the fitter function, for documentation of available
-                args refer to the fitter function documentation.
-
         """
         options = super()._default_options()
 
