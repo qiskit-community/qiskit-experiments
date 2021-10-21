@@ -157,8 +157,7 @@ class FineAmplitude(BaseExperiment):
             backend: A backend object.
 
         Returns:
-            A list of circuits with a variable number of gates. Each gate has the same
-            pulse schedule.
+            A list of circuits with a variable number of gates.
 
         Raises:
             CalibrationError: If no schedule was provided.
