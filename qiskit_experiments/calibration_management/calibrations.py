@@ -1063,7 +1063,13 @@ class Calibrations:
                 param_val = ParameterValue(
                     row["value"], row["date_time"], row["valid"], row["exp_id"], row["group"]
                 )
-                key = ParameterKey(row["parameter"], self._to_tuple(row["qubits"]), row["schedule"])
+
+                if row["schedule"] == "":
+                    schedule_name = None
+                else:
+                    schedule_name = row["schedule"]
+
+                key = ParameterKey(row["parameter"], self._to_tuple(row["qubits"]), schedule_name)
                 self.add_parameter_value(param_val, *key)
 
     @classmethod
