@@ -27,7 +27,7 @@ from qiskit_experiments.calibration_management.update_library import BaseUpdater
 
 
 class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
-    """A calibration version of the fine amplitude experiment."""
+    """A calibration version of the :class:`FineAmplitude` experiment."""
 
     def __init__(
         self,
