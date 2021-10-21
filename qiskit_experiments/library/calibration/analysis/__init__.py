@@ -13,4 +13,3 @@
 """Calibration Analysis Classes"""
 
 from .drag_analysis import DragCalAnalysis
-from .oscillation_analysis import OscillationAnalysis

@@ -31,8 +31,11 @@ from qiskit.pulse import (
 from qiskit.pulse.transforms import inline_subroutines, block_to_schedule
 import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
+from qiskit.test.mock import FakeArmonk
 from qiskit_experiments.calibration_management.calibrations import Calibrations, ParameterKey
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
+from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+from qiskit_experiments.calibration_management import BackendCalibrations
 from qiskit_experiments.exceptions import CalibrationError
 
 
@@ -68,7 +71,7 @@ class TestCalibrationsBasic(QiskitTestCase):
             pulse.play(Drag(self.duration, self.amp_y90p, self.sigma, self.beta), self.drive)
 
         for sched in [xp, x90p, y90p, xm]:
-            self.cals.add_schedule(sched)
+            self.cals.add_schedule(sched, num_qubits=1)
 
         self.xm_pulse = xm
 
@@ -149,7 +152,7 @@ class TestCalibrationsBasic(QiskitTestCase):
         with pulse.build(name="error") as sched:
             pulse.play(Gaussian(160, Parameter("xyz"), 40), DriveChannel(Parameter("ch0")))
 
-        self.cals.add_schedule(sched)
+        self.cals.add_schedule(sched, num_qubits=1)
 
         self.assertEqual(len(self.cals.schedules()), 4)
         self.assertEqual(len(self.cals.parameters), 7)
@@ -208,10 +211,10 @@ class TestCalibrationsBasic(QiskitTestCase):
             pulse.play(Drag(160, 0.1, 40, 2), drive_1)
             pulse.play(Drag(160, 0.1, 40, 2), control_bad)
 
-        self.cals.add_schedule(sched_good)
+        self.cals.add_schedule(sched_good, num_qubits=2)
 
         with self.assertRaises(CalibrationError):
-            self.cals.add_schedule(sched_bad)
+            self.cals.add_schedule(sched_bad, num_qubits=2)
 
     def test_unique_parameter_names(self):
         """Test that we cannot insert schedules in which parameter names are duplicates."""
@@ -219,7 +222,7 @@ class TestCalibrationsBasic(QiskitTestCase):
             pulse.play(Drag(160, Parameter("a"), Parameter("a"), Parameter("a")), DriveChannel(0))
 
         with self.assertRaises(CalibrationError):
-            self.cals.add_schedule(sched)
+            self.cals.add_schedule(sched, num_qubits=1)
 
     def test_parameter_without_schedule(self):
         """Test that we can manage parameters that are not bound to a schedule."""
@@ -285,37 +288,41 @@ class TestOverrideDefaults(QiskitTestCase):
             pulse.play(Gaussian(self.duration, self.amp, self.sigma), self.drive)
 
         # Add the schedules
-        self.cals.add_schedule(xp)
+        self.cals.add_schedule(xp, num_qubits=1)
         self.cals.add_schedule(xp_drag, (3,))
 
     def test_parameter_value_adding_and_filtering(self):
         """Test that adding parameter values behaves in the expected way."""
 
         # Ensure that no parameter values are present when none have been added.
-        params = self.cals.parameters_table()
+        params = self.cals.parameters_table()["data"]
         self.assertEqual(params, [])
 
         # Add a default parameter common to all qubits.
         self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", schedule="xp")
-        self.assertEqual(len(self.cals.parameters_table()), 1)
+        self.assertEqual(len(self.cals.parameters_table()["data"]), 1)
 
         # Check that we can get a default parameter in the parameter table
-        self.assertEqual(len(self.cals.parameters_table(parameters=["σ"])), 1)
-        self.assertEqual(len(self.cals.parameters_table(parameters=["σ"], schedules=["xp"])), 1)
-        self.assertEqual(len(self.cals.parameters_table(parameters=["σ"], schedules=["xm"])), 0)
+        self.assertEqual(len(self.cals.parameters_table(parameters=["σ"])["data"]), 1)
+        self.assertEqual(
+            len(self.cals.parameters_table(parameters=["σ"], schedules=["xp"])["data"]), 1
+        )
+        self.assertEqual(
+            len(self.cals.parameters_table(parameters=["σ"], schedules=["xm"])["data"]), 0
+        )
 
         # Test behaviour of qubit-specific parameter and without ParameterValue.
         self.cals.add_parameter_value(0.25, "amp", (3,), "xp")
         self.cals.add_parameter_value(0.15, "amp", (0,), "xp")
 
         # Check the value for qubit 0
-        params = self.cals.parameters_table(parameters=["amp"], qubit_list=[(0,)])
+        params = self.cals.parameters_table(parameters=["amp"], qubit_list=[(0,)])["data"]
         self.assertEqual(len(params), 1)
         self.assertEqual(params[0]["value"], 0.15)
         self.assertEqual(params[0]["qubits"], (0,))
 
         # Check the value for qubit 3
-        params = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,)])
+        params = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,)])["data"]
         self.assertEqual(len(params), 1)
         self.assertEqual(params[0]["value"], 0.25)
         self.assertEqual(params[0]["qubits"], (3,))
@@ -420,22 +427,22 @@ class TestOverrideDefaults(QiskitTestCase):
         self._add_parameters()
 
         # Check that these values are split between the qubits.
-        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(0,)])
+        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(0,)])["data"]
         self.assertEqual(len(amp_values), 1)
 
         # Check that we have one value for sigma.
-        sigma_values = self.cals.parameters_table(parameters=["σ"])
+        sigma_values = self.cals.parameters_table(parameters=["σ"])["data"]
         self.assertEqual(len(sigma_values), 1)
 
         # Check that we have two values for amp.
-        amp_values = self.cals.parameters_table(parameters=["amp"])
+        amp_values = self.cals.parameters_table(parameters=["amp"])["data"]
         self.assertEqual(len(amp_values), 2)
 
-        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,)])
+        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,)])["data"]
         self.assertEqual(len(amp_values), 1)
 
         # Check to see if we get back the two qubits when explicitly specifying them.
-        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,), (0,)])
+        amp_values = self.cals.parameters_table(parameters=["amp"], qubit_list=[(3,), (0,)])["data"]
         self.assertEqual(len(amp_values), 2)
 
 
@@ -454,7 +461,7 @@ class TestConcurrentParameters(QiskitTestCase):
         with pulse.build(name="xp") as xp:
             pulse.play(Gaussian(160, amp, 40), DriveChannel(ch0))
 
-        cals.add_schedule(xp)
+        cals.add_schedule(xp, num_qubits=1)
 
         date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
 
@@ -509,11 +516,11 @@ class TestMeasurements(QiskitTestCase):
                 pulse.call(meas, value_dict={ch0: ch1})
 
         self.cals = Calibrations()
-        self.cals.add_schedule(meas)
-        self.cals.add_schedule(xp)
-        self.cals.add_schedule(xp_meas)
-        self.cals.add_schedule(xt_meas)
-        self.cals.add_schedule(meas_acq)
+        self.cals.add_schedule(meas, num_qubits=1)
+        self.cals.add_schedule(xp, num_qubits=1)
+        self.cals.add_schedule(xp_meas, num_qubits=1)
+        self.cals.add_schedule(xt_meas, num_qubits=2)
+        self.cals.add_schedule(meas_acq, num_qubits=1)
 
         # self.cals.add_parameter_value(8000, self.duration, schedule="meas")
         self.cals.add_parameter_value(0.5, self.amp, (0,), "meas")
@@ -648,9 +655,9 @@ class TestInstructions(QiskitTestCase):
             pulse.call(xp12)
 
         self.cals = Calibrations()
-        self.cals.add_schedule(xp)
-        self.cals.add_schedule(xp12)
-        self.cals.add_schedule(xp02)
+        self.cals.add_schedule(xp, num_qubits=1)
+        self.cals.add_schedule(xp12, num_qubits=1)
+        self.cals.add_schedule(xp02, num_qubits=1)
 
         self.date_time = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
 
@@ -695,10 +702,10 @@ class TestRegistering(QiskitTestCase):
             pulse.call(xp)
 
         with self.assertRaises(CalibrationError):
-            self.cals.add_schedule(call_xp)
+            self.cals.add_schedule(call_xp, num_qubits=1)
 
-        self.cals.add_schedule(xp)
-        self.cals.add_schedule(call_xp)
+        self.cals.add_schedule(xp, num_qubits=1)
+        self.cals.add_schedule(call_xp, num_qubits=1)
 
         self.assertTrue(isinstance(self.cals.get_schedule("call_xp", 2), pulse.ScheduleBlock))
 
@@ -709,9 +716,9 @@ class TestRegistering(QiskitTestCase):
         with pulse.build(name="xp") as xp:
             pulse.play(Gaussian(160, amp, 40), self.d0_)
 
-        self.cals.add_schedule(xp)
+        self.cals.add_schedule(xp, num_qubits=1)
 
-        registered_xp = self.cals.get_template("xp")
+        registered_xp = self.cals.get_template("xp", (1,))
 
         self.assertEqual(registered_xp, xp)
 
@@ -719,7 +726,7 @@ class TestRegistering(QiskitTestCase):
             pulse.call(registered_xp)
             pulse.play(Gaussian(160, amp, 40), self.d0_)
 
-        self.cals.add_schedule(dxp)
+        self.cals.add_schedule(dxp, num_qubits=1)
         self.cals.add_parameter_value(0.5, "amp", 3, "xp")
 
         sched = block_to_schedule(self.cals.get_schedule("dxp", 3))
@@ -728,7 +735,7 @@ class TestRegistering(QiskitTestCase):
         self.assertEqual(sched.instructions[1][1], Play(Gaussian(160, 0.5, 40), DriveChannel(3)))
 
         with self.assertRaises(CalibrationError):
-            self.cals.get_template("not registered")
+            self.cals.get_template("not registered", (1,))
 
         self.cals.get_template("xp", (3,))
 
@@ -742,7 +749,7 @@ class TestRegistering(QiskitTestCase):
             pulse.call(xp)
 
         try:
-            self.cals.add_schedule(call_xp)
+            self.cals.add_schedule(call_xp, num_qubits=1)
         except CalibrationError as error:
             self.assertEqual(
                 error.message, "Calling a Schedule is forbidden, call ScheduleBlock instead."
@@ -797,9 +804,9 @@ class CrossResonanceTest(QiskitTestCase):
         with pulse.build(name="tcp") as tcp:
             pulse.play(GaussianSquare(640, self.amp_tcp, self.sigma, self.width), self.c1_)
 
-        self.cals.add_schedule(xp)
-        self.cals.add_schedule(cr)
-        self.cals.add_schedule(tcp)
+        self.cals.add_schedule(xp, num_qubits=1)
+        self.cals.add_schedule(cr, num_qubits=2)
+        self.cals.add_schedule(tcp, num_qubits=2)
 
         self.cals.add_parameter_value(ParameterValue(40, self.date_time), "σ", schedule="xp")
         self.cals.add_parameter_value(
@@ -910,8 +917,8 @@ class TestAssignment(QiskitTestCase):
                 pulse.call(xp, value_dict={self.ch0: self.ch1})
 
         self.xp_ = xp
-        self.cals.add_schedule(xp)
-        self.cals.add_schedule(xpxp)
+        self.cals.add_schedule(xp, num_qubits=1)
+        self.cals.add_schedule(xpxp, num_qubits=2)
 
         self.cals.add_parameter_value(0.2, "amp", (2,), "xp")
         self.cals.add_parameter_value(0.3, "amp", (3,), "xp")
@@ -940,7 +947,7 @@ class TestAssignment(QiskitTestCase):
         """Test assigning to a Parameter instance in a call"""
         with pulse.build(name="call_xp") as call_xp:
             pulse.call(self.xp_)
-        self.cals.add_schedule(call_xp)
+        self.cals.add_schedule(call_xp, num_qubits=1)
 
         my_amp = Parameter("my_amp")
         sched = self.cals.get_schedule("call_xp", (2,), assign_params={("amp", (2,), "xp"): my_amp})
@@ -957,7 +964,7 @@ class TestAssignment(QiskitTestCase):
         with pulse.build(name="call_xp_xp") as call_xp_xp:
             pulse.call(self.xp_)
             pulse.play(Gaussian(160, self.amp_xp, self.sigma), self.d0_)
-        self.cals.add_schedule(call_xp_xp)
+        self.cals.add_schedule(call_xp_xp, num_qubits=1)
 
         my_amp = Parameter("amp")
         sched = self.cals.get_schedule(
@@ -988,7 +995,7 @@ class TestAssignment(QiskitTestCase):
         with pulse.build(name="call_xp_xp") as call_xp_xp:
             pulse.call(self.xp_)
             pulse.play(Gaussian(160, self.amp_xp, self.sigma), self.d0_)
-        self.cals.add_schedule(call_xp_xp)
+        self.cals.add_schedule(call_xp_xp, num_qubits=1)
 
         my_amp = Parameter("amp")
         with self.assertRaises(CalibrationError):
@@ -1055,8 +1062,8 @@ class TestReplaceScheduleAndCall(QiskitTestCase):
         with pulse.build(name="call_xp") as call_xp:
             pulse.call(xp)
 
-        self.cals.add_schedule(xp)
-        self.cals.add_schedule(call_xp)
+        self.cals.add_schedule(xp, num_qubits=1)
+        self.cals.add_schedule(call_xp, num_qubits=1)
 
         self.cals.add_parameter_value(0.2, "amp", (4,), "xp")
         self.cals.add_parameter_value(160, "duration", (4,), "xp")
@@ -1080,7 +1087,7 @@ class TestReplaceScheduleAndCall(QiskitTestCase):
         with pulse.build(name="xp") as drag:
             pulse.play(Drag(self.dur, self.amp, self.sigma, self.beta), DriveChannel(self.ch0))
 
-        self.cals.add_schedule(drag)
+        self.cals.add_schedule(drag, num_qubits=1)
         self.cals.add_parameter_value(10.0, "β", (4,), "xp")
 
         with self.assertRaises(CalibrationError):
@@ -1132,11 +1139,11 @@ class TestCoupledAssigning(QiskitTestCase):
                     pulse.call(xp, value_dict={self.ch0: self.ch1})
                 pulse.call(cr_m)
 
-        self.cals.add_schedule(cr_p)
-        self.cals.add_schedule(cr_m)
-        self.cals.add_schedule(xp)
-        self.cals.add_schedule(ecr)
-        self.cals.add_schedule(cr_echo_both)
+        self.cals.add_schedule(cr_p, num_qubits=2)
+        self.cals.add_schedule(cr_m, num_qubits=2)
+        self.cals.add_schedule(xp, num_qubits=1)
+        self.cals.add_schedule(ecr, num_qubits=2)
+        self.cals.add_schedule(cr_echo_both, num_qubits=2)
 
         self.cals.add_parameter_value(0.3, "amp", (3, 2), "cr_p")
         self.cals.add_parameter_value(0.2, "amp", (3,), "xp")
@@ -1255,7 +1262,7 @@ class TestFiltering(QiskitTestCase):
         with pulse.build(name="xp") as xp:
             pulse.play(Gaussian(160, self.amp, self.sigma), self.drive)
 
-        self.cals.add_schedule(xp)
+        self.cals.add_schedule(xp, num_qubits=1)
 
         self.date_time1 = datetime.strptime("15/09/19 10:21:35", "%d/%m/%y %H:%M:%S")
         self.date_time2 = datetime.strptime("15/09/19 11:21:35", "%d/%m/%y %H:%M:%S")
@@ -1348,3 +1355,29 @@ class TestSavingAndLoading(CrossResonanceTest):
         self.addCleanup(self._remove_files, self._prefix)
         self.cals._params = defaultdict(list)
         self.cals.load_parameter_values(self._prefix + "parameter_values.csv")
+
+    def test_save_load_library(self):
+        """Test that we can load and save a library.
+
+        These libraries contain both parameters with schedules and parameters without
+        any schedules (e.g. frequencies for qubits and readout).
+        """
+
+        library = FixedFrequencyTransmon()
+        backend = FakeArmonk()
+        cals = BackendCalibrations(backend, library)
+
+        cals.parameters_table()
+
+        cals.save(file_type="csv", overwrite=True, file_prefix=self._prefix)
+
+        cals.load_parameter_values(self._prefix + "parameter_values.csv")
+
+        # Test the value of a few loaded params.
+        self.assertEqual(cals.get_parameter_value("amp", (0,), "x"), 0.5)
+        self.assertEqual(
+            cals.get_parameter_value("qubit_lo_freq", (0,)),
+            backend.defaults().qubit_freq_est[0],
+        )
+
+        self.addCleanup(self._remove_files, self._prefix)
