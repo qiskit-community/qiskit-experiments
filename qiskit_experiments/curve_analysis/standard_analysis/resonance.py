@@ -12,9 +12,10 @@
 
 """Resonance analysis class."""
 
-from typing import Any, Dict, List, Union
+from typing import List, Union
 
 import numpy as np
+
 import qiskit_experiments.curve_analysis as curve
 
 
@@ -66,57 +67,40 @@ class ResonanceAnalysis(curve.CurveAnalysis):
         )
     ]
 
-    @classmethod
-    def _default_options(cls):
-        """Return default data processing options.
+    def _generate_fit_guesses(
+        self, user_opt: curve.FitOptions
+    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+        """Compute the initial guesses.
 
-        See :meth:`~qiskit_experiment.curve_analysis.CurveAnalysis._default_options` for
-        descriptions of analysis options.
+        Args:
+            user_opt: Fit options filled with user provided guess and bounds.
+
+        Returns:
+            List of fit options that are passed to the fitter function.
         """
-        default_options = super()._default_options()
-        default_options.reporting_parameters = {"freq": ("frequency", "Hz")}
-        default_options.normalization = True
-
-        return default_options
-
-    def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
-        """Fitter options."""
-        user_p0 = self._get_option("p0")
-        user_bounds = self._get_option("bounds")
-
         curve_data = self._data()
+        max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
 
-        b_guess = curve.guess.constant_spectral_offset(curve_data.y)
-        y_ = curve_data.y - b_guess
+        user_opt.bounds.set_if_empty(
+            a=(-2 * max_abs_y, 2 * max_abs_y),
+            sigma=(0, np.ptp(curve_data.x)),
+            freq=(min(curve_data.x), max(curve_data.x)),
+            b=(-max_abs_y, max_abs_y),
+        )
+        user_opt.p0.set_if_empty(b=curve.guess.constant_spectral_offset(curve_data.y))
+
+        y_ = curve_data.y - user_opt.p0["b"]
 
         _, peak_idx = curve.guess.max_height(y_, absolute=True)
-        a_guess = curve_data.y[peak_idx] - b_guess
-        f_guess = curve_data.x[peak_idx]
-        s_guess = curve.guess.full_width_half_max(curve_data.x, y_, peak_idx) / np.sqrt(
-            8 * np.log(2)
+        fwhm = curve.guess.full_width_half_max(curve_data.x, y_, peak_idx)
+
+        user_opt.p0.set_if_empty(
+            a=curve_data.y[peak_idx] - user_opt.p0["b"],
+            freq=curve_data.x[peak_idx],
+            sigma=fwhm / np.sqrt(8 * np.log(2)),
         )
 
-        max_abs_y = np.max(np.abs(curve_data.y))
-
-        fit_option = {
-            "p0": {
-                "a": user_p0["a"] or a_guess,
-                "sigma": user_p0["sigma"] or s_guess,
-                "freq": user_p0["freq"] or f_guess,
-                "b": user_p0["b"] or b_guess,
-            },
-            "bounds": {
-                "a": user_bounds["a"] or (-2 * max_abs_y, 2 * max_abs_y),
-                "sigma": user_bounds["sigma"] or (0.0, max(curve_data.x) - min(curve_data.x)),
-                "freq": user_bounds["freq"] or (min(curve_data.x), max(curve_data.x)),
-                "b": user_bounds["b"] or (-max_abs_y, max_abs_y),
-            },
-        }
-        # p0 and bounds are defined in the default options, therefore updating
-        # with the extra options only adds options and doesn't override p0 or bounds
-        fit_option.update(extra_options)
-
-        return fit_option
+        return user_opt
 
     def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.

@@ -128,22 +128,36 @@ class BaseExperiment(ABC):
         circuits = transpile(self.circuits(backend), backend, **transpile_opts)
         self._postprocess_transpiled_circuits(circuits, backend, **run_options)
 
-        if isinstance(backend, LegacyBackend):
-            qobj = assemble(circuits, backend=backend, **run_opts)
-            job = backend.run(qobj)
+        # Run experiment jobs
+        max_experiments = getattr(backend.configuration(), "max_experiments", None)
+        if max_experiments and len(circuits) > max_experiments:
+            # Split jobs for backends that have a maximum job size
+            job_circuits = [
+                circuits[i : i + max_experiments] for i in range(0, len(circuits), max_experiments)
+            ]
         else:
-            job = backend.run(circuits, **run_opts)
+            # Run as single job
+            job_circuits = [circuits]
 
-        # Add Job to ExperimentData and add analysis for post processing.
-        run_analysis = None
+        # Run jobs
+        jobs = []
+        for circs in job_circuits:
+            if isinstance(backend, LegacyBackend):
+                qobj = assemble(circs, backend=backend, **run_opts)
+                job = backend.run(qobj)
+            else:
+                job = backend.run(circs, **run_opts)
+            jobs.append(job)
 
         # Add experiment option metadata
-        self._add_job_metadata(experiment_data, job, **run_opts)
+        self._add_job_metadata(experiment_data, jobs, **run_opts)
 
-        if analysis and self.__analysis_class__ is not None:
-            run_analysis = self.run_analysis
+        # Add jobs
+        experiment_data.add_data(jobs)
 
-        experiment_data.add_data(job, post_processing_callback=run_analysis)
+        # Optionally run analysis
+        if analysis and self.__analysis_class__:
+            experiment_data.add_analysis_callback(self.run_analysis)
 
         # Return the ExperimentData future
         return experiment_data
@@ -167,11 +181,11 @@ class BaseExperiment(ABC):
 
         return experiment_data._copy_metadata()
 
-    def run_analysis(self, experiment_data, **options) -> ExperimentData:
+    def run_analysis(self, experiment_data: ExperimentData, **options) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
         Args:
-            experiment_data (ExperimentData): the experiment data to analyze.
+            experiment_data: the experiment data to analyze.
             options: additional analysis options. Any values set here will
                      override the value from :meth:`analysis_options`
                      for the current run.
@@ -353,7 +367,7 @@ class BaseExperiment(ABC):
             "job_metadata": [],
         }
         # Add additional metadata if subclasses specify it
-        for key, val in self._additional_metadata():
+        for key, val in self._additional_metadata().items():
             metadata[key] = val
         return metadata
 
@@ -365,16 +379,16 @@ class BaseExperiment(ABC):
         """
         return {}
 
-    def _add_job_metadata(self, experiment_data: ExperimentData, job: BaseJob, **run_options):
+    def _add_job_metadata(self, experiment_data: ExperimentData, jobs: BaseJob, **run_options):
         """Add runtime job metadata to ExperimentData.
 
         Args:
             experiment_data: the experiment data container.
-            job: the job object.
+            jobs: the job objects.
             run_options: backend run options for the job.
         """
         metadata = {
-            "job_id": job.job_id(),
+            "job_ids": [job.job_id() for job in jobs],
             "experiment_options": copy.copy(self.experiment_options.__dict__),
             "transpile_options": copy.copy(self.transpile_options.__dict__),
             "analysis_options": copy.copy(self.analysis_options.__dict__),

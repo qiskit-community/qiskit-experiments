@@ -15,7 +15,7 @@
 from typing import Tuple
 import numpy as np
 
-from qiskit import QuantumCircuit, execute, transpile
+from qiskit import QuantumCircuit, transpile
 from qiskit.exceptions import QiskitError
 from qiskit.circuit import Parameter
 from qiskit.providers.basicaer import QasmSimulatorPy
@@ -26,7 +26,7 @@ import qiskit.pulse as pulse
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import Rabi, EFRabi
 
-from qiskit_experiments.library.calibration.analysis.oscillation_analysis import OscillationAnalysis
+from qiskit_experiments.curve_analysis.standard_analysis.oscillation import OscillationAnalysis
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
@@ -198,7 +198,9 @@ class TestRabiAnalysis(QiskitTestCase):
             circuits.append(qc)
 
         sim = QasmSimulatorPy()
-        result = execute(circuits, sim, shots=shots, seed_simulator=10).result()
+        circuits = transpile(circuits, sim)
+        job = sim.run(circuits, shots=shots, seed_simulator=10)
+        result = job.result()
         data = [
             {
                 "counts": self._add_uncertainty(result.get_counts(i)),
