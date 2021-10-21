@@ -181,7 +181,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             "result_id": self.result_id,
             "result_data": result_data,
             "tags": self.tags,
-            "chisq": self._chisq,
+            "chisq": self._display_format(self._chisq),
             "quality": self.quality,
             "verified": self.verified,
         }
