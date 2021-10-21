@@ -222,7 +222,7 @@ class FineXAmplitude(FineAmplitude):
         r"""Default values for the fine amplitude experiment.
 
         Experiment Options:
-            gate (Gate): FineXAmplitude calibrates an XGate.
+            gate (Gate): Gate to characterize. Defaults to an XGate.
             add_sx (bool): This option is True by default when calibrating gates with a target
                 angle per gate of :math:`\pi` as this increases the sensitivity of the
                 experiment.
