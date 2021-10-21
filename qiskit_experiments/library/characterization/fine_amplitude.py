@@ -69,7 +69,7 @@ class FineAmplitude(BaseExperiment):
     # section: example
 
 
-        The steps to run a fine amplitude calibration experiment are
+        The steps to run a fine amplitude experiment are
 
         .. code-block:: python
 
