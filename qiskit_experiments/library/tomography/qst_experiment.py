@@ -37,10 +37,13 @@ class StateTomography(TomographyExperiment):
         See :class:`TomographyAnalysis` documentation for additional
         information on tomography experiment analysis.
 
-        .. note::
-            Performing full state tomography on an `N`-qubit state requires
-            running :math:`3^N` measurement circuits when using the default
-            measurement basis.
+    # section: note
+        Performing full state tomography on an `N`-qubit state requires
+        running :math:`3^N` measurement circuits when using the default
+        measurement basis.
+
+    # section: see_also
+        qiskit_experiments.library.tomography.tomography_experiment.TomographyExperiment
 
     """
 

@@ -36,11 +36,14 @@ class ProcessTomography(TomographyExperiment):
 
         See :class:`TomographyAnalysis` documentation for additional
         information on tomography experiment analysis.
-    
+
     # section: note
         Performing full process tomography on an `N`-qubit circuit requires
         running :math:`4^N 3^N` measurement circuits when using the default
         preparation and measurement bases.
+
+    # section: see_also
+        qiskit_experiments.library.tomography.tomography_experiment.TomographyExperiment
 
     """
 
