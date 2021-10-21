@@ -22,7 +22,7 @@ from qiskit.qobj.utils import MeasLevel
 import qiskit.pulse as pulse
 from qiskit.test.mock import FakeAthens
 
-from qiskit_experiments.library import Rabi, FineXDrag, DragCal, QubitSpectroscopy, FineAmplitude
+from qiskit_experiments.library import Rabi, FineXDrag, DragCal, QubitSpectroscopy
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.update_library import (
@@ -32,7 +32,7 @@ from qiskit_experiments.calibration_management.update_library import (
     FineDragUpdater,
 )
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
-from qiskit_experiments.test.mock_iq_backend import DragBackend, MockFineAmp
+from qiskit_experiments.test.mock_iq_backend import DragBackend
 from .experiments.test_fine_drag import FineDragTestBackend
 
 

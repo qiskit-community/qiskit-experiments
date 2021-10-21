@@ -62,6 +62,9 @@ Some experiments may be also used for gate calibration.
     ~characterization.EFSpectroscopy
     ~characterization.CrossResonanceHamiltonian
     ~characterization.EchoedCrossResonanceHamiltonian
+    ~characterization.FineAmplitude
+    ~characterization.FineXAmplitude
+    ~characterization.FineSXAmplitude
 
 .. _calibration:
 
@@ -85,9 +88,9 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     ~calibration.FineSXDrag
     ~calibration.Rabi
     ~calibration.EFRabi
-    ~calibration.FineAmplitude
-    ~calibration.FineXAmplitude
-    ~calibration.FineSXAmplitude
+    ~calibration.FineAmplitudeCal
+    ~calibration.FineXAmplitudeCal
+    ~calibration.FineSXAmplitudeCal
     ~calibration.RamseyXY
 
 """
