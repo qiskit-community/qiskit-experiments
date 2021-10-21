@@ -17,6 +17,7 @@ from typing import Dict, Optional
 from datetime import datetime
 
 from qiskit_experiments.database_service import DbExperimentDataV1
+from qiskit_experiments.database_service.database_service import DatabaseServiceV1
 
 LOG = logging.getLogger(__name__)
 
@@ -24,26 +25,21 @@ LOG = logging.getLogger(__name__)
 class ExperimentData(DbExperimentDataV1):
     """Qiskit Experiments Data container class"""
 
-    def __init__(
-        self,
-        experiment=None,
-        backend=None,
-        job_ids=None,
-    ):
+    def __init__(self, experiment=None, backend=None, parent_id=None, job_ids=None):
         """Initialize experiment data.
 
         Args:
             experiment (BaseExperiment): Optional, experiment object that generated the data.
             backend (Backend): Optional, Backend the experiment runs on.
+            parent_id (str): Optional, ID of the parent experiment data
+                in the setting of a composite experiment
             job_ids (list[str]): Optional, IDs of jobs submitted for the experiment.
-
-        Raises:
-            ExperimentError: If an input argument is invalid.
         """
         self._experiment = experiment
         super().__init__(
             experiment_type=experiment.experiment_type if experiment else None,
             backend=backend,
+            parent_id=parent_id,
             job_ids=job_ids,
             metadata=experiment._metadata() if experiment else {},
         )
@@ -67,6 +63,22 @@ class ExperimentData(DbExperimentDataV1):
 
         return job_times
 
+    @classmethod
+    def load(cls, experiment_id: str, service: DatabaseServiceV1) -> "ExperimentData":
+        """Load a saved experiment data from a database service.
+
+        Args:
+            experiment_id: Experiment ID.
+            service: the database service.
+
+        Returns:
+            The loaded experiment data.
+        """
+        expdata = DbExperimentDataV1.load(experiment_id, service)
+        expdata.__class__ = ExperimentData
+        expdata._experiment = None
+        return expdata
+
     def _copy_metadata(self, new_instance: Optional["ExperimentData"] = None) -> "ExperimentData":
         """Make a copy of the experiment metadata.
 
@@ -80,7 +92,7 @@ class ExperimentData(DbExperimentDataV1):
             and metadata but different ID.
         """
         if new_instance is None:
-            new_instance = ExperimentData(
+            new_instance = self.__class__(
                 experiment=self.experiment, backend=self.backend, job_ids=self.job_ids
             )
         return super()._copy_metadata(new_instance)
