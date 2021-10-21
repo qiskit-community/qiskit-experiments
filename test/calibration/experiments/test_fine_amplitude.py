@@ -185,7 +185,6 @@ class TestFineAmplitudeCal(QiskitTestCase):
         self.assertEqual(exp_opt.group, "default")
         self.assertTrue(np.allclose(exp_opt.target_angle, np.pi / 2))
 
-
     def test_run_x_cal(self):
         """Test that we can transpile in the calibrations before and after update.
 
@@ -207,7 +206,7 @@ class TestFineAmplitudeCal(QiskitTestCase):
         with pulse.build(name="sx") as expected_sx:
             pulse.play(pulse.Drag(160, 0.25, 40, 0), pulse.DriveChannel(0))
 
-        self.assertEqual(circs[5].calibrations["x"][((0, ), ())], expected_x)
+        self.assertEqual(circs[5].calibrations["x"][((0,), ())], expected_x)
         self.assertEqual(circs[5].calibrations["sx"][((0,), ())], expected_sx)
 
         # run the calibration experiment. This should update the amp parameter of x which we test.
@@ -217,7 +216,7 @@ class TestFineAmplitudeCal(QiskitTestCase):
 
         circs = transpile(amp_cal.circuits(), self.backend, **amp_cal.transpile_options.__dict__)
 
-        x_cal = circs[5].calibrations["x"][((0, ), ())]
+        x_cal = circs[5].calibrations["x"][((0,), ())]
 
         # Requires allclose due to numerical precision.
         self.assertTrue(np.allclose(x_cal.blocks[0].pulse.amp, new_amp))

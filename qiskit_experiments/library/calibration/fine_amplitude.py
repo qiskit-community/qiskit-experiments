@@ -44,7 +44,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             calibrations: The calibrations instance with the schedules.
             schedule_name: The name of the schedule to calibrate.
             cal_parameter_name: The name of the parameter in the schedule to update.
-            auto_update: Weather or not to automatically update the calibrations. By
+            auto_update: Whether or not to automatically update the calibrations. By
                 default this variable is set to True.
 
         """
@@ -54,7 +54,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             Gate(name=schedule_name, num_qubits=1, params=[]),
             schedule_name=schedule_name,
             cal_parameter_name=cal_parameter_name,
-            auto_update=auto_update
+            auto_update=auto_update,
         )
 
         self.transpile_options.inst_map = calibrations.default_inst_map
@@ -103,7 +103,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             self._param_name,
             experiment_data.metadata["physical_qubits"],
             self._sched_name,
-            group=group
+            group=group,
         )
 
         BaseUpdater.add_parameter_value(
@@ -112,7 +112,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             prev_amp * target_angle / (target_angle + d_theta),
             self._param_name,
             self._sched_name,
-            group
+            group,
         )
 
 
