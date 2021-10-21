@@ -59,6 +59,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 
         self.transpile_options.inst_map = calibrations.default_inst_map
 
+    @classmethod
     def _default_experiment_options(cls):
         """Default values for the fine amplitude calibration experiment.
 
@@ -69,7 +70,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
                 to the value "default".
 
         """
-        options = super()._default_transpile_options()
+        options = super()._default_experiment_options()
 
         options.result_index = -1
         options.target_angle = np.pi
@@ -136,6 +137,20 @@ class FineXAmplitudeCal(FineAmplitudeCal):
         return options
 
     @classmethod
+    def _default_transpile_options(cls):
+        """Default transpile options.
+
+        Transpile Options:
+            basis_gates (list(str)): A list of basis gates needed for this experiment.
+                The schedules for these basis gates will be provided by the instruction
+                schedule map from the calibrations.
+        """
+        options = super()._default_transpile_options()
+        options.basis_gates = ["x", "sx"]
+
+        return options
+
+    @classmethod
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
@@ -169,6 +184,20 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
         options.add_xp_circuit = False
         options.repetitions = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
         options.target_angle = np.pi / 2
+        return options
+
+    @classmethod
+    def _default_transpile_options(cls):
+        """Default transpile options.
+
+        Transpile Options:
+            basis_gates (list(str)): A list of basis gates needed for this experiment.
+                The schedules for these basis gates will be provided by the instruction
+                schedule map from the calibrations.
+        """
+        options = super()._default_transpile_options()
+        options.basis_gates = ["x", "sx"]
+
         return options
 
     @classmethod
