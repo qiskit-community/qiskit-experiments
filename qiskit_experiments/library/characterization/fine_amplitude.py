@@ -34,23 +34,22 @@ class FineAmplitude(BaseExperiment):
 
         The :class:`FineAmplitude` calibration experiment repeats N times a gate with a pulse
         to amplify the under-/over-rotations in the gate to determine the optimal amplitude.
-        The circuits that are run have a custom gate with the pulse schedule attached to it
-        through the calibrations. The circuits are therefore of the form:
+        The circuits are therefore of the form:
 
         .. parsed-literal::
 
-                       ┌─────┐       ┌─────┐ ░ ┌─┐
-                  q_0: ┤ Cal ├─ ... ─┤ Cal ├─░─┤M├
-                       └─────┘       └─────┘ ░ └╥┘
-            measure: 1/════════ ... ════════════╩═
-                                                0
+                       ┌──────┐       ┌──────┐ ░ ┌─┐
+                  q_0: ┤ Gate ├─ ... ─┤ Gate ├─░─┤M├
+                       └──────┘       └──────┘ ░ └╥┘
+            measure: 1/═════════ ... ═════════════╩═
+                                                  0
 
-        Here, Cal is the name of the gate which will be taken from the name of the schedule.
-        The user can optionally add a square-root of X pulse before the Cal gates are repeated.
-        This square-root of X pulse allows the analysis to differentiate between over rotations
-        and under rotations in the case of pi-pulses. Importantly, the resulting data is analyzed
-        by a fit to a cosine function in which we try to determine the over/under rotation given
-        an intended rotation angle per gate which must also be specified by the user.
+        Here, Gate is the name of the gate which will be repeated. The user can optionally add a
+        square-root of X pulse before the gates are repeated. This square-root of X pulse allows
+        the analysis to differentiate between over rotations and under rotations in the case of
+        pi-pulses. Importantly, the resulting data is analyzed by a fit to a cosine function in
+        which we try to determine the over/under rotation given an intended rotation angle per
+        gate which must also be specified by the user.
 
         Error amplifying experiments are most sensitive to angle errors when we measure points along
         the equator of the Bloch sphere. This is why users should insert a square-root of X pulse
@@ -63,30 +62,23 @@ class FineAmplitude(BaseExperiment):
         equator of the Bloch sphere. Note the presence of two repetitions which allows us to
         prepare the excited state. Therefore, ``add_xp_circuit = True`` is not needed in this case.
 
-        Users can call :meth:`set_schedule` to conveniently set the schedule and the corresponding
-        experiment and analysis options.
-
     # section: example
-
 
         The steps to run a fine amplitude experiment are
 
         .. code-block:: python
 
             qubit = 3
-            amp_cal = FineAmplitude(qubit)
-            amp_cal.set_schedule(
-                schedule=x90p,
+            amp_cal = FineAmplitude(qubit, SXGate())
+            amp_cal.set_experiment_options(
                 angle_per_gate=np.pi/2,
                 add_xp_circuit=False,
                 add_sx=False
             )
             amp_cal.run(backend)
 
-        Note that the ``schedule`` and ``angle_per_gate`` could have been set by independently calling
-        :meth:`set_experiment_options` for the ``schedule`` and :meth:`set_analysis_options` for
-        the ``angle_per_gate``. Note that there are subclasses of :class:`FineAmplitude` such as 
-        :class:`FineSXAmplitude` that set the appropriate options by default for specific schedules.
+        Note that there are subclasses of :class:`FineAmplitude` such as :class:`FineSXAmplitude`
+        that set the appropriate options by default.
 
 
     # section: reference
@@ -106,8 +98,7 @@ class FineAmplitude(BaseExperiment):
 
         Experiment Options:
             repetitions (List[int]): A list of the number of times that the gate is repeated.
-            schedule (ScheduleBlock): The schedule attached to the gate that will be repeated.
-            gate_type (Type): This is a gate class such as XGate, so that one can obtain a gate
+            gate_type (Gate): This is a gate class such as XGate, so that one can obtain a gate
                 by doing :code:`options.gate_class()`.
             normalization (bool): If set to True the DataProcessor will normalized the
                 measured signal to the interval [0, 1]. Defaults to True.
@@ -116,7 +107,6 @@ class FineAmplitude(BaseExperiment):
                 default value is False.
             add_xp_circuit (bool): If set to True then a circuit with only an X gate will also be
                 run. This allows the analysis class to determine the correct sign for the amplitude.
-            sx_schedule (ScheduleBlock): The schedule to attache to the SX gate.
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(15))
@@ -140,7 +130,7 @@ class FineAmplitude(BaseExperiment):
     def _pre_circuit(self) -> QuantumCircuit:
         """Return a preparation circuit.
 
-        This method can be overridden by subclasses e.g. to calibrate schedules on
+        This method can be overridden by subclasses e.g. to calibrate gates on
         transitions other than the 0 <-> 1 transition.
         """
         circuit = QuantumCircuit(1)

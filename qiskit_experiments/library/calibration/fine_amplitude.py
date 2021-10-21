@@ -27,7 +27,14 @@ from qiskit_experiments.calibration_management.update_library import BaseUpdater
 
 
 class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
-    """A calibration version of the :class:`FineAmplitude` experiment."""
+    r"""A calibration version of the :class:`FineAmplitude` experiment.
+
+    # section: overview
+
+        :class:`FineAmplitudeCal` is a subclass of :class:`FineAmplitude`. In the calibration
+        experiment the circuits that are run have a custom gate with the pulse schedule attached
+        to it through the calibrations.
+    """
 
     def __init__(
         self,
