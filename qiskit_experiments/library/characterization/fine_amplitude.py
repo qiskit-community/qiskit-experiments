@@ -53,7 +53,7 @@ class FineAmplitude(BaseExperiment):
         an intended rotation angle per gate which must also be specified by the user.
 
         Error amplifying experiments are most sensitive to angle errors when we measure points along
-        the equator of the Block sphere. This is why users should insert a square-root of X pulse
+        the equator of the Bloch sphere. This is why users should insert a square-root of X pulse
         before running calibrations for :math:`\pm\pi` rotations. When all data points are close to
         the equator, it is difficult for a fitter to infer the overall scale of the error. When calibrating
         a :math:`pi` rotation, one can use ``add_xp_circuit = True`` to insert one circuit that puts
