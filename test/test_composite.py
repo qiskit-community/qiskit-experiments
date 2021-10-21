@@ -269,6 +269,7 @@ class TestCompositeExperimentData(QiskitTestCase):
 
         self.backend = FakeMelbourne()
         self.share_level = "hey"
+        self.job_ids = ["1", "2"]
 
         exp1 = FakeExperiment([0, 2])
         exp2 = FakeExperiment([1, 3])
@@ -276,7 +277,9 @@ class TestCompositeExperimentData(QiskitTestCase):
         exp3 = FakeExperiment(4)
         batch_exp = BatchExperiment([par_exp, exp3])
 
-        self.rootdata = CompositeExperimentData(batch_exp, backend=self.backend)
+        self.rootdata = CompositeExperimentData(
+            batch_exp, backend=self.backend, job_ids=self.job_ids
+        )
 
         self.rootdata.share_level = self.share_level
 
@@ -286,6 +289,7 @@ class TestCompositeExperimentData(QiskitTestCase):
         """
         self.assertEqual(expdata.backend, self.backend)
         self.assertEqual(expdata.share_level, self.share_level)
+        self.assertEqual(expdata.job_ids, self.job_ids)
 
         if isinstance(expdata, CompositeExperimentData):
             components = expdata.component_experiment_data()
@@ -305,6 +309,7 @@ class TestCompositeExperimentData(QiskitTestCase):
         self.assertEqual(expdata1.tags, expdata2.tags)
         self.assertEqual(expdata1.experiment_type, expdata2.experiment_type)
         self.assertEqual(expdata1.share_level, expdata2.share_level)
+        self.assertEqual(expdata1.job_ids, expdata2.job_ids)
 
         metadata1 = copy.copy(expdata1.metadata)
         metadata2 = copy.copy(expdata2.metadata)

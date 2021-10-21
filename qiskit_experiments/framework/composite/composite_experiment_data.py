@@ -39,7 +39,9 @@ class CompositeExperimentData(ExperimentData):
 
         # Initialize sub experiments
         self._components = [
-            expr.__experiment_data__(expr, backend=backend, parent_id=self.experiment_id)
+            expr.__experiment_data__(
+                expr, backend=backend, parent_id=self.experiment_id, job_ids=job_ids
+            )
             for expr in experiment._experiments
         ]
 
@@ -82,7 +84,7 @@ class CompositeExperimentData(ExperimentData):
         metadata = data.get("metadata", {})
         if metadata.get("experiment_type") == self._type:
 
-            # Add parallel data
+            # Add composite data
             self._data.append(data)
 
             # Add marginalized data to sub experiments
@@ -97,6 +99,8 @@ class CompositeExperimentData(ExperimentData):
                         sub_data["counts"] = marginal_counts(data["counts"], composite_clbits[i])
                     else:
                         sub_data["counts"] = data["counts"]
+
+                self._components[index]._jobs = self._jobs
                 self._components[index]._add_single_data(sub_data)
 
     def save(self) -> None:
