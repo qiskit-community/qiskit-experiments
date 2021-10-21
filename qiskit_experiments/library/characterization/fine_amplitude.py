@@ -160,9 +160,6 @@ class FineAmplitude(BaseExperiment):
             A list of circuits with a variable number of gates.
 
         Raises:
-            CalibrationError: If no schedule was provided.
-            CalibrationError: If the channel index does not correspond to the physical qubit index.
-            CalibrationError: If the schedule contains unassigned parameters.
             CalibrationError: If the analysis options do not contain the angle_per_gate.
         """
         # Prepare the circuits.
