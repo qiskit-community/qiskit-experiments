@@ -79,7 +79,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
         return options
 
     def update_calibrations(self, experiment_data: ExperimentData):
-        """Update the amplitude of the pulse in the calibrations.
+        r"""Update the amplitude of the pulse in the calibrations.
 
         The update rule of this experiment is
 
