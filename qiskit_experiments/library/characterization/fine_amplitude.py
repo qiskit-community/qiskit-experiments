@@ -49,7 +49,7 @@ class FineAmplitude(BaseExperiment):
         The user can optionally add a square-root of X pulse before the Cal gates are repeated.
         This square-root of X pulse allows the analysis to differentiate between over rotations
         and under rotations in the case of pi-pulses. Importantly, the resulting data is analyzed
-        by a fit to a cosine function in which we try and determine the over/under rotation given
+        by a fit to a cosine function in which we try to determine the over/under rotation given
         an intended rotation angle per gate which must also be specified by the user.
 
         Error amplifying experiments are most sensitive to angle errors when we measure points along
