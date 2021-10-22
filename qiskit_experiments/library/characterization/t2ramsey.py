@@ -149,9 +149,8 @@ class T2Ramsey(BaseExperiment):
             conversion_factor = apply_prefix(1, self.experiment_options.unit)
 
         self.set_analysis_options(
-            extra={
-                "osc_freq": self.experiment_options.osc_freq,
-            },
+            extra={"osc_freq": self.experiment_options.osc_freq},
+            conversion_factor=conversion_factor,
         )
 
         circuits = []
