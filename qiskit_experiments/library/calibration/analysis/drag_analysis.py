@@ -32,7 +32,25 @@ class DragCalAnalysis(curve.CurveAnalysis):
 
         .. math::
 
-            y = {\rm amp} \cos\left(2 \pi\cdot {\rm freq}_i\cdot x - 2 \pi \beta\right) + {\rm base}
+            y_i = {\rm amp} \cos\left(2 \pi\cdot {\rm freq}_i\cdot x - 2 \pi \beta\right) + {\rm base}
+
+        Note that the aim of the Drag calibration is to find the :math:`\beta` that minimizes the
+        phase shifts. This implies that the optimal :math:`\beta` occurs when all three :math:`y`
+        curves are minimum, i.e. they produce the ground state. Therefore,
+
+        .. math::
+
+            y_i = 0 \quad \Longrightarrow \quad -{\rm amp} \cos(2 \pi\cdot X_i) = {\rm base}
+
+        Here, we abbreviated :math:`{\rm freq}_i\cdot x - \beta` by :math:`X_i`.
+        For a signal between 0 and 1 the :math:`{\rm base}` will typically fit to 0.5. However, the
+        equation has an ambiguity if the amplitude is not properly bounded. Indeed,
+
+        - if :math:`{\rm amp} < 0` then we require :math:`2 \pi\cdot X_i = 0` mod :math:`2\pi`, and
+        - if :math:`{\rm amp} > 0` then we require :math:`2 \pi\cdot X_i = \pi` mod :math:`2\pi`.
+
+        This will result in an ambiguity in :math:`\beta` which we avoid by bounding the amplitude
+        from above by 0.
 
     # section: fit_parameters
         defpar \rm amp:

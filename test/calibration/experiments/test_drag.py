@@ -56,7 +56,7 @@ class TestDragEndToEnd(QiskitTestCase):
         self.assertEqual(result.quality, "good")
 
         # Small leakage will make the curves very flat, in this case one should
-        # rather increase beta. 
+        # rather increase beta.
         backend = DragBackend(error=0.0051, gate_name="xp")
 
         drag = DragCal(0)
