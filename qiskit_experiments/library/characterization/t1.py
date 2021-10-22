@@ -114,13 +114,6 @@ class T1(BaseExperiment):
         elif self.experiment_options.unit != "s":
             conversion_factor = apply_prefix(1, self.experiment_options.unit)
 
-        self.set_analysis_options(
-            extra={
-                "conversion_factor": conversion_factor,
-                "unit": self.experiment_options.unit,
-            },
-        )
-
         circuits = []
         for delay in conversion_factor * np.asarray(self.experiment_options.delays, dtype=float):
             delay = np.round(delay, decimals=10)

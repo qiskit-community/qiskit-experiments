@@ -151,8 +151,6 @@ class T2Ramsey(BaseExperiment):
         self.set_analysis_options(
             extra={
                 "osc_freq": self.experiment_options.osc_freq,
-                "conversion_factor": conversion_factor,
-                "unit": self.experiment_options.unit,
             },
         )
 
