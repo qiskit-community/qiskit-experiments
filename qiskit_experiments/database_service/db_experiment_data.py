@@ -1403,27 +1403,6 @@ class DbExperimentDataV1(DbExperimentData):
         out += ")"
         return out
 
-    def __str__(self):
-        line = 51 * "-"
-        n_res = len(self._analysis_results)
-        status = self.status()
-        ret = line
-        ret += f"\nExperiment: {self.experiment_type}"
-        ret += f"\nExperiment ID: {self.experiment_id}"
-        ret += f"\nStatus: {status}"
-        if self.backend:
-            ret += f"\nBackend: {self.backend}"
-        if self.tags:
-            ret += f"\nTags: {self.tags}"
-        ret += f"\nData: {len(self._data)}"
-        ret += f"\nAnalysis Results: {n_res}"
-        ret += f"\nFigures: {len(self._figures)}"
-        ret += "\n" + line
-        if n_res:
-            ret += "\nLast Analysis Result:"
-            ret += f"\n{str(self._analysis_results.values()[-1])}"
-        return ret
-
     def __getattr__(self, name: str) -> Any:
         try:
             return self._extra_data[name]

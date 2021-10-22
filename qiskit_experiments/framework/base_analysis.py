@@ -16,8 +16,6 @@ Base analysis class.
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 
-from qiskit.exceptions import QiskitError
-
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.experiment_data import ExperimentData
@@ -40,9 +38,6 @@ class BaseAnalysis(ABC):
     default values will be combined with all other option kwargs in the
     run method and passed to the `_run_analysis` function.
     """
-
-    # Expected experiment data container for analysis
-    __experiment_data__ = ExperimentData
 
     @classmethod
     def _default_options(cls) -> Options:
@@ -84,12 +79,6 @@ class BaseAnalysis(ABC):
             will be returned containing only the new analysis results and figures.
             This data can then be saved as its own experiment to a database service.
         """
-        if not isinstance(experiment_data, self.__experiment_data__):
-            raise QiskitError(
-                f"Invalid experiment data type, expected {self.__experiment_data__.__name__}"
-                f" but received {type(experiment_data).__name__}"
-            )
-
         # Make a new copy of experiment data if not updating results
         if not replace_results and (
             experiment_data._created_in_db

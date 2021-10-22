@@ -95,15 +95,10 @@ class BaseExperiment(ABC):
         __analysis_class__: Optional, the default Analysis class to use for
                             data analysis. If None no data analysis will be
                             done on experiment data (Default: None).
-        __experiment_data__: ExperimentData class that is produced by the
-                             experiment (Default: ExperimentData).
     """
 
     # Analysis class for experiment
     __analysis_class__ = None
-
-    # ExperimentData class for experiment
-    __experiment_data__ = ExperimentData
 
     def __init__(
         self,
@@ -325,7 +320,7 @@ class BaseExperiment(ABC):
 
     def _initialize_experiment_data(self) -> ExperimentData:
         """Initialize the return data container for the experiment run"""
-        return self.__experiment_data__(experiment=self)
+        return ExperimentData(experiment=self)
 
     def run_analysis(
         self, experiment_data: ExperimentData, replace_results: bool = False, **options

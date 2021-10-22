@@ -120,7 +120,7 @@ class TestT2Ramsey(QiskitTestCase):
         expdata.block_for_results()
 
         for i in range(2):
-            res_t2star = expdata.component_experiment_data(i).analysis_results("T2star")
+            res_t2star = expdata.child_data(i).analysis_results("T2star")
             self.assertAlmostEqual(
                 res_t2star.value.value,
                 t2ramsey[i],
@@ -129,7 +129,7 @@ class TestT2Ramsey(QiskitTestCase):
             self.assertEqual(
                 res_t2star.quality, "good", "Result quality bad for experiment on qubit " + str(i)
             )
-            res_freq = expdata.component_experiment_data(i).analysis_results("Frequency")
+            res_freq = expdata.child_data(i).analysis_results("Frequency")
             self.assertAlmostEqual(
                 res_freq.value.value,
                 estimated_freq[i],

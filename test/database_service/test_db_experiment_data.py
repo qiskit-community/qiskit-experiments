@@ -700,17 +700,6 @@ class TestDbExperimentData(QiskitTestCase):
         exp_data = DbExperimentData(experiment_type="qiskit_test", foo="foo")
         self.assertEqual("foo", exp_data.foo)
 
-    def test_str(self):
-        """Test the string representation."""
-        exp_data = DbExperimentData(experiment_type="qiskit_test")
-        exp_data.add_data(self._get_job_result(1))
-        result = mock.MagicMock()
-        exp_data.add_analysis_results(result)
-        exp_data_str = str(exp_data)
-        self.assertIn(exp_data.experiment_type, exp_data_str)
-        self.assertIn(exp_data.experiment_id, exp_data_str)
-        self.assertIn(str(result), exp_data_str)
-
     def test_copy_metadata(self):
         """Test copy metadata."""
         exp_data = DbExperimentData(experiment_type="qiskit_test")

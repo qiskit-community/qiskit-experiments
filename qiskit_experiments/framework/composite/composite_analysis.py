@@ -13,18 +13,15 @@
 Composite Experiment Analysis class.
 """
 
-from qiskit.exceptions import QiskitError
-from qiskit_experiments.framework import BaseAnalysis
-from .composite_experiment_data import CompositeExperimentData
+from qiskit.result import marginal_counts
+from qiskit_experiments.framework import BaseAnalysis, ExperimentData
 
 
 class CompositeAnalysis(BaseAnalysis):
     """Analysis class for CompositeExperiment"""
 
-    __experiment_data__ = CompositeExperimentData
-
     # pylint: disable = arguments-differ
-    def _run_analysis(self, experiment_data: CompositeExperimentData, **options):
+    def _run_analysis(self, experiment_data: ExperimentData, **options):
         """Run analysis on circuit data.
 
         Args:
@@ -40,15 +37,43 @@ class CompositeAnalysis(BaseAnalysis):
             QiskitError: if analysis is attempted on non-composite
                          experiment data.
         """
-        if not isinstance(experiment_data, CompositeExperimentData):
-            raise QiskitError("CompositeAnalysis must be run on CompositeExperimentData.")
+        # Maginalize data
+        self._marginalize_data(experiment_data)
 
         comp_exp = experiment_data.experiment
 
         for i in range(comp_exp.num_experiments):
             # Run analysis for sub-experiments and add sub-experiment metadata
             exp = comp_exp.component_experiment(i)
-            expdata = experiment_data.component_experiment_data(i)
+            expdata = experiment_data.child_data(i)
             exp.run_analysis(expdata, **options)
 
         return [], []
+
+    def _marginalize_data(self, experiment_data: ExperimentData):
+        """Maginalize composite data and store in child experiments"""
+        # Marginalize data
+        child_data = {}
+        for datum in experiment_data.data():
+            metadata = datum.get("metadata", {})
+
+            # Add marginalized data to sub experiments
+            if "composite_clbits" in metadata:
+                composite_clbits = metadata["composite_clbits"]
+            else:
+                composite_clbits = None
+            for i, index in enumerate(metadata["composite_index"]):
+                if index not in child_data:
+                    # Initialize data list for child data
+                    child_data[index] = []
+                sub_data = {"metadata": metadata["composite_metadata"][i]}
+                if "counts" in datum:
+                    if composite_clbits is not None:
+                        sub_data["counts"] = marginal_counts(datum["counts"], composite_clbits[i])
+                    else:
+                        sub_data["counts"] = datum["counts"]
+                child_data[index].append(sub_data)
+
+        # Add child data
+        for index, data in child_data.items():
+            experiment_data.child_data(index).add_data(data)

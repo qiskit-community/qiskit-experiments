@@ -25,7 +25,7 @@ from qiskit.test.mock import FakeMelbourne
 from qiskit_experiments.framework import (
     ParallelExperiment,
     Options,
-    CompositeExperimentData,
+    ExperimentData,
     BatchExperiment,
 )
 from qiskit_experiments.database_service import DatabaseServiceV1
@@ -261,7 +261,7 @@ class DummyService(DatabaseServiceV1):
 
 class TestCompositeExperimentData(QiskitTestCase):
     """
-    Test operations on objects of CompositeExperimentData
+    Test operations on objects of composit ExperimentData
     """
 
     def setUp(self):
@@ -276,7 +276,7 @@ class TestCompositeExperimentData(QiskitTestCase):
         exp3 = FakeExperiment(4)
         batch_exp = BatchExperiment([par_exp, exp3])
 
-        self.rootdata = CompositeExperimentData(batch_exp, backend=self.backend)
+        self.rootdata = ExperimentData(batch_exp, backend=self.backend)
 
         self.rootdata.share_level = self.share_level
 
@@ -287,11 +287,10 @@ class TestCompositeExperimentData(QiskitTestCase):
         self.assertEqual(expdata.backend, self.backend)
         self.assertEqual(expdata.share_level, self.share_level)
 
-        if isinstance(expdata, CompositeExperimentData):
-            components = expdata.component_experiment_data()
-            comp_ids = expdata.metadata["component_ids"]
-            comp_classes = expdata.metadata["component_classes"]
-            for childdata, comp_id, comp_class in zip(components, comp_ids, comp_classes):
+        if isinstance(expdata, ExperimentData):
+            components = expdata.child_data()
+            comp_ids = expdata.metadata.get("child_ids", [])
+            for childdata, comp_id, comp_class in zip(components, comp_ids):
                 self.check_attributes(childdata)
                 self.assertEqual(childdata.parent_id, expdata.experiment_id)
                 self.assertEqual(childdata.experiment_id, comp_id)
@@ -309,24 +308,22 @@ class TestCompositeExperimentData(QiskitTestCase):
         metadata1 = copy.copy(expdata1.metadata)
         metadata2 = copy.copy(expdata2.metadata)
         if is_a_copy:
-            comp_ids1 = metadata1.pop("component_ids", None)
-            comp_ids2 = metadata2.pop("component_ids", None)
-            if comp_ids1 is None:
-                self.assertEqual(comp_ids2, None)
-            else:
-                self.assertNotEqual(comp_ids1, comp_ids2)
+            comp_ids1 = metadata1.pop("child_ids", [])
+            comp_ids2 = metadata2.pop("child_ids", [])
+            for id1 in comp_ids1:
+                self.assertNotIn(id1, comp_ids2)
+            for id2 in comp_ids2:
+                self.assertNotIn(id2, comp_ids1)
             if expdata1.parent_id is None:
                 self.assertEqual(expdata2.parent_id, None)
             else:
                 self.assertNotEqual(expdata1.parent_id, expdata2.parent_id)
         else:
             self.assertEqual(expdata1.parent_id, expdata2.parent_id)
-        self.assertEqual(metadata1, metadata2)
+        self.assertDictEqual(metadata1, metadata2, msg="metadata not equal")
 
-        if isinstance(expdata1, CompositeExperimentData):
-            for childdata1, childdata2 in zip(
-                expdata1.component_experiment_data(), expdata2.component_experiment_data()
-            ):
+        if isinstance(expdata1, ExperimentData):
+            for childdata1, childdata2 in zip(expdata1.child_data(), expdata2.child_data()):
                 self.check_if_equal(childdata1, childdata2, is_a_copy)
 
     def test_composite_experiment_data_attributes(self):
@@ -343,28 +340,22 @@ class TestCompositeExperimentData(QiskitTestCase):
 
         self.rootdata.service = DummyService()
         self.rootdata.save()
-        loaded_data = CompositeExperimentData.load(
-            self.rootdata.experiment_id, self.rootdata.service
-        )
-
+        loaded_data = ExperimentData.load(self.rootdata.experiment_id, self.rootdata.service)
         self.check_if_equal(loaded_data, self.rootdata, is_a_copy=False)
 
     def test_composite_save_metadata(self):
         """
         Verify that saving metadata and loading restores the original composite experiment data object
         """
-
         self.rootdata.service = DummyService()
         self.rootdata.save_metadata()
-        loaded_data = CompositeExperimentData.load(
-            self.rootdata.experiment_id, self.rootdata.service
-        )
+        loaded_data = ExperimentData.load(self.rootdata.experiment_id, self.rootdata.service)
 
         self.check_if_equal(loaded_data, self.rootdata, is_a_copy=False)
 
     def test_composite_copy_metadata(self):
         """
-        Test CompositeExperimentData._copy_metadata
+        Test composite ExperimentData._copy_metadata
         """
         new_instance = self.rootdata._copy_metadata()
         self.check_if_equal(new_instance, self.rootdata, is_a_copy=True)

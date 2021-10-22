@@ -16,11 +16,8 @@ Composite Experiment abstract base class.
 from typing import List, Sequence, Optional
 from abc import abstractmethod
 import warnings
-
 from qiskit.providers.backend import Backend
-from qiskit_experiments.framework import BaseExperiment
-
-from .composite_experiment_data import CompositeExperimentData
+from qiskit_experiments.framework import BaseExperiment, ExperimentData
 from .composite_analysis import CompositeAnalysis
 
 
@@ -28,7 +25,6 @@ class CompositeExperiment(BaseExperiment):
     """Composite Experiment base class"""
 
     __analysis_class__ = CompositeAnalysis
-    __experiment_data__ = CompositeExperimentData
 
     def __init__(
         self,
@@ -85,6 +81,12 @@ class CompositeExperiment(BaseExperiment):
         for subexp in self._experiments:
             subexp._set_backend(backend)
 
+    def _initialize_experiment_data(self) -> ExperimentData:
+        expdata = super()._initialize_experiment_data()
+        for subexp in self._experiments:
+            expdata.add_child_data(subexp._initialize_experiment_data())
+        return expdata
+
     def _add_job_metadata(self, experiment_data, jobs, **run_options):
         # Add composite metadata
         super()._add_job_metadata(experiment_data, jobs, **run_options)
@@ -103,7 +105,7 @@ class CompositeExperiment(BaseExperiment):
                     "Sub-experiment run and transpile options"
                     " are overridden by composite experiment options."
                 )
-            sub_data = experiment_data.component_experiment_data(i)
+            sub_data = experiment_data.child_data(i)
             sub_exp._add_job_metadata(sub_data, jobs, **run_options)
 
     def _postprocess_transpiled_circuits(self, circuits, **run_options):

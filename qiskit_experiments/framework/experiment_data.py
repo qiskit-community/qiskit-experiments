@@ -12,28 +12,42 @@
 """
 Experiment Data class
 """
+from __future__ import annotations
 import logging
-from typing import Dict, Optional
+from typing import Dict, Optional, List, Union
 from datetime import datetime
-
-from qiskit_experiments.database_service import DbExperimentDataV1
-from qiskit_experiments.database_service.database_service import DatabaseServiceV1
+import warnings
+from qiskit.exceptions import QiskitError
+from qiskit.providers.backend import Backend
+from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
+from qiskit_experiments.database_service.database_service import (
+    DatabaseServiceV1 as DatabaseService,
+)
+from qiskit_experiments.database_service.utils import combined_timeout, ThreadSafeList
 
 LOG = logging.getLogger(__name__)
 
 
-class ExperimentData(DbExperimentDataV1):
+class ExperimentData(DbExperimentData):
     """Qiskit Experiments Data container class"""
 
-    def __init__(self, experiment=None, backend=None, parent_id=None, job_ids=None):
+    def __init__(
+        self,
+        experiment: Optional["BaseExperiment"] = None,
+        backend: Optional[Backend] = None,
+        parent_id: Optional[str] = None,
+        job_ids: Optional[List[str]] = None,
+        child_data: Optional[List[ExperimentData]] = None,
+    ):
         """Initialize experiment data.
 
         Args:
-            experiment (BaseExperiment): Optional, experiment object that generated the data.
-            backend (Backend): Optional, Backend the experiment runs on.
-            parent_id (str): Optional, ID of the parent experiment data
+            experiment: Optional, experiment object that generated the data.
+            backend: Optional, Backend the experiment runs on.
+            parent_id: Optional, ID of the parent experiment data
                 in the setting of a composite experiment
-            job_ids (list[str]): Optional, IDs of jobs submitted for the experiment.
+            job_ids: Optional, IDs of jobs submitted for the experiment.
+            child_data: Optional, list of child experiment data.
         """
         if experiment is not None:
             backend = backend or experiment.backend
@@ -49,6 +63,12 @@ class ExperimentData(DbExperimentDataV1):
             job_ids=job_ids,
             metadata=experiment._metadata() if experiment else {},
         )
+
+        # Add component data and set parent ID to current container
+        self._child_data = ThreadSafeList()
+        self.metadata["child_ids"] = []
+        if child_data is not None:
+            self._set_child_data(child_data)
 
     @property
     def experiment(self):
@@ -69,23 +89,110 @@ class ExperimentData(DbExperimentDataV1):
 
         return job_times
 
+    def add_child_data(self, experiment_data: ExperimentData):
+        """Add child experiment data to the current experiment data"""
+        experiment_data._parent_id = self.experiment_id
+        self._child_data.append(experiment_data)
+        self.metadata["child_ids"].append(experiment_data.experiment_id)
+
+    def child_data(
+        self, index: Optional[Union[int, slice]] = None
+    ) -> Union[ExperimentData, List[ExperimentData]]:
+        """Return child experiment data"""
+        if index is None:
+            return self._child_data
+        if isinstance(index, (int, slice)):
+            return self._child_data[index]
+        raise QiskitError(f"Invalid index type {type(index)}.")
+
+    def component_experiment_data(
+        self, index: Optional[Union[int, slice]] = None
+    ) -> Union[ExperimentData, List[ExperimentData]]:
+        """Return child experiment data"""
+        warnings.warn(
+            "This method is deprecated and will be removed next release. "
+            "Use the `child_data` method instead.",
+            DeprecationWarning,
+        )
+        return self.child_data(index)
+
+    def save(self) -> None:
+        super().save()
+        for data in self._child_data:
+            original_verbose = data.verbose
+            data.verbose = False
+            data.save()
+            data.verbose = original_verbose
+
+    def save_metadata(self) -> None:
+        super().save_metadata()
+        for data in self._child_data:
+            data.save_metadata()
+
     @classmethod
-    def load(cls, experiment_id: str, service: DatabaseServiceV1) -> "ExperimentData":
-        """Load a saved experiment data from a database service.
-
-        Args:
-            experiment_id: Experiment ID.
-            service: the database service.
-
-        Returns:
-            The loaded experiment data.
-        """
-        expdata = DbExperimentDataV1.load(experiment_id, service)
+    def load(cls, experiment_id: str, service: DatabaseService) -> ExperimentData:
+        expdata = DbExperimentData.load(experiment_id, service)
         expdata.__class__ = ExperimentData
-        expdata._experiment = None
+        child_data = [
+            ExperimentData.load(child_id, service)
+            for child_id in expdata.metadata.get("child_ids", [])
+        ]
+        expdata._set_child_data(child_data)
         return expdata
 
-    def _copy_metadata(self, new_instance: Optional["ExperimentData"] = None) -> "ExperimentData":
+    def _set_child_data(self, child_data: List[ExperimentData]):
+        """Set child experiment data for the current experiment."""
+        self._child_data = ThreadSafeList()
+        self.metadata["child_ids"] = []
+        for data in child_data:
+            self.add_child_data(data)
+
+    def _set_service(self, service: DatabaseService) -> None:
+        """Set the service to be used for storing experiment data.
+
+        Args:
+            service: Service to be used.
+
+        Raises:
+            DbExperimentDataError: If an experiment service is already being used.
+        """
+        super()._set_service(service)
+        for data in self._child_data:
+            data._set_service(service)
+
+    @DbExperimentData.share_level.setter
+    def share_level(self, new_level: str) -> None:
+        """Set the experiment share level.
+
+        Args:
+            new_level: New experiment share level. Valid share levels are provider-
+                specified. For example, IBM Quantum experiment service allows
+                "public", "hub", "group", "project", and "private".
+        """
+        self._share_level = new_level
+        for data in self._child_data:
+            original_auto_save = data.auto_save
+            data.auto_save = False
+            data.share_level = new_level
+            data.auto_save = original_auto_save
+        if self.auto_save:
+            self.save_metadata()
+
+    def block_for_results(self, timeout: Optional[float] = None) -> ExperimentData:
+        """Block until all pending jobs and analysis callbacks finish.
+
+        Args:
+            timeout: Timeout waiting for results.
+
+        Returns:
+            The experiment data with finished jobs and post-processing.
+        """
+        _, timeout = combined_timeout(super().block_for_results, timeout)
+        for subdata in self._child_data:
+            _, timeout = combined_timeout(subdata.block_for_results, timeout)
+        return self
+
+    def _copy_metadata(self, new_instance: Optional[ExperimentData] = None) -> ExperimentData:
         """Make a copy of the experiment metadata.
 
         Note:
@@ -97,11 +204,14 @@ class ExperimentData(DbExperimentDataV1):
             A copy of the ``ExperimentData`` object with the same data
             and metadata but different ID.
         """
-        if new_instance is None:
-            new_instance = self.__class__(
-                experiment=self.experiment, backend=self.backend, job_ids=self.job_ids
-            )
-        return super()._copy_metadata(new_instance)
+        new_instance = super()._copy_metadata(new_instance)
+        new_instance._experiment = self.experiment
+        new_instance._child_data = self._child_data
+
+        # Recursively copy metadata of child data
+        child_data = [data._copy_metadata() for data in new_instance._child_data]
+        new_instance._set_child_data(child_data)
+        return new_instance
 
     def __repr__(self):
         out = (
@@ -111,3 +221,27 @@ class ExperimentData(DbExperimentDataV1):
             f", experiment_id: {self.experiment_id}>"
         )
         return out
+
+    def __str__(self):
+        line = 51 * "-"
+        n_res = len(self._analysis_results)
+        status = self.status()
+        ret = line
+        ret += f"\nExperiment: {self.experiment_type}"
+        ret += f"\nExperiment ID: {self.experiment_id}"
+        if self._parent_id:
+            ret += f"\nParent ID: {self._parent_id}"
+        if self._child_data:
+            ret += f"\nChild Experiment Data: {len(self._child_data)}"
+        ret += f"\nStatus: {status}"
+        if status == "ERROR":
+            ret += "\n  "
+            ret += "\n  ".join(self._errors)
+        if self.backend:
+            ret += f"\nBackend: {self.backend}"
+        if self.tags:
+            ret += f"\nTags: {self.tags}"
+        ret += f"\nData: {len(self._data)}"
+        ret += f"\nAnalysis Results: {n_res}"
+        ret += f"\nFigures: {len(self._figures)}"
+        return ret
