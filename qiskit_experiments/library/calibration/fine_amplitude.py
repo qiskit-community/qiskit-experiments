@@ -12,10 +12,10 @@
 
 """Fine amplitude calibration experiment."""
 
-from typing import Optional
+from typing import List, Optional
 import numpy as np
 
-from qiskit.circuit import Gate
+from qiskit.circuit import Gate, QuantumCircuit
 
 from qiskit_experiments.calibration_management import (
     BaseCalibrationExperiment,
@@ -85,6 +85,34 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 
         return options
 
+    def _add_cal_metadata(self, circuits: List[QuantumCircuit]):
+        """Add metadata to the circuit to make the experiment data more self contained.
+
+        The following keys are added to each circuit's metadata:
+            cal_param_value: The value of the pulse amplitude. This value together with
+                the fit result will be used to find the new value of the pulse amplitude.
+            cal_param_name: The name of the parameter in the calibrations.
+            cal_schedule: The name of the schedule in the calibrations.
+            target_angle: The target angle of the gate.
+            cal_group: The calibration group to which the parameter belongs.
+        """
+
+        param_val = self._cals.get_parameter_value(
+            self._param_name,
+            self._physical_qubits,
+            self._sched_name,
+            group=self.experiment_options.group,
+        )
+
+        for circuit in circuits:
+            circuit.metadata["cal_param_value"] = param_val
+            circuit.metadata["cal_param_name"] = self._param_name
+            circuit.metadata["cal_schedule"] = self._sched_name
+            circuit.metadata["target_angle"] = self.experiment_options.target_angle
+            circuit.metadata["cal_group"] = self.experiment_options.group
+
+        return circuits
+
     def update_calibrations(self, experiment_data: ExperimentData):
         r"""Update the amplitude of the pulse in the calibrations.
 
@@ -100,27 +128,25 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             experiment_data: The experiment data from which to extract the measured over/under
                 rotation used to adjust the amplitude.
         """
-        result_index = self.experiment_options.result_index
-        group = self.experiment_options.group
-        target_angle = self.experiment_options.target_angle
+        data = experiment_data.data()
 
-        d_theta = BaseUpdater.get_value(experiment_data, "d_theta", result_index)
+        # No data -> no update
+        if len(data) > 0:
+            result_index = self.experiment_options.result_index
+            group = data[0]["metadata"]["cal_group"]
+            target_angle = data[0]["metadata"]["target_angle"]
+            prev_amp = data[0]["metadata"]["cal_param_value"]
 
-        prev_amp = self._cals.get_parameter_value(
-            self._param_name,
-            experiment_data.metadata["physical_qubits"],
-            self._sched_name,
-            group=group,
-        )
+            d_theta = BaseUpdater.get_value(experiment_data, "d_theta", result_index)
 
-        BaseUpdater.add_parameter_value(
-            self._cals,
-            experiment_data,
-            prev_amp * target_angle / (target_angle + d_theta),
-            self._param_name,
-            self._sched_name,
-            group,
-        )
+            BaseUpdater.add_parameter_value(
+                self._cals,
+                experiment_data,
+                prev_amp * target_angle / (target_angle + d_theta),
+                self._param_name,
+                self._sched_name,
+                group,
+            )
 
 
 class FineXAmplitudeCal(FineAmplitudeCal):
