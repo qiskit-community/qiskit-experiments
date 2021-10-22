@@ -131,14 +131,14 @@ class DragCalAnalysis(curve.CurveAnalysis):
         freq_bound = max(10 / user_opt.p0["freq0"], max(x_data))
 
         user_opt.bounds.set_if_empty(
-            amp=(-2 * max_abs_y, 2 * max_abs_y),
+            amp=(-2 * max_abs_y, 0),
             freq0=(0, np.inf),
             freq1=(0, np.inf),
             freq2=(0, np.inf),
             beta=(-freq_bound, freq_bound),
             base=(-max_abs_y, max_abs_y),
         )
-        user_opt.p0.set_if_empty(amp=0.5, base=0.5)
+        user_opt.p0.set_if_empty(amp=-0.5, base=0.5)
 
         # Drag curves can sometimes be very flat, i.e. averages of y-data
         # and min-max do not always make good initial guesses. We therefore add
