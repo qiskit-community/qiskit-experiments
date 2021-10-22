@@ -60,7 +60,7 @@ class BaseUpdater(ABC):
         return datetime.now(timezone.utc).astimezone()
 
     @classmethod
-    def _add_parameter_value(
+    def add_parameter_value(
         cls,
         cal: Calibrations,
         exp_data: ExperimentData,
@@ -123,7 +123,7 @@ class BaseUpdater(ABC):
         fit_parameter = fit_parameter or cls.__fit_parameter__
         value = BaseUpdater.get_value(exp_data, fit_parameter, result_index)
 
-        cls._add_parameter_value(
+        cls.add_parameter_value(
             calibrations, exp_data, value, parameter, schedule=schedule, group=group
         )
 
@@ -244,7 +244,7 @@ class FineDragUpdater(BaseUpdater):
         old_beta = calibrations.get_parameter_value(parameter, qubits, schedule, group=group)
         new_beta = old_beta + d_beta
 
-        cls._add_parameter_value(calibrations, exp_data, new_beta, parameter, schedule, group)
+        cls.add_parameter_value(calibrations, exp_data, new_beta, parameter, schedule, group)
 
 
 class Amplitude(BaseUpdater):
@@ -281,7 +281,6 @@ class Amplitude(BaseUpdater):
             CalibrationError: If the experiment is not of the supported type.
         """
         from qiskit_experiments.library.calibration.rabi import Rabi
-        from qiskit_experiments.library.calibration.fine_amplitude import FineAmplitude
 
         if angles_schedules is None:
             angles_schedules = [(np.pi, "amp", "xp")]
@@ -295,19 +294,7 @@ class Amplitude(BaseUpdater):
 
                 value = np.round(angle / rate, decimals=8) * np.exp(1.0j * np.angle(prev_amp))
 
-                cls._add_parameter_value(calibrations, exp_data, value, param, schedule, group)
-
-        elif isinstance(exp_data.experiment, FineAmplitude):
-            d_theta = BaseUpdater.get_value(exp_data, "d_theta", result_index)
-
-            for target_angle, param, schedule in angles_schedules:
-                qubits = exp_data.metadata["physical_qubits"]
-
-                prev_amp = calibrations.get_parameter_value(param, qubits, schedule, group=group)
-                scale = target_angle / (target_angle + d_theta)
-                new_amp = prev_amp * scale
-
-                cls._add_parameter_value(calibrations, exp_data, new_amp, param, schedule, group)
+                cls.add_parameter_value(calibrations, exp_data, value, param, schedule, group)
 
         else:
             raise CalibrationError(f"{cls.__name__} updates from {type(Rabi.__name__)}.")

@@ -148,5 +148,6 @@ which would return the default xp schedule block template for all qubits.
 
 from .calibrations import Calibrations
 from .backend_calibrations import BackendCalibrations
+from .base_calibration_experiment import BaseCalibrationExperiment
 
 from .update_library import Frequency, Drag, Amplitude, FineDragUpdater
