@@ -86,23 +86,13 @@ class DecayAnalysis(curve.CurveAnalysis):
 
         A good fit has:
             - a reduced chi-squared lower than three
-            - absolute amp is within [0.9, 1.1]
-            - base is less than 0.1
-            - amp error is less than 0.1
             - tau error is less than its value
-            - base error is less than 0.1
         """
-        amp = fit_data.fitval("amp")
         tau = fit_data.fitval("tau")
-        base = fit_data.fitval("base")
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            abs(amp.value - 1.0) < 0.1,
-            abs(base.value) < 0.1,
-            amp.stderr is None or amp.stderr < 0.1,
             tau.stderr is None or tau.stderr < tau.value,
-            base.stderr is None or base.stderr < 0.1,
         ]
 
         if all(criteria):

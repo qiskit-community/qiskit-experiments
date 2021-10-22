@@ -252,19 +252,16 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
 
         A good fit has:
             - a reduced chi-squared lower than three
-            - relative error of amp is less than 10 percent
-            - relative error of tau is less than 10 percent
-            - relative error of freq is less than 10 percent
+            - relative error of tau is less than its value
+            - relative error of freq is less than its value
         """
-        amp = fit_data.fitval("amp")
         tau = fit_data.fitval("tau")
         freq = fit_data.fitval("freq")
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            amp.stderr is None or amp.stderr < 0.1 * amp.value,
-            tau.stderr is None or tau.stderr < 0.1 * tau.value,
-            freq.stderr is None or freq.stderr < 0.1 * freq.value,
+            tau.stderr is None or tau.stderr < tau.value,
+            freq.stderr is None or freq.stderr < freq.value,
         ]
 
         if all(criteria):

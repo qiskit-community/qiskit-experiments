@@ -57,3 +57,28 @@ class T2RamseyAnalysis(curve.DumpedOscillationAnalysis):
             user_opt.p0["tau"] *= conversion_factor
 
         return super()._generate_fit_guesses(user_opt)
+
+    def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
+        """Algorithmic criteria for whether the fit is good or bad.
+
+        A good fit has:
+            - a reduced chi-squared lower than three
+            - relative error of amp is less than 10 percent
+            - relative error of tau is less than 10 percent
+            - relative error of freq is less than 10 percent
+        """
+        amp = fit_data.fitval("amp")
+        tau = fit_data.fitval("tau")
+        freq = fit_data.fitval("freq")
+
+        criteria = [
+            fit_data.reduced_chisq < 3,
+            amp.stderr is None or amp.stderr < 0.1 * amp.value,
+            tau.stderr is None or tau.stderr < 0.1 * tau.value,
+            freq.stderr is None or freq.stderr < 0.1 * freq.value,
+        ]
+
+        if all(criteria):
+            return "good"
+
+        return "bad"
