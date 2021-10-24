@@ -47,13 +47,13 @@ class TestQuantumVolume(QiskitTestCase):
                 self.assertEqual(
                     len(qv_circs),
                     trials,
-                    "Number of circuits generated do not match the number of trials",
+                    "Number of circuits generated does not match the number of trials",
                 )
 
                 self.assertEqual(
                     len(qv_circs[0].qubits),
                     qv_exp.num_qubits,
-                    "Number of qubits in the Quantum Volume circuit do not match the"
+                    "Number of qubits in the Quantum Volume circuit does not match the"
                     " number of qubits in the experiment",
                 )
 
