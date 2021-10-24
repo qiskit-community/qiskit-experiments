@@ -68,7 +68,7 @@ class T2HahnBackend(BackendV1):
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
         self._conversion_factor = conversion_factor
-        self._rng = np.random.default_rng(0)
+        self._rng = np.random.default_rng(seed=SEED)
         super().__init__(configuration)
 
     @classmethod
@@ -106,7 +106,7 @@ class T2HahnBackend(BackendV1):
                 ro10 = self._readout1to0
             for _ in range(shots):
                 if self._initial_prob_plus is None:
-                   qubit_state = {"qubit state": 0, "XY plain": False, "Theta": "0"}
+                   qubit_state = {"qubit state": 0, "XY plain": False, "Theta": 0}
                 else:
                     qubit_state = self._initial_prob_plus.copy()
 
@@ -120,19 +120,33 @@ class T2HahnBackend(BackendV1):
                         freq = self._freq[qubit]
 
                         if qubit_state["XY plain"] == True:
-
-                            
-                            qubit_state[qubit] = (
-                                self._a_param[qubit]
-                                * np.exp(-delay / t2hahn)
-                                * np.cos(2 * np.pi * freq * delay + self._phi[qubit])
-                                + self._b_param[qubit]
+                            prob_noise = 1 - (
+                                    self._a_param[qubit]
+                                    * np.exp(-delay / t2hahn)
+                                    + self._b_param[qubit]
                             )
+                            if self._rng.random() < prob_noise:
+                                if self._rng.random() < 0.5:
+                                    qubit_state[qubit] = {"qubit state": 0, "XY plain": False, "Theta": 0}
+                                else:
+                                    qubit_state[qubit] = {"qubit state": 1, "XY plain": False, "Theta": 0}
 
                     if op.name == "rx":
-                        prob_plus[qubit] = prob_plus[qubit] * np.cos(op.params[0]/2) - \
-                                           (1-prob_plus[qubit]) * np.sin(op.params[0]/2)
-                        # prob_plus[qubit] = 1- prob_plus[qubit]
+                        if qubit_state["XY plain"] == True:
+                            qubit_state[qubit] = {"qubit state": 0, "XY plain": True, "Theta": np.pi}
+                        elif qubit_state["qubit state"] == 0:
+                            qubit_state[qubit] = {"qubit state": 1, "XY plain": False, "Theta": 0}
+                        else:
+                            qubit_state[qubit] = {"qubit state": 0, "XY plain": False, "Theta": 0}
+
+                    # #Need to  change
+                    # if op.name == "ry":
+                    #     if qubit_state["XY plain"] == True:
+                    #         qubit_state[qubit] = {"qubit state": 0, "XY plain": True, "Theta": np.pi}
+                    #     elif qubit_state["qubit state"] == 0:
+                    #         qubit_state[qubit] = {"qubit state": 1, "XY plain": False, "Theta": 0}
+                    #     else:
+                    #         qubit_state[qubit] = {"qubit state": 0, "XY plain": False, "Theta": 0}
 
                     if op.name == "measure":
                         # we measure in |+> basis which is the same as measuring |0>
