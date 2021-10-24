@@ -47,7 +47,7 @@ class T2HahnBackend(BackendV1):
             backend_name="T2Hahn_simulator",
             backend_version="0",
             n_qubits=int(1e6),
-            basis_gates=["barrier", "h", "p", "delay", "measure"],
+            basis_gates=["barrier", "ry", "rx", "delay", "measure"],
             gates=[],
             local=True,
             simulator=True,
@@ -106,9 +106,9 @@ class T2HahnBackend(BackendV1):
                 ro10 = self._readout1to0
             for _ in range(shots):
                 if self._initial_prob_plus is None:
-                    prob_plus = np.ones(nqubits)
+                   qubit_state = {"qubit state": 0, "XY plain": False, "Theta": "0"}
                 else:
-                    prob_plus = self._initial_prob_plus.copy()
+                    qubit_state = self._initial_prob_plus.copy()
 
                 clbits = np.zeros(circ.num_clbits, dtype=int)
                 for op, qargs, cargs in circ.data:
@@ -119,12 +119,15 @@ class T2HahnBackend(BackendV1):
                         t2hahn = self._t2hahn[qubit] * self._conversion_factor
                         freq = self._freq[qubit]
 
-                        prob_plus[qubit] = (
-                            self._a_param[qubit]
-                            * np.exp(-delay / t2hahn)
-                            * np.cos(2 * np.pi * freq * delay + self._phi[qubit])
-                            + self._b_param[qubit]
-                        )
+                        if qubit_state["XY plain"] == True:
+
+                            
+                            qubit_state[qubit] = (
+                                self._a_param[qubit]
+                                * np.exp(-delay / t2hahn)
+                                * np.cos(2 * np.pi * freq * delay + self._phi[qubit])
+                                + self._b_param[qubit]
+                            )
 
                     if op.name == "rx":
                         prob_plus[qubit] = prob_plus[qubit] * np.cos(op.params[0]/2) - \
