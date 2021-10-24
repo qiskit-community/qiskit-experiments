@@ -41,7 +41,7 @@ class T2HahnAnalysis(BaseAnalysis):
 
         .. math::
 
-            f(t) = a\mathrm{e}^{-t / T_2^*} + b
+            f(t) = a\mathrm{e}^{-t / T_2} + b
 
     # section: fit_parameters
 
@@ -55,7 +55,7 @@ class T2HahnAnalysis(BaseAnalysis):
             init_guess: 0.5
             bounds: [-0.5, 1.5]
 
-        defpar T_2^*:
+        defpar T_2:
             desc: Represents the rate of decay.
             init_guess: the mean of the input delays.
             bounds: [0, np.inf]
@@ -68,7 +68,7 @@ class T2HahnAnalysis(BaseAnalysis):
 
         Analysis Options:
             user_p0 (List[Float]): user guesses for the fit parameters
-                :math:`(a, b, T_2^*)`.
+                :math:`(a, b, T_2)`.
             user_bounds (Tuple[List[float], List[float]]): Lower and upper bounds
                 for the fit parameters.
             plot (bool): Create a graph if and only if True.
