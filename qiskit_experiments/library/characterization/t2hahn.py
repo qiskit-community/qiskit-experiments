@@ -112,11 +112,6 @@ class T2Hahn(BaseExperiment):
                 f"The lengths list {self.experiment_options.delays} should only contain "
                 "non-negative elements."
             )
-        if len(set(self.experiment_options.delays)) != len(self.experiment_options.delays):
-            raise QiskitError(
-                f"The lengths list {self.experiment_options.delays} should not contain "
-                "duplicate elements."
-            )
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """
