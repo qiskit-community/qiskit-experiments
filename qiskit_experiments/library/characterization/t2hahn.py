@@ -28,7 +28,7 @@ from .t2hahn_analysis import T2HahnAnalysis
 
 
 class T2Hahn(BaseExperiment):
-    r"""T2 Ramsey Experiment.
+    r"""T2 Hahn Echo Experiment.
 
         # section: overview
 
@@ -80,14 +80,12 @@ class T2Hahn(BaseExperiment):
         unit: str = "s",
     ):
         """
-        **T2 - Hahn Echo class**
         Initialize the T2 - Hahn Echo class
         Args:
             qubit: the qubit under test.
             delays: delay times of the experiments.
             unit: Optional, time unit of `delays`.
-                Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'. The unit is
-                used for both T2Ramsey and for the frequency.
+                Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'.
 
          Raises:
              QiskitError : Error for invalid input.
