@@ -531,20 +531,20 @@ class CurveAnalysis(BaseAnalysis, ABC):
     ):
         """Extract curve data from experiment data.
 
-        This method internally populate two type of curve data.
+        This method internally populates two types of curve data.
 
         - raw_data:
 
             This is the data directly obtained from the experiment data.
-            You can access to this data with ``self._data(label="raw_data")``.
+            You can access this data with ``self._data(label="raw_data")``.
 
         - fit_ready:
 
-            This is the formatted data created  pre-processing defined by
+            This is the formatted data created by pre-processing defined by
             `self._format_data()` method. This method is implemented by subclasses.
             You can access to this data with ``self._data(label="fit_ready")``.
 
-        If multiple series exists, you can optionally specify ``series_name`` in
+        If multiple series exist, you can optionally specify ``series_name`` in
         ``self._data`` method to filter data in the target series.
 
         .. notes::
@@ -554,12 +554,12 @@ class CurveAnalysis(BaseAnalysis, ABC):
         Args:
             experiment_data: ExperimentData object to fit parameters.
             data_processor: A callable or DataProcessor instance to format data into numpy array.
-                This should take list of dictionary and returns two tuple of float values
+                This should take a list of dictionaries and return two tuple of float values,
                 that represent a y value and an error of it.
         Raises:
             DataProcessorError: When `x_key` specified in the analysis option is not
                 defined in the circuit metadata.
-            AnalysisError: When formatted data has the label other than fit_ready.
+            AnalysisError: When formatted data has label other than fit_ready.
         """
         self.__processed_data_set = list()
 
