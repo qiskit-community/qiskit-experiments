@@ -36,7 +36,7 @@ class T2HahnAnalysis(BaseAnalysis):
     T2 Hahn result analysis class.
 
     # section: fit_model
-        This class is used to analyze the results of a T2 Hahn experiment.
+        This class is used to analyze the results of a T2 Hahn Echo experiment.
         The probability of measuring :math:`|+\rangle` state is assumed to be of the form
 
         .. math::
