@@ -44,7 +44,6 @@ module.
     FineDrag
     FineXDrag
     FineSXDrag
-    Rabi
     FineAmplitudeCal
     FineXAmplitudeCal
     FineSXAmplitudeCal
@@ -71,7 +70,6 @@ from .rough_frequency import RoughFrequencyCal
 from .drag import DragCal
 from .fine_drag import FineDrag, FineXDrag, FineSXDrag
 from .fine_amplitude import FineAmplitudeCal, FineXAmplitudeCal, FineSXAmplitudeCal
-from .rabi import Rabi, EFRabi
 from .ramsey_xy import RamseyXY
 
 from .analysis.drag_analysis import DragCalAnalysis

@@ -280,7 +280,7 @@ class Amplitude(BaseUpdater):
         Raises:
             CalibrationError: If the experiment is not of the supported type.
         """
-        from qiskit_experiments.library.calibration.rabi import Rabi
+        from qiskit_experiments.library.characterization.rabi import Rabi
 
         if angles_schedules is None:
             angles_schedules = [(np.pi, "amp", "xp")]
