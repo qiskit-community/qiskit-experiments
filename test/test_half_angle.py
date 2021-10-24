@@ -62,7 +62,7 @@ class TestHalfAngle(QiskitTestCase):
 
         inst_map = InstructionScheduleMap()
         for inst in ["sx", "y"]:
-            inst_map.add(inst, (qubit, ), pulse.Schedule(name=inst))
+            inst_map.add(inst, (qubit,), pulse.Schedule(name=inst))
 
         hac = HalfAngle(qubit)
         hac.set_transpile_options(inst_map=inst_map)
@@ -74,5 +74,7 @@ class TestHalfAngle(QiskitTestCase):
 
         for idx, circ in enumerate(circuits):
             self.assertEqual(circ.count_ops()["sx"], idx * 2 + 2)
-            self.assertEqual(circ.count_ops()["y"], idx)
-            self.assertEqual(circ.calibrations["y"][(1, ())], pulse.Schedule(name="y"))
+            self.assertEqual(circ.calibrations["sx"][((qubit,), ())], pulse.Schedule(name="sx"))
+            if idx > 0:
+                self.assertEqual(circ.count_ops()["y"], idx)
+                self.assertEqual(circ.calibrations["y"][((qubit, ), ())], pulse.Schedule(name="y"))
