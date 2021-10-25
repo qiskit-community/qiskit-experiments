@@ -20,6 +20,7 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
 from qiskit.quantum_info import Clifford
 from qiskit.exceptions import QiskitError
+from qiskit.providers.backend import Backend
 
 from .rb_experiment import StandardRB
 from .interleaved_rb_analysis import InterleavedRBAnalysis
@@ -54,6 +55,7 @@ class InterleavedRB(StandardRB):
         num_samples: int = 3,
         seed: Optional[Union[int, Generator]] = None,
         full_sampling: bool = False,
+        backend: Optional[Backend] = None,
     ):
         """Initialize an interleaved randomized benchmarking experiment.
 
@@ -71,9 +73,10 @@ class InterleavedRB(StandardRB):
                            all lengths. If False for sample of lengths longer
                            sequences are constructed by appending additional
                            Clifford samples to shorter sequences.
+            backend: The backend to run the experiment on.
         """
         self._set_interleaved_element(interleaved_element)
-        super().__init__(qubits, lengths, num_samples, seed, full_sampling)
+        super().__init__(qubits, lengths, num_samples, seed, full_sampling, backend=backend)
 
     def _sample_circuits(self, lengths, seed=None):
         circuits = []

@@ -14,13 +14,14 @@ T2Ramsey Experiment class.
 
 """
 
-from typing import List, Optional, Union
+from typing import List, Union, Optional
 import numpy as np
 
 import qiskit
 from qiskit.utils import apply_prefix
-from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
+from qiskit.providers.backend import Backend
+
 from qiskit_experiments.framework import BaseExperiment, Options
 from .t2ramsey_analysis import T2RamseyAnalysis
 
@@ -82,6 +83,7 @@ class T2Ramsey(BaseExperiment):
         delays: Union[List[float], np.array],
         unit: str = "s",
         osc_freq: float = 0.0,
+        backend: Optional[Backend] = None,
     ):
         """
         **T2Ramsey class**
@@ -96,31 +98,30 @@ class T2Ramsey(BaseExperiment):
                 used for both T2Ramsey and for the frequency.
             osc_freq: the oscillation frequency induced by the user. \
             The frequency is given in Hz.
+            backend: Optional, the backend to run the experiment on.
 
         """
 
-        super().__init__([qubit])
+        super().__init__([qubit], backend=backend)
         self.set_experiment_options(delays=delays, unit=unit, osc_freq=osc_freq)
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
 
         Each circuit consists of a Hadamard gate, followed by a fixed delay,
         a phase gate (with a linear phase), and an additional Hadamard gate.
 
-        Args:
-            backend: Optional, a backend object
-
         Returns:
             The experiment circuits
 
         Raises:
-            AttributeError: if unit is 'dt', but 'dt' parameter is missing in the backend configuration.
+            AttributeError: if unit is 'dt', but 'dt' parameter is missing in
+                            the backend configuration.
         """
         conversion_factor = 1
         if self.experiment_options.unit == "dt":
             try:
-                dt_factor = getattr(backend._configuration, "dt")
+                dt_factor = getattr(self.backend._configuration, "dt")
                 conversion_factor = dt_factor
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt

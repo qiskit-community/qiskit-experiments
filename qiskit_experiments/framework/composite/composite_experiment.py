@@ -41,7 +41,7 @@ class CompositeExperiment(BaseExperiment):
         super().__init__(qubits, experiment_type=experiment_type)
 
     @abstractmethod
-    def circuits(self, backend=None):
+    def circuits(self):
         pass
 
     @property
@@ -64,6 +64,18 @@ class CompositeExperiment(BaseExperiment):
         """Return the component experiment Analysis object"""
         return self.component_experiment(index).analysis()
 
+    def copy(self) -> "BaseExperiment":
+        """Return a copy of the experiment"""
+        ret = super().copy()
+        # Recursively call copy of component experiments
+        ret._experiments = [exp.copy() for exp in self._experiments]
+        return ret
+
+    def _set_backend(self, backend):
+        super()._set_backend(backend)
+        for subexp in self._experiments:
+            subexp._set_backend(backend)
+
     def _add_job_metadata(self, experiment_data, jobs, **run_options):
         # Add composite metadata
         super()._add_job_metadata(experiment_data, jobs, **run_options)
@@ -85,7 +97,7 @@ class CompositeExperiment(BaseExperiment):
             sub_data = experiment_data.component_experiment_data(i)
             sub_exp._add_job_metadata(sub_data, jobs, **run_options)
 
-    def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
+    def _postprocess_transpiled_circuits(self, circuits, **run_options):
         for expr in self._experiments:
             if not isinstance(expr, CompositeExperiment):
-                expr._postprocess_transpiled_circuits(circuits, backend, **run_options)
+                expr._postprocess_transpiled_circuits(circuits, **run_options)

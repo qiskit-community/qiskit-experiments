@@ -16,6 +16,7 @@ from typing import List, Optional
 import numpy as np
 
 from qiskit.circuit import Gate, QuantumCircuit
+from qiskit.providers.backend import Backend
 
 from qiskit_experiments.calibration_management import (
     BaseCalibrationExperiment,
@@ -43,6 +44,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
         schedule_name: str,
         cal_parameter_name: Optional[str] = "amp",
         auto_update: bool = True,
+        backend: Optional[Backend] = None,
     ):
         """see class :class:`FineAmplitude` for details.
 
@@ -53,6 +55,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             cal_parameter_name: The name of the parameter in the schedule to update.
             auto_update: Whether or not to automatically update the calibrations. By
                 default this variable is set to True.
+            backend: Optional, the backend to run the experiment on.
 
         """
         super().__init__(
@@ -62,6 +65,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             schedule_name=schedule_name,
             cal_parameter_name=cal_parameter_name,
             auto_update=auto_update,
+            backend=backend,
         )
 
         self.transpile_options.inst_map = calibrations.default_inst_map
@@ -99,7 +103,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 
         param_val = self._cals.get_parameter_value(
             self._param_name,
-            self._physical_qubits,
+            self.physical_qubits,
             self._sched_name,
             group=self.experiment_options.group,
         )

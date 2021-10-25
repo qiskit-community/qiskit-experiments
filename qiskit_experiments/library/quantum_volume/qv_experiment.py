@@ -15,7 +15,6 @@ Quantum Volume Experiment class.
 
 from typing import Union, Iterable, Optional, List
 from numpy.random import Generator, default_rng
-from qiskit.providers.backend import Backend
 
 try:
     from qiskit import Aer
@@ -27,6 +26,7 @@ except ImportError:
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume as QuantumVolumeCircuit
 from qiskit import transpile
+from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, Options
 from .qv_analysis import QuantumVolumeAnalysis
 
@@ -75,6 +75,7 @@ class QuantumVolume(BaseExperiment):
         qubits: Union[int, Iterable[int]],
         trials: Optional[int] = 100,
         seed: Optional[Union[int, Generator]] = None,
+        backend: Optional[Backend] = None,
         simulation_backend: Optional[Backend] = None,
     ):
         """Initialize a quantum volume experiment.
@@ -85,13 +86,14 @@ class QuantumVolume(BaseExperiment):
             trials: The number of trials to run the quantum volume circuit.
             seed: Seed or generator object for random number
                   generation. If None default_rng will be used.
+            backend: Optional, the backend to run the experiment on.
             simulation_backend: The simulator backend to use to generate
                 the expected results. the simulator must have a 'save_probabilities'
                 method. If None :class:`AerSimulator` simulator will be used
                 (in case :class:`AerSimulator` is not
                 installed :class:`qiskit.quantum_info.Statevector` will be used).
         """
-        super().__init__(qubits)
+        super().__init__(qubits, backend=backend)
 
         # Set configurable options
         self.set_experiment_options(trials=trials)
@@ -150,11 +152,8 @@ class QuantumVolume(BaseExperiment):
             probabilities = state_vector.probabilities()
         return probabilities
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def circuits(self) -> List[QuantumCircuit]:
         """Return a list of Quantum Volume circuits.
-
-        Args:
-            backend (Backend): Optional, a backend object.
 
         Returns:
             A list of :class:`QuantumCircuit`.

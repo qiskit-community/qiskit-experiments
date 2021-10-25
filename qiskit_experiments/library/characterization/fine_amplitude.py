@@ -18,8 +18,7 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
-from qiskit.providers import Backend
-
+from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.calibration.analysis.fine_amplitude_analysis import (
     FineAmplitudeAnalysis,
@@ -126,14 +125,15 @@ class FineAmplitude(BaseExperiment):
 
         return options
 
-    def __init__(self, qubit: int, gate: Gate):
+    def __init__(self, qubit: int, gate: Gate, backend: Optional[Backend] = None):
         """Setup a fine amplitude experiment on the given qubit.
 
         Args:
             qubit: The qubit on which to run the fine amplitude calibration experiment.
             gate: The gate that will be repeated.
+            backend: Optional, the backend to run the experiment on.
         """
-        super().__init__([qubit])
+        super().__init__([qubit], backend=backend)
         self.experiment_options.gate = gate
 
     def _pre_circuit(self) -> QuantumCircuit:
@@ -149,11 +149,8 @@ class FineAmplitude(BaseExperiment):
 
         return circuit
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def circuits(self) -> List[QuantumCircuit]:
         """Create the circuits for the fine amplitude calibration experiment.
-
-        Args:
-            backend: A backend object.
 
         Returns:
             A list of circuits with a variable number of gates.

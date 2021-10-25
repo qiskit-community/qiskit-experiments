@@ -16,8 +16,8 @@ T1 Experiment class.
 from typing import List, Optional, Union
 import numpy as np
 
-from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
+from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.t1_analysis import T1Analysis
@@ -67,6 +67,7 @@ class T1(BaseExperiment):
         qubit: int,
         delays: Union[List[float], np.array],
         unit: Optional[str] = "s",
+        backend: Optional[Backend] = None,
     ):
         """
         Initialize the T1 experiment class
@@ -76,6 +77,7 @@ class T1(BaseExperiment):
             delays: delay times of the experiments
             unit: Optional, unit of the delay times. Supported units:
                   's', 'ms', 'us', 'ns', 'ps', 'dt'.
+            backend: Optional, the backend to run the experiment on.
 
         Raises:
             ValueError: if the number of delays is smaller than 3
@@ -84,17 +86,14 @@ class T1(BaseExperiment):
             raise ValueError("T1 experiment: number of delays must be at least 3")
 
         # Initialize base experiment
-        super().__init__([qubit])
+        super().__init__([qubit], backend=backend)
 
         # Set experiment options
         self.set_experiment_options(delays=delays, unit=unit)
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def circuits(self) -> List[QuantumCircuit]:
         """
         Return a list of experiment circuits
-
-        Args:
-            backend: Optional, a backend object
 
         Returns:
             The experiment circuits
@@ -104,7 +103,7 @@ class T1(BaseExperiment):
         """
         if self.experiment_options.unit == "dt":
             try:
-                dt_factor = getattr(backend.configuration(), "dt")
+                dt_factor = getattr(self.backend.configuration(), "dt")
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
 

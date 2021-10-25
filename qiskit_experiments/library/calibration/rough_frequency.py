@@ -12,7 +12,8 @@
 
 """Calibration version of spectroscopy experiments."""
 
-from typing import Iterable
+from typing import Iterable, Optional
+from qiskit.providers.backend import Backend
 
 from qiskit_experiments.library.characterization.qubit_spectroscopy import QubitSpectroscopy
 from qiskit_experiments.library.characterization.ef_spectroscopy import EFSpectroscopy
@@ -34,6 +35,7 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
         unit: str = "Hz",
         auto_update: bool = True,
         absolute: bool = True,
+        backend: Optional[Backend] = None,
     ):
         """See :class:`QubitSpectroscopy` for detailed documentation.
 
@@ -48,6 +50,7 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
                 automatically update the frequency in the calibrations.
             absolute: Boolean to specify if the frequencies are absolute or relative to the
                 qubit frequency in the backend.
+            backend: Optional, the backend to run the experiment on.
 
         Raises:
             QiskitError: if there are less than three frequency shifts or if the unit is not known.
@@ -61,6 +64,7 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
             absolute,
             updater=Frequency,
             auto_update=auto_update,
+            backend=backend,
         )
 
 
