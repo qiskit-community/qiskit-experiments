@@ -35,9 +35,15 @@ class ExperimentData(DbExperimentDataV1):
                 in the setting of a composite experiment
             job_ids (list[str]): Optional, IDs of jobs submitted for the experiment.
         """
+        if experiment is not None:
+            backend = backend or experiment.backend
+            experiment_type = experiment.experiment_type
+        else:
+            experiment_type = None
+
         self._experiment = experiment
         super().__init__(
-            experiment_type=experiment.experiment_type if experiment else None,
+            experiment_type=experiment_type,
             backend=backend,
             parent_id=parent_id,
             job_ids=job_ids,
@@ -46,8 +52,8 @@ class ExperimentData(DbExperimentDataV1):
 
     @property
     def experiment(self):
-        """Return Experiment object.
-
+        """Return the experiment for this data.
+        
         Returns:
             BaseExperiment: the experiment object.
         """
@@ -98,11 +104,10 @@ class ExperimentData(DbExperimentDataV1):
         return super()._copy_metadata(new_instance)
 
     def __repr__(self):
-        out = f"{type(self).__name__}({self.experiment_type}"
-        out += f", {self.experiment_id}"
-        if self.backend:
-            out += f", backend={self.backend}"
-        if self.job_ids:
-            out += f", job_ids={self.job_ids}"
-        out += ")"
+        out = (
+            f"<ExperimentData[{self.experiment_type}]"
+            f", backend: {self.backend}"
+            f", status: {self.status()}"
+            f", experiment_id: {self.experiment_id}>"
+        )
         return out
