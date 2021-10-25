@@ -195,7 +195,7 @@ class DataProcessorTest(BaseDataProcessorTest):
         """Test that counts are properly converted to a population."""
 
         processor = DataProcessor("counts")
-        processor.append(Probability("00", prior=1.0))
+        processor.append(Probability("00", alpha_prior=1.0))
 
         # Test on a single datum.
         new_data, error = processor(self.exp_data_lvl2.data(0))
