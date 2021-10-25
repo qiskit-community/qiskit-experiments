@@ -395,22 +395,23 @@ class Probability(DataAction):
     r"""Compute the mean probability of a single measurement outcome from counts.
 
     This node returns the mean and standard deviation of a single measurement
-    outcome probability $p$ estimated from the observed counts. The mean and
+    outcome probability :math:`p` estimated from the observed counts. The mean and
     variance are computed from the posterior Beta distribution
-    $B(\alpha_0^\prime,\alpha_1^\prime)$ estimated from a Bayesian update
-    of a prior Beta distribution $B(\alpha_0, \alpha_1)$ given the observed
+    :math:`B(\alpha_0^\prime,\alpha_1^\prime)` estimated from a Bayesian update
+    of a prior Beta distribution :math:`B(\alpha_0, \alpha_1)` given the observed
     counts.
 
-    The mean and variance of the Beta distribution $B(\alpha_0, \alpha_1)$ are:
+    The mean and variance of the Beta distribution :math:`B(\alpha_0, \alpha_1)` are:
 
     .. math::
 
         \text{E}[p] = \frac{\alpha_0}{\alpha_0 + \alpha_1}, \quad
         \text{Var}[p] = \frac{\text{E}[p] (1 - \text{E}[p])}{\alpha_0 + \alpha_1 + 1}
 
-    Given a prior Beta distribution $B(\alpha_0, \alpha_1)$, the posterior
-    distribution for the observation of $F$ counts of a given
-    outcome out of $N$ total shots is a $B(\alpha_0^\prime,\alpha_1^\prime)$ with
+    Given a prior Beta distribution :math:`B(\alpha_0, \alpha_1)`, the posterior
+    distribution for the observation of :math:`F` counts of a given
+    outcome out of :math:`N` total shots is a 
+    :math:`B(\alpha_0^\prime,\alpha_1^\prime):math:` with
 
     .. math::
         \alpha_0^\prime = \alpha_0 + F, \quad
@@ -419,7 +420,7 @@ class Probability(DataAction):
     .. note::
 
         The default value for the prior distribution is *Jeffery's Prior*
-        $\alpha_0 = \alpha_1 = 0.5$ which represents ignorance about the true
+        :math:`\alpha_0 = \alpha_1 = 0.5` which represents ignorance about the true
         probability value. Note that for this prior the mean probability estimate
         from a finite number of counts can never be exactly 0 or 1. The estimated
         mean and variance are given by
