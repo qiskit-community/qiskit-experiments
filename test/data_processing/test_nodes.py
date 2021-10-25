@@ -17,7 +17,12 @@
 import numpy as np
 
 from qiskit.test import QiskitTestCase
-from qiskit_experiments.data_processing.nodes import SVD, AverageData, MinMaxNormalize
+from qiskit_experiments.data_processing.nodes import (
+    SVD,
+    AverageData,
+    MinMaxNormalize,
+    Probability,
+)
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 
 from . import BaseDataProcessorTest
@@ -200,3 +205,30 @@ class TestSVD(BaseDataProcessorTest):
         processed, _ = processor(self.iq_experiment.data(0))
         expected = np.array([-2, -2]) / np.sqrt(2)
         self.assertTrue(np.allclose(processed, expected))
+
+
+class TestProbability(QiskitTestCase):
+    """Test probability computation."""
+
+    def test_variance_not_zero(self):
+        """Test if finite variance is computed at max or min probability."""
+        node = Probability(outcome="1")
+
+        data = {"1": 1024, "0": 0}
+        mode, stderr = node(data)
+        self.assertGreater(stderr, 0.0)
+        self.assertLessEqual(mode, 1.0)
+
+        data = {"1": 0, "0": 1024}
+        mode, stderr = node(data)
+        self.assertGreater(stderr, 0.0)
+        self.assertGreaterEqual(mode, 0.0)
+
+    def test_probability_balanced(self):
+        """Test if p=0.5 is returned when counts are balanced and prior is flat."""
+        node = Probability(outcome="1")
+
+        # balanced counts with a flat prior will yield p = 0.5
+        data = {"1": 512, "0": 512}
+        mode, _ = node(data)
+        self.assertAlmostEqual(mode, 0.5)
