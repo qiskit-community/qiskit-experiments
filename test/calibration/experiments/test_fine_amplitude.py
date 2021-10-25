@@ -46,7 +46,7 @@ class TestFineAmpEndToEnd(QiskitTestCase):
         amp_exp.set_transpile_options(basis_gates=["xp", "x", "sx"])
         amp_exp.set_experiment_options(add_sx=True)
         amp_exp.set_analysis_options(
-            number_guesses=11, angle_per_gate=np.pi, phase_offset=np.pi / 2
+            angle_per_gate=np.pi, phase_offset=np.pi / 2
         )
 
         error = -np.pi * pi_ratio
@@ -69,7 +69,7 @@ class TestFineAmpEndToEnd(QiskitTestCase):
         amp_exp.set_transpile_options(basis_gates=["xp", "x", "sx"])
         amp_exp.set_experiment_options(add_sx=True)
         amp_exp.set_analysis_options(
-            number_guesses=11, angle_per_gate=np.pi, phase_offset=np.pi / 2
+            angle_per_gate=np.pi, phase_offset=np.pi / 2
         )
 
         error = np.pi * pi_ratio
