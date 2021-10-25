@@ -410,7 +410,7 @@ class Probability(DataAction):
 
     Given a prior Beta distribution :math:`B(\alpha_0, \alpha_1)`, the posterior
     distribution for the observation of :math:`F` counts of a given
-    outcome out of :math:`N` total shots is a 
+    outcome out of :math:`N` total shots is a
     :math:`B(\alpha_0^\prime,\alpha_1^\prime):math:` with
 
     .. math::
