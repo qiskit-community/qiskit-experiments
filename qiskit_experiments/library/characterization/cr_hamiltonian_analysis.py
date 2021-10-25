@@ -199,7 +199,8 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         """Return the default analysis options."""
         default_options = super()._default_options()
         default_options.data_processor = dp.DataProcessor(
-            input_key="counts", data_actions=[dp.Probability("1"), dp.BasisExpectationValue()]
+            input_key="counts",
+            data_actions=[dp.Probability("1"), dp.BasisExpectationValue()],
         )
         default_options.curve_plotter = "mpl_multiv_canvas"
         default_options.xlabel = "Flat top width"
@@ -266,21 +267,23 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
 
         guesses = defaultdict(list)
         for control in (0, 1):
-            # start from Z oscillation
             x_data = self._data(series_name=f"x|c={control}")
             y_data = self._data(series_name=f"y|c={control}")
             z_data = self._data(series_name=f"z|c={control}")
 
             omega_xyz = []
             for data in (x_data, y_data, z_data):
+                ymin, ymax = np.percentile(data.y, [10, 90])
+                if ymax - ymin < 0.2:
+                    # oscillation amplitude might be almost zero,
+                    # then exclude from average because of lower SNR
+                    continue
                 fft_freq = curve.guess.frequency(data.x, data.y)
-                # oscillation amplitude might be almost zero, then exclude from average
-                if fft_freq > 0:
-                    omega_xyz.append(fft_freq)
+                omega_xyz.append(fft_freq)
             if omega_xyz:
                 omega = 2 * np.pi * np.average(omega_xyz)
             else:
-                omega = 0.0
+                omega = 1e-3
 
             zmin, zmax = np.percentile(z_data.y, [10, 90])
             theta = np.arccos(np.sqrt((zmax - zmin) / 2))

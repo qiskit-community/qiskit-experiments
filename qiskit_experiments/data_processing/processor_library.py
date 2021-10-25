@@ -16,7 +16,7 @@ from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.data_processor import DataProcessor
-from qiskit_experiments.data_processing.nodes import AverageData, Probability, SVD, MinMaxNormalize
+from qiskit_experiments.data_processing import nodes
 
 
 def get_processor(
@@ -38,16 +38,16 @@ def get_processor(
         DataProcessorError: if the measurement level is not supported.
     """
     if meas_level == MeasLevel.CLASSIFIED:
-        return DataProcessor("counts", [Probability("1")])
+        return DataProcessor("counts", [nodes.Probability("1")])
 
     if meas_level == MeasLevel.KERNELED:
         if meas_return == "single":
-            processor = DataProcessor("memory", [AverageData(axis=1), SVD()])
+            processor = DataProcessor("memory", [nodes.AverageData(axis=1), nodes.SVD()])
         else:
-            processor = DataProcessor("memory", [SVD()])
+            processor = DataProcessor("memory", [nodes.SVD()])
 
         if normalize:
-            processor.append(MinMaxNormalize())
+            processor.append(nodes.MinMaxNormalize())
 
         return processor
 

@@ -118,6 +118,14 @@ class FineAmplitude(BaseExperiment):
 
         return options
 
+    @classmethod
+    def _default_analysis_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_analysis_options()
+        options.amp = 1.0
+
+        return options
+
     def __init__(self, qubit: int, gate: Gate):
         """Setup a fine amplitude experiment on the given qubit.
 
