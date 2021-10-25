@@ -198,7 +198,7 @@ class T2HahnAnalysis(BaseAnalysis):
             b = 0.5
         else:
             a = user_p0["A"]
-            t2hahn = user_p0["T2hahn"] * conversion_factor
+            t2hahn = user_p0["T2"] * conversion_factor
             b = user_p0["B"]
         p0 = {"a_guess": a, "T2": t2hahn, "b_guess": b}
 
