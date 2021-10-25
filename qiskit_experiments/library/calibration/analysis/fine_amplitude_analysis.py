@@ -28,4 +28,6 @@ class FineAmplitudeAnalysis(ErrorAmplificationAnalysis):
     """
 
     # The intended angle per gat of the gate being calibrated, e.g. pi for a pi-pulse.
-    __fixed_parameters__ = ["angle_per_gate", "phase_offset"]
+
+    # TODO remove amp from fixed parameter.
+    __fixed_parameters__ = ["angle_per_gate", "phase_offset", "amp"]
