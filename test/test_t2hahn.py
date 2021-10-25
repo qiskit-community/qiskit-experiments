@@ -18,8 +18,10 @@ import numpy as np
 from qiskit.utils import apply_prefix
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.framework import ParallelExperiment
-from qiskit_experiments.library.characterization import t2hahn as T2Hahn
+from qiskit_experiments.library.characterization.t2hahn import T2Hahn
 from qiskit_experiments.test.t2hahn_backend import T2HahnBackend
+
+import unittest
 
 
 class TestT2Hahn(QiskitTestCase):
@@ -40,7 +42,7 @@ class TestT2Hahn(QiskitTestCase):
             estimated_t2hahn = 20
             estimated_freq = osc_freq * 1.001
             # Set up the circuits
-            qubit = 0
+            qubit = 1
             if unit == "dt":  # dt requires integer values for delay
                 delays = list(range(1, 46))
             else:
@@ -48,10 +50,10 @@ class TestT2Hahn(QiskitTestCase):
                     (np.linspace(1.0, 15.0, num=15)).astype(float),
                     (np.linspace(16.0, 45.0, num=59)).astype(float),
                 )
-            exp = T2Hahn(qubit, delays, unit=unit, osc_freq=osc_freq)
+            exp = T2Hahn(qubit, delays, unit=unit)
             default_p0 = {
                 "A": 0.5,
-                "T2star": estimated_t2hahn,
+                "T2": estimated_t2hahn,
                 "f": estimated_freq,
                 "phi": 0,
                 "B": 0.5,
@@ -61,7 +63,7 @@ class TestT2Hahn(QiskitTestCase):
                 backend = T2HahnBackend(
                     p0={
                         "A": [0.5],
-                        "T2star": [estimated_t2hahn],
+                        "T2": [estimated_t2hahn],
                         "f": [estimated_freq],
                         "phi": [0.0],
                         "B": [0.5],
@@ -98,13 +100,13 @@ class TestT2Hahn(QiskitTestCase):
 
         osc_freq = [0.11, 0.11]
 
-        exp0 = T2Hahn(0, delays[0], osc_freq=osc_freq[0])
-        exp2 = T2Hahn(2, delays[1], osc_freq=osc_freq[1])
+        exp0 = T2Hahn(0, delays[0])
+        exp2 = T2Hahn(2, delays[1])
         par_exp = ParallelExperiment([exp0, exp2])
 
         p0 = {
             "A": [0.5, None, 0.5],
-            "T2star": [t2hahn[0], None, t2hahn[1]],
+            "T2": [t2hahn[0], None, t2hahn[1]],
             "f": [estimated_freq[0], None, estimated_freq[1]],
             "phi": [0, None, 0],
             "B": [0.5, None, 0.5],
@@ -145,10 +147,10 @@ class TestT2Hahn(QiskitTestCase):
         delays0 = list(range(1, 60, 2))
         osc_freq = 0.08
 
-        exp0 = T2Hahn(qubit, delays0, unit=unit, osc_freq=osc_freq)
+        exp0 = T2Hahn(qubit, delays0, unit=unit)
         default_p0 = {
             "A": 0.5,
-            "T2star": estimated_t2hahn,
+            "T2": estimated_t2hahn,
             "f": estimated_freq,
             "phi": 0,
             "B": 0.5,
@@ -157,7 +159,7 @@ class TestT2Hahn(QiskitTestCase):
         backend = T2HahnBackend(
             p0={
                 "A": [0.5],
-                "T2star": [estimated_t2hahn],
+                "T2": [estimated_t2hahn],
                 "f": [estimated_freq],
                 "phi": [0.0],
                 "B": [0.5],
@@ -193,3 +195,7 @@ class TestT2Hahn(QiskitTestCase):
         )
         self.assertLessEqual(results1[0].value.stderr, results0[0].value.stderr)
         self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))
+
+
+if __name__ == "__main__":
+    unittest.main()

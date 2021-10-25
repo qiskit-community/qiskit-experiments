@@ -32,12 +32,12 @@ class T2HahnBackend(BackendV1):
     """
 
     def __init__(
-        self,
-        p0=None,
-        initial_prob_plus=None,
-        readout0to1=None,
-        readout1to0=None,
-        conversion_factor=1,
+            self,
+            p0=None,
+            initial_prob_plus=None,
+            readout0to1=None,
+            readout1to0=None,
+            conversion_factor=1,
     ):
         """
         Initialize the T2Hahn backend
@@ -64,7 +64,7 @@ class T2HahnBackend(BackendV1):
         self._freq = p0["f"]
         self._phi = p0["phi"]
         self._b_param = p0["B"]
-        self._initial_prob_plus = initial_prob_plus
+        self._initial_prob_plus = None
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
         self._conversion_factor = conversion_factor
@@ -96,20 +96,9 @@ class T2HahnBackend(BackendV1):
             qubit_indices = {bit: idx for idx, bit in enumerate(circ.qubits)}
             clbit_indices = {bit: idx for idx, bit in enumerate(circ.clbits)}
             counts = dict()
-            if self._readout0to1 is None:
-                ro01 = np.zeros(nqubits)
-            else:
-                ro01 = self._readout0to1
-            if self._readout1to0 is None:
-                ro10 = np.zeros(nqubits)
-            else:
-                ro10 = self._readout1to0
-            for _ in range(shots):
-                if self._initial_prob_plus is None:
-                   qubit_state = {"qubit state": 0, "XY plain": False, "Theta": 0}
-                else:
-                    qubit_state = self._initial_prob_plus.copy()
 
+            for _ in range(shots):
+                qubit_state = {"qubit state": 0, "XY plain": False, "Theta": 0}
                 clbits = np.zeros(circ.num_clbits, dtype=int)
                 for op, qargs, cargs in circ.data:
                     qubit = qubit_indices[qargs[0]]
@@ -159,15 +148,14 @@ class T2HahnBackend(BackendV1):
                             meas_res = qubit_state["qubit state"]
                         clbit = clbit_indices[cargs[0]]
                         clbits[clbit] = meas_res
-
                 clstr = ""
                 for clbit in clbits[::-1]:
                     clstr = clstr + str(clbit)
 
-                if clstr in counts:
-                    counts[clstr] += 1
-                else:
-                    counts[clstr] = 1
+                    if clstr in counts:
+                        counts[clstr] += 1
+                    else:
+                        counts[clstr] = 1
             result["results"].append(
                 {
                     "shots": shots,
