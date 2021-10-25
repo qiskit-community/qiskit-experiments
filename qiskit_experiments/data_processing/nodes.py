@@ -13,7 +13,8 @@
 """Different data analysis steps."""
 
 from abc import abstractmethod
-from typing import Any, Dict, List, Optional, Tuple, Union
+from numbers import Number
+from typing import Any, Dict, List, Optional, Tuple, Union, Sequence
 import numpy as np
 
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
@@ -391,51 +392,57 @@ class ToImag(IQPart):
 
 
 class Probability(DataAction):
-    r"""Compute the most likely value for pribability and variance from a count dictionary.
+    r"""Compute the mean probability of a single measurement outcome from counts.
 
-    This node assumes the Dirichlet distribution with Bayes update taking a prior distribution,
-    and only returns a pribability and variance of the state labeled by the ``outcome``.
+    This node returns the mean and standard deviation of a single measurement
+    outcome probability $p$ estimated from the observed counts. The mean and
+    variance are computed from the posterior Beta distribution
+    $B(\alpha_0^\prime,\alpha_1^\prime)$ estimated from a Bayesian update
+    of a prior Beta distribution $B(\alpha_0, \alpha_1)$ given the observed
+    counts.
 
-    Here the :math:`alpha_i` denotes a parameter of the Dirichlet distribution.
-    The most likely distribution of probabilities are computed as
-
-    .. math::
-
-        p_i = \frac{\alpha_i - 1}{\alpha_0 - K}
-
-    where :math:`\alpha_i = f_i + \theta_i`, :math:`\alpha_0 = \sum_{i=1}^K \alpha_i`,
-    :math:`\theta_i` is the prior distribution and :math:`f_i` is
-    the count number of the :math:`i`-th state out of :math:`K` measurable states.
-    For example, if one provides a 2 bit ``outcome`` label, i.e. two-qubit measurement,
-    the possible measurable states are (00, 01, 10, 11) and thus :math:`K` is 4.
-
-    One can provide an arbitrary prior as a dictionary keyed on the state labels, or
-    a flat prior with an arbitrary float value. It defaults to a flat MLE-like prior.
-
-    Then, the variance is computed by
+    The mean and variance of the Beta distribution $B(\alpha_0, \alpha_1)$ are:
 
     .. math::
 
-        v_i = \frac{\alpha_i / \alpha_0 (1 - \alpha_i / \alpha_0)}{\alpha_0 + 1}
+        \text{E}[p] = \frac{\alpha_0}{\alpha_0 + \alpha_1}, \quad
+        \text{Var}[p] = \frac{\text{E}[p] (1 - \text{E}[p])}{\alpha_0 + \alpha_1 + 1}
 
-    With a finite prior, this node always returns a finite variance which prevents
-    unexpected zero divisions. The returned data is :math:`(p_j, \sqrt{v_j})` where :math:`j`
-    is the index of state corresponding to the ``outcome``.
+    Given a prior Beta distribution $B(\alpha_0, \alpha_1)$, the posterior
+    distribution for the observation of $F$ counts of a given
+    outcome out of $N$ total shots is a $B(\alpha_0^\prime,\alpha_1^\prime)$ with
+
+    .. math::
+        \alpha_0^\prime = \alpha_0 + F, \quad
+        \alpha_1^\prime = \alpha_1 + N - F.
+
+    .. note::
+
+        The default value for the prior distribution is *Jeffery's Prior*
+        $\alpha_0 = \alpha_1 = 0.5$ which represents ignorance about the true
+        probability value. Note that for this prior the mean probability estimate
+        from a finite number of counts can never be exactly 0 or 1. The estimated
+        mean and variance are given by
+
+        .. math::
+
+            \text{E}[p] = \frac{F + 0.5}{N + 1}, \quad
+            \text{Var}[p] = \frac{\text{E}[p] (1 - \text{E}[p])}{N + 2}
     """
 
     def __init__(
         self,
         outcome: str,
-        prior: float = 1,
+        alpha_prior: Union[float, Sequence[float]] = 0.5,
         validate: bool = True,
     ):
         """Initialize a counts to probability data conversion.
 
         Args:
             outcome: The bitstring for which to return the probability and variance.
-            prior: A float value to represent a prior distribution. This applies a
-                flat prior for the probability of interest and other.
-                By default, this assumes 1.0 corresponding to the MLE-like prior.
+            alpha_prior: A prior Beta distribution parameter ``[`alpha0, alpha1]``.
+                         If specified as float this will use the same value for
+                         ``alpha0`` and``alpha1`` (Default: 0.5).
             validate: If set to False the DataAction will not validate its input.
 
         Raises:
@@ -443,7 +450,14 @@ class Probability(DataAction):
                 do not match.
         """
         self._outcome = outcome
-        self._prior = prior
+        if isinstance(alpha_prior, Number):
+            self._alpha_prior = [alpha_prior, alpha_prior]
+        else:
+            if validate and len(alpha_prior) != 2:
+                raise DataProcessorError(
+                    "Prior for probability node must be a float or pair of floats."
+                )
+            self._alpha_prior = list(alpha_prior)
         super().__init__(validate)
 
     def _format_data(self, datum: dict, error: Optional[Any] = None) -> Tuple[dict, Any]:
@@ -517,14 +531,11 @@ class Probability(DataAction):
     def _population_error(self, counts_dict: Dict[str, int]) -> Tuple[float, float]:
         """Helper method"""
         shots = sum(counts_dict.values())
-        freq = counts_dict.get(self._outcome, 0.0)
-
-        alpha_i = freq + self._prior
-        alpha_0 = shots + 2 * self._prior
-
-        p_mean = alpha_i / alpha_0
-        p_var = p_mean * (1 - p_mean) / (alpha_0 + 1)
-
+        freq = counts_dict.get(self._outcome, 0)
+        alpha_posterior = [freq + self._alpha_prior[0], shots - freq + self._alpha_prior[1]]
+        alpha_sum = sum(alpha_posterior)
+        p_mean = alpha_posterior[0] / alpha_sum
+        p_var = p_mean * (1 - p_mean) / (alpha_sum + 1)
         return p_mean, np.sqrt(p_var)
 
 
