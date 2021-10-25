@@ -140,7 +140,6 @@ class T2HahnBackend(BackendV1):
                         else:
                             qubit_state = {"qubit state": 0, "XY plain": False, "Theta": 0}
 
-                    #Need to  change
                     if op.name == "ry":
                         if qubit_state["XY plain"]:
                             if qubit_state["Theta"] == 0:
