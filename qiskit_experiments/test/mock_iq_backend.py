@@ -32,13 +32,14 @@ class MockIQBackend(FakeOpenPulse2Q):
         self,
         iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
         iq_cluster_width: float = 1.0,
+        rng_seed: int = 0,
     ):
         """
         Initialize the backend.
         """
         self._iq_cluster_centers = iq_cluster_centers
         self._iq_cluster_width = iq_cluster_width
-        self._rng = np.random.default_rng(0)
+        self._rng = np.random.default_rng(rng_seed)
 
         super().__init__()
 
@@ -137,13 +138,14 @@ class DragBackend(MockIQBackend):
         error: float = 0.03,
         ideal_beta=2.0,
         gate_name: str = "Rp",
+        rng_seed: int = 0,
     ):
         """Initialize the rabi backend."""
         self._error = error
         self._gate_name = gate_name
         self.ideal_beta = ideal_beta
 
-        super().__init__(iq_cluster_centers, iq_cluster_width)
+        super().__init__(iq_cluster_centers, iq_cluster_width, rng_seed=rng_seed)
 
     def _compute_probability(self, circuit: QuantumCircuit) -> float:
         """Returns the probability based on the beta, number of gates, and leakage."""

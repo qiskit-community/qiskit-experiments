@@ -31,8 +31,11 @@ from qiskit.pulse import (
 from qiskit.pulse.transforms import inline_subroutines, block_to_schedule
 import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
+from qiskit.test.mock import FakeArmonk
 from qiskit_experiments.calibration_management.calibrations import Calibrations, ParameterKey
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
+from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+from qiskit_experiments.calibration_management import BackendCalibrations
 from qiskit_experiments.exceptions import CalibrationError
 
 
@@ -1302,17 +1305,18 @@ class TestSavingAndLoading(CrossResonanceTest):
         self._prefix = str(uuid.uuid4())
         super().setUp()
 
-    def _remove_files(self, prefix: str):
-        """Delete the files."""
-        os.remove(prefix + "parameter_values.csv")
-        os.remove(prefix + "parameter_config.csv")
-        os.remove(prefix + "schedules.csv")
+    def tearDown(self):
+        """Clean-up after the test."""
+        super().tearDown()
+
+        for file in ["parameter_values.csv", "parameter_config.csv", "schedules.csv"]:
+            if os.path.exists(self._prefix + file):
+                os.remove(self._prefix + file)
 
     def test_save_load_parameter_values(self):
         """Test that we can save and load parameter values."""
 
         self.cals.save("csv", overwrite=True, file_prefix=self._prefix)
-        self.addCleanup(self._remove_files, self._prefix)
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.1 + 0.01j)
 
         self.cals._params = defaultdict(list)
@@ -1349,6 +1353,29 @@ class TestSavingAndLoading(CrossResonanceTest):
         self.cals.add_parameter_value(value, "amp", (3,), "xp")
 
         self.cals.save("csv", overwrite=True, file_prefix=self._prefix)
-        self.addCleanup(self._remove_files, self._prefix)
         self.cals._params = defaultdict(list)
         self.cals.load_parameter_values(self._prefix + "parameter_values.csv")
+
+    def test_save_load_library(self):
+        """Test that we can load and save a library.
+
+        These libraries contain both parameters with schedules and parameters without
+        any schedules (e.g. frequencies for qubits and readout).
+        """
+
+        library = FixedFrequencyTransmon()
+        backend = FakeArmonk()
+        cals = BackendCalibrations(backend, library)
+
+        cals.parameters_table()
+
+        cals.save(file_type="csv", overwrite=True, file_prefix=self._prefix)
+
+        cals.load_parameter_values(self._prefix + "parameter_values.csv")
+
+        # Test the value of a few loaded params.
+        self.assertEqual(cals.get_parameter_value("amp", (0,), "x"), 0.5)
+        self.assertEqual(
+            cals.get_parameter_value("qubit_lo_freq", (0,)),
+            backend.defaults().qubit_freq_est[0],
+        )
