@@ -17,6 +17,7 @@ from typing import List, Optional, Union
 import numpy as np
 
 from qiskit.providers import Backend
+from qiskit.test.mock import FakeBackend
 from qiskit.circuit import QuantumCircuit
 
 from qiskit_experiments.framework import BaseExperiment, Options
@@ -102,6 +103,20 @@ class T1(BaseExperiment):
         Raises:
             AttributeError: if unit is dt but dt parameter is missing in the backend configuration
         """
+        # Scheduling parameters
+        # TODO wait for base class refactoring
+        if backend.configuration().simulator is False and isinstance(backend, FakeBackend) is False:
+            timing_constraints = getattr(self.transpile_options.__dict__, "timing_constraints", {})
+            timing_constraints["acquire_alignment"] = getattr(
+                timing_constraints, "acquire_alignment", 16
+            )
+            scheduling_method = getattr(
+                self.transpile_options.__dict__, "scheduling_method", "alap"
+            )
+            self.set_transpile_options(
+                timing_constraints=timing_constraints, scheduling_method=scheduling_method
+            )
+
         if self.experiment_options.unit == "dt":
             try:
                 dt_factor = getattr(backend.configuration(), "dt")

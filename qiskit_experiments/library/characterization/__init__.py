@@ -54,4 +54,11 @@ from .t2ramsey import T2Ramsey
 from .t2ramsey_analysis import T2RamseyAnalysis
 from .cr_hamiltonian import CrossResonanceHamiltonian, EchoedCrossResonanceHamiltonian
 from .cr_hamiltonian_analysis import CrossResonanceHamiltonianAnalysis
+from .heat import (
+    HeatY0,
+    HeatY1,
+    HeatZ0,
+    HeatZ1,
+    HeatCompositeZY,
+)
 from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
