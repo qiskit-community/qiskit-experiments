@@ -114,12 +114,13 @@ class T2HahnBackend(BackendV1):
                 for op, qargs, cargs in circ.data:
                     qubit = qubit_indices[qargs[0]]
 
+                    # The noise will only be applied if we are in the XY plain.
                     if op.name == "delay":
                         delay = op.params[0]
                         t2hahn = self._t2hahn[qubit] * self._conversion_factor
                         freq = self._freq[qubit]
 
-                        if qubit_state["XY plain"] == True:
+                        if qubit_state["XY plain"]:
                             prob_noise = 1 - (
                                     self._a_param[qubit]
                                     * np.exp(-delay / t2hahn)
@@ -127,34 +128,36 @@ class T2HahnBackend(BackendV1):
                             )
                             if self._rng.random() < prob_noise:
                                 if self._rng.random() < 0.5:
-                                    qubit_state[qubit] = {"qubit state": 0, "XY plain": False, "Theta": 0}
+                                    qubit_state = {"qubit state": 0, "XY plain": False, "Theta": 0}
                                 else:
-                                    qubit_state[qubit] = {"qubit state": 1, "XY plain": False, "Theta": 0}
+                                    qubit_state = {"qubit state": 1, "XY plain": False, "Theta": 0}
 
                     if op.name == "rx":
-                        if qubit_state["XY plain"] == True:
-                            qubit_state[qubit] = {"qubit state": 0, "XY plain": True, "Theta": np.pi}
+                        if qubit_state["XY plain"]:
+                            qubit_state = {"qubit state": 0, "XY plain": True, "Theta": np.pi}
                         elif qubit_state["qubit state"] == 0:
-                            qubit_state[qubit] = {"qubit state": 1, "XY plain": False, "Theta": 0}
+                            qubit_state = {"qubit state": 1, "XY plain": False, "Theta": 0}
                         else:
-                            qubit_state[qubit] = {"qubit state": 0, "XY plain": False, "Theta": 0}
+                            qubit_state = {"qubit state": 0, "XY plain": False, "Theta": 0}
 
-                    # #Need to  change
-                    # if op.name == "ry":
-                    #     if qubit_state["XY plain"] == True:
-                    #         qubit_state[qubit] = {"qubit state": 0, "XY plain": True, "Theta": np.pi}
-                    #     elif qubit_state["qubit state"] == 0:
-                    #         qubit_state[qubit] = {"qubit state": 1, "XY plain": False, "Theta": 0}
-                    #     else:
-                    #         qubit_state[qubit] = {"qubit state": 0, "XY plain": False, "Theta": 0}
+                    #Need to  change
+                    if op.name == "ry":
+                        if qubit_state["XY plain"]:
+                            if qubit_state["Theta"] == 0:
+                                qubit_state = {"qubit state": 1, "XY plain": False, "Theta": 0}
+                            else:
+                                qubit_state = {"qubit state": 0, "XY plain": False, "Theta": 0}
+                        elif qubit_state["qubit state"] == 0:
+                            qubit_state = {"qubit state": 1, "XY plain": True, "Theta": 0}
+                        else:
+                            qubit_state = {"qubit state": 0, "XY plain": True, "Theta": np.pi}
 
                     if op.name == "measure":
                         # we measure in |+> basis which is the same as measuring |0>
-                        meas_res = self._rng.binomial(
-                            1,
-                            (1 - prob_plus[qubit]) * (1 - ro10[qubit])
-                            + prob_plus[qubit] * ro01[qubit],
-                        )
+                        if qubit_state["XY plain"]:
+                            meas_res = (self._rng.random() < 0.5)
+                        else:
+                            meas_res = qubit_state["qubit state"]
                         clbit = clbit_indices[cargs[0]]
                         clbits[clbit] = meas_res
 
