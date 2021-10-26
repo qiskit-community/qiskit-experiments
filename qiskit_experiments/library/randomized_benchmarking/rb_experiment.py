@@ -61,7 +61,7 @@ class StandardRB(BaseExperiment):
 
     def __init__(
         self,
-        qubits: Iterable[int],
+        qubits: Sequence[int],
         lengths: Iterable[int],
         num_samples: int = 3,
         seed: Optional[Union[int, Generator]] = None,
