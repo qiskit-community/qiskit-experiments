@@ -14,7 +14,7 @@
 
 from abc import ABC
 from datetime import datetime, timezone
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Union
 import numpy as np
 
 from qiskit.circuit import Parameter

@@ -110,8 +110,7 @@ class TestEFRabi(QiskitTestCase):
         with pulse.build(name="x") as sched:
             with pulse.frequency_offset(-300e6, pulse.DriveChannel(self.qubit)):
                 pulse.play(
-                    pulse.Drag(160, Parameter("amp"), 40, 0.4),
-                    pulse.DriveChannel(self.qubit)
+                    pulse.Drag(160, Parameter("amp"), 40, 0.4), pulse.DriveChannel(self.qubit)
                 )
 
         self.sched = sched
