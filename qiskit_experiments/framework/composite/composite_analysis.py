@@ -53,4 +53,4 @@ class CompositeAnalysis(BaseAnalysis):
 
         result = AnalysisResultData(name="composite_experiment", value=None)
 
-        return [result], None
+        return [], []
