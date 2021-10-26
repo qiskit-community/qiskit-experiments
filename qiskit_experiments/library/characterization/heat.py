@@ -22,14 +22,17 @@ from qiskit.providers import Backend
 
 from qiskit_experiments.curve_analysis import ParameterRepr
 from qiskit_experiments.framework import BaseExperiment, BatchExperiment, Options
-from .heat_analysis import HeatAnalysis
+from .heat_analysis import HeatAnalysis, HeatYAnalysis, HeatZAnalysis
 
 
 class BaseHeat(BaseExperiment, ABC):
-    """Base class of HEAT experiments.
+    """Base class of HEAT experiment elements.
+
+    This class implements a single error amplification sequence.
 
     Subclasses must implement :py:meth:`_echo_circuit` to provide echo sequence that
-    selectively amplifies specific error component.
+    selectively amplifies a specific Pauli component local to the target qubit.
+
     """
 
     __analysis_class__ = HeatAnalysis
@@ -45,6 +48,12 @@ class BaseHeat(BaseExperiment, ABC):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
+        """Default experiment options.
+
+        Experiment Options:
+            repetitions (Sequence[int]): A list of the number of echo repetitions.
+            cr_gate (Gate): A gate instance representing the CR(pi/2).
+        """
         options = super()._default_experiment_options()
         options.repetitions = list(range(21))
         options.cr_gate = circuit.Gate("cr", num_qubits=2, params=[])
@@ -53,6 +62,7 @@ class BaseHeat(BaseExperiment, ABC):
 
     @classmethod
     def _default_transpile_options(cls) -> Options:
+        """Default transpile options."""
         options = super()._default_transpile_options()
         options.basis_gates = ["sx", "x", "rz", "cr"]
 
@@ -96,8 +106,100 @@ class BaseHeat(BaseExperiment, ABC):
         return circs
 
 
-class HeatY0(BaseHeat):
-    """"""
+class BaseCompositeHeat(BatchExperiment, ABC):
+    """Base class of HEAT experiments.
+
+    This class implements a batch experiment consisting of multiple HEAT element experiments
+    to compute specific unitary error terms from extracted `d_theta` parameters.
+
+    Class Attributes:
+        - ``__heat_elements__``: A list of HEAT element experiments.
+
+    """
+
+    __heat_elements__ = []
+
+    def __init__(self, qubits: Tuple[int, int]):
+        """Create new HEAT experiment.
+
+        Args:
+            qubits: A tuple of control and target qubit index.
+        """
+        heat_experiments = [expcls(qubits=qubits) for expcls in self.__heat_elements__]
+        super().__init__(heat_experiments)
+
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        """Default experiment options.
+
+        Experiment Options:
+            repetitions (Sequence[int]): A list of the number of echo repetitions.
+            cr_gate (Gate): A gate instance representing the CR(pi/2).
+        """
+        options = super()._default_experiment_options()
+        options.repetitions = list(range(21))
+        options.cr_gate = circuit.Gate("cr", num_qubits=2, params=[])
+
+        return options
+
+    def set_experiment_options(self, **fields):
+        """Set the analysis options for :meth:`run` method.
+
+        Same experiment options are applied to all subset HEAT experiments.
+
+        Args:
+            fields: The fields to update the options
+        """
+        for comp_exp in self.component_experiment():
+            comp_exp.set_experiment_options(**fields)
+
+        super().set_transpile_options(**fields)
+
+    @classmethod
+    def _default_transpile_options(cls) -> Options:
+        """Default transpile options."""
+        options = super()._default_transpile_options()
+        options.basis_gates = ["sx", "x", "rz", "cr"]
+
+        return options
+
+    def set_transpile_options(self, **fields):
+        """Set the transpiler options for :meth:`run` method.
+
+        Same transpile options are applied to all subset HEAT experiments.
+
+        Args:
+            fields: The fields to update the options
+        """
+        # TODO wait for #380 to apply individual transpile options to nested experiments
+        for comp_exp in self.component_experiment():
+            comp_exp.set_transpile_options(**fields)
+
+        super().set_transpile_options(**fields)
+
+
+class HeatElementY0(BaseHeat):
+    r"""A single error amplification sequence of Y error with the control qubit in 0 state.
+
+    # section: overview
+
+        This experiment generates a following circuit.
+
+        .. parsed-literal::
+
+                             ░ ┌─────┐      ░
+            q_0: ────────────░─┤0    ├──────░────
+                 ┌─────────┐ ░ │  cr │┌───┐ ░ ┌─┐
+            q_1: ┤ Ry(π/2) ├─░─┤1    ├┤ Y ├─░─┤M├
+                 └─────────┘ ░ └─────┘└───┘ ░ └╥┘
+            c: 1/══════════════════════════════╩═
+                                               0
+
+        Circuit block in the middle is repeated N times to amplify the target error.
+        The ``cr`` gate represents a unitary of :math:`CR(\pi/2)`, and its pulse schedule
+        should be provided by users.
+
+    """
 
     @classmethod
     def _default_analysis_options(cls) -> Options:
@@ -121,8 +223,28 @@ class HeatY0(BaseHeat):
         return circ
 
 
-class HeatY1(BaseHeat):
-    """"""
+class HeatElementY1(BaseHeat):
+    r"""A single error amplification sequence of Y error with the control qubit in 1 state.
+
+    # section: overview
+
+        This experiment generates a following circuit.
+
+        .. parsed-literal::
+
+                    ┌───┐    ░ ┌─────┐      ░
+            q_0: ───┤ X ├────░─┤0    ├──────░────
+                 ┌──┴───┴──┐ ░ │  cr │┌───┐ ░ ┌─┐
+            q_1: ┤ Ry(π/2) ├─░─┤1    ├┤ Y ├─░─┤M├
+                 └─────────┘ ░ └─────┘└───┘ ░ └╥┘
+            c: 1/══════════════════════════════╩═
+                                               0
+
+        Circuit block in the middle is repeated N times to amplify the target error.
+        The ``cr`` gate represents a unitary of :math:`CR(\pi/2)`, and its pulse schedule
+        should be provided by users.
+
+    """
 
     @classmethod
     def _default_analysis_options(cls) -> Options:
@@ -147,8 +269,28 @@ class HeatY1(BaseHeat):
         return circ
 
 
-class HeatZ0(BaseHeat):
-    """"""
+class HeatElementZ0(BaseHeat):
+    r"""A single error amplification sequence of Z error with the control qubit in 0 state.
+
+    # section: overview
+
+        This experiment generates a following circuit.
+
+        .. parsed-literal::
+
+                             ░ ┌─────┐      ░
+            q_0: ────────────░─┤0    ├──────░───────────────
+                 ┌─────────┐ ░ │  cr │┌───┐ ░ ┌─────────┐┌─┐
+            q_1: ┤ Ry(π/2) ├─░─┤1    ├┤ Z ├─░─┤ Rx(π/2) ├┤M├
+                 └─────────┘ ░ └─────┘└───┘ ░ └─────────┘└╥┘
+            c: 1/═════════════════════════════════════════╩═
+                                                          0
+
+        Circuit block in the middle is repeated N times to amplify the target error.
+        The ``cr`` gate represents a unitary of :math:`CR(\pi/2)`, and its pulse schedule
+        should be provided by users.
+
+    """
 
     @classmethod
     def _default_analysis_options(cls) -> Options:
@@ -178,8 +320,28 @@ class HeatZ0(BaseHeat):
         return circ
 
 
-class HeatZ1(BaseHeat):
-    """"""
+class HeatElementZ1(BaseHeat):
+    r"""A single error amplification sequence of Z error with the control qubit in 1 state.
+
+    # section: overview
+
+        This experiment generates a following circuit.
+
+        .. parsed-literal::
+
+                    ┌───┐    ░ ┌─────┐      ░
+            q_0: ───┤ X ├────░─┤0    ├──────░───────────────
+                 ┌──┴───┴──┐ ░ │  cr │┌───┐ ░ ┌─────────┐┌─┐
+            q_1: ┤ Ry(π/2) ├─░─┤1    ├┤ Z ├─░─┤ Rx(π/2) ├┤M├
+                 └─────────┘ ░ └─────┘└───┘ ░ └─────────┘└╥┘
+            c: 1/═════════════════════════════════════════╩═
+                                                          0
+
+        Circuit block in the middle is repeated N times to amplify the target error.
+        The ``cr`` gate represents a unitary of :math:`CR(\pi/2)`, and its pulse schedule
+        should be provided by users.
+
+    """
 
     @classmethod
     def _default_analysis_options(cls) -> Options:
@@ -210,22 +372,23 @@ class HeatZ1(BaseHeat):
         return circ
 
 
-class HeatCompositeZY(BatchExperiment):
-    """"""
+class HeatYError(BaseCompositeHeat):
+    """HEAT experiments for Y error amplification.
 
-    def __init__(self, qubits: Tuple[int, int]):
+    # section: overview
+        TODO
+    """
 
-        # configure sub echo experiments.
-        exp_y0 = HeatY0(qubits=qubits)
-        exp_y1 = HeatY1(qubits=qubits)
-        exp_z0 = HeatZ0(qubits=qubits)
-        exp_z1 = HeatZ1(qubits=qubits)
+    __heat_elements__ = [HeatElementY0, HeatElementY1]
+    __analysis_class__ = HeatYAnalysis
 
-        super().__init__(experiments=[exp_y0, exp_y1, exp_z0, exp_z1])
 
-    @classmethod
-    def set_transpile_options(self, **fields):
-        for comp_exp in self.component_experiment():
-            comp_exp.set_transpile_options(**fields)
+class HeatZError(BatchExperiment):
+    """HEAT experiments for Z error amplification.
 
-        super().set_transpile_options(**fields)
+    # section: overview
+        TODO
+    """
+
+    __heat_elements__ = [HeatElementZ0, HeatElementZ1]
+    __analysis_class__ = HeatZAnalysis
