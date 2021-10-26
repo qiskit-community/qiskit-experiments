@@ -73,7 +73,7 @@ class TestCompositeExperimentData(QiskitTestCase):
     def setUp(self):
         super().setUp()
 
-        self.backend = FakeMelbourne()
+        self.backend = FakeBackend()
         self.share_level = "hey"
 
         exp1 = FakeExperiment([0, 2])
