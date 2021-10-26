@@ -123,6 +123,12 @@ class CompositeExperimentData(ExperimentData):
             load_class = globals()[comp_class]
             load_func = getattr(load_class, "load")
             loaded_comp = load_func(comp_id, service)
+
+            # Sub-experiments that were saved before parent_id was introduced - 
+            # their parent_id was set to None by the super class load method,
+            # and has now to be updated to the correct id
+            loaded_comp._parent_id = expdata.experiment_id
+
             expdata._components.append(loaded_comp)
 
         return expdata
