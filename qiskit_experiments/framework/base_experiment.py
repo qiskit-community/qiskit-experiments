@@ -193,15 +193,16 @@ class BaseExperiment(ABC):
         return self.__experiment_data__(experiment=self)
 
     def run_analysis(
-        self, experiment_data: ExperimentData, update: bool = False, **options
+        self, experiment_data: ExperimentData, replace_results: bool = False, **options
     ) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
         Args:
             experiment_data: the experiment data to analyze.
-            update: if True clear any existing analysis results in experiment data
-                    and replace with new results. If False return a copy of the
-                    experiment data containing only the new analysis results.
+            replace_results: if True clear any existing analysis results in experiment
+                             data and replace with new results. If False return a copy
+                             of the experiment data containing only the new analysis
+                             results.
             options: additional analysis options. Any values set here will
                      override the value from :meth:`analysis_options`
                      for the current run.
@@ -219,7 +220,7 @@ class BaseExperiment(ABC):
 
         # Run analysis
         analysis = self.analysis()
-        analysis.run(experiment_data, update=update, **analysis_options)
+        analysis.run(experiment_data, replace_results=replace_results, **analysis_options)
         return experiment_data
 
     def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[BaseJob]:

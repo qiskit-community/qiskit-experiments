@@ -54,34 +54,34 @@ class TestFramework(QiskitTestCase):
                 num_jobs += 1
         self.assertEqual(len(job_ids), num_jobs)
 
-    def test_analysis_update_true(self):
-        """Test running analysis with update=True"""
+    def test_analysis_replace_results_true(self):
+        """Test running analysis with replace_results=True"""
         analysis = FakeAnalysis()
         # Run analysis first time
         expdata1 = analysis.run(ExperimentData(), seed=54321).block_for_results()
         num_results1 = len(expdata1.analysis_results())
-        expdata2 = analysis.run(expdata1, update=True, seed=12345).block_for_results()
+        expdata2 = analysis.run(expdata1, replace_results=True, seed=12345).block_for_results()
         num_results2 = len(expdata2.analysis_results())
 
         self.assertEqual(expdata1.experiment_id, expdata2.experiment_id)
         self.assertEqual(num_results1, num_results2)
         self.assertEqual(expdata1.analysis_results(), expdata2.analysis_results())
 
-    def test_analysis_update_false(self):
-        """Test running analysis with update=False"""
+    def test_analysis_replace_results_false(self):
+        """Test running analysis with replace_results=False"""
         analysis = FakeAnalysis()
         # Run analysis first time
         expdata1 = analysis.run(ExperimentData(), seed=54321).block_for_results()
         num_results1 = len(expdata1.analysis_results())
-        expdata2 = analysis.run(expdata1, update=False, seed=12345).block_for_results()
+        expdata2 = analysis.run(expdata1, replace_results=False, seed=12345).block_for_results()
         num_results2 = len(expdata2.analysis_results())
 
         self.assertNotEqual(expdata1.experiment_id, expdata2.experiment_id)
         self.assertEqual(num_results1, num_results2)
         self.assertNotEqual(expdata1.analysis_results(), expdata2.analysis_results())
 
-    def test_analysis_update_default(self):
-        """Test running analysis with update=False"""
+    def test_analysis_replace_results_default(self):
+        """Test running analysis with replace_results=False"""
         analysis = FakeAnalysis()
         # Run analysis first time
         expdata1 = analysis.run(ExperimentData(), seed=54321).block_for_results()

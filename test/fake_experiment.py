@@ -22,7 +22,7 @@ class FakeAnalysis(BaseAnalysis):
     """
 
     def _run_analysis(self, experiment_data, **options):
-        seed = options.get('seed', None)
+        seed = options.get("seed", None)
         rng = np.random.default_rng(seed=seed)
         analysis_results = [
             AnalysisResultData(f"result_{i}", value) for i, value in enumerate(rng.random(3))

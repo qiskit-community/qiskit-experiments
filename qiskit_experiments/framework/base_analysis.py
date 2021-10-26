@@ -51,16 +51,17 @@ class BaseAnalysis(ABC):
     def run(
         self,
         experiment_data: ExperimentData,
-        update: bool = False,
+        replace_results: bool = False,
         **options,
     ) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
         Args:
             experiment_data: the experiment data to analyze.
-            update: if True clear any existing analysis results in experiment data
-                    and replace with new results. If False return a copy of the
-                    experiment data containing only the new analysis results.
+            replace_results: if True clear any existing analysis results in experiment
+                             data and replace with new results. If False return a copy
+                             of the experiment data containing only the new analysis
+                             results.
             options: additional analysis options. See class documentation for
                      supported options.
 
@@ -77,7 +78,7 @@ class BaseAnalysis(ABC):
             )
 
         # Make a new copy of experiment data if not updating results
-        if not update and (experiment_data._analysis_results or experiment_data._figures):
+        if not replace_results and (experiment_data._analysis_results or experiment_data._figures):
             experiment_data = experiment_data._copy_metadata()
 
         # Get experiment device components
@@ -101,7 +102,7 @@ class BaseAnalysis(ABC):
                 for result in results
             ]
             # Update experiment data with analysis results
-            if update:
+            if replace_results:
                 experiment_data._clear_results()
             if analysis_results:
                 expdata.add_analysis_results(analysis_results)
