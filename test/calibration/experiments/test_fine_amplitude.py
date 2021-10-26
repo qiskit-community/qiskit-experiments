@@ -13,6 +13,7 @@
 """Test the fine amplitude characterization and calibration experiments."""
 
 import numpy as np
+from ddt import ddt, data
 
 from qiskit import transpile
 from qiskit.circuit import Gate
@@ -33,20 +34,21 @@ from qiskit_experiments.calibration_management import BackendCalibrations
 from qiskit_experiments.test.mock_iq_backend import MockFineAmp
 
 
+@ddt
 class TestFineAmpEndToEnd(QiskitTestCase):
     """Test the drag experiment."""
 
-    def test_end_to_end_under_rotation(self):
+    @data(0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08)
+    def test_end_to_end_under_rotation(self, pi_ratio):
         """Test the experiment end to end."""
 
         amp_exp = FineAmplitude(0, Gate("xp", 1, []))
         amp_exp.set_transpile_options(basis_gates=["xp", "x", "sx"])
         amp_exp.set_experiment_options(add_sx=True)
-        amp_exp.set_analysis_options(
-            number_guesses=11, angle_per_gate=np.pi, phase_offset=np.pi / 2
-        )
+        amp_exp.set_analysis_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
 
-        backend = MockFineAmp(-np.pi * 0.07, np.pi, "xp")
+        error = -np.pi * pi_ratio
+        backend = MockFineAmp(error, np.pi, "xp")
 
         expdata = amp_exp.run(backend).block_for_results()
         result = expdata.analysis_results(1)
@@ -54,20 +56,20 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         tol = 0.04
 
-        self.assertTrue(abs(d_theta - backend.angle_error) < tol)
+        self.assertAlmostEqual(d_theta, error, delta=tol)
         self.assertEqual(result.quality, "good")
 
-    def test_end_to_end_over_rotation(self):
+    @data(0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08)
+    def test_end_to_end_over_rotation(self, pi_ratio):
         """Test the experiment end to end."""
 
         amp_exp = FineAmplitude(0, Gate("xp", 1, []))
         amp_exp.set_transpile_options(basis_gates=["xp", "x", "sx"])
         amp_exp.set_experiment_options(add_sx=True)
-        amp_exp.set_analysis_options(
-            number_guesses=11, angle_per_gate=np.pi, phase_offset=np.pi / 2
-        )
+        amp_exp.set_analysis_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
 
-        backend = MockFineAmp(np.pi * 0.07, np.pi, "xp")
+        error = np.pi * pi_ratio
+        backend = MockFineAmp(error, np.pi, "xp")
 
         expdata = amp_exp.run(backend).block_for_results()
         result = expdata.analysis_results(1)
@@ -75,7 +77,7 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         tol = 0.04
 
-        self.assertTrue(abs(d_theta - backend.angle_error) < tol)
+        self.assertAlmostEqual(d_theta, error, delta=tol)
         self.assertEqual(result.quality, "good")
 
 
