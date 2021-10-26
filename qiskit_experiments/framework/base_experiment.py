@@ -14,7 +14,7 @@ Base Experiment class.
 """
 
 from abc import ABC, abstractmethod
-from typing import Iterable, Optional, Tuple, List, Dict
+from typing import Iterable, Optional, Tuple, List, Dict, Sequence
 import copy
 
 from qiskit import transpile, assemble, QuantumCircuit
@@ -46,7 +46,7 @@ class BaseExperiment(ABC):
     # ExperimentData class for experiment
     __experiment_data__ = ExperimentData
 
-    def __init__(self, qubits: Iterable[int], experiment_type: Optional[str] = None):
+    def __init__(self, qubits: Sequence[int], experiment_type: Optional[str] = None):
         """Initialize the experiment object.
 
         Args:
