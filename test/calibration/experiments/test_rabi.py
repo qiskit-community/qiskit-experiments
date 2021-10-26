@@ -238,8 +238,10 @@ class TestRabiAnalysis(QiskitTestCase):
 
         data_processor = DataProcessor("counts", [Probability(outcome="1")])
 
-        experiment_data = OscillationAnalysis().run(
-            experiment_data, data_processor=data_processor, plot=False
+        experiment_data = (
+            OscillationAnalysis()
+            .run(experiment_data, data_processor=data_processor, plot=False)
+            .block_for_results()
         )
         result = experiment_data.analysis_results()
         self.assertEqual(result[0].quality, "good")
@@ -256,8 +258,10 @@ class TestRabiAnalysis(QiskitTestCase):
 
         data_processor = DataProcessor("counts", [Probability(outcome="1")])
 
-        experiment_data = OscillationAnalysis().run(
-            experiment_data, data_processor=data_processor, plot=False
+        experiment_data = (
+            OscillationAnalysis()
+            .run(experiment_data, data_processor=data_processor, plot=False)
+            .block_for_results()
         )
         result = experiment_data.analysis_results()
 

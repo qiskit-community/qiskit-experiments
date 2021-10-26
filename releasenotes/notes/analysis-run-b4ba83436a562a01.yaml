@@ -1,0 +1,31 @@
+---
+features:
+  - |
+    Added the ``update`` kwarg to
+    :meth:`~qiskit_experiments.framework.BaseAnalysis.run` with default
+    value of ``update=False``.
+    
+    If analysis is run with ``update=False`` and
+    the experiment data being analyzed already contains analysis results or
+    figures then a copy with a unique experiment ID will be returned containing
+    only the new analysis results and figures. This copy can be saved as its
+    own experiment to a database service.
+
+    If analysis is instead run with ``update=True`` then any analysis results
+    and figures in the experiment data will be cleared and replaced with the
+    new analysis results. Saving this experiment data will update any
+    previously saved data in a database service using the same experiment ID.
+upgrade:
+  - |
+    Changed :meth:`~qiskit_experiments.framework.BaseAnalysis.run` to run
+    asynchronously using the 
+    :meth:`~qiskit_experiments.framework.ExperimentData.add_analysis_callback`.
+    Previously analysis was only run asynchronously if it was done as part of
+    an experiments :meth:`~qiskit_experiments.framework.BaseExperiment.run`.
+fixes:
+  - |
+    Changed :meth:`~qiskit_experiments.framework.ExperimentData.analysis_results`
+    to automatically block for any running analysis callbacks before returning
+    analysis results. This is to prevent issues where calling this method
+    while analysis was still running would raise an exception that analysis
+    results could not be found.

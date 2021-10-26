@@ -51,12 +51,16 @@ class BaseAnalysis(ABC):
     def run(
         self,
         experiment_data: ExperimentData,
+        update: bool = False,
         **options,
     ) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
         Args:
             experiment_data: the experiment data to analyze.
+            update: if True clear any existing analysis results in experiment data
+                    and replace with new results. If False return a copy of the
+                    experiment data containing only the new analysis results.
             options: additional analysis options. See class documentation for
                      supported options.
 
@@ -72,6 +76,10 @@ class BaseAnalysis(ABC):
                 f" but received {type(experiment_data).__name__}"
             )
 
+        # Make a new copy of experiment data if not updating results
+        if not update and (experiment_data._analysis_results or experiment_data._figures):
+            experiment_data = experiment_data._copy_metadata()
+
         # Get experiment device components
         if "physical_qubits" in experiment_data.metadata:
             experiment_components = [
@@ -85,21 +93,22 @@ class BaseAnalysis(ABC):
         analysis_options.update_options(**options)
         analysis_options = analysis_options.__dict__
 
-        # Run analysis
-        results, figures = self._run_analysis(experiment_data, **analysis_options)
+        def run_analysis(expdata):
+            results, figures = self._run_analysis(expdata, **analysis_options)
+            # Add components
+            analysis_results = [
+                self._format_analysis_result(result, expdata.experiment_id, experiment_components)
+                for result in results
+            ]
+            # Update experiment data with analysis results
+            if update:
+                experiment_data._clear_results()
+            if analysis_results:
+                expdata.add_analysis_results(analysis_results)
+            if figures:
+                expdata.add_figures(figures)
 
-        # Add components
-        analysis_results = [
-            self._format_analysis_result(
-                result, experiment_data.experiment_id, experiment_components
-            )
-            for result in results
-        ]
-
-        # Update experiment data with analysis results
-        experiment_data.add_analysis_results(analysis_results)
-        if figures:
-            experiment_data.add_figures(figures)
+        experiment_data.add_analysis_callback(run_analysis)
 
         return experiment_data
 
