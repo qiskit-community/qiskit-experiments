@@ -72,7 +72,7 @@ class QuantumVolume(BaseExperiment):
 
     def __init__(
         self,
-        qubits: Iterable[int],
+        qubits: Sequence[int],
         trials: Optional[int] = 100,
         seed: Optional[Union[int, Generator]] = None,
         simulation_backend: Optional[Backend] = None,
