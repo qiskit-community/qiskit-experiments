@@ -1,0 +1,206 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright IBM 2021.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+
+"""Rough amplitude calibration using Rabi."""
+
+from typing import Iterable, List, Optional
+import numpy as np
+
+from qiskit import QuantumCircuit
+from qiskit.circuit import Parameter
+
+from qiskit_experiments.framework import ExperimentData
+from qiskit_experiments.calibration_management import BaseCalibrationExperiment, BackendCalibrations
+from qiskit_experiments.library.characterization import Rabi
+from qiskit_experiments.calibration_management.update_library import BaseUpdater
+
+
+class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
+    """A calibration version of the Rabi experiment."""
+
+    def __init__(
+        self,
+        qubit: int,
+        calibrations: BackendCalibrations,
+        schedule_name: str = "x",
+        amplitudes: Iterable[float] = None,
+        cal_parameter_name: Optional[str] = "amp",
+        target_angle: float = np.pi,
+        auto_update: bool = True,
+        group: str = "default",
+    ):
+        """see class :class:`Rabi` for details.
+
+        Args:
+            qubit: The qubit for which to run the rough amplitude calibration.
+            calibrations: The calibrations instance with the schedules.
+            schedule_name: The name of the schedule to calibrate.
+            cal_parameter_name: The name of the parameter in the schedule to update.
+            auto_update: Whether or not to automatically update the calibrations. By
+                default this variable is set to True.
+            group: The group of calibration parameters to use. The default value is "default".
+        """
+        schedule = calibrations.get_schedule(
+            schedule_name, qubit, assign_params={cal_parameter_name: Parameter("amp")}, group=group
+        )
+
+        super().__init__(
+            calibrations,
+            qubit,
+            schedule=schedule,
+            amplitudes=amplitudes,
+            schedule_name=schedule_name,
+            cal_parameter_name=cal_parameter_name,
+            auto_update=auto_update,
+        )
+
+        # Needed for subclasses that will drive other transitions than the 0<->1 transition.
+        self.transpile_options.inst_map = calibrations.default_inst_map
+
+        # Set the pulses to update.
+        self.experiment_options.group = group
+        self.experiment_options.angles_schedules = [
+            (target_angle, cal_parameter_name, schedule_name)
+        ]
+
+    @classmethod
+    def _default_experiment_options(cls):
+        """Default values for the fine amplitude calibration experiment.
+
+        Experiment Options:
+            result_index (int): The index of the result from which to update the calibrations.
+            angles_schedules List(float, str, str, float): A list of parameter update information.
+                Each entry of the list is a tuple with four entries: the target angle of the
+                rotation, the name of the amplitude parameter to update, the name of the schedule
+                containing the amplitude parameter to update, and the previous value of the
+                amplitude parameter to update.
+            group (str): The calibration group to which the parameter belongs. This will default
+                to the value "default".
+        """
+        options = super()._default_experiment_options()
+
+        options.result_index = -1
+        options.angles_schedules = [(np.pi, "amp", "x", None)]
+        options.group = "default"
+
+        return options
+
+    def _add_cal_metadata(self, circuits: List[QuantumCircuit]):
+        """Add metadata to the circuit to make the experiment data more self contained.
+
+        The following keys are added to each circuit's metadata:
+            angles_schedules: A list of parameter update information. Each entry of the list
+                is a tuple with four entries: the target angle of the rotation, the name of the
+                amplitude parameter to update, the name of the schedule containing the amplitude
+                parameter to update, and the previous value of the amplitude parameter to update.
+            cal_group: The calibration group to which the amplitude parameters belong.
+        """
+
+        param_values = []
+        for angle, param_name, schedule_name in self.experiment_options.angles_schedules:
+            param_val = self._cals.get_parameter_value(
+                param_name,
+                self._physical_qubits,
+                schedule_name,
+                group=self.experiment_options.group,
+            )
+
+            param_values.append((angle, param_name, schedule_name, param_val))
+
+        for circuit in circuits:
+            circuit.metadata["angles_schedules"] = param_values
+            circuit.metadata["cal_group"] = self.experiment_options.group
+
+        return circuits
+
+    def update_calibrations(self, experiment_data: ExperimentData):
+        r"""Update the amplitude of one or several pulses.
+
+        The update rule extracts the rate of the oscillation from the fit to the cosine function.
+        Recall that the amplitude is the x-axis in the analysis of the :class:`Rabi` experiment.
+        The value of the amplitude is thus the desired rotation-angle divided by the rate of
+        the oscillation:
+
+        .. math::
+
+            A_i \to \frac{\theta_i}{\omega}
+
+        where :math:`\theta_i` is the desired rotation angle (e.g. :math:`\pi` and :math:`\pi/2`
+        for "x" and "sx" gates, respectively) and :math:`\omega` is the rate of the oscillation.
+
+        Args:
+            experiment_data: The experiment data from which to extract the measured over/under
+                rotation used to adjust the amplitude.
+        """
+
+        data = experiment_data.data()
+
+        # No data -> no update
+        if len(data) > 0:
+            result_index = self.experiment_options.result_index
+            group = data[0]["metadata"]["cal_group"]
+
+            rate = 2 * np.pi * BaseUpdater.get_value(experiment_data, "rabi_rate", result_index)
+
+            for angle, param, schedule, prev_amp in data[0]["metadata"]["angles_schedules"]:
+
+                value = np.round(angle / rate, decimals=8) * np.exp(1.0j * np.angle(prev_amp))
+
+                BaseUpdater.add_parameter_value(
+                    self._cals, experiment_data, value, param, schedule, group
+                )
+
+
+class RoughXSXAmplitudeCal(RoughAmplitudeCal):
+    """A rough amplitude calibration of x and sx gates."""
+
+    def __init__(
+        self, qubit: int, calibrations: BackendCalibrations, amplitudes: Iterable[float] = None
+    ):
+        """A rough amplitude calibration that updates both the sx and x pulses."""
+        super().__init__(qubit, calibrations, "x", amplitudes, "amp", np.pi)
+
+        self.experiment_options.angles_schedules = [(np.pi, "amp", "x"), (np.pi / 2, "amp", "sx")]
+
+
+class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
+    """A rough amplitude calibration of x and sx gates on the 1<->2 transition."""
+
+    def __init__(
+        self,
+        qubit: int,
+        calibrations: BackendCalibrations,
+        amplitudes: Iterable[float] = None,
+        ef_pulse_label: str = "12",
+    ):
+        r"""A rough amplitude calibration that updates both the sx and x pulses on 1<->2.
+
+        Args:
+            qubit: The index of the qubit (technically a qutrit) to run on.
+            calibrations: The calibrations instance that stores the pulse schedules.
+            amplitudes: The amplitudes to scan.
+            ef_pulse_label: A label that is post-pended to "x" and "sx" to obtain the name
+                of the pulses that drive a :math:`\pi` and :math:`\pi/2` rotation on
+                the 1<->2 transition.
+        """
+        super().__init__(qubit, calibrations, "x" + ef_pulse_label, amplitudes, "amp", np.pi)
+
+        self.experiment_options.angles_schedules = [
+            (np.pi, "amp", "x" + ef_pulse_label),
+            (np.pi / 2, "amp", "sx" + ef_pulse_label),
+        ]
+
+    def _pre_circuit(self) -> QuantumCircuit:
+        """A circuit with operations to perform before the Rabi."""
+        circ = QuantumCircuit(1)
+        circ.x(0)
+        return circ

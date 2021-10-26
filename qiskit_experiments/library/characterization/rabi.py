@@ -12,26 +12,26 @@
 
 """Rabi amplitude experiment."""
 
-from typing import List, Optional
+from typing import Iterable, List, Optional, Tuple
 import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate, Parameter
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
-import qiskit.pulse as pulse
+from qiskit.pulse import ScheduleBlock
+from qiskit.exceptions import QiskitError
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.curve_analysis import ParameterRepr, OscillationAnalysis
-from qiskit_experiments.exceptions import CalibrationError
 
 
 class Rabi(BaseExperiment):
-    """An experiment that scans the amplitude of a pulse to calibrate rotations between 0 and 1.
+    """An experiment that scans a pulse amplitude to calibrate rotations between 0 and 1.
 
     # section: overview
 
-        The circuits that are run have a custom rabi gate with the pulse schedule attached to it
+        The circuits have a custom rabi gate with the pulse schedule attached to it
         through the calibrations. The circuits are of the form:
 
         .. parsed-literal::
@@ -42,8 +42,8 @@ class Rabi(BaseExperiment):
             measure: 1/═════════════════╩═
                                         0
 
-        If the user provides his own schedule for the Rabi then it must have one free parameter,
-        i.e. the amplitude that will be scanned, and a drive channel which matches the qubit.
+        The user provides his own schedule for the Rabi at initialization which must have one
+        free parameter, i.e. the amplitude to scan and a drive channel which matches the qubit.
 
     # section: tutorial
         :doc:`/tutorials/calibrating_armonk`
@@ -55,7 +55,7 @@ class Rabi(BaseExperiment):
     """
 
     __analysis_class__ = OscillationAnalysis
-    __rabi_gate_name__ = "Rabi"
+    __gate_name__ = "Rabi"
 
     @classmethod
     def _default_run_options(cls) -> Options:
@@ -78,16 +78,13 @@ class Rabi(BaseExperiment):
             rabi.set_experiment_options(schedule=rabi_schedule)
 
         Experiment Options:
-            duration (int): The duration of the default Gaussian pulse.
-            sigma (float): The standard deviation of the default Gaussian pulse.
             amplitudes (iterable): The list of amplitude values to scan.
-            schedule (ScheduleBlock): The schedule for the Rabi pulse that overrides the default.
+            schedule (ScheduleBlock): The schedule for the Rabi pulse. This schedule must have
+                exactly one free parameter. The drive channel should match the qubit.
 
         """
         options = super()._default_experiment_options()
 
-        options.duration = 160
-        options.sigma = 40
         options.amplitudes = np.linspace(-0.95, 0.95, 51)
         options.schedule = None
 
@@ -104,45 +101,48 @@ class Rabi(BaseExperiment):
 
         return options
 
-    def __init__(self, qubit: int):
+    def __init__(
+        self, qubit: int, schedule: ScheduleBlock, amplitudes: Optional[Iterable[float]] = None
+    ):
         """Initialize a Rabi experiment on the given qubit.
-
-        The parameters of the Gaussian Rabi pulse can be specified at run-time.
-        The rabi pulse has the following parameters:
-        - duration: The duration of the rabi pulse in samples, the default is 160 samples.
-        - sigma: The standard deviation of the pulse, the default is duration 40.
-        - amplitudes: The amplitude that are scanned in the experiment, default  is
-        np.linspace(-0.95, 0.95, 51)
 
         Args:
             qubit: The qubit on which to run the Rabi experiment.
+            schedule: The schedule that will be used in the Rabi experiment. This schedule
+                should have one free parameter namely the amplitude.
+            amplitudes: The pulse amplitudes that one wishes to scan. If this variable is not
+                specified it will default to :code:`np.linspace(-0.95, 0.95, 51)`.
         """
         super().__init__([qubit])
 
-    def _template_circuit(self, amp_param) -> QuantumCircuit:
+        if amplitudes is not None:
+            self.experiment_options.amplitudes = amplitudes
+
+        self.experiment_options.schedule = schedule
+
+    def _pre_circuit(self) -> QuantumCircuit:
+        """A circuit with operations to perform before the Rabi."""
+        return QuantumCircuit(1)
+
+    def _template_circuit(self) -> Tuple[QuantumCircuit, Parameter]:
         """Return the template quantum circuit."""
-        gate = Gate(name=self.__rabi_gate_name__, num_qubits=1, params=[amp_param])
+        sched = self.experiment_options.schedule
+        param = next(iter(sched.parameters))
 
-        circuit = QuantumCircuit(1)
-        circuit.append(gate, (0,))
-        circuit.measure_active()
-
-        return circuit
-
-    def _default_gate_schedule(self, backend: Optional[Backend] = None):
-        """Create the default schedule for the Rabi gate."""
-        amp = Parameter("amp")
-        with pulse.build(backend=backend, name="rabi") as default_schedule:
-            pulse.play(
-                pulse.Gaussian(
-                    duration=self.experiment_options.duration,
-                    amp=amp,
-                    sigma=self.experiment_options.sigma,
-                ),
-                pulse.DriveChannel(self.physical_qubits[0]),
+        if len(sched.parameters) != 1:
+            raise QiskitError(
+                f"Schedule {sched} for {self.__class__.__name__} experiment must have "
+                f"exactly one free parameter, found {sched.parameters} parameters."
             )
 
-        return default_schedule
+        gate = Gate(name=self.__gate_name__, num_qubits=1, params=[param])
+
+        circuit = self._pre_circuit()
+        circuit.append(gate, (0,))
+        circuit.measure_active()
+        circuit.add_calibration(gate, self._physical_qubits, sched, params=[param])
+
+        return circuit, param
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         """Create the circuits for the Rabi experiment.
@@ -160,27 +160,9 @@ class Rabi(BaseExperiment):
                   that matches the qubit on which to run the Rabi experiment.
                 - If the user provided schedule has more than one free parameter.
         """
-        schedule = self.experiment_options.get("schedule", None)
-
-        if schedule is None:
-            schedule = self._default_gate_schedule(backend=backend)
-        else:
-            if self.physical_qubits[0] not in set(ch.index for ch in schedule.channels):
-                raise CalibrationError(
-                    f"User provided schedule {schedule.name} does not contain a channel "
-                    "for the qubit on which to run Rabi."
-                )
-
-        if len(schedule.parameters) != 1:
-            raise CalibrationError("Schedule in Rabi must have exactly one free parameter.")
-
-        param = next(iter(schedule.parameters))
 
         # Create template circuit
-        circuit = self._template_circuit(param)
-        circuit.add_calibration(
-            self.__rabi_gate_name__, (self.physical_qubits[0],), schedule, params=[param]
-        )
+        circuit, param = self._template_circuit()
 
         # Create the circuits to run
         circs = []
@@ -189,11 +171,10 @@ class Rabi(BaseExperiment):
             assigned_circ = circuit.assign_parameters({param: amp}, inplace=False)
             assigned_circ.metadata = {
                 "experiment_type": self._type,
-                "qubits": (self.physical_qubits[0],),
+                "qubits": self.physical_qubits,
                 "xval": amp,
                 "unit": "arb. unit",
                 "amplitude": amp,
-                "schedule": str(schedule),
             }
 
             if backend:
@@ -210,13 +191,11 @@ class EFRabi(Rabi):
     # section: overview
 
         This experiment is a subclass of the :class:`Rabi` experiment but takes place between
-        the first and second excited state. An initial X gate used to populate the first excited
-        state. The Rabi pulse is then applied on the 1 <-> 2 transition (sometimes also labeled
-        the e <-> f transition) which implies that frequency shift instructions are used. The
-        necessary frequency shift (typically the qubit anharmonicity) should be specified
-        through the experiment options.
-
-        The circuits are of the form:
+        the first and second excited state. An initial X gate populates the first excited state.
+        The Rabi pulse is applied on the 1 <-> 2 transition (sometimes also labeled the e <-> f
+        transition). The necessary frequency shift (typically the qubit anharmonicity) is given
+        through the pulse schedule given at initialization. The schedule is then also stored in
+        the experiment options. The circuits are of the form:
 
         .. parsed-literal::
 
@@ -236,20 +215,6 @@ class EFRabi(Rabi):
     """
 
     @classmethod
-    def _default_experiment_options(cls) -> Options:
-        """Default values for the pulse if no schedule is given.
-
-        Experiment Options:
-
-            frequency_shift (float): The frequency by which the 1 to 2 transition is
-                detuned from the 0 to 1 transition.
-        """
-        options = super()._default_experiment_options()
-        options.frequency_shift = None
-
-        return options
-
-    @classmethod
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_analysis_options()
@@ -257,50 +222,8 @@ class EFRabi(Rabi):
 
         return options
 
-    def _default_gate_schedule(self, backend: Optional[Backend] = None):
-        """Create the default schedule for the EFRabi gate with a frequency shift to the 1-2
-        transition."""
-
-        if self.experiment_options.frequency_shift is None:
-            try:
-                anharm, _ = backend.properties().qubit_property(self.physical_qubits[0])[
-                    "anharmonicity"
-                ]
-                self.set_experiment_options(frequency_shift=anharm)
-            except KeyError as key_err:
-                raise CalibrationError(
-                    f"The backend {backend} does not provide an anharmonicity for qubit "
-                    f"{self.physical_qubits[0]}. Use EFRabi.set_experiment_options(frequency_shift="
-                    f"anharmonicity) to manually set the correct frequency for the 1-2 transition."
-                ) from key_err
-            except AttributeError as att_err:
-                raise CalibrationError(
-                    "When creating the default schedule without passing a backend, the frequency needs "
-                    "to be set manually through EFRabi.set_experiment_options(frequency_shift=..)."
-                ) from att_err
-
-        amp = Parameter("amp")
-        with pulse.build(backend=backend, name=self.__rabi_gate_name__) as default_schedule:
-            with pulse.frequency_offset(
-                self.experiment_options.frequency_shift,
-                pulse.DriveChannel(self.physical_qubits[0]),
-            ):
-                pulse.play(
-                    pulse.Gaussian(
-                        duration=self.experiment_options.duration,
-                        amp=amp,
-                        sigma=self.experiment_options.sigma,
-                    ),
-                    pulse.DriveChannel(self.physical_qubits[0]),
-                )
-
-        return default_schedule
-
-    def _template_circuit(self, amp_param) -> QuantumCircuit:
-        """Return the template quantum circuit."""
-        circuit = QuantumCircuit(1)
-        circuit.x(0)
-        circuit.append(Gate(name=self.__rabi_gate_name__, num_qubits=1, params=[amp_param]), (0,))
-        circuit.measure_active()
-
-        return circuit
+    def _pre_circuit(self) -> QuantumCircuit:
+        """A circuit with operations to perform before the Rabi."""
+        circ = QuantumCircuit(1)
+        circ.x(0)
+        return circ

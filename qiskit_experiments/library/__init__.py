@@ -92,6 +92,9 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     ~calibration.FineXAmplitudeCal
     ~calibration.FineSXAmplitudeCal
     ~calibration.RamseyXY
+    ~calibration.RoughAmplitudeCal
+    ~calibration.RoughXSXAmplitudeCal
+    ~calibration.EFRoughXSXAmplitudeCal
 
 """
 from .calibration import (
@@ -99,6 +102,9 @@ from .calibration import (
     FineDrag,
     FineXDrag,
     FineSXDrag,
+    RoughAmplitudeCal,
+    RoughXSXAmplitudeCal,
+    EFRoughXSXAmplitudeCal,
     FineAmplitudeCal,
     FineXAmplitudeCal,
     FineSXAmplitudeCal,

@@ -48,6 +48,9 @@ module.
     FineXAmplitudeCal
     FineSXAmplitudeCal
     RamseyXY
+    RoughAmplitudeCal
+    RoughXSXAmplitudeCal
+    EFRoughXSXAmplitudeCal
 
 Calibration analysis
 ====================
@@ -69,6 +72,7 @@ See :mod:`qiskit_experiments.calibration_management`.
 from .rough_frequency import RoughFrequencyCal
 from .drag import DragCal
 from .fine_drag import FineDrag, FineXDrag, FineSXDrag
+from .rough_amplitude_cal import RoughAmplitudeCal, RoughXSXAmplitudeCal, EFRoughXSXAmplitudeCal
 from .fine_amplitude import FineAmplitudeCal, FineXAmplitudeCal, FineSXAmplitudeCal
 from .ramsey_xy import RamseyXY
 
