@@ -54,19 +54,20 @@ class TomographyExperiment(BaseExperiment):
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator],
+        backend: Optional[Backend] = None,
         measurement_basis: Optional[BaseTomographyMeasurementBasis] = None,
         measurement_qubits: Optional[Iterable[int]] = None,
         preparation_basis: Optional[BaseTomographyPreparationBasis] = None,
         preparation_qubits: Optional[Iterable[int]] = None,
         basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
         qubits: Optional[Iterable[int]] = None,
-        backend: Optional[Backend] = None,
     ):
         """Initialize a tomography experiment.
 
         Args:
             circuit: the quantum process circuit. If not a quantum circuit
                 it must be a class that can be appended to a quantum circuit.
+            backend: The backend to run the experiment on.
             measurement_basis: Tomography basis for measurements.
             measurement_qubits: Optional, the qubits to be measured. These should refer
                 to the logical qubits in the state circuit.
@@ -76,7 +77,6 @@ class TomographyExperiment(BaseExperiment):
             basis_indices: Optional, the basis elements to be measured. If None
                 All basis elements will be measured.
             qubits: Optional, the physical qubits for the initial state circuit.
-            backend: The backend to run the experiment on.
 
         Raises:
             QiskitError: if input params are invalid.

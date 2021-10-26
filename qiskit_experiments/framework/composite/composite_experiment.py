@@ -13,9 +13,11 @@
 Composite Experiment abstract base class.
 """
 
+from typing import List, Sequence, Optional
 from abc import abstractmethod
 import warnings
 
+from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment
 from .composite_experiment_data import CompositeExperimentData
 from .composite_analysis import CompositeAnalysis
@@ -27,18 +29,24 @@ class CompositeExperiment(BaseExperiment):
     __analysis_class__ = CompositeAnalysis
     __experiment_data__ = CompositeExperimentData
 
-    def __init__(self, experiments, qubits, experiment_type=None):
+    def __init__(
+        self,
+        experiments: List[BaseExperiment],
+        qubits: Sequence[int],
+        backend: Optional[Backend] = None,
+        experiment_type: Optional[str] = None,
+    ):
         """Initialize the composite experiment object.
 
         Args:
-            experiments (List[BaseExperiment]): a list of experiment objects.
-            qubits (int or Iterable[int]): the number of qubits or list of
-                                           physical qubits for the experiment.
-            experiment_type (str): Optional, composite experiment subclass name.
+            experiments: a list of experiment objects.
+            qubits: the number of qubits or list of physical qubits for the experiment.
+            backend: Optional, the backend to run the experiment on.
+            experiment_type: Optional, composite experiment subclass name.
         """
         self._experiments = experiments
         self._num_experiments = len(experiments)
-        super().__init__(qubits, experiment_type=experiment_type)
+        super().__init__(qubits, backend=backend, experiment_type=experiment_type)
 
     @abstractmethod
     def circuits(self):

@@ -73,9 +73,9 @@ class QuantumVolume(BaseExperiment):
     def __init__(
         self,
         qubits: Union[int, Iterable[int]],
+        backend: Optional[Backend] = None,
         trials: Optional[int] = 100,
         seed: Optional[Union[int, Generator]] = None,
-        backend: Optional[Backend] = None,
         simulation_backend: Optional[Backend] = None,
     ):
         """Initialize a quantum volume experiment.
@@ -83,10 +83,10 @@ class QuantumVolume(BaseExperiment):
         Args:
             qubits: The number of qubits or list of
                     physical qubits for the experiment.
+            backend: Optional, the backend to run the experiment on.
             trials: The number of trials to run the quantum volume circuit.
             seed: Seed or generator object for random number
                   generation. If None default_rng will be used.
-            backend: Optional, the backend to run the experiment on.
             simulation_backend: The simulator backend to use to generate
                 the expected results. the simulator must have a 'save_probabilities'
                 method. If None :class:`AerSimulator` simulator will be used

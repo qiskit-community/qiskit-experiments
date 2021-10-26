@@ -67,8 +67,8 @@ class T1(BaseExperiment):
         self,
         qubit: int,
         delays: Union[List[float], np.array],
-        unit: Optional[str] = "s",
         backend: Optional[Backend] = None,
+        unit: Optional[str] = "s",
     ):
         """
         Initialize the T1 experiment class
@@ -76,9 +76,9 @@ class T1(BaseExperiment):
         Args:
             qubit: the qubit whose T1 is to be estimated
             delays: delay times of the experiments
+            backend: Optional, the backend to run the experiment on.
             unit: Optional, unit of the delay times. Supported units:
                   's', 'ms', 'us', 'ns', 'ps', 'dt'.
-            backend: Optional, the backend to run the experiment on.
 
         Raises:
             ValueError: if the number of delays is smaller than 3

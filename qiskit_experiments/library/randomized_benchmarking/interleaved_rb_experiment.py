@@ -52,10 +52,10 @@ class InterleavedRB(StandardRB):
         interleaved_element: Union[QuantumCircuit, Instruction, Clifford],
         qubits: Union[int, Iterable[int]],
         lengths: Iterable[int],
+        backend: Optional[Backend] = None,
         num_samples: int = 3,
         seed: Optional[Union[int, Generator]] = None,
         full_sampling: bool = False,
-        backend: Optional[Backend] = None,
     ):
         """Initialize an interleaved randomized benchmarking experiment.
 
@@ -65,6 +65,7 @@ class InterleavedRB(StandardRB):
             qubits: The number of qubits or list of
                     physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
+            backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each
                          sequence length
             seed: Seed or generator object for random number
@@ -73,10 +74,16 @@ class InterleavedRB(StandardRB):
                            all lengths. If False for sample of lengths longer
                            sequences are constructed by appending additional
                            Clifford samples to shorter sequences.
-            backend: The backend to run the experiment on.
         """
         self._set_interleaved_element(interleaved_element)
-        super().__init__(qubits, lengths, num_samples, seed, full_sampling, backend=backend)
+        super().__init__(
+            qubits,
+            lengths,
+            backend=backend,
+            num_samples=num_samples,
+            seed=seed,
+            full_sampling=full_sampling,
+        )
 
     def _sample_circuits(self, lengths, seed=None):
         circuits = []

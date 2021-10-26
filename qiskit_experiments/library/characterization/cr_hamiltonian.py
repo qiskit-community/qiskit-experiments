@@ -130,8 +130,8 @@ class CrossResonanceHamiltonian(BaseExperiment):
         self,
         qubits: Tuple[int, int],
         flat_top_widths: Iterable[float],
-        unit: str = "dt",
         backend: Optional[Backend] = None,
+        unit: str = "dt",
         **kwargs,
     ):
         """Create a new experiment.
@@ -142,8 +142,8 @@ class CrossResonanceHamiltonian(BaseExperiment):
             flat_top_widths: The total duration of the square part of cross resonance pulse(s)
                 to scan. The total pulse duration including Gaussian rising and falling edges
                 is implicitly computed with experiment parameters ``sigma`` and ``risefall``.
-            unit: The time unit of durations.
             backend: Optional, the backend to run the experiment on.
+            unit: The time unit of durations.
             kwargs: Pulse parameters. See :meth:`experiment_options` for details.
 
         Raises:

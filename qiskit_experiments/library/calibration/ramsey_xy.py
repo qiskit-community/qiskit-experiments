@@ -106,20 +106,20 @@ class RamseyXY(BaseExperiment):
     def __init__(
         self,
         qubit: int,
+        backend: Optional[Backend] = None,
         delays: Optional[List] = None,
         unit: str = "s",
         osc_freq: float = 2e6,
-        backend: Optional[Backend] = None,
     ):
         """Create new experiment.
 
         Args:
             qubit: The qubit on which to run the Ramsey XY experiment.
+            backend: Optional, the backend to run the experiment on.
             delays: The delays to scan.
             unit: The unit of the delays.
             osc_freq: the oscillation frequency induced by the user through a virtual
                 Rz rotation. This quantity is given in Hz.
-            backend: Optional, the backend to run the experiment on.
         """
         super().__init__([qubit], backend=backend)
 

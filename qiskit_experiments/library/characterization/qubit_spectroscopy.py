@@ -95,9 +95,9 @@ class QubitSpectroscopy(BaseExperiment):
         self,
         qubit: int,
         frequencies: Iterable[float],
+        backend: Optional[Backend] = None,
         unit: str = "Hz",
         absolute: bool = True,
-        backend: Optional[Backend] = None,
     ):
         """
         A spectroscopy experiment run by setting the frequency of the qubit drive.
@@ -111,11 +111,11 @@ class QubitSpectroscopy(BaseExperiment):
         Args:
             qubit: The qubit on which to run spectroscopy.
             frequencies: The frequencies to scan in the experiment.
+            backend: Optional, the backend to run the experiment on.
             unit: The unit in which the user specifies the frequencies. Can be one of 'Hz', 'kHz',
                 'MHz', 'GHz'. Internally, all frequencies will be converted to 'Hz'.
             absolute: Boolean to specify if the frequencies are absolute or relative to the
                 qubit frequency in the backend.
-            backend: Optional, the backend to run the experiment on.
 
         Raises:
             QiskitError: if there are less than three frequency shifts or if the unit is not known.

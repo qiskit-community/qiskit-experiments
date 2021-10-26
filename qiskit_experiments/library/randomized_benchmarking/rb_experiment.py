@@ -63,10 +63,10 @@ class StandardRB(BaseExperiment):
         self,
         qubits: Union[int, Iterable[int]],
         lengths: Iterable[int],
+        backend: Optional[Backend] = None,
         num_samples: int = 3,
         seed: Optional[Union[int, Generator]] = None,
         full_sampling: Optional[bool] = False,
-        backend: Optional[Backend] = None,
     ):
         """Initialize a standard randomized benchmarking experiment.
 
@@ -74,6 +74,7 @@ class StandardRB(BaseExperiment):
             qubits: The number of qubits or list of
                     physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
+            backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each sequence length.
             seed: Seed or generator object for random number
                   generation. If None default_rng will be used.
@@ -82,7 +83,6 @@ class StandardRB(BaseExperiment):
                            sequences are constructed by appending additional
                            Clifford samples to shorter sequences.
                            The default is False.
-            backend: The backend to run the experiment on.
         """
         # Initialize base experiment
         super().__init__(qubits, backend=backend)

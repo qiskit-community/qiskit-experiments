@@ -82,25 +82,22 @@ class T2Ramsey(BaseExperiment):
         self,
         qubit: int,
         delays: Union[List[float], np.array],
+        backend: Optional[Backend] = None,
         unit: str = "s",
         osc_freq: float = 0.0,
-        backend: Optional[Backend] = None,
     ):
         """
-        **T2Ramsey class**
-
         Initialize the T2Ramsey class.
 
         Args:
             qubit: the qubit under test.
             delays: delay times of the experiments.
+            backend: Optional, the backend to run the experiment on.
             unit: Optional, time unit of `delays`.
                 Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'. The unit is
                 used for both T2Ramsey and for the frequency.
-            osc_freq: the oscillation frequency induced by the user. \
-            The frequency is given in Hz.
-            backend: Optional, the backend to run the experiment on.
-
+            osc_freq: the oscillation frequency induced by the user.
+                      The frequency is given in Hz.
         """
 
         super().__init__([qubit], backend=backend)

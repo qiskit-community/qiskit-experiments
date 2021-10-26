@@ -42,9 +42,9 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
         qubit: int,
         calibrations: BackendCalibrations,
         schedule_name: str,
+        backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "amp",
         auto_update: bool = True,
-        backend: Optional[Backend] = None,
     ):
         """see class :class:`FineAmplitude` for details.
 
@@ -52,20 +52,20 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             qubit: The qubit for which to run the fine amplitude calibration.
             calibrations: The calibrations instance with the schedules.
             schedule_name: The name of the schedule to calibrate.
+            backend: Optional, the backend to run the experiment on.
             cal_parameter_name: The name of the parameter in the schedule to update.
             auto_update: Whether or not to automatically update the calibrations. By
                 default this variable is set to True.
-            backend: Optional, the backend to run the experiment on.
-
+            on.
         """
         super().__init__(
             calibrations,
             qubit,
             Gate(name=schedule_name, num_qubits=1, params=[]),
             schedule_name=schedule_name,
+            backend=backend,
             cal_parameter_name=cal_parameter_name,
             auto_update=auto_update,
-            backend=backend,
         )
 
         self.transpile_options.inst_map = calibrations.default_inst_map

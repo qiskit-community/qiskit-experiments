@@ -12,25 +12,27 @@
 """
 Parallel Experiment class.
 """
+from typing import List, Optional
 
 from qiskit import QuantumCircuit, ClassicalRegister
-
-from .composite_experiment import CompositeExperiment
+from qiskit.providers.backend import Backend
+from .composite_experiment import CompositeExperiment, BaseExperiment
 
 
 class ParallelExperiment(CompositeExperiment):
     """Parallel Experiment class"""
 
-    def __init__(self, experiments):
+    def __init__(self, experiments: List[BaseExperiment], backend: Optional[Backend] = None):
         """Initialize the analysis object.
 
         Args:
-            experiments (List[BaseExperiment]): a list of experiments.
+            experiments: a list of experiments.
+            backend: Optional, the backend to run the experiment on.
         """
         qubits = []
         for exp in experiments:
             qubits += exp.physical_qubits
-        super().__init__(experiments, qubits)
+        super().__init__(experiments, qubits, backend=backend)
 
     def circuits(self):
 
