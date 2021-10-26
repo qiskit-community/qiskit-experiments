@@ -35,7 +35,7 @@ class TestQuantumVolume(QiskitTestCase):
         and the amount of qubits in each circuit
         """
 
-        qubits_lists = [3, [0, 1, 2], [0, 1, 2, 4]]
+        qubits_lists = [[0, 1, 2], [0, 1, 2, 4]]
         ntrials = [2, 3, 5]
 
         for qubits in qubits_lists:

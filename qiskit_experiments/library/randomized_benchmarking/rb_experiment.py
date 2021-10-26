@@ -22,8 +22,8 @@ from qiskit.providers import Backend
 from qiskit.quantum_info import Clifford
 from qiskit.circuit import Gate
 
+import qiskit_experiments.data_processing as dp
 from qiskit_experiments.framework import BaseExperiment, ParallelExperiment, Options
-from qiskit_experiments.curve_analysis.data_processing import probability
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
 from .rb_utils import RBUtils
@@ -88,7 +88,12 @@ class StandardRB(BaseExperiment):
 
         # Set configurable options
         self.set_experiment_options(lengths=list(lengths), num_samples=num_samples)
-        self.set_analysis_options(data_processor=probability(outcome="0" * self.num_qubits))
+        self.set_analysis_options(
+            data_processor=dp.DataProcessor(
+                input_key="counts",
+                data_actions=[dp.Probability(outcome="0" * self.num_qubits)],
+            )
+        )
 
         # Set fixed options
         self._full_sampling = full_sampling
