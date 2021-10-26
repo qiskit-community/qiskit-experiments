@@ -49,7 +49,7 @@ class InterleavedRB(StandardRB):
     def __init__(
         self,
         interleaved_element: Union[QuantumCircuit, Instruction, Clifford],
-        qubits: Iterable[int],
+        qubits: Sequence[int],
         lengths: Iterable[int],
         num_samples: int = 3,
         seed: Optional[Union[int, Generator]] = None,
