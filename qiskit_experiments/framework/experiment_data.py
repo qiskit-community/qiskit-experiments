@@ -53,7 +53,7 @@ class ExperimentData(DbExperimentDataV1):
     @property
     def experiment(self):
         """Return the experiment for this data.
-        
+
         Returns:
             BaseExperiment: the experiment object.
         """

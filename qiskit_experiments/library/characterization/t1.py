@@ -18,6 +18,7 @@ import numpy as np
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.providers.backend import Backend
+from qiskit.test.mock import FakeBackend
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.t1_analysis import T1Analysis
@@ -90,6 +91,19 @@ class T1(BaseExperiment):
 
         # Set experiment options
         self.set_experiment_options(delays=delays, unit=unit)
+
+    def _set_backend(self, backend: Backend):
+        super()._set_backend(backend)
+
+        # Scheduling parameters
+        if not self._backend.configuration().simulator and not isinstance(backend, FakeBackend):
+            timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
+            if "acquire_alignment" not in timing_constraints:
+                timing_constraints["aquire_aligment"] = 16
+            scheduling_method = getattr(self.transpile_options, "scheduling_method", "alap")
+            self.set_transpile_options(
+                timing_constraints=timing_constraints, scheduling_method=scheduling_method
+            )
 
     def circuits(self) -> List[QuantumCircuit]:
         """

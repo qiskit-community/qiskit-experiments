@@ -22,7 +22,6 @@ from qiskit import transpile, assemble, QuantumCircuit
 from qiskit.providers import BaseJob
 from qiskit.providers.backend import Backend
 from qiskit.providers.basebackend import BaseBackend as LegacyBackend
-from qiskit.test.mock import FakeBackend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit_experiments.framework import Options
@@ -94,7 +93,7 @@ class BaseExperiment(ABC):
         return self._type
 
     @property
-    def physical_qubits(self) -> Tuple[int]:
+    def physical_qubits(self) -> Tuple[int, ...]:
         """Return the device qubits for the experiment."""
         return self._physical_qubits
 
@@ -121,19 +120,17 @@ class BaseExperiment(ABC):
         """
         self._backend = backend
 
-        # Scheduling parameters
-        if not self._backend.configuration().simulator and not isinstance(backend, FakeBackend):
-            timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
-            if "acquire_alignment" not in timing_constraints:
-                timing_constraints["aquire_aligment"] = 16
-            scheduling_method = getattr(self.transpile_options, "scheduling_method", "alap")
-            self.set_transpile_options(
-                timing_constraints=timing_constraints, scheduling_method=scheduling_method
-            )
-
     def copy(self) -> "BaseExperiment":
         """Return a copy of the experiment"""
-        return copy.copy(self)
+        # We want to avoid a deep copy be default for performance so we
+        # need to also copy the Options structures so that if they are
+        # updated on the copy they don't effect the original.
+        ret = copy.copy(self)
+        ret._experiment_options = copy.copy(self._experiment_options)
+        ret._run_options = copy.copy(self._run_options)
+        ret._transpile_options = copy.copy(self._transpile_options)
+        ret._analysis_options = copy.copy(self._analysis_options)
+        return ret
 
     def run(
         self,

@@ -21,6 +21,7 @@ import qiskit
 from qiskit.utils import apply_prefix
 from qiskit.circuit import QuantumCircuit
 from qiskit.providers.backend import Backend
+from qiskit.test.mock import FakeBackend
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from .t2ramsey_analysis import T2RamseyAnalysis
@@ -104,6 +105,19 @@ class T2Ramsey(BaseExperiment):
 
         super().__init__([qubit], backend=backend)
         self.set_experiment_options(delays=delays, unit=unit, osc_freq=osc_freq)
+
+    def _set_backend(self, backend: Backend):
+        super()._set_backend(backend)
+
+        # Scheduling parameters
+        if not self._backend.configuration().simulator and not isinstance(backend, FakeBackend):
+            timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
+            if "acquire_alignment" not in timing_constraints:
+                timing_constraints["aquire_aligment"] = 16
+            scheduling_method = getattr(self.transpile_options, "scheduling_method", "alap")
+            self.set_transpile_options(
+                timing_constraints=timing_constraints, scheduling_method=scheduling_method
+            )
 
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
