@@ -51,6 +51,4 @@ class CompositeAnalysis(BaseAnalysis):
             expdata = experiment_data.component_experiment_data(i)
             exp.run_analysis(expdata, **options)
 
-        result = AnalysisResultData(name="composite_experiment", value=None)
-
         return [], []
