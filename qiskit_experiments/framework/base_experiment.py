@@ -81,7 +81,6 @@ class BaseExperiment(ABC):
         self,
         backend: Backend,
         analysis: bool = True,
-        experiment_data: Optional[ExperimentData] = None,
         **run_options,
     ) -> ExperimentData:
         """Run an experiment and perform analysis.
@@ -89,9 +88,6 @@ class BaseExperiment(ABC):
         Args:
             backend: The backend to run the experiment on.
             analysis: If True run analysis on the experiment data.
-            experiment_data: Optional, add results to existing
-                experiment data. If None a new ExperimentData object will be
-                returned.
             run_options: backend runtime options used for circuit execution.
 
         Returns:
@@ -102,7 +98,7 @@ class BaseExperiment(ABC):
                          ExperimentData container.
         """
         # Create experiment data container
-        experiment_data = self._initialize_experiment_data(backend, experiment_data)
+        experiment_data = self._initialize_experiment_data(backend)
 
         # Run options
         run_opts = copy.copy(self.run_options)
@@ -162,24 +158,9 @@ class BaseExperiment(ABC):
         # Return the ExperimentData future
         return experiment_data
 
-    def _initialize_experiment_data(
-        self, backend: Backend, experiment_data: Optional[ExperimentData] = None
-    ) -> ExperimentData:
+    def _initialize_experiment_data(self, backend: Backend) -> ExperimentData:
         """Initialize the return data container for the experiment run"""
-        if experiment_data is None:
-            return self.__experiment_data__(experiment=self, backend=backend)
-
-        # Validate experiment is compatible with existing data
-        if not isinstance(experiment_data, ExperimentData):
-            raise QiskitError("Input `experiment_data` is not a valid ExperimentData.")
-        if experiment_data.experiment_type != self._type:
-            raise QiskitError("Existing ExperimentData contains data from a different experiment.")
-        if experiment_data.metadata.get("physical_qubits") != list(self.physical_qubits):
-            raise QiskitError(
-                "Existing ExperimentData contains data for a different set of physical qubits."
-            )
-
-        return experiment_data._copy_metadata()
+        return self.__experiment_data__(experiment=self, backend=backend)
 
     def run_analysis(self, experiment_data: ExperimentData, **options) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
