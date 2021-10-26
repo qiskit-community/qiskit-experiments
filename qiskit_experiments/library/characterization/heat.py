@@ -52,7 +52,7 @@ class BaseHeat(BaseExperiment, ABC):
 
         Experiment Options:
             repetitions (Sequence[int]): A list of the number of echo repetitions.
-            cr_gate (Gate): A gate instance representing the CR(pi/2).
+            cr_gate (Gate): A gate instance representing the ZX(pi/2).
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(21))
@@ -134,7 +134,7 @@ class BaseCompositeHeat(BatchExperiment, ABC):
 
         Experiment Options:
             repetitions (Sequence[int]): A list of the number of echo repetitions.
-            cr_gate (Gate): A gate instance representing the CR(pi/2).
+            cr_gate (Gate): A gate instance representing the ZX(pi/2).
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(21))
@@ -196,7 +196,7 @@ class HeatElementY0(BaseHeat):
                                                0
 
         Circuit block in the middle is repeated N times to amplify the target error.
-        The ``cr`` gate represents a unitary of :math:`CR(\pi/2)`, and its pulse schedule
+        The ``cr`` gate represents a unitary of :math:`ZX(\pi/2)`, and its pulse schedule
         should be provided by users.
 
     """
@@ -241,7 +241,7 @@ class HeatElementY1(BaseHeat):
                                                0
 
         Circuit block in the middle is repeated N times to amplify the target error.
-        The ``cr`` gate represents a unitary of :math:`CR(\pi/2)`, and its pulse schedule
+        The ``cr`` gate represents a unitary of :math:`ZX(\pi/2)`, and its pulse schedule
         should be provided by users.
 
     """
@@ -287,7 +287,7 @@ class HeatElementZ0(BaseHeat):
                                                           0
 
         Circuit block in the middle is repeated N times to amplify the target error.
-        The ``cr`` gate represents a unitary of :math:`CR(\pi/2)`, and its pulse schedule
+        The ``cr`` gate represents a unitary of :math:`ZX(\pi/2)`, and its pulse schedule
         should be provided by users.
 
     """
@@ -338,7 +338,7 @@ class HeatElementZ1(BaseHeat):
                                                           0
 
         Circuit block in the middle is repeated N times to amplify the target error.
-        The ``cr`` gate represents a unitary of :math:`CR(\pi/2)`, and its pulse schedule
+        The ``cr`` gate represents a unitary of :math:`ZX(\pi/2)`, and its pulse schedule
         should be provided by users.
 
     """
