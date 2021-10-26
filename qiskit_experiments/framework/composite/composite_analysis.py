@@ -14,7 +14,7 @@ Composite Experiment Analysis class.
 """
 
 from qiskit.exceptions import QiskitError
-from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData
+from qiskit_experiments.framework import BaseAnalysis
 from .composite_experiment_data import CompositeExperimentData
 
 
