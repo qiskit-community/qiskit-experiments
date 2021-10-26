@@ -383,7 +383,7 @@ class HeatYError(BaseCompositeHeat):
     __analysis_class__ = HeatYAnalysis
 
 
-class HeatZError(BatchExperiment):
+class HeatZError(BatchCompositeHeat):
     """HEAT experiments for Z error amplification.
 
     # section: overview
