@@ -30,7 +30,7 @@ class BaseHeat(BaseExperiment, ABC):
 
     This class implements a single error amplification sequence.
 
-    Subclasses must implement :py:meth:`_echo_circuit` to provide echo sequence that
+    Subclasses must implement :py:meth:`_echod_circuit` to provide echo sequence that
     selectively amplifies a specific Pauli component local to the target qubit.
 
     """
@@ -69,7 +69,7 @@ class BaseHeat(BaseExperiment, ABC):
         return options
 
     @abstractmethod
-    def _echo_circuit(self) -> QuantumCircuit:
+    def _echoed_circuit(self) -> QuantumCircuit:
         pass
 
     def _prep_circuit(self) -> QuantumCircuit:
@@ -89,7 +89,7 @@ class BaseHeat(BaseExperiment, ABC):
             circ.compose(self._prep_circuit(), qubits=[0, 1], inplace=True)
             circ.barrier()
             for _ in range(repetition):
-                circ.compose(self._echo_circuit(), qubits=[0, 1], inplace=True)
+                circ.compose(self._echoed_circuit(), qubits=[0, 1], inplace=True)
                 circ.barrier()
             circ.compose(self._meas_circuit(), qubits=[0, 1], inplace=True)
             circ.measure(1, 0)
@@ -215,7 +215,7 @@ class HeatElementY0(BaseHeat):
 
         return circ
 
-    def _echo_circuit(self) -> QuantumCircuit:
+    def _echoed_circuit(self) -> QuantumCircuit:
         circ = circuit.QuantumCircuit(2)
         circ.append(self.experiment_options.cr_gate, [0, 1])
         circ.y(1)
@@ -261,7 +261,7 @@ class HeatElementY1(BaseHeat):
 
         return circ
 
-    def _echo_circuit(self) -> QuantumCircuit:
+    def _echoed_circuit(self) -> QuantumCircuit:
         circ = circuit.QuantumCircuit(2)
         circ.append(self.experiment_options.cr_gate, [0, 1])
         circ.y(1)
@@ -312,7 +312,7 @@ class HeatElementZ0(BaseHeat):
 
         return circ
 
-    def _echo_circuit(self) -> QuantumCircuit:
+    def _echoed_circuit(self) -> QuantumCircuit:
         circ = circuit.QuantumCircuit(2)
         circ.append(self.experiment_options.cr_gate, [0, 1])
         circ.z(1)
@@ -364,7 +364,7 @@ class HeatElementZ1(BaseHeat):
 
         return circ
 
-    def _echo_circuit(self) -> QuantumCircuit:
+    def _echoed_circuit(self) -> QuantumCircuit:
         circ = circuit.QuantumCircuit(2)
         circ.append(self.experiment_options.cr_gate, [0, 1])
         circ.z(1)
