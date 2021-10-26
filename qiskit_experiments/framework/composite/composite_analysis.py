@@ -14,7 +14,7 @@ Composite Experiment Analysis class.
 """
 
 from qiskit.exceptions import QiskitError
-from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData
+from qiskit_experiments.framework import BaseAnalysis
 from .composite_experiment_data import CompositeExperimentData
 
 
@@ -43,33 +43,12 @@ class CompositeAnalysis(BaseAnalysis):
         if not isinstance(experiment_data, CompositeExperimentData):
             raise QiskitError("CompositeAnalysis must be run on CompositeExperimentData.")
 
-        # Add sub-experiment metadata as result of batch experiment
-        # Note: if Analysis results had ID's these should be included here
-        # rather than just the sub-experiment IDs
-        sub_types = []
-        sub_ids = []
-        sub_qubits = []
-
         comp_exp = experiment_data.experiment
+
         for i in range(comp_exp.num_experiments):
             # Run analysis for sub-experiments and add sub-experiment metadata
             exp = comp_exp.component_experiment(i)
             expdata = experiment_data.component_experiment_data(i)
             exp.run_analysis(expdata, **options)
 
-            # Add sub-experiment metadata as result of batch experiment
-            # Note: if Analysis results had ID's these should be included here
-            # rather than just the sub-experiment IDs
-            sub_types.append(expdata.experiment_type)
-            sub_ids.append(expdata.experiment_id)
-            sub_qubits.append(expdata.experiment.physical_qubits)
-
-        result = AnalysisResultData(
-            name="parallel_experiment",
-            value=len(sub_types),
-            extra={
-                "experiment_types": sub_types,
-                "experiment_ids": sub_ids,
-            },
-        )
-        return [result], None
+        return [], []
