@@ -58,10 +58,9 @@ class BaseAnalysis(ABC):
 
         Args:
             experiment_data: the experiment data to analyze.
-            replace_results: if True clear any existing analysis results in experiment
-                             data and replace with new results. If False return a copy
-                             of the experiment data containing only the new analysis
-                             results.
+            replace_results: if True clear any existing analysis results and
+                             figures in the experiment data and replace with
+                             new results. See note for additional information.
             options: additional analysis options. See class documentation for
                      supported options.
 
@@ -70,6 +69,20 @@ class BaseAnalysis(ABC):
 
         Raises:
             QiskitError: if experiment_data container is not valid for analysis.
+
+        .. note::
+            **Updating Results**
+
+            If analysis is run with ``replace_results=True`` then any analysis results
+            and figures in the experiment data will be cleared and replaced with the
+            new analysis results. Saving this experiment data will replace any
+            previously saved data in a database service using the same experiment ID.
+
+            If analysis is run with ``replace_results=False`` and the experiment data
+            being analyzed has already been saved to a database service, or already
+            contains analysis results or figures, a copy with a unique experiment ID
+            will be returned containing only the new analysis results and figures.
+            This data can then be saved as its own experiment to a database service.
         """
         if not isinstance(experiment_data, self.__experiment_data__):
             raise QiskitError(
@@ -78,7 +91,11 @@ class BaseAnalysis(ABC):
             )
 
         # Make a new copy of experiment data if not updating results
-        if not replace_results and (experiment_data._analysis_results or experiment_data._figures):
+        if not replace_results and (
+            experiment_data._created_in_db
+            or experiment_data._analysis_results
+            or experiment_data._figures
+        ):
             experiment_data = experiment_data._copy_metadata()
 
         # Get experiment device components

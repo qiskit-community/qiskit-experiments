@@ -197,12 +197,13 @@ class BaseExperiment(ABC):
     ) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
+        See :meth:`BaseAnalysis.run` for additional information.
+
         Args:
             experiment_data: the experiment data to analyze.
-            replace_results: if True clear any existing analysis results in experiment
-                             data and replace with new results. If False return a copy
-                             of the experiment data containing only the new analysis
-                             results.
+            replace_results: if True clear any existing analysis results and
+                             figures in the experiment data and replace with
+                             new results.
             options: additional analysis options. Any values set here will
                      override the value from :meth:`analysis_options`
                      for the current run.
