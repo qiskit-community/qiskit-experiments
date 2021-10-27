@@ -17,8 +17,8 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
-from qiskit.providers import Backend
 from qiskit.utils import apply_prefix
+from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.library.calibration.analysis.remsey_xy_analysis import RamseyXYAnalysis
@@ -106,6 +106,7 @@ class RamseyXY(BaseExperiment):
     def __init__(
         self,
         qubit: int,
+        backend: Optional[Backend] = None,
         delays: Optional[List] = None,
         unit: str = "s",
         osc_freq: float = 2e6,
@@ -114,12 +115,13 @@ class RamseyXY(BaseExperiment):
 
         Args:
             qubit: The qubit on which to run the Ramsey XY experiment.
+            backend: Optional, the backend to run the experiment on.
             delays: The delays to scan.
             unit: The unit of the delays.
             osc_freq: the oscillation frequency induced by the user through a virtual
                 Rz rotation. This quantity is given in Hz.
         """
-        super().__init__([qubit])
+        super().__init__([qubit], backend=backend)
 
         delays = delays or self.experiment_options.delays
         self.set_experiment_options(delays=delays, unit=unit, osc_freq=osc_freq)
@@ -132,11 +134,8 @@ class RamseyXY(BaseExperiment):
         """
         return QuantumCircuit(1)
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def circuits(self) -> List[QuantumCircuit]:
         """Create the circuits for the Ramsey XY calibration experiment.
-
-        Args:
-            backend: A backend object.
 
         Returns:
             A list of circuits with a variable delay.
@@ -149,7 +148,7 @@ class RamseyXY(BaseExperiment):
         conversion_factor = 1
         if self.experiment_options.unit == "dt":
             try:
-                conversion_factor = getattr(backend.configuration(), "dt")
+                conversion_factor = getattr(self.backend.configuration(), "dt")
             except AttributeError as no_dt:
                 raise AttributeError(
                     "Dt parameter is missing from the backend's configuration."

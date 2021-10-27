@@ -134,6 +134,7 @@ class TestQubitSpectroscopy(QiskitTestCase):
         # Note that the backend is not sophisticated enough to simulate an e-f
         # transition so we run the test with g-e.
         spec = EFSpectroscopy(qubit, frequencies, unit="Hz")
+        spec.backend = backend
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
         expdata.block_for_results()
@@ -144,6 +145,6 @@ class TestQubitSpectroscopy(QiskitTestCase):
         self.assertEqual(result.quality, "good")
 
         # Test the circuits
-        circ = spec.circuits(backend)[0]
+        circ = spec.circuits()[0]
         self.assertEqual(circ.data[0][0].name, "x")
         self.assertEqual(circ.data[1][0].name, "Spec")

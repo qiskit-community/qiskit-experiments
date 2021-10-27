@@ -12,13 +12,13 @@
 
 """Fine DRAG calibration experiment."""
 
-from typing import Optional, List
+from typing import List, Optional
 import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
-from qiskit.providers import Backend
+from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.calibration.analysis.fine_drag_analysis import (
@@ -165,13 +165,14 @@ class FineDrag(BaseExperiment):
 
         return options
 
-    def __init__(self, qubit: int):
+    def __init__(self, qubit: int, backend: Optional[Backend] = None):
         """Setup a fine amplitude experiment on the given qubit.
 
         Args:
             qubit: The qubit on which to run the fine amplitude calibration experiment.
+            backend: Optional, the backend to run the experiment on.
         """
-        super().__init__([qubit])
+        super().__init__([qubit], backend=backend)
 
     @staticmethod
     def _pre_circuit() -> QuantumCircuit:
@@ -185,11 +186,8 @@ class FineDrag(BaseExperiment):
         circ.ry(np.pi / 2, 0)  # Maps unwanted Z rotations to qubit population.
         return circ
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def circuits(self) -> List[QuantumCircuit]:
         """Create the circuits for the fine DRAG calibration experiment.
-
-        Args:
-            backend: A backend object.
 
         Returns:
             A list of circuits with a variable number of gates. Each gate has the same
@@ -216,7 +214,7 @@ class FineDrag(BaseExperiment):
             circuit.measure_all()
 
             if schedule is not None:
-                circuit.add_calibration(schedule.name, self._physical_qubits, schedule, params=[])
+                circuit.add_calibration(schedule.name, self.physical_qubits, schedule, params=[])
 
             circuit.metadata = {
                 "experiment_type": self._type,
