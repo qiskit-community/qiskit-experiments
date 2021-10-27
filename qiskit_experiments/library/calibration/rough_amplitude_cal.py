@@ -17,6 +17,7 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
+from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.calibration_management import BaseCalibrationExperiment, BackendCalibrations
@@ -41,6 +42,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
         target_angle: float = np.pi,
         auto_update: bool = True,
         group: str = "default",
+        backend: Optional[Backend] = None,
     ):
         r"""see class :class:`Rabi` for details.
 
@@ -56,6 +58,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
             auto_update: Whether or not to automatically update the calibrations. By
                 default this variable is set to True.
             group: The group of calibration parameters to use. The default value is "default".
+            backend: Optional, the backend to run the experiment on.
         """
         schedule = calibrations.get_schedule(
             schedule_name, qubit, assign_params={cal_parameter_name: Parameter("amp")}, group=group
@@ -66,6 +69,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
             qubit,
             schedule=schedule,
             amplitudes=amplitudes,
+            backend=backend,
             schedule_name=schedule_name,
             cal_parameter_name=cal_parameter_name,
             auto_update=auto_update,
@@ -174,10 +178,22 @@ class RoughXSXAmplitudeCal(RoughAmplitudeCal):
     """A rough amplitude calibration of x and sx gates."""
 
     def __init__(
-        self, qubit: int, calibrations: BackendCalibrations, amplitudes: Iterable[float] = None
+        self,
+        qubit: int,
+        calibrations: BackendCalibrations,
+        amplitudes: Iterable[float] = None,
+        backend: Optional[Backend] = None,
     ):
         """A rough amplitude calibration that updates both the sx and x pulses."""
-        super().__init__(qubit, calibrations, "x", amplitudes, "amp", np.pi)
+        super().__init__(
+            qubit,
+            calibrations,
+            schedule_name="x",
+            amplitudes=amplitudes,
+            backend=backend,
+            cal_parameter_name="amp",
+            target_angle=np.pi,
+        )
 
         self.experiment_options.angles_schedules = [(np.pi, "amp", "x"), (np.pi / 2, "amp", "sx")]
 
@@ -190,6 +206,7 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
         qubit: int,
         calibrations: BackendCalibrations,
         amplitudes: Iterable[float] = None,
+        backend: Optional[Backend] = None,
         ef_pulse_label: str = "12",
     ):
         r"""A rough amplitude calibration that updates both the sx and x pulses on 1<->2.
@@ -198,11 +215,20 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
             qubit: The index of the qubit (technically a qutrit) to run on.
             calibrations: The calibrations instance that stores the pulse schedules.
             amplitudes: The amplitudes to scan.
+            backend: Optional, the backend to run the experiment on.
             ef_pulse_label: A label that is post-pended to "x" and "sx" to obtain the name
                 of the pulses that drive a :math:`\pi` and :math:`\pi/2` rotation on
                 the 1<->2 transition.
         """
-        super().__init__(qubit, calibrations, "x" + ef_pulse_label, amplitudes, "amp", np.pi)
+        super().__init__(
+            qubit,
+            calibrations,
+            schedule_name="x" + ef_pulse_label,
+            amplitudes=amplitudes,
+            backend=backend,
+            cal_parameter_name="amp",
+            target_angle=np.pi,
+        )
 
         self.experiment_options.angles_schedules = [
             (np.pi, "amp", "x" + ef_pulse_label),

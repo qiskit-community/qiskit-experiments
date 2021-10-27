@@ -96,7 +96,11 @@ class Rabi(BaseExperiment):
         return options
 
     def __init__(
-        self, qubit: int, schedule: ScheduleBlock, amplitudes: Optional[Iterable[float]] = None
+        self,
+        qubit: int,
+        schedule: ScheduleBlock,
+        amplitudes: Optional[Iterable[float]] = None,
+        backend: Optional[Backend] = None,
     ):
         """Initialize a Rabi experiment on the given qubit.
 
@@ -106,8 +110,9 @@ class Rabi(BaseExperiment):
                 should have one free parameter namely the amplitude.
             amplitudes: The pulse amplitudes that one wishes to scan. If this variable is not
                 specified it will default to :code:`np.linspace(-0.95, 0.95, 51)`.
+            backend: Optional, the backend to run the experiment on.
         """
-        super().__init__([qubit])
+        super().__init__([qubit], backend=backend)
 
         if amplitudes is not None:
             self.experiment_options.amplitudes = amplitudes

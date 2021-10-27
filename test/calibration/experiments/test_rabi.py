@@ -173,7 +173,8 @@ class TestRabiCircuits(QiskitTestCase):
 
         rabi = Rabi(2, self.sched)
         rabi.set_experiment_options(amplitudes=[0.5])
-        circs = rabi.circuits(RabiBackend())
+        rabi.backend = RabiBackend()
+        circs = rabi.circuits()
 
         with pulse.build() as expected:
             pulse.play(pulse.Gaussian(160, 0.5, 40), pulse.DriveChannel(2))
@@ -191,7 +192,8 @@ class TestRabiCircuits(QiskitTestCase):
 
         rabi = Rabi(2, self.sched)
         rabi.set_experiment_options(schedule=my_schedule, amplitudes=[0.5])
-        circs = rabi.circuits(RabiBackend())
+        rabi.backend = RabiBackend()
+        circs = rabi.circuits()
 
         assigned_sched = my_schedule.assign_parameters({amp: 0.5}, inplace=False)
         self.assertEqual(circs[0].calibrations["Rabi"][((2,), (0.5,))], assigned_sched)
