@@ -862,7 +862,7 @@ class DbExperimentDataV1(DbExperimentData):
             experiment_type=service_data.pop("experiment_type"),
             backend=service_data.pop("backend"),
             experiment_id=service_data.pop("experiment_id"),
-            parent_id=service_data.pop("parent_id"),
+            parent_id=service_data.pop("parent_id", None),
             tags=service_data.pop("tags"),
             job_ids=service_data.pop("job_ids"),
             share_level=service_data.pop("share_level"),

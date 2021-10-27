@@ -104,7 +104,7 @@ class Rabi(BaseExperiment):
 
         return options
 
-    def __init__(self, qubit: int):
+    def __init__(self, qubit: int, backend: Optional[Backend] = None):
         """Initialize a Rabi experiment on the given qubit.
 
         The parameters of the Gaussian Rabi pulse can be specified at run-time.
@@ -116,8 +116,9 @@ class Rabi(BaseExperiment):
 
         Args:
             qubit: The qubit on which to run the Rabi experiment.
+            backend: Optional, the backend to run the experiment on.
         """
-        super().__init__([qubit])
+        super().__init__([qubit], backend=backend)
 
     def _template_circuit(self, amp_param) -> QuantumCircuit:
         """Return the template quantum circuit."""
@@ -144,11 +145,8 @@ class Rabi(BaseExperiment):
 
         return default_schedule
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def circuits(self) -> List[QuantumCircuit]:
         """Create the circuits for the Rabi experiment.
-
-        Args:
-            backend: A backend object.
 
         Returns:
             A list of circuits with a rabi gate with an attached schedule. Each schedule
@@ -163,7 +161,7 @@ class Rabi(BaseExperiment):
         schedule = self.experiment_options.get("schedule", None)
 
         if schedule is None:
-            schedule = self._default_gate_schedule(backend=backend)
+            schedule = self._default_gate_schedule(backend=self.backend)
         else:
             if self.physical_qubits[0] not in set(ch.index for ch in schedule.channels):
                 raise CalibrationError(
@@ -182,6 +180,12 @@ class Rabi(BaseExperiment):
             self.__rabi_gate_name__, (self.physical_qubits[0],), schedule, params=[param]
         )
 
+        # Get backend dt
+        if self.backend is not None:
+            backend_dt = getattr(self.backend.configuration(), "dt", "n.a.")
+        else:
+            backend_dt = "n.a"
+
         # Create the circuits to run
         circs = []
         for amp in self.experiment_options.amplitudes:
@@ -194,10 +198,8 @@ class Rabi(BaseExperiment):
                 "unit": "arb. unit",
                 "amplitude": amp,
                 "schedule": str(schedule),
+                "dt": backend_dt,
             }
-
-            if backend:
-                assigned_circ.metadata["dt"] = getattr(backend.configuration(), "dt", "n.a.")
 
             circs.append(assigned_circ)
 

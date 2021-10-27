@@ -13,9 +13,11 @@
 Composite Experiment abstract base class.
 """
 
+from typing import List, Sequence, Optional
 from abc import abstractmethod
 import warnings
 
+from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment
 from .composite_experiment_data import CompositeExperimentData
 from .composite_analysis import CompositeAnalysis
@@ -27,21 +29,27 @@ class CompositeExperiment(BaseExperiment):
     __analysis_class__ = CompositeAnalysis
     __experiment_data__ = CompositeExperimentData
 
-    def __init__(self, experiments, qubits, experiment_type=None):
+    def __init__(
+        self,
+        experiments: List[BaseExperiment],
+        qubits: Sequence[int],
+        backend: Optional[Backend] = None,
+        experiment_type: Optional[str] = None,
+    ):
         """Initialize the composite experiment object.
 
         Args:
-            experiments (List[BaseExperiment]): a list of experiment objects.
-            qubits (int or Iterable[int]): the number of qubits or list of
-                                           physical qubits for the experiment.
-            experiment_type (str): Optional, composite experiment subclass name.
+            experiments: a list of experiment objects.
+            qubits: the number of qubits or list of physical qubits for the experiment.
+            backend: Optional, the backend to run the experiment on.
+            experiment_type: Optional, composite experiment subclass name.
         """
         self._experiments = experiments
         self._num_experiments = len(experiments)
-        super().__init__(qubits, experiment_type=experiment_type)
+        super().__init__(qubits, backend=backend, experiment_type=experiment_type)
 
     @abstractmethod
-    def circuits(self, backend=None):
+    def circuits(self):
         pass
 
     @property
@@ -64,6 +72,18 @@ class CompositeExperiment(BaseExperiment):
         """Return the component experiment Analysis object"""
         return self.component_experiment(index).analysis()
 
+    def copy(self) -> "BaseExperiment":
+        """Return a copy of the experiment"""
+        ret = super().copy()
+        # Recursively call copy of component experiments
+        ret._experiments = [exp.copy() for exp in self._experiments]
+        return ret
+
+    def _set_backend(self, backend):
+        super()._set_backend(backend)
+        for subexp in self._experiments:
+            subexp._set_backend(backend)
+
     def _add_job_metadata(self, experiment_data, jobs, **run_options):
         # Add composite metadata
         super()._add_job_metadata(experiment_data, jobs, **run_options)
@@ -85,7 +105,7 @@ class CompositeExperiment(BaseExperiment):
             sub_data = experiment_data.component_experiment_data(i)
             sub_exp._add_job_metadata(sub_data, jobs, **run_options)
 
-    def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
+    def _postprocess_transpiled_circuits(self, circuits, **run_options):
         for expr in self._experiments:
             if not isinstance(expr, CompositeExperiment):
-                expr._postprocess_transpiled_circuits(circuits, backend, **run_options)
+                expr._postprocess_transpiled_circuits(circuits, **run_options)
