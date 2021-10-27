@@ -360,7 +360,6 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         self,
         backend: Backend,
         analysis: bool = True,
-        experiment_data: Optional[ExperimentData] = None,
         **run_options,
     ) -> ExperimentData:
         """Run an experiment, perform analysis, and update any calibrations.
@@ -368,14 +367,12 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         Args:
             backend: The backend to run the experiment on.
             analysis: If True run analysis on the experiment data.
-            experiment_data: Optional, add results to existing experiment data.
-                If None a new ExperimentData object will be returned.
             run_options: backend runtime options used for circuit execution.
 
         Returns:
             The experiment data object.
         """
-        experiment_data = super().run(backend, analysis, experiment_data, **run_options)
+        experiment_data = super().run(backend, analysis, **run_options)
 
         if self.auto_update and analysis:
             experiment_data.add_analysis_callback(self.update_calibrations)

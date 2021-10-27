@@ -177,8 +177,9 @@ class TestT2Ramsey(QiskitTestCase):
         delays1 = list(range(2, 65, 2))
         exp1 = T2Ramsey(qubit, delays1, unit=unit)
         exp1.set_analysis_options(user_p0=default_p0)
-        expdata1 = exp1.run(backend=backend, experiment_data=expdata0, shots=1000)
-        expdata1.block_for_results()
+        expdata1 = exp1.run(backend=backend, analysis=False, shots=1000).block_for_results()
+        expdata1.add_data(expdata0.data())
+        exp1.run_analysis(expdata1)
         results1 = expdata1.analysis_results()
 
         self.assertAlmostEqual(
