@@ -12,7 +12,7 @@
 
 """Spectroscopy experiment class."""
 
-from typing import List, Optional, Tuple, Union
+from typing import Iterable, Optional, Tuple
 
 import numpy as np
 import qiskit.pulse as pulse
@@ -20,13 +20,11 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Gate, Parameter
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
-from qiskit.providers.options import Options
 from qiskit.qobj.utils import MeasLevel
 from qiskit.utils import apply_prefix
 
-from qiskit_experiments.framework import BaseExperiment
-from qiskit_experiments.curve_analysis import ParameterRepr
-from qiskit_experiments.library.characterization.resonance_analysis import ResonanceAnalysis
+from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.curve_analysis import ParameterRepr, ResonanceAnalysis
 
 
 class QubitSpectroscopy(BaseExperiment):
@@ -53,20 +51,33 @@ class QubitSpectroscopy(BaseExperiment):
     @classmethod
     def _default_run_options(cls) -> Options:
         """Default options values for the experiment :meth:`run` method."""
-        return Options(
-            meas_level=MeasLevel.KERNELED,
-            meas_return="single",
-        )
+        options = super()._default_run_options()
+
+        options.meas_level = MeasLevel.KERNELED
+        options.meas_return = "single"
+
+        return options
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default option values used for the spectroscopy pulse."""
-        return Options(
-            amp=0.1,
-            duration=1024,
-            sigma=256,
-            width=0,
-        )
+        """Default option values used for the spectroscopy pulse.
+
+        Experiment Options:
+            amp (float): The amplitude of the spectroscopy pulse. Defaults to 0.1.
+            duration (int): The duration of the spectroscopy pulse. Defaults to 1024 samples.
+            sigma (float): The standard deviation of the flanks of the spectroscopy pulse.
+                Defaults to 256.
+            width (int): The width of the flat-top part of the GaussianSquare pulse.
+                Defaults to 0.
+        """
+        options = super()._default_experiment_options()
+
+        options.amp = 0.1
+        options.duration = 1024
+        options.sigma = 256
+        options.width = 0
+
+        return options
 
     @classmethod
     def _default_analysis_options(cls) -> Options:
@@ -74,14 +85,17 @@ class QubitSpectroscopy(BaseExperiment):
         options = super()._default_analysis_options()
         options.result_parameters = [ParameterRepr("freq", "f01", "Hz")]
         options.normalization = True
+        options.xlabel = "Frequency"
+        options.ylabel = "Signal (arb. units)"
+        options.xval_unit = "Hz"
 
         return options
 
     def __init__(
         self,
         qubit: int,
-        frequencies: Union[List[float], np.array],
-        unit: Optional[str] = "Hz",
+        frequencies: Iterable[float],
+        unit: str = "Hz",
         absolute: bool = True,
     ):
         """
@@ -96,9 +110,8 @@ class QubitSpectroscopy(BaseExperiment):
         Args:
             qubit: The qubit on which to run spectroscopy.
             frequencies: The frequencies to scan in the experiment.
-            unit: The unit in which the user specifies the frequencies. Can be one
-                of 'Hz', 'kHz', 'MHz', 'GHz'. Internally, all frequencies will be converted
-                to 'Hz'.
+            unit: The unit in which the user specifies the frequencies. Can be one of 'Hz', 'kHz',
+                'MHz', 'GHz'. Internally, all frequencies will be converted to 'Hz'.
             absolute: Boolean to specify if the frequencies are absolute or relative to the
                 qubit frequency in the backend.
 
@@ -106,6 +119,8 @@ class QubitSpectroscopy(BaseExperiment):
             QiskitError: if there are less than three frequency shifts or if the unit is not known.
 
         """
+        super().__init__([qubit])
+
         if len(frequencies) < 3:
             raise QiskitError("Spectroscopy requires at least three frequencies.")
 
@@ -114,14 +129,12 @@ class QubitSpectroscopy(BaseExperiment):
         else:
             self._frequencies = [apply_prefix(freq, unit) for freq in frequencies]
 
-        super().__init__([qubit])
-
         self._absolute = absolute
 
         if not self._absolute:
-            self.set_analysis_options(xlabel="Frequency shift [Hz]")
+            self.set_analysis_options(xlabel="Frequency shift")
         else:
-            self.set_analysis_options(xlabel="Frequency [Hz]")
+            self.set_analysis_options(xlabel="Frequency")
 
         self.set_analysis_options(ylabel="Signal [arb. unit]")
 

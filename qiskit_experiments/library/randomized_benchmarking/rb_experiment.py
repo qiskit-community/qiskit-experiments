@@ -20,11 +20,10 @@ from numpy.random import Generator, default_rng
 from qiskit import QuantumCircuit, QiskitError
 from qiskit.providers import Backend
 from qiskit.quantum_info import Clifford
-from qiskit.providers.options import Options
 from qiskit.circuit import Gate
 
-from qiskit_experiments.framework import BaseExperiment, ParallelExperiment
-from qiskit_experiments.curve_analysis.data_processing import probability
+import qiskit_experiments.data_processing as dp
+from qiskit_experiments.framework import BaseExperiment, ParallelExperiment, Options
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
 from .rb_utils import RBUtils
@@ -89,7 +88,12 @@ class StandardRB(BaseExperiment):
 
         # Set configurable options
         self.set_experiment_options(lengths=list(lengths), num_samples=num_samples)
-        self.set_analysis_options(data_processor=probability(outcome="0" * self.num_qubits))
+        self.set_analysis_options(
+            data_processor=dp.DataProcessor(
+                input_key="counts",
+                data_actions=[dp.Probability(outcome="0" * self.num_qubits)],
+            )
+        )
 
         # Set fixed options
         self._full_sampling = full_sampling
@@ -114,7 +118,7 @@ class StandardRB(BaseExperiment):
             raise QiskitError(f"The number of samples {num_samples} should " "be positive.")
 
     @classmethod
-    def _default_experiment_options(cls):
+    def _default_experiment_options(cls) -> Options:
         """Default experiment options.
 
         Experiment Options:
@@ -122,7 +126,12 @@ class StandardRB(BaseExperiment):
             num_samples (int): Number of samples to generate for each sequence length.
 
         """
-        return Options(lengths=None, num_samples=None)
+        options = super()._default_experiment_options()
+
+        options.lengths = None
+        options.num_samples = None
+
+        return options
 
     # pylint: disable = arguments-differ
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
@@ -184,10 +193,16 @@ class StandardRB(BaseExperiment):
         circ_op = Clifford(np.eye(2 * self.num_qubits))
 
         for current_length, group_elt_circ in enumerate(elements):
-            group_elt_gate = group_elt_circ
+            if isinstance(group_elt_circ, tuple):
+                group_elt_gate = group_elt_circ[0]
+                group_elt_op = group_elt_circ[1]
+            else:
+                group_elt_gate = group_elt_circ
+                group_elt_op = Clifford(group_elt_circ)
+
             if not isinstance(group_elt_gate, Gate):
                 group_elt_gate = group_elt_gate.to_gate()
-            circ_op = circ_op.compose(Clifford(group_elt_circ))
+            circ_op = circ_op.compose(group_elt_op)
             for circ in circs:
                 circ.append(group_elt_gate, qubits)
                 circ.barrier(qubits)

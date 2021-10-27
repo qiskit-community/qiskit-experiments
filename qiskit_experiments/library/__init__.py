@@ -36,12 +36,12 @@ Experiments for verification and validation of quantum devices.
 
     ~randomized_benchmarking.StandardRB
     ~randomized_benchmarking.InterleavedRB
+    ~tomography.StateTomography
+    ~tomography.ProcessTomography
 
 .. autosummary::
     :toctree: ../stubs/
 
-    ~tomography.StateTomography
-    ~tomography.ProcessTomography
     ~quantum_volume.QuantumVolume
 
 .. _characterization:
@@ -60,6 +60,11 @@ Some experiments may be also used for gate calibration.
     ~characterization.T2Ramsey
     ~characterization.QubitSpectroscopy
     ~characterization.EFSpectroscopy
+    ~characterization.CrossResonanceHamiltonian
+    ~characterization.EchoedCrossResonanceHamiltonian
+    ~characterization.FineAmplitude
+    ~characterization.FineXAmplitude
+    ~characterization.FineSXAmplitude
 
 .. _calibration:
 
@@ -76,16 +81,43 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     :toctree: ../stubs/
     :template: autosummary/experiment.rst
 
+    ~calibration.RoughFrequencyCal
     ~calibration.DragCal
+    ~calibration.FineDrag
+    ~calibration.FineXDrag
+    ~calibration.FineSXDrag
     ~calibration.Rabi
     ~calibration.EFRabi
-    ~calibration.FineAmplitude
-    ~calibration.FineXAmplitude
-    ~calibration.FineSXAmplitude
+    ~calibration.FineAmplitudeCal
+    ~calibration.FineXAmplitudeCal
+    ~calibration.FineSXAmplitudeCal
+    ~calibration.RamseyXY
 
 """
-from .calibration import DragCal, Rabi, EFRabi, FineAmplitude, FineXAmplitude, FineSXAmplitude
-from .characterization import T1, T2Ramsey, QubitSpectroscopy, EFSpectroscopy
+from .calibration import (
+    DragCal,
+    FineDrag,
+    FineXDrag,
+    FineSXDrag,
+    Rabi,
+    EFRabi,
+    FineAmplitudeCal,
+    FineXAmplitudeCal,
+    FineSXAmplitudeCal,
+    RoughFrequencyCal,
+    RamseyXY,
+)
+from .characterization import (
+    T1,
+    T2Ramsey,
+    QubitSpectroscopy,
+    EFSpectroscopy,
+    CrossResonanceHamiltonian,
+    EchoedCrossResonanceHamiltonian,
+    FineAmplitude,
+    FineXAmplitude,
+    FineSXAmplitude,
+)
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
 from .quantum_volume import QuantumVolume

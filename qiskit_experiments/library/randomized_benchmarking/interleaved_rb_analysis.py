@@ -12,12 +12,12 @@
 """
 Interleaved RB analysis class.
 """
-from typing import List, Dict, Any, Union
+from typing import List, Union
 
 import numpy as np
 
-from qiskit_experiments.framework import AnalysisResultData, FitVal
 import qiskit_experiments.curve_analysis as curve
+from qiskit_experiments.framework import AnalysisResultData, FitVal
 from .rb_analysis import RBAnalysis
 
 
@@ -102,6 +102,7 @@ class InterleavedRBAnalysis(RBAnalysis):
             plot_color="red",
             plot_symbol=".",
             plot_fit_uncertainty=True,
+            model_description=r"a \alpha^{x} + b",
         ),
         curve.SeriesDef(
             name="Interleaved",
@@ -112,6 +113,7 @@ class InterleavedRBAnalysis(RBAnalysis):
             plot_color="orange",
             plot_symbol="^",
             plot_fit_uncertainty=True,
+            model_description=r"a (\alpha_c\alpha)^{x} + b",
         ),
     ]
 
@@ -119,46 +121,47 @@ class InterleavedRBAnalysis(RBAnalysis):
     def _default_options(cls):
         """Default analysis options."""
         default_options = super()._default_options()
-        default_options.p0 = {"a": None, "alpha": None, "alpha_c": None, "b": None}
-        default_options.bounds = {
-            "a": (0.0, 1.0),
-            "alpha": (0.0, 1.0),
-            "alpha_c": (0.0, 1.0),
-            "b": (0.0, 1.0),
-        }
         default_options.result_parameters = ["alpha", "alpha_c"]
         return default_options
 
-    def _setup_fitting(self, **options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
-        """Fitter options."""
-        user_p0 = self._get_option("p0")
-        user_bounds = self._get_option("bounds")
+    def _generate_fit_guesses(
+        self, user_opt: curve.FitOptions
+    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+        """Compute the initial guesses.
+
+        Args:
+            user_opt: Fit options filled with user provided guess and bounds.
+
+        Returns:
+            List of fit options that are passed to the fitter function.
+        """
+        user_opt.bounds.set_if_empty(
+            a=(0, 1),
+            alpha=(0, 1),
+            alpha_c=(0, 1),
+            b=(0, 1),
+        )
 
         # for standard RB curve
         std_curve = self._data(series_name="Standard")
-        p0_std = self._initial_guess(std_curve.x, std_curve.y, self._num_qubits)
+        opt_std = user_opt.copy()
+        opt_std = self._initial_guess(opt_std, std_curve.x, std_curve.y, self._num_qubits)
 
         # for interleaved RB curve
         int_curve = self._data(series_name="Interleaved")
-        p0_int = self._initial_guess(int_curve.x, int_curve.y, self._num_qubits)
+        opt_int = user_opt.copy()
+        if opt_int.p0["alpha_c"] is not None:
+            opt_int.p0["alpha"] = opt_std.p0["alpha"] * opt_int.p0["alpha_c"]
+        opt_int = self._initial_guess(opt_int, int_curve.x, int_curve.y, self._num_qubits)
 
-        fit_option = {
-            "p0": {
-                "a": user_p0["a"] or np.mean([p0_std["a"], p0_int["a"]]),
-                "alpha": user_p0["alpha"] or p0_std["alpha"],
-                "alpha_c": user_p0["alpha_c"] or min(p0_int["alpha"] / p0_std["alpha"], 1),
-                "b": user_p0["b"] or np.mean([p0_std["b"], p0_int["b"]]),
-            },
-            "bounds": {
-                "a": user_bounds["a"] or (0.0, 1.0),
-                "alpha": user_bounds["alpha"] or (0.0, 1.0),
-                "alpha_c": user_bounds["alpha_c"] or (0.0, 1.0),
-                "b": user_bounds["b"] or (0.0, 1.0),
-            },
-        }
-        fit_option.update(options)
+        user_opt.p0.set_if_empty(
+            a=np.mean([opt_std.p0["a"], opt_int.p0["a"]]),
+            alpha=opt_std.p0["alpha"],
+            alpha_c=min(opt_int.p0["alpha"] / opt_std.p0["alpha"], 1),
+            b=np.mean([opt_std.p0["b"], opt_int.p0["b"]]),
+        )
 
-        return fit_option
+        return user_opt
 
     def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
         """Calculate EPC."""

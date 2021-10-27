@@ -25,7 +25,7 @@ from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
 
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.framework import BaseAnalysis, Options, AnalysisResultData
+from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
 from .fitters import (
     linear_inversion,
     scipy_linear_lstsq,
@@ -48,14 +48,47 @@ class TomographyAnalysis(BaseAnalysis):
 
     @classmethod
     def _default_options(cls) -> Options:
-        return Options(
-            measurement_basis=None,
-            preparation_basis=None,
-            fitter="linear_inversion",
-            rescale_positive=True,
-            rescale_trace=True,
-            target="default",
-        )
+        """Default analysis options
+
+        Analysis Options:
+            measurement_basis
+                (:class:`~qiskit_experiments.library.tomography.basis.BaseFitterMeasurementBasis`):
+                The measurement
+                :class:`~qiskit_experiments.library.tomography.basis.BaseFitterMeasurementBasis`
+                to use for tomographic reconstruction when running a
+                :class:`~qiskit_experiments.library.tomography.StateTomography` or
+                :class:`~qiskit_experiments.library.tomography.ProcessTomography`.
+            preparation_basis
+                (:class:`~qiskit_experiments.library.tomography.basis.BaseFitterPreparationBasis`):
+                The preparation
+                :class:`~qiskit_experiments.library.tomography.basis.BaseFitterPreparationBasis`
+                to use for tomographic reconstruction for
+                :class:`~qiskit_experiments.library.tomography.ProcessTomography`.
+            fitter (str or Callable): The fitter function to use for reconstruction.
+                This can  be a string to select one of the built-in fitters, or a callable to
+                supply a custom fitter function. See the `Fitter Functions` section for
+                additional information.
+            rescale_positive (bool): If True rescale the state returned by the fitter
+                to be positive-semidefinite. See the `PSD Rescaling` section for
+                additional information (Default: True).
+            rescale_trace (bool): If True rescale the state returned by the fitter
+                have either trace 1 for :class:`~qiskit.quantum_info.DensityMatrix`,
+                or trace dim for :class:`~qiskit.quantum_info.Choi` matrices (Default: True).
+            target (Any): depends on subclass.
+            kwargs: will be supplied to the fitter function, for documentation of available
+                args refer to the fitter function documentation.
+
+        """
+        options = super()._default_options()
+
+        options.measurement_basis = None
+        options.preparation_basis = None
+        options.fitter = "linear_inversion"
+        options.rescale_positive = True
+        options.rescale_trace = True
+        options.target = "default"
+
+        return options
 
     @classmethod
     def _get_fitter(cls, fitter):

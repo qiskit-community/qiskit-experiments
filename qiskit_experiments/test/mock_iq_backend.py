@@ -21,7 +21,7 @@ from qiskit.result import Result
 from qiskit.test.mock import FakeOpenPulse2Q
 
 from qiskit.qobj.utils import MeasLevel
-from qiskit.providers.options import Options
+from qiskit_experiments.framework import Options
 from qiskit_experiments.test.utils import FakeJob
 
 
@@ -32,13 +32,14 @@ class MockIQBackend(FakeOpenPulse2Q):
         self,
         iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
         iq_cluster_width: float = 1.0,
+        rng_seed: int = 0,
     ):
         """
         Initialize the backend.
         """
         self._iq_cluster_centers = iq_cluster_centers
         self._iq_cluster_width = iq_cluster_width
-        self._rng = np.random.default_rng(0)
+        self._rng = np.random.default_rng(rng_seed)
 
         super().__init__()
 
@@ -134,25 +135,30 @@ class DragBackend(MockIQBackend):
         self,
         iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
         iq_cluster_width: float = 1.0,
-        leakage: float = 0.03,
+        error: float = 0.03,
         ideal_beta=2.0,
+        gate_name: str = "Rp",
+        rng_seed: int = 0,
     ):
         """Initialize the rabi backend."""
-        self._leakage = leakage
+        self._error = error
+        self._gate_name = gate_name
         self.ideal_beta = ideal_beta
 
-        super().__init__(iq_cluster_centers, iq_cluster_width)
+        super().__init__(iq_cluster_centers, iq_cluster_width, rng_seed=rng_seed)
 
     def _compute_probability(self, circuit: QuantumCircuit) -> float:
         """Returns the probability based on the beta, number of gates, and leakage."""
         n_gates = sum(circuit.count_ops().values())
 
-        beta = next(iter(circuit.calibrations["Rp"].keys()))[1][0]
+        beta = next(iter(circuit.calibrations[self._gate_name].keys()))[1][0]
 
-        return np.sin(n_gates * self._leakage * (beta - self.ideal_beta)) ** 2
+        return np.sin(n_gates * self._error * (beta - self.ideal_beta)) ** 2
 
 
 class MockFineAmp(MockIQBackend):
+    """A mock backend for fine amplitude calibration."""
+
     def __init__(self, angle_error: float, angle_per_gate: float, gate_name: str):
         """Setup a mock backend to test the fine amplitude calibration.
 
@@ -172,12 +178,33 @@ class MockFineAmp(MockIQBackend):
         """Return the probability of being in the excited state."""
 
         n_ops = circuit.count_ops().get(self._gate_name, 0)
-        n_sx_ops = circuit.count_ops().get("sx", 0)
-        n_x_ops = circuit.count_ops().get("x", 0)
-
         angle = n_ops * (self._angle_per_gate + self.angle_error)
 
-        angle += np.pi / 2 * n_sx_ops
-        angle += np.pi * n_x_ops
+        if self._gate_name != "sx":
+            angle += np.pi / 2 * circuit.count_ops().get("sx", 0)
+
+        if self._gate_name != "x":
+            angle += np.pi * circuit.count_ops().get("x", 0)
 
         return np.sin(angle / 2) ** 2
+
+
+class MockRamseyXY(MockIQBackend):
+    """A mock backend for the RamseyXY experiment."""
+
+    def __init__(self, freq_shift: float):
+        super().__init__()
+        self.freq_shift = freq_shift
+
+    def _compute_probability(self, circuit: QuantumCircuit) -> float:
+        """Return the probability of the circuit."""
+
+        series = circuit.metadata["series"]
+        delay = circuit.metadata["xval"]
+
+        if series == "X":
+            phase_offset = 0.0
+        else:
+            phase_offset = np.pi / 2
+
+        return 0.5 * np.cos(2 * np.pi * delay * self.freq_shift - phase_offset) + 0.5

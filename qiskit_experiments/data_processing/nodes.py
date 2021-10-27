@@ -13,7 +13,8 @@
 """Different data analysis steps."""
 
 from abc import abstractmethod
-from typing import Any, Dict, List, Optional, Tuple, Union
+from numbers import Number
+from typing import Any, Dict, List, Optional, Tuple, Union, Sequence
 import numpy as np
 
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
@@ -391,17 +392,73 @@ class ToImag(IQPart):
 
 
 class Probability(DataAction):
-    """Count data post processing. This returns the probabilities of the outcome string
-    used to initialize an instance of Probability."""
+    r"""Compute the mean probability of a single measurement outcome from counts.
 
-    def __init__(self, outcome: str = "1", validate: bool = True):
+    This node returns the mean and standard deviation of a single measurement
+    outcome probability :math:`p` estimated from the observed counts. The mean and
+    variance are computed from the posterior Beta distribution
+    :math:`B(\alpha_0^\prime,\alpha_1^\prime)` estimated from a Bayesian update
+    of a prior Beta distribution :math:`B(\alpha_0, \alpha_1)` given the observed
+    counts.
+
+    The mean and variance of the Beta distribution :math:`B(\alpha_0, \alpha_1)` are:
+
+    .. math::
+
+        \text{E}[p] = \frac{\alpha_0}{\alpha_0 + \alpha_1}, \quad
+        \text{Var}[p] = \frac{\text{E}[p] (1 - \text{E}[p])}{\alpha_0 + \alpha_1 + 1}
+
+    Given a prior Beta distribution :math:`B(\alpha_0, \alpha_1)`, the posterior
+    distribution for the observation of :math:`F` counts of a given
+    outcome out of :math:`N` total shots is a
+    :math:`B(\alpha_0^\prime,\alpha_1^\prime):math:` with
+
+    .. math::
+        \alpha_0^\prime = \alpha_0 + F, \quad
+        \alpha_1^\prime = \alpha_1 + N - F.
+
+    .. note::
+
+        The default value for the prior distribution is *Jeffery's Prior*
+        :math:`\alpha_0 = \alpha_1 = 0.5` which represents ignorance about the true
+        probability value. Note that for this prior the mean probability estimate
+        from a finite number of counts can never be exactly 0 or 1. The estimated
+        mean and variance are given by
+
+        .. math::
+
+            \text{E}[p] = \frac{F + 0.5}{N + 1}, \quad
+            \text{Var}[p] = \frac{\text{E}[p] (1 - \text{E}[p])}{N + 2}
+    """
+
+    def __init__(
+        self,
+        outcome: str,
+        alpha_prior: Union[float, Sequence[float]] = 0.5,
+        validate: bool = True,
+    ):
         """Initialize a counts to probability data conversion.
 
         Args:
-            outcome: The bitstring for which to compute the probability which defaults to "1".
+            outcome: The bitstring for which to return the probability and variance.
+            alpha_prior: A prior Beta distribution parameter ``[`alpha0, alpha1]``.
+                         If specified as float this will use the same value for
+                         ``alpha0`` and``alpha1`` (Default: 0.5).
             validate: If set to False the DataAction will not validate its input.
+
+        Raises:
+            DataProcessorError: When the dimension of the prior and expected parameter vector
+                do not match.
         """
         self._outcome = outcome
+        if isinstance(alpha_prior, Number):
+            self._alpha_prior = [alpha_prior, alpha_prior]
+        else:
+            if validate and len(alpha_prior) != 2:
+                raise DataProcessorError(
+                    "Prior for probability node must be a float or pair of floats."
+                )
+            self._alpha_prior = list(alpha_prior)
         super().__init__(validate)
 
     def _format_data(self, datum: dict, error: Optional[Any] = None) -> Tuple[dict, Any]:
@@ -472,10 +529,58 @@ class Probability(DataAction):
 
             return np.array(populations), np.array(errors)
 
-    def _population_error(self, counts_dict) -> Tuple[float, float]:
+    def _population_error(self, counts_dict: Dict[str, int]) -> Tuple[float, float]:
         """Helper method"""
         shots = sum(counts_dict.values())
-        p_mean = counts_dict.get(self._outcome, 0.0) / shots
-        p_var = p_mean * (1 - p_mean) / shots
-
+        freq = counts_dict.get(self._outcome, 0)
+        alpha_posterior = [freq + self._alpha_prior[0], shots - freq + self._alpha_prior[1]]
+        alpha_sum = sum(alpha_posterior)
+        p_mean = alpha_posterior[0] / alpha_sum
+        p_var = p_mean * (1 - p_mean) / (alpha_sum + 1)
         return p_mean, np.sqrt(p_var)
+
+
+class BasisExpectationValue(DataAction):
+    """Compute expectation value of measured basis from probability.
+
+    Note:
+        The sign becomes P(0) -> 1, P(1) -> -1.
+    """
+
+    def _format_data(
+        self, datum: np.ndarray, error: Optional[np.ndarray] = None
+    ) -> Tuple[Any, Any]:
+        """Check that the input data are probabilities.
+
+        Args:
+            datum: An array representing probabilities.
+            error: An array representing error.
+
+        Returns:
+            Arrays of probability and its error
+
+        Raises:
+            DataProcessorError: When input value is not in [0, 1]
+        """
+        if not all(0.0 <= p <= 1.0 for p in datum):
+            raise DataProcessorError(
+                f"Input data for node {self.__class__.__name__} is not likely probability."
+            )
+        return datum, error
+
+    def _process(
+        self, datum: np.array, error: Optional[np.array] = None
+    ) -> Tuple[np.array, np.array]:
+        """Compute eigenvalue.
+
+        Args:
+            datum: An array representing probabilities.
+            error: An array representing error.
+
+        Returns:
+            Arrays of eigenvalues and its error
+        """
+        if error is not None:
+            return 2 * (0.5 - datum), 2 * error
+        else:
+            return 2 * (0.5 - datum), None

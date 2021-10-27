@@ -211,7 +211,7 @@ class TestRBAnalysis(QiskitTestCase):
 
 class TestStandardRBAnalysis(TestRBAnalysis):
     """
-    A test for the analysis of the standard RB experiment
+    Tests for the analysis of the standard RB experiment
     """
 
     def test_standard_rb_analysis_test(self):
