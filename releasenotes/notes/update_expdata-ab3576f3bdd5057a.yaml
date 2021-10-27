@@ -1,0 +1,10 @@
+---
+upgrade:
+  - |
+    The ``experiment_data`` kwarg has been removed from the 
+    :meth:`~qiskit_experiment.framework.BaseExperiment.run` method of
+    experiments. To combine data from multiple executions you can manually
+    add data from one :class:`~qiskit_experiments.framework.ExperimentData`
+    container to another using the
+    :meth:`~qiskit_experiments.framework.ExperimentData.add_data` method
+    eg. ``expdata2.add_data(expdata1.data())``
