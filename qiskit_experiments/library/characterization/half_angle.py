@@ -44,6 +44,8 @@ class HalfAngle(BaseExperiment):
         rotation are not parallel. A similar experiment is described in Ref.~[1] where the
         gate sequence :code:`x - y` is repeated to amplify errors caused by non-orthogonal
         :code:`x` and :code:`y` rotation axis. Such errors can occur due to phase errors.
+        For example, the non-linearities in the mixer's skew for :math:`\pi/2` pulses may
+        be different from the :math:`\pi` pulse.
 
     # section: reference
         .. ref_arxiv:: 1 1504.06597
@@ -88,13 +90,14 @@ class HalfAngle(BaseExperiment):
 
         return options
 
-    def __init__(self, qubit: int):
+    def __init__(self, qubit: int, backend: Optional[Backend] = None):
         """Setup a fine amplitude experiment on the given qubit.
 
         Args:
             qubit: The qubit on which to run the fine amplitude calibration experiment.
+            backend: Optional, the backend to run the experiment on.
         """
-        super().__init__([qubit])
+        super().__init__([qubit], backend=backend)
 
     @staticmethod
     def _pre_circuit() -> QuantumCircuit:

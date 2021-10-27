@@ -15,6 +15,7 @@
 from typing import List, Optional
 
 from qiskit import QuantumCircuit
+from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.calibration_management import (
@@ -33,6 +34,7 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
         qubit,
         calibrations: BackendCalibrations,
         schedule_name: str,
+        backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "amp",
         auto_update: bool = True,
     ):
@@ -42,6 +44,7 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
             qubit: The qubit for which to run the half-angle calibration.
             calibrations: The calibrations instance with the schedules.
             schedule_name: The name of the schedule to calibrate.
+            backend: Optional, the backend to run the experiment on.
             cal_parameter_name: The name of the parameter in the schedule to update.
             auto_update:  Whether or not to automatically update the calibrations. By
                 default this variable is set to True.
@@ -49,6 +52,7 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
         super().__init__(
             calibrations,
             qubit,
+            backend=backend,
             schedule_name=schedule_name,
             cal_parameter_name=cal_parameter_name,
             auto_update=auto_update,
@@ -107,7 +111,12 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
 
         ..math::
 
-            TODO
+            \alpha \to \alpha - \frac{{\rm d}\theta_\text{hac}}{2}
+
+        where :math:`\alpha` is the angle of the sx pulse which might be different from the
+        angle of the x pulse due to the non-linearity in the mixer's skew. The angle
+        :math:`{\rm d}\theta_\text{hac}` is the angle deviation measured through the error
+        amplifying pulse sequence.
 
         Args:
             experiment_data: The experiment data from which to extract the measured over/under
@@ -123,7 +132,7 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
             prev_amp = data[0]["metadata"]["cal_param_value"]
 
             d_theta = BaseUpdater.get_value(experiment_data, "d_theta", result_index)
-            new_amp = None  # TODO implement me
+            new_amp = prev_amp - d_theta / 2
 
             BaseUpdater.add_parameter_value(
                 self._cals,
