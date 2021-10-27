@@ -124,15 +124,3 @@ class CompositeHeatAnalysis(CompositeAnalysis, ABC):
         composite_analysis_results = [estimate_ib, estimate_zb]
 
         return composite_analysis_results, None
-
-
-class HeatYAnalysis(CompositeHeatAnalysis):
-    """"""
-    __fit_params__ = ["d_heat_y0", "d_heat_y1"]
-    __out_params__ = ["A_iy", "A_zy"]
-
-
-class HeatZAnalysis(CompositeAnalysis):
-    """"""
-    __fit_params__ = ["d_heat_z0", "d_heat_z1"]
-    __out_params__ = ["A_iz", "A_zz"]
