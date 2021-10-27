@@ -12,7 +12,7 @@
 """
 Interleaved RB Experiment class.
 """
-from typing import Union, Iterable, Optional, List
+from typing import Union, Iterable, Optional, List, Sequence
 
 from numpy.random import Generator
 

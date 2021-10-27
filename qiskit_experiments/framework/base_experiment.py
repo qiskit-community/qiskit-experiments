@@ -14,7 +14,7 @@ Base Experiment class.
 """
 
 from abc import ABC, abstractmethod
-from typing import Iterable, Optional, Tuple, List, Dict, Sequence
+from typing import Optional, Tuple, List, Dict, Sequence
 import copy
 
 from qiskit import transpile, assemble, QuantumCircuit

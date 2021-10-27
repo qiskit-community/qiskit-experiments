@@ -13,7 +13,7 @@
 Quantum State Tomography experiment
 """
 
-from typing import Union, Optional, Iterable, List
+from typing import Union, Optional, Iterable, List, Sequence
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info import Statevector
@@ -80,9 +80,9 @@ class StateTomography(TomographyExperiment):
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator, Statevector],
         measurement_basis: basis.BaseTomographyMeasurementBasis = basis.PauliMeasurementBasis(),
-        measurement_qubits: Optional[Iterable[int]] = None,
+        measurement_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[List[int]]] = None,
-        qubits: Optional[Iterable[int]] = None,
+        qubits: Optional[Sequence[int]] = None,
     ):
         """Initialize a quantum process tomography experiment.
 

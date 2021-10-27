@@ -13,7 +13,7 @@
 Quantum Volume Experiment class.
 """
 
-from typing import Union, Iterable, Optional, List
+from typing import Union, Sequence, Optional, List
 from numpy.random import Generator, default_rng
 from qiskit.providers.backend import Backend
 

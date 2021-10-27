@@ -12,7 +12,7 @@
 """
 Standard RB Experiment class.
 """
-from typing import Union, Iterable, Optional, List
+from typing import Union, Iterable, Optional, List, Sequence
 
 import numpy as np
 from numpy.random import Generator, default_rng
