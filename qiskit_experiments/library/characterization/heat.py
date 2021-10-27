@@ -178,7 +178,7 @@ class BaseCompositeHeat(BatchExperiment, ABC):
         super().set_transpile_options(**fields)
 
 
-class HeatElementY0(BaseHeat):
+class HeatElementPrepIIMeasIY(BaseHeat):
     r"""A single error amplification sequence of Y error with the control qubit in 0 state.
 
     # section: overview
@@ -223,7 +223,7 @@ class HeatElementY0(BaseHeat):
         return circ
 
 
-class HeatElementY1(BaseHeat):
+class HeatElementPrepXIMeasIY(BaseHeat):
     r"""A single error amplification sequence of Y error with the control qubit in 1 state.
 
     # section: overview
@@ -269,7 +269,7 @@ class HeatElementY1(BaseHeat):
         return circ
 
 
-class HeatElementZ0(BaseHeat):
+class HeatElementPrepIIMeasIZ(BaseHeat):
     r"""A single error amplification sequence of Z error with the control qubit in 0 state.
 
     # section: overview
@@ -320,7 +320,7 @@ class HeatElementZ0(BaseHeat):
         return circ
 
 
-class HeatElementZ1(BaseHeat):
+class HeatElementPrepXIMeasIZ(BaseHeat):
     r"""A single error amplification sequence of Z error with the control qubit in 1 state.
 
     # section: overview
@@ -372,23 +372,23 @@ class HeatElementZ1(BaseHeat):
         return circ
 
 
-class HeatYError(BaseCompositeHeat):
+class ZXHeatYError(BaseCompositeHeat):
     """HEAT experiments for Y error amplification.
 
     # section: overview
         TODO
     """
 
-    __heat_elements__ = [HeatElementY0, HeatElementY1]
+    __heat_elements__ = [HeatElementPrepIIMeasIY, HeatElementPrepXIMeasIY]
     __analysis_class__ = HeatYAnalysis
 
 
-class HeatZError(BaseCompositeHeat):
+class ZXHeatZError(BaseCompositeHeat):
     """HEAT experiments for Z error amplification.
 
     # section: overview
         TODO
     """
 
-    __heat_elements__ = [HeatElementZ0, HeatElementZ1]
+    __heat_elements__ = [HeatElementPrepIIMeasIZ, HeatElementPrepXIMeasIZ]
     __analysis_class__ = HeatZAnalysis
