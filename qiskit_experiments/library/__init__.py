@@ -36,12 +36,12 @@ Experiments for verification and validation of quantum devices.
 
     ~randomized_benchmarking.StandardRB
     ~randomized_benchmarking.InterleavedRB
+    ~tomography.StateTomography
+    ~tomography.ProcessTomography
 
 .. autosummary::
     :toctree: ../stubs/
 
-    ~tomography.StateTomography
-    ~tomography.ProcessTomography
     ~quantum_volume.QuantumVolume
 
 .. _characterization:
@@ -62,6 +62,9 @@ Some experiments may be also used for gate calibration.
     ~characterization.EFSpectroscopy
     ~characterization.CrossResonanceHamiltonian
     ~characterization.EchoedCrossResonanceHamiltonian
+    ~characterization.FineAmplitude
+    ~characterization.FineXAmplitude
+    ~characterization.FineSXAmplitude
 
 .. _calibration:
 
@@ -85,9 +88,9 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     ~calibration.FineSXDrag
     ~calibration.Rabi
     ~calibration.EFRabi
-    ~calibration.FineAmplitude
-    ~calibration.FineXAmplitude
-    ~calibration.FineSXAmplitude
+    ~calibration.FineAmplitudeCal
+    ~calibration.FineXAmplitudeCal
+    ~calibration.FineSXAmplitudeCal
     ~calibration.RamseyXY
 
 """
@@ -98,9 +101,9 @@ from .calibration import (
     FineSXDrag,
     Rabi,
     EFRabi,
-    FineAmplitude,
-    FineXAmplitude,
-    FineSXAmplitude,
+    FineAmplitudeCal,
+    FineXAmplitudeCal,
+    FineSXAmplitudeCal,
     RoughFrequencyCal,
     RamseyXY,
 )
@@ -111,6 +114,9 @@ from .characterization import (
     EFSpectroscopy,
     CrossResonanceHamiltonian,
     EchoedCrossResonanceHamiltonian,
+    FineAmplitude,
+    FineXAmplitude,
+    FineSXAmplitude,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography

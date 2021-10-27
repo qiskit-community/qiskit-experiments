@@ -14,22 +14,21 @@
 
 # pylint: disable=unbalanced-tuple-unpacking
 
-from test.fake_experiment import FakeExperiment
-
-from typing import Any, List
 import numpy as np
 
-from qiskit.result.models import ExperimentResultData, ExperimentResult
-from qiskit.result import Result
 from qiskit.test import QiskitTestCase
-from qiskit_experiments.framework import ExperimentData
-from qiskit_experiments.data_processing.nodes import SVD, AverageData, MinMaxNormalize
+from qiskit_experiments.data_processing.nodes import (
+    SVD,
+    AverageData,
+    MinMaxNormalize,
+    Probability,
+)
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 
 from . import BaseDataProcessorTest
 
 
-class TestAveraging(QiskitTestCase):
+class TestAveraging(BaseDataProcessorTest):
     """Test the averaging nodes."""
 
     def test_simple(self):
@@ -45,6 +44,37 @@ class TestAveraging(QiskitTestCase):
         self.assertTrue(np.allclose(node(datum)[0], np.array([3.0, 4.0])))
         std = np.std([1, 3, 5])
         self.assertTrue(np.allclose(node(datum)[1], np.array([std, std]) / np.sqrt(3)))
+
+    def test_iq_averaging(self):
+        """Test averaging of IQ-data."""
+
+        iq_data = [
+            [[-6.20601501e14, -1.33257051e15], [-1.70921324e15, -4.05881657e15]],
+            [[-5.80546502e14, -1.33492509e15], [-1.65094637e15, -4.05926942e15]],
+            [[-4.04649069e14, -1.33191056e15], [-1.29680377e15, -4.03604815e15]],
+            [[-2.22203874e14, -1.30291309e15], [-8.57663429e14, -3.97784973e15]],
+            [[-2.92074029e13, -1.28578530e15], [-9.78824053e13, -3.92071056e15]],
+            [[1.98056981e14, -1.26883024e15], [3.77157017e14, -3.87460328e15]],
+            [[4.29955888e14, -1.25022995e15], [1.02340118e15, -3.79508679e15]],
+            [[6.38981344e14, -1.25084614e15], [1.68918514e15, -3.78961044e15]],
+            [[7.09988897e14, -1.21906634e15], [1.91914171e15, -3.73670664e15]],
+            [[7.63169115e14, -1.20797552e15], [2.03772603e15, -3.74653863e15]],
+        ]
+
+        self.create_experiment(iq_data, single_shot=True)
+
+        avg_iq = AverageData(axis=0)
+
+        avg_datum, error = avg_iq(self.iq_experiment.data(0)["memory"])
+
+        expected_avg = np.array([[8.82943876e13, -1.27850527e15], [1.43410186e14, -3.89952402e15]])
+
+        expected_std = np.array(
+            [[5.07650185e14, 4.44664719e13], [1.40522641e15, 1.22326831e14]]
+        ) / np.sqrt(10)
+
+        self.assertTrue(np.allclose(avg_datum, expected_avg))
+        self.assertTrue(np.allclose(error, expected_std))
 
 
 class TestNormalize(QiskitTestCase):
@@ -68,40 +98,6 @@ class TestNormalize(QiskitTestCase):
 
 class TestSVD(BaseDataProcessorTest):
     """Test the SVD nodes."""
-
-    def create_experiment(self, iq_data: List[Any], single_shot: bool = False):
-        """Populate avg_iq_data to use it for testing.
-
-        Args:
-            iq_data: A List of IQ data.
-            single_shot: Indicates if the data is single-shot or not.
-        """
-        results = []
-        if not single_shot:
-            for circ_data in iq_data:
-                res = ExperimentResult(
-                    success=True,
-                    meas_level=1,
-                    meas_return="avg",
-                    data=ExperimentResultData(memory=circ_data),
-                    header=self.header,
-                    shots=1024,
-                )
-                results.append(res)
-        else:
-            res = ExperimentResult(
-                success=True,
-                meas_level=1,
-                meas_return="single",
-                data=ExperimentResultData(memory=iq_data),
-                header=self.header,
-                shots=1024,
-            )
-            results.append(res)
-
-        # pylint: disable=attribute-defined-outside-init
-        self.iq_experiment = ExperimentData(FakeExperiment())
-        self.iq_experiment.add_data(Result(results=results, **self.base_result_args))
 
     def test_simple_data(self):
         """
@@ -138,7 +134,7 @@ class TestSVD(BaseDataProcessorTest):
         """Use IQ data gathered from the hardware."""
 
         # This data is primarily oriented along the real axis with a slight tilt.
-        # The is a large offset in the imaginary dimension when comparing qubits
+        # There is a large offset in the imaginary dimension when comparing qubits
         # 0 and 1.
         iq_data = [
             [[-6.20601501e14, -1.33257051e15], [-1.70921324e15, -4.05881657e15]],
@@ -179,7 +175,7 @@ class TestSVD(BaseDataProcessorTest):
         self.assertEqual(processed, np.array([1.0]))
         self.assertEqual(error, np.array([0.2]))
 
-        # Title the axis to an angle of 36.9... degrees
+        # Tilt the axis to an angle of 36.9... degrees
         iq_svd._main_axes = np.array([[0.8, 0.6]])
         processed, error = iq_svd([[1.0, 0.0]], [[0.2, 0.3]])
         cos_ = np.cos(np.arctan(0.6 / 0.8))
@@ -210,33 +206,29 @@ class TestSVD(BaseDataProcessorTest):
         expected = np.array([-2, -2]) / np.sqrt(2)
         self.assertTrue(np.allclose(processed, expected))
 
-    def test_iq_averaging(self):
-        """Test averaging of IQ-data."""
 
-        iq_data = [
-            [[-6.20601501e14, -1.33257051e15], [-1.70921324e15, -4.05881657e15]],
-            [[-5.80546502e14, -1.33492509e15], [-1.65094637e15, -4.05926942e15]],
-            [[-4.04649069e14, -1.33191056e15], [-1.29680377e15, -4.03604815e15]],
-            [[-2.22203874e14, -1.30291309e15], [-8.57663429e14, -3.97784973e15]],
-            [[-2.92074029e13, -1.28578530e15], [-9.78824053e13, -3.92071056e15]],
-            [[1.98056981e14, -1.26883024e15], [3.77157017e14, -3.87460328e15]],
-            [[4.29955888e14, -1.25022995e15], [1.02340118e15, -3.79508679e15]],
-            [[6.38981344e14, -1.25084614e15], [1.68918514e15, -3.78961044e15]],
-            [[7.09988897e14, -1.21906634e15], [1.91914171e15, -3.73670664e15]],
-            [[7.63169115e14, -1.20797552e15], [2.03772603e15, -3.74653863e15]],
-        ]
+class TestProbability(QiskitTestCase):
+    """Test probability computation."""
 
-        self.create_experiment(iq_data, single_shot=True)
+    def test_variance_not_zero(self):
+        """Test if finite variance is computed at max or min probability."""
+        node = Probability(outcome="1")
 
-        avg_iq = AverageData(axis=0)
+        data = {"1": 1024, "0": 0}
+        mode, stderr = node(data)
+        self.assertGreater(stderr, 0.0)
+        self.assertLessEqual(mode, 1.0)
 
-        avg_datum, error = avg_iq(self.iq_experiment.data(0)["memory"])
+        data = {"1": 0, "0": 1024}
+        mode, stderr = node(data)
+        self.assertGreater(stderr, 0.0)
+        self.assertGreaterEqual(mode, 0.0)
 
-        expected_avg = np.array([[8.82943876e13, -1.27850527e15], [1.43410186e14, -3.89952402e15]])
+    def test_probability_balanced(self):
+        """Test if p=0.5 is returned when counts are balanced and prior is flat."""
+        node = Probability(outcome="1")
 
-        expected_std = np.array(
-            [[5.07650185e14, 4.44664719e13], [1.40522641e15, 1.22326831e14]]
-        ) / np.sqrt(10)
-
-        self.assertTrue(np.allclose(avg_datum, expected_avg))
-        self.assertTrue(np.allclose(error, expected_std))
+        # balanced counts with a flat prior will yield p = 0.5
+        data = {"1": 512, "0": 512}
+        mode, _ = node(data)
+        self.assertAlmostEqual(mode, 0.5)

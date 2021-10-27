@@ -101,6 +101,7 @@ class DbExperimentDataV1(DbExperimentData):
     """
 
     version = 1
+    verbose = True  # Whether to print messages to the standard output.
     _metadata_version = 1
     _executor = futures.ThreadPoolExecutor()
     """Threads used for asynchronous processing."""
@@ -113,6 +114,7 @@ class DbExperimentDataV1(DbExperimentData):
         experiment_type: Optional[str] = "Unknown",
         backend: Optional[Union[Backend, BaseBackend]] = None,
         experiment_id: Optional[str] = None,
+        parent_id: Optional[str] = None,
         tags: Optional[List[str]] = None,
         job_ids: Optional[List[str]] = None,
         share_level: Optional[str] = None,
@@ -127,6 +129,7 @@ class DbExperimentDataV1(DbExperimentData):
             experiment_type: Experiment type.
             backend: Backend the experiment runs on.
             experiment_id: Experiment ID. One will be generated if not supplied.
+            parent_id: The experiment ID of the parent experiment.
             tags: Tags to be associated with the experiment.
             job_ids: IDs of jobs submitted for the experiment.
             share_level: Whether this experiment can be shared with others. This
@@ -154,6 +157,7 @@ class DbExperimentDataV1(DbExperimentData):
         self._set_service_from_backend(backend)
 
         self._id = experiment_id or str(uuid.uuid4())
+        self._parent_id = parent_id
         self._type = experiment_type
         self._tags = tags or []
         self._share_level = share_level
@@ -726,6 +730,18 @@ class DbExperimentDataV1(DbExperimentData):
             See :meth:`qiskit.providers.experiment.DatabaseServiceV1.create_experiment`
             for fields that are saved.
         """
+        self._save_experiment_metadata()
+
+    def _save_experiment_metadata(self) -> None:
+        """Save this experiments metadata to a database service.
+
+        .. note::
+            This method does not save analysis results nor figures.
+            Use :meth:`save` for general saving of all experiment data.
+
+            See :meth:`qiskit.providers.experiment.DatabaseServiceV1.create_experiment`
+            for fields that are saved.
+        """
         if not self._service:
             LOG.warning(
                 "Experiment cannot be saved because no experiment service is available. "
@@ -758,6 +774,8 @@ class DbExperimentDataV1(DbExperimentData):
         new_data = {"experiment_type": self._type, "backend_name": self._backend.name()}
         if self.share_level:
             update_data["share_level"] = self.share_level
+        if self.parent_id:
+            update_data["parent_id"] = self.parent_id
 
         self._created_in_db, _ = save_data(
             is_new=(not self._created_in_db),
@@ -788,7 +806,7 @@ class DbExperimentDataV1(DbExperimentData):
             )
             return
 
-        self.save_metadata()
+        self._save_experiment_metadata()
         for result in self._analysis_results.values():
             result.save()
 
@@ -817,10 +835,11 @@ class DbExperimentDataV1(DbExperimentData):
                 self._service.delete_figure(experiment_id=self.experiment_id, figure_name=name)
             self._deleted_figures.remove(name)
 
-        print(
-            "You can view the experiment online at https://quantum-computing.ibm.com/experiments/"
-            + self.experiment_id
-        )
+        if self.verbose:
+            print(
+                "You can view the experiment online at https://quantum-computing.ibm.com/experiments/"
+                + self.experiment_id
+            )
 
     @classmethod
     def load(cls, experiment_id: str, service: DatabaseServiceV1) -> "DbExperimentDataV1":
@@ -843,6 +862,7 @@ class DbExperimentDataV1(DbExperimentData):
             experiment_type=service_data.pop("experiment_type"),
             backend=service_data.pop("backend"),
             experiment_id=service_data.pop("experiment_id"),
+            parent_id=service_data.pop("parent_id", None),
             tags=service_data.pop("tags"),
             job_ids=service_data.pop("job_ids"),
             share_level=service_data.pop("share_level"),
@@ -1103,6 +1123,7 @@ class DbExperimentDataV1(DbExperimentData):
             and metadata but different ID.
         """
         if new_instance is None:
+            # pylint: disable=no-value-for-parameter
             new_instance = self.__class__()
 
         new_instance._type = self.experiment_type
@@ -1110,7 +1131,7 @@ class DbExperimentDataV1(DbExperimentData):
         new_instance._tags = self._tags
         new_instance._jobs = self._jobs.copy_object()
         new_instance._share_level = self._share_level
-        new_instance._metadata = self._metadata
+        new_instance._metadata = copy.deepcopy(self._metadata)
         new_instance._notes = self._notes
         new_instance._auto_save = self._auto_save
         new_instance._service = self._service
@@ -1133,6 +1154,7 @@ class DbExperimentDataV1(DbExperimentData):
                     timeout=orig_kwargs["timeout"],
                     **extra_kwargs,
                 )
+
         return new_instance
 
     @property
@@ -1184,6 +1206,15 @@ class DbExperimentDataV1(DbExperimentData):
             Experiment ID.
         """
         return self._id
+
+    @property
+    def parent_id(self) -> str:
+        """Return parent experiment ID
+
+        Returns:
+            Parent ID.
+        """
+        return self._parent_id
 
     @property
     def job_ids(self) -> List[str]:
@@ -1281,6 +1312,17 @@ class DbExperimentDataV1(DbExperimentData):
         Raises:
             DbExperimentDataError: If an experiment service is already being used.
         """
+        self._set_service(service)
+
+    def _set_service(self, service: DatabaseServiceV1) -> None:
+        """Set the service to be used for storing experiment data.
+
+        Args:
+            service: Service to be used.
+
+        Raises:
+            DbExperimentDataError: If an experiment service is already being used.
+        """
         if self._service:
             raise DbExperimentDataError("An experiment service is already being used.")
         self._service = service
@@ -1319,6 +1361,8 @@ class DbExperimentDataV1(DbExperimentData):
     def __repr__(self):
         out = f"{type(self).__name__}({self.experiment_type}"
         out += f", {self.experiment_id}"
+        if self._parent_id:
+            out += f", parent_id={self._parent_id}"
         if self._tags:
             out += f", tags={self._tags}"
         if self.job_ids:

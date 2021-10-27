@@ -55,19 +55,18 @@ class TestDragEndToEnd(QiskitTestCase):
         self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
-        # Small leakage will make the curves very flat.
-        backend = DragBackend(error=0.005, gate_name="xp")
+        # Small leakage will make the curves very flat, in this case one should
+        # rather increase beta.
+        backend = DragBackend(error=0.0051, gate_name="xp")
 
         drag = DragCal(0)
         drag.set_analysis_options(p0={"beta": 1.2})
         drag.set_experiment_options(schedule=self.x_plus)
-        drag.set_run_options(meas_level=MeasLevel.KERNELED, meas_return="avg")
         exp_data = drag.run(backend).block_for_results()
         result = exp_data.analysis_results(1)
 
         meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
 
-        self.assertEqual(meas_level, MeasLevel.KERNELED)
         self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 

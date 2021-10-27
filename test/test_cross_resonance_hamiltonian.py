@@ -37,6 +37,7 @@ class CrossResonanceHamiltonianBackend(FakeBackend):
         zy: float = 0.0,
         zz: float = 0.0,
         b: float = 0.0,
+        seed: int = 123,
     ):
         """Initialize fake backend.
 
@@ -49,6 +50,7 @@ class CrossResonanceHamiltonianBackend(FakeBackend):
             zy: ZY term coefficient.
             zz: ZZ term coefficient.
             b: Offset term.
+            seed: Seed of random number generator used to generate count data.
         """
         self.fit_func_args = {
             "t_off": t_off,
@@ -60,6 +62,7 @@ class CrossResonanceHamiltonianBackend(FakeBackend):
             "pz1": 2 * np.pi * (iz - zz),
             "b": b,
         }
+        self.seed = seed
         configuration = PulseBackendConfiguration(
             backend_name="fake_cr_hamiltonian",
             backend_version="0.1.0",
@@ -114,6 +117,7 @@ class CrossResonanceHamiltonianBackend(FakeBackend):
         """Hard-coded experiment result generation based on the series definition."""
         results = []
         shots = kwargs.get("shots", 1024)
+        rng = np.random.default_rng(seed=self.seed)
 
         series_defs = cr_hamiltonian_analysis.CrossResonanceHamiltonianAnalysis.__series__
         filter_kwargs_list = [sdef.filter_kwargs for sdef in series_defs]
@@ -128,13 +132,13 @@ class CrossResonanceHamiltonianBackend(FakeBackend):
 
             expv = series_defs[curve_ind].fit_func(xval, **self.fit_func_args)
             popl = 0.5 * (1 - expv)
-            one_count = int(np.round(shots * popl))
+            counts = rng.multinomial(shots, [1 - popl, popl])
             results.append(
                 {
                     "shots": shots,
                     "success": True,
                     "header": {"metadata": test_circ.metadata},
-                    "data": {"counts": {"0": shots - one_count, "1": one_count}},
+                    "data": {"counts": dict(zip(["0", "1"], counts))},
                 }
             )
 
@@ -314,12 +318,13 @@ class TestCrossResonanceHamiltonian(QiskitTestCase):
         expr = cr_hamiltonian.CrossResonanceHamiltonian(
             qubits=(0, 1), flat_top_widths=durations, sigma=sigma, risefall=2
         )
-        exp_data = expr.run(backend, shots=1000)
+        exp_data = expr.run(backend, shots=2000)
         exp_data.block_for_results()
 
-        self.assertAlmostEqual(exp_data.analysis_results("omega_ix").value.value, ix, delta=1e3)
-        self.assertAlmostEqual(exp_data.analysis_results("omega_iy").value.value, iy, delta=1e3)
-        self.assertAlmostEqual(exp_data.analysis_results("omega_iz").value.value, iz, delta=1e3)
-        self.assertAlmostEqual(exp_data.analysis_results("omega_zx").value.value, zx, delta=1e3)
-        self.assertAlmostEqual(exp_data.analysis_results("omega_zy").value.value, zy, delta=1e3)
-        self.assertAlmostEqual(exp_data.analysis_results("omega_zz").value.value, zz, delta=1e3)
+        self.assertEqual(exp_data.analysis_results(0).quality, "good")
+        self.assertAlmostEqual(exp_data.analysis_results("omega_ix").value.value, ix, delta=2e4)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_iy").value.value, iy, delta=2e4)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_iz").value.value, iz, delta=2e4)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_zx").value.value, zx, delta=2e4)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_zy").value.value, zy, delta=2e4)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_zz").value.value, zz, delta=2e4)
