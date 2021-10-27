@@ -71,12 +71,6 @@ class Rabi(BaseExperiment):
     def _default_experiment_options(cls) -> Options:
         """Default values for the pulse if no schedule is given.
 
-        Users can set a schedule by doing
-
-        .. code-block::
-
-            rabi.set_experiment_options(schedule=rabi_schedule)
-
         Experiment Options:
             amplitudes (iterable): The list of amplitude values to scan.
             schedule (ScheduleBlock): The schedule for the Rabi pulse. This schedule must have
@@ -153,12 +147,6 @@ class Rabi(BaseExperiment):
         Returns:
             A list of circuits with a rabi gate with an attached schedule. Each schedule
             will have a different value of the scanned amplitude.
-
-        Raises:
-            CalibrationError:
-                - If the user-provided schedule does not contain a channel with an index
-                  that matches the qubit on which to run the Rabi experiment.
-                - If the user provided schedule has more than one free parameter.
         """
 
         # Create template circuit
@@ -186,7 +174,7 @@ class Rabi(BaseExperiment):
 
 
 class EFRabi(Rabi):
-    """An experiment that scans the amplitude of a pulse to calibrate rotations between 1 and 2.
+    """An experiment that scans the amplitude of a pulse inducing rotations between 1 and 2.
 
     # section: overview
 
@@ -204,13 +192,6 @@ class EFRabi(Rabi):
                        └───┘└───────────┘ ░ └╥┘
             measure: 1/══════════════════════╩═
                                              0
-
-    # section: example
-        Users can set a schedule by doing
-
-        .. code-block::
-
-            ef_rabi.set_experiment_options(schedule=rabi_schedule)
 
     """
 

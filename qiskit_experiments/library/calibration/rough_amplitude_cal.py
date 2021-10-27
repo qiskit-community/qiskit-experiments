@@ -26,7 +26,7 @@ from qiskit_experiments.calibration_management.update_library import BaseUpdater
 
 class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
     """A calibration version of the Rabi experiment.
-    
+
     # section: see_also
         qiskit_experiments.library.characterization.rabi.Rabi
     """
