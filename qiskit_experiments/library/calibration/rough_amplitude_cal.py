@@ -25,7 +25,11 @@ from qiskit_experiments.calibration_management.update_library import BaseUpdater
 
 
 class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
-    """A calibration version of the Rabi experiment."""
+    """A calibration version of the Rabi experiment.
+    
+    # section: see_also
+        qiskit_experiments.library.characterization.rabi.Rabi
+    """
 
     def __init__(
         self,
@@ -38,13 +42,17 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
         auto_update: bool = True,
         group: str = "default",
     ):
-        """see class :class:`Rabi` for details.
+        r"""see class :class:`Rabi` for details.
 
         Args:
             qubit: The qubit for which to run the rough amplitude calibration.
             calibrations: The calibrations instance with the schedules.
-            schedule_name: The name of the schedule to calibrate.
+            schedule_name: The name of the schedule to calibrate. Defaults to "x".
+            amplitudes: A list of amplitudes to scan. If None is given 51 amplitudes ranging
+                from -0.95 to 0.95 will be scanned.
             cal_parameter_name: The name of the parameter in the schedule to update.
+            target_angle: The target angle of the gate to calibrate this will default to a
+                :math:`\pi`-pulse.
             auto_update: Whether or not to automatically update the calibrations. By
                 default this variable is set to True.
             group: The group of calibration parameters to use. The default value is "default".
@@ -67,22 +75,24 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
         self.transpile_options.inst_map = calibrations.default_inst_map
 
         # Set the pulses to update.
+        prev_amp = calibrations.get_parameter_value(cal_parameter_name, qubit, schedule_name)
         self.experiment_options.group = group
         self.experiment_options.angles_schedules = [
-            (target_angle, cal_parameter_name, schedule_name)
+            (target_angle, cal_parameter_name, schedule_name, prev_amp)
         ]
 
     @classmethod
     def _default_experiment_options(cls):
-        """Default values for the fine amplitude calibration experiment.
+        """Default values for the rough amplitude calibration experiment.
 
         Experiment Options:
             result_index (int): The index of the result from which to update the calibrations.
-            angles_schedules List(float, str, str, float): A list of parameter update information.
+            angles_schedules (list(float, str, str, float)): A list of parameter update information.
                 Each entry of the list is a tuple with four entries: the target angle of the
                 rotation, the name of the amplitude parameter to update, the name of the schedule
                 containing the amplitude parameter to update, and the previous value of the
-                amplitude parameter to update.
+                amplitude parameter to update. This allows one experiment to update several
+                schedules, see for example :class:`RoughXSXAmplitudeCal`.
             group (str): The calibration group to which the parameter belongs. This will default
                 to the value "default".
         """
@@ -123,7 +133,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
         return circuits
 
     def update_calibrations(self, experiment_data: ExperimentData):
-        r"""Update the amplitude of one or several pulses.
+        r"""Update the amplitude of one or several schedules.
 
         The update rule extracts the rate of the oscillation from the fit to the cosine function.
         Recall that the amplitude is the x-axis in the analysis of the :class:`Rabi` experiment.
@@ -138,8 +148,8 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
         for "x" and "sx" gates, respectively) and :math:`\omega` is the rate of the oscillation.
 
         Args:
-            experiment_data: The experiment data from which to extract the measured over/under
-                rotation used to adjust the amplitude.
+            experiment_data: The experiment data from which to extract the measured Rabi oscillation
+            used to set the pulse amplitude.
         """
 
         data = experiment_data.data()
