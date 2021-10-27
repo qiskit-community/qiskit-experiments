@@ -134,7 +134,7 @@ class FineAmplitude(BaseExperiment):
             backend: Optional, the backend to run the experiment on.
         """
         super().__init__([qubit], backend=backend)
-        self.experiment_options.gate = gate
+        self.set_experiment_options(gate=gate)
 
     def _pre_circuit(self) -> QuantumCircuit:
         """Return a preparation circuit.
