@@ -12,10 +12,3 @@
 """
 A collection of element experiments.
 """
-
-from .zx_elements import (
-    HeatElementPrepIIMeasIY,
-    HeatElementPrepXIMeasIY,
-    HeatElementPrepIIMeasIZ,
-    HeatElementPrepXIMeasIZ,
-)
