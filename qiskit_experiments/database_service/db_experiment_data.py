@@ -33,6 +33,7 @@ from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
 from .database_service import DatabaseServiceV1
 from .exceptions import DbExperimentDataError, DbExperimentEntryNotFound, DbExperimentEntryExists
 from .db_analysis_result import DbAnalysisResultV1 as DbAnalysisResult
+from .db_circuit_result import CircuitResultData
 from .json import ExperimentEncoder, ExperimentDecoder
 from .utils import (
     save_data,
@@ -359,20 +360,30 @@ class DbExperimentDataV1(DbExperimentData):
         """
         if result.job_id not in self._jobs:
             self._jobs[result.job_id] = None
-        for i in range(len(result.results)):
+
+        for i, expr_result in enumerate(result.results):
+            # Save general header information
+            formatted_data = {"job_id": result.job_id, "index": i}
+
+            # Save experiment run options
+            formatted_data["meas_level"] = getattr(expr_result, "meas_level", None)
+            formatted_data["meas_return"] = getattr(expr_result, "meas_return", None)
+            formatted_data["shots"] = getattr(expr_result, "shots", None)
+            if hasattr(expr_result, "header"):
+                header = expr_result.header
+                formatted_data["metadata"] = getattr(header, "metadata", None)
+                formatted_data["memory_slots"] = getattr(header, "memory_slots", None)
+                formatted_data["qreg_sizes"] = getattr(header, "qreg_sizes", None)
+                formatted_data["creg_sizes"] = getattr(header, "creg_sizes", None)
+
+            # Save experiment result
             data = result.data(i)
-            data["job_id"] = result.job_id
             if "counts" in data:
-                # Format to Counts object rather than hex dict
-                data["counts"] = result.get_counts(i)
-            expr_result = result.results[i]
-            if hasattr(expr_result, "header") and hasattr(expr_result.header, "metadata"):
-                data["metadata"] = expr_result.header.metadata
-            data["shots"] = expr_result.shots
-            data["meas_level"] = expr_result.meas_level
-            if hasattr(expr_result, "meas_return"):
-                data["meas_return"] = expr_result.meas_return
-            self._add_single_data(data)
+                formatted_data["counts"] = result.get_counts(i)
+            if "memory" in data:
+                formatted_data["memory"] = result.get_memory(i)
+
+            self._add_single_data(formatted_data)
 
     def _add_single_data(self, data: Dict[str, any]) -> None:
         """Add a single data dictionary to the experiment.
@@ -380,7 +391,7 @@ class DbExperimentDataV1(DbExperimentData):
         Args:
             data: Data to be added.
         """
-        self._data.append(data)
+        self._data.append(CircuitResultData(**data))
 
     def _retrieve_data(self):
         """Retrieve job data if missing experiment data."""
@@ -401,7 +412,10 @@ class DbExperimentDataV1(DbExperimentData):
                     if job is not None:
                         self._add_result_data(job.result())
 
-    def data(self, index: Optional[Union[int, slice, str]] = None) -> Union[Dict, List[Dict]]:
+    def data(
+            self,
+            index: Optional[Union[int, slice, str]] = None,
+    ) -> Union[CircuitResultData, List[CircuitResultData]]:
         """Return the experiment data at the specified index.
 
         Args:
@@ -425,7 +439,7 @@ class DbExperimentDataV1(DbExperimentData):
         if isinstance(index, (int, slice)):
             return self._data[index]
         if isinstance(index, str):
-            return [data for data in self._data if data.get("job_id") == index]
+            return [data for data in self._data if data.job_id == index]
         raise TypeError(f"Invalid index type {type(index)}.")
 
     @do_auto_save

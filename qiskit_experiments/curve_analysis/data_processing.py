@@ -14,12 +14,14 @@ Data processing utility functions for curve fitting experiments
 """
 # pylint: disable = invalid-name
 
-from typing import List, Dict, Tuple, Optional, Callable
+from typing import List, Tuple, Optional, Callable
 import numpy as np
 from qiskit.exceptions import QiskitError
 
+from qiskit_experiments.framework import CircuitResultData
 
-def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
+
+def filter_data(data: List[CircuitResultData], **filters) -> List[CircuitResultData]:
     """Return the list of filtered data
 
     Args:
@@ -36,7 +38,7 @@ def filter_data(data: List[Dict[str, any]], **filters) -> List[Dict[str, any]]:
     filtered_data = []
     for datum in data:
         include = True
-        metadata = datum["metadata"]
+        metadata = datum.metadata
         for key, val in filters.items():
             if key not in metadata or metadata[key] != val:
                 include = False
@@ -258,7 +260,7 @@ def data_sort(
     return np.asarray(sorted_data).T
 
 
-def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float, float]:
+def level2_probability(data: CircuitResultData, outcome: str) -> Tuple[float, float]:
     """Return the outcome probability mean and variance.
 
     Args:
@@ -276,11 +278,10 @@ def level2_probability(data: Dict[str, any], outcome: str) -> Tuple[float, float
         mean probability is :math:`p = K / N` and the variance is
         :math:`\\sigma^2 = p (1-p) / N`.
     """
-    counts = data["counts"]
+    counts = data.counts
 
-    shots = sum(counts.values())
-    p_mean = counts.get(outcome, 0.0) / shots
-    p_var = p_mean * (1 - p_mean) / shots
+    p_mean = counts.get(outcome, 0.0) / data.shots
+    p_var = p_mean * (1 - p_mean) / data.shots
     return p_mean, p_var
 
 

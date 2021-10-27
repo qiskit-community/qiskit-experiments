@@ -565,7 +565,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         def _is_target_series(datum, **filters):
             try:
-                return all(datum["metadata"][key] == val for key, val in filters.items())
+                return all(datum.metadata[key] == val for key, val in filters.items())
             except KeyError:
                 return False
 
@@ -574,7 +574,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         x_key = self._get_option("x_key")
         try:
-            x_values = [datum["metadata"][x_key] for datum in data]
+            x_values = [datum.metadata[x_key] for datum in data]
         except KeyError as ex:
             raise DataProcessorError(
                 f"X value key {x_key} is not defined in circuit metadata."
@@ -588,10 +588,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
             y_values, y_sigmas = zip(*map(data_processor, data))
 
         # Store metadata
-        metadata = np.asarray([datum["metadata"] for datum in data], dtype=object)
+        metadata = np.asarray([datum.metadata for datum in data], dtype=object)
 
         # Store shots
-        shots = np.asarray([datum.get("shots", np.nan) for datum in data])
+        shots = np.asarray([datum.shots for datum in data])
 
         # Format data
         x_values = np.asarray(x_values, dtype=float)

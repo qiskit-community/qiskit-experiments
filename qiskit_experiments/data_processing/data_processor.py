@@ -186,7 +186,7 @@ class DataProcessor:
             data = [data]
 
         try:
-            data_ = [_datum[self._input_key] for _datum in iter(data)]
+            data_ = [getattr(_datum, self._input_key) for _datum in iter(data)]
         except KeyError as error:
             raise DataProcessorError(
                 f"The input key {self._input_key} was not found in the input datum."
