@@ -35,7 +35,7 @@ class TestFramework(QiskitTestCase):
         class Experiment(FakeExperiment):
             """Fake Experiment to test job splitting"""
 
-            def circuits(self, backend=None):
+            def circuits(self):
                 """Generate fake circuits"""
                 qc = QuantumCircuit(1)
                 qc.measure_all()

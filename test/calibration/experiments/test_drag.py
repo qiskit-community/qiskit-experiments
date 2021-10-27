@@ -109,7 +109,8 @@ class TestDragCircuits(QiskitTestCase):
 
         drag = DragCal(0)
         drag.set_experiment_options(reps=[2, 4, 8], schedule=self.x_plus)
-        circuits = drag.circuits(DragBackend(gate_name="xp"))
+        drag.backend = DragBackend(gate_name="xp")
+        circuits = drag.circuits()
 
         for idx, expected in enumerate([4, 8, 16]):
             ops = transpile(circuits[idx * 51], backend).count_ops()
