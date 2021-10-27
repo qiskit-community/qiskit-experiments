@@ -339,9 +339,9 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
         return schedules
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def circuits(self) -> List[QuantumCircuit]:
         """A wrapper to introduce an optional hook to add circuit metadata."""
-        circuits = super().circuits(backend)
+        circuits = super().circuits()
 
         self._add_cal_metadata(circuits)
 
@@ -358,14 +358,16 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
     def run(
         self,
-        backend: Backend,
+        backend: Optional[Backend] = None,
         analysis: bool = True,
         **run_options,
     ) -> ExperimentData:
         """Run an experiment, perform analysis, and update any calibrations.
 
         Args:
-            backend: The backend to run the experiment on.
+            backend: Optional, the backend to run the experiment on. This
+                     will override any currently set backends for the single
+                     execution.
             analysis: If True run analysis on the experiment data.
             run_options: backend runtime options used for circuit execution.
 

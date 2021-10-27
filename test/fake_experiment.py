@@ -37,6 +37,6 @@ class FakeExperiment(BaseExperiment):
         """Initialise the fake experiment."""
         super().__init__(qubits)
 
-    def circuits(self, backend=None):
+    def circuits(self):
         """Fake circuits."""
         return []

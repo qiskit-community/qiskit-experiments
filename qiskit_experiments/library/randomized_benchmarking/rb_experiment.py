@@ -18,9 +18,9 @@ import numpy as np
 from numpy.random import Generator, default_rng
 
 from qiskit import QuantumCircuit, QiskitError
-from qiskit.providers import Backend
 from qiskit.quantum_info import Clifford
 from qiskit.circuit import Gate
+from qiskit.providers.backend import Backend
 
 import qiskit_experiments.data_processing as dp
 from qiskit_experiments.framework import BaseExperiment, ParallelExperiment, Options
@@ -63,6 +63,7 @@ class StandardRB(BaseExperiment):
         self,
         qubits: Union[int, Iterable[int]],
         lengths: Iterable[int],
+        backend: Optional[Backend] = None,
         num_samples: int = 3,
         seed: Optional[Union[int, Generator]] = None,
         full_sampling: Optional[bool] = False,
@@ -73,6 +74,7 @@ class StandardRB(BaseExperiment):
             qubits: The number of qubits or list of
                     physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
+            backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each sequence length.
             seed: Seed or generator object for random number
                   generation. If None default_rng will be used.
@@ -83,7 +85,7 @@ class StandardRB(BaseExperiment):
                            The default is False.
         """
         # Initialize base experiment
-        super().__init__(qubits)
+        super().__init__(qubits, backend=backend)
         self._verify_parameters(lengths, num_samples)
 
         # Set configurable options
@@ -133,12 +135,8 @@ class StandardRB(BaseExperiment):
 
         return options
 
-    # pylint: disable = arguments-differ
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def circuits(self) -> List[QuantumCircuit]:
         """Return a list of RB circuits.
-
-        Args:
-            backend (Backend): Optional, a backend object.
 
         Returns:
             A list of :class:`QuantumCircuit`.
@@ -231,7 +229,7 @@ class StandardRB(BaseExperiment):
                     return meta
         return None
 
-    def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
+    def _postprocess_transpiled_circuits(self, circuits, **run_options):
         """Additional post-processing of transpiled circuits before running on backend"""
         for c in circuits:
             meta = self._get_circuit_metadata(c)
