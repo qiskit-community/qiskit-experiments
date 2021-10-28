@@ -140,6 +140,12 @@ class BaseExperiment(ABC):
         self._run_options = self._default_run_options()
         self._analysis_options = self._default_analysis_options()
 
+        # Store keys of non-default options
+        self._set_experiment_options = set()
+        self._set_transpile_options = set()
+        self._set_run_options = set()
+        self._set_analysis_options = set()
+
     def __new__(cls, *args, **kwargs):
         """Store init args and kwargs for subclass __init__ methods"""
         # This method automatically stores all arg and kwargs from subclass
@@ -221,15 +227,23 @@ class BaseExperiment(ABC):
     @property
     def config(self) -> ExperimentConfig:
         """Return the config dataclass for this experiment"""
-        ord_args = getattr(self, "__init_args__", OrderedDict())
-        ord_kwargs = getattr(self, "__init_kwargs__", OrderedDict())
+        args = tuple(getattr(self, "__init_args__", OrderedDict()).values())
+        kwargs = dict(getattr(self, "__init_kwargs__", OrderedDict()))
+        # Only store non-default valued options
+        experiment_options = dict(
+            (key, getattr(self._experiment_options, key)) for key in self._set_experiment_options
+        )
+        transpile_options = dict(
+            (key, getattr(self._transpile_options, key)) for key in self._set_transpile_options
+        )
+        run_options = dict((key, getattr(self._run_options, key)) for key in self._set_run_options)
         return ExperimentConfig(
             cls=type(self),
-            args=tuple(ord_args.values()),
-            kwargs=dict(ord_kwargs),
-            experiment_options=copy.copy(self.experiment_options.__dict__),
-            transpile_options=copy.copy(self.transpile_options.__dict__),
-            run_options=copy.copy(self.run_options.__dict__),
+            args=args,
+            kwargs=kwargs,
+            experiment_options=experiment_options,
+            transpile_options=transpile_options,
+            run_options=run_options,
         )
 
     @classmethod
@@ -409,6 +423,7 @@ class BaseExperiment(ABC):
                     f"Options field {field} is not valid for {type(self).__name__}"
                 )
         self._experiment_options.update_options(**fields)
+        self._set_experiment_options = self._set_experiment_options.union(fields)
 
     @classmethod
     def _default_transpile_options(cls) -> Options:
@@ -438,6 +453,7 @@ class BaseExperiment(ABC):
                 " as it is determined by the experiment physical qubits."
             )
         self._transpile_options.update_options(**fields)
+        self._set_transpile_options = self._set_transpile_options.union(fields)
 
     @classmethod
     def _default_run_options(cls) -> Options:
@@ -456,6 +472,7 @@ class BaseExperiment(ABC):
             fields: The fields to update the options
         """
         self._run_options.update_options(**fields)
+        self._set_run_options = self._set_run_options.union(fields)
 
     @classmethod
     def _default_analysis_options(cls) -> Options:
@@ -479,6 +496,7 @@ class BaseExperiment(ABC):
             fields: The fields to update the options
         """
         self._analysis_options.update_options(**fields)
+        self._set_analysis_options = self._set_analysis_options.union(fields)
 
     def _postprocess_transpiled_circuits(self, circuits: List[QuantumCircuit], **run_options):
         """Additional post-processing of transpiled circuits before running on backend"""
