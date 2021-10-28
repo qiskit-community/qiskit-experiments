@@ -77,6 +77,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
 
         # Needed for subclasses that will drive other transitions than the 0<->1 transition.
         self.transpile_options.inst_map = calibrations.default_inst_map
+        self._analysis_param_name = "rabi_rate"
 
         # Set the pulses to update.
         prev_amp = calibrations.get_parameter_value(cal_parameter_name, qubit, schedule_name)
@@ -163,7 +164,11 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
             result_index = self.experiment_options.result_index
             group = data[0]["metadata"]["cal_group"]
 
-            rate = 2 * np.pi * BaseUpdater.get_value(experiment_data, "rabi_rate", result_index)
+            rate = 2 * np.pi * BaseUpdater.get_value(
+                experiment_data,
+                self._analysis_param_name,
+                result_index
+            )
 
             for angle, param, schedule, prev_amp in data[0]["metadata"]["angles_schedules"]:
 
@@ -233,6 +238,7 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
             target_angle=np.pi,
         )
 
+        self._analysis_param_name = "rabi_rate_12"
         self.experiment_options.angles_schedules = [
             (np.pi, "amp", "x" + ef_pulse_label, None),
             (np.pi / 2, "amp", "sx" + ef_pulse_label, None),
