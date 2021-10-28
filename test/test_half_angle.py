@@ -12,8 +12,8 @@
 
 """Test the half angle experiment."""
 
-import numpy as np
 import copy
+import numpy as np
 
 from qiskit import QuantumCircuit, transpile
 from qiskit.test import QiskitTestCase
