@@ -38,7 +38,7 @@ class HalfAngleTestBackend(MockIQBackend):
 
         n_gates = circuit.metadata["xval"]
 
-        return 0.5 * np.sin((-1) ** n_gates * n_gates * self._error) + 0.5
+        return 0.5 * np.sin((-1) ** (n_gates + 1) * n_gates * self._error) + 0.5
 
 
 class TestHalfAngle(QiskitTestCase):
