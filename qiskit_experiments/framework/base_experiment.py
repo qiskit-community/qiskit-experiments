@@ -14,14 +14,14 @@ Base Experiment class.
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional, Tuple, List, Dict, Sequence
 import copy
+from numbers import Integral
+from typing import Sequence, Optional, Tuple, List, Dict, Union
 
 from qiskit import transpile, assemble, QuantumCircuit
 from qiskit.providers import BaseJob
 from qiskit.providers.backend import Backend
 from qiskit.providers.basebackend import BaseBackend as LegacyBackend
-from qiskit.test.mock import FakeBackend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit_experiments.framework import Options
@@ -46,11 +46,17 @@ class BaseExperiment(ABC):
     # ExperimentData class for experiment
     __experiment_data__ = ExperimentData
 
-    def __init__(self, qubits: Sequence[int], experiment_type: Optional[str] = None):
+    def __init__(
+        self,
+        qubits: Sequence[int],
+        backend: Optional[Backend] = None,
+        experiment_type: Optional[str] = None,
+    ):
         """Initialize the experiment object.
 
         Args:
             qubits: list of physical qubits for the experiment.
+            backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, the experiment type string.
 
         Raises:
@@ -58,6 +64,11 @@ class BaseExperiment(ABC):
         """
         # Experiment identification metadata
         self._type = experiment_type if experiment_type else type(self).__name__
+
+        # Backend
+        self._backend = None
+        if backend is not None:
+            self._set_backend(backend)
 
         # Circuit parameters
         self._num_qubits = len(qubits)
@@ -71,16 +82,63 @@ class BaseExperiment(ABC):
         self._run_options = self._default_run_options()
         self._analysis_options = self._default_analysis_options()
 
+    @property
+    def experiment_type(self) -> str:
+        """Return experiment type."""
+        return self._type
+
+    @property
+    def physical_qubits(self) -> Tuple[int, ...]:
+        """Return the device qubits for the experiment."""
+        return self._physical_qubits
+
+    @property
+    def num_qubits(self) -> int:
+        """Return the number of qubits for the experiment."""
+        return self._num_qubits
+
+    @property
+    def backend(self) -> Union[Backend, None]:
+        """Return the backend for the experiment"""
+        return self._backend
+
+    @backend.setter
+    def backend(self, backend: Union[Backend, None]) -> None:
+        """Set the backend for the experiment"""
+        self._set_backend(backend)
+
+    def _set_backend(self, backend: Backend):
+        """Set the backend for the experiment.
+
+        Subclasses can override this method to extract additional
+        properties from the supplied backend if required.
+        """
+        self._backend = backend
+
+    def copy(self) -> "BaseExperiment":
+        """Return a copy of the experiment"""
+        # We want to avoid a deep copy be default for performance so we
+        # need to also copy the Options structures so that if they are
+        # updated on the copy they don't effect the original.
+        ret = copy.copy(self)
+        ret._experiment_options = copy.copy(self._experiment_options)
+        ret._run_options = copy.copy(self._run_options)
+        ret._transpile_options = copy.copy(self._transpile_options)
+        ret._analysis_options = copy.copy(self._analysis_options)
+        return ret
+
     def run(
         self,
-        backend: Backend,
+        backend: Optional[Backend] = None,
         analysis: bool = True,
         **run_options,
     ) -> ExperimentData:
         """Run an experiment and perform analysis.
 
         Args:
-            backend: The backend to run the experiment on.
+            backend: Optional, the backend to run the experiment on. This
+                     will override any currently set backends for the single
+                     execution.
             analysis: If True run analysis on the experiment data.
             run_options: backend runtime options used for circuit execution.
 
@@ -91,70 +149,43 @@ class BaseExperiment(ABC):
             QiskitError: if experiment is run with an incompatible existing
                          ExperimentData container.
         """
-        # Create experiment data container
-        experiment_data = self._initialize_experiment_data(backend)
+        if backend is None:
+            experiment = self
+        else:
+            experiment = self.copy()
+            experiment._set_backend(backend)
+        if experiment.backend is None:
+            raise QiskitError("Cannot run experiment, no backend has been set.")
+
+        # Initialize result container
+        experiment_data = experiment._initialize_experiment_data()
 
         # Run options
-        run_opts = copy.copy(self.run_options)
+        run_opts = copy.copy(experiment.run_options)
         run_opts.update_options(**run_options)
         run_opts = run_opts.__dict__
 
-        # Scheduling parameters
-        if backend.configuration().simulator is False and isinstance(backend, FakeBackend) is False:
-            timing_constraints = getattr(self.transpile_options.__dict__, "timing_constraints", {})
-            timing_constraints["acquire_alignment"] = getattr(
-                timing_constraints, "acquire_alignment", 16
-            )
-            scheduling_method = getattr(
-                self.transpile_options.__dict__, "scheduling_method", "alap"
-            )
-            self.set_transpile_options(
-                timing_constraints=timing_constraints, scheduling_method=scheduling_method
-            )
-
         # Generate and transpile circuits
-        transpile_opts = copy.copy(self.transpile_options.__dict__)
-        transpile_opts["initial_layout"] = list(self._physical_qubits)
-        circuits = transpile(self.circuits(backend), backend, **transpile_opts)
-        self._postprocess_transpiled_circuits(circuits, backend, **run_options)
-
-        # Run experiment jobs
-        max_experiments = getattr(backend.configuration(), "max_experiments", None)
-        if max_experiments and len(circuits) > max_experiments:
-            # Split jobs for backends that have a maximum job size
-            job_circuits = [
-                circuits[i : i + max_experiments] for i in range(0, len(circuits), max_experiments)
-            ]
-        else:
-            # Run as single job
-            job_circuits = [circuits]
+        transpile_opts = copy.copy(experiment.transpile_options.__dict__)
+        transpile_opts["initial_layout"] = list(experiment.physical_qubits)
+        circuits = transpile(experiment.circuits(), experiment.backend, **transpile_opts)
+        experiment._postprocess_transpiled_circuits(circuits, **run_options)
 
         # Run jobs
-        jobs = []
-        for circs in job_circuits:
-            if isinstance(backend, LegacyBackend):
-                qobj = assemble(circs, backend=backend, **run_opts)
-                job = backend.run(qobj)
-            else:
-                job = backend.run(circs, **run_opts)
-            jobs.append(job)
-
-        # Add experiment option metadata
-        self._add_job_metadata(experiment_data, jobs, **run_opts)
-
-        # Add jobs
+        jobs = experiment._run_jobs(circuits, **run_opts)
         experiment_data.add_data(jobs)
+        experiment._add_job_metadata(experiment_data, jobs, **run_opts)
 
         # Optionally run analysis
-        if analysis and self.__analysis_class__:
+        if analysis and self.__analysis_class__ is not None:
             experiment_data.add_analysis_callback(self.run_analysis)
 
         # Return the ExperimentData future
         return experiment_data
 
-    def _initialize_experiment_data(self, backend: Backend) -> ExperimentData:
+    def _initialize_experiment_data(self) -> ExperimentData:
         """Initialize the return data container for the experiment run"""
-        return self.__experiment_data__(experiment=self, backend=backend)
+        return self.__experiment_data__(experiment=self)
 
     def run_analysis(self, experiment_data: ExperimentData, **options) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
@@ -181,20 +212,29 @@ class BaseExperiment(ABC):
         analysis.run(experiment_data, **analysis_options)
         return experiment_data
 
-    @property
-    def num_qubits(self) -> int:
-        """Return the number of qubits for this experiment."""
-        return self._num_qubits
+    def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[BaseJob]:
+        """Run circuits on backend as 1 or more jobs."""
+        # Run experiment jobs
+        max_experiments = getattr(self.backend.configuration(), "max_experiments", None)
+        if max_experiments and len(circuits) > max_experiments:
+            # Split jobs for backends that have a maximum job size
+            job_circuits = [
+                circuits[i : i + max_experiments] for i in range(0, len(circuits), max_experiments)
+            ]
+        else:
+            # Run as single job
+            job_circuits = [circuits]
 
-    @property
-    def physical_qubits(self) -> Tuple[int]:
-        """Return the physical qubits for this experiment."""
-        return self._physical_qubits
-
-    @property
-    def experiment_type(self) -> str:
-        """Return experiment type."""
-        return self._type
+        # Run jobs
+        jobs = []
+        for circs in job_circuits:
+            if isinstance(self.backend, LegacyBackend):
+                qobj = assemble(circs, backend=self.backend, **run_options)
+                job = self.backend.run(qobj)
+            else:
+                job = self.backend.run(circs, **run_options)
+            jobs.append(job)
+        return jobs
 
     @classmethod
     def analysis(cls):
@@ -205,11 +245,8 @@ class BaseExperiment(ABC):
         return cls.__analysis_class__()
 
     @abstractmethod
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
-
-        Args:
-            backend: Optional, a backend object.
 
         Returns:
             A list of :class:`QuantumCircuit`.
@@ -324,7 +361,7 @@ class BaseExperiment(ABC):
         """
         self._analysis_options.update_options(**fields)
 
-    def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
+    def _postprocess_transpiled_circuits(self, circuits: List[QuantumCircuit], **run_options):
         """Additional post-processing of transpiled circuits before running on backend"""
         pass
 

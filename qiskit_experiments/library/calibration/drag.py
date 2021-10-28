@@ -17,7 +17,7 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate, Parameter
-from qiskit.providers import Backend
+from qiskit.providers.backend import Backend
 import qiskit.pulse as pulse
 
 from qiskit_experiments.framework import BaseExperiment, Options
@@ -132,19 +132,17 @@ class DragCal(BaseExperiment):
 
         super().set_experiment_options(reps=reps, **fields)
 
-    def __init__(self, qubit: int):
+    def __init__(self, qubit: int, backend: Optional[Backend] = None):
         """
         Args:
             qubit: The qubit for which to run the Drag calibration.
+            backend: Optional, the backend to run the experiment on.
         """
 
-        super().__init__([qubit])
+        super().__init__([qubit], backend=backend)
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def circuits(self) -> List[QuantumCircuit]:
         """Create the circuits for the Drag calibration.
-
-        Args:
-            backend: A backend object.
 
         Returns:
             circuits: The circuits that will run the Drag calibration.
@@ -159,7 +157,7 @@ class DragCal(BaseExperiment):
 
         if schedule is None:
             beta = Parameter("β")
-            with pulse.build(backend=backend, name="drag") as schedule:
+            with pulse.build(backend=self.backend, name="drag") as schedule:
                 pulse.play(
                     pulse.Drag(
                         duration=self.experiment_options.duration,
@@ -167,7 +165,7 @@ class DragCal(BaseExperiment):
                         sigma=self.experiment_options.sigma,
                         beta=beta,
                     ),
-                    pulse.DriveChannel(self._physical_qubits[0]),
+                    pulse.DriveChannel(self.physical_qubits[0]),
                 )
 
         if len(schedule.parameters) != 1:

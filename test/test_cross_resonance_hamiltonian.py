@@ -160,8 +160,6 @@ class TestCrossResonanceHamiltonian(QiskitTestCase):
     def test_circuit_generation(self):
         """Test generated circuits."""
 
-        backend = CrossResonanceHamiltonianBackend()
-
         expr = cr_hamiltonian.CrossResonanceHamiltonian(
             qubits=(0, 1),
             flat_top_widths=[1000],
@@ -170,6 +168,7 @@ class TestCrossResonanceHamiltonian(QiskitTestCase):
             sigma=64,
             risefall=2,
         )
+        expr.backend = CrossResonanceHamiltonianBackend()
 
         nearlest_16 = 1248
 
@@ -187,7 +186,7 @@ class TestCrossResonanceHamiltonian(QiskitTestCase):
             pulse.delay(nearlest_16, pulse.DriveChannel(1))
 
         cr_gate = circuit.Gate("cr_gate", num_qubits=2, params=[1000])
-        expr_circs = expr.circuits(backend)
+        expr_circs = expr.circuits()
 
         x0_circ = QuantumCircuit(2, 1)
         x0_circ.append(cr_gate, [0, 1])
@@ -231,8 +230,6 @@ class TestCrossResonanceHamiltonian(QiskitTestCase):
     def test_circuit_generation_from_sec(self):
         """Test generated circuits when time unit is sec."""
 
-        backend = CrossResonanceHamiltonianBackend()
-
         expr = cr_hamiltonian.CrossResonanceHamiltonian(
             qubits=(0, 1),
             flat_top_widths=[500],
@@ -241,6 +238,7 @@ class TestCrossResonanceHamiltonian(QiskitTestCase):
             sigma=20,
             risefall=2,
         )
+        expr.backend = CrossResonanceHamiltonianBackend()
 
         nearlest_16 = 576
 
@@ -258,7 +256,7 @@ class TestCrossResonanceHamiltonian(QiskitTestCase):
             pulse.delay(nearlest_16, pulse.DriveChannel(1))
 
         cr_gate = circuit.Gate("cr_gate", num_qubits=2, params=[500])
-        expr_circs = expr.circuits(backend)
+        expr_circs = expr.circuits()
 
         x0_circ = QuantumCircuit(2, 1)
         x0_circ.append(cr_gate, [0, 1])
