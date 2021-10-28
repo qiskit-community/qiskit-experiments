@@ -120,7 +120,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
         """
 
         param_values = []
-        for angle, param_name, schedule_name in self.experiment_options.angles_schedules:
+        for angle, param_name, schedule_name, _ in self.experiment_options.angles_schedules:
             param_val = self._cals.get_parameter_value(
                 param_name,
                 self._physical_qubits,
@@ -195,7 +195,10 @@ class RoughXSXAmplitudeCal(RoughAmplitudeCal):
             target_angle=np.pi,
         )
 
-        self.experiment_options.angles_schedules = [(np.pi, "amp", "x"), (np.pi / 2, "amp", "sx")]
+        self.experiment_options.angles_schedules = [
+            (np.pi, "amp", "x", None),
+            (np.pi / 2, "amp", "sx", None)
+        ]
 
 
 class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
@@ -231,8 +234,8 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
         )
 
         self.experiment_options.angles_schedules = [
-            (np.pi, "amp", "x" + ef_pulse_label),
-            (np.pi / 2, "amp", "sx" + ef_pulse_label),
+            (np.pi, "amp", "x" + ef_pulse_label, None),
+            (np.pi / 2, "amp", "sx" + ef_pulse_label, None),
         ]
 
     def _pre_circuit(self) -> QuantumCircuit:

@@ -143,11 +143,8 @@ class Rabi(BaseExperiment):
 
         return circuit, param
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def circuits(self) -> List[QuantumCircuit]:
         """Create the circuits for the Rabi experiment.
-
-        Args:
-            backend: A backend object.
 
         Returns:
             A list of circuits with a rabi gate with an attached schedule. Each schedule
@@ -170,8 +167,8 @@ class Rabi(BaseExperiment):
                 "amplitude": amp,
             }
 
-            if backend:
-                assigned_circ.metadata["dt"] = getattr(backend.configuration(), "dt", "n.a.")
+            if self.backend:
+                assigned_circ.metadata["dt"] = getattr(self.backend.configuration(), "dt", "n.a.")
 
             circs.append(assigned_circ)
 
