@@ -1,3 +1,17 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright IBM 2021.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+
+"""Fake service class for tests."""
+
 from typing import Optional, List, Dict, Type, Any, Union, Tuple
 import copy
 import json
@@ -6,6 +20,8 @@ from test.fake_backend import FakeBackend
 
 from qiskit_experiments.database_service import DatabaseServiceV1
 from qiskit_experiments.database_service.device_component import DeviceComponent
+
+# pylint:disable=missing-raises-doc
 
 
 class FakeService(DatabaseServiceV1):

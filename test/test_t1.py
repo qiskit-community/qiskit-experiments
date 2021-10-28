@@ -13,12 +13,12 @@
 Test T1 experiment
 """
 
+from test.fake_service import FakeService
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import T1
 from qiskit_experiments.library.characterization import T1Analysis
 from qiskit_experiments.test.t1_backend import T1Backend
-from test.fake_service import FakeService
 
 
 class TestT1(QiskitTestCase):
@@ -64,7 +64,7 @@ class TestT1(QiskitTestCase):
         exp_data.save()
         loaded_data = ExperimentData.load(exp_data.experiment_id, exp_data.service)
         self.assertEqual(
-            repr(exp_data.analysis_results(0)) == repr(loaded_data.analysis_results(0))
+            repr(exp_data.analysis_results(0)), repr(loaded_data.analysis_results(0))
         )
 
     def test_t1_parallel(self):

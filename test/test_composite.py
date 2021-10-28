@@ -12,7 +12,6 @@
 
 """Class to test composite experiments."""
 
-from typing import Optional, List, Dict, Type, Any, Union, Tuple
 import copy
 
 from test.fake_backend import FakeBackend
@@ -20,7 +19,6 @@ from test.fake_experiment import FakeExperiment
 from test.fake_service import FakeService
 
 from qiskit.test import QiskitTestCase
-from qiskit.test.mock import FakeMelbourne
 
 from qiskit_experiments.framework import (
     ParallelExperiment,
