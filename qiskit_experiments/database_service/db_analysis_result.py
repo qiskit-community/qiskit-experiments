@@ -19,7 +19,7 @@ import copy
 import math
 
 from .database_service import DatabaseServiceV1
-from .json import ExperimentEncoder, ExperimentDecoder, serialize_safe_float
+from .json import ExperimentEncoder, ExperimentDecoder, _serialize_safe_float
 from .utils import save_data, qiskit_version
 from .exceptions import DbExperimentDataError
 from .device_component import DeviceComponent, to_component
@@ -448,7 +448,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             if math.isfinite(value):
                 return value
             else:
-                return serialize_safe_float(value)["__value__"]
+                return _serialize_safe_float(value)["__value__"]
         if isinstance(value, complex):
             # Convert complex floats to strings for display
             return f"{value}"
