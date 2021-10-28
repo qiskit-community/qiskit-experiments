@@ -326,3 +326,18 @@ class TestCrossResonanceHamiltonian(QiskitTestCase):
         self.assertAlmostEqual(exp_data.analysis_results("omega_zx").value.value, zx, delta=2e4)
         self.assertAlmostEqual(exp_data.analysis_results("omega_zy").value.value, zy, delta=2e4)
         self.assertAlmostEqual(exp_data.analysis_results("omega_zz").value.value, zz, delta=2e4)
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = cr_hamiltonian.CrossResonanceHamiltonian(
+            qubits=(0, 1),
+            flat_top_widths=[500],
+            unit="ns",
+            amp=0.1,
+            sigma=20,
+            risefall=2,
+        )
+        config = exp.config
+        loaded_exp = cr_hamiltonian.CrossResonanceHamiltonian.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)
