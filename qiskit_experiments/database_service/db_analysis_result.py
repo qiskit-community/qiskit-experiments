@@ -205,6 +205,8 @@ class DbAnalysisResultV1(DbAnalysisResult):
         result_data = service_data.pop("result_data")
         value = result_data.pop("_value")
         extra = result_data.pop("_extra", {})
+        if extra:
+            chisq = extra.pop("reduced_chisq", None)
         source = result_data.pop("_source", None)
 
         # Initialize the result object
@@ -216,6 +218,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             result_id=service_data.pop("result_id"),
             quality=service_data.pop("quality"),
             extra=extra,
+            chisq=chisq,
             verified=service_data.pop("verified"),
             tags=service_data.pop("tags"),
             service=service_data.pop("service"),

@@ -7,6 +7,7 @@ from test.fake_backend import FakeBackend
 from qiskit_experiments.database_service import DatabaseServiceV1
 from qiskit_experiments.database_service.device_component import DeviceComponent
 
+
 class FakeService(DatabaseServiceV1):
     """
     Extremely simple database for testing
@@ -60,8 +61,9 @@ class FakeService(DatabaseServiceV1):
             "notes": notes,
             "share_level": kwargs.get("share_level", None),
             "figure_names": kwargs.get("figure_names", None),
+            "analysis": {},
         }
-        
+
         return experiment_id
 
     def update_experiment(
@@ -132,7 +134,19 @@ class FakeService(DatabaseServiceV1):
         json_encoder: Type[json.JSONEncoder] = json.JSONEncoder,
         **kwargs: Any,
     ) -> str:
-        raise Exception("not implemented")
+        self.database[experiment_id]["analysis"][result_id] = {
+            "result_data": result_data,
+            "result_id": result_id,
+            "result_type": result_type,
+            "device_components": device_components,
+            "experiment_id": experiment_id,
+            "quality": quality,
+            "verified": verified,
+            "tags": tags,
+            "service": self,
+        }
+
+        return result_id
 
     def update_analysis_result(
         self,
@@ -164,7 +178,7 @@ class FakeService(DatabaseServiceV1):
         tags_operator: Optional[str] = "OR",
         **filters: Any,
     ) -> List[Dict]:
-        raise Exception("not implemented")
+        return self.database[experiment_id]["analysis"].values()
 
     def delete_analysis_result(self, result_id: str) -> None:
         raise Exception("not implemented")
@@ -172,7 +186,7 @@ class FakeService(DatabaseServiceV1):
     def create_figure(
         self, experiment_id: str, figure: Union[str, bytes], figure_name: Optional[str]
     ) -> Tuple[str, int]:
-        raise Exception("not implemented")
+        return
 
     def update_figure(
         self, experiment_id: str, figure: Union[str, bytes], figure_name: str
@@ -193,4 +207,4 @@ class FakeService(DatabaseServiceV1):
 
     @property
     def preferences(self) -> Dict:
-        raise Exception("not implemented")
+        return {"auto_save": False}
