@@ -145,3 +145,11 @@ class TestDragOptions(QiskitTestCase):
 
         with self.assertRaises(CalibrationError):
             drag.set_experiment_options(reps=[1, 2, 3, 4])
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = DragCal(0)
+        config = exp.config
+        loaded_exp = DragCal.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)
