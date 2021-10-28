@@ -12,6 +12,7 @@
 
 """Rough amplitude calibration using Rabi."""
 
+from collections import namedtuple
 from typing import Iterable, List, Optional
 import numpy as np
 
@@ -23,6 +24,10 @@ from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.calibration_management import BaseCalibrationExperiment, BackendCalibrations
 from qiskit_experiments.library.characterization import Rabi
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
+
+AnglesSchedules = namedtuple(
+    "AnglesSchedules", ["target_angle", "parameter", "schedule", "previous_value"]
+)
 
 
 class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
@@ -83,7 +88,12 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
         prev_amp = calibrations.get_parameter_value(cal_parameter_name, qubit, schedule_name)
         self.experiment_options.group = group
         self.experiment_options.angles_schedules = [
-            (target_angle, cal_parameter_name, schedule_name, prev_amp)
+            AnglesSchedules(
+                target_angle=target_angle,
+                parameter=cal_parameter_name,
+                schedule=schedule_name,
+                previous_value=prev_amp,
+            )
         ]
 
     @classmethod
@@ -104,7 +114,9 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
         options = super()._default_experiment_options()
 
         options.result_index = -1
-        options.angles_schedules = [(np.pi, "amp", "x", None)]
+        options.angles_schedules = [
+            AnglesSchedules(target_angle=np.pi, parameter="amp", schedule="x", previous_value=None)
+        ]
         options.group = "default"
 
         return options
@@ -129,7 +141,14 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
                 group=self.experiment_options.group,
             )
 
-            param_values.append((angle, param_name, schedule_name, param_val))
+            param_values.append(
+                AnglesSchedules(
+                    target_angle=angle,
+                    parameter=param_name,
+                    schedule=schedule_name,
+                    previous_value=param_val,
+                )
+            )
 
         for circuit in circuits:
             circuit.metadata["angles_schedules"] = param_values
@@ -164,10 +183,10 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
             result_index = self.experiment_options.result_index
             group = data[0]["metadata"]["cal_group"]
 
-            rate = 2 * np.pi * BaseUpdater.get_value(
-                experiment_data,
-                self._analysis_param_name,
-                result_index
+            rate = (
+                2
+                * np.pi
+                * BaseUpdater.get_value(experiment_data, self._analysis_param_name, result_index)
             )
 
             for angle, param, schedule, prev_amp in data[0]["metadata"]["angles_schedules"]:
@@ -201,8 +220,10 @@ class RoughXSXAmplitudeCal(RoughAmplitudeCal):
         )
 
         self.experiment_options.angles_schedules = [
-            (np.pi, "amp", "x", None),
-            (np.pi / 2, "amp", "sx", None),
+            AnglesSchedules(target_angle=np.pi, parameter="amp", schedule="x", previous_value=None),
+            AnglesSchedules(
+                target_angle=np.pi / 2, parameter="amp", schedule="sx", previous_value=None
+            ),
         ]
 
 
@@ -240,8 +261,18 @@ class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
 
         self._analysis_param_name = "rabi_rate_12"
         self.experiment_options.angles_schedules = [
-            (np.pi, "amp", "x" + ef_pulse_label, None),
-            (np.pi / 2, "amp", "sx" + ef_pulse_label, None),
+            AnglesSchedules(
+                target_angle=np.pi,
+                parameter="amp",
+                schedule="x" + ef_pulse_label,
+                previous_value=None,
+            ),
+            AnglesSchedules(
+                target_angle=np.pi / 2,
+                parameter="amp",
+                schedule="sx" + ef_pulse_label,
+                previous_value=None,
+            ),
         ]
 
     def _pre_circuit(self) -> QuantumCircuit:
