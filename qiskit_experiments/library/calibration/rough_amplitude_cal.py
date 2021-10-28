@@ -197,7 +197,7 @@ class RoughXSXAmplitudeCal(RoughAmplitudeCal):
 
         self.experiment_options.angles_schedules = [
             (np.pi, "amp", "x", None),
-            (np.pi / 2, "amp", "sx", None)
+            (np.pi / 2, "amp", "sx", None),
         ]
 
 
