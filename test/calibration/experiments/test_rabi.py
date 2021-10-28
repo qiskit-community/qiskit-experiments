@@ -112,6 +112,14 @@ class TestRabiEndToEnd(QiskitTestCase):
 
         self.assertEqual(len(result), 0)
 
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = Rabi(0)
+        config = exp.config
+        loaded_exp = Rabi.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)
+
 
 class TestEFRabi(QiskitTestCase):
     """Test the ef_rabi experiment."""
@@ -152,6 +160,14 @@ class TestEFRabi(QiskitTestCase):
         self.assertEqual(circ.calibrations["Rabi"][((2,), (0.5,))], expected)
         self.assertEqual(circ.data[0][0].name, "x")
         self.assertEqual(circ.data[1][0].name, "Rabi")
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = EFRabi(0)
+        config = exp.config
+        loaded_exp = EFRabi.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)
 
 
 class TestRabiCircuits(QiskitTestCase):

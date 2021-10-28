@@ -15,17 +15,76 @@ Base Experiment class.
 
 from abc import ABC, abstractmethod
 import copy
+import inspect
+import dataclasses
+from functools import wraps
+from collections import OrderedDict
 from numbers import Integral
-from typing import Sequence, Optional, Tuple, List, Dict, Union
+from typing import Sequence, Optional, Tuple, List, Dict, Union, Any
 
 from qiskit import transpile, assemble, QuantumCircuit
 from qiskit.providers import BaseJob
-from qiskit.providers.backend import Backend
+from qiskit.providers import Backend, BaseBackend
 from qiskit.providers.basebackend import BaseBackend as LegacyBackend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
-from qiskit_experiments.framework import Options
+from qiskit.providers.options import Options
 from qiskit_experiments.framework.experiment_data import ExperimentData
+from qiskit_experiments.version import __version__
+
+
+@dataclasses.dataclass(frozen=True)
+class ExperimentConfig:
+    """Store configuration settings for an Experiment
+
+    This stores the current configuration of a
+    :class:~qiskit_experiments.framework.BaseExperiment` and
+    can be used to reconstruct the experiment using either the
+    :meth:`experiment` property if the experiment class type is
+    currently stored, or the
+    :meth:~qiskit_experiments.framework.BaseExperiment.from_config`
+    class method of the appropriate experiment.
+    """
+
+    cls: type = None
+    args: Tuple[Any] = dataclasses.field(default_factory=tuple)
+    kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
+    experiment_options: Dict[str, Any] = dataclasses.field(default_factory=dict)
+    transpile_options: Dict[str, Any] = dataclasses.field(default_factory=dict)
+    run_options: Dict[str, Any] = dataclasses.field(default_factory=dict)
+    version: str = __version__
+
+    @property
+    def experiment(self) -> "BaseExperiment":
+        """Return the experiment constructed from this config.
+
+        Returns:
+            The experiment reconstructed from the config.
+
+        Raises:
+            QiskitError: if the experiment class is not stored,
+                         was not successful deserialized, or reconstruction
+                         of the experiment fails.
+        """
+        cls = self.cls
+        if cls is None:
+            raise QiskitError("No experiment class in experiment config")
+        if isinstance(cls, dict):
+            raise QiskitError(
+                "Unable to load experiment class. Try manually loading "
+                "experiment using `Experiment.from_config(config)` instead."
+            )
+        try:
+            return cls.from_config(self)
+        except Exception as ex:
+            msg = "Unable to construct experiments from config."
+            if cls.version != __version__:
+                msg += (
+                    f" Note that config version ({cls.version}) differs from the current"
+                    f" qiskit-experiments version ({__version__}). You could try"
+                    " installing a compatible qiskit-experiments version."
+                )
+            raise QiskitError("{}\nError Message:\n{}".format(msg, str(ex))) from ex
 
 
 class BaseExperiment(ABC):
@@ -68,7 +127,7 @@ class BaseExperiment(ABC):
 
         # Backend
         self._backend = None
-        if backend is not None:
+        if isinstance(backend, (Backend, BaseBackend)):
             self._set_backend(backend)
 
         # Circuit parameters
@@ -86,6 +145,45 @@ class BaseExperiment(ABC):
         self._transpile_options = self._default_transpile_options()
         self._run_options = self._default_run_options()
         self._analysis_options = self._default_analysis_options()
+
+        # Store keys of non-default options
+        self._set_experiment_options = set()
+        self._set_transpile_options = set()
+        self._set_run_options = set()
+        self._set_analysis_options = set()
+
+    def __new__(cls, *args, **kwargs):
+        """Store init args and kwargs for subclass __init__ methods"""
+        # This method automatically stores all arg and kwargs from subclass
+        # init methods for use in converting an experiment to config
+
+        # Get all non-self init args and kwarg names for subclass
+        spec = inspect.getfullargspec(cls.__init__)
+        init_arg_names = spec.args[1:]
+        num_init_kwargs = len(spec.defaults) if spec.defaults else 0
+        num_init_args = len(init_arg_names) - num_init_kwargs
+
+        # Convert passed values for args and kwargs into an ordered dict
+        # This will sort args passed as kwargs and kwargs passed as
+        # positional args in the function call
+        num_call_args = len(args)
+        ord_args = OrderedDict()
+        ord_kwargs = OrderedDict()
+        for i, argname in enumerate(init_arg_names):
+            if i < num_init_args:
+                update = ord_args
+            else:
+                update = ord_kwargs
+            if i < num_call_args:
+                update[argname] = args[i]
+            elif argname in kwargs:
+                update[argname] = kwargs[argname]
+
+        # pylint: disable = attribute-defined-outside-init
+        instance = super(BaseExperiment, cls).__new__(cls)
+        instance.__init_args__ = ord_args
+        instance.__init_kwargs__ = ord_kwargs
+        return instance
 
     @property
     def experiment_type(self) -> str:
@@ -130,6 +228,42 @@ class BaseExperiment(ABC):
         ret._run_options = copy.copy(self._run_options)
         ret._transpile_options = copy.copy(self._transpile_options)
         ret._analysis_options = copy.copy(self._analysis_options)
+        return ret
+
+    @property
+    def config(self) -> ExperimentConfig:
+        """Return the config dataclass for this experiment"""
+        args = tuple(getattr(self, "__init_args__", OrderedDict()).values())
+        kwargs = dict(getattr(self, "__init_kwargs__", OrderedDict()))
+        # Only store non-default valued options
+        experiment_options = dict(
+            (key, getattr(self._experiment_options, key)) for key in self._set_experiment_options
+        )
+        transpile_options = dict(
+            (key, getattr(self._transpile_options, key)) for key in self._set_transpile_options
+        )
+        run_options = dict((key, getattr(self._run_options, key)) for key in self._set_run_options)
+        return ExperimentConfig(
+            cls=type(self),
+            args=args,
+            kwargs=kwargs,
+            experiment_options=experiment_options,
+            transpile_options=transpile_options,
+            run_options=run_options,
+        )
+
+    @classmethod
+    def from_config(cls, config: Union[ExperimentConfig, Dict]) -> "BaseExperiment":
+        """Initialize an experiment from experiment config"""
+        if isinstance(config, dict):
+            config = ExperimentConfig(**dict)
+        ret = cls(*config.args, **config.kwargs)
+        if config.experiment_options:
+            ret.set_experiment_options(**config.experiment_options)
+        if config.transpile_options:
+            ret.set_transpile_options(**config.transpile_options)
+        if config.run_options:
+            ret.set_run_options(**config.run_options)
         return ret
 
     def run(
@@ -295,6 +429,7 @@ class BaseExperiment(ABC):
                     f"Options field {field} is not valid for {type(self).__name__}"
                 )
         self._experiment_options.update_options(**fields)
+        self._set_experiment_options = self._set_experiment_options.union(fields)
 
     @classmethod
     def _default_transpile_options(cls) -> Options:
@@ -324,6 +459,7 @@ class BaseExperiment(ABC):
                 " as it is determined by the experiment physical qubits."
             )
         self._transpile_options.update_options(**fields)
+        self._set_transpile_options = self._set_transpile_options.union(fields)
 
     @classmethod
     def _default_run_options(cls) -> Options:
@@ -342,6 +478,7 @@ class BaseExperiment(ABC):
             fields: The fields to update the options
         """
         self._run_options.update_options(**fields)
+        self._set_run_options = self._set_run_options.union(fields)
 
     @classmethod
     def _default_analysis_options(cls) -> Options:
@@ -365,6 +502,7 @@ class BaseExperiment(ABC):
             fields: The fields to update the options
         """
         self._analysis_options.update_options(**fields)
+        self._set_analysis_options = self._set_analysis_options.union(fields)
 
     def _postprocess_transpiled_circuits(self, circuits: List[QuantumCircuit], **run_options):
         """Additional post-processing of transpiled circuits before running on backend"""
@@ -412,3 +550,20 @@ class BaseExperiment(ABC):
             "run_options": copy.copy(run_options),
         }
         experiment_data._metadata["job_metadata"].append(metadata)
+
+
+def fix_class_docs(wrapped_cls):
+    """Experiment class decorator to fix class doc formatting.
+
+    This fixes the BaseExperiment subclass documentation so that
+    the correct init arg and kwargs are shown for the class documentation,
+    rather than the generic args of the BaseExperiment.__new__ method.
+    """
+
+    @wraps(wrapped_cls.__init__, assigned=("__annotations__",))
+    def __new__(cls, *args, **kwargs):
+        return super(wrapped_cls, cls).__new__(cls, *args, **kwargs)
+
+    wrapped_cls.__new__ = __new__
+
+    return wrapped_cls
