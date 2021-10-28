@@ -13,6 +13,7 @@
 """Half angle calibration."""
 
 from typing import List, Optional
+import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
@@ -33,7 +34,7 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
         self,
         qubit,
         calibrations: BackendCalibrations,
-        schedule_name: str,
+        schedule_name: str = "sx",
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "amp",
         auto_update: bool = True,
@@ -43,7 +44,7 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
         Args:
             qubit: The qubit for which to run the half-angle calibration.
             calibrations: The calibrations instance with the schedules.
-            schedule_name: The name of the schedule to calibrate.
+            schedule_name: The name of the schedule to calibrate which defaults to sx.
             backend: Optional, the backend to run the experiment on.
             cal_parameter_name: The name of the parameter in the schedule to update.
             auto_update:  Whether or not to automatically update the calibrations. By
@@ -107,7 +108,9 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
     def update_calibrations(self, experiment_data: ExperimentData):
         r"""Update the value of the parameter in the calibrations.
 
-        The update rule for the half angle calibration is:
+        The parameter that is updated is that phase of the sx pulse. This phase is contained
+        in the complex amplitude of the pulse. The update rule for the half angle calibration is
+        therefore:
 
         ..math::
 
@@ -132,7 +135,7 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
             prev_amp = data[0]["metadata"]["cal_param_value"]
 
             d_theta = BaseUpdater.get_value(experiment_data, "d_theta", result_index)
-            new_amp = prev_amp - d_theta / 2
+            new_amp = abs(prev_amp)*np.exp(1.0j*np.angle(prev_amp) - 1.0j*d_theta / 2)
 
             BaseUpdater.add_parameter_value(
                 self._cals,
