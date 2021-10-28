@@ -25,7 +25,12 @@ from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
 
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
+from qiskit_experiments.framework import (
+    BaseAnalysis,
+    AnalysisResultData,
+    Options,
+    CircuitResultData,
+)
 from .fitters import (
     linear_inversion,
     scipy_linear_lstsq,
@@ -296,8 +301,8 @@ class TomographyAnalysis(BaseAnalysis):
 
     @staticmethod
     def _fitter_data(
-        data: List[Dict[str, any]]
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, List[np.ndarray]]:
+        data: List[CircuitResultData]
+    ) -> Tuple[List[np.ndarray], np.ndarray, np.ndarray, np.ndarray]:
         """Return list a tuple of basis, frequency, shot data"""
         outcome_dict = {}
         meas_size = None
@@ -305,7 +310,7 @@ class TomographyAnalysis(BaseAnalysis):
 
         for datum in data:
             # Get basis data
-            metadata = datum["metadata"]
+            metadata = datum.metadata
             meas_element = tuple(metadata["m_idx"])
             prep_element = tuple(metadata["p_idx"]) if "p_idx" in metadata else tuple()
             if meas_size is None:
@@ -314,7 +319,7 @@ class TomographyAnalysis(BaseAnalysis):
                 prep_size = len(prep_element)
 
             # Add outcomes
-            counts = Counts(marginal_counts(datum["counts"], metadata["clbits"])).int_outcomes()
+            counts = Counts(marginal_counts(datum.counts, metadata["clbits"])).int_outcomes()
             basis_key = (meas_element, prep_element)
             if basis_key in outcome_dict:
                 TomographyAnalysis._append_counts(outcome_dict[basis_key], counts)

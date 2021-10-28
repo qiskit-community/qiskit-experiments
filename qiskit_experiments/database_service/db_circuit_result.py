@@ -13,8 +13,10 @@
 """DB class for experiment result of a single circuit."""
 
 import dataclasses
+import numpy as np
 
-from typing import Sequence, Dict, Any, Optional
+from qiskit.qobj.utils import MeasLevel, MeasReturnType
+from typing import Sequence, Dict, Any, Optional, Union
 
 
 @dataclasses.dataclass(frozen=True)
@@ -31,10 +33,10 @@ class CircuitResultData:
     shots: Optional[int] = None
 
     # measurement level (0: Raw, 1: Kerneled, 2: Discriminated)
-    meas_level: Optional[int] = None
+    meas_level: Optional[int] = MeasLevel.CLASSIFIED
 
     # return format (avg: averaged data, single: sequence of single shot data)
-    meas_return: Optional[str] = None
+    meas_return: Optional[str] = MeasReturnType.SINGLE
 
     # number of memory slots
     memory_slots: Optional[int] = None
@@ -46,7 +48,7 @@ class CircuitResultData:
     creg_sizes: Optional[int] = None
 
     # formatted count data
-    counts: Optional[Sequence[Dict[str, float]]] = None
+    counts: Optional[Dict[str, float]] = None
 
     # formatted memory data, shape depends on execution condition
     # ============  =============  =====
@@ -62,3 +64,44 @@ class CircuitResultData:
 
     # metadata
     metadata: Optional[Dict[str, Any]] = None
+
+    def memory_slot_data(self, index: int) -> Union[None, complex, np.ndarray]:
+        """Get memory slot value of target index.
+
+        Args:
+            index: Target memory slot index.
+
+        Returns:
+            Data stored in the target slot.
+
+        Raises:
+            IndexError: When index is out of range.
+            ValueError: When classified data is stored, or empty memory slot.
+        """
+        if self.memory is None:
+            raise ValueError("No memory slot exist in this result data.")
+
+        if index > self.memory_slots:
+            raise IndexError(
+                f"Index {index} doesn't exist. This data has only {self.memory_slots} slots."
+            )
+
+        # level 0 data
+        if self.meas_level == MeasLevel.RAW:
+            if self.meas_return == MeasReturnType.SINGLE:
+                return np.asarray(self.memory[:, index, :], dtype=complex)
+            return np.asarray(self.memory[index, :], dtype=complex)
+
+        # level 1 data
+        if self.meas_level == MeasLevel.KERNELED:
+            if self.meas_return == MeasReturnType.SINGLE:
+                return np.asarray(self.memory[:, index], dtype=complex)
+            return complex(self.memory[index])
+
+        # level 2 data
+        if self.meas_level == MeasLevel.CLASSIFIED:
+            raise ValueError(
+                "Memory slot for classified data doesn't return slot-wise data stream."
+            )
+
+        return None

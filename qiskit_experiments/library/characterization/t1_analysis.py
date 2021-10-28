@@ -97,9 +97,9 @@ class T1Analysis(BaseAnalysis):
             AnalysisError: if the analysis fails.
         """
         data = experiment_data.data()
-        unit = data[0]["metadata"]["unit"]
-        conversion_factor = data[0]["metadata"].get("dt_factor", None)
-        qubit = data[0]["metadata"]["qubit"]
+        unit = data[0].metadata["unit"]
+        conversion_factor = data[0].metadata.get("dt_factor", None)
+        qubit = data[0].metadata["qubit"]
 
         if conversion_factor is None:
             conversion_factor = 1 if unit == "s" else apply_prefix(1, unit)

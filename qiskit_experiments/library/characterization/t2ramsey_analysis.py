@@ -151,7 +151,7 @@ class T2RamseyAnalysis(BaseAnalysis):
         # implementation of  _run_analysis
 
         data = experiment_data.data()
-        circ_metadata = data[0]["metadata"]
+        circ_metadata = data[0].metadata
         unit = circ_metadata["unit"]
         conversion_factor = circ_metadata.get("dt_factor", None)
         osc_freq = circ_metadata.get("osc_freq", None)

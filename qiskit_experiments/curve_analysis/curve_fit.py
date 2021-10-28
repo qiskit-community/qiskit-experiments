@@ -19,6 +19,7 @@ from typing import List, Dict, Tuple, Callable, Optional, Union
 import numpy as np
 import scipy.optimize as opt
 from qiskit_experiments.exceptions import AnalysisError
+from qiskit_experiments.framework import CircuitResultData
 from qiskit_experiments.curve_analysis.data_processing import filter_data
 from qiskit_experiments.curve_analysis.curve_data import FitData
 
@@ -255,7 +256,7 @@ def multi_curve_fit(
 
 
 def process_curve_data(
-    data: List[Dict[str, any]], data_processor: Callable, x_key: str = "xval", **filters
+    data: List[CircuitResultData], data_processor: Callable, x_key: str = "xval", **filters
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Return tuple of arrays (x, y, sigma) data for curve fitting.
 
@@ -276,7 +277,7 @@ def process_curve_data(
     ydata_var = np.zeros(size, dtype=float)
 
     for i, datum in enumerate(filtered_data):
-        metadata = datum["metadata"]
+        metadata = datum.metadata
         xdata[i] = metadata[x_key]
         y_mean, y_var = data_processor(datum)
         ydata[i] = y_mean
@@ -286,7 +287,7 @@ def process_curve_data(
 
 
 def process_multi_curve_data(
-    data: List[Dict[str, any]],
+    data: List[CircuitResultData],
     data_processor: Callable,
     x_key: str = "xval",
     series_key: str = "series",
@@ -313,7 +314,7 @@ def process_multi_curve_data(
     ydata_var = np.zeros(size, dtype=float)
 
     for i, datum in enumerate(filtered_data):
-        metadata = datum["metadata"]
+        metadata = datum.metadata
         series[i] = metadata[series_key]
         xdata[i] = metadata[x_key]
         y_mean, y_var = data_processor(datum)

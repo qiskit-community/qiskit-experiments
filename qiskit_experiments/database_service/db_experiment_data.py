@@ -362,13 +362,16 @@ class DbExperimentDataV1(DbExperimentData):
             self._jobs[result.job_id] = None
 
         for i, expr_result in enumerate(result.results):
-            # Save general header information
-            formatted_data = {"job_id": result.job_id, "index": i}
+            # Save general information
+            formatted_data = dict(
+                job_id=result.job_id,
+                index=i,
+                meas_level=getattr(expr_result, "meas_level", None),
+                meas_return=getattr(expr_result, "meas_return", None),
+                shots=getattr(expr_result, "shots", None),
+            )
 
-            # Save experiment run options
-            formatted_data["meas_level"] = getattr(expr_result, "meas_level", None)
-            formatted_data["meas_return"] = getattr(expr_result, "meas_return", None)
-            formatted_data["shots"] = getattr(expr_result, "shots", None)
+            # Save more experiment run options
             if hasattr(expr_result, "header"):
                 header = expr_result.header
                 formatted_data["metadata"] = getattr(header, "metadata", None)
