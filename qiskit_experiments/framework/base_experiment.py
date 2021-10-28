@@ -76,9 +76,14 @@ class ExperimentConfig:
         try:
             return cls.from_config(self)
         except Exception as ex:
-            raise QiskitError(
-                "Unable to construct experiments from config:\n{}".format(str(ex))
-            ) from ex
+            msg = "Unable to construct experiments from config."
+            if cls.version != __version__:
+                msg += (
+                    f" Note that config version ({cls.version}) differs from the current"
+                    f" qiskit-experiments version ({__version__}). You could try"
+                    " installing a compatible qiskit-experiments version."
+                )
+            raise QiskitError("{}\nError Message:\n{}".format(msg, str(ex))) from ex
 
 
 class BaseExperiment(ABC):
