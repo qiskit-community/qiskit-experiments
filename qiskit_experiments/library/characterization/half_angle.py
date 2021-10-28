@@ -69,7 +69,7 @@ class HalfAngle(BaseExperiment):
     def _default_transpile_options(cls) -> Options:
         """Default transpile options."""
         options = super()._default_transpile_options()
-        options.basis_gates = ["sx", "rz", "y"]
+        options.basis_gates = ["sx", "rz", "y"]  # Should not be changed.
         options.inst_map = None
         return options
 
@@ -78,7 +78,8 @@ class HalfAngle(BaseExperiment):
         r"""Default analysis options.
 
         If the rotation error is very small the fit may chose a d_theta close to
-        :math:`\pm\pi`. To prevent this we impose bounds on d_theta.
+        :math:`\pm\pi`. To prevent this we impose bounds on d_theta. Note that the
+        options angle per gate, phase offset and amp are not intended to be changed.
         """
         options = super()._default_analysis_options()
         options.result_parameters = [ParameterRepr("d_theta", "d_hac", "rad")]
