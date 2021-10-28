@@ -92,7 +92,7 @@ class HalfAngle(BaseExperiment):
         return options
 
     def __init__(self, qubit: int, backend: Optional[Backend] = None):
-        """Setup a fine amplitude experiment on the given qubit.
+        """Setup a half angle experiment on the given qubit.
 
         Args:
             qubit: The qubit on which to run the fine amplitude calibration experiment.
