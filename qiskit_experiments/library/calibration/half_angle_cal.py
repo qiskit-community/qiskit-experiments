@@ -135,7 +135,7 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
             prev_amp = data[0]["metadata"]["cal_param_value"]
 
             d_theta = BaseUpdater.get_value(experiment_data, "d_hac", result_index)
-            new_amp = abs(prev_amp)*np.exp(1.0j*np.angle(prev_amp) - 1.0j*d_theta / 2)
+            new_amp = abs(prev_amp) * np.exp(1.0j * np.angle(prev_amp) - 1.0j * d_theta / 2)
 
             BaseUpdater.add_parameter_value(
                 self._cals,

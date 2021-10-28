@@ -77,4 +77,4 @@ class TestHalfAngle(QiskitTestCase):
             self.assertEqual(circ.calibrations["sx"][((qubit,), ())], pulse.Schedule(name="sx"))
             if idx > 0:
                 self.assertEqual(circ.count_ops()["y"], idx)
-                self.assertEqual(circ.calibrations["y"][((qubit, ), ())], pulse.Schedule(name="y"))
+                self.assertEqual(circ.calibrations["y"][((qubit,), ())], pulse.Schedule(name="y"))
