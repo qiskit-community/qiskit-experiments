@@ -16,9 +16,11 @@ from typing import List, Optional
 
 from qiskit import QuantumCircuit, ClassicalRegister
 from qiskit.providers.backend import Backend
+from qiskit_experiments.framework.base_experiment import fix_class_docs
 from .composite_experiment import CompositeExperiment, BaseExperiment
 
 
+@fix_class_docs
 class ParallelExperiment(CompositeExperiment):
     """Parallel Experiment class"""
 

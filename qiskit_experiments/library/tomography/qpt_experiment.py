@@ -16,12 +16,13 @@ Quantum Process Tomography experiment
 from typing import Union, Optional, Iterable, List, Tuple
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.quantum_info.operators.base_operator import BaseOperator
-from qiskit_experiments.framework import Options
+from qiskit_experiments.framework import Options, fix_class_docs
 from .tomography_experiment import TomographyExperiment
 from .qpt_analysis import ProcessTomographyAnalysis
 from . import basis
 
 
+@fix_class_docs
 class ProcessTomography(TomographyExperiment):
     """Quantum process tomography experiment.
 
