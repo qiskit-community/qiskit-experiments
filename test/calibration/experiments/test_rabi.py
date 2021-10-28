@@ -123,7 +123,6 @@ class TestEFRabi(QiskitTestCase):
 
         # Note that the backend is not sophisticated enough to simulate an e-f
         # transition so we run the test with a tiny frequency shift, still driving the e-g transition.
-        freq_shift = 0.01
         rabi = EFRabi(self.qubit, self.sched)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         expdata = rabi.run(backend)
@@ -144,7 +143,7 @@ class TestEFRabi(QiskitTestCase):
 
         rabi12 = EFRabi(2, sched)
         rabi12.set_experiment_options(amplitudes=[0.5])
-        circ = rabi12.circuits(RabiBackend())[0]
+        circ = rabi12.circuits()[0]
 
         with pulse.build() as expected:
             pulse.shift_frequency(anharm, pulse.DriveChannel(2))
