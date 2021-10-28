@@ -152,7 +152,7 @@ class TestSVD(BaseDataProcessorTest):
         self.create_experiment(iq_data)
 
         iq_svd = SVD()
-        iq_svd.train([datum["memory"] for datum in self.iq_experiment.data()])
+        iq_svd.train([datum.memory for datum in self.iq_experiment.data()])
 
         self.assertTrue(np.allclose(iq_svd._main_axes[0], np.array([-0.99633018, -0.08559302])))
         self.assertTrue(np.allclose(iq_svd._main_axes[1], np.array([-0.99627747, -0.0862044])))

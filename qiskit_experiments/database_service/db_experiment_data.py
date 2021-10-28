@@ -228,6 +228,8 @@ class DbExperimentDataV1(DbExperimentData):
                     self._add_single_data(datum)
                 elif isinstance(datum, Result):
                     self._add_result_data(datum)
+                elif isinstance(datum, CircuitResultData):
+                    self._data.append(datum)
                 else:
                     raise TypeError(f"Invalid data type {type(datum)}.")
 

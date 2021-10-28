@@ -33,10 +33,10 @@ class CircuitResultData:
     shots: Optional[int] = None
 
     # measurement level (0: Raw, 1: Kerneled, 2: Discriminated)
-    meas_level: Optional[int] = MeasLevel.CLASSIFIED
+    meas_level: Optional[int] = None
 
     # return format (avg: averaged data, single: sequence of single shot data)
-    meas_return: Optional[str] = MeasReturnType.SINGLE
+    meas_return: Optional[str] = None
 
     # number of memory slots
     memory_slots: Optional[int] = None

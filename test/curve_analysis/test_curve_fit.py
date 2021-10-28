@@ -21,7 +21,7 @@ import numpy as np
 from qiskit.test import QiskitTestCase
 from qiskit.qobj.utils import MeasLevel
 
-from qiskit_experiments.framework import ExperimentData, FitVal
+from qiskit_experiments.framework import ExperimentData, FitVal, CircuitResultData
 from qiskit_experiments.curve_analysis import CurveAnalysis, fit_function
 from qiskit_experiments.curve_analysis.curve_data import (
     SeriesDef,
@@ -44,6 +44,9 @@ def simulate_output_data(func, xvals, param_dict, **metadata):
         {
             "counts": {"0": __shots - count, "1": count},
             "metadata": dict(xval=xi, qubits=(0,), experiment_type="fake_experiment", **metadata),
+            "shots": __shots,
+            "meas_level": 2,
+            "meas_return": "single",
         }
         for xi, count in zip(xvals, counts)
     ]

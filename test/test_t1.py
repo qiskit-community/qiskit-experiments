@@ -123,6 +123,7 @@ class TestT1(QiskitTestCase):
                         "unit": "ns",
                         "dt_factor_in_sec": None,
                     },
+                    "shots": 10000,
                 }
             )
 
@@ -170,6 +171,7 @@ class TestT1(QiskitTestCase):
                         "unit": "ns",
                         "dt_factor_in_sec": None,
                     },
+                    "shots": 20,
                 }
             )
 

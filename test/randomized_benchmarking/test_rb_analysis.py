@@ -91,23 +91,8 @@ class TestRBAnalysis(QiskitTestCase):
         Returns(bool):
             return if the validation result.
         """
-        for idx, exp_result in enumerate(analysis_results_data):
-            # making a dict with all the shared keys with the same value
-            shared_items = {
-                k: exp_result["counts"][k]
-                for k in exp_result
-                if k in exp_data[idx]["counts"]
-                and exp_result["counts"][k] == exp_data[idx]["counts"][k]
-            }
-            # check if all the keys and values are identical by length
-            self.assertTrue(
-                len(shared_items) != len(exp_data[idx]["counts"]),
-                "The counts statistics doesn't match the data from the json.",
-            )
-            self.assertTrue(
-                len(shared_items) != len(exp_result["counts"]),
-                "The counts statistics doesn't match the data from the analytics.",
-            )
+        for test_data, ref_data in zip(analysis_results_data, exp_data):
+            self.assertDictEqual(test_data.counts, ref_data.counts)
 
     def _validate_metadata(self, analysis_results_data: list, exp_setup: list):
         """
@@ -121,7 +106,7 @@ class TestRBAnalysis(QiskitTestCase):
         """
         for exp_result in analysis_results_data:
             self.assertTrue(
-                exp_result["metadata"]["xval"] in exp_setup["lengths"],
+                exp_result.metadata["xval"] in exp_setup["lengths"],
                 "the gate sequence length isn't in the setup length list.",
             )
 

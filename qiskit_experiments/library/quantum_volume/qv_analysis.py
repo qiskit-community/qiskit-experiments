@@ -64,7 +64,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
 
         for data_trial in data:
             heavy_output = self._calc_ideal_heavy_output(
-                data_trial["metadata"]["ideal_probabilities"], data_trial["metadata"]["depth"]
+                data_trial.metadata["ideal_probabilities"], data_trial.metadata["depth"]
             )
             heavy_output_prob_exp.append(
                 self._calc_exp_heavy_output_probability(data_trial, heavy_output)
@@ -119,10 +119,10 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         Returns:
             int: heavy output probability
         """
-        circ_shots = sum(data["counts"].values())
+        circ_shots = data.shots
 
         # Calculate the number of heavy output counts in the experiment
-        heavy_output_counts = sum([data["counts"].get(value, 0) for value in heavy_outputs])
+        heavy_output_counts = sum([data.counts.get(value, 0) for value in heavy_outputs])
 
         # Calculate the experimental heavy output probability
         return heavy_output_counts / circ_shots

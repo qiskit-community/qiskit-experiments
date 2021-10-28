@@ -18,6 +18,7 @@ from qiskit.result import marginal_counts
 from qiskit.exceptions import QiskitError
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.database_service import DatabaseServiceV1
+from qiskit_experiments.database_service.db_circuit_result import CircuitResultData
 
 
 class CompositeExperimentData(ExperimentData):
@@ -78,12 +79,11 @@ class CompositeExperimentData(ExperimentData):
 
     def _add_single_data(self, data):
         """Add data to the experiment"""
-        # TODO: Handle optional marginalizing IQ data
         metadata = data.get("metadata", {})
         if metadata.get("experiment_type") == self._type:
 
             # Add parallel data
-            self._data.append(data)
+            self._data.append(CircuitResultData(**data))
 
             # Add marginalized data to sub experiments
             if "composite_clbits" in metadata:
@@ -91,12 +91,14 @@ class CompositeExperimentData(ExperimentData):
             else:
                 composite_clbits = None
             for i, index in enumerate(metadata["composite_index"]):
-                sub_data = {"metadata": metadata["composite_metadata"][i]}
+                sub_data = data.copy()
+                sub_data["metadata"] = metadata["composite_metadata"][i]
                 if "counts" in data:
                     if composite_clbits is not None:
                         sub_data["counts"] = marginal_counts(data["counts"], composite_clbits[i])
                     else:
                         sub_data["counts"] = data["counts"]
+                # TODO: Handle optional marginalizing IQ data
                 self._components[index]._add_single_data(sub_data)
 
     def save(self) -> None:

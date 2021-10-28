@@ -14,6 +14,7 @@
 
 from typing import Any, Dict, List, Set, Tuple, Union
 
+from qiskit_experiments.framework import CircuitResultData
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
@@ -69,7 +70,10 @@ class DataProcessor:
 
         return True
 
-    def __call__(self, data: Union[Dict, List[Dict]], **options) -> Tuple[Any, Any]:
+    def __call__(
+            self,
+            data: Union[CircuitResultData, List[CircuitResultData]], **options
+    ) -> Tuple[Any, Any]:
         """
         Call self on the given datum. This method sequentially calls the stored data actions
         on the datum.
@@ -85,7 +89,9 @@ class DataProcessor:
         return self._call_internal(data, **options)
 
     def call_with_history(
-        self, data: Union[Dict, List[Dict]], history_nodes: Set = None
+        self,
+        data: Union[CircuitResultData, List[CircuitResultData]],
+        history_nodes: Set = None,
     ) -> Tuple[Any, Any, List]:
         """
         Call self on the given datum. This method sequentially calls the stored data actions
@@ -106,7 +112,7 @@ class DataProcessor:
 
     def _call_internal(
         self,
-        data: Union[Dict, List[Dict]],
+        data: Union[CircuitResultData, List[CircuitResultData]],
         with_history: bool = False,
         history_nodes: Set = None,
         call_up_to_node: int = None,
@@ -148,7 +154,10 @@ class DataProcessor:
         else:
             return datum_, error_
 
-    def train(self, data: List[Dict[str, Any]]):
+    def train(
+            self,
+            data: Union[CircuitResultData, List[CircuitResultData]],
+    ):
         """Train the nodes of the data processor.
 
         Args:
@@ -161,7 +170,10 @@ class DataProcessor:
                     # Process the data up to the untrained node.
                     node.train(self._call_internal(data, call_up_to_node=index)[0])
 
-    def _data_extraction(self, data: Union[Dict, List[Dict]]) -> List:
+    def _data_extraction(
+            self,
+            data: Union[CircuitResultData, List[CircuitResultData]],
+    ) -> List:
         """Extracts the data on which to run the nodes.
 
         If the datum is a list of dicts then the data under self._input_key is extracted
@@ -182,7 +194,7 @@ class DataProcessor:
                   process it properly.
                 - If the input key of the data processor is not contained in the data.
         """
-        if isinstance(data, dict):
+        if isinstance(data, CircuitResultData):
             data = [data]
 
         try:

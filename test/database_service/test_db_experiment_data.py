@@ -105,8 +105,8 @@ class TestDbExperimentData(QiskitTestCase):
 
         exp_data.add_data(result1)
         exp_data.add_data(result2)
-        self.assertNotIn("metadata", exp_data.data(0))
-        self.assertIn("metadata", exp_data.data(1))
+        self.assertIsNone(exp_data.data(0).metadata)
+        self.assertIsNotNone(exp_data.data(1).metadata)
 
     def test_add_data_job(self):
         """Test add job data."""
@@ -127,7 +127,7 @@ class TestDbExperimentData(QiskitTestCase):
         exp_data.block_for_results()
         exp_data.add_data(jobs)
         exp_data.block_for_results()
-        self.assertEqual(expected, [sdata["counts"] for sdata in exp_data.data()])
+        self.assertEqual(expected, [sdata.counts for sdata in exp_data.data()])
         self.assertIn(a_job.job_id(), exp_data.job_ids)
 
     def test_add_data_job_callback(self):
@@ -160,7 +160,7 @@ class TestDbExperimentData(QiskitTestCase):
             self.assertIsInstance(_exp_data, DbExperimentData)
             nonlocal called_back_count, expected_data, subtests
             expected_data.extend(subtests[called_back_count][1])
-            self.assertEqual([dat["counts"] for dat in _exp_data.data()], expected_data)
+            self.assertEqual([dat.counts for dat in _exp_data.data()], expected_data)
             called_back_count += 1
 
         a_result = self._get_job_result(1)

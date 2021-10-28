@@ -16,11 +16,12 @@
 
 from test.fake_experiment import FakeExperiment
 
+import dataclasses
 import numpy as np
 from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit.result import Result
 
-from qiskit_experiments.framework import ExperimentData
+from qiskit_experiments.framework import ExperimentData, CircuitResultData
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.nodes import (
@@ -167,13 +168,13 @@ class DataProcessorTest(BaseDataProcessorTest):
             ]
         )
 
-        self.assertEqual(exp_data.data(0), expected_old)
+        self.assertDictEqual(dataclasses.asdict(exp_data.data(0)), expected_old)
         self.assertTrue(np.allclose(new_data, expected_new))
         self.assertIsNone(error)
 
         # Test that we can call with history.
         new_data, error, history = processor.call_with_history(exp_data.data(0))
-        self.assertEqual(exp_data.data(0), expected_old)
+        self.assertDictEqual(dataclasses.asdict(exp_data.data(0)), expected_old)
         self.assertTrue(np.allclose(new_data, expected_new))
 
         self.assertEqual(history[0][0], "ToImag")
@@ -215,7 +216,7 @@ class DataProcessorTest(BaseDataProcessorTest):
             processor.append(Probability("00", validate=validate))
 
             with self.assertRaises(error):
-                processor({"counts": [0, 1, 2]})
+                processor(CircuitResultData(**{"counts": [0, 1, 2]}))
 
 
 class TestIQSingleAvg(BaseDataProcessorTest):

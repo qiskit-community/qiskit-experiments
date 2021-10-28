@@ -126,13 +126,13 @@ class SVD(TrainableDataAction):
             error = np.asarray(error, dtype=float)
 
         if self._validate:
-            if len(datum.shape) not in {2, 3}:
+            if len(datum.shape) not in {1, 2}:
                 raise DataProcessorError(
                     f"IQ data given to {self.__class__.__name__} must be a 2D array. "
                     f"Instead, a {len(datum.shape)}D array was given."
                 )
 
-            if error is not None and len(error.shape) not in {2, 3}:
+            if error is not None and len(error.shape) not in {1, 2}:
                 raise DataProcessorError(
                     f"IQ data error given to {self.__class__.__name__} must be a 2D array."
                     f"Instead, a {len(error.shape)}D array was given."
@@ -145,7 +145,7 @@ class SVD(TrainableDataAction):
         """Return the axis of the trained SVD"""
         return self._main_axes
 
-    def means(self, qubit: int, iq_index: int) -> float:
+    def means(self, qubit: int) -> complex:
         """Return the mean by which to correct the IQ data.
 
         Before training the SVD the mean of the training data is subtracted from the
@@ -154,12 +154,11 @@ class SVD(TrainableDataAction):
 
         Args:
             qubit: Index of the qubit.
-            iq_index: Index of either the in-phase (i.e. 0) or the quadrature (i.e. 1).
 
         Returns:
             The mean that was determined during training for the given qubit and IQ index.
         """
-        return self._means[qubit][iq_index]
+        return self._means[qubit]
 
     @property
     def scales(self) -> List[float]:
@@ -196,7 +195,7 @@ class SVD(TrainableDataAction):
         if not self.is_trained:
             raise DataProcessorError("SVD must be trained on data before it can be used.")
 
-        n_qubits = datum.shape[0] if len(datum.shape) == 2 else datum.shape[1]
+        n_qubits = datum.size if len(datum.shape) == 1 else datum.shape[1]
         processed_data = []
 
         if error is not None:
@@ -206,18 +205,14 @@ class SVD(TrainableDataAction):
 
         # process each averaged IQ point with its own axis.
         for idx in range(n_qubits):
-
-            centered = np.array(
-                [datum[..., idx, iq] - self.means(qubit=idx, iq_index=iq) for iq in [0, 1]]
-            )
-
+            centered = np.array([datum[..., idx] - self.means(qubit=idx)])
             processed_data.append((self._main_axes[idx] @ centered) / self.scales[idx])
 
             if error is not None:
-                angle = np.arctan(self._main_axes[idx][1] / self._main_axes[idx][0])
+                angle = np.arctan(self._main_axes[idx].imag / self._main_axes[idx].real)
                 error_value = np.sqrt(
-                    (error[..., idx, 0] * np.cos(angle)) ** 2
-                    + (error[..., idx, 1] * np.sin(angle)) ** 2
+                    (error[..., idx].real * np.cos(angle)) ** 2
+                    + (error[..., idx].imag * np.sin(angle)) ** 2
                 )
                 processed_error.append(error_value / self.scales[idx])
 
@@ -248,7 +243,7 @@ class SVD(TrainableDataAction):
         if data is None:
             return
 
-        n_qubits = self._format_data(data[0])[0].shape[0]
+        n_qubits = self._format_data(data[0])[0].size
 
         self._main_axes = []
         self._scales = []
@@ -258,18 +253,13 @@ class SVD(TrainableDataAction):
             datums = np.vstack([self._format_data(datum)[0][qubit_idx] for datum in data]).T
 
             # Calculate the mean of the data to recenter it in the IQ plane.
-            mean_i = np.average(datums[0, :])
-            mean_q = np.average(datums[1, :])
-
-            self._means.append((mean_i, mean_q))
-
-            datums[0, :] = datums[0, :] - mean_i
-            datums[1, :] = datums[1, :] - mean_q
-
-            mat_u, mat_s, _ = np.linalg.svd(datums)
+            mean_iq = np.average(datums)
+            datums = datums - mean_iq
+            mat_u, mat_s, _ = np.linalg.svd(np.vstack((datums.real, datums.imag)))
 
             self._main_axes.append(mat_u[:, 0])
             self._scales.append(mat_s[0])
+            self._means.append(mean_iq)
 
 
 class IQPart(DataAction):

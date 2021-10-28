@@ -16,6 +16,7 @@ import numpy as np
 from qiskit.test import QiskitTestCase
 from qiskit import QuantumCircuit, transpile
 from qiskit.providers.basicaer import QasmSimulatorPy
+from qiskit_experiments.framework import CircuitResultData
 from qiskit_experiments.curve_analysis import curve_fit, multi_curve_fit, process_curve_data
 from qiskit_experiments.curve_analysis.data_processing import (
     level2_probability,
@@ -41,7 +42,12 @@ class TestCurveFitting(QiskitTestCase):
         job = sim.run(circuits, shots=shots, seed_simulator=10)
         result = job.result()
         data = [
-            {"counts": result.get_counts(i), "metadata": {"xval": theta}}
+            CircuitResultData(
+                counts=result.get_counts(i),
+                metadata={"xval": theta},
+                meas_level=2,
+                shots=shots,
+            )
             for i, theta in enumerate(thetas)
         ]
         return data
