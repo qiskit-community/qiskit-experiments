@@ -15,7 +15,6 @@ Base Experiment class.
 
 from abc import ABC, abstractmethod
 import copy
-from numbers import Integral
 from typing import Sequence, Optional, Tuple, List, Dict, Union
 
 from qiskit import transpile, assemble, QuantumCircuit
