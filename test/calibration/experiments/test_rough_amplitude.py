@@ -40,9 +40,9 @@ class TestRoughAmpCal(QiskitTestCase):
     def test_circuits(self):
         """Test the quantum circuits."""
         test_amps = [-0.5, 0, 0.5]
-        rabi_ef = RoughXSXAmplitudeCal(0, self.cals, amplitudes=test_amps)
+        rabi = RoughXSXAmplitudeCal(0, self.cals, amplitudes=test_amps)
 
-        circs = transpile(rabi_ef.circuits(), self.backend, **rabi_ef.transpile_options.__dict__)
+        circs = transpile(rabi.circuits(), self.backend, inst_map=rabi.transpile_options.inst_map)
 
         for circ, amp in zip(circs, test_amps):
             self.assertEqual(circ.count_ops()["Rabi"], 1)
@@ -100,7 +100,7 @@ class TestSpecializations(QiskitTestCase):
         test_amps = [-0.5, 0, 0.5]
         rabi_ef = EFRoughXSXAmplitudeCal(0, self.cals, amplitudes=test_amps)
 
-        circs = transpile(rabi_ef.circuits(), self.backend, **rabi_ef.transpile_options.__dict__)
+        circs = transpile(rabi_ef.circuits(), self.backend, inst_map=rabi_ef.transpile_options.inst_map)
 
         for circ, amp in zip(circs, test_amps):
 
