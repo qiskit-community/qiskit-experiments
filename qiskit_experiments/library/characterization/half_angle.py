@@ -55,7 +55,7 @@ class HalfAngle(BaseExperiment):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        r"""Default values for the fine amplitude experiment.
+        r"""Default values for the half angle experiment.
 
         Experiment Options:
             repetitions (List[int]): A list of the number of times that the gate
