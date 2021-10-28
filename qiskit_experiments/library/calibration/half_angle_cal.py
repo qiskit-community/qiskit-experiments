@@ -46,7 +46,8 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
             calibrations: The calibrations instance with the schedules.
             schedule_name: The name of the schedule to calibrate which defaults to sx.
             backend: Optional, the backend to run the experiment on.
-            cal_parameter_name: The name of the parameter in the schedule to update.
+            cal_parameter_name: The name of the parameter in the schedule to update. This will
+                default to amp since the complex amplitude contains the phase of the pulse.
             auto_update:  Whether or not to automatically update the calibrations. By
                 default this variable is set to True.
         """
@@ -67,7 +68,6 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
 
         Experiment Options:
             result_index (int): The index of the result from which to update the calibrations.
-            target_angle (float): The target angle of the pulse.
             group (str): The calibration group to which the parameter belongs. This will default
                 to the value "default".
 

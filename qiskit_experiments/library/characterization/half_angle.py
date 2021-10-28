@@ -12,7 +12,7 @@
 
 """Half angle characterization."""
 
-from typing import Optional
+from typing import List, Optional
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -104,7 +104,7 @@ class HalfAngle(BaseExperiment):
         """Return the preparation circuit for the experiment."""
         return QuantumCircuit(1)
 
-    def circuits(self, backend: Optional[Backend] = None):
+    def circuits(self) -> List[QuantumCircuit]:
         """Create the circuits for the half angle calibration experiment."""
 
         circuits = []
