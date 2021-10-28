@@ -167,9 +167,6 @@ class Rabi(BaseExperiment):
                 "amplitude": amp,
             }
 
-            if self.backend:
-                assigned_circ.metadata["dt"] = getattr(self.backend.configuration(), "dt", "n.a.")
-
             circs.append(assigned_circ)
 
         return circs
