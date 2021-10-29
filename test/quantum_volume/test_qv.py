@@ -242,3 +242,11 @@ class TestQuantumVolume(QiskitTestCase):
                         result.extra[key] == value,
                         "result " + str(key) + " is not the same as the " "pre-calculated analysis",
                     )
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = QuantumVolume([0, 1, 2], seed=42)
+        config = exp.config
+        loaded_exp = QuantumVolume.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)

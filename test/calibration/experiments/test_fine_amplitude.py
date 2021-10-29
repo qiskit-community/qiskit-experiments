@@ -257,3 +257,11 @@ class TestFineAmplitudeCal(QiskitTestCase):
         # Requires allclose due to numerical precision.
         self.assertTrue(np.allclose(sx_cal.blocks[0].pulse.amp, new_amp))
         self.assertFalse(np.allclose(sx_cal.blocks[0].pulse.amp, init_amp))
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = FineSXAmplitudeCal(0, self.cals, "sx")
+        config = exp.config
+        loaded_exp = FineSXAmplitudeCal.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)
