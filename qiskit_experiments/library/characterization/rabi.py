@@ -22,10 +22,11 @@ from qiskit.providers import Backend
 from qiskit.pulse import ScheduleBlock
 from qiskit.exceptions import QiskitError
 
-from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
 from qiskit_experiments.curve_analysis import ParameterRepr, OscillationAnalysis
 
 
+@fix_class_docs
 class Rabi(BaseExperiment):
     """An experiment that scans a pulse amplitude to calibrate rotations between 0 and 1.
 
@@ -172,6 +173,7 @@ class Rabi(BaseExperiment):
         return circs
 
 
+@fix_class_docs
 class EFRabi(Rabi):
     """An experiment that scans the amplitude of a pulse inducing rotations between 1 and 2.
 

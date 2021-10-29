@@ -194,3 +194,11 @@ class TestT2Ramsey(QiskitTestCase):
         )
         self.assertLessEqual(results1[0].value.stderr, results0[0].value.stderr)
         self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = T2Ramsey(0, [1, 2, 3, 4, 5], unit="s")
+        config = exp.config
+        loaded_exp = T2Ramsey.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)

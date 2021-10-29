@@ -20,7 +20,7 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
 from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import ExperimentData, Options
+from qiskit_experiments.framework import ExperimentData, Options, fix_class_docs
 from qiskit_experiments.calibration_management import BaseCalibrationExperiment, BackendCalibrations
 from qiskit_experiments.library.characterization import Rabi
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
@@ -31,6 +31,7 @@ AnglesSchedules = namedtuple(
 )
 
 
+@fix_class_docs
 class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
     """A calibration version of the Rabi experiment.
 
@@ -199,6 +200,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
                 )
 
 
+@fix_class_docs
 class RoughXSXAmplitudeCal(RoughAmplitudeCal):
     """A rough amplitude calibration of x and sx gates."""
 
@@ -228,6 +230,7 @@ class RoughXSXAmplitudeCal(RoughAmplitudeCal):
         ]
 
 
+@fix_class_docs
 class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
     """A rough amplitude calibration of x and sx gates on the 1<->2 transition."""
 
