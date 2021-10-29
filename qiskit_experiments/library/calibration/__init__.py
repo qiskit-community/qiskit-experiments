@@ -39,14 +39,15 @@ module.
     :toctree: ../stubs/
     :template: autosummary/experiment.rst
 
+    RoughFrequencyCal
     DragCal
     FineDrag
     FineXDrag
     FineSXDrag
     Rabi
-    FineAmplitude
-    FineXAmplitude
-    FineSXAmplitude
+    FineAmplitudeCal
+    FineXAmplitudeCal
+    FineSXAmplitudeCal
     RamseyXY
 
 Calibration analysis
@@ -66,10 +67,11 @@ Calibrations management
 See :mod:`qiskit_experiments.calibration_management`.
 """
 
+from .rough_frequency import RoughFrequencyCal
 from .drag import DragCal
 from .fine_drag import FineDrag, FineXDrag, FineSXDrag
+from .fine_amplitude import FineAmplitudeCal, FineXAmplitudeCal, FineSXAmplitudeCal
 from .rabi import Rabi, EFRabi
-from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
 from .ramsey_xy import RamseyXY
 
 from .analysis.drag_analysis import DragCalAnalysis

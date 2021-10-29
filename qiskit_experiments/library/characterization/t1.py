@@ -16,13 +16,15 @@ T1 Experiment class.
 from typing import List, Optional, Union
 import numpy as np
 
-from qiskit.providers import Backend
 from qiskit.circuit import QuantumCircuit
+from qiskit.providers.backend import Backend
+from qiskit.test.mock import FakeBackend
 
-from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
 from qiskit_experiments.library.characterization.t1_analysis import T1Analysis
 
 
+@fix_class_docs
 class T1(BaseExperiment):
     r"""
     T1 experiment class
@@ -66,6 +68,7 @@ class T1(BaseExperiment):
         self,
         qubit: int,
         delays: Union[List[float], np.array],
+        backend: Optional[Backend] = None,
         unit: Optional[str] = "s",
     ):
         """
@@ -74,6 +77,7 @@ class T1(BaseExperiment):
         Args:
             qubit: the qubit whose T1 is to be estimated
             delays: delay times of the experiments
+            backend: Optional, the backend to run the experiment on.
             unit: Optional, unit of the delay times. Supported units:
                   's', 'ms', 'us', 'ns', 'ps', 'dt'.
 
@@ -84,17 +88,27 @@ class T1(BaseExperiment):
             raise ValueError("T1 experiment: number of delays must be at least 3")
 
         # Initialize base experiment
-        super().__init__([qubit])
+        super().__init__([qubit], backend=backend)
 
         # Set experiment options
         self.set_experiment_options(delays=delays, unit=unit)
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def _set_backend(self, backend: Backend):
+        super()._set_backend(backend)
+
+        # Scheduling parameters
+        if not self._backend.configuration().simulator and not isinstance(backend, FakeBackend):
+            timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
+            if "acquire_alignment" not in timing_constraints:
+                timing_constraints["aquire_aligment"] = 16
+            scheduling_method = getattr(self.transpile_options, "scheduling_method", "alap")
+            self.set_transpile_options(
+                timing_constraints=timing_constraints, scheduling_method=scheduling_method
+            )
+
+    def circuits(self) -> List[QuantumCircuit]:
         """
         Return a list of experiment circuits
-
-        Args:
-            backend: Optional, a backend object
 
         Returns:
             The experiment circuits
@@ -104,7 +118,7 @@ class T1(BaseExperiment):
         """
         if self.experiment_options.unit == "dt":
             try:
-                dt_factor = getattr(backend.configuration(), "dt")
+                dt_factor = getattr(self.backend.configuration(), "dt")
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
 

@@ -35,7 +35,7 @@ class TestQuantumVolume(QiskitTestCase):
         and the amount of qubits in each circuit
         """
 
-        qubits_lists = [3, [0, 1, 2], [0, 1, 2, 4]]
+        qubits_lists = [[0, 1, 2], [0, 1, 2, 4]]
         ntrials = [2, 3, 5]
 
         for qubits in qubits_lists:
@@ -107,8 +107,9 @@ class TestQuantumVolume(QiskitTestCase):
         expdata1 = qv_exp.run(backend)
         expdata1.block_for_results()
         result_data1 = expdata1.analysis_results(0)
-        expdata2 = qv_exp.run(backend, experiment_data=expdata1)
-        expdata2.block_for_results()
+        expdata2 = qv_exp.run(backend, analysis=False).block_for_results()
+        expdata2.add_data(expdata1.data())
+        qv_exp.run_analysis(expdata2)
         result_data2 = expdata2.analysis_results(0)
 
         self.assertTrue(result_data1.extra["trials"] == 2, "number of trials is incorrect")
@@ -241,3 +242,11 @@ class TestQuantumVolume(QiskitTestCase):
                         result.extra[key] == value,
                         "result " + str(key) + " is not the same as the " "pre-calculated analysis",
                     )
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = QuantumVolume([0, 1, 2], seed=42)
+        config = exp.config
+        loaded_exp = QuantumVolume.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)
