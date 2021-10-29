@@ -28,7 +28,7 @@ from typing import Any, Tuple, Dict, Type, Optional, Union, Callable
 import numpy as np
 import scipy.sparse as sps
 
-from qiskit.circuit import Instruction, ParameterExpression, QuantumCircuit, qpy_serialization
+from qiskit.circuit import ParameterExpression, QuantumCircuit, qpy_serialization
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.result import Result
 from qiskit.quantum_info import DensityMatrix
@@ -337,11 +337,13 @@ class ExperimentEncoder(json.JSONEncoder):
                 compress=False,
             )
             return {"__type__": "ParameterExpression", "__value__": value}
-        if isinstance(obj, Instruction):
-            value = _serialize_and_encode(
-                data=obj, serializer=qpy_serialization._write_instruction, compress=False
-            )
-            return {"__type__": "Instruction", "__value__": value}
+        # # NOTE: This is copied from IBMQ provider RuntimeEncoder but is currently
+        # # Incorrect, see Issue https://github.com/Qiskit-Partners/qiskit-ibm/issues/190
+        # if isinstance(obj, Instruction):
+        #     value = _serialize_and_encode(
+        #         data=obj, serializer=qpy_serialization._write_instruction, compress=False
+        #     )
+        #     return {"__type__": "Instruction", "__value__": value}
         if isinstance(obj, Result):
             return {"__type__": "Result", "__value__": obj.to_dict()}
         if isinstance(obj, QuantumChannel):
