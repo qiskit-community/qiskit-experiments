@@ -13,11 +13,11 @@
 """
 A Tester for the Quantum Volume experiment
 """
-
+from test.base import QiskitExperimentsTestCase
 import json
 import os
 from qiskit.quantum_info.operators.predicates import matrix_equal
-from qiskit.test import QiskitTestCase
+
 from qiskit import Aer
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.library import QuantumVolume
@@ -26,7 +26,7 @@ from qiskit_experiments.database_service.json import ExperimentDecoder
 SEED = 42
 
 
-class TestQuantumVolume(QiskitTestCase):
+class TestQuantumVolume(QiskitExperimentsTestCase):
     """Test Quantum Volume experiment"""
 
     def test_qv_circuits_length(self):
@@ -246,7 +246,11 @@ class TestQuantumVolume(QiskitTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = QuantumVolume([0, 1, 2], seed=42)
-        config = exp.config
-        loaded_exp = QuantumVolume.from_config(config)
+        loaded_exp = QuantumVolume.from_config(exp.config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+
+    def test_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = QuantumVolume([0, 1, 2], seed=42)
+        self.assertRoundTripSerializable(exp, self.experiments_equiv)

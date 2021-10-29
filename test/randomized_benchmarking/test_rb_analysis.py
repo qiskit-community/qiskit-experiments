@@ -12,11 +12,12 @@
 """
 A test for RB analysis. Using pre-Generated data from rb_generate_data.py.
 """
+from test.base import QiskitExperimentsTestCase
 import os
 import json
 import numpy as np
 from qiskit.quantum_info.operators.predicates import matrix_equal
-from qiskit.test import QiskitTestCase
+
 from qiskit.circuit.library import (
     XGate,
     CXGate,
@@ -30,7 +31,7 @@ ATOL_DEFAULT = 1e-2
 RTOL_DEFAULT = 1e-5
 
 
-class TestRBAnalysis(QiskitTestCase):
+class TestRBAnalysis(QiskitExperimentsTestCase):
     """
     A base class for the tests of analysis of the RB experiments
     """
