@@ -150,6 +150,14 @@ class DataProcessor:
         # Execute pipeline
         out_values, out_errors = execute_pipeline(gen_datum)
 
+        # Return only first element if length=1, e.g. [[0, 1]] -> [0, 1]
+        if out_values.shape[0] == 1:
+            out_values = out_values[0]
+
+        # Return only first element if length=1, e.g. [[0, 1]] -> [0, 1]
+        if out_errors.shape[0] == 1:
+            out_errors = out_errors[0]
+
         # Return None if error is not computed
         if np.isnan(out_errors).all():
             out_errors = None
@@ -246,9 +254,6 @@ def execute_pipeline(gen_datum: Iterator) -> Tuple[np.ndarray, np.ndarray]:
     # convert into 1D array e.g. [[0], [1], ...] -> [0, 1, ...]
     if len(out_values.shape) == 2 and out_values.shape[1] == 1:
         out_values = out_values[:, 0]
-    # return only first element if length=1, e.g. [[0, 1]] -> [0, 1]
-    if out_values.shape[0] == 1:
-        out_values = out_values[0]
 
     try:
         # try to convert into float object for performance
@@ -260,8 +265,5 @@ def execute_pipeline(gen_datum: Iterator) -> Tuple[np.ndarray, np.ndarray]:
     # convert into 1D array e.g. [[0], [1], ...] -> [0, 1, ...]
     if len(out_errors.shape) == 2 and out_errors.shape[1] == 1:
         out_errors = out_errors[:, 0]
-    # return only first element if length=1, e.g. [[0, 1]] -> [0, 1]
-    if out_errors.shape[0] == 1:
-        out_errors = out_errors[0]
 
     return out_values, out_errors
