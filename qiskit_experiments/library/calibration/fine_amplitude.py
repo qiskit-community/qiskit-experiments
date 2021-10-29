@@ -23,10 +23,11 @@ from qiskit_experiments.calibration_management import (
     BackendCalibrations,
 )
 from qiskit_experiments.library.characterization import FineAmplitude
-from qiskit_experiments.framework import ExperimentData, Options
+from qiskit_experiments.framework import ExperimentData, Options, fix_class_docs
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
 
 
+@fix_class_docs
 class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
     r"""A calibration version of the :class:`FineAmplitude` experiment.
 
@@ -153,6 +154,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             )
 
 
+@fix_class_docs
 class FineXAmplitudeCal(FineAmplitudeCal):
     """A calibration experiment to calibrate the amplitude of the X schedule."""
 
@@ -197,6 +199,7 @@ class FineXAmplitudeCal(FineAmplitudeCal):
         return options
 
 
+@fix_class_docs
 class FineSXAmplitudeCal(FineAmplitudeCal):
     """A calibration experiment to calibrate the amplitude of the SX schedule."""
 

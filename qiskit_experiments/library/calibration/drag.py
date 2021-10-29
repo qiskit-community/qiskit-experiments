@@ -20,11 +20,12 @@ from qiskit.circuit import Gate, Parameter
 from qiskit.providers.backend import Backend
 import qiskit.pulse as pulse
 
-from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.library.calibration.analysis.drag_analysis import DragCalAnalysis
 
 
+@fix_class_docs
 class DragCal(BaseExperiment):
     r"""An experiment that scans the DRAG parameter to find the optimal value.
 
