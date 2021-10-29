@@ -34,8 +34,8 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
         self,
         qubit,
         calibrations: BackendCalibrations,
-        schedule_name: str = "sx",
         backend: Optional[Backend] = None,
+        schedule_name: str = "sx",
         cal_parameter_name: Optional[str] = "amp",
         auto_update: bool = True,
     ):
@@ -44,8 +44,8 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
         Args:
             qubit: The qubit for which to run the half-angle calibration.
             calibrations: The calibrations instance with the schedules.
-            schedule_name: The name of the schedule to calibrate which defaults to sx.
             backend: Optional, the backend to run the experiment on.
+            schedule_name: The name of the schedule to calibrate which defaults to sx.
             cal_parameter_name: The name of the parameter in the schedule to update. This will
                 default to amp since the complex amplitude contains the phase of the pulse.
             auto_update:  Whether or not to automatically update the calibrations. By
@@ -60,7 +60,7 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
             auto_update=auto_update,
         )
 
-        self.transpile_options.inst_map = calibrations.default_inst_map
+        self.set_transpile_options(inst_map=calibrations.default_inst_map)
 
     @classmethod
     def _default_experiment_options(cls):
