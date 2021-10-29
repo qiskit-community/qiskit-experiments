@@ -16,14 +16,17 @@ import numpy as np
 
 from qiskit.test import QiskitTestCase
 from qiskit.circuit import Parameter
+from qiskit.exceptions import QiskitError
 from qiskit.pulse import DriveChannel, Drag
 import qiskit.pulse as pulse
 from qiskit.qobj.utils import MeasLevel
 from qiskit import transpile
 
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.library import DragCal
+from qiskit_experiments.library import RoughDrag, RoughDragCal
 from qiskit_experiments.test.mock_iq_backend import DragBackend
+from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+from qiskit_experiments.calibration_management import BackendCalibrations
 
 
 class TestDragEndToEnd(QiskitTestCase):
@@ -41,14 +44,21 @@ class TestDragEndToEnd(QiskitTestCase):
         self.x_plus = xp
         self.test_tol = 0.05
 
+    def test_reps(self):
+        """Test that setting reps raises and error if reps is not of length three."""
+
+        drag = RoughDrag(0, self.x_plus)
+
+        with self.assertRaises(CalibrationError):
+            drag.set_experiment_options(reps=[1, 2, 3, 4])
+
     def test_end_to_end(self):
         """Test the drag experiment end to end."""
 
         backend = DragBackend(gate_name="xp")
 
-        drag = DragCal(1)
+        drag = RoughDrag(1, self.x_plus)
 
-        drag.set_experiment_options(schedule=self.x_plus)
         expdata = drag.run(backend).block_for_results()
         result = expdata.analysis_results(1)
 
@@ -59,13 +69,10 @@ class TestDragEndToEnd(QiskitTestCase):
         # rather increase beta.
         backend = DragBackend(error=0.0051, gate_name="xp")
 
-        drag = DragCal(0)
+        drag = RoughDrag(0, self.x_plus)
         drag.set_analysis_options(p0={"beta": 1.2})
-        drag.set_experiment_options(schedule=self.x_plus)
         exp_data = drag.run(backend).block_for_results()
         result = exp_data.analysis_results(1)
-
-        meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
 
         self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
@@ -73,11 +80,9 @@ class TestDragEndToEnd(QiskitTestCase):
         # Large leakage will make the curves oscillate quickly.
         backend = DragBackend(error=0.05, gate_name="xp")
 
-        drag = DragCal(1)
+        drag = RoughDrag(1, self.x_plus, betas=np.linspace(-4, 4, 31))
         drag.set_run_options(shots=200)
-        drag.set_experiment_options(betas=np.linspace(-4, 4, 31))
         drag.set_analysis_options(p0={"beta": 1.8, "freq0": 0.08, "freq1": 0.16, "freq2": 0.32})
-        drag.set_experiment_options(schedule=self.x_plus)
         exp_data = drag.run(backend).block_for_results()
         result = exp_data.analysis_results(1)
 
@@ -107,8 +112,8 @@ class TestDragCircuits(QiskitTestCase):
 
         backend = DragBackend(error=0.005, gate_name="xp")
 
-        drag = DragCal(0)
-        drag.set_experiment_options(reps=[2, 4, 8], schedule=self.x_plus)
+        drag = RoughDrag(0, self.x_plus)
+        drag.set_experiment_options(reps=[2, 4, 8])
         drag.backend = DragBackend(gate_name="xp")
         circuits = drag.circuits()
 
@@ -125,23 +130,32 @@ class TestDragCircuits(QiskitTestCase):
         with pulse.build(name="xp") as xp:
             pulse.play(Drag(duration=160, amp=amp, sigma=40, beta=beta), DriveChannel(0))
 
-        backend = DragBackend(error=0.05, gate_name="xp")
-
-        drag = DragCal(1)
-        drag.set_experiment_options(betas=np.linspace(-3, 3, 21))
-        drag.set_experiment_options(schedule=xp)
-
-        with self.assertRaises(CalibrationError):
-            drag.run(backend).analysis_results(0)
+        with self.assertRaises(QiskitError):
+            RoughDrag(1, xp, betas=np.linspace(-3, 3, 21))
 
 
-class TestDragOptions(QiskitTestCase):
-    """Test non-trivial options."""
+class TestRoughDragCalUpdate(QiskitTestCase):
+    """Test that a Drag calibration experiment properly updates the calibrations."""
 
-    def test_reps(self):
-        """Test that setting reps raises and error if reps is not of length three."""
+    def setUp(self):
+        """Setup the tests"""
+        super().setUp()
 
-        drag = DragCal(0)
+        library = FixedFrequencyTransmon()
 
-        with self.assertRaises(CalibrationError):
-            drag.set_experiment_options(reps=[1, 2, 3, 4])
+        self.backend = DragBackend(gate_name="x")
+        self.cals = BackendCalibrations(self.backend, library)
+        self.test_tol = 0.05
+
+    def test_update(self):
+        """Test that running RoughDragCal updates the calibrations."""
+
+        qubit = 0
+        prev_beta = self.cals.get_parameter_value("β", (0, ), "x")
+        self.assertEqual(prev_beta, 0)
+
+        RoughDragCal(qubit, self.cals, backend=self.backend).run().block_for_results()
+
+        new_beta = self.cals.get_parameter_value("β", (0,), "x")
+        self.assertTrue(abs(new_beta - self.backend.ideal_beta) < self.test_tol)
+        self.assertTrue(abs(new_beta) > self.test_tol)

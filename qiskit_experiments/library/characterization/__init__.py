@@ -31,6 +31,7 @@ Experiments
     FineAmplitude
     FineXAmplitude
     FineSXAmplitude
+    RoughDrag
 
 
 Analysis
@@ -55,3 +56,4 @@ from .t2ramsey_analysis import T2RamseyAnalysis
 from .cr_hamiltonian import CrossResonanceHamiltonian, EchoedCrossResonanceHamiltonian
 from .cr_hamiltonian_analysis import CrossResonanceHamiltonianAnalysis
 from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
+from .drag import RoughDrag

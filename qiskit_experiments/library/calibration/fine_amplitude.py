@@ -82,11 +82,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 
         """
         options = super()._default_experiment_options()
-
-        options.result_index = -1
         options.target_angle = np.pi
-        options.group = "default"
-
         return options
 
     def _add_cal_metadata(self, circuits: List[QuantumCircuit]):

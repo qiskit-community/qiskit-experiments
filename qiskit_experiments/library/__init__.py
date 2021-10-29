@@ -62,6 +62,7 @@ Some experiments may be also used for gate calibration.
     ~characterization.EFSpectroscopy
     ~characterization.CrossResonanceHamiltonian
     ~characterization.EchoedCrossResonanceHamiltonian
+    ~characterization.RoughDrag
     ~characterization.FineAmplitude
     ~characterization.FineXAmplitude
     ~characterization.FineSXAmplitude
@@ -82,7 +83,7 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     :template: autosummary/experiment.rst
 
     ~calibration.RoughFrequencyCal
-    ~calibration.DragCal
+    ~calibration.RoughDragCal
     ~calibration.FineDrag
     ~calibration.FineXDrag
     ~calibration.FineSXDrag
@@ -95,7 +96,7 @@ See :doc:`/tutorials/calibrating_armonk` for example.
 
 """
 from .calibration import (
-    DragCal,
+    RoughDragCal,
     FineDrag,
     FineXDrag,
     FineSXDrag,
@@ -114,6 +115,7 @@ from .characterization import (
     EFSpectroscopy,
     CrossResonanceHamiltonian,
     EchoedCrossResonanceHamiltonian,
+    RoughDrag,
     FineAmplitude,
     FineXAmplitude,
     FineSXAmplitude,
