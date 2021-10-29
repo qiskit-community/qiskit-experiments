@@ -66,6 +66,14 @@ class TestRoughAmpCal(QiskitTestCase):
         self.assertTrue(abs(self.cals.get_parameter_value("amp", 0, "x") - 0.333) < tol)
         self.assertTrue(abs(self.cals.get_parameter_value("amp", 0, "sx") - 0.333 / 2) < tol)
 
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = RoughXSXAmplitudeCal(0, self.cals)
+        config = exp.config
+        loaded_exp = RoughXSXAmplitudeCal.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)
+
 
 class TestSpecializations(QiskitTestCase):
     """Test the specialized versions of the calibration."""
