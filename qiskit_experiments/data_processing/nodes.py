@@ -208,7 +208,10 @@ class SVD(TrainableDataAction):
             for idx in range(self._n_slots):
                 scale = self.scales[idx]
                 centered = np.array(
-                    [value_array[..., idx, iq] - self.means(qubit=idx, iq_index=iq) for iq in [0, 1]]
+                    [
+                        value_array[..., idx, iq] - self.means(qubit=idx, iq_index=iq)
+                        for iq in [0, 1]
+                    ]
                 )
                 angle = np.arctan(self._main_axes[idx][1] / self._main_axes[idx][0])
 
