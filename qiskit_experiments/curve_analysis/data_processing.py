@@ -111,7 +111,7 @@ def mean_xy_data(
             ys = ydata[idxs]
             ns = shots[idxs]
 
-            # Compute sample mean and biased sample variance
+            # Compute sample mean and sample standard error of the mean
             y_means[i] = np.mean(ys)
             y_sigmas[i] = np.sqrt(np.mean((y_means[i] - ys) ** 2) / ys.size)
             y_shots[i] = np.sum(ns)
