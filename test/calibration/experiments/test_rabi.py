@@ -99,7 +99,7 @@ class TestRabiEndToEnd(QiskitTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = Rabi(0)
+        exp = Rabi(0, self.sched)
         config = exp.config
         loaded_exp = Rabi.from_config(config)
         self.assertNotEqual(exp, loaded_exp)
@@ -164,7 +164,7 @@ class TestEFRabi(QiskitTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = EFRabi(0)
+        exp = EFRabi(0, self.sched)
         config = exp.config
         loaded_exp = EFRabi.from_config(config)
         self.assertNotEqual(exp, loaded_exp)
