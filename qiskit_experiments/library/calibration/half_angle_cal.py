@@ -114,11 +114,11 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
 
         ..math::
 
-            \alpha \to \alpha - \frac{{\rm d}\theta_\text{hac}}{2}
+            A \to A \cdot e^{-i{\rm d}\theta_\text{hac}/2}
 
-        where :math:`\alpha` is the angle of the sx pulse which might be different from the
-        angle of the x pulse due to the non-linearity in the mixer's skew. The angle
-        :math:`{\rm d}\theta_\text{hac}` is the angle deviation measured through the error
+        where :math:`A` is the complex amplitude of the sx pulse which has an angle which might be
+        different from the angle of the x pulse due to the non-linearity in the mixer's skew. The
+        angle :math:`{\rm d}\theta_\text{hac}` is the angle deviation measured through the error
         amplifying pulse sequence.
 
         Args:
@@ -135,7 +135,7 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
             prev_amp = data[0]["metadata"]["cal_param_value"]
 
             d_theta = BaseUpdater.get_value(experiment_data, "d_hac", result_index)
-            new_amp = abs(prev_amp) * np.exp(1.0j * np.angle(prev_amp) - 1.0j * d_theta / 2)
+            new_amp = prev_amp * np.exp(- 1.0j * d_theta / 2)
 
             BaseUpdater.add_parameter_value(
                 self._cals,
