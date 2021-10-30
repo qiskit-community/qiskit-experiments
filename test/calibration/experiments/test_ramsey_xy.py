@@ -37,3 +37,11 @@ class TestRamseyXY(QiskitTestCase):
             test_data = ramsey.run(MockRamseyXY(freq_shift=freq_shift)).block_for_results()
             meas_shift = test_data.analysis_results(1).value.value
             self.assertTrue((meas_shift - freq_shift) < abs(test_tol * freq_shift))
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = RamseyXY(0)
+        config = exp.config
+        loaded_exp = RamseyXY.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)
