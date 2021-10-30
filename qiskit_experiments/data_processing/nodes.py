@@ -33,55 +33,82 @@ class AverageData(DataAction):
         Args:
             axis: The axis along which to average.
             validate: If set to False the DataAction will not validate its input.
+
+        Note:
+            Axis depends on data type. ``axis = 0`` indicates averaging over
+            different circuits in the experiment data. Level2 data has only this axis.
+
+                ============  =============  =====
+                `meas_level`  `meas_return`  shape
+                ============  =============  =====
+                0             `single`       np.ndarray[shots, memory_slots, memory_slot_size]
+                0             `avg`          np.ndarray[memory_slots, memory_slot_size]
+                1             `single`       np.ndarray[shots, memory_slots]
+                1             `avg`          np.ndarray[memory_slots]
+                2             `memory=True`  list
+                ============  =============  =====
+
         """
         super().__init__(validate)
         self._axis = axis
 
-    def _format_data(self, gen_datum: Iterator) -> np.ndarray:
+    def _format_data(self, gen_datum: Iterator) -> Generator:
         """Format and validate.
 
         Args:
              gen_datum: A pipeline.
 
-        Returns:
-            A formatted values array. Error is discarded.
+        Yields:
+            A formatted value array. Error is discarded.
 
         Raises:
             DataProcessorError: When non-existing data axis is specified.
         """
-        # error is discarded
-        full_val_arr, _ = execute_pipeline(gen_datum)
-        full_val_arr = np.asarray(full_val_arr, dtype=float)
+        for value_array, error_array in gen_datum:
+            value_array = np.asarray(value_array, dtype=float)
+            error_array = np.asarray(error_array, dtype=float)
 
-        if self._validate:
-            if len(full_val_arr.shape) <= self._axis:
-                raise DataProcessorError(
-                    f"Cannot average the {len(full_val_arr.shape)} dimensional "
-                    f"array along axis {self._axis}."
-                )
+            if self._validate:
+                # shape is reduced because this is a single entry
+                if len(value_array.shape) <= self._axis - 1:
+                    raise DataProcessorError(
+                        f"Cannot average the {len(value_array.shape)} dimensional "
+                        f"array along axis {self._axis}."
+                    )
 
-        return full_val_arr
+            yield value_array, error_array
 
-    def _process(self, full_val_arr: np.ndarray) -> Generator:
+    def _process(self, gen_datum: Iterator) -> Generator:
         """Average the data.
 
          Args:
-             full_val_arr: Values of executed pipeline.
+             gen_datum: A pipeline.
 
         Yields:
              Two arrays with one less dimension than the given datum and error. The error
              is the standard error of the mean, i.e. the standard deviation of the datum
              divided by :math:`sqrt{N}` where :math:`N` is the number of data points.
         """
-        # take average over full matrix
-        avg_mat = np.average(full_val_arr, axis=self._axis)
-        std_mat = np.std(full_val_arr, axis=self._axis) / np.sqrt(full_val_arr.shape[self._axis])
-
         if self._axis == 0:
+            # average over different circuits. execute pipeline.
+            full_val_arr, _ = execute_pipeline(gen_datum)
+            n_circs = full_val_arr.shape[0]
+
+            # take average over full matrix
+            avg_mat = np.average(full_val_arr, axis=self._axis)
+            std_mat = np.std(full_val_arr, axis=self._axis) / np.sqrt(n_circs)
+
             yield np.asarray(avg_mat, dtype=float), np.asarray(std_mat, dtype=float)
         else:
-            for avg_sub_arr, std_sub_arr in zip(avg_mat, std_mat):
-                yield avg_sub_arr, std_sub_arr
+            # keep pipeline, e.g. averaging over shots of single circuit
+            for value_array, _ in gen_datum:
+                axis = self._axis - 1
+                n_elements = value_array.shape[axis]
+
+                avg_mat = np.average(value_array, axis=axis)
+                std_mat = np.std(value_array, axis=axis) / np.sqrt(n_elements)
+
+                yield avg_mat, std_mat
 
 
 class MinMaxNormalize(DataAction):
