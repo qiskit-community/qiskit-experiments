@@ -19,7 +19,6 @@ import inspect
 import dataclasses
 from functools import wraps
 from collections import OrderedDict
-from numbers import Integral
 from typing import Sequence, Optional, Tuple, List, Dict, Union, Any
 
 from qiskit import transpile, assemble, QuantumCircuit
