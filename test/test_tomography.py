@@ -273,6 +273,14 @@ class TestStateTomography(QiskitTestCase):
             target_fid = qi.state_fidelity(state, targets[i], validate=False)
             self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
 
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = StateTomography(QuantumCircuit(3), measurement_qubits=[0, 2], qubits=[5, 7, 1])
+        config = exp.config
+        loaded_exp = StateTomography.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)
+
 
 @ddt.ddt
 class TestProcessTomography(QiskitTestCase):
@@ -482,6 +490,14 @@ class TestProcessTomography(QiskitTestCase):
             # Manually check fidelity
             target_fid = qi.process_fidelity(state, targets[i], require_tp=False, require_cp=False)
             self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = ProcessTomography(teleport_circuit(), measurement_qubits=[2], preparation_qubits=[0])
+        config = exp.config
+        loaded_exp = ProcessTomography.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)
 
 
 def teleport_circuit():

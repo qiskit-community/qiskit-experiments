@@ -15,6 +15,7 @@
 from typing import Iterable, Optional
 from qiskit.providers.backend import Backend
 
+from qiskit_experiments.framework import fix_class_docs
 from qiskit_experiments.library.characterization.qubit_spectroscopy import QubitSpectroscopy
 from qiskit_experiments.library.characterization.ef_spectroscopy import EFSpectroscopy
 from qiskit_experiments.calibration_management.update_library import Frequency
@@ -24,6 +25,7 @@ from qiskit_experiments.calibration_management.base_calibration_experiment impor
 )
 
 
+@fix_class_docs
 class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
     """A calibration experiment that runs QubitSpectroscopy."""
 
@@ -68,6 +70,7 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
         )
 
 
+@fix_class_docs
 class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
     """A calibration experiment that runs QubitSpectroscopy."""
 

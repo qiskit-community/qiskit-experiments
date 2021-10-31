@@ -66,7 +66,7 @@ def get_version_info():
     # up the build under Python 3.
     full_version = VERSION
 
-    if not os.path.exists(os.path.join(os.path.dirname(os.path.dirname(ROOT_DIR)), ".git")):
+    if not os.path.exists(os.path.join(os.path.dirname(ROOT_DIR), ".git")):
         return full_version
     try:
         release = _minimal_ext_cmd(["git", "tag", "-l", "--points-at", "HEAD"])
@@ -75,7 +75,6 @@ def get_version_info():
     if not release:
         git_revision = git_version()
         full_version += ".dev0+" + git_revision[:7]
-
     return full_version
 
 
