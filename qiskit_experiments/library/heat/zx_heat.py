@@ -13,9 +13,14 @@
 HEAT experiments for ZX Hamiltonian.
 """
 
-from .elements import zx_elements
-from .base_experiment import BaseCompositeHeat
+from typing import Tuple
+
+import numpy as np
+from qiskit.circuit import QuantumCircuit
+
+from qiskit_experiments.curve_analysis import ParameterRepr
 from .base_analysis import CompositeHeatAnalysis
+from .base_experiment import BaseCompositeHeat, HeatElement
 
 
 class HeatYAnalysis(CompositeHeatAnalysis):
@@ -25,18 +30,72 @@ class HeatYAnalysis(CompositeHeatAnalysis):
 
 
 class ZXHeatYError(BaseCompositeHeat):
-    """HEAT experiments for Y error amplification.
+    r"""HEAT experiments for Y error amplification.
 
     # section: overview
-        TODO
+
+        This experiment consists of following two error amplification experiments.
+
+        .. parsed-literal::
+
+                             ░ ┌───────┐      ░
+            q_0: ────────────░─┤0      ├──────░────
+                 ┌─────────┐ ░ │  heat │┌───┐ ░ ┌─┐
+            q_1: ┤ Ry(π/2) ├─░─┤1      ├┤ Y ├─░─┤M├
+                 └─────────┘ ░ └───────┘└───┘ ░ └╥┘
+            c: 1/════════════════════════════════╩═
+                                                 0
+
+                    ┌───┐    ░ ┌───────┐      ░
+            q_0: ───┤ X ├────░─┤0      ├──────░────
+                 ┌──┴───┴──┐ ░ │  heat │┌───┐ ░ ┌─┐
+            q_1: ┤ Ry(π/2) ├─░─┤1      ├┤ Y ├─░─┤M├
+                 └─────────┘ ░ └───────┘└───┘ ░ └╥┘
+            c: 1/════════════════════════════════╩═
+                                                 0
+
+        The circuit in the middle contains :math:`ZX(\pi/2)` gate represented by a ``heat`` gate,
+        and this block is repeated N times specified by the experiment option.
+
+        TODO more docs
     """
-
-    __heat_elements__ = {
-        "d_heat_y0": zx_elements.HeatElementPrepIIMeasIY,
-        "d_heat_y1": zx_elements.HeatElementPrepXIMeasIY,
-    }
-
     __analysis_class__ = HeatYAnalysis
+
+    def __init__(self, qubits: Tuple[int, int]):
+
+        meas = QuantumCircuit(2)
+
+        echo = QuantumCircuit(2)
+        echo.y(1)
+
+        prep_0 = QuantumCircuit(2)
+        prep_0.ry(np.pi/2, 1)
+
+        prep_1 = QuantumCircuit(2)
+        prep_1.x(0)
+        prep_1.ry(np.pi/2, 1)
+
+        heat_y0 = HeatElement(
+            qubits=qubits,
+            prep_circ=prep_0,
+            echo_circ=echo,
+            meas_circ=meas,
+        )
+        heat_y0.set_analysis_options(
+            result_parameters=[ParameterRepr("d_theta", "d_heat_y0", "rad")]
+        )
+
+        heat_y1 = HeatElement(
+            qubits=qubits,
+            prep_circ=prep_1,
+            echo_circ=echo,
+            meas_circ=meas,
+        )
+        heat_y1.set_analysis_options(
+            result_parameters=[ParameterRepr("d_theta", "d_heat_y1", "rad")]
+        )
+
+        super().__init__([heat_y0, heat_y1])
 
 
 class HeatZAnalysis(CompositeHeatAnalysis):
@@ -46,15 +105,71 @@ class HeatZAnalysis(CompositeHeatAnalysis):
 
 
 class ZXHeatZError(BaseCompositeHeat):
-    """HEAT experiments for Z error amplification.
+    r"""HEAT experiments for Z error amplification.
 
     # section: overview
-        TODO
+
+        This experiment consists of following two error amplification experiments.
+
+        .. parsed-literal::
+
+                             ░ ┌───────┐      ░
+            q_0: ────────────░─┤0      ├──────░───────────────
+                 ┌─────────┐ ░ │  heat │┌───┐ ░ ┌─────────┐┌─┐
+            q_1: ┤ Ry(π/2) ├─░─┤1      ├┤ Z ├─░─┤ Rx(π/2) ├┤M├
+                 └─────────┘ ░ └───────┘└───┘ ░ └─────────┘└╥┘
+            c: 1/═══════════════════════════════════════════╩═
+                                                            0
+
+                    ┌───┐    ░ ┌───────┐      ░
+            q_0: ───┤ X ├────░─┤0      ├──────░───────────────
+                 ┌──┴───┴──┐ ░ │  heat │┌───┐ ░ ┌─────────┐┌─┐
+            q_1: ┤ Ry(π/2) ├─░─┤1      ├┤ Z ├─░─┤ Rx(π/2) ├┤M├
+                 └─────────┘ ░ └───────┘└───┘ ░ └─────────┘└╥┘
+            c: 1/═══════════════════════════════════════════╩═
+                                                            0
+
+
+        The circuit in the middle contains :math:`ZX(\pi/2)` gate represented by a ``heat`` gate,
+        and this block is repeated N times specified by the experiment option.
+
+        TODO more docs
     """
-
-    __heat_elements__ = {
-        "d_heat_z0": zx_elements.HeatElementPrepIIMeasIZ,
-        "d_heat_z1": zx_elements.HeatElementPrepXIMeasIZ,
-    }
-
     __analysis_class__ = HeatZAnalysis
+
+    def __init__(self, qubits: Tuple[int, int]):
+
+        meas = QuantumCircuit(2)
+        meas.rx(np.pi/2, 1)
+
+        echo = QuantumCircuit(2)
+        echo.z(1)
+
+        prep_0 = QuantumCircuit(2)
+        prep_0.ry(np.pi/2, 1)
+
+        prep_1 = QuantumCircuit(2)
+        prep_1.x(0)
+        prep_1.ry(np.pi/2, 1)
+
+        heat_z0 = HeatElement(
+            qubits=qubits,
+            prep_circ=prep_0,
+            echo_circ=echo,
+            meas_circ=meas,
+        )
+        heat_z0.set_analysis_options(
+            result_parameters=[ParameterRepr("d_theta", "d_heat_z0", "rad")]
+        )
+
+        heat_z1 = HeatElement(
+            qubits=qubits,
+            prep_circ=prep_1,
+            echo_circ=echo,
+            meas_circ=meas,
+        )
+        heat_z1.set_analysis_options(
+            result_parameters=[ParameterRepr("d_theta", "d_heat_z1", "rad")]
+        )
+
+        super().__init__([heat_z0, heat_z1])

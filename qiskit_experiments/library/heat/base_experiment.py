@@ -19,13 +19,11 @@ from typing import List, Tuple, Optional
 from qiskit import circuit, QuantumCircuit
 from qiskit.providers import Backend
 
-from qiskit_experiments.curve_analysis import ParameterRepr
 from qiskit_experiments.framework import BaseExperiment, BatchExperiment, Options
-
 from .base_analysis import HeatAnalysis
 
 
-class BaseHeatElement(BaseExperiment, ABC):
+class HeatElement(BaseExperiment):
     """Base class of HEAT experiment elements.
 
     This class implements a single error amplification sequence.
@@ -40,10 +38,23 @@ class BaseHeatElement(BaseExperiment, ABC):
     def __init__(
         self,
         qubits: Tuple[int, int],
+        prep_circ: QuantumCircuit,
+        echo_circ: QuantumCircuit,
+        meas_circ: QuantumCircuit,
         **kwargs
     ):
-        """Create new HEAT sub experiment."""
+        """Create new HEAT sub experiment.
+
+        Args:
+            qubits: Index of control and target qubit, respectively.
+            prep_circ: A circuit to prepare qubit before the echo sequence.
+            echo_circ: A circuit to selectively amplify the specific error term.
+            meas_circ: A circuit to project target qubit onto the basis of interest.
+        """
         super().__init__(qubits)
+        self._prep_circuit = prep_circ
+        self._echo_circuit = echo_circ
+        self._meas_circuit = meas_circ
         self.set_experiment_options(**kwargs)
 
     @classmethod
@@ -68,31 +79,19 @@ class BaseHeatElement(BaseExperiment, ABC):
 
         return options
 
-    @abstractmethod
-    def _echo_circuit(self) -> QuantumCircuit:
-        pass
-
-    def _prep_circuit(self) -> QuantumCircuit:
-        circ = QuantumCircuit(2)
-        return circ
-
-    def _meas_circuit(self) -> QuantumCircuit:
-        circ = QuantumCircuit(2)
-        return circ
-
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
         opt = self.experiment_options
 
         circs = list()
         for repetition in opt.repetitions:
             circ = circuit.QuantumCircuit(2, 1)
-            circ.compose(self._prep_circuit(), qubits=[0, 1], inplace=True)
+            circ.compose(self._prep_circuit, qubits=[0, 1], inplace=True)
             circ.barrier()
             for _ in range(repetition):
                 circ.append(self.experiment_options.heat_gate, [0, 1])
-                circ.compose(self._echo_circuit(), qubits=[0, 1], inplace=True)
+                circ.compose(self._echo_circuit, qubits=[0, 1], inplace=True)
                 circ.barrier()
-            circ.compose(self._meas_circuit(), qubits=[0, 1], inplace=True)
+            circ.compose(self._meas_circuit, qubits=[0, 1], inplace=True)
             circ.measure(1, 0)
 
             # add metadata
@@ -121,23 +120,12 @@ class BaseCompositeHeat(BatchExperiment, ABC):
 
     __heat_elements__ = {}
 
-    def __init__(self, qubits: Tuple[int, int]):
+    def __init__(self, heat_experiments: List[HeatElement]):
         """Create new HEAT experiment.
 
         Args:
-            qubits: A tuple of control and target qubit index.
+            heat_experiments: A list of configured HEAT experiments.
         """
-        heat_experiments = []
-        for fit_param_name, expr_cls in self.__heat_elements__.items():
-            element_expr = expr_cls(qubits=qubits)
-
-            # Override fit parameter name unique to experiment.
-            # Note that analysis class should be a subclass of ErrorAmplificationAnalysis.
-            element_expr.set_analysis_options(
-                result_parameters=[ParameterRepr("d_theta", fit_param_name, "rad")]
-            )
-            heat_experiments.append(element_expr)
-
         super().__init__(heat_experiments)
 
     @classmethod
