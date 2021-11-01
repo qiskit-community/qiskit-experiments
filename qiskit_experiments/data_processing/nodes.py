@@ -99,7 +99,8 @@ class SVD(TrainableDataAction):
     """Singular Value Decomposition of averaged IQ data."""
 
     def __init__(self, validate: bool = True):
-        """
+        """Create new action.
+
         Args:
             validate: If set to False the DataAction will not validate its input.
         """
@@ -107,12 +108,17 @@ class SVD(TrainableDataAction):
         self._main_axes = None
         self._means = None
         self._scales = None
+        self._n_circs = 0
+        self._n_shots = 0
+        self._n_slots = 0
+        self._n_iq = 0
 
     def _format_data(self, datum: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
         """Check that the IQ data is 2D and convert it to a numpy array.
 
         Args:
-            datum: A single item of data which corresponds to single-shot IQ data.
+            datum: Data which corresponds to single-shot IQ data.
+            error: Optional, accompanied error.
 
         Returns:
             datum and any error estimate as a numpy array.
@@ -125,14 +131,32 @@ class SVD(TrainableDataAction):
         if error is not None:
             error = np.asarray(error, dtype=float)
 
+        self._n_circs = 0
+        self._n_shots = 0
+        self._n_slots = 0
+        self._n_iq = 0
+
+        # identify shape
+        try:
+            # level1 single mode
+            self._n_circs, self._n_shots, self._n_slots, self._n_iq = datum.shape
+        except ValueError:
+            try:
+                # level1 average mode
+                self._n_circs, self._n_slots, self._n_iq = datum.shape
+            except ValueError as ex:
+                raise DataProcessorError(
+                    f"Data given to {self.__class__.__name__} is not likely level1 data."
+                ) from ex
+
         if self._validate:
-            if len(datum.shape) not in {2, 3}:
+            if self._n_iq != 2:
                 raise DataProcessorError(
                     f"IQ data given to {self.__class__.__name__} must be a 2D array. "
-                    f"Instead, a {len(datum.shape)}D array was given."
+                    f"Instead, a {self._n_iq}D array was given."
                 )
 
-            if error is not None and len(error.shape) not in {2, 3}:
+            if error is not None and error.shape != datum.shape:
                 raise DataProcessorError(
                     f"IQ data error given to {self.__class__.__name__} must be a 2D array."
                     f"Instead, a {len(error.shape)}D array was given."
@@ -192,45 +216,42 @@ class SVD(TrainableDataAction):
         Raises:
             DataProcessorError: If the SVD has not been previously trained on data.
         """
-
         if not self.is_trained:
             raise DataProcessorError("SVD must be trained on data before it can be used.")
 
-        n_qubits = datum.shape[0] if len(datum.shape) == 2 else datum.shape[1]
-        processed_data = []
-
-        if error is not None:
-            processed_error = []
+        # IQ axis is reduced by projection
+        if self._n_shots == 0:
+            # level1 single mode
+            dims = self._n_circs, self._n_slots
         else:
-            processed_error = None
+            # level1 average mode
+            dims = self._n_circs, self._n_shots, self._n_slots
 
-        # process each averaged IQ point with its own axis.
-        for idx in range(n_qubits):
+        singular_vals = np.zeros(dims, dtype=float)
+        error_vals = np.zeros(dims, dtype=float)
 
+        for idx in range(self._n_slots):
+            scale = self.scales[idx]
             centered = np.array(
                 [datum[..., idx, iq] - self.means(qubit=idx, iq_index=iq) for iq in [0, 1]]
             )
+            angle = np.arctan(self._main_axes[idx][1] / self._main_axes[idx][0])
 
-            processed_data.append((self._main_axes[idx] @ centered) / self.scales[idx])
+            singular_vals[..., idx] = (self._main_axes[idx] @ centered) / scale
 
             if error is not None:
-                angle = np.arctan(self._main_axes[idx][1] / self._main_axes[idx][0])
-                error_value = np.sqrt(
-                    (error[..., idx, 0] * np.cos(angle)) ** 2
-                    + (error[..., idx, 1] * np.sin(angle)) ** 2
+                error_vals[..., idx] = (
+                    np.sqrt(
+                        (error[..., idx, 0] * np.cos(angle)) ** 2
+                        + (error[..., idx, 1] * np.sin(angle)) ** 2
+                    )
+                    / scale
                 )
-                processed_error.append(error_value / self.scales[idx])
 
-        if len(processed_data) == 1:
-            if error is None:
-                return processed_data[0], None
-            else:
-                return processed_data[0], processed_error[0]
+        if self._n_circs == 1:
+            return singular_vals[0], error_vals[0]
 
-        if error is None:
-            return np.array(processed_data), None
-        else:
-            return np.array(processed_data), np.array(processed_error)
+        return singular_vals, error_vals
 
     def train(self, data: List[Any]):
         """Train the SVD on the given data.
@@ -248,14 +269,14 @@ class SVD(TrainableDataAction):
         if data is None:
             return
 
-        n_qubits = self._format_data(data[0])[0].shape[0]
+        data, _ = self._format_data(data)
 
         self._main_axes = []
         self._scales = []
         self._means = []
 
-        for qubit_idx in range(n_qubits):
-            datums = np.vstack([self._format_data(datum)[0][qubit_idx] for datum in data]).T
+        for qubit_idx in range(self._n_slots):
+            datums = np.vstack([datum[qubit_idx] for datum in data]).T
 
             # Calculate the mean of the data to recenter it in the IQ plane.
             mean_i = np.average(datums[0, :])

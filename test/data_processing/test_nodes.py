@@ -118,15 +118,17 @@ class TestSVD(BaseDataProcessorTest):
         # qubit 1 IQ data is oriented along (1, -1)
         self.assertTrue(np.allclose(iq_svd._main_axes[1], np.array([-1, 1]) / np.sqrt(2)))
 
-        processed, _ = iq_svd(np.array([[1, 1], [1, -1]]))
+        # Note: input data shape [n_circs, n_slots, n_iq] for avg mode simulation
+
+        processed, _ = iq_svd(np.array([[[1, 1], [1, -1]]]))
         expected = np.array([-1, -1]) / np.sqrt(2)
         self.assertTrue(np.allclose(processed, expected))
 
-        processed, _ = iq_svd(np.array([[2, 2], [2, -2]]))
+        processed, _ = iq_svd(np.array([[[2, 2], [2, -2]]]))
         self.assertTrue(np.allclose(processed, expected * 2))
 
         # Check that orthogonal data gives 0.
-        processed, _ = iq_svd(np.array([[1, -1], [1, 1]]))
+        processed, _ = iq_svd(np.array([[[1, -1], [1, 1]]]))
         expected = np.array([0, 0])
         self.assertTrue(np.allclose(processed, expected))
 
@@ -166,18 +168,18 @@ class TestSVD(BaseDataProcessorTest):
         iq_svd._means = [[0.0, 0.0]]
 
         # Since the axis is along the real part the imaginary error is irrelevant.
-        processed, error = iq_svd([[1.0, 0.2]], [[0.2, 0.1]])
+        processed, error = iq_svd([[[1.0, 0.2]]], [[[0.2, 0.1]]])
         self.assertEqual(processed, np.array([1.0]))
         self.assertEqual(error, np.array([0.2]))
 
         # Since the axis is along the real part the imaginary error is irrelevant.
-        processed, error = iq_svd([[1.0, 0.2]], [[0.2, 0.3]])
+        processed, error = iq_svd([[[1.0, 0.2]]], [[[0.2, 0.3]]])
         self.assertEqual(processed, np.array([1.0]))
         self.assertEqual(error, np.array([0.2]))
 
         # Tilt the axis to an angle of 36.9... degrees
         iq_svd._main_axes = np.array([[0.8, 0.6]])
-        processed, error = iq_svd([[1.0, 0.0]], [[0.2, 0.3]])
+        processed, error = iq_svd([[[1.0, 0.0]]], [[[0.2, 0.3]]])
         cos_ = np.cos(np.arctan(0.6 / 0.8))
         sin_ = np.sin(np.arctan(0.6 / 0.8))
         self.assertEqual(processed, np.array([cos_]))
