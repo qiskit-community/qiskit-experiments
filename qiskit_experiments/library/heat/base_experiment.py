@@ -89,7 +89,7 @@ class BaseHeatElement(BaseExperiment, ABC):
             circ.compose(self._prep_circuit(), qubits=[0, 1], inplace=True)
             circ.barrier()
             for _ in range(repetition):
-                circ.append(self.experiment_options.cr_gate, [0, 1])
+                circ.append(self.experiment_options.heat_gate, [0, 1])
                 circ.compose(self._echo_circuit(), qubits=[0, 1], inplace=True)
                 circ.barrier()
             circ.compose(self._meas_circuit(), qubits=[0, 1], inplace=True)
@@ -165,7 +165,7 @@ class BaseCompositeHeat(BatchExperiment, ABC):
         for comp_exp in self.component_experiment():
             comp_exp.set_experiment_options(**fields)
 
-        super().set_transpile_options(**fields)
+        super().set_experiment_options(**fields)
 
     @classmethod
     def _default_transpile_options(cls) -> Options:
