@@ -221,9 +221,9 @@ class FineXAmplitude(FineAmplitude):
         the appropriate values for the default options.
     """
 
-    def __init__(self, qubit: int):
+    def __init__(self, qubit: int, backend: Optional[Backend] = None):
         """Initialize the experiment."""
-        super().__init__(qubit, XGate())
+        super().__init__(qubit, XGate(), backend=backend)
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -264,9 +264,9 @@ class FineSXAmplitude(FineAmplitude):
         the appropriate values for the default options.
     """
 
-    def __init__(self, qubit: int):
+    def __init__(self, qubit: int, backend: Optional[Backend] = None):
         """Initialize the experiment."""
-        super().__init__(qubit, SXGate())
+        super().__init__(qubit, SXGate(), backend=backend)
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -296,6 +296,6 @@ class FineSXAmplitude(FineAmplitude):
         """Default analysis options."""
         options = super()._default_analysis_options()
         options.angle_per_gate = np.pi / 2
-        options.phase_offset = 0
+        options.phase_offset = np.pi
 
         return options
