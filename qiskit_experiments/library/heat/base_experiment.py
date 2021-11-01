@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Base Class for General Hamiltonian Error Amplifying Tomography Experiments.
+Base Class for general Hamiltonian Error Amplifying Tomography experiments.
 """
 
 from abc import ABC, abstractmethod
