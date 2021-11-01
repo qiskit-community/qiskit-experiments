@@ -221,10 +221,10 @@ class SVD(TrainableDataAction):
 
         # IQ axis is reduced by projection
         if self._n_shots == 0:
-            # level1 single mode
+            # level1 average mode
             dims = self._n_circs, self._n_slots
         else:
-            # level1 average mode
+            # level1 single mode
             dims = self._n_circs, self._n_shots, self._n_slots
 
         singular_vals = np.zeros(dims, dtype=float)
