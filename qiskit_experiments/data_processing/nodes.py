@@ -37,6 +37,9 @@ class AverageData(DataAction):
         Note:
             Axis depends on data type. ``axis = 0`` indicates averaging over
             different circuits in the experiment data. Level2 data has only this axis.
+            As a reminder the table below shows that various data levels in Qiskit
+            and their dimension. The AverageData node will simply average the
+            given array over the specified axis.
 
                 ============  =============  =====
                 `meas_level`  `meas_return`  shape
