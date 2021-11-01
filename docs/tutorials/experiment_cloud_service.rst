@@ -9,7 +9,7 @@ need to have ``qiskit-ibmq-provider`` installed locally and an account
 in the Qiskit cloud service. We will use the ``ibmq_armonk`` backend
 which is open and available to everyone.
 
-.. code:: ipython3
+.. jupyter-execute:: 
 
     from qiskit import IBMQ
     
@@ -23,7 +23,7 @@ which is open and available to everyone.
 Let’s run a :math:`T_1` experiment and save the results to the
 experiment database.
 
-.. code:: ipython3
+.. jupyter-execute::
 
     from qiskit_experiments.library.characterization import T1
     
@@ -35,21 +35,11 @@ experiment database.
     exp = T1(qubit=0, delays=t1_delays, unit="us")
     print(exp.circuits()[0])
 
-
-.. parsed-literal::
-
-         ┌───┐ ░ ┌──────────────┐ ░ ┌─┐
-    q_0: ┤ X ├─░─┤ Delay(0[us]) ├─░─┤M├
-         └───┘ ░ └──────────────┘ ░ └╥┘
-    c: 1/════════════════════════════╩═
-                                     0 
-
-
 Now we run the experiment. ``block_for_results()`` blocks execution
 until the experiment is complete, then ``save()`` is called to save the
 data to ResultsDB.
 
-.. code:: ipython3
+.. jupyter-execute::
 
     # Run the experiment circuits with 1000 shots each,
     # and analyze the result
@@ -64,27 +54,11 @@ experiment is done running.
 
 Our :math:`T_1` figure and analysis results:
 
-.. code:: ipython3
+.. jupyter-execute::
 
     display(t1_expdata.figure(0))
     for result in t1_expdata.analysis_results():
         print(result)
-
-
-
-.. image:: ./experiment_cloud_service/output_9_0.png
-
-
-.. parsed-literal::
-
-    DbAnalysisResultV1
-    - name: T1
-    - value: 0.00014003438826912983 ± 4.398101339932208e-06 s
-    - χ²: 1.9282291758563228
-    - quality: bad
-    - extra: <8 items>
-    - device_components: ['Q0']
-    - verified: False
 
 
 You can also view the results at the `IBM Quantum Experiments
@@ -121,7 +95,7 @@ Let’s load a `previous T1
 experiment <https://quantum-computing.ibm.com/experiments/9eb0b0f4-be97-4c57-9665-8c9ff09442e8>`__,
 which we’ve made public by editing the ``Share level`` field:
 
-.. code:: ipython3
+.. jupyter-execute::
 
     from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
     
@@ -130,37 +104,18 @@ which we’ve made public by editing the ``Share level`` field:
 To display the figure, which is serialized into a string, we need the
 SVG library:
 
-.. code:: ipython3
+.. jupyter-execute::
 
     from IPython.display import SVG
     SVG(load_exp.figure(0))
 
 
-
-
-.. image:: ./experiment_cloud_service/output_21_0.svg
-
-
-
 We’ve also retrieved the full analysis results from the database:
 
-.. code:: ipython3
+.. jupyter-execute::
 
     for result in load_exp.analysis_results():
         print(result)
-
-
-.. parsed-literal::
-
-    DbAnalysisResultV1
-    - name: T1
-    - value: 0.00014003438826912983 ± 4.398101339932208e-06 s
-    - χ²: 1.9282291758563228
-    - quality: ResultQuality.BAD
-    - extra: <8 items>
-    - device_components: ['Q0']
-    - verified: False
-
 
 Auto-saving an experiment
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -170,27 +125,13 @@ experiment preemptively. In the future, you will be able to set
 ``provider.experiment.set_option(auto_save=True)`` to turn ``auto_save``
 on by default at the experiment service level.
 
-.. code:: ipython3
+.. jupyter-execute::
 
     exp = T1(qubit=0, delays=t1_delays, unit="us")
     
     t1_expdata = exp.run(backend=backend, shots=1000)
     t1_expdata.auto_save = True
     t1_expdata.block_for_results()
-
-
-.. parsed-literal::
-
-    Not all post-processing has finished. Consider calling save() again after all post-processing is done to save any newly generated data.
-    Analysis result cannot be saved because no experiment service is available.
-
-
-
-
-.. parsed-literal::
-
-    ExperimentData(T1, c22c3f3b-4fa0-4410-a753-0859c0549935, backend=ibmq_armonk, job_ids=['6106b1e569320609fc186865'])
-
 
 
 Deleting an experiment
@@ -200,26 +141,10 @@ Both figures and analysis results can be deleted. Note that unless you
 have auto save on, the update has to be manually saved to the remote
 database by calling ``save()``.
 
-.. code:: ipython3
+.. jupyter-execute::
 
     t1_expdata.delete_figure(0)
     t1_expdata.delete_analysis_result(0)
-
-
-.. parsed-literal::
-
-    
-    Are you sure you want to delete the experiment plot? [y/N]: y
-    
-    Are you sure you want to delete the analysis result? [y/N]: y
-
-
-
-
-.. parsed-literal::
-
-    '6ae505d7-a2ba-4f21-b962-42cfe6b5fdd1'
-
 
 
 The interface shows that both the figure and analysis result have been
@@ -232,7 +157,7 @@ RB experiment
 
 Let’s now do a standard RB experiment and save the results to ResultsDB.
 
-.. code:: ipython3
+.. jupyter-execute::
 
     from qiskit_experiments.library import randomized_benchmarking as rb
     
@@ -244,44 +169,11 @@ Let’s now do a standard RB experiment and save the results to ResultsDB.
     rb_expdata = rb_exp.run(backend).block_for_results()
     rb_expdata.save()
 
-.. code:: ipython3
+.. jupyter-execute::
 
     display(rb_expdata.figure(0))
     for result in rb_expdata.analysis_results():
         print(result)
-
-
-
-.. image:: ./experiment_cloud_service/output_33_0.png
-
-
-.. parsed-literal::
-
-    DbAnalysisResultV1
-    - name: RBAnalysis
-    - value: [0.62327871 0.99941831 0.31212028] ± [0.56502796 0.00062857 0.56631132]
-    - χ²: 0.13454473118612684
-    - extra: <10 items>
-    - device_components: ['Q0']
-    - verified: False
-    DbAnalysisResultV1
-    - name: alpha
-    - value: 0.9994183055710573 ± 0.000628570304337799
-    - χ²: 0.13454473118612684
-    - device_components: ['Q0']
-    - verified: False
-    DbAnalysisResultV1
-    - name: EPC
-    - value: 0.0002908472144713681 ± 0.0003144680764970782
-    - χ²: 0.13454473118612684
-    - device_components: ['Q0']
-    - verified: False
-    DbAnalysisResultV1
-    - name: EPG
-    - value: {0: {'rz': 0.0, 'sx': 0.00015093763767253147, 'x': 0.00015093763767253147}}
-    - χ²: 0.13454473118612684
-    - device_components: ['Q0']
-    - verified: False
 
 
 Here is the view of the same job on the database service. Note that
@@ -295,7 +187,7 @@ State tomography experiment
 
 Let’s do state tomography on a Hadamard state.
 
-.. code:: ipython3
+.. jupyter-execute::
 
     from qiskit_experiments.library import StateTomography
     import qiskit
@@ -312,28 +204,6 @@ Let’s do state tomography on a Hadamard state.
         print(result)
 
 
-.. parsed-literal::
-
-    DbAnalysisResultV1
-    - name: state
-    - value: DensityMatrix([[0.5078125 +0.j        , 0.44042969-0.00878906j],
-                   [0.44042969+0.00878906j, 0.4921875 +0.j        ]],
-                  dims=(2,))
-    - extra: <4 items>
-    - device_components: ['Q0']
-    - verified: False
-    DbAnalysisResultV1
-    - name: state_fidelity
-    - value: 0.9404296875000002
-    - device_components: ['Q0']
-    - verified: False
-    DbAnalysisResultV1
-    - name: positive
-    - value: True
-    - device_components: ['Q0']
-    - verified: False
-
-
 The tomography experiment doesn’t have associated figures. Similar to
 randomized benchmarking, the tomography matrix is not shown in the
 graphical interface, but the other analysis parameters are:
@@ -342,7 +212,7 @@ graphical interface, but the other analysis parameters are:
 
 |
 	   
-.. code:: ipython3
+.. jupyter-execute::
 
     import qiskit.tools.jupyter
     %qiskit_copyright
