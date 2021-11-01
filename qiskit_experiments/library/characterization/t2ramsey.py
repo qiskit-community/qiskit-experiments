@@ -141,7 +141,7 @@ class T2Ramsey(BaseExperiment):
             The experiment circuits
 
         Raises:
-            AttributeError: When conversion factor is not set.
+            ValueError: When conversion factor is not set.
         """
         prefactor = self.experiment_options.conversion_factor
 

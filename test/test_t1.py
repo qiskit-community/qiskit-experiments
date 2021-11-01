@@ -148,7 +148,7 @@ class TestT1(QiskitTestCase):
         exp = T1(0, delays, unit="ms")
 
         # TODO remove this, issue #456
-        exp.set_experiment_options(conversion_factor=1/1000)
+        exp.set_experiment_options(conversion_factor=1 / 1000)
 
         circs = exp.circuits()
 
