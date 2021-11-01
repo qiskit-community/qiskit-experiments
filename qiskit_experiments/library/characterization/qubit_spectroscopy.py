@@ -23,10 +23,11 @@ from qiskit.providers import Backend
 from qiskit.qobj.utils import MeasLevel
 from qiskit.utils import apply_prefix
 
-from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
 from qiskit_experiments.curve_analysis import ParameterRepr, ResonanceAnalysis
 
 
+@fix_class_docs
 class QubitSpectroscopy(BaseExperiment):
     """Class that runs spectroscopy by sweeping the qubit frequency.
 

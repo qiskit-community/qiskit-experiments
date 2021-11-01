@@ -21,11 +21,12 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit.providers import Backend
 import qiskit.pulse as pulse
 
-from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
 from qiskit_experiments.curve_analysis import ParameterRepr, OscillationAnalysis
 from qiskit_experiments.exceptions import CalibrationError
 
 
+@fix_class_docs
 class Rabi(BaseExperiment):
     """An experiment that scans the amplitude of a pulse to calibrate rotations between 0 and 1.
 
