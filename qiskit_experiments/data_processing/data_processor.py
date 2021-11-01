@@ -210,10 +210,14 @@ class DataProcessor:
                     # likely level2 data, forcibly convert into array
                     yield np.asarray([target], dtype=object), np.asarray([np.nan], dtype=float)
                 else:
-                    # level1 or below
-                    nominal_arr = np.asarray(target, dtype=float)
-                    stdev_arr = np.full_like(target, np.nan, dtype=float)
-
+                    try:
+                        # level1 or below
+                        nominal_arr = np.asarray(target, dtype=float)
+                        stdev_arr = np.full_like(target, np.nan, dtype=float)
+                    except TypeError:
+                        # level2 memory ["00", "11", "01", ...]
+                        nominal_arr = np.asarray(target, dtype=object)
+                        stdev_arr = np.asarray([np.nan], dtype=float)
                     yield nominal_arr, stdev_arr
 
             except KeyError as error:
