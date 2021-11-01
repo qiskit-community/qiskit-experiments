@@ -20,7 +20,7 @@ class FineHalfAngleAnalysis(ErrorAmplificationAnalysis):
 
     # section: note
 
-        The following parameters are fixed.
+        The following parameters are held fixed during fitting.
 
         * :math:`{\rm apg}` The angle per gate is set by the user, for example pi for a pi-pulse.
         * :math:`{\rm phase\_offset}` The phase offset in the cosine oscillation.
