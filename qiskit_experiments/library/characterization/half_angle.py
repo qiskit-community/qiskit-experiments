@@ -40,10 +40,10 @@ class HalfAngle(BaseExperiment):
             meas: 1/════════════════════════════...═══════════════════════════╩═
                                                                               0
 
-        This sequence corrects angle errors where the axis of the :code:`sx` and :code:`x`
+        This sequence measures angle errors where the axis of the :code:`sx` and :code:`x`
         rotation are not parallel. A similar experiment is described in Ref.~[1] where the
         gate sequence :code:`x - y` is repeated to amplify errors caused by non-orthogonal
-        :code:`x` and :code:`y` rotation axis. Such errors can occur due to phase errors.
+        :code:`x` and :code:`y` rotation axes. Such errors can occur due to phase errors.
         For example, the non-linearities in the mixer's skew for :math:`\pi/2` pulses may
         be different from the :math:`\pi` pulse.
 

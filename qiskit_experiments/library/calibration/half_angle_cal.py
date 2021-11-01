@@ -108,7 +108,7 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
     def update_calibrations(self, experiment_data: ExperimentData):
         r"""Update the value of the parameter in the calibrations.
 
-        The parameter that is updated is that phase of the sx pulse. This phase is contained
+        The parameter that is updated is the phase of the sx pulse. This phase is contained
         in the complex amplitude of the pulse. The update rule for the half angle calibration is
         therefore:
 
