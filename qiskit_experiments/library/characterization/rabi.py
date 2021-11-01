@@ -51,7 +51,7 @@ class Rabi(BaseExperiment):
 
         See also `Qiskit Textbook <https://qiskit.org/textbook/ch-quantum-hardware/\
         calibrating-qubits-pulse.html>`_
-        for the pulse level programming of Rabi experiment.
+        for the pulse level programming of a Rabi experiment.
 
     """
 
