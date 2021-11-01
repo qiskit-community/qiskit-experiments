@@ -56,7 +56,7 @@ class BaseHeatElement(BaseExperiment, ABC):
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(21))
-        options.cr_gate = circuit.Gate("cr", num_qubits=2, params=[])
+        options.heat_gate = circuit.Gate("heat", num_qubits=2, params=[])
 
         return options
 
