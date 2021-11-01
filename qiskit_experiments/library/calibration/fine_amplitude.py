@@ -16,16 +16,18 @@ from typing import List, Optional
 import numpy as np
 
 from qiskit.circuit import Gate, QuantumCircuit
+from qiskit.providers.backend import Backend
 
 from qiskit_experiments.calibration_management import (
     BaseCalibrationExperiment,
     BackendCalibrations,
 )
 from qiskit_experiments.library.characterization import FineAmplitude
-from qiskit_experiments.framework import ExperimentData, Options
+from qiskit_experiments.framework import ExperimentData, Options, fix_class_docs
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
 
 
+@fix_class_docs
 class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
     r"""A calibration version of the :class:`FineAmplitude` experiment.
 
@@ -41,6 +43,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
         qubit: int,
         calibrations: BackendCalibrations,
         schedule_name: str,
+        backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "amp",
         auto_update: bool = True,
     ):
@@ -50,16 +53,18 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             qubit: The qubit for which to run the fine amplitude calibration.
             calibrations: The calibrations instance with the schedules.
             schedule_name: The name of the schedule to calibrate.
+            backend: Optional, the backend to run the experiment on.
             cal_parameter_name: The name of the parameter in the schedule to update.
             auto_update: Whether or not to automatically update the calibrations. By
                 default this variable is set to True.
-
+            on.
         """
         super().__init__(
             calibrations,
             qubit,
             Gate(name=schedule_name, num_qubits=1, params=[]),
             schedule_name=schedule_name,
+            backend=backend,
             cal_parameter_name=cal_parameter_name,
             auto_update=auto_update,
         )
@@ -99,7 +104,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 
         param_val = self._cals.get_parameter_value(
             self._param_name,
-            self._physical_qubits,
+            self.physical_qubits,
             self._sched_name,
             group=self.experiment_options.group,
         )
@@ -149,6 +154,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             )
 
 
+@fix_class_docs
 class FineXAmplitudeCal(FineAmplitudeCal):
     """A calibration experiment to calibrate the amplitude of the X schedule."""
 
@@ -193,6 +199,7 @@ class FineXAmplitudeCal(FineAmplitudeCal):
         return options
 
 
+@fix_class_docs
 class FineSXAmplitudeCal(FineAmplitudeCal):
     """A calibration experiment to calibrate the amplitude of the SX schedule."""
 

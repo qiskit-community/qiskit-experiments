@@ -109,7 +109,8 @@ class TestDragCircuits(QiskitTestCase):
 
         drag = DragCal(0)
         drag.set_experiment_options(reps=[2, 4, 8], schedule=self.x_plus)
-        circuits = drag.circuits(DragBackend(gate_name="xp"))
+        drag.backend = DragBackend(gate_name="xp")
+        circuits = drag.circuits()
 
         for idx, expected in enumerate([4, 8, 16]):
             ops = transpile(circuits[idx * 51], backend).count_ops()
@@ -144,3 +145,11 @@ class TestDragOptions(QiskitTestCase):
 
         with self.assertRaises(CalibrationError):
             drag.set_experiment_options(reps=[1, 2, 3, 4])
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = DragCal(0)
+        config = exp.config
+        loaded_exp = DragCal.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)

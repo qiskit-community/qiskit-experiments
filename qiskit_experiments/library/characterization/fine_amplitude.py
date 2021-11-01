@@ -18,15 +18,15 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
-from qiskit.providers import Backend
-
-from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit.providers.backend import Backend
+from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
 from qiskit_experiments.library.calibration.analysis.fine_amplitude_analysis import (
     FineAmplitudeAnalysis,
 )
 from qiskit_experiments.exceptions import CalibrationError
 
 
+@fix_class_docs
 class FineAmplitude(BaseExperiment):
     r"""Error amplifying fine amplitude calibration experiment.
 
@@ -126,15 +126,16 @@ class FineAmplitude(BaseExperiment):
 
         return options
 
-    def __init__(self, qubit: int, gate: Gate):
+    def __init__(self, qubit: int, gate: Gate, backend: Optional[Backend] = None):
         """Setup a fine amplitude experiment on the given qubit.
 
         Args:
             qubit: The qubit on which to run the fine amplitude calibration experiment.
             gate: The gate that will be repeated.
+            backend: Optional, the backend to run the experiment on.
         """
-        super().__init__([qubit])
-        self.experiment_options.gate = gate
+        super().__init__([qubit], backend=backend)
+        self.set_experiment_options(gate=gate)
 
     def _pre_circuit(self) -> QuantumCircuit:
         """Return a preparation circuit.
@@ -149,11 +150,8 @@ class FineAmplitude(BaseExperiment):
 
         return circuit
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def circuits(self) -> List[QuantumCircuit]:
         """Create the circuits for the fine amplitude calibration experiment.
-
-        Args:
-            backend: A backend object.
 
         Returns:
             A list of circuits with a variable number of gates.
@@ -213,6 +211,7 @@ class FineAmplitude(BaseExperiment):
         return circuits
 
 
+@fix_class_docs
 class FineXAmplitude(FineAmplitude):
     r"""A fine amplitude experiment with all the options set for the :math:`\pi`-rotation.
 
@@ -255,6 +254,7 @@ class FineXAmplitude(FineAmplitude):
         return options
 
 
+@fix_class_docs
 class FineSXAmplitude(FineAmplitude):
     r"""A fine amplitude experiment with all the options set for the :math:`\pi/2`-rotation.
 

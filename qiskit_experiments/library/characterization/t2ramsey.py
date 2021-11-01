@@ -14,18 +14,20 @@ T2Ramsey Experiment class.
 
 """
 
-from typing import List, Optional, Union
+from typing import List, Union, Optional
 import numpy as np
 
 import qiskit
 from qiskit.utils import apply_prefix
-from qiskit.providers import Backend
-from qiskit.test.mock import FakeBackend
 from qiskit.circuit import QuantumCircuit
-from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit.providers.backend import Backend
+from qiskit.test.mock import FakeBackend
+
+from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
 from .t2ramsey_analysis import T2RamseyAnalysis
 
 
+@fix_class_docs
 class T2Ramsey(BaseExperiment):
     r"""T2 Ramsey Experiment.
 
@@ -81,61 +83,57 @@ class T2Ramsey(BaseExperiment):
         self,
         qubit: int,
         delays: Union[List[float], np.array],
+        backend: Optional[Backend] = None,
         unit: str = "s",
         osc_freq: float = 0.0,
     ):
         """
-        **T2Ramsey class**
-
         Initialize the T2Ramsey class.
 
         Args:
             qubit: the qubit under test.
             delays: delay times of the experiments.
+            backend: Optional, the backend to run the experiment on.
             unit: Optional, time unit of `delays`.
                 Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'. The unit is
                 used for both T2Ramsey and for the frequency.
-            osc_freq: the oscillation frequency induced by the user. \
-            The frequency is given in Hz.
-
+            osc_freq: the oscillation frequency induced by the user.
+                      The frequency is given in Hz.
         """
 
-        super().__init__([qubit])
+        super().__init__([qubit], backend=backend)
         self.set_experiment_options(delays=delays, unit=unit, osc_freq=osc_freq)
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def _set_backend(self, backend: Backend):
+        super()._set_backend(backend)
+
+        # Scheduling parameters
+        if not self._backend.configuration().simulator and not isinstance(backend, FakeBackend):
+            timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
+            if "acquire_alignment" not in timing_constraints:
+                timing_constraints["aquire_aligment"] = 16
+            scheduling_method = getattr(self.transpile_options, "scheduling_method", "alap")
+            self.set_transpile_options(
+                timing_constraints=timing_constraints, scheduling_method=scheduling_method
+            )
+
+    def circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
 
         Each circuit consists of a Hadamard gate, followed by a fixed delay,
         a phase gate (with a linear phase), and an additional Hadamard gate.
 
-        Args:
-            backend: Optional, a backend object
-
         Returns:
             The experiment circuits
 
         Raises:
-            AttributeError: if unit is 'dt', but 'dt' parameter is missing in the backend configuration.
+            AttributeError: if unit is 'dt', but 'dt' parameter is missing in
+                            the backend configuration.
         """
-        # Scheduling parameters
-        # TODO wait for base class refactoring
-        if backend.configuration().simulator is False and isinstance(backend, FakeBackend) is False:
-            timing_constraints = getattr(self.transpile_options.__dict__, "timing_constraints", {})
-            timing_constraints["acquire_alignment"] = getattr(
-                timing_constraints, "acquire_alignment", 16
-            )
-            scheduling_method = getattr(
-                self.transpile_options.__dict__, "scheduling_method", "alap"
-            )
-            self.set_transpile_options(
-                timing_constraints=timing_constraints, scheduling_method=scheduling_method
-            )
-
         conversion_factor = 1
         if self.experiment_options.unit == "dt":
             try:
-                dt_factor = getattr(backend._configuration, "dt")
+                dt_factor = getattr(self.backend._configuration, "dt")
                 conversion_factor = dt_factor
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
