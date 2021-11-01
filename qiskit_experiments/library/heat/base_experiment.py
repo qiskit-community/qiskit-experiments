@@ -13,16 +13,17 @@
 Base Class for general Hamiltonian Error Amplifying Tomography experiments.
 """
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import List, Tuple, Optional
 
 from qiskit import circuit, QuantumCircuit
 from qiskit.providers import Backend
 
-from qiskit_experiments.framework import BaseExperiment, BatchExperiment, Options
+from qiskit_experiments.framework import BaseExperiment, BatchExperiment, Options, fix_class_docs
 from .base_analysis import HeatAnalysis
 
 
+@fix_class_docs
 class HeatElement(BaseExperiment):
     """Base class of HEAT experiment elements.
 
@@ -41,6 +42,7 @@ class HeatElement(BaseExperiment):
         prep_circ: QuantumCircuit,
         echo_circ: QuantumCircuit,
         meas_circ: QuantumCircuit,
+        backend: Optional[Backend] = None,
         **kwargs
     ):
         """Create new HEAT sub experiment.
@@ -50,8 +52,12 @@ class HeatElement(BaseExperiment):
             prep_circ: A circuit to prepare qubit before the echo sequence.
             echo_circ: A circuit to selectively amplify the specific error term.
             meas_circ: A circuit to project target qubit onto the basis of interest.
+            backend: Optional, the backend to run the experiment on.
+
+        Keyword Args:
+            See :meth:`experiment_options` for details.
         """
-        super().__init__(qubits)
+        super().__init__(qubits=qubits, backend=backend)
         self._prep_circuit = prep_circ
         self._echo_circuit = echo_circ
         self._meas_circuit = meas_circ
@@ -106,6 +112,7 @@ class HeatElement(BaseExperiment):
         return circs
 
 
+@fix_class_docs
 class BaseCompositeHeat(BatchExperiment, ABC):
     """Base class of HEAT experiments.
 
@@ -120,13 +127,18 @@ class BaseCompositeHeat(BatchExperiment, ABC):
 
     __heat_elements__ = {}
 
-    def __init__(self, heat_experiments: List[HeatElement]):
+    def __init__(
+        self,
+        heat_experiments: List[HeatElement],
+        backend: Optional[Backend] = None,
+    ):
         """Create new HEAT experiment.
 
         Args:
             heat_experiments: A list of configured HEAT experiments.
+            backend: Optional, the backend to run the experiment on.
         """
-        super().__init__(heat_experiments)
+        super().__init__(experiments=heat_experiments, backend=backend)
 
     @classmethod
     def _default_experiment_options(cls) -> Options:

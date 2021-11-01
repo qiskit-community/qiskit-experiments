@@ -13,11 +13,13 @@
 HEAT experiments for ZX Hamiltonian.
 """
 
-from typing import Tuple
+from typing import Tuple, Optional
 
 import numpy as np
 from qiskit.circuit import QuantumCircuit
+from qiskit.providers import Backend
 
+from qiskit_experiments.framework import fix_class_docs
 from qiskit_experiments.curve_analysis import ParameterRepr
 from .base_analysis import CompositeHeatAnalysis
 from .base_experiment import BaseCompositeHeat, HeatElement
@@ -29,6 +31,7 @@ class HeatYAnalysis(CompositeHeatAnalysis):
     __out_params__ = ["A_iy", "A_zy"]
 
 
+@fix_class_docs
 class ZXHeatYError(BaseCompositeHeat):
     r"""HEAT experiments for Y error amplification.
 
@@ -61,7 +64,11 @@ class ZXHeatYError(BaseCompositeHeat):
     """
     __analysis_class__ = HeatYAnalysis
 
-    def __init__(self, qubits: Tuple[int, int]):
+    def __init__(
+        self,
+        qubits: Tuple[int, int],
+        backend: Optional[Backend] = None,
+    ):
 
         meas = QuantumCircuit(2)
 
@@ -95,7 +102,7 @@ class ZXHeatYError(BaseCompositeHeat):
             result_parameters=[ParameterRepr("d_theta", "d_heat_y1", "rad")]
         )
 
-        super().__init__([heat_y0, heat_y1])
+        super().__init__([heat_y0, heat_y1], backend=backend)
 
 
 class HeatZAnalysis(CompositeHeatAnalysis):
@@ -104,6 +111,7 @@ class HeatZAnalysis(CompositeHeatAnalysis):
     __out_params__ = ["A_iz", "A_zz"]
 
 
+@fix_class_docs
 class ZXHeatZError(BaseCompositeHeat):
     r"""HEAT experiments for Z error amplification.
 
@@ -137,7 +145,11 @@ class ZXHeatZError(BaseCompositeHeat):
     """
     __analysis_class__ = HeatZAnalysis
 
-    def __init__(self, qubits: Tuple[int, int]):
+    def __init__(
+        self,
+        qubits: Tuple[int, int],
+        backend: Optional[Backend] = None,
+    ):
 
         meas = QuantumCircuit(2)
         meas.rx(np.pi/2, 1)
@@ -172,4 +184,4 @@ class ZXHeatZError(BaseCompositeHeat):
             result_parameters=[ParameterRepr("d_theta", "d_heat_z1", "rad")]
         )
 
-        super().__init__([heat_z0, heat_z1])
+        super().__init__([heat_z0, heat_z1], backend=backend)
