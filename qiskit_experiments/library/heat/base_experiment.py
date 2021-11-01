@@ -58,10 +58,12 @@ class HeatElement(BaseExperiment):
             See :meth:`experiment_options` for details.
         """
         super().__init__(qubits=qubits, backend=backend)
+        self.set_experiment_options(**kwargs)
+
+        # These are not user configurable options. Be frozen once assigned.
         self._prep_circuit = prep_circ
         self._echo_circuit = echo_circ
         self._meas_circuit = meas_circ
-        self.set_experiment_options(**kwargs)
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
