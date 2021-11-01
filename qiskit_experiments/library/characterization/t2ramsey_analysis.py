@@ -43,7 +43,6 @@ class T2RamseyAnalysis(curve.DumpedOscillationAnalysis):
             curve.ParameterRepr("freq", "Frequency", "Hz"),
             curve.ParameterRepr("tau", "T2star", "s"),
         ]
-        options.conversion_factor = None
 
         return options
 
@@ -51,7 +50,7 @@ class T2RamseyAnalysis(curve.DumpedOscillationAnalysis):
         self, user_opt: curve.FitOptions
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Apply conversion factor to tau."""
-        conversion_factor = self._get_option("conversion_factor")
+        conversion_factor = self._experiment_options()["conversion_factor"]
 
         if user_opt.p0["tau"] is not None:
             user_opt.p0["tau"] *= conversion_factor

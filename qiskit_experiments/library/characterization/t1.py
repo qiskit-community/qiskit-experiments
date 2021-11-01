@@ -62,6 +62,7 @@ class T1(BaseExperiment):
 
         options.delays = None
         options.unit = "s"
+        options.conversion_factor = None
 
         return options
 
@@ -107,18 +108,7 @@ class T1(BaseExperiment):
                 timing_constraints=timing_constraints, scheduling_method=scheduling_method
             )
 
-    def circuits(self) -> List[QuantumCircuit]:
-        """
-        Return a list of experiment circuits
-
-        Returns:
-            The experiment circuits
-
-        Raises:
-            AttributeError: if unit is `dt`, but `dt` parameter
-                is missing in the backend configuration.
-        """
-        conversion_factor = 1
+        # Set conversion factor
         if self.experiment_options.unit == "dt":
             try:
                 dt_factor = getattr(self.backend.configuration(), "dt")
@@ -127,11 +117,27 @@ class T1(BaseExperiment):
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
         elif self.experiment_options.unit != "s":
             conversion_factor = apply_prefix(1, self.experiment_options.unit)
+        else:
+            conversion_factor = 1
+        self.set_experiment_options(conversion_factor=conversion_factor)
 
-        self.set_analysis_options(conversion_factor=conversion_factor)
+    def circuits(self) -> List[QuantumCircuit]:
+        """
+        Return a list of experiment circuits
+
+        Returns:
+            The experiment circuits
+
+        Raises:
+            AttributeError: When conversion factor is not set.
+        """
+        prefactor = self.experiment_options.conversion_factor
+
+        if prefactor is None:
+            raise ValueError("Conversion factor is not set.")
 
         circuits = []
-        for delay in conversion_factor * np.asarray(self.experiment_options.delays, dtype=float):
+        for delay in prefactor * np.asarray(self.experiment_options.delays, dtype=float):
             delay = np.round(delay, decimals=10)
 
             circ = QuantumCircuit(1, 1)

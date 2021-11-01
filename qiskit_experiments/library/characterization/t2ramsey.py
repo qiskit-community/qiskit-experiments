@@ -75,6 +75,7 @@ class T2Ramsey(BaseExperiment):
 
         options.delays = None
         options.unit = "s"
+        options.conversion_factor = None
         options.osc_freq = 0.0
 
         return options
@@ -101,7 +102,6 @@ class T2Ramsey(BaseExperiment):
                 The frequency is given in Hz.
 
         """
-
         super().__init__([qubit], backend=backend)
         self.set_experiment_options(delays=delays, unit=unit, osc_freq=osc_freq)
 
@@ -118,6 +118,19 @@ class T2Ramsey(BaseExperiment):
                 timing_constraints=timing_constraints, scheduling_method=scheduling_method
             )
 
+        # Set conversion factor
+        if self.experiment_options.unit == "dt":
+            try:
+                dt_factor = getattr(self.backend.configuration(), "dt")
+                conversion_factor = dt_factor
+            except AttributeError as no_dt:
+                raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
+        elif self.experiment_options.unit != "s":
+            conversion_factor = apply_prefix(1, self.experiment_options.unit)
+        else:
+            conversion_factor = 1
+        self.set_experiment_options(conversion_factor=conversion_factor)
+
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
 
@@ -128,26 +141,15 @@ class T2Ramsey(BaseExperiment):
             The experiment circuits
 
         Raises:
-            AttributeError: if unit is `dt`, but `dt` parameter
-                is missing in the backend configuration.
+            AttributeError: When conversion factor is not set.
         """
-        conversion_factor = 1
-        if self.experiment_options.unit == "dt":
-            try:
-                dt_factor = getattr(self.backend.configuration(), "dt")
-                conversion_factor = dt_factor
-            except AttributeError as no_dt:
-                raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
-        elif self.experiment_options.unit != "s":
-            conversion_factor = apply_prefix(1, self.experiment_options.unit)
+        prefactor = self.experiment_options.conversion_factor
 
-        self.set_analysis_options(
-            extra={"osc_freq": self.experiment_options.osc_freq},
-            conversion_factor=conversion_factor,
-        )
+        if prefactor is None:
+            raise ValueError("Conversion factor is not set.")
 
         circuits = []
-        for delay in conversion_factor * np.asarray(self.experiment_options.delays, dtype=float):
+        for delay in prefactor * np.asarray(self.experiment_options.delays, dtype=float):
             delay = np.round(delay, decimals=10)
 
             rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * delay

@@ -35,7 +35,6 @@ class T1Analysis(curve.DecayAnalysis):
         options.ylabel = "P(1)"
         options.xval_unit = "s"
         options.result_parameters = [curve.ParameterRepr("tau", "T1", "s")]
-        options.conversion_factor = None
 
         return options
 
@@ -43,7 +42,7 @@ class T1Analysis(curve.DecayAnalysis):
         self, user_opt: curve.FitOptions
     ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
         """Apply conversion factor to tau."""
-        conversion_factor = self._get_option("conversion_factor")
+        conversion_factor = self._experiment_options()["conversion_factor"]
 
         if user_opt.p0["tau"] is not None:
             user_opt.p0["tau"] *= conversion_factor

@@ -110,7 +110,15 @@ class TestT1(QiskitTestCase):
         """
 
         data = ExperimentData()
-        data._metadata = {"job_metadata": [{"run_options": {"meas_level": 2}}]}
+        data._metadata = {
+            "job_metadata": [
+                {
+                    "run_options": {"meas_level": 2},
+                    # TODO remove this, issue #456
+                    "experiment_options": {"conversion_factor": 1, "unit": "s"},
+                },
+            ]
+        }
 
         numbers = [750, 1800, 2750, 3550, 4250, 4850, 5450, 5900, 6400, 6800, 7000, 7350, 7700]
 
@@ -138,6 +146,10 @@ class TestT1(QiskitTestCase):
 
         delays = list(range(1, 40, 3))
         exp = T1(0, delays, unit="ms")
+
+        # TODO remove this, issue #456
+        exp.set_experiment_options(conversion_factor=1/1000)
+
         circs = exp.circuits()
 
         self.assertEqual(len(circs), len(delays))
@@ -159,7 +171,15 @@ class TestT1(QiskitTestCase):
         """
 
         data = ExperimentData()
-        data._metadata = {"job_metadata": [{"run_options": {"meas_level": 2}}]}
+        data._metadata = {
+            "job_metadata": [
+                {
+                    "run_options": {"meas_level": 2},
+                    # TODO remove this, issue #456
+                    "experiment_options": {"conversion_factor": 1, "unit": "s"},
+                },
+            ]
+        }
 
         for i in range(10):
             data.add_data(
