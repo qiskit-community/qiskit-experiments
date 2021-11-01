@@ -67,9 +67,13 @@ class HalfAngle(BaseExperiment):
 
     @classmethod
     def _default_transpile_options(cls) -> Options:
-        """Default transpile options."""
+        """Default transpile options.
+
+        The basis gates option should not be changed since it will affect the gates and
+        the pulses that are run on the hardware.
+        """
         options = super()._default_transpile_options()
-        options.basis_gates = ["sx", "rz", "y"]  # Should not be changed.
+        options.basis_gates = ["sx", "rz", "y"]
         options.inst_map = None
         return options
 
