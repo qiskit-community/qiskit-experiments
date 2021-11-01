@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Base Class for General Hamiltonian Error Amplifying Tomography Experiments.
+Base Class for general Hamiltonian Error Amplifying Tomography experiments.
 """
 
 from abc import ABC, abstractmethod
@@ -56,7 +56,7 @@ class BaseHeatElement(BaseExperiment, ABC):
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(21))
-        options.cr_gate = circuit.Gate("cr", num_qubits=2, params=[])
+        options.heat_gate = circuit.Gate("heat", num_qubits=2, params=[])
 
         return options
 
