@@ -50,8 +50,8 @@ class TestFineDrag(QiskitTestCase):
 
         drag = FineDrag(0)
         drag.set_experiment_options(schedule=self.schedule)
-
-        for circuit in drag.circuits(FakeArmonk())[1:]:
+        drag.backend = FakeArmonk()
+        for circuit in drag.circuits()[1:]:
             for idx, name in enumerate(["Drag", "rz", "Drag", "rz"]):
                 self.assertEqual(circuit.data[idx][0].name, name)
 
@@ -71,3 +71,11 @@ class TestFineDrag(QiskitTestCase):
         exp_data = FineXDrag(0).run(FineDragTestBackend()).block_for_results()
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = FineDrag(0)
+        config = exp.config
+        loaded_exp = FineDrag.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)

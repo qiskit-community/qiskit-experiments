@@ -13,18 +13,18 @@
 Cross resonance Hamiltonian tomography.
 """
 
-from typing import List, Tuple, Optional, Iterable, Dict
+from typing import List, Tuple, Iterable, Dict, Optional
 
 import numpy as np
 from qiskit import pulse, circuit, QuantumCircuit
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
 from qiskit.utils import apply_prefix
-
-from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
 from .cr_hamiltonian_analysis import CrossResonanceHamiltonianAnalysis
 
 
+@fix_class_docs
 class CrossResonanceHamiltonian(BaseExperiment):
     r"""Cross resonance Hamiltonian tomography experiment.
 
@@ -130,6 +130,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
         self,
         qubits: Tuple[int, int],
         flat_top_widths: Iterable[float],
+        backend: Optional[Backend] = None,
         unit: str = "dt",
         **kwargs,
     ):
@@ -141,13 +142,14 @@ class CrossResonanceHamiltonian(BaseExperiment):
             flat_top_widths: The total duration of the square part of cross resonance pulse(s)
                 to scan. The total pulse duration including Gaussian rising and falling edges
                 is implicitly computed with experiment parameters ``sigma`` and ``risefall``.
+            backend: Optional, the backend to run the experiment on.
             unit: The time unit of durations.
             kwargs: Pulse parameters. See :meth:`experiment_options` for details.
 
         Raises:
             QiskitError: When ``qubits`` length is not 2.
         """
-        super().__init__(qubits=qubits)
+        super().__init__(qubits, backend=backend)
 
         if len(qubits) != 2:
             raise QiskitError(
@@ -252,11 +254,8 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
         return cross_resonance
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
-
-        Args:
-            backend: The target backend.
 
         Returns:
             A list of :class:`QuantumCircuit`.
@@ -268,7 +267,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
         prefactor = 1.0
 
         try:
-            dt_factor = backend.configuration().dt
+            dt_factor = self.backend.configuration().dt
         except AttributeError as ex:
             raise AttributeError("Backend configuration does not provide time resolution.") from ex
 
@@ -331,7 +330,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
                         gate=cr_gate,
                         qubits=self.physical_qubits,
                         schedule=self._build_cr_schedule(
-                            backend=backend,
+                            backend=self.backend,
                             flat_top_width=prefactor * flat_top_width / self.__n_cr_pulses__,
                             sigma=prefactor * opt.sigma,
                         ),

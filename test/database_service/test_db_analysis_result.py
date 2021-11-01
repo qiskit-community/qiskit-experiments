@@ -17,6 +17,7 @@
 from unittest import mock
 import json
 
+import math
 import numpy as np
 
 from qiskit.test import QiskitTestCase
@@ -125,6 +126,30 @@ class TestDbAnalysisResult(QiskitTestCase):
         result = self._new_analysis_result()
         self.assertIn("DbAnalysisResultV1", result.source["class"])
         self.assertTrue(result.source["qiskit_version"])
+
+    def test_display_format_inf(self):
+        """Test conversion of inf for display value"""
+        self.assertEqual(DbAnalysisResult._display_format(np.inf), "Infinity")
+        self.assertEqual(DbAnalysisResult._display_format(-np.inf), "-Infinity")
+        self.assertEqual(DbAnalysisResult._display_format(np.nan), "NaN")
+        self.assertEqual(DbAnalysisResult._display_format(math.inf), "Infinity")
+        self.assertEqual(DbAnalysisResult._display_format(-math.inf), "-Infinity")
+        self.assertEqual(DbAnalysisResult._display_format(math.nan), "NaN")
+
+    def test_display_format_complex(self):
+        """Test conversion of db displays"""
+        value = DbAnalysisResult._display_format(1e-10j)
+        self.assertIsInstance(value, str)
+
+    def test_display_format_list(self):
+        """Test conversion of db displays"""
+        value = DbAnalysisResult._display_format(list(range(5)))
+        self.assertEqual(value, "(list)")
+
+    def test_display_format_array(self):
+        """Test conversion of db displays"""
+        value = DbAnalysisResult._display_format(np.arange(5))
+        self.assertEqual(value, "(ndarray)")
 
     def _new_analysis_result(self, **kwargs):
         """Return a new analysis result."""
