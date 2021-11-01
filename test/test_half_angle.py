@@ -78,3 +78,11 @@ class TestHalfAngle(QiskitTestCase):
             if idx > 0:
                 self.assertEqual(circ.count_ops()["y"], idx)
                 self.assertEqual(circ.calibrations["y"][((qubit,), ())], pulse.Schedule(name="y"))
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = HalfAngle(1)
+        config = exp.config
+        loaded_exp = HalfAngle.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)
