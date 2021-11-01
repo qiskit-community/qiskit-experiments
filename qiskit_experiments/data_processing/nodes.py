@@ -117,7 +117,7 @@ class SVD(TrainableDataAction):
         """Check that the IQ data is 2D and convert it to a numpy array.
 
         Args:
-            datum: Data which corresponds to single-shot IQ data.
+            datum: Whole data.
             error: Optional, accompanied error.
 
         Returns:
