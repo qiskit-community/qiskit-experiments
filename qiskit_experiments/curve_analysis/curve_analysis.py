@@ -343,7 +343,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 :py:class:`~qiskit_experiments.curve_analysis.visualization.style.PlotterStyle`
                 that contains a set of configurations to create a fit plot.
             extra (Dict[str, Any]): A dictionary that is appended to all database entries
-                as an extra information.
+                as extra information.
         """
         options = super()._default_options()
 

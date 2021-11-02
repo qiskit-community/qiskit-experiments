@@ -129,7 +129,7 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
     r"""A class to analyze general exponential decay curve with sinusoidal oscillation.
 
     # section: fit_model
-        This class is based on te fit model of sinusoidal signal with exponential decay.
+        This class is based on the fit model of sinusoidal signal with exponential decay.
         This model is often used for the oscillation signal in the dissipative system.
 
         .. math::
