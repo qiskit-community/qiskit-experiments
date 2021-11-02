@@ -317,7 +317,7 @@ class BaseExperiment(ABC):
 
         # Optionally run analysis
         if analysis and self.__analysis_class__ is not None:
-            experiment_data.add_analysis_callback(self.run_analysis)
+            self.run_analysis(experiment_data)
 
         # Return the ExperimentData future
         return experiment_data
@@ -326,11 +326,18 @@ class BaseExperiment(ABC):
         """Initialize the return data container for the experiment run"""
         return self.__experiment_data__(experiment=self)
 
-    def run_analysis(self, experiment_data: ExperimentData, **options) -> ExperimentData:
+    def run_analysis(
+        self, experiment_data: ExperimentData, replace_results: bool = False, **options
+    ) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
+
+        See :meth:`BaseAnalysis.run` for additional information.
 
         Args:
             experiment_data: the experiment data to analyze.
+            replace_results: if True clear any existing analysis results and
+                             figures in the experiment data and replace with
+                             new results.
             options: additional analysis options. Any values set here will
                      override the value from :meth:`analysis_options`
                      for the current run.
@@ -348,7 +355,7 @@ class BaseExperiment(ABC):
 
         # Run analysis
         analysis = self.analysis()
-        analysis.run(experiment_data, **analysis_options)
+        analysis.run(experiment_data, replace_results=replace_results, **analysis_options)
         return experiment_data
 
     def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[BaseJob]:
