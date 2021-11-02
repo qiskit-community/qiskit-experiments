@@ -159,3 +159,11 @@ class TestRoughDragCalUpdate(QiskitTestCase):
         new_beta = self.cals.get_parameter_value("β", (0,), "x")
         self.assertTrue(abs(new_beta - self.backend.ideal_beta) < self.test_tol)
         self.assertTrue(abs(new_beta) > self.test_tol)
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = RoughDragCal(0, self.cals, backend=self.backend)
+        config = exp.config
+        loaded_exp = RoughDragCal.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)

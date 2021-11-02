@@ -148,3 +148,11 @@ class TestQubitSpectroscopy(QiskitTestCase):
         circ = spec.circuits()[0]
         self.assertEqual(circ.data[0][0].name, "x")
         self.assertEqual(circ.data[1][0].name, "Spec")
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = QubitSpectroscopy(1, np.linspace(100, 150, 20), unit="MHz")
+        config = exp.config
+        loaded_exp = QubitSpectroscopy.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)

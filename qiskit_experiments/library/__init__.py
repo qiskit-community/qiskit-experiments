@@ -63,9 +63,12 @@ Some experiments may be also used for gate calibration.
     ~characterization.CrossResonanceHamiltonian
     ~characterization.EchoedCrossResonanceHamiltonian
     ~characterization.RoughDrag
+    ~characterization.HalfAngle
     ~characterization.FineAmplitude
     ~characterization.FineXAmplitude
     ~characterization.FineSXAmplitude
+    ~characterization.Rabi
+    ~characterization.EFRabi
 
 .. _calibration:
 
@@ -87,12 +90,13 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     ~calibration.FineDrag
     ~calibration.FineXDrag
     ~calibration.FineSXDrag
-    ~calibration.Rabi
-    ~calibration.EFRabi
     ~calibration.FineAmplitudeCal
     ~calibration.FineXAmplitudeCal
     ~calibration.FineSXAmplitudeCal
     ~calibration.RamseyXY
+    ~calibration.RoughAmplitudeCal
+    ~calibration.RoughXSXAmplitudeCal
+    ~calibration.EFRoughXSXAmplitudeCal
 
 """
 from .calibration import (
@@ -100,8 +104,9 @@ from .calibration import (
     FineDrag,
     FineXDrag,
     FineSXDrag,
-    Rabi,
-    EFRabi,
+    RoughAmplitudeCal,
+    RoughXSXAmplitudeCal,
+    EFRoughXSXAmplitudeCal,
     FineAmplitudeCal,
     FineXAmplitudeCal,
     FineSXAmplitudeCal,
@@ -116,6 +121,9 @@ from .characterization import (
     CrossResonanceHamiltonian,
     EchoedCrossResonanceHamiltonian,
     RoughDrag,
+    Rabi,
+    EFRabi,
+    HalfAngle,
     FineAmplitude,
     FineXAmplitude,
     FineSXAmplitude,

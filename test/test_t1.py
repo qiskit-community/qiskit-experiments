@@ -175,3 +175,11 @@ class TestT1(QiskitTestCase):
 
         res = T1Analysis()._run_analysis(data)[0][0]
         self.assertEqual(res.quality, "bad")
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = T1(0, [1, 2, 3, 4, 5], unit="s")
+        config = exp.config
+        loaded_exp = T1.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)
