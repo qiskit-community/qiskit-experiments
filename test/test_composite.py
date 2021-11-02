@@ -287,14 +287,12 @@ class TestCompositeExperimentData(QiskitTestCase):
         self.assertEqual(expdata.backend, self.backend)
         self.assertEqual(expdata.share_level, self.share_level)
 
-        if isinstance(expdata, ExperimentData):
-            components = expdata.child_data()
-            comp_ids = expdata.metadata.get("child_ids", [])
-            for childdata, comp_id, comp_class in zip(components, comp_ids):
-                self.check_attributes(childdata)
-                self.assertEqual(childdata.parent_id, expdata.experiment_id)
-                self.assertEqual(childdata.experiment_id, comp_id)
-                self.assertEqual(childdata.__class__.__name__, comp_class)
+        components = expdata.child_data()
+        comp_ids = expdata.metadata.get("child_ids", [])
+        for childdata, comp_id in zip(components, comp_ids):
+            self.check_attributes(childdata)
+            self.assertEqual(childdata.parent_id, expdata.experiment_id)
+            self.assertEqual(childdata.experiment_id, comp_id)
 
     def check_if_equal(self, expdata1, expdata2, is_a_copy):
         """

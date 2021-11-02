@@ -23,7 +23,7 @@ from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperime
 from qiskit_experiments.database_service.database_service import (
     DatabaseServiceV1 as DatabaseService,
 )
-from qiskit_experiments.database_service.utils import combined_timeout, ThreadSafeList
+from qiskit_experiments.database_service.utils import ThreadSafeOrderedDict, combined_timeout
 
 LOG = logging.getLogger(__name__)
 
@@ -65,8 +65,7 @@ class ExperimentData(DbExperimentData):
         )
 
         # Add component data and set parent ID to current container
-        self._child_data = ThreadSafeList()
-        self.metadata["child_ids"] = []
+        self._child_data = ThreadSafeOrderedDict()
         if child_data is not None:
             self._set_child_data(child_data)
 
@@ -92,16 +91,34 @@ class ExperimentData(DbExperimentData):
     def add_child_data(self, experiment_data: ExperimentData):
         """Add child experiment data to the current experiment data"""
         experiment_data._parent_id = self.experiment_id
-        self._child_data.append(experiment_data)
-        self.metadata["child_ids"].append(experiment_data.experiment_id)
+        self._child_data[experiment_data.experiment_id] = experiment_data
 
     def child_data(
-        self, index: Optional[Union[int, slice]] = None
+        self, index: Optional[Union[int, slice, str]] = None
     ) -> Union[ExperimentData, List[ExperimentData]]:
-        """Return child experiment data"""
+        """Return child experiment data.
+
+        Args:
+            index: Index of the child experiment data to be returned.
+                Several types are accepted for convenience:
+
+                    * None: Return all child data.
+                    * int: Specific index of the child data.
+                    * slice: A list slice of indexes.
+                    * str: experiment ID of the child data.
+
+        Returns:
+            The requested single or list of child experiment data.
+
+        Raises:
+            QiskitError: if the index or ID of the child experiment data
+                         cannot be found.
+        """
         if index is None:
-            return self._child_data
+            return self._child_data.values()
         if isinstance(index, (int, slice)):
+            return self._child_data.values()[index]
+        if isinstance(index, str):
             return self._child_data[index]
         raise QiskitError(f"Invalid index type {type(index)}.")
 
@@ -118,32 +135,33 @@ class ExperimentData(DbExperimentData):
 
     def save(self) -> None:
         super().save()
-        for data in self._child_data:
+        for data in self._child_data.values():
             original_verbose = data.verbose
             data.verbose = False
             data.save()
             data.verbose = original_verbose
 
     def save_metadata(self) -> None:
+        # Copy child experiment IDs to metadata
+        if self._child_data:
+            self._metadata["child_data_ids"] = self._child_data.keys()
         super().save_metadata()
-        for data in self._child_data:
+        for data in self._child_data.values():
             data.save_metadata()
 
     @classmethod
     def load(cls, experiment_id: str, service: DatabaseService) -> ExperimentData:
         expdata = DbExperimentData.load(experiment_id, service)
         expdata.__class__ = ExperimentData
-        child_data = [
-            ExperimentData.load(child_id, service)
-            for child_id in expdata.metadata.get("child_ids", [])
-        ]
+        expdata._experiment = None
+        child_data_ids = expdata.metadata.pop("child_data_ids", [])
+        child_data = [ExperimentData.load(child_id, service) for child_id in child_data_ids]
         expdata._set_child_data(child_data)
         return expdata
 
     def _set_child_data(self, child_data: List[ExperimentData]):
         """Set child experiment data for the current experiment."""
-        self._child_data = ThreadSafeList()
-        self.metadata["child_ids"] = []
+        self._child_data = ThreadSafeOrderedDict()
         for data in child_data:
             self.add_child_data(data)
 
@@ -157,7 +175,7 @@ class ExperimentData(DbExperimentData):
             DbExperimentDataError: If an experiment service is already being used.
         """
         super()._set_service(service)
-        for data in self._child_data:
+        for data in self._child_data.values():
             data._set_service(service)
 
     @DbExperimentData.share_level.setter
@@ -170,7 +188,7 @@ class ExperimentData(DbExperimentData):
                 "public", "hub", "group", "project", and "private".
         """
         self._share_level = new_level
-        for data in self._child_data:
+        for data in self._child_data.values():
             original_auto_save = data.auto_save
             data.auto_save = False
             data.share_level = new_level
@@ -188,7 +206,7 @@ class ExperimentData(DbExperimentData):
             The experiment data with finished jobs and post-processing.
         """
         _, timeout = combined_timeout(super().block_for_results, timeout)
-        for subdata in self._child_data:
+        for subdata in self._child_data.values():
             _, timeout = combined_timeout(subdata.block_for_results, timeout)
         return self
 
@@ -205,11 +223,13 @@ class ExperimentData(DbExperimentData):
             and metadata but different ID.
         """
         new_instance = super()._copy_metadata(new_instance)
-        new_instance._experiment = self.experiment
-        new_instance._child_data = self._child_data
+        if self.experiment is None:
+            new_instance._experiment = None
+        else:
+            new_instance._experiment = self.experiment.copy()
 
         # Recursively copy metadata of child data
-        child_data = [data._copy_metadata() for data in new_instance._child_data]
+        child_data = [data._copy_metadata() for data in self._child_data.values()]
         new_instance._set_child_data(child_data)
         return new_instance
 
