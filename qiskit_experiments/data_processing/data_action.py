@@ -13,66 +13,64 @@
 """Defines the steps that can be used to analyse data."""
 
 from abc import ABCMeta, abstractmethod
-from typing import Any, List, Optional, Tuple
+from typing import Any, List
+
+import numpy as np
 
 
 class DataAction(metaclass=ABCMeta):
-    """
-    Abstract action done on measured data to process it. Each subclass of DataAction must
-    define the way it formats, validates and processes data.
+    """Abstract action done on measured data to process it.
+
+    Each subclass of DataAction must define the way it formats, validates and processes data.
     """
 
     def __init__(self, validate: bool = True):
-        """
+        """Create new node.
+
         Args:
             validate: If set to False the DataAction will not validate its input.
         """
         self._validate = validate
 
     @abstractmethod
-    def _process(self, datum: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
-        """
-        Applies the data processing step to the datum.
+    def _process(self, data: np.ndarray) -> np.ndarray:
+        """Applies the data processing step to the data.
 
         Args:
-            datum: A single item of data which will be processed.
-            error: An optional error estimation on the datum that can be further propagated.
+            data: A full data array to process. This is numpy array of arbitrary dtype.
+                If elements are ufloat objects consisting of nominal value and
+                standard error values, error propagation is automatically computed.
 
         Returns:
-            processed data: The data that has been processed along with the propagated error.
+            The data that has been processed.
         """
 
-    @abstractmethod
-    def _format_data(self, datum: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
+    def _format_data(self, data: np.ndarray) -> np.ndarray:
         """Format and validate the input.
 
-        Check that the given data and error has the correct structure. This method may
+        Check that the given data has the correct structure. This method may
         additionally change the data type, e.g. converting a list to a numpy array.
 
         Args:
-            datum: The data instance to check and format.
-            error: An optional error estimation on the datum to check and format.
+            data: A full data array to format.
 
         Returns:
-            datum, error: The formatted datum and its optional error.
-
-        Raises:
-            DataProcessorError: If either the data or the error do not have the proper format.
+            The data that has been validated and formatted.
         """
+        return data
 
-    def __call__(self, data: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
-        """Call the data action of this node on the data and propagate the error.
+    def __call__(self, data: np.ndarray) -> np.ndarray:
+        """Call the data action of this node on the data.
 
         Args:
-            data: The data to process. The action nodes in the data processor will
-                raise errors if the data does not have the appropriate format.
-            error: An optional error estimation on the datum that can be further processed.
+            data: A numpy array with arbitrary dtype. If elements are ufloat objects
+                consisting of nominal value and standard error values,
+                error propagation is automatically computed.
 
         Returns:
-            processed data: The data processed by self as a tuple of processed datum and
-                optionally the propagated error estimate.
+            The data that has been processed.
         """
-        return self._process(*self._format_data(data, error))
+        return self._process(*self._format_data(data))
 
     def __repr__(self):
         """String representation of the node."""
