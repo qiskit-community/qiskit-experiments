@@ -143,9 +143,7 @@ class TestSVD(BaseDataProcessorTest):
         self.create_experiment(iq_data)
 
         iq_svd = SVD()
-        iq_svd.train(
-            np.asarray([datum["memory"] for datum in self.iq_experiment.data()])
-        )
+        iq_svd.train(np.asarray([datum["memory"] for datum in self.iq_experiment.data()]))
 
         # qubit 0 IQ data is oriented along (1,1)
         np.testing.assert_array_almost_equal(iq_svd._main_axes[0], np.array([-1, -1]) / np.sqrt(2))
@@ -196,9 +194,7 @@ class TestSVD(BaseDataProcessorTest):
         self.create_experiment(iq_data)
 
         iq_svd = SVD()
-        iq_svd.train(
-            np.asarray([datum["memory"] for datum in self.iq_experiment.data()])
-        )
+        iq_svd.train(np.asarray([datum["memory"] for datum in self.iq_experiment.data()]))
 
         np.testing.assert_array_almost_equal(
             iq_svd._main_axes[0], np.array([-0.99633018, -0.08559302])
@@ -216,25 +212,19 @@ class TestSVD(BaseDataProcessorTest):
         iq_svd._means = [[0.0, 0.0]]
 
         # Since the axis is along the real part the imaginary error is irrelevant.
-        processed_data = iq_svd(
-            unp.uarray(nominal_values=[[[1.0, 0.2]]], std_devs=[[[0.2, 0.1]]])
-        )
+        processed_data = iq_svd(unp.uarray(nominal_values=[[[1.0, 0.2]]], std_devs=[[[0.2, 0.1]]]))
         self.assertEqual(unp.nominal_values(processed_data), np.array([1.0]))
         self.assertEqual(unp.std_devs(processed_data), np.array([0.2]))
 
         # Since the axis is along the real part the imaginary error is irrelevant.
-        processed_data = iq_svd(
-            unp.uarray(nominal_values=[[[1.0, 0.2]]], std_devs=[[[0.2, 0.3]]])
-        )
+        processed_data = iq_svd(unp.uarray(nominal_values=[[[1.0, 0.2]]], std_devs=[[[0.2, 0.3]]]))
         self.assertEqual(unp.nominal_values(processed_data), np.array([1.0]))
         self.assertEqual(unp.std_devs(processed_data), np.array([0.2]))
 
         # Tilt the axis to an angle of 36.9... degrees
         iq_svd._main_axes = np.array([[0.8, 0.6]])
 
-        processed_data = iq_svd(
-            unp.uarray(nominal_values=[[[1.0, 0.0]]], std_devs=[[[0.2, 0.3]]])
-        )
+        processed_data = iq_svd(unp.uarray(nominal_values=[[[1.0, 0.0]]], std_devs=[[[0.2, 0.3]]]))
         cos_ = np.cos(np.arctan(0.6 / 0.8))
         sin_ = np.sin(np.arctan(0.6 / 0.8))
         self.assertEqual(unp.nominal_values(processed_data), np.array([cos_]))

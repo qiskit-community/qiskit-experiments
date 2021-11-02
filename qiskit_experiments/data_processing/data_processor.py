@@ -10,7 +10,39 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Actions done on the data to bring it in a usable form."""
+"""Actions done on the data to bring it in a usable form.
+
+Data processor is an object that represents a chain of data processing steps to
+transform arbitrary input data, e.g. IQ data, into expected format, e.g. population.
+
+Such transform may take multiple steps, such as kerneling, discrimination, ...,
+and each step is implemented as :class:`~qiskit_experiments.data_processing.\
+data_action.DataAction`, namely, `nodes`.
+
+The processor implements :meth:`__call__` method, thus once its instance is initialized,
+this object can be used as if a standard python function:
+
+.. code-block:: python
+
+    processor = DataProcessor(input_key="memory", [Node1(), Node2(), ...])
+    out_data = processor(in_data)
+
+Usually this is the step beyond detailed data analysis. The data input to the processor is
+a sequence of dictionary representing a result of single circuit execution,
+and output from the processor is arbitrary numpy array, with shape and data type
+depending on the combination of processing nodes.
+
+The uncertainty arises from quantum measurement or finite sampling may be taken into account
+in a specific node, and generated standard error there may be propagated through
+numerical operations within the stack.
+In Qiskit Experiments, this uncertainty propagation computation is offloaded to
+``uncertainties`` package, that offers a python float and numpy-array compatible number
+representation that naively supports standard error and computation with it.
+
+.. _uncertainties:
+https://pypi.org/project/uncertainties/
+
+"""
 
 from typing import Dict, List, Set, Tuple, Union
 
@@ -89,6 +121,7 @@ class DataProcessor:
         # Once following steps support ufloat array, data will be returned as-is.
         # TODO need upgrade of following steps, i.e. curve fitter
         processed_data = self._call_internal(data, **options)
+
         try:
             nominals = unp.nominal_values(processed_data)
             stdevs = unp.std_devs(processed_data)
@@ -179,8 +212,8 @@ class DataProcessor:
                     )
                 )
 
-        # Return only first entry if len(data) == 1
-        if data.shape[-1] == 1:
+        # Return only first entry if len(data) == 1, e.g. [[0, 1]] -> [0, 1]
+        if data.shape[0] == 1:
             data = data[0]
 
         if with_history:
