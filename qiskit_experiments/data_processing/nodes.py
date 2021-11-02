@@ -14,7 +14,7 @@
 
 from abc import abstractmethod
 from numbers import Number
-from typing import Any, List, Optional, Tuple, Union, Sequence
+from typing import List, Union, Sequence
 
 import numpy as np
 from uncertainties import unumpy as unp, ufloat
@@ -56,30 +56,26 @@ class AverageData(DataAction):
         return data
 
     def _process(self, data: np.ndarray) -> np.ndarray:
-        """Average the data.
+        r"""Average the data.
 
         Args:
             data: A full data array to format.
 
         Notes:
-            The error propagation is computed if any error values is already involved.
-            Otherwise error is computed by the standard error of the mean,
-            i.e. the standard deviation of the datum divided by :math:`sqrt{N}`
+            Error is computed by the standard error of the mean,
+            i.e. the standard deviation of the datum divided by :math:`\sqrt{N}`
             where :math:`N` is the number of data points.
+            Standard error computed by the previous node will be discarded.
 
         Returns:
              Arrays with one less dimension than the given data.
         """
-        errors = unp.std_devs(data)
-
-        # Error is not defined or no error. Newly compute variance from nominal values.
-        if np.isnan(errors).all() or not errors.any():
-            nominals = unp.nominal_values(data)
-            errors = np.std(nominals, axis=self._axis) / np.sqrt(nominals.shape[self._axis])
-            return unp.uarray(nominal_values=nominals, std_devs=errors)
-
-        # Compute average with error propagation
-        return np.mean(data, axis=self._axis)
+        nominals = unp.nominal_values(data)
+        errors = np.std(nominals, axis=self._axis) / np.sqrt(nominals.shape[self._axis])
+        return unp.uarray(
+            nominal_values=np.average(nominals, axis=self._axis),
+            std_devs=errors,
+        )
 
 
 class MinMaxNormalize(DataAction):
@@ -94,9 +90,10 @@ class MinMaxNormalize(DataAction):
         Returns:
             The data that has been processed.
         """
-        min_y, max_y = np.min(data), np.max(data)
+        # Drop uncertainty of min max values. This is just mix-max scaling.
+        nominal_values = unp.nominal_values(data)
+        min_y, max_y = np.min(nominal_values), np.max(nominal_values)
 
-        # Uncertainty of min_y and max_y are also considered.
         return (data - min_y) / (max_y - min_y)
 
 
@@ -118,28 +115,22 @@ class SVD(TrainableDataAction):
         self._n_slots = 0
         self._n_iq = 0
 
-    def _format_data(self, datum: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
+    def _format_data(self, data: np.ndarray) -> np.ndarray:
         """Check that the IQ data is 2D and convert it to a numpy array.
 
         Args:
-            datum: All IQ data. This data has different dimensions depending on whether
+            data: All IQ data. This data has different dimensions depending on whether
                 single-shot or averaged data is being processed.
                 Single-shot data is four dimensional, i.e., ``[#circuits, #shots, #slots, 2]``,
                 while averaged IQ data is three dimensional, i.e., ``[#circuits, #slots, 2]``.
                 Here, ``#slots`` is the number of classical registers used in the circuit.
-            error: Optional, accompanied error.
 
         Returns:
-            datum and any error estimate as a numpy array.
+            data and any error estimate as a numpy array.
 
         Raises:
             DataProcessorError: If the datum does not have the correct format.
         """
-        datum = np.asarray(datum, dtype=float)
-
-        if error is not None:
-            error = np.asarray(error, dtype=float)
-
         self._n_circs = 0
         self._n_shots = 0
         self._n_slots = 0
@@ -148,11 +139,11 @@ class SVD(TrainableDataAction):
         # identify shape
         try:
             # level1 single-shot data
-            self._n_circs, self._n_shots, self._n_slots, self._n_iq = datum.shape
+            self._n_circs, self._n_shots, self._n_slots, self._n_iq = data.shape
         except ValueError:
             try:
                 # level1 data averaged over shots
-                self._n_circs, self._n_slots, self._n_iq = datum.shape
+                self._n_circs, self._n_slots, self._n_iq = data.shape
             except ValueError as ex:
                 raise DataProcessorError(
                     f"Data given to {self.__class__.__name__} is not likely level1 data."
@@ -165,13 +156,7 @@ class SVD(TrainableDataAction):
                     f"(I and Q). Instead, {self._n_iq} dimensions were found."
                 )
 
-            if error is not None and error.shape != datum.shape:
-                raise DataProcessorError(
-                    f"IQ data error given to {self.__class__.__name__} must be a 2D array."
-                    f"Instead, a {len(error.shape)}D array was given."
-                )
-
-        return datum, error
+        return data
 
     @property
     def axis(self) -> List[np.array]:
@@ -208,15 +193,11 @@ class SVD(TrainableDataAction):
         """
         return self._main_axes is not None
 
-    def _process(
-        self, datum: np.array, error: Optional[np.array] = None
-    ) -> Tuple[np.array, np.array]:
+    def _process(self, data: np.ndarray) -> np.ndarray:
         """Project the IQ data onto the axis defined by an SVD and scale it.
 
         Args:
-            datum: A 2D array of qubits, and an average complex IQ point as [real, imaginary].
-            error: An optional 2D array of qubits, and an error on an average complex IQ
-                point as [real, imaginary].
+            data: All IQ data to be processed.
 
         Returns:
             A Tuple of 1D arrays of the result of the SVD and the associated error. Each entry
@@ -236,37 +217,19 @@ class SVD(TrainableDataAction):
             # level1 single mode
             dims = self._n_circs, self._n_shots, self._n_slots
 
-        processed_data = np.zeros(dims, dtype=float)
-        error_vals = np.zeros(dims, dtype=float)
+        projected_data = np.zeros(dims, dtype=object)
 
         for idx in range(self._n_slots):
             scale = self.scales[idx]
+            # error propagation is computed from data if any std error exists
             centered = np.array(
-                [datum[..., idx, iq] - self.means(qubit=idx, iq_index=iq) for iq in [0, 1]]
+                [data[..., idx, iq] - self.means(qubit=idx, iq_index=iq) for iq in [0, 1]]
             )
-            processed_data[..., idx] = (self._main_axes[idx] @ centered) / scale
+            projected_data[..., idx] = (self._main_axes[idx] @ centered) / scale
 
-            if error is not None:
-                angle = np.arctan(self._main_axes[idx][1] / self._main_axes[idx][0])
-                error_vals[..., idx] = (
-                    np.sqrt(
-                        (error[..., idx, 0] * np.cos(angle)) ** 2
-                        + (error[..., idx, 1] * np.sin(angle)) ** 2
-                    )
-                    / scale
-                )
+        return projected_data
 
-        if self._n_circs == 1:
-            if error is None:
-                return processed_data[0], None
-            else:
-                return processed_data[0], error_vals[0]
-
-        if error is None:
-            return processed_data, None
-        return processed_data, error_vals
-
-    def train(self, data: List[Any]):
+    def train(self, data: np.ndarray):
         """Train the SVD on the given data.
 
         Each element of the given data will be converted to a 2D array of dimension
@@ -277,19 +240,20 @@ class SVD(TrainableDataAction):
         qubit so that future data points can be projected onto the axis.
 
         Args:
-            data: A list of datums. Each datum will be converted to a 2D array.
+            data: A full array of IQ data to be trained.
         """
         if data is None:
             return
 
-        data, _ = self._format_data(data)
+        # TODO do not remove standard error. Currently svd is not supported.
+        data = unp.nominal_values(self._format_data(data))
 
         self._main_axes = []
         self._scales = []
         self._means = []
 
-        for qubit_idx in range(self._n_slots):
-            datums = np.vstack([datum[qubit_idx] for datum in data]).T
+        for idx in range(self._n_slots):
+            datums = np.vstack([datum[idx] for datum in data]).T
 
             # Calculate the mean of the data to recenter it in the IQ plane.
             mean_i = np.average(datums[0, :])

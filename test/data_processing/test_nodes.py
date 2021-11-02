@@ -15,6 +15,7 @@
 # pylint: disable=unbalanced-tuple-unpacking
 
 import numpy as np
+from uncertainties import unumpy as unp
 
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.data_processing.nodes import (
@@ -33,17 +34,31 @@ class TestAveraging(BaseDataProcessorTest):
 
     def test_simple(self):
         """Simple test of averaging."""
-
         datum = np.array([[1, 2], [3, 4], [5, 6]])
 
         node = AverageData(axis=1)
-        self.assertTrue(np.allclose(node(datum)[0], np.array([1.5, 3.5, 5.5])))
-        self.assertTrue(np.allclose(node(datum)[1], np.array([0.5, 0.5, 0.5]) / np.sqrt(2)))
+        processed_data = node(data=datum)
+
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed_data),
+            np.array([1.5, 3.5, 5.5]),
+        )
+        np.testing.assert_array_almost_equal(
+            unp.std_devs(processed_data),
+            np.array([0.5, 0.5, 0.5]) / np.sqrt(2),
+        )
 
         node = AverageData(axis=0)
-        self.assertTrue(np.allclose(node(datum)[0], np.array([3.0, 4.0])))
-        std = np.std([1, 3, 5])
-        self.assertTrue(np.allclose(node(datum)[1], np.array([std, std]) / np.sqrt(3)))
+        processed_data = node(data=datum)
+
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed_data),
+            np.array([3.0, 4.0]),
+        )
+        np.testing.assert_array_almost_equal(
+            unp.std_devs(processed_data),
+            np.array([1.632993161855452, 1.632993161855452]) / np.sqrt(3),
+        )
 
     def test_iq_averaging(self):
         """Test averaging of IQ-data."""
@@ -64,17 +79,23 @@ class TestAveraging(BaseDataProcessorTest):
         self.create_experiment(iq_data, single_shot=True)
 
         avg_iq = AverageData(axis=0)
-
-        avg_datum, error = avg_iq(self.iq_experiment.data(0)["memory"])
+        processed_data = avg_iq(data=np.asarray(self.iq_experiment.data(0)["memory"]))
 
         expected_avg = np.array([[8.82943876e13, -1.27850527e15], [1.43410186e14, -3.89952402e15]])
-
         expected_std = np.array(
             [[5.07650185e14, 4.44664719e13], [1.40522641e15, 1.22326831e14]]
         ) / np.sqrt(10)
 
-        self.assertTrue(np.allclose(avg_datum, expected_avg))
-        self.assertTrue(np.allclose(error, expected_std))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed_data),
+            expected_avg,
+            decimal=-8,
+        )
+        np.testing.assert_array_almost_equal(
+            unp.std_devs(processed_data),
+            expected_std,
+            decimal=-8,
+        )
 
 
 class TestNormalize(QiskitTestCase):
@@ -91,9 +112,21 @@ class TestNormalize(QiskitTestCase):
 
         node = MinMaxNormalize()
 
-        self.assertTrue(np.allclose(node(data)[0], expected_data))
-        self.assertTrue(np.allclose(node(data, error)[0], expected_data))
-        self.assertTrue(np.allclose(node(data, error)[1], expected_error))
+        processed_data = node(data=data)
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed_data),
+            expected_data,
+        )
+
+        processed_data = node(data=unp.uarray(nominal_values=data, std_devs=error))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed_data),
+            expected_data,
+        )
+        np.testing.assert_array_almost_equal(
+            unp.std_devs(processed_data),
+            expected_error,
+        )
 
 
 class TestSVD(BaseDataProcessorTest):
@@ -110,27 +143,36 @@ class TestSVD(BaseDataProcessorTest):
         self.create_experiment(iq_data)
 
         iq_svd = SVD()
-        iq_svd.train([datum["memory"] for datum in self.iq_experiment.data()])
+        iq_svd.train(
+            np.asarray([datum["memory"] for datum in self.iq_experiment.data()])
+        )
 
         # qubit 0 IQ data is oriented along (1,1)
-        self.assertTrue(np.allclose(iq_svd._main_axes[0], np.array([-1, -1]) / np.sqrt(2)))
+        np.testing.assert_array_almost_equal(iq_svd._main_axes[0], np.array([-1, -1]) / np.sqrt(2))
 
         # qubit 1 IQ data is oriented along (1, -1)
-        self.assertTrue(np.allclose(iq_svd._main_axes[1], np.array([-1, 1]) / np.sqrt(2)))
+        np.testing.assert_array_almost_equal(iq_svd._main_axes[1], np.array([-1, 1]) / np.sqrt(2))
 
         # Note: input data shape [n_circs, n_slots, n_iq] for avg mode simulation
 
-        processed, _ = iq_svd(np.array([[[1, 1], [1, -1]]]))
-        expected = np.array([-1, -1]) / np.sqrt(2)
-        self.assertTrue(np.allclose(processed, expected))
+        processed_data = iq_svd(np.array([[[1, 1], [1, -1]]]))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed_data),
+            np.array([[-1, -1]]) / np.sqrt(2),
+        )
 
-        processed, _ = iq_svd(np.array([[[2, 2], [2, -2]]]))
-        self.assertTrue(np.allclose(processed, expected * 2))
+        processed_data = iq_svd(np.array([[[2, 2], [2, -2]]]))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed_data),
+            2 * np.array([[-1, -1]]) / np.sqrt(2),
+        )
 
         # Check that orthogonal data gives 0.
-        processed, _ = iq_svd(np.array([[[1, -1], [1, 1]]]))
-        expected = np.array([0, 0])
-        self.assertTrue(np.allclose(processed, expected))
+        processed_data = iq_svd(np.array([[[1, -1], [1, 1]]]))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed_data),
+            np.array([[0, 0]]),
+        )
 
     def test_svd(self):
         """Use IQ data gathered from the hardware."""
@@ -154,10 +196,16 @@ class TestSVD(BaseDataProcessorTest):
         self.create_experiment(iq_data)
 
         iq_svd = SVD()
-        iq_svd.train([datum["memory"] for datum in self.iq_experiment.data()])
+        iq_svd.train(
+            np.asarray([datum["memory"] for datum in self.iq_experiment.data()])
+        )
 
-        self.assertTrue(np.allclose(iq_svd._main_axes[0], np.array([-0.99633018, -0.08559302])))
-        self.assertTrue(np.allclose(iq_svd._main_axes[1], np.array([-0.99627747, -0.0862044])))
+        np.testing.assert_array_almost_equal(
+            iq_svd._main_axes[0], np.array([-0.99633018, -0.08559302])
+        )
+        np.testing.assert_array_almost_equal(
+            iq_svd._main_axes[1], np.array([-0.99627747, -0.0862044])
+        )
 
     def test_svd_error(self):
         """Test the error formula of the SVD."""
@@ -168,23 +216,30 @@ class TestSVD(BaseDataProcessorTest):
         iq_svd._means = [[0.0, 0.0]]
 
         # Since the axis is along the real part the imaginary error is irrelevant.
-        processed, error = iq_svd([[[1.0, 0.2]]], [[[0.2, 0.1]]])
-        self.assertEqual(processed, np.array([1.0]))
-        self.assertEqual(error, np.array([0.2]))
+        processed_data = iq_svd(
+            unp.uarray(nominal_values=[[[1.0, 0.2]]], std_devs=[[[0.2, 0.1]]])
+        )
+        self.assertEqual(unp.nominal_values(processed_data), np.array([1.0]))
+        self.assertEqual(unp.std_devs(processed_data), np.array([0.2]))
 
         # Since the axis is along the real part the imaginary error is irrelevant.
-        processed, error = iq_svd([[[1.0, 0.2]]], [[[0.2, 0.3]]])
-        self.assertEqual(processed, np.array([1.0]))
-        self.assertEqual(error, np.array([0.2]))
+        processed_data = iq_svd(
+            unp.uarray(nominal_values=[[[1.0, 0.2]]], std_devs=[[[0.2, 0.3]]])
+        )
+        self.assertEqual(unp.nominal_values(processed_data), np.array([1.0]))
+        self.assertEqual(unp.std_devs(processed_data), np.array([0.2]))
 
         # Tilt the axis to an angle of 36.9... degrees
         iq_svd._main_axes = np.array([[0.8, 0.6]])
-        processed, error = iq_svd([[[1.0, 0.0]]], [[[0.2, 0.3]]])
+
+        processed_data = iq_svd(
+            unp.uarray(nominal_values=[[[1.0, 0.0]]], std_devs=[[[0.2, 0.3]]])
+        )
         cos_ = np.cos(np.arctan(0.6 / 0.8))
         sin_ = np.sin(np.arctan(0.6 / 0.8))
-        self.assertEqual(processed, np.array([cos_]))
+        self.assertEqual(unp.nominal_values(processed_data), np.array([cos_]))
         expected_error = np.sqrt((0.2 * cos_) ** 2 + (0.3 * sin_) ** 2)
-        self.assertEqual(error, np.array([expected_error]))
+        self.assertEqual(unp.std_devs(processed_data), np.array([expected_error]))
 
     def test_train_svd_processor(self):
         """Test that we can train a DataProcessor with an SVD."""
@@ -217,14 +272,14 @@ class TestProbability(QiskitTestCase):
         node = Probability(outcome="1")
 
         data = {"1": 1024, "0": 0}
-        mode, stderr = node(data)
-        self.assertGreater(stderr, 0.0)
-        self.assertLessEqual(mode, 1.0)
+        processed_data = node(data=np.asarray([data]))
+        self.assertGreater(unp.std_devs(processed_data), 0.0)
+        self.assertLessEqual(unp.nominal_values(processed_data), 1.0)
 
         data = {"1": 0, "0": 1024}
-        mode, stderr = node(data)
-        self.assertGreater(stderr, 0.0)
-        self.assertGreaterEqual(mode, 0.0)
+        processed_data = node(data=np.asarray([data]))
+        self.assertGreater(unp.std_devs(processed_data), 0.0)
+        self.assertGreater(unp.nominal_values(processed_data), 0.0)
 
     def test_probability_balanced(self):
         """Test if p=0.5 is returned when counts are balanced and prior is flat."""
@@ -232,5 +287,5 @@ class TestProbability(QiskitTestCase):
 
         # balanced counts with a flat prior will yield p = 0.5
         data = {"1": 512, "0": 512}
-        mode, _ = node(data)
-        self.assertAlmostEqual(mode, 0.5)
+        processed_data = node(data=np.asarray([data]))
+        self.assertAlmostEqual(unp.nominal_values(processed_data), 0.5)

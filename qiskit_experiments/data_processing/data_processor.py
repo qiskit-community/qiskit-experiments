@@ -71,7 +71,7 @@ class DataProcessor:
 
         return True
 
-    def __call__(self, data: Union[Dict, List[Dict]], **options) -> np.ndarray:
+    def __call__(self, data: Union[Dict, List[Dict]], **options) -> Tuple[np.ndarray, np.ndarray]:
         """
         Call self on the given datum. This method sequentially calls the stored data actions
         on the datum.
@@ -85,11 +85,14 @@ class DataProcessor:
         Returns:
             processed data: The data processed by the data processor.
         """
-        return self._call_internal(data, **options)
+        # Convert into conventional data format,
+        # TODO need upgrade of following steps, i.e. curve fitter
+        processed_data = self._call_internal(data, **options)
+        return unp.nominal_values(processed_data), unp.std_devs(processed_data)
 
     def call_with_history(
         self, data: Union[Dict, List[Dict]], history_nodes: Set = None
-    ) -> Tuple[np.ndarray, List]:
+    ) -> Tuple[np.ndarray, np.ndarray, List]:
         """
         Call self on the given datum. This method sequentially calls the stored data actions
         on the datum and also returns the history of the processed data.
@@ -106,7 +109,10 @@ class DataProcessor:
             A tuple of (processed data, history), that are the data processed by the processor
             and its intermediate state in each specified node, respectively.
         """
-        return self._call_internal(data, True, history_nodes)
+        # Convert into conventional data format,
+        # TODO need upgrade of following steps, i.e. curve fitter
+        processed_data, history = self._call_internal(data, True, history_nodes)
+        return unp.nominal_values(processed_data), unp.std_devs(processed_data), history
 
     def _call_internal(
         self,
@@ -144,23 +150,26 @@ class DataProcessor:
             if with_history and (history_nodes is None or index in history_nodes):
                 history.append((node.__class__.__name__, data_to_process, index))
 
+        # Return only first entry if len(data) == 1
+        if data_to_process.shape[-1] == 1:
+            data_to_process = data_to_process[0]
+
         if with_history:
             return data_to_process, history
         else:
             return data_to_process
 
-    def train(self, data: List[Dict[str, Any]]):
+    def train(self, data: Union[Dict, List[Dict]]):
         """Train the nodes of the data processor.
 
         Args:
             data: The data to use to train the data processor.
         """
-
         for index, node in enumerate(self._nodes):
             if isinstance(node, TrainableDataAction):
                 if not node.is_trained:
                     # Process the data up to the untrained node.
-                    node.train(self._call_internal(data, call_up_to_node=index)[0])
+                    node.train(self._call_internal(data, call_up_to_node=index))
 
     def _data_extraction(self, data: Union[Dict, List[Dict]]) -> np.ndarray:
         """Extracts the data on which to run the nodes.

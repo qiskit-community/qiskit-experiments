@@ -13,7 +13,6 @@
 """Defines the steps that can be used to analyse data."""
 
 from abc import ABCMeta, abstractmethod
-from typing import Any, List
 
 import numpy as np
 
@@ -70,7 +69,7 @@ class DataAction(metaclass=ABCMeta):
         Returns:
             The data that has been processed.
         """
-        return self._process(*self._format_data(data))
+        return self._process(self._format_data(data))
 
     def __repr__(self):
         """String representation of the node."""
@@ -92,11 +91,11 @@ class TrainableDataAction(DataAction):
         """
 
     @abstractmethod
-    def train(self, data: List[Any]):
+    def train(self, data: np.ndarray):
         """Train a DataAction.
 
         Certain data processing nodes, such as a SVD, require data to first train.
 
         Args:
-            data: A list of datum. Each datum is a point used to train the node.
+            data: A full data array used for training.
         """
