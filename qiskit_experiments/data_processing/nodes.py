@@ -145,7 +145,7 @@ class SVD(TrainableDataAction):
             self._n_circs, self._n_shots, self._n_slots, self._n_iq = datum.shape
         except ValueError:
             try:
-                # level1 average mode
+                # level1 data averaged over shots
                 self._n_circs, self._n_slots, self._n_iq = datum.shape
             except ValueError as ex:
                 raise DataProcessorError(
