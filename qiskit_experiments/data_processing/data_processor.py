@@ -298,7 +298,7 @@ class DataProcessor:
         except TypeError:
             # Likely level2 counts or level2 memory data. Cannot be typecasted to ufloat.
             # The output data format is a standard ndarray with dtype=object with
-            # shape [n_circuits] or [n_circuits, n_memory_slot_size].
+            # shape [n_circuits] or [n_circuits, n_shots].
             # No error value is bound.
             return np.asarray(data_to_process, dtype=object)
 

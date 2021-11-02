@@ -137,7 +137,6 @@ class TestSVD(BaseDataProcessorTest):
         A simple setting where the IQ data of qubit 0 is oriented along (1,1) and
         the IQ data of qubit 1 is oriented along (1,-1).
         """
-
         iq_data = [[[0.0, 0.0], [0.0, 0.0]], [[1.0, 1.0], [-1.0, 1.0]], [[-1.0, -1.0], [1.0, -1.0]]]
 
         self.create_experiment(iq_data)
@@ -151,8 +150,8 @@ class TestSVD(BaseDataProcessorTest):
         # qubit 1 IQ data is oriented along (1, -1)
         np.testing.assert_array_almost_equal(iq_svd._main_axes[1], np.array([-1, 1]) / np.sqrt(2))
 
-        # Note: input data shape [n_circs, n_slots, n_iq] for avg mode simulation
-
+        # This is n_circuit = 1, n_slot = 2, the input shape should be [1, 2, 2]
+        # Then the output shape will be [1, 2] by reducing the last dimension
         processed_data = iq_svd(np.array([[[1, 1], [1, -1]]]))
         np.testing.assert_array_almost_equal(
             unp.nominal_values(processed_data),
@@ -174,7 +173,6 @@ class TestSVD(BaseDataProcessorTest):
 
     def test_svd(self):
         """Use IQ data gathered from the hardware."""
-
         # This data is primarily oriented along the real axis with a slight tilt.
         # There is a large offset in the imaginary dimension when comparing qubits
         # 0 and 1.
@@ -205,6 +203,8 @@ class TestSVD(BaseDataProcessorTest):
 
     def test_svd_error(self):
         """Test the error formula of the SVD."""
+        # This is n_circuit = 1, n_slot = 1, the input shape should be [1, 1, 2]
+        # Then the output shape will be [1, 1] by reducing the last dimension
 
         iq_svd = SVD()
         iq_svd._main_axes = np.array([[1.0, 0.0]])
@@ -213,13 +213,13 @@ class TestSVD(BaseDataProcessorTest):
 
         # Since the axis is along the real part the imaginary error is irrelevant.
         processed_data = iq_svd(unp.uarray(nominal_values=[[[1.0, 0.2]]], std_devs=[[[0.2, 0.1]]]))
-        self.assertEqual(unp.nominal_values(processed_data), np.array([1.0]))
-        self.assertEqual(unp.std_devs(processed_data), np.array([0.2]))
+        np.testing.assert_array_equal(unp.nominal_values(processed_data), np.array([[1.0]]))
+        np.testing.assert_array_equal(unp.std_devs(processed_data), np.array([[0.2]]))
 
         # Since the axis is along the real part the imaginary error is irrelevant.
         processed_data = iq_svd(unp.uarray(nominal_values=[[[1.0, 0.2]]], std_devs=[[[0.2, 0.3]]]))
-        self.assertEqual(unp.nominal_values(processed_data), np.array([1.0]))
-        self.assertEqual(unp.std_devs(processed_data), np.array([0.2]))
+        np.testing.assert_array_equal(unp.nominal_values(processed_data), np.array([[1.0]]))
+        np.testing.assert_array_equal(unp.std_devs(processed_data), np.array([[0.2]]))
 
         # Tilt the axis to an angle of 36.9... degrees
         iq_svd._main_axes = np.array([[0.8, 0.6]])
@@ -227,9 +227,14 @@ class TestSVD(BaseDataProcessorTest):
         processed_data = iq_svd(unp.uarray(nominal_values=[[[1.0, 0.0]]], std_devs=[[[0.2, 0.3]]]))
         cos_ = np.cos(np.arctan(0.6 / 0.8))
         sin_ = np.sin(np.arctan(0.6 / 0.8))
-        self.assertEqual(unp.nominal_values(processed_data), np.array([cos_]))
-        expected_error = np.sqrt((0.2 * cos_) ** 2 + (0.3 * sin_) ** 2)
-        self.assertEqual(unp.std_devs(processed_data), np.array([expected_error]))
+        np.testing.assert_array_equal(
+            unp.nominal_values(processed_data),
+            np.array([[cos_]]),
+        )
+        np.testing.assert_array_equal(
+            unp.std_devs(processed_data),
+            np.array([[np.sqrt((0.2 * cos_) ** 2 + (0.3 * sin_) ** 2)]]),
+        )
 
     def test_train_svd_processor(self):
         """Test that we can train a DataProcessor with an SVD."""
@@ -245,13 +250,17 @@ class TestSVD(BaseDataProcessorTest):
 
         self.assertTrue(processor.is_trained)
 
+        # This is n_circuit = 1, n_slot = 2, the input shape should be [1, 2, 2]
+        # Then the output shape will be [1, 2] by reducing the last dimension
+        # Via processor the first dim is also reduced when data len = 1.
+        # Thus output shape will be [2]
+
         # Check that we can use the SVD
         iq_data = [[[2, 2], [2, -2]]]
         self.create_experiment(iq_data)
 
         processed, _ = processor(self.iq_experiment.data(0))
-        expected = np.array([-2, -2]) / np.sqrt(2)
-        self.assertTrue(np.allclose(processed, expected))
+        np.testing.assert_array_almost_equal(processed, np.array([-2, -2]) / np.sqrt(2))
 
 
 class TestProbability(QiskitTestCase):
