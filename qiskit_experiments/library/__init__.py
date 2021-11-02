@@ -62,6 +62,7 @@ Some experiments may be also used for gate calibration.
     ~characterization.EFSpectroscopy
     ~characterization.CrossResonanceHamiltonian
     ~characterization.EchoedCrossResonanceHamiltonian
+    ~characterization.HalfAngle
     ~characterization.FineAmplitude
     ~characterization.FineXAmplitude
     ~characterization.FineSXAmplitude
@@ -120,6 +121,7 @@ from .characterization import (
     EchoedCrossResonanceHamiltonian,
     Rabi,
     EFRabi,
+    HalfAngle,
     FineAmplitude,
     FineXAmplitude,
     FineSXAmplitude,

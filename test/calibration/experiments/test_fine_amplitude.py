@@ -144,7 +144,7 @@ class TestSpecializations(QiskitTestCase):
         expected = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
         self.assertEqual(exp.experiment_options.repetitions, expected)
         self.assertEqual(exp.analysis_options.angle_per_gate, np.pi / 2)
-        self.assertEqual(exp.analysis_options.phase_offset, 0)
+        self.assertEqual(exp.analysis_options.phase_offset, np.pi)
         self.assertEqual(exp.experiment_options.gate, SXGate())
 
 
