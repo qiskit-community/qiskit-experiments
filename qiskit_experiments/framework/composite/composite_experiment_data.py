@@ -18,6 +18,7 @@ from qiskit.result import marginal_counts
 from qiskit.exceptions import QiskitError
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.database_service import DatabaseServiceV1
+from qiskit_experiments.database_service.utils import combined_timeout
 
 
 class CompositeExperimentData(ExperimentData):
@@ -189,3 +190,8 @@ class CompositeExperimentData(ExperimentData):
             comp.experiment_id for comp in new_instance.component_experiment_data()
         ]
         return new_instance
+
+    def block_for_results(self, timeout: Optional[float] = None):
+        _, timeout = combined_timeout(super().block_for_results, timeout)
+        for subdata in self._components:
+            _, timeout = combined_timeout(subdata.block_for_results, timeout)

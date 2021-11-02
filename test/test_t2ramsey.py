@@ -179,7 +179,7 @@ class TestT2Ramsey(QiskitTestCase):
         exp1.set_analysis_options(user_p0=default_p0)
         expdata1 = exp1.run(backend=backend, analysis=False, shots=1000).block_for_results()
         expdata1.add_data(expdata0.data())
-        exp1.run_analysis(expdata1)
+        exp1.run_analysis(expdata1).block_for_results()
         results1 = expdata1.analysis_results()
 
         self.assertAlmostEqual(
