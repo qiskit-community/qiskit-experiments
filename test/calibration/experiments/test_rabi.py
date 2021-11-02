@@ -12,7 +12,6 @@
 
 """Test Rabi amplitude Experiment class."""
 
-from typing import Tuple
 import numpy as np
 
 from qiskit import QuantumCircuit, transpile
@@ -29,36 +28,22 @@ from qiskit_experiments.library import Rabi, EFRabi
 from qiskit_experiments.curve_analysis.standard_analysis.oscillation import OscillationAnalysis
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing.nodes import Probability
-from qiskit_experiments.test.mock_iq_backend import MockIQBackend
-
-
-class RabiBackend(MockIQBackend):
-    """A simple and primitive backend, to be run by the Rabi tests."""
-
-    def __init__(
-        self,
-        iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
-        iq_cluster_width: float = 1.0,
-        amplitude_to_angle: float = np.pi,
-    ):
-        """Initialize the rabi backend."""
-        self._amplitude_to_angle = amplitude_to_angle
-
-        super().__init__(iq_cluster_centers, iq_cluster_width)
-
-    @property
-    def rabi_rate(self) -> float:
-        """Returns the rabi rate."""
-        return self._amplitude_to_angle / np.pi
-
-    def _compute_probability(self, circuit: QuantumCircuit) -> float:
-        """Returns the probability based on the rotation angle and amplitude_to_angle."""
-        amp = next(iter(circuit.calibrations["Rabi"].keys()))[1][0]
-        return np.sin(self._amplitude_to_angle * amp) ** 2
+from qiskit_experiments.test.mock_iq_backend import RabiBackend
 
 
 class TestRabiEndToEnd(QiskitTestCase):
     """Test the rabi experiment."""
+
+    def setUp(self):
+        """Setup the tests."""
+        super().setUp()
+
+        self.qubit = 1
+
+        with pulse.build(name="x") as sched:
+            pulse.play(pulse.Drag(160, Parameter("amp"), 40, 0.4), pulse.DriveChannel(self.qubit))
+
+        self.sched = sched
 
     def test_rabi_end_to_end(self):
         """Test the Rabi experiment end to end."""
@@ -66,7 +51,7 @@ class TestRabiEndToEnd(QiskitTestCase):
         test_tol = 0.01
         backend = RabiBackend()
 
-        rabi = Rabi(1)
+        rabi = Rabi(self.qubit, self.sched)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         expdata = rabi.run(backend)
         expdata.block_for_results()
@@ -77,7 +62,7 @@ class TestRabiEndToEnd(QiskitTestCase):
 
         backend = RabiBackend(amplitude_to_angle=np.pi / 2)
 
-        rabi = Rabi(1)
+        rabi = Rabi(self.qubit, self.sched)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         expdata = rabi.run(backend)
         expdata.block_for_results()
@@ -87,7 +72,7 @@ class TestRabiEndToEnd(QiskitTestCase):
 
         backend = RabiBackend(amplitude_to_angle=2.5 * np.pi)
 
-        rabi = Rabi(1)
+        rabi = Rabi(self.qubit, self.sched)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 101))
         expdata = rabi.run(backend)
         expdata.block_for_results()
@@ -100,7 +85,7 @@ class TestRabiEndToEnd(QiskitTestCase):
 
         backend = RabiBackend()
 
-        rabi = Rabi(1)
+        rabi = Rabi(self.qubit, self.sched)
 
         fail_key = "fail_key"
 
@@ -114,7 +99,7 @@ class TestRabiEndToEnd(QiskitTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = Rabi(0)
+        exp = Rabi(0, self.sched)
         config = exp.config
         loaded_exp = Rabi.from_config(config)
         self.assertNotEqual(exp, loaded_exp)
@@ -124,18 +109,29 @@ class TestRabiEndToEnd(QiskitTestCase):
 class TestEFRabi(QiskitTestCase):
     """Test the ef_rabi experiment."""
 
+    def setUp(self):
+        """Setup the tests."""
+        super().setUp()
+
+        self.qubit = 0
+
+        with pulse.build(name="x") as sched:
+            with pulse.frequency_offset(-300e6, pulse.DriveChannel(self.qubit)):
+                pulse.play(
+                    pulse.Drag(160, Parameter("amp"), 40, 0.4), pulse.DriveChannel(self.qubit)
+                )
+
+        self.sched = sched
+
     def test_ef_rabi_end_to_end(self):
         """Test the EFRabi experiment end to end."""
 
         test_tol = 0.01
         backend = RabiBackend()
-        qubit = 0
 
         # Note that the backend is not sophisticated enough to simulate an e-f
         # transition so we run the test with a tiny frequency shift, still driving the e-g transition.
-        freq_shift = 0.01
-        rabi = EFRabi(qubit)
-        rabi.set_experiment_options(frequency_shift=freq_shift)
+        rabi = EFRabi(self.qubit, self.sched)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         expdata = rabi.run(backend)
         expdata.block_for_results()
@@ -147,9 +143,14 @@ class TestEFRabi(QiskitTestCase):
     def test_ef_rabi_circuit(self):
         """Test the EFRabi experiment end to end."""
         anharm = -330e6
-        rabi12 = EFRabi(2)
-        rabi12.set_experiment_options(amplitudes=[0.5], frequency_shift=anharm)
-        rabi12.backend = RabiBackend()
+
+        with pulse.build() as sched:
+            pulse.shift_frequency(anharm, pulse.DriveChannel(2))
+            pulse.play(pulse.Gaussian(160, Parameter("amp"), 40), pulse.DriveChannel(2))
+            pulse.shift_frequency(-anharm, pulse.DriveChannel(2))
+
+        rabi12 = EFRabi(2, sched)
+        rabi12.set_experiment_options(amplitudes=[0.5])
         circ = rabi12.circuits()[0]
 
         with pulse.build() as expected:
@@ -163,7 +164,7 @@ class TestEFRabi(QiskitTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = EFRabi(0)
+        exp = EFRabi(0, self.sched)
         config = exp.config
         loaded_exp = EFRabi.from_config(config)
         self.assertNotEqual(exp, loaded_exp)
@@ -173,10 +174,19 @@ class TestEFRabi(QiskitTestCase):
 class TestRabiCircuits(QiskitTestCase):
     """Test the circuits generated by the experiment and the options."""
 
+    def setUp(self):
+        """Setup tests."""
+        super().setUp()
+
+        with pulse.build() as sched:
+            pulse.play(pulse.Gaussian(160, Parameter("amp"), 40), pulse.DriveChannel(2))
+
+        self.sched = sched
+
     def test_default_schedule(self):
         """Test the default schedule."""
 
-        rabi = Rabi(2)
+        rabi = Rabi(2, self.sched)
         rabi.set_experiment_options(amplitudes=[0.5])
         rabi.backend = RabiBackend()
         circs = rabi.circuits()
@@ -195,7 +205,7 @@ class TestRabiCircuits(QiskitTestCase):
             pulse.play(pulse.Drag(160, amp, 40, 10), pulse.DriveChannel(2))
             pulse.play(pulse.Drag(160, amp, 40, 10), pulse.DriveChannel(2))
 
-        rabi = Rabi(2)
+        rabi = Rabi(2, self.sched)
         rabi.set_experiment_options(schedule=my_schedule, amplitudes=[0.5])
         rabi.backend = RabiBackend()
         circs = rabi.circuits()
@@ -292,9 +302,10 @@ class TestCompositeExperiment(QiskitTestCase):
 
         experiments = []
         for qubit in range(3):
-            rabi = Rabi(qubit)
-            rabi.set_experiment_options(amplitudes=[0.5])
-            experiments.append(rabi)
+            with pulse.build() as sched:
+                pulse.play(pulse.Gaussian(160, Parameter("amp"), 40), pulse.DriveChannel(qubit))
+
+            experiments.append(Rabi(qubit, sched, amplitudes=[0.5]))
 
         par_exp = ParallelExperiment(experiments)
         par_circ = par_exp.circuits()[0]

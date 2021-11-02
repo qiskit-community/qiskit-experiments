@@ -12,7 +12,6 @@
 
 """Test the calibration update library."""
 
-from test.calibration.experiments.test_rabi import RabiBackend
 from test.test_qubit_spectroscopy import SpectroscopyBackend
 import numpy as np
 
@@ -22,12 +21,10 @@ from qiskit.qobj.utils import MeasLevel
 import qiskit.pulse as pulse
 from qiskit.test.mock import FakeAthens
 
-from qiskit_experiments.library import Rabi, FineXDrag, DragCal, QubitSpectroscopy
+from qiskit_experiments.library import FineXDrag, DragCal, QubitSpectroscopy
 from qiskit_experiments.calibration_management.calibrations import Calibrations
-from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.update_library import (
     Frequency,
-    Amplitude,
     Drag,
     FineDragUpdater,
 )
@@ -60,43 +57,6 @@ class TestAmplitudeUpdate(QiskitTestCase):
         self.cals.add_schedule(x90p, num_qubits=1)
         self.cals.add_parameter_value(0.2, "amp", self.qubit, "xp")
         self.cals.add_parameter_value(0.1, "amp", self.qubit, "x90p")
-
-    def test_amplitude(self):
-        """Test amplitude update from Rabi."""
-
-        rabi = Rabi(self.qubit)
-        rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
-        exp_data = rabi.run(RabiBackend())
-        exp_data.block_for_results()
-
-        with self.assertRaises(CalibrationError):
-            self.cals.get_schedule("xp", qubits=0)
-
-        to_update = [(np.pi, "amp", "xp"), (np.pi / 2, "amp", self.x90p)]
-
-        self.assertEqual(len(self.cals.parameters_table()), 2)
-
-        Amplitude.update(self.cals, exp_data, angles_schedules=to_update)
-
-        with self.assertRaises(CalibrationError):
-            self.cals.get_schedule("xp", qubits=0)
-
-        self.assertEqual(len(self.cals.parameters_table()["data"]), 4)
-
-        # Now check the corresponding schedules
-        result = exp_data.analysis_results(1)
-        rate = 2 * np.pi * result.value.value
-        amp = np.round(np.pi / rate, decimals=8)
-        with pulse.build(name="xp") as expected:
-            pulse.play(pulse.Gaussian(160, amp, 40), pulse.DriveChannel(self.qubit))
-
-        self.assertEqual(self.cals.get_schedule("xp", qubits=self.qubit), expected)
-
-        amp = np.round(0.5 * np.pi / rate, decimals=8)
-        with pulse.build(name="xp") as expected:
-            pulse.play(pulse.Gaussian(160, amp, 40), pulse.DriveChannel(self.qubit))
-
-        self.assertEqual(self.cals.get_schedule("x90p", qubits=self.qubit), expected)
 
 
 class TestFrequencyUpdate(QiskitTestCase):
