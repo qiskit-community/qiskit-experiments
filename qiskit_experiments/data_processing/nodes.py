@@ -117,7 +117,10 @@ class SVD(TrainableDataAction):
         """Check that the IQ data is 2D and convert it to a numpy array.
 
         Args:
-            datum: Whole data.
+            datum: All IQ data. This data has different dimensions depending on whether
+                single-shot or averaged data is being processed. Single-shot data is four dimensional,
+                i.e., n. circuits x n. shots x n. slots x 2, while averaged IQ data is three dimensional, i.e.,
+                n. circuits x n. slots x 2. Here, n. slots is the number of measured qubits.
             error: Optional, accompanied error.
 
         Returns:
