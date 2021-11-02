@@ -118,9 +118,10 @@ class SVD(TrainableDataAction):
 
         Args:
             datum: All IQ data. This data has different dimensions depending on whether
-                single-shot or averaged data is being processed. Single-shot data is four dimensional,
-                i.e., n. circuits x n. shots x n. slots x 2, while averaged IQ data is three dimensional, i.e.,
-                n. circuits x n. slots x 2. Here, n. slots is the number of measured qubits.
+                single-shot or averaged data is being processed.
+                Single-shot data is four dimensional, i.e., ``[#circuits, #shots, #slots, 2]``,
+                while averaged IQ data is three dimensional, i.e., ``[#circuits, #slots, 2]``.
+                Here, ``#slots`` is the number of classical registers used in the circuit.
             error: Optional, accompanied error.
 
         Returns:
@@ -155,8 +156,8 @@ class SVD(TrainableDataAction):
         if self._validate:
             if self._n_iq != 2:
                 raise DataProcessorError(
-                    f"IQ data given to {self.__class__.__name__} must be a 2D array. "
-                    f"Instead, a {self._n_iq}D array was given."
+                    f"IQ data given to {self.__class__.__name__} does not have two-dimensions "
+                    f"(I and Q). Instead, {self._n_iq} dimensions were found."
                 )
 
             if error is not None and error.shape != datum.shape:
@@ -238,11 +239,10 @@ class SVD(TrainableDataAction):
             centered = np.array(
                 [datum[..., idx, iq] - self.means(qubit=idx, iq_index=iq) for iq in [0, 1]]
             )
-            angle = np.arctan(self._main_axes[idx][1] / self._main_axes[idx][0])
-
             processed_data[..., idx] = (self._main_axes[idx] @ centered) / scale
 
             if error is not None:
+                angle = np.arctan(self._main_axes[idx][1] / self._main_axes[idx][0])
                 error_vals[..., idx] = (
                     np.sqrt(
                         (error[..., idx, 0] * np.cos(angle)) ** 2
@@ -252,8 +252,13 @@ class SVD(TrainableDataAction):
                 )
 
         if self._n_circs == 1:
-            return processed_data[0], error_vals[0]
+            if error is None:
+                return processed_data[0], None
+            else:
+                return processed_data[0], error_vals[0]
 
+        if error is None:
+            return processed_data, None
         return processed_data, error_vals
 
     def train(self, data: List[Any]):
