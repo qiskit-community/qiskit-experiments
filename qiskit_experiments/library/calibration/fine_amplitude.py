@@ -57,7 +57,6 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             cal_parameter_name: The name of the parameter in the schedule to update.
             auto_update: Whether or not to automatically update the calibrations. By
                 default this variable is set to True.
-            on.
         """
         super().__init__(
             calibrations,
