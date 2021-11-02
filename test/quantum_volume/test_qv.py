@@ -109,7 +109,7 @@ class TestQuantumVolume(QiskitTestCase):
         result_data1 = expdata1.analysis_results(0)
         expdata2 = qv_exp.run(backend, analysis=False).block_for_results()
         expdata2.add_data(expdata1.data())
-        qv_exp.run_analysis(expdata2)
+        qv_exp.run_analysis(expdata2).block_for_results()
         result_data2 = expdata2.analysis_results(0)
 
         self.assertTrue(result_data1.extra["trials"] == 2, "number of trials is incorrect")
@@ -139,7 +139,7 @@ class TestQuantumVolume(QiskitTestCase):
         exp_data = ExperimentData(experiment=qv_exp, backend=backend)
         exp_data.add_data(insufficient_trials_data)
 
-        qv_exp.run_analysis(exp_data)
+        qv_exp.run_analysis(exp_data).block_for_results()
         qv_result = exp_data.analysis_results(1)
         self.assertTrue(
             qv_result.extra["success"] is False and qv_result.value == 1,
@@ -163,7 +163,7 @@ class TestQuantumVolume(QiskitTestCase):
         exp_data = ExperimentData(experiment=qv_exp, backend=backend)
         exp_data.add_data(insufficient_hop_data)
 
-        qv_exp.run_analysis(exp_data)
+        qv_exp.run_analysis(exp_data).block_for_results()
         qv_result = exp_data.analysis_results(1)
         self.assertTrue(
             qv_result.extra["success"] is False and qv_result.value == 1,
@@ -188,7 +188,7 @@ class TestQuantumVolume(QiskitTestCase):
         exp_data = ExperimentData(experiment=qv_exp, backend=backend)
         exp_data.add_data(insufficient_confidence_data)
 
-        qv_exp.run_analysis(exp_data)
+        qv_exp.run_analysis(exp_data).block_for_results()
         qv_result = exp_data.analysis_results(1)
         self.assertTrue(
             qv_result.extra["success"] is False and qv_result.value == 1,
@@ -212,7 +212,7 @@ class TestQuantumVolume(QiskitTestCase):
         exp_data = ExperimentData(experiment=qv_exp, backend=backend)
         exp_data.add_data(successful_data)
 
-        qv_exp.run_analysis(exp_data)
+        qv_exp.run_analysis(exp_data).block_for_results()
         results_json_file = "qv_result_moderate_noise_300_trials.json"
         with open(os.path.join(dir_name, results_json_file), "r") as json_file:
             successful_results = json.load(json_file, cls=ExperimentDecoder)
