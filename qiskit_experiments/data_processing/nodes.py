@@ -227,7 +227,7 @@ class SVD(TrainableDataAction):
             # level1 single mode
             dims = self._n_circs, self._n_shots, self._n_slots
 
-        singular_vals = np.zeros(dims, dtype=float)
+        processed_data = np.zeros(dims, dtype=float)
         error_vals = np.zeros(dims, dtype=float)
 
         for idx in range(self._n_slots):
@@ -237,7 +237,7 @@ class SVD(TrainableDataAction):
             )
             angle = np.arctan(self._main_axes[idx][1] / self._main_axes[idx][0])
 
-            singular_vals[..., idx] = (self._main_axes[idx] @ centered) / scale
+            processed_data[..., idx] = (self._main_axes[idx] @ centered) / scale
 
             if error is not None:
                 error_vals[..., idx] = (
@@ -249,9 +249,9 @@ class SVD(TrainableDataAction):
                 )
 
         if self._n_circs == 1:
-            return singular_vals[0], error_vals[0]
+            return processed_data[0], error_vals[0]
 
-        return singular_vals, error_vals
+        return processed_data, error_vals
 
     def train(self, data: List[Any]):
         """Train the SVD on the given data.
