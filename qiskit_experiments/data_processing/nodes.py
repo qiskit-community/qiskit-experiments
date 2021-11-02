@@ -91,8 +91,8 @@ class MinMaxNormalize(DataAction):
             The data that has been processed.
         """
         # Drop uncertainty of min max values. This is just mix-max scaling.
-        nominal_values = unp.nominal_values(data)
-        min_y, max_y = np.min(nominal_values), np.max(nominal_values)
+        nominals = unp.nominal_values(data)
+        min_y, max_y = np.min(nominals), np.max(nominals)
 
         return (data - min_y) / (max_y - min_y)
 

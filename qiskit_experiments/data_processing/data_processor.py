@@ -12,10 +12,10 @@
 
 """Actions done on the data to bring it in a usable form."""
 
+from typing import Dict, List, Set, Tuple, Union
+
 import numpy as np
 from uncertainties import unumpy as unp
-
-from typing import Any, Dict, List, Set, Tuple, Union
 
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
@@ -85,10 +85,21 @@ class DataProcessor:
         Returns:
             processed data: The data processed by the data processor.
         """
-        # Convert into conventional data format,
+        # Convert into conventional data format, This is temporary code block.
+        # Once following steps support ufloat array, data will be returned as-is.
         # TODO need upgrade of following steps, i.e. curve fitter
         processed_data = self._call_internal(data, **options)
-        return unp.nominal_values(processed_data), unp.std_devs(processed_data)
+        try:
+            nominals = unp.nominal_values(processed_data)
+            stdevs = unp.std_devs(processed_data)
+            if np.isnan(stdevs).all():
+                stdevs = None
+        except TypeError:
+            # unprocessed data, can be count dict array.
+            nominals = processed_data
+            stdevs = None
+
+        return nominals, stdevs
 
     def call_with_history(
         self, data: Union[Dict, List[Dict]], history_nodes: Set = None
@@ -109,10 +120,21 @@ class DataProcessor:
             A tuple of (processed data, history), that are the data processed by the processor
             and its intermediate state in each specified node, respectively.
         """
-        # Convert into conventional data format,
+        # Convert into conventional data format, This is temporary code block.
+        # Once following steps support ufloat array, data will be returned as-is.
         # TODO need upgrade of following steps, i.e. curve fitter
         processed_data, history = self._call_internal(data, True, history_nodes)
-        return unp.nominal_values(processed_data), unp.std_devs(processed_data), history
+        try:
+            nominals = unp.nominal_values(processed_data)
+            stdevs = unp.std_devs(processed_data)
+            if np.isnan(stdevs).all():
+                stdevs = None
+        except TypeError:
+            # unprocessed data, can be count dict array.
+            nominals = processed_data
+            stdevs = None
+
+        return nominals, stdevs, history
 
     def _call_internal(
         self,
@@ -141,23 +163,30 @@ class DataProcessor:
         if call_up_to_node is None:
             call_up_to_node = len(self._nodes)
 
-        data_to_process = self._data_extraction(data)
+        data = self._data_extraction(data)
 
         history = []
         for index, node in enumerate(self._nodes[:call_up_to_node]):
-            data_to_process = node(data_to_process)
+            data = node(data)
 
             if with_history and (history_nodes is None or index in history_nodes):
-                history.append((node.__class__.__name__, data_to_process, index))
+                history.append(
+                    (
+                        node.__class__.__name__,
+                        unp.nominal_values(data),
+                        unp.std_devs(data),
+                        index,
+                    )
+                )
 
         # Return only first entry if len(data) == 1
-        if data_to_process.shape[-1] == 1:
-            data_to_process = data_to_process[0]
+        if data.shape[-1] == 1:
+            data = data[0]
 
         if with_history:
-            return data_to_process, history
+            return data, history
         else:
-            return data_to_process
+            return data
 
     def train(self, data: Union[Dict, List[Dict]]):
         """Train the nodes of the data processor.
@@ -209,29 +238,25 @@ class DataProcessor:
                     f"The input key {self._input_key} was not found in the input datum."
                 ) from error
 
-            if self._input_key == "counts":
-                # asarray(dict) returns zero-dim array since dict is also iterable.
-                # outcome should be array-like.
-                outcome = [outcome]
-            outcome = np.asarray(outcome)
-
-            # Validate data shape
-            if dims is None:
-                dims = outcome.shape
-            else:
-                # This is because each data node creates full array of all result data.
-                # Jagged array cannot be numerically operated with numpy array.
-                if outcome.shape != dims:
-                    raise DataProcessorError(
-                        "Input data is likely a mixture of job results with different measurement "
-                        "configuration. Data processor doesn't support jagged array."
-                    )
-
+            if self._input_key != "counts":
+                outcome = np.asarray(outcome)
+                # Validate data shape
+                if dims is None:
+                    dims = outcome.shape
+                else:
+                    # This is because each data node creates full array of all result data.
+                    # Jagged array cannot be numerically operated with numpy array.
+                    if outcome.shape != dims:
+                        raise DataProcessorError(
+                            "Input data is likely a mixture of job results with different "
+                            "measurement setup. Data processor doesn't support jagged array."
+                        )
             data_to_process.append(outcome)
 
         try:
             # Likely level1 or below. Return ufloat array with un-computed std_dev.
-            # This will also return a standard ndarray with dtype=object.
+            # The output data format is a standard ndarray with dtype=object with
+            # arbitrary shape [n_circuits, ...] depending on the measurement setup.
             nominal_values = np.asarray(data_to_process, float)
             return unp.uarray(
                 nominal_values=nominal_values,
@@ -239,6 +264,9 @@ class DataProcessor:
             )
         except TypeError:
             # Likely level2 counts or level2 memory data. Cannot be typecasted to ufloat.
+            # The output data format is a standard ndarray with dtype=object with
+            # shape [n_circuits] or [n_circuits, n_memory_slot_size].
+            # No error value is bound.
             return np.asarray(data_to_process, dtype=object)
 
     def __repr__(self):
