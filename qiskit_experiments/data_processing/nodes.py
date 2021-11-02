@@ -141,7 +141,7 @@ class SVD(TrainableDataAction):
 
         # identify shape
         try:
-            # level1 single mode
+            # level1 single-shot data
             self._n_circs, self._n_shots, self._n_slots, self._n_iq = datum.shape
         except ValueError:
             try:
