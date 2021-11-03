@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Ramsey XY frequency calibration experiment."""
+"""Ramsey XY frequency characterization experiment."""
 
 from typing import List, Optional
 import numpy as np
@@ -88,7 +88,6 @@ class RamseyXY(BaseExperiment):
         """Default values for the Ramsey XY experiment.
 
         Experiment Options:
-            schedule (ScheduleBlock): The schedule for the sx gate.
             delays (list): The list of delays that will be scanned in the experiment.
             unit (str): The unit of the delays. Accepted values are dt, i.e. the
                 duration of a single sample on the backend, seconds, and sub-units,
@@ -97,7 +96,6 @@ class RamseyXY(BaseExperiment):
                 a virtual Z rotation to increase the frequency of the measured oscillation.
         """
         options = super()._default_experiment_options()
-        options.schedule = None
         options.delays = np.linspace(0, 1.0e-6, 51)
         options.unit = "s"
         options.osc_freq = 2e6
@@ -130,13 +128,13 @@ class RamseyXY(BaseExperiment):
     def _pre_circuit(self) -> QuantumCircuit:
         """Return a preparation circuit.
 
-        This method can be overridden by subclasses e.g. to calibrate schedules on
-        transitions other than the 0 <-> 1 transition.
+        This method can be overridden by subclasses e.g. to run on transitions other
+        than the 0 <-> 1 transition.
         """
         return QuantumCircuit(1)
 
     def circuits(self) -> List[QuantumCircuit]:
-        """Create the circuits for the Ramsey XY calibration experiment.
+        """Create the circuits for the Ramsey XY characterization experiment.
 
         Returns:
             A list of circuits with a variable delay.
@@ -186,12 +184,6 @@ class RamseyXY(BaseExperiment):
         ram_y.sx(0)
         ram_y.measure_active()
         ram_y.metadata = metadata.copy()
-
-        # Add the schedule if any.
-        schedule = self.experiment_options.schedule
-        if schedule is not None:
-            for circ in [ram_x, ram_y]:
-                circ.add_calibration("sx", self.physical_qubits, schedule)
 
         circs = []
         for delay in self.experiment_options.delays:
