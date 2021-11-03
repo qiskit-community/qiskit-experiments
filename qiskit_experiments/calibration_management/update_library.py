@@ -129,7 +129,7 @@ class BaseUpdater(ABC):
     @staticmethod
     def get_value(exp_data: ExperimentData, param_name: str, index: Optional[int] = -1) -> float:
         """A helper method to extract values from experiment data instances."""
-        candidates = exp_data.analysis_results(param_name)
+        candidates = exp_data.analysis_results(param_name, block=False)
         if isinstance(candidates, list):
             return candidates[index].value.value
         else:
