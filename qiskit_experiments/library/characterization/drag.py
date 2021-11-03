@@ -171,7 +171,11 @@ class RoughDrag(BaseExperiment):
         schedule = self.experiment_options.schedule
 
         beta = next(iter(schedule.parameters))
-        drag_gate = Gate(name=schedule.name, num_qubits=1, params=[beta])
+
+        # Note: if the pulse has a reserved name, e.g. x, which does not have parameters
+        # then we cannot directly call the gate x and attach a schedule to it. Doing so
+        # would results in QObj errors.
+        drag_gate = Gate(name="Drag(" + schedule.name + ")", num_qubits=1, params=[beta])
 
         reps = self.experiment_options.reps
         if len(reps) != 3:
@@ -192,7 +196,9 @@ class RoughDrag(BaseExperiment):
 
             circuit.measure_active()
 
-            circuit.add_calibration(schedule.name, self.physical_qubits, schedule, params=[beta])
+            circuit.add_calibration(
+                "Drag(" + schedule.name + ")", self.physical_qubits, schedule, params=[beta]
+            )
 
             for beta_val in self.experiment_options.betas:
                 beta_val = np.round(beta_val, decimals=6)

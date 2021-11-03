@@ -137,6 +137,10 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             target_angle = data[0]["metadata"]["target_angle"]
             prev_amp = data[0]["metadata"]["cal_param_value"]
 
+            # Protect against cases where the complex amplitude was converted to a list.
+            if isinstance(prev_amp, list) and len(prev_amp) == 2:
+                prev_amp = prev_amp[0] + 1.0j * prev_amp[1]
+
             d_theta = BaseUpdater.get_value(experiment_data, "d_theta", result_index)
 
             BaseUpdater.add_parameter_value(

@@ -151,7 +151,7 @@ class TestRoughDragCalUpdate(QiskitTestCase):
         """Test that running RoughDragCal updates the calibrations."""
 
         qubit = 0
-        prev_beta = self.cals.get_parameter_value("β", (0, ), "x")
+        prev_beta = self.cals.get_parameter_value("β", (0,), "x")
         self.assertEqual(prev_beta, 0)
 
         RoughDragCal(qubit, self.cals, backend=self.backend).run().block_for_results()
