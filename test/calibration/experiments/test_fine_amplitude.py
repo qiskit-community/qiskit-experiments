@@ -144,7 +144,7 @@ class TestSpecializations(QiskitTestCase):
         expected = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
         self.assertEqual(exp.experiment_options.repetitions, expected)
         self.assertEqual(exp.analysis_options.angle_per_gate, np.pi / 2)
-        self.assertEqual(exp.analysis_options.phase_offset, 0)
+        self.assertEqual(exp.analysis_options.phase_offset, np.pi)
         self.assertEqual(exp.experiment_options.gate, SXGate())
 
 
@@ -200,7 +200,9 @@ class TestFineAmplitudeCal(QiskitTestCase):
 
         amp_cal = FineXAmplitudeCal(0, self.cals, "x")
 
-        circs = transpile(amp_cal.circuits(), self.backend, **amp_cal.transpile_options.__dict__)
+        circs = transpile(
+            amp_cal.circuits(), self.backend, inst_map=amp_cal.transpile_options.inst_map
+        )
 
         with pulse.build(name="x") as expected_x:
             pulse.play(pulse.Drag(160, 0.5, 40, 0), pulse.DriveChannel(0))
@@ -216,7 +218,9 @@ class TestFineAmplitudeCal(QiskitTestCase):
         d_theta = exp_data.analysis_results(1).value.value
         new_amp = init_amp * np.pi / (np.pi + d_theta)
 
-        circs = transpile(amp_cal.circuits(), self.backend, **amp_cal.transpile_options.__dict__)
+        circs = transpile(
+            amp_cal.circuits(), self.backend, inst_map=amp_cal.transpile_options.inst_map
+        )
 
         x_cal = circs[5].calibrations["x"][((0,), ())]
 
@@ -238,7 +242,9 @@ class TestFineAmplitudeCal(QiskitTestCase):
 
         amp_cal = FineSXAmplitudeCal(0, self.cals, "sx")
 
-        circs = transpile(amp_cal.circuits(), self.backend, **amp_cal.transpile_options.__dict__)
+        circs = transpile(
+            amp_cal.circuits(), self.backend, inst_map=amp_cal.transpile_options.inst_map
+        )
 
         with pulse.build(name="sx") as expected_sx:
             pulse.play(pulse.Drag(160, 0.25, 40, 0), pulse.DriveChannel(0))
@@ -250,7 +256,9 @@ class TestFineAmplitudeCal(QiskitTestCase):
         d_theta = exp_data.analysis_results(1).value.value
         new_amp = init_amp * (np.pi / 2) / (np.pi / 2 + d_theta)
 
-        circs = transpile(amp_cal.circuits(), self.backend, **amp_cal.transpile_options.__dict__)
+        circs = transpile(
+            amp_cal.circuits(), self.backend, inst_map=amp_cal.transpile_options.inst_map
+        )
 
         sx_cal = circs[5].calibrations["sx"][((0,), ())]
 
