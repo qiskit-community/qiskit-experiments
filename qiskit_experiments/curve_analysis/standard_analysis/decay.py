@@ -88,7 +88,7 @@ class DecayAnalysis(curve.CurveAnalysis):
             )
         else:
             # Likely there is no slope. Cannot fit constant line with this model.
-            # Set some large enough number to the scan range.
+            # Set some large enough number against to the scan range.
             user_opt.p0.set_if_empty(
                 tau=100 * np.max(curve_data.x),
                 amp=curve.guess.max_height(curve_data.y)[0] - user_opt.p0["base"],

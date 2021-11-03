@@ -230,7 +230,7 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
             user_opt.p0.set_if_empty(tau=-1 / alpha)
         else:
             # Likely there is no slope. Cannot fit constant line with this model.
-            # Set some large enough number to the scan range.
+            # Set some large enough number against to the scan range.
             user_opt.p0.set_if_empty(tau=100 * np.max(curve_data.x))
 
         user_opt.bounds.set_if_empty(
