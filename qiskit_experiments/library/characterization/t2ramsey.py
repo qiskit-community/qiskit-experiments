@@ -75,6 +75,7 @@ class T2Ramsey(BaseExperiment):
 
         options.delays = None
         options.unit = "s"
+        options.conversion_factor = None
         options.osc_freq = 0.0
 
         return options
@@ -98,9 +99,9 @@ class T2Ramsey(BaseExperiment):
                 Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'. The unit is
                 used for both T2Ramsey and for the frequency.
             osc_freq: the oscillation frequency induced by the user.
-                      The frequency is given in Hz.
-        """
+                The frequency is given in Hz.
 
+        """
         super().__init__([qubit], backend=backend)
         self.set_experiment_options(delays=delays, unit=unit, osc_freq=osc_freq)
 
@@ -117,6 +118,19 @@ class T2Ramsey(BaseExperiment):
                 timing_constraints=timing_constraints, scheduling_method=scheduling_method
             )
 
+        # Set conversion factor
+        if self.experiment_options.unit == "dt":
+            try:
+                dt_factor = getattr(self.backend.configuration(), "dt")
+                conversion_factor = dt_factor
+            except AttributeError as no_dt:
+                raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
+        elif self.experiment_options.unit != "s":
+            conversion_factor = apply_prefix(1, self.experiment_options.unit)
+        else:
+            conversion_factor = 1
+        self.set_experiment_options(conversion_factor=conversion_factor)
+
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
 
@@ -127,27 +141,22 @@ class T2Ramsey(BaseExperiment):
             The experiment circuits
 
         Raises:
-            AttributeError: if unit is 'dt', but 'dt' parameter is missing in
-                            the backend configuration.
+            ValueError: When conversion factor is not set.
         """
-        conversion_factor = 1
-        if self.experiment_options.unit == "dt":
-            try:
-                dt_factor = getattr(self.backend._configuration, "dt")
-                conversion_factor = dt_factor
-            except AttributeError as no_dt:
-                raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
-        elif self.experiment_options.unit != "s":
-            conversion_factor = apply_prefix(1, self.experiment_options.unit)
+        prefactor = self.experiment_options.conversion_factor
+
+        if prefactor is None:
+            raise ValueError("Conversion factor is not set.")
 
         circuits = []
-        for delay in self.experiment_options.delays:
+        for delay in prefactor * np.asarray(self.experiment_options.delays, dtype=float):
+            delay = np.round(delay, decimals=10)
+
+            rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * delay
+
             circ = qiskit.QuantumCircuit(1, 1)
             circ.h(0)
-            circ.delay(delay, 0, self.experiment_options.unit)
-            rotation_angle = (
-                2 * np.pi * self.experiment_options.osc_freq * conversion_factor * delay
-            )
+            circ.delay(delay, 0, "s")
             circ.rz(rotation_angle, 0)
             circ.barrier(0)
             circ.h(0)
@@ -159,10 +168,8 @@ class T2Ramsey(BaseExperiment):
                 "qubit": self.physical_qubits[0],
                 "osc_freq": self.experiment_options.osc_freq,
                 "xval": delay,
-                "unit": self.experiment_options.unit,
+                "unit": "s",
             }
-            if self.experiment_options.unit == "dt":
-                circ.metadata["dt_factor"] = dt_factor
 
             circuits.append(circ)
 
