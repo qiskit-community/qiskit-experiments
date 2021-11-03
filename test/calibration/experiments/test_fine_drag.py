@@ -65,14 +65,14 @@ class TestFineDrag(QiskitExperimentsTestCase):
         drag = FineDrag(0, Gate("Drag", num_qubits=1, params=[]))
         drag.set_experiment_options(schedule=self.schedule)
         drag.set_transpile_options(basis_gates=["rz", "Drag", "sx"])
-        exp_data = drag.run(FineDragTestBackend()).block_for_results()
+        exp_data = drag.run(FineDragTestBackend())
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
 
     def test_end_to_end_no_schedule(self):
         """Test that we can run without a schedule."""
 
-        exp_data = FineXDrag(0).run(FineDragTestBackend()).block_for_results()
+        exp_data = FineXDrag(0).run(FineDragTestBackend())
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
 
