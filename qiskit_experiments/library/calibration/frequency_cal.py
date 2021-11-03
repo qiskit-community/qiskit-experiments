@@ -37,8 +37,8 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
 
     def __init__(
         self,
-        calibrations: BackendCalibrations,
         qubit: int,
+        calibrations: BackendCalibrations,
         backend: Optional[Backend] = None,
         delays: Optional[List] = None,
         unit: str = "s",
@@ -47,8 +47,8 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
     ):
         """
         Args:
-            calibrations:
             qubit: The qubit on which to run the frequency calibration.
+            calibrations: The calibrations instance with the schedules.
             backend: Optional, the backend to run the experiment on.
             delays: The list of delays that will be scanned in the experiment.
             unit: The unit of the delays. Accepted values are dt, i.e. the
