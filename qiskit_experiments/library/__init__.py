@@ -111,6 +111,7 @@ from .calibration import (
     FineXAmplitudeCal,
     FineSXAmplitudeCal,
     RoughFrequencyCal,
+    FrequencyCal,
 )
 from .characterization import (
     T1,

@@ -115,8 +115,6 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             circuit.metadata["target_angle"] = self.experiment_options.target_angle
             circuit.metadata["cal_group"] = self.experiment_options.group
 
-        return circuits
-
     def update_calibrations(self, experiment_data: ExperimentData):
         r"""Update the amplitude of the pulse in the calibrations.
 

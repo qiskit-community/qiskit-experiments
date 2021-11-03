@@ -40,6 +40,7 @@ module.
     :template: autosummary/experiment.rst
 
     RoughFrequencyCal
+    FrequencyCal
     DragCal
     FineDrag
     FineXDrag
@@ -73,6 +74,7 @@ from .drag import DragCal
 from .fine_drag import FineDrag, FineXDrag, FineSXDrag
 from .rough_amplitude_cal import RoughAmplitudeCal, RoughXSXAmplitudeCal, EFRoughXSXAmplitudeCal
 from .fine_amplitude import FineAmplitudeCal, FineXAmplitudeCal, FineSXAmplitudeCal
+from .frequency_cal import FrequencyCal
 
 from .analysis.drag_analysis import DragCalAnalysis
 from .analysis.fine_drag_analysis import FineDragAnalysis
