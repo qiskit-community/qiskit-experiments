@@ -13,6 +13,8 @@
 
 from typing import List, Union
 
+import numpy as np
+
 import qiskit_experiments.curve_analysis as curve
 
 
@@ -69,16 +71,28 @@ class DecayAnalysis(curve.CurveAnalysis):
 
         Returns:
             List of fit options that are passed to the fitter function.
+
+        Raises:
+            AnalysisError: When the y data is likely constant.
         """
         curve_data = self._data()
 
         user_opt.p0.set_if_empty(base=curve.guess.min_height(curve_data.y)[0])
 
-        user_opt.p0.set_if_empty(
-            tau=-1 / curve.guess.exp_decay(curve_data.x, curve_data.y),
-            amp=curve.guess.max_height(curve_data.y)[0] - user_opt.p0["base"],
-        )
+        alpha = curve.guess.exp_decay(curve_data.x, curve_data.y)
 
+        if alpha != 0.0:
+            user_opt.p0.set_if_empty(
+                tau=-1 / alpha,
+                amp=curve.guess.max_height(curve_data.y)[0] - user_opt.p0["base"],
+            )
+        else:
+            # Likely there is no slope. Cannot fit constant line with this model.
+            # Set some large enough number to the scan range.
+            user_opt.p0.set_if_empty(
+                tau=100 * np.max(curve_data.x),
+                amp=curve.guess.max_height(curve_data.y)[0] - user_opt.p0["base"],
+            )
         return user_opt
 
     def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
