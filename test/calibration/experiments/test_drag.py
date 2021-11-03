@@ -55,7 +55,7 @@ class TestDragEndToEnd(QiskitTestCase):
     def test_end_to_end(self):
         """Test the drag experiment end to end."""
 
-        backend = DragBackend(gate_name="xp")
+        backend = DragBackend(gate_name="Drag(xp)")
 
         drag = RoughDrag(1, self.x_plus)
 
@@ -67,7 +67,7 @@ class TestDragEndToEnd(QiskitTestCase):
 
         # Small leakage will make the curves very flat, in this case one should
         # rather increase beta.
-        backend = DragBackend(error=0.0051, gate_name="xp")
+        backend = DragBackend(error=0.0051, gate_name="Drag(xp)")
 
         drag = RoughDrag(0, self.x_plus)
         drag.set_analysis_options(p0={"beta": 1.2})
@@ -78,7 +78,7 @@ class TestDragEndToEnd(QiskitTestCase):
         self.assertEqual(result.quality, "good")
 
         # Large leakage will make the curves oscillate quickly.
-        backend = DragBackend(error=0.05, gate_name="xp")
+        backend = DragBackend(error=0.05, gate_name="Drag(xp)")
 
         drag = RoughDrag(1, self.x_plus, betas=np.linspace(-4, 4, 31))
         drag.set_run_options(shots=200)
@@ -110,16 +110,16 @@ class TestDragCircuits(QiskitTestCase):
     def test_default_circuits(self):
         """Test the default circuit."""
 
-        backend = DragBackend(error=0.005, gate_name="xp")
+        backend = DragBackend(error=0.005, gate_name="Drag(xp)")
 
         drag = RoughDrag(0, self.x_plus)
         drag.set_experiment_options(reps=[2, 4, 8])
-        drag.backend = DragBackend(gate_name="xp")
+        drag.backend = DragBackend(gate_name="Drag(xp)")
         circuits = drag.circuits()
 
         for idx, expected in enumerate([4, 8, 16]):
             ops = transpile(circuits[idx * 51], backend).count_ops()
-            self.assertEqual(ops["xp"], expected)
+            self.assertEqual(ops["Drag(xp)"], expected)
 
     def test_raise_multiple_parameter(self):
         """Check that the experiment raises with unassigned parameters."""
@@ -143,7 +143,7 @@ class TestRoughDragCalUpdate(QiskitTestCase):
 
         library = FixedFrequencyTransmon()
 
-        self.backend = DragBackend(gate_name="x")
+        self.backend = DragBackend(gate_name="Drag(x)")
         self.cals = BackendCalibrations(self.backend, library)
         self.test_tol = 0.05
 
