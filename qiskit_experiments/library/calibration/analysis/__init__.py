@@ -13,3 +13,4 @@
 """Calibration Analysis Classes"""
 
 from .drag_analysis import DragCalAnalysis
+from .fine_half_angle_analysis import FineHalfAngleAnalysis

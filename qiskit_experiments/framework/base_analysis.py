@@ -51,12 +51,16 @@ class BaseAnalysis(ABC):
     def run(
         self,
         experiment_data: ExperimentData,
+        replace_results: bool = False,
         **options,
     ) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
         Args:
             experiment_data: the experiment data to analyze.
+            replace_results: if True clear any existing analysis results and
+                             figures in the experiment data and replace with
+                             new results. See note for additional information.
             options: additional analysis options. See class documentation for
                      supported options.
 
@@ -65,12 +69,34 @@ class BaseAnalysis(ABC):
 
         Raises:
             QiskitError: if experiment_data container is not valid for analysis.
+
+        .. note::
+            **Updating Results**
+
+            If analysis is run with ``replace_results=True`` then any analysis results
+            and figures in the experiment data will be cleared and replaced with the
+            new analysis results. Saving this experiment data will replace any
+            previously saved data in a database service using the same experiment ID.
+
+            If analysis is run with ``replace_results=False`` and the experiment data
+            being analyzed has already been saved to a database service, or already
+            contains analysis results or figures, a copy with a unique experiment ID
+            will be returned containing only the new analysis results and figures.
+            This data can then be saved as its own experiment to a database service.
         """
         if not isinstance(experiment_data, self.__experiment_data__):
             raise QiskitError(
                 f"Invalid experiment data type, expected {self.__experiment_data__.__name__}"
                 f" but received {type(experiment_data).__name__}"
             )
+
+        # Make a new copy of experiment data if not updating results
+        if not replace_results and (
+            experiment_data._created_in_db
+            or experiment_data._analysis_results
+            or experiment_data._figures
+        ):
+            experiment_data = experiment_data._copy_metadata()
 
         # Get experiment device components
         if "physical_qubits" in experiment_data.metadata:
@@ -85,21 +111,22 @@ class BaseAnalysis(ABC):
         analysis_options.update_options(**options)
         analysis_options = analysis_options.__dict__
 
-        # Run analysis
-        results, figures = self._run_analysis(experiment_data, **analysis_options)
+        def run_analysis(expdata):
+            results, figures = self._run_analysis(expdata, **analysis_options)
+            # Add components
+            analysis_results = [
+                self._format_analysis_result(result, expdata.experiment_id, experiment_components)
+                for result in results
+            ]
+            # Update experiment data with analysis results
+            if replace_results:
+                experiment_data._clear_results()
+            if analysis_results:
+                expdata.add_analysis_results(analysis_results)
+            if figures:
+                expdata.add_figures(figures)
 
-        # Add components
-        analysis_results = [
-            self._format_analysis_result(
-                result, experiment_data.experiment_id, experiment_components
-            )
-            for result in results
-        ]
-
-        # Update experiment data with analysis results
-        experiment_data.add_analysis_results(analysis_results)
-        if figures:
-            experiment_data.add_figures(figures)
+        experiment_data.add_analysis_callback(run_analysis)
 
         return experiment_data
 

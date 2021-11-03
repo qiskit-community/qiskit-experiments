@@ -205,7 +205,7 @@ class TestRBAnalysis(QiskitTestCase):
             ((0, 1), "cx"): 1,
         }
         rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
-        analysis_results = rb_exp.run_analysis(expdata1)
+        analysis_results = rb_exp.run_analysis(expdata1).block_for_results()
         return data, analysis_results
 
 
@@ -260,7 +260,7 @@ class TestInterleavedRBAnalysis(TestRBAnalysis):
             ((0, 1), "cx"): 1,
         }
         rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
-        analysis_results = rb_exp.run_analysis(expdata1)
+        analysis_results = rb_exp.run_analysis(expdata1).block_for_results()
         return data, analysis_results
 
     def test_interleaved_rb_analysis_test(self):
