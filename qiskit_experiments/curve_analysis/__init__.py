@@ -44,6 +44,8 @@ your experiment class, you can still tailor the standard analysis classes to you
     :toctree: ../stubs/
     :template: autosummary/analysis.rst
 
+    DecayAnalysis
+    DumpedOscillationAnalysis
     OscillationAnalysis
     ResonanceAnalysis
     ErrorAmplificationAnalysis
@@ -114,6 +116,8 @@ from . import fit_function
 
 # standard analysis
 from .standard_analysis import (
+    DecayAnalysis,
+    DumpedOscillationAnalysis,
     OscillationAnalysis,
     ResonanceAnalysis,
     ErrorAmplificationAnalysis,
