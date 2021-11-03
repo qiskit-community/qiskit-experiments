@@ -178,6 +178,17 @@ class DbExperimentDataV1(DbExperimentData):
         self._created_in_db = False
         self._extra_data = kwargs
 
+    def _clear_results(self):
+        """Delete all currently stored analysis results and figures"""
+        # Schedule existing analysis results for deletion next save call
+        for key in self._analysis_results.keys():
+            self._deleted_analysis_results.append(key)
+        self._analysis_results = ThreadSafeOrderedDict()
+        # Schedule existing figures for deletion next save call
+        for key in self._analysis_results.keys():
+            self._deleted_figures.append(key)
+        self._figures = ThreadSafeOrderedDict()
+
     def _set_service_from_backend(self, backend: Union[Backend, BaseBackend]) -> None:
         """Set the service to be used from the input backend.
 
@@ -555,7 +566,9 @@ class DbExperimentDataV1(DbExperimentData):
         return figure_key
 
     def figure(
-        self, figure_key: Union[str, int], file_name: Optional[str] = None
+        self,
+        figure_key: Union[str, int],
+        file_name: Optional[str] = None,
     ) -> Union[int, bytes]:
         """Retrieve the specified experiment figure.
 
@@ -663,7 +676,9 @@ class DbExperimentDataV1(DbExperimentData):
                 self._analysis_results[result_id] = DbAnalysisResult._from_service_data(result)
 
     def analysis_results(
-        self, index: Optional[Union[int, slice, str]] = None, refresh: bool = False
+        self,
+        index: Optional[Union[int, slice, str]] = None,
+        refresh: bool = False,
     ) -> Union[DbAnalysisResult, List[DbAnalysisResult]]:
         """Return analysis results associated with this experiment.
 
@@ -899,6 +914,12 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             The experiment data with finished jobs and post-processing.
         """
+        _, timeout = combined_timeout(self._wait_for_jobs, timeout)
+        _, timeout = combined_timeout(self._wait_for_callbacks, timeout)
+        return self
+
+    def _wait_for_jobs(self, timeout: Optional[float] = None):
+        """Wait for jobs to finish running"""
         # Wait for jobs to finish
         for kwargs, fut in self._job_futures.copy():
             jobs = [job.job_id() for job in kwargs["jobs"]]
@@ -914,7 +935,6 @@ class DbExperimentDataV1(DbExperimentData):
                     "Possibly incomplete experiment data: Retrieving a job results"
                     " rased an exception."
                 )
-
         # Check job status and show warning if cancelled or error
         jobs_status = self._job_status()
         if jobs_status == "CANCELLED":
@@ -922,9 +942,13 @@ class DbExperimentDataV1(DbExperimentData):
         elif jobs_status == "ERROR":
             LOG.warning("Possibly incomplete experiment data: A Job returned an error.")
 
+    def _wait_for_callbacks(self, timeout: Optional[float] = None):
+        """Wait for analysis callbacks to finish"""
         # Wait for analysis callbacks to finish
         if self._callback_statuses:
             for status in self._callback_statuses.values():
+                if status.status in [JobStatus.DONE, JobStatus.CANCELLED]:
+                    continue
                 LOG.info("Waiting for analysis callback %s to finish.", status.callback)
                 finished, timeout = combined_timeout(status.event.wait, timeout)
                 if not finished:
@@ -943,8 +967,6 @@ class DbExperimentDataV1(DbExperimentData):
             LOG.warning(
                 "Possibly incomplete analysis results: an analysis callback raised an error."
             )
-
-        return self
 
     def status(self) -> str:
         """Return the data processing status.
