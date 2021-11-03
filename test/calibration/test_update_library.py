@@ -25,7 +25,6 @@ from qiskit_experiments.library import FineXDrag, QubitSpectroscopy
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.update_library import (
     Frequency,
-    Drag,
     FineDragUpdater,
 )
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
