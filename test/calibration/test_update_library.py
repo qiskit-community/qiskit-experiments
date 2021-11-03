@@ -21,7 +21,7 @@ from qiskit.qobj.utils import MeasLevel
 import qiskit.pulse as pulse
 from qiskit.test.mock import FakeAthens
 
-from qiskit_experiments.library import FineXDrag, DragCal, QubitSpectroscopy
+from qiskit_experiments.library import FineXDrag, QubitSpectroscopy
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.update_library import (
     Frequency,
@@ -29,7 +29,6 @@ from qiskit_experiments.calibration_management.update_library import (
     FineDragUpdater,
 )
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
-from qiskit_experiments.test.mock_iq_backend import DragBackend
 from .experiments.test_fine_drag import FineDragTestBackend
 
 
@@ -86,65 +85,6 @@ class TestFrequencyUpdate(QiskitTestCase):
         self.assertNotEqual(cals.get_qubit_frequencies()[qubit], value)
         Frequency.update(cals, exp_data)
         self.assertEqual(cals.get_qubit_frequencies()[qubit], value)
-
-
-class TestDragUpdate(QiskitTestCase):
-    """Test the frequency update function in the update library."""
-
-    def test_drag(self):
-        """Test calibrations update from drag."""
-
-        backend = DragBackend(gate_name="xp")
-        beta = Parameter("β")
-        qubit = 1
-        test_tol = 0.02
-        chan = Parameter("ch0")
-
-        with pulse.build(backend=backend, name="xp") as x_plus:
-            pulse.play(
-                pulse.Drag(duration=160, amp=0.208519, sigma=40, beta=beta),
-                pulse.DriveChannel(chan),
-            )
-
-        # Setup the calibrations
-        cals = BackendCalibrations(backend)
-
-        cals.add_schedule(x_plus, num_qubits=1)
-
-        cals.add_parameter_value(0.2, "β", qubit, x_plus)
-        cals.inst_map_add("xp", (qubit,))
-
-        # Check that the inst_map has the default beta
-        beta_val = cals.default_inst_map.get("xp", (qubit,)).blocks[0].pulse.beta
-        self.assertEqual(beta_val, 0.2)
-
-        # Run a Drag calibration experiment.
-        drag = DragCal(qubit)
-        drag.set_experiment_options(
-            schedule=cals.get_schedule("xp", qubit, assign_params={"β": beta}),
-        )
-
-        exp_data = drag.run(backend)
-        exp_data.block_for_results()
-        result = exp_data.analysis_results(1)
-
-        # Test the fit for good measure.
-        self.assertTrue(abs(result.value.value - backend.ideal_beta) < test_tol)
-        self.assertEqual(result.quality, "good")
-
-        # Check schedules pre-update
-        expected = x_plus.assign_parameters({beta: 0.2, chan: 1}, inplace=False)
-        self.assertEqual(cals.get_schedule("xp", qubit), expected)
-
-        Drag.update(cals, exp_data, parameter="β", schedule="xp")
-
-        # Check schedules post-update
-        expected = x_plus.assign_parameters({beta: result.value.value, chan: 1}, inplace=False)
-        self.assertEqual(cals.get_schedule("xp", qubit), expected)
-
-        # Check the inst map post update
-        beta_val = cals.default_inst_map.get("xp", (qubit,)).blocks[0].pulse.beta
-        self.assertTrue(np.allclose(beta_val, result.value.value))
 
 
 class TestFineDragUpdate(QiskitTestCase):
