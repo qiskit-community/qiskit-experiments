@@ -84,6 +84,7 @@ class BaseAnalysis(ABC):
             experiment_data._created_in_db
             or experiment_data._analysis_results
             or experiment_data._figures
+            or getattr(experiment_data, "_child_data", None)
         ):
             experiment_data = experiment_data._copy_metadata()
 

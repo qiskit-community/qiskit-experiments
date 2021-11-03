@@ -44,40 +44,54 @@ class CompositeAnalysis(BaseAnalysis):
         else:
             component_metadata = [{}] * composite_exp.num_experiments
 
-        # Check if component experiment data has already been initialized
-        components_exist = self._components_initialized(composite_exp, experiment_data)
+        # Initialize component data for updating and get the experiment IDs for
+        # the component child experiments
+        component_ids = self._initialize_components(composite_exp, experiment_data)
 
         # Compute marginalize data
         marginalized_data = self._marginalize_data(experiment_data.data())
 
         # Construct component experiment data
         for i, (sub_data, sub_exp) in enumerate(zip(marginalized_data, component_exps)):
-            if components_exist:
-                # Get existing component ExperimentData and clear any previously
-                # stored data
-                sub_exp_data = experiment_data.component_experiment_data(i)
-                sub_exp_data._data.clear()
-            else:
-                # Initialize component ExperimentData and add as child data
-                sub_exp_data = sub_exp._initialize_experiment_data()
-                experiment_data.add_child_data(sub_exp_data)
+            sub_exp_data = experiment_data.child_data(component_ids[i])
+
+            # Clear any previously stored data and add marginalized data
+            sub_exp_data._data.clear()
+            sub_exp_data.add_data(sub_data)
 
             # Add component job metadata
             sub_exp_data._metadata["job_metadata"] = [component_metadata[i]]
 
-            # Add marginalized data
-            sub_exp_data.add_data(sub_data)
-
             # Run analysis
-            sub_exp.run_analysis(sub_exp_data)
+            # Since copy for replace result is handled at the parent level
+            # we always run with replace result on component analysis
+            sub_exp.run_analysis(sub_exp_data, replace_results=True)
 
         return [], []
+
+    def _initialize_components(self, experiment, experiment_data):
+        """Initialize child data components and return list of child experiment IDs"""
+        component_index = experiment_data._metadata.get("component_child_index", [])
+        if not component_index:
+            # Construct component data and update indices
+            start_index = len(experiment_data.child_data())
+            component_index = []
+            for i, sub_exp in enumerate(experiment.component_experiment()):
+                sub_data = sub_exp._initialize_experiment_data()
+                experiment_data.add_child_data(sub_data)
+                component_index.append(start_index + i)
+            experiment_data._metadata["component_child_index"] = component_index
+
+        # Child components exist so we can get their ID for accessing them
+        child_ids = experiment_data._child_data.keys()
+        component_ids = [child_ids[idx] for idx in component_index]
+        return component_ids
 
     def _components_initialized(self, experiment, experiment_data):
         """Return True if component experiment data is initialized"""
         if len(experiment_data.child_data()) != experiment.num_experiments:
             return False
-        for data, exp in zip(experiment.composite_experiment(), experiment_data.child_data()):
+        for data, exp in zip(experiment.component_experiment(), experiment_data.child_data()):
             if exp.experiment_type == data.experiment_type:
                 return False
         return True
