@@ -125,11 +125,6 @@ class BaseExperiment(ABC):
         # Experiment identification metadata
         self._type = experiment_type if experiment_type else type(self).__name__
 
-        # Backend
-        self._backend = None
-        if isinstance(backend, (Backend, BaseBackend)):
-            self._set_backend(backend)
-
         # Circuit parameters
         if isinstance(qubits, Integral):
             self._num_qubits = qubits
@@ -151,6 +146,13 @@ class BaseExperiment(ABC):
         self._set_transpile_options = set()
         self._set_run_options = set()
         self._set_analysis_options = set()
+
+        # Set backend
+        # This should be called last incase `_set_backend` access any of the
+        # attributes created during initialization
+        self._backend = None
+        if isinstance(backend, (Backend, BaseBackend)):
+            self._set_backend(backend)
 
     def __new__(cls, *args, **kwargs):
         """Store init args and kwargs for subclass __init__ methods"""
@@ -317,10 +319,9 @@ class BaseExperiment(ABC):
 
         # Optionally run analysis
         if analysis and self.__analysis_class__ is not None:
-            self.run_analysis(experiment_data)
-
-        # Return the ExperimentData future
-        return experiment_data
+            return self.run_analysis(experiment_data)
+        else:
+            return experiment_data
 
     def _initialize_experiment_data(self) -> ExperimentData:
         """Initialize the return data container for the experiment run"""
@@ -355,8 +356,7 @@ class BaseExperiment(ABC):
 
         # Run analysis
         analysis = self.analysis()
-        analysis.run(experiment_data, replace_results=replace_results, **analysis_options)
-        return experiment_data
+        return analysis.run(experiment_data, replace_results=replace_results, **analysis_options)
 
     def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[BaseJob]:
         """Run circuits on backend as 1 or more jobs."""
