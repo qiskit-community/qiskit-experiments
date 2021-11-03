@@ -114,7 +114,7 @@ class TestFineAmplitudeCircuits(QiskitTestCase):
 
         amp_cal = FineSXAmplitude(0)
 
-        expected = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
+        expected = [0, 1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
         for idx, circ in enumerate(amp_cal.circuits()):
             self.assertEqual(circ.count_ops().get("sx", 0), expected[idx])
 
@@ -141,7 +141,7 @@ class TestSpecializations(QiskitTestCase):
         self.assertFalse(exp.experiment_options.add_sx)
         self.assertFalse(exp.experiment_options.add_xp_circuit)
 
-        expected = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
+        expected = [0, 1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
         self.assertEqual(exp.experiment_options.repetitions, expected)
         self.assertEqual(exp.analysis_options.angle_per_gate, np.pi / 2)
         self.assertEqual(exp.analysis_options.phase_offset, np.pi)

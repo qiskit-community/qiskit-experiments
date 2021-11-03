@@ -25,6 +25,7 @@ from qiskit_experiments.calibration_management import (
 from qiskit_experiments.library.characterization import FineAmplitude
 from qiskit_experiments.framework import ExperimentData, Options, fix_class_docs
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
+from qiskit_experiments.library.calibration.analysis import FineXAmplitudeAnalysis
 
 
 @fix_class_docs
@@ -139,6 +140,10 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             target_angle = data[0]["metadata"]["target_angle"]
             prev_amp = data[0]["metadata"]["cal_param_value"]
 
+            # Protect against cases where the complex amplitude was converted to a list.
+            if isinstance(prev_amp, list) and len(prev_amp) == 2:
+                prev_amp = prev_amp[0] + 1.0j * prev_amp[1]
+
             d_theta = BaseUpdater.get_value(experiment_data, "d_theta", result_index)
 
             BaseUpdater.add_parameter_value(
@@ -154,6 +159,8 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 @fix_class_docs
 class FineXAmplitudeCal(FineAmplitudeCal):
     """A calibration experiment to calibrate the amplitude of the X schedule."""
+
+    __analysis_class__ = FineXAmplitudeAnalysis
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -192,6 +199,7 @@ class FineXAmplitudeCal(FineAmplitudeCal):
         options = super()._default_analysis_options()
         options.angle_per_gate = np.pi
         options.phase_offset = np.pi / 2
+        options.amp = 1
 
         return options
 
@@ -219,7 +227,7 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
         options = super()._default_experiment_options()
         options.add_sx = False
         options.add_xp_circuit = False
-        options.repetitions = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
+        options.repetitions = [0, 1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
         options.target_angle = np.pi / 2
         return options
 
@@ -242,6 +250,6 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
         """Default analysis options."""
         options = super()._default_analysis_options()
         options.angle_per_gate = np.pi / 2
-        options.phase_offset = 0
+        options.phase_offset = np.pi
 
         return options
