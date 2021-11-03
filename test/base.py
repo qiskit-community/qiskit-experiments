@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Test T1 experiment
+Qiskit Experiments test case class
 """
 
 from typing import Any, Callable, Optional
@@ -73,6 +73,10 @@ class QiskitExperimentsTestCase(QiskitTestCase):
             if isinstance(arg1, np.ndarray) or isinstance(arg2, np.ndarray):
                 if not np.allclose(arg1, arg2):
                     return False
+            elif isinstance(arg1, tuple) or isinstance(arg2, tuple):
+                # JSON serialization converts tuples to lists
+                if list(arg1) != list(arg2):
+                    return False
             elif arg1 != arg2:
                 return False
         for attr in ["kwargs", "experiment_options", "transpile_options", "run_options"]:
@@ -82,6 +86,9 @@ class QiskitExperimentsTestCase(QiskitTestCase):
                 val2 = dict2[key1]
                 if isinstance(val1, np.ndarray) or isinstance(val2, np.ndarray):
                     if not np.allclose(val1, val2):
+                        return False
+                elif isinstance(val1, tuple) or isinstance(val2, tuple):
+                    if list(val1) != list(val2):
                         return False
                 elif val1 != val2:
                     return False

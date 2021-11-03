@@ -337,13 +337,6 @@ class ExperimentEncoder(json.JSONEncoder):
                 compress=False,
             )
             return {"__type__": "ParameterExpression", "__value__": value}
-        # # NOTE: This is copied from IBMQ provider RuntimeEncoder but is currently
-        # # Incorrect, see Issue https://github.com/Qiskit-Partners/qiskit-ibm/issues/190
-        # if isinstance(obj, Instruction):
-        #     value = _serialize_and_encode(
-        #         data=obj, serializer=qpy_serialization._write_instruction, compress=False
-        #     )
-        #     return {"__type__": "Instruction", "__value__": value}
         if isinstance(obj, Result):
             return {"__type__": "Result", "__value__": obj.to_dict()}
         if isinstance(obj, QuantumChannel):
