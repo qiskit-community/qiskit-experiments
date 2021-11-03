@@ -221,14 +221,6 @@ class FineXAmplitude(FineAmplitude):
         super().__init__(qubit, XGate(), backend=backend)
 
     @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = super()._default_analysis_options()
-        options.amp = 1.0
-
-        return options
-
-    @classmethod
     def _default_experiment_options(cls) -> Options:
         r"""Default values for the fine amplitude experiment.
 
@@ -253,6 +245,7 @@ class FineXAmplitude(FineAmplitude):
         options = super()._default_analysis_options()
         options.angle_per_gate = np.pi
         options.phase_offset = np.pi / 2
+        options.amp = 1.0
 
         return options
 
