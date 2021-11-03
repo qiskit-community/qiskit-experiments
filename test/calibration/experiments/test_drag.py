@@ -167,3 +167,12 @@ class TestRoughDragCalUpdate(QiskitTestCase):
         loaded_exp = RoughDragCal.from_config(config)
         self.assertNotEqual(exp, loaded_exp)
         self.assertEqual(config, loaded_exp.config)
+
+        with pulse.build(name="xp") as sched:
+            pulse.play(pulse.Drag(160, 0.5, 40, Parameter("β")), pulse.DriveChannel(0))
+
+        exp = RoughDrag(0, backend=self.backend, schedule=sched)
+        config = exp.config
+        loaded_exp = RoughDrag.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)
