@@ -143,6 +143,8 @@ class T2Ramsey(BaseExperiment):
         Raises:
             ValueError: When conversion factor is not set.
         """
+        self.set_analysis_options(extra={"osc_freq": self.experiment_options.osc_freq})
+
         prefactor = self.experiment_options.conversion_factor
 
         if prefactor is None:
@@ -172,5 +174,4 @@ class T2Ramsey(BaseExperiment):
             }
 
             circuits.append(circ)
-
         return circuits

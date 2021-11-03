@@ -91,6 +91,7 @@ class TestT2Ramsey(QiskitTestCase):
                     estimated_freq,
                     delta=TestT2Ramsey.__tolerance__ * result.value.value,
                 )
+                self.assertDictEqual(result.extra, {"osc_freq": osc_freq})
                 self.assertEqual(result.quality, "good", "Result quality bad for unit " + str(unit))
 
     def test_t2ramsey_parallel(self):
