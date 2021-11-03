@@ -48,6 +48,37 @@ class TomographyAnalysis(BaseAnalysis):
 
     @classmethod
     def _default_options(cls) -> Options:
+        """Default analysis options
+
+        Analysis Options:
+            measurement_basis
+                (:class:`~qiskit_experiments.library.tomography.basis.BaseFitterMeasurementBasis`):
+                The measurement
+                :class:`~qiskit_experiments.library.tomography.basis.BaseFitterMeasurementBasis`
+                to use for tomographic reconstruction when running a
+                :class:`~qiskit_experiments.library.tomography.StateTomography` or
+                :class:`~qiskit_experiments.library.tomography.ProcessTomography`.
+            preparation_basis
+                (:class:`~qiskit_experiments.library.tomography.basis.BaseFitterPreparationBasis`):
+                The preparation
+                :class:`~qiskit_experiments.library.tomography.basis.BaseFitterPreparationBasis`
+                to use for tomographic reconstruction for
+                :class:`~qiskit_experiments.library.tomography.ProcessTomography`.
+            fitter (str or Callable): The fitter function to use for reconstruction.
+                This can  be a string to select one of the built-in fitters, or a callable to
+                supply a custom fitter function. See the `Fitter Functions` section for
+                additional information.
+            rescale_positive (bool): If True rescale the state returned by the fitter
+                to be positive-semidefinite. See the `PSD Rescaling` section for
+                additional information (Default: True).
+            rescale_trace (bool): If True rescale the state returned by the fitter
+                have either trace 1 for :class:`~qiskit.quantum_info.DensityMatrix`,
+                or trace dim for :class:`~qiskit.quantum_info.Choi` matrices (Default: True).
+            target (Any): depends on subclass.
+            kwargs: will be supplied to the fitter function, for documentation of available
+                args refer to the fitter function documentation.
+
+        """
         options = super()._default_options()
 
         options.measurement_basis = None

@@ -17,7 +17,8 @@ from typing import Optional, Union, List
 from qiskit.result import marginal_counts
 from qiskit.exceptions import QiskitError
 from qiskit_experiments.framework.experiment_data import ExperimentData
-from qiskit_experiments.database_service import DbExperimentDataV1, DatabaseServiceV1
+from qiskit_experiments.database_service import DatabaseServiceV1
+from qiskit_experiments.database_service.utils import combined_timeout
 
 
 class CompositeExperimentData(ExperimentData):
@@ -114,19 +115,22 @@ class CompositeExperimentData(ExperimentData):
 
     @classmethod
     def load(cls, experiment_id: str, service: DatabaseServiceV1) -> "CompositeExperimentData":
-        expdata = DbExperimentDataV1.load(experiment_id, service)
-        components = []
+        expdata = ExperimentData.load(experiment_id, service)
+        expdata.__class__ = CompositeExperimentData
+        expdata._components = []
         for comp_id, comp_class in zip(
             expdata.metadata["component_ids"], expdata.metadata["component_classes"]
         ):
             load_class = globals()[comp_class]
             load_func = getattr(load_class, "load")
             loaded_comp = load_func(comp_id, service)
-            components.append(loaded_comp)
 
-        expdata.__class__ = CompositeExperimentData
-        expdata._experiment = None
-        expdata._components = components
+            # Sub-experiments that were saved before parent_id was introduced -
+            # their parent_id was set to None by the super class load method,
+            # and has now to be updated to the correct id
+            loaded_comp._parent_id = expdata.experiment_id
+
+            expdata._components.append(loaded_comp)
 
         return expdata
 
@@ -186,3 +190,8 @@ class CompositeExperimentData(ExperimentData):
             comp.experiment_id for comp in new_instance.component_experiment_data()
         ]
         return new_instance
+
+    def block_for_results(self, timeout: Optional[float] = None):
+        _, timeout = combined_timeout(super().block_for_results, timeout)
+        for subdata in self._components:
+            _, timeout = combined_timeout(subdata.block_for_results, timeout)

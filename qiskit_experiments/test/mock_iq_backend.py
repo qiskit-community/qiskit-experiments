@@ -32,13 +32,14 @@ class MockIQBackend(FakeOpenPulse2Q):
         self,
         iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
         iq_cluster_width: float = 1.0,
+        rng_seed: int = 0,
     ):
         """
         Initialize the backend.
         """
         self._iq_cluster_centers = iq_cluster_centers
         self._iq_cluster_width = iq_cluster_width
-        self._rng = np.random.default_rng(0)
+        self._rng = np.random.default_rng(rng_seed)
 
         super().__init__()
 
@@ -137,13 +138,14 @@ class DragBackend(MockIQBackend):
         error: float = 0.03,
         ideal_beta=2.0,
         gate_name: str = "Rp",
+        rng_seed: int = 0,
     ):
         """Initialize the rabi backend."""
         self._error = error
         self._gate_name = gate_name
         self.ideal_beta = ideal_beta
 
-        super().__init__(iq_cluster_centers, iq_cluster_width)
+        super().__init__(iq_cluster_centers, iq_cluster_width, rng_seed=rng_seed)
 
     def _compute_probability(self, circuit: QuantumCircuit) -> float:
         """Returns the probability based on the beta, number of gates, and leakage."""
@@ -152,6 +154,31 @@ class DragBackend(MockIQBackend):
         beta = next(iter(circuit.calibrations[self._gate_name].keys()))[1][0]
 
         return np.sin(n_gates * self._error * (beta - self.ideal_beta)) ** 2
+
+
+class RabiBackend(MockIQBackend):
+    """A simple and primitive backend, to be run by the Rabi tests."""
+
+    def __init__(
+        self,
+        iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
+        iq_cluster_width: float = 1.0,
+        amplitude_to_angle: float = np.pi,
+    ):
+        """Initialize the rabi backend."""
+        self._amplitude_to_angle = amplitude_to_angle
+
+        super().__init__(iq_cluster_centers, iq_cluster_width)
+
+    @property
+    def rabi_rate(self) -> float:
+        """Returns the rabi rate."""
+        return self._amplitude_to_angle / np.pi
+
+    def _compute_probability(self, circuit: QuantumCircuit) -> float:
+        """Returns the probability based on the rotation angle and amplitude_to_angle."""
+        amp = next(iter(circuit.calibrations["Rabi"].keys()))[1][0]
+        return np.sin(self._amplitude_to_angle * amp) ** 2
 
 
 class MockFineAmp(MockIQBackend):

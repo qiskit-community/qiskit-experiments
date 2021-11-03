@@ -13,7 +13,8 @@
 """Different data analysis steps."""
 
 from abc import abstractmethod
-from typing import Any, Dict, List, Optional, Tuple, Union
+from numbers import Number
+from typing import Any, Dict, List, Optional, Tuple, Union, Sequence
 import numpy as np
 
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
@@ -98,7 +99,8 @@ class SVD(TrainableDataAction):
     """Singular Value Decomposition of averaged IQ data."""
 
     def __init__(self, validate: bool = True):
-        """
+        """Create new action.
+
         Args:
             validate: If set to False the DataAction will not validate its input.
         """
@@ -106,12 +108,21 @@ class SVD(TrainableDataAction):
         self._main_axes = None
         self._means = None
         self._scales = None
+        self._n_circs = 0
+        self._n_shots = 0
+        self._n_slots = 0
+        self._n_iq = 0
 
     def _format_data(self, datum: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
         """Check that the IQ data is 2D and convert it to a numpy array.
 
         Args:
-            datum: A single item of data which corresponds to single-shot IQ data.
+            datum: All IQ data. This data has different dimensions depending on whether
+                single-shot or averaged data is being processed.
+                Single-shot data is four dimensional, i.e., ``[#circuits, #shots, #slots, 2]``,
+                while averaged IQ data is three dimensional, i.e., ``[#circuits, #slots, 2]``.
+                Here, ``#slots`` is the number of classical registers used in the circuit.
+            error: Optional, accompanied error.
 
         Returns:
             datum and any error estimate as a numpy array.
@@ -124,14 +135,32 @@ class SVD(TrainableDataAction):
         if error is not None:
             error = np.asarray(error, dtype=float)
 
-        if self._validate:
-            if len(datum.shape) not in {2, 3}:
+        self._n_circs = 0
+        self._n_shots = 0
+        self._n_slots = 0
+        self._n_iq = 0
+
+        # identify shape
+        try:
+            # level1 single-shot data
+            self._n_circs, self._n_shots, self._n_slots, self._n_iq = datum.shape
+        except ValueError:
+            try:
+                # level1 data averaged over shots
+                self._n_circs, self._n_slots, self._n_iq = datum.shape
+            except ValueError as ex:
                 raise DataProcessorError(
-                    f"IQ data given to {self.__class__.__name__} must be a 2D array. "
-                    f"Instead, a {len(datum.shape)}D array was given."
+                    f"Data given to {self.__class__.__name__} is not likely level1 data."
+                ) from ex
+
+        if self._validate:
+            if self._n_iq != 2:
+                raise DataProcessorError(
+                    f"IQ data given to {self.__class__.__name__} does not have two-dimensions "
+                    f"(I and Q). Instead, {self._n_iq} dimensions were found."
                 )
 
-            if error is not None and len(error.shape) not in {2, 3}:
+            if error is not None and error.shape != datum.shape:
                 raise DataProcessorError(
                     f"IQ data error given to {self.__class__.__name__} must be a 2D array."
                     f"Instead, a {len(error.shape)}D array was given."
@@ -191,45 +220,46 @@ class SVD(TrainableDataAction):
         Raises:
             DataProcessorError: If the SVD has not been previously trained on data.
         """
-
         if not self.is_trained:
             raise DataProcessorError("SVD must be trained on data before it can be used.")
 
-        n_qubits = datum.shape[0] if len(datum.shape) == 2 else datum.shape[1]
-        processed_data = []
-
-        if error is not None:
-            processed_error = []
+        # IQ axis is reduced by projection
+        if self._n_shots == 0:
+            # level1 average mode
+            dims = self._n_circs, self._n_slots
         else:
-            processed_error = None
+            # level1 single mode
+            dims = self._n_circs, self._n_shots, self._n_slots
 
-        # process each averaged IQ point with its own axis.
-        for idx in range(n_qubits):
+        processed_data = np.zeros(dims, dtype=float)
+        error_vals = np.zeros(dims, dtype=float)
 
+        for idx in range(self._n_slots):
+            scale = self.scales[idx]
             centered = np.array(
                 [datum[..., idx, iq] - self.means(qubit=idx, iq_index=iq) for iq in [0, 1]]
             )
-
-            processed_data.append((self._main_axes[idx] @ centered) / self.scales[idx])
+            processed_data[..., idx] = (self._main_axes[idx] @ centered) / scale
 
             if error is not None:
                 angle = np.arctan(self._main_axes[idx][1] / self._main_axes[idx][0])
-                error_value = np.sqrt(
-                    (error[..., idx, 0] * np.cos(angle)) ** 2
-                    + (error[..., idx, 1] * np.sin(angle)) ** 2
+                error_vals[..., idx] = (
+                    np.sqrt(
+                        (error[..., idx, 0] * np.cos(angle)) ** 2
+                        + (error[..., idx, 1] * np.sin(angle)) ** 2
+                    )
+                    / scale
                 )
-                processed_error.append(error_value / self.scales[idx])
 
-        if len(processed_data) == 1:
+        if self._n_circs == 1:
             if error is None:
                 return processed_data[0], None
             else:
-                return processed_data[0], processed_error[0]
+                return processed_data[0], error_vals[0]
 
         if error is None:
-            return np.array(processed_data), None
-        else:
-            return np.array(processed_data), np.array(processed_error)
+            return processed_data, None
+        return processed_data, error_vals
 
     def train(self, data: List[Any]):
         """Train the SVD on the given data.
@@ -247,14 +277,14 @@ class SVD(TrainableDataAction):
         if data is None:
             return
 
-        n_qubits = self._format_data(data[0])[0].shape[0]
+        data, _ = self._format_data(data)
 
         self._main_axes = []
         self._scales = []
         self._means = []
 
-        for qubit_idx in range(n_qubits):
-            datums = np.vstack([self._format_data(datum)[0][qubit_idx] for datum in data]).T
+        for qubit_idx in range(self._n_slots):
+            datums = np.vstack([datum[qubit_idx] for datum in data]).T
 
             # Calculate the mean of the data to recenter it in the IQ plane.
             mean_i = np.average(datums[0, :])
@@ -391,17 +421,73 @@ class ToImag(IQPart):
 
 
 class Probability(DataAction):
-    """Count data post processing. This returns the probabilities of the outcome string
-    used to initialize an instance of Probability."""
+    r"""Compute the mean probability of a single measurement outcome from counts.
 
-    def __init__(self, outcome: str = "1", validate: bool = True):
+    This node returns the mean and standard deviation of a single measurement
+    outcome probability :math:`p` estimated from the observed counts. The mean and
+    variance are computed from the posterior Beta distribution
+    :math:`B(\alpha_0^\prime,\alpha_1^\prime)` estimated from a Bayesian update
+    of a prior Beta distribution :math:`B(\alpha_0, \alpha_1)` given the observed
+    counts.
+
+    The mean and variance of the Beta distribution :math:`B(\alpha_0, \alpha_1)` are:
+
+    .. math::
+
+        \text{E}[p] = \frac{\alpha_0}{\alpha_0 + \alpha_1}, \quad
+        \text{Var}[p] = \frac{\text{E}[p] (1 - \text{E}[p])}{\alpha_0 + \alpha_1 + 1}
+
+    Given a prior Beta distribution :math:`B(\alpha_0, \alpha_1)`, the posterior
+    distribution for the observation of :math:`F` counts of a given
+    outcome out of :math:`N` total shots is a
+    :math:`B(\alpha_0^\prime,\alpha_1^\prime):math:` with
+
+    .. math::
+        \alpha_0^\prime = \alpha_0 + F, \quad
+        \alpha_1^\prime = \alpha_1 + N - F.
+
+    .. note::
+
+        The default value for the prior distribution is *Jeffery's Prior*
+        :math:`\alpha_0 = \alpha_1 = 0.5` which represents ignorance about the true
+        probability value. Note that for this prior the mean probability estimate
+        from a finite number of counts can never be exactly 0 or 1. The estimated
+        mean and variance are given by
+
+        .. math::
+
+            \text{E}[p] = \frac{F + 0.5}{N + 1}, \quad
+            \text{Var}[p] = \frac{\text{E}[p] (1 - \text{E}[p])}{N + 2}
+    """
+
+    def __init__(
+        self,
+        outcome: str,
+        alpha_prior: Union[float, Sequence[float]] = 0.5,
+        validate: bool = True,
+    ):
         """Initialize a counts to probability data conversion.
 
         Args:
-            outcome: The bitstring for which to compute the probability which defaults to "1".
+            outcome: The bitstring for which to return the probability and variance.
+            alpha_prior: A prior Beta distribution parameter ``[`alpha0, alpha1]``.
+                         If specified as float this will use the same value for
+                         ``alpha0`` and``alpha1`` (Default: 0.5).
             validate: If set to False the DataAction will not validate its input.
+
+        Raises:
+            DataProcessorError: When the dimension of the prior and expected parameter vector
+                do not match.
         """
         self._outcome = outcome
+        if isinstance(alpha_prior, Number):
+            self._alpha_prior = [alpha_prior, alpha_prior]
+        else:
+            if validate and len(alpha_prior) != 2:
+                raise DataProcessorError(
+                    "Prior for probability node must be a float or pair of floats."
+                )
+            self._alpha_prior = list(alpha_prior)
         super().__init__(validate)
 
     def _format_data(self, datum: dict, error: Optional[Any] = None) -> Tuple[dict, Any]:
@@ -472,12 +558,14 @@ class Probability(DataAction):
 
             return np.array(populations), np.array(errors)
 
-    def _population_error(self, counts_dict) -> Tuple[float, float]:
+    def _population_error(self, counts_dict: Dict[str, int]) -> Tuple[float, float]:
         """Helper method"""
         shots = sum(counts_dict.values())
-        p_mean = counts_dict.get(self._outcome, 0.0) / shots
-        p_var = p_mean * (1 - p_mean) / shots
-
+        freq = counts_dict.get(self._outcome, 0)
+        alpha_posterior = [freq + self._alpha_prior[0], shots - freq + self._alpha_prior[1]]
+        alpha_sum = sum(alpha_posterior)
+        p_mean = alpha_posterior[0] / alpha_sum
+        p_var = p_mean * (1 - p_mean) / (alpha_sum + 1)
         return p_mean, np.sqrt(p_var)
 
 

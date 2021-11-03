@@ -44,11 +44,13 @@ module.
     FineDrag
     FineXDrag
     FineSXDrag
-    Rabi
-    FineAmplitude
-    FineXAmplitude
-    FineSXAmplitude
+    FineAmplitudeCal
+    FineXAmplitudeCal
+    FineSXAmplitudeCal
     RamseyXY
+    RoughAmplitudeCal
+    RoughXSXAmplitudeCal
+    EFRoughXSXAmplitudeCal
 
 Calibration analysis
 ====================
@@ -70,8 +72,8 @@ See :mod:`qiskit_experiments.calibration_management`.
 from .rough_frequency import RoughFrequencyCal
 from .drag import DragCal
 from .fine_drag import FineDrag, FineXDrag, FineSXDrag
-from .rabi import Rabi, EFRabi
-from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
+from .rough_amplitude_cal import RoughAmplitudeCal, RoughXSXAmplitudeCal, EFRoughXSXAmplitudeCal
+from .fine_amplitude import FineAmplitudeCal, FineXAmplitudeCal, FineSXAmplitudeCal
 from .ramsey_xy import RamseyXY
 
 from .analysis.drag_analysis import DragCalAnalysis

@@ -12,7 +12,6 @@
 
 """Test the calibration update library."""
 
-from test.calibration.experiments.test_rabi import RabiBackend
 from test.test_qubit_spectroscopy import SpectroscopyBackend
 import numpy as np
 
@@ -22,17 +21,15 @@ from qiskit.qobj.utils import MeasLevel
 import qiskit.pulse as pulse
 from qiskit.test.mock import FakeAthens
 
-from qiskit_experiments.library import Rabi, FineXDrag, DragCal, QubitSpectroscopy, FineAmplitude
+from qiskit_experiments.library import FineXDrag, DragCal, QubitSpectroscopy
 from qiskit_experiments.calibration_management.calibrations import Calibrations
-from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.update_library import (
     Frequency,
-    Amplitude,
     Drag,
     FineDragUpdater,
 )
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
-from qiskit_experiments.test.mock_iq_backend import DragBackend, MockFineAmp
+from qiskit_experiments.test.mock_iq_backend import DragBackend
 from .experiments.test_fine_drag import FineDragTestBackend
 
 
@@ -60,75 +57,6 @@ class TestAmplitudeUpdate(QiskitTestCase):
         self.cals.add_schedule(x90p, num_qubits=1)
         self.cals.add_parameter_value(0.2, "amp", self.qubit, "xp")
         self.cals.add_parameter_value(0.1, "amp", self.qubit, "x90p")
-
-    def test_amplitude(self):
-        """Test amplitude update from Rabi."""
-
-        rabi = Rabi(self.qubit)
-        rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
-        exp_data = rabi.run(RabiBackend())
-        exp_data.block_for_results()
-
-        with self.assertRaises(CalibrationError):
-            self.cals.get_schedule("xp", qubits=0)
-
-        to_update = [(np.pi, "amp", "xp"), (np.pi / 2, "amp", self.x90p)]
-
-        self.assertEqual(len(self.cals.parameters_table()), 2)
-
-        Amplitude.update(self.cals, exp_data, angles_schedules=to_update)
-
-        with self.assertRaises(CalibrationError):
-            self.cals.get_schedule("xp", qubits=0)
-
-        self.assertEqual(len(self.cals.parameters_table()["data"]), 4)
-
-        # Now check the corresponding schedules
-        result = exp_data.analysis_results(1)
-        rate = 2 * np.pi * result.value.value
-        amp = np.round(np.pi / rate, decimals=8)
-        with pulse.build(name="xp") as expected:
-            pulse.play(pulse.Gaussian(160, amp, 40), pulse.DriveChannel(self.qubit))
-
-        self.assertEqual(self.cals.get_schedule("xp", qubits=self.qubit), expected)
-
-        amp = np.round(0.5 * np.pi / rate, decimals=8)
-        with pulse.build(name="xp") as expected:
-            pulse.play(pulse.Gaussian(160, amp, 40), pulse.DriveChannel(self.qubit))
-
-        self.assertEqual(self.cals.get_schedule("x90p", qubits=self.qubit), expected)
-
-    def test_fine_amplitude(self):
-        """Test that we can update from a fine amplitude experiment."""
-
-        xp_sched = self.cals.get_schedule("xp", self.qubit)
-        target_angle = np.pi
-
-        amp_cal = FineAmplitude(self.qubit)
-        amp_cal.set_schedule(
-            schedule=xp_sched, angle_per_gate=target_angle, add_xp_circuit=True, add_sx=True
-        )
-        amp_cal.set_analysis_options(number_guesses=11)
-
-        error = -np.pi * 0.05
-        backend = MockFineAmp(error, np.pi, "xp")
-
-        exp_data = amp_cal.run(backend)
-        exp_data.block_for_results()
-
-        self.assertEqual(self.cals.get_parameter_value("amp", self.qubit, "xp"), 0.2)
-
-        with self.assertRaises(CalibrationError):
-            Amplitude.update(
-                self.cals, exp_data, angles_schedules=[(target_angle, "amp_fail", "xp")]
-            )
-
-        Amplitude.update(self.cals, exp_data, angles_schedules=[(target_angle, "amp", "xp")])
-
-        new_value = 0.2 * target_angle / (target_angle + error)
-        self.assertAlmostEqual(
-            self.cals.get_parameter_value("amp", self.qubit, "xp"), new_value, places=3
-        )
 
 
 class TestFrequencyUpdate(QiskitTestCase):

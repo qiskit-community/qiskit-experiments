@@ -13,21 +13,25 @@
 Batch Experiment class.
 """
 
+from typing import List, Optional
 from collections import OrderedDict
 
 from qiskit import QuantumCircuit
+from qiskit.providers.backend import Backend
+from qiskit_experiments.framework.base_experiment import fix_class_docs
+from .composite_experiment import CompositeExperiment, BaseExperiment
 
-from .composite_experiment import CompositeExperiment
 
-
+@fix_class_docs
 class BatchExperiment(CompositeExperiment):
     """Batch experiment class"""
 
-    def __init__(self, experiments):
+    def __init__(self, experiments: List[BaseExperiment], backend: Optional[Backend] = None):
         """Initialize a batch experiment.
 
         Args:
-            experiments (List[BaseExperiment]): a list of experiments.
+            experiments: a list of experiments.
+            backend: Optional, the backend to run the experiment on.
         """
 
         # Generate qubit map
@@ -39,9 +43,9 @@ class BatchExperiment(CompositeExperiment):
                     self._qubit_map[physical_qubit] = logical_qubit
                     logical_qubit += 1
         qubits = tuple(self._qubit_map.keys())
-        super().__init__(experiments, qubits)
+        super().__init__(experiments, qubits, backend=backend)
 
-    def circuits(self, backend=None):
+    def circuits(self):
 
         batch_circuits = []
 
@@ -51,7 +55,7 @@ class BatchExperiment(CompositeExperiment):
                 qubit_mapping = None
             else:
                 qubit_mapping = [self._qubit_map[qubit] for qubit in expr.physical_qubits]
-            for circuit in expr.circuits(backend):
+            for circuit in expr.circuits():
                 # Update metadata
                 circuit.metadata = {
                     "experiment_type": self._type,

@@ -55,19 +55,18 @@ class TestDragEndToEnd(QiskitTestCase):
         self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
-        # Small leakage will make the curves very flat.
-        backend = DragBackend(error=0.005, gate_name="xp")
+        # Small leakage will make the curves very flat, in this case one should
+        # rather increase beta.
+        backend = DragBackend(error=0.0051, gate_name="xp")
 
         drag = DragCal(0)
         drag.set_analysis_options(p0={"beta": 1.2})
         drag.set_experiment_options(schedule=self.x_plus)
-        drag.set_run_options(meas_level=MeasLevel.KERNELED, meas_return="avg")
         exp_data = drag.run(backend).block_for_results()
         result = exp_data.analysis_results(1)
 
         meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
 
-        self.assertEqual(meas_level, MeasLevel.KERNELED)
         self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
@@ -110,7 +109,8 @@ class TestDragCircuits(QiskitTestCase):
 
         drag = DragCal(0)
         drag.set_experiment_options(reps=[2, 4, 8], schedule=self.x_plus)
-        circuits = drag.circuits(DragBackend(gate_name="xp"))
+        drag.backend = DragBackend(gate_name="xp")
+        circuits = drag.circuits()
 
         for idx, expected in enumerate([4, 8, 16]):
             ops = transpile(circuits[idx * 51], backend).count_ops()
@@ -145,3 +145,11 @@ class TestDragOptions(QiskitTestCase):
 
         with self.assertRaises(CalibrationError):
             drag.set_experiment_options(reps=[1, 2, 3, 4])
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = DragCal(0)
+        config = exp.config
+        loaded_exp = DragCal.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)

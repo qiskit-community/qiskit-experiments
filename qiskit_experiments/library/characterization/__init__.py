@@ -28,6 +28,12 @@ Experiments
     QubitSpectroscopy
     CrossResonanceHamiltonian
     EchoedCrossResonanceHamiltonian
+    Rabi
+    EFRabi
+    HalfAngle
+    FineAmplitude
+    FineXAmplitude
+    FineSXAmplitude
 
 
 Analysis
@@ -51,3 +57,6 @@ from .t2ramsey import T2Ramsey
 from .t2ramsey_analysis import T2RamseyAnalysis
 from .cr_hamiltonian import CrossResonanceHamiltonian, EchoedCrossResonanceHamiltonian
 from .cr_hamiltonian_analysis import CrossResonanceHamiltonianAnalysis
+from .rabi import Rabi, EFRabi
+from .half_angle import HalfAngle
+from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
