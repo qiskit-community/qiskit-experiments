@@ -213,13 +213,13 @@ class TestSVD(BaseDataProcessorTest):
 
         # Since the axis is along the real part the imaginary error is irrelevant.
         processed_data = iq_svd(unp.uarray(nominal_values=[[[1.0, 0.2]]], std_devs=[[[0.2, 0.1]]]))
-        np.testing.assert_array_equal(unp.nominal_values(processed_data), np.array([[1.0]]))
-        np.testing.assert_array_equal(unp.std_devs(processed_data), np.array([[0.2]]))
+        np.testing.assert_array_almost_equal(unp.nominal_values(processed_data), np.array([[1.0]]))
+        np.testing.assert_array_almost_equal(unp.std_devs(processed_data), np.array([[0.2]]))
 
         # Since the axis is along the real part the imaginary error is irrelevant.
         processed_data = iq_svd(unp.uarray(nominal_values=[[[1.0, 0.2]]], std_devs=[[[0.2, 0.3]]]))
-        np.testing.assert_array_equal(unp.nominal_values(processed_data), np.array([[1.0]]))
-        np.testing.assert_array_equal(unp.std_devs(processed_data), np.array([[0.2]]))
+        np.testing.assert_array_almost_equal(unp.nominal_values(processed_data), np.array([[1.0]]))
+        np.testing.assert_array_almost_equal(unp.std_devs(processed_data), np.array([[0.2]]))
 
         # Tilt the axis to an angle of 36.9... degrees
         iq_svd._main_axes = np.array([[0.8, 0.6]])
@@ -227,11 +227,11 @@ class TestSVD(BaseDataProcessorTest):
         processed_data = iq_svd(unp.uarray(nominal_values=[[[1.0, 0.0]]], std_devs=[[[0.2, 0.3]]]))
         cos_ = np.cos(np.arctan(0.6 / 0.8))
         sin_ = np.sin(np.arctan(0.6 / 0.8))
-        np.testing.assert_array_equal(
+        np.testing.assert_array_almost_equal(
             unp.nominal_values(processed_data),
             np.array([[cos_]]),
         )
-        np.testing.assert_array_equal(
+        np.testing.assert_array_almost_equal(
             unp.std_devs(processed_data),
             np.array([[np.sqrt((0.2 * cos_) ** 2 + (0.3 * sin_) ** 2)]]),
         )
