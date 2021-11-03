@@ -83,8 +83,8 @@ class HeatElement(BaseExperiment):
     def _default_transpile_options(cls) -> Options:
         """Default transpile options."""
         options = super()._default_transpile_options()
-        options.basis_gates = ["sx", "x", "rz", "cr"]
-        options.optimization_level = 0
+        options.basis_gates = ["sx", "x", "rz", "heat"]
+        options.optimization_level = 1
 
         return options
 
@@ -174,8 +174,8 @@ class BaseCompositeHeat(BatchExperiment, ABC):
     def _default_transpile_options(cls) -> Options:
         """Default transpile options."""
         options = super()._default_transpile_options()
-        options.basis_gates = ["sx", "x", "rz", "cr"]
-        options.optimization_level = 0
+        options.basis_gates = ["sx", "x", "rz", "heat"]
+        options.optimization_level = 1
 
         return options
 
