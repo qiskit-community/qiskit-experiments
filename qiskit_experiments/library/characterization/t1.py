@@ -16,6 +16,7 @@ T1 Experiment class.
 from typing import List, Optional, Union
 import numpy as np
 
+from qiskit.utils import apply_prefix
 from qiskit.circuit import QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit.test.mock import FakeBackend
@@ -61,6 +62,7 @@ class T1(BaseExperiment):
 
         options.delays = None
         options.unit = "s"
+        options.conversion_factor = None
 
         return options
 
@@ -106,6 +108,19 @@ class T1(BaseExperiment):
                 timing_constraints=timing_constraints, scheduling_method=scheduling_method
             )
 
+        # Set conversion factor
+        if self.experiment_options.unit == "dt":
+            try:
+                dt_factor = getattr(self.backend.configuration(), "dt")
+                conversion_factor = dt_factor
+            except AttributeError as no_dt:
+                raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
+        elif self.experiment_options.unit != "s":
+            conversion_factor = apply_prefix(1, self.experiment_options.unit)
+        else:
+            conversion_factor = 1
+        self.set_experiment_options(conversion_factor=conversion_factor)
+
     def circuits(self) -> List[QuantumCircuit]:
         """
         Return a list of experiment circuits
@@ -114,21 +129,21 @@ class T1(BaseExperiment):
             The experiment circuits
 
         Raises:
-            AttributeError: if unit is dt but dt parameter is missing in the backend configuration
+            ValueError: When conversion factor is not set.
         """
-        if self.experiment_options.unit == "dt":
-            try:
-                dt_factor = getattr(self.backend.configuration(), "dt")
-            except AttributeError as no_dt:
-                raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
+        prefactor = self.experiment_options.conversion_factor
+
+        if prefactor is None:
+            raise ValueError("Conversion factor is not set.")
 
         circuits = []
+        for delay in prefactor * np.asarray(self.experiment_options.delays, dtype=float):
+            delay = np.round(delay, decimals=10)
 
-        for delay in self.experiment_options.delays:
             circ = QuantumCircuit(1, 1)
             circ.x(0)
             circ.barrier(0)
-            circ.delay(delay, 0, self.experiment_options.unit)
+            circ.delay(delay, 0, "s")
             circ.barrier(0)
             circ.measure(0, 0)
 
@@ -136,11 +151,8 @@ class T1(BaseExperiment):
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
                 "xval": delay,
-                "unit": self.experiment_options.unit,
+                "unit": "s",
             }
-
-            if self.experiment_options.unit == "dt":
-                circ.metadata["dt_factor"] = dt_factor
 
             circuits.append(circ)
 
