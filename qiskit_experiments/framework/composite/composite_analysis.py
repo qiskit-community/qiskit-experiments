@@ -87,15 +87,6 @@ class CompositeAnalysis(BaseAnalysis):
         component_ids = [child_ids[idx] for idx in component_index]
         return component_ids
 
-    def _components_initialized(self, experiment, experiment_data):
-        """Return True if component experiment data is initialized"""
-        if len(experiment_data.child_data()) != experiment.num_experiments:
-            return False
-        for data, exp in zip(experiment.component_experiment(), experiment_data.child_data()):
-            if exp.experiment_type == data.experiment_type:
-                return False
-        return True
-
     def _marginalize_data(self, composite_data):
         """Return marginalized data for component experiments"""
         # Marginalize data
