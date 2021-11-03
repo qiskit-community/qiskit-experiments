@@ -195,3 +195,4 @@ class CompositeExperimentData(ExperimentData):
         _, timeout = combined_timeout(super().block_for_results, timeout)
         for subdata in self._components:
             _, timeout = combined_timeout(subdata.block_for_results, timeout)
+        return self
