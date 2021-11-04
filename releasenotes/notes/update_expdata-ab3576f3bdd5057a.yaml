@@ -25,3 +25,14 @@ features:
     method. Child ``ExperimentData`` can be accessed using the
     :meth:`~qiskit_experiments.framework.ExperimentData.child_data`
     method.
+  - |
+    Added a :meth:`~qiskit_experiments.framework.ExperimentData.copy`
+    method to :class:`~qiskit_experiments.framework.ExperimentData` which
+    allows making a copy of an experiment data container with a new
+    experiment ID, new result IDs, and new figure names, generated for
+    the copy.
+    
+    This method has a kwarg option ``copy_results`` that can be set to
+    ``False`` to only copy the experiment
+    :meth:`~qiskit_experiments.framework.ExperimentData.data` and
+    metadata, but not the analysis results and figures.

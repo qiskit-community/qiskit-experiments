@@ -86,7 +86,7 @@ class BaseAnalysis(ABC):
             or experiment_data._figures
             or getattr(experiment_data, "_child_data", None)
         ):
-            experiment_data = experiment_data._copy_metadata()
+            experiment_data = experiment_data.copy()
 
         # Get experiment device components
         if "physical_qubits" in experiment_data.metadata:
@@ -109,8 +109,7 @@ class BaseAnalysis(ABC):
                 for result in results
             ]
             # Update experiment data with analysis results
-            if replace_results:
-                experiment_data._clear_results()
+            experiment_data._clear_results()
             if analysis_results:
                 expdata.add_analysis_results(analysis_results)
             if figures:

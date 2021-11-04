@@ -185,7 +185,7 @@ class DbExperimentDataV1(DbExperimentData):
             self._deleted_analysis_results.append(key)
         self._analysis_results = ThreadSafeOrderedDict()
         # Schedule existing figures for deletion next save call
-        for key in self._analysis_results.keys():
+        for key in self._figures.keys():
             self._deleted_figures.append(key)
         self._figures = ThreadSafeOrderedDict()
 
@@ -532,7 +532,7 @@ class DbExperimentDataV1(DbExperimentData):
                 )
             added_figs.append(fig_name)
 
-        return added_figs if len(added_figs) > 1 else added_figs[0]
+        return added_figs if len(added_figs) != 1 else added_figs[0]
 
     @do_auto_save
     def delete_figure(
@@ -1130,24 +1130,26 @@ class DbExperimentDataV1(DbExperimentData):
 
         return "\n".join(errors)
 
-    def _copy_metadata(
-        self, new_instance: Optional["DbExperimentDataV1"] = None
-    ) -> "DbExperimentDataV1":
-        """Make a copy of the experiment metadata.
+    def copy(self, copy_results: bool = True) -> "DbExperimentDataV1":
+        """Make a copy of the experiment data with a new experiment ID.
 
-        Note:
-            This method only copies experiment data and metadata, not its
-            figures nor analysis results. The copy also contains a different
-            experiment ID.
+        Args:
+            copy_results: If True copy the analysis results and figures
+                          into the returned container, along with the
+                          experiment data and metadata. If False only copy
+                          the experiment data and metadata.
 
         Returns:
-            A copy of the ``DbExperimentDataV1`` object with the same data
-            and metadata but different ID.
-        """
-        if new_instance is None:
-            # pylint: disable=no-value-for-parameter
-            new_instance = self.__class__()
+            A copy of the experiment data object with the same data
+            but different IDs.
 
+        .. note:
+            If analysis results and figures are copied they will also have
+            new result IDs and figure names generated for the copies.
+        """
+        new_instance = self.__class__()
+
+        # Copy basic properties and metadata
         new_instance._type = self.experiment_type
         new_instance._backend = self._backend
         new_instance._tags = self._tags
@@ -1159,6 +1161,7 @@ class DbExperimentDataV1(DbExperimentData):
         new_instance._service = self._service
         new_instance._extra_data = self._extra_data
 
+        # Copy circuit result data and jobs
         with self._data.lock:  # Hold the lock so no new data can be added.
             new_instance._data = self._data.copy_object()
             for orig_kwargs, fut in self._job_futures.copy():
@@ -1176,6 +1179,20 @@ class DbExperimentDataV1(DbExperimentData):
                     timeout=orig_kwargs["timeout"],
                     **extra_kwargs,
                 )
+
+        # If not copying results return the object
+        if not copy_results:
+            return new_instance
+
+        # Copy results and figures.
+        # This requires analysis callbacks to finish
+        self._wait_for_callbacks()
+        with self._analysis_results.lock:
+            new_instance._analysis_results = ThreadSafeOrderedDict()
+            new_instance.add_analysis_results([result.copy() for result in self.analysis_results()])
+        with self._figures.lock:
+            new_instance._figures = ThreadSafeOrderedDict()
+            new_instance.add_figures(self._figures.values())
 
         return new_instance
 

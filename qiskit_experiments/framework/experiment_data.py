@@ -159,6 +159,20 @@ class ExperimentData(DbExperimentData):
         expdata._set_child_data(child_data)
         return expdata
 
+    def copy(self, copy_results=True) -> "ExperimentData":
+        new_instance = super().copy(copy_results=copy_results)
+
+        # Copy additional attributes not in base class
+        if self.experiment is None:
+            new_instance._experiment = None
+        else:
+            new_instance._experiment = self.experiment.copy()
+
+        # Recursively copy child data
+        child_data = [data.copy(copy_results=copy_results) for data in self.child_data()]
+        new_instance._set_child_data(child_data)
+        return new_instance
+
     def _set_child_data(self, child_data: List[ExperimentData]):
         """Set child experiment data for the current experiment."""
         self._child_data = ThreadSafeOrderedDict()
@@ -209,29 +223,6 @@ class ExperimentData(DbExperimentData):
         for subdata in self._child_data.values():
             _, timeout = combined_timeout(subdata.block_for_results, timeout)
         return self
-
-    def _copy_metadata(self, new_instance: Optional[ExperimentData] = None) -> ExperimentData:
-        """Make a copy of the experiment metadata.
-
-        Note:
-            This method only copies experiment data and metadata, not its
-            figures nor analysis results. The copy also contains a different
-            experiment ID.
-
-        Returns:
-            A copy of the ``ExperimentData`` object with the same data
-            and metadata but different ID.
-        """
-        new_instance = super()._copy_metadata(new_instance)
-        if self.experiment is None:
-            new_instance._experiment = None
-        else:
-            new_instance._experiment = self.experiment.copy()
-
-        # Recursively copy metadata of child data
-        child_data = [data._copy_metadata() for data in self.child_data()]
-        new_instance._set_child_data(child_data)
-        return new_instance
 
     def __repr__(self):
         out = (
