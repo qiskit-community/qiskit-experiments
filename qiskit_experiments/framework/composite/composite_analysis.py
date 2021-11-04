@@ -13,16 +13,39 @@
 Composite Experiment Analysis class.
 """
 
+from typing import List, Dict
 from qiskit.result import marginal_counts
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData
 
 
 class CompositeAnalysis(BaseAnalysis):
-    """Analysis class for CompositeExperiment"""
+    """Run analysis for composite experiments.
+
+    Composite experiments consist of several component experiments
+    run together in a single execution, the results of which are returned
+    as a single list of circuit result data in the :class:`ExperimentData`
+    container. Analysis of this composite circuit data involves constructing
+    a child experiment data container for each component experiment containing
+    the marginalized circuit result data for that experiment. Each component
+    child data is then analyzed using the analysis class from the corresponding
+    component experiment.
+
+    .. note::
+
+        The child :class:`ExperimentData` for each component experiment is
+        constructed and added to the parent experiment data the first time
+        :meth:`run` is called on the composite :class:`ExperimentData`.
+
+        On sub-sequent called to :meth:`run` if `replace_results=True``
+        in a addition to replace the analysis results and figures of each
+        component child experiment any previously stored child experiment
+        circuit data will be cleared and replaced with the marginalized data
+        reconstructed from the parent composite experiment data.
+    """
 
     # pylint: disable = arguments-differ
     def _run_analysis(self, experiment_data: ExperimentData, **options):
-        """Run analysis on circuit data.
+        """Run analysis on composite experiment circuit data.
 
         Args:
             experiment_data: the experiment data to analyze.
@@ -37,6 +60,9 @@ class CompositeAnalysis(BaseAnalysis):
             QiskitError: if analysis is attempted on non-composite
                          experiment data.
         """
+        # Extract job metadata for the component experiments so it can be added
+        # to the child experiment data incase it is required by the child experiments
+        # analysis classes
         composite_exp = experiment_data.experiment
         component_exps = composite_exp.component_experiment()
         if "component_job_metadata" in experiment_data.metadata:
@@ -45,13 +71,19 @@ class CompositeAnalysis(BaseAnalysis):
             component_metadata = [{}] * composite_exp.num_experiments
 
         # Initialize component data for updating and get the experiment IDs for
-        # the component child experiments
+        # the component child experiments in case there are other child experiments
+        # in the experiment data
         component_ids = self._initialize_components(composite_exp, experiment_data)
 
-        # Compute marginalize data
+        # Compute marginalize data for each component experiment
         marginalized_data = self._marginalize_data(experiment_data.data())
 
-        # Construct component experiment data
+        # Add the marginalized component data and component job metadata
+        # to each component child experiment. Note that this will clear
+        # any currently stored data in the experiment. Since copying of
+        # child data is handled by the `replace_results` kwarg of the
+        # parent container it is safe to always clear and replace the
+        # results of child containers in this step
         for i, (sub_data, sub_exp) in enumerate(zip(marginalized_data, component_exps)):
             sub_exp_data = experiment_data.child_data(component_ids[i])
 
@@ -60,7 +92,7 @@ class CompositeAnalysis(BaseAnalysis):
             sub_exp_data.add_data(sub_data)
 
             # Add component job metadata
-            sub_exp_data._metadata["job_metadata"] = [component_metadata[i]]
+            sub_exp_data.metadata["job_metadata"] = [component_metadata[i]]
 
             # Run analysis
             # Since copy for replace result is handled at the parent level
@@ -71,23 +103,29 @@ class CompositeAnalysis(BaseAnalysis):
 
     def _initialize_components(self, experiment, experiment_data):
         """Initialize child data components and return list of child experiment IDs"""
-        component_index = experiment_data._metadata.get("component_child_index", [])
+        # Check if component child experiment data containers have already
+        # been created. If so the list of indices for their positions in the
+        # ordered dict should exist. Index is used to extract the experiment
+        # IDs for each child experiment which can change when re-running analysis
+        # if replace_results=False, so that we update the correct child data
+        # for each component experiment
+        component_index = experiment_data.metadata.get("component_child_index", [])
         if not component_index:
-            # Construct component data and update indices
+            # If the experiment Construct component data and update indices
             start_index = len(experiment_data.child_data())
             component_index = []
             for i, sub_exp in enumerate(experiment.component_experiment()):
                 sub_data = sub_exp._initialize_experiment_data()
                 experiment_data.add_child_data(sub_data)
                 component_index.append(start_index + i)
-            experiment_data._metadata["component_child_index"] = component_index
+            experiment_data.metadata["component_child_index"] = component_index
 
         # Child components exist so we can get their ID for accessing them
         child_ids = experiment_data._child_data.keys()
         component_ids = [child_ids[idx] for idx in component_index]
         return component_ids
 
-    def _marginalize_data(self, composite_data):
+    def _marginalize_data(self, composite_data: List[Dict]) -> List[Dict]:
         """Return marginalized data for component experiments"""
         # Marginalize data
         marginalized_data = {}

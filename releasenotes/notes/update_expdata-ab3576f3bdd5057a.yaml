@@ -11,7 +11,7 @@ upgrade:
     :class:`~qiskit_experiments.framework.ParallelExperiment` and
     :class:`~qiskit_experiments.framework.BatchExperiment` now return
     a :class:`~qiskit_experiments.framework.ExperimentData` object
-    which no longer contains a ``composite_experiment_data`` method.
+    which no longer contains a ``component_experiment_data`` method.
     This method has been replaced by the
     :meth:`~qiskit_experiments.framework.ExperimentData.child_data`
     method.

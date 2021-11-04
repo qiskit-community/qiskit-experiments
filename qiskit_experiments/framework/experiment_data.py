@@ -146,7 +146,7 @@ class ExperimentData(DbExperimentData):
         if self._child_data:
             self._metadata["child_data_ids"] = self._child_data.keys()
         super().save_metadata()
-        for data in self._child_data.values():
+        for data in self.child_data():
             data.save_metadata()
 
     @classmethod
@@ -175,7 +175,7 @@ class ExperimentData(DbExperimentData):
             DbExperimentDataError: If an experiment service is already being used.
         """
         super()._set_service(service)
-        for data in self._child_data.values():
+        for data in self.child_data():
             data._set_service(service)
 
     @DbExperimentData.share_level.setter
@@ -229,7 +229,7 @@ class ExperimentData(DbExperimentData):
             new_instance._experiment = self.experiment.copy()
 
         # Recursively copy metadata of child data
-        child_data = [data._copy_metadata() for data in self._child_data.values()]
+        child_data = [data._copy_metadata() for data in self.child_data()]
         new_instance._set_child_data(child_data)
         return new_instance
 
