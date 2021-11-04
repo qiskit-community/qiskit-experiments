@@ -15,7 +15,8 @@ Composite Experiment Analysis class.
 
 from typing import List, Dict
 from qiskit.result import marginal_counts
-from qiskit_experiments.framework import BaseAnalysis, ExperimentData
+from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData
+from qiskit_experiments.database_service.device_component import Qubit
 
 
 class CompositeAnalysis(BaseAnalysis):
@@ -84,6 +85,7 @@ class CompositeAnalysis(BaseAnalysis):
         # child data is handled by the `replace_results` kwarg of the
         # parent container it is safe to always clear and replace the
         # results of child containers in this step
+        analysis_results = []
         for i, (sub_data, sub_exp) in enumerate(zip(marginalized_data, component_exps)):
             sub_exp_data = experiment_data.child_data(component_ids[i])
 
@@ -99,7 +101,18 @@ class CompositeAnalysis(BaseAnalysis):
             # we always run with replace result on component analysis
             sub_exp.run_analysis(sub_exp_data, replace_results=True)
 
-        return [], []
+            # Record the component experiment id and type as an analysis result
+            # for evidence analysis has started and to display in the service DB
+            result = AnalysisResultData(
+                name=sub_exp_data.experiment_type,
+                value=sub_exp_data.experiment_id,
+                device_components=[
+                    Qubit(qubit) for qubit in sub_exp_data.metadata.get("physical_qubits", [])
+                ],
+            )
+            analysis_results.append(result)
+
+        return analysis_results, []
 
     def _initialize_components(self, experiment, experiment_data):
         """Initialize child data components and return list of child experiment IDs"""
