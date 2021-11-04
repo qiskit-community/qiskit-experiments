@@ -928,7 +928,7 @@ class DbExperimentDataV1(DbExperimentData):
                 _, timeout = combined_timeout(fut.result, timeout)
             except futures.TimeoutError:
                 LOG.warning(
-                    "Possibly incomplete experiment data: Retrieving a job result timed out."
+                    "Possibly incomplete experiment data: Retrieving a job's result timed out."
                 )
             except Exception:  # pylint: disable = broad-except
                 LOG.warning(
