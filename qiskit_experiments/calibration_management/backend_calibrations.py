@@ -15,13 +15,16 @@
 from collections import defaultdict
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 import copy
+from warnings import warn
+import sys
 
 from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Parameter
 from qiskit.pulse import InstructionScheduleMap, ScheduleBlock
 
+from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.calibrations import (
     Calibrations,
@@ -115,6 +118,7 @@ class BackendCalibrations(Calibrations):
             self.add_parameter_value(freq, self.meas_freq, meas)
 
         if library is not None:
+            self._library = library
 
             # Add the basis gates
             for gate in library.basis_gates:
@@ -135,6 +139,11 @@ class BackendCalibrations(Calibrations):
     def default_inst_map(self) -> InstructionScheduleMap:
         """Return the default and up to date instruction schedule map."""
         return self._inst_map
+
+    @property
+    def backend(self) -> Backend:
+        """Return the backend of the default cals."""
+        return self._backend
 
     def get_inst_map(
         self,
@@ -429,3 +438,62 @@ class BackendCalibrations(Calibrations):
                 self._operated_qubits[len(coupling)].append(coupling)
 
         return self._operated_qubits
+
+    @classmethod
+    def from_exp_data(
+        cls,
+        experiment_data: ExperimentData,
+        backend: Backend
+    ) -> Optional["BackendCalibrations"]:
+        """Return backend calibrations extracted from experiment data.
+
+        The calibrations are only built if they were created from a library.
+
+        Args:
+            experiment_data: In the metadata of the experiment data there may
+                be calibration data which tells us how to build the calibrations.
+            backend: The backend for which to build the calibrations.
+        """
+
+        cal_metadata = experiment_data.metadata.get("calibrations", None)
+        if cal_metadata is None:
+            warn(f"No calibration metadata in metadata. Returning None.")
+            return None
+
+        # Create the library
+        lib_name = cal_metadata.get("library", None)
+        if lib_name is None:
+            warn(f"Cannot load {cls.__name__} without a library. Returning None.")
+            return None
+
+        lib_class = getattr(sys.modules["qiskit_experiments"].calibration_management, lib_name)
+        basis_gates = cal_metadata.get("basis gates", None)
+        default_values = cal_metadata.get("default values", None)
+
+        library = lib_class(basis_gates=basis_gates, default_values=default_values)
+
+        # Create the calibrations
+        backend_name = cal_metadata.get("backend name", None)
+        if backend_name != backend.name():
+            raise CalibrationError(
+                f"The name of the given backend {backend.name()} does not match the name "
+                f"in the calibration metadata {backend_name}.")
+
+        cals = BackendCalibrations(backend, library=library)
+
+        # Populate the calibrations with the parameter values in the metadata
+        param_values = cal_metadata.get("calibration parameters", [])
+        for val in param_values:
+
+            param_value = ParameterValue(
+                **{key: val for key, val in val.items() if key in ParameterValue.__annotations__}
+            )
+
+            cals.add_parameter_value(
+                value=param_value,
+                param=val["parameter"],
+                qubits=tuple(val["qubits"]),
+                schedule=val["schedule"],
+            )
+
+        return cals

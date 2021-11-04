@@ -91,6 +91,11 @@ class BasisGateLibrary(ABC):
         """Return the basis gates supported by the library."""
         return list(name for name in self._schedules)
 
+    @property
+    def init_default_values(self) -> Dict:
+        """The default values used in the initialization of the library."""
+        return self._default_values
+
     @abstractmethod
     def default_values(self) -> List[Tuple[ParameterValueType, Parameter, Tuple, ScheduleBlock]]:
         """Return the default values for the parameters.
