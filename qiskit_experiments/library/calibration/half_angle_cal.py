@@ -63,23 +63,6 @@ class HalfAngleCal(BaseCalibrationExperiment, HalfAngle):
 
         self.set_transpile_options(inst_map=calibrations.default_inst_map)
 
-    @classmethod
-    def _default_experiment_options(cls):
-        """Default values for the half angle calibration experiment.
-
-        Experiment Options:
-            result_index (int): The index of the result from which to update the calibrations.
-            group (str): The calibration group to which the parameter belongs. This will default
-                to the value "default".
-
-        """
-        options = super()._default_experiment_options()
-
-        options.result_index = -1
-        options.group = "default"
-
-        return options
-
     def _add_cal_metadata(self, circuits: List[QuantumCircuit]):
         """Add metadata to the circuit to make the experiment data more self contained.
 
