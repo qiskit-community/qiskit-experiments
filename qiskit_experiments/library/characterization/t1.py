@@ -86,9 +86,6 @@ class T1(BaseExperiment):
         Raises:
             ValueError: if the number of delays is smaller than 3
         """
-        if len(delays) < 3:
-            raise ValueError("T1 experiment: number of delays must be at least 3")
-
         # Initialize base experiment
         super().__init__([qubit], backend=backend)
 

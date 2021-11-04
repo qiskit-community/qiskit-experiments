@@ -11,11 +11,14 @@
 # that they have been altered from the originals.
 """Decay analysis class."""
 
-from typing import List, Union
+from typing import List, Union, Callable
 
 import numpy as np
 
+from qiskit_experiments.framework import ExperimentData
 import qiskit_experiments.curve_analysis as curve
+from qiskit_experiments.data_processing import DataProcessor
+from qiskit_experiments.exceptions import AnalysisError
 
 
 class DecayAnalysis(curve.CurveAnalysis):
@@ -113,3 +116,44 @@ class DecayAnalysis(curve.CurveAnalysis):
             return "good"
 
         return "bad"
+
+    def _extract_curves(
+        self, experiment_data: ExperimentData, data_processor: Union[Callable, DataProcessor]
+    ):
+        """Extract curve data from experiment data.
+
+        This method internally populates two types of curve data.
+
+        - raw_data:
+
+            This is the data directly obtained from the experiment data.
+            You can access this data with ``self._data(label="raw_data")``.
+
+        - fit_ready:
+
+            This is the formatted data created by pre-processing defined by
+            `self._format_data()` method. This method is implemented by subclasses.
+            You can access to this data with ``self._data(label="fit_ready")``.
+
+        If multiple series exist, you can optionally specify ``series_name`` in
+        ``self._data`` method to filter data in the target series.
+
+        .. notes::
+            The target metadata properties to define each curve entry is described by
+            the class attribute __series__ (see `filter_kwargs`).
+
+        Args:
+            experiment_data: ExperimentData object to fit parameters.
+            data_processor: A callable or DataProcessor instance to format data into numpy array.
+                This should take a list of dictionaries and return two tuple of float values,
+                that represent a y value and an error of it.
+        Raises:
+            DataProcessorError: When `x_key` specified in the analysis option is not
+                defined in the circuit metadata.
+            AnalysisError:
+                - When formatted data has label other than fit_ready.
+                - When less the data contain less than three points
+        """
+        super()._extract_curves(experiment_data, data_processor)
+        if len(self._data().x) < 3:
+            raise AnalysisError("Number of points must be at least 3")
