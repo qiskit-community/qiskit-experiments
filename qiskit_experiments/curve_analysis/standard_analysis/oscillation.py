@@ -219,15 +219,19 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
 
         # Set guess for decay parameter based on estimated frequency
         if freq_guess > df:
-            user_opt.p0.set_if_empty(
-                tau=-1
-                / curve.guess.oscillation_exp_decay(
-                    curve_data.x, curve_data.y - user_opt.p0["base"], freq_guess=freq_guess
-                )
+            alpha = curve.guess.oscillation_exp_decay(
+                curve_data.x, curve_data.y - user_opt.p0["base"], freq_guess=freq_guess
             )
         else:
             # Very low frequency. Assume standard exponential decay
-            user_opt.p0.set_if_empty(tau=-1 / curve.guess.exp_decay(curve_data.x, curve_data.y))
+            alpha = curve.guess.exp_decay(curve_data.x, curve_data.y)
+
+        if alpha != 0.0:
+            user_opt.p0.set_if_empty(tau=-1 / alpha)
+        else:
+            # Likely there is no slope. Cannot fit constant line with this model.
+            # Set some large enough number against to the scan range.
+            user_opt.p0.set_if_empty(tau=100 * np.max(curve_data.x))
 
         user_opt.bounds.set_if_empty(
             amp=[0, 1.5],
