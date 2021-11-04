@@ -195,6 +195,22 @@ class DbAnalysisResultV1(DbAnalysisResult):
             json_encoder=self._json_encoder,
         )
 
+    def copy(self) -> "DbAnalysisResultV1":
+        """Return a copy of the result with a new result ID"""
+        return DbAnalysisResultV1(
+            name=self.name,
+            value=self.value,
+            device_components=self.device_components,
+            experiment_id=self.experiment_id,
+            chisq=self.chisq,
+            quality=self.quality,
+            extra=self.extra,
+            verified=self.verified,
+            tags=self.tags,
+            service=self.service,
+            source=self._source,
+        )
+
     @classmethod
     def _from_service_data(cls, service_data: Dict) -> "DbAnalysisResultV1":
         """Construct an analysis result from saved database service data.
