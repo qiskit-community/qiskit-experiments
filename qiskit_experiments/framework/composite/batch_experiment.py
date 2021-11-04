@@ -24,7 +24,23 @@ from .composite_experiment import CompositeExperiment, BaseExperiment
 
 @fix_class_docs
 class BatchExperiment(CompositeExperiment):
-    """Batch experiment class"""
+    """Combine multiple experiments into a batch experiment.
+
+    Batch experiments combine individual experiments on any subset of qubits
+    into a single composite experiment which appends all the circuits from
+    each component experiment into a single batch of circuits to be executed
+    as one experiment job.
+
+    Analysis of batch experiments is performed using the
+    :class:`~qiskit_experiments.framework.CompositeAnalysis` class which handles
+    sorting the composite experiment circuit data into individual child
+    :class:`ExperimentData` containers for each component experiment which are
+    then analyzed using the corresponding analysis class for that component
+    experiment.
+
+    See :class:`~qiskit_experiments.framework.CompositeAnalysis`
+    documentation for additional information.
+    """
 
     def __init__(self, experiments: List[BaseExperiment], backend: Optional[Backend] = None):
         """Initialize a batch experiment.

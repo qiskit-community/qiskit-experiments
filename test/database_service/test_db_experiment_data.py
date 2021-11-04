@@ -700,24 +700,13 @@ class TestDbExperimentData(QiskitTestCase):
         exp_data = DbExperimentData(experiment_type="qiskit_test", foo="foo")
         self.assertEqual("foo", exp_data.foo)
 
-    def test_str(self):
-        """Test the string representation."""
-        exp_data = DbExperimentData(experiment_type="qiskit_test")
-        exp_data.add_data(self._get_job_result(1))
-        result = mock.MagicMock()
-        exp_data.add_analysis_results(result)
-        exp_data_str = str(exp_data)
-        self.assertIn(exp_data.experiment_type, exp_data_str)
-        self.assertIn(exp_data.experiment_id, exp_data_str)
-        self.assertIn(str(result), exp_data_str)
-
     def test_copy_metadata(self):
         """Test copy metadata."""
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         exp_data.add_data(self._get_job_result(1))
         result = mock.MagicMock()
         exp_data.add_analysis_results(result)
-        copied = exp_data._copy_metadata()
+        copied = exp_data.copy(copy_results=False)
         self.assertEqual(exp_data.data(), copied.data())
         self.assertFalse(copied.analysis_results())
 
@@ -740,7 +729,7 @@ class TestDbExperimentData(QiskitTestCase):
         job.result = _job1_result
         exp_data.add_data(job)
 
-        copied = exp_data._copy_metadata()
+        copied = exp_data.copy(copy_results=False)
         job2 = mock.create_autospec(Job, instance=True)
         job2.result = _job2_result
         copied.add_data(job2)
