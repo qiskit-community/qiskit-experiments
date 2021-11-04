@@ -145,7 +145,7 @@ class RoughDrag(BaseExperiment):
         super().__init__([qubit], backend=backend)
 
         if betas is not None:
-            self.experiment_options.betas = betas
+            self.set_experiment_options(betas=betas)
 
         if len(schedule.parameters) != 1:
             raise QiskitError(
@@ -153,7 +153,7 @@ class RoughDrag(BaseExperiment):
                 f"exactly one free parameter, found {schedule.parameters} parameters."
             )
 
-        self.experiment_options.schedule = schedule
+        self.set_experiment_options(schedule=schedule)
 
     def _pre_circuit(self) -> QuantumCircuit:
         """A circuit with operations to perform before the Drag."""

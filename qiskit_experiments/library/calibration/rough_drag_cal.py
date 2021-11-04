@@ -39,18 +39,19 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
         self,
         qubit: int,
         calibrations: BackendCalibrations,
+        backend: Optional[Backend] = None,
         schedule_name: str = "x",
         betas: Iterable[float] = None,
         cal_parameter_name: Optional[str] = "β",
         auto_update: bool = True,
         group: str = "default",
-        backend: Optional[Backend] = None,
     ):
         r"""see class :class:`RoughDrag` for details.
 
         Args:
             qubit: The qubit for which to run the rough drag calibration.
             calibrations: The calibrations instance with the schedules.
+            backend: Optional, the backend to run the experiment on.
             schedule_name: The name of the schedule to calibrate. Defaults to "x".
             betas: A list of drag parameter values to scan. If None is given 51 betas ranging
                 from -5 to 5 will be scanned.
@@ -59,7 +60,6 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
             auto_update: Whether or not to automatically update the calibrations. By
                 default this variable is set to True.
             group: The group of calibration parameters to use. The default value is "default".
-            backend: Optional, the backend to run the experiment on.
         """
         schedule = calibrations.get_schedule(
             schedule_name, qubit, assign_params={cal_parameter_name: Parameter("β")}, group=group
