@@ -18,7 +18,7 @@ from typing import List, Sequence, Optional
 from abc import abstractmethod
 import warnings
 from qiskit.providers.backend import Backend
-from qiskit_experiments.framework import BaseExperiment
+from qiskit_experiments.framework import BaseExperiment, ExperimentData
 from .composite_analysis import CompositeAnalysis
 
 
@@ -81,6 +81,16 @@ class CompositeExperiment(BaseExperiment):
         super()._set_backend(backend)
         for subexp in self._experiments:
             subexp._set_backend(backend)
+
+    def _initialize_experiment_data(self):
+        """Initialize the return data container for the experiment run"""
+        experiment_data = ExperimentData(experiment=self)
+        # Initialize child experiment data
+        for sub_exp in self._experiments:
+            sub_data = sub_exp._initialize_experiment_data()
+            experiment_data.add_child_data(sub_data)
+        experiment_data.metadata["component_child_index"] = list(range(self.num_experiments))
+        return experiment_data
 
     def _additional_metadata(self):
         return {"component_job_metadata": []}
