@@ -184,12 +184,6 @@ class Frequency(BaseUpdater):
         )
 
 
-class Drag(BaseUpdater):
-    """Update drag parameters."""
-
-    __fit_parameter__ = "beta"
-
-
 class FineDragUpdater(BaseUpdater):
     """Updater for the fine drag calibration."""
 
