@@ -932,7 +932,7 @@ class DbExperimentDataV1(DbExperimentData):
                 )
             except Exception:  # pylint: disable = broad-except
                 LOG.warning(
-                    "Possibly incomplete experiment data: Retrieving a job result"
+                    "Possibly incomplete experiment data: Retrieving a job's result"
                     " raised an exception."
                 )
         # Check job status and show warning if cancelled or error
