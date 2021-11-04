@@ -59,7 +59,7 @@ class TestRamseyXY(QiskitTestCase):
         freq_shift = 4e6
         osc_shift = 2e6
         backend = MockRamseyXY(freq_shift=freq_shift + osc_shift)  # oscillation with 6 MHz
-        FrequencyCal(self.cals, 0, backend, osc_freq=osc_shift).run().block_for_results()
+        FrequencyCal(0, self.cals, backend, osc_freq=osc_shift).run().block_for_results()
 
         # Check that qubit frequency after running the cal is shifted by freq_shift, i.e. 4 MHz.
         f01 = self.cals.get_parameter_value("qubit_lo_freq", 0)
@@ -74,7 +74,7 @@ class TestRamseyXY(QiskitTestCase):
         self.assertNotEqual(exp, loaded_exp)
         self.assertEqual(config, loaded_exp.config)
 
-        exp = FrequencyCal(self.cals, 0)
+        exp = FrequencyCal(0, self.cals)
         config = exp.config
         loaded_exp = FrequencyCal.from_config(config)
         self.assertNotEqual(exp, loaded_exp)

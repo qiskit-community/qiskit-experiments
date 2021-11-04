@@ -20,7 +20,6 @@ from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import ExperimentData, fix_class_docs
 from qiskit_experiments.library.characterization.ramsey_xy import RamseyXY
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
-from qiskit_experiments.calibration_management.update_library import Frequency
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.calibration_management.base_calibration_experiment import (
     BaseCalibrationExperiment,
@@ -67,7 +66,6 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
             unit=unit,
             osc_freq=osc_freq,
             cal_parameter_name="qubit_lo_freq",
-            updater=Frequency,
             auto_update=auto_update,
         )
 
