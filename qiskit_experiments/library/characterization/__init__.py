@@ -34,6 +34,8 @@ Experiments
     FineAmplitude
     FineXAmplitude
     FineSXAmplitude
+    RamseyXY
+    RoughDrag
 
 
 Analysis
@@ -60,3 +62,5 @@ from .cr_hamiltonian_analysis import CrossResonanceHamiltonianAnalysis
 from .rabi import Rabi, EFRabi
 from .half_angle import HalfAngle
 from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
+from .ramsey_xy import RamseyXY
+from .drag import RoughDrag

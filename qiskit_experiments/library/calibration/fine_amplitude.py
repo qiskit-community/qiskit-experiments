@@ -83,11 +83,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 
         """
         options = super()._default_experiment_options()
-
-        options.result_index = -1
         options.target_angle = np.pi
-        options.group = "default"
-
         return options
 
     def _add_cal_metadata(self, circuits: List[QuantumCircuit]):
@@ -115,8 +111,6 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             circuit.metadata["cal_schedule"] = self._sched_name
             circuit.metadata["target_angle"] = self.experiment_options.target_angle
             circuit.metadata["cal_group"] = self.experiment_options.group
-
-        return circuits
 
     def update_calibrations(self, experiment_data: ExperimentData):
         r"""Update the amplitude of the pulse in the calibrations.
