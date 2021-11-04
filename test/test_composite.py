@@ -358,3 +358,45 @@ class TestCompositeExperimentData(QiskitTestCase):
         new_instance = self.rootdata.copy()
         self.check_if_equal(new_instance, self.rootdata, is_a_copy=True)
         self.check_attributes(new_instance)
+
+    def test_analysis_replace_results_true(self):
+        """
+        Test replace results when analyzing composite experiment data
+        """
+        exp1 = FakeExperiment([0, 2])
+        exp2 = FakeExperiment([1, 3])
+        par_exp = ParallelExperiment([exp1, exp2])
+        data1 = par_exp.run(FakeBackend()).block_for_results()
+
+        # Additional data not part of composite experiment
+        exp3 = FakeExperiment([0, 1])
+        extra_data = exp3.run(FakeBackend())
+        data1.add_child_data(extra_data)
+
+        # Replace results
+        data2 = par_exp.run_analysis(data1, replace_results=True)
+        self.assertEqual(data1, data2)
+        self.assertEqual(len(data1.child_data()), len(data2.child_data()))
+        for sub1, sub2 in zip(data1.child_data(), data2.child_data()):
+            self.assertEqual(sub1, sub2)
+
+    def test_analysis_replace_results_false(self):
+        """
+        Test replace_results of composite experiment data
+        """
+        exp1 = FakeExperiment([0, 2])
+        exp2 = FakeExperiment([1, 3])
+        par_exp = BatchExperiment([exp1, exp2])
+        data1 = par_exp.run(FakeBackend()).block_for_results()
+
+        # Additional data not part of composite experiment
+        exp3 = FakeExperiment([0, 1])
+        extra_data = exp3.run(FakeBackend())
+        data1.add_child_data(extra_data)
+
+        # Replace results
+        data2 = par_exp.run_analysis(data1, replace_results=False)
+        self.assertNotEqual(data1.experiment_id, data2.experiment_id)
+        self.assertEqual(len(data1.child_data()), len(data2.child_data()))
+        for sub1, sub2 in zip(data1.child_data(), data2.child_data()):
+            self.assertNotEqual(sub1.experiment_id, sub2.experiment_id)

@@ -33,13 +33,13 @@ class CompositeAnalysis(BaseAnalysis):
 
     .. note::
 
-        The child :class:`ExperimentData` for each component experiment is
-        constructed and added to the parent experiment data the first time
-        :meth:`run` is called on the composite :class:`ExperimentData`.
+        The the child :class:`ExperimentData` for each component experiment
+        does not already exist in the experiment data they will be initialized
+        and added to the experiment data when :meth:`run` is called on the
+        composite :class:`ExperimentData`.
 
-        On sub-sequent called to :meth:`run` if `replace_results=True``
-        in a addition to replace the analysis results and figures of each
-        component child experiment any previously stored child experiment
+        When calling :meth:`run` on experiment data already containing
+        initalized component experiment child data, any previously stored
         circuit data will be cleared and replaced with the marginalized data
         reconstructed from the parent composite experiment data.
     """
