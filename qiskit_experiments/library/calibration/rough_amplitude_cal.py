@@ -115,11 +115,9 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
         """
         options = super()._default_experiment_options()
 
-        options.result_index = -1
         options.angles_schedules = [
             AnglesSchedules(target_angle=np.pi, parameter="amp", schedule="x", previous_value=None)
         ]
-        options.group = "default"
 
         return options
 
