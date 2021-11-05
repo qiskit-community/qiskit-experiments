@@ -18,11 +18,11 @@ from typing import Tuple, Optional
 import numpy as np
 from qiskit.circuit import QuantumCircuit
 from qiskit.providers import Backend
-
-from qiskit_experiments.framework import fix_class_docs
 from qiskit_experiments.curve_analysis import ParameterRepr
+from qiskit_experiments.framework import fix_class_docs
+
+from .base_analysis import CompositeHeatAnalysis
 from .base_experiment import BaseCompositeHeat, HeatElement
-from .zx_heat_analysis import HeatYAnalysis, HeatZAnalysis
 
 
 @fix_class_docs
@@ -56,7 +56,7 @@ class ZXHeatYError(BaseCompositeHeat):
 
         TODO more docs
     """
-    __analysis_class__ = HeatYAnalysis
+    __analysis_class__ = CompositeHeatAnalysis
 
     def __init__(
         self,
@@ -98,6 +98,13 @@ class ZXHeatYError(BaseCompositeHeat):
 
         super().__init__([heat_y0, heat_y1], backend=backend)
 
+    def _additional_metadata(self):
+        metadata = super()._additional_metadata()
+        metadata["fit_params"] = ["d_heat_y0", "d_heat_y1"]
+        metadata["out_params"] = ["A_iy", "A_zy"]
+
+        return metadata
+
 
 @fix_class_docs
 class ZXHeatZError(BaseCompositeHeat):
@@ -131,7 +138,7 @@ class ZXHeatZError(BaseCompositeHeat):
 
         TODO more docs
     """
-    __analysis_class__ = HeatZAnalysis
+    __analysis_class__ = CompositeHeatAnalysis
 
     def __init__(
         self,
@@ -173,3 +180,10 @@ class ZXHeatZError(BaseCompositeHeat):
         )
 
         super().__init__([heat_z0, heat_z1], backend=backend)
+
+    def _additional_metadata(self):
+        metadata = super()._additional_metadata()
+        metadata["fit_params"] = ["d_heat_z0", "d_heat_z1"]
+        metadata["out_params"] = ["A_iz", "A_zz"]
+
+        return metadata

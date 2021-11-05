@@ -44,7 +44,7 @@ class HeatAnalysis(ErrorAmplificationAnalysis):
         return options
 
 
-class CompositeHeatAnalysis(CompositeAnalysis, ABC):
+class CompositeHeatAnalysis(CompositeAnalysis):
     r"""A composite error amplification analysis to get unitary error coefficients.
 
     # section: fit_model
@@ -68,24 +68,30 @@ class CompositeHeatAnalysis(CompositeAnalysis, ABC):
         ErrorAmplificationAnalysis
 
     """
-    __fit_params__ = []
-    __out_params__ = []
 
     def _run_analysis(self, experiment_data: ExperimentData, **options):
 
+        try:
+            fit_params = experiment_data.metadata["fit_params"]
+            out_params = experiment_data.metadata["out_params"]
+        except KeyError as ex:
+            raise AnalysisError(
+                "`fit_params` and `out_params` are not defined in the experiment metadata. "
+            ) from ex
+
         # Validate setup
-        if len(self.__fit_params__) != 2:
+        if len(fit_params) != 2:
             raise AnalysisError(
                 f"{self.__class__.__name__} assumes two fit parameters extracted from "
                 "a set of experiments with different control qubit state input. "
-                f"{len(self.__fit_params__)} input parameter names are specified."
+                f"{len(fit_params)} input parameter names are specified."
             )
 
-        if len(self.__out_params__) != 2:
+        if len(out_params) != 2:
             raise AnalysisError(
                 f"{self.__class__.__name__} assumes two output parameters computed with "
                 "a set of experiment results with different control qubit state input. "
-                f"{len(self.__out_params__)} output parameter names are specified."
+                f"{len(out_params)} output parameter names are specified."
             )
 
         # Create analysis data of nested experiment and discard redundant entry.
@@ -93,7 +99,7 @@ class CompositeHeatAnalysis(CompositeAnalysis, ABC):
         super()._run_analysis(experiment_data, **options)
 
         sub_analysis_results = []
-        for i, pname in enumerate(self.__fit_params__):
+        for i, pname in enumerate(fit_params):
             child_data = experiment_data.child_data(i)
             child_data._wait_for_callbacks()
             sub_analysis_results.append(child_data.analysis_results(pname))
@@ -111,13 +117,13 @@ class CompositeHeatAnalysis(CompositeAnalysis, ABC):
         )
 
         estimate_ib = AnalysisResultData(
-            name=self.__out_params__[0],
+            name=out_params[0],
             value=FitVal(value=ib, stderr=sigma, unit="rad"),
             quality="good" if is_good_quality else "bad",
         )
 
         estimate_zb = AnalysisResultData(
-            name=self.__out_params__[1],
+            name=out_params[1],
             value=FitVal(value=zb, stderr=sigma, unit="rad"),
             quality="good" if is_good_quality else "bad",
         )

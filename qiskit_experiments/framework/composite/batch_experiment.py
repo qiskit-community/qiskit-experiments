@@ -13,12 +13,13 @@
 Batch Experiment class.
 """
 
-from typing import List, Optional
 from collections import OrderedDict
+from typing import List, Optional
 
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit_experiments.framework.base_experiment import fix_class_docs
+
 from .composite_experiment import CompositeExperiment, BaseExperiment
 
 
