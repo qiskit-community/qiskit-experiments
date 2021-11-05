@@ -90,7 +90,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         """
         # Data to be stored in DB.
         self._experiment_id = experiment_id
-        self._id = result_id or str(uuid.uuid4())
+        self._id = result_id or uuid.uuid4().hex
         self._name = name
         self._value = copy.deepcopy(value)
         self._extra = copy.deepcopy(extra or {})
@@ -193,6 +193,22 @@ class DbAnalysisResultV1(DbAnalysisResult):
             new_data=new_data,
             update_data=update_data,
             json_encoder=self._json_encoder,
+        )
+
+    def copy(self) -> "DbAnalysisResultV1":
+        """Return a copy of the result with a new result ID"""
+        return DbAnalysisResultV1(
+            name=self.name,
+            value=self.value,
+            device_components=self.device_components,
+            experiment_id=self.experiment_id,
+            chisq=self.chisq,
+            quality=self.quality,
+            extra=self.extra,
+            verified=self.verified,
+            tags=self.tags,
+            service=self.service,
+            source=self._source,
         )
 
     @classmethod

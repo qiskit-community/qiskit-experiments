@@ -119,6 +119,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
         default_options.angle_per_gate = None
         default_options.phase_offset = 0.0
         default_options.max_good_angle_error = np.pi / 2
+        default_options.amp = 1.0
 
         return default_options
 
@@ -145,7 +146,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
 
         if "amp" in user_opt.p0:
             user_opt.p0.set_if_empty(amp=max_y - min_y)
-            user_opt.bounds.set_if_empty(amp=(-2 * max_abs_y, 2 * max_abs_y))
+            user_opt.bounds.set_if_empty(amp=(0, 2 * max_abs_y))
 
         # Base the initial guess on the intended angle_per_gate and phase offset.
         apg = self._get_option("angle_per_gate")

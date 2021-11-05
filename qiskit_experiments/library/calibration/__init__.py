@@ -40,15 +40,17 @@ module.
     :template: autosummary/experiment.rst
 
     RoughFrequencyCal
-    DragCal
+    FrequencyCal
+    RoughDragCal
     FineDrag
     FineXDrag
     FineSXDrag
-    Rabi
     FineAmplitudeCal
     FineXAmplitudeCal
     FineSXAmplitudeCal
-    RamseyXY
+    RoughAmplitudeCal
+    RoughXSXAmplitudeCal
+    EFRoughXSXAmplitudeCal
 
 Calibration analysis
 ====================
@@ -68,11 +70,11 @@ See :mod:`qiskit_experiments.calibration_management`.
 """
 
 from .rough_frequency import RoughFrequencyCal
-from .drag import DragCal
+from .rough_drag_cal import RoughDragCal
 from .fine_drag import FineDrag, FineXDrag, FineSXDrag
+from .rough_amplitude_cal import RoughAmplitudeCal, RoughXSXAmplitudeCal, EFRoughXSXAmplitudeCal
 from .fine_amplitude import FineAmplitudeCal, FineXAmplitudeCal, FineSXAmplitudeCal
-from .rabi import Rabi, EFRabi
-from .ramsey_xy import RamseyXY
+from .frequency_cal import FrequencyCal
 
 from .analysis.drag_analysis import DragCalAnalysis
 from .analysis.fine_drag_analysis import FineDragAnalysis
