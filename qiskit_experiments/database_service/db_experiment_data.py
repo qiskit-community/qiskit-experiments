@@ -156,7 +156,7 @@ class DbExperimentDataV1(DbExperimentData):
         self._auto_save = False
         self._set_service_from_backend(backend)
 
-        self._id = experiment_id or str(uuid.uuid4())
+        self._id = experiment_id or uuid.uuid4().hex
         self._parent_id = parent_id
         self._type = experiment_type
         self._tags = tags or []
@@ -287,7 +287,7 @@ class DbExperimentDataV1(DbExperimentData):
                       keywork arguments passed to this method.
             **kwargs: Keyword arguments to be passed to the callback function.
         """
-        callback_id = uuid.uuid4()
+        callback_id = uuid.uuid4().hex
         self._callback_statuses[callback_id] = CallbackStatus(callback, kwargs=kwargs)
 
         # Wrap callback function to handle reporting status and catching
