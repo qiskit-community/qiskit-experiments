@@ -13,7 +13,7 @@
 Composite Experiment Analysis class.
 """
 
-from typing import List, Dict
+from typing import List, Dict, Union, Callable
 from qiskit.result import marginal_counts
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData
 from qiskit_experiments.database_service.device_component import Qubit
@@ -99,7 +99,11 @@ class CompositeAnalysis(BaseAnalysis):
             # Run analysis
             # Since copy for replace result is handled at the parent level
             # we always run with replace result on component analysis
-            sub_exp.run_analysis(sub_exp_data, replace_results=True)
+            experiment_data.add_analysis_callback(
+                self._component_callback,
+                index=component_ids[i],
+                component_analysis=sub_exp.run_analysis,
+            )
 
             # Record the component experiment id and type as an analysis result
             # for evidence analysis has started and to display in the service DB
@@ -113,6 +117,22 @@ class CompositeAnalysis(BaseAnalysis):
             analysis_results.append(result)
 
         return analysis_results, []
+
+    def _component_callback(
+        self,
+        experiment_data: ExperimentData,
+        index: Union[int, str],
+        component_analysis: Callable,
+    ):
+        """Callback to run component experiment analysis as callback
+
+        This lets the component experiment data be added as a callback to the
+        parent experiment data container. So that blocking on the parent
+        container will also block on component analysis finishing
+        """
+        sub_exp_data = experiment_data.child_data(index)
+        component_analysis(sub_exp_data, replace_results=True)
+        sub_exp_data.block_for_results()
 
     def _initialize_components(self, experiment, experiment_data):
         """Initialize child data components and return list of child experiment IDs"""

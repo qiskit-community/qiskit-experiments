@@ -23,7 +23,7 @@ from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperime
 from qiskit_experiments.database_service.database_service import (
     DatabaseServiceV1 as DatabaseService,
 )
-from qiskit_experiments.database_service.utils import ThreadSafeOrderedDict, combined_timeout
+from qiskit_experiments.database_service.utils import ThreadSafeOrderedDict
 
 LOG = logging.getLogger(__name__)
 
@@ -209,20 +209,6 @@ class ExperimentData(DbExperimentData):
             data.auto_save = original_auto_save
         if self.auto_save:
             self.save_metadata()
-
-    def block_for_results(self, timeout: Optional[float] = None) -> ExperimentData:
-        """Block until all pending jobs and analysis callbacks finish.
-
-        Args:
-            timeout: Timeout waiting for results.
-
-        Returns:
-            The experiment data with finished jobs and post-processing.
-        """
-        _, timeout = combined_timeout(super().block_for_results, timeout)
-        for subdata in self._child_data.values():
-            _, timeout = combined_timeout(subdata.block_for_results, timeout)
-        return self
 
     def __repr__(self):
         out = (
