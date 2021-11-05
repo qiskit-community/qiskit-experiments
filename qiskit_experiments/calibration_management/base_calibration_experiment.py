@@ -139,6 +139,23 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         """Return the calibrations."""
         return self._cals
 
+    @classmethod
+    def _default_experiment_options(cls):
+        """Default values for a calibration experiment.
+
+        Experiment Options:
+            result_index (int): The index of the result from which to update the calibrations.
+            group (str): The calibration group to which the parameter belongs. This will default
+                to the value "default".
+
+        """
+        options = super()._default_experiment_options()
+
+        options.result_index = -1
+        options.group = "default"
+
+        return options
+
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update parameter values in the :class:`Calibrations` instance.
 

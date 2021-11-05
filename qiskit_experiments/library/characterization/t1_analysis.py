@@ -12,202 +12,68 @@
 """
 T1 Analysis class.
 """
+from typing import Union, List
+
+import qiskit_experiments.curve_analysis as curve
+
+from qiskit_experiments.framework import Options
 
 
-from typing import Tuple, List
-import dataclasses
-import numpy as np
-
-from qiskit.utils import apply_prefix
-
-from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, FitVal, Options
-from qiskit_experiments.curve_analysis import plot_curve_fit, plot_errorbar, curve_fit
-from qiskit_experiments.curve_analysis.curve_fit import (
-    process_curve_data,
-)
-from qiskit_experiments.curve_analysis.data_processing import level2_probability
-
-
-class T1Analysis(BaseAnalysis):
+class T1Analysis(curve.DecayAnalysis):
     r"""A class to analyze T1 experiments.
 
-    # section: fit_model
-        The fit is based on the following decay function.
+    # section: see_also
+        qiskit_experiments.curve_analysis.standard_analysis.decay.DecayAnalysis
 
-        .. math::
-
-            F(x) = a e^{-x/t1} + b
-
-    # section: fit_parameters
-       defpar a:
-           desc: Height of the decay curve.
-           init_guess: Determined by :math:`(y_0 - b)`.
-
-       defpar b:
-           desc: Base line of the decay curve.
-           init_guess: Determined by the last :math:`y`.
-
-       defpar t1:
-           desc: This is the fit parameter of main interest.
-           init_guess: Determined by the mean of the data points.
     """
 
     @classmethod
     def _default_options(cls) -> Options:
-        """Default analysis options
-        Analysis Options:
-            t1_guess (float): Initial guess of T1.
-            amplitude_guess (float): Initial guess of the amplitude.
-            offset_guess (float): Initial guess of the offset.
-        """
+        """Default analysis options."""
         options = super()._default_options()
-
-        options.t1_guess = None
-        options.amplitude_guess = None
-        options.offset_guess = None
+        options.xlabel = "Delay"
+        options.ylabel = "P(1)"
+        options.xval_unit = "s"
+        options.result_parameters = [curve.ParameterRepr("tau", "T1", "s")]
 
         return options
 
-    # pylint: disable=arguments-differ
-    def _run_analysis(
-        self,
-        experiment_data,
-        t1_guess=None,
-        amplitude_guess=None,
-        offset_guess=None,
-        plot=True,
-        ax=None,
-    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
+    def _generate_fit_guesses(
+        self, user_opt: curve.FitOptions
+    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+        """Apply conversion factor to tau."""
+        conversion_factor = self._experiment_options()["conversion_factor"]
+
+        if user_opt.p0["tau"] is not None:
+            user_opt.p0["tau"] *= conversion_factor
+
+        return super()._generate_fit_guesses(user_opt)
+
+    def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
+        """Algorithmic criteria for whether the fit is good or bad.
+
+        A good fit has:
+            - a reduced chi-squared lower than three
+            - absolute amp is within [0.9, 1.1]
+            - base is less than 0.1
+            - amp error is less than 0.1
+            - tau error is less than its value
+            - base error is less than 0.1
         """
-        Calculate T1
+        amp = fit_data.fitval("amp")
+        tau = fit_data.fitval("tau")
+        base = fit_data.fitval("base")
 
-        Args:
-            experiment_data (ExperimentData): the experiment data to analyze
-            t1_guess (float): Optional, an initial guess of T1
-            amplitude_guess (float): Optional, an initial guess of the coefficient
-                                     of the exponent
-            offset_guess (float): Optional, an initial guess of the offset
-            plot (bool): Generator plot of exponential fit.
-            ax (AxesSubplot): Optional, axes to add figure to.
-
-        Returns:
-            The analysis result with the estimated T1
-
-        Raises:
-            AnalysisError: if the analysis fails.
-        """
-        data = experiment_data.data()
-        unit = data[0]["metadata"]["unit"]
-        conversion_factor = data[0]["metadata"].get("dt_factor", None)
-        qubit = data[0]["metadata"]["qubit"]
-
-        if conversion_factor is None:
-            conversion_factor = 1 if unit == "s" else apply_prefix(1, unit)
-
-        xdata, ydata, sigma = process_curve_data(data, lambda datum: level2_probability(datum, "1"))
-        xdata *= conversion_factor
-
-        if t1_guess is None:
-            t1_guess = np.mean(xdata)
-        else:
-            t1_guess = t1_guess * conversion_factor
-        if offset_guess is None:
-            offset_guess = ydata[-1]
-        if amplitude_guess is None:
-            amplitude_guess = ydata[0] - offset_guess
-
-        # Perform fit
-        def fit_fun(x, a, tau, c):
-            return a * np.exp(-x / tau) + c
-
-        init = {"a": amplitude_guess, "tau": t1_guess, "c": offset_guess}
-        fit_result = curve_fit(fit_fun, xdata, ydata, init, sigma=sigma)
-        fit_result = dataclasses.asdict(fit_result)
-        fit_result["circuit_unit"] = unit
-        if unit == "dt":
-            fit_result["dt"] = conversion_factor
-
-        # Construct analysis result
-        name = "T1"
-        unit = "s"
-        value = FitVal(fit_result["popt"][1], fit_result["popt_err"][1], unit="s")
-        chisq = fit_result["reduced_chisq"]
-        quality = self._fit_quality(
-            fit_result["popt"], fit_result["popt_err"], fit_result["reduced_chisq"]
-        )
-        analysis_results = [
-            AnalysisResultData(
-                name,
-                value,
-                chisq=chisq,
-                quality=quality,
-                extra=fit_result,
-            )
+        criteria = [
+            fit_data.reduced_chisq < 3,
+            abs(amp.value - 1.0) < 0.1,
+            abs(base.value) < 0.1,
+            amp.stderr is None or amp.stderr < 0.1,
+            tau.stderr is None or tau.stderr < tau.value,
+            base.stderr is None or base.stderr < 0.1,
         ]
 
-        # Generate fit plot
-        figures = []
-        if plot:
-            ax = plot_curve_fit(fit_fun, fit_result, ax=ax, fit_uncertainty=True)
-            ax = plot_errorbar(xdata, ydata, sigma, ax=ax)
-            self._format_plot(ax, fit_result, qubit=qubit)
-            figures.append(ax.get_figure())
-
-        return analysis_results, figures
-
-    @staticmethod
-    def _fit_quality(fit_out, fit_err, reduced_chisq):
-        # pylint: disable = too-many-boolean-expressions
-        if (
-            abs(fit_out[0] - 1.0) < 0.1
-            and abs(fit_out[2]) < 0.1
-            and reduced_chisq < 3
-            and (fit_err[0] is None or fit_err[0] < 0.1)
-            and (fit_err[1] is None or fit_err[1] < fit_out[1])
-            and (fit_err[2] is None or fit_err[2] < 0.1)
-        ):
+        if all(criteria):
             return "good"
-        else:
-            return "bad"
 
-    @classmethod
-    def _format_plot(cls, ax, analysis_result, qubit=None, add_label=True):
-        """Format curve fit plot"""
-        # Formatting
-        ax.tick_params(labelsize=14)
-        if qubit is not None:
-            ax.set_title(f"Qubit {qubit}", fontsize=16)
-        ax.set_xlabel("Delay (s)", fontsize=16)
-        ax.ticklabel_format(axis="x", style="sci", scilimits=(-3, 3))
-        ax.set_ylabel("P(1)", fontsize=16)
-        ax.grid(True)
-
-        if add_label:
-            t1 = analysis_result["popt"][1]
-            t1_err = analysis_result["popt_err"][1]
-            # Convert T1 to time unit for pretty printing
-            if t1 < 1e-7:
-                scale = 1e9
-                unit = "ns"
-            elif t1 < 1e-4:
-                scale = 1e6
-                unit = "μs"
-            elif t1 < 0.1:
-                scale = 1e3
-                unit = "ms"
-            else:
-                scale = 1
-                unit = "s"
-            box_text = "$T_1$ = {:.2f} \u00B1 {:.2f} {}".format(t1 * scale, t1_err * scale, unit)
-            bbox_props = dict(boxstyle="square,pad=0.3", fc="white", ec="black", lw=1)
-            ax.text(
-                0.6,
-                0.9,
-                box_text,
-                ha="center",
-                va="center",
-                size=14,
-                bbox=bbox_props,
-                transform=ax.transAxes,
-            )
-        return ax
+        return "bad"
