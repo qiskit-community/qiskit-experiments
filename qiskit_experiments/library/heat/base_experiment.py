@@ -121,11 +121,6 @@ class BaseCompositeHeat(BatchExperiment, ABC):
 
     This class implements a batch experiment consisting of multiple HEAT element experiments
     to compute specific unitary error terms from extracted `d_theta` parameters.
-
-    Class Attributes:
-        - ``__heat_elements__``: A dictionary of fit parameter name and associated experiment
-            class.
-
     """
 
     __heat_elements__ = {}

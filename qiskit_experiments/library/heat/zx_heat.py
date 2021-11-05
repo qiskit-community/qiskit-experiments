@@ -21,14 +21,8 @@ from qiskit.providers import Backend
 
 from qiskit_experiments.framework import fix_class_docs
 from qiskit_experiments.curve_analysis import ParameterRepr
-from .base_analysis import CompositeHeatAnalysis
 from .base_experiment import BaseCompositeHeat, HeatElement
-
-
-class HeatYAnalysis(CompositeHeatAnalysis):
-    """"""
-    __fit_params__ = ["d_heat_y0", "d_heat_y1"]
-    __out_params__ = ["A_iy", "A_zy"]
+from .zx_heat_analysis import HeatYAnalysis, HeatZAnalysis
 
 
 @fix_class_docs
@@ -103,12 +97,6 @@ class ZXHeatYError(BaseCompositeHeat):
         )
 
         super().__init__([heat_y0, heat_y1], backend=backend)
-
-
-class HeatZAnalysis(CompositeHeatAnalysis):
-    """"""
-    __fit_params__ = ["d_heat_z0", "d_heat_z1"]
-    __out_params__ = ["A_iz", "A_zz"]
 
 
 @fix_class_docs
