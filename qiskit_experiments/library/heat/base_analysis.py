@@ -13,8 +13,6 @@
 Analysis for HEAT experiments.
 """
 
-from abc import ABC
-
 import numpy as np
 
 from qiskit_experiments.curve_analysis import ErrorAmplificationAnalysis
