@@ -1302,7 +1302,7 @@ class TestSavingAndLoading(CrossResonanceTest):
 
     def setUp(self):
         """Setup the test."""
-        self._prefix = uuid.uuid4().hex
+        self._prefix = str(uuid.uuid4())
         super().setUp()
 
     def tearDown(self):
