@@ -11,7 +11,7 @@ compare whether the results are similar to the reported ones.
 1. T1 Characterization
 =======================
 Choose the backend you want to characterize.
-For people who do not have access to premium ibm backend services, they can try 
+For people who do not have an access to the premium ibm backend services, they can try 
 ibmq_santigo, bogota, belem, manila, quito and lima backend which have more than one qubits. 
 In this guide, we will try ibmq_lima. 
 Then, find out how many qubits are in our backend 
