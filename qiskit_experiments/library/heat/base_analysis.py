@@ -21,7 +21,7 @@ from qiskit_experiments.curve_analysis import ErrorAmplificationAnalysis
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import (
     CompositeAnalysis,
-    CompositeExperimentData,
+    ExperimentData,
     AnalysisResultData,
     Options,
     FitVal,
@@ -71,7 +71,7 @@ class CompositeHeatAnalysis(CompositeAnalysis, ABC):
     __fit_params__ = []
     __out_params__ = []
 
-    def _run_analysis(self, experiment_data: CompositeExperimentData, **options):
+    def _run_analysis(self, experiment_data: ExperimentData, **options):
 
         # Validate setup
         if len(self.__fit_params__) != 2:
@@ -92,10 +92,11 @@ class CompositeHeatAnalysis(CompositeAnalysis, ABC):
         # Note that experiment_data is mutable.
         super()._run_analysis(experiment_data, **options)
 
-        sub_analysis_results = [
-            experiment_data.component_experiment_data(i).analysis_results(pname)
-            for i, pname in enumerate(self.__fit_params__)
-        ]
+        sub_analysis_results = []
+        for i, pname in enumerate(self.__fit_params__):
+            child_data = experiment_data.child_data(i)
+            child_data._wait_for_callbacks()
+            sub_analysis_results.append(child_data.analysis_results(pname))
 
         # Check data quality
         is_good_quality = all(r.quality == "good" for r in sub_analysis_results)
