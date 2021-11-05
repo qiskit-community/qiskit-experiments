@@ -12,7 +12,7 @@
 """
 Standard RB Experiment class.
 """
-from typing import Union, Iterable, Optional, List
+from typing import Union, Iterable, Optional, List, Sequence
 
 import numpy as np
 from numpy.random import Generator, default_rng
@@ -62,7 +62,7 @@ class StandardRB(BaseExperiment):
 
     def __init__(
         self,
-        qubits: Union[int, Iterable[int]],
+        qubits: Sequence[int],
         lengths: Iterable[int],
         backend: Optional[Backend] = None,
         num_samples: int = 3,
@@ -72,8 +72,7 @@ class StandardRB(BaseExperiment):
         """Initialize a standard randomized benchmarking experiment.
 
         Args:
-            qubits: The number of qubits or list of
-                    physical qubits for the experiment.
+            qubits: list of physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
             backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each sequence length.
