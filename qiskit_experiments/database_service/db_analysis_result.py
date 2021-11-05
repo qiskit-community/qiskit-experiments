@@ -90,7 +90,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         """
         # Data to be stored in DB.
         self._experiment_id = experiment_id
-        self._id = result_id or uuid.uuid4().hex
+        self._id = result_id or str(uuid.uuid4())
         self._name = name
         self._value = copy.deepcopy(value)
         self._extra = copy.deepcopy(extra or {})
