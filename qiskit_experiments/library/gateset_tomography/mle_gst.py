@@ -9,6 +9,7 @@ from functools import reduce
 from qiskit_experiments.library.tomography.fitters.fitter_utils import make_positive_semidefinite
 
 class GST_Optimize:
+
     """ GST fitter that performs the maximum likelihood estimation (MLE) optimization for gate set tomography.
 
     # section: overview
