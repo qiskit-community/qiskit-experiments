@@ -1400,6 +1400,7 @@ class DbExperimentDataV1(DbExperimentData):
             ret += f"\nBackend: {self.backend}"
         if self.tags:
             ret += f"\nTags: {self.tags}"
+        ret += f"\nData: {len(self._data)}"
         ret += f"\nAnalysis Results: {n_res}"
         ret += f"\nFigures: {len(self._figures)}"
         ret += "\n" + line
