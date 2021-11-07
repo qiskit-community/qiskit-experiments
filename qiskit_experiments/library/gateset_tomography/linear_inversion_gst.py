@@ -3,7 +3,7 @@ from typing import Dict
 from qiskit.quantum_info import PTM
 
 
-def linear_inversion_gst(outcome_data, gateset_basis, num_qubits) -> Dict[str, PTM]:
+def linear_inversion_gst(outcome_data, gateset_basis) -> Dict[str, PTM]:
 
     """
     Reconstruct a gate set from measurement data using linear inversion.

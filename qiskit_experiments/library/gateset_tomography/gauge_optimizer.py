@@ -1,3 +1,18 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright IBM 2021.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+"""
+Gauge optimizer for linear inversion GST results
+"""
+
 import numpy as np
 import scipy.optimize as opt
 import itertools
@@ -6,7 +21,7 @@ from qiskit.quantum_info import PTM, Choi
 from gatesetbasis import GateSetBasis
 from qiskit.quantum_info import Pauli
 
-# initial_gateset is the linear_inversion_results
+
 def GaugeOptimizer(initial_gateset, gateset_basis, num_qubits) -> Dict[str, PTM]:
 
     """Initialize gauge optimizer fitter with the ideal and expected
@@ -32,15 +47,16 @@ def GaugeOptimizer(initial_gateset, gateset_basis, num_qubits) -> Dict[str, PTM]
         and the "expected" gates in the ideal (noiseless) case.
     """
 
-    #Obtaining the ideal gateset
+    # Obtaining the ideal gateset
     ideal_gateset = ideal_gateset_gen(gateset_basis, num_qubits, 'PTM')
     Fs = [gateset_basis.spam_matrix(label)
           for label in gateset_basis.spam_labels]
     d = np.shape(ideal_gateset['rho'])[0]
     rho = ideal_gateset['rho']
     initial_value = np.array([(F @ rho).T[0] for F in Fs]).T
-    result = opt.minimize(obj_fn, x0=np.real(initial_value), args={'d':d, 'initial_gateset': initial_gateset, 'gateset_basis':gateset_basis, 'ideal_gateset':ideal_gateset})
+    result = opt.minimize(obj_fn, x0=np.real(initial_value), args={'d': d, 'initial_gateset': initial_gateset, 'gateset_basis': gateset_basis, 'ideal_gateset': ideal_gateset})
     return x_to_gateset(result.x, d, initial_gateset, gateset_basis)
+
 
 def x_to_gateset(x: np.array, d: int, initial_gateset: Dict[str, PTM], gateset_basis: GateSetBasis) -> Dict[str, PTM]:
     """Converts the gauge to the gateset defined by it
@@ -123,9 +139,9 @@ def default_measurement_op(num_qubits):
     return matrix_meas_pauli
 
 
-def ideal_gateset_gen(gateset_basis, num_qubits, type):
-    #type takes a string either 'PTM' or 'Choi'
-    #generates the ideal (noiseless) gate set.
+def ideal_gateset_gen(gateset_basis, num_qubits, type_pt_ch):
+    # type takes a string either 'PTM' or 'Choi'
+    # generates the ideal (noiseless) gate set.
     ideal_gateset_ptm = {label: PTM(gateset_basis.gate_matrices[label])
                      for label in gateset_basis.gate_labels}
     ideal_gateset_choi = {label: Choi(PTM(gateset_basis.gate_matrices[label]))
@@ -134,7 +150,7 @@ def ideal_gateset_gen(gateset_basis, num_qubits, type):
     ideal_gateset_ptm['rho'] = default_init_state(num_qubits)
     ideal_gateset_choi['E'] = default_measurement_op(num_qubits)
     ideal_gateset_choi['rho'] = default_init_state(num_qubits)
-    return ideal_gateset_ptm if type == 'PTM' else ideal_gateset_choi
+    return ideal_gateset_ptm if type_pt_ch == 'PTM' else ideal_gateset_choi
 
 
 def Pauli_strings(num_qubits):

@@ -306,12 +306,12 @@ def find_spam_gates_from_gatesetbasis(basis_gates, rho, num_qubits):
             matrix2 = np.copy(matrix)
             matrix2 = np.vstack([matrix2, spam_temp @ rho])
             # print(np.linalg.matrix_rank(matrix2))
-            if (np.linalg.matrix_rank(matrix2) > np.linalg.matrix_rank(matrix)):
-                if (check_symmetric(spam_temp) == True):
+            if np.linalg.matrix_rank(matrix2) > np.linalg.matrix_rank(matrix):
+                if check_symmetric(spam_temp):
                     # print(1,i,'yes',np.linalg.matrix_rank(matrix2))
                     matrix.append(spam_temp @ rho)
                     Selected.append(allstrings[k][i])
-                    if (len(Selected) == (2 ** num_qubits) ** 2):
+                    if len(Selected) == (2 ** num_qubits) ** 2:
                         return Selected
     raise QiskitError(
         f'No informationally complete fidicuals set with a full rank corresponding gram matrix can be '

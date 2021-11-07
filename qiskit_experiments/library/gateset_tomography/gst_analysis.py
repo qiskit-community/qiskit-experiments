@@ -18,13 +18,15 @@ import scipy.linalg as la
 from typing import List, Union, Dict, Tuple
 import time
 import ast
-from qiskit.quantum_info import DensityMatrix, Choi, Operator, PTM, average_gate_fidelity
+from qiskit.quantum_info import DensityMatrix, Choi, Operator, PTM, average_gate_fidelity, state_fidelity
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
 from qiskit.result import marginal_counts, Counts
 from linear_inversion_gst import linear_inversion_gst
 from gauge_optimizer import GaugeOptimizer, ideal_gateset_gen
-from mle_gst import GST_Optimize
+from mle_gst import GSTOptimize, convert_from_ptm
+from qiskit_experiments.library.tomography.fitters.fitter_utils import make_positive_semidefinite
+from qiskit_experiments.library.tomography.tomography_analysis import TomographyAnalysis
 
 
 class GSTAnalysis(BaseAnalysis):
@@ -56,7 +58,7 @@ class GSTAnalysis(BaseAnalysis):
     """
     _builtin_fitters = {
         "linear_inversion_gst": linear_inversion_gst,
-        "scipy_optimizer_MLE_gst": GST_Optimize,
+        "scipy_optimizer_MLE_gst": GSTOptimize,
     }
 
     @classmethod
@@ -70,15 +72,12 @@ class GSTAnalysis(BaseAnalysis):
             fitter_initial_guess (str or Dict): "linear_inversion".
         """
         options = super()._default_options()
-
         options.fitter = "scipy_optimizer_MLE_gst"
-
-        #This is only in case of GST, if linear inversion, or no initial guess is needed, then the value is None.
+        # This is only in case of GST, if linear inversion, or no initial guess is needed, then the value is None.
         options.fitter_initial_guess = "linear_inversion"
-
         options.target_set = "default"
-        #rescale_positive = False, #relevant only for the linear_inversion_results
-        #rescale_trace = False,
+        options.rescale_PSD = False  # relevant only for the linear_inversion_results
+        options.rescale_TP = False
         return options
 
     @classmethod
@@ -88,14 +87,24 @@ class GSTAnalysis(BaseAnalysis):
         if target_set is None or target_set == 'default':
             return 'ideal'
         if isinstance(target_set, Dict):
-            if set(type(k) for k in target_set.keys()) == {str} and isinstance(list(target_set.values())[0],
-                                                                               (Gate, PTM, Callable, Choi, Operator)):
-                # if PTM or Callable convert them to Choi (operator or Gate or Choi, can be inputs to average_gate_fidelity)
-                if isinstance(list(target_set.values())[0],PTM):
+            # E and rho if provided by user, should be first and second elements of target_set and E should
+            # be either BaseOperator or PTM, rho takes only PTM or DensityMatrix
+            if 'rho' in target_set.keys():
+                if not isinstance(target_set['rho'], (PTM, DensityMatrix)):
+                    raise AnalysisError(f"Unrecognized target preparation state {rho}")
+            if 'E' in target_set.keys():
+                if not isinstance(target_set['E'], (PTM, Operator)):
+                    raise AnalysisError(f"Unrecognized target measurement state {E}")
+
+            if set(type(k) for k in target_set.keys()) == {str} and isinstance(list(target_set.values())[2],
+                                                                       (Gate, PTM, Callable, Choi, Operator)):
+                # if PTM or Callable convert them to Choi (operator or Gate or Choi,
+                # can be inputs to average_gate_fidelity)
+                if isinstance(list(target_set.values())[2], PTM):
                     target_set_choi = {}
                     for key in target_set:
                         target_set_choi[key] = qi.Choi(PTM(target_set[key]))
-                elif isnstance(list(target_set.values())[0],PTM):
+                elif isnstance(list(target_set.values())[2], PTM):
                     # if the target provided as a function:
                     target_set_choi = {}
                     for key in target_set:
@@ -103,7 +112,6 @@ class GSTAnalysis(BaseAnalysis):
                     return target_set_choi
                 return target_set
         raise AnalysisError(f"Unrecognized target set {target_set}")
-
 
     @classmethod
     def _get_fitter(cls, fitter):
@@ -118,19 +126,24 @@ class GSTAnalysis(BaseAnalysis):
     @classmethod
     def _get_fitter_initial_guess(cls, fitter_initial_guess):
         """Return fitter function for named builtin fitters"""
-        # if fitter_initial_guess is provided by the user it should be of the form Dict[str, PTM]
+        # if fitter_initial_guess is provided by the user it should be of the form Dict[str, PTM] or Dict[str, Choi]
         # or a str='linv'.
         if fitter_initial_guess is None:
             return None
         else:
             if isinstance(fitter_initial_guess, Dict):
-                if set(type(k) for k in fitter_initial_guess.keys()) == {str} and set(type(k) for k in fitter_initial_guess.values()) == {PTM}:
+                if set(type(k) for k in fitter_initial_guess.keys()) == {str} and isinstance(list(fitter_initial_guess.values())[0], (PTM, Choi)):
+                    if isinstance(list(fitter_initial_guess.values())[0], Choi):
+                        fitter_initial_guess_ptm = {}
+                        for key in fitter_initial_guess:
+                            fitter_initial_guess_ptm[key] = PTM(Choi(fitter_initial_guess[key]))
+                        return fitter_initial_guess_ptm
                     return fitter_initial_guess
             elif fitter_initial_guess in ['linear_inversion', 'default']:
                 return 'linear_inversion'
-        raise AnalysisError(f"Unrecognized fitter initial guess {fitter_initial_guess}, the fitter initial guess should be  "
+        raise AnalysisError(f"Unrecognized fitter initial guess {fitter_initial_guess},"
+                            f" the fitter initial guess should be  "
                                     f"of type Dict[str, PTM] or a string: 'linv'.")
-
 
     def _run_analysis(self, experiment_data, **options):
         # Extract tomography measurement data
@@ -153,53 +166,53 @@ class GSTAnalysis(BaseAnalysis):
         if target_set == 'ideal':
             target_set = ideal_gateset_choi
         t_fitter_start_linv = time.time()
-        linear_inversion_gateset = linear_inversion_gst(outcome_data, gateset_basis, num_qubits)
+        linear_inversion_gateset = linear_inversion_gst(outcome_data, gateset_basis)
 
         # Gauge optimization of linear inversion gst results
         post_gauge_linv_gateset = GaugeOptimizer(linear_inversion_gateset, gateset_basis, num_qubits)
 
         t_fitter_stop_linv = time.time()
-        fitter_time_linv=t_fitter_stop_linv-t_fitter_start_linv
-        if (fitter_name == 'linear_inversion_gst'):
-
-            #rescale_positive = options.pop("rescale_positive")
-            #rescale_trace = options.pop("rescale_trace")
+        fitter_time_linv = t_fitter_stop_linv-t_fitter_start_linv
+        if fitter_name == 'linear_inversion_gst':
+            rescale_PSD = options.pop("rescale_PSD")
+            rescale_TP = options.pop("rescale_TP")
 
             fitter_time = fitter_time_linv
             # I should add the data post analysis here
             gateset_result = post_gauge_linv_gateset
-            #if rescale_positive:
-            #    gateset_result = self._rescale_PSD(gateset_result)
-            #    if rescale_trace:
-            #        gateset_result = self._rescale_PSD(gateset_result)
+            gateset_result['E'] = Operator(convert_from_ptm(gateset_result['E'], self.num_qubits))
+            gateset_result['rho'] = DensityMatrix(convert_from_ptm(gateset_result['rho'], self.num_qubits))
+
+            if rescale_PSD:
+                gateset_result = self._rescale_PSD(gateset_result)
+            if rescale_TP:
+                gateset_result = self._rescale_TP(gateset_result, num_qubits)
 
         else:
-            if (fitter_name == 'scipy_optimizer_MLE_gst'):#should be the only option
-                if (fitter_initial_guess =='linear_inversion'):
+            if fitter_name == 'scipy_optimizer_MLE_gst':  # should be the only option
+                if fitter_initial_guess == 'linear_inversion':
                     initial_gateset = post_gauge_linv_gateset
-                elif (fitter_initial_guess == None):
+                elif fitter_initial_guess is None:
                     initial_gateset = None
                 else:
                     # if it is given by the user as Dict[str, PTM].
                     initial_gateset = fitter_initial_guess
-                gst_optimizer = GST_Optimize(gateset_basis.gate_labels,
-                                             gateset_basis.spam_labels,
-                                             gateset_basis.spam_spec,
-                                             outcome_data,
-                                             initial_gateset,
-                                             num_qubits)
-                #print(gst_optimizer.optimize(), 'gst_optimizer.optimize()')
+                gst_optimizer = GSTOptimize(gateset_basis.gate_labels,
+                                            gateset_basis.spam_labels,
+                                            gateset_basis.spam_spec,
+                                            outcome_data,
+                                            initial_gateset,
+                                            num_qubits)
+                # print(gst_optimizer.optimize(), 'gst_optimizer.optimize()')
                 gateset_result = gst_optimizer.optimize()
-                t_fitter_stop=time.time()
-                fitter_time=t_fitter_stop-t_fitter_start_linv
-
-
+                t_fitter_stop = time.time()
+                fitter_time = t_fitter_stop-t_fitter_start_linv
         fitter_metadata = {}
         fitter_metadata["fitter"] = fitter_name
-        fitter_metadata["fitter_time"] =fitter_time
-        #if (fitter_name == "linear_inversion_gst"):
-        #    fitter_metadata["rescale_psd"] = rescale_positive
-        #    fitter_metadata["rescale_TP"] = rescale_TP
+        fitter_metadata["fitter_time"] = fitter_time
+        if fitter_name == "linear_inversion_gst":
+            fitter_metadata["rescale_PSD"] = rescale_PSD
+            fitter_metadata["rescale_TP"] = rescale_TP
 
         analysis_results = self._postprocess_fit(
             gateset_result,
@@ -207,14 +220,13 @@ class GSTAnalysis(BaseAnalysis):
             target_gateset=target_set,
             gates_labels=gateset_basis.gate_labels,
             spam_gates_labels=gateset_basis.spam_spec,
-
         )
 
         return analysis_results, []
 
     def _fitter_data(self,
                      data: List[Dict[str, any]], num_qubits
-                     ) -> Dict[Tuple[str], Dict]:
+                     ) -> Dict[Tuple[str], float]:
         """Return list a tuple of basis, frequency, shot data"""
         outcome_dict = {}
 
@@ -230,12 +242,12 @@ class GSTAnalysis(BaseAnalysis):
 
     @staticmethod
     def _counts_to_probabilities_converter(data: Dict[Tuple[str], Dict], num_qubits
-                                           ) -> Dict[Tuple[str], Dict]:
+                                           ) -> Dict[Tuple[str], float]:
         probs = {}
         for key, vals in data.items():
             # We assume the POVM is always |E>=|0000..><0000..|
             probs[key] = vals.get('0' * num_qubits, 0) / sum(vals.values())
-        #print(probs)
+        # print(probs)
         return probs
 
     @classmethod
@@ -249,78 +261,63 @@ class GSTAnalysis(BaseAnalysis):
         spam_gates_labels,
     ):
         """Post-process fitter data"""
-
-
         # Results list
         # add spam gates labels to extra
         metadata["GST gates"] = gates_labels
-        metadata["GST SPAM gates"]=spam_gates_labels
+        metadata["GST SPAM gates"] = spam_gates_labels
         # convert all results to choi representation
-        gateset_result_choi={}
-        for key in gateset_result:
-            gateset_result_choi[key] = Choi(PTM(gateset_result[key]))
+        gateset_result_choi = {}
+        gateset_result_choi['E'] = gateset_result['E']
+        gateset_result_choi['rho'] = gateset_result['rho']
 
-        analysis_results=[]
+        for key in gateset_result:
+            if key not in ['E', 'rho']:
+                gateset_result_choi[key] = Choi(PTM(gateset_result[key]))
+        analysis_results = []
         analysis_results.append(AnalysisResultData("GST Experiment properties", metadata))
+        """
+        Is this part needed? How about rescaling rho to be positive and with trace 1?
+        metadata_rho = {}
+        if not isinstance(target_gateset['rho'], DensityMatrix):
+            target_gateset['rho'] = DensityMatrix(convert_from_ptm(target_gateset['rho'], num_qubits))
+        metadata_rho["Preparation state fidelity"] = state_fidelity(gateset_result_choi['rho'], target_gateset['rho'])
+        analysis_results.append(AnalysisResultData("gst estimation of {}".format('rho'), gateset_result_choi['rho'], extra = metadata_rho))
+        """
         for key in gateset_result_choi:
-            metadata_key={}
+            metadata_key = {}
             if key not in ['rho', 'E']:
                 metadata_key["Average gate fidelity"] = gate_average_fidelity(gateset_result_choi[key], target_gateset[key])
-                #metadata["Trace Preservation"] =
-                #metadate["Complete Positivity"]=
             analysis_results.append(AnalysisResultData("gst estimation of {}".format(key), gateset_result_choi[key], extra=metadata_key))
 
-            #cls._hs_distance_result(gateset_result, target_gateset_ideal)
-            #cls._froebenius_distance(gateset_result, target_gateset_ideal)
+            # cls._hs_distance_result(gateset_result, target_gateset_ideal)
+            # cls._froebenius_distance(gateset_result, target_gateset_ideal)
 
         return analysis_results
 
-
-
-    """
-    #I should add something for the noisy results fidelity...target_noisy or something like this
-    def _fidelity_result(result, target):
-        name = "gst fidelity with ideal target"
-        fidelity={}
-        for key in result.keys():
+    @staticmethod
+    def _rescale_PSD(gateset_result):
+        # This method is only relevant for the linear inversion fitter as MLE results are always PSD
+        gateset_result_rescaled_PSD = {}
+        gateset_result_rescaled_PSD['E'] = gateset_result['E']
+        gateset_result_rescaled_PSD['rho'] = gateset_result['rho']
+        for key in gateset_result.keys():
             if key not in ['E', 'rho']:
-                fidelity[key] = gate_average_fidelity(result[key], target[key])
-        return AnalysisResultData(name, fidelity)
-    """
+                gateset_result_rescaled_PSD[key] = PTM(Choi(make_positive_semidefinite(Choi(PTM(gateset_result[key])).data)))
+        return gateset_result_rescaled_PSD
 
     @staticmethod
-    def _hs_distance_result(result, target):
-        name="Hilbert-Schmidtt norm for the target and gst results"
-        hs_distance_results={}
-        for key in result.keys():
+    def _rescale_TP(gateset_result, num_qubits):
+        # This method is only relevant for the linear inversion fitter as MLE results are always PSD
+        gateset_result_rescaled_TP = {}
+        gateset_result_rescaled_TP['E'] = gateset_result['E']
+        gateset_result_rescaled_TP['rho'] = gateset_result['rho']
+        for key in gateset_result.keys():
             if key not in ['E', 'rho']:
-                hs_distance_results[key] = hs_distance(result[key].data, target[key].data)
-        return AnalysisResultData(name, hs_distance_results)
-
-
-    @staticmethod
-    def _froebenius_distance(result, target):
-        name="froebenius distance between target and gst results"
-        froeb_distance={}
-        for key in result.keys():
-            if key not in ['E', 'rho']:
-                froeb_distance[key]= froeb_dist(result[key].data, target[key].data)
-        return AnalysisResultData(name, froeb_distance)
+                gate = Choi(PTM(gateset_result[key])).data
+                gateset_result_rescaled_TP[key] = PTM(Choi((2**num_qubits)*gate/np.trace(gate)))
+        return gateset_result_rescaled_TP
 
 
 def gate_average_fidelity(A, B):
-    #A and B are both PTM
+    # A and B are both PTM
     return average_gate_fidelity(A, B)
-
-def hs_distance(A, B):
-    """
-    Computes the Hilbert-Schmidt distance between two matrices A and B
-    """
-    return sum([np.abs(x) ** 2 for x in np.nditer(A - B)])
-
-def froeb_dist(A, B):
-
-    """
-    Computes the Frobenius distance between two matrices A and B.
-    """
-    return np.sqrt(np.trace(np.dot(np.subtract(A, B), (np.subtract(A, B).T))))

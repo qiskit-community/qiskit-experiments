@@ -13,7 +13,7 @@
 Standard RB Experiment class.
 """
 from typing import Union, Iterable, Optional, List, Dict, Tuple, Callable
-import itertools as iter
+import itertools as itert
 import numpy as np
 from numpy.random import Generator, default_rng
 import copy
@@ -118,7 +118,7 @@ class GateSetTomography(BaseExperiment):
                                       " in Qiskit")
 
         elif only_basis_gates is True and isinstance(gateset, Dict):
-                self._gateset_basis = gatesetbasis_constrction_from_basis_gates(gateset, self.num_qubits)[0]
+            self._gateset_basis = gatesetbasis_constrction_from_basis_gates(gateset, self.num_qubits)[0]
         else:
             raise QiskitError("Can not run GST experiment with the provided gateset format.")
 
@@ -155,7 +155,7 @@ class GateSetTomography(BaseExperiment):
         # Experiments of the form <E|F_i G_k F_j|rho>
         FGF_circuits = []
         for gate in self._gateset_basis.gate_labels:
-            for (fprep, fmeas) in iter.product(self._gateset_basis.spam_labels, self._gateset_basis.spam_labels):
+            for (fprep, fmeas) in itert.product(self._gateset_basis.spam_labels, self._gateset_basis.spam_labels):
                 circuit = QuantumCircuit(self.num_qubits, self.num_qubits)
                 self._gateset_basis.add_spam_to_circuit(circuit, self.physical_qubits, fprep)
                 circuit.barrier()
@@ -177,7 +177,7 @@ class GateSetTomography(BaseExperiment):
         # Can be skipped if one of the gates is ideal identity
 
         FF_circuits = []
-        for (fprep, fmeas) in iter.product(self._gateset_basis.spam_labels, self._gateset_basis.spam_labels):
+        for (fprep, fmeas) in itert.product(self._gateset_basis.spam_labels, self._gateset_basis.spam_labels):
             circuit = QuantumCircuit(self.num_qubits, self.num_qubits)
             self._gateset_basis.add_spam_to_circuit(circuit, self.physical_qubits, fprep)
             circuit.barrier()
@@ -211,7 +211,4 @@ class GateSetTomography(BaseExperiment):
         # print(all_circuits)
 
         return all_circuits
-
-
-
 

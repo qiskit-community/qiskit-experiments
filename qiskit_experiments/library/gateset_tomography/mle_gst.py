@@ -1,3 +1,18 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright IBM 2021.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+"""
+Gate set tomography maximum liklihood estimation (MLE) fitter
+"""
+
 import scipy.optimize as opt
 import numpy as np
 import itertools
@@ -8,7 +23,8 @@ import scipy.linalg as la
 from functools import reduce
 from qiskit_experiments.library.tomography.fitters.fitter_utils import make_positive_semidefinite
 
-class GST_Optimize:
+
+class GSTOptimize:
 
     """ GST fitter that performs the maximum likelihood estimation (MLE) optimization for gate set tomography.
 
@@ -57,7 +73,6 @@ class GST_Optimize:
             self.initial_value = self.set_initial_value(initial_gateset)
         else:
             self.initial_value = None
-
 
     # auxiliary functions
     @staticmethod
@@ -179,7 +194,7 @@ class GST_Optimize:
         rho = np.reshape(rho_T @ np.conj(rho_T.T), (ds, 1))
         Gs = [PTM(Choi(G_T @ np.conj(G_T.T))).data for G_T in Gs_T]
 
-        return (E, rho, Gs)
+        return E, rho, Gs
 
     def _join_input_vector(self,
                            E: np.array,
@@ -202,8 +217,8 @@ class GST_Optimize:
             split_input_vector; the notations are the same.
         """
         d = (2 ** self.num_qubits)
-        #np.linalg returns the lower diagonal matrix T of the Cholesky decomposition T_dagger*T, but it
-        #works only with positive definite matrix. To solve this, we simply add a small matrix to shift
+        # np.linalg returns the lower diagonal matrix T of the Cholesky decomposition T_dagger*T, but it
+        # works only with positive definite matrix. To solve this, we simply add a small matrix to shift
         # the zero eigenvalues.
 
         E_T = np.linalg.cholesky(make_positive_semidefinite(E.reshape((d, d))) + 1e-14 * np.eye(d))
@@ -282,7 +297,7 @@ class GST_Optimize:
             val2 = val2 + term_val
         return np.min([val1, val2])
 
-    def _complete_x(self, x: np.array) -> float:
+    def _complete_x(self, x: np.array) -> np.array:
         """ Completes the x vector by adding the suitable elements to fill the deleted elements; last
         element of each Cholesky decomposition matrices _T of the gates. The suitable elements are
         those that give trace=2**num_qubits for the Choi matrix corresponding to each gate in the gateset.
@@ -337,7 +352,7 @@ class GST_Optimize:
             term_val = term_val ** 2
             val2 = val2 + term_val
 
-        if (np.min([val1, val2]) == val1):
+        if np.min([val1, val2]) == val1:
             x = x1
         else:
             x = x2
@@ -377,9 +392,9 @@ class GST_Optimize:
         xfull = self._complete_x(x)
         _, rho, _ = self._split_input_vector(xfull, 'full')
         d = (2 ** self.num_qubits)  # rho is dxd and starts at variable d^2
-        rho = self._convert_from_ptm(rho.reshape((d, d)))
+        rho = convert_from_ptm(rho.reshape((d, d)), self.num_qubits)
         trace = sum([rho[i][i] for i in range(d)])
-        return (np.real(trace), np.imag(trace))
+        return np.real(trace), np.imag(trace)
 
     def _bounds_eq_constraint(self, x: np.array) -> List[float]:
         """Equality MLE constraints on the GST data
@@ -488,13 +503,6 @@ class GST_Optimize:
         cons.append({'type': 'ineq', 'fun': self._bounds_ineq_constraint})
         return cons
 
-    def _convert_from_ptm(self, vector):
-        """Converts a vector back from PTM representation"""
-
-        pauli_strings_matrices = Pauli_strings(self.num_qubits)
-        v = vector.reshape(np.size(vector))
-        n = [a * b for a, b in zip(v, pauli_strings_matrices)]
-        return reduce(lambda x, y: np.add(x, y), n)
 
     def _process_result(self, x: np.array) -> Dict:
         """Completes and transforms the optimization result to a friendly format satisfying the physical constraints
@@ -510,21 +518,20 @@ class GST_Optimize:
         E, rho, G_matrices = self._split_input_vector(xfinal, 'full')
 
         result = {}
-        result['E'] = Operator(self._convert_from_ptm(E))
-        result['rho'] = DensityMatrix(self._convert_from_ptm(rho))
+        result['E'] = Operator(convert_from_ptm(E, self.num_qubits))
+        result['rho'] = DensityMatrix(convert_from_ptm(rho, self.num_qubits))
         for i in range(len(self.Gs)):
-            #If not exactly PSD, find the closest PSD
-            Choi_matrix=Choi(make_positive_semidefinite(Choi(PTM(G_matrices[i])).data))
-            gate_matrix=PTM(Choi_matrix).data
-            #make it TP if it is not exactly TP (but always will almost TP up to a very small deviation)
-            gate_matrix[0][0]=1
-            result[self.Gs[i]]= PTM(gate_matrix)
+            # If not exactly PSD, find the closest PSD
+            Choi_matrix = make_positive_semidefinite(Choi(PTM(G_matrices[i])).data)
+            # make it TP if it is not exactly TP (but always will almost TP up to a very small deviation)
+            Choi_matrix_trace_rescaled = (2**self.num_qubits)*Choi_matrix/np.trace(Choi_matrix)
+            result[self.Gs[i]] = PTM(Choi(Choi_matrix_trace_rescaled))
         return result
 
     def set_initial_value(self, initial_gateset: Dict[str, PTM]):
         """Sets the initial value for the MLE optimization
         Args:
-            initial_value: The dictionary of the initial gateset
+            initial_gateset: The dictionary of the initial gateset
         """
         E = initial_gateset['E']
         rho = initial_gateset['rho']
@@ -542,11 +549,8 @@ class GST_Optimize:
             m += 1
         return initial_value_temp
 
-
     def optimize(self) -> Dict:
         """Performs the MLE optimization for gate set tomography
-        Args:
-            initial_value: Vector representation of the initial value data
         Returns:
             The formatted results of the MLE optimization.
         """
@@ -556,3 +560,11 @@ class GST_Optimize:
         formatted_result = self._process_result(result.x)
         return formatted_result
 
+
+def convert_from_ptm(vector, num_qubits):
+    """Converts a vector back from PTM representation"""
+
+    pauli_strings_matrices = Pauli_strings(num_qubits)
+    v = vector.reshape(np.size(vector))
+    n = [a * b for a, b in zip(v, pauli_strings_matrices)]
+    return reduce(lambda x, y: np.add(x, y), n)
