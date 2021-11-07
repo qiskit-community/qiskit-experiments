@@ -115,7 +115,23 @@ class BaseAnalysis(ABC):
             if figures:
                 expdata.add_figures(figures)
 
+        def extra_analysis(expdata):
+            # A callback to generate extra entries based on standard analysis output.
+            results = self._extra_database_entry(expdata)
+            if results:
+                analysis_results = [
+                    self._format_analysis_result(
+                        result, expdata.experiment_id, experiment_components
+                    )
+                    for result in results
+                ]
+                experiment_data.add_analysis_results(analysis_results)
+
+        # Run standard analysis
         experiment_data.add_analysis_callback(run_analysis)
+
+        # Wait for standard analysis to complete, then compute extra quantities
+        experiment_data.add_analysis_callback(extra_analysis)
 
         return experiment_data
 
@@ -136,6 +152,20 @@ class BaseAnalysis(ABC):
             quality=data.quality,
             extra=data.extra,
         )
+
+    # pylint: disable=unused-argument
+    def _extra_database_entry(self, experiment_data: ExperimentData) -> List[AnalysisResultData]:
+        """Calculate new quantity from the fit result.
+
+        Subclasses can override this method to do post analysis.
+
+        Args:
+            experiment_data: Fit result.
+
+        Returns:
+            List of database entry created from the fit data.
+        """
+        return []
 
     @abstractmethod
     def _run_analysis(

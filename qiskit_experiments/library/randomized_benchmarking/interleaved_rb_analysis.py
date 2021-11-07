@@ -17,7 +17,7 @@ from typing import List, Union
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.framework import AnalysisResultData, FitVal
+from qiskit_experiments.framework import AnalysisResultData, FitVal, ExperimentData
 from .rb_analysis import RBAnalysis
 
 
@@ -163,13 +163,17 @@ class InterleavedRBAnalysis(RBAnalysis):
 
         return user_opt
 
-    def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
+    def _extra_database_entry(self, experiment_data: ExperimentData) -> List[AnalysisResultData]:
         """Calculate EPC."""
         nrb = 2 ** self._num_qubits
         scale = (nrb - 1) / nrb
 
-        alpha = fit_data.fitval("alpha")
-        alpha_c = fit_data.fitval("alpha_c")
+        fit_data_alpha = experiment_data.analysis_results("alpha")
+        fit_data_alpha_c = experiment_data.analysis_results("alpha_c")
+        is_good = fit_data_alpha.quality == fit_data_alpha_c.quality == "good"
+
+        alpha = fit_data_alpha.value
+        alpha_c = fit_data_alpha_c.value
 
         # Calculate epc_est (=r_c^est) - Eq. (4):
         epc = FitVal(value=scale * (1 - alpha_c.value), stderr=scale * alpha_c.stderr)
@@ -187,8 +191,8 @@ class InterleavedRBAnalysis(RBAnalysis):
         extra_data = AnalysisResultData(
             name="EPC",
             value=epc,
-            chisq=fit_data.reduced_chisq,
-            quality=self._evaluate_quality(fit_data),
+            chisq=fit_data_alpha.chisq,
+            quality="good" if is_good else "bad",
             extra={
                 "EPC_systematic_err": systematic_err,
                 "EPC_systematic_bounds": [max(systematic_err_l, 0), systematic_err_r],

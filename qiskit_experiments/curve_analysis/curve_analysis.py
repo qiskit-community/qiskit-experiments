@@ -203,11 +203,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
             By default, data is sorted by x values and the measured values at the same
             x value are averaged.
 
-        - Create extra data from fit result:
-            Override :meth:`~self._extra_database_entry`. You need to return a list of
-            :class:`~qiskit_experiments.framework.analysis_result_data.AnalysisResultData`
-            object. This returns an empty list by default.
-
         - Customize fit quality evaluation:
             Override :meth:`~self._evaluate_quality`. This value will be shown in the
             database. You can determine the quality represented by the predefined string
@@ -500,20 +495,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
             shots=shots,
             data_index=series,
         )
-
-    # pylint: disable=unused-argument
-    def _extra_database_entry(self, fit_data: FitData) -> List[AnalysisResultData]:
-        """Calculate new quantity from the fit result.
-
-        Subclasses can override this method to do post analysis.
-
-        Args:
-            fit_data: Fit result.
-
-        Returns:
-            List of database entry created from the fit data.
-        """
-        return []
 
     # pylint: disable=unused-argument
     def _evaluate_quality(self, fit_data: FitData) -> Union[str, None]:
@@ -1016,9 +997,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         extra=self._get_option("extra"),
                     )
                     analysis_results.append(result_entry)
-
-            # add extra database entries
-            analysis_results.extend(self._extra_database_entry(fit_result))
 
         if self._get_option("return_data_points"):
             # save raw data points in the data base if option is set (default to false)

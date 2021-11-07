@@ -23,7 +23,7 @@ import qiskit_experiments.curve_analysis as curve
 import qiskit_experiments.data_processing as dp
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.framework import AnalysisResultData, FitVal
+from qiskit_experiments.framework import AnalysisResultData, FitVal, ExperimentData
 
 
 # pylint: disable=line-too-long
@@ -332,14 +332,18 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
 
         return "bad"
 
-    def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:
+    def _extra_database_entry(self, experiment_data: ExperimentData) -> List[AnalysisResultData]:
         """Calculate Hamiltonian coefficients from fit values."""
         extra_entries = []
 
         for control in ("z", "i"):
             for target in ("x", "y", "z"):
-                p0_val = fit_data.fitval(f"p{target}0")
-                p1_val = fit_data.fitval(f"p{target}1")
+                p0_data = experiment_data.analysis_results(f"p{target}0")
+                p1_data = experiment_data.analysis_results(f"p{target}1")
+                is_all_good = p0_data.quality == p1_data.quality == "good"
+
+                p0_val = p0_data.value
+                p1_val = p1_data.value
 
                 if control == "z":
                     coef_val = 0.5 * (p0_val.value - p1_val.value) / (2 * np.pi)
@@ -352,8 +356,8 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
                     AnalysisResultData(
                         name=f"omega_{control}{target}",
                         value=FitVal(value=coef_val, stderr=coef_err, unit="Hz"),
-                        chisq=fit_data.reduced_chisq,
                         device_components=[Qubit(q) for q in self._physical_qubits],
+                        quality="good" if is_all_good else "bad",
                     )
                 )
 
