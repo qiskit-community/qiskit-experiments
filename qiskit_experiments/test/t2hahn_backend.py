@@ -99,16 +99,17 @@ class T2HahnBackend(BackendV1):
 
             for _ in range(shots):
                 qubit_state = {"qubit state": 0, "XY plain": False, "Theta": 0}
+                delayCheck = True
                 clbits = np.zeros(circ.num_clbits, dtype=int)
                 for op, qargs, cargs in circ.data:
                     qubit = qubit_indices[qargs[0]]
 
                     # The noise will only be applied if we are in the XY plain.
-                    if op.name == "delay":
+                    if op.name == "delay" and delayCheck:
+                        delayCheck = False
                         delay = op.params[0]
                         t2hahn = self._t2hahn[qubit] * self._conversion_factor
                         freq = self._freq[qubit]
-
                         if qubit_state["XY plain"]:
                             prob_noise = 1 - (
                                     self._a_param[qubit]
