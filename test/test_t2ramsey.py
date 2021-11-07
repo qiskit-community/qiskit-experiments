@@ -33,12 +33,17 @@ class TestT2Ramsey(QiskitTestCase):
         """
         for unit in ["s", "ms", "us", "ns", "dt"]:
             if unit in ("s", "dt"):
-                dt_factor = 1
+                conversion_factor = 1
             else:
-                dt_factor = apply_prefix(1, unit)
-            osc_freq = 0.1 / dt_factor
+                conversion_factor = apply_prefix(1, unit)
+
+            # scale t2star and frequency
+            osc_freq = 0.1 / conversion_factor
             estimated_t2ramsey = 20
+
+            # induce error
             estimated_freq = osc_freq * 1.001
+
             # Set up the circuits
             qubit = 0
             if unit == "dt":  # dt requires integer values for delay
@@ -50,43 +55,43 @@ class TestT2Ramsey(QiskitTestCase):
                 )
             exp = T2Ramsey(qubit, delays, unit=unit, osc_freq=osc_freq)
             default_p0 = {
-                "A": 0.5,
-                "T2star": estimated_t2ramsey,
-                "f": estimated_freq,
+                "amp": 0.5,
+                "tau": estimated_t2ramsey,
+                "freq": estimated_freq,
                 "phi": 0,
-                "B": 0.5,
+                "base": 0.5,
             }
-            for user_p0 in [default_p0, None]:
-                exp.set_analysis_options(user_p0=user_p0, plot=True)
-                backend = T2RamseyBackend(
-                    p0={
-                        "A": [0.5],
-                        "T2star": [estimated_t2ramsey],
-                        "f": [estimated_freq],
-                        "phi": [0.0],
-                        "B": [0.5],
-                    },
-                    initial_prob_plus=[0.0],
-                    readout0to1=[0.02],
-                    readout1to0=[0.02],
-                    conversion_factor=dt_factor,
+            backend = T2RamseyBackend(
+                p0={
+                    "A": [0.5],
+                    "T2star": [estimated_t2ramsey],
+                    "f": [estimated_freq],
+                    "phi": [0.0],
+                    "B": [0.5],
+                },
+                initial_prob_plus=[0.0],
+                readout0to1=[0.02],
+                readout1to0=[0.02],
+                conversion_factor=conversion_factor,
+            )
+            for user_p0 in [default_p0, dict()]:
+                exp.set_analysis_options(p0=user_p0)
+                expdata = exp.run(backend=backend, shots=2000)
+                expdata.block_for_results()  # Wait for job/analysis to finish.
+                result = expdata.analysis_results("T2star")
+                self.assertAlmostEqual(
+                    result.value.value,
+                    estimated_t2ramsey * conversion_factor,
+                    delta=TestT2Ramsey.__tolerance__ * result.value.value,
                 )
-
-            expdata = exp.run(backend=backend, shots=2000)
-            expdata.block_for_results()  # Wait for job/analysis to finish.
-            result = expdata.analysis_results()
-            self.assertAlmostEqual(
-                result[0].value.value,
-                estimated_t2ramsey * dt_factor,
-                delta=TestT2Ramsey.__tolerance__ * result[0].value.value,
-            )
-            self.assertAlmostEqual(
-                result[1].value.value,
-                estimated_freq,
-                delta=TestT2Ramsey.__tolerance__ * result[1].value.value,
-            )
-            for res in result:
-                self.assertEqual(res.quality, "good", "Result quality bad for unit " + str(unit))
+                self.assertEqual(result.quality, "good", "Result quality bad for unit " + str(unit))
+                result = expdata.analysis_results("Frequency")
+                self.assertAlmostEqual(
+                    result.value.value,
+                    estimated_freq,
+                    delta=TestT2Ramsey.__tolerance__ * result.value.value,
+                )
+                self.assertEqual(result.quality, "good", "Result quality bad for unit " + str(unit))
 
     def test_t2ramsey_parallel(self):
         """
@@ -115,23 +120,24 @@ class TestT2Ramsey(QiskitTestCase):
         expdata.block_for_results()
 
         for i in range(2):
-            sub_res = expdata.component_experiment_data(i).analysis_results()
+            res_t2star = expdata.child_data(i).analysis_results("T2star")
             self.assertAlmostEqual(
-                sub_res[0].value.value,
+                res_t2star.value.value,
                 t2ramsey[i],
-                delta=TestT2Ramsey.__tolerance__ * sub_res[0].value.value,
+                delta=TestT2Ramsey.__tolerance__ * res_t2star.value.value,
             )
+            self.assertEqual(
+                res_t2star.quality, "good", "Result quality bad for experiment on qubit " + str(i)
+            )
+            res_freq = expdata.child_data(i).analysis_results("Frequency")
             self.assertAlmostEqual(
-                sub_res[1].value.value,
+                res_freq.value.value,
                 estimated_freq[i],
-                delta=TestT2Ramsey.__tolerance__ * sub_res[1].value.value,
+                delta=TestT2Ramsey.__tolerance__ * res_freq.value.value,
             )
-            for res in sub_res:
-                self.assertEqual(
-                    res.quality,
-                    "good",
-                    "Result quality bad for experiment on qubit " + str(i),
-                )
+            self.assertEqual(
+                res_freq.quality, "good", "Result quality bad for experiment on qubit " + str(i)
+            )
 
     def test_t2ramsey_concat_2_experiments(self):
         """
@@ -153,7 +159,7 @@ class TestT2Ramsey(QiskitTestCase):
             "phi": 0,
             "B": 0.5,
         }
-        exp0.set_analysis_options(user_p0=default_p0)
+        exp0.set_analysis_options(p0=default_p0)
         backend = T2RamseyBackend(
             p0={
                 "A": [0.5],
@@ -165,31 +171,42 @@ class TestT2Ramsey(QiskitTestCase):
             initial_prob_plus=[0.0],
             readout0to1=[0.02],
             readout1to0=[0.02],
-            conversion_factor=1,
         )
 
         # run circuits
         expdata0 = exp0.run(backend=backend, shots=1000)
         expdata0.block_for_results()
-        results0 = expdata0.analysis_results()
+
+        res_t2star_0 = expdata0.analysis_results("T2star")
 
         # second experiment
         delays1 = list(range(2, 65, 2))
         exp1 = T2Ramsey(qubit, delays1, unit=unit)
-        exp1.set_analysis_options(user_p0=default_p0)
-        expdata1 = exp1.run(backend=backend, experiment_data=expdata0, shots=1000)
-        expdata1.block_for_results()
-        results1 = expdata1.analysis_results()
+        exp1.set_analysis_options(p0=default_p0)
+        expdata1 = exp1.run(backend=backend, analysis=False, shots=1000).block_for_results()
+        expdata1.add_data(expdata0.data())
+        exp1.run_analysis(expdata1).block_for_results()
+
+        res_t2star_1 = expdata1.analysis_results("T2star")
+        res_freq_1 = expdata1.analysis_results("Frequency")
 
         self.assertAlmostEqual(
-            results1[0].value.value,
+            res_t2star_1.value.value,
             estimated_t2ramsey,
-            delta=TestT2Ramsey.__tolerance__ * results1[0].value.value,
+            delta=TestT2Ramsey.__tolerance__ * res_t2star_1.value.value,
         )
         self.assertAlmostEqual(
-            results1[1].value.value,
+            res_freq_1.value.value,
             estimated_freq,
-            delta=TestT2Ramsey.__tolerance__ * results1[0].value.value,
+            delta=TestT2Ramsey.__tolerance__ * res_freq_1.value.value,
         )
-        self.assertLessEqual(results1[0].value.stderr, results0[0].value.stderr)
+        self.assertLessEqual(res_t2star_1.value.stderr, res_t2star_0.value.stderr)
         self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = T2Ramsey(0, [1, 2, 3, 4, 5], unit="s")
+        config = exp.config
+        loaded_exp = T2Ramsey.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)

@@ -13,9 +13,8 @@
 Quantum Volume Experiment class.
 """
 
-from typing import Union, Iterable, Optional, List
+from typing import Union, Sequence, Optional, List
 from numpy.random import Generator, default_rng
-from qiskit.providers.backend import Backend
 
 try:
     from qiskit import Aer
@@ -27,10 +26,12 @@ except ImportError:
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume as QuantumVolumeCircuit
 from qiskit import transpile
-from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit.providers.backend import Backend
+from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
 from .qv_analysis import QuantumVolumeAnalysis
 
 
+@fix_class_docs
 class QuantumVolume(BaseExperiment):
     """Quantum Volume Experiment class.
 
@@ -72,7 +73,8 @@ class QuantumVolume(BaseExperiment):
 
     def __init__(
         self,
-        qubits: Union[int, Iterable[int]],
+        qubits: Sequence[int],
+        backend: Optional[Backend] = None,
         trials: Optional[int] = 100,
         seed: Optional[Union[int, Generator]] = None,
         simulation_backend: Optional[Backend] = None,
@@ -80,8 +82,8 @@ class QuantumVolume(BaseExperiment):
         """Initialize a quantum volume experiment.
 
         Args:
-            qubits: The number of qubits or list of
-                    physical qubits for the experiment.
+            qubits: list of physical qubits for the experiment.
+            backend: Optional, the backend to run the experiment on.
             trials: The number of trials to run the quantum volume circuit.
             seed: Seed or generator object for random number
                   generation. If None default_rng will be used.
@@ -91,7 +93,7 @@ class QuantumVolume(BaseExperiment):
                 (in case :class:`AerSimulator` is not
                 installed :class:`qiskit.quantum_info.Statevector` will be used).
         """
-        super().__init__(qubits)
+        super().__init__(qubits, backend=backend)
 
         # Set configurable options
         self.set_experiment_options(trials=trials)
@@ -150,11 +152,8 @@ class QuantumVolume(BaseExperiment):
             probabilities = state_vector.probabilities()
         return probabilities
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def circuits(self) -> List[QuantumCircuit]:
         """Return a list of Quantum Volume circuits.
-
-        Args:
-            backend (Backend): Optional, a backend object.
 
         Returns:
             A list of :class:`QuantumCircuit`.

@@ -240,6 +240,11 @@ class ThreadSafeContainer(ABC):
         obj._container = self.copy()
         return obj
 
+    def clear(self):
+        """Remove all elements from this container."""
+        with self.lock:
+            self._container.clear()
+
 
 class ThreadSafeOrderedDict(ThreadSafeContainer):
     """Thread safe OrderedDict."""
