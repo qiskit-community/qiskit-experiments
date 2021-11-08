@@ -41,7 +41,7 @@ class T2HahnAnalysis(BaseAnalysis):
 
         .. math::
 
-            f(t) = a\mathrm{e}^{-t / T_2} + b
+            f(t) = a\mathrm{e}^{-2*t / T_2} + b
 
     # section: fit_parameters
 
@@ -208,7 +208,7 @@ class T2HahnAnalysis(BaseAnalysis):
             b_bounds = [-0.5, 1.5]
             bounds = (
                 [a_bounds[0], t2hahn_bounds[0], b_bounds[0]],
-                [a_bounds[1], t2hahn_bounds[1], b_bounds[1]]
+                [a_bounds[1], t2hahn_bounds[1], b_bounds[1]],
             )
         else:
             bounds = user_bounds

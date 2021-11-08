@@ -25,8 +25,6 @@ from qiskit_experiments.framework import BaseExperiment
 from .t2hahn_analysis import T2HahnAnalysis
 
 
-
-
 class T2Hahn(BaseExperiment):
     r"""T2 Hahn Echo Experiment.
 

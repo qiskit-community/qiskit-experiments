@@ -32,12 +32,12 @@ class T2HahnBackend(BackendV1):
     """
 
     def __init__(
-            self,
-            p0=None,
-            initial_prob_plus=None,
-            readout0to1=None,
-            readout1to0=None,
-            conversion_factor=1,
+        self,
+        p0=None,
+        initial_prob_plus=None,
+        readout0to1=None,
+        readout1to0=None,
+        conversion_factor=1,
     ):
         """
         Initialize the T2Hahn backend
@@ -137,7 +137,7 @@ class T2HahnBackend(BackendV1):
                     if op.name == "measure":
                         # we measure in |+> basis which is the same as measuring |0>
                         if qubit_state["XY plain"]:
-                            meas_res = (self._rng.random() < 0.5)
+                            meas_res = self._rng.random() < 0.5
                         else:
                             meas_res = qubit_state["qubit state"]
                         clbit = clbit_indices[cargs[0]]

@@ -24,6 +24,7 @@ from qiskit_experiments.test.t2hahn_backend import T2HahnBackend
 # Imports for computer
 from qiskit import IBMQ
 
+
 class TestT2Hahn(QiskitTestCase):
     """Test T2Hahn experiment"""
 
@@ -81,51 +82,6 @@ class TestT2Hahn(QiskitTestCase):
             )
             for res in result:
                 self.assertEqual(res.quality, "good", "Result quality bad for unit " + str(unit))
-
-    # def test_t2hahn_parallel(self):
-    #     """
-    #     Test parallel experiments of T2Hahn using a simulator.
-    #     """
-    #     t2hahn = [30, 25]
-    #     estimated_freq = [0.1, 0.12]
-    #     delays = [list(range(1, 60)), list(range(1, 50))]
-    #
-    #     osc_freq = [0.11, 0.11]
-    #
-    #     exp0 = T2Hahn(0, delays[0])
-    #     exp2 = T2Hahn(2, delays[1])
-    #     par_exp = ParallelExperiment([exp0, exp2])
-    #
-    #     p0 = {
-    #         "A": [0.5, None, 0.5],
-    #         "T2": [t2hahn[0], None, t2hahn[1]],
-    #         "f": [estimated_freq[0], None, estimated_freq[1]],
-    #         "phi": [0, None, 0],
-    #         "B": [0.5, None, 0.5],
-    #     }
-    #     properties_backend = [p0, p0]
-    #
-    #     backend = T2HahnBackend(properties_backend)
-    #     parallel_data = par_exp.run(backend=backend, shots=1000).block_for_results()
-    #     # parallel_data.block_for_results()
-        #
-        # for idx, sub_res in enumerate(parallel_data.analysis_results()):
-        #     self.assertAlmostEqual(
-        #         sub_res[0].value.value,
-        #         t2hahn[idx],
-        #         delta=TestT2Hahn.__tolerance__ * sub_res[0].value.value,
-        #     )
-        #     # self.assertAlmostEqual(
-        #     #     sub_res[1].value.value,
-        #     #     estimated_freq[i],
-        #     #     delta=TestT2Hahn.__tolerance__ * sub_res[1].value.value,
-        #     # )
-        #     for res in sub_res:
-        #         self.assertEqual(
-        #             res.quality,
-        #             "good",
-        #             "Result quality bad for experiment on qubit " + str(idx),
-        #         )
 
     def test_t2hahn_concat_2_experiments(self):
         """
