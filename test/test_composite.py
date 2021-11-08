@@ -492,6 +492,7 @@ class TestCompositeExperimentData(QiskitTestCase):
             """
             Bacekend to be used in test_composite_subexp_data
             """
+
             def run(self, run_input, **options):
                 results = []
                 for circ, cnt in zip(run_input, counts):
@@ -518,6 +519,7 @@ class TestCompositeExperimentData(QiskitTestCase):
             """
             Experiment to be used in test_composite_subexp_data
             """
+
             def __init__(self, qubits, num_circs):
                 super().__init__(qubits)
                 self._ncircs = num_circs
