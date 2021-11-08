@@ -61,7 +61,6 @@ class T2HahnBackend(BackendV1):
 
         self._t2hahn = p0["T2"]
         self._a_param = p0["A"]
-        self._freq = p0["f"]
         self._phi = p0["phi"]
         self._b_param = p0["B"]
         self._initial_prob_plus = None
@@ -106,16 +105,10 @@ class T2HahnBackend(BackendV1):
 
                     # The noise will only be applied if we are in the XY plain.
                     if op.name == "delay" and delayCheck:
-                        delayCheck = False
                         delay = op.params[0]
                         t2hahn = self._t2hahn[qubit] * self._conversion_factor
-                        freq = self._freq[qubit]
                         if qubit_state["XY plain"]:
-                            prob_noise = 1 - (
-                                    self._a_param[qubit]
-                                    * np.exp(-delay / t2hahn)
-                                    + self._b_param[qubit]
-                            )
+                            prob_noise = 1 - (np.exp(-delay / t2hahn))
                             if self._rng.random() < prob_noise:
                                 if self._rng.random() < 0.5:
                                     qubit_state = {"qubit state": 0, "XY plain": False, "Theta": 0}

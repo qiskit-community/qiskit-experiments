@@ -107,7 +107,7 @@ class T2HahnAnalysis(BaseAnalysis):
 
         def T2_fit_fun(x, a, t2hahn, c):
             """Decay cosine fit function"""
-            return a * np.exp(-x / t2hahn) + c
+            return a * np.exp(-2 * x / t2hahn) + c
 
         def _format_plot(ax, unit, fit_result, conversion_factor):
             """Format curve fit plot"""
@@ -206,10 +206,10 @@ class T2HahnAnalysis(BaseAnalysis):
             a_bounds = [-0.5, 1.5]
             t2hahn_bounds = [0, np.inf]
             b_bounds = [-0.5, 1.5]
-            bounds = [
-                [a_bounds[i], t2hahn_bounds[i], b_bounds[i]]
-                for i in range(2)
-            ]
+            bounds = (
+                [a_bounds[0], t2hahn_bounds[0], b_bounds[0]],
+                [a_bounds[1], t2hahn_bounds[1], b_bounds[1]]
+            )
         else:
             bounds = user_bounds
         return (p0, bounds)
