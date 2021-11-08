@@ -23,7 +23,6 @@ from qiskit.quantum_info import Pauli
 
 
 def GaugeOptimizer(initial_gateset, gateset_basis, num_qubits) -> Dict[str, PTM]:
-
     """Initialize gauge optimizer fitter with the ideal and expected
         outcomes.
     Args:
@@ -54,7 +53,9 @@ def GaugeOptimizer(initial_gateset, gateset_basis, num_qubits) -> Dict[str, PTM]
     d = np.shape(ideal_gateset['rho'])[0]
     rho = ideal_gateset['rho']
     initial_value = np.array([(F @ rho).T[0] for F in Fs]).T
-    result = opt.minimize(obj_fn, x0=np.real(initial_value), args={'d': d, 'initial_gateset': initial_gateset, 'gateset_basis': gateset_basis, 'ideal_gateset': ideal_gateset})
+    result = opt.minimize(obj_fn, x0=np.real(initial_value),
+                          args={'d': d, 'initial_gateset': initial_gateset, 'gateset_basis': gateset_basis,
+                                'ideal_gateset': ideal_gateset})
     return x_to_gateset(result.x, d, initial_gateset, gateset_basis)
 
 
@@ -91,7 +92,7 @@ def obj_fn(x: np.array, args) -> float:
     """The norm-based score function for the gauge optimizer
     Args:
         x: An array representation of the B matrix
-        args: A dict of the needed arguments that define the objective function including:
+        args: A dict of the needed arguments that define the objective function and it includes:
         'd'- the Hilbert space dimension, 'initial_gateset'- the gateset obtained by linear inversion,
         'gateset_basis'- the gateset data and 'ideal_gateset'- the noiseless gateset.
 
@@ -99,7 +100,8 @@ def obj_fn(x: np.array, args) -> float:
         The sum of norm differences between the ideal gateset
         and the one corresponding to B
     """
-    d, initial_gateset, gateset_basis, ideal_gateset = args['d'], args['initial_gateset'], args['gateset_basis'], args['ideal_gateset']
+    d, initial_gateset, gateset_basis, ideal_gateset = args['d'], args['initial_gateset'], args['gateset_basis'], args[
+        'ideal_gateset']
     gateset = x_to_gateset(x, d, initial_gateset, gateset_basis)
     result = sum([np.linalg.norm(gateset[label].data -
                                  ideal_gateset[label].data)
@@ -143,9 +145,9 @@ def ideal_gateset_gen(gateset_basis, num_qubits, type_pt_ch):
     # type takes a string either 'PTM' or 'Choi'
     # generates the ideal (noiseless) gate set.
     ideal_gateset_ptm = {label: PTM(gateset_basis.gate_matrices[label])
-                     for label in gateset_basis.gate_labels}
+                         for label in gateset_basis.gate_labels}
     ideal_gateset_choi = {label: Choi(PTM(gateset_basis.gate_matrices[label]))
-                     for label in gateset_basis.gate_labels}
+                          for label in gateset_basis.gate_labels}
     ideal_gateset_ptm['E'] = default_measurement_op(num_qubits)
     ideal_gateset_ptm['rho'] = default_init_state(num_qubits)
     ideal_gateset_choi['E'] = default_measurement_op(num_qubits)
@@ -162,5 +164,3 @@ def Pauli_strings(num_qubits):
     pauli_strings_matrices_orthonormal = [(1 / np.sqrt(2 ** num_qubits)) * pauli_strings_matrices[i] for i in
                                           range(len(pauli_strings_matrices))]
     return pauli_strings_matrices_orthonormal
-
-

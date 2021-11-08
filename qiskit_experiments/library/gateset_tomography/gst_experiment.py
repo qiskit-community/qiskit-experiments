@@ -91,22 +91,20 @@ class GateSetTomography(BaseExperiment):
         """Initialize a gate set tomography experiment.
 
         Args:
-            qubits: The number of qubits for the experiment.
-            measured_qubits: A list of qubits to perform GST on. If None, GST will be performed on all
-                of the qubits: [0,1,..,qubits].
-            gateset_basis: The gateset and SPAM data provided as a GatesetBasis or only a set of basis
+            qubits: List of qubits labels GST is performed on.
+            gateset: The gateset and SPAM data provided as a GatesetBasis or only a set of basis
                 gates from which SPAM gates should be constructed, provided as
                 ('Only basis gates', a dictionary of the basis gates). If 'default', the default
                 gateset corresponding to the number of qubits = qubits will be used.
+            additional_gates: The list of gates to add to a gateset to be characterized using GST.
+            only_basis_gates: A boolean variable indicating whether the gateset provided includes
+            only a set of gates from which the algorithm is required to construct the SPAM gates, or
+            if it is full, meaning that it includes both the gate set and the SPAM gates.
 
         """
         # Initialize base experiment
         super().__init__(qubits)
 
-        # if measured_qubits is None:
-        #    self._measured_qubits = [*range(self.num_qubits)]
-        # else:
-        #    self._measured_qubits = measured_qubits
         if only_basis_gates is False or None:
             if isinstance(gateset, GateSetBasis):
                 self._gateset_basis = gateset
@@ -211,4 +209,3 @@ class GateSetTomography(BaseExperiment):
         # print(all_circuits)
 
         return all_circuits
-

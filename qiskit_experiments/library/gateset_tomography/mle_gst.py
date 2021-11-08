@@ -25,7 +25,6 @@ from qiskit_experiments.library.tomography.fitters.fitter_utils import make_posi
 
 
 class GSTOptimize:
-
     """ GST fitter that performs the maximum likelihood estimation (MLE) optimization for gate set tomography.
 
     # section: overview
@@ -106,7 +105,7 @@ class GSTOptimize:
         n = int(np.sqrt(vec.size / 2))
         if 2 * n * n != vec.size:
             raise QiskitError("Vector of length {} cannot be reshaped"
-                               " to square matrix".format(vec.size))
+                              " to square matrix".format(vec.size))
         size = n * n
         return np.reshape(vec[0:size] + 1j * vec[size: 2 * size], (n, n))
 
@@ -298,6 +297,7 @@ class GSTOptimize:
         return np.min([val1, val2])
 
     def _complete_x(self, x: np.array) -> np.array:
+
         """ Completes the x vector by adding the suitable elements to fill the deleted elements; last
         element of each Cholesky decomposition matrices _T of the gates. The suitable elements are
         those that give trace=2**num_qubits for the Choi matrix corresponding to each gate in the gateset.
@@ -503,7 +503,6 @@ class GSTOptimize:
         cons.append({'type': 'ineq', 'fun': self._bounds_ineq_constraint})
         return cons
 
-
     def _process_result(self, x: np.array) -> Dict:
         """Completes and transforms the optimization result to a friendly format satisfying the physical constraints
         Args:
@@ -524,7 +523,7 @@ class GSTOptimize:
             # If not exactly PSD, find the closest PSD
             Choi_matrix = make_positive_semidefinite(Choi(PTM(G_matrices[i])).data)
             # make it TP if it is not exactly TP (but always will almost TP up to a very small deviation)
-            Choi_matrix_trace_rescaled = (2**self.num_qubits)*Choi_matrix/np.trace(Choi_matrix)
+            Choi_matrix_trace_rescaled = (2 ** self.num_qubits) * Choi_matrix / np.trace(Choi_matrix)
             result[self.Gs[i]] = PTM(Choi(Choi_matrix_trace_rescaled))
         return result
 
