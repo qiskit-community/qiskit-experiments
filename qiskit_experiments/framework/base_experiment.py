@@ -304,7 +304,7 @@ class BaseExperiment(ABC):
         # Run jobs
         jobs = experiment._run_jobs(circuits, **run_opts)
         experiment_data.add_data(jobs)
-        experiment._add_job_metadata(experiment_data, jobs, **run_opts)
+        experiment._add_job_metadata(experiment_data.metadata, jobs, **run_opts)
 
         # Optionally run analysis
         if analysis and self.__analysis_class__ is not None:
@@ -515,7 +515,6 @@ class BaseExperiment(ABC):
             "experiment_type": self._type,
             "num_qubits": self.num_qubits,
             "physical_qubits": list(self.physical_qubits),
-            "job_metadata": [],
         }
         # Add additional metadata if subclasses specify it
         for key, val in self._additional_metadata().items():
@@ -530,7 +529,7 @@ class BaseExperiment(ABC):
         """
         return {}
 
-    def _add_job_metadata(self, experiment_data: ExperimentData, jobs: BaseJob, **run_options):
+    def _add_job_metadata(self, metadata: Dict[str, Any], jobs: BaseJob, **run_options):
         """Add runtime job metadata to ExperimentData.
 
         Args:
@@ -538,14 +537,15 @@ class BaseExperiment(ABC):
             jobs: the job objects.
             run_options: backend run options for the job.
         """
-        metadata = {
-            "job_ids": [job.job_id() for job in jobs],
-            "experiment_options": copy.copy(self.experiment_options.__dict__),
-            "transpile_options": copy.copy(self.transpile_options.__dict__),
-            "analysis_options": copy.copy(self.analysis_options.__dict__),
-            "run_options": copy.copy(run_options),
-        }
-        experiment_data._metadata["job_metadata"].append(metadata)
+        metadata["job_metadata"] = [
+            {
+                "job_ids": [job.job_id() for job in jobs],
+                "experiment_options": copy.copy(self.experiment_options.__dict__),
+                "transpile_options": copy.copy(self.transpile_options.__dict__),
+                "analysis_options": copy.copy(self.analysis_options.__dict__),
+                "run_options": copy.copy(run_options),
+            }
+        ]
 
 
 def fix_class_docs(wrapped_cls):
