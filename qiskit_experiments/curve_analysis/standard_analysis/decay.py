@@ -11,14 +11,11 @@
 # that they have been altered from the originals.
 """Decay analysis class."""
 
-from typing import List, Union, Callable
+from typing import List, Union
 
 import numpy as np
 
-from qiskit_experiments.framework import ExperimentData
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.data_processing import DataProcessor
-from qiskit_experiments.exceptions import AnalysisError
 
 
 class DecayAnalysis(curve.CurveAnalysis):
