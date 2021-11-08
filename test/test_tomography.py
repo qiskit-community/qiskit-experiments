@@ -218,7 +218,7 @@ class TestStateTomography(QiskitTestCase):
         # Check target fidelity of component experiments
         f_threshold = 0.95
         for i in range(batch_exp.num_experiments):
-            results = batch_data.component_experiment_data(i).analysis_results()
+            results = batch_data.child_data(i).analysis_results()
 
             # Check state is density matrix
             state = filter_results(results, "state").value
@@ -257,7 +257,7 @@ class TestStateTomography(QiskitTestCase):
         # Check target fidelity of component experiments
         f_threshold = 0.95
         for i in range(par_exp.num_experiments):
-            results = par_data.component_experiment_data(i).analysis_results()
+            results = par_data.child_data(i).analysis_results()
 
             # Check state is density matrix
             state = filter_results(results, "state").value
@@ -440,7 +440,7 @@ class TestProcessTomography(QiskitTestCase):
         # Check target fidelity of component experiments
         f_threshold = 0.95
         for i in range(batch_exp.num_experiments):
-            results = batch_data.component_experiment_data(i).analysis_results()
+            results = batch_data.child_data(i).analysis_results()
 
             # Check state is density matrix
             state = filter_results(results, "state").value
@@ -477,7 +477,7 @@ class TestProcessTomography(QiskitTestCase):
         # Check target fidelity of component experiments
         f_threshold = 0.95
         for i in range(par_exp.num_experiments):
-            results = par_data.component_experiment_data(i).analysis_results()
+            results = par_data.child_data(i).analysis_results()
 
             # Check state is density matrix
             state = filter_results(results, "state").value
