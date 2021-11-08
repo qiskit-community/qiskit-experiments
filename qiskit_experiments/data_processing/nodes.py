@@ -20,6 +20,11 @@ import numpy as np
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 
+from abc import ABC
+from collections import defaultdict
+
+from qiskit.result.postprocess import format_counts_memory
+
 
 class AverageData(DataAction):
     """A node to average data representable as numpy arrays."""
@@ -584,3 +589,159 @@ class BasisExpectationValue(DataAction):
             return 2 * (0.5 - datum), 2 * error
         else:
             return 2 * (0.5 - datum), None
+
+
+class RestlessNode(DataAction, ABC):
+    """An abstract node for restless data processing nodes."""
+
+    def __init__(self, validate: bool = True):
+        """Initialize a restless node.
+
+        Args:
+            validate: If set to True the node will validate its input.
+        """
+        super().__init__(validate)
+        self._n_shots = None
+        self._n_circuits = None
+
+    def _format_data(self, datum: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
+        """Convert the datum to an array.
+
+        This node will also set all the attributes needed to process the data such as
+        the number of shots and the number of circuits.
+
+        Args:
+            datum: An array representing the memory.
+            error: An array representing the error.
+        """
+
+        self._n_shots = len(datum[0])
+        self._n_circuits = len(datum)
+
+        datum = np.array(datum)
+
+        if self._validate:
+            if datum.shape != (self._n_circuits, self._n_shots):
+                raise DataProcessorError(
+                    f"The datum given to {self.__class__.__name__} does not convert "
+                    "of an array with dimension (number of circuit, number of shots)."
+                )
+
+        if error is not None:
+            error = np.array(error)
+
+        return datum, error
+
+    def _reorder(self, unordered_data: np.array) -> np.array:
+        """Reorder the measured data according to the measurement sequence.
+
+        Here, is assumed that the inner loop of the measurement is done over the circuits
+        and the outer loop is done over the shots.
+        """
+        if unordered_data is None:
+            return unordered_data
+
+        order_data = []
+
+        for shot_idx in range(self._n_shots):
+            for circuit_idx in range(self._n_circuits):
+                order_data.append(unordered_data[circuit_idx][shot_idx])
+
+        return np.array(order_data)
+
+
+class RestlessToCounts(RestlessNode):
+    """Convert restless memory to counts.
+
+    This node takes as input a list of lists where the sublist is the memory of
+    each measured circuit. The sublists therefore have a length given by the
+    number of shots. This data is reordered into a one dimensional array where
+    the element at index j was the jth measured shot. This node assumes that
+    a list of circuits :code:`[circ_1, cric_2, ..., circ_m]` measured :code.`n_shots`
+    times is measured according to the following order:
+
+    .. parsed-literal::
+
+        [
+            circuit 1 - shot 1,
+            circuit 2 - shot 1,
+            ...
+            circuit m - shot 1,
+            circuit 1 - shot 2,
+            circuit 2 - shot 2,
+            ...
+            circuit m - shot 2,
+            circuit 1 - shot 3,
+            ...
+            circuit m - shot n,
+        ]
+
+    Once the shots have been ordered in this fashion the node compares each shot with the
+    previous shot. If they are the same then the shot corresponds to a 0, i.e. no state
+    change, and if they are different then the shot corresponds to a 1, i.e. there was
+    a state change.
+    """
+
+    def __init__(self, header: Dict[str, Any], validate: bool = True):
+        """
+        Args:
+            header: The header needed by :code:`qiskit.result.postprocess.format_counts_memory`
+                to convert the memory into a bit-string of counts. For example,
+                :code:`{"memory_slots": 1}` for a single qubit.
+            validate: If set to False the DataAction will not validate its input.
+        """
+        super().__init__(validate)
+        self._header = header
+
+    def _process(self, datum: np.array, error: Optional[np.array] = None) -> Tuple[np.array, np.array]:
+        """Reorder the shots and assign values to them based on the previous outcome.
+
+        Args:
+            datum: An array representing the memory.
+            error: An array representing the error.
+
+        Returns:
+            A counts dictionary processed according to the restless methodology.
+        """
+
+        # Step 1. Reorder the data.
+        memory = self._reorder(datum)
+
+        # Step 2. Do the restless classification into counts.
+        counts = [defaultdict(int) for _ in range(self._n_circuits)]
+        n_qubits = self._header.get("memory_slots")
+        prev_shot = "0" * n_qubits
+
+        for idx, shot in enumerate(memory):
+            shot = format_counts_memory(shot, self._header)
+
+            restless_adjusted_shot = RestlessToCounts._restless_classify(shot, prev_shot)
+
+            circuit_idx = idx % self._n_circuits
+
+            counts[circuit_idx][restless_adjusted_shot] += 1
+
+            prev_shot = shot
+
+        return [dict(counts_dict) for counts_dict in counts], None
+
+    @staticmethod
+    def _restless_classify(shot: str, prev_shot: str) -> str:
+        """Adjust the measured shot based on the previous shot.
+
+        Each bitstring of shot is compared to the previous bitstring. If both are equal
+        the restless adjusted bitstring is 0 (no state change) otherwise it is 1 (the
+        qubit changed state).
+
+        Args:
+            shot: A measured shot as a binary string, e.g. "0110100".
+
+        Returns:
+            The restless adjusted string computed by comparing the shot with the previous shot.
+        """
+        restless_adjusted_bits = []
+
+        for idx, bit in enumerate(shot):
+            restless_adjusted_bits.append("1" if bit == prev_shot[idx] else "0")
+
+        return "".join(restless_adjusted_bits)
