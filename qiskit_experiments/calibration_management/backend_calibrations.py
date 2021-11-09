@@ -18,6 +18,7 @@ from enum import Enum
 from typing import Dict, List, Optional, Tuple, Union
 from warnings import warn
 import copy
+import dataclasses
 
 from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Parameter
@@ -488,11 +489,9 @@ class BackendCalibrations(Calibrations):
 
         # Populate the calibrations with the parameter values in the metadata
         param_values = cal_metadata.get("calibration parameters", [])
+        fields = set(f.name for f in dataclasses.fields(ParameterValue))
         for val in param_values:
-
-            param_value = ParameterValue(
-                **{key: val for key, val in val.items() if key in ParameterValue.__annotations__}
-            )
+            param_value = ParameterValue(**{key: val for key, val in val.items() if key in fields})
 
             cals.add_parameter_value(
                 value=param_value,
