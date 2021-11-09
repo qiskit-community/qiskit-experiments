@@ -263,7 +263,7 @@ class TestDesrialization(QiskitTestCase):
         )
 
         # Add a custom parameter and see if we get it back
-        cals.add_parameter_value(0.85, "amp", (0, ), "x")
+        cals.add_parameter_value(0.85, "amp", (0,), "x")
 
         exp = DummyCalExperiment(0, cals)
 

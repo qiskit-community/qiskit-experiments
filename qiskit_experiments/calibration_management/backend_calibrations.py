@@ -442,7 +442,9 @@ class BackendCalibrations(Calibrations):
         return self._operated_qubits
 
     @classmethod
-    def from_exp_data(cls, experiment_data: ExperimentData, backend: Backend) -> "BackendCalibrations":
+    def from_exp_data(
+        cls, experiment_data: ExperimentData, backend: Backend
+    ) -> "BackendCalibrations":
         """Return backend calibrations extracted from experiment data.
 
         The calibrations are only built if they were created from a library.
@@ -491,10 +493,8 @@ class BackendCalibrations(Calibrations):
         param_values = cal_metadata.get("calibration parameters", [])
         fields = set(f.name for f in dataclasses.fields(ParameterValue))
         for val in param_values:
-            param_value = ParameterValue(**{key: val for key, val in val.items() if key in fields})
-
             cals.add_parameter_value(
-                value=param_value,
+                value=ParameterValue(**{key: val for key, val in val.items() if key in fields}),
                 param=val["parameter"],
                 qubits=tuple(val["qubits"]),
                 schedule=val["schedule"],

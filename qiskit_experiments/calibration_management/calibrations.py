@@ -1064,9 +1064,7 @@ class Calibrations:
         # Serialize the schedules. For now we just print them.
         schedules = []
         for key, sched in self._schedules.items():
-            schedules.append(
-                {"name": key.schedule, "qubits": key.qubits, "schedule": str(sched)}
-            )
+            schedules.append({"name": key.schedule, "qubits": key.qubits, "schedule": str(sched)})
 
         return ["name", "qubits", "schedule"], schedules
 
