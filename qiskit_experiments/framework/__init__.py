@@ -238,7 +238,8 @@ from qiskit.providers.options import Options
 from qiskit_experiments.database_service.db_analysis_result import DbAnalysisResultV1
 from qiskit_experiments.database_service.db_fitval import FitVal
 from .base_analysis import BaseAnalysis
-from .base_experiment import BaseExperiment, ExperimentConfig
+from .base_experiment import BaseExperiment
+from .config import ExperimentConfig
 from .analysis_result_data import AnalysisResultData
 from .experiment_data import ExperimentData
 from .composite import (
