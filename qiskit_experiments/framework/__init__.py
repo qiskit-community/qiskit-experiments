@@ -220,7 +220,6 @@ Composite Experiment Classes
     ParallelExperiment
     BatchExperiment
     CompositeAnalysis
-    CompositeExperimentData
 
 Base Classes
 ************
@@ -244,5 +243,4 @@ from .composite import (
     ParallelExperiment,
     BatchExperiment,
     CompositeAnalysis,
-    CompositeExperimentData,
 )

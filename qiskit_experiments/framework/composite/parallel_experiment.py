@@ -22,7 +22,23 @@ from .composite_experiment import CompositeExperiment, BaseExperiment
 
 @fix_class_docs
 class ParallelExperiment(CompositeExperiment):
-    """Parallel Experiment class"""
+    """Combine multiple experiments into a parallel experiment.
+
+    Parallel experiments combine individual experiments on disjoint subsets
+    of qubits into a single composite experiment on the union of those qubits.
+    The component experiment circuits are combined to run in parallel on the
+    respective qubits.
+
+    Analysis of parallel experiments is performed using the
+    :class:`~qiskit_experiments.framework.CompositeAnalysis` class which handles
+    marginalizing the composite experiment circuit data into individual child
+    :class:`ExperimentData` containers for each component experiment which are
+    then analyzed using the corresponding analysis class for that component
+    experiment.
+
+    See :class:`~qiskit_experiments.framework.CompositeAnalysis`
+    documentation for additional information.
+    """
 
     def __init__(self, experiments: List[BaseExperiment], backend: Optional[Backend] = None):
         """Initialize the analysis object.

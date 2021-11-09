@@ -41,7 +41,7 @@ class TestFramework(QiskitTestCase):
                 qc.measure_all()
                 return num_circuits * [qc]
 
-        exp = Experiment(1)
+        exp = Experiment([0])
         expdata = exp.run(backend)
         job_ids = expdata.job_ids
 

@@ -19,7 +19,6 @@ import inspect
 import dataclasses
 from functools import wraps
 from collections import OrderedDict
-from numbers import Integral
 from typing import Sequence, Optional, Tuple, List, Dict, Union, Any
 
 from qiskit import transpile, assemble, QuantumCircuit
@@ -95,15 +94,10 @@ class BaseExperiment(ABC):
         __analysis_class__: Optional, the default Analysis class to use for
                             data analysis. If None no data analysis will be
                             done on experiment data (Default: None).
-        __experiment_data__: ExperimentData class that is produced by the
-                             experiment (Default: ExperimentData).
     """
 
     # Analysis class for experiment
     __analysis_class__ = None
-
-    # ExperimentData class for experiment
-    __experiment_data__ = ExperimentData
 
     def __init__(
         self,
@@ -114,26 +108,21 @@ class BaseExperiment(ABC):
         """Initialize the experiment object.
 
         Args:
-            qubits: the number of qubits or list of physical qubits for
-                    the experiment.
+            qubits: list of physical qubits for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, the experiment type string.
 
         Raises:
-            QiskitError: if qubits is a list and contains duplicates.
+            QiskitError: if qubits contains duplicates.
         """
         # Experiment identification metadata
         self._type = experiment_type if experiment_type else type(self).__name__
 
         # Circuit parameters
-        if isinstance(qubits, Integral):
-            self._num_qubits = qubits
-            self._physical_qubits = tuple(range(qubits))
-        else:
-            self._num_qubits = len(qubits)
-            self._physical_qubits = tuple(qubits)
-            if self._num_qubits != len(set(self._physical_qubits)):
-                raise QiskitError("Duplicate qubits in physical qubits list.")
+        self._num_qubits = len(qubits)
+        self._physical_qubits = tuple(qubits)
+        if self._num_qubits != len(set(self._physical_qubits)):
+            raise QiskitError("Duplicate qubits in physical qubits list.")
 
         # Experiment options
         self._experiment_options = self._default_experiment_options()
@@ -325,7 +314,7 @@ class BaseExperiment(ABC):
 
     def _initialize_experiment_data(self) -> ExperimentData:
         """Initialize the return data container for the experiment run"""
-        return self.__experiment_data__(experiment=self)
+        return ExperimentData(experiment=self)
 
     def run_analysis(
         self, experiment_data: ExperimentData, replace_results: bool = False, **options
