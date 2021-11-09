@@ -141,7 +141,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
     @classmethod
     def _default_experiment_options(cls):
-        """Default values for the fine amplitude calibration experiment.
+        """Default values for a calibration experiment.
 
         Experiment Options:
             result_index (int): The index of the result from which to update the calibrations.
