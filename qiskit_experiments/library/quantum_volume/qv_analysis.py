@@ -19,7 +19,7 @@ import warnings
 from typing import Optional
 import numpy as np
 
-from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, FitVal
+from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options, FitVal
 from qiskit_experiments.curve_analysis import plot_scatter, plot_errorbar
 
 
@@ -37,26 +37,14 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         is the success probability.
     """
 
-    # pylint: disable = arguments-differ
-    def _run_analysis(
-        self,
-        experiment_data,
-        plot: bool = True,
-        ax: Optional["matplotlib.pyplot.AxesSubplot"] = None,
-    ):
-        """Run analysis on circuit data.
+    @classmethod
+    def _default_options(cls) -> Options:
+        return Options(
+            plot=True,
+            ax=None,
+        )
 
-        Args:
-            experiment_data (ExperimentData): the experiment data to analyze.
-            plot (bool): If True generate a plot of fitted data.
-            ax (AxesSubplot): Optional, matplotlib axis to add plot to.
-
-        Returns:
-            tuple: A pair ``(result_data figures)`` where
-                   ``result_data`` is a list of
-                   :class:`AnalysisResultData` objects, and ``figures`` may be
-                   None, a single figure, or a list of figures.
-        """
+    def _run_analysis(self, experiment_data):
         depth = experiment_data.experiment.num_qubits
         data = experiment_data.data()
         num_trials = len(data)
@@ -72,8 +60,8 @@ class QuantumVolumeAnalysis(BaseAnalysis):
 
         hop_result, qv_result = self._calc_quantum_volume(heavy_output_prob_exp, depth, num_trials)
 
-        if plot:
-            ax = self._format_plot(hop_result, ax=ax)
+        if self.options.plot:
+            ax = self._format_plot(hop_result, ax=self.options.ax)
             figures = [ax.get_figure()]
         else:
             figures = None

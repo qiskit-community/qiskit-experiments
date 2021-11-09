@@ -204,7 +204,8 @@ class BaseAnalysis(ABC, Settings):
 
     @abstractmethod
     def _run_analysis(
-        self, experiment_data: ExperimentData
+        self,
+        experiment_data: ExperimentData,
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         """Run analysis on circuit data.
 
@@ -219,4 +220,5 @@ class BaseAnalysis(ABC, Settings):
         Raises:
             AnalysisError: if the analysis fails.
         """
+        # NOTE: passing kwarg options to _run_analysis should be removed once
         pass
