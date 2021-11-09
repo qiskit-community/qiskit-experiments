@@ -14,7 +14,7 @@
 
 from abc import ABC
 from datetime import datetime, timezone
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Union
 import numpy as np
 
 from qiskit.circuit import Parameter
@@ -184,12 +184,6 @@ class Frequency(BaseUpdater):
         )
 
 
-class Drag(BaseUpdater):
-    """Update drag parameters."""
-
-    __fit_parameter__ = "beta"
-
-
 class FineDragUpdater(BaseUpdater):
     """Updater for the fine drag calibration."""
 
@@ -245,56 +239,3 @@ class FineDragUpdater(BaseUpdater):
         new_beta = old_beta + d_beta
 
         cls.add_parameter_value(calibrations, exp_data, new_beta, parameter, schedule, group)
-
-
-class Amplitude(BaseUpdater):
-    """Update pulse amplitudes."""
-
-    # pylint: disable=arguments-differ,unused-argument
-    @classmethod
-    def update(
-        cls,
-        calibrations: Calibrations,
-        exp_data: ExperimentData,
-        result_index: Optional[int] = -1,
-        group: str = "default",
-        angles_schedules: List[Tuple[float, str, Union[str, ScheduleBlock]]] = None,
-        **options,
-    ):
-        """Update the amplitude of pulses.
-
-        The value of the amplitude must be derived from the fit so the base method cannot be used.
-
-        Args:
-            calibrations: The calibrations to update.
-            exp_data: The experiment data from which to update.
-            result_index: The result index to use which defaults to -1.
-            group: The calibrations group to update. Defaults to "default."
-            angles_schedules: A list of tuples specifying which angle to update for which
-                pulse schedule. Each tuple is of the form: (angle, parameter_name,
-                schedule). Here, angle is the rotation angle for which to extract the amplitude,
-                parameter_name is the name of the parameter whose value is to be updated, and
-                schedule is the schedule or its name that contains the parameter.
-            options: Trailing options.
-
-        Raises:
-            CalibrationError: If the experiment is not of the supported type.
-        """
-        from qiskit_experiments.library.calibration.rabi import Rabi
-
-        if angles_schedules is None:
-            angles_schedules = [(np.pi, "amp", "xp")]
-
-        if isinstance(exp_data.experiment, Rabi):
-            rate = 2 * np.pi * BaseUpdater.get_value(exp_data, "rabi_rate", result_index)
-
-            for angle, param, schedule in angles_schedules:
-                qubits = exp_data.metadata["physical_qubits"]
-                prev_amp = calibrations.get_parameter_value(param, qubits, schedule, group=group)
-
-                value = np.round(angle / rate, decimals=8) * np.exp(1.0j * np.angle(prev_amp))
-
-                cls.add_parameter_value(calibrations, exp_data, value, param, schedule, group)
-
-        else:
-            raise CalibrationError(f"{cls.__name__} updates from {type(Rabi.__name__)}.")

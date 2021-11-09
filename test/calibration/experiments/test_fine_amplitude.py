@@ -13,6 +13,7 @@
 """Test the fine amplitude characterization and calibration experiments."""
 
 import numpy as np
+from ddt import ddt, data
 
 from qiskit import transpile
 from qiskit.circuit import Gate
@@ -33,20 +34,21 @@ from qiskit_experiments.calibration_management import BackendCalibrations
 from qiskit_experiments.test.mock_iq_backend import MockFineAmp
 
 
+@ddt
 class TestFineAmpEndToEnd(QiskitTestCase):
     """Test the drag experiment."""
 
-    def test_end_to_end_under_rotation(self):
+    @data(0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08)
+    def test_end_to_end_under_rotation(self, pi_ratio):
         """Test the experiment end to end."""
 
         amp_exp = FineAmplitude(0, Gate("xp", 1, []))
         amp_exp.set_transpile_options(basis_gates=["xp", "x", "sx"])
         amp_exp.set_experiment_options(add_sx=True)
-        amp_exp.set_analysis_options(
-            number_guesses=11, angle_per_gate=np.pi, phase_offset=np.pi / 2
-        )
+        amp_exp.set_analysis_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
 
-        backend = MockFineAmp(-np.pi * 0.07, np.pi, "xp")
+        error = -np.pi * pi_ratio
+        backend = MockFineAmp(error, np.pi, "xp")
 
         expdata = amp_exp.run(backend).block_for_results()
         result = expdata.analysis_results(1)
@@ -54,20 +56,20 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         tol = 0.04
 
-        self.assertTrue(abs(d_theta - backend.angle_error) < tol)
+        self.assertAlmostEqual(d_theta, error, delta=tol)
         self.assertEqual(result.quality, "good")
 
-    def test_end_to_end_over_rotation(self):
+    @data(0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08)
+    def test_end_to_end_over_rotation(self, pi_ratio):
         """Test the experiment end to end."""
 
         amp_exp = FineAmplitude(0, Gate("xp", 1, []))
         amp_exp.set_transpile_options(basis_gates=["xp", "x", "sx"])
         amp_exp.set_experiment_options(add_sx=True)
-        amp_exp.set_analysis_options(
-            number_guesses=11, angle_per_gate=np.pi, phase_offset=np.pi / 2
-        )
+        amp_exp.set_analysis_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
 
-        backend = MockFineAmp(np.pi * 0.07, np.pi, "xp")
+        error = np.pi * pi_ratio
+        backend = MockFineAmp(error, np.pi, "xp")
 
         expdata = amp_exp.run(backend).block_for_results()
         result = expdata.analysis_results(1)
@@ -75,7 +77,7 @@ class TestFineAmpEndToEnd(QiskitTestCase):
 
         tol = 0.04
 
-        self.assertTrue(abs(d_theta - backend.angle_error) < tol)
+        self.assertAlmostEqual(d_theta, error, delta=tol)
         self.assertEqual(result.quality, "good")
 
 
@@ -112,7 +114,7 @@ class TestFineAmplitudeCircuits(QiskitTestCase):
 
         amp_cal = FineSXAmplitude(0)
 
-        expected = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
+        expected = [0, 1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
         for idx, circ in enumerate(amp_cal.circuits()):
             self.assertEqual(circ.count_ops().get("sx", 0), expected[idx])
 
@@ -139,10 +141,10 @@ class TestSpecializations(QiskitTestCase):
         self.assertFalse(exp.experiment_options.add_sx)
         self.assertFalse(exp.experiment_options.add_xp_circuit)
 
-        expected = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
+        expected = [0, 1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
         self.assertEqual(exp.experiment_options.repetitions, expected)
         self.assertEqual(exp.analysis_options.angle_per_gate, np.pi / 2)
-        self.assertEqual(exp.analysis_options.phase_offset, 0)
+        self.assertEqual(exp.analysis_options.phase_offset, np.pi)
         self.assertEqual(exp.experiment_options.gate, SXGate())
 
 
@@ -198,7 +200,9 @@ class TestFineAmplitudeCal(QiskitTestCase):
 
         amp_cal = FineXAmplitudeCal(0, self.cals, "x")
 
-        circs = transpile(amp_cal.circuits(), self.backend, **amp_cal.transpile_options.__dict__)
+        circs = transpile(
+            amp_cal.circuits(), self.backend, inst_map=amp_cal.transpile_options.inst_map
+        )
 
         with pulse.build(name="x") as expected_x:
             pulse.play(pulse.Drag(160, 0.5, 40, 0), pulse.DriveChannel(0))
@@ -214,7 +218,9 @@ class TestFineAmplitudeCal(QiskitTestCase):
         d_theta = exp_data.analysis_results(1).value.value
         new_amp = init_amp * np.pi / (np.pi + d_theta)
 
-        circs = transpile(amp_cal.circuits(), self.backend, **amp_cal.transpile_options.__dict__)
+        circs = transpile(
+            amp_cal.circuits(), self.backend, inst_map=amp_cal.transpile_options.inst_map
+        )
 
         x_cal = circs[5].calibrations["x"][((0,), ())]
 
@@ -236,7 +242,9 @@ class TestFineAmplitudeCal(QiskitTestCase):
 
         amp_cal = FineSXAmplitudeCal(0, self.cals, "sx")
 
-        circs = transpile(amp_cal.circuits(), self.backend, **amp_cal.transpile_options.__dict__)
+        circs = transpile(
+            amp_cal.circuits(), self.backend, inst_map=amp_cal.transpile_options.inst_map
+        )
 
         with pulse.build(name="sx") as expected_sx:
             pulse.play(pulse.Drag(160, 0.25, 40, 0), pulse.DriveChannel(0))
@@ -248,10 +256,20 @@ class TestFineAmplitudeCal(QiskitTestCase):
         d_theta = exp_data.analysis_results(1).value.value
         new_amp = init_amp * (np.pi / 2) / (np.pi / 2 + d_theta)
 
-        circs = transpile(amp_cal.circuits(), self.backend, **amp_cal.transpile_options.__dict__)
+        circs = transpile(
+            amp_cal.circuits(), self.backend, inst_map=amp_cal.transpile_options.inst_map
+        )
 
         sx_cal = circs[5].calibrations["sx"][((0,), ())]
 
         # Requires allclose due to numerical precision.
         self.assertTrue(np.allclose(sx_cal.blocks[0].pulse.amp, new_amp))
         self.assertFalse(np.allclose(sx_cal.blocks[0].pulse.amp, init_amp))
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = FineSXAmplitudeCal(0, self.cals, "sx")
+        config = exp.config
+        loaded_exp = FineSXAmplitudeCal.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)

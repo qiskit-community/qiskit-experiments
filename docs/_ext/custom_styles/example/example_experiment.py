@@ -212,5 +212,5 @@ class DocumentedExperiment(BaseExperiment):
         """
         super().__init__(qubits=[qubit])
 
-    def circuits(self, backend=None):
+    def circuits(self):
         pass
