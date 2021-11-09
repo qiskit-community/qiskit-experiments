@@ -420,6 +420,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
         cal_metadata = {
             "library": self._cals.library.__class__.__name__,
+            "module name": self._cals.library.__module__,
             "basis gates": self._cals.library.basis_gates,
             "default values": self._cals.library.init_default_values,
             "calibration parameters": parameter_values,

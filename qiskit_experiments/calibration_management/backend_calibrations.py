@@ -15,15 +15,14 @@
 from collections import defaultdict
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 import copy
-from warnings import warn
-import sys
 
 from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Parameter
 from qiskit.pulse import InstructionScheduleMap, ScheduleBlock
 
+from qiskit_experiments.database_service.json import deserialize_object
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.calibrations import (
@@ -460,11 +459,12 @@ class BackendCalibrations(Calibrations):
         if lib_name is None:
             raise CalibrationError(f"Cannot load {cls.__name__} without a library.")
 
-        lib_class = getattr(sys.modules["qiskit_experiments"].calibration_management, lib_name)
+        mod_name = cal_metadata.get("module name", None)
         basis_gates = cal_metadata.get("basis gates", None)
         default_values = cal_metadata.get("default values", None)
 
-        library = lib_class(basis_gates=basis_gates, default_values=default_values)
+        args = (basis_gates, default_values)
+        library = deserialize_object(mod_name, lib_name, args, {})
 
         # Create the calibrations
         backend_name = cal_metadata.get("backend name", None)

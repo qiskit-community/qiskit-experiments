@@ -12,6 +12,7 @@
 
 """Class to test the backend calibrations."""
 
+from typing import List
 import unittest
 
 from qiskit import transpile, QuantumCircuit
@@ -20,8 +21,9 @@ import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeArmonk, FakeBelem
 
-from qiskit_experiments.calibration_management import BackendCalibrations
+from qiskit_experiments.calibration_management import BackendCalibrations, BaseCalibrationExperiment
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+from qiskit_experiments.test import MockFineAmp
 
 
 class TestBackendCalibrations(QiskitTestCase):
@@ -232,3 +234,51 @@ class TestBackendCalibrations(QiskitTestCase):
         self.assertTrue(cals.default_inst_map.has("cz", (1, 2)))
         self.assertFalse(cals.default_inst_map.has("cz", (0, 1)))
         self.assertFalse(cals.default_inst_map.has("cz", (1, 0)))
+
+
+class DummyCalExperiment(BaseCalibrationExperiment):
+    """A mock calibration class."""
+
+    def __init__(self, qubits, cals):
+        """Initialize the class."""
+        super().__init__(cals, [qubits])
+        self.set_experiment_options(save_all_parameter_values=True)
+
+    def circuits(self) -> List[QuantumCircuit]:
+        """Return a quantum circuit"""
+        return [QuantumCircuit(1)]
+
+
+class TestDesrialization(QiskitTestCase):
+    """Test that we can properly deserialize a BackCalibrations instance."""
+
+    def test_serialize_and_deserialize(self):
+        """Test a simple serialize and deserialize from a dummy experiment."""
+
+        cals = BackendCalibrations(
+            FakeArmonk(),
+            library=FixedFrequencyTransmon(
+                basis_gates=["x", "sx"], default_values={"duration": 320}
+            ),
+        )
+
+        # Add a custom parameter and see if we get it back
+        cals.add_parameter_value(0.85, "amp", (0, ), "x")
+
+        exp = DummyCalExperiment(0, cals)
+
+        exp_data = exp.run(MockFineAmp(angle_error=0, angle_per_gate=0, gate_name=""))
+
+        self.assertTrue("calibrations" in exp_data.metadata)
+
+        # Check some aspects of the deserialized object.
+        d_cals = BackendCalibrations.from_exp_data(exp_data, FakeArmonk())
+
+        self.assertIsInstance(d_cals, BackendCalibrations)
+        self.assertEqual(d_cals.get_parameter_value("amp", 0, "x"), 0.85)
+
+        # This checks the serialization of the basis gate arg.
+        self.assertEqual(set(val["schedule"].name for val in d_cals.schedules()), {"x", "sx"})
+
+        # This checks the serialization of the default values
+        self.assertEqual(d_cals.get_parameter_value("duration", 0, "sx"), 320)
