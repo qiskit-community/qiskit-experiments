@@ -16,12 +16,14 @@ from collections import defaultdict
 from datetime import datetime
 from enum import Enum
 from typing import Dict, List, Optional, Tuple, Union
+from warnings import warn
 import copy
 
 from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Parameter
 from qiskit.pulse import InstructionScheduleMap, ScheduleBlock
 
+import qiskit_experiments
 from qiskit_experiments.database_service.json import deserialize_object
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
@@ -454,6 +456,14 @@ class BackendCalibrations(Calibrations):
         if cal_metadata is None:
             raise CalibrationError(f"No calibration metadata in metadata.")
 
+        # Check the versions of qiskit experiments and warn
+        version = cal_metadata.get("qe version", None)
+        if version != qiskit_experiments.__version__:
+            warn(
+                "Version mismatch between the current version of qiskit experiments and the "
+                f"version in the metadata. {qiskit_experiments.__version__} != {version}."
+            )
+
         # Create the library
         lib_name = cal_metadata.get("library", None)
         if lib_name is None:
@@ -471,7 +481,8 @@ class BackendCalibrations(Calibrations):
         if backend_name != backend.name():
             raise CalibrationError(
                 f"The name of the given backend {backend.name()} does not match the name "
-                f"in the calibration metadata {backend_name}.")
+                f"in the calibration metadata {backend_name}."
+            )
 
         cals = BackendCalibrations(backend, library=library)
 

@@ -20,6 +20,7 @@ from qiskit.providers.backend import Backend
 from qiskit.circuit import Parameter, QuantumCircuit
 from qiskit.pulse import ScheduleBlock
 
+import qiskit_experiments
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.framework.base_experiment import BaseExperiment
@@ -425,6 +426,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             "default values": self._cals.library.init_default_values,
             "calibration parameters": parameter_values,
             "backend name": self._cals.backend.name(),
+            "qe version": qiskit_experiments.__version__,
         }
         experiment_data.metadata["calibrations"] = cal_metadata
 
