@@ -205,7 +205,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         default_options.curve_plotter = "mpl_multiv_canvas"
         default_options.xlabel = "Flat top width"
         default_options.ylabel = "<X(t)>,<Y(t)>,<Z(t)>"
-        default_options.xval_unit = "s"
+        default_options.xval_unit = "dt"
         default_options.style = curve.visualization.PlotterStyle(
             figsize=(8, 10),
             legend_loc="lower right",
@@ -225,30 +225,12 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         logic can be reused for the fitting that assumes other pulse envelopes.
 
         Returns:
-            An initial guess for time offset parameter ``t_off`` in SI units.
-
-        Raises:
-            AnalysisError: When time unit is ``dt`` but the backend doesn't report
-                the time resolution of waveforms.
+            An initial guess for time offset parameter ``t_off`` in units of dt.
         """
         n_pulses = self._extra_metadata().get("n_cr_pulses", 1)
         sigma = self._experiment_options().get("sigma", 0)
-        unit = self._experiment_options().get("unit")
 
-        # Convert sigma unit into SI
-        if unit == "dt":
-            try:
-                prefactor = self._backend.configuration().dt
-            except AttributeError as ex:
-                raise AnalysisError(
-                    "Backend configuration does not provide time resolution."
-                ) from ex
-        elif unit != "s":
-            prefactor = apply_prefix(1.0, unit)
-        else:
-            prefactor = 1.0
-
-        return np.sqrt(2 * np.pi) * prefactor * sigma * n_pulses
+        return np.sqrt(2 * np.pi) * sigma * n_pulses
 
     def _generate_fit_guesses(
         self, user_opt: curve.FitOptions
