@@ -440,11 +440,7 @@ class BackendCalibrations(Calibrations):
         return self._operated_qubits
 
     @classmethod
-    def from_exp_data(
-        cls,
-        experiment_data: ExperimentData,
-        backend: Backend
-    ) -> Optional["BackendCalibrations"]:
+    def from_exp_data(cls, experiment_data: ExperimentData, backend: Backend) -> "BackendCalibrations":
         """Return backend calibrations extracted from experiment data.
 
         The calibrations are only built if they were created from a library.
@@ -457,14 +453,12 @@ class BackendCalibrations(Calibrations):
 
         cal_metadata = experiment_data.metadata.get("calibrations", None)
         if cal_metadata is None:
-            warn(f"No calibration metadata in metadata. Returning None.")
-            return None
+            raise CalibrationError(f"No calibration metadata in metadata.")
 
         # Create the library
         lib_name = cal_metadata.get("library", None)
         if lib_name is None:
-            warn(f"Cannot load {cls.__name__} without a library. Returning None.")
-            return None
+            raise CalibrationError(f"Cannot load {cls.__name__} without a library.")
 
         lib_class = getattr(sys.modules["qiskit_experiments"].calibration_management, lib_name)
         basis_gates = cal_metadata.get("basis gates", None)
