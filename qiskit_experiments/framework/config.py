@@ -71,3 +71,55 @@ class ExperimentConfig:
                     " installing a compatible qiskit-experiments version."
                 )
             raise QiskitError("{}\nError Message:\n{}".format(msg, str(ex))) from ex
+
+
+@dataclasses.dataclass(frozen=True)
+class AnalysisConfig:
+    """Store configuration settings for Analysis
+
+    This stores the current configuration of a
+    :class:~qiskit_experiments.framework.BaseAnalysis` and
+    can be used to reconstruct the analysis class using either the
+    :meth:`analysis` property if the analysis class type is
+    currently stored, or the
+    :meth:~qiskit_experiments.framework.BaseAnalysis.from_config`
+    class method of the appropriate experiment.
+    """
+
+    cls: type = None
+    args: Tuple[Any] = dataclasses.field(default_factory=tuple)
+    kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
+    options: Dict[str, Any] = dataclasses.field(default_factory=dict)
+    version: str = __version__
+
+    @property
+    def analysis(self):
+        """Return the analysis class constructed from this config.
+
+        Returns:
+            BaseAnalysis: The analysis reconstructed from the config.
+
+        Raises:
+            QiskitError: if the analysis class is not stored,
+                         was not successful deserialized, or reconstruction
+                         of the analysis class fails.
+        """
+        cls = self.cls
+        if cls is None:
+            raise QiskitError("No analysis class in analysis config")
+        if isinstance(cls, dict):
+            raise QiskitError(
+                "Unable to load analysis class. Try manually loading "
+                "analysis using `Analysis.from_config(config)` instead."
+            )
+        try:
+            return cls.from_config(self)
+        except Exception as ex:
+            msg = "Unable to construct analysis from config."
+            if cls.version != __version__:
+                msg += (
+                    f" Note that config version ({cls.version}) differs from the current"
+                    f" qiskit-experiments version ({__version__}). You could try"
+                    " installing a compatible qiskit-experiments version."
+                )
+            raise QiskitError("{}\nError Message:\n{}".format(msg, str(ex))) from ex
