@@ -152,6 +152,31 @@ deleted: |t1_deleted.png|
 
 .. |t1_deleted.png| image:: ./experiment_cloud_service/t1_deleted.png
 
+Tagging and sharing experiments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Tags and notes can be added to experiments to help identify specific experiments in the interface.
+For example, an experiment can be tagged and made public with the following code.
+
+.. jupyter-execute::
+   
+   t1_expdata.tags = ['tag1', 'tag2']
+   t1_expdata.share_level = "public"
+   t1_expdata.notes = "Example note."
+   t1_expdata.save()
+
+These fields can also be updated in the web interface from the menu on the right of each experiment.
+
+|web_tags_share.png|
+
+.. |web_tags_share.png| image:: ./experiment_cloud_service/web_tags_share.png
+
+
+More Information
+~~~~~~~~~~~~~~~~
+
+For more information about using the cloud database interface, please take a look at its `documentation <https://quantum-computing.ibm.com/lab/docs/iql/manage/experiments/>`. 
+
 RB experiment
 -------------
 
@@ -216,10 +241,4 @@ graphical interface, but the other analysis parameters are:
 
     import qiskit.tools.jupyter
     %qiskit_copyright
-
-
-
-.. raw:: html
-
-    <div style='width: 100%; background-color:#d5d9e0;padding-left: 10px; padding-bottom: 10px; padding-right: 10px; padding-top: 5px'><h3>This code is a part of Qiskit</h3><p>&copy; Copyright IBM 2017, 2021.</p><p>This code is licensed under the Apache License, Version 2.0. You may<br>obtain a copy of this license in the LICENSE.txt file in the root directory<br> of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.<p>Any modifications or derivative works of this code must retain this<br>copyright notice, and modified files need to carry a notice indicating<br>that they have been altered from the originals.</p></div>
 
