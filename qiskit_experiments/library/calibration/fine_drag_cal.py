@@ -132,7 +132,7 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
 
             if len(set(sigmas)) != 1:
                 raise CalibrationError(
-                    f"Cannot run fine Drag calibration on a schedule with multiple values of sigma."
+                    "Cannot run fine Drag calibration on a schedule with multiple values of sigma."
                 )
 
             if len(sigmas) == 0:
