@@ -61,7 +61,7 @@ class T2HahnBackend(BackendV1):
 
         self._t2hahn = p0["T2"]
         self._a_param = p0["A"]
-        self._phi = p0["phi"]
+        self._frequency = p0["frequency"]
         self._b_param = p0["B"]
         self._initial_prob_plus = None
         self._readout0to1 = readout0to1
@@ -76,6 +76,59 @@ class T2HahnBackend(BackendV1):
         """Default options of the test backend."""
         return Options(shots=1024)
 
+    def _delay_gate(self, qubit_state, delay, t2hahn):
+        if qubit_state["XY plain"]:
+            prob_noise = 1 - (np.exp(-delay / t2hahn))
+            if self._rng.random() < prob_noise:
+                if self._rng.random() < 0.5:
+                    new_qubit_state = {"qubit state": 0, "XY plain": False,
+                                   "YZ plain": False, "Theta": 0}
+                else:
+                    new_qubit_state = {"qubit state": 1, "XY plain": False,
+                                   "YZ plain": False, "Theta": 0}
+            else:
+                phase = self._frequency * delay
+                new_qubit_state = {"qubit state": 1, "XY plain": False,
+                                   "YZ plain": False, "Theta": phase}
+        else:
+            new_qubit_state = qubit_state
+        return new_qubit_state
+
+
+    def _rx_gate(self, qubit_state):
+        if qubit_state["XY plain"]:
+            new_qubit_state = {"qubit state": 0, "XY plain": False,
+                               "YZ plain": False, "Theta": np.pi - qubit_state["Theta"]}
+        elif qubit_state["qubit state"] == 0:
+            new_qubit_state = {"qubit state": 1, "XY plain": False,
+                               "YZ plain": False, "Theta": 0}
+        else:
+            new_qubit_state = {"qubit state": 0, "XY plain": False,
+                               "YZ plain": False, "Theta": 0}
+        return new_qubit_state
+
+    def _ry_gate(self, qubit_state):
+        if qubit_state["XY plain"]:
+            if qubit_state["Theta"] == 0:
+                new_qubit_state = {"qubit state": 1, "XY plain": False,
+                                   "YZ plain": False, "Theta": 0}
+            elif qubit_state["Theta"] == np.pi:
+                new_qubit_state = {"qubit state": 0, "XY plain": False,
+                                   "YZ plain": False, "Theta": 0}
+            else:
+                new_qubit_state = {"qubit state": 0, "XY plain": False,
+                                   "YZ plain": True, "Theta": qubit_state["Theta"]}
+        elif qubit_state["YZ plain"]:
+            new_qubit_state = {"qubit state": qubit_state["qubit state"], "XY plain": True,
+                               "YZ plain": False, "Theta": np.pi - qubit_state["Theta"]}
+        elif qubit_state["qubit state"] == 0:
+            new_qubit_state = {"qubit state": 1, "XY plain": False,
+                               "YZ plain": False, "Theta": 0}
+        else:
+            new_qubit_state = {"qubit state": 0, "XY plain": False,
+                               "YZ plain": False, "Theta": np.pi}
+        return new_qubit_state
+    
     def _measurement_gate(self, qubit_state):
         """
         implementing measurement on qubit with read-out error.
@@ -121,44 +174,23 @@ class T2HahnBackend(BackendV1):
             counts = dict()
 
             for _ in range(shots):
-                qubit_state = {"qubit state": 0, "XY plain": False, "Theta": 0}
-                delayCheck = True
+                qubit_state = {"qubit state": 0, "XY plain": False,
+                               "YZ plain": False, "Theta": 0}
                 clbits = np.zeros(circ.num_clbits, dtype=int)
                 for op, qargs, cargs in circ.data:
                     qubit = qubit_indices[qargs[0]]
 
                     # The noise will only be applied if we are in the XY plain.
-                    if op.name == "delay" and delayCheck:
+                    if op.name == "delay":
                         delay = op.params[0]
                         t2hahn = self._t2hahn[qubit] * self._conversion_factor
-                        if qubit_state["XY plain"]:
-                            prob_noise = 1 - (np.exp(-delay / t2hahn))
-                            if self._rng.random() < prob_noise:
-                                if self._rng.random() < 0.5:
-                                    qubit_state = {"qubit state": 0, "XY plain": False, "Theta": 0}
-                                else:
-                                    qubit_state = {"qubit state": 1, "XY plain": False, "Theta": 0}
+                        qubit_state = self._delay_gate(qubit_state, delay, t2hahn)
 
                     if op.name == "rx":
-                        if qubit_state["XY plain"]:
-                            qubit_state = {"qubit state": 0, "XY plain": True, "Theta": np.pi}
-                        elif qubit_state["qubit state"] == 0:
-                            qubit_state = {"qubit state": 1, "XY plain": False, "Theta": 0}
-                        else:
-                            qubit_state = {"qubit state": 0, "XY plain": False, "Theta": 0}
-
-                    if op.name == "ry":
-                        if qubit_state["XY plain"]:
-                            if qubit_state["Theta"] == 0:
-                                qubit_state = {"qubit state": 1, "XY plain": False, "Theta": 0}
-                            else:
-                                qubit_state = {"qubit state": 0, "XY plain": False, "Theta": 0}
-                        elif qubit_state["qubit state"] == 0:
-                            qubit_state = {"qubit state": 1, "XY plain": True, "Theta": 0}
-                        else:
-                            qubit_state = {"qubit state": 0, "XY plain": True, "Theta": np.pi}
-
-                    if op.name == "measure":
+                        qubit_state = self._rx_gate(qubit_state)
+                    elif op.name == "ry":
+                        qubit_state = self._ry_gate(qubit_state)
+                    elif op.name == "measure":
                         # we measure in |+> basis which is the same as measuring |0>
                         meas_res = self._measurement_gate(qubit_state)
                         clbit = clbit_indices[cargs[0]]

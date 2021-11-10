@@ -54,7 +54,7 @@ class TestT2Hahn(QiskitTestCase):
             default_p0 = {
                 "A": 0.5,
                 "T2": estimated_t2hahn,
-                "phi": 0,
+                "_frequency": 1,
                 "B": 0.5,
             }
             for user_p0 in [default_p0, None]:
@@ -97,7 +97,7 @@ class TestT2Hahn(QiskitTestCase):
         default_p0 = {
             "A": 0.5,
             "T2": estimated_t2hahn,
-            "phi": 0,
+            "frequency": 1,
             "B": 0.5,
         }
         exp0.set_analysis_options(user_p0=default_p0)
