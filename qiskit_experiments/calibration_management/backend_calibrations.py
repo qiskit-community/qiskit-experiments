@@ -441,9 +441,7 @@ class BackendCalibrations(Calibrations):
 
     @classmethod
     def from_exp_data(
-        cls,
-        experiment_data: ExperimentData,
-        backend: Backend
+        cls, experiment_data: ExperimentData, backend: Backend
     ) -> Optional["BackendCalibrations"]:
         """Return backend calibrations extracted from experiment data.
 
@@ -477,7 +475,8 @@ class BackendCalibrations(Calibrations):
         if backend_name != backend.name():
             raise CalibrationError(
                 f"The name of the given backend {backend.name()} does not match the name "
-                f"in the calibration metadata {backend_name}.")
+                f"in the calibration metadata {backend_name}."
+            )
 
         cals = BackendCalibrations(backend, library=library)
 
