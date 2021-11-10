@@ -85,7 +85,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
             desc: Offset to the pulse duration. For example, if pulse envelope is
                 a flat-topped Gaussian, two Gaussian edges may become an offset duration.
             init_guess: Computed as :math:`N \sqrt{2 \pi} \sigma` where the :math:`N` is number of
-                pulses and :math:`\sigma` is Gaussian sigma of riring and falling edges.
+                pulses and :math:`\sigma` is Gaussian sigma of rising and falling edges.
                 Note that this implicitly assumes the :py:class:`~qiskit.pulse.library\
                 .parametric_pulses.GaussianSquare` pulse envelope.
             bounds: [0, None]
@@ -205,7 +205,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         default_options.curve_plotter = "mpl_multiv_canvas"
         default_options.xlabel = "Flat top width"
         default_options.ylabel = "<X(t)>,<Y(t)>,<Z(t)>"
-        default_options.xval_unit = "dt"
+        default_options.xval_unit = "s"
         default_options.style = curve.visualization.PlotterStyle(
             figsize=(8, 10),
             legend_loc="lower right",
@@ -225,12 +225,23 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         logic can be reused for the fitting that assumes other pulse envelopes.
 
         Returns:
-            An initial guess for time offset parameter ``t_off`` in units of dt.
+            An initial guess for time offset parameter ``t_off`` in SI units.
+
+        Raises:
+            AnalysisError: When the backend doesn't report the time resolution of waveforms.
         """
         n_pulses = self._extra_metadata().get("n_cr_pulses", 1)
         sigma = self._experiment_options().get("sigma", 0)
 
-        return np.sqrt(2 * np.pi) * sigma * n_pulses
+        # Convert sigma unit into SI
+        try:
+            prefactor = self._backend.configuration().dt
+        except AttributeError as ex:
+            raise AnalysisError(
+                "Backend configuration does not provide time resolution."
+            ) from ex
+
+        return np.sqrt(2 * np.pi) * prefactor * sigma * n_pulses
 
     def _generate_fit_guesses(
         self, user_opt: curve.FitOptions

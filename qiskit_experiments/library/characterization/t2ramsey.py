@@ -66,16 +66,12 @@ class T2Ramsey(BaseExperiment):
         """Default experiment options.
 
         Experiment Options:
-            delays (Iterable[float]): Delay times of the experiments.
-            unit (str): Unit of the delay times. Supported units are
-                's', 'ms', 'us', 'ns', 'ps', 'dt'.
+            delays (Iterable[float]): Delay times of the experiments in seconds.
             osc_freq (float): Oscillation frequency offset in Hz.
         """
         options = super()._default_experiment_options()
 
         options.delays = None
-        options.unit = "s"
-        options.conversion_factor = None
         options.osc_freq = 0.0
 
         return options
@@ -85,7 +81,6 @@ class T2Ramsey(BaseExperiment):
         qubit: int,
         delays: Union[List[float], np.array],
         backend: Optional[Backend] = None,
-        unit: str = "s",
         osc_freq: float = 0.0,
     ):
         """
@@ -93,17 +88,14 @@ class T2Ramsey(BaseExperiment):
 
         Args:
             qubit: the qubit under test.
-            delays: delay times of the experiments.
+            delays: delay times of the experiments in seconds.
             backend: Optional, the backend to run the experiment on.
-            unit: Optional, time unit of `delays`.
-                Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'. The unit is
-                used for both T2Ramsey and for the frequency.
             osc_freq: the oscillation frequency induced by the user.
                 The frequency is given in Hz.
 
         """
         super().__init__([qubit], backend=backend)
-        self.set_experiment_options(delays=delays, unit=unit, osc_freq=osc_freq)
+        self.set_experiment_options(delays=delays, osc_freq=osc_freq)
 
     def _set_backend(self, backend: Backend):
         super()._set_backend(backend)
@@ -118,19 +110,6 @@ class T2Ramsey(BaseExperiment):
                 timing_constraints=timing_constraints, scheduling_method=scheduling_method
             )
 
-        # Set conversion factor
-        if self.experiment_options.unit == "dt":
-            try:
-                dt_factor = getattr(self.backend.configuration(), "dt")
-                conversion_factor = dt_factor
-            except AttributeError as no_dt:
-                raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
-        elif self.experiment_options.unit != "s":
-            conversion_factor = apply_prefix(1, self.experiment_options.unit)
-        else:
-            conversion_factor = 1
-        self.set_experiment_options(conversion_factor=conversion_factor)
-
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
 
@@ -139,17 +118,9 @@ class T2Ramsey(BaseExperiment):
 
         Returns:
             The experiment circuits
-
-        Raises:
-            ValueError: When conversion factor is not set.
         """
-        prefactor = self.experiment_options.conversion_factor
-
-        if prefactor is None:
-            raise ValueError("Conversion factor is not set.")
-
         circuits = []
-        for delay in prefactor * np.asarray(self.experiment_options.delays, dtype=float):
+        for delay in np.asarray(self.experiment_options.delays, dtype=float):
             delay = np.round(delay, decimals=10)
 
             rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * delay

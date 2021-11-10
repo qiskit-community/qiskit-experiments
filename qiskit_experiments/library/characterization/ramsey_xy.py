@@ -88,16 +88,12 @@ class RamseyXY(BaseExperiment):
         """Default values for the Ramsey XY experiment.
 
         Experiment Options:
-            delays (list): The list of delays that will be scanned in the experiment.
-            unit (str): The unit of the delays. Accepted values are dt, i.e. the
-                duration of a single sample on the backend, seconds, and sub-units,
-                e.g. ms, us, ns.
+            delays (list): The list of delays that will be scanned in the experiment, in seconds.
             osc_freq (float): A frequency shift in Hz that will be applied by means of
                 a virtual Z rotation to increase the frequency of the measured oscillation.
         """
         options = super()._default_experiment_options()
         options.delays = np.linspace(0, 1.0e-6, 51)
-        options.unit = "s"
         options.osc_freq = 2e6
 
         return options
@@ -107,7 +103,6 @@ class RamseyXY(BaseExperiment):
         qubit: int,
         backend: Optional[Backend] = None,
         delays: Optional[List] = None,
-        unit: str = "s",
         osc_freq: float = 2e6,
     ):
         """Create new experiment.
@@ -115,15 +110,14 @@ class RamseyXY(BaseExperiment):
         Args:
             qubit: The qubit on which to run the Ramsey XY experiment.
             backend: Optional, the backend to run the experiment on.
-            delays: The delays to scan.
-            unit: The unit of the delays.
+            delays: The delays to scan, in seconds.
             osc_freq: the oscillation frequency induced by the user through a virtual
                 Rz rotation. This quantity is given in Hz.
         """
         super().__init__([qubit], backend=backend)
 
         delays = delays or self.experiment_options.delays
-        self.set_experiment_options(delays=delays, unit=unit, osc_freq=osc_freq)
+        self.set_experiment_options(delays=delays, osc_freq=osc_freq)
 
     def _pre_circuit(self) -> QuantumCircuit:
         """Return a preparation circuit.
@@ -138,28 +132,11 @@ class RamseyXY(BaseExperiment):
 
         Returns:
             A list of circuits with a variable delay.
-
-        Raises:
-            AttributeError: if unit is 'dt', but 'dt' the parameter is missing
-                from the backend's configuration.
         """
-
-        conversion_factor = 1
-        if self.experiment_options.unit == "dt":
-            try:
-                conversion_factor = getattr(self.backend.configuration(), "dt")
-            except AttributeError as no_dt:
-                raise AttributeError(
-                    "Dt parameter is missing from the backend's configuration."
-                ) from no_dt
-
-        elif self.experiment_options.unit != "s":
-            conversion_factor = apply_prefix(1, self.experiment_options.unit)
-
         # Compute the rz rotation angle to add a modulation.
         p_delay = Parameter("delay")
 
-        rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * conversion_factor * p_delay
+        rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * p_delay
 
         # Create the X and Y circuits.
         metadata = {
@@ -171,7 +148,7 @@ class RamseyXY(BaseExperiment):
 
         ram_x = self._pre_circuit()
         ram_x.sx(0)
-        ram_x.delay(p_delay, 0, self.experiment_options.unit)
+        ram_x.delay(p_delay, 0)
         ram_x.rz(rotation_angle, 0)
         ram_x.sx(0)
         ram_x.measure_active()
@@ -179,7 +156,7 @@ class RamseyXY(BaseExperiment):
 
         ram_y = self._pre_circuit()
         ram_y.sx(0)
-        ram_y.delay(p_delay, 0, self.experiment_options.unit)
+        ram_y.delay(p_delay, 0)
         ram_y.rz(rotation_angle - np.pi / 2, 0)
         ram_y.sx(0)
         ram_y.measure_active()
@@ -191,12 +168,12 @@ class RamseyXY(BaseExperiment):
             # create ramsey x
             assigned_x = ram_x.assign_parameters({p_delay: delay}, inplace=False)
             assigned_x.metadata["series"] = "X"
-            assigned_x.metadata["xval"] = delay * conversion_factor
+            assigned_x.metadata["xval"] = delay
 
             # create ramsey y
             assigned_y = ram_y.assign_parameters({p_delay: delay}, inplace=False)
             assigned_y.metadata["series"] = "Y"
-            assigned_y.metadata["xval"] = delay * conversion_factor
+            assigned_y.metadata["xval"] = delay
 
             circs.extend([assigned_x, assigned_y])
 

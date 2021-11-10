@@ -54,16 +54,10 @@ class T1(BaseExperiment):
         """Default experiment options.
 
         Experiment Options:
-            delays (Iterable[float]): Delay times of the experiments.
-            unit (str): Unit of the delay times. Supported units are
-                's', 'ms', 'us', 'ns', 'ps', 'dt'.
+            delays (Iterable[float]): Delay times of the experiments in seconds.
         """
         options = super()._default_experiment_options()
-
         options.delays = None
-        options.unit = "s"
-        options.conversion_factor = None
-
         return options
 
     def __init__(
@@ -71,17 +65,14 @@ class T1(BaseExperiment):
         qubit: int,
         delays: Union[List[float], np.array],
         backend: Optional[Backend] = None,
-        unit: Optional[str] = "s",
     ):
         """
         Initialize the T1 experiment class
 
         Args:
             qubit: the qubit whose T1 is to be estimated
-            delays: delay times of the experiments
+            delays: delay times of the experiments in seconds
             backend: Optional, the backend to run the experiment on.
-            unit: Optional, unit of the delay times. Supported units:
-                  's', 'ms', 'us', 'ns', 'ps', 'dt'.
 
         Raises:
             ValueError: if the number of delays is smaller than 3
@@ -93,7 +84,7 @@ class T1(BaseExperiment):
         super().__init__([qubit], backend=backend)
 
         # Set experiment options
-        self.set_experiment_options(delays=delays, unit=unit)
+        self.set_experiment_options(delays=delays)
 
     def _set_backend(self, backend: Backend):
         super()._set_backend(backend)
@@ -108,36 +99,15 @@ class T1(BaseExperiment):
                 timing_constraints=timing_constraints, scheduling_method=scheduling_method
             )
 
-        # Set conversion factor
-        if self.experiment_options.unit == "dt":
-            try:
-                dt_factor = getattr(self.backend.configuration(), "dt")
-                conversion_factor = dt_factor
-            except AttributeError as no_dt:
-                raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
-        elif self.experiment_options.unit != "s":
-            conversion_factor = apply_prefix(1, self.experiment_options.unit)
-        else:
-            conversion_factor = 1
-        self.set_experiment_options(conversion_factor=conversion_factor)
-
     def circuits(self) -> List[QuantumCircuit]:
         """
         Return a list of experiment circuits
 
         Returns:
             The experiment circuits
-
-        Raises:
-            ValueError: When conversion factor is not set.
         """
-        prefactor = self.experiment_options.conversion_factor
-
-        if prefactor is None:
-            raise ValueError("Conversion factor is not set.")
-
         circuits = []
-        for delay in prefactor * np.asarray(self.experiment_options.delays, dtype=float):
+        for delay in np.asarray(self.experiment_options.delays, dtype=float):
             delay = np.round(delay, decimals=10)
 
             circ = QuantumCircuit(1, 1)

@@ -167,7 +167,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
                 Pulse edge effect is considered as an offset to the durations.
             amp (complex): Amplitude of the cross resonance tone.
             amp_t (complex): Amplitude of the cancellation or rotary drive on target qubit.
-            sigma (float): Sigma of Gaussian rise and fall edges.
+            sigma (float): Sigma of Gaussian rise and fall edges, in units of dt.
             risefall (float): Ratio of edge durations to sigma.
         """
         options = super()._default_experiment_options()
@@ -261,6 +261,11 @@ class CrossResonanceHamiltonian(BaseExperiment):
         """
         opt = self.experiment_options
 
+        try:
+            dt_factor = self.backend.configuration().dt
+        except AttributeError as ex:
+            raise AttributeError("Backend configuration does not provide time resolution.") from ex
+
         # Parametrized duration cannot be used because total duration is computed
         # on the fly with granularity validation. This validation requires
         # duration value that is not a parameter expression.
@@ -302,7 +307,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
                     tomo_circ.metadata = {
                         "experiment_type": self.experiment_type,
                         "qubits": self.physical_qubits,
-                        "xval": flat_top_width
+                        "xval": flat_top_width * dt_factor,  # in units of sec
                         "control_state": control_state,
                         "meas_basis": meas_basis,
                     }
