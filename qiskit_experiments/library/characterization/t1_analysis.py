@@ -12,7 +12,7 @@
 """
 T1 Analysis class.
 """
-from typing import Union, List
+from typing import Union
 
 import qiskit_experiments.curve_analysis as curve
 

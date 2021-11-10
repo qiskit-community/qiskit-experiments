@@ -18,7 +18,6 @@ from typing import List, Union, Optional
 import numpy as np
 
 import qiskit
-from qiskit.utils import apply_prefix
 from qiskit.circuit import QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit.test.mock import FakeBackend

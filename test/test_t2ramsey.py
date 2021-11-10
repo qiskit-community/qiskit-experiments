@@ -15,7 +15,6 @@ Test T2Ramsey experiment
 """
 import numpy as np
 
-from qiskit.utils import apply_prefix
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library import T2Ramsey

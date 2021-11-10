@@ -19,7 +19,6 @@ import numpy as np
 from qiskit import pulse, circuit, QuantumCircuit
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
-from qiskit.utils import apply_prefix
 from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
 from .cr_hamiltonian_analysis import CrossResonanceHamiltonianAnalysis
 
@@ -140,7 +139,8 @@ class CrossResonanceHamiltonian(BaseExperiment):
                 The first index stands for the control qubit.
             flat_top_widths: The total duration of the square part of cross resonance pulse(s)
                 to scan, in units of dt. The total pulse duration including Gaussian rising and
-                falling edges is implicitly computed with experiment parameters ``sigma`` and ``risefall``.
+                falling edges is implicitly computed with experiment parameters ``sigma`` and
+                ``risefall``.
             backend: Optional, the backend to run the experiment on.
             kwargs: Pulse parameters. See :meth:`experiment_options` for details.
 

@@ -17,7 +17,6 @@ from itertools import product
 from typing import List, Union
 
 import numpy as np
-from qiskit.utils import apply_prefix
 
 import qiskit_experiments.curve_analysis as curve
 import qiskit_experiments.data_processing as dp

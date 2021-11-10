@@ -17,7 +17,6 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
-from qiskit.utils import apply_prefix
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BaseExperiment, fix_class_docs

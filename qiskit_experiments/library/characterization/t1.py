@@ -16,7 +16,6 @@ T1 Experiment class.
 from typing import List, Optional, Union
 import numpy as np
 
-from qiskit.utils import apply_prefix
 from qiskit.circuit import QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit.test.mock import FakeBackend
