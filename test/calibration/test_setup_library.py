@@ -15,7 +15,10 @@
 import qiskit.pulse as pulse
 from qiskit.test import QiskitTestCase
 
-from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+from qiskit_experiments.calibration_management.basis_gate_library import (
+    FixedFrequencyTransmon,
+    BasisGateLibrary,
+)
 from qiskit_experiments.exceptions import CalibrationError
 
 
@@ -120,3 +123,21 @@ class TestFixedFrequencyTransmon(QiskitTestCase):
 
         with self.assertRaises(CalibrationError):
             FixedFrequencyTransmon(basis_gates=["x", "bswap"])
+
+    def test_serialization(self):
+        """Test the serialization of the object."""
+
+        lib1 = FixedFrequencyTransmon(
+            basis_gates=["x", "sy"],
+            default_values={"duration": 320},
+            use_drag=False,
+            link_parameters=False,
+        )
+
+        lib2 = BasisGateLibrary.deserialize(lib1.serialize())
+
+        self.assertEqual(lib2.basis_gates, lib1.basis_gates)
+
+        # Note: we convert to string since the parameters prevent a direct comparison.
+        for gate in lib1.basis_gates:
+            self.assertEqual(str(lib1[gate]), str(lib2[gate]))

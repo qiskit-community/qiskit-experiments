@@ -18,6 +18,7 @@ Note that the set of available libraries will be extended in future releases.
 
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Tuple
+from warnings import warn
 
 from qiskit.circuit import Parameter
 import qiskit.pulse as pulse
@@ -25,6 +26,7 @@ from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.calibration_management.calibration_key_types import ParameterValueType
 from qiskit_experiments.exceptions import CalibrationError
+from qiskit_experiments.database_service.json import serialize_object, deserialize_object
 
 
 class BasisGateLibrary(ABC):
@@ -82,6 +84,10 @@ class BasisGateLibrary(ABC):
         """Check if the basis gate is in the library."""
         return name in self._schedules
 
+    def __hash__(self) -> int:
+        """Return the hash of the library by computing the hash pf the schedule strings."""
+        return hash(tuple(str(self[gate]) for gate in self.basis_gates))
+
     def num_qubits(self, schedule_name: str) -> int:
         """Return the number of qubits that the schedule with the given name acts on."""
         return self._basis_gates[schedule_name]
@@ -104,6 +110,28 @@ class BasisGateLibrary(ABC):
             A list of tuples is returned. These tuples are structured so that instances of
             :class:`Calibrations` can call :meth:`add_parameter_value` on the tuples.
         """
+
+    @abstractmethod
+    def serialize(self) -> Dict:
+        """Serialize the library."""
+
+    @classmethod
+    def deserialize(cls, serialized_dict: Dict) -> "BasisGateLibrary":
+        """Deserialize the library given the input dictionary"""
+        library = deserialize_object(
+            serialized_dict["__value__"]["__module__"],
+            serialized_dict["__value__"]["__name__"],
+            tuple(),
+            serialized_dict["__value__"]["__kwargs__"],
+        )
+
+        if hash(library) != serialized_dict["__value__"]["__schedule_hash__"]:
+            warn(
+                "Deserialized basis gate library's hash does not "
+                "match the hash of the serialized library."
+            )
+
+        return library
 
 
 class FixedFrequencyTransmon(BasisGateLibrary):
@@ -138,6 +166,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         """
         super().__init__(basis_gates, default_values)
         self._link_parameters = link_parameters
+        self._use_drag = use_drag
 
         dur = Parameter("duration")
         sigma = Parameter("σ")
@@ -220,3 +249,18 @@ class FixedFrequencyTransmon(BasisGateLibrary):
                     defaults.append((value, param.name, tuple(), name))
 
         return defaults
+
+    def serialize(self) -> Dict:
+        """Serialize the object."""
+
+        kwargs = {
+            "basis_gates": self.basis_gates,
+            "default_values": self._default_values,
+            "use_drag": self._use_drag,
+            "link_parameters": self._link_parameters,
+        }
+
+        serialized_library = serialize_object(type(self), kwargs=kwargs)
+        serialized_library["__value__"]["__schedule_hash__"] = hash(self)
+
+        return serialized_library
