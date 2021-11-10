@@ -13,6 +13,7 @@
 Test T1 experiment
 """
 
+import numpy as np
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import T1
@@ -29,28 +30,18 @@ class TestT1(QiskitTestCase):
         """
         Test T1 experiment using a simulator.
         """
-
-        dt_factor = 2e-7
-
         t1 = 25e-6
         backend = T1Backend(
             [t1],
             initial_prob1=[0.02],
             readout0to1=[0.02],
             readout1to0=[0.02],
-            dt_factor=dt_factor,
         )
 
-        delays = list(
-            range(
-                int(1e-6 / dt_factor),
-                int(40e-6 / dt_factor),
-                int(3e-6 / dt_factor),
-            )
-        )
+        delays = np.arange(1e-6, 40e-6, 3e-6)
 
-        exp = T1(0, delays, unit="dt")
-        exp.set_analysis_options(p0={"amp": 1, "tau": t1 / dt_factor, "base": 0})
+        exp = T1(0, delays)
+        exp.set_analysis_options(p0={"amp": 1, "tau": t1, "base": 0})
         exp_data = exp.run(backend, shots=10000)
         exp_data.block_for_results()  # Wait for analysis to finish.
         res = exp_data.analysis_results("T1")
@@ -114,8 +105,6 @@ class TestT1(QiskitTestCase):
             "job_metadata": [
                 {
                     "run_options": {"meas_level": 2},
-                    # TODO remove this, issue #456
-                    "experiment_options": {"conversion_factor": 1, "unit": "s"},
                 },
             ]
         }
@@ -144,23 +133,20 @@ class TestT1(QiskitTestCase):
         Test the circuits metadata
         """
 
-        delays = list(range(1, 40, 3))
-        exp = T1(0, delays, unit="ms")
-
-        # TODO remove this, issue #456
-        exp.set_experiment_options(conversion_factor=1 / 1000)
-
+        delays = np.arange(1e-3, 40e-3, 3e-3)
+        exp = T1(0, delays)
         circs = exp.circuits()
 
         self.assertEqual(len(circs), len(delays))
 
         for delay, circ in zip(delays, circs):
+            xval = circ.metadata.pop("xval")
+            self.assertAlmostEqual(xval, delay)
             self.assertEqual(
                 circ.metadata,
                 {
                     "experiment_type": "T1",
                     "qubit": 0,
-                    "xval": delay / 1000,
                     "unit": "s",
                 },
             )
@@ -175,8 +161,6 @@ class TestT1(QiskitTestCase):
             "job_metadata": [
                 {
                     "run_options": {"meas_level": 2},
-                    # TODO remove this, issue #456
-                    "experiment_options": {"conversion_factor": 1, "unit": "s"},
                 },
             ]
         }
@@ -199,7 +183,7 @@ class TestT1(QiskitTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = T1(0, [1, 2, 3, 4, 5], unit="s")
+        exp = T1(0, [1, 2, 3, 4, 5])
         config = exp.config
         loaded_exp = T1.from_config(config)
         self.assertNotEqual(exp, loaded_exp)
