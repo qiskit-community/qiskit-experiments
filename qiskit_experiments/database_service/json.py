@@ -337,7 +337,66 @@ def _deserialize_object_legacy(value: Dict) -> Any:
 
 
 class ExperimentEncoder(json.JSONEncoder):
-    """JSON Encoder for Numpy arrays and complex numbers."""
+    """JSON Encoder for Qiskit Experiments.
+
+    This class extends the default Python JSONEncoder by including built-in
+    support for
+
+    * complex numbers, sets and dataclasses.
+    * NumPy ndarrays and SciPy sparse matrices.
+    * Qiskit ``QuantumCircuit``, ``Result``.
+    * Any class that implements a ``__json_encode__`` method or a
+      ``settings`` property.
+
+    Generic classes can be serialized by this encoder. This is done
+    by attempting the following methods in order:
+
+    1.  The object has a ``__json_encode__`` method. This should have signature
+
+        .. code-block:: python
+
+            def __json_encode__(self) -> Any:
+                # return a JSON serializable object value
+
+        The value returned by ``__json_encode__`` must be an object that can be
+        serialized by the JSON encoder (for example a ``dict`` containing
+        other JSON serializable objects).
+
+        To deserialize this object using the :class:`ExperimentDecoder` the
+        class must also provide a ``__json_decode__`` class method that can
+        convert the value returned by ``__json_encode__`` back to the object.
+        This method should have signature
+
+        .. code-block:: python
+
+            @classmethod
+            def __json_decode__(cls, value: Any) -> cls:
+                # recover the object from the `value` returned by __json_encode__
+
+    2.  The object has a ``settings`` property. This should have signature
+
+        .. code-block:: python
+
+            @property
+            def settings(self) -> Dict[str, Any]:
+                # Return settings value for reconstructing the instance
+
+        Deserialization of objects from the ``value`` dictionary returned by
+        ``settings`` is done by calling the class `__init__` method
+        ``cls(**settings)``.
+
+    3.  In all other cases only the object class is saved. Deserialization
+        will attempt to recover the object from default initialization of
+        its class as ``cls()``.
+
+    .. note::
+
+        Serialization of custom classes works for user-defined classes in
+        Python scripts, notebooks, or third party modules. Note however
+        that these will only be able to be de-serialized if that class
+        can be imported form the same scope at the time the
+        :class:`ExperimentDecoder` is invoked.
+    """
 
     def default(self, obj: Any) -> Any:  # pylint: disable=arguments-differ
         if isinstance(obj, complex):
@@ -397,7 +456,14 @@ class ExperimentEncoder(json.JSONEncoder):
 
 
 class ExperimentDecoder(json.JSONDecoder):
-    """JSON Decoder for Numpy arrays and complex numbers."""
+    """JSON Decoder for Qiskit Experiments.
+
+    This class extends the default Python JSONDecoder by including built-in
+    support for all objects that that can be serialized using the
+    :class:`ExperimentEncoder`.
+
+    See :class:`ExperimentEncoder` class documentation for details.
+    """
 
     _NaNs = {"NaN": math.nan, "Infinity": math.inf, "-Infinity": -math.inf}
 
