@@ -77,17 +77,25 @@ class T2HahnBackend(BackendV1):
         return Options(shots=1024)
 
     def _measurement_gate(self, qubit_state):
-    
+        """
+        implementing measurement on qubit with read-out error.
+        Args:
+            qubit_state(dict): The state of the qubit at the end of the circuit.
+
+        Returns:
+                int: The result of the measurement after applying read-out error.
+        """
         if qubit_state["XY plain"]:
             meas_res = self._rng.random() < 0.5
         else:
             meas_res = qubit_state["qubit state"]
 
         # Measurement error implementation
-        if self._rng.random() < self._measurement_error:
-            if meas_res:
+        if meas_res:
+            if self._readout1to0 is not None and self._rng.random() < self._readout1to0:
                 meas_res = 0
-            else:
+        else:
+            if self._readout0to1 is not None and self._rng.random() < self._readout0to1:
                 meas_res = 1
         return meas_res
 
