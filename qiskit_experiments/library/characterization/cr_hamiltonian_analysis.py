@@ -237,9 +237,7 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
         try:
             prefactor = self._backend.configuration().dt
         except AttributeError as ex:
-            raise AnalysisError(
-                "Backend configuration does not provide time resolution."
-            ) from ex
+            raise AnalysisError("Backend configuration does not provide time resolution.") from ex
 
         return np.sqrt(2 * np.pi) * prefactor * sigma * n_pulses
 

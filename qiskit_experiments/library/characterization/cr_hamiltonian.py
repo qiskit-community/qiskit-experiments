@@ -139,7 +139,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
             qubits: Two-value tuple of qubit indices on which to run tomography.
                 The first index stands for the control qubit.
             flat_top_widths: The total duration of the square part of cross resonance pulse(s)
-                to scan, in units of dt. The total pulse duration including Gaussian rising and 
+                to scan, in units of dt. The total pulse duration including Gaussian rising and
                 falling edges is implicitly computed with experiment parameters ``sigma`` and ``risefall``.
             backend: Optional, the backend to run the experiment on.
             kwargs: Pulse parameters. See :meth:`experiment_options` for details.
