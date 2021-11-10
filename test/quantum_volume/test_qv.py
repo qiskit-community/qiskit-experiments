@@ -64,14 +64,14 @@ class TestQuantumVolume(QiskitTestCase):
         and compare to pre-calculated probabilities with the same seed
         """
         num_of_qubits = 3
-        qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
+        qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
         # set number of trials to a low number to make the test faster
         qv_exp.set_experiment_options(trials=20)
         qv_circs = qv_exp.circuits()
         simulation_probabilities = [qv_circ.metadata["ideal_probabilities"] for qv_circ in qv_circs]
         # create the circuits again, but this time disable simulation so the
         # ideal probabilities will be calculated using statevector
-        qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
+        qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
         qv_exp.set_experiment_options(trials=20)
         qv_exp._simulation_backend = None
         qv_circs = qv_exp.circuits()
@@ -101,7 +101,7 @@ class TestQuantumVolume(QiskitTestCase):
         num_of_qubits = 3
         backend = Aer.get_backend("aer_simulator")
 
-        qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
+        qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
         # set number of trials to a low number to make the test faster
         qv_exp.set_experiment_options(trials=2)
         expdata1 = qv_exp.run(backend)
@@ -135,7 +135,7 @@ class TestQuantumVolume(QiskitTestCase):
         num_of_qubits = 3
         backend = Aer.get_backend("aer_simulator")
 
-        qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
+        qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
         exp_data = ExperimentData(experiment=qv_exp, backend=backend)
         exp_data.add_data(insufficient_trials_data)
 
@@ -159,7 +159,7 @@ class TestQuantumVolume(QiskitTestCase):
         num_of_qubits = 4
         backend = Aer.get_backend("aer_simulator")
 
-        qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
+        qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
         exp_data = ExperimentData(experiment=qv_exp, backend=backend)
         exp_data.add_data(insufficient_hop_data)
 
@@ -184,7 +184,7 @@ class TestQuantumVolume(QiskitTestCase):
         num_of_qubits = 4
         backend = Aer.get_backend("aer_simulator")
 
-        qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
+        qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
         exp_data = ExperimentData(experiment=qv_exp, backend=backend)
         exp_data.add_data(insufficient_confidence_data)
 
@@ -208,7 +208,7 @@ class TestQuantumVolume(QiskitTestCase):
         num_of_qubits = 4
         backend = Aer.get_backend("aer_simulator")
 
-        qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
+        qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
         exp_data = ExperimentData(experiment=qv_exp, backend=backend)
         exp_data.add_data(successful_data)
 

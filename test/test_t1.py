@@ -74,7 +74,7 @@ class TestT1(QiskitTestCase):
         res.block_for_results()
 
         for i in range(2):
-            sub_res = res.component_experiment_data(i).analysis_results("T1")
+            sub_res = res.child_data(i).analysis_results("T1")
             self.assertEqual(sub_res.quality, "good")
             self.assertAlmostEqual(sub_res.value.value, t1[i], delta=3)
 
@@ -98,7 +98,7 @@ class TestT1(QiskitTestCase):
 
         sub_res = []
         for i in range(2):
-            sub_res.append(res.component_experiment_data(i).analysis_results("T1"))
+            sub_res.append(res.child_data(i).analysis_results("T1"))
 
         self.assertEqual(sub_res[0].quality, "good")
         self.assertAlmostEqual(sub_res[0].value.value, t1, delta=3)

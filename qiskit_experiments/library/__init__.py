@@ -69,6 +69,8 @@ Some experiments may be also used for gate calibration.
     ~characterization.FineSXAmplitude
     ~characterization.Rabi
     ~characterization.EFRabi
+    ~characterization.RamseyXY
+
 
 .. _calibration:
 
@@ -93,7 +95,6 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     ~calibration.FineAmplitudeCal
     ~calibration.FineXAmplitudeCal
     ~calibration.FineSXAmplitudeCal
-    ~calibration.RamseyXY
     ~calibration.RoughAmplitudeCal
     ~calibration.RoughXSXAmplitudeCal
     ~calibration.EFRoughXSXAmplitudeCal
@@ -111,7 +112,7 @@ from .calibration import (
     FineXAmplitudeCal,
     FineSXAmplitudeCal,
     RoughFrequencyCal,
-    RamseyXY,
+    FrequencyCal,
 )
 from .characterization import (
     T1,
@@ -127,6 +128,7 @@ from .characterization import (
     FineAmplitude,
     FineXAmplitude,
     FineSXAmplitude,
+    RamseyXY,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
