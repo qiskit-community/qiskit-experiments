@@ -22,7 +22,7 @@ from gauge_optimizer import Pauli_strings
 import scipy.linalg as la
 from functools import reduce
 from qiskit_experiments.library.tomography.fitters.fitter_utils import make_positive_semidefinite
-
+from qiskit.exceptions import QiskitError
 
 class GSTOptimize:
     """ GST fitter that performs the maximum likelihood estimation (MLE) optimization for gate set tomography.

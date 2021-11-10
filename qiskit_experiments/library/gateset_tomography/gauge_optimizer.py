@@ -53,7 +53,7 @@ def GaugeOptimizer(initial_gateset, gateset_basis, num_qubits) -> Dict[str, PTM]
     d = np.shape(ideal_gateset['rho'])[0]
     rho = ideal_gateset['rho']
     initial_value = np.array([(F @ rho).T[0] for F in Fs]).T
-    result = opt.minimize(obj_fn, x0=np.real(initial_value),
+    result = opt.minimize(obj_fn, x0 = np.real(initial_value),
                           args={'d': d, 'initial_gateset': initial_gateset, 'gateset_basis': gateset_basis,
                                 'ideal_gateset': ideal_gateset})
     return x_to_gateset(result.x, d, initial_gateset, gateset_basis)
@@ -81,10 +81,10 @@ def x_to_gateset(x: np.array, d: int, initial_gateset: Dict[str, PTM], gateset_b
         BB = np.linalg.inv(B)
     except np.linalg.LinAlgError:
         return None
-    gateset = {label: PTM(B @ initial_gateset[label].data @ BB)
+    gateset = {label: PTM(B @ np.real(initial_gateset[label].data) @ BB)
                for label in gateset_basis.gate_labels}
-    gateset['E'] = initial_gateset['E'] @ BB
-    gateset['rho'] = B @ initial_gateset['rho']
+    gateset['E'] = np.real(initial_gateset['E']) @ BB
+    gateset['rho'] = B @ np.real(initial_gateset['rho'])
     return gateset
 
 
@@ -103,13 +103,13 @@ def obj_fn(x: np.array, args) -> float:
     d, initial_gateset, gateset_basis, ideal_gateset = args['d'], args['initial_gateset'], args['gateset_basis'], args[
         'ideal_gateset']
     gateset = x_to_gateset(x, d, initial_gateset, gateset_basis)
-    result = sum([np.linalg.norm(gateset[label].data -
-                                 ideal_gateset[label].data)
+    result = sum([np.linalg.norm(np.real(gateset[label].data) -
+                                 np.real(ideal_gateset[label].data))
                   for label in gateset_basis.gate_labels])
-    result = result + np.linalg.norm(gateset['E'] -
-                                     ideal_gateset['E'])
-    result = result + np.linalg.norm(gateset['rho'] -
-                                     ideal_gateset['rho'])
+    result = result + np.linalg.norm(np.real(gateset['E']) -
+                                     np.real(ideal_gateset['E']))
+    result = result + np.linalg.norm(np.real(gateset['rho']) -
+                                     np.real(ideal_gateset['rho']))
     return result
 
 

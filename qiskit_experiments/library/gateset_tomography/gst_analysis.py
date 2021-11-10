@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-Standard RB analysis class.
+Standard GST analysis class.
 """
 import numpy as np
 import scipy.linalg as la
@@ -19,15 +19,14 @@ from typing import List, Union, Dict, Tuple, Callable
 from types import FunctionType
 import time
 import ast
-from qiskit.quantum_info import DensityMatrix, Choi, Operator, PTM, average_gate_fidelity, state_fidelity
-from qiskit_experiments.exceptions import AnalysisError
+from qiskit.quantum_info import DensityMatrix, Choi, Operator, PTM, average_gate_fidelity, state_fidelity, process_fidelity
+from qiskit_experiments.exceptions import AnalysisError, QiskitError
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
 from qiskit.result import marginal_counts, Counts
 from linear_inversion_gst import linear_inversion_gst
 from gauge_optimizer import GaugeOptimizer, ideal_gateset_gen, Pauli_strings
 from mle_gst import GSTOptimize, convert_from_ptm
 from qiskit_experiments.library.tomography.fitters.fitter_utils import make_positive_semidefinite
-# from qiskit_experiments.library.tomography.tomography_analysis import TomographyAnalysis
 from qiskit.circuit import Gate
 from gatesetbasis import gate_matrix
 
@@ -56,7 +55,7 @@ class GSTAnalysis(BaseAnalysis):
           Set a custom target quantum channels for computing the
           :func:~qiskit.quantum_info.gate_average_fidelity` of the fitted gate set against. If
           ``"default"`` or None, the ideal gate set will be used.
-        - **rescale_PSD** (``bool``): If True rescale the Choi representation
+        - **rescale_CP** (``bool``): If True rescale the Choi representation
           (:class:`~qiskit.quantum_info.Choi`) of the gateset returned by the fitter
           to be positive-semidefinite which corresponds to CP gate set results.
           As GST results obtained by MLE fitter are always CP, this is only
@@ -82,7 +81,7 @@ class GSTAnalysis(BaseAnalysis):
         # This is only in case of GST, if linear inversion, or no initial guess is needed, then the value is None.
         options.fitter_initial_guess = "linear_inversion"
         options.target_set = "ideal"  # the default corresponds to the ideal gate set.
-        options.rescale_PSD = False  # relevant only for the linear_inversion_results
+        options.rescale_CP = False  # relevant only for the linear_inversion_results
         options.rescale_TP = False
         return options
 
@@ -219,17 +218,15 @@ class GSTAnalysis(BaseAnalysis):
         t_fitter_stop_linv = time.time()
         fitter_time_linv = t_fitter_stop_linv - t_fitter_start_linv
         if fitter_name == 'linear_inversion_gst':
-
-            rescale_PSD = options.pop("rescale_PSD")
+            rescale_CP = options.pop("rescale_CP")
             rescale_TP = options.pop("rescale_TP")
 
             fitter_time = fitter_time_linv
             gateset_result = post_gauge_linv_gateset
             gateset_result['E'] = Operator(convert_from_ptm(gateset_result['E'], num_qubits))
             gateset_result['rho'] = DensityMatrix(convert_from_ptm(gateset_result['rho'], num_qubits))
-
-            if rescale_PSD:
-                gateset_result = self._rescale_PSD(gateset_result)
+            if rescale_CP:
+                gateset_result = self._rescale_CP(gateset_result)
             if rescale_TP:
                 gateset_result = self._rescale_TP(gateset_result, num_qubits)
         else:
@@ -254,11 +251,10 @@ class GSTAnalysis(BaseAnalysis):
         fitter_metadata["fitter"] = fitter_name
         fitter_metadata["fitter_time"] = fitter_time
         if fitter_name == "linear_inversion_gst":
-            fitter_metadata["rescale_PSD"] = rescale_PSD
+            fitter_metadata["rescale_CP"] = rescale_CP
             fitter_metadata["rescale_TP"] = rescale_TP
         if fitter_name == "scipy_optimizer_MLE_gst":
             fitter_metadata["fitter_initial_guess"] = fitter_initial_guess
-
         analysis_results = self._postprocess_fit(
             gateset_result,
             metadata=fitter_metadata,
@@ -330,8 +326,13 @@ class GSTAnalysis(BaseAnalysis):
         for key in gateset_result_choi:
             metadata_key = {}
             if key not in ['rho', 'E']:
-                metadata_key["Average gate fidelity"] = gate_average_fidelity(gateset_result_choi[key],
+                try:
+                    metadata_key["Average gate fidelity"] = gate_average_fidelity(gateset_result_choi[key],
                                                                               target_gateset[key])
+                except(QiskitError):
+                    metadata_key["Process fidelity"] = process_fidelity(gateset_result_choi[key],
+                                                                              target_gateset[key])
+
             analysis_results.append(
                 AnalysisResultData("gst estimation of {}".format(key), gateset_result_choi[key], extra=metadata_key))
 
@@ -341,20 +342,20 @@ class GSTAnalysis(BaseAnalysis):
         return analysis_results
 
     @staticmethod
-    def _rescale_PSD(gateset_result):
-        # This method is only relevant for the linear inversion fitter as MLE results are always PSD
-        gateset_result_rescaled_PSD = {}
-        gateset_result_rescaled_PSD['E'] = gateset_result['E']
-        gateset_result_rescaled_PSD['rho'] = gateset_result['rho']
+    def _rescale_CP(gateset_result):
+        # This method is only relevant for the linear inversion fitter as MLE results are always CP
+        gateset_result_rescaled_CP = {}
+        gateset_result_rescaled_CP['E'] = gateset_result['E']
+        gateset_result_rescaled_CP['rho'] = gateset_result['rho']
         for key in gateset_result.keys():
             if key not in ['E', 'rho']:
-                gateset_result_rescaled_PSD[key] = PTM(
+                gateset_result_rescaled_CP[key] = PTM(
                     Choi(make_positive_semidefinite(Choi(PTM(gateset_result[key])).data)))
-        return gateset_result_rescaled_PSD
+        return gateset_result_rescaled_CP
 
     @staticmethod
     def _rescale_TP(gateset_result, num_qubits):
-        # This method is only relevant for the linear inversion fitter as MLE results are always PSD
+        # This method is only relevant for the linear inversion fitter as MLE results are always CP
         gateset_result_rescaled_TP = {}
         gateset_result_rescaled_TP['E'] = gateset_result['E']
         gateset_result_rescaled_TP['rho'] = gateset_result['rho']

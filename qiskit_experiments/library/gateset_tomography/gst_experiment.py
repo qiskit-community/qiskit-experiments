@@ -25,7 +25,7 @@ from qiskit_experiments.framework import BaseExperiment, ParallelExperiment, Opt
 from qiskit_experiments.curve_analysis.data_processing import probability
 from gst_analysis import GSTAnalysis
 from gatesetbasis import GateSetBasis, default_gateset_basis, gatesetbasis_constrction_from_basis_gates
-
+from types import FunctionType
 
 class GateSetTomography(BaseExperiment):
     """Gate set tomography experiment.
@@ -84,7 +84,7 @@ class GateSetTomography(BaseExperiment):
     def __init__(
             self,
             qubits: List[int],
-            gateset: Union[str, GateSetBasis, Tuple[str, Dict[str, Union[Callable, Gate]]]] = 'default',
+            gateset: Union[str, GateSetBasis, Dict[str, Union[FunctionType, Gate]]] = 'default',
             additional_gates: List[Union[Callable, Gate]] = None,
             only_basis_gates: bool = False,
     ):
@@ -206,6 +206,5 @@ class GateSetTomography(BaseExperiment):
             circuit.metadata = metadata
             F_circuits.append(circuit)
         all_circuits = all_circuits + F_circuits
-        # print(all_circuits)
 
         return all_circuits

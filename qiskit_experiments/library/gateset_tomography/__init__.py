@@ -12,10 +12,10 @@
 
 """
 ===============================================================================================
-Randomized Benchmarking Experiments (:mod:`qiskit_experiments.library.randomized_benchmarking`)
+Gate Set Tomography Experiments (:mod:`qiskit_experiments.library.gateset_tomography`)
 ===============================================================================================
 
-.. currentmodule:: qiskit_experiments.library.randomized_benchmarking
+.. currentmodule:: qiskit_experiments.library.gateset_tomography
 
 Experiments
 ===========
@@ -23,8 +23,7 @@ Experiments
     :toctree: ../stubs/
     :template: autosummary/experiment.rst
 
-    StandardRB
-    InterleavedRB
+    GateSetTomography
 
 
 Analysis
@@ -34,17 +33,8 @@ Analysis
     :toctree: ../stubs/
     :template: autosummary/analysis.rst
 
-    RBAnalysis
-    InterleavedRBAnalysis
+    GSTAnalysis
 
-.. autosummary::
-    :toctree: ../stubs/
-
-    RBUtils
 """
-from .gst_experiment import StandardRB
-from .interleaved_rb_experiment import InterleavedRB
-from .gst_analysis import RBAnalysis
-from .interleaved_rb_analysis import InterleavedRBAnalysis
-from .rb_utils import RBUtils
-from .clifford_utils import CliffordUtils
+from gst_experiment import GateSetTomography
+from gst_analysis import GSTAnalysis

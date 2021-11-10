@@ -1,6 +1,6 @@
 import numpy as np
 from typing import Dict
-from qiskit.quantum_info import PTM
+from qiskit.quantum_info import PTM, Choi
 
 
 def linear_inversion_gst(outcome_data, gateset_basis) -> Dict[str, PTM]:
@@ -55,11 +55,11 @@ def linear_inversion_gst(outcome_data, gateset_basis) -> Dict[str, PTM]:
         rho[i][0] = outcome_data[(F_i,)]
         for j in range(n):  # column
             F_j = gateset_basis.spam_labels[j]
-            gram_matrix[i][j] = outcome_data[(F_j, F_i)]
+            gram_matrix[i][j] = outcome_data[(F_i, F_j)]
 
             for k in range(m):  # gate
                 G_k = gateset_basis.gate_labels[k]
-                gate_matrices[k][i][j] = outcome_data[(F_j, G_k, F_i)]
+                gate_matrices[k][i][j] = outcome_data[(F_i, G_k, F_j)]
 
     gram_inverse = np.linalg.inv(gram_matrix)
 

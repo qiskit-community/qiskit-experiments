@@ -27,8 +27,7 @@ from qiskit.circuit import Gate
 from qiskit.circuit.library import U2Gate, XGate, YGate, HGate, CXGate, RZGate, SXGate
 from qiskit.quantum_info import PTM
 from qiskit.quantum_info import Pauli
-
-
+from qiskit.exceptions import QiskitError
 class GateSetBasis:
     """
     This class contains the gateset data needed to perform gateset tomgography.
@@ -174,19 +173,33 @@ def default_gateset_basis(num_qubits):
     if num_qubits > 2:
         raise QiskitError("No default basis for three qubits or more")
 
+    """
     default_gates_single = {
         'Id': lambda circ, qubit: None,
         'X_Rot_90': lambda circ, qubit: circ.append(U2Gate(-np.pi / 2, np.pi / 2), [qubit]),
         'Y_Rot_90': lambda circ, qubit: circ.append(U2Gate(0, 0), [qubit])
     }
-
+    
     default_spam_single = {
         'F0': ('Id',),
         'F1': ('X_Rot_90',),
         'F2': ('Y_Rot_90',),
         'F3': ('X_Rot_90', 'X_Rot_90')
     }
+    """
+    default_gates_single = {
+        'Id': lambda circ, qubit: None,
+        'SX': lambda circ, qubit: circ.append(SXGate(), [qubit]),
+        'RZ_pi/2': lambda circ, qubit: circ.append(RZGate(np.pi/2), [qubit]),
+        'RZ_-pi/2': lambda circ, qubit: circ.append(RZGate(-np.pi / 2), [qubit]),
+    }
 
+    default_spam_single = {
+        'F0': ('Id',),
+        'F1': ('SX',),
+        'F2': ('RZ_pi/2','SX','RZ_-pi/2'),
+        'F3': ('SX', 'SX')
+    }
     ####################################
 
     # Two-Qubit
@@ -194,11 +207,11 @@ def default_gateset_basis(num_qubits):
     # Ex. XI- Apply X on qubit 1, and do nothing for qubit2.
 
     default_gates_two = {
-        'IdId': lambda circ, qubit1, qubit2: None,
+        'I I': lambda circ, qubit1, qubit2: None,
         'X I': lambda circ, qubit1, qubit2: circ.append(XGate(), [qubit2]),
         'I X': lambda circ, qubit1, qubit2: circ.append(XGate(), [qubit1]),
-        'RZ I': lambda circ, qubit1, qubit2: circ.append(RZGate(np.pi / 3), [qubit2]),
-        'I RZ': lambda circ, qubit1, qubit2: circ.append(RZGate(np.pi / 3), [qubit1]),
+        'RZ_pi_over_3 I': lambda circ, qubit1, qubit2: circ.append(RZGate(np.pi / 3), [qubit2]),
+        'I RZ_pi_over_3': lambda circ, qubit1, qubit2: circ.append(RZGate(np.pi / 3), [qubit1]),
         'I SX': lambda circ, qubit1, qubit2: circ.append(SXGate(), [qubit1]),
         'SX I': lambda circ, qubit1, qubit2: circ.append(SXGate(), [qubit2]),
         'CX': lambda circ, qubit1, qubit2: circ.append(CXGate(), [qubit1, qubit2])
@@ -206,22 +219,22 @@ def default_gateset_basis(num_qubits):
     }
 
     default_spam_two = {
-        'F0': ('IdId',),
+        'F0': ('I I',),
         'F1': ('X I',),
         'F2': ('I X',),
         'F3': ('X I', 'I X',),
         'F4': ('I X', 'SX I', 'CX',),
-        'F5': ('I SX', 'I RZ', 'I SX',),
-        'F6': ('SX I', 'RZ I', 'SX I',),
-        'F7': ('X I', 'I SX', 'I RZ', 'I SX'),
+        'F5': ('I SX', 'I RZ_pi_over_3', 'I SX',),
+        'F6': ('SX I', 'RZ_pi_over_3 I', 'SX I',),
+        'F7': ('X I', 'I SX', 'I RZ_pi_over_3', 'I SX'),
         'F8': ('I X', 'I SX', 'CX', 'I SX'),
-        'F9': ('I X', 'SX I', 'RZ I', 'SX I'),
-        'F10': ('RZ I', 'RZ I', 'RZ I', 'SX I'),
-        'F11': ('I RZ', 'I RZ', 'I RZ', 'I SX'),
+        'F9': ('I X', 'SX I', 'RZ_pi_over_3 I', 'SX I'),
+        'F10': ('RZ_pi_over_3 I', 'RZ_pi_over_3 I', 'RZ_pi_over_3 I', 'SX I'),
+        'F11': ('I RZ_pi_over_3', 'I RZ_pi_over_3', 'I RZ_pi_over_3', 'I SX'),
         'F12': ('I SX', 'SX I', 'CX', 'I SX'),
-        'F13': ('X I', 'I RZ', 'I RZ', 'I RZ', 'I SX'),
-        'F14': ('I SX', 'I RZ', 'SX I', 'CX', 'I SX'),
-        'F15': ('RZ I', 'RZ I', 'RZ I', 'CX', 'I SX', 'CX')
+        'F13': ('X I', 'I RZ_pi_over_3', 'I RZ_pi_over_3', 'I RZ_pi_over_3', 'I SX'),
+        'F14': ('I SX', 'I RZ_pi_over_3', 'SX I', 'CX', 'I SX'),
+        'F15': ('RZ_pi_over_3 I', 'RZ_pi_over_3 I', 'RZ_pi_over_3 I', 'CX', 'I SX', 'CX')
     }
 
     return GateSetBasis('Default GST', default_gates_single, default_spam_single,
@@ -273,10 +286,8 @@ def find_spam_gates_from_gatesetbasis(basis_gates, rho, num_qubits):
             spam_temp = spam_matrix(allstrings[k][i], basis_gates, num_qubits)
             matrix2 = np.copy(matrix)
             matrix2 = np.vstack([matrix2, spam_temp @ rho])
-            # print(np.linalg.matrix_rank(matrix2))
             if np.linalg.matrix_rank(matrix2) > np.linalg.matrix_rank(matrix):
                 if check_symmetric(spam_temp):
-                    # print(1,i,'yes',np.linalg.matrix_rank(matrix2))
                     matrix.append(spam_temp @ rho)
                     Selected.append(allstrings[k][i])
                     if len(Selected) == (2 ** num_qubits) ** 2:
