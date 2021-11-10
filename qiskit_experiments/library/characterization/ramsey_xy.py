@@ -147,7 +147,7 @@ class RamseyXY(BaseExperiment):
 
         ram_x = self._pre_circuit()
         ram_x.sx(0)
-        ram_x.delay(p_delay, 0)
+        ram_x.delay(p_delay, 0, "s")
         ram_x.rz(rotation_angle, 0)
         ram_x.sx(0)
         ram_x.measure_active()
@@ -155,7 +155,7 @@ class RamseyXY(BaseExperiment):
 
         ram_y = self._pre_circuit()
         ram_y.sx(0)
-        ram_y.delay(p_delay, 0)
+        ram_y.delay(p_delay, 0, "s")
         ram_y.rz(rotation_angle - np.pi / 2, 0)
         ram_y.sx(0)
         ram_y.measure_active()
