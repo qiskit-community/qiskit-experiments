@@ -68,12 +68,28 @@ class T2HahnBackend(BackendV1):
         self._readout1to0 = readout1to0
         self._conversion_factor = conversion_factor
         self._rng = np.random.default_rng(seed=SEED)
+        self._measurement_error = 0.05
         super().__init__(configuration)
 
     @classmethod
     def _default_options(cls):
         """Default options of the test backend."""
         return Options(shots=1024)
+
+    def _measurement_gate(self, qubit_state):
+    
+        if qubit_state["XY plain"]:
+            meas_res = self._rng.random() < 0.5
+        else:
+            meas_res = qubit_state["qubit state"]
+
+        # Measurement error implementation
+        if self._rng.random() < self._measurement_error:
+            if meas_res:
+                meas_res = 0
+            else:
+                meas_res = 1
+        return meas_res
 
     # pylint: disable = arguments-differ
     def run(self, run_input, **options):
@@ -136,12 +152,10 @@ class T2HahnBackend(BackendV1):
 
                     if op.name == "measure":
                         # we measure in |+> basis which is the same as measuring |0>
-                        if qubit_state["XY plain"]:
-                            meas_res = self._rng.random() < 0.5
-                        else:
-                            meas_res = qubit_state["qubit state"]
+                        meas_res = self._measurement_gate(qubit_state)
                         clbit = clbit_indices[cargs[0]]
                         clbits[clbit] = meas_res
+
                 clstr = ""
                 for clbit in clbits[::-1]:
                     clstr = clstr + str(clbit)
