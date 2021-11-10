@@ -42,7 +42,7 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
         cal_parameter_name: Optional[str] = "β",
         auto_update: bool = True,
     ):
-        """see class :class:`FineDrag` for details.
+        r"""see class :class:`FineDrag` for details.
 
         Note that this class implicitly assumes that the target angle of the gate
         is :math:`\pi` as seen from the default experiment options.
@@ -162,7 +162,7 @@ class FineXDragCal(FineDragCal):
         cal_parameter_name: Optional[str] = "β",
         auto_update: bool = True,
     ):
-        """see class :class:`FineDrag` for details.
+        r"""see class :class:`FineDrag` for details.
 
         Args:
             qubit: The qubit for which to run the fine drag calibration.
@@ -194,7 +194,7 @@ class FineSXDragCal(FineDragCal):
         cal_parameter_name: Optional[str] = "β",
         auto_update: bool = True,
     ):
-        """see class :class:`FineDrag` for details.
+        r"""see class :class:`FineDrag` for details.
 
         Args:
             qubit: The qubit for which to run the fine drag calibration.

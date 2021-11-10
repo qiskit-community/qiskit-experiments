@@ -23,10 +23,7 @@ from qiskit.test.mock import FakeAthens
 
 from qiskit_experiments.library import QubitSpectroscopy
 from qiskit_experiments.calibration_management.calibrations import Calibrations
-from qiskit_experiments.calibration_management.update_library import (
-    Frequency,
-    FineDragUpdater,
-)
+from qiskit_experiments.calibration_management.update_library import Frequency
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
 
 
