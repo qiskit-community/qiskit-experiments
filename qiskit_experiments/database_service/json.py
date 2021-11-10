@@ -22,8 +22,9 @@ import warnings
 import io
 import base64
 import zlib
+import traceback
 from types import FunctionType, MethodType
-from typing import Any, Tuple, Dict, Type, Optional, Union, Callable
+from typing import Any, Dict, Type, Optional, Union, Callable
 
 import numpy as np
 import scipy.sparse as sps
@@ -34,6 +35,35 @@ from qiskit.result import Result
 from qiskit.quantum_info import DensityMatrix
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
 from qiskit_experiments.version import __version__
+
+
+def _show_warning(
+    msg: Optional[str] = None,
+    traceback_msg: Optional[str] = None,
+    version: Optional[str] = None,
+):
+    """Show warning for partial deserialization"""
+    warning_msg = "Returning partially deserialized value."
+    if msg:
+        warning_msg += f" {msg}"
+    if version is not None and version != __version__:
+        warning_msg += (
+            f" NOTE: serialized object version ({version}) differs from the current "
+            f" qiskit-experiments version ({__version__}."
+        )
+    if traceback_msg:
+        warning_msg += f"The following exception was raised:\n{traceback_msg}"
+    warnings.warn(warning_msg)
+
+
+def _deprecation_warning(name: str, version: str):
+    """Show warning for deprecated serialization"""
+    warnings.warn(
+        f"Derserializated data for <{name}> stored in a deprecated serialization format."
+        " Re-serialize or re-save the data to update the serialization format otherwise"
+        f" loading this data may fail in a qiskit-experiments version {version}",
+        DeprecationWarning,
+    )
 
 
 def _serialize_bytes(data: bytes, compress: bool = True) -> str:
@@ -64,12 +94,18 @@ def _deserialize_bytes(value: Dict) -> str:
     Returns:
         String representation.
     """
-    encoded = value["encoded"]
-    compressed = value["compressed"]
-    decoded = base64.standard_b64decode(encoded)
-    if compressed:
-        decoded = zlib.decompress(decoded)
-    return decoded
+    try:
+        encoded = value["encoded"]
+        compressed = value["compressed"]
+        decoded = base64.standard_b64decode(encoded)
+        if compressed:
+            decoded = zlib.decompress(decoded)
+        return decoded
+    except Exception as ex:  # pylint: disable=broad-except
+        warning_msg = "Could not deserialize binary encoded data."
+        traceback_msg = traceback.format_exception(type(ex), ex, ex.__traceback__)
+        _show_warning(warning_msg, traceback_msg=traceback_msg)
+        return value
 
 
 def _serialize_and_encode(
@@ -95,22 +131,29 @@ def _serialize_and_encode(
     return value
 
 
-def _decode_and_deserialize(value: Dict, deserializer: Callable) -> Any:
+def _decode_and_deserialize(value: Dict, deserializer: Callable, name: Optional[str] = None) -> Any:
     """Decode and deserialize input data.
 
     Args:
         value: The binary encoded serialized data value.
         deserializer: Function used to deserialize data.
+        name: Object type name for warning message if deserialization fails.
 
     Returns:
         Deserialized data.
     """
-    buff = io.BytesIO()
-    buff.write(value)
-    buff.seek(0)
-    orig = deserializer(buff)
-    buff.close()
-    return orig
+    try:
+        buff = io.BytesIO()
+        buff.write(value)
+        buff.seek(0)
+        orig = deserializer(buff)
+        buff.close()
+        return orig
+    except Exception as ex:  # pylint: disable=broad-except
+        warning_msg = f"Could not deserialize <{name}> data."
+        traceback_msg = traceback.format_exception(type(ex), ex, ex.__traceback__)
+        _show_warning(warning_msg, traceback_msg=traceback_msg)
+        return value
 
 
 def _serialize_safe_float(obj: any):
@@ -166,24 +209,11 @@ def _serialize_object(obj: Any, settings: Optional[Dict] = None, safe_float: boo
     return {"__type__": "object", "__value__": value}
 
 
-def _show_warning(warning_msg: Optional[str] = None, version: Optional[str] = None):
-    """Show warning for partial deserialization"""
-    if warning_msg is None:
-        return
-    if version is not None and version != __version__:
-        warning_msg += (
-            f" NOTE: serialized object version ({version}) differs from the current "
-            f" qiskit-experiments version ({__version__}."
-        )
-    warning_msg += " Returning partially deserialized value."
-    warnings.warn(warning_msg)
-
-
 def _deserialize_object(value: Dict) -> Any:
     """Deserialize class instance saved as settings"""
     name = value["name"]
     mod = value["module"]
-    version = value["version"]
+    version = value.get("version", None)
     settings = value.get("settings", {})
 
     cls = None
@@ -197,13 +227,15 @@ def _deserialize_object(value: Dict) -> Any:
                 break
 
     # Warning msg if deserialization fails
+    traceback_msg = None
     warning_msg = None
     if cls is None:
         warning_msg = f"Cannot deserialize {name}. The type could not be found in module {mod}"
     elif hasattr(cls, "__json_decode__"):
         try:
             return cls.__json_decode__(settings)
-        except Exception:  # pylint: disable=broad-except
+        except Exception as ex:  # pylint: disable=broad-except
+            traceback_msg = traceback.format_exception(type(ex), ex, ex.__traceback__)
             warning_msg = (
                 f"Could not deserialize instance of class {name} from value {settings} "
                 "using __json_decode__ method."
@@ -211,13 +243,14 @@ def _deserialize_object(value: Dict) -> Any:
     else:
         try:
             return cls(**settings)
-        except Exception:  # pylint: disable=broad-except
+        except Exception as ex:  # pylint: disable=broad-except
+            traceback_msg = traceback.format_exception(type(ex), ex, ex.__traceback__)
             warning_msg = (
                 f"Could not deserialize instance of class {name} from settings {settings}."
             )
 
     # Display warning msg if deserialization failed
-    _show_warning(warning_msg, version)
+    _show_warning(warning_msg, traceback_msg=traceback_msg, version=version)
 
     # Return partially deserialized value
     return value
@@ -240,68 +273,67 @@ def _serialize_type(type_name: Union[Type, FunctionType, MethodType]):
 
 def _deserialize_type(value: Dict):
     """Deserialize a type, function, or class method"""
-    version = value["version"]
-    qualname = value["name"].split(".", maxsplit=1)
-    if len(qualname) == 2:
-        method_cls, name = qualname
-    else:
-        method_cls = None
-        name = qualname[0]
-    mod = value["module"]
-
-    scope = None
-    if mod == "__main__":
-        if method_cls is None:
-            if name in globals():
-                return globals()[name]
+    traceback_msg = None
+    try:
+        version = value.get("version", None)
+        qualname = value["name"].split(".", maxsplit=1)
+        if len(qualname) == 2:
+            method_cls, name = qualname
         else:
-            scope = globals().get(method_cls, None)
-    else:
-        mod_scope = importlib.import_module(mod)
-        if method_cls is None:
-            scope = mod_scope
-        else:
-            for name_, obj in inspect.getmembers(mod_scope, inspect.isclass):
-                if name_ == method_cls:
-                    scope = obj
+            method_cls = None
+            name = qualname[0]
+        mod = value["module"]
 
-    if scope is not None:
-        for name_, obj in inspect.getmembers(scope, is_type):
-            if name_ == name:
-                return obj
+        scope = None
+        if mod == "__main__":
+            if method_cls is None:
+                if name in globals():
+                    return globals()[name]
+            else:
+                scope = globals().get(method_cls, None)
+        else:
+            mod_scope = importlib.import_module(mod)
+            if method_cls is None:
+                scope = mod_scope
+            else:
+                for name_, obj in inspect.getmembers(mod_scope, inspect.isclass):
+                    if name_ == method_cls:
+                        scope = obj
+
+        if scope is not None:
+            for name_, obj in inspect.getmembers(scope, is_type):
+                if name_ == name:
+                    return obj
+    except Exception as ex:  # pylint: disable=broad-except
+        traceback_msg = traceback.format_exception(type(ex), ex, ex.__traceback__)
 
     # Show warning
     warning_msg = f"Cannot deserialize {name}. The type could not be found in module {mod}"
-    _show_warning(warning_msg, version)
+    _show_warning(warning_msg, traceback_msg=traceback_msg, version=version)
 
     # Return partially deserialized value
     return value
 
 
-def _deserialize_object_legacy(mod_name: str, class_name: str, args: Tuple, kwargs: Dict) -> Any:
-    """Deserialize a class object from its init args and kwargs.
+def _deserialize_object_legacy(value: Dict) -> Any:
+    """Deserialize a class object from its init args and kwargs."""
+    try:
+        class_name = value["__name__"]
+        mod_name = value["__module__"]
+        args = value.get("__args__", tuple())
+        kwargs = value.get("__kwargs__", dict())
+        mod = importlib.import_module(mod_name)
+        for name, cls in inspect.getmembers(mod, inspect.isclass):
+            if name == class_name:
+                return cls(*args, **kwargs)
 
-    Args:
-        mod_name: Name of the module.
-        class_name: Name of the class.
-        args: args for class init method.
-        kwargs: kwargs for class init method.
+        raise Exception(f"Unable to find class {class_name} in module {mod_name}")
 
-    Returns:
-        Deserialized object.
-
-    Raises:
-        ValueError: If unable to find the class.
-    """
-    warnings.warn(
-        "This ExperimentData was serialized using a legacy format. "
-        "Consider re-saving data to update the serialization format."
-    )
-    mod = importlib.import_module(mod_name)
-    for name, cls in inspect.getmembers(mod, inspect.isclass):
-        if name == class_name:
-            return cls(*args, **kwargs)
-    raise ValueError(f"Unable to find class {class_name} in module {mod_name}")
+    except Exception as ex:  # pylint: disable=broad-except
+        traceback_msg = traceback.format_exception(type(ex), ex, ex.__traceback__)
+        warning_msg = f"Unable to initialize {class_name}."
+        _show_warning(warning_msg, traceback_msg=traceback_msg)
+        return value
 
 
 class ExperimentEncoder(json.JSONEncoder):
@@ -380,21 +412,19 @@ class ExperimentDecoder(json.JSONDecoder):
             if obj_type == "complex":
                 return obj_val[0] + 1j * obj_val[1]
             if obj_type == "ndarray":
-                return _decode_and_deserialize(obj_val, np.load)
+                return _decode_and_deserialize(obj_val, np.load, name=obj_type)
             if obj_type == "spmatrix":
-                return _decode_and_deserialize(obj_val, sps.load_npz)
+                return _decode_and_deserialize(obj_val, sps.load_npz, name=obj_type)
             if obj_type == "b64encoded":
                 return _deserialize_bytes(obj_val)
             if obj_type == "set":
                 return set(obj_val)
             if obj_type == "QuantumCircuit":
-                return _decode_and_deserialize(obj_val, qpy_serialization.load)[0]
+                return _decode_and_deserialize(obj_val, qpy_serialization.load, name=obj_type)[0]
             if obj_type == "ParameterExpression":
                 return _decode_and_deserialize(
-                    obj_val, qpy_serialization._read_parameter_expression
+                    obj_val, qpy_serialization._read_parameter_expression, name=obj_type
                 )
-            if obj_type == "Instruction":
-                return _decode_and_deserialize(obj_val, qpy_serialization._read_instruction)
             if obj_type == "Result":
                 return Result.from_dict(obj_val)
             if obj_type == "safe_float":
@@ -403,18 +433,18 @@ class ExperimentDecoder(json.JSONDecoder):
                 return _deserialize_object(obj_val)
             if obj_type == "type":
                 return _deserialize_type(obj_val)
-            # Legacy from 0.1: Should remove but saved results may not be able to be
-            # loaded
+
+            # Deprecated formats
             if obj_type == "array":
+                _deprecation_warning(obj_type, "0.3.0")
                 return np.array(obj_val)
             if obj_type == "function":
+                _deprecation_warning(obj_type, "0.3.0")
                 return obj_val
             if obj_type == "__object__":
-                class_name = obj_val["__name__"]
-                mod_name = obj_val["__module__"]
-                args = obj_val.get("__args__", tuple())
-                kwargs = obj_val.get("__kwargs__", dict())
-                return _deserialize_object_legacy(mod_name, class_name, args, kwargs)
+                _deprecation_warning(obj_type, "0.3.0")
+                return _deserialize_object_legacy(obj_val)
             if obj_type == "__class_name__":
+                _deprecation_warning(obj_type, "0.3.0")
                 return obj_val
         return obj
