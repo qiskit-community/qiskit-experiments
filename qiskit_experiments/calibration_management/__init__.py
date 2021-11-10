@@ -38,7 +38,6 @@ Classes
 
     BackendCalibrations
     Calibrations
-    Frequency
 
 Managing Calibration Data
 =========================
