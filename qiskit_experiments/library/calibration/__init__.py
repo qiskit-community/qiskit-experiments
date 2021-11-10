@@ -43,8 +43,8 @@ module.
     FrequencyCal
     RoughDragCal
     FineDragCal
-    FineXDrag
-    FineSXDrag
+    FineXDragCal
+    FineSXDragCal
     FineAmplitudeCal
     FineXAmplitudeCal
     FineSXAmplitudeCal
