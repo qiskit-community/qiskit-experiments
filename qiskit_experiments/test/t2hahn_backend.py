@@ -76,7 +76,7 @@ class T2HahnBackend(BackendV1):
         """Default options of the test backend."""
         return Options(shots=1024)
 
-    def _delay_gate(self, qubit_state, delay, t2hahn):
+    def _delay_gate(self, qubit_state: dict, delay: float, t2hahn: float) -> dict:
         if qubit_state["XY plain"]:
             prob_noise = 1 - (np.exp(-delay / t2hahn))
             if self._rng.random() < prob_noise:
@@ -94,8 +94,7 @@ class T2HahnBackend(BackendV1):
             new_qubit_state = qubit_state
         return new_qubit_state
 
-
-    def _rx_gate(self, qubit_state):
+    def _rx_gate(self, qubit_state: dict) -> dict:
         if qubit_state["XY plain"]:
             new_qubit_state = {"qubit state": 0, "XY plain": False,
                                "YZ plain": False, "Theta": np.pi - qubit_state["Theta"]}
@@ -107,7 +106,7 @@ class T2HahnBackend(BackendV1):
                                "YZ plain": False, "Theta": 0}
         return new_qubit_state
 
-    def _ry_gate(self, qubit_state):
+    def _ry_gate(self, qubit_state: dict) -> dict:
         if qubit_state["XY plain"]:
             if qubit_state["Theta"] == 0:
                 new_qubit_state = {"qubit state": 1, "XY plain": False,
@@ -129,7 +128,7 @@ class T2HahnBackend(BackendV1):
                                "YZ plain": False, "Theta": np.pi}
         return new_qubit_state
     
-    def _measurement_gate(self, qubit_state):
+    def _measurement_gate(self, qubit_state: dict) -> int:
         """
         implementing measurement on qubit with read-out error.
         Args:
