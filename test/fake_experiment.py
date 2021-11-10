@@ -12,10 +12,8 @@
 
 """A FakeExperiment for testing."""
 
-from qiskit.providers.options import Options
-
-from qiskit_experiments.framework import BaseExperiment
-from qiskit_experiments.framework import BaseAnalysis
+import numpy as np
+from qiskit_experiments.framework import BaseExperiment, BaseAnalysis, Options, AnalysisResultData
 
 
 class FakeAnalysis(BaseAnalysis):
@@ -24,7 +22,12 @@ class FakeAnalysis(BaseAnalysis):
     """
 
     def _run_analysis(self, experiment_data, **options):
-        return [], None
+        seed = options.get("seed", None)
+        rng = np.random.default_rng(seed=seed)
+        analysis_results = [
+            AnalysisResultData(f"result_{i}", value) for i, value in enumerate(rng.random(3))
+        ]
+        return analysis_results, None
 
 
 class FakeExperiment(BaseExperiment):
@@ -36,11 +39,12 @@ class FakeExperiment(BaseExperiment):
     def _default_experiment_options(cls) -> Options:
         return Options(dummyoption=None)
 
-    def __init__(self, qubit=0):
+    def __init__(self, qubits=None):
         """Initialise the fake experiment."""
-        self._type = None
-        super().__init__((qubit,), "fake_test_experiment")
+        if qubits is None:
+            qubits = [0]
+        super().__init__(qubits)
 
-    def circuits(self, backend=None):
+    def circuits(self):
         """Fake circuits."""
         return []

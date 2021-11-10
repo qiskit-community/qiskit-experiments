@@ -26,6 +26,7 @@ from qiskit.exceptions import QiskitError
 from qiskit.circuit.library import (
     XGate,
     CXGate,
+    TGate,
 )
 from qiskit_experiments.library import StandardRB, InterleavedRB
 
@@ -158,6 +159,14 @@ class TestStandardRB(QiskitTestCase):
                 seed=exp_data["seed"],
             )
 
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = StandardRB([0, 1], lengths=[10, 20, 30, 40], num_samples=10)
+        config = exp.config
+        loaded_exp = StandardRB.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)
+
 
 @ddt
 class TestInterleavedRB(TestStandardRB):
@@ -232,3 +241,24 @@ class TestInterleavedRB(TestStandardRB):
             self.assertEqual(c_int[int_idx + 3][0].name, interleaved_element.name)
             std_idx += 2
             int_idx += 4
+
+    def test_non_clifford_interleaved_element(self):
+        """Verifies trying to run interleaved RB with non Clifford element throws an exception"""
+        qubits = 1
+        lengths = [1, 4, 6, 9, 13, 16]
+        interleaved_element = TGate()  # T gate is not Clifford, this should fail
+        self.assertRaises(
+            QiskitError,
+            InterleavedRB,
+            interleaved_element,
+            qubits,
+            lengths,
+        )
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = InterleavedRB(CXGate(), [0, 1], lengths=[10, 20, 30, 40], num_samples=10)
+        config = exp.config
+        loaded_exp = InterleavedRB.from_config(config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertEqual(config, loaded_exp.config)

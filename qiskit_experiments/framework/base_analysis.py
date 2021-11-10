@@ -16,13 +16,11 @@ Base analysis class.
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 
-from qiskit.exceptions import QiskitError
-from qiskit.providers.options import Options
-
-from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.database_service import DbAnalysisResultV1
 from qiskit_experiments.database_service.device_component import Qubit
+from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.experiment_data import ExperimentData
+from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
+from qiskit_experiments.database_service import DbAnalysisResultV1
 
 
 class BaseAnalysis(ABC):
@@ -41,9 +39,6 @@ class BaseAnalysis(ABC):
     run method and passed to the `_run_analysis` function.
     """
 
-    # Expected experiment data container for analysis
-    __experiment_data__ = ExperimentData
-
     @classmethod
     def _default_options(cls) -> Options:
         return Options()
@@ -51,91 +46,101 @@ class BaseAnalysis(ABC):
     def run(
         self,
         experiment_data: ExperimentData,
-        save: bool = True,
-        return_figures: bool = False,
+        replace_results: bool = False,
         **options,
-    ):
+    ) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
 
         Args:
             experiment_data: the experiment data to analyze.
-            save: if True save analysis results and figures to the
-                  :class:`ExperimentData`.
-            return_figures: if true return a pair of
-                            ``(analysis_results, figures)``,
-                            otherwise return only analysis_results.
+            replace_results: if True clear any existing analysis results and
+                             figures in the experiment data and replace with
+                             new results. See note for additional information.
             options: additional analysis options. See class documentation for
                      supported options.
 
         Returns:
-            List[DbAnalysisResultV1]: the output for analysis that produces
-                                    multiple results.
-            Tuple: If ``return_figures=True`` the output is a pair
-                   ``(analysis_results, figures)`` where  ``analysis_results``
-                   may be a single or list of :class:`DbAnalysisResultV1` objects, and
-                   ``figures`` may be None, a single figure, or a list of figures.
+            An experiment data object containing the analysis results and figures.
 
         Raises:
             QiskitError: if experiment_data container is not valid for analysis.
+
+        .. note::
+            **Updating Results**
+
+            If analysis is run with ``replace_results=True`` then any analysis results
+            and figures in the experiment data will be cleared and replaced with the
+            new analysis results. Saving this experiment data will replace any
+            previously saved data in a database service using the same experiment ID.
+
+            If analysis is run with ``replace_results=False`` and the experiment data
+            being analyzed has already been saved to a database service, or already
+            contains analysis results or figures, a copy with a unique experiment ID
+            will be returned containing only the new analysis results and figures.
+            This data can then be saved as its own experiment to a database service.
         """
-        if not isinstance(experiment_data, self.__experiment_data__):
-            raise QiskitError(
-                f"Invalid experiment data type, expected {self.__experiment_data__.__name__}"
-                f" but received {type(experiment_data).__name__}"
-            )
+        # Make a new copy of experiment data if not updating results
+        if not replace_results and (
+            experiment_data._created_in_db
+            or experiment_data._analysis_results
+            or experiment_data._figures
+            or getattr(experiment_data, "_child_data", None)
+        ):
+            experiment_data = experiment_data.copy()
+
+        # Get experiment device components
+        if "physical_qubits" in experiment_data.metadata:
+            experiment_components = [
+                Qubit(qubit) for qubit in experiment_data.metadata["physical_qubits"]
+            ]
+        else:
+            experiment_components = []
+
         # Get analysis options
         analysis_options = self._default_options()
         analysis_options.update_options(**options)
         analysis_options = analysis_options.__dict__
 
-        # Run analysis
-        analysis_result_parameters = {
-            "result_type": experiment_data.experiment_type,
-            "experiment_id": experiment_data.experiment_id,
-        }
-        if "physical_qubits" in experiment_data.metadata():
-            analysis_result_parameters["device_components"] = [
-                Qubit(qubit) for qubit in experiment_data.metadata()["physical_qubits"]
-            ]
-        else:
-            analysis_result_parameters["device_components"] = []
-        try:
-            result_datum, figures = self._run_analysis(experiment_data, **analysis_options)
-            analysis_results = []
-            for res in result_datum:
-                if "success" not in res:
-                    res["success"] = True
-                analysis_result = DbAnalysisResultV1(result_data=res, **analysis_result_parameters)
-                if "chisq" in res:
-                    analysis_result.chisq = res["chisq"]
-                if "quality" in res:
-                    analysis_result.quality = res["quality"]
-                analysis_results.append(analysis_result)
-
-        except AnalysisError as ex:
+        def run_analysis(expdata):
+            results, figures = self._run_analysis(expdata, **analysis_options)
+            # Add components
             analysis_results = [
-                DbAnalysisResultV1(
-                    result_data={"success": False, "error_message": ex},
-                    **analysis_result_parameters,
-                )
+                self._format_analysis_result(result, expdata.experiment_id, experiment_components)
+                for result in results
             ]
-            figures = None
-
-        # Save to experiment data
-        if save:
-            experiment_data.add_analysis_results(analysis_results)
+            # Update experiment data with analysis results
+            experiment_data._clear_results()
+            if analysis_results:
+                expdata.add_analysis_results(analysis_results)
             if figures:
-                experiment_data.add_figures(figures)
+                expdata.add_figures(figures)
 
-        if return_figures:
-            return analysis_results, figures
+        experiment_data.add_analysis_callback(run_analysis)
 
-        return analysis_results
+        return experiment_data
+
+    def _format_analysis_result(self, data, experiment_id, experiment_components=None):
+        """Format run analysis result to DbAnalysisResult"""
+        device_components = []
+        if data.device_components:
+            device_components = data.device_components
+        elif experiment_components:
+            device_components = experiment_components
+
+        return DbAnalysisResultV1(
+            name=data.name,
+            value=data.value,
+            device_components=device_components,
+            experiment_id=experiment_id,
+            chisq=data.chisq,
+            quality=data.quality,
+            extra=data.extra,
+        )
 
     @abstractmethod
     def _run_analysis(
         self, experiment_data: ExperimentData, **options
-    ) -> Tuple[List["AnalysisResultData"], List["matplotlib.figure.Figure"]]:
+    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         """Run analysis on circuit data.
 
         Args:
@@ -146,7 +151,7 @@ class BaseAnalysis(ABC):
 
         Returns:
             A pair ``(analysis_results, figures)`` where ``analysis_results``
-            may be a single or list of AnalysisResultData objects, and ``figures``
+            is a list of :class:`AnalysisResultData` objects, and ``figures``
             is a list of any figures for the experiment.
 
         Raises:

@@ -14,7 +14,7 @@
 
 import numpy as np
 from qiskit.test import QiskitTestCase
-from qiskit import QuantumCircuit, execute
+from qiskit import QuantumCircuit, transpile
 from qiskit.providers.basicaer import QasmSimulatorPy
 from qiskit_experiments.curve_analysis import curve_fit, multi_curve_fit, process_curve_data
 from qiskit_experiments.curve_analysis.data_processing import (
@@ -37,7 +37,9 @@ class TestCurveFitting(QiskitTestCase):
             circuits.append(qc)
 
         sim = QasmSimulatorPy()
-        result = execute(circuits, sim, shots=shots, seed_simulator=10).result()
+        circuits = transpile(circuits, sim)
+        job = sim.run(circuits, shots=shots, seed_simulator=10)
+        result = job.result()
         data = [
             {"counts": result.get_counts(i), "metadata": {"xval": theta}}
             for i, theta in enumerate(thetas)
@@ -91,7 +93,7 @@ class TestCurveFitting(QiskitTestCase):
         p0 = [0.6]
         bounds = ([0], [2])
         sol = curve_fit(self.objective0, xdata, ydata, p0, sigma=sigma, bounds=bounds)
-        self.assertTrue(abs(sol["popt"][0] - 0.5) < 0.05)
+        self.assertTrue(abs(sol.popt[0] - 0.5) < 0.05)
 
     def test_multi_curve_fit(self):
         """Test multi_curve_fit function"""
@@ -111,14 +113,14 @@ class TestCurveFitting(QiskitTestCase):
         sol = multi_curve_fit(
             [self.objective0, self.objective1], series, xdata, ydata, p0, sigma=sigma, bounds=bounds
         )
-        self.assertTrue(abs(sol["popt"][0] - 0.5) < 0.05)
+        self.assertTrue(abs(sol.popt[0] - 0.5) < 0.05)
 
     def test_mean_xy_data(self):
         """Test mean_xy_data function"""
         # pylint: disable=unbalanced-tuple-unpacking
         x = np.array([1, 1, 1, 2, 2, 2, 2, 3, 3, 4, 5, 5, 5, 5])
         y = np.array([1, 2, 3, 8, 10, 50, 60, 10, 11, 17, 10, 10, 10, 10])
-        x_mean, y_mean, y_sigma = mean_xy_data(x, y, method="sample")
+        x_mean, y_mean, y_sigma, _ = mean_xy_data(x, y, method="sample")
 
         expected_x_mean = np.array([1, 2, 3, 4, 5])
         expected_y_mean = np.array([2, 32, 10.5, 17, 10])
@@ -128,17 +130,28 @@ class TestCurveFitting(QiskitTestCase):
         self.assertTrue(np.allclose(expected_y_sigma, y_sigma))
 
         sigma = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
-        x_mean, y_mean, y_sigma = mean_xy_data(x, y, sigma, method="iwv")
+        x_mean, y_mean, y_sigma, _ = mean_xy_data(x, y, sigma, method="iwv")
         expected_y_mean = np.array([1.34693878, 23.31590234, 10.44137931, 17.0, 10.0])
         expected_y_sigma = np.array([0.85714286, 2.57610543, 5.97927455, 10.0, 6.17470935])
         self.assertTrue(np.allclose(expected_x_mean, x_mean))
         self.assertTrue(np.allclose(expected_y_mean, y_mean))
         self.assertTrue(np.allclose(expected_y_sigma, y_sigma))
 
+        sigma = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
+        shots = np.array([10, 20, 10, 30, 20, 10, 40, 10, 10, 20, 30, 20, 30, 10])
+        x_mean, y_mean, y_sigma, y_shots = mean_xy_data(x, y, sigma, shots, method="shots_weighted")
+        expected_y_mean = np.array([2.0, 33.4, 10.5, 17.0, 10.0])
+        expected_y_sigma = np.array([1.27475488, 3.26190129, 6.02079729, 10.0, 6.46166282])
+        expected_y_shots = np.array([40, 100, 20, 20, 90])
+        self.assertTrue(np.allclose(expected_x_mean, x_mean))
+        self.assertTrue(np.allclose(expected_y_mean, y_mean))
+        self.assertTrue(np.allclose(expected_y_sigma, y_sigma))
+        self.assertTrue(np.allclose(expected_y_shots, y_shots))
+
         x = np.array([1, 1, 1, 1, 2, 2, 2, 2])
         y = np.array([2, 6, 100, 200, 17, 50, 60, 70])
         series = np.array([0, 0, 1, 1, 0, 1, 1, 1])
-        series, x_mean, y_mean, y_sigma = multi_mean_xy_data(series, x, y, method="sample")
+        series, x_mean, y_mean, y_sigma, _ = multi_mean_xy_data(series, x, y, method="sample")
         expected_x_mean = np.array([1, 2, 1, 2])
         expected_y_mean = np.array([4, 17, 150, 60])
         expected_y_sigma = np.sqrt(np.array([4.0, 0.0, 2500.0, 66.66666667]))

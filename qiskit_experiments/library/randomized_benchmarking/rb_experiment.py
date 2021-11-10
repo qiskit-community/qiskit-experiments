@@ -12,28 +12,28 @@
 """
 Standard RB Experiment class.
 """
-from typing import Union, Iterable, Optional, List
+from typing import Union, Iterable, Optional, List, Sequence
 
 import numpy as np
 from numpy.random import Generator, default_rng
 
 from qiskit import QuantumCircuit, QiskitError
-from qiskit.providers import Backend
 from qiskit.quantum_info import Clifford
-from qiskit.providers.options import Options
 from qiskit.circuit import Gate
+from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import BaseExperiment, ParallelExperiment
-from qiskit_experiments.curve_analysis.data_processing import probability
+import qiskit_experiments.data_processing as dp
+from qiskit_experiments.framework import BaseExperiment, ParallelExperiment, Options, fix_class_docs
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
 from .rb_utils import RBUtils
 
 
+@fix_class_docs
 class StandardRB(BaseExperiment):
-    """Standard Randomized Benchmarking Experiment class.
+    """Standard randomized benchmarking experiment.
 
-    Overview
+    # section: overview
         Randomized Benchmarking (RB) is an efficient and robust method
         for estimating the average error-rate of a set of quantum gate operations.
         See `Qiskit Textbook
@@ -44,38 +44,17 @@ class StandardRB(BaseExperiment):
         such that the unitary computed by the sequences is the identity.
         After running the sequences on a backend, it calculates the probabilities to get back to
         the ground state, fits an exponentially decaying curve, and estimates
-        the Error Per Clifford (EPC), as described in Ref. [1, 2].
-
-        See :class:`RBAnalysis` documentation for additional
-        information on RB experiment analysis.
+        the Error Per Clifford (EPC), as described in Refs. [1, 2].
 
         See :class:`RBUtils` documentation for additional information
         on estimating the Error Per Gate (EPG) for 1-qubit and 2-qubit gates,
         from 1-qubit and 2-qubit standard RB experiments, by Ref. [3].
 
-    References
-        1. Easwar Magesan, J. M. Gambetta, and Joseph Emerson,
-           Robust randomized benchmarking of quantum processes,
-           `arXiv:quant-ph/1009.3639 <https://arxiv.org/pdf/1009.3639>`_
-        2. Easwar Magesan, Jay M. Gambetta, and Joseph Emerson,
-           Characterizing Quantum Gates via Randomized Benchmarking,
-           `arXiv:quant-ph/1009.6887 <https://arxiv.org/pdf/1109.6887>`_
-        3. David C. McKay, Sarah Sheldon, John A. Smolin, Jerry M. Chow, and Jay M. Gambetta,
-           Three Qubit Randomized Benchmarking, `arXiv:quant-ph/1712.06550
-           <https://arxiv.org/pdf/1712.06550>`_
+    # section: reference
+        .. ref_arxiv:: 1 1009.3639
+        .. ref_arxiv:: 2 1109.6887
+        .. ref_arxiv:: 3 1712.06550
 
-    Analysis Class
-        :class:`RBAnalysis`
-
-    Experiment Options
-        - **lengths**: A list of RB sequences lengths.
-        - **num_samples**: Number of samples to generate for each sequence length.
-
-    Analysis Options
-        - **error_dict**: Optional. Error estimates for gates from the backend properties.
-        - **epg_1_qubit**: Optional. EPG data for the 1-qubit gate involved, assumed to
-          have been obtained from previous experiments. This is used to estimate the 2-qubit EPG.
-        - **gate_error_ratio**: An estimate for the ratios between errors on different gates.
     """
 
     # Analysis class for experiment
@@ -83,8 +62,9 @@ class StandardRB(BaseExperiment):
 
     def __init__(
         self,
-        qubits: Union[int, Iterable[int]],
+        qubits: Sequence[int],
         lengths: Iterable[int],
+        backend: Optional[Backend] = None,
         num_samples: int = 3,
         seed: Optional[Union[int, Generator]] = None,
         full_sampling: Optional[bool] = False,
@@ -92,9 +72,9 @@ class StandardRB(BaseExperiment):
         """Initialize a standard randomized benchmarking experiment.
 
         Args:
-            qubits: The number of qubits or list of
-                    physical qubits for the experiment.
+            qubits: list of physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
+            backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each sequence length.
             seed: Seed or generator object for random number
                   generation. If None default_rng will be used.
@@ -105,12 +85,17 @@ class StandardRB(BaseExperiment):
                            The default is False.
         """
         # Initialize base experiment
-        super().__init__(qubits)
+        super().__init__(qubits, backend=backend)
         self._verify_parameters(lengths, num_samples)
 
         # Set configurable options
         self.set_experiment_options(lengths=list(lengths), num_samples=num_samples)
-        self.set_analysis_options(data_processor=probability(outcome="0" * self.num_qubits))
+        self.set_analysis_options(
+            data_processor=dp.DataProcessor(
+                input_key="counts",
+                data_actions=[dp.Probability(outcome="0" * self.num_qubits)],
+            )
+        )
 
         # Set fixed options
         self._full_sampling = full_sampling
@@ -135,14 +120,24 @@ class StandardRB(BaseExperiment):
             raise QiskitError(f"The number of samples {num_samples} should " "be positive.")
 
     @classmethod
-    def _default_experiment_options(cls):
-        return Options(lengths=None, num_samples=None)
+    def _default_experiment_options(cls) -> Options:
+        """Default experiment options.
 
-    # pylint: disable = arguments-differ
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+        Experiment Options:
+            lengths (List[int]): A list of RB sequences lengths.
+            num_samples (int): Number of samples to generate for each sequence length.
+
+        """
+        options = super()._default_experiment_options()
+
+        options.lengths = None
+        options.num_samples = None
+
+        return options
+
+    def circuits(self) -> List[QuantumCircuit]:
         """Return a list of RB circuits.
-        Args:
-            backend (Backend): Optional, a backend object.
+
         Returns:
             A list of :class:`QuantumCircuit`.
         """
@@ -196,10 +191,16 @@ class StandardRB(BaseExperiment):
         circ_op = Clifford(np.eye(2 * self.num_qubits))
 
         for current_length, group_elt_circ in enumerate(elements):
-            group_elt_gate = group_elt_circ
+            if isinstance(group_elt_circ, tuple):
+                group_elt_gate = group_elt_circ[0]
+                group_elt_op = group_elt_circ[1]
+            else:
+                group_elt_gate = group_elt_circ
+                group_elt_op = Clifford(group_elt_circ)
+
             if not isinstance(group_elt_gate, Gate):
                 group_elt_gate = group_elt_gate.to_gate()
-            circ_op = circ_op.compose(Clifford(group_elt_circ))
+            circ_op = circ_op.compose(group_elt_op)
             for circ in circs:
                 circ.append(group_elt_gate, qubits)
                 circ.barrier(qubits)
@@ -228,7 +229,7 @@ class StandardRB(BaseExperiment):
                     return meta
         return None
 
-    def _postprocess_transpiled_circuits(self, circuits, backend, **run_options):
+    def _postprocess_transpiled_circuits(self, circuits, **run_options):
         """Additional post-processing of transpiled circuits before running on backend"""
         for c in circuits:
             meta = self._get_circuit_metadata(c)

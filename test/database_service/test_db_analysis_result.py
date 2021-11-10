@@ -17,6 +17,7 @@
 from unittest import mock
 import json
 
+import math
 import numpy as np
 
 from qiskit.test import QiskitTestCase
@@ -32,16 +33,16 @@ class TestDbAnalysisResult(QiskitTestCase):
     def test_analysis_result_attributes(self):
         """Test analysis result attributes."""
         attrs = {
-            "result_type": "my_type",
+            "name": "my_type",
             "device_components": [Qubit(1), Qubit(2)],
             "experiment_id": "1234",
             "result_id": "5678",
             "quality": "Good",
             "verified": False,
         }
-        result = DbAnalysisResult(result_data={"foo": "bar"}, tags=["tag1", "tag2"], **attrs)
-        self.assertEqual({"foo": "bar"}, result.data())
-        self.assertEqual(["tag1", "tag2"], result.tags())
+        result = DbAnalysisResult(value={"foo": "bar"}, tags=["tag1", "tag2"], **attrs)
+        self.assertEqual({"foo": "bar"}, result.value)
+        self.assertEqual(["tag1", "tag2"], result.tags)
         for key, val in attrs.items():
             self.assertEqual(val, getattr(result, key))
 
@@ -61,8 +62,8 @@ class TestDbAnalysisResult(QiskitTestCase):
 
         subtests = [
             # update function, update parameters, service called
-            (result.set_tags, (["foo"],)),
-            (result.set_data, ({"foo": "bar"},)),
+            (setattr, (result, "tags", ["foo"])),
+            (setattr, (result, "value", {"foo": "bar"})),
             (setattr, (result, "quality", "GOOD")),
             (setattr, (result, "verified", True)),
         ]
@@ -92,14 +93,14 @@ class TestDbAnalysisResult(QiskitTestCase):
     def test_set_data(self):
         """Test setting data."""
         result = self._new_analysis_result()
-        result.set_data({"foo": "new data"})
-        self.assertEqual({"foo": "new data"}, result.data())
+        result.value = {"foo": "new data"}
+        self.assertEqual({"foo": "new data"}, result.value)
 
     def test_set_tags(self):
         """Test setting tags."""
         result = self._new_analysis_result()
-        result.set_tags(["new_tag"])
-        self.assertEqual(["new_tag"], result.tags())
+        result.tags = ["new_tag"]
+        self.assertEqual(["new_tag"], result.tags)
 
     def test_update_quality(self):
         """Test updating quality."""
@@ -113,15 +114,10 @@ class TestDbAnalysisResult(QiskitTestCase):
         result.verified = True
         self.assertTrue(result.verified)
 
-    def test_additional_attr(self):
-        """Test additional attributes."""
-        result = self._new_analysis_result(foo="bar")
-        self.assertEqual("bar", result.foo)
-
     def test_data_serialization(self):
         """Test result data serialization."""
-        result = self._new_analysis_result(result_data={"complex": 2 + 3j, "numpy": np.zeros(2)})
-        serialized = json.dumps(result._result_data, cls=result._json_encoder)
+        result = self._new_analysis_result(value={"complex": 2 + 3j, "numpy": np.zeros(2)})
+        serialized = json.dumps(result._value, cls=result._json_encoder)
         self.assertIsInstance(serialized, str)
         self.assertTrue(json.loads(serialized))
 
@@ -131,11 +127,35 @@ class TestDbAnalysisResult(QiskitTestCase):
         self.assertIn("DbAnalysisResultV1", result.source["class"])
         self.assertTrue(result.source["qiskit_version"])
 
+    def test_display_format_inf(self):
+        """Test conversion of inf for display value"""
+        self.assertEqual(DbAnalysisResult._display_format(np.inf), "Infinity")
+        self.assertEqual(DbAnalysisResult._display_format(-np.inf), "-Infinity")
+        self.assertEqual(DbAnalysisResult._display_format(np.nan), "NaN")
+        self.assertEqual(DbAnalysisResult._display_format(math.inf), "Infinity")
+        self.assertEqual(DbAnalysisResult._display_format(-math.inf), "-Infinity")
+        self.assertEqual(DbAnalysisResult._display_format(math.nan), "NaN")
+
+    def test_display_format_complex(self):
+        """Test conversion of db displays"""
+        value = DbAnalysisResult._display_format(1e-10j)
+        self.assertIsInstance(value, str)
+
+    def test_display_format_list(self):
+        """Test conversion of db displays"""
+        value = DbAnalysisResult._display_format(list(range(5)))
+        self.assertEqual(value, "(list)")
+
+    def test_display_format_array(self):
+        """Test conversion of db displays"""
+        value = DbAnalysisResult._display_format(np.arange(5))
+        self.assertEqual(value, "(ndarray)")
+
     def _new_analysis_result(self, **kwargs):
         """Return a new analysis result."""
         values = {
-            "result_data": {"foo": "bar"},
-            "result_type": "some_type",
+            "name": "some_type",
+            "value": {"foo": "bar"},
             "device_components": ["Q1", "Q2"],
             "experiment_id": "1234",
         }

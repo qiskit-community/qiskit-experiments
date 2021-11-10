@@ -21,10 +21,21 @@ Experiments
 ===========
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
     T1
     T2Ramsey
     QubitSpectroscopy
+    CrossResonanceHamiltonian
+    EchoedCrossResonanceHamiltonian
+    Rabi
+    EFRabi
+    HalfAngle
+    FineAmplitude
+    FineXAmplitude
+    FineSXAmplitude
+    RamseyXY
+    RoughDrag
 
 
 Analysis
@@ -32,15 +43,24 @@ Analysis
 
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/analysis.rst
 
     T1Analysis
     T2RamseyAnalysis
-    ResonanceAnalysis
+    CrossResonanceHamiltonianAnalysis
+
 """
+
 from .t1 import T1
 from .t1_analysis import T1Analysis
 from .qubit_spectroscopy import QubitSpectroscopy
-from .resonance_analysis import ResonanceAnalysis
 from .ef_spectroscopy import EFSpectroscopy
 from .t2ramsey import T2Ramsey
 from .t2ramsey_analysis import T2RamseyAnalysis
+from .cr_hamiltonian import CrossResonanceHamiltonian, EchoedCrossResonanceHamiltonian
+from .cr_hamiltonian_analysis import CrossResonanceHamiltonianAnalysis
+from .rabi import Rabi, EFRabi
+from .half_angle import HalfAngle
+from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
+from .ramsey_xy import RamseyXY
+from .drag import RoughDrag

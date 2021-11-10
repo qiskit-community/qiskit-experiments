@@ -37,21 +37,31 @@ module.
 
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
-    DragCal
-    Rabi
-    FineAmplitude
-    FineXAmplitude
-    FineSXAmplitude
+    RoughFrequencyCal
+    FrequencyCal
+    RoughDragCal
+    FineDrag
+    FineXDrag
+    FineSXDrag
+    FineAmplitudeCal
+    FineXAmplitudeCal
+    FineSXAmplitudeCal
+    RoughAmplitudeCal
+    RoughXSXAmplitudeCal
+    EFRoughXSXAmplitudeCal
 
 Calibration analysis
 ====================
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/analysis.rst
 
-    OscillationAnalysis
     DragCalAnalysis
+    FineDragAnalysis
     FineAmplitudeAnalysis
+    RamseyXYAnalysis
 
 Calibrations management
 =======================
@@ -59,10 +69,14 @@ Calibrations management
 See :mod:`qiskit_experiments.calibration_management`.
 """
 
-from .drag import DragCal
-from .rabi import Rabi, EFRabi
-from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
+from .rough_frequency import RoughFrequencyCal
+from .rough_drag_cal import RoughDragCal
+from .fine_drag import FineDrag, FineXDrag, FineSXDrag
+from .rough_amplitude_cal import RoughAmplitudeCal, RoughXSXAmplitudeCal, EFRoughXSXAmplitudeCal
+from .fine_amplitude import FineAmplitudeCal, FineXAmplitudeCal, FineSXAmplitudeCal
+from .frequency_cal import FrequencyCal
 
-from .analysis.oscillation_analysis import OscillationAnalysis
 from .analysis.drag_analysis import DragCalAnalysis
+from .analysis.fine_drag_analysis import FineDragAnalysis
 from .analysis.fine_amplitude_analysis import FineAmplitudeAnalysis
+from .analysis.remsey_xy_analysis import RamseyXYAnalysis
