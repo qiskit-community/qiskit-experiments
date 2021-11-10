@@ -20,7 +20,7 @@ from qiskit.providers.backend import Backend
 from qiskit.circuit import Parameter, QuantumCircuit
 from qiskit.pulse import ScheduleBlock
 
-from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
+from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.framework.base_experiment import BaseExperiment
 from qiskit_experiments.framework.experiment_data import ExperimentData
@@ -103,7 +103,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     # pylint: disable=super-init-not-called
     def __init__(
         self,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         *args,
         schedule_name: Optional[str] = None,
         cal_parameter_name: Optional[str] = None,
@@ -135,7 +135,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         self.auto_update = auto_update
 
     @property
-    def calibrations(self) -> BackendCalibrations:
+    def calibrations(self) -> Calibrations:
         """Return the calibrations."""
         return self._cals
 
@@ -147,18 +147,12 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             result_index (int): The index of the result from which to update the calibrations.
             group (str): The calibration group to which the parameter belongs. This will default
                 to the value "default".
-            save_all_parameter_values (bool): If set to False (the default) then only the
-                calibration parameters for the physical qubits (including default values) and the
-                instructions relevant to the experiment will be saved in the experiment metadata.
-                If this option is set to True then all the values of the parameters in the
-                calibrations will be saved to the metadata, potentially resulting in large
-                metadata volumes.
+
         """
         options = super()._default_experiment_options()
 
         options.result_index = -1
         options.group = "default"
-        options.save_all_parameter_values = False
 
         return options
 
@@ -379,16 +373,6 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         """
         pass
 
-    def _circuit_instructions(self) -> List[str]:
-        """Return a list of circuit instructions used."""
-
-        instruction_names = set()
-        for circuit in self.circuits():
-            for inst in circuit.data:
-                instruction_names.add(inst[0].name)
-
-        return list(instruction_names)
-
     def run(
         self,
         backend: Optional[Backend] = None,
@@ -409,25 +393,6 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         """
         experiment_data = super().run(backend, analysis, **run_options)
 
-        # Update the metadata in the experiment data for saving
-        if self.experiment_options.save_all_parameter_values:
-            parameter_values = self._cals.parameters_table()["data"]
-        else:
-            parameter_values = self._cals.parameters_table(
-                qubit_list=[self.physical_qubits, tuple()],
-                schedules=self._circuit_instructions(),
-            )["data"]
-
-        cal_metadata = {
-            "library": self._cals.library.__class__.__name__,
-            "basis gates": self._cals.library.basis_gates,
-            "default values": self._cals.library.init_default_values,
-            "calibration parameters": parameter_values,
-            "backend name": self._cals.backend.name(),
-        }
-        experiment_data.metadata["calibrations"] = cal_metadata
-
-        # Add the update callback
         if self.auto_update and analysis:
             experiment_data.add_analysis_callback(self.update_calibrations)
 

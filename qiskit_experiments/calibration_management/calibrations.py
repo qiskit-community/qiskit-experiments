@@ -36,7 +36,6 @@ from qiskit.pulse import (
 from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter, ParameterExpression
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.calibration_key_types import (
     ParameterKey,
@@ -93,12 +92,6 @@ class Calibrations:
         # indices to the user.
         self._hash_to_counter_map = {}
         self._parameter_counter = 0
-        self._library = None
-
-    @property
-    def library(self) -> Optional[BasisGateLibrary]:
-        """Return the name of the library, e.g. for experiment metadata."""
-        return self._library
 
     def add_schedule(
         self,
@@ -1038,7 +1031,12 @@ class Calibrations:
                     dict_writer.writerows(values)
 
             # Serialize the schedules. For now we just print them.
-            header_keys, schedules = self.schedule_information()
+            schedules = []
+            header_keys = ["name", "qubits", "schedule"]
+            for key, sched in self._schedules.items():
+                schedules.append(
+                    {"name": key.schedule, "qubits": key.qubits, "schedule": str(sched)}
+                )
 
             with open(schedule_file, "w", newline="", encoding="utf-8") as output_file:
                 dict_writer = csv.DictWriter(output_file, header_keys)
@@ -1049,24 +1047,6 @@ class Calibrations:
             raise CalibrationError(f"Saving to .{file_type} is not yet supported.")
 
         os.chdir(cwd)
-
-    def schedule_information(self) -> Tuple[List[str], List[Dict]]:
-        """Get the information on the schedules stored in the calibrations.
-
-        This function serializes the schedule by simply printing them.
-
-        Returns:
-            A tuple, the first element is the header row while the second is a dictionary
-            of the schedules in the calibrations where the key is an element of the header
-            and the values are the name of the schedule, the qubits to which it applies,
-            a string of the schedule.
-        """
-        # Serialize the schedules. For now we just print them.
-        schedules = []
-        for key, sched in self._schedules.items():
-            schedules.append({"name": key.schedule, "qubits": key.qubits, "schedule": str(sched)})
-
-        return ["name", "qubits", "schedule"], schedules
 
     def load_parameter_values(self, file_name: str = "parameter_values.csv"):
         """
