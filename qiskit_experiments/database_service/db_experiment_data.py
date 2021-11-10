@@ -29,6 +29,7 @@ from matplotlib import pyplot
 from qiskit.providers import Job, BaseJob, Backend, BaseBackend, Provider
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
+from qiskit.tools.monitor import job_monitor
 
 from .database_service import DatabaseServiceV1
 from .exceptions import DbExperimentDataError, DbExperimentEntryNotFound, DbExperimentEntryExists
@@ -1396,6 +1397,11 @@ class DbExperimentDataV1(DbExperimentData):
     def source(self) -> Dict:
         """Return the class name and version."""
         return self._source
+
+    def job_monitor(self):
+        for jobs, _ in self._job_futures:
+            for job in jobs["jobs"]:
+                return job_monitor(job)
 
     def __repr__(self):
         out = f"{type(self).__name__}({self.experiment_type}"
