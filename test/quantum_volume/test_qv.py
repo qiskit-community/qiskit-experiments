@@ -21,7 +21,7 @@ from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit import Aer
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.library import QuantumVolume
-from qiskit_experiments.database_service.json import ExperimentDecoder
+from qiskit_experiments.framework import ExperimentDecoder
 
 SEED = 42
 

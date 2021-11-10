@@ -18,7 +18,7 @@ import json
 import numpy as np
 
 from qiskit.test import QiskitTestCase
-from qiskit_experiments.database_service.json import ExperimentDecoder, ExperimentEncoder
+from qiskit_experiments.framework import ExperimentDecoder, ExperimentEncoder
 
 
 class QiskitExperimentsTestCase(QiskitTestCase):

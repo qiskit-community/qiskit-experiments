@@ -209,6 +209,8 @@ Experiment Data Classes
     FitVal
     AnalysisResultData
     ExperimentConfig
+    ExperimentEncoder
+    ExperimentDecoder
 
 .. _composite-experiment:
 
@@ -244,3 +246,4 @@ from .composite import (
     BatchExperiment,
     CompositeAnalysis,
 )
+from .json import ExperimentEncoder, ExperimentDecoder

@@ -18,8 +18,12 @@ import uuid
 import copy
 import math
 
+from qiskit_experiments.framework.json import (
+    ExperimentEncoder,
+    ExperimentDecoder,
+    _serialize_safe_float,
+)
 from .database_service import DatabaseServiceV1
-from .json import ExperimentEncoder, ExperimentDecoder, _serialize_safe_float
 from .utils import save_data, qiskit_version
 from .exceptions import DbExperimentDataError
 from .device_component import DeviceComponent, to_component

@@ -24,7 +24,7 @@ from qiskit.providers.aer.noise.errors.standard_errors import (
 from qiskit.providers.aer.noise.errors import readout_error
 from qiskit import Aer
 from qiskit_experiments.library import QuantumVolume
-from qiskit_experiments.database_service.json import ExperimentEncoder
+from qiskit_experiments.framework import ExperimentEncoder
 
 SEED = 42
 
