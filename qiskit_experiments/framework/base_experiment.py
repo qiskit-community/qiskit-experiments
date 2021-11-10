@@ -16,7 +16,6 @@ Base Experiment class.
 from abc import ABC, abstractmethod
 import copy
 import dataclasses
-from functools import wraps
 from collections import OrderedDict
 from typing import Sequence, Optional, Tuple, List, Dict, Union, Any
 
@@ -513,20 +512,3 @@ class BaseExperiment(ABC, Settings):
                 "run_options": copy.copy(run_options),
             }
         ]
-
-
-def fix_class_docs(wrapped_cls):
-    """Experiment class decorator to fix class doc formatting.
-
-    This fixes the BaseExperiment subclass documentation so that
-    the correct init arg and kwargs are shown for the class documentation,
-    rather than the generic args of the BaseExperiment.__new__ method.
-    """
-
-    @wraps(wrapped_cls.__init__, assigned=("__annotations__",))
-    def __new__(cls, *args, **kwargs):
-        return super(wrapped_cls, cls).__new__(cls, *args, **kwargs)
-
-    wrapped_cls.__new__ = __new__
-
-    return wrapped_cls

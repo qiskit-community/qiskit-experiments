@@ -21,12 +21,11 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 from qiskit.pulse import ScheduleBlock
 
-from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
+from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.library.characterization.analysis import DragCalAnalysis
 
 
-@fix_class_docs
 class RoughDrag(BaseExperiment):
     r"""An experiment that scans the DRAG parameter to find the optimal value.
 
