@@ -92,6 +92,8 @@ See :doc:`/tutorials/calibrating_armonk` for example.
 
     ~calibration.RoughFrequencyCal
     ~calibration.RoughDragCal
+    ~calibration.FineXDragCal
+    ~calibration.FineSXDragCal
     ~calibration.FineDragCal
     ~calibration.FineAmplitudeCal
     ~calibration.FineXAmplitudeCal
@@ -104,6 +106,8 @@ See :doc:`/tutorials/calibrating_armonk` for example.
 from .calibration import (
     RoughDragCal,
     FineDragCal,
+    FineXDragCal,
+    FineSXDragCal,
     RoughAmplitudeCal,
     RoughXSXAmplitudeCal,
     EFRoughXSXAmplitudeCal,
