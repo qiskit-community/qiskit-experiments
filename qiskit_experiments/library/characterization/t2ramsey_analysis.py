@@ -46,17 +46,6 @@ class T2RamseyAnalysis(curve.DumpedOscillationAnalysis):
 
         return options
 
-    def _generate_fit_guesses(
-        self, user_opt: curve.FitOptions
-    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
-        """Apply conversion factor to tau."""
-        conversion_factor = self._experiment_options()["conversion_factor"]
-
-        if user_opt.p0["tau"] is not None:
-            user_opt.p0["tau"] *= conversion_factor
-
-        return super()._generate_fit_guesses(user_opt)
-
     def _evaluate_quality(self, fit_data: curve.FitData) -> Union[str, None]:
         """Algorithmic criteria for whether the fit is good or bad.
 
