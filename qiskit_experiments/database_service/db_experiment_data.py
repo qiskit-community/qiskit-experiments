@@ -12,6 +12,8 @@
 
 """Stored data class."""
 
+import sys
+import time
 import logging
 import dataclasses
 import threading
@@ -969,6 +971,51 @@ class DbExperimentDataV1(DbExperimentData):
                 "Possibly incomplete analysis results: an analysis callback raised an error."
             )
 
+    def monitor(self, interval=2, output=sys.stdout, line_discipline="\r"):
+        """Monitors the status of the experiment and outputs experiment statuses.
+
+        The possible statuses are:
+
+                * ERROR - if any job incurred an error.
+                * CANCELLED - if any job is cancelled.
+                * RUNNING - if any job is still running.
+                * QUEUED - if any job is queued.
+                * VALIDATING - if any job is being validated.
+                * INITIALIZING - if any job is being initialized.
+                * POST_PROCESSING - if any analysis callbacks are still running
+                * DONE - if all jobs and analysis callbacks are finished.
+
+        Args:
+            interval (int): The interval in seconds at which to update status, default 2.
+            output (file): What object to write the output to, default stdout.
+
+        Returns:
+            Live updated status.
+        """
+        msg = self.status()
+        prev_msg = msg
+        msg_len = len(msg)
+
+        print("{}{}: {}".format(line_discipline, "Experiment Status", msg), end="", file=output)
+        while self.status() not in ["DONE", "CANCELLED", "ERROR"]:
+            time.sleep(interval)
+            msg = self.status()
+
+            # Adjust length of message so there are no artifacts
+            if len(msg) < msg_len:
+                msg += " " * (msg_len - len(msg))
+            elif len(msg) > msg_len:
+                msg_len = len(msg)
+
+            if msg != prev_msg:
+                print(
+                    "{}{}: {}".format(line_discipline, "Experiment Status", msg),
+                    end="",
+                    file=output,
+                )
+                prev_msg = msg
+        print("", file=output)
+
     def status(self) -> str:
         """Return the data processing status.
 
@@ -1397,11 +1444,6 @@ class DbExperimentDataV1(DbExperimentData):
     def source(self) -> Dict:
         """Return the class name and version."""
         return self._source
-
-    def job_monitor(self):
-        for jobs, _ in self._job_futures:
-            for job in jobs["jobs"]:
-                return job_monitor(job)
 
     def __repr__(self):
         out = f"{type(self).__name__}({self.experiment_type}"
