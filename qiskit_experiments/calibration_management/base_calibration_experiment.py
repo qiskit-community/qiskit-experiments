@@ -13,11 +13,11 @@
 """Base class for calibration-type experiments."""
 
 from abc import ABC
-from typing import Dict, List, Optional, Tuple, Type
+from typing import Dict, Optional, Tuple, Type
 import warnings
 
 from qiskit.providers.backend import Backend
-from qiskit.circuit import Parameter, QuantumCircuit
+from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
