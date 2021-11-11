@@ -1384,7 +1384,7 @@ class TestSavingAndLoading(CrossResonanceTest):
 class TestSerialization(QiskitTestCase):
     """Test that we can serialize calibrations."""
 
-    def test_no_new_parameter_serialization(self):
+    def test_simple_serialization(self):
         """Test that we can serialize simply initialized cals."""
 
         cals1 = Calibrations(library=FixedFrequencyTransmon())

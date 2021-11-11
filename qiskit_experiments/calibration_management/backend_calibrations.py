@@ -16,17 +16,14 @@ from collections import defaultdict
 from datetime import datetime
 from enum import Enum
 from typing import Dict, List, Optional, Tuple, Union
-from warnings import warn
 import copy
-import dataclasses
+from warnings import warn
 
 from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Parameter
 from qiskit.pulse import InstructionScheduleMap, ScheduleBlock
 
-import qiskit_experiments
-from qiskit_experiments.database_service.json import deserialize_object
-from qiskit_experiments.framework import ExperimentData
+from qiskit_experiments.database_service.json import serialize_object, deserialize_object
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.calibrations import (
     Calibrations,
@@ -61,7 +58,7 @@ class BackendCalibrations(Calibrations):
         self,
         backend: Backend,
         library: BasisGateLibrary = None,
-        num_qubits: Optional[int] = None,
+        add_parameter_defaults: bool = True,
     ):
         """Setup an instance to manage the calibrations of a backend.
 
@@ -71,15 +68,20 @@ class BackendCalibrations(Calibrations):
                 as the coupling map.
             library: A library class that will be instantiated with the library options to then
                 get template schedules to register as well as default parameter values.
-            num_qubits: Number of qubits in case the backend object fails to specify this in its
-                configuration.
+            add_parameter_defaults: A boolean to indicate weather the default parameter values of
+                the given library should be used to populate the calibrations. By default this
+                value is True but can be set to false when deserializing a calibrations object.
 
         Raises:
             CalibrationError: If the backend configuration does not have num_qubits and num_qubits
                 is None.
         """
         self._update_inst_map = False
-        super().__init__(getattr(backend.configuration(), "control_channels", None), library)
+        super().__init__(
+            getattr(backend.configuration(), "control_channels", None),
+            library,
+            add_parameter_defaults,
+        )
 
         # Instruction schedule map variables and support variables.
         self._inst_map = InstructionScheduleMap()
@@ -92,20 +94,15 @@ class BackendCalibrations(Calibrations):
         self._register_parameter(self.qubit_freq, ())
         self._register_parameter(self.meas_freq, ())
 
-        num_qubits = getattr(backend.configuration(), "num_qubits", num_qubits)
-        if num_qubits is None:
-            raise CalibrationError(
-                "backend.configuration() does not have 'num_qubits' and None given."
-            )
-
-        self._qubits = list(range(num_qubits))
+        self._qubits = list(range(backend.configuration().num_qubits))
         self._backend = backend
 
-        for qubit, freq in enumerate(backend.defaults().qubit_freq_est):
-            self.add_parameter_value(freq, self.qubit_freq, qubit)
+        if add_parameter_defaults:
+            for qubit, freq in enumerate(backend.defaults().qubit_freq_est):
+                self.add_parameter_value(freq, self.qubit_freq, qubit)
 
-        for meas, freq in enumerate(backend.defaults().meas_freq_est):
-            self.add_parameter_value(freq, self.meas_freq, meas)
+            for meas, freq in enumerate(backend.defaults().meas_freq_est):
+                self.add_parameter_value(freq, self.meas_freq, meas)
 
         self._update_inst_map = True
 
@@ -415,3 +412,76 @@ class BackendCalibrations(Calibrations):
                 self._operated_qubits[len(coupling)].append(coupling)
 
         return self._operated_qubits
+
+    def serialize(self, save_parameters: bool = True) -> Dict:
+        """Serializes the class to a Dictionary.
+
+        Args:
+            save_parameters: If set to True, the default value, then all the values of the
+                calibrations will also be serialized.
+
+        Returns:
+            A dict object that represents the calibrations and can be used to rebuild the
+            calibrations. See :meth:`deserialize`.
+        """
+
+        if self._library is None:
+            raise CalibrationError(
+                "Cannot serialize calibrations that are not constructed from a library."
+            )
+
+        serialized_cals = serialize_object(type(self))
+        serialized_cals["__value__"]["__library__"] = self._library.serialize()
+        serialized_cals["__value__"]["__backend_name__"] = self._backend.name()
+        serialized_cals["__value__"]["__backend_version__"] = self._backend.version
+
+        if save_parameters:
+            serialized_cals["__value__"]["__parameter_values__"] = self.parameters_table()["data"]
+
+        return serialized_cals
+
+    @classmethod
+    def deserialize(cls, serialized_dict: Dict, backend: Backend, *args):
+        """Deserialize from a dictionary.
+
+        Args:
+            serialized_dict: The dictionary from which to create the calibrations instance.
+            backend: The backend instance from which to construct the calibrations.
+
+        Returns:
+            An instance of Calibrations.
+        """
+
+        # Deserialize the library.
+        library = BasisGateLibrary.deserialize(serialized_dict["__value__"].pop("__library__"))
+
+        expected_backend = serialized_dict["__value__"]["__backend_name__"]
+        expected_version = serialized_dict["__value__"]["__backend_version__"]
+        if backend.name() != expected_backend:
+            raise CalibrationError(
+                f"Wrong backend in deserialization: {backend.name} != {expected_backend}."
+            )
+
+        if backend.version != expected_version:
+            warn(f"Deserialization Backend version mismatch {backend.version} != {expected_version}.")
+
+        params = serialized_dict["__value__"].get("__parameter_values__", [])
+        add_library_params = True if len(params) == 0 else False
+
+        cals = deserialize_object(
+            serialized_dict["__value__"]["__module__"],
+            serialized_dict["__value__"]["__name__"],
+            tuple(),
+            {
+                "backend": backend,
+                "library": library,
+                "add_parameter_defaults": add_library_params,
+            },
+        )
+
+        # Add the parameter values if any
+        params = serialized_dict["__value__"].get("__parameter_values__", [])
+        for param_conf in params:
+            cals.add_parameter_value_from_conf(**param_conf)
+
+        return cals

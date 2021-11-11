@@ -61,7 +61,7 @@ class Calibrations:
         self,
         control_config: Dict[Tuple[int, ...], List[ControlChannel]] = None,
         library: BasisGateLibrary = None,
-        add_library_defaults: bool = True,
+        add_parameter_defaults: bool = True,
     ):
         """Initialize the calibrations.
 
@@ -84,7 +84,7 @@ class Calibrations:
                 that correspond to the qubits in the keys.
             library: A library class that will be instantiated with the library options to then
                 get template schedules to register as well as default parameter values.
-            add_library_defaults: A boolean to indicate weather the default parameter values of
+            add_parameter_defaults: A boolean to indicate weather the default parameter values of
                 the given library should be used to populate the calibrations. By default this
                 value is True but can be set to false when deserializing a calibrations object.
         """
@@ -127,7 +127,7 @@ class Calibrations:
                 self.add_schedule(library[gate], num_qubits=library.num_qubits(gate))
 
             # Add the default values
-            if add_library_defaults:
+            if add_parameter_defaults:
                 for param_conf in library.default_values():
                     schedule_name = param_conf[-1]
                     if schedule_name in library.basis_gates:
@@ -1192,13 +1192,12 @@ class Calibrations:
         serialized_cals["__value__"]["__controls_config__"] = serialized_controls_config
 
         if save_parameters:
-            print("saving params")
             serialized_cals["__value__"]["__parameter_values__"] = self.parameters_table()["data"]
 
         return serialized_cals
 
     @classmethod
-    def deserialize(cls, serialized_dict: Dict):
+    def deserialize(cls, serialized_dict: Dict, *args):
         """Deserialize from a dictionary.
 
         Args:
@@ -1226,7 +1225,7 @@ class Calibrations:
             {
                 "library": library,
                 "control_config": control_config,
-                "add_library_defaults": add_library_params,
+                "add_parameter_defaults": add_library_params,
             },
         )
 
