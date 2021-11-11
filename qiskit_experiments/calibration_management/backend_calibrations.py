@@ -65,19 +65,6 @@ class BackendCalibrations(Calibrations):
     ):
         """Setup an instance to manage the calibrations of a backend.
 
-        BackendCalibrations can be initialized from a basis gate library, i.e. a subclass of
-        :class:`BasisGateLibrary`. As example consider the following code:
-
-        .. code-block:: python
-
-            cals = BackendCalibrations(
-                    backend,
-                    library=FixedFrequencyTransmon(
-                        basis_gates=["x", "sx"],
-                        default_values={duration: 320}
-                    )
-                )
-
         Args:
             backend: A backend instance from which to extract the qubit and readout frequencies
                 (which will be added as first guesses for the corresponding parameters) as well
@@ -91,7 +78,8 @@ class BackendCalibrations(Calibrations):
             CalibrationError: If the backend configuration does not have num_qubits and num_qubits
                 is None.
         """
-        super().__init__(getattr(backend.configuration(), "control_channels", None))
+        self._update_inst_map = False
+        super().__init__(getattr(backend.configuration(), "control_channels", None), library)
 
         # Instruction schedule map variables and support variables.
         self._inst_map = InstructionScheduleMap()
@@ -118,19 +106,6 @@ class BackendCalibrations(Calibrations):
 
         for meas, freq in enumerate(backend.defaults().meas_freq_est):
             self.add_parameter_value(freq, self.meas_freq, meas)
-
-        if library is not None:
-            self._library = library
-
-            # Add the basis gates
-            for gate in library.basis_gates:
-                self.add_schedule(library[gate], num_qubits=library.num_qubits(gate))
-
-            # Add the default values
-            for param_conf in library.default_values():
-                schedule_name = param_conf[-1]
-                if schedule_name in library.basis_gates:
-                    self.add_parameter_value(*param_conf)
 
         self._update_inst_map = True
 
@@ -440,64 +415,3 @@ class BackendCalibrations(Calibrations):
                 self._operated_qubits[len(coupling)].append(coupling)
 
         return self._operated_qubits
-
-    @classmethod
-    def from_exp_data(
-        cls, experiment_data: ExperimentData, backend: Backend
-    ) -> "BackendCalibrations":
-        """Return backend calibrations extracted from experiment data.
-
-        The calibrations are only built if they were created from a library.
-
-        Args:
-            experiment_data: In the metadata of the experiment data there may
-                be calibration data which tells us how to build the calibrations.
-            backend: The backend for which to build the calibrations.
-        """
-
-        cal_metadata = experiment_data.metadata.get("calibrations", None)
-        if cal_metadata is None:
-            raise CalibrationError(f"No calibration metadata in metadata.")
-
-        # Check the versions of qiskit experiments and warn
-        version = cal_metadata.get("qe version", None)
-        if version != qiskit_experiments.__version__:
-            warn(
-                "Version mismatch between the current version of qiskit experiments and the "
-                f"version in the metadata. {qiskit_experiments.__version__} != {version}."
-            )
-
-        # Create the library
-        lib_name = cal_metadata.get("library", None)
-        if lib_name is None:
-            raise CalibrationError(f"Cannot load {cls.__name__} without a library.")
-
-        mod_name = cal_metadata.get("module name", None)
-        basis_gates = cal_metadata.get("basis gates", None)
-        default_values = cal_metadata.get("default values", None)
-
-        args = (basis_gates, default_values)
-        library = deserialize_object(mod_name, lib_name, args, {})
-
-        # Create the calibrations
-        backend_name = cal_metadata.get("backend name", None)
-        if backend_name != backend.name():
-            raise CalibrationError(
-                f"The name of the given backend {backend.name()} does not match the name "
-                f"in the calibration metadata {backend_name}."
-            )
-
-        cals = BackendCalibrations(backend, library=library)
-
-        # Populate the calibrations with the parameter values in the metadata
-        param_values = cal_metadata.get("calibration parameters", [])
-        fields = set(f.name for f in dataclasses.fields(ParameterValue))
-        for val in param_values:
-            cals.add_parameter_value(
-                value=ParameterValue(**{key: val for key, val in val.items() if key in fields}),
-                param=val["parameter"],
-                qubits=tuple(val["qubits"]),
-                schedule=val["schedule"],
-            )
-
-        return cals

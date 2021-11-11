@@ -36,6 +36,7 @@ from qiskit.pulse import (
 from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter, ParameterExpression
 from qiskit_experiments.exceptions import CalibrationError
+from qiskit_experiments.database_service.json import serialize_object, deserialize_object
 from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.calibration_key_types import (
@@ -56,13 +57,36 @@ class Calibrations:
     # The channel indices need to be parameterized following this regex.
     __channel_pattern__ = r"^ch\d[\.\d]*\${0,1}[\d]*$"
 
-    def __init__(self, control_config: Dict[Tuple[int, ...], List[ControlChannel]] = None):
+    def __init__(
+        self,
+        control_config: Dict[Tuple[int, ...], List[ControlChannel]] = None,
+        library: BasisGateLibrary = None,
+        add_library_defaults: bool = True,
+    ):
         """Initialize the calibrations.
+
+        Calibrations can be initialized from a basis gate library, i.e. a subclass of
+        :class:`BasisGateLibrary`. As example consider the following code:
+
+        .. code-block:: python
+
+            cals = BackendCalibrations(
+                    backend,
+                    library=FixedFrequencyTransmon(
+                        basis_gates=["x", "sx"],
+                        default_values={duration: 320}
+                    )
+                )
 
         Args:
             control_config: A configuration dictionary of any control channels. The
                 keys are tuples of qubits and the values are a list of ControlChannels
                 that correspond to the qubits in the keys.
+            library: A library class that will be instantiated with the library options to then
+                get template schedules to register as well as default parameter values.
+            add_library_defaults: A boolean to indicate weather the default parameter values of
+                the given library should be used to populate the calibrations. By default this
+                value is True but can be set to false when deserializing a calibrations object.
         """
 
         # Mapping between qubits and their control channels.
@@ -93,7 +117,21 @@ class Calibrations:
         # indices to the user.
         self._hash_to_counter_map = {}
         self._parameter_counter = 0
+
         self._library = None
+        if library is not None:
+            self._library = library
+
+            # Add the basis gates
+            for gate in library.basis_gates:
+                self.add_schedule(library[gate], num_qubits=library.num_qubits(gate))
+
+            # Add the default values
+            if add_library_defaults:
+                for param_conf in library.default_values():
+                    schedule_name = param_conf[-1]
+                    if schedule_name in library.basis_gates:
+                        self.add_parameter_value(*param_conf)
 
     @property
     def library(self) -> Optional[BasisGateLibrary]:
@@ -1080,17 +1118,44 @@ class Calibrations:
             reader = csv.DictReader(fp, delimiter=",", quotechar='"')
 
             for row in reader:
-                param_val = ParameterValue(
-                    row["value"], row["date_time"], row["valid"], row["exp_id"], row["group"]
-                )
+                self.add_parameter_value_from_conf(**row)
 
-                if row["schedule"] == "":
-                    schedule_name = None
-                else:
-                    schedule_name = row["schedule"]
+    def add_parameter_value_from_conf(
+        self,
+        value: Union[str, int, float, complex],
+        date_time: str,
+        valid: Union[str, bool],
+        exp_id: str,
+        group: str,
+        schedule: Union[str, None],
+        parameter: str,
+        qubits: Union[str, int, Tuple[int, ...]],
+    ):
+        """Add a parameter value from a parameter configuration.
 
-                key = ParameterKey(row["parameter"], self._to_tuple(row["qubits"]), schedule_name)
-                self.add_parameter_value(param_val, *key)
+        The intended usage is :code:`add_parameter_from_conf(**param_conf)`. Entries such
+        as ``value`` or ``date_time`` are converted to the proper type.
+
+        Args:
+            value: The value of the parameter.
+            date_time: The datetime string.
+            valid: Whether or not the parameter is valid.
+            exp_id: The id of the experiment that created the parameter value.
+            group: The calibration group to which the parameter belongs.
+            schedule: The schedule to which the parameter belongs. The empty string
+                "" is converted to None.
+            parameter: The name of the parameter.
+            qubits: The qubits on which the parameter acts.
+        """
+        param_val = ParameterValue(value, date_time, valid, exp_id, group)
+
+        if schedule == "":
+            schedule_name = None
+        else:
+            schedule_name = schedule
+
+        key = ParameterKey(parameter, self._to_tuple(qubits), schedule_name)
+        self.add_parameter_value(param_val, *key)
 
     @classmethod
     def load(cls, files: List[str]) -> "Calibrations":
@@ -1099,6 +1164,78 @@ class Calibrations:
         given location.
         """
         raise CalibrationError("Full calibration loading is not implemented yet.")
+
+    def serialize(self, save_parameters: bool = True) -> Dict:
+        """Serializes the class to a Dictionary.
+
+        Args:
+            save_parameters: If set to True, the default value, then all the values of the
+                calibrations will also be serialized.
+
+        Returns:
+            A dict object that represents the calibrations and can be used to rebuild the
+            calibrations. See :meth:`deserialize`.
+        """
+
+        if self._library is None:
+            raise CalibrationError(
+                "Cannot serialize calibrations that are not constructed from a library."
+            )
+
+        # encode the configuration of the controls.
+        serialized_controls_config = {}
+        for qubits, channels in self._controls_config.items():
+            serialized_controls_config[qubits] = [chan.index for chan in channels]
+
+        serialized_cals = serialize_object(type(self))
+        serialized_cals["__value__"]["__library__"] = self._library.serialize()
+        serialized_cals["__value__"]["__controls_config__"] = serialized_controls_config
+
+        if save_parameters:
+            print("saving params")
+            serialized_cals["__value__"]["__parameter_values__"] = self.parameters_table()["data"]
+
+        return serialized_cals
+
+    @classmethod
+    def deserialize(cls, serialized_dict: Dict):
+        """Deserialize from a dictionary.
+
+        Args:
+            serialized_dict: The dictionary from which to create the calibrations instance.
+
+        Returns:
+            An instance of Calibrations.
+        """
+
+        # Deserialize the library.
+        library = BasisGateLibrary.deserialize(serialized_dict["__value__"].pop("__library__"))
+
+        # Deserialize the control channel configuration.
+        control_config = {}
+        for qubits, channels in serialized_dict["__value__"]["__controls_config__"].items():
+            control_config[qubits] = [ControlChannel(index) for index in channels]
+
+        params = serialized_dict["__value__"].get("__parameter_values__", [])
+        add_library_params = True if len(params) == 0 else False
+
+        cals = deserialize_object(
+            serialized_dict["__value__"]["__module__"],
+            serialized_dict["__value__"]["__name__"],
+            tuple(),
+            {
+                "library": library,
+                "control_config": control_config,
+                "add_library_defaults": add_library_params
+            },
+        )
+
+        # Add the parameter values if any
+        params = serialized_dict["__value__"].get("__parameter_values__", [])
+        for param_conf in params:
+            cals.add_parameter_value_from_conf(**param_conf)
+
+        return cals
 
     @staticmethod
     def _to_tuple(qubits: Union[str, int, Tuple[int, ...]]) -> Tuple[int, ...]:
