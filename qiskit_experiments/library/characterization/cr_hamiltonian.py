@@ -21,7 +21,7 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
 from qiskit.utils import apply_prefix
 from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
-from .cr_hamiltonian_analysis import CrossResonanceHamiltonianAnalysis
+from qiskit_experiments.library.characterization.analysis import CrossResonanceHamiltonianAnalysis
 
 
 @fix_class_docs
