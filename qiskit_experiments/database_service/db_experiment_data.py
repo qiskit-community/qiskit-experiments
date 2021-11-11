@@ -31,7 +31,6 @@ from matplotlib import pyplot
 from qiskit.providers import Job, BaseJob, Backend, BaseBackend, Provider
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
-from qiskit.tools.monitor import job_monitor
 
 from .database_service import DatabaseServiceV1
 from .exceptions import DbExperimentDataError, DbExperimentEntryNotFound, DbExperimentEntryExists
@@ -988,6 +987,7 @@ class DbExperimentDataV1(DbExperimentData):
         Args:
             interval (int): The interval in seconds at which to update status, default 2.
             output (file): What object to write the output to, default stdout.
+            line_discipline (str): Character printed at the start of a line, default \\r.
 
         Returns:
             Live updated status.
