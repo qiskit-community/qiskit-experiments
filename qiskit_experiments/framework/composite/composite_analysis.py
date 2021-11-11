@@ -13,6 +13,7 @@
 Composite Experiment Analysis class.
 """
 
+import numpy as np
 from typing import List, Dict
 from qiskit.result import marginal_counts
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData
@@ -160,6 +161,14 @@ class CompositeAnalysis(BaseAnalysis):
                         sub_data["counts"] = marginal_counts(datum["counts"], composite_clbits[i])
                     else:
                         sub_data["counts"] = datum["counts"]
+                print("hey", datum)
+                if "memory" in datum:
+                    if composite_clbits is not None:
+                        print(composite_clbits)
+                        print(np.array(datum["memory"])[composite_clbits[i]])
+                        sub_data["memory"] = (np.array(datum["memory"])[composite_clbits[i]]).tolist()
+                    else:
+                        sub_data["memory"] = datum["memory"]
                 marginalized_data[index].append(sub_data)
 
         # Sort by index
