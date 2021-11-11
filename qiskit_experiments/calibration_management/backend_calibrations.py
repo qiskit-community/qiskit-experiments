@@ -423,6 +423,9 @@ class BackendCalibrations(Calibrations):
         Returns:
             A dict object that represents the calibrations and can be used to rebuild the
             calibrations. See :meth:`deserialize`.
+
+        Raises:
+            CalibrationError: if there calibrations were not built from a library.
         """
 
         if self._library is None:
@@ -440,16 +443,21 @@ class BackendCalibrations(Calibrations):
 
         return serialized_cals
 
+    # pylint: disable=arguments-differ
     @classmethod
-    def deserialize(cls, serialized_dict: Dict, backend: Backend, *args):
+    def deserialize(cls, serialized_dict: Dict, backend: Backend, *args) -> "BackendCalibrations":
         """Deserialize from a dictionary.
 
         Args:
             serialized_dict: The dictionary from which to create the calibrations instance.
             backend: The backend instance from which to construct the calibrations.
+            args: Trailing args.
 
         Returns:
             An instance of Calibrations.
+
+        Raises:
+            CalibrationError: if the backend name does not match the name in the serialized data.
         """
 
         # Deserialize the library.
@@ -463,10 +471,11 @@ class BackendCalibrations(Calibrations):
             )
 
         if backend.version != expected_version:
-            warn(f"Deserialization Backend version mismatch {backend.version} != {expected_version}.")
+            warn(
+                f"Deserialization Backend version mismatch {backend.version} != {expected_version}."
+            )
 
         params = serialized_dict["__value__"].get("__parameter_values__", [])
-        add_library_params = True if len(params) == 0 else False
 
         cals = deserialize_object(
             serialized_dict["__value__"]["__module__"],
@@ -475,7 +484,7 @@ class BackendCalibrations(Calibrations):
             {
                 "backend": backend,
                 "library": library,
-                "add_parameter_defaults": add_library_params,
+                "add_parameter_defaults": len(params) == 0,
             },
         )
 

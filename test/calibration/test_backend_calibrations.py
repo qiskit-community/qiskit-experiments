@@ -13,7 +13,6 @@
 """Class to test the backend calibrations."""
 
 from typing import List
-import unittest
 
 from qiskit import transpile, QuantumCircuit
 from qiskit.circuit import Parameter, Gate

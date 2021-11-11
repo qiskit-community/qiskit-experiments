@@ -1175,6 +1175,9 @@ class Calibrations:
         Returns:
             A dict object that represents the calibrations and can be used to rebuild the
             calibrations. See :meth:`deserialize`.
+
+        Raises:
+            CalibrationError: if there calibrations were not built from a library.
         """
 
         if self._library is None:
@@ -1196,12 +1199,15 @@ class Calibrations:
 
         return serialized_cals
 
+    # pylint: disable=unused-argument
     @classmethod
-    def deserialize(cls, serialized_dict: Dict, *args):
+    def deserialize(cls, serialized_dict: Dict, *args) -> "Calibrations":
         """Deserialize from a dictionary.
 
         Args:
             serialized_dict: The dictionary from which to create the calibrations instance.
+            args: Arguments that subclasses can use to pass in non-serializable objects like
+                backends.
 
         Returns:
             An instance of Calibrations.
@@ -1216,7 +1222,6 @@ class Calibrations:
             control_config[qubits] = [ControlChannel(index) for index in channels]
 
         params = serialized_dict["__value__"].get("__parameter_values__", [])
-        add_library_params = True if len(params) == 0 else False
 
         cals = deserialize_object(
             serialized_dict["__value__"]["__module__"],
@@ -1225,7 +1230,7 @@ class Calibrations:
             {
                 "library": library,
                 "control_config": control_config,
-                "add_parameter_defaults": add_library_params,
+                "add_parameter_defaults": len(params) == 0,
             },
         )
 
