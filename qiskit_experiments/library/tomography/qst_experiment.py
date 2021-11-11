@@ -17,13 +17,12 @@ from typing import Union, Optional, Iterable, List, Sequence
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit.quantum_info import Statevector
-from qiskit_experiments.framework import Options, fix_class_docs
+from qiskit_experiments.framework import Options
 from .tomography_experiment import TomographyExperiment
 from .qst_analysis import StateTomographyAnalysis
 from . import basis
 
 
-@fix_class_docs
 class StateTomography(TomographyExperiment):
     """Quantum state tomography experiment.
 

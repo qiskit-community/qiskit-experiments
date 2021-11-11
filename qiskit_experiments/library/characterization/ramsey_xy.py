@@ -20,11 +20,10 @@ from qiskit.circuit import Parameter
 from qiskit.utils import apply_prefix
 from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import BaseExperiment, fix_class_docs
+from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.library.characterization.analysis import RamseyXYAnalysis
 
 
-@fix_class_docs
 class RamseyXY(BaseExperiment):
     r"""Ramsey XY experiment to measure the frequency of a qubit.
 

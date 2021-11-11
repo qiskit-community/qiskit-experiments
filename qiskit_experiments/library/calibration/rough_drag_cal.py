@@ -18,7 +18,7 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
 from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import ExperimentData, fix_class_docs
+from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.calibration_management import (
     BaseCalibrationExperiment,
     BackendCalibrations,
@@ -27,7 +27,6 @@ from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.library.characterization.drag import RoughDrag
 
 
-@fix_class_docs
 class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
     """A calibration version of the Drag experiment.
 
