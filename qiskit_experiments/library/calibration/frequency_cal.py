@@ -17,7 +17,7 @@ from typing import List, Optional
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import ExperimentData, fix_class_docs
+from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.library.characterization.ramsey_xy import RamseyXY
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
@@ -26,7 +26,6 @@ from qiskit_experiments.calibration_management.base_calibration_experiment impor
 )
 
 
-@fix_class_docs
 class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
     """A qubit frequency calibration experiment based on the Ramsey XY experiment.
 

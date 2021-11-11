@@ -20,7 +20,7 @@ from qiskit.providers.backend import Backend
 from qiskit.pulse import Play
 
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.framework import ExperimentData, fix_class_docs, Options
+from qiskit_experiments.framework import ExperimentData, Options
 from qiskit_experiments.calibration_management import (
     BaseCalibrationExperiment,
     BackendCalibrations,
@@ -29,7 +29,6 @@ from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.library.characterization.fine_drag import FineDrag
 
 
-@fix_class_docs
 class FineDragCal(BaseCalibrationExperiment, FineDrag):
     """A calibration version of the fine drag experiment."""
 
@@ -150,7 +149,6 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
             )
 
 
-@fix_class_docs
 class FineXDragCal(FineDragCal):
     """Fine drag calibration of X gate."""
 
@@ -182,7 +180,6 @@ class FineXDragCal(FineDragCal):
         )
 
 
-@fix_class_docs
 class FineSXDragCal(FineDragCal):
     """Fine drag calibration of X gate."""
 
