@@ -53,7 +53,7 @@ class Settings:
         # Get lists of named args and kwargs for classes init method
         init_args = spec.args[1:]
         defaults_kwargs = spec.defaults or []
-        num_named_kwargs = len(spec.defaults) if spec.defaults else 0
+        num_named_kwargs = len(defaults_kwargs)
         num_named_args = len(init_args) - num_named_kwargs
         named_args = init_args[0:num_named_args]
         named_kwargs = init_args[num_named_args:]
