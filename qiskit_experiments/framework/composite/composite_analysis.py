@@ -93,8 +93,7 @@ class CompositeAnalysis(BaseAnalysis):
             sub_exp_data.add_data(sub_data)
 
             # Add component job metadata
-            for key, val in component_metadata[i].items():
-                sub_exp_data.metadata[key] = val
+            sub_exp_data.metadata.update(component_metadata[i])
 
             # Run analysis
             # Since copy for replace result is handled at the parent level
