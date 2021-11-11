@@ -209,6 +209,7 @@ Experiment Data Classes
     FitVal
     AnalysisResultData
     ExperimentConfig
+    AnalysisConfig
     ExperimentEncoder
     ExperimentDecoder
 
@@ -239,7 +240,7 @@ from qiskit_experiments.database_service.db_analysis_result import DbAnalysisRes
 from qiskit_experiments.database_service.db_fitval import FitVal
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
-from .config import ExperimentConfig
+from .configs import ExperimentConfig, AnalysisConfig
 from .analysis_result_data import AnalysisResultData
 from .experiment_data import ExperimentData
 from .composite import (

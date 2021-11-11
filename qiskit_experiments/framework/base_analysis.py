@@ -22,7 +22,7 @@ from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.settings import Settings
 from qiskit_experiments.framework.experiment_data import ExperimentData
-from qiskit_experiments.framework.config import AnalysisConfig
+from qiskit_experiments.framework.configs import AnalysisConfig
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
 from qiskit_experiments.database_service import DbAnalysisResultV1
 
