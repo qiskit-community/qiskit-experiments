@@ -533,7 +533,7 @@ class BaseExperiment(ABC):
         """Add runtime job metadata to ExperimentData.
 
         Args:
-            experiment_data: the experiment data container.
+            metadata: the metadata dict to update with job data.
             jobs: the job objects.
             run_options: backend run options for the job.
         """

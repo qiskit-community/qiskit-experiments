@@ -99,13 +99,10 @@ class CompositeExperiment(BaseExperiment):
 
     def _add_job_metadata(self, metadata, jobs, **run_options):
         super()._add_job_metadata(metadata, jobs, **run_options)
-
-        # Add component job metadata
-        if "component_metadata" not in metadata:
-            metadata["component_metadata"] = [{}] * self.num_experiments
-        component_metadata = metadata["component_metadata"]
         # Add sub-experiment options
-        for sub_metadata, sub_exp in zip(component_metadata, self.component_experiment()):
+        for sub_metadata, sub_exp in zip(
+            metadata["component_metadata"], self.component_experiment()
+        ):
             # Run and transpile options are always overridden
             if (
                 sub_exp.run_options != sub_exp._default_run_options()
