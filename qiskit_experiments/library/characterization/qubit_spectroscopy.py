@@ -88,7 +88,6 @@ class QubitSpectroscopy(BaseExperiment):
         options.normalization = True
         options.xlabel = "Frequency"
         options.ylabel = "Signal (arb. units)"
-        options.xval_unit = "Hz"
 
         return options
 
@@ -97,7 +96,6 @@ class QubitSpectroscopy(BaseExperiment):
         qubit: int,
         frequencies: Iterable[float],
         backend: Optional[Backend] = None,
-        unit: str = "Hz",
         absolute: bool = True,
     ):
         """
@@ -111,15 +109,13 @@ class QubitSpectroscopy(BaseExperiment):
 
         Args:
             qubit: The qubit on which to run spectroscopy.
-            frequencies: The frequencies to scan in the experiment.
+            frequencies: The frequencies to scan in the experiment, in Hz.
             backend: Optional, the backend to run the experiment on.
-            unit: The unit in which the user specifies the frequencies. Can be one of 'Hz', 'kHz',
-                'MHz', 'GHz'. Internally, all frequencies will be converted to 'Hz'.
             absolute: Boolean to specify if the frequencies are absolute or relative to the
                 qubit frequency in the backend.
 
         Raises:
-            QiskitError: if there are less than three frequency shifts or if the unit is not known.
+            QiskitError: if there are less than three frequency shifts.
 
         """
         super().__init__([qubit], backend=backend)
@@ -127,11 +123,7 @@ class QubitSpectroscopy(BaseExperiment):
         if len(frequencies) < 3:
             raise QiskitError("Spectroscopy requires at least three frequencies.")
 
-        if unit == "Hz":
-            self._frequencies = frequencies
-        else:
-            self._frequencies = [apply_prefix(freq, unit) for freq in frequencies]
-
+        self._frequencies = frequencies
         self._absolute = absolute
 
         if not self._absolute:
