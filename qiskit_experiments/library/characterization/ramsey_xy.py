@@ -21,7 +21,7 @@ from qiskit.utils import apply_prefix
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BaseExperiment, fix_class_docs
-from qiskit_experiments.library.calibration.analysis.remsey_xy_analysis import RamseyXYAnalysis
+from qiskit_experiments.library.characterization.analysis import RamseyXYAnalysis
 
 
 @fix_class_docs
