@@ -36,6 +36,9 @@ Experiments
     FineSXAmplitude
     RamseyXY
     RoughDrag
+    FineDrag
+    FineXDrag
+    FineSXDrag
 
 
 Analysis
@@ -64,3 +67,4 @@ from .half_angle import HalfAngle
 from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
 from .ramsey_xy import RamseyXY
 from .drag import RoughDrag
+from .fine_drag import FineDrag, FineXDrag, FineSXDrag
