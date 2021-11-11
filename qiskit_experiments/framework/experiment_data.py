@@ -180,7 +180,8 @@ class ExperimentData(DbExperimentData):
             self.add_child_data(data)
 
     def _set_service(self, service: DatabaseService) -> None:
-        """Set the service to be used for storing experiment data.
+        """Set the service to be used for storing experiment data,
+           to self and all its descendants.
 
         Args:
             service: Service to be used.
@@ -194,7 +195,8 @@ class ExperimentData(DbExperimentData):
 
     @DbExperimentData.share_level.setter
     def share_level(self, new_level: str) -> None:
-        """Set the experiment share level.
+        """Set the experiment share level,
+           to self and all its descendants.
 
         Args:
             new_level: New experiment share level. Valid share levels are provider-
