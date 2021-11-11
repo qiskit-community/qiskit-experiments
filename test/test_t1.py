@@ -214,7 +214,7 @@ class TestT1(QiskitExperimentsTestCase):
         self.assertEqual(result.quality, "bad")
 
     def test_experiment_config(self):
-        """Test converting to and from config works"""
+        """Test converting experiment to and from config works"""
         exp = T1(0, [1, 2, 3, 4, 5], unit="s")
         loaded_exp = T1.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
@@ -224,3 +224,10 @@ class TestT1(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = T1(0, [1, 2, 3, 4, 5], unit="s")
         self.assertRoundTripSerializable(exp, self.experiments_equiv)
+
+    def test_analysis_config(self):
+        """ "Test converting analysis to and from config works"""
+        analysis = T1Analysis()
+        loaded = T1Analysis.from_config(analysis.config)
+        self.assertNotEqual(analysis, loaded)
+        self.assertEqual(analysis.config, loaded.config)

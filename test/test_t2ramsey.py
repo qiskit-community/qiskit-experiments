@@ -18,6 +18,7 @@ import numpy as np
 from qiskit.utils import apply_prefix
 from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library import T2Ramsey
+from qiskit_experiments.library.characterization import T2RamseyAnalysis
 from qiskit_experiments.test.t2ramsey_backend import T2RamseyBackend
 
 
@@ -210,3 +211,10 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = T2Ramsey(0, [1, 2, 3, 4, 5], unit="s")
         self.assertRoundTripSerializable(exp, self.experiments_equiv)
+
+    def test_analysis_config(self):
+        """ "Test converting analysis to and from config works"""
+        analysis = T2RamseyAnalysis()
+        loaded = T2RamseyAnalysis.from_config(analysis.config)
+        self.assertNotEqual(analysis, loaded)
+        self.assertEqual(analysis.config, loaded.config)
