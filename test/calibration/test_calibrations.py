@@ -1402,7 +1402,7 @@ class TestSerialization(QiskitTestCase):
         with pulse.build(name="x") as expected:
             pulse.play(pulse.Drag(1234, 0.5, 40, 0.0), pulse.DriveChannel(3))
 
-        self.assertEqual(cals1.get_schedule("x", (3, )), expected)
+        self.assertEqual(cals1.get_schedule("x", (3,)), expected)
 
         cals2 = Calibrations.deserialize(cals1.serialize())
         self.assertEqual(cals2.get_schedule("x", (3,)), expected)

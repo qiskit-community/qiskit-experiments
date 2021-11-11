@@ -1226,7 +1226,7 @@ class Calibrations:
             {
                 "library": library,
                 "control_config": control_config,
-                "add_library_defaults": add_library_params
+                "add_library_defaults": add_library_params,
             },
         )
 
