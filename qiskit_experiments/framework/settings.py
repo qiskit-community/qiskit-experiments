@@ -41,29 +41,46 @@ class Settings:
 
     def __new__(cls, *args, **kwargs):
         # This method automatically stores all arg and kwargs from subclass
-        # init methods for use in converting an experiment to config
-
-        # Get all non-self init args and kwarg names for subclass
+        # init methods
         spec = inspect.getfullargspec(cls.__init__)
-        init_arg_names = spec.args[1:]
-        num_init_kwargs = len(spec.defaults) if spec.defaults else 0
-        num_init_args = len(init_arg_names) - num_init_kwargs
+        named_args = spec.args[1:]
+        num_named = len(named_args)
 
-        # Convert passed values for args and kwargs into an ordered dict
-        # This will sort args passed as kwargs and kwargs passed as
-        # positional args in the function call
-        num_call_args = len(args)
         ord_args = OrderedDict()
         ord_kwargs = OrderedDict()
-        for i, argname in enumerate(init_arg_names):
-            if i < num_init_args:
-                update = ord_args
-            else:
-                update = ord_kwargs
-            if i < num_call_args:
-                update[argname] = args[i]
-            elif argname in kwargs:
-                update[argname] = kwargs[argname]
+
+        # Sort and store positional args
+        if spec.varargs:
+            # Handle case with variadic positional args
+            # Note that this stores the variadic positonal args with
+            # a dummy argument name vararg{i}. where vararg is the
+            # variadic variable name.
+            for argname, argval in zip(named_args, args):
+                ord_args[argname] = argval
+            for i in range(len(args) - num_named):
+                ord_args[f"{spec.varargs}{i}"] = args[i + num_named]
+            for argname, argval in kwargs.items():
+                ord_kwargs[argname] = argval
+        else:
+            # Case without variadic position args.
+            # this sort args passed as kwargs and kwargs passed as
+            # positional args in the function call
+            num_named_kwargs = len(spec.defaults) if spec.defaults else 0
+            num_named_args = num_named - num_named_kwargs
+            num_call_args = len(args)
+            for i, argname in enumerate(named_args):
+                if i < num_named_args:
+                    update = ord_args
+                else:
+                    update = ord_kwargs
+                if i < num_call_args:
+                    update[argname] = args[i]
+                elif argname in kwargs:
+                    update[argname] = kwargs[argname]
+            # Handle variadic kwargs
+            for argname, argval in kwargs.items():
+                if argname not in named_args:
+                    ord_kwargs[argname] = argval
 
         # pylint: disable = attribute-defined-outside-init
         instance = super().__new__(cls)
