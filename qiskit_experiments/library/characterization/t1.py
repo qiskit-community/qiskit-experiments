@@ -22,7 +22,7 @@ from qiskit.providers.backend import Backend
 from qiskit.test.mock import FakeBackend
 
 from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
-from qiskit_experiments.library.characterization.t1_analysis import T1Analysis
+from qiskit_experiments.library.characterization.analysis.t1_analysis import T1Analysis
 
 
 @fix_class_docs

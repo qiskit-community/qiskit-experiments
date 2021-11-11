@@ -23,7 +23,7 @@ from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.library.calibration.analysis.drag_analysis import DragCalAnalysis
+from qiskit_experiments.library.characterization.analysis import DragCalAnalysis
 
 
 @fix_class_docs

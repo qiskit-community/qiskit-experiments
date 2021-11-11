@@ -19,7 +19,7 @@ from qiskit import QuantumCircuit
 from qiskit.providers import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
-from qiskit_experiments.library.calibration.analysis import FineHalfAngleAnalysis
+from qiskit_experiments.library.characterization.analysis import FineHalfAngleAnalysis
 from qiskit_experiments.curve_analysis import ParameterRepr
 
 
