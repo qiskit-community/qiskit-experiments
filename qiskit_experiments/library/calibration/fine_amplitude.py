@@ -25,7 +25,7 @@ from qiskit_experiments.calibration_management import (
 from qiskit_experiments.library.characterization import FineAmplitude
 from qiskit_experiments.framework import ExperimentData, Options, fix_class_docs
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
-from qiskit_experiments.library.calibration.analysis import FineXAmplitudeAnalysis
+from qiskit_experiments.library.characterization.analysis import FineXAmplitudeAnalysis
 
 
 @fix_class_docs

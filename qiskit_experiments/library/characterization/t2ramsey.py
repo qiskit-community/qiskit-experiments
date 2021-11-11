@@ -24,7 +24,7 @@ from qiskit.providers.backend import Backend
 from qiskit.test.mock import FakeBackend
 
 from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
-from .t2ramsey_analysis import T2RamseyAnalysis
+from qiskit_experiments.library.characterization.analysis.t2ramsey_analysis import T2RamseyAnalysis
 
 
 @fix_class_docs

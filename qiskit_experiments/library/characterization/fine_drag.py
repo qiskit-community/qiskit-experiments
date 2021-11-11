@@ -20,7 +20,7 @@ from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
-from qiskit_experiments.library.calibration.analysis.fine_drag_analysis import (
+from qiskit_experiments.library.characterization.analysis import (
     FineDragAnalysis,
 )
 

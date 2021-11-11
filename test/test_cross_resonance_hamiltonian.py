@@ -20,7 +20,8 @@ from qiskit.result import Result
 from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeBackend
 
-from qiskit_experiments.library.characterization import cr_hamiltonian, cr_hamiltonian_analysis
+from qiskit_experiments.library.characterization import cr_hamiltonian
+from qiskit_experiments.library.characterization.analysis import cr_hamiltonian_analysis
 from qiskit_experiments.test.utils import FakeJob
 
 
