@@ -224,6 +224,26 @@ class ExperimentData(DbExperimentData):
             _, timeout = combined_timeout(subdata.block_for_results, timeout)
         return self
 
+    def add_tags_recursive(self, tags2add: List[str]) -> None:
+        """Add tags to self and all its descendants
+
+        Args:
+            tags2add - the tags that will be added to the existing tags
+        """
+        self.tags += tags2add
+        for data in self._child_data.values():
+            data.add_tags_recursive(tags2add)
+
+    def remove_tags_recursive(self, tags2remove: List[str]) -> None:
+        """Remove tags from self and all its descendants
+
+        Args:
+            tags2remove - the tags that will be removed from the existing tags
+        """
+        self.tags = [x for x in self.tags if x not in tags2remove]
+        for data in self._child_data.values():
+            data.remove_tags_recursive(tags2remove)
+
     def __repr__(self):
         out = (
             f"<ExperimentData[{self.experiment_type}]"

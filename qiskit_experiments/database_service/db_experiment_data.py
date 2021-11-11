@@ -24,6 +24,7 @@ import traceback
 import contextlib
 from collections import deque
 from datetime import datetime
+import numpy as np
 
 from matplotlib import pyplot
 from qiskit.providers import Job, BaseJob, Backend, BaseBackend, Provider
@@ -1213,7 +1214,7 @@ class DbExperimentDataV1(DbExperimentData):
             raise DbExperimentDataError(
                 f"The `tags` field of {type(self).__name__} must be a list."
             )
-        self._tags = new_tags
+        self._tags = np.unique(new_tags).tolist()
         if self.auto_save:
             self.save_metadata()
 

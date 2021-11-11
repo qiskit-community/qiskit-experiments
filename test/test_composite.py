@@ -400,3 +400,30 @@ class TestCompositeExperimentData(QiskitTestCase):
         self.assertEqual(len(data1.child_data()), len(data2.child_data()))
         for sub1, sub2 in zip(data1.child_data(), data2.child_data()):
             self.assertNotEqual(sub1.experiment_id, sub2.experiment_id)
+
+    def test_composite_tags(self):
+        """
+        Test the tags setter, add_tags_recursive, remove_tags_recursive
+        """
+        exp1 = FakeExperiment([0, 2])
+        exp2 = FakeExperiment([1, 3])
+        par_exp = BatchExperiment([exp1, exp2])
+        expdata = par_exp.run(FakeBackend()).block_for_results()
+        data1 = expdata.child_data(0)
+        data2 = expdata.child_data(1)
+
+        expdata.tags = ["a", "c", "a"]
+        data1.tags = ["b"]
+        self.assertSetEqual(set(expdata.tags), {"a", "c"})
+        self.assertSetEqual(set(data1.tags), {"b"})
+        self.assertSetEqual(set(data2.tags), set())
+
+        expdata.add_tags_recursive(["d", "c"])
+        self.assertSetEqual(set(expdata.tags), {"a", "c", "d"})
+        self.assertSetEqual(set(data1.tags), {"b", "c", "d"})
+        self.assertSetEqual(set(data2.tags), {"c", "d"})
+
+        expdata.remove_tags_recursive(["a", "b"])
+        self.assertSetEqual(set(expdata.tags), {"c", "d"})
+        self.assertSetEqual(set(data1.tags), {"c", "d"})
+        self.assertSetEqual(set(data2.tags), {"c", "d"})
