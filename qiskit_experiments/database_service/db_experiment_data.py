@@ -1346,7 +1346,7 @@ class DbExperimentDataV1(DbExperimentData):
 
     @service.setter
     def service(self, service: DatabaseServiceV1) -> None:
-        """Set the service to be used for storing experiment data, 
+        """Set the service to be used for storing experiment data,
            to self and all its descendants
 
         Args:
