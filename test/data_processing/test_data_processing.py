@@ -67,8 +67,12 @@ class DataProcessorTest(BaseDataProcessorTest):
         raw_counts2 = {"0x0": 2, "0x2": 8}
         data1 = ExperimentResultData(counts=dict(**raw_counts1))
         data2 = ExperimentResultData(counts=dict(**raw_counts2))
-        res1 = ExperimentResult(shots=9, success=True, meas_level=2, data=data1, header=self.header)
-        res2 = ExperimentResult(shots=9, success=True, meas_level=2, data=data2, header=self.header)
+        res1 = ExperimentResult(
+            shots=10, success=True, meas_level=2, data=data1, header=self.header
+        )
+        res2 = ExperimentResult(
+            shots=10, success=True, meas_level=2, data=data2, header=self.header
+        )
         self.exp_data_lvl2 = ExperimentData(FakeExperiment())
         self.exp_data_lvl2.add_data(Result(results=[res1, res2], **self.base_result_args))
 
@@ -191,17 +195,17 @@ class DataProcessorTest(BaseDataProcessorTest):
         """Test that counts are properly converted to a population."""
 
         processor = DataProcessor("counts")
-        processor.append(Probability("00"))
+        processor.append(Probability("00", alpha_prior=1.0))
 
         # Test on a single datum.
         new_data, error = processor(self.exp_data_lvl2.data(0))
 
-        self.assertEqual(new_data, 0.4)
-        self.assertEqual(error, np.sqrt(0.4 * (1 - 0.4) / 10))
+        self.assertAlmostEqual(float(new_data), 0.41666667)
+        self.assertAlmostEqual(float(error), 0.13673544235706114)
 
         # Test on all the data
         new_data, error = processor(self.exp_data_lvl2.data())
-        self.assertTrue(np.allclose(new_data, np.array([0.4, 0.2])))
+        np.testing.assert_array_almost_equal(new_data, np.array([0.41666667, 0.25]))
 
     def test_validation(self):
         """Test the validation mechanism."""
@@ -318,7 +322,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 [[0.9, 0.9], [-1.1, 1.0]],
             ]
         )
-        self._sig_gs = np.array([[1.0], [-1.0]]) / np.sqrt(2.0)
+        self._sig_gs = np.array([1.0, -1.0]) / np.sqrt(2.0)
 
         circ_gs = ExperimentResultData(
             memory=[
@@ -328,7 +332,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 [[-0.9, -0.9], [1.1, -1.0]],
             ]
         )
-        self._sig_es = np.array([[-1.0], [1.0]]) / np.sqrt(2.0)
+        self._sig_es = np.array([-1.0, 1.0]) / np.sqrt(2.0)
 
         circ_x90p = ExperimentResultData(
             memory=[
@@ -338,7 +342,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 [[1.0, 1.0], [-1.0, 1.0]],
             ]
         )
-        self._sig_x90 = np.array([[0], [0]])
+        self._sig_x90 = np.array([0, 0])
 
         circ_x45p = ExperimentResultData(
             memory=[
@@ -348,7 +352,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 [[1.0, 1.0], [-1.0, 1.0]],
             ]
         )
-        self._sig_x45 = np.array([[0.5], [-0.5]]) / np.sqrt(2.0)
+        self._sig_x45 = np.array([0.5, -0.5]) / np.sqrt(2.0)
 
         res_es = ExperimentResult(
             shots=4,
@@ -456,7 +460,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
                 self._sig_x90.reshape(1, 2),
                 self._sig_x45.reshape(1, 2),
             )
-        ).T
+        )
 
         # Test processing of all data
         processed = processor(self.data.data())[0]
@@ -476,7 +480,7 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
         processor.train([self.data.data(idx) for idx in [0, 1]])
         self.assertTrue(processor.is_trained)
 
-        all_expected = np.array([[0.0, 1.0, 0.5, 0.75], [1.0, 0.0, 0.5, 0.25]])
+        all_expected = np.array([[0.0, 1.0], [1.0, 0.0], [0.5, 0.5], [0.75, 0.25]])
 
         # Test processing of all data
         processed = processor(self.data.data())[0]
@@ -555,7 +559,7 @@ class TestAvgDataAndSVD(BaseDataProcessorTest):
         processor.train([self.data.data(idx) for idx in [0, 1]])
         self.assertTrue(processor.is_trained)
 
-        all_expected = np.array([[0.0, 1.0, 0.5, 0.75], [1.0, 0.0, 0.5, 0.25]])
+        all_expected = np.array([[0.0, 1.0], [1.0, 0.0], [0.5, 0.5], [0.75, 0.25]])
 
         # Test processing of all data
         processed = processor(self.data.data())[0]

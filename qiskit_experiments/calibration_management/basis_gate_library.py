@@ -33,7 +33,8 @@ class BasisGateLibrary(ABC):
     # Location where default parameter values are stored. These may be updated at construction.
     __default_values__ = dict()
 
-    # The basis gates that this library generates.
+    # The basis gates that this library generates. This is a dict with the gate name as key
+    # and the number of qubits that gate acts on as values.
     __supported_gates__ = None
 
     def __init__(
@@ -55,7 +56,12 @@ class BasisGateLibrary(ABC):
         if default_values is not None:
             self._default_values.update(default_values)
 
-        if basis_gates is not None:
+        if basis_gates is None:
+            self._basis_gates = self.__supported_gates__
+
+        else:
+            self._basis_gates = dict()
+
             for gate in basis_gates:
                 if gate not in self.__supported_gates__:
                     raise CalibrationError(
@@ -63,7 +69,7 @@ class BasisGateLibrary(ABC):
                         f"Supported gates are: {self.__supported_gates__}."
                     )
 
-        self._basis_gates = basis_gates or self.__supported_gates__
+                self._basis_gates[gate] = self.__supported_gates__[gate]
 
     def __getitem__(self, name: str) -> ScheduleBlock:
         """Return the schedule."""
@@ -75,6 +81,10 @@ class BasisGateLibrary(ABC):
     def __contains__(self, name: str) -> bool:
         """Check if the basis gate is in the library."""
         return name in self._schedules
+
+    def num_qubits(self, schedule_name: str) -> int:
+        """Return the number of qubits that the schedule with the given name acts on."""
+        return self._basis_gates[schedule_name]
 
     @property
     def basis_gates(self) -> List[str]:
@@ -100,7 +110,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
 
     __default_values__ = {"duration": 160, "amp": 0.5, "β": 0.0}
 
-    __supported_gates__ = ["x", "y", "sx", "sy"]
+    __supported_gates__ = {"x": 1, "y": 1, "sx": 1, "sy": 1}
 
     def __init__(
         self,

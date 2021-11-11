@@ -16,9 +16,10 @@ import logging
 from typing import Optional, List, Union, Dict, Any
 import uuid
 import copy
+import math
 
 from .database_service import DatabaseServiceV1
-from .json import ExperimentEncoder, ExperimentDecoder
+from .json import ExperimentEncoder, ExperimentDecoder, serialize_safe_float
 from .utils import save_data, qiskit_version
 from .exceptions import DbExperimentDataError
 from .device_component import DeviceComponent, to_component
@@ -149,7 +150,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
                 "Analysis result cannot be saved because no experiment service is available."
             )
             return
-        # Get DB fit data
+
         value = self.value
         result_data = {
             "_value": value,
@@ -157,16 +158,19 @@ class DbAnalysisResultV1(DbAnalysisResult):
             "_source": self._source,
         }
 
-        # Display compatible float values in in DB
-        if isinstance(value, (int, float, bool)):
-            result_data["value"] = float(value)
-        elif isinstance(value, FitVal):
-            if isinstance(value.value, (int, float)):
-                result_data["value"] = value.value
+        # Format special DB display fields
+        if isinstance(value, FitVal):
+            db_value = self._display_format(value.value)
+            if db_value is not None:
+                result_data["value"] = db_value
             if isinstance(value.stderr, (int, float)):
-                result_data["variance"] = value.stderr ** 2
+                result_data["variance"] = self._display_format(value.stderr ** 2)
             if isinstance(value.unit, str):
                 result_data["unit"] = value.unit
+        else:
+            db_value = self._display_format(value)
+            if db_value is not None:
+                result_data["value"] = db_value
 
         new_data = {
             "experiment_id": self._experiment_id,
@@ -177,7 +181,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             "result_id": self.result_id,
             "result_data": result_data,
             "tags": self.tags,
-            "chisq": self._chisq,
+            "chisq": self._display_format(self._chisq),
             "quality": self.quality,
             "verified": self.verified,
         }
@@ -189,6 +193,22 @@ class DbAnalysisResultV1(DbAnalysisResult):
             new_data=new_data,
             update_data=update_data,
             json_encoder=self._json_encoder,
+        )
+
+    def copy(self) -> "DbAnalysisResultV1":
+        """Return a copy of the result with a new result ID"""
+        return DbAnalysisResultV1(
+            name=self.name,
+            value=self.value,
+            device_components=self.device_components,
+            experiment_id=self.experiment_id,
+            chisq=self.chisq,
+            quality=self.quality,
+            extra=self.extra,
+            verified=self.verified,
+            tags=self.tags,
+            service=self.service,
+            source=self._source,
         )
 
     @classmethod
@@ -416,6 +436,25 @@ class DbAnalysisResultV1(DbAnalysisResult):
         if save_val and not self._auto_save:
             self.save()
         self._auto_save = save_val
+
+    @staticmethod
+    def _display_format(value):
+        """Format values for supported types for display in database service"""
+        if value is None or isinstance(value, (int, bool, str)):
+            # Pass supported value types directly
+            return value
+        if isinstance(value, float):
+            # Safe handling on NaN float values that serialize to invalid JSON
+            if math.isfinite(value):
+                return value
+            else:
+                return serialize_safe_float(value)["__value__"]
+        if isinstance(value, complex):
+            # Convert complex floats to strings for display
+            return f"{value}"
+        # For all other value types that cannot be natively displayed
+        # we return the class name
+        return f"({type(value).__name__})"
 
     def __str__(self):
         ret = f"{type(self).__name__}"

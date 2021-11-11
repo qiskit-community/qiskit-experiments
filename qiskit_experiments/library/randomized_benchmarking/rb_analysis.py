@@ -13,14 +13,14 @@
 Standard RB analysis class.
 """
 
-from typing import List, Dict, Any, Union
+from typing import List, Union
 
 import numpy as np
 
-from qiskit_experiments.framework import AnalysisResultData, FitVal
 import qiskit_experiments.curve_analysis as curve
-from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data
+from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data, data_sort
 from qiskit_experiments.database_service.device_component import Qubit
+from qiskit_experiments.framework import AnalysisResultData, FitVal
 from .rb_utils import RBUtils
 
 
@@ -91,70 +91,76 @@ class RBAnalysis(curve.CurveAnalysis):
 
         return default_options
 
-    def _setup_fitting(self, **extra_options) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
-        """Fitter options."""
-        user_p0 = self._get_option("p0")
-        user_bounds = self._get_option("bounds")
+    def _generate_fit_guesses(
+        self, user_opt: curve.FitOptions
+    ) -> Union[curve.FitOptions, List[curve.FitOptions]]:
+        """Compute the initial guesses.
 
+        Args:
+            user_opt: Fit options filled with user provided guess and bounds.
+
+        Returns:
+            List of fit options that are passed to the fitter function.
+        """
         curve_data = self._data()
 
-        initial_guess = self._initial_guess(curve_data.x, curve_data.y, self._num_qubits, user_p0)
-        fit_options = {
-            "p0": initial_guess,
-            "bounds": {
-                "a": user_bounds["a"] or (0.0, 1.0),
-                "alpha": user_bounds["alpha"] or (0.0, 1.0),
-                "b": user_bounds["b"] or (0.0, 1.0),
-            },
-        }
-        # p0 and bounds are defined in the default options, therefore updating
-        # with the extra options only adds options and doesn't override p0 or bounds
-        fit_options.update(extra_options)
+        user_opt.bounds.set_if_empty(
+            a=(0, 1),
+            alpha=(0, 1),
+            b=(0, 1),
+        )
 
-        return fit_options
+        return self._initial_guess(user_opt, curve_data.x, curve_data.y, self._num_qubits)
 
     @staticmethod
     def _initial_guess(
-        x_values: np.ndarray, y_values: np.ndarray, num_qubits: int, user_p0: Dict = None
-    ) -> Dict[str, float]:
+        opt: curve.FitOptions, x_values: np.ndarray, y_values: np.ndarray, num_qubits: int
+    ) -> curve.FitOptions:
         """Create initial guess with experiment data."""
-        if user_p0 is None:
-            user_p0 = {}
+        opt.p0.set_if_empty(b=1 / 2 ** num_qubits)
 
-        fit_guess = {"a": 0.95, "alpha": 0.99, "b": 1 / 2 ** num_qubits}
-        for key in fit_guess:
-            if user_p0.get(key, None) is not None:
-                fit_guess[key] = user_p0[key]
+        # Use the first two points to guess the decay param
+        dcliff = x_values[1] - x_values[0]
+        dy = (y_values[1] - opt.p0["b"]) / (y_values[0] - opt.p0["b"])
+        alpha_guess = dy ** (1 / dcliff)
 
-        if user_p0.get("alpha", None) is None:
-            # Use the first two points to guess the decay param
-            dcliff = x_values[1] - x_values[0]
-            dy = (y_values[1] - fit_guess["b"]) / (y_values[0] - fit_guess["b"])
-            alpha_guess = dy ** (1 / dcliff)
+        opt.p0.set_if_empty(alpha=alpha_guess if alpha_guess < 1.0 else 0.99)
 
-            if alpha_guess < 1.0:
-                fit_guess["alpha"] = alpha_guess
+        if y_values[0] > opt.p0["b"]:
+            opt.p0.set_if_empty(a=(y_values[0] - opt.p0["b"]) / (opt.p0["alpha"] ** x_values[0]))
+        else:
+            opt.p0.set_if_empty(a=0.95)
 
-        if user_p0.get("a", None) is None and y_values[0] > fit_guess["b"]:
-            fit_guess["a"] = (y_values[0] - fit_guess["b"]) / fit_guess["alpha"] ** x_values[0]
-
-        return fit_guess
+        return opt
 
     def _format_data(self, data: curve.CurveData) -> curve.CurveData:
-        """Take average over the same x values."""
-        mean_data_index, mean_x, mean_y, mean_e = multi_mean_xy_data(
+        """Data format with averaging with sampling strategy."""
+        # take average over the same x value by regenerating sigma from variance of y values
+        series, xdata, ydata, sigma, shots = multi_mean_xy_data(
             series=data.data_index,
             xdata=data.x,
             ydata=data.y,
             sigma=data.y_err,
+            shots=data.shots,
             method="sample",
         )
+
+        # sort by x value in ascending order
+        series, xdata, ydata, sigma, shots = data_sort(
+            series=series,
+            xdata=xdata,
+            ydata=ydata,
+            sigma=sigma,
+            shots=shots,
+        )
+
         return curve.CurveData(
             label="fit_ready",
-            x=mean_x,
-            y=mean_y,
-            y_err=mean_e,
-            data_index=mean_data_index,
+            x=xdata,
+            y=ydata,
+            y_err=sigma,
+            shots=shots,
+            data_index=series,
         )
 
     def _extra_database_entry(self, fit_data: curve.FitData) -> List[AnalysisResultData]:

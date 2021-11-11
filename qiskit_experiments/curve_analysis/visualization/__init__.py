@@ -25,3 +25,4 @@ class FitResultPlotters(Enum):
     """Map the plotter name to the plotters."""
 
     mpl_single_canvas = fit_result_plotters.MplDrawSingleCanvas
+    mpl_multiv_canvas = fit_result_plotters.MplDrawMultiCanvasVstack

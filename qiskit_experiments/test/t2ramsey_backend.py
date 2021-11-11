@@ -44,7 +44,7 @@ class T2RamseyBackend(BackendV1):
         """
         conversion_factor_in_ns = conversion_factor * 1e9 if conversion_factor is not None else None
         configuration = QasmBackendConfiguration(
-            backend_name="t2ramsey_simulator",
+            backend_name="T2Ramsey_simulator",
             backend_version="0",
             n_qubits=int(1e6),
             basis_gates=["barrier", "h", "p", "delay", "measure"],
@@ -56,7 +56,7 @@ class T2RamseyBackend(BackendV1):
             memory=False,
             max_shots=int(1e6),
             coupling_map=None,
-            conversion=conversion_factor_in_ns,
+            dt=conversion_factor_in_ns,
         )
 
         self._t2ramsey = p0["T2star"]
@@ -117,7 +117,7 @@ class T2RamseyBackend(BackendV1):
                     if op.name == "delay":
                         delay = op.params[0]
                         t2ramsey = self._t2ramsey[qubit] * self._conversion_factor
-                        freq = self._freq[qubit] / self._conversion_factor
+                        freq = self._freq[qubit]
 
                         prob_plus[qubit] = (
                             self._a_param[qubit]
