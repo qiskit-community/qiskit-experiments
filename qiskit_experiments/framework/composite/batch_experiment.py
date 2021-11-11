@@ -18,11 +18,9 @@ from collections import OrderedDict
 
 from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
-from qiskit_experiments.framework.base_experiment import fix_class_docs
 from .composite_experiment import CompositeExperiment, BaseExperiment
 
 
-@fix_class_docs
 class BatchExperiment(CompositeExperiment):
     """Combine multiple experiments into a batch experiment.
 
