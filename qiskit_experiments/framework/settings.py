@@ -43,44 +43,39 @@ class Settings:
         # This method automatically stores all arg and kwargs from subclass
         # init methods
         spec = inspect.getfullargspec(cls.__init__)
-        named_args = spec.args[1:]
-        num_named = len(named_args)
-
-        ord_args = OrderedDict()
-        ord_kwargs = OrderedDict()
-
-        # Sort and store positional args
         if spec.varargs:
-            # Handle case with variadic positional args
-            # Note that this stores the variadic positonal args with
-            # a dummy argument name vararg{i}. where vararg is the
-            # variadic variable name.
-            for argname, argval in zip(named_args, args):
+            # raise exception if class init accepts variadic positional args
+            raise TypeError(
+                "Settings mixin cannot be used with an init method that "
+                " accepts variadic positional args "
+            )
+
+        # Get lists of named args and kwargs for classes init method
+        init_args = spec.args[1:]
+        defaults_kwargs = spec.defaults or []
+        num_named_kwargs = len(spec.defaults) if spec.defaults else 0
+        num_named_args = len(init_args) - num_named_kwargs
+        named_args = init_args[0:num_named_args]
+        named_kwargs = init_args[num_named_args:]
+
+        # Initialize ordered dicts for named args and kwargs using the
+        # argspec ordering
+        ord_args = OrderedDict(zip(named_args, [None] * num_named_args))
+        ord_kwargs = OrderedDict(zip(named_kwargs, defaults_kwargs))
+
+        # Sort called positional args
+        for i, (argname, argval) in enumerate(zip(init_args, args)):
+            if i < num_named_args:
                 ord_args[argname] = argval
-            for i in range(len(args) - num_named):
-                ord_args[f"{spec.varargs}{i}"] = args[i + num_named]
-            for argname, argval in kwargs.items():
+            else:
                 ord_kwargs[argname] = argval
-        else:
-            # Case without variadic position args.
-            # this sort args passed as kwargs and kwargs passed as
-            # positional args in the function call
-            num_named_kwargs = len(spec.defaults) if spec.defaults else 0
-            num_named_args = num_named - num_named_kwargs
-            num_call_args = len(args)
-            for i, argname in enumerate(named_args):
-                if i < num_named_args:
-                    update = ord_args
-                else:
-                    update = ord_kwargs
-                if i < num_call_args:
-                    update[argname] = args[i]
-                elif argname in kwargs:
-                    update[argname] = kwargs[argname]
-            # Handle variadic kwargs
-            for argname, argval in kwargs.items():
-                if argname not in named_args:
-                    ord_kwargs[argname] = argval
+
+        # Sort called kwargs
+        for argname, argval in kwargs.items():
+            if argname in named_args:
+                ord_args[argname] = argval
+            else:
+                ord_kwargs[argname] = argval
 
         # pylint: disable = attribute-defined-outside-init
         instance = super().__new__(cls)
