@@ -699,7 +699,7 @@ class DbExperimentDataV1(DbExperimentData):
             refresh: Retrieve the latest analysis results from the server, if
                 an experiment service is available.
             block: If True block for any analysis callbacks to finish running.
-            timeout: max time to wait for analysis callbacks to finish running.
+            timeout: max time in seconds to wait for analysis callbacks to finish running.
 
         Returns:
             Analysis results for this experiment.

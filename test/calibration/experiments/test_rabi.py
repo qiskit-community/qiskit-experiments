@@ -272,7 +272,6 @@ class TestRabiAnalysis(QiskitExperimentsTestCase):
         experiment_data = OscillationAnalysis().run(
             experiment_data, data_processor=data_processor, plot=False
         )
-        experiment_data.block_for_results()
         result = experiment_data.analysis_results()
         self.assertEqual(result[0].quality, "good")
         self.assertTrue(abs(result[0].value.value[1] - expected_rate) < test_tol)
@@ -291,7 +290,6 @@ class TestRabiAnalysis(QiskitExperimentsTestCase):
         experiment_data = OscillationAnalysis().run(
             experiment_data, data_processor=data_processor, plot=False
         )
-        experiment_data.block_for_results()
         result = experiment_data.analysis_results()
 
         self.assertEqual(result[0].quality, "bad")
