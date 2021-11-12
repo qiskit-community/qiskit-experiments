@@ -71,7 +71,7 @@ class QiskitExperimentsTestCase(QiskitTestCase):
         # Check each entry
         for arg1, arg2 in zip(config1.args, config2.args):
             if isinstance(arg1, np.ndarray) or isinstance(arg2, np.ndarray):
-                if not np.allclose(arg1, arg2):
+                if not np.all(np.asarray(arg1) == np.asarray(arg2)):
                     return False
             elif isinstance(arg1, tuple) or isinstance(arg2, tuple):
                 # JSON serialization converts tuples to lists

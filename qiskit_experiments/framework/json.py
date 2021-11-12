@@ -31,7 +31,6 @@ import scipy.sparse as sps
 
 from qiskit.circuit import ParameterExpression, QuantumCircuit, qpy_serialization
 from qiskit.circuit.library import BlueprintCircuit
-from qiskit.result import Result
 from qiskit.quantum_info import DensityMatrix
 from qiskit.quantum_info.operators.channel.quantum_channel import QuantumChannel
 from qiskit_experiments.version import __version__
@@ -66,7 +65,7 @@ def _deprecation_warning(name: str, version: str):
     )
 
 
-def _serialize_bytes(data: bytes, compress: bool = True) -> str:
+def _serialize_bytes(data: bytes, compress: bool = True) -> Dict[str, Any]:
     """Serialize binary data.
 
     Args:
@@ -74,7 +73,7 @@ def _serialize_bytes(data: bytes, compress: bool = True) -> str:
         compress: Whether to compress the serialized data.
 
     Returns:
-        String representation.
+        The serialized object value as a dict.
     """
     if compress:
         data = zlib.compress(data)
@@ -89,10 +88,13 @@ def _deserialize_bytes(value: Dict) -> str:
     """Deserialize binary encoded data.
 
     Args:
-        data: Data to be serialized.
+        value: value to be deserialized.
 
     Returns:
-        String representation.
+        Deserialized string representation.
+
+    Raises:
+        ValueError: If encoded data cannot be deserialized.
     """
     try:
         encoded = value["encoded"]
@@ -102,10 +104,7 @@ def _deserialize_bytes(value: Dict) -> str:
             decoded = zlib.decompress(decoded)
         return decoded
     except Exception as ex:  # pylint: disable=broad-except
-        warning_msg = "Could not deserialize binary encoded data."
-        traceback_msg = traceback.format_exception(type(ex), ex, ex.__traceback__)
-        _show_warning(warning_msg, traceback_msg=traceback_msg)
-        return value
+        raise ValueError("Could not deserialize binary encoded data.") from ex
 
 
 def _serialize_and_encode(
@@ -141,6 +140,9 @@ def _decode_and_deserialize(value: Dict, deserializer: Callable, name: Optional[
 
     Returns:
         Deserialized data.
+
+    Raises:
+        ValueError: if deserialization fails.
     """
     try:
         buff = io.BytesIO()
@@ -150,10 +152,7 @@ def _decode_and_deserialize(value: Dict, deserializer: Callable, name: Optional[
         buff.close()
         return orig
     except Exception as ex:  # pylint: disable=broad-except
-        warning_msg = f"Could not deserialize <{name}> data."
-        traceback_msg = traceback.format_exception(type(ex), ex, ex.__traceback__)
-        _show_warning(warning_msg, traceback_msg=traceback_msg)
-        return value
+        raise ValueError(f"Could not deserialize <{name}> data.") from ex
 
 
 def _serialize_safe_float(obj: any):
@@ -179,84 +178,7 @@ def _serialize_safe_float(obj: any):
     return obj
 
 
-def _serialize_object(obj: Any, settings: Optional[Dict] = None, safe_float: bool = True) -> Dict:
-    """Serialize a class instance from its init args and kwargs.
-
-    Args:
-        obj: The object to be serialized.
-        settings: Optional, settings for reconstructing the object from kwargs.
-        safe_float: if True check float values for NaN, inf and -inf
-                    and cast to strings during serialization.
-
-    Returns:
-        Dict serialized class instance.
-    """
-    value = {
-        "name": type(obj).__name__,
-        "module": type(obj).__module__,
-        "version": __version__,
-    }
-    if settings is None:
-        if hasattr(obj, "__json_encode__"):
-            settings = obj.__json_encode__()
-        elif hasattr(obj, "settings"):
-            settings = obj.settings
-        else:
-            settings = {}
-    if safe_float:
-        settings = _serialize_safe_float(settings)
-    value["settings"] = settings
-    return {"__type__": "object", "__value__": value}
-
-
-def _deserialize_object(value: Dict) -> Any:
-    """Deserialize class instance saved as settings"""
-    name = value["name"]
-    mod = value["module"]
-    version = value.get("version", None)
-    settings = value.get("settings", {})
-
-    cls = None
-    if mod == "__main__":
-        cls = globals().get(name, None)
-    else:
-        scope = importlib.import_module(mod)
-        for name_, obj in inspect.getmembers(scope, inspect.isclass):
-            if name_ == name:
-                cls = obj
-                break
-
-    # Warning msg if deserialization fails
-    traceback_msg = None
-    warning_msg = None
-    if cls is None:
-        warning_msg = f"Cannot deserialize {name}. The type could not be found in module {mod}"
-    elif hasattr(cls, "__json_decode__"):
-        try:
-            return cls.__json_decode__(settings)
-        except Exception as ex:  # pylint: disable=broad-except
-            traceback_msg = traceback.format_exception(type(ex), ex, ex.__traceback__)
-            warning_msg = (
-                f"Could not deserialize instance of class {name} from value {settings} "
-                "using __json_decode__ method."
-            )
-    else:
-        try:
-            return cls(**settings)
-        except Exception as ex:  # pylint: disable=broad-except
-            traceback_msg = traceback.format_exception(type(ex), ex, ex.__traceback__)
-            warning_msg = (
-                f"Could not deserialize instance of class {name} from settings {settings}."
-            )
-
-    # Display warning msg if deserialization failed
-    _show_warning(warning_msg, traceback_msg=traceback_msg, version=version)
-
-    # Return partially deserialized value
-    return value
-
-
-def is_type(obj: Any) -> bool:
+def istype(obj: Any) -> bool:
     """Return True if object is a class, function, or method type"""
     return inspect.isclass(obj) or inspect.isfunction(obj) or inspect.ismethod(obj)
 
@@ -301,7 +223,7 @@ def _deserialize_type(value: Dict):
                         scope = obj
 
         if scope is not None:
-            for name_, obj in inspect.getmembers(scope, is_type):
+            for name_, obj in inspect.getmembers(scope, istype):
                 if name_ == name:
                     return obj
     except Exception as ex:  # pylint: disable=broad-except
@@ -310,6 +232,66 @@ def _deserialize_type(value: Dict):
     # Show warning
     warning_msg = f"Cannot deserialize {name}. The type could not be found in module {mod}"
     _show_warning(warning_msg, traceback_msg=traceback_msg, version=version)
+
+    # Return partially deserialized value
+    return value
+
+
+def _serialize_object(obj: Any, settings: Optional[Dict] = None, safe_float: bool = True) -> Dict:
+    """Serialize a class instance from its init args and kwargs.
+
+    Args:
+        obj: The object to be serialized.
+        settings: Optional, settings for reconstructing the object from kwargs.
+        safe_float: if True check float values for NaN, inf and -inf
+                    and cast to strings during serialization.
+
+    Returns:
+        Dict serialized class instance.
+    """
+    if settings is None:
+        if hasattr(obj, "__json_encode__"):
+            settings = obj.__json_encode__()
+        elif hasattr(obj, "settings"):
+            settings = obj.settings
+        else:
+            settings = {}
+    if safe_float:
+        settings = _serialize_safe_float(settings)
+    value = {
+        "class": _serialize_type(type(obj)),
+        "settings": settings,
+        "version": __version__,
+    }
+    return {"__type__": "object", "__value__": value}
+
+
+def _deserialize_object(value: Dict) -> Any:
+    """Deserialize class instance saved as settings"""
+    cls = value.get("class", {})
+    if isinstance(cls, dict):
+        # Deserialization of class type failed.
+        return value
+
+    settings = value.get("settings", {})
+    if hasattr(cls, "__json_decode__"):
+        try:
+            return cls.__json_decode__(settings)
+        except Exception as ex:  # pylint: disable=broad-except
+            traceback_msg = traceback.format_exception(type(ex), ex, ex.__traceback__)
+            warning_msg = (
+                f"Could not deserialize instance of class {cls} from value {settings} "
+                "using __json_decode__ method."
+            )
+    else:
+        try:
+            return cls(**settings)
+        except Exception as ex:  # pylint: disable=broad-except
+            traceback_msg = traceback.format_exception(type(ex), ex, ex.__traceback__)
+            warning_msg = f"Could not deserialize instance of class {cls} from settings {settings}."
+
+    # Display warning msg if deserialization failed
+    _show_warning(warning_msg, traceback_msg=traceback_msg, version=value.get("version"))
 
     # Return partially deserialized value
     return value
@@ -342,9 +324,9 @@ class ExperimentEncoder(json.JSONEncoder):
     This class extends the default Python JSONEncoder by including built-in
     support for
 
-    * complex numbers, sets and dataclasses.
+    * complex numbers, inf and NaN floats, sets, and dataclasses.
     * NumPy ndarrays and SciPy sparse matrices.
-    * Qiskit ``QuantumCircuit``, ``Result``.
+    * Qiskit ``QuantumCircuit``.
     * Any class that implements a ``__json_encode__`` method or a
       ``settings`` property.
 
@@ -428,8 +410,6 @@ class ExperimentEncoder(json.JSONEncoder):
                 compress=False,
             )
             return {"__type__": "ParameterExpression", "__value__": value}
-        if isinstance(obj, Result):
-            return {"__type__": "Result", "__value__": obj.to_dict()}
         if isinstance(obj, QuantumChannel):
             # Temporary fix for incorrect settings in qiskit-terra
             # See https://github.com/Qiskit/qiskit-terra/pull/7194
@@ -447,7 +427,7 @@ class ExperimentEncoder(json.JSONEncoder):
                 "dims": obj.dims(),
             }
             return _serialize_object(obj, settings=settings)
-        if is_type(obj):
+        if istype(obj):
             return _serialize_type(obj)
         try:
             return super().default(obj)
@@ -491,8 +471,6 @@ class ExperimentDecoder(json.JSONDecoder):
                 return _decode_and_deserialize(
                     obj_val, qpy_serialization._read_parameter_expression, name=obj_type
                 )
-            if obj_type == "Result":
-                return Result.from_dict(obj_val)
             if obj_type == "safe_float":
                 return self._NaNs.get(obj_val, obj_val)
             if obj_type == "object":
