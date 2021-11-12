@@ -67,7 +67,7 @@ class DataAction(metaclass=ABCMeta):
                 is done automatically.
 
         Returns:
-            The data that has been processed.
+            The processed data.
         """
         return self._process(self._format_data(data))
 
