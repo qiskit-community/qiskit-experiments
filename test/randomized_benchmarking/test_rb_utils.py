@@ -13,10 +13,10 @@
 """
 A Tester for the RB utils module
 """
-
+from test.base import QiskitExperimentsTestCase
 import numpy as np
 from ddt import ddt, data, unpack
-from qiskit.test import QiskitTestCase
+
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import (
     IGate,
@@ -37,7 +37,7 @@ from qiskit_experiments.database_service.db_fitval import FitVal
 
 
 @ddt
-class TestRBUtilities(QiskitTestCase):
+class TestRBUtilities(QiskitExperimentsTestCase):
     """
     A test class for additional functionality provided by the StandardRB
     class.
