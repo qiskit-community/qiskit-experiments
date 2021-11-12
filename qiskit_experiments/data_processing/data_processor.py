@@ -15,9 +15,9 @@
 A data processor is a chain of data processing steps that transform various input data, 
 e.g. IQ data, into a desired format, e.g. population, which can be analyzed.
 
-Such transform may take multiple steps, such as kerneling, discrimination, ...,
-and each step is implemented as :class:`~qiskit_experiments.data_processing.\
-data_action.DataAction`, namely, `nodes`.
+These data transformations may consist of multiple steps, such as kerneling and discrimination.
+Each step is implemented by a :class:`~qiskit_experiments.data_processing.\
+data_action.DataAction` also called a `node`.
 
 The processor implements :meth:`__call__` method, thus once its instance is initialized,
 this object can be used as if a standard python function:
