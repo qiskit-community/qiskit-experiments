@@ -194,11 +194,19 @@ class DataProcessor:
             data = node(data)
 
             if with_history and (history_nodes is None or index in history_nodes):
+                try:
+                    nominals = unp.nominal_values(data)
+                    stdevs = unp.std_devs(data)
+                    if np.isnan(stdevs).all():
+                        stdevs = None
+                except TypeError:
+                    nominals = data
+                    stdevs = None
                 history.append(
                     (
                         node.__class__.__name__,
-                        unp.nominal_values(data),
-                        unp.std_devs(data),
+                        nominals,
+                        stdevs,
                         index,
                     )
                 )
