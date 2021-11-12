@@ -27,10 +27,9 @@ can thus be used as a standard python function:
     processor = DataProcessor(input_key="memory", [Node1(), Node2(), ...])
     out_data = processor(in_data)
 
-Usually this is the step beyond detailed data analysis. The data input to the processor is
-a sequence of dictionary representing a result of single circuit execution,
-and output from the processor is arbitrary numpy array, with shape and data type
-depending on the combination of processing nodes.
+The data input to the processor is a sequence of dictionaries each representing the result 
+of a single circuit. The output of the processor is a numpy array whose shape and data type
+depend on the combination of the nodes in the data processor.
 
 The uncertainty arises from quantum measurement or finite sampling may be taken into account
 in a specific node, and generated standard error there may be propagated through
