@@ -512,3 +512,12 @@ class BaseExperiment(ABC, Settings):
                 "run_options": copy.copy(run_options),
             }
         ]
+
+    def __json_encode__(self):
+        """Convert to format that can be JSON serialized"""
+        return self.config
+
+    @classmethod
+    def __json_decode__(cls, value):
+        """Load from JSON compatible format"""
+        return cls.from_config(value)

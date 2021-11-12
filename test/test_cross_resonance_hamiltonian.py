@@ -11,13 +11,13 @@
 # that they have been altered from the originals.
 
 """Spectroscopy tests."""
+from test.base import QiskitExperimentsTestCase
 
 import numpy as np
 from ddt import ddt, data, unpack
 from qiskit import QuantumCircuit, circuit, pulse
 from qiskit.providers.models import PulseBackendConfiguration
 from qiskit.result import Result
-from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeBackend
 
 from qiskit_experiments.library.characterization import cr_hamiltonian
@@ -155,7 +155,7 @@ class CrossResonanceHamiltonianBackend(FakeBackend):
 
 
 @ddt
-class TestCrossResonanceHamiltonian(QiskitTestCase):
+class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
     """Test for cross resonance Hamiltonian tomography."""
 
     def test_circuit_generation(self):
@@ -331,14 +331,25 @@ class TestCrossResonanceHamiltonian(QiskitTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = cr_hamiltonian.CrossResonanceHamiltonian(
-            qubits=(0, 1),
+            qubits=[0, 1],
             flat_top_widths=[500],
             unit="ns",
             amp=0.1,
             sigma=20,
             risefall=2,
         )
-        config = exp.config
-        loaded_exp = cr_hamiltonian.CrossResonanceHamiltonian.from_config(config)
+        loaded_exp = cr_hamiltonian.CrossResonanceHamiltonian.from_config(exp.config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+
+    def test_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = cr_hamiltonian.CrossResonanceHamiltonian(
+            qubits=[0, 1],
+            flat_top_widths=[500],
+            unit="ns",
+            amp=0.1,
+            sigma=20,
+            risefall=2,
+        )
+        self.assertRoundTripSerializable(exp, self.experiments_equiv)
