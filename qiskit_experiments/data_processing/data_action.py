@@ -62,9 +62,9 @@ class DataAction(metaclass=ABCMeta):
         """Call the data action of this node on the data.
 
         Args:
-            data: A numpy array with arbitrary dtype. If elements are ufloat objects
-                consisting of nominal value and standard error values,
-                error propagation is automatically computed.
+            data: A numpy array with arbitrary dtype. If the elements are ufloat objects
+                consisting of a nominal value and a standard error, then the error propagation 
+                is done automatically.
 
         Returns:
             The data that has been processed.
