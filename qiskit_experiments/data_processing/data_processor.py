@@ -19,8 +19,8 @@ These data transformations may consist of multiple steps, such as kerneling and 
 Each step is implemented by a :class:`~qiskit_experiments.data_processing.\
 data_action.DataAction` also called a `node`.
 
-The processor implements :meth:`__call__` method, thus once its instance is initialized,
-this object can be used as if a standard python function:
+The data processor implements the :meth:`__call__` method. Once initialized, it
+can thus be used as a standard python function:
 
 .. code-block:: python
 
