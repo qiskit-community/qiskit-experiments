@@ -126,7 +126,7 @@ class TestFineDragCal(QiskitExperimentsTestCase):
         self.assertEqual(circs[5].calibrations["sx"][((0,), ())], expected_sx)
 
         # run the calibration experiment. This should update the beta parameter of x which we test.
-        exp_data = drag_cal.run(self.backend).block_for_results()
+        exp_data = drag_cal.run(self.backend)
         d_theta = exp_data.analysis_results(1).value.value
         sigma = 40
         target_angle = np.pi
