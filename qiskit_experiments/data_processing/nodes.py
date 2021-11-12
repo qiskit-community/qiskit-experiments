@@ -316,8 +316,8 @@ class IQPart(DataAction):
         if self._validate:
             if data.shape[-1] != 2:
                 raise DataProcessorError(
-                    f"IQ data given to {self.__class__.__name__} must be multi-dimensional array"
-                    "of [d0, d1, ..., 2] in which the last dimension corresponds to IQ elements."
+                    f"IQ data given to {self.__class__.__name__} must be a multi-dimensional array"
+                    "of dimension [d0, d1, ..., 2] in which the last dimension corresponds to IQ elements."
                     f"Input data contains element with length {data.shape[-1]} != 2."
                 )
 
