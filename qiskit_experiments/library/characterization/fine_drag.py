@@ -19,13 +19,12 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
-from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
-from qiskit_experiments.library.calibration.analysis.fine_drag_analysis import (
+from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.library.characterization.analysis import (
     FineDragAnalysis,
 )
 
 
-@fix_class_docs
 class FineDrag(BaseExperiment):
     r"""Fine DRAG experiment.
 
@@ -227,7 +226,6 @@ class FineDrag(BaseExperiment):
         return circuits
 
 
-@fix_class_docs
 class FineXDrag(FineDrag):
     """Class to fine calibrate the DRAG parameter of an X gate.
 

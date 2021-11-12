@@ -15,9 +15,7 @@ Base Experiment class.
 
 from abc import ABC, abstractmethod
 import copy
-import inspect
 import dataclasses
-from functools import wraps
 from collections import OrderedDict
 from typing import Sequence, Optional, Tuple, List, Dict, Union, Any
 
@@ -28,6 +26,7 @@ from qiskit.providers.basebackend import BaseBackend as LegacyBackend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
+from qiskit_experiments.framework.settings import Settings
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.version import __version__
 
@@ -86,7 +85,7 @@ class ExperimentConfig:
             raise QiskitError("{}\nError Message:\n{}".format(msg, str(ex))) from ex
 
 
-class BaseExperiment(ABC):
+class BaseExperiment(ABC, Settings):
     """Abstract base class for experiments.
 
     Class Attributes:
@@ -142,39 +141,6 @@ class BaseExperiment(ABC):
         self._backend = None
         if isinstance(backend, (Backend, BaseBackend)):
             self._set_backend(backend)
-
-    def __new__(cls, *args, **kwargs):
-        """Store init args and kwargs for subclass __init__ methods"""
-        # This method automatically stores all arg and kwargs from subclass
-        # init methods for use in converting an experiment to config
-
-        # Get all non-self init args and kwarg names for subclass
-        spec = inspect.getfullargspec(cls.__init__)
-        init_arg_names = spec.args[1:]
-        num_init_kwargs = len(spec.defaults) if spec.defaults else 0
-        num_init_args = len(init_arg_names) - num_init_kwargs
-
-        # Convert passed values for args and kwargs into an ordered dict
-        # This will sort args passed as kwargs and kwargs passed as
-        # positional args in the function call
-        num_call_args = len(args)
-        ord_args = OrderedDict()
-        ord_kwargs = OrderedDict()
-        for i, argname in enumerate(init_arg_names):
-            if i < num_init_args:
-                update = ord_args
-            else:
-                update = ord_kwargs
-            if i < num_call_args:
-                update[argname] = args[i]
-            elif argname in kwargs:
-                update[argname] = kwargs[argname]
-
-        # pylint: disable = attribute-defined-outside-init
-        instance = super(BaseExperiment, cls).__new__(cls)
-        instance.__init_args__ = ord_args
-        instance.__init_kwargs__ = ord_kwargs
-        return instance
 
     @property
     def experiment_type(self) -> str:
@@ -304,7 +270,7 @@ class BaseExperiment(ABC):
         # Run jobs
         jobs = experiment._run_jobs(circuits, **run_opts)
         experiment_data.add_data(jobs)
-        experiment._add_job_metadata(experiment_data, jobs, **run_opts)
+        experiment._add_job_metadata(experiment_data.metadata, jobs, **run_opts)
 
         # Optionally run analysis
         if analysis and self.__analysis_class__ is not None:
@@ -515,7 +481,6 @@ class BaseExperiment(ABC):
             "experiment_type": self._type,
             "num_qubits": self.num_qubits,
             "physical_qubits": list(self.physical_qubits),
-            "job_metadata": [],
         }
         # Add additional metadata if subclasses specify it
         for key, val in self._additional_metadata().items():
@@ -530,36 +495,20 @@ class BaseExperiment(ABC):
         """
         return {}
 
-    def _add_job_metadata(self, experiment_data: ExperimentData, jobs: BaseJob, **run_options):
+    def _add_job_metadata(self, metadata: Dict[str, Any], jobs: BaseJob, **run_options):
         """Add runtime job metadata to ExperimentData.
 
         Args:
-            experiment_data: the experiment data container.
+            metadata: the metadata dict to update with job data.
             jobs: the job objects.
             run_options: backend run options for the job.
         """
-        metadata = {
-            "job_ids": [job.job_id() for job in jobs],
-            "experiment_options": copy.copy(self.experiment_options.__dict__),
-            "transpile_options": copy.copy(self.transpile_options.__dict__),
-            "analysis_options": copy.copy(self.analysis_options.__dict__),
-            "run_options": copy.copy(run_options),
-        }
-        experiment_data._metadata["job_metadata"].append(metadata)
-
-
-def fix_class_docs(wrapped_cls):
-    """Experiment class decorator to fix class doc formatting.
-
-    This fixes the BaseExperiment subclass documentation so that
-    the correct init arg and kwargs are shown for the class documentation,
-    rather than the generic args of the BaseExperiment.__new__ method.
-    """
-
-    @wraps(wrapped_cls.__init__, assigned=("__annotations__",))
-    def __new__(cls, *args, **kwargs):
-        return super(wrapped_cls, cls).__new__(cls, *args, **kwargs)
-
-    wrapped_cls.__new__ = __new__
-
-    return wrapped_cls
+        metadata["job_metadata"] = [
+            {
+                "job_ids": [job.job_id() for job in jobs],
+                "experiment_options": copy.copy(self.experiment_options.__dict__),
+                "transpile_options": copy.copy(self.transpile_options.__dict__),
+                "analysis_options": copy.copy(self.analysis_options.__dict__),
+                "run_options": copy.copy(run_options),
+            }
+        ]
