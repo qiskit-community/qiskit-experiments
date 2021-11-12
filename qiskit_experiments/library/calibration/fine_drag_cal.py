@@ -12,10 +12,10 @@
 
 """Fine drag calibration experiment."""
 
-from typing import List, Optional
+from typing import Optional
 import numpy as np
 
-from qiskit.circuit import Gate, QuantumCircuit
+from qiskit.circuit import Gate
 from qiskit.providers.backend import Backend
 from qiskit.pulse import Play
 
@@ -82,8 +82,8 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
         options.target_angle = np.pi
         return options
 
-    def _add_cal_metadata(self, circuits: List[QuantumCircuit]):
-        """Add metadata to the circuit to make the experiment data more self contained.
+    def _add_cal_metadata(self, experiment_data: ExperimentData):
+        """Add metadata to the experiment data making it more self contained.
 
         The following keys are added to each circuit's metadata:
             cal_param_value: The value of the drag parameter. This value together with
@@ -101,52 +101,46 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
             group=self.experiment_options.group,
         )
 
-        for circuit in circuits:
-            circuit.metadata["cal_param_value"] = param_val
-            circuit.metadata["cal_param_name"] = self._param_name
-            circuit.metadata["cal_schedule"] = self._sched_name
-            circuit.metadata["target_angle"] = self.experiment_options.target_angle
-            circuit.metadata["cal_group"] = self.experiment_options.group
+        experiment_data.metadata["cal_param_value"] = param_val
+        experiment_data.metadata["cal_param_name"] = self._param_name
+        experiment_data.metadata["cal_schedule"] = self._sched_name
+        experiment_data.metadata["target_angle"] = self.experiment_options.target_angle
+        experiment_data.metadata["cal_group"] = self.experiment_options.group
 
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update the drag parameter of the pulse in the calibrations."""
 
-        data = experiment_data.data()
+        result_index = self.experiment_options.result_index
+        group = experiment_data.metadata["cal_group"]
+        target_angle = experiment_data.metadata["target_angle"]
+        qubits = experiment_data.metadata["physical_qubits"]
 
-        # No data -> no update
-        if len(data) > 0:
+        schedule = self._cals.get_schedule(self._sched_name, qubits)
 
-            result_index = self.experiment_options.result_index
-            group = data[0]["metadata"]["cal_group"]
-            target_angle = data[0]["metadata"]["target_angle"]
-            qubits = experiment_data.metadata["physical_qubits"]
+        # Obtain sigma as it is needed for the fine DRAG update rule.
+        sigmas = []
+        for block in schedule.blocks:
+            if isinstance(block, Play) and hasattr(block.pulse, "sigma"):
+                sigmas.append(getattr(block.pulse, "sigma"))
 
-            schedule = self._cals.get_schedule(self._sched_name, qubits)
-
-            # Obtain sigma as it is needed for the fine DRAG update rule.
-            sigmas = []
-            for block in schedule.blocks:
-                if isinstance(block, Play) and hasattr(block.pulse, "sigma"):
-                    sigmas.append(getattr(block.pulse, "sigma"))
-
-            if len(set(sigmas)) != 1:
-                raise CalibrationError(
-                    "Cannot run fine Drag calibration on a schedule with multiple values of sigma."
-                )
-
-            if len(sigmas) == 0:
-                raise CalibrationError(f"Could not infer sigma from {schedule}.")
-
-            d_theta = BaseUpdater.get_value(experiment_data, "d_theta", result_index)
-
-            # See the documentation in fine_drag.py for the derivation of this rule.
-            d_beta = -np.sqrt(np.pi) * d_theta * sigmas[0] / target_angle ** 2
-            old_beta = data[0]["metadata"]["cal_param_value"]
-            new_beta = old_beta + d_beta
-
-            BaseUpdater.add_parameter_value(
-                self._cals, experiment_data, new_beta, self._param_name, schedule, group
+        if len(set(sigmas)) != 1:
+            raise CalibrationError(
+                "Cannot run fine Drag calibration on a schedule with multiple values of sigma."
             )
+
+        if len(sigmas) == 0:
+            raise CalibrationError(f"Could not infer sigma from {schedule}.")
+
+        d_theta = BaseUpdater.get_value(experiment_data, "d_theta", result_index)
+
+        # See the documentation in fine_drag.py for the derivation of this rule.
+        d_beta = -np.sqrt(np.pi) * d_theta * sigmas[0] / target_angle ** 2
+        old_beta = experiment_data.metadata["cal_param_value"]
+        new_beta = old_beta + d_beta
+
+        BaseUpdater.add_parameter_value(
+            self._cals, experiment_data, new_beta, self._param_name, schedule, group
+        )
 
 
 class FineXDragCal(FineDragCal):
