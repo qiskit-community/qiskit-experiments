@@ -10,32 +10,24 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Actions done on the data to bring it in a usable form.
+r"""Actions done on the data to bring it in a usable form.
 
-A data processor is a chain of data processing steps that transform various input data, 
-e.g. IQ data, into a desired format, e.g. population, which can be analyzed.
-
-These data transformations may consist of multiple steps, such as kerneling and discrimination.
-Each step is implemented by a :class:`~qiskit_experiments.data_processing.\
-data_action.DataAction` also called a `node`.
-
-The data processor implements the :meth:`__call__` method. Once initialized, it
-can thus be used as a standard python function:
-
-.. code-block:: python
-
-    processor = DataProcessor(input_key="memory", [Node1(), Node2(), ...])
-    out_data = processor(in_data)
-
-The data input to the processor is a sequence of dictionaries each representing the result 
-of a single circuit. The output of the processor is a numpy array whose shape and data type
-depend on the combination of the nodes in the data processor.
-
-Uncertainties that arise from quantum measurements or finite sampling can be taken into account
-in the nodes: a standard error can be generated in a node and can be propagated through the subsequent
-nodes in the data processor. In Qiskit Experiments, this uncertainty propagation is offloaded to the
-``uncertainties`` package, that offers a python float and numpy-array compatible number
+In Qiskit Experiments, uncertainty propagation is offloaded to the ``uncertainties``
+package, that offers a python float and numpy-array compatible number
 representation that natively supports standard errors and their propagation.
+
+Given values :math:`a` and :math:`b` have finite uncertainty, the error propagation
+in the function :math:`f` will be computed with derivatives
+
+.. math:
+
+    \sigma_f^2 \sim \left| \frac{\partial f}{\partial a} \right|^2 \sigma_a^2
+        + \left| \frac{\partial f}{\partial b} \right|^2 \sigma_b^2
+        + 2 \frac{\partial f}{\partial a} \frac{\partial f}{\partial b} \sigma_{ab}
+
+where :math:`sigma_a` and :math:`sigma_b` are uncertainty of values and
+:math:`sigma_{ab}` is the correlation between them.
+You can refer to the ``uncertainties`` package documentation for details.
 
 .. _uncertainties:
 https://pypi.org/project/uncertainties/
