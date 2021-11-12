@@ -194,11 +194,10 @@ def _decode_and_deserialize(value: Dict, deserializer: Callable, name: Optional[
         ValueError: if deserialization fails.
     """
     try:
-        buff = io.BytesIO()
-        buff.write(value)
-        buff.seek(0)
-        orig = deserializer(buff)
-        buff.close()
+        with io.BytesIO() as buff:
+            buff.write(value)
+            buff.seek(0)
+            orig = deserializer(buff)
         return orig
     except Exception as ex:  # pylint: disable=broad-except
         raise ValueError(f"Could not deserialize <{name}> data.") from ex
