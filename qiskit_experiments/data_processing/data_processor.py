@@ -31,12 +31,11 @@ The data input to the processor is a sequence of dictionaries each representing 
 of a single circuit. The output of the processor is a numpy array whose shape and data type
 depend on the combination of the nodes in the data processor.
 
-The uncertainty arises from quantum measurement or finite sampling may be taken into account
-in a specific node, and generated standard error there may be propagated through
-numerical operations within the stack.
-In Qiskit Experiments, this uncertainty propagation computation is offloaded to
+Uncertainties that arise from quantum measurements or finite sampling can be taken into account
+in the nodes: a standard error can be generated in a node and can be propagated through the subsequent
+nodes in the data processor. In Qiskit Experiments, this uncertainty propagation is offloaded to the
 ``uncertainties`` package, that offers a python float and numpy-array compatible number
-representation that naively supports standard error and computation with it.
+representation that natively supports standard errors and their propagation.
 
 .. _uncertainties:
 https://pypi.org/project/uncertainties/
