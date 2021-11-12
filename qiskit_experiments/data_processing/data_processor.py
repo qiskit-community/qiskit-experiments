@@ -61,7 +61,7 @@ class DataProcessor:
     def __init__(
         self,
         input_key: str,
-        data_actions: List[Union[DataAction, TrainableDataAction]] = None,
+        data_actions: List[DataAction] = None,
     ):
         """Create a chain of data processing actions.
 
@@ -74,7 +74,7 @@ class DataProcessor:
         self._input_key = input_key
         self._nodes = data_actions if data_actions else []
 
-    def append(self, node: Union[DataAction, TrainableDataAction]):
+    def append(self, node: DataAction):
         """
         Append new data action node to this data processor.
 
