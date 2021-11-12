@@ -36,9 +36,9 @@ class DataAction(metaclass=ABCMeta):
         """Applies the data processing step to the data.
 
         Args:
-            data: A full data array to process. This is numpy array of arbitrary dtype.
-                If elements are ufloat objects consisting of nominal value and
-                standard error values, error propagation is automatically computed.
+            data: A full data array to process. This is a numpy array of arbitrary type.
+                If the elements are ufloat objects consisting of a nominal value and
+                a standard error, then the error propagation is automatically computed.
 
         Returns:
             The data that has been processed.
