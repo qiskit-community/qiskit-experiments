@@ -39,10 +39,16 @@ class QuantumVolumeAnalysis(BaseAnalysis):
 
     @classmethod
     def _default_options(cls) -> Options:
-        return Options(
-            plot=True,
-            ax=None,
-        )
+        """Return default analysis options.
+
+        Analysis Options:
+            plot (bool): Set ``True`` to create figure for fit result.
+            ax(AxesSubplot): Optional. A matplotlib axis object to draw. 
+        """
+        options = super()._default_options()
+        options.plot = True
+        options.ax = None
+        return options
 
     def _run_analysis(self, experiment_data):
         depth = experiment_data.experiment.num_qubits

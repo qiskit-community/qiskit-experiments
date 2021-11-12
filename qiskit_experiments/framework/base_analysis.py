@@ -222,3 +222,10 @@ class BaseAnalysis(ABC, Settings):
         """
         # NOTE: passing kwarg options to _run_analysis should be removed once
         pass
+
+    def __json_encode__(self):
+        return self.config
+
+    @classmethod
+    def __json_decode__(cls, value):
+        return cls.from_config(value)
