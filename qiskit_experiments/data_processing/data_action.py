@@ -41,7 +41,7 @@ class DataAction(metaclass=ABCMeta):
                 a standard error, then the error propagation is automatically computed.
 
         Returns:
-            The data that has been processed.
+            The processed data.
         """
 
     def _format_data(self, data: np.ndarray) -> np.ndarray:
