@@ -11,9 +11,9 @@
 # that they have been altered from the originals.
 
 """Test version string generation."""
-
+from test.base import QiskitExperimentsTestCase
 import numpy as np
-from qiskit.test import QiskitTestCase
+
 from qiskit import QuantumCircuit, transpile
 from qiskit.providers.basicaer import QasmSimulatorPy
 from qiskit_experiments.curve_analysis import curve_fit, multi_curve_fit, process_curve_data
@@ -24,7 +24,7 @@ from qiskit_experiments.curve_analysis.data_processing import (
 )
 
 
-class TestCurveFitting(QiskitTestCase):
+class TestCurveFitting(QiskitExperimentsTestCase):
     """Test curve fitting functions."""
 
     def simulate_experiment_data(self, thetas, shots=1024):

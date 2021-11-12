@@ -13,15 +13,14 @@
 """Test parameter guess functions."""
 # pylint: disable=invalid-name
 
+from test.base import QiskitExperimentsTestCase
 import numpy as np
 from ddt import ddt, data, unpack
-from qiskit.test import QiskitTestCase
-
 from qiskit_experiments.curve_analysis import guess
 
 
 @ddt
-class TestGuesses(QiskitTestCase):
+class TestGuesses(QiskitExperimentsTestCase):
     """Test for initial guess functions."""
 
     __tolerance_percent__ = 0.2
