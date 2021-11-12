@@ -181,7 +181,8 @@ class DataProcessor:
 
         Returns:
             When ``with_history`` is ``False`` it returns an numpy array of processed data.
-            Otherwise it returns a tuple of above with a list of intermediate data at each step.
+            Otherwise it returns a tuple of (processed data, history) in which the `history`
+            is a list of intermediate data at each step.
         """
         if call_up_to_node is None:
             call_up_to_node = len(self._nodes)
