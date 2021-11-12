@@ -12,8 +12,8 @@
 
 """Actions done on the data to bring it in a usable form.
 
-Data processor is an object that represents a chain of data processing steps to
-transform arbitrary input data, e.g. IQ data, into expected format, e.g. population.
+A data processor is a chain of data processing steps that transform various input data, 
+e.g. IQ data, into a desired format, e.g. population, which can be analyzed.
 
 Such transform may take multiple steps, such as kerneling, discrimination, ...,
 and each step is implemented as :class:`~qiskit_experiments.data_processing.\
