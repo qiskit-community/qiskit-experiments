@@ -92,8 +92,11 @@ class MinMaxNormalize(DataAction):
 
         Returns:
             The normalized data.
+
+        Notes:
+            This doesn't consider the uncertainties of the minimum or maximum values.
+            Input data array is just scaled by the data range.
         """
-        # Drop uncertainty of min max values. This is just mix-max scaling.
         nominals = unp.nominal_values(data)
         min_y, max_y = np.min(nominals), np.max(nominals)
 
