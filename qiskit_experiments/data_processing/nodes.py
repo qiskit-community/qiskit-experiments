@@ -65,10 +65,10 @@ class AverageData(DataAction):
             data: An all-result data array to format.
 
         Notes:
-            Error is computed by the standard error of the mean,
+            The error is computed by the standard error of the mean,
             i.e. the standard deviation of the datum divided by :math:`\sqrt{N}`
             where :math:`N` is the number of data points.
-            Standard error computed by the previous node will be discarded.
+            Standard errors computed by the previous node are discarded.
 
         Returns:
              Arrays with one less dimension than the given data.
