@@ -91,7 +91,7 @@ class MinMaxNormalize(DataAction):
             data: An all-result data array to process.
 
         Returns:
-            The data that has been processed.
+            The normalized data.
         """
         # Drop uncertainty of min max values. This is just mix-max scaling.
         nominals = unp.nominal_values(data)
