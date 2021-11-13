@@ -65,7 +65,7 @@ class DataAction(metaclass=ABCMeta):
 
         Args:
             data: A numpy array with arbitrary dtype. If the elements are ufloat objects
-                consisting of a nominal value and a standard error, then the error propagation 
+                consisting of a nominal value and a standard error, then the error propagation
                 is done automatically.
 
         Returns:
