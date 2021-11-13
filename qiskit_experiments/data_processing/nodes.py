@@ -304,9 +304,6 @@ class IQPart(DataAction):
     def _format_data(self, data: np.ndarray) -> np.ndarray:
         """Format and validate the input.
 
-        Check that the given data has the correct structure. This method may
-        additionally change the data type, e.g. converting a list to a numpy array.
-
         Args:
             data: An all-result data array to format.
 
@@ -320,7 +317,8 @@ class IQPart(DataAction):
             if data.shape[-1] != 2:
                 raise DataProcessorError(
                     f"IQ data given to {self.__class__.__name__} must be a multi-dimensional array"
-                    "of dimension [d0, d1, ..., 2] in which the last dimension corresponds to IQ elements."
+                    "of dimension [d0, d1, ..., 2] in which the last dimension "
+                    "corresponds to IQ elements."
                     f"Input data contains element with length {data.shape[-1]} != 2."
                 )
 
