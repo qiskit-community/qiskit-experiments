@@ -36,7 +36,8 @@ class DataAction(metaclass=ABCMeta):
         """Applies the data processing step to the data.
 
         Args:
-            data: A full data array to process. This is a numpy array of arbitrary type.
+            data: A data array to process. This is a single numpy array containing
+                all circuit results input to the data processor.
                 If the elements are ufloat objects consisting of a nominal value and
                 a standard error, then the error propagation is automatically computed.
 
@@ -51,7 +52,8 @@ class DataAction(metaclass=ABCMeta):
         additionally change the data type, e.g. converting a list to a numpy array.
 
         Args:
-            data: A full data array to format.
+            data: A data array to format. This is a single numpy array containing
+                all circuit results input to the data processor.
 
         Returns:
             The data that has been validated and formatted.

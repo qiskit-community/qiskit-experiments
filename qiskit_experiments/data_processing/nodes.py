@@ -41,7 +41,7 @@ class AverageData(DataAction):
         """Format the data into numpy arrays.
 
         Args:
-            data: A full data array to format.
+            data: An all-result data array to format.
 
         Returns:
             The data that has been validated and formatted.
@@ -62,7 +62,7 @@ class AverageData(DataAction):
         r"""Average the data.
 
         Args:
-            data: A full data array to format.
+            data: An all-result data array to format.
 
         Notes:
             Error is computed by the standard error of the mean,
@@ -88,7 +88,7 @@ class MinMaxNormalize(DataAction):
         """Normalize the data to the interval [0, 1].
 
         Args:
-            data: A full data array to process.
+            data: An all-result data array to process.
 
         Returns:
             The data that has been processed.
@@ -243,7 +243,7 @@ class SVD(TrainableDataAction):
         qubit so that future data points can be projected onto the axis.
 
         Args:
-            data: A full array of IQ data to be trained.
+            data: An all-result array of IQ data to be trained.
         """
         if data is None:
             return
@@ -292,7 +292,7 @@ class IQPart(DataAction):
         The last dimension of the array should correspond to [real, imaginary] part of data.
 
         Args:
-            data: A full data array to process.
+            data: An all-result data array to process.
 
         Returns:
             The data that has been processed.
@@ -305,7 +305,7 @@ class IQPart(DataAction):
         additionally change the data type, e.g. converting a list to a numpy array.
 
         Args:
-            data: A full data array to format.
+            data: An all-result data array to format.
 
         Returns:
             The data that has been validated and formatted.
@@ -506,7 +506,7 @@ class BasisExpectationValue(DataAction):
         """Format and validate the input.
 
         Args:
-            data: A full data array to format.
+            data: An all-result data array to format.
 
         Returns:
             The data that has been validated and formatted.
@@ -526,7 +526,7 @@ class BasisExpectationValue(DataAction):
         """Compute basis eigenvalue.
 
         Args:
-            data: A full data array to process.
+            data: An all-result data array to process.
 
         Returns:
             The data that has been processed.
