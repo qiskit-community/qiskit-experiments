@@ -12,13 +12,10 @@
 
 """Test curve fitting base class."""
 # pylint: disable=invalid-name
-
-from typing import List
-
+from test.base import QiskitExperimentsTestCase
 from test.fake_experiment import FakeExperiment
-
+from typing import List
 import numpy as np
-from qiskit.test import QiskitTestCase
 from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.framework import ExperimentData, FitVal
@@ -69,7 +66,7 @@ def create_new_analysis(series: List[SeriesDef], fixed_params: List[str] = None)
     return TestAnalysis()
 
 
-class TestFitData(QiskitTestCase):
+class TestFitData(QiskitExperimentsTestCase):
     """Unittest for fit data dataclass."""
 
     def test_get_value(self):
@@ -95,7 +92,7 @@ class TestFitData(QiskitTestCase):
         self.assertEqual(c_val, FitVal(3.0, 0.3))
 
 
-class TestCurveAnalysisUnit(QiskitTestCase):
+class TestCurveAnalysisUnit(QiskitExperimentsTestCase):
     """Unittest for curve fit analysis."""
 
     def setUp(self):
@@ -290,7 +287,7 @@ class TestCurveAnalysisUnit(QiskitTestCase):
         np.testing.assert_array_equal(filt_data.y_err, np.asarray([8, 10], dtype=float))
 
 
-class TestCurveAnalysisIntegration(QiskitTestCase):
+class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
     """Integration test for curve fit analysis through entire analysis.run function."""
 
     def setUp(self):
@@ -556,7 +553,7 @@ class TestCurveAnalysisIntegration(QiskitTestCase):
             analysis._run_analysis(test_data, **default_opts.__dict__)
 
 
-class TestFitOptions(QiskitTestCase):
+class TestFitOptions(QiskitExperimentsTestCase):
     """Unittest for fit option object."""
 
     def test_empty(self):

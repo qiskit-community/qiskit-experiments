@@ -18,8 +18,12 @@ import uuid
 import copy
 import math
 
+from qiskit_experiments.framework.json import (
+    ExperimentEncoder,
+    ExperimentDecoder,
+    _serialize_safe_float,
+)
 from .database_service import DatabaseServiceV1
-from .json import ExperimentEncoder, ExperimentDecoder, serialize_safe_float
 from .utils import save_data, qiskit_version
 from .exceptions import DbExperimentDataError
 from .device_component import DeviceComponent, to_component
@@ -90,7 +94,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         """
         # Data to be stored in DB.
         self._experiment_id = experiment_id
-        self._id = result_id or uuid.uuid4().hex
+        self._id = result_id or str(uuid.uuid4())
         self._name = name
         self._value = copy.deepcopy(value)
         self._extra = copy.deepcopy(extra or {})
@@ -448,7 +452,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             if math.isfinite(value):
                 return value
             else:
-                return serialize_safe_float(value)["__value__"]
+                return _serialize_safe_float(value)["__value__"]
         if isinstance(value, complex):
             # Convert complex floats to strings for display
             return f"{value}"

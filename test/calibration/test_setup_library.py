@@ -12,14 +12,13 @@
 
 """Class to test the calibrations setup methods."""
 
+from test.base import QiskitExperimentsTestCase
 import qiskit.pulse as pulse
-from qiskit.test import QiskitTestCase
-
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.exceptions import CalibrationError
 
 
-class TestFixedFrequencyTransmon(QiskitTestCase):
+class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
     """Test the various setup methods."""
 
     def test_standard_single_qubit_gates(self):

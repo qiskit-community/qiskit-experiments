@@ -29,11 +29,11 @@ from matplotlib import pyplot
 from qiskit.providers import Job, BaseJob, Backend, BaseBackend, Provider
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
+from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 
 from .database_service import DatabaseServiceV1
 from .exceptions import DbExperimentDataError, DbExperimentEntryNotFound, DbExperimentEntryExists
 from .db_analysis_result import DbAnalysisResultV1 as DbAnalysisResult
-from .json import ExperimentEncoder, ExperimentDecoder
 from .utils import (
     save_data,
     qiskit_version,
@@ -156,7 +156,7 @@ class DbExperimentDataV1(DbExperimentData):
         self._auto_save = False
         self._set_service_from_backend(backend)
 
-        self._id = experiment_id or uuid.uuid4().hex
+        self._id = experiment_id or str(uuid.uuid4())
         self._parent_id = parent_id
         self._type = experiment_type
         self._tags = tags or []
@@ -287,7 +287,7 @@ class DbExperimentDataV1(DbExperimentData):
                       keywork arguments passed to this method.
             **kwargs: Keyword arguments to be passed to the callback function.
         """
-        callback_id = uuid.uuid4().hex
+        callback_id = uuid.uuid4()
         self._callback_statuses[callback_id] = CallbackStatus(callback, kwargs=kwargs)
 
         # Wrap callback function to handle reporting status and catching

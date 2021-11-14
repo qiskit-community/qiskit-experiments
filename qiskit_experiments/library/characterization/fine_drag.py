@@ -19,13 +19,12 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
-from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
-from qiskit_experiments.library.calibration.analysis.fine_drag_analysis import (
+from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.library.characterization.analysis import (
     FineDragAnalysis,
 )
 
 
-@fix_class_docs
 class FineDrag(BaseExperiment):
     r"""Fine DRAG experiment.
 
@@ -144,13 +143,12 @@ class FineDrag(BaseExperiment):
             repetitions (List[int]): A list of the number of times that Rp - Rm gate sequence
                 is repeated.
             schedule (ScheduleBlock): The schedule for the plus rotation.
-            gate_type (Type[Gate]): This is a gate class such as XGate, so that one can obtain a gate
-                by doing :code:`options.gate_type()`.
+            gate (Gate): This is the gate such as XGate() that will be in the circuits.
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(20))
         options.schedule = None
-        options.gate_type = None
+        options.gate = None
 
         return options
 
@@ -165,14 +163,16 @@ class FineDrag(BaseExperiment):
 
         return options
 
-    def __init__(self, qubit: int, backend: Optional[Backend] = None):
+    def __init__(self, qubit: int, gate: Gate, backend: Optional[Backend] = None):
         """Setup a fine amplitude experiment on the given qubit.
 
         Args:
             qubit: The qubit on which to run the fine amplitude calibration experiment.
+            gate: The gate that will be repeated.
             backend: Optional, the backend to run the experiment on.
         """
         super().__init__([qubit], backend=backend)
+        self.set_experiment_options(gate=gate)
 
     @staticmethod
     def _pre_circuit() -> QuantumCircuit:
@@ -182,8 +182,11 @@ class FineDrag(BaseExperiment):
     @staticmethod
     def _post_circuit() -> QuantumCircuit:
         """Return the quantum circuit to apply after repeating the Rp - Rz - Rp - Rz gates."""
+
+        # Map unwanted Z rotations to qubit population.
         circ = QuantumCircuit(1)
-        circ.ry(np.pi / 2, 0)  # Maps unwanted Z rotations to qubit population.
+        circ.rz(-np.pi / 2, 0)
+        circ.sx(0)
         return circ
 
     def circuits(self) -> List[QuantumCircuit]:
@@ -195,18 +198,13 @@ class FineDrag(BaseExperiment):
         """
         schedule, circuits = self.experiment_options.schedule, []
 
-        if schedule is None:
-            gate = self.experiment_options.gate_type()
-        else:
-            gate = Gate(name=schedule.name, num_qubits=1, params=[])
-
         for repetition in self.experiment_options.repetitions:
             circuit = self._pre_circuit()
 
             for _ in range(repetition):
-                circuit.append(gate, (0,))
+                circuit.append(self.experiment_options.gate, (0,))
                 circuit.rz(np.pi, 0)
-                circuit.append(gate, (0,))
+                circuit.append(self.experiment_options.gate, (0,))
                 circuit.rz(np.pi, 0)
 
             circuit.compose(self._post_circuit(), inplace=True)
@@ -228,7 +226,6 @@ class FineDrag(BaseExperiment):
         return circuits
 
 
-@fix_class_docs
 class FineXDrag(FineDrag):
     """Class to fine calibrate the DRAG parameter of an X gate.
 
@@ -236,15 +233,19 @@ class FineXDrag(FineDrag):
         qiskit_experiments.library.calibration.fine_drag.FineDrag
     """
 
+    def __init__(self, qubit: int, backend: Optional[Backend] = None):
+        """Initialize the experiment."""
+        super().__init__(qubit, XGate(), backend=backend)
+
     @classmethod
     def _default_experiment_options(cls) -> Options:
         r"""Default values for the FineXDrag experiment.
 
         Experiment Options:
-            gate_type (Type): FineXDrag calibrates an XGate.
+            gate (Gate): FineXDrag calibrates an XGate.
         """
         options = super()._default_experiment_options()
-        options.gate_type = XGate
+        options.gate = XGate()
 
         return options
 
@@ -261,15 +262,19 @@ class FineSXDrag(FineDrag):
         qiskit_experiments.library.calibration.fine_drag.FineDrag
     """
 
+    def __init__(self, qubit: int, backend: Optional[Backend] = None):
+        """Initialize the experiment."""
+        super().__init__(qubit, SXGate(), backend=backend)
+
     @classmethod
     def _default_experiment_options(cls) -> Options:
         r"""Default values for the FineSXDrag experiment.
 
         Experiment Options:
-            gate_type (Type): FineSXDrag calibrates an SXGate.
+            gate (Gate): FineSXDrag calibrates an SXGate.
         """
         options = super()._default_experiment_options()
-        options.gate_type = SXGate
+        options.gate = SXGate()
 
         return options
 
