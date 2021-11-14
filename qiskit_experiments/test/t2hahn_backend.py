@@ -139,6 +139,13 @@ class T2HahnBackend(BackendV1):
         """
         if qubit_state["XY plain"]:
             meas_res = self._rng.random() < 0.5
+        elif qubit_state["YZ plain"]:
+            z_projection = np.cos(qubit_state["Theta"])
+            probability = abs(z_projection) ** 2
+            if self._rng.random() > probability:
+                meas_res = self._rng.random() < 0.5
+            else:
+                meas_res = (z_projection < 0)
         else:
             meas_res = qubit_state["qubit state"]
 
