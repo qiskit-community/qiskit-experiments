@@ -142,12 +142,15 @@ class ExperimentData(DbExperimentData):
             data.verbose = original_verbose
 
     def save_metadata(self) -> None:
-        # Copy child experiment IDs to metadata
-        if self._child_data:
-            self._metadata["child_data_ids"] = self._child_data.keys()
         super().save_metadata()
         for data in self.child_data():
             data.save_metadata()
+
+    def _save_experiment_metadata(self):
+        # Copy child experiment IDs to metadata
+        if self._child_data:
+            self._metadata["child_data_ids"] = self._child_data.keys()
+        super()._save_experiment_metadata()
 
     @classmethod
     def load(cls, experiment_id: str, service: DatabaseService) -> ExperimentData:

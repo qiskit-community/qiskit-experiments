@@ -78,6 +78,15 @@ class TestT1(QiskitExperimentsTestCase):
             self.assertEqual(sub_res.quality, "good")
             self.assertAlmostEqual(sub_res.value.value, t1[i], delta=3)
 
+        res.service = FakeService()
+        res.save()
+        loaded_data = ExperimentData.load(res.experiment_id, res.service)
+
+        for i in range(2):
+            sub_res = res.child_data(i).analysis_results("T1")
+            sub_loaded = loaded_data.child_data(i).analysis_results("T1")
+            self.assertEqual(repr(sub_res), repr(sub_loaded))
+
     def test_t1_parallel_different_analysis_options(self):
         """
         Test parallel experiments of T1 using a simulator, for the case where
