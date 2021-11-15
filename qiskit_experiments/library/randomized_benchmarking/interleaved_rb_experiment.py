@@ -12,7 +12,7 @@
 """
 Interleaved RB Experiment class.
 """
-from typing import Union, Iterable, Optional, List
+from typing import Union, Iterable, Optional, List, Sequence
 
 from numpy.random import Generator
 
@@ -22,11 +22,10 @@ from qiskit.quantum_info import Clifford
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 
-from .rb_experiment import StandardRB, fix_class_docs
+from .rb_experiment import StandardRB
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 
 
-@fix_class_docs
 class InterleavedRB(StandardRB):
     """Interleaved randomized benchmarking experiment.
 
@@ -51,7 +50,7 @@ class InterleavedRB(StandardRB):
     def __init__(
         self,
         interleaved_element: Union[QuantumCircuit, Instruction, Clifford],
-        qubits: Union[int, Iterable[int]],
+        qubits: Sequence[int],
         lengths: Iterable[int],
         backend: Optional[Backend] = None,
         num_samples: int = 3,
@@ -63,8 +62,7 @@ class InterleavedRB(StandardRB):
         Args:
             interleaved_element: The element to interleave,
                     given either as a group element or as an instruction/circuit
-            qubits: The number of qubits or list of
-                    physical qubits for the experiment.
+            qubits: list of physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
             backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each

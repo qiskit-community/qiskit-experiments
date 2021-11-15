@@ -24,7 +24,7 @@ from qiskit.providers.aer.noise.errors.standard_errors import (
 from qiskit.providers.aer.noise.errors import readout_error
 from qiskit import Aer
 from qiskit_experiments.library import QuantumVolume
-from qiskit_experiments.database_service.json import ExperimentEncoder
+from qiskit_experiments.framework import ExperimentEncoder
 
 SEED = 42
 
@@ -36,7 +36,7 @@ def create_qv_ideal_probabilities(dir_path: str):
         dir_path(str): The directory which the data will be saved to.
     """
     num_of_qubits = 3
-    qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
+    qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
     qv_exp.set_experiment_options(trials=20)
     qv_circs = qv_exp.circuits()
     simulation_probabilities = [
@@ -57,7 +57,7 @@ def create_qv_data_70_trials(dir_path: str):
     num_of_qubits = 3
     backend = Aer.get_backend("aer_simulator")
 
-    qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
+    qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
     qv_exp.set_experiment_options(trials=70)
     qv_data = qv_exp.run(backend)
     qv_data.block_for_results()
@@ -79,7 +79,7 @@ def create_qv_data_low_hop(dir_path: str):
     basis_gates = ["id", "rz", "sx", "x", "cx", "reset"]
     noise = create_high_noise_model()
 
-    qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
+    qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
     qv_exp.set_transpile_options(basis_gates=basis_gates)
     qv_data = qv_exp.run(backend, noise_model=noise, basis_gates=basis_gates)
     qv_data.block_for_results()
@@ -102,7 +102,7 @@ def create_qv_data_low_confidence(dir_path: str):
     basis_gates = ["id", "rz", "sx", "x", "cx", "reset"]
     noise = create_noise_model()
 
-    qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
+    qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
     qv_exp.set_transpile_options(basis_gates=basis_gates)
     qv_data = qv_exp.run(backend, noise_model=noise, basis_gates=basis_gates)
     qv_data.block_for_results()
@@ -125,7 +125,7 @@ def create_qv_data_high_confidence(dir_path: str):
     basis_gates = ["id", "rz", "sx", "x", "cx", "reset"]
     noise = create_noise_model()
 
-    qv_exp = QuantumVolume(num_of_qubits, seed=SEED)
+    qv_exp = QuantumVolume(range(num_of_qubits), seed=SEED)
     qv_exp.set_experiment_options(trials=300)
     qv_exp.set_transpile_options(basis_gates=basis_gates)
     qv_data = qv_exp.run(backend, noise_model=noise, basis_gates=basis_gates)

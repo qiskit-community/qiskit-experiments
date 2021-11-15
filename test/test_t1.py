@@ -13,14 +13,14 @@
 Test T1 experiment
 """
 
-from qiskit.test import QiskitTestCase
+from test.base import QiskitExperimentsTestCase
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import T1
 from qiskit_experiments.library.characterization import T1Analysis
 from qiskit_experiments.test.t1_backend import T1Backend
 
 
-class TestT1(QiskitTestCase):
+class TestT1(QiskitExperimentsTestCase):
     """
     Test measurement of T1
     """
@@ -74,7 +74,7 @@ class TestT1(QiskitTestCase):
         res.block_for_results()
 
         for i in range(2):
-            sub_res = res.component_experiment_data(i).analysis_results("T1")
+            sub_res = res.child_data(i).analysis_results("T1")
             self.assertEqual(sub_res.quality, "good")
             self.assertAlmostEqual(sub_res.value.value, t1[i], delta=3)
 
@@ -98,7 +98,7 @@ class TestT1(QiskitTestCase):
 
         sub_res = []
         for i in range(2):
-            sub_res.append(res.component_experiment_data(i).analysis_results("T1"))
+            sub_res.append(res.child_data(i).analysis_results("T1"))
 
         self.assertEqual(sub_res[0].quality, "good")
         self.assertAlmostEqual(sub_res[0].value.value, t1, delta=3)
@@ -200,7 +200,11 @@ class TestT1(QiskitTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = T1(0, [1, 2, 3, 4, 5], unit="s")
-        config = exp.config
-        loaded_exp = T1.from_config(config)
+        loaded_exp = T1.from_config(exp.config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+
+    def test_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = T1(0, [1, 2, 3, 4, 5], unit="s")
+        self.assertRoundTripSerializable(exp, self.experiments_equiv)
