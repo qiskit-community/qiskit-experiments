@@ -27,10 +27,6 @@ class ReadoutAngleAnalysis(BaseAnalysis):
         if np.abs(np.angle(center0) - np.angle(center1)) > np.pi:
             angle += np.pi
 
-        analysis_results = [AnalysisResultData(
-            name="ReadoutAngle",
-            value=angle
-        )]
+        analysis_results = [AnalysisResultData(name="ReadoutAngle", value=angle)]
 
         return analysis_results, []
-

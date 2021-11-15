@@ -21,9 +21,11 @@ from qiskit_experiments.library import ReadoutAngle
 from qiskit_experiments.library.characterization import ReadoutAngleAnalysis
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 
+
 class ReadoutAngleBackend(MockIQBackend):
     def _compute_probability(self, circ):
         return 1 - circ.metadata["xval"]
+
 
 class TestReadoutAngle(QiskitTestCase):
     """
@@ -38,5 +40,4 @@ class TestReadoutAngle(QiskitTestCase):
         exp = ReadoutAngle(0)
         expdata = exp.run(backend, shots=100000).block_for_results()
         res = expdata.analysis_results(0)
-        self.assertAlmostEqual(res.value, np.pi/2, places=2)
-
+        self.assertAlmostEqual(res.value, np.pi / 2, places=2)

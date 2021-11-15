@@ -162,7 +162,9 @@ class CompositeAnalysis(BaseAnalysis):
                         sub_data["counts"] = datum["counts"]
                 if "memory" in datum:
                     if composite_clbits is not None:
-                        sub_data["memory"] = (np.array(datum["memory"])[composite_clbits[i]]).tolist()
+                        sub_data["memory"] = (
+                            np.array(datum["memory"])[composite_clbits[i]]
+                        ).tolist()
                     else:
                         sub_data["memory"] = datum["memory"]
                 marginalized_data[index].append(sub_data)

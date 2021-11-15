@@ -52,10 +52,10 @@ class ReadoutAngle(BaseExperiment):
     def _default_run_options(cls) -> Options:
         """Default run options."""
         options = super()._default_run_options()
-        
+
         options.meas_level = MeasLevel.KERNELED
         options.meas_return = "avg"
-        
+
         return options
 
     def __init__(

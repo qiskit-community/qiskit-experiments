@@ -136,7 +136,7 @@ from .characterization import (
     FineXAmplitude,
     FineSXAmplitude,
     RamseyXY,
-    ReadoutAngle
+    ReadoutAngle,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
