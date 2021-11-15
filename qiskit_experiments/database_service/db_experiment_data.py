@@ -29,11 +29,11 @@ from matplotlib import pyplot
 from qiskit.providers import Job, BaseJob, Backend, BaseBackend, Provider
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
+from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 
 from .database_service import DatabaseServiceV1
 from .exceptions import DbExperimentDataError, DbExperimentEntryNotFound, DbExperimentEntryExists
 from .db_analysis_result import DbAnalysisResultV1 as DbAnalysisResult
-from .json import ExperimentEncoder, ExperimentDecoder
 from .utils import (
     save_data,
     qiskit_version,
@@ -177,6 +177,17 @@ class DbExperimentDataV1(DbExperimentData):
 
         self._created_in_db = False
         self._extra_data = kwargs
+
+    def _clear_results(self):
+        """Delete all currently stored analysis results and figures"""
+        # Schedule existing analysis results for deletion next save call
+        for key in self._analysis_results.keys():
+            self._deleted_analysis_results.append(key)
+        self._analysis_results = ThreadSafeOrderedDict()
+        # Schedule existing figures for deletion next save call
+        for key in self._figures.keys():
+            self._deleted_figures.append(key)
+        self._figures = ThreadSafeOrderedDict()
 
     def _set_service_from_backend(self, backend: Union[Backend, BaseBackend]) -> None:
         """Set the service to be used from the input backend.
@@ -521,7 +532,7 @@ class DbExperimentDataV1(DbExperimentData):
                 )
             added_figs.append(fig_name)
 
-        return added_figs if len(added_figs) > 1 else added_figs[0]
+        return added_figs if len(added_figs) != 1 else added_figs[0]
 
     @do_auto_save
     def delete_figure(
@@ -555,7 +566,9 @@ class DbExperimentDataV1(DbExperimentData):
         return figure_key
 
     def figure(
-        self, figure_key: Union[str, int], file_name: Optional[str] = None
+        self,
+        figure_key: Union[str, int],
+        file_name: Optional[str] = None,
     ) -> Union[int, bytes]:
         """Retrieve the specified experiment figure.
 
@@ -663,7 +676,9 @@ class DbExperimentDataV1(DbExperimentData):
                 self._analysis_results[result_id] = DbAnalysisResult._from_service_data(result)
 
     def analysis_results(
-        self, index: Optional[Union[int, slice, str]] = None, refresh: bool = False
+        self,
+        index: Optional[Union[int, slice, str]] = None,
+        refresh: bool = False,
     ) -> Union[DbAnalysisResult, List[DbAnalysisResult]]:
         """Return analysis results associated with this experiment.
 
@@ -862,7 +877,7 @@ class DbExperimentDataV1(DbExperimentData):
             experiment_type=service_data.pop("experiment_type"),
             backend=service_data.pop("backend"),
             experiment_id=service_data.pop("experiment_id"),
-            parent_id=service_data.pop("parent_id"),
+            parent_id=service_data.pop("parent_id", None),
             tags=service_data.pop("tags"),
             job_ids=service_data.pop("job_ids"),
             share_level=service_data.pop("share_level"),
@@ -899,6 +914,12 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             The experiment data with finished jobs and post-processing.
         """
+        _, timeout = combined_timeout(self._wait_for_jobs, timeout)
+        _, timeout = combined_timeout(self._wait_for_callbacks, timeout)
+        return self
+
+    def _wait_for_jobs(self, timeout: Optional[float] = None):
+        """Wait for jobs to finish running"""
         # Wait for jobs to finish
         for kwargs, fut in self._job_futures.copy():
             jobs = [job.job_id() for job in kwargs["jobs"]]
@@ -907,14 +928,13 @@ class DbExperimentDataV1(DbExperimentData):
                 _, timeout = combined_timeout(fut.result, timeout)
             except futures.TimeoutError:
                 LOG.warning(
-                    "Possibly incomplete experiment data: Retrieving a job" " results timed out."
+                    "Possibly incomplete experiment data: Retrieving a job's result timed out."
                 )
             except Exception:  # pylint: disable = broad-except
                 LOG.warning(
-                    "Possibly incomplete experiment data: Retrieving a job results"
-                    " rased an exception."
+                    "Possibly incomplete experiment data: Retrieving a job's result"
+                    " raised an exception."
                 )
-
         # Check job status and show warning if cancelled or error
         jobs_status = self._job_status()
         if jobs_status == "CANCELLED":
@@ -922,9 +942,13 @@ class DbExperimentDataV1(DbExperimentData):
         elif jobs_status == "ERROR":
             LOG.warning("Possibly incomplete experiment data: A Job returned an error.")
 
+    def _wait_for_callbacks(self, timeout: Optional[float] = None):
+        """Wait for analysis callbacks to finish"""
         # Wait for analysis callbacks to finish
         if self._callback_statuses:
             for status in self._callback_statuses.values():
+                if status.status in [JobStatus.DONE, JobStatus.CANCELLED]:
+                    continue
                 LOG.info("Waiting for analysis callback %s to finish.", status.callback)
                 finished, timeout = combined_timeout(status.event.wait, timeout)
                 if not finished:
@@ -943,8 +967,6 @@ class DbExperimentDataV1(DbExperimentData):
             LOG.warning(
                 "Possibly incomplete analysis results: an analysis callback raised an error."
             )
-
-        return self
 
     def status(self) -> str:
         """Return the data processing status.
@@ -1108,24 +1130,26 @@ class DbExperimentDataV1(DbExperimentData):
 
         return "\n".join(errors)
 
-    def _copy_metadata(
-        self, new_instance: Optional["DbExperimentDataV1"] = None
-    ) -> "DbExperimentDataV1":
-        """Make a copy of the experiment metadata.
+    def copy(self, copy_results: bool = True) -> "DbExperimentDataV1":
+        """Make a copy of the experiment data with a new experiment ID.
 
-        Note:
-            This method only copies experiment data and metadata, not its
-            figures nor analysis results. The copy also contains a different
-            experiment ID.
+        Args:
+            copy_results: If True copy the analysis results and figures
+                          into the returned container, along with the
+                          experiment data and metadata. If False only copy
+                          the experiment data and metadata.
 
         Returns:
-            A copy of the ``DbExperimentDataV1`` object with the same data
-            and metadata but different ID.
-        """
-        if new_instance is None:
-            # pylint: disable=no-value-for-parameter
-            new_instance = self.__class__()
+            A copy of the experiment data object with the same data
+            but different IDs.
 
+        .. note:
+            If analysis results and figures are copied they will also have
+            new result IDs and figure names generated for the copies.
+        """
+        new_instance = self.__class__()
+
+        # Copy basic properties and metadata
         new_instance._type = self.experiment_type
         new_instance._backend = self._backend
         new_instance._tags = self._tags
@@ -1137,6 +1161,7 @@ class DbExperimentDataV1(DbExperimentData):
         new_instance._service = self._service
         new_instance._extra_data = self._extra_data
 
+        # Copy circuit result data and jobs
         with self._data.lock:  # Hold the lock so no new data can be added.
             new_instance._data = self._data.copy_object()
             for orig_kwargs, fut in self._job_futures.copy():
@@ -1154,6 +1179,20 @@ class DbExperimentDataV1(DbExperimentData):
                     timeout=orig_kwargs["timeout"],
                     **extra_kwargs,
                 )
+
+        # If not copying results return the object
+        if not copy_results:
+            return new_instance
+
+        # Copy results and figures.
+        # This requires analysis callbacks to finish
+        self._wait_for_callbacks()
+        with self._analysis_results.lock:
+            new_instance._analysis_results = ThreadSafeOrderedDict()
+            new_instance.add_analysis_results([result.copy() for result in self.analysis_results()])
+        with self._figures.lock:
+            new_instance._figures = ThreadSafeOrderedDict()
+            new_instance.add_figures(self._figures.values())
 
         return new_instance
 
@@ -1380,27 +1419,6 @@ class DbExperimentDataV1(DbExperimentData):
                 out += f", {key}={repr(val)}"
         out += ")"
         return out
-
-    def __str__(self):
-        line = 51 * "-"
-        n_res = len(self._analysis_results)
-        status = self.status()
-        ret = line
-        ret += f"\nExperiment: {self.experiment_type}"
-        ret += f"\nExperiment ID: {self.experiment_id}"
-        ret += f"\nStatus: {status}"
-        if self.backend:
-            ret += f"\nBackend: {self.backend}"
-        if self.tags:
-            ret += f"\nTags: {self.tags}"
-        ret += f"\nData: {len(self._data)}"
-        ret += f"\nAnalysis Results: {n_res}"
-        ret += f"\nFigures: {len(self._figures)}"
-        ret += "\n" + line
-        if n_res:
-            ret += "\nLast Analysis Result:"
-            ret += f"\n{str(self._analysis_results.values()[-1])}"
-        return ret
 
     def __getattr__(self, name: str) -> Any:
         try:

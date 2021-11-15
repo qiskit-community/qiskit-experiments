@@ -208,6 +208,9 @@ Experiment Data Classes
     ExperimentData
     FitVal
     AnalysisResultData
+    ExperimentConfig
+    ExperimentEncoder
+    ExperimentDecoder
 
 .. _composite-experiment:
 
@@ -219,7 +222,6 @@ Composite Experiment Classes
     ParallelExperiment
     BatchExperiment
     CompositeAnalysis
-    CompositeExperimentData
 
 Base Classes
 ************
@@ -236,12 +238,12 @@ from qiskit.providers.options import Options
 from qiskit_experiments.database_service.db_analysis_result import DbAnalysisResultV1
 from qiskit_experiments.database_service.db_fitval import FitVal
 from .base_analysis import BaseAnalysis
-from .base_experiment import BaseExperiment
+from .base_experiment import BaseExperiment, ExperimentConfig
 from .analysis_result_data import AnalysisResultData
 from .experiment_data import ExperimentData
 from .composite import (
     ParallelExperiment,
     BatchExperiment,
     CompositeAnalysis,
-    CompositeExperimentData,
 )
+from .json import ExperimentEncoder, ExperimentDecoder

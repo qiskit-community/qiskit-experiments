@@ -18,8 +18,12 @@ import uuid
 import copy
 import math
 
+from qiskit_experiments.framework.json import (
+    ExperimentEncoder,
+    ExperimentDecoder,
+    _serialize_safe_float,
+)
 from .database_service import DatabaseServiceV1
-from .json import ExperimentEncoder, ExperimentDecoder, serialize_safe_float
 from .utils import save_data, qiskit_version
 from .exceptions import DbExperimentDataError
 from .device_component import DeviceComponent, to_component
@@ -193,6 +197,22 @@ class DbAnalysisResultV1(DbAnalysisResult):
             new_data=new_data,
             update_data=update_data,
             json_encoder=self._json_encoder,
+        )
+
+    def copy(self) -> "DbAnalysisResultV1":
+        """Return a copy of the result with a new result ID"""
+        return DbAnalysisResultV1(
+            name=self.name,
+            value=self.value,
+            device_components=self.device_components,
+            experiment_id=self.experiment_id,
+            chisq=self.chisq,
+            quality=self.quality,
+            extra=self.extra,
+            verified=self.verified,
+            tags=self.tags,
+            service=self.service,
+            source=self._source,
         )
 
     @classmethod
@@ -432,7 +452,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             if math.isfinite(value):
                 return value
             else:
-                return serialize_safe_float(value)["__value__"]
+                return _serialize_safe_float(value)["__value__"]
         if isinstance(value, complex):
             # Convert complex floats to strings for display
             return f"{value}"

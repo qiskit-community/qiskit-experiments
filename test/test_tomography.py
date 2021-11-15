@@ -13,11 +13,9 @@
 """
 A Tester for the RB experiment
 """
-
+from test.base import QiskitExperimentsTestCase
 import itertools as it
 import ddt
-
-from qiskit.test import QiskitTestCase
 from qiskit import QuantumCircuit
 import qiskit.quantum_info as qi
 from qiskit.providers.aer import AerSimulator
@@ -38,7 +36,7 @@ def filter_results(analysis_results, name):
 
 
 @ddt.ddt
-class TestStateTomography(QiskitTestCase):
+class TestStateTomography(QiskitExperimentsTestCase):
     """Test StateTomography"""
 
     @ddt.data(*list(it.product([1, 2], FITTERS)))
@@ -218,7 +216,7 @@ class TestStateTomography(QiskitTestCase):
         # Check target fidelity of component experiments
         f_threshold = 0.95
         for i in range(batch_exp.num_experiments):
-            results = batch_data.component_experiment_data(i).analysis_results()
+            results = batch_data.child_data(i).analysis_results()
 
             # Check state is density matrix
             state = filter_results(results, "state").value
@@ -257,7 +255,7 @@ class TestStateTomography(QiskitTestCase):
         # Check target fidelity of component experiments
         f_threshold = 0.95
         for i in range(par_exp.num_experiments):
-            results = par_data.component_experiment_data(i).analysis_results()
+            results = par_data.child_data(i).analysis_results()
 
             # Check state is density matrix
             state = filter_results(results, "state").value
@@ -273,9 +271,16 @@ class TestStateTomography(QiskitTestCase):
             target_fid = qi.state_fidelity(state, targets[i], validate=False)
             self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
 
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = StateTomography(QuantumCircuit(3), measurement_qubits=[0, 2], qubits=[5, 7, 1])
+        loaded_exp = StateTomography.from_config(exp.config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+
 
 @ddt.ddt
-class TestProcessTomography(QiskitTestCase):
+class TestProcessTomography(QiskitExperimentsTestCase):
     """Test QuantumProcessTomography"""
 
     @ddt.data(*list(it.product([1, 2], FITTERS)))
@@ -432,7 +437,7 @@ class TestProcessTomography(QiskitTestCase):
         # Check target fidelity of component experiments
         f_threshold = 0.95
         for i in range(batch_exp.num_experiments):
-            results = batch_data.component_experiment_data(i).analysis_results()
+            results = batch_data.child_data(i).analysis_results()
 
             # Check state is density matrix
             state = filter_results(results, "state").value
@@ -469,7 +474,7 @@ class TestProcessTomography(QiskitTestCase):
         # Check target fidelity of component experiments
         f_threshold = 0.95
         for i in range(par_exp.num_experiments):
-            results = par_data.component_experiment_data(i).analysis_results()
+            results = par_data.child_data(i).analysis_results()
 
             # Check state is density matrix
             state = filter_results(results, "state").value
@@ -482,6 +487,13 @@ class TestProcessTomography(QiskitTestCase):
             # Manually check fidelity
             target_fid = qi.process_fidelity(state, targets[i], require_tp=False, require_cp=False)
             self.assertAlmostEqual(fid, target_fid, places=6, msg="result fidelity is incorrect")
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = ProcessTomography(teleport_circuit(), measurement_qubits=[2], preparation_qubits=[0])
+        loaded_exp = ProcessTomography.from_config(exp.config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
 
 
 def teleport_circuit():

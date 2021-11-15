@@ -13,11 +13,11 @@
 """Base class for calibration-type experiments."""
 
 from abc import ABC
-from typing import Dict, List, Optional, Tuple, Type
+from typing import Dict, Optional, Tuple, Type
 import warnings
 
 from qiskit.providers.backend import Backend
-from qiskit.circuit import Parameter, QuantumCircuit
+from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.calibration_management.calibrations import Calibrations
@@ -138,6 +138,23 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     def calibrations(self) -> Calibrations:
         """Return the calibrations."""
         return self._cals
+
+    @classmethod
+    def _default_experiment_options(cls):
+        """Default values for a calibration experiment.
+
+        Experiment Options:
+            result_index (int): The index of the result from which to update the calibrations.
+            group (str): The calibration group to which the parameter belongs. This will default
+                to the value "default".
+
+        """
+        options = super()._default_experiment_options()
+
+        options.result_index = -1
+        options.group = "default"
+
+        return options
 
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update parameter values in the :class:`Calibrations` instance.
@@ -339,43 +356,35 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
         return schedules
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
-        """A wrapper to introduce an optional hook to add circuit metadata."""
-        circuits = super().circuits(backend)
+    def _add_cal_metadata(self, experiment_data: ExperimentData):
+        """A hook to add calibration metadata to the experiment data.
 
-        self._add_cal_metadata(circuits)
-
-        return circuits
-
-    def _add_cal_metadata(self, circuits: List[QuantumCircuit]):
-        """A hook to add calibration metadata to the circuits.
-
-        Many calibration experiments will not define the circuits method but rely on those defined
-        by the experiment in the characterization module. This hook allows calibration experiments
-        to add their own meta data to the circuits if needed.
+        This hook allows calibration experiments to add their own meta data to the
+        experiment data if needed.
         """
         pass
 
     def run(
         self,
-        backend: Backend,
+        backend: Optional[Backend] = None,
         analysis: bool = True,
-        experiment_data: Optional[ExperimentData] = None,
         **run_options,
     ) -> ExperimentData:
         """Run an experiment, perform analysis, and update any calibrations.
 
         Args:
-            backend: The backend to run the experiment on.
+            backend: Optional, the backend to run the experiment on. This
+                     will override any currently set backends for the single
+                     execution.
             analysis: If True run analysis on the experiment data.
-            experiment_data: Optional, add results to existing experiment data.
-                If None a new ExperimentData object will be returned.
             run_options: backend runtime options used for circuit execution.
 
         Returns:
             The experiment data object.
         """
-        experiment_data = super().run(backend, analysis, experiment_data, **run_options)
+        experiment_data = super().run(backend, analysis, **run_options)
+
+        self._add_cal_metadata(experiment_data)
 
         if self.auto_update and analysis:
             experiment_data.add_analysis_callback(self.update_calibrations)

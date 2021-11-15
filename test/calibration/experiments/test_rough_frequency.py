@@ -11,12 +11,11 @@
 # that they have been altered from the originals.
 
 """Rough frequency calibration tests."""
-
+from test.base import QiskitExperimentsTestCase
 from test.test_qubit_spectroscopy import SpectroscopyBackend
 
 import numpy as np
 
-from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeArmonk
 
 from qiskit_experiments.library import RoughFrequencyCal
@@ -24,7 +23,7 @@ from qiskit_experiments.calibration_management import BackendCalibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 
 
-class TestRoughFrequency(QiskitTestCase):
+class TestRoughFrequency(QiskitExperimentsTestCase):
     """Tests for the rough frequency calibration experiment."""
 
     def test_init(self):
@@ -37,7 +36,9 @@ class TestRoughFrequency(QiskitTestCase):
         auto_update = False
         absolute = False
 
-        freq = RoughFrequencyCal(qubit, cals, frequencies, unit, auto_update, absolute)
+        freq = RoughFrequencyCal(
+            qubit, cals, frequencies, unit=unit, auto_update=auto_update, absolute=absolute
+        )
 
         self.assertEqual(freq.physical_qubits, (qubit,))
         self.assertEqual(freq._frequencies, [1000, 2000, 3000])
@@ -65,3 +66,12 @@ class TestRoughFrequency(QiskitTestCase):
         # Check the updated frequency which should be shifted by 5MHz.
         post_freq = cals.get_parameter_value(cals.__qubit_freq_parameter__, (0,))
         self.assertTrue(abs(post_freq - freq01 - 5e6) < 1e6)
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        cals = BackendCalibrations(FakeArmonk())
+        frequencies = [1, 2, 3]
+        exp = RoughFrequencyCal(0, cals, frequencies)
+        loaded_exp = RoughFrequencyCal.from_config(exp.config)
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
