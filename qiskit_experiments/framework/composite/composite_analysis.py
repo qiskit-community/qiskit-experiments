@@ -13,8 +13,8 @@
 Composite Experiment Analysis class.
 """
 
-import numpy as np
 from typing import List, Dict
+import numpy as np
 from qiskit.result import marginal_counts
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData
 from qiskit_experiments.database_service.device_component import Qubit

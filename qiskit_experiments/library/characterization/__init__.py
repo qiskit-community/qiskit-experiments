@@ -84,5 +84,4 @@ from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
 from .ramsey_xy import RamseyXY
 from .drag import RoughDrag
 from .readout_angle import ReadoutAngle
-from .readout_angle_analysis import ReadoutAngleAnalysis
 from .fine_drag import FineDrag, FineXDrag, FineSXDrag

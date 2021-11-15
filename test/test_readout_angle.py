@@ -16,15 +16,16 @@ Test readout angle experiment
 import numpy as np
 
 from qiskit.test import QiskitTestCase
-from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import ReadoutAngle
-from qiskit_experiments.library.characterization import ReadoutAngleAnalysis
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 
 
 class ReadoutAngleBackend(MockIQBackend):
-    def _compute_probability(self, circ):
-        return 1 - circ.metadata["xval"]
+    """
+    Mock IQ backend tailored to the readout angle test
+    """
+    def _compute_probability(self, circuit):
+        return 1 - circuit.metadata["xval"]
 
 
 class TestReadoutAngle(QiskitTestCase):

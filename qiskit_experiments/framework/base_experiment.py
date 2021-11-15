@@ -264,12 +264,7 @@ class BaseExperiment(ABC, Settings):
         # Generate and transpile circuits
         transpile_opts = copy.copy(experiment.transpile_options.__dict__)
         transpile_opts["initial_layout"] = list(experiment.physical_qubits)
-        print("transpile options:", transpile_opts)
-        transpile_opts.pop("timing_constraints", {})
-        transpile_opts.pop("scheduling_method", {})
-        print("transpile options:", transpile_opts)
         circuits = transpile(experiment.circuits(), experiment.backend, **transpile_opts)
-        print("circuit after compliation:", circuits[0])
         experiment._postprocess_transpiled_circuits(circuits, **run_options)
 
         # Run jobs
@@ -336,10 +331,8 @@ class BaseExperiment(ABC, Settings):
         for circs in job_circuits:
             if isinstance(self.backend, LegacyBackend):
                 qobj = assemble(circs, backend=self.backend, **run_options)
-                print("legacy", qobj)
                 job = self.backend.run(qobj)
             else:
-                print("not legacy", circs[0])
                 job = self.backend.run(circs, **run_options)
             jobs.append(job)
         return jobs
