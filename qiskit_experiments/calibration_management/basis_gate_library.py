@@ -48,21 +48,21 @@ class BasisGateLibrary(ABC):
         self,
         basis_gates: Optional[List[str]] = None,
         default_values: Optional[Dict] = None,
-        **kwargs,
+        **extra_kwargs,
     ):
         """Setup the library.
 
         Args:
             basis_gates: The basis gates to generate.
             default_values: A dictionary to override library default parameter values.
-            kwargs: Extra key-word arguments of the subclasses that are saved to be able
-                to reconstruct the library.
+            extra_kwargs: Extra key-word arguments of the subclasses that are saved to be able
+                to reconstruct the library using the :meth:`__init__` method.
 
         Raises:
             CalibrationError: If on of the given basis gates is not supported by the library.
         """
         # Update the default values.
-        self._kwargs = kwargs
+        self._extra_kwargs = extra_kwargs
         self._default_values = dict(self.__default_values__)
         if default_values is not None:
             self._default_values.update(default_values)
@@ -134,7 +134,7 @@ class BasisGateLibrary(ABC):
         """Return the settings used to initialize the library."""
 
         kwargs = {"basis_gates": self.basis_gates, "default_values": self._default_values}
-        kwargs.update(self._kwargs)
+        kwargs.update(self._extra_kwargs)
 
         return {
             "class": _serialize_type(type(self)),
