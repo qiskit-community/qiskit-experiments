@@ -16,7 +16,7 @@ Data Processing (:mod:`qiskit_experiments.data_processing`)
 
 .. currentmodule:: qiskit_experiments.data_processing
 
-Data processing is the act of taking taking the data returned by the backend and
+Data processing is the act of taking the data returned by the backend and
 converting it into a format that can be analyzed.
 It is implemented as a chain of data processing steps that transform various input data,
 e.g. IQ data, into a desired format, e.g. population, which can be analyzed.
