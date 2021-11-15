@@ -21,7 +21,6 @@ from qiskit_experiments.library.characterization.t2hahn import T2Hahn
 from qiskit_experiments.test.t2hahn_backend import T2HahnBackend
 
 
-
 class TestT2Hahn(QiskitTestCase):
     """Test T2Hahn experiment"""
 

@@ -68,7 +68,6 @@ class T2Hahn(BaseExperiment):
         options.delays = None
         options.unit = "s"
 
-
         return options
 
     def __init__(
@@ -125,7 +124,6 @@ class T2Hahn(BaseExperiment):
                 dt_factor = getattr(backend._configuration, "dt")
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
-
 
         circuits = []
         for delay in self.experiment_options.delays:

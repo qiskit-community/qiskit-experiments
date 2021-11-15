@@ -83,23 +83,39 @@ class T2HahnBackend(BackendV1):
         if self._initialization_error is None:
             return {"qubit state": 0, "XY plain": False, "YZ plain": False, "Theta": 0}
         else:
-            return {"qubit state": (self._rng.random() < self._initialization_error[0]),
-                    "XY plain": False, "YZ plain": False, "Theta": 0}
+            return {
+                "qubit state": (self._rng.random() < self._initialization_error[0]),
+                "XY plain": False,
+                "YZ plain": False,
+                "Theta": 0,
+            }
 
     def _delay_gate(self, qubit_state: dict, delay: float, t2hahn: float) -> dict:
         if qubit_state["XY plain"]:
             prob_noise = 1 - (np.exp(-delay / t2hahn))
             if self._rng.random() < prob_noise:
                 if self._rng.random() < 0.5:
-                    new_qubit_state = {"qubit state": 0, "XY plain": False,
-                                   "YZ plain": False, "Theta": 0}
+                    new_qubit_state = {
+                        "qubit state": 0,
+                        "XY plain": False,
+                        "YZ plain": False,
+                        "Theta": 0,
+                    }
                 else:
-                    new_qubit_state = {"qubit state": 1, "XY plain": False,
-                                   "YZ plain": False, "Theta": 0}
+                    new_qubit_state = {
+                        "qubit state": 1,
+                        "XY plain": False,
+                        "YZ plain": False,
+                        "Theta": 0,
+                    }
             else:
                 phase = self._frequency[0] * delay
-                new_qubit_state = {"qubit state": qubit_state["qubit state"], "XY plain": True,
-                                   "YZ plain": False, "Theta": qubit_state["Theta"] + phase}
+                new_qubit_state = {
+                    "qubit state": qubit_state["qubit state"],
+                    "XY plain": True,
+                    "YZ plain": False,
+                    "Theta": qubit_state["Theta"] + phase,
+                }
         else:
             new_qubit_state = qubit_state
         return new_qubit_state
@@ -107,55 +123,107 @@ class T2HahnBackend(BackendV1):
     def _rx_gate(self, qubit_state: dict, angle: float) -> dict:
         if qubit_state["XY plain"]:
             if isclose(angle, np.pi):
-                new_qubit_state = {"qubit state": 0, "XY plain": True,
-                                   "YZ plain": False, "Theta": np.pi - qubit_state["Theta"]}
+                new_qubit_state = {
+                    "qubit state": 0,
+                    "XY plain": True,
+                    "YZ plain": False,
+                    "Theta": np.pi - qubit_state["Theta"],
+                }
         elif isclose(qubit_state["qubit state"], 0):
             if isclose(angle, np.pi):
-                new_qubit_state = {"qubit state": 1, "XY plain": False,
-                                   "YZ plain": False, "Theta": 0}
+                new_qubit_state = {
+                    "qubit state": 1,
+                    "XY plain": False,
+                    "YZ plain": False,
+                    "Theta": 0,
+                }
         else:
             if isclose(angle, np.pi):
-                new_qubit_state = {"qubit state": 0, "XY plain": False,
-                                   "YZ plain": False, "Theta": 0}
+                new_qubit_state = {
+                    "qubit state": 0,
+                    "XY plain": False,
+                    "YZ plain": False,
+                    "Theta": 0,
+                }
         return new_qubit_state
 
     def _ry_gate(self, qubit_state: dict, angle: float) -> dict:
         if qubit_state["XY plain"]:
-            if isclose(angle, np.pi/2):
+            if isclose(angle, np.pi / 2):
                 if isclose(qubit_state["Theta"], 0):
-                    new_qubit_state = {"qubit state": 1, "XY plain": False,
-                                       "YZ plain": False, "Theta": 0}
+                    new_qubit_state = {
+                        "qubit state": 1,
+                        "XY plain": False,
+                        "YZ plain": False,
+                        "Theta": 0,
+                    }
                 elif isclose(qubit_state["Theta"], np.pi):
-                    new_qubit_state = {"qubit state": 0, "XY plain": False,
-                                       "YZ plain": False, "Theta": 0}
+                    new_qubit_state = {
+                        "qubit state": 0,
+                        "XY plain": False,
+                        "YZ plain": False,
+                        "Theta": 0,
+                    }
                 else:
-                    new_qubit_state = {"qubit state": 0, "XY plain": False,
-                                       "YZ plain": True, "Theta": np.pi - qubit_state["Theta"]}
-            elif isclose(angle, -np.pi/2):
+                    new_qubit_state = {
+                        "qubit state": 0,
+                        "XY plain": False,
+                        "YZ plain": True,
+                        "Theta": np.pi - qubit_state["Theta"],
+                    }
+            elif isclose(angle, -np.pi / 2):
                 if isclose(qubit_state["Theta"], 0):
-                    new_qubit_state = {"qubit state": 0, "XY plain": False,
-                                       "YZ plain": False, "Theta": 0}
-                elif isclose(qubit_state["Theta"] , np.pi):
-                    new_qubit_state = {"qubit state": 1, "XY plain": False,
-                                       "YZ plain": False, "Theta": 0}
+                    new_qubit_state = {
+                        "qubit state": 0,
+                        "XY plain": False,
+                        "YZ plain": False,
+                        "Theta": 0,
+                    }
+                elif isclose(qubit_state["Theta"], np.pi):
+                    new_qubit_state = {
+                        "qubit state": 1,
+                        "XY plain": False,
+                        "YZ plain": False,
+                        "Theta": 0,
+                    }
                 else:
-                    new_qubit_state = {"qubit state": 0, "XY plain": False,
-                                       "YZ plain": True, "Theta": qubit_state["Theta"]}
+                    new_qubit_state = {
+                        "qubit state": 0,
+                        "XY plain": False,
+                        "YZ plain": True,
+                        "Theta": qubit_state["Theta"],
+                    }
         elif qubit_state["YZ plain"]:
             if isclose(angle, np.pi / 2):
-                new_qubit_state = {"qubit state": qubit_state["qubit state"], "XY plain": True,
-                                   "YZ plain": False, "Theta": qubit_state["Theta"]}
+                new_qubit_state = {
+                    "qubit state": qubit_state["qubit state"],
+                    "XY plain": True,
+                    "YZ plain": False,
+                    "Theta": qubit_state["Theta"],
+                }
             elif isclose(angle, -np.pi / 2):
-                new_qubit_state = {"qubit state": qubit_state["qubit state"], "XY plain": True,
-                                   "YZ plain": False, "Theta": np.pi - qubit_state["Theta"]}
+                new_qubit_state = {
+                    "qubit state": qubit_state["qubit state"],
+                    "XY plain": True,
+                    "YZ plain": False,
+                    "Theta": np.pi - qubit_state["Theta"],
+                }
         elif isclose(qubit_state["qubit state"], 0):
             if isclose(angle, np.pi / 2) or isclose(angle, -np.pi / 2):
-                new_qubit_state = {"qubit state": 0, "XY plain": True,
-                                   "YZ plain": False, "Theta": np.abs((np.pi/2 - angle))}
+                new_qubit_state = {
+                    "qubit state": 0,
+                    "XY plain": True,
+                    "YZ plain": False,
+                    "Theta": np.abs((np.pi / 2 - angle)),
+                }
         else:
             if isclose(angle, np.pi / 2) or isclose(angle, -np.pi / 2):
-                new_qubit_state = {"qubit state": 0, "XY plain": True,
-                                   "YZ plain": False, "Theta": np.pi/2 + angle}
+                new_qubit_state = {
+                    "qubit state": 0,
+                    "XY plain": True,
+                    "YZ plain": False,
+                    "Theta": np.pi / 2 + angle,
+                }
         return new_qubit_state
 
     def _measurement_gate(self, qubit_state: dict) -> int:
@@ -175,7 +243,7 @@ class T2HahnBackend(BackendV1):
             if self._rng.random() > probability:
                 meas_res = self._rng.random() < 0.5
             else:
-                meas_res = (z_projection < 0)
+                meas_res = z_projection < 0
         else:
             meas_res = qubit_state["qubit state"]
 
