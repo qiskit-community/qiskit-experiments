@@ -71,6 +71,7 @@ from .analysis import (
     T2RamseyAnalysis,
     T1Analysis,
     CrossResonanceHamiltonianAnalysis,
+    ReadoutAngleAnalysis
 )
 
 from .t1 import T1
