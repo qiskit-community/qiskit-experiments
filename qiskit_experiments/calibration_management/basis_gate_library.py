@@ -69,7 +69,7 @@ class BasisGateLibrary(ABC, Mapping):
             self._default_values.update(default_values)
 
         if basis_gates is None:
-            basis_gates = [gate for gate in self.__supported_gates__]
+            basis_gates = list(gate for gate in self.__supported_gates__)
 
         self._schedules = dict()
         for gate in basis_gates:
@@ -183,6 +183,8 @@ def deserialize_library(config: Dict[str, Any]) -> BasisGateLibrary:
     for name, cls in inspect.getmembers(mod, inspect.isclass):
         if name == class_name:
             return cls(**config["kwargs"])
+
+    raise CalibrationError(f"Could not deserialize basis gate library from {config}.")
 
 
 class FixedFrequencyTransmon(BasisGateLibrary):

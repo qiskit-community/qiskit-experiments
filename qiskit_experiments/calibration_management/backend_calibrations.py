@@ -15,7 +15,7 @@
 from collections import defaultdict
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 import copy
 from warnings import warn
 
@@ -23,7 +23,7 @@ from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Parameter
 from qiskit.pulse import InstructionScheduleMap, ScheduleBlock
 
-from qiskit_experiments.framework.json import _serialize_type, _deserialize_object_legacy
+from qiskit_experiments.framework.json import _serialize_type
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.calibrations import (
     Calibrations,
