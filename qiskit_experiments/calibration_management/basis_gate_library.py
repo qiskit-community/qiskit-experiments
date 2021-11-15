@@ -18,6 +18,7 @@ Note that the set of available libraries will be extended in future releases.
 
 from abc import ABC, abstractmethod
 from collections import namedtuple
+from collections.abc import Mapping
 import importlib
 import inspect
 from typing import Any, Dict, List, Optional, Tuple
@@ -34,7 +35,7 @@ from qiskit_experiments.exceptions import CalibrationError
 GateDef = namedtuple("GateDef", ["num_qubits", "schedule"])
 
 
-class BasisGateLibrary(ABC):
+class BasisGateLibrary(ABC, Mapping):
     """A base class for libraries of basis gates to make it easier to setup Calibrations."""
 
     # Location where default parameter values are stored. These may be updated at construction.
@@ -101,6 +102,14 @@ class BasisGateLibrary(ABC):
             data_to_hash.append((gate, str(gate_def.schedule)))
 
         return hash(tuple(data_to_hash))
+
+    def __len__(self):
+        """The length of the library defined as the number of basis gates."""
+        return len(self._schedules)
+
+    def __iter__(self):
+        """Return an iterator over the basis gate library."""
+        return iter(self._schedules)
 
     def num_qubits(self, name: str) -> int:
         """Return the number of qubits that the schedule with the given name acts on."""
@@ -282,8 +291,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
             :class:`Calibrations` can call :meth:`add_parameter_value` on the tuples.
         """
         defaults = []
-        for name in self.basis_gates:
-            schedule = self._schedules[name].schedule
+        for name, schedule in self.items():
             for param in schedule.parameters:
                 if "ch" not in param.name:
                     if "y" in name and self._link_parameters:
