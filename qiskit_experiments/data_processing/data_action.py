@@ -99,5 +99,7 @@ class TrainableDataAction(DataAction):
         Certain data processing nodes, such as a SVD, require data to first train.
 
         Args:
-            data: A full data array used for training.
+            data: A data array for training. This is a single numpy array containing
+                all circuit results input to the data processor :meth:`~qiskit_experiments.\
+                data_processing.data_processor.DataProcessor#train` method.
         """
