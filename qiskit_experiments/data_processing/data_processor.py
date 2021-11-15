@@ -16,8 +16,8 @@ In Qiskit Experiments, uncertainty propagation is offloaded to the ``uncertainti
 package, that offers a python float and numpy-array compatible number
 representation that natively supports standard errors and their propagation.
 
-Given values :math:`a` and :math:`b` have finite uncertainty, the error propagation
-in the function :math:`f` will be computed with derivatives
+Given values :math:`a` and :math:`b` with a finite uncertainty, the error propagation
+in the function :math:`f` is computed with derivatives
 
 .. math:
 
