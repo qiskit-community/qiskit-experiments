@@ -21,11 +21,10 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.backend import Backend
 from qiskit.test.mock import FakeBackend
 
-from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
+from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.readout_angle_analysis import ReadoutAngleAnalysis
 
 
-@fix_class_docs
 class ReadoutAngle(BaseExperiment):
     r"""
     Readout angle experiment class
