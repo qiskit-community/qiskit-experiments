@@ -246,7 +246,7 @@ class DummyCalExperiment(BaseCalibrationExperiment):
         return [QuantumCircuit(1)]
 
 
-class TestDesrialization(QiskitTestCase):
+class TestDeserialization(QiskitTestCase):
     """Test that we can properly deserialize a BackCalibrations instance."""
 
     def setUp(self):
