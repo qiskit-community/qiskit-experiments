@@ -41,7 +41,8 @@ class AverageData(DataAction):
         """Format the data into numpy arrays.
 
         Args:
-            data: An all-result data array to format.
+            data: A data array to format. This is a single numpy array containing
+                all circuit results input to the data processor.
 
         Returns:
             The data that has been validated and formatted.
@@ -62,7 +63,8 @@ class AverageData(DataAction):
         r"""Average the data.
 
         Args:
-            data: An all-result data array to format.
+            data: A data array to process. This is a single numpy array containing
+                all circuit results input to the data processor.
 
         Notes:
             The error is computed by the standard error of the mean,
@@ -88,7 +90,8 @@ class MinMaxNormalize(DataAction):
         """Normalize the data to the interval [0, 1].
 
         Args:
-            data: An all-result data array to process.
+            data: A data array to process. This is a single numpy array containing
+                all circuit results input to the data processor.
 
         Returns:
             The normalized data.
@@ -125,7 +128,9 @@ class SVD(TrainableDataAction):
         """Check that the IQ data is 2D and convert it to a numpy array.
 
         Args:
-            data: All IQ data. This data has different dimensions depending on whether
+            data: A data array to format. This is a single numpy array containing
+                all circuit results input to the data processor.
+                This data has different dimensions depending on whether
                 single-shot or averaged data is being processed.
                 Single-shot data is four dimensional, i.e., ``[#circuits, #shots, #slots, 2]``,
                 while averaged IQ data is three dimensional, i.e., ``[#circuits, #slots, 2]``.
@@ -203,7 +208,8 @@ class SVD(TrainableDataAction):
         """Project the IQ data onto the axis defined by an SVD and scale it.
 
         Args:
-            data: All IQ data to be processed.
+            data: A data array to process. This is a single numpy array containing
+                all circuit results input to the data processor.
 
         Returns:
             A Tuple of 1D arrays of the result of the SVD and the associated error. Each entry
@@ -246,7 +252,8 @@ class SVD(TrainableDataAction):
         qubit so that future data points can be projected onto the axis.
 
         Args:
-            data: An all-result array of IQ data to be trained.
+            data: A data array to be trained. This is a single numpy array containing
+                all circuit results input to the data processor.
         """
         if data is None:
             return
@@ -295,7 +302,8 @@ class IQPart(DataAction):
         The last dimension of the array should correspond to [real, imaginary] part of data.
 
         Args:
-            data: An all-result data array to process.
+            data: A data array to process. This is a single numpy array containing
+                all circuit results input to the data processor.
 
         Returns:
             The data that has been processed.
@@ -305,7 +313,8 @@ class IQPart(DataAction):
         """Format and validate the input.
 
         Args:
-            data: An all-result data array to format.
+            data: A data array to format. This is a single numpy array containing
+                all circuit results input to the data processor.
 
         Returns:
             The data that has been validated and formatted.
@@ -437,7 +446,8 @@ class Probability(DataAction):
         Checks that the given data has a counts format.
 
         Args:
-            data: An object data array containing count dictionaries.
+            data: A data array to format. This is a single numpy array containing
+                all circuit results input to the data processor.
 
         Returns:
             The ``data`` as given.
@@ -475,7 +485,10 @@ class Probability(DataAction):
         """Compute mean and standard error from the beta distribution.
 
         Args:
-            data: A object data array of counts dictionary.
+            data: A data array to process. This is a single numpy array containing
+                all circuit results input to the data processor.
+                This is usually object data type containing Python dictionaries of
+                count data keyed on the measured bitstring.
 
         Returns:
             The data that has been processed.
@@ -507,7 +520,8 @@ class BasisExpectationValue(DataAction):
         """Format and validate the input.
 
         Args:
-            data: An all-result data array to format.
+            data: A data array to format. This is a single numpy array containing
+                all circuit results input to the data processor.
 
         Returns:
             The data that has been validated and formatted.
@@ -527,7 +541,8 @@ class BasisExpectationValue(DataAction):
         """Compute basis eigenvalue.
 
         Args:
-            data: An all-result data array to process.
+            data: A data array to process. This is a single numpy array containing
+                all circuit results input to the data processor.
 
         Returns:
             The data that has been processed.
