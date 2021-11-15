@@ -41,7 +41,7 @@ class T2Hahn(BaseExperiment):
             .. parsed-literal::
 
                  ┌─────────┐┌──────────┐┌───────┐┌──────────┐┌──────────┐┌─┐
-            q_0: ┤ RY(π/2) ├┤ DELAY(t) ├┤ RX(π) ├┤ DELAY(t) ├┤ RY(-π/2) ├┤M├
+            q_0: ┤ RY(π/2) ├┤ DELAY(t) ├┤ RX(π) ├┤ DELAY(t) ├┤ RY(π/2) ├┤M├
                  └─────────┘└──────────┘└───────┘└──────────┘└──────────┘└╥┘
             c: 1/═════════════════════════════════════════════════════════╩═
                                                                          0
@@ -138,7 +138,7 @@ class T2Hahn(BaseExperiment):
             circ.delay(delay, 0, self.experiment_options.unit)
             circ.rx(np.pi, 0)
             circ.delay(delay, 0, self.experiment_options.unit)
-            circ.ry(-np.pi / 2, 0)  # Y90
+            circ.ry(np.pi / 2, 0)  # Y90
             circ.measure(0, 0)  # measure
             circ.metadata = {
                 "experiment_type": self._type,

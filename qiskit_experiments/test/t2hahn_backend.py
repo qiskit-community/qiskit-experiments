@@ -15,7 +15,7 @@ Temporary backend to be used for t2hahn experiment
 """
 
 import numpy as np
-
+from numpy import isclose
 from qiskit.providers import BackendV1
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
@@ -34,7 +34,7 @@ class T2HahnBackend(BackendV1):
     def __init__(
         self,
         p0=None,
-        initial_prob_plus=None,
+        initialization_error=None,
         readout0to1=None,
         readout1to0=None,
         conversion_factor=1,
@@ -63,7 +63,10 @@ class T2HahnBackend(BackendV1):
         self._a_param = p0["A"]
         self._frequency = p0["frequency"]
         self._b_param = p0["B"]
-        self._initial_prob_plus = None
+        if initialization_error is not None:
+            self._initialization_error = initialization_error
+        else:
+            self._initialization_error = None
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
         self._conversion_factor = conversion_factor
@@ -76,6 +79,13 @@ class T2HahnBackend(BackendV1):
         """Default options of the test backend."""
         return Options(shots=1024)
 
+    def _qubit_initialization(self) -> dict:
+        if self._initialization_error is None:
+            return {"qubit state": 0, "XY plain": False, "YZ plain": False, "Theta": 0}
+        else:
+            return {"qubit state": (self._rng.random() < self._initialization_error[0]),
+                    "XY plain": False, "YZ plain": False, "Theta": 0}
+
     def _delay_gate(self, qubit_state: dict, delay: float, t2hahn: float) -> dict:
         if qubit_state["XY plain"]:
             prob_noise = 1 - (np.exp(-delay / t2hahn))
@@ -87,45 +97,65 @@ class T2HahnBackend(BackendV1):
                     new_qubit_state = {"qubit state": 1, "XY plain": False,
                                    "YZ plain": False, "Theta": 0}
             else:
-                phase = self._frequency * delay
-                new_qubit_state = {"qubit state": 1, "XY plain": False,
-                                   "YZ plain": False, "Theta": phase}
+                phase = self._frequency[0] * delay
+                new_qubit_state = {"qubit state": qubit_state["qubit state"], "XY plain": True,
+                                   "YZ plain": False, "Theta": qubit_state["Theta"] + phase}
         else:
             new_qubit_state = qubit_state
         return new_qubit_state
 
-    def _rx_gate(self, qubit_state: dict) -> dict:
+    def _rx_gate(self, qubit_state: dict, angle: float) -> dict:
         if qubit_state["XY plain"]:
-            new_qubit_state = {"qubit state": 0, "XY plain": False,
-                               "YZ plain": False, "Theta": np.pi - qubit_state["Theta"]}
+            if isclose(angle, np.pi):
+                new_qubit_state = {"qubit state": 0, "XY plain": True,
+                                   "YZ plain": False, "Theta": np.pi - qubit_state["Theta"]}
         elif qubit_state["qubit state"] == 0:
-            new_qubit_state = {"qubit state": 1, "XY plain": False,
-                               "YZ plain": False, "Theta": 0}
-        else:
-            new_qubit_state = {"qubit state": 0, "XY plain": False,
-                               "YZ plain": False, "Theta": 0}
-        return new_qubit_state
-
-    def _ry_gate(self, qubit_state: dict) -> dict:
-        if qubit_state["XY plain"]:
-            if qubit_state["Theta"] == 0:
+            if isclose(angle, np.pi):
                 new_qubit_state = {"qubit state": 1, "XY plain": False,
                                    "YZ plain": False, "Theta": 0}
-            elif qubit_state["Theta"] == np.pi:
+        else:
+            if isclose(angle, np.pi):
                 new_qubit_state = {"qubit state": 0, "XY plain": False,
                                    "YZ plain": False, "Theta": 0}
-            else:
-                new_qubit_state = {"qubit state": 0, "XY plain": False,
-                                   "YZ plain": True, "Theta": qubit_state["Theta"]}
+        return new_qubit_state
+
+    def _ry_gate(self, qubit_state: dict, angle: float) -> dict:
+        if qubit_state["XY plain"]:
+            if isclose(angle, np.pi/2):
+                if qubit_state["Theta"] == 0:
+                    new_qubit_state = {"qubit state": 1, "XY plain": False,
+                                       "YZ plain": False, "Theta": 0}
+                elif qubit_state["Theta"] == np.pi:
+                    new_qubit_state = {"qubit state": 0, "XY plain": False,
+                                       "YZ plain": False, "Theta": 0}
+                else:
+                    new_qubit_state = {"qubit state": 0, "XY plain": False,
+                                       "YZ plain": True, "Theta": np.pi - qubit_state["Theta"]}
+            elif isclose(angle, -np.pi/2):
+                if qubit_state["Theta"] == 0:
+                    new_qubit_state = {"qubit state": 0, "XY plain": False,
+                                       "YZ plain": False, "Theta": 0}
+                elif qubit_state["Theta"] == np.pi:
+                    new_qubit_state = {"qubit state": 1, "XY plain": False,
+                                       "YZ plain": False, "Theta": 0}
+                else:
+                    new_qubit_state = {"qubit state": 0, "XY plain": False,
+                                       "YZ plain": True, "Theta": qubit_state["Theta"]}
         elif qubit_state["YZ plain"]:
-            new_qubit_state = {"qubit state": qubit_state["qubit state"], "XY plain": True,
-                               "YZ plain": False, "Theta": np.pi - qubit_state["Theta"]}
+            if isclose(angle, np.pi / 2):
+                new_qubit_state = {"qubit state": qubit_state["qubit state"], "XY plain": True,
+                                   "YZ plain": False, "Theta": qubit_state["Theta"]}
+            elif isclose(angle, -np.pi / 2):
+                new_qubit_state = {"qubit state": qubit_state["qubit state"], "XY plain": True,
+                                   "YZ plain": False, "Theta": np.pi - qubit_state["Theta"]}
         elif qubit_state["qubit state"] == 0:
-            new_qubit_state = {"qubit state": 1, "XY plain": False,
-                               "YZ plain": False, "Theta": 0}
+            if isclose(angle, np.pi / 2) or isclose(angle, -np.pi / 2):
+                new_qubit_state = {"qubit state": 0, "XY plain": True,
+                                   "YZ plain": False, "Theta": np.abs((np.pi/2 - angle))}
         else:
-            new_qubit_state = {"qubit state": 0, "XY plain": False,
-                               "YZ plain": False, "Theta": np.pi}
+            if isclose(angle, np.pi / 2) or isclose(angle, -np.pi / 2):
+                new_qubit_state = {"qubit state": 0, "XY plain": True,
+                                   "YZ plain": False, "Theta": np.pi/2 + angle}
         return new_qubit_state
     
     def _measurement_gate(self, qubit_state: dict) -> int:
@@ -150,12 +180,13 @@ class T2HahnBackend(BackendV1):
             meas_res = qubit_state["qubit state"]
 
         # Measurement error implementation
-        if meas_res:
-            if self._readout1to0 is not None and self._rng.random() < self._readout1to0:
+        if meas_res and self._readout1to0 is not None:
+            if self._rng.random() < self._readout1to0[0]:
                 meas_res = 0
-        else:
-            if self._readout0to1 is not None and self._rng.random() < self._readout0to1:
+        elif self._readout0to1 is not None:
+            if self._rng.random() < self._readout0to1[0]:
                 meas_res = 1
+
         return meas_res
 
     # pylint: disable = arguments-differ
@@ -180,8 +211,7 @@ class T2HahnBackend(BackendV1):
             counts = dict()
 
             for _ in range(shots):
-                qubit_state = {"qubit state": 0, "XY plain": False,
-                               "YZ plain": False, "Theta": 0}
+                qubit_state = self._qubit_initialization()
                 clbits = np.zeros(circ.num_clbits, dtype=int)
                 for op, qargs, cargs in circ.data:
                     qubit = qubit_indices[qargs[0]]
@@ -191,11 +221,10 @@ class T2HahnBackend(BackendV1):
                         delay = op.params[0]
                         t2hahn = self._t2hahn[qubit] * self._conversion_factor
                         qubit_state = self._delay_gate(qubit_state, delay, t2hahn)
-
-                    if op.name == "rx":
-                        qubit_state = self._rx_gate(qubit_state)
+                    elif op.name == "rx":
+                        qubit_state = self._rx_gate(qubit_state, op.params[0])
                     elif op.name == "ry":
-                        qubit_state = self._ry_gate(qubit_state)
+                        qubit_state = self._ry_gate(qubit_state, op.params[0])
                     elif op.name == "measure":
                         # we measure in |+> basis which is the same as measuring |0>
                         meas_res = self._measurement_gate(qubit_state)

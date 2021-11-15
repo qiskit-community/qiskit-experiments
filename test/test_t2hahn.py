@@ -20,6 +20,7 @@ from qiskit.test import QiskitTestCase
 from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library.characterization.t2hahn import T2Hahn
 from qiskit_experiments.test.t2hahn_backend import T2HahnBackend
+import unittest
 
 # Imports for computer
 from qiskit import IBMQ
@@ -54,7 +55,7 @@ class TestT2Hahn(QiskitTestCase):
             default_p0 = {
                 "A": 0.5,
                 "T2": estimated_t2hahn,
-                "_frequency": 1,
+                "frequency": 1,
                 "B": 0.5,
             }
             for user_p0 in [default_p0, None]:
@@ -63,10 +64,10 @@ class TestT2Hahn(QiskitTestCase):
                     p0={
                         "A": [0.5],
                         "T2": [estimated_t2hahn],
-                        "phi": [0.0],
+                        "frequency": [1],
                         "B": [0.5],
                     },
-                    initial_prob_plus=[0.0],
+                    initialization_error=[0.0],
                     readout0to1=[0.02],
                     readout1to0=[0.02],
                     conversion_factor=dt_factor,
@@ -105,10 +106,10 @@ class TestT2Hahn(QiskitTestCase):
             p0={
                 "A": [0.5],
                 "T2": [estimated_t2hahn],
-                "phi": [0.0],
+                "frequency": [1],
                 "B": [0.5],
             },
-            initial_prob_plus=[0.0],
+            initialization_error=[0.0],
             readout0to1=[0.02],
             readout1to0=[0.02],
             conversion_factor=1,
@@ -134,3 +135,6 @@ class TestT2Hahn(QiskitTestCase):
         )
         self.assertLessEqual(results1[0].value.stderr, results0[0].value.stderr)
         self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))
+
+if __name__ == '__main__':
+    unittest.main()
