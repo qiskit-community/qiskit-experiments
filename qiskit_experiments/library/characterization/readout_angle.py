@@ -36,8 +36,8 @@ class ReadoutAngle(BaseExperiment):
         Each experiment consists of the following steps:
 
         1. Circuits generation: two circuits, the first circuit measures the qubit
-         in the ground state, the second circuit sets the qubit in the excited state
-         and measures it. Measurements are in level 1 (kerneled).
+        in the ground state, the second circuit sets the qubit in the excited state
+        and measures it. Measurements are in level 1 (kerneled).
 
         2. Backend execution: actually running the circuits on the device
         (or a simulator that supports level 1 measurements).
