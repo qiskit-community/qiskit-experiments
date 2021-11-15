@@ -1378,31 +1378,3 @@ class TestSavingAndLoading(CrossResonanceTest):
             cals.get_parameter_value("qubit_lo_freq", (0,)),
             backend.defaults().qubit_freq_est[0],
         )
-
-
-class TestSerialization(QiskitTestCase):
-    """Test that we can serialize calibrations."""
-
-    def test_simple_serialization(self):
-        """Test that we can serialize simply initialized cals."""
-
-        cals1 = Calibrations(library=FixedFrequencyTransmon())
-
-        cals2 = Calibrations.deserialize(cals1.serialize())
-
-        self.assertEqual(cals1.get_schedule("x", (0,)), cals2.get_schedule("x", (0,)))
-
-    def test_serialization(self):
-        """Test that parameters that were added are taken into account."""
-
-        cals1 = Calibrations(library=FixedFrequencyTransmon())
-        cals1.add_parameter_value(1234, "duration", (), "x")
-
-        with pulse.build(name="x") as expected:
-            pulse.play(pulse.Drag(1234, 0.5, 40, 0.0), pulse.DriveChannel(3))
-
-        self.assertEqual(cals1.get_schedule("x", (3,)), expected)
-
-        cals2 = Calibrations.deserialize(cals1.serialize())
-        self.assertEqual(cals2.get_schedule("x", (3,)), expected)
-        self.assertCountEqual(cals1.parameters_table()["data"], cals2.parameters_table()["data"])

@@ -18,6 +18,8 @@ Note that the set of available libraries will be extended in future releases.
 
 from abc import ABC, abstractmethod
 from collections import namedtuple
+import importlib
+import inspect
 from typing import Any, Dict, List, Optional, Tuple
 from warnings import warn
 
@@ -25,6 +27,7 @@ from qiskit.circuit import Parameter
 import qiskit.pulse as pulse
 from qiskit.pulse import ScheduleBlock
 
+from qiskit_experiments.framework.json import _serialize_type
 from qiskit_experiments.calibration_management.calibration_key_types import ParameterValueType
 from qiskit_experiments.exceptions import CalibrationError
 
@@ -85,15 +88,19 @@ class BasisGateLibrary(ABC):
         if name not in self._schedules:
             raise CalibrationError(f"Gate {name} is not contained in {self.__class__.__name__}.")
 
-        return self._schedules[name]
+        return self._schedules[name].schedule
 
     def __contains__(self, name: str) -> bool:
         """Check if the basis gate is in the library."""
         return name in self._schedules
 
     def __hash__(self) -> int:
-        """Return the hash of the library by computing the hash pf the schedule strings."""
-        return hash(tuple((gate, str(self[gate_def.schedule])) for gate, gate_def in self._schedules.items()))
+        """Return the hash of the library by computing the hash of the schedule strings."""
+        data_to_hash = []
+        for gate, gate_def in sorted(self._schedules.items()):
+            data_to_hash.append((gate, str(gate_def.schedule)))
+
+        return hash(tuple(data_to_hash))
 
     def num_qubits(self, name: str) -> int:
         """Return the number of qubits that the schedule with the given name acts on."""
@@ -130,8 +137,9 @@ class BasisGateLibrary(ABC):
         kwargs.update(self._kwargs)
 
         return {
+            "class": _serialize_type(type(self)),
             "kwargs": kwargs,
-            "hash": self.__hash__()
+            "hash": self.__hash__(),
         }
 
     @classmethod
@@ -155,6 +163,17 @@ class BasisGateLibrary(ABC):
     def __json_decode__(cls, value: Dict[str, Any]) -> "BasisGateLibrary":
         """Load from JSON compatible format"""
         return cls.from_config(value)
+
+
+def deserialize_library(config: Dict[str, Any]) -> BasisGateLibrary:
+    """Deserialize the config to a Library."""
+    class_name = config["class"]["__value__"]["name"]
+    mod_name = config["class"]["__value__"]["module"]
+
+    mod = importlib.import_module(mod_name)
+    for name, cls in inspect.getmembers(mod, inspect.isclass):
+        if name == class_name:
+            return cls(**config["kwargs"])
 
 
 class FixedFrequencyTransmon(BasisGateLibrary):
@@ -230,8 +249,9 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         sched_sy = self._single_qubit_schedule("sy", dur, sy_amp, sigma, sy_beta)
 
         for sched in [sched_x, sched_y, sched_sx, sched_sy]:
-            if sched.name in self._schedules:
-                self._schedules[sched.name].schedule = sched
+            name = sched.name
+            if name in self._schedules:
+                self._schedules[name] = GateDef(self._schedules[name].num_qubits, sched)
 
     @staticmethod
     def _single_qubit_schedule(
@@ -263,7 +283,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         """
         defaults = []
         for name in self.basis_gates:
-            schedule = self._schedules[name]
+            schedule = self._schedules[name].schedule
             for param in schedule.parameters:
                 if "ch" not in param.name:
                     if "y" in name and self._link_parameters:

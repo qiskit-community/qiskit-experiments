@@ -36,8 +36,11 @@ from qiskit.pulse import (
 from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter, ParameterExpression
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.database_service.json import serialize_object, deserialize_object
-from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
+from qiskit_experiments.framework.json import _serialize_object, _deserialize_object_legacy
+from qiskit_experiments.calibration_management.basis_gate_library import (
+    BasisGateLibrary,
+    deserialize_library,
+)
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.calibration_key_types import (
     ParameterKey,
@@ -1164,82 +1167,6 @@ class Calibrations:
         given location.
         """
         raise CalibrationError("Full calibration loading is not implemented yet.")
-
-    def serialize(self, save_parameters: bool = True) -> Dict:
-        """Serializes the class to a Dictionary.
-
-        Args:
-            save_parameters: If set to True, the default value, then all the values of the
-                calibrations will also be serialized.
-
-        Returns:
-            A dict object that represents the calibrations and can be used to rebuild the
-            calibrations. See :meth:`deserialize`.
-
-        Raises:
-            CalibrationError: if there calibrations were not built from a library.
-        """
-
-        if self._library is None:
-            raise CalibrationError(
-                "Cannot serialize calibrations that are not constructed from a library."
-            )
-
-        # encode the configuration of the controls.
-        serialized_controls_config = {}
-        for qubits, channels in self._controls_config.items():
-            serialized_controls_config[qubits] = [chan.index for chan in channels]
-
-        serialized_cals = serialize_object(type(self))
-        serialized_cals["__value__"]["__library__"] = self._library.serialize()
-        serialized_cals["__value__"]["__controls_config__"] = serialized_controls_config
-
-        if save_parameters:
-            serialized_cals["__value__"]["__parameter_values__"] = self.parameters_table()["data"]
-
-        return serialized_cals
-
-    # pylint: disable=unused-argument
-    @classmethod
-    def deserialize(cls, serialized_dict: Dict, *args) -> "Calibrations":
-        """Deserialize from a dictionary.
-
-        Args:
-            serialized_dict: The dictionary from which to create the calibrations instance.
-            args: Arguments that subclasses can use to pass in non-serializable objects like
-                backends.
-
-        Returns:
-            An instance of Calibrations.
-        """
-
-        # Deserialize the library.
-        library = BasisGateLibrary.deserialize(serialized_dict["__value__"].pop("__library__"))
-
-        # Deserialize the control channel configuration.
-        control_config = {}
-        for qubits, channels in serialized_dict["__value__"]["__controls_config__"].items():
-            control_config[qubits] = [ControlChannel(index) for index in channels]
-
-        params = serialized_dict["__value__"].get("__parameter_values__", [])
-
-        cals = deserialize_object(
-            serialized_dict["__value__"]["__module__"],
-            serialized_dict["__value__"]["__name__"],
-            tuple(),
-            {
-                "library": library,
-                "control_config": control_config,
-                "add_parameter_defaults": len(params) == 0,
-            },
-        )
-
-        # Add the parameter values if any
-        params = serialized_dict["__value__"].get("__parameter_values__", [])
-        for param_conf in params:
-            cals.add_parameter_value_from_conf(**param_conf)
-
-        return cals
 
     @staticmethod
     def _to_tuple(qubits: Union[str, int, Tuple[int, ...]]) -> Tuple[int, ...]:

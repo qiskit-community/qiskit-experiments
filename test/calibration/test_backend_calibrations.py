@@ -247,7 +247,7 @@ class DummyCalExperiment(BaseCalibrationExperiment):
         return [QuantumCircuit(1)]
 
 
-class TestDeserialization(QiskitTestCase):
+class TestDeserialization(QiskitExperimentsTestCase):
     """Test that we can properly deserialize a BackCalibrations instance."""
 
     def setUp(self):
@@ -258,7 +258,7 @@ class TestDeserialization(QiskitTestCase):
     def test_simple_serialization(self):
         """Test that we can serialize simply initialized cals."""
 
-        cals = BackendCalibrations.deserialize(self.cals.serialize(), FakeBelem())
+        cals = BackendCalibrations.from_config(self.cals.config(), FakeBelem())
         self.assertEqual(self.cals.get_schedule("x", (0,)), cals.get_schedule("x", (0,)))
 
     def test_serialization(self):
@@ -271,7 +271,7 @@ class TestDeserialization(QiskitTestCase):
 
         self.assertEqual(self.cals.get_schedule("x", (3,)), expected)
 
-        cals = BackendCalibrations.deserialize(self.cals.serialize(), FakeBelem())
+        cals = BackendCalibrations.from_config(self.cals.config(), FakeBelem())
         self.assertEqual(cals.get_schedule("x", (3,)), expected)
         self.assertCountEqual(self.cals.parameters_table()["data"], cals.parameters_table()["data"])
 
@@ -279,4 +279,4 @@ class TestDeserialization(QiskitTestCase):
         """Test that the deserialization raise on the wrong backend."""
 
         with self.assertRaises(CalibrationError):
-            BackendCalibrations.deserialize(self.cals.serialize(), FakeArmonk())
+            BackendCalibrations.from_config(self.cals.config(), FakeArmonk())

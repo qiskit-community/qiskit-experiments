@@ -15,7 +15,7 @@
 from collections import defaultdict
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 import copy
 from warnings import warn
 
@@ -23,7 +23,7 @@ from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Parameter
 from qiskit.pulse import InstructionScheduleMap, ScheduleBlock
 
-from qiskit_experiments.database_service.json import serialize_object, deserialize_object
+from qiskit_experiments.framework.json import _serialize_type, _deserialize_object_legacy
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.calibrations import (
     Calibrations,
@@ -31,7 +31,10 @@ from qiskit_experiments.calibration_management.calibrations import (
     ParameterValueType,
 )
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
+from qiskit_experiments.calibration_management.basis_gate_library import (
+    BasisGateLibrary,
+    deserialize_library,
+)
 
 
 class FrequencyElement(Enum):
@@ -412,7 +415,7 @@ class BackendCalibrations(Calibrations):
 
         return self._operated_qubits
 
-    def serialize(self, save_parameters: bool = True) -> Dict:
+    def config(self, save_parameters: bool = True) -> Dict:
         """Serializes the class to a Dictionary.
 
         Args:
@@ -432,23 +435,26 @@ class BackendCalibrations(Calibrations):
                 "Cannot serialize calibrations that are not constructed from a library."
             )
 
-        serialized_cals = serialize_object(type(self))
-        serialized_cals["__value__"]["__library__"] = self._library.serialize()
-        serialized_cals["__value__"]["__backend_name__"] = self._backend.name()
-        serialized_cals["__value__"]["__backend_version__"] = self._backend.version
+        serialized_cals = _serialize_type(type(self))
+        serialized_cals["__value__"].update(
+            {"library": self._library.config,
+             "backend_name": self._backend.name(),
+             "backend_version": self._backend.version,
+             }
+        )
 
         if save_parameters:
-            serialized_cals["__value__"]["__parameter_values__"] = self.parameters_table()["data"]
+            serialized_cals["__value__"]["parameter_values"] = self.parameters_table()["data"]
 
         return serialized_cals
 
     # pylint: disable=arguments-differ
     @classmethod
-    def deserialize(cls, serialized_dict: Dict, backend: Backend, *args) -> "BackendCalibrations":
+    def from_config(cls, config: Dict, backend: Backend, *args) -> "BackendCalibrations":
         """Deserialize from a dictionary.
 
         Args:
-            serialized_dict: The dictionary from which to create the calibrations instance.
+            config: The dictionary from which to create the calibrations instance.
             backend: The backend instance from which to construct the calibrations.
             args: Trailing args.
 
@@ -460,10 +466,10 @@ class BackendCalibrations(Calibrations):
         """
 
         # Deserialize the library.
-        library = BasisGateLibrary.deserialize(serialized_dict["__value__"].pop("__library__"))
+        library = deserialize_library(config["__value__"].pop("library"))
 
-        expected_backend = serialized_dict["__value__"]["__backend_name__"]
-        expected_version = serialized_dict["__value__"]["__backend_version__"]
+        expected_backend = config["__value__"]["backend_name"]
+        expected_version = config["__value__"]["backend_version"]
         if backend.name() != expected_backend:
             raise CalibrationError(
                 f"Wrong backend in deserialization: {backend.name} != {expected_backend}."
@@ -474,22 +480,24 @@ class BackendCalibrations(Calibrations):
                 f"Deserialization Backend version mismatch {backend.version} != {expected_version}."
             )
 
-        params = serialized_dict["__value__"].get("__parameter_values__", [])
+        params = config["__value__"].get("parameter_values", [])
 
-        cals = deserialize_object(
-            serialized_dict["__value__"]["__module__"],
-            serialized_dict["__value__"]["__name__"],
-            tuple(),
-            {
-                "backend": backend,
-                "library": library,
-                "add_parameter_defaults": len(params) == 0,
-            },
+        cals = BackendCalibrations(
+            backend=backend, library=library, add_parameter_defaults=len(params) == 0
         )
 
         # Add the parameter values if any
-        params = serialized_dict["__value__"].get("__parameter_values__", [])
+        params = config["__value__"].get("parameter_values", [])
         for param_conf in params:
             cals.add_parameter_value_from_conf(**param_conf)
 
         return cals
+
+    def __json_encode__(self):
+        """Convert to format that can be JSON serialized"""
+        return self.config
+
+    @classmethod
+    def __json_decode__(cls, value: Dict[str, Any]) -> "Calibrations":
+        """Load from JSON compatible format"""
+        return cls.from_config(value)
