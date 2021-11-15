@@ -12,13 +12,12 @@
 
 """Rough drag calibration experiment."""
 
-from typing import Iterable, List, Optional
+from typing import Iterable, Optional
 
-from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
 from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import ExperimentData, fix_class_docs
+from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.calibration_management import (
     BaseCalibrationExperiment,
     BackendCalibrations,
@@ -27,7 +26,6 @@ from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.library.characterization.drag import RoughDrag
 
 
-@fix_class_docs
 class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
     """A calibration version of the Drag experiment.
 
@@ -76,8 +74,8 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
             auto_update=auto_update,
         )
 
-    def _add_cal_metadata(self, circuits: List[QuantumCircuit]):
-        """Add metadata to the circuit to make the experiment data more self contained.
+    def _add_cal_metadata(self, experiment_data: ExperimentData):
+        """Add metadata to the experiment data making it more self contained.
 
         The following keys are added to each circuit's metadata:
             cal_param_value: The value of the previous calibrated beta.
@@ -90,11 +88,10 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
             self._param_name, self.physical_qubits, self._sched_name, self.experiment_options.group
         )
 
-        for circuit in circuits:
-            circuit.metadata["cal_param_value"] = prev_beta
-            circuit.metadata["cal_param_name"] = self._param_name
-            circuit.metadata["cal_schedule"] = self._sched_name
-            circuit.metadata["cal_group"] = self.experiment_options.group
+        experiment_data.metadata["cal_param_value"] = prev_beta
+        experiment_data.metadata["cal_param_name"] = self._param_name
+        experiment_data.metadata["cal_schedule"] = self._sched_name
+        experiment_data.metadata["cal_group"] = self.experiment_options.group
 
     def update_calibrations(self, experiment_data: ExperimentData):
         """Update the beta using the value directly reported from the fit.

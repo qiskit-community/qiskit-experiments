@@ -37,6 +37,9 @@ Experiments
     RamseyXY
     RoughDrag
     ReadoutAngle
+    FineDrag
+    FineXDrag
+    FineSXDrag
 
 
 Analysis
@@ -46,21 +49,35 @@ Analysis
     :toctree: ../stubs/
     :template: autosummary/analysis.rst
 
-    T1Analysis
-    T2RamseyAnalysis
-    CrossResonanceHamiltonianAnalysis
-    ReadoutAngleAnalysis
-
+    analysis.T1Analysis
+    analysis.T2RamseyAnalysis
+    analysis.CrossResonanceHamiltonianAnalysis
+    analysis.DragCalAnalysis
+    analysis.FineHalfAngleAnalysis
+    analysis.FineDragAnalysis
+    analysis.FineAmplitudeAnalysis
+    analysis.FineXAmplitudeAnalysis
+    analysis.RamseyXYAnalysis
+    analysis.ReadoutAngleAnalysis
 """
 
+from .analysis import (
+    DragCalAnalysis,
+    FineHalfAngleAnalysis,
+    FineDragAnalysis,
+    FineAmplitudeAnalysis,
+    FineXAmplitudeAnalysis,
+    RamseyXYAnalysis,
+    T2RamseyAnalysis,
+    T1Analysis,
+    CrossResonanceHamiltonianAnalysis,
+)
+
 from .t1 import T1
-from .t1_analysis import T1Analysis
 from .qubit_spectroscopy import QubitSpectroscopy
 from .ef_spectroscopy import EFSpectroscopy
 from .t2ramsey import T2Ramsey
-from .t2ramsey_analysis import T2RamseyAnalysis
 from .cr_hamiltonian import CrossResonanceHamiltonian, EchoedCrossResonanceHamiltonian
-from .cr_hamiltonian_analysis import CrossResonanceHamiltonianAnalysis
 from .rabi import Rabi, EFRabi
 from .half_angle import HalfAngle
 from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
@@ -68,3 +85,4 @@ from .ramsey_xy import RamseyXY
 from .drag import RoughDrag
 from .readout_angle import ReadoutAngle
 from .readout_angle_analysis import ReadoutAngleAnalysis
+from .fine_drag import FineDrag, FineXDrag, FineSXDrag
