@@ -68,7 +68,7 @@ class BackendCalibrations(Calibrations):
                 as the coupling map.
             library: A library class that will be instantiated with the library options to then
                 get template schedules to register as well as default parameter values.
-            add_parameter_defaults: A boolean to indicate weather the default parameter values of
+            add_parameter_defaults: A boolean to indicate whether the default parameter values of
                 the given library should be used to populate the calibrations. By default this
                 value is True but can be set to false when deserializing a calibrations object.
 
