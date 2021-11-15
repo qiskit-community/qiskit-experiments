@@ -20,10 +20,8 @@ from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData
 
 class ReadoutAngleAnalysis(BaseAnalysis):
     def _run_analysis(self, experiment_data, **kwargs):
-        print("hi", experiment_data.data(0))
         center0 = complex(*experiment_data.data(0)["memory"][0])
         center1 = complex(*experiment_data.data(1)["memory"][0])
-        print(center0, center1)
 
         angle = (np.angle(center0) + np.angle(center1)) / 2
         if np.abs(np.angle(center0) - np.angle(center1)) > np.pi:
@@ -34,6 +32,5 @@ class ReadoutAngleAnalysis(BaseAnalysis):
             value=angle
         )]
 
-        print(analysis_results[0])
         return analysis_results, []
 
