@@ -13,11 +13,12 @@
 """Class to test the backend calibrations."""
 
 from typing import List
+import unittest
+from test.base import QiskitExperimentsTestCase
 
 from qiskit import transpile, QuantumCircuit
 from qiskit.circuit import Parameter, Gate
 import qiskit.pulse as pulse
-from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeArmonk, FakeBelem
 
 from qiskit_experiments.calibration_management import BackendCalibrations, BaseCalibrationExperiment
@@ -25,7 +26,7 @@ from qiskit_experiments.calibration_management.basis_gate_library import FixedFr
 from qiskit_experiments.exceptions import CalibrationError
 
 
-class TestBackendCalibrations(QiskitTestCase):
+class TestBackendCalibrations(QiskitExperimentsTestCase):
     """Class to test the functionality of a BackendCalibrations"""
 
     def test_run_options(self):

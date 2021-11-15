@@ -22,11 +22,10 @@ from qiskit.quantum_info import Clifford
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 
-from .rb_experiment import StandardRB, fix_class_docs
+from .rb_experiment import StandardRB
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 
 
-@fix_class_docs
 class InterleavedRB(StandardRB):
     """Interleaved randomized benchmarking experiment.
 

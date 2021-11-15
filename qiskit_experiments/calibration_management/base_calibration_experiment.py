@@ -13,11 +13,11 @@
 """Base class for calibration-type experiments."""
 
 from abc import ABC
-from typing import Dict, List, Optional, Tuple, Type
+from typing import Dict, Optional, Tuple, Type
 import warnings
 
 from qiskit.providers.backend import Backend
-from qiskit.circuit import Parameter, QuantumCircuit
+from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
@@ -361,20 +361,11 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
         return schedules
 
-    def circuits(self) -> List[QuantumCircuit]:
-        """A wrapper to introduce an optional hook to add circuit metadata."""
-        circuits = super().circuits()
+    def _add_cal_metadata(self, experiment_data: ExperimentData):
+        """A hook to add calibration metadata to the experiment data.
 
-        self._add_cal_metadata(circuits)
-
-        return circuits
-
-    def _add_cal_metadata(self, circuits: List[QuantumCircuit]):
-        """A hook to add calibration metadata to the circuits.
-
-        Many calibration experiments will not define the circuits method but rely on those defined
-        by the experiment in the characterization module. This hook allows calibration experiments
-        to add their own meta data to the circuits if needed.
+        This hook allows calibration experiments to add their own meta data to the
+        experiment data if needed.
         """
         pass
 
@@ -402,6 +393,8 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             "calibrations": self._cals.serialize(),
             "backend name": self._cals.backend.name(),
         }
+        
+        self._add_cal_metadata(experiment_data)
 
         # Add the update callback
         if self.auto_update and analysis:

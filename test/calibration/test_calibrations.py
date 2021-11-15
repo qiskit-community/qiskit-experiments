@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """Class to test the calibrations."""
-
+from test.base import QiskitExperimentsTestCase
 import os
 import uuid
 from collections import defaultdict
@@ -30,7 +30,6 @@ from qiskit.pulse import (
 )
 from qiskit.pulse.transforms import inline_subroutines, block_to_schedule
 import qiskit.pulse as pulse
-from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeArmonk
 from qiskit_experiments.calibration_management.calibrations import Calibrations, ParameterKey
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
@@ -39,7 +38,7 @@ from qiskit_experiments.calibration_management import BackendCalibrations
 from qiskit_experiments.exceptions import CalibrationError
 
 
-class TestCalibrationsBasic(QiskitTestCase):
+class TestCalibrationsBasic(QiskitExperimentsTestCase):
     """Class to test the management of schedules and parameters for calibrations."""
 
     def setUp(self):
@@ -258,7 +257,7 @@ class TestCalibrationsBasic(QiskitTestCase):
             self.cals.get_parameter_value("amp", "(1, a)", "xp")
 
 
-class TestOverrideDefaults(QiskitTestCase):
+class TestOverrideDefaults(QiskitExperimentsTestCase):
     """
     Test that we can override defaults. For example, this means that all qubits may have a
     Gaussian as xp pulse but a specific qubit may have a Drag pulse which overrides the
@@ -446,7 +445,7 @@ class TestOverrideDefaults(QiskitTestCase):
         self.assertEqual(len(amp_values), 2)
 
 
-class TestConcurrentParameters(QiskitTestCase):
+class TestConcurrentParameters(QiskitExperimentsTestCase):
     """Test a particular edge case with the time in the parameter values."""
 
     def test_concurrent_values(self):
@@ -472,7 +471,7 @@ class TestConcurrentParameters(QiskitTestCase):
         self.assertEqual(cals.get_parameter_value("amp", 3, "xp"), 0.45)
 
 
-class TestMeasurements(QiskitTestCase):
+class TestMeasurements(QiskitExperimentsTestCase):
     """Test that schedules on measure channels are handled properly."""
 
     def setUp(self):
@@ -630,7 +629,7 @@ class TestMeasurements(QiskitTestCase):
         self.assertEqual(sched, expected)
 
 
-class TestInstructions(QiskitTestCase):
+class TestInstructions(QiskitExperimentsTestCase):
     """Class to test that instructions like Shift and Set Phase/Frequency are properly managed."""
 
     def setUp(self):
@@ -683,7 +682,7 @@ class TestInstructions(QiskitTestCase):
         self.assertEqual(sched.instructions[2][1].frequency, 200)
 
 
-class TestRegistering(QiskitTestCase):
+class TestRegistering(QiskitExperimentsTestCase):
     """Class to test registering of subroutines with calls."""
 
     def setUp(self):
@@ -756,7 +755,7 @@ class TestRegistering(QiskitTestCase):
             )
 
 
-class CrossResonanceTest(QiskitTestCase):
+class CrossResonanceTest(QiskitExperimentsTestCase):
     """Setup class for an echoed cross-resonance calibration."""
 
     def setUp(self):
@@ -888,7 +887,7 @@ class TestControlChannels(CrossResonanceTest):
         self.assertEqual(self.cals.get_schedule("tcp", (3, 2)), expected)
 
 
-class TestAssignment(QiskitTestCase):
+class TestAssignment(QiskitExperimentsTestCase):
     """Test simple assignment"""
 
     def setUp(self):
@@ -1041,7 +1040,7 @@ class TestAssignment(QiskitTestCase):
         self.assertEqual(sched, expected)
 
 
-class TestReplaceScheduleAndCall(QiskitTestCase):
+class TestReplaceScheduleAndCall(QiskitExperimentsTestCase):
     """A test to ensure that inconsistencies are picked up when a schedule is reassigned."""
 
     def setUp(self):
@@ -1094,7 +1093,7 @@ class TestReplaceScheduleAndCall(QiskitTestCase):
             self.cals.get_schedule("call_xp", (4,))
 
 
-class TestCoupledAssigning(QiskitTestCase):
+class TestCoupledAssigning(QiskitExperimentsTestCase):
     """Test that assigning parameters works when they are coupled in calls."""
 
     def setUp(self):
@@ -1245,7 +1244,7 @@ class TestCoupledAssigning(QiskitTestCase):
         self.assertEqual(sched, expected)
 
 
-class TestFiltering(QiskitTestCase):
+class TestFiltering(QiskitExperimentsTestCase):
     """Test that the filtering works as expected."""
 
     def setUp(self):

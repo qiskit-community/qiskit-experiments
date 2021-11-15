@@ -12,12 +12,12 @@
 
 """Test fine drag calibration experiment."""
 
+from test.base import QiskitExperimentsTestCase
 import copy
 import numpy as np
 
 from qiskit import transpile
 from qiskit.circuit import QuantumCircuit, Gate
-from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeArmonk
 import qiskit.pulse as pulse
 
@@ -37,7 +37,7 @@ class FineDragTestBackend(DragBackend):
         return 0.5 * np.sin(n_gates * self._error) + 0.5
 
 
-class TestFineDrag(QiskitTestCase):
+class TestFineDrag(QiskitExperimentsTestCase):
     """Tests of the fine DRAG experiment."""
 
     def setUp(self):
@@ -85,7 +85,7 @@ class TestFineDrag(QiskitTestCase):
         self.assertEqual(config, loaded_exp.config)
 
 
-class TestFineDragCal(QiskitTestCase):
+class TestFineDragCal(QiskitExperimentsTestCase):
     """Test the calibration version of the fine drag experiment."""
 
     def setUp(self):
