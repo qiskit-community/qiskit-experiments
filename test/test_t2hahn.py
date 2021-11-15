@@ -17,13 +17,9 @@ import numpy as np
 
 from qiskit.utils import apply_prefix
 from qiskit.test import QiskitTestCase
-from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library.characterization.t2hahn import T2Hahn
 from qiskit_experiments.test.t2hahn_backend import T2HahnBackend
-import unittest
 
-# Imports for computer
-from qiskit import IBMQ
 
 
 class TestT2Hahn(QiskitTestCase):
@@ -55,7 +51,7 @@ class TestT2Hahn(QiskitTestCase):
             default_p0 = {
                 "A": 0.5,
                 "T2": estimated_t2hahn,
-                "frequency": 1,
+                "frequency": osc_freq,
                 "B": 0.5,
             }
             for user_p0 in [default_p0, None]:
@@ -64,7 +60,7 @@ class TestT2Hahn(QiskitTestCase):
                     p0={
                         "A": [0.5],
                         "T2": [estimated_t2hahn],
-                        "frequency": [1],
+                        "frequency": [osc_freq],
                         "B": [0.5],
                     },
                     initialization_error=[0.0],
@@ -93,12 +89,13 @@ class TestT2Hahn(QiskitTestCase):
         # First experiment
         qubit = 0
         delays0 = list(range(1, 60, 2))
+        osc_freq = 0.08
 
         exp0 = T2Hahn(qubit, delays0, unit=unit)
         default_p0 = {
             "A": 0.5,
             "T2": estimated_t2hahn,
-            "frequency": 1,
+            "frequency": osc_freq,
             "B": 0.5,
         }
         exp0.set_analysis_options(user_p0=default_p0)
@@ -135,6 +132,3 @@ class TestT2Hahn(QiskitTestCase):
         )
         self.assertLessEqual(results1[0].value.stderr, results0[0].value.stderr)
         self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))
-
-if __name__ == '__main__':
-    unittest.main()

@@ -18,7 +18,6 @@ from typing import Union, Iterable, List, Optional
 import numpy as np
 
 from qiskit import QuantumCircuit, QiskitError
-from qiskit.utils import apply_prefix
 from qiskit.providers.options import Options
 from qiskit.providers import Backend
 from qiskit_experiments.framework import BaseExperiment
@@ -68,6 +67,7 @@ class T2Hahn(BaseExperiment):
 
         options.delays = None
         options.unit = "s"
+
 
         return options
 
@@ -120,15 +120,12 @@ class T2Hahn(BaseExperiment):
         Raises:
             AttributeError: if unit is 'dt', but 'dt' parameter is missing in the backend configuration
         """
-        conversion_factor = 1
         if self.experiment_options.unit == "dt":
             try:
                 dt_factor = getattr(backend._configuration, "dt")
-                conversion_factor = dt_factor
             except AttributeError as no_dt:
                 raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
-        elif self.experiment_options.unit != "s":
-            conversion_factor = apply_prefix(1, self.experiment_options.unit)
+
 
         circuits = []
         for delay in self.experiment_options.delays:
@@ -138,7 +135,7 @@ class T2Hahn(BaseExperiment):
             circ.delay(delay, 0, self.experiment_options.unit)
             circ.rx(np.pi, 0)
             circ.delay(delay, 0, self.experiment_options.unit)
-            circ.ry(np.pi / 2, 0)  # Y90
+            circ.ry(np.pi / 2, 0)  # Y90 again since the num of echoes is odd
             circ.measure(0, 0)  # measure
             circ.metadata = {
                 "experiment_type": self._type,

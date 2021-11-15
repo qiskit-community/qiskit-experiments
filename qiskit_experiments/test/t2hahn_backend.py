@@ -157,7 +157,7 @@ class T2HahnBackend(BackendV1):
                 new_qubit_state = {"qubit state": 0, "XY plain": True,
                                    "YZ plain": False, "Theta": np.pi/2 + angle}
         return new_qubit_state
-    
+
     def _measurement_gate(self, qubit_state: dict) -> int:
         """
         implementing measurement on qubit with read-out error.
@@ -205,7 +205,6 @@ class T2HahnBackend(BackendV1):
             "results": [],
         }
         for circ in run_input:
-            nqubits = circ.num_qubits
             qubit_indices = {bit: idx for idx, bit in enumerate(circ.qubits)}
             clbit_indices = {bit: idx for idx, bit in enumerate(circ.clbits)}
             counts = dict()
