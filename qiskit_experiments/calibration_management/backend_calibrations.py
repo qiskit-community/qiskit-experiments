@@ -450,13 +450,12 @@ class BackendCalibrations(Calibrations):
 
     # pylint: disable=arguments-differ
     @classmethod
-    def from_config(cls, config: Dict, backend: Backend, *args) -> "BackendCalibrations":
+    def from_config(cls, config: Dict, backend: Backend) -> "BackendCalibrations":
         """Deserialize from a dictionary.
 
         Args:
             config: The dictionary from which to create the calibrations instance.
             backend: The backend instance from which to construct the calibrations.
-            args: Trailing args.
 
         Returns:
             An instance of Calibrations.
@@ -492,12 +491,3 @@ class BackendCalibrations(Calibrations):
             cals.add_parameter_value_from_conf(**param_conf)
 
         return cals
-
-    def __json_encode__(self):
-        """Convert to format that can be JSON serialized"""
-        return self.config
-
-    @classmethod
-    def __json_decode__(cls, value: Dict[str, Any]) -> "Calibrations":
-        """Load from JSON compatible format"""
-        return cls.from_config(value)
