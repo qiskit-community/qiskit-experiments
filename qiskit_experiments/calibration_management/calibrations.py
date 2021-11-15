@@ -36,11 +36,7 @@ from qiskit.pulse import (
 from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter, ParameterExpression
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.framework.json import _serialize_object, _deserialize_object_legacy
-from qiskit_experiments.calibration_management.basis_gate_library import (
-    BasisGateLibrary,
-    deserialize_library,
-)
+from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.calibration_key_types import (
     ParameterKey,
@@ -73,8 +69,7 @@ class Calibrations:
 
         .. code-block:: python
 
-            cals = BackendCalibrations(
-                    backend,
+            cals = Calibrations(
                     library=FixedFrequencyTransmon(
                         basis_gates=["x", "sx"],
                         default_values={duration: 320}
