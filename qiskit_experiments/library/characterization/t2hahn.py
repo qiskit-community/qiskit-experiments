@@ -119,11 +119,6 @@ class T2Hahn(BaseExperiment):
         Raises:
             AttributeError: if unit is 'dt', but 'dt' parameter is missing in the backend configuration
         """
-        if self.experiment_options.unit == "dt":
-            try:
-                dt_factor = getattr(backend._configuration, "dt")
-            except AttributeError as no_dt:
-                raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
 
         circuits = []
         for delay in self.experiment_options.delays:
@@ -142,7 +137,10 @@ class T2Hahn(BaseExperiment):
                 "unit": self.experiment_options.unit,
             }
             if self.experiment_options.unit == "dt":
-                circ.metadata["dt_factor"] = dt_factor
+                try:
+                    circ.metadata["dt_factor"] = getattr(backend._configuration, "dt")
+                except AttributeError as no_dt:
+                    raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
             circuits.append(circ)
 
         return circuits
