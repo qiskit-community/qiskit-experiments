@@ -415,12 +415,19 @@ class BackendCalibrations(Calibrations):
 
         return self._operated_qubits
 
-    def config(self, save_parameters: bool = True) -> Dict:
+    def config(
+        self,
+        save_parameters: bool = True,
+        most_recent_only: bool = True,
+        group: Optional[str] = None,
+    ) -> Dict:
         """Serializes the class to a Dictionary.
 
         Args:
             save_parameters: If set to True, the default value, then all the values of the
                 calibrations will also be serialized.
+            most_recent_only: return only the most recent parameter values.
+            group: If the group is given then only the parameters from this group are returned.
 
         Returns:
             A dict object that represents the calibrations and can be used to rebuild the
@@ -437,14 +444,18 @@ class BackendCalibrations(Calibrations):
 
         serialized_cals = _serialize_type(type(self))
         serialized_cals["__value__"].update(
-            {"library": self._library.config,
-             "backend_name": self._backend.name(),
-             "backend_version": self._backend.version,
-             }
+            {
+                "library": self._library.config,
+                "backend_name": self._backend.name(),
+                "backend_version": self._backend.version,
+            }
         )
 
         if save_parameters:
-            serialized_cals["__value__"]["parameter_values"] = self.parameters_table()["data"]
+            serialized_cals["__value__"]["parameter_values"] = self.parameters_table(
+                most_recent_only=most_recent_only,
+                group=group,
+            )["data"]
 
         return serialized_cals
 

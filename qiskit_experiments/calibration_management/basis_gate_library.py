@@ -199,7 +199,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         "x": GateDef(1, None),
         "y": GateDef(1, None),
         "sx": GateDef(1, None),
-        "sy": GateDef(1, None)
+        "sy": GateDef(1, None),
     }
 
     def __init__(

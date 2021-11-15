@@ -393,7 +393,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             "calibrations": self._cals.serialize(),
             "backend name": self._cals.backend.name(),
         }
-        
+
         self._add_cal_metadata(experiment_data)
 
         # Add the update callback

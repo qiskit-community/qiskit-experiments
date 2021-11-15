@@ -256,6 +256,35 @@ class TestCalibrationsBasic(QiskitExperimentsTestCase):
         with self.assertRaises(CalibrationError):
             self.cals.get_parameter_value("amp", "(1, a)", "xp")
 
+    def test_get_most_recent(self):
+        """Test that we can limit the result of parameters_table to the most recent only."""
+
+        new_date_time = datetime.strptime("15/09/19 10:21:45", "%d/%m/%y %H:%M:%S")
+
+        self.cals.add_parameter_value(ParameterValue(0.1, new_date_time), "amp", 3, "xp")
+        self.cals.add_parameter_value(ParameterValue(0.05, new_date_time), "amp", (3,), "x90p")
+        self.cals.add_parameter_value(ParameterValue(0.04, new_date_time), "amp", (3,), "y90p")
+        self.cals.add_parameter_value(ParameterValue(100, new_date_time), "dur", schedule="xp")
+
+        params = self.cals.parameters_table(parameters=["dur"], most_recent_only=False)["data"]
+        self.assertEqual(len(params), 2)
+
+        params = self.cals.parameters_table(parameters=["dur"], most_recent_only=True)["data"]
+        self.assertEqual(len(params), 1)
+
+        params = self.cals.parameters_table(parameters=["amp"], most_recent_only=False)["data"]
+        self.assertEqual(len(params), 6)
+
+        params = self.cals.parameters_table(parameters=["amp"], most_recent_only=True)["data"]
+        self.assertEqual(len(params), 3)
+        for param in params:
+            if param["schedule"] == "xp":
+                self.assertEqual(param["value"], 0.1)
+            if param["schedule"] == "x90p":
+                self.assertEqual(param["value"], 0.05)
+            if param["schedule"] == "y90p":
+                self.assertEqual(param["value"], 0.04)
+
 
 class TestOverrideDefaults(QiskitExperimentsTestCase):
     """

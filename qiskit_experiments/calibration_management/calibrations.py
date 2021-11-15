@@ -930,6 +930,8 @@ class Calibrations:
         parameters: List[str] = None,
         qubit_list: List[Tuple[int, ...]] = None,
         schedules: List[Union[ScheduleBlock, str]] = None,
+        most_recent_only: bool = True,
+        group: Optional[str] = None,
     ) -> Dict[str, Union[List[Dict], List[str]]]:
         """A convenience function to help users visualize the values of their parameter.
 
@@ -939,6 +941,8 @@ class Calibrations:
             qubit_list: The qubits that should be included in the returned table.
                 If None is given then all channels are returned.
             schedules: The schedules to which to restrict the output.
+            most_recent_only: return only the most recent parameter values.
+            group: If the group is given then only the parameters from this group are returned.
 
         Returns:
                 A dictionary with the keys "data" and "columns" that can easily
@@ -948,8 +952,6 @@ class Calibrations:
         """
         if qubit_list:
             qubit_list = [self._to_tuple(qubits) for qubits in qubit_list]
-
-        data = []
 
         # Convert inputs to lists of strings
         if schedules is not None:
@@ -967,14 +969,25 @@ class Calibrations:
 
             keys.add(key)
 
-        for key in keys:
-            for value in self._params[key]:
-                value_dict = dataclasses.asdict(value)
-                value_dict["qubits"] = key.qubits
-                value_dict["parameter"] = key.parameter
-                value_dict["schedule"] = key.schedule
-                value_dict["date_time"] = value_dict["date_time"].strftime("%Y-%m-%d %H:%M:%S.%f%z")
-                data.append(value_dict)
+        # The following dictionary is used to keep track of the most recent parameter values.
+        data = []
+        if most_recent_only:
+            most_recent = dict()
+
+            for key in keys:
+                for value in self._params[key]:
+                    if key not in most_recent:
+                        most_recent[key] = value
+                    elif value.date_time > most_recent[key].date_time:
+                        most_recent[key] = value
+
+            for key, value in most_recent.items():
+                self._append_to_list(data, value, key, group)
+
+        else:
+            for key in keys:
+                for value in self._params[key]:
+                    self._append_to_list(data, value, key, group)
 
         columns = [
             "parameter",
@@ -988,12 +1001,28 @@ class Calibrations:
         ]
         return {"data": data, "columns": columns}
 
+    @staticmethod
+    def _append_to_list(
+        data: List[Dict], value: ParameterValue, key: ParameterKey, group: Optional[str] = None
+    ):
+        """Helper function to add a value to the data."""
+        if group and value.group != group:
+            return
+
+        value_dict = dataclasses.asdict(value)
+        value_dict["qubits"] = key.qubits
+        value_dict["parameter"] = key.parameter
+        value_dict["schedule"] = key.schedule
+        value_dict["date_time"] = value_dict["date_time"].strftime("%Y-%m-%d %H:%M:%S.%f%z")
+        data.append(value_dict)
+
     def save(
         self,
         file_type: str = "csv",
         folder: str = None,
         overwrite: bool = False,
         file_prefix: str = "",
+        most_recent_only: bool = False,
     ):
         """Save the parameterized schedules and parameter value.
 
@@ -1017,6 +1046,8 @@ class Calibrations:
                 unless overwrite is set to True.
             file_prefix: A prefix to add to the name of the files such as a date tag or a
                 UUID.
+            most_recent_only: Save only the most recent value. This is set to False by
+                default so that when saving to csv all values will be saved.
 
         Raises:
             CalibrationError: if the files exist and overwrite is not set to True.
@@ -1064,7 +1095,7 @@ class Calibrations:
                 dict_writer.writerows(body)
 
             # Write the values of the parameters.
-            values = self.parameters_table()["data"]
+            values = self.parameters_table(most_recent_only=most_recent_only)["data"]
             if len(values) > 0:
                 header_keys = values[0].keys()
 
