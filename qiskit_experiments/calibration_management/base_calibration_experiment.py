@@ -147,17 +147,16 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             result_index (int): The index of the result from which to update the calibrations.
             group (str): The calibration group to which the parameter belongs. This will default
                 to the value "default".
-            save_all_parameter_values (bool): If set to False (the default) then only the
-                calibration parameters for the physical qubits (including default values) and the
-                instructions relevant to the experiment will be saved in the experiment metadata.
-                If this option is set to True then all the values of the parameters in the
-                calibrations will be saved to the metadata, potentially resulting in large
-                metadata volumes.
+            save_most_recent_only (bool): If set to True (the default) then only the most recent
+                calibration parameters are saved in the experiment metadata. If this option is
+                set to True then all the values of the parameters in the calibrations will be
+                saved to the metadata, potentially resulting in large metadata volumes.
         """
         options = super()._default_experiment_options()
 
         options.result_index = -1
         options.group = "default"
+        options.save_most_recent_only = True
 
         return options
 
@@ -389,10 +388,9 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         """
         experiment_data = super().run(backend, analysis, **run_options)
 
-        experiment_data.metadata["calibrations"] = {
-            "calibrations": self._cals.serialize(),
-            "backend name": self._cals.backend.name(),
-        }
+        experiment_data.metadata["calibrations"] = self._cals.config(
+            most_recent_only=self.experiment_options.save_most_recent_only,
+        )
 
         self._add_cal_metadata(experiment_data)
 
