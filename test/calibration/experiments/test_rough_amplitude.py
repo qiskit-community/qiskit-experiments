@@ -12,12 +12,12 @@
 
 """Test rough amplitude calibration experiment classes."""
 
+from test.base import QiskitExperimentsTestCase
 import numpy as np
 
 from qiskit import transpile
 import qiskit.pulse as pulse
 from qiskit.circuit import Parameter
-from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeArmonk
 
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
@@ -26,7 +26,7 @@ from qiskit_experiments.library import EFRoughXSXAmplitudeCal, RoughXSXAmplitude
 from qiskit_experiments.test.mock_iq_backend import RabiBackend
 
 
-class TestRoughAmpCal(QiskitTestCase):
+class TestRoughAmpCal(QiskitExperimentsTestCase):
     """A class to test the rough amplitude calibration experiments."""
 
     def setUp(self):
@@ -75,7 +75,7 @@ class TestRoughAmpCal(QiskitTestCase):
         self.assertEqual(config, loaded_exp.config)
 
 
-class TestSpecializations(QiskitTestCase):
+class TestSpecializations(QiskitExperimentsTestCase):
     """Test the specialized versions of the calibration."""
 
     def setUp(self):
