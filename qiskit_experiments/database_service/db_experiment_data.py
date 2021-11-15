@@ -973,16 +973,7 @@ class DbExperimentDataV1(DbExperimentData):
     def monitor(self, interval=2, output=sys.stdout, line_discipline="\r"):
         """Monitors the status of the experiment and outputs experiment statuses.
 
-        The possible statuses are:
-
-                * ERROR - if any job incurred an error.
-                * CANCELLED - if any job is cancelled.
-                * RUNNING - if any job is still running.
-                * QUEUED - if any job is queued.
-                * VALIDATING - if any job is being validated.
-                * INITIALIZING - if any job is being initialized.
-                * POST_PROCESSING - if any analysis callbacks are still running
-                * DONE - if all jobs and analysis callbacks are finished.
+        For possible statuses of each job, see the :meth:`status` method.
 
         Args:
             interval (int): The interval in seconds at which to update status, default 2.
