@@ -109,7 +109,7 @@ class T2HahnBackend(BackendV1):
             if isclose(angle, np.pi):
                 new_qubit_state = {"qubit state": 0, "XY plain": True,
                                    "YZ plain": False, "Theta": np.pi - qubit_state["Theta"]}
-        elif qubit_state["qubit state"] == 0:
+        elif isclose(qubit_state["qubit state"], 0):
             if isclose(angle, np.pi):
                 new_qubit_state = {"qubit state": 1, "XY plain": False,
                                    "YZ plain": False, "Theta": 0}
@@ -122,20 +122,20 @@ class T2HahnBackend(BackendV1):
     def _ry_gate(self, qubit_state: dict, angle: float) -> dict:
         if qubit_state["XY plain"]:
             if isclose(angle, np.pi/2):
-                if qubit_state["Theta"] == 0:
+                if isclose(qubit_state["Theta"], 0):
                     new_qubit_state = {"qubit state": 1, "XY plain": False,
                                        "YZ plain": False, "Theta": 0}
-                elif qubit_state["Theta"] == np.pi:
+                elif isclose(qubit_state["Theta"], np.pi):
                     new_qubit_state = {"qubit state": 0, "XY plain": False,
                                        "YZ plain": False, "Theta": 0}
                 else:
                     new_qubit_state = {"qubit state": 0, "XY plain": False,
                                        "YZ plain": True, "Theta": np.pi - qubit_state["Theta"]}
             elif isclose(angle, -np.pi/2):
-                if qubit_state["Theta"] == 0:
+                if isclose(qubit_state["Theta"], 0):
                     new_qubit_state = {"qubit state": 0, "XY plain": False,
                                        "YZ plain": False, "Theta": 0}
-                elif qubit_state["Theta"] == np.pi:
+                elif isclose(qubit_state["Theta"] , np.pi):
                     new_qubit_state = {"qubit state": 1, "XY plain": False,
                                        "YZ plain": False, "Theta": 0}
                 else:
@@ -148,7 +148,7 @@ class T2HahnBackend(BackendV1):
             elif isclose(angle, -np.pi / 2):
                 new_qubit_state = {"qubit state": qubit_state["qubit state"], "XY plain": True,
                                    "YZ plain": False, "Theta": np.pi - qubit_state["Theta"]}
-        elif qubit_state["qubit state"] == 0:
+        elif isclose(qubit_state["qubit state"], 0):
             if isclose(angle, np.pi / 2) or isclose(angle, -np.pi / 2):
                 new_qubit_state = {"qubit state": 0, "XY plain": True,
                                    "YZ plain": False, "Theta": np.abs((np.pi/2 - angle))}
