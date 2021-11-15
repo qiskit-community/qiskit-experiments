@@ -24,6 +24,7 @@ class ReadoutAngleBackend(MockIQBackend):
     """
     Mock IQ backend tailored to the readout angle test
     """
+
     def _compute_probability(self, circuit):
         return 1 - circuit.metadata["xval"]
 

@@ -22,6 +22,7 @@ class ReadoutAngleAnalysis(BaseAnalysis):
     """
     A class to analyze readout angle experiments
     """
+
     # pylint: disable=unused-argument
     def _run_analysis(self, experiment_data, **kwargs):
         center0 = complex(*experiment_data.data(0)["memory"][0])
