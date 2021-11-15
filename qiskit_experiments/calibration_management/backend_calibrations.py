@@ -424,7 +424,7 @@ class BackendCalibrations(Calibrations):
             calibrations. See :meth:`deserialize`.
 
         Raises:
-            CalibrationError: if there calibrations were not built from a library.
+            CalibrationError: if the calibrations were not built from a library.
         """
 
         if self._library is None:
