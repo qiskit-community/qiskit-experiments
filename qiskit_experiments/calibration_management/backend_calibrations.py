@@ -73,8 +73,7 @@ class BackendCalibrations(Calibrations):
                 value is True but can be set to false when deserializing a calibrations object.
 
         Raises:
-            CalibrationError: If the backend configuration does not have num_qubits and num_qubits
-                is None.
+            CalibrationError: If the backend configuration does not have num_qubits.
         """
         self._update_inst_map = False
         super().__init__(
