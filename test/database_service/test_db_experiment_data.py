@@ -13,7 +13,7 @@
 # pylint: disable=missing-docstring
 
 """Test ExperimentData."""
-
+from test.base import QiskitExperimentsTestCase
 import os
 from unittest import mock
 import copy
@@ -26,7 +26,7 @@ import uuid
 
 import matplotlib.pyplot as plt
 import numpy as np
-from qiskit.test import QiskitTestCase
+
 from qiskit.test.mock import FakeMelbourne
 from qiskit.result import Result
 from qiskit.providers import JobV1 as Job
@@ -41,7 +41,7 @@ from qiskit_experiments.database_service.exceptions import (
 )
 
 
-class TestDbExperimentData(QiskitTestCase):
+class TestDbExperimentData(QiskitExperimentsTestCase):
     """Test the DbExperimentData class."""
 
     def setUp(self):

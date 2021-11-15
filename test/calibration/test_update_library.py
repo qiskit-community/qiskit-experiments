@@ -11,12 +11,11 @@
 # that they have been altered from the originals.
 
 """Test the calibration update library."""
-
+from test.base import QiskitExperimentsTestCase
 from test.test_qubit_spectroscopy import SpectroscopyBackend
 import numpy as np
 
 from qiskit.circuit import Parameter
-from qiskit.test import QiskitTestCase
 from qiskit.qobj.utils import MeasLevel
 import qiskit.pulse as pulse
 from qiskit.test.mock import FakeAthens
@@ -27,7 +26,7 @@ from qiskit_experiments.calibration_management.update_library import Frequency
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
 
 
-class TestAmplitudeUpdate(QiskitTestCase):
+class TestAmplitudeUpdate(QiskitExperimentsTestCase):
     """Test the update functions in the update library."""
 
     def setUp(self):
@@ -53,7 +52,7 @@ class TestAmplitudeUpdate(QiskitTestCase):
         self.cals.add_parameter_value(0.1, "amp", self.qubit, "x90p")
 
 
-class TestFrequencyUpdate(QiskitTestCase):
+class TestFrequencyUpdate(QiskitExperimentsTestCase):
     """Test the frequency update function in the update library."""
 
     def test_frequency(self):

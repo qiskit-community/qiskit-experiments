@@ -14,15 +14,15 @@
 
 from test.fake_backend import FakeBackend
 from test.fake_experiment import FakeExperiment, FakeAnalysis
+from test.base import QiskitExperimentsTestCase
 import ddt
 
 from qiskit import QuantumCircuit
-from qiskit.test import QiskitTestCase
 from qiskit_experiments.framework import ExperimentData
 
 
 @ddt.ddt
-class TestFramework(QiskitTestCase):
+class TestFramework(QiskitExperimentsTestCase):
     """Test Base Experiment"""
 
     @ddt.data(None, 1, 2, 3)

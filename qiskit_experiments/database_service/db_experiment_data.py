@@ -31,11 +31,11 @@ from matplotlib import pyplot
 from qiskit.providers import Job, BaseJob, Backend, BaseBackend, Provider
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
+from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 
 from .database_service import DatabaseServiceV1
 from .exceptions import DbExperimentDataError, DbExperimentEntryNotFound, DbExperimentEntryExists
 from .db_analysis_result import DbAnalysisResultV1 as DbAnalysisResult
-from .json import ExperimentEncoder, ExperimentDecoder
 from .utils import (
     save_data,
     qiskit_version,
