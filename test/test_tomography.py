@@ -13,11 +13,9 @@
 """
 A Tester for the RB experiment
 """
-
+from test.base import QiskitExperimentsTestCase
 import itertools as it
 import ddt
-
-from qiskit.test import QiskitTestCase
 from qiskit import QuantumCircuit
 import qiskit.quantum_info as qi
 from qiskit.providers.aer import AerSimulator
@@ -38,7 +36,7 @@ def filter_results(analysis_results, name):
 
 
 @ddt.ddt
-class TestStateTomography(QiskitTestCase):
+class TestStateTomography(QiskitExperimentsTestCase):
     """Test StateTomography"""
 
     @ddt.data(*list(it.product([1, 2], FITTERS)))
@@ -276,14 +274,13 @@ class TestStateTomography(QiskitTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = StateTomography(QuantumCircuit(3), measurement_qubits=[0, 2], qubits=[5, 7, 1])
-        config = exp.config
-        loaded_exp = StateTomography.from_config(config)
+        loaded_exp = StateTomography.from_config(exp.config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
 
 
 @ddt.ddt
-class TestProcessTomography(QiskitTestCase):
+class TestProcessTomography(QiskitExperimentsTestCase):
     """Test QuantumProcessTomography"""
 
     @ddt.data(*list(it.product([1, 2], FITTERS)))
@@ -494,10 +491,9 @@ class TestProcessTomography(QiskitTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = ProcessTomography(teleport_circuit(), measurement_qubits=[2], preparation_qubits=[0])
-        config = exp.config
-        loaded_exp = ProcessTomography.from_config(config)
+        loaded_exp = ProcessTomography.from_config(exp.config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
 
 
 def teleport_circuit():
