@@ -147,6 +147,9 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             result_index (int): The index of the result from which to update the calibrations.
             group (str): The calibration group to which the parameter belongs. This will default
                 to the value "default".
+            save_parameters (bool): If set to True (the default) then the parameters in the
+                calibrations will be saved in the experiment metadata so that they can be
+                populated again in the cals when deserializing the experiment.
             save_most_recent_only (bool): If set to True (the default) then only the most recent
                 calibration parameters are saved in the experiment metadata. If this option is
                 set to True then all the values of the parameters in the calibrations will be
@@ -156,6 +159,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
         options.result_index = -1
         options.group = "default"
+        options.save_parameters = True
         options.save_most_recent_only = True
 
         return options
@@ -389,6 +393,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         experiment_data = super().run(backend, analysis, **run_options)
 
         experiment_data.metadata["calibrations"] = self._cals.config(
+            save_parameters=self.experiment_options.save_parameters,
             most_recent_only=self.experiment_options.save_most_recent_only,
         )
 
