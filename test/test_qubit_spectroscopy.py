@@ -11,13 +11,12 @@
 # that they have been altered from the originals.
 
 """Spectroscopy tests."""
-
+from test.base import QiskitExperimentsTestCase
 from typing import Tuple
 import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.qobj.utils import MeasLevel
-from qiskit.test import QiskitTestCase
 
 from qiskit_experiments.library import QubitSpectroscopy, EFSpectroscopy
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
@@ -51,7 +50,7 @@ class SpectroscopyBackend(MockIQBackend):
         return np.exp(-(delta_freq ** 2) / (2 * self._linewidth ** 2))
 
 
-class TestQubitSpectroscopy(QiskitTestCase):
+class TestQubitSpectroscopy(QiskitExperimentsTestCase):
     """Test spectroscopy experiment."""
 
     def test_spectroscopy_end2end_classified(self):
@@ -152,7 +151,11 @@ class TestQubitSpectroscopy(QiskitTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = QubitSpectroscopy(1, np.linspace(100, 150, 20) * 1e6)
-        config = exp.config
-        loaded_exp = QubitSpectroscopy.from_config(config)
+        loaded_exp = QubitSpectroscopy.from_config(exp.config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+
+    def test_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = QubitSpectroscopy(1, np.linspace(100, 150, 20), unit="MHz")
+        self.assertRoundTripSerializable(exp, self.experiments_equiv)

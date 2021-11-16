@@ -11,12 +11,11 @@
 # that they have been altered from the originals.
 
 """Rough frequency calibration tests."""
-
+from test.base import QiskitExperimentsTestCase
 from test.test_qubit_spectroscopy import SpectroscopyBackend
 
 import numpy as np
 
-from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeArmonk
 
 from qiskit_experiments.library import RoughFrequencyCal
@@ -24,7 +23,7 @@ from qiskit_experiments.calibration_management import BackendCalibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 
 
-class TestRoughFrequency(QiskitTestCase):
+class TestRoughFrequency(QiskitExperimentsTestCase):
     """Tests for the rough frequency calibration experiment."""
 
     def test_init(self):
@@ -72,7 +71,6 @@ class TestRoughFrequency(QiskitTestCase):
         cals = BackendCalibrations(FakeArmonk())
         frequencies = [1, 2, 3]
         exp = RoughFrequencyCal(0, cals, frequencies)
-        config = exp.config
-        loaded_exp = RoughFrequencyCal.from_config(config)
+        loaded_exp = RoughFrequencyCal.from_config(exp.config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))

@@ -13,15 +13,14 @@
 """
 Test T2Ramsey experiment
 """
+from test.base import QiskitExperimentsTestCase
 import numpy as np
-
-from qiskit.test import QiskitTestCase
 from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library import T2Ramsey
 from qiskit_experiments.test.t2ramsey_backend import T2RamseyBackend
 
 
-class TestT2Ramsey(QiskitTestCase):
+class TestT2Ramsey(QiskitExperimentsTestCase):
     """Test T2Ramsey experiment"""
 
     __tolerance__ = 0.1
@@ -193,7 +192,11 @@ class TestT2Ramsey(QiskitTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = T2Ramsey(0, [1, 2, 3, 4, 5])
-        config = exp.config
-        loaded_exp = T2Ramsey.from_config(config)
+        loaded_exp = T2Ramsey.from_config(exp.config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+
+    def test_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = T2Ramsey(0, [1, 2, 3, 4, 5], unit="s")
+        self.assertRoundTripSerializable(exp, self.experiments_equiv)

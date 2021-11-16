@@ -14,14 +14,14 @@ Test T1 experiment
 """
 
 import numpy as np
-from qiskit.test import QiskitTestCase
+from test.base import QiskitExperimentsTestCase
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import T1
 from qiskit_experiments.library.characterization import T1Analysis
 from qiskit_experiments.test.t1_backend import T1Backend
 
 
-class TestT1(QiskitTestCase):
+class TestT1(QiskitExperimentsTestCase):
     """
     Test measurement of T1
     """
@@ -184,7 +184,11 @@ class TestT1(QiskitTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = T1(0, [1, 2, 3, 4, 5])
-        config = exp.config
-        loaded_exp = T1.from_config(config)
+        loaded_exp = T1.from_config(exp.config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+
+    def test_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = T1(0, [1, 2, 3, 4, 5], unit="s")
+        self.assertRoundTripSerializable(exp, self.experiments_equiv)

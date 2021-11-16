@@ -12,12 +12,12 @@
 
 """Test version string generation."""
 
-from qiskit.test import QiskitTestCase
+from test.base import QiskitExperimentsTestCase
 
 from qiskit_experiments import __version__
 
 
-class TestVersion(QiskitTestCase):
+class TestVersion(QiskitExperimentsTestCase):
     """Test version string generation."""
 
     def test_version_is_a_string(self):

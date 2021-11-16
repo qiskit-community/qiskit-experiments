@@ -23,13 +23,12 @@ from qiskit.circuit import Gate
 from qiskit.providers.backend import Backend
 
 import qiskit_experiments.data_processing as dp
-from qiskit_experiments.framework import BaseExperiment, ParallelExperiment, Options, fix_class_docs
+from qiskit_experiments.framework import BaseExperiment, ParallelExperiment, Options
 from .rb_analysis import RBAnalysis
 from .clifford_utils import CliffordUtils
 from .rb_utils import RBUtils
 
 
-@fix_class_docs
 class StandardRB(BaseExperiment):
     """Standard randomized benchmarking experiment.
 
