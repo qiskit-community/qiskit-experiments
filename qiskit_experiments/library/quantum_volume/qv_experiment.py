@@ -27,11 +27,10 @@ from qiskit import QuantumCircuit
 from qiskit.circuit.library import QuantumVolume as QuantumVolumeCircuit
 from qiskit import transpile
 from qiskit.providers.backend import Backend
-from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
+from qiskit_experiments.framework import BaseExperiment, Options
 from .qv_analysis import QuantumVolumeAnalysis
 
 
-@fix_class_docs
 class QuantumVolume(BaseExperiment):
     """Quantum Volume Experiment class.
 

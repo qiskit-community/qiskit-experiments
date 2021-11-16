@@ -66,10 +66,9 @@ class CompositeAnalysis(BaseAnalysis):
         # analysis classes
         composite_exp = experiment_data.experiment
         component_exps = composite_exp.component_experiment()
-        if "component_job_metadata" in experiment_data.metadata:
-            component_metadata = experiment_data.metadata["component_job_metadata"][-1]
-        else:
-            component_metadata = [{}] * composite_exp.num_experiments
+        component_metadata = experiment_data.metadata.get(
+            "component_metadata", [{}] * composite_exp.num_experiments
+        )
 
         # Initialize component data for updating and get the experiment IDs for
         # the component child experiments in case there are other child experiments
@@ -94,7 +93,7 @@ class CompositeAnalysis(BaseAnalysis):
             sub_exp_data.add_data(sub_data)
 
             # Add component job metadata
-            sub_exp_data.metadata["job_metadata"] = [component_metadata[i]]
+            sub_exp_data.metadata.update(component_metadata[i])
 
             # Run analysis
             # Since copy for replace result is handled at the parent level

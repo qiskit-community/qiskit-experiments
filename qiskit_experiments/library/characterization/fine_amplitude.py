@@ -19,15 +19,14 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
-from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
-from qiskit_experiments.library.calibration.analysis import (
+from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.library.characterization.analysis import (
     FineAmplitudeAnalysis,
     FineXAmplitudeAnalysis,
 )
 from qiskit_experiments.exceptions import CalibrationError
 
 
-@fix_class_docs
 class FineAmplitude(BaseExperiment):
     r"""Error amplifying fine amplitude calibration experiment.
 
@@ -204,7 +203,6 @@ class FineAmplitude(BaseExperiment):
         return circuits
 
 
-@fix_class_docs
 class FineXAmplitude(FineAmplitude):
     r"""A fine amplitude experiment with all the options set for the :math:`\pi`-rotation.
 
@@ -250,7 +248,6 @@ class FineXAmplitude(FineAmplitude):
         return options
 
 
-@fix_class_docs
 class FineSXAmplitude(FineAmplitude):
     r"""A fine amplitude experiment with all the options set for the :math:`\pi/2`-rotation.
 
