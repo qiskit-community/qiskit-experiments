@@ -12,12 +12,13 @@
 
 import numpy as np
 
+
 def hs_distance_result(result, target):
     """Hilbert-Schmidtt norm for the target and gst results"""
 
     hs_distance_results = {}
     for key in result.keys():
-        if key not in ['E', 'rho']:
+        if key not in ["E", "rho"]:
             hs_distance_results[key] = hs_distance(result[key].data, target[key].data)
     return hs_distance_results
 
@@ -26,7 +27,7 @@ def froebenius_distance(result, target):
     """froebenius distance between target and gst results"""
     froeb_distance = {}
     for key in result.keys():
-        if key not in ['E', 'rho']:
+        if key not in ["E", "rho"]:
             froeb_distance[key] = froeb_dist(result[key].data, target[key].data)
     return froeb_distance
 

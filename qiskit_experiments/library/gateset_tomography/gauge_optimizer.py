@@ -47,19 +47,27 @@ def GaugeOptimizer(initial_gateset, gateset_basis, num_qubits) -> Dict[str, PTM]
     """
 
     # Obtaining the ideal gateset
-    ideal_gateset = ideal_gateset_gen(gateset_basis, num_qubits, 'PTM')
-    Fs = [gateset_basis.spam_matrix(label)
-          for label in gateset_basis.spam_labels]
-    d = np.shape(ideal_gateset['rho'])[0]
-    rho = ideal_gateset['rho']
+    ideal_gateset = ideal_gateset_gen(gateset_basis, num_qubits, "PTM")
+    Fs = [gateset_basis.spam_matrix(label) for label in gateset_basis.spam_labels]
+    d = np.shape(ideal_gateset["rho"])[0]
+    rho = ideal_gateset["rho"]
     initial_value = np.array([(F @ rho).T[0] for F in Fs]).T
-    result = opt.minimize(obj_fn, x0 = np.real(initial_value),
-                          args={'d': d, 'initial_gateset': initial_gateset, 'gateset_basis': gateset_basis,
-                                'ideal_gateset': ideal_gateset})
+    result = opt.minimize(
+        obj_fn,
+        x0=np.real(initial_value),
+        args={
+            "d": d,
+            "initial_gateset": initial_gateset,
+            "gateset_basis": gateset_basis,
+            "ideal_gateset": ideal_gateset,
+        },
+    )
     return x_to_gateset(result.x, d, initial_gateset, gateset_basis)
 
 
-def x_to_gateset(x: np.array, d: int, initial_gateset: Dict[str, PTM], gateset_basis: GateSetBasis) -> Dict[str, PTM]:
+def x_to_gateset(
+    x: np.array, d: int, initial_gateset: Dict[str, PTM], gateset_basis: GateSetBasis
+) -> Dict[str, PTM]:
     """Converts the gauge to the gateset defined by it
     Args:
         x: An array representation of the B matrix
@@ -81,10 +89,12 @@ def x_to_gateset(x: np.array, d: int, initial_gateset: Dict[str, PTM], gateset_b
         BB = np.linalg.inv(B)
     except np.linalg.LinAlgError:
         return None
-    gateset = {label: PTM(B @ np.real(initial_gateset[label].data) @ BB)
-               for label in gateset_basis.gate_labels}
-    gateset['E'] = np.real(initial_gateset['E']) @ BB
-    gateset['rho'] = B @ np.real(initial_gateset['rho'])
+    gateset = {
+        label: PTM(B @ np.real(initial_gateset[label].data) @ BB)
+        for label in gateset_basis.gate_labels
+    }
+    gateset["E"] = np.real(initial_gateset["E"]) @ BB
+    gateset["rho"] = B @ np.real(initial_gateset["rho"])
     return gateset
 
 
@@ -100,16 +110,21 @@ def obj_fn(x: np.array, args) -> float:
         The sum of norm differences between the ideal gateset
         and the one corresponding to B
     """
-    d, initial_gateset, gateset_basis, ideal_gateset = args['d'], args['initial_gateset'], args['gateset_basis'], args[
-        'ideal_gateset']
+    d, initial_gateset, gateset_basis, ideal_gateset = (
+        args["d"],
+        args["initial_gateset"],
+        args["gateset_basis"],
+        args["ideal_gateset"],
+    )
     gateset = x_to_gateset(x, d, initial_gateset, gateset_basis)
-    result = sum([np.linalg.norm(np.real(gateset[label].data) -
-                                 np.real(ideal_gateset[label].data))
-                  for label in gateset_basis.gate_labels])
-    result = result + np.linalg.norm(np.real(gateset['E']) -
-                                     np.real(ideal_gateset['E']))
-    result = result + np.linalg.norm(np.real(gateset['rho']) -
-                                     np.real(ideal_gateset['rho']))
+    result = sum(
+        [
+            np.linalg.norm(np.real(gateset[label].data) - np.real(ideal_gateset[label].data))
+            for label in gateset_basis.gate_labels
+        ]
+    )
+    result = result + np.linalg.norm(np.real(gateset["E"]) - np.real(ideal_gateset["E"]))
+    result = result + np.linalg.norm(np.real(gateset["rho"]) - np.real(ideal_gateset["rho"]))
     return result
 
 
@@ -122,8 +137,9 @@ def default_init_state(num_qubits):
     matrix_init_0[0, 0] = 1
 
     # decompoition into Pauli strings basis (PTM representation)
-    matrix_init_pauli = [np.trace(np.dot(matrix_init_0, Pauli_strings(num_qubits)[i])) for i in
-                         range(np.power(d, 2))]
+    matrix_init_pauli = [
+        np.trace(np.dot(matrix_init_0, Pauli_strings(num_qubits)[i])) for i in range(np.power(d, 2))
+    ]
     return np.reshape(matrix_init_pauli, (np.power(d, 2), 1))
 
 
@@ -136,31 +152,38 @@ def default_measurement_op(num_qubits):
     matrix_meas_0[0, 0] = 1
 
     # decompoition into Pauli strings basis (PTM representation)
-    matrix_meas_pauli = [np.trace(np.dot(matrix_meas_0, Pauli_strings(num_qubits)[i])) for i in
-                         range(np.power(d, 2))]
+    matrix_meas_pauli = [
+        np.trace(np.dot(matrix_meas_0, Pauli_strings(num_qubits)[i])) for i in range(np.power(d, 2))
+    ]
     return matrix_meas_pauli
 
 
 def ideal_gateset_gen(gateset_basis, num_qubits, type_pt_ch):
     # type takes a string either 'PTM' or 'Choi'
     # generates the ideal (noiseless) gate set.
-    ideal_gateset_ptm = {label: PTM(gateset_basis.gate_matrices[label])
-                         for label in gateset_basis.gate_labels}
-    ideal_gateset_choi = {label: Choi(PTM(gateset_basis.gate_matrices[label]))
-                          for label in gateset_basis.gate_labels}
-    ideal_gateset_ptm['E'] = default_measurement_op(num_qubits)
-    ideal_gateset_ptm['rho'] = default_init_state(num_qubits)
-    ideal_gateset_choi['E'] = default_measurement_op(num_qubits)
-    ideal_gateset_choi['rho'] = default_init_state(num_qubits)
-    return ideal_gateset_ptm if type_pt_ch == 'PTM' else ideal_gateset_choi
+    ideal_gateset_ptm = {
+        label: PTM(gateset_basis.gate_matrices[label]) for label in gateset_basis.gate_labels
+    }
+    ideal_gateset_choi = {
+        label: Choi(PTM(gateset_basis.gate_matrices[label])) for label in gateset_basis.gate_labels
+    }
+    ideal_gateset_ptm["E"] = default_measurement_op(num_qubits)
+    ideal_gateset_ptm["rho"] = default_init_state(num_qubits)
+    ideal_gateset_choi["E"] = default_measurement_op(num_qubits)
+    ideal_gateset_choi["rho"] = default_init_state(num_qubits)
+    return ideal_gateset_ptm if type_pt_ch == "PTM" else ideal_gateset_choi
 
 
 def Pauli_strings(num_qubits):
     """Returns the normalized matrix representation of Pauli strings basis of size=num_qubits. e.g., for num_qubits=2,
-     it returns the matrix representations of 0.5*['II','IX','IY','IZ,'XI','YI',...]"""
-    pauli_labels = ['I', 'X', 'Y', 'Z']
-    pauli_strings_matrices = [Pauli(''.join(p)).to_matrix() for p in itertools.product(pauli_labels, repeat=num_qubits)]
+    it returns the matrix representations of 0.5*['II','IX','IY','IZ,'XI','YI',...]"""
+    pauli_labels = ["I", "X", "Y", "Z"]
+    pauli_strings_matrices = [
+        Pauli("".join(p)).to_matrix() for p in itertools.product(pauli_labels, repeat=num_qubits)
+    ]
     # normalization
-    pauli_strings_matrices_orthonormal = [(1 / np.sqrt(2 ** num_qubits)) * pauli_strings_matrices[i] for i in
-                                          range(len(pauli_strings_matrices))]
+    pauli_strings_matrices_orthonormal = [
+        (1 / np.sqrt(2 ** num_qubits)) * pauli_strings_matrices[i]
+        for i in range(len(pauli_strings_matrices))
+    ]
     return pauli_strings_matrices_orthonormal

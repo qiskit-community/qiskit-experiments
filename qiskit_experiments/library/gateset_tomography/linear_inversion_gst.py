@@ -65,6 +65,6 @@ def linear_inversion_gst(outcome_data, gateset_basis) -> Dict[str, PTM]:
 
     gates = [PTM(gram_inverse @ gate_matrix) for gate_matrix in gate_matrices]
     result = dict(zip(gateset_basis.gate_labels, gates))
-    result['E'] = E
-    result['rho'] = gram_inverse @ rho
+    result["E"] = E
+    result["rho"] = gram_inverse @ rho
     return result

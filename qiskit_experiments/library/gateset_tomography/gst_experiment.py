@@ -24,8 +24,13 @@ from qiskit.circuit import Gate
 from qiskit_experiments.framework import BaseExperiment, ParallelExperiment, Options
 from qiskit_experiments.curve_analysis.data_processing import probability
 from gst_analysis import GSTAnalysis
-from gatesetbasis import GateSetBasis, default_gateset_basis, gatesetbasis_constrction_from_basis_gates
+from gatesetbasis import (
+    GateSetBasis,
+    default_gateset_basis,
+    gatesetbasis_constrction_from_basis_gates,
+)
 from types import FunctionType
+
 
 class GateSetTomography(BaseExperiment):
     """Gate set tomography experiment.
@@ -75,18 +80,17 @@ class GateSetTomography(BaseExperiment):
 
     @classmethod
     def _default_analysis_options(cls) -> Options:
-        """Default analysis options.
-        """
+        """Default analysis options."""
         options = super()._default_analysis_options()
 
         return options
 
     def __init__(
-            self,
-            qubits: List[int],
-            gateset: Union[str, GateSetBasis, Dict[str, Union[FunctionType, Gate]]] = 'default',
-            additional_gates: List[Union[Callable, Gate]] = None,
-            only_basis_gates: bool = False,
+        self,
+        qubits: List[int],
+        gateset: Union[str, GateSetBasis, Dict[str, Union[FunctionType, Gate]]] = "default",
+        additional_gates: List[Union[Callable, Gate]] = None,
+        only_basis_gates: bool = False,
     ):
         """Initialize a gate set tomography experiment.
 
@@ -108,15 +112,18 @@ class GateSetTomography(BaseExperiment):
         if only_basis_gates is False or None:
             if isinstance(gateset, GateSetBasis):
                 self._gateset_basis = gateset
-            elif any((gateset == 'default', gateset is None)):
+            elif any((gateset == "default", gateset is None)):
                 if self.num_qubits < 3:
                     self._gateset_basis = default_gateset_basis(self.num_qubits)
                 else:
-                    raise QiskitError("Only 1-qubit and 2-qubit default gate sets are available"
-                                      " in Qiskit")
+                    raise QiskitError(
+                        "Only 1-qubit and 2-qubit default gate sets are available" " in Qiskit"
+                    )
 
         elif only_basis_gates is True and isinstance(gateset, Dict):
-            self._gateset_basis = gatesetbasis_constrction_from_basis_gates(gateset, self.num_qubits)[0]
+            self._gateset_basis = gatesetbasis_constrction_from_basis_gates(
+                gateset, self.num_qubits
+            )[0]
         else:
             raise QiskitError("Can not run GST experiment with the provided gateset format.")
 
@@ -153,7 +160,9 @@ class GateSetTomography(BaseExperiment):
         # Experiments of the form <E|F_i G_k F_j|rho>
         FGF_circuits = []
         for gate in self._gateset_basis.gate_labels:
-            for (fprep, fmeas) in itert.product(self._gateset_basis.spam_labels, self._gateset_basis.spam_labels):
+            for (fprep, fmeas) in itert.product(
+                self._gateset_basis.spam_labels, self._gateset_basis.spam_labels
+            ):
                 circuit = QuantumCircuit(self.num_qubits, self.num_qubits)
                 self._gateset_basis.add_spam_to_circuit(circuit, self.physical_qubits, fprep)
                 circuit.barrier()
@@ -175,7 +184,9 @@ class GateSetTomography(BaseExperiment):
         # Can be skipped if one of the gates is ideal identity
 
         FF_circuits = []
-        for (fprep, fmeas) in itert.product(self._gateset_basis.spam_labels, self._gateset_basis.spam_labels):
+        for (fprep, fmeas) in itert.product(
+            self._gateset_basis.spam_labels, self._gateset_basis.spam_labels
+        ):
             circuit = QuantumCircuit(self.num_qubits, self.num_qubits)
             self._gateset_basis.add_spam_to_circuit(circuit, self.physical_qubits, fprep)
             circuit.barrier()
