@@ -13,6 +13,7 @@
 Test T1 experiment
 """
 
+from test.fake_service import FakeService
 from test.base import QiskitExperimentsTestCase
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import T1
@@ -59,6 +60,13 @@ class TestT1(QiskitExperimentsTestCase):
         self.assertAlmostEqual(fitval.value, t1, delta=3)
         self.assertEqual(fitval.unit, "s")
 
+        exp_data.service = FakeService()
+        exp_data.save()
+        loaded_data = ExperimentData.load(exp_data.experiment_id, exp_data.service)
+        self.assertEqual(
+            repr(exp_data.analysis_results("T1")), repr(loaded_data.analysis_results("T1"))
+        )
+
     def test_t1_parallel(self):
         """
         Test parallel experiments of T1 using a simulator.
@@ -77,6 +85,15 @@ class TestT1(QiskitExperimentsTestCase):
             sub_res = res.child_data(i).analysis_results("T1")
             self.assertEqual(sub_res.quality, "good")
             self.assertAlmostEqual(sub_res.value.value, t1[i], delta=3)
+
+        res.service = FakeService()
+        res.save()
+        loaded_data = ExperimentData.load(res.experiment_id, res.service)
+
+        for i in range(2):
+            sub_res = res.child_data(i).analysis_results("T1")
+            sub_loaded = loaded_data.child_data(i).analysis_results("T1")
+            self.assertEqual(repr(sub_res), repr(sub_loaded))
 
     def test_t1_parallel_different_analysis_options(self):
         """
