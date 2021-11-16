@@ -1293,8 +1293,7 @@ class DbExperimentDataV1(DbExperimentData):
 
     @property
     def share_level(self) -> str:
-        """Return the share level for this experiment,
-           to self and all its descendants.
+        """Return the share level for this experiment
 
         Returns:
             Experiment share level.
@@ -1346,8 +1345,7 @@ class DbExperimentDataV1(DbExperimentData):
 
     @service.setter
     def service(self, service: DatabaseServiceV1) -> None:
-        """Set the service to be used for storing experiment data,
-           to self and all its descendants
+        """Set the service to be used for storing experiment data
 
         Args:
             service: Service to be used.

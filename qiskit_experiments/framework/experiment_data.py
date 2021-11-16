@@ -181,7 +181,7 @@ class ExperimentData(DbExperimentData):
 
     def _set_service(self, service: DatabaseService) -> None:
         """Set the service to be used for storing experiment data,
-           to self and all its descendants.
+           to this experiment itself and its descendants.
 
         Args:
             service: Service to be used.
@@ -196,7 +196,7 @@ class ExperimentData(DbExperimentData):
     @DbExperimentData.share_level.setter
     def share_level(self, new_level: str) -> None:
         """Set the experiment share level,
-           to self and all its descendants.
+           to this experiment itself and its descendants.
 
         Args:
             new_level: New experiment share level. Valid share levels are provider-
@@ -227,7 +227,7 @@ class ExperimentData(DbExperimentData):
         return self
 
     def add_tags_recursive(self, tags2add: List[str]) -> None:
-        """Add tags to self and all its descendants
+        """Add tags to this experiment itself and its descendants
 
         Args:
             tags2add - the tags that will be added to the existing tags
@@ -237,7 +237,7 @@ class ExperimentData(DbExperimentData):
             data.add_tags_recursive(tags2add)
 
     def remove_tags_recursive(self, tags2remove: List[str]) -> None:
-        """Remove tags from self and all its descendants
+        """Remove tags from this experiment itself and its descendants
 
         Args:
             tags2remove - the tags that will be removed from the existing tags
