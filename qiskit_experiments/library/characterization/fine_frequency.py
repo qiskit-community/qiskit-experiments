@@ -49,15 +49,24 @@ class FineFrequency(BaseExperiment):
 
     __analysis_class__ = FineAmplitudeAnalysis
 
-    def __init__(self, qubit, backend: Optional[Backend] = None):
+    def __init__(
+        self,
+        qubit: int,
+        backend: Optional[Backend] = None,
+        repetitions: Optional[List[int]] = None
+    ):
         """Setup a fine frequency experiment on the given qubit.
 
         Args:
             qubit: The qubit on which to run the fine amplitude calibration experiment.
-            gate: The gate that will be repeated.
             backend: Optional, the backend to run the experiment on.
+            repetitions: The number of repetitions, if not given then the default value
+                from the experiment default options will be used.
         """
         super().__init__([qubit], backend=backend)
+
+        if repetitions is not None:
+            self.set_experiment_options(repetitions=repetitions)
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -94,16 +103,6 @@ class FineFrequency(BaseExperiment):
 
         circuits = []
 
-        # Measure 0
-        qc0 = self._pre_circuit()
-        qc0.measure_all()
-
-        # Measure 1
-        qc1 = self._pre_circuit()
-        qc1.x(0)
-        qc1.measure_all()
-        circuits.extend([qc0, qc1])
-
         # The main sequence
         for repetition in self.experiment_options.repetitions:
             circuit = self._pre_circuit()
@@ -114,6 +113,13 @@ class FineFrequency(BaseExperiment):
             circuit.rz(np.pi * repetition / 2, 0)
             circuit.sx(0)
             circuit.measure_all()
+
+            circuit.metadata = {
+                "experiment_type": self._type,
+                "qubits": self.physical_qubits,
+                "xval": repetition,
+                "unit": "Id gate number",
+            }
 
             circuits.append(circuit)
 
