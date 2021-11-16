@@ -414,16 +414,17 @@ class TestCompositeExperimentData(QiskitTestCase):
 
         expdata.tags = ["a", "c", "a"]
         data1.tags = ["b"]
-        self.assertSetEqual(set(expdata.tags), {"a", "c"})
-        self.assertSetEqual(set(data1.tags), {"b"})
-        self.assertSetEqual(set(data2.tags), set())
+        print(expdata.tags)
+        self.assertEqual(sorted(expdata.tags), ["a", "c"])
+        self.assertEqual(sorted(data1.tags), ["b"])
+        self.assertEqual(sorted(data2.tags), [])
 
         expdata.add_tags_recursive(["d", "c"])
-        self.assertSetEqual(set(expdata.tags), {"a", "c", "d"})
-        self.assertSetEqual(set(data1.tags), {"b", "c", "d"})
-        self.assertSetEqual(set(data2.tags), {"c", "d"})
+        self.assertEqual(sorted(expdata.tags), ["a", "c", "d"])
+        self.assertEqual(sorted(data1.tags), ["b", "c", "d"])
+        self.assertEqual(sorted(data2.tags), ["c", "d"])
 
         expdata.remove_tags_recursive(["a", "b"])
-        self.assertSetEqual(set(expdata.tags), {"c", "d"})
-        self.assertSetEqual(set(data1.tags), {"c", "d"})
-        self.assertSetEqual(set(data2.tags), {"c", "d"})
+        self.assertEqual(sorted(expdata.tags), ["c", "d"])
+        self.assertEqual(sorted(data1.tags), ["c", "d"])
+        self.assertEqual(sorted(data2.tags), ["c", "d"])
