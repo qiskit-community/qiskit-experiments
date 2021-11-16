@@ -1293,7 +1293,7 @@ class DbExperimentDataV1(DbExperimentData):
 
     @property
     def share_level(self) -> str:
-        """Return the share level fo this experiment,
+        """Return the share level for this experiment,
            to self and all its descendants.
 
         Returns:
