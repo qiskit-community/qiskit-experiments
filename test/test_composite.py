@@ -580,7 +580,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
                 self.assertDictEqual(circ_data["counts"], circ_counts)
 
         counts3 = [
-            [{"0": 22, "1": 31}, {"0": 19, "1": 27}],
+            [{"0": 22, "1": 30}, {"0": 19, "1": 27}],
             [{"0": 20, "1": 32}, {"0": 22, "1": 24}],
         ]
 
