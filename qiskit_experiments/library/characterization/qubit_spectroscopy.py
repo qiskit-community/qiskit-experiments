@@ -86,6 +86,7 @@ class QubitSpectroscopy(BaseExperiment):
         options.normalization = True
         options.xlabel = "Frequency"
         options.ylabel = "Signal (arb. units)"
+        options.xval_unit = "Hz"
 
         return options
 
