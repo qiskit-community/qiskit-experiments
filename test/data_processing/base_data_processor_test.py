@@ -11,19 +11,19 @@
 # that they have been altered from the originals.
 
 """Base class for data processor tests."""
-
+from test.base import QiskitExperimentsTestCase
 from test.fake_experiment import FakeExperiment
 
 from typing import Any, List
 
 from qiskit.result import Result
-from qiskit.test import QiskitTestCase
+
 from qiskit.qobj.common import QobjExperimentHeader
 from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit_experiments.framework import ExperimentData
 
 
-class BaseDataProcessorTest(QiskitTestCase):
+class BaseDataProcessorTest(QiskitExperimentsTestCase):
     """Define some basic setup functionality for data processor tests."""
 
     def setUp(self):

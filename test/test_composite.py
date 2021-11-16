@@ -19,10 +19,10 @@ import uuid
 
 from test.fake_backend import FakeBackend
 from test.fake_experiment import FakeExperiment
+from test.base import QiskitExperimentsTestCase
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.result import Result
-from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeMelbourne
 
 from qiskit_experiments.framework import (
@@ -38,7 +38,7 @@ from qiskit_experiments.test.utils import FakeJob
 # pylint: disable=missing-raises-doc
 
 
-class TestComposite(QiskitTestCase):
+class TestComposite(QiskitExperimentsTestCase):
     """
     Test composite experiment behavior.
     """
@@ -263,7 +263,7 @@ class DummyService(DatabaseServiceV1):
         raise Exception("not implemented")
 
 
-class TestCompositeExperimentData(QiskitTestCase):
+class TestCompositeExperimentData(QiskitExperimentsTestCase):
     """
     Test operations on objects of composite ExperimentData
     """
