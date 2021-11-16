@@ -190,5 +190,5 @@ class TestT1(QiskitExperimentsTestCase):
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = T1(0, [1, 2, 3, 4, 5], unit="s")
+        exp = T1(0, [1, 2, 3, 4, 5])
         self.assertRoundTripSerializable(exp, self.experiments_equiv)

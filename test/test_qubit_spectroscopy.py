@@ -157,5 +157,5 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = QubitSpectroscopy(1, np.linspace(100, 150, 20), unit="MHz")
+        exp = QubitSpectroscopy(1, np.linspace(int(100e6), int(150e6), int(20e6)))
         self.assertRoundTripSerializable(exp, self.experiments_equiv)

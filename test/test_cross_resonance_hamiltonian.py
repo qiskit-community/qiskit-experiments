@@ -274,10 +274,9 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = cr_hamiltonian.CrossResonanceHamiltonian(
             qubits=[0, 1],
-            flat_top_widths=[500],
-            unit="ns",
+            flat_top_widths=[1000],
             amp=0.1,
-            sigma=20,
+            sigma=64,
             risefall=2,
         )
         self.assertRoundTripSerializable(exp, self.experiments_equiv)
