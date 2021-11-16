@@ -13,8 +13,8 @@
 Test T1 experiment
 """
 
-import numpy as np
 from test.base import QiskitExperimentsTestCase
+import numpy as np
 from qiskit_experiments.framework import ExperimentData, ParallelExperiment
 from qiskit_experiments.library import T1
 from qiskit_experiments.library.characterization import T1Analysis
