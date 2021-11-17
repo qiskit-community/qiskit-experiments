@@ -13,12 +13,17 @@
 """Class to test composite experiments."""
 
 import copy
+import uuid
 
 from test.fake_backend import FakeBackend
 from test.fake_experiment import FakeExperiment
 from test.fake_service import FakeService
 from test.base import QiskitExperimentsTestCase
 
+from qiskit import QuantumCircuit
+from qiskit.result import Result
+
+from qiskit_experiments.test.utils import FakeJob
 from qiskit_experiments.framework import (
     ParallelExperiment,
     Options,
@@ -64,7 +69,7 @@ class TestComposite(QiskitExperimentsTestCase):
 
 class TestCompositeExperimentData(QiskitExperimentsTestCase):
     """
-    Test operations on objects of composit ExperimentData
+    Test operations on objects of composite ExperimentData
     """
 
     def setUp(self):
@@ -203,3 +208,188 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(len(data1.child_data()), len(data2.child_data()))
         for sub1, sub2 in zip(data1.child_data(), data2.child_data()):
             self.assertNotEqual(sub1.experiment_id, sub2.experiment_id)
+
+    def test_composite_subexp_data(self):
+        """
+        Verify that sub-experiment data of parallel and batch
+        experiments are correctly marginalized
+        """
+        counts = [
+            {
+                "0000": 1,
+                "0010": 6,
+                "0011": 3,
+                "0100": 4,
+                "0101": 2,
+                "0110": 1,
+                "0111": 3,
+                "1000": 5,
+                "1001": 3,
+                "1010": 4,
+                "1100": 4,
+                "1101": 3,
+                "1110": 8,
+                "1111": 5,
+            },
+            {
+                "0001": 3,
+                "0010": 4,
+                "0011": 5,
+                "0100": 2,
+                "0101": 1,
+                "0111": 7,
+                "1000": 3,
+                "1001": 2,
+                "1010": 1,
+                "1011": 1,
+                "1100": 7,
+                "1101": 8,
+                "1110": 2,
+            },
+            {
+                "0000": 1,
+                "0001": 1,
+                "0010": 8,
+                "0011": 7,
+                "0100": 2,
+                "0101": 2,
+                "0110": 2,
+                "0111": 1,
+                "1000": 6,
+                "1010": 4,
+                "1011": 4,
+                "1100": 5,
+                "1101": 2,
+                "1110": 2,
+                "1111": 5,
+            },
+            {
+                "0000": 4,
+                "0001": 5,
+                "0101": 4,
+                "0110": 8,
+                "0111": 2,
+                "1001": 6,
+                "1010": 8,
+                "1011": 8,
+                "1101": 1,
+                "1110": 3,
+                "1111": 3,
+            },
+            {
+                "0000": 3,
+                "0001": 6,
+                "0010": 7,
+                "0011": 1,
+                "0100": 1,
+                "0101": 5,
+                "0110": 4,
+                "1000": 2,
+                "1001": 4,
+                "1011": 3,
+                "1100": 6,
+                "1111": 1,
+            },
+        ]
+
+        class Backend(FakeBackend):
+            """
+            Bacekend to be used in test_composite_subexp_data
+            """
+
+            def run(self, run_input, **options):
+                results = []
+                for circ, cnt in zip(run_input, counts):
+                    results.append(
+                        {
+                            "shots": -1,
+                            "success": True,
+                            "header": {"metadata": circ.metadata},
+                            "data": {"counts": cnt},
+                        }
+                    )
+
+                res = {
+                    "backend_name": "backend",
+                    "backend_version": "0",
+                    "qobj_id": uuid.uuid4().hex,
+                    "job_id": uuid.uuid4().hex,
+                    "success": True,
+                    "results": results,
+                }
+                return FakeJob(backend=self, result=Result.from_dict(res))
+
+        class Experiment(FakeExperiment):
+            """
+            Experiment to be used in test_composite_subexp_data
+            """
+
+            def __init__(self, qubits, num_circs):
+                super().__init__(qubits)
+                self._ncircs = num_circs
+
+            def circuits(self):
+                nqubits = len(self._physical_qubits)
+                circs = []
+                for _ in range(self._ncircs):
+                    circ = QuantumCircuit(nqubits, nqubits)
+                    circ.metadata = {}
+                    circs.append(circ)
+                return circs
+
+        exp1 = Experiment([0, 2], 5)
+        exp2 = Experiment([1], 2)
+        exp3 = Experiment([3], 2)
+        exp4 = Experiment([1, 3], 3)
+        par_exp = ParallelExperiment(
+            [exp1, BatchExperiment([ParallelExperiment([exp2, exp3]), exp4])]
+        )
+        expdata = par_exp.run(Backend()).block_for_results()
+
+        for circ_data, circ_counts in zip(expdata.data(), counts):
+            self.assertDictEqual(circ_data["counts"], circ_counts)
+
+        counts1 = [
+            [
+                {"00": 14, "10": 19, "11": 11, "01": 8},
+                {"01": 14, "10": 7, "11": 13, "00": 12},
+                {"00": 14, "01": 5, "10": 16, "11": 17},
+                {"00": 4, "01": 16, "10": 19, "11": 13},
+                {"00": 12, "01": 15, "10": 11, "11": 5},
+            ],
+            [
+                {"00": 10, "01": 10, "10": 12, "11": 20},
+                {"00": 12, "01": 10, "10": 7, "11": 17},
+                {"00": 17, "01": 7, "10": 14, "11": 14},
+                {"00": 9, "01": 14, "10": 22, "11": 7},
+                {"00": 17, "01": 10, "10": 9, "11": 7},
+            ],
+        ]
+
+        for childdata, child_counts in zip(expdata.child_data(), counts1):
+            for circ_data, circ_counts in zip(childdata.data(), child_counts):
+                self.assertDictEqual(circ_data["counts"], circ_counts)
+
+        counts2 = [
+            [{"00": 10, "01": 10, "10": 12, "11": 20}, {"00": 12, "01": 10, "10": 7, "11": 17}],
+            [
+                {"00": 17, "01": 7, "10": 14, "11": 14},
+                {"00": 9, "01": 14, "10": 22, "11": 7},
+                {"00": 17, "01": 10, "10": 9, "11": 7},
+            ],
+        ]
+
+        for childdata, child_counts in zip(expdata.child_data(1).child_data(), counts2):
+            for circ_data, circ_counts in zip(childdata.data(), child_counts):
+                self.assertDictEqual(circ_data["counts"], circ_counts)
+
+        counts3 = [
+            [{"0": 22, "1": 30}, {"0": 19, "1": 27}],
+            [{"0": 20, "1": 32}, {"0": 22, "1": 24}],
+        ]
+
+        for childdata, child_counts in zip(
+            expdata.child_data(1).child_data(0).child_data(), counts3
+        ):
+            for circ_data, circ_counts in zip(childdata.data(), child_counts):
+                self.assertDictEqual(circ_data["counts"], circ_counts)
