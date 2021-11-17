@@ -421,4 +421,3 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         ):
             for circ_data, circ_counts in zip(childdata.data(), child_counts):
                 self.assertDictEqual(circ_data["counts"], circ_counts)
-
