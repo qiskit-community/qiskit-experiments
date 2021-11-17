@@ -33,7 +33,8 @@ class T2HahnBackend(BackendV1):
 
     def __init__(
         self,
-        p0=None,
+        t2hahn=None,
+        frequency=None,
         initialization_error=None,
         readout0to1=None,
         readout1to0=None,
@@ -59,14 +60,9 @@ class T2HahnBackend(BackendV1):
             dt=conversion_factor_in_ns,
         )
 
-        self._t2hahn = p0["T2"]
-        self._a_param = p0["A"]
-        self._frequency = p0["frequency"]
-        self._b_param = p0["B"]
-        if initialization_error is not None:
-            self._initialization_error = initialization_error
-        else:
-            self._initialization_error = None
+        self._t2hahn = t2hahn
+        self._frequency = frequency
+        self._initialization_error = initialization_error
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
         self._conversion_factor = conversion_factor

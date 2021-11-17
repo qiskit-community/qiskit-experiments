@@ -102,8 +102,6 @@ class T2Hahn(BaseExperiment):
     def _verify_parameters(self):
         """
         Verify input correctness, raise QiskitError if needed.
-        Args:
-            qubit: the qubit under test.
 
         Raises:
             QiskitError : Error for invalid input.

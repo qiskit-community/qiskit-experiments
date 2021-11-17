@@ -50,16 +50,11 @@ class TestT2Hahn(QiskitTestCase):
             default_p0 = {
                 "A": 0.5,
                 "T2": estimated_t2hahn,
-                "frequency": osc_freq,
                 "B": 0.5,
             }
             backend = T2HahnBackend(
-                p0={
-                    "A": [0.5],
-                    "T2": [estimated_t2hahn],
-                    "frequency": [osc_freq],
-                    "B": [0.5],
-                },
+                t2hahn=[estimated_t2hahn],
+                frequency=[osc_freq],
                 initialization_error=[0.0],
                 readout0to1=[0.02],
                 readout1to0=[0.02],
@@ -92,17 +87,12 @@ class TestT2Hahn(QiskitTestCase):
         default_p0 = {
             "amp": 0.5,
             "T2": estimated_t2hahn,
-            "frequency": osc_freq,
             "B": 0.5,
         }
         exp0.set_analysis_options(user_p0=default_p0)
         backend = T2HahnBackend(
-            p0={
-                "amp": [0.5],
-                "T2": [estimated_t2hahn],
-                "frequency": [osc_freq],
-                "B": [0.5],
-            },
+            t2hahn=[estimated_t2hahn],
+            frequency=[osc_freq],
             initialization_error=[0.0],
             readout0to1=[0.02],
             readout1to0=[0.02],
