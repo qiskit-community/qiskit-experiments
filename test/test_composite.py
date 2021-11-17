@@ -20,6 +20,10 @@ from test.fake_experiment import FakeExperiment
 from test.fake_service import FakeService
 from test.base import QiskitExperimentsTestCase
 
+from qiskit import QuantumCircuit
+from qiskit.result import Result
+
+from qiskit_experiments.test.utils import FakeJob
 from qiskit_experiments.framework import (
     ParallelExperiment,
     Options,
