@@ -887,10 +887,15 @@ class DbExperimentDataV1(DbExperimentData):
             notes=service_data.pop("notes"),
             **service_data,
         )
+
+        if expdata.service is None:
+            expdata.service = service
+
         # Retrieve analysis results
         # Maybe this isn't necessary but the repr of the class should
         # be updated to show correct number of results including remote ones
         expdata._retrieve_analysis_results()
+
         # mark it as existing in the DB
         expdata._created_in_db = True
         return expdata
@@ -1368,6 +1373,8 @@ class DbExperimentDataV1(DbExperimentData):
         if self._service:
             raise DbExperimentDataError("An experiment service is already being used.")
         self._service = service
+        for result in self._analysis_results.values():
+            result.service = service
         with contextlib.suppress(Exception):
             self.auto_save = self._service.options.get("auto_save", False)
 
