@@ -18,6 +18,9 @@ from typing import Union, Iterable, List, Optional
 import numpy as np
 
 from qiskit import QuantumCircuit, QiskitError
+from qiskit.utils import apply_prefix
+from qiskit.providers.backend import Backend
+from qiskit.test.mock import FakeBackend
 from qiskit.providers.options import Options
 from qiskit.providers import Backend
 from qiskit_experiments.framework import BaseExperiment
@@ -39,10 +42,10 @@ class T2Hahn(BaseExperiment):
 
             .. parsed-literal::
 
-                 ┌─────────┐┌──────────┐┌───────┐┌──────────┐┌──────────┐┌─┐
+                 ┌─────────┐┌──────────┐┌───────┐┌──────────┐┌─────────┐┌─┐
             q_0: ┤ RY(π/2) ├┤ DELAY(t) ├┤ RX(π) ├┤ DELAY(t) ├┤ RY(π/2) ├┤M├
-                 └─────────┘└──────────┘└───────┘└──────────┘└──────────┘└╥┘
-            c: 1/═════════════════════════════════════════════════════════╩═
+                 └─────────┘└──────────┘└───────┘└──────────┘└─────────┘└╥┘
+            c: 1/════════════════════════════════════════════════════════╩═
                                                                          0
             for each *t* from the specified delay times
             and the delays are specified by the user.
@@ -67,6 +70,8 @@ class T2Hahn(BaseExperiment):
 
         options.delays = None
         options.unit = "s"
+        options.conversion_factor = None
+        options.osc_freq = 0.0
 
         return options
 
@@ -74,6 +79,7 @@ class T2Hahn(BaseExperiment):
         self,
         qubit: Union[int, Iterable[int]],
         delays: Union[List[float], np.array],
+        backend: Optional[Backend] = None,
         unit: str = "s",
     ):
         """
@@ -88,7 +94,7 @@ class T2Hahn(BaseExperiment):
              QiskitError : Error for invalid input.
         """
         # Initialize base experiment
-        super().__init__([qubit])
+        super().__init__([qubit], backend=backend)
         # Set configurable options
         self.set_experiment_options(delays=delays, unit=unit)
         self._verify_parameters()
@@ -108,7 +114,33 @@ class T2Hahn(BaseExperiment):
                 "non-negative elements."
             )
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def _set_backend(self, backend: Backend):
+        super()._set_backend(backend)
+
+        # Scheduling parameters
+        if not self._backend.configuration().simulator and not isinstance(backend, FakeBackend):
+            timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
+            if "acquire_alignment" not in timing_constraints:
+                timing_constraints["acquire_alignment"] = 16
+            scheduling_method = getattr(self.transpile_options, "scheduling_method", "alap")
+            self.set_transpile_options(
+                timing_constraints=timing_constraints, scheduling_method=scheduling_method
+            )
+
+        # Set conversion factor
+        if self.experiment_options.unit == "dt":
+            try:
+                dt_factor = getattr(self.backend.configuration(), "dt")
+                conversion_factor = dt_factor
+            except AttributeError as no_dt:
+                raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
+        elif self.experiment_options.unit != "s":
+            conversion_factor = apply_prefix(1, self.experiment_options.unit)
+        else:
+            conversion_factor = 1
+        self.set_experiment_options(conversion_factor=conversion_factor)
+
+    def circuits(self) -> List[QuantumCircuit]:
         """
         Args:
             backend: Optional, a backend object.
@@ -120,9 +152,15 @@ class T2Hahn(BaseExperiment):
             AttributeError: if unit is 'dt', but 'dt' parameter is missing in the backend configuration
         """
 
+        prefactor = self.experiment_options.conversion_factor
+        if prefactor is None:
+            raise ValueError("Conversion factor is not set.")
+
         circuits = []
-        for delay in self.experiment_options.delays:
+        for delay in prefactor * np.asarray(self.experiment_options.delays, dtype=float):
+            delay = np.round(delay, decimals=10)
             circ = QuantumCircuit(1, 1)
+
             # First Y rotation in 90 degrees
             circ.ry(np.pi / 2, 0)  # Bring to qubits to X Axis
             circ.delay(delay, 0, self.experiment_options.unit)
@@ -136,11 +174,6 @@ class T2Hahn(BaseExperiment):
                 "xval": delay,
                 "unit": self.experiment_options.unit,
             }
-            if self.experiment_options.unit == "dt":
-                try:
-                    circ.metadata["dt_factor"] = getattr(backend._configuration, "dt")
-                except AttributeError as no_dt:
-                    raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
             circuits.append(circ)
 
         return circuits
