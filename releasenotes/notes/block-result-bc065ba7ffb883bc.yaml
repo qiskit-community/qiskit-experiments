@@ -9,6 +9,14 @@ features:
     returning results. This prevents issues where trying to retrieve analysis
     results before analysis was finished would raise an error that the result
     could not be found.
+
+    Note that in the case of
+    :class:`~qiskit-experiments.framework.ParallelExperiment` and
+    :class:`~qiskit-experiments.framework.BatchExperiment` blocking or
+    calling ``analysis_results`` on the parent experiment should be performed
+    before attempting to access results in the component experiment data
+    containers to ensure the component analysis callbacks
+    have been initialized.
 upgrade:
   - |
     The :meth:`qiskit_experiments.framework.ExperimentData.analysis_results`
