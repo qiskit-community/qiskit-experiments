@@ -32,6 +32,9 @@ class ReadoutAngle(BaseExperiment):
     # section: overview
 
         Design and analyze experiments for estimating readout angle of the qubit.
+        The readout angle is the average of two angles: the angle of the IQ
+        cluster center of the ground state, and the angle of the IQ cluster center
+        of the excited state.
 
         Each experiment consists of the following steps:
 
@@ -40,9 +43,10 @@ class ReadoutAngle(BaseExperiment):
         and measures it. Measurements are in level 1 (kerneled).
 
         2. Backend execution: actually running the circuits on the device
-        (or a simulator that supports level 1 measurements).
+        (or a simulator that supports level 1 measurements). The backend returns
+        the cluster centers of the ground and excited states.
 
-        3. Analysis of results: return the average of the centers of the two angles.
+        3. Analysis of results: return the average of the angles of the two centers.
 
     """
 

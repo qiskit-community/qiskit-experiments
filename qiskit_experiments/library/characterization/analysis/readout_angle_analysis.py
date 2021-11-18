@@ -25,13 +25,21 @@ class ReadoutAngleAnalysis(BaseAnalysis):
 
     # pylint: disable=unused-argument
     def _run_analysis(self, experiment_data, **kwargs):
-        center0 = complex(*experiment_data.data(0)["memory"][0])
-        center1 = complex(*experiment_data.data(1)["memory"][0])
+        angles = []
+        for i in range(2):
+            center = complex(*experiment_data.data(i)["memory"][0])
+            angles.append(np.angle(center))
 
-        angle = (np.angle(center0) + np.angle(center1)) / 2
-        if np.abs(np.angle(center0) - np.angle(center1)) > np.pi:
+        angle = (angles[0] + angles[1]) / 2
+        if (np.abs(angles[0] - angles[1])) % (2 * np.pi) > np.pi:
             angle += np.pi
 
-        analysis_results = [AnalysisResultData(name="ReadoutAngle", value=angle)]
+        analysis_results = [
+            AnalysisResultData(
+                name="ReadoutAngle",
+                value=angle,
+                extra={"angle_ground": angles[0], "angle_excited": angles[1]},
+            )
+        ]
 
         return analysis_results, []
