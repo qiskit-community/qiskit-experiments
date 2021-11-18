@@ -15,15 +15,22 @@ To produce high fidelity quantum operations, we want to be able to run good gate
 
 	from qiskit.pulse import InstructionScheduleMap
 
-	from qiskit import IBMQ, schedule
+	from qiskit import IBMQ, schedules
 
-For this guide, we choose one of the publicly available and pulse-enabled backends.
+On our own environment, we may use one of the pulse-enabled real backends like below.
 
 .. jupyter-execute::
 
-	IBMQ.load_account()
-	provider = IBMQ.get_provider(hub='ibm-q', group='open', project='main')
-	backend = provider.get_backend('ibmq_armonk')
+	# IBMQ.load_account()
+	# provider = IBMQ.get_provider(hub='ibm-q', group='open', project='main')
+	# backend = provider.get_backend('ibmq_armonk')
+
+We can use a mock backend in case no IBM Quantum Experience credentials found.
+
+.. jupyter-execute::
+
+	from qiskit_experiments.test.mock_iq_backend import RabiBackend
+	backend = RabiBackend()
 
 ========================================================
 1. Calibrating the pulse amplitudes with Rabi experiment
@@ -91,8 +98,8 @@ In the analysis results, ``rabi_rate`` is the unit of frequency which our qubit 
 
 .. jupyter-execute::
 	
-	#pi_pulse_amplitude = (1/rabi_data.analysis_results("rabi_rate").value.value) / 2
-	#print(pi_pulse_amplitude)
+	pi_pulse_amplitude = (1/rabi_data.analysis_results("rabi_rate").value.value) / 2
+	print(pi_pulse_amplitude)
 
 ==================================
 2. Saving and loading calibrations
@@ -108,5 +115,5 @@ After saving the values of the parameters you may restart your kernel. If you do
 
 .. jupyter-execute::
 
-	cals = BackendCalibrations(backend, library)
+	cals = BackendCalibrations(backend)
 	cals.load_parameter_values(file_name="Armonkparameter_values.csv")
