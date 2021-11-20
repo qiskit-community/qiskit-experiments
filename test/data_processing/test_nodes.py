@@ -13,7 +13,7 @@
 """Data processor tests."""
 
 # pylint: disable=unbalanced-tuple-unpacking
-
+from test.base import QiskitExperimentsTestCase
 import numpy as np
 from qiskit.test import QiskitTestCase
 from uncertainties import unumpy as unp
@@ -96,7 +96,7 @@ class TestAveraging(BaseDataProcessorTest):
         )
 
 
-class TestNormalize(QiskitTestCase):
+class TestNormalize(QiskitExperimentsTestCase):
     """Test the normalization node."""
 
     def test_simple(self):
@@ -235,7 +235,7 @@ class TestSVD(BaseDataProcessorTest):
         )
 
 
-class TestProbability(QiskitTestCase):
+class TestProbability(QiskitExperimentsTestCase):
     """Test probability computation."""
 
     def test_variance_not_zero(self):

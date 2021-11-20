@@ -28,10 +28,10 @@ class FakeBackend(BackendV1):
 
     def __init__(self, max_experiments=None):
         configuration = QasmBackendConfiguration(
-            backend_name="dummy_backend",
+            backend_name="fake_backend",
             backend_version="0",
             n_qubits=int(1e6),
-            basis_gates=["barrier", "x", "delay", "measure"],
+            basis_gates=[],
             gates=[],
             local=True,
             simulator=True,
@@ -50,7 +50,7 @@ class FakeBackend(BackendV1):
 
     def run(self, run_input, **options):
         result = {
-            "backend_name": "Dummmy backend",
+            "backend_name": "fake_backend",
             "backend_version": "0",
             "qobj_id": uuid.uuid4().hex,
             "job_id": uuid.uuid4().hex,

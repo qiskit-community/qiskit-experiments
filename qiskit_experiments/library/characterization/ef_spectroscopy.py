@@ -17,10 +17,9 @@ from qiskit.circuit import Gate
 
 from qiskit_experiments.curve_analysis import ParameterRepr
 from qiskit_experiments.library.characterization.qubit_spectroscopy import QubitSpectroscopy
-from qiskit_experiments.framework import Options, fix_class_docs
+from qiskit_experiments.framework import Options
 
 
-@fix_class_docs
 class EFSpectroscopy(QubitSpectroscopy):
     """Class that runs spectroscopy on the e-f transition by scanning the frequency.
 

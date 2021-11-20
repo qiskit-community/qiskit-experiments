@@ -11,14 +11,14 @@
 # that they have been altered from the originals.
 
 """Test the fine amplitude characterization and calibration experiments."""
-
+from test.base import QiskitExperimentsTestCase
+import unittest
 import numpy as np
 from ddt import ddt, data
 
 from qiskit import transpile
 from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
-from qiskit.test import QiskitTestCase
 from qiskit.pulse import DriveChannel, Drag
 import qiskit.pulse as pulse
 
@@ -35,7 +35,7 @@ from qiskit_experiments.test.mock_iq_backend import MockFineAmp
 
 
 @ddt
-class TestFineAmpEndToEnd(QiskitTestCase):
+class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
     """Test the drag experiment."""
 
     @data(0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08)
@@ -81,7 +81,7 @@ class TestFineAmpEndToEnd(QiskitTestCase):
         self.assertEqual(result.quality, "good")
 
 
-class TestFineAmplitudeCircuits(QiskitTestCase):
+class TestFineAmplitudeCircuits(QiskitExperimentsTestCase):
     """Test the circuits."""
 
     def setUp(self):
@@ -119,7 +119,7 @@ class TestFineAmplitudeCircuits(QiskitTestCase):
             self.assertEqual(circ.count_ops().get("sx", 0), expected[idx])
 
 
-class TestSpecializations(QiskitTestCase):
+class TestSpecializations(QiskitExperimentsTestCase):
     """Test the options of the specialized classes."""
 
     def test_fine_x_amp(self):
@@ -148,7 +148,7 @@ class TestSpecializations(QiskitTestCase):
         self.assertEqual(exp.experiment_options.gate, SXGate())
 
 
-class TestFineAmplitudeCal(QiskitTestCase):
+class TestFineAmplitudeCal(QiskitExperimentsTestCase):
     """A class to test the fine amplitude calibration experiments."""
 
     def setUp(self):
@@ -269,7 +269,12 @@ class TestFineAmplitudeCal(QiskitTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = FineSXAmplitudeCal(0, self.cals, "sx")
-        config = exp.config
-        loaded_exp = FineSXAmplitudeCal.from_config(config)
+        loaded_exp = FineSXAmplitudeCal.from_config(exp.config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+
+    @unittest.skip("Calbrations are not yet serializable")
+    def test_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = FineSXAmplitudeCal(0, self.cals, "sx")
+        self.assertRoundTripSerializable(exp, self.experiments_equiv)

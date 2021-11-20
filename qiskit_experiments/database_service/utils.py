@@ -163,7 +163,7 @@ def save_data(
         if json_encoder:
             kwargs["json_encoder"] = json_encoder
         # Attempt 3x for the unlikely scenario wherein is_new=False but the
-        # entry doesn't actually exists. The second try might also fail if an entry
+        # entry doesn't actually exist. The second try might also fail if an entry
         # with the same ID somehow got created in the meantime.
         while attempts < 3:
             attempts += 1
@@ -239,6 +239,11 @@ class ThreadSafeContainer(ABC):
         obj = self.__class__()
         obj._container = self.copy()
         return obj
+
+    def clear(self):
+        """Remove all elements from this container."""
+        with self.lock:
+            self._container.clear()
 
 
 class ThreadSafeOrderedDict(ThreadSafeContainer):

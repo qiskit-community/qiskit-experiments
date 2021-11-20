@@ -13,16 +13,15 @@
 """
 Test T2Ramsey experiment
 """
+from test.base import QiskitExperimentsTestCase
 import numpy as np
-
 from qiskit.utils import apply_prefix
-from qiskit.test import QiskitTestCase
 from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library import T2Ramsey
 from qiskit_experiments.test.t2ramsey_backend import T2RamseyBackend
 
 
-class TestT2Ramsey(QiskitTestCase):
+class TestT2Ramsey(QiskitExperimentsTestCase):
     """Test T2Ramsey experiment"""
 
     __tolerance__ = 0.1
@@ -120,7 +119,7 @@ class TestT2Ramsey(QiskitTestCase):
         expdata.block_for_results()
 
         for i in range(2):
-            res_t2star = expdata.component_experiment_data(i).analysis_results("T2star")
+            res_t2star = expdata.child_data(i).analysis_results("T2star")
             self.assertAlmostEqual(
                 res_t2star.value.value,
                 t2ramsey[i],
@@ -129,7 +128,7 @@ class TestT2Ramsey(QiskitTestCase):
             self.assertEqual(
                 res_t2star.quality, "good", "Result quality bad for experiment on qubit " + str(i)
             )
-            res_freq = expdata.component_experiment_data(i).analysis_results("Frequency")
+            res_freq = expdata.child_data(i).analysis_results("Frequency")
             self.assertAlmostEqual(
                 res_freq.value.value,
                 estimated_freq[i],
@@ -206,7 +205,11 @@ class TestT2Ramsey(QiskitTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = T2Ramsey(0, [1, 2, 3, 4, 5], unit="s")
-        config = exp.config
-        loaded_exp = T2Ramsey.from_config(config)
+        loaded_exp = T2Ramsey.from_config(exp.config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+
+    def test_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = T2Ramsey(0, [1, 2, 3, 4, 5], unit="s")
+        self.assertRoundTripSerializable(exp, self.experiments_equiv)

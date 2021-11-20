@@ -24,7 +24,7 @@ from qiskit.circuit.library import (
     CXGate,
 )
 from qiskit_experiments.library import StandardRB, InterleavedRB
-from qiskit_experiments.database_service.json import ExperimentEncoder
+from qiskit_experiments.framework import ExperimentEncoder
 
 
 def create_depolarizing_noise_model():

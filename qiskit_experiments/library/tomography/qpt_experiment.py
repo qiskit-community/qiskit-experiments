@@ -13,16 +13,15 @@
 Quantum Process Tomography experiment
 """
 
-from typing import Union, Optional, Iterable, List, Tuple
+from typing import Union, Optional, Iterable, List, Tuple, Sequence
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.quantum_info.operators.base_operator import BaseOperator
-from qiskit_experiments.framework import Options, fix_class_docs
+from qiskit_experiments.framework import Options
 from .tomography_experiment import TomographyExperiment
 from .qpt_analysis import ProcessTomographyAnalysis
 from . import basis
 
 
-@fix_class_docs
 class ProcessTomography(TomographyExperiment):
     """Quantum process tomography experiment.
 
@@ -97,11 +96,11 @@ class ProcessTomography(TomographyExperiment):
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator],
         measurement_basis: basis.BaseTomographyMeasurementBasis = basis.PauliMeasurementBasis(),
-        measurement_qubits: Optional[Iterable[int]] = None,
+        measurement_qubits: Optional[Sequence[int]] = None,
         preparation_basis: basis.BaseTomographyPreparationBasis = basis.PauliPreparationBasis(),
-        preparation_qubits: Optional[Iterable[int]] = None,
+        preparation_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
-        qubits: Optional[Iterable[int]] = None,
+        qubits: Optional[Sequence[int]] = None,
     ):
         """Initialize a quantum process tomography experiment.
 

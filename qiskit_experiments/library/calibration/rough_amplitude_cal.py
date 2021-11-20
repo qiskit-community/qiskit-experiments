@@ -13,14 +13,14 @@
 """Rough amplitude calibration using Rabi."""
 
 from collections import namedtuple
-from typing import Iterable, List, Optional
+from typing import Iterable, Optional
 import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
 from qiskit.providers.backend import Backend
 
-from qiskit_experiments.framework import ExperimentData, Options, fix_class_docs
+from qiskit_experiments.framework import ExperimentData, Options
 from qiskit_experiments.calibration_management import BaseCalibrationExperiment, BackendCalibrations
 from qiskit_experiments.library.characterization import Rabi
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
@@ -31,7 +31,6 @@ AnglesSchedules = namedtuple(
 )
 
 
-@fix_class_docs
 class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
     """A calibration version of the Rabi experiment.
 
@@ -115,16 +114,14 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
         """
         options = super()._default_experiment_options()
 
-        options.result_index = -1
         options.angles_schedules = [
             AnglesSchedules(target_angle=np.pi, parameter="amp", schedule="x", previous_value=None)
         ]
-        options.group = "default"
 
         return options
 
-    def _add_cal_metadata(self, circuits: List[QuantumCircuit]):
-        """Add metadata to the circuit to make the experiment data more self contained.
+    def _add_cal_metadata(self, experiment_data: ExperimentData):
+        """Add metadata to the experiment data making it more self contained.
 
         The following keys are added to each circuit's metadata:
             angles_schedules: A list of parameter update information. Each entry of the list
@@ -152,11 +149,8 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
                 )
             )
 
-        for circuit in circuits:
-            circuit.metadata["angles_schedules"] = param_values
-            circuit.metadata["cal_group"] = self.experiment_options.group
-
-        return circuits
+        experiment_data.metadata["angles_schedules"] = param_values
+        experiment_data.metadata["cal_group"] = self.experiment_options.group
 
     def update_calibrations(self, experiment_data: ExperimentData):
         r"""Update the amplitude of one or several schedules.
@@ -178,29 +172,24 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
             used to set the pulse amplitude.
         """
 
-        data = experiment_data.data()
+        result_index = self.experiment_options.result_index
+        group = experiment_data.metadata["cal_group"]
 
-        # No data -> no update
-        if len(data) > 0:
-            result_index = self.experiment_options.result_index
-            group = data[0]["metadata"]["cal_group"]
+        rate = (
+            2
+            * np.pi
+            * BaseUpdater.get_value(experiment_data, self._analysis_param_name, result_index)
+        )
 
-            rate = (
-                2
-                * np.pi
-                * BaseUpdater.get_value(experiment_data, self._analysis_param_name, result_index)
+        for angle, param, schedule, prev_amp in experiment_data.metadata["angles_schedules"]:
+
+            value = np.round(angle / rate, decimals=8) * np.exp(1.0j * np.angle(prev_amp))
+
+            BaseUpdater.add_parameter_value(
+                self._cals, experiment_data, value, param, schedule, group
             )
 
-            for angle, param, schedule, prev_amp in data[0]["metadata"]["angles_schedules"]:
 
-                value = np.round(angle / rate, decimals=8) * np.exp(1.0j * np.angle(prev_amp))
-
-                BaseUpdater.add_parameter_value(
-                    self._cals, experiment_data, value, param, schedule, group
-                )
-
-
-@fix_class_docs
 class RoughXSXAmplitudeCal(RoughAmplitudeCal):
     """A rough amplitude calibration of x and sx gates."""
 
@@ -230,7 +219,6 @@ class RoughXSXAmplitudeCal(RoughAmplitudeCal):
         ]
 
 
-@fix_class_docs
 class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
     """A rough amplitude calibration of x and sx gates on the 1<->2 transition."""
 

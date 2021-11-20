@@ -12,7 +12,7 @@
 
 """Tests for the base class for calibration-type experiments."""
 
-from qiskit.test import QiskitTestCase
+from test.base import QiskitExperimentsTestCase
 
 from qiskit_experiments.library import QubitSpectroscopy
 from qiskit_experiments.calibration_management.calibrations import Calibrations
@@ -21,7 +21,7 @@ from qiskit_experiments.calibration_management.base_calibration_experiment impor
 )
 
 
-class TestBaseCalibrationClass(QiskitTestCase):
+class TestBaseCalibrationClass(QiskitExperimentsTestCase):
     """Tests for base calibration experiment classes."""
 
     def test_class_order(self):
