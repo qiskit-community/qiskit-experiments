@@ -18,7 +18,6 @@ from typing import List, Union, Sequence
 
 import numpy as np
 from uncertainties import unumpy as unp, ufloat
-from uncertainties.core import Variable
 
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError

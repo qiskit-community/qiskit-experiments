@@ -15,17 +15,15 @@
 # pylint: disable=unbalanced-tuple-unpacking
 
 import numpy as np
+from qiskit.test import QiskitTestCase
 from uncertainties import unumpy as unp
 
-from qiskit.test import QiskitTestCase
 from qiskit_experiments.data_processing.nodes import (
     SVD,
     AverageData,
     MinMaxNormalize,
     Probability,
 )
-from qiskit_experiments.data_processing.data_processor import DataProcessor
-
 from . import BaseDataProcessorTest
 
 
