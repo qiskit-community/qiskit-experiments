@@ -17,6 +17,7 @@
 from test.fake_experiment import FakeExperiment
 
 import numpy as np
+from uncertainties import unumpy as unp
 from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit.result import Result
 
@@ -80,11 +81,10 @@ class DataProcessorTest(BaseDataProcessorTest):
         """Check that a DataProcessor without steps does nothing."""
         data_processor = DataProcessor("counts")
 
-        datum, error = data_processor(self.exp_data_lvl2.data(0))
+        datum = data_processor(self.exp_data_lvl2.data(0))
         self.assertEqual(datum, {"00": 4, "10": 6})
-        self.assertIsNone(error)
 
-        datum, error, history = data_processor.call_with_history(self.exp_data_lvl2.data(0))
+        datum, history = data_processor.call_with_history(self.exp_data_lvl2.data(0))
         self.assertEqual(datum, {"00": 4, "10": 6})
         self.assertEqual(history, [])
 
@@ -96,7 +96,7 @@ class DataProcessorTest(BaseDataProcessorTest):
         exp_data.add_data(self.result_lvl1)
 
         # Test to real on a single datum
-        new_data, error = processor(exp_data.data(0))
+        new_data = processor(exp_data.data(0))
 
         expected_old = {
             "memory": [
@@ -113,20 +113,29 @@ class DataProcessorTest(BaseDataProcessorTest):
         expected_new = np.array([[1103.26, 2959.012], [442.17, -5279.41], [3016.514, -3404.7560]])
 
         self.assertEqual(exp_data.data(0), expected_old)
-        self.assertTrue(np.allclose(new_data, expected_new))
-        self.assertIsNone(error)
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            expected_new,
+        )
+        self.assertTrue(np.isnan(unp.std_devs(new_data)).all())
 
         # Test that we can call with history.
-        new_data, error, history = processor.call_with_history(exp_data.data(0))
+        new_data, history = processor.call_with_history(exp_data.data(0))
 
         self.assertEqual(exp_data.data(0), expected_old)
-        self.assertTrue(np.allclose(new_data, expected_new))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            expected_new,
+        )
 
         self.assertEqual(history[0][0], "ToReal")
-        self.assertTrue(np.allclose(history[0][1], expected_new))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(history[0][1]),
+            expected_new,
+        )
 
         # Test to real on more than one datum
-        new_data, error = processor(exp_data.data())
+        new_data = processor(exp_data.data())
 
         expected_new = np.array(
             [
@@ -134,8 +143,10 @@ class DataProcessorTest(BaseDataProcessorTest):
                 [[5131.962, 4438.87], [3415.985, 2942.458], [5199.964, 4030.843]],
             ]
         )
-
-        self.assertTrue(np.allclose(new_data, expected_new))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            expected_new,
+        )
 
     def test_to_imag(self):
         """Test that we can average the data."""
@@ -145,7 +156,7 @@ class DataProcessorTest(BaseDataProcessorTest):
         exp_data = ExperimentData(FakeExperiment())
         exp_data.add_data(self.result_lvl1)
 
-        new_data, error = processor(exp_data.data(0))
+        new_data = processor(exp_data.data(0))
 
         expected_old = {
             "memory": [
@@ -168,19 +179,28 @@ class DataProcessorTest(BaseDataProcessorTest):
         )
 
         self.assertEqual(exp_data.data(0), expected_old)
-        self.assertTrue(np.allclose(new_data, expected_new))
-        self.assertIsNone(error)
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            expected_new,
+        )
+        self.assertTrue(np.isnan(unp.std_devs(new_data)).all())
 
         # Test that we can call with history.
-        new_data, error, history = processor.call_with_history(exp_data.data(0))
+        new_data, history = processor.call_with_history(exp_data.data(0))
         self.assertEqual(exp_data.data(0), expected_old)
-        self.assertTrue(np.allclose(new_data, expected_new))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            expected_new,
+        )
 
         self.assertEqual(history[0][0], "ToImag")
-        self.assertTrue(np.allclose(history[0][1], expected_new))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(history[0][1]),
+            expected_new,
+        )
 
         # Test to imaginary on more than one datum
-        new_data, error = processor(exp_data.data())
+        new_data = processor(exp_data.data())
 
         expected_new = np.array(
             [
@@ -189,7 +209,10 @@ class DataProcessorTest(BaseDataProcessorTest):
             ]
         )
 
-        self.assertTrue(np.allclose(new_data, expected_new))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            expected_new,
+        )
 
     def test_populations(self):
         """Test that counts are properly converted to a population."""
@@ -198,14 +221,17 @@ class DataProcessorTest(BaseDataProcessorTest):
         processor.append(Probability("00", alpha_prior=1.0))
 
         # Test on a single datum.
-        new_data, error = processor(self.exp_data_lvl2.data(0))
+        new_data = processor(self.exp_data_lvl2.data(0))
 
-        self.assertAlmostEqual(float(new_data), 0.41666667)
-        self.assertAlmostEqual(float(error), 0.13673544235706114)
+        self.assertAlmostEqual(float(unp.nominal_values(new_data)), 0.41666667)
+        self.assertAlmostEqual(float(unp.std_devs(new_data)), 0.13673544235706114)
 
         # Test on all the data
-        new_data, error = processor(self.exp_data_lvl2.data())
-        np.testing.assert_array_almost_equal(new_data, np.array([0.41666667, 0.25]))
+        new_data = processor(self.exp_data_lvl2.data())
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            np.array([0.41666667, 0.25]),
+        )
 
     def test_validation(self):
         """Test the validation mechanism."""
@@ -267,7 +293,7 @@ class TestIQSingleAvg(BaseDataProcessorTest):
         to_imag = DataProcessor("memory", [ToImag(scale=1)])
 
         # Test the real single shot node
-        new_data, error = to_real(self.exp_data_single.data(0))
+        new_data = to_real(self.exp_data_single.data(0))
         expected = np.array(
             [
                 [-56470872.0, -53407256.0],
@@ -278,11 +304,14 @@ class TestIQSingleAvg(BaseDataProcessorTest):
                 [51426688.0, 34330920.0],
             ]
         )
-        self.assertTrue(np.allclose(new_data, expected))
-        self.assertIsNone(error)
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            expected,
+        )
+        self.assertTrue(np.isnan(unp.std_devs(new_data)).all())
 
         # Test the imaginary single shot node
-        new_data, error = to_imag(self.exp_data_single.data(0))
+        new_data = to_imag(self.exp_data_single.data(0))
         expected = np.array(
             [
                 [-136691568.0, -176278624.0],
@@ -293,15 +322,24 @@ class TestIQSingleAvg(BaseDataProcessorTest):
                 [-142703104.0, -185572592.0],
             ]
         )
-        self.assertTrue(np.allclose(new_data, expected))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            expected,
+        )
 
         # Test the real average node
-        new_data, error = to_real(self.exp_data_avg.data(0))
-        self.assertTrue(np.allclose(new_data, np.array([-539698.0, 5541283.0])))
+        new_data = to_real(self.exp_data_avg.data(0))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            np.array([-539698.0, 5541283.0]),
+        )
 
         # Test the imaginary average node
-        new_data, error = to_imag(self.exp_data_avg.data(0))
-        self.assertTrue(np.allclose(new_data, np.array([-153030784.0, -160369600.0])))
+        new_data = to_imag(self.exp_data_avg.data(0))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(new_data),
+            np.array([-153030784.0, -160369600.0]),
+        )
 
 
 class TestAveragingAndSVD(BaseDataProcessorTest):
@@ -401,18 +439,28 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
         processor = DataProcessor("memory", [AverageData(axis=1)])
 
         # Test that we get the expected outcome for the excited state
-        processed, error = processor(self.data.data(0))
-        expected_avg = np.array([[1.0, 1.0], [-1.0, 1.0]])
-        expected_std = np.array([[0.15811388300841894, 0.1], [0.15811388300841894, 0.0]]) / 2.0
-        self.assertTrue(np.allclose(processed, expected_avg))
-        self.assertTrue(np.allclose(error, expected_std))
+        processed = processor(self.data.data(0))
+
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed),
+            np.array([[1.0, 1.0], [-1.0, 1.0]]),
+        )
+        np.testing.assert_array_almost_equal(
+            unp.std_devs(processed),
+            np.array([[0.15811388300841894, 0.1], [0.15811388300841894, 0.0]]) / 2.0,
+        )
 
         # Test that we get the expected outcome for the ground state
-        processed, error = processor(self.data.data(1))
-        expected_avg = np.array([[-1.0, -1.0], [1.0, -1.0]])
-        expected_std = np.array([[0.15811388300841894, 0.1], [0.15811388300841894, 0.0]]) / 2.0
-        self.assertTrue(np.allclose(processed, expected_avg))
-        self.assertTrue(np.allclose(error, expected_std))
+        processed = processor(self.data.data(1))
+
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed),
+            np.array([[-1.0, -1.0], [1.0, -1.0]]),
+        )
+        np.testing.assert_array_almost_equal(
+            unp.std_devs(processed),
+            np.array([[0.15811388300841894, 0.1], [0.15811388300841894, 0.0]]) / 2.0,
+        )
 
     def test_averaging_and_svd(self):
         """Test averaging followed by a SVD."""
@@ -425,23 +473,40 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
         self.assertTrue(processor.is_trained)
 
         # Test the excited state
-        processed, error = processor(self.data.data(0))
-        self.assertTrue(np.allclose(processed, self._sig_es))
+        processed = processor(self.data.data(0))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed),
+            self._sig_es,
+        )
 
         # Test the ground state
-        processed, error = processor(self.data.data(1))
-        self.assertTrue(np.allclose(processed, self._sig_gs))
+        processed = processor(self.data.data(1))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed),
+            self._sig_gs,
+        )
 
         # Test the x90p rotation
-        processed, error = processor(self.data.data(2))
-        self.assertTrue(np.allclose(processed, self._sig_x90))
-        self.assertTrue(np.allclose(error, np.array([0.25, 0.25])))
+        processed = processor(self.data.data(2))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed),
+            self._sig_x90,
+        )
+        np.testing.assert_array_almost_equal(
+            unp.std_devs(processed),
+            np.array([0.25, 0.25]),
+        )
 
         # Test the x45p rotation
-        processed, error = processor(self.data.data(3))
-        expected_std = np.array([np.std([1, 1, 1, -1]) / np.sqrt(4.0) / 2] * 2)
-        self.assertTrue(np.allclose(processed, self._sig_x45))
-        self.assertTrue(np.allclose(error, expected_std))
+        processed = processor(self.data.data(3))
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed),
+            self._sig_x45,
+        )
+        np.testing.assert_array_almost_equal(
+            unp.std_devs(processed),
+            np.array([np.std([1, 1, 1, -1]) / np.sqrt(4.0) / 2] * 2),
+        )
 
     def test_process_all_data(self):
         """Test that we can process all data at once."""
@@ -463,13 +528,19 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
         )
 
         # Test processing of all data
-        processed = processor(self.data.data())[0]
-        self.assertTrue(np.allclose(processed, all_expected))
+        processed = processor(self.data.data())
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed),
+            all_expected,
+        )
 
         # Test processing of each datum individually
         for idx, expected in enumerate([self._sig_es, self._sig_gs, self._sig_x90, self._sig_x45]):
-            processed = processor(self.data.data(idx))[0]
-            self.assertTrue(np.allclose(processed, expected))
+            processed = processor(self.data.data(idx))
+            np.testing.assert_array_almost_equal(
+                unp.nominal_values(processed),
+                expected,
+            )
 
     def test_normalize(self):
         """Test that by adding a normalization node we get a signal between 1 and 1."""
@@ -480,11 +551,12 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
         processor.train([self.data.data(idx) for idx in [0, 1]])
         self.assertTrue(processor.is_trained)
 
-        all_expected = np.array([[0.0, 1.0], [1.0, 0.0], [0.5, 0.5], [0.75, 0.25]])
-
         # Test processing of all data
-        processed = processor(self.data.data())[0]
-        self.assertTrue(np.allclose(processed, all_expected))
+        processed = processor(self.data.data())
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed),
+            np.array([[0.0, 1.0], [1.0, 0.0], [0.5, 0.5], [0.75, 0.25]]),
+        )
 
 
 class TestAvgDataAndSVD(BaseDataProcessorTest):
@@ -559,8 +631,9 @@ class TestAvgDataAndSVD(BaseDataProcessorTest):
         processor.train([self.data.data(idx) for idx in [0, 1]])
         self.assertTrue(processor.is_trained)
 
-        all_expected = np.array([[0.0, 1.0], [1.0, 0.0], [0.5, 0.5], [0.75, 0.25]])
-
         # Test processing of all data
-        processed = processor(self.data.data())[0]
-        self.assertTrue(np.allclose(processed, all_expected))
+        processed = processor(self.data.data())
+        np.testing.assert_array_almost_equal(
+            unp.nominal_values(processed),
+            np.array([[0.0, 1.0], [1.0, 0.0], [0.5, 0.5], [0.75, 0.25]]),
+        )

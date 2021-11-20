@@ -236,32 +236,6 @@ class TestSVD(BaseDataProcessorTest):
             np.array([[np.sqrt((0.2 * cos_) ** 2 + (0.3 * sin_) ** 2)]]),
         )
 
-    def test_train_svd_processor(self):
-        """Test that we can train a DataProcessor with an SVD."""
-
-        processor = DataProcessor("memory", [SVD()])
-
-        self.assertFalse(processor.is_trained)
-
-        iq_data = [[[0.0, 0.0], [0.0, 0.0]], [[1.0, 1.0], [-1.0, 1.0]], [[-1.0, -1.0], [1.0, -1.0]]]
-        self.create_experiment(iq_data)
-
-        processor.train(self.iq_experiment.data())
-
-        self.assertTrue(processor.is_trained)
-
-        # This is n_circuit = 1, n_slot = 2, the input shape should be [1, 2, 2]
-        # Then the output shape will be [1, 2] by reducing the last dimension
-        # Via processor the first dim is also reduced when data len = 1.
-        # Thus output shape will be [2]
-
-        # Check that we can use the SVD
-        iq_data = [[[2, 2], [2, -2]]]
-        self.create_experiment(iq_data)
-
-        processed, _ = processor(self.iq_experiment.data(0))
-        np.testing.assert_array_almost_equal(processed, np.array([-2, -2]) / np.sqrt(2))
-
 
 class TestProbability(QiskitTestCase):
     """Test probability computation."""

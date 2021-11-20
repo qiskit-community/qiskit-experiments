@@ -93,7 +93,7 @@ class DataProcessor:
 
         return True
 
-    def __call__(self, data: Union[Dict, List[Dict]], **options) -> Tuple[np.ndarray, np.ndarray]:
+    def __call__(self, data: Union[Dict, List[Dict]], **options) -> np.ndarray:
         """
         Call self on the given datum. This method sequentially calls the stored data actions
         on the datum.
@@ -105,28 +105,14 @@ class DataProcessor:
             options: Run-time options given as keyword arguments that will be passed to the nodes.
 
         Returns:
-            processed data: The data processed by the data processor.
+            The data processed by the data processor. This is arbitrary numpy array that
+            may contain standard error as ufloat object.
         """
-        # Convert into conventional data format, This is temporary code block.
-        # Once following steps support ufloat array, data will be returned as-is.
-        # TODO need upgrade of following steps, i.e. curve fitter
-        processed_data = self._call_internal(data, **options)
-
-        try:
-            nominals = unp.nominal_values(processed_data)
-            stdevs = unp.std_devs(processed_data)
-            if np.isnan(stdevs).all():
-                stdevs = None
-        except TypeError:
-            # unprocessed data, can be count dict array.
-            nominals = processed_data
-            stdevs = None
-
-        return nominals, stdevs
+        return self._call_internal(data, **options)
 
     def call_with_history(
         self, data: Union[Dict, List[Dict]], history_nodes: Set = None
-    ) -> Tuple[np.ndarray, np.ndarray, List]:
+    ) -> Tuple[np.ndarray, List]:
         """
         Call self on the given datum. This method sequentially calls the stored data actions
         on the datum and also returns the history of the processed data.
@@ -143,21 +129,7 @@ class DataProcessor:
             A tuple of (processed data, history), that are the data processed by the processor
             and its intermediate state in each specified node, respectively.
         """
-        # Convert into conventional data format, This is temporary code block.
-        # Once following steps support ufloat array, data will be returned as-is.
-        # TODO need upgrade of following steps, i.e. curve fitter
-        processed_data, history = self._call_internal(data, True, history_nodes)
-        try:
-            nominals = unp.nominal_values(processed_data)
-            stdevs = unp.std_devs(processed_data)
-            if np.isnan(stdevs).all():
-                stdevs = None
-        except TypeError:
-            # unprocessed data, can be count dict array.
-            nominals = processed_data
-            stdevs = None
-
-        return nominals, stdevs, history
+        return self._call_internal(data, True, history_nodes)
 
     def _call_internal(
         self,
@@ -194,31 +166,28 @@ class DataProcessor:
             data = node(data)
 
             if with_history and (history_nodes is None or index in history_nodes):
-                try:
-                    nominals = unp.nominal_values(data)
-                    stdevs = unp.std_devs(data)
-                    if np.isnan(stdevs).all():
-                        stdevs = None
-                except TypeError:
-                    nominals = data
-                    stdevs = None
+                if data.shape[0] == 1:
+                    cache_data = data[0]
+                else:
+                    cache_data = data
                 history.append(
                     (
                         node.__class__.__name__,
-                        nominals,
-                        stdevs,
+                        cache_data,
                         index,
                     )
                 )
 
         # Return only first entry if len(data) == 1, e.g. [[0, 1]] -> [0, 1]
         if data.shape[0] == 1:
-            data = data[0]
+            out_data = data[0]
+        else:
+            out_data = data
 
         if with_history:
-            return data, history
+            return out_data, history
         else:
-            return data
+            return out_data
 
     def train(self, data: Union[Dict, List[Dict]]):
         """Train the nodes of the data processor.
