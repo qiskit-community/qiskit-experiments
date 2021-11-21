@@ -24,6 +24,7 @@ import traceback
 import contextlib
 from collections import deque
 from datetime import datetime
+import numpy as np
 
 from matplotlib import pyplot
 from qiskit.providers import Job, BaseJob, Backend, BaseBackend, Provider
@@ -1218,7 +1219,7 @@ class DbExperimentDataV1(DbExperimentData):
             raise DbExperimentDataError(
                 f"The `tags` field of {type(self).__name__} must be a list."
             )
-        self._tags = new_tags
+        self._tags = np.unique(new_tags).tolist()
         if self.auto_save:
             self.save_metadata()
 
@@ -1297,7 +1298,7 @@ class DbExperimentDataV1(DbExperimentData):
 
     @property
     def share_level(self) -> str:
-        """Return the share level fo this experiment.
+        """Return the share level for this experiment
 
         Returns:
             Experiment share level.
@@ -1306,7 +1307,8 @@ class DbExperimentDataV1(DbExperimentData):
 
     @share_level.setter
     def share_level(self, new_level: str) -> None:
-        """Set the experiment share level.
+        """Set the experiment share level,
+           only to this experiment and not to its descendants.
 
         Args:
             new_level: New experiment share level. Valid share levels are provider-
@@ -1348,7 +1350,7 @@ class DbExperimentDataV1(DbExperimentData):
 
     @service.setter
     def service(self, service: DatabaseServiceV1) -> None:
-        """Set the service to be used for storing experiment data.
+        """Set the service to be used for storing experiment data
 
         Args:
             service: Service to be used.
@@ -1359,7 +1361,8 @@ class DbExperimentDataV1(DbExperimentData):
         self._set_service(service)
 
     def _set_service(self, service: DatabaseServiceV1) -> None:
-        """Set the service to be used for storing experiment data.
+        """Set the service to be used for storing experiment data,
+           to this experiment only and not to its descendants
 
         Args:
             service: Service to be used.
