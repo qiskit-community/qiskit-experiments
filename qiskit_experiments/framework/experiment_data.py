@@ -183,7 +183,8 @@ class ExperimentData(DbExperimentData):
             self.add_child_data(data)
 
     def _set_service(self, service: DatabaseService) -> None:
-        """Set the service to be used for storing experiment data.
+        """Set the service to be used for storing experiment data,
+           to this experiment itself and its descendants.
 
         Args:
             service: Service to be used.
@@ -197,7 +198,8 @@ class ExperimentData(DbExperimentData):
 
     @DbExperimentData.share_level.setter
     def share_level(self, new_level: str) -> None:
-        """Set the experiment share level.
+        """Set the experiment share level,
+           to this experiment itself and its descendants.
 
         Args:
             new_level: New experiment share level. Valid share levels are provider-
@@ -226,6 +228,26 @@ class ExperimentData(DbExperimentData):
         for subdata in self._child_data.values():
             _, timeout = combined_timeout(subdata.block_for_results, timeout)
         return self
+
+    def add_tags_recursive(self, tags2add: List[str]) -> None:
+        """Add tags to this experiment itself and its descendants
+
+        Args:
+            tags2add - the tags that will be added to the existing tags
+        """
+        self.tags += tags2add
+        for data in self._child_data.values():
+            data.add_tags_recursive(tags2add)
+
+    def remove_tags_recursive(self, tags2remove: List[str]) -> None:
+        """Remove tags from this experiment itself and its descendants
+
+        Args:
+            tags2remove - the tags that will be removed from the existing tags
+        """
+        self.tags = [x for x in self.tags if x not in tags2remove]
+        for data in self._child_data.values():
+            data.remove_tags_recursive(tags2remove)
 
     def __repr__(self):
         out = (
