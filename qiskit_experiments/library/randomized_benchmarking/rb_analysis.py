@@ -18,6 +18,7 @@ from typing import List, Union
 import numpy as np
 
 import qiskit_experiments.curve_analysis as curve
+from qiskit_experiments.curve_analysis.standard_analysis.decay import DecayAnalysis
 from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data, data_sort
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework import AnalysisResultData, FitVal
@@ -110,26 +111,28 @@ class RBAnalysis(curve.CurveAnalysis):
             b=(0, 1),
         )
 
-        return self._initial_guess(user_opt, curve_data.x, curve_data.y, self._num_qubits)
+        return self._initial_guess(user_opt, curve_data.x, curve_data.y)
 
     @staticmethod
     def _initial_guess(
-        opt: curve.FitOptions, x_values: np.ndarray, y_values: np.ndarray, num_qubits: int
+        opt: curve.FitOptions, x_values: np.ndarray, y_values: np.ndarray
     ) -> curve.FitOptions:
-        """Create initial guess with experiment data."""
-        opt.p0.set_if_empty(b=1 / 2 ** num_qubits)
 
-        # Use the first two points to guess the decay param
-        dcliff = x_values[1] - x_values[0]
-        dy = (y_values[1] - opt.p0["b"]) / (y_values[0] - opt.p0["b"])
-        alpha_guess = dy ** (1 / dcliff)
+        decayopt = curve.FitOptions(["amp", "tau", "base"])
+        decayopt.p0["amp"] = opt.p0.get("a", None)
+        decayopt.p0["base"] = opt.p0.get("b", None)
 
-        opt.p0.set_if_empty(alpha=alpha_guess if alpha_guess < 1.0 else 0.99)
-
-        if y_values[0] > opt.p0["b"]:
-            opt.p0.set_if_empty(a=(y_values[0] - opt.p0["b"]) / (opt.p0["alpha"] ** x_values[0]))
+        alpha = opt.p0.get("alpha", None)
+        if alpha is None:
+            decayopt.p0["tau"] = None
         else:
-            opt.p0.set_if_empty(a=0.95)
+            decayopt.p0["tau"] = -1 / np.log(alpha)
+
+        decayopt = DecayAnalysis._initial_guess(decayopt, x_values, y_values)
+
+        opt.p0["a"] = decayopt.p0["amp"]
+        opt.p0["alpha"] = np.exp(-1 / decayopt.p0["tau"])
+        opt.p0["b"] = decayopt.p0["base"]
 
         return opt
 

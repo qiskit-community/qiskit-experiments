@@ -145,14 +145,14 @@ class InterleavedRBAnalysis(RBAnalysis):
         # for standard RB curve
         std_curve = self._data(series_name="Standard")
         opt_std = user_opt.copy()
-        opt_std = self._initial_guess(opt_std, std_curve.x, std_curve.y, self._num_qubits)
+        opt_std = self._initial_guess(opt_std, std_curve.x, std_curve.y)
 
         # for interleaved RB curve
         int_curve = self._data(series_name="Interleaved")
         opt_int = user_opt.copy()
         if opt_int.p0["alpha_c"] is not None:
             opt_int.p0["alpha"] = opt_std.p0["alpha"] * opt_int.p0["alpha_c"]
-        opt_int = self._initial_guess(opt_int, int_curve.x, int_curve.y, self._num_qubits)
+        opt_int = self._initial_guess(opt_int, int_curve.x, int_curve.y)
 
         user_opt.p0.set_if_empty(
             a=np.mean([opt_std.p0["a"], opt_int.p0["a"]]),
