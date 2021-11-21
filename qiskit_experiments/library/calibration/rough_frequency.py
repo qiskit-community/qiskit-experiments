@@ -42,7 +42,7 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
             qubit: The qubit on which to run spectroscopy.
             calibrations: If calibrations is given then running the experiment may update the values
                 of the frequencies stored in calibrations.
-            frequencies: The frequencies to scan in the experiment, in Hz
+            frequencies: The frequencies to scan in the experiment, in Hz.
             backend: Optional, the backend to run the experiment on.
             auto_update: If set to True, which is the default, then the experiment will
                 automatically update the frequency in the calibrations.
