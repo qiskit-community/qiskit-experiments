@@ -19,6 +19,7 @@ from qiskit.utils import apply_prefix
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.library.characterization.t2hahn import T2Hahn
 from qiskit_experiments.test.t2hahn_backend import T2HahnBackend
+import unittest
 
 
 class TestT2Hahn(QiskitTestCase):
@@ -123,3 +124,6 @@ class TestT2Hahn(QiskitTestCase):
 
         self.assertLessEqual(res_t2_1[0].value.stderr, res_t2_0[0].value.stderr)
         self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))
+
+if __name__ == '__main__':
+    unittest.main()

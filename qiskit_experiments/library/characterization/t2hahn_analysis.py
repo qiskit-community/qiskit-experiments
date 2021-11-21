@@ -10,44 +10,31 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-T2Ramsey Experiment class.
+T2 Hahn echo Analysis class.
 """
 from typing import Union, List
 
-from qiskit_experiments.data_processing import DataProcessor, Probability
 import qiskit_experiments.curve_analysis as curve
-
 
 from qiskit_experiments.framework import Options
 
 
-class T2HahnAnalysis(curve):
-    """T2 Ramsey result analysis class.
+class T2HahnAnalysis(curve.DecayAnalysis):
+    r"""A class to analyze T1 experiments.
 
     # section: see_also
-        qiskit_experiments.curve_analysis.standard_analysis.oscillation.DumpedOscillationAnalysis
+        qiskit_experiments.curve_analysis.standard_analysis.decay.DecayAnalysis
 
     """
-    __series__ = [
-        curve.SeriesDef(
-            fit_func=lambda x, amp, base, tau:
-            curve.exponential_decay(x, amp=amp, lamb=tau, baseline=base),
-        ),
-    ]
 
     @classmethod
     def _default_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_options()
-        options.data_processor = DataProcessor(
-            input_key="counts", data_actions=[Probability(outcome="0")]
-        )
         options.xlabel = "Delay"
-        options.ylabel = "P(0)"
+        options.ylabel = "P(1)"
         options.xval_unit = "s"
-        options.result_parameters = [
-            curve.ParameterRepr("tau", "T2", "s"),
-        ]
+        options.result_parameters = [curve.ParameterRepr("tau", "T2", "s")]
 
         return options
 
@@ -67,19 +54,23 @@ class T2HahnAnalysis(curve):
 
         A good fit has:
             - a reduced chi-squared lower than three
-            - relative error of amp is less than 10 percent
-            - relative error of tau is less than 10 percent
-            - relative error of freq is less than 10 percent
+            - absolute amp is within [0.9, 1.1]
+            - base is less than 0.1
+            - amp error is less than 0.1
+            - tau error is less than its value
+            - base error is less than 0.1
         """
         amp = fit_data.fitval("amp")
         tau = fit_data.fitval("tau")
-        freq = fit_data.fitval("freq")
+        base = fit_data.fitval("base")
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            amp.stderr is None or amp.stderr < 0.1 * amp.value,
-            tau.stderr is None or tau.stderr < 0.1 * tau.value,
-            freq.stderr is None or freq.stderr < 0.1 * freq.value,
+            abs(amp.value - 1.0) < 0.1,
+            abs(base.value) < 0.1,
+            amp.stderr is None or amp.stderr < 0.1,
+            tau.stderr is None or tau.stderr < tau.value,
+            base.stderr is None or base.stderr < 0.1,
         ]
 
         if all(criteria):
