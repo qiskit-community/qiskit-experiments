@@ -40,7 +40,7 @@ class CompositeAnalysis(BaseAnalysis):
         composite :class:`ExperimentData`.
 
         When calling :meth:`run` on experiment data already containing
-        initalized component experiment child data, any previously stored
+        initialized component experiment child data, any previously stored
         circuit data will be cleared and replaced with the marginalized data
         reconstructed from the parent composite experiment data.
     """
