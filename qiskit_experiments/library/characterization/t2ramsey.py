@@ -142,6 +142,8 @@ class T2Ramsey(BaseExperiment):
         Raises:
             ValueError: When conversion factor is not set.
         """
+        if self.backend:
+            self._set_backend(self.backend)
         prefactor = self.experiment_options.conversion_factor
 
         if prefactor is None:
