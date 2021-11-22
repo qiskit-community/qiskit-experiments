@@ -14,21 +14,21 @@ T2Hahn Echo Experiment class.
 
 """
 
-from typing import Union, Iterable, List, Optional
+from typing import List, Optional, Union
 import numpy as np
 
-from qiskit import QuantumCircuit, QiskitError
 from qiskit.utils import apply_prefix
+from qiskit import QuantumCircuit, QiskitError
 from qiskit.providers.backend import Backend
 from qiskit.test.mock import FakeBackend
-from qiskit.providers.options import Options
-from qiskit.providers import Backend
-from qiskit_experiments.framework import BaseExperiment
-from .t2hahn_analysis import T2HahnAnalysis
+
+from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.library.characterization.analysis.t2hahn_analysis import T2HahnAnalysis
 
 
 class T2Hahn(BaseExperiment):
     r"""T2 Hahn Echo Experiment.
+
 
         # section: overview
 
@@ -40,7 +40,9 @@ class T2Hahn(BaseExperiment):
 
             This experiment consists of a series of circuits of the form
 
+
             .. parsed-literal::
+
 
                  ┌─────────┐┌──────────┐┌───────┐┌──────────┐┌─────────┐┌─┐
             q_0: ┤ Rx(π/2) ├┤ DELAY(t) ├┤ RX(π) ├┤ DELAY(t) ├┤ RX(π/2) ├┤M├
@@ -76,17 +78,19 @@ class T2Hahn(BaseExperiment):
         return options
 
     def __init__(
-        self,
-        qubit: Union[int, Iterable[int]],
-        delays: Union[List[float], np.array],
-        backend: Optional[Backend] = None,
-        unit: str = "s",
+            self,
+            qubit: int,
+            delays: Union[List[float], np.array],
+            backend: Optional[Backend] = None,
+            unit: str = "s",
     ):
         """
         Initialize the T2 - Hahn Echo class
+
         Args:
-            qubit: the qubit under test.
+            qubit:  the qubit whose T2 is to be estimated
             delays: delay times of the experiments.
+			backend: Optional, the backend to run the experiment on.
             unit: Optional, time unit of `delays`.
                 Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'.
 
@@ -95,7 +99,8 @@ class T2Hahn(BaseExperiment):
         """
         # Initialize base experiment
         super().__init__([qubit], backend=backend)
-        # Set configurable options
+
+        # Set experiment options
         self.set_experiment_options(delays=delays, unit=unit)
         self._verify_parameters()
 
@@ -140,23 +145,25 @@ class T2Hahn(BaseExperiment):
 
     def circuits(self) -> List[QuantumCircuit]:
         """
-        Args:
-            backend: Optional, a backend object.
+        Return a list of experiment circuits
 
         Returns:
-            The experiment circuits.
+            The experiment circuits
 
         Raises:
             AttributeError: if unit is 'dt', but 'dt' parameter is missing in the backend configuration
         """
-
+        if self.backend:
+            self._set_backend(self.backend)
         prefactor = self.experiment_options.conversion_factor
+
         if prefactor is None:
             raise ValueError("Conversion factor is not set.")
 
         circuits = []
         for delay in prefactor * np.asarray(self.experiment_options.delays, dtype=float):
             delay = np.round(delay, decimals=10)
+
             circ = QuantumCircuit(1, 1)
 
             # First Y rotation in 90 degrees
@@ -170,8 +177,9 @@ class T2Hahn(BaseExperiment):
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
                 "xval": delay,
-                "unit": self.experiment_options.unit,
+                "unit": "s",
             }
+
             circuits.append(circ)
 
         return circuits

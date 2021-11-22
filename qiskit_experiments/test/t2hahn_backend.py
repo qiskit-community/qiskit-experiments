@@ -87,6 +87,17 @@ class T2HahnBackend(BackendV1):
             }
 
     def _delay_gate(self, qubit_state: dict, delay: float, t2hahn: float) -> dict:
+        """
+        Apply delay gate to the qubit. From the delay time we can calculate the probability
+        that an error has accrued.
+        Args:
+            qubit_state(dict): The state of the qubit before operating the gate.
+            delay(float): The time in which there are no operation on the qubit.
+            t2hahn(float): The T2 parameter of the backhand for probability calculation.
+
+        Returns:
+            dict: The state of the qubit after operating the gate.
+        """
         if qubit_state["XY plain"]:
             prob_noise = 1 - (np.exp(-delay / t2hahn))
             if self._rng.random() < prob_noise:
@@ -104,44 +115,66 @@ class T2HahnBackend(BackendV1):
                     }
             else:
                 phase = self._frequency[0] * delay
+                new_theta = qubit_state["Theta"] + phase
+                new_theta = new_theta % (2 * np.pi)
                 new_qubit_state = {
                     "XY plain": True,
                     "ZX plain": False,
-                    "Theta": qubit_state["Theta"] + phase,
+                    "Theta": new_theta
                 }
         else:
-            raise QiskitError(
-                f"Currently delay operator support only for the qubit is in XY plain "
-                "while in this instance it's not."
-            )
             new_qubit_state = qubit_state
+        # new_qubit_state = qubit_state
         return new_qubit_state
 
     def _rx_gate(self, qubit_state: dict, angle: float) -> dict:
+        """
+        Apply Rx gate.
+        Args:
+            qubit_state(dict): The state of the qubit before operating the gate.
+            angle(float): The angle of the rotation.
+
+        Returns:
+                dict: The state of the qubit after operating the gate.
+        """
         if qubit_state["XY plain"]:
             if isclose(angle, np.pi):
-                new_qubit_state = {
-                    "XY plain": True,
-                    "ZX plain": False,
-                    "Theta": np.pi - qubit_state["Theta"],
-                }
-            elif isclose(angle, np.pi/2):
-                new_qubit_state = {
-                    "XY plain": False,
-                    "ZX plain": True,
-                    "Theta": np.pi - qubit_state["Theta"],
-                }
-        else:
-            if isclose(angle, np.pi/2):
-                new_theta = qubit_state["Theta"] + 3 * np.pi/2  # its theta -pi/2 but we added 2*pi
-                new_theta = new_theta % np.pi
+                new_theta = - qubit_state["Theta"]
+                new_theta = new_theta % (2 * np.pi)
                 new_qubit_state = {
                     "XY plain": True,
                     "ZX plain": False,
                     "Theta": new_theta,
                 }
+            elif isclose(angle, np.pi/2):
+                new_theta = angle - qubit_state["Theta"]
+                new_theta = new_theta % (2 * np.pi)
+                new_qubit_state = {
+                    "XY plain": False,
+                    "ZX plain": True,
+                    "Theta": new_theta,
+                }
             else:
-                new_qubit_state =
+                print("Error - This angle isn't supported. We only support multipication of pi/2")
+        else:
+            if isclose(angle, np.pi/2):
+                new_theta = qubit_state["Theta"] + 3 * np.pi/2  # its theta -pi/2 but we added 2*pi
+                new_theta = new_theta % (2 * np.pi)
+                new_qubit_state = {
+                    "XY plain": True,
+                    "ZX plain": False,
+                    "Theta": new_theta,
+                }
+            elif isclose(angle, np.pi):
+                new_theta = qubit_state["Theta"] + np.pi
+                new_theta = new_theta % (2 * np.pi)
+                new_qubit_state = {
+                    "XY plain": False,
+                    "ZX plain": True,
+                    "Theta": new_theta,
+                }
+            else:
+                print("Error - This angle isn't supported. We only support multiplication of pi/2")
         return new_qubit_state
 
 
@@ -195,7 +228,7 @@ class T2HahnBackend(BackendV1):
             counts = dict()
 
             for _ in range(shots):
-                qubit_state = self._qubit_initialization()
+                qubit_state = self._qubit_initialization()  # for parrallel need to make an array
                 clbits = np.zeros(circ.num_clbits, dtype=int)
                 for op, qargs, cargs in circ.data:
                     qubit = qubit_indices[qargs[0]]

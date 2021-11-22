@@ -15,12 +15,13 @@ T2 Hahn echo Analysis class.
 from typing import Union, List
 
 import qiskit_experiments.curve_analysis as curve
+from qiskit_experiments.data_processing import DataProcessor, Probability
 
 from qiskit_experiments.framework import Options
 
 
 class T2HahnAnalysis(curve.DecayAnalysis):
-    r"""A class to analyze T1 experiments.
+    r"""A class to analyze T2Hahn experiments.
 
     # section: see_also
         qiskit_experiments.curve_analysis.standard_analysis.decay.DecayAnalysis
@@ -31,8 +32,11 @@ class T2HahnAnalysis(curve.DecayAnalysis):
     def _default_options(cls) -> Options:
         """Default analysis options."""
         options = super()._default_options()
+        options.data_processor = DataProcessor(
+            input_key="counts", data_actions=[Probability(outcome="0")]
+        )
         options.xlabel = "Delay"
-        options.ylabel = "P(1)"
+        options.ylabel = "P(0)"
         options.xval_unit = "s"
         options.result_parameters = [curve.ParameterRepr("tau", "T2", "s")]
 
@@ -54,8 +58,8 @@ class T2HahnAnalysis(curve.DecayAnalysis):
 
         A good fit has:
             - a reduced chi-squared lower than three
-            - absolute amp is within [0.9, 1.1]
-            - base is less than 0.1
+            - absolute amp is within [0.4, 0.6]
+            - base is less is within [0.4, 0.6]
             - amp error is less than 0.1
             - tau error is less than its value
             - base error is less than 0.1
@@ -66,8 +70,8 @@ class T2HahnAnalysis(curve.DecayAnalysis):
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            abs(amp.value - 1.0) < 0.1,
-            abs(base.value) < 0.1,
+            abs(amp.value - 0.5) < 0.1,
+            abs(base.value - 0.5) < 0.1,
             amp.stderr is None or amp.stderr < 0.1,
             tau.stderr is None or tau.stderr < tau.value,
             base.stderr is None or base.stderr < 0.1,
