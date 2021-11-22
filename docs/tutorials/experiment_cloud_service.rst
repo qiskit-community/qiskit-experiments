@@ -11,11 +11,8 @@ which is open and available to everyone.
 
 .. jupyter-execute:: 
 
-    from qiskit import IBMQ
-    
-    IBMQ.load_account()
-    provider = IBMQ.get_provider(hub="ibm-q", group="open", project="main")
-    backend = provider.get_backend("ibmq_armonk")
+    from qiskit.test.ibmq_mock import mock_get_backend
+    backend = mock_get_backend('FakeVigo')
 
 :math:`T_1` Experiment
 ----------------------
