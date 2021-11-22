@@ -209,6 +209,34 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         for sub1, sub2 in zip(data1.child_data(), data2.child_data()):
             self.assertNotEqual(sub1.experiment_id, sub2.experiment_id)
 
+    def test_composite_tags(self):
+        """
+        Test the tags setter, add_tags_recursive, remove_tags_recursive
+        """
+        exp1 = FakeExperiment([0, 2])
+        exp2 = FakeExperiment([1, 3])
+        par_exp = BatchExperiment([exp1, exp2])
+        expdata = par_exp.run(FakeBackend()).block_for_results()
+        data1 = expdata.child_data(0)
+        data2 = expdata.child_data(1)
+
+        expdata.tags = ["a", "c", "a"]
+        data1.tags = ["b"]
+        print(expdata.tags)
+        self.assertEqual(sorted(expdata.tags), ["a", "c"])
+        self.assertEqual(sorted(data1.tags), ["b"])
+        self.assertEqual(sorted(data2.tags), [])
+
+        expdata.add_tags_recursive(["d", "c"])
+        self.assertEqual(sorted(expdata.tags), ["a", "c", "d"])
+        self.assertEqual(sorted(data1.tags), ["b", "c", "d"])
+        self.assertEqual(sorted(data2.tags), ["c", "d"])
+
+        expdata.remove_tags_recursive(["a", "b"])
+        self.assertEqual(sorted(expdata.tags), ["c", "d"])
+        self.assertEqual(sorted(data1.tags), ["c", "d"])
+        self.assertEqual(sorted(data2.tags), ["c", "d"])
+
     def test_composite_subexp_data(self):
         """
         Verify that sub-experiment data of parallel and batch
