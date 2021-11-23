@@ -15,15 +15,16 @@
 from collections import defaultdict
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 import copy
-from warnings import warn
+import importlib
+import inspect
 
 from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Parameter
 from qiskit.pulse import InstructionScheduleMap, ScheduleBlock
 
-from qiskit_experiments.framework.json import _serialize_type
+from qiskit_experiments.framework.json import _serialize_object, _deserialize_object
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.calibrations import (
     Calibrations,
@@ -31,10 +32,7 @@ from qiskit_experiments.calibration_management.calibrations import (
     ParameterValueType,
 )
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.calibration_management.basis_gate_library import (
-    BasisGateLibrary,
-    deserialize_library,
-)
+from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 
 
 class FrequencyElement(Enum):
@@ -415,19 +413,9 @@ class BackendCalibrations(Calibrations):
 
         return self._operated_qubits
 
-    def config(
-        self,
-        save_parameters: bool = True,
-        most_recent_only: bool = True,
-        group: Optional[str] = None,
-    ) -> Dict:
+    @property
+    def settings(self) -> Dict[str, Any]:
         """Serializes the class to a Dictionary.
-
-        Args:
-            save_parameters: If set to True, the default value, then all the values of the
-                calibrations will also be serialized.
-            most_recent_only: return only the most recent parameter values.
-            group: If the group is given then only the parameters from this group are returned.
 
         Returns:
             A dict object that represents the calibrations and can be used to rebuild the
@@ -442,31 +430,29 @@ class BackendCalibrations(Calibrations):
                 "Cannot serialize calibrations that are not constructed from a library."
             )
 
-        serialized_cals = _serialize_type(type(self))
-        serialized_cals["__value__"].update(
-            {
-                "library": self._library.config,
-                "backend_name": self._backend.name(),
-                "backend_version": self._backend.version,
-            }
-        )
+        lib_conf = self._library.config
+        lib_conf["__name__"] = self._library.__class__.__name__
+        lib_conf["__module__"] = self._library.__module__
 
-        if save_parameters:
-            serialized_cals["__value__"]["parameter_values"] = self.parameters_table(
-                most_recent_only=most_recent_only,
-                group=group,
+        _settings = {
+                "library": lib_conf,
+                "backend": _serialize_object(self._backend),
+            }
+
+        if self.save_parameters:
+            _settings["parameter_values"] = self.parameters_table(
+                most_recent_only=self.save_most_recent_only,
+                group=self.save_group,
             )["data"]
 
-        return serialized_cals
+        return _settings
 
-    # pylint: disable=arguments-differ
     @classmethod
-    def from_config(cls, config: Dict, backend: Backend) -> "BackendCalibrations":
+    def __json_decode__(cls, settings: Dict[str, Any]) -> "BackendCalibrations":
         """Deserialize from a dictionary.
 
         Args:
-            config: The dictionary from which to create the calibrations instance.
-            backend: The backend instance from which to construct the calibrations.
+            settings:
 
         Returns:
             An instance of Calibrations.
@@ -476,28 +462,26 @@ class BackendCalibrations(Calibrations):
         """
 
         # Deserialize the library.
-        library = deserialize_library(config["__value__"].pop("library"))
+        class_name = settings["library"]["__name__"]
+        mod_name = settings["library"]["__module__"]
+        mod = importlib.import_module(mod_name)
+        for name, lib_cls in inspect.getmembers(mod, inspect.isclass):
+            if name == class_name:
+                library = lib_cls.from_config(settings["library"])
+                break
+        else:
+            raise Exception(f"Unable to find library {class_name} in module {mod_name}.")
 
-        expected_backend = config["__value__"]["backend_name"]
-        expected_version = config["__value__"]["backend_version"]
-        if backend.name() != expected_backend:
-            raise CalibrationError(
-                f"Wrong backend in deserialization: {backend.name} != {expected_backend}."
-            )
+        params = settings.get("parameter_values", [])
 
-        if backend.version != expected_version:
-            warn(
-                f"Deserialization Backend version mismatch {backend.version} != {expected_version}."
-            )
-
-        params = config["__value__"].get("parameter_values", [])
+        backend = _deserialize_object(settings["backend"])
 
         cals = BackendCalibrations(
             backend=backend, library=library, add_parameter_defaults=len(params) == 0
         )
 
         # Add the parameter values if any
-        params = config["__value__"].get("parameter_values", [])
+        params = settings.get("parameter_values", [])
         for param_conf in params:
             cals.add_parameter_value_from_conf(**param_conf)
 

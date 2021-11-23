@@ -61,6 +61,9 @@ class Calibrations:
         control_config: Dict[Tuple[int, ...], List[ControlChannel]] = None,
         library: BasisGateLibrary = None,
         add_parameter_defaults: bool = True,
+        save_parameters: bool = True,
+        save_most_recent_only: bool = True,
+        save_group: Optional[str] = None,
     ):
         """Initialize the calibrations.
 
@@ -85,7 +88,16 @@ class Calibrations:
             add_parameter_defaults: A boolean to indicate weather the default parameter values of
                 the given library should be used to populate the calibrations. By default this
                 value is True but can be set to false when deserializing a calibrations object.
+            save_parameters: If set to True, the default value, then all the values of the
+                calibrations will also be serialized.
+            save_most_recent_only: return only the most recent parameter values.
+            save_ group: If the group is given then only the parameters from this group are returned.
         """
+
+        # These variables control how the class will be serialized
+        self.save_parameters = save_parameters
+        self.save_most_recent_only = save_most_recent_only
+        self.save_group = save_group
 
         # Mapping between qubits and their control channels.
         self._controls_config = control_config if control_config else {}

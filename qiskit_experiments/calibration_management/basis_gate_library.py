@@ -28,7 +28,6 @@ from qiskit.circuit import Parameter
 import qiskit.pulse as pulse
 from qiskit.pulse import ScheduleBlock
 
-from qiskit_experiments.framework.json import _serialize_type
 from qiskit_experiments.calibration_management.calibration_key_types import ParameterValueType
 from qiskit_experiments.exceptions import CalibrationError
 
@@ -146,7 +145,7 @@ class BasisGateLibrary(ABC, Mapping):
         kwargs.update(self._extra_kwargs)
 
         return {
-            "class": _serialize_type(type(self)),
+            "class": self.__class__.__name__,
             "kwargs": kwargs,
             "hash": self.__hash__(),
         }
