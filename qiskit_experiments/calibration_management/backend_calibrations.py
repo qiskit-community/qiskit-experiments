@@ -33,8 +33,7 @@ from qiskit_experiments.calibration_management.basis_gate_library import BasisGa
 class BackendCalibrations(Calibrations):
     """
     A Calibrations class to enable a seamless interplay with backend objects.
-    This class enables users to export their calibrations into a backend object.
-    Additionally, it creates frequency parameters for qubits and readout resonators.
+    This class creates frequency parameters for qubits and readout resonators.
     The parameters are named `qubit_lo_freq` and `meas_lo_freq` to be consistent
     with the naming in backend.defaults(). These two parameters are not attached to
     any schedule.
@@ -73,14 +72,27 @@ class BackendCalibrations(Calibrations):
                 is provided.
             num_qubits: The number of qubits of the system. This parameter is only needed if the
                 backend is not given.
+
+        Raises:
+            CalibrationError: if backend is None and any of control_config, coupling_map, num_qubits
+                are None.
         """
+        if backend is None:
+            if any([var is None for var in [control_config, coupling_map, num_qubits]]):
+                raise CalibrationError(
+                    "If backend is None then all of control_config, "
+                    "coupling_map, and num_qubits must be given."
+                )
+
         self._update_inst_map = False
 
-        self._qubits = list(range(getattr(backend.configuration(), "num_qubits", num_qubits)))
-        self._coupling_map = getattr(backend.configuration(), "coupling_map", coupling_map)
+        config = backend.configuration() if backend is not None else {}
+
+        self._qubits = list(range(getattr(config, "num_qubits", num_qubits)))
+        self._coupling_map = getattr(config, "coupling_map", coupling_map)
 
         super().__init__(
-            getattr(backend.configuration(), "control_channels", control_config),
+            getattr(config, "control_channels", control_config),
             library,
             add_parameter_defaults,
         )

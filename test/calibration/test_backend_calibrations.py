@@ -20,6 +20,7 @@ from qiskit.circuit import Parameter, Gate
 import qiskit.pulse as pulse
 from qiskit.test.mock import FakeArmonk, FakeBelem
 
+from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management import BackendCalibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 
@@ -232,3 +233,25 @@ class TestBackendCalibrations(QiskitExperimentsTestCase):
         self.assertTrue(cals.default_inst_map.has("cz", (1, 2)))
         self.assertFalse(cals.default_inst_map.has("cz", (0, 1)))
         self.assertFalse(cals.default_inst_map.has("cz", (1, 0)))
+
+    def test_alternate_initialization(self):
+        """Test that we can initialize without a backend object."""
+
+        backend = FakeBelem()
+        library = FixedFrequencyTransmon(basis_gates=["sx", "x"])
+
+        cals1 = BackendCalibrations(backend, library)
+        cals2 = BackendCalibrations(
+            library=library,
+            control_config=backend.configuration().control_channels,
+            coupling_map=backend.configuration().coupling_map,
+            num_qubits=backend.configuration().num_qubits,
+        )
+
+        self.assertEqual(str(cals1.get_schedule("x", 1)), str(cals2.get_schedule("x", 1)))
+
+        with self.assertRaises(CalibrationError):
+            BackendCalibrations(
+                coupling_map=backend.configuration().coupling_map,
+                num_qubits=backend.configuration().num_qubits,
+            )
