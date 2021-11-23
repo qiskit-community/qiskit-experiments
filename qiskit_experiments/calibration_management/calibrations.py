@@ -36,6 +36,7 @@ from qiskit.pulse import (
 from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter, ParameterExpression
 from qiskit_experiments.exceptions import CalibrationError
+from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.calibration_key_types import (
     ParameterKey,
@@ -55,13 +56,35 @@ class Calibrations:
     # The channel indices need to be parameterized following this regex.
     __channel_pattern__ = r"^ch\d[\.\d]*\${0,1}[\d]*$"
 
-    def __init__(self, control_config: Dict[Tuple[int, ...], List[ControlChannel]] = None):
+    def __init__(
+        self,
+        control_config: Dict[Tuple[int, ...], List[ControlChannel]] = None,
+        library: BasisGateLibrary = None,
+        add_parameter_defaults: bool = True,
+    ):
         """Initialize the calibrations.
+
+        Calibrations can be initialized from a basis gate library, i.e. a subclass of
+        :class:`BasisGateLibrary`. As example consider the following code:
+
+        .. code-block:: python
+
+            cals = Calibrations(
+                    library=FixedFrequencyTransmon(
+                        basis_gates=["x", "sx"],
+                        default_values={duration: 320}
+                    )
+                )
 
         Args:
             control_config: A configuration dictionary of any control channels. The
                 keys are tuples of qubits and the values are a list of ControlChannels
                 that correspond to the qubits in the keys.
+            library: A library class that will be instantiated with the library options to then
+                get template schedules to register as well as default parameter values.
+            add_parameter_defaults: A boolean to indicate weather the default parameter values of
+                the given library should be used to populate the calibrations. By default this
+                value is True but can be set to false when deserializing a calibrations object.
         """
 
         # Mapping between qubits and their control channels.
@@ -92,6 +115,26 @@ class Calibrations:
         # indices to the user.
         self._hash_to_counter_map = {}
         self._parameter_counter = 0
+
+        self._library = None
+        if library is not None:
+            self._library = library
+
+            # Add the basis gates
+            for gate in library.basis_gates:
+                self.add_schedule(library[gate], num_qubits=library.num_qubits(gate))
+
+            # Add the default values
+            if add_parameter_defaults:
+                for param_conf in library.default_values():
+                    schedule_name = param_conf[-1]
+                    if schedule_name in library.basis_gates:
+                        self.add_parameter_value(*param_conf)
+
+    @property
+    def library(self) -> Optional[BasisGateLibrary]:
+        """Return the name of the library, e.g. for experiment metadata."""
+        return self._library
 
     def add_schedule(
         self,
@@ -887,6 +930,8 @@ class Calibrations:
         parameters: List[str] = None,
         qubit_list: List[Tuple[int, ...]] = None,
         schedules: List[Union[ScheduleBlock, str]] = None,
+        most_recent_only: bool = True,
+        group: Optional[str] = None,
     ) -> Dict[str, Union[List[Dict], List[str]]]:
         """A convenience function to help users visualize the values of their parameter.
 
@@ -896,6 +941,8 @@ class Calibrations:
             qubit_list: The qubits that should be included in the returned table.
                 If None is given then all channels are returned.
             schedules: The schedules to which to restrict the output.
+            most_recent_only: return only the most recent parameter values.
+            group: If the group is given then only the parameters from this group are returned.
 
         Returns:
                 A dictionary with the keys "data" and "columns" that can easily
@@ -905,8 +952,6 @@ class Calibrations:
         """
         if qubit_list:
             qubit_list = [self._to_tuple(qubits) for qubits in qubit_list]
-
-        data = []
 
         # Convert inputs to lists of strings
         if schedules is not None:
@@ -924,14 +969,25 @@ class Calibrations:
 
             keys.add(key)
 
-        for key in keys:
-            for value in self._params[key]:
-                value_dict = dataclasses.asdict(value)
-                value_dict["qubits"] = key.qubits
-                value_dict["parameter"] = key.parameter
-                value_dict["schedule"] = key.schedule
-                value_dict["date_time"] = value_dict["date_time"].strftime("%Y-%m-%d %H:%M:%S.%f%z")
-                data.append(value_dict)
+        # The following dictionary is used to keep track of the most recent parameter values.
+        data = []
+        if most_recent_only:
+            most_recent = dict()
+
+            for key in keys:
+                for value in self._params[key]:
+                    if key not in most_recent:
+                        most_recent[key] = value
+                    elif value.date_time > most_recent[key].date_time:
+                        most_recent[key] = value
+
+            for key, value in most_recent.items():
+                self._append_to_list(data, value, key, group)
+
+        else:
+            for key in keys:
+                for value in self._params[key]:
+                    self._append_to_list(data, value, key, group)
 
         columns = [
             "parameter",
@@ -945,12 +1001,28 @@ class Calibrations:
         ]
         return {"data": data, "columns": columns}
 
+    @staticmethod
+    def _append_to_list(
+        data: List[Dict], value: ParameterValue, key: ParameterKey, group: Optional[str] = None
+    ):
+        """Helper function to add a value to the data."""
+        if group and value.group != group:
+            return
+
+        value_dict = dataclasses.asdict(value)
+        value_dict["qubits"] = key.qubits
+        value_dict["parameter"] = key.parameter
+        value_dict["schedule"] = key.schedule
+        value_dict["date_time"] = value_dict["date_time"].strftime("%Y-%m-%d %H:%M:%S.%f%z")
+        data.append(value_dict)
+
     def save(
         self,
         file_type: str = "csv",
         folder: str = None,
         overwrite: bool = False,
         file_prefix: str = "",
+        most_recent_only: bool = False,
     ):
         """Save the parameterized schedules and parameter value.
 
@@ -974,6 +1046,8 @@ class Calibrations:
                 unless overwrite is set to True.
             file_prefix: A prefix to add to the name of the files such as a date tag or a
                 UUID.
+            most_recent_only: Save only the most recent value. This is set to False by
+                default so that when saving to csv all values will be saved.
 
         Raises:
             CalibrationError: if the files exist and overwrite is not set to True.
@@ -1021,7 +1095,7 @@ class Calibrations:
                 dict_writer.writerows(body)
 
             # Write the values of the parameters.
-            values = self.parameters_table()["data"]
+            values = self.parameters_table(most_recent_only=most_recent_only)["data"]
             if len(values) > 0:
                 header_keys = values[0].keys()
 
@@ -1031,12 +1105,7 @@ class Calibrations:
                     dict_writer.writerows(values)
 
             # Serialize the schedules. For now we just print them.
-            schedules = []
-            header_keys = ["name", "qubits", "schedule"]
-            for key, sched in self._schedules.items():
-                schedules.append(
-                    {"name": key.schedule, "qubits": key.qubits, "schedule": str(sched)}
-                )
+            header_keys, schedules = self.schedule_information()
 
             with open(schedule_file, "w", newline="", encoding="utf-8") as output_file:
                 dict_writer = csv.DictWriter(output_file, header_keys)
@@ -1047,6 +1116,24 @@ class Calibrations:
             raise CalibrationError(f"Saving to .{file_type} is not yet supported.")
 
         os.chdir(cwd)
+
+    def schedule_information(self) -> Tuple[List[str], List[Dict]]:
+        """Get the information on the schedules stored in the calibrations.
+
+        This function serializes the schedule by simply printing them.
+
+        Returns:
+            A tuple, the first element is the header row while the second is a dictionary
+            of the schedules in the calibrations where the key is an element of the header
+            and the values are the name of the schedule, the qubits to which it applies,
+            a string of the schedule.
+        """
+        # Serialize the schedules. For now we just print them.
+        schedules = []
+        for key, sched in self._schedules.items():
+            schedules.append({"name": key.schedule, "qubits": key.qubits, "schedule": str(sched)})
+
+        return ["name", "qubits", "schedule"], schedules
 
     def load_parameter_values(self, file_name: str = "parameter_values.csv"):
         """
@@ -1060,17 +1147,44 @@ class Calibrations:
             reader = csv.DictReader(fp, delimiter=",", quotechar='"')
 
             for row in reader:
-                param_val = ParameterValue(
-                    row["value"], row["date_time"], row["valid"], row["exp_id"], row["group"]
-                )
+                self.add_parameter_value_from_conf(**row)
 
-                if row["schedule"] == "":
-                    schedule_name = None
-                else:
-                    schedule_name = row["schedule"]
+    def add_parameter_value_from_conf(
+        self,
+        value: Union[str, int, float, complex],
+        date_time: str,
+        valid: Union[str, bool],
+        exp_id: str,
+        group: str,
+        schedule: Union[str, None],
+        parameter: str,
+        qubits: Union[str, int, Tuple[int, ...]],
+    ):
+        """Add a parameter value from a parameter configuration.
 
-                key = ParameterKey(row["parameter"], self._to_tuple(row["qubits"]), schedule_name)
-                self.add_parameter_value(param_val, *key)
+        The intended usage is :code:`add_parameter_from_conf(**param_conf)`. Entries such
+        as ``value`` or ``date_time`` are converted to the proper type.
+
+        Args:
+            value: The value of the parameter.
+            date_time: The datetime string.
+            valid: Whether or not the parameter is valid.
+            exp_id: The id of the experiment that created the parameter value.
+            group: The calibration group to which the parameter belongs.
+            schedule: The schedule to which the parameter belongs. The empty string
+                "" is converted to None.
+            parameter: The name of the parameter.
+            qubits: The qubits on which the parameter acts.
+        """
+        param_val = ParameterValue(value, date_time, valid, exp_id, group)
+
+        if schedule == "":
+            schedule_name = None
+        else:
+            schedule_name = schedule
+
+        key = ParameterKey(parameter, self._to_tuple(qubits), schedule_name)
+        self.add_parameter_value(param_val, *key)
 
     @classmethod
     def load(cls, files: List[str]) -> "Calibrations":

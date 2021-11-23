@@ -14,13 +14,11 @@
 
 from collections import defaultdict
 from datetime import datetime
-from enum import Enum
 from typing import Dict, List, Optional, Tuple, Union
-import copy
 
 from qiskit.providers.backend import BackendV1 as Backend
 from qiskit.circuit import Parameter
-from qiskit.pulse import InstructionScheduleMap, ScheduleBlock
+from qiskit.pulse import InstructionScheduleMap, ScheduleBlock, ControlChannel
 
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.calibrations import (
@@ -30,13 +28,6 @@ from qiskit_experiments.calibration_management.calibrations import (
 )
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
-
-
-class FrequencyElement(Enum):
-    """An extendable enum for components that have a frequency."""
-
-    QUBIT = "Qubit"
-    READOUT = "Readout"
 
 
 class BackendCalibrations(Calibrations):
@@ -54,39 +45,45 @@ class BackendCalibrations(Calibrations):
 
     def __init__(
         self,
-        backend: Backend,
-        library: BasisGateLibrary = None,
+        backend: Optional[Backend] = None,
+        library: Optional[BasisGateLibrary] = None,
+        add_parameter_defaults: bool = True,
+        control_config: Optional[Dict[Tuple[int, ...], List[ControlChannel]]] = None,
+        coupling_map: Optional[List[List[int]]] = None,
         num_qubits: Optional[int] = None,
     ):
         """Setup an instance to manage the calibrations of a backend.
 
-        BackendCalibrations can be initialized from a basis gate library, i.e. a subclass of
-        :class:`BasisGateLibrary`. As example consider the following code:
-
-        .. code-block:: python
-
-            cals = BackendCalibrations(
-                    backend,
-                    library=FixedFrequencyTransmon(
-                        basis_gates=["x", "sx"],
-                        default_values={duration: 320}
-                    )
-                )
-
         Args:
             backend: A backend instance from which to extract the qubit and readout frequencies
                 (which will be added as first guesses for the corresponding parameters) as well
-                as the coupling map.
+                as the coupling map. If the backend is not given then the calibrations will be
+                initialized with the following key-word arguments: control_config, coupling_map,
+                num_qubits.
             library: A library class that will be instantiated with the library options to then
                 get template schedules to register as well as default parameter values.
-            num_qubits: Number of qubits in case the backend object fails to specify this in its
-                configuration.
-
-        Raises:
-            CalibrationError: If the backend configuration does not have num_qubits and num_qubits
-                is None.
+            add_parameter_defaults: A boolean to indicate whether the default parameter values of
+                the given library should be used to populate the calibrations. By default this
+                value is True but can be set to false when deserializing a calibrations object.
+            control_config: A configuration dictionary of any control channels. The
+                keys are tuples of qubits and the values are a list of ControlChannels
+                that correspond to the qubits in the keys. This argument is optional and only
+                needed if the backend is not provided.
+            coupling_map: The coupling map of the device. This option is not needed if the backend
+                is provided.
+            num_qubits: The number of qubits of the system. This parameter is only needed if the
+                backend is not given.
         """
-        super().__init__(getattr(backend.configuration(), "control_channels", None))
+        self._update_inst_map = False
+
+        self._qubits = list(range(getattr(backend.configuration(), "num_qubits", num_qubits)))
+        self._coupling_map = getattr(backend.configuration(), "coupling_map", coupling_map)
+
+        super().__init__(
+            getattr(backend.configuration(), "control_channels", control_config),
+            library,
+            add_parameter_defaults,
+        )
 
         # Instruction schedule map variables and support variables.
         self._inst_map = InstructionScheduleMap()
@@ -99,32 +96,12 @@ class BackendCalibrations(Calibrations):
         self._register_parameter(self.qubit_freq, ())
         self._register_parameter(self.meas_freq, ())
 
-        num_qubits = getattr(backend.configuration(), "num_qubits", num_qubits)
-        if num_qubits is None:
-            raise CalibrationError(
-                "backend.configuration() does not have 'num_qubits' and None given."
-            )
+        if add_parameter_defaults and backend is not None:
+            for qubit, freq in enumerate(backend.defaults().qubit_freq_est):
+                self.add_parameter_value(freq, self.qubit_freq, qubit)
 
-        self._qubits = list(range(num_qubits))
-        self._backend = backend
-
-        for qubit, freq in enumerate(backend.defaults().qubit_freq_est):
-            self.add_parameter_value(freq, self.qubit_freq, qubit)
-
-        for meas, freq in enumerate(backend.defaults().meas_freq_est):
-            self.add_parameter_value(freq, self.meas_freq, meas)
-
-        if library is not None:
-
-            # Add the basis gates
-            for gate in library.basis_gates:
-                self.add_schedule(library[gate], num_qubits=library.num_qubits(gate))
-
-            # Add the default values
-            for param_conf in library.default_values():
-                schedule_name = param_conf[-1]
-                if schedule_name in library.basis_gates:
-                    self.add_parameter_value(*param_conf)
+            for meas, freq in enumerate(backend.defaults().meas_freq_est):
+                self.add_parameter_value(freq, self.meas_freq, meas)
 
         self._update_inst_map = True
 
@@ -161,38 +138,6 @@ class BackendCalibrations(Calibrations):
 
         return inst_map
 
-    def _get_frequencies(
-        self,
-        element: FrequencyElement,
-        group: str = "default",
-        cutoff_date: datetime = None,
-    ) -> List[float]:
-        """Internal helper method."""
-
-        if element == FrequencyElement.READOUT:
-            param = self.meas_freq.name
-        elif element == FrequencyElement.QUBIT:
-            param = self.qubit_freq.name
-        else:
-            raise CalibrationError(f"Frequency element {element} is not supported.")
-
-        freqs = []
-        for qubit in self._qubits:
-            schedule = None  # A qubit frequency is not attached to a schedule.
-            if ParameterKey(param, (qubit,), schedule) in self._params:
-                freq = self.get_parameter_value(param, (qubit,), schedule, True, group, cutoff_date)
-            else:
-                if element == FrequencyElement.READOUT:
-                    freq = self._backend.defaults().meas_freq_est[qubit]
-                elif element == FrequencyElement.QUBIT:
-                    freq = self._backend.defaults().qubit_freq_est[qubit]
-                else:
-                    raise CalibrationError(f"Frequency element {element} is not supported.")
-
-            freqs.append(freq)
-
-        return freqs
-
     def get_qubit_frequencies(
         self,
         group: str = "default",
@@ -215,7 +160,10 @@ class BackendCalibrations(Calibrations):
         Returns:
             A List of qubit frequencies for all qubits of the backend.
         """
-        return self._get_frequencies(FrequencyElement.QUBIT, group, cutoff_date)
+        return [
+            self.get_parameter_value(self.qubit_freq, qubit, group=group, cutoff_date=cutoff_date)
+            for qubit in self._qubits
+        ]
 
     def get_meas_frequencies(
         self,
@@ -239,22 +187,10 @@ class BackendCalibrations(Calibrations):
         Returns:
             A List of measurement frequencies for all qubits of the backend.
         """
-        return self._get_frequencies(FrequencyElement.READOUT, group, cutoff_date)
-
-    def export_backend(self) -> Backend:
-        """
-        Exports the calibrations to a backend object that can be used.
-
-        Returns:
-            calibrated backend: A backend with the calibrations in it.
-        """
-        backend = copy.deepcopy(self._backend)
-
-        backend.defaults().qubit_freq_est = self.get_qubit_frequencies()
-        backend.defaults().meas_freq_est = self.get_meas_frequencies()
-        backend.default().instruction_schedule_map = self._inst_map
-
-        return backend
+        return [
+            self.get_parameter_value(self.meas_freq, qubit, group=group, cutoff_date=cutoff_date)
+            for qubit in self._qubits
+        ]
 
     def inst_map_add(
         self,
@@ -424,8 +360,8 @@ class BackendCalibrations(Calibrations):
             self._operated_qubits[1].append([qubit])
 
         # Multi-qubit couplings
-        if self._backend.configuration().coupling_map is not None:
-            for coupling in self._backend.configuration().coupling_map:
+        if self._coupling_map is not None:
+            for coupling in self._coupling_map:
                 self._operated_qubits[len(coupling)].append(coupling)
 
         return self._operated_qubits
