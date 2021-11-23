@@ -12,10 +12,14 @@
 
 """Class to test the calibrations setup methods."""
 
+import json
+
 from test.base import QiskitExperimentsTestCase
 import qiskit.pulse as pulse
+
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.exceptions import CalibrationError
+from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 
 
 class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
@@ -119,3 +123,68 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
 
         with self.assertRaises(CalibrationError):
             FixedFrequencyTransmon(basis_gates=["x", "bswap"])
+
+    def test_serialization(self):
+        """Test the serialization of the object."""
+
+        lib1 = FixedFrequencyTransmon(
+            basis_gates=["x", "sy"],
+            default_values={"duration": 320},
+            use_drag=False,
+            link_parameters=False,
+        )
+
+        lib2 = FixedFrequencyTransmon.from_config(lib1.config)
+
+        self.assertEqual(lib2.basis_gates, lib1.basis_gates)
+
+        # Note: we convert to string since the parameters prevent a direct comparison.
+        self.assertTrue(self._test_library_equivalence(lib1, lib2))
+
+        # Test that the extra args are properly accounted for.
+        lib3 = FixedFrequencyTransmon(
+            basis_gates=["x", "sy"],
+            default_values={"duration": 320},
+            use_drag=True,
+            link_parameters=False,
+        )
+
+        self.assertFalse(self._test_library_equivalence(lib1, lib3))
+
+    def test_json_serialization(self):
+        """Test that the library can be serialized using JSon."""
+
+        lib1 = FixedFrequencyTransmon(
+            basis_gates=["x", "sy"],
+            default_values={"duration": 320},
+            use_drag=False,
+            link_parameters=False,
+        )
+
+        # Test that serialization fails without the right encoder
+        with self.assertRaises(TypeError):
+            json.dumps(lib1)
+
+        # Test that serialization works with the proper library
+        lib_data = json.dumps(lib1, cls=ExperimentEncoder)
+        lib2 = json.loads(lib_data, cls=ExperimentDecoder)
+
+        self.assertTrue(self._test_library_equivalence(lib1, lib2))
+
+    def _test_library_equivalence(self, lib1, lib2) -> bool:
+        """Test if libraries are equivalent.
+
+        Two libraries are equivalent if they have the same basis gates and
+        if the strings of the schedules are equal. We cannot directly compare
+        the schedules because the parameter objects in them will be different
+        instances.
+        """
+
+        if len(set(lib1.basis_gates)) != len(set(lib2.basis_gates)):
+            return False
+
+        for gate in lib1.basis_gates:
+            if str(lib1[gate]) != str(lib2[gate]):
+                return False
+
+        return True
