@@ -78,7 +78,7 @@ class BackendCalibrations(Calibrations):
                 are None.
         """
         if backend is None:
-            if any([var is None for var in [control_config, coupling_map, num_qubits]]):
+            if any(var is None for var in [control_config, coupling_map, num_qubits]):
                 raise CalibrationError(
                     "If backend is None then all of control_config, "
                     "coupling_map, and num_qubits must be given."
