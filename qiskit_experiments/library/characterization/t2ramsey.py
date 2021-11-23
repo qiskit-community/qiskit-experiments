@@ -18,7 +18,7 @@ from typing import List, Union, Optional
 import numpy as np
 
 import qiskit
-from qiskit.circuit import QuantumCircuit
+from qiskit import QuantumCircuit, transpile
 from qiskit.providers.backend import Backend
 from qiskit.test.mock import FakeBackend
 
@@ -118,9 +118,7 @@ class T2Ramsey(BaseExperiment):
             The experiment circuits
         """
         circuits = []
-        for delay in np.asarray(self.experiment_options.delays, dtype=float):
-            delay = np.round(delay, decimals=10)
-
+        for delay in self.experiment_options.delays:
             rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * delay
 
             circ = qiskit.QuantumCircuit(1, 1)
@@ -141,5 +139,15 @@ class T2Ramsey(BaseExperiment):
             }
 
             circuits.append(circ)
+
+        if self.backend and hasattr(self.backend.configuration(), "dt"):
+            transpiled_circuits = transpile(
+                circuits, self.backend, **self.transpile_options.__dict__
+            )
+            for circ, tcirc in zip(circuits, transpiled_circuits):
+                for op, _, _ in tcirc.data:
+                    if op.name == "delay":
+                        circ.metadata["xval"] = op.params[0] * self.backend.configuration().dt
+                        break
 
         return circuits
