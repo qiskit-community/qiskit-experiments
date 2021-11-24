@@ -53,7 +53,6 @@ class TestT1(QiskitExperimentsTestCase):
         exp = T1(0, delays, unit="dt")
         exp.set_analysis_options(p0={"amp": 1, "tau": t1 / dt_factor, "base": 0})
         exp_data = exp.run(backend, shots=10000)
-        exp_data.block_for_results()  # Wait for analysis to finish.
         res = exp_data.analysis_results("T1")
         fitval = res.value
         self.assertEqual(res.quality, "good")
@@ -78,8 +77,7 @@ class TestT1(QiskitExperimentsTestCase):
         exp0 = T1(0, delays)
         exp2 = T1(2, delays)
         par_exp = ParallelExperiment([exp0, exp2])
-        res = par_exp.run(T1Backend([t1[0], None, t1[1]]))
-        res.block_for_results()
+        res = par_exp.run(T1Backend([t1[0], None, t1[1]])).block_for_results()
 
         for i in range(2):
             sub_res = res.child_data(i).analysis_results("T1")
@@ -110,8 +108,7 @@ class TestT1(QiskitExperimentsTestCase):
         exp1.set_analysis_options(p0={"tau": 1000000})
 
         par_exp = ParallelExperiment([exp0, exp1])
-        res = par_exp.run(T1Backend([t1, t1]))
-        res.block_for_results()
+        res = par_exp.run(T1Backend([t1, t1])).block_for_results()
 
         sub_res = []
         for i in range(2):
@@ -152,9 +149,10 @@ class TestT1(QiskitExperimentsTestCase):
                 }
             )
 
-        res = T1Analysis()._run_analysis(data)[0][1]
-        self.assertEqual(res.quality, "good")
-        self.assertAlmostEqual(res.value.value, 25e-9, delta=3)
+        res, _ = T1Analysis()._run_analysis(data)
+        result = res[1]
+        self.assertEqual(result.quality, "good")
+        self.assertAlmostEqual(result.value.value, 25e-9, delta=3)
 
     def test_t1_metadata(self):
         """
@@ -211,8 +209,9 @@ class TestT1(QiskitExperimentsTestCase):
                 }
             )
 
-        res = T1Analysis()._run_analysis(data)[0][1]
-        self.assertEqual(res.quality, "bad")
+        res, _ = T1Analysis()._run_analysis(data)
+        result = res[1]
+        self.assertEqual(result.quality, "bad")
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
