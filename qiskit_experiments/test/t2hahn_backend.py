@@ -68,7 +68,6 @@ class T2HahnBackend(BackendV1):
         self._readout1to0 = readout1to0
         self._conversion_factor = conversion_factor
         self._rng = np.random.default_rng(seed=SEED)
-        self._measurement_error = 0.05
         super().__init__(configuration)
 
     @classmethod
@@ -185,7 +184,7 @@ class T2HahnBackend(BackendV1):
             qubit_state(dict): The state of the qubit at the end of the circuit.
 
         Returns:
-                int: The result of the measurement after applying read-out error.
+            int: The result of the measurement after applying read-out error.
         """
         if qubit_state["XY plain"]:
             meas_res = self._rng.random() < 0.5
@@ -201,7 +200,7 @@ class T2HahnBackend(BackendV1):
         if meas_res and self._readout1to0 is not None:
             if self._rng.random() < self._readout1to0[0]:
                 meas_res = 0
-        elif self._readout0to1 is not None:
+        elif not meas_res and self._readout0to1 is not None:
             if self._rng.random() < self._readout0to1[0]:
                 meas_res = 1
 
@@ -241,7 +240,6 @@ class T2HahnBackend(BackendV1):
                     elif op.name == "rx":
                         qubit_state = self._rx_gate(qubit_state, op.params[0])
                     elif op.name == "measure":
-                        # we measure in |+> basis which is the same as measuring |0>
                         meas_res = self._measurement_gate(qubit_state)
                         clbit = clbit_indices[cargs[0]]
                         clbits[clbit] = meas_res
