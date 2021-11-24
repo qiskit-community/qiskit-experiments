@@ -171,7 +171,7 @@ class T2Hahn(BaseExperiment):
             circ.delay(delay, 0, self.experiment_options.unit)
             circ.rx(np.pi, 0)
             circ.delay(delay, 0, self.experiment_options.unit)
-            circ.rx(np.pi / 2, 0)  # Y90 again since the num of echoes is odd
+            circ.rx(np.pi / 2, 0)  # X90 again since the num of echoes is odd
             circ.measure(0, 0)  # measure
             circ.metadata = {
                 "experiment_type": self._type,
