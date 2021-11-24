@@ -158,8 +158,9 @@ class BasisGateLibrary(ABC, Mapping):
 
         if hash(library) != config["hash"]:
             warn(
-                "Deserialized basis gate library's hash does not "
-                "match the hash of the serialized library."
+                "Deserialized basis gate library's hash does not match the hash of the serialized "
+                "library. Typically, the hash changes when the internal structure of the template "
+                "schedules has been changed."
             )
 
         return library
