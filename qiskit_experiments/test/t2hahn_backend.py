@@ -185,7 +185,7 @@ class T2HahnBackend(BackendV1):
             qubit_state(dict): The state of the qubit at the end of the circuit.
 
         Returns:
-                int: The result of the measurement after applying read-out error.
+            int: The result of the measurement after applying read-out error.
         """
         if qubit_state["XY plain"]:
             meas_res = self._rng.random() < 0.5
