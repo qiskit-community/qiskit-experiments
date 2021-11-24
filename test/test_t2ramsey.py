@@ -115,8 +115,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         }
 
         backend = T2RamseyBackend(p0)
-        expdata = par_exp.run(backend=backend, shots=1000)
-        expdata.block_for_results()
+        expdata = par_exp.run(backend=backend, shots=1000).block_for_results()
 
         for i in range(2):
             res_t2star = expdata.child_data(i).analysis_results("T2star")
@@ -174,17 +173,15 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
 
         # run circuits
         expdata0 = exp0.run(backend=backend, shots=1000)
-        expdata0.block_for_results()
-
         res_t2star_0 = expdata0.analysis_results("T2star")
 
         # second experiment
         delays1 = list(range(2, 65, 2))
         exp1 = T2Ramsey(qubit, delays1, unit=unit)
         exp1.set_analysis_options(p0=default_p0)
-        expdata1 = exp1.run(backend=backend, analysis=False, shots=1000).block_for_results()
+        expdata1 = exp1.run(backend=backend, analysis=False, shots=1000)
         expdata1.add_data(expdata0.data())
-        exp1.run_analysis(expdata1).block_for_results()
+        exp1.run_analysis(expdata1)
 
         res_t2star_1 = expdata1.analysis_results("T2star")
         res_freq_1 = expdata1.analysis_results("Frequency")

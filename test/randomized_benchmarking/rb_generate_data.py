@@ -104,11 +104,9 @@ def _generate_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes: di
     )
     rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
     print("Running experiment")
-    experiment_obj = rb_exp.run(
-        backend, noise_model=noise_model, basis_gates=transpiled_base_gate
-    ).block_for_results()
-    print("Done running experiment")
+    experiment_obj = rb_exp.run(backend, noise_model=noise_model, basis_gates=transpiled_base_gate)
     experiment_obj.block_for_results()
+    print("Done running experiment")
     exp_results = experiment_obj.data()
     with open(results_file_path, "w") as json_file:
         joined_list_data = [exp_attributes, exp_results]
@@ -203,8 +201,8 @@ def _generate_int_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes
     rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
     print("Running experiment")
     experiment_obj = rb_exp.run(backend, noise_model=noise_model, basis_gates=transpiled_base_gate)
-    print("Done running experiment")
     experiment_obj.block_for_results()
+    print("Done running experiment")
     exp_results = experiment_obj.data()
     with open(results_file_path, "w") as json_file:
         joined_list_data = [exp_attributes, exp_results]
