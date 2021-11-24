@@ -95,8 +95,8 @@ class BasisGateLibrary(ABC, Mapping):
     def __hash__(self) -> int:
         """Return the hash of the library by computing the hash of the schedule strings."""
         data_to_hash = []
-        for gate, gate_def in sorted(self._schedules.items()):
-            data_to_hash.append((gate, str(gate_def.schedule)))
+        for name, schedule in sorted(self._schedules.items()):
+            data_to_hash.append((name, str(schedule), self.__supported_gates__[name]))
 
         return hash(tuple(data_to_hash))
 
