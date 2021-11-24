@@ -66,7 +66,7 @@ class BasisGateLibrary(ABC, Mapping):
             self._default_values.update(default_values)
 
         if basis_gates is None:
-            basis_gates = list(gate for gate in self.__supported_gates__)
+            basis_gates = list(self.__supported_gates__)
 
         self._schedules = dict()
         for gate in basis_gates:
