@@ -65,7 +65,7 @@ class BackendCalibrations(Calibrations):
                 the given library should be used to populate the calibrations. By default this
                 value is ``True`` but can be set to ``False`` when deserializing a calibrations object.
             control_config: A configuration dictionary of any control channels. The
-                keys are tuples of qubits and the values are a list of ControlChannels
+                keys are tuples of qubits and the values are a list of ``ControlChannel``s
                 that correspond to the qubits in the keys. This argument is optional and only
                 needed if the backend is not provided.
             coupling_map: The coupling map of the device. This option is not needed if the backend
