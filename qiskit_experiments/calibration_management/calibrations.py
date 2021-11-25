@@ -1147,9 +1147,9 @@ class Calibrations:
             reader = csv.DictReader(fp, delimiter=",", quotechar='"')
 
             for row in reader:
-                self.add_parameter_value_from_conf(**row)
+                self._add_parameter_value_from_conf(**row)
 
-    def add_parameter_value_from_conf(
+    def _add_parameter_value_from_conf(
         self,
         value: Union[str, int, float, complex],
         date_time: str,
