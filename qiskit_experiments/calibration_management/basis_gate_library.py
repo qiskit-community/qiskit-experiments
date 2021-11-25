@@ -54,7 +54,7 @@ class BasisGateLibrary(ABC, Mapping):
         """
         # Update the default values.
         self._extra_kwargs = extra_kwargs
-        self._default_values = dict(self.__default_values__)
+        self._default_values = self.__default_values__.copy()
         if default_values is not None:
             self._default_values.update(default_values)
 
