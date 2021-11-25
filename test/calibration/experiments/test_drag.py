@@ -27,7 +27,7 @@ from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.library import RoughDrag, RoughDragCal
 from qiskit_experiments.test.mock_iq_backend import DragBackend
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
-from qiskit_experiments.calibration_management import BackendCalibrations
+from qiskit_experiments.calibration_management import Calibrations
 
 
 class TestDragEndToEnd(QiskitExperimentsTestCase):
@@ -145,7 +145,7 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
         library = FixedFrequencyTransmon()
 
         self.backend = DragBackend(gate_name="Drag(x)")
-        self.cals = BackendCalibrations(self.backend, library)
+        self.cals = Calibrations.from_backend(self.backend, library)
         self.test_tol = 0.05
 
     def test_update(self):

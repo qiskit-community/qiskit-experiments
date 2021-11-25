@@ -20,7 +20,6 @@ from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.framework.experiment_data import ExperimentData
-from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.calibration_key_types import ParameterValueType
@@ -145,7 +144,7 @@ class Frequency(BaseUpdater):
     @classmethod
     def update(
         cls,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         exp_data: ExperimentData,
         result_index: Optional[int] = None,
         parameter: str = None,

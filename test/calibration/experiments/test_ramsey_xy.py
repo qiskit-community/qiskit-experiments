@@ -16,7 +16,7 @@ import unittest
 from test.base import QiskitExperimentsTestCase
 from qiskit.test.mock import FakeArmonk
 
-from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
+from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.library import RamseyXY, FrequencyCal
 from qiskit_experiments.test.mock_iq_backend import MockRamseyXY
@@ -30,7 +30,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         super().setUp()
 
         library = FixedFrequencyTransmon()
-        self.cals = BackendCalibrations(FakeArmonk(), library)
+        self.cals = Calibrations.from_backend(FakeArmonk(), library)
 
     def test_end_to_end(self):
         """Test that we can run on a mock backend and perform a fit.

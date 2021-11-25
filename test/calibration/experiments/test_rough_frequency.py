@@ -19,7 +19,7 @@ import numpy as np
 from qiskit.test.mock import FakeArmonk
 
 from qiskit_experiments.library import RoughFrequencyCal
-from qiskit_experiments.calibration_management import BackendCalibrations
+from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 
 
@@ -30,7 +30,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
         """Test that initialization."""
 
         qubit = 1
-        cals = BackendCalibrations(FakeArmonk())
+        cals = Calibrations.from_backend(FakeArmonk())
         frequencies = [1, 2, 3]
         unit = "kHz"
         auto_update = False
@@ -54,7 +54,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
         backend.defaults().qubit_freq_est = [freq01, freq01]
 
         library = FixedFrequencyTransmon(basis_gates=["x", "sx"])
-        cals = BackendCalibrations(FakeArmonk(), library=library)
+        cals = Calibrations.from_backend(FakeArmonk(), library=library)
 
         prev_freq = cals.get_parameter_value(cals.__qubit_freq_parameter__, (0,))
         self.assertEqual(prev_freq, freq01)
@@ -69,7 +69,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        cals = BackendCalibrations(FakeArmonk())
+        cals = Calibrations.from_backend(FakeArmonk())
         frequencies = [1, 2, 3]
         exp = RoughFrequencyCal(0, cals, frequencies)
         loaded_exp = RoughFrequencyCal.from_config(exp.config)

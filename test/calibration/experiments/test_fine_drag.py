@@ -23,7 +23,7 @@ import qiskit.pulse as pulse
 
 from qiskit_experiments.library import FineDrag, FineXDrag, FineDragCal
 from qiskit_experiments.test.mock_iq_backend import DragBackend
-from qiskit_experiments.calibration_management import BackendCalibrations
+from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 
 
@@ -95,7 +95,7 @@ class TestFineDragCal(QiskitExperimentsTestCase):
         library = FixedFrequencyTransmon()
 
         self.backend = FineDragTestBackend()
-        self.cals = BackendCalibrations(self.backend, library)
+        self.cals = Calibrations.from_backend(self.backend, library)
 
     def test_experiment_config(self):
         """Test converting to and from config works"""

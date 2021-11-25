@@ -18,7 +18,7 @@ from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.library.characterization.ramsey_xy import RamseyXY
-from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
+from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.calibration_management.base_calibration_experiment import (
     BaseCalibrationExperiment,
@@ -35,7 +35,7 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
     def __init__(
         self,
         qubit: int,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         backend: Optional[Backend] = None,
         delays: Optional[List] = None,
         unit: str = "s",

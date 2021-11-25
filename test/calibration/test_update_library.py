@@ -23,7 +23,6 @@ from qiskit.test.mock import FakeAthens
 from qiskit_experiments.library import QubitSpectroscopy
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.update_library import Frequency
-from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
 
 
 class TestAmplitudeUpdate(QiskitExperimentsTestCase):
@@ -75,7 +74,7 @@ class TestFrequencyUpdate(QiskitExperimentsTestCase):
         self.assertEqual(result.quality, "good")
 
         # Test the integration with the BackendCalibrations
-        cals = BackendCalibrations(FakeAthens())
-        self.assertNotEqual(cals.get_qubit_frequencies()[qubit], value)
+        cals = Calibrations.from_backend(FakeAthens())
+        self.assertNotEqual(cals.get_parameter_value("qubit_lo_freq", qubit), value)
         Frequency.update(cals, exp_data)
-        self.assertEqual(cals.get_qubit_frequencies()[qubit], value)
+        self.assertEqual(cals.get_parameter_value("qubit_lo_freq", qubit), value)

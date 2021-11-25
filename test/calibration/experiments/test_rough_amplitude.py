@@ -21,7 +21,7 @@ from qiskit.circuit import Parameter
 from qiskit.test.mock import FakeArmonk
 
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
-from qiskit_experiments.calibration_management import BackendCalibrations
+from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.library import EFRoughXSXAmplitudeCal, RoughXSXAmplitudeCal
 from qiskit_experiments.test.mock_iq_backend import RabiBackend
 
@@ -35,7 +35,7 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
         library = FixedFrequencyTransmon()
 
         self.backend = FakeArmonk()
-        self.cals = BackendCalibrations(self.backend, library)
+        self.cals = Calibrations.from_backend(self.backend, library)
 
     def test_circuits(self):
         """Test the quantum circuits."""
@@ -85,7 +85,7 @@ class TestSpecializations(QiskitExperimentsTestCase):
         library = FixedFrequencyTransmon()
 
         self.backend = FakeArmonk()
-        self.cals = BackendCalibrations(self.backend, library)
+        self.cals = Calibrations.from_backend(self.backend, library)
 
         # Add some pulses on the 1-2 transition.
         d0 = pulse.DriveChannel(0)

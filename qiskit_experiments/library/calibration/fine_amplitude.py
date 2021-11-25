@@ -20,7 +20,7 @@ from qiskit.providers.backend import Backend
 
 from qiskit_experiments.calibration_management import (
     BaseCalibrationExperiment,
-    BackendCalibrations,
+    Calibrations,
 )
 from qiskit_experiments.library.characterization import FineAmplitude
 from qiskit_experiments.framework import ExperimentData, Options
@@ -41,7 +41,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
     def __init__(
         self,
         qubit: int,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         schedule_name: str,
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "amp",
