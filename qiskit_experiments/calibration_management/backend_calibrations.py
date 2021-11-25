@@ -63,7 +63,7 @@ class BackendCalibrations(Calibrations):
                 get template schedules to register as well as default parameter values.
             add_parameter_defaults: A boolean to indicate whether the default parameter values of
                 the given library should be used to populate the calibrations. By default this
-                value is True but can be set to false when deserializing a calibrations object.
+                value is ``True`` but can be set to ``False`` when deserializing a calibrations object.
             control_config: A configuration dictionary of any control channels. The
                 keys are tuples of qubits and the values are a list of ControlChannels
                 that correspond to the qubits in the keys. This argument is optional and only
