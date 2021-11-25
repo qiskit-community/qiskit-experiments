@@ -21,3 +21,4 @@ from .remsey_xy_analysis import RamseyXYAnalysis
 from .t2ramsey_analysis import T2RamseyAnalysis
 from .t1_analysis import T1Analysis
 from .cr_hamiltonian_analysis import CrossResonanceHamiltonianAnalysis
+from .readout_angle_analysis import ReadoutAngleAnalysis
