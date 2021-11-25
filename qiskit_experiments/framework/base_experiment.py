@@ -20,6 +20,8 @@ from collections import OrderedDict
 from typing import Sequence, Optional, Tuple, List, Dict, Union, Any
 
 from qiskit import transpile, assemble, QuantumCircuit
+from qiskit.test.mock import FakeBackend
+
 from qiskit.providers import BaseJob
 from qiskit.providers import Backend, BaseBackend
 from qiskit.providers.basebackend import BaseBackend as LegacyBackend
@@ -264,7 +266,31 @@ class BaseExperiment(ABC, Settings):
         # Generate and transpile circuits
         transpile_opts = copy.copy(experiment.transpile_options.__dict__)
         transpile_opts["initial_layout"] = list(experiment.physical_qubits)
-        circuits = transpile(experiment.circuits(), experiment.backend, **transpile_opts)
+
+        circuits = experiment.circuits()
+
+        # Scheduling parameters
+        if (
+            experiment.backend
+            and not experiment.backend.configuration().simulator
+            and not isinstance(experiment.backend, FakeBackend)
+        ):
+            updated_schedule = False
+            for circ in circuits:
+                for op, _, _ in circ.data:
+                    if op.name == "delay":
+                        timing_constraints = transpile_opts.get("timing_constraints", {})
+                        if "acquire_alignment" not in timing_constraints:
+                            timing_constraints["acquire_alignment"] = 16
+                        scheduling_method = transpile_opts.get("scheduling_method", "alap")
+                        transpile_opts["timing_constraints"] = timing_constraints
+                        transpile_opts["scheduling_method"] = scheduling_method
+                        updated_schedule = True
+                        break
+                if updated_schedule:
+                    break
+
+        circuits = transpile(circuits, experiment.backend, **transpile_opts)
         experiment._postprocess_transpiled_circuits(circuits, **run_options)
 
         # Run jobs
