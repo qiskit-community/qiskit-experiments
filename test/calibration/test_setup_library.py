@@ -171,6 +171,29 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
 
         self.assertTrue(self._test_library_equivalence(lib1, lib2))
 
+    def test_hash_warn(self):
+        """Test that a warning is raised when the hash of the library is different."""
+
+        lib1 = FixedFrequencyTransmon()
+        lib_data = json.dumps(lib1, cls=ExperimentEncoder)
+        lib2 = json.loads(lib_data, cls=ExperimentDecoder)
+
+        self.assertTrue(self._test_library_equivalence(lib1, lib2))
+
+        # stash method build schedules to avoid other tests from failing
+        build_schedules = FixedFrequencyTransmon._build_schedules
+
+        def _my_build_schedules():
+            """A dummy function to change the class behaviour."""
+            pass
+
+        FixedFrequencyTransmon._build_schedules = _my_build_schedules
+
+        with self.assertWarns(UserWarning):
+            json.loads(lib_data, cls=ExperimentDecoder)
+
+        FixedFrequencyTransmon._build_schedules = build_schedules
+
     def _test_library_equivalence(self, lib1, lib2) -> bool:
         """Test if libraries are equivalent.
 
