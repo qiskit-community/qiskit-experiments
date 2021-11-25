@@ -172,7 +172,14 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
         self.assertTrue(self._test_library_equivalence(lib1, lib2))
 
     def test_hash_warn(self):
-        """Test that a warning is raised when the hash of the library is different."""
+        """Test that a warning is raised when the hash of the library is different.
+
+        This test mimics the behaviour of the following workflow:
+        1. A user serializes a library.
+        2. Changes to the class of the library are made.
+        3. The user deserializes the library with the changed class.
+        4. A warning is raised since the class definition has changed.
+        """
 
         lib1 = FixedFrequencyTransmon()
         lib_data = json.dumps(lib1, cls=ExperimentEncoder)
@@ -187,11 +194,13 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
             """A dummy function to change the class behaviour."""
             pass
 
+        # Change the schedule behaviour
         FixedFrequencyTransmon._build_schedules = _my_build_schedules
 
         with self.assertWarns(UserWarning):
             json.loads(lib_data, cls=ExperimentDecoder)
 
+        # Restore the method for future tests.
         FixedFrequencyTransmon._build_schedules = build_schedules
 
     def _test_library_equivalence(self, lib1, lib2) -> bool:
