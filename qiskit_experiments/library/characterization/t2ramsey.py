@@ -18,7 +18,7 @@ from typing import List, Union, Optional
 import numpy as np
 
 import qiskit
-from qiskit import QuantumCircuit, transpile
+from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit.test.mock import FakeBackend
 
@@ -117,13 +117,23 @@ class T2Ramsey(BaseExperiment):
         Returns:
             The experiment circuits
         """
+        if self.backend and hasattr(self.backend.configuration(), "dt"):
+            dt_unit = True
+            dt_factor = self.backend.configuration().dt
+        else:
+            dt_unit = False
+
         circuits = []
         for delay in self.experiment_options.delays:
             rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * delay
 
             circ = qiskit.QuantumCircuit(1, 1)
             circ.h(0)
-            circ.delay(delay, 0, "s")
+            if dt_unit:
+                delay_dt = round(delay / dt_factor)
+                circ.delay(delay_dt, 0, "dt")
+            else:
+                circ.delay(delay, 0, "s")
             circ.rz(rotation_angle, 0)
             circ.barrier(0)
             circ.h(0)
@@ -134,20 +144,13 @@ class T2Ramsey(BaseExperiment):
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
                 "osc_freq": self.experiment_options.osc_freq,
-                "xval": delay,
                 "unit": "s",
             }
+            if dt_unit:
+                circ.metadata["xval"] = delay_dt * dt_factor
+            else:
+                circ.metadata["xval"] = delay
 
             circuits.append(circ)
-
-        if self.backend and hasattr(self.backend.configuration(), "dt"):
-            transpiled_circuits = transpile(
-                circuits, self.backend, **self.transpile_options.__dict__
-            )
-            for circ, tcirc in zip(circuits, transpiled_circuits):
-                for op, _, _ in tcirc.data:
-                    if op.name == "delay":
-                        circ.metadata["xval"] = op.params[0] * self.backend.configuration().dt
-                        break
 
         return circuits

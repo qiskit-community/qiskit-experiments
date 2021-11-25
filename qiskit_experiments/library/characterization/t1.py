@@ -16,7 +16,7 @@ T1 Experiment class.
 from typing import List, Optional, Union
 import numpy as np
 
-from qiskit import QuantumCircuit, transpile
+from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit.test.mock import FakeBackend
 
@@ -101,32 +101,35 @@ class T1(BaseExperiment):
         Returns:
             The experiment circuits
         """
+        if self.backend and hasattr(self.backend.configuration(), "dt"):
+            dt_unit = True
+            dt_factor = self.backend.configuration().dt
+        else:
+            dt_unit = False
+
         circuits = []
         for delay in self.experiment_options.delays:
             circ = QuantumCircuit(1, 1)
             circ.x(0)
             circ.barrier(0)
-            circ.delay(delay, 0, "s")
+            if dt_unit:
+                delay_dt = round(delay / dt_factor)
+                circ.delay(delay_dt, 0, "dt")
+            else:
+                circ.delay(delay, 0, "s")
             circ.barrier(0)
             circ.measure(0, 0)
 
             circ.metadata = {
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
-                "xval": delay,
                 "unit": "s",
             }
+            if dt_unit:
+                circ.metadata["xval"] = delay_dt * dt_factor
+            else:
+                circ.metadata["xval"] = delay
 
             circuits.append(circ)
-
-        if self.backend and hasattr(self.backend.configuration(), "dt"):
-            transpiled_circuits = transpile(
-                circuits, self.backend, **self.transpile_options.__dict__
-            )
-            for circ, tcirc in zip(circuits, transpiled_circuits):
-                for op, _, _ in tcirc.data:
-                    if op.name == "delay":
-                        circ.metadata["xval"] = op.params[0] * self.backend.configuration().dt
-                        break
 
         return circuits
