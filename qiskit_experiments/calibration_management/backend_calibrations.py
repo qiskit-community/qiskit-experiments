@@ -109,10 +109,10 @@ class BackendCalibrations(Calibrations):
         self._register_parameter(self.meas_freq, ())
 
         if add_parameter_defaults and backend is not None:
-            for qubit, freq in enumerate(backend.defaults().qubit_freq_est):
+            for qubit, freq in enumerate(getattr(backend.defaults(), "qubit_freq_est", [])):
                 self.add_parameter_value(freq, self.qubit_freq, qubit)
 
-            for meas, freq in enumerate(backend.defaults().meas_freq_est):
+            for meas, freq in enumerate(getattr(backend.defaults(), "meas_freq_est", [])):
                 self.add_parameter_value(freq, self.meas_freq, meas)
 
         self._update_inst_map = True
