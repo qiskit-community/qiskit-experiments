@@ -12,10 +12,9 @@
 
 """Data processor tests."""
 
-# pylint: disable=unbalanced-tuple-unpacking
 from test.base import QiskitExperimentsTestCase
+
 import numpy as np
-from qiskit.test import QiskitTestCase
 from uncertainties import unumpy as unp
 
 from qiskit_experiments.data_processing.nodes import (
@@ -31,8 +30,8 @@ class TestAveraging(BaseDataProcessorTest):
     """Test the averaging nodes."""
 
     def test_simple(self):
-        """Simple test of averaging."""
-        datum = np.array([[1, 2], [3, 4], [5, 6]])
+        """Simple test of averaging. Standard error of mean is generated."""
+        datum = unp.uarray([[1, 2], [3, 4], [5, 6]], np.full((3, 2), np.nan))
 
         node = AverageData(axis=1)
         processed_data = node(data=datum)
@@ -58,23 +57,62 @@ class TestAveraging(BaseDataProcessorTest):
             np.array([1.632993161855452, 1.632993161855452]) / np.sqrt(3),
         )
 
+    def test_with_error(self):
+        """Compute error propagation. This is quadratic sum divided by samples."""
+        datum = unp.uarray(
+            [[1, 2, 3, 4, 5, 6]],
+            [[0.1, 0.2, 0.3, 0.4, 0.5, 0.6]],
+        )
+
+        node = AverageData(axis=1)
+        processed_data = node(data=datum)
+
+        self.assertAlmostEqual(processed_data[0].nominal_value, 3.5)
+        self.assertAlmostEqual(processed_data[0].std_dev, 0.15898986690282427)
+
+    def test_with_error_partly_non_error(self):
+        """Compute error propagation. Some elements have no error."""
+        datum = unp.uarray(
+            [
+                [1, 2, 3, 4, 5, 6],
+                [1, 2, 3, 4, 5, 6],
+            ],
+            [
+                [0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
+                [np.nan, 0.2, 0.3, 0.4, 0.5, 0.6],
+            ],
+        )
+
+        node = AverageData(axis=1)
+        processed_data = node(data=datum)
+
+        self.assertAlmostEqual(processed_data[0].nominal_value, 3.5)
+        self.assertAlmostEqual(processed_data[0].std_dev, 0.15898986690282427)
+
+        self.assertAlmostEqual(processed_data[1].nominal_value, 3.5)
+        self.assertAlmostEqual(processed_data[1].std_dev, 0.6972166887783964)
+
     def test_iq_averaging(self):
         """Test averaging of IQ-data."""
 
-        iq_data = [
-            [[-6.20601501e14, -1.33257051e15], [-1.70921324e15, -4.05881657e15]],
-            [[-5.80546502e14, -1.33492509e15], [-1.65094637e15, -4.05926942e15]],
-            [[-4.04649069e14, -1.33191056e15], [-1.29680377e15, -4.03604815e15]],
-            [[-2.22203874e14, -1.30291309e15], [-8.57663429e14, -3.97784973e15]],
-            [[-2.92074029e13, -1.28578530e15], [-9.78824053e13, -3.92071056e15]],
-            [[1.98056981e14, -1.26883024e15], [3.77157017e14, -3.87460328e15]],
-            [[4.29955888e14, -1.25022995e15], [1.02340118e15, -3.79508679e15]],
-            [[6.38981344e14, -1.25084614e15], [1.68918514e15, -3.78961044e15]],
-            [[7.09988897e14, -1.21906634e15], [1.91914171e15, -3.73670664e15]],
-            [[7.63169115e14, -1.20797552e15], [2.03772603e15, -3.74653863e15]],
-        ]
+        iq_data = np.array(
+            [
+                [[-6.20601501e14, -1.33257051e15], [-1.70921324e15, -4.05881657e15]],
+                [[-5.80546502e14, -1.33492509e15], [-1.65094637e15, -4.05926942e15]],
+                [[-4.04649069e14, -1.33191056e15], [-1.29680377e15, -4.03604815e15]],
+                [[-2.22203874e14, -1.30291309e15], [-8.57663429e14, -3.97784973e15]],
+                [[-2.92074029e13, -1.28578530e15], [-9.78824053e13, -3.92071056e15]],
+                [[1.98056981e14, -1.26883024e15], [3.77157017e14, -3.87460328e15]],
+                [[4.29955888e14, -1.25022995e15], [1.02340118e15, -3.79508679e15]],
+                [[6.38981344e14, -1.25084614e15], [1.68918514e15, -3.78961044e15]],
+                [[7.09988897e14, -1.21906634e15], [1.91914171e15, -3.73670664e15]],
+                [[7.63169115e14, -1.20797552e15], [2.03772603e15, -3.74653863e15]],
+            ],
+            dtype=float,
+        )
+        iq_std = np.full_like(iq_data, np.nan)
 
-        self.create_experiment(iq_data, single_shot=True)
+        self.create_experiment(unp.uarray(iq_data, iq_std), single_shot=True)
 
         avg_iq = AverageData(axis=0)
         processed_data = avg_iq(data=np.asarray(self.iq_experiment.data(0)["memory"]))

@@ -27,11 +27,18 @@ class AverageData(DataAction):
     """A node to average data representable as numpy arrays."""
 
     def __init__(self, axis: int, validate: bool = True):
-        """Initialize a data averaging node.
+        r"""Initialize a data averaging node.
 
         Args:
             axis: The axis along which to average.
             validate: If set to False the DataAction will not validate its input.
+
+        Notes:
+            If standard error of input array is not populated, this node will compute
+            standard error of the mean, i.e. the standard deviation of the datum divided by
+            :math:`\sqrt{N}` where :math:`N` is the number of data points.
+            Otherwise standard error is computed by quadratic sum of the errors of input data
+            divided by the number of data points, as usual error propagation.
         """
         super().__init__(validate)
         self._axis = axis
@@ -59,27 +66,27 @@ class AverageData(DataAction):
         return data
 
     def _process(self, data: np.ndarray) -> np.ndarray:
-        r"""Average the data.
+        """Average the data.
 
         Args:
             data: A data array to process. This is a single numpy array containing
                 all circuit results input to the data processor.
 
-        Notes:
-            The error is computed by the standard error of the mean,
-            i.e. the standard deviation of the datum divided by :math:`\sqrt{N}`
-            where :math:`N` is the number of data points.
-            Standard errors computed by the previous node are discarded.
-
         Returns:
              Arrays with one less dimension than the given data.
         """
-        nominals = unp.nominal_values(data)
-        errors = np.std(nominals, axis=self._axis) / np.sqrt(nominals.shape[self._axis])
-        return unp.uarray(
-            nominal_values=np.average(nominals, axis=self._axis),
-            std_devs=errors,
-        )
+        ax = self._axis
+
+        reduced_array = np.mean(data, axis=ax)
+        nominals = unp.nominal_values(reduced_array)
+        errors = unp.std_devs(reduced_array)
+
+        if np.any(np.isnan(errors)):
+            # replace empty elements with SEM
+            sem = np.std(unp.nominal_values(data), axis=ax) / np.sqrt(data.shape[ax])
+            errors = np.where(np.isnan(errors), sem, errors)
+
+        return unp.uarray(nominals, errors)
 
 
 class MinMaxNormalize(DataAction):
