@@ -558,6 +558,30 @@ class TestAveragingAndSVD(BaseDataProcessorTest):
             np.array([[0.0, 1.0], [1.0, 0.0], [0.5, 0.5], [0.75, 0.25]]),
         )
 
+    def test_distorted_iq_data(self):
+        """Test if uncertainty can consider correlation.
+
+        SVD projects IQ data onto I-axis, and input different data sets that
+        have the same mean and same variance but squeezed along different axis.
+        """
+        svd_node = SVD()
+        svd_node._scales = [1.0]
+        svd_node._main_axes = [np.array([1, 0])]
+        svd_node._means = [(0.0, 0.0)]
+
+        processor = DataProcessor("memory", [AverageData(axis=1), svd_node])
+
+        dist_i_axis = {"memory": [[[-1, 0]], [[-0.5, 0]], [[0.0, 0]], [[0.5, 0]], [[1, 0]]]}
+        dist_q_axis = {"memory": [[[0, -1]], [[0, -0.5]], [[0, 0.0]], [[0, 0.5]], [[0, 1]]]}
+
+        out_i = processor(dist_i_axis)
+        self.assertAlmostEqual(out_i[0].nominal_value, 0.0)
+        self.assertAlmostEqual(out_i[0].std_dev, 0.31622776601683794)
+
+        out_q = processor(dist_q_axis)
+        self.assertAlmostEqual(out_q[0].nominal_value, 0.0)
+        self.assertAlmostEqual(out_q[0].std_dev, 0.0)
+
 
 class TestAvgDataAndSVD(BaseDataProcessorTest):
     """Test the SVD and normalization on averaged IQ data."""
