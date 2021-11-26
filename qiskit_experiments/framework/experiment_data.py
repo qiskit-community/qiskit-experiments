@@ -23,7 +23,7 @@ from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperime
 from qiskit_experiments.database_service.database_service import (
     DatabaseServiceV1 as DatabaseService,
 )
-from qiskit_experiments.database_service.utils import ThreadSafeOrderedDict, combined_timeout
+from qiskit_experiments.database_service.utils import ThreadSafeOrderedDict
 
 LOG = logging.getLogger(__name__)
 
@@ -183,7 +183,8 @@ class ExperimentData(DbExperimentData):
             self.add_child_data(data)
 
     def _set_service(self, service: DatabaseService) -> None:
-        """Set the service to be used for storing experiment data.
+        """Set the service to be used for storing experiment data,
+           to this experiment itself and its descendants.
 
         Args:
             service: Service to be used.
@@ -197,7 +198,8 @@ class ExperimentData(DbExperimentData):
 
     @DbExperimentData.share_level.setter
     def share_level(self, new_level: str) -> None:
-        """Set the experiment share level.
+        """Set the experiment share level,
+           to this experiment itself and its descendants.
 
         Args:
             new_level: New experiment share level. Valid share levels are provider-
@@ -213,19 +215,25 @@ class ExperimentData(DbExperimentData):
         if self.auto_save:
             self.save_metadata()
 
-    def block_for_results(self, timeout: Optional[float] = None) -> ExperimentData:
-        """Block until all pending jobs and analysis callbacks finish.
+    def add_tags_recursive(self, tags2add: List[str]) -> None:
+        """Add tags to this experiment itself and its descendants
 
         Args:
-            timeout: Timeout waiting for results.
-
-        Returns:
-            The experiment data with finished jobs and post-processing.
+            tags2add - the tags that will be added to the existing tags
         """
-        _, timeout = combined_timeout(super().block_for_results, timeout)
-        for subdata in self._child_data.values():
-            _, timeout = combined_timeout(subdata.block_for_results, timeout)
-        return self
+        self.tags += tags2add
+        for data in self._child_data.values():
+            data.add_tags_recursive(tags2add)
+
+    def remove_tags_recursive(self, tags2remove: List[str]) -> None:
+        """Remove tags from this experiment itself and its descendants
+
+        Args:
+            tags2remove - the tags that will be removed from the existing tags
+        """
+        self.tags = [x for x in self.tags if x not in tags2remove]
+        for data in self._child_data.values():
+            data.remove_tags_recursive(tags2remove)
 
     def __repr__(self):
         out = (
