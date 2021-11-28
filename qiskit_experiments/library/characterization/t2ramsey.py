@@ -125,7 +125,12 @@ class T2Ramsey(BaseExperiment):
 
         circuits = []
         for delay in self.experiment_options.delays:
-            rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * delay
+            if dt_unit:
+                real_delay_in_sec = delay_dt * dt_factor
+            else:
+                real_delay_in_sec = delay
+
+            rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * real_delay_in_sec
 
             circ = qiskit.QuantumCircuit(1, 1)
             circ.h(0)
@@ -143,13 +148,10 @@ class T2Ramsey(BaseExperiment):
             circ.metadata = {
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
+                "xval": real_delay_in_sec,
                 "osc_freq": self.experiment_options.osc_freq,
                 "unit": "s",
             }
-            if dt_unit:
-                circ.metadata["xval"] = delay_dt * dt_factor
-            else:
-                circ.metadata["xval"] = delay
 
             circuits.append(circ)
 
