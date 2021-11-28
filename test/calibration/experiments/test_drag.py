@@ -60,7 +60,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
 
         drag = RoughDrag(1, self.x_plus)
 
-        expdata = drag.run(backend).block_for_results()
+        expdata = drag.run(backend)
         result = expdata.analysis_results(1)
 
         self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
@@ -72,7 +72,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
 
         drag = RoughDrag(0, self.x_plus)
         drag.set_analysis_options(p0={"beta": 1.2})
-        exp_data = drag.run(backend).block_for_results()
+        exp_data = drag.run(backend)
         result = exp_data.analysis_results(1)
 
         self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
@@ -84,7 +84,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         drag = RoughDrag(1, self.x_plus, betas=np.linspace(-4, 4, 31))
         drag.set_run_options(shots=200)
         drag.set_analysis_options(p0={"beta": 1.8, "freq0": 0.08, "freq1": 0.16, "freq2": 0.32})
-        exp_data = drag.run(backend).block_for_results()
+        exp_data = drag.run(backend)
         result = exp_data.analysis_results(1)
 
         meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
