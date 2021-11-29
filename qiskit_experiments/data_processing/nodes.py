@@ -480,7 +480,7 @@ class Probability(DataAction):
                         )
                     if not isinstance(count, valid_count_type):
                         raise DataProcessorError(
-                            f"Count {bit_str} is not a valid value in {self.__class__.__name__}. "
+                            f"Count {bit_str} is not a valid count for {self.__class__.__name__}. "
                             "The uncertainty of probability is computed based on sampling error, "
                             "thus the count should be an error-free discrete quantity "
                             "representing the frequency of event."
