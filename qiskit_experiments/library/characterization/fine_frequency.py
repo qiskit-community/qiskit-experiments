@@ -15,7 +15,7 @@
 from typing import List, Optional
 import numpy as np
 
-from qiskit import QuantumCircuit, schedule
+from qiskit import QuantumCircuit, schedule, transpile
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options
@@ -25,17 +25,17 @@ from qiskit_experiments.library.characterization.analysis import FineAmplitudeAn
 class FineFrequency(BaseExperiment):
     r"""An experiment to make a fine measurement of the qubit frequency.
 
-    The fine frequency characterization experiment seeks to measure the qubit frequency
-    by moving to the equator of the Bloch sphere with a sx gate and idling for a time
+    The fine frequency characterization experiment measures the qubit frequency by moving
+    to the equator of the Bloch sphere with a sx gate and idling for a time
     :math:`n\cdot \tau` where :math:`\tau` is the duration of the single-qubit gate and
     :math:`n` is an integer which ranges from zero to a maximal value in integer steps.
-    The idle time is followed by rz rotation with an angle :math:`n\pi/2` and a final
-    sx gate. If the frequency of the pulses matches the frequency of the qubit then the
+    The idle time is followed by a rz rotation with an angle :math:`n\pi/2` and a final
+    sx gate. If the frequency of the pulses match the frequency of the qubit then the
     sequence :math:`n\in[0,1,2,3,4,...]` will result in the sequence of measured qubit
     populations :math:`[1, 0.5, 0, 0.5, 1, ...]` due to the rz rotation. If the frequency
-    of the pulses does not match the qubit frequency then the qubit will precess in the
-    drive frame during the idle time and phase error will build-up. By fitting the measured
-    points we can extract the value of the error in frequency. The circuit that are run are
+    of the pulses do not match the qubit frequency then the qubit will precess in the
+    drive frame during the idle time and phase errors will build-up. By fitting the measured
+    points we can extract the error in the qubit frequency. The circuit that are run are
 
     .. parsed-literal::
 
@@ -58,7 +58,7 @@ class FineFrequency(BaseExperiment):
         """Setup a fine frequency experiment on the given qubit.
 
         Args:
-            qubit: The qubit on which to run the fine amplitude calibration experiment.
+            qubit: The qubit on which to run the fine frequency characterization experiment.
             backend: Optional, the backend to run the experiment on.
             repetitions: The number of repetitions, if not given then the default value
                 from the experiment default options will be used.
@@ -70,13 +70,16 @@ class FineFrequency(BaseExperiment):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        r"""Default values for the fine amplitude experiment.
+        r"""Default values for the fine frequency experiment.
 
         Experiment Options:
             repetitions (List[int]): A list of the number of times that the identity is repeated.
+            sq_gate_duration (int): The duration of the single-qubit gate as the number of arbitrary
+                waveform generator samples it contains.
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(40))
+        options.sq_gate_duration = None
 
         return options
 
@@ -96,10 +99,15 @@ class FineFrequency(BaseExperiment):
     def circuits(self) -> List[QuantumCircuit]:
         """Return the list of quantum circuits to run."""
 
-        # Find out the duration of the sx gate on the backend
-        circ = QuantumCircuit(1)
-        circ.sx(0)
-        duration = schedule(circ, self.backend).duration
+        # Find out the duration of the sx gate from instructions map or the backend if missing.
+        if self.experiment_options.sq_gate_duration is None:
+            circuit = QuantumCircuit(1)
+            circuit.sx(0)
+            if self.transpile_options.inst_map is not None:
+                inst_map = self.transpile_options.inst_map
+                circuit = transpile(circuit, initial_layout=self.physical_qubits, inst_map=inst_map)
+            duration = schedule(circuit, self.backend).duration
+            self.set_experiment_options(sq_gate_duration=duration)
 
         circuits = []
 
@@ -108,7 +116,7 @@ class FineFrequency(BaseExperiment):
             circuit = self._pre_circuit()
             circuit.sx(0)
 
-            circuit.delay(duration=duration*repetition)
+            circuit.delay(duration=self.experiment_options.sq_gate_duration * repetition)
 
             circuit.rz(np.pi * repetition / 2, 0)
             circuit.sx(0)
