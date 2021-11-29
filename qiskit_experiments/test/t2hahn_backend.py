@@ -16,7 +16,6 @@ Temporary backend to be used for t2hahn experiment
 
 import numpy as np
 from numpy import isclose
-from qiskit import QiskitError
 from qiskit.providers import BackendV1
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
@@ -76,7 +75,9 @@ class T2HahnBackend(BackendV1):
         return Options(shots=1024)
 
     def _qubit_initialization(self) -> dict:
-        if self._initialization_error is not None and (self._rng.random() < self._initialization_error[0]):
+        if self._initialization_error is not None and (
+            self._rng.random() < self._initialization_error[0]
+        ):
             return {"XY plain": False, "ZX plain": True, "Theta": np.pi}
         else:
             return {
@@ -116,11 +117,7 @@ class T2HahnBackend(BackendV1):
                 phase = self._frequency[0] * delay
                 new_theta = qubit_state["Theta"] + phase
                 new_theta = new_theta % (2 * np.pi)
-                new_qubit_state = {
-                    "XY plain": True,
-                    "ZX plain": False,
-                    "Theta": new_theta
-                }
+                new_qubit_state = {"XY plain": True, "ZX plain": False, "Theta": new_theta}
         else:
             new_qubit_state = qubit_state
         return new_qubit_state
@@ -137,14 +134,14 @@ class T2HahnBackend(BackendV1):
         """
         if qubit_state["XY plain"]:
             if isclose(angle, np.pi):
-                new_theta = - qubit_state["Theta"]
+                new_theta = -qubit_state["Theta"]
                 new_theta = new_theta % (2 * np.pi)
                 new_qubit_state = {
                     "XY plain": True,
                     "ZX plain": False,
                     "Theta": new_theta,
                 }
-            elif isclose(angle, np.pi/2):
+            elif isclose(angle, np.pi / 2):
                 new_theta = angle - qubit_state["Theta"]
                 new_theta = new_theta % (2 * np.pi)
                 new_qubit_state = {
@@ -155,8 +152,10 @@ class T2HahnBackend(BackendV1):
             else:
                 print("Error - This angle isn't supported. We only support multipication of pi/2")
         else:
-            if isclose(angle, np.pi/2):
-                new_theta = qubit_state["Theta"] + 3 * np.pi/2  # its theta -pi/2 but we added 2*pi
+            if isclose(angle, np.pi / 2):
+                new_theta = (
+                    qubit_state["Theta"] + 3 * np.pi / 2
+                )  # its theta -pi/2 but we added 2*pi
                 new_theta = new_theta % (2 * np.pi)
                 new_qubit_state = {
                     "XY plain": True,
@@ -175,7 +174,6 @@ class T2HahnBackend(BackendV1):
                 print("Error - This angle isn't supported. We only support multiplication of pi/2")
         return new_qubit_state
 
-
     def _measurement_gate(self, qubit_state: dict) -> int:
         """
         implementing measurement on qubit with read-out error.
@@ -189,7 +187,7 @@ class T2HahnBackend(BackendV1):
             meas_res = self._rng.random() < 0.5
         else:
             z_projection = np.cos(qubit_state["Theta"])
-            probability = (z_projection ** 2)
+            probability = z_projection ** 2
             if self._rng.random() > probability:
                 meas_res = self._rng.random() < 0.5
             else:
