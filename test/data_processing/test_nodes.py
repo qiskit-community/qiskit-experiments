@@ -68,6 +68,7 @@ class TestAveraging(BaseDataProcessorTest):
         processed_data = node(data=datum)
 
         self.assertAlmostEqual(processed_data[0].nominal_value, 3.5)
+        # sqrt(0.1**2 + 0.2**2 + ... + 0.6**2) / 6
         self.assertAlmostEqual(processed_data[0].std_dev, 0.15898986690282427)
 
     def test_with_error_partly_non_error(self):
@@ -87,9 +88,11 @@ class TestAveraging(BaseDataProcessorTest):
         processed_data = node(data=datum)
 
         self.assertAlmostEqual(processed_data[0].nominal_value, 3.5)
+        # sqrt(0.1**2 + 0.2**2 + ... + 0.6**2) / 6
         self.assertAlmostEqual(processed_data[0].std_dev, 0.15898986690282427)
 
         self.assertAlmostEqual(processed_data[1].nominal_value, 3.5)
+        # sqrt((0.1 - 0.35)**2 + (0.2 - 0.35)**2 + ... + (0.6 - 0.35)**2) / 6
         self.assertAlmostEqual(processed_data[1].std_dev, 0.6972166887783964)
 
     def test_iq_averaging(self):
