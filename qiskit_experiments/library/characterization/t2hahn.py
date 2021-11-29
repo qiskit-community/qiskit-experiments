@@ -51,6 +51,8 @@ class T2Hahn(BaseExperiment):
                                                                          0
             for each *t* from the specified delay times
             and the delays are specified by the user.
+            The delays that are specified are delay for each delay gate while
+            the delay in the metadata is the total delay which is delay * (num_echoes +1)
             The circuits are run on the device or on a simulator backend.
 
         # section: tutorial
@@ -74,7 +76,7 @@ class T2Hahn(BaseExperiment):
         options.unit = "s"
         options.conversion_factor = None
         options.osc_freq = 0.0
-
+        options.num_echoes = 1
         return options
 
     def __init__(
@@ -89,7 +91,7 @@ class T2Hahn(BaseExperiment):
 
         Args:
             qubit:  the qubit whose T2 is to be estimated
-            delays: delay times of the experiments.
+            delays: Total delay times of the experiments.
 			backend: Optional, the backend to run the experiment on.
             unit: Optional, time unit of `delays`.
                 Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'.
@@ -161,22 +163,29 @@ class T2Hahn(BaseExperiment):
             raise ValueError("Conversion factor is not set.")
 
         circuits = []
-        for delay in prefactor * np.asarray(self.experiment_options.delays, dtype=float):
-            delay = np.round(delay, decimals=10)
+        for delay_gate in prefactor * np.asarray(self.experiment_options.delays, dtype=float):
+            total_delay = delay_gate * (self.experiment_options.num_echoes + 1)
+            # delay_gate = delay
+
+            delay_gate = np.round(delay_gate, decimals=10)
 
             circ = QuantumCircuit(1, 1)
 
-            # First Y rotation in 90 degrees
+            # First X rotation in 90 degrees
             circ.rx(np.pi / 2, 0)  # Bring to qubits to X Axis
-            circ.delay(delay, 0, self.experiment_options.unit)
-            circ.rx(np.pi, 0)
-            circ.delay(delay, 0, self.experiment_options.unit)
-            circ.rx(np.pi / 2, 0)  # X90 again since the num of echoes is odd
+            for idx in range(self.experiment_options.num_echoes):
+                circ.delay(delay_gate, 0, self.experiment_options.unit)
+                circ.rx(np.pi, 0)
+                circ.delay(delay_gate, 0, self.experiment_options.unit)
+            if self.experiment_options.num_echoes % 2 == 1:
+                circ.rx(np.pi / 2, 0)  # X90 again since the num of echoes is odd
+            else:
+                circ.rx(-np.pi / 2, 0)  # X90 again since the num of echoes is even
             circ.measure(0, 0)  # measure
             circ.metadata = {
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
-                "xval": delay,
+                "xval": total_delay,
                 "unit": "s",
             }
 
