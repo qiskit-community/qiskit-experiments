@@ -87,8 +87,9 @@ class Calibrations:
                 )
 
         Args:
-            coupling_map: The coupling map of the device. This option is not needed if the backend
-                is provided.
+            coupling_map: The device's coupling map. Each sub-list describes connected qubits
+                For example, the coupling map of a fully pairwise-connected backend with three
+                qubits is :code:`[[0, 1], [1, 0], [1, 2], [2, 1], [2, 0], [0, 2]]`.
             control_channel_map: A configuration dictionary of any control channels. The
                 keys are tuples of qubits and the values are a list of ControlChannels
                 that correspond to the qubits in the keys.
