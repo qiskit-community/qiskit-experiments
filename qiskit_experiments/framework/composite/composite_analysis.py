@@ -14,6 +14,7 @@ Composite Experiment Analysis class.
 """
 
 from typing import List, Dict
+import numpy as np
 from qiskit.result import marginal_counts
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData
 from qiskit_experiments.database_service.device_component import Qubit
@@ -111,6 +112,14 @@ class CompositeAnalysis(BaseAnalysis):
             )
             analysis_results.append(result)
 
+        # Add callback to wait for all component analysis to finish before returning
+        # the parent experiment analysis results
+        def _wait_for_components(experiment_data, component_ids):
+            for comp_id in component_ids:
+                experiment_data.child_data(comp_id).block_for_results()
+
+        experiment_data.add_analysis_callback(_wait_for_components, component_ids=component_ids)
+
         return analysis_results, []
 
     def _initialize_components(self, experiment, experiment_data):
@@ -159,6 +168,13 @@ class CompositeAnalysis(BaseAnalysis):
                         sub_data["counts"] = marginal_counts(datum["counts"], composite_clbits[i])
                     else:
                         sub_data["counts"] = datum["counts"]
+                if "memory" in datum:
+                    if composite_clbits is not None:
+                        sub_data["memory"] = (
+                            np.array(datum["memory"])[composite_clbits[i]]
+                        ).tolist()
+                    else:
+                        sub_data["memory"] = datum["memory"]
                 marginalized_data[index].append(sub_data)
 
         # Sort by index
