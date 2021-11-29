@@ -105,8 +105,8 @@ class DataProcessor:
             options: Run-time options given as keyword arguments that will be passed to the nodes.
 
         Returns:
-            The data processed by the data processor. This is arbitrary numpy array that
-            may contain standard error as ufloat object.
+            The data processed by the data processor. This is an arbitrary numpy array that
+            may contain standard errors as a ufloat object.
         """
         return self._call_internal(data, **options)
 
