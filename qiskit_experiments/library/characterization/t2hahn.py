@@ -80,11 +80,11 @@ class T2Hahn(BaseExperiment):
         return options
 
     def __init__(
-            self,
-            qubit: int,
-            delays: Union[List[float], np.array],
-            backend: Optional[Backend] = None,
-            unit: str = "s",
+        self,
+        qubit: int,
+        delays: Union[List[float], np.array],
+        backend: Optional[Backend] = None,
+        unit: str = "s",
     ):
         """
         Initialize the T2 - Hahn Echo class
@@ -92,7 +92,7 @@ class T2Hahn(BaseExperiment):
         Args:
             qubit:  the qubit whose T2 is to be estimated
             delays: Total delay times of the experiments.
-			backend: Optional, the backend to run the experiment on.
+                        backend: Optional, the backend to run the experiment on.
             unit: Optional, time unit of `delays`.
                 Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'.
 
@@ -153,7 +153,7 @@ class T2Hahn(BaseExperiment):
             The experiment circuits
 
         Raises:
-            AttributeError: if unit is 'dt', but 'dt' parameter is missing in the backend configuration
+            ValueError: if unit is 'dt', but 'dt' parameter is missing in the backend configuration
         """
         if self.backend:
             self._set_backend(self.backend)
@@ -173,7 +173,7 @@ class T2Hahn(BaseExperiment):
 
             # First X rotation in 90 degrees
             circ.rx(np.pi / 2, 0)  # Bring to qubits to X Axis
-            for idx in range(self.experiment_options.num_echoes):
+            for _ in range(self.experiment_options.num_echoes):
                 circ.delay(delay_gate, 0, self.experiment_options.unit)
                 circ.rx(np.pi, 0)
                 circ.delay(delay_gate, 0, self.experiment_options.unit)

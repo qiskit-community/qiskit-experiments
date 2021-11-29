@@ -19,7 +19,6 @@ from qiskit.utils import apply_prefix
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.library.characterization.t2hahn import T2Hahn
 from qiskit_experiments.test.t2hahn_backend import T2HahnBackend
-import unittest
 
 
 class TestT2Hahn(QiskitTestCase):
@@ -62,9 +61,10 @@ class TestT2Hahn(QiskitTestCase):
                 conversion_factor=dt_factor,
             )
 
-            for user_p0 in [default_p0, dict()]:
-                # exp.set_analysis_options(user_p0=user_p0, plot=True)
-                exp.set_analysis_options(p0={"amp": 0.5, "tau": estimated_t2hahn / dt_factor, "base": 0.5}, plot=True)
+            for _ in [default_p0, dict()]:
+                exp.set_analysis_options(
+                    p0={"amp": 0.5, "tau": estimated_t2hahn / dt_factor, "base": 0.5}, plot=True
+                )
                 expdata = exp.run(backend=backend, shots=1000)
                 expdata.block_for_results()  # Wait for job/analysis to finish.
                 result = expdata.analysis_results("T2")
@@ -86,7 +86,9 @@ class TestT2Hahn(QiskitTestCase):
         dt_factor = 1
 
         exp0 = T2Hahn(qubit, delays0, unit=unit)
-        exp0.set_analysis_options(p0={"amp": 0.5, "tau": estimated_t2hahn / dt_factor, "base": 0.5}, plot=True)
+        exp0.set_analysis_options(
+            p0={"amp": 0.5, "tau": estimated_t2hahn / dt_factor, "base": 0.5}, plot=True
+        )
         backend = T2HahnBackend(
             t2hahn=[estimated_t2hahn],
             frequency=[osc_freq],
@@ -100,12 +102,14 @@ class TestT2Hahn(QiskitTestCase):
         expdata0 = exp0.run(backend=backend, shots=1000).block_for_results()
         expdata0.block_for_results()
 
-        res_t2_0 = expdata0.analysis_results('T2')
+        res_t2_0 = expdata0.analysis_results("T2")
 
         # second experiment
         delays1 = list(range(2, 65, 2))
         exp1 = T2Hahn(qubit, delays1, unit=unit)
-        exp1.set_analysis_options(p0={"amp": 0.5, "tau": estimated_t2hahn / dt_factor, "base": 0.5}, plot=True)
+        exp1.set_analysis_options(
+            p0={"amp": 0.5, "tau": estimated_t2hahn / dt_factor, "base": 0.5}, plot=True
+        )
         expdata1 = exp1.run(backend=backend, analysis=False, shots=1000).block_for_results()
         expdata1.add_data(expdata0.data())
         exp1.run_analysis(expdata1).block_for_results()
@@ -125,6 +129,3 @@ class TestT2Hahn(QiskitTestCase):
 
         self.assertLessEqual(res_t2_1.value.stderr, res_t2_0.value.stderr)
         self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))
-
-if __name__ == '__main__':
-    unittest.main()
