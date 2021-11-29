@@ -189,7 +189,7 @@ class T2HahnBackend(BackendV1):
             meas_res = self._rng.random() < 0.5
         else:
             z_projection = np.cos(qubit_state["Theta"])
-            probability = abs(z_projection) ** 2
+            probability = (z_projection ** 2)
             if self._rng.random() > probability:
                 meas_res = self._rng.random() < 0.5
             else:
