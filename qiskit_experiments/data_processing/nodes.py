@@ -454,7 +454,7 @@ class Probability(DataAction):
         Args:
             data: A data array to format. This is a single numpy array containing
                 all circuit results input to the data processor.
-                This is usually object data type containing Python dictionaries of
+                This is usually an object data type containing Python dictionaries of
                 count data keyed on the measured bitstring.
                 Count value should be a discrete quantity representing the frequency of event,
                 and no uncertainty should be associated with the value.
