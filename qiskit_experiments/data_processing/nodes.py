@@ -494,7 +494,7 @@ class Probability(DataAction):
         Args:
             data: A data array to process. This is a single numpy array containing
                 all circuit results input to the data processor.
-                This is usually object data type containing Python dictionaries of
+                This is usually an object data type containing Python dictionaries of
                 count data keyed on the measured bitstring.
 
         Returns:
