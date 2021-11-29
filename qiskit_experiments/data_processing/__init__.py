@@ -27,6 +27,7 @@ Classes
     :toctree: ../stubs/
 
     DataProcessor
+    DataLogger
     DataAction
     TrainableDataAction
 
@@ -54,4 +55,4 @@ from .nodes import (
     BasisExpectationValue,
 )
 
-from .data_processor import DataProcessor
+from .data_processor import DataProcessor, DataLogger

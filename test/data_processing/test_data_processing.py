@@ -21,7 +21,7 @@ from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit.result import Result
 
 from qiskit_experiments.framework import ExperimentData
-from qiskit_experiments.data_processing.data_processor import DataProcessor
+from qiskit_experiments.data_processing.data_processor import DataProcessor, DataLogger
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.nodes import (
     AverageData,
@@ -84,9 +84,13 @@ class DataProcessorTest(BaseDataProcessorTest):
         self.assertEqual(datum, [{"00": 4, "10": 6}])
         self.assertIsNone(error)
 
-        datum, error, history = data_processor.call_with_history(self.exp_data_lvl2.data(0))
+        history = DataLogger()
+        datum, error = data_processor(
+            data=self.exp_data_lvl2.data(0),
+            callback=history,
+        )
         self.assertEqual(datum, [{"00": 4, "10": 6}])
-        self.assertEqual(history, [])
+        self.assertEqual(history.data(), [])
 
     def test_to_real(self):
         """Test scaling and conversion to real part."""
@@ -117,13 +121,17 @@ class DataProcessorTest(BaseDataProcessorTest):
         self.assertIsNone(error)
 
         # Test that we can call with history.
-        new_data, error, history = processor.call_with_history(exp_data.data(0))
+        history = DataLogger()
+        new_data, error = processor(
+            data=exp_data.data(0),
+            callback=history,
+        )
 
         self.assertEqual(exp_data.data(0), expected_old)
         self.assertTrue(np.allclose(new_data, expected_new))
 
-        self.assertEqual(history[0][0], "ToReal")
-        self.assertTrue(np.allclose(history[0][1], expected_new))
+        self.assertEqual(history.data()[0][0], "ToReal")
+        self.assertTrue(np.allclose(history.data()[0][1], expected_new))
 
         # Test to real on more than one datum
         new_data, error = processor(exp_data.data())
@@ -172,12 +180,16 @@ class DataProcessorTest(BaseDataProcessorTest):
         self.assertIsNone(error)
 
         # Test that we can call with history.
-        new_data, error, history = processor.call_with_history(exp_data.data(0))
+        history = DataLogger()
+        new_data, error = processor(
+            data=exp_data.data(0),
+            callback=history,
+        )
         self.assertEqual(exp_data.data(0), expected_old)
         self.assertTrue(np.allclose(new_data, expected_new))
 
-        self.assertEqual(history[0][0], "ToImag")
-        self.assertTrue(np.allclose(history[0][1], expected_new))
+        self.assertEqual(history.data()[0][0], "ToImag")
+        self.assertTrue(np.allclose(history.data()[0][1], expected_new))
 
         # Test to imaginary on more than one datum
         new_data, error = processor(exp_data.data())
