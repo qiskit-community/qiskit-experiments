@@ -456,8 +456,8 @@ class Probability(DataAction):
                 all circuit results input to the data processor.
                 This is usually an object data type containing Python dictionaries of
                 count data keyed on the measured bitstring.
-                Count value should be a discrete quantity representing the frequency of event,
-                and no uncertainty should be associated with the value.
+                A count value is a discrete quantity representing the frequency of an event.
+                Therefore, count values do not have an uncertainty.
 
         Returns:
             The ``data`` as given.
