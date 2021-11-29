@@ -774,7 +774,7 @@ class CrossResonanceTest(QiskitExperimentsTestCase):
             (3, 2): [ControlChannel(10), ControlChannel(123)],
             (2, 3): [ControlChannel(15), ControlChannel(23)],
         }
-        self.cals = Calibrations(control_config=controls)
+        self.cals = Calibrations(control_channel_map=controls)
 
         self.amp_cr = Parameter("amp")
         self.amp_rot = Parameter("amp_rot")
@@ -904,7 +904,7 @@ class TestAssignment(QiskitExperimentsTestCase):
 
         controls = {(3, 2): [ControlChannel(10)]}
 
-        self.cals = Calibrations(control_config=controls)
+        self.cals = Calibrations(control_channel_map=controls)
 
         self.amp_xp = Parameter("amp")
         self.ch0 = Parameter("ch0")
@@ -1110,7 +1110,7 @@ class TestCoupledAssigning(QiskitExperimentsTestCase):
 
         controls = {(3, 2): [ControlChannel(10)]}
 
-        self.cals = Calibrations(control_config=controls)
+        self.cals = Calibrations(control_channel_map=controls)
 
         self.amp_cr = Parameter("amp")
         self.amp_xp = Parameter("amp")
@@ -1597,7 +1597,7 @@ class TestBackendCalibrations(QiskitExperimentsTestCase):
         cals1 = Calibrations.from_backend(backend, library)
         cals2 = Calibrations(
             library=library,
-            control_config=backend.configuration().control_channels,
+            control_channel_map=backend.configuration().control_channels,
             coupling_map=backend.configuration().coupling_map,
         )
 

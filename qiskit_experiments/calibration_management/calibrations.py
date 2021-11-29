@@ -68,7 +68,7 @@ class Calibrations:
     def __init__(
         self,
         coupling_map: Optional[List[List[int]]] = None,
-        control_config: Optional[Dict[Tuple[int, ...], List[ControlChannel]]] = None,
+        control_channel_map: Optional[Dict[Tuple[int, ...], List[ControlChannel]]] = None,
         library: Optional[BasisGateLibrary] = None,
         add_parameter_defaults: bool = True,
     ):
@@ -89,7 +89,7 @@ class Calibrations:
         Args:
             coupling_map: The coupling map of the device. This option is not needed if the backend
                 is provided.
-            control_config: A configuration dictionary of any control channels. The
+            control_channel_map: A configuration dictionary of any control channels. The
                 keys are tuples of qubits and the values are a list of ControlChannels
                 that correspond to the qubits in the keys.
             library: A library class that will be instantiated with the library options to then
@@ -103,7 +103,7 @@ class Calibrations:
         self.update_inst_map_on_add = False
 
         # Mapping between qubits and their control channels.
-        self._controls_config = control_config if control_config else {}
+        self._controls_config = control_channel_map if control_channel_map else {}
 
         # Store the reverse mapping between control channels and qubits for ease of look-up.
         self._controls_config_r = {}
