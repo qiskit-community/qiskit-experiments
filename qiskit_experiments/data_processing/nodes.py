@@ -34,11 +34,11 @@ class AverageData(DataAction):
             validate: If set to False the DataAction will not validate its input.
 
         Notes:
-            If standard error of input array is not populated, this node will compute
+            If the input array has no standard error, then this node will compute the
             standard error of the mean, i.e. the standard deviation of the datum divided by
             :math:`\sqrt{N}` where :math:`N` is the number of data points.
-            Otherwise standard error is computed by quadratic sum of the errors of input data
-            divided by the number of data points, as usual error propagation.
+            Otherwise the standard error is given by the square root of :math:`N^{-1}` times 
+            the sum of the squared errors.
         """
         super().__init__(validate)
         self._axis = axis
