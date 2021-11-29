@@ -36,5 +36,5 @@ Analysis
     GSTAnalysis
 
 """
-from gst_experiment import GateSetTomography
-from gst_analysis import GSTAnalysis
+from .gst_experiment import GateSetTomography
+from .gst_analysis import GSTAnalysis

@@ -10,34 +10,31 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Standard RB Experiment class.
+Standard GST Experiment class.
 """
-from typing import Union, Iterable, Optional, List, Dict, Tuple, Callable
-import itertools as itert
-import numpy as np
-from numpy.random import Generator, default_rng
+from typing import Union, Optional, List, Dict, Callable, Tuple
+from types import FunctionType
 import copy
+import itertools as itert
 from qiskit import QuantumCircuit, QiskitError
 from qiskit.providers import Backend
 from qiskit.circuit import Gate
 
-from qiskit_experiments.framework import BaseExperiment, ParallelExperiment, Options
-from qiskit_experiments.curve_analysis.data_processing import probability
-from gst_analysis import GSTAnalysis
-from gatesetbasis import (
+from qiskit_experiments.framework import BaseExperiment, Options
+from .gst_analysis import GSTAnalysis
+from .gatesetbasis import (
     GateSetBasis,
     default_gateset_basis,
-    gatesetbasis_constrction_from_basis_gates,
+    gatesetbasis_constrction,
 )
-from types import FunctionType
 
 
 class GateSetTomography(BaseExperiment):
-    """Gate set tomography experiment.
+    r"""Gate set tomography experiment.
 
     # section: overview
 
-        Gate-Set Tomography is a powerful method that, similarly
+        Gate-Set Tomography is a powerful method that, similar
         to Quantum Process Tomography, is used to perform full
         characterization of quantum processes using measurement data of a specific set of quantum
         circuits.
@@ -49,8 +46,8 @@ class GateSetTomography(BaseExperiment):
         or the measurements and provides full characterization of the states,
         quantum processes and measurements.
 
-        Gate set tomography is performed on a gate set (G0, G1,...,Gm)
-        with the additional information of SPAM circuits (F0,F1,...,Fn)
+        Gate set tomography is performed on a gate set :math:`G = (G0, G1,...,Gm)`
+        with the additional information of SPAM circuits :math:`F = (F0,F1,...,Fn)`
         that are constructed from the gates in the gate set.
         In gate set tomography, we assume a single initial state rho which is
         the native state in which all states are initialized in 0 state
@@ -58,8 +55,8 @@ class GateSetTomography(BaseExperiment):
         in state 0. The SPAM circuits provide us with a complete set of initial
         state F_j|rho> and measurements <E|F_i.
         We perform three types of experiments:
-        1) :math:`\langle E  | F_i G_k F_j |\rho \rangle` for 1 <= i,j <= n
-            and 1 <= k <= m:
+        1) :math:`\langle E  | F_i G_k F_j |\rho \rangle`
+        for 1 <= i,j <= n and 1 <= k <= m:
             This experiment enables us to obtain data on the gate G_k
         2) :math:`\langle E  | F_i F_j |\rho \rangle`  for 1 <= i,j <= n:
             This experiment enables us to obtain the Gram matrix required
@@ -88,31 +85,72 @@ class GateSetTomography(BaseExperiment):
     def __init__(
         self,
         qubits: List[int],
-        gateset: Union[str, GateSetBasis, Dict[str, Union[FunctionType, Gate]]] = "default",
-        additional_gates: List[Union[Callable, Gate]] = None,
+        basis_gates: Union[str, Dict[str, FunctionType]] = "default",
+        spam_gates: Union[str, Dict[str, Tuple]] = "default",
+        additional_gates: Dict[str, Union[Callable, Gate]] = None,
         only_basis_gates: bool = False,
     ):
         """Initialize a gate set tomography experiment.
 
         Args:
-            qubits: List of qubits labels GST is performed on.
-            gateset: The gateset and SPAM data provided as a GatesetBasis or only a set of basis
-                gates from which SPAM gates should be constructed, provided as
-                ('Only basis gates', a dictionary of the basis gates). If 'default', the default
-                gateset corresponding to the number of qubits = qubits will be used.
-            additional_gates: The list of gates to add to a gateset to be characterized using GST.
-            only_basis_gates: A boolean variable indicating whether the gateset provided includes
-            only a set of gates from which the algorithm is required to construct the SPAM gates, or
-            if it is full, meaning that it includes both the gate set and the SPAM gates.
+            qubits: A List of qubits labels GST is performed on.
+            basis_gates: A dictionary of the basis gates set :math:`G`, provided as in the following
+                example:
+                    basis_gates = {
+                    'Id': lambda circ, qubit: None,
+                    'X_Rot_90': lambda circ, qubit: circ.append(U2Gate(-np.pi / 2, np.pi / 2), [qubit]),
+                    'Y_Rot_90': lambda circ, qubit: circ.append(U2Gate(0, 0), [qubit])
+                    }
+                where the keys are the labels of the gates, and the values are function which takes
+                a QuantumCircuit, and QuantumRegister (or a list of them) as arguments and returns
+                a description of the gate action on the qubits.
 
+                If 'default' or None, the built-in default gate set will be used.
+
+            spam_gates: A dictionary of SPAM gates :math:`F`, where the keys are spam gates label of the
+                form 'F'+'spam gate number', and the values are tuples of the basis gates labels
+                that construct the spam gate. For example:
+                    spam_gates = {
+                    'F0': ('Id',),
+                    'F1': ('X_Rot_90',),
+                    'F2': ('Y_Rot_90',),
+                    'F3': ('X_Rot_90', 'X_Rot_90')
+                    }
+                If 'default' or None, the built-in default gate set will be used if only_basis_gates
+                is False. Otherwise, if only_basis_gates below is true, a built_in function will be used
+                to construct spam gates.
+            additional_gates: The list of gates to add to the `basis_gates` set to be characterized
+            using GST.
+            only_basis_gates: A boolean variable indicating whether spam gates are provided or
+                only a set of basis gates is provided from which the algorithm is required to
+                construct a set of SPAM gates.
+        Raises:
+            QiskitError: If the provided `basis_gates` and `spam_gates` are of a wrong
+            format.
         """
+
         # Initialize base experiment
         super().__init__(qubits)
 
-        if only_basis_gates is False or None:
-            if isinstance(gateset, GateSetBasis):
-                self._gateset_basis = gateset
-            elif any((gateset == "default", gateset is None)):
+        if only_basis_gates is False:
+            if isinstance(basis_gates, dict):
+                if spam_gates == "default":
+                    raise QiskitError(
+                        "Spam gates are not provided. "
+                        "If only basis_gates are provided, only_basis_gates should be True."
+                    )
+
+                try:
+                    self._gateset_basis = GateSetBasis(
+                        "Gate Set", basis_gates, spam_gates, self.num_qubits
+                    )
+
+                except (ValueError, QiskitError) as gateset_wrong_format:
+                    raise QiskitError(
+                        "Can not run GST experiment with the provided gate set format."
+                    ) from gateset_wrong_format
+
+            elif basis_gates == "default":
                 if self.num_qubits < 3:
                     self._gateset_basis = default_gateset_basis(self.num_qubits)
                 else:
@@ -120,16 +158,14 @@ class GateSetTomography(BaseExperiment):
                         "Only 1-qubit and 2-qubit default gate sets are available" " in Qiskit"
                     )
 
-        elif only_basis_gates is True and isinstance(gateset, Dict):
-            self._gateset_basis = gatesetbasis_constrction_from_basis_gates(
-                gateset, self.num_qubits
-            )[0]
+        elif only_basis_gates is True and isinstance(basis_gates, dict):
+            self._gateset_basis = gatesetbasis_constrction(basis_gates, self.num_qubits)[0]
         else:
-            raise QiskitError("Can not run GST experiment with the provided gateset format.")
+            raise QiskitError("Can not run GST experiment with the provided gate set format.")
 
         if additional_gates is not None:
-            for gate in additional_gates:
-                self._gateset_basis.add_gate(gate)
+            for gate_label in additional_gates.keys():
+                self._gateset_basis.add_gate(additional_gates[gate_label], gate_label)
 
     def _metadata(self):
         metadata = super()._metadata()
@@ -141,7 +177,7 @@ class GateSetTomography(BaseExperiment):
         return metadata
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
-        """Return a list of GST circuits.
+        r"""Return a list of GST circuits.
 
         Args:
             backend (Backend): Optional, a backend object.
@@ -150,15 +186,16 @@ class GateSetTomography(BaseExperiment):
             A list of :class:`QuantumCircuit`.
 
         Additional Information:
-            It returns the circuits corresponding to measuring :math:`\langle E  | F_i G_k F_j |\rho \rangle`,
-             :math:`\langle E  | F_i F_j |\rho \rangle` and :math:`\langle E  | F_j |\rho \rangle`
-             as explained in further details in the overview of GateSetTomography class.
+            It returns the circuits corresponding to measuring
+            :math:`\langle E  | F_i G_k F_j |\rho \rangle`,
+            :math:`\langle E  | F_i F_j |\rho \rangle` and :math:`\langle E  | F_j |\rho \rangle`
+            as explained in further details in the overview of GateSetTomography class.
 
         """
         all_circuits = []
 
         # Experiments of the form <E|F_i G_k F_j|rho>
-        FGF_circuits = []
+        fgf_circuits = []
         for gate in self._gateset_basis.gate_labels:
             for (fprep, fmeas) in itert.product(
                 self._gateset_basis.spam_labels, self._gateset_basis.spam_labels
@@ -176,14 +213,14 @@ class GateSetTomography(BaseExperiment):
                     "circuit_name": circuit.name,
                 }
                 circuit.metadata = metadata
-                FGF_circuits.append(circuit)
+                fgf_circuits.append(circuit)
 
-        all_circuits = all_circuits + FGF_circuits
+        all_circuits = all_circuits + fgf_circuits
 
         # Experiments of the form <E|F_i F_j|rho>
         # Can be skipped if one of the gates is ideal identity
 
-        FF_circuits = []
+        ff_circuits = []
         for (fprep, fmeas) in itert.product(
             self._gateset_basis.spam_labels, self._gateset_basis.spam_labels
         ):
@@ -198,12 +235,12 @@ class GateSetTomography(BaseExperiment):
                 "circuit_name": circuit.name,
             }
             circuit.metadata = metadata
-            FF_circuits.append(circuit)
-        all_circuits = all_circuits + FF_circuits
+            ff_circuits.append(circuit)
+        all_circuits = all_circuits + ff_circuits
 
         # Experiments of the form <E|F_j|rho>
 
-        F_circuits = []
+        f_circuits = []
         for fprep in self._gateset_basis.spam_labels:
             circuit = QuantumCircuit(self.num_qubits, self.num_qubits)
             self._gateset_basis.add_spam_to_circuit(circuit, self.physical_qubits, fprep)
@@ -215,7 +252,7 @@ class GateSetTomography(BaseExperiment):
                 "circuit_name": circuit.name,
             }
             circuit.metadata = metadata
-            F_circuits.append(circuit)
-        all_circuits = all_circuits + F_circuits
+            f_circuits.append(circuit)
+        all_circuits = all_circuits + f_circuits
 
         return all_circuits
