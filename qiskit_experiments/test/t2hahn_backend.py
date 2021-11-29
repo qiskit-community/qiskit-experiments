@@ -123,7 +123,6 @@ class T2HahnBackend(BackendV1):
                 }
         else:
             new_qubit_state = qubit_state
-        # new_qubit_state = qubit_state
         return new_qubit_state
 
     def _rx_gate(self, qubit_state: dict, angle: float) -> dict:
