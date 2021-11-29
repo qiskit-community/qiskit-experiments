@@ -132,11 +132,12 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             prev_amp = prev_amp[0] + 1.0j * prev_amp[1]
 
         d_theta = BaseUpdater.get_value(experiment_data, "d_theta", result_index)
+        self._latest_value = prev_amp * target_angle / (target_angle + d_theta)
 
         BaseUpdater.add_parameter_value(
             self._cals,
             experiment_data,
-            prev_amp * target_angle / (target_angle + d_theta),
+            self._latest_value,
             self._param_name,
             self._sched_name,
             group,

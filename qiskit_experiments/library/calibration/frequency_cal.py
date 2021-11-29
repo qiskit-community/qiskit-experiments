@@ -92,12 +92,12 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
         old_freq = experiment_data.metadata["cal_param_value"]
 
         fit_freq = BaseUpdater.get_value(experiment_data, "freq", result_index)
-        new_freq = old_freq + fit_freq - osc_freq
+        self._latest_value = old_freq + fit_freq - osc_freq
 
         BaseUpdater.add_parameter_value(
             self._cals,
             experiment_data,
-            new_freq,
+            self._latest_value,
             self._param_name,
             group=group,
         )

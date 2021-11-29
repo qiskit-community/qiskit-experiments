@@ -12,7 +12,7 @@
 
 """Base class for calibration-type experiments."""
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Dict, Optional, Tuple, Type
 import warnings
 
@@ -132,12 +132,21 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         self._sched_name = schedule_name
         self._param_name = cal_parameter_name
         self._updater = updater
+        self._latest_value = None
         self.auto_update = auto_update
 
     @property
     def calibrations(self) -> Calibrations:
         """Return the calibrations."""
         return self._cals
+
+    @property
+    def latest_result(self) -> float:
+        """The most recent value of the parameter that was calibrated.
+
+        typically, this value should be set by the :meth:`update_calibrations` method.
+        """
+        return self._latest_value
 
     @classmethod
     def _default_experiment_options(cls):
@@ -153,6 +162,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
         options.result_index = -1
         options.group = "default"
+        options.max_iterations = 1
 
         return options
 
@@ -372,6 +382,12 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     ) -> ExperimentData:
         """Run an experiment, perform analysis, and update any calibrations.
 
+        By default, the run method of the :class:`BaseCalibrationExperiment` class runs the
+        experiment once. However, many calibrations experiments, such as fine calibration
+        experiments, will run iteratively until a certain tolerance on the parameter is reach.
+        This behaviour can be controlled by setting the number of maximum iterations to more
+        than one.
+
         Args:
             backend: Optional, the backend to run the experiment on. This
                      will override any currently set backends for the single
@@ -381,12 +397,53 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
         Returns:
             The experiment data object.
+
+        Raises:
+            CalibrationError: If the number of iterations of the calibration experiment is
+                larger than one and auto_update is False.
         """
+        max_iter = self.experiment_options.max_iterations
+
+        if max_iter == 1:
+            return self._single_run(backend, analysis, **run_options)
+        elif max_iter > 1 and self.auto_update:
+            rounds_done = 0
+            tol = self.experiment_options.tolerance
+            looped_experiment_data = self._initialize_experiment_data()
+
+            while rounds_done < max_iter and self.latest_result < tol:
+                experiment_data = self._single_run(backend, analysis, block=True, **run_options)
+
+                looped_experiment_data.add_data(experiment_data.data())
+                for result in experiment_data.analysis_results():
+                    looped_experiment_data.analysis_results(result)
+
+                rounds_done += 1
+
+            return looped_experiment_data
+        else:
+            raise CalibrationError(
+                "Cannot loop a calibration experiment if auto_update is False (found "
+                f"{self.auto_update}) and the maximum number of iterations is not greater "
+                f"than 1 (found {max_iter})."
+            )
+
+    def _single_run(
+        self,
+        backend: Optional[Backend] = None,
+        analysis: bool = True,
+        block: bool = False,
+        **run_options,
+    ) -> ExperimentData:
+        """Run the experiment once."""
         experiment_data = super().run(backend, analysis, **run_options)
 
         self._add_cal_metadata(experiment_data)
 
         if self.auto_update and analysis:
             experiment_data.add_analysis_callback(self.update_calibrations)
+
+        if block:
+            experiment_data = experiment_data.block_for_results()
 
         return experiment_data

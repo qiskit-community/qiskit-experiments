@@ -99,14 +99,14 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
         See :class:`DragCalAnalysis` for details on the fit.
         """
 
-        new_beta = BaseUpdater.get_value(
+        self._latest_value = BaseUpdater.get_value(
             experiment_data, "beta", self.experiment_options.result_index
         )
 
         BaseUpdater.add_parameter_value(
             self._cals,
             experiment_data,
-            new_beta,
+            self._latest_value,
             self._param_name,
             self._sched_name,
             self.experiment_options.group,

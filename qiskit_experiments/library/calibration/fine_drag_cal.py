@@ -136,10 +136,10 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
         # See the documentation in fine_drag.py for the derivation of this rule.
         d_beta = -np.sqrt(np.pi) * d_theta * sigmas[0] / target_angle ** 2
         old_beta = experiment_data.metadata["cal_param_value"]
-        new_beta = old_beta + d_beta
+        self._latest_value = old_beta + d_beta
 
         BaseUpdater.add_parameter_value(
-            self._cals, experiment_data, new_beta, self._param_name, schedule, group
+            self._cals, experiment_data, self._latest_value, self._param_name, schedule, group
         )
 
 
