@@ -37,6 +37,7 @@ Experiments
     RamseyXY
     FineFrequency
     RoughDrag
+    ReadoutAngle
     FineDrag
     FineXDrag
     FineSXDrag
@@ -58,6 +59,7 @@ Analysis
     analysis.FineAmplitudeAnalysis
     analysis.FineXAmplitudeAnalysis
     analysis.RamseyXYAnalysis
+    analysis.ReadoutAngleAnalysis
 """
 
 from .analysis import (
@@ -70,6 +72,7 @@ from .analysis import (
     T2RamseyAnalysis,
     T1Analysis,
     CrossResonanceHamiltonianAnalysis,
+    ReadoutAngleAnalysis,
 )
 
 from .t1 import T1
@@ -83,4 +86,5 @@ from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
 from .ramsey_xy import RamseyXY
 from .fine_frequency import FineFrequency
 from .drag import RoughDrag
+from .readout_angle import ReadoutAngle
 from .fine_drag import FineDrag, FineXDrag, FineSXDrag

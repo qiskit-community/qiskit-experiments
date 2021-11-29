@@ -74,6 +74,7 @@ Some experiments may be also used for gate calibration.
     ~characterization.EFRabi
     ~characterization.RamseyXY
     ~characterization.FineFrequency
+    ~characterization.ReadoutAngle
 
 
 .. _calibration:
@@ -137,6 +138,7 @@ from .characterization import (
     FineSXAmplitude,
     RamseyXY,
     FineFrequency,
+    ReadoutAngle,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
