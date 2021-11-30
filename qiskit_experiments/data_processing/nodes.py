@@ -37,7 +37,7 @@ class AverageData(DataAction):
             If the input array has no standard error, then this node will compute the
             standard error of the mean, i.e. the standard deviation of the datum divided by
             :math:`\sqrt{N}` where :math:`N` is the number of data points.
-            Otherwise the standard error is given by the square root of :math:`N^{-1}` times 
+            Otherwise the standard error is given by the square root of :math:`N^{-1}` times
             the sum of the squared errors.
         """
         super().__init__(validate)

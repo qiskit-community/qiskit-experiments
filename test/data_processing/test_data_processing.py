@@ -126,7 +126,9 @@ class DataProcessorTest(BaseDataProcessorTest):
         )
 
         self.assertTupleEqual(formatted_data.shape, ref_data.shape)
-        np.testing.assert_array_equal(unp.nominal_values(formatted_data), unp.nominal_values(ref_data))
+        np.testing.assert_array_equal(
+            unp.nominal_values(formatted_data), unp.nominal_values(ref_data)
+        )
         # note that np.nan cannot be evaluated by "=="
         self.assertTrue(np.isnan(unp.std_devs(formatted_data)).all())
 
@@ -159,7 +161,9 @@ class DataProcessorTest(BaseDataProcessorTest):
         )
 
         self.assertTupleEqual(formatted_data.shape, ref_data.shape)
-        np.testing.assert_array_equal(unp.nominal_values(formatted_data), unp.nominal_values(ref_data))
+        np.testing.assert_array_equal(
+            unp.nominal_values(formatted_data), unp.nominal_values(ref_data)
+        )
         # note that np.nan cannot be evaluated by "=="
         self.assertTrue(np.isnan(unp.std_devs(formatted_data)).all())
 
