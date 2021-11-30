@@ -17,44 +17,127 @@ Experiment Library (:mod:`qiskit_experiments.library`)
 
 .. currentmodule:: qiskit_experiments.library
 
+A library of of quantum characterization, calibration and verification
+experiments for calibrating and benchmarking quantum devices. See
+:mod:`qiskit_experiments.framework` for general information the framework
+for running experiments.
+
+
+.. _verification:
+
 Verification Experiments
 ========================
 
+Experiments for verification and validation of quantum devices.
+
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
     ~randomized_benchmarking.StandardRB
     ~randomized_benchmarking.InterleavedRB
     ~tomography.StateTomography
     ~tomography.ProcessTomography
+
+.. autosummary::
+    :toctree: ../stubs/
+
     ~quantum_volume.QuantumVolume
+
+.. _characterization:
 
 Characterization Experiments
 ============================
 
+Experiments for characterization of qubits and quantum device properties.
+Some experiments may be also used for gate calibration.
+
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
     ~characterization.T1
     ~characterization.T2Ramsey
     ~characterization.QubitSpectroscopy
     ~characterization.EFSpectroscopy
+    ~characterization.CrossResonanceHamiltonian
+    ~characterization.EchoedCrossResonanceHamiltonian
+    ~characterization.RoughDrag
+    ~characterization.FineDrag
+    ~characterization.FineXDrag
+    ~characterization.FineSXDrag
+    ~characterization.HalfAngle
+    ~characterization.FineAmplitude
+    ~characterization.FineXAmplitude
+    ~characterization.FineSXAmplitude
+    ~characterization.Rabi
+    ~characterization.EFRabi
+    ~characterization.RamseyXY
+    ~characterization.ReadoutAngle
+
+
+.. _calibration:
 
 Calibration Experiments
 =======================
 
+Experiments for pulse level calibration of quantum gates. These experiments
+are usually run with a
+:py:class:`~qiskit_experiments.calibration_management.Calibrations`
+class instance to manage parameters and pulse schedules.
+See :doc:`/tutorials/calibrating_armonk` for example.
+
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
-    ~calibration.DragCal
-    ~calibration.Rabi
-    ~calibration.EFRabi
-    ~calibration.FineAmplitude
-    ~calibration.FineXAmplitude
-    ~calibration.FineSXAmplitude
+    ~calibration.RoughFrequencyCal
+    ~calibration.RoughDragCal
+    ~calibration.FineXDragCal
+    ~calibration.FineSXDragCal
+    ~calibration.FineDragCal
+    ~calibration.FineAmplitudeCal
+    ~calibration.FineXAmplitudeCal
+    ~calibration.FineSXAmplitudeCal
+    ~calibration.RoughAmplitudeCal
+    ~calibration.RoughXSXAmplitudeCal
+    ~calibration.EFRoughXSXAmplitudeCal
+
 """
-from .calibration import DragCal, Rabi, EFRabi, FineAmplitude, FineXAmplitude, FineSXAmplitude
-from .characterization import T1, T2Ramsey, QubitSpectroscopy, EFSpectroscopy
+from .calibration import (
+    RoughDragCal,
+    FineDragCal,
+    FineXDragCal,
+    FineSXDragCal,
+    RoughAmplitudeCal,
+    RoughXSXAmplitudeCal,
+    EFRoughXSXAmplitudeCal,
+    FineAmplitudeCal,
+    FineXAmplitudeCal,
+    FineSXAmplitudeCal,
+    RoughFrequencyCal,
+    FrequencyCal,
+)
+from .characterization import (
+    T1,
+    T2Ramsey,
+    QubitSpectroscopy,
+    EFSpectroscopy,
+    CrossResonanceHamiltonian,
+    EchoedCrossResonanceHamiltonian,
+    RoughDrag,
+    FineDrag,
+    FineXDrag,
+    FineSXDrag,
+    Rabi,
+    EFRabi,
+    HalfAngle,
+    FineAmplitude,
+    FineXAmplitude,
+    FineSXAmplitude,
+    RamseyXY,
+    ReadoutAngle,
+)
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
 from .quantum_volume import QuantumVolume

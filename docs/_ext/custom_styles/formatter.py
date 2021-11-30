@@ -80,6 +80,18 @@ class DocstringSectionFormatter:
         return format_lines
 
     @_check_no_indent
+    def format_see_also(self, lines: List[str]) -> List[str]:
+        """Format see also section."""
+        text = ".. seealso:: Module(s) "
+
+        modules = []
+        for line in lines:
+            modules.append(f":py:mod:`~{line.lstrip()}`")
+        text += ", ".join(modules)
+
+        return [text, ""]
+
+    @_check_no_indent
     def format_tutorial(self, lines: List[str]) -> List[str]:
         """Format tutorial section."""
         format_lines = [".. rubric:: Tutorials", ""]
@@ -182,7 +194,7 @@ class AnalysisSectionFormatter(DocstringSectionFormatter):
             ".. rubric:: Fit Model",
             "",
             "This is the curve fitting analysis. ",
-            "Following equation(s) are used to represent curve(s).",
+            "The following equation(s) are used to represent curve(s).",
             "",
         ]
         format_lines.extend(lines)
@@ -196,7 +208,7 @@ class AnalysisSectionFormatter(DocstringSectionFormatter):
         format_lines = [
             ".. rubric:: Fit Parameters",
             "",
-            "Following fit parameters are estimated during the analysis.",
+            "The following fit parameters are estimated during the analysis.",
             "",
         ]
         format_lines.extend(lines)

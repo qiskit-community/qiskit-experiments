@@ -12,22 +12,24 @@
 """
 Interleaved RB Experiment class.
 """
-from typing import Union, Iterable, Optional, List
+from typing import Union, Iterable, Optional, List, Sequence
 
 from numpy.random import Generator
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Instruction
 from qiskit.quantum_info import Clifford
+from qiskit.exceptions import QiskitError
+from qiskit.providers.backend import Backend
 
 from .rb_experiment import StandardRB
 from .interleaved_rb_analysis import InterleavedRBAnalysis
 
 
 class InterleavedRB(StandardRB):
-    """Interleaved Randomized Benchmarking Experiment class.
+    """Interleaved randomized benchmarking experiment.
 
-    Overview
+    # section: overview
         Interleaved Randomized Benchmarking (RB) is a method
         to estimate the average error-rate of a certain quantum gate.
 
@@ -37,24 +39,9 @@ class InterleavedRB(StandardRB):
         the ground state, fits the two exponentially decaying curves, and estimates
         the interleaved gate error. See Ref. [1] for details.
 
-        See :class:`InterleavedRBAnalysis` documentation for additional
-        information on interleaved RB experiment analysis.
+    # section: reference
+        .. ref_arxiv:: 1 1203.4550
 
-    References
-        1. Easwar Magesan, Jay M. Gambetta, B. R. Johnson, Colm A. Ryan, Jerry M. Chow,
-           Seth T. Merkel, Marcus P. da Silva, George A. Keefe, Mary B. Rothwell, Thomas A. Ohki,
-           Mark B. Ketchen, M. Steffen, Efficient measurement of quantum gate error by
-           interleaved randomized benchmarking,
-           `arXiv:quant-ph/1203.4550 <https://arxiv.org/pdf/1203.4550>`_
-
-    Analysis Class
-        :class:`InterleavedRBAnalysis`
-
-    Experiment Options
-        - **lengths**: A list of RB sequences lengths.
-        - **num_samples**: Number of samples to generate for each sequence length.
-        - **interleaved_element**: The element to interleave,
-          given either as a group element or as an instruction/circuit
     """
 
     # Analysis class for experiment
@@ -63,8 +50,9 @@ class InterleavedRB(StandardRB):
     def __init__(
         self,
         interleaved_element: Union[QuantumCircuit, Instruction, Clifford],
-        qubits: Union[int, Iterable[int]],
+        qubits: Sequence[int],
         lengths: Iterable[int],
+        backend: Optional[Backend] = None,
         num_samples: int = 3,
         seed: Optional[Union[int, Generator]] = None,
         full_sampling: bool = False,
@@ -74,9 +62,9 @@ class InterleavedRB(StandardRB):
         Args:
             interleaved_element: The element to interleave,
                     given either as a group element or as an instruction/circuit
-            qubits: The number of qubits or list of
-                    physical qubits for the experiment.
+            qubits: list of physical qubits for the experiment.
             lengths: A list of RB sequences lengths.
+            backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each
                          sequence length
             seed: Seed or generator object for random number
@@ -86,8 +74,15 @@ class InterleavedRB(StandardRB):
                            sequences are constructed by appending additional
                            Clifford samples to shorter sequences.
         """
-        self._interleaved_element = interleaved_element
-        super().__init__(qubits, lengths, num_samples, seed, full_sampling)
+        self._set_interleaved_element(interleaved_element)
+        super().__init__(
+            qubits,
+            lengths,
+            backend=backend,
+            num_samples=num_samples,
+            seed=seed,
+            full_sampling=full_sampling,
+        )
 
     def _sample_circuits(self, lengths, seed=None):
         circuits = []
@@ -122,3 +117,23 @@ class InterleavedRB(StandardRB):
             new_element_list.append(element)
             new_element_list.append(self._interleaved_element)
         return new_element_list
+
+    def _set_interleaved_element(self, interleaved_element):
+        """Handle the various types of the interleaved element
+
+        Args:
+            interleaved_element: The element to interleave
+
+        Raises:
+            QiskitError: if there is no known conversion of interleaved_element
+            to a Clifford group element
+        """
+        try:
+            interleaved_element_op = Clifford(interleaved_element)
+            self._interleaved_element = (interleaved_element, interleaved_element_op)
+        except QiskitError as error:
+            raise QiskitError(
+                "Interleaved element {} could not be converted to Clifford element".format(
+                    interleaved_element.name
+                )
+            ) from error

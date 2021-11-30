@@ -24,6 +24,7 @@ from qiskit.circuit.library import (
     CXGate,
 )
 from qiskit_experiments.library import StandardRB, InterleavedRB
+from qiskit_experiments.framework import ExperimentEncoder
 
 
 def create_depolarizing_noise_model():
@@ -104,35 +105,34 @@ def _generate_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes: di
     rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
     print("Running experiment")
     experiment_obj = rb_exp.run(backend, noise_model=noise_model, basis_gates=transpiled_base_gate)
+    experiment_obj.block_for_results()
     print("Done running experiment")
     exp_results = experiment_obj.data()
     with open(results_file_path, "w") as json_file:
         joined_list_data = [exp_attributes, exp_results]
         json_file.write(json.dumps(joined_list_data))
-    _analysis_save(experiment_obj.analysis_results(None), analysis_file_path)
+    _analysis_save(experiment_obj.analysis_results(), analysis_file_path)
 
 
-def _analysis_save(analysis_data: list, analysis_file_path: str):
+def _analysis_save(analysis_results, analysis_file_path: str):
     """
     The function is creating a json file from the data of the RB experiment analysis.
     Args:
-        analysis_data (list): The data from the analysis of the experiment.
+        analysis_results: the analysis results to save.
         analysis_file_path (str): The path to save the json file.
     """
-    samples_analysis_list = []
-    for sample_analysis in analysis_data:
-        sample_analysis["popt"] = list(sample_analysis["popt"])
-        sample_analysis["popt_err"] = list(sample_analysis["popt_err"])
-        sample_analysis["pcov"] = list(sample_analysis["pcov"])
-        for idx, item in enumerate(sample_analysis["pcov"]):
-            sample_analysis["pcov"][idx] = list(item)
-        if "EPG" in sample_analysis:
-            epg_keys = list(sample_analysis["EPG"].keys())
-            for qubits in epg_keys:
-                sample_analysis["EPG"][str(qubits)] = sample_analysis["EPG"].pop(qubits)
-        samples_analysis_list.append(sample_analysis)
+    dict_analysis_results = []
+    for result in analysis_results:
+        dict_analysis_results.append(
+            {
+                "name": result.name,
+                "value": result.value,
+                "extra": result.extra,
+            }
+        )
+    print("Writing to file", analysis_file_path)
     with open(analysis_file_path, "w") as json_file:
-        json_file.write(json.dumps(samples_analysis_list))
+        json.dump(dict_analysis_results, json_file, cls=ExperimentEncoder)
 
 
 def interleaved_rb_exp_data_gen(dir_name: str):
@@ -201,12 +201,13 @@ def _generate_int_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes
     rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
     print("Running experiment")
     experiment_obj = rb_exp.run(backend, noise_model=noise_model, basis_gates=transpiled_base_gate)
+    experiment_obj.block_for_results()
     print("Done running experiment")
     exp_results = experiment_obj.data()
     with open(results_file_path, "w") as json_file:
         joined_list_data = [exp_attributes, exp_results]
         json_file.write(json.dumps(joined_list_data))
-    _analysis_save(experiment_obj.analysis_result(None), analysis_file_path)
+    _analysis_save(experiment_obj.analysis_results(), analysis_file_path)
 
 
 DIRNAME = os.path.dirname(os.path.abspath(__file__))

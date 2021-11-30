@@ -14,8 +14,7 @@
 
 from abc import ABC
 from datetime import datetime, timezone
-from typing import List, Optional, Tuple, Union
-import numpy as np
+from typing import Optional, Union
 
 from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
@@ -56,12 +55,11 @@ class BaseUpdater(ABC):
         """Helper method to extract the datetime."""
         all_times = exp_data.completion_times.values()
         if all_times:
-            return max(all_times)
-
-        return datetime.now(timezone.utc)
+            return max(all_times).astimezone()
+        return datetime.now(timezone.utc).astimezone()
 
     @classmethod
-    def _add_parameter_value(
+    def add_parameter_value(
         cls,
         cal: Calibrations,
         exp_data: ExperimentData,
@@ -83,7 +81,7 @@ class BaseUpdater(ABC):
             group: The calibrations group to update.
         """
 
-        qubits = exp_data.data(0)["metadata"]["qubits"]
+        qubits = exp_data.metadata["physical_qubits"]
 
         param_value = ParameterValue(
             value=value,
@@ -101,8 +99,9 @@ class BaseUpdater(ABC):
         exp_data: ExperimentData,
         parameter: str,
         schedule: Optional[Union[ScheduleBlock, str]],
-        result_index: int = -1,
+        result_index: Optional[int] = -1,
         group: str = "default",
+        fit_parameter: Optional[str] = None,
     ):
         """Update the calibrations based on the data.
 
@@ -112,33 +111,37 @@ class BaseUpdater(ABC):
             parameter: The name of the parameter in the calibrations to update.
             schedule: The ScheduleBlock instance or the name of the instance to which the parameter
                 is attached.
-            result_index: The result index to use, defaults to -1.
+            result_index: The result index to use which defaults to -1.
             group: The calibrations group to update. Defaults to "default."
+            fit_parameter: The name of the fit parameter in the analysis result. This will default
+                to the class variable :code:`__fit_parameter__` if not given.
 
         Raises:
             CalibrationError: If the analysis result does not contain a frequency variable.
         """
+        fit_parameter = fit_parameter or cls.__fit_parameter__
+        value = BaseUpdater.get_value(exp_data, fit_parameter, result_index)
 
-        result = exp_data.analysis_results(result_index).data()
-
-        if cls.__fit_parameter__ not in result["popt_keys"]:
-            raise CalibrationError(
-                f"{cls.__name__} updates from analysis classes "
-                f"which report {cls.__fit_parameter__} in popt."
-            )
-
-        param = parameter
-        value = result["popt"][result["popt_keys"].index(cls.__fit_parameter__)]
-
-        cls._add_parameter_value(
-            calibrations, exp_data, value, param, schedule=schedule, group=group
+        cls.add_parameter_value(
+            calibrations, exp_data, value, parameter, schedule=schedule, group=group
         )
+
+    @staticmethod
+    def get_value(exp_data: ExperimentData, param_name: str, index: Optional[int] = -1) -> float:
+        """A helper method to extract values from experiment data instances."""
+        # Because this is called within analysis callbacks the block=False kwarg
+        # must be passed to analysis results so we don't block indefinitely
+        candidates = exp_data.analysis_results(param_name, block=False)
+        if isinstance(candidates, list):
+            return candidates[index].value.value
+        else:
+            return candidates.value.value
 
 
 class Frequency(BaseUpdater):
     """Update frequencies."""
 
-    __fit_parameter__ = "freq"
+    __fit_parameter__ = "f01"
 
     # pylint: disable=arguments-differ,unused-argument
     @classmethod
@@ -146,88 +149,37 @@ class Frequency(BaseUpdater):
         cls,
         calibrations: BackendCalibrations,
         exp_data: ExperimentData,
-        parameter: str = BackendCalibrations.__qubit_freq_parameter__,
-        result_index: int = -1,
+        result_index: Optional[int] = None,
+        parameter: str = None,
         group: str = "default",
+        fit_parameter: Optional[str] = None,
         **options,
     ):
-        """Update a qubit frequency from, e.g., QubitSpectroscopy."""
-        super().update(
-            calibrations, exp_data, parameter, schedule=None, result_index=result_index, group=group
-        )
-
-
-class Drag(BaseUpdater):
-    """Update drag parameters."""
-
-    __fit_parameter__ = "beta"
-
-
-class Amplitude(BaseUpdater):
-    """Update pulse amplitudes."""
-
-    # pylint: disable=arguments-differ,unused-argument
-    @classmethod
-    def update(
-        cls,
-        calibrations: Calibrations,
-        exp_data: ExperimentData,
-        result_index: int = -1,
-        group: str = "default",
-        angles_schedules: List[Tuple[float, str, Union[str, ScheduleBlock]]] = None,
-        **options,
-    ):
-        """Update the amplitude of pulses.
+        """Update a qubit frequency from, e.g., QubitSpectroscopy
 
         The value of the amplitude must be derived from the fit so the base method cannot be used.
 
         Args:
             calibrations: The calibrations to update.
             exp_data: The experiment data from which to update.
-            result_index: The result index to use, defaults to -1.
+            result_index: The result index to use which defaults to -1.
+            parameter: The name of the parameter to update. If None is given this will default
+                to :code:`calibrations.__qubit_freq_parameter__`.
             group: The calibrations group to update. Defaults to "default."
-            angles_schedules: A list of tuples specifying which angle to update for which
-                pulse schedule. Each tuple is of the form: (angle, parameter_name,
-                schedule). Here, angle is the rotation angle for which to extract the amplitude,
-                parameter_name is the name of the parameter whose value is to be updated, and
-                schedule is the schedule or its name that contains the parameter.
             options: Trailing options.
+            fit_parameter: The name of the fit parameter in the analysis result. This will default
+                to the class variable :code:`__fit_parameter__` if not given.
 
-        Raises:
-            CalibrationError: If the experiment is not of the supported type.
         """
-        from qiskit_experiments.library.calibration.rabi import Rabi
-        from qiskit_experiments.library.calibration.fine_amplitude import FineAmplitude
+        if parameter is None:
+            parameter = calibrations.__qubit_freq_parameter__
 
-        if angles_schedules is None:
-            angles_schedules = [(np.pi, "amp", "xp")]
-
-        result = exp_data.analysis_results(result_index).data()
-
-        if isinstance(exp_data.experiment, Rabi):
-            freq = result["popt"][result["popt_keys"].index("freq")]
-            rate = 2 * np.pi * freq
-
-            for angle, param, schedule in angles_schedules:
-                qubits = exp_data.data(0)["metadata"]["qubits"]
-                prev_amp = calibrations.get_parameter_value(param, qubits, schedule, group=group)
-
-                value = np.round(angle / rate, decimals=8) * np.exp(1.0j * np.angle(prev_amp))
-
-                cls._add_parameter_value(calibrations, exp_data, value, param, schedule, group)
-
-        elif isinstance(exp_data.experiment, FineAmplitude):
-            d_theta = result["popt"][result["popt_keys"].index("d_theta")]
-
-            for target_angle, param, schedule in angles_schedules:
-
-                qubits = exp_data.data(0)["metadata"]["qubits"]
-
-                prev_amp = calibrations.get_parameter_value(param, qubits, schedule, group=group)
-                scale = target_angle / (target_angle + d_theta)
-                new_amp = prev_amp * scale
-
-                cls._add_parameter_value(calibrations, exp_data, new_amp, param, schedule, group)
-
-        else:
-            raise CalibrationError(f"{cls.__name__} updates from {type(Rabi.__name__)}.")
+        super().update(
+            calibrations=calibrations,
+            exp_data=exp_data,
+            parameter=parameter,
+            schedule=None,
+            result_index=result_index,
+            group=group,
+            fit_parameter=fit_parameter,
+        )
