@@ -190,7 +190,6 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         self,
         basis_gates: Optional[List[str]] = None,
         default_values: Optional[Dict] = None,
-        use_drag: bool = True,
         link_parameters: bool = True,
     ):
         """Setup the schedules.
@@ -200,15 +199,12 @@ class FixedFrequencyTransmon(BasisGateLibrary):
             default_values: Default values for the parameters this dictionary can contain
                 the following keys: "duration", "amp", "β", and "σ". If "σ" is not provided
                 this library will take one fourth of the pulse duration as default value.
-            use_drag: If set to False then Gaussian pulses will be used instead of DRAG
-                pulses.
             link_parameters: if set to True then the amplitude and DRAG parameters of the
                 X and Y gates will be linked as well as those of the SX and SY gates.
         """
         self._link_parameters = link_parameters
-        self._use_drag = use_drag
 
-        extra_kwargs = {"use_drag": use_drag, "link_parameters": link_parameters}
+        extra_kwargs = {"link_parameters": link_parameters}
 
         super().__init__(basis_gates, default_values, **extra_kwargs)
 
@@ -222,23 +218,19 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         dur = Parameter("duration")
         sigma = Parameter("σ")
 
-        # Generate the pulse parameters
-        def _beta(use_drag):
-            return Parameter("β") if use_drag else None
-
-        x_amp, x_beta = Parameter("amp"), _beta(self._use_drag)
+        x_amp, x_beta = Parameter("amp"), Parameter("β")
 
         if self._link_parameters:
             y_amp, y_beta = 1.0j * x_amp, x_beta
         else:
-            y_amp, y_beta = Parameter("amp"), _beta(self._use_drag)
+            y_amp, y_beta = Parameter("amp"), Parameter("β")
 
-        sx_amp, sx_beta = Parameter("amp"), _beta(self._use_drag)
+        sx_amp, sx_beta = Parameter("amp"), Parameter("β")
 
         if self._link_parameters:
             sy_amp, sy_beta = 1.0j * sx_amp, sx_beta
         else:
-            sy_amp, sy_beta = Parameter("amp"), _beta(self._use_drag)
+            sy_amp, sy_beta = Parameter("amp"), Parameter("β")
 
         # Create the schedules for the gates
         sched_x = self._single_qubit_schedule("x", dur, x_amp, sigma, x_beta)
@@ -259,18 +251,14 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         dur: Parameter,
         amp: Parameter,
         sigma: Parameter,
-        beta: Optional[Parameter] = None,
+        beta: Parameter,
     ) -> ScheduleBlock:
         """Build a single qubit pulse."""
 
         chan = pulse.DriveChannel(Parameter("ch0"))
 
-        if beta is not None:
-            with pulse.build(name=name) as sched:
-                pulse.play(pulse.Drag(duration=dur, amp=amp, sigma=sigma, beta=beta), chan)
-        else:
-            with pulse.build(name=name) as sched:
-                pulse.play(pulse.Gaussian(duration=dur, amp=amp, sigma=sigma), chan)
+        with pulse.build(name=name) as sched:
+            pulse.play(pulse.Drag(duration=dur, amp=amp, sigma=sigma, beta=beta), chan)
 
         return sched
 

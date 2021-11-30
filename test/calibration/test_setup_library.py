@@ -87,15 +87,6 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
         # Test the basis gates of the library.
         self.assertListEqual(library.basis_gates, ["x", "y", "sx", "sy"])
 
-    def test_turn_off_drag(self):
-        """Test the use_drag parameter."""
-
-        library = FixedFrequencyTransmon(use_drag=False)
-        self.assertTrue(isinstance(library["x"].blocks[0].pulse, pulse.Gaussian))
-
-        library = FixedFrequencyTransmon()
-        self.assertTrue(isinstance(library["x"].blocks[0].pulse, pulse.Drag))
-
     def test_unlinked_parameters(self):
         """Test the we get schedules with unlinked parameters."""
 
@@ -150,7 +141,6 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
         lib1 = FixedFrequencyTransmon(
             basis_gates=["x", "sy"],
             default_values={"duration": 320},
-            use_drag=False,
             link_parameters=False,
         )
 
@@ -165,7 +155,6 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
         lib3 = FixedFrequencyTransmon(
             basis_gates=["x", "sy"],
             default_values={"duration": 320},
-            use_drag=True,
             link_parameters=False,
         )
 
@@ -177,7 +166,6 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
         lib1 = FixedFrequencyTransmon(
             basis_gates=["x", "sy"],
             default_values={"duration": 320},
-            use_drag=False,
             link_parameters=False,
         )
 
