@@ -22,6 +22,14 @@ from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 
 
+class FixedFrequencyTransmonTmp(FixedFrequencyTransmon):
+    """A subclass designed for test_hash_warn.
+
+    This class ensures that FixedFrequencyTransmon is preserved if anything goes wrong
+    with the serialization :meth:`in test_hash_warn`.
+    """
+
+
 class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
     """Test the various setup methods."""
 
@@ -181,21 +189,21 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
         4. A warning is raised since the class definition has changed.
         """
 
-        lib1 = FixedFrequencyTransmon()
+        lib1 = FixedFrequencyTransmonTmp()
         lib_data = json.dumps(lib1, cls=ExperimentEncoder)
         lib2 = json.loads(lib_data, cls=ExperimentDecoder)
 
         self.assertTrue(self._test_library_equivalence(lib1, lib2))
 
         # stash method build schedules to avoid other tests from failing
-        build_schedules = FixedFrequencyTransmon._build_schedules
+        build_schedules = FixedFrequencyTransmonTmp._build_schedules
 
         def _my_build_schedules():
             """A dummy function to change the class behaviour."""
             pass
 
         # Change the schedule behaviour
-        FixedFrequencyTransmon._build_schedules = _my_build_schedules
+        FixedFrequencyTransmonTmp._build_schedules = _my_build_schedules
 
         with self.assertWarns(UserWarning):
             json.loads(lib_data, cls=ExperimentDecoder)
