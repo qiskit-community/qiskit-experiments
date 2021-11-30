@@ -155,7 +155,7 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
         lib3 = FixedFrequencyTransmon(
             basis_gates=["x", "sy"],
             default_values={"duration": 320},
-            link_parameters=False,
+            link_parameters=True,
         )
 
         self.assertFalse(self._test_library_equivalence(lib1, lib3))
