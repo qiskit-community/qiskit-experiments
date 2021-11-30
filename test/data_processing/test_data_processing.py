@@ -191,6 +191,7 @@ class DataProcessorTest(BaseDataProcessorTest):
         np.testing.assert_array_equal(formatted_data, ref_data)
 
     def test_data_prep_level2_counts_memory(self):
+        """Format meas_level=2 with having memory set."""
         # slots = 2, shots=10, circuits = 2
         data_raw = [
             {
