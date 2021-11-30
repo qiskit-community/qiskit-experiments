@@ -254,7 +254,9 @@ class DataProcessor:
                         )
             data_to_process.append(outcome)
 
-        try:
+        data_to_process = np.asarray(data_to_process)
+
+        if data_to_process.dtype in (float, int):
             # Likely level1 or below. Return ufloat array with un-computed std_dev.
             # The output data format is a standard ndarray with dtype=object with
             # arbitrary shape [n_circuits, ...] depending on the measurement setup.
@@ -263,7 +265,7 @@ class DataProcessor:
                 nominal_values=nominal_values,
                 std_devs=np.full_like(nominal_values, np.nan, dtype=float),
             )
-        except TypeError:
+        else:
             # Likely level2 counts or level2 memory data. Cannot be typecasted to ufloat.
             # The output data format is a standard ndarray with dtype=object with
             # shape [n_circuits] or [n_circuits, n_shots].

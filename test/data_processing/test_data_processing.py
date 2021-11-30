@@ -17,7 +17,7 @@
 from test.fake_experiment import FakeExperiment
 
 import numpy as np
-from uncertainties import unumpy as unp
+from uncertainties import unumpy as unp, ufloat
 from qiskit.result.models import ExperimentResultData, ExperimentResult
 from qiskit.result import Result
 
@@ -76,6 +76,139 @@ class DataProcessorTest(BaseDataProcessorTest):
         )
         self.exp_data_lvl2 = ExperimentData(FakeExperiment())
         self.exp_data_lvl2.add_data(Result(results=[res1, res2], **self.base_result_args))
+
+    def test_data_prep_level1_memory_single(self):
+        """Format meas_level=1 meas_return=single."""
+        # slots = 3, shots = 2, circuits = 2
+        data_raw = [
+            {
+                "memory": [
+                    [[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]],
+                    [[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]],
+                ],
+            },
+            {
+                "memory": [
+                    [[0.7, 0.8], [0.9, 1.0], [1.1, 1.2]],
+                    [[0.7, 0.8], [0.9, 1.0], [1.1, 1.2]],
+                ],
+            },
+        ]
+        formatted_data = DataProcessor("memory", [])._data_extraction(data_raw)
+
+        ref_data = np.array(
+            [
+                [
+                    [
+                        [ufloat(0.1, np.nan), ufloat(0.2, np.nan)],
+                        [ufloat(0.3, np.nan), ufloat(0.4, np.nan)],
+                        [ufloat(0.5, np.nan), ufloat(0.6, np.nan)],
+                    ],
+                    [
+                        [ufloat(0.1, np.nan), ufloat(0.2, np.nan)],
+                        [ufloat(0.3, np.nan), ufloat(0.4, np.nan)],
+                        [ufloat(0.5, np.nan), ufloat(0.6, np.nan)],
+                    ],
+                ],
+                [
+                    [
+                        [ufloat(0.7, np.nan), ufloat(0.8, np.nan)],
+                        [ufloat(0.9, np.nan), ufloat(1.0, np.nan)],
+                        [ufloat(1.1, np.nan), ufloat(1.2, np.nan)],
+                    ],
+                    [
+                        [ufloat(0.7, np.nan), ufloat(0.8, np.nan)],
+                        [ufloat(0.9, np.nan), ufloat(1.0, np.nan)],
+                        [ufloat(1.1, np.nan), ufloat(1.2, np.nan)],
+                    ],
+                ],
+            ]
+        )
+
+        self.assertTupleEqual(formatted_data.shape, ref_data.shape)
+        np.testing.assert_array_equal(unp.nominal_values(formatted_data), unp.nominal_values(ref_data))
+        # note that np.nan cannot be evaluated by "=="
+        self.assertTrue(np.isnan(unp.std_devs(formatted_data)).all())
+
+    def test_data_prep_level1_memory_average(self):
+        """Format meas_level=1 meas_return=avg."""
+        # slots = 3, circuits = 2
+        data_raw = [
+            {
+                "memory": [[0.1, 0.2], [0.3, 0.4], [0.5, 0.6]],
+            },
+            {
+                "memory": [[0.7, 0.8], [0.9, 1.0], [1.1, 1.2]],
+            },
+        ]
+        formatted_data = DataProcessor("memory", [])._data_extraction(data_raw)
+
+        ref_data = np.array(
+            [
+                [
+                    [ufloat(0.1, np.nan), ufloat(0.2, np.nan)],
+                    [ufloat(0.3, np.nan), ufloat(0.4, np.nan)],
+                    [ufloat(0.5, np.nan), ufloat(0.6, np.nan)],
+                ],
+                [
+                    [ufloat(0.7, np.nan), ufloat(0.8, np.nan)],
+                    [ufloat(0.9, np.nan), ufloat(1.0, np.nan)],
+                    [ufloat(1.1, np.nan), ufloat(1.2, np.nan)],
+                ],
+            ]
+        )
+
+        self.assertTupleEqual(formatted_data.shape, ref_data.shape)
+        np.testing.assert_array_equal(unp.nominal_values(formatted_data), unp.nominal_values(ref_data))
+        # note that np.nan cannot be evaluated by "=="
+        self.assertTrue(np.isnan(unp.std_devs(formatted_data)).all())
+
+    def test_data_prep_level2_counts(self):
+        """Format meas_level=2."""
+        # slots = 2, shots=10, circuits = 2
+        data_raw = [
+            {
+                "counts": {"00": 2, "01": 3, "10": 1, "11": 4},
+            },
+            {
+                "counts": {"00": 3, "01": 3, "10": 2, "11": 2},
+            },
+        ]
+        formatted_data = DataProcessor("counts", [])._data_extraction(data_raw)
+
+        ref_data = np.array(
+            [
+                {"00": 2, "01": 3, "10": 1, "11": 4},
+                {"00": 3, "01": 3, "10": 2, "11": 2},
+            ],
+            dtype=object,
+        )
+
+        np.testing.assert_array_equal(formatted_data, ref_data)
+
+    def test_data_prep_level2_counts_memory(self):
+        # slots = 2, shots=10, circuits = 2
+        data_raw = [
+            {
+                "counts": {"00": 2, "01": 3, "10": 1, "11": 4},
+                "memory": ["00", "01", "01", "10", "11", "11", "00", "01", "11", "11"],
+            },
+            {
+                "counts": {"00": 3, "01": 3, "10": 2, "11": 2},
+                "memory": ["00", "00", "01", "00", "10", "01", "01", "11", "10", "11"],
+            },
+        ]
+        formatted_data = DataProcessor("memory", [])._data_extraction(data_raw)
+
+        ref_data = np.array(
+            [
+                ["00", "01", "01", "10", "11", "11", "00", "01", "11", "11"],
+                ["00", "00", "01", "00", "10", "01", "01", "11", "10", "11"],
+            ],
+            dtype=object,
+        )
+
+        np.testing.assert_array_equal(formatted_data, ref_data)
 
     def test_empty_processor(self):
         """Check that a DataProcessor without steps does nothing."""
