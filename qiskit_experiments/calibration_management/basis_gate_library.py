@@ -61,7 +61,6 @@ class BasisGateLibrary(ABC, Mapping):
         if basis_gates is None:
             basis_gates = list(self.__supported_gates__)
 
-        self._schedules = dict()
         for gate in basis_gates:
             if gate not in self.__supported_gates__:
                 raise CalibrationError(
@@ -69,8 +68,7 @@ class BasisGateLibrary(ABC, Mapping):
                     f"Supported gates are: {self.__supported_gates__}."
                 )
 
-        # Populate self._schedules based on the init arguments.
-        self._build_schedules(set(basis_gates))
+        self._schedules = self._build_schedules(set(basis_gates))
 
     @property
     @abstractmethod
@@ -127,7 +125,7 @@ class BasisGateLibrary(ABC, Mapping):
         """
 
     @abstractmethod
-    def _build_schedules(self, basis_gates: Set[str]):
+    def _build_schedules(self, basis_gates: Set[str]) -> Dict[str, ScheduleBlock]:
         """Build the schedules stored in the library.
 
         This method is called as the last step in the :meth:`__init__`. Subclasses must implement
@@ -136,6 +134,10 @@ class BasisGateLibrary(ABC, Mapping):
 
         Args:
             basis_gates: The set of basis gates to build.
+
+        Returns:
+            A dictionary where the keys are the names of the schedules/basis gates and the values
+            are the corresponding schedules.
         """
 
     @property
@@ -215,8 +217,8 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         """The gates that this library supports."""
         return {"x": 1, "y": 1, "sx": 1, "sy": 1}
 
-    def _build_schedules(self, basis_gates: Set[str]):
-        """Build the schedule of the class"""
+    def _build_schedules(self, basis_gates: Set[str]) -> Dict[str, ScheduleBlock]:
+        """Build the schedule of the class."""
         dur = Parameter("duration")
         sigma = Parameter("σ")
 
@@ -244,9 +246,12 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         sched_sx = self._single_qubit_schedule("sx", dur, sx_amp, sigma, sx_beta)
         sched_sy = self._single_qubit_schedule("sy", dur, sy_amp, sigma, sy_beta)
 
+        schedules = dict()
         for sched in [sched_x, sched_y, sched_sx, sched_sy]:
             if sched.name in basis_gates:
-                self._schedules[sched.name] = sched
+                schedules[sched.name] = sched
+
+        return schedules
 
     @staticmethod
     def _single_qubit_schedule(
