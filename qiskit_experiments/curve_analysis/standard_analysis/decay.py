@@ -150,6 +150,7 @@ class DecayAnalysis(curve.CurveAnalysis):
         analysis_options.update(options)
 
         if analysis_options["raw_data_mode"]:
+            # TODO we need separation of data processing. Below is boilerplate code just copied from base class.
             self._arg_parse(**analysis_options)
 
             data_processor = self._get_option("data_processor")
