@@ -12,6 +12,7 @@
 
 """Class to test the calibrations setup methods."""
 
+from typing import Dict, Set
 import json
 
 from test.base import QiskitExperimentsTestCase
@@ -22,12 +23,23 @@ from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 
 
-class FixedFrequencyTransmonTmp(FixedFrequencyTransmon):
+class TestLibrary(FixedFrequencyTransmon):
     """A subclass designed for test_hash_warn.
 
     This class ensures that FixedFrequencyTransmon is preserved if anything goes wrong
     with the serialization :meth:`in test_hash_warn`.
     """
+
+    def _build_schedules(self, basis_gates: Set[str]) -> Dict[str, pulse.ScheduleBlock]:
+        """Dummy schedule building."""
+        with pulse.build(name="x") as schedule:
+            pulse.play(pulse.Drag(160, 0.1, 40, 0), pulse.DriveChannel(0))
+
+        schedules = dict()
+        if "x" in basis_gates:
+            schedules["x"] = schedule
+
+        return schedules
 
 
 class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
@@ -189,27 +201,26 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
         4. A warning is raised since the class definition has changed.
         """
 
-        lib1 = FixedFrequencyTransmonTmp()
+        lib1 = TestLibrary()
         lib_data = json.dumps(lib1, cls=ExperimentEncoder)
         lib2 = json.loads(lib_data, cls=ExperimentDecoder)
 
         self.assertTrue(self._test_library_equivalence(lib1, lib2))
 
         # stash method build schedules to avoid other tests from failing
-        build_schedules = FixedFrequencyTransmonTmp._build_schedules
+        build_schedules = TestLibrary._build_schedules
 
         def _my_build_schedules():
             """A dummy function to change the class behaviour."""
             pass
 
         # Change the schedule behaviour
-        FixedFrequencyTransmonTmp._build_schedules = _my_build_schedules
+        TestLibrary._build_schedules = _my_build_schedules
 
         with self.assertWarns(UserWarning):
             json.loads(lib_data, cls=ExperimentDecoder)
 
-        # Restore the method for future tests.
-        FixedFrequencyTransmon._build_schedules = build_schedules
+        TestLibrary._build_schedules = build_schedules
 
     def _test_library_equivalence(self, lib1, lib2) -> bool:
         """Test if libraries are equivalent.
