@@ -16,8 +16,21 @@ A library of fit functions.
 # pylint: disable=invalid-name
 
 import numpy as np
+import functools
 
 
+def uncertainties(fit_func):
+    @functools.wraps(fit_func)
+    def wrapper(*ags, **kwargs) -> np.ndarray:
+        yvals = wrapper(*args, **kwargs)
+        try:
+            return yvals.astype(float)
+        except TypeError:
+            return yvals
+    return wrapper
+
+
+@uncertainties
 def cos(
     x: np.ndarray,
     amp: float = 1.0,
@@ -34,6 +47,7 @@ def cos(
     return amp * np.cos(2 * np.pi * freq * x + phase) + baseline
 
 
+@uncertainties
 def sin(
     x: np.ndarray,
     amp: float = 1.0,
@@ -50,6 +64,7 @@ def sin(
     return amp * np.sin(2 * np.pi * freq * x + phase) + baseline
 
 
+@uncertainties
 def exponential_decay(
     x: np.ndarray,
     amp: float = 1.0,
@@ -66,6 +81,7 @@ def exponential_decay(
     return amp * base ** (-lamb * x + x0) + baseline
 
 
+@uncertainties
 def gaussian(
     x: np.ndarray, amp: float = 1.0, sigma: float = 1.0, x0: float = 0.0, baseline: float = 0.0
 ) -> np.ndarray:
@@ -77,6 +93,7 @@ def gaussian(
     return amp * np.exp(-((x - x0) ** 2) / (2 * sigma ** 2)) + baseline
 
 
+@uncertainties
 def cos_decay(
     x: np.ndarray,
     amp: float = 1.0,
@@ -94,6 +111,7 @@ def cos_decay(
     return exponential_decay(x, lamb=1 / tau) * cos(x, amp=amp, freq=freq, phase=phase) + baseline
 
 
+@uncertainties
 def sin_decay(
     x: np.ndarray,
     amp: float = 1.0,
@@ -111,6 +129,7 @@ def sin_decay(
     return exponential_decay(x, lamb=1 / tau) * sin(x, amp=amp, freq=freq, phase=phase) + baseline
 
 
+@uncertainties
 def bloch_oscillation_x(
     x: np.ndarray, px: float = 0.0, py: float = 0.0, pz: float = 0.0, baseline: float = 0.0
 ):
@@ -128,6 +147,7 @@ def bloch_oscillation_x(
     return (-pz * px + pz * px * np.cos(w * x) + w * py * np.sin(w * x)) / (w ** 2) + baseline
 
 
+@uncertainties
 def bloch_oscillation_y(
     x: np.ndarray, px: float = 0.0, py: float = 0.0, pz: float = 0.0, baseline: float = 0.0
 ):
@@ -145,6 +165,7 @@ def bloch_oscillation_y(
     return (pz * py - pz * py * np.cos(w * x) - w * px * np.sin(w * x)) / (w ** 2) + baseline
 
 
+@uncertainties
 def bloch_oscillation_z(
     x: np.ndarray, px: float = 0.0, py: float = 0.0, pz: float = 0.0, baseline: float = 0.0
 ):
