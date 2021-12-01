@@ -101,7 +101,6 @@ class InterleavedRBAnalysis(RBAnalysis):
             filter_kwargs={"interleaved": False},
             plot_color="red",
             plot_symbol=".",
-            plot_fit_uncertainty=True,
             model_description=r"a \alpha^{x} + b",
         ),
         curve.SeriesDef(
@@ -112,7 +111,6 @@ class InterleavedRBAnalysis(RBAnalysis):
             filter_kwargs={"interleaved": True},
             plot_color="orange",
             plot_symbol="^",
-            plot_fit_uncertainty=True,
             model_description=r"a (\alpha_c\alpha)^{x} + b",
         ),
     ]
@@ -175,14 +173,15 @@ class InterleavedRBAnalysis(RBAnalysis):
         epc = scale * (1 - alpha_c)
 
         # Calculate the systematic error bounds - Eq. (5):
-        systematic_err_1 = scale * (abs(alpha.value - alpha_c.value) + (1 - alpha.value))
+        systematic_err_1 = scale * (abs(alpha.n - alpha_c.n) + (1 - alpha.n))
         systematic_err_2 = (
-            2 * (nrb * nrb - 1) * (1 - alpha.value) / (alpha.value * nrb * nrb)
-            + 4 * (np.sqrt(1 - alpha.value)) * (np.sqrt(nrb * nrb - 1)) / alpha.value
+            2 * (nrb * nrb - 1) * (1 - alpha.n) / (alpha.n * nrb * nrb)
+            + 4 * (np.sqrt(1 - alpha.n)) * (np.sqrt(nrb * nrb - 1)) / alpha.n
         )
+
         systematic_err = min(systematic_err_1, systematic_err_2)
-        systematic_err_l = epc.nominal_value - systematic_err
-        systematic_err_r = epc.nominal_value + systematic_err
+        systematic_err_l = epc.n - systematic_err
+        systematic_err_r = epc.n + systematic_err
 
         extra_data = AnalysisResultData(
             name="EPC",

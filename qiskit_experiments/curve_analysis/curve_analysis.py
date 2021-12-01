@@ -582,13 +582,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
             ) from ex
 
         if isinstance(data_processor, DataProcessor):
-            y_data = data_processor(data)
+            ydata = data_processor(data)
         else:
-            # Can we replace this with error or still worth supporting?
-            # Looks like this is too much flexibility.
-            warnings.warn(
-                "Use of non DataProcessor instance has been deprecated.", DeprecationWarning
-            )
             y_nominals, y_stderrs = zip(*map(data_processor, data))
             ydata = unp.uarray(y_nominals, y_stderrs)
 
@@ -599,7 +594,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         shots = np.asarray([datum.get("shots", np.nan) for datum in data])
 
         # Find series (invalid data is labeled as -1)
-        data_index = np.full(x_values.size, -1, dtype=int)
+        data_index = np.full(xdata.size, -1, dtype=int)
         for idx, series_def in enumerate(self.__series__):
             data_matched = np.asarray(
                 [_is_target_series(datum, **series_def.filter_kwargs) for datum in data], dtype=bool
@@ -611,7 +606,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
             label="raw_data",
             x=xdata,
             y=unp.nominal_values(ydata),
-            y_err=unp.nominal_values(ydata),
+            y_err=unp.std_devs(ydata),
             shots=shots,
             data_index=data_index,
             metadata=metadata,
@@ -980,10 +975,11 @@ class CurveAnalysis(BaseAnalysis, ABC):
             analysis_results.append(
                 AnalysisResultData(
                     name=PARAMS_ENTRY_PREFIX + self.__class__.__name__,
-                    value=fit_result.parameters,
+                    value=[p.nominal_value for p in fit_result.popt],
                     chisq=fit_result.reduced_chisq,
                     quality=quality,
                     extra={
+                        "popt_keys": fit_result.popt_keys,
                         "dof": fit_result.dof,
                         "covariance_mat": fit_result.pcov,
                         "fit_models": fit_models,
@@ -1006,7 +1002,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         unit = None
                     result_entry = AnalysisResultData(
                         name=p_repr,
-                        value=fit_result.fit_val(p_name),
+                        value=fit_result.fitval(p_name),
                         unit=unit,
                         chisq=fit_result.reduced_chisq,
                         quality=quality,

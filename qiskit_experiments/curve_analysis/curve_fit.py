@@ -15,7 +15,7 @@ Curve fitting functions for experiment analysis
 # pylint: disable = invalid-name
 
 from typing import List, Dict, Tuple, Callable, Optional, Union
-from uncertainties import ufloat, correlated_values
+from uncertainties import correlated_values, ufloat
 
 import numpy as np
 import scipy.optimize as opt
@@ -63,8 +63,9 @@ def curve_fit(
         ``xrange`` the range of xdata values used for fit.
 
     Raises:
-        AnalysisError: if the number of degrees of freedom of the fit is
-                       less than 1, or the curve fitting fails.
+        AnalysisError:
+            When the number of degrees of freedom of the fit is
+            less than 1, or the curve fitting fails.
 
     .. note::
         ``sigma`` is assumed to be specified in the same units as ``ydata``
@@ -135,8 +136,11 @@ def curve_fit(
             "scipy.optimize.curve_fit failed with error: {}".format(str(ex))
         ) from ex
 
-    # Keep parameter correlations in following analysis steps
-    fit_params = correlated_values(nom_values=popt, covariance_mat=pcov)
+    if np.isfinite(pcov).all():
+        # Keep parameter correlations in following analysis steps
+        fit_params = correlated_values(nom_values=popt, covariance_mat=pcov, tags=param_keys)
+    else:
+        fit_params = [ufloat(nom, np.nan) for nom in popt]
 
     # Calculate the reduced chi-squared for fit
     yfits = fit_func(xdata, *popt)

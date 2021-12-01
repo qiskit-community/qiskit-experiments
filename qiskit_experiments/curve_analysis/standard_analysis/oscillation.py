@@ -110,13 +110,12 @@ class OscillationAnalysis(curve.CurveAnalysis):
             - less than 10 full periods, and
             - an error on the fit frequency lower than the fit frequency.
         """
-        fit_freq = fit_data.fitval("freq").value
-        fit_freq_err = fit_data.fitval("freq").stderr
+        fit_freq = fit_data.fitval("freq")
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            1.0 / 4.0 < fit_freq < 10.0,
-            (fit_freq_err is None or (fit_freq_err < fit_freq)),
+            1.0 / 4.0 < fit_freq.nominal_value < 10.0,
+            (np.isnan(fit_freq.std_dev) or (fit_freq.std_dev < fit_freq.nominal_value)),
         ]
 
         if all(criteria):
@@ -264,8 +263,8 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            tau.stderr is None or tau.stderr < tau.value,
-            freq.stderr is None or freq.stderr < freq.value,
+            np.isnan(tau.std_dev) or tau.std_dev < tau.nominal_value,
+            np.isnan(freq.std_dev) or freq.std_dev < freq.nominal_value,
         ]
 
         if all(criteria):

@@ -61,7 +61,6 @@ class RBAnalysis(curve.CurveAnalysis):
                 x, amp=a, lamb=-1.0, base=alpha, baseline=b
             ),
             plot_color="blue",
-            plot_fit_uncertainty=True,
             model_description=r"a \alpha^x + b",
         )
     ]
@@ -170,11 +169,12 @@ class RBAnalysis(curve.CurveAnalysis):
         # Calculate EPC
         alpha = fit_data.fitval("alpha")
         scale = (2 ** self._num_qubits - 1) / (2 ** self._num_qubits)
+        epc = scale * (1 - alpha)
 
         extra_entries.append(
             AnalysisResultData(
                 name="EPC",
-                value=scale * (1 - alpha),
+                value=epc,
                 chisq=fit_data.reduced_chisq,
                 quality=self._evaluate_quality(fit_data),
             )

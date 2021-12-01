@@ -29,7 +29,7 @@ from matplotlib.ticker import FuncFormatter
 from uncertainties.core import UFloat
 
 from qiskit_experiments.curve_analysis.curve_data import SeriesDef, FitData, CurveData
-from qiskit_experiments.framework import AnalysisResultDataF
+from qiskit_experiments.framework import AnalysisResultData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 
 
@@ -409,7 +409,7 @@ def write_fit_report(result_entries: List[AnalysisResultData]) -> str:
                 value_repr = f"{val: .3g}"
 
                 # write error bar if it is finite value
-                if fitval.std_dev is not None and not np.isinf(fitval.std_dev):
+                if fitval.std_dev is not None and np.isfinite(fitval.std_dev):
                     # with stderr
                     err, err_prefix = detach_prefix(fitval.std_dev, decimal=3)
                     err_unit = err_prefix + res.unit

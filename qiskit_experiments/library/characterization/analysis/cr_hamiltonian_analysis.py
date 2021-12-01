@@ -341,9 +341,9 @@ class CrossResonanceHamiltonianAnalysis(curve.CurveAnalysis):
                 p1_val = fit_data.fitval(f"p{target}1")
 
                 if control == "z":
-                    coef_val = 0.5 * (p0_val.value - p1_val.value) / (2 * np.pi)
+                    coef_val = 0.5 * (p0_val - p1_val) / (2 * np.pi)
                 else:
-                    coef_val = 0.5 * (p0_val.value + p1_val.value) / (2 * np.pi)
+                    coef_val = 0.5 * (p0_val + p1_val) / (2 * np.pi)
 
                 extra_entries.append(
                     AnalysisResultData(

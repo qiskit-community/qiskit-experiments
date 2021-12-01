@@ -289,8 +289,6 @@ class RBUtils:
                 (qubit_pair, gate_2_qubit_type), 0
             ) + gates_per_clifford.get((inverse_qubit_pair, gate_2_qubit_type), 0)
 
-            out[qubit_pair] = {
-                gate_2_qubit_type: 3 / 4 * (1 - alpha_c_2q) / n_gate_2q
-            }
+            out[qubit_pair] = {gate_2_qubit_type: 3 / 4 * (1 - alpha_c_2q) / n_gate_2q}
 
         return out
