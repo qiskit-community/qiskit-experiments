@@ -26,7 +26,7 @@ from collections import defaultdict
 
 import numpy as np
 from matplotlib.ticker import FuncFormatter
-from uncertainties.core import Variable as ufloat
+from uncertainties.core import UFloat
 
 from qiskit_experiments.curve_analysis.curve_data import SeriesDef, FitData, CurveData
 from qiskit_experiments.framework import AnalysisResultDataF
@@ -400,7 +400,7 @@ def write_fit_report(result_entries: List[AnalysisResultData]) -> str:
         return f"{float_val: .4g}"
 
     for res in result_entries:
-        if isinstance(res.value, ufloat):
+        if isinstance(res.value, UFloat):
             fitval = res.value
             if res.unit:
                 # unit is defined. do detaching prefix, i.e. 1000 Hz -> 1 kHz
