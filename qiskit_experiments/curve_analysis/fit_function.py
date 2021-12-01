@@ -18,6 +18,8 @@ A library of fit functions.
 import numpy as np
 import functools
 
+from uncertainties import unumpy as unp
+
 
 def uncertainties(fit_func):
     @functools.wraps(fit_func)
@@ -44,7 +46,7 @@ def cos(
         y = {\rm amp} \cdot \cos\left(2 \pi {\rm freq} \cdot x
             + {\rm phase}\right) + {\rm baseline}
     """
-    return amp * np.cos(2 * np.pi * freq * x + phase) + baseline
+    return amp * unp.cos(2 * np.pi * freq * x + phase) + baseline
 
 
 @uncertainties
@@ -61,7 +63,7 @@ def sin(
         y = {\rm amp} \cdot \sin\left(2 \pi {\rm freq} \cdot x
             + {\rm phase}\right) + {\rm baseline}
     """
-    return amp * np.sin(2 * np.pi * freq * x + phase) + baseline
+    return amp * unp.sin(2 * np.pi * freq * x + phase) + baseline
 
 
 @uncertainties
@@ -90,7 +92,7 @@ def gaussian(
     .. math::
         y = {\rm amp} \cdot \exp \left( - (x - x0)^2 / 2 \sigma^2 \right) + {\rm baseline}
     """
-    return amp * np.exp(-((x - x0) ** 2) / (2 * sigma ** 2)) + baseline
+    return amp * unp.exp(-((x - x0) ** 2) / (2 * sigma ** 2)) + baseline
 
 
 @uncertainties
@@ -142,9 +144,9 @@ def bloch_oscillation_x(
     where :math:`\omega = \sqrt{p_x^2 + p_y^2 + p_z^2}`. The `p_i` stands for the
     measured probability in :math:`i \in \left\{ X, Y, Z \right\}` basis.
     """
-    w = np.sqrt(px ** 2 + py ** 2 + pz ** 2)
+    w = unp.sqrt(px ** 2 + py ** 2 + pz ** 2)
 
-    return (-pz * px + pz * px * np.cos(w * x) + w * py * np.sin(w * x)) / (w ** 2) + baseline
+    return (-pz * px + pz * px * unp.cos(w * x) + w * py * unp.sin(w * x)) / (w ** 2) + baseline
 
 
 @uncertainties
@@ -160,9 +162,9 @@ def bloch_oscillation_y(
     where :math:`\omega = \sqrt{p_x^2 + p_y^2 + p_z^2}`. The `p_i` stands for the
     measured probability in :math:`i \in \left\{ X, Y, Z \right\}` basis.
     """
-    w = np.sqrt(px ** 2 + py ** 2 + pz ** 2)
+    w = unp.sqrt(px ** 2 + py ** 2 + pz ** 2)
 
-    return (pz * py - pz * py * np.cos(w * x) - w * px * np.sin(w * x)) / (w ** 2) + baseline
+    return (pz * py - pz * py * unp.cos(w * x) - w * px * unp.sin(w * x)) / (w ** 2) + baseline
 
 
 @uncertainties
@@ -178,6 +180,6 @@ def bloch_oscillation_z(
     where :math:`\omega = \sqrt{p_x^2 + p_y^2 + p_z^2}`. The `p_i` stands for the
     measured probability in :math:`i \in \left\{ X, Y, Z \right\}` basis.
     """
-    w = np.sqrt(px ** 2 + py ** 2 + pz ** 2)
+    w = unp.sqrt(px ** 2 + py ** 2 + pz ** 2)
 
-    return (pz ** 2 + (px ** 2 + py ** 2) * np.cos(w * x)) / (w ** 2) + baseline
+    return (pz ** 2 + (px ** 2 + py ** 2) * unp.cos(w * x)) / (w ** 2) + baseline
