@@ -172,7 +172,7 @@ class InterleavedRBAnalysis(RBAnalysis):
         alpha_c = fit_data.fitval("alpha_c")
 
         # Calculate epc_est (=r_c^est) - Eq. (4):
-        epc = FitVal(value=scale * (1 - alpha_c.value), stderr=scale * alpha_c.stderr)
+        epc = scale * (1 - alpha_c)
 
         # Calculate the systematic error bounds - Eq. (5):
         systematic_err_1 = scale * (abs(alpha.value - alpha_c.value) + (1 - alpha.value))
@@ -181,8 +181,8 @@ class InterleavedRBAnalysis(RBAnalysis):
             + 4 * (np.sqrt(1 - alpha.value)) * (np.sqrt(nrb * nrb - 1)) / alpha.value
         )
         systematic_err = min(systematic_err_1, systematic_err_2)
-        systematic_err_l = epc.value - systematic_err
-        systematic_err_r = epc.value + systematic_err
+        systematic_err_l = epc.nominal_value - systematic_err
+        systematic_err_r = epc.nominal_value + systematic_err
 
         extra_data = AnalysisResultData(
             name="EPC",

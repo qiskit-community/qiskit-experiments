@@ -170,11 +170,11 @@ class RBAnalysis(curve.CurveAnalysis):
         # Calculate EPC
         alpha = fit_data.fitval("alpha")
         scale = (2 ** self._num_qubits - 1) / (2 ** self._num_qubits)
-        epc = FitVal(value=scale * (1 - alpha.value), stderr=scale * alpha.stderr)
+
         extra_entries.append(
             AnalysisResultData(
                 name="EPC",
-                value=epc,
+                value=scale * (1 - alpha),
                 chisq=fit_data.reduced_chisq,
                 quality=self._evaluate_quality(fit_data),
             )
@@ -201,7 +201,7 @@ class RBAnalysis(curve.CurveAnalysis):
             num_qubits = len(self._physical_qubits)
 
             if num_qubits == 1:
-                epg = RBUtils.calculate_1q_epg(
+                epg_dict = RBUtils.calculate_1q_epg(
                     epc,
                     self._physical_qubits,
                     gate_error_ratio,
@@ -209,7 +209,7 @@ class RBAnalysis(curve.CurveAnalysis):
                 )
             elif num_qubits == 2:
                 epg_1_qubit = self._get_option("epg_1_qubit")
-                epg = RBUtils.calculate_2q_epg(
+                epg_dict = RBUtils.calculate_2q_epg(
                     epc,
                     self._physical_qubits,
                     gate_error_ratio,
@@ -218,16 +218,18 @@ class RBAnalysis(curve.CurveAnalysis):
                 )
             else:
                 # EPG calculation is not supported for more than 3 qubits RB
-                epg = None
-            if epg:
-                for qubits, gate_dict in epg.items():
+                epg_dict = None
+
+            quality = self._evaluate_quality(fit_data)
+            if epg_dict:
+                for qubits, gate_dict in epg_dict.items():
                     for gate, value in gate_dict.items():
                         extra_entries.append(
                             AnalysisResultData(
                                 f"EPG_{gate}",
                                 value,
                                 chisq=fit_data.reduced_chisq,
-                                quality=self._evaluate_quality(fit_data),
+                                quality=quality,
                                 device_components=[Qubit(i) for i in qubits],
                             )
                         )

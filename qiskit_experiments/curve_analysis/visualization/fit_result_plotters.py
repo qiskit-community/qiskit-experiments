@@ -383,7 +383,6 @@ def draw_single_curve_mpl(
             ax=axis,
             color=series_def.plot_color,
             zorder=2,
-            fit_uncertainty=series_def.plot_fit_uncertainty,
         )
 
 

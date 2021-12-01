@@ -72,8 +72,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
             - ``name``: Name of the curve. This is arbitrary data field, but should be unique.
             - ``plot_color``: String color representation of this series in the plot.
             - ``plot_symbol``: String formatter of the scatter of this series in the plot.
-            - ``plot_fit_uncertainty``: A Boolean signaling whether to plot fit uncertainty
-              for this series in the plot.
 
         - ``__fixed_parameters__``: A list of parameter names fixed during the fitting.
             These parameters should be provided in some way. For example, you can provide
@@ -578,7 +576,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         x_key = self._get_option("x_key")
         try:
-            x_values = np.asarray([datum["metadata"][x_key] for datum in data], dtype=float)
+            xdata = np.asarray([datum["metadata"][x_key] for datum in data], dtype=float)
         except KeyError as ex:
             raise DataProcessorError(
                 f"X value key {x_key} is not defined in circuit metadata."
@@ -586,14 +584,14 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         if isinstance(data_processor, DataProcessor):
             y_data = data_processor(data)
-
-            y_nominals = unp.nominal_values(y_data)
-            y_stderrs = unp.std_devs(y_data)
         else:
+            # Can we replace this with error or still worth supporting?
+            # Looks like this is too much flexibility.
+            warnings.warn(
+                "Use of non DataProcessor instance has been deprecated.", DeprecationWarning
+            )
             y_nominals, y_stderrs = zip(*map(data_processor, data))
-
-            y_nominals = np.asarray(y_nominals, dtype=float)
-            y_stderrs = np.asarray(y_stderrs, dtype=float)
+            ydata = unp.uarray(y_nominals, y_stderrs)
 
         # Store metadata
         metadata = np.asarray([datum["metadata"] for datum in data], dtype=object)
@@ -612,9 +610,9 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # Store raw data
         raw_data = CurveData(
             label="raw_data",
-            x=x_values,
-            y=y_nominals,
-            y_err=y_stderrs,
+            x=xdata,
+            y=unp.nominal_values(ydata),
+            y_err=unp.nominal_values(ydata),
             shots=shots,
             data_index=data_index,
             metadata=metadata,
@@ -983,11 +981,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
             analysis_results.append(
                 AnalysisResultData(
                     name=PARAMS_ENTRY_PREFIX + self.__class__.__name__,
-                    value=FitVal(fit_result.popt, fit_result.popt_err),
+                    value=fit_result.parameters,
                     chisq=fit_result.reduced_chisq,
                     quality=quality,
                     extra={
-                        "popt_keys": fit_result.popt_keys,
                         "dof": fit_result.dof,
                         "covariance_mat": fit_result.pcov,
                         "fit_models": fit_models,
@@ -1010,7 +1007,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         unit = None
                     result_entry = AnalysisResultData(
                         name=p_repr,
-                        value=fit_result.fitval(p_name, unit),
+                        value=fit_result.fit_val(p_name),
+                        unit=unit,
                         chisq=fit_result.reduced_chisq,
                         quality=quality,
                         extra=self._get_option("extra"),

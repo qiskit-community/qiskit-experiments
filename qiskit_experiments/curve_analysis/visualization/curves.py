@@ -14,6 +14,7 @@ Plotting functions for experiment analysis
 """
 from typing import Callable, Optional
 import numpy as np
+from uncertainties import unumpy as unp
 
 from qiskit_experiments.curve_analysis.curve_data import FitData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
@@ -22,7 +23,6 @@ from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 def plot_curve_fit(
     func: Callable,
     result: FitData,
-    fit_uncertainty: bool = False,
     ax=None,
     num_fit_points: int = 100,
     labelsize: int = 14,
@@ -36,7 +36,6 @@ def plot_curve_fit(
     Args:
         func: the fit function for curve_fit.
         result: a fitting data set.
-        fit_uncertainty: if True plot the fit uncertainty from popt_err.
         ax (matplotlib.axes.Axes): Optional, a matplotlib axes to add the plot to.
         num_fit_points: the number of points to plot for xrange.
         labelsize: label size for plot
@@ -62,42 +61,25 @@ def plot_curve_fit(
         plot_opts["linewidth"] = 2
 
     # Result data
-    if isinstance(result, dict):
-        # TODO: remove this after T1 T2 migration to curve analysis
-        fit_params = result["popt"]
-        param_keys = result["popt_keys"]
-        fit_errors = result["popt_err"]
-        xmin, xmax = result["x_range"]
-    else:
-        fit_params = result.popt
-        param_keys = result.popt_keys
-        fit_errors = result.popt_err
-        xmin, xmax = result.x_range
+    fit_params = {ufloat_param.tag: ufloat_param for ufloat_param in result.parameters}
+    xmin, xmax = result.x_range
 
     # Plot fit data
     xs = np.linspace(xmin, xmax, num_fit_points)
-    if param_keys:
-        ys_fit = func(xs, **dict(zip(param_keys, fit_params)))
-    else:
-        ys_fit = func(xs, *fit_params)
-    ax.plot(xs, ys_fit, **plot_opts)
+    ys_fit_with_error = func(xs, **dict(zip(param_keys, fit_params)))
 
-    # Plot standard error interval
-    if fit_uncertainty and fit_errors is not None:
-        if param_keys:
-            params_upper = {}
-            params_lower = {}
-            for key, param, error in zip(param_keys, fit_params, fit_errors):
-                params_upper[key] = param + error
-                params_lower[key] = param - error
-            ys_upper = func(xs, **params_upper)
-            ys_lower = func(xs, **params_lower)
-        else:
-            params_upper = [param + error for param, error in zip(fit_params, fit_errors)]
-            params_lower = [param - error for param, error in zip(fit_params, fit_errors)]
-            ys_upper = func(xs, *params_upper)
-            ys_lower = func(xs, *params_lower)
-        ax.fill_between(xs, ys_lower, ys_upper, alpha=0.1, color=plot_opts["color"])
+    # Line
+    ax.plot(
+        xs, unp.nominal_values(ys_fit_with_error), **plot_opts
+    )
+    # Confidence interval of 1 sigma
+    ax.fill_between(
+        xs,
+        unp.nominal_values(ys_fit_with_error) - unp.std_devs(ys_fit_with_error),
+        unp.nominal_values(ys_fit_with_error) + unp.std_devs(ys_fit_with_error),
+        alpha=0.1,
+        color=plot_opts["color"],
+    )
 
     # Formatting
     ax.tick_params(labelsize=labelsize)
@@ -141,7 +123,7 @@ def plot_scatter(
         plot_opts["alpha"] = 0.8
 
     # Plot data
-    ax.scatter(xdata, ydata, **plot_opts)
+    ax.scatter(xdata, unp.nominal_values(ydata), **plot_opts)
 
     # Formatting
     ax.tick_params(labelsize=labelsize)

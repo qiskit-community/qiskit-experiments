@@ -57,7 +57,6 @@ class DecayAnalysis(curve.CurveAnalysis):
             ),
             plot_color="blue",
             model_description=r"amp \exp(-x/tau) + base",
-            plot_fit_uncertainty=True,
         )
     ]
 

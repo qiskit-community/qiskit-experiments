@@ -15,6 +15,7 @@ Curve fitting functions for experiment analysis
 # pylint: disable = invalid-name
 
 from typing import List, Dict, Tuple, Callable, Optional, Union
+from uncertainties import ufloat
 
 import numpy as np
 import scipy.optimize as opt
@@ -92,7 +93,7 @@ def curve_fit(
             return func(x, **dict(zip(param_keys, params)))
 
     else:
-        param_keys = None
+        param_keys = [f"p{i}" for i in range(len(p0))]
         param_p0 = p0
         if bounds:
             param_bounds = bounds
@@ -148,9 +149,9 @@ def curve_fit(
     ydata_range = np.min(ydata), np.max(ydata)
 
     return FitData(
-        popt=popt,
-        popt_keys=param_keys,
-        popt_err=popt_err,
+        parameters=[
+            ufloat(n, s, tag=pname) for n, s, pname in zip(popt, popt_err, param_keys)
+        ],
         pcov=pcov,
         reduced_chisq=reduced_chisq,
         dof=dof,
