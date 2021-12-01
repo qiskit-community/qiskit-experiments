@@ -15,7 +15,7 @@ Curve fitting functions for experiment analysis
 # pylint: disable = invalid-name
 
 from typing import List, Dict, Tuple, Callable, Optional, Union
-from uncertainties import ufloat
+from uncertainties import ufloat, correlated_values
 
 import numpy as np
 import scipy.optimize as opt
@@ -135,7 +135,8 @@ def curve_fit(
             "scipy.optimize.curve_fit failed with error: {}".format(str(ex))
         ) from ex
 
-    popt_err = np.sqrt(np.diag(pcov))
+    # Keep parameter correlations in following analysis steps
+    fit_params = correlated_values(nom_values=popt, covariance_mat=pcov)
 
     # Calculate the reduced chi-squared for fit
     yfits = fit_func(xdata, *popt)
@@ -149,9 +150,8 @@ def curve_fit(
     ydata_range = np.min(ydata), np.max(ydata)
 
     return FitData(
-        parameters=[
-            ufloat(n, s, tag=pname) for n, s, pname in zip(popt, popt_err, param_keys)
-        ],
+        popt=list(fit_params),
+        popt_keys=list(param_keys),
         pcov=pcov,
         reduced_chisq=reduced_chisq,
         dof=dof,

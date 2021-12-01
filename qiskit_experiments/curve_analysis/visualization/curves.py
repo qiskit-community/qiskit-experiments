@@ -60,18 +60,15 @@ def plot_curve_fit(
     if "linewidth" not in plot_opts:
         plot_opts["linewidth"] = 2
 
-    # Result data
-    fit_params = {ufloat_param.tag: ufloat_param for ufloat_param in result.parameters}
     xmin, xmax = result.x_range
 
     # Plot fit data
     xs = np.linspace(xmin, xmax, num_fit_points)
-    ys_fit_with_error = func(xs, **dict(zip(param_keys, fit_params)))
+    ys_fit_with_error = func(xs, **dict(zip(result.popt_keys, result.popt)))
 
     # Line
-    ax.plot(
-        xs, unp.nominal_values(ys_fit_with_error), **plot_opts
-    )
+    ax.plot(xs, unp.nominal_values(ys_fit_with_error), **plot_opts)
+
     # Confidence interval of 1 sigma
     ax.fill_between(
         xs,
