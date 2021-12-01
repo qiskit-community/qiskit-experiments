@@ -21,7 +21,6 @@ import numpy as np
 from uncertainties.core import Variable as ufloat
 
 from qiskit_experiments.exceptions import AnalysisError
-from qiskit_experiments.framework import FitVal
 
 
 @dataclasses.dataclass(frozen=True)

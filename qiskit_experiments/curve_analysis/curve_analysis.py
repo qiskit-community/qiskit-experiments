@@ -44,7 +44,6 @@ from qiskit_experiments.framework import (
     BaseAnalysis,
     ExperimentData,
     AnalysisResultData,
-    FitVal,
     Options,
 )
 

@@ -15,8 +15,10 @@ Base analysis class.
 
 from abc import ABC, abstractmethod
 from typing import List, Tuple
+from uncertainties.core import Variable as ufloat
 
 from qiskit_experiments.database_service.device_component import Qubit
+from qiskit_experiments.database_service.db_fitval import FitVal
 from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
@@ -127,9 +129,19 @@ class BaseAnalysis(ABC):
         elif experiment_components:
             device_components = experiment_components
 
+        # Convert ufloat to FitVal so that database service can parse
+        if isinstance(data.value, ufloat):
+            value = FitVal(
+                value=data.value.nominal_value,
+                stderr=data.value.std_dev,
+                unit=data.unit,
+            )
+        else:
+            value = data.value
+
         return DbAnalysisResultV1(
             name=data.name,
-            value=data.value,
+            value=value,
             device_components=device_components,
             experiment_id=experiment_id,
             chisq=data.chisq,

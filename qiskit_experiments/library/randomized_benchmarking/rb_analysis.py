@@ -16,11 +16,11 @@ Standard RB analysis class.
 from typing import List, Union
 
 import numpy as np
-
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.curve_analysis.data_processing import multi_mean_xy_data, data_sort
 from qiskit_experiments.database_service.device_component import Qubit
-from qiskit_experiments.framework import AnalysisResultData, FitVal
+from qiskit_experiments.framework import AnalysisResultData
+
 from .rb_utils import RBUtils
 
 

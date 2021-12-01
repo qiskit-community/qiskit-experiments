@@ -20,7 +20,6 @@ from uncertainties.core import Variable as ufloat
 from qiskit import QiskitError, QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit_experiments.database_service.device_component import Qubit
-from qiskit_experiments.database_service.db_fitval import FitVal
 from qiskit_experiments.framework import DbAnalysisResultV1, AnalysisResultData
 
 
