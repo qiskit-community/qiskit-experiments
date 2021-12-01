@@ -126,6 +126,7 @@ class T2Ramsey(BaseExperiment):
         circuits = []
         for delay in self.experiment_options.delays:
             if dt_unit:
+                delay_dt = round(delay / dt_factor)
                 real_delay_in_sec = delay_dt * dt_factor
             else:
                 real_delay_in_sec = delay
@@ -135,7 +136,6 @@ class T2Ramsey(BaseExperiment):
             circ = qiskit.QuantumCircuit(1, 1)
             circ.h(0)
             if dt_unit:
-                delay_dt = round(delay / dt_factor)
                 circ.delay(delay_dt, 0, "dt")
             else:
                 circ.delay(delay, 0, "s")
