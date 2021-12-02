@@ -13,11 +13,9 @@
 """
 A Tester for the RB experiment
 """
-
+from test.base import QiskitExperimentsTestCase
 import itertools as it
 import ddt
-
-from qiskit.test import QiskitTestCase
 from qiskit import QuantumCircuit
 import qiskit.quantum_info as qi
 from qiskit.providers.aer import AerSimulator
@@ -38,7 +36,7 @@ def filter_results(analysis_results, name):
 
 
 @ddt.ddt
-class TestStateTomography(QiskitTestCase):
+class TestStateTomography(QiskitExperimentsTestCase):
     """Test StateTomography"""
 
     @ddt.data(*list(it.product([1, 2], FITTERS)))
@@ -53,7 +51,6 @@ class TestStateTomography(QiskitTestCase):
         if fitter:
             qstexp.set_analysis_options(fitter=fitter)
         expdata = qstexp.run(backend)
-        expdata.block_for_results()
         results = expdata.analysis_results()
 
         # Check state is density matrix
@@ -79,7 +76,6 @@ class TestStateTomography(QiskitTestCase):
         backend = AerSimulator(seed_simulator=9000)
         exp = StateTomography(teleport_circuit(), measurement_qubits=[2])
         expdata = exp.run(backend)
-        expdata.block_for_results()
         results = expdata.analysis_results()
 
         # Check result
@@ -170,7 +166,6 @@ class TestStateTomography(QiskitTestCase):
         backend = AerSimulator(seed_simulator=9000)
         exp = StateTomography(circ, measurement_qubits=meas_qubits)
         expdata = exp.run(backend)
-        expdata.block_for_results()
         results = expdata.analysis_results()
 
         # Check result
@@ -212,8 +207,7 @@ class TestStateTomography(QiskitTestCase):
         # Run batch experiments
         backend = AerSimulator(seed_simulator=9000)
         batch_exp = BatchExperiment(exps)
-        batch_data = batch_exp.run(backend)
-        batch_data.block_for_results()
+        batch_data = batch_exp.run(backend).block_for_results()
 
         # Check target fidelity of component experiments
         f_threshold = 0.95
@@ -251,8 +245,7 @@ class TestStateTomography(QiskitTestCase):
         # Run batch experiments
         backend = AerSimulator(seed_simulator=9000)
         par_exp = ParallelExperiment(exps)
-        par_data = par_exp.run(backend)
-        par_data.block_for_results()
+        par_data = par_exp.run(backend).block_for_results()
 
         # Check target fidelity of component experiments
         f_threshold = 0.95
@@ -276,14 +269,13 @@ class TestStateTomography(QiskitTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = StateTomography(QuantumCircuit(3), measurement_qubits=[0, 2], qubits=[5, 7, 1])
-        config = exp.config
-        loaded_exp = StateTomography.from_config(config)
+        loaded_exp = StateTomography.from_config(exp.config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
 
 
 @ddt.ddt
-class TestProcessTomography(QiskitTestCase):
+class TestProcessTomography(QiskitExperimentsTestCase):
     """Test QuantumProcessTomography"""
 
     @ddt.data(*list(it.product([1, 2], FITTERS)))
@@ -298,7 +290,6 @@ class TestProcessTomography(QiskitTestCase):
         if fitter:
             qstexp.set_analysis_options(fitter=fitter)
         expdata = qstexp.run(backend)
-        expdata.block_for_results()
         results = expdata.analysis_results()
 
         # Check state is density matrix
@@ -372,7 +363,6 @@ class TestProcessTomography(QiskitTestCase):
         backend = AerSimulator(seed_simulator=9000)
         exp = ProcessTomography(circ, measurement_qubits=qubits, preparation_qubits=qubits)
         expdata = exp.run(backend)
-        expdata.block_for_results()
         results = expdata.analysis_results()
 
         # Check result
@@ -399,7 +389,6 @@ class TestProcessTomography(QiskitTestCase):
         backend = AerSimulator(seed_simulator=9000)
         exp = ProcessTomography(teleport_circuit(), measurement_qubits=[2], preparation_qubits=[0])
         expdata = exp.run(backend, shots=10000)
-        expdata.block_for_results()
         results = expdata.analysis_results()
 
         # Check result
@@ -434,8 +423,7 @@ class TestProcessTomography(QiskitTestCase):
         # Run batch experiments
         backend = AerSimulator(seed_simulator=9000)
         batch_exp = BatchExperiment(exps)
-        batch_data = batch_exp.run(backend)
-        batch_data.block_for_results()
+        batch_data = batch_exp.run(backend).block_for_results()
 
         # Check target fidelity of component experiments
         f_threshold = 0.95
@@ -471,8 +459,7 @@ class TestProcessTomography(QiskitTestCase):
         # Run batch experiments
         backend = AerSimulator(seed_simulator=9000)
         par_exp = ParallelExperiment(exps)
-        par_data = par_exp.run(backend)
-        par_data.block_for_results()
+        par_data = par_exp.run(backend).block_for_results()
 
         # Check target fidelity of component experiments
         f_threshold = 0.95
@@ -494,10 +481,9 @@ class TestProcessTomography(QiskitTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = ProcessTomography(teleport_circuit(), measurement_qubits=[2], preparation_qubits=[0])
-        config = exp.config
-        loaded_exp = ProcessTomography.from_config(config)
+        loaded_exp = ProcessTomography.from_config(exp.config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
 
 
 def teleport_circuit():

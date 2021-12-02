@@ -15,10 +15,9 @@
 from abc import ABC
 from datetime import datetime, timezone
 from typing import Optional, Union
-import numpy as np
 
 from qiskit.circuit import Parameter
-from qiskit.pulse import ScheduleBlock, Play
+from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
@@ -130,7 +129,9 @@ class BaseUpdater(ABC):
     @staticmethod
     def get_value(exp_data: ExperimentData, param_name: str, index: Optional[int] = -1) -> float:
         """A helper method to extract values from experiment data instances."""
-        candidates = exp_data.analysis_results(param_name)
+        # Because this is called within analysis callbacks the block=False kwarg
+        # must be passed to analysis results so we don't block indefinitely
+        candidates = exp_data.analysis_results(param_name, block=False)
         if isinstance(candidates, list):
             return candidates[index].value.value
         else:
@@ -182,60 +183,3 @@ class Frequency(BaseUpdater):
             group=group,
             fit_parameter=fit_parameter,
         )
-
-
-class FineDragUpdater(BaseUpdater):
-    """Updater for the fine drag calibration."""
-
-    # pylint: disable=arguments-differ,unused-argument
-    @classmethod
-    def update(
-        cls,
-        calibrations: Calibrations,
-        exp_data: ExperimentData,
-        parameter: str,
-        schedule: Union[ScheduleBlock, str],
-        result_index: Optional[int] = -1,
-        group: str = "default",
-        target_angle: float = np.pi,
-        **options,
-    ):
-        """Update the value of a drag parameter measured by the FineDrag experiment.
-
-        Args:
-            calibrations: The calibrations to update.
-            exp_data: The experiment data from which to update.
-            parameter: The name of the parameter in the calibrations to update.
-            schedule: The ScheduleBlock instance or the name of the instance to which the parameter
-                is attached.
-            result_index: The result index to use. By default search entry by name.
-            group: The calibrations group to update. Defaults to "default."
-            target_angle: The target rotation angle of the pulse.
-            options: Trailing options.
-
-        Raises:
-            CalibrationError: If we cannot get the pulse's standard deviation from the schedule.
-        """
-        qubits = exp_data.metadata["physical_qubits"]
-
-        if isinstance(schedule, str):
-            schedule = calibrations.get_schedule(schedule, qubits)
-
-        # Obtain sigma as it is needed for the fine DRAG update rule.
-        sigma = None
-        for block in schedule.blocks:
-            if isinstance(block, Play) and hasattr(block.pulse, "sigma"):
-                sigma = getattr(block.pulse, "sigma")
-
-        if sigma is None:
-            raise CalibrationError(f"Could not infer sigma from {schedule}.")
-
-        d_theta = BaseUpdater.get_value(exp_data, "d_theta", result_index)
-
-        # See the documentation in fine_drag.py for the derivation of this rule.
-        d_beta = -np.sqrt(np.pi) * d_theta * sigma / target_angle ** 2
-
-        old_beta = calibrations.get_parameter_value(parameter, qubits, schedule, group=group)
-        new_beta = old_beta + d_beta
-
-        cls.add_parameter_value(calibrations, exp_data, new_beta, parameter, schedule, group)

@@ -13,16 +13,15 @@
 """
 Test T2Ramsey experiment
 """
+from test.base import QiskitExperimentsTestCase
 import numpy as np
-
 from qiskit.utils import apply_prefix
-from qiskit.test import QiskitTestCase
 from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library import T2Ramsey
 from qiskit_experiments.test.t2ramsey_backend import T2RamseyBackend
 
 
-class TestT2Ramsey(QiskitTestCase):
+class TestT2Ramsey(QiskitExperimentsTestCase):
     """Test T2Ramsey experiment"""
 
     __tolerance__ = 0.1
@@ -116,8 +115,7 @@ class TestT2Ramsey(QiskitTestCase):
         }
 
         backend = T2RamseyBackend(p0)
-        expdata = par_exp.run(backend=backend, shots=1000)
-        expdata.block_for_results()
+        expdata = par_exp.run(backend=backend, shots=1000).block_for_results()
 
         for i in range(2):
             res_t2star = expdata.child_data(i).analysis_results("T2star")
@@ -175,17 +173,15 @@ class TestT2Ramsey(QiskitTestCase):
 
         # run circuits
         expdata0 = exp0.run(backend=backend, shots=1000)
-        expdata0.block_for_results()
-
         res_t2star_0 = expdata0.analysis_results("T2star")
 
         # second experiment
         delays1 = list(range(2, 65, 2))
         exp1 = T2Ramsey(qubit, delays1, unit=unit)
         exp1.set_analysis_options(p0=default_p0)
-        expdata1 = exp1.run(backend=backend, analysis=False, shots=1000).block_for_results()
+        expdata1 = exp1.run(backend=backend, analysis=False, shots=1000)
         expdata1.add_data(expdata0.data())
-        exp1.run_analysis(expdata1).block_for_results()
+        exp1.run_analysis(expdata1)
 
         res_t2star_1 = expdata1.analysis_results("T2star")
         res_freq_1 = expdata1.analysis_results("Frequency")
@@ -206,7 +202,11 @@ class TestT2Ramsey(QiskitTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = T2Ramsey(0, [1, 2, 3, 4, 5], unit="s")
-        config = exp.config
-        loaded_exp = T2Ramsey.from_config(config)
+        loaded_exp = T2Ramsey.from_config(exp.config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+
+    def test_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = T2Ramsey(0, [1, 2, 3, 4, 5], unit="s")
+        self.assertRoundTripSerializable(exp, self.experiments_equiv)

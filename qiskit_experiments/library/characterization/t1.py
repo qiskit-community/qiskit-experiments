@@ -21,11 +21,10 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit.test.mock import FakeBackend
 
-from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
-from qiskit_experiments.library.characterization.t1_analysis import T1Analysis
+from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.library.characterization.analysis.t1_analysis import T1Analysis
 
 
-@fix_class_docs
 class T1(BaseExperiment):
     r"""
     T1 experiment class
@@ -86,9 +85,6 @@ class T1(BaseExperiment):
         Raises:
             ValueError: if the number of delays is smaller than 3
         """
-        if len(delays) < 3:
-            raise ValueError("T1 experiment: number of delays must be at least 3")
-
         # Initialize base experiment
         super().__init__([qubit], backend=backend)
 
@@ -131,6 +127,8 @@ class T1(BaseExperiment):
         Raises:
             ValueError: When conversion factor is not set.
         """
+        if self.backend:
+            self._set_backend(self.backend)
         prefactor = self.experiment_options.conversion_factor
 
         if prefactor is None:

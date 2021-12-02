@@ -12,11 +12,11 @@
 
 """Test the half angle experiment."""
 
+from test.base import QiskitExperimentsTestCase
 import copy
 import numpy as np
 
 from qiskit import QuantumCircuit, transpile
-from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeAthens
 import qiskit.pulse as pulse
 from qiskit.pulse import InstructionScheduleMap
@@ -41,7 +41,7 @@ class HalfAngleTestBackend(MockIQBackend):
         return 0.5 * np.sin((-1) ** (n_gates + 1) * n_gates * self._error) + 0.5
 
 
-class TestHalfAngle(QiskitTestCase):
+class TestHalfAngle(QiskitExperimentsTestCase):
     """Class to test the half angle experiment."""
 
     def test_end_to_end(self):
@@ -50,7 +50,7 @@ class TestHalfAngle(QiskitTestCase):
         tol = 0.005
         for error in [-0.05, -0.02, 0.02, 0.05]:
             hac = HalfAngle(0)
-            exp_data = hac.run(HalfAngleTestBackend(error)).block_for_results()
+            exp_data = hac.run(HalfAngleTestBackend(error))
             d_theta = exp_data.analysis_results(1).value.value
 
             self.assertTrue(abs(d_theta - error) < tol)

@@ -14,15 +14,15 @@
 
 from test.fake_backend import FakeBackend
 from test.fake_experiment import FakeExperiment, FakeAnalysis
+from test.base import QiskitExperimentsTestCase
 import ddt
 
 from qiskit import QuantumCircuit
-from qiskit.test import QiskitTestCase
 from qiskit_experiments.framework import ExperimentData
 
 
 @ddt.ddt
-class TestFramework(QiskitTestCase):
+class TestFramework(QiskitExperimentsTestCase):
     """Test Base Experiment"""
 
     @ddt.data(None, 1, 2, 3)
@@ -57,9 +57,11 @@ class TestFramework(QiskitTestCase):
     def test_analysis_replace_results_true(self):
         """Test running analysis with replace_results=True"""
         analysis = FakeAnalysis()
-        expdata1 = analysis.run(ExperimentData(), seed=54321).block_for_results()
+        expdata1 = analysis.run(ExperimentData(), seed=54321)
+        expdata1.block_for_results()
         result_ids = [res.result_id for res in expdata1.analysis_results()]
-        expdata2 = analysis.run(expdata1, replace_results=True, seed=12345).block_for_results()
+        expdata2 = analysis.run(expdata1, replace_results=True, seed=12345)
+        expdata2.block_for_results()
 
         self.assertEqual(expdata1, expdata2)
         self.assertEqual(expdata1.analysis_results(), expdata2.analysis_results())
@@ -68,8 +70,10 @@ class TestFramework(QiskitTestCase):
     def test_analysis_replace_results_false(self):
         """Test running analysis with replace_results=False"""
         analysis = FakeAnalysis()
-        expdata1 = analysis.run(ExperimentData(), seed=54321).block_for_results()
-        expdata2 = analysis.run(expdata1, replace_results=False, seed=12345).block_for_results()
+        expdata1 = analysis.run(ExperimentData(), seed=54321)
+        expdata1.block_for_results()
+        expdata2 = analysis.run(expdata1, replace_results=False, seed=12345)
+        expdata2.block_for_results()
 
         self.assertNotEqual(expdata1, expdata2)
         self.assertNotEqual(expdata1.experiment_id, expdata2.experiment_id)

@@ -12,9 +12,10 @@
 
 """Test drag calibration experiment."""
 
+from test.base import QiskitExperimentsTestCase
+import unittest
 import numpy as np
 
-from qiskit.test import QiskitTestCase
 from qiskit.circuit import Parameter
 from qiskit.exceptions import QiskitError
 from qiskit.pulse import DriveChannel, Drag
@@ -29,7 +30,7 @@ from qiskit_experiments.calibration_management.basis_gate_library import FixedFr
 from qiskit_experiments.calibration_management import BackendCalibrations
 
 
-class TestDragEndToEnd(QiskitTestCase):
+class TestDragEndToEnd(QiskitExperimentsTestCase):
     """Test the drag experiment."""
 
     def setUp(self):
@@ -59,7 +60,7 @@ class TestDragEndToEnd(QiskitTestCase):
 
         drag = RoughDrag(1, self.x_plus)
 
-        expdata = drag.run(backend).block_for_results()
+        expdata = drag.run(backend)
         result = expdata.analysis_results(1)
 
         self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
@@ -71,7 +72,7 @@ class TestDragEndToEnd(QiskitTestCase):
 
         drag = RoughDrag(0, self.x_plus)
         drag.set_analysis_options(p0={"beta": 1.2})
-        exp_data = drag.run(backend).block_for_results()
+        exp_data = drag.run(backend)
         result = exp_data.analysis_results(1)
 
         self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
@@ -83,7 +84,7 @@ class TestDragEndToEnd(QiskitTestCase):
         drag = RoughDrag(1, self.x_plus, betas=np.linspace(-4, 4, 31))
         drag.set_run_options(shots=200)
         drag.set_analysis_options(p0={"beta": 1.8, "freq0": 0.08, "freq1": 0.16, "freq2": 0.32})
-        exp_data = drag.run(backend).block_for_results()
+        exp_data = drag.run(backend)
         result = exp_data.analysis_results(1)
 
         meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
@@ -93,7 +94,7 @@ class TestDragEndToEnd(QiskitTestCase):
         self.assertEqual(result.quality, "good")
 
 
-class TestDragCircuits(QiskitTestCase):
+class TestDragCircuits(QiskitExperimentsTestCase):
     """Test the circuits of the drag calibration."""
 
     def setUp(self):
@@ -134,7 +135,7 @@ class TestDragCircuits(QiskitTestCase):
             RoughDrag(1, xp, betas=np.linspace(-3, 3, 21))
 
 
-class TestRoughDragCalUpdate(QiskitTestCase):
+class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
     """Test that a Drag calibration experiment properly updates the calibrations."""
 
     def setUp(self):
@@ -160,19 +161,32 @@ class TestRoughDragCalUpdate(QiskitTestCase):
         self.assertTrue(abs(new_beta - self.backend.ideal_beta) < self.test_tol)
         self.assertTrue(abs(new_beta) > self.test_tol)
 
-    def test_experiment_config(self):
-        """Test converting to and from config works"""
+    def test_dragcal_experiment_config(self):
+        """Test RoughDragCal config can round trip"""
         exp = RoughDragCal(0, self.cals, backend=self.backend)
-        config = exp.config
-        loaded_exp = RoughDragCal.from_config(config)
+        loaded_exp = RoughDragCal.from_config(exp.config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
 
+    @unittest.skip("Calibration experiments are not yet JSON serializable")
+    def test_dragcal_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = RoughDragCal(0, self.cals)
+        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+
+    def test_drag_experiment_config(self):
+        """Test RoughDrag config can roundtrip"""
         with pulse.build(name="xp") as sched:
             pulse.play(pulse.Drag(160, 0.5, 40, Parameter("β")), pulse.DriveChannel(0))
-
         exp = RoughDrag(0, backend=self.backend, schedule=sched)
-        config = exp.config
-        loaded_exp = RoughDrag.from_config(config)
+        loaded_exp = RoughDrag.from_config(exp.config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+
+    @unittest.skip("Schedules are not yet JSON serializable")
+    def test_drag_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        with pulse.build(name="xp") as sched:
+            pulse.play(pulse.Drag(160, 0.5, 40, Parameter("β")), pulse.DriveChannel(0))
+        exp = RoughDrag(0, backend=self.backend, schedule=sched)
+        self.assertRoundTripSerializable(exp, self.experiments_equiv)

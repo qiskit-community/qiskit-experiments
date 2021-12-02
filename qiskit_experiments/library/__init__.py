@@ -63,6 +63,9 @@ Some experiments may be also used for gate calibration.
     ~characterization.CrossResonanceHamiltonian
     ~characterization.EchoedCrossResonanceHamiltonian
     ~characterization.RoughDrag
+    ~characterization.FineDrag
+    ~characterization.FineXDrag
+    ~characterization.FineSXDrag
     ~characterization.HalfAngle
     ~characterization.FineAmplitude
     ~characterization.FineXAmplitude
@@ -70,6 +73,7 @@ Some experiments may be also used for gate calibration.
     ~characterization.Rabi
     ~characterization.EFRabi
     ~characterization.RamseyXY
+    ~characterization.ReadoutAngle
 
 
 .. _calibration:
@@ -89,9 +93,9 @@ See :doc:`/tutorials/calibrating_armonk` for example.
 
     ~calibration.RoughFrequencyCal
     ~calibration.RoughDragCal
-    ~calibration.FineDrag
-    ~calibration.FineXDrag
-    ~calibration.FineSXDrag
+    ~calibration.FineXDragCal
+    ~calibration.FineSXDragCal
+    ~calibration.FineDragCal
     ~calibration.FineAmplitudeCal
     ~calibration.FineXAmplitudeCal
     ~calibration.FineSXAmplitudeCal
@@ -102,9 +106,9 @@ See :doc:`/tutorials/calibrating_armonk` for example.
 """
 from .calibration import (
     RoughDragCal,
-    FineDrag,
-    FineXDrag,
-    FineSXDrag,
+    FineDragCal,
+    FineXDragCal,
+    FineSXDragCal,
     RoughAmplitudeCal,
     RoughXSXAmplitudeCal,
     EFRoughXSXAmplitudeCal,
@@ -122,6 +126,9 @@ from .characterization import (
     CrossResonanceHamiltonian,
     EchoedCrossResonanceHamiltonian,
     RoughDrag,
+    FineDrag,
+    FineXDrag,
+    FineSXDrag,
     Rabi,
     EFRabi,
     HalfAngle,
@@ -129,6 +136,7 @@ from .characterization import (
     FineXAmplitude,
     FineSXAmplitude,
     RamseyXY,
+    ReadoutAngle,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
