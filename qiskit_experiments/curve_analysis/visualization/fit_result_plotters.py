@@ -425,7 +425,7 @@ def write_fit_report(result_entries: List[AnalysisResultData]) -> str:
             else:
                 # unit is not defined. raw value formatting is performed.
                 value_repr = format_val(fitval.nominal_value)
-                if fitval.std_dev is not None:
+                if np.isfinite(fitval.std_dev):
                     # with stderr
                     value_repr += f" \u00B1 {format_val(fitval.std_dev)}"
 
