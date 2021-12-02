@@ -17,9 +17,10 @@ from itertools import product
 from typing import List, Union
 
 import numpy as np
+from qiskit.utils import apply_prefix
+
 import qiskit_experiments.curve_analysis as curve
 import qiskit_experiments.data_processing as dp
-from qiskit.utils import apply_prefix
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import AnalysisResultData

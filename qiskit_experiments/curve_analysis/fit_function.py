@@ -13,7 +13,7 @@
 """
 A library of fit functions.
 """
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name, no-member
 
 import functools
 from typing import Callable

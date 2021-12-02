@@ -220,7 +220,6 @@ class RBAnalysis(curve.CurveAnalysis):
                 # EPG calculation is not supported for more than 3 qubits RB
                 epg_dict = None
 
-            quality = self._evaluate_quality(fit_data)
             if epg_dict:
                 for qubits, gate_dict in epg_dict.items():
                     for gate, value in gate_dict.items():
@@ -229,7 +228,7 @@ class RBAnalysis(curve.CurveAnalysis):
                                 f"EPG_{gate}",
                                 value,
                                 chisq=fit_data.reduced_chisq,
-                                quality=quality,
+                                quality=self._evaluate_quality(fit_data),
                                 device_components=[Qubit(i) for i in qubits],
                             )
                         )

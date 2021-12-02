@@ -17,6 +17,8 @@ from typing import List
 
 import numpy as np
 from qiskit.qobj.utils import MeasLevel
+from uncertainties import correlated_values
+
 from qiskit_experiments.curve_analysis import CurveAnalysis, fit_function
 from qiskit_experiments.curve_analysis.curve_data import (
     SeriesDef,
@@ -29,7 +31,6 @@ from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import ExperimentData
 from test.base import QiskitExperimentsTestCase
 from test.fake_experiment import FakeExperiment
-from uncertainties import correlated_values
 
 
 def simulate_output_data(func, xvals, param_dict, **metadata):
