@@ -13,6 +13,8 @@
 # pylint: disable=invalid-name
 
 """Test curve fitting base class."""
+from test.base import QiskitExperimentsTestCase
+from test.fake_experiment import FakeExperiment
 from typing import List
 
 import numpy as np
@@ -29,8 +31,6 @@ from qiskit_experiments.curve_analysis.curve_data import (
 from qiskit_experiments.curve_analysis.data_processing import probability
 from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import ExperimentData
-from test.base import QiskitExperimentsTestCase
-from test.fake_experiment import FakeExperiment
 
 
 def simulate_output_data(func, xvals, param_dict, **metadata):
