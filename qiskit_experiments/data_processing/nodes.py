@@ -14,90 +14,102 @@
 
 from abc import abstractmethod
 from numbers import Number
-from typing import Any, Dict, List, Optional, Tuple, Union, Sequence
+from typing import List, Union, Sequence
+
 import numpy as np
+from uncertainties import unumpy as unp, ufloat
 
 from qiskit_experiments.data_processing.data_action import DataAction, TrainableDataAction
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
-
-from abc import ABC
-from collections import defaultdict
-
-from qiskit.result.postprocess import format_counts_memory
 
 
 class AverageData(DataAction):
     """A node to average data representable as numpy arrays."""
 
     def __init__(self, axis: int, validate: bool = True):
-        """Initialize a data averaging node.
+        r"""Initialize a data averaging node.
 
         Args:
             axis: The axis along which to average.
             validate: If set to False the DataAction will not validate its input.
+
+        Notes:
+            If the input array has no standard error, then this node will compute the
+            standard error of the mean, i.e. the standard deviation of the datum divided by
+            :math:`\sqrt{N}` where :math:`N` is the number of data points.
+            Otherwise the standard error is given by the square root of :math:`N^{-1}` times
+            the sum of the squared errors.
         """
         super().__init__(validate)
         self._axis = axis
 
-    def _format_data(self, datum: Any, error: Optional[Any] = None):
-        """Format the data into numpy arrays."""
-        datum = np.asarray(datum, dtype=float)
+    def _format_data(self, data: np.ndarray) -> np.ndarray:
+        """Format the data into numpy arrays.
 
+        Args:
+            data: A data array to format. This is a single numpy array containing
+                all circuit results input to the data processor.
+
+        Returns:
+            The data that has been validated and formatted.
+
+        Raises:
+            DataProcessorError: When the specified axis does not exist in given array.
+        """
         if self._validate:
-            if len(datum.shape) <= self._axis:
+            if len(data.shape) <= self._axis:
                 raise DataProcessorError(
-                    f"Cannot average the {len(datum.shape)} dimensional "
+                    f"Cannot average the {len(data.shape)} dimensional "
                     f"array along axis {self._axis}."
                 )
 
-        if error is not None:
-            error = np.asarray(error, dtype=float)
+        return data
 
-        return datum, error
-
-    def _process(
-        self, datum: np.array, error: Optional[np.array] = None
-    ) -> Tuple[np.array, np.array]:
+    def _process(self, data: np.ndarray) -> np.ndarray:
         """Average the data.
 
-         Args:
-             datum: an array of data.
+        Args:
+            data: A data array to process. This is a single numpy array containing
+                all circuit results input to the data processor.
 
-         Returns:
-             Two arrays with one less dimension than the given datum and error. The error
-             is the standard error of the mean, i.e. the standard deviation of the datum
-             divided by :math:`sqrt{N}` where :math:`N` is the number of data points.
-
-        Raises:
-            DataProcessorError: If the axis is not an int.
+        Returns:
+             Arrays with one less dimension than the given data.
         """
-        standard_error = np.std(datum, axis=self._axis) / np.sqrt(datum.shape[self._axis])
+        ax = self._axis
 
-        return np.average(datum, axis=self._axis), standard_error
+        reduced_array = np.mean(data, axis=ax)
+        nominals = unp.nominal_values(reduced_array)
+        errors = unp.std_devs(reduced_array)
+
+        if np.any(np.isnan(errors)):
+            # replace empty elements with SEM
+            sem = np.std(unp.nominal_values(data), axis=ax) / np.sqrt(data.shape[ax])
+            errors = np.where(np.isnan(errors), sem, errors)
+
+        return unp.uarray(nominals, errors)
 
 
 class MinMaxNormalize(DataAction):
     """Normalizes the data."""
 
-    def _format_data(self, datum: Any, error: Optional[Any] = None):
-        """Format the data into numpy arrays."""
-        datum = np.asarray(datum, dtype=float)
+    def _process(self, data: np.ndarray) -> np.ndarray:
+        """Normalize the data to the interval [0, 1].
 
-        if error is not None:
-            error = np.asarray(error, dtype=float)
+        Args:
+            data: A data array to process. This is a single numpy array containing
+                all circuit results input to the data processor.
 
-        return datum, error
+        Returns:
+            The normalized data.
 
-    def _process(
-        self, datum: np.array, error: Optional[np.array] = None
-    ) -> Tuple[np.array, np.array]:
-        """Normalize the data to the interval [0, 1]."""
-        min_y, max_y = np.min(datum), np.max(datum)
+        Notes:
+            This doesn't consider the uncertainties of the minimum or maximum values.
+            Input data array is just scaled by the data range.
+        """
+        nominals = unp.nominal_values(data)
+        min_y, max_y = np.min(nominals), np.max(nominals)
 
-        if error is not None:
-            return (datum - min_y) / (max_y - min_y), error / (max_y - min_y)
-        else:
-            return (datum - min_y) / (max_y - min_y), None
+        return (data - min_y) / (max_y - min_y)
 
 
 class SVD(TrainableDataAction):
@@ -118,28 +130,24 @@ class SVD(TrainableDataAction):
         self._n_slots = 0
         self._n_iq = 0
 
-    def _format_data(self, datum: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
+    def _format_data(self, data: np.ndarray) -> np.ndarray:
         """Check that the IQ data is 2D and convert it to a numpy array.
 
         Args:
-            datum: All IQ data. This data has different dimensions depending on whether
+            data: A data array to format. This is a single numpy array containing
+                all circuit results input to the data processor.
+                This data has different dimensions depending on whether
                 single-shot or averaged data is being processed.
                 Single-shot data is four dimensional, i.e., ``[#circuits, #shots, #slots, 2]``,
                 while averaged IQ data is three dimensional, i.e., ``[#circuits, #slots, 2]``.
                 Here, ``#slots`` is the number of classical registers used in the circuit.
-            error: Optional, accompanied error.
 
         Returns:
-            datum and any error estimate as a numpy array.
+            data and any error estimate as a numpy array.
 
         Raises:
             DataProcessorError: If the datum does not have the correct format.
         """
-        datum = np.asarray(datum, dtype=float)
-
-        if error is not None:
-            error = np.asarray(error, dtype=float)
-
         self._n_circs = 0
         self._n_shots = 0
         self._n_slots = 0
@@ -148,11 +156,11 @@ class SVD(TrainableDataAction):
         # identify shape
         try:
             # level1 single-shot data
-            self._n_circs, self._n_shots, self._n_slots, self._n_iq = datum.shape
+            self._n_circs, self._n_shots, self._n_slots, self._n_iq = data.shape
         except ValueError:
             try:
                 # level1 data averaged over shots
-                self._n_circs, self._n_slots, self._n_iq = datum.shape
+                self._n_circs, self._n_slots, self._n_iq = data.shape
             except ValueError as ex:
                 raise DataProcessorError(
                     f"Data given to {self.__class__.__name__} is not likely level1 data."
@@ -165,13 +173,7 @@ class SVD(TrainableDataAction):
                     f"(I and Q). Instead, {self._n_iq} dimensions were found."
                 )
 
-            if error is not None and error.shape != datum.shape:
-                raise DataProcessorError(
-                    f"IQ data error given to {self.__class__.__name__} must be a 2D array."
-                    f"Instead, a {len(error.shape)}D array was given."
-                )
-
-        return datum, error
+        return data
 
     @property
     def axis(self) -> List[np.array]:
@@ -208,15 +210,12 @@ class SVD(TrainableDataAction):
         """
         return self._main_axes is not None
 
-    def _process(
-        self, datum: np.array, error: Optional[np.array] = None
-    ) -> Tuple[np.array, np.array]:
+    def _process(self, data: np.ndarray) -> np.ndarray:
         """Project the IQ data onto the axis defined by an SVD and scale it.
 
         Args:
-            datum: A 2D array of qubits, and an average complex IQ point as [real, imaginary].
-            error: An optional 2D array of qubits, and an error on an average complex IQ
-                point as [real, imaginary].
+            data: A data array to process. This is a single numpy array containing
+                all circuit results input to the data processor.
 
         Returns:
             A Tuple of 1D arrays of the result of the SVD and the associated error. Each entry
@@ -236,37 +235,19 @@ class SVD(TrainableDataAction):
             # level1 single mode
             dims = self._n_circs, self._n_shots, self._n_slots
 
-        processed_data = np.zeros(dims, dtype=float)
-        error_vals = np.zeros(dims, dtype=float)
+        projected_data = np.zeros(dims, dtype=object)
 
         for idx in range(self._n_slots):
             scale = self.scales[idx]
+            # error propagation is computed from data if any std error exists
             centered = np.array(
-                [datum[..., idx, iq] - self.means(qubit=idx, iq_index=iq) for iq in [0, 1]]
+                [data[..., idx, iq] - self.means(qubit=idx, iq_index=iq) for iq in [0, 1]]
             )
-            processed_data[..., idx] = (self._main_axes[idx] @ centered) / scale
+            projected_data[..., idx] = (self._main_axes[idx] @ centered) / scale
 
-            if error is not None:
-                angle = np.arctan(self._main_axes[idx][1] / self._main_axes[idx][0])
-                error_vals[..., idx] = (
-                    np.sqrt(
-                        (error[..., idx, 0] * np.cos(angle)) ** 2
-                        + (error[..., idx, 1] * np.sin(angle)) ** 2
-                    )
-                    / scale
-                )
+        return projected_data
 
-        if self._n_circs == 1:
-            if error is None:
-                return processed_data[0], None
-            else:
-                return processed_data[0], error_vals[0]
-
-        if error is None:
-            return processed_data, None
-        return processed_data, error_vals
-
-    def train(self, data: List[Any]):
+    def train(self, data: np.ndarray):
         """Train the SVD on the given data.
 
         Each element of the given data will be converted to a 2D array of dimension
@@ -277,19 +258,21 @@ class SVD(TrainableDataAction):
         qubit so that future data points can be projected onto the axis.
 
         Args:
-            data: A list of datums. Each datum will be converted to a 2D array.
+            data: A data array to be trained. This is a single numpy array containing
+                all circuit results input to the data processor.
         """
         if data is None:
             return
 
-        data, _ = self._format_data(data)
+        # TODO do not remove standard error. Currently svd is not supported.
+        data = unp.nominal_values(self._format_data(data))
 
         self._main_axes = []
         self._scales = []
         self._means = []
 
-        for qubit_idx in range(self._n_slots):
-            datums = np.vstack([datum[qubit_idx] for datum in data]).T
+        for idx in range(self._n_slots):
+            datums = np.vstack([datum[idx] for datum in data]).T
 
             # Calculate the mean of the data to recenter it in the IQ plane.
             mean_i = np.average(datums[0, :])
@@ -319,61 +302,42 @@ class IQPart(DataAction):
         super().__init__(validate)
 
     @abstractmethod
-    def _process(self, datum: np.array, error: Optional[np.array] = None) -> np.array:
+    def _process(self, data: np.ndarray) -> np.ndarray:
         """Defines how the IQ point is processed.
 
-        The dimension of the input datum corresponds to different types of data:
-        - 2D represents average IQ Data.
-        - 3D represents either a single-shot datum or all data of averaged data.
-        - 4D represents all data of single-shot data.
+        The last dimension of the array should correspond to [real, imaginary] part of data.
 
         Args:
-            datum: A N dimensional array of complex IQ points as [real, imaginary].
-            error: A N dimensional array of errors on complex IQ points as [real, imaginary].
+            data: A data array to process. This is a single numpy array containing
+                all circuit results input to the data processor.
 
         Returns:
-            Processed IQ point and its associated error estimate.
+            The data that has been processed.
         """
 
-    def _format_data(self, datum: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
-        """Check that the IQ data has the correct format and convert to numpy array.
+    def _format_data(self, data: np.ndarray) -> np.ndarray:
+        """Format and validate the input.
 
         Args:
-            datum: A single item of data which corresponds to single-shot IQ data. It's
-                dimension will depend on whether it is single-shot IQ data (three-dimensional)
-                or averaged IQ date (two-dimensional).
+            data: A data array to format. This is a single numpy array containing
+                all circuit results input to the data processor.
 
         Returns:
-            datum and any error estimate as a numpy array.
+            The data that has been validated and formatted.
 
         Raises:
-            DataProcessorError: If the datum does not have the correct format.
+            DataProcessorError: When input data is not likely IQ data.
         """
-        datum = np.asarray(datum, dtype=float)
-
-        if error is not None:
-            error = np.asarray(error, dtype=float)
-
         if self._validate:
-            if len(datum.shape) not in {2, 3, 4}:
+            if data.shape[-1] != 2:
                 raise DataProcessorError(
-                    f"IQ data given to {self.__class__.__name__} must be an N dimensional"
-                    f"array with N in (2, 3, 4). Instead, a {len(datum.shape)}D array was given."
+                    f"IQ data given to {self.__class__.__name__} must be a multi-dimensional array"
+                    "of dimension [d0, d1, ..., 2] in which the last dimension "
+                    "corresponds to IQ elements."
+                    f"Input data contains element with length {data.shape[-1]} != 2."
                 )
 
-            if error is not None and len(error.shape) not in {2, 3, 4}:
-                raise DataProcessorError(
-                    f"IQ data error given to {self.__class__.__name__} must be an N dimensional"
-                    f"array with N in (2, 3, 4). Instead, a {len(error.shape)}D array was given."
-                )
-
-            if error is not None and len(error.shape) != len(datum.shape):
-                raise DataProcessorError(
-                    "Datum and error do not have the same shape: "
-                    f"{len(datum.shape)} != {len(error.shape)}."
-                )
-
-        return datum, error
+        return data
 
     def __repr__(self):
         """String representation of the node."""
@@ -383,46 +347,31 @@ class IQPart(DataAction):
 class ToReal(IQPart):
     """IQ data post-processing. Isolate the real part of single-shot IQ data."""
 
-    def _process(
-        self, datum: np.array, error: Optional[np.array] = None
-    ) -> Tuple[np.array, np.array]:
+    def _process(self, data: np.ndarray) -> np.ndarray:
         """Take the real part of the IQ data.
 
         Args:
-            datum: An N dimensional array of shots, qubits, and a complex IQ point as
-                [real, imaginary].
-            error: An N dimensional optional array of shots, qubits, and an error on a
-                complex IQ point as [real, imaginary].
+            data: An N-dimensional array of complex IQ point as [real, imaginary].
 
         Returns:
-            A N-1 dimensional array, each entry is the real part of the given IQ data and error.
+            A N-1 dimensional array, each entry is the real part of the given IQ data.
         """
-        if error is not None:
-            return datum[..., 0] * self.scale, error[..., 0] * self.scale
-        else:
-            return datum[..., 0] * self.scale, None
+        return data[..., 0] * self.scale
 
 
 class ToImag(IQPart):
     """IQ data post-processing. Isolate the imaginary part of single-shot IQ data."""
 
-    def _process(self, datum: np.array, error: Optional[np.array] = None) -> np.array:
+    def _process(self, data: np.ndarray) -> np.ndarray:
         """Take the imaginary part of the IQ data.
 
         Args:
-            datum: An N dimensional array of shots, qubits, and a complex IQ point as
-                [real, imaginary].
-            error: An N dimensional optional array of shots, qubits, and an error on a
-                complex IQ point as [real, imaginary].
+            data: An N-dimensional array of complex IQ point as [real, imaginary].
 
         Returns:
-            A N-1 dimensional array, each entry is the imaginary part of the given IQ data
-            and error.
+            A N-1 dimensional array, each entry is the imaginary part of the given IQ data.
         """
-        if error is not None:
-            return datum[..., 1] * self.scale, error[..., 1] * self.scale
-        else:
-            return datum[..., 1] * self.scale, None
+        return data[..., 1] * self.scale
 
 
 class Probability(DataAction):
@@ -463,6 +412,8 @@ class Probability(DataAction):
 
             \text{E}[p] = \frac{F + 0.5}{N + 1}, \quad
             \text{Var}[p] = \frac{\text{E}[p] (1 - \text{E}[p])}{N + 2}
+
+        This node will deprecate standard error provided by the previous node.
     """
 
     def __init__(
@@ -493,85 +444,76 @@ class Probability(DataAction):
                     "Prior for probability node must be a float or pair of floats."
                 )
             self._alpha_prior = list(alpha_prior)
+
         super().__init__(validate)
 
-    def _format_data(self, datum: dict, error: Optional[Any] = None) -> Tuple[dict, Any]:
+    def _format_data(self, data: np.ndarray) -> np.ndarray:
         """
         Checks that the given data has a counts format.
 
         Args:
-            datum: An instance of data the should be a dict with bit strings as keys
-                and counts as values.
+            data: A data array to format. This is a single numpy array containing
+                all circuit results input to the data processor.
+                This is usually an object data type containing Python dictionaries of
+                count data keyed on the measured bitstring.
+                A count value is a discrete quantity representing the frequency of an event.
+                Therefore, count values do not have an uncertainty.
 
         Returns:
-            The datum as given.
+            The ``data`` as given.
 
         Raises:
-            DataProcessorError: if the data is not a counts dict or a list of counts dicts.
+            DataProcessorError: If the data is not a counts dict or a list of counts dicts.
         """
+        valid_count_type = int, np.integer
+
         if self._validate:
-
-            if isinstance(datum, dict):
-                data = [datum]
-            elif isinstance(datum, list):
-                data = datum
-            else:
-                raise DataProcessorError(f"Datum must be dict or list, received {type(datum)}.")
-
-            for datum_ in data:
-                if not isinstance(datum_, dict):
+            for datum in data:
+                if not isinstance(datum, dict):
                     raise DataProcessorError(
-                        f"Given counts datum {datum_} to "
-                        f"{self.__class__.__name__} is not a valid count format."
+                        f"Data entry must be dictionary of counts, received {type(datum)}."
                     )
-
-                for bit_str, count in datum_.items():
+                for bit_str, count in datum.items():
                     if not isinstance(bit_str, str):
                         raise DataProcessorError(
-                            f"Key {bit_str} is not a valid count key in{self.__class__.__name__}."
+                            f"Key {bit_str} is not a valid count key in {self.__class__.__name__}."
                         )
-
-                    if not isinstance(count, (int, float, np.integer)):
+                    if not isinstance(count, valid_count_type):
                         raise DataProcessorError(
-                            f"Count {bit_str} is not a valid count value in {self.__class__.__name__}."
+                            f"Count {bit_str} is not a valid count for {self.__class__.__name__}. "
+                            "The uncertainty of probability is computed based on sampling error, "
+                            "thus the count should be an error-free discrete quantity "
+                            "representing the frequency of event."
                         )
 
-        return datum, None
+        return data
 
-    def _process(
-        self,
-        datum: Union[Dict[str, Any], List[Dict[str, Any]]],
-        error: Optional[Union[Dict, List]] = None,
-    ) -> Union[Tuple[float, float], Tuple[np.array, np.array]]:
-        """
+    def _process(self, data: np.ndarray) -> np.ndarray:
+        """Compute mean and standard error from the beta distribution.
+
         Args:
-            datum: The data dictionary,taking the data under counts and
-                adding the corresponding probabilities.
+            data: A data array to process. This is a single numpy array containing
+                all circuit results input to the data processor.
+                This is usually an object data type containing Python dictionaries of
+                count data keyed on the measured bitstring.
 
         Returns:
-            processed data: A dict with the populations and standard deviation.
+            The data that has been processed.
         """
-        if isinstance(datum, dict):
-            return self._population_error(datum)
-        else:
-            populations, errors = [], []
+        probabilities = np.empty(data.size, dtype=object)
 
-            for datum_ in datum:
-                pop, error = self._population_error(datum_)
-                populations.append(pop)
-                errors.append(error)
+        for idx, counts_dict in enumerate(data):
+            shots = sum(counts_dict.values())
+            freq = counts_dict.get(self._outcome, 0)
+            alpha_posterior = [freq + self._alpha_prior[0], shots - freq + self._alpha_prior[1]]
+            alpha_sum = sum(alpha_posterior)
 
-            return np.array(populations), np.array(errors)
+            p_mean = alpha_posterior[0] / alpha_sum
+            p_var = p_mean * (1 - p_mean) / (alpha_sum + 1)
 
-    def _population_error(self, counts_dict: Dict[str, int]) -> Tuple[float, float]:
-        """Helper method"""
-        shots = sum(counts_dict.values())
-        freq = counts_dict.get(self._outcome, 0)
-        alpha_posterior = [freq + self._alpha_prior[0], shots - freq + self._alpha_prior[1]]
-        alpha_sum = sum(alpha_posterior)
-        p_mean = alpha_posterior[0] / alpha_sum
-        p_var = p_mean * (1 - p_mean) / (alpha_sum + 1)
-        return p_mean, np.sqrt(p_var)
+            probabilities[idx] = ufloat(nominal_value=p_mean, std_dev=np.sqrt(p_var))
+
+        return probabilities
 
 
 class BasisExpectationValue(DataAction):
@@ -581,196 +523,35 @@ class BasisExpectationValue(DataAction):
         The sign becomes P(0) -> 1, P(1) -> -1.
     """
 
-    def _format_data(
-        self, datum: np.ndarray, error: Optional[np.ndarray] = None
-    ) -> Tuple[Any, Any]:
-        """Check that the input data are probabilities.
+    def _format_data(self, data: np.ndarray) -> np.ndarray:
+        """Format and validate the input.
 
         Args:
-            datum: An array representing probabilities.
-            error: An array representing error.
+            data: A data array to format. This is a single numpy array containing
+                all circuit results input to the data processor.
 
         Returns:
-            Arrays of probability and its error
+            The data that has been validated and formatted.
 
         Raises:
             DataProcessorError: When input value is not in [0, 1]
         """
-        if not all(0.0 <= p <= 1.0 for p in datum):
-            raise DataProcessorError(
-                f"Input data for node {self.__class__.__name__} is not likely probability."
-            )
-        return datum, error
-
-    def _process(
-        self, datum: np.array, error: Optional[np.array] = None
-    ) -> Tuple[np.array, np.array]:
-        """Compute eigenvalue.
-
-        Args:
-            datum: An array representing probabilities.
-            error: An array representing error.
-
-        Returns:
-            Arrays of eigenvalues and its error
-        """
-        if error is not None:
-            return 2 * (0.5 - datum), 2 * error
-        else:
-            return 2 * (0.5 - datum), None
-
-
-class RestlessNode(DataAction, ABC):
-    """An abstract node for restless data processing nodes."""
-
-    def __init__(self, validate: bool = True):
-        """Initialize a restless node.
-
-        Args:
-            validate: If set to True the node will validate its input.
-        """
-        super().__init__(validate)
-        self._n_shots = None
-        self._n_circuits = None
-
-    def _format_data(self, datum: Any, error: Optional[Any] = None) -> Tuple[Any, Any]:
-        """Convert the datum to an array.
-
-        This node will also set all the attributes needed to process the data such as
-        the number of shots and the number of circuits.
-
-        Args:
-            datum: An array representing the memory.
-            error: An array representing the error.
-        """
-
-        self._n_shots = len(datum[0])
-        self._n_circuits = len(datum)
-
-        datum = np.array(datum)
-
         if self._validate:
-            if datum.shape != (self._n_circuits, self._n_shots):
+            if not all(0.0 <= p <= 1.0 for p in data):
                 raise DataProcessorError(
-                    f"The datum given to {self.__class__.__name__} does not convert "
-                    "of an array with dimension (number of circuit, number of shots)."
+                    f"Input data for node {self.__class__.__name__} is not likely probability."
                 )
 
-        if error is not None:
-            error = np.array(error)
+        return data
 
-        return datum, error
-
-    def _reorder(self, unordered_data: np.array) -> np.array:
-        """Reorder the measured data according to the measurement sequence.
-
-        Here, is assumed that the inner loop of the measurement is done over the circuits
-        and the outer loop is done over the shots.
-        """
-        if unordered_data is None:
-            return unordered_data
-
-        order_data = []
-
-        for shot_idx in range(self._n_shots):
-            for circuit_idx in range(self._n_circuits):
-                order_data.append(unordered_data[circuit_idx][shot_idx])
-
-        return np.array(order_data)
-
-
-class RestlessToCounts(RestlessNode):
-    """Convert restless memory to counts.
-
-    This node takes as input a list of lists where the sublist is the memory of
-    each measured circuit. The sublists therefore have a length given by the
-    number of shots. This data is reordered into a one dimensional array where
-    the element at index j was the jth measured shot. This node assumes that
-    a list of circuits :code:`[circ_1, cric_2, ..., circ_m]` measured :code.`n_shots`
-    times is measured according to the following order:
-
-    .. parsed-literal::
-
-        [
-            circuit 1 - shot 1,
-            circuit 2 - shot 1,
-            ...
-            circuit m - shot 1,
-            circuit 1 - shot 2,
-            circuit 2 - shot 2,
-            ...
-            circuit m - shot 2,
-            circuit 1 - shot 3,
-            ...
-            circuit m - shot n,
-        ]
-
-    Once the shots have been ordered in this fashion the node compares each shot with the
-    previous shot. If they are the same then the shot corresponds to a 0, i.e. no state
-    change, and if they are different then the shot corresponds to a 1, i.e. there was
-    a state change.
-    """
-
-    def __init__(self, header: Dict[str, Any], validate: bool = True):
-        """
-        Args:
-            header: The header needed by :code:`qiskit.result.postprocess.format_counts_memory`
-                to convert the memory into a bit-string of counts. For example,
-                :code:`{"memory_slots": 1}` for a single qubit.
-            validate: If set to False the DataAction will not validate its input.
-        """
-        super().__init__(validate)
-        self._header = header
-
-    def _process(self, datum: np.array, error: Optional[np.array] = None) -> Tuple[np.array, np.array]:
-        """Reorder the shots and assign values to them based on the previous outcome.
+    def _process(self, data: np.ndarray) -> np.ndarray:
+        """Compute basis eigenvalue.
 
         Args:
-            datum: An array representing the memory.
-            error: An array representing the error.
+            data: A data array to process. This is a single numpy array containing
+                all circuit results input to the data processor.
 
         Returns:
-            A counts dictionary processed according to the restless methodology.
+            The data that has been processed.
         """
-
-        # Step 1. Reorder the data.
-        memory = self._reorder(datum)
-
-        # Step 2. Do the restless classification into counts.
-        counts = [defaultdict(int) for _ in range(self._n_circuits)]
-        n_qubits = self._header.get("memory_slots")
-        prev_shot = "0" * n_qubits
-
-        for idx, shot in enumerate(memory):
-            shot = format_counts_memory(shot, self._header)
-
-            restless_adjusted_shot = RestlessToCounts._restless_classify(shot, prev_shot)
-
-            circuit_idx = idx % self._n_circuits
-
-            counts[circuit_idx][restless_adjusted_shot] += 1
-
-            prev_shot = shot
-
-        return [dict(counts_dict) for counts_dict in counts], None
-
-    @staticmethod
-    def _restless_classify(shot: str, prev_shot: str) -> str:
-        """Adjust the measured shot based on the previous shot.
-
-        Each bitstring of shot is compared to the previous bitstring. If both are equal
-        the restless adjusted bitstring is 0 (no state change) otherwise it is 1 (the
-        qubit changed state).
-
-        Args:
-            shot: A measured shot as a binary string, e.g. "0110100".
-
-        Returns:
-            The restless adjusted string computed by comparing the shot with the previous shot.
-        """
-        restless_adjusted_bits = []
-
-        for idx, bit in enumerate(shot):
-            restless_adjusted_bits.append("1" if bit == prev_shot[idx] else "0")
-
-        return "".join(restless_adjusted_bits)
+        return 2 * (0.5 - data)
