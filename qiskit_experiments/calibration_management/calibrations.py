@@ -146,7 +146,7 @@ class Calibrations:
             # Add the default values
             if add_parameter_defaults:
                 for param_conf in library.default_values():
-                    schedule_name = param_conf[-1]
+                    schedule_name = param_conf.schedule_name
                     if schedule_name in library.basis_gates:
                         self.add_parameter_value(*param_conf, update_inst_map=False)
 
@@ -774,7 +774,7 @@ class Calibrations:
 
                 indices = [int(sub_channel) for sub_channel in qubit_channels.split(".")]
                 ch_qubits = tuple(qubits[index] for index in indices)
-                chs_ = self._controls_config[ch_qubits]
+                chs_ = self._control_channel_map[ch_qubits]
 
                 control_index = 0
                 if len(channel_index_parts) == 2:
