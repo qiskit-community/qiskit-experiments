@@ -104,7 +104,7 @@ class Calibrations:
         self.update_inst_map_on_add = False
 
         # Mapping between qubits and their control channels.
-        self._controls_config = control_channel_map if control_channel_map else {}
+        self._control_channel_map = control_channel_map if control_channel_map else {}
 
         # Store the reverse mapping between control channels and qubits for ease of look-up.
         self._controls_config_r = {}
