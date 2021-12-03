@@ -106,9 +106,6 @@ class Calibrations:
                 "will be supported in future releases."
             )
 
-        # When True add_parameter_value triggers an inst. map update
-        self.update_inst_map_on_add = False
-
         # Mapping between qubits and their control channels.
         self._control_channel_map = control_channel_map if control_channel_map else {}
 
@@ -151,7 +148,7 @@ class Calibrations:
                 for param_conf in library.default_values():
                     schedule_name = param_conf[-1]
                     if schedule_name in library.basis_gates:
-                        self.add_parameter_value(*param_conf)
+                        self.add_parameter_value(*param_conf, update_inst_map=False)
 
         # Instruction schedule map variables and support variables.
         self._inst_map = InstructionScheduleMap()
@@ -168,8 +165,6 @@ class Calibrations:
 
         self._qubits = list(range(num_qubits))
         self._coupling_map = coupling_map
-
-        self.update_inst_map_on_add = True
 
         # Push the schedules to the instruction schedule map.
         self.update_inst_map()
@@ -206,19 +201,14 @@ class Calibrations:
             add_parameter_defaults,
         )
 
-        # Disable the update since we will be adding several parameters.
-        cals.update_inst_map_on_add = False
-
         if add_parameter_defaults:
             for qubit, freq in enumerate(getattr(backend.defaults(), "qubit_freq_est", [])):
-                cals.add_parameter_value(freq, cals.qubit_freq, qubit)
+                cals.add_parameter_value(freq, cals.qubit_freq, qubit, update_inst_map=False)
 
             for meas, freq in enumerate(getattr(backend.defaults(), "meas_freq_est", [])):
-                cals.add_parameter_value(freq, cals.meas_freq, meas)
+                cals.add_parameter_value(freq, cals.meas_freq, meas, update_inst_map=False)
 
-        cals.update_inst_map_on_add = True
-
-        # Now update the instruction schedule map.
+        # Update the instruction schedule map after adding all parameter values.
         cals.update_inst_map()
 
         return cals
@@ -701,6 +691,7 @@ class Calibrations:
         param: Union[Parameter, str],
         qubits: Union[int, Tuple[int, ...]] = None,
         schedule: Union[ScheduleBlock, str] = None,
+        update_inst_map: bool = True,
     ):
         """Add a parameter value to the stored parameters.
 
@@ -714,6 +705,7 @@ class Calibrations:
             param: The parameter or its name for which to add the measured value.
             qubits: The qubits to which this parameter applies.
             schedule: The schedule or its name for which to add the measured parameter value.
+            update_inst_map: Update the instruction schedule map if True (the default).
 
         Raises:
             CalibrationError: If the schedule name is given but no schedule with that name
@@ -734,10 +726,9 @@ class Calibrations:
 
         self._params[ParameterKey(param_name, qubits, sched_name)].append(value)
 
-        if self.update_inst_map_on_add:
-            if schedule is not None:
-                param_obj = self.calibration_parameter(param_name, qubits, sched_name)
-                self._parameter_inst_map_update(param_obj)
+        if update_inst_map and schedule is not None:
+            param_obj = self.calibration_parameter(param_name, qubits, sched_name)
+            self._parameter_inst_map_update(param_obj)
 
     def _get_channel_index(self, qubits: Tuple[int, ...], chan: PulseChannel) -> int:
         """Get the index of the parameterized channel.
@@ -1420,6 +1411,8 @@ class Calibrations:
             for row in reader:
                 self._add_parameter_value_from_conf(**row)
 
+        self.update_inst_map()
+
     def _add_parameter_value_from_conf(
         self,
         value: Union[str, int, float, complex],
@@ -1455,7 +1448,7 @@ class Calibrations:
             schedule_name = schedule
 
         key = ParameterKey(parameter, self._to_tuple(qubits), schedule_name)
-        self.add_parameter_value(param_val, *key)
+        self.add_parameter_value(param_val, *key, update_inst_map=False)
 
     @classmethod
     def load(cls, files: List[str]) -> "Calibrations":
