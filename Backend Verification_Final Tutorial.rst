@@ -11,7 +11,7 @@ corresponding to every qubits to verify the quantum system
 and compare whether the results are similar to the reported ones.
 As this guide is for characterizing multiple qubits, 
 selecting a backend which has more than one qubit would be meaningful.
-In this guide, we will try `ibmq_lima` backend which has 5 qubits and especially use composite experiment framework.
+In this guide, we will try ``ibmq_lima`` backend which has 5 qubits and especially use composite experiment framework.
 
 
 Brief explanation about Composite Experiment
@@ -29,7 +29,7 @@ These classes literally provide a way to perform a single composite experiment w
     which generate only 1 job by combining all the sub experiments circuits into circuits 
     which run the component gates in parallel on the respective qubits whereas 
     if they were made as independent experiments, 3 jobs would have been generated and 3 queue times. 
-    Furthermore, parallelexperiment can provide similar noise environment across all qubits so that ~
+    Furthermore, parallelexperiment can provide similar noise environment across all qubits.
 
 * BatchExperiment
   
@@ -49,8 +49,7 @@ to construct possible job.
 
 ..jupyter-execute::
 
-     #get the basic feautures with configuration()
-
+ #get the basic feautures with configuration()
  config = backend.configuration()
  backend_job_limit=backend.job_limit()
 
@@ -242,7 +241,7 @@ Import some necessay modules first.
  from qiskit_experiments.framework import ParallelExperiment, BatchExperiment
  from qiskit_experiments.library.randomized_benchmarking import RBUtils
  import qiskit.circuit.library as circuits
- import qiskit.ignis.verification.randomized_benchmarking as rb
+
 
 4-1 Running 1 qubit RB experiment on multiple qubit
 ------------------------------------------------------
