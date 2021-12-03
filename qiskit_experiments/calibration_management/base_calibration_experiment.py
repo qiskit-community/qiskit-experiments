@@ -79,9 +79,6 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
     :mod:`qiskit_experiments.calibration_management.update_library`. See also
     :class:`qiskit_experiments.calibration_management.update_library.BaseUpdater`. If no updater
     is specified the experiment will still run but no update of the calibrations will be performed.
-
-    In addition to the calibration specific requirements, the developer must set the analysis method
-    with the class variable :code:`__analysis_class__` and any default experiment options.
     """
 
     def __init_subclass__(cls, **kwargs):

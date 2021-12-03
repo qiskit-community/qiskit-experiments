@@ -83,7 +83,7 @@ class CompositeAnalysis(BaseAnalysis):
             # Run analysis
             # Since copy for replace result is handled at the parent level
             # we always run with replace result on component analysis
-            sub_exp.run_analysis(sub_exp_data, replace_results=True)
+            sub_exp.analysis.run(sub_exp_data, replace_results=True)
 
             # Record the component experiment id and type as an analysis result
             # for evidence analysis has started and to display in the service DB

@@ -12,6 +12,7 @@
 
 """Fine amplitude calibration experiment."""
 
+import functools
 from typing import Optional
 import numpy as np
 
@@ -25,7 +26,6 @@ from qiskit_experiments.calibration_management import (
 from qiskit_experiments.library.characterization import FineAmplitude
 from qiskit_experiments.framework import ExperimentData, Options
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
-from qiskit_experiments.library.characterization.analysis import FineXAmplitudeAnalysis
 
 
 class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
@@ -146,7 +146,14 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 class FineXAmplitudeCal(FineAmplitudeCal):
     """A calibration experiment to calibrate the amplitude of the X schedule."""
 
-    __analysis_class__ = FineXAmplitudeAnalysis
+    @functools.wraps(FineAmplitudeCal.__init__)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.analysis.set_options(
+            angle_per_gate=np.pi,
+            phase_offset=np.pi / 2,
+            amp=1,
+        )
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -179,19 +186,17 @@ class FineXAmplitudeCal(FineAmplitudeCal):
 
         return options
 
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = super()._default_analysis_options()
-        options.angle_per_gate = np.pi
-        options.phase_offset = np.pi / 2
-        options.amp = 1
-
-        return options
-
 
 class FineSXAmplitudeCal(FineAmplitudeCal):
     """A calibration experiment to calibrate the amplitude of the SX schedule."""
+
+    @functools.wraps(FineAmplitudeCal.__init__)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.analysis.set_options(
+            angle_per_gate=np.pi / 2,
+            phase_offset=np.pi,
+        )
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -227,14 +232,5 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
         """
         options = super()._default_transpile_options()
         options.basis_gates = ["x", "sx"]
-
-        return options
-
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = super()._default_analysis_options()
-        options.angle_per_gate = np.pi / 2
-        options.phase_offset = np.pi
 
         return options
