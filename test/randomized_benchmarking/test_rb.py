@@ -161,7 +161,7 @@ class TestStandardRB(QiskitExperimentsTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = StandardRB([0, 1], lengths=[10, 20, 30, 40], num_samples=10)
-        loaded_exp = StandardRB.from_config(exp.config)
+        loaded_exp = StandardRB.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.experiments_equiv(exp, loaded_exp))
 
@@ -261,7 +261,7 @@ class TestInterleavedRB(TestStandardRB):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = InterleavedRB(CXGate(), [0, 1], lengths=[10, 20, 30, 40], num_samples=10)
-        loaded_exp = InterleavedRB.from_config(exp.config)
+        loaded_exp = InterleavedRB.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.experiments_equiv(exp, loaded_exp))
 

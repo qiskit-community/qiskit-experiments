@@ -144,7 +144,7 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
             link_parameters=False,
         )
 
-        lib2 = FixedFrequencyTransmon.from_config(lib1.config)
+        lib2 = FixedFrequencyTransmon.from_config(lib1.config())
 
         self.assertEqual(lib2.basis_gates, lib1.basis_gates)
 
