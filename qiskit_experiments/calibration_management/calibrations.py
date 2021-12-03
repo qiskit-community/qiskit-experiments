@@ -152,7 +152,6 @@ class Calibrations:
 
         # Instruction schedule map variables and support variables.
         self._inst_map = InstructionScheduleMap()
-        self._operated_qubits = defaultdict(list)
 
         # Use the same naming convention as in backend.defaults()
         self.qubit_freq = Parameter(self.__qubit_freq_parameter__)
@@ -165,6 +164,7 @@ class Calibrations:
 
         self._qubits = list(range(num_qubits))
         self._coupling_map = coupling_map
+        self._operated_qubits = self._get_operated_qubits()
 
         # Push the schedules to the instruction schedule map.
         self.update_inst_map()
@@ -223,8 +223,7 @@ class Calibrations:
         """Return the default and up to date instruction schedule map."""
         return self._inst_map
 
-    @property
-    def operated_qubits(self) -> Dict[int, List[int]]:
+    def _get_operated_qubits(self) -> Dict[int, List[int]]:
         """Get a dict describing qubit couplings.
 
         This is an extension of the coupling map and used as a convenience to help populate
@@ -243,21 +242,18 @@ class Calibrations:
                     3: [[0, 1, 2]]
                 }
         """
-
-        # Use the cached map if there is one.
-        if len(self._operated_qubits) != 0:
-            return self._operated_qubits
+        operated_qubits = defaultdict(list)
 
         # Single qubits
         for qubit in self._qubits:
-            self._operated_qubits[1].append([qubit])
+            operated_qubits[1].append([qubit])
 
         # Multi-qubit couplings
         if self._coupling_map is not None:
             for coupling in self._coupling_map:
-                self._operated_qubits[len(coupling)].append(coupling)
+                operated_qubits[len(coupling)].append(coupling)
 
-        return self._operated_qubits
+        return operated_qubits
 
     def get_inst_map(
         self,
@@ -329,7 +325,7 @@ class Calibrations:
                 )
 
             else:
-                for qubits_ in self.operated_qubits[self._schedules_qubits[key]]:
+                for qubits_ in self._operated_qubits[self._schedules_qubits[key]]:
                     try:
                         inst_map.add(
                             instruction=sched_name,
