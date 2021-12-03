@@ -26,7 +26,7 @@ from qiskit.providers.basebackend import BaseBackend as LegacyBackend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
-from qiskit_experiments.framework.settings import Settings
+from qiskit_experiments.framework.settings import StoreInitArgs
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.version import __version__
 
@@ -84,7 +84,7 @@ class ExperimentConfig:
             raise QiskitError("{}\nError Message:\n{}".format(msg, str(ex))) from ex
 
 
-class BaseExperiment(ABC, Settings):
+class BaseExperiment(ABC, StoreInitArgs):
     """Abstract base class for experiments.
 
     Class Attributes:

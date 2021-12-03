@@ -16,6 +16,23 @@ from qiskit.test import QiskitTestCase
 from qiskit_experiments.framework.settings import Settings
 
 
+class ExampleStoreArgsVariadic(Settings):
+    """Test class with args and kwargs property"""
+
+    def __init__(self, a, *args, b, c="default_c", d="default_d", **kwargs):
+        pass
+
+    @property
+    def args(self):
+        """Return stored init args"""
+        return tuple(getattr(self, "__init_args__", {}).values())
+
+    @property
+    def kwargs(self):
+        """Return stored init kwargs"""
+        return dict(getattr(self, "__init_kwargs__", {}))
+
+
 class ExampleSettingsVariadic(Settings):
     """Test class with args and kwargs property"""
 
@@ -24,7 +41,7 @@ class ExampleSettingsVariadic(Settings):
 
     @property
     def args(self):
-        """Return sotred init args"""
+        """Return stored init args"""
         return tuple(getattr(self, "__init_args__", {}).values())
 
     @property
@@ -41,7 +58,7 @@ class ExampleSettings(Settings):
 
     @property
     def args(self):
-        """Return sotred init args"""
+        """Return stored init args"""
         return tuple(getattr(self, "__init_args__", {}).values())
 
     @property
@@ -53,50 +70,45 @@ class ExampleSettings(Settings):
 class TestSettings(QiskitTestCase):
     """Test Settings mixin"""
 
+    # pylint: disable = missing-function-docstring
+
     def test_standard(self):
-        """Test mixing for standard init class"""
         obj = ExampleSettings(1, 2, c="custom_c")
         self.assertEqual(obj.args, (1, 2))
         self.assertEqual(obj.kwargs, {"c": "custom_c", "d": "default_d"})
         self.assertEqual(obj.settings, {"a": 1, "b": 2, "c": "custom_c", "d": "default_d"})
 
     def test_standard_pos_kwargs(self):
-        """Test mixing for standard init class with kwargs passed positionally"""
         obj = ExampleSettings(1, 2, "custom_c")
         self.assertEqual(obj.args, (1, 2))
         self.assertEqual(obj.kwargs, {"c": "custom_c", "d": "default_d"})
         self.assertEqual(obj.settings, {"a": 1, "b": 2, "c": "custom_c", "d": "default_d"})
 
     def test_standard_named_args(self):
-        """Test mixing for standard init class with kwargs passed positionally"""
         obj = ExampleSettings(b=2, a=1, c="custom_c")
         self.assertEqual(obj.args, (1, 2))
         self.assertEqual(obj.kwargs, {"c": "custom_c", "d": "default_d"})
         self.assertEqual(obj.settings, {"a": 1, "b": 2, "c": "custom_c", "d": "default_d"})
 
     def test_variadic(self):
-        """Test mixing for standard init class"""
         obj = ExampleSettingsVariadic(1, 2, c="custom_c")
         self.assertEqual(obj.args, (1, 2))
         self.assertEqual(obj.kwargs, {"c": "custom_c", "d": "default_d"})
         self.assertEqual(obj.settings, {"a": 1, "b": 2, "c": "custom_c", "d": "default_d"})
 
     def test_variadic_pos_kwargs(self):
-        """Test mixing for standard init class with kwargs passed positionally"""
         obj = ExampleSettingsVariadic(1, 2, "custom_c")
         self.assertEqual(obj.args, (1, 2))
         self.assertEqual(obj.kwargs, {"c": "custom_c", "d": "default_d"})
         self.assertEqual(obj.settings, {"a": 1, "b": 2, "c": "custom_c", "d": "default_d"})
 
     def test_variadic_named_args(self):
-        """Test mixing for standard init class with kwargs passed positionally"""
         obj = ExampleSettingsVariadic(b=2, a=1, c="custom_c")
         self.assertEqual(obj.args, (1, 2))
         self.assertEqual(obj.kwargs, {"c": "custom_c", "d": "default_d"})
         self.assertEqual(obj.settings, {"a": 1, "b": 2, "c": "custom_c", "d": "default_d"})
 
     def test_variadic_kwargs(self):
-        """Test mixing for standard init class"""
         obj = ExampleSettingsVariadic(1, 2, d="custom_d", f="kwarg_f", g="kwarg_g")
         self.assertEqual(obj.args, (1, 2))
         self.assertEqual(
@@ -108,7 +120,6 @@ class TestSettings(QiskitTestCase):
         )
 
     def test_variadic_kwargs_pos_kwargs(self):
-        """Test mixing for standard init class"""
         obj = ExampleSettingsVariadic(1, 2, "custom_c", f="kwarg_f", g="kwarg_g")
         self.assertEqual(obj.args, (1, 2))
         self.assertEqual(
@@ -120,7 +131,6 @@ class TestSettings(QiskitTestCase):
         )
 
     def test_variadic_kwargs_named_args(self):
-        """Test mixing for standard init class"""
         obj = ExampleSettingsVariadic(b=2, a=1, d="custom_d", f="kwarg_f", g="kwarg_g")
         self.assertEqual(obj.args, (1, 2))
         self.assertEqual(
@@ -129,4 +139,12 @@ class TestSettings(QiskitTestCase):
         self.assertEqual(
             obj.settings,
             {"a": 1, "b": 2, "c": "default_c", "d": "custom_d", "f": "kwarg_f", "g": "kwarg_g"},
+        )
+
+    def test_variadic_args(self):
+        obj = ExampleStoreArgsVariadic(1, 2, b="custom_b", c="custom_c", f="kwarg_f", g="kwarg_g")
+        self.assertEqual(obj.args, (1, 2))
+        self.assertEqual(
+            obj.kwargs,
+            {"b": "custom_b", "c": "custom_c", "d": "default_d", "f": "kwarg_f", "g": "kwarg_g"},
         )
