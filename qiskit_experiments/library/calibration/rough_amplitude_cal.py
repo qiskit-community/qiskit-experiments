@@ -70,6 +70,9 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
             schedule_name, qubit, assign_params={cal_parameter_name: Parameter("amp")}, group=group
         )
 
+        self._validate_channels(schedule)
+        self._validate_parameters(schedule, 1)
+
         super().__init__(
             calibrations,
             qubit,
@@ -80,9 +83,6 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
             cal_parameter_name=cal_parameter_name,
             auto_update=auto_update,
         )
-
-        self._validate_channels(schedule)
-        self._validate_parameters(schedule, 1)
 
         # Needed for subclasses that will drive other transitions than the 0<->1 transition.
         self.set_transpile_options(inst_map=calibrations.default_inst_map)

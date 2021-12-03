@@ -63,6 +63,9 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
             schedule_name, qubit, assign_params={cal_parameter_name: Parameter("β")}, group=group
         )
 
+        self._validate_channels(schedule)
+        self._validate_parameters(schedule, 1)
+
         super().__init__(
             calibrations,
             qubit,
@@ -73,9 +76,6 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
             cal_parameter_name=cal_parameter_name,
             auto_update=auto_update,
         )
-
-        self._validate_channels(schedule)
-        self._validate_parameters(schedule, 1)
 
     def _add_cal_metadata(self, experiment_data: ExperimentData):
         """Add metadata to the experiment data making it more self contained.

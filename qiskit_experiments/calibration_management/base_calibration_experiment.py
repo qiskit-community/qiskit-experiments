@@ -172,14 +172,6 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
                 schedule=self._sched_name,
             )
 
-    def _validate_schedule(self, schedule: ScheduleBlock):
-        """Subclass can implement this method to validate the schedule they use.
-
-        Validating schedules may include checks on the number of parameters and
-        the channels in the schedule. The functions :meth:`_validate_channels` and
-        :meth:`_validate_parameters` implement such standard checks for reuse.
-        """
-
     def _validate_channels(self, schedule: ScheduleBlock):
         """Check that the physical qubits are contained in the schedule.
 
