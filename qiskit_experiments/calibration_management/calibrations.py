@@ -69,7 +69,7 @@ class Calibrations:
         self,
         coupling_map: Optional[List[List[int]]] = None,
         control_channel_map: Optional[Dict[Tuple[int, ...], List[ControlChannel]]] = None,
-        library: Optional[BasisGateLibrary] = None,
+        library: Optional[Union[BasisGateLibrary, List[BasisGateLibrary]]] = None,
         add_parameter_defaults: bool = True,
     ):
         """Initialize the calibrations.
@@ -100,6 +100,12 @@ class Calibrations:
                 value is True but can be set to false when deserializing a calibrations object.
         """
 
+        if isinstance(library, list):
+            raise NotImplementedError(
+                "Passing a list of libraries from which to instantiate "
+                "will be supported in future releases."
+            )
+
         # When True add_parameter_value triggers an inst. map update
         self.update_inst_map_on_add = False
 
@@ -108,7 +114,7 @@ class Calibrations:
 
         # Store the reverse mapping between control channels and qubits for ease of look-up.
         self._controls_config_r = {}
-        for qubits, channels in self._controls_config.items():
+        for qubits, channels in self._control_channel_map.items():
             for channel in channels:
                 self._controls_config_r[channel] = qubits
 
