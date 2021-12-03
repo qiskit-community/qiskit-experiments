@@ -358,7 +358,7 @@ class Calibrations:
             cals.inst_map_add("Rabi", (0, ), "xp", assign_params={"amp": Parameter("amp")})
 
         to temporarily add a pulse for the Rabi gate in the instruction schedule map. This
-        then allows calling :code:`transpile(circ, inst_map=cals.instruction_schedule_map)`.
+        then allows calling :code:`transpile(circ, inst_map=cals.default_inst_map)`.
 
         Args:
             instruction_name: The name of the instruction to add to the instruction schedule map.
