@@ -215,6 +215,6 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""
         analysis = T2RamseyAnalysis()
-        loaded = T2RamseyAnalysis.from_config(analysis.config)
+        loaded = T2RamseyAnalysis.from_config(analysis.config())
         self.assertNotEqual(analysis, loaded)
-        self.assertEqual(analysis.config, loaded.config)
+        self.assertEqual(analysis.config(), loaded.config())

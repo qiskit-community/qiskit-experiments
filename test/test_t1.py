@@ -228,6 +228,6 @@ class TestT1(QiskitExperimentsTestCase):
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""
         analysis = T1Analysis()
-        loaded = T1Analysis.from_config(analysis.config)
+        loaded = T1Analysis.from_config(analysis.config())
         self.assertNotEqual(analysis, loaded)
-        self.assertEqual(analysis.config, loaded.config)
+        self.assertEqual(analysis.config(), loaded.config())

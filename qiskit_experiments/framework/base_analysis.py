@@ -53,7 +53,6 @@ class BaseAnalysis(ABC, Settings):
         # Store keys of non-default options
         self._set_options = set()
 
-    @property
     def config(self) -> AnalysisConfig:
         """Return the config dataclass for this analysis"""
         args = tuple(getattr(self, "__init_args__", OrderedDict()).values())
@@ -83,7 +82,11 @@ class BaseAnalysis(ABC, Settings):
         # need to also copy the Options structures so that if they are
         # updated on the copy they don't effect the original.
         ret = copy.copy(self)
-        ret._options = copy.copy(self._options)
+        # NOTE: this needs to be a deep copy until Terra PR
+        # https://github.com/Qiskit/qiskit-terra/pull/7353
+        # is merged to add a shallow copy method to Options.
+        ret._options = copy.deepcopy(self._options)
+        ret._set_options = self._set_options.copy()
         return ret
 
     @classmethod
@@ -224,7 +227,7 @@ class BaseAnalysis(ABC, Settings):
         pass
 
     def __json_encode__(self):
-        return self.config
+        return self.config()
 
     @classmethod
     def __json_decode__(cls, value):

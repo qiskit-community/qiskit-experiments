@@ -83,18 +83,18 @@ class TestFramework(QiskitExperimentsTestCase):
         """Test analysis config dataclass"""
         analysis = FakeAnalysis(arg1=10, arg2=20)
         analysis.set_options(option1=False, option2=True)
-        config = analysis.config
-        loaded = config.analysis
-        self.assertEqual(analysis.settings, loaded.settings)
+        config = analysis.config()
+        loaded = config.analysis()
+        self.assertEqual(analysis.config(), loaded.config())
         self.assertEqual(analysis.options, loaded.options)
 
     def test_analysis_from_config(self):
         """Test analysis config dataclass"""
         analysis = FakeAnalysis(arg1=10, arg2=20)
         analysis.set_options(option1=False, option2=True)
-        config = analysis.config
+        config = analysis.config()
         loaded = FakeAnalysis.from_config(config)
-        self.assertEqual(config, loaded.config)
+        self.assertEqual(config, loaded.config())
 
     def test_analysis_runtime_opts(self):
         """Test runtime options don't modify instance"""

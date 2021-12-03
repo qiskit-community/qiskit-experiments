@@ -277,9 +277,9 @@ class TestStateTomography(QiskitExperimentsTestCase):
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""
         analysis = StateTomographyAnalysis()
-        loaded = StateTomographyAnalysis.from_config(analysis.config)
+        loaded = StateTomographyAnalysis.from_config(analysis.config())
         self.assertNotEqual(analysis, loaded)
-        self.assertEqual(analysis.config, loaded.config)
+        self.assertEqual(analysis.config(), loaded.config())
 
 
 @ddt.ddt
@@ -496,9 +496,9 @@ class TestProcessTomography(QiskitExperimentsTestCase):
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""
         analysis = ProcessTomographyAnalysis()
-        loaded = ProcessTomographyAnalysis.from_config(analysis.config)
+        loaded = ProcessTomographyAnalysis.from_config(analysis.config())
         self.assertNotEqual(analysis, loaded)
-        self.assertEqual(analysis.config, loaded.config)
+        self.assertEqual(analysis.config(), loaded.config())
 
 
 def teleport_circuit():

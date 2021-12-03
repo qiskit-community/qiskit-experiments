@@ -92,7 +92,6 @@ class AnalysisConfig:
     options: Dict[str, Any] = dataclasses.field(default_factory=dict)
     version: str = __version__
 
-    @property
     def analysis(self):
         """Return the analysis class constructed from this config.
 
