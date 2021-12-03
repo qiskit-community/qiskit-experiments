@@ -13,7 +13,7 @@
 """Base class for calibration-type experiments."""
 
 from abc import ABC
-from typing import Optional, Type
+from typing import List, Optional, Type
 import warnings
 
 from qiskit.providers.backend import Backend
@@ -172,7 +172,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
                 schedule=self._sched_name,
             )
 
-    def _validate_channels(self, schedule: ScheduleBlock):
+    def _validate_channels(self, schedule: ScheduleBlock, physical_qubits: List[int]):
         """Check that the physical qubits are contained in the schedule.
 
         This is a helper method that experiment developers can call in their implementation
@@ -180,11 +180,12 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
 
         Args:
             schedule: The schedule for which to check the qubits.
+            physical_qubits: The qubits that should be included in the schedule.
 
         Raises:
             CalibrationError: If a physical qubit is not contained in the channels schedule.
         """
-        for qubit in self.physical_qubits:
+        for qubit in physical_qubits:
             if qubit not in set(ch.index for ch in schedule.channels):
                 raise CalibrationError(
                     f"Schedule {schedule.name} does not contain a channel "
