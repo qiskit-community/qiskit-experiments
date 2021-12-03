@@ -70,6 +70,7 @@ to construct possible job.
                backend_job_limit.maximum_jobs))
 
 ..jupyter-execute::
+    
     # Before sending a job to the backend, check how many pending jobs are there
     # to estimate how long the experiment will take.
     status=backend.status()
@@ -230,6 +231,7 @@ by utilizing Randomized Benchmarking method.
 Import some necessay modules first.
 
 ..jupyter-execute::
+    
  import numpy as np
  from qiskit import QuantumCircuit, transpile, Aer, IBMQ
  from qiskit.tools.jupyter import *
