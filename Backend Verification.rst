@@ -47,6 +47,13 @@ in finding out the preferred cx-gate direction.
 In addition, knowing maximum number of experiments per job is helpful 
 to construct possible job.
 
+.. jupyter-execute::
+
+ # Get the provider and the backend
+ IBMQ.providers()
+ provider=IBMQ.providers()[#select the provider you want with the index]
+ backend=provider.get_backend('ibmq_lima')
+ 
 ..jupyter-execute::
 
  #get the basic feautures with configuration()
