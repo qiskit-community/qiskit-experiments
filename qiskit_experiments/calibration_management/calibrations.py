@@ -1240,7 +1240,6 @@ class Calibrations:
 
             keys.add(key)
 
-        # The following dictionary is used to keep track of the most recent parameter values.
         data = []
         if most_recent_only:
             most_recent = {k: max(self._params[k], key=lambda x: x.date_time) for k in keys}
