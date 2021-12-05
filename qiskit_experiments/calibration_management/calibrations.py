@@ -307,7 +307,10 @@ class Calibrations:
                 all schedules will be pushed to instructions.
             qubits: The qubits for which to update the instruction schedule map.
                 If qubits is None then all possible schedules defined by the coupling
-                map will be updated.
+                map will be updated. Note that this argument specifies a particular set of
+                qubits to update instructions for. For example, if qubits is :code:`(2, 3)` then
+                only two-qubit instructions that apply to qubits 2 and 3 will be updated. Here,
+                single-qubit instructions will not be updated.
             group: The calibration group from which to draw the parameters. If not specified
                 this defaults to the 'default' group.
             cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
