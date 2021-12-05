@@ -284,7 +284,7 @@ class Calibrations:
 
     def update_inst_map(
         self,
-        schedules: Optional[set] = None,
+        schedules: Optional[Set[str]] = None,
         qubits: Optional[Tuple[int]] = None,
         group: Optional[str] = "default",
         cutoff_date: datetime = None,
