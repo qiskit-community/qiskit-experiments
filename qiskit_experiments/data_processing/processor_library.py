@@ -23,6 +23,8 @@ def get_processor(
     meas_level: MeasLevel = MeasLevel.CLASSIFIED,
     meas_return: str = "avg",
     normalize: bool = True,
+    init_qubits: bool = True,
+    rep_delay: float = 250e-6,
 ) -> DataProcessor:
     """Get a DataProcessor that produces a continuous signal given the options.
 
@@ -30,6 +32,8 @@ def get_processor(
         meas_level: The measurement level of the data to process.
         meas_return: The measurement return (single or avg) of the data to process.
         normalize: Add a data normalization node to the Kerneled data processor.
+        init_qubits:
+        rep_delay:
 
     Returns:
         An instance of DataProcessor capable of dealing with the given options.
@@ -48,6 +52,13 @@ def get_processor(
 
         if normalize:
             processor.append(nodes.MinMaxNormalize())
+
+        return processor
+
+    if meas_level == MeasLevel.CLASSIFIED and not init_qubits and rep_delay < 100e-6:
+        processor = DataProcessor(
+            "memory", [nodes.RestlessToCounts(header={"memory_slots": 1}), nodes.Probability("0")]
+        )
 
         return processor
 
