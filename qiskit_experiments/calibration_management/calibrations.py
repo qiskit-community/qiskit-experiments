@@ -98,6 +98,10 @@ class Calibrations:
             add_parameter_defaults: A boolean to indicate weather the default parameter values of
                 the given library should be used to populate the calibrations. By default this
                 value is True but can be set to false when deserializing a calibrations object.
+
+        Raises:
+            NotImplementedError: if a list of libraries is given. This will be implemented in
+                the future.
         """
 
         if isinstance(library, list):
@@ -1232,14 +1236,7 @@ class Calibrations:
         # The following dictionary is used to keep track of the most recent parameter values.
         data = []
         if most_recent_only:
-            most_recent = dict()
-
-            for key in keys:
-                for value in self._params[key]:
-                    if key not in most_recent:
-                        most_recent[key] = value
-                    elif value.date_time > most_recent[key].date_time:
-                        most_recent[key] = value
+            most_recent = {k: max(self._params[k], key=lambda x: x.date_time) for k in keys}
 
             for key, value in most_recent.items():
                 self._append_to_list(data, value, key, group)

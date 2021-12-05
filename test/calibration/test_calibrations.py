@@ -1284,6 +1284,16 @@ class TestFiltering(QiskitExperimentsTestCase):
             ParameterValue(0.4, self.date_time2, group="super_cal"), "amp", (0,), "xp"
         )
 
+    def test_parameter_table_most_recent(self):
+        """Test the most_recent argument to the parameter_table method."""
+
+        table = self.cals.parameters_table(parameters=["amp"], most_recent_only=False)
+        self.assertTrue(len(table["data"]), 2)
+
+        table = self.cals.parameters_table(parameters=["amp"], most_recent_only=True)
+        self.assertTrue(len(table["data"]), 1)
+        self.assertTrue(table["data"][0]["value"], 0.2)
+
     def test_get_parameter_value(self):
         """Test that getting parameter values funcions properly."""
 
