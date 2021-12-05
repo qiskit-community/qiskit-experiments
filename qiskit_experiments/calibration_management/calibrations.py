@@ -71,6 +71,8 @@ class Calibrations:
         control_channel_map: Optional[Dict[Tuple[int, ...], List[ControlChannel]]] = None,
         library: Optional[Union[BasisGateLibrary, List[BasisGateLibrary]]] = None,
         add_parameter_defaults: bool = True,
+        backend_name: Optional[str] = None,
+        backend_version: Optional[str] = None,
     ):
         """Initialize the calibrations.
 
@@ -98,11 +100,15 @@ class Calibrations:
             add_parameter_defaults: A boolean to indicate weather the default parameter values of
                 the given library should be used to populate the calibrations. By default this
                 value is True but can be set to false when deserializing a calibrations object.
+            backend_name: The name of the backend that these calibrations are attached to.
+            backend_version: The version of the backend that these calibrations are attached to.
 
         Raises:
             NotImplementedError: if a list of libraries is given. This will be implemented in
                 the future.
         """
+        self._backend_name = backend_name
+        self._backend_version = backend_version
 
         if isinstance(library, list):
             raise NotImplementedError(
@@ -199,6 +205,8 @@ class Calibrations:
             getattr(backend.configuration(), "control_channels", None),
             library,
             add_parameter_defaults,
+            backend.name(),
+            backend.version,
         )
 
         if add_parameter_defaults:
