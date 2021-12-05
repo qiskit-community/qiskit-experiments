@@ -293,7 +293,7 @@ class Calibrations:
     def update_inst_map(
         self,
         schedules: Optional[Set[str]] = None,
-        qubits: Optional[Tuple[int]] = None,
+        qubits: Optional[Tuple[int, ...]] = None,
         group: Optional[str] = "default",
         cutoff_date: datetime = None,
         inst_map: Optional[InstructionScheduleMap] = None,
@@ -329,28 +329,40 @@ class Calibrations:
                 continue
 
             if qubits is not None:
-                inst_map.add(
-                    instruction=sched_name,
-                    qubits=qubits,
-                    schedule=self.get_schedule(
-                        sched_name, qubits, group=group, cutoff_date=cutoff_date
-                    ),
-                )
-
+                self._robust_inst_map_add(inst_map, sched_name, qubits, group, cutoff_date)
             else:
                 for qubits_ in self._operated_qubits[self._schedules_qubits[key]]:
-                    try:
-                        inst_map.add(
-                            instruction=sched_name,
-                            qubits=qubits_,
-                            schedule=self.get_schedule(
-                                sched_name, qubits_, group=group, cutoff_date=cutoff_date
-                            ),
-                        )
-                    except CalibrationError:
-                        # get_schedule may raise an error if not all parameters have values or
-                        # default values. In this case we ignore and continue updating inst_map.
-                        pass
+                    self._robust_inst_map_add(inst_map, sched_name, qubits_, group, cutoff_date)
+
+    def _robust_inst_map_add(
+        self,
+        inst_map: InstructionScheduleMap,
+        sched_name: str,
+        qubits: Union[int, Tuple[int, ...]],
+        group: str,
+        cutoff: datetime,
+    ):
+        """A helper method for update_inst_map.
+
+        get_schedule may raise an error if not all parameters have values or
+        default values. In this case we ignore and continue updating inst_map.
+
+        Args:
+            sched_name: The name of the schedule.
+            qubits: The qubit to which the schedule applies.
+            group: The calibration group.
+            cutoff: The cutoff date.
+        """
+        try:
+            inst_map.add(
+                instruction=sched_name,
+                qubits=qubits,
+                schedule=self.get_schedule(sched_name, qubits, group=group, cutoff_date=cutoff),
+            )
+        except CalibrationError:
+            # get_schedule may raise an error if not all parameters have values or
+            # default values. In this case we ignore and continue updating inst_map.
+            pass
 
     def inst_map_add(
         self,
@@ -393,13 +405,6 @@ class Calibrations:
             schedule=self.get_schedule(schedule_name, qubits, assign_params),
             arguments=inst_map_args,
         )
-
-    def _parameter_inst_map_update(self, param: Parameter):
-        """Update all instructions in the inst map that contain the given parameter."""
-
-        schedules = set(key.schedule for key in self._parameter_map_r[param])
-
-        self.update_inst_map(schedules)
 
     def add_schedule(
         self,
@@ -737,7 +742,8 @@ class Calibrations:
 
         if update_inst_map and schedule is not None:
             param_obj = self.calibration_parameter(param_name, qubits, sched_name)
-            self._parameter_inst_map_update(param_obj)
+            schedules = set(key.schedule for key in self._parameter_map_r[param_obj])
+            self.update_inst_map(schedules)
 
     def _get_channel_index(self, qubits: Tuple[int, ...], chan: PulseChannel) -> int:
         """Get the index of the parameterized channel.
