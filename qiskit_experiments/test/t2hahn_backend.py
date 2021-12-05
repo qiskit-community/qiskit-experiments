@@ -183,9 +183,14 @@ class T2HahnBackend(BackendV1):
         Returns:
             int: The result of the measurement after applying read-out error.
         """
+        # Here we are calculating the probability for measurement result depending on the
+        # where the qubit is on the bloch sphere.
         if qubit_state["XY plain"]:
             meas_res = self._rng.random() < 0.5
         else:
+            # Since we are not in the XY plain, we need to calculate the probability for
+            # measuring output. First, we calculate the probability and later we are
+            # tossing to see if the event did happened.
             z_projection = np.cos(qubit_state["Theta"])
             probability = z_projection ** 2
             if self._rng.random() > probability:
