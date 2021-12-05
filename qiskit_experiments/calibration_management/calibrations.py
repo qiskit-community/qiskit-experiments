@@ -93,8 +93,8 @@ class Calibrations:
             control_channel_map: A configuration dictionary of any control channels. The
                 keys are tuples of qubits and the values are a list of ControlChannels
                 that correspond to the qubits in the keys.
-            library: A library class that will be instantiated with the library options to then
-                get template schedules to register as well as default parameter values.
+            library: A library instance from which to get template schedules to register as well
+                as default parameter values.
             add_parameter_defaults: A boolean to indicate weather the default parameter values of
                 the given library should be used to populate the calibrations. By default this
                 value is True but can be set to false when deserializing a calibrations object.
