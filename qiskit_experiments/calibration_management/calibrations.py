@@ -150,9 +150,7 @@ class Calibrations:
             # Add the default values
             if add_parameter_defaults:
                 for param_conf in library.default_values():
-                    schedule_name = param_conf.schedule_name
-                    if schedule_name in library.basis_gates:
-                        self.add_parameter_value(*param_conf, update_inst_map=False)
+                    self.add_parameter_value(*param_conf, update_inst_map=False)
 
         # Instruction schedule map variables and support variables.
         self._inst_map = InstructionScheduleMap()
