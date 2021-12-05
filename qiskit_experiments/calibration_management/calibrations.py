@@ -186,8 +186,8 @@ class Calibrations:
                 as the coupling map. If the backend is not given then the calibrations will be
                 initialized with the following key-word arguments: control_config, coupling_map,
                 num_qubits.
-            library: A library class that will be instantiated with the library options to then
-                get template schedules to register as well as default parameter values.
+            library: A library instance from which to get template schedules to register as well
+                as default parameter values.
             add_parameter_defaults: A boolean to indicate whether the default parameter values of
                 the given library should be used to populate the calibrations. By default this
                 value is ``True`` but can be set to ``False`` when deserializing a calibrations
