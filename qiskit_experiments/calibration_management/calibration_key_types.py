@@ -25,6 +25,7 @@ ParameterValueType = Union[ParameterExpression, float, int, complex]
 
 class DefaultCalValue(NamedTuple):
     """Defines the structure of a default value."""
+
     value: Union[float, int, complex]
     parameter: str
     qubits: Tuple
