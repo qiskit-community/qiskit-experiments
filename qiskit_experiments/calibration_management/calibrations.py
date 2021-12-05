@@ -218,11 +218,6 @@ class Calibrations:
         """Return the name of the library, e.g. for experiment metadata."""
         return self._library
 
-    @property
-    def default_inst_map(self) -> InstructionScheduleMap:
-        """Return the default and up to date instruction schedule map."""
-        return self._inst_map
-
     def _get_operated_qubits(self) -> Dict[int, List[int]]:
         """Get a dict describing qubit couplings.
 
@@ -260,7 +255,11 @@ class Calibrations:
         group: str = "default",
         cutoff_date: datetime = None,
     ) -> InstructionScheduleMap:
-        """Get a new instance of an Instruction schedule map.
+        """Get an Instruction schedule map with the calibrated pulses.
+
+        If the group is 'default' and cutoff date is None then the automatically updated
+        instruction schedule map is returned. However, if these values are different then
+        a new instruction schedule map is populated based on the values.
 
         Args:
             group: The calibration group from which to draw the parameters.
@@ -274,6 +273,9 @@ class Calibrations:
             An instruction schedule map with parameters updated up to the desired cutoff date
             and from the desired calibration group.
         """
+        if group == "default" and cutoff_date is None:
+            return self._inst_map
+
         inst_map = InstructionScheduleMap()
 
         self.update_inst_map(group=group, cutoff_date=cutoff_date, inst_map=inst_map)
