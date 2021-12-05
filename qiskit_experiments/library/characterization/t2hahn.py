@@ -74,7 +74,7 @@ class T2Hahn(BaseExperiment):
 
         options.delays = None
         options.unit = "s"
-        options.conversion_factor = None
+        options.conversion_factor = 1
         options.osc_freq = 0.0
         options.num_echoes = 1
         return options
@@ -163,7 +163,7 @@ class T2Hahn(BaseExperiment):
             raise ValueError("Conversion factor is not set.")
 
         circuits = []
-        for delay_gate in prefactor * np.asarray(self.experiment_options.delays, dtype=float):
+        for delay_gate in np.asarray(self.experiment_options.delays, dtype=float):
             total_delay = delay_gate * (self.experiment_options.num_echoes + 1)
             # delay_gate = delay
 

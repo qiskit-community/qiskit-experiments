@@ -48,7 +48,7 @@ class T2HahnBackend(BackendV1):
             backend_name="T2Hahn_simulator",
             backend_version="0",
             n_qubits=int(1e6),
-            basis_gates=["barrier", "ry", "rx", "delay", "measure"],
+            basis_gates=["barrier", "rx", "delay", "measure"],
             gates=[],
             local=True,
             simulator=True,
