@@ -183,9 +183,7 @@ class Calibrations:
         Args:
             backend: A backend instance from which to extract the qubit and readout frequencies
                 (which will be added as first guesses for the corresponding parameters) as well
-                as the coupling map. If the backend is not given then the calibrations will be
-                initialized with the following key-word arguments: control_config, coupling_map,
-                num_qubits.
+                as the coupling map.
             library: A library instance from which to get template schedules to register as well
                 as default parameter values.
             add_parameter_defaults: A boolean to indicate whether the default parameter values of
