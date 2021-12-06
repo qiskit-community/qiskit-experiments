@@ -1,8 +1,8 @@
 ---
 others:
   - |
-    Curve analysis has been updated to consider the fit parameter covariance in the error propagation.
-    Now all result figures show the confidence interval of 1 sigma that is visualized
-    as a semitransparent filled-area around the bold fit line. The width of the area corresponds to the
-    standard deviation computed by the uncertainties of fit parameters with the covariance matrix.
-    All analysis outcomes derived from the fit parameters also have a standard error computed in the same way.
+    Curve analysis is updated to use the covariance between fit parameters in the error propagation.
+    Now, all result figures show a 1 sigma confidence interval as a semitransparent filled-area around 
+    the bold fit line. The width of the area corresponds to the standard deviation computed by the 
+    uncertainties of fit parameters with the covariance matrix. All analysis outcomes derived from the 
+    fit parameters also have a standard error computed in the same way.
