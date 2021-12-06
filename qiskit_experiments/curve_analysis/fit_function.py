@@ -23,7 +23,7 @@ from uncertainties import unumpy as unp
 
 
 def calc_uncertainties(fit_func: Callable) -> Callable:
-    """Decolator that typecast y values to float array if input parameters have no error.
+    """A decorator to typecast y values to a float array if the input parameters have no error.
 
     Args:
         fit_func: Fit function that returns a ufloat array or an array of float.
