@@ -12,7 +12,6 @@
 
 """Fine amplitude calibration experiment."""
 
-import functools
 from typing import Optional
 import numpy as np
 
@@ -146,9 +145,23 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 class FineXAmplitudeCal(FineAmplitudeCal):
     """A calibration experiment to calibrate the amplitude of the X schedule."""
 
-    @functools.wraps(FineAmplitudeCal.__init__)
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        qubit: int,
+        calibrations: BackendCalibrations,
+        schedule_name: str,
+        backend: Optional[Backend] = None,
+        cal_parameter_name: Optional[str] = "amp",
+        auto_update: bool = True,
+    ):
+        super().__init__(
+            qubit,
+            calibrations,
+            schedule_name,
+            backend=backend,
+            cal_parameter_name=cal_parameter_name,
+            auto_update=auto_update,
+        )
         self.analysis.set_options(
             angle_per_gate=np.pi,
             phase_offset=np.pi / 2,
@@ -190,9 +203,23 @@ class FineXAmplitudeCal(FineAmplitudeCal):
 class FineSXAmplitudeCal(FineAmplitudeCal):
     """A calibration experiment to calibrate the amplitude of the SX schedule."""
 
-    @functools.wraps(FineAmplitudeCal.__init__)
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        qubit: int,
+        calibrations: BackendCalibrations,
+        schedule_name: str,
+        backend: Optional[Backend] = None,
+        cal_parameter_name: Optional[str] = "amp",
+        auto_update: bool = True,
+    ):
+        super().__init__(
+            qubit,
+            calibrations,
+            schedule_name,
+            backend=backend,
+            cal_parameter_name=cal_parameter_name,
+            auto_update=auto_update,
+        )
         self.analysis.set_options(
             angle_per_gate=np.pi / 2,
             phase_offset=np.pi,

@@ -112,12 +112,12 @@ class BaseExperiment(ABC, StoreInitArgs):
 
     @property
     def analysis(self) -> Union[BaseAnalysis, None]:
-        """Return the analysis class for the experiment"""
+        """Return the analysis instance for the experiment"""
         return self._analysis
 
     @analysis.setter
     def analysis(self, analysis: Union[BaseAnalysis, None]) -> None:
-        """Set the backend for the experiment"""
+        """Set the analysis instance for the experiment"""
         if not isinstance(analysis, BaseAnalysis):
             raise TypeError("Input is not a BaseAnalysis subclass.")
         self._analysis = analysis
@@ -148,8 +148,8 @@ class BaseExperiment(ABC, StoreInitArgs):
         # need to also copy the Options structures so that if they are
         # updated on the copy they don't effect the original.
         ret = copy.copy(self)
-        if self._analysis:
-            ret._analysis = self._analysis.copy()
+        if self.analysis:
+            ret.analysis = self.analysis.copy()
 
         ret._experiment_options = copy.copy(self._experiment_options)
         ret._run_options = copy.copy(self._run_options)
@@ -198,7 +198,7 @@ class BaseExperiment(ABC, StoreInitArgs):
     def run(
         self,
         backend: Optional[Backend] = None,
-        analysis: bool = True,
+        analysis: Optional[Union[BaseAnalysis, None]] = "default",
         **run_options,
     ) -> ExperimentData:
         """Run an experiment and perform analysis.
@@ -207,7 +207,10 @@ class BaseExperiment(ABC, StoreInitArgs):
             backend: Optional, the backend to run the experiment on. This
                      will override any currently set backends for the single
                      execution.
-            analysis: If True run analysis on the experiment data.
+            analysis: Optional, a custom analysis instance to use for performing
+                      analysis. If None analysis will not be run. If ``"default"``
+                      the experiments :meth:`analysis` instance will be used if
+                      it contains one. 
             run_options: backend runtime options used for circuit execution.
 
         Returns:
@@ -217,11 +220,16 @@ class BaseExperiment(ABC, StoreInitArgs):
             QiskitError: if experiment is run with an incompatible existing
                          ExperimentData container.
         """
-        if backend is None:
-            experiment = self
-        else:
+        if backend is not None or isinstance(analysis, BaseAnalysis):
+            # Make a copy to update analysis or backend if one is provided at runtime
             experiment = self.copy()
-            experiment._set_backend(backend)
+            if backend:
+                experiment._set_backend(backend)
+            if isinstance(analysis, BaseAnalysis):
+                experiment.analysis = analysis
+        else:
+            experiment = self
+
         if experiment.backend is None:
             raise QiskitError("Cannot run experiment, no backend has been set.")
 
@@ -245,7 +253,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         experiment._add_job_metadata(experiment_data.metadata, jobs, **run_opts)
 
         # Optionally run analysis
-        if analysis and self._analysis is not None:
+        if analysis and experiment.analysis:
             return self.analysis.run(experiment_data)
         else:
             return experiment_data
@@ -425,7 +433,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             " Use `experiment.analysis.options instead",
             DeprecationWarning,
         )
-        return self._analysis.options
+        return self.analysis.options
 
     def set_analysis_options(self, **fields):
         """Set the analysis options for :meth:`run` method.
@@ -444,7 +452,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             " Use `experiment.analysis.set_options instead",
             DeprecationWarning,
         )
-        self._analysis.options.update_options(**fields)
+        self.analysis.options.update_options(**fields)
 
     def _postprocess_transpiled_circuits(self, circuits: List[QuantumCircuit], **run_options):
         """Additional post-processing of transpiled circuits before running on backend"""
@@ -489,7 +497,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             "transpile_options": copy.copy(self.transpile_options.__dict__),
             "run_options": copy.copy(run_options),
         }
-        if self._analysis is not None:
+        if self.analysis is not None:
             values["analysis_options"] = copy.copy(self.analysis.options.__dict__)
 
         metadata["job_metadata"] = [values]
