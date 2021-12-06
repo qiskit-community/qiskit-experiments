@@ -263,7 +263,9 @@ class RBUtils:
                     # This keeps variance of previous experiment to propagate
                     analysis_value = result.value
                     if isinstance(analysis_value, FitVal):
-                        analysis_value = ufloat(nominal_value=analysis_value.value, std_dev=analysis_value.stderr)
+                        analysis_value = ufloat(
+                            nominal_value=analysis_value.value, std_dev=analysis_value.stderr
+                        )
                     epg_1_qubit_dict[qubit][gate] = analysis_value
 
         for key in gate_error_ratio:
