@@ -70,6 +70,9 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
             schedule_name, qubit, assign_params={cal_parameter_name: Parameter("amp")}, group=group
         )
 
+        self._validate_channels(schedule, [qubit])
+        self._validate_parameters(schedule, 1)
+
         super().__init__(
             calibrations,
             qubit,

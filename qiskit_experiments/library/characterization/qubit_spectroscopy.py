@@ -24,7 +24,7 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit.utils import apply_prefix
 
 from qiskit_experiments.framework import BaseExperiment, Options
-from qiskit_experiments.curve_analysis import ParameterRepr, ResonanceAnalysis
+from qiskit_experiments.curve_analysis import ResonanceAnalysis
 
 
 class QubitSpectroscopy(BaseExperiment):
@@ -49,7 +49,6 @@ class QubitSpectroscopy(BaseExperiment):
         :py:class:`~qiskit_experiments.curve_analysis.standard_analysis.resonance.ResonanceAnalysis`
     """
 
-    __analysis_class__ = ResonanceAnalysis
     __spec_gate_name__ = "Spec"
 
     @classmethod
@@ -83,18 +82,6 @@ class QubitSpectroscopy(BaseExperiment):
 
         return options
 
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = super()._default_analysis_options()
-        options.result_parameters = [ParameterRepr("freq", "f01", "Hz")]
-        options.normalization = True
-        options.xlabel = "Frequency"
-        options.ylabel = "Signal (arb. units)"
-        options.xval_unit = "Hz"
-
-        return options
-
     def __init__(
         self,
         qubit: int,
@@ -125,7 +112,7 @@ class QubitSpectroscopy(BaseExperiment):
             QiskitError: if there are less than three frequency shifts or if the unit is not known.
 
         """
-        super().__init__([qubit], backend=backend)
+        super().__init__([qubit], analysis=ResonanceAnalysis(), backend=backend)
 
         if len(frequencies) < 3:
             raise QiskitError("Spectroscopy requires at least three frequencies.")
@@ -138,11 +125,11 @@ class QubitSpectroscopy(BaseExperiment):
         self._absolute = absolute
 
         if not self._absolute:
-            self.set_analysis_options(xlabel="Frequency shift")
+            self.analysis.set_options(xlabel="Frequency shift")
         else:
-            self.set_analysis_options(xlabel="Frequency")
+            self.analysis.set_options(xlabel="Frequency")
 
-        self.set_analysis_options(ylabel="Signal [arb. unit]")
+        self.analysis.set_options(ylabel="Signal [arb. unit]")
 
     def _spec_gate_schedule(
         self, backend: Optional[Backend] = None

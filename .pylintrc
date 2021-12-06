@@ -71,7 +71,8 @@ disable=no-self-use,        # disabled as it is too verbose
     no-else-return,     # relax "elif" after a clause with a return
     docstring-first-line-empty, # relax docstring style
     import-outside-toplevel,
-    bad-continuation, bad-whitespace # differences of opinion with black
+    bad-continuation, bad-whitespace, # differences of opinion with black
+    assigning-non-slot  # https://github.com/Qiskit/qiskit-terra/pull/7347#issuecomment-985007311
 
 
 

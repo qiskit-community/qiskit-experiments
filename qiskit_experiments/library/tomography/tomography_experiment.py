@@ -35,8 +35,6 @@ class TomographyExperiment(BaseExperiment):
         :py:class:`~qiskit_experiments.library.tomography.tomography_analysis.TomographyAnalysis`
     """
 
-    __analysis_class__ = TomographyAnalysis
-
     @classmethod
     def _default_experiment_options(cls) -> Options:
         """Default experiment options.
@@ -88,7 +86,7 @@ class TomographyExperiment(BaseExperiment):
         # Initialize BaseExperiment
         if qubits is None:
             qubits = range(circuit.num_qubits)
-        super().__init__(qubits, backend=backend)
+        super().__init__(qubits, analysis=TomographyAnalysis(), backend=backend)
 
         # Get the target tomography circuit
         if isinstance(circuit, QuantumCircuit):
@@ -149,7 +147,7 @@ class TomographyExperiment(BaseExperiment):
             analysis_options["measurement_basis"] = measurement_basis
         if preparation_basis:
             analysis_options["preparation_basis"] = preparation_basis
-        self.set_analysis_options(**analysis_options)
+        self.analysis.set_options(**analysis_options)
 
     def _metadata(self):
         metadata = super()._metadata()

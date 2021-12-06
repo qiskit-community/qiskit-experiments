@@ -83,8 +83,6 @@ class RamseyXY(BaseExperiment):
         :py:class:`~qiskit_experiments.library.characterization.analysis.remsey_xy_analysis.RamseyXYAnalysis`
     """
 
-    __analysis_class__ = RamseyXYAnalysis
-
     @classmethod
     def _default_experiment_options(cls):
         """Default values for the Ramsey XY experiment.
@@ -122,7 +120,7 @@ class RamseyXY(BaseExperiment):
             osc_freq: the oscillation frequency induced by the user through a virtual
                 Rz rotation. This quantity is given in Hz.
         """
-        super().__init__([qubit], backend=backend)
+        super().__init__([qubit], analysis=RamseyXYAnalysis(), backend=backend)
 
         delays = delays or self.experiment_options.delays
         self.set_experiment_options(delays=delays, unit=unit, osc_freq=osc_freq)

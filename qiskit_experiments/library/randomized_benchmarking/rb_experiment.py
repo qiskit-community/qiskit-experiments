@@ -59,9 +59,6 @@ class StandardRB(BaseExperiment):
 
     """
 
-    # Analysis class for experiment
-    __analysis_class__ = RBAnalysis
-
     def __init__(
         self,
         qubits: Sequence[int],
@@ -87,12 +84,12 @@ class StandardRB(BaseExperiment):
                            The default is False.
         """
         # Initialize base experiment
-        super().__init__(qubits, backend=backend)
+        super().__init__(qubits, analysis=RBAnalysis(), backend=backend)
         self._verify_parameters(lengths, num_samples)
 
         # Set configurable options
         self.set_experiment_options(lengths=list(lengths), num_samples=num_samples)
-        self.set_analysis_options(
+        self.analysis.set_options(
             data_processor=dp.DataProcessor(
                 input_key="counts",
                 data_actions=[dp.Probability(outcome="0" * self.num_qubits)],

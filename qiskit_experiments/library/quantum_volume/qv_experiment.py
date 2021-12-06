@@ -70,9 +70,6 @@ class QuantumVolume(BaseExperiment):
 
     """
 
-    # Analysis class for experiment
-    __analysis_class__ = QuantumVolumeAnalysis
-
     def __init__(
         self,
         qubits: Sequence[int],
@@ -95,7 +92,7 @@ class QuantumVolume(BaseExperiment):
                 (in case :class:`AerSimulator` is not
                 installed :class:`qiskit.quantum_info.Statevector` will be used).
         """
-        super().__init__(qubits, backend=backend)
+        super().__init__(qubits, analysis=QuantumVolumeAnalysis(), backend=backend)
 
         # Set configurable options
         self.set_experiment_options(trials=trials)
