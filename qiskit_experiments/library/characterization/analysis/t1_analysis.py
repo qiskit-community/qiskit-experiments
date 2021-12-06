@@ -72,7 +72,6 @@ class T1Analysis(curve.DecayAnalysis):
             curve.check_if_nominal_significant(tau),
             curve.check_if_nominal_significant(base, absolute=0.1),
         ]
-        breakpoint()
 
         if all(criteria):
             return "good"
