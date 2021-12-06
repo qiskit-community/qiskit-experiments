@@ -140,7 +140,10 @@ def curve_fit(
         # Keep parameter correlations in following analysis steps
         fit_params = correlated_values(nom_values=popt, covariance_mat=pcov, tags=param_keys)
     else:
-        fit_params = [ufloat(nom, np.nan) for nom in popt]
+        # Ignore correlations, add standard error if finite.
+        fit_params = [
+            ufloat(n, s if np.isfinite(s) else np.nan) for n, s in zip(popt, np.sqrt(np.diag(pcov)))
+        ]
 
     # Calculate the reduced chi-squared for fit
     yfits = fit_func(xdata, *popt)
