@@ -149,10 +149,27 @@ class T2HahnBackend(BackendV1):
                     "ZX plain": True,
                     "Theta": new_theta,
                 }
+            elif isclose(angle, -np.pi / 2):
+                new_theta = np.abs(angle - qubit_state["Theta"])
+                new_theta = new_theta % (2 * np.pi)
+                new_qubit_state = {
+                    "XY plain": False,
+                    "ZX plain": True,
+                    "Theta": new_theta,
+                }
             else:
                 print("Error - This angle isn't supported. We only support multipication of pi/2")
+                print("The angle is:" + str(angle))
         else:
-            if isclose(angle, np.pi / 2):
+            if isclose(angle, np.pi):
+                new_theta = qubit_state["Theta"] + np.pi
+                new_theta = new_theta % (2 * np.pi)
+                new_qubit_state = {
+                    "XY plain": False,
+                    "ZX plain": True,
+                    "Theta": new_theta,
+                }
+            elif isclose(angle, np.pi / 2):
                 new_theta = (
                     qubit_state["Theta"] + 3 * np.pi / 2
                 )  # its theta -pi/2 but we added 2*pi
@@ -162,16 +179,17 @@ class T2HahnBackend(BackendV1):
                     "ZX plain": False,
                     "Theta": new_theta,
                 }
-            elif isclose(angle, np.pi):
-                new_theta = qubit_state["Theta"] + np.pi
+            elif isclose(angle, -np.pi / 2):
+                new_theta = np.pi / 2 - qubit_state["Theta"]
                 new_theta = new_theta % (2 * np.pi)
                 new_qubit_state = {
-                    "XY plain": False,
-                    "ZX plain": True,
+                    "XY plain": True,
+                    "ZX plain": False,
                     "Theta": new_theta,
                 }
             else:
                 print("Error - This angle isn't supported. We only support multiplication of pi/2")
+                print("The angle is:" + str(angle))
         return new_qubit_state
 
     def _measurement_gate(self, qubit_state: dict) -> int:

@@ -35,6 +35,7 @@ class T2HahnAnalysis(curve.DecayAnalysis):
         options.data_processor = DataProcessor(
             input_key="counts", data_actions=[Probability(outcome="0")]
         )
+        options.p0 = {"amp": 0.5, "tau": 0.000001, "base": 0.5}  # The analysis will not work without initial guess
         options.xlabel = "Delay"
         options.ylabel = "P(0)"
         options.xval_unit = "s"

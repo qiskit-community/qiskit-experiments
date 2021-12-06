@@ -19,6 +19,7 @@ from qiskit.utils import apply_prefix
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.library.characterization.t2hahn import T2Hahn
 from qiskit_experiments.test.t2hahn_backend import T2HahnBackend
+import unittest
 
 
 class TestT2Hahn(QiskitTestCase):
@@ -46,7 +47,7 @@ class TestT2Hahn(QiskitTestCase):
                     (np.linspace(1.0, 15.0, num=15)).astype(float),
                     (np.linspace(16.0, 45.0, num=59)).astype(float),
                 )
-            exp = T2Hahn(qubit, delays, unit=unit)
+            exp = T2Hahn(qubit=qubit, delays=delays, unit=unit)
             default_p0 = {
                 "A": 0.5,
                 "T2": estimated_t2hahn,
@@ -129,3 +130,7 @@ class TestT2Hahn(QiskitTestCase):
 
         self.assertLessEqual(res_t2_1.value.stderr, res_t2_0.value.stderr)
         self.assertEqual(len(expdata1.data()), len(delays0) + len(delays1))
+
+
+if __name__ == "__main__":
+    unittest.main()

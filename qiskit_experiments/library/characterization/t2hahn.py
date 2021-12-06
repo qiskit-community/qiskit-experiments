@@ -83,6 +83,7 @@ class T2Hahn(BaseExperiment):
         self,
         qubit: int,
         delays: Union[List[float], np.array],
+        num_echoes: int = 1,
         backend: Optional[Backend] = None,
         unit: str = "s",
     ):
@@ -103,7 +104,7 @@ class T2Hahn(BaseExperiment):
         super().__init__([qubit], backend=backend)
 
         # Set experiment options
-        self.set_experiment_options(delays=delays, unit=unit)
+        self.set_experiment_options(delays=delays, unit=unit, num_echoes=num_echoes)
         self._verify_parameters()
 
     def _verify_parameters(self):
@@ -164,10 +165,9 @@ class T2Hahn(BaseExperiment):
 
         circuits = []
         for delay_gate in np.asarray(self.experiment_options.delays, dtype=float):
-            total_delay = delay_gate * (self.experiment_options.num_echoes + 1)
-            # delay_gate = delay
+            total_delay = delay_gate * (self.experiment_options.num_echoes * 2)
 
-            delay_gate = np.round(delay_gate, decimals=10)
+            delay_gate = np.round(delay_gate, decimals=12)
 
             circ = QuantumCircuit(1, 1)
 
