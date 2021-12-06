@@ -130,7 +130,7 @@ class BaseAnalysis(ABC):
             device_components = experiment_components
 
         # Convert ufloat to FitVal so that database service can parse
-        # TODO completely deprecate FitVal. We can store UFloat in database.
+        # TODO completely deprecate FitVal. We can store UFloat in database (qiskit-experiments#559)
         if isinstance(data.value, UFloat):
             value = FitVal(
                 value=data.value.nominal_value,
