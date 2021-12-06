@@ -140,7 +140,6 @@ class BasisGateLibrary(ABC, Mapping):
             are the corresponding schedules.
         """
 
-    @property
     def config(self) -> Dict[str, Any]:
         """Return the settings used to initialize the library."""
 
@@ -169,7 +168,7 @@ class BasisGateLibrary(ABC, Mapping):
 
     def __json_encode__(self):
         """Convert to format that can be JSON serialized."""
-        return self.config
+        return self.config()
 
     @classmethod
     def __json_decode__(cls, value: Dict[str, Any]) -> "BasisGateLibrary":
