@@ -79,10 +79,10 @@ class TestFineDrag(QiskitExperimentsTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = FineDrag(0, Gate("Drag", num_qubits=1, params=[]))
-        config = exp.config
+        config = exp.config()
         loaded_exp = FineDrag.from_config(config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertEqual(config, loaded_exp.config())
 
 
 class TestFineDragCal(QiskitExperimentsTestCase):
@@ -100,10 +100,10 @@ class TestFineDragCal(QiskitExperimentsTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = FineDragCal(0, self.cals, schedule_name="x")
-        config = exp.config
+        config = exp.config()
         loaded_exp = FineDragCal.from_config(config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertEqual(config, loaded_exp.config())
 
     def test_update_cals(self):
         """Test that the calibrations are updated."""
