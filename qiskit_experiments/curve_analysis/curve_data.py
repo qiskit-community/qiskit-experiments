@@ -107,7 +107,7 @@ class FitData:
             key: Name of parameters to extract.
 
         Returns:
-            A UFloat object which functions as a standard Python float object 
+            A UFloat object which functions as a standard Python float object
             but with automatic error propagation.
 
         Raises:
