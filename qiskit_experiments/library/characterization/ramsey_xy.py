@@ -80,7 +80,7 @@ class RamseyXY(BaseExperiment):
         circuit above it appears as the delay-dependent angle θ(τ).
 
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.library.characterization.analysis.remsey_xy_analysis.RamseyXYAnalysis`
+        :py:class:`RamseyXYAnalysis`
     """
 
     @classmethod

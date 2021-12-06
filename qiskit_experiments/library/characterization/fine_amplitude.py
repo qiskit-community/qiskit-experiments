@@ -79,7 +79,7 @@ class FineAmplitude(BaseExperiment):
         that set the appropriate options by default.
 
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.library.characterization.analysis.fine_amplitude_analysis.FineAmplitudeAnalysis`
+        :py:class:`FineAmplitudeAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1504.06597
@@ -208,7 +208,7 @@ class FineXAmplitude(FineAmplitude):
         the appropriate values for the default options.
 
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.library.characterization.analysis.fine_amplitude_analysis.FineAmplitudeAnalysis`
+        :py:class:`FineAmplitudeAnalysis`
     """
 
     def __init__(self, qubit: int, backend: Optional[Backend] = None):
@@ -249,7 +249,7 @@ class FineSXAmplitude(FineAmplitude):
         the appropriate values for the default options.
 
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.library.characterization.analysis.fine_amplitude_analysis.FineAmplitudeAnalysis`
+        :py:class:`FineAmplitudeAnalysis`
     """
 
     def __init__(self, qubit: int, backend: Optional[Backend] = None):

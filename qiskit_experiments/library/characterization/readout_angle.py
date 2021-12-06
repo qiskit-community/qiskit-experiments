@@ -49,7 +49,7 @@ class ReadoutAngle(BaseExperiment):
         3. Analysis of results: return the average of the angles of the two centers.
 
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.library.characterization.analysis.readout_angle_analysis.ReadoutAngleAnalysis`
+        :py:class:`ReadoutAngleAnalysis`
     """
 
     @classmethod

@@ -62,7 +62,7 @@ class RoughDrag(BaseExperiment):
         Note that the analysis class requires this experiment to run with three repetition numbers.
 
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.library.characterization.analysis.drag_analysis.DragCalAnalysis`
+        :py:class:`DragCalAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1011.1949

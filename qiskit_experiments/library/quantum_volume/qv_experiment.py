@@ -62,7 +62,7 @@ class QuantumVolume(BaseExperiment):
         information on QV experiment analysis.
 
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.library.quantum_volume.qv_analysis.QuantumVolumeAnalysis`
+        :py:class:`QuantumVolumeAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1811.12926

@@ -50,7 +50,7 @@ class StandardRB(BaseExperiment):
         from 1-qubit and 2-qubit standard RB experiments, by Ref. [3].
 
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.library.randomized_benchmarking.rb_analysis.RBAnalysis`
+        :py:class:`RBAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1009.3639

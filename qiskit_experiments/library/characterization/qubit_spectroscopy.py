@@ -46,7 +46,7 @@ class QubitSpectroscopy(BaseExperiment):
         pulse. A list of circuits is generated, each with a different frequency "freq".
 
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.curve_analysis.standard_analysis.resonance.ResonanceAnalysis`
+        :py:class:`ResonanceAnalysis`
     """
 
     __spec_gate_name__ = "Spec"

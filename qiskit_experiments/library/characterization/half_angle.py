@@ -47,7 +47,7 @@ class HalfAngle(BaseExperiment):
         be different from the :math:`\pi` pulse.
 
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.library.characterization.analysis.fine_half_angle_analysis.FineHalfAngleAnalysis`
+        :py:class:`FineHalfAngleAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1504.06597

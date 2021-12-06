@@ -45,7 +45,7 @@ class T1(BaseExperiment):
         by fitting to an exponential curve.
 
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.library.characterization.analysis.t1_analysis.T1Analysis`
+        :py:class:`T1Analysis`
     """
 
     @classmethod

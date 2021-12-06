@@ -39,7 +39,7 @@ class ProcessTomography(TomographyExperiment):
         preparation and measurement bases.
 
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.library.tomography.qpt_analysis.ProcessTomographyAnalysis`
+        :py:class:`ProcessTomographyAnalysis`
 
     # section: see_also
         qiskit_experiments.library.tomography.tomography_experiment.TomographyExperiment

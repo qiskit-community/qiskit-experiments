@@ -126,7 +126,7 @@ class FineDrag(BaseExperiment):
         This is the correction formula in the FineDRAG Updater.
 
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.library.characterization.analysis.fine_drag_analysis.FineDragAnalysis`
+        :py:class:`FineDragAnalysis`
 
     # section: see_also
         qiskit_experiments.library.calibration.drag.DragCal
@@ -220,7 +220,7 @@ class FineXDrag(FineDrag):
     """Class to fine calibrate the DRAG parameter of an X gate.
 
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.library.characterization.analysis.fine_drag_analysis.FineDragAnalysis`
+        :py:class:`FineDragAnalysis`
 
     # section: see_also
         qiskit_experiments.library.calibration.fine_drag.FineDrag
@@ -252,7 +252,7 @@ class FineSXDrag(FineDrag):
     """Class to fine calibrate the DRAG parameter of an SX gate.
 
     # section: analysis_ref
-        :py:class:`~qiskit_experiments.library.characterization.analysis.fine_drag_analysis.FineDragAnalysis`
+        :py:class:`FineDragAnalysis`
 
     # section: see_also
         qiskit_experiments.library.calibration.fine_drag.FineDrag
