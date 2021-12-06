@@ -53,7 +53,7 @@ class Rabi(BaseExperiment):
         for the pulse level programming of a Rabi experiment.
 
     # section: analysis_ref
-        :py:class:`OscillationAnalysis`
+        :py:class:`~qiskit_experiments.curve_analysis.OscillationAnalysis`
     """
 
     __gate_name__ = "Rabi"
@@ -194,8 +194,6 @@ class EFRabi(Rabi):
             measure: 1/══════════════════════╩═
                                              0
 
-    # section: analysis_ref
-        :py:class:`OscillationAnalysis`
     """
 
     @classmethod

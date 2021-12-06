@@ -219,9 +219,6 @@ class FineDrag(BaseExperiment):
 class FineXDrag(FineDrag):
     """Class to fine calibrate the DRAG parameter of an X gate.
 
-    # section: analysis_ref
-        :py:class:`FineDragAnalysis`
-
     # section: see_also
         qiskit_experiments.library.calibration.fine_drag.FineDrag
     """
@@ -250,9 +247,6 @@ class FineXDrag(FineDrag):
 
 class FineSXDrag(FineDrag):
     """Class to fine calibrate the DRAG parameter of an SX gate.
-
-    # section: analysis_ref
-        :py:class:`FineDragAnalysis`
 
     # section: see_also
         qiskit_experiments.library.calibration.fine_drag.FineDrag

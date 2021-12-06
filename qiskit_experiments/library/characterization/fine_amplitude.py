@@ -206,9 +206,6 @@ class FineXAmplitude(FineAmplitude):
 
         :class:`FineXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
         the appropriate values for the default options.
-
-    # section: analysis_ref
-        :py:class:`FineAmplitudeAnalysis`
     """
 
     def __init__(self, qubit: int, backend: Optional[Backend] = None):
@@ -247,9 +244,6 @@ class FineSXAmplitude(FineAmplitude):
 
         :class:`FineSXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
         the appropriate values for the default options.
-
-    # section: analysis_ref
-        :py:class:`FineAmplitudeAnalysis`
     """
 
     def __init__(self, qubit: int, backend: Optional[Backend] = None):

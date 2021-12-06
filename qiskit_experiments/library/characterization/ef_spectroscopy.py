@@ -24,18 +24,16 @@ from qiskit_experiments.library.characterization.qubit_spectroscopy import Qubit
 class EFSpectroscopy(QubitSpectroscopy):
     """Class that runs spectroscopy on the e-f transition by scanning the frequency.
 
-    The circuits produced by spectroscopy, i.e.
+    # section: overview
+        The circuits produced by spectroscopy, i.e.
 
-    .. parsed-literal::
+        .. parsed-literal::
 
-                   ┌───┐┌────────────┐ ░ ┌─┐
-              q_0: ┤ X ├┤ Spec(freq) ├─░─┤M├
-                   └───┘└────────────┘ ░ └╥┘
-        measure: 1/═══════════════════════╩═
-                                          0
-
-    # section: analysis_ref
-        :py:class:`~qiskit_experiments.curve_analysis.standard_analysis.resonance.ResonanceAnalysis`
+                       ┌───┐┌────────────┐ ░ ┌─┐
+                  q_0: ┤ X ├┤ Spec(freq) ├─░─┤M├
+                       └───┘└────────────┘ ░ └╥┘
+            measure: 1/═══════════════════════╩═
+                                              0
 
     """
 
