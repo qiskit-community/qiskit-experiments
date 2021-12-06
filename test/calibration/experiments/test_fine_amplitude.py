@@ -11,14 +11,14 @@
 # that they have been altered from the originals.
 
 """Test the fine amplitude characterization and calibration experiments."""
-
+from test.base import QiskitExperimentsTestCase
+import unittest
 import numpy as np
 from ddt import ddt, data
 
 from qiskit import transpile
 from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
-from qiskit.test import QiskitTestCase
 from qiskit.pulse import DriveChannel, Drag
 import qiskit.pulse as pulse
 
@@ -35,7 +35,7 @@ from qiskit_experiments.test.mock_iq_backend import MockFineAmp
 
 
 @ddt
-class TestFineAmpEndToEnd(QiskitTestCase):
+class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
     """Test the drag experiment."""
 
     @data(0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08)
@@ -50,7 +50,7 @@ class TestFineAmpEndToEnd(QiskitTestCase):
         error = -np.pi * pi_ratio
         backend = MockFineAmp(error, np.pi, "xp")
 
-        expdata = amp_exp.run(backend).block_for_results()
+        expdata = amp_exp.run(backend)
         result = expdata.analysis_results(1)
         d_theta = result.value.value
 
@@ -71,7 +71,7 @@ class TestFineAmpEndToEnd(QiskitTestCase):
         error = np.pi * pi_ratio
         backend = MockFineAmp(error, np.pi, "xp")
 
-        expdata = amp_exp.run(backend).block_for_results()
+        expdata = amp_exp.run(backend)
         result = expdata.analysis_results(1)
         d_theta = result.value.value
 
@@ -81,7 +81,7 @@ class TestFineAmpEndToEnd(QiskitTestCase):
         self.assertEqual(result.quality, "good")
 
 
-class TestFineAmplitudeCircuits(QiskitTestCase):
+class TestFineAmplitudeCircuits(QiskitExperimentsTestCase):
     """Test the circuits."""
 
     def setUp(self):
@@ -114,12 +114,12 @@ class TestFineAmplitudeCircuits(QiskitTestCase):
 
         amp_cal = FineSXAmplitude(0)
 
-        expected = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
+        expected = [0, 1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
         for idx, circ in enumerate(amp_cal.circuits()):
             self.assertEqual(circ.count_ops().get("sx", 0), expected[idx])
 
 
-class TestSpecializations(QiskitTestCase):
+class TestSpecializations(QiskitExperimentsTestCase):
     """Test the options of the specialized classes."""
 
     def test_fine_x_amp(self):
@@ -141,14 +141,14 @@ class TestSpecializations(QiskitTestCase):
         self.assertFalse(exp.experiment_options.add_sx)
         self.assertFalse(exp.experiment_options.add_xp_circuit)
 
-        expected = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
+        expected = [0, 1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
         self.assertEqual(exp.experiment_options.repetitions, expected)
         self.assertEqual(exp.analysis_options.angle_per_gate, np.pi / 2)
-        self.assertEqual(exp.analysis_options.phase_offset, 0)
+        self.assertEqual(exp.analysis_options.phase_offset, np.pi)
         self.assertEqual(exp.experiment_options.gate, SXGate())
 
 
-class TestFineAmplitudeCal(QiskitTestCase):
+class TestFineAmplitudeCal(QiskitExperimentsTestCase):
     """A class to test the fine amplitude calibration experiments."""
 
     def setUp(self):
@@ -200,7 +200,9 @@ class TestFineAmplitudeCal(QiskitTestCase):
 
         amp_cal = FineXAmplitudeCal(0, self.cals, "x")
 
-        circs = transpile(amp_cal.circuits(), self.backend, **amp_cal.transpile_options.__dict__)
+        circs = transpile(
+            amp_cal.circuits(), self.backend, inst_map=amp_cal.transpile_options.inst_map
+        )
 
         with pulse.build(name="x") as expected_x:
             pulse.play(pulse.Drag(160, 0.5, 40, 0), pulse.DriveChannel(0))
@@ -212,11 +214,13 @@ class TestFineAmplitudeCal(QiskitTestCase):
         self.assertEqual(circs[5].calibrations["sx"][((0,), ())], expected_sx)
 
         # run the calibration experiment. This should update the amp parameter of x which we test.
-        exp_data = amp_cal.run(self.backend).block_for_results()
+        exp_data = amp_cal.run(self.backend)
         d_theta = exp_data.analysis_results(1).value.value
         new_amp = init_amp * np.pi / (np.pi + d_theta)
 
-        circs = transpile(amp_cal.circuits(), self.backend, **amp_cal.transpile_options.__dict__)
+        circs = transpile(
+            amp_cal.circuits(), self.backend, inst_map=amp_cal.transpile_options.inst_map
+        )
 
         x_cal = circs[5].calibrations["x"][((0,), ())]
 
@@ -238,7 +242,9 @@ class TestFineAmplitudeCal(QiskitTestCase):
 
         amp_cal = FineSXAmplitudeCal(0, self.cals, "sx")
 
-        circs = transpile(amp_cal.circuits(), self.backend, **amp_cal.transpile_options.__dict__)
+        circs = transpile(
+            amp_cal.circuits(), self.backend, inst_map=amp_cal.transpile_options.inst_map
+        )
 
         with pulse.build(name="sx") as expected_sx:
             pulse.play(pulse.Drag(160, 0.25, 40, 0), pulse.DriveChannel(0))
@@ -246,14 +252,29 @@ class TestFineAmplitudeCal(QiskitTestCase):
         self.assertEqual(circs[5].calibrations["sx"][((0,), ())], expected_sx)
 
         # run the calibration experiment. This should update the amp parameter of x which we test.
-        exp_data = amp_cal.run(MockFineAmp(-np.pi * 0.07, np.pi / 2, "sx")).block_for_results()
+        exp_data = amp_cal.run(MockFineAmp(-np.pi * 0.07, np.pi / 2, "sx"))
         d_theta = exp_data.analysis_results(1).value.value
         new_amp = init_amp * (np.pi / 2) / (np.pi / 2 + d_theta)
 
-        circs = transpile(amp_cal.circuits(), self.backend, **amp_cal.transpile_options.__dict__)
+        circs = transpile(
+            amp_cal.circuits(), self.backend, inst_map=amp_cal.transpile_options.inst_map
+        )
 
         sx_cal = circs[5].calibrations["sx"][((0,), ())]
 
         # Requires allclose due to numerical precision.
         self.assertTrue(np.allclose(sx_cal.blocks[0].pulse.amp, new_amp))
         self.assertFalse(np.allclose(sx_cal.blocks[0].pulse.amp, init_amp))
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = FineSXAmplitudeCal(0, self.cals, "sx")
+        loaded_exp = FineSXAmplitudeCal.from_config(exp.config())
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+
+    @unittest.skip("Calbrations are not yet serializable")
+    def test_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = FineSXAmplitudeCal(0, self.cals, "sx")
+        self.assertRoundTripSerializable(exp, self.experiments_equiv)

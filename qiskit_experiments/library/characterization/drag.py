@@ -10,22 +10,23 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Rough drag pulse calibration experiment."""
+"""Rough drag experiment."""
 
-from typing import List, Optional
+from typing import Iterable, List, Optional
 import numpy as np
 
 from qiskit import QuantumCircuit
-from qiskit.circuit import Gate, Parameter
-from qiskit.providers import Backend
-import qiskit.pulse as pulse
+from qiskit.circuit import Gate
+from qiskit.exceptions import QiskitError
+from qiskit.providers.backend import Backend
+from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.library.calibration.analysis.drag_analysis import DragCalAnalysis
+from qiskit_experiments.library.characterization.analysis import DragCalAnalysis
 
 
-class DragCal(BaseExperiment):
+class RoughDrag(BaseExperiment):
     r"""An experiment that scans the DRAG parameter to find the optimal value.
 
     # section: overview
@@ -74,30 +75,17 @@ class DragCal(BaseExperiment):
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        r"""Default values for the pulse if no schedule is given.
-        Users can set the positive and negative rotation schedules with
-
-        .. code-block::
-
-            drag.set_experiment_options(schedule=xp_schedule)
+        r"""Default values for the rough drag experiment.
 
         Experiment Options:
             schedule (ScheduleBlock): The schedule of the rotation.
-            amp (complex): The amplitude for the default Drag pulse. Must have a magnitude
-                smaller than one.
-            duration (int): The duration of the default pulse in samples.
-            sigma (float): The standard deviation of the default pulse.
             reps (List[int]): The number of times the Rp - Rm gate sequence is repeated in
                 each series. Note that this list must always have a length of three as
                 otherwise the analysis class will not run.
             betas (Iterable): the values of the DRAG parameter to scan.
         """
         options = super()._default_experiment_options()
-
         options.schedule = None
-        options.amp = 0.2
-        options.duration = 160
-        options.sigma = 40
         options.reps = [1, 3, 5]
         options.betas = np.linspace(-5, 5, 51)
 
@@ -132,65 +120,73 @@ class DragCal(BaseExperiment):
 
         super().set_experiment_options(reps=reps, **fields)
 
-    def __init__(self, qubit: int):
-        """
+    def __init__(
+        self,
+        qubit: int,
+        schedule: ScheduleBlock,
+        betas: Optional[Iterable[float]] = None,
+        backend: Optional[Backend] = None,
+    ):
+        """Initialize a Drag experiment in the given qubit.
+
         Args:
             qubit: The qubit for which to run the Drag calibration.
+            schedule: The schedule to run. This schedule should have one free parameter
+                corresponding to a DRAG parameter.
+            betas: The values of the DRAG parameter to scan. If None is given the default range
+                :code:`linspace(-5, 5, 51)` is used.
+            backend: Optional, the backend to run the experiment on.
+
+        Raises:
+            QiskitError: if the schedule does not have a free parameter.
         """
 
-        super().__init__([qubit])
+        super().__init__([qubit], backend=backend)
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+        if betas is not None:
+            self.set_experiment_options(betas=betas)
+
+        if len(schedule.parameters) != 1:
+            raise QiskitError(
+                f"Schedule {schedule} for {self.__class__.__name__} experiment must have "
+                f"exactly one free parameter, found {schedule.parameters} parameters."
+            )
+
+        self.set_experiment_options(schedule=schedule)
+
+    def _pre_circuit(self) -> QuantumCircuit:
+        """A circuit with operations to perform before the Drag."""
+        return QuantumCircuit(1)
+
+    def circuits(self) -> List[QuantumCircuit]:
         """Create the circuits for the Drag calibration.
-
-        Args:
-            backend: A backend object.
 
         Returns:
             circuits: The circuits that will run the Drag calibration.
 
         Raises:
-            CalibrationError:
-                - If the beta parameters in the xp and xm pulses are not the same.
-                - If either the xp or xm pulse do not have at least one Drag pulse.
-                - If the number of different repetition series is not three.
+            QiskitError: if the number of different repetition series is not three.
         """
         schedule = self.experiment_options.schedule
 
-        if schedule is None:
-            beta = Parameter("β")
-            with pulse.build(backend=backend, name="drag") as schedule:
-                pulse.play(
-                    pulse.Drag(
-                        duration=self.experiment_options.duration,
-                        amp=self.experiment_options.amp,
-                        sigma=self.experiment_options.sigma,
-                        beta=beta,
-                    ),
-                    pulse.DriveChannel(self._physical_qubits[0]),
-                )
-
-        if len(schedule.parameters) != 1:
-            raise CalibrationError(
-                "The schedule for Drag calibration must have one free parameter."
-                f"Found {len(schedule.parameters)}."
-            )
-
         beta = next(iter(schedule.parameters))
 
-        drag_gate = Gate(name=schedule.name, num_qubits=1, params=[beta])
+        # Note: if the pulse has a reserved name, e.g. x, which does not have parameters
+        # then we cannot directly call the gate x and attach a schedule to it. Doing so
+        # would results in QObj errors.
+        drag_gate = Gate(name="Drag(" + schedule.name + ")", num_qubits=1, params=[beta])
 
         reps = self.experiment_options.reps
         if len(reps) != 3:
-            raise CalibrationError(
-                f"{self.__class__.__name__} must use exactly three repetition numbers. "
+            raise QiskitError(
+                f"{self.__class__.__name__} uses exactly three repetitions. "
                 f"Received {reps} with length {len(reps)} != 3."
             )
 
         circuits = []
 
         for idx, rep in enumerate(reps):
-            circuit = QuantumCircuit(1)
+            circuit = self._pre_circuit()
             for _ in range(rep):
                 circuit.append(drag_gate, (0,))
                 circuit.rz(np.pi, 0)
@@ -199,7 +195,9 @@ class DragCal(BaseExperiment):
 
             circuit.measure_active()
 
-            circuit.add_calibration(schedule.name, self.physical_qubits, schedule, params=[beta])
+            circuit.add_calibration(
+                "Drag(" + schedule.name + ")", self.physical_qubits, schedule, params=[beta]
+            )
 
             for beta_val in self.experiment_options.betas:
                 beta_val = np.round(beta_val, decimals=6)

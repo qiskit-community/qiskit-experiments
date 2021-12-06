@@ -62,9 +62,19 @@ Some experiments may be also used for gate calibration.
     ~characterization.EFSpectroscopy
     ~characterization.CrossResonanceHamiltonian
     ~characterization.EchoedCrossResonanceHamiltonian
+    ~characterization.RoughDrag
+    ~characterization.FineDrag
+    ~characterization.FineXDrag
+    ~characterization.FineSXDrag
+    ~characterization.HalfAngle
     ~characterization.FineAmplitude
     ~characterization.FineXAmplitude
     ~characterization.FineSXAmplitude
+    ~characterization.Rabi
+    ~characterization.EFRabi
+    ~characterization.RamseyXY
+    ~characterization.ReadoutAngle
+
 
 .. _calibration:
 
@@ -82,30 +92,31 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     :template: autosummary/experiment.rst
 
     ~calibration.RoughFrequencyCal
-    ~calibration.DragCal
-    ~calibration.FineDrag
-    ~calibration.FineXDrag
-    ~calibration.FineSXDrag
-    ~calibration.Rabi
-    ~calibration.EFRabi
+    ~calibration.RoughDragCal
+    ~calibration.FineXDragCal
+    ~calibration.FineSXDragCal
+    ~calibration.FineDragCal
     ~calibration.FineAmplitudeCal
     ~calibration.FineXAmplitudeCal
     ~calibration.FineSXAmplitudeCal
-    ~calibration.RamseyXY
+    ~calibration.RoughAmplitudeCal
+    ~calibration.RoughXSXAmplitudeCal
+    ~calibration.EFRoughXSXAmplitudeCal
 
 """
 from .calibration import (
-    DragCal,
-    FineDrag,
-    FineXDrag,
-    FineSXDrag,
-    Rabi,
-    EFRabi,
+    RoughDragCal,
+    FineDragCal,
+    FineXDragCal,
+    FineSXDragCal,
+    RoughAmplitudeCal,
+    RoughXSXAmplitudeCal,
+    EFRoughXSXAmplitudeCal,
     FineAmplitudeCal,
     FineXAmplitudeCal,
     FineSXAmplitudeCal,
     RoughFrequencyCal,
-    RamseyXY,
+    FrequencyCal,
 )
 from .characterization import (
     T1,
@@ -114,9 +125,18 @@ from .characterization import (
     EFSpectroscopy,
     CrossResonanceHamiltonian,
     EchoedCrossResonanceHamiltonian,
+    RoughDrag,
+    FineDrag,
+    FineXDrag,
+    FineSXDrag,
+    Rabi,
+    EFRabi,
+    HalfAngle,
     FineAmplitude,
     FineXAmplitude,
     FineSXAmplitude,
+    RamseyXY,
+    ReadoutAngle,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
