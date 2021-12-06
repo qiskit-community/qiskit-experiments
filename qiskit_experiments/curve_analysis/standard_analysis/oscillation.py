@@ -115,7 +115,7 @@ class OscillationAnalysis(curve.CurveAnalysis):
         criteria = [
             fit_data.reduced_chisq < 3,
             1.0 / 4.0 < fit_freq.nominal_value < 10.0,
-            (np.isnan(fit_freq.std_dev) or (fit_freq.std_dev < fit_freq.nominal_value)),
+            curve.check_if_nominal_significant(fit_freq),
         ]
 
         if all(criteria):
@@ -263,8 +263,8 @@ class DumpedOscillationAnalysis(curve.CurveAnalysis):
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            np.isnan(tau.std_dev) or tau.std_dev < tau.nominal_value,
-            np.isnan(freq.std_dev) or freq.std_dev < freq.nominal_value,
+            curve.check_if_nominal_significant(tau),
+            curve.check_if_nominal_significant(freq),
         ]
 
         if all(criteria):

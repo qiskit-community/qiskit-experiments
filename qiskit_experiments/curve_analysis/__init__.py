@@ -101,6 +101,13 @@ Visualization
     plot_curve_fit
     plot_errorbar
     plot_scatter
+
+Utilities
+*********
+.. autosummary::
+    :toctree: ../stubs/
+
+    check_if_nominal_significant
 """
 from .curve_analysis import CurveAnalysis
 from .curve_data import CurveData, SeriesDef, FitData, ParameterRepr, FitOptions
@@ -110,6 +117,7 @@ from .curve_fit import (
     process_curve_data,
     process_multi_curve_data,
 )
+from .utils import check_if_nominal_significant
 from .visualization import plot_curve_fit, plot_errorbar, plot_scatter, FitResultPlotters
 from . import guess
 from . import fit_function

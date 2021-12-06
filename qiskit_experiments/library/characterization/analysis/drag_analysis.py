@@ -186,7 +186,7 @@ class DragCalAnalysis(curve.CurveAnalysis):
         criteria = [
             fit_data.reduced_chisq < 3,
             fit_beta.nominal_value < 1 / fit_freq0.nominal_value,
-            fit_beta.std_dev < abs(fit_beta.nominal_value),
+            curve.check_if_nominal_significant(fit_beta),
         ]
 
         if all(criteria):

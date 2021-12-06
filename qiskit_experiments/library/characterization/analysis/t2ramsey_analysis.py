@@ -72,9 +72,9 @@ class T2RamseyAnalysis(curve.DumpedOscillationAnalysis):
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            amp.std_dev is None or amp.std_dev < 0.1 * amp.nominal_value,
-            tau.std_dev is None or tau.std_dev < 0.1 * tau.nominal_value,
-            freq.std_dev is None or freq.std_dev < 0.1 * freq.nominal_value,
+            curve.check_if_nominal_significant(amp, fraction=0.1),
+            curve.check_if_nominal_significant(tau, fraction=0.1),
+            curve.check_if_nominal_significant(freq, fraction=0.1),
         ]
 
         if all(criteria):

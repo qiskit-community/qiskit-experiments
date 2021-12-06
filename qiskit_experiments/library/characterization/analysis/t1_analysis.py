@@ -68,9 +68,9 @@ class T1Analysis(curve.DecayAnalysis):
             fit_data.reduced_chisq < 3,
             abs(amp.nominal_value - 1.0) < 0.1,
             abs(base.nominal_value) < 0.1,
-            amp.std_dev is None or amp.std_dev < 0.1,
-            tau.std_dev is None or tau.std_dev < tau.nominal_value,
-            base.std_dev is None or base.std_dev < 0.1,
+            curve.check_if_nominal_significant(amp, fraction=0.1),
+            curve.check_if_nominal_significant(tau),
+            curve.check_if_nominal_significant(base, fraction=0.1),
         ]
 
         if all(criteria):

@@ -134,7 +134,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
             1.5 * freq_increment < fit_sigma.nominal_value,
             fit_width_ratio < 0.25,
             fit_data.reduced_chisq < 3,
-            (np.isnan(fit_sigma.std_dev) or fit_sigma.std_dev < fit_sigma.nominal_value),
+            curve.check_if_nominal_significant(fit_sigma),
             snr > 2,
         ]
 
