@@ -126,18 +126,15 @@ class BaseExperiment(ABC, StoreInitArgs):
         # need to also copy the Options structures so that if they are
         # updated on the copy they don't effect the original.
         ret = copy.copy(self)
-        # NOTE: this needs to be a deep copy until Terra PR
-        # https://github.com/Qiskit/qiskit-terra/pull/7353
-        # is merged to add a shallow copy method to Options.
-        ret._experiment_options = copy.deepcopy(self._experiment_options)
-        ret._run_options = copy.deepcopy(self._run_options)
-        ret._transpile_options = copy.deepcopy(self._transpile_options)
-        ret._analysis_options = copy.deepcopy(self._analysis_options)
+        ret._experiment_options = copy.copy(self._experiment_options)
+        ret._run_options = copy.copy(self._run_options)
+        ret._transpile_options = copy.copy(self._transpile_options)
+        ret._analysis_options = copy.copy(self._analysis_options)
 
-        ret._set_experiment_options = self._set_experiment_options.copy()
-        ret._set_transpile_options = self._set_transpile_options.copy()
-        ret._set_run_options = self._set_run_options.copy()
-        ret._set_analysis_options = self._set_analysis_options.copy()
+        ret._set_experiment_options = copy.copy(self._set_experiment_options)
+        ret._set_transpile_options = copy.copy(self._set_transpile_options)
+        ret._set_run_options = copy.copy(self._set_run_options)
+        ret._set_analysis_options = copy.copy(self._set_analysis_options)
         return ret
 
     def config(self) -> ExperimentConfig:
