@@ -106,7 +106,7 @@ class TestQuantumVolume(QiskitExperimentsTestCase):
         qv_exp.set_experiment_options(trials=2)
         expdata1 = qv_exp.run(backend)
         result_data1 = expdata1.analysis_results(0)
-        expdata2 = qv_exp.run(backend, analysis=False)
+        expdata2 = qv_exp.run(backend, analysis=None)
         expdata2.add_data(expdata1.data())
         qv_exp.analysis.run(expdata2)
         result_data2 = expdata2.analysis_results(0)

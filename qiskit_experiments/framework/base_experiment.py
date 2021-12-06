@@ -118,8 +118,8 @@ class BaseExperiment(ABC, StoreInitArgs):
     @analysis.setter
     def analysis(self, analysis: Union[BaseAnalysis, None]) -> None:
         """Set the analysis instance for the experiment"""
-        if not isinstance(analysis, BaseAnalysis):
-            raise TypeError("Input is not a BaseAnalysis subclass.")
+        if analysis is not None and not isinstance(analysis, BaseAnalysis):
+            raise TypeError("Input is not a None or a BaseAnalysis subclass.")
         self._analysis = analysis
 
     @property
@@ -220,7 +220,28 @@ class BaseExperiment(ABC, StoreInitArgs):
             QiskitError: if experiment is run with an incompatible existing
                          ExperimentData container.
         """
-        if backend is not None or isinstance(analysis, BaseAnalysis):
+        # Handle deprecated analysis kwarg values
+        if isinstance(analysis, bool):
+            if analysis:
+                analysis = "default"
+                warnings.warn(
+                    "Setting analysis=True in BaseExperiment.run is deprecated as of "
+                    "qiskit-experiments 0.2.0 and will be removed in the 0.3.0 release."
+                    " Use analysis='default' instead.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+            else:
+                analysis = None
+                warnings.warn(
+                    "Setting analysis=False in BaseExperiment.run is deprecated as of "
+                    "qiskit-experiments 0.2.0 and will be removed in the 0.3.0 release."
+                    " Use analysis=None instead.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+
+        if backend is not None or analysis != "default":
             # Make a copy to update analysis or backend if one is provided at runtime
             experiment = self.copy()
             if backend:

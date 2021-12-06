@@ -12,9 +12,8 @@ feature:
     be passed a :class:`qiskit_experiments.framework.BaseAnalysis` instance to
     use for analysis of that single execution. If no instance is provided the
     current stored :meth:`~qiskit_experiments.framework.BaseExperiment.analysis`
-    instance for that experiment will be used.
-    Setting ``analysis=None`` or ``analysis=False`` still disables analysis
-    for the specific execution.
+    instance for that experiment will be used. Setting ``analysis=None`` disables
+    analysis for the specific execution.
 upgrade:
   - |
     The :meth:`qiskit_experiments.framework.BaseExperiment.analysis` property
@@ -46,6 +45,11 @@ deprecations:
     experiment instance using the 
     :meth:`qiskit_experiments.framework.BaseExperiment.analysis` property as
     ``experiment.analysis.run(**kwargs)``.
+  - |
+    Boolean values for the ``analysis`` kwarg in
+    :meth:`qiskit_experiments.framework.BaseExperiment.run` have been deprecated.
+    Use ``analysis="default"`` instead of ``analysis=True``, and
+    ``analysis=None``instead of ``analysis=False``.
 developer:
   - |
     The :class:`qiskit_experiments.framework.BaseAnalysis` class has

@@ -180,7 +180,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         delays1 = list(range(2, 65, 2))
         exp1 = T2Ramsey(qubit, delays1, unit=unit)
         exp1.analysis.set_options(p0=default_p0)
-        expdata1 = exp1.run(backend=backend, analysis=False, shots=1000)
+        expdata1 = exp1.run(backend=backend, analysis=None, shots=1000)
         expdata1.add_data(expdata0.data())
         exp1.analysis.run(expdata1)
 
