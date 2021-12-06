@@ -15,11 +15,8 @@ Base Experiment class.
 
 from abc import ABC, abstractmethod
 import copy
-import inspect
 import dataclasses
-from functools import wraps
 from collections import OrderedDict
-from numbers import Integral
 from typing import Sequence, Optional, Tuple, List, Dict, Union, Any
 
 from qiskit import transpile, assemble, QuantumCircuit
@@ -29,6 +26,7 @@ from qiskit.providers.basebackend import BaseBackend as LegacyBackend
 from qiskit.exceptions import QiskitError
 from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
+from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.version import __version__
 
@@ -54,7 +52,6 @@ class ExperimentConfig:
     run_options: Dict[str, Any] = dataclasses.field(default_factory=dict)
     version: str = __version__
 
-    @property
     def experiment(self) -> "BaseExperiment":
         """Return the experiment constructed from this config.
 
@@ -87,7 +84,7 @@ class ExperimentConfig:
             raise QiskitError("{}\nError Message:\n{}".format(msg, str(ex))) from ex
 
 
-class BaseExperiment(ABC):
+class BaseExperiment(ABC, StoreInitArgs):
     """Abstract base class for experiments.
 
     Class Attributes:
@@ -95,15 +92,10 @@ class BaseExperiment(ABC):
         __analysis_class__: Optional, the default Analysis class to use for
                             data analysis. If None no data analysis will be
                             done on experiment data (Default: None).
-        __experiment_data__: ExperimentData class that is produced by the
-                             experiment (Default: ExperimentData).
     """
 
     # Analysis class for experiment
     __analysis_class__ = None
-
-    # ExperimentData class for experiment
-    __experiment_data__ = ExperimentData
 
     def __init__(
         self,
@@ -114,31 +106,21 @@ class BaseExperiment(ABC):
         """Initialize the experiment object.
 
         Args:
-            qubits: the number of qubits or list of physical qubits for
-                    the experiment.
+            qubits: list of physical qubits for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, the experiment type string.
 
         Raises:
-            QiskitError: if qubits is a list and contains duplicates.
+            QiskitError: if qubits contains duplicates.
         """
         # Experiment identification metadata
         self._type = experiment_type if experiment_type else type(self).__name__
 
-        # Backend
-        self._backend = None
-        if isinstance(backend, (Backend, BaseBackend)):
-            self._set_backend(backend)
-
         # Circuit parameters
-        if isinstance(qubits, Integral):
-            self._num_qubits = qubits
-            self._physical_qubits = tuple(range(qubits))
-        else:
-            self._num_qubits = len(qubits)
-            self._physical_qubits = tuple(qubits)
-            if self._num_qubits != len(set(self._physical_qubits)):
-                raise QiskitError("Duplicate qubits in physical qubits list.")
+        self._num_qubits = len(qubits)
+        self._physical_qubits = tuple(qubits)
+        if self._num_qubits != len(set(self._physical_qubits)):
+            raise QiskitError("Duplicate qubits in physical qubits list.")
 
         # Experiment options
         self._experiment_options = self._default_experiment_options()
@@ -152,38 +134,12 @@ class BaseExperiment(ABC):
         self._set_run_options = set()
         self._set_analysis_options = set()
 
-    def __new__(cls, *args, **kwargs):
-        """Store init args and kwargs for subclass __init__ methods"""
-        # This method automatically stores all arg and kwargs from subclass
-        # init methods for use in converting an experiment to config
-
-        # Get all non-self init args and kwarg names for subclass
-        spec = inspect.getfullargspec(cls.__init__)
-        init_arg_names = spec.args[1:]
-        num_init_kwargs = len(spec.defaults) if spec.defaults else 0
-        num_init_args = len(init_arg_names) - num_init_kwargs
-
-        # Convert passed values for args and kwargs into an ordered dict
-        # This will sort args passed as kwargs and kwargs passed as
-        # positional args in the function call
-        num_call_args = len(args)
-        ord_args = OrderedDict()
-        ord_kwargs = OrderedDict()
-        for i, argname in enumerate(init_arg_names):
-            if i < num_init_args:
-                update = ord_args
-            else:
-                update = ord_kwargs
-            if i < num_call_args:
-                update[argname] = args[i]
-            elif argname in kwargs:
-                update[argname] = kwargs[argname]
-
-        # pylint: disable = attribute-defined-outside-init
-        instance = super(BaseExperiment, cls).__new__(cls)
-        instance.__init_args__ = ord_args
-        instance.__init_kwargs__ = ord_kwargs
-        return instance
+        # Set backend
+        # This should be called last incase `_set_backend` access any of the
+        # attributes created during initialization
+        self._backend = None
+        if isinstance(backend, (Backend, BaseBackend)):
+            self._set_backend(backend)
 
     @property
     def experiment_type(self) -> str:
@@ -230,7 +186,6 @@ class BaseExperiment(ABC):
         ret._analysis_options = copy.copy(self._analysis_options)
         return ret
 
-    @property
     def config(self) -> ExperimentConfig:
         """Return the config dataclass for this experiment"""
         args = tuple(getattr(self, "__init_args__", OrderedDict()).values())
@@ -313,24 +268,30 @@ class BaseExperiment(ABC):
         # Run jobs
         jobs = experiment._run_jobs(circuits, **run_opts)
         experiment_data.add_data(jobs)
-        experiment._add_job_metadata(experiment_data, jobs, **run_opts)
+        experiment._add_job_metadata(experiment_data.metadata, jobs, **run_opts)
 
         # Optionally run analysis
         if analysis and self.__analysis_class__ is not None:
-            experiment_data.add_analysis_callback(self.run_analysis)
-
-        # Return the ExperimentData future
-        return experiment_data
+            return self.run_analysis(experiment_data)
+        else:
+            return experiment_data
 
     def _initialize_experiment_data(self) -> ExperimentData:
         """Initialize the return data container for the experiment run"""
-        return self.__experiment_data__(experiment=self)
+        return ExperimentData(experiment=self)
 
-    def run_analysis(self, experiment_data: ExperimentData, **options) -> ExperimentData:
+    def run_analysis(
+        self, experiment_data: ExperimentData, replace_results: bool = False, **options
+    ) -> ExperimentData:
         """Run analysis and update ExperimentData with analysis result.
+
+        See :meth:`BaseAnalysis.run` for additional information.
 
         Args:
             experiment_data: the experiment data to analyze.
+            replace_results: if True clear any existing analysis results and
+                             figures in the experiment data and replace with
+                             new results.
             options: additional analysis options. Any values set here will
                      override the value from :meth:`analysis_options`
                      for the current run.
@@ -348,8 +309,7 @@ class BaseExperiment(ABC):
 
         # Run analysis
         analysis = self.analysis()
-        analysis.run(experiment_data, **analysis_options)
-        return experiment_data
+        return analysis.run(experiment_data, replace_results=replace_results, **analysis_options)
 
     def _run_jobs(self, circuits: List[QuantumCircuit], **run_options) -> List[BaseJob]:
         """Run circuits on backend as 1 or more jobs."""
@@ -519,7 +479,6 @@ class BaseExperiment(ABC):
             "experiment_type": self._type,
             "num_qubits": self.num_qubits,
             "physical_qubits": list(self.physical_qubits),
-            "job_metadata": [],
         }
         # Add additional metadata if subclasses specify it
         for key, val in self._additional_metadata().items():
@@ -534,36 +493,29 @@ class BaseExperiment(ABC):
         """
         return {}
 
-    def _add_job_metadata(self, experiment_data: ExperimentData, jobs: BaseJob, **run_options):
+    def _add_job_metadata(self, metadata: Dict[str, Any], jobs: BaseJob, **run_options):
         """Add runtime job metadata to ExperimentData.
 
         Args:
-            experiment_data: the experiment data container.
+            metadata: the metadata dict to update with job data.
             jobs: the job objects.
             run_options: backend run options for the job.
         """
-        metadata = {
-            "job_ids": [job.job_id() for job in jobs],
-            "experiment_options": copy.copy(self.experiment_options.__dict__),
-            "transpile_options": copy.copy(self.transpile_options.__dict__),
-            "analysis_options": copy.copy(self.analysis_options.__dict__),
-            "run_options": copy.copy(run_options),
-        }
-        experiment_data._metadata["job_metadata"].append(metadata)
+        metadata["job_metadata"] = [
+            {
+                "job_ids": [job.job_id() for job in jobs],
+                "experiment_options": copy.copy(self.experiment_options.__dict__),
+                "transpile_options": copy.copy(self.transpile_options.__dict__),
+                "analysis_options": copy.copy(self.analysis_options.__dict__),
+                "run_options": copy.copy(run_options),
+            }
+        ]
 
+    def __json_encode__(self):
+        """Convert to format that can be JSON serialized"""
+        return self.config()
 
-def fix_class_docs(wrapped_cls):
-    """Experiment class decorator to fix class doc formatting.
-
-    This fixes the BaseExperiment subclass documentation so that
-    the correct init arg and kwargs are shown for the class documentation,
-    rather than the generic args of the BaseExperiment.__new__ method.
-    """
-
-    @wraps(wrapped_cls.__init__, assigned=("__annotations__",))
-    def __new__(cls, *args, **kwargs):
-        return super(wrapped_cls, cls).__new__(cls, *args, **kwargs)
-
-    wrapped_cls.__new__ = __new__
-
-    return wrapped_cls
+    @classmethod
+    def __json_decode__(cls, value):
+        """Load from JSON compatible format"""
+        return cls.from_config(value)

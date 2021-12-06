@@ -12,10 +12,10 @@
 
 """Fine amplitude calibration experiment."""
 
-from typing import List, Optional
+from typing import Optional
 import numpy as np
 
-from qiskit.circuit import Gate, QuantumCircuit
+from qiskit.circuit import Gate
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.calibration_management import (
@@ -23,11 +23,11 @@ from qiskit_experiments.calibration_management import (
     BackendCalibrations,
 )
 from qiskit_experiments.library.characterization import FineAmplitude
-from qiskit_experiments.framework import ExperimentData, Options, fix_class_docs
+from qiskit_experiments.framework import ExperimentData, Options
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
+from qiskit_experiments.library.characterization.analysis import FineXAmplitudeAnalysis
 
 
-@fix_class_docs
 class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
     r"""A calibration version of the :class:`FineAmplitude` experiment.
 
@@ -57,7 +57,6 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             cal_parameter_name: The name of the parameter in the schedule to update.
             auto_update: Whether or not to automatically update the calibrations. By
                 default this variable is set to True.
-            on.
         """
         super().__init__(
             calibrations,
@@ -69,29 +68,21 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             auto_update=auto_update,
         )
 
-        self.transpile_options.inst_map = calibrations.default_inst_map
+        self.set_transpile_options(inst_map=calibrations.default_inst_map)
 
     @classmethod
     def _default_experiment_options(cls):
         """Default values for the fine amplitude calibration experiment.
 
         Experiment Options:
-            result_index (int): The index of the result from which to update the calibrations.
             target_angle (float): The target angle of the pulse.
-            group (str): The calibration group to which the parameter belongs. This will default
-                to the value "default".
-
         """
         options = super()._default_experiment_options()
-
-        options.result_index = -1
         options.target_angle = np.pi
-        options.group = "default"
-
         return options
 
-    def _add_cal_metadata(self, circuits: List[QuantumCircuit]):
-        """Add metadata to the circuit to make the experiment data more self contained.
+    def _add_cal_metadata(self, experiment_data: ExperimentData):
+        """Add metadata to the experiment data making it more self contained.
 
         The following keys are added to each circuit's metadata:
             cal_param_value: The value of the pulse amplitude. This value together with
@@ -109,14 +100,11 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             group=self.experiment_options.group,
         )
 
-        for circuit in circuits:
-            circuit.metadata["cal_param_value"] = param_val
-            circuit.metadata["cal_param_name"] = self._param_name
-            circuit.metadata["cal_schedule"] = self._sched_name
-            circuit.metadata["target_angle"] = self.experiment_options.target_angle
-            circuit.metadata["cal_group"] = self.experiment_options.group
-
-        return circuits
+        experiment_data.metadata["cal_param_value"] = param_val
+        experiment_data.metadata["cal_param_name"] = self._param_name
+        experiment_data.metadata["cal_schedule"] = self._sched_name
+        experiment_data.metadata["target_angle"] = self.experiment_options.target_angle
+        experiment_data.metadata["cal_group"] = self.experiment_options.group
 
     def update_calibrations(self, experiment_data: ExperimentData):
         r"""Update the amplitude of the pulse in the calibrations.
@@ -133,30 +121,32 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             experiment_data: The experiment data from which to extract the measured over/under
                 rotation used to adjust the amplitude.
         """
-        data = experiment_data.data()
 
-        # No data -> no update
-        if len(data) > 0:
-            result_index = self.experiment_options.result_index
-            group = data[0]["metadata"]["cal_group"]
-            target_angle = data[0]["metadata"]["target_angle"]
-            prev_amp = data[0]["metadata"]["cal_param_value"]
+        result_index = self.experiment_options.result_index
+        group = experiment_data.metadata["cal_group"]
+        target_angle = experiment_data.metadata["target_angle"]
+        prev_amp = experiment_data.metadata["cal_param_value"]
 
-            d_theta = BaseUpdater.get_value(experiment_data, "d_theta", result_index)
+        # Protect against cases where the complex amplitude was converted to a list.
+        if isinstance(prev_amp, list) and len(prev_amp) == 2:
+            prev_amp = prev_amp[0] + 1.0j * prev_amp[1]
 
-            BaseUpdater.add_parameter_value(
-                self._cals,
-                experiment_data,
-                prev_amp * target_angle / (target_angle + d_theta),
-                self._param_name,
-                self._sched_name,
-                group,
-            )
+        d_theta = BaseUpdater.get_value(experiment_data, "d_theta", result_index)
+
+        BaseUpdater.add_parameter_value(
+            self._cals,
+            experiment_data,
+            prev_amp * target_angle / (target_angle + d_theta),
+            self._param_name,
+            self._sched_name,
+            group,
+        )
 
 
-@fix_class_docs
 class FineXAmplitudeCal(FineAmplitudeCal):
     """A calibration experiment to calibrate the amplitude of the X schedule."""
+
+    __analysis_class__ = FineXAmplitudeAnalysis
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -195,11 +185,11 @@ class FineXAmplitudeCal(FineAmplitudeCal):
         options = super()._default_analysis_options()
         options.angle_per_gate = np.pi
         options.phase_offset = np.pi / 2
+        options.amp = 1
 
         return options
 
 
-@fix_class_docs
 class FineSXAmplitudeCal(FineAmplitudeCal):
     """A calibration experiment to calibrate the amplitude of the SX schedule."""
 
@@ -222,7 +212,7 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
         options = super()._default_experiment_options()
         options.add_sx = False
         options.add_xp_circuit = False
-        options.repetitions = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
+        options.repetitions = [0, 1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
         options.target_angle = np.pi / 2
         return options
 
@@ -245,6 +235,6 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
         """Default analysis options."""
         options = super()._default_analysis_options()
         options.angle_per_gate = np.pi / 2
-        options.phase_offset = 0
+        options.phase_offset = np.pi
 
         return options

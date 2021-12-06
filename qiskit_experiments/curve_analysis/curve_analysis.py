@@ -21,6 +21,7 @@ import inspect
 import warnings
 from abc import ABC
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
+from uncertainties import unumpy as unp
 
 import numpy as np
 from qiskit.providers import Backend
@@ -342,6 +343,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
             style (PlotterStyle): An instance of
                 :py:class:`~qiskit_experiments.curve_analysis.visualization.style.PlotterStyle`
                 that contains a set of configurations to create a fit plot.
+            extra (Dict[str, Any]): A dictionary that is appended to all database entries
+                as extra information.
         """
         options = super()._default_options()
 
@@ -361,6 +364,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         options.return_data_points = False
         options.curve_plotter = "mpl_single_canvas"
         options.style = PlotterStyle()
+        options.extra = dict()
 
         # automatically populate initial guess and boundary
         fit_params = cls._fit_params()
@@ -574,29 +578,28 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         x_key = self._get_option("x_key")
         try:
-            x_values = [datum["metadata"][x_key] for datum in data]
+            x_values = np.asarray([datum["metadata"][x_key] for datum in data], dtype=float)
         except KeyError as ex:
             raise DataProcessorError(
                 f"X value key {x_key} is not defined in circuit metadata."
             ) from ex
 
         if isinstance(data_processor, DataProcessor):
-            y_values, y_sigmas = data_processor(data)
-            if y_sigmas is None:
-                y_sigmas = np.full(y_values.shape, np.nan)
+            y_data = data_processor(data)
+
+            y_nominals = unp.nominal_values(y_data)
+            y_stderrs = unp.std_devs(y_data)
         else:
-            y_values, y_sigmas = zip(*map(data_processor, data))
+            y_nominals, y_stderrs = zip(*map(data_processor, data))
+
+            y_nominals = np.asarray(y_nominals, dtype=float)
+            y_stderrs = np.asarray(y_stderrs, dtype=float)
 
         # Store metadata
         metadata = np.asarray([datum["metadata"] for datum in data], dtype=object)
 
         # Store shots
         shots = np.asarray([datum.get("shots", np.nan) for datum in data])
-
-        # Format data
-        x_values = np.asarray(x_values, dtype=float)
-        y_values = np.asarray(y_values, dtype=float)
-        y_sigmas = np.asarray(y_sigmas, dtype=float)
 
         # Find series (invalid data is labeled as -1)
         data_index = np.full(x_values.size, -1, dtype=int)
@@ -610,8 +613,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
         raw_data = CurveData(
             label="raw_data",
             x=x_values,
-            y=y_values,
-            y_err=y_sigmas,
+            y=y_nominals,
+            y_err=y_stderrs,
             shots=shots,
             data_index=data_index,
             metadata=metadata,
@@ -843,7 +846,10 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # Pop arguments that are not given to the fitter,
         # and update class attributes with the arguments that are given to the fitter
         # (arguments that have matching attributes in the class)
-        extra_options = self._arg_parse(**options)
+        analysis_options = self._default_options().__dict__
+        analysis_options.update(options)
+
+        extra_options = self._arg_parse(**analysis_options)
 
         # Update all fit functions in the series definitions if fixed parameter is defined.
         # Fixed parameters should be provided by the analysis options.
@@ -985,6 +991,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         "dof": fit_result.dof,
                         "covariance_mat": fit_result.pcov,
                         "fit_models": fit_models,
+                        **self._get_option("extra"),
                     },
                 )
             )
@@ -1006,6 +1013,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
                         value=fit_result.fitval(p_name, unit),
                         chisq=fit_result.reduced_chisq,
                         quality=quality,
+                        extra=self._get_option("extra"),
                     )
                     analysis_results.append(result_entry)
 

@@ -16,15 +16,15 @@ T1 Experiment class.
 from typing import List, Optional, Union
 import numpy as np
 
+from qiskit.utils import apply_prefix
 from qiskit.circuit import QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit.test.mock import FakeBackend
 
-from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
-from qiskit_experiments.library.characterization.t1_analysis import T1Analysis
+from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.library.characterization.analysis.t1_analysis import T1Analysis
 
 
-@fix_class_docs
 class T1(BaseExperiment):
     r"""
     T1 experiment class
@@ -61,6 +61,7 @@ class T1(BaseExperiment):
 
         options.delays = None
         options.unit = "s"
+        options.conversion_factor = None
 
         return options
 
@@ -84,9 +85,6 @@ class T1(BaseExperiment):
         Raises:
             ValueError: if the number of delays is smaller than 3
         """
-        if len(delays) < 3:
-            raise ValueError("T1 experiment: number of delays must be at least 3")
-
         # Initialize base experiment
         super().__init__([qubit], backend=backend)
 
@@ -100,11 +98,24 @@ class T1(BaseExperiment):
         if not self._backend.configuration().simulator and not isinstance(backend, FakeBackend):
             timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
             if "acquire_alignment" not in timing_constraints:
-                timing_constraints["aquire_aligment"] = 16
+                timing_constraints["acquire_alignment"] = 16
             scheduling_method = getattr(self.transpile_options, "scheduling_method", "alap")
             self.set_transpile_options(
                 timing_constraints=timing_constraints, scheduling_method=scheduling_method
             )
+
+        # Set conversion factor
+        if self.experiment_options.unit == "dt":
+            try:
+                dt_factor = getattr(self.backend.configuration(), "dt")
+                conversion_factor = dt_factor
+            except AttributeError as no_dt:
+                raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
+        elif self.experiment_options.unit != "s":
+            conversion_factor = apply_prefix(1, self.experiment_options.unit)
+        else:
+            conversion_factor = 1
+        self.set_experiment_options(conversion_factor=conversion_factor)
 
     def circuits(self) -> List[QuantumCircuit]:
         """
@@ -114,21 +125,23 @@ class T1(BaseExperiment):
             The experiment circuits
 
         Raises:
-            AttributeError: if unit is dt but dt parameter is missing in the backend configuration
+            ValueError: When conversion factor is not set.
         """
-        if self.experiment_options.unit == "dt":
-            try:
-                dt_factor = getattr(self.backend.configuration(), "dt")
-            except AttributeError as no_dt:
-                raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
+        if self.backend:
+            self._set_backend(self.backend)
+        prefactor = self.experiment_options.conversion_factor
+
+        if prefactor is None:
+            raise ValueError("Conversion factor is not set.")
 
         circuits = []
+        for delay in prefactor * np.asarray(self.experiment_options.delays, dtype=float):
+            delay = np.round(delay, decimals=10)
 
-        for delay in self.experiment_options.delays:
             circ = QuantumCircuit(1, 1)
             circ.x(0)
             circ.barrier(0)
-            circ.delay(delay, 0, self.experiment_options.unit)
+            circ.delay(delay, 0, "s")
             circ.barrier(0)
             circ.measure(0, 0)
 
@@ -136,11 +149,8 @@ class T1(BaseExperiment):
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
                 "xval": delay,
-                "unit": self.experiment_options.unit,
+                "unit": "s",
             }
-
-            if self.experiment_options.unit == "dt":
-                circ.metadata["dt_factor"] = dt_factor
 
             circuits.append(circ)
 
