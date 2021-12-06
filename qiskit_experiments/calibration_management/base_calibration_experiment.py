@@ -156,13 +156,18 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
             result_index (int): The index of the result from which to update the calibrations.
             group (str): The calibration group to which the parameter belongs. This will default
                 to the value "default".
-
+            max_iterations (int): The maximum number of times that the experiment is repeated when
+                doing a looped calibration.
+            tolerance (float): The tolerance that the looped experiment targets. If the measured
+                parameter falls below this tolerance then the loop is halted and the latest
+                value used to update the calibrations.
         """
         options = super()._default_experiment_options()
 
         options.result_index = -1
         options.group = "default"
         options.max_iterations = 1
+        options.tolerance = 0.001
 
         return options
 
