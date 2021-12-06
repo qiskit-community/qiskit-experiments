@@ -16,13 +16,13 @@ A library of fit functions.
 # pylint: disable=invalid-name, no-member
 
 import functools
-from typing import Callable
+from typing import Callable, Union
 
 import numpy as np
-from uncertainties import unumpy as unp
+from uncertainties import unumpy as unp, UFloat
 
 
-def calc_uncertainties(fit_func: Callable) -> Callable:
+def typecast_returns(fit_func: Callable) -> Callable:
     """Decolator that typecast y values to float array if input parameters have no error.
 
     Args:
@@ -33,11 +33,10 @@ def calc_uncertainties(fit_func: Callable) -> Callable:
     """
 
     @functools.wraps(fit_func)
-    def _wrapper(x, *args, **kwargs) -> np.ndarray:
+    def _wrapper(x, *args, **kwargs) -> Union[float, UFloat, np.ndarray]:
         yvals = fit_func(x, *args, **kwargs)
         try:
             if isinstance(x, float):
-                # single value
                 return float(yvals)
             return yvals.astype(float)
         except TypeError:
@@ -46,7 +45,7 @@ def calc_uncertainties(fit_func: Callable) -> Callable:
     return _wrapper
 
 
-@calc_uncertainties
+@typecast_returns
 def cos(
     x: np.ndarray,
     amp: float = 1.0,
@@ -63,7 +62,7 @@ def cos(
     return amp * unp.cos(2 * np.pi * freq * x + phase) + baseline
 
 
-@calc_uncertainties
+@typecast_returns
 def sin(
     x: np.ndarray,
     amp: float = 1.0,
@@ -80,7 +79,7 @@ def sin(
     return amp * unp.sin(2 * np.pi * freq * x + phase) + baseline
 
 
-@calc_uncertainties
+@typecast_returns
 def exponential_decay(
     x: np.ndarray,
     amp: float = 1.0,
@@ -97,7 +96,7 @@ def exponential_decay(
     return amp * base ** (-lamb * x + x0) + baseline
 
 
-@calc_uncertainties
+@typecast_returns
 def gaussian(
     x: np.ndarray, amp: float = 1.0, sigma: float = 1.0, x0: float = 0.0, baseline: float = 0.0
 ) -> np.ndarray:
@@ -109,7 +108,7 @@ def gaussian(
     return amp * unp.exp(-((x - x0) ** 2) / (2 * sigma ** 2)) + baseline
 
 
-@calc_uncertainties
+@typecast_returns
 def cos_decay(
     x: np.ndarray,
     amp: float = 1.0,
@@ -127,7 +126,7 @@ def cos_decay(
     return exponential_decay(x, lamb=1 / tau) * cos(x, amp=amp, freq=freq, phase=phase) + baseline
 
 
-@calc_uncertainties
+@typecast_returns
 def sin_decay(
     x: np.ndarray,
     amp: float = 1.0,
@@ -145,7 +144,7 @@ def sin_decay(
     return exponential_decay(x, lamb=1 / tau) * sin(x, amp=amp, freq=freq, phase=phase) + baseline
 
 
-@calc_uncertainties
+@typecast_returns
 def bloch_oscillation_x(
     x: np.ndarray, px: float = 0.0, py: float = 0.0, pz: float = 0.0, baseline: float = 0.0
 ):
@@ -163,7 +162,7 @@ def bloch_oscillation_x(
     return (-pz * px + pz * px * unp.cos(w * x) + w * py * unp.sin(w * x)) / (w ** 2) + baseline
 
 
-@calc_uncertainties
+@typecast_returns
 def bloch_oscillation_y(
     x: np.ndarray, px: float = 0.0, py: float = 0.0, pz: float = 0.0, baseline: float = 0.0
 ):
@@ -181,7 +180,7 @@ def bloch_oscillation_y(
     return (pz * py - pz * py * unp.cos(w * x) - w * px * unp.sin(w * x)) / (w ** 2) + baseline
 
 
-@calc_uncertainties
+@typecast_returns
 def bloch_oscillation_z(
     x: np.ndarray, px: float = 0.0, py: float = 0.0, pz: float = 0.0, baseline: float = 0.0
 ):
