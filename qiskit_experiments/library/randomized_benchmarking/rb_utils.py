@@ -16,10 +16,11 @@ RB Helper functions
 
 from typing import Tuple, Dict, Optional, List, Union, Sequence
 import numpy as np
-from uncertainties.core import UFloat
+from uncertainties.core import UFloat, ufloat
 from qiskit import QiskitError, QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit_experiments.database_service.device_component import Qubit
+from qiskit_experiments.database_service.db_fitval import FitVal
 from qiskit_experiments.framework import DbAnalysisResultV1, AnalysisResultData
 
 
@@ -260,7 +261,10 @@ class RBUtils:
                     gate = result.name.replace("EPG_", "")
 
                     # This keeps variance of previous experiment to propagate
-                    epg_1_qubit_dict[qubit][gate] = result.value
+                    analysis_value = result.value
+                    if isinstance(analysis_value, FitVal):
+                        analysis_value = ufloat(nominal_value=analysis_value.value, std_dev=analysis_value.stderr)
+                    epg_1_qubit_dict[qubit][gate] = analysis_value
 
         for key in gate_error_ratio:
             qubits, gate = key
