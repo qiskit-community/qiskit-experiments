@@ -50,7 +50,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         target = qi.random_statevector(2 ** num_qubits, seed=seed)
         qstexp = StateTomography(target)
         if fitter:
-            qstexp.set_analysis_options(fitter=fitter)
+            qstexp.analysis.set_options(fitter=fitter)
         expdata = qstexp.run(backend)
         results = expdata.analysis_results()
 
@@ -296,7 +296,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         target = qi.random_unitary(2 ** num_qubits, seed=seed)
         qstexp = ProcessTomography(target)
         if fitter:
-            qstexp.set_analysis_options(fitter=fitter)
+            qstexp.analysis.set_options(fitter=fitter)
         expdata = qstexp.run(backend)
         results = expdata.analysis_results()
 
