@@ -16,11 +16,10 @@ Settings mixing class
 import inspect
 from collections import OrderedDict
 from functools import wraps
-from typing import Dict, Any
 
 
 class StoreInitArgs:
-    """Class mixing for storing instance init settings.
+    """Class mixing for storing class and subclass instance init args.
 
     This mixin adds a ``__new__`` method that stores the values of args
     and kwargs passed to the class instances ``__init__`` method.
@@ -107,50 +106,3 @@ class StoreInitArgs:
         # Monkey patch the subclass new method with the method with
         # fixed documentation annotations
         cls.__new__ = __new__
-
-
-class Settings(StoreInitArgs):
-    """Class mixing for storing instance init settings.
-
-    This mixin adds a ``__new__`` method that stores the values of args
-    and kwargs passed to the class instances ``__init__`` method and a
-    ``settings`` property that returns an ordered dict of these values.
-
-    .. note::
-
-        This mixin is intended as a mixing for base classes so that when
-        creating subclasses, those subclasses can inherit the logic for
-        saving and returning settings.
-
-        Note that there is small performance overhead to initializing classes
-        with this mixin so it should not be used for adding settings to all
-        classes without consideration. For classes that already store values
-        required to recover the ``__init__`` args they should instead
-        implement an appropriate :meth:`settings` property directly.
-    """
-
-    def __new__(cls, *args, **kwargs):
-        # This method automatically stores all arg and kwargs from subclass
-        # init methods
-        spec = inspect.getfullargspec(cls.__init__)
-        if spec.varargs:
-            # raise exception if class init accepts variadic positional args
-            raise TypeError(
-                "Settings mixin cannot be used with an init method that "
-                " accepts variadic positional args "
-            )
-        return super().__new__(cls, *args, **kwargs)
-
-    @property
-    def settings(self) -> Dict[str, Any]:
-        """Return the settings used to initialize this instance."""
-        settings = {}
-        # Note that this relies on dicts entries being implicitly ordered
-        # to store init args as kwargs.
-        args = getattr(self, "__init_args__", {})
-        for key, val in args.items():
-            settings[key] = val
-        kwargs = getattr(self, "__init_kwargs__", {})
-        for key, val in kwargs.items():
-            settings[key] = val
-        return settings

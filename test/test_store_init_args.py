@@ -13,58 +13,49 @@
 """Tests for base experiment framework."""
 
 from qiskit.test import QiskitTestCase
-from qiskit_experiments.framework.settings import Settings
+from qiskit_experiments.framework.store_init_args import StoreInitArgs
 
 
-class ExampleStoreArgsVariadic(Settings):
+class StoreArgsBase(StoreInitArgs):
+    """Test class with args and kwargs property"""
+
+    @property
+    def args(self):
+        """Return stored init args"""
+        return tuple(getattr(self, "__init_args__", {}).values())
+
+    @property
+    def kwargs(self):
+        """Return stored init kwargs"""
+        return dict(getattr(self, "__init_kwargs__", {}))
+
+    @property
+    def settings(self):
+        """Return settings dict of args and kwargs"""
+        ret = dict(getattr(self, "__init_args__", {}))
+        ret.update(**self.kwargs)
+        return ret
+
+
+class StoreArgsVariadic(StoreArgsBase):
     """Test class with args and kwargs property"""
 
     def __init__(self, a, *args, b, c="default_c", d="default_d", **kwargs):
         pass
 
-    @property
-    def args(self):
-        """Return stored init args"""
-        return tuple(getattr(self, "__init_args__", {}).values())
 
-    @property
-    def kwargs(self):
-        """Return stored init kwargs"""
-        return dict(getattr(self, "__init_kwargs__", {}))
-
-
-class ExampleSettingsVariadic(Settings):
+class StoreArgsVariadicKw(StoreArgsBase):
     """Test class with args and kwargs property"""
 
     def __init__(self, a, b, c="default_c", d="default_d", **kwargs):
         pass
 
-    @property
-    def args(self):
-        """Return stored init args"""
-        return tuple(getattr(self, "__init_args__", {}).values())
 
-    @property
-    def kwargs(self):
-        """Return stored init kwargs"""
-        return dict(getattr(self, "__init_kwargs__", {}))
-
-
-class ExampleSettings(Settings):
+class StoreArgs(StoreArgsBase):
     """Test class with args and kwargs property"""
 
     def __init__(self, a, b, c="default_c", d="default_d"):
         pass
-
-    @property
-    def args(self):
-        """Return stored init args"""
-        return tuple(getattr(self, "__init_args__", {}).values())
-
-    @property
-    def kwargs(self):
-        """Return stored init kwargs"""
-        return dict(getattr(self, "__init_kwargs__", {}))
 
 
 class TestSettings(QiskitTestCase):
@@ -73,43 +64,43 @@ class TestSettings(QiskitTestCase):
     # pylint: disable = missing-function-docstring
 
     def test_standard(self):
-        obj = ExampleSettings(1, 2, c="custom_c")
+        obj = StoreArgs(1, 2, c="custom_c")
         self.assertEqual(obj.args, (1, 2))
         self.assertEqual(obj.kwargs, {"c": "custom_c", "d": "default_d"})
         self.assertEqual(obj.settings, {"a": 1, "b": 2, "c": "custom_c", "d": "default_d"})
 
     def test_standard_pos_kwargs(self):
-        obj = ExampleSettings(1, 2, "custom_c")
+        obj = StoreArgs(1, 2, "custom_c")
         self.assertEqual(obj.args, (1, 2))
         self.assertEqual(obj.kwargs, {"c": "custom_c", "d": "default_d"})
         self.assertEqual(obj.settings, {"a": 1, "b": 2, "c": "custom_c", "d": "default_d"})
 
     def test_standard_named_args(self):
-        obj = ExampleSettings(b=2, a=1, c="custom_c")
+        obj = StoreArgs(b=2, a=1, c="custom_c")
         self.assertEqual(obj.args, (1, 2))
         self.assertEqual(obj.kwargs, {"c": "custom_c", "d": "default_d"})
         self.assertEqual(obj.settings, {"a": 1, "b": 2, "c": "custom_c", "d": "default_d"})
 
     def test_variadic(self):
-        obj = ExampleSettingsVariadic(1, 2, c="custom_c")
+        obj = StoreArgsVariadicKw(1, 2, c="custom_c")
         self.assertEqual(obj.args, (1, 2))
         self.assertEqual(obj.kwargs, {"c": "custom_c", "d": "default_d"})
         self.assertEqual(obj.settings, {"a": 1, "b": 2, "c": "custom_c", "d": "default_d"})
 
     def test_variadic_pos_kwargs(self):
-        obj = ExampleSettingsVariadic(1, 2, "custom_c")
+        obj = StoreArgsVariadicKw(1, 2, "custom_c")
         self.assertEqual(obj.args, (1, 2))
         self.assertEqual(obj.kwargs, {"c": "custom_c", "d": "default_d"})
         self.assertEqual(obj.settings, {"a": 1, "b": 2, "c": "custom_c", "d": "default_d"})
 
     def test_variadic_named_args(self):
-        obj = ExampleSettingsVariadic(b=2, a=1, c="custom_c")
+        obj = StoreArgsVariadicKw(b=2, a=1, c="custom_c")
         self.assertEqual(obj.args, (1, 2))
         self.assertEqual(obj.kwargs, {"c": "custom_c", "d": "default_d"})
         self.assertEqual(obj.settings, {"a": 1, "b": 2, "c": "custom_c", "d": "default_d"})
 
     def test_variadic_kwargs(self):
-        obj = ExampleSettingsVariadic(1, 2, d="custom_d", f="kwarg_f", g="kwarg_g")
+        obj = StoreArgsVariadicKw(1, 2, d="custom_d", f="kwarg_f", g="kwarg_g")
         self.assertEqual(obj.args, (1, 2))
         self.assertEqual(
             obj.kwargs, {"c": "default_c", "d": "custom_d", "f": "kwarg_f", "g": "kwarg_g"}
@@ -120,7 +111,7 @@ class TestSettings(QiskitTestCase):
         )
 
     def test_variadic_kwargs_pos_kwargs(self):
-        obj = ExampleSettingsVariadic(1, 2, "custom_c", f="kwarg_f", g="kwarg_g")
+        obj = StoreArgsVariadicKw(1, 2, "custom_c", f="kwarg_f", g="kwarg_g")
         self.assertEqual(obj.args, (1, 2))
         self.assertEqual(
             obj.kwargs, {"c": "custom_c", "d": "default_d", "f": "kwarg_f", "g": "kwarg_g"}
@@ -131,7 +122,7 @@ class TestSettings(QiskitTestCase):
         )
 
     def test_variadic_kwargs_named_args(self):
-        obj = ExampleSettingsVariadic(b=2, a=1, d="custom_d", f="kwarg_f", g="kwarg_g")
+        obj = StoreArgsVariadicKw(b=2, a=1, d="custom_d", f="kwarg_f", g="kwarg_g")
         self.assertEqual(obj.args, (1, 2))
         self.assertEqual(
             obj.kwargs, {"c": "default_c", "d": "custom_d", "f": "kwarg_f", "g": "kwarg_g"}
@@ -142,7 +133,7 @@ class TestSettings(QiskitTestCase):
         )
 
     def test_variadic_args(self):
-        obj = ExampleStoreArgsVariadic(1, 2, b="custom_b", c="custom_c", f="kwarg_f", g="kwarg_g")
+        obj = StoreArgsVariadic(1, 2, b="custom_b", c="custom_c", f="kwarg_f", g="kwarg_g")
         self.assertEqual(obj.args, (1, 2))
         self.assertEqual(
             obj.kwargs,
