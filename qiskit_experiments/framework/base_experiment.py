@@ -146,7 +146,11 @@ class BaseExperiment(ABC, StoreInitArgs):
         # These options are copied to the experiment instance so that we can
         # reproduce the experiment afterward, and user can know a set of available options.
         if isinstance(backend, BackendV2):
-            self.set_experiment_options(**backend.options.__dict__)
+            self.set_run_options(**backend.options.__dict__)
+        else:
+            # This is just assumption that backend has this option.
+            # This is necessary for now because DataProcessor is initialized on the fly with this info.
+            self.set_run_options(meas_level=MeasLevel.CLASSIFIED)
 
     def copy(self) -> "BaseExperiment":
         """Return a copy of the experiment"""
