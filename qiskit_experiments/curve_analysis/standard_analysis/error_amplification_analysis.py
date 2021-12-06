@@ -196,8 +196,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            np.isnan(fit_d_theta.std_dev)
-            or abs(fit_d_theta.nominal_value) < abs(max_good_angle_error),
+            curve.check_if_nominal_significant(fit_d_theta, abs(max_good_angle_error)),
         ]
 
         if all(criteria):

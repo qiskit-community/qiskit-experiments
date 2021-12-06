@@ -14,13 +14,17 @@
 A set of utility functions.
 """
 
-from typing import Union
+from typing import Union, Optional
 
 import numpy as np
 from uncertainties.core import UFloat
 
 
-def check_if_nominal_significant(val: Union[float, UFloat], fraction: float = 1.0) -> bool:
+def check_if_nominal_significant(
+    val: Union[float, UFloat],
+    fraction: float = 1.0,
+    absolute: Optional[float] = None,
+) -> bool:
     """Check if the nominal part of the given value is larger than the standard error.
 
     Args:
@@ -28,6 +32,7 @@ def check_if_nominal_significant(val: Union[float, UFloat], fraction: float = 1.
         fraction: Valid fraction of the nominal part to its standard error.
             This function returns ``False`` if the nominal part is
             smaller than the error by this fraction.
+        absolute: Use this value as a threshold if given.
 
     Returns:
         ``True`` if the nominal part is significant.
@@ -35,7 +40,8 @@ def check_if_nominal_significant(val: Union[float, UFloat], fraction: float = 1.
     if isinstance(val, float):
         return True
 
-    if np.isnan(val.std_dev) or val.std_dev < fraction * val.nominal_value:
+    threshold = absolute if absolute is not None else fraction * val.nominal_value
+    if np.isnan(val.std_dev) or val.std_dev < threshold:
         return True
 
     return False

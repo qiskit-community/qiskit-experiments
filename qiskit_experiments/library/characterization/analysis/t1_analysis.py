@@ -68,10 +68,11 @@ class T1Analysis(curve.DecayAnalysis):
             fit_data.reduced_chisq < 3,
             abs(amp.nominal_value - 1.0) < 0.1,
             abs(base.nominal_value) < 0.1,
-            curve.check_if_nominal_significant(amp, fraction=0.1),
+            curve.check_if_nominal_significant(amp, absolute=0.1),
             curve.check_if_nominal_significant(tau),
-            curve.check_if_nominal_significant(base, fraction=0.1),
+            curve.check_if_nominal_significant(base, absolute=0.1),
         ]
+        breakpoint()
 
         if all(criteria):
             return "good"
