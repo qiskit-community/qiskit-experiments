@@ -86,7 +86,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
 
         fail_key = "fail_key"
 
-        rabi.set_analysis_options(data_processor=DataProcessor(fail_key, []))
+        rabi.analysis.set_options(data_processor=DataProcessor(fail_key, []))
         rabi.set_run_options(shots=2)
         data = rabi.run(backend)
         result = data.analysis_results()
