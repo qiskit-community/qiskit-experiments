@@ -15,7 +15,6 @@ Base Experiment class.
 
 from abc import ABC, abstractmethod
 import copy
-import dataclasses
 from collections import OrderedDict
 from typing import Sequence, Optional, Tuple, List, Dict, Union, Any
 
@@ -28,60 +27,7 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit.providers.options import Options
 from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.experiment_data import ExperimentData
-from qiskit_experiments.version import __version__
-
-
-@dataclasses.dataclass(frozen=True)
-class ExperimentConfig:
-    """Store configuration settings for an Experiment
-
-    This stores the current configuration of a
-    :class:~qiskit_experiments.framework.BaseExperiment` and
-    can be used to reconstruct the experiment using either the
-    :meth:`experiment` property if the experiment class type is
-    currently stored, or the
-    :meth:~qiskit_experiments.framework.BaseExperiment.from_config`
-    class method of the appropriate experiment.
-    """
-
-    cls: type = None
-    args: Tuple[Any] = dataclasses.field(default_factory=tuple)
-    kwargs: Dict[str, Any] = dataclasses.field(default_factory=dict)
-    experiment_options: Dict[str, Any] = dataclasses.field(default_factory=dict)
-    transpile_options: Dict[str, Any] = dataclasses.field(default_factory=dict)
-    run_options: Dict[str, Any] = dataclasses.field(default_factory=dict)
-    version: str = __version__
-
-    def experiment(self) -> "BaseExperiment":
-        """Return the experiment constructed from this config.
-
-        Returns:
-            The experiment reconstructed from the config.
-
-        Raises:
-            QiskitError: if the experiment class is not stored,
-                         was not successful deserialized, or reconstruction
-                         of the experiment fails.
-        """
-        cls = self.cls
-        if cls is None:
-            raise QiskitError("No experiment class in experiment config")
-        if isinstance(cls, dict):
-            raise QiskitError(
-                "Unable to load experiment class. Try manually loading "
-                "experiment using `Experiment.from_config(config)` instead."
-            )
-        try:
-            return cls.from_config(self)
-        except Exception as ex:
-            msg = "Unable to construct experiments from config."
-            if cls.version != __version__:
-                msg += (
-                    f" Note that config version ({cls.version}) differs from the current"
-                    f" qiskit-experiments version ({__version__}). You could try"
-                    " installing a compatible qiskit-experiments version."
-                )
-            raise QiskitError("{}\nError Message:\n{}".format(msg, str(ex))) from ex
+from qiskit_experiments.framework.configs import ExperimentConfig
 
 
 class BaseExperiment(ABC, StoreInitArgs):
@@ -184,6 +130,11 @@ class BaseExperiment(ABC, StoreInitArgs):
         ret._run_options = copy.copy(self._run_options)
         ret._transpile_options = copy.copy(self._transpile_options)
         ret._analysis_options = copy.copy(self._analysis_options)
+
+        ret._set_experiment_options = copy.copy(self._set_experiment_options)
+        ret._set_transpile_options = copy.copy(self._set_transpile_options)
+        ret._set_run_options = copy.copy(self._set_run_options)
+        ret._set_analysis_options = copy.copy(self._set_analysis_options)
         return ret
 
     def config(self) -> ExperimentConfig:

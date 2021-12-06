@@ -21,6 +21,7 @@ import qiskit.quantum_info as qi
 from qiskit.providers.aer import AerSimulator
 from qiskit_experiments.framework import BatchExperiment, ParallelExperiment
 from qiskit_experiments.library import StateTomography, ProcessTomography
+from qiskit_experiments.library.tomography import StateTomographyAnalysis, ProcessTomographyAnalysis
 
 
 # TODO: tests for CVXPY fitters
@@ -273,6 +274,13 @@ class TestStateTomography(QiskitExperimentsTestCase):
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.experiments_equiv(exp, loaded_exp))
 
+    def test_analysis_config(self):
+        """ "Test converting analysis to and from config works"""
+        analysis = StateTomographyAnalysis()
+        loaded = StateTomographyAnalysis.from_config(analysis.config())
+        self.assertNotEqual(analysis, loaded)
+        self.assertEqual(analysis.config(), loaded.config())
+
 
 @ddt.ddt
 class TestProcessTomography(QiskitExperimentsTestCase):
@@ -484,6 +492,13 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         loaded_exp = ProcessTomography.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+
+    def test_analysis_config(self):
+        """ "Test converting analysis to and from config works"""
+        analysis = ProcessTomographyAnalysis()
+        loaded = ProcessTomographyAnalysis.from_config(analysis.config())
+        self.assertNotEqual(analysis, loaded)
+        self.assertEqual(analysis.config(), loaded.config())
 
 
 def teleport_circuit():
