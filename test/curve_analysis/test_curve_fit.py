@@ -324,11 +324,12 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "lamb": ref_p1, "x0": ref_p2, "baseline": ref_p3},
         )
-        default_opts = analysis._default_options()
-        default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3}
-        default_opts.result_parameters = [ParameterRepr("p1", "parameter_name", "unit")]
+        analysis.set_options(
+            p0={"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3},
+            result_parameters=[ParameterRepr("p1", "parameter_name", "unit")],
+        )
 
-        results, _ = analysis._run_analysis(test_data, **default_opts.__dict__)
+        results, _ = analysis._run_analysis(test_data)
         result = results[0]
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
@@ -367,13 +368,14 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "lamb": ref_p1, "x0": ref_p2, "baseline": ref_p3},
         )
-        default_opts = analysis._default_options()
-        default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3}
-        default_opts.bounds = {"p0": [-10, 0], "p1": [-10, 0], "p2": [-10, 0], "p3": [-10, 0]}
-        default_opts.return_data_points = True
+        analysis.set_options(
+            p0={"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3},
+            bounds={"p0": [-10, 0], "p1": [-10, 0], "p2": [-10, 0], "p3": [-10, 0]},
+            return_data_points=True,
+        )
 
         # Try to fit with infeasible parameter boundary. This should fail.
-        results, _ = analysis._run_analysis(test_data, **default_opts.__dict__)
+        results, _ = analysis._run_analysis(test_data)
 
         # This returns only data point entry
         self.assertEqual(len(results), 1)
@@ -423,10 +425,10 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
         for datum in test_data1.data():
             test_data0.add_data(datum)
 
-        default_opts = analysis._default_options()
-        default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3, "p4": ref_p4}
-
-        results, _ = analysis._run_analysis(test_data0, **default_opts.__dict__)
+        analysis.set_options(
+            p0={"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3, "p4": ref_p4}
+        )
+        results, _ = analysis._run_analysis(test_data0)
         result = results[0]
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3, ref_p4])
@@ -477,10 +479,8 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
         for datum in test_data1.data():
             test_data0.add_data(datum)
 
-        default_opts = analysis._default_options()
-        default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3}
-
-        results, _ = analysis._run_analysis(test_data0, **default_opts.__dict__)
+        analysis.set_options(p0={"p0": ref_p0, "p1": ref_p1, "p2": ref_p2, "p3": ref_p3})
+        results, _ = analysis._run_analysis(test_data0)
         result = results[0]
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p2, ref_p3])
@@ -513,11 +513,12 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
             param_dict={"amp": ref_p0, "freq": ref_p1, "phase": ref_p2, "baseline": ref_p3},
         )
 
-        default_opts = analysis._default_options()
-        default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p3": ref_p3}
-        default_opts.fixed_p2 = ref_p2
+        analysis.set_options(
+            p0={"p0": ref_p0, "p1": ref_p1, "p3": ref_p3},
+            fixed_p2=ref_p2,
+        )
 
-        results, _ = analysis._run_analysis(test_data, **default_opts.__dict__)
+        results, _ = analysis._run_analysis(test_data)
         result = results[0]
 
         ref_popt = np.asarray([ref_p0, ref_p1, ref_p3])
@@ -549,14 +550,10 @@ class TestCurveAnalysisIntegration(QiskitExperimentsTestCase):
             xvals=self.xvalues,
             param_dict={"amp": ref_p0, "freq": ref_p1, "phase": ref_p2, "baseline": ref_p3},
         )
-
-        default_opts = analysis._default_options()
-
         # do not define fixed_p2 here
-        default_opts.p0 = {"p0": ref_p0, "p1": ref_p1, "p3": ref_p3}
-
+        analysis.set_options(p0={"p0": ref_p0, "p1": ref_p1, "p3": ref_p3})
         with self.assertRaises(AnalysisError):
-            analysis._run_analysis(test_data, **default_opts.__dict__)
+            analysis._run_analysis(test_data)
 
 
 class TestFitOptions(QiskitExperimentsTestCase):

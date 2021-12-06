@@ -236,6 +236,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
     def __init__(self):
         """Initialize data fields that are privately accessed by methods."""
+        super().__init__()
 
         #: Dict[str, Any]: Experiment metadata
         self.__experiment_metadata = None
@@ -813,35 +814,12 @@ class CurveAnalysis(BaseAnalysis, ABC):
             ) from ex
 
     def _run_analysis(
-        self, experiment_data: ExperimentData, **options
+        self, experiment_data: ExperimentData
     ) -> Tuple[List[AnalysisResultData], List["pyplot.Figure"]]:
-        """Run analysis on circuit data.
-
-        Args:
-            experiment_data: the experiment data to analyze.
-            options: kwarg options for analysis function.
-
-        Returns:
-            tuple: A pair ``(analysis_results, figures)`` where ``analysis_results``
-                   is a list of :class:`AnalysisResultData` objects, and ``figures``
-                   is a list of any figures for the experiment.
-
-        Raises:
-            AnalysisError: If the analysis fails.
-            DataProcessorError: When data processing failed.
-        """
-
         #
         # 1. Parse arguments
         #
-
-        # Pop arguments that are not given to the fitter,
-        # and update class attributes with the arguments that are given to the fitter
-        # (arguments that have matching attributes in the class)
-        analysis_options = self._default_options().__dict__
-        analysis_options.update(options)
-
-        extra_options = self._arg_parse(**analysis_options)
+        extra_options = self._arg_parse(**self.options.__dict__)
 
         # Update all fit functions in the series definitions if fixed parameter is defined.
         # Fixed parameters should be provided by the analysis options.

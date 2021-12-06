@@ -82,7 +82,7 @@ class TestHalfAngle(QiskitExperimentsTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = HalfAngle(1)
-        config = exp.config
+        config = exp.config()
         loaded_exp = HalfAngle.from_config(config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertEqual(config, loaded_exp.config())
