@@ -78,3 +78,29 @@ class TestFramework(QiskitExperimentsTestCase):
         self.assertNotEqual(expdata1, expdata2)
         self.assertNotEqual(expdata1.experiment_id, expdata2.experiment_id)
         self.assertNotEqual(expdata1.analysis_results(), expdata2.analysis_results())
+
+    def test_analysis_config(self):
+        """Test analysis config dataclass"""
+        analysis = FakeAnalysis(arg1=10, arg2=20)
+        analysis.set_options(option1=False, option2=True)
+        config = analysis.config()
+        loaded = config.analysis()
+        self.assertEqual(analysis.config(), loaded.config())
+        self.assertEqual(analysis.options, loaded.options)
+
+    def test_analysis_from_config(self):
+        """Test analysis config dataclass"""
+        analysis = FakeAnalysis(arg1=10, arg2=20)
+        analysis.set_options(option1=False, option2=True)
+        config = analysis.config()
+        loaded = FakeAnalysis.from_config(config)
+        self.assertEqual(config, loaded.config())
+
+    def test_analysis_runtime_opts(self):
+        """Test runtime options don't modify instance"""
+        opts = {"opt1": False, "opt2": False}
+        run_opts = {"opt1": True, "opt2": True, "opt3": True}
+        analysis = FakeAnalysis()
+        analysis.set_options(**opts)
+        analysis.run(ExperimentData(), **run_opts)
+        self.assertEqual(analysis.options.__dict__, opts)

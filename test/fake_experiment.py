@@ -21,6 +21,10 @@ class FakeAnalysis(BaseAnalysis):
     Dummy analysis class for test purposes only.
     """
 
+    def __init__(self, **kwargs):
+        super().__init__()
+        self._kwargs = kwargs
+
     def _run_analysis(self, experiment_data, **options):
         seed = options.get("seed", None)
         rng = np.random.default_rng(seed=seed)
