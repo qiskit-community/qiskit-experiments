@@ -210,7 +210,7 @@ class BaseExperiment(ABC, StoreInitArgs):
             analysis: Optional, a custom analysis instance to use for performing
                       analysis. If None analysis will not be run. If ``"default"``
                       the experiments :meth:`analysis` instance will be used if
-                      it contains one. 
+                      it contains one.
             run_options: backend runtime options used for circuit execution.
 
         Returns:
