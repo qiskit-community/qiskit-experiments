@@ -164,7 +164,7 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
     def test_dragcal_experiment_config(self):
         """Test RoughDragCal config can round trip"""
         exp = RoughDragCal(0, self.cals, backend=self.backend)
-        loaded_exp = RoughDragCal.from_config(exp.config)
+        loaded_exp = RoughDragCal.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.experiments_equiv(exp, loaded_exp))
 
@@ -179,7 +179,7 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
         with pulse.build(name="xp") as sched:
             pulse.play(pulse.Drag(160, 0.5, 40, Parameter("β")), pulse.DriveChannel(0))
         exp = RoughDrag(0, backend=self.backend, schedule=sched)
-        loaded_exp = RoughDrag.from_config(exp.config)
+        loaded_exp = RoughDrag.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.experiments_equiv(exp, loaded_exp))
 

@@ -52,7 +52,6 @@ class ExperimentConfig:
     run_options: Dict[str, Any] = dataclasses.field(default_factory=dict)
     version: str = __version__
 
-    @property
     def experiment(self) -> "BaseExperiment":
         """Return the experiment constructed from this config.
 
@@ -187,7 +186,6 @@ class BaseExperiment(ABC, Settings):
         ret._analysis_options = copy.copy(self._analysis_options)
         return ret
 
-    @property
     def config(self) -> ExperimentConfig:
         """Return the config dataclass for this experiment"""
         args = tuple(getattr(self, "__init_args__", OrderedDict()).values())
@@ -515,7 +513,7 @@ class BaseExperiment(ABC, Settings):
 
     def __json_encode__(self):
         """Convert to format that can be JSON serialized"""
-        return self.config
+        return self.config()
 
     @classmethod
     def __json_decode__(cls, value):
