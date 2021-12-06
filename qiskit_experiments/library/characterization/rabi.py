@@ -52,6 +52,8 @@ class Rabi(BaseExperiment):
         calibrating-qubits-pulse.html>`_
         for the pulse level programming of a Rabi experiment.
 
+    # section: analysis_ref
+        :py:class:`~qiskit_experiments.curve_analysis.standard_analysis.oscillation.OscillationAnalysis`
     """
 
     __analysis_class__ = OscillationAnalysis
@@ -192,6 +194,8 @@ class EFRabi(Rabi):
             measure: 1/══════════════════════╩═
                                              0
 
+    # section: analysis_ref
+        :py:class:`~qiskit_experiments.curve_analysis.standard_analysis.oscillation.OscillationAnalysis`
     """
 
     @classmethod

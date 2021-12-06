@@ -44,6 +44,8 @@ class T1(BaseExperiment):
         3. Analysis of results: deduction of T\ :sub:`1`\ , based on the outcomes,
         by fitting to an exponential curve.
 
+    # section: analysis_ref
+        :py:class:`~qiskit_experiments.library.characterization.analysis.t1_analysis.T1Analysis`
     """
 
     __analysis_class__ = T1Analysis

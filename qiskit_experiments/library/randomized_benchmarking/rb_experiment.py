@@ -49,6 +49,9 @@ class StandardRB(BaseExperiment):
         on estimating the Error Per Gate (EPG) for 1-qubit and 2-qubit gates,
         from 1-qubit and 2-qubit standard RB experiments, by Ref. [3].
 
+    # section: analysis_ref
+        :py:class:`~qiskit_experiments.library.randomized_benchmarking.rb_analysis.RBAnalysis`
+
     # section: reference
         .. ref_arxiv:: 1 1009.3639
         .. ref_arxiv:: 2 1109.6887

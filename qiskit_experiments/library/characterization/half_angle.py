@@ -47,6 +47,9 @@ class HalfAngle(BaseExperiment):
         For example, the non-linearities in the mixer's skew for :math:`\pi/2` pulses may
         be different from the :math:`\pi` pulse.
 
+    # section: analysis_ref
+        :py:class:`~qiskit_experiments.library.characterization.analysis.fine_half_angle_analysis.FineHalfAngleAnalysis`
+
     # section: reference
         .. ref_arxiv:: 1 1504.06597
     """

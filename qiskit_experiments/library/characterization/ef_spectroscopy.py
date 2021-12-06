@@ -33,6 +33,9 @@ class EFSpectroscopy(QubitSpectroscopy):
         measure: 1/═══════════════════════╩═
                                           0
 
+    # section: analysis_ref
+        :py:class:`~qiskit_experiments.curve_analysis.standard_analysis.resonance.ResonanceAnalysis`
+
     """
 
     @classmethod

@@ -61,6 +61,9 @@ class RoughDrag(BaseExperiment):
         The parameter β is scanned to find the value that minimizes the unwanted Z-rotation.
         Note that the analysis class requires this experiment to run with three repetition numbers.
 
+    # section: analysis_ref
+        :py:class:`~qiskit_experiments.library.characterization.analysis.drag_analysis.DragCalAnalysis`
+
     # section: reference
         .. ref_arxiv:: 1 1011.1949
         .. ref_arxiv:: 2 0901.0534

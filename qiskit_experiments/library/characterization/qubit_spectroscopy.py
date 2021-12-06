@@ -30,19 +30,23 @@ from qiskit_experiments.curve_analysis import ParameterRepr, ResonanceAnalysis
 class QubitSpectroscopy(BaseExperiment):
     """Class that runs spectroscopy by sweeping the qubit frequency.
 
-    The circuits produced by spectroscopy, i.e.
+    # section: overview
+        The circuits produced by spectroscopy, i.e.
 
-    .. parsed-literal::
+        .. parsed-literal::
 
-                   ┌────────────┐ ░ ┌─┐
-              q_0: ┤ Spec(freq) ├─░─┤M├
-                   └────────────┘ ░ └╥┘
-        measure: 1/══════════════════╩═
-                                     0
+                       ┌────────────┐ ░ ┌─┐
+                  q_0: ┤ Spec(freq) ├─░─┤M├
+                       └────────────┘ ░ └╥┘
+            measure: 1/══════════════════╩═
+                                         0
 
-    have a spectroscopy pulse-schedule embedded in a spectroscopy gate. The
-    pulse-schedule consists of a set frequency instruction followed by a GaussianSquare
-    pulse. A list of circuits is generated, each with a different frequency "freq".
+        have a spectroscopy pulse-schedule embedded in a spectroscopy gate. The
+        pulse-schedule consists of a set frequency instruction followed by a GaussianSquare
+        pulse. A list of circuits is generated, each with a different frequency "freq".
+
+    # section: analysis_ref
+        :py:class:`~qiskit_experiments.curve_analysis.standard_analysis.resonance.ResonanceAnalysis`
     """
 
     __analysis_class__ = ResonanceAnalysis

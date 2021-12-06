@@ -29,7 +29,11 @@ from .tomography_analysis import TomographyAnalysis
 
 
 class TomographyExperiment(BaseExperiment):
-    """Base experiment for quantum state and process tomography"""
+    """Base experiment for quantum state and process tomography.
+
+    # section: analysis_ref
+        :py:class:`~qiskit_experiments.library.tomography.tomography_analysis.TomographyAnalysis`
+    """
 
     __analysis_class__ = TomographyAnalysis
 

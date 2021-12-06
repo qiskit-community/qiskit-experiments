@@ -81,10 +81,11 @@ class FineAmplitude(BaseExperiment):
         Note that there are subclasses of :class:`FineAmplitude` such as :class:`FineSXAmplitude`
         that set the appropriate options by default.
 
+    # section: analysis_ref
+        :py:class:`~qiskit_experiments.library.characterization.analysis.fine_amplitude_analysis.FineAmplitudeAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1504.06597
-
 
     # section: tutorial
         :doc:`/tutorials/fine_calibrations`
@@ -210,6 +211,9 @@ class FineXAmplitude(FineAmplitude):
 
         :class:`FineXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
         the appropriate values for the default options.
+
+    # section: analysis_ref
+        :py:class:`~qiskit_experiments.library.characterization.analysis.fine_amplitude_analysis.FineAmplitudeAnalysis`
     """
 
     __analysis_class__ = FineXAmplitudeAnalysis
@@ -255,6 +259,9 @@ class FineSXAmplitude(FineAmplitude):
 
         :class:`FineSXAmplitude` is a subclass of :class:`FineAmplitude` and is used to set
         the appropriate values for the default options.
+
+    # section: analysis_ref
+        :py:class:`~qiskit_experiments.library.characterization.analysis.fine_amplitude_analysis.FineAmplitudeAnalysis`
     """
 
     def __init__(self, qubit: int, backend: Optional[Backend] = None):

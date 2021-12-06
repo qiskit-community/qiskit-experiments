@@ -39,6 +39,9 @@ class ProcessTomography(TomographyExperiment):
         running :math:`4^N 3^N` measurement circuits when using the default
         preparation and measurement bases.
 
+    # section: analysis_ref
+        :py:class:`~qiskit_experiments.library.tomography.qpt_analysis.ProcessTomographyAnalysis`
+
     # section: see_also
         qiskit_experiments.library.tomography.tomography_experiment.TomographyExperiment
 

@@ -57,6 +57,8 @@ class T2Ramsey(BaseExperiment):
     # section: tutorial
         :doc:`/tutorials/t2ramsey_characterization`
 
+    # section: analysis_ref
+        :py:class:`~qiskit_experiments.library.characterization.analysis.t2ramsey_analysis.T2RamseyAnalysis`
     """
     __analysis_class__ = T2RamseyAnalysis
 
