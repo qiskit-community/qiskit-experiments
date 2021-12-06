@@ -75,7 +75,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
                 conversion_factor=conversion_factor,
             )
             for user_p0 in [default_p0, dict()]:
-                exp.set_analysis_options(p0=user_p0)
+                exp.analysis.set_options(p0=user_p0)
                 expdata = exp.run(backend=backend, shots=2000)
                 expdata.block_for_results()  # Wait for job/analysis to finish.
                 result = expdata.analysis_results("T2star")
@@ -158,7 +158,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
             "phi": 0,
             "B": 0.5,
         }
-        exp0.set_analysis_options(p0=default_p0)
+        exp0.analysis.set_options(p0=default_p0)
         backend = T2RamseyBackend(
             p0={
                 "A": [0.5],
@@ -179,10 +179,10 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         # second experiment
         delays1 = list(range(2, 65, 2))
         exp1 = T2Ramsey(qubit, delays1, unit=unit)
-        exp1.set_analysis_options(p0=default_p0)
-        expdata1 = exp1.run(backend=backend, analysis=False, shots=1000)
+        exp1.analysis.set_options(p0=default_p0)
+        expdata1 = exp1.run(backend=backend, analysis=None, shots=1000)
         expdata1.add_data(expdata0.data())
-        exp1.run_analysis(expdata1)
+        exp1.analysis.run(expdata1)
 
         res_t2star_1 = expdata1.analysis_results("T2star")
         res_freq_1 = expdata1.analysis_results("Frequency")

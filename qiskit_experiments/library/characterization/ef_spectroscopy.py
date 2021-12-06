@@ -12,12 +12,13 @@
 
 """Spectroscopy for the e-f transition."""
 
+from typing import Iterable, Optional
 from qiskit import QuantumCircuit
+from qiskit.providers import Backend
 from qiskit.circuit import Gate
 
 from qiskit_experiments.curve_analysis import ParameterRepr
 from qiskit_experiments.library.characterization.qubit_spectroscopy import QubitSpectroscopy
-from qiskit_experiments.framework import Options
 
 
 class EFSpectroscopy(QubitSpectroscopy):
@@ -35,13 +36,16 @@ class EFSpectroscopy(QubitSpectroscopy):
 
     """
 
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = super()._default_analysis_options()
-        options.result_parameters = [ParameterRepr("freq", "f12", "Hz")]
-
-        return options
+    def __init__(
+        self,
+        qubit: int,
+        frequencies: Iterable[float],
+        backend: Optional[Backend] = None,
+        unit: str = "Hz",
+        absolute: bool = True,
+    ):
+        super().__init__(qubit, frequencies, backend=backend, unit=unit, absolute=absolute)
+        self.analysis.set_options(result_parameters=[ParameterRepr("freq", "f12", "Hz")])
 
     def _template_circuit(self, freq_param) -> QuantumCircuit:
         """Return the template quantum circuit."""

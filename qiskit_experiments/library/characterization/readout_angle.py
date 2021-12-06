@@ -50,8 +50,6 @@ class ReadoutAngle(BaseExperiment):
 
     """
 
-    __analysis_class__ = ReadoutAngleAnalysis
-
     @classmethod
     def _default_run_options(cls) -> Options:
         """Default run options."""
@@ -75,7 +73,7 @@ class ReadoutAngle(BaseExperiment):
             backend: Optional, the backend to run the experiment on.
         """
         # Initialize base experiment
-        super().__init__([qubit], backend=backend)
+        super().__init__([qubit], analysis=ReadoutAngleAnalysis(), backend=backend)
 
     def circuits(self) -> List[QuantumCircuit]:
         """
