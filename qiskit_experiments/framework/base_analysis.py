@@ -20,14 +20,14 @@ from typing import List, Tuple, Union, Dict
 
 from qiskit_experiments.database_service.device_component import Qubit
 from qiskit_experiments.framework import Options
-from qiskit_experiments.framework.settings import Settings
+from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.experiment_data import ExperimentData
 from qiskit_experiments.framework.configs import AnalysisConfig
 from qiskit_experiments.framework.analysis_result_data import AnalysisResultData
 from qiskit_experiments.database_service import DbAnalysisResultV1
 
 
-class BaseAnalysis(ABC, Settings):
+class BaseAnalysis(ABC, StoreInitArgs):
     """Abstract base class for analyzing Experiment data.
 
     The data produced by experiments (i.e. subclasses of BaseExperiment)
