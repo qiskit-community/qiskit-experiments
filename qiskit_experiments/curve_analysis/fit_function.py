@@ -26,7 +26,7 @@ def calc_uncertainties(fit_func: Callable) -> Callable:
     """Decolator that typecast y values to float array if input parameters have no error.
 
     Args:
-        fit_func: Fit function that may return ufloat array.
+        fit_func: Fit function that returns a ufloat array or an array of float.
 
     Returns:
         Fit function with typecast.
