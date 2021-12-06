@@ -69,10 +69,10 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = RoughXSXAmplitudeCal(0, self.cals)
-        config = exp.config
+        config = exp.config()
         loaded_exp = RoughXSXAmplitudeCal.from_config(config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertEqual(config, loaded_exp.config())
 
 
 class TestSpecializations(QiskitExperimentsTestCase):

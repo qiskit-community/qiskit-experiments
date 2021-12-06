@@ -120,8 +120,6 @@ class CrossResonanceHamiltonian(BaseExperiment):
             https://qiskit.org/textbook/ch-quantum-hardware/hamiltonian-tomography.html
     """
 
-    __analysis_class__ = CrossResonanceHamiltonianAnalysis
-
     # Number of CR pulses. The flat top duration per pulse is divided by this number.
     __n_cr_pulses__ = 1
 
@@ -148,7 +146,7 @@ class CrossResonanceHamiltonian(BaseExperiment):
         Raises:
             QiskitError: When ``qubits`` length is not 2.
         """
-        super().__init__(qubits, backend=backend)
+        super().__init__(qubits, analysis=CrossResonanceHamiltonianAnalysis(), backend=backend)
 
         if len(qubits) != 2:
             raise QiskitError(

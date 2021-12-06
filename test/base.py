@@ -51,8 +51,8 @@ class QiskitExperimentsTestCase(QiskitTestCase):
     def experiments_equiv(exp1, exp2) -> bool:
         """Check if two experiments are equivalent by comparing their configs"""
         # pylint: disable = too-many-boolean-expressions, too-many-return-statements
-        config1 = exp1.config
-        config2 = exp2.config
+        config1 = exp1.config()
+        config2 = exp2.config()
         try:
             if config1 == config2:
                 return True

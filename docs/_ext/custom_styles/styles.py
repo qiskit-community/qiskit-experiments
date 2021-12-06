@@ -182,12 +182,6 @@ class ExperimentDocstring(QiskitExperimentDocstring):
         """Generate extra sections."""
         parsed_sections = {}
 
-        # add analysis class reference
-        analysis_class = getattr(self._target_cls, "__analysis_class__", None)
-        if analysis_class:
-            analysis_ref = f":py:class:`~{analysis_class.__module__}.{analysis_class.__name__}`"
-            parsed_sections["analysis_ref"] = [analysis_ref]
-
         # add experiment option
         exp_option_desc = []
 
@@ -212,36 +206,6 @@ class ExperimentDocstring(QiskitExperimentDocstring):
             exp_option_desc.append("No experiment option available for this experiment.")
 
         parsed_sections["experiment_opts"] = exp_option_desc
-
-        # add analysis option
-        analysis_option_desc = []
-
-        if analysis_class:
-            default_analysis_options = self._target_cls._default_analysis_options().__dict__
-
-            analysis_docs_config = copy.copy(self._config)
-            analysis_docs_config.napoleon_custom_sections = [("analysis options", "args")]
-            analysis_option = _generate_options_documentation(
-                current_class=analysis_class,
-                method_name="_default_options",
-                target_args=list(default_analysis_options.keys()),
-                config=analysis_docs_config,
-                indent=self._indent,
-            )
-
-            if analysis_option:
-                analysis_option_desc.extend(analysis_option)
-                analysis_option_desc.append("")
-                analysis_option_desc.extend(
-                    _format_default_options(
-                        defaults=default_analysis_options,
-                        indent=self._indent,
-                    )
-                )
-            else:
-                analysis_option_desc.append("No analysis option available for this experiment.")
-
-        parsed_sections["analysis_opts"] = analysis_option_desc
 
         # add transpiler option
         transpiler_option_desc = [

@@ -46,8 +46,6 @@ class T1(BaseExperiment):
 
     """
 
-    __analysis_class__ = T1Analysis
-
     @classmethod
     def _default_experiment_options(cls) -> Options:
         """Default experiment options.
@@ -86,7 +84,7 @@ class T1(BaseExperiment):
             ValueError: if the number of delays is smaller than 3
         """
         # Initialize base experiment
-        super().__init__([qubit], backend=backend)
+        super().__init__([qubit], analysis=T1Analysis(), backend=backend)
 
         # Set experiment options
         self.set_experiment_options(delays=delays, unit=unit)

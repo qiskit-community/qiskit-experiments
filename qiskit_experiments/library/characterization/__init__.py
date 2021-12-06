@@ -56,7 +56,6 @@ Analysis
     analysis.FineHalfAngleAnalysis
     analysis.FineDragAnalysis
     analysis.FineAmplitudeAnalysis
-    analysis.FineXAmplitudeAnalysis
     analysis.RamseyXYAnalysis
     analysis.ReadoutAngleAnalysis
 """
@@ -66,7 +65,6 @@ from .analysis import (
     FineHalfAngleAnalysis,
     FineDragAnalysis,
     FineAmplitudeAnalysis,
-    FineXAmplitudeAnalysis,
     RamseyXYAnalysis,
     T2RamseyAnalysis,
     T1Analysis,

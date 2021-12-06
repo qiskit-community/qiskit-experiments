@@ -20,10 +20,7 @@ from qiskit.circuit import Gate
 from qiskit.circuit.library import XGate, SXGate
 from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import BaseExperiment, Options
-from qiskit_experiments.library.characterization.analysis import (
-    FineAmplitudeAnalysis,
-    FineXAmplitudeAnalysis,
-)
+from qiskit_experiments.library.characterization.analysis import FineAmplitudeAnalysis
 from qiskit_experiments.exceptions import CalibrationError
 
 
@@ -91,8 +88,6 @@ class FineAmplitude(BaseExperiment):
 
     """
 
-    __analysis_class__ = FineAmplitudeAnalysis
-
     @classmethod
     def _default_experiment_options(cls) -> Options:
         r"""Default values for the fine amplitude experiment.
@@ -126,7 +121,7 @@ class FineAmplitude(BaseExperiment):
             gate: The gate that will be repeated.
             backend: Optional, the backend to run the experiment on.
         """
-        super().__init__([qubit], backend=backend)
+        super().__init__([qubit], analysis=FineAmplitudeAnalysis(), backend=backend)
         self.set_experiment_options(gate=gate)
 
     def _pre_circuit(self) -> QuantumCircuit:
@@ -161,8 +156,8 @@ class FineAmplitude(BaseExperiment):
             # because it will be treated as a half pulse instead of a full pulse. However, since
             # the qubit population is first-order insensitive to rotation errors for an xp pulse
             # this point won't contribute much to inferring the angle error.
-            angle_per_gate = self.analysis_options.get("angle_per_gate", None)
-            phase_offset = self.analysis_options.get("phase_offset")
+            angle_per_gate = self.analysis.options.get("angle_per_gate", None)
+            phase_offset = self.analysis.options.get("phase_offset")
 
             if angle_per_gate is None:
                 raise CalibrationError(
@@ -212,11 +207,15 @@ class FineXAmplitude(FineAmplitude):
         the appropriate values for the default options.
     """
 
-    __analysis_class__ = FineXAmplitudeAnalysis
-
     def __init__(self, qubit: int, backend: Optional[Backend] = None):
         """Initialize the experiment."""
         super().__init__(qubit, XGate(), backend=backend)
+        # Set default analysis options
+        self.analysis.set_options(
+            angle_per_gate=np.pi,
+            phase_offset=np.pi / 2,
+            amp=1,
+        )
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -234,17 +233,6 @@ class FineXAmplitude(FineAmplitude):
         options.gate = XGate()
         options.add_sx = True
         options.add_xp_circuit = True
-
-        return options
-
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = super()._default_analysis_options()
-        options.angle_per_gate = np.pi
-        options.phase_offset = np.pi / 2
-        options.amp = 1.0
-
         return options
 
 
@@ -260,6 +248,11 @@ class FineSXAmplitude(FineAmplitude):
     def __init__(self, qubit: int, backend: Optional[Backend] = None):
         """Initialize the experiment."""
         super().__init__(qubit, SXGate(), backend=backend)
+        # Set default analysis options
+        self.analysis.set_options(
+            angle_per_gate=np.pi / 2,
+            phase_offset=np.pi,
+        )
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -281,14 +274,5 @@ class FineSXAmplitude(FineAmplitude):
         options.add_sx = False
         options.add_xp_circuit = False
         options.repetitions = [0, 1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
-
-        return options
-
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = super()._default_analysis_options()
-        options.angle_per_gate = np.pi / 2
-        options.phase_offset = np.pi
 
         return options
