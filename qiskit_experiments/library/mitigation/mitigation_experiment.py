@@ -57,20 +57,18 @@ class MeasurementMitigation(BaseExperiment):
 
 
 class CompleteMeasurementMitigation(MeasurementMitigation):
-    __analysis_class__ = CompleteMitigationAnalysis
-
     def __init__(self, qubits: Iterable[int]):
         super().__init__(qubits)
+        self.analysis = CompleteMitigationAnalysis()
 
     def labels(self) -> List[str]:
         return [bin(j)[2:].zfill(self.num_qubits) for j in range(2 ** self.num_qubits)]
 
 
 class TensoredMeasurementMitigation(MeasurementMitigation):
-    __analysis_class__ = TensoredMitigationAnalysis
-
     def __init__(self, qubits: Iterable[int]):
         super().__init__(qubits)
+        self.analysis = TensoredMitigationAnalysis()
 
     def labels(self) -> List[str]:
         return ["0" * self.num_qubits, "1" * self.num_qubits]
