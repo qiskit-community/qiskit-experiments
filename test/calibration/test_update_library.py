@@ -74,6 +74,6 @@ class TestFrequencyUpdate(QiskitExperimentsTestCase):
 
         # Test the integration with the BackendCalibrations
         cals = Calibrations.from_backend(FakeAthens())
-        self.assertNotEqual(cals.get_parameter_value("qubit_lo_freq", qubit), value)
+        self.assertNotEqual(cals.get_parameter_value(cals.__drive_freq_parameter__, qubit), value)
         Frequency.update(cals, exp_data)
-        self.assertEqual(cals.get_parameter_value("qubit_lo_freq", qubit), value)
+        self.assertEqual(cals.get_parameter_value(cals.__drive_freq_parameter__, qubit), value)
