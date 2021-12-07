@@ -18,6 +18,7 @@ import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.result import Result
+from qiskit.providers.aer import AerSimulator
 from qiskit.test.mock import FakeOpenPulse2Q
 
 from qiskit.qobj.utils import MeasLevel
@@ -217,10 +218,12 @@ class MockFineAmp(MockIQBackend):
 class MockFineFreq(MockIQBackend):
     """A mock backend for fine frequency calibration."""
 
-    def __init__(self, freq_shift: float, dt: float = 0.222e-9):
+    def __init__(self, freq_shift: float, sx_duration: int = 160):
         super().__init__()
         self.freq_shift = freq_shift
-        self.dt = dt
+        self.dt = self.configuration().dt
+        self.sx_duration = sx_duration
+        self.simulator = AerSimulator(method="automatic")
 
     def _compute_probability(self, circuit: QuantumCircuit) -> float:
         """The freq shift acts as the value that will accumulate phase."""
@@ -233,7 +236,17 @@ class MockFineFreq(MockIQBackend):
         if delay is None:
             return 1.0
         else:
-            return np.cos(2 * np.pi * self.freq_shift * delay * self.dt)
+            reps = delay // self.sx_duration
+
+            qc = QuantumCircuit(1)
+            qc.sx(0)
+            qc.rz(np.pi * reps / 2 + 2 * np.pi * self.freq_shift * delay * self.dt, 0)
+            qc.sx(0)
+            qc.measure_all()
+
+            counts = self.simulator.run(qc).result().get_counts(0)
+
+            return counts.get("1", 0) / sum(counts.values())
 
 
 class MockRamseyXY(MockIQBackend):

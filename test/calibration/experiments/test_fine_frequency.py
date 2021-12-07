@@ -13,18 +13,15 @@
 """Test the fine frequency characterization and calibration experiments."""
 
 from test.base import QiskitExperimentsTestCase
-import unittest
 import numpy as np
 from ddt import ddt, data
 
-from qiskit import transpile
-from qiskit.circuit import Gate
-from qiskit.circuit.library import XGate, SXGate
-from qiskit.pulse import DriveChannel, Drag
+from qiskit.test.mock import FakeArmonk
 import qiskit.pulse as pulse
 
 from qiskit_experiments.library import (
     FineFrequency,
+    FineFrequencyCal,
 )
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
 from qiskit_experiments.calibration_management import BackendCalibrations
@@ -40,29 +37,63 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         super().setUp()
         self.inst_map = pulse.InstructionScheduleMap()
 
+        self.sx_duration = 160
+
         with pulse.build(name="sx") as sx_sxhed:
-            pulse.play(pulse.Gaussian(160, 0.5, 40), pulse.DriveChannel(0))
+            pulse.play(pulse.Gaussian(self.sx_duration, 0.5, 40), pulse.DriveChannel(0))
 
         self.inst_map.add("sx", 0, sx_sxhed)
+
+        self.cals = BackendCalibrations(FakeArmonk(), FixedFrequencyTransmon())
 
     @data(-0.5e6, -0.1e6, 0.1e6, 0.5e6)
     def test_end_to_end_under_rotation(self, freq_shift):
         """Test the experiment end to end."""
 
-        backend = MockFineFreq(freq_shift)
+        backend = MockFineFreq(freq_shift, sx_duration=self.sx_duration)
 
         freq_exp = FineFrequency(0, backend)
         freq_exp.set_transpile_options(inst_map=self.inst_map)
-        #freq_exp.set_experiment_options(add_sx=True)
-        #freq_exp.analysis.set_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
 
         expdata = freq_exp.run().block_for_results()
         result = expdata.analysis_results(1)
         d_theta = result.value.value
+        dt = backend.configuration().dt
+        d_freq = d_theta / (2 * np.pi * self.sx_duration * dt)
 
-        tol = 0.04
+        tol = 0.01e6
 
-        print(d_theta)
+        self.assertAlmostEqual(d_freq, freq_shift, delta=tol)
+        self.assertEqual(result.quality, "good")
 
-        #self.assertAlmostEqual(d_theta, error, delta=tol)
-        #self.assertEqual(result.quality, "good")
+    def test_calibration_version(self):
+        """Test the calibration version of the experiment."""
+
+        freq_shift = 0.3e6
+        backend = MockFineFreq(freq_shift, sx_duration=self.sx_duration)
+
+        fine_freq = FineFrequencyCal(0, self.cals, backend)
+        armonk_freq = FakeArmonk().defaults().qubit_freq_est[0]
+
+        freq_before = self.cals.get_parameter_value(self.cals.__qubit_freq_parameter__, 0)
+
+        self.assertAlmostEqual(freq_before, armonk_freq)
+
+        fine_freq.run().block_for_results()
+
+        freq_after = self.cals.get_parameter_value(self.cals.__qubit_freq_parameter__, 0)
+
+        # Test equality up to 1kHz on a 300 kHz shift
+        self.assertAlmostEqual(freq_after, armonk_freq - freq_shift, delta=1e3)
+
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp = FineFrequency(0)
+        loaded_exp = FineFrequency.from_config(exp.config())
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+
+    def test_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp = FineFrequency(0)
+        self.assertRoundTripSerializable(exp, self.experiments_equiv)

@@ -48,10 +48,7 @@ class FineFrequency(BaseExperiment):
     """
 
     def __init__(
-        self,
-        qubit: int,
-        backend: Optional[Backend] = None,
-        repetitions: Optional[List[int]] = None
+        self, qubit: int, backend: Optional[Backend] = None, repetitions: Optional[List[int]] = None
     ):
         """Setup a fine frequency experiment on the given qubit.
 
@@ -64,7 +61,7 @@ class FineFrequency(BaseExperiment):
         super().__init__([qubit], analysis=FineAmplitudeAnalysis(), backend=backend)
 
         # Set default analysis options
-        self.analysis.set_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
+        self.analysis.set_options(angle_per_gate=np.pi / 2, phase_offset=0)
 
         if repetitions is not None:
             self.set_experiment_options(repetitions=repetitions)

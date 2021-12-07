@@ -93,6 +93,8 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     :template: autosummary/experiment.rst
 
     ~calibration.RoughFrequencyCal
+    ~calibration.FrequencyCal
+    ~calibration.FineFrequencyCal
     ~calibration.RoughDragCal
     ~calibration.FineXDragCal
     ~calibration.FineSXDragCal
@@ -118,6 +120,7 @@ from .calibration import (
     FineSXAmplitudeCal,
     RoughFrequencyCal,
     FrequencyCal,
+    FineFrequencyCal,
 )
 from .characterization import (
     T1,

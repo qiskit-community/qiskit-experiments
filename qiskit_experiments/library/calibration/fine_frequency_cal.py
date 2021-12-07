@@ -52,8 +52,8 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
         super().__init__(
             calibrations,
             qubit,
-            repetitions,
             schedule_name=None,
+            repetitions=repetitions,
             backend=backend,
             cal_parameter_name=calibrations.__qubit_freq_parameter__,
             auto_update=auto_update,
