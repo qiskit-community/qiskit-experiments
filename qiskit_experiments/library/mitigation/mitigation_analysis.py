@@ -63,6 +63,9 @@ class CorrelatedMitigationAnalysis(BaseAnalysis):
             matrix: calibration matrix to plot
             ax (matplotlib.axes): settings for the graph
 
+        Returns:
+            The generated plot of the calibration matrix
+
         Raises:
             QiskitError: if _cal_matrices was not set.
 
