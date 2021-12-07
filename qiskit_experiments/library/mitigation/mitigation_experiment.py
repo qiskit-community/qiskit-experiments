@@ -30,6 +30,20 @@ class MeasurementMitigation(BaseExperiment):
     ALL_METHODS = [METHOD_LOCAL, METHOD_CORRELATED]
 
     def __init__(self, qubits: Iterable[int], method=METHOD_LOCAL):
+        """Initialize a mitigation experiment.
+
+        Args:
+            qubits: The qubits being mitigated
+            method: A string denoting mitigation method
+
+        Raises:
+            QiskitError: if the given mitigation method is not recoginzed
+
+        Additional info:
+            The currently supported mitigation methods are:
+            * "local": each qubit is mitigated by itself; this is the default method, and assumed readout errors are independent for each qubits
+            * "correlated": All the qubits are mitigated together; this results in an exponentially large mitigation matrix and so is useable only for a small number of qubits, but might be more accurate than local mitigation.
+        """
         super().__init__(qubits)
         if method not in self.ALL_METHODS:
             raise QiskitError("Method {} not recognized".format(method))
@@ -40,7 +54,8 @@ class MeasurementMitigation(BaseExperiment):
 
         self.analysis = self.helper.analysis()
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def circuits(self) -> List[QuantumCircuit]:
+        """Returns the experiment's circuits"""
         return [self._calibration_circuit(self.num_qubits, label) for label in self.helper.labels()]
 
     @staticmethod
@@ -61,22 +76,38 @@ class MeasurementMitigation(BaseExperiment):
 
 
 class CorrelatedMitigationHelper:
+    """Helper class for correlated mitigation experiment data"""
+
     def __init__(self, num_qubits: int):
+        """Creates the helper class
+        Args:
+            num_qubits: The number of qubits being mitigated
+        """
         self.num_qubits = num_qubits
 
     def analysis(self):
+        """Returns the analysis class for the mitigation"""
         return CorrelatedMitigationAnalysis()
 
     def labels(self) -> List[str]:
+        """Returns the labels dictating the generation of the mitigation circuits"""
         return [bin(j)[2:].zfill(self.num_qubits) for j in range(2 ** self.num_qubits)]
 
 
 class LocalMitigationHelper:
+    """Helper class for local mitigation experiment data"""
+
     def __init__(self, num_qubits: int):
+        """Creates the helper class
+        Args:
+            num_qubits: The number of qubits being mitigated
+        """
         self.num_qubits = num_qubits
 
     def analysis(self):
+        """Returns the analysis class for the mitigation"""
         return LocalMitigationAnalysis()
 
     def labels(self) -> List[str]:
+        """Returns the labels dictating the generation of the mitigation circuits"""
         return ["0" * self.num_qubits, "1" * self.num_qubits]

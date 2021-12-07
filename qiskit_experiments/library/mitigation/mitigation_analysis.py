@@ -42,7 +42,7 @@ class CorrelatedMitigationAnalysis(BaseAnalysis):
         figures = [self._plot_calibration(matrix, labels, ax)]
         return analysis_results, figures
 
-    def _generate_matrix(self, data, labels):
+    def _generate_matrix(self, data, labels) -> np.array:
         list_size = len(labels)
         matrix = np.zeros([list_size, list_size], dtype=float)
         # matrix[i][j] is the probability of counting i for expected j
@@ -90,7 +90,7 @@ class LocalMitigationAnalysis(BaseAnalysis):
     """
 
     def _run_analysis(
-        self, experiment_data: ExperimentData, **options
+        self, experiment_data: ExperimentData
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         data = experiment_data.data()
         qubits = experiment_data.metadata["physical_qubits"]
@@ -100,7 +100,7 @@ class LocalMitigationAnalysis(BaseAnalysis):
         figures = None
         return analysis_results, figures
 
-    def _generate_matrices(self, data):
+    def _generate_matrices(self, data) -> List[np.array]:
         num_qubits = len(data[0]["metadata"]["label"])
         counts = [None, None]
         for result in data:
