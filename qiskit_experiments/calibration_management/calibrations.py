@@ -15,7 +15,7 @@
 import os
 from collections import defaultdict
 from datetime import datetime, timezone
-from typing import Any, Callable, Dict, Set, Tuple, Union, List, Optional
+from typing import Any, Dict, Set, Tuple, Union, List, Optional
 import csv
 import dataclasses
 import warnings

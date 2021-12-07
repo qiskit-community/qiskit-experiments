@@ -148,7 +148,7 @@ class FineXAmplitudeCal(FineAmplitudeCal):
     def __init__(
         self,
         qubit: int,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         schedule_name: str,
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "amp",
@@ -206,7 +206,7 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
     def __init__(
         self,
         qubit: int,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         schedule_name: str,
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "amp",
