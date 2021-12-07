@@ -380,7 +380,7 @@ class TestOverrideDefaults(QiskitExperimentsTestCase):
             self.sigma,
             self.beta,
             self.duration,
-            self.cals.qubit_freq,
+            self.cals.drive_freq,
             self.cals.meas_freq,
         }
         self.assertEqual(len(set(self.cals.parameters.keys())), len(expected))

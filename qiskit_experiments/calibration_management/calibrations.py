@@ -57,7 +57,7 @@ class Calibrations:
     """
 
     # The name of the parameter under which the qubit frequencies are registered.
-    __qubit_freq_parameter__ = "drive_freq"
+    __drive_freq_parameter__ = "drive_freq"
 
     # The name of the parameter under which the readout frequencies are registered.
     __readout_freq_parameter__ = "meas_freq"
@@ -162,9 +162,9 @@ class Calibrations:
         self._inst_map = InstructionScheduleMap()
 
         # Use the same naming convention as in backend.defaults()
-        self.qubit_freq = Parameter(self.__qubit_freq_parameter__)
+        self.drive_freq = Parameter(self.__drive_freq_parameter__)
         self.meas_freq = Parameter(self.__readout_freq_parameter__)
-        self._register_parameter(self.qubit_freq, ())
+        self._register_parameter(self.drive_freq, ())
         self._register_parameter(self.meas_freq, ())
 
         # Backends like Armonk do not have a coupling map.
@@ -211,7 +211,7 @@ class Calibrations:
 
         if add_parameter_defaults:
             for qubit, freq in enumerate(getattr(backend.defaults(), "qubit_freq_est", [])):
-                cals.add_parameter_value(freq, cals.qubit_freq, qubit, update_inst_map=False)
+                cals.add_parameter_value(freq, cals.drive_freq, qubit, update_inst_map=False)
 
             for meas, freq in enumerate(getattr(backend.defaults(), "meas_freq_est", [])):
                 cals.add_parameter_value(freq, cals.meas_freq, meas, update_inst_map=False)

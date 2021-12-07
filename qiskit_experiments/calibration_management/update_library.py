@@ -171,7 +171,7 @@ class Frequency(BaseUpdater):
 
         """
         if parameter is None:
-            parameter = calibrations.__qubit_freq_parameter__
+            parameter = calibrations.__drive_freq_parameter__
 
         super().update(
             calibrations=calibrations,
