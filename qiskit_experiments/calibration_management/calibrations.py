@@ -167,7 +167,7 @@ class Calibrations:
         self._register_parameter(self.drive_freq, ())
         self._register_parameter(self.meas_freq, ())
 
-        # Backends with single qubit may not have a coupling map.
+        # Backends with a single qubit may not have a coupling map.
         num_qubits = max(max(coupling_map)) + 1 if coupling_map is not None else 1
 
         self._qubits = list(range(num_qubits))
@@ -194,8 +194,7 @@ class Calibrations:
                 as default parameter values.
             add_parameter_defaults: A boolean to indicate whether the default parameter values of
                 the given library should be used to populate the calibrations. By default this
-                value is ``True`` but can be set to ``False`` when deserializing a calibrations
-                object.
+                value is ``True``.
 
         Returns:
             An instance of Calibrations instantiated from a backend.
