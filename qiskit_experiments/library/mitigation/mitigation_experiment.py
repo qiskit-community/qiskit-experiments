@@ -60,7 +60,7 @@ class MeasurementMitigation(BaseExperiment):
         return circ
 
 
-class CorrelatedMitigationHelper():
+class CorrelatedMitigationHelper:
     def __init__(self, num_qubits: int):
         self.num_qubits = num_qubits
 
@@ -71,7 +71,7 @@ class CorrelatedMitigationHelper():
         return [bin(j)[2:].zfill(self.num_qubits) for j in range(2 ** self.num_qubits)]
 
 
-class LocalMitigationHelper():
+class LocalMitigationHelper:
     def __init__(self, num_qubits: int):
         self.num_qubits = num_qubits
 

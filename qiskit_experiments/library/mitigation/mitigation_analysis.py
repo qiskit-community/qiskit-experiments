@@ -33,7 +33,7 @@ class CorrelatedMitigationAnalysis(BaseAnalysis):
         self, experiment_data: ExperimentData, **options
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         data = experiment_data.data()
-        qubits = experiment_data.metadata['physical_qubits']
+        qubits = experiment_data.metadata["physical_qubits"]
         labels = [datum["metadata"]["label"] for datum in data]
         matrix = self._generate_matrix(data, labels)
         result_mitigator = CorrelatedReadoutMitigator(matrix, qubits=qubits)
@@ -93,7 +93,7 @@ class LocalMitigationAnalysis(BaseAnalysis):
         self, experiment_data: ExperimentData, **options
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         data = experiment_data.data()
-        qubits = experiment_data.metadata['physical_qubits']
+        qubits = experiment_data.metadata["physical_qubits"]
         matrices = self._generate_matrices(data)
         result_mitigator = LocalReadoutMitigator(matrices, qubits=qubits)
         analysis_results = [AnalysisResultData("Local Readout Mitigator", result_mitigator)]
