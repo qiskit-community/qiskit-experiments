@@ -15,6 +15,8 @@ Measurement calibration analysis classes
 from typing import List, Tuple
 import numpy as np
 from matplotlib import pyplot
+from qiskit.result import CorrelatedReadoutMitigator
+from qiskit.result import LocalReadoutMitigator
 from qiskit.result import marginal_counts
 from qiskit_experiments.framework import BaseAnalysis
 from qiskit_experiments.framework import ExperimentData
@@ -31,13 +33,14 @@ class CompleteMitigationAnalysis(BaseAnalysis):
         self, experiment_data: ExperimentData, **options
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         data = experiment_data.data()
+        qubits = experiment_data.metadata['physical_qubits']
         labels = [datum["metadata"]["label"] for datum in data]
         matrix = self._generate_matrix(data, labels)
-        result_matrix = AnalysisResultData("Mitigation Matrix", matrix)
-        result_labels = AnalysisResultData("Matrix Labels", labels)
+        result_mitigator = CorrelatedReadoutMitigator(matrix, qubits=qubits)
+        analysis_results = [AnalysisResultData("Correlated Readout Mitigator", result_mitigator)]
         ax = options.get("ax", None)
         figures = [self._plot_calibration(matrix, labels, ax)]
-        return [result_matrix, result_labels], figures
+        return analysis_results, figures
 
     def _generate_matrix(self, data, labels):
         list_size = len(labels)
@@ -90,13 +93,12 @@ class TensoredMitigationAnalysis(BaseAnalysis):
         self, experiment_data: ExperimentData, **options
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         data = experiment_data.data()
+        qubits = experiment_data.metadata['physical_qubits']
         matrices = self._generate_matrices(data)
-        result_matrices = [
-            AnalysisResultData("Mitigation Matrix {}".format(i), matrix)
-            for i, matrix in enumerate(matrices)
-        ]
+        result_mitigator = LocalReadoutMitigator(matrices, qubits=qubits)
+        analysis_results = [AnalysisResultData("Local Readout Mitigator", result_mitigator)]
         figures = None
-        return result_matrices, figures
+        return analysis_results, figures
 
     def _generate_matrices(self, data):
         num_qubits = len(data[0]["metadata"]["label"])
