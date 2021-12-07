@@ -29,7 +29,11 @@ from .tomography_analysis import TomographyAnalysis
 
 
 class TomographyExperiment(BaseExperiment):
-    """Base experiment for quantum state and process tomography"""
+    """Base experiment for quantum state and process tomography.
+
+    # section: analysis_ref
+        :py:class:`TomographyAnalysis`
+    """
 
     @classmethod
     def _default_experiment_options(cls) -> Options:

@@ -38,10 +38,6 @@ Experiments for verification and validation of quantum devices.
     ~randomized_benchmarking.InterleavedRB
     ~tomography.StateTomography
     ~tomography.ProcessTomography
-
-.. autosummary::
-    :toctree: ../stubs/
-
     ~quantum_volume.QuantumVolume
 
 .. _characterization:

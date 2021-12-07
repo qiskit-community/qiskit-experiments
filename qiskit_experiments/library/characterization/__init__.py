@@ -50,15 +50,15 @@ Analysis
     :toctree: ../stubs/
     :template: autosummary/analysis.rst
 
-    analysis.T1Analysis
-    analysis.T2RamseyAnalysis
-    analysis.CrossResonanceHamiltonianAnalysis
-    analysis.DragCalAnalysis
-    analysis.FineHalfAngleAnalysis
-    analysis.FineDragAnalysis
-    analysis.FineAmplitudeAnalysis
-    analysis.RamseyXYAnalysis
-    analysis.ReadoutAngleAnalysis
+    T1Analysis
+    T2RamseyAnalysis
+    CrossResonanceHamiltonianAnalysis
+    DragCalAnalysis
+    FineHalfAngleAnalysis
+    FineDragAnalysis
+    FineAmplitudeAnalysis
+    RamseyXYAnalysis
+    ReadoutAngleAnalysis
 """
 
 from .analysis import (

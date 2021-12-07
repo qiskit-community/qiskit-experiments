@@ -112,6 +112,9 @@ class CrossResonanceHamiltonian(BaseExperiment):
 
         which is derived by assuming a square edges with the full pulse amplitude.
 
+    # section: analysis_ref
+        :py:class:`CrossResonanceHamiltonianAnalysis`
+
     # section: reference
         .. ref_arxiv:: 1 1603.04821
 
