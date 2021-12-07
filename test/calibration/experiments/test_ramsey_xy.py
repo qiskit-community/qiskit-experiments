@@ -52,9 +52,11 @@ class TestRamseyXY(QiskitExperimentsTestCase):
 
         tol = 1e4  # 10 kHz resolution
 
+        freq_name = self.cals.__drive_freq_parameter__
+
         # Check qubit frequency before running the cal
-        f01 = self.cals.get_parameter_value("qubit_lo_freq", 0)
-        self.assertTrue(len(self.cals.parameters_table(parameters=["qubit_lo_freq"])["data"]), 1)
+        f01 = self.cals.get_parameter_value(freq_name, 0)
+        self.assertTrue(len(self.cals.parameters_table(parameters=[freq_name])["data"]), 1)
         self.assertEqual(f01, FakeArmonk().defaults().qubit_freq_est[0])
 
         freq_shift = 4e6
@@ -63,8 +65,8 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         FrequencyCal(0, self.cals, backend, osc_freq=osc_shift).run().block_for_results()
 
         # Check that qubit frequency after running the cal is shifted by freq_shift, i.e. 4 MHz.
-        f01 = self.cals.get_parameter_value("qubit_lo_freq", 0)
-        self.assertTrue(len(self.cals.parameters_table(parameters=["qubit_lo_freq"])["data"]), 2)
+        f01 = self.cals.get_parameter_value(freq_name, 0)
+        self.assertTrue(len(self.cals.parameters_table(parameters=[freq_name])["data"]), 2)
         self.assertTrue(abs(f01 - (freq_shift + FakeArmonk().defaults().qubit_freq_est[0])) < tol)
 
     def test_ramseyxy_experiment_config(self):
