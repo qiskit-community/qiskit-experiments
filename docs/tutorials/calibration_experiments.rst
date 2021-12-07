@@ -4,6 +4,8 @@ Run a Single-Qubit Calibration Experiment
 
 To produce high fidelity quantum operations, we want to be able to run good gates. The calibration module in qiskit-experiments allows users to run experiments to find the pulse shapes and parameter values that maximizes the fidelity of the resulting quantum operations. Calibrations experiments encapsulates the internal processes and allow experimenters do calibration operations in a quicker way. Without the experiments module, we would need to define pulse schedules and plot the resulting measurement data manually (see also `Qiskit textbook <https://qiskit.org/textbook/ch-quantum-hardware/calibrating-qubits-pulse.html>`_ for calibrating qubits with Qiskit Terra). 
 
+Each experiment usually provides additional information about the system used in subsequent experiments.
+
 .. jupyter-execute::
 
 	import numpy as np
@@ -13,33 +15,25 @@ To produce high fidelity quantum operations, we want to be able to run good gate
 
 	from qiskit_experiments.calibration_management import BackendCalibrations
 
-	from qiskit.pulse import InstructionScheduleMap
-
-On our own environment, we may use one of the pulse-enabled real backends like below.
+On our own environment, we may use one of the pulse-enabled real backends for all the experiments like below.
 
 .. jupyter-execute::
 
+	# from qiskit import IBMQ
 	# IBMQ.load_account()
 	# provider = IBMQ.get_provider(hub='ibm-q', group='open', project='main')
 	# backend = provider.get_backend('ibmq_armonk')
 
-We can use a mock backend in case no IBM Quantum Experience credentials found. For this tutorial, we will use mock backends suited to each experiment.
+We can verify whether the backend supports Pulse features by checking the backend configuration.
 
-.. jupyter-execute::
+.. jupyter-execute::	
+	
+	# backend_config = backend.configuration()
+	# assert backend_config.open_pulse, "Backend doesn't support Pulse"
 
-	from qiskit_experiments.test.mock_iq_backend import RabiBackend
-	backend = RabiBackend()
+On the other hand we can also use a mock backend in case no IBM Quantum Experience credentials found. For this tutorial, we will use mock backends prepared for each experiment.
 
-===================================
-1. Finding qubits with spectroscopy
-===================================
-
-========================================================
-2. Calibrating the pulse amplitudes with Rabi experiment
-========================================================
-We are going to run a sample Rabi experiment to calibrate rotations between the ground-state \|0\⟩ and the excited state \|1\⟩. We can think of this as a rotation by π radians around the x-axis of the Bloch sphere. Our goal is to seek the amplitude of the pulse needed to achieve this rotation.
-
-We first need to define template schedule to calibrate for `x` pulse.
+To use in the experiments we first need to define template schedule to calibrate for `x` pulse. 
 
 .. jupyter-execute::
 
@@ -71,7 +65,71 @@ We first need to define template schedule to calibrate for `x` pulse.
 			cals.add_parameter_value(320, "dur", schedule=sched)
 			cals.add_parameter_value(0.5, "amp", schedule=sched)
 
-	cals = setup_cals(backend)
+===================================
+1. Finding qubits with spectroscopy
+===================================
+Typically, the first experiment we do is to search for the qubit frequency,  which is the difference between the ground and excited states. This frequency will be crucial for creating pulses which enact particular quantum operators on the qubit.
+
+We start with a mock backend.
+
+.. jupyter-execute::
+
+	from qiskit_experiments.test.test_qubit_spectroscopy import SpectroscopyBackend
+	spec_backend = SpectroscopyBackend()
+
+We then setup calibrations for the backend.
+
+.. jupyter-execute::
+
+	cals = setup_cals(spec_backend) # Block until our job and its post processing finish.
+	add_parameter_guesses(cals)
+
+We define the qubit we will work with and prepare the experiment using `RoughFrequencyCal`.
+
+.. jupyter-execute::
+
+	from qiskit_experiments.library.calibration.rough_frequency import RoughFrequencyCal
+
+	qubit = 0
+	freq01_estimate = spec_backend.defaults().qubit_freq_est[qubit]
+	frequencies = np.linspace(freq01_estimate -15e6, freq01_estimate + 15e6, 51)
+	spec = RoughFrequencyCal(qubit, cals, frequencies, backend=spec_backend)
+
+.. jupyter-execute::
+
+	circuit = spec.circuits()[0]
+	circuit.draw()
+
+We run the experiment. After the experiment completes the value of the amplitudes in the calibrations will automatically be updated. This behaviour can be controlled using the `auto_update` argument given to the calibration experiment at initialization.
+
+.. jupyter-execute::
+
+	spec_data = spec.run().block_for_results() 
+	spec_data.figure(0)
+
+We can see the analysis results
+
+.. jupyter-execute::
+
+	print(spec_data.analysis_results("f01"))
+
+========================================================
+2. Calibrating the pulse amplitudes with Rabi experiment
+========================================================
+We are going to run a sample Rabi experiment to calibrate rotations between the ground-state \|0\⟩ and the excited state \|1\⟩. We can think of this as a rotation by π radians around the x-axis of the Bloch sphere. Our goal is to seek the amplitude of the pulse needed to achieve this rotation.
+
+First we define the mock backend.
+
+.. jupyter-execute::
+
+	from qiskit_experiments.test.mock_iq_backend import RabiBackend
+	rabi_backend = RabiBackend()
+
+We then setup calibrations for the backend.
+
+.. jupyter-execute::
+
+	cals = setup_cals(rabi_backend)
 	add_parameter_guesses(cals)
 
 We create a new Rabi experiment instance by providing the qubit index to be calibrated. In the Rabi experiment we apply a pulse at the frequency of the qubit and scan its amplitude to find the amplitude that creates a rotation of a desired angle.
@@ -98,7 +156,7 @@ After the experiment completes the value of the amplitudes in the calibrations w
 
 .. jupyter-execute::
 	
-	rabi_data = rabi.run(backend)
+	rabi_data = rabi.run(rabi_backend)
 	rabi_data.block_for_results() # Block until our job and its post processing finish.
 	print(rabi_data)
 
@@ -188,6 +246,49 @@ If we do not set any experiment options using `set_experiment_options()` method,
 
 	drag_data.figure(0)
 
-===============
-5. Failure Mode
-===============
+==================
+5. Miscalibrations
+==================
+
+In this section, we will see what if we run a miscalibrated `X` gate - with a false amplitude - on a qubit. After that, we will use the amplitude value we get from the Rabi experiment above to see the difference.
+
+Note that, the following lines are for demonstration purposes and should be run on a real backend to see the actual difference.
+
+We first define a simple circuit that contains an X gate and measurement.
+
+.. jupyter-execute::
+	
+	from qiskit import QuantumCircuit
+
+	circ = QuantumCircuit(1, 1)
+	circ.x(0)
+	circ.measure(0, 0)
+	circ.draw()
+
+Then we define a calibration for the `X` gate on qubit 0. For the `amp` parameter we use a default wrong value.
+
+.. jupyter-execute::
+
+	from qiskit import pulse, transpile
+	from qiskit.test.mock import FakeArmonk
+	from qiskit.pulse.library import Constant
+	backend = FakeArmonk()
+
+	# build a simple circuit that only contain one x gate and measurement
+	circ = QuantumCircuit(1, 1)
+	circ.x(0)
+	circ.measure(0, 0)
+	with pulse.build(backend) as my_schedule:
+		pulse.play(Constant(duration=10, amp=0.1), pulse.drive_channel(0)) # build the constant pulse
+
+	circ.add_calibration('x', [0], my_schedule) # map x gate in qubit 0 to my_schedule
+	circ = transpile(circ, backend)
+	circ.draw(idle_wires=False)
+
+Execute our circuit
+
+.. jupyter-execute::
+
+	result = backend.run(transpile(circ, backend), shots=1000).result()
+	counts  = result.get_counts(circ)
+	print(counts)
