@@ -55,7 +55,7 @@ class CorrelatedMitigationAnalysis(BaseAnalysis):
                 matrix[i][j] = count / total_counts
         return matrix
 
-    def _plot_calibration(self, matrix, labels, ax=None):
+    def _plot_calibration(self, matrix, labels, ax=None) -> "matplotlib.figure.Figure":
         """
         Plot the calibration matrix (2D color grid plot).
 

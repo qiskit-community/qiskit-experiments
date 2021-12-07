@@ -12,11 +12,9 @@
 """
 Measurement calibration experiment classes.
 """
-from typing import Iterable, Optional, List
-from abc import abstractmethod
+from typing import Iterable, List
 
 from qiskit import QuantumCircuit
-from qiskit.providers import Backend
 from qiskit.exceptions import QiskitError
 from qiskit_experiments.framework import BaseExperiment
 from .mitigation_analysis import CorrelatedMitigationAnalysis, LocalMitigationAnalysis
@@ -41,8 +39,11 @@ class MeasurementMitigation(BaseExperiment):
 
         Additional info:
             The currently supported mitigation methods are:
-            * "local": each qubit is mitigated by itself; this is the default method, and assumed readout errors are independent for each qubits
-            * "correlated": All the qubits are mitigated together; this results in an exponentially large mitigation matrix and so is useable only for a small number of qubits, but might be more accurate than local mitigation.
+            * "local": each qubit is mitigated by itself; this is the default method,
+            and assumes readout errors are independent for each qubits
+            * "correlated": All the qubits are mitigated together; this results in an exponentially
+            large mitigation matrix and so is useable only for a small number of qubits,
+            but might be more accurate than local mitigation.
         """
         super().__init__(qubits)
         if method not in self.ALL_METHODS:
