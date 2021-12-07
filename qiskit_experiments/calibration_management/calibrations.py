@@ -57,10 +57,10 @@ class Calibrations:
     """
 
     # The name of the parameter under which the qubit frequencies are registered.
-    __qubit_freq_parameter__ = "qubit_lo_freq"
+    __qubit_freq_parameter__ = "drive_freq"
 
     # The name of the parameter under which the readout frequencies are registered.
-    __readout_freq_parameter__ = "meas_lo_freq"
+    __readout_freq_parameter__ = "meas_freq"
 
     # The channel indices need to be parameterized following this regex.
     __channel_pattern__ = r"^ch\d[\.\d]*\${0,1}[\d]*$"
