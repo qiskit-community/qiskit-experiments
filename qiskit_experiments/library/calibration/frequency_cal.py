@@ -63,7 +63,7 @@ class FrequencyCal(BaseCalibrationExperiment, RamseyXY):
             delays=delays,
             unit=unit,
             osc_freq=osc_freq,
-            cal_parameter_name="qubit_lo_freq",
+            cal_parameter_name=calibrations.__drive_freq_parameter__,
             auto_update=auto_update,
         )
 
