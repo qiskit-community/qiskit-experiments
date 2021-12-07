@@ -66,7 +66,7 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
         )
 
         self.set_transpile_options(
-            inst_map=calibrations.get_inst_map(),
+            inst_map=calibrations.default_inst_map,
             basis_gates=["sx", schedule_name, "rz"],
         )
 

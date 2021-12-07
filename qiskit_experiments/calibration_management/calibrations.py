@@ -262,6 +262,11 @@ class Calibrations:
 
         return operated_qubits
 
+    @property
+    def default_inst_map(self) -> InstructionScheduleMap:
+        """Return the default and up to date instruction schedule map."""
+        return self._inst_map
+
     def get_inst_map(
         self,
         group: str = "default",

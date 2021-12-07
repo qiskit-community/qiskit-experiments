@@ -67,7 +67,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
             auto_update=auto_update,
         )
 
-        self.set_transpile_options(inst_map=calibrations.get_inst_map())
+        self.set_transpile_options(inst_map=calibrations.default_inst_map)
 
     @classmethod
     def _default_experiment_options(cls):

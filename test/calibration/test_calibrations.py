@@ -1393,7 +1393,7 @@ class TestSavingAndLoading(CrossResonanceTest):
         # Test the value of a few loaded params.
         self.assertEqual(cals.get_parameter_value("amp", (0,), "x"), 0.5)
         self.assertEqual(
-            cals.get_parameter_value("qubit_lo_freq", (0,)),
+            cals.get_parameter_value("drive_freq", (0,)),
             backend.defaults().qubit_freq_est[0],
         )
 
@@ -1441,7 +1441,7 @@ class TestBackendCalibrations(QiskitExperimentsTestCase):
         cals.update_inst_map({"cr"})
 
         for qubit in range(backend.configuration().num_qubits):
-            self.assertTrue(cals.get_inst_map().has("sx", (qubit,)))
+            self.assertTrue(cals.default_inst_map.has("sx", (qubit,)))
 
         # based on coupling map of Belem to keep the test robust.
         expected_pairs = [(0, 1), (1, 0), (1, 2), (2, 1), (1, 3), (3, 1), (3, 4), (4, 3)]
@@ -1449,7 +1449,7 @@ class TestBackendCalibrations(QiskitExperimentsTestCase):
 
         for pair in expected_pairs:
             self.assertTrue(pair in coupling_map)
-            self.assertTrue(cals.get_inst_map().has("cr", pair), pair)
+            self.assertTrue(cals.default_inst_map.has("cr", pair), pair)
 
     def test_inst_map_transpilation(self):
         """Test that we can use the inst_map to inject the cals into the circuit."""
@@ -1477,7 +1477,7 @@ class TestBackendCalibrations(QiskitExperimentsTestCase):
             self.assertEqual(len(circ.calibrations), 0)
 
         # Transpile to inject the cals.
-        circs = transpile(circs, inst_map=cals.get_inst_map())
+        circs = transpile(circs, inst_map=cals.default_inst_map)
 
         # Check that we have the expected schedules.
         with pulse.build() as x_expected:
@@ -1495,11 +1495,11 @@ class TestBackendCalibrations(QiskitExperimentsTestCase):
             self.assertEqual(circ_rabi, rabi_expected)
 
         # Test the removal of the Rabi instruction
-        self.assertTrue(cals.get_inst_map().has("Rabi", (0,)))
+        self.assertTrue(cals.default_inst_map.has("Rabi", (0,)))
 
-        cals.get_inst_map().remove("Rabi", (0,))
+        cals.default_inst_map.remove("Rabi", (0,))
 
-        self.assertFalse(cals.get_inst_map().has("Rabi", (0,)))
+        self.assertFalse(cals.default_inst_map.has("Rabi", (0,)))
 
     def test_inst_map_updates(self):
         """Test that updating a parameter will force an inst map update."""
@@ -1515,7 +1515,7 @@ class TestBackendCalibrations(QiskitExperimentsTestCase):
                 with pulse.build() as expected:
                     pulse.play(pulse.Drag(160, amp, 40, 0), pulse.DriveChannel(qubit))
 
-                self.assertEqual(cals.get_inst_map().get(gate, qubit), expected)
+                self.assertEqual(cals.default_inst_map.get(gate, qubit), expected)
 
         # Update the duration, this should impact all gates.
         cals.add_parameter_value(200, "duration", schedule="sx")
@@ -1526,7 +1526,7 @@ class TestBackendCalibrations(QiskitExperimentsTestCase):
                 with pulse.build() as expected:
                     pulse.play(pulse.Drag(200, amp, 40, 0), pulse.DriveChannel(qubit))
 
-                self.assertEqual(cals.get_inst_map().get(gate, qubit), expected)
+                self.assertEqual(cals.default_inst_map.get(gate, qubit), expected)
 
         # Update the amp on a single qubit, this should only update one gate in the inst_map
         cals.add_parameter_value(0.8, "amp", qubits=(4,), schedule="sx")
@@ -1541,7 +1541,7 @@ class TestBackendCalibrations(QiskitExperimentsTestCase):
                 with pulse.build() as expected:
                     pulse.play(pulse.Drag(200, amp, 40, 0), pulse.DriveChannel(qubit))
 
-                self.assertEqual(cals.get_inst_map().get(gate, qubit), expected)
+                self.assertEqual(cals.default_inst_map.get(gate, qubit), expected)
 
     def test_cx_cz_case(self):
         """Test the case where the coupling map has CX and CZ on different qubits.
@@ -1587,16 +1587,16 @@ class TestBackendCalibrations(QiskitExperimentsTestCase):
         cals.add_parameter_value(0.8, "amp", qubits=(1, 2), schedule="cz")
 
         # CX only defined for qubits (0, 1) and (1,0)?
-        self.assertTrue(cals.get_inst_map().has("cx", (0, 1)))
-        self.assertTrue(cals.get_inst_map().has("cx", (1, 0)))
-        self.assertFalse(cals.get_inst_map().has("cx", (2, 1)))
-        self.assertFalse(cals.get_inst_map().has("cx", (1, 2)))
+        self.assertTrue(cals.default_inst_map.has("cx", (0, 1)))
+        self.assertTrue(cals.default_inst_map.has("cx", (1, 0)))
+        self.assertFalse(cals.default_inst_map.has("cx", (2, 1)))
+        self.assertFalse(cals.default_inst_map.has("cx", (1, 2)))
 
         # CZ only defined for qubits (2, 1) and (1,2)?
-        self.assertTrue(cals.get_inst_map().has("cz", (2, 1)))
-        self.assertTrue(cals.get_inst_map().has("cz", (1, 2)))
-        self.assertFalse(cals.get_inst_map().has("cz", (0, 1)))
-        self.assertFalse(cals.get_inst_map().has("cz", (1, 0)))
+        self.assertTrue(cals.default_inst_map.has("cz", (2, 1)))
+        self.assertTrue(cals.default_inst_map.has("cz", (1, 2)))
+        self.assertFalse(cals.default_inst_map.has("cz", (0, 1)))
+        self.assertFalse(cals.default_inst_map.has("cz", (1, 0)))
 
     def test_alternate_initialization(self):
         """Test that we can initialize without a backend object."""
