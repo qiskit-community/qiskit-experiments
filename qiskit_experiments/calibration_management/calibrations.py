@@ -167,7 +167,7 @@ class Calibrations:
         self._register_parameter(self.drive_freq, ())
         self._register_parameter(self.meas_freq, ())
 
-        # Backends like Armonk do not have a coupling map.
+        # Backends with single qubit may not have a coupling map.
         num_qubits = max(max(coupling_map)) + 1 if coupling_map is not None else 1
 
         self._qubits = list(range(num_qubits))
