@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """Class to test the calibrations."""
-
+from test.base import QiskitExperimentsTestCase
 import os
 import uuid
 from collections import defaultdict
@@ -30,13 +30,15 @@ from qiskit.pulse import (
 )
 from qiskit.pulse.transforms import inline_subroutines, block_to_schedule
 import qiskit.pulse as pulse
-from qiskit.test import QiskitTestCase
+from qiskit.test.mock import FakeArmonk
 from qiskit_experiments.calibration_management.calibrations import Calibrations, ParameterKey
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
+from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+from qiskit_experiments.calibration_management import BackendCalibrations
 from qiskit_experiments.exceptions import CalibrationError
 
 
-class TestCalibrationsBasic(QiskitTestCase):
+class TestCalibrationsBasic(QiskitExperimentsTestCase):
     """Class to test the management of schedules and parameters for calibrations."""
 
     def setUp(self):
@@ -255,7 +257,7 @@ class TestCalibrationsBasic(QiskitTestCase):
             self.cals.get_parameter_value("amp", "(1, a)", "xp")
 
 
-class TestOverrideDefaults(QiskitTestCase):
+class TestOverrideDefaults(QiskitExperimentsTestCase):
     """
     Test that we can override defaults. For example, this means that all qubits may have a
     Gaussian as xp pulse but a specific qubit may have a Drag pulse which overrides the
@@ -443,7 +445,7 @@ class TestOverrideDefaults(QiskitTestCase):
         self.assertEqual(len(amp_values), 2)
 
 
-class TestConcurrentParameters(QiskitTestCase):
+class TestConcurrentParameters(QiskitExperimentsTestCase):
     """Test a particular edge case with the time in the parameter values."""
 
     def test_concurrent_values(self):
@@ -469,7 +471,7 @@ class TestConcurrentParameters(QiskitTestCase):
         self.assertEqual(cals.get_parameter_value("amp", 3, "xp"), 0.45)
 
 
-class TestMeasurements(QiskitTestCase):
+class TestMeasurements(QiskitExperimentsTestCase):
     """Test that schedules on measure channels are handled properly."""
 
     def setUp(self):
@@ -627,7 +629,7 @@ class TestMeasurements(QiskitTestCase):
         self.assertEqual(sched, expected)
 
 
-class TestInstructions(QiskitTestCase):
+class TestInstructions(QiskitExperimentsTestCase):
     """Class to test that instructions like Shift and Set Phase/Frequency are properly managed."""
 
     def setUp(self):
@@ -680,7 +682,7 @@ class TestInstructions(QiskitTestCase):
         self.assertEqual(sched.instructions[2][1].frequency, 200)
 
 
-class TestRegistering(QiskitTestCase):
+class TestRegistering(QiskitExperimentsTestCase):
     """Class to test registering of subroutines with calls."""
 
     def setUp(self):
@@ -753,7 +755,7 @@ class TestRegistering(QiskitTestCase):
             )
 
 
-class CrossResonanceTest(QiskitTestCase):
+class CrossResonanceTest(QiskitExperimentsTestCase):
     """Setup class for an echoed cross-resonance calibration."""
 
     def setUp(self):
@@ -885,7 +887,7 @@ class TestControlChannels(CrossResonanceTest):
         self.assertEqual(self.cals.get_schedule("tcp", (3, 2)), expected)
 
 
-class TestAssignment(QiskitTestCase):
+class TestAssignment(QiskitExperimentsTestCase):
     """Test simple assignment"""
 
     def setUp(self):
@@ -1038,7 +1040,7 @@ class TestAssignment(QiskitTestCase):
         self.assertEqual(sched, expected)
 
 
-class TestReplaceScheduleAndCall(QiskitTestCase):
+class TestReplaceScheduleAndCall(QiskitExperimentsTestCase):
     """A test to ensure that inconsistencies are picked up when a schedule is reassigned."""
 
     def setUp(self):
@@ -1091,7 +1093,7 @@ class TestReplaceScheduleAndCall(QiskitTestCase):
             self.cals.get_schedule("call_xp", (4,))
 
 
-class TestCoupledAssigning(QiskitTestCase):
+class TestCoupledAssigning(QiskitExperimentsTestCase):
     """Test that assigning parameters works when they are coupled in calls."""
 
     def setUp(self):
@@ -1242,7 +1244,7 @@ class TestCoupledAssigning(QiskitTestCase):
         self.assertEqual(sched, expected)
 
 
-class TestFiltering(QiskitTestCase):
+class TestFiltering(QiskitExperimentsTestCase):
     """Test that the filtering works as expected."""
 
     def setUp(self):
@@ -1302,17 +1304,18 @@ class TestSavingAndLoading(CrossResonanceTest):
         self._prefix = str(uuid.uuid4())
         super().setUp()
 
-    def _remove_files(self, prefix: str):
-        """Delete the files."""
-        os.remove(prefix + "parameter_values.csv")
-        os.remove(prefix + "parameter_config.csv")
-        os.remove(prefix + "schedules.csv")
+    def tearDown(self):
+        """Clean-up after the test."""
+        super().tearDown()
+
+        for file in ["parameter_values.csv", "parameter_config.csv", "schedules.csv"]:
+            if os.path.exists(self._prefix + file):
+                os.remove(self._prefix + file)
 
     def test_save_load_parameter_values(self):
         """Test that we can save and load parameter values."""
 
         self.cals.save("csv", overwrite=True, file_prefix=self._prefix)
-        self.addCleanup(self._remove_files, self._prefix)
         self.assertEqual(self.cals.get_parameter_value("amp", (3,), "xp"), 0.1 + 0.01j)
 
         self.cals._params = defaultdict(list)
@@ -1349,6 +1352,29 @@ class TestSavingAndLoading(CrossResonanceTest):
         self.cals.add_parameter_value(value, "amp", (3,), "xp")
 
         self.cals.save("csv", overwrite=True, file_prefix=self._prefix)
-        self.addCleanup(self._remove_files, self._prefix)
         self.cals._params = defaultdict(list)
         self.cals.load_parameter_values(self._prefix + "parameter_values.csv")
+
+    def test_save_load_library(self):
+        """Test that we can load and save a library.
+
+        These libraries contain both parameters with schedules and parameters without
+        any schedules (e.g. frequencies for qubits and readout).
+        """
+
+        library = FixedFrequencyTransmon()
+        backend = FakeArmonk()
+        cals = BackendCalibrations(backend, library)
+
+        cals.parameters_table()
+
+        cals.save(file_type="csv", overwrite=True, file_prefix=self._prefix)
+
+        cals.load_parameter_values(self._prefix + "parameter_values.csv")
+
+        # Test the value of a few loaded params.
+        self.assertEqual(cals.get_parameter_value("amp", (0,), "x"), 0.5)
+        self.assertEqual(
+            cals.get_parameter_value("qubit_lo_freq", (0,)),
+            backend.defaults().qubit_freq_est[0],
+        )

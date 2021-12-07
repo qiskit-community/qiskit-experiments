@@ -12,7 +12,8 @@
 
 """Calibration version of spectroscopy experiments."""
 
-from typing import Iterable
+from typing import Iterable, Optional
+from qiskit.providers.backend import Backend
 
 from qiskit_experiments.library.characterization.qubit_spectroscopy import QubitSpectroscopy
 from qiskit_experiments.library.characterization.ef_spectroscopy import EFSpectroscopy
@@ -24,13 +25,18 @@ from qiskit_experiments.calibration_management.base_calibration_experiment impor
 
 
 class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
-    """A calibration experiment that runs QubitSpectroscopy."""
+    """A calibration experiment that runs QubitSpectroscopy.
+
+    # section: see_also
+        qiskit_experiments.library.characterization.qubit_spectroscopy.QubitSpectroscopy
+    """
 
     def __init__(
         self,
         qubit: int,
         calibrations: BackendCalibrations,
         frequencies: Iterable[float],
+        backend: Optional[Backend] = None,
         unit: str = "Hz",
         auto_update: bool = True,
         absolute: bool = True,
@@ -42,6 +48,7 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
             calibrations: If calibrations is given then running the experiment may update the values
                 of the frequencies stored in calibrations.
             frequencies: The frequencies to scan in the experiment.
+            backend: Optional, the backend to run the experiment on.
             unit: The unit in which the user specifies the frequencies. Can be one of 'Hz', 'kHz',
                 'MHz', 'GHz'. Internally, all frequencies will be converted to 'Hz'.
             auto_update: If set to True, which is the default, then the experiment will
@@ -57,15 +64,20 @@ class RoughFrequencyCal(BaseCalibrationExperiment, QubitSpectroscopy):
             calibrations,
             qubit,
             frequencies,
-            unit,
-            absolute,
+            backend=backend,
+            unit=unit,
+            absolute=absolute,
             updater=Frequency,
             auto_update=auto_update,
         )
 
 
 class RoughEFFrequencyCal(BaseCalibrationExperiment, EFSpectroscopy):
-    """A calibration experiment that runs QubitSpectroscopy."""
+    """A calibration experiment that runs QubitSpectroscopy.
+
+    # section: see_also
+        qiskit_experiments.library.characterization.ef_spectroscopy.EFSpectroscopy
+    """
 
     __updater__ = Frequency
 

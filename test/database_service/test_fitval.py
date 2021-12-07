@@ -12,18 +12,13 @@
 
 """Test parameter guess functions."""
 # pylint: disable=invalid-name
-
-import json
-
+from test.base import QiskitExperimentsTestCase
 from ddt import ddt, data
-from qiskit.test import QiskitTestCase
-
 from qiskit_experiments.database_service.db_fitval import FitVal
-from qiskit_experiments.database_service.json import ExperimentEncoder, ExperimentDecoder
 
 
 @ddt
-class TestFitVal(QiskitTestCase):
+class TestFitVal(QiskitExperimentsTestCase):
     """Test for serialization."""
 
     __signle_value__ = [
@@ -38,12 +33,8 @@ class TestFitVal(QiskitTestCase):
     @data(*__signle_value__)
     def test_serialize(self, val):
         """Test serialization of data."""
-        val_orig = FitVal(*val)
-
-        ser = json.dumps(val_orig, cls=ExperimentEncoder)
-        val_deser = json.loads(ser, cls=ExperimentDecoder)
-
-        self.assertEqual(val_orig, val_deser)
+        val = FitVal(*val)
+        self.assertRoundTripSerializable(val)
 
     @data(*__signle_value__)
     def test_str(self, val):
