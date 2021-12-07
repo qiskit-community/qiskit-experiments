@@ -24,7 +24,7 @@ from qiskit_experiments.framework import AnalysisResultData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 
 
-class CompleteMitigationAnalysis(BaseAnalysis):
+class CorrelatedMitigationAnalysis(BaseAnalysis):
     """
     Measurement correction analysis for a full calibration
     """
@@ -84,7 +84,7 @@ class CompleteMitigationAnalysis(BaseAnalysis):
         return figure
 
 
-class TensoredMitigationAnalysis(BaseAnalysis):
+class LocalMitigationAnalysis(BaseAnalysis):
     """
     Measurement correction analysis for a full calibration
     """

@@ -19,7 +19,7 @@ from qiskit import QuantumCircuit
 from qiskit.providers import Backend
 from qiskit.exceptions import QiskitError
 from qiskit_experiments.framework import BaseExperiment
-from .mitigation_analysis import CompleteMitigationAnalysis, TensoredMitigationAnalysis
+from .mitigation_analysis import CorrelatedMitigationAnalysis, LocalMitigationAnalysis
 
 
 class MeasurementMitigation(BaseExperiment):
@@ -65,7 +65,7 @@ class CorrelatedMitigationHelper():
         self.num_qubits = num_qubits
 
     def analysis(self):
-        return CompleteMitigationAnalysis()
+        return CorrelatedMitigationAnalysis()
 
     def labels(self) -> List[str]:
         return [bin(j)[2:].zfill(self.num_qubits) for j in range(2 ** self.num_qubits)]
@@ -76,7 +76,7 @@ class LocalMitigationHelper():
         self.num_qubits = num_qubits
 
     def analysis(self):
-        return TensoredMitigationAnalysis()
+        return LocalMitigationAnalysis()
 
     def labels(self) -> List[str]:
         return ["0" * self.num_qubits, "1" * self.num_qubits]
