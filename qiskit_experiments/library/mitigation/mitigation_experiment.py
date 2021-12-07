@@ -23,21 +23,25 @@ from .mitigation_analysis import CompleteMitigationAnalysis, TensoredMitigationA
 
 
 class MeasurementMitigation(BaseExperiment):
-    """Interface class for measurement mitigation experiments"""
+    """Class for measurement mitigation experiments"""
 
-    METHOD_COMPLETE = "complete"
-    METHOD_TENSORED = "tensored"
-    ALL_METHODS = [METHOD_COMPLETE, METHOD_TENSORED]
+    METHOD_LOCAL = "local"
+    METHOD_CORRELATED = "correlated"
+    ALL_METHODS = [METHOD_LOCAL, METHOD_CORRELATED]
 
-    def __init__(self, qubits: Iterable[int]):
+    def __init__(self, qubits: Iterable[int], method=METHOD_LOCAL):
         super().__init__(qubits)
+        if method not in self.ALL_METHODS:
+            raise QiskitError("Method {} not recognized".format(method))
+        if method == self.METHOD_LOCAL:
+            self.helper = LocalMitigationHelper(self.num_qubits)
+        if method == self.METHOD_CORRELATED:
+            self.helper = CorrelatedMitigationHelper(self.num_qubits)
 
-    @abstractmethod
-    def labels(self) -> List[str]:
-        return None
+        self.analysis = self.helper.analysis()
 
     def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
-        return [self._calibration_circuit(self.num_qubits, label) for label in self.labels()]
+        return [self._calibration_circuit(self.num_qubits, label) for label in self.helper.labels()]
 
     @staticmethod
     def _calibration_circuit(num_qubits: int, label: str) -> QuantumCircuit:
@@ -56,28 +60,23 @@ class MeasurementMitigation(BaseExperiment):
         return circ
 
 
-class CompleteMeasurementMitigation(MeasurementMitigation):
-    def __init__(self, qubits: Iterable[int]):
-        super().__init__(qubits)
-        self.analysis = CompleteMitigationAnalysis()
+class CorrelatedMitigationHelper():
+    def __init__(self, num_qubits: int):
+        self.num_qubits = num_qubits
+
+    def analysis(self):
+        return CompleteMitigationAnalysis()
 
     def labels(self) -> List[str]:
         return [bin(j)[2:].zfill(self.num_qubits) for j in range(2 ** self.num_qubits)]
 
 
-class TensoredMeasurementMitigation(MeasurementMitigation):
-    def __init__(self, qubits: Iterable[int]):
-        super().__init__(qubits)
-        self.analysis = TensoredMitigationAnalysis()
+class LocalMitigationHelper():
+    def __init__(self, num_qubits: int):
+        self.num_qubits = num_qubits
+
+    def analysis(self):
+        return TensoredMitigationAnalysis()
 
     def labels(self) -> List[str]:
         return ["0" * self.num_qubits, "1" * self.num_qubits]
-
-
-def mitigation_experiment(qubits, method=MeasurementMitigation.METHOD_COMPLETE):
-    if method not in MeasurementMitigation.ALL_METHODS:
-        raise QiskitError("Method {} not recognized".format(method))
-    if method == MeasurementMitigation.METHOD_COMPLETE:
-        return CompleteMeasurementMitigation(qubits)
-    if method == MeasurementMitigation.METHOD_TENSORED:
-        return TensoredMeasurementMitigation(qubits)

@@ -1,5 +1,4 @@
-from .mitigation_experiment import CompleteMeasurementMitigation
-from .mitigation_experiment import TensoredMitigationAnalysis
-from .mitigation_experiment import mitigation_experiment
+from .mitigation_experiment import MeasurementMitigation
 from .mitigation_analysis import CompleteMitigationAnalysis
 from .mitigation_analysis import TensoredMitigationAnalysis
+
