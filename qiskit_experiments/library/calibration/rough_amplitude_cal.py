@@ -194,7 +194,11 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
 
 
 class RoughXSXAmplitudeCal(RoughAmplitudeCal):
-    """A rough amplitude calibration of x and sx gates."""
+    """A rough amplitude calibration of x and sx gates.
+
+    # section: see_also
+        qiskit_experiments.library.characterization.rabi.Rabi
+    """
 
     def __init__(
         self,
@@ -223,7 +227,11 @@ class RoughXSXAmplitudeCal(RoughAmplitudeCal):
 
 
 class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
-    """A rough amplitude calibration of x and sx gates on the 1<->2 transition."""
+    """A rough amplitude calibration of x and sx gates on the 1<->2 transition.
+
+    # section: see_also
+        qiskit_experiments.library.characterization.rabi.Rabi
+    """
 
     def __init__(
         self,

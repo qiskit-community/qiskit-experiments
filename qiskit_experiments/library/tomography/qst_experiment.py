@@ -38,6 +38,9 @@ class StateTomography(TomographyExperiment):
         running :math:`3^N` measurement circuits when using the default
         measurement basis.
 
+    # section: analysis_ref
+        :py:class:`StateTomographyAnalysis`
+
     # section: see_also
         qiskit_experiments.library.tomography.tomography_experiment.TomographyExperiment
 

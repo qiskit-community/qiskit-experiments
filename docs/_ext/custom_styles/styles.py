@@ -29,7 +29,11 @@ from .formatter import (
     DocstringSectionFormatter,
 )
 from .section_parsers import load_standard_section, load_fit_parameters
-from .utils import _generate_options_documentation, _format_default_options
+from .utils import (
+    _generate_options_documentation,
+    _generate_analysis_ref,
+    _format_default_options,
+)
 
 section_regex = re.compile(r"# section: (?P<section_name>\S+)")
 
@@ -110,12 +114,12 @@ class QiskitExperimentDocstring(ABC):
             temp_lines = [l[margin:] for l in temp_lines]
         add_new_section(current_section, temp_lines)
 
-        for section, lines in self._extra_sections().items():
-            sectioned_docstrings[section] = lines
+        # add extra section
+        self._extra_sections(sectioned_docstrings)
 
         return sectioned_docstrings
 
-    def _extra_sections(self) -> Dict[str, List[str]]:
+    def _extra_sections(self, sectioned_docstring: Dict[str, List[str]]):
         """Generate extra sections."""
         pass
 
@@ -156,9 +160,8 @@ class ExperimentDocstring(QiskitExperimentDocstring):
         "overview": load_standard_section,
         "reference": load_standard_section,
         "tutorial": load_standard_section,
-        "analysis_ref": None,
+        "analysis_ref": load_standard_section,
         "experiment_opts": None,
-        "analysis_opts": None,
         "transpiler_opts": None,
         "run_opts": None,
         "example": load_standard_section,
@@ -178,9 +181,8 @@ class ExperimentDocstring(QiskitExperimentDocstring):
         """Create new parser and parse formatted docstring."""
         super().__init__(target_cls, docstring_lines, config, indent)
 
-    def _extra_sections(self) -> Dict[str, List[str]]:
+    def _extra_sections(self, sectioned_docstring: Dict[str, List[str]]):
         """Generate extra sections."""
-        parsed_sections = {}
 
         # add experiment option
         exp_option_desc = []
@@ -205,7 +207,7 @@ class ExperimentDocstring(QiskitExperimentDocstring):
         else:
             exp_option_desc.append("No experiment option available for this experiment.")
 
-        parsed_sections["experiment_opts"] = exp_option_desc
+        sectioned_docstring["experiment_opts"] = exp_option_desc
 
         # add transpiler option
         transpiler_option_desc = [
@@ -221,7 +223,7 @@ class ExperimentDocstring(QiskitExperimentDocstring):
             )
         )
 
-        parsed_sections["transpiler_opts"] = transpiler_option_desc
+        sectioned_docstring["transpiler_opts"] = transpiler_option_desc
 
         # add run option
         run_option_desc = [
@@ -238,10 +240,17 @@ class ExperimentDocstring(QiskitExperimentDocstring):
                 indent=self._indent,
             )
         )
+        sectioned_docstring["run_opts"] = run_option_desc
 
-        parsed_sections["run_opts"] = run_option_desc
+        # add analysis reference, if nothing described, it copies from parent
+        if not sectioned_docstring.get("analysis_ref", None):
+            analysis_desc = _generate_analysis_ref(
+                current_class=self._target_cls,
+                config=exp_docs_config,
+                indent=self._indent,
+            )
 
-        return parsed_sections
+            sectioned_docstring["analysis_ref"] = analysis_desc
 
 
 class AnalysisDocstring(QiskitExperimentDocstring):
@@ -273,11 +282,12 @@ class AnalysisDocstring(QiskitExperimentDocstring):
         """Create new parser and parse formatted docstring."""
         super().__init__(target_cls, docstring_lines, config, indent)
 
-    def _extra_sections(self) -> Dict[str, List[str]]:
+    def _extra_sections(self, sectioned_docstring: Dict[str, List[str]]):
         """Generate extra sections."""
-        parsed_sections = {}
 
         # add analysis option
+        option_desc = []
+
         analysis_docs_config = copy.copy(self._config)
         analysis_docs_config.napoleon_custom_sections = [("analysis options", "args")]
         analysis_option = _generate_options_documentation(
@@ -287,6 +297,15 @@ class AnalysisDocstring(QiskitExperimentDocstring):
             indent=self._indent,
         )
         if analysis_option:
-            parsed_sections["analysis_opts"] = analysis_option
+            option_desc.extend(analysis_option)
+            option_desc.append("")
+            option_desc.extend(
+                _format_default_options(
+                    defaults=self._target_cls._default_options().__dict__,
+                    indent=self._indent,
+                )
+            )
+        else:
+            option_desc.append("No option available for this analysis.")
 
-        return parsed_sections
+        sectioned_docstring["analysis_opts"] = option_desc

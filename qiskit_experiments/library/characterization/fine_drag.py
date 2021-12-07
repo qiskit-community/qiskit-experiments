@@ -125,6 +125,9 @@ class FineDrag(BaseExperiment):
 
         This is the correction formula in the FineDRAG Updater.
 
+    # section: analysis_ref
+        :py:class:`FineDragAnalysis`
+
     # section: see_also
         qiskit_experiments.library.calibration.drag.DragCal
 

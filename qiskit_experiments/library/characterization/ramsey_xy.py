@@ -78,6 +78,9 @@ class RamseyXY(BaseExperiment):
         The experiment also allows users to add a small frequency offset to better resolve
         any oscillations. This is implemented by a virtual Z rotation in the circuits. In the
         circuit above it appears as the delay-dependent angle θ(τ).
+
+    # section: analysis_ref
+        :py:class:`RamseyXYAnalysis`
     """
 
     @classmethod

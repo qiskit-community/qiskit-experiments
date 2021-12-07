@@ -35,6 +35,10 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
         :class:`FineAmplitudeCal` is a subclass of :class:`FineAmplitude`. In the calibration
         experiment the circuits that are run have a custom gate with the pulse schedule attached
         to it through the calibrations.
+
+    # section: see_also
+        qiskit_experiments.library.characterization.fine_amplitude.FineAmplitude
+
     """
 
     def __init__(
@@ -143,7 +147,11 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
 
 
 class FineXAmplitudeCal(FineAmplitudeCal):
-    """A calibration experiment to calibrate the amplitude of the X schedule."""
+    """A calibration experiment to calibrate the amplitude of the X schedule.
+
+    # section: see_also
+        qiskit_experiments.library.characterization.fine_amplitude.FineAmplitude
+    """
 
     def __init__(
         self,
@@ -201,7 +209,11 @@ class FineXAmplitudeCal(FineAmplitudeCal):
 
 
 class FineSXAmplitudeCal(FineAmplitudeCal):
-    """A calibration experiment to calibrate the amplitude of the SX schedule."""
+    """A calibration experiment to calibrate the amplitude of the SX schedule.
+
+    # section: see_also
+        qiskit_experiments.library.characterization.fine_amplitude.FineAmplitude
+    """
 
     def __init__(
         self,
