@@ -47,8 +47,6 @@ class FineFrequency(BaseExperiment):
 
     """
 
-    __analysis_class__ = FineAmplitudeAnalysis
-
     def __init__(
         self,
         qubit: int,
@@ -63,7 +61,10 @@ class FineFrequency(BaseExperiment):
             repetitions: The number of repetitions, if not given then the default value
                 from the experiment default options will be used.
         """
-        super().__init__([qubit], backend=backend)
+        super().__init__([qubit], analysis=FineAmplitudeAnalysis(), backend=backend)
+
+        # Set default analysis options
+        self.analysis.set_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
 
         if repetitions is not None:
             self.set_experiment_options(repetitions=repetitions)
@@ -84,12 +85,10 @@ class FineFrequency(BaseExperiment):
         return options
 
     @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = super()._default_analysis_options()
-        options.angle_per_gate = np.pi
-        options.phase_offset = np.pi / 2
-
+    def _default_transpile_options(cls) -> Options:
+        """Default transpiler options."""
+        options = super()._default_transpile_options()
+        options.inst_map = None
         return options
 
     def _pre_circuit(self) -> QuantumCircuit:

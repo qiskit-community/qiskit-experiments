@@ -214,6 +214,28 @@ class MockFineAmp(MockIQBackend):
         return np.sin(angle / 2) ** 2
 
 
+class MockFineFreq(MockIQBackend):
+    """A mock backend for fine frequency calibration."""
+
+    def __init__(self, freq_shift: float, dt: float = 0.222e-9):
+        super().__init__()
+        self.freq_shift = freq_shift
+        self.dt = dt
+
+    def _compute_probability(self, circuit: QuantumCircuit) -> float:
+        """The freq shift acts as the value that will accumulate phase."""
+
+        delay = None
+        for instruction in circuit.data:
+            if instruction[0].name == "delay":
+                delay = instruction[0].duration
+
+        if delay is None:
+            return 1.0
+        else:
+            return np.cos(2 * np.pi * self.freq_shift * delay * self.dt)
+
+
 class MockRamseyXY(MockIQBackend):
     """A mock backend for the RamseyXY experiment."""
 
