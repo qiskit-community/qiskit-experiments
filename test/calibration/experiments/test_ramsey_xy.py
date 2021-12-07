@@ -70,7 +70,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
     def test_ramseyxy_experiment_config(self):
         """Test RamseyXY config roundtrips"""
         exp = RamseyXY(0)
-        loaded_exp = RamseyXY.from_config(exp.config)
+        loaded_exp = RamseyXY.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.experiments_equiv(exp, loaded_exp))
 
@@ -82,7 +82,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
     def test_cal_experiment_config(self):
         """Test FrequencyCal config roundtrips"""
         exp = FrequencyCal(0, self.cals)
-        loaded_exp = FrequencyCal.from_config(exp.config)
+        loaded_exp = FrequencyCal.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.experiments_equiv(exp, loaded_exp))
 

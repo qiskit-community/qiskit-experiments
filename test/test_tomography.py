@@ -21,6 +21,7 @@ import qiskit.quantum_info as qi
 from qiskit.providers.aer import AerSimulator
 from qiskit_experiments.framework import BatchExperiment, ParallelExperiment
 from qiskit_experiments.library import StateTomography, ProcessTomography
+from qiskit_experiments.library.tomography import StateTomographyAnalysis, ProcessTomographyAnalysis
 
 
 # TODO: tests for CVXPY fitters
@@ -49,7 +50,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         target = qi.random_statevector(2 ** num_qubits, seed=seed)
         qstexp = StateTomography(target)
         if fitter:
-            qstexp.set_analysis_options(fitter=fitter)
+            qstexp.analysis.set_options(fitter=fitter)
         expdata = qstexp.run(backend)
         results = expdata.analysis_results()
 
@@ -269,9 +270,16 @@ class TestStateTomography(QiskitExperimentsTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = StateTomography(QuantumCircuit(3), measurement_qubits=[0, 2], qubits=[5, 7, 1])
-        loaded_exp = StateTomography.from_config(exp.config)
+        loaded_exp = StateTomography.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+
+    def test_analysis_config(self):
+        """ "Test converting analysis to and from config works"""
+        analysis = StateTomographyAnalysis()
+        loaded = StateTomographyAnalysis.from_config(analysis.config())
+        self.assertNotEqual(analysis, loaded)
+        self.assertEqual(analysis.config(), loaded.config())
 
 
 @ddt.ddt
@@ -288,7 +296,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         target = qi.random_unitary(2 ** num_qubits, seed=seed)
         qstexp = ProcessTomography(target)
         if fitter:
-            qstexp.set_analysis_options(fitter=fitter)
+            qstexp.analysis.set_options(fitter=fitter)
         expdata = qstexp.run(backend)
         results = expdata.analysis_results()
 
@@ -481,9 +489,16 @@ class TestProcessTomography(QiskitExperimentsTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = ProcessTomography(teleport_circuit(), measurement_qubits=[2], preparation_qubits=[0])
-        loaded_exp = ProcessTomography.from_config(exp.config)
+        loaded_exp = ProcessTomography.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+
+    def test_analysis_config(self):
+        """ "Test converting analysis to and from config works"""
+        analysis = ProcessTomographyAnalysis()
+        loaded = ProcessTomographyAnalysis.from_config(analysis.config())
+        self.assertNotEqual(analysis, loaded)
+        self.assertEqual(analysis.config(), loaded.config())
 
 
 def teleport_circuit():
