@@ -58,7 +58,6 @@ class T2Ramsey(BaseExperiment):
         :doc:`/tutorials/t2ramsey_characterization`
 
     """
-    __analysis_class__ = T2RamseyAnalysis
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -101,7 +100,7 @@ class T2Ramsey(BaseExperiment):
                 The frequency is given in Hz.
 
         """
-        super().__init__([qubit], backend=backend)
+        super().__init__([qubit], analysis=T2RamseyAnalysis(), backend=backend)
         self.set_experiment_options(delays=delays, unit=unit, osc_freq=osc_freq)
 
     def _set_backend(self, backend: Backend):

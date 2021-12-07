@@ -145,7 +145,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = QubitSpectroscopy(1, np.linspace(100, 150, 20), unit="MHz")
-        loaded_exp = QubitSpectroscopy.from_config(exp.config)
+        loaded_exp = QubitSpectroscopy.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.experiments_equiv(exp, loaded_exp))
 

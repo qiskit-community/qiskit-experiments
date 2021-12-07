@@ -44,9 +44,6 @@ class InterleavedRB(StandardRB):
 
     """
 
-    # Analysis class for experiment
-    __analysis_class__ = InterleavedRBAnalysis
-
     def __init__(
         self,
         interleaved_element: Union[QuantumCircuit, Instruction, Clifford],
@@ -83,6 +80,7 @@ class InterleavedRB(StandardRB):
             seed=seed,
             full_sampling=full_sampling,
         )
+        self.analysis = InterleavedRBAnalysis()
 
     def _sample_circuits(self, lengths, seed=None):
         circuits = []

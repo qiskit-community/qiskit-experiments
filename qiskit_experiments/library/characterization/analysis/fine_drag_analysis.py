@@ -12,7 +12,9 @@
 
 """Fine DRAG calibration analysis."""
 
+import numpy as np
 from qiskit_experiments.curve_analysis import ErrorAmplificationAnalysis
+from qiskit_experiments.framework import Options
 
 
 class FineDragAnalysis(ErrorAmplificationAnalysis):
@@ -29,3 +31,13 @@ class FineDragAnalysis(ErrorAmplificationAnalysis):
     """
 
     __fixed_parameters__ = ["angle_per_gate", "phase_offset", "amp"]
+
+    @classmethod
+    def _default_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_options()
+        options.normalization = True
+        options.angle_per_gate = 0.0
+        options.phase_offset = np.pi / 2
+        options.amp = 1.0
+        return options

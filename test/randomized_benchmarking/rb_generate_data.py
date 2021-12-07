@@ -102,7 +102,7 @@ def _generate_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes: di
         num_samples=exp_attributes["num_samples"],
         seed=exp_attributes["seed"],
     )
-    rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
+    rb_exp.analysis.set_options(gate_error_ratio=gate_error_ratio)
     print("Running experiment")
     experiment_obj = rb_exp.run(backend, noise_model=noise_model, basis_gates=transpiled_base_gate)
     experiment_obj.block_for_results()
@@ -198,7 +198,7 @@ def _generate_int_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes
         num_samples=exp_attributes["num_samples"],
         seed=exp_attributes["seed"],
     )
-    rb_exp.set_analysis_options(gate_error_ratio=gate_error_ratio)
+    rb_exp.analysis.set_options(gate_error_ratio=gate_error_ratio)
     print("Running experiment")
     experiment_obj = rb_exp.run(backend, noise_model=noise_model, basis_gates=transpiled_base_gate)
     experiment_obj.block_for_results()
