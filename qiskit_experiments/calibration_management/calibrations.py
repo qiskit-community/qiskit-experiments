@@ -15,7 +15,7 @@
 import os
 from collections import defaultdict
 from datetime import datetime, timezone
-from typing import Any, Dict, Set, Tuple, Union, List, Optional
+from typing import Any, Callable, Dict, Set, Tuple, Union, List, Optional
 import csv
 import dataclasses
 import warnings
@@ -199,13 +199,18 @@ class Calibrations:
         Returns:
             An instance of Calibrations instantiated from a backend.
         """
+        if hasattr(backend, "name") and hasattr(backend.name, "__call__"):
+            backend_name = backend.name()
+        else:
+            backend_name = None
+
         cals = Calibrations(
             getattr(backend.configuration(), "coupling_map", None),
             getattr(backend.configuration(), "control_channels", None),
             library,
             add_parameter_defaults,
-            backend.name(),
-            backend.version,
+            backend_name,
+            getattr(backend, "version", None),
         )
 
         if add_parameter_defaults:
