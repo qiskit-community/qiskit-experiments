@@ -50,7 +50,7 @@ class TestHalfAngle(QiskitExperimentsTestCase):
         tol = 0.005
         for error in [-0.05, -0.02, 0.02, 0.05]:
             hac = HalfAngle(0)
-            exp_data = hac.run(HalfAngleTestBackend(error)).block_for_results()
+            exp_data = hac.run(HalfAngleTestBackend(error))
             d_theta = exp_data.analysis_results(1).value.value
 
             self.assertTrue(abs(d_theta - error) < tol)
@@ -82,7 +82,7 @@ class TestHalfAngle(QiskitExperimentsTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = HalfAngle(1)
-        config = exp.config
+        config = exp.config()
         loaded_exp = HalfAngle.from_config(config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertEqual(config, loaded_exp.config())

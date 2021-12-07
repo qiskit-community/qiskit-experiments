@@ -158,6 +158,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         value = self.value
         result_data = {
             "_value": value,
+            "_chisq": self._chisq,
             "_extra": self.extra,
             "_source": self._source,
         }
@@ -181,6 +182,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             "result_type": self.name,
             "device_components": self.device_components,
         }
+
         update_data = {
             "result_id": self.result_id,
             "result_data": result_data,
@@ -228,6 +230,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         # Parse serialized data
         result_data = service_data.pop("result_data")
         value = result_data.pop("_value")
+        chisq = result_data.pop("_chisq", None)
         extra = result_data.pop("_extra", {})
         source = result_data.pop("_source", None)
 
@@ -240,6 +243,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             result_id=service_data.pop("result_id"),
             quality=service_data.pop("quality"),
             extra=extra,
+            chisq=chisq,
             verified=service_data.pop("verified"),
             tags=service_data.pop("tags"),
             service=service_data.pop("service"),

@@ -70,6 +70,9 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
             schedule_name, qubit, assign_params={cal_parameter_name: Parameter("amp")}, group=group
         )
 
+        self._validate_channels(schedule, [qubit])
+        self._validate_parameters(schedule, 1)
+
         super().__init__(
             calibrations,
             qubit,
@@ -191,7 +194,11 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
 
 
 class RoughXSXAmplitudeCal(RoughAmplitudeCal):
-    """A rough amplitude calibration of x and sx gates."""
+    """A rough amplitude calibration of x and sx gates.
+
+    # section: see_also
+        qiskit_experiments.library.characterization.rabi.Rabi
+    """
 
     def __init__(
         self,
@@ -220,7 +227,11 @@ class RoughXSXAmplitudeCal(RoughAmplitudeCal):
 
 
 class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
-    """A rough amplitude calibration of x and sx gates on the 1<->2 transition."""
+    """A rough amplitude calibration of x and sx gates on the 1<->2 transition.
+
+    # section: see_also
+        qiskit_experiments.library.characterization.rabi.Rabi
+    """
 
     def __init__(
         self,
