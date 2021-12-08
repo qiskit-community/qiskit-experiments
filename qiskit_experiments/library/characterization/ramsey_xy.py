@@ -78,9 +78,10 @@ class RamseyXY(BaseExperiment):
         The experiment also allows users to add a small frequency offset to better resolve
         any oscillations. This is implemented by a virtual Z rotation in the circuits. In the
         circuit above it appears as the delay-dependent angle θ(τ).
-    """
 
-    __analysis_class__ = RamseyXYAnalysis
+    # section: analysis_ref
+        :py:class:`RamseyXYAnalysis`
+    """
 
     @classmethod
     def _default_experiment_options(cls):
@@ -119,7 +120,7 @@ class RamseyXY(BaseExperiment):
             osc_freq: the oscillation frequency induced by the user through a virtual
                 Rz rotation. This quantity is given in Hz.
         """
-        super().__init__([qubit], backend=backend)
+        super().__init__([qubit], analysis=RamseyXYAnalysis(), backend=backend)
 
         delays = delays or self.experiment_options.delays
         self.set_experiment_options(delays=delays, unit=unit, osc_freq=osc_freq)

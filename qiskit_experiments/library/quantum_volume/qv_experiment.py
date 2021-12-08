@@ -61,14 +61,14 @@ class QuantumVolume(BaseExperiment):
         See :class:`QuantumVolumeAnalysis` documentation for additional
         information on QV experiment analysis.
 
+    # section: analysis_ref
+        :py:class:`QuantumVolumeAnalysis`
+
     # section: reference
         .. ref_arxiv:: 1 1811.12926
         .. ref_arxiv:: 2 2008.08571
 
     """
-
-    # Analysis class for experiment
-    __analysis_class__ = QuantumVolumeAnalysis
 
     def __init__(
         self,
@@ -92,7 +92,7 @@ class QuantumVolume(BaseExperiment):
                 (in case :class:`AerSimulator` is not
                 installed :class:`qiskit.quantum_info.Statevector` will be used).
         """
-        super().__init__(qubits, backend=backend)
+        super().__init__(qubits, analysis=QuantumVolumeAnalysis(), backend=backend)
 
         # Set configurable options
         self.set_experiment_options(trials=trials)

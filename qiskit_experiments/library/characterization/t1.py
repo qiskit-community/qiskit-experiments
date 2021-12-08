@@ -44,9 +44,9 @@ class T1(BaseExperiment):
         3. Analysis of results: deduction of T\ :sub:`1`\ , based on the outcomes,
         by fitting to an exponential curve.
 
+    # section: analysis_ref
+        :py:class:`T1Analysis`
     """
-
-    __analysis_class__ = T1Analysis
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -86,7 +86,7 @@ class T1(BaseExperiment):
             ValueError: if the number of delays is smaller than 3
         """
         # Initialize base experiment
-        super().__init__([qubit], backend=backend)
+        super().__init__([qubit], analysis=T1Analysis(), backend=backend)
 
         # Set experiment options
         self.set_experiment_options(delays=delays, unit=unit)
