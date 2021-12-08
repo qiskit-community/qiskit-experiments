@@ -37,7 +37,7 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
         repetitions: List[int] = None,
         auto_update: bool = True,
     ):
-        r"""see class :class:`FineDrag` for details.
+        r"""see class :class:`FineFrequency` for details.
 
         Note that this class implicitly assumes that the target angle of the gate
         is :math:`\pi` as seen from the default experiment options.
