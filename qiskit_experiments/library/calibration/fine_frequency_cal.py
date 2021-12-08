@@ -27,7 +27,11 @@ from qiskit_experiments.library.characterization.fine_frequency import FineFrequ
 
 
 class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
-    """A calibration version of the fine frequency experiment."""
+    """A calibration version of the fine frequency experiment.
+    
+    # section: see_also
+        :py:class:`FineFrequency`
+    """
 
     def __init__(
         self,
