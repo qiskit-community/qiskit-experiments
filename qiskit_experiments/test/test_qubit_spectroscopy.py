@@ -11,12 +11,14 @@
 # that they have been altered from the originals.
 
 """Spectroscopy tests."""
-from qiskit_experiments.test.base import QiskitExperimentsTestCase
 from typing import Tuple
 import numpy as np
 
 from qiskit import QuantumCircuit
 from qiskit.qobj.utils import MeasLevel
+
+
+from qiskit_experiments.test.base import QiskitExperimentsTestCase
 
 from qiskit_experiments.library import QubitSpectroscopy, EFSpectroscopy
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
