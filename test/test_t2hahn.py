@@ -16,6 +16,7 @@ Test T2Hahn experiment
 import numpy as np
 
 from qiskit.utils import apply_prefix
+from qiskit_experiments.framework import ParallelExperiment
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.library.characterization.t2hahn import T2Hahn
 from qiskit_experiments.test.t2hahn_backend import T2HahnBackend
@@ -73,6 +74,53 @@ class TestT2Hahn(QiskitTestCase):
                 self.assertEqual(result.quality, "good")
                 self.assertAlmostEqual(fitval.value, estimated_t2hahn, delta=3)
                 self.assertEqual(fitval.unit, "s")
+
+    def test_t2hahn_parallel(self):
+        """
+        Test parallel experiments of T2Hahn using a simulator.
+        """
+        t2hahn = [30, 25]
+        estimated_freq = [0.1, 0.12]
+        delays = [list(range(1, 60)), list(range(1, 50))]
+
+        osc_freq = [0.11, 0.11]
+
+        exp0 = T2Hahn(0, delays[0])
+        exp2 = T2Hahn(2, delays[1])
+
+        exp0.set_analysis_options(
+            p0={"amp": 0.5, "tau": t2hahn[0], "base": 0.5}, plot=True
+        )
+        exp2.set_analysis_options(
+            p0={"amp": 0.5, "tau": t2hahn[1], "base": 0.5}, plot=True
+        )
+
+        par_exp = ParallelExperiment([exp0, exp2])
+
+        p0 = {
+            "A": [0.5, None, 0.5],
+            "T2": [t2hahn[0], None, t2hahn[1]],
+            "frequency": [osc_freq[0], None, osc_freq[1]],
+            "B": [0.5, None, 0.5],
+        }
+
+        backend = T2HahnBackend(
+            t2hahn=p0["T2"],
+            frequency=p0["frequency"],
+            initialization_error=[0.0],
+            readout0to1=[0.02],
+            readout1to0=[0.02],
+            conversion_factor=1,
+        )
+        expdata = par_exp.run(backend=backend, shots=1024).block_for_results()
+
+        for i in range(2):
+            res_t2 = expdata.child_data(i).analysis_results("T2")
+
+            fitval = res_t2.value
+            self.assertEqual(res_t2.quality, "good")
+            self.assertAlmostEqual(fitval.value, t2hahn[i], delta=3)
+            self.assertEqual(fitval.unit, "s")
 
     def test_t2hahn_concat_2_experiments(self):
         """

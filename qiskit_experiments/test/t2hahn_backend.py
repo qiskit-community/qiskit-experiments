@@ -16,6 +16,8 @@ Temporary backend to be used for t2hahn experiment
 
 import numpy as np
 from numpy import isclose
+from typing import List
+from qiskit import QiskitError
 from qiskit.providers import BackendV1
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.result import Result
@@ -74,19 +76,51 @@ class T2HahnBackend(BackendV1):
         """Default options of the test backend."""
         return Options(shots=1024)
 
-    def _qubit_initialization(self) -> dict:
-        if self._initialization_error is not None and (
-            self._rng.random() < self._initialization_error[0]
-        ):
-            return {"XY plain": False, "ZX plain": True, "Theta": np.pi}
-        else:
-            return {
-                "XY plain": False,
-                "ZX plain": True,
-                "Theta": 0,
-            }
+    def _qubit_initialization(self, nqubits: int) -> List[dict]:
+        """
+        Initialize the list of qubits state. If initialization error is provided to the backend it will
+        use it to determine the initialized state.
+        Args:
+            nqubits(int): the number of qubits in the circuit.
 
-    def _delay_gate(self, qubit_state: dict, delay: float, t2hahn: float) -> dict:
+        Returns:
+            List[dict]: A list of dictionary which each dictionary contain the qubit state in the format
+                        {"XY plain": (bool), "ZX plain": (bool), "Theta": float}
+        """
+        qubits_sates = [0 for _ in range(nqubits)]
+        # Making an array with the initialization error for each qubit.
+        initialization_error = self._initialization_error
+        if isinstance(initialization_error, int) or initialization_error is None:
+            initialization_error_arr = [initialization_error for _ in range(nqubits)]
+        elif isinstance(initialization_error, list):
+            if len(initialization_error) == 1:
+                initialization_error_arr = [initialization_error[0] for _ in range(nqubits)]
+            elif len(initialization_error) == nqubits:
+                initialization_error_arr = [err for err in initialization_error]
+            else:
+                raise QiskitError(
+                    f"The length of the list {initialization_error} isn't the same as the number "
+                    "of qubits."
+                )
+        else:
+            raise QiskitError(
+                f"Initialization error type isn't a list or int"
+            )
+
+        for qubit in range(nqubits):
+            if initialization_error_arr[qubit] is not None and (
+                self._rng.random() < initialization_error_arr[qubit]
+            ):
+                qubits_sates[qubit] = {"XY plain": False, "ZX plain": True, "Theta": np.pi}
+            else:
+                qubits_sates[qubit] = {
+                    "XY plain": False,
+                    "ZX plain": True,
+                    "Theta": 0,
+                }
+        return qubits_sates
+
+    def _delay_gate(self, qubit_state: dict, delay: float, t2hahn: float, frequency: float) -> dict:
         """
         Apply delay gate to the qubit. From the delay time we can calculate the probability
         that an error has accrued.
@@ -94,6 +128,7 @@ class T2HahnBackend(BackendV1):
             qubit_state(dict): The state of the qubit before operating the gate.
             delay(float): The time in which there are no operation on the qubit.
             t2hahn(float): The T2 parameter of the backhand for probability calculation.
+            frequency(float): The frequency of the qubit for phase calculation.
 
         Returns:
             dict: The state of the qubit after operating the gate.
@@ -114,7 +149,7 @@ class T2HahnBackend(BackendV1):
                         "Theta": np.pi,
                     }
             else:
-                phase = self._frequency[0] * delay
+                phase = frequency * delay
                 new_theta = qubit_state["Theta"] + phase
                 new_theta = new_theta % (2 * np.pi)
                 new_qubit_state = {"XY plain": True, "ZX plain": False, "Theta": new_theta}
@@ -158,8 +193,7 @@ class T2HahnBackend(BackendV1):
                     "Theta": new_theta,
                 }
             else:
-                print("Error - This angle isn't supported. We only support multipication of pi/2")
-                print("The angle is:" + str(angle))
+                raise QiskitError(f"Error - the angle {angle} isn't supported. We only support multiplication of pi/2")
         else:
             if isclose(angle, np.pi):
                 new_theta = qubit_state["Theta"] + np.pi
@@ -188,8 +222,7 @@ class T2HahnBackend(BackendV1):
                     "Theta": new_theta,
                 }
             else:
-                print("Error - This angle isn't supported. We only support multiplication of pi/2")
-                print("The angle is:" + str(angle))
+                raise QiskitError(f"Error - The angle {angle} isn't supported. We only support multiplication of pi/2")
         return new_qubit_state
 
     def _measurement_gate(self, qubit_state: dict) -> int:
@@ -242,12 +275,13 @@ class T2HahnBackend(BackendV1):
             "results": [],
         }
         for circ in run_input:
+            nqubits = circ.num_qubits
             qubit_indices = {bit: idx for idx, bit in enumerate(circ.qubits)}
             clbit_indices = {bit: idx for idx, bit in enumerate(circ.clbits)}
             counts = dict()
 
             for _ in range(shots):
-                qubit_state = self._qubit_initialization()  # for parrallel need to make an array
+                qubit_state = self._qubit_initialization(nqubits=nqubits)  # for parallel need to make an array
                 clbits = np.zeros(circ.num_clbits, dtype=int)
                 for op, qargs, cargs in circ.data:
                     qubit = qubit_indices[qargs[0]]
@@ -255,12 +289,18 @@ class T2HahnBackend(BackendV1):
                     # The noise will only be applied if we are in the XY plain.
                     if op.name == "delay":
                         delay = op.params[0]
+                        if qubit >= len(self._t2hahn):
+                            print(f"The length of T2 is {len(self._t2hahn)} and the index qubit is {qubit}")
                         t2hahn = self._t2hahn[qubit] * self._conversion_factor
-                        qubit_state = self._delay_gate(qubit_state, delay, t2hahn)
+                        freq = self._frequency[qubit]
+                        qubit_state[qubit] = self._delay_gate(qubit_state=qubit_state[qubit],
+                                                              delay=delay, t2hahn=t2hahn,
+                                                              frequency=freq,
+                                                              )
                     elif op.name == "rx":
-                        qubit_state = self._rx_gate(qubit_state, op.params[0])
+                        qubit_state[qubit] = self._rx_gate(qubit_state[qubit], op.params[0])
                     elif op.name == "measure":
-                        meas_res = self._measurement_gate(qubit_state)
+                        meas_res = self._measurement_gate(qubit_state[qubit])
                         clbit = clbit_indices[cargs[0]]
                         clbits[clbit] = meas_res
 
@@ -268,10 +308,10 @@ class T2HahnBackend(BackendV1):
                 for clbit in clbits[::-1]:
                     clstr = clstr + str(clbit)
 
-                    if clstr in counts:
-                        counts[clstr] += 1
-                    else:
-                        counts[clstr] = 1
+                if clstr in counts:
+                    counts[clstr] += 1
+                else:
+                    counts[clstr] = 1
             result["results"].append(
                 {
                     "shots": shots,

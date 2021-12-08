@@ -75,7 +75,6 @@ class T2Hahn(BaseExperiment):
         options.delays = None
         options.unit = "s"
         options.conversion_factor = 1
-        options.osc_freq = 0.0
         options.num_echoes = 1
         return options
 
@@ -180,7 +179,7 @@ class T2Hahn(BaseExperiment):
             if self.experiment_options.num_echoes % 2 == 1:
                 circ.rx(np.pi / 2, 0)  # X90 again since the num of echoes is odd
             else:
-                circ.rx(-np.pi / 2, 0)  # X90 again since the num of echoes is even
+                circ.rx(-np.pi / 2, 0)  # X(-90) again since the num of echoes is even
             circ.measure(0, 0)  # measure
             circ.metadata = {
                 "experiment_type": self._type,
