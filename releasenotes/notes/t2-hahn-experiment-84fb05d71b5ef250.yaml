@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Hahn Echo experiment is added to the library.
+    This experiment estimates dephasing noise T2.
+
+    See experiment class documentation for details.
