@@ -44,7 +44,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
 
         for freq_shift in [2e6, -3e6]:
             test_data = ramsey.run(MockRamseyXY(freq_shift=freq_shift))
-            meas_shift = test_data.analysis_results(1).value.value
+            meas_shift = test_data.analysis_results(1).value.n
             self.assertTrue((meas_shift - freq_shift) < abs(test_tol * freq_shift))
 
     def test_update_calibrations(self):

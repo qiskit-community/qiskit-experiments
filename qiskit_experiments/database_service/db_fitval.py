@@ -13,7 +13,15 @@
 """DB class for fit value with std error and unit."""
 
 import dataclasses
+import warnings
 from typing import Optional
+
+
+warnings.warn(
+    "FitVal object has been deprecated in QiskitExperiment version 0.2 and "
+    "will be removed in version 0.3. Use version < 0.2 to load this object.",
+    DeprecationWarning,
+)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -22,8 +30,6 @@ class FitVal:
 
     This data is serializable with the Qiskit Experiment json serializer.
     """
-
-    # TODO deprecate this (replace with UFloat), see qiskit-experiments#559 for details.
 
     value: float
     stderr: Optional[float] = None

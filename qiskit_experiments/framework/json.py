@@ -26,6 +26,7 @@ import traceback
 from functools import lru_cache
 from types import FunctionType, MethodType
 from typing import Any, Dict, Type, Optional, Union, Callable
+from uncertainties import UFloat, ufloat_fromstr
 
 import numpy as np
 import scipy.sparse as sps
@@ -459,6 +460,12 @@ class ExperimentEncoder(json.JSONEncoder):
         if isinstance(obj, sps.spmatrix):
             value = _serialize_and_encode(obj, sps.save_npz, compress=False)
             return {"__type__": "spmatrix", "__value__": value}
+        if isinstance(obj, UFloat):
+            # Correlation to another ufloat value is not conserved.
+            # Basically a ufloat object identifies correlation with ufloat object id,
+            # so it is hard to recover exactly the same object from serialized data.
+            # However, you can still operate on the deserialized ufloat objects.
+            return {"__type__": "UFloat", "__value__": repr(obj)}
         if isinstance(obj, bytes):
             return _serialize_bytes(obj)
         if dataclasses.is_dataclass(obj):
@@ -529,6 +536,8 @@ class ExperimentDecoder(json.JSONDecoder):
                 return _decode_and_deserialize(obj_val, np.load, name=obj_type)
             if obj_type == "spmatrix":
                 return _decode_and_deserialize(obj_val, sps.load_npz, name=obj_type)
+            if obj_type == "UFloat":
+                return ufloat_fromstr(obj_val)
             if obj_type == "b64encoded":
                 return _deserialize_bytes(obj_val)
             if obj_type == "set":

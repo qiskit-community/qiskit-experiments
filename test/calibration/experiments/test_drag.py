@@ -63,7 +63,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         expdata = drag.run(backend)
         result = expdata.analysis_results(1)
 
-        self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
+        self.assertTrue(abs(result.value.n - backend.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
         # Small leakage will make the curves very flat, in this case one should
@@ -75,7 +75,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         exp_data = drag.run(backend)
         result = exp_data.analysis_results(1)
 
-        self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
+        self.assertTrue(abs(result.value.n - backend.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
         # Large leakage will make the curves oscillate quickly.
@@ -90,7 +90,7 @@ class TestDragEndToEnd(QiskitExperimentsTestCase):
         meas_level = exp_data.metadata["job_metadata"][-1]["run_options"]["meas_level"]
 
         self.assertEqual(meas_level, MeasLevel.CLASSIFIED)
-        self.assertTrue(abs(result.value.value - backend.ideal_beta) < self.test_tol)
+        self.assertTrue(abs(result.value.n - backend.ideal_beta) < self.test_tol)
         self.assertEqual(result.quality, "good")
 
 

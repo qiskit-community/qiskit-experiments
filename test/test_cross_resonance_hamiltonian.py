@@ -320,12 +320,12 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
         exp_data = expr.run(backend, shots=2000)
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
-        self.assertAlmostEqual(exp_data.analysis_results("omega_ix").value.value, ix, delta=2e4)
-        self.assertAlmostEqual(exp_data.analysis_results("omega_iy").value.value, iy, delta=2e4)
-        self.assertAlmostEqual(exp_data.analysis_results("omega_iz").value.value, iz, delta=2e4)
-        self.assertAlmostEqual(exp_data.analysis_results("omega_zx").value.value, zx, delta=2e4)
-        self.assertAlmostEqual(exp_data.analysis_results("omega_zy").value.value, zy, delta=2e4)
-        self.assertAlmostEqual(exp_data.analysis_results("omega_zz").value.value, zz, delta=2e4)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_ix").value.n, ix, delta=2e4)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_iy").value.n, iy, delta=2e4)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_iz").value.n, iz, delta=2e4)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_zx").value.n, zx, delta=2e4)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_zy").value.n, zy, delta=2e4)
+        self.assertAlmostEqual(exp_data.analysis_results("omega_zz").value.n, zz, delta=2e4)
 
     def test_experiment_config(self):
         """Test converting to and from config works"""

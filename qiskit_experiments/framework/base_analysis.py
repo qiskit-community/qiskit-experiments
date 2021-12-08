@@ -17,10 +17,8 @@ from abc import ABC, abstractmethod
 import copy
 from collections import OrderedDict
 from typing import List, Tuple, Union, Dict
-from uncertainties.core import UFloat
 
 from qiskit_experiments.database_service.device_component import Qubit
-from qiskit_experiments.database_service.db_fitval import FitVal
 from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.store_init_args import StoreInitArgs
 from qiskit_experiments.framework.experiment_data import ExperimentData
@@ -194,24 +192,14 @@ class BaseAnalysis(ABC, StoreInitArgs):
         elif experiment_components:
             device_components = experiment_components
 
-        # Convert ufloat to FitVal so that database service can parse
-        # TODO completely deprecate FitVal. We can store UFloat in database (qiskit-experiments#559)
-        if isinstance(data.value, UFloat):
-            value = FitVal(
-                value=data.value.nominal_value,
-                stderr=data.value.std_dev,
-                unit=data.unit,
-            )
-        else:
-            value = data.value
-
         return DbAnalysisResultV1(
             name=data.name,
-            value=value,
+            value=data.value,
             device_components=device_components,
             experiment_id=experiment_id,
             chisq=data.chisq,
             quality=data.quality,
+            unit=data.unit,
             extra=data.extra,
         )
 

@@ -65,9 +65,8 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
         result = expdata.analysis_results(1)
-        value = result.value.value
 
-        self.assertTrue(4.999e9 < value < 5.001e9)
+        self.assertTrue(4.999e9 < result.value.n < 5.001e9)
         self.assertEqual(result.quality, "good")
 
         # Test if we find still find the peak when it is shifted by 5 MHz.
@@ -77,9 +76,8 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
         result = expdata.analysis_results(1)
-        value = result.value.value
 
-        self.assertTrue(5.0049e9 < value < 5.0051e9)
+        self.assertTrue(5.0049e9 < result.value.n < 5.0051e9)
         self.assertEqual(result.quality, "good")
 
     def test_spectroscopy_end2end_kerneled(self):
@@ -93,9 +91,8 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         spec = QubitSpectroscopy(qubit, frequencies, unit="MHz")
         expdata = spec.run(backend)
         result = expdata.analysis_results(1)
-        value = result.value.value
 
-        self.assertTrue(freq01 - 2e6 < value < freq01 + 2e6)
+        self.assertTrue(freq01 - 2e6 < result.value.n < freq01 + 2e6)
         self.assertEqual(result.quality, "good")
 
         # Test if we find still find the peak when it is shifted by 5 MHz.
@@ -104,17 +101,15 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         spec = QubitSpectroscopy(qubit, frequencies, unit="MHz")
         expdata = spec.run(backend)
         result = expdata.analysis_results(1)
-        value = result.value.value
 
-        self.assertTrue(freq01 + 3e6 < value < freq01 + 8e6)
+        self.assertTrue(freq01 + 3e6 < result.value.n < freq01 + 8e6)
         self.assertEqual(result.quality, "good")
 
         spec.set_run_options(meas_return="avg")
         expdata = spec.run(backend)
         result = expdata.analysis_results(1)
-        value = result.value.value
 
-        self.assertTrue(freq01 + 3e6 < value < freq01 + 8e6)
+        self.assertTrue(freq01 + 3e6 < result.value.n < freq01 + 8e6)
         self.assertEqual(result.quality, "good")
 
     def test_spectroscopy12_end2end_classified(self):
@@ -132,9 +127,8 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
         result = expdata.analysis_results(1)
-        value = result.value.value
 
-        self.assertTrue(freq01 - 2e6 < value < freq01 + 2e6)
+        self.assertTrue(freq01 - 2e6 < result.value.n < freq01 + 2e6)
         self.assertEqual(result.quality, "good")
 
         # Test the circuits
