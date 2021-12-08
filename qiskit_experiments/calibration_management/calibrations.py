@@ -32,10 +32,14 @@ from qiskit.pulse import (
     RegisterSlot,
     MemorySlot,
     Schedule,
+    InstructionScheduleMap,
 )
 from qiskit.pulse.channels import PulseChannel
 from qiskit.circuit import Parameter, ParameterExpression
+from qiskit.providers.backend import BackendV1 as Backend
+
 from qiskit_experiments.exceptions import CalibrationError
+from qiskit_experiments.calibration_management.basis_gate_library import BasisGateLibrary
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.calibration_key_types import (
     ParameterKey,
@@ -52,24 +56,72 @@ class Calibrations:
     ScheduleBlock are supported.
     """
 
+    # The name of the parameter under which the qubit frequencies are registered.
+    __drive_freq_parameter__ = "drive_freq"
+
+    # The name of the parameter under which the readout frequencies are registered.
+    __readout_freq_parameter__ = "meas_freq"
+
     # The channel indices need to be parameterized following this regex.
     __channel_pattern__ = r"^ch\d[\.\d]*\${0,1}[\d]*$"
 
-    def __init__(self, control_config: Dict[Tuple[int, ...], List[ControlChannel]] = None):
+    def __init__(
+        self,
+        coupling_map: Optional[List[List[int]]] = None,
+        control_channel_map: Optional[Dict[Tuple[int, ...], List[ControlChannel]]] = None,
+        library: Optional[Union[BasisGateLibrary, List[BasisGateLibrary]]] = None,
+        add_parameter_defaults: bool = True,
+        backend_name: Optional[str] = None,
+        backend_version: Optional[str] = None,
+    ):
         """Initialize the calibrations.
 
+        Calibrations can be initialized from a basis gate library, i.e. a subclass of
+        :class:`BasisGateLibrary`. As example consider the following code:
+
+        .. code-block:: python
+
+            cals = Calibrations(
+                    library=FixedFrequencyTransmon(
+                        basis_gates=["x", "sx"],
+                        default_values={duration: 320}
+                    )
+                )
+
         Args:
-            control_config: A configuration dictionary of any control channels. The
+            coupling_map: The device's coupling map. Each sub-list describes connected qubits
+                For example, the coupling map of a fully pairwise-connected backend with three
+                qubits is :code:`[[0, 1], [1, 0], [1, 2], [2, 1], [2, 0], [0, 2]]`.
+            control_channel_map: A configuration dictionary of any control channels. The
                 keys are tuples of qubits and the values are a list of ControlChannels
                 that correspond to the qubits in the keys.
+            library: A library instance from which to get template schedules to register as well
+                as default parameter values.
+            add_parameter_defaults: A boolean to indicate weather the default parameter values of
+                the given library should be used to populate the calibrations. By default this
+                value is True but can be set to false when deserializing a calibrations object.
+            backend_name: The name of the backend that these calibrations are attached to.
+            backend_version: The version of the backend that these calibrations are attached to.
+
+        Raises:
+            NotImplementedError: if a list of libraries is given. This will be implemented in
+                the future.
         """
+        self._backend_name = backend_name
+        self._backend_version = backend_version
+
+        if isinstance(library, list):
+            raise NotImplementedError(
+                "Passing a list of libraries from which to instantiate "
+                "will be supported in future releases."
+            )
 
         # Mapping between qubits and their control channels.
-        self._controls_config = control_config if control_config else {}
+        self._control_channel_map = control_channel_map if control_channel_map else {}
 
         # Store the reverse mapping between control channels and qubits for ease of look-up.
         self._controls_config_r = {}
-        for qubits, channels in self._controls_config.items():
+        for qubits, channels in self._control_channel_map.items():
             for channel in channels:
                 self._controls_config_r[channel] = qubits
 
@@ -92,6 +144,276 @@ class Calibrations:
         # indices to the user.
         self._hash_to_counter_map = {}
         self._parameter_counter = 0
+
+        self._library = None
+        if library is not None:
+            self._library = library
+
+            # Add the basis gates
+            for gate in library.basis_gates:
+                self.add_schedule(library[gate], num_qubits=library.num_qubits(gate))
+
+            # Add the default values
+            if add_parameter_defaults:
+                for param_conf in library.default_values():
+                    self.add_parameter_value(*param_conf, update_inst_map=False)
+
+        # Instruction schedule map variables and support variables.
+        self._inst_map = InstructionScheduleMap()
+
+        # Use the same naming convention as in backend.defaults()
+        self.drive_freq = Parameter(self.__drive_freq_parameter__)
+        self.meas_freq = Parameter(self.__readout_freq_parameter__)
+        self._register_parameter(self.drive_freq, ())
+        self._register_parameter(self.meas_freq, ())
+
+        # Backends with a single qubit may not have a coupling map.
+        num_qubits = max(max(coupling_map)) + 1 if coupling_map is not None else 1
+
+        self._qubits = list(range(num_qubits))
+        self._coupling_map = coupling_map
+        self._operated_qubits = self._get_operated_qubits()
+
+        # Push the schedules to the instruction schedule map.
+        self.update_inst_map()
+
+    @classmethod
+    def from_backend(
+        cls,
+        backend: Backend,
+        library: Optional[BasisGateLibrary] = None,
+        add_parameter_defaults: bool = True,
+    ) -> "Calibrations":
+        """Create an instance of Calibrations from a backend.
+
+        Args:
+            backend: A backend instance from which to extract the qubit and readout frequencies
+                (which will be added as first guesses for the corresponding parameters) as well
+                as the coupling map.
+            library: A library instance from which to get template schedules to register as well
+                as default parameter values.
+            add_parameter_defaults: A boolean to indicate whether the default parameter values of
+                the given library should be used to populate the calibrations. By default this
+                value is ``True``.
+
+        Returns:
+            An instance of Calibrations instantiated from a backend.
+        """
+        if hasattr(backend, "name") and hasattr(backend.name, "__call__"):
+            backend_name = backend.name()
+        else:
+            backend_name = None
+
+        cals = Calibrations(
+            getattr(backend.configuration(), "coupling_map", None),
+            getattr(backend.configuration(), "control_channels", None),
+            library,
+            add_parameter_defaults,
+            backend_name,
+            getattr(backend, "version", None),
+        )
+
+        if add_parameter_defaults:
+            for qubit, freq in enumerate(getattr(backend.defaults(), "qubit_freq_est", [])):
+                cals.add_parameter_value(freq, cals.drive_freq, qubit, update_inst_map=False)
+
+            for meas, freq in enumerate(getattr(backend.defaults(), "meas_freq_est", [])):
+                cals.add_parameter_value(freq, cals.meas_freq, meas, update_inst_map=False)
+
+        # Update the instruction schedule map after adding all parameter values.
+        cals.update_inst_map()
+
+        return cals
+
+    @property
+    def library(self) -> Optional[BasisGateLibrary]:
+        """Return the name of the library, e.g. for experiment metadata."""
+        return self._library
+
+    def _get_operated_qubits(self) -> Dict[int, List[int]]:
+        """Get a dict describing qubit couplings.
+
+        This is an extension of the coupling map and used as a convenience to help populate
+        the instruction schedule map.
+
+        Returns:
+            A dict where the key is the number of qubits coupled and the value is a list of
+            lists where the sublist shows which qubits are coupled. For example, a three qubit
+            system with a three qubit gate and three two-qubit gates would be represented as
+
+            .. parsed-literal::
+
+                {
+                    1: [[0], [1], [2]],
+                    2: [[0, 1], [1, 2], [2, 1]],
+                    3: [[0, 1, 2]]
+                }
+        """
+        operated_qubits = defaultdict(list)
+
+        # Single qubits
+        for qubit in self._qubits:
+            operated_qubits[1].append([qubit])
+
+        # Multi-qubit couplings
+        if self._coupling_map is not None:
+            for coupling in self._coupling_map:
+                operated_qubits[len(coupling)].append(coupling)
+
+        return operated_qubits
+
+    @property
+    def default_inst_map(self) -> InstructionScheduleMap:
+        """Return the default and up to date instruction schedule map."""
+        return self._inst_map
+
+    def get_inst_map(
+        self,
+        group: str = "default",
+        cutoff_date: datetime = None,
+    ) -> InstructionScheduleMap:
+        """Get an Instruction schedule map with the calibrated pulses.
+
+        If the group is 'default' and cutoff date is None then the automatically updated
+        instruction schedule map is returned. However, if these values are different then
+        a new instruction schedule map is populated based on the values.
+
+        Args:
+            group: The calibration group from which to draw the parameters.
+                If not specified this defaults to the 'default' group.
+            cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
+                generated after the cutoff date will be ignored. If the cutoff_date is None then
+                all parameters are considered. This allows users to discard more recent values that
+                may be erroneous.
+
+        Returns:
+            An instruction schedule map with parameters updated up to the desired cutoff date
+            and from the desired calibration group.
+        """
+        if group == "default" and cutoff_date is None:
+            return self._inst_map
+
+        inst_map = InstructionScheduleMap()
+
+        self.update_inst_map(group=group, cutoff_date=cutoff_date, inst_map=inst_map)
+
+        return inst_map
+
+    def update_inst_map(
+        self,
+        schedules: Optional[Set[str]] = None,
+        qubits: Optional[Tuple[int, ...]] = None,
+        group: Optional[str] = "default",
+        cutoff_date: datetime = None,
+        inst_map: Optional[InstructionScheduleMap] = None,
+    ):
+        """Push all schedules from the Calibrations to the inst map.
+
+        This will create instructions with the same name as the schedules.
+
+        Args:
+            schedules: The name of the schedules to update. If None is given then
+                all schedules will be pushed to instructions.
+            qubits: The qubits for which to update the instruction schedule map.
+                If qubits is None then all possible schedules defined by the coupling
+                map will be updated. Note that this argument specifies a particular set of
+                qubits to update instructions for. For example, if qubits is :code:`(2, 3)` then
+                only two-qubit instructions that apply to qubits 2 and 3 will be updated. Here,
+                single-qubit instructions will not be updated.
+            group: The calibration group from which to draw the parameters. If not specified
+                this defaults to the 'default' group.
+            cutoff_date: Retrieve the most recent parameter up until the cutoff date. Parameters
+                generated after the cutoff date will be ignored. If the cutoff_date is None then
+                all parameters are considered. This allows users to discard more recent values that
+                may be erroneous.
+            inst_map: The instruction schedule map to update. If None is given then the default
+                instruction schedule map (i.e. self._inst_map) will be updated.
+        """
+        inst_map = inst_map or self._inst_map
+
+        for key in self._schedules:
+            sched_name = key.schedule
+
+            if schedules is not None and sched_name not in schedules:
+                continue
+
+            if qubits is not None:
+                self._robust_inst_map_add(inst_map, sched_name, qubits, group, cutoff_date)
+            else:
+                for qubits_ in self._operated_qubits[self._schedules_qubits[key]]:
+                    self._robust_inst_map_add(inst_map, sched_name, qubits_, group, cutoff_date)
+
+    def _robust_inst_map_add(
+        self,
+        inst_map: InstructionScheduleMap,
+        sched_name: str,
+        qubits: Union[int, Tuple[int, ...]],
+        group: str,
+        cutoff: datetime,
+    ):
+        """A helper method for update_inst_map.
+
+        get_schedule may raise an error if not all parameters have values or
+        default values. In this case we ignore and continue updating inst_map.
+
+        Args:
+            sched_name: The name of the schedule.
+            qubits: The qubit to which the schedule applies.
+            group: The calibration group.
+            cutoff: The cutoff date.
+        """
+        try:
+            inst_map.add(
+                instruction=sched_name,
+                qubits=qubits,
+                schedule=self.get_schedule(sched_name, qubits, group=group, cutoff_date=cutoff),
+            )
+        except CalibrationError:
+            # get_schedule may raise an error if not all parameters have values or
+            # default values. In this case we ignore and continue updating inst_map.
+            pass
+
+    def inst_map_add(
+        self,
+        instruction_name: str,
+        qubits: Tuple[int],
+        schedule_name: Optional[str] = None,
+        assign_params: Optional[Dict[Union[str, ParameterKey], ParameterValueType]] = None,
+    ):
+        """Update a single instruction in the instruction schedule map.
+
+        This method can be used to update a single instruction for the given qubits but
+        it can also be used by experiments that define custom gates with parameters
+        such as the :class:`Rabi` experiment. In a Rabi experiment there is a gate named
+        "Rabi" that scans a pulse with a custom amplitude. Therefore we would do
+
+        .. code-block:: python
+
+            cals.inst_map_add("Rabi", (0, ), "xp", assign_params={"amp": Parameter("amp")})
+
+        to temporarily add a pulse for the Rabi gate in the instruction schedule map. This
+        then allows calling :code:`transpile(circ, inst_map=cals.default_inst_map)`.
+
+        Args:
+            instruction_name: The name of the instruction to add to the instruction schedule map.
+            qubits: The qubits to which the instruction will apply.
+            schedule_name: The name of the schedule. If None is given then we assume that the
+                schedule and the instruction have the same name.
+            assign_params: An optional dict of parameter mappings to apply. See for instance
+                :meth:`get_schedule` of :class:`Calibrations`.
+        """
+        schedule_name = schedule_name or instruction_name
+
+        inst_map_args = None
+        if assign_params is not None:
+            inst_map_args = assign_params.keys()
+
+        self._inst_map.add(
+            instruction=instruction_name,
+            qubits=qubits,
+            schedule=self.get_schedule(schedule_name, qubits, assign_params),
+            arguments=inst_map_args,
+        )
 
     def add_schedule(
         self,
@@ -392,6 +714,7 @@ class Calibrations:
         param: Union[Parameter, str],
         qubits: Union[int, Tuple[int, ...]] = None,
         schedule: Union[ScheduleBlock, str] = None,
+        update_inst_map: bool = True,
     ):
         """Add a parameter value to the stored parameters.
 
@@ -405,6 +728,7 @@ class Calibrations:
             param: The parameter or its name for which to add the measured value.
             qubits: The qubits to which this parameter applies.
             schedule: The schedule or its name for which to add the measured parameter value.
+            update_inst_map: Update the instruction schedule map if True (the default).
 
         Raises:
             CalibrationError: If the schedule name is given but no schedule with that name
@@ -424,6 +748,11 @@ class Calibrations:
             raise CalibrationError(f"Schedule named {sched_name} was never registered.")
 
         self._params[ParameterKey(param_name, qubits, sched_name)].append(value)
+
+        if update_inst_map and schedule is not None:
+            param_obj = self.calibration_parameter(param_name, qubits, sched_name)
+            schedules = set(key.schedule for key in self._parameter_map_r[param_obj])
+            self.update_inst_map(schedules)
 
     def _get_channel_index(self, qubits: Tuple[int, ...], chan: PulseChannel) -> int:
         """Get the index of the parameterized channel.
@@ -469,7 +798,7 @@ class Calibrations:
 
                 indices = [int(sub_channel) for sub_channel in qubit_channels.split(".")]
                 ch_qubits = tuple(qubits[index] for index in indices)
-                chs_ = self._controls_config[ch_qubits]
+                chs_ = self._control_channel_map[ch_qubits]
 
                 control_index = 0
                 if len(channel_index_parts) == 2:
@@ -887,6 +1216,8 @@ class Calibrations:
         parameters: List[str] = None,
         qubit_list: List[Tuple[int, ...]] = None,
         schedules: List[Union[ScheduleBlock, str]] = None,
+        most_recent_only: bool = True,
+        group: Optional[str] = None,
     ) -> Dict[str, Union[List[Dict], List[str]]]:
         """A convenience function to help users visualize the values of their parameter.
 
@@ -896,6 +1227,8 @@ class Calibrations:
             qubit_list: The qubits that should be included in the returned table.
                 If None is given then all channels are returned.
             schedules: The schedules to which to restrict the output.
+            most_recent_only: return only the most recent parameter values.
+            group: If the group is given then only the parameters from this group are returned.
 
         Returns:
                 A dictionary with the keys "data" and "columns" that can easily
@@ -905,8 +1238,6 @@ class Calibrations:
         """
         if qubit_list:
             qubit_list = [self._to_tuple(qubits) for qubits in qubit_list]
-
-        data = []
 
         # Convert inputs to lists of strings
         if schedules is not None:
@@ -924,14 +1255,17 @@ class Calibrations:
 
             keys.add(key)
 
-        for key in keys:
-            for value in self._params[key]:
-                value_dict = dataclasses.asdict(value)
-                value_dict["qubits"] = key.qubits
-                value_dict["parameter"] = key.parameter
-                value_dict["schedule"] = key.schedule
-                value_dict["date_time"] = value_dict["date_time"].strftime("%Y-%m-%d %H:%M:%S.%f%z")
-                data.append(value_dict)
+        data = []
+        if most_recent_only:
+            most_recent = {k: max(self._params[k], key=lambda x: x.date_time) for k in keys}
+
+            for key, value in most_recent.items():
+                self._append_to_list(data, value, key, group)
+
+        else:
+            for key in keys:
+                for value in self._params[key]:
+                    self._append_to_list(data, value, key, group)
 
         columns = [
             "parameter",
@@ -945,12 +1279,28 @@ class Calibrations:
         ]
         return {"data": data, "columns": columns}
 
+    @staticmethod
+    def _append_to_list(
+        data: List[Dict], value: ParameterValue, key: ParameterKey, group: Optional[str] = None
+    ):
+        """Helper function to add a value to the data."""
+        if group and value.group != group:
+            return
+
+        value_dict = dataclasses.asdict(value)
+        value_dict["qubits"] = key.qubits
+        value_dict["parameter"] = key.parameter
+        value_dict["schedule"] = key.schedule
+        value_dict["date_time"] = value_dict["date_time"].strftime("%Y-%m-%d %H:%M:%S.%f%z")
+        data.append(value_dict)
+
     def save(
         self,
         file_type: str = "csv",
         folder: str = None,
         overwrite: bool = False,
         file_prefix: str = "",
+        most_recent_only: bool = False,
     ):
         """Save the parameterized schedules and parameter value.
 
@@ -974,6 +1324,8 @@ class Calibrations:
                 unless overwrite is set to True.
             file_prefix: A prefix to add to the name of the files such as a date tag or a
                 UUID.
+            most_recent_only: Save only the most recent value. This is set to False by
+                default so that when saving to csv all values will be saved.
 
         Raises:
             CalibrationError: if the files exist and overwrite is not set to True.
@@ -1021,7 +1373,7 @@ class Calibrations:
                 dict_writer.writerows(body)
 
             # Write the values of the parameters.
-            values = self.parameters_table()["data"]
+            values = self.parameters_table(most_recent_only=most_recent_only)["data"]
             if len(values) > 0:
                 header_keys = values[0].keys()
 
@@ -1031,12 +1383,7 @@ class Calibrations:
                     dict_writer.writerows(values)
 
             # Serialize the schedules. For now we just print them.
-            schedules = []
-            header_keys = ["name", "qubits", "schedule"]
-            for key, sched in self._schedules.items():
-                schedules.append(
-                    {"name": key.schedule, "qubits": key.qubits, "schedule": str(sched)}
-                )
+            header_keys, schedules = self.schedule_information()
 
             with open(schedule_file, "w", newline="", encoding="utf-8") as output_file:
                 dict_writer = csv.DictWriter(output_file, header_keys)
@@ -1047,6 +1394,24 @@ class Calibrations:
             raise CalibrationError(f"Saving to .{file_type} is not yet supported.")
 
         os.chdir(cwd)
+
+    def schedule_information(self) -> Tuple[List[str], List[Dict]]:
+        """Get the information on the schedules stored in the calibrations.
+
+        This function serializes the schedule by simply printing them.
+
+        Returns:
+            A tuple, the first element is the header row while the second is a dictionary
+            of the schedules in the calibrations where the key is an element of the header
+            and the values are the name of the schedule, the qubits to which it applies,
+            a string of the schedule.
+        """
+        # Serialize the schedules. For now we just print them.
+        schedules = []
+        for key, sched in self._schedules.items():
+            schedules.append({"name": key.schedule, "qubits": key.qubits, "schedule": str(sched)})
+
+        return ["name", "qubits", "schedule"], schedules
 
     def load_parameter_values(self, file_name: str = "parameter_values.csv"):
         """
@@ -1060,17 +1425,46 @@ class Calibrations:
             reader = csv.DictReader(fp, delimiter=",", quotechar='"')
 
             for row in reader:
-                param_val = ParameterValue(
-                    row["value"], row["date_time"], row["valid"], row["exp_id"], row["group"]
-                )
+                self._add_parameter_value_from_conf(**row)
 
-                if row["schedule"] == "":
-                    schedule_name = None
-                else:
-                    schedule_name = row["schedule"]
+        self.update_inst_map()
 
-                key = ParameterKey(row["parameter"], self._to_tuple(row["qubits"]), schedule_name)
-                self.add_parameter_value(param_val, *key)
+    def _add_parameter_value_from_conf(
+        self,
+        value: Union[str, int, float, complex],
+        date_time: str,
+        valid: Union[str, bool],
+        exp_id: str,
+        group: str,
+        schedule: Union[str, None],
+        parameter: str,
+        qubits: Union[str, int, Tuple[int, ...]],
+    ):
+        """Add a parameter value from a parameter configuration.
+
+        The intended usage is :code:`add_parameter_from_conf(**param_conf)`. Entries such
+        as ``value`` or ``date_time`` are converted to the proper type.
+
+        Args:
+            value: The value of the parameter.
+            date_time: The datetime string.
+            valid: Whether or not the parameter is valid.
+            exp_id: The id of the experiment that created the parameter value.
+            group: The calibration group to which the parameter belongs.
+            schedule: The schedule to which the parameter belongs. The empty string
+                "" is converted to None.
+            parameter: The name of the parameter.
+            qubits: The qubits on which the parameter acts.
+        """
+        param_val = ParameterValue(value, date_time, valid, exp_id, group)
+
+        if schedule == "":
+            schedule_name = None
+        else:
+            schedule_name = schedule
+
+        key = ParameterKey(parameter, self._to_tuple(qubits), schedule_name)
+        self.add_parameter_value(param_val, *key, update_inst_map=False)
 
     @classmethod
     def load(cls, files: List[str]) -> "Calibrations":

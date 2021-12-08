@@ -20,7 +20,7 @@ from qiskit.providers.backend import Backend
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.calibration_management import (
     BaseCalibrationExperiment,
-    BackendCalibrations,
+    Calibrations,
 )
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.library.characterization.drag import RoughDrag
@@ -36,7 +36,7 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
     def __init__(
         self,
         qubit: int,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         backend: Optional[Backend] = None,
         schedule_name: str = "x",
         betas: Iterable[float] = None,
