@@ -15,7 +15,7 @@ Test readout angle experiment
 
 import numpy as np
 
-from qiskit.test import QiskitTestCase
+from test.base import QiskitExperimentsTestCase
 from qiskit_experiments.library import ReadoutAngle
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 
@@ -29,7 +29,7 @@ class ReadoutAngleBackend(MockIQBackend):
         return 1 - circuit.metadata["xval"]
 
 
-class TestReadoutAngle(QiskitTestCase):
+class TestReadoutAngle(QiskitExperimentsTestCase):
     """
     Test the readout angle experiment
     """
