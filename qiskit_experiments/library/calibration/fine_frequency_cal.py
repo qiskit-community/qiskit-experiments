@@ -21,7 +21,7 @@ from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.calibration_management import (
     BaseCalibrationExperiment,
-    BackendCalibrations,
+    Calibrations,
 )
 from qiskit_experiments.library.characterization.fine_frequency import FineFrequency
 
@@ -36,7 +36,7 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
     def __init__(
         self,
         qubit: int,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         backend: Optional[Backend] = None,
         repetitions: List[int] = None,
         auto_update: bool = True,
@@ -59,7 +59,7 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
             schedule_name=None,
             repetitions=repetitions,
             backend=backend,
-            cal_parameter_name=calibrations.__qubit_freq_parameter__,
+            cal_parameter_name=calibrations.__drive_freq_parameter__,
             auto_update=auto_update,
         )
 

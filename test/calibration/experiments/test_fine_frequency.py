@@ -24,7 +24,7 @@ from qiskit_experiments.library import (
     FineFrequencyCal,
 )
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
-from qiskit_experiments.calibration_management import BackendCalibrations
+from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.test.mock_iq_backend import MockFineFreq
 
 
@@ -44,7 +44,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
 
         self.inst_map.add("sx", 0, sx_sxhed)
 
-        self.cals = BackendCalibrations(FakeArmonk(), FixedFrequencyTransmon())
+        self.cals = Calibrations.from_backend(FakeArmonk(), FixedFrequencyTransmon())
 
     @data(-0.5e6, -0.1e6, 0.1e6, 0.5e6)
     def test_end_to_end_under_rotation(self, freq_shift):
@@ -75,13 +75,13 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         fine_freq = FineFrequencyCal(0, self.cals, backend)
         armonk_freq = FakeArmonk().defaults().qubit_freq_est[0]
 
-        freq_before = self.cals.get_parameter_value(self.cals.__qubit_freq_parameter__, 0)
+        freq_before = self.cals.get_parameter_value(self.cals.__drive_freq_parameter__, 0)
 
         self.assertAlmostEqual(freq_before, armonk_freq)
 
         fine_freq.run().block_for_results()
 
-        freq_after = self.cals.get_parameter_value(self.cals.__qubit_freq_parameter__, 0)
+        freq_after = self.cals.get_parameter_value(self.cals.__drive_freq_parameter__, 0)
 
         # Test equality up to 1kHz on a 300 kHz shift
         self.assertAlmostEqual(freq_after, armonk_freq - freq_shift, delta=1e3)

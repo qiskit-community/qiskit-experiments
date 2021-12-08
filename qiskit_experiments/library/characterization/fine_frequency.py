@@ -25,25 +25,27 @@ from qiskit_experiments.library.characterization.analysis import FineAmplitudeAn
 class FineFrequency(BaseExperiment):
     r"""An experiment to make a fine measurement of the qubit frequency.
 
-    The fine frequency characterization experiment measures the qubit frequency by moving
-    to the equator of the Bloch sphere with a sx gate and idling for a time
-    :math:`n\cdot \tau` where :math:`\tau` is the duration of the single-qubit gate and
-    :math:`n` is an integer which ranges from zero to a maximal value in integer steps.
-    The idle time is followed by a rz rotation with an angle :math:`n\pi/2` and a final
-    sx gate. If the frequency of the pulses match the frequency of the qubit then the
-    sequence :math:`n\in[0,1,2,3,4,...]` will result in the sequence of measured qubit
-    populations :math:`[1, 0.5, 0, 0.5, 1, ...]` due to the rz rotation. If the frequency
-    of the pulses do not match the qubit frequency then the qubit will precess in the
-    drive frame during the idle time and phase errors will build-up. By fitting the measured
-    points we can extract the error in the qubit frequency. The circuit that are run are
+    # section: overview
 
-    .. parsed-literal::
+        The fine frequency characterization experiment measures the qubit frequency by moving
+        to the equator of the Bloch sphere with a sx gate and idling for a time
+        :math:`n\cdot \tau` where :math:`\tau` is the duration of the single-qubit gate and
+        :math:`n` is an integer which ranges from zero to a maximal value in integer steps.
+        The idle time is followed by a rz rotation with an angle :math:`n\pi/2` and a final
+        sx gate. If the frequency of the pulses match the frequency of the qubit then the
+        sequence :math:`n\in[0,1,2,3,4,...]` will result in the sequence of measured qubit
+        populations :math:`[1, 0.5, 0, 0.5, 1, ...]` due to the rz rotation. If the frequency
+        of the pulses do not match the qubit frequency then the qubit will precess in the
+        drive frame during the idle time and phase errors will build-up. By fitting the measured
+        points we can extract the error in the qubit frequency. The circuit that are run are
 
-                ┌────┐┌────────────────┐┌──────────┐┌────┐ ░ ┌─┐
-             q: ┤ √X ├┤ Delay(n*τ[dt]) ├┤ Rz(nπ/2) ├┤ √X ├─░─┤M├
-                └────┘└────────────────┘└──────────┘└────┘ ░ └╥┘
-        meas: 1/══════════════════════════════════════════════╩═
-                                                              0
+        .. parsed-literal::
+
+                    ┌────┐┌────────────────┐┌──────────┐┌────┐ ░ ┌─┐
+                 q: ┤ √X ├┤ Delay(n*τ[dt]) ├┤ Rz(nπ/2) ├┤ √X ├─░─┤M├
+                    └────┘└────────────────┘└──────────┘└────┘ ░ └╥┘
+            meas: 1/══════════════════════════════════════════════╩═
+                                                                  0
 
     """
 
