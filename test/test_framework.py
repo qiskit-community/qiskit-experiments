@@ -43,6 +43,7 @@ class TestFramework(QiskitExperimentsTestCase):
 
         exp = Experiment([0])
         expdata = exp.run(backend)
+        self.assertSuccess(expdata)
         job_ids = expdata.job_ids
 
         # Comptue expected number of jobs

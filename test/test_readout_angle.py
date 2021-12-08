@@ -40,12 +40,14 @@ class TestReadoutAngle(QiskitTestCase):
         """
         backend = ReadoutAngleBackend(iq_cluster_centers=(5.0, 5.0, -3.0, 3.0))
         exp = ReadoutAngle(0)
-        expdata = exp.run(backend, shots=100000).block_for_results()
+        expdata = exp.run(backend, shots=100000)
+        self.assertSuccess(expdata)
         res = expdata.analysis_results(0)
         self.assertAlmostEqual(res.value % (2 * np.pi), np.pi / 2, places=2)
 
         backend = ReadoutAngleBackend(iq_cluster_centers=(5.0, 5.0, 0, -3.0))
         exp = ReadoutAngle(0)
-        expdata = exp.run(backend, shots=100000).block_for_results()
+        expdata = exp.run(backend, shots=100000)
+        self.assertSuccess(expdata)
         res = expdata.analysis_results(0)
         self.assertAlmostEqual(res.value % (2 * np.pi), 15 * np.pi / 8, places=2)

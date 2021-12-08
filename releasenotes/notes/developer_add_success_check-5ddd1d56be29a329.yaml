@@ -1,0 +1,10 @@
+---
+developer:
+  - |
+    :py:func:`assertSuccess` and :py:func:`assertFail` functions have been added to
+    :py:class:`test.base.QiskitExperimentsTestCase`. These assertions will check
+    if the whole execution chain is successfuly completed or intentionally failed.
+    These checks are introduced since calling :py:meth:`BaseExperiment.run` will suppress
+    all error during execution and error message are stored in the experiment data
+    error log with status property. It is `highly recommended` to add these assertions
+    right after experiment run method call to detect malfunction of the program.

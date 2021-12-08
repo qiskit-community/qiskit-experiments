@@ -18,11 +18,29 @@ import json
 import numpy as np
 
 from qiskit.test import QiskitTestCase
-from qiskit_experiments.framework import ExperimentDecoder, ExperimentEncoder
+from qiskit_experiments.framework import ExperimentDecoder, ExperimentEncoder, ExperimentData
 
 
 class QiskitExperimentsTestCase(QiskitTestCase):
     """Qiskit Experiments specific extra functionality for test cases."""
+
+    def assertSuccess(self, experiment_data: ExperimentData):
+        """Assert that an experiment is succeeded.
+
+        Args:
+            experiment_data: Experiment data to evaluate.
+        """
+        experiment_data.block_for_results()
+        self.assertEqual(experiment_data.status(), "DONE", msg=experiment_data.errors())
+
+    def assertFail(self, experiment_data: ExperimentData):
+        """Assert that an experiment is failed.
+
+        Args:
+            experiment_data: Experiment data to evaluate.
+        """
+        experiment_data.block_for_results()
+        self.assertEqual(experiment_data.status(), "ERROR")
 
     def assertRoundTripSerializable(self, obj: Any, check_func: Optional[Callable] = None):
         """Assert that an object is round trip serializable.
