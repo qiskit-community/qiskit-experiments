@@ -55,3 +55,6 @@ class FakeJob(Job):
         if self._result:
             return JobStatus.DONE
         return JobStatus.RUNNING
+
+    def queue_info(self):
+        return None
