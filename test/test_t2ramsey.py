@@ -17,6 +17,7 @@ from test.base import QiskitExperimentsTestCase
 import numpy as np
 from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library import T2Ramsey
+from qiskit_experiments.library.characterization import T2RamseyAnalysis
 from qiskit_experiments.test.t2ramsey_backend import T2RamseyBackend
 
 
@@ -62,7 +63,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
             readout1to0=[0.02],
         )
         for user_p0 in [default_p0, dict()]:
-            exp.set_analysis_options(p0=user_p0)
+            exp.analysis.set_options(p0=user_p0)
             expdata = exp.run(backend=backend, shots=2000)
             expdata.block_for_results()  # Wait for job/analysis to finish.
             result = expdata.analysis_results("T2star")
@@ -144,7 +145,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
             "phi": 0,
             "B": 0.5,
         }
-        exp0.set_analysis_options(p0=default_p0)
+        exp0.analysis.set_options(p0=default_p0)
         backend = T2RamseyBackend(
             p0={
                 "A": [0.5],
@@ -165,10 +166,10 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         # second experiment
         delays1 = list(range(2, 65, 2))
         exp1 = T2Ramsey(qubit, delays1)
-        exp1.set_analysis_options(p0=default_p0)
-        expdata1 = exp1.run(backend=backend, analysis=False, shots=1000)
+        exp1.analysis.set_options(p0=default_p0)
+        expdata1 = exp1.run(backend=backend, analysis=None, shots=1000)
         expdata1.add_data(expdata0.data())
-        exp1.run_analysis(expdata1)
+        exp1.analysis.run(expdata1)
 
         res_t2star_1 = expdata1.analysis_results("T2star")
         res_freq_1 = expdata1.analysis_results("Frequency")
@@ -189,7 +190,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = T2Ramsey(0, [1, 2, 3, 4, 5])
-        loaded_exp = T2Ramsey.from_config(exp.config)
+        loaded_exp = T2Ramsey.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.experiments_equiv(exp, loaded_exp))
 
@@ -197,3 +198,10 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         """Test round trip JSON serialization"""
         exp = T2Ramsey(0, [1, 2, 3, 4, 5])
         self.assertRoundTripSerializable(exp, self.experiments_equiv)
+
+    def test_analysis_config(self):
+        """ "Test converting analysis to and from config works"""
+        analysis = T2RamseyAnalysis()
+        loaded = T2RamseyAnalysis.from_config(analysis.config())
+        self.assertNotEqual(analysis, loaded)
+        self.assertEqual(analysis.config(), loaded.config())

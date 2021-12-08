@@ -265,7 +265,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             sigma=64,
             risefall=2,
         )
-        loaded_exp = cr_hamiltonian.CrossResonanceHamiltonian.from_config(exp.config)
+        loaded_exp = cr_hamiltonian.CrossResonanceHamiltonian.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.experiments_equiv(exp, loaded_exp))
 
