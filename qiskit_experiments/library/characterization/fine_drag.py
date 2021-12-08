@@ -125,6 +125,9 @@ class FineDrag(BaseExperiment):
 
         This is the correction formula in the FineDRAG Updater.
 
+    # section: analysis_ref
+        :py:class:`FineDragAnalysis`
+
     # section: see_also
         qiskit_experiments.library.calibration.drag.DragCal
 
@@ -132,8 +135,6 @@ class FineDrag(BaseExperiment):
         .. ref_arxiv:: 1 1612.00858
         .. ref_arxiv:: 2 1011.1949
     """
-
-    __analysis_class__ = FineDragAnalysis
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -152,17 +153,6 @@ class FineDrag(BaseExperiment):
 
         return options
 
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = super()._default_analysis_options()
-        options.normalization = True
-        options.angle_per_gate = 0.0
-        options.phase_offset = np.pi / 2
-        options.amp = 1.0
-
-        return options
-
     def __init__(self, qubit: int, gate: Gate, backend: Optional[Backend] = None):
         """Setup a fine amplitude experiment on the given qubit.
 
@@ -171,7 +161,7 @@ class FineDrag(BaseExperiment):
             gate: The gate that will be repeated.
             backend: Optional, the backend to run the experiment on.
         """
-        super().__init__([qubit], backend=backend)
+        super().__init__([qubit], analysis=FineDragAnalysis(), backend=backend)
         self.set_experiment_options(gate=gate)
 
     @staticmethod

@@ -151,9 +151,6 @@ To create an experiment subclass
   Arguments in the constructor can be overridden so that a subclass can
   be initialized with some experiment configuration.
 
-- Set :attr:`BaseExperiment.__analysis_class__` class attribute to
-  specify the :class:`BaseAnalysis` subclass for analyzing result data.
-
 Optionally the following methods can also be overridden in the subclass to
 allow configuring various experiment and execution options
 

@@ -37,8 +37,6 @@ class FakeAnalysis(BaseAnalysis):
 class FakeExperiment(BaseExperiment):
     """Fake experiment class for testing."""
 
-    __analysis_class__ = FakeAnalysis
-
     @classmethod
     def _default_experiment_options(cls) -> Options:
         return Options(dummyoption=None)
@@ -47,7 +45,7 @@ class FakeExperiment(BaseExperiment):
         """Initialise the fake experiment."""
         if qubits is None:
             qubits = [0]
-        super().__init__(qubits)
+        super().__init__(qubits, analysis=FakeAnalysis())
 
     def circuits(self):
         """Fake circuits."""
