@@ -45,23 +45,7 @@ class CompositeAnalysis(BaseAnalysis):
         reconstructed from the parent composite experiment data.
     """
 
-    # pylint: disable = arguments-differ
-    def _run_analysis(self, experiment_data: ExperimentData, **options):
-        """Run analysis on composite experiment circuit data.
-
-        Args:
-            experiment_data: the experiment data to analyze.
-            options: kwarg options for analysis function.
-
-        Returns:
-            tuple: A pair ``(analysis_results, figures)`` where ``analysis_results``
-                   is a list of :class:`AnalysisResultData` objects, and ``figures``
-                   is a list of any figures for the experiment.
-
-        Raises:
-            QiskitError: if analysis is attempted on non-composite
-                         experiment data.
-        """
+    def _run_analysis(self, experiment_data: ExperimentData):
         # Extract job metadata for the component experiments so it can be added
         # to the child experiment data incase it is required by the child experiments
         # analysis classes
@@ -99,7 +83,7 @@ class CompositeAnalysis(BaseAnalysis):
             # Run analysis
             # Since copy for replace result is handled at the parent level
             # we always run with replace result on component analysis
-            sub_exp.run_analysis(sub_exp_data, replace_results=True)
+            sub_exp.analysis.run(sub_exp_data, replace_results=True)
 
             # Record the component experiment id and type as an analysis result
             # for evidence analysis has started and to display in the service DB

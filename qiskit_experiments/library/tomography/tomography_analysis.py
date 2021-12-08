@@ -68,6 +68,9 @@ class TomographyAnalysis(BaseAnalysis):
                 This can  be a string to select one of the built-in fitters, or a callable to
                 supply a custom fitter function. See the `Fitter Functions` section for
                 additional information.
+            fitter_options (dict): Any addition kwarg options to be supplied to the fitter
+                function. For documentation of available kargs refer to the fitter function
+                documentation.
             rescale_positive (bool): If True rescale the state returned by the fitter
                 to be positive-semidefinite. See the `PSD Rescaling` section for
                 additional information (Default: True).
@@ -75,19 +78,16 @@ class TomographyAnalysis(BaseAnalysis):
                 have either trace 1 for :class:`~qiskit.quantum_info.DensityMatrix`,
                 or trace dim for :class:`~qiskit.quantum_info.Choi` matrices (Default: True).
             target (Any): depends on subclass.
-            kwargs: will be supplied to the fitter function, for documentation of available
-                args refer to the fitter function documentation.
-
         """
         options = super()._default_options()
 
         options.measurement_basis = None
         options.preparation_basis = None
         options.fitter = "linear_inversion"
+        options.fitter_options = {}
         options.rescale_positive = True
         options.rescale_trace = True
         options.target = "default"
-
         return options
 
     @classmethod
@@ -101,26 +101,20 @@ class TomographyAnalysis(BaseAnalysis):
             return cls._builtin_fitters[fitter]
         raise AnalysisError(f"Unrecognized tomography fitter {fitter}")
 
-    def _run_analysis(self, experiment_data, **options):
+    def _run_analysis(self, experiment_data):
         # Extract tomography measurement data
         outcome_data, shot_data, measurement_data, preparation_data = self._fitter_data(
             experiment_data.data()
         )
 
-        # Get tomography options
-        measurement_basis = options.pop("measurement_basis")
-        preparation_basis = options.pop("preparation_basis", None)
-        rescale_positive = options.pop("rescale_positive")
-        rescale_trace = options.pop("rescale_trace")
-        target_state = options.pop("target")
-
-        # Get target state from circuit metadata
+        # Get target state
+        target_state = self.options.target
         if target_state == "default":
             metadata = experiment_data.metadata
             target_state = metadata.get("target", None)
 
         # Get tomography fitter function
-        fitter = self._get_fitter(options.pop("fitter", None))
+        fitter = self._get_fitter(self.options.fitter)
         try:
             t_fitter_start = time.time()
             state, fitter_metadata = fitter(
@@ -128,14 +122,14 @@ class TomographyAnalysis(BaseAnalysis):
                 shot_data,
                 measurement_data,
                 preparation_data,
-                measurement_basis,
-                preparation_basis,
-                **options,
+                self.options.measurement_basis,
+                self.options.preparation_basis,
+                **self.options.fitter_options,
             )
             t_fitter_stop = time.time()
             if fitter_metadata is None:
                 fitter_metadata = {}
-            state = Choi(state) if preparation_basis else DensityMatrix(state)
+            state = Choi(state) if self.options.preparation_basis else DensityMatrix(state)
             fitter_metadata["fitter"] = fitter.__name__
             fitter_metadata["fitter_time"] = t_fitter_stop - t_fitter_start
 
@@ -143,9 +137,9 @@ class TomographyAnalysis(BaseAnalysis):
                 state,
                 metadata=fitter_metadata,
                 target_state=target_state,
-                rescale_positive=rescale_positive,
-                rescale_trace=rescale_trace,
-                qpt=bool(preparation_basis),
+                rescale_positive=self.options.rescale_positive,
+                rescale_trace=self.options.rescale_trace,
+                qpt=bool(self.options.preparation_basis),
             )
 
         except AnalysisError as ex:

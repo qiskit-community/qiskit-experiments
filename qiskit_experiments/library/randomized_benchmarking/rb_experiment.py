@@ -49,15 +49,15 @@ class StandardRB(BaseExperiment):
         on estimating the Error Per Gate (EPG) for 1-qubit and 2-qubit gates,
         from 1-qubit and 2-qubit standard RB experiments, by Ref. [3].
 
+    # section: analysis_ref
+        :py:class:`RBAnalysis`
+
     # section: reference
         .. ref_arxiv:: 1 1009.3639
         .. ref_arxiv:: 2 1109.6887
         .. ref_arxiv:: 3 1712.06550
 
     """
-
-    # Analysis class for experiment
-    __analysis_class__ = RBAnalysis
 
     def __init__(
         self,
@@ -84,12 +84,12 @@ class StandardRB(BaseExperiment):
                            The default is False.
         """
         # Initialize base experiment
-        super().__init__(qubits, backend=backend)
+        super().__init__(qubits, analysis=RBAnalysis(), backend=backend)
         self._verify_parameters(lengths, num_samples)
 
         # Set configurable options
         self.set_experiment_options(lengths=list(lengths), num_samples=num_samples)
-        self.set_analysis_options(
+        self.analysis.set_options(
             data_processor=dp.DataProcessor(
                 input_key="counts",
                 data_actions=[dp.Probability(outcome="0" * self.num_qubits)],

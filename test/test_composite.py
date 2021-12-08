@@ -50,7 +50,7 @@ class TestComposite(QiskitExperimentsTestCase):
         exp2.set_experiment_options(dummyoption="test")
         exp2.set_run_options(shots=2000)
         exp2.set_transpile_options(optimization_level=1)
-        exp2.set_analysis_options(dummyoption="test")
+        exp2.analysis.set_options(dummyoption="test")
 
         par_exp = ParallelExperiment([exp0, exp2])
 
@@ -62,7 +62,7 @@ class TestComposite(QiskitExperimentsTestCase):
             self.assertEqual(par_exp.experiment_options, Options())
             self.assertEqual(par_exp.run_options, Options(meas_level=2))
             self.assertEqual(par_exp.transpile_options, Options(optimization_level=0))
-            self.assertEqual(par_exp.analysis_options, Options())
+            self.assertEqual(par_exp.analysis.options, Options())
 
             par_exp.run(FakeBackend())
 
@@ -176,7 +176,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         data1.add_child_data(extra_data)
 
         # Replace results
-        data2 = par_exp.run_analysis(data1, replace_results=True)
+        data2 = par_exp.analysis.run(data1, replace_results=True)
         self.assertEqual(data1, data2)
         self.assertEqual(len(data1.child_data()), len(data2.child_data()))
         for sub1, sub2 in zip(data1.child_data(), data2.child_data()):
@@ -197,7 +197,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         data1.add_child_data(extra_data)
 
         # Replace results
-        data2 = par_exp.run_analysis(data1, replace_results=False)
+        data2 = par_exp.analysis.run(data1, replace_results=False)
         self.assertNotEqual(data1.experiment_id, data2.experiment_id)
         self.assertEqual(len(data1.child_data()), len(data2.child_data()))
         for sub1, sub2 in zip(data1.child_data(), data2.child_data()):
