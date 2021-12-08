@@ -6,16 +6,17 @@ upgrade:
     :class:`~qiskit_experiments.library.InterleavedStandardRB`,
     :class:`~qiskit_experiments.library.QuantumVolume` experiments has
     been modified.
-    
-    In the current version the ``seed`` value is now used as to initialize
-    a RNG generator object as ``numpy.random.default_rng(seed=seed)`` each
-    time the experiments ``circuits`` method is called. This change means
+
+    In the new version the ``seed`` value is used as to initialize a Numpy
+    random number generator object as ``numpy.random.default_rng(seed=seed)``
+    each time the experiments ``circuits`` method is called. This change means
     that using a fixed seed value will result in the same circuits being
     generated each time an experiment is run, if no other
     experiment options are changed.
-    
-    To generate different random circuits each time an experiment is run
-    the (default) value of ``seed=None`` should be used, or a new seed value
-    should be set using ``experiment.set_experiment_options(seed=value)``
-    between each call to
-    :meth:`~qiskit_experiments.framework.BaseExperiment.run`.
+
+    To generate different new random circuits each time an experiment is run
+    the (default) value of ``seed=None`` should be used. To reproduce
+    equivalent functionality to the previous version behavior of differnet
+    circuits being generated each time ``run`` is called with a fixed seed
+    you must now set a new fixed seed value between each call to ``run``
+    using ``experiment.set_experiment_options(seed=value)``.
