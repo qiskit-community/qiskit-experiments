@@ -19,7 +19,6 @@ from qiskit.qobj.utils import MeasLevel
 
 
 from qiskit_experiments.test.base import QiskitExperimentsTestCase
-
 from qiskit_experiments.library import QubitSpectroscopy, EFSpectroscopy
 from qiskit_experiments.test.mock_iq_backend import MockIQBackend
 
