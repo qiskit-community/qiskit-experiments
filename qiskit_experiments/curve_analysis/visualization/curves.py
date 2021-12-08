@@ -72,10 +72,19 @@ def plot_curve_fit(
     # Confidence interval of 1 sigma
     stdev_arr = unp.std_devs(ys_fit_with_error)
     if np.isfinite(stdev_arr).all():
+        # 1 sigma plot
         ax.fill_between(
             xs,
             y1=unp.nominal_values(ys_fit_with_error) - stdev_arr,
             y2=unp.nominal_values(ys_fit_with_error) + stdev_arr,
+            alpha=0.3,
+            color=plot_opts["color"],
+        )
+        # 3 sigma plot
+        ax.fill_between(
+            xs,
+            y1=unp.nominal_values(ys_fit_with_error) - 3 * stdev_arr,
+            y2=unp.nominal_values(ys_fit_with_error) + 3 * stdev_arr,
             alpha=0.1,
             color=plot_opts["color"],
         )
