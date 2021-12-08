@@ -19,7 +19,7 @@ from qiskit import QuantumCircuit, schedule, transpile
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options
-from qiskit_experiments.library.characterization.analysis import FineAmplitudeAnalysis
+from qiskit_experiments.library.characterization.analysis import FineFrequencyAnalysis
 
 
 class FineFrequency(BaseExperiment):
@@ -46,7 +46,8 @@ class FineFrequency(BaseExperiment):
                     └────┘└────────────────┘└──────────┘└────┘ ░ └╥┘
             meas: 1/══════════════════════════════════════════════╩═
                                                                   0
-
+    # section: analysis_ref
+        :py:class:`FineFrequencyAnalysis`
     """
 
     def __init__(
@@ -60,10 +61,7 @@ class FineFrequency(BaseExperiment):
             repetitions: The number of repetitions, if not given then the default value
                 from the experiment default options will be used.
         """
-        super().__init__([qubit], analysis=FineAmplitudeAnalysis(), backend=backend)
-
-        # Set default analysis options
-        self.analysis.set_options(angle_per_gate=np.pi / 2, phase_offset=0)
+        super().__init__([qubit], analysis=FineFrequencyAnalysis(), backend=backend)
 
         if repetitions is not None:
             self.set_experiment_options(repetitions=repetitions)
