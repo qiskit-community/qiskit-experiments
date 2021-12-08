@@ -20,7 +20,6 @@ from qiskit.providers import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.library.characterization.analysis import FineHalfAngleAnalysis
-from qiskit_experiments.curve_analysis import ParameterRepr
 
 
 class HalfAngle(BaseExperiment):
@@ -47,11 +46,12 @@ class HalfAngle(BaseExperiment):
         For example, the non-linearities in the mixer's skew for :math:`\pi/2` pulses may
         be different from the :math:`\pi` pulse.
 
+    # section: analysis_ref
+        :py:class:`FineHalfAngleAnalysis`
+
     # section: reference
         .. ref_arxiv:: 1 1504.06597
     """
-
-    __analysis_class__ = FineHalfAngleAnalysis
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -77,24 +77,6 @@ class HalfAngle(BaseExperiment):
         options.inst_map = None
         return options
 
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        r"""Default analysis options.
-
-        If the rotation error is very small the fit may chose a d_theta close to
-        :math:`\pm\pi`. To prevent this we impose bounds on d_theta. Note that the
-        options angle per gate, phase offset and amp are not intended to be changed.
-        """
-        options = super()._default_analysis_options()
-        options.result_parameters = [ParameterRepr("d_theta", "d_hac", "rad")]
-        options.normalization = True
-        options.angle_per_gate = np.pi
-        options.phase_offset = -np.pi / 2
-        options.amp = 1.0
-        options.bounds.update({"d_theta": (-np.pi / 2, np.pi / 2)})
-
-        return options
-
     def __init__(self, qubit: int, backend: Optional[Backend] = None):
         """Setup a half angle experiment on the given qubit.
 
@@ -102,7 +84,7 @@ class HalfAngle(BaseExperiment):
             qubit: The qubit on which to run the fine amplitude calibration experiment.
             backend: Optional, the backend to run the experiment on.
         """
-        super().__init__([qubit], backend=backend)
+        super().__init__([qubit], analysis=FineHalfAngleAnalysis(), backend=backend)
 
     @staticmethod
     def _pre_circuit() -> QuantumCircuit:
