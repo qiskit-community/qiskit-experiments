@@ -59,7 +59,6 @@ class T2Hahn(BaseExperiment):
             :doc:`/tutorials/t2hahn_characterization`
 
         """
-    __analysis_class__ = T2HahnAnalysis
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -100,7 +99,7 @@ class T2Hahn(BaseExperiment):
              QiskitError : Error for invalid input.
         """
         # Initialize base experiment
-        super().__init__([qubit], backend=backend)
+        super().__init__([qubit], analysis=T2HahnAnalysis(), backend=backend)
 
         # Set experiment options
         self.set_experiment_options(delays=delays, unit=unit, num_echoes=num_echoes)

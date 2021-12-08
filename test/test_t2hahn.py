@@ -64,7 +64,7 @@ class TestT2Hahn(QiskitTestCase):
             )
 
             for _ in [default_p0, dict()]:
-                exp.set_analysis_options(
+                exp.analysis.set_options(
                     p0={"amp": 0.5, "tau": estimated_t2hahn / dt_factor, "base": 0.5}, plot=True
                 )
                 expdata = exp.run(backend=backend, shots=1000)
@@ -80,18 +80,16 @@ class TestT2Hahn(QiskitTestCase):
         Test parallel experiments of T2Hahn using a simulator.
         """
         t2hahn = [30, 25]
-        estimated_freq = [0.1, 0.12]
         delays = [list(range(1, 60)), list(range(1, 50))]
-
         osc_freq = [0.11, 0.11]
 
         exp0 = T2Hahn(0, delays[0])
         exp2 = T2Hahn(2, delays[1])
 
-        exp0.set_analysis_options(
+        exp0.analysis.set_options(
             p0={"amp": 0.5, "tau": t2hahn[0], "base": 0.5}, plot=True
         )
-        exp2.set_analysis_options(
+        exp2.analysis.set_options(
             p0={"amp": 0.5, "tau": t2hahn[1], "base": 0.5}, plot=True
         )
 
@@ -135,7 +133,7 @@ class TestT2Hahn(QiskitTestCase):
         dt_factor = 1
 
         exp0 = T2Hahn(qubit, delays0, unit=unit)
-        exp0.set_analysis_options(
+        exp0.analysis.set_options(
             p0={"amp": 0.5, "tau": estimated_t2hahn / dt_factor, "base": 0.5}, plot=True
         )
         backend = T2HahnBackend(
@@ -152,16 +150,15 @@ class TestT2Hahn(QiskitTestCase):
         expdata0.block_for_results()
 
         res_t2_0 = expdata0.analysis_results("T2")
-
         # second experiment
         delays1 = list(range(2, 65, 2))
         exp1 = T2Hahn(qubit, delays1, unit=unit)
-        exp1.set_analysis_options(
+        exp1.analysis.set_options(
             p0={"amp": 0.5, "tau": estimated_t2hahn / dt_factor, "base": 0.5}, plot=True
         )
-        expdata1 = exp1.run(backend=backend, analysis=False, shots=1000).block_for_results()
+        expdata1 = exp1.run(backend=backend, analysis=None, shots=1000).block_for_results()
         expdata1.add_data(expdata0.data())
-        exp1.run_analysis(expdata1).block_for_results()
+        exp1.analysis.run(expdata1)
 
         res_t2_1 = expdata1.analysis_results("T2")
 
