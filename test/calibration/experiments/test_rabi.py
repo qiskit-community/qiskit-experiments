@@ -54,7 +54,6 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         rabi = Rabi(self.qubit, self.sched)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         expdata = rabi.run(backend)
-        expdata.block_for_results()
         result = expdata.analysis_results(0)
 
         self.assertEqual(result.quality, "good")
@@ -65,7 +64,6 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         rabi = Rabi(self.qubit, self.sched)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         expdata = rabi.run(backend)
-        expdata.block_for_results()
         result = expdata.analysis_results(0)
         self.assertEqual(result.quality, "good")
         self.assertTrue(abs(result.value.value[1] - backend.rabi_rate) < test_tol)
@@ -75,7 +73,6 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         rabi = Rabi(self.qubit, self.sched)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 101))
         expdata = rabi.run(backend)
-        expdata.block_for_results()
         result = expdata.analysis_results(0)
         self.assertEqual(result.quality, "good")
         self.assertTrue(abs(result.value.value[1] - backend.rabi_rate) < test_tol)
@@ -89,10 +86,9 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
 
         fail_key = "fail_key"
 
-        rabi.set_analysis_options(data_processor=DataProcessor(fail_key, []))
+        rabi.analysis.set_options(data_processor=DataProcessor(fail_key, []))
         rabi.set_run_options(shots=2)
         data = rabi.run(backend)
-        data.block_for_results()
         result = data.analysis_results()
 
         self.assertEqual(len(result), 0)
@@ -100,7 +96,7 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = Rabi(0, self.sched)
-        loaded_exp = Rabi.from_config(exp.config)
+        loaded_exp = Rabi.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.experiments_equiv(exp, loaded_exp))
 
@@ -139,7 +135,6 @@ class TestEFRabi(QiskitExperimentsTestCase):
         rabi = EFRabi(self.qubit, self.sched)
         rabi.set_experiment_options(amplitudes=np.linspace(-0.95, 0.95, 21))
         expdata = rabi.run(backend)
-        expdata.block_for_results()
         result = expdata.analysis_results(1)
 
         self.assertEqual(result.quality, "good")
@@ -170,7 +165,7 @@ class TestEFRabi(QiskitExperimentsTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = EFRabi(0, self.sched)
-        loaded_exp = EFRabi.from_config(exp.config)
+        loaded_exp = EFRabi.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.experiments_equiv(exp, loaded_exp))
 
@@ -274,12 +269,9 @@ class TestRabiAnalysis(QiskitExperimentsTestCase):
 
         data_processor = DataProcessor("counts", [Probability(outcome="1")])
 
-        experiment_data = (
-            OscillationAnalysis()
-            .run(experiment_data, data_processor=data_processor, plot=False)
-            .block_for_results()
+        experiment_data = OscillationAnalysis().run(
+            experiment_data, data_processor=data_processor, plot=False
         )
-        experiment_data.block_for_results()
         result = experiment_data.analysis_results()
         self.assertEqual(result[0].quality, "good")
         self.assertTrue(abs(result[0].value.value[1] - expected_rate) < test_tol)
@@ -295,12 +287,9 @@ class TestRabiAnalysis(QiskitExperimentsTestCase):
 
         data_processor = DataProcessor("counts", [Probability(outcome="1")])
 
-        experiment_data = (
-            OscillationAnalysis()
-            .run(experiment_data, data_processor=data_processor, plot=False)
-            .block_for_results()
+        experiment_data = OscillationAnalysis().run(
+            experiment_data, data_processor=data_processor, plot=False
         )
-        experiment_data.block_for_results()
         result = experiment_data.analysis_results()
 
         self.assertEqual(result[0].quality, "bad")

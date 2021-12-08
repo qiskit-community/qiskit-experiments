@@ -38,10 +38,6 @@ Experiments for verification and validation of quantum devices.
     ~randomized_benchmarking.InterleavedRB
     ~tomography.StateTomography
     ~tomography.ProcessTomography
-
-.. autosummary::
-    :toctree: ../stubs/
-
     ~quantum_volume.QuantumVolume
 
 .. _characterization:
@@ -73,6 +69,7 @@ Some experiments may be also used for gate calibration.
     ~characterization.Rabi
     ~characterization.EFRabi
     ~characterization.RamseyXY
+    ~characterization.ReadoutAngle
 
 
 .. _calibration:
@@ -135,6 +132,7 @@ from .characterization import (
     FineXAmplitude,
     FineSXAmplitude,
     RamseyXY,
+    ReadoutAngle,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography

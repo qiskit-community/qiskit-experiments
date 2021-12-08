@@ -45,12 +45,12 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
         amp_exp = FineAmplitude(0, Gate("xp", 1, []))
         amp_exp.set_transpile_options(basis_gates=["xp", "x", "sx"])
         amp_exp.set_experiment_options(add_sx=True)
-        amp_exp.set_analysis_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
+        amp_exp.analysis.set_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
 
         error = -np.pi * pi_ratio
         backend = MockFineAmp(error, np.pi, "xp")
 
-        expdata = amp_exp.run(backend).block_for_results()
+        expdata = amp_exp.run(backend)
         result = expdata.analysis_results(1)
         d_theta = result.value.value
 
@@ -66,12 +66,12 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
         amp_exp = FineAmplitude(0, Gate("xp", 1, []))
         amp_exp.set_transpile_options(basis_gates=["xp", "x", "sx"])
         amp_exp.set_experiment_options(add_sx=True)
-        amp_exp.set_analysis_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
+        amp_exp.analysis.set_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
 
         error = np.pi * pi_ratio
         backend = MockFineAmp(error, np.pi, "xp")
 
-        expdata = amp_exp.run(backend).block_for_results()
+        expdata = amp_exp.run(backend)
         result = expdata.analysis_results(1)
         d_theta = result.value.value
 
@@ -129,8 +129,8 @@ class TestSpecializations(QiskitExperimentsTestCase):
 
         self.assertTrue(exp.experiment_options.add_sx)
         self.assertTrue(exp.experiment_options.add_xp_circuit)
-        self.assertEqual(exp.analysis_options.angle_per_gate, np.pi)
-        self.assertEqual(exp.analysis_options.phase_offset, np.pi / 2)
+        self.assertEqual(exp.analysis.options.angle_per_gate, np.pi)
+        self.assertEqual(exp.analysis.options.phase_offset, np.pi / 2)
         self.assertEqual(exp.experiment_options.gate, XGate())
 
     def test_fine_sx_amp(self):
@@ -143,8 +143,8 @@ class TestSpecializations(QiskitExperimentsTestCase):
 
         expected = [0, 1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
         self.assertEqual(exp.experiment_options.repetitions, expected)
-        self.assertEqual(exp.analysis_options.angle_per_gate, np.pi / 2)
-        self.assertEqual(exp.analysis_options.phase_offset, np.pi)
+        self.assertEqual(exp.analysis.options.angle_per_gate, np.pi / 2)
+        self.assertEqual(exp.analysis.options.phase_offset, np.pi)
         self.assertEqual(exp.experiment_options.gate, SXGate())
 
 
@@ -214,7 +214,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
         self.assertEqual(circs[5].calibrations["sx"][((0,), ())], expected_sx)
 
         # run the calibration experiment. This should update the amp parameter of x which we test.
-        exp_data = amp_cal.run(self.backend).block_for_results()
+        exp_data = amp_cal.run(self.backend)
         d_theta = exp_data.analysis_results(1).value.value
         new_amp = init_amp * np.pi / (np.pi + d_theta)
 
@@ -252,7 +252,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
         self.assertEqual(circs[5].calibrations["sx"][((0,), ())], expected_sx)
 
         # run the calibration experiment. This should update the amp parameter of x which we test.
-        exp_data = amp_cal.run(MockFineAmp(-np.pi * 0.07, np.pi / 2, "sx")).block_for_results()
+        exp_data = amp_cal.run(MockFineAmp(-np.pi * 0.07, np.pi / 2, "sx"))
         d_theta = exp_data.analysis_results(1).value.value
         new_amp = init_amp * (np.pi / 2) / (np.pi / 2 + d_theta)
 
@@ -269,7 +269,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = FineSXAmplitudeCal(0, self.cals, "sx")
-        loaded_exp = FineSXAmplitudeCal.from_config(exp.config)
+        loaded_exp = FineSXAmplitudeCal.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.experiments_equiv(exp, loaded_exp))
 

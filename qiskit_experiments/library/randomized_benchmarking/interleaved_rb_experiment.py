@@ -39,13 +39,13 @@ class InterleavedRB(StandardRB):
         the ground state, fits the two exponentially decaying curves, and estimates
         the interleaved gate error. See Ref. [1] for details.
 
+    # section: analysis_ref
+        :py:class:`InterleavedRBAnalysis`
+
     # section: reference
         .. ref_arxiv:: 1 1203.4550
 
     """
-
-    # Analysis class for experiment
-    __analysis_class__ = InterleavedRBAnalysis
 
     def __init__(
         self,
@@ -83,6 +83,7 @@ class InterleavedRB(StandardRB):
             seed=seed,
             full_sampling=full_sampling,
         )
+        self.analysis = InterleavedRBAnalysis()
 
     def _sample_circuits(self, lengths, seed=None):
         circuits = []
