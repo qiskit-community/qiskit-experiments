@@ -72,7 +72,7 @@ class TestFrequencyUpdate(QiskitExperimentsTestCase):
         self.assertTrue(freq01 + peak_offset - 2e6 < value < freq01 + peak_offset + 2e6)
         self.assertEqual(result.quality, "good")
 
-        # Test the integration with the BackendCalibrations
+        # Test the integration with the Calibrations
         cals = Calibrations.from_backend(FakeAthens())
         self.assertNotEqual(cals.get_parameter_value(cals.__drive_freq_parameter__, qubit), value)
         Frequency.update(cals, exp_data)

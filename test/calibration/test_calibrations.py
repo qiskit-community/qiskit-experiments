@@ -1398,8 +1398,8 @@ class TestSavingAndLoading(CrossResonanceTest):
         )
 
 
-class TestBackendCalibrations(QiskitExperimentsTestCase):
-    """Class to test the functionality of a BackendCalibrations"""
+class TestInstructionScheduleMap(QiskitExperimentsTestCase):
+    """Class to test the functionality of a Calibrations"""
 
     def test_setup_withLibrary(self):
         """Test that we can setup with a library."""

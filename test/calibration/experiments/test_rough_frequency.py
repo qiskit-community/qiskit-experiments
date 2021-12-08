@@ -46,7 +46,7 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
         self.assertEqual(freq.auto_update, False)
 
     def test_update_calibrations(self):
-        """Test that we can properly update an instance of BackendCalibrations."""
+        """Test that we can properly update an instance of Calibrations."""
 
         freq01 = FakeArmonk().defaults().qubit_freq_est[0]
 

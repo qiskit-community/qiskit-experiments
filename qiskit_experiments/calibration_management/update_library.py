@@ -41,7 +41,7 @@ class BaseUpdater(ABC):
 
             Frequency.update(calibrations, spectroscopy_data)
 
-        Here, calibrations is an instance of :class:`BackendCalibrations` and spectroscopy_data
+        Here, calibrations is an instance of :class:`Calibrations` and spectroscopy_data
         is the result of a :class:`QubitSpectroscopy` experiment.
         """
         raise CalibrationError(
