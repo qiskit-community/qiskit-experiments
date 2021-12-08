@@ -107,7 +107,7 @@ Utilities
 .. autosummary::
     :toctree: ../stubs/
 
-    check_if_nominal_significant
+    is_error_significant
 """
 from .curve_analysis import CurveAnalysis
 from .curve_data import CurveData, SeriesDef, FitData, ParameterRepr, FitOptions
