@@ -20,12 +20,12 @@ import numpy as np
 from uncertainties.core import UFloat
 
 
-def is_error_significant(
+def is_error_not_significant(
     val: Union[float, UFloat],
     fraction: float = 1.0,
     absolute: Optional[float] = None,
 ) -> bool:
-    """Check if the standard error of given value is significant.
+    """Check if the standard error of given value is not significant.
 
     Args:
         val: Input value to evaluate. This is assumed to be float or ufloat.
@@ -35,7 +35,7 @@ def is_error_significant(
         absolute: Use this value as a threshold if given.
 
     Returns:
-        ``True`` if the nominal part is significant.
+        ``True`` if the standard error of given value is not significant.
     """
     if isinstance(val, float):
         return True
