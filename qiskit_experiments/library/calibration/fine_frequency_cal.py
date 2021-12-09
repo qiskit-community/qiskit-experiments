@@ -86,8 +86,7 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
         """default values for the fine frequency calibration experiment.
 
         Experiment Options:
-            dt (float): The duration of the samples of the arbitrary waveform generator that
-                is used to generate the pulses.
+            dt (float): The duration of the time unit ``dt`` of the delay and schedules in seconds.
         """
         options = super()._default_experiment_options()
         options.dt = None
@@ -132,7 +131,7 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
 
         Here, :math:`{\rm d}\theta` is the measured angle error from the fit. The duration of
         the single qubit-gate is :math:`\tau` in samples and :math:`{\rm d}t` is the duration
-        of a single arbitrary waveform generator sample.
+        of a sample. This is also the duration of the time unit ``dt`` of the delay.
         """
         result_index = self.experiment_options.result_index
         group = experiment_data.metadata["cal_group"]
