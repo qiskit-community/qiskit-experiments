@@ -132,10 +132,18 @@ class RamseyXY(BaseExperiment):
         Returns:
             A list of circuits with a variable delay.
         """
+        if self.backend and hasattr(self.backend.configuration(), "dt"):
+            dt_unit = True
+            dt_factor = self.backend.configuration().dt
+        else:
+            dt_unit = False
+            
         # Compute the rz rotation angle to add a modulation.
-        p_delay = Parameter("delay")
+        p_delay_sec = Parameter("delay_sec")
+        if dt_unit:
+            p_delay_dt = Parameter("delay_dt")
 
-        rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * p_delay
+        rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * p_delay_sec
 
         # Create the X and Y circuits.
         metadata = {
@@ -147,7 +155,12 @@ class RamseyXY(BaseExperiment):
 
         ram_x = self._pre_circuit()
         ram_x.sx(0)
-        ram_x.delay(p_delay, 0, "s")
+        
+        if dt_unit:
+            ram_x.delay(p_delay_dt, 0, "dt")
+        else:
+            ram_x.delay(p_delay_sec, 0, "s")
+            
         ram_x.rz(rotation_angle, 0)
         ram_x.sx(0)
         ram_x.measure_active()
@@ -155,7 +168,12 @@ class RamseyXY(BaseExperiment):
 
         ram_y = self._pre_circuit()
         ram_y.sx(0)
-        ram_y.delay(p_delay, 0, "s")
+
+        if dt_unit:
+            ram_y.delay(p_delay_dt, 0, "dt")
+        else:
+            ram_y.delay(p_delay_sec, 0, "s")
+
         ram_y.rz(rotation_angle - np.pi / 2, 0)
         ram_y.sx(0)
         ram_y.measure_active()
@@ -163,16 +181,29 @@ class RamseyXY(BaseExperiment):
 
         circs = []
         for delay in self.experiment_options.delays:
+            if dt_unit:
+                delay_dt = round(delay / dt_factor)
+                real_delay_in_sec =  delay_dt * dt_factor
+            else:
+                real_delay_in_sec = delay
 
             # create ramsey x
-            assigned_x = ram_x.assign_parameters({p_delay: delay}, inplace=False)
+            if dt_unit:
+                assigned_x = ram_x.assign_parameters({p_delay_sec: real_delay_in_sec, p_delay_dt: delay_dt}, inplace=False)
+            else:
+                assigned_x = ram_x.assign_parameters({p_delay_sec: real_delay_in_sec}, inplace=False)
+                
             assigned_x.metadata["series"] = "X"
-            assigned_x.metadata["xval"] = delay
+            assigned_x.metadata["xval"] = real_delay_in_sec
 
             # create ramsey y
-            assigned_y = ram_y.assign_parameters({p_delay: delay}, inplace=False)
+            if dt_unit:
+                assigned_y = ram_y.assign_parameters({p_delay_sec: real_delay_in_sec, p_delay_dt: delay_dt}, inplace=False)
+            else:
+                assigned_y = ram_y.assign_parameters({p_delay_sec: real_delay_in_sec}, inplace=False)
+ 
             assigned_y.metadata["series"] = "Y"
-            assigned_y.metadata["xval"] = delay
+            assigned_y.metadata["xval"] = real_delay_in_sec
 
             circs.extend([assigned_x, assigned_y])
 
