@@ -18,6 +18,7 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
 from qiskit.providers.backend import Backend
+from qiskit.test.mock import FakeBackend
 
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.library.characterization.analysis import RamseyXYAnalysis
@@ -118,6 +119,19 @@ class RamseyXY(BaseExperiment):
         delays = delays or self.experiment_options.delays
         self.set_experiment_options(delays=delays, osc_freq=osc_freq)
 
+    def _set_backend(self, backend: Backend):
+        super()._set_backend(backend)
+
+        # Scheduling parameters
+        if not self._backend.configuration().simulator and not isinstance(backend, FakeBackend):
+            timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
+            if "acquire_alignment" not in timing_constraints:
+                timing_constraints["acquire_alignment"] = 16
+            scheduling_method = getattr(self.transpile_options, "scheduling_method", "alap")
+            self.set_transpile_options(
+                timing_constraints=timing_constraints, scheduling_method=scheduling_method
+            )
+
     def _pre_circuit(self) -> QuantumCircuit:
         """Return a preparation circuit.
 
@@ -137,7 +151,7 @@ class RamseyXY(BaseExperiment):
             dt_factor = self.backend.configuration().dt
         else:
             dt_unit = False
-            
+
         # Compute the rz rotation angle to add a modulation.
         p_delay_sec = Parameter("delay_sec")
         if dt_unit:
@@ -155,12 +169,12 @@ class RamseyXY(BaseExperiment):
 
         ram_x = self._pre_circuit()
         ram_x.sx(0)
-        
+
         if dt_unit:
             ram_x.delay(p_delay_dt, 0, "dt")
         else:
             ram_x.delay(p_delay_sec, 0, "s")
-            
+
         ram_x.rz(rotation_angle, 0)
         ram_x.sx(0)
         ram_x.measure_active()
@@ -183,25 +197,33 @@ class RamseyXY(BaseExperiment):
         for delay in self.experiment_options.delays:
             if dt_unit:
                 delay_dt = round(delay / dt_factor)
-                real_delay_in_sec =  delay_dt * dt_factor
+                real_delay_in_sec = delay_dt * dt_factor
             else:
                 real_delay_in_sec = delay
 
             # create ramsey x
             if dt_unit:
-                assigned_x = ram_x.assign_parameters({p_delay_sec: real_delay_in_sec, p_delay_dt: delay_dt}, inplace=False)
+                assigned_x = ram_x.assign_parameters(
+                    {p_delay_sec: real_delay_in_sec, p_delay_dt: delay_dt}, inplace=False
+                )
             else:
-                assigned_x = ram_x.assign_parameters({p_delay_sec: real_delay_in_sec}, inplace=False)
-                
+                assigned_x = ram_x.assign_parameters(
+                    {p_delay_sec: real_delay_in_sec}, inplace=False
+                )
+
             assigned_x.metadata["series"] = "X"
             assigned_x.metadata["xval"] = real_delay_in_sec
 
             # create ramsey y
             if dt_unit:
-                assigned_y = ram_y.assign_parameters({p_delay_sec: real_delay_in_sec, p_delay_dt: delay_dt}, inplace=False)
+                assigned_y = ram_y.assign_parameters(
+                    {p_delay_sec: real_delay_in_sec, p_delay_dt: delay_dt}, inplace=False
+                )
             else:
-                assigned_y = ram_y.assign_parameters({p_delay_sec: real_delay_in_sec}, inplace=False)
- 
+                assigned_y = ram_y.assign_parameters(
+                    {p_delay_sec: real_delay_in_sec}, inplace=False
+                )
+
             assigned_y.metadata["series"] = "Y"
             assigned_y.metadata["xval"] = real_delay_in_sec
 
