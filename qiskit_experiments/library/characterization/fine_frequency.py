@@ -78,7 +78,7 @@ class FineFrequency(BaseExperiment):
         r"""Default values for the fine frequency experiment.
 
         Experiment Options:
-            repetitions (List[int]): A list of the number of times that the identity is repeated.
+            repetitions (List[int]): A list of the number of times that the delay is repeated.
             delay_duration (int): The duration of the delay as the number of arbitrary waveform
                 generator samples it contains. The total length of the delay will be n times
                 ``delay_duration`` where n also determines the rotation angle of the ``RZGate``
