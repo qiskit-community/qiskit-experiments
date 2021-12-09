@@ -100,7 +100,7 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
             cal_param_name: The name of the parameter in the calibrations.
             cal_group: The calibration group to which the parameter belongs.
             delay_duration: The duration of the first delay.
-            dt: The number of AWG samples of the delay.
+            dt: The number of ``dt`` units of the delay.
         """
 
         param_val = self._cals.get_parameter_value(
