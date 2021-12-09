@@ -27,6 +27,8 @@ class FineFrequencyAnalysis(ErrorAmplificationAnalysis):
 
         * :math:`{\rm apg}` The angle per gate is pi / 2 for fine frequency analysis.
         * :math:`{\rm phase\_offset}` The phase offset in the cosine oscillation which is 0.
+    # section: see_also
+        :py:class:`~qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis`
     """
 
     __fixed_parameters__ = ["angle_per_gate", "phase_offset"]
