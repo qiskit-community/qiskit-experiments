@@ -79,10 +79,9 @@ class FineFrequency(BaseExperiment):
 
         Experiment Options:
             repetitions (List[int]): A list of the number of times that the delay is repeated.
-            delay_duration (int): The duration of the delay as the number of arbitrary waveform
-                generator samples it contains. The total length of the delay will be n times
-                ``delay_duration`` where n also determines the rotation angle of the ``RZGate``
-                by :math:`n \pi/2`.
+            delay_duration (int): The duration of the delay as the number of ``dt``s it contains.
+                The total length of the delay in units of ``dt`` will be n times ``delay_duration``
+                where n also  determines the rotation angle of the ``RZGate`` by :math:`n \pi/2`.
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(40))
