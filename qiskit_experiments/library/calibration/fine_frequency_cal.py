@@ -46,7 +46,9 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
         r"""see class :class:`FineFrequency` for details.
 
         Note that this class implicitly assumes that the target angle of the gate
-        is :math:`\pi` as seen from the default analysis options.
+        is :math:`\pi/2` as seen from the default analysis options. This experiment
+        can be seen as a calibration of a finite duration ``rz(pi/2)`` gate with any
+        error attributed to a frequency offset in the qubit.
 
         Args:
             qubit: The qubit for which to run the fine frequency calibration.
