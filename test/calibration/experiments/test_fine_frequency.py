@@ -69,7 +69,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
     def test_calibration_version(self):
         """Test the calibration version of the experiment."""
 
-        freq_shift = 1.0e6
+        freq_shift = 0.1e6
         backend = MockFineFreq(freq_shift, sx_duration=self.sx_duration)
 
         fine_freq = FineFrequencyCal(0, self.cals, backend)
@@ -83,7 +83,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
 
         freq_after = self.cals.get_parameter_value(self.cals.__drive_freq_parameter__, 0)
 
-        # Test equality up to 10kHz on a 1 MHz shift
+        # Test equality up to 10kHz on a 100 kHz shift
         self.assertAlmostEqual(freq_after, armonk_freq - freq_shift, delta=1e4)
 
     def test_experiment_config(self):

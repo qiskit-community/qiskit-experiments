@@ -244,7 +244,7 @@ class MockFineFreq(MockIQBackend):
             qc.sx(0)
             qc.measure_all()
 
-            counts = self.simulator.run(qc).result().get_counts(0)
+            counts = self.simulator.run(qc, seed_simulator=1).result().get_counts(0)
 
             return counts.get("1", 0) / sum(counts.values())
 
