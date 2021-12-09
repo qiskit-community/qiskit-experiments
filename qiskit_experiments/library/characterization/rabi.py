@@ -52,6 +52,8 @@ class Rabi(BaseExperiment):
         calibrating-qubits-pulse.html>`_
         for the pulse level programming of a Rabi experiment.
 
+    # section: analysis_ref
+        :py:class:`~qiskit_experiments.curve_analysis.OscillationAnalysis`
     """
 
     __gate_name__ = "Rabi"
