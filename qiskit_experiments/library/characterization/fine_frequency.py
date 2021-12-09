@@ -61,7 +61,7 @@ class FineFrequency(BaseExperiment):
 
         Args:
             qubit: The qubit on which to run the fine frequency characterization experiment.
-            delay_duration: The duration of the delay at :math:`n=1`.
+            delay_duration: The duration of the delay at :math:`n=1` in dt.
             backend: Optional, the backend to run the experiment on.
             repetitions: The number of repetitions, if not given then the default value
                 from the experiment default options will be used.
