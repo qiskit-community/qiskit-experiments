@@ -39,10 +39,10 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
 
         self.sx_duration = 160
 
-        with pulse.build(name="sx") as sx_sxhed:
+        with pulse.build(name="sx") as sx_sched:
             pulse.play(pulse.Gaussian(self.sx_duration, 0.5, 40), pulse.DriveChannel(0))
 
-        self.inst_map.add("sx", 0, sx_sxhed)
+        self.inst_map.add("sx", 0, sx_sched)
 
         self.cals = Calibrations.from_backend(FakeArmonk(), FixedFrequencyTransmon())
 
