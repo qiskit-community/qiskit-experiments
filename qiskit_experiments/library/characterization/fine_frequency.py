@@ -95,6 +95,7 @@ class FineFrequency(BaseExperiment):
         """Default transpiler options."""
         options = super()._default_transpile_options()
         options.inst_map = None
+        options.basis_gates = ["sx", "rz", "delay"]
         return options
 
     def _pre_circuit(self) -> QuantumCircuit:
