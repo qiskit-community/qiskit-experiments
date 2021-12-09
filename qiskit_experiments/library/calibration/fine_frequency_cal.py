@@ -38,8 +38,10 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
         qubit: int,
         calibrations: Calibrations,
         backend: Optional[Backend] = None,
+        delay_duration: Optional[int] = None,
         repetitions: List[int] = None,
         auto_update: bool = True,
+        gate_name: str = "sx",
     ):
         r"""see class :class:`FineFrequency` for details.
 
@@ -50,12 +52,21 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
             qubit: The qubit for which to run the fine frequency calibration.
             calibrations: The calibrations instance with the schedules.
             backend: Optional, the backend to run the experiment on.
+            delay_duration: The duration of the delay at :math:`n=1`. If this value is
+                not given then the duration of the gate named ``gate_name`` in the
+                calibrations will be used.
             auto_update: Whether or not to automatically update the calibrations. By
                 default this variable is set to True.
+            gate_name: This argument is only needed if ``delay_duration`` is None. This
+                should be the name of a valid schedule in the calibrations.
         """
+        if delay_duration is None:
+            delay_duration = calibrations.get_schedule(gate_name, qubit).duration
+
         super().__init__(
             calibrations,
             qubit,
+            delay_duration=delay_duration,
             schedule_name=None,
             repetitions=repetitions,
             backend=backend,
@@ -106,7 +117,7 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
                 "cal_param_value": param_val,
                 "cal_param_name": self._param_name,
                 "cal_group": self.experiment_options.group,
-                "single_qubit_gate_duration": self.experiment_options.sq_gate_duration,
+                "delay_duration": self.experiment_options.delay_duration,
                 "dt": self.experiment_options.dt,
             }
         )
@@ -127,7 +138,7 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
         result_index = self.experiment_options.result_index
         group = experiment_data.metadata["cal_group"]
         prev_freq = experiment_data.metadata["cal_param_value"]
-        tau = experiment_data.metadata["single_qubit_gate_duration"]
+        tau = experiment_data.metadata["delay_duration"]
         dt = experiment_data.metadata["dt"]
 
         d_theta = BaseUpdater.get_value(experiment_data, "d_theta", result_index)

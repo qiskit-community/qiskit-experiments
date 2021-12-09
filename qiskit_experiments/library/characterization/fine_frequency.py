@@ -15,7 +15,7 @@
 from typing import List, Optional
 import numpy as np
 
-from qiskit import QuantumCircuit, schedule, transpile
+from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import BaseExperiment, Options
@@ -51,12 +51,17 @@ class FineFrequency(BaseExperiment):
     """
 
     def __init__(
-        self, qubit: int, backend: Optional[Backend] = None, repetitions: Optional[List[int]] = None
+        self,
+        qubit: int,
+        delay_duration: int,
+        backend: Optional[Backend] = None,
+        repetitions: Optional[List[int]] = None,
     ):
         """Setup a fine frequency experiment on the given qubit.
 
         Args:
             qubit: The qubit on which to run the fine frequency characterization experiment.
+            delay_duration: The duration of the delay at :math:`n=1`.
             backend: Optional, the backend to run the experiment on.
             repetitions: The number of repetitions, if not given then the default value
                 from the experiment default options will be used.
@@ -66,18 +71,22 @@ class FineFrequency(BaseExperiment):
         if repetitions is not None:
             self.set_experiment_options(repetitions=repetitions)
 
+        self.set_experiment_options(delay_duration=delay_duration)
+
     @classmethod
     def _default_experiment_options(cls) -> Options:
         r"""Default values for the fine frequency experiment.
 
         Experiment Options:
             repetitions (List[int]): A list of the number of times that the identity is repeated.
-            sq_gate_duration (int): The duration of the single-qubit gate as the number of arbitrary
-                waveform generator samples it contains.
+            delay_duration (int): The duration of the delay as the number of arbitrary waveform
+                generator samples it contains. The total length of the delay will be n times
+                ``delay_duration`` where n also determines the rotation angle of the ``RZGate``
+                by :math:`n \pi/2`.
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(40))
-        options.sq_gate_duration = None
+        options.delay_duration = None
 
         return options
 
@@ -95,16 +104,6 @@ class FineFrequency(BaseExperiment):
     def circuits(self) -> List[QuantumCircuit]:
         """Return the list of quantum circuits to run."""
 
-        # Find out the duration of the sx gate from instructions map or the backend if missing.
-        if self.experiment_options.sq_gate_duration is None:
-            circuit = QuantumCircuit(1)
-            circuit.sx(0)
-            if self.transpile_options.inst_map is not None:
-                inst_map = self.transpile_options.inst_map
-                circuit = transpile(circuit, initial_layout=self.physical_qubits, inst_map=inst_map)
-            duration = schedule(circuit, self.backend).duration
-            self.set_experiment_options(sq_gate_duration=duration)
-
         circuits = []
 
         # The main sequence
@@ -112,7 +111,7 @@ class FineFrequency(BaseExperiment):
             circuit = self._pre_circuit()
             circuit.sx(0)
 
-            circuit.delay(duration=self.experiment_options.sq_gate_duration * repetition)
+            circuit.delay(duration=self.experiment_options.delay_duration * repetition)
 
             circuit.rz(np.pi * repetition / 2, 0)
             circuit.sx(0)
@@ -122,7 +121,7 @@ class FineFrequency(BaseExperiment):
                 "experiment_type": self._type,
                 "qubits": self.physical_qubits,
                 "xval": repetition,
-                "unit": "Id gate number",
+                "unit": "Number of delays",
             }
 
             circuits.append(circuit)
