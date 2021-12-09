@@ -112,7 +112,7 @@ class FineFrequency(BaseExperiment):
             circuit = self._pre_circuit()
             circuit.sx(0)
 
-            circuit.delay(duration=self.experiment_options.delay_duration * repetition , unit="dt")
+            circuit.delay(duration=self.experiment_options.delay_duration * repetition, unit="dt")
 
             circuit.rz(np.pi * repetition / 2, 0)
             circuit.sx(0)
