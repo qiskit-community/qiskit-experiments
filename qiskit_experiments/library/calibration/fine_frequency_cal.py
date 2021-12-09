@@ -94,7 +94,7 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
     def _add_cal_metadata(self, experiment_data: ExperimentData):
         """Add metadata to the experiment data making it more self contained.
 
-        The following keys are added to each circuit's metadata:
+        The following keys are added to the experiment's metadata:
             cal_param_value: The value of the drag parameter. This value together with
                 the fit result will be used to find the new value of the drag parameter.
             cal_param_name: The name of the parameter in the calibrations.
