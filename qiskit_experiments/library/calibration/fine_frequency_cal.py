@@ -46,7 +46,7 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
         r"""see class :class:`FineFrequency` for details.
 
         Note that this class implicitly assumes that the target angle of the gate
-        is :math:`\pi` as seen from the default experiment options.
+        is :math:`\pi` as seen from the default analysis options.
 
         Args:
             qubit: The qubit for which to run the fine frequency calibration.
@@ -74,10 +74,7 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
             auto_update=auto_update,
         )
 
-        self.set_transpile_options(
-            inst_map=calibrations.default_inst_map,
-            basis_gates=["sx", "rz"],
-        )
+        self.set_transpile_options(inst_map=calibrations.default_inst_map)
 
         if self.backend is not None:
             self.set_experiment_options(dt=getattr(self.backend.configuration(), "dt", None))
