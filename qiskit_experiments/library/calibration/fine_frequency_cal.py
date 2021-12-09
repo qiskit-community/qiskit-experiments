@@ -98,9 +98,9 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
             cal_param_value: The value of the drag parameter. This value together with
                 the fit result will be used to find the new value of the drag parameter.
             cal_param_name: The name of the parameter in the calibrations.
-            cal_schedule: The name of the schedule in the calibrations.
-            target_angle: The target angle of the gate.
             cal_group: The calibration group to which the parameter belongs.
+            delay_duration: The duration of the first delay.
+            dt: The number of AWG samples of the delay.
         """
 
         param_val = self._cals.get_parameter_value(
