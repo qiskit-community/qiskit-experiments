@@ -14,6 +14,7 @@ Composite Experiment Analysis class.
 """
 
 from typing import List, Dict
+from time import sleep
 import numpy as np
 from qiskit.result import marginal_counts
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData
@@ -103,6 +104,12 @@ class CompositeAnalysis(BaseAnalysis):
                 experiment_data.child_data(comp_id).block_for_results()
 
         experiment_data.add_analysis_callback(_wait_for_components, component_ids=component_ids)
+
+        # TODO implement proper locking mechanism.
+        # Because blocking mechanism is sometime terminated before above callback is added to
+        # the experiment_data callback queue list, we need to extend execution time of this routine
+        # to ensure this will complete after the callback is actually queued.
+        sleep(1)
 
         return analysis_results, []
 
