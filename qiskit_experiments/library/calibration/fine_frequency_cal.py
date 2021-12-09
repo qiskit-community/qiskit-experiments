@@ -96,7 +96,7 @@ class FineFrequencyCal(BaseCalibrationExperiment, FineFrequency):
 
         The following keys are added to the experiment's metadata:
             cal_param_value: The value of the drive frequency parameter. This value together with
-                the fit result will be used to find the new value of the drag parameter.
+                the fit result will be used to find the new value of the drive frequency parameter.
             cal_param_name: The name of the parameter in the calibrations.
             cal_group: The calibration group to which the parameter belongs.
             delay_duration: The duration of the first delay.
