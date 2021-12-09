@@ -47,7 +47,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         self.cals = Calibrations.from_backend(FakeArmonk(), FixedFrequencyTransmon())
 
     @data(-0.5e6, -0.1e6, 0.1e6, 0.5e6)
-    def test_end_to_end_under_rotation(self, freq_shift):
+    def test_end_to_end(self, freq_shift):
         """Test the experiment end to end."""
 
         backend = MockFineFreq(freq_shift, sx_duration=self.sx_duration)
