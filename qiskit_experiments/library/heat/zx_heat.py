@@ -54,7 +54,6 @@ class ZXHeatYError(BaseCompositeHeat):
 
         TODO more docs
     """
-    __analysis_class__ = CompositeHeatAnalysis
 
     def __init__(
         self,
@@ -80,7 +79,7 @@ class ZXHeatYError(BaseCompositeHeat):
             echo_circ=echo,
             meas_circ=meas,
         )
-        heat_y0.set_analysis_options(
+        heat_y0.analysis.set_options(
             result_parameters=[ParameterRepr("d_theta", "d_heat_y0", "rad")]
         )
 
@@ -90,18 +89,16 @@ class ZXHeatYError(BaseCompositeHeat):
             echo_circ=echo,
             meas_circ=meas,
         )
-        heat_y1.set_analysis_options(
+        heat_y1.analysis.set_options(
             result_parameters=[ParameterRepr("d_theta", "d_heat_y1", "rad")]
         )
 
-        super().__init__([heat_y0, heat_y1], backend=backend)
+        analysis = CompositeHeatAnalysis(
+            fit_params=["d_heat_y0", "d_heat_y1"],
+            out_params=["A_iy", "A_zy"],
+        )
 
-    def _additional_metadata(self):
-        metadata = super()._additional_metadata()
-        metadata["fit_params"] = ["d_heat_y0", "d_heat_y1"]
-        metadata["out_params"] = ["A_iy", "A_zy"]
-
-        return metadata
+        super().__init__([heat_y0, heat_y1], heat_analysis=analysis, backend=backend)
 
 
 class ZXHeatZError(BaseCompositeHeat):
@@ -135,7 +132,6 @@ class ZXHeatZError(BaseCompositeHeat):
 
         TODO more docs
     """
-    __analysis_class__ = CompositeHeatAnalysis
 
     def __init__(
         self,
@@ -162,7 +158,7 @@ class ZXHeatZError(BaseCompositeHeat):
             echo_circ=echo,
             meas_circ=meas,
         )
-        heat_z0.set_analysis_options(
+        heat_z0.analysis.set_options(
             result_parameters=[ParameterRepr("d_theta", "d_heat_z0", "rad")]
         )
 
@@ -172,15 +168,13 @@ class ZXHeatZError(BaseCompositeHeat):
             echo_circ=echo,
             meas_circ=meas,
         )
-        heat_z1.set_analysis_options(
+        heat_z1.analysis.set_options(
             result_parameters=[ParameterRepr("d_theta", "d_heat_z1", "rad")]
         )
 
-        super().__init__([heat_z0, heat_z1], backend=backend)
+        analysis = CompositeHeatAnalysis(
+            fit_params=["d_heat_z0", "d_heat_z1"],
+            out_params=["A_iz", "A_zz"],
+        )
 
-    def _additional_metadata(self):
-        metadata = super()._additional_metadata()
-        metadata["fit_params"] = ["d_heat_z0", "d_heat_z1"]
-        metadata["out_params"] = ["A_iz", "A_zz"]
-
-        return metadata
+        super().__init__([heat_z0, heat_z1], heat_analysis=analysis, backend=backend)

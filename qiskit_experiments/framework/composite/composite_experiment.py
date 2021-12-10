@@ -29,6 +29,7 @@ class CompositeExperiment(BaseExperiment):
         experiments: List[BaseExperiment],
         qubits: Sequence[int],
         backend: Optional[Backend] = None,
+        analysis: Optional[CompositeAnalysis] = None,
         experiment_type: Optional[str] = None,
     ):
         """Initialize the composite experiment object.
@@ -37,14 +38,15 @@ class CompositeExperiment(BaseExperiment):
             experiments: a list of experiment objects.
             qubits: list of physical qubits for the experiment.
             backend: Optional, the backend to run the experiment on.
+            analysis: Optional, the analysis class instance that performs default post processing.
             experiment_type: Optional, composite experiment subclass name.
         """
         self._experiments = experiments
         self._num_experiments = len(experiments)
         super().__init__(
             qubits,
-            analysis=CompositeAnalysis(),
             backend=backend,
+            analysis=analysis or CompositeAnalysis(),
             experiment_type=experiment_type,
         )
 

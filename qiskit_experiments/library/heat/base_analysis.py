@@ -13,6 +13,8 @@
 Analysis for HEAT experiments.
 """
 
+from typing import List
+
 import numpy as np
 
 from qiskit_experiments.curve_analysis import ErrorAmplificationAnalysis
@@ -62,28 +64,26 @@ class CompositeHeatAnalysis(CompositeAnalysis):
         with the control qubit state :math:`|k\rangle \in [|0\rangle, |1\rangle]`.
 
     # section: see_also
-        qiskit_experiments.curve_analysis.standard_analysis.error_amplification_analysis.\
-        ErrorAmplificationAnalysis
+        qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis
 
     """
 
-    def _run_analysis(self, experiment_data: ExperimentData, **options):
+    def __init__(self, fit_params: List[str], out_params: List[str]):
+        """Create new HEAT analysis.
 
-        try:
-            fit_params = experiment_data.metadata["fit_params"]
-            out_params = experiment_data.metadata["out_params"]
-        except KeyError as ex:
-            raise AnalysisError(
-                "`fit_params` and `out_params` are not defined in the experiment metadata. "
-            ) from ex
+        Args:
+            fit_params: Name of error parameters for each amplification sequence.
+            out_params: Name of Hamiltonian coefficients.
+        """
+        super(CompositeHeatAnalysis, self).__init__()
 
-        # Validate setup
         if len(fit_params) != 2:
             raise AnalysisError(
                 f"{self.__class__.__name__} assumes two fit parameters extracted from "
                 "a set of experiments with different control qubit state input. "
                 f"{len(fit_params)} input parameter names are specified."
             )
+        self.fit_params = fit_params
 
         if len(out_params) != 2:
             raise AnalysisError(
@@ -91,6 +91,9 @@ class CompositeHeatAnalysis(CompositeAnalysis):
                 "a set of experiment results with different control qubit state input. "
                 f"{len(out_params)} output parameter names are specified."
             )
+        self.out_params = out_params
+
+    def _run_analysis(self, experiment_data: ExperimentData, **options):
 
         # Create analysis data of nested experiment and discard redundant entry.
         # Note that experiment_data is mutable.

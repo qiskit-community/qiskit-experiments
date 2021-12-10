@@ -38,17 +38,23 @@ class ParallelExperiment(CompositeExperiment):
     documentation for additional information.
     """
 
-    def __init__(self, experiments: List[BaseExperiment], backend: Optional[Backend] = None):
+    def __init__(
+        self,
+        experiments: List[BaseExperiment],
+        backend: Optional[Backend] = None,
+        analysis: Optional[CompositeAnalysis] = None,
+    ):
         """Initialize the analysis object.
 
         Args:
             experiments: a list of experiments.
             backend: Optional, the backend to run the experiment on.
+            analysis: Optional, the analysis class instance that performs default post processing.
         """
         qubits = []
         for exp in experiments:
             qubits += exp.physical_qubits
-        super().__init__(experiments, qubits, backend=backend)
+        super().__init__(experiments, qubits, backend=backend, analysis=analysis)
 
     def circuits(self):
 

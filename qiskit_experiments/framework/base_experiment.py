@@ -38,8 +38,8 @@ class BaseExperiment(ABC, StoreInitArgs):
     def __init__(
         self,
         qubits: Sequence[int],
-        analysis: Optional[BaseAnalysis] = None,
         backend: Optional[Backend] = None,
+        analysis: Optional[BaseAnalysis] = None,
         experiment_type: Optional[str] = None,
     ):
         """Initialize the experiment object.
@@ -47,6 +47,7 @@ class BaseExperiment(ABC, StoreInitArgs):
         Args:
             qubits: list of physical qubits for the experiment.
             backend: Optional, the backend to run the experiment on.
+            analysis: Optional, the analysis class instance that performs default post processing.
             experiment_type: Optional, the experiment type string.
 
         Raises:

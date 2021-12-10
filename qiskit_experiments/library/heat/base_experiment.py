@@ -20,7 +20,7 @@ from qiskit import circuit, QuantumCircuit
 from qiskit.providers import Backend
 
 from qiskit_experiments.framework import BaseExperiment, BatchExperiment, Options
-from .base_analysis import HeatAnalysis
+from .base_analysis import HeatAnalysis, CompositeHeatAnalysis
 
 
 class HeatElement(BaseExperiment):
@@ -32,8 +32,6 @@ class HeatElement(BaseExperiment):
     selectively amplifies a specific Pauli component local to the target qubit.
 
     """
-
-    __analysis_class__ = HeatAnalysis
 
     def __init__(
         self,
@@ -56,7 +54,7 @@ class HeatElement(BaseExperiment):
         Keyword Args:
             See :meth:`experiment_options` for details.
         """
-        super().__init__(qubits=qubits, backend=backend)
+        super().__init__(qubits=qubits, backend=backend, analysis=HeatAnalysis())
         self.set_experiment_options(**kwargs)
 
         # These are not user configurable options. Be frozen once assigned.
@@ -119,22 +117,25 @@ class BaseCompositeHeat(BatchExperiment, ABC):
 
     This class implements a batch experiment consisting of multiple HEAT element experiments
     to compute specific unitary error terms from extracted `d_theta` parameters.
-    """
 
-    __heat_elements__ = {}
+    # section: analysis_ref
+        :py:class:`CompositeHeatAnalysis`
+    """
 
     def __init__(
         self,
         heat_experiments: List[HeatElement],
+        heat_analysis: CompositeHeatAnalysis,
         backend: Optional[Backend] = None,
     ):
         """Create new HEAT experiment.
 
         Args:
             heat_experiments: A list of configured HEAT experiments.
+            heat_analysis: Configured HEAT analysis instance.
             backend: Optional, the backend to run the experiment on.
         """
-        super().__init__(experiments=heat_experiments, backend=backend)
+        super().__init__(experiments=heat_experiments, backend=backend, analysis=heat_analysis)
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
