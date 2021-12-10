@@ -19,11 +19,10 @@ from typing import List, Tuple, Optional
 from qiskit import circuit, QuantumCircuit
 from qiskit.providers import Backend
 
-from qiskit_experiments.framework import BaseExperiment, BatchExperiment, Options, fix_class_docs
+from qiskit_experiments.framework import BaseExperiment, BatchExperiment, Options
 from .base_analysis import HeatAnalysis
 
 
-@fix_class_docs
 class HeatElement(BaseExperiment):
     """Base class of HEAT experiment elements.
 
@@ -115,7 +114,6 @@ class HeatElement(BaseExperiment):
         return circs
 
 
-@fix_class_docs
 class BaseCompositeHeat(BatchExperiment, ABC):
     """Base class of HEAT experiments.
 

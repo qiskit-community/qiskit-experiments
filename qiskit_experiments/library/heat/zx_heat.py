@@ -19,13 +19,11 @@ import numpy as np
 from qiskit.circuit import QuantumCircuit
 from qiskit.providers import Backend
 from qiskit_experiments.curve_analysis import ParameterRepr
-from qiskit_experiments.framework import fix_class_docs
 
 from .base_analysis import CompositeHeatAnalysis
 from .base_experiment import BaseCompositeHeat, HeatElement
 
 
-@fix_class_docs
 class ZXHeatYError(BaseCompositeHeat):
     r"""HEAT experiments for Y error amplification.
 
@@ -106,7 +104,6 @@ class ZXHeatYError(BaseCompositeHeat):
         return metadata
 
 
-@fix_class_docs
 class ZXHeatZError(BaseCompositeHeat):
     r"""HEAT experiments for Z error amplification.
 
