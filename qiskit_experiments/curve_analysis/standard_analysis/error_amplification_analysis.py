@@ -149,14 +149,14 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
             user_opt.bounds.set_if_empty(amp=(0, 2 * max_abs_y))
 
         # Base the initial guess on the intended angle_per_gate and phase offset.
-        apg = self._get_option("angle_per_gate")
-        phi = self._get_option("phase_offset")
+        apg = self.options.angle_per_gate
+        phi = self.options.phase_offset
 
         # Prepare logical guess for specific condition (often satisfied)
         d_theta_guesses = []
 
         offsets = apg * curve_data.x + phi
-        amp = user_opt.p0.get("amp", self._get_option("amp"))
+        amp = user_opt.p0.get("amp", self.options.amp)
         for i in range(curve_data.x.size):
             xi = curve_data.x[i]
             yi = curve_data.y[i]
@@ -192,11 +192,10 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
               This quantity is set in the analysis options.
         """
         fit_d_theta = fit_data.fitval("d_theta").value
-        max_good_angle_error = self._get_option("max_good_angle_error")
 
         criteria = [
             fit_data.reduced_chisq < 3,
-            abs(fit_d_theta) < abs(max_good_angle_error),
+            abs(fit_d_theta) < abs(self.options.max_good_angle_error),
         ]
 
         if all(criteria):
