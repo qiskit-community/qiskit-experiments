@@ -1,8 +1,0 @@
----
-fixes:
-  - |
-    Fixes bug where the 
-    :meth:`~qiskit_experiments.framework.ExperimentData.load` method of
-    :class:`~qiskit_experiments.framework.ExperimentData` would return a
-    :class:`~qiskit_experiments.database_service.DbExperimentDataV1` object
-    instead of a :class:`~qiskit_experiments.framework.ExperimentData` object.
