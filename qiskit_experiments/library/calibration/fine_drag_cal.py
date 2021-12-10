@@ -23,7 +23,7 @@ from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.framework import ExperimentData, Options
 from qiskit_experiments.calibration_management import (
     BaseCalibrationExperiment,
-    BackendCalibrations,
+    Calibrations,
 )
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.library.characterization.fine_drag import FineDrag
@@ -39,7 +39,7 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
     def __init__(
         self,
         qubit: int,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         schedule_name: str,
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "β",
@@ -89,7 +89,7 @@ class FineDragCal(BaseCalibrationExperiment, FineDrag):
     def _add_cal_metadata(self, experiment_data: ExperimentData):
         """Add metadata to the experiment data making it more self contained.
 
-        The following keys are added to each circuit's metadata:
+        The following keys are added to each experiment's metadata:
             cal_param_value: The value of the drag parameter. This value together with
                 the fit result will be used to find the new value of the drag parameter.
             cal_param_name: The name of the parameter in the calibrations.
@@ -157,7 +157,7 @@ class FineXDragCal(FineDragCal):
     def __init__(
         self,
         qubit: int,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "β",
         auto_update: bool = True,
@@ -192,7 +192,7 @@ class FineSXDragCal(FineDragCal):
     def __init__(
         self,
         qubit: int,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "β",
         auto_update: bool = True,
