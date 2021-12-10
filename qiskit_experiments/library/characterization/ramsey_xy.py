@@ -30,8 +30,8 @@ class RamseyXY(BaseExperiment):
     # section: overview
 
         This experiment differs from the :class:`~qiskit_experiments.characterization.\
-        t2ramsey.T2Ramsey` since it is sensitive to the sign of frequency offset from the main
-        transition. This experiment consists of following two circuits:
+        t2ramsey.T2Ramsey` since it is sensitive to the sign of the frequency offset from
+        the main transition. This experiment consists of following two circuits:
 
         .. parsed-literal::
 
