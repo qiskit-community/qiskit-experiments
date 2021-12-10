@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Fine DRAG calibration experiment."""
+"""Fine DRAG characterization experiment."""
 
 from typing import List, Optional
 import numpy as np
@@ -30,11 +30,11 @@ class FineDrag(BaseExperiment):
 
     # section: overview
 
-        The class :class:`FineDrag` runs fine DRAG calibration experiments (see :class:`DragCal`
-        for the definition of DRAG pulses). Fine DRAG calibration proceeds by iterating the
-        gate sequence Rp - Rm where Rp is a rotation around an axis and Rm is the same rotation
-        but in the opposite direction and is implemented by the gates Rz - Rp - Rz where the Rz
-        gates are virtual Z-rotations, see Ref. [1]. The executed circuits are of the form
+        :class:`FineDrag` runs fine DRAG characterization experiments (see :class:`DragCal`
+        for the definition of DRAG pulses). Fine DRAG proceeds by iterating the gate sequence
+        Rp - Rm where Rp is a rotation around an axis and Rm is the same rotation but in the
+        opposite direction and is implemented by the gates Rz - Rp - Rz where the Rz gates
+        are virtual Z-rotations, see Ref. [1]. The executed circuits are of the form
 
         .. parsed-literal::
 
@@ -217,10 +217,10 @@ class FineDrag(BaseExperiment):
 
 
 class FineXDrag(FineDrag):
-    """Class to fine calibrate the DRAG parameter of an X gate.
+    """Class to fine characterize the DRAG parameter of an X gate.
 
     # section: see_also
-        qiskit_experiments.library.calibration.fine_drag.FineDrag
+        qiskit_experiments.library.characterization.fine_drag.FineDrag
     """
 
     def __init__(self, qubit: int, backend: Optional[Backend] = None):
@@ -246,10 +246,10 @@ class FineXDrag(FineDrag):
 
 
 class FineSXDrag(FineDrag):
-    """Class to fine calibrate the DRAG parameter of an SX gate.
+    """Class to fine characterize the DRAG parameter of an SX gate.
 
     # section: see_also
-        qiskit_experiments.library.calibration.fine_drag.FineDrag
+        qiskit_experiments.library.characterization.fine_drag.FineDrag
     """
 
     def __init__(self, qubit: int, backend: Optional[Backend] = None):

@@ -1,0 +1,92 @@
+---
+prelude: >
+    Qisit experiments 0.2 introduces several new features and changes in the
+    Calibration Module.
+features:
+  - |
+    * Each calibration experiment is now a sub-class of a characterization
+      experiment. The calibration version of the experiment is created from the
+      characterization experiment and the new :class:`BaseCalibrationExperiment`.
+      This new base class adds the functionality to seamlessly manage schedules
+      stored in instances of the :class:`Calibrations` class and implements a
+      framework where calibration experiments can specify an :meth:`update`
+      method to update the parameters that they are designed to calibrate.
+
+    * This release introduces a full suit of single- qubit characterization
+      and calibration experiments summarized below.
+
+      * :class:`Rabi`: This experiment scans the amplitude of a pulse and measures
+        the qubit population. This allows us to determine the amplitude that creates,
+        for example, an ``X`` gate and/or a ``SX`` gate. The calibration version
+        of this experiment is the :class:`RoughXSXAmplitudeCal` which extracts
+        the amplitudes needed to implement an ``X`` gate an a ``SX`` gate. This
+        type of calibration is a rough amplitude calibration since the resulting
+        parameter value is typically not very precises.
+
+      * :class:`FineAmplitude`: This experiment repeats a rotation a variable
+        number of times to amplify over- and under-rotations. The resulting
+        ping-pong pattern in the qubit population is fit to determine the error in
+        the rotation angle. The calibration version of this experiment, i.e.
+        :class:`FineAmplitudeCal` will update the amplitude of the pulse according
+        to the measurred deviation. These classes have several specializations to
+        X and SX gates.
+
+      * :class:`RoughDrag`: This experiment scans the DRAG parameter of a repeated
+        sequence of rotation and anti-rotation. If the DRAG parameter does not have
+        the correct value phase errors will accumulate and the repeated sequece of
+        gates will not return the qubit to the ground state. The calibration
+        version of this experiment is :class:`RoughDragCal`.
+
+      * :class:`FineDrag`: This experiment iterates the gate sequence Rp - Rm where
+        Rp is a rotation around an axis and Rm is the same rotation but in the
+        opposite direction. This sequence amplifies phase errors due to the presence
+        of higher excited states. The calibration variant of this experiment is
+        :class:`FineDragCal` and will update the DRAG parameter in the instance of the
+        :class:`Calibrations` class. These experiments have the following
+        specializations for X and SX gate: :class:`FineSXDrag`, :class:`FineXDrag`,
+        :class:`FineXDragCal`, and :class:`FineSXDragCal`.
+
+      * :class:`QubitSpectroscopy`: This experiment performs spectroscopy by applying
+        a frequency shift to a long pulse. This experiment is typically used to
+        identify the resonance frequency of the qubit. Its calibration variant is
+        :class:`RoughFrequencyCal` which gives us a first rough estimate of the qubit
+        frequency.
+
+      * :class:`RamseyXY`: This experiment performs a Ramsey-XY experiment which
+        allows us to measure the frequency of the qubit. This experiment is sensitive
+        to the sign of the frequency offset from the main transition. It is a more
+        precise measurement than spectroscopy. Its calibration counter part is
+        :class:`FrequencyCal`.
+
+      * :class:`FineFrequency`: This experiment performs an error amplyfing sequence
+        to measure the frequency of the qubit. This is done with delay instructions
+        with a variable length and rz gates. The calibration version of this
+        experiment is :class:`FineFrequencyCal`.
+
+      * :class:`HalfAngle`: This experiment measures the amount by which the SX and X
+        gates are not parallel. Such errors can occur due to phase errors. For example,
+        the non-linearities in the mixer's skew for :math:`\pi/2` pulses may be
+        different from the :math:`\pi` pulse. The calibration version of this
+        experiment is :class:`HalfAngleCal`.
+
+    * Qiskit-experiment 0.2 allows the serialization of the :class:`BasisGateLibrary`
+      class and its sub-classes.
+
+    * The update library has been simplified. Is functionality has been merged into
+      the calibration experiments. Future releases may fully deprecate the
+      :class:`BaseUpdater` in favour of moving its functionality into the
+      :class:`BaseCalibrationExperiment`.
+
+issues:
+  - |
+    List known issues here, or remove this section.  All of the list items in
+    this section are combined when the release notes are rendered, so the text
+    needs to be worded so that it does not depend on any information only
+    available in another section, such as the prelude. This may mean repeating
+    some details.
+upgrade:
+  - |
+    * The :class:`BackendCalibrations` class has been merged into the
+      :class:`Calibrations` class. Users should now use the :class:`Calibrations`
+      class which they can instantiate from a backend with the :meth:`from_backend`
+      method.
