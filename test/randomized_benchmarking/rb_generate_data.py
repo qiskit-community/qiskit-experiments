@@ -16,7 +16,7 @@ Code for generating data for the RB experiment for testing data analysis.
 import os
 import sys
 import json
-from qiskit.providers.aer import QasmSimulator
+from qiskit.providers.aer import AerSimulator
 from qiskit.providers.aer.noise import NoiseModel
 from qiskit.providers.aer.noise.errors.standard_errors import depolarizing_error
 from qiskit.circuit.library import (
@@ -94,7 +94,7 @@ def _generate_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes: di
     results_file_path = os.path.join(dir_name, str(rb_exp_name + "_output_data.json"))
     analysis_file_path = os.path.join(dir_name, str(rb_exp_name + "_output_analysis.json"))
     noise_model = create_depolarizing_noise_model()
-    backend = QasmSimulator()
+    backend = AerSimulator(seed_simulator=exp_attributes["seed"])
     print("Generating RB experiment")
     rb_exp = StandardRB(
         exp_attributes["physical_qubits"],
@@ -189,7 +189,7 @@ def _generate_int_rb_fitter_data(dir_name: str, rb_exp_name: str, exp_attributes
     results_file_path = os.path.join(dir_name, str(rb_exp_name + "_output_data.json"))
     analysis_file_path = os.path.join(dir_name, str(rb_exp_name + "_output_analysis.json"))
     noise_model = create_depolarizing_noise_model()
-    backend = QasmSimulator()
+    backend = AerSimulator(seed_simulator=exp_attributes["seed"])
     print("Generating experiment")
     rb_exp = InterleavedRB(
         interleaved_gates[exp_attributes["interleaved_element"]],

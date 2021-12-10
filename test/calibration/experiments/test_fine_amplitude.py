@@ -36,7 +36,7 @@ from qiskit_experiments.test.mock_iq_backend import MockFineAmp
 
 @ddt
 class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
-    """Test the drag experiment."""
+    """Test the fine amplitude experiment."""
 
     @data(0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08)
     def test_end_to_end_under_rotation(self, pi_ratio):

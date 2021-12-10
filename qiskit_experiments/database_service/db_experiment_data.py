@@ -900,9 +900,10 @@ class DbExperimentDataV1(DbExperimentData):
         if expdata.service is None:
             expdata.service = service
 
-        # Retrieve analysis results
+        # Retrieve data and analysis results
         # Maybe this isn't necessary but the repr of the class should
         # be updated to show correct number of results including remote ones
+        expdata._retrieve_data()
         expdata._retrieve_analysis_results()
 
         # mark it as existing in the DB
