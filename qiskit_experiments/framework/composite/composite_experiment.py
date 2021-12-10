@@ -13,7 +13,6 @@
 Composite Experiment abstract base class.
 """
 
-import copy
 from typing import List, Sequence, Optional
 from abc import abstractmethod
 import warnings
@@ -24,8 +23,6 @@ from .composite_analysis import CompositeAnalysis
 
 class CompositeExperiment(BaseExperiment):
     """Composite Experiment base class"""
-
-    __analysis_class__ = CompositeAnalysis
 
     def __init__(
         self,
@@ -44,7 +41,12 @@ class CompositeExperiment(BaseExperiment):
         """
         self._experiments = experiments
         self._num_experiments = len(experiments)
-        super().__init__(qubits, backend=backend, experiment_type=experiment_type)
+        super().__init__(
+            qubits,
+            analysis=CompositeAnalysis(),
+            backend=backend,
+            experiment_type=experiment_type,
+        )
 
     @abstractmethod
     def circuits(self):
@@ -93,13 +95,17 @@ class CompositeExperiment(BaseExperiment):
         return experiment_data
 
     def _additional_metadata(self):
-        return {"component_job_metadata": []}
+        """Add component experiment metadata"""
+        return {
+            "component_metadata": [sub_exp._metadata() for sub_exp in self.component_experiment()]
+        }
 
-    def _add_job_metadata(self, experiment_data, jobs, **run_options):
-        # Extract component metadata
-        component_metadata = []
+    def _add_job_metadata(self, metadata, jobs, **run_options):
+        super()._add_job_metadata(metadata, jobs, **run_options)
         # Add sub-experiment options
-        for sub_exp in self.component_experiment():
+        for sub_metadata, sub_exp in zip(
+            metadata["component_metadata"], self.component_experiment()
+        ):
             # Run and transpile options are always overridden
             if (
                 sub_exp.run_options != sub_exp._default_run_options()
@@ -109,17 +115,7 @@ class CompositeExperiment(BaseExperiment):
                     "Sub-experiment run and transpile options"
                     " are overridden by composite experiment options."
                 )
-            component_metadata.append(
-                {
-                    "job_ids": [job.job_id() for job in jobs],
-                    "experiment_options": copy.copy(sub_exp.experiment_options.__dict__),
-                    "transpile_options": copy.copy(sub_exp.transpile_options.__dict__),
-                    "analysis_options": copy.copy(sub_exp.analysis_options.__dict__),
-                    "run_options": copy.copy(run_options),
-                }
-            )
-        super()._add_job_metadata(experiment_data, jobs, **run_options)
-        experiment_data._metadata["component_job_metadata"].append(component_metadata)
+            sub_exp._add_job_metadata(sub_metadata, jobs, **run_options)
 
     def _postprocess_transpiled_circuits(self, circuits, **run_options):
         for expr in self._experiments:

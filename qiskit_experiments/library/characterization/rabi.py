@@ -22,11 +22,10 @@ from qiskit.providers import Backend
 from qiskit.pulse import ScheduleBlock
 from qiskit.exceptions import QiskitError
 
-from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
+from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.curve_analysis import ParameterRepr, OscillationAnalysis
 
 
-@fix_class_docs
 class Rabi(BaseExperiment):
     """An experiment that scans a pulse amplitude to calibrate rotations between 0 and 1.
 
@@ -53,9 +52,10 @@ class Rabi(BaseExperiment):
         calibrating-qubits-pulse.html>`_
         for the pulse level programming of a Rabi experiment.
 
+    # section: analysis_ref
+        :py:class:`~qiskit_experiments.curve_analysis.OscillationAnalysis`
     """
 
-    __analysis_class__ = OscillationAnalysis
     __gate_name__ = "Rabi"
 
     @classmethod
@@ -88,7 +88,7 @@ class Rabi(BaseExperiment):
     @classmethod
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
-        options = super()._default_analysis_options()
+        options = Options()
         options.result_parameters = [ParameterRepr("freq", "rabi_rate")]
         options.xlabel = "Amplitude"
         options.ylabel = "Signal (arb. units)"
@@ -113,7 +113,8 @@ class Rabi(BaseExperiment):
                 specified it will default to :code:`np.linspace(-0.95, 0.95, 51)`.
             backend: Optional, the backend to run the experiment on.
         """
-        super().__init__([qubit], backend=backend)
+        super().__init__([qubit], analysis=OscillationAnalysis(), backend=backend)
+        self.analysis.set_options(**self._default_analysis_options().__dict__)
 
         if amplitudes is not None:
             self.experiment_options.amplitudes = amplitudes
@@ -173,7 +174,6 @@ class Rabi(BaseExperiment):
         return circs
 
 
-@fix_class_docs
 class EFRabi(Rabi):
     """An experiment that scans the amplitude of a pulse inducing rotations between 1 and 2.
 

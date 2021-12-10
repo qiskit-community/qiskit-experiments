@@ -21,6 +21,7 @@ import inspect
 import warnings
 from abc import ABC
 from typing import Any, Dict, List, Tuple, Callable, Union, Optional
+from uncertainties import unumpy as unp
 
 import numpy as np
 from qiskit.providers import Backend
@@ -238,6 +239,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
     def __init__(self):
         """Initialize data fields that are privately accessed by methods."""
+        super().__init__()
 
         #: Dict[str, Any]: Experiment metadata
         self.__experiment_metadata = None
@@ -577,29 +579,28 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         x_key = self._get_option("x_key")
         try:
-            x_values = [datum["metadata"][x_key] for datum in data]
+            x_values = np.asarray([datum["metadata"][x_key] for datum in data], dtype=float)
         except KeyError as ex:
             raise DataProcessorError(
                 f"X value key {x_key} is not defined in circuit metadata."
             ) from ex
 
         if isinstance(data_processor, DataProcessor):
-            y_values, y_sigmas = data_processor(data)
-            if y_sigmas is None:
-                y_sigmas = np.full(y_values.shape, np.nan)
+            y_data = data_processor(data)
+
+            y_nominals = unp.nominal_values(y_data)
+            y_stderrs = unp.std_devs(y_data)
         else:
-            y_values, y_sigmas = zip(*map(data_processor, data))
+            y_nominals, y_stderrs = zip(*map(data_processor, data))
+
+            y_nominals = np.asarray(y_nominals, dtype=float)
+            y_stderrs = np.asarray(y_stderrs, dtype=float)
 
         # Store metadata
         metadata = np.asarray([datum["metadata"] for datum in data], dtype=object)
 
         # Store shots
         shots = np.asarray([datum.get("shots", np.nan) for datum in data])
-
-        # Format data
-        x_values = np.asarray(x_values, dtype=float)
-        y_values = np.asarray(y_values, dtype=float)
-        y_sigmas = np.asarray(y_sigmas, dtype=float)
 
         # Find series (invalid data is labeled as -1)
         data_index = np.full(x_values.size, -1, dtype=int)
@@ -613,8 +614,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
         raw_data = CurveData(
             label="raw_data",
             x=x_values,
-            y=y_values,
-            y_err=y_sigmas,
+            y=y_nominals,
+            y_err=y_stderrs,
             shots=shots,
             data_index=data_index,
             metadata=metadata,
@@ -821,35 +822,12 @@ class CurveAnalysis(BaseAnalysis, ABC):
             ) from ex
 
     def _run_analysis(
-        self, experiment_data: ExperimentData, **options
+        self, experiment_data: ExperimentData
     ) -> Tuple[List[AnalysisResultData], List["pyplot.Figure"]]:
-        """Run analysis on circuit data.
-
-        Args:
-            experiment_data: the experiment data to analyze.
-            options: kwarg options for analysis function.
-
-        Returns:
-            tuple: A pair ``(analysis_results, figures)`` where ``analysis_results``
-                   is a list of :class:`AnalysisResultData` objects, and ``figures``
-                   is a list of any figures for the experiment.
-
-        Raises:
-            AnalysisError: If the analysis fails.
-            DataProcessorError: When data processing failed.
-        """
-
         #
         # 1. Parse arguments
         #
-
-        # Pop arguments that are not given to the fitter,
-        # and update class attributes with the arguments that are given to the fitter
-        # (arguments that have matching attributes in the class)
-        analysis_options = self._default_options().__dict__
-        analysis_options.update(options)
-
-        extra_options = self._arg_parse(**analysis_options)
+        extra_options = self._arg_parse(**self.options.__dict__)
 
         # Update all fit functions in the series definitions if fixed parameter is defined.
         # Fixed parameters should be provided by the analysis options.

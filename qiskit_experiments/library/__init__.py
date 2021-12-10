@@ -38,10 +38,6 @@ Experiments for verification and validation of quantum devices.
     ~randomized_benchmarking.InterleavedRB
     ~tomography.StateTomography
     ~tomography.ProcessTomography
-
-.. autosummary::
-    :toctree: ../stubs/
-
     ~quantum_volume.QuantumVolume
 
 .. _characterization:
@@ -63,6 +59,9 @@ Some experiments may be also used for gate calibration.
     ~characterization.CrossResonanceHamiltonian
     ~characterization.EchoedCrossResonanceHamiltonian
     ~characterization.RoughDrag
+    ~characterization.FineDrag
+    ~characterization.FineXDrag
+    ~characterization.FineSXDrag
     ~characterization.HalfAngle
     ~characterization.FineAmplitude
     ~characterization.FineXAmplitude
@@ -70,6 +69,8 @@ Some experiments may be also used for gate calibration.
     ~characterization.Rabi
     ~characterization.EFRabi
     ~characterization.RamseyXY
+    ~characterization.FineFrequency
+    ~characterization.ReadoutAngle
 
 
 .. _calibration:
@@ -88,10 +89,12 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     :template: autosummary/experiment.rst
 
     ~calibration.RoughFrequencyCal
+    ~calibration.FrequencyCal
+    ~calibration.FineFrequencyCal
     ~calibration.RoughDragCal
-    ~calibration.FineDrag
-    ~calibration.FineXDrag
-    ~calibration.FineSXDrag
+    ~calibration.FineXDragCal
+    ~calibration.FineSXDragCal
+    ~calibration.FineDragCal
     ~calibration.FineAmplitudeCal
     ~calibration.FineXAmplitudeCal
     ~calibration.FineSXAmplitudeCal
@@ -102,9 +105,9 @@ See :doc:`/tutorials/calibrating_armonk` for example.
 """
 from .calibration import (
     RoughDragCal,
-    FineDrag,
-    FineXDrag,
-    FineSXDrag,
+    FineDragCal,
+    FineXDragCal,
+    FineSXDragCal,
     RoughAmplitudeCal,
     RoughXSXAmplitudeCal,
     EFRoughXSXAmplitudeCal,
@@ -113,6 +116,7 @@ from .calibration import (
     FineSXAmplitudeCal,
     RoughFrequencyCal,
     FrequencyCal,
+    FineFrequencyCal,
 )
 from .characterization import (
     T1,
@@ -122,6 +126,9 @@ from .characterization import (
     CrossResonanceHamiltonian,
     EchoedCrossResonanceHamiltonian,
     RoughDrag,
+    FineDrag,
+    FineXDrag,
+    FineSXDrag,
     Rabi,
     EFRabi,
     HalfAngle,
@@ -129,6 +136,8 @@ from .characterization import (
     FineXAmplitude,
     FineSXAmplitude,
     RamseyXY,
+    FineFrequency,
+    ReadoutAngle,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography

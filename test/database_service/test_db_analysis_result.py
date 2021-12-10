@@ -13,21 +13,21 @@
 # pylint: disable=missing-docstring
 
 """Test AnalysisResult."""
-
+from test.base import QiskitExperimentsTestCase
 from unittest import mock
 import json
 
 import math
 import numpy as np
 
-from qiskit.test import QiskitTestCase
+
 from qiskit_experiments.database_service import DbAnalysisResultV1 as DbAnalysisResult
 from qiskit_experiments.database_service.device_component import Qubit, Resonator, to_component
 from qiskit_experiments.database_service.database_service import DatabaseServiceV1
 from qiskit_experiments.database_service.exceptions import DbExperimentDataError
 
 
-class TestDbAnalysisResult(QiskitTestCase):
+class TestDbAnalysisResult(QiskitExperimentsTestCase):
     """Test the DbAnalysisResult class."""
 
     def test_analysis_result_attributes(self):
@@ -163,7 +163,7 @@ class TestDbAnalysisResult(QiskitTestCase):
         return DbAnalysisResult(**values)
 
 
-class TestDeviceComponent(QiskitTestCase):
+class TestDeviceComponent(QiskitExperimentsTestCase):
     """Test the DeviceComponent class."""
 
     def test_str(self):

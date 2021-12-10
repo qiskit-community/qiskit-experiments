@@ -12,21 +12,21 @@
 
 """Test rough amplitude calibration experiment classes."""
 
+from test.base import QiskitExperimentsTestCase
 import numpy as np
 
 from qiskit import transpile
 import qiskit.pulse as pulse
 from qiskit.circuit import Parameter
-from qiskit.test import QiskitTestCase
 from qiskit.test.mock import FakeArmonk
 
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
-from qiskit_experiments.calibration_management import BackendCalibrations
+from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.library import EFRoughXSXAmplitudeCal, RoughXSXAmplitudeCal
 from qiskit_experiments.test.mock_iq_backend import RabiBackend
 
 
-class TestRoughAmpCal(QiskitTestCase):
+class TestRoughAmpCal(QiskitExperimentsTestCase):
     """A class to test the rough amplitude calibration experiments."""
 
     def setUp(self):
@@ -35,7 +35,7 @@ class TestRoughAmpCal(QiskitTestCase):
         library = FixedFrequencyTransmon()
 
         self.backend = FakeArmonk()
-        self.cals = BackendCalibrations(self.backend, library)
+        self.cals = Calibrations.from_backend(self.backend, library)
 
     def test_circuits(self):
         """Test the quantum circuits."""
@@ -69,13 +69,13 @@ class TestRoughAmpCal(QiskitTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = RoughXSXAmplitudeCal(0, self.cals)
-        config = exp.config
+        config = exp.config()
         loaded_exp = RoughXSXAmplitudeCal.from_config(config)
         self.assertNotEqual(exp, loaded_exp)
-        self.assertEqual(config, loaded_exp.config)
+        self.assertEqual(config, loaded_exp.config())
 
 
-class TestSpecializations(QiskitTestCase):
+class TestSpecializations(QiskitExperimentsTestCase):
     """Test the specialized versions of the calibration."""
 
     def setUp(self):
@@ -85,7 +85,7 @@ class TestSpecializations(QiskitTestCase):
         library = FixedFrequencyTransmon()
 
         self.backend = FakeArmonk()
-        self.cals = BackendCalibrations(self.backend, library)
+        self.cals = Calibrations.from_backend(self.backend, library)
 
         # Add some pulses on the 1-2 transition.
         d0 = pulse.DriveChannel(0)

@@ -18,8 +18,12 @@ import uuid
 import copy
 import math
 
+from qiskit_experiments.framework.json import (
+    ExperimentEncoder,
+    ExperimentDecoder,
+    _serialize_safe_float,
+)
 from .database_service import DatabaseServiceV1
-from .json import ExperimentEncoder, ExperimentDecoder, serialize_safe_float
 from .utils import save_data, qiskit_version
 from .exceptions import DbExperimentDataError
 from .device_component import DeviceComponent, to_component
@@ -90,7 +94,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         """
         # Data to be stored in DB.
         self._experiment_id = experiment_id
-        self._id = result_id or uuid.uuid4().hex
+        self._id = result_id or str(uuid.uuid4())
         self._name = name
         self._value = copy.deepcopy(value)
         self._extra = copy.deepcopy(extra or {})
@@ -154,6 +158,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         value = self.value
         result_data = {
             "_value": value,
+            "_chisq": self._chisq,
             "_extra": self.extra,
             "_source": self._source,
         }
@@ -177,6 +182,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             "result_type": self.name,
             "device_components": self.device_components,
         }
+
         update_data = {
             "result_id": self.result_id,
             "result_data": result_data,
@@ -224,6 +230,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
         # Parse serialized data
         result_data = service_data.pop("result_data")
         value = result_data.pop("_value")
+        chisq = result_data.pop("_chisq", None)
         extra = result_data.pop("_extra", {})
         source = result_data.pop("_source", None)
 
@@ -236,6 +243,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             result_id=service_data.pop("result_id"),
             quality=service_data.pop("quality"),
             extra=extra,
+            chisq=chisq,
             verified=service_data.pop("verified"),
             tags=service_data.pop("tags"),
             service=service_data.pop("service"),
@@ -448,7 +456,7 @@ class DbAnalysisResultV1(DbAnalysisResult):
             if math.isfinite(value):
                 return value
             else:
-                return serialize_safe_float(value)["__value__"]
+                return _serialize_safe_float(value)["__value__"]
         if isinstance(value, complex):
             # Convert complex floats to strings for display
             return f"{value}"
