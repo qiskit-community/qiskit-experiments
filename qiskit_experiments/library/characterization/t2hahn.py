@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 """
 T2Hahn Echo Experiment class.
-
 """
 
 from typing import List, Optional, Union
@@ -28,38 +27,37 @@ from qiskit_experiments.library.characterization.analysis.t2hahn_analysis import
 class T2Hahn(BaseExperiment):
     r"""T2 Hahn Echo Experiment.
 
+    # section: overview
 
-        # section: overview
+        This experiment is used to estimate T2 noise of a single qubit.
 
-            This experiment is used to estimate T2 noise of a single qubit.
+        See `Qiskit Textbook <https://qiskit.org/textbook/ch-quantum-hardware/\
+        calibrating-qubits-pulse.html>`_  for a more detailed explanation on
+        these properties.
 
-            See `Qiskit Textbook <https://qiskit.org/textbook/ch-quantum-hardware/\
-            calibrating-qubits-pulse.html>`_  for a more detailed explanation on
-            these properties.
-
-            This experiment consists of a series of circuits of the form
+        This experiment consists of a series of circuits of the form
 
 
-            .. parsed-literal::
-
+        .. parsed-literal::
 
                  ┌─────────┐┌──────────┐┌───────┐┌──────────┐┌─────────┐┌─┐
             q_0: ┤ Rx(π/2) ├┤ DELAY(t) ├┤ RX(π) ├┤ DELAY(t) ├┤ RX(π/2) ├┤M├
                  └─────────┘└──────────┘└───────┘└──────────┘└─────────┘└╥┘
             c: 1/════════════════════════════════════════════════════════╩═
                                                                          0
-            for each *t* from the specified delay times
-            and the delays are specified by the user.
-            The delays that are specified are delay for each delay gate while
-            the delay in the metadata is the total delay which is delay * (num_echoes +1)
-            The circuits are run on the device or on a simulator backend.
+                                                                         
+        for each *t* from the specified delay times
+        and the delays are specified by the user.
+        The delays that are specified are delay for each delay gate while
+        the delay in the metadata is the total delay which is delay * (num_echoes +1)
+        The circuits are run on the device or on a simulator backend.
 
-        # section: tutorial
-            :doc:`/tutorials/t2hahn_characterization`
+    # section: tutorial
+        :doc:`/tutorials/t2hahn_characterization`
 
-        # section: analysis_ref
-            :py:class:`T2HahnAnalysis`
-        """
+    # section: analysis_ref
+        :py:class:`T2HahnAnalysis`
+    """
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
