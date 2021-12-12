@@ -50,7 +50,7 @@ class TestComposite(QiskitExperimentsTestCase):
         exp2.set_experiment_options(dummyoption="test")
         exp2.set_run_options(shots=2000)
         exp2.set_transpile_options(optimization_level=1)
-        exp2.set_analysis_options(dummyoption="test")
+        exp2.analysis.set_options(dummyoption="test")
 
         par_exp = ParallelExperiment([exp0, exp2])
 
@@ -62,7 +62,7 @@ class TestComposite(QiskitExperimentsTestCase):
             self.assertEqual(par_exp.experiment_options, Options())
             self.assertEqual(par_exp.run_options, Options(meas_level=2))
             self.assertEqual(par_exp.transpile_options, Options(optimization_level=0))
-            self.assertEqual(par_exp.analysis_options, Options())
+            self.assertEqual(par_exp.analysis.options, Options())
 
             par_exp.run(FakeBackend())
 
@@ -84,7 +84,8 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp3 = FakeExperiment([0, 1, 2, 3])
         batch_exp = BatchExperiment([par_exp, exp3])
 
-        self.rootdata = ExperimentData(batch_exp, backend=self.backend)
+        self.rootdata = batch_exp.run(backend=self.backend).block_for_results()
+        self.assertEqual(len(self.rootdata.child_data()), 2)
 
         self.rootdata.share_level = self.share_level
 
@@ -96,11 +97,9 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.assertEqual(expdata.share_level, self.share_level)
 
         components = expdata.child_data()
-        comp_ids = expdata.metadata.get("child_ids", [])
-        for childdata, comp_id in zip(components, comp_ids):
+        for childdata in components:
             self.check_attributes(childdata)
             self.assertEqual(childdata.parent_id, expdata.experiment_id)
-            self.assertEqual(childdata.experiment_id, comp_id)
 
     def check_if_equal(self, expdata1, expdata2, is_a_copy):
         """
@@ -113,24 +112,18 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
 
         metadata1 = copy.copy(expdata1.metadata)
         metadata2 = copy.copy(expdata2.metadata)
-        if is_a_copy:
-            comp_ids1 = metadata1.pop("child_ids", [])
-            comp_ids2 = metadata2.pop("child_ids", [])
-            for id1 in comp_ids1:
-                self.assertNotIn(id1, comp_ids2)
-            for id2 in comp_ids2:
-                self.assertNotIn(id2, comp_ids1)
-            if expdata1.parent_id is None:
-                self.assertEqual(expdata2.parent_id, None)
-            else:
-                self.assertNotEqual(expdata1.parent_id, expdata2.parent_id)
-        else:
-            self.assertEqual(expdata1.parent_id, expdata2.parent_id)
+        metadata1.pop("child_data_ids", [])
+        metadata2.pop("child_data_ids", [])
         self.assertDictEqual(metadata1, metadata2, msg="metadata not equal")
 
-        if isinstance(expdata1, ExperimentData):
-            for childdata1, childdata2 in zip(expdata1.child_data(), expdata2.child_data()):
-                self.check_if_equal(childdata1, childdata2, is_a_copy)
+        if is_a_copy:
+            self.assertNotEqual(expdata1.experiment_id, expdata2.experiment_id)
+        else:
+            self.assertEqual(expdata1.experiment_id, expdata2.experiment_id)
+
+        self.assertEqual(len(expdata1.child_data()), len(expdata2.child_data()))
+        for childdata1, childdata2 in zip(expdata1.child_data(), expdata2.child_data()):
+            self.check_if_equal(childdata1, childdata2, is_a_copy)
 
     def test_composite_experiment_data_attributes(self):
         """
@@ -166,6 +159,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         new_instance = self.rootdata.copy()
         self.check_if_equal(new_instance, self.rootdata, is_a_copy=True)
         self.check_attributes(new_instance)
+        self.assertEqual(new_instance.parent_id, None)
 
     def test_analysis_replace_results_true(self):
         """
@@ -182,7 +176,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         data1.add_child_data(extra_data)
 
         # Replace results
-        data2 = par_exp.run_analysis(data1, replace_results=True)
+        data2 = par_exp.analysis.run(data1, replace_results=True)
         self.assertEqual(data1, data2)
         self.assertEqual(len(data1.child_data()), len(data2.child_data()))
         for sub1, sub2 in zip(data1.child_data(), data2.child_data()):
@@ -203,7 +197,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         data1.add_child_data(extra_data)
 
         # Replace results
-        data2 = par_exp.run_analysis(data1, replace_results=False)
+        data2 = par_exp.analysis.run(data1, replace_results=False)
         self.assertNotEqual(data1.experiment_id, data2.experiment_id)
         self.assertEqual(len(data1.child_data()), len(data2.child_data()))
         for sub1, sub2 in zip(data1.child_data(), data2.child_data()):
@@ -374,6 +368,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         )
         expdata = par_exp.run(Backend()).block_for_results()
 
+        self.assertEqual(len(expdata.data()), len(counts))
         for circ_data, circ_counts in zip(expdata.data(), counts):
             self.assertDictEqual(circ_data["counts"], circ_counts)
 
@@ -394,7 +389,9 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             ],
         ]
 
+        self.assertEqual(len(expdata.child_data()), len(counts1))
         for childdata, child_counts in zip(expdata.child_data(), counts1):
+            self.assertEqual(len(childdata.data()), len(child_counts))
             for circ_data, circ_counts in zip(childdata.data(), child_counts):
                 self.assertDictEqual(circ_data["counts"], circ_counts)
 
@@ -407,6 +404,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             ],
         ]
 
+        self.assertEqual(len(expdata.child_data(1).child_data()), len(counts2))
         for childdata, child_counts in zip(expdata.child_data(1).child_data(), counts2):
             for circ_data, circ_counts in zip(childdata.data(), child_counts):
                 self.assertDictEqual(circ_data["counts"], circ_counts)
@@ -416,8 +414,10 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             [{"0": 20, "1": 32}, {"0": 22, "1": 24}],
         ]
 
+        self.assertEqual(len(expdata.child_data(1).child_data(0).child_data()), len(counts3))
         for childdata, child_counts in zip(
             expdata.child_data(1).child_data(0).child_data(), counts3
         ):
+            self.assertEqual(len(childdata.data()), len(child_counts))
             for circ_data, circ_counts in zip(childdata.data(), child_counts):
                 self.assertDictEqual(circ_data["counts"], circ_counts)

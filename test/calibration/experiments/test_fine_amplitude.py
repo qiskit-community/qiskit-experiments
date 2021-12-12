@@ -30,13 +30,13 @@ from qiskit_experiments.library import (
     FineSXAmplitudeCal,
 )
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
-from qiskit_experiments.calibration_management import BackendCalibrations
+from qiskit_experiments.calibration_management import Calibrations
 from qiskit_experiments.test.mock_iq_backend import MockFineAmp
 
 
 @ddt
 class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
-    """Test the drag experiment."""
+    """Test the fine amplitude experiment."""
 
     @data(0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08)
     def test_end_to_end_under_rotation(self, pi_ratio):
@@ -45,7 +45,7 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
         amp_exp = FineAmplitude(0, Gate("xp", 1, []))
         amp_exp.set_transpile_options(basis_gates=["xp", "x", "sx"])
         amp_exp.set_experiment_options(add_sx=True)
-        amp_exp.set_analysis_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
+        amp_exp.analysis.set_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
 
         error = -np.pi * pi_ratio
         backend = MockFineAmp(error, np.pi, "xp")
@@ -66,7 +66,7 @@ class TestFineAmpEndToEnd(QiskitExperimentsTestCase):
         amp_exp = FineAmplitude(0, Gate("xp", 1, []))
         amp_exp.set_transpile_options(basis_gates=["xp", "x", "sx"])
         amp_exp.set_experiment_options(add_sx=True)
-        amp_exp.set_analysis_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
+        amp_exp.analysis.set_options(angle_per_gate=np.pi, phase_offset=np.pi / 2)
 
         error = np.pi * pi_ratio
         backend = MockFineAmp(error, np.pi, "xp")
@@ -129,8 +129,8 @@ class TestSpecializations(QiskitExperimentsTestCase):
 
         self.assertTrue(exp.experiment_options.add_sx)
         self.assertTrue(exp.experiment_options.add_xp_circuit)
-        self.assertEqual(exp.analysis_options.angle_per_gate, np.pi)
-        self.assertEqual(exp.analysis_options.phase_offset, np.pi / 2)
+        self.assertEqual(exp.analysis.options.angle_per_gate, np.pi)
+        self.assertEqual(exp.analysis.options.phase_offset, np.pi / 2)
         self.assertEqual(exp.experiment_options.gate, XGate())
 
     def test_fine_sx_amp(self):
@@ -143,8 +143,8 @@ class TestSpecializations(QiskitExperimentsTestCase):
 
         expected = [0, 1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25]
         self.assertEqual(exp.experiment_options.repetitions, expected)
-        self.assertEqual(exp.analysis_options.angle_per_gate, np.pi / 2)
-        self.assertEqual(exp.analysis_options.phase_offset, np.pi)
+        self.assertEqual(exp.analysis.options.angle_per_gate, np.pi / 2)
+        self.assertEqual(exp.analysis.options.phase_offset, np.pi)
         self.assertEqual(exp.experiment_options.gate, SXGate())
 
 
@@ -158,7 +158,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
         library = FixedFrequencyTransmon()
 
         self.backend = MockFineAmp(-np.pi * 0.07, np.pi, "xp")
-        self.cals = BackendCalibrations(self.backend, library)
+        self.cals = Calibrations.from_backend(self.backend, library)
 
     def test_cal_options(self):
         """Test that the options are properly propagated."""
@@ -269,7 +269,7 @@ class TestFineAmplitudeCal(QiskitExperimentsTestCase):
     def test_experiment_config(self):
         """Test converting to and from config works"""
         exp = FineSXAmplitudeCal(0, self.cals, "sx")
-        loaded_exp = FineSXAmplitudeCal.from_config(exp.config)
+        loaded_exp = FineSXAmplitudeCal.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.experiments_equiv(exp, loaded_exp))
 

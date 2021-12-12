@@ -16,6 +16,7 @@ from typing import Union, Iterable, Optional, List, Sequence
 
 import numpy as np
 from numpy.random import Generator, default_rng
+from numpy.random.bit_generator import BitGenerator, SeedSequence
 
 from qiskit import QuantumCircuit, QiskitError
 from qiskit.quantum_info import Clifford
@@ -49,6 +50,9 @@ class StandardRB(BaseExperiment):
         on estimating the Error Per Gate (EPG) for 1-qubit and 2-qubit gates,
         from 1-qubit and 2-qubit standard RB experiments, by Ref. [3].
 
+    # section: analysis_ref
+        :py:class:`RBAnalysis`
+
     # section: reference
         .. ref_arxiv:: 1 1009.3639
         .. ref_arxiv:: 2 1109.6887
@@ -56,16 +60,13 @@ class StandardRB(BaseExperiment):
 
     """
 
-    # Analysis class for experiment
-    __analysis_class__ = RBAnalysis
-
     def __init__(
         self,
         qubits: Sequence[int],
         lengths: Iterable[int],
         backend: Optional[Backend] = None,
         num_samples: int = 3,
-        seed: Optional[Union[int, Generator]] = None,
+        seed: Optional[Union[int, SeedSequence, BitGenerator, Generator]] = None,
         full_sampling: Optional[bool] = False,
     ):
         """Initialize a standard randomized benchmarking experiment.
@@ -75,8 +76,9 @@ class StandardRB(BaseExperiment):
             lengths: A list of RB sequences lengths.
             backend: The backend to run the experiment on.
             num_samples: Number of samples to generate for each sequence length.
-            seed: Seed or generator object for random number
-                  generation. If None default_rng will be used.
+            seed: Optional, seed used to initialize ``numpy.random.default_rng``.
+                  when generating circuits. The ``default_rng`` will be initialized
+                  with this seed value everytime :meth:`circuits` is called.
             full_sampling: If True all Cliffords are independently sampled for
                            all lengths. If False for sample of lengths longer
                            sequences are constructed by appending additional
@@ -84,12 +86,12 @@ class StandardRB(BaseExperiment):
                            The default is False.
         """
         # Initialize base experiment
-        super().__init__(qubits, backend=backend)
+        super().__init__(qubits, analysis=RBAnalysis(), backend=backend)
         self._verify_parameters(lengths, num_samples)
 
         # Set configurable options
-        self.set_experiment_options(lengths=list(lengths), num_samples=num_samples)
-        self.set_analysis_options(
+        self.set_experiment_options(lengths=list(lengths), num_samples=num_samples, seed=seed)
+        self.analysis.set_options(
             data_processor=dp.DataProcessor(
                 input_key="counts",
                 data_actions=[dp.Probability(outcome="0" * self.num_qubits)],
@@ -99,11 +101,6 @@ class StandardRB(BaseExperiment):
         # Set fixed options
         self._full_sampling = full_sampling
         self._clifford_utils = CliffordUtils()
-
-        if not isinstance(seed, Generator):
-            self._rng = default_rng(seed=seed)
-        else:
-            self._rng = seed
 
     def _verify_parameters(self, lengths, num_samples):
         """Verify input correctness, raise QiskitError if needed"""
@@ -125,12 +122,16 @@ class StandardRB(BaseExperiment):
         Experiment Options:
             lengths (List[int]): A list of RB sequences lengths.
             num_samples (int): Number of samples to generate for each sequence length.
-
+            seed (None or int or SeedSequence or BitGenerator or Generator): A seed
+                used to initialize ``numpy.random.default_rng`` when generating circuits.
+                The ``default_rng`` will be initialized with this seed value everytime
+                :meth:`circuits` is called.
         """
         options = super()._default_experiment_options()
 
         options.lengths = None
         options.num_samples = None
+        options.seed = None
 
         return options
 
@@ -140,14 +141,13 @@ class StandardRB(BaseExperiment):
         Returns:
             A list of :class:`QuantumCircuit`.
         """
+        rng = default_rng(seed=self.experiment_options.seed)
         circuits = []
         for _ in range(self.experiment_options.num_samples):
-            circuits += self._sample_circuits(self.experiment_options.lengths, seed=self._rng)
+            circuits += self._sample_circuits(self.experiment_options.lengths, rng)
         return circuits
 
-    def _sample_circuits(
-        self, lengths: Iterable[int], seed: Optional[Union[int, Generator]] = None
-    ) -> List[QuantumCircuit]:
+    def _sample_circuits(self, lengths: Iterable[int], rng: Generator) -> List[QuantumCircuit]:
         """Return a list RB circuits for the given lengths.
 
         Args:
@@ -160,7 +160,7 @@ class StandardRB(BaseExperiment):
         """
         circuits = []
         for length in lengths if self._full_sampling else [lengths[-1]]:
-            elements = self._clifford_utils.random_clifford_circuits(self.num_qubits, length, seed)
+            elements = self._clifford_utils.random_clifford_circuits(self.num_qubits, length, rng)
             element_lengths = [len(elements)] if self._full_sampling else lengths
             circuits += self._generate_circuit(elements, element_lengths)
         return circuits

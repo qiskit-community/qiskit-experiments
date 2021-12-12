@@ -16,8 +16,7 @@ T1 Experiment class.
 from typing import List, Optional, Union
 import numpy as np
 
-from qiskit.utils import apply_prefix
-from qiskit.circuit import QuantumCircuit
+from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit.test.mock import FakeBackend
 
@@ -44,25 +43,19 @@ class T1(BaseExperiment):
         3. Analysis of results: deduction of T\ :sub:`1`\ , based on the outcomes,
         by fitting to an exponential curve.
 
+    # section: analysis_ref
+        :py:class:`T1Analysis`
     """
-
-    __analysis_class__ = T1Analysis
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
         """Default experiment options.
 
         Experiment Options:
-            delays (Iterable[float]): Delay times of the experiments.
-            unit (str): Unit of the delay times. Supported units are
-                's', 'ms', 'us', 'ns', 'ps', 'dt'.
+            delays (Iterable[float]): Delay times of the experiments in seconds.
         """
         options = super()._default_experiment_options()
-
         options.delays = None
-        options.unit = "s"
-        options.conversion_factor = None
-
         return options
 
     def __init__(
@@ -70,26 +63,23 @@ class T1(BaseExperiment):
         qubit: int,
         delays: Union[List[float], np.array],
         backend: Optional[Backend] = None,
-        unit: Optional[str] = "s",
     ):
         """
         Initialize the T1 experiment class
 
         Args:
             qubit: the qubit whose T1 is to be estimated
-            delays: delay times of the experiments
+            delays: delay times of the experiments in seconds
             backend: Optional, the backend to run the experiment on.
-            unit: Optional, unit of the delay times. Supported units:
-                  's', 'ms', 'us', 'ns', 'ps', 'dt'.
 
         Raises:
             ValueError: if the number of delays is smaller than 3
         """
         # Initialize base experiment
-        super().__init__([qubit], backend=backend)
+        super().__init__([qubit], analysis=T1Analysis(), backend=backend)
 
         # Set experiment options
-        self.set_experiment_options(delays=delays, unit=unit)
+        self.set_experiment_options(delays=delays)
 
     def _set_backend(self, backend: Backend):
         super()._set_backend(backend)
@@ -104,53 +94,41 @@ class T1(BaseExperiment):
                 timing_constraints=timing_constraints, scheduling_method=scheduling_method
             )
 
-        # Set conversion factor
-        if self.experiment_options.unit == "dt":
-            try:
-                dt_factor = getattr(self.backend.configuration(), "dt")
-                conversion_factor = dt_factor
-            except AttributeError as no_dt:
-                raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
-        elif self.experiment_options.unit != "s":
-            conversion_factor = apply_prefix(1, self.experiment_options.unit)
-        else:
-            conversion_factor = 1
-        self.set_experiment_options(conversion_factor=conversion_factor)
-
     def circuits(self) -> List[QuantumCircuit]:
         """
         Return a list of experiment circuits
 
         Returns:
             The experiment circuits
-
-        Raises:
-            ValueError: When conversion factor is not set.
         """
-        if self.backend:
-            self._set_backend(self.backend)
-        prefactor = self.experiment_options.conversion_factor
-
-        if prefactor is None:
-            raise ValueError("Conversion factor is not set.")
+        if self.backend and hasattr(self.backend.configuration(), "dt"):
+            dt_unit = True
+            dt_factor = self.backend.configuration().dt
+        else:
+            dt_unit = False
 
         circuits = []
-        for delay in prefactor * np.asarray(self.experiment_options.delays, dtype=float):
-            delay = np.round(delay, decimals=10)
-
+        for delay in self.experiment_options.delays:
             circ = QuantumCircuit(1, 1)
             circ.x(0)
             circ.barrier(0)
-            circ.delay(delay, 0, "s")
+            if dt_unit:
+                delay_dt = round(delay / dt_factor)
+                circ.delay(delay_dt, 0, "dt")
+            else:
+                circ.delay(delay, 0, "s")
             circ.barrier(0)
             circ.measure(0, 0)
 
             circ.metadata = {
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
-                "xval": delay,
                 "unit": "s",
             }
+            if dt_unit:
+                circ.metadata["xval"] = delay_dt * dt_factor
+            else:
+                circ.metadata["xval"] = delay
 
             circuits.append(circ)
 

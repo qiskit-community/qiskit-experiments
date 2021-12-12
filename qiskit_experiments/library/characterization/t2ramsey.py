@@ -18,8 +18,7 @@ from typing import List, Union, Optional
 import numpy as np
 
 import qiskit
-from qiskit.utils import apply_prefix
-from qiskit.circuit import QuantumCircuit
+from qiskit import QuantumCircuit
 from qiskit.providers.backend import Backend
 from qiskit.test.mock import FakeBackend
 
@@ -57,24 +56,21 @@ class T2Ramsey(BaseExperiment):
     # section: tutorial
         :doc:`/tutorials/t2ramsey_characterization`
 
+    # section: analysis_ref
+        :py:class:`T2RamseyAnalysis`
     """
-    __analysis_class__ = T2RamseyAnalysis
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
         """Default experiment options.
 
         Experiment Options:
-            delays (Iterable[float]): Delay times of the experiments.
-            unit (str): Unit of the delay times. Supported units are
-                's', 'ms', 'us', 'ns', 'ps', 'dt'.
+            delays (Iterable[float]): Delay times of the experiments in seconds.
             osc_freq (float): Oscillation frequency offset in Hz.
         """
         options = super()._default_experiment_options()
 
         options.delays = None
-        options.unit = "s"
-        options.conversion_factor = None
         options.osc_freq = 0.0
 
         return options
@@ -84,7 +80,6 @@ class T2Ramsey(BaseExperiment):
         qubit: int,
         delays: Union[List[float], np.array],
         backend: Optional[Backend] = None,
-        unit: str = "s",
         osc_freq: float = 0.0,
     ):
         """
@@ -92,17 +87,14 @@ class T2Ramsey(BaseExperiment):
 
         Args:
             qubit: the qubit under test.
-            delays: delay times of the experiments.
+            delays: delay times of the experiments in seconds.
             backend: Optional, the backend to run the experiment on.
-            unit: Optional, time unit of `delays`.
-                Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'. The unit is
-                used for both T2Ramsey and for the frequency.
             osc_freq: the oscillation frequency induced by the user.
                 The frequency is given in Hz.
 
         """
-        super().__init__([qubit], backend=backend)
-        self.set_experiment_options(delays=delays, unit=unit, osc_freq=osc_freq)
+        super().__init__([qubit], analysis=T2RamseyAnalysis(), backend=backend)
+        self.set_experiment_options(delays=delays, osc_freq=osc_freq)
 
     def _set_backend(self, backend: Backend):
         super()._set_backend(backend)
@@ -117,19 +109,6 @@ class T2Ramsey(BaseExperiment):
                 timing_constraints=timing_constraints, scheduling_method=scheduling_method
             )
 
-        # Set conversion factor
-        if self.experiment_options.unit == "dt":
-            try:
-                dt_factor = getattr(self.backend.configuration(), "dt")
-                conversion_factor = dt_factor
-            except AttributeError as no_dt:
-                raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
-        elif self.experiment_options.unit != "s":
-            conversion_factor = apply_prefix(1, self.experiment_options.unit)
-        else:
-            conversion_factor = 1
-        self.set_experiment_options(conversion_factor=conversion_factor)
-
     def circuits(self) -> List[QuantumCircuit]:
         """Return a list of experiment circuits.
 
@@ -138,26 +117,29 @@ class T2Ramsey(BaseExperiment):
 
         Returns:
             The experiment circuits
-
-        Raises:
-            ValueError: When conversion factor is not set.
         """
-        if self.backend:
-            self._set_backend(self.backend)
-        prefactor = self.experiment_options.conversion_factor
-
-        if prefactor is None:
-            raise ValueError("Conversion factor is not set.")
+        if self.backend and hasattr(self.backend.configuration(), "dt"):
+            dt_unit = True
+            dt_factor = self.backend.configuration().dt
+        else:
+            dt_unit = False
 
         circuits = []
-        for delay in prefactor * np.asarray(self.experiment_options.delays, dtype=float):
-            delay = np.round(delay, decimals=10)
+        for delay in self.experiment_options.delays:
+            if dt_unit:
+                delay_dt = round(delay / dt_factor)
+                real_delay_in_sec = delay_dt * dt_factor
+            else:
+                real_delay_in_sec = delay
 
-            rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * delay
+            rotation_angle = 2 * np.pi * self.experiment_options.osc_freq * real_delay_in_sec
 
             circ = qiskit.QuantumCircuit(1, 1)
             circ.h(0)
-            circ.delay(delay, 0, "s")
+            if dt_unit:
+                circ.delay(delay_dt, 0, "dt")
+            else:
+                circ.delay(delay, 0, "s")
             circ.rz(rotation_angle, 0)
             circ.barrier(0)
             circ.h(0)
@@ -167,8 +149,8 @@ class T2Ramsey(BaseExperiment):
             circ.metadata = {
                 "experiment_type": self._type,
                 "qubit": self.physical_qubits[0],
+                "xval": real_delay_in_sec,
                 "osc_freq": self.experiment_options.osc_freq,
-                "xval": delay,
                 "unit": "s",
             }
 

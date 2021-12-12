@@ -21,7 +21,7 @@ from qiskit.circuit import Parameter
 from qiskit.providers.backend import Backend
 
 from qiskit_experiments.framework import ExperimentData, Options
-from qiskit_experiments.calibration_management import BaseCalibrationExperiment, BackendCalibrations
+from qiskit_experiments.calibration_management import BaseCalibrationExperiment, Calibrations
 from qiskit_experiments.library.characterization import Rabi
 from qiskit_experiments.calibration_management.update_library import BaseUpdater
 from qiskit_experiments.curve_analysis import ParameterRepr
@@ -41,7 +41,7 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
     def __init__(
         self,
         qubit: int,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         schedule_name: str = "x",
         amplitudes: Iterable[float] = None,
         cal_parameter_name: Optional[str] = "amp",
@@ -69,6 +69,9 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
         schedule = calibrations.get_schedule(
             schedule_name, qubit, assign_params={cal_parameter_name: Parameter("amp")}, group=group
         )
+
+        self._validate_channels(schedule, [qubit])
+        self._validate_parameters(schedule, 1)
 
         super().__init__(
             calibrations,
@@ -191,12 +194,16 @@ class RoughAmplitudeCal(BaseCalibrationExperiment, Rabi):
 
 
 class RoughXSXAmplitudeCal(RoughAmplitudeCal):
-    """A rough amplitude calibration of x and sx gates."""
+    """A rough amplitude calibration of x and sx gates.
+
+    # section: see_also
+        qiskit_experiments.library.characterization.rabi.Rabi
+    """
 
     def __init__(
         self,
         qubit: int,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         amplitudes: Iterable[float] = None,
         backend: Optional[Backend] = None,
     ):
@@ -220,12 +227,16 @@ class RoughXSXAmplitudeCal(RoughAmplitudeCal):
 
 
 class EFRoughXSXAmplitudeCal(RoughAmplitudeCal):
-    """A rough amplitude calibration of x and sx gates on the 1<->2 transition."""
+    """A rough amplitude calibration of x and sx gates on the 1<->2 transition.
+
+    # section: see_also
+        qiskit_experiments.library.characterization.rabi.Rabi
+    """
 
     def __init__(
         self,
         qubit: int,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         amplitudes: Iterable[float] = None,
         backend: Optional[Backend] = None,
         ef_pulse_label: str = "12",
