@@ -131,7 +131,8 @@ class T2Hahn(BaseExperiment):
         """
         Return a list of experiment circuits.
 
-        Each circuit consist with RX(π/2) followed by a sequence of delay gate, RX(π) for echo and delay gate again.
+        Each circuit consist with RX(π/2) followed by a sequence of delay gate,
+        RX(π) for echo and delay gate again.
         The sequence repeats for the number of echoes and finish with RX(±π/2).
 
         Returns:
@@ -146,7 +147,6 @@ class T2Hahn(BaseExperiment):
             dt_factor = self.backend.configuration().dt
         else:
             dt_unit = False
-
 
         circuits = []
         for delay_gate in np.asarray(self.experiment_options.delays, dtype=float):

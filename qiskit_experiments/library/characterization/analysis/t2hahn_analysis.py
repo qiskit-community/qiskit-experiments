@@ -12,7 +12,7 @@
 """
 T2 Hahn echo Analysis class.
 """
-from typing import Union, List
+from typing import Union
 
 import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.data_processing import DataProcessor, Probability
@@ -35,7 +35,11 @@ class T2HahnAnalysis(curve.DecayAnalysis):
         options.data_processor = DataProcessor(
             input_key="counts", data_actions=[Probability(outcome="0")]
         )
-        options.p0 = {"amp": 0.5, "tau": 0.000001, "base": 0.5}  # The analysis will not work without initial guess
+        options.p0 = {
+            "amp": 0.5,
+            "tau": 0.000001,
+            "base": 0.5,
+        }  # The analysis will not work without initial guess
         options.xlabel = "Delay"
         options.ylabel = "P(0)"
         options.xval_unit = "s"

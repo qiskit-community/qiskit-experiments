@@ -20,7 +20,6 @@ from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library.characterization.t2hahn import T2Hahn
 from qiskit_experiments.library.characterization import T2HahnAnalysis
 from qiskit_experiments.test.t2hahn_backend import T2HahnBackend
-import unittest
 
 
 class TestT2Hahn(QiskitExperimentsTestCase):
@@ -76,12 +75,8 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         exp0 = T2Hahn(0, delays[0])
         exp2 = T2Hahn(2, delays[1])
 
-        exp0.analysis.set_options(
-            p0={"amp": 0.5, "tau": t2hahn[0], "base": 0.5}, plot=True
-        )
-        exp2.analysis.set_options(
-            p0={"amp": 0.5, "tau": t2hahn[1], "base": 0.5}, plot=True
-        )
+        exp0.analysis.set_options(p0={"amp": 0.5, "tau": t2hahn[0], "base": 0.5}, plot=True)
+        exp2.analysis.set_options(p0={"amp": 0.5, "tau": t2hahn[1], "base": 0.5}, plot=True)
 
         par_exp = ParallelExperiment([exp0, exp2])
 
@@ -119,9 +114,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         osc_freq = 0.08
 
         exp0 = T2Hahn(qubit, delays0)
-        exp0.analysis.set_options(
-            p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5}, plot=True
-        )
+        exp0.analysis.set_options(p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5}, plot=True)
         backend = T2HahnBackend(
             t2hahn=[estimated_t2hahn],
             frequency=[osc_freq],
@@ -138,9 +131,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         # second experiment
         delays1 = list(range(2, 65, 2))
         exp1 = T2Hahn(qubit, delays1)
-        exp1.analysis.set_options(
-            p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5}, plot=True
-        )
+        exp1.analysis.set_options(p0={"amp": 0.5, "tau": estimated_t2hahn, "base": 0.5}, plot=True)
         expdata1 = exp1.run(backend=backend, analysis=None, shots=1000).block_for_results()
         expdata1.add_data(expdata0.data())
         exp1.analysis.run(expdata1)
@@ -178,7 +169,3 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         loaded = T2HahnAnalysis.from_config(analysis.config())
         self.assertNotEqual(analysis, loaded)
         self.assertEqual(analysis.config(), loaded.config())
-
-
-if __name__ == "__main__":
-    unittest.main()
