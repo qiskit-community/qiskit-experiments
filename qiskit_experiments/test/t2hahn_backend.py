@@ -40,12 +40,10 @@ class T2HahnBackend(BackendV1):
         initialization_error=None,
         readout0to1=None,
         readout1to0=None,
-        conversion_factor=1,
     ):
         """
         Initialize the T2Hahn backend
         """
-        conversion_factor_in_ns = conversion_factor * 1e9 if conversion_factor is not None else None
         configuration = QasmBackendConfiguration(
             backend_name="T2Hahn_simulator",
             backend_version="0",
@@ -59,7 +57,6 @@ class T2HahnBackend(BackendV1):
             memory=False,
             max_shots=int(1e6),
             coupling_map=None,
-            dt=conversion_factor_in_ns,
         )
 
         self._t2hahn = t2hahn
@@ -67,7 +64,6 @@ class T2HahnBackend(BackendV1):
         self._initialization_error = initialization_error
         self._readout0to1 = readout0to1
         self._readout1to0 = readout1to0
-        self._conversion_factor = conversion_factor
         self._rng = np.random.default_rng(seed=SEED)
         super().__init__(configuration)
 
@@ -289,9 +285,7 @@ class T2HahnBackend(BackendV1):
                     # The noise will only be applied if we are in the XY plain.
                     if op.name == "delay":
                         delay = op.params[0]
-                        if qubit >= len(self._t2hahn):
-                            print(f"The length of T2 is {len(self._t2hahn)} and the index qubit is {qubit}")
-                        t2hahn = self._t2hahn[qubit] * self._conversion_factor
+                        t2hahn = self._t2hahn[qubit]
                         freq = self._frequency[qubit]
                         qubit_state[qubit] = self._delay_gate(qubit_state=qubit_state[qubit],
                                                               delay=delay, t2hahn=t2hahn,

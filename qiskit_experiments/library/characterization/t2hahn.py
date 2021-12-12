@@ -17,7 +17,6 @@ T2Hahn Echo Experiment class.
 from typing import List, Optional, Union
 import numpy as np
 
-from qiskit.utils import apply_prefix
 from qiskit import QuantumCircuit, QiskitError
 from qiskit.providers.backend import Backend
 from qiskit.test.mock import FakeBackend
@@ -58,6 +57,8 @@ class T2Hahn(BaseExperiment):
         # section: tutorial
             :doc:`/tutorials/t2hahn_characterization`
 
+        # section: analysis_ref
+            :py:class:`T2HahnAnalysis`
         """
 
     @classmethod
@@ -66,14 +67,10 @@ class T2Hahn(BaseExperiment):
 
         Experiment Options:
             delays (Iterable[float]): Delay times of the experiments.
-            unit (str): Unit of the delay times. Supported units are
-                's', 'ms', 'us', 'ns', 'ps', 'dt'.
         """
         options = super()._default_experiment_options()
 
         options.delays = None
-        options.unit = "s"
-        options.conversion_factor = 1
         options.num_echoes = 1
         return options
 
@@ -83,7 +80,6 @@ class T2Hahn(BaseExperiment):
         delays: Union[List[float], np.array],
         num_echoes: int = 1,
         backend: Optional[Backend] = None,
-        unit: str = "s",
     ):
         """
         Initialize the T2 - Hahn Echo class
@@ -92,8 +88,8 @@ class T2Hahn(BaseExperiment):
             qubit:  the qubit whose T2 is to be estimated
             delays: Total delay times of the experiments.
                         backend: Optional, the backend to run the experiment on.
-            unit: Optional, time unit of `delays`.
-                Supported units: 's', 'ms', 'us', 'ns', 'ps', 'dt'.
+            num_echoes: The number of echoes to preform.
+            backend: Optional, the backend to run the experiment on..
 
          Raises:
              QiskitError : Error for invalid input.
@@ -102,7 +98,7 @@ class T2Hahn(BaseExperiment):
         super().__init__([qubit], analysis=T2HahnAnalysis(), backend=backend)
 
         # Set experiment options
-        self.set_experiment_options(delays=delays, unit=unit, num_echoes=num_echoes)
+        self.set_experiment_options(delays=delays, num_echoes=num_echoes)
         self._verify_parameters()
 
     def _verify_parameters(self):
@@ -131,50 +127,51 @@ class T2Hahn(BaseExperiment):
                 timing_constraints=timing_constraints, scheduling_method=scheduling_method
             )
 
-        # Set conversion factor
-        if self.experiment_options.unit == "dt":
-            try:
-                dt_factor = getattr(self.backend.configuration(), "dt")
-                conversion_factor = dt_factor
-            except AttributeError as no_dt:
-                raise AttributeError("Dt parameter is missing in backend configuration") from no_dt
-        elif self.experiment_options.unit != "s":
-            conversion_factor = apply_prefix(1, self.experiment_options.unit)
-        else:
-            conversion_factor = 1
-        self.set_experiment_options(conversion_factor=conversion_factor)
-
     def circuits(self) -> List[QuantumCircuit]:
         """
-        Return a list of experiment circuits
+        Return a list of experiment circuits.
+
+        Each circuit consist with RX(π/2) followed by a sequence of delay gate, RX(π) for echo and delay gate again.
+        The sequence repeats for the number of echoes and finish with RX(±π/2).
 
         Returns:
-            The experiment circuits
+            The experiment circuits.
 
         Raises:
             ValueError: if unit is 'dt', but 'dt' parameter is missing in the backend configuration
         """
-        if self.backend:
-            self._set_backend(self.backend)
-        prefactor = self.experiment_options.conversion_factor
 
-        if prefactor is None:
-            raise ValueError("Conversion factor is not set.")
+        if self.backend and hasattr(self.backend.configuration(), "dt"):
+            dt_unit = True
+            dt_factor = self.backend.configuration().dt
+        else:
+            dt_unit = False
+
 
         circuits = []
         for delay_gate in np.asarray(self.experiment_options.delays, dtype=float):
-            total_delay = delay_gate * (self.experiment_options.num_echoes * 2)
+            if dt_unit:
+                delay_dt = round(delay_gate / dt_factor)
+                real_delay_in_sec = delay_dt * dt_factor
+            else:
+                real_delay_in_sec = delay_gate
 
-            delay_gate = np.round(delay_gate, decimals=12)
+            total_delay = real_delay_in_sec * (self.experiment_options.num_echoes * 2)
 
             circ = QuantumCircuit(1, 1)
 
             # First X rotation in 90 degrees
             circ.rx(np.pi / 2, 0)  # Bring to qubits to X Axis
             for _ in range(self.experiment_options.num_echoes):
-                circ.delay(delay_gate, 0, self.experiment_options.unit)
-                circ.rx(np.pi, 0)
-                circ.delay(delay_gate, 0, self.experiment_options.unit)
+                if dt_unit:
+                    circ.delay(delay_dt, 0, "dt")
+                    circ.rx(np.pi, 0)
+                    circ.delay(delay_dt, 0, "dt")
+                else:
+                    circ.delay(delay_gate, 0, "s")
+                    circ.rx(np.pi, 0)
+                    circ.delay(delay_gate, 0, "s")
+
             if self.experiment_options.num_echoes % 2 == 1:
                 circ.rx(np.pi / 2, 0)  # X90 again since the num of echoes is odd
             else:
