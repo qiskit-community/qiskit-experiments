@@ -137,9 +137,6 @@ class T2Hahn(BaseExperiment):
 
         Returns:
             The experiment circuits.
-
-        Raises:
-            ValueError: if unit is 'dt', but 'dt' parameter is missing in the backend configuration
         """
 
         if self.backend and hasattr(self.backend.configuration(), "dt"):

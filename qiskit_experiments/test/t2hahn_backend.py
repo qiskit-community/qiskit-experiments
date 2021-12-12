@@ -14,9 +14,9 @@ T2HahnBackend class.
 Temporary backend to be used for t2hahn experiment
 """
 
+from typing import List
 import numpy as np
 from numpy import isclose
-from typing import List
 from qiskit import QiskitError
 from qiskit.providers import BackendV1
 from qiskit.providers.models import QasmBackendConfiguration
@@ -82,26 +82,35 @@ class T2HahnBackend(BackendV1):
         Returns:
             List[dict]: A list of dictionary which each dictionary contain the qubit state in the format
                         {"XY plain": (bool), "ZX plain": (bool), "Theta": float}
+
+        Raises:
+            QiskitError: Raised if initialization_error type isn't 'None'', 'float' or a list of 'float'
+                         with length of number of the qubits.
+            ValueError: Raised if the initialization error is negative.
         """
         qubits_sates = [0 for _ in range(nqubits)]
         # Making an array with the initialization error for each qubit.
         initialization_error = self._initialization_error
-        if isinstance(initialization_error, int) or initialization_error is None:
+        if isinstance(initialization_error, float) or initialization_error is None:
             initialization_error_arr = [initialization_error for _ in range(nqubits)]
         elif isinstance(initialization_error, list):
             if len(initialization_error) == 1:
                 initialization_error_arr = [initialization_error[0] for _ in range(nqubits)]
             elif len(initialization_error) == nqubits:
-                initialization_error_arr = [err for err in initialization_error]
+                initialization_error_arr = initialization_error
             else:
                 raise QiskitError(
                     f"The length of the list {initialization_error} isn't the same as the number "
                     "of qubits."
                 )
         else:
-            raise QiskitError(
-                f"Initialization error type isn't a list or int"
-            )
+            raise QiskitError("Initialization error type isn't a list or float")
+
+        for err in initialization_error_arr:
+            if not isinstance(err, float):
+                raise QiskitError("Initialization error type isn't a list or float")
+            if not err < 0:
+                raise ValueError("Initialization error value can't be negative.")
 
         for qubit in range(nqubits):
             if initialization_error_arr[qubit] is not None and (
@@ -161,8 +170,12 @@ class T2HahnBackend(BackendV1):
             angle(float): The angle of the rotation.
 
         Returns:
-                dict: The state of the qubit after operating the gate.
+            dict: The state of the qubit after operating the gate.
+
+        Raises:
+            QiskitError: if angle is not ±π/2 or ±π. Those are the only supported angles.
         """
+
         if qubit_state["XY plain"]:
             if isclose(angle, np.pi):
                 new_theta = -qubit_state["Theta"]
@@ -189,7 +202,9 @@ class T2HahnBackend(BackendV1):
                     "Theta": new_theta,
                 }
             else:
-                raise QiskitError(f"Error - the angle {angle} isn't supported. We only support multiplication of pi/2")
+                raise QiskitError(
+                    f"Error - the angle {angle} isn't supported. We only support multiplication of pi/2"
+                )
         else:
             if isclose(angle, np.pi):
                 new_theta = qubit_state["Theta"] + np.pi
@@ -218,7 +233,9 @@ class T2HahnBackend(BackendV1):
                     "Theta": new_theta,
                 }
             else:
-                raise QiskitError(f"Error - The angle {angle} isn't supported. We only support multiplication of pi/2")
+                raise QiskitError(
+                    f"Error - The angle {angle} isn't supported. We only support multiplication of pi/2"
+                )
         return new_qubit_state
 
     def _measurement_gate(self, qubit_state: dict) -> int:
@@ -277,7 +294,9 @@ class T2HahnBackend(BackendV1):
             counts = dict()
 
             for _ in range(shots):
-                qubit_state = self._qubit_initialization(nqubits=nqubits)  # for parallel need to make an array
+                qubit_state = self._qubit_initialization(
+                    nqubits=nqubits
+                )  # for parallel need to make an array
                 clbits = np.zeros(circ.num_clbits, dtype=int)
                 for op, qargs, cargs in circ.data:
                     qubit = qubit_indices[qargs[0]]
@@ -287,10 +306,12 @@ class T2HahnBackend(BackendV1):
                         delay = op.params[0]
                         t2hahn = self._t2hahn[qubit]
                         freq = self._frequency[qubit]
-                        qubit_state[qubit] = self._delay_gate(qubit_state=qubit_state[qubit],
-                                                              delay=delay, t2hahn=t2hahn,
-                                                              frequency=freq,
-                                                              )
+                        qubit_state[qubit] = self._delay_gate(
+                            qubit_state=qubit_state[qubit],
+                            delay=delay,
+                            t2hahn=t2hahn,
+                            frequency=freq,
+                        )
                     elif op.name == "rx":
                         qubit_state[qubit] = self._rx_gate(qubit_state[qubit], op.params[0])
                     elif op.name == "measure":
