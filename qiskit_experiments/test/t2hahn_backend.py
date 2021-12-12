@@ -88,7 +88,7 @@ class T2HahnBackend(BackendV1):
                          with length of number of the qubits.
             ValueError: Raised if the initialization error is negative.
         """
-        qubits_sates = [0 for _ in range(nqubits)]
+        qubits_sates = [{} for _ in range(nqubits)]
         # Making an array with the initialization error for each qubit.
         initialization_error = self._initialization_error
         if isinstance(initialization_error, float) or initialization_error is None:
@@ -137,7 +137,12 @@ class T2HahnBackend(BackendV1):
 
         Returns:
             dict: The state of the qubit after operating the gate.
+
+         Raises:
+            QiskitError: Raised if initialization_error type isn't 'None'', 'float' or a list of 'float'
+                         with length of number of the qubits.
         """
+        new_qubit_state = qubit_state
         if qubit_state["XY plain"]:
             prob_noise = 1 - (np.exp(-delay / t2hahn))
             if self._rng.random() < prob_noise:
@@ -159,7 +164,8 @@ class T2HahnBackend(BackendV1):
                 new_theta = new_theta % (2 * np.pi)
                 new_qubit_state = {"XY plain": True, "ZX plain": False, "Theta": new_theta}
         else:
-            new_qubit_state = qubit_state
+            if not isclose(qubit_state["Theta"], np.pi) and not isclose(qubit_state["Theta"], 0):
+                raise QiskitError("Delay gate supported only if the qubit is on the XY plain.")
         return new_qubit_state
 
     def _rx_gate(self, qubit_state: dict, angle: float) -> dict:
