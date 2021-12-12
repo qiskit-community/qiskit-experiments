@@ -19,7 +19,7 @@ from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library.characterization.t2hahn import T2Hahn
 from qiskit_experiments.library.characterization import T2HahnAnalysis
 from qiskit_experiments.test.t2hahn_backend import T2HahnBackend
-import unittest
+
 
 class TestT2Hahn(QiskitExperimentsTestCase):
     """Test T2Hahn experiment"""
@@ -168,6 +168,3 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         loaded = T2HahnAnalysis.from_config(analysis.config())
         self.assertNotEqual(analysis, loaded)
         self.assertEqual(analysis.config(), loaded.config())
-
-if __name__ == '__main__':
-    unittest.main()
