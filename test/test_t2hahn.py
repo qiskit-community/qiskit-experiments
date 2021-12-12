@@ -9,7 +9,6 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-
 """
 Test T2Hahn experiment
 """
@@ -124,7 +123,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
         )
 
         # run circuits
-        expdata0 = exp0.run(backend=backend, shots=1000).block_for_results()
+        expdata0 = exp0.run(backend=backend, shots=1000)
         expdata0.block_for_results()
 
         res_t2_0 = expdata0.analysis_results("T2")

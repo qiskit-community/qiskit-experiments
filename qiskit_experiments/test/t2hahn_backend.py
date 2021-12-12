@@ -109,7 +109,7 @@ class T2HahnBackend(BackendV1):
         for err in initialization_error_arr:
             if not isinstance(err, float):
                 raise QiskitError("Initialization error type isn't a list or float")
-            if not err < 0:
+            if err < 0:
                 raise ValueError("Initialization error value can't be negative.")
 
         for qubit in range(nqubits):
