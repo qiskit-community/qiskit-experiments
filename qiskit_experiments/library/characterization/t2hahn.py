@@ -45,7 +45,7 @@ class T2Hahn(BaseExperiment):
                  └─────────┘└──────────┘└───────┘└──────────┘└─────────┘└╥┘
             c: 1/════════════════════════════════════════════════════════╩═
                                                                          0
-                                                                         
+
         for each *t* from the specified delay times
         and the delays are specified by the user.
         The delays that are specified are delay for each delay gate while
