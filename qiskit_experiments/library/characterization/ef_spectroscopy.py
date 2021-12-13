@@ -42,11 +42,10 @@ class EFSpectroscopy(QubitSpectroscopy):
         qubit: int,
         frequencies: Iterable[float],
         backend: Optional[Backend] = None,
-        unit: str = "Hz",
         absolute: bool = True,
     ):
-        super().__init__(qubit, frequencies, backend=backend, unit=unit, absolute=absolute)
-        self.analysis.set_options(result_parameters=[ParameterRepr("freq", "f12", "Hz")])
+        super().__init__(qubit, frequencies, backend=backend, absolute=absolute)
+        self.analysis.set_options(result_parameters=[ParameterRepr("freq", "f12")])
 
     def _template_circuit(self, freq_param) -> QuantumCircuit:
         """Return the template quantum circuit."""

@@ -12,7 +12,7 @@
 
 """Types used by the calibration module."""
 
-from typing import Union
+from typing import NamedTuple, Tuple, Union
 from collections import namedtuple
 
 from qiskit.circuit import ParameterExpression
@@ -21,3 +21,12 @@ from qiskit.circuit import ParameterExpression
 ParameterKey = namedtuple("ParameterKey", ["parameter", "qubits", "schedule"])
 ScheduleKey = namedtuple("ScheduleKey", ["schedule", "qubits"])
 ParameterValueType = Union[ParameterExpression, float, int, complex]
+
+
+class DefaultCalValue(NamedTuple):
+    """Defines the structure of a default value."""
+
+    value: Union[float, int, complex]
+    parameter: str
+    qubits: Tuple
+    schedule_name: str
