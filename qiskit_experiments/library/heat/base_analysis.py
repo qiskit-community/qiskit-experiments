@@ -99,36 +99,41 @@ class CompositeHeatAnalysis(CompositeAnalysis):
         # Note that experiment_data is mutable.
         super()._run_analysis(experiment_data, **options)
 
-        sub_analysis_results = []
-        for i, pname in enumerate(fit_params):
-            child_data = experiment_data.child_data(i)
-            child_data._wait_for_callbacks()
-            sub_analysis_results.append(child_data.analysis_results(pname))
+        def heat_analysis_callback():
+            fit_results = []
 
-        # Check data quality
-        is_good_quality = all(r.quality == "good" for r in sub_analysis_results)
+            for i, pname in enumerate(self.fit_params):
+                fit_results.append(
+                    experiment_data.child_data(i).analysis_results(pname)
+                )
 
-        # Compute unitary terms
-        ib = (sub_analysis_results[0].value.value + sub_analysis_results[1].value.value) / 2
-        zb = (sub_analysis_results[0].value.value - sub_analysis_results[1].value.value) / 2
+            # Check data quality
+            is_good_quality = all(r.quality == "good" for r in fit_results)
 
-        # Compute new variance
-        sigma = np.sqrt(
-            sub_analysis_results[0].value.stderr ** 2 + sub_analysis_results[1].value.stderr ** 2
-        )
+            # Compute unitary terms
+            ib = (fit_results[0].value.value + fit_results[1].value.value) / 2
+            zb = (fit_results[0].value.value - fit_results[1].value.value) / 2
 
-        estimate_ib = AnalysisResultData(
-            name=out_params[0],
-            value=FitVal(value=ib, stderr=sigma, unit="rad"),
-            quality="good" if is_good_quality else "bad",
-        )
+            # Compute new variance
+            sigma = np.sqrt(
+                fit_results[0].value.stderr ** 2 + fit_results[1].value.stderr ** 2
+            )
 
-        estimate_zb = AnalysisResultData(
-            name=out_params[1],
-            value=FitVal(value=zb, stderr=sigma, unit="rad"),
-            quality="good" if is_good_quality else "bad",
-        )
+            estimate_ib = AnalysisResultData(
+                name=self.out_params[0],
+                value=FitVal(value=ib, stderr=sigma, unit="rad"),
+                quality="good" if is_good_quality else "bad",
+            )
 
-        composite_analysis_results = [estimate_ib, estimate_zb]
+            estimate_zb = AnalysisResultData(
+                name=self.out_params[1],
+                value=FitVal(value=zb, stderr=sigma, unit="rad"),
+                quality="good" if is_good_quality else "bad",
+            )
+
+            # Need format logic
+            experiment_data.add_analysis_results([estimate_ib, estimate_zb])
+
+        experiment_data.add_analysis_callback(heat_analysis_callback)
 
         return composite_analysis_results, None
