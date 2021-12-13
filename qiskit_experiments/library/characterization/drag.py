@@ -21,12 +21,11 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 from qiskit.pulse import ScheduleBlock
 
-from qiskit_experiments.framework import BaseExperiment, Options, fix_class_docs
+from qiskit_experiments.framework import BaseExperiment, Options
 from qiskit_experiments.exceptions import CalibrationError
-from qiskit_experiments.library.calibration.analysis.drag_analysis import DragCalAnalysis
+from qiskit_experiments.library.characterization.analysis import DragCalAnalysis
 
 
-@fix_class_docs
 class RoughDrag(BaseExperiment):
     r"""An experiment that scans the DRAG parameter to find the optimal value.
 
@@ -62,6 +61,9 @@ class RoughDrag(BaseExperiment):
         The parameter β is scanned to find the value that minimizes the unwanted Z-rotation.
         Note that the analysis class requires this experiment to run with three repetition numbers.
 
+    # section: analysis_ref
+        :py:class:`DragCalAnalysis`
+
     # section: reference
         .. ref_arxiv:: 1 1011.1949
         .. ref_arxiv:: 2 0901.0534
@@ -71,8 +73,6 @@ class RoughDrag(BaseExperiment):
         :doc:`/tutorials/calibrating_armonk`
 
     """
-
-    __analysis_class__ = DragCalAnalysis
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
@@ -95,7 +95,7 @@ class RoughDrag(BaseExperiment):
     @classmethod
     def _default_analysis_options(cls) -> Options:
         """Default analysis options."""
-        options = super()._default_analysis_options()
+        options = Options()
         options.normalization = True
 
         return options
@@ -142,7 +142,8 @@ class RoughDrag(BaseExperiment):
             QiskitError: if the schedule does not have a free parameter.
         """
 
-        super().__init__([qubit], backend=backend)
+        super().__init__([qubit], analysis=DragCalAnalysis(), backend=backend)
+        self.analysis.set_options(**self._default_analysis_options.__dict__)
 
         if betas is not None:
             self.set_experiment_options(betas=betas)

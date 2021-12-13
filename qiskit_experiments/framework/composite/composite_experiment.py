@@ -16,19 +16,13 @@ Composite Experiment abstract base class.
 from typing import List, Sequence, Optional
 from abc import abstractmethod
 import warnings
-
 from qiskit.providers.backend import Backend
-from qiskit_experiments.framework import BaseExperiment
-
-from .composite_experiment_data import CompositeExperimentData
+from qiskit_experiments.framework import BaseExperiment, ExperimentData
 from .composite_analysis import CompositeAnalysis
 
 
 class CompositeExperiment(BaseExperiment):
     """Composite Experiment base class"""
-
-    __analysis_class__ = CompositeAnalysis
-    __experiment_data__ = CompositeExperimentData
 
     def __init__(
         self,
@@ -41,13 +35,18 @@ class CompositeExperiment(BaseExperiment):
 
         Args:
             experiments: a list of experiment objects.
-            qubits: the number of qubits or list of physical qubits for the experiment.
+            qubits: list of physical qubits for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, composite experiment subclass name.
         """
         self._experiments = experiments
         self._num_experiments = len(experiments)
-        super().__init__(qubits, backend=backend, experiment_type=experiment_type)
+        super().__init__(
+            qubits,
+            analysis=CompositeAnalysis(),
+            backend=backend,
+            experiment_type=experiment_type,
+        )
 
     @abstractmethod
     def circuits(self):
@@ -85,26 +84,38 @@ class CompositeExperiment(BaseExperiment):
         for subexp in self._experiments:
             subexp._set_backend(backend)
 
-    def _add_job_metadata(self, experiment_data, jobs, **run_options):
-        # Add composite metadata
-        super()._add_job_metadata(experiment_data, jobs, **run_options)
+    def _initialize_experiment_data(self):
+        """Initialize the return data container for the experiment run"""
+        experiment_data = ExperimentData(experiment=self)
+        # Initialize child experiment data
+        for sub_exp in self._experiments:
+            sub_data = sub_exp._initialize_experiment_data()
+            experiment_data.add_child_data(sub_data)
+        experiment_data.metadata["component_child_index"] = list(range(self.num_experiments))
+        return experiment_data
 
+    def _additional_metadata(self):
+        """Add component experiment metadata"""
+        return {
+            "component_metadata": [sub_exp._metadata() for sub_exp in self.component_experiment()]
+        }
+
+    def _add_job_metadata(self, metadata, jobs, **run_options):
+        super()._add_job_metadata(metadata, jobs, **run_options)
         # Add sub-experiment options
-        for i in range(self.num_experiments):
-            sub_exp = self.component_experiment(i)
-
+        for sub_metadata, sub_exp in zip(
+            metadata["component_metadata"], self.component_experiment()
+        ):
             # Run and transpile options are always overridden
             if (
                 sub_exp.run_options != sub_exp._default_run_options()
                 or sub_exp.transpile_options != sub_exp._default_transpile_options()
             ):
-
                 warnings.warn(
                     "Sub-experiment run and transpile options"
                     " are overridden by composite experiment options."
                 )
-            sub_data = experiment_data.component_experiment_data(i)
-            sub_exp._add_job_metadata(sub_data, jobs, **run_options)
+            sub_exp._add_job_metadata(sub_metadata, jobs, **run_options)
 
     def _postprocess_transpiled_circuits(self, circuits, **run_options):
         for expr in self._experiments:

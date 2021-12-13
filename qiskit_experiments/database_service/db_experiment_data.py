@@ -24,16 +24,17 @@ import traceback
 import contextlib
 from collections import deque
 from datetime import datetime
+import numpy as np
 
 from matplotlib import pyplot
 from qiskit.providers import Job, BaseJob, Backend, BaseBackend, Provider
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
+from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 
 from .database_service import DatabaseServiceV1
 from .exceptions import DbExperimentDataError, DbExperimentEntryNotFound, DbExperimentEntryExists
 from .db_analysis_result import DbAnalysisResultV1 as DbAnalysisResult
-from .json import ExperimentEncoder, ExperimentDecoder
 from .utils import (
     save_data,
     qiskit_version,
@@ -185,7 +186,7 @@ class DbExperimentDataV1(DbExperimentData):
             self._deleted_analysis_results.append(key)
         self._analysis_results = ThreadSafeOrderedDict()
         # Schedule existing figures for deletion next save call
-        for key in self._analysis_results.keys():
+        for key in self._figures.keys():
             self._deleted_figures.append(key)
         self._figures = ThreadSafeOrderedDict()
 
@@ -412,7 +413,10 @@ class DbExperimentDataV1(DbExperimentData):
                     if job is not None:
                         self._add_result_data(job.result())
 
-    def data(self, index: Optional[Union[int, slice, str]] = None) -> Union[Dict, List[Dict]]:
+    def data(
+        self,
+        index: Optional[Union[int, slice, str]] = None,
+    ) -> Union[Dict, List[Dict]]:
         """Return the experiment data at the specified index.
 
         Args:
@@ -532,7 +536,7 @@ class DbExperimentDataV1(DbExperimentData):
                 )
             added_figs.append(fig_name)
 
-        return added_figs if len(added_figs) > 1 else added_figs[0]
+        return added_figs if len(added_figs) != 1 else added_figs[0]
 
     @do_auto_save
     def delete_figure(
@@ -647,7 +651,7 @@ class DbExperimentDataV1(DbExperimentData):
             result_key = self._analysis_results.keys()[result_key]
         else:
             # Retrieve from DB if needed.
-            result_key = self.analysis_results(result_key).result_id
+            result_key = self.analysis_results(result_key, block=False).result_id
 
         del self._analysis_results[result_key]
         self._deleted_analysis_results.append(result_key)
@@ -679,6 +683,8 @@ class DbExperimentDataV1(DbExperimentData):
         self,
         index: Optional[Union[int, slice, str]] = None,
         refresh: bool = False,
+        block: bool = True,
+        timeout: Optional[float] = None,
     ) -> Union[DbAnalysisResult, List[DbAnalysisResult]]:
         """Return analysis results associated with this experiment.
 
@@ -692,6 +698,8 @@ class DbExperimentDataV1(DbExperimentData):
                     * str: ID or name of the analysis result.
             refresh: Retrieve the latest analysis results from the server, if
                 an experiment service is available.
+            block: If True block for any analysis callbacks to finish running.
+            timeout: max time in seconds to wait for analysis callbacks to finish running.
 
         Returns:
             Analysis results for this experiment.
@@ -700,6 +708,8 @@ class DbExperimentDataV1(DbExperimentData):
             TypeError: If the input `index` has an invalid type.
             DbExperimentEntryNotFound: If the entry cannot be found.
         """
+        if block:
+            self._wait_for_callbacks(timeout=timeout)
         self._retrieve_analysis_results(refresh=refresh)
         if index is None:
             return self._analysis_results.values()
@@ -886,10 +896,16 @@ class DbExperimentDataV1(DbExperimentData):
             notes=service_data.pop("notes"),
             **service_data,
         )
-        # Retrieve analysis results
+
+        if expdata.service is None:
+            expdata.service = service
+
+        # Retrieve data and analysis results
         # Maybe this isn't necessary but the repr of the class should
         # be updated to show correct number of results including remote ones
+        expdata._retrieve_data()
         expdata._retrieve_analysis_results()
+
         # mark it as existing in the DB
         expdata._created_in_db = True
         return expdata
@@ -928,12 +944,12 @@ class DbExperimentDataV1(DbExperimentData):
                 _, timeout = combined_timeout(fut.result, timeout)
             except futures.TimeoutError:
                 LOG.warning(
-                    "Possibly incomplete experiment data: Retrieving a job" " results timed out."
+                    "Possibly incomplete experiment data: Retrieving a job's result timed out."
                 )
             except Exception:  # pylint: disable = broad-except
                 LOG.warning(
-                    "Possibly incomplete experiment data: Retrieving a job results"
-                    " rased an exception."
+                    "Possibly incomplete experiment data: Retrieving a job's result"
+                    " raised an exception."
                 )
         # Check job status and show warning if cancelled or error
         jobs_status = self._job_status()
@@ -1130,24 +1146,26 @@ class DbExperimentDataV1(DbExperimentData):
 
         return "\n".join(errors)
 
-    def _copy_metadata(
-        self, new_instance: Optional["DbExperimentDataV1"] = None
-    ) -> "DbExperimentDataV1":
-        """Make a copy of the experiment metadata.
+    def copy(self, copy_results: bool = True) -> "DbExperimentDataV1":
+        """Make a copy of the experiment data with a new experiment ID.
 
-        Note:
-            This method only copies experiment data and metadata, not its
-            figures nor analysis results. The copy also contains a different
-            experiment ID.
+        Args:
+            copy_results: If True copy the analysis results and figures
+                          into the returned container, along with the
+                          experiment data and metadata. If False only copy
+                          the experiment data and metadata.
 
         Returns:
-            A copy of the ``DbExperimentDataV1`` object with the same data
-            and metadata but different ID.
-        """
-        if new_instance is None:
-            # pylint: disable=no-value-for-parameter
-            new_instance = self.__class__()
+            A copy of the experiment data object with the same data
+            but different IDs.
 
+        .. note:
+            If analysis results and figures are copied they will also have
+            new result IDs and figure names generated for the copies.
+        """
+        new_instance = self.__class__()
+
+        # Copy basic properties and metadata
         new_instance._type = self.experiment_type
         new_instance._backend = self._backend
         new_instance._tags = self._tags
@@ -1159,6 +1177,7 @@ class DbExperimentDataV1(DbExperimentData):
         new_instance._service = self._service
         new_instance._extra_data = self._extra_data
 
+        # Copy circuit result data and jobs
         with self._data.lock:  # Hold the lock so no new data can be added.
             new_instance._data = self._data.copy_object()
             for orig_kwargs, fut in self._job_futures.copy():
@@ -1176,6 +1195,20 @@ class DbExperimentDataV1(DbExperimentData):
                     timeout=orig_kwargs["timeout"],
                     **extra_kwargs,
                 )
+
+        # If not copying results return the object
+        if not copy_results:
+            return new_instance
+
+        # Copy results and figures.
+        # This requires analysis callbacks to finish
+        self._wait_for_callbacks()
+        with self._analysis_results.lock:
+            new_instance._analysis_results = ThreadSafeOrderedDict()
+            new_instance.add_analysis_results([result.copy() for result in self.analysis_results()])
+        with self._figures.lock:
+            new_instance._figures = ThreadSafeOrderedDict()
+            new_instance.add_figures(self._figures.values())
 
         return new_instance
 
@@ -1196,7 +1229,7 @@ class DbExperimentDataV1(DbExperimentData):
             raise DbExperimentDataError(
                 f"The `tags` field of {type(self).__name__} must be a list."
             )
-        self._tags = new_tags
+        self._tags = np.unique(new_tags).tolist()
         if self.auto_save:
             self.save_metadata()
 
@@ -1275,7 +1308,7 @@ class DbExperimentDataV1(DbExperimentData):
 
     @property
     def share_level(self) -> str:
-        """Return the share level fo this experiment.
+        """Return the share level for this experiment
 
         Returns:
             Experiment share level.
@@ -1284,7 +1317,8 @@ class DbExperimentDataV1(DbExperimentData):
 
     @share_level.setter
     def share_level(self, new_level: str) -> None:
-        """Set the experiment share level.
+        """Set the experiment share level,
+           only to this experiment and not to its descendants.
 
         Args:
             new_level: New experiment share level. Valid share levels are provider-
@@ -1326,7 +1360,7 @@ class DbExperimentDataV1(DbExperimentData):
 
     @service.setter
     def service(self, service: DatabaseServiceV1) -> None:
-        """Set the service to be used for storing experiment data.
+        """Set the service to be used for storing experiment data
 
         Args:
             service: Service to be used.
@@ -1337,7 +1371,8 @@ class DbExperimentDataV1(DbExperimentData):
         self._set_service(service)
 
     def _set_service(self, service: DatabaseServiceV1) -> None:
-        """Set the service to be used for storing experiment data.
+        """Set the service to be used for storing experiment data,
+           to this experiment only and not to its descendants
 
         Args:
             service: Service to be used.
@@ -1348,6 +1383,8 @@ class DbExperimentDataV1(DbExperimentData):
         if self._service:
             raise DbExperimentDataError("An experiment service is already being used.")
         self._service = service
+        for result in self._analysis_results.values():
+            result.service = service
         with contextlib.suppress(Exception):
             self.auto_save = self._service.options.get("auto_save", False)
 
@@ -1402,27 +1439,6 @@ class DbExperimentDataV1(DbExperimentData):
                 out += f", {key}={repr(val)}"
         out += ")"
         return out
-
-    def __str__(self):
-        line = 51 * "-"
-        n_res = len(self._analysis_results)
-        status = self.status()
-        ret = line
-        ret += f"\nExperiment: {self.experiment_type}"
-        ret += f"\nExperiment ID: {self.experiment_id}"
-        ret += f"\nStatus: {status}"
-        if self.backend:
-            ret += f"\nBackend: {self.backend}"
-        if self.tags:
-            ret += f"\nTags: {self.tags}"
-        ret += f"\nData: {len(self._data)}"
-        ret += f"\nAnalysis Results: {n_res}"
-        ret += f"\nFigures: {len(self._figures)}"
-        ret += "\n" + line
-        if n_res:
-            ret += "\nLast Analysis Result:"
-            ret += f"\n{str(self._analysis_results.values()[-1])}"
-        return ret
 
     def __getattr__(self, name: str) -> Any:
         try:
