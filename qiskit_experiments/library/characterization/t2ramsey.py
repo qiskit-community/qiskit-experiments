@@ -96,12 +96,6 @@ class T2Ramsey(BaseExperiment):
         super().__init__([qubit], analysis=T2RamseyAnalysis(), backend=backend)
         self.set_experiment_options(delays=delays, osc_freq=osc_freq)
 
-    @classmethod
-    def _default_transpile_options(cls) -> Options:
-        options = super()._default_transpile_options()
-        options.scheduling_method = "asap"
-        return options
-
     def _set_backend(self, backend: Backend):
         super()._set_backend(backend)
 
