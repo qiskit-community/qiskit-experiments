@@ -366,7 +366,7 @@ def write_fit_report(result_entries: List[AnalysisResultData]) -> str:
                 value_repr = f"{val: .3g}"
 
                 # write error bar if it is finite value
-                if fitval.stderr is not None and not np.isinf(fitval.stderr):
+                if fitval.stderr is not None and np.isfinite(fitval.stderr):
                     # with stderr
                     err, err_prefix = detach_prefix(fitval.stderr, decimal=3)
                     err_unit = err_prefix + fitval.unit
