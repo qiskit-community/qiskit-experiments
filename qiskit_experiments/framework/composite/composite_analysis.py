@@ -14,6 +14,7 @@ Composite Experiment Analysis class.
 """
 
 from typing import List, Dict
+import numpy as np
 from qiskit.result import marginal_counts
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData, AnalysisResultData
 from qiskit_experiments.database_service.device_component import Qubit
@@ -39,37 +40,20 @@ class CompositeAnalysis(BaseAnalysis):
         composite :class:`ExperimentData`.
 
         When calling :meth:`run` on experiment data already containing
-        initalized component experiment child data, any previously stored
+        initialized component experiment child data, any previously stored
         circuit data will be cleared and replaced with the marginalized data
         reconstructed from the parent composite experiment data.
     """
 
-    # pylint: disable = arguments-differ
-    def _run_analysis(self, experiment_data: ExperimentData, **options):
-        """Run analysis on composite experiment circuit data.
-
-        Args:
-            experiment_data: the experiment data to analyze.
-            options: kwarg options for analysis function.
-
-        Returns:
-            tuple: A pair ``(analysis_results, figures)`` where ``analysis_results``
-                   is a list of :class:`AnalysisResultData` objects, and ``figures``
-                   is a list of any figures for the experiment.
-
-        Raises:
-            QiskitError: if analysis is attempted on non-composite
-                         experiment data.
-        """
+    def _run_analysis(self, experiment_data: ExperimentData):
         # Extract job metadata for the component experiments so it can be added
         # to the child experiment data incase it is required by the child experiments
         # analysis classes
         composite_exp = experiment_data.experiment
         component_exps = composite_exp.component_experiment()
-        if "component_job_metadata" in experiment_data.metadata:
-            component_metadata = experiment_data.metadata["component_job_metadata"][-1]
-        else:
-            component_metadata = [{}] * composite_exp.num_experiments
+        component_metadata = experiment_data.metadata.get(
+            "component_metadata", [{}] * composite_exp.num_experiments
+        )
 
         # Initialize component data for updating and get the experiment IDs for
         # the component child experiments in case there are other child experiments
@@ -94,12 +78,12 @@ class CompositeAnalysis(BaseAnalysis):
             sub_exp_data.add_data(sub_data)
 
             # Add component job metadata
-            sub_exp_data.metadata["job_metadata"] = [component_metadata[i]]
+            sub_exp_data.metadata.update(component_metadata[i])
 
             # Run analysis
             # Since copy for replace result is handled at the parent level
             # we always run with replace result on component analysis
-            sub_exp.run_analysis(sub_exp_data, replace_results=True)
+            sub_exp.analysis.run(sub_exp_data, replace_results=True)
 
             # Record the component experiment id and type as an analysis result
             # for evidence analysis has started and to display in the service DB
@@ -111,6 +95,14 @@ class CompositeAnalysis(BaseAnalysis):
                 ],
             )
             analysis_results.append(result)
+
+        # Add callback to wait for all component analysis to finish before returning
+        # the parent experiment analysis results
+        def _wait_for_components(experiment_data, component_ids):
+            for comp_id in component_ids:
+                experiment_data.child_data(comp_id).block_for_results()
+
+        experiment_data.add_analysis_callback(_wait_for_components, component_ids=component_ids)
 
         return analysis_results, []
 
@@ -160,6 +152,13 @@ class CompositeAnalysis(BaseAnalysis):
                         sub_data["counts"] = marginal_counts(datum["counts"], composite_clbits[i])
                     else:
                         sub_data["counts"] = datum["counts"]
+                if "memory" in datum:
+                    if composite_clbits is not None:
+                        sub_data["memory"] = (
+                            np.array(datum["memory"])[composite_clbits[i]]
+                        ).tolist()
+                    else:
+                        sub_data["memory"] = datum["memory"]
                 marginalized_data[index].append(sub_data)
 
         # Sort by index

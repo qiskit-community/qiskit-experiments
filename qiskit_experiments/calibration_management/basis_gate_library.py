@@ -17,59 +17,67 @@ Note that the set of available libraries will be extended in future releases.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Tuple
+from collections.abc import Mapping
+from typing import Any, Dict, List, Optional, Set
+from warnings import warn
 
 from qiskit.circuit import Parameter
 import qiskit.pulse as pulse
 from qiskit.pulse import ScheduleBlock
 
-from qiskit_experiments.calibration_management.calibration_key_types import ParameterValueType
+from qiskit_experiments.calibration_management.calibration_key_types import DefaultCalValue
 from qiskit_experiments.exceptions import CalibrationError
 
 
-class BasisGateLibrary(ABC):
+class BasisGateLibrary(ABC, Mapping):
     """A base class for libraries of basis gates to make it easier to setup Calibrations."""
 
     # Location where default parameter values are stored. These may be updated at construction.
     __default_values__ = dict()
 
-    # The basis gates that this library generates. This is a dict with the gate name as key
-    # and the number of qubits that gate acts on as values.
-    __supported_gates__ = None
-
     def __init__(
-        self, basis_gates: Optional[List[str]] = None, default_values: Optional[Dict] = None
+        self,
+        basis_gates: Optional[List[str]] = None,
+        default_values: Optional[Dict] = None,
+        **extra_kwargs,
     ):
         """Setup the library.
 
         Args:
             basis_gates: The basis gates to generate.
             default_values: A dictionary to override library default parameter values.
+            extra_kwargs: Extra key-word arguments of the subclasses that are saved to be able
+                to reconstruct the library using the :meth:`__init__` method.
 
         Raises:
             CalibrationError: If on of the given basis gates is not supported by the library.
         """
-        self._schedules = dict()
-
         # Update the default values.
-        self._default_values = dict(self.__default_values__)
+        self._extra_kwargs = extra_kwargs
+        self._default_values = self.__default_values__.copy()
         if default_values is not None:
             self._default_values.update(default_values)
 
         if basis_gates is None:
-            self._basis_gates = self.__supported_gates__
+            basis_gates = list(self.__supported_gates__)
 
-        else:
-            self._basis_gates = dict()
+        for gate in basis_gates:
+            if gate not in self.__supported_gates__:
+                raise CalibrationError(
+                    f"Gate {gate} is not supported by {self.__class__.__name__}. "
+                    f"Supported gates are: {self.__supported_gates__}."
+                )
 
-            for gate in basis_gates:
-                if gate not in self.__supported_gates__:
-                    raise CalibrationError(
-                        f"Gate {gate} is not supported by {self.__class__.__name__}. "
-                        f"Supported gates are: {self.__supported_gates__}."
-                    )
+        self._schedules = self._build_schedules(set(basis_gates))
 
-                self._basis_gates[gate] = self.__supported_gates__[gate]
+    @property
+    @abstractmethod
+    def __supported_gates__(self) -> Dict[str, int]:
+        """Return the supported gates of the library.
+
+        The key is the name of the gate and the value is the number of qubits it applies to.
+        """
+        raise NotImplementedError
 
     def __getitem__(self, name: str) -> ScheduleBlock:
         """Return the schedule."""
@@ -82,23 +90,90 @@ class BasisGateLibrary(ABC):
         """Check if the basis gate is in the library."""
         return name in self._schedules
 
-    def num_qubits(self, schedule_name: str) -> int:
+    def __hash__(self) -> int:
+        """Return the hash of the library by computing the hash of the schedule strings."""
+        data_to_hash = []
+        for name, schedule in sorted(self._schedules.items()):
+            data_to_hash.append((name, str(schedule), self.__supported_gates__[name]))
+
+        return hash(tuple(data_to_hash))
+
+    def __len__(self):
+        """The length of the library defined as the number of basis gates."""
+        return len(self._schedules)
+
+    def __iter__(self):
+        """Return an iterator over the basis gate library."""
+        return iter(self._schedules)
+
+    def num_qubits(self, name: str) -> int:
         """Return the number of qubits that the schedule with the given name acts on."""
-        return self._basis_gates[schedule_name]
+        return self.__supported_gates__[name]
 
     @property
     def basis_gates(self) -> List[str]:
         """Return the basis gates supported by the library."""
-        return list(name for name in self._schedules)
+        return list(self._schedules)
 
     @abstractmethod
-    def default_values(self) -> List[Tuple[ParameterValueType, Parameter, Tuple, ScheduleBlock]]:
+    def default_values(self) -> List[DefaultCalValue]:
         """Return the default values for the parameters.
 
         Returns
             A list of tuples is returned. These tuples are structured so that instances of
             :class:`Calibrations` can call :meth:`add_parameter_value` on the tuples.
         """
+
+    @abstractmethod
+    def _build_schedules(self, basis_gates: Set[str]) -> Dict[str, ScheduleBlock]:
+        """Build the schedules stored in the library.
+
+        This method is called as the last step in the :meth:`__init__`. Subclasses must implement
+        :meth:`_build_schedules` to build the schedules of the library based on the inputs given
+        to the :meth:`__init__` method.
+
+        Args:
+            basis_gates: The set of basis gates to build.
+
+        Returns:
+            A dictionary where the keys are the names of the schedules/basis gates and the values
+            are the corresponding schedules.
+        """
+
+    def config(self) -> Dict[str, Any]:
+        """Return the settings used to initialize the library."""
+
+        kwargs = {"basis_gates": self.basis_gates, "default_values": self._default_values}
+        kwargs.update(self._extra_kwargs)
+
+        return {
+            "class": self.__class__.__name__,
+            "kwargs": kwargs,
+            "hash": self.__hash__(),
+        }
+
+    @classmethod
+    def from_config(cls, config: Dict) -> "BasisGateLibrary":
+        """Deserialize the library given the input dictionary"""
+        library = cls(**config["kwargs"])
+
+        if hash(library) != config["hash"]:
+            warn(
+                "Deserialized basis gate library's hash does not match the hash of the serialized "
+                "library. Typically, the hash changes when the internal structure of the template "
+                "schedules has been changed."
+            )
+
+        return library
+
+    def __json_encode__(self):
+        """Convert to format that can be JSON serialized."""
+        return self.config()
+
+    @classmethod
+    def __json_decode__(cls, value: Dict[str, Any]) -> "BasisGateLibrary":
+        """Load from JSON compatible format."""
+        return cls.from_config(value)
 
 
 class FixedFrequencyTransmon(BasisGateLibrary):
@@ -110,13 +185,10 @@ class FixedFrequencyTransmon(BasisGateLibrary):
 
     __default_values__ = {"duration": 160, "amp": 0.5, "β": 0.0}
 
-    __supported_gates__ = {"x": 1, "y": 1, "sx": 1, "sy": 1}
-
     def __init__(
         self,
         basis_gates: Optional[List[str]] = None,
         default_values: Optional[Dict] = None,
-        use_drag: bool = True,
         link_parameters: bool = True,
     ):
         """Setup the schedules.
@@ -126,34 +198,38 @@ class FixedFrequencyTransmon(BasisGateLibrary):
             default_values: Default values for the parameters this dictionary can contain
                 the following keys: "duration", "amp", "β", and "σ". If "σ" is not provided
                 this library will take one fourth of the pulse duration as default value.
-            use_drag: If set to False then Gaussian pulses will be used instead of DRAG
-                pulses.
             link_parameters: if set to True then the amplitude and DRAG parameters of the
                 X and Y gates will be linked as well as those of the SX and SY gates.
         """
-        super().__init__(basis_gates, default_values)
         self._link_parameters = link_parameters
 
+        extra_kwargs = {"link_parameters": link_parameters}
+
+        super().__init__(basis_gates, default_values, **extra_kwargs)
+
+    @property
+    def __supported_gates__(self) -> Dict[str, int]:
+        """The gates that this library supports."""
+        return {"x": 1, "y": 1, "sx": 1, "sy": 1}
+
+    def _build_schedules(self, basis_gates: Set[str]) -> Dict[str, ScheduleBlock]:
+        """Build the schedule of the class."""
         dur = Parameter("duration")
         sigma = Parameter("σ")
 
-        # Generate the pulse parameters
-        def _beta(use_drag):
-            return Parameter("β") if use_drag else None
-
-        x_amp, x_beta = Parameter("amp"), _beta(use_drag)
+        x_amp, x_beta = Parameter("amp"), Parameter("β")
 
         if self._link_parameters:
             y_amp, y_beta = 1.0j * x_amp, x_beta
         else:
-            y_amp, y_beta = Parameter("amp"), _beta(use_drag)
+            y_amp, y_beta = Parameter("amp"), Parameter("β")
 
-        sx_amp, sx_beta = Parameter("amp"), _beta(use_drag)
+        sx_amp, sx_beta = Parameter("amp"), Parameter("β")
 
         if self._link_parameters:
             sy_amp, sy_beta = 1.0j * sx_amp, sx_beta
         else:
-            sy_amp, sy_beta = Parameter("amp"), _beta(use_drag)
+            sy_amp, sy_beta = Parameter("amp"), Parameter("β")
 
         # Create the schedules for the gates
         sched_x = self._single_qubit_schedule("x", dur, x_amp, sigma, x_beta)
@@ -161,9 +237,12 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         sched_sx = self._single_qubit_schedule("sx", dur, sx_amp, sigma, sx_beta)
         sched_sy = self._single_qubit_schedule("sy", dur, sy_amp, sigma, sy_beta)
 
+        schedules = dict()
         for sched in [sched_x, sched_y, sched_sx, sched_sy]:
-            if sched.name in self._basis_gates:
-                self._schedules[sched.name] = sched
+            if sched.name in basis_gates:
+                schedules[sched.name] = sched
+
+        return schedules
 
     @staticmethod
     def _single_qubit_schedule(
@@ -171,22 +250,18 @@ class FixedFrequencyTransmon(BasisGateLibrary):
         dur: Parameter,
         amp: Parameter,
         sigma: Parameter,
-        beta: Optional[Parameter] = None,
+        beta: Parameter,
     ) -> ScheduleBlock:
         """Build a single qubit pulse."""
 
         chan = pulse.DriveChannel(Parameter("ch0"))
 
-        if beta is not None:
-            with pulse.build(name=name) as sched:
-                pulse.play(pulse.Drag(duration=dur, amp=amp, sigma=sigma, beta=beta), chan)
-        else:
-            with pulse.build(name=name) as sched:
-                pulse.play(pulse.Gaussian(duration=dur, amp=amp, sigma=sigma), chan)
+        with pulse.build(name=name) as sched:
+            pulse.play(pulse.Drag(duration=dur, amp=amp, sigma=sigma, beta=beta), chan)
 
         return sched
 
-    def default_values(self) -> List[Tuple[ParameterValueType, Parameter, Tuple, ScheduleBlock]]:
+    def default_values(self) -> List[DefaultCalValue]:
         """Return the default values for the parameters.
 
         Returns
@@ -194,8 +269,7 @@ class FixedFrequencyTransmon(BasisGateLibrary):
             :class:`Calibrations` can call :meth:`add_parameter_value` on the tuples.
         """
         defaults = []
-        for name in self.basis_gates:
-            schedule = self._schedules[name]
+        for name, schedule in self.items():
             for param in schedule.parameters:
                 if "ch" not in param.name:
                     if "y" in name and self._link_parameters:
@@ -212,6 +286,6 @@ class FixedFrequencyTransmon(BasisGateLibrary):
                     if "y" in name and param.name == "amp":
                         value *= 1.0j
 
-                    defaults.append((value, param.name, tuple(), name))
+                    defaults.append(DefaultCalValue(value, param.name, tuple(), name))
 
         return defaults

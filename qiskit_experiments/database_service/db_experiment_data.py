@@ -24,16 +24,17 @@ import traceback
 import contextlib
 from collections import deque
 from datetime import datetime
+import numpy as np
 
 from matplotlib import pyplot
 from qiskit.providers import Job, BaseJob, Backend, BaseBackend, Provider
 from qiskit.result import Result
 from qiskit.providers.jobstatus import JobStatus, JOB_FINAL_STATES
+from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 
 from .database_service import DatabaseServiceV1
 from .exceptions import DbExperimentDataError, DbExperimentEntryNotFound, DbExperimentEntryExists
 from .db_analysis_result import DbAnalysisResultV1 as DbAnalysisResult
-from .json import ExperimentEncoder, ExperimentDecoder
 from .utils import (
     save_data,
     qiskit_version,
@@ -412,7 +413,10 @@ class DbExperimentDataV1(DbExperimentData):
                     if job is not None:
                         self._add_result_data(job.result())
 
-    def data(self, index: Optional[Union[int, slice, str]] = None) -> Union[Dict, List[Dict]]:
+    def data(
+        self,
+        index: Optional[Union[int, slice, str]] = None,
+    ) -> Union[Dict, List[Dict]]:
         """Return the experiment data at the specified index.
 
         Args:
@@ -647,7 +651,7 @@ class DbExperimentDataV1(DbExperimentData):
             result_key = self._analysis_results.keys()[result_key]
         else:
             # Retrieve from DB if needed.
-            result_key = self.analysis_results(result_key).result_id
+            result_key = self.analysis_results(result_key, block=False).result_id
 
         del self._analysis_results[result_key]
         self._deleted_analysis_results.append(result_key)
@@ -679,6 +683,8 @@ class DbExperimentDataV1(DbExperimentData):
         self,
         index: Optional[Union[int, slice, str]] = None,
         refresh: bool = False,
+        block: bool = True,
+        timeout: Optional[float] = None,
     ) -> Union[DbAnalysisResult, List[DbAnalysisResult]]:
         """Return analysis results associated with this experiment.
 
@@ -692,6 +698,8 @@ class DbExperimentDataV1(DbExperimentData):
                     * str: ID or name of the analysis result.
             refresh: Retrieve the latest analysis results from the server, if
                 an experiment service is available.
+            block: If True block for any analysis callbacks to finish running.
+            timeout: max time in seconds to wait for analysis callbacks to finish running.
 
         Returns:
             Analysis results for this experiment.
@@ -700,6 +708,8 @@ class DbExperimentDataV1(DbExperimentData):
             TypeError: If the input `index` has an invalid type.
             DbExperimentEntryNotFound: If the entry cannot be found.
         """
+        if block:
+            self._wait_for_callbacks(timeout=timeout)
         self._retrieve_analysis_results(refresh=refresh)
         if index is None:
             return self._analysis_results.values()
@@ -886,10 +896,16 @@ class DbExperimentDataV1(DbExperimentData):
             notes=service_data.pop("notes"),
             **service_data,
         )
-        # Retrieve analysis results
+
+        if expdata.service is None:
+            expdata.service = service
+
+        # Retrieve data and analysis results
         # Maybe this isn't necessary but the repr of the class should
         # be updated to show correct number of results including remote ones
+        expdata._retrieve_data()
         expdata._retrieve_analysis_results()
+
         # mark it as existing in the DB
         expdata._created_in_db = True
         return expdata
@@ -1213,7 +1229,7 @@ class DbExperimentDataV1(DbExperimentData):
             raise DbExperimentDataError(
                 f"The `tags` field of {type(self).__name__} must be a list."
             )
-        self._tags = new_tags
+        self._tags = np.unique(new_tags).tolist()
         if self.auto_save:
             self.save_metadata()
 
@@ -1292,7 +1308,7 @@ class DbExperimentDataV1(DbExperimentData):
 
     @property
     def share_level(self) -> str:
-        """Return the share level fo this experiment.
+        """Return the share level for this experiment
 
         Returns:
             Experiment share level.
@@ -1301,7 +1317,8 @@ class DbExperimentDataV1(DbExperimentData):
 
     @share_level.setter
     def share_level(self, new_level: str) -> None:
-        """Set the experiment share level.
+        """Set the experiment share level,
+           only to this experiment and not to its descendants.
 
         Args:
             new_level: New experiment share level. Valid share levels are provider-
@@ -1343,7 +1360,7 @@ class DbExperimentDataV1(DbExperimentData):
 
     @service.setter
     def service(self, service: DatabaseServiceV1) -> None:
-        """Set the service to be used for storing experiment data.
+        """Set the service to be used for storing experiment data
 
         Args:
             service: Service to be used.
@@ -1354,7 +1371,8 @@ class DbExperimentDataV1(DbExperimentData):
         self._set_service(service)
 
     def _set_service(self, service: DatabaseServiceV1) -> None:
-        """Set the service to be used for storing experiment data.
+        """Set the service to be used for storing experiment data,
+           to this experiment only and not to its descendants
 
         Args:
             service: Service to be used.
@@ -1365,6 +1383,8 @@ class DbExperimentDataV1(DbExperimentData):
         if self._service:
             raise DbExperimentDataError("An experiment service is already being used.")
         self._service = service
+        for result in self._analysis_results.values():
+            result.service = service
         with contextlib.suppress(Exception):
             self.auto_save = self._service.options.get("auto_save", False)
 

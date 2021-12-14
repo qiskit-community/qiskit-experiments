@@ -21,65 +21,18 @@ Note that plotter is a class that only has a class method to draw the image.
 This is just like a function, but allows serialization via Enum.
 """
 
-from typing import List, Tuple, Dict, Optional
 from collections import defaultdict
+from typing import List, Dict, Optional
 
 import numpy as np
 from matplotlib.ticker import FuncFormatter
+from qiskit.utils import detach_prefix
 
 from qiskit_experiments.curve_analysis.curve_data import SeriesDef, FitData, CurveData
 from qiskit_experiments.framework import AnalysisResultData, FitVal
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
-
-
-try:
-    from qiskit.utils import detach_prefix
-except ImportError:
-
-    # TODO remove this after Qiskit-terra #6885 becomes available
-    def detach_prefix(value: float, decimal: Optional[int] = None) -> Tuple[float, str]:
-        """A placeholder function. This will be imported from qiskit terra."""
-        prefactors = {
-            -15: "f",
-            -12: "p",
-            -9: "n",
-            -6: "µ",
-            -3: "m",
-            0: "",
-            3: "k",
-            6: "M",
-            9: "G",
-            12: "T",
-            15: "P",
-        }
-
-        if not np.isreal(value):
-            raise ValueError(f"Input should be real number. Cannot convert {value}.")
-
-        if np.abs(value) != 0:
-            pow10 = int(np.floor(np.log10(np.abs(value)) / 3) * 3)
-        else:
-            pow10 = 0
-
-        if pow10 > 0:
-            mant = value / pow(10, pow10)
-        else:
-            mant = value * pow(10, -pow10)
-
-        if decimal is not None:
-            mant = np.round(mant, decimal)
-            if mant >= 1000:
-                mant /= 1000
-                pow10 += 3
-
-        if pow10 not in prefactors:
-            raise ValueError(f"Value is out of range: {value}")
-
-        return mant, prefactors[pow10]
-
-
-from .style import PlotterStyle
 from .curves import plot_scatter, plot_errorbar, plot_curve_fit
+from .style import PlotterStyle
 
 
 class MplDrawSingleCanvas:
@@ -413,7 +366,7 @@ def write_fit_report(result_entries: List[AnalysisResultData]) -> str:
                 value_repr = f"{val: .3g}"
 
                 # write error bar if it is finite value
-                if fitval.stderr is not None and not np.isinf(fitval.stderr):
+                if fitval.stderr is not None and np.isfinite(fitval.stderr):
                     # with stderr
                     err, err_prefix = detach_prefix(fitval.stderr, decimal=3)
                     err_unit = err_prefix + fitval.unit

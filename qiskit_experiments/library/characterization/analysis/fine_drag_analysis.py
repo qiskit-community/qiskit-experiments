@@ -10,13 +10,15 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Fine Amplitude calibration analysis."""
+"""Fine DRAG calibration analysis."""
 
+import numpy as np
 from qiskit_experiments.curve_analysis import ErrorAmplificationAnalysis
+from qiskit_experiments.framework import Options
 
 
-class FineXAmplitudeAnalysis(ErrorAmplificationAnalysis):
-    r"""An analysis class for fine amplitude calibrations to define the fixed parameters.
+class FineDragAnalysis(ErrorAmplificationAnalysis):
+    r"""An analysis class for fine DRAG calibrations to define the fixed parameters.
 
     # section: note
 
@@ -28,7 +30,14 @@ class FineXAmplitudeAnalysis(ErrorAmplificationAnalysis):
         * :math:`{\rm amp}` The amplitude of the oscillation.
     """
 
-    # The intended angle per gat of the gate being calibrated, e.g. pi for a pi-pulse.
-
-    # TODO remove amp from fixed parameter.
     __fixed_parameters__ = ["angle_per_gate", "phase_offset", "amp"]
+
+    @classmethod
+    def _default_options(cls) -> Options:
+        """Default analysis options."""
+        options = super()._default_options()
+        options.normalization = True
+        options.angle_per_gate = 0.0
+        options.phase_offset = np.pi / 2
+        options.amp = 1.0
+        return options
