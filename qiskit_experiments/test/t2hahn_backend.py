@@ -81,7 +81,7 @@ class T2HahnBackend(BackendV1):
 
         Returns:
             List[dict]: A list of dictionary which each dictionary contain the qubit state in the format
-                        {"XY plain": (bool), "ZX plain": (bool), "Theta": float}
+                        {"XY plane": (bool), "ZX plane": (bool), "Theta": float}
 
         Raises:
             QiskitError: Raised if initialization_error type isn't 'None'', 'float' or a list of 'float'
@@ -116,11 +116,11 @@ class T2HahnBackend(BackendV1):
             if initialization_error_arr[qubit] is not None and (
                 self._rng.random() < initialization_error_arr[qubit]
             ):
-                qubits_sates[qubit] = {"XY plain": False, "ZX plain": True, "Theta": np.pi}
+                qubits_sates[qubit] = {"XY plane": False, "ZX plane": True, "Theta": np.pi}
             else:
                 qubits_sates[qubit] = {
-                    "XY plain": False,
-                    "ZX plain": True,
+                    "XY plane": False,
+                    "ZX plane": True,
                     "Theta": 0,
                 }
         return qubits_sates
@@ -143,29 +143,29 @@ class T2HahnBackend(BackendV1):
                          with length of number of the qubits.
         """
         new_qubit_state = qubit_state
-        if qubit_state["XY plain"]:
+        if qubit_state["XY plane"]:
             prob_noise = 1 - (np.exp(-delay / t2hahn))
             if self._rng.random() < prob_noise:
                 if self._rng.random() < 0.5:
                     new_qubit_state = {
-                        "XY plain": False,
-                        "ZX plain": True,
+                        "XY plane": False,
+                        "ZX plane": True,
                         "Theta": 0,
                     }
                 else:
                     new_qubit_state = {
-                        "XY plain": False,
-                        "ZX plain": True,
+                        "XY plane": False,
+                        "ZX plane": True,
                         "Theta": np.pi,
                     }
             else:
                 phase = frequency * delay
                 new_theta = qubit_state["Theta"] + phase
                 new_theta = new_theta % (2 * np.pi)
-                new_qubit_state = {"XY plain": True, "ZX plain": False, "Theta": new_theta}
+                new_qubit_state = {"XY plane": True, "ZX plane": False, "Theta": new_theta}
         else:
             if not isclose(qubit_state["Theta"], np.pi) and not isclose(qubit_state["Theta"], 0):
-                raise QiskitError("Delay gate supported only if the qubit is on the XY plain.")
+                raise QiskitError("Delay gate supported only if the qubit is on the XY plane.")
         return new_qubit_state
 
     def _rx_gate(self, qubit_state: dict, angle: float) -> dict:
@@ -182,29 +182,29 @@ class T2HahnBackend(BackendV1):
             QiskitError: if angle is not ±π/2 or ±π. Those are the only supported angles.
         """
 
-        if qubit_state["XY plain"]:
+        if qubit_state["XY plane"]:
             if isclose(angle, np.pi):
                 new_theta = -qubit_state["Theta"]
                 new_theta = new_theta % (2 * np.pi)
                 new_qubit_state = {
-                    "XY plain": True,
-                    "ZX plain": False,
+                    "XY plane": True,
+                    "ZX plane": False,
                     "Theta": new_theta,
                 }
             elif isclose(angle, np.pi / 2):
                 new_theta = angle - qubit_state["Theta"]
                 new_theta = new_theta % (2 * np.pi)
                 new_qubit_state = {
-                    "XY plain": False,
-                    "ZX plain": True,
+                    "XY plane": False,
+                    "ZX plane": True,
                     "Theta": new_theta,
                 }
             elif isclose(angle, -np.pi / 2):
                 new_theta = np.abs(angle - qubit_state["Theta"])
                 new_theta = new_theta % (2 * np.pi)
                 new_qubit_state = {
-                    "XY plain": False,
-                    "ZX plain": True,
+                    "XY plane": False,
+                    "ZX plane": True,
                     "Theta": new_theta,
                 }
             else:
@@ -216,8 +216,8 @@ class T2HahnBackend(BackendV1):
                 new_theta = qubit_state["Theta"] + np.pi
                 new_theta = new_theta % (2 * np.pi)
                 new_qubit_state = {
-                    "XY plain": False,
-                    "ZX plain": True,
+                    "XY plane": False,
+                    "ZX plane": True,
                     "Theta": new_theta,
                 }
             elif isclose(angle, np.pi / 2):
@@ -226,16 +226,16 @@ class T2HahnBackend(BackendV1):
                 )  # its theta -pi/2 but we added 2*pi
                 new_theta = new_theta % (2 * np.pi)
                 new_qubit_state = {
-                    "XY plain": True,
-                    "ZX plain": False,
+                    "XY plane": True,
+                    "ZX plane": False,
                     "Theta": new_theta,
                 }
             elif isclose(angle, -np.pi / 2):
                 new_theta = np.pi / 2 - qubit_state["Theta"]
                 new_theta = new_theta % (2 * np.pi)
                 new_qubit_state = {
-                    "XY plain": True,
-                    "ZX plain": False,
+                    "XY plane": True,
+                    "ZX plane": False,
                     "Theta": new_theta,
                 }
             else:
@@ -254,11 +254,11 @@ class T2HahnBackend(BackendV1):
             int: The result of the measurement after applying read-out error.
         """
         # Here we are calculating the probability for measurement result depending on the
-        # where the qubit is on the bloch sphere.
-        if qubit_state["XY plain"]:
+        # location of the qubit on the Bloch sphere.
+        if qubit_state["XY plane"]:
             meas_res = self._rng.random() < 0.5
         else:
-            # Since we are not in the XY plain, we need to calculate the probability for
+            # Since we are not in the XY plane, we need to calculate the probability for
             # measuring output. First, we calculate the probability and later we are
             # tossing to see if the event did happened.
             z_projection = np.cos(qubit_state["Theta"])
@@ -307,7 +307,7 @@ class T2HahnBackend(BackendV1):
                 for op, qargs, cargs in circ.data:
                     qubit = qubit_indices[qargs[0]]
 
-                    # The noise will only be applied if we are in the XY plain.
+                    # The noise will only be applied if we are in the XY plane.
                     if op.name == "delay":
                         delay = op.params[0]
                         t2hahn = self._t2hahn[qubit]

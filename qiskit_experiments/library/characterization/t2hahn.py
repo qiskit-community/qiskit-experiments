@@ -129,9 +129,9 @@ class T2Hahn(BaseExperiment):
         """
         Return a list of experiment circuits.
 
-        Each circuit consist with RX(π/2) followed by a sequence of delay gate,
+        Each circuit consist of RX(π/2) followed by a sequence of delay gate,
         RX(π) for echo and delay gate again.
-        The sequence repeats for the number of echoes and finish with RX(±π/2).
+        The sequence repeats for the number of echoes and terminates with RX(±π/2).
 
         Returns:
             The experiment circuits.
@@ -156,7 +156,7 @@ class T2Hahn(BaseExperiment):
             circ = QuantumCircuit(1, 1)
 
             # First X rotation in 90 degrees
-            circ.rx(np.pi / 2, 0)  # Bring to qubits to X Axis
+            circ.rx(np.pi / 2, 0)  # Brings the qubit to the X Axis
             for _ in range(self.experiment_options.num_echoes):
                 if dt_unit:
                     circ.delay(delay_dt, 0, "dt")
