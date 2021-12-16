@@ -11,6 +11,5 @@ reno>=3.4.0
 sphinx-panels
 nbsphinx
 arxiv
-
 ddt~=1.4.2
-qiskit-aer>=0.8.0
+qiskit-aer>=0.10.0
