@@ -813,8 +813,13 @@ class CurveAnalysis(BaseAnalysis, ABC):
                 ) from ex
 
             meas_return = run_options.get("meas_return", None)
+            init_qubits = run_options.get("init_qubits")
+            memory = run_options.get("memory")
+            rep_delay = run_options.get("rep_delay")
+            num_qubits = self._num_qubits
 
-            data_processor = get_processor(meas_level, meas_return, self.options.normalization)
+            data_processor = get_processor(meas_level, meas_return, self.options.normalization,
+                                           init_qubits, memory, rep_delay, num_qubits)
 
         if isinstance(data_processor, DataProcessor) and not data_processor.is_trained:
             # Qiskit DataProcessor instance. May need calibration.

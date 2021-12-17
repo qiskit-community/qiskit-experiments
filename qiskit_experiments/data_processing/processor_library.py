@@ -24,7 +24,10 @@ def get_processor(
     meas_return: str = "avg",
     normalize: bool = True,
     init_qubits: bool = True,
+    memory: bool = False,
     rep_delay: float = 250e-6,
+    # extra_inputs: Dict[str, Any], # 1 or 0
+    num_qubits: int = 1,
 ) -> DataProcessor:
     """Get a DataProcessor that produces a continuous signal given the options.
 
@@ -32,8 +35,10 @@ def get_processor(
         meas_level: The measurement level of the data to process.
         meas_return: The measurement return (single or avg) of the data to process.
         normalize: Add a data normalization node to the Kerneled data processor.
-        init_qubits:
-        rep_delay:
+        init_qubits: If False, the qubits are not reset to the ground state after a measurement.
+        memory: If True, single-shot measurement bitstrings are returned.
+        rep_delay: The delay between a measurement and the subsequent circuit.
+        num_qubits: The number of qubits.
 
     Returns:
         An instance of DataProcessor capable of dealing with the given options.
@@ -41,6 +46,16 @@ def get_processor(
     Raises:
         DataProcessorError: if the measurement level is not supported.
     """
+
+    # restless data processing.
+    if meas_level == MeasLevel.CLASSIFIED and not init_qubits and memory and rep_delay < 100e-6:
+        processor = DataProcessor(
+            "memory", [nodes.RestlessToCounts(header={"memory_slots": num_qubits}),
+                       nodes.Probability("0" * num_qubits)]
+        )
+
+        return processor
+
     if meas_level == MeasLevel.CLASSIFIED:
         return DataProcessor("counts", [nodes.Probability("1")])
 
@@ -52,13 +67,6 @@ def get_processor(
 
         if normalize:
             processor.append(nodes.MinMaxNormalize())
-
-        return processor
-
-    if meas_level == MeasLevel.CLASSIFIED and not init_qubits and rep_delay < 100e-6:
-        processor = DataProcessor(
-            "memory", [nodes.RestlessToCounts(header={"memory_slots": 1}), nodes.Probability("0")]
-        )
 
         return processor
 
