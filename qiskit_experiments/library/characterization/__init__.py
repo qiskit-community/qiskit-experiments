@@ -41,6 +41,7 @@ Experiments
     FineDrag
     FineXDrag
     FineSXDrag
+    ResonatorSpectroscopy
 
 
 Analysis
@@ -86,3 +87,4 @@ from .fine_frequency import FineFrequency
 from .drag import RoughDrag
 from .readout_angle import ReadoutAngle
 from .fine_drag import FineDrag, FineXDrag, FineSXDrag
+from .resonator_spectroscopy import ResonatorSpectroscopy

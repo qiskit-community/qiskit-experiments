@@ -167,12 +167,14 @@ class QubitSpectroscopy(BaseExperiment):
             AttributeError: If backend to run on does not contain 'dt' configuration.
         """
         if self.backend is None and self._absolute:
-            raise QiskitError("Cannot run spectroscopy absolute to qubit without a backend.")
+            raise QiskitError("Cannot run spectroscopy in absolute without a backend.")
 
         # Create a template circuit
         sched, freq_param = self._spec_gate_schedule(self.backend)
         circuit = self._template_circuit(freq_param)
-        circuit.add_calibration("Spec", (self.physical_qubits[0],), sched, params=[freq_param])
+        circuit.add_calibration(
+            self.__spec_gate_name__, self.physical_qubits, sched, params=[freq_param]
+        )
 
         # Get dt
         try:
