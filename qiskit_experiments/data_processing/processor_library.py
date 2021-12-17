@@ -50,8 +50,11 @@ def get_processor(
     # restless data processing.
     if meas_level == MeasLevel.CLASSIFIED and not init_qubits and memory and rep_delay < 100e-6:
         processor = DataProcessor(
-            "memory", [nodes.RestlessToCounts(header={"memory_slots": num_qubits}),
-                       nodes.Probability("0" * num_qubits)]
+            "memory",
+            [
+                nodes.RestlessToCounts(header={"memory_slots": num_qubits}),
+                nodes.Probability("0" * num_qubits),
+            ],
         )
 
         return processor
