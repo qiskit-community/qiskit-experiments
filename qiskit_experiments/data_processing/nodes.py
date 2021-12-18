@@ -708,6 +708,6 @@ class RestlessToCounts(RestlessNode):
         restless_adjusted_bits = []
 
         for idx, bit in enumerate(shot):
-            restless_adjusted_bits.append("1" if bit == prev_shot[idx] else "0")
+            restless_adjusted_bits.append("0" if bit == prev_shot[idx] else "1")
 
         return "".join(restless_adjusted_bits)

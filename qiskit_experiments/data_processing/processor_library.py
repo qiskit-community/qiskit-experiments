@@ -25,9 +25,8 @@ def get_processor(
     normalize: bool = True,
     init_qubits: bool = True,
     memory: bool = False,
-    rep_delay: float = 250e-6,
-    # extra_inputs: Dict[str, Any], # 1 or 0
-    num_qubits: int = 1,
+    rep_delay: float = None,
+    num_qubits: int = None,
 ) -> DataProcessor:
     """Get a DataProcessor that produces a continuous signal given the options.
 
@@ -53,7 +52,7 @@ def get_processor(
             "memory",
             [
                 nodes.RestlessToCounts(header={"memory_slots": num_qubits}),
-                nodes.Probability("0" * num_qubits),
+                nodes.Probability("1" * num_qubits),
             ],
         )
 
