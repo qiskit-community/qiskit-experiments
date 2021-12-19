@@ -38,10 +38,6 @@ Experiments for verification and validation of quantum devices.
     ~randomized_benchmarking.InterleavedRB
     ~tomography.StateTomography
     ~tomography.ProcessTomography
-
-.. autosummary::
-    :toctree: ../stubs/
-
     ~quantum_volume.QuantumVolume
 
 .. _characterization:
@@ -73,6 +69,8 @@ Some experiments may be also used for gate calibration.
     ~characterization.Rabi
     ~characterization.EFRabi
     ~characterization.RamseyXY
+    ~characterization.FineFrequency
+    ~characterization.ReadoutAngle
 
 
 .. _calibration:
@@ -91,6 +89,8 @@ See :doc:`/tutorials/calibrating_armonk` for example.
     :template: autosummary/experiment.rst
 
     ~calibration.RoughFrequencyCal
+    ~calibration.FrequencyCal
+    ~calibration.FineFrequencyCal
     ~calibration.RoughDragCal
     ~calibration.FineXDragCal
     ~calibration.FineSXDragCal
@@ -116,6 +116,7 @@ from .calibration import (
     FineSXAmplitudeCal,
     RoughFrequencyCal,
     FrequencyCal,
+    FineFrequencyCal,
 )
 from .characterization import (
     T1,
@@ -135,6 +136,8 @@ from .characterization import (
     FineXAmplitude,
     FineSXAmplitude,
     RamseyXY,
+    FineFrequency,
+    ReadoutAngle,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography

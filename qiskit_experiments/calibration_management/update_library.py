@@ -20,7 +20,6 @@ from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.framework.experiment_data import ExperimentData
-from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.calibration_key_types import ParameterValueType
@@ -42,7 +41,7 @@ class BaseUpdater(ABC):
 
             Frequency.update(calibrations, spectroscopy_data)
 
-        Here, calibrations is an instance of :class:`BackendCalibrations` and spectroscopy_data
+        Here, calibrations is an instance of :class:`Calibrations` and spectroscopy_data
         is the result of a :class:`QubitSpectroscopy` experiment.
         """
         raise CalibrationError(
@@ -129,7 +128,9 @@ class BaseUpdater(ABC):
     @staticmethod
     def get_value(exp_data: ExperimentData, param_name: str, index: Optional[int] = -1) -> float:
         """A helper method to extract values from experiment data instances."""
-        candidates = exp_data.analysis_results(param_name)
+        # Because this is called within analysis callbacks the block=False kwarg
+        # must be passed to analysis results so we don't block indefinitely
+        candidates = exp_data.analysis_results(param_name, block=False)
         if isinstance(candidates, list):
             return candidates[index].value.value
         else:
@@ -145,7 +146,7 @@ class Frequency(BaseUpdater):
     @classmethod
     def update(
         cls,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         exp_data: ExperimentData,
         result_index: Optional[int] = None,
         parameter: str = None,
@@ -170,7 +171,7 @@ class Frequency(BaseUpdater):
 
         """
         if parameter is None:
-            parameter = calibrations.__qubit_freq_parameter__
+            parameter = calibrations.__drive_freq_parameter__
 
         super().update(
             calibrations=calibrations,

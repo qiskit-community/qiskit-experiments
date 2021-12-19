@@ -11,12 +11,11 @@
 # that they have been altered from the originals.
 
 """Test the calibration update library."""
-
+from test.base import QiskitExperimentsTestCase
 from test.test_qubit_spectroscopy import SpectroscopyBackend
 import numpy as np
 
 from qiskit.circuit import Parameter
-from qiskit.test import QiskitTestCase
 from qiskit.qobj.utils import MeasLevel
 import qiskit.pulse as pulse
 from qiskit.test.mock import FakeAthens
@@ -24,10 +23,9 @@ from qiskit.test.mock import FakeAthens
 from qiskit_experiments.library import QubitSpectroscopy
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.update_library import Frequency
-from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
 
 
-class TestAmplitudeUpdate(QiskitTestCase):
+class TestAmplitudeUpdate(QiskitExperimentsTestCase):
     """Test the update functions in the update library."""
 
     def setUp(self):
@@ -53,7 +51,7 @@ class TestAmplitudeUpdate(QiskitTestCase):
         self.cals.add_parameter_value(0.1, "amp", self.qubit, "x90p")
 
 
-class TestFrequencyUpdate(QiskitTestCase):
+class TestFrequencyUpdate(QiskitExperimentsTestCase):
     """Test the frequency update function in the update library."""
 
     def test_frequency(self):
@@ -63,20 +61,19 @@ class TestFrequencyUpdate(QiskitTestCase):
         peak_offset = 5.0e6
         backend = SpectroscopyBackend(line_width=2e6, freq_offset=peak_offset)
         freq01 = backend.defaults().qubit_freq_est[qubit]
-        frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21) / 1e6
+        frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
-        spec = QubitSpectroscopy(qubit, frequencies, unit="MHz")
+        spec = QubitSpectroscopy(qubit, frequencies)
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         exp_data = spec.run(backend)
-        exp_data.block_for_results()
         result = exp_data.analysis_results(1)
         value = result.value.value
 
         self.assertTrue(freq01 + peak_offset - 2e6 < value < freq01 + peak_offset + 2e6)
         self.assertEqual(result.quality, "good")
 
-        # Test the integration with the BackendCalibrations
-        cals = BackendCalibrations(FakeAthens())
-        self.assertNotEqual(cals.get_qubit_frequencies()[qubit], value)
+        # Test the integration with the Calibrations
+        cals = Calibrations.from_backend(FakeAthens())
+        self.assertNotEqual(cals.get_parameter_value(cals.__drive_freq_parameter__, qubit), value)
         Frequency.update(cals, exp_data)
-        self.assertEqual(cals.get_qubit_frequencies()[qubit], value)
+        self.assertEqual(cals.get_parameter_value(cals.__drive_freq_parameter__, qubit), value)
