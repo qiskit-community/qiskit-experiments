@@ -53,9 +53,11 @@ class TestT1(QiskitExperimentsTestCase):
         exp_data.service = FakeService()
         exp_data.save()
         loaded_data = ExperimentData.load(exp_data.experiment_id, exp_data.service)
-        self.assertEqual(
-            repr(exp_data.analysis_results("T1")), repr(loaded_data.analysis_results("T1"))
-        )
+        exp_res = exp_data.analysis_results()
+        load_res = loaded_data.analysis_results()
+        self.assertEqual(len(exp_res), len(load_res))
+        for res1, res2 in zip(exp_res, load_res):
+            self.assertEqual(repr(res1), repr(res2))
 
     def test_t1_parallel(self):
         """
