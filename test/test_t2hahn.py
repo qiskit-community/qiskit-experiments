@@ -15,20 +15,23 @@ Test T2Hahn experiment
 
 from test.base import QiskitExperimentsTestCase
 import numpy as np
+from ddt import ddt, data, unpack
 from qiskit_experiments.framework import ParallelExperiment
 from qiskit_experiments.library.characterization.t2hahn import T2Hahn
 from qiskit_experiments.library.characterization import T2HahnAnalysis
 from qiskit_experiments.test.t2hahn_backend import T2HahnBackend
 
-
+@ddt
 class TestT2Hahn(QiskitExperimentsTestCase):
     """Test T2Hahn experiment"""
 
     __tolerance__ = 0.1
 
-    def test_t2hahn_run_end2end(self):
+    @data([1], [2])
+    @unpack
+    def test_t2hahn_run_end2end(self, num_of_echoes: int):
         """
-        Run the T2Hahn backend on all possible units
+        Run the T2Hahn backend with one echo.
         """
         osc_freq = 0.1
         estimated_t2hahn = 20
@@ -38,7 +41,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
             (np.linspace(1.0, 15.0, num=15)).astype(float),
             (np.linspace(16.0, 45.0, num=59)).astype(float),
         )
-        exp = T2Hahn(qubit=qubit, delays=delays)
+        exp = T2Hahn(qubit=qubit, delays=delays, num_echoes=num_of_echoes)
         default_p0 = {
             "A": 0.5,
             "T2": estimated_t2hahn,
