@@ -108,7 +108,7 @@ class TestT2Hahn(QiskitExperimentsTestCase):
 
     def test_t2hahn_concat_2_experiments(self):
         """
-        Concatenate the data from 2 separate experiments
+        Concatenate the data from 2 separate experiments.
         """
         estimated_t2hahn = 30
         # First experiment
