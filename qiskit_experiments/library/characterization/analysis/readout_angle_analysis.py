@@ -14,20 +14,38 @@ Readout Angle Analysis class.
 """
 
 import numpy as np
+from typing import List, Optional
 
-from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData
-
+from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
+from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 
 class ReadoutAngleAnalysis(BaseAnalysis):
     """
     A class to analyze readout angle experiments
     """
+    
+    @classmethod
+    def _default_options(cls) -> Options:
+        """Return default analysis options.
 
-    def _run_analysis(self, experiment_data):
+        Analysis Options:
+            plot (bool): Set ``True`` to create figure for fit result.
+            ax(AxesSubplot): Optional. A matplotlib axis object to draw.
+        """
+        options = super()._default_options()
+        options.plot = True
+        options.ax = None
+        return options
+
+    def _run_analysis(self, experiment_data, **kwargs):
         angles = []
+        radii = []
+        centers = []
         for i in range(2):
             center = complex(*experiment_data.data(i)["memory"][0])
             angles.append(np.angle(center))
+            radii.append(np.absolute(center))
+            centers.append(center)
 
         angle = (angles[0] + angles[1]) / 2
         if (np.abs(angles[0] - angles[1])) % (2 * np.pi) > np.pi:
@@ -35,10 +53,53 @@ class ReadoutAngleAnalysis(BaseAnalysis):
 
         analysis_results = [
             AnalysisResultData(
-                name="ReadoutAngle",
-                value=angle,
-                extra={"angle_ground": angles[0], "angle_excited": angles[1]},
-            )
-        ]
+                name="readout_angle_qiskit_monitoring",
+                value=angle),
+            AnalysisResultData(
+                name="readout_angle_0_qiskit_monitoring",
+                value=angles[0]),
+            AnalysisResultData(
+                name="readout_angle_1_qiskit_monitoring",
+                value=angles[1]),
+            AnalysisResultData(
+                name="readout_radius_0_qiskit_monitoring",
+                value=radii[0]),
+            AnalysisResultData(
+                name="readout_radius_1_qiskit_monitoring",
+                value=radii[1])]
 
-        return analysis_results, []
+        if self.options.plot:
+            ax = self._format_plot(centers, ax=self.options.ax)
+            figures = [ax.get_figure()]
+        else:
+            figures = None
+
+        return analysis_results, figures
+
+    @staticmethod
+    def _format_plot(
+        centers: List[complex], ax: Optional["matplotlib.pyplot.AxesSubplot"] = None
+    ):
+        """Format the readout_angle plot
+
+        Args:
+            centers: the two centers of the level 1 measurements for 0 and for 1.
+            ax: matplotlib axis to add plot to.
+
+        Returns:
+            AxesSubPlot: the matplotlib axes containing the plot.
+        """
+        largest_extent = np.max([np.max(np.abs(np.real(centers))),
+                                 np.max(np.abs(np.imag(centers)))])*1.1
+
+        ax = get_non_gui_ax()
+        ax.plot(np.real(centers[0]), np.imag(centers[0]), 'ro', markersize=24)
+        ax.plot(np.real(centers[1]), np.imag(centers[1]), 'bo', markersize=24)
+        ax.set_xlim([-largest_extent, largest_extent])
+        ax.set_ylim([-largest_extent, largest_extent])
+        ax.set_xlabel('I [arb.]')
+        ax.set_ylabel('Q [arb.]')
+        ax.set_title('Centroid Positions')
+        ax.legend(['0', '1'])
+        return ax
+
