@@ -13,17 +13,18 @@
 Readout Angle Analysis class.
 """
 
-import numpy as np
 from typing import List, Optional
+import numpy as np
 
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
+
 
 class ReadoutAngleAnalysis(BaseAnalysis):
     """
     A class to analyze readout angle experiments
     """
-    
+
     @classmethod
     def _default_options(cls) -> Options:
         """Return default analysis options.
@@ -37,7 +38,7 @@ class ReadoutAngleAnalysis(BaseAnalysis):
         options.ax = None
         return options
 
-    def _run_analysis(self, experiment_data, **kwargs):
+    def _run_analysis(self, experiment_data):
         angles = []
         radii = []
         centers = []
@@ -52,21 +53,12 @@ class ReadoutAngleAnalysis(BaseAnalysis):
             angle += np.pi
 
         analysis_results = [
-            AnalysisResultData(
-                name="readout_angle_qiskit_monitoring",
-                value=angle),
-            AnalysisResultData(
-                name="readout_angle_0_qiskit_monitoring",
-                value=angles[0]),
-            AnalysisResultData(
-                name="readout_angle_1_qiskit_monitoring",
-                value=angles[1]),
-            AnalysisResultData(
-                name="readout_radius_0_qiskit_monitoring",
-                value=radii[0]),
-            AnalysisResultData(
-                name="readout_radius_1_qiskit_monitoring",
-                value=radii[1])]
+            AnalysisResultData(name="readout_angle_qiskit_monitoring", value=angle),
+            AnalysisResultData(name="readout_angle_0_qiskit_monitoring", value=angles[0]),
+            AnalysisResultData(name="readout_angle_1_qiskit_monitoring", value=angles[1]),
+            AnalysisResultData(name="readout_radius_0_qiskit_monitoring", value=radii[0]),
+            AnalysisResultData(name="readout_radius_1_qiskit_monitoring", value=radii[1]),
+        ]
 
         if self.options.plot:
             ax = self._format_plot(centers, ax=self.options.ax)
@@ -77,9 +69,7 @@ class ReadoutAngleAnalysis(BaseAnalysis):
         return analysis_results, figures
 
     @staticmethod
-    def _format_plot(
-        centers: List[complex], ax: Optional["matplotlib.pyplot.AxesSubplot"] = None
-    ):
+    def _format_plot(centers: List[complex], ax: Optional["matplotlib.pyplot.AxesSubplot"] = None):
         """Format the readout_angle plot
 
         Args:
@@ -89,17 +79,17 @@ class ReadoutAngleAnalysis(BaseAnalysis):
         Returns:
             AxesSubPlot: the matplotlib axes containing the plot.
         """
-        largest_extent = np.max([np.max(np.abs(np.real(centers))),
-                                 np.max(np.abs(np.imag(centers)))])*1.1
+        largest_extent = (
+            np.max([np.max(np.abs(np.real(centers))), np.max(np.abs(np.imag(centers)))]) * 1.1
+        )
 
         ax = get_non_gui_ax()
-        ax.plot(np.real(centers[0]), np.imag(centers[0]), 'ro', markersize=24)
-        ax.plot(np.real(centers[1]), np.imag(centers[1]), 'bo', markersize=24)
+        ax.plot(np.real(centers[0]), np.imag(centers[0]), "ro", markersize=24)
+        ax.plot(np.real(centers[1]), np.imag(centers[1]), "bo", markersize=24)
         ax.set_xlim([-largest_extent, largest_extent])
         ax.set_ylim([-largest_extent, largest_extent])
-        ax.set_xlabel('I [arb.]')
-        ax.set_ylabel('Q [arb.]')
-        ax.set_title('Centroid Positions')
-        ax.legend(['0', '1'])
+        ax.set_xlabel("I [arb.]")
+        ax.set_ylabel("Q [arb.]")
+        ax.set_title("Centroid Positions")
+        ax.legend(["0", "1"])
         return ax
-
