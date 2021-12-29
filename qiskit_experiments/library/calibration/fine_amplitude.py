@@ -20,7 +20,7 @@ from qiskit.providers.backend import Backend
 
 from qiskit_experiments.calibration_management import (
     BaseCalibrationExperiment,
-    BackendCalibrations,
+    Calibrations,
 )
 from qiskit_experiments.library.characterization import FineAmplitude
 from qiskit_experiments.framework import ExperimentData, Options
@@ -44,7 +44,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
     def __init__(
         self,
         qubit: int,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         schedule_name: str,
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "amp",
@@ -87,7 +87,7 @@ class FineAmplitudeCal(BaseCalibrationExperiment, FineAmplitude):
     def _add_cal_metadata(self, experiment_data: ExperimentData):
         """Add metadata to the experiment data making it more self contained.
 
-        The following keys are added to each circuit's metadata:
+        The following keys are added to each experiment's metadata:
             cal_param_value: The value of the pulse amplitude. This value together with
                 the fit result will be used to find the new value of the pulse amplitude.
             cal_param_name: The name of the parameter in the calibrations.
@@ -156,7 +156,7 @@ class FineXAmplitudeCal(FineAmplitudeCal):
     def __init__(
         self,
         qubit: int,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         schedule_name: str,
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "amp",
@@ -218,7 +218,7 @@ class FineSXAmplitudeCal(FineAmplitudeCal):
     def __init__(
         self,
         qubit: int,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         schedule_name: str,
         backend: Optional[Backend] = None,
         cal_parameter_name: Optional[str] = "amp",

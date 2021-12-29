@@ -19,6 +19,7 @@ from test.base import QiskitExperimentsTestCase
 import qiskit.pulse as pulse
 
 from qiskit_experiments.calibration_management.basis_gate_library import FixedFrequencyTransmon
+from qiskit_experiments.calibration_management.calibration_key_types import DefaultCalValue
 from qiskit_experiments.exceptions import CalibrationError
 from qiskit_experiments.framework.json import ExperimentEncoder, ExperimentDecoder
 
@@ -67,14 +68,14 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
         self.assertEqual(len(sched_sx.parameters & sched_sy.parameters), 4)
 
         expected = [
-            (0.5, "amp", (), "x"),
-            (0.0, "β", (), "x"),
-            (320, "duration", (), "x"),
-            (80, "σ", (), "x"),
-            (320, "duration", (), "sx"),
-            (0.0, "β", (), "sx"),
-            (0.25, "amp", (), "sx"),
-            (80, "σ", (), "sx"),
+            DefaultCalValue(0.5, "amp", (), "x"),
+            DefaultCalValue(0.0, "β", (), "x"),
+            DefaultCalValue(320, "duration", (), "x"),
+            DefaultCalValue(80, "σ", (), "x"),
+            DefaultCalValue(320, "duration", (), "sx"),
+            DefaultCalValue(0.0, "β", (), "sx"),
+            DefaultCalValue(0.25, "amp", (), "sx"),
+            DefaultCalValue(80, "σ", (), "sx"),
         ]
 
         for param_conf in library.default_values():
@@ -102,22 +103,22 @@ class TestFixedFrequencyTransmon(QiskitExperimentsTestCase):
         self.assertEqual(len(sched_sx.parameters & sched_sy.parameters), 2)
 
         expected = [
-            (0.5, "amp", (), "x"),
-            (0.0, "β", (), "x"),
-            (160, "duration", (), "x"),
-            (40, "σ", (), "x"),
-            (160, "duration", (), "sx"),
-            (0.0, "β", (), "sx"),
-            (0.25, "amp", (), "sx"),
-            (40, "σ", (), "sx"),
-            (0.5j, "amp", (), "y"),
-            (0.0, "β", (), "y"),
-            (160, "duration", (), "y"),
-            (40, "σ", (), "y"),
-            (160, "duration", (), "sy"),
-            (0.0, "β", (), "sy"),
-            (0.25j, "amp", (), "sy"),
-            (40, "σ", (), "sy"),
+            DefaultCalValue(0.5, "amp", (), "x"),
+            DefaultCalValue(0.0, "β", (), "x"),
+            DefaultCalValue(160, "duration", (), "x"),
+            DefaultCalValue(40, "σ", (), "x"),
+            DefaultCalValue(160, "duration", (), "sx"),
+            DefaultCalValue(0.0, "β", (), "sx"),
+            DefaultCalValue(0.25, "amp", (), "sx"),
+            DefaultCalValue(40, "σ", (), "sx"),
+            DefaultCalValue(0.5j, "amp", (), "y"),
+            DefaultCalValue(0.0, "β", (), "y"),
+            DefaultCalValue(160, "duration", (), "y"),
+            DefaultCalValue(40, "σ", (), "y"),
+            DefaultCalValue(160, "duration", (), "sy"),
+            DefaultCalValue(0.0, "β", (), "sy"),
+            DefaultCalValue(0.25j, "amp", (), "sy"),
+            DefaultCalValue(40, "σ", (), "sy"),
         ]
 
         self.assertSetEqual(set(library.default_values()), set(expected))

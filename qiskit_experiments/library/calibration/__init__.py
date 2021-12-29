@@ -41,6 +41,7 @@ module.
 
     RoughFrequencyCal
     FrequencyCal
+    FineFrequencyCal
     RoughDragCal
     FineDragCal
     FineXDragCal
@@ -64,3 +65,4 @@ from .rough_amplitude_cal import RoughAmplitudeCal, RoughXSXAmplitudeCal, EFRoug
 from .fine_amplitude import FineAmplitudeCal, FineXAmplitudeCal, FineSXAmplitudeCal
 from .fine_drag_cal import FineDragCal, FineXDragCal, FineSXDragCal
 from .frequency_cal import FrequencyCal
+from .fine_frequency_cal import FineFrequencyCal

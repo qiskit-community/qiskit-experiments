@@ -20,7 +20,6 @@ from qiskit.circuit import Parameter
 from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.framework.experiment_data import ExperimentData
-from qiskit_experiments.calibration_management.backend_calibrations import BackendCalibrations
 from qiskit_experiments.calibration_management.calibrations import Calibrations
 from qiskit_experiments.calibration_management.parameter_value import ParameterValue
 from qiskit_experiments.calibration_management.calibration_key_types import ParameterValueType
@@ -42,7 +41,7 @@ class BaseUpdater(ABC):
 
             Frequency.update(calibrations, spectroscopy_data)
 
-        Here, calibrations is an instance of :class:`BackendCalibrations` and spectroscopy_data
+        Here, calibrations is an instance of :class:`Calibrations` and spectroscopy_data
         is the result of a :class:`QubitSpectroscopy` experiment.
         """
         raise CalibrationError(
@@ -147,7 +146,7 @@ class Frequency(BaseUpdater):
     @classmethod
     def update(
         cls,
-        calibrations: BackendCalibrations,
+        calibrations: Calibrations,
         exp_data: ExperimentData,
         result_index: Optional[int] = None,
         parameter: str = None,
@@ -172,7 +171,7 @@ class Frequency(BaseUpdater):
 
         """
         if parameter is None:
-            parameter = calibrations.__qubit_freq_parameter__
+            parameter = calibrations.__drive_freq_parameter__
 
         super().update(
             calibrations=calibrations,
