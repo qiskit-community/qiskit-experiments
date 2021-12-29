@@ -22,6 +22,7 @@ from qiskit_experiments.data_processing.nodes import (
     AverageData,
     MinMaxNormalize,
     Probability,
+    RestlessToCounts,
 )
 from . import BaseDataProcessorTest
 
@@ -301,3 +302,29 @@ class TestProbability(QiskitExperimentsTestCase):
         data = {"1": 512, "0": 512}
         processed_data = node(data=np.asarray([data]))
         self.assertAlmostEqual(unp.nominal_values(processed_data), 0.5)
+
+
+class TestRestless(QiskitExperimentsTestCase):
+    """Test the restless measurements node."""
+
+    def test_restless_classify(self):
+        """Test the classification of restless shots."""
+        previous_shot = "11000110"
+        shot = "11100010"
+
+        restless_classified_shot = RestlessToCounts._restless_classify(shot, previous_shot)
+        self.assertAlmostEqual(restless_classified_shot, "00100100")
+
+    def test_restless_process(self):
+        """Test if a restless memory is correctly post-processed."""
+        node = RestlessToCounts(header={"memory_slots": 1})
+
+        data = [["0x1", "0x0"], ["0x1", "0x1"]]
+        processed_data = node(data=np.array(data))
+        # time-ordered data: ["1", "1", "0", "1"]
+        # classification: ["1", "0", "1", "1"]
+        expected_data = [{"1": 2}, {"1": 1, "0": 1}]
+        [
+            self.assertTrue(processed_data[idx] == expected_data[idx])
+            for idx in range(len(expected_data))
+        ]
