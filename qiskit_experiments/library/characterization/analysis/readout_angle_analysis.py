@@ -53,11 +53,11 @@ class ReadoutAngleAnalysis(BaseAnalysis):
             angle += np.pi
 
         analysis_results = [
-            AnalysisResultData(name="readout_angle_qiskit_monitoring", value=angle),
-            AnalysisResultData(name="readout_angle_0_qiskit_monitoring", value=angles[0]),
-            AnalysisResultData(name="readout_angle_1_qiskit_monitoring", value=angles[1]),
-            AnalysisResultData(name="readout_radius_0_qiskit_monitoring", value=radii[0]),
-            AnalysisResultData(name="readout_radius_1_qiskit_monitoring", value=radii[1]),
+            AnalysisResultData(name="readout_angle", value=angle),
+            AnalysisResultData(name="readout_angle_0", value=angles[0]),
+            AnalysisResultData(name="readout_angle_1", value=angles[1]),
+            AnalysisResultData(name="readout_radius_0", value=radii[0]),
+            AnalysisResultData(name="readout_radius_1", value=radii[1]),
         ]
 
         if self.options.plot:
