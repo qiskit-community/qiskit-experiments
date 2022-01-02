@@ -211,7 +211,7 @@ class DatabaseServiceV1(DatabaseService, ABC):
             Analysis result ID.
 
         Raises:
-            ExperimentEntryExists: If the analysis result already exits.
+            ExperimentEntryExists: If the analysis result already exists.
         """
         pass
 
