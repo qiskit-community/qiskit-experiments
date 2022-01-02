@@ -129,7 +129,7 @@ class T2Hahn(BaseExperiment):
         """
         Return a list of experiment circuits.
 
-        Each circuit consist of RX(π/2) followed by a sequence of delay gate,
+        Each circuit consists of RX(π/2) followed by a sequence of delay gate,
         RX(π) for echo and delay gate again.
         The sequence repeats for the number of echoes and terminates with RX(±π/2).
 

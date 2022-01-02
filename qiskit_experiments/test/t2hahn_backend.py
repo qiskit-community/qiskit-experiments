@@ -139,9 +139,10 @@ class T2HahnBackend(BackendV1):
             dict: The state of the qubit after operating the gate.
 
          Raises:
-            QiskitError: Raised if initialization_error type isn't 'None'', 'float' or a list of 'float'
-                         with length of number of the qubits.
+            QiskitError: Raised if the frequency is 'None' or if the qubit isn't in the XY plane.
         """
+        if frequency is None:
+            raise QiskitError("Delay gate supported only if the qubit is on the XY plane.")
         new_qubit_state = qubit_state
         if qubit_state["XY plane"]:
             prob_noise = 1 - (np.exp(-delay / t2hahn))
@@ -260,7 +261,7 @@ class T2HahnBackend(BackendV1):
         else:
             # Since we are not in the XY plane, we need to calculate the probability for
             # measuring output. First, we calculate the probability and later we are
-            # tossing to see if the event did happened.
+            # tossing to see if the event did happen.
             z_projection = np.cos(qubit_state["Theta"])
             probability = z_projection ** 2
             if self._rng.random() > probability:

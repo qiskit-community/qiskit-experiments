@@ -28,11 +28,11 @@ class TestT2Hahn(QiskitExperimentsTestCase):
 
     __tolerance__ = 0.1
 
-    @data([1], [2])
+    @data([0], [1], [2])
     @unpack
     def test_t2hahn_run_end2end(self, num_of_echoes: int):
         """
-        Run the T2Hahn backend with one echo.
+        Run the T2Hahn backend with 'num_of_echoes' echoes.
         """
         osc_freq = 0.1
         estimated_t2hahn = 20
