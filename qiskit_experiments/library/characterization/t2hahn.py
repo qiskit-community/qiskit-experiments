@@ -167,6 +167,15 @@ class T2Hahn(BaseExperiment):
                     circ.rx(np.pi, 0)
                     circ.delay(delay_gate, 0, "s")
 
+            # if number of echoes is 0 then just apply the delay gate
+            if self.experiment_options.num_echoes == 0:
+                if dt_unit:
+                    total_delay = real_delay_in_sec
+                    circ.delay(delay_dt, 0, "dt")
+                else:
+                    total_delay = real_delay_in_sec
+                    circ.delay(delay_gate, 0, "s")
+
             if self.experiment_options.num_echoes % 2 == 1:
                 circ.rx(np.pi / 2, 0)  # X90 again since the num of echoes is odd
             else:
