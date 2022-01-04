@@ -14,11 +14,11 @@
 A Tester for the Readout Mitigation experiment
 """
 
-import numpy as np
-import unittest
-from qiskit.quantum_info.operators.predicates import matrix_equal
-from test.base import QiskitExperimentsTestCase
 
+import unittest
+from test.base import QiskitExperimentsTestCase
+import numpy as np
+from qiskit.quantum_info.operators.predicates import matrix_equal
 from qiskit_experiments.library import MeasurementMitigation
 from qiskit_experiments.framework import ExperimentData
 
@@ -27,6 +27,7 @@ class TestMitigation(QiskitExperimentsTestCase):
     """Test MeasurementMitigation"""
 
     def test_local_analysis(self):
+        """Tests local mitigator generation from experimental data"""
         qubits = [0, 2, 3]
         run_data = [
             {
@@ -58,6 +59,7 @@ class TestMitigation(QiskitExperimentsTestCase):
         self.assertTrue(matrix_equal(expected_assignment_matrices, mitigator._assignment_mats))
 
     def test_correlated_analysis(self):
+        """Tests correlated mitigator generation from experimental data"""
         qubits = [0, 2, 3]
         run_data = [
             {
