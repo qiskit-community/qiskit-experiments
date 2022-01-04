@@ -35,6 +35,7 @@ Experiments
     FineXAmplitude
     FineSXAmplitude
     RamseyXY
+    FineFrequency
     RoughDrag
     ReadoutAngle
     FineDrag
@@ -49,15 +50,15 @@ Analysis
     :toctree: ../stubs/
     :template: autosummary/analysis.rst
 
-    analysis.T1Analysis
-    analysis.T2RamseyAnalysis
-    analysis.CrossResonanceHamiltonianAnalysis
-    analysis.DragCalAnalysis
-    analysis.FineHalfAngleAnalysis
-    analysis.FineDragAnalysis
-    analysis.FineAmplitudeAnalysis
-    analysis.RamseyXYAnalysis
-    analysis.ReadoutAngleAnalysis
+    T1Analysis
+    T2RamseyAnalysis
+    CrossResonanceHamiltonianAnalysis
+    DragCalAnalysis
+    FineHalfAngleAnalysis
+    FineDragAnalysis
+    FineAmplitudeAnalysis
+    RamseyXYAnalysis
+    ReadoutAngleAnalysis
 """
 
 from .analysis import (
@@ -81,6 +82,7 @@ from .rabi import Rabi, EFRabi
 from .half_angle import HalfAngle
 from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
 from .ramsey_xy import RamseyXY
+from .fine_frequency import FineFrequency
 from .drag import RoughDrag
 from .readout_angle import ReadoutAngle
 from .fine_drag import FineDrag, FineXDrag, FineSXDrag

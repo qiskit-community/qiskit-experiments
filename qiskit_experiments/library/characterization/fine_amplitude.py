@@ -78,10 +78,11 @@ class FineAmplitude(BaseExperiment):
         Note that there are subclasses of :class:`FineAmplitude` such as :class:`FineSXAmplitude`
         that set the appropriate options by default.
 
+    # section: analysis_ref
+        :py:class:`FineAmplitudeAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 1504.06597
-
 
     # section: tutorial
         :doc:`/tutorials/fine_calibrations`
