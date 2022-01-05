@@ -113,7 +113,7 @@ class LocalMitigationAnalysis(BaseAnalysis):
         result_mitigator = LocalReadoutMitigator(matrices, qubits=qubits)
         analysis_results = [AnalysisResultData("Local Readout Mitigator", result_mitigator)]
         if self.options.plot:
-            figure = _assignment_matrix_visualization(
+            figure = assignment_matrix_visualization(
                 result_mitigator.assignment_matrix(), ax=self.options.ax
             )
             figures = [figure]
@@ -144,7 +144,7 @@ class LocalMitigationAnalysis(BaseAnalysis):
         return matrices
 
 
-def _assignment_matrix_visualization(assignment_matrix, ax=None):
+def assignment_matrix_visualization(assignment_matrix, ax=None):
     if ax is None:
         ax = get_non_gui_ax()
     figure = ax.get_figure()
