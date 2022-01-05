@@ -145,6 +145,7 @@ class LocalMitigationAnalysis(BaseAnalysis):
 
 
 def assignment_matrix_visualization(assignment_matrix, ax=None):
+    """Displays a visualization of the assignment matrix compared to the identity"""
     if ax is None:
         ax = get_non_gui_ax()
     figure = ax.get_figure()
