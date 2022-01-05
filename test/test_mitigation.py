@@ -28,7 +28,7 @@ class TestMitigation(QiskitExperimentsTestCase):
 
     def test_local_analysis(self):
         """Tests local mitigator generation from experimental data"""
-        qubits = [0, 2, 3]
+        qubits = [0, 1, 2]
         run_data = [
             {
                 "counts": {"000": 986, "010": 10, "100": 16, "001": 12},
