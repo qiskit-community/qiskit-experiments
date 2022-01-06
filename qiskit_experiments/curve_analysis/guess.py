@@ -24,39 +24,75 @@ from scipy import signal
 from qiskit_experiments.exceptions import AnalysisError
 
 
-def frequency(x: np.ndarray, y: np.ndarray) -> float:
-    """Get frequency of oscillating signal.
+def frequency(
+    x: np.ndarray,
+    y: np.ndarray,
+    filter_window: int = 5,
+    filter_dim: int = 2,
+) -> float:
+    r"""Get frequency of oscillating signal.
+
+    First this tries FFT. If the true value is likely below or near the frequency resolution,
+    the function tries low frequency fit with
+
+    .. math::
+
+        f_{\rm est} = \frac{1}{2\pi {\rm max}\left| y \right|}
+            {\rm max} \left| \frac{dy}{dx} \right|
+
+    given :math:`y = A \cos (2\pi f x + phi)`. In this mode, y data points are
+    smoothed by a Savitzky-Golay filter to protect against outlier points.
 
     .. note::
 
         This function returns always positive frequency.
+        This function is sensitive to the DC offset.
+        This function assumes sorted, no-overlapping x values.
 
     Args:
         x: Array of x values.
         y: Array of y values.
+        filter_window: Window size of Savitzky-Golay filter. This should be odd number.
+        filter_dim: Dimension of Savitzky-Golay filter.
 
     Returns:
         Frequency estimation of oscillation signal.
     """
-    sampling_rates = np.unique(np.diff(x))
-    sampling_rates = sampling_rates[sampling_rates > 0]
+    # to run FFT x interval should be identical
+    sampling_interval = np.unique(np.round(np.diff(x), decimals=20))
 
-    if len(sampling_rates) != 1:
-        sampling_rate = np.min(sampling_rates)
-        x_ = np.arange(x[0], x[-1], sampling_rate)
+    if len(sampling_interval) != 1:
+        # resampling with minimum xdata interval
+        sampling_interval = np.min(sampling_interval)
+        x_ = np.arange(x[0], x[-1], sampling_interval)
         y_ = np.interp(x_, xp=x, fp=y)
     else:
-        sampling_rate = sampling_rates[0]
+        sampling_interval = sampling_interval[0]
         x_ = x
         y_ = y
 
     fft_data = np.fft.fft(y_ - np.average(y_))
-    freqs = np.fft.fftfreq(len(x_), sampling_rate)
+    freqs = np.fft.fftfreq(len(x_), sampling_interval)
 
     positive_freqs = freqs[freqs >= 0]
     positive_fft_data = fft_data[freqs >= 0]
 
-    return positive_freqs[np.argmax(np.abs(positive_fft_data))]
+    freq_guess = positive_freqs[np.argmax(np.abs(positive_fft_data))]
+
+    if freq_guess < 1.5 / (sampling_interval * len(x_)):
+        # low frequency fit, use this mode when the estimate is near the resolution
+        y_smooth = signal.savgol_filter(y_, window_length=filter_window, polyorder=filter_dim)
+
+        # no offset is assumed
+        y_amp = max(np.abs(y_smooth))
+
+        if np.isclose(y_amp, 0.0):
+            # no oscillation signal
+            return 0.0
+
+        freq_guess = max(np.abs(np.diff(y_smooth) / sampling_interval)) / (y_amp * 2 * np.pi)
+
+    return freq_guess
 
 
 def max_height(

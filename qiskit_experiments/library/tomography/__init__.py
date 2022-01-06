@@ -22,6 +22,7 @@ Experiments
 ===========
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/experiment.rst
 
     StateTomography
     ProcessTomography
@@ -32,6 +33,7 @@ Analysis
 
 .. autosummary::
     :toctree: ../stubs/
+    :template: autosummary/analysis.rst
 
     StateTomographyAnalysis
     ProcessTomographyAnalysis

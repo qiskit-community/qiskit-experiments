@@ -29,7 +29,10 @@ class FakeJob(Job):
 
     def __init__(self, backend: Union[Backend, BaseBackend], result: Optional[Result] = None):
         """Initialize FakeJob."""
-        job_id = uuid.uuid4().hex
+        if result:
+            job_id = result.job_id
+        else:
+            job_id = uuid.uuid4().hex
         super().__init__(backend, job_id)
         self._result = result
 

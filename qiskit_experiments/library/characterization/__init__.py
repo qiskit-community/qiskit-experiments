@@ -27,6 +27,21 @@ Experiments
     T2Ramsey
     Tphi
     QubitSpectroscopy
+    CrossResonanceHamiltonian
+    EchoedCrossResonanceHamiltonian
+    Rabi
+    EFRabi
+    HalfAngle
+    FineAmplitude
+    FineXAmplitude
+    FineSXAmplitude
+    RamseyXY
+    FineFrequency
+    RoughDrag
+    ReadoutAngle
+    FineDrag
+    FineXDrag
+    FineSXDrag
 
 
 Analysis
@@ -39,14 +54,40 @@ Analysis
     T1Analysis
     T2RamseyAnalysis
     TphiAnalysis
-    ResonanceAnalysis
+    CrossResonanceHamiltonianAnalysis
+    DragCalAnalysis
+    FineHalfAngleAnalysis
+    FineDragAnalysis
+    FineAmplitudeAnalysis
+    RamseyXYAnalysis
+    ReadoutAngleAnalysis
 """
+
+from .analysis import (
+    DragCalAnalysis,
+    FineHalfAngleAnalysis,
+    FineDragAnalysis,
+    FineAmplitudeAnalysis,
+    RamseyXYAnalysis,
+    T2RamseyAnalysis,
+    T1Analysis,
+    CrossResonanceHamiltonianAnalysis,
+    ReadoutAngleAnalysis,
+)
+
 from .t1 import T1
-from .t1_analysis import T1Analysis
 from .qubit_spectroscopy import QubitSpectroscopy
-from .resonance_analysis import ResonanceAnalysis
 from .ef_spectroscopy import EFSpectroscopy
 from .t2ramsey import T2Ramsey
 from .t2ramsey_analysis import T2RamseyAnalysis
 from .tphi import Tphi
 from .tphi_analysis import TphiAnalysis
+from .cr_hamiltonian import CrossResonanceHamiltonian, EchoedCrossResonanceHamiltonian
+from .rabi import Rabi, EFRabi
+from .half_angle import HalfAngle
+from .fine_amplitude import FineAmplitude, FineXAmplitude, FineSXAmplitude
+from .ramsey_xy import RamseyXY
+from .fine_frequency import FineFrequency
+from .drag import RoughDrag
+from .readout_angle import ReadoutAngle
+from .fine_drag import FineDrag, FineXDrag, FineSXDrag
