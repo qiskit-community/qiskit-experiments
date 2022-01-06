@@ -15,19 +15,21 @@ from qiskit_experiments.framework.composite.batch_experiment import BatchExperim
 from qiskit_experiments.library.characterization import T1, T2Ramsey
 from qiskit_experiments.library.characterization.analysis.tphi_analysis import TphiAnalysis
 
+
 class Tphi(BatchExperiment):
     """Tphi Experiment Class"""
 
     __analysis_class__ = TphiAnalysis
-    
-    def __init__(self,
-                 qubit: int,
-                 delays_t1: List[Union[List[float], np.array]],
-                 delays_t2: List[Union[List[float], np.array]],
-                 unit: str = "s",
-                 osc_freq: float = 0.0,
-                 experiment_type: Optional[str] = None,
-                 ):
+
+    def __init__(
+        self,
+        qubit: int,
+        delays_t1: List[Union[List[float], np.array]],
+        delays_t2: List[Union[List[float], np.array]],
+        unit: str = "s",
+        osc_freq: float = 0.0,
+        experiment_type: Optional[str] = None,
+    ):
         """Initialize the experiments object.
 
         Args:
@@ -41,21 +43,20 @@ class Tphi(BatchExperiment):
             experiment_type: String indicating the experiment type.
 
         """
-        #self._qubit = qubit
+        # self._qubit = qubit
         self._delays_t1 = delays_t1
         self._delays_t2 = delays_t2
         self._unit = unit
         self._osc_freq = osc_freq
-        
+
         expT1 = T1(qubit, self._delays_t1, self._unit)
         expT2 = T2Ramsey(qubit, self._delays_t2, self._unit, self._osc_freq)
         exps = []
         exps.append(expT1)
         exps.append(expT2)
-        
+
         # Run batch experiments
         batch_exp = super().__init__(exps)
 
     def run(self, backend, experiment_data, **run_options):
         expdata = super().run(backend, shots=1000)
-

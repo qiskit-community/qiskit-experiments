@@ -59,34 +59,33 @@ class TphiBackend(BackendV1):
             max_shots=int(1e6),
             coupling_map=None,
         )
-        self._t1=t1
-        self._t2ramsey=t2ramsey
-        self._freq=freq
-        self._initial_prob1=initial_prob1
-        self._readout0to1=readout0to1
-        self._readout1to0=readout1to0
+        self._t1 = t1
+        self._t2ramsey = t2ramsey
+        self._freq = freq
+        self._initial_prob1 = initial_prob1
+        self._readout0to1 = readout0to1
+        self._readout1to0 = readout1to0
         self._internal_backends = {}
         super().__init__(self._configuration)
 
-        self._internal_backends['T1'] = T1Backend(self._t1,
-                                                  self._initial_prob1,
-                                                  self._readout0to1,
-                                                  self._readout1to0)
+        self._internal_backends["T1"] = T1Backend(
+            self._t1, self._initial_prob1, self._readout0to1, self._readout1to0
+        )
         if self._initial_prob1 is None:
             self._initial_prob_plus = None
         else:
             self._initial_prob_plus = 0.5  # temporary
-        self._p0={
+        self._p0 = {
             "A": [0.5],
             "T2star": [t2ramsey],
             "f": [freq],
             "phi": [0.0],
             "B": [0.5],
-            }
-        self._internal_backends['T2*'] = T2RamseyBackend(self._p0,
-                                                         self._initial_prob_plus,
-                                                         self._readout0to1,
-                                                         self._readout1to0)
+        }
+        self._internal_backends["T2*"] = T2RamseyBackend(
+            self._p0, self._initial_prob_plus, self._readout0to1, self._readout1to0
+        )
+
     def configuration(self):
         """Return the backend configuration.
 
@@ -94,7 +93,7 @@ class TphiBackend(BackendV1):
             BackendConfiguration: the configuration for the backend.
         """
         return self._configuration
-    
+
     @classmethod
     def _default_options(cls):
         """Default options of the test backend."""
@@ -136,4 +135,3 @@ class TphiBackend(BackendV1):
         results.backend_name = "Tphi backend"
 
         return FakeJob(self, result=Result.from_dict(result))
-

@@ -30,12 +30,14 @@ from qiskit_experiments.curve_analysis.curve_fit import process_curve_data
 from qiskit_experiments.curve_analysis.data_processing import level2_probability
 from qiskit_experiments.framework.composite.composite_analysis import CompositeAnalysis
 
+
 class TphiAnalysis(CompositeAnalysis):
 
     r"""
     Tphi result analysis class.
-    
+
     """
 
- #   def _run_analysis(self, experiment_data: CompositeExperimentData, **options):
+
+#   def _run_analysis(self, experiment_data: CompositeExperimentData, **options):
 #        super._run_analysis(experiment_data, **options)

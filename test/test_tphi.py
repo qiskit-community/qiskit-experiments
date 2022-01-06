@@ -23,6 +23,7 @@ from qiskit_experiments.library import T1, T2Ramsey, Tphi
 from qiskit_experiments.test.utils import FakeJob
 from qiskit_experiments.test.tphi_backend import TphiBackend
 
+
 class TestTphi(QiskitTestCase):
     """Test Tphi experiment"""
 
@@ -30,13 +31,12 @@ class TestTphi(QiskitTestCase):
         """
         Run the Tphi backend
         """
-        unit = 'us'
+        unit = "us"
         dt_factor = apply_prefix(1, unit)
         qubit = 0
         delays_t1 = list(range(1, 40, 3))
         delays_t2 = list(range(1, 50, 2))
-        exp = Tphi(qubit=0, delays_t1=delays_t1, delays_t2=delays_t2,
-                   unit='s', osc_freq= 0.1)
+        exp = Tphi(qubit=0, delays_t1=delays_t1, delays_t2=delays_t2, unit="s", osc_freq=0.1)
 
         backend = TphiBackend(t1=10, t2ramsey=25, freq=0.1)
         expdata = exp.run(backend, experiment_data=None)
