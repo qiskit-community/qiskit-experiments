@@ -13,3 +13,4 @@ nbsphinx
 arxiv
 ddt~=1.4.2
 qiskit-aer>=0.10.0
+testtools>=2.5.0
