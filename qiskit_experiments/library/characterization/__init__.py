@@ -79,9 +79,7 @@ from .t1 import T1
 from .qubit_spectroscopy import QubitSpectroscopy
 from .ef_spectroscopy import EFSpectroscopy
 from .t2ramsey import T2Ramsey
-from .t2ramsey_analysis import T2RamseyAnalysis
 from .tphi import Tphi
-from .tphi_analysis import TphiAnalysis
 from .cr_hamiltonian import CrossResonanceHamiltonian, EchoedCrossResonanceHamiltonian
 from .rabi import Rabi, EFRabi
 from .half_angle import HalfAngle

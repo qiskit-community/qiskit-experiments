@@ -13,7 +13,7 @@ from qiskit.circuit import QuantumCircuit
 from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.framework.composite.batch_experiment import BatchExperiment
 from qiskit_experiments.library.characterization import T1, T2Ramsey
-from qiskit_experiments.library.characterization.tphi_analysis import TphiAnalysis
+from qiskit_experiments.library.characterization.analysis.tphi_analysis import TphiAnalysis
 
 class Tphi(BatchExperiment):
     """Tphi Experiment Class"""
