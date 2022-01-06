@@ -1,6 +1,0 @@
----
-fixes:
-  - |
-    Fixed bug in :class:`~qiskit_experiments.framework.ExperimentData` where
-    trying to load saved job data from a backend using
-    ``ExperimentData(backend=backend, job_ids=job_ids)`` resulted in an error.
