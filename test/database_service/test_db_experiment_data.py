@@ -579,6 +579,23 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         status = exp_data.status()
         self.assertEqual("POST_PROCESSING", status)
 
+    def test_status_cancelled_callback(self):
+        """Test experiment status during post processing."""
+        job = mock.create_autospec(Job, instance=True)
+        job.result.return_value = self._get_job_result(3)
+
+        event = threading.Event()
+        self.addCleanup(event.set)
+
+        exp_data = DbExperimentData(experiment_type="qiskit_test")
+        exp_data.add_data(job)
+        exp_data.add_analysis_callback((lambda *args, **kwargs: event.wait(timeout=2)))
+        # Add second callback because the first can't be cancelled once it has started
+        exp_data.add_analysis_callback((lambda *args, **kwargs: event.wait(timeout=20)))
+        exp_data.cancel_callbacks()
+        status = exp_data.status()
+        self.assertEqual("CANCELLED", status)
+
     def test_status_post_processing_error(self):
         """Test experiment status when post processing failed."""
 

@@ -1,0 +1,15 @@
+---
+features:
+  - |
+    Improves handling of analysis callbacks in :meth:`.ExperimentData`.
+    Logging information on execution of analysis callbacks in an experiment
+    can enabled by setting the log level to DEBUG. 
+  - |
+    Adds :meth:`.ExperimentData.cancel_callbacks` method to allow cancelling
+    pending analysis callbacks. Note that analysis callbacks that have already
+    started running cannot be cancelled.
+fixes:
+  - |
+    Fixes an issue with :meth:`.ExperimentData.block_for_results` sometimes
+    having a race issue with all analysis callbacks finishing. This would
+    often occur when running :meth:`.ExperimentData.block_for_results`.
