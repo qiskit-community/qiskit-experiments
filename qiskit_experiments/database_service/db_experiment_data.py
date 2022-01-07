@@ -82,6 +82,13 @@ class ExperimentStatus(enum.Enum):
     DONE = "experiment jobs and analysis have successfully run"
     ERROR = "experiment jobs or analysis incurred an error"
 
+    def __json_encode__(self):
+        return self.name
+
+    @classmethod
+    def __json_decode__(cls, value):
+        return cls.__members__[value]
+
 
 class AnalysisStatus(enum.Enum):
     """Class for analysis callback status enumerated type."""
@@ -91,6 +98,13 @@ class AnalysisStatus(enum.Enum):
     CANCELLED = "analysis callback has been cancelled"
     DONE = "analysis callback has successfully run"
     ERROR = "analysis callback incurred an error"
+
+    def __json_encode__(self):
+        return self.name
+
+    @classmethod
+    def __json_decode__(cls, value):
+        return cls.__members__[value]
 
 
 @dataclasses.dataclass
@@ -1692,3 +1706,61 @@ class DbExperimentDataV1(DbExperimentData):
         except KeyError:
             # pylint: disable=raise-missing-from
             raise AttributeError("Attribute %s is not defined" % name)
+
+    def _safe_serialize_jobs(self):
+        """Return serializable object for stored jobs"""
+        # Since Job objects are not serializable this removes
+        # them from the jobs dict and returns {job_id: None}
+        # that can be used to retrieve jobs from a service after loading
+        jobs = ThreadSafeOrderedDict()
+        for jid, _ in self._jobs.items():
+            jobs[jid] = None
+        return jobs
+
+    def __json_encode__(self):
+        if any(not fut.done() for fut in self._job_futures.values()):
+            LOG.warning(
+                "Not all job futures have finished."
+                " Data from running futures will not be serialized."
+            )
+        if any(not fut.done() for fut in self._analysis_futures.values()):
+            LOG.warning(
+                "Not all analysis callbacks have finished."
+                " Results from running analysis will not be serialized."
+            )
+        json_value = {}
+        for att in [
+            "_metadata",
+            "_source",
+            "_service",
+            "_backend",
+            "_id",
+            "_parent_id",
+            "_type",
+            "_tags",
+            "_share_level",
+            "_notes",
+            "_data",
+            "_figures",
+            "_analysis_results",
+            "_analysis_callbacks",
+            "_deleted_figures",
+            "_deleted_analysis_results",
+            "_created_in_db",
+            "_extra_data",
+        ]:
+            value = getattr(self, att)
+            if value:
+                json_value[att] = value
+
+        # Handle non-serializable objects
+        json_value["_jobs"] = self._safe_serialize_jobs()
+
+        return json_value
+
+    @classmethod
+    def __json_decode__(cls, value):
+        ret = cls()
+        for att, att_val in value.items():
+            setattr(ret, att, att_val)
+        return ret

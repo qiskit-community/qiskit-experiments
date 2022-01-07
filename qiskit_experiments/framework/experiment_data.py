@@ -274,3 +274,11 @@ class ExperimentData(DbExperimentData):
         ret += f"\nAnalysis Results: {n_res}"
         ret += f"\nFigures: {len(self._figures)}"
         return ret
+
+    def __json_encode__(self):
+        json_value = super().__json_encode__()
+        if self._experiment:
+            json_value["_experiment"] = self._experiment
+        if self._child_data:
+            json_value["_child_data"] = self._child_data
+        return json_value

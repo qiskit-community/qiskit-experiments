@@ -223,6 +223,16 @@ class ThreadSafeContainer(ABC):
         with self.lock:
             self._container.clear()
 
+    def __json_encode__(self):
+        cpy = self.copy_object()
+        return {"_container": cpy._container}
+
+    @classmethod
+    def __json_decode__(cls, value):
+        ret = cls()
+        ret._container = value["_container"]
+        return ret
+
 
 class ThreadSafeOrderedDict(ThreadSafeContainer):
     """Thread safe OrderedDict."""
