@@ -1,0 +1,17 @@
+---
+features:
+  - |
+    Adds :meth:`.ExperimentData.jobs` method for returning a list of
+    Qiskit Jobs for a running or run experiment.
+  - |
+    Adds :meth:`.ExperimentData.job_status` method for returning the status
+    of Qiskit Job execution for an experiment.
+  - |
+    Adds :meth:`.ExperimentData.callback_status` method for returning the status
+    of analysis callback execution for an experiment.
+deprecations:
+  - |
+    The ``timeout`` kwarg of :meth:`.ExperimentData.add_data` has been deprecated.
+    To timeout waiting for job results use the ``timeout`` kwarg with
+    :meth:`.ExperimentData.block_for_results` or
+    :meth:`.ExperimentData.analysis_results` instead.

@@ -12,6 +12,7 @@
 
 """Stored data class."""
 
+import warnings
 import logging
 import dataclasses
 import uuid
@@ -38,7 +39,6 @@ from .utils import (
     save_data,
     qiskit_version,
     plot_to_svg_bytes,
-    combined_timeout,
     ThreadSafeOrderedDict,
     ThreadSafeList,
 )
@@ -104,7 +104,6 @@ class DbExperimentDataV1(DbExperimentData):
     verbose = True  # Whether to print messages to the standard output.
     _metadata_version = 1
     _job_executor = futures.ThreadPoolExecutor()
-    """Threads used for asynchronous processing."""
 
     _json_encoder = ExperimentEncoder
     _json_decoder = ExperimentDecoder
@@ -164,7 +163,7 @@ class DbExperimentDataV1(DbExperimentData):
         self._notes = notes or ""
 
         self._jobs = ThreadSafeOrderedDict(job_ids or [])
-        self._job_futures = ThreadSafeList()
+        self._job_futures = ThreadSafeOrderedDict()
         self._callback_executor = futures.ThreadPoolExecutor(max_workers=1)
         self._callbacks = ThreadSafeOrderedDict()
         self._callback_futures = ThreadSafeOrderedDict()
@@ -215,11 +214,19 @@ class DbExperimentDataV1(DbExperimentData):
                 * List[Job]: Add data from the job results.
                 * Dict: Add this data.
                 * List[Dict]: Add this list of data.
-            timeout: Timeout waiting for job to finish, if `data` is a ``Job``.
+            timeout: (Deprecated) Timeout waiting for job to finish, if `data` is a ``Job``.
 
         Raises:
             TypeError: If the input data type is invalid.
         """
+        if timeout is not None:
+            warnings.warn(
+                "The `timeout` kwarg of `add_data` is deprecated as of "
+                "qiskit-experiments 0.3.0 and will be removed in the 0.4.0 release. "
+                "Use `timeout` with `block_for_results` or `analysis_results` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
         if any(not future.done() for future in self._callback_futures.values()):
             LOG.warning(
                 "Not all post-processing has finished. Adding new data "
@@ -230,20 +237,21 @@ class DbExperimentDataV1(DbExperimentData):
             data = [data]
 
         # Extract job data and directly add non-job data
-        job_data = []
+        jobs = []
         with self._data.lock:
             for datum in data:
                 if isinstance(datum, (Job, BaseJob)):
-                    job_data.append(datum)
+                    jobs.append(datum)
                 elif isinstance(datum, dict):
-                    self._add_single_data(datum)
+                    self._data.append(datum)
                 elif isinstance(datum, Result):
                     self._add_result_data(datum)
                 else:
                     raise TypeError(f"Invalid data type {type(datum)}.")
 
-        # Add futures for job data
-        for job in job_data:
+        # Add futures for extracting finished job data
+        for job in jobs:
+            jid = job.job_id()
             if self.backend and self.backend.name() != job.backend().name():
                 LOG.warning(
                     "Adding a job from a backend (%s) that is different "
@@ -257,19 +265,56 @@ class DbExperimentDataV1(DbExperimentData):
             if not self._service:
                 self._set_service_from_backend(self._backend)
 
-            self._jobs[job.job_id()] = job
-
-        if job_data:
-            job_kwargs = {
-                "jobs": job_data,
-                "timeout": timeout,
-            }
-            self._job_futures.append(
-                (job_kwargs, self._job_executor.submit(self._add_jobs_data, **job_kwargs))
-            )
+            self._jobs[jid] = job
+            self._add_job_future(job)
 
         if self.auto_save:
             self.save_metadata()
+
+    def _add_job_future(self, job):
+        """Submit new _add_job_data job to executor"""
+        jid = job.job_id()
+        if jid in self._job_futures:
+            LOG.warning("Job future has already been submitted [jid: %s]", jid)
+        else:
+            self._job_futures[jid] = self._job_executor.submit(self._add_job_data, job)
+
+    def _add_job_data(
+        self,
+        job: Union[Job, BaseJob],
+    ) -> None:
+        """Wait for a job to finish and add job result data.
+
+        Args:
+            job: the Job to wait for and add data from.
+
+        Raises:
+            Exception: If any of the jobs failed.
+        """
+        jid = job.job_id()
+        try:
+            job_result = job.result()
+            status = job.status()
+            if status not in JOB_FINAL_STATES:
+                LOG.warning("Job returned result with non-final state status [jid: %s].", jid)
+
+            if status == JobStatus.CANCELLED:
+                LOG.warning("Job data not added for cancelled job [jid: %s]", jid)
+            elif status == JobStatus.ERROR:
+                LOG.warning(
+                    "Job data not added for errorred job [jid: %s]" "\nError message: %s",
+                    jid,
+                    job.error_message(),
+                )
+            else:
+                self._add_result_data(job_result)
+                LOG.info("Job data added [jid: %s]", jid)
+
+        except Exception:  # pylint: disable=broad-except
+            LOG.warning(
+                "Job failed [jid: %s]:\nTraceback: %s", job.job_id(), traceback.format_exc()
+            )
+            raise
 
     def add_analysis_callback(self, callback: Callable, **kwargs: Any):
         """Add analysis callback for running after experiment data jobs are finished.
@@ -297,7 +342,7 @@ class DbExperimentDataV1(DbExperimentData):
             if self._callback_futures:
                 futs = self._callback_futures.values()
             else:
-                futs = [fut for _, fut in self._job_futures.copy()]
+                futs = self._job_futures.values()
 
             # Add run callback future
             self._callback_futures[cid] = self._callback_executor.submit(
@@ -348,34 +393,6 @@ class DbExperimentDataV1(DbExperimentData):
             self._callbacks[callback_id].error_msg = error_msg
             LOG.warning(error_msg)
 
-    def _add_jobs_data(
-        self,
-        jobs: List[Union[Job, BaseJob]],
-        timeout: Optional[float] = None,
-    ) -> None:
-        """Wait for a job to finish and add job result data.
-
-        Args:
-            jobs: Jobs to wait for.
-            timeout: Timeout waiting for job to finish.
-
-        Raises:
-            Exception: If any of the jobs failed.
-        """
-        for job in jobs:
-            LOG.debug("Waiting for job %s to finish.", job.job_id())
-            try:
-                try:
-                    job_result, timeout = combined_timeout(job.result, timeout)
-                except TypeError:  # Not all jobs take timeout.
-                    job_result = job.result()
-                with self._data.lock:
-                    # Hold the lock so we add the block of results together.
-                    self._add_result_data(job_result)
-            except Exception:  # pylint: disable=broad-except
-                LOG.warning("Job %s failed:\n%s", job.job_id(), traceback.format_exc())
-                raise
-
     def _add_result_data(self, result: Result) -> None:
         """Add data from a Result object
 
@@ -384,47 +401,50 @@ class DbExperimentDataV1(DbExperimentData):
         """
         if result.job_id not in self._jobs:
             self._jobs[result.job_id] = None
-        for i in range(len(result.results)):
-            data = result.data(i)
-            data["job_id"] = result.job_id
-            if "counts" in data:
-                # Format to Counts object rather than hex dict
-                data["counts"] = result.get_counts(i)
-            expr_result = result.results[i]
-            if hasattr(expr_result, "header") and hasattr(expr_result.header, "metadata"):
-                data["metadata"] = expr_result.header.metadata
-            data["shots"] = expr_result.shots
-            data["meas_level"] = expr_result.meas_level
-            if hasattr(expr_result, "meas_return"):
-                data["meas_return"] = expr_result.meas_return
-            self._add_single_data(data)
-
-    def _add_single_data(self, data: Dict[str, any]) -> None:
-        """Add a single data dictionary to the experiment.
-
-        Args:
-            data: Data to be added.
-        """
-        self._data.append(data)
+        with self._data.lock:
+            # Lock data while adding all result data
+            for i, _ in enumerate(result.results):
+                data = result.data(i)
+                data["job_id"] = result.job_id
+                if "counts" in data:
+                    # Format to Counts object rather than hex dict
+                    data["counts"] = result.get_counts(i)
+                expr_result = result.results[i]
+                if hasattr(expr_result, "header") and hasattr(expr_result.header, "metadata"):
+                    data["metadata"] = expr_result.header.metadata
+                data["shots"] = expr_result.shots
+                data["meas_level"] = expr_result.meas_level
+                if hasattr(expr_result, "meas_return"):
+                    data["meas_return"] = expr_result.meas_return
+                self._data.append(data)
 
     def _retrieve_data(self):
         """Retrieve job data if missing experiment data."""
+        if self._data or not self._backend:
+            return
         # Get job results if missing experiment data.
-        if (not self._data) and self._backend:
-            with self._jobs.lock:
-                for jid, job in self._jobs.items():
-                    if job is None:
-                        try:
-                            job = self._backend.retrieve_job(jid)
-                            self._jobs[jid] = job
-                        except Exception:  # pylint: disable=broad-except
-                            LOG.warning(
-                                "Unable to retrive data from job %s on backend %s",
-                                jid,
-                                self._backend,
-                            )
-                    if job is not None:
-                        self._add_result_data(job.result())
+        retrieved_jobs = {}
+        for jid, job in self._jobs.items():
+            if job is None:
+                try:
+                    LOG.debug("Retrieving job from backend %s [jid: %s]", self._backend, jid)
+                    job = self._backend.retrieve_job(jid)
+                    retrieved_jobs[jid] = job
+                except Exception:  # pylint: disable=broad-except
+                    LOG.warning(
+                        "Unable to retrive data from job on backend %s [jid: %s]",
+                        self._backend,
+                        jid,
+                    )
+        # Add retrieved job objects to stored jobs and extract data
+        for jid, job in retrieved_jobs.items():
+            self._jobs[jid] = job
+            if job.status() in JOB_FINAL_STATES:
+                # Add job results synchronously
+                self._add_job_data(job)
+            else:
+                # Add job results asynchronously
+                self._add_job_future(job)
 
     def data(
         self,
@@ -792,13 +812,6 @@ class DbExperimentDataV1(DbExperimentData):
             LOG.warning("Experiment cannot be saved because backend is missing.")
             return
 
-        with self._job_futures.lock:
-            if any(not fut.done() for _, fut in self._job_futures) and not self.auto_save:
-                LOG.warning(
-                    "Not all post-processing has finished. Consider calling "
-                    "save() again after all post-processing is done to save any newly "
-                    "generated data."
-                )
         metadata = copy.deepcopy(self._metadata)
         metadata["_source"] = self._source
 
@@ -923,16 +936,20 @@ class DbExperimentDataV1(DbExperimentData):
         expdata._created_in_db = True
         return expdata
 
+    def jobs(self) -> List[Job]:
+        """Return a list of jobs for the experiment"""
+        return self._jobs.values()
+
     def cancel_jobs(self) -> None:
         """Cancel any running jobs."""
-        for kwargs, fut in self._job_futures.copy():
-            if not fut.done():
-                for job in kwargs["jobs"]:
-                    if job.status() not in JOB_FINAL_STATES:
-                        try:
-                            job.cancel()
-                        except Exception as err:  # pylint: disable=broad-except
-                            LOG.info("Unable to cancel job %s: %s", job.job_id(), err)
+        with self._jobs.lock:
+            for job in self._jobs.values():
+                if job and job.status() not in JOB_FINAL_STATES:
+                    try:
+                        job.cancel()
+                        LOG.info("Cancelled job %s.", job.job_id())
+                    except Exception as err:  # pylint: disable=broad-except
+                        LOG.warning("Unable to cancel job %s: %s", job.job_id(), err)
 
     def block_for_results(self, timeout: Optional[float] = None) -> "DbExperimentDataV1":
         """Block until all pending jobs and analysis callbacks finish.
@@ -952,27 +969,18 @@ class DbExperimentDataV1(DbExperimentData):
 
     def _wait_for_jobs(self, timeout: Optional[float] = None):
         """Wait for jobs to finish running"""
-        # Wait for jobs to finish
-        for kwargs, fut in self._job_futures.copy():
-            jobs = [job.job_id() for job in kwargs["jobs"]]
-            LOG.info("Waiting for data job %s to finish.", jobs)
-            try:
-                _, timeout = combined_timeout(fut.result, timeout)
-            except futures.TimeoutError:
-                LOG.warning(
-                    "Possibly incomplete experiment data: Retrieving a job's result timed out."
-                )
-            except Exception:  # pylint: disable = broad-except
-                LOG.warning(
-                    "Possibly incomplete experiment data: Retrieving a job's result"
-                    " raised an exception."
-                )
-        # Check job status and show warning if cancelled or error
-        jobs_status = self._job_status()
-        if jobs_status == "CANCELLED":
-            LOG.warning("Possibly incomplete experiment data: a Job was cancelled.")
-        elif jobs_status == "ERROR":
-            LOG.warning("Possibly incomplete experiment data: A Job returned an error.")
+        try:
+            LOG.debug("Waiting for all jobs to finish [eid: %s].", self.experiment_id)
+            waited = futures.wait(self._job_futures.values(), timeout=timeout)
+            if waited.not_done:
+                raise futures.TimeoutError
+            LOG.debug("All jobs finished [eid: %s].", self.experiment_id)
+        except futures.TimeoutError:
+            LOG.warning(
+                "Waiting for jobs timed out before completion [eid: %s].", self.experiment_id
+            )
+        except futures.CancelledError:
+            LOG.warning("Jobs were cancelled before completion [eid: %s].", self.experiment_id)
 
     def _wait_for_callbacks(self, timeout: Optional[float] = None):
         """Wait for analysis callbacks to finish"""
@@ -995,8 +1003,8 @@ class DbExperimentDataV1(DbExperimentData):
             ]
             self._callback_futures = ThreadSafeOrderedDict(running_callbacks)
 
-            running_jobs = [(jid, fut) for jid, fut in self._job_futures if not fut.done()]
-            self._job_futures = ThreadSafeList(running_jobs)
+            running_jobs = [(jid, fut) for jid, fut in self._job_futures.items() if not fut.done()]
+            self._job_futures = ThreadSafeOrderedDict(running_jobs)
 
     def status(self) -> str:
         """Return the data processing status.
@@ -1038,16 +1046,16 @@ class DbExperimentDataV1(DbExperimentData):
         ):
             return "EMPTY"
 
-        job_status = self._job_status()
+        job_status = self.job_status()
         if job_status != "DONE":
             return job_status
 
-        callback_status = self._callback_status()
+        callback_status = self.callback_status()
         if callback_status in ["DONE", "CANCELLED", "ERROR"]:
             return callback_status
         return "POST_PROCESSING"
 
-    def _job_status(self) -> str:
+    def job_status(self) -> str:
         """Return the experiment job execution status.
 
         If the experiment consists of multiple jobs, the returned status is mapped
@@ -1061,26 +1069,26 @@ class DbExperimentDataV1(DbExperimentData):
                 * INITIALIZING - if any job is being initialized.
                 * DONE - if all jobs are finished.
 
+        .. note::
+
+            If an experiment has status ERROR or CANCELLED there may still
+            be pending or running jobs. In these cases it may be beneficial
+            to call :meth:`cancel_jobs` to terminate these remaining jobs.
+
         Returns:
             Job execution status.
         """
-        # Backend jobs
         statuses = set()
-        with self._job_futures.lock:
-            for idx, (kwargs, fut) in enumerate(self._job_futures):
-                all_jobs_done = True
-                for job in kwargs["jobs"]:
-                    job_status = job.status()
-                    statuses.add(job_status)
-                    if job_status != JobStatus.DONE:
-                        all_jobs_done = False
-                if fut.done():
-                    if fut.exception():
-                        statuses.add(JobStatus.ERROR)
-                    elif all_jobs_done:
-                        # If all jobs ran successfully we can remove the future
-                        self._job_futures[idx] = None
-            self._job_futures = ThreadSafeList(list(filter(None, self._job_futures)))
+        with self._jobs.lock:
+
+            # No jobs present
+            if not self._jobs:
+                return JobStatus.DONE.name
+
+            statuses = set()
+            for job in self._jobs.values():
+                if job:
+                    statuses.add(job.status())
 
         for stat in [
             JobStatus.ERROR,
@@ -1089,13 +1097,14 @@ class DbExperimentDataV1(DbExperimentData):
             JobStatus.QUEUED,
             JobStatus.VALIDATING,
             JobStatus.INITIALIZING,
+            JobStatus.DONE,
         ]:
             if stat in statuses:
                 return stat.name
 
-        return "DONE"
+        return JobStatus.DONE.name
 
-    def _callback_status(self) -> str:
+    def callback_status(self) -> str:
         """Return the data analysis callback post-processing status.
 
         If the experiment consists of multiple analysis callbacks, the returned
@@ -1187,21 +1196,9 @@ class DbExperimentDataV1(DbExperimentData):
         # Copy circuit result data and jobs
         with self._data.lock:  # Hold the lock so no new data can be added.
             new_instance._data = self._data.copy_object()
-            for orig_kwargs, fut in self._job_futures.copy():
-                if fut.done():
-                    continue
-                # We cannot deep copy orig_kwargs because it contains a Job which
-                # inherits an abstract class.
-                extra_kwargs = {}
-                for key, val in orig_kwargs.items():
-                    if key not in ["jobs", "timeout"]:
-                        extra_kwargs[key] = val
-
-                new_instance.add_data(
-                    data=orig_kwargs["jobs"],
-                    timeout=orig_kwargs["timeout"],
-                    **extra_kwargs,
-                )
+            for jid, fut in self._job_futures.items():
+                if not fut.done():
+                    new_instance._add_job_future(new_instance._jobs[jid])
 
         # If not copying results return the object
         if not copy_results:
