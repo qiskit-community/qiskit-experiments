@@ -64,8 +64,9 @@ class TestT2Hahn(QiskitExperimentsTestCase):
             expdata.block_for_results()  # Wait for job/analysis to finish.
             result = expdata.analysis_results("T2")
             fitval = result.value
-            self.assertEqual(result.quality, "good")
-            self.assertAlmostEqual(fitval.value, estimated_t2hahn, delta=3)
+            if num_of_echoes != 0:
+                self.assertEqual(result.quality, "good")
+                self.assertAlmostEqual(fitval.value, estimated_t2hahn, delta=3)
 
     def test_t2hahn_parallel(self):
         """
