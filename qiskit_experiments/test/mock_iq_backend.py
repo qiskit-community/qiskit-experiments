@@ -123,7 +123,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         shot_num = 0
         iq_centers = self._get_iq_cluster_centers()
 
-        for idx, number_of_occurrences in enumerate(self._rng.binomial(1, prob, size=shots)):
+        for idx, number_of_occurrences in enumerate(self._rng.multinomial(1, prob, size=shots)):
             # For multiple qubit - translate number to string
             # and then count them.
             # need to think about the structure of probability.
@@ -145,6 +145,29 @@ class MockIQBackend(FakeOpenPulse2Q):
                 shot_num += 1
 
         return memory
+
+    def _generate_data(self, prob: dict, num_qubits: int):
+        # Maybe I need to get as input for generalization
+        shots = self.options.get("shots")
+        meas_level = self.options.get("meas_level")
+        meas_return = self.options.get("meas_return")
+        run_result = {}
+
+        val2str_dict = self._values_to_string_array(num_qubits)
+        if meas_level == MeasLevel.CLASSIFIED:
+            counts = {}
+            results = self._rng.multinomial(shots, prob, size=1)
+            for result, num_occurrences in enumerate(results):
+                result_in_str = val2str_dict["result"]
+                counts[result_in_str] = num_occurrences
+            run_result["counts"] = counts
+        else:
+            memory = self._draw_iq_shots(prob, shots, num_qubits)
+            if meas_return == "avg":
+                memory = np.average(np.array(memory), axis=0).tolist()  # could have a bug here
+
+            run_result["memory"] = memory
+        return run_result
 
     @abstractmethod
     def _compute_probability(self, circuit: QuantumCircuit) -> float:
@@ -178,6 +201,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         }
 
         for circ in run_input:
+            nqubits = circ.num_qubits
             run_result = {
                 "shots": shots,
                 "success": True,
@@ -186,18 +210,7 @@ class MockIQBackend(FakeOpenPulse2Q):
             }
 
             prob = self._compute_probability(circ)
-
-            if meas_level == MeasLevel.CLASSIFIED:
-                ones = np.sum(self._rng.binomial(1, prob, size=shots))
-                run_result["data"] = {"counts": {"1": ones, "0": shots - ones}}
-            else:
-                memory = self._draw_iq_shots(prob, shots)
-
-                if meas_return == "avg":
-                    memory = np.average(np.array(memory), axis=0).tolist()
-
-                run_result["data"] = {"memory": memory}
-
+            run_result["data"] = self._generate_data(prob, nqubits)
             result["results"].append(run_result)
 
         return FakeJob(self, Result.from_dict(result))
