@@ -29,11 +29,12 @@ from qiskit_experiments.test.utils import FakeJob
 class MockIQBackend(FakeOpenPulse2Q):
     """An abstract backend for testing that can mock IQ data."""
 
+    # Changed
     def __init__(
-        self,
-        iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
-        iq_cluster_width: float = 1.0,
-        rng_seed: int = 0,
+            self,
+            iq_cluster_centers: List[List[Tuple[float, float]]] = [[(1.0, 1.0), (-1.0, -1.0)]],
+            iq_cluster_width: List[float] = [1.0],
+            rng_seed: int = 0,
     ):
         """
         Initialize the backend.
@@ -52,23 +53,99 @@ class MockIQBackend(FakeOpenPulse2Q):
             meas_return="single",
         )
 
-    def _draw_iq_shots(self, prob, shots) -> List[List[List[float]]]:
+    @staticmethod
+    def _verify_parameters(self, num_qubits):
+        if num_qubits < 1:
+            raise ValueError(f"The number of qubits {num_qubits} is fewer then 1.")
+        # Need to add:
+        # check that the length of attributes matches the number of qubits.
+        # check that propability is 1.
+
+    @staticmethod
+    def _get_iq_cluster_centers(self):
+        return self._iq_cluster_centers
+
+    @staticmethod
+    def _get_iq_cluster_width(self):
+        return self._iq_cluster_width
+
+    @staticmethod
+    def _get_normal_samples_for_shot(self, num_qubits):
+        widths = self._get_iq_cluster_width()
+        samples = [self._rng.normal(0, widths[qubit], size=1) for qubit in range(num_qubits)]
+        return samples
+
+    def _values_to_string_array(self, num_qubits):
+        """
+        This function creates a dictionary in the size of num_qubits ** 2 (all values possible)
+        that connects between a number and its full binary representation as string with length of
+        num_qubits.
+        Args:
+            num_qubits(int): The number of qubit in the circuit.
+        Returns:
+            dict: A dictionary that connect between a value to its string representation.
+        """
+        max_value = (num_qubits ** 2)
+        return_dict = {}
+        for num in range(max_value):
+            num_in_binary = format(num, "b")
+            qubit_string_value = ""
+            for _ in range(num_qubits - len(num_in_binary)):
+                qubit_string_value += "0"
+            qubit_string_value += str(num_in_binary)
+            return_dict[num] = qubit_string_value
+        return return_dict
+
+    def _draw_iq_shots(self, prob, shots, num_qubits) -> List[List[List[float]]]:
         """Produce an IQ shot."""
 
-        rand_i = self._rng.normal(0, self._iq_cluster_width, size=shots)
-        rand_q = self._rng.normal(0, self._iq_cluster_width, size=shots)
+        # the bellow code is for 1 qubit. for multiple qubit we need to randomize
+        # more points for each qubit. for example, for two qubits we will have
+        # rand_i_q1 = self._rng.normal(0, self._iq_cluster_width, size=shots)
+        # rand_q_q1 = self._rng.normal(0, self._iq_cluster_width, size=shots)
+        # rand_i_q2 = self._rng.normal(0, self._iq_cluster_width, size=shots)
+        # rand_q_q2 = self._rng.normal(0, self._iq_cluster_width, size=shots)
+        #
+        # meaning we will have 3 X shots values of [I,Q]
+        # The construct is qubits_iq_rand[shot_num][qubit-num] = [I,Q]
 
+        # Randomize samples
+        qubits_iq_rand = []
+        for shot_index in range(shots):
+            rand_i = np.squeeze(np.array(self._get_normal_samples_for_shot(num_qubits)))
+            rand_q = np.squeeze(np.array(self._get_normal_samples_for_shot(num_qubits)))
+            qubits_iq_rand.append(np.array([rand_i, rand_q], dtype='float').T)
+
+        # For multinomial, the probabilities is given in list for each outcome.
+        # hence, np.log2(len(prob)) = num_qubits
+        if np.log2(len(prob)) != num_qubits:
+            raise ValueError("The probability provided doesn't match all cases possible.")
+
+        val2str_dict = self._values_to_string_array(num_qubits)
         memory = []
-        for idx, state in enumerate(self._rng.binomial(1, prob, size=shots)):
+        shot_num = 0
+        iq_centers = self._get_iq_cluster_centers()
 
-            if state > 0.5:
-                point_i = self._iq_cluster_centers[0] + rand_i[idx]
-                point_q = self._iq_cluster_centers[1] + rand_q[idx]
-            else:
-                point_i = self._iq_cluster_centers[2] + rand_i[idx]
-                point_q = self._iq_cluster_centers[3] + rand_q[idx]
-
-            memory.append([[point_i, point_q]])
+        for idx, number_of_occurrences in enumerate(self._rng.binomial(1, prob, size=shots)):
+            # For multiple qubit - translate number to string
+            # and then count them.
+            # need to think about the structure of probability.
+            state_str = val2str_dict[idx]
+            for _ in range(number_of_occurrences):
+                shot_memory = []
+                for qubit_number, char_qubit in enumerate(state_str):
+                    # the iteration on the str starts from the MSB so we will use a variable to
+                    # make the code more readable.
+                    current_qubit = num_qubits - qubit_number - 1
+                    # The structure of iq_centers is [qubit_number][logic_result][I/Q].
+                    i_center = iq_centers[current_qubit][int(char_qubit)][0]
+                    q_center = iq_centers[current_qubit][int(char_qubit)][1]
+                    point_i = i_center + qubits_iq_rand[shot_num][qubit_number]
+                    point_q = q_center + qubits_iq_rand[shot_num][qubit_number]
+                    shot_memory.append([point_i, point_q])
+                # We proceed to the next occurrence - meaning its a new shot.
+                memory.append(shot_memory)
+                shot_num += 1
 
         return memory
 
