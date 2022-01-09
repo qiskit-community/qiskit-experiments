@@ -13,7 +13,7 @@
 """An mock IQ backend for testing."""
 
 from abc import abstractmethod
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -54,7 +54,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         )
 
     @staticmethod
-    def _verify_parameters(self, num_qubits):
+    def _verify_parameters(num_qubits):
         if num_qubits < 1:
             raise ValueError(f"The number of qubits {num_qubits} is fewer then 1.")
         # Need to add:
@@ -72,7 +72,8 @@ class MockIQBackend(FakeOpenPulse2Q):
         samples = [self._rng.normal(0, widths[qubit], size=1) for qubit in range(num_qubits)]
         return samples
 
-    def _values_to_string_array(self, num_qubits):
+    @staticmethod
+    def _values_to_string_array(num_qubits):
         """
         This function creates a dictionary in the size of num_qubits ** 2 (all values possible)
         that connects between a number and its full binary representation as string with length of
@@ -146,7 +147,7 @@ class MockIQBackend(FakeOpenPulse2Q):
 
         return memory
 
-    def _generate_data(self, prob: dict, num_qubits: int):
+    def _generate_data(self, prob: dict, num_qubits: int) -> Dict:
         # Maybe I need to get as input for generalization
         shots = self.options.get("shots")
         meas_level = self.options.get("meas_level")
@@ -170,7 +171,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         return run_result
 
     @abstractmethod
-    def _compute_probability(self, circuit: QuantumCircuit) -> float:
+    def _compute_probability(self, circuit: QuantumCircuit) -> Dict[float]:
         """Compute the probability used in the binomial distribution creating the IQ shot.
 
         An abstract method that subclasses will implement to create a probability of
@@ -180,7 +181,7 @@ class MockIQBackend(FakeOpenPulse2Q):
             circuit: The circuit from which to compute the probability.
 
         Returns:
-             The probability that the binaomial distribution will use to generate an IQ shot.
+             The probability that the multinomial distribution will use to generate an IQ shot.
         """
 
     def run(self, run_input, **options):
