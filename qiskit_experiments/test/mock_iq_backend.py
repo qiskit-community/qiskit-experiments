@@ -59,17 +59,14 @@ class MockIQBackend(FakeOpenPulse2Q):
             raise ValueError(f"The number of qubits {num_qubits} is fewer then 1.")
         # Need to add:
         # check that the length of attributes matches the number of qubits.
-        # check that propability is 1.
+        # check that probability is 1.
 
-    @staticmethod
     def _get_iq_cluster_centers(self):
         return self._iq_cluster_centers
 
-    @staticmethod
     def _get_iq_cluster_width(self):
         return self._iq_cluster_width
 
-    @staticmethod
     def _get_normal_samples_for_shot(self, num_qubits):
         widths = self._get_iq_cluster_width()
         samples = [self._rng.normal(0, widths[qubit], size=1) for qubit in range(num_qubits)]
