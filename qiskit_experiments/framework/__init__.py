@@ -76,7 +76,18 @@ and the raw measurement data. These can each be accessed using the
 :meth:`ExperimentData.analysis_results`, :meth:`ExperimentData.figure`
 and :meth:`ExperimentData.data` methods respectively.
 
-For experiments run through a compatable provider such as the
+Analysis/plotting is done in a separate child thread, so it doesn't block the
+main thread. Since matplotlib doesn't support GUI mode in a child threads, the
+figures generated during analysis need to use a non-GUI canvas. The default is
+:class:`~matplotlib.backends.backend_svg.FigureCanvasSVG`, but you can change it to a different
+`non-interactive backend
+<https://matplotlib.org/stable/tutorials/introductory/usage.html#the-builtin-backends>`_
+by setting the ``qiskit_experiments.framework.matplotlib.default_figure_canvas``
+attribute. For example, you can set ``default_figure_canvas`` to
+:class:`~matplotlib.backends.backend_agg.FigureCanvasAgg` to use the
+``AGG`` backend.
+
+For experiments run through a compatible provider such as the
 `IBMQ provider <https://github.com/Qiskit/qiskit-ibmq-provider>`_
 the :class:`ExperimentData` object can be saved to an online experiment
 database by calling the :meth:`ExperimentData.save` method. This data can
@@ -140,9 +151,6 @@ To create an experiment subclass
   Arguments in the constructor can be overridden so that a subclass can
   be initialized with some experiment configuration.
 
-- Set :attr:`BaseExperiment.__analysis_class__` class attribute to
-  specify the :class:`BaseAnalysis` subclass for analyzing result data.
-
 Optionally the following methods can also be overridden in the subclass to
 allow configuring various experiment and execution options
 
@@ -197,6 +205,10 @@ Experiment Data Classes
     ExperimentData
     FitVal
     AnalysisResultData
+    ExperimentConfig
+    AnalysisConfig
+    ExperimentEncoder
+    ExperimentDecoder
 
 .. _composite-experiment:
 
@@ -208,7 +220,6 @@ Composite Experiment Classes
     ParallelExperiment
     BatchExperiment
     CompositeAnalysis
-    CompositeExperimentData
 
 Base Classes
 ************
@@ -226,11 +237,12 @@ from qiskit_experiments.database_service.db_analysis_result import DbAnalysisRes
 from qiskit_experiments.database_service.db_fitval import FitVal
 from .base_analysis import BaseAnalysis
 from .base_experiment import BaseExperiment
+from .configs import ExperimentConfig, AnalysisConfig
 from .analysis_result_data import AnalysisResultData
 from .experiment_data import ExperimentData
 from .composite import (
     ParallelExperiment,
     BatchExperiment,
     CompositeAnalysis,
-    CompositeExperimentData,
 )
+from .json import ExperimentEncoder, ExperimentDecoder

@@ -19,15 +19,14 @@ import warnings
 from typing import Optional
 import numpy as np
 
-from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, FitVal
+from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options, FitVal
 from qiskit_experiments.curve_analysis import plot_scatter, plot_errorbar
-from qiskit_experiments.matplotlib import requires_matplotlib
 
 
 class QuantumVolumeAnalysis(BaseAnalysis):
     r"""A class to analyze quantum volume experiments.
 
-    Overview
+    # section: overview
         Calculate the quantum volume of the analysed system.
         The quantum volume is determined by the largest successful circuit depth.
         A depth is successful if it has 'mean heavy-output probability' > 2/3 with confidence
@@ -38,24 +37,20 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         is the success probability.
     """
 
-    # pylint: disable = arguments-differ
-    def _run_analysis(
-        self,
-        experiment_data,
-        plot: bool = True,
-        ax: Optional["matplotlib.pyplot.AxesSubplot"] = None,
-    ):
-        """Run analysis on circuit data.
-        Args:
-            experiment_data (ExperimentData): the experiment data to analyze.
-            plot: If True generate a plot of fitted data.
-            ax: Optional, matplotlib axis to add plot to.
-        Returns:
-            tuple: A pair ``(result_data figures)`` where
-                   ``result_data`` is a list of
-                   :class:`AnalysisResultData` objects, and ``figures`` may be
-                   None, a single figure, or a list of figures.
+    @classmethod
+    def _default_options(cls) -> Options:
+        """Return default analysis options.
+
+        Analysis Options:
+            plot (bool): Set ``True`` to create figure for fit result.
+            ax(AxesSubplot): Optional. A matplotlib axis object to draw.
         """
+        options = super()._default_options()
+        options.plot = True
+        options.ax = None
+        return options
+
+    def _run_analysis(self, experiment_data):
         depth = experiment_data.experiment.num_qubits
         data = experiment_data.data()
         num_trials = len(data)
@@ -71,8 +66,8 @@ class QuantumVolumeAnalysis(BaseAnalysis):
 
         hop_result, qv_result = self._calc_quantum_volume(heavy_output_prob_exp, depth, num_trials)
 
-        if plot:
-            ax = self._format_plot(hop_result, ax=ax)
+        if self.options.plot:
+            ax = self._format_plot(hop_result, ax=self.options.ax)
             figures = [ax.get_figure()]
         else:
             figures = None
@@ -82,8 +77,10 @@ class QuantumVolumeAnalysis(BaseAnalysis):
     def _calc_ideal_heavy_output(probabilities_vector, depth):
         """
         Calculate the bit strings of the heavy output for the ideal simulation
+
         Args:
             ideal_data (dict): the simulation result of the ideal circuit
+
         Returns:
              list: the bit strings of the heavy output
         """
@@ -108,9 +105,11 @@ class QuantumVolumeAnalysis(BaseAnalysis):
     def _calc_exp_heavy_output_probability(data, heavy_outputs):
         """
         Calculate the probability of measuring heavy output string in the data
+
         Args:
             data (dict): the result of the circuit exectution
             heavy_outputs (list): the bit strings of the heavy output from the ideal simulation
+
         Returns:
             int: heavy output probability
         """
@@ -231,14 +230,13 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         return hop_result, qv_result
 
     @staticmethod
-    @requires_matplotlib
     def _format_plot(
         hop_result: AnalysisResultData, ax: Optional["matplotlib.pyplot.AxesSubplot"] = None
     ):
         """Format the QV plot
 
         Args:
-            hop_results: the heavy output probability analysis result.
+            hop_result: the heavy output probability analysis result.
             ax: matplotlib axis to add plot to.
 
         Returns:
@@ -251,7 +249,7 @@ class QuantumVolumeAnalysis(BaseAnalysis):
         hop_accumulative = np.cumsum(heavy_probs) / trial_list
         two_sigma = 2 * (hop_accumulative * (1 - hop_accumulative) / trial_list) ** 0.5
 
-        # Plot inidivual HOP as scatter
+        # Plot individual HOP as scatter
         ax = plot_scatter(
             trial_list,
             heavy_probs,

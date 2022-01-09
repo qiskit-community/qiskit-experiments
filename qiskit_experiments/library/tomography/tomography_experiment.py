@@ -14,11 +14,12 @@ Quantum Tomography experiment
 """
 
 import copy
-from typing import Union, Optional, Iterable, List, Tuple
+from typing import Union, Optional, Iterable, List, Tuple, Sequence
 from itertools import product
 import numpy as np
 from qiskit.circuit import QuantumCircuit, Instruction
 from qiskit.circuit.library import Permutation
+from qiskit.providers.backend import Backend
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 import qiskit.quantum_info as qi
 from qiskit_experiments.exceptions import QiskitError
@@ -28,29 +29,47 @@ from .tomography_analysis import TomographyAnalysis
 
 
 class TomographyExperiment(BaseExperiment):
-    """Base experiment for quantum state and process tomography"""
+    """Base experiment for quantum state and process tomography.
 
-    __analysis_class__ = TomographyAnalysis
+    # section: analysis_ref
+        :py:class:`TomographyAnalysis`
+    """
 
     @classmethod
-    def _default_experiment_options(cls):
-        return Options(basis_indices=None)
+    def _default_experiment_options(cls) -> Options:
+        """Default experiment options.
+
+        Experiment Options:
+            measurement_basis (:class:`~basis.BaseTomographyMeasurementBasis`): The
+                Tomography measurement basis to use for the experiment.
+                The default basis is the :class:`~basis.PauliMeasurementBasis` which
+                performs measurements in the Pauli Z, X, Y bases for each qubit
+                measurement.
+
+        """
+        options = super()._default_experiment_options()
+
+        options.basis_indices = None
+
+        return options
 
     def __init__(
         self,
         circuit: Union[QuantumCircuit, Instruction, BaseOperator],
+        backend: Optional[Backend] = None,
         measurement_basis: Optional[BaseTomographyMeasurementBasis] = None,
-        measurement_qubits: Optional[Iterable[int]] = None,
+        measurement_qubits: Optional[Sequence[int]] = None,
         preparation_basis: Optional[BaseTomographyPreparationBasis] = None,
-        preparation_qubits: Optional[Iterable[int]] = None,
+        preparation_qubits: Optional[Sequence[int]] = None,
         basis_indices: Optional[Iterable[Tuple[List[int], List[int]]]] = None,
-        qubits: Optional[Iterable[int]] = None,
+        qubits: Optional[Sequence[int]] = None,
     ):
         """Initialize a tomography experiment.
 
         Args:
             circuit: the quantum process circuit. If not a quantum circuit
                 it must be a class that can be appended to a quantum circuit.
+            backend: The backend to run the experiment on.
             measurement_basis: Tomography basis for measurements.
             measurement_qubits: Optional, the qubits to be measured. These should refer
                 to the logical qubits in the state circuit.
@@ -66,8 +85,8 @@ class TomographyExperiment(BaseExperiment):
         """
         # Initialize BaseExperiment
         if qubits is None:
-            qubits = circuit.num_qubits
-        super().__init__(qubits)
+            qubits = range(circuit.num_qubits)
+        super().__init__(qubits, analysis=TomographyAnalysis(), backend=backend)
 
         # Get the target tomography circuit
         if isinstance(circuit, QuantumCircuit):
@@ -128,7 +147,7 @@ class TomographyExperiment(BaseExperiment):
             analysis_options["measurement_basis"] = measurement_basis
         if preparation_basis:
             analysis_options["preparation_basis"] = preparation_basis
-        self.set_analysis_options(**analysis_options)
+        self.analysis.set_options(**analysis_options)
 
     def _metadata(self):
         metadata = super()._metadata()
@@ -136,7 +155,7 @@ class TomographyExperiment(BaseExperiment):
             metadata["target"] = copy.copy(self._target)
         return metadata
 
-    def circuits(self, backend=None):
+    def circuits(self):
 
         # Get qubits and clbits
         meas_qubits = self._meas_qubits or range(self.num_qubits)
@@ -205,8 +224,8 @@ class TomographyExperiment(BaseExperiment):
     @staticmethod
     def _permute_circuit(
         circuit: QuantumCircuit,
-        measurement_qubits: Optional[Iterable[int]] = None,
-        preparation_qubits: Optional[Iterable[int]] = None,
+        measurement_qubits: Optional[Sequence[int]] = None,
+        preparation_qubits: Optional[Sequence[int]] = None,
     ):
         """Permute circuit qubits.
 
@@ -248,7 +267,7 @@ class TomographyExperiment(BaseExperiment):
 
     @classmethod
     def _target_quantum_state(
-        cls, circuit: QuantumCircuit, measurement_qubits: Optional[Iterable[int]] = None
+        cls, circuit: QuantumCircuit, measurement_qubits: Optional[Sequence[int]] = None
     ):
         """Return the state tomography target"""
         # Check if circuit contains measure instructions
@@ -284,8 +303,8 @@ class TomographyExperiment(BaseExperiment):
     def _target_quantum_channel(
         cls,
         circuit: QuantumCircuit,
-        measurement_qubits: Optional[Iterable[int]] = None,
-        preparation_qubits: Optional[Iterable[int]] = None,
+        measurement_qubits: Optional[Sequence[int]] = None,
+        preparation_qubits: Optional[Sequence[int]] = None,
     ):
         """Return the process tomography target"""
         # Check if circuit contains measure instructions

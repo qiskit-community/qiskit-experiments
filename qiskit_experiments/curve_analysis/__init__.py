@@ -19,6 +19,9 @@ Curve Analysis (:mod:`qiskit_experiments.curve_analysis`)
 
 Classes
 =======
+
+These are the base class and internal data structures to implement a curve analysis.
+
 .. autosummary::
     :toctree: ../stubs/
 
@@ -27,9 +30,30 @@ Classes
     CurveData
     FitData
     ParameterRepr
+    FitOptions
+
+Standard Analysis
+=================
+
+These classes provide typical analysis functionality.
+These are expected to be reused in multiple experiments.
+By overriding default options from the class method :meth:`_default_analysis_options` of
+your experiment class, you can still tailor the standard analysis classes to your experiment.
+
+.. autosummary::
+    :toctree: ../stubs/
+    :template: autosummary/analysis.rst
+
+    DecayAnalysis
+    DumpedOscillationAnalysis
+    OscillationAnalysis
+    ResonanceAnalysis
+    ErrorAmplificationAnalysis
 
 Functions
 =========
+
+These are the helper functions to realize a part of curve fitting functionality.
 
 Curve Fitting
 *************
@@ -46,9 +70,14 @@ Fit Functions
     :toctree: ../stubs/
 
     fit_function.cos
+    fit_function.cos_decay
     fit_function.exponential_decay
     fit_function.gaussian
     fit_function.sin
+    fit_function.sin_decay
+    fit_function.bloch_oscillation_x
+    fit_function.bloch_oscillation_y
+    fit_function.bloch_oscillation_z
 
 Initial Guess
 *************
@@ -74,13 +103,22 @@ Visualization
     plot_scatter
 """
 from .curve_analysis import CurveAnalysis
-from .curve_data import CurveData, SeriesDef, FitData, ParameterRepr
+from .curve_data import CurveData, SeriesDef, FitData, ParameterRepr, FitOptions
 from .curve_fit import (
     curve_fit,
     multi_curve_fit,
     process_curve_data,
     process_multi_curve_data,
 )
-from .visualization import plot_curve_fit, plot_errorbar, plot_scatter
+from .visualization import plot_curve_fit, plot_errorbar, plot_scatter, FitResultPlotters
 from . import guess
 from . import fit_function
+
+# standard analysis
+from .standard_analysis import (
+    DecayAnalysis,
+    DumpedOscillationAnalysis,
+    OscillationAnalysis,
+    ResonanceAnalysis,
+    ErrorAmplificationAnalysis,
+)

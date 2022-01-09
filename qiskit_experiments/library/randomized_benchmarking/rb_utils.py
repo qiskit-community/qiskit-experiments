@@ -14,7 +14,7 @@
 RB Helper functions
 """
 
-from typing import Tuple, Dict, Optional, Iterable, List, Union
+from typing import Tuple, Dict, Optional, List, Union, Sequence
 import numpy as np
 from qiskit import QiskitError, QuantumCircuit
 from qiskit.providers.backend import Backend
@@ -29,8 +29,8 @@ class RBUtils:
 
     @staticmethod
     def get_error_dict_from_backend(
-        backend: Backend, qubits: Iterable[int]
-    ) -> Dict[Tuple[Iterable[int], str], float]:
+        backend: Backend, qubits: Sequence[int]
+    ) -> Dict[Tuple[Sequence[int], str], float]:
         """Attempts to extract error estimates for gates from the backend
         properties.
         Those estimates are used to assign weights for different gate types
@@ -61,8 +61,8 @@ class RBUtils:
 
     @staticmethod
     def count_ops(
-        circuit: QuantumCircuit, qubits: Optional[Iterable[int]] = None
-    ) -> Dict[Tuple[Iterable[int], str], int]:
+        circuit: QuantumCircuit, qubits: Optional[Sequence[int]] = None
+    ) -> Dict[Tuple[Sequence[int], str], int]:
         """Counts occurrences of each gate in the given circuit
 
         Args:
@@ -94,7 +94,7 @@ class RBUtils:
     @staticmethod
     def gates_per_clifford(
         ops_count: List,
-    ) -> Dict[Tuple[Iterable[int], str], float]:
+    ) -> Dict[Tuple[Sequence[int], str], float]:
         """
         Computes the average number of gates per clifford for each gate type
         in the input from raw count data coming from multiple circuits.
@@ -184,10 +184,10 @@ class RBUtils:
 
     @staticmethod
     def calculate_1q_epg(
-        epc_1_qubit: float,
-        qubits: Iterable[int],
+        epc_1_qubit: Union[FitVal, float],
+        qubits: Sequence[int],
         gate_error_ratio: Dict[str, float],
-        gates_per_clifford: Dict[Tuple[Iterable[int], str], float],
+        gates_per_clifford: Dict[Tuple[Sequence[int], str], float],
     ) -> Dict[int, Dict[str, float]]:
         r"""
         Convert error per Clifford (EPC) into error per gates (EPGs) of single qubit basis gates.
@@ -201,6 +201,10 @@ class RBUtils:
             A dictionary of the form (qubits, gate) -> value where value
             is the EPG for the given gate on the specified qubits
         """
+        epc_1_qubit_stderr = 0
+        if isinstance(epc_1_qubit, FitVal):
+            epc_1_qubit_stderr = epc_1_qubit.stderr
+            epc_1_qubit = epc_1_qubit.value
         epg = {(qubit,): {} for qubit in qubits}
         for qubit in qubits:
             error_sum = 0
@@ -211,15 +215,21 @@ class RBUtils:
                     found_gates.append(gate)
                     error_sum += gates_per_clifford[key] * value
             for gate in found_gates:
-                epg[(qubit,)][gate] = (gate_error_ratio[((qubit,), gate)] * epc_1_qubit) / error_sum
+                epg_value = (gate_error_ratio[((qubit,), gate)] * epc_1_qubit) / error_sum
+                epg_stderr = (gate_error_ratio[((qubit,), gate)] * epc_1_qubit_stderr) / error_sum
+                epg_fitval = FitVal(
+                    value=epg_value,
+                    stderr=epg_stderr,
+                )
+                epg[(qubit,)][gate] = epg_fitval
         return epg
 
     @staticmethod
     def calculate_2q_epg(
-        epc_2_qubit: float,
-        qubits: Iterable[int],
+        epc_2_qubit: Union[FitVal, float],
+        qubits: Sequence[int],
         gate_error_ratio: Dict[str, float],
-        gates_per_clifford: Dict[Tuple[Iterable[int], str], float],
+        gates_per_clifford: Dict[Tuple[Sequence[int], str], float],
         epg_1_qubit: Optional[List[Union[DbAnalysisResultV1, AnalysisResultData]]] = None,
         gate_2_qubit_type: Optional[str] = "cx",
     ) -> Dict[int, Dict[str, float]]:
@@ -243,6 +253,10 @@ class RBUtils:
         Raises:
             QiskitError: if a non 2-qubit gate was given
         """
+        epc_2_qubit_stderr = 0
+        if isinstance(epc_2_qubit, FitVal):
+            epc_2_qubit_stderr = epc_2_qubit.stderr
+            epc_2_qubit = epc_2_qubit.value
         epg_2_qubit = {}
         qubit_pairs = []
 
@@ -288,6 +302,11 @@ class RBUtils:
             n_gate_2q = gates_per_clifford.get(
                 (qubit_pair, gate_2_qubit_type), 0
             ) + gates_per_clifford.get((inverse_qubit_pair, gate_2_qubit_type), 0)
-            epg = 3 / 4 * (1 - alpha_c_2q) / n_gate_2q
-            epg_2_qubit[qubit_pair] = {gate_2_qubit_type: epg}
+            epg_value = 3 / 4 * (1 - alpha_c_2q) / n_gate_2q
+            epg_stderr = epc_2_qubit_stderr / (n_gate_2q * alpha_c_1q)
+            epg_fitval = FitVal(
+                value=epg_value,
+                stderr=epg_stderr,
+            )
+            epg_2_qubit[qubit_pair] = {gate_2_qubit_type: epg_fitval}
         return epg_2_qubit

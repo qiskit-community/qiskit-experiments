@@ -15,9 +15,11 @@ Curve data classes.
 """
 
 import dataclasses
-from typing import Any, Dict, Callable, Union, List, Tuple, Optional
+from typing import Any, Dict, Callable, Union, List, Tuple, Optional, Iterable
+
 import numpy as np
 
+from qiskit_experiments.exceptions import AnalysisError
 from qiskit_experiments.framework import FitVal
 
 
@@ -43,6 +45,12 @@ class SeriesDef:
     # Whether to plot fit uncertainty for this line.
     plot_fit_uncertainty: bool = False
 
+    # Latex description of this fit model
+    model_description: Optional[str] = None
+
+    # Index of canvas if the result figure is multi-panel
+    canvas: Optional[int] = None
+
 
 @dataclasses.dataclass(frozen=True)
 class CurveData:
@@ -59,6 +67,9 @@ class CurveData:
 
     # Error bar
     y_err: np.ndarray
+
+    # Shots number
+    shots: np.ndarray
 
     # Maping of data index to series index
     data_index: Union[np.ndarray, int]
@@ -131,3 +142,202 @@ class ParameterRepr:
 
     # Unit
     unit: Optional[str] = None
+
+
+class OptionsDict(dict):
+    """General extended dictionary for fit options.
+
+    This dictionary provides several extra features.
+
+    - A value setting method which validates the dict key and value.
+    - Dictionary keys are limited to those specified in the constructor as ``parameters``.
+    """
+
+    def __init__(
+        self,
+        parameters: List[str],
+        defaults: Optional[Union[Iterable[Any], Dict[str, Any]]] = None,
+    ):
+        """Create new dictionary.
+
+        Args:
+            parameters: List of parameter names used in the fit model.
+            defaults: Default values.
+
+        Raises:
+            AnalysisError: When defaults is provided as array-like but the number of
+                element doesn't match with the number of fit parameters.
+        """
+        if defaults is not None:
+            if not isinstance(defaults, dict):
+                if len(defaults) != len(parameters):
+                    raise AnalysisError(
+                        f"Default parameter {defaults} is provided with array-like "
+                        "but the number of element doesn't match. "
+                        f"This fit requires {len(parameters)} parameters."
+                    )
+                defaults = dict(zip(parameters, defaults))
+
+            full_options = {p: self.format(defaults.get(p, None)) for p in parameters}
+        else:
+            full_options = {p: None for p in parameters}
+
+        super().__init__(**full_options)
+
+    def __setitem__(self, key, value):
+        """Set value with validations.
+
+        Raises:
+            AnalysisError: When key is not previously defined.
+        """
+        if key not in self:
+            raise AnalysisError(f"Parameter {key} is not defined in this fit model.")
+        super().__setitem__(key, self.format(value))
+
+    def __hash__(self):
+        return hash(tuple(sorted(self.items())))
+
+    def set_if_empty(self, **kwargs):
+        """Set value to the dictionary if not assigned.
+
+        Args:
+              kwargs: Key and new value to assign.
+        """
+        for key, value in kwargs.items():
+            if self.get(key) is None:
+                self.__setitem__(key, value)
+
+    @staticmethod
+    def format(value: Any) -> Any:
+        """Format dictionary value.
+
+        Subcasses may override this method to provide their own validation.
+
+        Args:
+            value: New value to assign.
+
+        Returns:
+            Formatted value.
+        """
+        return value
+
+
+class InitialGuesses(OptionsDict):
+    """Dictionary providing a float validation for initial guesses."""
+
+    @staticmethod
+    def format(value: Any) -> Optional[float]:
+        """Validate that value is float a float or None.
+
+        Args:
+            value: New value to assign.
+
+        Returns:
+            Formatted value.
+
+        Raises:
+            AnalysisError: When value is not a float or None.
+        """
+        if value is None:
+            return None
+
+        try:
+            return float(value)
+        except (TypeError, ValueError) as ex:
+            raise AnalysisError(f"Input value {value} is not valid initial guess. ") from ex
+
+
+class Boundaries(OptionsDict):
+    """Dictionary providing a validation for boundaries."""
+
+    @staticmethod
+    def format(value: Any) -> Optional[Tuple[float, float]]:
+        """Validate if value is a min-max value tuple.
+
+        Args:
+            value: New value to assign.
+
+        Returns:
+            Formatted value.
+
+        Raises:
+            AnalysisError: When value is invalid format.
+        """
+        if value is None:
+            return None
+
+        try:
+            minv, maxv = value
+            if minv >= maxv:
+                raise AnalysisError(
+                    f"The first value is greater than the second value {minv} >= {maxv}."
+                )
+            return float(minv), float(maxv)
+        except (TypeError, ValueError) as ex:
+            raise AnalysisError(f"Input boundary {value} is not a min-max value tuple.") from ex
+
+
+# pylint: disable=invalid-name
+class FitOptions:
+    """Collection of fitting options.
+
+    This class is initialized with a list of parameter names used in the fit model
+    and corresponding default values provided by users.
+
+    This class is hashable, and generates fitter keyword arguments.
+    """
+
+    def __init__(
+        self,
+        parameters: List[str],
+        default_p0: Optional[Union[Iterable[float], Dict[str, float]]] = None,
+        default_bounds: Optional[Union[Iterable[Tuple], Dict[str, Tuple]]] = None,
+        **extra,
+    ):
+        # These are private members so that user cannot directly override values
+        # without implicitly implemented validation logic. No setter will be provided.
+        self.__p0 = InitialGuesses(parameters, default_p0)
+        self.__bounds = Boundaries(parameters, default_bounds)
+        self.__extra = extra
+
+    def __hash__(self):
+        return hash((self.__p0, self.__bounds, tuple(sorted(self.__extra.items()))))
+
+    def __eq__(self, other):
+        if isinstance(other, FitOptions):
+            checks = [
+                self.__p0 == other.__p0,
+                self.__bounds == other.__bounds,
+                self.__extra == other.__extra,
+            ]
+            return all(checks)
+        return False
+
+    def add_extra_options(self, **kwargs):
+        """Add more fitter options."""
+        self.__extra.update(kwargs)
+
+    def copy(self):
+        """Create copy of this option."""
+        return FitOptions(
+            parameters=list(self.__p0.keys()),
+            default_p0=dict(self.__p0),
+            default_bounds=dict(self.__bounds),
+            **self.__extra,
+        )
+
+    @property
+    def p0(self) -> InitialGuesses:
+        """Return initial guess dictionary."""
+        return self.__p0
+
+    @property
+    def bounds(self) -> Boundaries:
+        """Return bounds dictionary."""
+        return self.__bounds
+
+    @property
+    def options(self):
+        """Generate keyword arguments of the curve fitter."""
+        bounds = {k: v if v is not None else (-np.inf, np.inf) for k, v in self.__bounds.items()}
+        return {"p0": dict(self.__p0), "bounds": bounds, **self.__extra}

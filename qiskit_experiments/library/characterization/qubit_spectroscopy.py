@@ -12,7 +12,7 @@
 
 """Spectroscopy experiment class."""
 
-from typing import List, Optional, Tuple, Union
+from typing import Iterable, Optional, Tuple
 
 import numpy as np
 import qiskit.pulse as pulse
@@ -20,69 +20,72 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Gate, Parameter
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
-from qiskit.providers.options import Options
 from qiskit.qobj.utils import MeasLevel
-from qiskit.utils import apply_prefix
 
-from qiskit_experiments.framework import BaseExperiment
-from qiskit_experiments.curve_analysis import ParameterRepr
-from qiskit_experiments.library.characterization.resonance_analysis import ResonanceAnalysis
+from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.curve_analysis import ResonanceAnalysis
 
 
 class QubitSpectroscopy(BaseExperiment):
     """Class that runs spectroscopy by sweeping the qubit frequency.
 
-    The circuits produced by spectroscopy, i.e.
+    # section: overview
+        The circuits produced by spectroscopy, i.e.
 
-    .. parsed-literal::
+        .. parsed-literal::
 
-                   ┌────────────┐ ░ ┌─┐
-              q_0: ┤ Spec(freq) ├─░─┤M├
-                   └────────────┘ ░ └╥┘
-        measure: 1/══════════════════╩═
-                                     0
+                       ┌────────────┐ ░ ┌─┐
+                  q_0: ┤ Spec(freq) ├─░─┤M├
+                       └────────────┘ ░ └╥┘
+            measure: 1/══════════════════╩═
+                                         0
 
-    have a spectroscopy pulse-schedule embedded in a spectroscopy gate. The
-    pulse-schedule consists of a set frequency instruction followed by a GaussianSquare
-    pulse. A list of circuits is generated, each with a different frequency "freq".
+        have a spectroscopy pulse-schedule embedded in a spectroscopy gate. The
+        pulse-schedule consists of a set frequency instruction followed by a GaussianSquare
+        pulse. A list of circuits is generated, each with a different frequency "freq".
+
+    # section: analysis_ref
+        :py:class:`~qiskit_experiments.curve_analysis.ResonanceAnalysis`
     """
 
-    __analysis_class__ = ResonanceAnalysis
     __spec_gate_name__ = "Spec"
 
     @classmethod
     def _default_run_options(cls) -> Options:
         """Default options values for the experiment :meth:`run` method."""
-        return Options(
-            meas_level=MeasLevel.KERNELED,
-            meas_return="single",
-        )
+        options = super()._default_run_options()
+
+        options.meas_level = MeasLevel.KERNELED
+        options.meas_return = "single"
+
+        return options
 
     @classmethod
     def _default_experiment_options(cls) -> Options:
-        """Default option values used for the spectroscopy pulse."""
-        return Options(
-            amp=0.1,
-            duration=1024,
-            sigma=256,
-            width=0,
-        )
+        """Default option values used for the spectroscopy pulse.
 
-    @classmethod
-    def _default_analysis_options(cls) -> Options:
-        """Default analysis options."""
-        options = super()._default_analysis_options()
-        options.result_parameters = [ParameterRepr("freq", "f01", "Hz")]
-        options.normalization = True
-        options.xval_unit = "Hz"
+        Experiment Options:
+            amp (float): The amplitude of the spectroscopy pulse. Defaults to 0.1.
+            duration (int): The duration of the spectroscopy pulse. Defaults to 1024 samples.
+            sigma (float): The standard deviation of the flanks of the spectroscopy pulse.
+                Defaults to 256.
+            width (int): The width of the flat-top part of the GaussianSquare pulse.
+                Defaults to 0.
+        """
+        options = super()._default_experiment_options()
+
+        options.amp = 0.1
+        options.duration = 1024
+        options.sigma = 256
+        options.width = 0
 
         return options
 
     def __init__(
         self,
         qubit: int,
-        frequencies: Union[List[float], np.array],
-        unit: Optional[str] = "Hz",
+        frequencies: Iterable[float],
+        backend: Optional[Backend] = None,
         absolute: bool = True,
     ):
         """
@@ -96,35 +99,29 @@ class QubitSpectroscopy(BaseExperiment):
 
         Args:
             qubit: The qubit on which to run spectroscopy.
-            frequencies: The frequencies to scan in the experiment.
-            unit: The unit in which the user specifies the frequencies. Can be one
-                of 'Hz', 'kHz', 'MHz', 'GHz'. Internally, all frequencies will be converted
-                to 'Hz'.
+            frequencies: The frequencies to scan in the experiment, in Hz.
+            backend: Optional, the backend to run the experiment on.
             absolute: Boolean to specify if the frequencies are absolute or relative to the
                 qubit frequency in the backend.
 
         Raises:
-            QiskitError: if there are less than three frequency shifts or if the unit is not known.
+            QiskitError: if there are less than three frequency shifts.
 
         """
+        super().__init__([qubit], analysis=ResonanceAnalysis(), backend=backend)
+
         if len(frequencies) < 3:
             raise QiskitError("Spectroscopy requires at least three frequencies.")
 
-        if unit == "Hz":
-            self._frequencies = frequencies
-        else:
-            self._frequencies = [apply_prefix(freq, unit) for freq in frequencies]
-
-        super().__init__([qubit])
-
+        self._frequencies = frequencies
         self._absolute = absolute
 
         if not self._absolute:
-            self.set_analysis_options(xlabel="Frequency shift")
+            self.analysis.set_options(xlabel="Frequency shift")
         else:
-            self.set_analysis_options(xlabel="Frequency")
+            self.analysis.set_options(xlabel="Frequency")
 
-        self.set_analysis_options(ylabel="Signal [arb. unit]")
+        self.analysis.set_options(ylabel="Signal [arb. unit]")
 
     def _spec_gate_schedule(
         self, backend: Optional[Backend] = None
@@ -154,14 +151,11 @@ class QubitSpectroscopy(BaseExperiment):
 
         return circuit
 
-    def circuits(self, backend: Optional[Backend] = None):
+    def circuits(self):
         """Create the circuit for the spectroscopy experiment.
 
         The circuits are based on a GaussianSquare pulse and a frequency_shift instruction
         encapsulated in a gate.
-
-        Args:
-            backend: A backend object.
 
         Returns:
             circuits: The circuits that will run the spectroscopy experiment.
@@ -170,24 +164,34 @@ class QubitSpectroscopy(BaseExperiment):
             QiskitError:
                 - If absolute frequencies are used but no backend is given.
                 - If the backend configuration does not define dt.
+            AttributeError: If backend to run on does not contain 'dt' configuration.
         """
-        if backend is None and self._absolute:
+        if self.backend is None and self._absolute:
             raise QiskitError("Cannot run spectroscopy absolute to qubit without a backend.")
 
         # Create a template circuit
-        sched, freq_param = self._spec_gate_schedule(backend)
+        sched, freq_param = self._spec_gate_schedule(self.backend)
         circuit = self._template_circuit(freq_param)
         circuit.add_calibration("Spec", (self.physical_qubits[0],), sched, params=[freq_param])
+
+        # Get dt
+        try:
+            dt_factor = getattr(self.backend.configuration(), "dt")
+        except AttributeError as no_dt:
+            raise AttributeError("dt parameter is missing in backend configuration") from no_dt
+
+        # Get center frequency from backend
+        if self._absolute:
+            center_freq = self.backend.defaults().qubit_freq_est[self.physical_qubits[0]]
+        else:
+            center_freq = None
 
         # Create the circuits to run
         circs = []
         for freq in self._frequencies:
-
             freq_shift = freq
             if self._absolute:
-                center_freq = backend.defaults().qubit_freq_est[self.physical_qubits[0]]
                 freq_shift -= center_freq
-
             freq_shift = np.round(freq_shift, decimals=3)
 
             assigned_circ = circuit.assign_parameters({freq_param: freq_shift}, inplace=False)
@@ -201,12 +205,8 @@ class QubitSpectroscopy(BaseExperiment):
                 "sigma": self.experiment_options.sigma,
                 "width": self.experiment_options.width,
                 "schedule": str(sched),
+                "dt": dt_factor,
             }
-
-            try:
-                assigned_circ.metadata["dt"] = getattr(backend.configuration(), "dt")
-            except AttributeError as no_dt:
-                raise QiskitError("Dt parameter is missing in backend configuration") from no_dt
 
             circs.append(assigned_circ)
 
