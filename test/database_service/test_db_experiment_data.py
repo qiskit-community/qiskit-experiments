@@ -39,6 +39,10 @@ from qiskit_experiments.database_service.exceptions import (
     DbExperimentEntryNotFound,
     DbExperimentEntryExists,
 )
+from qiskit_experiments.database_service.db_experiment_data import (
+    AnalysisStatus,
+    ExperimentStatus,
+)
 
 
 class TestDbExperimentData(QiskitExperimentsTestCase):
@@ -549,9 +553,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.add_data(job1)
         exp_data.add_data(job2)
         exp_data.add_analysis_callback(lambda *args, **kwargs: event.wait(timeout=15))
-        self.assertEqual("RUNNING", exp_data.status())
-        self.assertEqual("RUNNING", exp_data.job_status())
-        self.assertEqual("QUEUED", exp_data.analysis_status())
+        self.assertEqual(ExperimentStatus.RUNNING, exp_data.status())
+        self.assertEqual(JobStatus.RUNNING, exp_data.job_status())
+        self.assertEqual(AnalysisStatus.QUEUED, exp_data.analysis_status())
 
         # Cleanup
         with self.assertLogs("qiskit_experiments", "WARNING"):
@@ -571,7 +575,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         with self.assertLogs(logger="qiskit_experiments.database_service", level="WARN") as cm:
             exp_data.add_data([job1, job2])
         self.assertIn("Adding a job from a backend", ",".join(cm.output))
-        self.assertEqual("ERROR", exp_data.status())
+        self.assertEqual(ExperimentStatus.ERROR, exp_data.status())
 
     def test_status_post_processing(self):
         """Test experiment status during post processing."""
@@ -586,7 +590,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.add_data(job)
         exp_data.add_analysis_callback((lambda *args, **kwargs: event.wait(timeout=15)))
         status = exp_data.status()
-        self.assertEqual("POST_PROCESSING", status)
+        self.assertEqual(ExperimentStatus.POST_PROCESSING, status)
 
     def test_status_cancelled_analysis(self):
         """Test experiment status during post processing."""
@@ -604,7 +608,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.add_analysis_callback((lambda *args, **kwargs: event.wait(timeout=20)))
         exp_data.cancel_analysis()
         status = exp_data.status()
-        self.assertEqual("CANCELLED", status)
+        self.assertEqual(ExperimentStatus.CANCELLED, status)
 
     def test_status_post_processing_error(self):
         """Test experiment status when post processing failed."""
@@ -622,7 +626,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             exp_data.add_data(job)
             exp_data.add_analysis_callback(_post_processing)
             exp_data.block_for_results()
-        self.assertEqual("ERROR", exp_data.status())
+        self.assertEqual(ExperimentStatus.ERROR, exp_data.status())
         self.assertIn("Kaboom!", ",".join(cm.output))
 
     def test_status_done(self):
@@ -635,7 +639,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.add_data(job)
         exp_data.add_analysis_callback(lambda *args, **kwargs: time.sleep(1))
         exp_data.block_for_results()
-        self.assertEqual("DONE", exp_data.status())
+        self.assertEqual(ExperimentStatus.DONE, exp_data.status())
 
     def test_set_tags(self):
         """Test updating experiment tags."""
@@ -697,7 +701,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             exp_data.add_analysis_callback(_post_processing)
             exp_data.add_data(job2)
             exp_data.block_for_results()
-        self.assertEqual("ERROR", exp_data.status())
+        self.assertEqual(ExperimentStatus.ERROR, exp_data.status())
         self.assertIn("Kaboom", ",".join(cm.output))
         self.assertTrue(re.match(r".*5678.*Kaboom!", exp_data.errors(), re.DOTALL))
 
