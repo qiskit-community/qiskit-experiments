@@ -16,7 +16,7 @@ import warnings
 import logging
 import dataclasses
 import uuid
-from typing import Optional, List, Any, Union, Callable, Dict
+from typing import Optional, List, Any, Union, Callable, Dict, Tuple
 import copy
 from concurrent import futures
 from functools import wraps
@@ -74,6 +74,7 @@ class Callback:
 
     func: Callable
     kwargs: Dict = dataclasses.field(default_factory=dict)
+    name: str = ""
     callback_id: str = ""
     status: JobStatus = JobStatus.INITIALIZING
     error_msg: Optional[str] = None
@@ -164,9 +165,9 @@ class DbExperimentDataV1(DbExperimentData):
 
         self._jobs = ThreadSafeOrderedDict(job_ids or [])
         self._job_futures = ThreadSafeOrderedDict()
-        self._callback_executor = futures.ThreadPoolExecutor(max_workers=1)
         self._callbacks = ThreadSafeOrderedDict()
         self._callback_futures = ThreadSafeOrderedDict()
+        self._callback_executor = futures.ThreadPoolExecutor(max_workers=1)
 
         self._data = ThreadSafeList()
         self._figures = ThreadSafeOrderedDict(figure_names or [])
@@ -282,14 +283,17 @@ class DbExperimentDataV1(DbExperimentData):
     def _add_job_data(
         self,
         job: Union[Job, BaseJob],
-    ) -> None:
+    ) -> Tuple[str, JobStatus]:
         """Wait for a job to finish and add job result data.
 
         Args:
             job: the Job to wait for and add data from.
 
+        Returns:
+            A tuple of the job id and final job status.
+
         Raises:
-            Exception: If any of the jobs failed.
+            Exception: If an error occured when adding job data.
         """
         jid = job.job_id()
         try:
@@ -297,24 +301,21 @@ class DbExperimentDataV1(DbExperimentData):
             status = job.status()
             if status not in JOB_FINAL_STATES:
                 LOG.warning("Job returned result with non-final state status [jid: %s].", jid)
-
             if status == JobStatus.CANCELLED:
-                LOG.warning("Job data not added for cancelled job [jid: %s]", jid)
+                LOG.warning("Job was cancelled before completion [jid: %s]", jid)
             elif status == JobStatus.ERROR:
-                LOG.warning(
+                LOG.error(
                     "Job data not added for errorred job [jid: %s]" "\nError message: %s",
                     jid,
                     job.error_message(),
                 )
             else:
                 self._add_result_data(job_result)
-                LOG.info("Job data added [jid: %s]", jid)
-
-        except Exception:  # pylint: disable=broad-except
-            LOG.warning(
-                "Job failed [jid: %s]:\nTraceback: %s", job.job_id(), traceback.format_exc()
-            )
-            raise
+                LOG.debug("Job data added [jid: %s]", jid)
+            return jid, status
+        except Exception as ex:  # pylint: disable=broad-except
+            LOG.warning("Addind data from job failed [jid: %s]", job.job_id())
+            raise ex
 
     def add_analysis_callback(self, callback: Callable, **kwargs: Any):
         """Add analysis callback for running after experiment data jobs are finished.
@@ -335,35 +336,31 @@ class DbExperimentDataV1(DbExperimentData):
         """
         with self._job_futures.lock and self._callback_futures.lock:
             # Create callback dataclass
-            cid = uuid.uuid4().hex
-            self._callbacks[cid] = Callback(callback, kwargs=kwargs, callback_id=cid)
+            cid = uuid.uuid4()
+            self._callbacks[cid] = Callback(
+                callback,
+                kwargs=kwargs,
+                name=callback.__name__,
+                callback_id=cid,
+                status=JobStatus.QUEUED,
+            )
 
             # Get futures to wait for before running callback
             if self._callback_futures:
+                # If callback futures are present wait for all previous callback
+                # futures to complete before running the latest one
                 futs = self._callback_futures.values()
             else:
-                futs = self._job_futures.values()
+                # Create a dummy future to wait for jobs to finish.
+                # This allows subsequent callback futures to be cancelled as they
+                # will be queued by the ThreadPoolExecutor while this future
+                # is still running
+                futs = [self._callback_executor.submit(futures.wait, self._job_futures.values())]
 
             # Add run callback future
             self._callback_futures[cid] = self._callback_executor.submit(
                 self._run_callback, cid, futs
             )
-
-    def cancel_callbacks(self) -> None:
-        """Cancel any queued callbacks.
-
-        .. note::
-            A currently running callback cannot be cancelled.
-        """
-        with self._callback_futures.lock:
-            for cid, fut in self._callback_futures.items():
-                if fut.done():
-                    continue
-                if fut.cancel():
-                    LOG.info("Cancelled queued callback [cid: %s].", cid)
-                    self._callbacks[cid].status = JobStatus.CANCELLED
-                else:
-                    LOG.warning("Unable to cancel running callback [cid: %s].", cid)
 
     def _run_callback(self, callback_id: str, futs: Optional[List[futures.Future]] = None):
         """Run a callback after specified futures have finished."""
@@ -371,16 +368,16 @@ class DbExperimentDataV1(DbExperimentData):
             raise ValueError(f"No callback with id {callback_id}")
 
         callback = self._callbacks[callback_id]
+        self._callbacks[callback_id].status = JobStatus.RUNNING
+        LOG.debug("Running callback [cid: %s]: %s", callback_id, callback.name)
+        if not callback.func:
+            raise ValueError(f"Callback function missing [cid: {callback_id}]")
 
-        # Wait for previous futures to finish_
-        LOG.debug("Waiting to run callback [cid %s]", callback_id)
-        self._callbacks[callback_id].status = JobStatus.QUEUED
+        # Wait for previous futures to finish
         if futs:
             futures.wait(futs)
 
         # Run callback function
-        LOG.debug("Running callback [cid: %s]", callback_id)
-        self._callbacks[callback_id].status = JobStatus.RUNNING
         try:
             callback.func(self, **callback.kwargs)
             self._callbacks[callback_id].status = JobStatus.DONE
@@ -940,16 +937,53 @@ class DbExperimentDataV1(DbExperimentData):
         """Return a list of jobs for the experiment"""
         return self._jobs.values()
 
-    def cancel_jobs(self) -> None:
-        """Cancel any running jobs."""
+    def cancel_jobs(self) -> bool:
+        """Cancel any running jobs.
+
+        Returns:
+            True if all jobs successfully cancelled, otherwise false.
+        """
+        cancelled = True
         with self._jobs.lock:
             for job in self._jobs.values():
                 if job and job.status() not in JOB_FINAL_STATES:
                     try:
                         job.cancel()
-                        LOG.info("Cancelled job %s.", job.job_id())
+                        LOG.info("Cancelled job [jid: %s]", job.job_id())
                     except Exception as err:  # pylint: disable=broad-except
-                        LOG.warning("Unable to cancel job %s: %s", job.job_id(), err)
+                        cancelled = False
+                        LOG.warning("Unable to cancel job [jid: %s]:\n%s", job.job_id(), err)
+        return cancelled
+
+    def cancel_callbacks(self) -> None:
+        """Cancel any queued callbacks.
+
+        .. note::
+            A currently running callback cannot be cancelled.
+        """
+        cancelled = True
+        with self._callback_futures.lock:
+            for cid, fut in self._callback_futures.items():
+                if fut.done():
+                    continue
+                if fut.cancel():
+                    self._callbacks[cid].status = JobStatus.CANCELLED
+                    LOG.info("Cancelled callback [cid: %s]", cid)
+                else:
+                    cancelled = False
+                    LOG.warning("Unable to cancel callback [cid: %s]", cid)
+        return cancelled
+
+    def cancel(self) -> bool:
+        """Attempt to cancel any running jobs and queued analysis callbacks.
+
+        .. note::
+            A running analysis callback cannot be cancelled.
+
+        Returns:
+            True if all jobs and callbacks successfully cancelled, otherwise false.
+        """
+        return self.cancel_jobs() and self.cancel_callbacks()
 
     def block_for_results(self, timeout: Optional[float] = None) -> "DbExperimentDataV1":
         """Block until all pending jobs and analysis callbacks finish.
@@ -969,45 +1003,73 @@ class DbExperimentDataV1(DbExperimentData):
 
     def _wait_for_jobs(self, timeout: Optional[float] = None):
         """Wait for jobs to finish running"""
-        try:
-            LOG.debug("Waiting for all jobs to finish [eid: %s].", self.experiment_id)
-            waited = futures.wait(self._job_futures.values(), timeout=timeout)
-            if waited.not_done:
-                raise futures.TimeoutError
-            LOG.debug("All jobs finished [eid: %s].", self.experiment_id)
-        except futures.TimeoutError:
-            LOG.warning(
-                "Waiting for jobs timed out before completion [eid: %s].", self.experiment_id
+        waited = futures.wait(self._job_futures.values(), timeout=timeout)
+
+        # Log jobs still running after timeout
+        if waited.not_done:
+            LOG.info(
+                "Waiting for jobs timed out before all jobs completed [eid: %s].",
+                self.experiment_id,
             )
-        except futures.CancelledError:
-            LOG.warning("Jobs were cancelled before completion [eid: %s].", self.experiment_id)
+
+        # Check for jobs that were cancelled or errorred
+        excepts = ""
+        for fut in waited.done:
+            ex = fut.exception()
+            if ex:
+                excepts += "\n".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
+            elif fut.cancelled():
+                LOG.debug(
+                    "Job futures were cancelled before completion [eid: %s]", self.experiment_id
+                )
+        if excepts:
+            LOG.error("Job futures raised exceptions [eid: %s]:%s", self.experiment_id, excepts)
 
     def _wait_for_callbacks(self, timeout: Optional[float] = None):
         """Wait for analysis callbacks to finish"""
-        try:
-            LOG.debug("Waiting for all callbacks to finish [eid: %s]", self.experiment_id)
-            waited = futures.wait(self._callback_futures.values(), timeout=timeout)
-            if waited.not_done:
-                raise futures.TimeoutError
-            LOG.debug("All callbacks finished [eid: %s]", self.experiment_id)
-        except futures.TimeoutError:
-            LOG.warning("Waiting for callbacks timed out before completion.")
-        except futures.CancelledError:
-            LOG.warning("Callbacks were cancelled before completion.")
+        waited = futures.wait(self._callback_futures.values(), timeout=timeout)
+        # Log jobs still running after timeout
+        if waited.not_done:
+            LOG.info(
+                "Waiting for callbacks timed out before all callbacks completed [eid: %s].",
+                self.experiment_id,
+            )
+
+        # Check for jobs that were cancelled or errorred
+        excepts = ""
+        for fut in waited.done:
+            ex = fut.exception()
+            if ex:
+                excepts += "\n".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
+            elif fut.cancelled():
+                LOG.debug(
+                    "Analysis callbacks were cancelled before completion [eid: %s]",
+                    self.experiment_id,
+                )
+        if excepts:
+            LOG.error(
+                "Analysis callbacks raised exceptions [eid: %s]:%s", self.experiment_id, excepts
+            )
 
     def _removed_done_futures(self):
         """Remove futures that have finished"""
-        with self._callback_futures.lock and self._job_futures.lock:
-            running_callbacks = [
-                (cid, fut) for cid, fut in self._callback_futures.items() if not fut.done()
-            ]
-            self._callback_futures = ThreadSafeOrderedDict(running_callbacks)
 
-            running_jobs = [(jid, fut) for jid, fut in self._job_futures.items() if not fut.done()]
-            self._job_futures = ThreadSafeOrderedDict(running_jobs)
+        def _keep_future(fut):
+            return not fut.done() or fut.cancelled() or fut.exception()
+
+        with self._callback_futures.lock and self._job_futures.lock:
+            not_done_callbacks = [
+                (cid, fut) for cid, fut in self._callback_futures.items() if _keep_future(fut)
+            ]
+            self._callback_futures = ThreadSafeOrderedDict(not_done_callbacks)
+
+            not_done_jobs = [
+                (jid, fut) for jid, fut in self._job_futures.items() if _keep_future(fut)
+            ]
+            self._job_futures = ThreadSafeOrderedDict(not_done_jobs)
 
     def status(self) -> str:
-        """Return the data processing status.
+        """Return the experiment status.
 
         If the experiment consists of multiple jobs, the returned status is mapped
         in the following order:
@@ -1090,6 +1152,7 @@ class DbExperimentDataV1(DbExperimentData):
                 if job:
                     statuses.add(job.status())
 
+        # If any jobs are in non-DONE state return that state
         for stat in [
             JobStatus.ERROR,
             JobStatus.CANCELLED,
@@ -1097,7 +1160,6 @@ class DbExperimentDataV1(DbExperimentData):
             JobStatus.QUEUED,
             JobStatus.VALIDATING,
             JobStatus.INITIALIZING,
-            JobStatus.DONE,
         ]:
             if stat in statuses:
                 return stat.name
@@ -1138,12 +1200,8 @@ class DbExperimentDataV1(DbExperimentData):
 
         return JobStatus.DONE.name
 
-    def errors(self) -> str:
-        """Return errors encountered.
-
-        Returns:
-            Experiment errors.
-        """
+    def job_errors(self) -> str:
+        """Return any errors encountered in job execution."""
         errors = []
 
         # Get any job errors
@@ -1155,12 +1213,46 @@ class DbExperimentDataV1(DbExperimentData):
                     error_msg = ""
                 errors.append(f"\n[jid: {job.job_id()}]: {error_msg}")
 
-        # Get any callback errors
-        for callback in self._callbacks.values():
-            if callback.status == JobStatus.ERROR:
-                errors.append(f"\n[cid: {callback.callback_id}]: {callback.error_msg}")
-
+        # Get any job futures errors:
+        for jid, fut in self._job_futures.items():
+            if fut and fut.exception():
+                ex = fut.exception()
+                errors.append(
+                    f"[jid: {jid}]"
+                    "\n".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
+                )
         return "".join(errors)
+
+    def callback_errors(self) -> str:
+        """Return any errors encountered during analysis callbacks."""
+        errors = []
+
+        # Get any callback errors
+        for cid, callback in self._callbacks.items():
+            if callback.status == JobStatus.ERROR:
+                errors.append(f"\n[cid: {cid}]: {callback.error_msg}")
+
+        # Get any callback futures errors:
+        for cid, fut in self._callback_futures.items():
+            ex = fut.exception()
+            if fut.exception():
+                errors.append(
+                    f"[cid: {cid}]"
+                    "\n".join(traceback.format_exception(type(ex), ex, ex.__traceback__))
+                )
+        return "".join(errors)
+
+    def errors(self) -> str:
+        """Return errors encountered during job and callback execution.
+
+        .. note::
+            To display only job or callback errors use the
+            :meth:`job_errors` or :meth:`callback_errors` methods.
+
+        Returns:
+            Experiment errors.
+        """
+        return self.job_errors() + self.callback_errors()
 
     def copy(self, copy_results: bool = True) -> "DbExperimentDataV1":
         """Make a copy of the experiment data with a new experiment ID.
@@ -1180,6 +1272,9 @@ class DbExperimentDataV1(DbExperimentData):
             new result IDs and figure names generated for the copies.
         """
         new_instance = self.__class__()
+        LOG.debug(
+            "Copying experiment data [eid: %s]: %s", self.experiment_id, new_instance.experiment_id
+        )
 
         # Copy basic properties and metadata
         new_instance._type = self.experiment_type
