@@ -23,7 +23,7 @@ Experiment
     :toctree: ../stubs/
     :template: autosummary/experiment.rst
 
-    MeasurementMitigation
+    ReadoutMitigationExperiment
 
 
 Analysis
@@ -36,6 +36,6 @@ Analysis
     CorrelatedMitigationAnalysis
     LocalMitigationAnalysis
 """
-from .mitigation_experiment import MeasurementMitigation
+from .mitigation_experiment import ReadoutMitigationExperiment
 from .mitigation_analysis import CorrelatedMitigationAnalysis
 from .mitigation_analysis import LocalMitigationAnalysis

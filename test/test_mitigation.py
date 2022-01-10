@@ -19,12 +19,12 @@ import unittest
 from test.base import QiskitExperimentsTestCase
 import numpy as np
 from qiskit.quantum_info.operators.predicates import matrix_equal
-from qiskit_experiments.library import MeasurementMitigation
+from qiskit_experiments.library import ReadoutMitigationExperiment
 from qiskit_experiments.framework import ExperimentData
 
 
 class TestMitigation(QiskitExperimentsTestCase):
-    """Test MeasurementMitigation"""
+    """Test ReadoutMitigationExperiment"""
 
     def test_local_analysis(self):
         """Tests local mitigator generation from experimental data"""
@@ -50,7 +50,7 @@ class TestMitigation(QiskitExperimentsTestCase):
         expdata = ExperimentData()
         expdata.add_data(run_data)
         expdata._metadata = run_meta
-        exp = MeasurementMitigation(qubits)
+        exp = ReadoutMitigationExperiment(qubits)
         result = exp.analysis.run(expdata)
         mitigator = result.analysis_results(0).value
 
@@ -120,7 +120,7 @@ class TestMitigation(QiskitExperimentsTestCase):
         expdata = ExperimentData()
         expdata.add_data(run_data)
         expdata._metadata = run_meta
-        exp = MeasurementMitigation(qubits, method="correlated")
+        exp = ReadoutMitigationExperiment(qubits, method="correlated")
         result = exp.analysis.run(expdata)
         mitigator = result.analysis_results(0).value
 

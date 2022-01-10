@@ -20,8 +20,8 @@ from qiskit_experiments.framework import BaseExperiment
 from .mitigation_analysis import CorrelatedMitigationAnalysis, LocalMitigationAnalysis
 
 
-class MeasurementMitigation(BaseExperiment):
-    """Class for measurement mitigation experiments"""
+class ReadoutMitigationExperiment(BaseExperiment):
+    """Class for readout mitigation experiments"""
 
     METHOD_LOCAL = "local"
     METHOD_CORRELATED = "correlated"
