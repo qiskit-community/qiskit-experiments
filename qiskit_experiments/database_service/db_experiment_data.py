@@ -69,7 +69,7 @@ def service_exception_to_warning():
 
 
 @dataclasses.dataclass
-class Callback:
+class AnalysisCallback:
     """Dataclass for analysis callback functions"""
 
     func: Callable
@@ -165,9 +165,9 @@ class DbExperimentDataV1(DbExperimentData):
 
         self._jobs = ThreadSafeOrderedDict(job_ids or [])
         self._job_futures = ThreadSafeOrderedDict()
-        self._callbacks = ThreadSafeOrderedDict()
-        self._callback_futures = ThreadSafeOrderedDict()
-        self._callback_executor = futures.ThreadPoolExecutor(max_workers=1)
+        self._analysis_callbacks = ThreadSafeOrderedDict()
+        self._analysis_futures = ThreadSafeOrderedDict()
+        self._analysis_executor = futures.ThreadPoolExecutor(max_workers=1)
 
         self._data = ThreadSafeList()
         self._figures = ThreadSafeOrderedDict(figure_names or [])
@@ -228,9 +228,9 @@ class DbExperimentDataV1(DbExperimentData):
                 DeprecationWarning,
                 stacklevel=2,
             )
-        if any(not future.done() for future in self._callback_futures.values()):
+        if any(not future.done() for future in self._analysis_futures.values()):
             LOG.warning(
-                "Not all post-processing has finished. Adding new data "
+                "Not all analysis post-processing has finished. Adding new data "
                 "may create unexpected analysis results."
             )
 
@@ -334,10 +334,10 @@ class DbExperimentDataV1(DbExperimentData):
                       keywork arguments passed to this method.
             **kwargs: Keyword arguments to be passed to the callback function.
         """
-        with self._job_futures.lock and self._callback_futures.lock:
+        with self._job_futures.lock and self._analysis_futures.lock:
             # Create callback dataclass
             cid = uuid.uuid4()
-            self._callbacks[cid] = Callback(
+            self._analysis_callbacks[cid] = AnalysisCallback(
                 callback,
                 kwargs=kwargs,
                 name=callback.__name__,
@@ -345,33 +345,33 @@ class DbExperimentDataV1(DbExperimentData):
                 status=JobStatus.QUEUED,
             )
 
-            # Get futures to wait for before running callback
-            if self._callback_futures:
-                # If callback futures are present wait for all previous callback
+            # Get futures to wait for before running analysis
+            if self._analysis_futures:
+                # If analysis futures are present wait for all previous analysis
                 # futures to complete before running the latest one
-                futs = self._callback_futures.values()
+                futs = self._analysis_futures.values()
             else:
                 # Create a dummy future to wait for jobs to finish.
-                # This allows subsequent callback futures to be cancelled as they
+                # This allows subsequent analysis futures to be cancelled as they
                 # will be queued by the ThreadPoolExecutor while this future
                 # is still running
-                futs = [self._callback_executor.submit(futures.wait, self._job_futures.values())]
+                futs = [self._analysis_executor.submit(futures.wait, self._job_futures.values())]
 
-            # Add run callback future
-            self._callback_futures[cid] = self._callback_executor.submit(
-                self._run_callback, cid, futs
+            # Add run analysis future
+            self._analysis_futures[cid] = self._analysis_executor.submit(
+                self._run_analysis_callback, cid, futs
             )
 
-    def _run_callback(self, callback_id: str, futs: Optional[List[futures.Future]] = None):
-        """Run a callback after specified futures have finished."""
-        if callback_id not in self._callbacks:
-            raise ValueError(f"No callback with id {callback_id}")
+    def _run_analysis_callback(self, callback_id: str, futs: Optional[List[futures.Future]] = None):
+        """Run an analysis callback after specified futures have finished."""
+        if callback_id not in self._analysis_callbacks:
+            raise ValueError(f"No analysis callback with id {callback_id}")
 
-        callback = self._callbacks[callback_id]
-        self._callbacks[callback_id].status = JobStatus.RUNNING
-        LOG.debug("Running callback [cid: %s]: %s", callback_id, callback.name)
+        callback = self._analysis_callbacks[callback_id]
+        self._analysis_callbacks[callback_id].status = JobStatus.RUNNING
+        LOG.debug("Running analysis callback [cid: %s]: %s", callback_id, callback.name)
         if not callback.func:
-            raise ValueError(f"Callback function missing [cid: {callback_id}]")
+            raise ValueError(f"Analysis callback function missing [cid: {callback_id}]")
 
         # Wait for previous futures to finish
         if futs:
@@ -380,14 +380,14 @@ class DbExperimentDataV1(DbExperimentData):
         # Run callback function
         try:
             callback.func(self, **callback.kwargs)
-            self._callbacks[callback_id].status = JobStatus.DONE
-            LOG.debug("Callback finished [cid: %s]", callback_id)
+            self._analysis_callbacks[callback_id].status = JobStatus.DONE
+            LOG.debug("Analysis callback finished [cid: %s]", callback_id)
         except Exception as ex:  # pylint: disable=broad-except
-            self._callbacks[callback_id].status = JobStatus.ERROR
+            self._analysis_callbacks[callback_id].status = JobStatus.ERROR
             error_msg = f"Analysis callback failed [cid: {callback_id}]:\n" "".join(
                 traceback.format_exception(type(ex), ex, ex.__traceback__)
             )
-            self._callbacks[callback_id].error_msg = error_msg
+            self._analysis_callbacks[callback_id].error_msg = error_msg
             LOG.warning(error_msg)
 
     def _add_result_data(self, result: Result) -> None:
@@ -739,7 +739,7 @@ class DbExperimentDataV1(DbExperimentData):
             DbExperimentEntryNotFound: If the entry cannot be found.
         """
         if block:
-            self._wait_for_callbacks(timeout=timeout)
+            self._wait_for_analysis(timeout=timeout)
         self._retrieve_analysis_results(refresh=refresh)
         if index is None:
             return self._analysis_results.values()
@@ -955,23 +955,23 @@ class DbExperimentDataV1(DbExperimentData):
                         LOG.warning("Unable to cancel job [jid: %s]:\n%s", job.job_id(), err)
         return cancelled
 
-    def cancel_callbacks(self) -> None:
-        """Cancel any queued callbacks.
+    def cancel_analysis(self) -> None:
+        """Cancel any queued analysis callbacks.
 
         .. note::
-            A currently running callback cannot be cancelled.
+            A currently running analysis callback cannot be cancelled.
         """
         cancelled = True
-        with self._callback_futures.lock:
-            for cid, fut in self._callback_futures.items():
+        with self._analysis_futures.lock:
+            for cid, fut in self._analysis_futures.items():
                 if fut.done():
                     continue
                 if fut.cancel():
-                    self._callbacks[cid].status = JobStatus.CANCELLED
-                    LOG.info("Cancelled callback [cid: %s]", cid)
+                    self._analysis_callbacks[cid].status = JobStatus.CANCELLED
+                    LOG.info("Cancelled analysis callback [cid: %s]", cid)
                 else:
                     cancelled = False
-                    LOG.warning("Unable to cancel callback [cid: %s]", cid)
+                    LOG.warning("Unable to cancel analysis callback [cid: %s]", cid)
         return cancelled
 
     def cancel(self) -> bool:
@@ -981,9 +981,9 @@ class DbExperimentDataV1(DbExperimentData):
             A running analysis callback cannot be cancelled.
 
         Returns:
-            True if all jobs and callbacks successfully cancelled, otherwise false.
+            True if all jobs and analysis are successfully cancelled, otherwise false.
         """
-        return self.cancel_jobs() and self.cancel_callbacks()
+        return self.cancel_jobs() and self.cancel_analysis()
 
     def block_for_results(self, timeout: Optional[float] = None) -> "DbExperimentDataV1":
         """Block until all pending jobs and analysis callbacks finish.
@@ -994,8 +994,8 @@ class DbExperimentDataV1(DbExperimentData):
         Returns:
             The experiment data with finished jobs and post-processing.
         """
-        if self._callback_futures:
-            self._wait_for_callbacks(timeout)
+        if self._analysis_futures:
+            self._wait_for_analysis(timeout)
         else:
             self._wait_for_jobs(timeout)
         self._removed_done_futures()
@@ -1025,13 +1025,14 @@ class DbExperimentDataV1(DbExperimentData):
         if excepts:
             LOG.error("Job futures raised exceptions [eid: %s]:%s", self.experiment_id, excepts)
 
-    def _wait_for_callbacks(self, timeout: Optional[float] = None):
+    def _wait_for_analysis(self, timeout: Optional[float] = None):
         """Wait for analysis callbacks to finish"""
-        waited = futures.wait(self._callback_futures.values(), timeout=timeout)
+        waited = futures.wait(self._analysis_futures.values(), timeout=timeout)
         # Log jobs still running after timeout
         if waited.not_done:
             LOG.info(
-                "Waiting for callbacks timed out before all callbacks completed [eid: %s].",
+                "Waiting for analysis callbacks timed out before all "
+                "callbacks completed [eid: %s].",
                 self.experiment_id,
             )
 
@@ -1057,11 +1058,11 @@ class DbExperimentDataV1(DbExperimentData):
         def _keep_future(fut):
             return not fut.done() or fut.cancelled() or fut.exception()
 
-        with self._callback_futures.lock and self._job_futures.lock:
-            not_done_callbacks = [
-                (cid, fut) for cid, fut in self._callback_futures.items() if _keep_future(fut)
+        with self._analysis_futures.lock and self._job_futures.lock:
+            not_done_analysis = [
+                (cid, fut) for cid, fut in self._analysis_futures.items() if _keep_future(fut)
             ]
-            self._callback_futures = ThreadSafeOrderedDict(not_done_callbacks)
+            self._analysis_futures = ThreadSafeOrderedDict(not_done_analysis)
 
             not_done_jobs = [
                 (jid, fut) for jid, fut in self._job_futures.items() if _keep_future(fut)
@@ -1100,8 +1101,8 @@ class DbExperimentDataV1(DbExperimentData):
                 self._data,
                 self._jobs,
                 self._job_futures,
-                self._callbacks,
-                self._callback_futures,
+                self._analysis_callbacks,
+                self._analysis_futures,
                 self._figures,
                 self._analysis_results,
             ]
@@ -1112,9 +1113,9 @@ class DbExperimentDataV1(DbExperimentData):
         if job_status != "DONE":
             return job_status
 
-        callback_status = self.callback_status()
-        if callback_status in ["DONE", "CANCELLED", "ERROR"]:
-            return callback_status
+        analysis_status = self.analysis_status()
+        if analysis_status in ["DONE", "CANCELLED", "ERROR"]:
+            return analysis_status
         return "POST_PROCESSING"
 
     def job_status(self) -> str:
@@ -1166,8 +1167,8 @@ class DbExperimentDataV1(DbExperimentData):
 
         return JobStatus.DONE.name
 
-    def callback_status(self) -> str:
-        """Return the data analysis callback post-processing status.
+    def analysis_status(self) -> str:
+        """Return the data analysis post-processing status.
 
         If the experiment consists of multiple analysis callbacks, the returned
         status is mapped in the following order:
@@ -1180,10 +1181,10 @@ class DbExperimentDataV1(DbExperimentData):
                 * DONE - if all callbacks are finished.
 
         Returns:
-            Analysis callback status.
+            Analysis status.
         """
         statuses = set()
-        for status in self._callbacks.values():
+        for status in self._analysis_callbacks.values():
             statuses.add(status.status)
 
         for stat in [
@@ -1228,12 +1229,12 @@ class DbExperimentDataV1(DbExperimentData):
         errors = []
 
         # Get any callback errors
-        for cid, callback in self._callbacks.items():
+        for cid, callback in self._analysis_callbacks.items():
             if callback.status == JobStatus.ERROR:
                 errors.append(f"\n[cid: {cid}]: {callback.error_msg}")
 
         # Get any callback futures errors:
-        for cid, fut in self._callback_futures.items():
+        for cid, fut in self._analysis_futures.items():
             ex = fut.exception()
             if fut.exception():
                 errors.append(
@@ -1301,7 +1302,7 @@ class DbExperimentDataV1(DbExperimentData):
 
         # Copy results and figures.
         # This requires analysis callbacks to finish
-        self._wait_for_callbacks()
+        self._wait_for_analysis()
         with self._analysis_results.lock:
             new_instance._analysis_results = ThreadSafeOrderedDict()
             new_instance.add_analysis_results([result.copy() for result in self.analysis_results()])

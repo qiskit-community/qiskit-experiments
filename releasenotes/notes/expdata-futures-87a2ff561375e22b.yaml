@@ -11,10 +11,10 @@ features:
     Adds :meth:`.ExperimentData.job_status` method for returning the status
     of Qiskit Job execution for an experiment.
   - |
-    Adds :meth:`.ExperimentData.callback_status` method for returning the status
+    Adds :meth:`.ExperimentData.analysis_status` method for returning the status
     of analysis callback execution for an experiment.
   - |
-    Adds :meth:`.ExperimentData.cancel_callbacks` method to allow cancelling
+    Adds :meth:`.ExperimentData.cancel_analysis` method to allow cancelling
     pending analysis callbacks. Note that analysis callbacks that have already
     started running cannot be cancelled.
   - |

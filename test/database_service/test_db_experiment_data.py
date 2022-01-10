@@ -551,7 +551,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.add_analysis_callback(lambda *args, **kwargs: event.wait(timeout=15))
         self.assertEqual("RUNNING", exp_data.status())
         self.assertEqual("RUNNING", exp_data.job_status())
-        self.assertEqual("QUEUED", exp_data.callback_status())
+        self.assertEqual("QUEUED", exp_data.analysis_status())
 
         # Cleanup
         with self.assertLogs("qiskit_experiments", "WARNING"):
@@ -588,7 +588,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         status = exp_data.status()
         self.assertEqual("POST_PROCESSING", status)
 
-    def test_status_cancelled_callback(self):
+    def test_status_cancelled_analysis(self):
         """Test experiment status during post processing."""
         job = mock.create_autospec(Job, instance=True)
         job.result.return_value = self._get_job_result(3)
@@ -602,7 +602,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data.add_analysis_callback((lambda *args, **kwargs: event.wait(timeout=2)))
         # Add second callback because the first can't be cancelled once it has started
         exp_data.add_analysis_callback((lambda *args, **kwargs: event.wait(timeout=20)))
-        exp_data.cancel_callbacks()
+        exp_data.cancel_analysis()
         status = exp_data.status()
         self.assertEqual("CANCELLED", status)
 
