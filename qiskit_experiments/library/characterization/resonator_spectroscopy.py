@@ -12,14 +12,13 @@
 
 """Spectroscopy experiment class for resonators."""
 
-from typing import Optional, Iterable, Tuple
+from typing import Optional, Tuple
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter, Gate
+from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
 import qiskit.pulse as pulse
-from qiskit.providers.options import Options
-from qiskit.pulse import ScheduleBlock
 
 from qiskit_experiments.library.characterization import QubitSpectroscopy
 from qiskit_experiments.curve_analysis import ResonanceAnalysis
@@ -40,9 +39,24 @@ class ResonatorSpectroscopy(QubitSpectroscopy):
 
     __spec_gate_name__ = "MSpec"
 
+    @property
+    def center_frequency(self) -> float:
+        """Returns the center frequency of the experiment.
+
+        Returns:
+            The center frequency of the experiment.
+
+        Raises:
+            QiskitError: If the experiment does not have a backend set.
+        """
+        if self.backend is None:
+            raise QiskitError("backend not set. Cannot call center_frequency.")
+
+        return self.backend.defaults().meas_freq_est[self.physical_qubits[0]]
+
     def _template_circuit(self, freq_param) -> QuantumCircuit:
         """Return the template quantum circuit."""
-        circuit = QuantumCircuit(1)
+        circuit = QuantumCircuit(1, 1)
         circuit.append(Gate(name=self.__spec_gate_name__, num_qubits=1, params=[freq_param]), (0,))
 
         return circuit

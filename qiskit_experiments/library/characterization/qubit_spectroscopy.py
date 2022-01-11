@@ -123,6 +123,21 @@ class QubitSpectroscopy(BaseExperiment):
 
         self.analysis.set_options(ylabel="Signal [arb. unit]")
 
+    @property
+    def center_frequency(self) -> float:
+        """Returns the center frequency of the experiment.
+
+        Returns:
+            The center frequency of the experiment.
+
+        Raises:
+            QiskitError: If the experiment does not have a backend set.
+        """
+        if self.backend is None:
+            raise QiskitError("backend not set. Cannot call center_frequency.")
+
+        return self.backend.defaults().qubit_freq_est[self.physical_qubits[0]]
+
     def _spec_gate_schedule(
         self, backend: Optional[Backend] = None
     ) -> Tuple[pulse.ScheduleBlock, Parameter]:
@@ -182,18 +197,12 @@ class QubitSpectroscopy(BaseExperiment):
         except AttributeError as no_dt:
             raise AttributeError("dt parameter is missing in backend configuration") from no_dt
 
-        # Get center frequency from backend
-        if self._absolute:
-            center_freq = self.backend.defaults().qubit_freq_est[self.physical_qubits[0]]
-        else:
-            center_freq = None
-
         # Create the circuits to run
         circs = []
         for freq in self._frequencies:
             freq_shift = freq
             if self._absolute:
-                freq_shift -= center_freq
+                freq_shift -= self.center_frequency
             freq_shift = np.round(freq_shift, decimals=3)
 
             assigned_circ = circuit.assign_parameters({freq_param: freq_shift}, inplace=False)
