@@ -1,4 +1,7 @@
 ---
 upgrade:
   - |
-    Analysis results of composite experiments have changed, and do not include information about sub-experiments anymore. Instead, use ``CompositeExperiment.child_data`` to retrieve sub-experiments of a given composite experiment. This change affects parallel and batch experiments as special cases.
+    The :class:`.ParallelExperiment` and :class:`.BatchExperiment` composite experiments
+    have been changed to no longer return analysis results containing information about
+    sub-experiments. Instead, use the :meth:`~.ParallelExperiment.child_data` method to
+    retrieve sub-experiments of a given composite experiment.
