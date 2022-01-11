@@ -233,6 +233,17 @@ class ThreadSafeContainer(ABC):
         ret._container = value["_container"]
         return ret
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        # Remove non-pickleable attribute
+        del state["_lock"]
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        # Initialize non-pickleable attribute
+        self._lock = threading.RLock()
+
 
 class ThreadSafeOrderedDict(ThreadSafeContainer):
     """Thread safe OrderedDict."""

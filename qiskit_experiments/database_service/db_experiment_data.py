@@ -87,7 +87,7 @@ class ExperimentStatus(enum.Enum):
 
     @classmethod
     def __json_decode__(cls, value):
-        return cls.__members__[value]
+        return cls.__members__[value]  # pylint: disable=unsubscriptable-object
 
 
 class AnalysisStatus(enum.Enum):
@@ -104,7 +104,7 @@ class AnalysisStatus(enum.Enum):
 
     @classmethod
     def __json_decode__(cls, value):
-        return cls.__members__[value]
+        return cls.__members__[value]  # pylint: disable=unsubscriptable-object
 
 
 @dataclasses.dataclass
@@ -1764,3 +1764,33 @@ class DbExperimentDataV1(DbExperimentData):
         for att, att_val in value.items():
             setattr(ret, att, att_val)
         return ret
+
+    def __getstate__(self):
+        if any(not fut.done() for fut in self._job_futures.values()):
+            LOG.warning(
+                "Not all job futures have finished."
+                " Data from running futures will not be serialized."
+            )
+        if any(not fut.done() for fut in self._analysis_futures.values()):
+            LOG.warning(
+                "Not all analysis callbacks have finished."
+                " Results from running callbacks will not be serialized."
+            )
+
+        state = self.__dict__.copy()
+
+        # Remove non-pickleable attributes
+        for key in ["_job_futures", "_analysis_futures", "_analysis_executor"]:
+            del state[key]
+
+        # Handle partially pickleable attributes
+        state["_jobs"] = self._safe_serialize_jobs()
+
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        # Initialize non-pickled attributes
+        self._job_futures = ThreadSafeOrderedDict()
+        self._analysis_futures = ThreadSafeOrderedDict()
+        self._analysis_executor = futures.ThreadPoolExecutor(max_workers=1)
