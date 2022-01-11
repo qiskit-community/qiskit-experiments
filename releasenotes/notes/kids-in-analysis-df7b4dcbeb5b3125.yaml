@@ -1,0 +1,4 @@
+---
+upgrade:
+  - |
+    Analysis results of composite experiments have changed, and do not include information about sub-experiments anymore. Instead, use ``CompositeExperiment.child_data`` to retrieve sub-experiments of a given composite experiment. This change affects parallel and batch experiments as special cases.
