@@ -12,7 +12,7 @@
 
 """Spectroscopy experiment class for resonators."""
 
-from typing import Optional, Tuple
+from typing import Iterable, Optional, Tuple
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter, Gate
@@ -21,23 +21,39 @@ from qiskit.providers import Backend
 import qiskit.pulse as pulse
 
 from qiskit_experiments.library.characterization import QubitSpectroscopy
-from qiskit_experiments.curve_analysis import ResonanceAnalysis
-
-
-class ResonatorSpectroscopyAnalysis(ResonanceAnalysis):
-    """Class to analysis resonator spectroscopy."""
-
-    @classmethod
-    def _default_options(cls):
-        options = super()._default_options()
-        options.dimensionality_reduction="ToAbs"
-        return options
+from .analysis.resonator_spectroscopy_analysis import ResonatorSpectroscopyAnalysis
 
 
 class ResonatorSpectroscopy(QubitSpectroscopy):
     """Perform spectroscopy on the readout resonator."""
 
     __spec_gate_name__ = "MSpec"
+
+    def __init__(
+        self,
+        qubit: int,
+        frequencies: Iterable[float],
+        backend: Optional[Backend] = None,
+        absolute: bool = True,
+    ):
+        """
+        A spectroscopy experiment run by setting the frequency of the readout drive.
+        The parameters of the GaussianSquare spectroscopy pulse can be specified at run-time.
+        The spectroscopy pulse has the following parameters:
+        - amp: The amplitude of the pulse must be between 0 and 1, the default is 0.1.
+        - duration: The duration of the spectroscopy pulse in samples, the default is 1000 samples.
+        - sigma: The standard deviation of the pulse, the default is duration / 4.
+        - width: The width of the flat-top in the pulse, the default is 0, i.e. a Gaussian.
+
+        Args:
+            qubit: The qubit on which to run readout spectroscopy.
+            frequencies: The frequencies to scan in the experiment, in Hz.
+            backend: Optional, the backend to run the experiment on.
+            absolute: Boolean to specify if the frequencies are absolute or relative to the
+                qubit frequency in the backend.
+        """
+        super().__init__(qubit, frequencies, backend, absolute)
+        self.analysis = ResonatorSpectroscopyAnalysis()
 
     @property
     def center_frequency(self) -> float:
