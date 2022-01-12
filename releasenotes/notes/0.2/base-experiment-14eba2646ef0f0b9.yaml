@@ -1,11 +1,5 @@
 ---
-feature:
-  - |
-    Added a :meth:`~qiskit_experiments.framework.BaseAnalysis.set_options`
-    method and :meth:`~qiskit_experiments.framework.BaseAnalysis.options`
-    property to the :class:`qiskit_experiments.framework.BaseAnalysis` class
-    to store and retrieve any analysis options in the state of the analysis
-    instance.
+features:
   - |
     The ``analysis`` kwarg of
     :meth:`qiskit_experiments.framework.BaseExperiment.run` can now optionally
@@ -14,6 +8,32 @@ feature:
     current stored :meth:`~qiskit_experiments.framework.BaseExperiment.analysis`
     instance for that experiment will be used. Setting ``analysis=None`` disables
     analysis for the specific execution.
+  - |
+    Add ``backend`` as an optional ``__init__`` kwarg for all experiments to
+    allow setting the backend at initialization. The backand can also be set
+    and retrieved from the experiment object after construction using the
+    :meth:`~qiskit_experiments.framework.BaseExperiment.backend`
+    property and setter.
+
+    When using the ``backend`` kwarg of
+    :meth:`~qiskit_experiments.framework.BaseExperiment.run` to specify
+    a backend this will temporarily override any currently set backends
+    for that single execution.
+  - |
+    Add :class:`~qiskit_experiments.framework.ExperimentConfig` dataclass
+    for storing the configuration of an experiment. This configuration can
+    be obtained by using the
+    :meth:`~qiskit_experiments.framework.BaseExperiment.config` property.
+    Experiments can also be reconstructed from their configuration using
+    the :meth:`~qiskit_experiments.framework.BaseExperiment.from_config`
+    class method.
+  - |
+    Adds automatic job splitting to
+    :class:`~qiskit_experiments.framework.BaseExperiment` for execution of
+    experiments with a larger number of circuits than can be run in a single
+    job on the target backend. This enables running large experiments on
+    legacy and non-IBM backends that don't handle job splitting
+    automatically.
 upgrade:
   - |
     The :meth:`qiskit_experiments.framework.BaseExperiment.analysis` property
@@ -50,22 +70,14 @@ deprecations:
     :meth:`qiskit_experiments.framework.BaseExperiment.run` have been deprecated.
     Use ``analysis="default"`` instead of ``analysis=True``, and
     ``analysis=None``instead of ``analysis=False``.
-developer:
   - |
-    The :class:`qiskit_experiments.framework.BaseAnalysis` class has
-    been changed to be an initialized class.
-    
-    This class now stores its set analysis options using the
-    :meth:`~qiskit_experiments.framework.BaseAnalysis.set_options` and
-    :meth:`~qiskit_experiments.framework.BaseAnalysis.options` and
-    ``_default_options`` methods.
-    The signature of the abstract method ``_run_analysis`` that must be
-    implemented by subclasses has been changed to remove the ``**kwargs``.
-
-    Note that the state of this class should only be used to store option
-    values and derived configuration. The
-    :meth:`~qiskit_experiments.framework.BaseAnalysis.run` and
-    ``_run_analysis`` methods should not change the state of the instance.
+    Using the ``__analysis_class__`` class attrbiute to define a default
+    :class:`~qiskit_experiments.framework.BaseAnalysis` class in a
+    :class:`~qiskit_experiments.framework.BaseExperiment` subclass has
+    been deprecated. A default analysis class instance should now be passed to
+    the initialization method of
+    :class:`~qiskit_experiments.framework.BaseExperiment` instead.
+developer:
   - |
     The :class:`qiskit_experiments.framework.BaseExperiment` class has
     been changed to optionally store an instance of a
@@ -74,3 +86,11 @@ developer:
     particular experiment subclass should be set during that experiments
     init method, or as default options of the analysis subclass used by
     that experiment.
+  - |
+    Added a ``_set_backend`` method to
+    :class:`~qiskit_experiments.framework.BaseExperiment` that is called
+    when a backend is set via initalization or the ``backend`` setter. This
+    can be overridden in experiment subclasses if required. For example this
+    could be used to extract any needed configuration or properties from the
+    specified backend, or to update experiment options of configuration based
+    on the backend.
