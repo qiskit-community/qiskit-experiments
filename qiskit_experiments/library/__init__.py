@@ -143,6 +143,7 @@ from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
 from .heat import ZXHeatZError, ZXHeatYError
 from .quantum_volume import QuantumVolume
+from .mitigation import ReadoutMitigationExperiment
 
 # Experiment Sub-modules
 from . import calibration
