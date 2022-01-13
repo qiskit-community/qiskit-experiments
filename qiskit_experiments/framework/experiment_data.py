@@ -20,6 +20,11 @@ import warnings
 from qiskit.exceptions import QiskitError
 from qiskit.providers.backend import Backend
 from qiskit_experiments.database_service import DbExperimentDataV1 as DbExperimentData
+from qiskit_experiments.database_service.db_experiment_data import (
+    ExperimentStatus,
+    JobStatus,
+    AnalysisStatus,
+)
 from qiskit_experiments.database_service.database_service import (
     DatabaseServiceV1 as DatabaseService,
 )
@@ -37,6 +42,11 @@ LOG = logging.getLogger(__name__)
 
 class ExperimentData(DbExperimentData):
     """Qiskit Experiments Data container class"""
+
+    # Status enum classes
+    ExperimentStatus = ExperimentStatus
+    JobStatus = JobStatus
+    AnalysisStatus = AnalysisStatus
 
     def __init__(
         self,

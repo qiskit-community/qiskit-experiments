@@ -128,9 +128,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             expected.extend(job.result().get_counts())
 
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
-        exp_data.add_data(a_job)
+        exp_data.add_jobs(a_job)
         exp_data.block_for_results()
-        exp_data.add_data(jobs)
+        exp_data.add_jobs(jobs)
         exp_data.block_for_results()
         self.assertEqual(expected, [sdata["counts"] for sdata in exp_data.data()])
         self.assertIn(a_job.job_id(), exp_data.job_ids)
@@ -154,7 +154,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         called_back = False
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
-        exp_data.add_data(a_job)
+        exp_data.add_jobs(a_job)
         exp_data.add_analysis_callback(_callback)
         exp_data.block_for_results()
         self.assertTrue(called_back)
@@ -209,7 +209,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         called_back = False
         callback_kwargs = "foo"
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
-        exp_data.add_data(a_job)
+        exp_data.add_jobs(a_job)
         exp_data.add_analysis_callback(_callback, foo=callback_kwargs)
         exp_data.block_for_results()
         self.assertTrue(called_back)
@@ -229,7 +229,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         exp_data.add_analysis_callback(_callback, event=event)
-        exp_data.add_data(a_job)
+        exp_data.add_jobs(a_job)
         with self.assertLogs("qiskit_experiments", "WARNING"):
             exp_data.add_data({"foo": "bar"})
 
@@ -374,7 +374,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertIsNone(exp_data.service)
         exp_data.save_metadata()
         a_job = mock.create_autospec(Job, instance=True)
-        exp_data.add_data(a_job)
+        exp_data.add_jobs(a_job)
         self.assertIsNotNone(exp_data.backend)
         self.assertIsNotNone(exp_data.service)
 
@@ -384,7 +384,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         a_job = mock.create_autospec(Job, instance=True)
         self.assertNotEqual(exp_data.backend, a_job.backend())
         with self.assertLogs("qiskit_experiments", "WARNING"):
-            exp_data.add_data(a_job)
+            exp_data.add_jobs(a_job)
 
     def test_add_get_analysis_result(self):
         """Test adding and getting analysis results."""
@@ -484,7 +484,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         job.status.return_value = JobStatus.DONE
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         self.assertIsNone(exp_data.service)
-        exp_data.add_data(job)
+        exp_data.add_jobs(job)
         self.assertEqual(mock_service, exp_data.service)
 
     def test_set_service_direct(self):
@@ -509,7 +509,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.assertNotEqual(orig_service, new_service)
         job.backend.return_value = self.backend
         job.status.return_value = JobStatus.DONE
-        exp_data.add_data(job)
+        exp_data.add_jobs(job)
         self.assertEqual(orig_service, exp_data.service)
 
     def test_auto_save(self):
@@ -550,8 +550,8 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.addCleanup(event.set)
 
         exp_data = DbExperimentData(experiment_type="qiskit_test")
-        exp_data.add_data(job1)
-        exp_data.add_data(job2)
+        exp_data.add_jobs(job1)
+        exp_data.add_jobs(job2)
         exp_data.add_analysis_callback(lambda *args, **kwargs: event.wait(timeout=15))
         self.assertEqual(ExperimentStatus.RUNNING, exp_data.status())
         self.assertEqual(JobStatus.RUNNING, exp_data.job_status())
@@ -573,7 +573,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         with self.assertLogs(logger="qiskit_experiments.database_service", level="WARN") as cm:
-            exp_data.add_data([job1, job2])
+            exp_data.add_jobs([job1, job2])
         self.assertIn("Adding a job from a backend", ",".join(cm.output))
         self.assertEqual(ExperimentStatus.ERROR, exp_data.status())
 
@@ -587,7 +587,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.addCleanup(event.set)
 
         exp_data = DbExperimentData(experiment_type="qiskit_test")
-        exp_data.add_data(job)
+        exp_data.add_jobs(job)
         exp_data.add_analysis_callback((lambda *args, **kwargs: event.wait(timeout=15)))
         status = exp_data.status()
         self.assertEqual(ExperimentStatus.POST_PROCESSING, status)
@@ -602,7 +602,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.addCleanup(event.set)
 
         exp_data = DbExperimentData(experiment_type="qiskit_test")
-        exp_data.add_data(job)
+        exp_data.add_jobs(job)
         exp_data.add_analysis_callback((lambda *args, **kwargs: event.wait(timeout=2)))
         # Add second callback because the first can't be cancelled once it has started
         exp_data.add_analysis_callback((lambda *args, **kwargs: event.wait(timeout=20)))
@@ -621,9 +621,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         job.status.return_value = JobStatus.DONE
 
         exp_data = DbExperimentData(experiment_type="qiskit_test")
-        exp_data.add_data(job)
+        exp_data.add_jobs(job)
         with self.assertLogs(logger="qiskit_experiments.database_service", level="WARN") as cm:
-            exp_data.add_data(job)
+            exp_data.add_jobs(job)
             exp_data.add_analysis_callback(_post_processing)
             exp_data.block_for_results()
         self.assertEqual(ExperimentStatus.ERROR, exp_data.status())
@@ -635,8 +635,8 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         job.result.return_value = self._get_job_result(3)
         job.status.return_value = JobStatus.DONE
         exp_data = DbExperimentData(experiment_type="qiskit_test")
-        exp_data.add_data(job)
-        exp_data.add_data(job)
+        exp_data.add_jobs(job)
+        exp_data.add_jobs(job)
         exp_data.add_analysis_callback(lambda *args, **kwargs: time.sleep(1))
         exp_data.block_for_results()
         self.assertEqual(ExperimentStatus.DONE, exp_data.status())
@@ -660,7 +660,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         self.addCleanup(event.set)
         job = mock.create_autospec(Job, instance=True)
         job.result = _job_result
-        exp_data.add_data(job)
+        exp_data.add_jobs(job)
         exp_data.cancel_jobs()
         job.cancel.assert_called_once()
 
@@ -697,9 +697,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         with self.assertLogs(logger="qiskit_experiments.database_service", level="WARN") as cm:
-            exp_data.add_data(job1)
+            exp_data.add_jobs(job1)
             exp_data.add_analysis_callback(_post_processing)
-            exp_data.add_data(job2)
+            exp_data.add_jobs(job2)
             exp_data.block_for_results()
         self.assertEqual(ExperimentStatus.ERROR, exp_data.status())
         self.assertIn("Kaboom", ",".join(cm.output))
@@ -724,7 +724,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         job = mock.create_autospec(Job, instance=True)
         job.result = _sleeper
         exp_data = DbExperimentData(experiment_type="qiskit_test")
-        exp_data.add_data(job)
+        exp_data.add_jobs(job)
         exp_data.add_analysis_callback(_sleeper)
         exp_data.block_for_results()
         self.assertEqual(2, sleep_count)
@@ -762,12 +762,12 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         job = mock.create_autospec(Job, instance=True)
         job.result = _job1_result
-        exp_data.add_data(job)
+        exp_data.add_jobs(job)
 
         copied = exp_data.copy(copy_results=False)
         job2 = mock.create_autospec(Job, instance=True)
         job2.result = _job2_result
-        copied.add_data(job2)
+        copied.add_jobs(job2)
         event.set()
 
         exp_data.block_for_results()
