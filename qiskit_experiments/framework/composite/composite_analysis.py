@@ -83,13 +83,10 @@ class CompositeAnalysis(BaseAnalysis):
             # we always run with replace result on component analysis
             sub_exp.analysis.run(sub_exp_data, replace_results=True)
 
-        # Add callback to wait for all component analysis to finish before returning
+        # Wait for all component analysis to finish before returning
         # the parent experiment analysis results
-        def _wait_for_components(experiment_data, component_ids):
-            for comp_id in component_ids:
-                experiment_data.child_data(comp_id).block_for_results()
-
-        experiment_data.add_analysis_callback(_wait_for_components, component_ids=component_ids)
+        for comp_id in component_ids:
+            experiment_data.child_data(comp_id).block_for_results()
 
         return [], []
 
