@@ -13,9 +13,10 @@
 """Spectroscopy experiment class for resonators."""
 
 from typing import Iterable, Optional, Tuple
+import numpy as np
 
 from qiskit import QuantumCircuit
-from qiskit.circuit import Parameter, Gate
+from qiskit.circuit import Parameter
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
 import qiskit.pulse as pulse
@@ -26,8 +27,6 @@ from .analysis.resonator_spectroscopy_analysis import ResonatorSpectroscopyAnaly
 
 class ResonatorSpectroscopy(QubitSpectroscopy):
     """Perform spectroscopy on the readout resonator."""
-
-    __spec_gate_name__ = "MSpec"
 
     def __init__(
         self,
@@ -70,15 +69,10 @@ class ResonatorSpectroscopy(QubitSpectroscopy):
 
         return self.backend.defaults().meas_freq_est[self.physical_qubits[0]]
 
-    def _template_circuit(self, freq_param) -> QuantumCircuit:
+    def _meas_template_circuit(self) -> QuantumCircuit:
         """Return the template quantum circuit."""
-        if self.backend is not None:
-            cbits = self.backend.configuration().num_qubits
-        else:
-            cbits = 1
-
-        circuit = QuantumCircuit(1, cbits)
-        circuit.append(Gate(name=self.__spec_gate_name__, num_qubits=1, params=[freq_param]), (0,))
+        circuit = QuantumCircuit(1, 1)
+        circuit.measure(0, 0)
 
         return circuit
 
@@ -105,3 +99,41 @@ class ResonatorSpectroscopy(QubitSpectroscopy):
             pulse.acquire(self.experiment_options.duration, qubit, pulse.MemorySlot(qubit))
 
         return schedule, freq_param
+
+    def circuits(self):
+        """Create the circuit for the spectroscopy experiment.
+
+        The circuits are based on a GaussianSquare pulse and a frequency_shift instruction
+        encapsulated in a gate.
+
+        Returns:
+            circuits: The circuits that will run the spectroscopy experiment.
+
+        Raises:
+            QiskitError: If absolute frequencies are used but no backend is given.
+            QiskitError: If the backend configuration does not define dt.
+            AttributeError: If backend to run on does not contain 'dt' configuration.
+        """
+        if self.backend is None and self._absolute:
+            raise QiskitError("Cannot run spectroscopy in absolute without a backend.")
+
+        # Create a template circuit
+        sched, freq_param = self._spec_gate_schedule(self.backend)
+
+        # Create the circuits to run
+        circs = []
+        for freq in self._frequencies:
+            freq_shift = freq
+            if self._absolute:
+                freq_shift -= self.center_frequency
+            freq_shift = np.round(freq_shift, decimals=3)
+
+            sched_ = sched.assign_parameters({freq_param: freq_shift}, inplace=False)
+
+            circuit = self._meas_template_circuit()
+            circuit.add_calibration("measure", self.physical_qubits, sched_)
+            self._add_metadata(circuit, freq, sched)
+
+            circs.append(circuit)
+
+        return circs

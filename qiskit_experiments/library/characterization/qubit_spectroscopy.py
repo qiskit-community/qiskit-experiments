@@ -166,6 +166,20 @@ class QubitSpectroscopy(BaseExperiment):
 
         return circuit
 
+    def _add_metadata(self, circuit: QuantumCircuit, freq: float, sched: pulse.ScheduleBlock):
+        """Helper method to add the metadata to avoid code duplication with subclasses."""
+        circuit.metadata = {
+            "experiment_type": self._type,
+            "qubits": (self.physical_qubits[0],),
+            "xval": np.round(freq, decimals=3),
+            "unit": "Hz",
+            "amplitude": self.experiment_options.amp,
+            "duration": self.experiment_options.duration,
+            "sigma": self.experiment_options.sigma,
+            "width": self.experiment_options.width,
+            "schedule": str(sched),
+        }
+
     def circuits(self):
         """Create the circuit for the spectroscopy experiment.
 
@@ -176,9 +190,8 @@ class QubitSpectroscopy(BaseExperiment):
             circuits: The circuits that will run the spectroscopy experiment.
 
         Raises:
-            QiskitError:
-                - If absolute frequencies are used but no backend is given.
-                - If the backend configuration does not define dt.
+            QiskitError: If absolute frequencies are used but no backend is given.
+            QiskitError: If the backend configuration does not define dt.
             AttributeError: If backend to run on does not contain 'dt' configuration.
         """
         if self.backend is None and self._absolute:
@@ -191,12 +204,6 @@ class QubitSpectroscopy(BaseExperiment):
             self.__spec_gate_name__, self.physical_qubits, sched, params=[freq_param]
         )
 
-        # Get dt
-        try:
-            dt_factor = getattr(self.backend.configuration(), "dt")
-        except AttributeError as no_dt:
-            raise AttributeError("dt parameter is missing in backend configuration") from no_dt
-
         # Create the circuits to run
         circs = []
         for freq in self._frequencies:
@@ -206,18 +213,7 @@ class QubitSpectroscopy(BaseExperiment):
             freq_shift = np.round(freq_shift, decimals=3)
 
             assigned_circ = circuit.assign_parameters({freq_param: freq_shift}, inplace=False)
-            assigned_circ.metadata = {
-                "experiment_type": self._type,
-                "qubits": (self.physical_qubits[0],),
-                "xval": np.round(freq, decimals=3),
-                "unit": "Hz",
-                "amplitude": self.experiment_options.amp,
-                "duration": self.experiment_options.duration,
-                "sigma": self.experiment_options.sigma,
-                "width": self.experiment_options.width,
-                "schedule": str(sched),
-                "dt": dt_factor,
-            }
+            self._add_metadata(assigned_circ, freq, sched)
 
             circs.append(assigned_circ)
 
