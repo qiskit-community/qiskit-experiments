@@ -72,7 +72,12 @@ class ResonatorSpectroscopy(QubitSpectroscopy):
 
     def _template_circuit(self, freq_param) -> QuantumCircuit:
         """Return the template quantum circuit."""
-        circuit = QuantumCircuit(1, 1)
+        if self.backend is not None:
+            cbits = self.backend.configuration().num_qubits
+        else:
+            cbits = 1
+
+        circuit = QuantumCircuit(1, cbits)
         circuit.append(Gate(name=self.__spec_gate_name__, num_qubits=1, params=[freq_param]), (0,))
 
         return circuit

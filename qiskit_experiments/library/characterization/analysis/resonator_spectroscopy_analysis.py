@@ -15,6 +15,7 @@
 from typing import List, Tuple
 import numpy as np
 
+import qiskit_experiments.curve_analysis as curve
 from qiskit_experiments.curve_analysis import ResonanceAnalysis
 from qiskit_experiments.framework import AnalysisResultData, ExperimentData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
@@ -26,6 +27,7 @@ class ResonatorSpectroscopyAnalysis(ResonanceAnalysis):
     def _default_options(cls):
         options = super()._default_options()
         options.dimensionality_reduction="ToAbs"
+        options.result_parameters = [curve.ParameterRepr("freq", "meas_freq", "Hz")]
         options.plot_iq_data = True
         return options
 
