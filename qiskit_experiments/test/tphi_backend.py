@@ -59,7 +59,7 @@ class TphiBackend(BackendV1):
             max_shots=int(1e6),
             coupling_map=None,
         )
-        self._t1 = t1
+        self._t1 = [t1]
         self._t2ramsey = t2ramsey
         self._freq = freq
         self._initial_prob1 = initial_prob1
@@ -107,15 +107,6 @@ class TphiBackend(BackendV1):
         t1_shots = self.options.get("t1_shots")
         t2ramsey_shots = self.options.get("t2ramsey_shots")
 
-        result = {
-            "backend_name": "Tphi backend",
-            "backend_version": "0",
-            "qobj_id": 0,
-            "job_id": 0,
-            "success": True,
-            "results": [],
-        }
-
         t1_circuits = []
         t2ramsey_circuits = []
         for circ in run_input:
@@ -129,9 +120,9 @@ class TphiBackend(BackendV1):
         job_t1 = self._internal_backends["T1"].run(run_input=t1_circuits)
         job_t2ramsey = self._internal_backends["T2*"].run(run_input=t2ramsey_circuits)
 
-        results = job_t1.result()
-        results.results.append(job_t2ramsey.result().results)
+        final_results = job_t1.result().results
+        for r in job_t2ramsey.result().results:
+            final_results.append(r)
 
-        results.backend_name = "Tphi backend"
-
-        return FakeJob(self, result=Result.from_dict(result))
+        result_for_fake = Result(backend_name="Tphi backend", backend_version="0", qobj_id=0, job_id=0, success=True, results=final_results, status="JobStatus.DONE")
+        return FakeJob(self, result_for_fake)

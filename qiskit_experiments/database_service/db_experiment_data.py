@@ -275,7 +275,7 @@ class DbExperimentDataV1(DbExperimentData):
         """Add analysis callback for running after experiment data jobs are finished.
 
         This method adds the `callback` function to a queue to be run
-        asynchronously after complition of any running jobs, or immediately
+        asynchronously after completion of any running jobs, or immediately
         if no running jobs. If this method is called multiple times the
         callback functions will be executed in the order they were
         added.
@@ -406,7 +406,7 @@ class DbExperimentDataV1(DbExperimentData):
                             self._jobs[jid] = job
                         except Exception:  # pylint: disable=broad-except
                             LOG.warning(
-                                "Unable to retrive data from job %s on backend %s",
+                                "Unable to retrieve data from job %s on backend %s",
                                 jid,
                                 self._backend,
                             )

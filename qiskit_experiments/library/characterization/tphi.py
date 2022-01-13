@@ -51,12 +51,9 @@ class Tphi(BatchExperiment):
 
         expT1 = T1(qubit, self._delays_t1, self._unit)
         expT2 = T2Ramsey(qubit, self._delays_t2, self._unit, self._osc_freq)
-        exps = []
-        exps.append(expT1)
-        exps.append(expT2)
-
+        self.exps = []
+        self.exps.append(expT1)
+        self.exps.append(expT2)
         # Run batch experiments
-        batch_exp = super().__init__(exps)
+        batch_exp = super().__init__(self.exps)
 
-    def run(self, backend, experiment_data, **run_options):
-        expdata = super().run(backend, shots=1000)

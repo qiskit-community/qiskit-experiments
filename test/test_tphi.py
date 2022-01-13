@@ -11,6 +11,7 @@
 Test T2Ramsey experiment
 """
 import numpy as np
+import time
 
 from qiskit.utils import apply_prefix
 from qiskit.providers import BackendV1
@@ -35,8 +36,9 @@ class TestTphi(QiskitTestCase):
         dt_factor = apply_prefix(1, unit)
         qubit = 0
         delays_t1 = list(range(1, 40, 3))
-        delays_t2 = list(range(1, 50, 2))
+        delays_t2 = list(range(1, 51, 2))
         exp = Tphi(qubit=0, delays_t1=delays_t1, delays_t2=delays_t2, unit="s", osc_freq=0.1)
 
         backend = TphiBackend(t1=10, t2ramsey=25, freq=0.1)
-        expdata = exp.run(backend, experiment_data=None)
+        expdata = exp.run(backend, experiment_data=None).block_for_results()
+        display(expdata.figure(0))
