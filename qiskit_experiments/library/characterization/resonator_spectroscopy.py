@@ -23,10 +23,31 @@ import qiskit.pulse as pulse
 
 from qiskit_experiments.library.characterization import QubitSpectroscopy
 from .analysis.resonator_spectroscopy_analysis import ResonatorSpectroscopyAnalysis
+from qiskit_experiments.data_processing.processor_library import get_processor, ProjectorType
 
 
 class ResonatorSpectroscopy(QubitSpectroscopy):
-    """Perform spectroscopy on the readout resonator."""
+    """Perform spectroscopy on the readout resonator.
+
+    # section: overview
+        This experiment does spectroscopy on the readout resonator. It applies the following
+        circuit
+
+        .. parsed-literal::
+
+                 ┌─┐
+              q: ┤M├
+                 └╥┘
+            c: 1/═╩═
+                  0
+
+        where a spectroscopy pulse is attached to the measurement instruction. When doing
+        readout resonator spectroscopy, each measured IQ point has a frequency dependent
+        phase. Close to the resonance, the IQ points start rotating around in the IQ plan.
+        To create a meaningful signal this experiment therefore uses a custom data processor
+        where the dimensionality reducing SVD is replaced by the absolute value of the IQ
+        point.
+    """
 
     def __init__(
         self,
@@ -53,6 +74,22 @@ class ResonatorSpectroscopy(QubitSpectroscopy):
         """
         super().__init__(qubit, frequencies, backend, absolute)
         self.analysis = ResonatorSpectroscopyAnalysis()
+        self._set_analysis_data_processor()
+
+    def _set_analysis_data_processor(self):
+        """Keep the data processor consistent with the run options."""
+        processor = get_processor(
+            self.run_options.meas_level,
+            self.run_options.meas_return,
+            self.analysis.options.normalization,
+            dimensionality_reduction=ProjectorType.ABS,
+        )
+        self.analysis.set_options(data_processor=processor)
+
+    def set_run_options(self, **fields):
+        """Wrap set run options to keep the data processor consistent."""
+        super().set_run_options(**fields)
+        self._set_analysis_data_processor()
 
     @property
     def center_frequency(self) -> float:
@@ -96,7 +133,7 @@ class ResonatorSpectroscopy(QubitSpectroscopy):
                 ),
                 pulse.MeasureChannel(qubit),
             )
-            pulse.acquire(self.experiment_options.duration, qubit, pulse.MemorySlot(qubit))
+            pulse.acquire(self.experiment_options.duration, qubit, pulse.MemorySlot(0))
 
         return schedule, freq_param
 

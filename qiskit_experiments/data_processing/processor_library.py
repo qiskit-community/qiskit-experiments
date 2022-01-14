@@ -12,17 +12,27 @@
 
 """A collection of functions that return various data processors."""
 
+from enum import Enum
+
 from qiskit.qobj.utils import MeasLevel
 
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing import nodes
 
+class ProjectorType(str, Enum):
+    """Types of projectors for data dimensionality reduction."""
+    SVD = "SVD"
+    ABS = "ABS"
+    REAL = "REAL"
+    IMAG = "IMAG"
+
 
 def get_processor(
     meas_level: MeasLevel = MeasLevel.CLASSIFIED,
     meas_return: str = "avg",
     normalize: bool = True,
+    dimensionality_reduction: ProjectorType = ProjectorType.SVD,
 ) -> DataProcessor:
     """Get a DataProcessor that produces a continuous signal given the options.
 
@@ -30,6 +40,8 @@ def get_processor(
         meas_level: The measurement level of the data to process.
         meas_return: The measurement return (single or avg) of the data to process.
         normalize: Add a data normalization node to the Kerneled data processor.
+        dimensionality_reduction: A string to represent the dimensionality reduction
+            node. Must be one of SVD, ABS, REAL, IMAG.
 
     Returns:
         An instance of DataProcessor capable of dealing with the given options.
@@ -37,14 +49,24 @@ def get_processor(
     Raises:
         DataProcessorError: if the measurement level is not supported.
     """
+    projectors = {
+        "SVD": nodes.SVD,
+        "ABS": nodes.ToAbs,
+        "REAL": nodes.ToReal,
+        "IMAG": nodes.ToImag,
+    }
+
     if meas_level == MeasLevel.CLASSIFIED:
         return DataProcessor("counts", [nodes.Probability("1")])
 
     if meas_level == MeasLevel.KERNELED:
+
+        projector = projectors[dimensionality_reduction]
+
         if meas_return == "single":
-            processor = DataProcessor("memory", [nodes.AverageData(axis=1), nodes.SVD()])
+            processor = DataProcessor("memory", [nodes.AverageData(axis=1), projector()])
         else:
-            processor = DataProcessor("memory", [nodes.SVD()])
+            processor = DataProcessor("memory", [projector()])
 
         if normalize:
             processor.append(nodes.MinMaxNormalize())

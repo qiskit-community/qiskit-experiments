@@ -374,6 +374,26 @@ class ToImag(IQPart):
         return data[..., 1] * self.scale
 
 
+class ToAbs(IQPart):
+    """IQ data post-processing. Take the absolute value of the IQ point."""
+
+    def _process(self, data: np.array) -> np.array:
+        """Take the absolute value of the IQ data.
+
+        Args:
+            data: An N-dimensional array of complex IQ point as [real, imaginary].
+
+        Returns:
+            A N-1 dimensional array, each entry is the absolute value of the given IQ data.
+        """
+
+        # There seems to be an issue with the uncertainties package since
+        # np.sqrt(ufloat(4, float("nan"))) does not work but
+        # np.power(ufloat(4, float("nan")), 0.5) does work.
+
+        return np.power(data[..., 0] ** 2 + data[..., 1] ** 2, 0.5) * self.scale
+
+
 class Probability(DataAction):
     r"""Compute the mean probability of a single measurement outcome from counts.
 
