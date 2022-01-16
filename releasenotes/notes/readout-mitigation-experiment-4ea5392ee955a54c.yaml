@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added a new experiment (`qiskit_experiments.library import ReadoutMitigationExperiment`)
+    for calibrating readout mitigators.
