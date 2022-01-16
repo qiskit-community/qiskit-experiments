@@ -13,7 +13,7 @@
 """An mock IQ backend for testing."""
 
 from abc import abstractmethod
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -67,7 +67,16 @@ class MockIQBackend(FakeOpenPulse2Q):
     def _get_iq_cluster_width(self):
         return self._iq_cluster_width
 
-    def _get_normal_samples_for_shot(self, num_qubits):
+    def _get_normal_samples_for_shot(self, num_qubits: int):
+        """
+        Produce a list in the size of num_qubits. Each entry value produced from normal distribution with expected value
+        of '0' and standard deviation of self._get_iq_cluster_width().
+        Args:
+            num_qubits(int): The amount of qubits in the circuit.
+
+        Returns:
+            List[float]: A list with values that were produced from normal distribution.
+        """
         widths = self._get_iq_cluster_width()
         samples = [self._rng.normal(0, widths[qubit], size=1) for qubit in range(num_qubits)]
         return samples
@@ -94,8 +103,26 @@ class MockIQBackend(FakeOpenPulse2Q):
             return_dict[num] = qubit_string_value
         return return_dict
 
-    def _draw_iq_shots(self, prob, shots, num_qubits) -> List[List[List[float]]]:
-        """Produce an IQ shot."""
+    def _expand_probability(self, probability: Dict[float], num_qubits: int):
+        value2str = self._values_to_string_array(num_qubits)
+        for _, qubit_string_value in value2str.items():
+            if qubit_string_value in probability:
+                continue
+            else:
+                probability[qubit_string_value] = 0
+
+    def _draw_iq_shots(self, prob: Dict[float], shots: int, num_qubits: int) -> List[List[List[float]]]:
+        """
+        Produce an IQ shot.
+        Args:
+            prob(dict): A dictionary that the keys are output string and the value is the probability.
+            shots(int): The number of times the circuit will run.
+            num_qubits(int): The number of qubit in hte circuit.
+
+        Returns:
+            List[List[List[float]]]: return a list that each entry is a list that represent a shot. The output is build
+            as following - List[shot index][qubit index] = [I,Q]
+        """
 
         # the bellow code is for 1 qubit. for multiple qubit we need to randomize
         # more points for each qubit. for example, for two qubits we will have
@@ -148,6 +175,15 @@ class MockIQBackend(FakeOpenPulse2Q):
         return memory
 
     def _generate_data(self, prob: dict, num_qubits: int) -> Dict:
+        """
+
+        Args:
+            prob:
+            num_qubits:
+
+        Returns:
+
+        """
         # Maybe I need to get as input for generalization
         shots = self.options.get("shots")
         meas_level = self.options.get("meas_level")
@@ -222,8 +258,8 @@ class DragBackend(MockIQBackend):
 
     def __init__(
         self,
-        iq_cluster_centers: Tuple[float, float, float, float] = (1.0, 1.0, -1.0, -1.0),
-        iq_cluster_width: float = 1.0,
+        iq_cluster_centers: List[List[Tuple[float, float]]] = [[(1.0, 1.0), (-1.0, -1.0)]],
+        iq_cluster_width: List[float] = [1.0],
         error: float = 0.03,
         ideal_beta=2.0,
         gate_name: str = "Rp",
@@ -238,6 +274,8 @@ class DragBackend(MockIQBackend):
 
     def _compute_probability(self, circuit: QuantumCircuit) -> float:
         """Returns the probability based on the beta, number of gates, and leakage."""
+
+        # Need to change that the output will be dict. Need to see what the circuit do.
         n_gates = sum(circuit.count_ops().values())
 
         beta = next(iter(circuit.calibrations[self._gate_name].keys()))[1][0]
