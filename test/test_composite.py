@@ -161,6 +161,20 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         self.check_attributes(new_instance)
         self.assertEqual(new_instance.parent_id, None)
 
+    def test_nested_composite(self):
+        """
+        Test nested parallel experiments.
+        """
+        exp1 = FakeExperiment([0, 2])
+        exp2 = FakeExperiment([1, 3])
+        exp3 = ParallelExperiment([exp1, exp2])
+        exp4 = BatchExperiment([exp3, exp1])
+        exp5 = ParallelExperiment([exp4, FakeExperiment([4])])
+        nested_exp = BatchExperiment([exp5, exp3])
+        expdata = nested_exp.run(FakeBackend()).block_for_results()
+        status = expdata.status()
+        self.assertEqual(status, "DONE")
+
     def test_analysis_replace_results_true(self):
         """
         Test replace results when analyzing composite experiment data
@@ -216,7 +230,6 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
 
         expdata.tags = ["a", "c", "a"]
         data1.tags = ["b"]
-        print(expdata.tags)
         self.assertEqual(sorted(expdata.tags), ["a", "c"])
         self.assertEqual(sorted(data1.tags), ["b"])
         self.assertEqual(sorted(data2.tags), [])
