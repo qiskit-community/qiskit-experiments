@@ -230,7 +230,6 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
 
         expdata.tags = ["a", "c", "a"]
         data1.tags = ["b"]
-        print(expdata.tags)
         self.assertEqual(sorted(expdata.tags), ["a", "c"])
         self.assertEqual(sorted(data1.tags), ["b"])
         self.assertEqual(sorted(data2.tags), [])
