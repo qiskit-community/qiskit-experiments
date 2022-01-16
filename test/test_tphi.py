@@ -24,6 +24,7 @@ from qiskit_experiments.framework.composite.composite_experiment import Composit
 from qiskit_experiments.library import T1, T2Ramsey, Tphi
 from qiskit_experiments.test.utils import FakeJob
 from qiskit_experiments.test.tphi_backend import TphiBackend
+from qiskit_experiments.library.characterization.analysis.tphi_analysis import TphiAnalysis
 
 
 class TestTphi(QiskitTestCase):
@@ -41,8 +42,8 @@ class TestTphi(QiskitTestCase):
         exp = Tphi(qubit=0, delays_t1=delays_t1, delays_t2=delays_t2, unit="s", osc_freq=0.1)
 
         backend = TphiBackend(t1=10, t2ramsey=25, freq=0.1)
-        expdata = exp.run(backend, experiment_data=None).block_for_results()
-        res0 = expdata.child_data(0).analysis_results("T1").value.value
-        print("res0 = " + str(res0))
-        res1 = expdata.child_data(1).analysis_results("T2star").value.value
-        print("res1 = " + str(res1))
+        expdata = exp.run(backend=backend, analysis=TphiAnalysis()).block_for_results()
+        #res0 = expdata.child_data(0).analysis_results("T1").value.value
+        #print("res0 = " + str(res0))
+        #res1 = expdata.child_data(1).analysis_results("T2star").value.value
+        #print("res1 = " + str(res1))

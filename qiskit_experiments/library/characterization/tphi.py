@@ -14,10 +14,17 @@ from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.framework.composite.batch_experiment import BatchExperiment
 from qiskit_experiments.library.characterization import T1, T2Ramsey
 from qiskit_experiments.library.characterization.analysis.tphi_analysis import TphiAnalysis
-
+from qiskit_experiments.test.tphi_backend import TphiBackend
 
 class Tphi(BatchExperiment):
-    """Tphi Experiment Class"""
+    """Tphi Experiment Class
+    Tphi is defined as follows:
+
+    .. math::
+    1/T_{\phi} = 1/2T_1 + 1/T_{2*}
+        
+    
+    """
 
     __analysis_class__ = TphiAnalysis
 
@@ -43,17 +50,15 @@ class Tphi(BatchExperiment):
             experiment_type: String indicating the experiment type.
 
         """
-        # self._qubit = qubit
-        self._delays_t1 = delays_t1
-        self._delays_t2 = delays_t2
-        self._unit = unit
-        self._osc_freq = osc_freq
+        #self.set_experiment_options(delays_t1 = delays_t1, delays_t2 = delays_t2, unit = unit, osc_freq = osc_freq)
 
-        expT1 = T1(qubit, self._delays_t1, self._unit)
-        expT2 = T2Ramsey(qubit, self._delays_t2, self._unit, self._osc_freq)
+        expT1 = T1(qubit, delays_t1, unit)
+        expT2 = T2Ramsey(qubit, delays_t2, unit, osc_freq)
         self.exps = []
         self.exps.append(expT1)
         self.exps.append(expT2)
         # Run batch experiments
-        batch_exp = super().__init__(self.exps)
+        batch_exp = super().__init__(experiments=self.exps,
+                                     analysis=TphiAnalysis(),
+                                     backend=TphiBackend)
 

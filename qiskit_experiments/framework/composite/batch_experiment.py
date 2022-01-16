@@ -40,7 +40,9 @@ class BatchExperiment(CompositeExperiment):
     documentation for additional information.
     """
 
-    def __init__(self, experiments: List[BaseExperiment], backend: Optional[Backend] = None):
+    def __init__(self, experiments: List[BaseExperiment],
+                 analysis: None,
+                 backend: Optional[Backend] = None):
         """Initialize a batch experiment.
 
         Args:
@@ -57,7 +59,7 @@ class BatchExperiment(CompositeExperiment):
                     self._qubit_map[physical_qubit] = logical_qubit
                     logical_qubit += 1
         qubits = tuple(self._qubit_map.keys())
-        super().__init__(experiments, qubits, backend=backend)
+        super().__init__(experiments, qubits, analysis=analysis, backend=backend)
 
     def circuits(self):
 

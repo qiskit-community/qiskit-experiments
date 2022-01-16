@@ -87,7 +87,7 @@ class CompositeAnalysis(BaseAnalysis):
         for comp_id in component_ids:
             experiment_data.child_data(comp_id).block_for_results()
 
-        return [], []
+        return experiment_data, []
 
     def _initialize_components(self, experiment, experiment_data):
         """Initialize child data components and return list of child experiment IDs"""
