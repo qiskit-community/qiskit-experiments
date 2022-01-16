@@ -42,7 +42,7 @@ class TestTphi(QiskitTestCase):
 
         backend = TphiBackend(t1=10, t2ramsey=25, freq=0.1)
         expdata = exp.run(backend, experiment_data=None).block_for_results()
-        print("line 44" + str(expdata))
-        print()
-        res = expdata.child_data
-        print("res = " + str(res))
+        res0 = expdata.child_data(0).analysis_results("T1").value.value
+        print("res0 = " + str(res0))
+        res1 = expdata.child_data(1).analysis_results("T2star").value.value
+        print("res1 = " + str(res1))
