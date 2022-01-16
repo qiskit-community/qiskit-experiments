@@ -275,6 +275,7 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         # Optionally run analysis
         if analysis and experiment.analysis:
+            print("line 278")
             return self.analysis.run(experiment_data)
         else:
             return experiment_data

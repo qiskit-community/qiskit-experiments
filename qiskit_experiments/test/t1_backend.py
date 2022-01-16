@@ -103,7 +103,7 @@ class T1Backend(BackendV1):
                         prob1[qubit] = 1 - prob1[qubit]
                     elif op.name == "delay":
                         delay = op.params[0]
-                        prob1[qubit] = prob1[qubit] * np.exp(-delay / self._t1)
+                        prob1[qubit] = prob1[qubit] * np.exp(-delay / self._t1[qubit])
                     elif op.name == "measure":
                         meas_res = self._rng.binomial(
                             1, prob1[qubit] * (1 - ro10[qubit]) + (1 - prob1[qubit]) * ro01[qubit]
@@ -129,5 +129,4 @@ class T1Backend(BackendV1):
                     "data": {"counts": counts},
                 }
             )
-
         return FakeJob(backend=self, result=Result.from_dict(result))

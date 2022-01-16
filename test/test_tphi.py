@@ -10,6 +10,7 @@
 """
 Test T2Ramsey experiment
 """
+import pdb
 import numpy as np
 import time
 
@@ -41,4 +42,7 @@ class TestTphi(QiskitTestCase):
 
         backend = TphiBackend(t1=10, t2ramsey=25, freq=0.1)
         expdata = exp.run(backend, experiment_data=None).block_for_results()
-        display(expdata.figure(0))
+        print("line 44" + str(expdata))
+        print()
+        res = expdata.child_data
+        print("res = " + str(res))

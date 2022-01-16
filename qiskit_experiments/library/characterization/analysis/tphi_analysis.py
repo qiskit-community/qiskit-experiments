@@ -38,6 +38,7 @@ class TphiAnalysis(CompositeAnalysis):
 
     """
 
-
-#   def _run_analysis(self, experiment_data: CompositeExperimentData, **options):
-#        super._run_analysis(experiment_data, **options)
+#    def _run_analysis(self, experiment_data: ExperimentData, **options):
+#        print("in tphi _run_analysis")
+#        analysis_results = super._run_analysis(experiment_data, **options)
+#        print("analysis results = " + str( analysis_results))
