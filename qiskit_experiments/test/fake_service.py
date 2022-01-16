@@ -16,12 +16,10 @@ from typing import Optional, List, Dict, Type, Any, Union, Tuple
 import copy
 import json
 
-from test.fake_backend import FakeBackend
+from qiskit_experiments.test.fake_backend import FakeBackend
 
 from qiskit_experiments.database_service import DatabaseServiceV1
 from qiskit_experiments.database_service.device_component import DeviceComponent
-
-# pylint:disable=missing-raises-doc
 
 
 class FakeService(DatabaseServiceV1):
@@ -117,7 +115,7 @@ class FakeService(DatabaseServiceV1):
         """
 
         db_entry = copy.deepcopy(self.database[experiment_id])
-        db_entry["backend"] = FakeBackend()
+        db_entry["backend"] = FakeBackend(db_entry["backend_name"])
         return db_entry
 
     def experiments(
