@@ -15,6 +15,7 @@
 from typing import Optional, List, Dict, Type, Any, Union, Tuple
 import copy
 import json
+import pandas as pd
 
 from qiskit_experiments.test.fake_backend import FakeBackend
 
@@ -28,7 +29,8 @@ class FakeService(DatabaseServiceV1):
     """
 
     def __init__(self):
-        self.database = {}
+        self.experiments = pd.DataFrame(columns=["experiment_type", "backend_name", "metadata", "experiment_id", "parent_id", "job_ids", "tags", "notes"])
+        self.results = pd.DataFrame(columns=["experiment_id", "result_data", "result_type", "device_components", "tags", "quality", "verified", "result_id"])
 
     def create_experiment(
         self,
@@ -50,7 +52,6 @@ class FakeService(DatabaseServiceV1):
             backend_name: Name of the backend the experiment ran on.
             metadata: Experiment metadata.
             experiment_id: Experiment ID. It must be in the ``uuid4`` format.
-                One will be generated if not supplied.
             parent_id: The experiment ID of the parent experiment.
                 The parent experiment must exist, must be on the same backend as the child,
                 and an experiment cannot be its own parent.
@@ -64,7 +65,7 @@ class FakeService(DatabaseServiceV1):
             Experiment ID.
         """
 
-        self.database[experiment_id] = {
+        self.experiments = self.experiments.append({ 
             "experiment_type": experiment_type,
             "experiment_id": experiment_id,
             "parent_id": parent_id,
@@ -76,7 +77,7 @@ class FakeService(DatabaseServiceV1):
             "share_level": kwargs.get("share_level", None),
             "figure_names": kwargs.get("figure_names", None),
             "analysis": {},
-        }
+        }, ignore_index=True)
 
         return experiment_id
 
@@ -113,8 +114,7 @@ class FakeService(DatabaseServiceV1):
         Returns:
             A dictionary containing the retrieved experiment data.
         """
-
-        db_entry = copy.deepcopy(self.database[experiment_id])
+        db_entry = self.experiments.loc[lambda df: df["experiment_id"] == experiment_id, :].to_dict("records")[0]
         db_entry["backend"] = FakeBackend(db_entry["backend_name"])
         return db_entry
 
@@ -148,7 +148,7 @@ class FakeService(DatabaseServiceV1):
         json_encoder: Type[json.JSONEncoder] = json.JSONEncoder,
         **kwargs: Any,
     ) -> str:
-        self.database[experiment_id]["analysis"][result_id] = {
+        self.results = self.results.append({
             "result_data": result_data,
             "result_id": result_id,
             "result_type": result_type,
@@ -158,7 +158,7 @@ class FakeService(DatabaseServiceV1):
             "verified": verified,
             "tags": tags,
             "service": self,
-        }
+        }, ignore_index=True)
 
         return result_id
 
@@ -192,7 +192,7 @@ class FakeService(DatabaseServiceV1):
         tags_operator: Optional[str] = "OR",
         **filters: Any,
     ) -> List[Dict]:
-        return self.database[experiment_id]["analysis"].values()
+        return self.results.loc[lambda df: df["experiment_id"] == experiment_id, :].to_dict("records")
 
     def delete_analysis_result(self, result_id: str) -> None:
         raise Exception("not implemented")
