@@ -90,6 +90,7 @@ class MockIQBackend(FakeOpenPulse2Q):
              The probability that the binaomial distribution will use to generate an IQ shot.
         """
 
+    # pylint: disable=unused-argument
     def _iq_phase(self, circuit: QuantumCircuit) -> float:
         """Sub-classes can override this method to introduce a phase in the IQ plan.
 

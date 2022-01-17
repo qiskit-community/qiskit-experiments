@@ -22,8 +22,8 @@ from qiskit.providers import Backend
 import qiskit.pulse as pulse
 
 from qiskit_experiments.library.characterization import QubitSpectroscopy
-from .analysis.resonator_spectroscopy_analysis import ResonatorSpectroscopyAnalysis
 from qiskit_experiments.data_processing.processor_library import get_processor, ProjectorType
+from .analysis.resonator_spectroscopy_analysis import ResonatorSpectroscopyAnalysis
 
 
 class ResonatorSpectroscopy(QubitSpectroscopy):

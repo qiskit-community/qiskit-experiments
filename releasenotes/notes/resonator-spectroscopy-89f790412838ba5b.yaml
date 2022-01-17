@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    This change introduces a new experiment that allows users to run spectroscopy
+    on readout resonators. This is done by attaching a custom pulse-schedule to
+    the measure instruction. Furthermore, a new data processing node is introduced
+    that takes the absolute value of the IQ points. This node is needed to analyse
+    readout resonator spectroscopy IQ data since it rotates around in the IQ plane.
