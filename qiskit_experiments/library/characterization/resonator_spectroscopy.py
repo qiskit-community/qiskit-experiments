@@ -70,7 +70,7 @@ class ResonatorSpectroscopy(QubitSpectroscopy):
             frequencies: The frequencies to scan in the experiment, in Hz.
             backend: Optional, the backend to run the experiment on.
             absolute: Boolean to specify if the frequencies are absolute or relative to the
-                qubit frequency in the backend.
+                resonator frequency in the backend.
         """
         super().__init__(qubit, frequencies, backend, absolute)
         self.analysis = ResonatorSpectroscopyAnalysis()
