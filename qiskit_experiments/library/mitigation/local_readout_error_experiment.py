@@ -15,11 +15,11 @@ Local readout mitigation calibration experiment class.
 from typing import Iterable, List
 from qiskit import QuantumCircuit
 from qiskit_experiments.framework import BaseExperiment
-from .local_mitigation_analysis import LocalMitigationAnalysis
+from .local_readout_error_analysis import LocalReadoutErrorAnalysis
 from .utils import calibration_circuit
 
-class LocalReadoutMitigationExperiment(BaseExperiment):
-    """Class for local readout mitigation experiments
+class LocalReadoutErrorExperiment(BaseExperiment):
+    """Class for local readout error characterization experiment
     # section: overview
         Readout mitigation aims to reduce the effect of errors during the measurement
         of the qubits in a quantum device. It is used both to obtain a more accurate
@@ -60,7 +60,7 @@ class LocalReadoutMitigationExperiment(BaseExperiment):
             qubits: The qubits being mitigated
         """
         super().__init__(qubits)
-        self.analysis = LocalMitigationAnalysis()
+        self.analysis = LocalReadoutErrorAnalysis()
 
     def circuits(self) -> List[QuantumCircuit]:
         """Returns the experiment's circuits"""

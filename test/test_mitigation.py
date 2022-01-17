@@ -19,7 +19,7 @@ import unittest
 from test.base import QiskitExperimentsTestCase
 import numpy as np
 from qiskit.quantum_info.operators.predicates import matrix_equal
-from qiskit_experiments.library import LocalReadoutMitigationExperiment, CorrelatedReadoutMitigationExperiment
+from qiskit_experiments.library import LocalReadoutErrorExperiment, CorrelatedReadoutErrorExperiment
 from qiskit_experiments.framework import ExperimentData
 
 
@@ -50,7 +50,7 @@ class TestMitigation(QiskitExperimentsTestCase):
         expdata = ExperimentData()
         expdata.add_data(run_data)
         expdata._metadata = run_meta
-        exp = LocalReadoutMitigationExperiment(qubits)
+        exp = LocalReadoutErrorExperiment(qubits)
         result = exp.analysis.run(expdata)
         mitigator = result.analysis_results(0).value
 
@@ -120,7 +120,7 @@ class TestMitigation(QiskitExperimentsTestCase):
         expdata = ExperimentData()
         expdata.add_data(run_data)
         expdata._metadata = run_meta
-        exp = CorrelatedReadoutMitigationExperiment(qubits)
+        exp = CorrelatedReadoutErrorExperiment(qubits)
         result = exp.analysis.run(expdata)
         mitigator = result.analysis_results(0).value
 

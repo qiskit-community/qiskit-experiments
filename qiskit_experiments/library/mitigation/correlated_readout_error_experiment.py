@@ -15,11 +15,11 @@ Correlated readout mitigation calibration experiment class.
 from typing import Iterable, List
 from qiskit import QuantumCircuit
 from qiskit_experiments.framework import BaseExperiment
-from .correlated_mitigation_analysis import CorrelatedMitigationAnalysis
+from .correlated_readout_error_analysis import CorrelatedReadoutErrorAnalysis
 from .utils import calibration_circuit
 
-class CorrelatedReadoutMitigationExperiment(BaseExperiment):
-    """Class for correlated readout mitigation experiment
+class CorrelatedReadoutErrorExperiment(BaseExperiment):
+    """Class for correlated readout error characterization experiment
     # section: overview
         Readout mitigation aims to reduce the effect of errors during the measurement
         of the qubits in a quantum device. It is used both to obtain a more accurate
@@ -57,7 +57,7 @@ class CorrelatedReadoutMitigationExperiment(BaseExperiment):
             qubits: The qubits being mitigated
         """
         super().__init__(qubits)
-        self.analysis = CorrelatedMitigationAnalysis()
+        self.analysis = CorrelatedReadoutErrorAnalysis()
 
     def circuits(self) -> List[QuantumCircuit]:
         """Returns the experiment's circuits"""
