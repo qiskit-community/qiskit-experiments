@@ -13,7 +13,6 @@
 Local readout mitigation calibration experiment class.
 """
 from typing import Iterable, List
-
 from qiskit import QuantumCircuit
 from qiskit_experiments.framework import BaseExperiment
 from .local_mitigation_analysis import LocalMitigationAnalysis
@@ -32,37 +31,23 @@ class LocalReadoutMitigationExperiment(BaseExperiment):
         to observe :math:`y` given the true outcome should be :math:`x`. The assignment matrix is used
         to compute the *mitigation matrix* used in the mitigation process itself.
 
-        A readout mitigation experiment aims to determine the assignment matrix
-        for the readout error in a given device, and generate a corresponding mitigator
-        based on the `qiskit-terra` classes of `Correlated readout mitigator
-        <https://qiskit.org/documentation/stubs/qiskit.result.CorrelatedReadoutMitigator.html>_`
-        and `Local readout mitigator
-        <https://qiskit.org/documentation/stubs/qiskit.result.BaseReadoutMitigator.html#qiskit.result.BaseReadoutMitigator.html>_`
-
-        A *Correlated readout mitigator* uses the full :math:`2^n\times 2^n` assignment matrix, meaning
-        it can only be used for small values of :math:`n`.
-
         A *Local readout mitigator* works under the assumption the readout errors are mostly *local*, meaning
         readout errors for different qubits are independent of each other. In this case, the assignment matrix
         is the tensor product of :math:`n` :math:`2\times 2` matrices, one for each qubit, making it practical
         to store the assignment matrix in implicit form, by storing the individual :math:`2\times 2` assignment matrices.
+        The corresponding class in Qiskit is the `Local readout mitigator
+        <https://qiskit.org/documentation/stubs/qiskit.result.BaseReadoutMitigator.html#qiskit.result.BaseReadoutMitigator.html>_`
+        in `qiskit-terra`.
 
-        The readout mitigation experiment can be passed a `method` parameter to determine
-        which method will be used (and which mitigator will be returned): The default `local` method
-        or the `correlated` method.
+        The experiment generates 2 circuits, corresponding to the states
+        :math:`|0^n>` and :math:`|1^n>`, measuring the error in all the qubits at once, and constructs
+        the assignment matrix and local mitigator from the results.
 
-        In the `local` method, the experiment generates 2 circuits, corresponding to the states
-        :math:`|0^n>` and :math:`|1^n>`, measuring the error in all the qubits at once.
-
-        In the `correlated` method, the experiment generates :math:`2^n` circuits, for every possible
-        :math:`n`-qubit quantum state.
-
-        See :class:`LocalMitigationAnalysis` and :class:`CorrelatedMitigationAnalysis`
-        documentation for additional information on readout mitigation experiment analysis.
+        See :class:`LocalMitigationAnalysis`
+        documentation for additional information on local readout mitigation experiment analysis.
 
     # section: analysis_ref
         :py:class:`LocalMitigationAnalysis`
-        :py:class:`CorrelatedMitigationAnalysis`
 
     # section: reference
         .. ref_arxiv:: 1 2006.14044
