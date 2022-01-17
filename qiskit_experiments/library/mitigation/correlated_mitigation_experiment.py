@@ -55,14 +55,6 @@ class CorrelatedReadoutMitigationExperiment(BaseExperiment):
 
         Args:
             qubits: The qubits being mitigated
-
-        Additional info:
-            The currently supported mitigation methods are:
-            * "local": each qubit is mitigated by itself; this is the default method,
-            and assumes readout errors are independent for each qubits
-            * "correlated": All the qubits are mitigated together; this results in an exponentially
-            large mitigation matrix and so is useable only for a small number of qubits,
-            but might be more accurate than local mitigation.
         """
         super().__init__(qubits)
         self.analysis = CorrelatedMitigationAnalysis()
