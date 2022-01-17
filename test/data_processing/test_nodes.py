@@ -152,14 +152,16 @@ class TestToAbs(QiskitExperimentsTestCase):
 
         processed = ToAbs()(np.array(data))
 
-        val = np.sqrt(2**2 + 3**2)
-        val_err = np.sqrt(2**2*0.2**2+2**2*0.3**2) / val
+        val = np.sqrt(2 ** 2 + 3 ** 2)
+        val_err = np.sqrt(2 ** 2 * 0.2 ** 2 + 2 ** 2 * 0.3 ** 2) / val
 
-        expected = np.array([
-            [ufloat(np.sqrt(8), np.nan)],
-            [ufloat(np.sqrt(5), np.nan)],
-            [ufloat(val, val_err)],
-        ])
+        expected = np.array(
+            [
+                [ufloat(np.sqrt(8), np.nan)],
+                [ufloat(np.sqrt(5), np.nan)],
+                [ufloat(val, val_err)],
+            ]
+        )
 
         np.testing.assert_array_almost_equal(
             unp.nominal_values(processed),

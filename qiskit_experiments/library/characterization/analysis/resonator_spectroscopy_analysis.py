@@ -20,19 +20,20 @@ from qiskit_experiments.curve_analysis import ResonanceAnalysis
 from qiskit_experiments.framework import AnalysisResultData, ExperimentData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 
+
 class ResonatorSpectroscopyAnalysis(ResonanceAnalysis):
     """Class to analysis resonator spectroscopy."""
 
     @classmethod
     def _default_options(cls):
         options = super()._default_options()
-        options.dimensionality_reduction="ToAbs"
+        options.dimensionality_reduction = "ToAbs"
         options.result_parameters = [curve.ParameterRepr("freq", "meas_freq", "Hz")]
         options.plot_iq_data = True
         return options
 
     def _run_analysis(
-            self, experiment_data: ExperimentData
+        self, experiment_data: ExperimentData
     ) -> Tuple[List[AnalysisResultData], List["pyplot.Figure"]]:
         """Wrap the analysis to optionally plot the IQ data."""
         analysis_results, figures = super()._run_analysis(experiment_data)

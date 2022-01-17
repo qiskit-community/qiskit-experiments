@@ -20,8 +20,10 @@ from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing import nodes
 
+
 class ProjectorType(str, Enum):
     """Types of projectors for data dimensionality reduction."""
+
     SVD = "SVD"
     ABS = "ABS"
     REAL = "REAL"
