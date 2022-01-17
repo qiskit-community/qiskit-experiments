@@ -14,6 +14,7 @@ Utility functions for readout mitigation experiments
 """
 from qiskit import QuantumCircuit
 
+
 def calibration_circuit(num_qubits: int, label: str) -> QuantumCircuit:
     """Return a calibration circuit.
 

@@ -18,6 +18,7 @@ from qiskit_experiments.framework import BaseExperiment
 from .correlated_readout_error_analysis import CorrelatedReadoutErrorAnalysis
 from .utils import calibration_circuit
 
+
 class CorrelatedReadoutErrorExperiment(BaseExperiment):
     """Class for correlated readout error characterization experiment
     # section: overview
@@ -50,6 +51,7 @@ class CorrelatedReadoutErrorExperiment(BaseExperiment):
     # section: reference
         .. ref_arxiv:: 1 2006.14044
     """
+
     def __init__(self, qubits: Iterable[int]):
         """Initialize a correlated readout mitigation calibration experiment.
 
