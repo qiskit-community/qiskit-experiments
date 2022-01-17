@@ -23,26 +23,25 @@ from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Optio
 
 
 class LocalReadoutErrorAnalysis(BaseAnalysis):
-    """
-    Local readout error characterization anaylsis
+    r"""
+    Local readout error characterization analysis
     # section: overview
 
        This class generates the assignment matrices characterizing the
        readout error for each of the given qubits from the experiment results.
 
-        Each such matrix is a :math:`2\times 2` matrix :math:`A`. Such that :math:`A_{y,x}`
+       Each such matrix is a :math:`2\times 2` matrix :math:`A`. Such that :math:`A_{y,x}`
        is the probability to observe :math:`y` given the true outcome should be :math:`x`,
-       where :math:`x,y\in\left\{0,1\right\}`.
+       where :math:`x,y \in \left\{0,1\right\}` can be 0 and 1.
 
        In the experiment, two circuits are constructed - one for 0 outcome for all
-       qubits and one for 1 outcome. From the observed results on the circuit, the probability for
-       each :math:`x,y` is determined, and :math:`A_{y,x}` is set accordingly.
+       qubits and one for 1 outcome. From the observed results on the circuit, the
+       probability for each :math:`x,y` is determined, and :math:`A_{y,x}` is set accordingly.
 
-
-    # section: return value
-        * The `Local readout error mitigator <https://qiskit.org/documentation/stubs/qiskit.result.LocalReadoutMitigator.html>_`
-        object (the assignment matrix can be access via its `assignment_matrix()` method).
+       Returns
+        * The `Local readout error mitigator <https://qiskit.org/documentation/stubs/qiskit.result.LocalReadoutMitigator.html>`_ object (the assignment matrix can be accessed via its ``assignment_matrix()`` method).
         * (Optional) A figure of the assignment matrix.
+
 
     # section: reference
         .. ref_arxiv:: 1 2006.14044

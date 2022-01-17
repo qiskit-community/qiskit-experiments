@@ -62,8 +62,7 @@ Analysis
     RamseyXYAnalysis
     ReadoutAngleAnalysis
     LocalReadoutErrorAnalysis
-    CorrelatedReadoutErrorAnalysis,
-
+    CorrelatedReadoutErrorAnalysis
 
 .. autosummary::
     :toctree: ../stubs/
@@ -81,8 +80,8 @@ from .analysis import (
     T1Analysis,
     CrossResonanceHamiltonianAnalysis,
     ReadoutAngleAnalysis,
-    CorrelatedReadoutErrorAnalysis,
     LocalReadoutErrorAnalysis,
+    CorrelatedReadoutErrorAnalysis,
 )
 
 
@@ -99,5 +98,5 @@ from .fine_frequency import FineFrequency
 from .drag import RoughDrag
 from .readout_angle import ReadoutAngle
 from .fine_drag import FineDrag, FineXDrag, FineSXDrag
-from .local_readout_error_experiment import LocalReadoutError
-from .correlated_readout_error_experiment import CorrelatedReadoutError
+from .local_readout_error import LocalReadoutError
+from .correlated_readout_error import CorrelatedReadoutError

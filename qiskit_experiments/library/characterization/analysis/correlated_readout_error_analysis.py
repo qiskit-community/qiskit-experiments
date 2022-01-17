@@ -22,26 +22,25 @@ from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Optio
 
 
 class CorrelatedReadoutErrorAnalysis(BaseAnalysis):
-    """
-    Correlated readout error characterization anaylsis
+    r"""
+    Correlated readout error characterization analysis
 
     # section: overview
 
-       This class generates the full assignment matrix :math:`A` characterizing the
-       readout error for the given qubits from the experiment results.
+        This class generates the full assignment matrix :math:`A` characterizing the
+        readout error for the given qubits from the experiment results.
 
-       :math:`A` is a :math:`2^n\times 2^n` matrix :math:`A` such that :math:`A_{y,x}`
-       is the probability to observe :math:`y` given the true outcome should be :math:`x`.
+        :math:`A` is a :math:`2^n\times 2^n` matrix :math:`A` such that :math:`A_{y,x}`
+        is the probability to observe :math:`y` given the true outcome should be :math:`x`.
 
-       In the experiment, for each :math:`x`a circuit is constructed whose expected
-       outcome is :math:`x`. From the observed results on the circuit, the probability for
-       each :math:`y` is determined, and :math:`A_{y,x}` is set accordingly.
+        In the experiment, for each :math:`x`a circuit is constructed whose expected
+        outcome is :math:`x`. From the observed results on the circuit, the probability for
+        each :math:`y` is determined, and :math:`A_{y,x}` is set accordingly.
 
+        Returns
+            * The `Correlated readout error mitigator <https://qiskit.org/documentation/stubs/qiskit.result.CorrelatedReadoutMitigator.html>`_ object (the assignment matrix can be accessed via its ``assignment_matrix()`` method).
+            * (Optional) A figure of the assignment matrix.
 
-    # section: return value
-        * The `Correlated readout error mitigator <https://qiskit.org/documentation/stubs/qiskit.result.CorrelatedReadoutMitigator.html>_`
-        object (the assignment matrix can be access via its `assignment_matrix()` method).
-        * (Optional) A figure of the assignment matrix.
 
     # section: reference
         .. ref_arxiv:: 1 2006.14044
