@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-A Tester for the Readout Mitigation experiment
+A Tester for the Readout error experiment
 """
 
 
@@ -19,7 +19,7 @@ import unittest
 from test.base import QiskitExperimentsTestCase
 import numpy as np
 from qiskit.quantum_info.operators.predicates import matrix_equal
-from qiskit_experiments.library import LocalReadoutErrorExperiment, CorrelatedReadoutErrorExperiment
+from qiskit_experiments.library.characterization import LocalReadoutError, CorrelatedReadoutError
 from qiskit_experiments.framework import ExperimentData
 
 
@@ -50,7 +50,7 @@ class TestMitigation(QiskitExperimentsTestCase):
         expdata = ExperimentData()
         expdata.add_data(run_data)
         expdata._metadata = run_meta
-        exp = LocalReadoutErrorExperiment(qubits)
+        exp = LocalReadoutError(qubits)
         result = exp.analysis.run(expdata)
         mitigator = result.analysis_results(0).value
 
@@ -120,7 +120,7 @@ class TestMitigation(QiskitExperimentsTestCase):
         expdata = ExperimentData()
         expdata.add_data(run_data)
         expdata._metadata = run_meta
-        exp = CorrelatedReadoutErrorExperiment(qubits)
+        exp = CorrelatedReadoutError(qubits)
         result = exp.analysis.run(expdata)
         mitigator = result.analysis_results(0).value
 

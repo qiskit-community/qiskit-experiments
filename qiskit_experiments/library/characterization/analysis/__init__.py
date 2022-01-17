@@ -22,3 +22,5 @@ from .t2ramsey_analysis import T2RamseyAnalysis
 from .t1_analysis import T1Analysis
 from .cr_hamiltonian_analysis import CrossResonanceHamiltonianAnalysis
 from .readout_angle_analysis import ReadoutAngleAnalysis
+from .local_readout_error_analysis import LocalReadoutErrorAnalysis
+from .correlated_readout_error_analysis import CorrelatedReadoutErrorAnalysis

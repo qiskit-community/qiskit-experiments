@@ -41,6 +41,8 @@ Experiments
     FineDrag
     FineXDrag
     FineSXDrag
+    LocalReadoutError
+    CorrelatedReadoutError
 
 
 Analysis
@@ -59,6 +61,14 @@ Analysis
     FineAmplitudeAnalysis
     RamseyXYAnalysis
     ReadoutAngleAnalysis
+    LocalReadoutErrorAnalysis
+    CorrelatedReadoutErrorAnalysis,
+
+
+.. autosummary::
+    :toctree: ../stubs/
+    :template: autosummary/analysis.rst
+
 """
 
 from .analysis import (
@@ -71,7 +81,10 @@ from .analysis import (
     T1Analysis,
     CrossResonanceHamiltonianAnalysis,
     ReadoutAngleAnalysis,
+    CorrelatedReadoutErrorAnalysis,
+    LocalReadoutErrorAnalysis,
 )
+
 
 from .t1 import T1
 from .qubit_spectroscopy import QubitSpectroscopy
@@ -86,3 +99,5 @@ from .fine_frequency import FineFrequency
 from .drag import RoughDrag
 from .readout_angle import ReadoutAngle
 from .fine_drag import FineDrag, FineXDrag, FineSXDrag
+from .local_readout_error_experiment import LocalReadoutError
+from .correlated_readout_error_experiment import CorrelatedReadoutError

@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Local readout mitigation calibration analysis class
+Local readout readout_error calibration analysis class
 """
 from typing import List, Tuple
 import numpy as np

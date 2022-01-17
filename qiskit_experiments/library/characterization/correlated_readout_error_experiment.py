@@ -10,19 +10,20 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Correlated readout mitigation calibration experiment class.
+Correlated readout readout_error calibration experiment class.
 """
 from typing import Iterable, List
 from qiskit import QuantumCircuit
 from qiskit_experiments.framework import BaseExperiment
-from .correlated_readout_error_analysis import CorrelatedReadoutErrorAnalysis
-from .utils import calibration_circuit
+from qiskit_experiments.library.characterization.analysis.correlated_readout_error_analysis import (
+    CorrelatedReadoutErrorAnalysis,
+)
 
 
-class CorrelatedReadoutErrorExperiment(BaseExperiment):
+class CorrelatedReadoutError(BaseExperiment):
     """Class for correlated readout error characterization experiment
     # section: overview
-        Readout mitigation aims to reduce the effect of errors during the measurement
+        Readout readout_error aims to reduce the effect of errors during the measurement
         of the qubits in a quantum device. It is used both to obtain a more accurate
         distribution of the outputs, and more accurate measurements of expectation
         value for measurables.
@@ -30,7 +31,7 @@ class CorrelatedReadoutErrorExperiment(BaseExperiment):
         The readout mitigator is generated from an *assignment matrix*:
         a :math:`2^n\times 2^n` matrix :math:`A` such that :math:`A_{y,x}` is the probability
         to observe :math:`y` given the true outcome should be :math:`x`. The assignment matrix is used
-        to compute the *mitigation matrix* used in the mitigation process itself.
+        to compute the *readout_error matrix* used in the readout_error process itself.
 
         A *Correlated readout mitigator* uses the full :math:`2^n\times 2^n` assignment matrix, meaning
         it can only be used for small values of :math:`n`.
@@ -43,7 +44,7 @@ class CorrelatedReadoutErrorExperiment(BaseExperiment):
         the assignment matrix and correlated mitigator from the results.
 
         See :class:`CorrelatedMitigationAnalysis`
-        documentation for additional information on correlated readout mitigation experiment analysis.
+        documentation for additional information on correlated readout readout_error experiment analysis.
 
     # section: analysis_ref
         :py:class:`CorrelatedMitigationAnalysis`
@@ -53,7 +54,7 @@ class CorrelatedReadoutErrorExperiment(BaseExperiment):
     """
 
     def __init__(self, qubits: Iterable[int]):
-        """Initialize a correlated readout mitigation calibration experiment.
+        """Initialize a correlated readout readout_error calibration experiment.
 
         Args:
             qubits: The qubits being characterized for readout error
@@ -64,4 +65,19 @@ class CorrelatedReadoutErrorExperiment(BaseExperiment):
     def circuits(self) -> List[QuantumCircuit]:
         """Returns the experiment's circuits"""
         labels = [bin(j)[2:].zfill(self.num_qubits) for j in range(2 ** self.num_qubits)]
-        return [calibration_circuit(self.num_qubits, label) for label in self.helper.labels()]
+        return [self.calibration_circuit(self.num_qubits, label) for label in self.helper.labels()]
+
+    def calibration_circuit(num_qubits: int, label: str) -> QuantumCircuit:
+        """Return a calibration circuit.
+
+        This is an N-qubit circuit where N is the length of the label.
+        The circuit consists of X-gates on qubits with label bits equal to 1,
+        and measurements of all qubits.
+        """
+        circ = QuantumCircuit(num_qubits, name="meas_mit_cal_" + label)
+        for i, val in enumerate(reversed(label)):
+            if val == "1":
+                circ.x(i)
+        circ.measure_all()
+        circ.metadata = {"label": label}
+        return circ

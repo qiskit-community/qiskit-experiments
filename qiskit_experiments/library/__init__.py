@@ -71,6 +71,8 @@ Some experiments may be also used for gate calibration.
     ~characterization.RamseyXY
     ~characterization.FineFrequency
     ~characterization.ReadoutAngle
+    ~characterization.LocalReadoutError
+    ~characterization.CorrelatedReadoutError
 
 
 .. _calibration:
@@ -138,11 +140,12 @@ from .characterization import (
     RamseyXY,
     FineFrequency,
     ReadoutAngle,
+    LocalReadoutError,
+    CorrelatedReadoutError,
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
 from .quantum_volume import QuantumVolume
-from .mitigation import LocalReadoutErrorExperiment, CorrelatedReadoutErrorExperiment
 
 # Experiment Sub-modules
 from . import calibration
