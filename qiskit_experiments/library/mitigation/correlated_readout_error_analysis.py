@@ -23,8 +23,42 @@ from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Optio
 
 class CorrelatedReadoutErrorAnalysis(BaseAnalysis):
     """
-    Measurement correction analysis for a full calibration
+    Correlated readout error characterization anaylsis
+
+    # section: overview
+
+       This class generates the full assignment matrix :math:`A` characterizing the
+       readout error for the given qubits from the experiment results.
+
+       :math:`A` is a :math:`2^n\times 2^n` matrix :math:`A` such that :math:`A_{y,x}`
+       is the probability to observe :math:`y` given the true outcome should be :math:`x`.
+
+       In the experiment, for each :math:`x`a circuit is constructed whose expected
+       outcome is :math:`x`. From the observed results on the circuit, the probability for
+       each :math:`y` is determined, and :math:`A_{y,x}` is set accordingly.
+
+
+    # section: return value
+        * The `Correlated readout error mitigator <https://qiskit.org/documentation/stubs/qiskit.result.CorrelatedReadoutMitigator.html>_`
+        object (the assignment matrix can be access via its `assignment_matrix()` method).
+        * (Optional) A figure of the assignment matrix.
+
+    # section: reference
+        .. ref_arxiv:: 1 2006.14044
     """
+
+    @classmethod
+    def _default_options(cls) -> Options:
+        """Return default analysis options.
+
+        Analysis Options:
+            plot (bool): Set ``True`` to create figure for fit result.
+            ax (AxesSubplot): Optional. A matplotlib axis object to draw.
+        """
+        options = super()._default_options()
+        options.plot = False
+        options.ax = None
+        return options
 
     def _run_analysis(
         self, experiment_data: ExperimentData, **options
@@ -35,8 +69,11 @@ class CorrelatedReadoutErrorAnalysis(BaseAnalysis):
         matrix = self._generate_matrix(data, labels)
         result_mitigator = CorrelatedReadoutMitigator(matrix, qubits=qubits)
         analysis_results = [AnalysisResultData("Correlated Readout Mitigator", result_mitigator)]
-        ax = options.get("ax", None)
-        figures = [self._plot_calibration(matrix, labels, ax)]
+        if self.options.plot:
+            ax = options.get("ax", None)
+            figures = [self._plot_calibration(matrix, labels, ax)]
+        else:
+            figures = None
         return analysis_results, figures
 
     def _generate_matrix(self, data, labels) -> np.array:

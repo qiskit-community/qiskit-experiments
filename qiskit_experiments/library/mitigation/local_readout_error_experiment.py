@@ -57,7 +57,7 @@ class LocalReadoutErrorExperiment(BaseExperiment):
         """Initialize a local readout mitigation calibration experiment.
 
         Args:
-            qubits: The qubits being mitigated
+            qubits: The qubits being characterized for readout error
         """
         super().__init__(qubits)
         self.analysis = LocalReadoutErrorAnalysis()
