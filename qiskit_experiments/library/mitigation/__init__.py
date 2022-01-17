@@ -36,6 +36,6 @@ Analysis
     CorrelatedMitigationAnalysis
     LocalMitigationAnalysis
 """
-from .mitigation_experiment import ReadoutMitigationExperiment
-from .mitigation_analysis import CorrelatedMitigationAnalysis
-from .mitigation_analysis import LocalMitigationAnalysis
+from .correlated_mitigation_experiment import ReadoutMitigationExperiment
+from .correlated_mitigation_analysis import CorrelatedMitigationAnalysis
+from .correlated_mitigation_analysis import LocalMitigationAnalysis

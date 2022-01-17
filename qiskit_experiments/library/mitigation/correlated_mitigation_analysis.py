@@ -10,14 +10,12 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Measurement calibration analysis classes
+Correlated readout mitigation calibration analysis classes
 """
 from typing import List, Tuple
 import numpy as np
 import matplotlib.pyplot as plt
 from qiskit.result import CorrelatedReadoutMitigator
-from qiskit.result import LocalReadoutMitigator
-from qiskit.result import marginal_counts
 from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
@@ -84,78 +82,3 @@ class CorrelatedMitigationAnalysis(BaseAnalysis):
         ax.set_xticklabels(labels)
         ax.set_yticklabels(labels)
         return figure
-
-
-class LocalMitigationAnalysis(BaseAnalysis):
-    """
-    Measurement correction analysis for a full calibration
-    """
-
-    @classmethod
-    def _default_options(cls) -> Options:
-        """Return default analysis options.
-
-        Analysis Options:
-            plot (bool): Set ``True`` to create figure for fit result.
-            ax(AxesSubplot): Optional. A matplotlib axis object to draw.
-        """
-        options = super()._default_options()
-        options.plot = True
-        options.ax = None
-        return options
-
-    def _run_analysis(
-        self, experiment_data: ExperimentData
-    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
-        data = experiment_data.data()
-        qubits = experiment_data.metadata["physical_qubits"]
-        matrices = self._generate_matrices(data)
-        result_mitigator = LocalReadoutMitigator(matrices, qubits=qubits)
-        analysis_results = [AnalysisResultData("Local Readout Mitigator", result_mitigator)]
-        if self.options.plot:
-            figure = assignment_matrix_visualization(
-                result_mitigator.assignment_matrix(), ax=self.options.ax
-            )
-            figures = [figure]
-        else:
-            figures = None
-        return analysis_results, figures
-
-    def _generate_matrices(self, data) -> List[np.array]:
-        num_qubits = len(data[0]["metadata"]["label"])
-        counts = [None, None]
-        for result in data:
-            for i in range(2):
-                if result["metadata"]["label"] == str(i) * num_qubits:
-                    counts[i] = result["counts"]
-        matrices = []
-        for k in range(num_qubits):
-            matrix = np.zeros([2, 2], dtype=float)
-            marginalized_counts = []
-            for i in range(2):
-                marginalized_counts.append(marginal_counts(counts[i], [k]))
-            # matrix[i][j] is the probability of counting i for expected j
-            for i in range(2):
-                for j in range(2):
-                    matrix[i][j] = marginalized_counts[j][str(i)] / sum(
-                        marginalized_counts[j].values()
-                    )
-            matrices.append(matrix)
-        return matrices
-
-
-def assignment_matrix_visualization(assignment_matrix, ax=None):
-    """Displays a visualization of the assignment matrix compared to the identity"""
-    if ax is None:
-        ax = get_non_gui_ax()
-    figure = ax.get_figure()
-    n = len(assignment_matrix)
-    diff = np.abs(assignment_matrix - np.eye(n))
-    im2 = ax.matshow(diff, cmap=plt.cm.Reds, vmin=0, vmax=0.2)
-    ax.set_yticks(np.arange(n))
-    ax.set_xticks(np.arange(n))
-    ax.set_yticklabels(n * [""])
-    ax.set_xticklabels(n * [""])
-    ax.set_xlabel(r"$|A - I|$", fontsize=16)
-    figure.colorbar(im2, ax=ax)
-    return figure
