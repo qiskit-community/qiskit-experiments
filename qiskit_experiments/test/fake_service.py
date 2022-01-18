@@ -29,7 +29,7 @@ class FakeService(DatabaseServiceV1):
     """
 
     def __init__(self):
-        self.experiments = pd.DataFrame(columns=["experiment_type", "backend_name", "metadata", "experiment_id", "parent_id", "job_ids", "tags", "notes"])
+        self.exps = pd.DataFrame(columns=["experiment_type", "backend_name", "metadata", "experiment_id", "parent_id", "job_ids", "tags", "notes"])
         self.results = pd.DataFrame(columns=["experiment_id", "result_data", "result_type", "device_components", "tags", "quality", "verified", "result_id"])
 
     def create_experiment(
@@ -65,7 +65,7 @@ class FakeService(DatabaseServiceV1):
             Experiment ID.
         """
 
-        self.experiments = self.experiments.append({ 
+        self.exps = self.exps.append({ 
             "experiment_type": experiment_type,
             "experiment_id": experiment_id,
             "parent_id": parent_id,
@@ -114,7 +114,7 @@ class FakeService(DatabaseServiceV1):
         Returns:
             A dictionary containing the retrieved experiment data.
         """
-        db_entry = self.experiments.loc[lambda df: df["experiment_id"] == experiment_id, :].to_dict("records")[0]
+        db_entry = self.exps.loc[lambda df: df["experiment_id"] == experiment_id, :].to_dict("records")[0]
         db_entry["backend"] = FakeBackend(db_entry["backend_name"])
         return db_entry
 
