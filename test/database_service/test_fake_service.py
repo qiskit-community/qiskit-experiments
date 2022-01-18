@@ -34,7 +34,7 @@ class TestFakeService(QiskitExperimentsTestCase):
                 for tags in range(2):
                     entry = self.generate_entry(experiment_type, backend_name, tags, num)
                     self.service.create_experiment(**entry)
-                    self.expdict[num] = entry
+                    self.expdict[str(num)] = entry
                     num += 1
 
     @staticmethod
@@ -45,13 +45,15 @@ class TestFakeService(QiskitExperimentsTestCase):
         return entry
                         
     def test_create_experiment(self):
-        self.assertEqual(len(self.service.experiments), 8)
-        num = 0
-        for experiment_type in range(2):
-            for backend_name in range(2):
-                for tags in range(2):
-                    entry = self.generate_entry(experiment_type, backend_name, tags, num)
-                    full_entry = self.service.experiments.loc[lambda df: df["experiment_id"] == entry["experiment_id"], :].to_dict("records")
-                    self.assertEqual(len(full_entry), 1)
-                    self.assertTrue(entry.items() <= full_entry[0].items())
-                    num += 1
+        self.assertEqual(len(self.service.exps), 8)
+        is_in_frame = []
+        for i in range(len(self.service.exps)):
+            full_entry = self.service.exps.loc[i, :].to_dict()
+            self.assertTrue(full_entry["experiment_id"] not in is_in_frame)
+            is_in_frame.append(full_entry["experiment_id"])
+            self.assertTrue(full_entry["experiment_id"] in self.expdict.keys())
+            entry = self.expdict[full_entry["experiment_id"]]
+            self.assertTrue(entry.items() <= full_entry.items())
+
+    def test_single_experiment_query(self):
+        pass
