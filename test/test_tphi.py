@@ -10,38 +10,25 @@
 """
 Test T2Ramsey experiment
 """
-import pdb
-import numpy as np
-import time
 
-from qiskit.utils import apply_prefix
-from qiskit.providers import BackendV1
-from qiskit.providers.options import Options
-from qiskit.providers.models import QasmBackendConfiguration
-from qiskit.result import Result
-from qiskit.test import QiskitTestCase
-from qiskit_experiments.framework.composite.composite_experiment import CompositeExperiment
-from qiskit_experiments.library import T1, T2Ramsey, Tphi
-from qiskit_experiments.test.utils import FakeJob
+from test.base import QiskitExperimentsTestCase
+from qiskit_experiments.library import Tphi
 from qiskit_experiments.test.tphi_backend import TphiBackend
 from qiskit_experiments.library.characterization.analysis.tphi_analysis import TphiAnalysis
-from test.base import QiskitExperimentsTestCase
+
 
 class TestTphi(QiskitExperimentsTestCase):
     """Test Tphi experiment"""
 
     __tolerance__ = 0.1
-    
+
     def test_tphi(self):
         """
         Run the Tphi backend
         """
-        unit = "us"
-        dt_factor = apply_prefix(1, unit)
-        qubit = 0
         delays_t1 = list(range(1, 40, 3))
         delays_t2 = list(range(1, 51, 2))
-        exp = Tphi(qubit=0, delays_t1=delays_t1, delays_t2=delays_t2, unit="s", osc_freq=0.1)
+        exp = Tphi(qubit=0, delays_t1=delays_t1, delays_t2=delays_t2, unit="us", osc_freq=0.1)
 
         t1 = 10
         t2ramsey = 25
@@ -50,10 +37,10 @@ class TestTphi(QiskitExperimentsTestCase):
         result = expdata.analysis_results("T_phi")
         estimated_tphi = 1 / ((1 / (2 * t1)) + (1 / t2ramsey))
         self.assertAlmostEqual(
-                result.value.value,
-                estimated_tphi,
-                delta=TestTphi.__tolerance__ * result.value.value,
-            )
+            result.value.value,
+            estimated_tphi,
+            delta=TestTphi.__tolerance__ * result.value.value,
+        )
         self.assertEqual(result.quality, "good", "Result quality bad")
 
     def test_roundtrip_serializable(self):

@@ -140,9 +140,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
             will be returned containing only the new analysis results and figures.
             This data can then be saved as its own experiment to a database service.
         """
-        
         # Make a new copy of experiment data if not updating results
-        print("in base analysis run")
         if not replace_results and (
             experiment_data._created_in_db
             or experiment_data._analysis_results
@@ -167,11 +165,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
             analysis.set_options(**options)
 
         def run_analysis(expdata):
-            print("1 - run_analysis")
             results, figures = analysis._run_analysis(expdata)
-            for result in results:
-                print("result in results =" + str(result))
-                print()
             # Add components
             analysis_results = [
                 analysis._format_analysis_result(
@@ -179,8 +173,6 @@ class BaseAnalysis(ABC, StoreInitArgs):
                 )
                 for result in results
             ]
-            print(">>> analysis results in base_analysis= " + str(analysis_results))
-            print()
             # Update experiment data with analysis results
             experiment_data._clear_results()
             if analysis_results:
@@ -189,9 +181,7 @@ class BaseAnalysis(ABC, StoreInitArgs):
                 expdata.add_figures(figures)
 
         experiment_data.add_analysis_callback(run_analysis)
-        print()
-        print("expdata in BaseAnalysis = " + str(experiment_data))
-        print()
+
         return experiment_data
 
     def _format_analysis_result(self, data, experiment_id, experiment_components=None):

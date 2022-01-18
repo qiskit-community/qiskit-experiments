@@ -761,7 +761,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
 
         # Update all fit functions in the series definitions if fixed parameter is defined.
         # Fixed parameters should be provided by the analysis options.
-        print("in curve::run_analysis")
         if self.__fixed_parameters__:
             assigned_params = {k: self.options.get(k, None) for k in self.__fixed_parameters__}
 
@@ -971,5 +970,5 @@ class CurveAnalysis(BaseAnalysis, ABC):
             figures = [fit_figure]
         else:
             figures = []
-        print("line 974: analysis_results = " + str(analysis_results))
+
         return analysis_results, figures
