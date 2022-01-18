@@ -10,11 +10,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-T2Ramsey Backend class.
-Temporary backend to be used for t2ramsey experiment
+TphiBackend class.
+Temporary backend to be used to test the Tphi experiment
 """
-
-import numpy as np
 
 from qiskit.providers import BackendV1
 from qiskit.providers.models import QasmBackendConfiguration
@@ -121,8 +119,14 @@ class TphiBackend(BackendV1):
         job_t2ramsey = self._internal_backends["T2*"].run(run_input=t2ramsey_circuits)
 
         final_results = job_t1.result().results
-        for r in job_t2ramsey.result().results:
-            final_results.append(r)
+        for result in job_t2ramsey.result().results:
+            final_results.append(result)
 
-        result_for_fake = Result(backend_name="Tphi backend", backend_version="0", qobj_id=0, job_id=0, success=True, results=final_results, status="JobStatus.DONE")
+        result_for_fake = Result(backend_name="Tphi backend",
+                                 backend_version="0",
+                                 qobj_id=0,
+                                 job_id=0,
+                                 success=True,
+                                 results=final_results,
+                                 status="JobStatus.DONE")
         return FakeJob(self, result_for_fake)

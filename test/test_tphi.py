@@ -12,6 +12,7 @@ Test T2Ramsey experiment
 """
 
 from test.base import QiskitExperimentsTestCase
+from qiskit.providers.options import Options
 from qiskit_experiments.library import Tphi
 from qiskit_experiments.test.tphi_backend import TphiBackend
 from qiskit_experiments.library.characterization.analysis.tphi_analysis import TphiAnalysis
@@ -28,12 +29,13 @@ class TestTphi(QiskitExperimentsTestCase):
         """
         delays_t1 = list(range(1, 40, 3))
         delays_t2 = list(range(1, 51, 2))
-        exp = Tphi(qubit=0, delays_t1=delays_t1, delays_t2=delays_t2, unit="us", osc_freq=0.1)
+        exp = Tphi(qubit=0, delays_t1=delays_t1, delays_t2=delays_t2, osc_freq=0.1)
 
         t1 = 10
         t2ramsey = 25
         backend = TphiBackend(t1=t1, t2ramsey=t2ramsey, freq=0.1)
         expdata = exp.run(backend=backend, analysis=TphiAnalysis()).block_for_results()
+
         result = expdata.analysis_results("T_phi")
         estimated_tphi = 1 / ((1 / (2 * t1)) + (1 / t2ramsey))
         self.assertAlmostEqual(
