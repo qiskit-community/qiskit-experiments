@@ -7,7 +7,7 @@ from typing import List, Optional, Union
 import numpy as np
 
 from qiskit.providers import Backend
-from qiskit_experiments.framework import BaseExperiment, Options
+from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.composite.batch_experiment import BatchExperiment
 from qiskit_experiments.library.characterization import T1, T2Ramsey
 from qiskit_experiments.library.characterization.analysis.tphi_analysis import TphiAnalysis
@@ -22,6 +22,7 @@ class Tphi(BatchExperiment):
 
 
     """
+
     @classmethod
     def _default_experiment_options(cls) -> Options:
         """Default experiment options.
@@ -40,7 +41,6 @@ class Tphi(BatchExperiment):
         qubit: int,
         delays_t1: List[Union[List[float], np.array]],
         delays_t2: List[Union[List[float], np.array]],
-        unit: str = "s",
         osc_freq: float = 0.0,
         backend: Optional[Backend] = None,
     ):
@@ -55,9 +55,9 @@ class Tphi(BatchExperiment):
 
         """
         self.set_experiment_options = self._default_experiment_options()
-         # Set experiment options
-        self.set_experiment_options.delays_t1=delays_t1
-        self.set_experiment_options.delays_t2=delays_t2
+        # Set experiment options
+        self.set_experiment_options.delays_t1 = delays_t1
+        self.set_experiment_options.delays_t2 = delays_t2
 
         self.exps = []
         self.exps.append(T1(qubit, self.set_experiment_options.delays_t1))

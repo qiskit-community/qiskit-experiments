@@ -12,7 +12,6 @@ Test T2Ramsey experiment
 """
 
 from test.base import QiskitExperimentsTestCase
-from qiskit.providers.options import Options
 from qiskit_experiments.library import Tphi
 from qiskit_experiments.test.tphi_backend import TphiBackend
 from qiskit_experiments.library.characterization.analysis.tphi_analysis import TphiAnalysis
