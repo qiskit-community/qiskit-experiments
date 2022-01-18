@@ -39,8 +39,12 @@ class LocalReadoutErrorAnalysis(BaseAnalysis):
        probability for each :math:`x,y` is determined, and :math:`A_{y,x}` is set accordingly.
 
        Returns
-        * The `Local readout error mitigator <https://qiskit.org/documentation/stubs/qiskit.result.LocalReadoutMitigator.html>`_ object (the assignment matrix can be accessed via its ``assignment_matrix()`` method).
-        * (Optional) A figure of the assignment matrix.
+
+            * The `Local readout error mitigator
+              <https://qiskit.org/documentation/stubs/qiskit.result.LocalReadoutMitigator.html>`_
+              object (the assignment matrix can be accessed via its ``assignment_matrix()`` method).
+
+            * (Optional) A figure of the assignment matrix.
 
 
     # section: reference

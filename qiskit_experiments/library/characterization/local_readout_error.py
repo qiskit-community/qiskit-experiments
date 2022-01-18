@@ -34,11 +34,13 @@ class LocalReadoutError(BaseExperiment):
         to observe :math:`y` given the true outcome should be :math:`x`. The assignment matrix is used
         to compute the *assignment matrix* used in the readout error mitigation process itself.
 
-        A *Local readout mitigator* works under the assumption the readout errors are mostly *local*, meaning
-        readout errors for different qubits are independent of each other. In this case, the assignment matrix
-        is the tensor product of :math:`n` :math:`2 \times 2` matrices, one for each qubit, making it practical
-        to store the assignment matrix in implicit form, by storing the individual :math:`2 \times 2` assignment matrices.
-        The corresponding class in Qiskit is the `Local readout mitigator <https://qiskit.org/documentation/stubs/qiskit.result.LocalReadoutMitigator.html#qiskit.result.LocalReadoutMitigator>`_
+        A *Local readout mitigator* works under the assumption the readout errors are mostly
+        *local*, meaning readout errors for different qubits are independent of each other.
+        In this case, the assignment matrix is the tensor product of :math:`n` :math:`2 \times 2`
+        matrices, one for each qubit, making it practical to store the assignment matrix in implicit
+        form, by storing the individual :math:`2 \times 2` assignment matrices.
+        The corresponding class in Qiskit is the `Local readout mitigator
+        <https://qiskit.org/documentation/stubs/qiskit.result.LocalReadoutMitigator.html>`_
         in ``qiskit-terra``.
 
         The experiment generates 2 circuits, corresponding to the states
@@ -67,9 +69,9 @@ class LocalReadoutError(BaseExperiment):
     def circuits(self) -> List[QuantumCircuit]:
         """Returns the experiment's circuits"""
         labels = ["0" * self.num_qubits, "1" * self.num_qubits]
-        return [self.calibration_circuit(self.num_qubits, label) for label in labels()]
+        return [self.calibration_circuit(self.num_qubits, label) for label in labels]
 
-    def calibration_circuit(num_qubits: int, label: str) -> QuantumCircuit:
+    def calibration_circuit(self, num_qubits: int, label: str) -> QuantumCircuit:
         """Return a calibration circuit.
 
         This is an N-qubit circuit where N is the length of the label.

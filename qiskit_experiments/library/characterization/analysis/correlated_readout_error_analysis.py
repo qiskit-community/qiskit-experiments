@@ -38,7 +38,11 @@ class CorrelatedReadoutErrorAnalysis(BaseAnalysis):
         each :math:`y` is determined, and :math:`A_{y,x}` is set accordingly.
 
         Returns
-            * The `Correlated readout error mitigator <https://qiskit.org/documentation/stubs/qiskit.result.CorrelatedReadoutMitigator.html>`_ object (the assignment matrix can be accessed via its ``assignment_matrix()`` method).
+
+            * The `Correlated readout error mitigator
+              <https://qiskit.org/documentation/stubs/qiskit.result.CorrelatedReadoutMitigator.html>`_
+              object (the assignment matrix can be accessed via its ``assignment_matrix()`` method).
+
             * (Optional) A figure of the assignment matrix.
 
 

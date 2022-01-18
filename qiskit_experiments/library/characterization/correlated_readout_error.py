@@ -36,7 +36,9 @@ class CorrelatedReadoutError(BaseExperiment):
 
         A *Correlated readout mitigator* uses the full :math:`2^n \times 2^n` assignment matrix, meaning
         it can only be used for small values of :math:`n`.
-        The corresponding class in Qiskit is the `Correlated readout mitigator <https://qiskit.org/documentation/stubs/qiskit.result.CorrelatedReadoutMitigator.html>`_
+        The corresponding class in Qiskit is the
+        `Correlated readout mitigator
+        <https://qiskit.org/documentation/stubs/qiskit.result.CorrelatedReadoutMitigator.html>`_
         in ``qiskit-terra``.
 
         The experiment generates :math:`2^n` circuits, for every possible
@@ -65,9 +67,9 @@ class CorrelatedReadoutError(BaseExperiment):
     def circuits(self) -> List[QuantumCircuit]:
         """Returns the experiment's circuits"""
         labels = [bin(j)[2:].zfill(self.num_qubits) for j in range(2 ** self.num_qubits)]
-        return [self.calibration_circuit(self.num_qubits, label) for label in self.helper.labels()]
+        return [self.calibration_circuit(self.num_qubits, label) for label in labels]
 
-    def calibration_circuit(num_qubits: int, label: str) -> QuantumCircuit:
+    def calibration_circuit(self, num_qubits: int, label: str) -> QuantumCircuit:
         """Return a calibration circuit.
 
         This is an N-qubit circuit where N is the length of the label.
