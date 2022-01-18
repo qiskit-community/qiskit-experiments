@@ -26,8 +26,6 @@ class Tphi(BatchExperiment):
     
     """
 
-    __analysis_class__ = TphiAnalysis
-
     def __init__(
         self,
         qubit: int,
@@ -50,13 +48,9 @@ class Tphi(BatchExperiment):
             experiment_type: String indicating the experiment type.
 
         """
-        #self.set_experiment_options(delays_t1 = delays_t1, delays_t2 = delays_t2, unit = unit, osc_freq = osc_freq)
-
-        expT1 = T1(qubit, delays_t1, unit)
-        expT2 = T2Ramsey(qubit, delays_t2, unit, osc_freq)
         self.exps = []
-        self.exps.append(expT1)
-        self.exps.append(expT2)
+        self.exps.append(T1(qubit, delays_t1, unit))
+        self.exps.append(T2Ramsey(qubit, delays_t2, unit, osc_freq))
         # Run batch experiments
         batch_exp = super().__init__(experiments=self.exps,
                                      analysis=TphiAnalysis(),

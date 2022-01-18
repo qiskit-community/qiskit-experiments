@@ -39,32 +39,30 @@ class TphiAnalysis(CompositeAnalysis):
     """
 
     def _run_analysis(self, experiment_data: ExperimentData, **options):
-        experiment_data, figures = super()._run_analysis(experiment_data, **options)
+        # run CompositeAnalysis that will invoke _run_analysis for the
+        # two sub-experiments
+        _, _ = super()._run_analysis(experiment_data, **options)
 
-        res0 = experiment_data.child_data(0).analysis_results("T1").value.value
-        print("res0 = " + str(res0))
-        print(experiment_data.child_data(0).analysis_results("T1").value)
-
-        res1 = experiment_data.child_data(1).analysis_results("T2star").value.value
-        print("res1 = " + str(res1))
-        reciprocal = 1 / (2 * res0) + (1 / res1)
+        t1_result = experiment_data.child_data(0).analysis_results("T1")
+        t2star_result = experiment_data.child_data(1).analysis_results("T2star")        
+        t1 = t1_result.value.value
+        t2star = t2star_result.value.value
+        reciprocal = 1 / (2 * t1) + (1 / t2star)
         t_phi = 1 / reciprocal
-        print("t_phi = " + str(t_phi))
-        err_t1 =experiment_data.child_data(0).analysis_results("T1").value.stderr
-        err_t2star =experiment_data.child_data(1).analysis_results("T2star").value.stderr
-        print("errors = " + str(err_t1)  +" " + str(err_t2star))
 
-        err_tphi = 2*err_t1 + err_t2star
-        print("stderr = " + str(err_tphi))
+        err_t1 =t1_result.value.stderr
+        err_t2star =t2star_result.value.stderr
+        err_tphi = t_phi * np.sqrt((err_t1 / t1)**2 + (err_t2star / t2star)**2)
+        quality_tphi = "good" if (t1_result.quality=="good" and
+                                  t2star_result.quality=="good") else bad
+
         analysis_results = []
-
         analysis_results.append(
             AnalysisResultData(
                 name="T_phi",
-                value=FitVal(t_phi),
-                stderr=err_phi,
-                chisq=(1),
-                quality="good",
+                value=FitVal(t_phi, err_tphi),
+                chisq=None,
+                quality=quality_tphi,
                 extra={}
                 )
             )
