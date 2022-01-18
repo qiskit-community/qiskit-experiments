@@ -563,7 +563,13 @@ class BasisExpectationValue(DataAction):
 
 
 class RestlessNode(DataAction, ABC):
-    """An abstract node for restless data processing nodes."""
+    """An abstract node for restless data processing nodes.
+    
+    In restless measurements, the qubit is not reset after each measurement. Instead, the
+    outcome of the previous quantum non-demolition measurement is the initial state for the
+    current circuit. Restless measurements therefore require special data processing nodes
+    that are implemented as sub-classes of `ResltessNode`. 
+    """
 
     def __init__(self, validate: bool = True):
         """Initialize a restless node.
