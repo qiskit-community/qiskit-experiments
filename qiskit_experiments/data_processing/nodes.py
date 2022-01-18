@@ -697,7 +697,8 @@ class RestlessToCounts(RestlessNode):
 
         Each bitstring of shot is compared to the previous bitstring. If both are equal
         the restless adjusted bitstring is 0 (no state change) otherwise it is 1 (the
-        qubit changed state).
+        qubit changed state). This corresponds to taking the exclusive OR operation
+        between each bit and its previous outcome.
 
         Args:
             shot: A measured shot as a binary string, e.g. "0110100".
