@@ -49,11 +49,15 @@ class TestFakeService(QiskitExperimentsTestCase):
         is_in_frame = []
         for i in range(len(self.service.exps)):
             full_entry = self.service.exps.loc[i, :].to_dict()
-            self.assertTrue(full_entry["experiment_id"] not in is_in_frame)
-            is_in_frame.append(full_entry["experiment_id"])
-            self.assertTrue(full_entry["experiment_id"] in self.expdict.keys())
-            entry = self.expdict[full_entry["experiment_id"]]
+            expid = full_entry["experiment_id"]
+            self.assertTrue(expid not in is_in_frame)
+            is_in_frame.append(expid)
+            self.assertTrue(expid in self.expdict.keys())
+            entry = self.expdict[expid]
             self.assertTrue(entry.items() <= full_entry.items())
 
     def test_single_experiment_query(self):
-        pass
+        for expid in range(8):
+            full_entry = self.service.experiment(str(expid))
+            entry = self.expdict[str(expid)]
+            self.assertTrue(entry.items() <= full_entry.items())
