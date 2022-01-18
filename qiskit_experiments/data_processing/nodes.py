@@ -630,8 +630,8 @@ class RestlessToCounts(RestlessNode):
     each measured circuit. The sublists therefore have a length given by the
     number of shots. This data is reordered into a one dimensional array where
     the element at index j was the jth measured shot. This node assumes that
-    a list of circuits :code:`[circ_1, cric_2, ..., circ_m]` measured :code.`n_shots`
-    times is measured according to the following order:
+    a list of circuits :code:`[circ_1, cric_2, ..., circ_m]` is measured :code:`n_shots`
+    times according to the following order:
 
     .. parsed-literal::
 
