@@ -15,12 +15,17 @@ from qiskit_experiments.library.characterization.analysis.tphi_analysis import T
 
 class Tphi(BatchExperiment):
     r"""Tphi Experiment Class
-    Tphi is defined as follows:
 
-    .. math::
-    1/T_{\phi} = 1/2T_1 + 1/T_{2*}
+    # section: overview
 
+        Tphi is defined as follows:
 
+        .. math::
+
+        1/T_{\phi} = 1/{2T_1} + 1/T_{2*}
+
+    # section: analysis_ref
+        :py:class:`TphiAnalysis`
     """
 
     @classmethod

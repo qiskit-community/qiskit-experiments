@@ -71,6 +71,7 @@ from .analysis import (
     RamseyXYAnalysis,
     T2RamseyAnalysis,
     T1Analysis,
+    TphiAnalysis,
     CrossResonanceHamiltonianAnalysis,
     ReadoutAngleAnalysis,
 )
