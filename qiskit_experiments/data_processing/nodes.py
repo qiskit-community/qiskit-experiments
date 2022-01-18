@@ -563,7 +563,13 @@ class BasisExpectationValue(DataAction):
 
 
 class RestlessNode(DataAction, ABC):
-    """An abstract node for restless data processing nodes."""
+    """An abstract node for restless data processing nodes.
+    
+    In restless measurements, the qubit is not reset after each measurement. Instead, the
+    outcome of the previous quantum non-demolition measurement is the initial state for the
+    current circuit. Restless measurements therefore require special data processing nodes
+    that are implemented as sub-classes of `ResltessNode`. 
+    """
 
     def __init__(self, validate: bool = True):
         """Initialize a restless node.
@@ -624,8 +630,8 @@ class RestlessToCounts(RestlessNode):
     each measured circuit. The sublists therefore have a length given by the
     number of shots. This data is reordered into a one dimensional array where
     the element at index j was the jth measured shot. This node assumes that
-    a list of circuits :code:`[circ_1, cric_2, ..., circ_m]` measured :code.`n_shots`
-    times is measured according to the following order:
+    a list of circuits :code:`[circ_1, cric_2, ..., circ_m]` is measured :code:`n_shots`
+    times according to the following order:
 
     .. parsed-literal::
 
@@ -697,7 +703,8 @@ class RestlessToCounts(RestlessNode):
 
         Each bitstring of shot is compared to the previous bitstring. If both are equal
         the restless adjusted bitstring is 0 (no state change) otherwise it is 1 (the
-        qubit changed state).
+        qubit changed state). This corresponds to taking the exclusive OR operation
+        between each bit and its previous outcome.
 
         Args:
             shot: A measured shot as a binary string, e.g. "0110100".
