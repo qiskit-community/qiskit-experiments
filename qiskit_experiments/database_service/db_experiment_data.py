@@ -292,11 +292,18 @@ class DbExperimentDataV1(DbExperimentData):
 
         Args:
             jobs: The Job or list of Jobs to add result data from.
-            timeout: Optional, time to wait for jobs to finish before
-                     cancelling.
+            timeout: Optional, time in seconds to wait for all jobs to finish
+                     before cancelling them.
 
         Raises:
             TypeError: If the input data type is invalid.
+
+        .. note::
+            If a timeout is specified the :meth:`cancel_jobs` method will be
+            called after timing out to attempt to cancel any unfinished jobs.
+
+            If you want to wait for jobs without cancelling, use the timeout
+            kwarg of :meth:`block_for_results` instead.
         """
         if any(not future.done() for future in self._analysis_futures.values()):
             LOG.warning(
@@ -346,7 +353,7 @@ class DbExperimentDataV1(DbExperimentData):
     def _timeout_running_jobs(self, job_ids, timeout):
         """Function for cancelling jobs after timeout length.
 
-        This function should be called by an executor.
+        This function should be submitted to an executor to run as a future.
 
         Args:
             job_ids: the IDs of jobs to wait for.
@@ -1110,7 +1117,7 @@ class DbExperimentDataV1(DbExperimentData):
         """Block until all pending jobs and analysis callbacks finish.
 
         Args:
-            timeout: Timeout waiting for results.
+            timeout: Timeout in seconds for waiting for results.
 
         Returns:
             The experiment data with finished jobs and post-processing.
@@ -1202,24 +1209,26 @@ class DbExperimentDataV1(DbExperimentData):
     def status(self) -> ExperimentStatus:
         """Return the experiment status.
 
-        Possible statuses are
-        * EMPTY - experiment data is empty
-        * INITIALIZING - experiment jobs are being initialized
-        * QUEUED - experiment jobs are queued
-        * RUNNING - experiment jobs is actively running
-        * CANCELLED - experiment jobs or analysis has been cancelled
-        * POST_PROCESSING - experiment analysis is actively running
-        * DONE - experiment jobs and analysis have successfully run
-        * ERROR - experiment jobs or analysis incurred an error
+        Possible return values for :class:`.ExperimentStatus` are
+
+        * :attr:`~.ExperimentStatus.EMPTY` - experiment data is empty
+        * :attr:`~.ExperimentStatus.INITIALIZING` - experiment jobs are being initialized
+        * :attr:`~.ExperimentStatus.QUEUED` - experiment jobs are queued
+        * :attr:`~.ExperimentStatus.RUNNING` - experiment jobs is actively running
+        * :attr:`~.ExperimentStatus.CANCELLED` - experiment jobs or analysis has been cancelled
+        * :attr:`~.ExperimentStatus.POST_PROCESSING` - experiment analysis is actively running
+        * :attr:`~.ExperimentStatus.DONE` - experiment jobs and analysis have successfully run
+        * :attr:`~.ExperimentStatus.ERROR` - experiment jobs or analysis incurred an error
 
         .. note::
 
-            If an experiment has status ERROR there may still
-            be pending or running jobs. In these cases it may be beneficial
-            to call :meth:`cancel` to terminate these remaining jobs.
+            If an experiment has status :attr:`~.ExperimentStatus.ERROR`
+            there may still be pending or running jobs. In these cases it
+            may be beneficial to call :meth:`cancel_jobs` to terminate these
+            remaining jobs.
 
         Returns:
-            Data processing status.
+            The experiment status.
         """
         if all(
             len(container) == 0
@@ -1261,23 +1270,25 @@ class DbExperimentDataV1(DbExperimentData):
     def job_status(self) -> JobStatus:
         """Return the experiment job execution status.
 
-        Possible job statuses are
-        * ERROR - if any job incurred an error
-        * CANCELLED - if any job is cancelled.
-        * RUNNING - if any job is still running.
-        * QUEUED - if any job is queued.
-        * VALIDATING - if any job is being validated.
-        * INITIALIZING - if any job is being initialized.
-        * DONE - if all jobs are finished.
+        Possible return values for :class:`.JobStatus` are
+
+        * :attr:`~.JobStatus.ERROR` - if any job incurred an error
+        * :attr:`~.JobStatus.CANCELLED` - if any job is cancelled.
+        * :attr:`~.JobStatus.RUNNING` - if any job is still running.
+        * :attr:`~.JobStatus.QUEUED` - if any job is queued.
+        * :attr:`~.JobStatus.VALIDATING` - if any job is being validated.
+        * :attr:`~.JobStatus.INITIALIZING` - if any job is being initialized.
+        * :attr:`~.JobStatus.DONE` - if all jobs are finished.
 
         .. note::
 
-            If an experiment has status ERROR or CANCELLED there may still
-            be pending or running jobs. In these cases it may be beneficial
-            to call :meth:`cancel_jobs` to terminate these remaining jobs.
+            If an experiment has status :attr:`~.JobStatus.ERROR` or
+            :attr:`~.JobStatus.CANCELLED` there may still be pending or
+            running jobs. In these cases it may be beneficial to call
+            :meth:`cancel_jobs` to terminate these remaining jobs.
 
         Returns:
-            Job execution status.
+            The job execution status.
         """
         statuses = set()
         with self._jobs.lock:
@@ -1308,15 +1319,16 @@ class DbExperimentDataV1(DbExperimentData):
     def analysis_status(self) -> AnalysisStatus:
         """Return the data analysis post-processing status.
 
-        Possible analysis statuses are
-        * ERROR - if any analysis callback incurred an error
-        * CANCELLED - if any analysis callback is cancelled.
-        * RUNNING - if any analysis callback is actively running.
-        * QUEUED - if any analysis callback is queued.
-        * DONE - if all analysis callbacks have successfully run.
+        Possible return values for :class:`.AnalysisStatus` are
+
+        * :attr:`~.AnalysisStatus.ERROR` - if any analysis callback incurred an error
+        * :attr:`~.AnalysisStatus.CANCELLED` - if any analysis callback is cancelled.
+        * :attr:`~.AnalysisStatus.RUNNING` - if any analysis callback is actively running.
+        * :attr:`~.AnalysisStatus.QUEUED` - if any analysis callback is queued.
+        * :attr:`~.AnalysisStatus.DONE` - if all analysis callbacks have successfully run.
 
         Returns:
-            Analysis status.
+            Then analysis status.
         """
         statuses = set()
         for status in self._analysis_callbacks.values():

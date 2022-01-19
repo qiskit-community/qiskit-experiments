@@ -46,6 +46,7 @@ class BaseExperiment(ABC, StoreInitArgs):
 
         Args:
             qubits: list of physical qubits for the experiment.
+            analysis: Optional, the analysis to use for the experiment.
             backend: Optional, the backend to run the experiment on.
             experiment_type: Optional, the experiment type string.
 

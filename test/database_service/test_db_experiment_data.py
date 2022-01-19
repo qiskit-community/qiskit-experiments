@@ -669,6 +669,93 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             event.set()
             exp_data.block_for_results()
 
+    def test_cancel_analysis(self):
+        """Test canceling experiment analysis."""
+
+        event = threading.Event()
+        self.addCleanup(event.set)
+
+        def _job_result():
+            event.wait(timeout=15)
+            return self._get_job_result(1)
+
+        def _analysis(*args):  # pylint: disable = unused-argument
+            event.wait(timeout=15)
+
+        job = mock.create_autospec(Job, instance=True)
+        job.job_id.return_value = "1234"
+        job.result = _job_result
+        job.status = lambda: JobStatus.DONE if event.is_set() else JobStatus.RUNNING
+
+        exp_data = DbExperimentData(experiment_type="qiskit_test")
+        exp_data.add_jobs(job)
+        exp_data.add_analysis_callback(_analysis)
+        exp_data.cancel_analysis()
+
+        # Test status while job still running
+        self.assertEqual(exp_data.job_status(), JobStatus.RUNNING)
+        self.assertEqual(exp_data.analysis_status(), AnalysisStatus.CANCELLED)
+        self.assertEqual(exp_data.status(), ExperimentStatus.RUNNING)
+
+        # Test status after job finishes
+        event.set()
+        self.assertEqual(exp_data.job_status(), JobStatus.DONE)
+        self.assertEqual(exp_data.analysis_status(), AnalysisStatus.CANCELLED)
+        self.assertEqual(exp_data.status(), ExperimentStatus.CANCELLED)
+
+    def test_cancel(self):
+        """Test canceling experiment jobs and analysis."""
+
+        event = threading.Event()
+        self.addCleanup(event.set)
+
+        def _job_result():
+            event.wait(timeout=15)
+            raise ValueError("Job was cancelled.")
+
+        def _analysis(*args):  # pylint: disable = unused-argument
+            event.wait(timeout=15)
+
+        job = mock.create_autospec(Job, instance=True)
+        job.job_id.return_value = "1234"
+        job.result = _job_result
+        job.cancel = event.set
+        job.status = lambda: JobStatus.CANCELLED if event.is_set() else JobStatus.RUNNING
+
+        exp_data = DbExperimentData(experiment_type="qiskit_test")
+        exp_data.add_jobs(job)
+        exp_data.add_analysis_callback(_analysis)
+        exp_data.cancel()
+
+        # Test status while job still running
+        self.assertEqual(exp_data.job_status(), JobStatus.CANCELLED)
+        self.assertEqual(exp_data.analysis_status(), AnalysisStatus.CANCELLED)
+        self.assertEqual(exp_data.status(), ExperimentStatus.CANCELLED)
+
+    def test_add_jobs_timeout(self):
+        """Test timeout kwarg of add_jobs"""
+
+        event = threading.Event()
+        self.addCleanup(event.set)
+
+        def _job_result():
+            event.wait(timeout=15)
+            raise ValueError("Job was cancelled.")
+
+        job = mock.create_autospec(Job, instance=True)
+        job.job_id.return_value = "1234"
+        job.result = _job_result
+        job.cancel = event.set
+        job.status = lambda: JobStatus.CANCELLED if event.is_set() else JobStatus.RUNNING
+
+        exp_data = DbExperimentData(experiment_type="qiskit_test")
+        exp_data.add_jobs(job, timeout=0.5)
+
+        with self.assertLogs("qiskit_experiments", "WARNING"):
+            exp_data.block_for_results()
+            self.assertEqual(exp_data.job_status(), JobStatus.CANCELLED)
+            self.assertEqual(exp_data.status(), ExperimentStatus.CANCELLED)
+
     def test_metadata_serialization(self):
         """Test experiment metadata serialization."""
         metadata = {"complex": 2 + 3j, "numpy": np.zeros(2)}
