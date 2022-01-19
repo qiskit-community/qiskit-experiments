@@ -14,7 +14,7 @@ Experiment Data class
 """
 from __future__ import annotations
 import logging
-from typing import Dict, Optional, List, Union
+from typing import Dict, Optional, List, Union, TYPE_CHECKING
 from datetime import datetime
 import warnings
 from qiskit.exceptions import QiskitError
@@ -24,6 +24,13 @@ from qiskit_experiments.database_service.database_service import (
     DatabaseServiceV1 as DatabaseService,
 )
 from qiskit_experiments.database_service.utils import ThreadSafeOrderedDict
+
+if TYPE_CHECKING:
+    # There is a cyclical dependency here, but the name needs to exist for
+    # Sphinx on Python 3.9+ to link type hints correctly.  The gating on
+    # `TYPE_CHECKING` means that the import will never be resolved by an actual
+    # interpreter, only static analysis.
+    from . import BaseExperiment
 
 LOG = logging.getLogger(__name__)
 
