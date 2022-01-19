@@ -10,9 +10,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-T2Ramsey Experiment class.
+Tphi Analysis class.
 """
 
+from typing import List, Tuple
 import numpy as np
 
 from qiskit_experiments.framework import (
@@ -27,12 +28,19 @@ class TphiAnalysis(CompositeAnalysis):
 
     r"""
     Tphi result analysis class.
+    A class to analyze :math:`T_\phi` experiments.
 
     """
 
-    def _run_analysis(self, experiment_data: ExperimentData, **options):
-        # run CompositeAnalysis that will invoke _run_analysis for the
-        # two sub-experiments
+    def _run_analysis(self,
+                      experiment_data: ExperimentData,
+                      **options
+    ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
+        """Run analysis for :math:`T_\phi` experiment.
+           It invokes CompositeAnalysis._run_analysis that will invoke
+           _run_analysis for the two sub-experiments.
+           Based on the results, it computes the result for :math:`T_phi`.
+        """
         _, _ = super()._run_analysis(experiment_data, **options)
 
         t1_result = experiment_data.child_data(0).analysis_results("T1")

@@ -20,9 +20,9 @@ class Tphi(BatchExperiment):
 
         Tphi is defined as follows:
 
-        .. math::
+        :math:`1/T_\phi = 1/2T_1 + 1/T_{2*}`.
 
-        1/T_{\phi} = 1/{2T_1} + 1/T_{2*}
+        For more details, see :py:class:`T1` and :py:class:`T2Ramsey`
 
     # section: analysis_ref
         :py:class:`TphiAnalysis`
@@ -34,7 +34,7 @@ class Tphi(BatchExperiment):
 
         Experiment Options:
             delays_t1 (Iterable[float]): Delay times of the t1 experiment in seconds.
-            delays_t2 (Iterable[float]): Delay times of the t2Ramsey experiment in seconds.
+            delays_t2 (Iterable[float]): Delay times of the t2ramsey experiment in seconds.
         """
         options = super()._default_experiment_options()
         options.delays_t1 = None
@@ -56,7 +56,7 @@ class Tphi(BatchExperiment):
             delays_t1: delay times of the T1 experiment
             delays_t2: delay times of the T2* experiment
             osc_freq: the oscillation frequency induced using by the user for T2Ramsey
-            backend = Optional, the backend on which to run the experiment
+            backend: Optional, the backend on which to run the experiment
 
         """
         self.set_experiment_options = self._default_experiment_options()

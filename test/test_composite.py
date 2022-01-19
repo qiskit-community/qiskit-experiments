@@ -329,7 +329,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
 
         class Backend(FakeBackend):
             """
-            Backend to be used in test_composite_subexp_data
+            Bacekend to be used in test_composite_subexp_data
             """
 
             def run(self, run_input, **options):
