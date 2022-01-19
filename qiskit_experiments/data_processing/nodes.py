@@ -386,12 +386,7 @@ class ToAbs(IQPart):
         Returns:
             A N-1 dimensional array, each entry is the absolute value of the given IQ data.
         """
-
-        # There seems to be an issue with the uncertainties package since
-        # np.sqrt(ufloat(4, float("nan"))) does not work but
-        # np.power(ufloat(4, float("nan")), 0.5) does work.
-
-        return np.power(data[..., 0] ** 2 + data[..., 1] ** 2, 0.5) * self.scale
+        return unp.sqrt(data[..., 0] ** 2 + data[..., 1] ** 2) * self.scale
 
 
 class Probability(DataAction):
