@@ -17,6 +17,7 @@ from typing import List, Optional
 from qiskit import QuantumCircuit, ClassicalRegister
 from qiskit.providers.backend import Backend
 from .composite_experiment import CompositeExperiment, BaseExperiment
+from .composite_analysis import CompositeAnalysis
 
 
 class ParallelExperiment(CompositeExperiment):

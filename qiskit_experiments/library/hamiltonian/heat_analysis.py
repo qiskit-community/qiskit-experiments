@@ -28,8 +28,16 @@ from qiskit_experiments.framework import (
 )
 
 
-class HeatAnalysis(ErrorAmplificationAnalysis):
-    """An analysis class for HEAT experiment to define the fixed parameters."""
+class HeatElementAnalysis(ErrorAmplificationAnalysis):
+    """An analysis class for HEAT experiment to define the fixed parameters.
+
+    # section: overview
+
+        This is standard error amplification analysis.
+
+    # section: see_also
+        qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis
+    """
 
     __fixed_parameters__ = ["angle_per_gate", "phase_offset", "amp"]
 
@@ -44,14 +52,18 @@ class HeatAnalysis(ErrorAmplificationAnalysis):
         return options
 
 
-class CompositeHeatAnalysis(CompositeAnalysis):
+class HeatAnalysis(CompositeAnalysis):
     r"""A composite error amplification analysis to get unitary error coefficients.
 
     # section: fit_model
 
-        This analysis takes a set of `d_theta` parameters from two error amplification
-        analysis results. Each parameter is extracted from the HEAT experiment with
-        different control qubit states. Namely,
+        This analysis takes two error amplification experiment results performed with
+        different control qubit state to distinguish the local rotation term from
+        the controlled rotation term amplified along a specific error axis.
+
+        This analysis takes a set of `d_theta` parameters from child error amplification results
+        which might be represented by a unique name in the child experiment data.
+        With these fit parameters, two Hamiltonian coefficients will be computed as
 
         .. math::
 
@@ -59,12 +71,12 @@ class CompositeHeatAnalysis(CompositeAnalysis):
 
             A_{Z\beta} = \frac{{d\theta_{\beta 0}} - d\theta_{\beta 1}}}{2}
 
-        where, :math:`\beta \in [X, Y, Z]` is one of single qubit Pauli terms,
+        where, :math:`\beta \in [X, Y, Z]` is one of single qubit Pauli term,
         :math:`d\theta_{\beta k}` is `d_theta` parameter extracted from the HEAT experiment
         with the control qubit state :math:`|k\rangle \in [|0\rangle, |1\rangle]`.
 
     # section: see_also
-        qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis
+        HeatElementAnalysis
 
     """
 
@@ -75,7 +87,7 @@ class CompositeHeatAnalysis(CompositeAnalysis):
             fit_params: Name of error parameters for each amplification sequence.
             out_params: Name of Hamiltonian coefficients.
         """
-        super(CompositeHeatAnalysis, self).__init__()
+        super(HeatAnalysis, self).__init__()
 
         if len(fit_params) != 2:
             raise AnalysisError(
@@ -93,47 +105,40 @@ class CompositeHeatAnalysis(CompositeAnalysis):
             )
         self.out_params = out_params
 
-    def _run_analysis(self, experiment_data: ExperimentData, **options):
+    def _run_analysis(self, experiment_data: ExperimentData):
 
-        # Create analysis data of nested experiment and discard redundant entry.
-        # Note that experiment_data is mutable.
-        super()._run_analysis(experiment_data, **options)
+        # wait for child experiments to complete
+        super()._run_analysis(experiment_data)
 
-        def heat_analysis_callback():
-            fit_results = []
-
-            for i, pname in enumerate(self.fit_params):
-                fit_results.append(
-                    experiment_data.child_data(i).analysis_results(pname)
-                )
-
-            # Check data quality
-            is_good_quality = all(r.quality == "good" for r in fit_results)
-
-            # Compute unitary terms
-            ib = (fit_results[0].value.value + fit_results[1].value.value) / 2
-            zb = (fit_results[0].value.value - fit_results[1].value.value) / 2
-
-            # Compute new variance
-            sigma = np.sqrt(
-                fit_results[0].value.stderr ** 2 + fit_results[1].value.stderr ** 2
+        # extract d_theta parameters
+        fit_results = []
+        for i, pname in enumerate(self.fit_params):
+            fit_results.append(
+                experiment_data.child_data(i).analysis_results(pname)
             )
 
-            estimate_ib = AnalysisResultData(
-                name=self.out_params[0],
-                value=FitVal(value=ib, stderr=sigma, unit="rad"),
-                quality="good" if is_good_quality else "bad",
-            )
+        # Check data quality
+        is_good_quality = all(r.quality == "good" for r in fit_results)
 
-            estimate_zb = AnalysisResultData(
-                name=self.out_params[1],
-                value=FitVal(value=zb, stderr=sigma, unit="rad"),
-                quality="good" if is_good_quality else "bad",
-            )
+        # Compute unitary terms
+        ib = (fit_results[0].value.value + fit_results[1].value.value) / 2
+        zb = (fit_results[0].value.value - fit_results[1].value.value) / 2
 
-            # Need format logic
-            experiment_data.add_analysis_results([estimate_ib, estimate_zb])
+        # Compute new variance
+        sigma = np.sqrt(
+            fit_results[0].value.stderr ** 2 + fit_results[1].value.stderr ** 2
+        )
 
-        experiment_data.add_analysis_callback(heat_analysis_callback)
+        estimate_ib = AnalysisResultData(
+            name=self.out_params[0],
+            value=FitVal(value=ib, stderr=sigma, unit="rad"),
+            quality="good" if is_good_quality else "bad",
+        )
 
-        return composite_analysis_results, None
+        estimate_zb = AnalysisResultData(
+            name=self.out_params[1],
+            value=FitVal(value=zb, stderr=sigma, unit="rad"),
+            quality="good" if is_good_quality else "bad",
+        )
+
+        return [estimate_ib, estimate_zb], None

@@ -20,17 +20,59 @@ from qiskit import circuit, QuantumCircuit
 from qiskit.providers import Backend
 
 from qiskit_experiments.framework import BaseExperiment, BatchExperiment, Options
-from .base_analysis import HeatAnalysis, CompositeHeatAnalysis
+from .heat_analysis import HeatElementAnalysis, HeatAnalysis
 
 
 class HeatElement(BaseExperiment):
     """Base class of HEAT experiment elements.
 
-    This class implements a single error amplification sequence.
+    # section: overview
 
-    Subclasses must implement :py:meth:`_echo_circuit` to provide echo sequence that
-    selectively amplifies a specific Pauli component local to the target qubit.
+        Hamiltonian error amplifying tomography (HEAT) is designed to amplify
+        the dynamics of entangler circuit on the target qubit along a specific axis.
 
+        The basic form of HEAT circuit is represented as follows.
+
+        .. parsed-literal::
+
+                                    (xN)
+                 ┌───────┐ ░ ┌───────┐┌───────┐ ░ ┌───────┐
+            q_0: ┤0      ├─░─┤0      ├┤0      ├─░─┤0      ├───
+                 │  prep │ ░ │  heat ││  echo │ ░ │  meas │┌─┐
+            q_1: ┤1      ├─░─┤1      ├┤1      ├─░─┤1      ├┤M├
+                 └───────┘ ░ └───────┘└───────┘ ░ └───────┘└╥┘
+            c: 1/═══════════════════════════════════════════╩═
+                                                            0
+
+        The circuit in middle is repeated by ``N`` times to amplify the Hamiltonian
+        coefficients along interrogated axis on the target qubit. The ``prep`` circuit
+        is carefully chosen based on the generator of ``heat`` gate to investigate,
+        and the ``echo`` and ``meas`` circuit depend on the axis of error to amplify.
+        Only target qubit is measured following to the projection by ``meas`` circuit.
+
+        The amplified response may consist of the contribution of from the local and
+        controlled rotation terms. Thus, usually multiple error amplification experiments
+        with different control qubit states are combined to distinguish the terms in the analysis.
+
+        The ``heat`` gate is a special gate kind to represent
+        the entangler pulse sequence of interest, thus one must provide the definition of it
+        through the backend or custom transpiler configuration, i.e. instruction schedule map.
+        This gate name can be overridden via the experiment option of this experiment.
+
+    # section: note
+
+        This class is usually not exposed to end users.
+        Developer of new HEAT experiment must design amplification sequence and
+        instantiate the class implicitly in the batch experiment.
+        The :class:`BatchHeatHelper` provides a convenient wrapper class of
+        the :class:`qiskit_experiments.framework.BatchExperiment` for implementing a
+        typical HEAT experiment.
+
+    # section: analysis_ref
+        :py:class:`HeatElementAnalysis`
+
+    # section: reference
+        .. ref_arxiv:: 1 2007.02925
     """
 
     def __init__(
@@ -54,7 +96,7 @@ class HeatElement(BaseExperiment):
         Keyword Args:
             See :meth:`experiment_options` for details.
         """
-        super().__init__(qubits=qubits, backend=backend, analysis=HeatAnalysis())
+        super().__init__(qubits=qubits, backend=backend, analysis=HeatElementAnalysis())
         self.set_experiment_options(**kwargs)
 
         # These are not user configurable options. Be frozen once assigned.
@@ -68,7 +110,7 @@ class HeatElement(BaseExperiment):
 
         Experiment Options:
             repetitions (Sequence[int]): A list of the number of echo repetitions.
-            cr_gate (Gate): A gate instance representing the ZX(pi/2).
+            cr_gate (Gate): A gate instance representing the entangler sequence.
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(21))
@@ -112,27 +154,33 @@ class HeatElement(BaseExperiment):
         return circs
 
 
-class BaseCompositeHeat(BatchExperiment, ABC):
-    """Base class of HEAT experiments.
+class BatchHeatHelper(BatchExperiment, ABC):
+    """A wrapper class of ``BatchExperiment`` to implement HEAT experiment.
 
-    This class implements a batch experiment consisting of multiple HEAT element experiments
-    to compute specific unitary error terms from extracted `d_theta` parameters.
+    # section: overview
+
+        This is a helper class for experiment developers of the HEAT experiment.
+        This class overrides :meth:`set_experiment_options` and :meth:`set_transpile_options`
+        methods of :class:`BatchExperiment` so that it can override options of
+        subsequence amplification experiments to run them on the same set up.
+        From end users, this experiment seems as if a single HEAT experiment.
 
     # section: analysis_ref
-        :py:class:`CompositeHeatAnalysis`
+        :py:class:`HeatAnalysis`
     """
 
     def __init__(
         self,
         heat_experiments: List[HeatElement],
-        heat_analysis: CompositeHeatAnalysis,
+        heat_analysis: HeatAnalysis,
         backend: Optional[Backend] = None,
     ):
         """Create new HEAT experiment.
 
         Args:
-            heat_experiments: A list of configured HEAT experiments.
-            heat_analysis: Configured HEAT analysis instance.
+            heat_experiments: A list of error amplification sequence that might be
+                implemented as :class:``HeatElement`` instance.
+            heat_analysis: HEAT analysis instance.
             backend: Optional, the backend to run the experiment on.
         """
         super().__init__(experiments=heat_experiments, backend=backend, analysis=heat_analysis)
@@ -143,7 +191,7 @@ class BaseCompositeHeat(BatchExperiment, ABC):
 
         Experiment Options:
             repetitions (Sequence[int]): A list of the number of echo repetitions.
-            cr_gate (Gate): A gate instance representing the ZX(pi/2).
+            cr_gate (Gate): A gate instance representing the entangler sequence.
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(21))
@@ -154,11 +202,10 @@ class BaseCompositeHeat(BatchExperiment, ABC):
     def set_experiment_options(self, **fields):
         """Set the analysis options for :meth:`run` method.
 
-        Same experiment options are applied to all subset HEAT experiments.
-
         Args:
             fields: The fields to update the options
         """
+        # propagate options through all nested amplification experiments.
         for comp_exp in self.component_experiment():
             comp_exp.set_experiment_options(**fields)
 
@@ -176,12 +223,10 @@ class BaseCompositeHeat(BatchExperiment, ABC):
     def set_transpile_options(self, **fields):
         """Set the transpiler options for :meth:`run` method.
 
-        Same transpile options are applied to all subset HEAT experiments.
-
         Args:
             fields: The fields to update the options
         """
-        # TODO wait for #380 to apply individual transpile options to nested experiments
+        # propagate options through all nested amplification experiments.
         for comp_exp in self.component_experiment():
             comp_exp.set_transpile_options(**fields)
 

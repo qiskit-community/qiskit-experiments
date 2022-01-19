@@ -71,6 +71,10 @@ Some experiments may be also used for gate calibration.
     ~characterization.RamseyXY
     ~characterization.FineFrequency
     ~characterization.ReadoutAngle
+    ~hamiltonian.ZXHeat
+    ~hamiltonian.ZX90HeatXError
+    ~hamiltonian.ZX90HeatYError
+    ~hamiltonian.ZX90HeatZError
 
 
 .. _calibration:
@@ -141,7 +145,6 @@ from .characterization import (
 )
 from .randomized_benchmarking import StandardRB, InterleavedRB
 from .tomography import StateTomography, ProcessTomography
-from .heat import ZXHeatZError, ZXHeatYError
 from .quantum_volume import QuantumVolume
 from .mitigation import ReadoutMitigationExperiment
 
@@ -151,3 +154,4 @@ from . import characterization
 from . import randomized_benchmarking
 from . import tomography
 from . import quantum_volume
+from . import hamiltonian
