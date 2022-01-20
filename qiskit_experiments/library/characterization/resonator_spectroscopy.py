@@ -21,12 +21,12 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
 import qiskit.pulse as pulse
 
-from qiskit_experiments.library.characterization import QubitSpectroscopy
+from qiskit_experiments.library.characterization.spectroscopy import Spectroscopy
 from qiskit_experiments.data_processing.processor_library import get_processor, ProjectorType
 from .analysis.resonator_spectroscopy_analysis import ResonatorSpectroscopyAnalysis
 
 
-class ResonatorSpectroscopy(QubitSpectroscopy):
+class ResonatorSpectroscopy(Spectroscopy):
     """Perform spectroscopy on the readout resonator.
 
     # section: overview
@@ -79,11 +79,9 @@ class ResonatorSpectroscopy(QubitSpectroscopy):
                 resonator frequency in the backend.
             experiment_options: Key word arguments used to set the experiment options.
         """
-        super().__init__(qubit, frequencies, backend, absolute)
-        self.analysis = ResonatorSpectroscopyAnalysis()
+        analysis = ResonatorSpectroscopyAnalysis()
+        super().__init__(qubit, frequencies, backend, absolute, analysis, **experiment_options)
         self._set_analysis_data_processor()
-
-        self.set_experiment_options(**experiment_options)
 
     def _set_analysis_data_processor(self):
         """Keep the data processor consistent with the run options."""
@@ -115,23 +113,21 @@ class ResonatorSpectroscopy(QubitSpectroscopy):
 
         return self.backend.defaults().meas_freq_est[self.physical_qubits[0]]
 
-    def _meas_template_circuit(self) -> QuantumCircuit:
+    def _template_circuit(self) -> QuantumCircuit:
         """Return the template quantum circuit."""
         circuit = QuantumCircuit(1, 1)
         circuit.measure(0, 0)
 
         return circuit
 
-    def _spec_gate_schedule(
-        self, backend: Optional[Backend] = None
-    ) -> Tuple[pulse.ScheduleBlock, Parameter]:
+    def _schedule(self) -> Tuple[pulse.ScheduleBlock, Parameter]:
         """Create the spectroscopy schedule."""
 
         qubit = self.physical_qubits[0]
 
         freq_param = Parameter("frequency")
 
-        with pulse.build(backend=backend, name="spectroscopy") as schedule:
+        with pulse.build(backend=self.backend, name="spectroscopy") as schedule:
             pulse.shift_frequency(freq_param, pulse.MeasureChannel(qubit))
             pulse.play(
                 pulse.GaussianSquare(
@@ -150,33 +146,21 @@ class ResonatorSpectroscopy(QubitSpectroscopy):
         """Create the circuit for the spectroscopy experiment.
 
         The circuits are based on a GaussianSquare pulse and a frequency_shift instruction
-        encapsulated in a gate.
+        encapsulated in a measurement instruction.
 
         Returns:
             circuits: The circuits that will run the spectroscopy experiment.
-
-        Raises:
-            QiskitError: If absolute frequencies are used but no backend is given.
-            QiskitError: If the backend configuration does not define dt.
-            AttributeError: If backend to run on does not contain 'dt' configuration.
         """
-        if self.backend is None and self._absolute:
-            raise QiskitError("Cannot run spectroscopy in absolute without a backend.")
+        sched, freq_param = self._schedule()
 
-        # Create a template circuit
-        sched, freq_param = self._spec_gate_schedule(self.backend)
-
-        # Create the circuits to run
         circs = []
         for freq in self._frequencies:
-            freq_shift = freq
-            if self._absolute:
-                freq_shift -= self.center_frequency
+            freq_shift = freq - self.center_frequency if self._absolute else freq
             freq_shift = np.round(freq_shift, decimals=3)
 
             sched_ = sched.assign_parameters({freq_param: freq_shift}, inplace=False)
 
-            circuit = self._meas_template_circuit()
+            circuit = self._template_circuit()
             circuit.add_calibration("measure", self.physical_qubits, sched_)
             self._add_metadata(circuit, freq, sched)
 
