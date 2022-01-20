@@ -13,10 +13,11 @@
 Qiskit Experiments test case class
 """
 
-from typing import Any, Callable, Optional
+import dataclasses
 import json
-import numpy as np
+from typing import Any, Callable, Optional
 
+import numpy as np
 from qiskit.test import QiskitTestCase
 from qiskit_experiments.framework import (
     ExperimentDecoder,
@@ -55,7 +56,6 @@ class QiskitExperimentsTestCase(QiskitTestCase):
     @staticmethod
     def experiments_equiv(exp1, exp2) -> bool:
         """Check if two experiments are equivalent by comparing their configs"""
-        # pylint: disable = too-many-boolean-expressions, too-many-return-statements
         config1 = exp1.config()
         config2 = exp2.config()
         try:
@@ -63,44 +63,27 @@ class QiskitExperimentsTestCase(QiskitTestCase):
                 return True
         except ValueError:
             pass
-        if (
-            config1.cls != config2.cls
-            or len(config1.args) != len(config2.args)
-            or len(config1.kwargs) != len(config2.kwargs)
-            or len(config1.experiment_options) != len(config2.experiment_options)
-            or len(config1.transpile_options) != len(config2.transpile_options)
-            or len(config1.run_options) != len(config2.run_options)
-        ):
-            return False
 
-        # Check each entry
-        for arg1, arg2 in zip(config1.args, config2.args):
-            if not _test_all_elements_equiv(arg1, arg2):
-                return False
-        for attr in ["kwargs", "experiment_options", "transpile_options", "run_options"]:
-            dict1 = getattr(config1, attr)
-            dict2 = getattr(config2, attr)
-            for key1, val1 in dict1.items():
-                val2 = dict2[key1]
-                if not _test_all_elements_equiv(val1, val2):
-                    return False
-        return True
+        return _test_all_elements_equiv(exp1.config(), exp2.config())
 
 
 def _test_all_elements_equiv(data1, data2) -> bool:
     """A helper function to check if two data are equivalent."""
-    array_type = (list, tuple)
+    # pylint: disable = too-many-return-statements
+    configrable_type = (BaseExperiment, BaseAnalysis)
+    list_type = (list, tuple)
 
-    # if array type check elements recursively
-    if isinstance(data1, np.ndarray) or isinstance(data2, np.ndarray):
+    if isinstance(data1, configrable_type) and isinstance(data2, configrable_type):
+        return _test_all_elements_equiv(data1.config(), data2.config())
+    elif dataclasses.is_dataclass(data1) and dataclasses.is_dataclass(data2):
+        return _test_all_elements_equiv(dataclasses.asdict(data1), dataclasses.asdict(data2))
+    elif isinstance(data1, dict) and isinstance(data2, dict):
+        if set(data1) != set(data2):
+            return False
+        return all(_test_all_elements_equiv(data1[k], data2[k]) for k in data1.keys())
+    elif isinstance(data1, np.ndarray) or isinstance(data2, np.ndarray):
         return np.allclose(data1, data2)
-    elif isinstance(data1, array_type) and isinstance(data2, array_type):
+    elif isinstance(data1, list_type) and isinstance(data2, list_type):
         return all(_test_all_elements_equiv(e1, e2) for e1, e2 in zip(data1, data2))
-
-    # check for composite experiment
-    if isinstance(data1, BaseExperiment) and isinstance(data2, BaseExperiment):
-        return QiskitExperimentsTestCase.experiments_equiv(data1, data2)
-    elif isinstance(data1, BaseAnalysis) and isinstance(data2, BaseAnalysis):
-        return data1.config() == data2.config()
 
     return data1 == data2
