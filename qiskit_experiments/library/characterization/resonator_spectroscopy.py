@@ -44,10 +44,9 @@ class ResonatorSpectroscopy(QubitSpectroscopy):
         where a spectroscopy pulse is attached to the measurement instruction. When doing
         readout resonator spectroscopy, each measured IQ point has a frequency dependent
         phase. Close to the resonance, the IQ points start rotating around in the IQ plan.
-        To create a meaningful signal this experiment therefore uses a custom data processor
-        where the dimensionality reducing SVD is replaced by the absolute value of the IQ
-        point.
-
+        This effect must be accounted for in the data processing to produce a meaningful
+        signal.
+        
     # section: analysis_ref
         :py:class:`ResonatorSpectroscopyAnalysis`
 
