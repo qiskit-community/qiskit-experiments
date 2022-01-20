@@ -71,7 +71,7 @@ def _test_all_elements_equiv(data1, data2) -> bool:
     """A helper function to check if two data are equivalent."""
     # pylint: disable = too-many-return-statements
     configrable_type = (BaseExperiment, BaseAnalysis)
-    list_type = (list, tuple)
+    list_type = (list, tuple, set)
 
     if isinstance(data1, configrable_type) and isinstance(data2, configrable_type):
         return _test_all_elements_equiv(data1.config(), data2.config())
