@@ -18,7 +18,12 @@ import json
 import numpy as np
 
 from qiskit.test import QiskitTestCase
-from qiskit_experiments.framework import ExperimentDecoder, ExperimentEncoder
+from qiskit_experiments.framework import (
+    ExperimentDecoder,
+    ExperimentEncoder,
+    BaseExperiment,
+    BaseAnalysis,
+)
 
 
 class QiskitExperimentsTestCase(QiskitTestCase):
@@ -70,26 +75,32 @@ class QiskitExperimentsTestCase(QiskitTestCase):
 
         # Check each entry
         for arg1, arg2 in zip(config1.args, config2.args):
-            if isinstance(arg1, np.ndarray) or isinstance(arg2, np.ndarray):
-                if not np.all(np.asarray(arg1) == np.asarray(arg2)):
-                    return False
-            elif isinstance(arg1, tuple) or isinstance(arg2, tuple):
-                # JSON serialization converts tuples to lists
-                if list(arg1) != list(arg2):
-                    return False
-            elif arg1 != arg2:
+            if not _test_all_elements_equiv(arg1, arg2):
                 return False
         for attr in ["kwargs", "experiment_options", "transpile_options", "run_options"]:
             dict1 = getattr(config1, attr)
             dict2 = getattr(config2, attr)
             for key1, val1 in dict1.items():
                 val2 = dict2[key1]
-                if isinstance(val1, np.ndarray) or isinstance(val2, np.ndarray):
-                    if not np.allclose(val1, val2):
-                        return False
-                elif isinstance(val1, tuple) or isinstance(val2, tuple):
-                    if list(val1) != list(val2):
-                        return False
-                elif val1 != val2:
+                if not _test_all_elements_equiv(val1, val2):
                     return False
         return True
+
+
+def _test_all_elements_equiv(data1, data2) -> bool:
+    """A helper function to check if two data are equivalent."""
+    array_type = (list, tuple)
+
+    # if array type check elements recursively
+    if isinstance(data1, np.ndarray) or isinstance(data2, np.ndarray):
+        return np.allclose(data1, data2)
+    elif isinstance(data1, array_type) and isinstance(data2, array_type):
+        return all(_test_all_elements_equiv(e1, e2) for e1, e2 in zip(data1, data2))
+
+    # check for composite experiment
+    if isinstance(data1, BaseExperiment) and isinstance(data2, BaseExperiment):
+        return QiskitExperimentsTestCase.experiments_equiv(data1, data2)
+    elif isinstance(data1, BaseAnalysis) and isinstance(data2, BaseAnalysis):
+        return data1.config() == data2.config()
+
+    return data1 == data2
