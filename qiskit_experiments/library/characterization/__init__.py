@@ -60,6 +60,7 @@ Analysis
     FineAmplitudeAnalysis
     RamseyXYAnalysis
     ReadoutAngleAnalysis
+    ResonatorSpectroscopyAnalysis
 """
 
 from .analysis import (
@@ -72,6 +73,7 @@ from .analysis import (
     T1Analysis,
     CrossResonanceHamiltonianAnalysis,
     ReadoutAngleAnalysis,
+    ResonatorSpectroscopyAnalysis,
 )
 
 from .t1 import T1

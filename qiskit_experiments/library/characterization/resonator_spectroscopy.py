@@ -47,6 +47,12 @@ class ResonatorSpectroscopy(QubitSpectroscopy):
         To create a meaningful signal this experiment therefore uses a custom data processor
         where the dimensionality reducing SVD is replaced by the absolute value of the IQ
         point.
+
+    # section: analysis_ref
+        :py:class:`ResonatorSpectroscopyAnalysis`
+
+    # section: see_also
+        qiskit_experiments.library.characterization.qubit_spectroscopy.QubitSpectroscopy
     """
 
     def __init__(
