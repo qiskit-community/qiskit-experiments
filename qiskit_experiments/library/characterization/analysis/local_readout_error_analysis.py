@@ -21,6 +21,7 @@ from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
 
+
 class LocalReadoutErrorAnalysis(BaseAnalysis):
     r"""
     Local readout error characterization analysis
