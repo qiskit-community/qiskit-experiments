@@ -197,7 +197,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         nested_exp = BatchExperiment([exp5, exp3])
         expdata = nested_exp.run(FakeBackend()).block_for_results()
         status = expdata.status()
-        self.assertEqual(status, "DONE")
+        self.assertEqual(status.name, "DONE")
 
     def test_analysis_replace_results_true(self):
         """
