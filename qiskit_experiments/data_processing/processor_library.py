@@ -13,6 +13,7 @@
 """A collection of functions that return various data processors."""
 
 from enum import Enum
+from typing import Union
 
 from qiskit.qobj.utils import MeasLevel
 
@@ -21,20 +22,19 @@ from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing import nodes
 
 
-class ProjectorType(str, Enum):
+class ProjectorType(Enum):
     """Types of projectors for data dimensionality reduction."""
-
-    SVD = "SVD"
-    ABS = "ABS"
-    REAL = "REAL"
-    IMAG = "IMAG"
+    SVD = nodes.SVD
+    ABS = nodes.ToAbs
+    REAL = nodes.ToReal
+    IMAG = nodes.ToImag
 
 
 def get_processor(
     meas_level: MeasLevel = MeasLevel.CLASSIFIED,
     meas_return: str = "avg",
     normalize: bool = True,
-    dimensionality_reduction: ProjectorType = ProjectorType.SVD,
+    dimensionality_reduction: Union[str, ProjectorType] = ProjectorType.SVD,
 ) -> DataProcessor:
     """Get a DataProcessor that produces a continuous signal given the options.
 
@@ -50,20 +50,26 @@ def get_processor(
 
     Raises:
         DataProcessorError: if the measurement level is not supported.
+        DataProcessorError: if the wrong dimensionality reduction for kerneled data
+            is specified.
     """
-    projectors = {
-        "SVD": nodes.SVD,
-        "ABS": nodes.ToAbs,
-        "REAL": nodes.ToReal,
-        "IMAG": nodes.ToImag,
-    }
-
     if meas_level == MeasLevel.CLASSIFIED:
         return DataProcessor("counts", [nodes.Probability("1")])
 
     if meas_level == MeasLevel.KERNELED:
 
-        projector = projectors[dimensionality_reduction]
+        try:
+            if isinstance(dimensionality_reduction, ProjectorType):
+                projector_name = dimensionality_reduction.name
+            else:
+                projector_name = dimensionality_reduction
+
+            projector = ProjectorType[projector_name].value
+
+        except KeyError as error:
+            raise DataProcessorError(
+                f"Invalid dimensionality reduction: {dimensionality_reduction}."
+            ) from error
 
         if meas_return == "single":
             processor = DataProcessor("memory", [nodes.AverageData(axis=1), projector()])
