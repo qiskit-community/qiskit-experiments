@@ -60,6 +60,7 @@ class ResonatorSpectroscopy(QubitSpectroscopy):
         frequencies: Iterable[float],
         backend: Optional[Backend] = None,
         absolute: bool = True,
+        **experiment_options,
     ):
         """
         A spectroscopy experiment run by setting the frequency of the readout drive.
@@ -76,10 +77,13 @@ class ResonatorSpectroscopy(QubitSpectroscopy):
             backend: Optional, the backend to run the experiment on.
             absolute: Boolean to specify if the frequencies are absolute or relative to the
                 resonator frequency in the backend.
+            experiment_options: Key word arguments used to set the experiment options.
         """
         super().__init__(qubit, frequencies, backend, absolute)
         self.analysis = ResonatorSpectroscopyAnalysis()
         self._set_analysis_data_processor()
+
+        self.set_experiment_options(**experiment_options)
 
     def _set_analysis_data_processor(self):
         """Keep the data processor consistent with the run options."""
