@@ -19,8 +19,12 @@ import unittest
 from test.base import QiskitExperimentsTestCase
 import numpy as np
 from qiskit.quantum_info.operators.predicates import matrix_equal
+from qiskit.providers.aer import AerSimulator
+from qiskit.test.mock import FakeParis
 from qiskit_experiments.library.characterization import LocalReadoutError, CorrelatedReadoutError
 from qiskit_experiments.framework import ExperimentData
+from qiskit_experiments.framework import ParallelExperiment
+
 
 
 class TestMitigation(QiskitExperimentsTestCase):
@@ -137,6 +141,18 @@ class TestMitigation(QiskitExperimentsTestCase):
         exp = LocalReadoutError(qubits)
         self.assertEqual(len(exp.circuits()), 2)
 
+    def test_parallel_running(self):
+        backend = AerSimulator.from_backend(FakeParis())
+        exp1 = CorrelatedReadoutError([0, 2])
+        exp2 = CorrelatedReadoutError([1, 3])
+        exp = ParallelExperiment([exp1, exp2])
+        expdata = exp.run(backend=backend).block_for_results()
+        mit1 = expdata.child_data(0).analysis_results(0).value
+        mit2 = expdata.child_data(1).analysis_results(0).value
+        assignment_matrix1 = mit1.assignment_matrix()
+        assignment_matrix2 = mit2.assignment_matrix()
+        self.assertFalse(matrix_equal(assignment_matrix1,
+                                     assignment_matrix2))
 
 if __name__ == "__main__":
     unittest.main()
