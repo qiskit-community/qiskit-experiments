@@ -48,7 +48,7 @@ class QubitSpectroscopy(Spectroscopy):
     __spec_gate_name__ = "Spec"
 
     @property
-    def _center_frequency(self) -> float:
+    def _backend_center_frequency(self) -> float:
         """Returns the center frequency of the experiment.
 
         Returns:
@@ -108,7 +108,7 @@ class QubitSpectroscopy(Spectroscopy):
         # Create the circuits to run
         circs = []
         for freq in self._frequencies:
-            freq_shift = freq - self._center_frequency if self._absolute else freq
+            freq_shift = freq - self._backend_center_frequency if self._absolute else freq
             freq_shift = np.round(freq_shift, decimals=3)
 
             assigned_circ = circuit.assign_parameters({freq_param: freq_shift}, inplace=False)
