@@ -17,27 +17,17 @@ from qiskit.qobj.utils import MeasLevel
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing import nodes
+from qiskit_experiments.framework import Options
 
 
 def get_processor(
-    meas_level: MeasLevel = MeasLevel.CLASSIFIED,
-    meas_return: str = "avg",
-    normalize: bool = True,
-    init_qubits: bool = True,
-    memory: bool = False,
-    rep_delay: float = None,
-    num_qubits: int = None,
+    num_qubits: int = None, analysis_options: Options = Options(normalization=False), **run_options
 ) -> DataProcessor:
     """Get a DataProcessor that produces a continuous signal given the options.
 
     Args:
-        meas_level: The measurement level of the data to process.
-        meas_return: The measurement return (single or avg) of the data to process.
-        normalize: Add a data normalization node to the Kerneled data processor.
-        init_qubits: If False, the qubits are not reset to the ground state after a measurement.
-        memory: If True, single-shot measurement bitstrings are returned.
-        rep_delay: The delay between a measurement and the subsequent circuit.
         num_qubits: The number of qubits.
+        analysis_options: The experiment analysis options.
 
     Returns:
         An instance of DataProcessor capable of dealing with the given options.
@@ -45,6 +35,13 @@ def get_processor(
     Raises:
         DataProcessorError: if the measurement level is not supported.
     """
+
+    meas_level = run_options.get("meas_level", MeasLevel.CLASSIFIED)
+    meas_return = run_options.get("meas_return", None)
+    normalize = analysis_options.normalization
+    init_qubits = run_options.get("init_qubits", True)
+    memory = run_options.get("memory", False)
+    rep_delay = run_options.get("rep_delay", None)
 
     # restless data processing.
     if meas_level == MeasLevel.CLASSIFIED and not init_qubits and memory and rep_delay < 100e-6:

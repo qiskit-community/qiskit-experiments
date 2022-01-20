@@ -801,7 +801,6 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # No data processor has been provided at run-time we infer one from the job
         # metadata and default to the data processor for averaged classified data.
         data_processor = self.options.data_processor
-
         if not data_processor:
             run_options = self._run_options() or dict()
 
@@ -812,20 +811,8 @@ class CurveAnalysis(BaseAnalysis, ABC):
                     f"Cannot process data without knowing the measurement level: {str(ex)}."
                 ) from ex
 
-            meas_return = run_options.get("meas_return", None)
-            init_qubits = run_options.get("init_qubits")
-            memory = run_options.get("memory")
-            rep_delay = run_options.get("rep_delay")
-            num_qubits = self._num_qubits
-
             data_processor = get_processor(
-                meas_level,
-                meas_return,
-                self.options.normalization,
-                init_qubits,
-                memory,
-                rep_delay,
-                num_qubits,
+                num_qubits=self._num_qubits, analysis_options=self._options, **run_options
             )
 
         if isinstance(data_processor, DataProcessor) and not data_processor.is_trained:
