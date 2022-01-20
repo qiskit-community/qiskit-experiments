@@ -42,8 +42,12 @@ def get_processor(
         meas_level: The measurement level of the data to process.
         meas_return: The measurement return (single or avg) of the data to process.
         normalize: Add a data normalization node to the Kerneled data processor.
-        dimensionality_reduction: A string to represent the dimensionality reduction
-            node. Must be one of SVD, ABS, REAL, IMAG.
+        dimensionality_reduction: An optional string or instance of :class:`ProjectorType`
+            to represent the dimensionality reduction node for Kerneled data. For the
+            supported nodes, see :class:`ProjectorType`. Typically, these nodes convert
+            complex IQ data to real data, for example by performing a singular-value
+            decomposition. This argument is only needed for Kerneled data (i.e. level 1)
+            and can thus be ignored if Classified data (the default) is used.
 
     Returns:
         An instance of DataProcessor capable of dealing with the given options.
