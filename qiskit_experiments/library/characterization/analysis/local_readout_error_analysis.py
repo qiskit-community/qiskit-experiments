@@ -21,7 +21,6 @@ from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 from qiskit_experiments.framework import BaseAnalysis, AnalysisResultData, Options
 
-
 class LocalReadoutErrorAnalysis(BaseAnalysis):
     r"""
     Local readout error characterization analysis
@@ -117,7 +116,7 @@ def assignment_matrix_visualization(assignment_matrix, ax=None):
     ax.set_xticks(np.arange(n))
     ax.set_yticklabels(n * [""])
     ax.set_xticklabels(n * [""])
-    ax.set_xlabel(r"$|A - I|$", fontsize=16)
+    ax.set_title(r"$|A - I  |$", fontsize=16)
     ax.set_xlabel("Prepared State")
     ax.xaxis.set_label_position("top")
     ax.set_ylabel("Measured State")
