@@ -135,9 +135,5 @@ class Spectroscopy(BaseExperiment, ABC):
             "qubits": self.physical_qubits,
             "xval": np.round(freq, decimals=3),
             "unit": "Hz",
-            "amplitude": self.experiment_options.amp,
-            "duration": self.experiment_options.duration,
-            "sigma": self.experiment_options.sigma,
-            "width": self.experiment_options.width,
             "schedule": str(sched),
         }
