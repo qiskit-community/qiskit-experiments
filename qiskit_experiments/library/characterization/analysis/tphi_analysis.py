@@ -36,10 +36,10 @@ class TphiAnalysis(CompositeAnalysis):
                       experiment_data: ExperimentData,
                       **options
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
-        """Run analysis for :math:`T_\phi` experiment.
-           It invokes CompositeAnalysis._run_analysis that will invoke
-           _run_analysis for the two sub-experiments.
-           Based on the results, it computes the result for :math:`T_phi`.
+        r"""Run analysis for :math:`T_\phi` experiment.
+        It invokes CompositeAnalysis._run_analysis that will invoke
+        _run_analysis for the two sub-experiments.
+        Based on the results, it computes the result for :math:`T_phi`.
         """
         _, _ = super()._run_analysis(experiment_data, **options)
 
