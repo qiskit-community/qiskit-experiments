@@ -46,7 +46,7 @@ class ResonatorSpectroscopy(QubitSpectroscopy):
         phase. Close to the resonance, the IQ points start rotating around in the IQ plan.
         This effect must be accounted for in the data processing to produce a meaningful
         signal.
-        
+
     # section: analysis_ref
         :py:class:`ResonatorSpectroscopyAnalysis`
 
