@@ -105,7 +105,7 @@ class Spectroscopy(BaseExperiment, ABC):
 
     @property
     @abstractmethod
-    def center_frequency(self) -> float:
+    def _center_frequency(self) -> float:
         """Return the center frequency when running absolute frequencies.
 
         Spectroscopy experiments should implement schedules using frequency shifts. Therefore,

@@ -99,7 +99,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         self._set_analysis_data_processor()
 
     @property
-    def center_frequency(self) -> float:
+    def _center_frequency(self) -> float:
         """Returns the center frequency of the experiment.
 
         Returns:
@@ -155,7 +155,7 @@ class ResonatorSpectroscopy(Spectroscopy):
 
         circs = []
         for freq in self._frequencies:
-            freq_shift = freq - self.center_frequency if self._absolute else freq
+            freq_shift = freq - self._center_frequency if self._absolute else freq
             freq_shift = np.round(freq_shift, decimals=3)
 
             sched_ = sched.assign_parameters({freq_param: freq_shift}, inplace=False)
