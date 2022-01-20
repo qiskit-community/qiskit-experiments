@@ -102,8 +102,8 @@ class TphiBackend(BackendV1):
         Run the Tphi backend
         """
         self.options.update_options(**options)
-        t1_shots = self.options.get("t1_shots")
-        t2ramsey_shots = self.options.get("t2ramsey_shots")
+        t1_shots = 1000
+        t2ramsey_shots = 2000
 
         t1_circuits = []
         t2ramsey_circuits = []
@@ -115,18 +115,22 @@ class TphiBackend(BackendV1):
             else:
                 raise ValueError("Illegal name for circuit in Tphi")
 
-        job_t1 = self._internal_backends["T1"].run(run_input=t1_circuits)
-        job_t2ramsey = self._internal_backends["T2*"].run(run_input=t2ramsey_circuits)
+        job_t1 = self._internal_backends["T1"].run(run_input=t1_circuits, shots=t1_shots)
+        job_t2ramsey = self._internal_backends["T2*"].run(
+            run_input=t2ramsey_circuits, shots=t2ramsey_shots
+        )
 
         final_results = job_t1.result().results
         for result in job_t2ramsey.result().results:
             final_results.append(result)
 
-        result_for_fake = Result(backend_name="Tphi backend",
-                                 backend_version="0",
-                                 qobj_id=0,
-                                 job_id=0,
-                                 success=True,
-                                 results=final_results,
-                                 status="JobStatus.DONE")
+        result_for_fake = Result(
+            backend_name="Tphi backend",
+            backend_version="0",
+            qobj_id=0,
+            job_id=0,
+            success=True,
+            results=final_results,
+            status="JobStatus.DONE",
+        )
         return FakeJob(self, result_for_fake)
