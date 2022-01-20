@@ -14,7 +14,7 @@ Tphi Analysis class.
 """
 
 from typing import List, Tuple
-import numpy as np
+from uncertainties import ufloat
 
 from qiskit_experiments.framework import (
     ExperimentData,
@@ -32,9 +32,8 @@ class TphiAnalysis(CompositeAnalysis):
 
     """
 
-    def _run_analysis(self,
-                      experiment_data: ExperimentData,
-                      **options
+    def _run_analysis(
+        self, experiment_data: ExperimentData, **options
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         r"""Run analysis for :math:`T_\phi` experiment.
         It invokes CompositeAnalysis._run_analysis that will invoke
@@ -45,14 +44,13 @@ class TphiAnalysis(CompositeAnalysis):
 
         t1_result = experiment_data.child_data(0).analysis_results("T1")
         t2star_result = experiment_data.child_data(1).analysis_results("T2star")
-        t1 = t1_result.value.value
-        t2star = t2star_result.value.value
-        reciprocal = 1 / (2 * t1) + (1 / t2star)
-        t_phi = 1 / reciprocal
+        # we use the 'ucert' prefix to denote values that include
+        # uncertainty using the `uncertainties` package
+        uncert_t1_res = ufloat(t1_result.value.value, t1_result.value.stderr)
+        uncert_t2star_res = ufloat(t2star_result.value.value, t2star_result.value.stderr)
+        uncert_reciprocal = (1 / uncert_t2star_res) - (1 / (2 * uncert_t1_res))
+        uncert_tphi = 1 / uncert_reciprocal
 
-        err_t1 = t1_result.value.stderr
-        err_t2star = t2star_result.value.stderr
-        err_tphi = t_phi * np.sqrt((err_t1 / t1) ** 2 + (err_t2star / t2star) ** 2)
         quality_tphi = (
             "good" if (t1_result.quality == "good" and t2star_result.quality == "good") else "bad"
         )
@@ -61,7 +59,7 @@ class TphiAnalysis(CompositeAnalysis):
         analysis_results.append(
             AnalysisResultData(
                 name="T_phi",
-                value=FitVal(t_phi, err_tphi),
+                value=FitVal(uncert_tphi.nominal_value, uncert_tphi.std_dev),
                 chisq=None,
                 quality=quality_tphi,
                 extra={},

@@ -30,13 +30,13 @@ class TestTphi(QiskitExperimentsTestCase):
         delays_t2 = list(range(1, 51, 2))
         exp = Tphi(qubit=0, delays_t1=delays_t1, delays_t2=delays_t2, osc_freq=0.1)
 
-        t1 = 10
+        t1 = 20
         t2ramsey = 25
         backend = TphiBackend(t1=t1, t2ramsey=t2ramsey, freq=0.1)
         expdata = exp.run(backend=backend, analysis=TphiAnalysis()).block_for_results()
 
         result = expdata.analysis_results("T_phi")
-        estimated_tphi = 1 / ((1 / (2 * t1)) + (1 / t2ramsey))
+        estimated_tphi = 1 / ((1 / t2ramsey) - (1 / (2 * t1)))
         self.assertAlmostEqual(
             result.value.value,
             estimated_tphi,

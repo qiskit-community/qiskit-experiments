@@ -20,7 +20,7 @@ class Tphi(BatchExperiment):
 
         Tphi is defined as follows:
 
-        :math:`1/T_\phi = 1/2T_1 + 1/T_{2*}`.
+        :math:`1/T_\phi = 1/T_{2*} - 1/2T_1`.
 
         For more details, see :py:class:`T1` and :py:class:`T2Ramsey`
 
