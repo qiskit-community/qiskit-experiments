@@ -77,7 +77,7 @@ class TestComposite(QiskitExperimentsTestCase):
 
         loaded_exp = BatchExperiment.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
@@ -88,7 +88,7 @@ class TestComposite(QiskitExperimentsTestCase):
 
         exp = BatchExperiment([exp1, exp2])
 
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
 
 
 class TestCompositeExperimentData(QiskitExperimentsTestCase):

@@ -60,7 +60,7 @@ class TestJSON(QiskitExperimentsTestCase):
         obj = FakeExperiment([0])
         obj.set_transpile_options(optimization_level=3, basis_gates=["rx", "ry", "cz"])
         obj.set_run_options(shots=2000)
-        self.assertRoundTripSerializable(obj, self.experiments_equiv)
+        self.assertRoundTripSerializable(obj, self.json_equiv)
 
     def test_roundtrip_quantum_circuit(self):
         """Test round-trip serialization of a circuits"""

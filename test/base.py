@@ -16,6 +16,7 @@ Qiskit Experiments test case class
 import dataclasses
 import json
 from typing import Any, Callable, Optional
+import warnings
 
 import numpy as np
 from qiskit.test import QiskitTestCase
@@ -25,6 +26,7 @@ from qiskit_experiments.framework import (
     BaseExperiment,
     BaseAnalysis,
 )
+from qiskit_experiments.calibration_management import Calibrations
 
 
 class QiskitExperimentsTestCase(QiskitTestCase):
@@ -54,36 +56,30 @@ class QiskitExperimentsTestCase(QiskitTestCase):
             self.assertTrue(check_func(obj, decoded), msg=f"{obj} != {decoded}")
 
     @staticmethod
-    def experiments_equiv(exp1, exp2) -> bool:
+    def json_equiv(data1, data2) -> bool:
         """Check if two experiments are equivalent by comparing their configs"""
-        config1 = exp1.config()
-        config2 = exp2.config()
-        try:
-            if config1 == config2:
-                return True
-        except ValueError:
-            pass
+        # pylint: disable = too-many-return-statements
+        configrable_type = (BaseExperiment, BaseAnalysis)
+        list_type = (list, tuple, set)
+        skipped = (Calibrations,)
 
-        return _test_all_elements_equiv(exp1.config(), exp2.config())
+        if isinstance(data1, skipped) and isinstance(data2, skipped):
+            warnings.warn(f"Equivalence check for data {data1.__class__.__name__} is skipped.")
+            return True
+        elif isinstance(data1, configrable_type) and isinstance(data2, configrable_type):
+            return QiskitExperimentsTestCase.json_equiv(data1.config(), data2.config())
+        elif dataclasses.is_dataclass(data1) and dataclasses.is_dataclass(data2):
+            # not using asdict. this copies all objects.
+            return QiskitExperimentsTestCase.json_equiv(data1.__dict__, data2.__dict__)
+        elif isinstance(data1, dict) and isinstance(data2, dict):
+            if set(data1) != set(data2):
+                return False
+            return all(
+                QiskitExperimentsTestCase.json_equiv(data1[k], data2[k]) for k in data1.keys()
+            )
+        elif isinstance(data1, np.ndarray) or isinstance(data2, np.ndarray):
+            return np.allclose(data1, data2)
+        elif isinstance(data1, list_type) and isinstance(data2, list_type):
+            return all(QiskitExperimentsTestCase.json_equiv(e1, e2) for e1, e2 in zip(data1, data2))
 
-
-def _test_all_elements_equiv(data1, data2) -> bool:
-    """A helper function to check if two data are equivalent."""
-    # pylint: disable = too-many-return-statements
-    configrable_type = (BaseExperiment, BaseAnalysis)
-    list_type = (list, tuple, set)
-
-    if isinstance(data1, configrable_type) and isinstance(data2, configrable_type):
-        return _test_all_elements_equiv(data1.config(), data2.config())
-    elif dataclasses.is_dataclass(data1) and dataclasses.is_dataclass(data2):
-        return _test_all_elements_equiv(dataclasses.asdict(data1), dataclasses.asdict(data2))
-    elif isinstance(data1, dict) and isinstance(data2, dict):
-        if set(data1) != set(data2):
-            return False
-        return all(_test_all_elements_equiv(data1[k], data2[k]) for k in data1.keys())
-    elif isinstance(data1, np.ndarray) or isinstance(data2, np.ndarray):
-        return np.allclose(data1, data2)
-    elif isinstance(data1, list_type) and isinstance(data2, list_type):
-        return all(_test_all_elements_equiv(e1, e2) for e1, e2 in zip(data1, data2))
-
-    return data1 == data2
+        return data1 == data2
