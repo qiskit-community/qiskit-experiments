@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -137,6 +137,7 @@ class ZXHeat(BatchHeatHelper):
                 echo_circ=echo,
                 meas_circ=meas,
                 backend=backend,
+                parameter_name=f"d_heat_{error_axis}{control}",
             )
             amplification_exps.append(exp)
 
@@ -156,7 +157,7 @@ class ZX90HeatXError(ZXHeat):
     """HEAT experiment for X error amplification for ZX(pi/2) Hamiltonian.
 
     # section: see_also
-        :py:class:`ZXHeat`
+        ZXHeat
     """
 
     def __init__(self, qubits: [int, int], backend: Optional[Backend] = None):
@@ -177,7 +178,7 @@ class ZX90HeatYError(ZXHeat):
     """HEAT experiment for Y error amplification for ZX(pi/2) Hamiltonian.
 
     # section: see_also
-        :py:class:`ZXHeat`
+        ZXHeat
     """
 
     def __init__(self, qubits: [int, int], backend: Optional[Backend] = None):
@@ -198,7 +199,7 @@ class ZX90HeatZError(ZXHeat):
     """HEAT experiment for Z error amplification for ZX(pi/2) Hamiltonian.
 
     # section: see_also
-        :py:class:`ZXHeat`
+        ZXHeat
     """
 
     def __init__(self, qubits: [int, int], backend: Optional[Backend] = None):

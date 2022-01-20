@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,6 +20,7 @@ from qiskit import circuit, QuantumCircuit
 from qiskit.providers import Backend
 
 from qiskit_experiments.framework import BaseExperiment, BatchExperiment, Options
+from qiskit_experiments.curve_analysis import ParameterRepr
 from .heat_analysis import HeatElementAnalysis, HeatAnalysis
 
 
@@ -82,6 +83,7 @@ class HeatElement(BaseExperiment):
         echo_circ: QuantumCircuit,
         meas_circ: QuantumCircuit,
         backend: Optional[Backend] = None,
+        parameter_name: Optional[str] = "d_theta",
         **kwargs
     ):
         """Create new HEAT sub experiment.
@@ -92,11 +94,17 @@ class HeatElement(BaseExperiment):
             echo_circ: A circuit to selectively amplify the specific error term.
             meas_circ: A circuit to project target qubit onto the basis of interest.
             backend: Optional, the backend to run the experiment on.
+            parameter_name: A name that represents angle from fitting.
 
         Keyword Args:
             See :meth:`experiment_options` for details.
         """
-        super().__init__(qubits=qubits, backend=backend, analysis=HeatElementAnalysis())
+        analysis = HeatElementAnalysis()
+        analysis.set_options(
+            result_parameters=[ParameterRepr("d_theta", parameter_name, "rad")]
+        )
+
+        super().__init__(qubits=qubits, backend=backend, analysis=analysis)
         self.set_experiment_options(**kwargs)
 
         # These are not user configurable options. Be frozen once assigned.
@@ -183,7 +191,11 @@ class BatchHeatHelper(BatchExperiment, ABC):
             heat_analysis: HEAT analysis instance.
             backend: Optional, the backend to run the experiment on.
         """
-        super().__init__(experiments=heat_experiments, backend=backend, analysis=heat_analysis)
+        super().__init__(experiments=heat_experiments, backend=backend)
+
+        # override analysis. we expect the instance is initialized with
+        # parameter names specific to child amplification experiments.
+        self.analysis = heat_analysis
 
     @classmethod
     def _default_experiment_options(cls) -> Options:

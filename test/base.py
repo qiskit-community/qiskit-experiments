@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -18,7 +18,7 @@ import json
 import numpy as np
 
 from qiskit.test import QiskitTestCase
-from qiskit_experiments.framework import ExperimentDecoder, ExperimentEncoder
+from qiskit_experiments.framework import ExperimentDecoder, ExperimentEncoder, BaseExperiment
 
 
 class QiskitExperimentsTestCase(QiskitTestCase):
