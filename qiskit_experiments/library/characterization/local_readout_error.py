@@ -32,9 +32,9 @@ class LocalReadoutError(BaseExperiment):
         The readout mitigator is generated from an *assignment matrix*:
         a :math:`2^n \times 2^n` matrix :math:`A` such that :math:`A_{y,x}` is the probability
         to observe :math:`y` given the true outcome should be :math:`x`. The assignment matrix is used
-        to compute the *assignment matrix* used in the readout error mitigation process itself.
+        to compute the *mitigation matrix* used in the readout error mitigation process itself.
 
-        A *Local readout mitigator* works under the assumption the readout errors are mostly
+        A *Local readout mitigator* works under the assumption that readout errors are mostly
         *local*, meaning readout errors for different qubits are independent of each other.
         In this case, the assignment matrix is the tensor product of :math:`n` :math:`2 \times 2`
         matrices, one for each qubit, making it practical to store the assignment matrix in implicit

@@ -32,7 +32,7 @@ class CorrelatedReadoutError(BaseExperiment):
         The readout mitigator is generated from an *assignment matrix*:
         a :math:`2^n\times 2^n` matrix :math:`A` such that :math:`A_{y,x}` is the probability
         to observe :math:`y` given the true outcome should be :math:`x`. The assignment matrix is used
-        to compute the *assignment matrix* used in the readout error mitigation process itself.
+        to compute the *mitigation matrix* used in the readout error mitigation process itself.
 
         A *Correlated readout mitigator* uses the full :math:`2^n \times 2^n` assignment matrix, meaning
         it can only be used for small values of :math:`n`.

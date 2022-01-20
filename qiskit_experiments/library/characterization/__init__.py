@@ -64,10 +64,6 @@ Analysis
     LocalReadoutErrorAnalysis
     CorrelatedReadoutErrorAnalysis
 
-.. autosummary::
-    :toctree: ../stubs/
-    :template: autosummary/analysis.rst
-
 """
 
 from .analysis import (

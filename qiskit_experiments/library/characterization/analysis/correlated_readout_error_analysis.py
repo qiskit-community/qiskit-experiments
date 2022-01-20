@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Correlated readout readout_error calibration analysis classes
+Analysis class to characterize correlated readout error
 """
 from typing import List, Tuple
 import numpy as np
@@ -59,6 +59,7 @@ class CorrelatedReadoutErrorAnalysis(BaseAnalysis):
             ax (AxesSubplot): Optional. A matplotlib axis object to draw.
         """
         options = super()._default_options()
+        # since the plot size grows exponentially with the number of qubits, plotting is off by default
         options.plot = False
         options.ax = None
         return options
@@ -74,7 +75,7 @@ class CorrelatedReadoutErrorAnalysis(BaseAnalysis):
         analysis_results = [AnalysisResultData("Correlated Readout Mitigator", result_mitigator)]
         if self.options.plot:
             ax = options.get("ax", None)
-            figures = [self._plot_calibration(matrix, labels, ax)]
+            figures = [self._assignment_matrix_visualization(matrix, labels, ax)]
         else:
             figures = None
         return analysis_results, figures
@@ -92,16 +93,18 @@ class CorrelatedReadoutErrorAnalysis(BaseAnalysis):
                 matrix[i][j] = count / total_counts
         return matrix
 
-    def _plot_calibration(self, matrix, labels, ax=None) -> "matplotlib.figure.Figure":
+    def _assignment_matrix_visualization(
+        self, matrix, labels, ax=None
+    ) -> "matplotlib.figure.Figure":
         """
-        Plot the calibration matrix (2D color grid plot).
+        Plot the assignment matrix (2D color grid plot).
 
         Args:
-            matrix: calibration matrix to plot
+            matrix: assignment matrix to plot
             ax (matplotlib.axes): settings for the graph
 
         Returns:
-            The generated plot of the calibration matrix
+            The generated plot of the assignment matrix
 
         Raises:
             QiskitError: if _cal_matrices was not set.

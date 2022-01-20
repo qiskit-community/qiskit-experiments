@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Local readout readout_error calibration analysis class
+Analysis class to characterize local readout error
 """
 from typing import List, Tuple
 import numpy as np
@@ -60,6 +60,7 @@ class LocalReadoutErrorAnalysis(BaseAnalysis):
             ax(AxesSubplot): Optional. A matplotlib axis object to draw.
         """
         options = super()._default_options()
+        # since the plot size grows exponentially with the number of qubits, plotting is off by default
         options.plot = False
         options.ax = None
         return options
@@ -117,5 +118,8 @@ def assignment_matrix_visualization(assignment_matrix, ax=None):
     ax.set_yticklabels(n * [""])
     ax.set_xticklabels(n * [""])
     ax.set_xlabel(r"$|A - I|$", fontsize=16)
+    ax.set_xlabel("Prepared State")
+    ax.xaxis.set_label_position("top")
+    ax.set_ylabel("Measured State")
     figure.colorbar(im2, ax=ax)
     return figure
