@@ -141,6 +141,7 @@ class TestMitigation(QiskitExperimentsTestCase):
         self.assertEqual(len(exp.circuits()), 2)
 
     def test_parallel_running(self):
+        """Test that parallel experiments work for this experiment"""
         backend = AerSimulator.from_backend(FakeParis())
         exp1 = CorrelatedReadoutError([0, 2])
         exp2 = CorrelatedReadoutError([1, 3])
