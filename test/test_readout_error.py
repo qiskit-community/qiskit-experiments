@@ -26,7 +26,6 @@ from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.framework import ParallelExperiment
 
 
-
 class TestMitigation(QiskitExperimentsTestCase):
     """Test Readout Error experiments"""
 
@@ -151,8 +150,8 @@ class TestMitigation(QiskitExperimentsTestCase):
         mit2 = expdata.child_data(1).analysis_results(0).value
         assignment_matrix1 = mit1.assignment_matrix()
         assignment_matrix2 = mit2.assignment_matrix()
-        self.assertFalse(matrix_equal(assignment_matrix1,
-                                     assignment_matrix2))
+        self.assertFalse(matrix_equal(assignment_matrix1, assignment_matrix2))
+
 
 if __name__ == "__main__":
     unittest.main()
