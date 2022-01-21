@@ -14,37 +14,52 @@
 
 from qiskit.qobj.utils import MeasLevel
 
+from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing import nodes
-from qiskit_experiments.framework import Options
 
 
-def get_processor(
-    num_qubits: int = None, analysis_options: Options = Options(normalization=False), **run_options
-) -> DataProcessor:
+def get_processor(experiment_data: ExperimentData, index: int = -1) -> DataProcessor:
     """Get a DataProcessor that produces a continuous signal given the options.
 
     Args:
-        num_qubits: The number of qubits.
-        analysis_options: The experiment analysis options.
+        experiment_data: The experiment data that holds all the data and metadata needed
+             to determine the data processor to use to process the data for analysis.
+        index: The index of the job for which to get a data processor.
 
     Returns:
-        An instance of DataProcessor capable of dealing with the given options.
+        An instance of DataProcessor capable of processing the data for the corresponding job.
 
     Raises:
         DataProcessorError: if the measurement level is not supported.
     """
 
+    run_options = experiment_data.metadata["job_metadata"][index].get("run_options", {})
+    analysis_options = experiment_data.metadata["job_metadata"][index].get("analysis_options", {})
+
+    physical_qubits = experiment_data.metadata["physical_qubits"]
+    num_qubits = len(physical_qubits)
+    t1_values = [
+        experiment_data.backend.properties().qubit_property(physical_qubit)["T1"][0]
+        for physical_qubit in physical_qubits
+    ]
+
     meas_level = run_options.get("meas_level", MeasLevel.CLASSIFIED)
-    meas_return = run_options.get("meas_return", None)
-    normalize = analysis_options.normalization
+    meas_return = run_options.get("meas_return", "avg")
+    normalize = analysis_options.get("normalization", True)
+
     init_qubits = run_options.get("init_qubits", True)
     memory = run_options.get("memory", False)
     rep_delay = run_options.get("rep_delay", None)
 
     # restless data processing.
-    if meas_level == MeasLevel.CLASSIFIED and not init_qubits and memory and rep_delay < 100e-6:
+    restless = False
+    if rep_delay:
+        if [rep_delay / t1_value < 0.1 for t1_value in t1_values] == [True] * num_qubits:
+            restless = True
+
+    if meas_level == MeasLevel.CLASSIFIED and not init_qubits and memory and restless:
         processor = DataProcessor(
             "memory",
             [
