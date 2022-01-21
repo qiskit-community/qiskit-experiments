@@ -80,7 +80,7 @@ class RoughDragCal(BaseCalibrationExperiment, RoughDrag):
     def _add_cal_metadata(self, experiment_data: ExperimentData):
         """Add metadata to the experiment data making it more self contained.
 
-        The following keys are added to each circuit's metadata:
+        The following keys are added to each experiment's metadata:
             cal_param_value: The value of the previous calibrated beta.
             cal_param_name: The name of the parameter in the calibrations.
             cal_schedule: The name of the schedule in the calibrations.

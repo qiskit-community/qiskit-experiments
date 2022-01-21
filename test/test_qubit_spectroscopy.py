@@ -61,7 +61,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         freq01 = backend.defaults().qubit_freq_est[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
-        spec = QubitSpectroscopy(qubit, frequencies, unit="Hz")
+        spec = QubitSpectroscopy(qubit, frequencies)
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
         self.assertSuccess(expdata)
@@ -74,7 +74,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         # Test if we find still find the peak when it is shifted by 5 MHz.
         backend = SpectroscopyBackend(line_width=2e6, freq_offset=5.0e6)
 
-        spec = QubitSpectroscopy(qubit, frequencies, unit="Hz")
+        spec = QubitSpectroscopy(qubit, frequencies)
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
         self.assertSuccess(expdata)
@@ -90,9 +90,9 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         backend = SpectroscopyBackend(line_width=2e6)
         qubit = 0
         freq01 = backend.defaults().qubit_freq_est[qubit]
-        frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21) / 1e6
+        frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
 
-        spec = QubitSpectroscopy(qubit, frequencies, unit="MHz")
+        spec = QubitSpectroscopy(qubit, frequencies)
         expdata = spec.run(backend)
         self.assertSuccess(expdata)
         result = expdata.analysis_results(1)
@@ -104,7 +104,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         # Test if we find still find the peak when it is shifted by 5 MHz.
         backend = SpectroscopyBackend(line_width=2e6, freq_offset=5.0e6)
 
-        spec = QubitSpectroscopy(qubit, frequencies, unit="MHz")
+        spec = QubitSpectroscopy(qubit, frequencies)
         expdata = spec.run(backend)
         self.assertSuccess(expdata)
         result = expdata.analysis_results(1)
@@ -132,7 +132,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
         # Note that the backend is not sophisticated enough to simulate an e-f
         # transition so we run the test with g-e.
-        spec = EFSpectroscopy(qubit, frequencies, unit="Hz")
+        spec = EFSpectroscopy(qubit, frequencies)
         spec.backend = backend
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
@@ -150,12 +150,12 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = QubitSpectroscopy(1, np.linspace(100, 150, 20), unit="MHz")
+        exp = QubitSpectroscopy(1, np.linspace(100, 150, 20) * 1e6)
         loaded_exp = QubitSpectroscopy.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = QubitSpectroscopy(1, np.linspace(100, 150, 20), unit="MHz")
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        exp = QubitSpectroscopy(1, np.linspace(int(100e6), int(150e6), int(20e6)))
+        self.assertRoundTripSerializable(exp, self.json_equiv)

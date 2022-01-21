@@ -31,17 +31,16 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
 
         qubit = 1
         cals = Calibrations.from_backend(FakeArmonk())
-        frequencies = [1, 2, 3]
-        unit = "kHz"
+        frequencies = [1000, 2000, 3000]
         auto_update = False
         absolute = False
 
         freq = RoughFrequencyCal(
-            qubit, cals, frequencies, unit=unit, auto_update=auto_update, absolute=absolute
+            qubit, cals, frequencies, auto_update=auto_update, absolute=absolute
         )
 
         self.assertEqual(freq.physical_qubits, (qubit,))
-        self.assertEqual(freq._frequencies, [1000, 2000, 3000])
+        self.assertEqual(freq._frequencies, frequencies)
         self.assertEqual(freq._absolute, False)
         self.assertEqual(freq.auto_update, False)
 
@@ -75,4 +74,4 @@ class TestRoughFrequency(QiskitExperimentsTestCase):
         exp = RoughFrequencyCal(0, cals, frequencies)
         loaded_exp = RoughFrequencyCal.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))

@@ -170,13 +170,13 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
         exp = RoughDragCal(0, self.cals, backend=self.backend)
         loaded_exp = RoughDragCal.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     @unittest.skip("Calibration experiments are not yet JSON serializable")
     def test_dragcal_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = RoughDragCal(0, self.cals)
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
 
     def test_drag_experiment_config(self):
         """Test RoughDrag config can roundtrip"""
@@ -185,7 +185,7 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
         exp = RoughDrag(0, backend=self.backend, schedule=sched)
         loaded_exp = RoughDrag.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     @unittest.skip("Schedules are not yet JSON serializable")
     def test_drag_roundtrip_serializable(self):
@@ -193,4 +193,4 @@ class TestRoughDragCalUpdate(QiskitExperimentsTestCase):
         with pulse.build(name="xp") as sched:
             pulse.play(pulse.Drag(160, 0.5, 40, Parameter("β")), pulse.DriveChannel(0))
         exp = RoughDrag(0, backend=self.backend, schedule=sched)
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)

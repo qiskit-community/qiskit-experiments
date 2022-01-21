@@ -164,12 +164,12 @@ class TestStandardRB(QiskitExperimentsTestCase):
         exp = StandardRB([0, 1], lengths=[10, 20, 30, 40], num_samples=10)
         loaded_exp = StandardRB.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = StandardRB([0, 1], lengths=[10, 20, 30, 40], num_samples=10)
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
 
 
 @ddt
@@ -265,9 +265,9 @@ class TestInterleavedRB(TestStandardRB):
         exp = InterleavedRB(CXGate(), [0, 1], lengths=[10, 20, 30, 40], num_samples=10)
         loaded_exp = InterleavedRB.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = InterleavedRB(CXGate(), [0, 1], lengths=[10, 20, 30, 40], num_samples=10)
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
