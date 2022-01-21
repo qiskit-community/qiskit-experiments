@@ -25,11 +25,11 @@ def get_processor(experiment_data: ExperimentData, index: int = -1) -> DataProce
 
     Args:
         experiment_data: The experiment data that holds all the data and metadata needed
-            to figure out what.
+            to determine the data processor to use to process the data for analysis.
         index: The index of the job for which to get a data processor.
 
     Returns:
-        An instance of DataProcessor capable of dealing with the given options.
+        An instance of DataProcessor capable of processing the data for the corresponding job.
 
     Raises:
         DataProcessorError: if the measurement level is not supported.
