@@ -66,25 +66,21 @@ Built in tomography basis classes
     basis.PauliPreparationBasis
     basis.Pauli6PreparationBasis
 
-Custom tensor product basis classes
+Custom local tensor product basis classes
 
 .. autosummary::
     :toctree: ../stubs/
 
-    basis.TomographyMeasurementBasis
-    basis.TomographyPreparationBasis
-    basis.FitterMeasurementBasis
-    basis.FitterPreparationBasis
+    basis.LocalMeasurementBasis
+    basis.LocalPreparationBasis
 
 Abstract base classes
 
 .. autosummary::
     :toctree: ../stubs/
 
-    basis.BaseTomographyMeasurementBasis
-    basis.BaseTomographyPreparationBasis
-    basis.BaseFitterMeasurementBasis
-    basis.BaseFitterPreparationBasis
+    basis.MeasurementBasis
+    basis.PreparationBasis
 
 .. warning::
     The API for tomography fitters and bases is still under development so may
