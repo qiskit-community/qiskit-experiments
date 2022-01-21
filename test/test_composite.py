@@ -66,6 +66,30 @@ class TestComposite(QiskitExperimentsTestCase):
 
             par_exp.run(FakeBackend())
 
+    def test_experiment_config(self):
+        """Test converting to and from config works"""
+        exp1 = FakeExperiment([0])
+        exp1.set_run_options(shots=1000)
+        exp2 = FakeExperiment([2])
+        exp2.set_run_options(shots=2000)
+
+        exp = BatchExperiment([exp1, exp2])
+
+        loaded_exp = BatchExperiment.from_config(exp.config())
+        self.assertNotEqual(exp, loaded_exp)
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
+
+    def test_roundtrip_serializable(self):
+        """Test round trip JSON serialization"""
+        exp1 = FakeExperiment([0])
+        exp1.set_run_options(shots=1000)
+        exp2 = FakeExperiment([2])
+        exp2.set_run_options(shots=2000)
+
+        exp = BatchExperiment([exp1, exp2])
+
+        self.assertRoundTripSerializable(exp, self.json_equiv)
+
 
 class TestCompositeExperimentData(QiskitExperimentsTestCase):
     """
