@@ -58,7 +58,7 @@ class TestStandardRB(QiskitExperimentsTestCase):
             seed=exp_attributes["seed"],
         )
         exp_data = rb_exp.run(backend)
-        self.assertSuccess(exp_data)
+        self.assertComplete(exp_data)
         exp = exp_data.experiment
         exp_circuits = rb_exp.circuits()
         self.validate_metadata(exp_circuits, exp_attributes)
@@ -204,7 +204,7 @@ class TestInterleavedRB(TestStandardRB):
             seed=exp_attributes["seed"],
         )
         experiment_obj = rb_exp.run(backend)
-        self.assertSuccess(experiment_obj)
+        self.assertComplete(experiment_obj)
         exp_data = experiment_obj.experiment
         exp_circuits = rb_exp.circuits()
         self.validate_metadata(exp_circuits, exp_attributes)

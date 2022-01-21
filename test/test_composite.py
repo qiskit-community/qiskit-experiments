@@ -65,7 +65,7 @@ class TestComposite(QiskitExperimentsTestCase):
             self.assertEqual(par_exp.analysis.options, Options())
 
             expdata = par_exp.run(FakeBackend())
-            self.assertSuccess(expdata)
+            self.assertComplete(expdata)
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
@@ -109,7 +109,8 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp3 = FakeExperiment([0, 1, 2, 3])
         batch_exp = BatchExperiment([par_exp, exp3])
 
-        self.rootdata = batch_exp.run(backend=self.backend).block_for_results()
+        self.rootdata = batch_exp.run(backend=self.backend)
+        self.assertComplete(self.rootdata)
         self.assertEqual(len(self.rootdata.child_data()), 2)
 
         self.rootdata.share_level = self.share_level
@@ -196,9 +197,8 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp4 = BatchExperiment([exp3, exp1])
         exp5 = ParallelExperiment([exp4, FakeExperiment([4])])
         nested_exp = BatchExperiment([exp5, exp3])
-        expdata = nested_exp.run(FakeBackend()).block_for_results()
-        status = expdata.status()
-        self.assertEqual(status.name, "DONE")
+        expdata = nested_exp.run(FakeBackend())
+        self.assertComplete(expdata)
 
     def test_analysis_replace_results_true(self):
         """
@@ -208,17 +208,17 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp2 = FakeExperiment([1, 3])
         par_exp = ParallelExperiment([exp1, exp2])
         data1 = par_exp.run(FakeBackend())
-        self.assertSuccess(data1)
+        self.assertComplete(data1)
 
         # Additional data not part of composite experiment
         exp3 = FakeExperiment([0, 1])
         extra_data = exp3.run(FakeBackend())
-        self.assertSuccess(extra_data)
+        self.assertComplete(extra_data)
         data1.add_child_data(extra_data)
 
         # Replace results
         data2 = par_exp.analysis.run(data1, replace_results=True)
-        self.assertSuccess(data2)
+        self.assertComplete(data2)
         self.assertEqual(data1, data2)
         self.assertEqual(len(data1.child_data()), len(data2.child_data()))
         for sub1, sub2 in zip(data1.child_data(), data2.child_data()):
@@ -232,17 +232,17 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp2 = FakeExperiment([1, 3])
         par_exp = BatchExperiment([exp1, exp2])
         data1 = par_exp.run(FakeBackend())
-        self.assertSuccess(data1)
+        self.assertComplete(data1)
 
         # Additional data not part of composite experiment
         exp3 = FakeExperiment([0, 1])
         extra_data = exp3.run(FakeBackend())
-        self.assertSuccess(extra_data)
+        self.assertComplete(extra_data)
         data1.add_child_data(extra_data)
 
         # Replace results
         data2 = par_exp.analysis.run(data1, replace_results=False)
-        self.assertSuccess(data2)
+        self.assertComplete(data2)
         self.assertNotEqual(data1.experiment_id, data2.experiment_id)
         self.assertEqual(len(data1.child_data()), len(data2.child_data()))
         for sub1, sub2 in zip(data1.child_data(), data2.child_data()):
@@ -256,7 +256,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
         exp2 = FakeExperiment([1, 3])
         par_exp = BatchExperiment([exp1, exp2])
         expdata = par_exp.run(FakeBackend())
-        self.assertSuccess(expdata)
+        self.assertComplete(expdata)
         data1 = expdata.child_data(0)
         data2 = expdata.child_data(1)
 
@@ -412,7 +412,7 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
             [exp1, BatchExperiment([ParallelExperiment([exp2, exp3]), exp4])]
         )
         expdata = par_exp.run(Backend())
-        self.assertSuccess(expdata)
+        self.assertComplete(expdata)
 
         self.assertEqual(len(expdata.data()), len(counts))
         for circ_data, circ_counts in zip(expdata.data(), counts):

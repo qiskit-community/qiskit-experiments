@@ -44,7 +44,7 @@ class TestT1(QiskitExperimentsTestCase):
         exp = T1(0, delays)
         exp.analysis.set_options(p0={"amp": 1, "tau": t1, "base": 0})
         exp_data = exp.run(backend, shots=10000)
-        self.assertSuccess(exp_data)
+        self.assertComplete(exp_data)
         res = exp_data.analysis_results("T1")
         fitval = res.value
         self.assertEqual(res.quality, "good")
@@ -70,7 +70,7 @@ class TestT1(QiskitExperimentsTestCase):
         exp2 = T1(2, delays)
         par_exp = ParallelExperiment([exp0, exp2])
         res = par_exp.run(T1Backend([t1[0], None, t1[1]]))
-        self.assertSuccess(res)
+        self.assertComplete(res)
 
         for i in range(2):
             sub_res = res.child_data(i).analysis_results("T1")
@@ -102,7 +102,7 @@ class TestT1(QiskitExperimentsTestCase):
 
         par_exp = ParallelExperiment([exp0, exp1])
         res = par_exp.run(T1Backend([t1, t1]))
-        self.assertSuccess(res)
+        self.assertComplete(res)
 
         sub_res = []
         for i in range(2):

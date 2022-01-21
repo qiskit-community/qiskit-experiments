@@ -14,7 +14,7 @@ Composite Experiment Analysis class.
 """
 
 from typing import List, Dict
-from time import sleep
+
 import numpy as np
 from qiskit.result import marginal_counts
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData

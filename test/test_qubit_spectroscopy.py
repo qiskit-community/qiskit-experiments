@@ -64,7 +64,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         spec = QubitSpectroscopy(qubit, frequencies)
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
-        self.assertSuccess(expdata)
+        self.assertComplete(expdata)
         result = expdata.analysis_results(1)
         value = result.value.value
 
@@ -77,7 +77,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         spec = QubitSpectroscopy(qubit, frequencies)
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
-        self.assertSuccess(expdata)
+        self.assertComplete(expdata)
         result = expdata.analysis_results(1)
         value = result.value.value
 
@@ -94,7 +94,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
         spec = QubitSpectroscopy(qubit, frequencies)
         expdata = spec.run(backend)
-        self.assertSuccess(expdata)
+        self.assertComplete(expdata)
         result = expdata.analysis_results(1)
         value = result.value.value
 
@@ -106,7 +106,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
         spec = QubitSpectroscopy(qubit, frequencies)
         expdata = spec.run(backend)
-        self.assertSuccess(expdata)
+        self.assertComplete(expdata)
         result = expdata.analysis_results(1)
         value = result.value.value
 
@@ -115,7 +115,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
         spec.set_run_options(meas_return="avg")
         expdata = spec.run(backend)
-        self.assertSuccess(expdata)
+        self.assertComplete(expdata)
         result = expdata.analysis_results(1)
         value = result.value.value
 
@@ -136,7 +136,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         spec.backend = backend
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         expdata = spec.run(backend)
-        self.assertSuccess(expdata)
+        self.assertComplete(expdata)
         result = expdata.analysis_results(1)
         value = result.value.value
 

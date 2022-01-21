@@ -15,11 +15,13 @@ Qiskit Experiments test case class
 
 import dataclasses
 import json
-from typing import Any, Callable, Optional
 import warnings
+from typing import Any, Callable, Optional
 
 import numpy as np
 from qiskit.test import QiskitTestCase
+from qiskit_experiments.calibration_management import Calibrations
+from qiskit_experiments.database_service.db_experiment_data import ExperimentStatus
 from qiskit_experiments.framework import (
     ExperimentDecoder,
     ExperimentEncoder,
@@ -27,20 +29,24 @@ from qiskit_experiments.framework import (
     BaseExperiment,
     BaseAnalysis,
 )
-from qiskit_experiments.calibration_management import Calibrations
 
 
 class QiskitExperimentsTestCase(QiskitTestCase):
     """Qiskit Experiments specific extra functionality for test cases."""
 
-    def assertSuccess(self, experiment_data: ExperimentData):
+    def assertComplete(self, experiment_data: ExperimentData):
         """Assert that an experiment is succeeded.
 
         Args:
             experiment_data: Experiment data to evaluate.
         """
         experiment_data.block_for_results()
-        self.assertEqual(experiment_data.status(), "DONE", msg=experiment_data.errors())
+
+        self.assertEqual(
+            experiment_data.status(),
+            ExperimentStatus.DONE,
+            msg="All threads are executed but status is not DONE. " + experiment_data.errors(),
+        )
 
     def assertFail(self, experiment_data: ExperimentData):
         """Assert that an experiment is failed.
@@ -49,7 +55,11 @@ class QiskitExperimentsTestCase(QiskitTestCase):
             experiment_data: Experiment data to evaluate.
         """
         experiment_data.block_for_results()
-        self.assertEqual(experiment_data.status(), "ERROR")
+        self.assertNotEqual(
+            experiment_data.status(),
+            ExperimentStatus.DONE,
+            msg="This experiment is expected to fail but all threads are completed successfuly.",
+        )
 
     def assertRoundTripSerializable(self, obj: Any, check_func: Optional[Callable] = None):
         """Assert that an object is round trip serializable.

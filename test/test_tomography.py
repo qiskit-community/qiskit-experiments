@@ -52,7 +52,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         if fitter:
             qstexp.analysis.set_options(fitter=fitter)
         expdata = qstexp.run(backend)
-        self.assertSuccess(expdata)
+        self.assertComplete(expdata)
         results = expdata.analysis_results()
 
         # Check state is density matrix
@@ -78,7 +78,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         backend = AerSimulator(seed_simulator=9000)
         exp = StateTomography(teleport_circuit(), measurement_qubits=[2])
         expdata = exp.run(backend)
-        self.assertSuccess(expdata)
+        self.assertComplete(expdata)
         results = expdata.analysis_results()
 
         # Check result
@@ -169,7 +169,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         backend = AerSimulator(seed_simulator=9000)
         exp = StateTomography(circ, measurement_qubits=meas_qubits)
         expdata = exp.run(backend)
-        self.assertSuccess(expdata)
+        self.assertComplete(expdata)
         results = expdata.analysis_results()
 
         # Check result
@@ -212,7 +212,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         backend = AerSimulator(seed_simulator=9000)
         batch_exp = BatchExperiment(exps)
         batch_data = batch_exp.run(backend)
-        self.assertSuccess(batch_data)
+        self.assertComplete(batch_data)
 
         # Check target fidelity of component experiments
         f_threshold = 0.95
@@ -251,7 +251,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         backend = AerSimulator(seed_simulator=9000)
         par_exp = ParallelExperiment(exps)
         par_data = par_exp.run(backend)
-        self.assertSuccess(par_data)
+        self.assertComplete(par_data)
 
         # Check target fidelity of component experiments
         f_threshold = 0.95
@@ -303,7 +303,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         if fitter:
             qstexp.analysis.set_options(fitter=fitter)
         expdata = qstexp.run(backend)
-        self.assertSuccess(expdata)
+        self.assertComplete(expdata)
         results = expdata.analysis_results()
 
         # Check state is density matrix
@@ -377,7 +377,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         backend = AerSimulator(seed_simulator=9000)
         exp = ProcessTomography(circ, measurement_qubits=qubits, preparation_qubits=qubits)
         expdata = exp.run(backend)
-        self.assertSuccess(expdata)
+        self.assertComplete(expdata)
         results = expdata.analysis_results()
 
         # Check result
@@ -404,7 +404,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         backend = AerSimulator(seed_simulator=9000)
         exp = ProcessTomography(teleport_circuit(), measurement_qubits=[2], preparation_qubits=[0])
         expdata = exp.run(backend, shots=10000)
-        self.assertSuccess(expdata)
+        self.assertComplete(expdata)
         results = expdata.analysis_results()
 
         # Check result
@@ -440,7 +440,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         backend = AerSimulator(seed_simulator=9000)
         batch_exp = BatchExperiment(exps)
         batch_data = batch_exp.run(backend)
-        self.assertSuccess(batch_data)
+        self.assertComplete(batch_data)
 
         # Check target fidelity of component experiments
         f_threshold = 0.95
@@ -477,7 +477,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         backend = AerSimulator(seed_simulator=9000)
         par_exp = ParallelExperiment(exps)
         par_data = par_exp.run(backend)
-        self.assertSuccess(par_data)
+        self.assertComplete(par_data)
 
         # Check target fidelity of component experiments
         f_threshold = 0.95

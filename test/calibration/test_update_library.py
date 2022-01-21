@@ -66,7 +66,7 @@ class TestFrequencyUpdate(QiskitExperimentsTestCase):
         spec = QubitSpectroscopy(qubit, frequencies)
         spec.set_run_options(meas_level=MeasLevel.CLASSIFIED)
         exp_data = spec.run(backend)
-        self.assertSuccess(exp_data)
+        self.assertComplete(exp_data)
         result = exp_data.analysis_results(1)
         value = result.value.value
 
