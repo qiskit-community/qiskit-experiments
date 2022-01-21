@@ -21,6 +21,7 @@ from qiskit.exceptions import QiskitError
 from qiskit.providers import Backend
 import qiskit.pulse as pulse
 
+from qiskit_experiments.framework import Options
 from qiskit_experiments.library.characterization.spectroscopy import Spectroscopy
 from qiskit_experiments.data_processing.processor_library import get_processor, ProjectorType
 from .analysis.resonator_spectroscopy_analysis import ResonatorSpectroscopyAnalysis
@@ -53,6 +54,24 @@ class ResonatorSpectroscopy(Spectroscopy):
     # section: see_also
         qiskit_experiments.library.characterization.qubit_spectroscopy.QubitSpectroscopy
     """
+
+    @classmethod
+    def _default_experiment_options(cls) -> Options:
+        """Default option values used for the spectroscopy pulse.
+
+        Experiment Options:
+            amp (float): The amplitude of the spectroscopy pulse. Defaults to 1 and must
+                be between 0 and 1.
+            acquisition_duration (int): The duration of the acquisition instruction. By default
+                is lasts 1024 samples, i.e. the same duration as the measurement pulse.
+        """
+        options = super()._default_experiment_options()
+
+        options.amp = 1
+        options.acquire_duration = 1024
+        options.acquire_delay = 0
+
+        return options
 
     def __init__(
         self,
@@ -138,7 +157,10 @@ class ResonatorSpectroscopy(Spectroscopy):
                 ),
                 pulse.MeasureChannel(qubit),
             )
-            pulse.acquire(self.experiment_options.duration, qubit, pulse.MemorySlot(0))
+
+            with pulse.align_left():
+                pulse.delay(self.experiment_options.acquire_delay, pulse.AcquireChannel(qubit))
+                pulse.acquire(self.experiment_options.acquire_duration, qubit, pulse.MemorySlot(0))
 
         return schedule, freq_param
 
