@@ -34,8 +34,8 @@ def get_processor(experiment_data: ExperimentData, index: int = -1) -> DataProce
     Raises:
         DataProcessorError: if the measurement level is not supported.
     """
-    run_options = experiment_data.metadata["job_metadata"][index]["run_options"]
-    analysis_options = experiment_data.metadata["job_metadata"][index]["analysis_options"]
+    run_options = experiment_data.metadata["job_metadata"][index].get("run_options", {})
+    analysis_options = experiment_data.metadata["job_metadata"][index].get("analysis_options", {})
 
     meas_level = run_options.get("meas_level", MeasLevel.CLASSIFIED)
     meas_return = run_options.get("meas_return", "avg")
