@@ -14,22 +14,19 @@
 
 from qiskit.qobj.utils import MeasLevel
 
+from qiskit_experiments.framework import ExperimentData
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing import nodes
 
 
-def get_processor(
-    meas_level: MeasLevel = MeasLevel.CLASSIFIED,
-    meas_return: str = "avg",
-    normalize: bool = True,
-) -> DataProcessor:
+def get_processor(experiment_data: ExperimentData, index: int = -1) -> DataProcessor:
     """Get a DataProcessor that produces a continuous signal given the options.
 
     Args:
-        meas_level: The measurement level of the data to process.
-        meas_return: The measurement return (single or avg) of the data to process.
-        normalize: Add a data normalization node to the Kerneled data processor.
+        experiment_data: The experiment data that holds all the data and metadata needed
+            to figure out what.
+        index: The index of the job for which to get a data processor.
 
     Returns:
         An instance of DataProcessor capable of dealing with the given options.
@@ -37,6 +34,13 @@ def get_processor(
     Raises:
         DataProcessorError: if the measurement level is not supported.
     """
+    run_options = experiment_data.metadata["job_metadata"][index]["run_options"]
+    analysis_options = experiment_data.metadata["job_metadata"][index]["analysis_options"]
+
+    meas_level = run_options.get("meas_level", MeasLevel.CLASSIFIED)
+    meas_return = run_options.get("meas_return", "avg")
+    normalize = analysis_options.get("normalization", True)
+
     if meas_level == MeasLevel.CLASSIFIED:
         return DataProcessor("counts", [nodes.Probability("1")])
 
