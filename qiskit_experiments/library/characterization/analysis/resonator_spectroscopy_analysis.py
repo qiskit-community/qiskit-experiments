@@ -53,13 +53,14 @@ class ResonatorSpectroscopyAnalysis(ResonanceAnalysis):
                     if len(mem.shape) == 3:
                         iqs.append(np.average(mem.reshape(mem.shape[0], mem.shape[2]), axis=0))
 
-            iqs = np.array(iqs)
-            axis.scatter(iqs[:, 0], iqs[:, 1], color="b")
-            axis.set_xlabel("In phase [arb. units]", fontsize=self.options.style.axis_label_size)
-            axis.set_ylabel("Quadrature [arb. units]", fontsize=self.options.style.axis_label_size)
-            axis.tick_params(labelsize=self.options.style.tick_label_size)
-            axis.grid(True)
+            if len(iqs) > 0:
+                iqs = np.array(iqs)
+                axis.scatter(iqs[:, 0], iqs[:, 1], color="b")
+                axis.set_xlabel("In phase [arb. units]", fontsize=self.options.style.axis_label_size)
+                axis.set_ylabel("Quadrature [arb. units]", fontsize=self.options.style.axis_label_size)
+                axis.tick_params(labelsize=self.options.style.tick_label_size)
+                axis.grid(True)
 
-            figures.append(figure)
+                figures.append(figure)
 
         return analysis_results, figures
