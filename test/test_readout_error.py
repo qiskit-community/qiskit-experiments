@@ -35,12 +35,12 @@ class TestMitigation(QiskitExperimentsTestCase):
         run_data = [
             {
                 "counts": {"000": 986, "010": 10, "100": 16, "001": 12},
-                "metadata": {"label": "000"},
+                "metadata": {"state_label": "000"},
                 "shots": 1024,
             },
             {
                 "counts": {"111": 930, "110": 39, "011": 24, "101": 29, "010": 1, "100": 1},
-                "metadata": {"label": "111"},
+                "metadata": {"state_label": "111"},
                 "shots": 1024,
             },
         ]
@@ -67,42 +67,42 @@ class TestMitigation(QiskitExperimentsTestCase):
         run_data = [
             {
                 "counts": {"000": 989, "010": 12, "100": 7, "001": 15, "101": 1},
-                "metadata": {"label": "000"},
+                "metadata": {"state_label": "000"},
                 "shots": 1024,
             },
             {
                 "counts": {"001": 971, "101": 15, "000": 36, "011": 2},
-                "metadata": {"label": "001"},
+                "metadata": {"state_label": "001"},
                 "shots": 1024,
             },
             {
                 "counts": {"000": 30, "010": 965, "110": 15, "011": 11, "001": 2, "100": 1},
-                "metadata": {"label": "010"},
+                "metadata": {"state_label": "010"},
                 "shots": 1024,
             },
             {
                 "counts": {"011": 955, "111": 15, "010": 26, "001": 27, "110": 1},
-                "metadata": {"label": "011"},
+                "metadata": {"state_label": "011"},
                 "shots": 1024,
             },
             {
                 "counts": {"100": 983, "101": 8, "110": 13, "000": 20},
-                "metadata": {"label": "100"},
+                "metadata": {"state_label": "100"},
                 "shots": 1024,
             },
             {
                 "counts": {"101": 947, "001": 34, "100": 32, "111": 11},
-                "metadata": {"label": "101"},
+                "metadata": {"state_label": "101"},
                 "shots": 1024,
             },
             {
                 "counts": {"100": 26, "110": 965, "010": 21, "111": 11, "000": 1},
-                "metadata": {"label": "110"},
+                "metadata": {"state_label": "110"},
                 "shots": 1024,
             },
             {
                 "counts": {"111": 938, "011": 23, "110": 35, "101": 27, "100": 1},
-                "metadata": {"label": "111"},
+                "metadata": {"state_label": "111"},
                 "shots": 1024,
             },
         ]

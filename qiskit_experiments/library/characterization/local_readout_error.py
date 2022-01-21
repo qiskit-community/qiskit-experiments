@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -18,6 +18,7 @@ from qiskit_experiments.framework import BaseExperiment
 from qiskit_experiments.library.characterization.analysis.local_readout_error_analysis import (
     LocalReadoutErrorAnalysis,
 )
+from .correlated_readout_error import calibration_circuit
 
 
 class LocalReadoutError(BaseExperiment):
@@ -44,7 +45,7 @@ class LocalReadoutError(BaseExperiment):
         in ``qiskit-terra``.
 
         The experiment generates 2 circuits, corresponding to the states
-        :math:`|0^n>` and :math:`|1^n>`, measuring the error in all the qubits at once, and constructs
+        :math:`|0^n\rangle` and :math:`|1^n\rangle`, measuring the error in all the qubits at once, and constructs
         the assignment matrix and local mitigator from the results.
 
         See :class:`LocalReadoutErrorAnalysis`
@@ -69,19 +70,4 @@ class LocalReadoutError(BaseExperiment):
     def circuits(self) -> List[QuantumCircuit]:
         """Returns the experiment's circuits"""
         labels = ["0" * self.num_qubits, "1" * self.num_qubits]
-        return [self.calibration_circuit(self.num_qubits, label) for label in labels]
-
-    def calibration_circuit(self, num_qubits: int, label: str) -> QuantumCircuit:
-        """Return a calibration circuit.
-
-        This is an N-qubit circuit where N is the length of the label.
-        The circuit consists of X-gates on qubits with label bits equal to 1,
-        and measurements of all qubits.
-        """
-        circ = QuantumCircuit(num_qubits, name="meas_mit_cal_" + label)
-        for i, val in enumerate(reversed(label)):
-            if val == "1":
-                circ.x(i)
-        circ.measure_all()
-        circ.metadata = {"label": label}
-        return circ
+        return [calibration_circuit(self.num_qubits, label) for label in labels]

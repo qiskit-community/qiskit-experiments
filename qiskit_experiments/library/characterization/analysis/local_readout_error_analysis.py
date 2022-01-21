@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -83,11 +83,11 @@ class LocalReadoutErrorAnalysis(BaseAnalysis):
         return analysis_results, figures
 
     def _generate_matrices(self, data) -> List[np.array]:
-        num_qubits = len(data[0]["metadata"]["label"])
+        num_qubits = len(data[0]["metadata"]["state_label"])
         counts = [None, None]
         for result in data:
             for i in range(2):
-                if result["metadata"]["label"] == str(i) * num_qubits:
+                if result["metadata"]["state_label"] == str(i) * num_qubits:
                     counts[i] = result["counts"]
         matrices = []
         for k in range(num_qubits):

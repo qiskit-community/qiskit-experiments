@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -59,8 +59,7 @@ class CorrelatedReadoutErrorAnalysis(BaseAnalysis):
             ax (AxesSubplot): Optional. A matplotlib axis object to draw.
         """
         options = super()._default_options()
-        # since the plot size grows exponentially with the number of qubits, plotting is off by default
-        options.plot = False
+        options.plot = True
         options.ax = None
         return options
 
@@ -69,7 +68,7 @@ class CorrelatedReadoutErrorAnalysis(BaseAnalysis):
     ) -> Tuple[List[AnalysisResultData], List["matplotlib.figure.Figure"]]:
         data = experiment_data.data()
         qubits = experiment_data.metadata["physical_qubits"]
-        labels = [datum["metadata"]["label"] for datum in data]
+        labels = [datum["metadata"]["state_label"] for datum in data]
         matrix = self._generate_matrix(data, labels)
         result_mitigator = CorrelatedReadoutMitigator(matrix, qubits=qubits)
         analysis_results = [AnalysisResultData("Correlated Readout Mitigator", result_mitigator)]
@@ -77,7 +76,7 @@ class CorrelatedReadoutErrorAnalysis(BaseAnalysis):
             ax = options.get("ax", None)
             figures = [self._assignment_matrix_visualization(matrix, labels, ax)]
         else:
-            figures = None
+            figures = []
         return analysis_results, figures
 
     def _generate_matrix(self, data, labels) -> np.array:
@@ -85,7 +84,7 @@ class CorrelatedReadoutErrorAnalysis(BaseAnalysis):
         matrix = np.zeros([list_size, list_size], dtype=float)
         # matrix[i][j] is the probability of counting i for expected j
         for datum in data:
-            expected_outcome = datum["metadata"]["label"]
+            expected_outcome = datum["metadata"]["state_label"]
             j = labels.index(expected_outcome)
             total_counts = sum(datum["counts"].values())
             for measured_outcome, count in datum["counts"].items():
