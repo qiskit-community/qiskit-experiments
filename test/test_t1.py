@@ -46,8 +46,6 @@ class TestT1(QiskitExperimentsTestCase):
         exp_data = exp.run(backend, shots=10000)
         res = exp_data.analysis_results("T1")
         fitval = res.value
-        print("t1 fitval = " + str(fitval))
-        print("t1 fitval.value = " + str(fitval.value))
         self.assertEqual(res.quality, "good")
         self.assertAlmostEqual(fitval.value, t1, delta=3)
         self.assertEqual(fitval.unit, "s")

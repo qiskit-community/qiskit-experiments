@@ -58,6 +58,7 @@ class CompositeAnalysis(BaseAnalysis):
         # the component child experiments in case there are other child experiments
         # in the experiment data
         component_ids = self._initialize_components(composite_exp, experiment_data)
+        
         # Compute marginalize data for each component experiment
         marginalized_data = self._marginalize_data(experiment_data.data())
 
@@ -81,7 +82,7 @@ class CompositeAnalysis(BaseAnalysis):
             # Since copy for replace result is handled at the parent level
             # we always run with replace result on component analysis
             sub_exp.analysis.run(sub_exp_data, replace_results=True)
-            
+
         # Wait for all component analysis to finish before returning
         # the parent experiment analysis results
         for comp_id in component_ids:
