@@ -47,7 +47,7 @@ class TestTphi(QiskitExperimentsTestCase):
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = Tphi(0, [1], [2], 3)
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""
