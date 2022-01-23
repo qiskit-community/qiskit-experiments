@@ -98,13 +98,13 @@ class TestRabiEndToEnd(QiskitExperimentsTestCase):
         exp = Rabi(0, self.sched)
         loaded_exp = Rabi.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     @unittest.skip("Schedules are not yet JSON serializable")
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = Rabi(0, self.sched)
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
 
 
 class TestEFRabi(QiskitExperimentsTestCase):
@@ -167,13 +167,13 @@ class TestEFRabi(QiskitExperimentsTestCase):
         exp = EFRabi(0, self.sched)
         loaded_exp = EFRabi.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     @unittest.skip("Schedules are not yet JSON serializable")
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = EFRabi(0, self.sched)
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
 
 
 class TestRabiCircuits(QiskitExperimentsTestCase):
