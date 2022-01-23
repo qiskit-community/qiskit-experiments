@@ -43,7 +43,7 @@ class TestFramework(QiskitExperimentsTestCase):
 
         exp = Experiment([0])
         expdata = exp.run(backend)
-        self.assertComplete(expdata)
+        self.assertExperimentDone(expdata)
         job_ids = expdata.job_ids
 
         # Comptue expected number of jobs
@@ -59,10 +59,10 @@ class TestFramework(QiskitExperimentsTestCase):
         """Test running analysis with replace_results=True"""
         analysis = FakeAnalysis()
         expdata1 = analysis.run(ExperimentData(), seed=54321)
-        self.assertComplete(expdata1)
+        self.assertExperimentDone(expdata1)
         result_ids = [res.result_id for res in expdata1.analysis_results()]
         expdata2 = analysis.run(expdata1, replace_results=True, seed=12345)
-        self.assertComplete(expdata2)
+        self.assertExperimentDone(expdata2)
 
         self.assertEqual(expdata1, expdata2)
         self.assertEqual(expdata1.analysis_results(), expdata2.analysis_results())
@@ -72,9 +72,9 @@ class TestFramework(QiskitExperimentsTestCase):
         """Test running analysis with replace_results=False"""
         analysis = FakeAnalysis()
         expdata1 = analysis.run(ExperimentData(), seed=54321)
-        self.assertComplete(expdata1)
+        self.assertExperimentDone(expdata1)
         expdata2 = analysis.run(expdata1, replace_results=False, seed=12345)
-        self.assertComplete(expdata2)
+        self.assertExperimentDone(expdata2)
 
         self.assertNotEqual(expdata1, expdata2)
         self.assertNotEqual(expdata1.experiment_id, expdata2.experiment_id)

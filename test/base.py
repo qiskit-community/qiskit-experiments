@@ -34,8 +34,9 @@ from qiskit_experiments.framework import (
 class QiskitExperimentsTestCase(QiskitTestCase):
     """Qiskit Experiments specific extra functionality for test cases."""
 
-    def assertComplete(self, experiment_data: ExperimentData):
-        """Assert that an experiment is succeeded.
+    def assertExperimentDone(self, experiment_data: ExperimentData):
+        """Blocking execution of next line until all threads are completed then
+        checks if status returns Done.
 
         Args:
             experiment_data: Experiment data to evaluate.
@@ -46,19 +47,6 @@ class QiskitExperimentsTestCase(QiskitTestCase):
             experiment_data.status(),
             ExperimentStatus.DONE,
             msg="All threads are executed but status is not DONE. " + experiment_data.errors(),
-        )
-
-    def assertFail(self, experiment_data: ExperimentData):
-        """Assert that an experiment is failed.
-
-        Args:
-            experiment_data: Experiment data to evaluate.
-        """
-        experiment_data.block_for_results()
-        self.assertNotEqual(
-            experiment_data.status(),
-            ExperimentStatus.DONE,
-            msg="This experiment is expected to fail but all threads are completed successfuly.",
         )
 
     def assertRoundTripSerializable(self, obj: Any, check_func: Optional[Callable] = None):

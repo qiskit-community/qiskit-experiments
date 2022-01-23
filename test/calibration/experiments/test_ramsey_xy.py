@@ -44,7 +44,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
 
         for freq_shift in [2e6, -3e6]:
             test_data = ramsey.run(MockRamseyXY(freq_shift=freq_shift))
-            self.assertComplete(test_data)
+            self.assertExperimentDone(test_data)
             meas_shift = test_data.analysis_results(1).value.value
             self.assertTrue((meas_shift - freq_shift) < abs(test_tol * freq_shift))
 
@@ -64,7 +64,7 @@ class TestRamseyXY(QiskitExperimentsTestCase):
         osc_shift = 2e6
         backend = MockRamseyXY(freq_shift=freq_shift + osc_shift)  # oscillation with 6 MHz
         expdata = FrequencyCal(0, self.cals, backend, osc_freq=osc_shift).run()
-        self.assertComplete(expdata)
+        self.assertExperimentDone(expdata)
 
         # Check that qubit frequency after running the cal is shifted by freq_shift, i.e. 4 MHz.
         f01 = self.cals.get_parameter_value(freq_name, 0)

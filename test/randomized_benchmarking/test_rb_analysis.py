@@ -206,7 +206,7 @@ class TestRBAnalysis(QiskitExperimentsTestCase):
         }
         rb_exp.analysis.set_options(gate_error_ratio=gate_error_ratio)
         analysis_results = rb_exp.analysis.run(expdata1)
-        self.assertComplete(analysis_results)
+        self.assertExperimentDone(analysis_results)
         return data, analysis_results
 
 
@@ -262,7 +262,7 @@ class TestInterleavedRBAnalysis(TestRBAnalysis):
         }
         rb_exp.analysis.set_options(gate_error_ratio=gate_error_ratio)
         analysis_results = rb_exp.analysis.run(expdata1)
-        self.assertComplete(analysis_results)
+        self.assertExperimentDone(analysis_results)
         return data, analysis_results
 
     def test_interleaved_rb_analysis_test(self):

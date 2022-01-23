@@ -56,7 +56,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         freq_exp.set_transpile_options(inst_map=self.inst_map)
 
         expdata = freq_exp.run(shots=100)
-        self.assertComplete(expdata)
+        self.assertExperimentDone(expdata)
         result = expdata.analysis_results(1)
         d_theta = result.value.value
         dt = backend.configuration().dt
@@ -81,7 +81,7 @@ class TestFineFreqEndToEnd(QiskitExperimentsTestCase):
         self.assertAlmostEqual(freq_before, armonk_freq)
 
         expdata = fine_freq.run()
-        self.assertComplete(expdata)
+        self.assertExperimentDone(expdata)
 
         freq_after = self.cals.get_parameter_value(self.cals.__drive_freq_parameter__, 0)
 

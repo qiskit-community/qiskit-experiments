@@ -65,7 +65,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         for user_p0 in [default_p0, dict()]:
             exp.analysis.set_options(p0=user_p0)
             expdata = exp.run(backend=backend, shots=2000)
-            self.assertComplete(expdata)
+            self.assertExperimentDone(expdata)
             result = expdata.analysis_results("T2star")
             self.assertAlmostEqual(
                 result.value.value,
@@ -105,7 +105,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
 
         backend = T2RamseyBackend(p0)
         expdata = par_exp.run(backend=backend, shots=1000)
-        self.assertComplete(expdata)
+        self.assertExperimentDone(expdata)
 
         for i in range(2):
             res_t2star = expdata.child_data(i).analysis_results("T2star")
@@ -162,7 +162,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
 
         # run circuits
         expdata0 = exp0.run(backend=backend, shots=1000)
-        self.assertComplete(expdata0)
+        self.assertExperimentDone(expdata0)
         res_t2star_0 = expdata0.analysis_results("T2star")
 
         # second experiment
@@ -170,7 +170,7 @@ class TestT2Ramsey(QiskitExperimentsTestCase):
         exp1 = T2Ramsey(qubit, delays1)
         exp1.analysis.set_options(p0=default_p0)
         expdata1 = exp1.run(backend=backend, analysis=None, shots=1000)
-        self.assertComplete(expdata1)
+        self.assertExperimentDone(expdata1)
         expdata1.add_data(expdata0.data())
         exp1.analysis.run(expdata1)
 

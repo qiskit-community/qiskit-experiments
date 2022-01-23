@@ -66,7 +66,7 @@ class TestFineDrag(QiskitExperimentsTestCase):
         drag.set_experiment_options(schedule=self.schedule)
         drag.set_transpile_options(basis_gates=["rz", "Drag", "sx"])
         exp_data = drag.run(FineDragTestBackend())
-        self.assertComplete(exp_data)
+        self.assertExperimentDone(exp_data)
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
 
@@ -74,7 +74,7 @@ class TestFineDrag(QiskitExperimentsTestCase):
         """Test that we can run without a schedule."""
 
         exp_data = FineXDrag(0).run(FineDragTestBackend())
-        self.assertComplete(exp_data)
+        self.assertExperimentDone(exp_data)
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
 
@@ -129,7 +129,7 @@ class TestFineDragCal(QiskitExperimentsTestCase):
 
         # run the calibration experiment. This should update the beta parameter of x which we test.
         exp_data = drag_cal.run(self.backend)
-        self.assertComplete(exp_data)
+        self.assertExperimentDone(exp_data)
         d_theta = exp_data.analysis_results(1).value.value
         sigma = 40
         target_angle = np.pi
