@@ -29,19 +29,27 @@ from qiskit_experiments.test.utils import FakeJob
 class MockIQBackend(FakeOpenPulse2Q):
     """An abstract backend for testing that can mock IQ data."""
 
-    # Changed
     def __init__(
-            self,
-            iq_cluster_centers: List[List[Tuple[float, float]]] = [[(1.0, 1.0), (-1.0, -1.0)]],
-            iq_cluster_width: List[float] = [1.0],
-            rng_seed: int = 0,
+        self,
+        iq_cluster_centers: List[Tuple[Tuple[float, float], Tuple[float, float]]] = None,
+        iq_cluster_width: List[float] = None,
+        rng_seed: int = 0,
     ):
         """
         Initialize the backend.
         """
-        self._iq_cluster_centers = iq_cluster_centers
-        self._iq_cluster_width = iq_cluster_width
+
         self._rng = np.random.default_rng(rng_seed)
+
+        if iq_cluster_centers is None:
+            self._iq_cluster_centers = [((1.0, 1.0), (-1.0, -1.0))]
+        else:
+            self._iq_cluster_centers = iq_cluster_centers
+
+        if iq_cluster_width is None:
+            self._iq_cluster_width = [1.0]
+        else:
+            self._iq_cluster_width = iq_cluster_width
 
         super().__init__()
 
@@ -56,43 +64,37 @@ class MockIQBackend(FakeOpenPulse2Q):
     @staticmethod
     def _verify_parameters(num_qubits):
         if num_qubits < 1:
-            raise ValueError(f"The number of qubits {num_qubits} is fewer then 1.")
-        # Need to add:
+            raise ValueError(f"The number of qubits {num_qubits} is smaller than 1.")
+        # TODO:
         # check that the length of attributes matches the number of qubits.
         # check that probability is 1.
-
-    def _get_iq_cluster_centers(self):
-        return self._iq_cluster_centers
-
-    def _get_iq_cluster_width(self):
-        return self._iq_cluster_width
 
     def _get_normal_samples_for_shot(self, num_qubits: int):
         """
         Produce a list in the size of num_qubits. Each entry value produced from normal distribution with expected value
-        of '0' and standard deviation of self._get_iq_cluster_width().
+        of '0' and standard deviation of self._iq_cluster_width.
         Args:
             num_qubits(int): The amount of qubits in the circuit.
 
         Returns:
             List[float]: A list with values that were produced from normal distribution.
         """
-        widths = self._get_iq_cluster_width()
+        widths = self._iq_cluster_width
         samples = [self._rng.normal(0, widths[qubit], size=1) for qubit in range(num_qubits)]
         return samples
 
     @staticmethod
     def _values_to_string_array(num_qubits):
         """
-        This function creates a dictionary in the size of num_qubits ** 2 (all values possible)
+        This function creates a dictionary in the size of num_qubits ** 2 (all possible values)
         that connects between a number and its full binary representation as string with length of
         num_qubits.
         Args:
-            num_qubits(int): The number of qubit in the circuit.
+            num_qubits(int): The number of qubits in the circuit.
         Returns:
-            dict: A dictionary that connect between a value to its string representation.
+            dict: A dictionary that connects between a value to its string representation.
         """
-        max_value = (num_qubits ** 2)
+        max_value = num_qubits ** 2
         return_dict = {}
         for num in range(max_value):
             num_in_binary = format(num, "b")
@@ -111,7 +113,9 @@ class MockIQBackend(FakeOpenPulse2Q):
             else:
                 probability[qubit_string_value] = 0
 
-    def _draw_iq_shots(self, prob: Dict[float], shots: int, num_qubits: int) -> List[List[List[float]]]:
+    def _draw_iq_shots(
+        self, prob: Dict[float], shots: int, num_qubits: int
+    ) -> List[List[Tuple[float, float]]]:
         """
         Produce an IQ shot.
         Args:
@@ -120,26 +124,15 @@ class MockIQBackend(FakeOpenPulse2Q):
             num_qubits(int): The number of qubit in hte circuit.
 
         Returns:
-            List[List[List[float]]]: return a list that each entry is a list that represent a shot. The output is build
-            as following - List[shot index][qubit index] = [I,Q]
+            List[List[Tuple[float, float]]]: return a list that each entry is a list that represent a shot. The output
+            is build as following - List[shot index][qubit index] = [I,Q]
         """
-
-        # the bellow code is for 1 qubit. for multiple qubit we need to randomize
-        # more points for each qubit. for example, for two qubits we will have
-        # rand_i_q1 = self._rng.normal(0, self._iq_cluster_width, size=shots)
-        # rand_q_q1 = self._rng.normal(0, self._iq_cluster_width, size=shots)
-        # rand_i_q2 = self._rng.normal(0, self._iq_cluster_width, size=shots)
-        # rand_q_q2 = self._rng.normal(0, self._iq_cluster_width, size=shots)
-        #
-        # meaning we will have 3 X shots values of [I,Q]
-        # The construct is qubits_iq_rand[shot_num][qubit-num] = [I,Q]
-
         # Randomize samples
         qubits_iq_rand = []
         for shot_index in range(shots):
             rand_i = np.squeeze(np.array(self._get_normal_samples_for_shot(num_qubits)))
             rand_q = np.squeeze(np.array(self._get_normal_samples_for_shot(num_qubits)))
-            qubits_iq_rand.append(np.array([rand_i, rand_q], dtype='float').T)
+            qubits_iq_rand.append(np.array([rand_i, rand_q], dtype="float").T)
 
         # For multinomial, the probabilities is given in list for each outcome.
         # hence, np.log2(len(prob)) = num_qubits
@@ -149,7 +142,7 @@ class MockIQBackend(FakeOpenPulse2Q):
         val2str_dict = self._values_to_string_array(num_qubits)
         memory = []
         shot_num = 0
-        iq_centers = self._get_iq_cluster_centers()
+        iq_centers = self._iq_cluster_centers
 
         for idx, number_of_occurrences in enumerate(self._rng.multinomial(1, prob, size=shots)):
             # For multiple qubit - translate number to string
@@ -258,7 +251,7 @@ class DragBackend(MockIQBackend):
 
     def __init__(
         self,
-        iq_cluster_centers: List[List[Tuple[float, float]]] = [[(1.0, 1.0), (-1.0, -1.0)]],
+        iq_cluster_centers: List[Tuple[Tuple[float, float], Tuple[float, float]]] = [((1.0, 1.0), (-1.0, -1.0))],
         iq_cluster_width: List[float] = [1.0],
         error: float = 0.03,
         ideal_beta=2.0,
