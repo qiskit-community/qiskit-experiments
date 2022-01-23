@@ -42,7 +42,7 @@ class CompositeExperiment(BaseExperiment):
         """
         self._experiments = experiments
         self._num_experiments = len(experiments)
-        analysis = CompositeAnalysis() if analysis==None else analysis
+        analysis = CompositeAnalysis() if analysis is None else analysis
         super().__init__(
             qubits,
             analysis=analysis,

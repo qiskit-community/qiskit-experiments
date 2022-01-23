@@ -41,9 +41,12 @@ class BatchExperiment(CompositeExperiment):
     documentation for additional information.
     """
 
-    def __init__(self, experiments: List[BaseExperiment],
-                 analysis: Optional[CompositeAnalysis] = None,
-                 backend: Optional[Backend] = None):
+    def __init__(
+        self,
+        experiments: List[BaseExperiment],
+        analysis: Optional[CompositeAnalysis] = None,
+        backend: Optional[Backend] = None,
+    ):
         """Initialize a batch experiment.
 
         Args:

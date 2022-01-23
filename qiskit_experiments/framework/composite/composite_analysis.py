@@ -58,7 +58,7 @@ class CompositeAnalysis(BaseAnalysis):
         # the component child experiments in case there are other child experiments
         # in the experiment data
         component_ids = self._initialize_components(composite_exp, experiment_data)
-        
+
         # Compute marginalize data for each component experiment
         marginalized_data = self._marginalize_data(experiment_data.data())
 
