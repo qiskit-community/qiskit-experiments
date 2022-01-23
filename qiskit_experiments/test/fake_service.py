@@ -75,8 +75,7 @@ class FakeService(DatabaseServiceV1):
             "tags": tags,
             "notes": notes,
             "share_level": kwargs.get("share_level", None),
-            "figure_names": kwargs.get("figure_names", None),
-            "analysis": {},
+            "device_components": []
         }, ignore_index=True)
 
         return experiment_id
@@ -159,6 +158,13 @@ class FakeService(DatabaseServiceV1):
             "tags": tags,
             "service": self,
         }, ignore_index=True)
+
+        def add_new_components(expcomps):
+            for dc in device_components:
+                if dc not in expcomps:
+                    expcomps.append(dc)
+
+        self.exps[self.exps["experiment_id"]==experiment_id]["device_components"].apply(add_new_components)
 
         return result_id
 

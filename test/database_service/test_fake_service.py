@@ -36,6 +36,8 @@ class TestFakeService(QiskitExperimentsTestCase):
                     if expid>2:
                         expentry["parent_id"] = str(expid%3)
                     self.service.create_experiment(**expentry)
+                    if expid in [0, 1, 6, 7]:
+                        expentry["device_components"] = [0, 1]
                     self.expdict[str(expid)] = expentry
                     expid += 1
 
@@ -47,11 +49,12 @@ class TestFakeService(QiskitExperimentsTestCase):
                     for quality in [True, False]:
                         for verified in [True, False]:
                             for result_data in range(2):
-                                resentry = {"experiment_id": str(experiment_id), "result_type": str(result_type), "result_id": str(resid), "tags": ["a"+str(tags), "b"+str(tags)], "quality": quality, "verified": verified, "result_data": {"value": result_data}}
-                                self.service.create_analysis_result(**resentry)
-                                self.resdict[str(resid)] = resentry
-                                resid += 1                                
-                                
+                                for device_components in range(2):
+                                    resentry = {"experiment_id": str(experiment_id), "result_type": str(result_type), "result_id": str(resid), "tags": ["a"+str(tags), "b"+str(tags)], "quality": quality, "verified": verified, "result_data": {"value": result_data}, "device_components": [device_components]}
+                                    self.service.create_analysis_result(**resentry)
+                                    self.resdict[str(resid)] = resentry
+                                    resid += 1                                
+
     def test_create_experiment(self):
         self.assertEqual(len(self.service.exps), 8)
         is_in_frame = []
@@ -81,3 +84,4 @@ class TestFakeService(QiskitExperimentsTestCase):
             self.assertTrue(resid in self.resdict.keys())
             entry = self.resdict[resid]
             self.assertTrue(entry.items() <= full_entry.items())
+            
