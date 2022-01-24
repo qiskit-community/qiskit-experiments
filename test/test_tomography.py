@@ -272,7 +272,7 @@ class TestStateTomography(QiskitExperimentsTestCase):
         exp = StateTomography(QuantumCircuit(3), measurement_qubits=[0, 2], qubits=[5, 7, 1])
         loaded_exp = StateTomography.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""
@@ -491,7 +491,7 @@ class TestProcessTomography(QiskitExperimentsTestCase):
         exp = ProcessTomography(teleport_circuit(), measurement_qubits=[2], preparation_qubits=[0])
         loaded_exp = ProcessTomography.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_analysis_config(self):
         """ "Test converting analysis to and from config works"""
