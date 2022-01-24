@@ -331,9 +331,9 @@ class TestRestless(QiskitExperimentsTestCase):
         self.assertAlmostEqual(restless_classified_shot, "00100100")
 
     def test_restless_process_1(self):
-        """Test if a single-qubit restless memory is correctly post-processed.
+        """Test that a single-qubit restless memory is correctly post-processed.
         This example corresponds to running an X gate and a SX gate with four shots
-         in an ideal restless setting."""
+        in an ideal restless setting."""
         node = RestlessToCounts(header={"memory_slots": 1})
 
         data = [["0x1", "0x1", "0x0", "0x0"], ["0x0", "0x1", "0x1", "0x0"]]
