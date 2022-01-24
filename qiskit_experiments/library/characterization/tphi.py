@@ -17,11 +17,12 @@ from typing import List, Optional, Union
 import numpy as np
 
 from qiskit.providers import Backend
+from qiskit.test.mock import FakeBackend
 from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.composite.batch_experiment import BatchExperiment
 from qiskit_experiments.library.characterization import T1, T2Ramsey
 from qiskit_experiments.library.characterization.analysis.tphi_analysis import TphiAnalysis
-from qiskit.test.mock import FakeBackend
+
 
 class Tphi(BatchExperiment):
     r"""Tphi Experiment Class
