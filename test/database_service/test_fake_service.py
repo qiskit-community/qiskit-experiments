@@ -13,7 +13,7 @@
 Test the fake service
 """
 
-from time import time
+from datetime import datetime
 from test.base import QiskitExperimentsTestCase
 from qiskit_experiments.test.fake_service import FakeService
 
@@ -43,6 +43,7 @@ class TestFakeService(QiskitExperimentsTestCase):
                         expentry["device_components"] = [0, 1]
                     else:
                         expentry["device_components"] = []
+                    expentry["timestamp"] = datetime(2022, 1, 1, expid)
                     self.expdict[str(expid)] = expentry
                     expid += 1
 

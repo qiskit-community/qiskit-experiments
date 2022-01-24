@@ -16,6 +16,7 @@ from typing import Optional, List, Dict, Type, Any, Union, Tuple
 import copy
 import json
 import pandas as pd
+from datetime import datetime, timedelta
 
 from qiskit_experiments.test.fake_backend import FakeBackend
 
@@ -65,6 +66,13 @@ class FakeService(DatabaseServiceV1):
             Experiment ID.
         """
 
+        if experiment_id is None:
+            raise ValueError("The fake service requires the experiment id parameter")
+        
+        time_field = datetime(2022, 1, 1)
+        if experiment_id.isdigit():
+            time_field += timedelta(hours=int(experiment_id))
+    
         self.exps = self.exps.append({ 
             "experiment_type": experiment_type,
             "experiment_id": experiment_id,
@@ -75,7 +83,8 @@ class FakeService(DatabaseServiceV1):
             "tags": tags,
             "notes": notes,
             "share_level": kwargs.get("share_level", None),
-            "device_components": []
+            "device_components": [],
+            "timestamp": time_field
         }, ignore_index=True)
 
         return experiment_id
