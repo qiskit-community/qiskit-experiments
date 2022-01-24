@@ -655,16 +655,16 @@ class RestlessToCounts(RestlessNode):
     a state change.
     """
 
-    def __init__(self, header: Dict[str, Any], validate: bool = True):
+    def __init__(self, num_qubits: int, validate: bool = True):
         """
         Args:
-            header: The header needed by :code:`qiskit.result.postprocess.format_counts_memory`
-                to convert the memory into a bit-string of counts. For example,
-                :code:`{"memory_slots": 1}` for a single qubit.
+            num_qubits: The number of qubits which is needed to construct the header needed
+            by :code:`qiskit.result.postprocess.format_counts_memory` to convert the memory 
+            into a bit-string of counts.
             validate: If set to False the DataAction will not validate its input.
         """
         super().__init__(validate)
-        self._header = header
+        self._header = {"memory_slots": num_qubits}
 
     def _process(self, data: np.array) -> np.array:
         """Reorder the shots and assign values to them based on the previous outcome.
