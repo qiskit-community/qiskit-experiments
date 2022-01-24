@@ -85,7 +85,7 @@ class Spectroscopy(BaseExperiment, ABC):
             QiskitError: if there are less than three frequency shifts.
 
         """
-        analysis = ResonanceAnalysis() or analysis
+        analysis = analysis or ResonanceAnalysis()
 
         super().__init__([qubit], analysis=analysis, backend=backend)
 

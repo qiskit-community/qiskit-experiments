@@ -23,7 +23,6 @@ import qiskit.pulse as pulse
 
 from qiskit_experiments.framework import Options
 from qiskit_experiments.library.characterization.spectroscopy import Spectroscopy
-from qiskit_experiments.data_processing.processor_library import get_processor, ProjectorType
 from .analysis.resonator_spectroscopy_analysis import ResonatorSpectroscopyAnalysis
 
 
@@ -68,8 +67,11 @@ class ResonatorSpectroscopy(Spectroscopy):
         options = super()._default_experiment_options()
 
         options.amp = 1
-        options.acquire_duration = 1024
+        options.acquire_duration = 240e-9
         options.acquire_delay = 0
+        options.unit = "s"
+        options.duration = 240e-9
+        options.sigma = 60e-9
 
         return options
 
@@ -126,6 +128,35 @@ class ResonatorSpectroscopy(Spectroscopy):
     def _schedule(self) -> Tuple[pulse.ScheduleBlock, Parameter]:
         """Create the spectroscopy schedule."""
 
+        unit = self.experiment_options.unit
+        if unit not in ["s", "dt"]:
+            raise QiskitError(f"Unrecognized unit: {unit}.")
+
+        if unit == "s":
+            dt = getattr(self.backend.configuration(), "dt", None)
+            constraints = getattr(self.backend.configuration(), "timing_constraints", {})
+            granularity = constraints.get("granularity", None)
+
+            if dt is None or granularity is None:
+                raise QiskitError(
+                    f"{self.__class__.__name__} requires both dt and sample granularity if "
+                    f"units are s. Founds {dt} and {granularity}, respectively."
+                )
+
+            acq_dur = int(
+                granularity * (self.experiment_options.acquire_duration / dt // granularity)
+            )
+            acq_del = int(granularity * (self.experiment_options.acquire_delay / dt // granularity))
+            duration = int(granularity * (self.experiment_options.duration / dt // granularity))
+            sigma = granularity * (self.experiment_options.sigma / dt // granularity)
+            width = granularity * (self.experiment_options.width / dt // granularity)
+        else:
+            acq_dur = self.experiment_options.acquire_duration
+            acq_del = self.experiment_options.acquire_delay
+            duration = self.experiment_options.duration
+            sigma = self.experiment_options.sigma
+            width = self.experiment_options.width
+
         qubit = self.physical_qubits[0]
 
         freq_param = Parameter("frequency")
@@ -134,17 +165,17 @@ class ResonatorSpectroscopy(Spectroscopy):
             pulse.shift_frequency(freq_param, pulse.MeasureChannel(qubit))
             pulse.play(
                 pulse.GaussianSquare(
-                    duration=self.experiment_options.duration,
+                    duration=duration,
                     amp=self.experiment_options.amp,
-                    sigma=self.experiment_options.sigma,
-                    width=self.experiment_options.width,
+                    sigma=sigma,
+                    width=width,
                 ),
                 pulse.MeasureChannel(qubit),
             )
 
             with pulse.align_left():
-                pulse.delay(self.experiment_options.acquire_delay, pulse.AcquireChannel(qubit))
-                pulse.acquire(self.experiment_options.acquire_duration, qubit, pulse.MemorySlot(0))
+                pulse.delay(acq_del, pulse.AcquireChannel(qubit))
+                pulse.acquire(acq_dur, qubit, pulse.MemorySlot(0))
 
         return schedule, freq_param
 

@@ -24,6 +24,7 @@ from qiskit_experiments.data_processing import nodes
 
 class ProjectorType(Enum):
     """Types of projectors for data dimensionality reduction."""
+
     SVD = nodes.SVD
     ABS = nodes.ToAbs
     REAL = nodes.ToReal
