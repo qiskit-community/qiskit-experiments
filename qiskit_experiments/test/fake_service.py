@@ -113,7 +113,7 @@ class FakeService(DatabaseServiceV1):
         Returns:
             A dictionary containing the retrieved experiment data.
         """
-        db_entry = self.exps.loc[lambda df: df["experiment_id"] == experiment_id, :].to_dict("records")[0]
+        db_entry = self.exps.loc[lambda df: df["experiment_id"] == experiment_id].to_dict("records")[0]
         db_entry["backend"] = FakeBackend(db_entry["backend_name"])
         return db_entry
 
@@ -129,7 +129,12 @@ class FakeService(DatabaseServiceV1):
         tags_operator: Optional[str] = "OR",
         **filters: Any,
     ) -> List[Dict]:
-        raise Exception("not implemented")
+        df = self.exps
+        
+        if experiment_type is not None:
+            df = df.loc[df["experiment_type"] ==  experiment_type]
+            
+        return df.to_dict("records")
 
     def delete_experiment(self, experiment_id: str) -> None:
         raise Exception("not implemented")
@@ -156,7 +161,7 @@ class FakeService(DatabaseServiceV1):
             "quality": quality,
             "verified": verified,
             "tags": tags,
-            "service": self,
+            "backend_name": self.exps.loc[lambda df: df["experiment_id"] == experiment_id].iloc[0]["backend_name"]
         }, ignore_index=True)
 
         def add_new_components(expcomps):
@@ -198,7 +203,7 @@ class FakeService(DatabaseServiceV1):
         tags_operator: Optional[str] = "OR",
         **filters: Any,
     ) -> List[Dict]:
-        return self.results.loc[lambda df: df["experiment_id"] == experiment_id, :].to_dict("records")
+        return self.results.loc[lambda df: df["experiment_id"] == experiment_id].to_dict("records")
 
     def delete_analysis_result(self, result_id: str) -> None:
         raise Exception("not implemented")

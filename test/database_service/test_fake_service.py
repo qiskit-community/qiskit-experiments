@@ -52,6 +52,7 @@ class TestFakeService(QiskitExperimentsTestCase):
                                 for device_components in range(2):
                                     resentry = {"experiment_id": str(experiment_id), "result_type": str(result_type), "result_id": str(resid), "tags": ["a"+str(tags), "b"+str(tags)], "quality": quality, "verified": verified, "result_data": {"value": result_data}, "device_components": [device_components]}
                                     self.service.create_analysis_result(**resentry)
+                                    resentry["backend_name"] = self.expdict[str(experiment_id)]["backend_name"]
                                     self.resdict[str(resid)] = resentry
                                     resid += 1                                
 
@@ -73,5 +74,11 @@ class TestFakeService(QiskitExperimentsTestCase):
             full_entry = self.service.experiment(str(expid))
             entry = self.expdict[str(expid)]
             self.assertTrue(entry.items() <= full_entry.items())
+
+    def test_experiments_query(self):
+        for experiment_type in range(2):
+            expids = sorted([exp["experiment_id"] for exp in self.service.experiments(experiment_type=str(experiment_type))])
+            ref_expids = sorted([exp["experiment_id"] for exp in self.expdict.values() if exp["experiment_type"] == str(experiment_type)])
+            self.assertEqual(expids, ref_expids)
 
             
