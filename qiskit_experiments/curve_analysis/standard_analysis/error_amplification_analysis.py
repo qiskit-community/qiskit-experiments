@@ -73,8 +73,8 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
                 Extra guesses are added based on curve data when either :math:`\rm amp` or
                 :math:`\rm base` is :math:`\pi/2`. See fit model for details.
             bounds: [-0.8 pi, 0.8 pi]. The bounds do not include plus and minus pi since these values
-                often correspond to symmetry points of the fit function. Furthermore, this type of analysis
-                is intended for values of :math:`d\theta` close to zero.
+                often correspond to symmetry points of the fit function. Furthermore,
+                this type of analysis is intended for values of :math:`d\theta` close to zero.
 
     # section: note
 
