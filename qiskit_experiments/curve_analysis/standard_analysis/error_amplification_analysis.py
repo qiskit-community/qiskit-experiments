@@ -141,7 +141,9 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
         max_abs_y, _ = curve.guess.max_height(curve_data.y, absolute=True)
         max_y, min_y = np.max(curve_data.y), np.min(curve_data.y)
 
-        user_opt.bounds.set_if_empty(d_theta=(-np.pi, np.pi), base=(-max_abs_y, max_abs_y))
+        user_opt.bounds.set_if_empty(
+            d_theta=(-0.8 * np.pi, 0.8 * np.pi), base=(-max_abs_y, max_abs_y)
+        )
         user_opt.p0.set_if_empty(base=(max_y + min_y) / 2)
 
         if "amp" in user_opt.p0:
