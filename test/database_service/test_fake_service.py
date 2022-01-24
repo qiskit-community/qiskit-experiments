@@ -81,20 +81,36 @@ class TestFakeService(QiskitExperimentsTestCase):
             entry = self.expdict[str(expid)]
             self.assertTrue(entry.items() <= full_entry.items())
 
-    def test_experiments_query(self):
+    def test_experiments_query(self):        
         for experiment_type in range(2):
             expids = sorted([exp["experiment_id"] for exp in self.service.experiments(experiment_type=str(experiment_type))])
             ref_expids = sorted([exp["experiment_id"] for exp in self.expdict.values() if exp["experiment_type"] == str(experiment_type)])
+            self.assertTrue(len(expids)>0)
             self.assertEqual(expids, ref_expids)
 
         for backend_name in range(2):
             expids = sorted([exp["experiment_id"] for exp in self.service.experiments(backend_name=str(backend_name))])
             ref_expids = sorted([exp["experiment_id"] for exp in self.expdict.values() if exp["backend_name"] == str(backend_name)])
+            self.assertTrue(len(expids)>0)
             self.assertEqual(expids, ref_expids)
 
         for parent_id in range(3):
             expids = sorted([exp["experiment_id"] for exp in self.service.experiments(parent_id=str(parent_id))])
             ref_expids = sorted([exp["experiment_id"] for exp in self.expdict.values() if exp["parent_id"] == str(parent_id)])
+            self.assertTrue(len(expids)>0)
             self.assertEqual(expids, ref_expids)
+
+        expids = sorted([exp["experiment_id"] for exp in self.service.experiments(tags=["a1", "b1"], tags_operator="AND")])
+        ref_expids = sorted([exp["experiment_id"] for exp in self.expdict.values() if "a1" in exp["tags"] and "b1" in exp["tags"]])
+        self.assertTrue(len(expids)>0)
+        self.assertEqual(expids, ref_expids)
+
+        expids = sorted([exp["experiment_id"] for exp in self.service.experiments(tags=["a1", "c1"], tags_operator="AND")])
+        self.assertEqual(len(expids), 0)
+
+        expids = sorted([exp["experiment_id"] for exp in self.service.experiments(tags=["a0", "c0"])])
+        ref_expids = sorted([exp["experiment_id"] for exp in self.expdict.values() if "a0" in exp["tags"]])
+        self.assertTrue(len(expids)>0)
+        self.assertEqual(expids, ref_expids)
 
             

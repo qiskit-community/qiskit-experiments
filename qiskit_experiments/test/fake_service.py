@@ -148,6 +148,14 @@ class FakeService(DatabaseServiceV1):
         # currently they have different types for `device_components`
         if device_components is not None:
             raise ValueError("The fake service currently does not support filtering on device components")
+
+        if tags is not None:
+            if tags_operator == "OR":
+                df = df.loc[df["tags"].apply(lambda dftags: any([x in dftags for x in tags]))]
+            elif tags_operator == "AND":
+                df = df.loc[df["tags"].apply(lambda dftags: all([x in dftags for x in tags]))]
+            else:
+                raise ValueError("Unrecognized tags operator")
             
         return df.to_dict("records")
 
