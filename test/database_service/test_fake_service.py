@@ -42,7 +42,7 @@ class TestFakeService(QiskitExperimentsTestCase):
                     if expid in [0, 1, 6, 7]:
                         expentry["device_components"] = [0, 1]
                     else:
-                        expentry["device_components"] = None
+                        expentry["device_components"] = []
                     self.expdict[str(expid)] = expentry
                     expid += 1
 
