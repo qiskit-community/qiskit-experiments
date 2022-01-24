@@ -27,7 +27,6 @@ class TestFakeService(QiskitExperimentsTestCase):
         super().setUp()
 
         self.service = FakeService()
-        start = time()
         
         self.expdict = {}
         expid = 0
@@ -47,17 +46,17 @@ class TestFakeService(QiskitExperimentsTestCase):
         resid = 0
         for experiment_id in [0, 1, 6, 7]:
             for result_type in range(2):
-                for tags in range(2):
-                    for quality in [True, False]:
-                        for verified in [True, False]:
-                            for result_data in range(2):
-                                for device_components in range(2):
-                                    resentry = {"experiment_id": str(experiment_id), "result_type": str(result_type), "result_id": str(resid), "tags": ["a"+str(tags), "b"+str(tags)], "quality": quality, "verified": verified, "result_data": {"value": result_data}, "device_components": [device_components]}
-                                    self.service.create_analysis_result(**resentry)
-                                    resentry["backend_name"] = self.expdict[str(experiment_id)]["backend_name"]
-                                    self.resdict[str(resid)] = resentry
-                                    resid += 1
-        print(time()-start)
+                for samebool4all in range(2):
+                    tags = samebool4all
+                    quality = samebool4all
+                    verified = samebool4all
+                    result_data = samebool4all
+                    device_components = samebool4all
+                    resentry = {"experiment_id": str(experiment_id), "result_type": str(result_type), "result_id": str(resid), "tags": ["a"+str(tags), "b"+str(tags)], "quality": quality, "verified": verified, "result_data": {"value": result_data}, "device_components": [device_components]}
+                    self.service.create_analysis_result(**resentry)
+                    resentry["backend_name"] = self.expdict[str(experiment_id)]["backend_name"]
+                    self.resdict[str(resid)] = resentry
+                    resid += 1
 
     def test_creation(self):
         for df, reference_dict, id_field in zip([self.service.exps, self.service.results], [self.expdict, self.resdict], ["experiment_id", "result_id"]):
