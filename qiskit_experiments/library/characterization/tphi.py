@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -21,7 +21,7 @@ from qiskit_experiments.framework import Options
 from qiskit_experiments.framework.composite.batch_experiment import BatchExperiment
 from qiskit_experiments.library.characterization import T1, T2Ramsey
 from qiskit_experiments.library.characterization.analysis.tphi_analysis import TphiAnalysis
-
+from qiskit.test.mock import FakeBackend
 
 class Tphi(BatchExperiment):
     r"""Tphi Experiment Class
@@ -58,6 +58,11 @@ class Tphi(BatchExperiment):
         options.delays_t2 = None
         return options
 
+    @classmethod
+    def _default_transpile_options(cls) -> Options:
+        options = super()._default_transpile_options()
+        return options
+
     def __init__(
         self,
         qubit: int,
@@ -86,3 +91,16 @@ class Tphi(BatchExperiment):
         self.exps.append(T2Ramsey(qubit, self.set_experiment_options.delays_t2, osc_freq))
         # Run batch experiments
         super().__init__(experiments=self.exps, analysis=TphiAnalysis(), backend=backend)
+
+    def _set_backend(self, backend: Backend):
+        super()._set_backend(backend)
+
+        # Scheduling parameters
+        if not self._backend.configuration().simulator and not isinstance(backend, FakeBackend):
+            timing_constraints = getattr(self.transpile_options, "timing_constraints", {})
+            if "acquire_alignment" not in timing_constraints:
+                timing_constraints["acquire_alignment"] = 16
+            scheduling_method = getattr(self.transpile_options, "scheduling_method", "alap")
+            self.set_transpile_options(
+                timing_constraints=timing_constraints, scheduling_method=scheduling_method
+            )

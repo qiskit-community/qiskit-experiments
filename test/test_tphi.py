@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -24,7 +24,7 @@ class TestTphi(QiskitExperimentsTestCase):
 
     __tolerance__ = 0.1
 
-    def test_tphi(self):
+    def test_tphi_end_to_end(self):
         """
         Run the Tphi backend
         """
@@ -35,6 +35,7 @@ class TestTphi(QiskitExperimentsTestCase):
         t1 = 20
         t2ramsey = 25
         backend = TphiBackend(t1=t1, t2ramsey=t2ramsey, freq=0.1)
+
         expdata = exp.run(backend=backend, analysis=TphiAnalysis()).block_for_results()
 
         result = expdata.analysis_results("T_phi")
