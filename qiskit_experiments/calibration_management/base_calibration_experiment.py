@@ -221,6 +221,7 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
         self,
         backend: Optional[Backend] = None,
         analysis: Optional[Union[BaseAnalysis, None]] = "default",
+        timeout: Optional[float] = None,
         **run_options,
     ) -> ExperimentData:
         """Run an experiment, perform analysis, and update any calibrations.
@@ -233,12 +234,16 @@ class BaseCalibrationExperiment(BaseExperiment, ABC):
                       analysis. If None analysis will not be run. If ``"default"``
                       the experiments :meth:`analysis` instance will be used if
                       it contains one.
+            timeout: Time to wait for experiment jobs to finish running before
+                     cancelling.
             run_options: backend runtime options used for circuit execution.
 
         Returns:
             The experiment data object.
         """
-        experiment_data = super().run(backend, analysis, **run_options)
+        experiment_data = super().run(
+            backend=backend, analysis=analysis, timeout=timeout, **run_options
+        )
 
         self._add_cal_metadata(experiment_data)
 
