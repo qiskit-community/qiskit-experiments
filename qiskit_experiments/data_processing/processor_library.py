@@ -12,7 +12,7 @@
 
 """A collection of functions that return various data processors."""
 
-from qiskit.qobj.utils import MeasLevel
+from qiskit.qobj.utils import MeasLevel, MeasReturnType
 
 from qiskit_experiments.framework import ExperimentData, Options
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
@@ -46,14 +46,14 @@ def get_processor(
     run_options = experiment_data.metadata["job_metadata"][index].get("run_options", {})
 
     meas_level = run_options.get("meas_level", MeasLevel.CLASSIFIED)
-    meas_return = run_options.get("meas_return", "avg")
+    meas_return = run_options.get("meas_return", MeasReturnType.AVERAGE)
     normalize = analysis_options.get("normalization", True)
 
     if meas_level == MeasLevel.CLASSIFIED:
         return DataProcessor("counts", [nodes.Probability("1")])
 
     if meas_level == MeasLevel.KERNELED:
-        if meas_return == "single":
+        if meas_return == MeasReturnType.SINGLE:
             processor = DataProcessor("memory", [nodes.AverageData(axis=1), nodes.SVD()])
         else:
             processor = DataProcessor("memory", [nodes.SVD()])
