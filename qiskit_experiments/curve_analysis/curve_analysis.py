@@ -803,7 +803,7 @@ class CurveAnalysis(BaseAnalysis, ABC):
         data_processor = self.options.data_processor
 
         if not data_processor:
-            data_processor = get_processor(experiment_data)
+            data_processor = get_processor(experiment_data, self.options)
 
         if isinstance(data_processor, DataProcessor) and not data_processor.is_trained:
             # Qiskit DataProcessor instance. May need calibration.

@@ -12,31 +12,57 @@
 
 """A collection of functions that return various data processors."""
 
-from qiskit.qobj.utils import MeasLevel
+from qiskit.qobj.utils import MeasLevel, MeasReturnType
 
-from qiskit_experiments.framework import ExperimentData
+from qiskit_experiments.framework import ExperimentData, Options
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing import nodes
 
 
-def get_processor(experiment_data: ExperimentData, index: int = -1) -> DataProcessor:
+def get_processor(experiment_data: ExperimentData, analysis_options: Options, index: int = -1) -> DataProcessor:
     """Get a DataProcessor that produces a continuous signal given the options.
 
     Args:
         experiment_data: The experiment data that holds all the data and metadata needed
              to determine the data processor to use to process the data for analysis.
+        analysis_options: The analysis options with which to analyze the data. The options that
+             are relevant for the configuration of a data processor are:
+             - normalization (bool): A boolean to specify if the data should be normalized to
+               the interval [0, 1]. The default is True. This option is only relevant if
+               kerneled data is used.
+             - outcome (string): The measurement outcome that will be passed to a Probability node.
+             - restless_threshold (float): If (repetition delay / T1) is below a given threshold for
+               all physical qubit T1 values the experiment is recognized as a restless experiment and
+               will be analyzed accordingly.
         index: The index of the job for which to get a data processor.
 
     Returns:
         An instance of DataProcessor capable of processing the data for the corresponding job.
 
+    Notes:
+        The following relevant arguments are extracted from the experiment_data metadata run options:
+            - meas_level (MeasLevel): The measurement level of the data to process.
+            - meas_return (MeasReturnType): The measurement return (single or avg) of the data to process.
+            - init_qubits (bool): If False, the qubits are not reset to the ground state after a measurement.
+            - physical qubits: The physical qubits used in the experiment.
+            - memory (bool): If True, single-shot measurement bitstrings are returned.
+            - rep_delay (float): The delay between a measurement and the subsequent circuit.
+
+        In addition, the following argument is extracted from the experiment_data:
+            - t1_values (List[float]): The T1 values of the physical qubits at the time of the experiment.
+
     Raises:
         DataProcessorError: if the measurement level is not supported.
+        DataProcessorError: if no single-shot memory is present but the run options suggest that a
+                            restless experiment was run.
     """
 
     run_options = experiment_data.metadata["job_metadata"][index].get("run_options", {})
-    analysis_options = experiment_data.metadata["job_metadata"][index].get("analysis_options", {})
+
+    meas_level = run_options.get("meas_level", MeasLevel.CLASSIFIED)
+    meas_return = run_options.get("meas_return", MeasReturnType.AVERAGE)
+    normalize = analysis_options.get("normalization", True)
 
     physical_qubits = experiment_data.metadata["physical_qubits"]
     num_qubits = len(physical_qubits)
@@ -45,34 +71,36 @@ def get_processor(experiment_data: ExperimentData, index: int = -1) -> DataProce
         for physical_qubit in physical_qubits
     ]
 
-    meas_level = run_options.get("meas_level", MeasLevel.CLASSIFIED)
-    meas_return = run_options.get("meas_return", "avg")
-    normalize = analysis_options.get("normalization", True)
+    outcome = analysis_options.get("outcome", "1" * num_qubits)
 
     init_qubits = run_options.get("init_qubits", True)
     memory = run_options.get("memory", False)
     rep_delay = run_options.get("rep_delay", None)
+    restless_threshold = analysis_options.get("restless_threshold", 1)
 
     # restless data processing.
     restless = False
     if rep_delay and not init_qubits:
-        if [rep_delay / t1_value < 0.1 for t1_value in t1_values] == [True] * num_qubits:
+        if [rep_delay / t1_value < restless_threshold for t1_value in t1_values] == [True] * num_qubits:
             restless = True
 
-    if meas_level == MeasLevel.CLASSIFIED and not init_qubits and memory and restless:
+    if meas_level == MeasLevel.CLASSIFIED and memory and restless:
         return DataProcessor(
             "memory",
             [
-                nodes.RestlessToCounts(header={"memory_slots": num_qubits}),
-                nodes.Probability("1" * num_qubits),
+                nodes.RestlessToCounts(num_qubits),
+                nodes.Probability(outcome),
             ],
         )
+
+    if restless and not memory:
+        raise DataProcessorError(f"Run options suggest restless data but no single-shot memory is present.")
 
     if meas_level == MeasLevel.CLASSIFIED:
         return DataProcessor("counts", [nodes.Probability("1")])
 
     if meas_level == MeasLevel.KERNELED:
-        if meas_return == "single":
+        if meas_return == MeasReturnType.SINGLE:
             processor = DataProcessor("memory", [nodes.AverageData(axis=1), nodes.SVD()])
         else:
             processor = DataProcessor("memory", [nodes.SVD()])
