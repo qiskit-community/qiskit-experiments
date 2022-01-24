@@ -133,6 +133,10 @@ class FakeService(DatabaseServiceV1):
         
         if experiment_type is not None:
             df = df.loc[df["experiment_type"] ==  experiment_type]
+
+        # TODO: do we have to return the backend itself, as in `experiment`?
+        if backend_name is not None:
+            df = df.loc[df["backend_name"] == backend_name]
             
         return df.to_dict("records")
 

@@ -13,6 +13,7 @@
 Test the fake service
 """
 
+from time import time
 from test.base import QiskitExperimentsTestCase
 from qiskit_experiments.test.fake_service import FakeService
 
@@ -26,6 +27,7 @@ class TestFakeService(QiskitExperimentsTestCase):
         super().setUp()
 
         self.service = FakeService()
+        start = time()
         
         self.expdict = {}
         expid = 0
@@ -54,7 +56,8 @@ class TestFakeService(QiskitExperimentsTestCase):
                                     self.service.create_analysis_result(**resentry)
                                     resentry["backend_name"] = self.expdict[str(experiment_id)]["backend_name"]
                                     self.resdict[str(resid)] = resentry
-                                    resid += 1                                
+                                    resid += 1
+        print(time()-start)
 
     def test_creation(self):
         for df, reference_dict, id_field in zip([self.service.exps, self.service.results], [self.expdict, self.resdict], ["experiment_id", "result_id"]):
@@ -79,6 +82,11 @@ class TestFakeService(QiskitExperimentsTestCase):
         for experiment_type in range(2):
             expids = sorted([exp["experiment_id"] for exp in self.service.experiments(experiment_type=str(experiment_type))])
             ref_expids = sorted([exp["experiment_id"] for exp in self.expdict.values() if exp["experiment_type"] == str(experiment_type)])
+            self.assertEqual(expids, ref_expids)
+
+        for backend_name in range(2):
+            expids = sorted([exp["experiment_id"] for exp in self.service.experiments(backend_name=str(backend_name))])
+            ref_expids = sorted([exp["experiment_id"] for exp in self.expdict.values() if exp["backend_name"] == str(backend_name)])
             self.assertEqual(expids, ref_expids)
 
             
