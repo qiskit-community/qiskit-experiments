@@ -107,7 +107,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         analysis = ResonatorSpectroscopyAnalysis()
 
         if frequencies is None:
-            frequencies = np.linspace(-20.0, 20.0, 51)
+            frequencies = np.linspace(-20.0e6, 20.0e6, 51)
 
             if absolute:
                 if backend is None:
