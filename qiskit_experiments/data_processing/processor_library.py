@@ -55,7 +55,7 @@ def get_processor(experiment_data: ExperimentData, index: int = -1) -> DataProce
 
     # restless data processing.
     restless = False
-    if rep_delay:
+    if rep_delay and not init_qubits:
         if [rep_delay / t1_value < 0.1 for t1_value in t1_values] == [True] * num_qubits:
             restless = True
 
