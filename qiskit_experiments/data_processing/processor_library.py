@@ -13,10 +13,10 @@
 """A collection of functions that return various data processors."""
 
 from enum import Enum
-from typing import Union
 
-from qiskit.qobj.utils import MeasLevel
+from qiskit.qobj.utils import MeasLevel, MeasReturnType
 
+from qiskit_experiments.framework import ExperimentData, Options
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing import nodes
@@ -31,32 +31,44 @@ class ProjectorType(Enum):
 
 
 def get_processor(
-    meas_level: MeasLevel = MeasLevel.CLASSIFIED,
-    meas_return: str = "avg",
-    normalize: bool = True,
-    dimensionality_reduction: Union[str, ProjectorType] = ProjectorType.SVD,
+    experiment_data: ExperimentData,
+    analysis_options: Options,
+    index: int = -1,
 ) -> DataProcessor:
     """Get a DataProcessor that produces a continuous signal given the options.
 
     Args:
-        meas_level: The measurement level of the data to process.
-        meas_return: The measurement return (single or avg) of the data to process.
-        normalize: Add a data normalization node to the Kerneled data processor.
-        dimensionality_reduction: An optional string or instance of :class:`ProjectorType`
-            to represent the dimensionality reduction node for Kerneled data. For the
-            supported nodes, see :class:`ProjectorType`. Typically, these nodes convert
-            complex IQ data to real data, for example by performing a singular-value
-            decomposition. This argument is only needed for Kerneled data (i.e. level 1)
-            and can thus be ignored if Classified data (the default) is used.
+        experiment_data: The experiment data that holds all the data and metadata needed
+            to determine the data processor to use to process the data for analysis.
+        analysis_options: The analysis options with which to analyze the data. The options that
+            are relevant for the configuration of a data processor are:
+            - normalization (bool): A boolean to specify if the data should be normalized to
+              the interval [0, 1]. The default is True. This option is only relevant if
+              kerneled data is used.
+            - dimensionality_reduction: An optional string or instance of :class:`ProjectorType`
+              to represent the dimensionality reduction node for Kerneled data. For the
+              supported nodes, see :class:`ProjectorType`. Typically, these nodes convert
+              complex IQ data to real data, for example by performing a singular-value
+              decomposition. This argument is only needed for Kerneled data (i.e. level 1)
+              and can thus be ignored if Classified data (the default) is used.
+
+        index: The index of the job for which to get a data processor.
 
     Returns:
-        An instance of DataProcessor capable of dealing with the given options.
+        An instance of DataProcessor capable of processing the data for the corresponding job.
 
     Raises:
         DataProcessorError: if the measurement level is not supported.
         DataProcessorError: if the wrong dimensionality reduction for kerneled data
             is specified.
     """
+    run_options = experiment_data.metadata["job_metadata"][index].get("run_options", {})
+
+    meas_level = run_options.get("meas_level", MeasLevel.CLASSIFIED)
+    meas_return = run_options.get("meas_return", MeasReturnType.AVERAGE)
+    normalize = analysis_options.get("normalization", True)
+    dimensionality_reduction = analysis_options.get("dimensionality_reduction", ProjectorType.SVD)
+
     if meas_level == MeasLevel.CLASSIFIED:
         return DataProcessor("counts", [nodes.Probability("1")])
 

@@ -798,23 +798,12 @@ class CurveAnalysis(BaseAnalysis, ABC):
         # 2. Setup data processor
         #
 
-        # No data processor has been provided at run-time we infer one from the job
+        # If no data processor was provided at run-time we infer one from the job
         # metadata and default to the data processor for averaged classified data.
         data_processor = self.options.data_processor
 
         if not data_processor:
-            run_options = self._run_options() or dict()
-
-            try:
-                meas_level = run_options["meas_level"]
-            except KeyError as ex:
-                raise DataProcessorError(
-                    f"Cannot process data without knowing the measurement level: {str(ex)}."
-                ) from ex
-
-            meas_return = run_options.get("meas_return", None)
-
-            data_processor = get_processor(meas_level, meas_return, self.options.normalization)
+            data_processor = get_processor(experiment_data, self.options)
 
         if isinstance(data_processor, DataProcessor) and not data_processor.is_trained:
             # Qiskit DataProcessor instance. May need calibration.
