@@ -14,18 +14,27 @@
 
 from qiskit.qobj.utils import MeasLevel
 
-from qiskit_experiments.framework import ExperimentData
+from qiskit_experiments.framework import ExperimentData, Options
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing import nodes
 
 
-def get_processor(experiment_data: ExperimentData, index: int = -1) -> DataProcessor:
+def get_processor(
+    experiment_data: ExperimentData,
+    analysis_options: Options,
+    index: int = -1,
+) -> DataProcessor:
     """Get a DataProcessor that produces a continuous signal given the options.
 
     Args:
         experiment_data: The experiment data that holds all the data and metadata needed
             to determine the data processor to use to process the data for analysis.
+        analysis_options: The analysis options with which to analyze the data. The options that
+            are relevant for the configuration of a data processor are:
+            - normalization (bool): A boolean to specify if the data should be normalized to
+              the interval [0, 1]. The default is True. This option is only relevant if
+              kerneled data is used.
         index: The index of the job for which to get a data processor.
 
     Returns:
@@ -35,7 +44,6 @@ def get_processor(experiment_data: ExperimentData, index: int = -1) -> DataProce
         DataProcessorError: if the measurement level is not supported.
     """
     run_options = experiment_data.metadata["job_metadata"][index].get("run_options", {})
-    analysis_options = experiment_data.metadata["job_metadata"][index].get("analysis_options", {})
 
     meas_level = run_options.get("meas_level", MeasLevel.CLASSIFIED)
     meas_return = run_options.get("meas_return", "avg")
