@@ -210,11 +210,11 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
 
         # Additional data not part of composite experiment
         exp3 = FakeExperiment([0, 1])
-        extra_data = exp3.run(FakeBackend())
+        extra_data = exp3.run(FakeBackend()).block_for_results()
         data1.add_child_data(extra_data)
 
         # Replace results
-        data2 = par_exp.analysis.run(data1, replace_results=True)
+        data2 = par_exp.analysis.run(data1, replace_results=True).block_for_results()
         self.assertEqual(data1, data2)
         self.assertEqual(len(data1.child_data()), len(data2.child_data()))
         for sub1, sub2 in zip(data1.child_data(), data2.child_data()):
@@ -231,11 +231,11 @@ class TestCompositeExperimentData(QiskitExperimentsTestCase):
 
         # Additional data not part of composite experiment
         exp3 = FakeExperiment([0, 1])
-        extra_data = exp3.run(FakeBackend())
+        extra_data = exp3.run(FakeBackend()).block_for_results()
         data1.add_child_data(extra_data)
 
         # Replace results
-        data2 = par_exp.analysis.run(data1, replace_results=False)
+        data2 = par_exp.analysis.run(data1).block_for_results()
         self.assertNotEqual(data1.experiment_id, data2.experiment_id)
         self.assertEqual(len(data1.child_data()), len(data2.child_data()))
         for sub1, sub2 in zip(data1.child_data(), data2.child_data()):
