@@ -20,7 +20,9 @@ from qiskit_experiments.data_processing.data_processor import DataProcessor
 from qiskit_experiments.data_processing import nodes
 
 
-def get_processor(experiment_data: ExperimentData, analysis_options: Options, index: int = -1) -> DataProcessor:
+def get_processor(
+    experiment_data: ExperimentData, analysis_options: Options, index: int = -1
+) -> DataProcessor:
     """Get a DataProcessor that produces a continuous signal given the options.
 
     Args:
@@ -81,7 +83,9 @@ def get_processor(experiment_data: ExperimentData, analysis_options: Options, in
     # restless data processing.
     restless = False
     if rep_delay and not init_qubits:
-        if [rep_delay / t1_value < restless_threshold for t1_value in t1_values] == [True] * num_qubits:
+        if [rep_delay / t1_value < restless_threshold for t1_value in t1_values] == [
+            True
+        ] * num_qubits:
             restless = True
 
     if meas_level == MeasLevel.CLASSIFIED and memory and restless:
@@ -94,7 +98,9 @@ def get_processor(experiment_data: ExperimentData, analysis_options: Options, in
         )
 
     if restless and not memory:
-        raise DataProcessorError(f"Run options suggest restless data but no single-shot memory is present.")
+        raise DataProcessorError(
+            f"Run options suggest restless data but no single-shot memory is present."
+        )
 
     if meas_level == MeasLevel.CLASSIFIED:
         return DataProcessor("counts", [nodes.Probability("1")])
