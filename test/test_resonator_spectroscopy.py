@@ -73,7 +73,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         res_freq = backend.defaults().meas_freq_est[qubit]
 
         frequencies = np.linspace(res_freq - 20e6, res_freq + 20e6, 51)
-        spec = ResonatorSpectroscopy(qubit, frequencies=frequencies, backend=backend)
+        spec = ResonatorSpectroscopy(qubit, backend=backend, frequencies=frequencies)
 
         expdata = spec.run(backend)
         result = expdata.analysis_results(1)
@@ -83,12 +83,12 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
 
     def test_experiment_config(self):
         """Test converting to and from config works"""
-        exp = ResonatorSpectroscopy(1, np.linspace(100, 150, 20) * 1e6)
+        exp = ResonatorSpectroscopy(1, frequencies=np.linspace(100, 150, 20) * 1e6)
         loaded_exp = ResonatorSpectroscopy.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
         self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
-        exp = ResonatorSpectroscopy(1, np.linspace(int(100e6), int(150e6), int(20e6)))
+        exp = ResonatorSpectroscopy(1, frequencies=np.linspace(int(100e6), int(150e6), int(20e6)))
         self.assertRoundTripSerializable(exp, self.json_equiv)
