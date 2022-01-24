@@ -36,9 +36,13 @@ class TestFakeService(QiskitExperimentsTestCase):
                     expentry = {"experiment_id": str(expid), "experiment_type": str(experiment_type), "backend_name": str(backend_name), "tags": ["a"+str(tags), "b"+str(tags)]}
                     if expid>2:
                         expentry["parent_id"] = str(expid%3)
+                    else:
+                        expentry["parent_id"] = None
                     self.service.create_experiment(**expentry)
                     if expid in [0, 1, 6, 7]:
                         expentry["device_components"] = [0, 1]
+                    else:
+                        expentry["device_components"] = None
                     self.expdict[str(expid)] = expentry
                     expid += 1
 
@@ -86,6 +90,11 @@ class TestFakeService(QiskitExperimentsTestCase):
         for backend_name in range(2):
             expids = sorted([exp["experiment_id"] for exp in self.service.experiments(backend_name=str(backend_name))])
             ref_expids = sorted([exp["experiment_id"] for exp in self.expdict.values() if exp["backend_name"] == str(backend_name)])
+            self.assertEqual(expids, ref_expids)
+
+        for parent_id in range(3):
+            expids = sorted([exp["experiment_id"] for exp in self.service.experiments(parent_id=str(parent_id))])
+            ref_expids = sorted([exp["experiment_id"] for exp in self.expdict.values() if exp["parent_id"] == str(parent_id)])
             self.assertEqual(expids, ref_expids)
 
             

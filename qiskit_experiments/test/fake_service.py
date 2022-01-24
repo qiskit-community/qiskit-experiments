@@ -137,6 +137,12 @@ class FakeService(DatabaseServiceV1):
         # TODO: do we have to return the backend itself, as in `experiment`?
         if backend_name is not None:
             df = df.loc[df["backend_name"] == backend_name]
+
+        # Note a bug in the interface for all services:
+        # It is impossible to filter by expeirments whose parent id is None
+        # (i.e., root experiments)
+        if parent_id is not None:
+            df = df.loc[df["parent_id"] == parent_id]
             
         return df.to_dict("records")
 
