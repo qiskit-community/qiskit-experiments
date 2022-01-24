@@ -68,7 +68,7 @@ class ZXHeat(BatchHeatHelper):
         ZX-HEAT experiments are performed with combination of two
         error amplification experiments shown above, where :math:`\\alpha, \\beta, \\gamma`
         depend on the interrogated error axis, namely,
-        (``X``, ``X``, ``I``), (``Y``, ``Y``, ``I``), (``Y``, ``Z``, ``Rx(pi/2)``)
+        (``X``, ``X``, ``I``), (``Y``, ``Y``, ``I``), (``Y``, ``Z``, ``Rx(-pi/2)``)
         for amplifying X, Y, Z axis, respectively.
         The circuit in middle is repeated by ``N`` times for the error amplification.
 
@@ -127,7 +127,7 @@ class ZXHeat(BatchHeatHelper):
             elif error_axis == "z":
                 prep.ry(np.pi/2, 1)
                 echo.rz(np.pi, 1)
-                meas.rx(np.pi/2, 1)
+                meas.rx(-np.pi/2, 1)
             else:
                 raise ValueError(f"Invalid error term {error_axis}.")
 
