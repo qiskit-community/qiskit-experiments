@@ -85,9 +85,9 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         exp = ResonatorSpectroscopy(1, np.linspace(100, 150, 20) * 1e6)
         loaded_exp = ResonatorSpectroscopy.from_config(exp.config())
         self.assertNotEqual(exp, loaded_exp)
-        self.assertTrue(self.experiments_equiv(exp, loaded_exp))
+        self.assertTrue(self.json_equiv(exp, loaded_exp))
 
     def test_roundtrip_serializable(self):
         """Test round trip JSON serialization"""
         exp = ResonatorSpectroscopy(1, np.linspace(int(100e6), int(150e6), int(20e6)))
-        self.assertRoundTripSerializable(exp, self.experiments_equiv)
+        self.assertRoundTripSerializable(exp, self.json_equiv)
