@@ -212,8 +212,8 @@ class ExperimentDocstring(QiskitExperimentDocstring):
         # add transpiler option
         transpiler_option_desc = [
             "This option is used for circuit optimization. ",
-            "See `Qiskit Transpiler <https://qiskit.org/documentation/stubs/",
-            "qiskit.compiler.transpile.html>`_ documentation for available options.",
+            "See the documentation of :func:`qiskit.transpile <qiskit.compiler.transpile>` "
+            "for available options.",
             "",
         ]
         transpiler_option_desc.extend(
@@ -230,8 +230,9 @@ class ExperimentDocstring(QiskitExperimentDocstring):
             "This option is used for controlling job execution condition. "
             "Note that this option is provider dependent. "
             "See provider's backend runner API for available options. "
-            "See `here <https://qiskit.org/documentation/stubs/qiskit.providers.ibmq.",
-            "IBMQBackend.html#qiskit.providers.ibmq.IBMQBackend.run>`_ for IBM Quantum Service.",
+            "See the documentation of "
+            ":meth:`IBMQBackend.run <qiskit.providers.ibmq.IBMQBackend.run>` "
+            "for the IBM Quantum Service.",
             "",
         ]
         run_option_desc.extend(

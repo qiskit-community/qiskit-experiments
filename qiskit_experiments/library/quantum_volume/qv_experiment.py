@@ -49,12 +49,11 @@ class QuantumVolume(BaseExperiment):
         <https://qiskit.org/textbook/ch-quantum-hardware/measuring-quantum-volume.html>`_
         for an explanation on the QV protocol.
 
-        In the QV experiment we generate `QV circuits
-        <https://qiskit.org/documentation/stubs/qiskit.circuit.library.QuantumVolume.html>`_
-        on :math:`d` qubits, which contain :math:`d` layers, where each layer consists of random 2-qubit
+        In the QV experiment we generate :class:`~qiskit.circuit.library.QuantumVolume` circuits on
+        :math:`d` qubits, which contain :math:`d` layers, where each layer consists of random 2-qubit
         unitary gates from :math:`SU(4)`, followed by a random permutation on the :math:`d` qubits.
-        Then these circuits run on the quantum backend and on an ideal simulator
-        (either :class:`AerSimulator` or :class:`qiskit.quantum_info.Statevector`).
+        Then these circuits run on the quantum backend and on an ideal simulator (either
+        :class:`~qiskit.providers.aer.AerSimulator` or :class:`~qiskit.quantum_info.Statevector`).
 
         A depth :math:`d` QV circuit is successful if it has 'mean heavy-output probability' > 2/3 with
         confidence level > 0.977 (corresponding to z_value = 2), and at least 100 trials have been ran.

@@ -182,7 +182,11 @@ html_theme_options = {
 }
 
 autoclass_content = 'both'
-intersphinx_mapping = {'matplotlib': ('https://matplotlib.org/stable/', None)}
+intersphinx_mapping = {
+    'matplotlib': ('https://matplotlib.org/stable/', None),
+    'qiskit': ('https://qiskit.org/documentation/', None),
+}
+
 # Current scipy hosted docs are missing the object.inv file so leaving this
 # commented out until the missing file is added back.
 #                       'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None)}
