@@ -72,7 +72,7 @@ class ErrorAmplificationAnalysis(curve.CurveAnalysis):
                 where a is given by :code:`max(abs(angle_per_gate), np.pi / 2)`.
                 Extra guesses are added based on curve data when either :math:`\rm amp` or
                 :math:`\rm base` is :math:`\pi/2`. See fit model for details.
-            bounds: [-pi, pi].
+            bounds: [-0.8 pi, 0.8 pi].
 
     # section: note
 
