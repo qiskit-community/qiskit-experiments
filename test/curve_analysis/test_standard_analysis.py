@@ -10,8 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Test parameter guess functions."""
-# pylint: disable=invalid-name
+"""Test standard analysis base classes."""
 
 from test.base import QiskitExperimentsTestCase
 import numpy as np
