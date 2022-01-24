@@ -60,7 +60,7 @@ def get_processor(experiment_data: ExperimentData, index: int = -1) -> DataProce
             restless = True
 
     if meas_level == MeasLevel.CLASSIFIED and not init_qubits and memory and restless:
-        processor = DataProcessor(
+        return DataProcessor(
             "memory",
             [
                 nodes.RestlessToCounts(header={"memory_slots": num_qubits}),
