@@ -143,6 +143,11 @@ class FakeService(DatabaseServiceV1):
         # (i.e., root experiments)
         if parent_id is not None:
             df = df.loc[df["parent_id"] == parent_id]
+
+        # Waiting for consistency between provider service and qiskit-experiments service,
+        # currently they have different types for `device_components`
+        if device_components is not None:
+            raise ValueError("The fake service currently does not support filtering on device components")
             
         return df.to_dict("records")
 
