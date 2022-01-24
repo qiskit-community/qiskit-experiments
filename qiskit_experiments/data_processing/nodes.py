@@ -386,6 +386,7 @@ class ToAbs(IQPart):
         Returns:
             A N-1 dimensional array, each entry is the absolute value of the given IQ data.
         """
+        # pylint: disable=no-member
         return unp.sqrt(data[..., 0] ** 2 + data[..., 1] ** 2) * self.scale
 
 

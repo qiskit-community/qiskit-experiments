@@ -78,8 +78,8 @@ class ResonatorSpectroscopy(Spectroscopy):
     def __init__(
         self,
         qubit: int,
-        frequencies: Iterable[float],
         backend: Optional[Backend] = None,
+        frequencies: Optional[Iterable[float]] = None,
         absolute: bool = True,
         **experiment_options,
     ):
@@ -94,13 +94,30 @@ class ResonatorSpectroscopy(Spectroscopy):
 
         Args:
             qubit: The qubit on which to run readout spectroscopy.
-            frequencies: The frequencies to scan in the experiment, in Hz.
             backend: Optional, the backend to run the experiment on.
+            frequencies: The frequencies to scan in the experiment, in Hz.
             absolute: Boolean to specify if the frequencies are absolute or relative to the
                 resonator frequency in the backend.
             experiment_options: Key word arguments used to set the experiment options.
+
+        Raises:
+            QiskitError: if no frequencies are given and absolute frequencies are desired and
+                no backend is given.
         """
         analysis = ResonatorSpectroscopyAnalysis()
+
+        if frequencies is None:
+            frequencies = np.linspace(-20.0, 20.0, 51)
+
+            if absolute:
+                if backend is None:
+                    raise QiskitError(
+                        "Cannot automatically compute absolute frequencies without a backend."
+                    )
+
+                center_freq = backend.defaults().meas_freq_est[qubit]
+                frequencies += center_freq
+
         super().__init__(qubit, frequencies, backend, absolute, analysis, **experiment_options)
 
     @property
