@@ -68,8 +68,6 @@ def get_processor(experiment_data: ExperimentData, index: int = -1) -> DataProce
             ],
         )
 
-        return processor
-
     if meas_level == MeasLevel.CLASSIFIED:
         return DataProcessor("counts", [nodes.Probability("1")])
 
