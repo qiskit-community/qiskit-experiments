@@ -100,22 +100,6 @@ class ResonatorSpectroscopy(Spectroscopy):
         """
         analysis = ResonatorSpectroscopyAnalysis()
         super().__init__(qubit, frequencies, backend, absolute, analysis, **experiment_options)
-        self._set_analysis_data_processor()
-
-    def _set_analysis_data_processor(self):
-        """Keep the data processor consistent with the run options."""
-        processor = get_processor(
-            self.run_options.meas_level,
-            self.run_options.meas_return,
-            self.analysis.options.normalization,
-            dimensionality_reduction=ProjectorType.ABS,
-        )
-        self.analysis.set_options(data_processor=processor)
-
-    def set_run_options(self, **fields):
-        """Wrap set run options to keep the data processor consistent."""
-        super().set_run_options(**fields)
-        self._set_analysis_data_processor()
 
     @property
     def _backend_center_frequency(self) -> float:
