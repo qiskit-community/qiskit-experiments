@@ -47,7 +47,7 @@ class ResonatorSpectroscopyBackend(MockIQBackend):
         freq_shift = next(iter(circuit.calibrations["measure"].values())).blocks[0].frequency
         delta_freq = freq_shift - self._freq_offset
 
-        return (0.5 * self._linewidth ** 2 / np.pi) / (
+        return (0.5 * (self._linewidth / 2) ** 2 ) / (
             delta_freq ** 2 + (0.5 * self._linewidth) ** 2
         )
 
