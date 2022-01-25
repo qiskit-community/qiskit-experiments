@@ -1,4 +1,9 @@
 ---
+fixes:
+  - |
+    The ResonanceAnalysis class has been switched from a Gaussian fit to a Lorentzian
+    fit function. Furthermore, the Gaussian fitting capability is preserved by moving
+    the Gaussian fitting to a new class called GaussianAnalysis.
 features:
   - |
     This change introduces the new experiment
