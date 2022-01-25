@@ -92,7 +92,8 @@ class ResonatorSpectroscopy(Spectroscopy):
         absolute: bool = True,
         **experiment_options,
     ):
-        """
+        """Initialize a resonator spectroscopy experiment.
+        
         A spectroscopy experiment run by setting the frequency of the readout drive.
         The parameters of the GaussianSquare spectroscopy pulse can be specified at run-time
         through the experiment options.
@@ -100,9 +101,12 @@ class ResonatorSpectroscopy(Spectroscopy):
         Args:
             qubit: The qubit on which to run readout spectroscopy.
             backend: Optional, the backend to run the experiment on.
-            frequencies: The frequencies to scan in the experiment, in Hz.
+            frequencies: The frequencies to scan in the experiment, in Hz. The default values
+                range from -20 MHz to 20 MHz in 51 steps. If the ``absolute`` variable is
+                set to True then a center frequency obtained from the backend's defaults is
+                added to each value of this range.
             absolute: Boolean to specify if the frequencies are absolute or relative to the
-                resonator frequency in the backend.
+                resonator frequency in the backend. The default value is True.
             experiment_options: Key word arguments used to set the experiment options.
 
         Raises:
