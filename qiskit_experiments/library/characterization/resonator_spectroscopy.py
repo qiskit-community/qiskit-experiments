@@ -41,11 +41,13 @@ class ResonatorSpectroscopy(Spectroscopy):
             c: 1/═╩═
                   0
 
-        where a spectroscopy pulse is attached to the measurement instruction. When doing
-        readout resonator spectroscopy, each measured IQ point has a frequency dependent
-        phase. Close to the resonance, the IQ points start rotating around in the IQ plan.
-        This effect must be accounted for in the data processing to produce a meaningful
-        signal.
+        where a spectroscopy pulse is attached to the measurement instruction.
+
+        Side note: when doing readout resonator spectroscopy, each measured IQ point has a
+        frequency dependent phase. Close to the resonance, the IQ points start rotating around
+        in the IQ plan. This effect must be accounted for in the data processing to produce a
+        meaningful signal. The default data processing workflow will therefore reduce the two-
+        dimensional IQ data to one-dimensional data using the magnitude of each IQ point.
 
     # section: analysis_ref
         :py:class:`ResonatorSpectroscopyAnalysis`
