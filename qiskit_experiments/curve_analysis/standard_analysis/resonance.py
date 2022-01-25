@@ -31,7 +31,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
 
         .. math::
 
-            F(x) = \frac{a}{2\pi} \frac{\gamma}{(x - x0)^2 + (\gamma/2)^2} + b
+            F(x) = a \frac{(\gamma/2)^2}{(x - x0)^2 + (\gamma/2)^2} + b
 
     Fit Parameters
         - :math:`a`: Peak height.
@@ -63,7 +63,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
                 x, amp=a, gamma=gamma, x0=freq, baseline=b
             ),
             plot_color="blue",
-            model_description=r"a\gamma/(2\pi) / ((x - x0)^2 + (\gamma/2)^2) + b",
+            model_description=r"a (\gamma/2)^2 / ((x - x0)^2 + (\gamma/2)^2) + b",
         )
     ]
 
@@ -105,7 +105,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
         fwhm = curve.guess.full_width_half_max(curve_data.x, y_, peak_idx)
 
         user_opt.p0.set_if_empty(
-            a=curve_data.y[peak_idx] - user_opt.p0["b"],
+            a=(curve_data.y[peak_idx] - user_opt.p0["b"]),
             freq=curve_data.x[peak_idx],
             gamma=fwhm,
         )

@@ -161,9 +161,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         if dt is None or granularity is None:
             raise QiskitError(f"{self.__class__.__name__} needs both dt and sample granularity.")
 
-        acq_dur = int(
-            granularity * (self.experiment_options.acquire_duration / dt // granularity)
-        )
+        acq_dur = int(granularity * (self.experiment_options.acquire_duration / dt // granularity))
         acq_del = int(granularity * (self.experiment_options.acquire_delay / dt // granularity))
         duration = int(granularity * (self.experiment_options.duration / dt // granularity))
         sigma = granularity * (self.experiment_options.sigma / dt // granularity)
@@ -186,7 +184,9 @@ class ResonatorSpectroscopy(Spectroscopy):
             )
 
             with pulse.align_left():
-                pulse.delay(acq_del, pulse.AcquireChannel(qubit))
+                if acq_del != 0:
+                    pulse.delay(acq_del, pulse.AcquireChannel(qubit))
+
                 pulse.acquire(acq_dur, qubit, pulse.MemorySlot(0))
 
         return schedule, freq_param
