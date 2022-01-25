@@ -334,7 +334,8 @@ class TestRestless(QiskitExperimentsTestCase):
         """Test that a single-qubit restless memory is correctly post-processed.
         This example corresponds to running an X gate and a SX gate with four shots
         in an ideal restless setting."""
-        node = RestlessToCounts(header={"memory_slots": 1})
+        n_qubits = 1
+        node = RestlessToCounts(n_qubits)
 
         data = [["0x1", "0x1", "0x0", "0x0"], ["0x0", "0x1", "0x1", "0x0"]]
         processed_data = node(data=np.array(data))
@@ -351,7 +352,8 @@ class TestRestless(QiskitExperimentsTestCase):
         This example corresponds to running two two-qubit circuits in an ideal restless setting.
         The first circuit applies an X gate to the first and a SX gate to the second qubit. The
         second circuit applies two identity gates."""
-        node = RestlessToCounts(header={"memory_slots": 2})
+        n_qubits = 2
+        node = RestlessToCounts(n_qubits)
 
         data = [["0x3", "0x1", "0x2", "0x0"], ["0x3", "0x1", "0x2", "0x0"]]
         processed_data = node(data=np.array(data))

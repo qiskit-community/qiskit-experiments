@@ -664,7 +664,7 @@ class RestlessToCounts(RestlessNode):
             validate: If set to False the DataAction will not validate its input.
         """
         super().__init__(validate)
-        self._header = {"memory_slots": num_qubits}
+        self._num_qubits = num_qubits
 
     def _process(self, data: np.array) -> np.array:
         """Reorder the shots and assign values to them based on the previous outcome.
@@ -681,11 +681,11 @@ class RestlessToCounts(RestlessNode):
 
         # Step 2. Do the restless classification into counts.
         counts = [defaultdict(int) for _ in range(self._n_circuits)]
-        n_qubits = self._header.get("memory_slots")
-        prev_shot = "0" * n_qubits
+        prev_shot = "0" * self._num_qubits
+        header = {"memory_slots": self._num_qubits}
 
         for idx, shot in enumerate(memory):
-            shot = format_counts_memory(shot, self._header)
+            shot = format_counts_memory(shot, header)
 
             restless_adjusted_shot = RestlessToCounts._restless_classify(shot, prev_shot)
 
