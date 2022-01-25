@@ -84,7 +84,7 @@ class HeatElement(BaseExperiment):
         meas_circ: QuantumCircuit,
         backend: Optional[Backend] = None,
         parameter_name: Optional[str] = "d_theta",
-        **kwargs
+        **kwargs,
     ):
         """Create new HEAT sub experiment.
 
@@ -100,9 +100,7 @@ class HeatElement(BaseExperiment):
             See :meth:`experiment_options` for details.
         """
         analysis = HeatElementAnalysis()
-        analysis.set_options(
-            result_parameters=[ParameterRepr("d_theta", parameter_name, "rad")]
-        )
+        analysis.set_options(result_parameters=[ParameterRepr("d_theta", parameter_name, "rad")])
 
         super().__init__(qubits=qubits, backend=backend, analysis=analysis)
         self.set_experiment_options(**kwargs)
@@ -135,7 +133,7 @@ class HeatElement(BaseExperiment):
 
         return options
 
-    def circuits(self, backend: Optional[Backend] = None) -> List[QuantumCircuit]:
+    def circuits(self) -> List[QuantumCircuit]:
         opt = self.experiment_options
 
         circs = list()

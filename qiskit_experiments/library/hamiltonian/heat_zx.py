@@ -31,20 +31,21 @@ class ZXHeat(BatchHeatHelper):
         ZX-type generator, a typical Hamiltonian implemented
         by a cross resonance drive, which is a foundation of the CNOT gate.
 
-        The preparation circuit locks target qubit state along X-axis,
-        in which the state is insensitive to the controlled X rotation
-        imposed by the drive with the ZX-type generator.
-
         The echo circuit refocuses ZX rotation to identity (II) then applies
         a pi-pulse along the interrogated error axis. X error and Y error are
-        amplified outward the X-Y plane to draw a ping-pong pattern with the
+        amplified outward the X-Y plane to draw a ping-pong pattern with
         state flip by the pi-pulse echo, while Z error is amplified outward
         the X-Z plane in the same manner.
-        Measurement is projected onto Y-axis in this case.
-        Because the echoing axis are anti-commute with other Pauli terms,
-        errors in other axes are cancelled out to reduce rotation
-        in the interrogated axis.
+        Measurement is projected onto Y-axis in this setup.
+        Because the echoed axis are anti-commute with other Pauli terms,
+        errors in other axes are cancelled out to reduce rotation in the interrogated axis.
         This enables to selectively amplify the Hamiltonian dynamics in the specific axis.
+        Note that we have always nonzero X rotation imparted by the significant ZX term,
+        the error along Y and Z axis are skewed by the nonzero commutator term.
+        This yields slight mismatch in the estimated coefficients with the generator Hamiltonian,
+        however this matters less when the expected magnitude of the error is small.
+        On the other hand, the error in the X axis is straightforward
+        because this is commute with the ZX term of the generator.
 
         .. parsed-literal::
                              (xN)
@@ -80,7 +81,7 @@ class ZXHeat(BatchHeatHelper):
         ZX(angle) evolution otherwise selective amplification doesn't work properly.
 
     # section: see_also
-        HeatElement
+        qiskit_experiments.library.hamiltonian.HeatElement
 
     # section: analysis_ref
         :py:class:`HeatAnalysis`
@@ -94,7 +95,7 @@ class ZXHeat(BatchHeatHelper):
         qubits: Tuple[int, int],
         error_axis: str,
         backend: Optional[Backend] = None,
-        angle: Optional[float] = np.pi/2,
+        angle: Optional[float] = np.pi / 2,
     ):
         """Create new HEAT experiment for the entangler of ZX generator.
 
@@ -104,6 +105,9 @@ class ZXHeat(BatchHeatHelper):
                 either one of "x", "y", "z".
             backend: Optional, the backend to run the experiment on.
             angle: Angle of controlled rotation, which defaults to pi/2.
+
+        Raises:
+            ValueError: When ``error_axis`` is not one of "x", "y", "z".
         """
 
         amplification_exps = []
@@ -119,15 +123,15 @@ class ZXHeat(BatchHeatHelper):
                 echo.rx(-angle, 1)
 
             if error_axis == "x":
-                prep.rx(np.pi/2, 1)
+                prep.rx(np.pi / 2, 1)
                 echo.rx(np.pi, 1)
             elif error_axis == "y":
-                prep.ry(np.pi/2, 1)
+                prep.ry(np.pi / 2, 1)
                 echo.ry(np.pi, 1)
             elif error_axis == "z":
-                prep.ry(np.pi/2, 1)
+                prep.ry(np.pi / 2, 1)
                 echo.rz(np.pi, 1)
-                meas.rx(-np.pi/2, 1)
+                meas.rx(-np.pi / 2, 1)
             else:
                 raise ValueError(f"Invalid error term {error_axis}.")
 
@@ -146,7 +150,7 @@ class ZXHeat(BatchHeatHelper):
             out_params=[f"A_I{error_axis.upper()}", f"A_Z{error_axis.upper()}"],
         )
 
-        super(ZXHeat, self).__init__(
+        super().__init__(
             heat_experiments=amplification_exps,
             heat_analysis=analysis,
             backend=backend,
@@ -157,16 +161,16 @@ class ZX90HeatXError(ZXHeat):
     """HEAT experiment for X error amplification for ZX(pi/2) Hamiltonian.
 
     # section: see_also
-        ZXHeat
+        qiskit_experiments.library.hamiltonian.ZXHeat
     """
 
-    def __init__(self, qubits: [int, int], backend: Optional[Backend] = None):
+    def __init__(self, qubits: Tuple[int, int], backend: Optional[Backend] = None):
         """Create new experiment.
 
-            qubits: Index of control and target qubit, respectively.
-            backend: Optional, the backend to run the experiment on.
+        qubits: Index of control and target qubit, respectively.
+        backend: Optional, the backend to run the experiment on.
         """
-        super(ZX90HeatXError, self).__init__(
+        super().__init__(
             qubits=qubits,
             error_axis="x",
             backend=backend,
@@ -178,20 +182,20 @@ class ZX90HeatYError(ZXHeat):
     """HEAT experiment for Y error amplification for ZX(pi/2) Hamiltonian.
 
     # section: see_also
-        ZXHeat
+        qiskit_experiments.library.hamiltonian.ZXHeat
     """
 
-    def __init__(self, qubits: [int, int], backend: Optional[Backend] = None):
+    def __init__(self, qubits: Tuple[int, int], backend: Optional[Backend] = None):
         """Create new experiment.
 
-            qubits: Index of control and target qubit, respectively.
-            backend: Optional, the backend to run the experiment on.
+        qubits: Index of control and target qubit, respectively.
+        backend: Optional, the backend to run the experiment on.
         """
-        super(ZX90HeatYError, self).__init__(
+        super().__init__(
             qubits=qubits,
             error_axis="y",
             backend=backend,
-            angle=np.pi/2,
+            angle=np.pi / 2,
         )
 
 
@@ -199,16 +203,16 @@ class ZX90HeatZError(ZXHeat):
     """HEAT experiment for Z error amplification for ZX(pi/2) Hamiltonian.
 
     # section: see_also
-        ZXHeat
+        qiskit_experiments.library.hamiltonian.ZXHeat
     """
 
-    def __init__(self, qubits: [int, int], backend: Optional[Backend] = None):
+    def __init__(self, qubits: Tuple[int, int], backend: Optional[Backend] = None):
         """Create new experiment.
 
-            qubits: Index of control and target qubit, respectively.
-            backend: Optional, the backend to run the experiment on.
+        qubits: Index of control and target qubit, respectively.
+        backend: Optional, the backend to run the experiment on.
         """
-        super(ZX90HeatZError, self).__init__(
+        super().__init__(
             qubits=qubits,
             error_axis="z",
             backend=backend,

@@ -86,8 +86,11 @@ class HeatAnalysis(CompositeAnalysis):
         Args:
             fit_params: Name of error parameters for each amplification sequence.
             out_params: Name of Hamiltonian coefficients.
+
+        Raises:
+            AnalysisError: When size of ``fit_params`` or ``out_params`` are not 2.
         """
-        super(HeatAnalysis, self).__init__()
+        super().__init__()
 
         if len(fit_params) != 2:
             raise AnalysisError(
@@ -113,9 +116,7 @@ class HeatAnalysis(CompositeAnalysis):
         # extract d_theta parameters
         fit_results = []
         for i, pname in enumerate(self.fit_params):
-            fit_results.append(
-                experiment_data.child_data(i).analysis_results(pname)
-            )
+            fit_results.append(experiment_data.child_data(i).analysis_results(pname))
 
         # Check data quality
         is_good_quality = all(r.quality == "good" for r in fit_results)
@@ -125,9 +126,7 @@ class HeatAnalysis(CompositeAnalysis):
         zb = (fit_results[0].value.value - fit_results[1].value.value) / 2
 
         # Compute new variance
-        sigma = np.sqrt(
-            fit_results[0].value.stderr ** 2 + fit_results[1].value.stderr ** 2
-        )
+        sigma = np.sqrt(fit_results[0].value.stderr ** 2 + fit_results[1].value.stderr ** 2)
 
         estimate_ib = AnalysisResultData(
             name=self.out_params[0],

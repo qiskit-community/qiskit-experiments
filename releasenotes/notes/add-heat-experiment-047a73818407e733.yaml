@@ -2,15 +2,17 @@
 features:
   - |
     New experiment module :mod:`qiskit_experiments.library.hamiltonian`
-    is added. This module contains experiments to characterize low level
+    has been added. This module collects experiments to characterize low level
     system properties, such as device Hamiltonian.
   - |
     The `Hamiltonian Error Amplifying Tomography` (HEAT) experiment has been
     added. This experiment consists of the base class
     :class:`~qiskit_experiments.library.hamiltonian.BatchHeatHelper`
     and :class:`~qiskit_experiments.library.hamiltonian.HeatElement`
-    for the experiment developers to implement HEAT experiment
+    for the experiment developers to implement own HEAT experiment
     for arbitrary generator and for specific interrogated error axis.
+    This can be realized by designing proper initialization circuit,
+    echo sequence, and measurement axis against the interrogated error axis.
 
     The HEAT experiment specific to the ZX-type generator
     :class:`~qiskit_experiments.library.hamiltonian.ZXHeat` is also added
