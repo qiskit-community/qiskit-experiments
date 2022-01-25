@@ -109,21 +109,6 @@ class Spectroscopy(BaseExperiment, ABC):
         which depends on the nature of the spectroscopy experiment.
         """
 
-    @property
-    def center_frequency(self) -> float:
-        """The center frequency of the spectroscopy experiment.
-
-        Returns:
-            The center frequency in absolute terms. If the experiment is running in absolute mode
-            then we return the mid-point of the frequency range. However, if the experiment is
-            running in relative mode then we return the frequency of the backend with respect to
-            which the relative shift is applied.
-        """
-        if self._absolute:
-            return (max(self._frequencies) - min(self._frequencies)) / 2
-        else:
-            return self._backend_center_frequency
-
     def _add_metadata(self, circuit: QuantumCircuit, freq: float, sched: pulse.ScheduleBlock):
         """Helper method to add the metadata to avoid code duplication with subclasses."""
 
