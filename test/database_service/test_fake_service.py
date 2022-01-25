@@ -43,7 +43,7 @@ class TestFakeService(QiskitExperimentsTestCase):
                         expentry["device_components"] = [0, 1]
                     else:
                         expentry["device_components"] = []
-                    expentry["timestamp"] = datetime(2022, 1, 1, expid)
+                    expentry["start_datetime"] = datetime(2022, 1, 1, expid)
                     self.expdict[str(expid)] = expentry
                     expid += 1
 

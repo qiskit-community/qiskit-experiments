@@ -80,7 +80,7 @@ class FakeService(DatabaseServiceV1):
             "notes": notes,
             "share_level": kwargs.get("share_level", None),
             "device_components": [],
-            "timestamp": datetime(2022, 1, 1) + timedelta(hours=len(self.exps))
+            "start_datetime": datetime(2022, 1, 1) + timedelta(hours=len(self.exps))
         }, ignore_index=True)
 
         return experiment_id
