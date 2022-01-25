@@ -77,6 +77,17 @@ def gaussian(
     return amp * np.exp(-((x - x0) ** 2) / (2 * sigma ** 2)) + baseline
 
 
+def lorentzian(
+    x: np.ndarray, amp: float = 1.0, gamma: float = 1.0, x0: float = 0.0, baseline: float = 0.0
+) -> np.ndarry:
+    r"""Lorentzian function
+
+    .. math::
+        y = \frac{\rm amp}{2\pi}\frac{\gamma}{(x - x0)^2 + (\gamma/2)^2} + {\rm baseline}
+    """
+    return amp * gamma / ((x - x0) ** 2 + (gamma / 2) ** 2) / (2 * np.pi) + baseline
+
+
 def cos_decay(
     x: np.ndarray,
     amp: float = 1.0,
