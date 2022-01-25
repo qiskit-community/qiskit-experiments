@@ -1,8 +1,8 @@
 ---
-name: "\U0001F41B Bug report"
-about: "Create a report to help us improve \U0001F914."
+name: "\U0001F41B New experiment proposal"
+about: "Proposal and workflow guideline for adding a new experiment \U0001F914."
 title: ''
-labels: bug
+labels: enhancement
 assignees: ''
 
 ---
@@ -73,9 +73,9 @@ folder.
 - [ ] Implement unit testing for the experiment and analysis classes. If needed add a mock-backend for your experiment
 - [ ] Ask for a detailed implementation review
 - [ ] Check that your experiment runs properly on a real device and that the results make sense
-- [ ] 
+- [ ] [TODO]: more manual testing here 
 - [ ] Write API docs for all your API methods. Follow the guideline here [TODO]
-- [ ] Write a tutorial for your experiment. Follow the guidelien here [TODO]
+- [ ] Write a tutorial for your experiment. Follow the guideline here [TODO]
 - [ ] Ask for a documentation ane final reviews 
 
   
