@@ -100,7 +100,6 @@ class Spectroscopy(BaseExperiment, ABC):
         else:
             self.analysis.set_options(xlabel="Frequency")
 
-        self.analysis.set_options(ylabel="Signal [arb. unit]")
         self.set_experiment_options(**experiment_options)
 
     @property
