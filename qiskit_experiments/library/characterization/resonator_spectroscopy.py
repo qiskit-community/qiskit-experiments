@@ -58,18 +58,25 @@ class ResonatorSpectroscopy(Spectroscopy):
     def _default_experiment_options(cls) -> Options:
         """Default option values used for the spectroscopy pulse.
 
+        All units of the resonator spectroscopy experiment are given in seconds.
+
         Experiment Options:
             amp (float): The amplitude of the spectroscopy pulse. Defaults to 1 and must
                 be between 0 and 1.
-            acquisition_duration (int): The duration of the acquisition instruction. By default
-                is lasts 1024 samples, i.e. the same duration as the measurement pulse.
+            acquire_duration (float): The duration of the acquisition instruction. By
+                default is lasts 240 ns, i.e. the same duration as the measurement pulse.
+            acquire_delay (float): The duration by which to delay the acquire instruction
+                with respect to the measurement pulse.
+            duration (float): The duration in seconds of the spectroscopy pulse.
+            sigma (float): The standard deviation of the spectroscopy pulse in seconds.
+            width (float): The width of the flat-top part of the GaussianSquare pulse in
+                seconds. Defaults to 0.
         """
         options = super()._default_experiment_options()
 
         options.amp = 1
         options.acquire_duration = 240e-9
         options.acquire_delay = 0
-        options.unit = "s"
         options.duration = 240e-9
         options.sigma = 60e-9
 
@@ -85,12 +92,8 @@ class ResonatorSpectroscopy(Spectroscopy):
     ):
         """
         A spectroscopy experiment run by setting the frequency of the readout drive.
-        The parameters of the GaussianSquare spectroscopy pulse can be specified at run-time.
-        The spectroscopy pulse has the following parameters:
-        - amp: The amplitude of the pulse must be between 0 and 1, the default is 0.1.
-        - duration: The duration of the spectroscopy pulse in samples, the default is 1000 samples.
-        - sigma: The standard deviation of the pulse, the default is duration / 4.
-        - width: The width of the flat-top in the pulse, the default is 0, i.e. a Gaussian.
+        The parameters of the GaussianSquare spectroscopy pulse can be specified at run-time
+        through the experiment options.
 
         Args:
             qubit: The qubit on which to run readout spectroscopy.
@@ -145,34 +148,20 @@ class ResonatorSpectroscopy(Spectroscopy):
     def _schedule(self) -> Tuple[pulse.ScheduleBlock, Parameter]:
         """Create the spectroscopy schedule."""
 
-        unit = self.experiment_options.unit
-        if unit not in ["s", "dt"]:
-            raise QiskitError(f"Unrecognized unit: {unit}.")
+        dt = getattr(self.backend.configuration(), "dt", None)
+        constraints = getattr(self.backend.configuration(), "timing_constraints", {})
+        granularity = constraints.get("granularity", None)
 
-        if unit == "s":
-            dt = getattr(self.backend.configuration(), "dt", None)
-            constraints = getattr(self.backend.configuration(), "timing_constraints", {})
-            granularity = constraints.get("granularity", None)
+        if dt is None or granularity is None:
+            raise QiskitError(f"{self.__class__.__name__} needs both dt and sample granularity.")
 
-            if dt is None or granularity is None:
-                raise QiskitError(
-                    f"{self.__class__.__name__} requires both dt and sample granularity if "
-                    f"units are s. Founds {dt} and {granularity}, respectively."
-                )
-
-            acq_dur = int(
-                granularity * (self.experiment_options.acquire_duration / dt // granularity)
-            )
-            acq_del = int(granularity * (self.experiment_options.acquire_delay / dt // granularity))
-            duration = int(granularity * (self.experiment_options.duration / dt // granularity))
-            sigma = granularity * (self.experiment_options.sigma / dt // granularity)
-            width = granularity * (self.experiment_options.width / dt // granularity)
-        else:
-            acq_dur = self.experiment_options.acquire_duration
-            acq_del = self.experiment_options.acquire_delay
-            duration = self.experiment_options.duration
-            sigma = self.experiment_options.sigma
-            width = self.experiment_options.width
+        acq_dur = int(
+            granularity * (self.experiment_options.acquire_duration / dt // granularity)
+        )
+        acq_del = int(granularity * (self.experiment_options.acquire_delay / dt // granularity))
+        duration = int(granularity * (self.experiment_options.duration / dt // granularity))
+        sigma = granularity * (self.experiment_options.sigma / dt // granularity)
+        width = granularity * (self.experiment_options.width / dt // granularity)
 
         qubit = self.physical_qubits[0]
 
