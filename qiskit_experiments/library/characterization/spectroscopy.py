@@ -95,11 +95,6 @@ class Spectroscopy(BaseExperiment, ABC):
         self._frequencies = frequencies
         self._absolute = absolute
 
-        if not self._absolute:
-            self.analysis.set_options(xlabel="Frequency shift")
-        else:
-            self.analysis.set_options(xlabel="Frequency")
-
         self.set_experiment_options(**experiment_options)
 
     @property
@@ -131,6 +126,10 @@ class Spectroscopy(BaseExperiment, ABC):
 
     def _add_metadata(self, circuit: QuantumCircuit, freq: float, sched: pulse.ScheduleBlock):
         """Helper method to add the metadata to avoid code duplication with subclasses."""
+
+        if not self._absolute:
+            freq += self._backend_center_frequency
+
         circuit.metadata = {
             "experiment_type": self._type,
             "qubits": self.physical_qubits,
