@@ -118,7 +118,7 @@ class FakeService(DatabaseServiceV1):
         Returns:
             A dictionary containing the retrieved experiment data.
         """
-        db_entry = self.exps.loc[lambda df: df.experiment_id == experiment_id].to_dict("records")[0]
+        db_entry = self.exps.loc[self.exps.experiment_id == experiment_id].to_dict("records")[0]
         db_entry["backend"] = FakeBackend(db_entry["backend_name"])
         return db_entry
 
@@ -137,7 +137,7 @@ class FakeService(DatabaseServiceV1):
         df = self.exps
         
         if experiment_type is not None:
-            df = df.loc[df.experiment_type ==  experiment_type]
+            df = df.loc[df.experiment_type == experiment_type]
 
         # TODO: do we have to return the backend itself, as in `experiment`?
         if backend_name is not None:
@@ -189,7 +189,7 @@ class FakeService(DatabaseServiceV1):
             "quality": quality,
             "verified": verified,
             "tags": tags,
-            "backend_name": self.exps.loc[lambda df: df.experiment_id == experiment_id].iloc[0].backend_name
+            "backend_name": self.exps.loc[self.exps.experiment_id == experiment_id].iloc[0].backend_name
         }, ignore_index=True)
 
         def add_new_components(expcomps):
@@ -197,7 +197,7 @@ class FakeService(DatabaseServiceV1):
                 if dc not in expcomps:
                     expcomps.append(dc)
 
-        self.exps[self.exps.experiment_id==experiment_id].device_components.apply(add_new_components)
+        self.exps.loc[self.exps.experiment_id==experiment_id, "device_components"].apply(add_new_components)
 
         return result_id
 
@@ -231,7 +231,7 @@ class FakeService(DatabaseServiceV1):
         tags_operator: Optional[str] = "OR",
         **filters: Any,
     ) -> List[Dict]:
-        return self.results.loc[lambda df: df.experiment_id == experiment_id].to_dict("records")
+        return self.results.loc[self.results.experiment_id == experiment_id].to_dict("records")
 
     def delete_analysis_result(self, result_id: str) -> None:
         raise Exception("not implemented")
