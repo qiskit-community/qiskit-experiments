@@ -69,10 +69,6 @@ class FakeService(DatabaseServiceV1):
         if experiment_id is None:
             raise ValueError("The fake service requires the experiment id parameter")
         
-        time_field = datetime(2022, 1, 1)
-        if experiment_id.isdigit():
-            time_field += timedelta(hours=int(experiment_id))
-    
         self.exps = self.exps.append({ 
             "experiment_type": experiment_type,
             "experiment_id": experiment_id,
@@ -84,7 +80,7 @@ class FakeService(DatabaseServiceV1):
             "notes": notes,
             "share_level": kwargs.get("share_level", None),
             "device_components": [],
-            "timestamp": time_field
+            "timestamp": datetime(2022, 1, 1) + timedelta(hours=len(self.exps))
         }, ignore_index=True)
 
         return experiment_id
