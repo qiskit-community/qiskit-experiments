@@ -105,11 +105,13 @@ class Spectroscopy(BaseExperiment, ABC):
     @property
     @abstractmethod
     def _backend_center_frequency(self) -> float:
-        """Return the center frequency when running absolute frequencies.
+        """The default frequency for the channel of the spectroscopy pulse.
 
-        Spectroscopy experiments should implement schedules using frequency shifts. Therefore,
-        if an absolute frequency range is given the frequency shifts need to be correct by the
-        center frequency which depends on the nature of the spectroscopy experiment.
+        This frequency is used to calculate the appropriate frequency shifts to apply to the
+        spectroscopy pulse as its frequency is scanned in the experiment. Spectroscopy experiments
+        should implement schedules using frequency shifts. Therefore, if an absolute frequency
+        range is given the frequency shifts need to be corrected by the backend default frequency
+        which depends on the nature of the spectroscopy experiment.
         """
 
     @property

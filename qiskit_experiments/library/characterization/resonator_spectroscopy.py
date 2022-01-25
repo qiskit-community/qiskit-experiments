@@ -93,7 +93,7 @@ class ResonatorSpectroscopy(Spectroscopy):
         **experiment_options,
     ):
         """Initialize a resonator spectroscopy experiment.
-        
+
         A spectroscopy experiment run by setting the frequency of the readout drive.
         The parameters of the GaussianSquare spectroscopy pulse can be specified at run-time
         through the experiment options.
