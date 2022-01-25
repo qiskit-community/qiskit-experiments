@@ -161,6 +161,11 @@ class FakeService(DatabaseServiceV1):
                 df = df.loc[df.tags.apply(lambda dftags: all([x in dftags for x in tags]))]
             else:
                 raise ValueError("Unrecognized tags operator")
+
+        if "start_datetime_before" in filters:
+            df = df.loc[df.start_datetime <= filters["start_datetime_before"]]
+        if "start_datetime_after" in filters:
+            df = df.loc[df.start_datetime >= filters["start_datetime_after"]]    
             
         return df.to_dict("records")
 
