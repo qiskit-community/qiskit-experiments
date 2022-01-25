@@ -52,7 +52,8 @@ class ResonatorSpectroscopyAnalysis(ResonanceAnalysis):
 
                     # Average single-shot data.
                     if len(mem.shape) == 3:
-                        iqs.append(np.average(mem.reshape(mem.shape[0], mem.shape[2]), axis=0))
+                        for idx in range(mem.shape[1]):
+                            iqs.append(np.average(mem[:, idx, :], axis=0))
 
             if len(iqs) > 0:
                 iqs = np.array(iqs)
