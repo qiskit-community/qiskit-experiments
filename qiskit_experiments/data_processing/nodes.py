@@ -13,6 +13,7 @@
 """Different data analysis steps."""
 
 from abc import abstractmethod
+from enum import Enum
 from numbers import Number
 from typing import List, Union, Sequence
 
@@ -571,3 +572,12 @@ class BasisExpectationValue(DataAction):
             The data that has been processed.
         """
         return 2 * (0.5 - data)
+
+
+class ProjectorType(Enum):
+    """Types of projectors for data dimensionality reduction."""
+
+    SVD = SVD
+    ABS = ToAbs
+    REAL = ToReal
+    IMAG = ToImag

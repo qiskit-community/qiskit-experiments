@@ -12,23 +12,13 @@
 
 """A collection of functions that return various data processors."""
 
-from enum import Enum
-
 from qiskit.qobj.utils import MeasLevel, MeasReturnType
 
 from qiskit_experiments.framework import ExperimentData, Options
 from qiskit_experiments.data_processing.exceptions import DataProcessorError
 from qiskit_experiments.data_processing.data_processor import DataProcessor
+from qiskit_experiments.data_processing.nodes import ProjectorType
 from qiskit_experiments.data_processing import nodes
-
-
-class ProjectorType(Enum):
-    """Types of projectors for data dimensionality reduction."""
-
-    SVD = nodes.SVD
-    ABS = nodes.ToAbs
-    REAL = nodes.ToReal
-    IMAG = nodes.ToImag
 
 
 def get_processor(
