@@ -47,7 +47,7 @@ class SpectroscopyBackend(MockIQBackend):
         """Returns the probability based on the frequency."""
         freq_shift = next(iter(circuit.calibrations["Spec"]))[1][0]
         delta_freq = freq_shift - self._freq_offset
-        return np.exp(-(delta_freq ** 2) / (2 * self._linewidth ** 2))
+        return (0.5 * (self._linewidth / 2) ** 2) / (delta_freq ** 2 + (0.5 * self._linewidth) ** 2)
 
 
 class TestQubitSpectroscopy(QiskitExperimentsTestCase):
