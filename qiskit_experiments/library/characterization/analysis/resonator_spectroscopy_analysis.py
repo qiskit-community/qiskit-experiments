@@ -30,7 +30,10 @@ class ResonatorSpectroscopyAnalysis(ResonanceAnalysis):
     def _default_options(cls):
         options = super()._default_options()
         options.dimensionality_reduction = ProjectorType.ABS
-        options.result_parameters = [curve.ParameterRepr("freq", "meas_freq", "Hz")]
+        options.result_parameters = [
+            curve.ParameterRepr("freq", "meas_freq", "Hz"),
+            curve.ParameterRepr("gamma", "kappa", "Hz"),
+        ]
         options.plot_iq_data = True
         return options
 
