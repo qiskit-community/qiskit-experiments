@@ -31,13 +31,13 @@ class ResonanceAnalysis(curve.CurveAnalysis):
 
         .. math::
 
-            F(x) = a \frac{(\gamma/2)^2}{(x - x0)^2 + (\gamma/2)^2} + b
+            F(x) = a{\rm abs}\left(\frac{1}{1 + 2i(x - x0)/\kappa}\right) + b
 
     Fit Parameters
         - :math:`a`: Peak height.
         - :math:`b`: Base line.
         - :math:`x0`: Center value. This is typically the fit parameter of interest.
-        - :math:`\gamma`: Linewidth.
+        - :math:`\kappa`: Linewidth.
 
     Initial Guesses
         - :math:`a`: Calculated by :func:`~qiskit_experiments.curve_analysis.guess.max_height`.
@@ -45,25 +45,25 @@ class ResonanceAnalysis(curve.CurveAnalysis):
           constant_spectral_offset`.
         - :math:`x0`: The max height position is calculated by the function
           :func:`~qiskit_experiments.curve_analysis.guess.max_height`.
-        - :math:`\gamma`: Calculated from FWHM of the peak using
+        - :math:`\kappa`: Calculated from FWHM of the peak using
           :func:`~qiskit_experiments.curve_analysis.guess.full_width_half_max`.
 
     Bounds
         - :math:`a`: [-2, 2] scaled with maximum signal value.
         - :math:`b`: [-1, 1] scaled with maximum signal value.
         - :math:`f`: [min(x), max(x)] of x-value scan range.
-        - :math:`\gamma`: [0, :math:`\Delta x`] where :math:`\Delta x`
+        - :math:`\kappa`: [0, :math:`\Delta x`] where :math:`\Delta x`
           represents the x-value scan range.
 
     """
 
     __series__ = [
         curve.SeriesDef(
-            fit_func=lambda x, a, gamma, freq, b: curve.fit_function.lorentzian(
-                x, amp=a, gamma=gamma, x0=freq, baseline=b
+            fit_func=lambda x, a, kappa, freq, b: curve.fit_function.lorentzian(
+                x, amp=a, kappa=kappa, x0=freq, baseline=b
             ),
             plot_color="blue",
-            model_description=r"a (\gamma/2)^2 / ((x - x0)^2 + (\gamma/2)^2) + b",
+            model_description=r"a (\kappa/2)^2 / ((x - x0)^2 + (\kappa/2)^2) + b",
         )
     ]
 
@@ -93,7 +93,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
 
         user_opt.bounds.set_if_empty(
             a=(-2 * max_abs_y, 2 * max_abs_y),
-            gamma=(0, np.ptp(curve_data.x)),
+            kappa=(0, np.ptp(curve_data.x)),
             freq=(min(curve_data.x), max(curve_data.x)),
             b=(-max_abs_y, max_abs_y),
         )
@@ -107,7 +107,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
         user_opt.p0.set_if_empty(
             a=(curve_data.y[peak_idx] - user_opt.p0["b"]),
             freq=curve_data.x[peak_idx],
-            gamma=fwhm,
+            kappa=fwhm,
         )
 
         return user_opt
@@ -123,7 +123,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
             - a signal-to-noise ratio, defined as the amplitude of the peak divided by the
               square root of the median y-value less the fit offset, greater than a
               threshold of two, and
-            - a standard error on the gamma of the Lorentzian that is smaller than the gamma.
+            - a standard error on the kappa of the Lorentzian that is smaller than the kappa.
         """
         curve_data = self._data()
 
@@ -134,18 +134,18 @@ class ResonanceAnalysis(curve.CurveAnalysis):
         fit_a = fit_data.fitval("a").value
         fit_b = fit_data.fitval("b").value
         fit_freq = fit_data.fitval("freq").value
-        fit_gamma = fit_data.fitval("gamma").value
-        fit_gamma_err = fit_data.fitval("gamma").stderr
+        fit_kappa = fit_data.fitval("kappa").value
+        fit_kappa_err = fit_data.fitval("kappa").stderr
 
         snr = abs(fit_a) / np.sqrt(abs(np.median(curve_data.y) - fit_b))
-        fit_width_ratio = fit_gamma / (max_freq - min_freq)
+        fit_width_ratio = fit_kappa / (max_freq - min_freq)
 
         criteria = [
             min_freq <= fit_freq <= max_freq,
-            1.5 * freq_increment < fit_gamma,
+            1.5 * freq_increment < fit_kappa,
             fit_width_ratio < 0.25,
             fit_data.reduced_chisq < 3,
-            (fit_gamma_err is None or fit_gamma_err < fit_gamma),
+            (fit_kappa_err is None or fit_kappa_err < fit_kappa),
             snr > 2,
         ]
 

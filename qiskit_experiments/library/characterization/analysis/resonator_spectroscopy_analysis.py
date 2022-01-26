@@ -32,7 +32,7 @@ class ResonatorSpectroscopyAnalysis(ResonanceAnalysis):
         options.dimensionality_reduction = ProjectorType.ABS
         options.result_parameters = [
             curve.ParameterRepr("freq", "res_freq0", "Hz"),
-            curve.ParameterRepr("gamma", "kappa", "Hz"),
+            curve.ParameterRepr("kappa", "kappa", "Hz"),
         ]
         options.plot_iq_data = True
         return options
