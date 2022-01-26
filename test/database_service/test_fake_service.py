@@ -114,8 +114,18 @@ class TestFakeService(QiskitExperimentsTestCase):
         self.assertTrue(len(expids)>0)
         self.assertEqual(expids, ref_expids)
 
-        expids = sorted([exp["experiment_id"] for exp in self.service.experiments(start_datetime_before=datetime(2022, 1, 1, 7), start_datetime_after=datetime(2022, 1, 1, 3))])
-        self.assertEqual(expids, ["3", "4", "5", "6", "7"])
+        expids = sorted([exp["experiment_id"] for exp in self.service.experiments(start_datetime_before=datetime(2022, 1, 1, 6), start_datetime_after=datetime(2022, 1, 1, 3))])
+        self.assertEqual(expids, ["3", "4", "5", "6"])
+
+        datetimes = [exp["start_datetime"] for exp in self.service.experiments()]
+        self.assertTrue(len(datetimes)>0)
+        for i in range(len(datetimes)-1):
+            self.assertTrue(datetimes[i] >= datetimes[i+1])
+
+        datetimes = [exp["start_datetime"] for exp in self.service.experiments(sort_by="start_datetime:asc")]
+        self.assertTrue(len(datetimes)>0)
+        for i in range(len(datetimes)-1):
+            self.assertTrue(datetimes[i] <= datetimes[i+1])
         
 
             

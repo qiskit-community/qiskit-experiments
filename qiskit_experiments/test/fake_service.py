@@ -162,10 +162,31 @@ class FakeService(DatabaseServiceV1):
             else:
                 raise ValueError("Unrecognized tags operator")
 
+        # These are parameters of IBMExperimentService.experiments
         if "start_datetime_before" in filters:
             df = df.loc[df.start_datetime <= filters["start_datetime_before"]]
         if "start_datetime_after" in filters:
-            df = df.loc[df.start_datetime >= filters["start_datetime_after"]]    
+            df = df.loc[df.start_datetime >= filters["start_datetime_after"]]
+
+        # This is a parameter of IBMExperimentService.experiments
+        if "sort_by" in filters:
+            sort_by = filters["sort_by"]
+        else:
+            sort_by = "start_datetime:desc"
+
+        if not isinstance(sort_by, list):
+            sort_by = [sort_by]
+            
+        # TODO: support also experiment_type
+        if len(sort_by) != 1:
+            raise ValueError("The fake service currently supports only sorting by start_datetime")
+
+        sortby_split = sort_by[0].split(":")
+        # TODO: support also experiment_type
+        if len(sortby_split) != 2 or sortby_split[0] != "start_datetime" or (sortby_split[1] != "asc" and sortby_split[1] != "desc"):
+            raise ValueError("The fake service currently supports only sorting by start_datetime, which can be either asc or desc")
+
+        df = df.sort_values(by="start_datetime", ascending=(sortby_split[1] == "asc"))
             
         return df.to_dict("records")
 
