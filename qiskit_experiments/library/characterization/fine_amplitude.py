@@ -12,7 +12,7 @@
 
 """Fine amplitude characterization experiment."""
 
-from typing import List, Optional
+from typing import List, Optional, Sequence, Union
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -114,15 +114,19 @@ class FineAmplitude(BaseExperiment):
 
         return options
 
-    def __init__(self, qubit: int, gate: Gate, backend: Optional[Backend] = None):
+    def __init__(self, qubits: Union[int, Sequence], gate: Gate, backend: Optional[Backend] = None):
         """Setup a fine amplitude experiment on the given qubit.
 
         Args:
-            qubit: The qubit on which to run the fine amplitude calibration experiment.
+            qubits: The qubit(s) on which to run the fine amplitude calibration experiment.
             gate: The gate that will be repeated.
             backend: Optional, the backend to run the experiment on.
         """
-        super().__init__([qubit], analysis=FineAmplitudeAnalysis(), backend=backend)
+
+        if not isinstance(qubits, Sequence):
+            qubits = [qubits]
+
+        super().__init__(qubits, analysis=FineAmplitudeAnalysis(), backend=backend)
         self.set_experiment_options(gate=gate)
 
     def _pre_circuit(self) -> QuantumCircuit:
@@ -131,12 +135,19 @@ class FineAmplitude(BaseExperiment):
         This method can be overridden by subclasses e.g. to calibrate gates on
         transitions other than the 0 <-> 1 transition.
         """
-        circuit = QuantumCircuit(1)
+        circuit = QuantumCircuit(1, 1)
 
         if self.experiment_options.add_sx:
             circuit.sx(0)
 
         return circuit
+
+    def _add_measure(self, circuit: QuantumCircuit):
+        """Add the measurements to the quantum circuit.
+
+        Sub-classes may override this function.
+        """
+        circuit.measure_all()
 
     def circuits(self) -> List[QuantumCircuit]:
         """Create the circuits for the fine amplitude calibration experiment.
@@ -179,13 +190,17 @@ class FineAmplitude(BaseExperiment):
 
             circuits.append(circuit)
 
+        qubits_ = tuple(range(len(self.physical_qubits)))
+
+        print(self.experiment_options.gate, qubits_)
+
         for repetition in repetitions:
             circuit = self._pre_circuit()
 
             for _ in range(repetition):
-                circuit.append(self.experiment_options.gate, (0,))
+                circuit.append(self.experiment_options.gate, qubits_)
 
-            circuit.measure_all()
+            self._add_measure(circuit)
 
             circuit.metadata = {
                 "experiment_type": self._type,
