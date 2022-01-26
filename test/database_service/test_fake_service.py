@@ -126,6 +126,7 @@ class TestFakeService(QiskitExperimentsTestCase):
         self.assertTrue(len(datetimes)>0)
         for i in range(len(datetimes)-1):
             self.assertTrue(datetimes[i] <= datetimes[i+1])
-        
+
+        self.assertEqual(len(self.service.experiments(limit=4)), 4)
 
             

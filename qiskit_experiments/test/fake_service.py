@@ -187,6 +187,8 @@ class FakeService(DatabaseServiceV1):
             raise ValueError("The fake service currently supports only sorting by start_datetime, which can be either asc or desc")
 
         df = df.sort_values(by="start_datetime", ascending=(sortby_split[1] == "asc"))
+
+        df = df.iloc[:limit]
             
         return df.to_dict("records")
 
