@@ -240,7 +240,7 @@ class MockRestlessBackend(FakeOpenPulse2Q):
         # is low (which is equivalent to that P(1) is small, i.e., errors occurred)
         # it will be very likely that the shots corresponding to this circuit will
         # be modified if there was a state change compared to the previous shot. This
-        # will lead to a reduced P(no state change) which is equivalent to a small
+        # will lead to a reduced P(state change) which is equivalent to a small
         # P(1) in the standard setting.
         for idx in range(1, len(memory)):
             modified_shot = self._apply_no_state_change(memory[idx - 1], memory[idx], probs[idx])
