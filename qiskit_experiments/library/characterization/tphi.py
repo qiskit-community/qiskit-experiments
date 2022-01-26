@@ -73,12 +73,12 @@ class Tphi(BatchExperiment):
         return options
 
     def __init__(
-            self,
-            qubit: int,
-            delays_t1: List[Union[List[float], np.array]],
-            delays_t2: List[Union[List[float], np.array]],
-            osc_freq: float = 0.0,
-            backend: Optional[Backend] = None,
+        self,
+        qubit: int,
+        delays_t1: List[Union[List[float], np.array]],
+        delays_t2: List[Union[List[float], np.array]],
+        osc_freq: float = 0.0,
+        backend: Optional[Backend] = None,
     ):
         """Initialize the experiments object.
 
@@ -96,12 +96,17 @@ class Tphi(BatchExperiment):
         self.set_experiment_options.delays_t2 = delays_t2
 
         self.exps = []
-        self.exps.append(T1(qubit=qubit,
-                            delays=self.set_experiment_options.delays_t1,
-                            backend=backend))
-        self.exps.append(T2Ramsey(qubit=qubit,
-                                  delays=self.set_experiment_options.delays_t2,
-                                  backend=backend, osc_freq=osc_freq))
+        self.exps.append(
+            T1(qubit=qubit, delays=self.set_experiment_options.delays_t1, backend=backend)
+        )
+        self.exps.append(
+            T2Ramsey(
+                qubit=qubit,
+                delays=self.set_experiment_options.delays_t2,
+                backend=backend,
+                osc_freq=osc_freq,
+            )
+        )
         # Run batch experiments
         super().__init__(experiments=self.exps, analysis=TphiAnalysis(), backend=backend)
 
