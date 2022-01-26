@@ -69,6 +69,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
 
         self.assertTrue(4.999e9 < value < 5.001e9)
         self.assertEqual(result.quality, "good")
+        self.assertEqual(str(result.device_components[0]), f"Q{qubit}")
 
         # Test if we find still find the peak when it is shifted by 5 MHz.
         backend = SpectroscopyBackend(line_width=2e6, freq_offset=5.0e6)

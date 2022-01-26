@@ -80,6 +80,7 @@ class TestResonatorSpectroscopy(QiskitExperimentsTestCase):
         value = result.value.value
 
         self.assertTrue(6.6099e9 < value < 6.6101e9)
+        self.assertEqual(str(result.device_components[0]), f"R{qubit}")
 
     def test_experiment_config(self):
         """Test converting to and from config works"""

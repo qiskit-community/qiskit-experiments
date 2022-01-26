@@ -20,6 +20,7 @@ from qiskit_experiments.curve_analysis import ResonanceAnalysis
 from qiskit_experiments.framework import AnalysisResultData, ExperimentData
 from qiskit_experiments.framework.matplotlib import get_non_gui_ax
 from qiskit_experiments.data_processing.nodes import ProjectorType
+from qiskit_experiments.database_service.device_component import Resonator
 
 
 class ResonatorSpectroscopyAnalysis(ResonanceAnalysis):
@@ -32,6 +33,10 @@ class ResonatorSpectroscopyAnalysis(ResonanceAnalysis):
         options.result_parameters = [curve.ParameterRepr("freq", "meas_freq", "Hz")]
         options.plot_iq_data = True
         return options
+
+    def _get_experiment_components(self, experiment_data: ExperimentData):
+        """Return resonators as experiment components."""
+        return [Resonator(qubit) for qubit in experiment_data.metadata["physical_qubits"]]
 
     def _run_analysis(
         self, experiment_data: ExperimentData
