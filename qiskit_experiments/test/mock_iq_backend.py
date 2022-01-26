@@ -76,7 +76,7 @@ class RestlessSimulator:
 
         This function takes as input a list of quantum circuits and adds a quantum circuit
         for each possible initial state of the system.
-        
+
         Args:
             in_circs: A list of input circuits to which X gates will be prepended to
                 create all possible input states.
@@ -239,7 +239,9 @@ class MockRestlessBackend(FakeOpenPulse2Q):
         # on the probability. E.g., if the pre-computed probability for one circuit
         # is low (which is equivalent to that P(1) is small, i.e., errors occurred)
         # it will be very likely that the shots corresponding to this circuit will
-        # be modified if there was a state change compared to the previous shot.
+        # be modified if there was a state change compared to the previous shot. This
+        # will lead to a reduced P(no state change) which is equivalent to a small
+        # P(1) in the standard setting.
         for idx in range(1, len(memory)):
             modified_shot = self._apply_no_state_change(memory[idx - 1], memory[idx], probs[idx])
             memory[idx] = modified_shot
