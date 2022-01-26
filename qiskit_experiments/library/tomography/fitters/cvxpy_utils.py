@@ -13,17 +13,30 @@
 Utility functions for CVXPy module
 """
 
-from typing import Callable
+from typing import Callable, List, Tuple, Optional
 import functools
+import numpy as np
+import scipy.sparse as sps
+
+from qiskit_experiments.exceptions import AnalysisError
 
 # Check if CVXPY package is installed
 try:
     import cvxpy
+    from cvxpy import Problem, Variable
+    from cvxpy.constraints.constraint import Constraint
 
     HAS_CVXPY = True
+
 except ImportError:
     cvxpy = None
+
     HAS_CVXPY = False
+
+    # Used for type hints
+    Problem = None
+    Variable = None
+    Constraint = None
 
 
 def requires_cvxpy(func: Callable) -> Callable:
@@ -51,54 +64,168 @@ def requires_cvxpy(func: Callable) -> Callable:
     return decorated_func
 
 
-class SDPSolverChecker:
-    """Class for checking installed CVXPy SDP solvers"""
+def solve_iteratively(problem: Problem, iters: int, **solve_kwargs) -> None:
+    """Solve a CVXPY problem increasing iterations if solution is inaccurate.
 
-    _HAS_SDP_SOLVER = None
-    _HAS_SDP_SOLVER_NOT_SCS = False
-    _SDP_SOLVERS = set()
+    If the problem is not solved with the initial ``iters`` value of
+    iterations the number of iterations will be doubled up to the
+    specified ``"max_iters"`` value in the solve_kwargs. If no max
+    iters is specified this will be set to 4 times the initial iters
+    values.
 
-    def __init__(self):
-        self._check_for_sdp_solver()
+    Args:
+        problem: A CVXPY Problem to solve
+        iters: The initial number of max iterations to use when solving
+               the problem
+        solve_kwargs: kwargs for problem.solve method.
 
-    @property
-    def has_sdp_solver(self) -> bool:
-        """Return True if CVXPy is installed with an SDP solver"""
-        return SDPSolverChecker._HAS_SDP_SOLVER
+    Raises:
+        AnalysisError: If the CVXPY solve fails to return an optimal or
+                       optimal_inaccurate solution.
+    """
+    max_iters = solve_kwargs.get("max_iters", 4 * iters)
+    problem_solved = False
+    while not problem_solved:
+        solve_kwargs["max_iters"] = iters
+        problem.solve(**solve_kwargs)
+        if problem.status in ["optimal_inaccurate", "optimal"]:
+            problem_solved = True
+        elif problem.status == "unbounded_inaccurate":
+            if iters < max_iters:
+                iters *= 2
+            else:
+                raise AnalysisError(
+                    "CVXPY fit failed, probably not enough iterations for the solver"
+                )
+        elif problem.status in ["infeasible", "unbounded"]:
+            raise AnalysisError(
+                "CVXPY fit failed, problem status {} which should not happen".format(problem.status)
+            )
+        else:
+            raise AnalysisError("CVXPY fit failed, reason unknown")
 
-    @property
-    def has_sdp_solver_not_scs(self) -> bool:
-        """Return True if CVXPy is installed with an SDP solver"""
-        return SDPSolverChecker._HAS_SDP_SOLVER_NOT_SCS
 
-    @property
-    def sdp_solvers(self):
-        """Return True if CVXPy is installed with an SDP solver other than SCS"""
-        return self._SDP_SOLVERS
+def set_default_sdp_solver(solver_kwargs: dict):
+    """Set default SDP solver from installed solvers."""
+    if "solver" in solver_kwargs:
+        return
+    if "CVXOPT" in cvxpy.installed_solvers():
+        solver_kwargs["solver"] = "CVXOPT"
+    elif "MOSEK" in cvxpy.installed_solvers():
+        solver_kwargs["solver"] = "MOSEK"
 
-    @classmethod
-    def _check_for_sdp_solver(cls):
-        """Check if CVXPy solver is available"""
-        if cls._HAS_SDP_SOLVER is None:
-            cls._HAS_SDP_SOLVER = False
-            if HAS_CVXPY:
-                # pylint:disable=import-error
-                solvers = cvxpy.installed_solvers()
-                # Check for other SDP solvers cvxpy supports
-                for solver in ["CVXOPT", "MOSEK"]:
-                    if solver in solvers:
-                        cls._SDP_SOLVERS.add(solver)
-                        cls._HAS_SDP_SOLVER = True
-                        cls._HAS_SDP_SOLVER_NOT_SCS = True
-                if "SCS" in solvers:
-                    # Try example problem to see if built with BLAS
-                    # SCS solver cannot solver larger than 2x2 matrix
-                    # problems without BLAS
-                    try:
-                        var = cvxpy.Variable((5, 5), PSD=True)
-                        obj = cvxpy.Minimize(cvxpy.norm(var))
-                        cvxpy.Problem(obj).solve(solver="SCS")
-                        cls._SDP_SOLVERS.add("SCS")
-                        cls._HAS_SDP_SOLVER = True
-                    except cvxpy.error.SolverError:
-                        pass
+
+def complex_matrix_variable(
+    dim: int, hermitian: bool = False, psd: bool = False, trace: Optional[complex] = None
+) -> Tuple[Variable, Variable, List[Constraint]]:
+    """Construct a pair of real variables and constraints for a Hermitian matrix
+
+    Args:
+        dim: The dimension of the complex square matrix.
+        hermitian: If True add constraint that the matrix is Hermitian.
+        psd: If True add a constraint that the matrix is positive
+             semidefinite.
+        trace: If True add constraint that the trace of the matrix is
+               the specified value.
+
+    Returns:
+        A tuple ``(mat.real, mat.imag, constraints)`` of two real CVXPY
+        matrix variables, and constraints.
+    """
+    mat_r = cvxpy.Variable((dim, dim))
+    mat_i = cvxpy.Variable((dim, dim))
+    cons = []
+
+    if hermitian:
+        cons += hermitian_constaint(mat_r, mat_i)
+    if trace is not None:
+        cons += trace_constaint(mat_r, mat_i, trace)
+    if psd:
+        cons += psd_constaint(mat_r, mat_i)
+    return mat_r, mat_i, cons
+
+
+def hermitian_constaint(mat_r: Variable, mat_i: Variable) -> List[Constraint]:
+    """Return CVXPY constraint for a Hermitian matrix variable.
+
+    Args:
+        mat_r: The CVXPY variable for the real part of the matrix.
+        mat_i: The CVXPY variable for the complex part of the matrix.
+
+    Returns:
+        A list of constraints on the real and imaginary parts.
+    """
+    return [mat_r == mat_r.T, mat_i == -mat_i.T]
+
+
+def psd_constaint(mat_r: Variable, mat_i: Variable) -> List[Constraint]:
+    """Return CVXPY Hermitian constraints for a complex matrix.
+
+    Args:
+        mat_r: The CVXPY variable for the real part of the matrix.
+        mat_i: The CVXPY variable for the complex part of the matrix.
+
+    Returns:
+        A list of constraints on the real and imaginary parts.
+    """
+    bmat = cvxpy.bmat([[mat_r, -mat_i], [mat_i, mat_r]])
+    return [bmat >> 0]
+
+
+def trace_constaint(mat_r: Variable, mat_i: Variable, trace: complex) -> List[Constraint]:
+    """Return CVXPY trace constraints for a complex matrix.
+
+    Args:
+        mat_r: The CVXPY variable for the real part of the matrix.
+        mat_i: The CVXPY variable for the complex part of the matrix.
+        trace: The value for the trace constraint.
+
+    Returns:
+        A list of constraints on the real and imaginary parts.
+    """
+    return [cvxpy.trace(mat_r) == cvxpy.real(trace), cvxpy.trace(mat_i) == cvxpy.imag(trace)]
+
+
+def trace_preserving_constaint(mat_r: Variable, mat_i: Variable) -> List[Constraint]:
+    """Return CVXPY trace preserving constraints for a complex matrix.
+
+    Args:
+        mat_r: The CVXPY variable for the real part of the matrix.
+        mat_i: The CVXPY variable for the complex part of the matrix.
+
+    Returns:
+        A list of constraints on the real and imaginary parts.
+    """
+    sdim = int(np.sqrt(mat_r.shape[0]))
+    ptr = partial_trace_super(sdim, sdim)
+    return [
+        ptr @ cvxpy.vec(mat_r) == np.identity(sdim).ravel(),
+        ptr @ cvxpy.vec(mat_i) == np.zeros(sdim * sdim),
+    ]
+
+
+@functools.lru_cache(3)
+def partial_trace_super(dim1: int, dim2: int) -> np.array:
+    """
+    Return the partial trace superoperator in the column-major basis.
+
+    This returns the superoperator S_TrB such that:
+        S_TrB * vec(rho_AB) = vec(rho_A)
+    for rho_AB = kron(rho_A, rho_B)
+
+    Args:
+        dim1: the dimension of the system not being traced
+        dim2: the dimension of the system being traced over
+
+    Returns:
+        A Numpy array of the partial trace superoperator S_TrB.
+    """
+    iden = sps.identity(dim1)
+    ptr = sps.csr_matrix((dim1 * dim1, dim1 * dim2 * dim1 * dim2))
+
+    for j in range(dim2):
+        v_j = sps.coo_matrix(([1], ([0], [j])), shape=(1, dim2))
+        tmp = sps.kron(iden, v_j.tocsr())
+        ptr += sps.kron(tmp, tmp)
+
+    return ptr
