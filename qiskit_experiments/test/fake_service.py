@@ -205,7 +205,8 @@ class FakeService(DatabaseServiceV1):
         return df.to_dict("records")
 
     def delete_experiment(self, experiment_id: str) -> None:
-        raise Exception("not implemented")
+        index = self.exps[self.exps.experiment_id == experiment_id].index
+        self.exps.drop(index, inplace=True)
 
     def create_analysis_result(
         self,

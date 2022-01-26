@@ -134,4 +134,11 @@ class TestFakeService(QiskitExperimentsTestCase):
         exp = self.service.experiment(experiment_id="1")
         self.assertEqual(exp["metadata"], "hey")
         self.assertEqual(exp["notes"], "hi")
+
+    def test_delete_experiment(self):
+        exps = self.service.experiments(start_datetime_before=datetime(2022, 1, 1, 2), start_datetime_after=datetime(2022, 1, 1, 2))
+        self.assertEqual(len(exps), 1)
+        self.service.delete_experiment(experiment_id="2")
+        exps = self.service.experiments(start_datetime_before=datetime(2022, 1, 1, 2), start_datetime_after=datetime(2022, 1, 1, 2))
+        self.assertEqual(len(exps), 0)
         
