@@ -13,11 +13,11 @@
 Composite Experiment Analysis class.
 """
 
-from typing import List, Dict
-
+from typing import List, Dict, Union
 import numpy as np
 from qiskit.result import marginal_counts
 from qiskit_experiments.framework import BaseAnalysis, ExperimentData
+from qiskit_experiments.exceptions import AnalysisError
 
 
 class CompositeAnalysis(BaseAnalysis):
@@ -45,20 +45,38 @@ class CompositeAnalysis(BaseAnalysis):
         reconstructed from the parent composite experiment data.
     """
 
-    def _run_analysis(self, experiment_data: ExperimentData):
-        # Extract job metadata for the component experiments so it can be added
-        # to the child experiment data incase it is required by the child experiments
-        # analysis classes
-        composite_exp = experiment_data.experiment
-        component_exps = composite_exp.component_experiment()
-        component_metadata = experiment_data.metadata.get(
-            "component_metadata", [{}] * composite_exp.num_experiments
-        )
+    def __init__(self, analyses: List[BaseAnalysis]):
+        """Initialize a composite analysis class.
 
+        Args:
+            analyses: a list of component experiment analysis objects.
+        """
+        super().__init__()
+        self._analyses = analyses
+
+    def component_analysis(self, index=None) -> Union[BaseAnalysis, List[BaseAnalysis]]:
+        """Return the component experiment Analysis object"""
+        if index is None:
+            return self._analyses
+        return self._analyses[index]
+
+    def _run_analysis(self, experiment_data: ExperimentData):
         # Initialize component data for updating and get the experiment IDs for
         # the component child experiments in case there are other child experiments
         # in the experiment data
-        component_ids = self._initialize_components(composite_exp, experiment_data)
+        component_ids = self._initialize_components(experiment_data)
+        if len(component_ids) != len(self._analyses):
+            raise AnalysisError(
+                "Number of experiment components does not match number of"
+                " component analysis classes"
+            )
+
+        # Extract job metadata for the component experiments so it can be added
+        # to the child experiment data incase it is required by the child experiments
+        # analysis classes
+        component_metadata = experiment_data.metadata.get(
+            "component_metadata", [{}] * len(component_ids)
+        )
 
         # Compute marginalize data for each component experiment
         marginalized_data = self._marginalize_data(experiment_data.data())
@@ -69,7 +87,7 @@ class CompositeAnalysis(BaseAnalysis):
         # child data is handled by the `replace_results` kwarg of the
         # parent container it is safe to always clear and replace the
         # results of child containers in this step
-        for i, (sub_data, sub_exp) in enumerate(zip(marginalized_data, component_exps)):
+        for i, (sub_data, sub_analysis) in enumerate(zip(marginalized_data, self._analyses)):
             sub_exp_data = experiment_data.child_data(component_ids[i])
 
             # Clear any previously stored data and add marginalized data
@@ -82,7 +100,7 @@ class CompositeAnalysis(BaseAnalysis):
             # Run analysis
             # Since copy for replace result is handled at the parent level
             # we always run with replace result on component analysis
-            sub_exp.analysis.run(sub_exp_data, replace_results=True)
+            sub_analysis.run(sub_exp_data, replace_results=True)
 
         # Wait for all component analysis to finish before returning
         # the parent experiment analysis results
@@ -91,7 +109,7 @@ class CompositeAnalysis(BaseAnalysis):
 
         return [], []
 
-    def _initialize_components(self, experiment, experiment_data):
+    def _initialize_components(self, experiment_data: ExperimentData) -> List[str]:
         """Initialize child data components and return list of child experiment IDs"""
         # Check if component child experiment data containers have already
         # been created. If so the list of indices for their positions in the
@@ -101,6 +119,12 @@ class CompositeAnalysis(BaseAnalysis):
         # for each component experiment
         component_index = experiment_data.metadata.get("component_child_index", [])
         if not component_index:
+            experiment = experiment_data.experiment
+            if experiment is None:
+                raise AnalysisError(
+                    "Cannot run composite analysis on an experiment data without either "
+                    "a composite experiment, or composite experiment metadata."
+                )
             # If the experiment Construct component data and update indices
             start_index = len(experiment_data.child_data())
             component_index = []
