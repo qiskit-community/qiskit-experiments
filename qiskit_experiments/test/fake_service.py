@@ -104,7 +104,19 @@ class FakeService(DatabaseServiceV1):
             tags: Tags to be associated with the experiment.
             kwargs: Additional keywords supported by the service provider.
         """
-        raise Exception("not implemented")
+        row = (self.exps.experiment_id == experiment_id)
+        if metadata is not None:
+            self.exps.loc[row, "metadata"] = metadata
+        if job_ids is not None:
+            self.exps.loc[row, "job_ids"] = job_ids
+        if tags is not None:
+            self.exps.loc[row, "tags"] = tags
+        if notes is not None:
+            self.exps.loc[row, "notes"] = notes
+        if "share_level" in kwargs:
+            self.exps.loc[row, "share_level"] = kwargs["share_level"]
+        if "parent_id" in kwargs:
+            self.exps.loc[row, "parent_id"] = kwargs["parent_id"]
 
     def experiment(
         self, experiment_id: str, json_decoder: Type[json.JSONDecoder] = json.JSONDecoder

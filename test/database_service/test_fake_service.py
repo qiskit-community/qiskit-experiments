@@ -129,4 +129,9 @@ class TestFakeService(QiskitExperimentsTestCase):
 
         self.assertEqual(len(self.service.experiments(limit=4)), 4)
 
-            
+    def test_update_experiment(self):
+        self.service.update_experiment(experiment_id="1", metadata="hey", notes="hi")
+        exp = self.service.experiment(experiment_id="1")
+        self.assertEqual(exp["metadata"], "hey")
+        self.assertEqual(exp["notes"], "hi")
+        
