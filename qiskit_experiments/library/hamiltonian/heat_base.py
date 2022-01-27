@@ -166,11 +166,11 @@ class BatchHeatHelper(BatchExperiment, ABC):
 
     # section: overview
 
-        This is a helper class for experiment developers of the HEAT experiment.
-        This class overrides :meth:`set_experiment_options` and :meth:`set_transpile_options`
-        methods of :class:`BatchExperiment` so that it can override options of
-        subsequence amplification experiments to run them on the same set up.
-        From end users, this experiment seems as if a single HEAT experiment.
+        This is a helper class for experiment developers of HEAT experiments.
+        This class overrides the :meth:`set_experiment_options` and :meth:`set_transpile_options`
+        methods of :class:`BatchExperiment` such that they set the options of the
+        individual amplification sub-experiments to the same values. Therefore, from
+        end user's perspective, this experiment behaves as if a single HEAT experiment.
 
     # section: analysis_ref
         :py:class:`HeatAnalysis`
