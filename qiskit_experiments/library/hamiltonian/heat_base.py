@@ -45,11 +45,11 @@ class HeatElement(BaseExperiment):
             c: 1/═══════════════════════════════════════════╩═
                                                             0
 
-        The circuit in middle is repeated by ``N`` times to amplify the Hamiltonian
-        coefficients along interrogated axis on the target qubit. The ``prep`` circuit
-        is carefully chosen based on the generator of ``heat`` gate to investigate,
-        and the ``echo`` and ``meas`` circuit depend on the axis of error to amplify.
-        Only target qubit is measured following to the projection by ``meas`` circuit.
+        The circuit in the middle is repeated ``N`` times to amplify the Hamiltonian
+        coefficients along a specific axis of the target qubit. The ``prep`` circuit is
+        carefully chosen based on the generator of the ``heat`` gate under consideration.
+        The ``echo`` and ``meas`` circuits depend on the axis of the error to amplify.
+        Only the target qubit is measured following to the projection in the ``meas`` circuit.
 
         The amplified response may consist of the contribution of from the local and
         controlled rotation terms. Thus, usually multiple error amplification experiments
