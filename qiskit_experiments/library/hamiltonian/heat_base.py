@@ -60,9 +60,9 @@ class HeatElement(BaseExperiment):
         This class can be wrapped with hard-coded circuits to define new experiment class
         to provide HEAT experiment with respect to the error axis and Hamiltonian of interest.
 
-        The ``heat`` gate is a custom gate representing the entangling pulse sequence. 
-        One must thus provide its definition through the backend or a custom transpiler 
-        configuration, i.e. with the instruction schedule map. This gate name can be overridden 
+        The ``heat`` gate is a custom gate representing the entangling pulse sequence.
+        One must thus provide its definition through the backend or a custom transpiler
+        configuration, i.e. with the instruction schedule map. This gate name can be overridden
         via the experiment options.
 
     # section: note
