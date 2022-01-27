@@ -29,7 +29,7 @@ class ZXHeat(BatchHeatHelper):
     # section: overview
         This experiment is designed to amplify the error contained in the
         ZX-type generator, a typical Hamiltonian implemented
-        by a cross resonance drive, which is a foundation of the CNOT gate.
+        by a cross-resonance drive, which is typically used to create a CNOT gate.
 
         The echo circuit refocuses ZX rotation to identity (II) then applies
         a pi-pulse along the interrogated error axis. X error and Y error are
