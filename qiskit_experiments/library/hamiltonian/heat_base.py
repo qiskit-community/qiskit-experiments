@@ -202,7 +202,7 @@ class BatchHeatHelper(BatchExperiment, ABC):
 
         Experiment Options:
             repetitions (Sequence[int]): A list of the number of echo repetitions.
-            cr_gate (Gate): A gate instance representing the entangler sequence.
+            heat_gate (Gate): A gate instance representing the entangling sequence.
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(21))
