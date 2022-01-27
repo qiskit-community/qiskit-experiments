@@ -16,8 +16,7 @@ Hamiltonian Characterization Experiments (:mod:`qiskit_experiments.library.hamil
 
 .. currentmodule:: qiskit_experiments.library.hamiltonian
 
-This module provides a set of experiments to characterize Hamiltonian level
-properties of qubits or control sequences.
+This module provides a set of experiments to characterize qubit Hamiltonians.
 
 HEAT Experiments
 ================
