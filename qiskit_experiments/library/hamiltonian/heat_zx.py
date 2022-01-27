@@ -31,8 +31,8 @@ class ZXHeat(BatchHeatHelper):
         ZX-type generator, a typical Hamiltonian implemented
         by a cross-resonance drive, which is typically used to create a CNOT gate.
 
-        The echo circuit refocuses ZX rotation to identity (II) then applies
-        a pi-pulse along the interrogated error axis. X error and Y error are
+        The echo circuit refocuses the ZX rotation to the identity (II) and then applies
+        a pi-pulse along the interrogated error axis. X errors and Y errors are
         amplified outward the X-Y plane to draw a ping-pong pattern with
         state flip by the pi-pulse echo, while Z error is amplified outward
         the X-Z plane in the same manner.
