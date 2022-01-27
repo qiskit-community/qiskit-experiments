@@ -58,8 +58,9 @@ class HeatAnalysis(CompositeAnalysis):
     # section: fit_model
 
         This analysis takes two error amplification experiment results performed with
-        different control qubit state to distinguish the local rotation term from
-        the controlled rotation term amplified along a specific error axis.
+        different states of the control qubit to distinguish local rotations (such as IX) from
+        controlled rotations (such as ZX). These rotations are amplified along an
+        experiment-specific error axis.
 
         This analysis takes a set of `d_theta` parameters from child error amplification results
         which might be represented by a unique name in the child experiment data.
