@@ -77,10 +77,11 @@ class ResonatorSpectroscopy(Spectroscopy):
         options = super()._default_experiment_options()
 
         options.amp = 1
-        options.acquire_duration = 240e-9
+        options.acquire_duration = 480e-9
         options.acquire_delay = 0
-        options.duration = 240e-9
+        options.duration = 480e-9
         options.sigma = 60e-9
+        options.width = 360e-9
 
         return options
 
