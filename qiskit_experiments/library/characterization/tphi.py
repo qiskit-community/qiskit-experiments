@@ -32,8 +32,8 @@ class Tphi(BatchExperiment):
         :math:`\Gamma_\varphi` is defined as the rate of pure dephasing
         or depolarization in the :math:`x - y` plane.
         We compute :math:`\Gamma_\varphi` by computing :math:`\Gamma_2*`, the transverse relaxation rate,
-        and subtracting :math:`\Gamma_1`, the longitudinal relaxation time. The pure dephasing time is defined by
-        :math:`T_\varphi = 1/\Gamma_\varphi`.Or more precisely,
+        and subtracting :math:`\Gamma_1`, the longitudinal relaxation time. The pure dephasing time
+        is defined by :math:`T_\varphi = 1/\Gamma_\varphi`.Or more precisely,
 
         :math:`1/T_\varphi = 1/T_{2*} - 1/2T_1`.
 
@@ -97,7 +97,8 @@ class Tphi(BatchExperiment):
             )
         )
         # Run batch experiment
-        super().__init__(experiments=self.exps, analysis=TphiAnalysis(), backend=backend)
+        super().__init__(experiments=self.exps, backend=backend)
+        self.analysis = TphiAnalysis()
 
     def _set_backend(self, backend: Backend):
         super()._set_backend(backend)

@@ -28,7 +28,6 @@ class CompositeExperiment(BaseExperiment):
         self,
         experiments: List[BaseExperiment],
         qubits: Sequence[int],
-        analysis: Optional[CompositeAnalysis] = None,
         backend: Optional[Backend] = None,
         experiment_type: Optional[str] = None,
     ):
@@ -42,10 +41,9 @@ class CompositeExperiment(BaseExperiment):
         """
         self._experiments = experiments
         self._num_experiments = len(experiments)
-        analysis = CompositeAnalysis() if analysis is None else analysis
         super().__init__(
             qubits,
-            analysis=analysis,
+            analysis=CompositeAnalysis(),
             backend=backend,
             experiment_type=experiment_type,
         )
