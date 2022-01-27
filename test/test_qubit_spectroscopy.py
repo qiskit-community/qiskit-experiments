@@ -47,7 +47,8 @@ class SpectroscopyBackend(MockIQBackend):
         """Returns the probability based on the frequency."""
         freq_shift = next(iter(circuit.calibrations["Spec"]))[1][0]
         delta_freq = freq_shift - self._freq_offset
-        return (0.5 * (self._linewidth / 2) ** 2) / (delta_freq ** 2 + (0.5 * self._linewidth) ** 2)
+
+        return np.abs(1 / (1 + 2.0j * delta_freq / self._linewidth))
 
 
 class TestQubitSpectroscopy(QiskitExperimentsTestCase):
@@ -86,7 +87,7 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
     def test_spectroscopy_end2end_kerneled(self):
         """End to end test of the spectroscopy experiment on IQ data."""
 
-        backend = SpectroscopyBackend(line_width=2e6)
+        backend = SpectroscopyBackend(line_width=2e6, iq_cluster_centers=(-1, -1, 1, 1))
         qubit = 0
         freq01 = backend.defaults().qubit_freq_est[qubit]
         frequencies = np.linspace(freq01 - 10.0e6, freq01 + 10.0e6, 21)
@@ -100,7 +101,9 @@ class TestQubitSpectroscopy(QiskitExperimentsTestCase):
         self.assertEqual(result.quality, "good")
 
         # Test if we find still find the peak when it is shifted by 5 MHz.
-        backend = SpectroscopyBackend(line_width=2e6, freq_offset=5.0e6)
+        backend = SpectroscopyBackend(
+            line_width=2e6, freq_offset=5.0e6, iq_cluster_centers=(-1, -1, 1, 1)
+        )
 
         spec = QubitSpectroscopy(qubit, frequencies)
         expdata = spec.run(backend)

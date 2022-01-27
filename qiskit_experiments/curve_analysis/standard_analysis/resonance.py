@@ -63,7 +63,7 @@ class ResonanceAnalysis(curve.CurveAnalysis):
                 x, amp=a, kappa=kappa, x0=freq, baseline=b
             ),
             plot_color="blue",
-            model_description=r"a (\kappa/2)^2 / ((x - x0)^2 + (\kappa/2)^2) + b",
+            model_description=r"a abs(1 / (1 + 2i * (x - x_0) / \kappa)) + b",
         )
     ]
 
