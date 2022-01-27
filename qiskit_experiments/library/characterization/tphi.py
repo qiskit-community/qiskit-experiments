@@ -79,7 +79,7 @@ class Tphi(BatchExperiment):
         osc_freq: float = 0.0,
         backend: Optional[Backend] = None,
     ):
-        """Initialize the experiments object.
+        """Initialize the experiment object.
 
         Args:
             qubit: the qubit under test
