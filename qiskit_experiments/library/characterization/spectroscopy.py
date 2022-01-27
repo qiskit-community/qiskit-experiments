@@ -97,17 +97,16 @@ class Spectroscopy(BaseExperiment, ABC):
 
         self.set_experiment_options(**experiment_options)
 
-    def _get_dt_and_granularity(self) -> Tuple[float, float]:
-        """Extract the time per sample and granularity from the backend."""
+    def _set_backend(self, backend: Backend):
+        """Set the backend for the experiment and extract config information."""
+        super()._set_backend(backend)
 
-        dt = getattr(self.backend.configuration(), "dt", None)
+        self._dt = getattr(self.backend.configuration(), "dt", None)
         constraints = getattr(self.backend.configuration(), "timing_constraints", {})
-        granularity = constraints.get("granularity", None)
+        self._granularity = constraints.get("granularity", None)
 
-        if dt is None or granularity is None:
+        if self._dt is None or self._granularity is None:
             raise QiskitError(f"{self.__class__.__name__} needs both dt and sample granularity.")
-
-        return dt, granularity
 
     @property
     @abstractmethod

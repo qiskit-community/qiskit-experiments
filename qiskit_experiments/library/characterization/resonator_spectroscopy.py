@@ -155,7 +155,7 @@ class ResonatorSpectroscopy(Spectroscopy):
     def _schedule(self) -> Tuple[pulse.ScheduleBlock, Parameter]:
         """Create the spectroscopy schedule."""
 
-        dt, granularity = self._get_dt_and_granularity()
+        dt, granularity = self._dt, self._granularity
 
         acq_dur = int(granularity * (self.experiment_options.acquire_duration / dt // granularity))
         acq_del = int(granularity * (self.experiment_options.acquire_delay / dt // granularity))

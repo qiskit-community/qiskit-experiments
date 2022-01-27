@@ -74,7 +74,7 @@ class QubitSpectroscopy(Spectroscopy):
         """Create the spectroscopy schedule."""
         freq_param = Parameter("frequency")
 
-        dt, granularity = self._get_dt_and_granularity()
+        dt, granularity = self._dt, self._granularity
 
         duration = int(granularity * (self.experiment_options.duration / dt // granularity))
         sigma = granularity * (self.experiment_options.sigma / dt // granularity)
