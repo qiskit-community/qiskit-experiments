@@ -119,11 +119,7 @@ class TphiBackend(BackendV1):
         job_t2ramsey = self._internal_backends["T2*"].run(
             run_input=t2ramsey_circuits, shots=t2ramsey_shots
         )
-
-        final_results = job_t1.result().results
-        for result in job_t2ramsey.result().results:
-            final_results.append(result)
-
+        final_results = job_t1.result().results + job_t2ramsey.result().results
         result_for_fake = Result(
             backend_name="Tphi backend",
             backend_version="0",

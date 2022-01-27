@@ -29,7 +29,6 @@ class TphiAnalysis(CompositeAnalysis):
     r"""
     Tphi result analysis class.
     A class to analyze :math:`T_\phi` experiments.
-
     """
 
     def _run_analysis(
