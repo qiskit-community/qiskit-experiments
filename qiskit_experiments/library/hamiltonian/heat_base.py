@@ -29,7 +29,7 @@ class HeatElement(BaseExperiment):
     # section: overview
 
         Hamiltonian error amplifying tomography (HEAT) is designed to amplify
-        the dynamics of entangler circuit on the target qubit along a specific axis.
+        the dynamics of entangler circuit on a qubit along a specific axis.
 
         The basic form of HEAT circuit is represented as follows.
 
@@ -45,15 +45,20 @@ class HeatElement(BaseExperiment):
                                                             0
 
         The circuit in the middle is repeated ``N`` times to amplify the Hamiltonian
-        coefficients along a specific axis of the target qubit. The ``prep`` circuit is
+        coefficients along a specific axis of the second qubit. The ``prep`` circuit is
         carefully chosen based on the generator of the ``heat`` gate under consideration.
         The ``echo`` and ``meas`` circuits depend on the axis of the error to amplify.
-        Only the target qubit is measured following to the projection in the ``meas`` circuit.
+        Only the second qubit is measured following to the projection in the ``meas`` circuit.
 
-        The measured target-qubit population containing the amplified error typically has contributions 
-        from both local (e.g. IZ) and controlled rotations (e.g. ZX). Thus, multiple error amplification
-        experiments with different control qubit states are usually combined to distinguish local from 
-        controlled rotations.
+        The measured qubit population containing the amplified error typically has contributions
+        from both local (e.g. IZ) and non-local rotations (e.g. ZX).
+        Thus, multiple error amplification experiments with different control qubit states
+        are usually combined to resolve these rotation terms.
+        This experiment just provides a single error amplification sequence, and therefore
+        you must combine multiple instances instantiated with different ``prep``, ``echo``,
+        and ``meas`` circuits designed to resolve error terms.
+        This class can be wrapped with hard-coded circuits to define new experiment class
+        to provide HEAT experiment with respect to the error axis and Hamiltonian of interest.
 
         The ``heat`` gate is a custom gate representing the entangling pulse sequence. 
         One must thus provide its definition through the backend or a custom transpiler 
