@@ -60,7 +60,8 @@ class TestRoughAmpCal(QiskitExperimentsTestCase):
         self.assertTrue(np.allclose(self.cals.get_parameter_value("amp", 0, "sx"), 0.25))
 
         rabi_ef = RoughXSXAmplitudeCal(0, self.cals)
-        rabi_ef.run(RabiBackend(amplitude_to_angle=np.pi * 1.5)).block_for_results()
+        expdata = rabi_ef.run(RabiBackend(amplitude_to_angle=np.pi * 1.5))
+        self.assertExperimentDone(expdata)
 
         tol = 0.002
         self.assertTrue(abs(self.cals.get_parameter_value("amp", 0, "x") - 0.333) < tol)
@@ -135,7 +136,8 @@ class TestSpecializations(QiskitExperimentsTestCase):
         self.assertTrue(np.allclose(self.cals.get_parameter_value("amp", 0, "sx12"), 0.2))
 
         rabi_ef = EFRoughXSXAmplitudeCal(0, self.cals)
-        rabi_ef.run(RabiBackend(amplitude_to_angle=np.pi * 1.5)).block_for_results()
+        expdata = rabi_ef.run(RabiBackend(amplitude_to_angle=np.pi * 1.5))
+        self.assertExperimentDone(expdata)
 
         tol = 0.002
         self.assertTrue(abs(self.cals.get_parameter_value("amp", 0, "x12") - 0.333) < tol)
