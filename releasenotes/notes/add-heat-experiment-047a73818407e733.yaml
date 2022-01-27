@@ -9,7 +9,7 @@ features:
     added. This experiment consists of the base class
     :class:`~qiskit_experiments.library.hamiltonian.BatchHeatHelper`
     and :class:`~qiskit_experiments.library.hamiltonian.HeatElement`
-    for the experiment developers to implement own HEAT experiment
+    class for experiment developers to implement their own HEAT experiment
     for arbitrary generator and for specific interrogated error axis.
     This can be realized by designing proper initialization circuit,
     echo sequence, and measurement axis against the interrogated error axis.
