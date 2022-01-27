@@ -51,9 +51,10 @@ class HeatElement(BaseExperiment):
         The ``echo`` and ``meas`` circuits depend on the axis of the error to amplify.
         Only the target qubit is measured following to the projection in the ``meas`` circuit.
 
-        The amplified response may consist of the contribution of from the local and
-        controlled rotation terms. Thus, usually multiple error amplification experiments
-        with different control qubit states are combined to distinguish the terms in the analysis.
+        The measured target-qubit population containing the amplified error typically has contributions 
+        from both local (e.g. IZ) and controlled rotations (e.g. ZX). Thus, multiple error amplification
+        experiments with different control qubit states are usually combined to distinguish local from 
+        controlled rotations.
 
         The ``heat`` gate is a special gate kind to represent
         the entangler pulse sequence of interest, thus one must provide the definition of it
