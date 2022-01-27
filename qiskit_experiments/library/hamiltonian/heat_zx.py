@@ -74,9 +74,9 @@ class ZXHeat(BatchHeatHelper):
         The circuit in middle is repeated by ``N`` times for the error amplification.
 
     # section: note
-        The ``heat`` gate is a special gate to represent the entangler pulse sequence.
-        This gate is usually not provided by the backend, and thus user must provide
-        the pulse definition to run this experiment.
+        The ``heat`` gate represents the entangling pulse sequence.
+        This gate is usually not provided by the backend, and users must thus provide
+        the pulse schedule to run this experiment.
         This pulse sequence should be pre-calibrated to roughly implement the
         ZX(angle) evolution otherwise selective amplification doesn't work properly.
 
