@@ -15,22 +15,39 @@ Qiskit Experiments test case class
 
 import dataclasses
 import json
-from typing import Any, Callable, Optional
 import warnings
+from typing import Any, Callable, Optional
 
 import numpy as np
 from qiskit.test import QiskitTestCase
+from qiskit_experiments.calibration_management import Calibrations
+from qiskit_experiments.database_service.db_experiment_data import ExperimentStatus
 from qiskit_experiments.framework import (
     ExperimentDecoder,
     ExperimentEncoder,
+    ExperimentData,
     BaseExperiment,
     BaseAnalysis,
 )
-from qiskit_experiments.calibration_management import Calibrations
 
 
 class QiskitExperimentsTestCase(QiskitTestCase):
     """Qiskit Experiments specific extra functionality for test cases."""
+
+    def assertExperimentDone(self, experiment_data: ExperimentData):
+        """Blocking execution of next line until all threads are completed then
+        checks if status returns Done.
+
+        Args:
+            experiment_data: Experiment data to evaluate.
+        """
+        experiment_data.block_for_results()
+
+        self.assertEqual(
+            experiment_data.status(),
+            ExperimentStatus.DONE,
+            msg="All threads are executed but status is not DONE. " + experiment_data.errors(),
+        )
 
     def assertRoundTripSerializable(self, obj: Any, check_func: Optional[Callable] = None):
         """Assert that an object is round trip serializable.
