@@ -13,7 +13,7 @@
 """Abstract spectroscopy experiment base class."""
 
 from abc import ABC, abstractmethod
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Tuple
 
 import numpy as np
 import qiskit.pulse as pulse
@@ -45,8 +45,8 @@ class Spectroscopy(BaseExperiment, ABC):
         options = super()._default_experiment_options()
 
         options.amp = 0.1
-        options.duration = 1024
-        options.sigma = 256
+        options.duration = 240e-9
+        options.sigma = 60e-9
         options.width = 0
 
         return options
@@ -57,7 +57,7 @@ class Spectroscopy(BaseExperiment, ABC):
         options = super()._default_run_options()
 
         options.meas_level = MeasLevel.KERNELED
-        options.meas_return = "single"
+        options.meas_return = "avg"
 
         return options
 
@@ -96,6 +96,18 @@ class Spectroscopy(BaseExperiment, ABC):
         self._absolute = absolute
 
         self.set_experiment_options(**experiment_options)
+
+    def _get_dt_and_granularity(self) -> Tuple[float, float]:
+        """Extract the time per sample and granularity from the backend."""
+
+        dt = getattr(self.backend.configuration(), "dt", None)
+        constraints = getattr(self.backend.configuration(), "timing_constraints", {})
+        granularity = constraints.get("granularity", None)
+
+        if dt is None or granularity is None:
+            raise QiskitError(f"{self.__class__.__name__} needs both dt and sample granularity.")
+
+        return dt, granularity
 
     @property
     @abstractmethod

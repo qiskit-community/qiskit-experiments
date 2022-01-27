@@ -73,14 +73,21 @@ class QubitSpectroscopy(Spectroscopy):
     def _schedule(self) -> Tuple[pulse.ScheduleBlock, Parameter]:
         """Create the spectroscopy schedule."""
         freq_param = Parameter("frequency")
+
+        dt, granularity = self._get_dt_and_granularity()
+
+        duration = int(granularity * (self.experiment_options.duration / dt // granularity))
+        sigma = granularity * (self.experiment_options.sigma / dt // granularity)
+        width = granularity * (self.experiment_options.width / dt // granularity)
+
         with pulse.build(backend=self.backend, name="spectroscopy") as schedule:
             pulse.shift_frequency(freq_param, pulse.DriveChannel(self.physical_qubits[0]))
             pulse.play(
                 pulse.GaussianSquare(
-                    duration=self.experiment_options.duration,
+                    duration=duration,
                     amp=self.experiment_options.amp,
-                    sigma=self.experiment_options.sigma,
-                    width=self.experiment_options.width,
+                    sigma=sigma,
+                    width=width,
                 ),
                 pulse.DriveChannel(self.physical_qubits[0]),
             )

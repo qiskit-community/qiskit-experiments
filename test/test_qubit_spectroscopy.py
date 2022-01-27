@@ -36,12 +36,10 @@ class SpectroscopyBackend(MockIQBackend):
 
         super().__init__(iq_cluster_centers, iq_cluster_width)
 
-        self.configuration().basis_gates = ["x"]
-
+        self._configuration.basis_gates = ["x"]
+        self._configuration.timing_constraints = {"granularity": 16}
         self._linewidth = line_width
         self._freq_offset = freq_offset
-
-        super().__init__(iq_cluster_centers, iq_cluster_width)
 
     def _compute_probability(self, circuit: QuantumCircuit) -> float:
         """Returns the probability based on the frequency."""

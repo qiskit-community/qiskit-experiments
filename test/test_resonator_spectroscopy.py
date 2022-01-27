@@ -38,8 +38,6 @@ class ResonatorSpectroscopyBackend(MockIQBackend):
 
         self._linewidth = line_width
         self._freq_offset = freq_offset
-
-        super().__init__(iq_cluster_centers, iq_cluster_width)
         self._configuration.timing_constraints = {"granularity": 16}
 
     def _compute_probability(self, circuit: QuantumCircuit) -> float:

@@ -155,12 +155,7 @@ class ResonatorSpectroscopy(Spectroscopy):
     def _schedule(self) -> Tuple[pulse.ScheduleBlock, Parameter]:
         """Create the spectroscopy schedule."""
 
-        dt = getattr(self.backend.configuration(), "dt", None)
-        constraints = getattr(self.backend.configuration(), "timing_constraints", {})
-        granularity = constraints.get("granularity", None)
-
-        if dt is None or granularity is None:
-            raise QiskitError(f"{self.__class__.__name__} needs both dt and sample granularity.")
+        dt, granularity = self._get_dt_and_granularity()
 
         acq_dur = int(granularity * (self.experiment_options.acquire_duration / dt // granularity))
         acq_del = int(granularity * (self.experiment_options.acquire_delay / dt // granularity))
