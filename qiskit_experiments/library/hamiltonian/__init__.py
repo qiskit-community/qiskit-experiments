@@ -22,8 +22,9 @@ HEAT Experiments
 ================
 
 HEAT stands for `Hamiltonian Error Amplifying Tomography` which amplifies the
-dynamics of entangler along the interrogated axis on the target qubit with
-the conventional error amplification (ping-pong) technique.
+dynamics of an entangling gate along a specified axis of the target qubit. Here,
+errors are typically amplified by repeating a sequence of gates which results in
+a ping-pong pattern when measuring the qubit population.
 
 These are the base experiment classes for developer to write own experiments.
 
