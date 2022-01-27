@@ -72,9 +72,9 @@ class HeatAnalysis(CompositeAnalysis):
 
             A_{Z\beta} = \frac{1}{2}\left( d\theta_{\beta 0} - d\theta_{\beta 1} \right)
 
-        where, :math:`\beta \in [X, Y, Z]` is one of single qubit Pauli term,
-        :math:`d\theta_{\beta k}` is `d_theta` parameter extracted from the HEAT experiment
-        with the control qubit state :math:`|k\rangle \in [|0\rangle, |1\rangle]`.
+        where, :math:`\beta \in [X, Y, Z]` is a single-qubit Pauli term, and
+        :math:`d\theta_{\beta k}` is an angle error ``d_theta`` extracted from the HEAT experiment
+        with the control qubit in state :math:`|k\rangle \in [|0\rangle, |1\rangle]`.
 
     # section: see_also
         qiskit_experiments.library.hamiltonian.HeatElementAnalysis
