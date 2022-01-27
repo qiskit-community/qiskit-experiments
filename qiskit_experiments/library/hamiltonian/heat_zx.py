@@ -37,7 +37,7 @@ class ZXHeat(BatchHeatHelper):
         state flip by the pi-pulse echo, while Z error is amplified outward
         the X-Z plane in the same manner.
         Measurement is projected onto Y-axis in this setup.
-        Because the echoed axis are anti-commute with other Pauli terms,
+        Because the echoed axis anti-commute with other Pauli terms,
         errors in other axes are cancelled out to reduce rotation in the interrogated axis.
         This enables to selectively amplify the Hamiltonian dynamics in the specific axis.
         Note that we have always nonzero X rotation imparted by the significant ZX term,
