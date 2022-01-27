@@ -56,10 +56,10 @@ class HeatElement(BaseExperiment):
         experiments with different control qubit states are usually combined to distinguish local from 
         controlled rotations.
 
-        The ``heat`` gate is a special gate kind to represent
-        the entangler pulse sequence of interest, thus one must provide the definition of it
-        through the backend or custom transpiler configuration, i.e. instruction schedule map.
-        This gate name can be overridden via the experiment option of this experiment.
+        The ``heat`` gate is a custom gate representing the entangling pulse sequence. 
+        One must thus provide its definition through the backend or a custom transpiler 
+        configuration, i.e. with the instruction schedule map. This gate name can be overridden 
+        via the experiment options.
 
     # section: note
 
