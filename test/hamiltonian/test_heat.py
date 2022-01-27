@@ -225,8 +225,16 @@ class TestZXHeat(QiskitExperimentsTestCase, HeatExperimentsTestCase):
         exp_data = exp.run().block_for_results()
 
         # larger error torelance to allow commutator term
-        self.assertAlmostEqual(exp_data.analysis_results("A_IY").value.value, e_iy, delta=0.05)
-        self.assertAlmostEqual(exp_data.analysis_results("A_ZY").value.value, e_zy, delta=0.05)
+        self.assertAlmostEqual(
+            exp_data.analysis_results("A_IY").value.value,
+            e_iy,
+            delta=max(0.8 * abs(e_iy), 0.01),
+        )
+        self.assertAlmostEqual(
+            exp_data.analysis_results("A_ZY").value.value,
+            e_zy,
+            delta=max(0.8 * abs(e_zy), 0.01),
+        )
 
     @data(
         [0.02, -0.01],
@@ -248,8 +256,16 @@ class TestZXHeat(QiskitExperimentsTestCase, HeatExperimentsTestCase):
         exp_data = exp.run().block_for_results()
 
         # larger error torelance to allow commutator term
-        self.assertAlmostEqual(exp_data.analysis_results("A_IZ").value.value, e_iz, delta=0.05)
-        self.assertAlmostEqual(exp_data.analysis_results("A_ZZ").value.value, e_zz, delta=0.05)
+        self.assertAlmostEqual(
+            exp_data.analysis_results("A_IZ").value.value,
+            e_iz,
+            delta=max(0.8 * abs(e_iz), 0.01),
+        )
+        self.assertAlmostEqual(
+            exp_data.analysis_results("A_ZZ").value.value,
+            e_zz,
+            delta=max(0.8 * abs(e_zz), 0.01),
+        )
 
     @data(123, 456)
     def test_pseudo_calibration(self, seed):
@@ -301,4 +317,4 @@ class TestZXHeat(QiskitExperimentsTestCase, HeatExperimentsTestCase):
                 errors_dict[f"e_i{tp}"] -= a_ip.value.value
 
         for v in errors_dict.values():
-            self.assertAlmostEqual(v, 0.0, delta=0.003)
+            self.assertAlmostEqual(v, 0.0, delta=0.005)
