@@ -13,7 +13,7 @@
 Analysis for HEAT experiments.
 """
 
-from typing import List
+from typing import Tuple
 
 import numpy as np
 
@@ -57,10 +57,11 @@ class HeatAnalysis(CompositeAnalysis):
 
     # section: fit_model
 
+        Heat experiment amplifies the dynamics of the entangling gate along the
+        experiment-specific error axis on the target qubit Bloch sphere.
         This analysis takes two error amplification experiment results performed with
-        different states of the control qubit to distinguish local rotations (such as IX) from
-        controlled rotations (such as ZX). These rotations are amplified along an
-        experiment-specific error axis.
+        different states of the control qubit to distinguish the contribution
+        of local term (such as IX) from non-local term (such as ZX).
 
         This analysis takes a set of `d_theta` parameters from child error amplification results
         which might be represented by a unique name in the child experiment data.
@@ -78,10 +79,15 @@ class HeatAnalysis(CompositeAnalysis):
 
     # section: see_also
         qiskit_experiments.library.hamiltonian.HeatElementAnalysis
+        qiskit_experiments.curve_analysis.ErrorAmplificationAnalysis
 
     """
 
-    def __init__(self, fit_params: List[str], out_params: List[str]):
+    def __init__(
+        self,
+        fit_params: Tuple[str, str],
+        out_params: Tuple[str, str],
+    ):
         """Create new HEAT analysis.
 
         Args:
@@ -99,7 +105,7 @@ class HeatAnalysis(CompositeAnalysis):
                 "a set of experiments with different control qubit state input. "
                 f"{len(fit_params)} input parameter names are specified."
             )
-        self.fit_params = fit_params
+        self._fit_params = fit_params
 
         if len(out_params) != 2:
             raise AnalysisError(
@@ -107,7 +113,7 @@ class HeatAnalysis(CompositeAnalysis):
                 "a set of experiment results with different control qubit state input. "
                 f"{len(out_params)} output parameter names are specified."
             )
-        self.out_params = out_params
+        self._out_params = out_params
 
     def _run_analysis(self, experiment_data: ExperimentData):
 
@@ -116,7 +122,7 @@ class HeatAnalysis(CompositeAnalysis):
 
         # extract d_theta parameters
         fit_results = []
-        for i, pname in enumerate(self.fit_params):
+        for i, pname in enumerate(self._fit_params):
             fit_results.append(experiment_data.child_data(i).analysis_results(pname))
 
         # Check data quality
@@ -130,15 +136,15 @@ class HeatAnalysis(CompositeAnalysis):
         sigma = np.sqrt(fit_results[0].value.stderr ** 2 + fit_results[1].value.stderr ** 2)
 
         estimate_ib = AnalysisResultData(
-            name=self.out_params[0],
+            name=self._out_params[0],
             value=FitVal(value=ib, stderr=sigma, unit="rad"),
             quality="good" if is_good_quality else "bad",
         )
 
         estimate_zb = AnalysisResultData(
-            name=self.out_params[1],
+            name=self._out_params[1],
             value=FitVal(value=zb, stderr=sigma, unit="rad"),
             quality="good" if is_good_quality else "bad",
         )
 
-        return [estimate_ib, estimate_zb], None
+        return [estimate_ib, estimate_zb], []

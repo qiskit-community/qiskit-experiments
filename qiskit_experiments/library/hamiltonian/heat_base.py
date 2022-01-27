@@ -18,7 +18,6 @@ from typing import List, Tuple, Optional
 
 from qiskit import circuit, QuantumCircuit
 from qiskit.providers import Backend
-
 from qiskit_experiments.framework import BaseExperiment, BatchExperiment, Options
 from qiskit_experiments.curve_analysis import ParameterRepr
 from .heat_analysis import HeatElementAnalysis, HeatAnalysis
@@ -95,7 +94,9 @@ class HeatElement(BaseExperiment):
             echo_circ: A circuit to selectively amplify the specific error term.
             meas_circ: A circuit to project target qubit onto the basis of interest.
             backend: Optional, the backend to run the experiment on.
-            parameter_name: A name that represents angle from fitting.
+            parameter_name: A name of :math:`d\\theta` parameter from the
+                amplification fit. The fit parameter is represented by this name
+                in the analysis result.
 
         Keyword Args:
             See :meth:`experiment_options` for details.
@@ -117,7 +118,7 @@ class HeatElement(BaseExperiment):
 
         Experiment Options:
             repetitions (Sequence[int]): A list of the number of echo repetitions.
-            cr_gate (Gate): A gate instance representing the entangler sequence.
+            heat_gate (Gate): A gate instance representing the entangler sequence.
         """
         options = super()._default_experiment_options()
         options.repetitions = list(range(21))

@@ -26,15 +26,6 @@ dynamics of an entangling gate along a specified axis of the target qubit. Here,
 errors are typically amplified by repeating a sequence of gates which results in
 a ping-pong pattern when measuring the qubit population.
 
-These are the base experiment classes for developer to write own experiments.
-
-.. autosummary::
-    :toctree: ../stubs/
-    :template: autosummary/experiment.rst
-
-    HeatElement
-    BatchHeatHelper
-
 HEAT for ZX Hamiltonian
 -----------------------
 
@@ -56,6 +47,17 @@ HEAT Analysis
 
     HeatElementAnalysis
     HeatAnalysis
+
+HEAT Base Classes
+-----------------
+
+.. autosummary::
+    :toctree: ../stubs/
+    :template: autosummary/experiment.rst
+
+    HeatElement
+    BatchHeatHelper
+
 
 """
 

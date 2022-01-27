@@ -24,30 +24,20 @@ from .heat_analysis import HeatAnalysis
 
 
 class ZXHeat(BatchHeatHelper):
-    """HEAT experiment for the ZX-type entangler.
+    r"""HEAT experiment for the ZX-type entangler.
 
     # section: overview
         This experiment is designed to amplify the error contained in the
         ZX-type generator, a typical Hamiltonian implemented
         by a cross-resonance drive, which is typically used to create a CNOT gate.
 
-        The echo circuit refocuses the ZX rotation to the identity (II) and then applies
-        a pi-pulse along the interrogated error axis. X errors and Y errors are
-        amplified outward the X-Y plane to draw a ping-pong pattern with
-        state flip by the pi-pulse echo, while Z error is amplified outward
-        the X-Z plane in the same manner.
-        Measurement is projected onto Y-axis in this setup.
-        Because the echoed axis anti-commute with other Pauli terms,
-        errors in other axes are cancelled out to reduce rotation in the interrogated axis.
-        This enables to selectively amplify the Hamiltonian dynamics in the specific axis.
-        Note that we have always nonzero X rotation imparted by the significant ZX term,
-        the error along Y and Z axis are skewed by the nonzero commutator term.
-        This yields slight mismatch in the estimated coefficients with the generator Hamiltonian,
-        however this matters less when the expected magnitude of the error is small.
-        On the other hand, the error in the X axis is straightforward
-        because this is commute with the ZX term of the generator.
+        The experimental circuits are prepared as follows for different
+        interrogated error axis specified by the experiment parameter ``error_axis``.
 
         .. parsed-literal::
+
+            　　　　 　prep        heat         　　 echo              　 meas
+
                              (xN)
                              ░ ┌───────┐                            ░
             q_0: ────────────░─┤0      ├────────────────────────────░─────────
@@ -67,11 +57,92 @@ class ZXHeat(BatchHeatHelper):
                                                                        0
 
         ZX-HEAT experiments are performed with combination of two
-        error amplification experiments shown above, where :math:`\\alpha, \\beta, \\gamma`
+        error amplification experiments shown above, where :math:`\alpha, \beta, \gamma`
         depend on the interrogated error axis, namely,
         (``X``, ``X``, ``I``), (``Y``, ``Y``, ``I``), (``Y``, ``Z``, ``Rx(-pi/2)``)
         for amplifying X, Y, Z axis, respectively.
-        The circuit in middle is repeated by ``N`` times for the error amplification.
+        The circuit in the middle is repeated by N times for the error amplification.
+
+        For example, we amplify the X error in the simplified ``heat`` gate Hamiltonian
+
+        .. math::
+
+            Ht = \frac{\Omega_{ZX}(t) ZX + \Delta_{IX}(t) IX}{2}.
+
+        From the BCH formula we can derive a unitary evolution of the Hamiltonian
+
+        .. math::
+
+            U = A_{II} II + A_{IX} IX + A_{ZX} ZX + A_{ZI} ZI.
+
+        Since we have known control qubit state throughout the echo sequence,
+        we can compute partial unitary on the target qubit, namely,
+        :math:`U_{j} = A_{Ij} I + A_{Xj} X` for the control qubit state :math:`|j\rangle`.
+        Here :math:`A_{Ij} =\cos \theta_j` and :math:`A_{Xj} =-i \sin \theta_j`.
+        This form is exactly identical to the unitary of :math:`R_X(\theta_j)` gate,
+        with :math:`\theta_0 =\Delta_{IX} + \Omega_{ZX}` and
+        :math:`\theta_1 =\Delta_{IX} - \Omega_{ZX}`.
+        Given we calibrated the gate to have :math:`\Omega_{ZX} = \phi + \Delta_{ZX}`
+        so that :math:`\phi` corresponds to the experiment parameter ``angle``,
+        or the angle of the controlled rotation we want,
+        e.g. :math:`\phi = \pi/2` for the CNOT gate.
+        The total evolution during the echo sequence will be expressed by
+        :math:`R_X(\pi + \Delta_{ZX} \pm \Delta_{IX})` for the control qubit state
+        0 and 1, respectively.
+
+        In the echo circuit, the non-local ZX rotation by :math:`\phi` is undone by
+        applying :math:`R_X(\mp \phi)` with sign depending on the control qubit state,
+        thus only rotation error :math:`\Delta_{ZX}` from the target
+        angle :math:`\phi` is selectively amplified.
+        Repeating this sequence N times forms a typical ping-pong oscillation pattern
+        in the measured target qubit population,
+        which may be fit by :math:`P(N) = \cos(N (d\theta_j + \pi) + \phi_{\rm offset})`,
+        where :math:`d\theta_j = \Delta_{ZX}\pm \Delta_{IX}`.
+        By combining error amplification fit parameter :math:`d\theta_j` for
+        different control qubit states, we can resolve local (IX) and non-local (ZX)
+        dynamics of the Hamiltonian of interest.
+
+        In this pulse sequence, the pi-pulse echo is applied to the target qubit
+        in the same axis with the interrogated error axis.
+        This cancels out the errors in other axes since the errors anti-commute with the echo,
+        e.g. :math:`XYX = -Y`, while the error in the interrogated axis are accumulated.
+        This is the trick how the sequence selectively amplifies the error axis.
+
+        However, strictly speaking, non-X error terms :math:`{\cal P}` also anti-commute
+        with the primary :math:`ZX` term of the Hamiltonian, and
+        they are skewed by the significant nonzero commutator :math:`[ZX, {\cal P}]`.
+        Thus this sequence pattern might underestimate the coefficients in non-X axes.
+        Usually this is less impactful if the errors of interest are sufficiently small,
+        but you should keep this in mind.
+
+    # section: example
+        This experiment requires you to provide the pulse definition of the ``heat`` gate.
+        This gate should implement the ZX Hamiltonian with rotation angle :math:`\phi`.
+        This might be done in the following workflow.
+
+        .. code-block:: python
+
+            from qiskit import pulse
+            from qiskit.test.mock import FakeJakarta
+            from qiskit_experiments.library import ZXHeat
+
+            backend = FakeJakarta()
+            qubits = 0, 1
+
+            # Write pulse schedule implementing ZX Hamiltonian
+            heat_pulse = pulse.GaussianSquare(100, 1, 10, 5)
+
+            with pulse.build(backend) as heat_sched:
+                pulse.play(heat_pulse, pulse.control_channels(*qubits)[0])
+
+            # Map schedule to the gate
+            my_inst_map = backend.defaults().instruction_schedule_map
+            my_inst_map.add("heat", qubits, heat_sched)
+
+            # Set up experiment
+            heat_exp = ZXHeat(qubits, error_axis="x", backend=backend)
+            heat_exp.set_transpile_options(inst_map=my_inst_map)
+            heat_exp.run()
 
     # section: note
         The ``heat`` gate represents the entangling pulse sequence.
