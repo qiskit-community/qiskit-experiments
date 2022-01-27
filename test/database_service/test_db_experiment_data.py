@@ -129,9 +129,9 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
 
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
         exp_data.add_jobs(a_job)
-        exp_data.block_for_results()
+        self.assertExperimentDone(exp_data)
         exp_data.add_jobs(jobs)
-        exp_data.block_for_results()
+        self.assertExperimentDone(exp_data)
         self.assertEqual(expected, [sdata["counts"] for sdata in exp_data.data()])
         self.assertIn(a_job.job_id(), exp_data.job_ids)
 
@@ -156,7 +156,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
         exp_data.add_jobs(a_job)
         exp_data.add_analysis_callback(_callback)
-        exp_data.block_for_results()
+        self.assertExperimentDone(exp_data)
         self.assertTrue(called_back)
 
     def test_add_data_callback(self):
@@ -189,7 +189,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
             with self.subTest(data=data):
                 exp_data.add_data(data)
                 exp_data.add_analysis_callback(_callback)
-                exp_data.block_for_results()
+                self.assertExperimentDone(exp_data)
 
         self.assertEqual(len(subtests), called_back_count)
 
@@ -211,7 +211,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = DbExperimentData(backend=self.backend, experiment_type="qiskit_test")
         exp_data.add_jobs(a_job)
         exp_data.add_analysis_callback(_callback, foo=callback_kwargs)
-        exp_data.block_for_results()
+        self.assertExperimentDone(exp_data)
         self.assertTrue(called_back)
 
     def test_add_data_pending_post_processing(self):
@@ -637,8 +637,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         exp_data.add_jobs(job)
         exp_data.add_jobs(job)
-        exp_data.add_analysis_callback(lambda *args, **kwargs: time.sleep(1))
-        exp_data.block_for_results()
+        self.assertExperimentDone(exp_data)
         self.assertEqual(ExperimentStatus.DONE, exp_data.status())
 
     def test_set_tags(self):
@@ -667,7 +666,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         # Cleanup
         with self.assertLogs("qiskit_experiments", "WARNING"):
             event.set()
-            exp_data.block_for_results()
+            self.assertExperimentDone(exp_data)
 
     def test_cancel_analysis(self):
         """Test canceling experiment analysis."""
@@ -813,7 +812,7 @@ class TestDbExperimentData(QiskitExperimentsTestCase):
         exp_data = DbExperimentData(experiment_type="qiskit_test")
         exp_data.add_jobs(job)
         exp_data.add_analysis_callback(_sleeper)
-        exp_data.block_for_results()
+        self.assertExperimentDone(exp_data)
         self.assertEqual(2, sleep_count)
 
     def test_additional_attr(self):
