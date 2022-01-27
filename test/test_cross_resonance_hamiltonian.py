@@ -247,6 +247,7 @@ class TestCrossResonanceHamiltonian(QiskitExperimentsTestCase):
             qubits=(0, 1), flat_top_widths=durations, sigma=sigma, risefall=2
         )
         exp_data = expr.run(backend, shots=2000)
+        self.assertExperimentDone(exp_data)
 
         self.assertEqual(exp_data.analysis_results(0).quality, "good")
         self.assertAlmostEqual(exp_data.analysis_results("omega_ix").value.value, ix, delta=2e4)
