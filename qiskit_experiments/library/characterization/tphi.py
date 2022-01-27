@@ -43,7 +43,6 @@ class Tphi(BatchExperiment):
 
     # section: tutorial
         :doc:`/tutorials/tphi_characterization`
-
     """
 
     @classmethod
