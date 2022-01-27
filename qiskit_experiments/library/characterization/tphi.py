@@ -43,7 +43,6 @@ class Tphi(BatchExperiment):
 
     # section: tutorial
         :doc:`/tutorials/tphi_characterization`
-
     """
 
     @classmethod
@@ -59,19 +58,6 @@ class Tphi(BatchExperiment):
         options.delays_t2 = None
         return options
 
-    @classmethod
-    def _default_transpile_options(cls) -> Options:
-        options = super()._default_transpile_options()
-        return options
-
-    @classmethod
-    def _default_run_options(cls) -> Options:
-        """Default option values for the experiment :meth:`run` method."""
-        options = super()._default_run_options()
-
-        options.shots = 2000
-        return options
-
     def __init__(
         self,
         qubit: int,
@@ -80,7 +66,7 @@ class Tphi(BatchExperiment):
         osc_freq: float = 0.0,
         backend: Optional[Backend] = None,
     ):
-        """Initialize the experiments object.
+        """Initialize the experiment object.
 
         Args:
             qubit: the qubit under test
