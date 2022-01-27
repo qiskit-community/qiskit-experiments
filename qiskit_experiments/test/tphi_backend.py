@@ -102,9 +102,7 @@ class TphiBackend(BackendV1):
         Run the Tphi backend
         """
         self.options.update_options(**options)
-        t1_shots = 1000
-        t2ramsey_shots = 2000
-
+        shots = 1000
         t1_circuits = []
         t2ramsey_circuits = []
         for circ in run_input:
@@ -115,9 +113,9 @@ class TphiBackend(BackendV1):
             else:
                 raise ValueError("Illegal name for circuit in Tphi")
 
-        job_t1 = self._internal_backends["T1"].run(run_input=t1_circuits, shots=t1_shots)
+        job_t1 = self._internal_backends["T1"].run(run_input=t1_circuits, shots=shots)
         job_t2ramsey = self._internal_backends["T2*"].run(
-            run_input=t2ramsey_circuits, shots=t2ramsey_shots
+            run_input=t2ramsey_circuits, shots=shots
         )
         final_results = job_t1.result().results + job_t2ramsey.result().results
         result_for_fake = Result(

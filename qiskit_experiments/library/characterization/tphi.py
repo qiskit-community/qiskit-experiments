@@ -29,9 +29,13 @@ class Tphi(BatchExperiment):
 
     # section: overview
 
-        Tphi is defined as follows:
+        :math:`\Gamma_\varphi` is defined as the rate of pure dephasing
+        or depolarization in the :math:`x - y` plane.
+        We compute :math:`\Gamma_\varphi` by computing :math:`\Gamma_2*`, the transverse relaxation rate,
+        and subtracting :math:`\Gamma_1`, the longitudinal relaxation time. The pure dephasing time is defined by
+        :math:`T_\varphi = 1/\Gamma_\varphi`.Or more precisely,
 
-        :math:`1/T_\phi = 1/T_{2*} - 1/2T_1`.
+        :math:`1/T_\varphi = 1/T_{2*} - 1/2T_1`.
 
         For more details, see :py:class:`T1` and :py:class:`T2Ramsey`
 
@@ -74,7 +78,6 @@ class Tphi(BatchExperiment):
             delays_t2: delay times of the T2* experiment
             osc_freq: the oscillation frequency induced using by the user for T2Ramsey
             backend: Optional, the backend on which to run the experiment
-
         """
         self.set_experiment_options = self._default_experiment_options()
         # Set experiment options
@@ -93,7 +96,7 @@ class Tphi(BatchExperiment):
                 osc_freq=osc_freq,
             )
         )
-        # Run batch experiments
+        # Run batch experiment
         super().__init__(experiments=self.exps, analysis=TphiAnalysis(), backend=backend)
 
     def _set_backend(self, backend: Backend):
