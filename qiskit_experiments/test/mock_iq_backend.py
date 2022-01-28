@@ -38,7 +38,6 @@ class MockRestlessBackend(FakeOpenPulse2Q):
         """
         self._rng = np.random.default_rng(rng_seed)
         self._precomputed_probabilities = None
-        self._true_prev_outcome = None
         super().__init__()
 
     def _default_options(self):
@@ -48,16 +47,6 @@ class MockRestlessBackend(FakeOpenPulse2Q):
             meas_level=MeasLevel.CLASSIFIED,
             meas_return="single",
         )
-
-    @staticmethod
-    def state_strings(n_qubits: int) -> List[str]:
-        """Generate all state strings for this system."""
-        states, format_str = [], "{0:0" + str(n_qubits) + "b}"
-
-        for state_num in range(2 ** n_qubits):
-            states.append(format_str.format(state_num))
-
-        return states
 
     @abstractmethod
     def _compute_outcome_probabilities(self,  circuits: List[QuantumCircuit]):
@@ -90,10 +79,8 @@ class MockRestlessBackend(FakeOpenPulse2Q):
 
         self._compute_outcome_probabilities(run_input)
 
-        n_qubits = 1
-
-        prev_outcome = "0" * n_qubits
-        self._true_prev_outcome = [prev_outcome]
+        prev_outcome = "0"
+        state_strings = ["0", "1"]
 
         # Setup the list of dicts where each dict corresponds to a circuit.
         sorted_memory = [{"memory": [], "metadata": circ.metadata} for circ in run_input]
@@ -102,7 +89,7 @@ class MockRestlessBackend(FakeOpenPulse2Q):
             for circ_idx, _ in enumerate(run_input):
                 prob = self._precomputed_probabilities[(circ_idx, prev_outcome)]
                 # Generate the next shot dependent on the pre-computed probabilities.
-                outcome = self._rng.choice(self.state_strings(n_qubits), p=[1 - prob, prob])
+                outcome = self._rng.choice(state_strings, p=[1 - prob, prob])
                 # Append the single shot to the memory of the corresponding circuit.
                 sorted_memory[circ_idx]["memory"].append(hex(int(outcome, 2)))
 
