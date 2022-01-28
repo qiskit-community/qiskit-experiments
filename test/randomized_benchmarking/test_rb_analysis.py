@@ -141,8 +141,8 @@ class TestRBAnalysis(QiskitExperimentsTestCase):
             value = result.value
             target = reference["value"]
             if isinstance(value, FitVal):
-                value = value.value
-                target = target.value
+                value = value.n
+                target = target.n
             if isinstance(value, float):
                 self.assertAlmostEqual(value, target)
             elif isinstance(value, np.ndarray):
@@ -152,8 +152,8 @@ class TestRBAnalysis(QiskitExperimentsTestCase):
             for key, value in result.extra.items():
                 target = reference["extra"][key]
                 if isinstance(value, FitVal):
-                    value = value.value
-                    target = target.value
+                    value = value.n
+                    target = target.n
                 if isinstance(value, float):
                     self.assertAlmostEqual(value, target)
                 elif isinstance(value, np.ndarray):
