@@ -62,9 +62,11 @@ class ResonatorSpectroscopyAnalysis(ResonanceAnalysis):
                     if len(mem.shape) == 3:
                         for idx in range(mem.shape[1]):
                             iqs.append(np.average(mem[:, idx, :], axis=0))
+                    else:
+                        iqs.append(mem)
 
             if len(iqs) > 0:
-                iqs = np.array(iqs)
+                iqs = np.vstack(iqs)
                 axis.scatter(iqs[:, 0], iqs[:, 1], color="b")
                 axis.set_xlabel(
                     "In phase [arb. units]", fontsize=self.options.style.axis_label_size
