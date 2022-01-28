@@ -13,7 +13,7 @@
 """An mock IQ backend for testing."""
 
 from abc import abstractmethod
-from typing import List, Tuple, Dict
+from typing import List, Tuple
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -49,11 +49,6 @@ class MockRestlessBackend(FakeOpenPulse2Q):
             meas_return="single",
         )
 
-    @property
-    def probabilities(self) -> Dict[Tuple[int, str], QuantumCircuit]:
-        """Return the precomputed probabilities used in the simulation."""
-        return self._precomputed_probabilities
-
     @staticmethod
     def state_strings(n_qubits: int) -> List[str]:
         """Generate all state strings for this system."""
@@ -65,16 +60,16 @@ class MockRestlessBackend(FakeOpenPulse2Q):
         return states
 
     @abstractmethod
-    def _compute_outcome_probabilities(self, circuit: QuantumCircuit):
-        """Compute the probability used in the binomial distribution creating the single
-        measurement shots.
+    def _compute_outcome_probabilities(self,  circuits: List[QuantumCircuit]):
+        """Compute the probabilities of measuring 0 or 1 for each of the given
+         circuits based on the previous measurement shot.
 
         This methods computes the dictionary self._precomputed_probabilities where
         the keys are a tuple consisting of the circuit index and the previous outcome,
         e.g. "0" or "1" for a single qubit. The values are the corresponding probabilities.
 
         Args:
-            circuit: The circuit from which to compute the probability.
+            circuits: The circuits from which to compute the probabilities.
         """
 
     def run(self, run_input, **options):
