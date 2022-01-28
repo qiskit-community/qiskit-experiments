@@ -15,44 +15,39 @@
 from abc import abstractmethod
 from typing import List, Tuple, Dict
 import numpy as np
-import random
 
-from qiskit import QuantumCircuit, execute
+from qiskit import QuantumCircuit
 from qiskit.result import Result
 from qiskit.providers.aer import AerSimulator
-from qiskit import BasicAer
 from qiskit.test.mock import FakeOpenPulse2Q
-from qiskit_experiments.framework.experiment_data import ExperimentData
 
 from qiskit.qobj.utils import MeasLevel
 from qiskit_experiments.framework import Options
 from qiskit_experiments.test.utils import FakeJob
 
 
-class RestlessSimulator:
-    """A simulator of restless measurements experiments."""
+class MockRestlessBackend(FakeOpenPulse2Q):
+    """An abstract backend for testing that can mock restless data."""
 
     def __init__(
         self,
-        shots: int = 1024,
+        rng_seed: int = 0,
     ):
         """
-        Args:
-            shots: The number of shots to simulate which defaults to 1024.
+        Initialize the backend.
         """
-
-        self._shots = shots
-        self._sim = BasicAer.get_backend("statevector_simulator")
+        self._rng = np.random.default_rng(rng_seed)
         self._precomputed_probabilities = None
         self._true_prev_outcome = None
+        super().__init__()
 
-        # The memory sorted according to circuit.
-        self._sorted_memory = None
-
-    @property
-    def shots(self) -> int:
-        """Return the shots used."""
-        return self._shots
+    def _default_options(self):
+        """Default options of the test backend."""
+        return Options(
+            shots=1024,
+            meas_level=MeasLevel.CLASSIFIED,
+            meas_return="single",
+        )
 
     @property
     def probabilities(self) -> Dict[Tuple[int, str], QuantumCircuit]:
@@ -69,147 +64,21 @@ class RestlessSimulator:
 
         return states
 
-    def extend_circuit_set(
-        self, in_circs: List[QuantumCircuit]
-    ) -> Dict[Tuple[int, str], QuantumCircuit]:
-        """Add all combinations of X gates.
-
-        This function takes as input a list of quantum circuits and adds a quantum circuit
-        for each possible initial state of the system.
-
-        Args:
-            in_circs: A list of input circuits to which X gates will be prepended to
-                create all possible input states.
-        Returns:
-            circs: A list of circuits corresponding to the initial circuits with X
-                gates to create the different restless_measurements input states.
-        """
-
-        circs, n_qubits = {}, in_circs[0].num_qubits
-
-        for idx, qpt_circ in enumerate(in_circs):
-
-            for state_str in self.state_strings(n_qubits):
-                circ = QuantumCircuit(n_qubits, n_qubits)
-
-                for bit_idx, bit in enumerate(state_str[::-1]):
-                    if bit == "1":
-                        circ.x(bit_idx)
-
-                circ.compose(qpt_circ, inplace=True)
-                circ.remove_final_measurements(inplace=True)
-
-                circs[tuple([idx, state_str])] = circ
-
-        return circs
-
-    def compute_outcome_probabilities(self, circuits: Dict[Tuple[int, str], QuantumCircuit]):
-        """Run the simulation to pre-compute the probabilities."""
-
-        self._precomputed_probabilities = {}
-
-        for key, circ in circuits.items():
-            state_vec = execute(circ, self._sim).result().get_statevector(0)
-            self._precomputed_probabilities[key] = np.abs(state_vec) ** 2
-
-    def __call__(self, circuits: List[QuantumCircuit]) -> List[str]:
-        """Restless simulation"""
-
-        all_circs = self.extend_circuit_set(circuits)
-        self.compute_outcome_probabilities(all_circs)
-
-        n_qubits = circuits[0].num_qubits
-
-        memory, prev_outcome = [], "0" * n_qubits
-        self._true_prev_outcome = [prev_outcome]
-
-        # Setup the list of dicts where each dict corresponds to a circuit.
-        self._sorted_memory = [{"memory": [], "metadata": circ.metadata} for circ in circuits]
-
-        for shot in range(self._shots):
-            for circ_idx, _ in enumerate(circuits):
-
-                probs = self._precomputed_probabilities[(circ_idx, prev_outcome)]
-
-                outcome = random.choices(self.state_strings(n_qubits), probs)[0]
-
-                memory.append(outcome)
-
-                self._sorted_memory[circ_idx]["memory"].append(hex(int(outcome, 2)))
-
-                prev_outcome = outcome
-
-        return memory
-
-    @property
-    def experiment_data(self) -> ExperimentData:
-        """Encapsulate the memory in the experiment data."""
-
-        exp_data = ExperimentData()
-        exp_data.add_data(self._sorted_memory)
-        return exp_data
-
-
-class MockRestlessBackend(FakeOpenPulse2Q):
-    """An abstract backend for testing that can mock restless data."""
-
-    def __init__(
-        self,
-        rng_seed: int = 0,
-    ):
-        """
-        Initialize the backend.
-        """
-        self._rng = np.random.default_rng(rng_seed)
-        super().__init__()
-
-    def _default_options(self):
-        """Default options of the test backend."""
-        return Options(
-            shots=1024,
-            meas_level=MeasLevel.CLASSIFIED,
-            meas_return="single",
-        )
-
     @abstractmethod
-    def _compute_probability(self, circuit: QuantumCircuit) -> float:
-        """Compute the probability used in the binomial distribution creating the IQ shot.
+    def _compute_outcome_probabilities(self, circuit: QuantumCircuit):
+        """Compute the probability used in the binomial distribution creating the single
+        measurement shots.
 
-        An abstract method that subclasses will implement to create a probability of
-        being in the excited state based on the received quantum circuit.
+        This methods computes the dictionary self._precomputed_probabilities where
+        the keys are a tuple consisting of the circuit index and the previous outcome,
+        e.g. "0" or "1" for a single qubit. The values are the corresponding probabilities.
 
         Args:
             circuit: The circuit from which to compute the probability.
-
-        Returns:
-             The probability that the binaomial distribution will use to generate an IQ shot.
         """
-
-    def _apply_no_state_change(self, prev_shot: str, shot: str, probability: float) -> str:
-        """Probabilistic modification of measurement shot state changes to no state changes.
-
-        We choose a number uniformly from [0, 1] and if it is larger than
-        a given probability and there was a state change compared to the previous shot we
-        modify the shot such that it is equivalent to the previous one.
-
-        Args:
-            prev_shot: The previously measured bitstring.
-            shot: The measured bitsting that can be modified.
-            probability: The probability with which a state change is modified to a no
-            state change.
-
-        Returns:
-            The modified or not modified shot.
-        """
-
-        if prev_shot != shot:
-            if self._rng.uniform(0, 1) >= probability:
-                shot = prev_shot
-
-        return shot
 
     def run(self, run_input, **options):
-        """Run the IQ backend."""
+        """Run the restless backend."""
 
         self.options.update_options(**options)
         shots = self.options.get("shots")
@@ -224,35 +93,25 @@ class MockRestlessBackend(FakeOpenPulse2Q):
             "results": [],
         }
 
-        # List of probabilities for each circuit and each shot with length
-        # len(run_input) * shots.
-        probs = [self._compute_probability(circ) for circ in run_input] * shots
+        self._compute_outcome_probabilities(run_input)
 
-        # Initialize the restless simulator.
-        sim = RestlessSimulator(shots=shots)
-        # Create time-ordered perfect restless shots for the experiment circuits.
-        memory = sim(run_input)
+        n_qubits = 1
 
-        # Modify the restless shots in the memory dependent on the pre-computed
-        # probabilities (self._compute_probability(circ)) for each circuit. This
-        # will generate "no state change"s in the time-ordered memory dependent
-        # on the probability. E.g., if the pre-computed probability for one circuit
-        # is low (which is equivalent to that P(1) is small, i.e., errors occurred)
-        # it will be very likely that the shots corresponding to this circuit will
-        # be modified if there was a state change compared to the previous shot. This
-        # will lead to a reduced P(state change) which is equivalent to a small
-        # P(1) in the standard setting.
-        for idx in range(1, len(memory)):
-            modified_shot = self._apply_no_state_change(memory[idx - 1], memory[idx], probs[idx])
-            memory[idx] = modified_shot
+        prev_outcome = "0" * n_qubits
+        self._true_prev_outcome = [prev_outcome]
 
-        memory = [memory[i : i + len(run_input)] for i in range(0, len(memory), len(run_input))]
+        # Setup the list of dicts where each dict corresponds to a circuit.
+        sorted_memory = [{"memory": [], "metadata": circ.metadata} for circ in run_input]
 
-        sorted_memory = [{"memory": []} for _ in range(len(run_input))]
-        # Group the restless shots in the time-ordered list by circuit.
-        for circ_idx, _ in enumerate(run_input):
-            for shot in range(shots):
-                sorted_memory[circ_idx]["memory"].append(hex(int(memory[shot][circ_idx], 2)))
+        for shot in range(shots):
+            for circ_idx, _ in enumerate(run_input):
+                prob = self._precomputed_probabilities[(circ_idx, prev_outcome)]
+                # Generate the next shot dependent on the pre-computed probabilities.
+                outcome = self._rng.choice(self.state_strings(n_qubits), p=[1 - prob, prob])
+                # Append the single shot to the memory of the corresponding circuit.
+                sorted_memory[circ_idx]["memory"].append(hex(int(outcome, 2)))
+
+                prev_outcome = outcome
 
         for idx, circ in enumerate(run_input):
             ones = sorted_memory[idx]["memory"].count("0x1")
@@ -270,6 +129,48 @@ class MockRestlessBackend(FakeOpenPulse2Q):
             result["results"].append(run_result)
 
         return FakeJob(self, Result.from_dict(result))
+
+
+class MockRestlessFineAmp(MockRestlessBackend):
+    """A mock backend for restless fine amplitude calibration."""
+
+    def __init__(self, angle_error: float, angle_per_gate: float, gate_name: str):
+        """Setup a mock backend to test the restless fine amplitude calibration.
+
+        Args:
+            angle_error: The rotation error per gate.
+            gate_name: The name of the gate to find in the circuit.
+        """
+        self.angle_error = angle_error
+        self._gate_name = gate_name
+        self._angle_per_gate = angle_per_gate
+        super().__init__()
+
+        self.configuration().basis_gates.append("sx")
+        self.configuration().basis_gates.append("x")
+
+    def _compute_outcome_probabilities(self, circuits: List[QuantumCircuit]):
+        """Compute the probabilities of being in the excited state or
+        ground state for all circuits."""
+
+        self._precomputed_probabilities = {}
+
+        for idx, circuit in enumerate(circuits):
+
+            n_ops = circuit.count_ops().get(self._gate_name, 0)
+            angle = n_ops * (self._angle_per_gate + self.angle_error)
+
+            if self._gate_name != "sx":
+                angle += np.pi / 2 * circuit.count_ops().get("sx", 0)
+
+            if self._gate_name != "x":
+                angle += np.pi * circuit.count_ops().get("x", 0)
+
+            prob_0 = np.sin(angle / 2) ** 2
+            prob_1 = 1 - prob_0
+
+            self._precomputed_probabilities[(idx, "0")] = prob_0
+            self._precomputed_probabilities[(idx, "1")] = prob_1
 
 
 class MockIQBackend(FakeOpenPulse2Q):
@@ -348,7 +249,6 @@ class MockIQBackend(FakeOpenPulse2Q):
             "success": True,
             "results": [],
         }
-
         for circ in run_input:
             run_result = {
                 "shots": shots,
@@ -432,39 +332,6 @@ class MockFineAmp(MockIQBackend):
 
     def __init__(self, angle_error: float, angle_per_gate: float, gate_name: str):
         """Setup a mock backend to test the fine amplitude calibration.
-
-        Args:
-            angle_error: The rotation error per gate.
-            gate_name: The name of the gate to find in the circuit.
-        """
-        self.angle_error = angle_error
-        self._gate_name = gate_name
-        self._angle_per_gate = angle_per_gate
-        super().__init__()
-
-        self.configuration().basis_gates.append("sx")
-        self.configuration().basis_gates.append("x")
-
-    def _compute_probability(self, circuit: QuantumCircuit) -> float:
-        """Return the probability of being in the excited state."""
-
-        n_ops = circuit.count_ops().get(self._gate_name, 0)
-        angle = n_ops * (self._angle_per_gate + self.angle_error)
-
-        if self._gate_name != "sx":
-            angle += np.pi / 2 * circuit.count_ops().get("sx", 0)
-
-        if self._gate_name != "x":
-            angle += np.pi * circuit.count_ops().get("x", 0)
-
-        return np.sin(angle / 2) ** 2
-
-
-class MockRestlessFineAmp(MockRestlessBackend):
-    """A mock backend for restless fine amplitude calibration."""
-
-    def __init__(self, angle_error: float, angle_per_gate: float, gate_name: str):
-        """Setup a mock backend to test the restless fine amplitude calibration.
 
         Args:
             angle_error: The rotation error per gate.
